@@ -1,0 +1,1387 @@
+
+Running Job 1 of 1 aimd.inp
+qchem aimd.inp_10626.0 /Users/xiaohuiqu/scratch/qchem10626/ 1
+                  Welcome to Q-Chem
+     A Quantum Leap Into The Future Of Chemistry
+
+
+ Q-Chem 4.2, Q-Chem, Inc., Pleasanton, CA (2014).
+
+ Y. Shao,  Z. Gan,  E. Epifanovsky,  A. T. B. Gilbert,  M. Wormit,  
+ J. Kussmann,  A. W. Lange,  A. Behn,  J. Deng,  X. Feng,  D. Ghosh,  
+ M. Goldey,  P. R. Horn,  L. D. Jacobson,  I. Kaliman,  R. Z. Khaliullin,  
+ T. Kus,  A. Landau,  J. Liu,  E. I. Proynov,  Y. M. Rhee,  R. M. Richard,  
+ M. A. Rohrdanz,  R. P. Steele,  E. J. Sundstrom,  H. L. Woodcock III,  
+ P. M. Zimmerman,  D. Zuev,  B. Albrecht,  E. Alguire,  B. Austin,  
+ G. J. O. Beran,  Y. A. Bernard,  E. Berquist,  K. Brandhorst,  
+ K. B. Bravaya,  S. T. Brown,  D. Casanova,  C.-M. Chang,  Y. Chen,  
+ S. H. Chien,  K. D. Closser,  D. L. Crittenden,  M. Diedenhofen,  
+ R. A. DiStasio Jr.,  H. Do,  A. D. Dutoi,  R. G. Edgar,  S. Fatehi,  
+ L. Fusti-Molnar,  A. Ghysels,  A. Golubeva-Zadorozhnaya,  J. Gomes,  
+ M. W. D. Hanson-Heine,  P. H. P. Harbach,  A. W. Hauser,  E. G. Hohenstein,  
+ Z. C. Holden,  T.-C. Jagau,  H. Ji,  B. Kaduk,  K. Khistyaev,  Jaehoon Kim,  
+ Jihan Kim,  R. A. King,  P. Klunzinger,  D. Kosenkov,  T. Kowalczyk,  
+ C. M. Krauter,  K. U. Lao,  A. Laurent,  K. V. Lawler,  S. V. Levchenko,  
+ C. Y. Lin,  F. Liu,  E. Livshits,  R. C. Lochan,  A. Luenser,  P. Manohar,  
+ S. F. Manzer,  S.-P. Mao,  N. Mardirossian,  A. V. Marenich,  S. A. Maurer,  
+ N. J. Mayhall,  C. M. Oana,  R. Olivares-Amaya,  D. P. O'Neill,  
+ J. A. Parkhill,  T. M. Perrine,  R. Peverati,  P. A. Pieniazek,  A. Prociuk,  
+ D. R. Rehn,  E. Rosta,  N. J. Russ,  N. Sergueev,  S. M. Sharada,  
+ S. Sharma,  D. W. Small,  A. Sodt,  T. Stein,  D. Stuck,  Y.-C. Su,  
+ A. J. W. Thom,  T. Tsuchimochi,  L. Vogt,  O. Vydrov,  T. Wang,  
+ M. A. Watson,  J. Wenzel,  A. White,  C. F. Williams,  V. Vanovschi,  
+ S. Yeganeh,  S. R. Yost,  Z.-Q. You,  I. Y. Zhang,  X. Zhang,  Y. Zhao,  
+ B. R. Brooks,  G. K. L. Chan,  D. M. Chipman,  C. J. Cramer,  
+ W. A. Goddard III,  M. S. Gordon,  W. J. Hehre,  A. Klamt,  
+ H. F. Schaefer III,  M. W. Schmidt,  C. D. Sherrill,  D. G. Truhlar,  
+ A. Warshel,  X. Xu,  A. Aspuru-Guzik,  R. Baer,  A. T. Bell,  N. A. Besley,  
+ J.-D. Chai,  A. Dreuw,  B. D. Dunietz,  T. R. Furlani,  S. R. Gwaltney,  
+ C.-P. Hsu,  Y. Jung,  J. Kong,  D. S. Lambrecht,  W. Liang,  C. Ochsenfeld,  
+ V. A. Rassolov,  L. V. Slipchenko,  J. E. Subotnik,  T. Van Voorhis,  
+ J. M. Herbert,  A. I. Krylov,  P. M. W. Gill,  M. Head-Gordon
+
+ Contributors to earlier versions of Q-Chem not listed above: 
+ R. D. Adamson,  J. Baker,  E. F. C. Byrd,  A. K. Chakraborty,  C.-L. Cheng,  
+ H. Dachsel,  R. J. Doerksen,  G. Hawkins,  A. Heyden,  S. Hirata,  
+ G. Kedziora,  F. J. Keil,  C. Kelley,  P. P. Korambath,  W. Kurlancheek,  
+ A. M. Lee,  M. S. Lee,  D. Liotard,  I. Lotan,  P. E. Maslen,  N. Nair,  
+ D. Neuhauser,  R. Olson,  B. Peters,  J. Ritchie,  N. E. Schultz,  
+ N. Shenvi,  A. C. Simmonett,  K. S. Thanthiriwatte,  Q. Wu,  W. Zhang
+
+ Q-Chem 4.2.0.0  for Mac (Intel) OS X
+
+ Parts of Q-Chem use Armadillo 4.100.2 (Dirt Cruiser).
+ http://arma.sourceforge.net/
+
+ Q-Chem begins on Wed Aug  6 21:47:38 2014  
+
+Host: 
+0
+
+     Scratch files written to /Users/xiaohuiqu/scratch/qchem10626//
+ May1314 814_zgan 4730   
+Processing $rem in /Users/xiaohuiqu/program/qchem/config/preferences.
+ MEM_TOTAL  2000 
+Symmetry disabled for AIMD jobs.
+Finally everything over in PARseQInput
+
+--------------------------------------------------------------
+User input:
+--------------------------------------------------------------
+$molecule
+0  1
+O   1.386977   0.011218   0.109098
+H   1.748442   0.720970  -0.431026
+H   1.741280  -0.793653  -0.281811
+O  -1.511955  -0.009629  -0.120521
+H  -0.558095   0.008225   0.047352
+H  -1.910308   0.077777   0.749067
+$end
+
+$rem
+JOBTYPE              aimd
+AIMD_METHOD          bomd
+EXCHANGE             b3lyp
+BASIS                6-31g*
+TIME_STEP            20        (20 a.u. = 0.48 fs)
+AIMD_STEPS           10
+AIMD_INIT_VELOC      thermal
+AIMD_TEMP            298
+Z_EXTRAP_ORDER 2
+Z_EXTRAP_POINTS 4
+$end
+--------------------------------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      O       1.3869770000     0.0112180000     0.1090980000
+    2      H       1.7484420000     0.7209700000    -0.4310260000
+    3      H       1.7412800000    -0.7936530000    -0.2818110000
+    4      O      -1.5119550000    -0.0096290000    -0.1205210000
+    5      H      -0.5580950000     0.0082250000     0.0473520000
+    6      H      -1.9103080000     0.0777770000     0.7490670000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =    36.5792285274 hartrees
+ There are       10 alpha and       10 beta electrons
+ Requested basis set is 6-31G(d)
+ There are 16 shells and 38 basis functions
+
+Total QAlloc Memory Limit   2000 MB
+Mega-Array Size        61 MB
+MEM_STATIC part        62 MB
+
+                       Distance Matrix (Angstroms)
+             O (  1)   H (  2)   H (  3)   O (  4)   H (  5)
+   H (  2)  0.962361
+   H (  3)  0.962371  1.521972
+   O (  4)  2.908086  3.355648  3.350261
+   H (  5)  1.946054  2.461090  2.457332  0.968684
+   H (  6)  3.359476  3.897790  3.893096  0.960473  1.525032
+ 
+ A cutoff of  1.0D-11 yielded    133 shell pairs
+ There are       786 function pairs
+ Smallest overlap matrix eigenvalue = 1.48E-02
+
+  Scale SEOQF with 1.000000e-01/1.000000e+00/1.000000e+00
+
+ Standard Electronic Orientation quadrupole field applied
+ Nucleus-field energy     =     0.0000000013 hartrees
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+ A restricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-08
+ using 2 threads for integral computing 
+ 
+ -------------------------------------------------------
+ OpenMP Integral Computing Module                       
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ Integral Job Info:
+ Integral job number is                      22
+ Integral operator is                         1
+ short-range coefficients               -999999
+ long-range coefficients                -999999
+ Omega coefficients                           0
+ if combine SR and LR in K              -999999
+ Integral screening is                        1
+ Integral computing path is                   2
+ max size of driver memory is            800000
+ size of driver memory is                593606
+ size of scratch memory is               800000
+ max col of scratch BK array               1296
+ max len of scratch array in speh3          155
+ max len of scratch index in speh4           18
+ max int batch size is                       50
+ min int batch size is                       15
+ fixed nKL is                                18
+ max L of basis functions is                  2
+ order of int derivative is                   0
+ number of shells is                         16
+ number of basis is                          38
+ number of cartesian basis is                38
+ number of contracted shell pairs           133
+ number of primitive shell pairs            577
+ maxK2 (contraction) of shell pair           36
+ max number of K2 of shell pair               1
+ max number of CS2 of shell pair             19
+ max number of PS2 of shell pair             72
+ mem total for path MDJ                   10660
+ -------------------------------------------------------
+         cpu   0.01 wall   0.01
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+in dftxc.C, eleTot sum is:19.999976, tauTot is:0.000000
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -152.8142994607      1.17E-01
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999978, tauTot is:0.000000
+    2    -152.7042541706      3.07E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999972, tauTot is:0.000000
+    3    -152.6476416018      3.77E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999976, tauTot is:0.000000
+    4    -152.8292526871      8.87E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999976, tauTot is:0.000000
+    5    -152.8293265835      5.16E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999976, tauTot is:0.000000
+    6    -152.8293562467      1.75E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999976, tauTot is:0.000000
+    7    -152.8293600942      8.43E-06
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999976, tauTot is:0.000000
+    8    -152.8293601036      8.59E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999976, tauTot is:0.000000
+    9    -152.8293601037      1.20E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999976, tauTot is:0.000000
+   10    -152.8293601037      6.94E-09 Convergence criterion met
+ ---------------------------------------
+ SCF time:  CPU 1.18 s  wall 0.59 s
+ SCF   energy in the final basis set = -152.8293601037
+ Total energy in the final basis set = -152.8293601037
+ Analysis of SCF Wavefunction
+ 
+ --------------------------------------------------------------
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+ 
+ Alpha MOs
+ -- Occupied --
+-19.172 -19.098  -1.034  -0.963  -0.552  -0.489  -0.409  -0.342
+ -0.320  -0.258
+ -- Virtual --
+  0.040   0.115   0.131   0.249   0.747   0.807   0.839   0.864
+  0.902   0.923   0.939   1.006   1.039   1.131   1.159   1.468
+  1.694   1.709   1.763   1.777   1.812   1.828   2.250   2.397
+  2.557   2.642   3.596   3.748
+ --------------------------------------------------------------
+ 
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 O                    -0.763320
+      2 H                     0.407459
+      3 H                     0.407498
+      4 O                    -0.834650
+      5 H                     0.408996
+      6 H                     0.374017
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X       2.9637      Y       0.0125      Z       0.1393
+       Tot       2.9670
+    Quadrupole Moments (Debye-Ang)
+        XX     -10.6070     XY      -0.6359     YY     -11.3838
+        XZ      -6.4461     YZ      -0.0730     ZZ     -12.2203
+    Octopole Moments (Debye-Ang^2)
+       XXX      10.4745    XXY       0.1142    XYY       5.4839
+       YYY      -0.2618    XXZ       0.9882    XYZ      -0.6372
+       YYZ      -0.6462    XZZ      -0.7861    YZZ       0.1656
+       ZZZ       0.4920
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX    -157.9769   XXXY      -2.2091   XXYY     -26.3975
+      XYYY      -0.6192   YYYY     -10.9834   XXXZ     -23.6914
+      XXYZ      -0.1761   XYYZ      -2.2816   YYYZ      -0.0579
+      XXZZ     -28.3605   XYZZ       0.0292   YYZZ      -3.8661
+      XZZZ      -4.4568   YZZZ      -0.0402   ZZZZ     -12.0366
+ -----------------------------------------------------------------
+ Calculating analytic gradient of the SCF energy
+         cpu   0.09 wall   0.05
+ Gradient of Coulomb and Exchange Energy
+            1           2           3           4           5           6
+    1  -1.1676739  -1.2073130  -1.1843711   4.4625633  -2.3810606   1.4778554
+    2  -0.2959260  -2.3303142   2.6124168   0.3209240  -0.0447582  -0.2623425
+    3  -2.9216202   1.6197131   1.1331927   3.1926413  -0.4149322  -2.6089948
+in dftxc.C, eleTot sum is:19.999976, tauTot is:0.000000
+ Gradient of SCF Energy
+            1           2           3           4           5           6
+    1   0.0036476  -0.0014459  -0.0013515   0.0040289  -0.0070525   0.0021734
+    2  -0.0007082  -0.0051335   0.0057735   0.0008356  -0.0001004  -0.0006670
+    3  -0.0076040   0.0039619   0.0028987   0.0080407  -0.0007301  -0.0065671
+ Max gradient component =       8.041E-03
+ RMS gradient           =       4.343E-03
+ Gradient time:  CPU 0.46 s  wall 0.23 s
+=======================================================
+            AB INITIO MOLECULAR DYNAMICS
+=======================================================
+Created directory /Users/xiaohuiqu/scratch/qchem10626/AIMD
+AIMD will take 10 BOMD steps on the B3LYP potential surface
+using Velocity Verlet integration
+Time step = 20.00000 a.u. ( = 0.48378 fs)
+Total simulation time requested = 4.838 fs
+Integral threshold = 10**(-11)
+SCF convergence threshold = 10**(-8)
+Generating viewable xyz trajectory,
+ file (in Angstroms) at AIMD/View.xyz
+Choosing nuclear velocities from Maxwell-Boltzmann
+Velocities sampled from Maxwell-Boltzmann at T = 298.0 K
+sqrt(kT/m) and (vx,vy,vz) for each atom:
+  1   1.7991e-04   3.14e-04   2.24e-05   2.07e-04 
+  2   7.1671e-04  -1.92e-03  -4.17e-04   5.53e-04 
+  3   7.1671e-04   5.41e-04  -1.29e-04   7.52e-05 
+  4   1.7991e-04   1.26e-04  -1.91e-04   1.65e-04 
+  5   7.1671e-04   5.18e-04   2.04e-04   1.19e-03 
+  6   7.1671e-04   9.88e-05  -7.43e-04  -8.60e-04 
+T(nuclear) = 0.01015501 a.u.
+v(c.o.m.) = (  1.7397e-04,  -1.0527e-04,   1.9242e-04)
+T(c.o.m.) = 2.57310e-03 a.u.
+kT/2 = 0.000472 a.u.
+Tx   = 0.005595 a.u.
+Ty   = 0.001260 a.u.
+Tz   = 0.003300 a.u.
+Mean velocities (a.u.):  -5.4602e-05  -2.0889e-04   2.2234e-04
+Removing c.o.m. velocity
+T(nuclear) = 0.01706596 a.u.
+v(c.o.m.) = (  3.3816e-21,   5.0724e-21,   2.0290e-20)
+T(c.o.m.) = 1.47358e-35 a.u.
+kT   = 0.000944 a.u. = 0.59 kcal/mol
+Tx   = 0.010290 a.u. = 6.46 kcal/mol
+Ty   = 0.001306 a.u. = 0.82 kcal/mol
+Tz   = 0.005470 a.u. = 3.43 kcal/mol
+Initial velocities in m/s
+  1      5.4343e+02      1.3539e+02      2.9553e+02 
+  2     -6.4785e+03      4.5988e+02     -1.2981e+03 
+  3     -1.0845e+03      1.0895e+03     -2.3431e+03 
+  4      1.3382e+02     -3.3165e+02      2.0397e+02 
+  5     -1.1343e+03      1.8187e+03      1.0324e+02 
+  6     -2.0511e+03     -2.5334e+02     -4.3894e+03 
+----------------------------------------------------------------------------
+       Nuclear coordinates (Angst) and velocities (a.u.)
+----------------------------------------------------------------------------
+             x        y        z            v_x         v_y        v_z
+----------------------------------------------------------------------------
+1      O    1.3870   0.0112   0.1091     2.4840e-04   6.1886e-05   1.3509e-04
+2      H    1.7484   0.7210  -0.4310    -2.9613e-03   2.1021e-04  -5.9335e-04
+3      H    1.7413  -0.7937  -0.2818    -4.9571e-04   4.9802e-04  -1.0710e-03
+4      O   -1.5120  -0.0096  -0.1205     6.1169e-05  -1.5160e-04   9.3233e-05
+5      H   -0.5581   0.0082   0.0474    -5.1848e-04   8.3133e-04   4.7191e-05
+6      H   -1.9103   0.0778   0.7491    -9.3757e-04  -1.1580e-04  -2.0064e-03
+----------------------------------------------------------------------------
+Write nuclear velocities every 1 time steps
+
+TIME STEP #1 (t = 0.000 a.u. = 0.00000 fs)
+--------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      O       1.3895927285     0.0118755436     0.1105553163
+    2      H       1.7171840184     0.7234905107    -0.4375339990
+    3      H       1.7361115204    -0.7887148100    -0.2933133562
+    4      O      -1.5113222437    -0.0112364581    -0.1195634458
+    5      H      -0.5631760240     0.0170292306     0.0478935087
+    6      H      -1.9203560560     0.0765898224     0.7282102997
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =    36.7064711231 hartrees
+ There are       10 alpha and       10 beta electrons
+
+                       Distance Matrix (Angstroms)
+             O (  1)   H (  2)   H (  3)   O (  4)   H (  5)
+   H (  2)  0.956093
+   H (  3)  0.961317  1.519185
+   O (  4)  2.910120  3.326286  3.343724
+   H (  5)  1.953781  2.436138  2.460156  0.963235
+   H (  6)  3.367706  3.874163  3.893844  0.945380  1.519314
+ 
+ Applying Cartesian multipole field
+    Component          Value
+    ---------          -----
+     (2,0,0)        1.00000E-11
+     (0,2,0)        2.00000E-10
+     (0,0,2)       -3.00000E-10
+ Nucleus-field energy     =     0.0000000013 hartrees
+ Smallest overlap matrix eigenvalue = 1.47E-02
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+SCF convergence criterion is 10**(-8)
+ A restricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-08
+ using 2 threads for integral computing 
+         cpu   0.01 wall   0.01
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+in dftxc.C, eleTot sum is:19.999976, tauTot is:0.000000
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -152.8286710886      1.19E-01
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999979, tauTot is:0.000000
+    2    -152.7029625694      3.09E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999974, tauTot is:0.000000
+    3    -152.6485314706      3.76E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999977, tauTot is:0.000000
+    4    -152.8286207527      9.58E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999977, tauTot is:0.000000
+    5    -152.8286958141      6.21E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999977, tauTot is:0.000000
+    6    -152.8287412736      1.54E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999977, tauTot is:0.000000
+    7    -152.8287442754      8.14E-06
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999977, tauTot is:0.000000
+    8    -152.8287442842      7.78E-07
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:19.999977, tauTot is:0.000000
+    9    -152.8287442842      1.17E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999977, tauTot is:0.000000
+   10    -152.8287442842      7.16E-09 Convergence criterion met
+ ---------------------------------------
+ SCF time:  CPU 1.16 s  wall 0.58 s
+ SCF   energy in the final basis set = -152.8287442842
+ Total energy in the final basis set = -152.8287442842
+ Calculating analytic gradient of the SCF energy
+         cpu   0.09 wall   0.04
+ Gradient of Coulomb and Exchange Energy
+            1           2           3           4           5           6
+    1  -1.2833103  -1.1131488  -1.1680455   4.4090767  -2.4130911   1.5685189
+    2  -0.2563659  -2.3704288   2.6150334   0.3603865  -0.0780902  -0.2705350
+    3  -3.0089089   1.6636412   1.1736827   3.1997945  -0.4028824  -2.6253271
+in dftxc.C, eleTot sum is:19.999977, tauTot is:0.000000
+ Gradient of SCF Energy
+            1           2           3           4           5           6
+    1   0.0065018  -0.0038177  -0.0017256   0.0023802  -0.0115256   0.0081869
+    2   0.0030895  -0.0096947   0.0063289   0.0025019  -0.0000259  -0.0021998
+    3  -0.0120275   0.0078794   0.0035476   0.0245445  -0.0028166  -0.0211273
+ Max gradient component =       2.454E-02
+ RMS gradient           =       9.707E-03
+ Gradient time:  CPU 0.44 s  wall 0.23 s
+Time for this dynamics step: 1.6 s (CPU) 0.8 s (wall)
+
+TIME STEP #2 (t = 20.000 a.u. = 0.48378 fs)
+--------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      O       1.3921612555     0.0125106580     0.1120999490
+    2      H       1.6863658998     0.7271280080    -0.4449498315
+    3      H       1.7311418597    -0.7845058171    -0.3052244478
+    4      O      -1.5107067672    -0.0128620791    -0.1187840777
+    5      H      -0.5669291115     0.0258364477     0.0487595331
+    6      H      -1.9313473738     0.0756560923     0.7097878115
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =    36.7952561823 hartrees
+ There are       10 alpha and       10 beta electrons
+
+                       Distance Matrix (Angstroms)
+             O (  1)   H (  2)   H (  3)   O (  4)   H (  5)
+   H (  2)  0.952648
+   H (  3)  0.961407  1.518738
+   O (  4)  2.912146  3.297763  3.337630
+   H (  5)  1.960159  2.410995  2.462334  0.959315
+   H (  6)  3.377414  3.853010  3.896660  0.933437  1.516930
+ 
+ Applying Cartesian multipole field
+    Component          Value
+    ---------          -----
+     (2,0,0)        1.00000E-11
+     (0,2,0)        2.00000E-10
+     (0,0,2)       -3.00000E-10
+ Nucleus-field energy     =     0.0000000013 hartrees
+ Smallest overlap matrix eigenvalue = 1.46E-02
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+SCF convergence criterion is 10**(-8)
+ A restricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-08
+ using 2 threads for integral computing 
+         cpu   0.01 wall   0.01
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+in dftxc.C, eleTot sum is:19.999977, tauTot is:0.000000
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -152.8383277429      1.20E-01
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999981, tauTot is:0.000000
+    2    -152.7014985645      3.10E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999976, tauTot is:0.000000
+    3    -152.6485632313      3.76E-02
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:19.999980, tauTot is:0.000000
+    4    -152.8277105689      1.04E-03
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999979, tauTot is:0.000000
+    5    -152.8277905956      7.08E-04
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:19.999980, tauTot is:0.000000
+    6    -152.8278509360      1.39E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999980, tauTot is:0.000000
+    7    -152.8278533765      7.95E-06
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999980, tauTot is:0.000000
+    8    -152.8278533848      7.09E-07
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:19.999980, tauTot is:0.000000
+    9    -152.8278533849      1.16E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999980, tauTot is:0.000000
+   10    -152.8278533849      7.46E-09 Convergence criterion met
+ ---------------------------------------
+ SCF time:  CPU 1.21 s  wall 0.62 s
+ SCF   energy in the final basis set = -152.8278533849
+ Total energy in the final basis set = -152.8278533849
+ Calculating analytic gradient of the SCF energy
+         cpu   0.08 wall   0.04
+ Gradient of Coulomb and Exchange Energy
+            1           2           3           4           5           6
+    1  -1.4065081  -1.0124094  -1.1500015   4.3491413  -2.4374377   1.6572153
+    2  -0.2206186  -2.4002515   2.6112707   0.3992748  -0.1121169  -0.2775585
+    3  -3.0879302   1.7009501   1.2126730   3.1940544  -0.3898583  -2.6298890
+in dftxc.C, eleTot sum is:19.999980, tauTot is:0.000000
+ Gradient of SCF Energy
+            1           2           3           4           5           6
+    1   0.0076024  -0.0048833  -0.0016696  -0.0001321  -0.0146316   0.0137141
+    2   0.0058041  -0.0122674   0.0059753   0.0041396  -0.0000174  -0.0036343
+    3  -0.0145438   0.0103369   0.0037493   0.0388660  -0.0047925  -0.0336159
+ Max gradient component =       3.887E-02
+ RMS gradient           =       1.440E-02
+ Gradient time:  CPU 0.44 s  wall 0.23 s
+Time for this dynamics step: 1.7 s (CPU) 0.9 s (wall)
+
+TIME STEP #3 (t = 40.000 a.u. = 0.96755 fs)
+--------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      O       1.3946745913     0.0131036362     0.1137501654
+    2      H       1.6561104117     0.7321789038    -0.4535566471
+    3      H       1.7263645604    -0.7809852797    -0.3175675166
+    4      O      -1.5100903316    -0.0145177526    -0.1182868653
+    5      H      -0.5689964047     0.0346456734     0.0501777283
+    6      H      -1.9439187755     0.0751410906     0.6952384254
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =    36.8314856341 hartrees
+ There are       10 alpha and       10 beta electrons
+
+                       Distance Matrix (Angstroms)
+             O (  1)   H (  2)   H (  3)   O (  4)   H (  5)
+   H (  2)  0.952499
+   H (  3)  0.962616  1.520886
+   O (  4)  2.914149  3.270289  3.331940
+   H (  5)  1.964818  2.385666  2.463569  0.957317
+   H (  6)  3.389422  3.835575  3.902526  0.926320  1.519261
+ 
+ Applying Cartesian multipole field
+    Component          Value
+    ---------          -----
+     (2,0,0)        1.00000E-11
+     (0,2,0)        2.00000E-10
+     (0,0,2)       -3.00000E-10
+ Nucleus-field energy     =     0.0000000013 hartrees
+ Smallest overlap matrix eigenvalue = 1.46E-02
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+SCF convergence criterion is 10**(-8)
+ A restricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-08
+ using 2 threads for integral computing 
+         cpu   0.02 wall   0.01
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+in dftxc.C, eleTot sum is:19.999980, tauTot is:0.000000
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -152.8419950799      1.20E-01
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999985, tauTot is:0.000000
+    2    -152.7004907413      3.11E-02
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:19.999981, tauTot is:0.000000
+    3    -152.6482494207      3.76E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999984, tauTot is:0.000000
+    4    -152.8270059111      1.11E-03
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999984, tauTot is:0.000000
+    5    -152.8270937470      7.74E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999984, tauTot is:0.000000
+    6    -152.8271666199      1.29E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999984, tauTot is:0.000000
+    7    -152.8271687403      7.85E-06
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999984, tauTot is:0.000000
+    8    -152.8271687484      6.58E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999984, tauTot is:0.000000
+    9    -152.8271687484      1.16E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999984, tauTot is:0.000000
+   10    -152.8271687484      7.85E-09 Convergence criterion met
+ ---------------------------------------
+ SCF time:  CPU 1.18 s  wall 0.60 s
+ SCF   energy in the final basis set = -152.8271687484
+ Total energy in the final basis set = -152.8271687484
+ Calculating analytic gradient of the SCF energy
+         cpu   0.10 wall   0.05
+ Gradient of Coulomb and Exchange Energy
+            1           2           3           4           5           6
+    1  -1.5354416  -0.9066028  -1.1303159   4.2838487  -2.4509908   1.7395023
+    2  -0.1898191  -2.4181302   2.6006310   0.4363668  -0.1463197  -0.2827288
+    3  -3.1570935   1.7302569   1.2500066   3.1714672  -0.3765361  -2.6181012
+in dftxc.C, eleTot sum is:19.999984, tauTot is:0.000000
+ Gradient of SCF Energy
+            1           2           3           4           5           6
+    1   0.0070612  -0.0047194  -0.0012186  -0.0024566  -0.0158927   0.0172260
+    2   0.0067833  -0.0122508   0.0047643   0.0053869  -0.0000116  -0.0046721
+    3  -0.0145807   0.0107914   0.0034722   0.0483097  -0.0065697  -0.0414228
+ Max gradient component =       4.831E-02
+ RMS gradient           =       1.721E-02
+ Gradient time:  CPU 0.42 s  wall 0.23 s
+Time for this dynamics step: 1.6 s (CPU) 0.8 s (wall)
+
+TIME STEP #4 (t = 60.000 a.u. = 1.45133 fs)
+--------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      O       1.3971366648     0.0136473695     0.1155062337
+    2      H       1.6263986718     0.7386412913    -0.4634068062
+    3      H       1.7217276610    -0.7780136651    -0.3303106446
+    4      O      -1.5094560621    -0.0162125338    -0.1181403670
+    5      H      -0.5692326041     0.0434562402     0.0523528628
+    6      H      -1.9584748913     0.0751643912     0.6854616232
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =    36.8084747196 hartrees
+ There are       10 alpha and       10 beta electrons
+
+                       Distance Matrix (Angstroms)
+             O (  1)   H (  2)   H (  3)   O (  4)   H (  5)
+   H (  2)  0.955676
+   H (  3)  0.964800  1.525465
+   O (  4)  2.916121  3.243855  3.326546
+   H (  5)  1.967609  2.360103  2.463685  0.957418
+   H (  6)  3.404227  3.822489  3.911981  0.925064  1.527032
+ 
+ Applying Cartesian multipole field
+    Component          Value
+    ---------          -----
+     (2,0,0)        1.00000E-11
+     (0,2,0)        2.00000E-10
+     (0,0,2)       -3.00000E-10
+ Nucleus-field energy     =     0.0000000013 hartrees
+ Smallest overlap matrix eigenvalue = 1.47E-02
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+SCF convergence criterion is 10**(-8)
+ A restricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-08
+ using 2 threads for integral computing 
+         cpu   0.02 wall   0.01
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+in dftxc.C, eleTot sum is:19.999985, tauTot is:0.000000
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -152.8391778042      1.20E-01
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999990, tauTot is:0.000000
+    2    -152.7003797021      3.11E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999988, tauTot is:0.000000
+    3    -152.6479904814      3.76E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999990, tauTot is:0.000000
+    4    -152.8268568085      1.17E-03
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999990, tauTot is:0.000000
+    5    -152.8269530027      8.22E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999990, tauTot is:0.000000
+    6    -152.8270357111      1.25E-04
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:19.999990, tauTot is:0.000000
+    7    -152.8270376849      7.85E-06
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999990, tauTot is:0.000000
+    8    -152.8270376930      6.28E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999990, tauTot is:0.000000
+    9    -152.8270376931      1.17E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999990, tauTot is:0.000000
+   10    -152.8270376931      8.31E-09 Convergence criterion met
+ ---------------------------------------
+ SCF time:  CPU 1.19 s  wall 0.60 s
+ SCF   energy in the final basis set = -152.8270376931
+ Total energy in the final basis set = -152.8270376931
+ Calculating analytic gradient of the SCF energy
+         cpu   0.09 wall   0.05
+ Gradient of Coulomb and Exchange Energy
+            1           2           3           4           5           6
+    1  -1.6674894  -0.7979565  -1.1092303   4.2155881  -2.4520090   1.8110971
+    2  -0.1646131  -2.4235913   2.5832993   0.4705936  -0.1801292  -0.2855592
+    3  -3.2160844   1.7511573   1.2858154   3.1308312  -0.3638779  -2.5878417
+in dftxc.C, eleTot sum is:19.999990, tauTot is:0.000000
+ Gradient of SCF Energy
+            1           2           3           4           5           6
+    1   0.0053073  -0.0036741  -0.0004531  -0.0034766  -0.0150988   0.0173954
+    2   0.0057817  -0.0095722   0.0028686   0.0059220   0.0000647  -0.0050647
+    3  -0.0120097   0.0090871   0.0027412   0.0510025  -0.0080713  -0.0427499
+ Max gradient component =       5.100E-02
+ RMS gradient           =       1.749E-02
+ Gradient time:  CPU 0.35 s  wall 0.21 s
+Time for this dynamics step: 1.6 s (CPU) 0.8 s (wall)
+
+TIME STEP #5 (t = 80.000 a.u. = 1.93511 fs)
+--------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      O       1.3995602089     0.0141491297     0.1173494891
+    2      H       1.5971102519     0.7462065560    -0.4743039513
+    3      H       1.7171429657    -0.7753725584    -0.3433696072
+    4      O      -1.5087965532    -0.0179503066    -0.1183641322
+    5      H      -0.5677291772     0.0522593495     0.0554579442
+    6      H      -1.9750352359     0.0757712260     0.6806102996
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =    36.7292492762 hartrees
+ There are       10 alpha and       10 beta electrons
+
+                       Distance Matrix (Angstroms)
+             O (  1)   H (  2)   H (  3)   O (  4)   H (  5)
+   H (  2)  0.961763
+   H (  3)  0.967711  1.531912
+   O (  4)  2.918070  3.218274  3.321295
+   H (  5)  1.968632  2.334254  2.462657  0.959558
+   H (  6)  3.421835  3.813599  3.924941  0.929797  1.540090
+ 
+ Applying Cartesian multipole field
+    Component          Value
+    ---------          -----
+     (2,0,0)        1.00000E-11
+     (0,2,0)        2.00000E-10
+     (0,0,2)       -3.00000E-10
+ Nucleus-field energy     =     0.0000000013 hartrees
+ Smallest overlap matrix eigenvalue = 1.48E-02
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+SCF convergence criterion is 10**(-8)
+ A restricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-08
+ using 2 threads for integral computing 
+         cpu   0.02 wall   0.01
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+in dftxc.C, eleTot sum is:19.999992, tauTot is:0.000000
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -152.8302295918      1.19E-01
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+    2    -152.7011380721      3.10E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+    3    -152.6477958651      3.76E-02
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+    4    -152.8272474702      1.22E-03
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+    5    -152.8273501071      8.56E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+    6    -152.8274401189      1.24E-04
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+    7    -152.8274420750      7.93E-06
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+    8    -152.8274420833      6.18E-07
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+    9    -152.8274420834      1.20E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+   10    -152.8274420834      8.86E-09 Convergence criterion met
+ ---------------------------------------
+ SCF time:  CPU 1.24 s  wall 0.63 s
+ SCF   energy in the final basis set = -152.8274420834
+ Total energy in the final basis set = -152.8274420834
+ Calculating analytic gradient of the SCF energy
+         cpu   0.10 wall   0.05
+ Gradient of Coulomb and Exchange Energy
+            1           2           3           4           5           6
+    1  -1.7997467  -0.6889732  -1.0871027   4.1474850  -2.4404042   1.8687417
+    2  -0.1450436  -2.4174172   2.5600947   0.5013324  -0.2130337  -0.2859327
+    3  -3.2659595   1.7643346   1.3205158   3.0742669  -0.3530427  -2.5401151
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+ Gradient of SCF Energy
+            1           2           3           4           5           6
+    1   0.0029501  -0.0022458   0.0005170  -0.0025949  -0.0123568   0.0137305
+    2   0.0030319  -0.0047219   0.0005459   0.0055943   0.0002766  -0.0047270
+    3  -0.0071953   0.0055134   0.0016302   0.0467728  -0.0092374  -0.0374837
+ Max gradient component =       4.677E-02
+ RMS gradient           =       1.529E-02
+ Gradient time:  CPU 0.47 s  wall 0.24 s
+Time for this dynamics step: 1.7 s (CPU) 0.9 s (wall)
+
+TIME STEP #6 (t = 100.000 a.u. = 2.41888 fs)
+--------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      O       1.4019623361     0.0146288788     0.1192449799
+    2      H       1.5680805869     0.7543158562    -0.4858363322
+    3      H       1.7124987071    -0.7727943530    -0.3566163963
+    4      O      -1.5081182062    -0.0197286928    -0.1189274541
+    5      H      -0.5648020426     0.0610305913     0.0596273289
+    6      H      -1.9931775527     0.0769226833     0.6800777081
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =    36.6060163264 hartrees
+ There are       10 alpha and       10 beta electrons
+
+                       Distance Matrix (Angstroms)
+             O (  1)   H (  2)   H (  3)   O (  4)   H (  5)
+   H (  2)  0.969977
+   H (  3)  0.971037  1.539357
+   O (  4)  2.920013  3.193238  3.316018
+   H (  5)  1.968215  2.308108  2.460614  0.963457
+   H (  6)  3.441713  3.807989  3.940659  0.939699  1.557391
+ 
+ Applying Cartesian multipole field
+    Component          Value
+    ---------          -----
+     (2,0,0)        1.00000E-11
+     (0,2,0)        2.00000E-10
+     (0,0,2)       -3.00000E-10
+ Nucleus-field energy     =     0.0000000013 hartrees
+ Smallest overlap matrix eigenvalue = 1.49E-02
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+SCF convergence criterion is 10**(-8)
+ A restricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-08
+ using 2 threads for integral computing 
+         cpu   0.01 wall   0.01
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+in dftxc.C, eleTot sum is:19.999999, tauTot is:0.000000
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -152.8162928805      1.17E-01
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000003, tauTot is:0.000000
+    2    -152.7022857961      3.09E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000005, tauTot is:0.000000
+    3    -152.6472937498      3.77E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000004, tauTot is:0.000000
+    4    -152.8278088905      1.24E-03
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000004, tauTot is:0.000000
+    5    -152.8279145219      8.77E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000004, tauTot is:0.000000
+    6    -152.8280093878      1.27E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000004, tauTot is:0.000000
+    7    -152.8280114322      8.08E-06
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000004, tauTot is:0.000000
+    8    -152.8280114409      6.24E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000004, tauTot is:0.000000
+    9    -152.8280114409      1.25E-07
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:20.000004, tauTot is:0.000000
+   10    -152.8280114409      9.49E-09 Convergence criterion met
+ ---------------------------------------
+ SCF time:  CPU 1.14 s  wall 0.58 s
+ SCF   energy in the final basis set = -152.8280114409
+ Total energy in the final basis set = -152.8280114409
+ Calculating analytic gradient of the SCF energy
+         cpu   0.11 wall   0.05
+ Gradient of Coulomb and Exchange Energy
+            1           2           3           4           5           6
+    1  -1.9295956  -0.5819385  -1.0643376   4.0825954  -2.4176620   1.9109382
+    2  -0.1305750  -2.4014701   2.5323117   0.5285942  -0.2446782  -0.2841826
+    3  -3.3089353   1.7714119   1.3547510   3.0069152  -0.3452832  -2.4788597
+in dftxc.C, eleTot sum is:20.000004, tauTot is:0.000000
+ Gradient of SCF Energy
+            1           2           3           4           5           6
+    1   0.0005906  -0.0009132   0.0015707  -0.0000303  -0.0080565   0.0068388
+    2  -0.0008812   0.0014216  -0.0019087   0.0044778   0.0006645  -0.0037740
+    3  -0.0008658   0.0006888   0.0002483   0.0372106  -0.0100300  -0.0272520
+ Max gradient component =       3.721E-02
+ RMS gradient           =       1.151E-02
+ Gradient time:  CPU 0.47 s  wall 0.23 s
+Time for this dynamics step: 1.6 s (CPU) 0.8 s (wall)
+
+TIME STEP #7 (t = 120.000 a.u. = 2.90266 fs)
+--------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      O       1.4043601757     0.0151150255     0.1211467559
+    2      H       1.5391561342     0.7622613609    -0.4974480746
+    3      H       1.7076734812    -0.7699962337    -0.3698917928
+    4      O      -1.5074396389    -0.0215395867    -0.1197609141
+    5      H      -0.5609466647     0.0697252731     0.0649523278
+    6      H      -2.0121078073     0.0785089683     0.6826849862
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =    36.4569306874 hartrees
+ There are       10 alpha and       10 beta electrons
+
+                       Distance Matrix (Angstroms)
+             O (  1)   H (  2)   H (  3)   O (  4)   H (  5)
+   H (  2)  0.979315
+   H (  3)  0.974432  1.546765
+   O (  4)  2.921978  3.168397  3.310545
+   H (  5)  1.966868  2.281739  2.457816  0.968657
+   H (  6)  3.462889  3.804170  3.957859  0.953215  1.577194
+ 
+ Applying Cartesian multipole field
+    Component          Value
+    ---------          -----
+     (2,0,0)        1.00000E-11
+     (0,2,0)        2.00000E-10
+     (0,0,2)       -3.00000E-10
+ Nucleus-field energy     =     0.0000000012 hartrees
+ Smallest overlap matrix eigenvalue = 1.51E-02
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+SCF convergence criterion is 10**(-8)
+ A restricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-08
+ using 2 threads for integral computing 
+         cpu   0.01 wall   0.01
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+in dftxc.C, eleTot sum is:20.000004, tauTot is:0.000000
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -152.7991283427      1.15E-01
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000007, tauTot is:0.000000
+    2    -152.7032009172      3.07E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000011, tauTot is:0.000000
+    3    -152.6460294120      3.77E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+    4    -152.8280755932      1.24E-03
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+    5    -152.8281806630      8.87E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+    6    -152.8282777058      1.32E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+    7    -152.8282799346      8.28E-06
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+    8    -152.8282799438      6.37E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+    9    -152.8282799439      1.31E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+   10    -152.8282799439      1.02E-08
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+   11    -152.8282799439      1.57E-09 Convergence criterion met
+ ---------------------------------------
+ SCF time:  CPU 1.33 s  wall 0.67 s
+ SCF   energy in the final basis set = -152.8282799439
+ Total energy in the final basis set = -152.8282799439
+ Calculating analytic gradient of the SCF energy
+         cpu   0.09 wall   0.05
+ Gradient of Coulomb and Exchange Energy
+            1           2           3           4           5           6
+    1  -2.0551559  -0.4785392  -1.0413109   4.0232135  -2.3864633   1.9382558
+    2  -0.1202476  -2.3783164   2.5014957   0.5530337  -0.2749237  -0.2810417
+    3  -3.3479478   1.7746086   1.3892937   2.9359017  -0.3418612  -2.4099951
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+ Gradient of SCF Energy
+            1           2           3           4           5           6
+    1  -0.0013211  -0.0000097   0.0025926   0.0033969  -0.0027712  -0.0018874
+    2  -0.0052669   0.0078819  -0.0042084   0.0028087   0.0012360  -0.0024513
+    3   0.0061188  -0.0046548  -0.0012768   0.0248519  -0.0104350  -0.0146040
+ Max gradient component =       2.485E-02
+ RMS gradient           =       8.010E-03
+ Gradient time:  CPU 0.38 s  wall 0.22 s
+Time for this dynamics step: 1.7 s (CPU) 0.9 s (wall)
+
+TIME STEP #8 (t = 140.000 a.u. = 3.38644 fs)
+--------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      O       1.4067676062     0.0156394084     0.1230041109
+    2      H       1.5102328038     0.7692987475    -0.5085235067
+    3      H       1.7025495503    -0.7667132414    -0.3830200778
+    4      O      -1.5067857318    -0.0233708711    -0.1207747914
+    5      H      -0.5567720020     0.0782775448     0.0714796125
+    6      H      -2.0308206047     0.0803776832     0.6869748853
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =    36.3018235740 hartrees
+ There are       10 alpha and       10 beta electrons
+
+                       Distance Matrix (Angstroms)
+             O (  1)   H (  2)   H (  3)   O (  4)   H (  5)
+   H (  2)  0.988703
+   H (  3)  0.977560  1.553084
+   O (  4)  2.923994  3.143418  3.304718
+   H (  5)  1.965214  2.255310  2.454611  0.974587
+   H (  6)  3.484145  3.800380  3.974985  0.968419  1.597391
+ 
+ Applying Cartesian multipole field
+    Component          Value
+    ---------          -----
+     (2,0,0)        1.00000E-11
+     (0,2,0)        2.00000E-10
+     (0,0,2)       -3.00000E-10
+ Nucleus-field energy     =     0.0000000012 hartrees
+ Smallest overlap matrix eigenvalue = 1.53E-02
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+SCF convergence criterion is 10**(-8)
+ A restricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-08
+ using 2 threads for integral computing 
+         cpu   0.01 wall   0.01
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+in dftxc.C, eleTot sum is:20.000005, tauTot is:0.000000
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -152.7808423040      1.14E-01
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000005, tauTot is:0.000000
+    2    -152.7034723019      3.05E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000012, tauTot is:0.000000
+    3    -152.6438032997      3.78E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+    4    -152.8277717348      1.23E-03
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+    5    -152.8278738050      8.82E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+    6    -152.8279699953      1.40E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+    7    -152.8279725003      8.53E-06
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+    8    -152.8279725101      6.47E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+    9    -152.8279725102      1.37E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+   10    -152.8279725102      1.09E-08
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+   11    -152.8279725102      1.69E-09 Convergence criterion met
+ ---------------------------------------
+ SCF time:  CPU 1.28 s  wall 0.65 s
+ SCF   energy in the final basis set = -152.8279725102
+ Total energy in the final basis set = -152.8279725102
+ Calculating analytic gradient of the SCF energy
+         cpu   0.10 wall   0.05
+ Gradient of Coulomb and Exchange Energy
+            1           2           3           4           5           6
+    1  -2.1755162  -0.3796770  -1.0183052   3.9705829  -2.3501401   1.9530555
+    2  -0.1129044  -2.3507689   2.4692158   0.5757898  -0.3038528  -0.2774795
+    3  -3.3861272   1.7763218   1.4249328   2.8689480  -0.3439732  -2.3401022
+in dftxc.C, eleTot sum is:20.000008, tauTot is:0.000000
+ Gradient of SCF Energy
+            1           2           3           4           5           6
+    1  -0.0025433   0.0003214   0.0034845   0.0067504   0.0028661  -0.0108792
+    2  -0.0095200   0.0138103  -0.0061072   0.0008759   0.0019665  -0.0010255
+    3   0.0129648  -0.0098544  -0.0028147   0.0121374  -0.0104634  -0.0019696
+ Max gradient component =       1.381E-02
+ RMS gradient           =       7.634E-03
+ Gradient time:  CPU 0.43 s  wall 0.22 s
+Time for this dynamics step: 1.7 s (CPU) 0.9 s (wall)
+
+TIME STEP #9 (t = 160.000 a.u. = 3.87021 fs)
+--------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      O       1.4091935003     0.0162329036     0.1247673455
+    2      H       1.4812724392     0.7747449634    -0.5184635481
+    3      H       1.6970241484    -0.7627265960    -0.3958240633
+    4      O      -1.5061808310    -0.0252085142    -0.1218767825
+    5      H      -0.5529275581     0.0866032464     0.0792124509
+    6      H      -2.0482799459     0.0823645477     0.6914917134
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =    36.1587034498 hartrees
+ There are       10 alpha and       10 beta electrons
+
+                       Distance Matrix (Angstroms)
+             O (  1)   H (  2)   H (  3)   O (  4)   H (  5)
+   H (  2)  0.997137
+   H (  3)  0.980122  1.557372
+   O (  4)  2.926082  3.118026  3.298409
+   H (  5)  1.963911  2.229064  2.451388  0.980628
+   H (  6)  3.504236  3.794881  3.990456  0.983368  1.615854
+ 
+ Applying Cartesian multipole field
+    Component          Value
+    ---------          -----
+     (2,0,0)        1.00000E-11
+     (0,2,0)        2.00000E-10
+     (0,0,2)       -3.00000E-10
+ Nucleus-field energy     =     0.0000000012 hartrees
+ Smallest overlap matrix eigenvalue = 1.56E-02
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+SCF convergence criterion is 10**(-8)
+ A restricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-08
+ using 2 threads for integral computing 
+         cpu   0.01 wall   0.01
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+in dftxc.C, eleTot sum is:20.000001, tauTot is:0.000000
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -152.7635618674      1.12E-01
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000000, tauTot is:0.000000
+    2    -152.7030597131      3.04E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000009, tauTot is:0.000000
+    3    -152.6408164175      3.80E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000003, tauTot is:0.000000
+    4    -152.8269313814      1.21E-03
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000003, tauTot is:0.000000
+    5    -152.8270296661      8.65E-04
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:20.000003, tauTot is:0.000000
+    6    -152.8271219326      1.49E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000003, tauTot is:0.000000
+    7    -152.8271247963      8.78E-06
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:20.000003, tauTot is:0.000000
+    8    -152.8271248068      6.48E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000003, tauTot is:0.000000
+    9    -152.8271248068      1.43E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000003, tauTot is:0.000000
+   10    -152.8271248068      1.15E-08
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000003, tauTot is:0.000000
+   11    -152.8271248068      1.82E-09 Convergence criterion met
+ ---------------------------------------
+ SCF time:  CPU 1.29 s  wall 0.65 s
+ SCF   energy in the final basis set = -152.8271248068
+ Total energy in the final basis set = -152.8271248068
+ Calculating analytic gradient of the SCF energy
+         cpu   0.07 wall   0.04
+ Gradient of Coulomb and Exchange Energy
+            1           2           3           4           5           6
+    1  -2.2907380  -0.2854736  -0.9954683   3.9250192  -2.3121099   1.9587706
+    2  -0.1074203  -2.3214700   2.4368846   0.5982366  -0.3317231  -0.2745079
+    3  -3.4263256   1.7787543   1.4623647   2.8130932  -0.3526749  -2.2752117
+in dftxc.C, eleTot sum is:20.000003, tauTot is:0.000000
+ Gradient of SCF Energy
+            1           2           3           4           5           6
+    1  -0.0030244   0.0001038   0.0041717   0.0093645   0.0082696  -0.0188852
+    2  -0.0132079   0.0185906  -0.0074180  -0.0010635   0.0028069   0.0002919
+    3   0.0190443  -0.0144040  -0.0042442   0.0007716  -0.0101478   0.0089801
+ Max gradient component =       1.904E-02
+ RMS gradient           =       1.026E-02
+ Gradient time:  CPU 0.41 s  wall 0.21 s
+Time for this dynamics step: 1.7 s (CPU) 0.9 s (wall)
+
+TIME STEP #10 (t = 180.000 a.u. = 4.35399 fs)
+--------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      O       1.4116413504     0.0169222842     0.1263923242
+    2      H       1.4523001204     0.7780492373    -0.5267440167
+    3      H       1.6910181045    -0.7578852798    -0.4081390436
+    4      O      -1.5056439140    -0.0270384368    -0.1229843753
+    5      H      -0.5500359058     0.0946055526     0.0881144828
+    6      H      -2.0635634081     0.0843177858     0.6949738850
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =    36.0418446909 hartrees
+ There are       10 alpha and       10 beta electrons
+
+                       Distance Matrix (Angstroms)
+             O (  1)   H (  2)   H (  3)   O (  4)   H (  5)
+   H (  2)  1.003770
+   H (  3)  0.981887  1.558893
+   O (  4)  2.928255  3.092025  3.291519
+   H (  5)  1.963588  2.203292  2.448537  0.986178
+   H (  6)  3.522056  3.786179  4.002880  0.996358  1.630690
+ 
+ Applying Cartesian multipole field
+    Component          Value
+    ---------          -----
+     (2,0,0)        1.00000E-11
+     (0,2,0)        2.00000E-10
+     (0,0,2)       -3.00000E-10
+ Nucleus-field energy     =     0.0000000011 hartrees
+ Smallest overlap matrix eigenvalue = 1.58E-02
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+SCF convergence criterion is 10**(-8)
+ A restricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-08
+ using 2 threads for integral computing 
+         cpu   0.02 wall   0.01
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+in dftxc.C, eleTot sum is:19.999995, tauTot is:0.000000
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -152.7491490667      1.10E-01
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:19.999992, tauTot is:0.000000
+    2    -152.7022286988      3.03E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:20.000004, tauTot is:0.000000
+    3    -152.6375871895      3.81E-02
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+    4    -152.8258315182      1.17E-03
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+    5    -152.8259266053      8.36E-04
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+    6    -152.8260125219      1.60E-04
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+    7    -152.8260158016      9.02E-06
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+    8    -152.8260158128      6.36E-07
+         cpu   0.03 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+    9    -152.8260158129      1.47E-07
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+   10    -152.8260158129      1.19E-08
+         cpu   0.02 wall   0.01
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+   11    -152.8260158129      1.93E-09 Convergence criterion met
+ ---------------------------------------
+ SCF time:  CPU 1.33 s  wall 0.67 s
+ SCF   energy in the final basis set = -152.8260158129
+ Total energy in the final basis set = -152.8260158129
+ Calculating analytic gradient of the SCF energy
+         cpu   0.09 wall   0.04
+ Gradient of Coulomb and Exchange Energy
+            1           2           3           4           5           6
+    1  -2.4016881  -0.1954136  -0.9727986   3.8862386  -2.2754168   1.9590785
+    2  -0.1028731  -2.2925994   2.4056466   0.6217493  -0.3588922  -0.2730311
+    3  -3.4707858   1.7836615   1.5021085   2.7738805  -0.3688206  -2.2200440
+in dftxc.C, eleTot sum is:19.999997, tauTot is:0.000000
+ Gradient of SCF Energy
+            1           2           3           4           5           6
+    1  -0.0028361  -0.0005406   0.0046036   0.0109664   0.0129672  -0.0251605
+    2  -0.0160858   0.0218583  -0.0080165  -0.0028262   0.0036950   0.0013751
+    3   0.0239183  -0.0179688  -0.0054617  -0.0083744  -0.0095386   0.0174251
+ Max gradient component =       2.516E-02
+ RMS gradient           =       1.326E-02
+ Gradient time:  CPU 0.43 s  wall 0.22 s
+Time for this dynamics step: 1.8 s (CPU) 0.9 s (wall)
+
+=============== TIME STEPS COMPLETED ==================
+
+Step-to-Step energy fluctuations, |E(n) - E(n-1)|
+Mean: 2.068e-06   Max: 3.197e-05   RMS: 2.194e-05
+Overall energy fluctuations, |E(n) - E(0)|
+Mean: 3.234e-05   Max: 7.755e-05   RMS: 3.002e-05   RMS(dE)/RMS(dV): 3.989e-02
+Kinetic energy fluctuations, |T(n) - V(0)|
+Mean: -1.428e-03   Max: 2.247e-03   RMS: 7.319e-04
+Potential energy fluctuations, |V(n) - V(0)|
+Mean: 1.461e-03   Max: 2.322e-03   RMS: 7.526e-04
+Archival summary:
+1\1\MacQu.local\JobtypUnspecified\ProcedureUnspecified\6-31G*\222\WedAug621:47:482014WedAug621:47:482014\0\\#,JobtypUnspecified,ProcedureUnspecified,6-31G*,\\0,1\O\H,1,0.981887\H,1,1.00377,2,103.45\H,1,1.96359,2,107.75,3,-94.253,0\O,4,0.986178,1,165.319,2,15.0793,0\H,5,0.996358,4,110.676,1,-150.452,0\\\@
+
+ Total job time:  9.49s(wall), 18.56s(cpu) 
+ Wed Aug  6 21:47:48 2014
+
+        *************************************************************
+        *                                                           *
+        *  Thank you very much for using Q-Chem.  Have a nice day.  *
+        *                                                           *
+        *************************************************************
+
+

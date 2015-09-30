@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 Created on Jul 24, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -17,17 +20,21 @@ import unittest
 import os
 import json
 
+import numpy as np
+
 from pymatgen import Lattice, Structure
 from pymatgen.transformations.standard_transformations import \
-    OxidationStateDecorationTransformation, SubstitutionTransformation
+    OxidationStateDecorationTransformation, SubstitutionTransformation, \
+    OrderDisorderedStructureTransformation
 from pymatgen.transformations.advanced_transformations import \
     SuperTransformation, EnumerateStructureTransformation, \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
     SubstitutionPredictorTransformation, MagOrderingTransformation
-from pymatgen.util.io_utils import which
-from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen.symmetry.finder import SymmetryFinder
+from monty.os.path import which
+from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.energy_models import IsingModel
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -77,6 +84,23 @@ class SuperTransformationTest(unittest.TestCase):
             self.assertEqual(s_and_t['transformation']
                              .apply_transformation(struct),
                              s_and_t['structure'])
+
+    @unittest.skipIf(not enumlib_present, "enum_lib not present.")
+    def test_apply_transformation_mult(self):
+        #Test returning multiple structures from each transformation.
+        disord = Structure(np.eye(3) * 4.209, [{"Cs+": 0.5, "K+": 0.5}, "Cl-"],
+                           [[0, 0, 0], [0.5, 0.5, 0.5]])
+        disord.make_supercell([2, 2, 1])
+
+
+        tl = [EnumerateStructureTransformation(),
+              OrderDisorderedStructureTransformation()]
+        t = SuperTransformation(tl, nstructures_per_trans=10)
+        self.assertEqual(len(t.apply_transformation(disord,
+                                                    return_ranked_list=20)), 8)
+        t = SuperTransformation(tl)
+        self.assertEqual(len(t.apply_transformation(disord,
+                                                    return_ranked_list=20)), 2)
 
 
 class MultipleSubstitutionTransformationTest(unittest.TestCase):
@@ -134,13 +158,11 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         for i, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({'Fe': {'Fe': frac}})
             s = trans.apply_transformation(struct)
-            oxitrans = OxidationStateDecorationTransformation({'Li': 1,
-                                                               'Fe': 2,
-                                                               'P': 5,
-                                                               'O': -2})
+            oxitrans = OxidationStateDecorationTransformation(
+                {'Li': 1, 'Fe': 2, 'P': 5, 'O': -2})
             s = oxitrans.apply_transformation(s)
             alls = enum_trans.apply_transformation(s, 100)
-            self.assertEquals(len(alls), expected_ans[i])
+            self.assertEqual(len(alls), expected_ans[i])
             self.assertIsInstance(trans.apply_transformation(s), Structure)
             for s in alls:
                 self.assertIn("energy", s)
@@ -149,14 +171,14 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         trans = SubstitutionTransformation({'Fe': {'Fe': 0.5}})
         s = trans.apply_transformation(struct)
         alls = enum_trans.apply_transformation(s, 100)
-        self.assertEquals(len(alls), 3)
+        self.assertEqual(len(alls), 3)
         self.assertIsInstance(trans.apply_transformation(s), Structure)
         for s in alls:
             self.assertNotIn("energy", s)
 
     def test_to_from_dict(self):
         trans = EnumerateStructureTransformation()
-        d = trans.to_dict
+        d = trans.as_dict()
         trans = EnumerateStructureTransformation.from_dict(d)
         self.assertEqual(trans.symm_prec, 0.1)
 
@@ -177,10 +199,10 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
         outputs = t.apply_transformation(struct, return_ranked_list=True)
         self.assertEqual(len(outputs), 4, 'incorrect number of structures')
 
-    def test_to_dict(self):
+    def test_as_dict(self):
         t = SubstitutionPredictorTransformation(threshold=2, alpha=-2,
                                                 lambda_table=get_table())
-        d = t.to_dict
+        d = t.as_dict()
         t = SubstitutionPredictorTransformation.from_dict(d)
         self.assertEqual(t._threshold, 2,
                          'incorrect threshold passed through dict')
@@ -189,7 +211,7 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
 
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
-class MagOrderingTransformationTest(unittest.TestCase):
+class MagOrderingTransformationTest(PymatgenTest):
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
@@ -198,7 +220,7 @@ class MagOrderingTransformationTest(unittest.TestCase):
         s = p.structure
         alls = trans.apply_transformation(s, 10)
         self.assertEqual(len(alls), 3)
-        f = SymmetryFinder(alls[0]["structure"], 0.1)
+        f = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
         self.assertEqual(f.get_spacegroup_number(), 31)
 
         model = IsingModel(5, 5)
@@ -209,8 +231,7 @@ class MagOrderingTransformationTest(unittest.TestCase):
         self.assertNotEqual(alls[0]["structure"], alls2[0]["structure"])
         self.assertEqual(alls[0]["structure"], alls2[2]["structure"])
 
-        from pymatgen.io.smartio import read_structure
-        s = read_structure(os.path.join(test_dir, 'Li2O.cif'))
+        s = self.get_structure('Li2O')
         #Li2O doesn't have magnetism of course, but this is to test the
         # enumeration.
         trans = MagOrderingTransformation({"Li+": 1}, max_cell_size=3)
@@ -227,13 +248,23 @@ class MagOrderingTransformationTest(unittest.TestCase):
 
     def test_to_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5}, 0.75)
-        d = trans.to_dict
+        d = trans.as_dict()
         #Check json encodability
         s = json.dumps(d)
         trans = MagOrderingTransformation.from_dict(d)
         self.assertEqual(trans.mag_species_spin, {"Fe": 5})
         from pymatgen.analysis.energy_models import SymmetryModel
         self.assertIsInstance(trans.emodel, SymmetryModel)
+
+    def test_zero_spin_case(self):
+        #ensure that zero spin case maintains sites and formula
+        s = self.get_structure('Li2O')
+        trans = MagOrderingTransformation({"Li+": 0.0}, 0.5)
+        alls = trans.apply_transformation(s)
+        #Ensure s does not have a spin property
+        self.assertFalse('spin' in s.sites[0].specie._properties)
+        #ensure sites are assigned a spin property in alls
+        self.assertTrue('spin' in alls.sites[0].specie._properties)
 
 
 if __name__ == "__main__":

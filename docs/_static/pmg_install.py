@@ -70,7 +70,7 @@ def build_enum(fortran_command="gfortran"):
 
 
 def build_bader(fortran_command="gfortran"):
-    bader_url = "http://theory.cm.utexas.edu/bader/download/bader.tar.gz"
+    bader_url = "http://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz"
     currdir = os.getcwd()
     state = True
     try:
@@ -130,14 +130,18 @@ try:
     print("Detected numpy version {}".format(numpy.__version__))
 except ImportError:
     print("numpy.distutils.misc_util cannot be imported. Installing...")
-    subprocess.call(["pip", "install", "-q", "numpy>=1.6.0"])
+    subprocess.call(["pip", "install", "-q", "numpy>=1.8.0"])
     from numpy.distutils.misc_util import get_numpy_include_dirs
 
-for pk in ["pyhull>=1.3.6", "PyCifRW>=3.3", "requests>=1.0", "pybtex>=0.16"]:
+for pk in ["pyhull>=1.3.6", "pyyaml", "PyCifRW>=3.3", "requests>=1.0",
+           "pybtex>=0.16"]:
     print("Installing {}".format(pk))
-    if subprocess.call(["pip", "install", "-q", pk]) != 0:
-        print("Error installing required dependency {}".format(pk))
-        sys.exit(-1)
+    ret = subprocess.call(["pip", "install", "-q", pk])
+    if ret != 0:
+        ret = subprocess.call(["easy_install", pk])
+        if ret != 0:
+            print("Error installing required dependency {}".format(pk))
+            sys.exit(-1)
     print
 
 if subprocess.call(["pip", "install", "pymatgen"]) != 0:
@@ -161,12 +165,15 @@ if "-f" in sys.argv:
     print
 
     fortran_command = None
-    if subprocess.call(["ifort", "--version"]) == 0:
-        print("Found ifort")
-        fortran_command = "ifort"
-    elif subprocess.call(["gfortran", "--version"]) == 0:
-        print("Found gfortran")
-        fortran_command = "gfortran"
+    try:
+        if subprocess.call(["ifort", "--version"]) == 0:
+            print("Found ifort")
+            fortran_command = "ifort"
+        elif subprocess.call(["gfortran", "--version"]) == 0:
+            print("Found gfortran")
+            fortran_command = "gfortran"
+    except:
+        fortran_command = None
 
     if fortran_command is not None:
         print("Building enumlib")
@@ -181,7 +188,7 @@ if "-f" in sys.argv:
     print("Performing POTCAR setup. Press Ctrl-C at any prompt to skip this "
           "step.")
     try:
-        subprocess.call(["potcar_setup.py"])
+        subprocess.call(["potcar_setup"])
     except:
         print("Skipping POTCAR setup.")
     print

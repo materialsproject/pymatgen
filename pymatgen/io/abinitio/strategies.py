@@ -1,15 +1,27 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """Strategy objects for creating ABINIT calculations."""
-from __future__ import division, print_function
+from __future__ import unicode_literals, division, print_function
 
+import sys
+import os
 import abc
 import collections
 import copy
+import six
 import numpy as np
 
-from pprint import pprint, pformat
-from pymatgen.util.string_utils import str_aligned, str_delimited, is_string, list_strings
-from pymatgen.io.abinitio.abiobjects import SpinMode, Smearing, Electrons
-from pymatgen.io.abinitio.pseudos import PseudoTable
+from six.moves import map, zip
+from monty.string import is_string
+from monty.json import MontyEncoder, MontyDecoder
+from pymatgen.util.string_utils import str_aligned, str_delimited
+from .abiobjects import Electrons
+from .pseudos import PseudoTable, Pseudo
+
+import logging
+logger = logging.getLogger(__name__)
+
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -18,90 +30,77 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 
 
-def select_pseudos(pseudos, structure, ret_table=True):
+
+def num_valence_electrons(pseudos, structure):
     """
-    Given a list of pseudos and a pymatgen structure, extract the pseudopotentials 
-    for the calculation (useful when we receive an entire periodic table).
+    Compute the number of valence electrons from
+    a list of pseudopotentials and the crystalline structure.
+
+    Args:
+        pseudos: List of strings, list of of pseudos or `PseudoTable` instance.
+        structure: Pymatgen structure.
 
     Raises:
-        ValueError if no pseudo is found or multiple occurrences are found.
+        ValueError if cannot find a pseudo in the input pseudos or if the
+        input list contains more than one pseudo for the chemical symbols appearing in structure.
     """
-    table = PseudoTable.astable(pseudos)
+    table = PseudoTable.as_table(pseudos)
 
-    pseudos = []
-    for symbol in structure.types_of_specie:
-        # Get the list of pseudopotentials in table from atom symbol.
-        pseudos_for_type = table.pseudos_with_symbol(symbol)
-                                                                             
-        if not pseudos_for_type:
-            raise ValueError("Cannot find pseudo for symbol %s" % symbol)
+    valence = 0.0
+    for site in structure:
+        entries = table.pseudos_with_symbol(site.specie.symbol)
+        if len(entries) != 1:
+            raise ValueError("Found %d entries for symbol %s" % (len(entries), site.specie.symbol))
+        valence += entries[0].Z_val
 
-        if len(pseudos_for_type) > 1:
-            raise ValueError("Find multiple pseudos for symbol %s" % symbol)
-                                                                             
-        pseudos.append(pseudos_for_type[0])
-
-    if ret_table:
-        return PseudoTable(pseudos)
-    else:
-        return pseudos
+    return valence
 
 
-def order_pseudos(pseudos, structure):
-    return select_pseudos(pseudos, structure, ret_table=False)
-
-
-class Strategy(object):
+class AbstractStrategy(six.with_metaclass(abc.ABCMeta, object)):
     """
     A Strategy object generates the ABINIT input file used for a particular type of calculation
     e.g. ground-state runs, structural relaxations, self-energy calculations ...
 
-    A Strategy can absorb data (e.g. data produced in the previous steps of a workflow) and 
+    A Strategy can absorb data (e.g. data produced in the previous steps of a workflow) and
     can use this piece of information to generate/optimize the input variables.
     Strategy objects must provide the method make_input that builds and returns the abinit input file.
 
     Attributes:
-        accuracy:
-            Accuracy of the calculation used to define basic parameters of the run.
-            such as tolerances, basis set truncation ... 
-        pseudos:
-            List of pseudopotentials.
+
+        pseudos: List of pseudopotentials.
     """
-    __metaclass__ = abc.ABCMeta
 
-    # Mapping runlevel --> optdriver variable
-    _runl2optdriver = {
-        "scf"      : 0 , 
-        "nscf"     : 0 ,
-        "relax"    : 0 ,
-        "dfpt"     : 1 ,
-        "screening": 3 ,
-        "sigma"    : 4 ,
-        "bse"      : 99,
-    }
+    #@abc.abstractproperty
+    #def pseudos(self):
 
-    # Name of the (default) tolerance used by the runlevels.
-    _runl2tolname = {
-        "scf"      : 'tolvrs', 
-        "nscf"     : 'tolwfr', 
-        "dfpt"     : 'toldfe',   # ?
-        "screening": 'toldfe',   # dummy
-        "sigma"    : 'toldfe',   # dummy
-        "bse"      : 'toldfe',   # ?
-    }
+    @property
+    def isnc(self):
+        """True if norm-conserving calculation."""
+        return all(p.isnc for p in self.pseudos)
 
-    # Tolerances for the different levels of accuracy.
-    T = collections.namedtuple('Tolerance', "low normal high")
-    _tolerances = {
-        "toldfe": T(1.e-7,  1.e-8,  1.e-9), 
-        "tolvrs": T(1.e-7,  1.e-8,  1.e-9),
-        "tolwfr": T(1.e-15, 1.e-17, 1.e-19),
-        "tolrdf": T(0.04,   0.02,   0.01),
-        }
-    del T
+    @property
+    def ispaw(self):
+        """True if PAW calculation."""
+        return all(p.ispaw for p in self.pseudos)
 
-    def __str__(self):
-        return "<%s at %s, accuracy = %s>" % (self.__class__.__name__, id(self), self.accuracy)
+    def num_valence_electrons(self):
+        """Number of valence electrons computed from the pseudos and the structure."""
+        return num_valence_electrons(self.pseudos, self.structure)
+
+    @abc.abstractproperty
+    def structure(self):
+        """Structure object"""
+
+    #def set_structure(self, structure):
+    #    self.structure = structure
+
+    #def change_structure(self, structure):
+    #    self.structure = structure
+
+    #def to_abivars(self):
+    #def to_dict(self):
+    #def from_abivars(cls, d):
+    #def from_dict(self, d):
 
     def copy(self):
         """Shallow copy of self."""
@@ -111,10 +110,111 @@ class Strategy(object):
         """Deep copy of self."""
         return copy.deepcopy(self)
 
+
+    @abc.abstractmethod
+    def make_input(self, *args, **kwargs):
+        """Returns an Input instance."""
+
+
+class StrategyWithInput(object):
+    # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
+    def __init__(self, abinit_input, deepcopy=True):
+        if deepcopy: abinit_input = copy.deepcopy(abinit_input)
+        self.abinit_input = abinit_input
+
+    @property
+    def pseudos(self):
+        # FIXME: pseudos must be order but I need to define an ABC for the Strategies and Inputs.
+        # Order pseudos
+        return self.abinit_input.pseudos
+
+    @property
+    def structure(self):
+        return self.abinit_input.structure
+
+    @structure.setter
+    def structure(self, structure):
+        self.abinit_input.set_structure(structure)
+
+    def add_extra_abivars(self, abivars):
+        """Add variables (dict) to extra_abivars."""
+        self.abinit_input.set_vars(**abivars)
+
+    def remove_extra_abivars(self, keys):
+        """Remove variables from extra_abivars."""
+        self.abinit_input.remove_vars(keys)
+
+    def make_input(self):
+        return str(self.abinit_input)
+
+    def deepcopy(self):
+        """Deep copy of self."""
+        return copy.deepcopy(self)
+
+    def as_dict(self):
+        d = {'abinit_input': self.abinit_input.as_dict()}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        abinit_input = d['abinit_input']
+        modname = abinit_input["@module"]
+        classname = abinit_input["@class"]
+        mod = __import__(modname, globals(), locals(), [classname], 0)
+        cls_ = getattr(mod, classname)
+        strategy = cls(cls_.from_dict(abinit_input))
+        return strategy
+
+
+class HtcStrategy(AbstractStrategy):
+    """
+    Attributes:
+
+        accuracy: Accuracy of the calculation used to define basic parameters of the run.
+            such as tolerances, basis set truncation ...
+    """
+    __metaclass__ = abc.ABCMeta
+
+    # Mapping runlevel --> optdriver variable
+    _runl2optdriver = {
+        "scf": 0,
+        "nscf": 0,
+        "relax": 0,
+        "dfpt": 1,
+        "screening": 3,
+        "sigma": 4,
+        "bse": 99,
+    }
+
+    # Name of the (default) tolerance used by the runlevels.
+    _runl2tolname = {
+        "scf": 'tolvrs',
+        "nscf": 'tolwfr',
+        "dfpt": 'toldfe',        # ?
+        "screening": 'toldfe',   # dummy
+        "sigma": 'toldfe',       # dummy
+        "bse": 'toldfe',         # ?
+        "relax": 'tolrff',
+    }
+
+    # Tolerances for the different levels of accuracy.
+    T = collections.namedtuple('Tolerance', "low normal high")
+    _tolerances = {
+        "toldfe": T(1.e-7,  1.e-8,  1.e-9),
+        "tolvrs": T(1.e-7,  1.e-8,  1.e-9),
+        "tolwfr": T(1.e-15, 1.e-17, 1.e-19),
+        "tolrff": T(0.04,   0.02,   0.01)}
+    del T
+
+    def __repr__(self):
+        return "<%s at %s, accuracy = %s>" % (self.__class__.__name__, id(self), self.accuracy)
+
     @abc.abstractproperty
     def runlevel(self):
         """String defining the Runlevel. See _runl2optdriver."""
-                                                            
+
     @property
     def optdriver(self):
         """The optdriver associated to the calculation."""
@@ -143,7 +243,7 @@ class Strategy(object):
         if hasattr(self, "_accuracy"):
             raise RuntimeError("object already has accuracy %s " % self._accuracy)
 
-        assert accuracy in ["low", "normal", "high",]
+        assert accuracy in ["low", "normal", "high"]
         self._accuracy = accuracy
 
     @property
@@ -155,21 +255,11 @@ class Strategy(object):
             return {}
 
     @property
-    def isnc(self):
-        """True if norm-conserving calculation."""
-        return self.pseudos.allnc
-                                              
-    @property
-    def ispaw(self):
-        """True if PAW calculation."""
-        return self.pseudos.allpaw
-
-    @property
     def ecut(self):
         """Cutoff energy in Hartree."""
         try:
             # User option.
-            return self.extra_abivars["ecut"] 
+            return self.extra_abivars["ecut"]
         except KeyError:
             # Compute ecut from the Pseudo Hints.
             hints = [p.hint_for_accuracy(self.accuracy) for p in self.pseudos]
@@ -180,12 +270,14 @@ class Strategy(object):
         """Cutoff energy in Hartree for the dense grid used in PAW calculations."""
         if not self.ispaw:
             return None
+
         try:
-            return self.extra_abivars["pawecutdg"] # User option.
+            # User option.
+            return self.extra_abivars["pawecutdg"]
         except KeyError:
             raise NotImplementedError("")
             #ratio = max(p.suggested_augratio(accuracy) for p in self.pseudos])
-            #ratio = augration_high if high else augratio_norm 
+            #ratio = augration_high if high else augratio_norm
             #pawecutdg = ecut * ratio
 
     @property
@@ -200,18 +292,19 @@ class Strategy(object):
 
         # Use default values depending on the runlevel and the accuracy.
         tolname = self._runl2tolname[self.runlevel]
+
         return {tolname: getattr(self._tolerances[tolname], self.accuracy)}
 
     @property
     def need_forces(self):
         """True if forces are required at each SCF step (like the stresses)."""
         return self.runlevel in ["relax",]
-                                                                            
+
     @property
     def need_stress(self):
         """True if the computation of the stress is required."""
         # TODO: here it's easier to check if optcell != 0
-        return self.runlevel in ["relax",]
+        return self.runlevel in ["relax"]
 
     def add_extra_abivars(self, abivars):
         """Add variables (dict) to extra_abivars."""
@@ -221,56 +314,39 @@ class Strategy(object):
         for key in keys:
             self.extra_abivars.pop(key)
 
-    @abc.abstractmethod
-    def make_input(self, *args, **kwargs):
-        """Returns an Input instance."""
 
-
-class ScfStrategy(Strategy):
+class ScfStrategy(HtcStrategy):
     """
     Strategy for ground-state SCF calculations.
     """
-    def __init__(self, structure, pseudos, ksampling, accuracy="normal", spin_mode="polarized", 
+    def __init__(self, structure, pseudos, ksampling, accuracy="normal", spin_mode="polarized",
                  smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, use_symmetries=True, **extra_abivars):
         """
         Args:
-            structure:
-                pymatgen structure
-            pseudos:
-                List of pseudopotentials.
-            ksampling:
-                Ksampling object defining the sampling of the BZ.
-            accuracy:
-                Accuracy of the calculation.
-            spin_mode: 
-                Spin polarization mode.
-            smearing: 
-                string or Smearing instance. 
-            charge:
-                Total charge of the system. Default is 0.
-            scf_algorithm:
-                ElectronsAlgorithm instance.
-            use_symmetries:
-                False if point group symmetries should not be used.
-            extra_abivars:
-                Extra variables that will be directly added to the input file.
+            structure: pymatgen structure
+            pseudos: List of pseudopotentials.
+            ksampling: :class:`Ksampling` object defining the sampling of the BZ.
+            accuracy: Accuracy of the calculation.
+            spin_mode: Spin polarization mode.
+            smearing: string or :class:`Smearing` instance.
+            charge: Total charge of the system. Default is 0.
+            scf_algorithm: :class:`ElectronsAlgorithm` instance.
+            use_symmetries: False if point group symmetries should not be used.
+            extra_abivars: Extra variables that will be directly added to the input file.
         """
         super(ScfStrategy, self).__init__()
 
         self.set_accuracy(accuracy)
+        self._structure = structure
 
-        self.structure = structure
-        self.pseudos   = select_pseudos(pseudos, structure)
+        table = PseudoTable.as_table(pseudos)
+        self.pseudos = table.pseudos_with_symbols(list(structure.composition.get_el_amt_dict().keys()))
+
         self.ksampling = ksampling
         self.use_symmetries = use_symmetries
 
-        self.electrons  = Electrons(spin_mode=spin_mode,
-                                    smearing=smearing,
-                                    algorithm=scf_algorithm,
-                                    nband=None,
-                                    fband=None,
-                                    charge=charge,
-                                   )
+        self.electrons = Electrons(spin_mode=spin_mode, smearing=smearing, algorithm=scf_algorithm,
+                                   nband=None, fband=None, charge=charge)
 
         self.extra_abivars = extra_abivars
 
@@ -278,48 +354,80 @@ class ScfStrategy(Strategy):
     def runlevel(self):
         return "scf"
 
-    def make_input(self):
-        extra = dict(
-            optdriver=self.optdriver,
-            ecut=self.ecut,
-            pawecutdg=self.pawecutdg,
-        )
+    @property
+    def structure(self):
+        return self._structure
+
+    @structure.setter
+    def structure(self, structure):
+        self._structure = structure
+
+    def _define_extra_params(self):
+        extra = dict(optdriver=self.optdriver, ecut=self.ecut, pawecutdg=self.pawecutdg)
         extra.update(self.tolerance)
         extra.update({"nsym": 1 if not self.use_symmetries else None})
-
         extra.update(self.extra_abivars)
+        return extra
 
-        input = InputWriter(self.structure, self.electrons, self.ksampling, **extra)
-        return input.get_string()
+    def make_input(self):
+        extra = self._define_extra_params()
+
+        inpw = InputWriter(self.structure, self.electrons, self.ksampling, **extra)
+        return inpw.get_string()
+
+    def as_dict(self):
+        d = {}
+        d['structure'] = self.structure.as_dict()
+        d['pseudos'] = [p.as_dict() for p in self.pseudos]
+        d['ksampling'] = self.ksampling.as_dict()
+        d['accuracy'] = self.accuracy
+        d['spin_mode'] = self.electrons.spin_mode.as_dict()
+        d['smearing'] = self.electrons.smearing.as_dict()
+        d['charge'] = self.electrons.charge
+        d['scf_algorithm'] = self.electrons.algorithm
+        d['use_symmetries'] = self.use_symmetries
+        d['extra_abivars'] = self.extra_abivars
+        d['@module'] = self.__class__.__module__
+        d['@class'] = self.__class__.__name__
+
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        dec = MontyDecoder()
+        structure = dec.process_decoded(d["structure"])
+        pseudos = dec.process_decoded(d['pseudos'])
+        ksampling = dec.process_decoded(d["ksampling"])
+        spin_mode = dec.process_decoded(d["spin_mode"])
+        smearing = dec.process_decoded(d["smearing"])
+
+        return cls(structure=structure, pseudos=pseudos, ksampling=ksampling, accuracy=d['accuracy'],
+                   spin_mode=spin_mode, smearing=smearing, charge=d['charge'],
+                   scf_algorithm=d['scf_algorithm'], use_symmetries=d['use_symmetries'],
+                   **d['extra_abivars'])
 
 
-class NscfStrategy(Strategy):
+class NscfStrategy(HtcStrategy):
     """
     Strategy for non-self-consistent calculations.
     """
     def __init__(self, scf_strategy, ksampling, nscf_nband, nscf_algorithm=None, **extra_abivars):
         """
         Args:
-            scf_strategy:
-                ScfStrategy used for the GS run.
-            ksampling:
-                Ksampling object defining the sampling of the BZ.
-            nscf_nband:
-                Number of bands to compute.
-            nscf_algorithm
-                ElectronsAlgorithm instance.
-            extra_abivars:
-                Extra ABINIT variables that will be directly added to the input file
+            scf_strategy: :class:`ScfStrategy` used for the GS run.
+            ksampling: :class:`Ksampling` object defining the sampling of the BZ.
+            nscf_nband: Number of bands to compute.
+            nscf_algorithm :class:`ElectronsAlgorithm` instance.
+            extra_abivars: Extra ABINIT variables that will be directly added to the input file
         """
         super(NscfStrategy, self).__init__()
 
         self.set_accuracy(scf_strategy.accuracy)
-
         self.scf_strategy = scf_strategy
 
         self.nscf_nband = nscf_nband
-        self.pseudos    = scf_strategy.pseudos
-        self.ksampling  = ksampling
+        self.pseudos = scf_strategy.pseudos
+        self.ksampling = ksampling
 
         if nscf_algorithm is None:
             nscf_algorithm = {"iscf": -2}
@@ -327,15 +435,10 @@ class NscfStrategy(Strategy):
         # Electrons used in the GS run.
         scf_electrons = scf_strategy.electrons
 
-        self.electrons = Electrons(spin_mode=scf_electrons.spin_mode,
-                                   smearing=scf_electrons.smearing,
-                                   algorithm=nscf_algorithm,
-                                   nband=nscf_nband,
-                                   fband=None,
-                                   charge=scf_electrons.charge,
-                                   comment=None,
-                                   #occupancies = None,
-                                   )
+        self.electrons = Electrons(
+            spin_mode=scf_electrons.spin_mode, smearing=scf_electrons.smearing,
+            algorithm=nscf_algorithm, nband=nscf_nband,
+            fband=None, charge=scf_electrons.charge, comment=None)
 
         self.extra_abivars = extra_abivars
 
@@ -343,85 +446,115 @@ class NscfStrategy(Strategy):
     def runlevel(self):
         return "nscf"
 
+    @property
+    def structure(self):
+        return self.scf_strategy.structure
+
+    @structure.setter
+    def structure(self, structure):
+        self.scf_strategy.structure = structure
+
     def make_input(self):
         # Initialize the system section from structure.
         scf_strategy = self.scf_strategy
 
-        extra = dict(
-            optdriver=self.optdriver,
-            ecut=self.ecut,
-            pawecutdg=self.pawecutdg,
-        )
+        extra = dict(optdriver=self.optdriver, ecut=self.ecut, pawecutdg=self.pawecutdg)
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
-                                                                                     
-        input = InputWriter(scf_strategy.structure, self.electrons, self.ksampling, **extra)
-        return input.get_string()
+
+        inp = InputWriter(scf_strategy.structure, self.electrons, self.ksampling, **extra)
+        return inp.get_string()
+
+    def as_dict(self):
+        d = {}
+        d['scf_strategy'] = self.scf_strategy.as_dict()
+        d['ksampling'] = self.ksampling.as_dict()
+        d['nscf_nband'] = self.nscf_nband
+        d['nscf_algorithm'] = self.electrons.algorithm
+        d['extra_abivars'] = self.extra_abivars
+        d['@module'] = self.__class__.__module__
+        d['@class'] = self.__class__.__name__
+
+    @classmethod
+    def from_dict(cls, d):
+        dec = MontyDecoder()
+        scf_strategy = dec.process_decoded(d["scf_strategy"])
+        ksampling = dec.process_decoded(d["ksampling"])
+        nscf_nband = dec.process_decoded(d["nscf_nband"])
+        nscf_algorithm = dec.process_decoded(d["nscf_algorithm"])
+
+        return cls(scf_strategy=scf_strategy, ksampling=ksampling,
+                   nscf_nband=nscf_nband, nscf_algorithm=nscf_algorithm, **d['extra_abivars'])
 
 
 class RelaxStrategy(ScfStrategy):
     """Extends ScfStrategy by adding an algorithm for the structural relaxation."""
 
-    def __init__(self, structure, pseudos, ksampling, relax_algo, accuracy="normal", spin_mode="polarized", 
-                 smearing="fermi_dirac:0.1 eV", charge=0.0, scf_solver=None, **extra_abivars):
+    def __init__(self, structure, pseudos, ksampling, relax_algo, accuracy="normal", spin_mode="polarized",
+                 smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, **extra_abivars):
         """
         Args:
-            structure:
-                pymatgen structure
-            pseudos:
-                List of pseudopotentials.
-            ksampling:
-                `Ksampling` object defining the sampling of the BZ.
-            relax_algo:
-                Object defining the algorithm for the structural relaxation.
-            accuracy:
-                Accuracy of the calculation.
-            spin_mode: 
-                Flag defining the spin polarization. Defaults to "polarized"
-            smearing: 
-                String or `Smearing` instance. 
-            charge:
-                Total charge of the system. Default is 0.
-            scf_algorithm:
-                `ElectronsAlgorithm` instance.
-            extra_abivars:
-                Extra ABINIT variables that will be directly added to the input file
+            structure: pymatgen structure
+            pseudos: List of pseudopotentials.
+            ksampling: :class:`Ksampling` object defining the sampling of the BZ.
+            relax_algo: Object defining the algorithm for the structural relaxation.
+            accuracy: Accuracy of the calculation.
+            spin_mode: Flag defining the spin polarization. Defaults to "polarized"
+            smearing: String or :class:`Smearing` instance.
+            charge: Total charge of the system. Default is 0.
+            scf_algorithm: :class:`ElectronsAlgorithm` instance.
+            extra_abivars: Extra ABINIT variables that will be directly added to the input file
         """
-        super(RelaxStrategy, self).__init__(structure, pseudos, ksampling, 
-                 accuracy=accuracy, spin_mode=spin_mode, smearing=smearing, 
-                 charge=charge, scf_algorithm=scf_algorithm, **extra_abivars)
+        super(RelaxStrategy, self).__init__(
+            structure, pseudos, ksampling,
+            accuracy=accuracy, spin_mode=spin_mode, smearing=smearing,
+            charge=charge, scf_algorithm=scf_algorithm, **extra_abivars)
 
         self.relax_algo = relax_algo
 
     @property
     def runlevel(self):
-        return "scf"
+        return "relax"
 
     def make_input(self):
-        # Input for the GS run
-        input_str = super(RelaxStrategy, self).make_input()
+        # extra for the GS run
+        extra = self._define_extra_params()
 
-        # Add the variables for the structural relaxation.
-        input = InputWriter(self.relax_algo)
-        input_str += input.get_string()
+        inpw = InputWriter(self.structure, self.electrons, self.ksampling, self.relax_algo, **extra)
+        return inpw.get_string()
 
-        return input_str
+    def as_dict(self):
+        d = super(RelaxStrategy, self).as_dict()
+        d['relax_algo'] = self.relax_algo
+        d['@module'] = self.__class__.__module__
+        d['@class'] = self.__class__.__name__
+
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        dec = MontyDecoder()
+        structure = dec.process_decoded(d["structure"])
+        pseudos = [Pseudo.from_file(p['filepath']) for p in d['pseudos']]
+        ksampling = dec.process_decoded(d["ksampling"])
+        spin_mode = dec.process_decoded(d["spin_mode"])
+        smearing = dec.process_decoded(d["smearing"])
+
+        return cls(structure=structure, pseudos=pseudos, ksampling=ksampling, accuracy=d['accuracy'],
+                   spin_mode=spin_mode, smearing=smearing, charge=d['charge'],
+                   scf_algorithm=d['scf_algorithm'], use_symmetries=d['use_symmetries'],
+                   relax_algo=d['relax_algo'], **d['extra_abivars'])
 
 
-class ScreeningStrategy(Strategy):
+class ScreeningStrategy(HtcStrategy):
     """Strategy for Screening calculations."""
-
     def __init__(self, scf_strategy, nscf_strategy, screening, **extra_abivars):
         """
         Args:
-            scf_strategy:
-                Strategy used for the ground-state calculation
-            nscf_strategy:
-                Strategy used for the non-self consistent calculation
-            screening:
-                Screening instance
-            extra_abivars:
-                Extra ABINIT variables added directly to the input file
+            scf_strategy: :class:`ScfStrategy` used for the ground-state calculation
+            nscf_strategy: :class:`NscStrategy` used for the non-self consistent calculation
+            screening: :class:`Screening` instance
+            extra_abivars: Extra ABINIT variables added directly to the input file
         """
         super(ScreeningStrategy, self).__init__()
 
@@ -434,7 +567,7 @@ class ScreeningStrategy(Strategy):
 
         scr_nband = screening.nband
 
-        scf_electrons  = scf_strategy.electrons
+        scf_electrons = scf_strategy.electrons
         nscf_electrons = nscf_strategy.electrons
 
         if scr_nband > nscf_electrons.nband:
@@ -447,10 +580,7 @@ class ScreeningStrategy(Strategy):
 
         self.electrons = Electrons(spin_mode=scf_electrons.spin_mode,
                                    smearing =scf_electrons.smearing,
-                                   nband=scr_nband,
-                                   charge=scf_electrons.charge,
-                                   comment=None,
-                                  )
+                                   nband=scr_nband, charge=scf_electrons.charge, comment=None)
 
         self.extra_abivars = extra_abivars
 
@@ -458,36 +588,30 @@ class ScreeningStrategy(Strategy):
     def runlevel(self):
         return "screening"
 
+    @property
+    def structure(self):
+        return self.scf_strategy.structure
+
     def make_input(self):
         # FIXME
-        extra = dict(
-            optdriver=self.optdriver,
-            ecut=self.ecut,
-            ecutwfn=self.ecut,
-            #pawecutdg=self.pawecutdg,
-        )
+        extra = dict(optdriver=self.optdriver, ecut=self.ecut, ecutwfn=self.ecut, pawecutdg=self.pawecutdg)
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
-                                                                                     
-        input = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.screening, **extra)
-        return input.get_string()
+
+        return InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.screening,
+                           **extra).get_string()
 
 
-class SelfEnergyStrategy(Strategy):
+class SelfEnergyStrategy(HtcStrategy):
     """Strategy for self-energy calculations."""
     def __init__(self, scf_strategy, nscf_strategy, scr_strategy, sigma, **extra_abivars):
         """
         Args:
-            scf_strategy:
-                Strategy used for the ground-state calculation
-            nscf_strategy:
-                Strategy used for the non-self consistent calculation
-            scr_strategy:
-                Strategy used for the screening calculation
-            sigma:
-                SelfEnergy instance.
-            extra_abivars:
-                Extra ABINIT variables added directly to the input file
+            scf_strategy: :class:`ScfStrategy` used for the ground-state calculation
+            nscf_strategy: :class:`NscfStrategy` used for the non-self consistent calculation
+            scr_strategy: :class:`ScrStrategy` used for the screening calculation
+            sigma: :class:`SelfEnergy` instance.
+            extra_abivars: Extra ABINIT variables added directly to the input file
         """
         # TODO Add consistency check between SCR and SIGMA strategies
         super(SelfEnergyStrategy, self).__init__()
@@ -502,7 +626,7 @@ class SelfEnergyStrategy(Strategy):
 
         self.extra_abivars = extra_abivars
 
-        scf_electrons  = scf_strategy.electrons
+        scf_electrons = scf_strategy.electrons
         nscf_electrons = nscf_strategy.electrons
 
         if sigma.nband > nscf_electrons.nband:
@@ -513,49 +637,42 @@ class SelfEnergyStrategy(Strategy):
         if not self.ksampling.is_homogeneous:
             raise ValueError("The k-sampling used for the NSCF run mush be homogeneous")
 
-        self.electrons = Electrons(spin_mode = scf_electrons.spin_mode,
-                                   smearing  = scf_electrons.smearing,
-                                   nband     = sigma.nband,
-                                   charge    = scf_electrons.charge,
-                                   comment   = None,
-                                  )
+        self.electrons = Electrons(
+            spin_mode=scf_electrons.spin_mode, smearing=scf_electrons.smearing,
+            nband=sigma.nband, charge=scf_electrons.charge)
+
     @property
     def runlevel(self):
         return "sigma"
 
+    @property
+    def structure(self):
+        return self.scf_strategy.structure
+
     def make_input(self):
         # FIXME
-        extra = dict(
-            optdriver=self.optdriver,
-            ecut=self.ecut,
-            ecutwfn=self.ecut,
-            # "pawecutdg": self.pawecutdg,
-            )
+        extra = dict(optdriver=self.optdriver, ecut=self.ecut, ecutwfn=self.ecut, pawecutdg=self.pawecutdg)
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
-                                                                                     
-        input = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.sigma, **extra)
-        return input.get_string()
+
+        return InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.sigma,
+                           **extra).get_string()
 
 
-class MDFBSE_Strategy(Strategy):
+class MdfBse_Strategy(HtcStrategy):
     """
-    Strategy for Bethe-Salpeter calculation based on the 
+    Strategy for Bethe-Salpeter calculation based on the
     model dielectric function and the scissors operator
     """
     def __init__(self, scf_strategy, nscf_strategy, exc_ham, **extra_abivars):
         """
         Args:
-            scf_strategy:
-                Strategy used for the ground-state calculation.
-            nscf_strategy:
-                Strategy used for the non-self consistent calculation.
-            exc_ham:
-                `ExcitonicHamiltonian` instance.
-            extra_abivars:
-                Extra ABINIT variables added directly to the input file.
+            scf_strategy: :class:`Strategy` used for the ground-state calculation.
+            nscf_strategy: :class:`NscStrategy` used for the non-self consistent calculation.
+            exc_ham: :class:`ExcitonicHamiltonian` instance.
+            extra_abivars: Extra ABINIT variables added directly to the input file.
         """
-        super(MDFBSE_Strategy, self).__init__()
+        super(MdfBse_Strategy, self).__init__()
 
         self.pseudos = scf_strategy.pseudos
 
@@ -566,7 +683,7 @@ class MDFBSE_Strategy(Strategy):
 
         self.extra_abivars = extra_abivars
 
-        scf_electrons  = scf_strategy.electrons
+        scf_electrons = scf_strategy.electrons
         nscf_electrons = nscf_strategy.electrons
 
         if exc_ham.nband > nscf_electrons.nband:
@@ -577,49 +694,45 @@ class MDFBSE_Strategy(Strategy):
         if not self.ksampling.is_homogeneous:
             raise ValueError("The k-sampling used for the NSCF run mush be homogeneous")
 
-        self.electrons = Electrons(spin_mode=scf_electrons.spin_mode,
-                                   smearing=scf_electrons.smearing,
-                                   nband=exc_ham.nband,
-                                   charge= scf_electrons.charge,
-                                   comment=None,
-                                    )
+        self.electrons = Electrons(
+            spin_mode=scf_electrons.spin_mode, smearing=scf_electrons.smearing,
+            nband=exc_ham.nband, charge=scf_electrons.charge)
+
     @property
     def runlevel(self):
         return "bse"
 
+    @property
+    def structure(self):
+        return self.scf_strategy.structure
+
     def make_input(self):
         # FIXME
-        extra = dict(
-            optdriver=self.optdriver,
-            ecut=self.ecut,
-            ecutwfn=self.ecut,
-            #pawecutdg=self.pawecutdg,
-        )
+        extra = dict(optdriver=self.optdriver, ecut=self.ecut, pawecutdg=self.pawecutdg, ecutwfn=self.ecut)
         #extra.update(self.tolerance)
         extra.update(self.extra_abivars)
-                                                                                     
-        input = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.exc_ham, **extra)
-        return input.get_string()
+
+        return InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.exc_ham,
+                           **extra).get_string()
 
 
-
-class InputWriter(object): 
+class InputWriter(object):
     """
-    This object receives a list of `AbivarAble` objects, an optional 
-    dictionary with extra ABINIT variables and produces a (nicely formatted?) 
-    string with the input file.
+    This object receives a list of `AbivarAble` objects, an optional
+    dictionary with extra ABINIT variables and produces a (nicely formatted?) string with the input file.
     """
+    MAX_SLEN = 100
+
     def __init__(self, *args, **kwargs):
         self.abiobj_dict = collections.OrderedDict()
         self.extra_abivars = collections.OrderedDict()
-
         for arg in args:
             if hasattr(arg, "to_abivars"):
                 self.add_abiobj(arg)
             else:
                 self.add_extra_abivars(arg)
 
-        for (k,v) in kwargs.items():
+        for k, v in kwargs.items():
             self.add_extra_abivars({k: v})
 
     def __str__(self):
@@ -632,7 +745,7 @@ class InputWriter(object):
         return self.abiobj_dict.values()
 
     def add_abiobj(self, obj):
-        """Add the object to self."""
+        """Add the object obj to self."""
         if not hasattr(obj, "to_abivars"):
             raise ValueError("%s does not define the method to_abivars" % str(obj))
 
@@ -654,36 +767,69 @@ class InputWriter(object):
         abivars.update(self.extra_abivars)
         return abivars
 
-    #def list_objects(self):
-    #    "String comment (comment of self + comments of the objects, if any)"
-    #    for obj in self.abiobjects:
-    #        if hasattr(obj, "comment"):
-    #            lines.append("%s: %s" % (obj.__class__.__name__, obj.comment))
-    #    return "\n".join(lines)
+    def print_abiobjects(self, stream=sys.stdout):
+        lines = [str(obj) for obj in self.abiobjects]
+        stream.write("\n".join(lines))
 
     @staticmethod
     def _format_kv(key, value):
         """Formatter"""
-        if value is None:  
-            return [] # Use ABINIT default.
-                                                                                   
+        if value is None:
+            # Use ABINIT default.
+            return []
+
         if isinstance(value, collections.Iterable) and not is_string(value):
             arr = np.array(value)
-            if len(arr.shape) in [0,1]: # scalar or vector.
+            if len(arr.shape) in [0,1]:
+                # scalar or vector.
                 token = [key, " ".join(str(i) for i in arr)]
-                                                                                   
-            else: 
-                # array --> matrix 
-                matrix = np.reshape(arr, (-1, arr.shape[-1])) 
-                lines  = []
-                for (idx, row) in enumerate(matrix):
+
+            else:
+                # array --> matrix
+                matrix = np.reshape(arr, (-1, arr.shape[-1]))
+                lines = []
+                for idx, row in enumerate(matrix):
                     lines.append(" ".join(str(i) for i in row))
-                token = [key +"\n", "\n".join(lines)]
+                token = [key + "\n", "\n".join(lines)]
 
         else:
             token = [key, str(value)]
 
         return token
+
+    def _cut_lines(self, lines):
+        MAX_SLEN = self.MAX_SLEN
+
+        new_lines = []
+        for line in lines:
+            if len(line) > MAX_SLEN:
+                #start, stop = 0, 0
+                #while True:
+                #    stop = start + MAX_SLEN
+                #    if stop > len(line): break
+                #    print(start, stop)
+                #    if stop > len(line): stop = len(line)
+                #    new_lines.append(line[start:stop])
+                #    start = stop
+
+                tokens = lines.split()
+                cum_nchars, start = 0, 0
+                for stop, tok in enumerate(tokens):
+                    cum_nchars += len(tok) + 1
+
+                    if cum_nchars > MAX_SLEN:
+                        cum_nchars = 0
+                        new_lines.append("".join(tokens[start:stop]))
+                    else:
+                        start = stop
+
+                if cum_nchars:
+                    new_lines.append("".join(tokens[start:stop]))
+
+            else:
+                new_lines.append(line)
+
+        return new_lines
 
     def get_string(self, pretty=False):
         """
@@ -691,18 +837,25 @@ class InputWriter(object):
         method is different from the __str__ method is to provide options for pretty printing.
 
         Args:
-            pretty:
-                Set to True for pretty aligned output.
+            pretty: Set to True for pretty aligned output.
         """
         lines = []
         app = lines.append
 
+        # extra_abivars can contain variables that are already defined 
+        # in the object. In this case, the value in extra_abivars is used
+        # TODO: Should find a more elegant way to avoid collission between objects
+        # and extra_abivars
+        extra_abivars = self.extra_abivars.copy()
+
         # Write the Abinit objects first.
         for obj in self.abiobjects:
+            #print(obj)
             app([80*"#", ""])
             app(["#", "%s" % obj.__class__.__name__])
             app([80*"#", ""])
             for (k, v) in obj.to_abivars().items():
+                v = extra_abivars.pop(k, v)
                 app(self._format_kv(k, v))
 
         # Extra variables.
@@ -710,8 +863,10 @@ class InputWriter(object):
             app([80*"#", ""])
             app(["#", "Extra_Abivars"])
             app([80*"#", ""])
-            for (k, v) in self.extra_abivars.items():
+            for (k, v) in extra_abivars.items():
                 app(self._format_kv(k, v))
+
+        #lines = self._cut_lines(lines)
 
         if pretty:
             return str_aligned(lines, header=None)
@@ -719,38 +874,11 @@ class InputWriter(object):
             return str_delimited(lines, header=None, delimiter=5*" ")
 
 
-class StrategyWithInput(object):
-    # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-    def __init__(self, abinit_input):
-        self.abinit_input = abinit_input
-                                         
-    @property
-    def pseudos(self):
-        # FIXME: pseudos must be order but I need to define an ABC for the Strategies and Inputs.
-        # Order pseudos
-        pseudos = self.abinit_input.pseudos
-        return order_pseudos(pseudos, self.abinit_input.structure)
-        #print("pseudos", pseudos)
-        #print("ord_pseudos", ord_pseudos)
-        #return ord_pseudos
-        #return self.abinit_input.pseudos
-
-    def add_extra_abivars(self, abivars):
-        """Add variables (dict) to extra_abivars."""
-        self.abinit_input.set_variables(**abivars)
-
-    def remove_extra_abivars(self, keys):
-        """Remove variables from extra_abivars."""
-        self.abinit_input.remove_variables(keys)
-                                         
-    def make_input(self):
-        return str(self.abinit_input)
-
-
 class OpticVar(collections.namedtuple("OpticVar", "name value help")):
     def __str__(self):
-        sval = string(self.value)
+        sval = str(self.value)
         return (4*" ").join(sval, "!" + self.help)
+
 
 class OpticInput(object):
     """
@@ -770,19 +898,19 @@ class OpticInput(object):
 
     # variable name --> default value.
     _VARIABLES = [
-        OpticVar("ddkfile_x", None,  "Name of the first d/dk response wavefunction file"),
-        OpticVar("ddkfile_y", None,  "Name of the second d/dk response wavefunction file"),
-        OpticVar("ddkfile_z", None,  "Name of the third d/dk response wavefunction file"),
-        OpticVar("wfkfile",   None,  "Name of the ground-state wavefunction file"),
-        OpticVar("zcut",      0.01,  "Value of the *smearing factor*, in Hartree"),
-        OpticVar("wmesh",(0.010, 1), "Frequency *step* and *maximum* frequency (Ha)"),
-        OpticVar("scissor", 0.000,   "*Scissor* shift if needed, in Hartree"),
-        OpticVar("sing_tol", 0.001,  "*Tolerance* on closeness of singularities (in Hartree)"), 
-        OpticVar("num_lin_comp", None, "*Number of components* of linear optic tensor to be computed"),
-        OpticVar("lin_comp", None,    "Linear *coefficients* to be computed (x=1, y=2, z=3)"),
+        OpticVar("ddkfile_x",       None, "Name of the first d/dk response wavefunction file"),
+        OpticVar("ddkfile_y",       None, "Name of the second d/dk response wavefunction file"),
+        OpticVar("ddkfile_z",       None, "Name of the third d/dk response wavefunction file"),
+        OpticVar("wfkfile",         None, "Name of the ground-state wavefunction file"),
+        OpticVar("zcut",            0.01, "Value of the *smearing factor*, in Hartree"),
+        OpticVar("wmesh",     (0.010, 1), "Frequency *step* and *maximum* frequency (Ha)"),
+        OpticVar("scissor",        0.000, "*Scissor* shift if needed, in Hartree"),
+        OpticVar("sing_tol",       0.001, "*Tolerance* on closeness of singularities (in Hartree)"),
+        OpticVar("num_lin_comp",    None, "*Number of components* of linear optic tensor to be computed"),
+        OpticVar("lin_comp",        None, "Linear *coefficients* to be computed (x=1, y=2, z=3)"),
         OpticVar("num_nonlin_comp", None, "Number of components of nonlinear optic tensor to be computed"),
-        OpticVar("nonlin_comp", None, "! Non-linear coefficients to be computed"),
-    ]                                             
+        OpticVar("nonlin_comp",     None, "! Non-linear coefficients to be computed"),
+    ]
 
     _VARNAMES = [v.name for v in _VARIABLES]
 
@@ -796,8 +924,8 @@ class OpticInput(object):
                 raise ValueError("varname %s not in %s" % (k, str(self.VARNAMES)))
             self.vars[k] = v
 
-    def __init__(self, zcut, wstep, wmax, scissor, sing_tol, linear_components, 
-                nonlinear_components=None, ddk_files=None, wfk=None): 
+    def __init__(self, zcut, wstep, wmax, scissor, sing_tol, linear_components,
+                 nonlinear_components=None, ddk_files=None, wfk=None):
 
         self.vars = vars = collections.OrderedDict(*self.VAR_NAMES)
 
@@ -817,7 +945,7 @@ class OpticInput(object):
         vars["num_lin_comp"] = len(linear_components)
         vars["lin_comp"] = " ".join(str(c) for c in linear_components)
 
-        vars["num_nonlin_comp"] = len(non_linear_components)
+        vars["num_nonlin_comp"] = len(nonlinear_components)
         vars["nonlin_comp"] = " ".join(str(c) for c in nonlinear_components)
 
     def __init__(self, string):
@@ -842,74 +970,6 @@ class OpticInput(object):
     def add_extra_abivars(self, abivars):
         """
         Connection is explicit via the input file
-        since we can pass the paths of the output files 
+        since we can pass the paths of the output files
         produced by the previous runs.
         """
-
-
-class AnaddbInput(object):
-
-    def __init__(self, structure=None, ndtset=1, comment=""):
-        """
-        Args:
-            structure:
-                Crystalline structure.
-            ndtset:
-                Number of datasets.
-            comment:
-                Optional string with a comment that will be placed at the beginning of the file.
-        """
-        self._structure = _structure
-        self.ndtset = ndset
-        self.comment = comment
-
-    def __init__(self, string):
-        self.string = string
-
-    @property
-    def structure(self):
-        return self._structure
-
-    def to_string(self):
-        return self.string
-
-    def make_input(self):
-        return self.to_string()
-
-    def add_extra_abivars(self, abivars):
-        """
-        Connection is explicit via the input file
-        since we can pass the paths of the output files 
-        produced by the previous runs.
-        """
-
-    #def set_qpath(self):
-    #    """
-    #    nqpath 7
-    #    qpath
-    #     0.0 0.0 0.0
-    #     1/2 1/2 0.0
-    #     1   1   1
-    #     1/2 1/2 1/2
-    #     1/2 1/2 0.0
-    #     1/2 3/4 1/4
-    #     1/2 1/2 1/2
-    #     """
-
-    #def split_datasets(self):
-    #    """
-    #    Split an input file with multiple datasets into a  list of `ndtset` distinct input files.
-    #    """
-    #    # Propagate subclasses (if any)
-    #    cls = self.__class__ 
-    #    news = []
-
-    #    for i in range(self.ndtset):
-    #        my_vars = self[i+1].allvars
-    #        my_vars.pop("ndtset", None)
-
-    #        new = cls(pseudos=self.pseudos, ndtset=1)
-    #        new.set_variables(**my_vars)
-    #        news.append(new)
-    #
-    #    return news

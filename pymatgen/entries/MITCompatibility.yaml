@@ -1,0 +1,66 @@
+Name: MIT
+Advanced:
+  UCorrections:
+    O:                     #Based on burp version as of Feb 28 2011
+      Mn: -1.687           
+      Fe: -1.723           
+      Co: -1.751           
+      Cr: -2.067           
+      Mo: -3.531           # refit number.
+      W:  -2.762           
+      V:  -1.764           
+      Ni: -2.164
+      Nb: -1.259           
+      Re: -1.177
+      Cu: -1.156
+      Ag: -0.324
+      Ta: -1.027           #Adjusted correction for Ta. Shyue May 24 2012
+    F:                     #Based on burp version as of Feb 28 2011
+      Mn: -1.687           
+      Fe: -1.723           
+      Co: -1.751           
+      Cr: -2.067           
+      Mo: -3.531           # refit number.
+      W:  -2.762           
+      V:  -1.764           
+      Ni: -2.164
+      Nb: -1.259           
+      Re: -1.177
+      Cu: -1.156
+      Ag: -0.324
+      Ta: -1.027           #Adjusted correction for Ta. Shyue May 24 2012
+    S:                     #Based on burp version as of Feb 28 2011
+      Mn: -1.232
+      Fe: -1.113
+  
+  #Fit energies for elements.  Note that these must be energies per atom!
+  #Document the fits PROPERLY. Fits by default are done over all alkali, alkali earth, and Al.
+  #The whole set is ("Li", "Na","K","Rb", "Cs", "Mg", "Ca","Sr", "Ba","Al")
+  #Last update: Sep 13 2011 by Shyue Ping Ong
+  CompoundEnergies:
+    #O2:  -4.25915626315    
+    N2:  -8.00185429481
+    F2:  -1.42203822397
+    Cl2: -1.26486611357
+    H2:  -3.302
+    SO3: -6.16649882299    #Sulfur corrections as of Jun 18 2014
+    SO2: -6.08728347651
+
+OxideCorrections:
+  oxide:       -0.66975    
+  peroxide:    -0.44317    #Corrections fit to Li2O2, Na2O2, K2O2, SrO2
+  superoxide:  -0.13893    #Superoxide Corrections fit to CsO2, NaO2, KO2 
+  ozonide:     0.00        
+
+# Entropic Correction term for gases. 
+# For H2O, energy is corrected such that the experimental formation energy of water of -2.46 eV is reproduced.
+# H2 is corrected such that the experimental formation energy of water is reproduced. 
+AqueousCompoundEnergies:
+  O2:  -0.316731
+  N2:  -0.295729
+  F2:  -0.313025
+  Cl2: -0.344373
+  Br:  -0.235039
+  Hg:  -0.234421
+  H2:  -3.6018845
+  H2O: -4.972

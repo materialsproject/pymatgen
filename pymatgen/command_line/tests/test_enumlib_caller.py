@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 Created on Jul 22, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -18,34 +21,32 @@ import os
 
 from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
 from pymatgen import Element, Structure
-from pymatgen.io.cifio import CifParser
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation
-from pymatgen.util.io_utils import which
+from monty.os.path import which
 from pymatgen.transformations.site_transformations import \
     RemoveSitesTransformation
+from pymatgen.util.testing import PymatgenTest
 
 
 enumlib_present = which('multienum.x') and which('makestr.x')
 
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
-class EnumlibAdaptorTest(unittest.TestCase):
+class EnumlibAdaptorTest(PymatgenTest):
 
     def test_init(self):
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                                 'test_files')
-        parser = CifParser(os.path.join(test_dir, "LiFePO4.cif"))
-        struct = parser.get_structures(False)[0]
+        struct = self.get_structure("LiFePO4")
         subtrans = SubstitutionTransformation({'Li': {'Li': 0.5}})
         adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 2)
         adaptor.run()
         structures = adaptor.structures
         self.assertEqual(len(structures), 86)
         for s in structures:
-            self.assertAlmostEqual(s.composition
-                                   .get_atomic_fraction(Element("Li")),
-                                   0.5 / 6.5)
+            self.assertAlmostEqual(
+                s.composition.get_atomic_fraction(Element("Li")), 0.5 / 6.5)
         adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 2,
                                  refine_structure=True)
         adaptor.run()
@@ -71,8 +72,7 @@ class EnumlibAdaptorTest(unittest.TestCase):
         self.assertEqual(len(adaptor.structures), 3)
 
         #Make sure it works properly when symmetry is broken by ordered sites.
-        parser = CifParser(os.path.join(test_dir, "LiFePO4.cif"))
-        struct = parser.get_structures(False)[0]
+        struct = self.get_structure("LiFePO4")
         subtrans = SubstitutionTransformation({'Li': {'Li': 0.25}})
         s = subtrans.apply_transformation(struct)
         #REmove some ordered sites to break symmetry.
@@ -89,6 +89,13 @@ class EnumlibAdaptorTest(unittest.TestCase):
         adaptor.run()
         structures = adaptor.structures
         self.assertEqual(len(structures), 10)
+
+        struct = Structure.from_file(
+            os.path.join(test_dir, "EnumerateTest.json"))
+        adaptor = EnumlibAdaptor(struct, 1, 1)
+        adaptor.run()
+        structures = adaptor.structures
+        self.assertEqual(len(structures), 2)
 
 if __name__ == '__main__':
     unittest.main()

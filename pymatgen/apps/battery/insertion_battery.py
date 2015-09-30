@@ -1,11 +1,14 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 This module is used for analysis of materials with potential application as
 intercalation batteries.
 """
 
-from __future__ import division
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -39,15 +42,13 @@ class InsertionElectrode(AbstractElectrode):
         Create a new InsertionElectrode.
 
         Args:
-            entries:
-                A list of ComputedStructureEntries (or subclasses) representing
-                the different topotactic states of the battery, e.g. TiO2 and
-                LiTiO2.
-            working_ion_entry:
-                A single ComputedEntry or PDEntry representing the element that
-                carries charge across the battery, e.g. Li.
+            entries: A list of ComputedStructureEntries (or subclasses)
+                representing the different topotactic states of the battery,
+                e.g. TiO2 and LiTiO2.
+            working_ion_entry: A single ComputedEntry or PDEntry
+                representing the element that carries charge across the
+                battery, e.g. Li.
         """
-
         self._entries = entries
         self._working_ion = working_ion_entry.composition.elements[0]
         self._working_ion_entry = working_ion_entry
@@ -55,7 +56,8 @@ class InsertionElectrode(AbstractElectrode):
         #Prepare to make phase diagram: determine elements and set their energy
         #to be very high
         elements = set()
-        map(elements.update, [entry.composition.elements for entry in entries])
+        for entry in entries:
+            elements.update(entry.composition.elements)
 
         #Set an artificial energy for each element for convex hull generation
         element_energy = max([entry.energy_per_atom for entry in entries]) + 10
@@ -101,10 +103,11 @@ class InsertionElectrode(AbstractElectrode):
 
     def get_stable_entries(self, charge_to_discharge=True):
         """
+        Get the stable entries.
+
         Args:
-            charge_to_discharge:
-                order from most charge to most discharged state? Default to
-                True.
+            charge_to_discharge: order from most charge to most discharged
+                state? Default to True.
 
         Returns:
             A list of stable entries in the electrode, ordered by amount of the
@@ -118,9 +121,8 @@ class InsertionElectrode(AbstractElectrode):
         Returns the unstable entries for the electrode.
 
         Args:
-            charge_to_discharge:
-                order from most charge to most discharged state? Defaults to
-                True.
+            charge_to_discharge: Order from most charge to most discharged
+                state? Defaults to True.
 
         Returns:
             A list of unstable entries in the electrode, ordered by amount of
@@ -169,74 +171,83 @@ class InsertionElectrode(AbstractElectrode):
         The maximum instability along a path for a specific voltage range.
 
         Args:
-            min_voltage:
-                The minimum allowable voltage.
-            max_voltage:
-                The maximum allowable voltage.
+            min_voltage: The minimum allowable voltage.
+            max_voltage: The maximum allowable voltage.
 
         Returns:
             Maximum decomposition energy of all compounds along the insertion
             path (a subset of the path can be chosen by the optional arguments)
         """
-        return max([max(pair.decomp_e_discharge, pair.decomp_e_charge)
-                    for pair in self._select_in_voltage_range(min_voltage,
-                                                              max_voltage)])
+        data = []
+        for pair in self._select_in_voltage_range(min_voltage, max_voltage):
+            if pair.decomp_e_charge is not None:
+                data.append(pair.decomp_e_charge)
+            if pair.decomp_e_discharge is not None:
+                data.append(pair.decomp_e_discharge)
+        return max(data) if len(data) > 0 else None
 
     def get_min_instability(self, min_voltage=None, max_voltage=None):
         """
         The minimum instability along a path for a specific voltage range.
 
         Args:
-            min_voltage:
-                The minimum allowable voltage.
-            max_voltage:
-                The maximum allowable voltage.
+            min_voltage: The minimum allowable voltage.
+            max_voltage: The maximum allowable voltage.
 
         Returns:
             Minimum decomposition energy of all compounds along the insertion
             path (a subset of the path can be chosen by the optional arguments)
         """
-        return min([min(pair.decomp_e_discharge, pair.decomp_e_charge)
-                    for pair in self._select_in_voltage_range(min_voltage,
-                                                              max_voltage)])
+        data = []
+        for pair in self._select_in_voltage_range(min_voltage, max_voltage):
+            if pair.decomp_e_charge is not None:
+                data.append(pair.decomp_e_charge)
+            if pair.decomp_e_discharge is not None:
+                data.append(pair.decomp_e_discharge)
+        return min(data) if len(data) > 0 else None
 
     def get_max_muO2(self, min_voltage=None, max_voltage=None):
         """
         Maximum critical oxygen chemical potential along path.
 
         Args:
-            min_voltage:
-                The minimum allowable voltage.
-            max_voltage:
-                The maximum allowable voltage.
+            min_voltage: The minimum allowable voltage.
+            max_voltage: The maximum allowable voltage.
 
         Returns:
             Maximum critical oxygen chemical of all compounds along the
             insertion path (a subset of the path can be chosen by the optional
             arguments).
         """
-        return max([max(pair.muO2_discharge, pair.muO2_charge)
-                    for pair in self._select_in_voltage_range(min_voltage,
-                                                              max_voltage)])
+        data = []
+        for pair in self._select_in_voltage_range(min_voltage, max_voltage):
+            if pair.muO2_discharge is not None:
+                data.append(pair.pair.muO2_discharge)
+            if pair.muO2_charge is not None:
+                data.append(pair.muO2_charge)
+        return max(data) if len(data) > 0 else None
 
     def get_min_muO2(self, min_voltage=None, max_voltage=None):
         """
         Minimum critical oxygen chemical potential along path.
 
         Args:
-            min_voltage:
-                the minimum allowable voltage for a given step
-            max_voltage:
-                the maximum allowable voltage allowable for a given step
+            min_voltage: The minimum allowable voltage for a given step
+            max_voltage: The maximum allowable voltage allowable for a given
+                step
 
         Returns:
             Minimum critical oxygen chemical of all compounds along the
             insertion path (a subset of the path can be chosen by the optional
             arguments).
         """
-        return min([min(pair.muO2_discharge, pair.muO2_charge)
-                    for pair in self._select_in_voltage_range(min_voltage,
-                                                              max_voltage)])
+        data = []
+        for pair in self._select_in_voltage_range(min_voltage, max_voltage):
+            if pair.pair.muO2_discharge is not None:
+                data.append(pair.pair.muO2_discharge)
+            if pair.muO2_charge is not None:
+                data.append(pair.muO2_charge)
+        return min(data) if len(data) > 0 else None
 
     def get_sub_electrodes(self, adjacent_only=True, include_myself=True):
         """
@@ -248,12 +259,11 @@ class InsertionElectrode(AbstractElectrode):
         options
 
         Args:
-            adjacent_only:
-                Only return electrodes from compounds that are adjacent on the
-                convex hull, i.e. no electrodes returned will have multiple
-                voltage steps if this is set True.
-            include_myself:
-                Include this identical electrode in the list of results.
+            adjacent_only: Only return electrodes from compounds that are
+                adjacent on the convex hull, i.e. no electrodes returned
+                will have multiple voltage steps if this is set True.
+            include_myself: Include this identical electrode in the list of
+                results.
 
         Returns:
             A list of InsertionElectrode objects
@@ -286,14 +296,15 @@ class InsertionElectrode(AbstractElectrode):
                 all_entries.extend(unstable_entries)
                 battery_list.append(self.__class__(all_entries,
                                                    self.working_ion_entry))
-
         return battery_list
 
-    def to_dict_summary(self, print_subelectrodes=True):
+    def as_dict_summary(self, print_subelectrodes=True):
         """
+        Generate a summary dict.
+
         Args:
-            print_subelectrodes:
-                Also print data on all the possible subelectrodes.
+            print_subelectrodes: Also print data on all the possible
+                subelectrodes.
 
         Returns:
             A summary of this electrode"s properties in dict format.
@@ -320,7 +331,7 @@ class InsertionElectrode(AbstractElectrode):
              "max_instability": self.get_max_instability(),
              "min_instability": self.get_min_instability()}
         if print_subelectrodes:
-            f_dict = lambda c: c.to_dict_summary(print_subelectrodes=False)
+            f_dict = lambda c: c.as_dict_summary(print_subelectrodes=False)
             d["adj_pairs"] = map(f_dict,
                                  self.get_sub_electrodes(adjacent_only=True))
             d["all_pairs"] = map(f_dict,
@@ -343,35 +354,30 @@ class InsertionElectrode(AbstractElectrode):
 
     @classmethod
     def from_dict(cls, d):
-        from pymatgen.serializers.json_coders import PMGJSONDecoder
-        dec = PMGJSONDecoder()
+        from monty.json import MontyDecoder
+        dec = MontyDecoder()
         return cls(dec.process_decoded(d["entries"]),
                    dec.process_decoded(d["working_ion_entry"]))
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "entries": [entry.to_dict for entry in self._entries],
-                "working_ion_entry": self.working_ion_entry.to_dict}
+                "entries": [entry.as_dict() for entry in self._entries],
+                "working_ion_entry": self.working_ion_entry.as_dict()}
 
 
 class InsertionVoltagePair(AbstractVoltagePair):
     """
     Defines an Insertion Voltage Pair.
+
+    Args:
+        entry1: Entry corresponding to one of the entries in the voltage step.
+        entry2: Entry corresponding to the other entry in the voltage step.
+        working_ion_entry: A single ComputedEntry or PDEntry representing
+            the element that carries charge across the battery, e.g. Li.
     """
 
     def __init__(self, entry1, entry2, working_ion_entry):
-        """
-        Args:
-            entry1:
-                Entry corresponding to one of the entries in the voltage step.
-            entry2:
-                Entry corresponding to the other entry in the voltage step.
-            working_ion_entry:
-                A single ComputedEntry or PDEntry representing the element that
-                carries charge across the battery, e.g. Li.
-        """
         #initialize some internal variables
         working_element = working_ion_entry.composition.elements[0]
 

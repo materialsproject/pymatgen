@@ -23,57 +23,77 @@ __status__ = "Development"
 __date__ ="March 22, 2012"
 
 class Stress(SQTensor):
-    #TODO: AJ says method names are not PEP8. e.g., VonMises should be von_mises.
- 
+    """
+    This class extends SQTensor
+    """
     def __init__(self, stress_matrix):
-        self._sigma = stress_matrix
-        super(Stress, self).__init__(self._sigma)
-        #TODO: AJ says defining a sigma parameter is bad, just use the _matrix parameter from the superclass
-
-    def get_scaled(self, scale_factor):
-        return super(Stress, self).get_scaled(scale_factor)
+        super(Stress, self).__init__(stress_matrix)
 
     @property
-    def DeviatorPrincipalInvariants(self):
-        I = self.PrincipalInvariants
+    def deviator_principal_invariants(self):
+        # TODO: check sign convention
+        # TODO: Also JM says this may be too abstract and might want
+        #   to use the original convention here, old code left
+        """
+        returns the principal invariants of the deviatoric stress tensor, 
+        which is calculated by finding the coefficients of the characteristic
+        polynomial of the stress tensor minus the identity times the mean
+        stress
+        """
+        return self.deviator_stress.principal_invariants
+        """
+        I = self.principal_invariants
         J1 = 0
-        J2 = 1.0/3*I[0]**2 - I[1]
-        J3 = 2.0/27*I[0]**3 - 1.0/3*I[0]*I[1] + I[2]
+        J2 = 1./3. * I[0]**2 - I[1]
+        J3 = 2./27. * I[0]**3 - 1./3.*I[0]*I[1] + I[2]
         J = [J1, J2, J3]
         return J
+        """
 
     @property
     def stress_matrix(self):
-        return self._sigma
+        return self._matrix
 
     @property
-    def VonMises(self):
+    def von_mises(self):
+        """
+        calculates the von mises stress
+        """
         if self.is_symmetric() == False:
-            raise ValueError("The stress tensor is not symmetric, VM stress is based on a symmetric stress tensor.")
-        J = self.DeviatorPrincipalInvariants        
-        sigma_mises = math.sqrt(3*J[1])
-        return sigma_mises
+            raise ValueError("The stress tensor is not symmetric, \
+                             VM stress is based on a symmetric stress tensor.")
+        return math.sqrt(3*self.deviator_principal_invariants[1])
 
     @property
-    def MeanStress(self):
-#        if self.is_symmetric() == False:
-#            raise ValueError("The stress tensor is not symmetric, mean stress is based on a symmetric stress tensor.")
-        return 1.0/3*(self._sigma[0,0] + self._sigma[1,1] + self._sigma[2,2])
+    def mean_stress(self):
+        """
+        returns the mean stress
+        """
+        return 1./3.*self._matrix.trace()
 
     @property
-    def DeviatorStress(self):
+    def deviator_stress(self):
+        """
+        returns the deviatoric component of the stress
+        """
         if self.is_symmetric() == False:
-            raise ValueError("The stress tensor is not symmetric, so deviator stress will not be either")
-        return self._sigma - self.MeanStress
+            raise ValueError("The stress tensor is not symmetric, \
+                             so deviator stress will not be either")
+        return SQTensor(self._matrix - self.mean_stress*np.eye(3))
 
-    def PiolaKirchoff1(self, F):
+    # TODO: JM asks is there a more descriptive way to distinguish these?
+    # TODO: JM asks is the F argument here necessary or should it operate
+    #   on the matrix attribute?
+    def piola_kirchoff_1(self, F):
         if self.is_symmetric() == False:
-            raise ValueError("The stress tensor is not symmetric, PK stress is based on a symmetric stress tensor.")
-        return np.linalg.det(F)*self._sigma*np.transpose(np.linalg.inv(F))
+            raise ValueError("The stress tensor is not symmetric, \
+                             PK stress is based on a symmetric stress tensor.")
+        return np.linalg.det(F)*self._matrix*np.transpose(np.linalg.inv(F))
 
-    def PiolaKirchoff2(self, F):
+    def piola_kirchoff_2(self, F):
         if self.is_symmetric() == False:
-            raise ValueError("The stress tensor is not symmetric, PK stress is based on a symmetric stress tensor.")
+            raise ValueError("The stress tensor is not symmetric, \
+                             PK stress is based on a symmetric stress tensor.")
         return np.linalg.det(F)*np.linalg.inv(F)*self._sigma*np.transpose(np.linalg.inv(F))
 
 
@@ -84,7 +104,7 @@ if __name__ == "__main__":
 #    mat[0,2] = 0.1
 #    mat[2,0] = 0.1
     s = Stress(mat)
-    print s.PrincipalInvariants
+    print s.principal_invariants
     
 #    for property, value in vars(s).iteritems():
 #            print property, ": ", value

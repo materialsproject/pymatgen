@@ -1,5 +1,8 @@
-#!/usr/bin/env python
-from __future__ import division, print_function
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals, division, print_function
 
 import os
 
@@ -7,6 +10,8 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.abinitio.abiobjects import *
+
+import warnings
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -27,9 +32,9 @@ def cif_paths():
 class SpinModeTest(PymatgenTest):
 
     def test_base(self):
-        polarized = SpinMode.asspinmode("polarized")
-        other_polarized = SpinMode.asspinmode("polarized")
-        unpolarized = SpinMode.asspinmode("unpolarized")
+        polarized = SpinMode.as_spinmode("polarized")
+        other_polarized = SpinMode.as_spinmode("polarized")
+        unpolarized = SpinMode.as_spinmode("unpolarized")
 
         polarized.to_abivars()
 
@@ -40,16 +45,20 @@ class SpinModeTest(PymatgenTest):
         # Test pickle
         self.serialize_with_pickle(polarized)
 
+        # Test dict methods
+        self.assertPMGSONable(polarized)
+        self.assertPMGSONable(unpolarized)
+
 
 class SmearingTest(PymatgenTest):
     def test_base(self):
-        fd1ev = Smearing.assmearing("fermi_dirac:1 eV")
+        fd1ev = Smearing.as_smearing("fermi_dirac:1 eV")
         print(fd1ev)
         fd1ev.to_abivars()
 
         self.assertTrue(fd1ev)
 
-        same_fd = Smearing.assmearing("fermi_dirac:"+ str(1.0/Ha_to_eV))
+        same_fd = Smearing.as_smearing("fermi_dirac:"+ str(1.0/Ha_to_eV))
 
         self.assertTrue(same_fd == fd1ev)
 
@@ -57,11 +66,14 @@ class SmearingTest(PymatgenTest):
 
         self.assertFalse(nosmear)
         self.assertTrue(nosmear != fd1ev)
-        new_fd1ev = Smearing.from_dict(fd1ev.to_dict)
+        new_fd1ev = Smearing.from_dict(fd1ev.as_dict())
         self.assertTrue(new_fd1ev == fd1ev)
 
         # Test pickle
         self.serialize_with_pickle(fd1ev)
+
+        # Test dict methods
+        self.assertPMGSONable(fd1ev)
 
 
 class ElectronsAlgorithmTest(PymatgenTest):
@@ -82,63 +94,61 @@ class ElectronsTest(PymatgenTest):
 
         print(default_electrons.to_abivars())
 
-        #new = Electron.from_dict(default_electrons.to_dict())
+        #new = Electron.from_dict(default_electrons.as_dict())
 
         # Test pickle
         self.serialize_with_pickle(default_electrons, test_eq=False)
 
 
-class AbiStructureTest(PymatgenTest):
+class KSamplingTest(PymatgenTest):
 
-    def setUp(self):
-        self.cif_paths = cif_paths()
+    def test_base(self):
+        monkhorst = KSampling.monkhorst((3, 3, 3), (0.5, 0.5, 0.5), 0, False, False)
+        gamma_centered = KSampling.gamma_centered((3, 3, 3), False, False)
 
-    def test_asabistructure(self):
-        for cif_path in self.cif_paths:
-            print("about to init abistructure from %s " % cif_path)
-            st = asabistructure(cif_path)
-            self.assertTrue(st is asabistructure(st))
-            self.assertTrue(isinstance(st, Structure))
+        monkhorst.to_abivars()
 
-            # TODO
-            if not st.is_ordered:
-                print("Unordered structures are not supported")
-                continue
+        # Test dict methods
+        self.assertPMGSONable(monkhorst)
+        self.assertPMGSONable(gamma_centered)
 
-            print(st.to_abivars())
+class RelaxationTest(PymatgenTest):
 
-        # Test pickle
-        # FIXME: protocol 2 does not work due to __new__
-        self.serialize_with_pickle(st, protocols=[0, 1], test_eq=True)
+    def test_base(self):
+        atoms_and_cell = RelaxationMethod.atoms_and_cell()
+        atoms_only = RelaxationMethod.atoms_only()
 
+        atoms_and_cell.to_abivars()
 
-#class KSamplingTest(PymatgenTest):
-
-
-#class RelaxationTest(PymatgenTest):
+        # Test dict methods
+        self.assertPMGSONable(atoms_and_cell)
+        self.assertPMGSONable(atoms_only)
 
 
 class PPModelTest(PymatgenTest):
 
     def test_base(self):
-        godby = PPModel.asppmodel("godby:12 eV")
+        godby = PPModel.as_ppmodel("godby:12 eV")
         print(godby)
         print(repr(godby))
         godby.to_abivars()
         self.assertTrue(godby)
 
-        same_godby = PPModel.asppmodel("godby:"+ str(12.0/Ha_to_eV))
+        same_godby = PPModel.as_ppmodel("godby:"+ str(12.0/Ha_to_eV))
         self.assertTrue(same_godby == godby)
 
         noppm = PPModel.noppmodel()
 
         self.assertFalse(noppm)
         self.assertTrue(noppm != godby)
-        new_godby = PPModel.from_dict(godby.to_dict)
+        new_godby = PPModel.from_dict(godby.as_dict())
         self.assertTrue(new_godby == godby)
 
         # Test pickle
         self.serialize_with_pickle(godby)
+
+        # Test dict methods
+        self.assertPMGSONable(godby)
 
 
 if __name__ == '__main__':

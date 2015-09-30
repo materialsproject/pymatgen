@@ -1,19 +1,29 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """Tools for the submission of Tasks."""
-from __future__ import division, print_function
+from __future__ import unicode_literals, division, print_function
 
 import os
 import time
 import collections
 import yaml
-import cStringIO as StringIO
 
+from six.moves import cStringIO
 from datetime import timedelta
-from pymatgen.core.design_patterns import AttrDict
-from pymatgen.util.string_utils import is_string
-from pymatgen.io.abinitio.utils import File
+from monty.io import get_open_fds
+from monty.string import boxed, is_string
+from monty.os.path import which
+from monty.collections import AttrDict
+from .utils import as_bool
+
+try:
+    import apscheduler
+    has_sched_v3 = apscheduler.version >= "3.0.0"
+except ImportError:
+    pass
 
 import logging
-
 logger = logging.getLogger(__name__)
 
 __all__ = [
@@ -26,14 +36,27 @@ __all__ = [
 def straceback():
     """Returns a string with the traceback."""
     import traceback
-
     return traceback.format_exc()
 
 
+def ask_yesno(prompt, default=True):
+    import six
+    # Fix python 2.x.
+    if six.PY2:
+        my_input = raw_input
+    else:
+        my_input = input
+
+    try:
+        answer = my_input(prompt)
+    except EOFError:
+        return default
+
+    return answer.lower().strip() in ["n", "no"]
+
+
 class ScriptEditor(object):
-    """
-    Simple editor that simplifies the writing of shell scripts
-    """
+    """Simple editor that simplifies the writing of shell scripts"""
     _shell = '/bin/bash'
 
     def __init__(self):
@@ -114,114 +137,32 @@ class ScriptEditor(object):
         return s
 
 
-class OmpEnv(dict):
-    """
-    Dictionary with the OpenMP environment variables
-    see https://computing.llnl.gov/tutorials/openMP/#EnvironmentVariables
-    """
-    _KEYS = [
-        "OMP_SCHEDULE",
-        "OMP_NUM_THREADS",
-        "OMP_DYNAMIC",
-        "OMP_PROC_BIND",
-        "OMP_NESTED",
-        "OMP_STACKSIZE",
-        "OMP_WAIT_POLICY",
-        "OMP_MAX_ACTIVE_LEVELS",
-        "OMP_THREAD_LIMIT",
-        "OMP_STACKSIZE",
-        "OMP_PROC_BIND",
-    ]
-
-    def __init__(self, *args, **kwargs):
-        """ 
-        Constructor method inherited from dictionary:
-                                                   
-        >>> OmpEnv(OMP_NUM_THREADS=1)
-        {'OMP_NUM_THREADS': '1'}
-                                                   
-        To create an instance from an INI file, use:
-           OmpEnv.from_file(filename)
-        """
-        self.update(*args, **kwargs)
-
-        err_msg = ""
-        for key, value in self.items():
-            self[key] = str(value)
-            if key not in self._KEYS:
-                err_msg += "unknown option %s\n" % key
-
-        if err_msg:
-            raise ValueError(err_msg)
-
-    @classmethod
-    def from_file(cls, filename, allow_empty=False):
-        """Reads the OpenMP variables from a INI file."""
-        if filename.endswith(".ini"):
-            from ConfigParser import SafeConfigParser, NoOptionError
-
-            parser = SafeConfigParser()
-            parser.read(filename)
-
-            obj = OmpEnv()
-
-            # Consistency check. Note that we only check if the option name is correct, 
-            # we do not check whether the value is correct or not.
-            if "openmp" not in parser.sections():
-                if not allow_empty:
-                    raise ValueError("%s does not contain any [openmp] section" % filename)
-                return obj
-
-            err_msg = ""
-            for key in parser.options("openmp"):
-                if key.upper() not in self._KEYS:
-                    err_msg += "unknown option %s, maybe a typo" % key
-
-            if err_msg:
-                raise ValueError(err_msg)
-
-            for key in cls._KEYS:
-                try:
-                    obj[key] = str(parser.get("openmp", key))
-                except NoOptionError:
-                    try:
-                        obj[key] = str(parser.get("openmp", key.lower()))
-                    except NoOptionError:
-                        pass
-
-            if not allow_empty and not obj:
-                raise ValueError("Refusing to return with an empty dict")
-
-            return obj
-
-        else:
-            raise NotImplementedError("Don't how how to read data from %s" % filename)
-
-
 class PyLauncherError(Exception):
     """Error class for PyLauncher."""
 
 
 class PyLauncher(object):
-    """
-    This object handle the submission of the tasks contained in a `AbinitFlow`
-    """
+    """This object handle the submission of the tasks contained in a :class:`Flow`"""
     Error = PyLauncherError
 
-    def __init__(self, flow):
+    def __init__(self, flow, **kwargs):
         """
         Initialize the object
 
         Args:
-            flow:
-                `AbinitFlow` object
+            flow: :class:`Flow` object
+            kwargs:
+                max_njobs_inqueue:
+                    The launcher will stop submitting jobs when the
+                    number of jobs in the queue is >= Max number of jobs
         """
         self.flow = flow
+        self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 200)
 
     def single_shot(self):
         """
-        Run the first `Task` than is ready for execution.
-        
+        Run the first :class:`Task` than is ready for execution.
+
         Returns:
             Number of jobs launched.
         """
@@ -236,7 +177,7 @@ class PyLauncher(object):
                 if task is not None:
                     tasks.append(task)
                 else:
-                    # No task found, this usually happens when we have dependencies. 
+                    # No task found, this usually happens when we have dependencies.
                     # Beware of possible deadlocks here!
                     logger.debug("No task to run! Possible deadlock")
 
@@ -252,64 +193,50 @@ class PyLauncher(object):
 
         return num_launched
 
-    def rapidfire(self, max_nlaunch=-1, max_loops=1, sleep_time=None): # nlaunches=0, 
+    def rapidfire(self, max_nlaunch=-1, max_loops=1, sleep_time=5):
         """
         Keeps submitting `Tasks` until we are out of jobs or no job is ready to run.
 
         Args:
-            max_nlaunch:
-                Maximum number of launches. default: no limit.
+            max_nlaunch: Maximum number of launches. default: no limit.
+            max_loops: Maximum number of loops
+            sleep_time: seconds to sleep between rapidfire loop iterations
 
-        nlaunches: 
-            0 means 'until completion', -1 or "infinite" means to loop forever
-        max_loops: 
-            maximum number of loops
-        sleep_time: 
-            secs to sleep between rapidfire loop iterations
-        
         Returns:
             The number of tasks launched.
         """
-        sleep_time = sleep_time if sleep_time else 5
-        #nlaunches = -1 if nlaunches == 'infinite' else int(nlaunches)
-        num_loops, num_launched, launched = 0, 0, []
-        got_empty_list = 0
+        num_launched, do_exit, launched = 0, False, []
 
-        while num_loops != max_loops:
+        for count in range(max_loops):
+            if do_exit:
+                break
+            if count > 0:
+                time.sleep(sleep_time)
+
             tasks = self.fetch_tasks_to_run()
 
             # I don't know why but we receive duplicated tasks.
-            for task in tasks:
-                if task in launched:
-                    err_msg = "task %s already in launched list:\n%s" % (task, launched)
-                    logger.critical(err_msg)
+            if any(task in launched for task in tasks):
+                logger.critical("numtasks %d already in launched list:\n%s" % (len(task), launched))
 
             # Preventive test.
             tasks = [t for t in tasks if t not in launched]
 
             if not tasks:
-                got_empty_list += 1
-
-            if got_empty_list == max_loops:
-                break
+                continue
 
             for task in tasks:
                 fired = task.start()
-
                 if fired:
                     launched.append(task)
                     num_launched += 1
 
-                if num_launched == max_nlaunch:
-                    # Exit the outermst loop.
-                    num_loops = max_loops
+                if num_launched >= max_nlaunch > 0:
+                    logger.info('num_launched >= max_nlaunch, going back to sleep')
+                    do_exit = True
                     break
 
-            #time.sleep(sleep_time)
-            num_loops += 1
-
         # Update the database.
-        self.flow.check_status()
         self.flow.pickle_dump()
 
         return num_launched
@@ -322,75 +249,58 @@ class PyLauncher(object):
         tasks_to_run = []
 
         for work in self.flow:
-            try:
-                task = work.fetch_task_to_run()
-
-                if task is not None:
-                    tasks_to_run.append(task)
-                else:
-                    # No task found, this usually happens when we have dependencies. 
-                    # Beware of possible deadlocks here!
-                    logger.debug("fetch_task_to_run returned None.")
-
-            except StopIteration:
-                # All the tasks in work are done.
-                logger.debug("Out of tasks in work %s" % work)
+            tasks_to_run.extend(work.fetch_alltasks_to_run())
 
         return tasks_to_run
 
 
-def boxed(msg, ch="=", pad=5):
-    if pad > 0:
-        msg = pad * ch + msg + pad * ch
-
-    return "\n".join([len(msg) * ch,
-                      msg,
-                      len(msg) * ch,
-                      "", ])
+class PyFlowSchedulerError(Exception):
+    """Exceptions raised by `PyFlowScheduler`."""
 
 
 class PyFlowScheduler(object):
     """
-    This object schedules the submission of the tasks in an `AbinitFlow`.
-    There are two types of errors that might occur during the execution of the jobs: 
-    
-        #. Python exceptions 
+    This object schedules the submission of the tasks in an :class:`Flow`.
+    There are two types of errors that might occur during the execution of the jobs:
+
+        #. Python exceptions
         #. Abinit Errors.
-    
+
     Python exceptions are easy to detect and are usually due to a bug in abinitio or random errors such as IOError.
     The set of Abinit Errors is much much broader. It includes wrong input data, segmentation
     faults, problems with the resource manager, etc. Abinitio tries to handle the most common cases
-    but there's still a lot of room for improvement. 
-    Note, in particular, that `PyFlowScheduler` will shutdown automatically if 
-    
+    but there's still a lot of room for improvement.
+    Note, in particular, that `PyFlowScheduler` will shutdown automatically if
+
         #. The number of python exceptions is > MAX_NUM_PYEXC
 
         #. The number of Abinit Errors (i.e. the number of tasks whose status is S_ERROR) is > MAX_NUM_ERRORS
 
-        #. The number of jobs launched becomes greater than (SAFETY_RATIO * total_number_of_tasks).
+        #. The number of jobs launched becomes greater than (`safety_ratio` * total_number_of_tasks).
 
-        #. The scheduler will send an email to the user (specified by mailto) every REMINDME_S seconds.
-           If the mail cannot be sent, it will shutdown automatically. 
+        #. The scheduler will send an email to the user (specified by `mailto`) every `remindme_s` seconds.
+           If the mail cannot be sent, it will shutdown automatically.
            This check prevents the scheduler from being trapped in an infinite loop.
     """
     # Configuration file.
     YAML_FILE = "scheduler.yml"
+    USER_CONFIG_DIR = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
+
+    Error = PyFlowSchedulerError
 
     def __init__(self, **kwargs):
         """
         Args:
-            weeks:
-                number of weeks to wait
-            days:
-                number of days to wait
-            hours:
-                number of hours to wait
-            minutes:
-                number of minutes to wait
-            seconds:
-                number of seconds to wait
-            verbose:
-                (int) verbosity level
+            weeks: number of weeks to wait
+            days: number of days to wait
+            hours: number of hours to wait
+            minutes: number of minutes to wait
+            seconds: number of seconds to wait
+            verbose: (int) verbosity level
+            max_njobs_inque: Limit on the number of jobs that can be present in the queue
+            use_dynamic_manager: True if the :class:`TaskManager` must be re-initialized from
+                file before launching the jobs. Default: False
+            max_nlaunches: Maximum number of tasks launched by radpifire (default -1 i.e. no limit)
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
@@ -403,45 +313,59 @@ class PyFlowScheduler(object):
         )
 
         if all(not v for v in self.sched_options.values()):
-            raise ValueError("Wrong set of options passed to the scheduler.")
+            raise self.Error("Wrong set of options passed to the scheduler.")
 
         self.mailto = kwargs.pop("mailto", None)
         self.verbose = int(kwargs.pop("verbose", 0))
+        self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", False)
+        self.max_njobs_inqueue = kwargs.pop("max_njobs_inqueue", 200)
+        self.contact_resource_manager = as_bool(kwargs.pop("contact_resource_manager", False))
 
-        self.REMINDME_S = float(kwargs.pop("REMINDME_S", 24 * 3600))
-        self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
-        self.MAX_NUM_ABIERRS = int(kwargs.pop("MAX_NUM_ABIERRS", 0))
-        self.SAFETY_RATIO = int(kwargs.pop("SAFETY_RATIO", 3))
+        self.remindme_s = float(kwargs.pop("remindme_s", 4 * 24 * 3600))
+        self.max_num_pyexcs = int(kwargs.pop("max_num_pyexcs", 0))
+        self.max_num_abierrs = int(kwargs.pop("max_num_abierrs", 0))
+        self.safety_ratio = int(kwargs.pop("safety_ratio", 5))
+        #self.max_etime_s = kwargs.pop("max_etime_s", )
+        self.max_nlaunches = kwargs.pop("max_nlaunches", -1)
+        self.debug = kwargs.pop("debug", 0)
 
         if kwargs:
-            raise ValueError("Unknown arguments %s" % kwargs)
+            raise self.Error("Unknown arguments %s" % kwargs)
 
-        from apscheduler.scheduler import Scheduler
-
-        self.sched = Scheduler(standalone=True)
+        if has_sched_v3:
+            from apscheduler.schedulers.blocking import BlockingScheduler
+            self.sched = BlockingScheduler()
+        else:
+            from apscheduler.scheduler import Scheduler
+            self.sched = Scheduler(standalone=True)
 
         self.nlaunch = 0
         self.num_reminders = 1
 
         # Used to keep track of the exceptions raised while the scheduler is running
-        self.exceptions = collections.deque(maxlen=self.MAX_NUM_PYEXCS + 10)
+        self.exceptions = collections.deque(maxlen=self.max_num_pyexcs + 10)
 
-        # Used to push additional info during the execution. 
+        # Used to push additional info during the execution.
         self.history = collections.deque(maxlen=100)
 
     @classmethod
     def from_file(cls, filepath):
         """Read the configuration parameters from a Yaml file."""
         with open(filepath, "r") as fh:
-            d = yaml.load(fh)
-            return cls(**d)
+            return cls(**yaml.load(fh))
+
+    @classmethod
+    def from_string(cls, s):
+        """Create an istance from string s containing a YAML dictionary."""
+        stream = cStringIO(s)
+        stream.seek(0)
+        return cls(**yaml.load(stream))
 
     @classmethod
     def from_user_config(cls):
         """
-        Initialize the `PyFlowScheduler` from the YAML file 'scheduler.yml'.
-        Search first in the working directory and then in the configuration
-        directory of abipy.
+        Initialize the :class:`PyFlowScheduler` from the YAML file 'scheduler.yml'.
+        Search first in the working directory and then in the configuration directory of abipy.
 
         Raises:
             RuntimeError if file is not found.
@@ -453,15 +377,12 @@ class PyFlowScheduler(object):
             return cls.from_file(path)
 
         # Try in the configuration directory.
-        home = os.getenv("HOME")
-        dirpath = os.path.join(home, ".abinit", "abipy")
-        path = os.path.join(dirpath, cls.YAML_FILE)
+        path = os.path.join(cls.USER_CONFIG_DIR, cls.YAML_FILE)
 
         if os.path.exists(path):
             return cls.from_file(path)
 
-        err_msg = "Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, dirpath)
-        raise RuntimeError(err_msg)
+        raise cls.Error("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, path))
 
     def __str__(self):
         """String representation."""
@@ -487,14 +408,14 @@ class PyFlowScheduler(object):
     @property
     def pid_file(self):
         """
-        Absolute path of the file with the pid. 
+        Absolute path of the file with the pid.
         The file is located in the workdir of the flow
         """
-        return self._pidfile
+        return self._pid_file
 
     @property
     def flow(self):
-        """`AbinitFlow`."""
+        """`Flow`."""
         return self._flow
 
     @property
@@ -507,29 +428,30 @@ class PyFlowScheduler(object):
         return timedelta(seconds=(time.time() - self.start_time))
 
     def add_flow(self, flow):
-        """Add an `AbinitFlow` to the scheduler."""
+        """Add an :class:`Flow` flow to the scheduler."""
         if hasattr(self, "_flow"):
-            raise ValueError("Only one flow can be added to the scheduler.")
+            raise self.Error("Only one flow can be added to the scheduler.")
 
         pid_file = os.path.join(flow.workdir, "_PyFlowScheduler.pid")
 
         if os.path.isfile(pid_file):
             flow.show_status()
 
-            err_msg = (
-                "pid_file %s already exists\n"
-                "There are two possibilities:\n\n"
-                "   1) There's an another instance of PyFlowScheduler running.\n"
-                "   2) The previous scheduler didn't exit in a clean way.\n\n"
-                "To solve case 1:\n"
-                "   Kill the previous scheduler (use 'kill pid' where pid is the number reported in the file)\n"
-                "   Then you run can start the new scheduler.\n\n"
-                "To solve case 2:\n"
-                "   Remove the pid_file and restart the scheduler.\n\n"
-                "Exiting\n" % pid_file
-            )
+            raise self.Error("""\
+                pid_file %s already exists
+                There are two possibilities:
 
-            raise RuntimeError(err_msg)
+                   1) There's an another instance of PyFlowScheduler running
+                   2) The previous scheduler didn't exit in a clean way
+
+                To solve case 1:
+                   Kill the previous scheduler (use 'kill pid' where pid is the number reported in the file)
+                   Then you can restart the new scheduler.
+
+                To solve case 2:
+                   Remove the pid_file and restart the scheduler.
+
+                Exiting""" % pid_file)
 
         with open(pid_file, "w") as fh:
             fh.write(str(self.pid))
@@ -539,68 +461,111 @@ class PyFlowScheduler(object):
 
     def start(self):
         """
-        Starts the scheduler in a new thread.
+        Starts the scheduler in a new thread. Returns True if success.
         In standalone mode, this method will block until there are no more scheduled jobs.
         """
         self.history.append("Started on %s" % time.asctime())
         self.start_time = time.time()
 
-        self.sched.add_interval_job(self.callback, **self.sched_options)
+        if has_sched_v3:
+            self.sched.add_job(self.callback, "interval", **self.sched_options)
+        else:
+            self.sched.add_interval_job(self.callback, **self.sched_options)
 
-        # Try to run the job immediately. If something goes wrong 
-        # return without initializing the scheduler.
-        retcode = self._runem_all()
+        errors = self.flow.look_before_you_leap()
+        if errors:
+            self.exceptions.append(errors)
+            return False
 
-        if retcode:
+        # Try to run the job immediately. If something goes wrong return without initializing the scheduler.
+        self._runem_all()
+
+        if self.exceptions:
             self.cleanup()
-            self.send_email(msg="Error while trying to run the flow for the first time!")
+            self.send_email(msg="Error while trying to run the flow for the first time!\n %s" % self.exceptions)
+            return False
 
-        self.sched.start()
+        try:
+            self.sched.start()
+            return True
+
+        except KeyboardInterrupt:
+            self.shutdown(msg="KeyboardInterrupt from user")
+            if ask_yesno("Do you want to cancel all the jobs in the queue? [Y/n]"): 
+                self.flow.cancel()
+            self.flow.pickle_dump()
+            return False
 
     def _runem_all(self):
         """
-        This function tries to run all the tasks that can be submitted.
+        This function checks the status of all tasks,
+        tries to fix tasks that went unconverged, abicritical, or queuecritical
+        and tries to run all the tasks that can be submitted.+
         """
-        max_nlaunch, excs = -1, []
-
+        excs = []
         flow = self.flow
-        flow.check_status()
 
+        # Allow to change the manager at run-time
+        if self.use_dynamic_manager:
+            from pymatgen.io.abinitio.tasks import TaskManager
+            new_manager = TaskManager.from_user_config()
+            for work in flow:
+                work.set_manager(new_manager)
+
+        nqjobs = 0
+        if self.contact_resource_manager:
+            # This call is expensive and therefore it's optional
+            nqjobs = flow.get_njobs_in_queue()
+            if nqjobs is None:
+                nqjobs = 0
+                if flow.manager.has_queue: logger.warning('Cannot get njobs_inqueue')
+
+            if nqjobs >= self.max_njobs_inqueue:
+                logger.info("Too many jobs in the queue, returning")
+                return
+
+        if self.max_nlaunches == -1:
+            max_nlaunch = self.max_njobs_inqueue - nqjobs
+        else:
+            max_nlaunch = min(self.max_njobs_inqueue - nqjobs, self.max_nlaunches)
+
+        # check status and print it.
+        flow.check_status(show=False)
+
+        # fix problems
         # Try to restart the unconverged tasks
+        # todo donot fire here but prepare for fireing in rapidfire
         for task in self.flow.unconverged_tasks:
             try:
+                logger.info("Flow will try restart task %s" % task)
                 fired = task.restart()
-                if fired: self.nlaunch += 1
-
-            except Exception:
+                if fired: 
+                    self.nlaunch += 1
+                    max_nlaunch -= 1
+                    if max_nlaunch == 0:
+                        logger.info("Restart: too many jobs in the queue, returning")
+                        flow.pickle_dump()
+                        return
+            except task.RestartError:
                 excs.append(straceback())
 
+        # move here from withing rapid fire ...
+        # fix only prepares for restarting, and sets to ready
+        nfixed = flow.fix_abi_critical()
+        if nfixed: print("Fixed %d AbiCritical errors" % nfixed)
+
+        # Temporarily disable by MG because I don't know if fix_critical works after the
+        # introduction of the new qadapters
+        if False:
+            nfixed = flow.fix_queue_critical()
+            if nfixed: print("Fixed %d QueueCritical errors" % nfixed)
+
+        # update database
         flow.pickle_dump()
-
-        # Test whether some task should be restarted.
-        #if self.auto_restart:
-        #    num_restarts = 0
-        #    for task, wt in self.iflat_tasks(status=Task.S_UNCONVERGED):
-        #        msg = "AbinitFlow will try restart task %s" % task
-        #        print(msg)
-        #        logger.info(msg)
-        #        retcode = task.restart_if_needed()
-        #        if retcode == 0: 
-        #            num_restarts += 1
-        #                                                                 
-        #    if num_restarts:
-        #        print("num_restarts done successfully: ", num_restarts)
-        #        self.pickle_dump()
-
-        #if self.num_restarts == self.max_num_restarts:
-        #    info_msg = "Reached maximum number of restarts. Cannot restart anymore Returning"
-        #    logger.info(info_msg)
-        #    self.history.append(info_msg)
-        #    return 1
 
         # Submit the tasks that are ready.
         try:
-            nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch)
+            nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch, sleep_time=10)
             self.nlaunch += nlaunch
 
             if nlaunch:
@@ -609,8 +574,7 @@ class PyFlowScheduler(object):
         except Exception:
             excs.append(straceback())
 
-        show_status = (self.verbose or flow.num_errored_tasks or flow.num_unconverged_tasks)
-        if show_status: flow.show_status()
+        flow.show_status()
 
         if excs:
             logger.critical("*** Scheduler exceptions:\n *** %s" % "\n".join(excs))
@@ -627,11 +591,17 @@ class PyFlowScheduler(object):
 
     def _callback(self):
         """The actual callback."""
+        if self.debug:
+            # Show the number of open file descriptors
+            print(">>>>> _callback: Number of open file descriptors: %s" % get_open_fds())
+
         self._runem_all()
 
         # Mission accomplished. Shutdown the scheduler.
         all_ok = self.flow.all_ok
-        if self.verbose: print("all_ok", all_ok)
+        if self.verbose:
+            print("all_ok", all_ok)
+
         if all_ok:
             self.shutdown(msg="All tasks have reached S_OK. Will shutdown the scheduler and exit")
 
@@ -641,49 +611,46 @@ class PyFlowScheduler(object):
         # Shall we send a reminder to the user?
         delta_etime = self.get_delta_etime()
 
-        if delta_etime.total_seconds() > self.num_reminders * self.REMINDME_S:
+        if delta_etime.total_seconds() > self.num_reminders * self.remindme_s:
             self.num_reminders += 1
             msg = ("Just to remind you that the scheduler with pid %s, flow %s\n has been running for %s " %
-                   (self.pid, self.flow, delta_etime))
+                  (self.pid, self.flow, delta_etime))
             retcode = self.send_email(msg, tag="[REMINDER]")
 
             if retcode:
                 # Cannot send mail, shutdown now!
-                msg += "\nThe scheduler tried to send an e-mail to remind user but send_email returned %d. Aborting now" % retcode
+                msg += ("\nThe scheduler tried to send an e-mail to remind the user\n" +
+                        " but send_email returned %d. Aborting now" % retcode)
                 err_msg += msg
 
+        #if delta_etime.total_seconds() > self.max_etime_s:
+        #    err_msg += "\nExceeded max_etime_s %s. Will shutdown the scheduler and exit" % self.max_etime_s
+
         # Too many exceptions. Shutdown the scheduler.
-        if self.num_excs > self.MAX_NUM_PYEXCS:
+        if self.num_excs > self.max_num_pyexcs:
             msg = "Number of exceptions %s > %s. Will shutdown the scheduler and exit" % (
-            self.num_excs, self.MAX_NUM_PYEXCS)
+                self.num_excs, self.max_num_pyexcs)
             err_msg += boxed(msg)
 
-        # Paranoid check: disable the scheduler if we have submitted 
-        # too many jobs (it might be due to some bug or other external reasons such as race conditions betwee difference callbacks.!) 
-        if self.nlaunch > self.SAFETY_RATIO * self.flow.num_tasks:
+        # Paranoid check: disable the scheduler if we have submitted
+        # too many jobs (it might be due to some bug or other external reasons 
+        # such as race conditions between difference callbacks!)
+        if self.nlaunch > self.safety_ratio * self.flow.num_tasks:
             msg = "Too many jobs launched %d. Total number of tasks = %s, Will shutdown the scheduler and exit" % (
-            self.nlaunch, self.flow.num_tasks)
+                self.nlaunch, self.flow.num_tasks)
             err_msg += boxed(msg)
 
         # Count the number of tasks with status == S_ERROR.
-        if self.flow.num_errored_tasks > self.MAX_NUM_ABIERRS:
+        if self.flow.num_errored_tasks > self.max_num_abierrs:
             msg = "Number of tasks with ERROR status %s > %s. Will shutdown the scheduler and exit" % (
-                self.flow.num_errored_tasks, self.MAX_NUM_ABIERRS)
+                self.flow.num_errored_tasks, self.max_num_abierrs)
             err_msg += boxed(msg)
 
-        # Count the number of tasks with status == S_UNCONVERGED.
-        #if self.flow.num_unconverged_tasks:
-        #    # TODO: this is needed to avoid deadlocks, automatic restarting is not available yet
-        #    msg = ("Found %d unconverged tasks." 
-        #           "Automatic restarting is not available yet. Will shutdown the scheduler and exit" 
-        #           % self.flow.num_unconverged_tasks)
-        #    err_msg += boxed(msg)
-
-        #deadlocks = self.detect_deadlocks()
-        #if deadlocks:
-        #    msg = ("Detected deadlocks in flow. Will shutdown the scheduler and exit" 
-        #           % self.flow.num_unconverged_tasks)
-        #    err_msg += boxed(msg)
+        deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
+        #print("\ndeadlocked:\n", deadlocked, "\nrunnables:\n", runnables, "\nrunning\n", running)
+        if deadlocked and not runnables and not running:
+            msg = "No runnable job with deadlocked tasks:\n %s\nWill shutdown the scheduler and exit" % str(deadlocked)
+            err_msg += boxed(msg)
 
         if err_msg:
             # Something wrong. Quit
@@ -692,14 +659,11 @@ class PyFlowScheduler(object):
         return len(self.exceptions)
 
     def cleanup(self):
-        """
-        Cleanup routine: remove the pid file and save the pickle database
-        """
+        """Cleanup routine: remove the pid file and save the pickle database"""
         try:
             os.remove(self.pid_file)
         except OSError:
             logger.critical("Could not remove pid_file")
-            pass
 
         # Save the final status of the flow.
         self.flow.pickle_dump()
@@ -712,18 +676,45 @@ class PyFlowScheduler(object):
             self.history.append("Completed on %s" % time.asctime())
             self.history.append("Elapsed time %s" % self.get_delta_etime())
 
-            retcode = self.send_email(msg)
+            if self.debug:
+                print(">>>>> shutdown: Number of open file descriptors: %s" % get_open_fds())
 
-            # Write text file with the list of exceptions:
-            #if self.exceptions and retcode: 
+            retcode = self.send_email(msg)
+            if self.debug:
+                print("send_mail retcode", retcode)
+
+            # Write file with the list of exceptions:
             if self.exceptions:
-                dump_file = os.path.join(self.flow.workdir, "launcher.log")
+                dump_file = os.path.join(self.flow.workdir, "_exceptions")
                 with open(dump_file, "w") as fh:
                     fh.writelines(self.exceptions)
+                    fh.write("Shutdown message:\n%s" % msg)
+
+            lines = []
+            app = lines.append
+            app("Submitted on %s" % time.ctime(self.start_time))
+            app("Completed on %s" % time.asctime())
+            app("Elapsed time %s" % str(self.get_delta_etime()))
+            if self.flow.all_ok:
+                app("Flow completed successfully")
+            else:
+                app("Flow didn't complete successfully")
+                app("Shutdown message:\n%s" % msg)
+            print("\n".join(lines))
 
         finally:
             # Shutdown the scheduler thus allowing the process to exit.
-            self.sched.shutdown(wait=False)
+            logger.debug('this should be the shutdown of the scheduler')
+
+            # Unschedule all the jobs before calling shutdown
+            #self.sched.print_jobs()
+            for job in self.sched.get_jobs():
+                self.sched.unschedule_job(job)
+            #self.sched.print_jobs()
+                
+            self.sched.shutdown()
+            # Uncomment the line below if shutdown does not work!
+            #os.system("kill -9 %d" % os.getpid())
 
     def send_email(self, msg, tag=None):
         """
@@ -749,7 +740,7 @@ class PyFlowScheduler(object):
         app("Number of errored tasks: %d" % self.flow.num_errored_tasks)
         app("Number of unconverged tasks: %d" % self.flow.num_unconverged_tasks)
 
-        strio = StringIO.StringIO()
+        strio = cStringIO()
         strio.writelines("\n".join(header) + 4 * "\n")
 
         # Add the status of the flow.
@@ -759,29 +750,25 @@ class PyFlowScheduler(object):
             # Report the list of exceptions.
             strio.writelines(self.exceptions)
 
-        text = strio.getvalue()
-        #print("text", text)
-
         if tag is None:
             tag = " [ALL OK]" if self.flow.all_ok else " [WARNING]"
 
-        return sendmail(subject=self.flow.name + tag, text=text, mailto=self.mailto)
+        return sendmail(subject=self.flow.name + tag, text=strio.getvalue(), mailto=self.mailto)
 
 
 def sendmail(subject, text, mailto, sender=None):
     """
-    Sends an e-mail either with unix sendmail. 
+    Sends an e-mail with unix sendmail.
 
     Args:
-        subject:
-            String with the subject of the mail.
-        text:
-            String with the body of the mail.
-        mailto:
-            String or list of string with the recipients.
-        sender:
-            string with the sender address.
+        subject: String with the subject of the mail.
+        text: String with the body of the mail.
+        mailto: String or list of string with the recipients.
+        sender: string with the sender address.
             If sender is None, username@hostname is used.
+
+    Returns:
+        Exit status
     """
     def user_at_host():
         from socket import gethostname
@@ -804,16 +791,13 @@ def sendmail(subject, text, mailto, sender=None):
     # Note that sendmail is available only on Unix-like OS.
     from subprocess import Popen, PIPE
 
-    SENDMAIL = "/usr/sbin/sendmail"
-    p = Popen([SENDMAIL, "-t"], stdin=PIPE, stderr=PIPE)
+    sendmail = which("sendmail")
+    if sendmail is None: return -1
+    p = Popen([sendmail, "-t"], stdin=PIPE, stderr=PIPE)
 
     outdata, errdata = p.communicate(msg)
     return len(errdata)
 
-
-# Test for sendmail
-#def sendmail_test():
-#    text = "hello\nworld"""
-#    mailto = "matteo.giantomassi@uclouvain.be"
-#    retcode = sendmail("sendmail_test", text, mailto)
+#def test_sendmail():
+#    retcode = sendmail("sendmail_test", text="hello\nworld", mailto="nobody@nowhere.com")
 #    print("Retcode", retcode)

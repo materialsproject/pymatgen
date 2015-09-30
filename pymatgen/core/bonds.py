@@ -1,11 +1,14 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 This class implements definitions for various kinds of bonds. Typically used in
 Molecule analysis.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -19,7 +22,7 @@ import os
 import json
 import collections
 
-from pymatgen.core.periodic_table import smart_element_or_specie
+from pymatgen.core.periodic_table import get_el_sp
 
 
 def _load_bond_length_data():
@@ -42,11 +45,11 @@ class CovalentBond(object):
 
     def __init__(self, site1, site2):
         """
+        Initializes a covalent bond between two sites.
+
         Args:
-            site1:
-                First site.
-            site2:
-                Second site.
+            site1 (Site): First site.
+            site2 (Site): Second site.
         """
         self.site1 = site1
         self.site2 = site2
@@ -64,23 +67,20 @@ class CovalentBond(object):
         Test if two sites are bonded, up to a certain limit.
 
         Args:
-            site1:
-                First site
-            site2:
-                Second site
-            tol:
-                Relative tolerance to test. Basically, the code checks if the
-                distance between the sites is less than (1 + tol) * typical
-                bond distances. Defaults to 0.2, i.e., 20% longer.
-            bond_order:
-                Bond order to test. If None, the code simply checks against all
-                possible bond data. Defaults to None.
+            site1 (Site): First site
+            site2 (Site): Second site
+            tol (float): Relative tolerance to test. Basically, the code
+                checks if the distance between the sites is less than (1 +
+                tol) * typical bond distances. Defaults to 0.2, i.e.,
+                20% longer.
+            bond_order: Bond order to test. If None, the code simply checks
+                against all possible bond data. Defaults to None.
 
         Returns:
             Boolean indicating whether two sites are bonded.
         """
-        sp1 = site1.species_and_occu.keys()[0]
-        sp2 = site2.species_and_occu.keys()[0]
+        sp1 = list(site1.species_and_occu.keys())[0]
+        sp2 = list(site2.species_and_occu.keys())[0]
         dist = site1.distance(site2)
         syms = tuple(sorted([sp1.symbol, sp2.symbol]))
         if syms in bond_lengths:
@@ -106,12 +106,9 @@ def get_bond_length(sp1, sp2, bond_order=1):
     Get the bond length between two species.
 
     Args:
-        sp1:
-            First specie.
-        sp2:
-            Second specie.
-        bond_order:
-            For species with different possible bond orders,
+        sp1 (Specie): First specie.
+        sp2 (Specie): Second specie.
+        bond_order: For species with different possible bond orders,
             this allows one to obtain the bond length for a particular bond
             order. For example, to get the C=C bond length instead of the
             C-C bond length, this should be set to 2. Defaults to 1.
@@ -120,8 +117,8 @@ def get_bond_length(sp1, sp2, bond_order=1):
         Bond length in Angstrom. None if no data is available.
     """
 
-    syms = tuple(sorted([smart_element_or_specie(sp1).symbol,
-                         smart_element_or_specie(sp2).symbol]))
+    syms = tuple(sorted([get_el_sp(sp1).symbol,
+                         get_el_sp(sp2).symbol]))
     if syms in bond_lengths:
         all_lengths = bond_lengths[syms]
         if bond_order:

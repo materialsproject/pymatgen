@@ -1,5 +1,7 @@
-#!/usr/bin/env python
-from __future__ import division, print_function
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+from __future__ import unicode_literals, division, print_function
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio.utils import *
@@ -33,6 +35,34 @@ class RpnTest(PymatgenTest):
             rpn = map2rpn(map, obj=Foo)
             print("rpn", rpn)
             self.assertEqual(res, evaluate_rpn(rpn), msg="map %s" % map)
+
+
+class ConditionTest(PymatgenTest):
+    def test_condition(self):
+        c = Condition({}) 
+        assert not c
+        print(c)
+
+        class A(object): 
+            def __init__(self):
+                self.one = 1.0
+
+        aobj = A()
+        assert Condition({"one": 1.0})(aobj)
+        assert not Condition({"one": 2.0})(aobj)
+
+
+class SparseHistogramTest(PymatgenTest):
+    def test_sparse(self):
+        items = [1, 2, 2.9, 4]
+        hist = SparseHistogram(items, step=1)
+        assert hist.binvals == [1.0, 2.0, 3.0] 
+        assert hist.values == [[1], [2, 2.9], [4]]
+        #hist.plot()
+
+        hist = SparseHistogram([iv for iv in enumerate(items)], key=lambda t: t[1], step=1)
+        assert hist.binvals == [1.0, 2.0, 3.0] 
+        assert hist.values == [[(0, 1)], [(1, 2), (2, 2.9)], [(3, 4)]]
 
 
 if __name__ == '__main__':

@@ -1,19 +1,32 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """
 This module defines the events signaled by abinit during the execution. It also
 provides a parser to extract these events form the main output file and the log file.
 """
-from __future__ import division, print_function
+from __future__ import unicode_literals, division, print_function
 
 import os.path
 import collections
 import yaml
 
-from pymatgen.util.string_utils import WildCard
-from pymatgen.io.abinitio.abiinspect import YamlTokenizer, YamlDoc
+from monty.fnmatch import WildCard
+from monty.termcolor import colored
+from pymatgen.core import Structure
+from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
+from .abiinspect import YamlTokenizer
+
 
 __all__ = [
     "EventsParser",
 ]
+
+def indent(lines, amount, ch=' '):
+    """indent the lines in a string by padding each one with proper number of pad characters"""
+    padding = amount * ch
+    return padding + ('\n'+padding).join(lines.split('\n'))
+
 
 def straceback():
     """Returns a string with the traceback."""
@@ -21,7 +34,7 @@ def straceback():
     return traceback.format_exc()
 
 
-class AbinitEvent(yaml.YAMLObject):
+class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
     """
     Example (YAML syntax)::
 
@@ -64,25 +77,54 @@ class AbinitEvent(yaml.YAMLObject):
           the class attribute yaml_tag so that yaml.load will know how to 
           build the instance.
     """
+    #color = None
+
     def __init__(self, message, src_file, src_line):
         """
-        Basic constructor for `AbinitEvent`. 
+        Basic constructor for :class:`AbinitEvent`.
 
         Args:
-            message:
-                String with human-readable message providing info on the event.
-            src_file:
-                String with the name of the Fortran file where the event is raised.
-            src_line
-                Integer giving the line number in src_file.
+            message: String with human-readable message providing info on the event.
+            src_file: String with the name of the Fortran file where the event is raised.
+            src_line Integer giving the line number in src_file.
         """
         self.message = message
-        self.src_file = src_file
-        self.src_line = src_line
+        self._src_file = src_file
+        self._src_line = src_line
+
+    @pmg_serialize
+    def as_dict(self):
+        return dict(message=self.message, src_file=self.src_file, src_line=self.src_line)
+
+    @classmethod
+    def from_dict(cls, d):
+        d = d.copy()
+        d.pop('@module', None)
+        d.pop('@class', None)
+        return cls(**d)
+
+    @property
+    def header(self):
+        return "%s at %s:%s" % (self.name, self.src_file, self.src_line)
 
     def __str__(self):
-        header = "%s:%s" % (self.src_file, self.src_line)
-        return "\n".join((header, self.message))
+        return "\n".join((self.header, self.message))
+
+    @property
+    def src_file(self):
+        """String with the name of the Fortran file where the event is raised."""
+        try:
+            return self._src_file
+        except AttributeError:
+            return "Unknown"
+
+    @property
+    def src_line(self):
+        """Integer giving the line number in src_file."""
+        try:
+            return self._src_line
+        except AttributeError:
+            return "Unknown"
 
     @property
     def name(self):
@@ -96,26 +138,46 @@ class AbinitEvent(yaml.YAMLObject):
             if isinstance(self, cls):
                 return cls
 
-        err_msg = "Cannot determine the base class of %s" % (self.__class__.__name__)
-        raise ValueError(err_msg)
+        raise ValueError("Cannot determine the base class of %s" % self.__class__.__name__)
 
-    def action(self):
+    def log_correction(self, task, message):
         """
-        Returns a dictionary whose values that can be used to decide
-        which actions should be performed e.g the SCF data at the last
-        iteration can be used to decide whether the calculations should
-        be restarted or not.
+        This method should be called once we have fixed the problem associated to this event.
+        It adds a new entry in the correction history of the task.
+
+        Args:
+            message (str): Human-readable string with info on the action perfomed to solve the problem.
         """
-        return {}
+        task._corrections.append(dict(
+            event=self.as_dict(), 
+            message=message,
+        ))
+
+    def correct(self, task):
+        """
+        This method is called when an error is detected in a :class:`Task` 
+        It should perform any corrective measures relating to the detected error.
+        The idea is similar to the one used in custodian but the handler receives 
+        a :class:`Task` object so that we have access to its methods.
+
+        Returns:
+        (dict) JSON serializable dict that describes the errors and actions taken. E.g.
+        {"errors": list_of_errors, "actions": list_of_actions_taken}.
+        If this is an unfixable error, actions should be set to None.
+        """
+        return 0
+
 
 class AbinitComment(AbinitEvent):
     """Base class for Comment events"""
-    yaml_tag = u'!COMMENT'
+    yaml_tag = '!COMMENT'
+    color = "blue"
 
 
 class AbinitError(AbinitEvent):
     """Base class for Error events"""
-    yaml_tag = u'!ERROR'
+    yaml_tag = '!ERROR'
+    color = "red"
 
 
 class AbinitYamlError(AbinitError):
@@ -124,7 +186,8 @@ class AbinitYamlError(AbinitError):
 
 class AbinitBug(AbinitEvent):
     """Base class for Bug events"""
-    yaml_tag = u'!BUG'
+    yaml_tag = '!BUG'
+    color = "red"
 
 
 class AbinitWarning(AbinitEvent):
@@ -133,44 +196,71 @@ class AbinitWarning(AbinitEvent):
     Developers should subclass this class to define the different exceptions
     raised by the code and the possible actions that can be performed.
     """
-    yaml_tag = u'!WARNING'
+    yaml_tag = '!WARNING'
+    color = None
 
 
-class AbinitYamlWarning(AbinitWarning):
+class AbinitCriticalWarning(AbinitWarning):
+    color = "red"
+
+
+class AbinitYamlWarning(AbinitCriticalWarning):
     """
     Raised if the YAML parser cannot parse the document and the doc tas is a Warning.
     """
 
+# Warnings that trigger restart.
 
-class ScfConvergenceWarning(AbinitWarning):
+class ScfConvergenceWarning(AbinitCriticalWarning):
     """Warning raised when the GS SCF cycle did not converge."""
-    yaml_tag = u'!ScfConvergenceWarning'
+    yaml_tag = '!ScfConvergenceWarning'
 
 
-class NscfConvergenceWarning(AbinitWarning):
+class NscfConvergenceWarning(AbinitCriticalWarning):
     """Warning raised when the GS NSCF cycle did not converge."""
-    yaml_tag = u'!NscfConvergenceWarning'
+    yaml_tag = '!NscfConvergenceWarning'
 
 
-class RelaxConvergenceWarning(AbinitWarning):
+class RelaxConvergenceWarning(AbinitCriticalWarning):
     """Warning raised when the structural relaxation did not converge."""
-    yaml_tag = u'!RelaxConvergenceWarning'
+    yaml_tag = '!RelaxConvergenceWarning'
 
 
 # TODO: for the time being we don't discern between GS and PhononCalculations.
-#class PhononConvergenceWarning(AbinitWarning):
+#class PhononConvergenceWarning(AbinitCriticalWarning):
 #    """Warning raised when the phonon calculation did not converge."""
 #    yaml_tag = u'!PhononConvergenceWarning'
 
 
-class QPSConvergenceWarning(AbinitWarning):
+class QPSConvergenceWarning(AbinitCriticalWarning):
     """Warning raised when the QPS iteration (GW) did not converge."""
-    yaml_tag = u'!QPSConvergenceWarning'
+    yaml_tag = '!QPSConvergenceWarning'
 
 
-class HaydockConvergenceWarning(AbinitWarning):
+class HaydockConvergenceWarning(AbinitCriticalWarning):
     """Warning raised when the Haydock method (BSE) did not converge."""
-    yaml_tag = u'!HaydockConvergenceWarning'
+    yaml_tag = '!HaydockConvergenceWarning'
+
+
+# Error classes providing a correct method.
+
+class DilatmxError(AbinitError):
+    yaml_tag = '!DilatmxError'
+
+    def correct(self, task):
+        #Idea: decrease dilatxm and restart from the last structure.
+        #We would like to end up with a structures optimized with dilatmx 1.01
+        #that will be used for phonon calculations.
+
+        # Read the last structure dumped by ABINIT before aborting.
+        print("in dilatmx")
+        filepath = task.outdir.has_abiext("DILATMX_STRUCT.nc")
+        last_structure = Structure.from_file(filepath)
+
+        task._change_structure(last_structure)
+        #changes = task._modify_vars(dilatmx=1.05)
+        task.history.append("Take last structure from DILATMX_STRUCT.nc, will try to restart")
+        return 1
 
 
 # Register the concrete base classes.
@@ -183,17 +273,24 @@ _BASE_CLASSES = [
 
 
 class EventReport(collections.Iterable):
-    """Iterable storing the events raised by an ABINIT calculation."""
+    """
+    Iterable storing the events raised by an ABINIT calculation.
 
+    Attributes::
+
+        stat: information about a file as returned by os.stat
+    """
     def __init__(self, filename, events=None):
         """
+        List of ABINIT events.
+
         Args:
-            filename:
-                Name of the file
-            events:
-                List of Event objects
+            filename: Name of the file
+            events: List of Event objects
         """
         self.filename = os.path.abspath(filename)
+        self.stat = os.stat(self.filename)
+
         self._events = []
         self._events_by_baseclass = collections.defaultdict(list)
 
@@ -208,16 +305,22 @@ class EventReport(collections.Iterable):
         return self._events.__iter__()
 
     def __str__(self):
+        #has_colours = stream_has_colours(stream)
+        has_colours = True
+
         lines = []
         app = lines.append
 
-        app("Event Report for file: %s" % self.filename)
+        app("Events for: %s" % self.filename)
         for i, event in enumerate(self):
-            app("%d) %s" % (i+1, str(event)))
+            if has_colours:
+                app("[%d] %s" % (i+1, colored(event.header, color=event.color)))
+                app(indent(event.message, 4))
+            else:
+                app("[%d] %s" % (i+1, str(event)))
 
-        app("num_errors: %s, num_warnings: %s, num_comments: %s" % (
-            self.num_errors, self.num_warnings, self.num_comments))
-        app("run_completed: %s" % self.run_completed)
+        app("num_errors: %s, num_warnings: %s, num_comments: %s, completed: %s" % (
+            self.num_errors, self.num_warnings, self.num_comments, self.run_completed))
 
         return "\n".join(lines)
 
@@ -232,9 +335,7 @@ class EventReport(collections.Iterable):
 
     @property
     def run_completed(self):
-        """
-        Returns True if the calculation terminated.
-        """
+        """True if the calculation terminated."""
         try:
             return self._run_completed
         except AttributeError:
@@ -280,21 +381,19 @@ class EventReport(collections.Iterable):
         Return the list of events that inherits from class base_class
 
         Args:
-            only_critical:
-                if True, only critical events are returned.
+            only_critical: if True, only critical events are returned.
         """
         return self._events_by_baseclass[base_class][:]
 
     def filter_types(self, event_types):
-        evts = []
-        for event in self:
-            if type(event) in event_types:
-                evts.append(event)
-        return evts
+        events = []
+        for ev in self:
+            if type(ev) in event_types: events.append(ev)
+        return self.__class__(filename=self.filename, events=events)
 
 
 class EventsParserError(Exception):
-    """Base class for the exceptions raised by EventsParser."""
+    """Base class for the exceptions raised by :class:`EventsParser`."""
 
 
 class EventsParser(object):
@@ -303,25 +402,26 @@ class EventsParser(object):
     """
     Error = EventsParserError
 
-    @staticmethod
-    def parse(filename):
+    # Internal flag used for debugging
+    DEBUG_LEVEL = 0
+
+    def parse(self, filename):
         """
-        This is the new parser, it will be used when we implement
-        the new format in abinit.
+        Parse the given file. Return :class:`EventReport`.
         """
         run_completed = False
         filename = os.path.abspath(filename)
         report = EventReport(filename)
 
         # TODO Use CamelCase for the Fortran messages.
-        w = WildCard("*Error|*Warning|*Comment|*ERROR|*WARNING|*COMMENT")
+        # Bug is still an error of class SoftwareError
+        w = WildCard("*Error|*Warning|*Comment|*Bug|*ERROR|*WARNING|*COMMENT|*BUG")
 
         with YamlTokenizer(filename) as tokens:
-
             for doc in tokens:
                 #print(80*"*")
                 #print("doc.tag", doc.tag)
-                #print("doc",doc)
+                #print("doc", doc)
                 #print(80*"*")
                 if w.match(doc.tag):
                     #print("got doc.tag", doc.tag,"--")
@@ -331,10 +431,13 @@ class EventsParser(object):
                         # Wrong YAML doc. Check tha doc tag and instantiate the proper event.
                         message = "Malformatted YAML document at line: %d\n" % doc.lineno
                         message += doc.text
-                        message += "Traceback:\n %s" % straceback()
+
+                        # This call is very expensive when we have many exceptions due to malformatted YAML docs.
+                        if self.DEBUG_LEVEL:
+                            message += "Traceback:\n %s" % straceback()
 
                         if "error" in doc.tag.lower():
-                            print("seems an error",doc.tag)
+                            print("It seems an error", doc.tag)
                             event = AbinitYamlError(message=message, src_file=__file__, src_line=0)
                         else:
                             event = AbinitYamlWarning(message=message, src_file=__file__, src_line=0)
@@ -346,21 +449,13 @@ class EventsParser(object):
                 if doc.tag == "!FinalSummary":
                     run_completed = True
 
-        # TODO: Add YAML doc with FinalSummary.
-        #MAGIC = "Calculation completed."
-        #with open(filename) as fh:
-        #    for line in fh:
-        #        if MAGIC in line:
-        #            run_completed = True
-        #            break
-
         report.set_run_completed(run_completed)
+
         return report
 
     def report_exception(self, filename, exc):
         """
         This method is used when self.parser raises an Exception so that
-        we can report a customized `EventReport` object with info the exception.
+        we can report a customized :class:`EventReport` object with info the exception.
         """
-        return EventReport(filename, events=[Error(str(exc))])
-
+        return EventReport(filename, events=[AbinitError(str(exc))])

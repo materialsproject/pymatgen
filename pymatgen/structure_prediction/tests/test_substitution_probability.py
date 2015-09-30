@@ -1,4 +1,8 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals
 
 import unittest
 import json
@@ -29,7 +33,7 @@ class SubstitutionProbabilityTest(unittest.TestCase):
 
     def test_full_lambda_table(self):
         """
-        This test tests specific values in the data folder. If the 
+        This test tests specific values in the data folder. If the
         json is updated, these tests will have to be as well
         """
         sp = SubstitutionProbability(alpha= -5.)
@@ -66,28 +70,28 @@ class SubstitutionProbabilityTest(unittest.TestCase):
 
 
 class SubstitutionPredictorTest(unittest.TestCase):
-    
+
     def test_prediction(self):
         sp = SubstitutionPredictor(threshold = 8e-3)
         result = sp.list_prediction(['Na+', 'Cl-'], to_this_composition = True)[5]
-        cprob = sp.p.cond_prob_list(result['substitutions'].keys(), 
+        cprob = sp.p.cond_prob_list(result['substitutions'].keys(),
                                     result['substitutions'].values())
         self.assertAlmostEqual(result['probability'], cprob)
         self.assertEqual(set(result['substitutions'].values()), set(['Na+', 'Cl-']))
-        
+
         result = sp.list_prediction(['Na+', 'Cl-'], to_this_composition = False)[5]
-        cprob = sp.p.cond_prob_list(result['substitutions'].keys(), 
+        cprob = sp.p.cond_prob_list(result['substitutions'].keys(),
                                     result['substitutions'].values())
         self.assertAlmostEqual(result['probability'], cprob)
-        self.assertNotEqual(set(result['substitutions'].values()), 
+        self.assertNotEqual(set(result['substitutions'].values()),
                             set(['Na+', 'Cl-']))
-        
+
         c = Composition({'Ag2+' : 1, 'Cl-' : 2})
         result = sp.composition_prediction(c, to_this_composition = True)[2]
         self.assertEqual(set(result['substitutions'].values()), set(c.elements))
         result = sp.composition_prediction(c, to_this_composition = False)[2]
         self.assertEqual(set(result['substitutions'].keys()), set(c.elements))
-        
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

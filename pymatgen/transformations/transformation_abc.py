@@ -1,4 +1,8 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals
 
 """
 Defines an abstract base class contract for Transformation object.
@@ -13,14 +17,14 @@ __date__ = "Sep 23, 2011"
 
 import abc
 
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
+import six
 
 
-class AbstractTransformation(MSONable):
+class AbstractTransformation(six.with_metaclass(abc.ABCMeta, PMGSONable)):
     """
     Abstract transformation class.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def apply_transformation(self, structure):

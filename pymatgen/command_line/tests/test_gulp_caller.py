@@ -1,17 +1,23 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals
+
 """
 Created on Jan 22, 2013
 
 @author: Bharat Medasani
 """
 import unittest
-import os
 
 from pymatgen.command_line.gulp_caller import *
 from pymatgen.core.structure import Structure
-from pymatgen.util.io_utils import which
-from pymatgen.io.vaspio.vasp_input import Poscar
+from monty.os.path import which
+from pymatgen.io.vasp.inputs import Poscar
 
-test_dir = os.path.join(os.path.dirname(__file__))
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 gulp_present = which('gulp')
 
 
@@ -53,7 +59,8 @@ class GulpCallerTest(unittest.TestCase):
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class GulpIOTest(unittest.TestCase):
     def setUp(self):
-        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.Al12O18'),
+                             check_for_POTCAR=False)
         self.structure = p.structure
         self.gio = GulpIO()
 
@@ -62,11 +69,6 @@ class GulpIOTest(unittest.TestCase):
         inp_str = self.gio.keyword_line(*kw)
         for word in kw:
             self.assertIn(word, inp_str)
-
-    def test_keyword_line_with_wrong_keywords(self):
-        kw = ('defect', 'field')
-        with self.assertRaises(GulpError):
-            inp_str = self.gio.keyword_line(*kw)
 
     def test_structure_lines_default_options(self):
         inp_str = self.gio.structure_lines(self.structure)
@@ -96,18 +98,13 @@ class GulpIOTest(unittest.TestCase):
                 )
         self.assertIn('lib', gin)
 
-    @unittest.expectedFailure
-    def test_library_line_default_path(self):
-        gin = self.gio.library_line('catlow.lib')
-        self.assertIn('lib', gin)
-
     def test_library_line_wrong_file(self):
         with self.assertRaises(GulpError):
             gin = self.gio.library_line('temp_to_fail.lib')
 
     def test_buckingham_potential(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg",'O']*4 
+        mgo_specie = ["Mg", 'O']*4
         mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
                          [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
@@ -126,7 +123,7 @@ class GulpIOTest(unittest.TestCase):
 
     def test_buckingham_input(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg",'O']*4 
+        mgo_specie = ["Mg",'O']*4
         mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
                          [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
@@ -140,10 +137,10 @@ class GulpIOTest(unittest.TestCase):
         self.assertIn('O  core', gin)
         self.assertIn('O  shel', gin)
 
-    # Improve the test 
+    # Improve the test
     def test_tersoff_potential(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg",'O']*4 
+        mgo_specie = ["Mg",'O']*4
         mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
                          [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
@@ -153,22 +150,22 @@ class GulpIOTest(unittest.TestCase):
 
     def test_get_energy(self):
         #Output string obtained from running GULP on a terminal
-        out_str = """  Components of energy : 
+        out_str = """  Components of energy :
 --------------------------------------------------------------------------------
   Interatomic potentials     =           5.61135426 eV
   Monopole - monopole (real) =          -4.34238722 eV
   Monopole - monopole (recip)=         -43.45344934 eV
   Monopole - monopole (total)=         -47.79583656 eV
 --------------------------------------------------------------------------------
-  Total lattice energy : 
+  Total lattice energy :
     Primitive unit cell      =         -42.18448230 eV
     Non-primitive unit cell  =        -168.73792920 eV
 --------------------------------------------------------------------------------
-  Total lattice energy (in kJmol-1): 
+  Total lattice energy (in kJmol-1):
     Primitive unit cell      =           -4070.1577 kJ/(mole unit cells)
     Non-primitive unit cell  =          -16280.6308 kJ/(mole unit cells)
 --------------------------------------------------------------------------------
-  Components of energy : 
+  Components of energy :
 
 --------------------------------------------------------------------------------
   Interatomic potentials     =           6.79846039 eV
@@ -176,11 +173,11 @@ class GulpIOTest(unittest.TestCase):
   Monopole - monopole (recip)=         -44.60653603 eV
   Monopole - monopole (total)=         -49.06415344 eV
 --------------------------------------------------------------------------------
-  Total lattice energy : 
+  Total lattice energy :
     Primitive unit cell      =         -42.26569304 eV
     Non-primitive unit cell  =        -169.06277218 eV
 --------------------------------------------------------------------------------
-  Total lattice energy (in kJmol-1): 
+  Total lattice energy (in kJmol-1):
     Primitive unit cell      =           -4077.9933 kJ/(mole unit cells)
     Non-primitive unit cell  =          -16311.9732 kJ/(mole unit cells)
 --------------------------------------------------------------------------------"""
@@ -189,7 +186,8 @@ class GulpIOTest(unittest.TestCase):
 
     def test_get_relaxed_structure(self):
         #Output string obtained from running GULP on a terminal
-        with open('example21.gout','r') as fp:
+
+        with open(os.path.join(test_dir, 'example21.gout'),'r') as fp:
             out_str = fp.read()
         struct = self.gio.get_relaxed_structure(out_str)
         self.assertIsInstance(struct, Structure)
@@ -200,15 +198,13 @@ class GulpIOTest(unittest.TestCase):
     @unittest.skip("Test later")
     def test_tersoff_inpt(self):
         gin =  self.gio.tersoff_input(self.structure)
-        #print "--------BinaryOxide Tersoff"
-        print gin
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class GlobalFunctionsTest(unittest.TestCase):
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg",'O']*4 
+        mgo_specie = ["Mg",'O']*4
         mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
                          [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
         self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
@@ -218,22 +214,20 @@ class GlobalFunctionsTest(unittest.TestCase):
         self.val_dict = dict(zip(el, val))
 
     def test_get_energy_tersoff(self):
-        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.Al12O18'),
+                             check_for_POTCAR=False)
         structure = p.structure
         enrgy = get_energy_tersoff(structure)
         self.assertIsInstance(enrgy, float)
-        print "tersoff energy", enrgy
 
     def test_get_energy_buckingham(self):
         enrgy = get_energy_buckingham(self.mgo_uc)
         self.assertIsInstance(enrgy, float)
-        print "Buckingham energy for charge neutral structure", enrgy
         #test with vacancy structure
-        self.mgo_uc.remove(0)
-        energy = get_energy_buckingham(self.mgo_uc, 
+        del self.mgo_uc[0]
+        energy = get_energy_buckingham(self.mgo_uc,
                 keywords=('qok','optimise','conp'), valence_dict=self.val_dict)
-        self.assertIsInstance(enrgy, float)
-        print "Buckingham energy charged defect structure", enrgy
+        self.assertIsInstance(energy, float)
 
     def test_get_energy_relax_structure_buckingham(self):
         enrgy, struct = get_energy_relax_structure_buckingham(self.mgo_uc)
@@ -241,15 +235,12 @@ class GlobalFunctionsTest(unittest.TestCase):
         self.assertIsInstance(struct, Structure)
         site_len = len(struct.sites)
         self.assertEqual(site_len, len(self.mgo_uc.sites))
-        print "Buckingham energy", enrgy
-        print struct
-        print self.mgo_uc
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
-class BuckinghamPotLewisTest(unittest.TestCase):
+class BuckinghamPotentialLewisTest(unittest.TestCase):
     def setUp(self):
-        self.bpl = BuckinghamPotLewis()
+        self.bpl = BuckinghamPotential('lewis')
 
     def test_existing_element(self):
         self.assertIn("Sc_2+", self.bpl.pot_dict.keys())
@@ -275,10 +266,10 @@ class BuckinghamPotLewisTest(unittest.TestCase):
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
-class BuckinghamPotBushTest(unittest.TestCase):
+class BuckinghamPotentialBushTest(unittest.TestCase):
 
     def setUp(self):
-        self.bpb = BuckinghamPotBush()
+        self.bpb = BuckinghamPotential('bush')
 
     def test_existing_element(self):
         self.assertIn("Li", self.bpb.pot_dict.keys())

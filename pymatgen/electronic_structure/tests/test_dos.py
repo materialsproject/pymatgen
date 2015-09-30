@@ -1,4 +1,8 @@
-#!/usr/bin/python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals
 
 import unittest
 import os
@@ -10,11 +14,7 @@ from pymatgen.electronic_structure.dos import CompleteDos
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
-try:
-    import scipy
-    has_scipy = True
-except ImportError:
-    has_scipy = False
+import scipy
 
 
 class DosTest(unittest.TestCase):
@@ -39,7 +39,6 @@ class DosTest(unittest.TestCase):
                                1.756888888888886, 7)
         self.assertRaises(ValueError, dos.get_interpolated_value, 1000)
 
-    @unittest.skipIf(not has_scipy, "scipy not present")
     def test_get_smeared_densities(self):
         dos = self.dos
         smeared = dos.get_smeared_densities(0.2)
@@ -110,7 +109,7 @@ class CompleteDosTest(unittest.TestCase):
         self.assertRaises(ValueError, dos.get_interpolated_value, 1000)
 
     def test_to_from_dict(self):
-        d = self.dos.to_dict
+        d = self.dos.as_dict()
         dos = CompleteDos.from_dict(d)
         el_dos = dos.get_element_dos()
         self.assertEqual(len(el_dos), 4)

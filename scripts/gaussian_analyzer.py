@@ -1,10 +1,13 @@
 #!/usr/bin/env python
+#  coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 """
 A convenience script engine to read Gaussian output in a directory tree.
 """
 
-from __future__ import division
+from __future__ import division, print_function
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -59,11 +62,12 @@ def get_energies(rootdir, reanalyze, verbose, pretty):
         from prettytable import PrettyTable
         t = PrettyTable(headers)
         t.set_field_align("Directory", "l")
-        map(t.add_row, all_data)
-        print t
+        for d in all_data:
+            t.add_row(d)
+        print(t)
     else:
-        print str_aligned(all_data, headers)
-    print msg
+        print(str_aligned(all_data, headers))
+    print(msg)
 
 
 desc = '''

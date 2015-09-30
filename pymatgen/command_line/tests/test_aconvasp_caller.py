@@ -1,3 +1,9 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals
+
 import unittest
 
 from pymatgen.command_line.aconvasp_caller import get_num_division_kpoints, \
@@ -5,10 +11,11 @@ from pymatgen.command_line.aconvasp_caller import get_num_division_kpoints, \
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.periodic_table import Element
-from pymatgen.util.io_utils import which
+from monty.os.path import which
 
 
 aconvasp_present = which('aconvasp')
+aconvasp_present = False  # disable aconvasp testing for now.
 
 
 @unittest.skipIf(not aconvasp_present, "aconvasp not present.")

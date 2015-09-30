@@ -1,15 +1,22 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals
+
 import unittest
 import os
 
 from numbers import Number
 
 from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
-from pymatgen.phasediagram.entries import PDEntryIO
+from pymatgen.phasediagram.entries import PDEntryIO, PDEntry
 
 
-class  PDAnalyzerTest(unittest.TestCase):
+class PDAnalyzerTest(unittest.TestCase):
 
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -36,7 +43,7 @@ class  PDAnalyzerTest(unittest.TestCase):
 
     def test_get_decomposition(self):
         for entry in self.pd.stable_entries:
-            self.assertEquals(len(self.analyzer.get_decomposition(entry.composition)), 1,
+            self.assertEqual(len(self.analyzer.get_decomposition(entry.composition)), 1,
                               "Stable composition should have only 1 decomposition!")
         dim = len(self.pd.elements)
         for entry in self.pd.all_entries:
@@ -70,6 +77,39 @@ class  PDAnalyzerTest(unittest.TestCase):
         elements = [el for el in self.pd.elements if el.symbol != "Fe"]
         self.assertEqual(len(self.analyzer.get_chempot_range_map(elements)), 10)
 
+    def test_getmu_vertices_stability_phase(self):
+        results = self.analyzer.getmu_vertices_stability_phase(Composition("LiFeO2"), Element("O"))
+        self.assertAlmostEqual(len(results), 6)
+        test_equality = False
+        for c in results:
+            if abs(c[Element("O")]+7.115) < 1e-2 and abs(c[Element("Fe")]+6.596) < 1e-2 and \
+                    abs(c[Element("Li")]+3.931) < 1e-2:
+                test_equality = True
+        self.assertTrue(test_equality,"there is an expected vertex missing in the list")
+
+
+    def test_getmu_range_stability_phase(self):
+        results = self.analyzer.get_chempot_range_stability_phase(
+            Composition("LiFeO2"), Element("O"))
+        self.assertAlmostEqual(results[Element("O")][1], -4.4501812249999997)
+        self.assertAlmostEqual(results[Element("Fe")][0], -6.5961470999999996)
+        self.assertAlmostEqual(results[Element("Li")][0], -3.6250022625000007)
+
+    def test_get_hull_energy(self):
+        for entry in self.pd.stable_entries:
+            h_e = self.analyzer.get_hull_energy(entry.composition)
+            self.assertAlmostEqual(h_e, entry.energy)
+            n_h_e = self.analyzer.get_hull_energy(entry.composition.fractional_composition)
+            self.assertAlmostEqual(n_h_e, entry.energy_per_atom)
+
+    def test_1d_pd(self):
+        entry = PDEntry('H', 0)
+        pd = PhaseDiagram([entry])
+        pda = PDAnalyzer(pd)
+        decomp, e = pda.get_decomp_and_e_above_hull(PDEntry('H', 1))
+        self.assertAlmostEqual(e, 1)
+        self.assertAlmostEqual(decomp[entry], 1.0)
+
+
 if __name__ == '__main__':
     unittest.main()
-

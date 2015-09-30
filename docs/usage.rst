@@ -2,7 +2,11 @@ Overview
 ========
 
 This page provides new users of the pymatgen code base with a quick overview of
-the pymatgen code base.
+the pymatgen code base. It should also be pointed out that there is an
+:doc:`examples page </examples>` with many ipython notebook examples with
+actual code demonstrating the use of the code. Learning from those examples
+is the fastest way to get started.
+
 
 Pymatgen is structured in a highly object-oriented manner. Almost everything
 (Element, Site, Structure, etc.) is an object.  Currently, the code is heavily
@@ -41,27 +45,28 @@ angstroms for lengths, eV for energies, etc. However, most objects do not
 assume any units per se and it should be perfectly fine for the most part no
 matter what units are being used, as long as they are used consistently.
 
-Side-note : to_dict / from_dict
+Side-note : as_dict / from_dict
 ===============================
 
-As you explore the code, you may notice that many of the objects have a to_dict
-property and a from_dict static method implemented.  For most of the non-basic
+As you explore the code, you may notice that many of the objects have an as_dict
+method and a from_dict static method implemented.  For most of the non-basic
 objects, we have designed pymatgen such that it is easy to save objects for
 subsequent use. While python does provide pickling functionality, pickle tends
-to be extremely fragile with respect to code changes. Pymatgen's to_dict
+to be extremely fragile with respect to code changes. Pymatgen's as_dict
 provide a means to save your work in a more robust manner, which also has the
 added benefit of being more readable. The dict representation is also
 particularly useful for entering such objects into certain databases,
-such as MongoDb.
+such as MongoDb. This as_dict specification is provided in the monty library,
+which is a general python supplementary library arising from pymatgen.
 
-The output from a to_dict method is always json/yaml serializable. So if you
+The output from an as_dict method is always json/yaml serializable. So if you
 want to save a structure, you may do the following::
 
     with open('structure.json','w') as f:
-        json.dump(structure.to_dict, f)
+        json.dump(structure.as_dict(), f)
 
 Similarly, to get the structure back from a json, you can do the following to
-restore the structure (or any object with a to_dict method) from the json as
+restore the structure (or any object with a as_dict method) from the json as
 follows::
 
     with open('structure.json', 'r') as f:
@@ -74,19 +79,19 @@ choices. JSON is much more efficient as a format, with extremely fast
 read/write speed, but is much less readable. YAML is an order of magnitude
 or more slower in terms of parsing, but is more human readable.
 
-PMG JSON encoder/decoder
-------------------------
+MontyEncoder/Decoder
+--------------------
 
 Extensions of the standard Python JSONEncoder and JSONDecoder has been
-implemented to support pymatgen objects. The PMGJSONEncoder uses the to_dict
+implemented to support pymatgen objects. The MontyEncoder uses the as_dict
 API of pymatgen to generate the necessary dict for converting into json. To
-use the PMGJSONEncoder, simply add it as the *cls* kwarg when using json.
+use the MontyEncoder, simply add it as the *cls* kwarg when using json.
 For example,::
 
-    json.dumps(object, cls=PMGJSONEncoder)
+    json.dumps(object, cls=MontyEncoder)
 
-The PMGJSONDecoder depends on finding a "@module" and "@class" key in the dict
-to decode the necessary python object. In general, the PMGJSONEncoder will
+The MontyDecoder depends on finding a "@module" and "@class" key in the dict
+to decode the necessary python object. In general, the MontyEncoder will
 add these keys if they are not present, but for better long term stability
 (e.g., there may be situations where to_dict is called directly rather than
 through the encoder), the easiest way is to add the following to any to_dict
@@ -95,15 +100,17 @@ property::
     d["@module"] = self.__class__.__module__
     d["@class"] = self.__class__.__name__
 
-To use the PMGJSONDecoder, simply specify it as the *cls* kwarg when using json
+To use the MontyDecoder, simply specify it as the *cls* kwarg when using json
 load, e.g.::
 
-    json.loads(json_string, cls=PMGJSONDecoder)
+    json.loads(json_string, cls=MontyDecoder)
 
 The decoder is written in such a way that it supports nested list and dict of
 pymatgen objects. When going through the nesting hirerachy, the decoder will
 look for the highest level module/class names specified and convert those to
 pymatgen objects.
+
+The MontyEncoder/Decoder also supports datetime and numpy arrays out of box.
 
 Structures and Molecules
 ========================
@@ -135,67 +142,68 @@ crystal is provided below::
 Note that both elements and species (elements with oxidation states) are
 supported. So both "Fe" and "Fe2+" are valid specifications.
 
-Reading and writing Structures/Molecules using pymatgen.io
-----------------------------------------------------------
+Reading and writing Structures/Molecules
+----------------------------------------
 
 More often, you would already have the Structure/Molecule in one of many
 typical formats used (e.g., the Cystallographic Information Format (CIF),
 electronic structure code input / output, xyz, mol, etc.).
 
 Pymatgen provides a convenient way to read structures and molecules via the
-:mod:`pymatgen.io.smartio` module::
-
-    from pymatgen.io.smartio import read_structure, write_structure, \
-        read_mol, write_mol
+from_file and to methods::
 
     # Read a POSCAR and write to a CIF.
-    structure = read_structure("POSCAR")
-    write_structure(structure, "CsCl.cif")
+    structure = Structure.from_file("POSCAR")
+    structure.to(filename="CsCl.cif")
 
     # Read an xyz file and write to a Gaussian Input file.
-    methane = read_mol("methane.xyz")
-    write_mol(mol, "methane.gjf")
+    methane = Molecule.from_file("methane.xyz")
+    methane.to(filename="methane.gjf")
 
 The format is automatically guessed from the filename.
 
 For more fine-grained control over which parsed to use, you can specify
 specific io packages. For example, to create a Structure from a cif::
 
-    from pymatgen.io.cifio import CifParser
+    from pymatgen.io.cif import CifParser
     parser = CifParser("mycif.cif")
     structure = parser.get_structures()[0]
 
 Another example, creating a Structure from a VASP POSCAR/CONTCAR file::
 
-    from pymatgen.io.vaspio import Poscar
+    from pymatgen.io.vasp import Poscar
     poscar = Poscar.from_file("POSCAR")
     struct = poscar.struct
 
 Many of these io packages also provide the means to write a Structure to
-various output formats, e.g. the CifWriter in :mod:`pymatgen.io.cifio`. In
-particular, the :mod:`pymatgen.io.vaspio_set` provides a powerful way to
+various output formats, e.g. the CifWriter in :mod:`pymatgen.io.cif`. In
+particular, the :mod:`pymatgen.io.vasp.sets` provides a powerful way to
 generate complete sets of VASP input files from a Structure. In general,
 most file format conversions can be done with a few quick lines of code. For
 example, to read a POSCAR and write a cif::
 
-    from pymatgen.io.vaspio import Poscar
-    from pymatgen.io.cifio import CifWriter
+    from pymatgen.io.vasp import Poscar
+    from pymatgen.io.cif import CifWriter
 
     p = Poscar.from_file('POSCAR')
     w = CifWriter(p.struct)
     w.write_file('mystructure.cif')
 
 For molecules, pymatgen has in-built support for XYZ and Gaussian input and
-output files via the :mod:`pymatgen.io.xyzio` and
-:mod:`pymatgen.io.gaussianio` respectively::
+output files via the :mod:`pymatgen.io.xyz` and
+:mod:`pymatgen.io.gaussian` respectively::
 
-    from pymatgen.io.xyzio import XYZ
-    from pymatgen.io.gaussianio import GaussianInput
+    from pymatgen.io.xyz import XYZ
+    from pymatgen.io.gaussian import GaussianInput
 
     xyz = XYZ.from_file('methane.xyz')
     gau = GaussianInput(xyz.molecule,
                         route_parameters={'SP': "", "SCF": "Tight"})
     gau.write_file('methane.inp')
+
+There is also support for more than 100 file types via the OpenBabel
+interface. But that requires you to install openbabel with Python bindings.
+Please see the :doc:`installation guide </installation>`.
 
 Things you can do with Structures
 ---------------------------------
@@ -203,12 +211,56 @@ Things you can do with Structures
 This section is a work in progress.  But just to give an overview of the kind of
 analysis you can do:
 
-1. Modify Structures using either :mod:`pymatgen.core.structure_modifier`,
-   or even better, using the :mod:`pymatgen.transformations` and
-   :mod:`pymatgen.alchemy` packages.
+1. Modify Structures directly or even better, using the :mod:`pymatgen
+   .transformations` and :mod:`pymatgen.alchemy` packages.
 2. Analyse Structures. E.g., compute the Ewald sum using the
    :mod:`pymatgen.analysis.ewald` package, compare two structures for
    similarity using :mod:`pymatgen.analysis.structure_matcher`.
+
+It should be noted that Structure and Molecule are designed to be mutable. In
+fact, they are the most basic mutable units (everything below in the class
+hierarchy such as Element, Specie, Site, PeriodicSite, Lattice are immutable).
+If you need guarantees of immutability for Structure/Molecule,
+you should use the IStructure and IMolecule classes instead.
+
+Modifying Structures or Molecules
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pymatgen supports a highly Pythonic interface for modifying Structures and
+Molecules. For example, you can change any site simply with::
+
+    # Change the specie at site position 1 to a fluorine atom.
+    structure[1] = "F"
+    molecule[1] = "F"
+
+    # Change species and coordinates (fractional assumed for Structures,
+    # cartesian for Molecules)
+    structure[1] = "Cl", [0.51, 0.51, 0.51]
+    molecule[1] = "F", [1.34, 2, 3]
+
+    # Structure/Molecule also supports typical list-like operators,
+    # such as reverse, extend, pop, index, count.
+    structure.reverse()
+    molecule.reverse()
+
+    structure.append("F", [0.9, 0.9, 0.9])
+    molecule.append("F", [2.1, 3,.2 4.3])
+
+There are also many typical transforms you can do on Structures. Here are
+some examples::
+
+    # Make a supercell
+    structure.make_supercell([2, 2, 2])
+
+    #Find a primitive version of the Structure
+    structure.find_primitive_structure()
+
+    # Interpolate between two structures to get 10 structures (typically for
+    # NEB calculations.
+    structure.interpolate(another_structure, nimages=10)
+
+The above is just some examples of typical use cases. A lot more is possible
+and you may explore the actual API doc for the structure and molecule classes.
 
 .. _entries:
 
@@ -216,7 +268,7 @@ Entries - Basic analysis unit
 =============================
 
 Beyond the core Element, Site and Structure objects, most analyses within in
-pymatgen (e.g., creating a PhaseDiagram) is performed using Entry objects. An
+pymatgen (e.g., creating a PhaseDiagram) are performed using Entry objects. An
 Entry in its most basic form contains a calculated energy and a composition,
 and may optionally contain other input or calculated data. In most instances,
 you will use the ComputedEntry or ComputedStructureEntry objects defined in
@@ -236,7 +288,7 @@ diagram, metallic phases such as Fe and FexPy are most appropriately modelled
 using standard GGA, while a hubbard U should be applied for the oxides such
 as FexOy and FexPyOz.
 
-In the :mod:`pymatgen.io.vaspio_set` module, pre-defined parameter sets have
+In the :mod:`pymatgen.io.vasp.sets` module, pre-defined parameter sets have
 been coded to allow users to generate VASP input files that are consistent
 with input parameters that are compatible with the Materials Project data.
 Users who wish to perform analysis using runs calculated using these
@@ -401,7 +453,7 @@ In parallel, we have coded in the :mod:`pymatgen.matproj.rest` module a
 MPRester, a user-friendly high-level interface to the Materials API to obtain
 useful pymatgen objects for further analyses.  To use the Materials API,
 your need to first register with the Materials Project and generate your API
-key in your profile at https://www.materialsproject.org/profile. In the
+key in your dashboard at https://www.materialsproject.org/dashboard. In the
 examples below, the user's Materials API key is designated as "USER_API_KEY".
 
 The MPRester provides many convenience methods, but we will just highlight
@@ -465,13 +517,38 @@ a new calculated material can be determined::
    plotter = PDPlotter(pd)
    plotter.show()
 
+The query method
+~~~~~~~~~~~~~~~~
+
+For the most flexibility, you can also use the query method of the MPRester.
+This method allows any kind of mongo query to be performed on the Materials
+Project database. It also supports a simple string syntax with wild cards.
+Examples are given below::
+
+   from pymatgen.matproj.rest import MPRester
+
+   with MPRester("USER_API_KEY") as m:
+
+       # Get all energies of materials with formula "*2O".
+       results = m.query("*2O", ['energy'])
+
+       # Get the formulas and energies of materials with materials_id mp-1234
+       # or with formula FeO.
+       results = m.query("FeO mp-1234", ['pretty_formula', 'energy'])
+
+       # Get all compounds of the form ABO3
+       results = m.query("**O3", ['pretty_formula', 'energy'])
+
+It is highly recommended that you consult the Materials API documentation at
+http://bit.ly/materialsapi, which provides a comprehensive explanation of the
+document schema used in the Materials Project and how best to query for the
+relevant information you need.
+
 Setting the MAPI_KEY environment variable
 -----------------------------------------
 
-.. versionadded:: 2.3.2
-
-With effect from version 2.3.2, MPRester now supports an alternative method
-of setting the API key via the MAPI_KEY environment variable. Simply add::
+MPRester supports an alternative method of setting the API key via the
+MAPI_KEY environment variable. Simply add::
 
     export MAPI_KEY="USER_API_KEY"
 

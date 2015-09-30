@@ -1,5 +1,8 @@
-#!/usr/bin/env python
-from __future__ import division, print_function
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals, division, print_function
 
 import unittest
 import numpy as np
@@ -21,11 +24,12 @@ class EOSTestCase(unittest.TestCase):
 
     @unittest.skipUnless(have_scipy(), "test_fit requires scipy")
     def test_fit(self):
-        "Test EOS fit"
+        """Test EOS fit"""
         for eos_name in EOS.MODELS:
             eos = EOS(eos_name=eos_name)
             fit = eos.fit(self.volumes, self.energies)
             print(fit)
+            #fit.plot()
 
 if __name__ == "__main__":
     unittest.main()

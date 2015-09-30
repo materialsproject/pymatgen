@@ -1,15 +1,40 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """Tools and helper functions for abinit calculations"""
-from __future__ import print_function, division
+from __future__ import unicode_literals, division, print_function
 
-import os.path
+import os
+import six
 import collections
 import shutil
 import operator
+import numpy as np
 
-from pymatgen.util.string_utils import list_strings, StringColorizer
+from fnmatch import fnmatch
+from six.moves import filter
+from monty.string import list_strings
+from monty.fnmatch import WildCard
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+def as_bool(s):
+    """
+    Convert a string into a boolean.
+
+    >>> assert as_bool(True) is True and as_bool("Yes") is True and as_bool("false") is False
+    """
+    if s in (False, True): return s
+    # Assume string
+    s = s.lower()
+    if s in ("yes", "true"): 
+        return True
+    elif s in ("no", "false"): 
+        return False
+    else:
+        raise ValueError("Don't know how to convert type %s: %s into a boolean" % (type(s), s))
 
 
 class File(object):
@@ -27,8 +52,7 @@ class File(object):
         return "<%s, %s>" % (self.__class__.__name__, self.path)
 
     def __eq__(self, other):
-        if other is None: return False
-        self.path == other.path
+        return False if other is None else self.path == other.path
                                        
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -55,12 +79,12 @@ class File(object):
 
     @property
     def exists(self):
-        "True if file exists."
+        """True if file exists."""
         return os.path.exists(self.path)
 
     @property
     def isncfile(self):
-        "True if self is a NetCDF file"
+        """True if self is a NetCDF file"""
         return self.basename.endswith(".nc")
 
     def read(self):
@@ -83,7 +107,7 @@ class File(object):
         """Write a list of strings to file."""
         self.make_dir()
         with open(self.path, "w") as f:
-            return f.writelines()
+            return f.writelines(lines)
 
     def make_dir(self):
         """Make the directory where the file is located."""
@@ -96,6 +120,10 @@ class File(object):
             os.remove(self.path)
         except:
             pass
+
+    def get_stat(self):
+        """Results from os.stat"""
+        return os.stat(self.path)
 
 
 class Directory(object):
@@ -113,8 +141,7 @@ class Directory(object):
         return "<%s, %s>" % (self.__class__.__name__, self.path)
 
     def __eq__(self, other):
-        if other is None: return False
-        self.path == other.path
+        return False if other is None else self.path == other.path
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -123,6 +150,11 @@ class Directory(object):
     def path(self):
         """Absolute path of the directory."""
         return self._path
+
+    @property
+    def relpath(self):
+        """Relative path."""
+        return os.path.relpath(self.path)
 
     @property
     def basename(self):
@@ -154,14 +186,37 @@ class Directory(object):
         """Recursively delete the directory tree"""
         shutil.rmtree(self.path, ignore_errors=True)
 
-    def path_in(self, filename):
-        """Return the absolute path of filename in the directory."""
-        return os.path.join(self.path, filename)
+    def clean(self):
+        """Remove all files in the directory tree while preserving the directory"""
+        for path in self.list_filepaths():
+            try:
+                os.remove(path)
+            except:
+                pass
 
-    def list_filepaths(self):
-        """Return the list of absolute filepaths in the top-level directory."""
+    def path_in(self, file_basename):
+        """Return the absolute path of filename in the directory."""
+        return os.path.join(self.path, file_basename)
+
+    def list_filepaths(self, wildcard=None):
+        """
+        Return the list of absolute filepaths in the directory.
+
+        Args:
+            wildcard: String of tokens separated by "|". Each token represents a pattern.
+                If wildcard is not None, we return only those files that match the given shell pattern (uses fnmatch).
+                Example:
+                  wildcard="*.nc|*.pdf" selects only those files that end with .nc or .pdf
+        """
+        # Select the files in the directory.
         fnames = [f for f in os.listdir(self.path)]
-        return [os.path.join(self.path, f) for f in fnames]
+        filepaths = filter(os.path.isfile, [os.path.join(self.path, f) for f in fnames])
+
+        # Filter using the shell patterns.
+        if wildcard is not None:
+            filepaths = WildCard(wildcard).filter(filepaths)
+
+        return filepaths
 
     def has_abiext(self, ext):
         """
@@ -171,13 +226,17 @@ class Directory(object):
         in the directory. Returns empty string is file is not present.
 
         Raises:
-            ValueError if multiple files with the given ext are found.
+            `ValueError` if multiple files with the given ext are found.
             This implies that this method is not compatible with multiple datasets.
         """
         files = []
         for f in self.list_filepaths():
             if f.endswith(ext) or f.endswith(ext + ".nc"):
                 files.append(f)
+
+        # This should fix the problem with the 1WF files in which the file extension convention is broken
+        if not files:
+            files = [f for f in self.list_filepaths() if fnmatch(f, "*%s*" % ext)]
 
         if not files:
             return ""
@@ -189,8 +248,74 @@ class Directory(object):
 
         return files[0]
 
-# This dictionary maps ABINIT file extensions to the 
-# variables that must be used to read the file in input.
+    def symlink_abiext(self, inext, outext):
+        """Create a simbolic link"""
+        infile = self.has_abiext(inext)
+        if not infile:
+            raise RuntimeError('no file with extension %s in %s' % (inext, self))
+
+        for i in range(len(infile) - 1, -1, -1):
+            if infile[i] == '_':
+                break
+        else:
+            raise RuntimeError('Extension %s could not be detected in file %s' % (inext, infile))
+
+        outfile = infile[:i] + '_' + outext
+        os.symlink(infile, outfile)
+        return 0
+
+    def rename_abiext(self, inext, outext):
+        """Rename the Abinit file with extension inext with the new extension outext"""
+        infile = self.has_abiext(inext)
+        if not infile:
+            raise RuntimeError('no file with extension %s in %s' % (inext, self))
+
+        for i in range(len(infile) - 1, -1, -1):
+            if infile[i] == '_':
+                break
+        else:
+            raise RuntimeError('Extension %s could not be detected in file %s' % (inext, infile))
+
+        outfile = infile[:i] + '_' + outext
+        shutil.move(infile, outfile)
+        return 0
+
+    def copy_abiext(self, inext, outext):
+        """Copy the Abinit file with extension inext to a new file withw extension outext"""
+        infile = self.has_abiext(inext)
+        if not infile:
+            raise RuntimeError('no file with extension %s in %s' % (inext, self))
+
+        for i in range(len(infile) - 1, -1, -1):
+            if infile[i] == '_':
+                break
+        else:
+            raise RuntimeError('Extension %s could not be detected in file %s' % (inext, infile))
+
+        outfile = infile[:i] + '_' + outext
+        shutil.copy(infile, outfile)
+        return 0
+
+    def remove_exts(self, exts):
+        """
+        Remove the files with the given extensions. Unlike rmtree, this function preserves the directory path.
+        Return list with the absolute paths of the files that have been removed.
+        """
+        paths = []
+
+        for ext in list_strings(exts):
+            path = self.has_abiext(ext)
+            if not path: continue
+            try:
+                os.remove(path)
+                paths.append(path)
+            except:
+                logger.warning("Exception while trying to remove file %s" % path)
+
+        return paths
+        
+
+# This dictionary maps ABINIT file extensions to the variables that must be used to read the file in input.
 #
 # TODO: It would be nice to pass absolute paths to abinit with getden_path
 # so that I can avoid creating symbolic links before running but
@@ -199,6 +324,7 @@ class Directory(object):
 _EXT2VARS = {
     "DEN": {"irdden": 1},
     "WFK": {"irdwfk": 1},
+    "WFQ": {"irdwfq": 1},
     "SCR": {"irdscr": 1},
     "QPS": {"irdqps": 1},
     "1WF": {"ird1wf": 1},
@@ -211,6 +337,7 @@ _EXT2VARS = {
     "GKK": {},
     "DKK": {},
 }
+
 
 def irdvars_for_ext(ext):
     """
@@ -233,11 +360,8 @@ def abi_splitext(filename):
     Returns "(root, ext)" where ext is the registered ABINIT extension 
     The final ".nc" is included (if any) 
 
-    >>> abi_splitext("foo_WFK")
-    ('foo_', 'WFK')
-
-    >>> abi_splitext("/home/guido/foo_bar_WFK.nc")
-    ('foo_bar_', 'WFK.nc')
+    >>> assert abi_splitext("foo_WFK") == ('foo_', 'WFK')
+    >>> assert abi_splitext("/home/guido/foo_bar_WFK.nc") == ('foo_bar_', 'WFK.nc')
     """
     filename = os.path.basename(filename)
     is_ncfile = False
@@ -259,7 +383,7 @@ def abi_splitext(filename):
 
     root = filename[:i]
     if is_ncfile: 
-        ext = ext + ".nc"
+        ext += ".nc"
 
     return root, ext
 
@@ -284,12 +408,8 @@ class FilepathFixer(object):
     Example:
     
     >>> fixer = FilepathFixer()
-
-    >>> fixer.fix_paths('/foo/out_1WF17')
-    {'/foo/out_1WF17': '/foo/out_1WF'}
-
-    >>> fixer.fix_paths('/foo/out_1WF5.nc')
-    {'/foo/out_1WF5.nc': '/foo/out_1WF.nc'}
+    >>> assert fixer.fix_paths('/foo/out_1WF17') == {'/foo/out_1WF17': '/foo/out_1WF'}
+    >>> assert fixer.fix_paths('/foo/out_1WF5.nc') == {'/foo/out_1WF5.nc': '/foo/out_1WF.nc'}
     """
     def __init__(self):
         # dictionary mapping the *official* file extension to
@@ -330,8 +450,7 @@ class FilepathFixer(object):
         Fix the filenames in the iterable paths
 
         Returns:
-            old2new:
-                Mapping old_path --> new_path
+            old2new: Mapping old_path --> new_path
         """
         old2new, fixed_exts = {}, []
 
@@ -339,7 +458,15 @@ class FilepathFixer(object):
             newpath, ext = self._fix_path(path)
 
             if newpath is not None:
-                assert ext not in fixed_exts
+                #if ext not in fixed_exts:
+                #    if ext == "1WF": continue
+                #    raise ValueError("Unknown extension %s" % ext)
+                #print(ext, path, fixed_exts)
+                #if ext != '1WF':
+                #    assert ext not in fixed_exts
+                if ext not in fixed_exts:
+                    if ext == "1WF": continue
+                    raise ValueError("Unknown extension %s" % ext)
                 fixed_exts.append(ext)
                 old2new[path] = newpath
 
@@ -350,13 +477,16 @@ def _bop_not(obj):
     """Boolean not."""
     return not bool(obj)
 
+
 def _bop_and(obj1, obj2):
     """Boolean and."""
     return bool(obj1) and bool(obj2)
 
+
 def _bop_or(obj1, obj2):
     """Boolean or."""
     return bool(obj1) or bool(obj2)
+
 
 def _bop_divisible(num1, num2):
     """Return True if num1 is divisible by num2."""
@@ -393,8 +523,7 @@ def map2rpn(map, obj):
     3 - 4 + 5 -->   3 4 - 5 + 
 
     >>> d = {2.0: {'$eq': 1.0}}
-    >>> map2rpn(d, None)
-    [2.0, 1.0, '$eq']
+    >>> assert map2rpn(d, None) == [2.0, 1.0, '$eq']
     """
     rpn = []
 
@@ -486,7 +615,7 @@ def evaluate_rpn(rpn):
 
 class Condition(object):
     """
-    This object receive a dictionary that defines a boolean condition whose syntax is similar
+    This object receives a dictionary that defines a boolean condition whose syntax is similar
     to the one used in mongodb (albeit not all the operators available in mongodb are supported here).
 
     Example:
@@ -509,15 +638,116 @@ class Condition(object):
     db.inventory.find( { qty: { $gt: 20 } } )
     db.inventory.find({ $and: [ { price: 1.99 }, { qty: { $lt: 20 } }, { sale: true } ] } )
     """
-    def __init__(self, cmap):
-        self.cmap = cmap
+    @classmethod
+    def as_condition(cls, obj):
+        """Convert obj into :class:`Condition`"""
+        if isinstance(obj, cls):
+            return obj
+        else:
+            return cls(cmap=obj)
+
+    def __init__(self, cmap=None):
+        self.cmap = {} if cmap is None else cmap
 
     def __str__(self):
         return str(self.cmap)
 
-    def apply(self, obj):
+    def __bool__(self):
+        return bool(self.cmap)
+
+    __nonzero__ = __bool__
+
+    def __call__(self, obj):
+        if not self: return True
         try:
             return evaluate_rpn(map2rpn(self.cmap, obj))
-        except:
-            logger.warning("Condition.apply() raise Exception")
+        except Exception as exc:
+            logger.warning("Condition(%s) raised Exception:\n %s" % (type(obj), str(exc)))
             return False
+
+
+class Editor(object):
+    """
+    Wrapper class that calls the editor specified by the user 
+    or the one specified in the $EDITOR env variable.
+    """
+    def __init__(self, editor=None):
+        """If editor is None, $EDITOR is used."""
+        self.editor = os.getenv("EDITOR", "vi") if editor is None else str(editor)
+
+    def edit_files(self, fnames, ask_for_exit=True):
+        exit_status = 0
+        for idx, fname in enumerate(fnames):
+            exit_status = self.edit_file(fname)
+            if ask_for_exit and idx != len(fnames)-1 and self.user_wants_to_exit():
+                break
+        return exit_status
+
+    def edit_file(self, fname):
+        from subprocess import call
+        retcode = call([self.editor, fname])
+
+        if retcode != 0:
+            import warnings
+            warnings.warn("Error while trying to edit file: %s" % fname)
+
+        return retcode 
+
+    @staticmethod
+    def user_wants_to_exit():
+        """Show an interactive prompt asking if exit is wanted."""
+        # Fix python 2.x.
+        if six.PY2:
+            my_input = raw_input
+        else:
+            my_input = input
+
+        try:
+            answer = my_input("Do you want to continue [Y/n]")
+        except EOFError:
+            return True
+
+        return answer.lower().strip() in ["n", "no"]
+
+
+class SparseHistogram(object):
+
+    def __init__(self, items, key=None, num=None, step=None):
+        if num is None and step is None:
+            raise ValueError("Either num or step must be specified")
+
+        from collections import defaultdict, OrderedDict
+
+        values = [key(item) for item in items] if key is not None else items
+        start, stop = min(values), max(values)
+        if num is None:
+            num = int((stop - start) / step)
+            if num == 0: num = 1
+        mesh = np.linspace(start, stop, num, endpoint=False)
+
+        from monty.bisect import find_le
+
+        hist = defaultdict(list)
+        for item, value in zip(items, values):
+            # Find rightmost value less than or equal to x.
+            # hence each bin contains all items whose value is >= value
+            pos = find_le(mesh, value)
+            hist[mesh[pos]].append(item)
+
+        #new = OrderedDict([(pos, hist[pos]) for pos in sorted(hist.keys(), reverse=reverse)])
+        self.binvals = sorted(hist.keys())
+        self.values = [hist[pos] for pos in self.binvals]
+        self.start, self.stop, self.num = start, stop, num
+
+    from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
+    @add_fig_kwargs
+    def plot(self, ax=None, **kwargs):
+        """
+        Plot the histogram with matplotlib, returns `matplotlib figure
+        """
+        ax, fig, plt = get_ax_fig_plt(ax)
+
+        yy = [len(v) for v in self.values]
+        ax.plot(self.binvals, yy, **kwargs)
+
+        return fig
