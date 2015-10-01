@@ -29,21 +29,25 @@ class Strain(SQTensor):
     """
     # TODO: AJ says strain must subclass SQTensor
     # TODO: AJ says much of this class should be reimplemented from the standpoint of subclassing SQTensor
-    # TODO: AJ says there should be a static from_strain(matrix) method that constructs the object from a strain matrix rather than deformation matrix
-    # For an example of the above, see the various 'from_xxxxx' methods in pymatgen.core.structure.Composition
+    # TODO: AJ says there should be a static from_strain(matrix) method that 
+    #           constructs the object from a strain matrix rather than deformation matrix
+    #           For an example of the above, see the various 'from_xxxxx' methods in 
+    #           pymatgen.core.structure.Composition
     # TODO: JM says we might want to have the constructor use the strain matrix, and have a from_deformation_matrix
     #   method instead of a from_strain method
     
-    def __init__(self, deformation_matrix):
-        super(Strain,self).__init__(deformation_matrix)
-        #self._dfm = deformation_matrix
-        #TODO: AJ says the above needs to be handled by a super() call
-        self._strain = 0.5 * (self._matrix * self._matrix.T - np.eye(3))
+    def __init__(self, strain_matrix, dfm=None):
+        self._dfm = None
+        super(Strain,self).__init__(strain_matrix)
 
     @classmethod
-    def from_strain(cls, strain_matrix):
-        #TODO: fix this, 
-        return cls(2*strain_matrix + np.eye(3))
+    def from_deformation(cls, deformation_matrix):
+        """
+        constructor that returns a Strain object from a deformation
+        matrix, rather than a strain matrix
+        """
+        return cls(0.5*(self._matrix*self._matrix.T - np.eye(3)),
+                  dfm = deformation_matrix)
 
     # return Green-Lagrange strain matrix
     @property
@@ -54,6 +58,7 @@ class Strain(SQTensor):
     def deformation_matrix(self):
         return self._dfm
 
+# TODO: JM asks whether this method should be implemented
 #    # construct def. matrix from indices and amount
 #    @staticmethod
 #    def from_ind_amt_dfm(matrixpos, amt):
