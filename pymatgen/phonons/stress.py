@@ -32,8 +32,6 @@ class Stress(SQTensor):
     @property
     def deviator_principal_invariants(self):
         # TODO: check sign convention
-        # TODO: Also JM says this may be too abstract and might want
-        #   to use the original convention here, old code left
         """
         returns the principal invariants of the deviatoric stress tensor, 
         which is calculated by finding the coefficients of the characteristic
@@ -81,20 +79,33 @@ class Stress(SQTensor):
                              so deviator stress will not be either")
         return SQTensor(self._matrix - self.mean_stress*np.eye(3))
 
-    # TODO: JM asks is there a more descriptive way to distinguish these?
-    # TODO: JM asks is the F argument here necessary or should it operate
-    #   on the matrix attribute?
+    # TODO: JM asks what is the F argument here?
     def piola_kirchoff_1(self, F):
+        '''
+        calculates the first Piola-Kirchoff stress
+
+        Args:
+            F (array-like): 
+        '''
         if self.is_symmetric() == False:
             raise ValueError("The stress tensor is not symmetric, \
                              PK stress is based on a symmetric stress tensor.")
-        return np.linalg.det(F)*self._matrix*np.transpose(np.linalg.inv(F))
+        F = np.matrix(F)
+        return np.linalg.det(F)*self._matrix*((F.I).T)
 
     def piola_kirchoff_2(self, F):
+        '''
+        calculates the second Piola-Kirchoff stress
+
+        Args:
+            F (array-like): 
+        '''
+
+        F = np.matrix(F)
         if self.is_symmetric() == False:
             raise ValueError("The stress tensor is not symmetric, \
                              PK stress is based on a symmetric stress tensor.")
-        return np.linalg.det(F)*np.linalg.inv(F)*self._sigma*np.transpose(np.linalg.inv(F))
+        return np.linalg.det(F)*F.I*self._matrix*((F.I).T)
 
 
 if __name__ == "__main__":
