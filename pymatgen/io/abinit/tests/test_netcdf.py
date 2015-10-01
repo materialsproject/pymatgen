@@ -10,7 +10,7 @@ import numpy as np
 
 from pymatgen import Structure
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinitio import ETSF_Reader
+from pymatgen.io.abinit import ETSF_Reader
 
 try:
     import netCDF4
