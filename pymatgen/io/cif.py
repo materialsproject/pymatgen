@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -77,6 +79,11 @@ class CifBlock(object):
         # get an Exception
         self.header = header[:74]
 
+    def __eq__(self, other):
+        return self.loops == other.loops \
+            and self.data == other.data \
+            and self.header == other.header
+
     def __getitem__(self, key):
         return self.data[key]
 
@@ -128,6 +135,8 @@ class CifBlock(object):
         if len(v) > self.maxlen:
             return ';\n' + textwrap.fill(v, self.maxlen) + '\n;'
         #add quotes if necessary
+        if v == '':
+            return '""'
         if (" " in v or v[0] == "_") \
                 and not (v[0] == "'" and v[-1] == "'") \
                 and not (v[0] == '"' and v[-1] == '"'):
@@ -162,7 +171,7 @@ class CifBlock(object):
             if multiline:
                 if l.startswith(";"):
                     multiline = False
-                    q.append(" ".join(ml))
+                    q.append(('', '', '', ' '.join(ml)))
                     ml = []
                     l = l[1:].strip()
                 else:
@@ -221,7 +230,7 @@ class CifFile(object):
     Reads and parses CifBlocks from a .cif file
     """
 
-    def __init__(self, data, orig_string=None):
+    def __init__(self, data, orig_string=None, comment=None):
         """
         Args:
             data: OrderedDict of CifBlock objects
@@ -229,11 +238,12 @@ class CifFile(object):
         """
         self.data = data
         self.orig_string = orig_string
+        self.comment = "# generated using pymatgen" if comment is None else \
+            comment
 
     def __str__(self):
         s = ["%s" % v for v in self.data.values()]
-        comment = "#generated using pymatgen\n"
-        return comment + "\n".join(s)+"\n"
+        return self.comment + "\n" + "\n".join(s)+"\n"
 
     @classmethod
     def from_string(cls, string):

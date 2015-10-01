@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -559,7 +561,6 @@ class MITAqueousCompatibility(Compatibility):
              UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
 
 
-@cached_class
 class MaterialsProjectAqueousCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of

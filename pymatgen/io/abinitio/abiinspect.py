@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """
 This module provides objects to inspect the status of the Abinit tasks at run-time.
 by extracting information from the main output file (text format).

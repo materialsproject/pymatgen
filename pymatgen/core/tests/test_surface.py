@@ -220,8 +220,19 @@ class SlabGeneratorTest(PymatgenTest):
             TeI_slabs = trclnc_TeI.get_slabs()
             self.assertEqual(v, len(TeI_slabs))
 
+    def test_get_orthogonal_c_slab(self):
+        TeI = Structure.from_file(get_path("icsd_TeI.cif"),
+                                  primitive=False)
+        trclnc_TeI = SlabGenerator(TeI, (0, 0, 1), 10, 10)
+        TeI_slabs = trclnc_TeI.get_slabs()
+        slab = TeI_slabs[0]
+        norm_slab = slab.get_orthogonal_c_slab()
+        self.assertAlmostEqual(norm_slab.lattice.angles[0], 90)
+        self.assertAlmostEqual(norm_slab.lattice.angles[1], 90)
+
 
 class FuncTest(PymatgenTest):
+
     def setUp(self):
         self.cscl = self.get_structure("CsCl")
         self.lifepo4 = self.get_structure("LiFePO4")

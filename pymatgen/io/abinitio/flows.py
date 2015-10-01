@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """
 A Flow is a container for Works, and works consist of tasks.
 Flows are the final objects that can be dumped directly to a pickle file on disk
