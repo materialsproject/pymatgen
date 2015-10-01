@@ -9,7 +9,7 @@ import collections
 
 from tempfile import mkdtemp
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinitio import *
+from pymatgen.io.abinit import *
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files', "abinitio")

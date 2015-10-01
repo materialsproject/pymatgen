@@ -4,7 +4,7 @@
 from __future__ import unicode_literals, division, print_function
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinitio.utils import *
+from pymatgen.io.abinit.utils import *
 
 class RpnTest(PymatgenTest):
 

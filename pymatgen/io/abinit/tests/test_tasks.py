@@ -7,8 +7,8 @@ from __future__ import unicode_literals, division, print_function
 import os
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinitio.tasks import *
-from pymatgen.io.abinitio.tasks import TaskPolicy, ParalHints
+from pymatgen.io.abinit.tasks import *
+from pymatgen.io.abinit.tasks import TaskPolicy, ParalHints
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
                         'test_files', "abinitio")

@@ -12,11 +12,11 @@ from pymatgen.util.testing import PymatgenTest
 from monty.functools import lazy_property
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.io.abinitio import *
-from pymatgen.io.abinitio.flows import *
-from pymatgen.io.abinitio.works import *
-from pymatgen.io.abinitio.tasks import *
-from pymatgen.io.abinitio.pseudos import Pseudo
+from pymatgen.io.abinit import *
+from pymatgen.io.abinit.flows import *
+from pymatgen.io.abinit.works import *
+from pymatgen.io.abinit.tasks import *
+from pymatgen.io.abinit.pseudos import Pseudo
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
                          'test_files', "abinitio")
@@ -302,7 +302,7 @@ class TestBatchLauncher(FlowUnitTest):
 
             return flow
 
-        from pymatgen.io.abinitio.launcher import BatchLauncher
+        from pymatgen.io.abinit.launcher import BatchLauncher
         tmpdir = tempfile.mkdtemp()
         batch = BatchLauncher(workdir=tmpdir, manager=manager)
         print(batch)

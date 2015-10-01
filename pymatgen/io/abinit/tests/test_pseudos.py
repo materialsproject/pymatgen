@@ -4,16 +4,12 @@
 
 from __future__ import unicode_literals, division, print_function
 
-"""
-Created on Fri Mar  8 23:14:02 CET 2013
-"""
-
 import os.path
 import collections
 import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinitio.pseudos import *
+from pymatgen.io.abinit.pseudos import *
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files', "abinitio")

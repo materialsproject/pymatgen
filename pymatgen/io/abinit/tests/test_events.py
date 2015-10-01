@@ -5,7 +5,7 @@ import os
 import datetime
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinitio import events 
+from pymatgen.io.abinit import events 
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files', "abinitio")
