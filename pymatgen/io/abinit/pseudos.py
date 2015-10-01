@@ -448,7 +448,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
             ecut: Cutoff energy in Hartree.
             pawecutdg: Cutoff energy for the PAW double grid.
         """
-        from pymatgen.io.abinitio.tasks import AbinitTask
+        from pymatgen.io.abinit.tasks import AbinitTask
         from abipy.core.structure import Structure
         from abipy.abio.factories import gs_input
         from abipy.electrons.psps import PspsFile
