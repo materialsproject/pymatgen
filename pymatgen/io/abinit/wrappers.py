@@ -204,11 +204,12 @@ class Mrggkk(ExecWrapper):
 class Mrgddb(ExecWrapper):
     _name = "mrgddb"
 
-    def merge(self, workdir, ddb_files, out_ddb, description):
+    def merge(self, workdir, ddb_files, out_ddb, description, delete_source_ddbs=True):
         """Merge DDB file, return the absolute path of the new database in workdir."""
         # We work with absolute paths.
         ddb_files = [os.path.abspath(s) for s in list_strings(ddb_files)]
-        out_ddb = os.path.join(os.path.abspath(workdir), os.path.basename(out_ddb))
+        if not os.path.isabs(out_ddb):
+            out_ddb = os.path.join(os.path.abspath(workdir), os.path.basename(out_ddb))
 
         if self.verbose:
             print("Will merge %d files into output DDB %s" % (len(ddb_files), out_ddb))
@@ -240,7 +241,7 @@ class Mrgddb(ExecWrapper):
             fh.writelines(self.stdin_data)
 
         retcode = self.execute(workdir)
-        if retcode == 0:
+        if retcode == 0 and delete_source_ddbs:
             # Remove ddb files.
             for f in ddb_files:
                 try:

@@ -707,7 +707,7 @@ class RelaxationMethod(AbivarAble, PMGSONable):
         if atoms_constraints is None:
             return cls(ionmov=cls.IONMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT)
         else:
-            return cls(ionmov=cls.IOMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT, atoms_constraints=atoms_constraints)
+            return cls(ionmov=cls.IONMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT, atoms_constraints=atoms_constraints)
 
     @property
     def move_atoms(self):

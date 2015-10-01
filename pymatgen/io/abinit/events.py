@@ -340,7 +340,7 @@ class EventReport(collections.Iterable, PMGSONable):
         if self.start_datetime is None or self.end_datetime is None:
             return None
 
-        return self.end_datetime - self.start_dateime
+        return self.end_datetime - self.start_datetime
 
     @property
     def run_completed(self):
@@ -762,7 +762,9 @@ class DilatmxErrorHandler(ErrorHandler):
             filepath = outdir.has_abiext("DILATMX_STRUCT.nc")
             last_structure = Structure.from_file(filepath)
             abiinput.set_structure(last_structure)
-            return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, False)
+            #FIXME restart from DEN files not always working with interpolation
+            return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, True)
+            # return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, False)
         except Exception as exc:
             logger.warning('Error while trying to apply the handler {}.'.format(str(self)), exc)
             return None
