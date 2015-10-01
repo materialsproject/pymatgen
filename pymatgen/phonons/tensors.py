@@ -19,18 +19,13 @@ __email__ = "maartendft@gmail.com"
 __status__ = "Development"
 __date__ ="March 22, 2012"
 
-# TODO: JM asks should this not subclass the numpy Matrix object?
-#       might make it a little easier, and would extend a lot
-#       of the methods there, also make the _matrix attribute
-#       unnecessary
-
-class SQTensor(object):
+class SQTensor(np.matrix):
     """
     Class for doing useful general operations on *square* matrices, without 
     restrictions on what type of matrix (stress, elastic, strain etc.).
     An error is thrown when the class is initialized with non-square matrix.
 
-    .. attribute:: _matrix
+    .. attribute::
 
         matrix corresponding to the tensor values
     """
@@ -40,19 +35,25 @@ class SQTensor(object):
         Creates a SQTensor 
 
         Args:
-            matrix (NxN array): input matrix with square shape.  If this
-            argument is not a square matrix, throws an ValueError.
+            matrix (NxN array-like): input array-like with square shape.  If this
+            argument is not square, throws an ValueError.
         """
-
-        self._matrix = np.matrix(matrix)
-        if self._matrix.shape[0] != self._matrix.shape[1]:
+        super(SQTensor,self).__init__(matrix)
+        if self.shape[0] != self.shape[1]:
             raise ValueError("SQTensor operates only on square matrices")
 
     def __repr__(self):
-        return self._matrix
-
+        return "SQTensor({})".format(self.__str__())
+    '''
     def __str__(self):
-        return self._matrix
+        return self
+    '''
+    @property
+    def det(self):
+        '''
+        returns the determinant of the SQTensor
+        '''
+        return np.linalg.det(self)
 
     @property
     def is_symmetric(self, tol=0.001):
@@ -66,19 +67,19 @@ class SQTensor(object):
             tol (float): tolerance to test whether the matrix is symmetric
         """
         # TODO: write a unit test
-        # TODO: JM asks whether tolerance test is necessay
-        return (np.abs(self._matrix-self._matrix.T) < tol).all()
+        # TODO: JM asks whether tolerance test is necessary
+        return (np.abs(self - self.T) < tol).all()
 
         """
-        return self._matrix == self._matrix
-        if len(np.nonzero(np.abs(self._matrix-np.transpose(self._matrix))>tol)[0]) == 0:
+        return self == self
+        if len(np.nonzero(np.abs(self-np.transpose(self))>tol)[0]) == 0:
             return True
         else:
             return False
         """
 
     @property
-    def is_rotation_matrix(self, tol=0.001):
+    def is_rotation(self, tol=0.001):
         """
         Test to see if tensor is a valid rotation matrix, performs a 
         test to check whether the inverse is equal to the transpose
@@ -91,20 +92,20 @@ class SQTensor(object):
                 to the transpose
         """
 
-        return (np.abs(self._matrix.I - self._matrix.T) < tol).all() \
-                and (np.linalg.det(self._matrix) - 1. < tol)
+        return (np.abs(self.I - self.T) < tol).all() \
+                and (np.linalg.det(self) - 1. < tol)
         
     @property
-    def symmetrize(self):
+    def symmetrized(self):
         """
         Returns a symmetrized matrix from the input matrix, 
         calculated by taking the sum of the matrix and its
         transpose
         """
-        return 0.5*(self._matrix + self._matrix.T)
+        return 0.5*(self + self.T)
 
     def rotate(self, rotation):
-        if not self.is_rotation_matrix():
+        if not self.is_rotatio():
             raise ValueError("Specified rotation matrix is invalid")
         raise NotImplementedError("matrix rotations are not yet supported")
     
@@ -112,12 +113,7 @@ class SQTensor(object):
         '''
         Scales the tensor by a certain multiplicative scale factor
         '''
-        return SQTensor(self._matrix * scale_factor)
-
-    @property
-    def tensor(self):
-        """ returns the tensor """
-        return self._matrix
+        return SQTensor(self * scale_factor)
 
     @property
     def principal_invariants(self):
@@ -127,27 +123,26 @@ class SQTensor(object):
         polynomial for the matrix
         '''
         # TODO: JM asks whether this fulfills the necessary sign conventions
-        return numpy.poly(self._matrix)[1:]
+        return numpy.poly(self)[1:]
 
-        
+    # TODO: Could probably make this more pythonic
     @property
     def KG_average(self):
         '''
         calculates the Voigt-Reuss-Hill average
         '''
-        if np.shape(self._matrix)[0] != 6:
+        if self.shape[0] != 6:
             raise ValueError("This method only makes sense for 6x6 elastic tensors")
-        if self.is_symmetric()==False:
+        if self.is_symmetric == False:
             raise ValueError("This method takes only symmetric tensors")
 
-        #k_voigt = self._matrix[:3,:3].trace()/9. + self._matrix
-        K_Voigt = (self._matrix[0,0]+self._matrix[1,1]+self._matrix[2,2])*1./9. \
-                + (self._matrix[0,1]+self._matrix[0,2]+self._matrix[1,2])*2./9.
-        G_Voigt = (self._matrix[0,0]+self._matrix[1,1]+self._matrix[2,2] - \
-                   self._matrix[0,1]-self._matrix[0,2]-self._matrix[1,2])*1./15.\
-                + (self._matrix[3,3]+self._matrix[4,4] + self._matrix[5,5])*1./5.
+        K_Voigt = (self[0,0]+self[1,1]+self[2,2])*1./9. \
+                + (self[0,1]+self[0,2]+self[1,2])*2./9.
+        G_Voigt = (self[0,0]+self[1,1]+self[2,2] - \
+                   self[0,1]-self[0,2]-self[1,2])*1./15.\
+                + (self[3,3]+self[4,4] + self[5,5])*1./5.
 
-        S = np.linalg.inv(self._matrix)
+        S = self.I
 
         K_Reuss = 1.0/(S[0,0]+S[1,1]+S[2,2]+2*S[0,1]+2*S[0,2]+2*S[1,2])
         G_Reuss = 15.0/(4*(S[0,0]+S[1,1]+S[2,2]-S[0,1]-S[0,2]-S[1,2])+3*(S[3,3]+S[4,4]+S[5,5]))
@@ -166,7 +161,7 @@ class SQTensor(object):
         calculates value for universal anisotropy, only valid for
         symmetric tensors, throws an error if not symmetric
         '''
-        if self.is_symmetric()==False:
+        if self.is_symmetric == False:
             raise ValueError("This method takes only symmetric tensors")
         average_Cij = self.KG_average
         ua = 5*average_Cij[1]/average_Cij[3] + average_Cij[0]/average_Cij[2] - 6
@@ -178,17 +173,18 @@ class SQTensor(object):
         calculates homogeneous poisson 
         '''
         # TODO: JM asks should this be implemented?
-        if self.is_symmetric()==False:
+        if self.is_symmetric == False:
             raise ValueError("This method takes only symmetric tensors")
         average_Cij = self.KG_average
         nu = (1 - 2./3. * average_Cij[5]/average_Cij[4]) / \
                 (2 + 2./3. * average_Cij[5]/average_Cij[4])
 
+        # TODO: JM asks should this be implemented?
 #    def rotate(self, rotation):
 #        super(StressOps, self).__init__(rotation)
-#        super(StressOps, self).is_rotation_matrix()
+#        super(StressOps, self).is_rotatio()
 
-#        if super(StressOps, self).is_rotation_matrix() == False:
+#        if super(StressOps, self).is_rotatio() == False:
 #            raise ValueError("Not a valid rotation matrix")
 
 #        else:
@@ -206,9 +202,9 @@ if __name__ == "__main__":
     sigma2 = SQTensor(mat1)
 
     sigma2.universal_anisotropy
+    print sigma2
 
-
-#    print sigma.is_rotation_matrix(np.matrix(eye))
+#    print sigma.is_rotatio(np.matrix(eye))
 #    print np.linalg.inv(eye)
         
 #    sigma = SQTensor(np.identity(3))    
