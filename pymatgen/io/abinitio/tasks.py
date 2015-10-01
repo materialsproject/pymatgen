@@ -1908,6 +1908,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 if len(abort_report) != 1: 
                     logger.critical("Found more than one event in ABI_MPIABORTFILE")
 
+                # Weird case: empty abort file, let's skip the part 
+                # below and hope that the log file contains the error message.
+                if not len(abort_report): return report
+
                 # Add it to the initial report only if it differs 
                 # from the last one found in the main log file.
                 last_abort_event = abort_report[-1]
