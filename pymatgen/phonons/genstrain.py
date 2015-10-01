@@ -25,7 +25,9 @@ __email__ = "maartendft@gmail.com"
 __status__ = "Development"
 __date__ ="Jan 24, 2012"
 
-def deform_geometry(rlxd_str, nd=0.01, ns=0.08, m=4, n=4):
+# JM asks whether this needs its own file or should be moved
+
+def deform_geometry(rlxd_str, nd=0.01, ns=0.08, m=4, n=4, delete_center=True):
     '''
     function to deform the geometry of a structure.  Generates
     m x n deformed structures according to the supplied parameters.
@@ -49,12 +51,13 @@ def deform_geometry(rlxd_str, nd=0.01, ns=0.08, m=4, n=4):
         raise ValueError("n has to be even.")
 
     # TODO: JM asks is this line necessary?
-    # TODO: JM suggests we might want to not delete the center point.
     # mystrains = np.zeros((3, 3, np.int(m*3) + np.int(n*3)))   
     defs = np.linspace(-nd, nd, num=m+1)
-    defs = np.delete(defs, np.int(m/2), 0)
+    if delete_center:
+        defs = np.delete(defs, np.int(m/2), 0)
     sheardef = np.linspace(-ns, ns, num=n+1)
-    sheardef = np.delete(sheardef, np.int(n/2), 0)
+    if delete_center:
+        sheardef = np.delete(sheardef, np.int(n/2), 0)
     defstructures = {}
 
     # TODO: JM asks is this line necessary?
