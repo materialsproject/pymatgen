@@ -1476,7 +1476,7 @@ class IStructure(SiteCollection, PMGSONable):
         """
         if filename.endswith(".nc"):
             # Read Structure from a netcdf file.
-            from pymatgen.io.abinitio.netcdf import structure_from_ncdata
+            from pymatgen.io.abinit.netcdf import structure_from_ncdata
             s = structure_from_ncdata(filename, cls=cls)
             if sort:
                 s = s.get_sorted_structure()

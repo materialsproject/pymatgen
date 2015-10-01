@@ -11,7 +11,7 @@ from pymatgen.io.abinit.tasks import *
 from pymatgen.io.abinit.tasks import TaskPolicy, ParalHints
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
-                        'test_files', "abinitio")
+                        'test_files', "abinit")
 
 
 class TaskManagerTest(PymatgenTest):

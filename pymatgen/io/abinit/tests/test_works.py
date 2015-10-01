@@ -12,7 +12,7 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit import *
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files', "abinitio")
+                        'test_files', "abinit")
 
 def ref_file(filename):
     return os.path.join(_test_dir, filename)

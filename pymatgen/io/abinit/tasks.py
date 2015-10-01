@@ -1714,7 +1714,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
         if qerr_info or qout_info:
-            from pymatgen.io.abinitio.scheduler_error_parsers import get_parser
+            from pymatgen.io.abinit.scheduler_error_parsers import get_parser
             scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file.path,
                                           out_file=self.qout_file.path, run_err_file=self.stderr_file.path)
 
@@ -1912,7 +1912,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
                 # Weird case: empty abort file, let's skip the part 
                 # below and hope that the log file contains the error message.
-                if not len(abort_report): return report
+                #if not len(abort_report): return report
 
                 # Add it to the initial report only if it differs 
                 # from the last one found in the main log file.
@@ -2598,7 +2598,7 @@ class AbinitTask(Task):
         Returns:
             1 if task has been fixed else 0.
         """
-        from pymatgen.io.abinitio.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
+        from pymatgen.io.abinit.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
         assert isinstance(self.manager, TaskManager)
 
         self.manager

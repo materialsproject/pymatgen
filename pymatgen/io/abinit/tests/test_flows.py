@@ -19,7 +19,7 @@ from pymatgen.io.abinit.tasks import *
 from pymatgen.io.abinit.pseudos import Pseudo
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
-                         'test_files', "abinitio")
+                         'test_files', "abinit")
 
 
 def ref_file(filename):
