@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -2139,6 +2141,11 @@ Sites (12)
 10 O     2.352341    -1.114671     0.001634
 11 H     3.261096    -0.769470     0.003158'''
         self.assertEqual(qcout.final_structure.__str__(), ans)
+
+    def test_time_nan_values(self):
+        filename = os.path.join(test_dir, "time_nan_values.qcout")
+        qcout = QcOutput(filename)
+        self.assertFalse(qcout.data[0]["has_error"])
 
 
 if __name__ == "__main__":

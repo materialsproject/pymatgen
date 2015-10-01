@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 from functools import reduce
@@ -124,6 +126,27 @@ class Slab(Structure):
             to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties)
+
+    def get_orthogonal_c_slab(self):
+        """
+        This method returns a Slab where the normal (c lattice vector) is
+        "forced" to be exactly orthogonal to the surface a and b lattice
+        vectors. **Note that this breaks inherent symmetries in the slab.**
+        It should be pointed out that orthogonality is not required to get good
+        surface energies, but it can be useful in cases where the slabs are
+        subsequently used for postprocessing of some kind, e.g. generating
+        GBs or interfaces.
+        """
+        a, b, c = self.lattice.matrix
+        new_c = np.cross(a, b)
+        new_c /= np.linalg.norm(new_c)
+        new_c = np.dot(c, new_c) * new_c
+        new_latt = Lattice([a, b, new_c])
+        return Slab(lattice=new_latt, species=self.species,
+                    coords=self.cart_coords, miller_index=self.miller_index,
+                    oriented_unit_cell=self.oriented_unit_cell,
+                    shift=self.shift, scale_factor=self.scale_factor,
+                    coords_are_cartesian=True, energy=self.energy)
 
     def get_sorted_structure(self, key=None, reverse=False):
         """

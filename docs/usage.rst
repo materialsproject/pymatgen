@@ -2,7 +2,11 @@ Overview
 ========
 
 This page provides new users of the pymatgen code base with a quick overview of
-the pymatgen code base.
+the pymatgen code base. It should also be pointed out that there is an
+:doc:`examples page </examples>` with many ipython notebook examples with
+actual code demonstrating the use of the code. Learning from those examples
+is the fastest way to get started.
+
 
 Pymatgen is structured in a highly object-oriented manner. Almost everything
 (Element, Site, Structure, etc.) is an object.  Currently, the code is heavily
@@ -138,67 +142,68 @@ crystal is provided below::
 Note that both elements and species (elements with oxidation states) are
 supported. So both "Fe" and "Fe2+" are valid specifications.
 
-Reading and writing Structures/Molecules using pymatgen.io
-----------------------------------------------------------
+Reading and writing Structures/Molecules
+----------------------------------------
 
 More often, you would already have the Structure/Molecule in one of many
 typical formats used (e.g., the Cystallographic Information Format (CIF),
 electronic structure code input / output, xyz, mol, etc.).
 
 Pymatgen provides a convenient way to read structures and molecules via the
-:mod:`pymatgen.io.smartio` module::
-
-    from pymatgen.io.smartio import read_structure, write_structure, \
-        read_mol, write_mol
+from_file and to methods::
 
     # Read a POSCAR and write to a CIF.
-    structure = read_structure("POSCAR")
-    write_structure(structure, "CsCl.cif")
+    structure = Structure.from_file("POSCAR")
+    structure.to(filename="CsCl.cif")
 
     # Read an xyz file and write to a Gaussian Input file.
-    methane = read_mol("methane.xyz")
-    write_mol(mol, "methane.gjf")
+    methane = Molecule.from_file("methane.xyz")
+    methane.to(filename="methane.gjf")
 
 The format is automatically guessed from the filename.
 
 For more fine-grained control over which parsed to use, you can specify
 specific io packages. For example, to create a Structure from a cif::
 
-    from pymatgen.io.cifio import CifParser
+    from pymatgen.io.cif import CifParser
     parser = CifParser("mycif.cif")
     structure = parser.get_structures()[0]
 
 Another example, creating a Structure from a VASP POSCAR/CONTCAR file::
 
-    from pymatgen.io.vaspio import Poscar
+    from pymatgen.io.vasp import Poscar
     poscar = Poscar.from_file("POSCAR")
     struct = poscar.struct
 
 Many of these io packages also provide the means to write a Structure to
-various output formats, e.g. the CifWriter in :mod:`pymatgen.io.cifio`. In
-particular, the :mod:`pymatgen.io.vaspio_set` provides a powerful way to
+various output formats, e.g. the CifWriter in :mod:`pymatgen.io.cif`. In
+particular, the :mod:`pymatgen.io.vasp.sets` provides a powerful way to
 generate complete sets of VASP input files from a Structure. In general,
 most file format conversions can be done with a few quick lines of code. For
 example, to read a POSCAR and write a cif::
 
-    from pymatgen.io.vaspio import Poscar
-    from pymatgen.io.cifio import CifWriter
+    from pymatgen.io.vasp import Poscar
+    from pymatgen.io.cif import CifWriter
 
     p = Poscar.from_file('POSCAR')
     w = CifWriter(p.struct)
     w.write_file('mystructure.cif')
 
 For molecules, pymatgen has in-built support for XYZ and Gaussian input and
-output files via the :mod:`pymatgen.io.xyzio` and
-:mod:`pymatgen.io.gaussianio` respectively::
+output files via the :mod:`pymatgen.io.xyz` and
+:mod:`pymatgen.io.gaussian` respectively::
 
-    from pymatgen.io.xyzio import XYZ
-    from pymatgen.io.gaussianio import GaussianInput
+    from pymatgen.io.xyz import XYZ
+    from pymatgen.io.gaussian import GaussianInput
 
     xyz = XYZ.from_file('methane.xyz')
     gau = GaussianInput(xyz.molecule,
                         route_parameters={'SP': "", "SCF": "Tight"})
     gau.write_file('methane.inp')
+
+There is also support for more than 100 file types via the OpenBabel
+interface. But that requires you to install openbabel with Python bindings.
+Please see the :doc:`installation guide </installation>`.
 
 Things you can do with Structures
 ---------------------------------
@@ -283,7 +288,7 @@ diagram, metallic phases such as Fe and FexPy are most appropriately modelled
 using standard GGA, while a hubbard U should be applied for the oxides such
 as FexOy and FexPyOz.
 
-In the :mod:`pymatgen.io.vaspio_set` module, pre-defined parameter sets have
+In the :mod:`pymatgen.io.vasp.sets` module, pre-defined parameter sets have
 been coded to allow users to generate VASP input files that are consistent
 with input parameters that are compatible with the Materials Project data.
 Users who wish to perform analysis using runs calculated using these

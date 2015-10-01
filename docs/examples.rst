@@ -28,8 +28,10 @@ Working with Materials API
 * `Plotting Pourbaix Diagrams with the Materials API
   <_static/Plotting%20a%20Pourbaix%20Diagram.html>`_
 
-Materials Analysis
-------------------
+Materials and Calculations Analysis
+-----------------------------------
 
 * `Calculating XRD patterns <_static/Calculating%20XRD%20patterns.html>`_
 * `Ordering disorderd structures <_static/Ordering%20Disordered%20Structures.html>`_
+* `Analyzing and plotting bandstructures
+  <_static/Analyze%20and%20plot%20band%20structures.html>`_

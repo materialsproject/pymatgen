@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """This module provides functions and classes related to Task objects."""
 from __future__ import division, print_function, unicode_literals
 
