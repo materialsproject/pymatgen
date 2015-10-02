@@ -30,6 +30,9 @@ class SQTensor(np.matrix):
         matrix corresponding to the tensor values
     """
 
+    def __new__(cls, matrix):
+        super(SQTensor,cls).__new__(matrix)
+
     def __init__(self, matrix):
         """
         Creates a SQTensor 
@@ -42,6 +45,7 @@ class SQTensor(np.matrix):
         if self.shape[0] != self.shape[1]:
             raise ValueError("SQTensor operates only on square matrices")
 
+    def __array_finalize__
     def __repr__(self):
         return "SQTensor({})".format(self.__str__())
     '''
@@ -67,7 +71,7 @@ class SQTensor(np.matrix):
             tol (float): tolerance to test whether the matrix is symmetric
         """
         # TODO: write a unit test
-        # TODO: JM asks whether tolerance test is necessary
+        # TODO: JM asks whether tolerance test is necessay
         return (np.abs(self - self.T) < tol).all()
 
         """
@@ -105,7 +109,7 @@ class SQTensor(np.matrix):
         return 0.5*(self + self.T)
 
     def rotate(self, rotation):
-        if not self.is_rotatio():
+        if not self.is_rotation():
             raise ValueError("Specified rotation matrix is invalid")
         raise NotImplementedError("matrix rotations are not yet supported")
     
@@ -123,9 +127,8 @@ class SQTensor(np.matrix):
         polynomial for the matrix
         '''
         # TODO: JM asks whether this fulfills the necessary sign conventions
-        return numpy.poly(self)[1:]
-
-    # TODO: Could probably make this more pythonic
+        return np.poly(self)[1:]
+ 
     @property
     def KG_average(self):
         '''
@@ -136,6 +139,7 @@ class SQTensor(np.matrix):
         if self.is_symmetric == False:
             raise ValueError("This method takes only symmetric tensors")
 
+        #k_voigt = self[:3,:3].trace()/9. + self
         K_Voigt = (self[0,0]+self[1,1]+self[2,2])*1./9. \
                 + (self[0,1]+self[0,2]+self[1,2])*2./9.
         G_Voigt = (self[0,0]+self[1,1]+self[2,2] - \
