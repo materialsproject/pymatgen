@@ -271,8 +271,9 @@ some quick examples of the core capabilities and objects:
     PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
     >>>
     >>> # You can create a Structure using spacegroup symmetry as well.
-    >>> li2o = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"],
-                                         [[0.25, 0.25, 0.25], [0, 0, 0]])
+    >>> li2o = mg.Structure.from_spacegroup("Fm-3m", mg.Lattice.cubic(3),
+                                            ["Li", "O"],
+                                            [[0.25, 0.25, 0.25], [0, 0, 0]])
     >>>
     >>> #Integrated symmetry analysis tools from spglib.
     >>> from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -502,6 +503,33 @@ Pymatgen is released under the MIT License. The terms of the license are as
 follows:
 
 .. literalinclude:: ../LICENSE.rst
+
+About the Pymatgen Development Team
+===================================
+
+Shyue Ping Ong started Pymatgen in 2011, and is still the project lead.
+
+The Pymatgen Development Team is the set of all contributors to the
+pymatgen project, including all subprojects.
+
+Our Copyright Policy
+====================
+
+Pymatgen uses a shared copyright model. Each contributor maintains copyright
+over their contributions to pymatgen. But, it is important to note that these
+contributions are typically only changes to the repositories. Thus, the
+pymatgen source code, in its entirety is not the copyright of any
+single person or institution. Instead, it is the collective copyright of the
+entire pymatgen Development Team. If individual contributors want to maintain a
+record of what changes/contributions they have specific copyright on, they
+should indicate their copyright in the commit message of the change, when
+they commit the change to one of the pymatgen repositories.
+
+With this in mind, the following banner should be used in any source code file
+to indicate the copyright and license terms::
+
+    # Copyright (c) Pymatgen Development Team.
+    # Distributed under the terms of the MIT License.
 
 Indices and tables
 ==================

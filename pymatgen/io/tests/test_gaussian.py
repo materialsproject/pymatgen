@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -50,7 +52,7 @@ class GaussianInputTest(unittest.TestCase):
         self.assertRaises(ValueError, GaussianInput, mol, spin_multiplicity=1)
 
     def test_str_and_from_string(self):
-        ans = """#P HF/6-31G(d) SCF=Tight SP Test
+        ans = """#P HF/6-31G(d) SCF=Tight SP
 
 H4 C1
 
@@ -151,15 +153,28 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual(len(gau.structures), 4)
         for mol in gau.structures:
             self.assertEqual(mol.formula, 'H4 C1')
-        self.assertIn("OPT", gau.route)
+        self.assertIn("opt", gau.route)
         self.assertEqual("Minimum", gau.stationary_type)
-        self.assertEqual("HF", gau.functional)
+        self.assertEqual("hf", gau.functional)
         self.assertEqual("3-21G", gau.basis_set)
         self.assertEqual(17, gau.num_basis_func)
         d = gau.as_dict()
-        self.assertEqual(d["input"]["functional"], "HF")
+        self.assertEqual(d["input"]["functional"], "hf")
         self.assertAlmostEqual(d["output"]["final_energy"], -39.9768775602)
-
+        
+    def test_scan(self):
+        gau = GaussianOutput(os.path.join(test_dir, "so2_scan.log"))
+        d = gau.read_scan()
+        self.assertAlmostEqual(-548.02102, d["energies"][-1])
+        self.assertEqual(len(d["coords"]), 1)
+        self.assertEqual(len(d["energies"]), len(gau.energies))
+        self.assertEqual(len(d["energies"]), 21)
+    
+    def test_td(self):
+        gau = GaussianOutput(os.path.join(test_dir, "so2_td.log"))
+        transitions = gau.read_excitation_energies()
+        self.assertEqual(len(transitions), 4)
+        self.assertAlmostEqual(transitions[0], (3.9281, 315.64, 0.0054))
 
 if __name__ == "__main__":
     unittest.main()

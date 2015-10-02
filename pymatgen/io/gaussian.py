@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -6,23 +8,66 @@ from __future__ import division, unicode_literals
 This module implements input and output processing from Gaussian.
 """
 
+__author__ = 'Shyue Ping Ong, Germain  Salvato-Vallverdu'
+__copyright__ = 'Copyright 2013, The Materials Virtual Lab'
+__version__ = '0.1'
+__maintainer__ = 'Shyue Ping Ong'
+__email__ = 'ongsp@ucsd.edu'
+__date__ = '8/1/15'
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Apr 17, 2012"
 
 import re
 
 import numpy as np
+import warnings
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core import Element, Molecule, Composition
 from monty.io import zopen
 from pymatgen.util.coord_utils import get_angle
+import pymatgen.core.physical_constants as cst
 
+
+def read_route_line(route):
+    """
+    read route line in gaussian input/output and return functional basis_set
+    and a dictionary of other route parameters
+
+    Args:
+        route (str) : the route line
+
+    return
+        functional (str) : the method (HF, PBE ...)
+        basis_set (str) : the basis set
+        route (dict) : dictionary of parameters 
+    """
+    scrf_patt = re.compile("^([sS][cC][rR][fF])\s*=\s*(.+)")
+
+    functional = None
+    basis_set = None
+    route_params = {}
+    if route:
+        if "/" in route:
+            tok = route.split("/")
+            functional = tok[0].split()[-1]
+            basis_set = tok[1].split()[0]
+            for tok in [functional, basis_set, "/"]:
+                route = route.replace(tok, "")
+
+        for tok in route.split():
+            if scrf_patt.match(tok):
+                m = scrf_patt.match(tok)
+                route_params[m.group(1)] = m.group(2)
+            elif "#" in tok:
+                # does not store # in route to avoid error in input 
+                dieze_tag = tok
+                continue
+            else:
+                d = tok.split("=")
+                v = None if len(d) == 1 else d[1]
+                route_params[d[0]] = v
+
+    return functional, basis_set, route_params, dieze_tag
 
 class GaussianInput(object):
     """
@@ -47,6 +92,7 @@ class GaussianInput(object):
         input_parameters: Additional input parameters for run as a dict. Used
             for example, in PCM calculations.  E.g., {"EPS":12}
         link0_parameters: Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
+        dieze_tag: # preceding the route line. E.g. "#p"
     """
 
     #Commonly used regex patterns
@@ -56,7 +102,7 @@ class GaussianInput(object):
 
     def __init__(self, mol, charge=None, spin_multiplicity=None, title=None,
                  functional="HF", basis_set="6-31G(d)", route_parameters=None,
-                 input_parameters=None, link0_parameters=None):
+                 input_parameters=None, link0_parameters=None, dieze_tag="#P"):
         self._mol = mol
         self.charge = charge if charge is not None else mol.charge
         nelectrons = - self.charge + mol.charge + mol.nelectrons
@@ -75,6 +121,7 @@ class GaussianInput(object):
         self.route_parameters = route_parameters if route_parameters else {}
         self.input_parameters = input_parameters if input_parameters else {}
         self.title = title if title else self._mol.composition.formula
+        self.dieze_tag = dieze_tag if dieze_tag[0] == "#" else "#P"
 
     @property
     def molecule(self):
@@ -214,7 +261,6 @@ class GaussianInput(object):
                 m = link0_patt.match(l)
                 link0_dict[m.group(1)] = m.group(2)
 
-        scrf_patt = re.compile("^([sS][cC][rR][fF])\s*=\s*(.+)")
         route_patt = re.compile("^#[sSpPnN]*.*")
         route = None
         for i, l in enumerate(lines):
@@ -222,22 +268,9 @@ class GaussianInput(object):
                 route = l
                 route_index = i
                 break
-        route_paras = {}
-        if route:
-            for tok in route.split():
-                if tok.strip().startswith("#"):
-                    continue
-                if re.match("[\S]+/.*", tok):
-                    d = tok.split("/")
-                    functional = d[0]
-                    basis_set = d[1]
-                elif scrf_patt.match(tok):
-                    m = scrf_patt.match(tok)
-                    route_paras[m.group(1)] = m.group(2)
-                else:
-                    d = tok.split("=")
-                    v = None if len(d) == 1 else d[1]
-                    route_paras[d[0]] = v
+        functional, basis_set, route_paras, dieze_tag = read_route_line(route)
+        print(functional, basis_set, route_paras, dieze_tag)
+
         ind = 2
         title = []
         while lines[route_index + ind].strip():
@@ -267,7 +300,8 @@ class GaussianInput(object):
         return GaussianInput(mol, charge=charge, spin_multiplicity=spin_mult,
                              title=title, functional=functional,
                              basis_set=basis_set, route_parameters=route_paras,
-                             input_parameters=input_paras,link0_parameters=link0_dict)
+                             input_parameters=input_paras,link0_parameters=link0_dict,
+                             dieze_tag=dieze_tag)
 
     @staticmethod
     def from_file(filename):
@@ -358,8 +392,9 @@ class GaussianInput(object):
         output = []
         if self.link0_parameters:
             output.append(para_dict_to_string(self.link0_parameters, "\n"))
-        output.append("#P {func}/{bset} {route} Test"
-                      .format(func=self.functional, bset=self.basis_set,
+        output.append("{diez} {func}/{bset} {route}"
+                      .format(diez=self.dieze_tag, func=self.functional,
+                              bset=self.basis_set,
                               route=para_dict_to_string(self.route_parameters))
                       )
         output.append("")
@@ -390,7 +425,7 @@ class GaussianInput(object):
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "molecule": self.molecule.to_dict,
+                "molecule": self.molecule.as_dict(),
                 "functional": self.functional,
                 "basis_set": self.basis_set,
                 "route_parameters": self.route_parameters,
@@ -398,7 +433,8 @@ class GaussianInput(object):
                 "charge": self.charge,
                 "spin_multiplicity": self.spin_multiplicity,
                 "input_parameters": self.input_parameters,
-                "link0_parameters": self.link0_parameters}
+                "link0_parameters": self.link0_parameters,
+                "dieze_tag": self.dieze_tag}
 
     @classmethod
     def from_dict(cls, d):
@@ -461,6 +497,19 @@ class GaussianOutput(object):
 
         Basis set used in the run
 
+    .. attribute:: route
+
+        Additional route parameters as a dict. For example,
+            {'SP':"", "SCF":"Tight"}
+
+    .. attribute:: dieze_tag
+
+        # preceding the route line, e.g. "#P"
+
+    .. attribute:: link0
+    
+        Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
+
     .. attribute:: charge
 
         Charge for structure
@@ -485,6 +534,25 @@ class GaussianOutput(object):
 
         Mulliken atomic charges
 
+    Methods:
+    
+    .. method:: to_input()
+    
+        Return a GaussianInput object using the last geometry and the same
+        calculation parameters.
+        
+    .. method:: read_scan()
+    
+        Read a potential energy surface from a gaussian scan calculation.
+
+    .. method:: get_scan_plot()
+    
+        Get a matplotlib plot of the potential energy surface
+        
+    .. method:: save_scan_plot()
+    
+        Save a matplotlib plot of the potential energy surface to a file
+
     """
 
     def __init__(self, filename):
@@ -502,6 +570,7 @@ class GaussianOutput(object):
     def _parse(self, filename):
         start_patt = re.compile(" \(Enter \S+l101\.exe\)")
         route_patt = re.compile(" #[pPnNtT]*.*")
+        link0_patt = re.compile("^\s(%.+)\s*=\s*(.+)")
         charge_mul_patt = re.compile("Charge\s+=\s*([-\\d]+)\s+"
                                      "Multiplicity\s+=\s*(\d+)")
         num_basis_func_patt = re.compile("([0-9]+)\s+basis functions")
@@ -512,7 +581,7 @@ class GaussianOutput(object):
         oniom_patt = re.compile("ONIOM:\s+extrapolated energy\s*=\s*(.*)")
         termination_patt = re.compile("(Normal|Error) termination")
         error_patt = re.compile("(! Non-Optimized Parameters !|Convergence failure)")
-        mulliken_patt = re.compile("^\s*Mulliken atomic charges")
+        mulliken_patt = re.compile("^\s*(Mulliken charges|Mulliken atomic charges)")
         mulliken_charge_patt = re.compile('^\s+(\d+)\s+([A-Z][a-z]?)\s*(\S*)')
         end_mulliken_patt = re.compile('(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)')
         std_orientation_patt = re.compile("Standard orientation")
@@ -530,10 +599,11 @@ class GaussianOutput(object):
         self.pcm = None
         self.errors = []
         self.Mulliken_charges = {}
+        self.link0 = {}
 
         coord_txt = []
         read_coord = 0
-        read_mulliken = 0
+        read_mulliken = False
         orbitals_txt = []
         parse_stage = 0
         num_basis_found = False
@@ -544,17 +614,16 @@ class GaussianOutput(object):
                 if parse_stage == 0:
                     if start_patt.search(line):
                         parse_stage = 1
+                    elif link0_patt.match(line):
+                        m = link0_patt.match(line)
+                        self.link0[m.group(1)] = m.group(2)
                     elif route_patt.search(line):
-                        self.route = {}
-                        for tok in line.split():
-                            sub_tok = tok.strip().split("=")
-                            key = sub_tok[0].upper()
-                            self.route[key] = sub_tok[1].upper() \
-                                if len(sub_tok) > 1 else ""
-                            m = re.match("(\w+)/([^/]+)", key)
-                            if m:
-                                self.functional = m.group(1)
-                                self.basis_set = m.group(2)
+                        params = read_route_line(line)
+                        self.functional = params[0]
+                        self.basis_set = params[1]
+                        self.route = params[2]
+                        self.dieze_tag = params[3]
+                        parse_stage = 1
                 elif parse_stage == 1:
                     if charge_mul_patt.search(line):
                         m = charge_mul_patt.search(line)
@@ -574,20 +643,6 @@ class GaussianOutput(object):
                             key = m.group(2).strip(" to ")
                             self.corrections[key] = float(m.group(3))
 
-                    if read_mulliken:
-                        if not end_mulliken_patt.search(line):
-                            mulliken_txt.append(line)
-                        else:
-                            m = end_mulliken_patt.search(line)
-                            mulliken_charges = {}
-                            for line in mulliken_txt:
-                                if mulliken_charge_patt.search(line):
-                                    m = mulliken_charge_patt.search(line)
-                                    dict = {int(m.group(1)): [m.group(2), float(m.group(3))]}
-                                    mulliken_charges.update(dict)
-                            read_mulliken = 0
-                            self.Mulliken_charges = mulliken_charges
-
                     if read_coord:
                         if not end_patt.search(line):
                             coord_txt.append(line)
@@ -605,7 +660,7 @@ class GaussianOutput(object):
                         m = termination_patt.search(line)
                         if m.group(1) == "Normal":
                             self.properly_terminated = True
-                        terminated = True
+                            terminated = True
                     elif error_patt.search(line):
                         error_defs = {"! Non-Optimized Parameters !": "Optimization error",
                                         "Convergence failure": "SCF convergence error"
@@ -640,9 +695,26 @@ class GaussianOutput(object):
                         orbitals_txt.append(line)
                     elif mulliken_patt.search(line):
                         mulliken_txt = []
-                        read_mulliken = 1
+                        read_mulliken = True
+
+                    if read_mulliken:
+                        if not end_mulliken_patt.search(line):
+                            mulliken_txt.append(line)
+                        else:
+                            m = end_mulliken_patt.search(line)
+                            mulliken_charges = {}
+                            for line in mulliken_txt:
+                                if mulliken_charge_patt.search(line):
+                                    m = mulliken_charge_patt.search(line)
+                                    dict = {int(m.group(1)): [m.group(2), float(m.group(3))]}
+                                    mulliken_charges.update(dict)
+                            read_mulliken = False
+                            self.Mulliken_charges = mulliken_charges
+
         if not terminated:
-            raise IOError("Bad Gaussian output file.")
+            #raise IOError("Bad Gaussian output file.")
+            warnings.warn("\n" + self.filename + \
+                ": Termination error or bad Gaussian output file !")
 
     def _check_pcm(self, line):
         energy_patt = re.compile("(Dispersion|Cavitation|Repulsion) energy"
@@ -706,3 +778,259 @@ class GaussianOutput(object):
         d["@class"] =  self.__class__.__name__
 
         return d
+
+    def read_scan(self):
+        """  
+        Read a potential energy surface from a gaussian scan calculation.
+        
+        Returns:
+        
+            A dict: {"energies": [ values ], 
+                     "coords": {"d1": [ values ], "A2", [ values ], ... }}
+            
+            "energies" are the energies of all points of the potential energy
+            surface. "coords" are the internal coordinates used to compute the 
+            potential energy surface and the internal coordinates optimized, 
+            labelled by their name as defined in the calculation.
+        """
+
+        def floatList(l):
+            """ return a list of float from a list of string """
+            return [float(v) for v in l]
+
+        scan_patt = re.compile("^\sSummary of the potential surface scan:")
+        optscan_patt = re.compile("^\sSummary of Optimized Potential Surface Scan")
+        float_patt = re.compile("\s*([+-]?\d+\.\d+)")
+
+        # data dict return
+        data = {"energies": list(), "coords": dict()}
+
+        # read in file
+        with zopen(self.filename, "r") as f:
+            line = f.readline()
+
+            while line != "":
+                if optscan_patt.match(line):
+                    f.readline()
+                    line = f.readline()
+                    endScan = False
+                    while not endScan:
+                        data["energies"] += floatList(float_patt.findall(line))
+                        line = f.readline()
+                        while not re.search("(^\s+(\d+)|^\s-+)", line):
+                            icname = line.split()[0].strip()
+                            if icname in data["coords"]:
+                                data["coords"][icname] += floatList(float_patt.findall(line))
+                            else:
+                                data["coords"][icname] = floatList(float_patt.findall(line))
+                            line = f.readline()
+                        if re.search("^\s-+", line):
+                            endScan = True
+                        else:
+                            line = f.readline()
+
+                elif scan_patt.match(line):
+                    line = f.readline()
+                    data["coords"] = {icname: list() for icname in line.split()[1:-1]}
+                    f.readline()
+                    line = f.readline()
+                    while not re.search("^\s-+", line):
+                        values = floatList(line.split())
+                        data["energies"].append(values[-1])
+                        for i, icname in enumerate(data["coords"]):
+                            data["coords"][icname].append(values[i+1])
+                        line = f.readline()    
+                else:
+                    line = f.readline()
+
+        return data
+
+    def get_scan_plot(self, coords=None):
+        """
+        Get a matplotlib plot of the potential energy surface.
+
+        Args:
+            coords: internal coordinate name to use as abcissa.
+        """
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+
+        plt = get_publication_quality_plot(12, 8)
+
+        d = self.read_scan()
+
+        if coords and coords in d["coords"]:
+            x = d["coords"][coords]
+            plt.xlabel(coords)
+        else:
+            x = range(len(d["energies"]))
+            plt.xlabel("points")
+        
+        plt.ylabel("Energy   /   eV")
+        
+        e_min = min(d["energies"])
+        y = [(e - e_min) * cst.HARTREE_TO_ELECTRON_VOLT for e in d["energies"]]
+        
+        plt.plot(x, y, "ro--")
+        return plt
+        
+    def save_scan_plot(self, filename="scan.pdf", img_format="pdf", coords=None):
+        """
+        Save matplotlib plot of the potential energy surface to a file.
+
+        Args:
+            filename: Filename to write to.
+            img_format: Image format to use. Defaults to EPS.
+            coords: internal coordinate name to use as abcissa.
+        """
+        plt = self.get_scan_plot(coords)
+        plt.savefig(filename, format=img_format)
+
+    def read_excitation_energies(self):
+        """
+        Read a excitation energies after a TD-DFT calculation.
+
+        Returns:
+
+            A list: A list of tuple for each transition such as 
+                    [(energie (eV), lambda (nm), oscillatory strength), ... ]
+        """
+        float_patt = re.compile("\s*([+-]?\d+\.\d+)")
+
+        transitions = list()
+
+        # read in file
+        with zopen(self.filename, "r") as f:
+            line = f.readline()
+            td = False
+            while line != "":
+                if re.search("^\sExcitation energies and oscillator strengths:", line):
+                    td = True
+   
+                if td:
+                    if re.search("^\sExcited State\s*\d", line):
+                        val = [float(v) for v in float_patt.findall(line)]
+                        transitions.append(tuple(val[0:3]))
+                line = f.readline()
+        return transitions
+
+    def get_spectre_plot(self, sigma=0.05, step=0.01):
+        """
+        Get a matplotlib plot of the UV-visible spectra. Transition are plotted
+        as vertical lines and as a sum of normal functions with sigma with. The
+        broadening is applied in energy and the spectra is plotted as a function
+        of the wavelength.
+
+        Args:
+            sigma: Full width at half maximum in eV for normal functions.
+            step: bin interval in eV
+            
+        Returns:
+            A dict: {"energies": values, "lambda": values, "spectra": values}
+                    where values are lists of abscissa (energies, lamba) and
+                    the sum of gaussian functions (spectra).
+            A matplotlib plot.
+        """
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        from matplotlib.mlab import normpdf
+        plt = get_publication_quality_plot(12, 8)
+
+        transitions = self.read_excitation_energies()
+
+        minval = min([val[0] for val in transitions]) - 5.0 * sigma
+        maxval = max([val[0] for val in transitions]) + 5.0 * sigma
+        npts = int((maxval - minval) / step) + 1
+
+        eneval = np.linspace(minval, maxval, npts) # in eV
+        lambdaval = [cst.h * cst.c / (val * cst.e) * 1.e9 for val in eneval] # in nm
+
+        # sum of gaussian functions        
+        spectre = np.zeros(npts)
+        for trans in transitions:
+            spectre += trans[2] * normpdf(eneval, trans[0], sigma)
+        spectre /= spectre.max()
+        plt.plot(lambdaval, spectre, "r-", label="spectre")
+        
+        data = {"energies": eneval, "lambda": lambdaval, "spectra": spectre}
+
+        # plot transitions as vlines
+        plt.vlines([val[1] for val in transitions], \
+                   0., \
+                   [val[2] for val in transitions], \
+                   color="blue", \
+                   label="transitions",
+                   linewidth=2)
+
+        plt.xlabel("$\lambda$ (nm)")
+        plt.ylabel("Arbitrary unit")
+        plt.legend()
+
+        return data, plt
+
+    def save_spectre_plot(self, filename="spectre.pdf", img_format="pdf", 
+                          sigma=0.05, step=0.01):
+        """
+        Save matplotlib plot of the spectre to a file.
+
+        Args:
+            filename: Filename to write to.
+            img_format: Image format to use. Defaults to EPS.
+            sigma: Full width at half maximum in eV for normal functions.
+            step: bin interval in eV            
+        """
+        d, plt = self.get_spectre_plot(sigma, step)
+        plt.savefig(filename, format=img_format)
+
+    def to_input(self, filename, mol=None,  charge=None,
+                 spin_multiplicity=None, title=None, functional=None,
+                 basis_set=None, route_parameters=None, input_parameters=None,
+                 link0_parameters=None, dieze_tag=None, cart_coords=False):
+        """
+        Write a new input file using by default the last geometry read in the output
+        file and with the same calculation parameters. Arguments are the same as
+        GaussianInput class.
+
+        Returns
+            gaunip (GaussianInput) : the gaussian input object
+        """
+        if not mol:
+            mol = self.final_structure
+
+        if not charge:
+            charge = self.charge
+
+        if not spin_multiplicity:
+            spin_multiplicity = self.spin_mult
+
+        if not title:
+            title = "restart "
+
+        if not functional:
+            functional = self.functional
+
+        if not basis_set:
+            basis_set = self.basis_set
+
+        if not route_parameters:
+            route_parameters = self.route
+
+        if not link0_parameters:
+            link0_parameters = self.link0
+
+        if not dieze_tag:
+            dieze_tag = self.dieze_tag
+
+        gauinp = GaussianInput(mol=mol,
+                               charge=charge,
+                               spin_multiplicity=spin_multiplicity,
+                               title=title,
+                               functional=functional,
+                               basis_set=basis_set,
+                               route_parameters=route_parameters,
+                               input_parameters=input_parameters,
+                               link0_parameters=link0_parameters,
+                               dieze_tag=dieze_tag)
+
+        gauinp.write_file(filename, cart_coords=cart_coords)
+
+        return gauinp
+

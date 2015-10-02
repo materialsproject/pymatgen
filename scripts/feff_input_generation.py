@@ -1,10 +1,13 @@
-# coding: utf-8
 #!/usr/bin/env python
+#  coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
-'''
+
+"""
 Example script that generates FEFF input files from a cif file
 Remove comment # on write line to actually write files to disk
-'''
+"""
 
 from __future__ import division
 
