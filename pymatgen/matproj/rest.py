@@ -123,9 +123,9 @@ class MPRester(object):
         url = self.preamble + sub_url
         try:
             if method == "POST":
-                response = self.session.post(url, data=payload)
+                response = self.session.post(url, data=payload, verify=True)
             else:
-                response = self.session.get(url, params=payload)
+                response = self.session.get(url, params=payload, verify=True)
             if response.status_code in [200, 400]:
                 if mp_decode:
                     try:

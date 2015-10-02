@@ -1376,7 +1376,7 @@ class Flow(Node, NodeContainer, PMGSONable):
         """
         strio = StringIO()
         pmg_pickle_dump(self, strio,
-                        protocol=self.pickle_protocol if protocol is None 
+                        protocol=self.pickle_protocol if protocol is None
                         else protocol)
         return strio.getvalue()
 
