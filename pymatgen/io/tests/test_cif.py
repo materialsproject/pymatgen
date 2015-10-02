@@ -408,7 +408,8 @@ loop_
 """
         s = Structure.from_file(os.path.join(test_dir, 'LiFePO4.cif'))
         writer = CifWriter(s, symprec=0.1)
-        self.assertEqual(writer.__str__().strip(), ans.strip())
+        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+            self.assertEqual(l1.strip(), l2.strip())
 
         s = self.get_structure("Li2O")
         writer = CifWriter(s, symprec=0.1)
@@ -636,8 +637,9 @@ loop_
  _atom_site_occupancy
   Li+  Li1  8  0.250000  0.250000  0.250000  1.0
   O2-  O2  4  0.000000  0.000000  0.000000  1.0"""
-        self.assertEqual(writer.__str__().strip(), ans.strip())
-
+        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+            self.assertEqual(l1.strip(), l2.strip())
+        
     def test_disordered(self):
         si = Element("Si")
         n = Element("N")
