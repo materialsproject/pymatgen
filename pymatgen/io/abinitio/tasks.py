@@ -3634,6 +3634,162 @@ class OpticTask(Task):
         """
         return 0
 
+    #@check_spectator
+    def reset_from_scratch(self):
+        """
+        restart from scratch, this is to be used if a job is restarted with more resources after a crash
+        """
+        # Move output files produced in workdir to _reset otherwise check_status continues
+        # to see the task as crashed even if the job did not run
+        # Create reset directory if not already done.
+        reset_dir = os.path.join(self.workdir, "_reset")
+        reset_file = os.path.join(reset_dir, "_counter")
+        if not os.path.exists(reset_dir):
+            os.mkdir(reset_dir)
+            num_reset = 1
+        else:
+            with open(reset_file, "rt") as fh:
+                num_reset = 1 + int(fh.read())
+
+        # Move files to reset and append digit with reset index.
+        def move_file(f):
+            if not f.exists: return
+            try:
+                f.move(os.path.join(reset_dir, f.basename + "_" + str(num_reset)))
+            except OSError as exc:
+                logger.warning("Couldn't move file {}. exc: {}".format(f, str(exc)))
+
+        for fname in ("output_file", "log_file", "stderr_file", "qout_file", "qerr_file"):
+            move_file(getattr(self, fname))
+
+        with open(reset_file, "wt") as fh:
+            fh.write(str(num_reset))
+
+        self.start_lockfile.remove()
+
+        # Reset datetimes
+        self.datetimes = TaskDateTimes()
+
+        return self._restart(submit=False)
+
+    def fix_queue_critical(self):
+        """
+        This function tries to fix critical events originating from the queue submission system.
+
+        General strategy, first try to increase resources in order to fix the problem,
+        if this is not possible, call a task specific method to attempt to decrease the demands.
+
+        Returns:
+            1 if task has been fixed else 0.
+        """
+        from pymatgen.io.abinitio.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
+        assert isinstance(self.manager, TaskManager)
+
+        if not self.queue_errors:
+            if self.mem_scales or self.load_scales:
+                try:
+                    self.manager.increase_resources()  # acts either on the policy or on the qadapter
+                    self.reset_from_scratch()
+                    return
+                except ManagerIncreaseError:
+                    self.set_status(self.S_ERROR, msg='unknown queue error, could not increase resources any further')
+                    raise FixQueueCriticalError
+            else:
+                self.set_status(self.S_ERROR, msg='unknown queue error, no options left')
+                raise FixQueueCriticalError
+
+        else:
+            for error in self.queue_errors:
+                logger.info('fixing: %s' % str(error))
+
+                if isinstance(error, NodeFailureError):
+                    # if the problematic node is known, exclude it
+                    if error.nodes is not None:
+                        try:
+                            self.manager.exclude_nodes(error.nodes)
+                            self.reset_from_scratch()
+                            self.set_status(self.S_READY, msg='excluding nodes')
+                        except:
+                            raise FixQueueCriticalError
+                    else:
+                        self.set_status(self.S_ERROR, msg='Node error but no node identified.')
+                        raise FixQueueCriticalError
+
+                elif isinstance(error, MemoryCancelError):
+                    # ask the qadapter to provide more resources, i.e. more cpu's so more total memory if the code
+                    # scales this should fix the memeory problem
+                    # increase both max and min ncpu of the autoparalel and rerun autoparalel
+                    if self.mem_scales:
+                        try:
+                            self.manager.increase_ncpus()
+                            self.reset_from_scratch()
+                            self.set_status(self.S_READY, msg='increased ncps to solve memory problem')
+                            return
+                        except ManagerIncreaseError:
+                            logger.warning('increasing ncpus failed')
+
+                    # if the max is reached, try to increase the memory per cpu:
+                    try:
+                        self.manager.increase_mem()
+                        self.reset_from_scratch()
+                        self.set_status(self.S_READY, msg='increased mem')
+                        return
+                    except ManagerIncreaseError:
+                        logger.warning('increasing mem failed')
+
+                    # if this failed ask the task to provide a method to reduce the memory demand
+                    try:
+                        self.reduce_memory_demand()
+                        self.reset_from_scratch()
+                        self.set_status(self.S_READY, msg='decreased mem demand')
+                        return
+                    except DecreaseDemandsError:
+                        logger.warning('decreasing demands failed')
+
+                    msg = ('Memory error detected but the memory could not be increased neigther could the\n'
+                           'memory demand be decreased. Unrecoverable error.')
+                    self.set_status(self.S_ERROR, msg)
+                    raise FixQueueCriticalError
+
+                elif isinstance(error, TimeCancelError):
+                    # ask the qadapter to provide more time
+                    try:
+                        self.manager.increase_time()
+                        self.reset_from_scratch()
+                        self.set_status(self.S_READY, msg='increased wall time')
+                        return
+                    except ManagerIncreaseError:
+                        logger.warning('increasing the waltime failed')
+
+                    # if this fails ask the qadapter to increase the number of cpus
+                    if self.load_scales:
+                        try:
+                            self.manager.increase_ncpus()
+                            self.reset_from_scratch()
+                            self.set_status(self.S_READY, msg='increased number of cpus')
+                            return
+                        except ManagerIncreaseError:
+                            logger.warning('increase ncpus to speed up the calculation to stay in the walltime failed')
+
+                    # if this failed ask the task to provide a method to speed up the task
+                    try:
+                        self.speed_up()
+                        self.reset_from_scratch()
+                        self.set_status(self.S_READY, msg='task speedup')
+                        return
+                    except DecreaseDemandsError:
+                        logger.warning('decreasing demands failed')
+
+                    msg = ('Time cancel error detected but the time could not be increased neither could\n'
+                           'the time demand be decreased by speedup of increasing the number of cpus.\n'
+                           'Unrecoverable error.')
+                    self.set_status(self.S_ERROR, msg)
+
+                else:
+                    msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
+                    self.set_status(self.S_ERROR, msg)
+
+        return 0
 
 class AnaddbTask(Task):
     """Task for Anaddb runs (post-processing of DFPT calculations)."""
