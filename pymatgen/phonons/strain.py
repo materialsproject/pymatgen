@@ -2,17 +2,18 @@ import warnings
 import sys
 import unittest
 import pymatgen
-from pymatgen.io.vaspio import Poscar
-from pymatgen.io.vaspio import Poscar
-from pymatgen.io.vaspio import Vasprun
-from pymatgen.io.cifio import CifWriter
-from pymatgen.io.cifio import CifParser
+from pymatgen.io.vasp import Poscar
+from pymatgen.io.vasp import Poscar
+from pymatgen.io.vasp import Vasprun
+from pymatgen.io.cif import CifWriter
+from pymatgen.io.cif import CifParser
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+from pymatgen.phonons.tensors import SQTensor
 from pymatgen.transformations.standard_transformations import *
-from pymatgen.core.structure_modifier import StructureEditor
 import numpy as np
 import os
+
 __author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Mark Asta, Anubhav Jain"
@@ -25,7 +26,7 @@ __date__ = "March 13, 2012"
 
 class Strain(SQTensor):
     """
-    Subclass of SQTensor that describes the strain matrix
+    Subclass of SQTensor that describes the strain tensor
     """
     # TODO: AJ says strain must subclass SQTensor
     # TODO: AJ says much of this class should be reimplemented from the standpoint of subclassing SQTensor
@@ -33,21 +34,25 @@ class Strain(SQTensor):
     #           constructs the object from a strain matrix rather than deformation matrix
     #           For an example of the above, see the various 'from_xxxxx' methods in 
     #           pymatgen.core.structure.Composition
-    # TODO: JM says we might want to have the constructor use the strain matrix, and have a from_deformation_matrix
-    #   method instead of a from_strain method
+    # TODO: JM says we might want to have the default 
+    #           constructor use the strain matrix, and have a from_deformation_matrix
+    #           method instead of a from_strain method
     
     def __init__(self, strain_matrix, dfm=None):
-        self._dfm = None
+        self._dfm = dfm
         super(Strain,self).__init__(strain_matrix)
 
     @classmethod
     def from_deformation(cls, deformation_matrix):
         """
         constructor that returns a Strain object from a deformation
-        matrix, rather than a strain matrix
+        gradient, rather than a strain tensor
         """
-        return cls(0.5*(self._matrix*self._matrix.T - np.eye(3)),
-                  dfm = deformation_matrix)
+        dfm = SQTensor(deformation_matrix)
+        #import pdb; pdb.set_trace()
+        print dfm.T
+        print dfm.T - np.eye(3)
+        return cls(0.5*(dfm*(dfm.T)), deformation_matrix)
 
     # return Green-Lagrange strain matrix
     @property
@@ -94,7 +99,7 @@ class IndependentStrain(Strain):
 
     def __init__(self, deformation,tol=0.00000001):
 
-        super(IndependentStrain, self).__init__(deformation)
+        super(Strain, self).__init__(deformation)
         (self._i, self._j) = self.check_F(tol)
 
     @staticmethod
@@ -104,7 +109,9 @@ class IndependentStrain(Strain):
         return IndependentStrain(F)
 
     def check_F(self, tol=0.00001):
-        df1 = self.deformation_matrix
+        if self._dfm == None:
+            raise ValueError("No deformation matrix supplied for this strain tensor.")
+        df1 = self._dfm
         counter = 0
         checkmatrix = np.zeros((3,3))
 
@@ -140,7 +147,7 @@ if __name__ == "__main__":
     mat[0,1] = 0.001
 #    print mat
 
-    my_strain = IndependentStrain(mat)
+    my_strain = Strain.from_deformation(mat)
     my_strain.check_F()
 
 
