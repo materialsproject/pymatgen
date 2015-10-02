@@ -25,8 +25,17 @@ class Stress(SQTensor):
     """
     This class extends SQTensor
     """
-    def __init__(self, stress_matrix):
-        super(Stress, self).__init__(stress_matrix)
+
+    def __new__(cls, input_matrix):
+        obj = SQTensor(input_matrix).view(cls)
+        return obj
+
+    def __array_finalize__(self, obj):
+        if obj is None:
+            return
+
+    def __repr__(self):
+        return "Stress({})".format(self.__str__())
 
     @property
     def deviator_principal_invariants(self):
