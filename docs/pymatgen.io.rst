@@ -6,7 +6,7 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.io.abinitio
+    pymatgen.io.abinit
     pymatgen.io.feff
     pymatgen.io.vasp
     pymatgen.io.vaspio
