@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -16,6 +18,25 @@ __date__ = "Sep 23, 2011"
 
 import re
 from monty.io import zopen
+
+
+def prompt(question):
+    import six
+    # Fix python 2.x.
+    if six.PY2:
+        my_input = raw_input
+    else:
+        my_input = input
+    
+    return my_input(question)
+
+
+def ask_yesno(question, default=True):
+    try:
+        answer = prompt(question)
+        return answer.lower().strip() in ["y", "yes"]
+    except EOFError:
+        return default
 
 
 def clean_lines(string_list, remove_empty_lines=True):

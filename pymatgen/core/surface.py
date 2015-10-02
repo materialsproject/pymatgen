@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 from functools import reduce
@@ -124,6 +126,27 @@ class Slab(Structure):
             to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties)
+
+    def get_orthogonal_c_slab(self):
+        """
+        This method returns a Slab where the normal (c lattice vector) is
+        "forced" to be exactly orthogonal to the surface a and b lattice
+        vectors. **Note that this breaks inherent symmetries in the slab.**
+        It should be pointed out that orthogonality is not required to get good
+        surface energies, but it can be useful in cases where the slabs are
+        subsequently used for postprocessing of some kind, e.g. generating
+        GBs or interfaces.
+        """
+        a, b, c = self.lattice.matrix
+        new_c = np.cross(a, b)
+        new_c /= np.linalg.norm(new_c)
+        new_c = np.dot(c, new_c) * new_c
+        new_latt = Lattice([a, b, new_c])
+        return Slab(lattice=new_latt, species=self.species,
+                    coords=self.cart_coords, miller_index=self.miller_index,
+                    oriented_unit_cell=self.oriented_unit_cell,
+                    shift=self.shift, scale_factor=self.scale_factor,
+                    coords_are_cartesian=True, energy=self.energy)
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
@@ -677,7 +700,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
 
 
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
-                       bonds=None, tol=0.1, max_broken_bonds=0,
+                       bonds=None, tol=1e-3, max_broken_bonds=0,
                        lll_reduce=False, center_slab=False, primitive=True,
                        max_normal_search=None):
     """
@@ -693,13 +716,19 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                 crystallographic definitions, you should supply a conventional
                 unit cell structure.
         max_index (int): The maximum Miller index to go up to.
-        symprec (float): Tolerance for symmetry finding. Defaults to 1e-3,
-            which is fairly strict and works well for properly refined
-            structures with atoms in the proper symmetry coordinates. For
-            structures with slight deviations from their proper atomic
-            positions (e.g., structures relaxed with electronic structure
-            codes), a looser tolerance of 0.1 (the value used in Materials
-            Project) is often needed.
+        min_slab_size (float): In Angstroms
+        min_vac_size (float): In Angstroms
+        bonds ({(specie1, specie2): max_bond_dist}: bonds are
+            specified as a dict of tuples: float of specie1, specie2
+            and the max bonding distance. For example, PO4 groups may be
+            defined as {("P", "O"): 3}.
+        tol (float): Threshold parameter in fcluster in order to check
+            if two atoms are lying on the same plane. Default thresh set
+            to 0.1 Angstrom in the direction of the surface normal.
+        max_broken_bonds (int): Maximum number of allowable broken bonds
+            for the slab. Use this to limit # of slabs (some structures
+            may have a lot of slabs). Defaults to zero, which means no
+            defined bonds must be broken.
         lll_reduce (bool): Whether to perform an LLL reduction on the
             eventual structure.
         center_slab (bool): Whether to center the slab in the cell with

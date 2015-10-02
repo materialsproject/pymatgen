@@ -1,9 +1,9 @@
 Change log
 ==========
 
-v3.1.6
+v3.2.1
 ------
-* Rudimentary PWSCF output reading.
-* Fix ASE support.
-* Support for WAVEDERF and reading multiple dielectricfunctions in vasprun.xml. 
-  (Miguel Dias Costa)
+* Fix wrong U value for Ce and Eu.
+* Properly handle empty multiline strings in Cif
+* Add ability to get specific data in MPRester.get_entries. Make all get_entry 
+  methods consistent  in kwargs.
