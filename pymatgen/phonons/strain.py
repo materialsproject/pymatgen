@@ -38,9 +38,18 @@ class Strain(SQTensor):
     #           constructor use the strain matrix, and have a from_deformation_matrix
     #           method instead of a from_strain method
     
-    def __init__(self, strain_matrix, dfm=None):
-        self._dfm = dfm
-        super(Strain,self).__init__(strain_matrix)
+    def __new__(cls, stress_matrix, dfm=None):
+        obj = SQTensor(stress_matrix).view(cls)
+        obj._dfm = dfm
+        return obj
+
+    def __array_finalize__(self, obj):
+        if obj is None:
+            return
+        self._dfm = getattr(obj, "_dfm", None)
+
+    def __repr__(self):
+        return "Strain({})".format(self.__str__())
 
     @classmethod
     def from_deformation(cls, deformation_matrix):
@@ -50,9 +59,7 @@ class Strain(SQTensor):
         """
         dfm = SQTensor(deformation_matrix)
         #import pdb; pdb.set_trace()
-        print dfm.T
-        print dfm.T - np.eye(3)
-        return cls(0.5*(dfm*(dfm.T)), deformation_matrix)
+        return cls(0.5*(dfm*(dfm.T)), dfm)
 
     # return Green-Lagrange strain matrix
     @property
@@ -93,9 +100,12 @@ class Strain(SQTensor):
         return h_sum
 
 
+# TODO: JM asks whether we should just implement these methods in the superclass
+#           and get rid of this subclass...
+
 class IndependentStrain(Strain):
-   # todo: add polar decomposition method
-   #
+    # todo: add polar decomposition method
+    #
 
     def __init__(self, deformation,tol=0.00000001):
 
@@ -147,7 +157,7 @@ if __name__ == "__main__":
     mat[0,1] = 0.001
 #    print mat
 
-    my_strain = Strain.from_deformation(mat)
+    my_strain = IndependentStrain.from_deformation(mat)
     my_strain.check_F()
 
 

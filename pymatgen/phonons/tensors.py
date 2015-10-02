@@ -8,6 +8,7 @@ from pymatgen.io.cif import CifParser
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import *
+from scipy.linalg import polar
 import numpy as np
 
 __author__="Maarten de Jong"
@@ -25,33 +26,19 @@ class SQTensor(np.matrix):
     restrictions on what type of matrix (stress, elastic, strain etc.).
     An error is thrown when the class is initialized with non-square matrix.
 
-    .. attribute::
-
-        matrix corresponding to the tensor values
     """
 
-    def __new__(cls, matrix):
-        super(SQTensor,cls).__new__(matrix)
+    def __new__(cls, input_matrix):
+        obj = np.asmatrix(input_matrix).view(cls)
+        return obj
 
-    def __init__(self, matrix):
-        """
-        Creates a SQTensor 
+    def __array_finalize__(self, obj):
+        if obj is None:
+            return
 
-        Args:
-            matrix (NxN array-like): input array-like with square shape.  If this
-            argument is not square, throws an ValueError.
-        """
-        super(SQTensor,self).__init__(matrix)
-        if self.shape[0] != self.shape[1]:
-            raise ValueError("SQTensor operates only on square matrices")
-
-    def __array_finalize__
     def __repr__(self):
         return "SQTensor({})".format(self.__str__())
-    '''
-    def __str__(self):
-        return self
-    '''
+    
     @property
     def det(self):
         '''
@@ -170,6 +157,14 @@ class SQTensor(np.matrix):
         average_Cij = self.KG_average
         ua = 5*average_Cij[1]/average_Cij[3] + average_Cij[0]/average_Cij[2] - 6
         return ua
+    
+    # TODO: Fix this method
+    @classmethod
+    def polar_decomposition(self,side='right'):
+        '''
+        calculates values for polar decomposition
+        '''
+        return polar(np.ndarray(self),side=side)
 
     @property
     def homogeneous_poisson(self):
@@ -206,6 +201,7 @@ if __name__ == "__main__":
     sigma2 = SQTensor(mat1)
 
     sigma2.universal_anisotropy
+    sigma2.polar_decomposition()
     print sigma2
 
 #    print sigma.is_rotatio(np.matrix(eye))
