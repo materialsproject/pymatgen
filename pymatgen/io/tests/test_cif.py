@@ -15,6 +15,7 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen import Element, Specie, Lattice, Structure, Composition, DummySpecie
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.coord_utils import pbc_diff
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -408,8 +409,9 @@ loop_
 """
         s = Structure.from_file(os.path.join(test_dir, 'LiFePO4.cif'))
         writer = CifWriter(s, symprec=0.1)
-        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
-            self.assertEqual(l1.strip(), l2.strip())
+        s2 = CifParser.from_string(str(writer)).get_structures()[0]
+        m = StructureMatcher()
+        self.assertTrue(m.fit(s, s2))
 
         s = self.get_structure("Li2O")
         writer = CifWriter(s, symprec=0.1)
@@ -637,9 +639,10 @@ loop_
  _atom_site_occupancy
   Li+  Li1  8  0.250000  0.250000  0.250000  1.0
   O2-  O2  4  0.000000  0.000000  0.000000  1.0"""
+        
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
-        
+
     def test_disordered(self):
         si = Element("Si")
         n = Element("N")
