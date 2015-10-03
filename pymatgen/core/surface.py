@@ -570,6 +570,33 @@ class SlabGenerator(object):
         shifts = sorted(shifts)
         return shifts
 
+    def _get_c_ranges(self, bonds):
+        c_ranges = set()
+        bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in
+                 bonds.items()}
+        for (sp1, sp2), bond_dist in bonds.items():
+            for site in self.oriented_unit_cell:
+                if sp1 in site.species_and_occu:
+                    for nn, d in self.oriented_unit_cell.get_neighbors(
+                            site, bond_dist):
+                        if sp2 in nn.species_and_occu:
+                            c_range = tuple(sorted([site.frac_coords[2],
+                                                    nn.frac_coords[2]]))
+                            if c_range[1] > 1:
+                                # Takes care of PBC when c coordinate of site
+                                # goes beyond the upper boundary of the cell
+                                c_ranges.add((c_range[0], 1))
+                                c_ranges.add((0, c_range[1] - 1))
+                            elif c_range[0] < 0:
+                                # Takes care of PBC when c coordinate of site
+                                # is below the lower boundary of the unit cell
+                                c_ranges.add((0, c_range[1]))
+                                c_ranges.add((c_range[0] + 1, 1))
+                            elif c_range[0] != c_range[1]:
+                                c_ranges.add(c_range)
+        return c_ranges
+
+
     def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0):
         """
         This method returns a list of slabs that are generated using the list of
@@ -596,52 +623,12 @@ class SlabGenerator(object):
             ([Slab]) List of all possible terminations of a particular surface.
             Slabs are sorted by the # of bonds broken.
         """
-        def get_c_ranges(site1, site2, bond_dist):
-            lattice = site1.lattice
-            f1 = site1.frac_coords
-            c_ranges = []
-            for dist, image in lattice.get_all_distance_and_image(
-                    f1, site2.frac_coords):
-                if dist < bond_dist:
-                    f2 = site2.frac_coords + image
-                    # Checks if the distance between the two species
-                    # is less then the user input bond distance
-                    min_c = f1[2]
-                    max_c = f2[2]
-                    c_range = sorted([min_c, max_c])
-                    if c_range[1] > 1:
-                        # Takes care of PBC when c coordinate of site
-                        # goes beyond the upper boundary of the cell
-                        c_ranges.append((c_range[0], 1))
-                        c_ranges.append((0, c_range[1] - 1))
-                    elif c_range[0] < 0:
-                        # Takes care of PBC when c coordinate of site
-                        # is below the lower boundary of the unit cell
-                        c_ranges.append((0, c_range[1]))
-                        c_ranges.append((c_range[0] + 1, 1))
-                    else:
-                        c_ranges.append(c_range)
-            return c_ranges
-
-        bond_c_ranges = []
-        if bonds is not None:
-            #Convert to species first
-            bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in
-                     bonds.items()}
-            for s1, s2 in itertools.combinations(self.oriented_unit_cell, 2):
-                # Iterates through every possible pair of species in the
-                # oriented unit cell
-                all_sp = set(s1.species_and_occu.keys())
-                all_sp.update(s2.species_and_occu.keys())
-                for species, bond_dist in bonds.items():
-                    # Checks if elements in species is in all_sp
-                    if all_sp.issuperset(species):
-                        bond_c_ranges.extend(get_c_ranges(s1, s2, bond_dist))
+        c_ranges = set() if bonds is None else self._get_c_ranges(bonds)
 
         slabs = []
         for shift in self._calculate_possible_shifts(tol=tol):
             bonds_broken = 0
-            for r in bond_c_ranges:
+            for r in c_ranges:
                 if r[0] <= shift <= r[1]:
                     bonds_broken += 1
             if bonds_broken <= max_broken_bonds:

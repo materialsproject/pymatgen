@@ -588,14 +588,18 @@ class CifWriter(object):
 
         block = OrderedDict()
         loops = []
-        latt = struct.lattice
-        comp = struct.composition
-        no_oxi_comp = comp.element_composition
         spacegroup = ("P 1", 1)
         if symprec is not None:
             sf = SpacegroupAnalyzer(struct, symprec)
             spacegroup = (sf.get_spacegroup_symbol(),
                           sf.get_spacegroup_number())
+            # Needs the refined struture when using symprec. This converts
+            # primitive to conventional structures, the standard for CIF.
+            struct = sf.get_refined_structure()
+
+        latt = struct.lattice
+        comp = struct.composition
+        no_oxi_comp = comp.element_composition
         block["_symmetry_space_group_name_H-M"] = spacegroup[0]
         for cell_attr in ['a', 'b', 'c']:
             block["_cell_length_" + cell_attr] = format_str.format(
