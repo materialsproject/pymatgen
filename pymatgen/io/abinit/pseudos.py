@@ -1303,7 +1303,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
             gid = grid_params["id"]
             assert gid not in self.rad_grids
 
-            self.rad_grids[id] = self._eval_grid(grid_params)
+            self.rad_grids[gid] = self._eval_grid(grid_params)
 
     def __getstate__(self):
         """
@@ -2417,7 +2417,7 @@ class DojoReport(dict):
     def has_trial(self, dojo_trial, ecut=None):
         """
         True if the dojo_report contains dojo_trial with the given ecut.
-        If ecut is not, we test if dojo_trial is present.
+        If ecut is None, we test if dojo_trial is present.
         """
         if dojo_trial not in self.ALL_TRIALS:
             raise self.Error("dojo_trial `%s` is not a registered DOJO TRIAL" % dojo_trial)
@@ -2663,17 +2663,10 @@ class DojoReport(dict):
         Check the dojo report for inconsistencies.
         Return a string with the errors found in the DOJO_REPORT.
         """
-        errors = []
-        app = errors.append
+        errors = []; app = errors.append
 
-        if "version" not in self:
-            app("version is missing")
-
-        if "ppgen_hints" not in self:
-            app("version is missing")
-
-        if "md5" not in self:
-            app("md5 checksum is missing!")
+        for k in ("version", "ppgen_hints", "md5"):
+            if k not in self: app("%s is missing" % k)
 
         # Check if we have computed each trial for the full set of ecuts in global_ecuts
         global_ecuts = self.ecuts
@@ -2685,9 +2678,15 @@ class DojoReport(dict):
                     missing[trial].append(ecut)
 
         if missing:
-            app("The following list of ecut energies is missing:")
+            app("%s: the following ecut values are missing:" % self.symbol)
             for trial, ecuts in missing.items():
-                app("%s: %s" % (trial, ecuts))
+                app("    %s: %s" % (trial, ecuts))
+
+        for trial in self.ALL_TRIALS:
+            if not self.has_trial(trial): continue
+            for ecut in self[trial]:
+                if ecut not in global_ecuts:
+                    app("%s: ecut %s is not in the global list" % (trial, ecut))
             
         return "\n".join(errors)
 
