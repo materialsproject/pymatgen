@@ -16,6 +16,7 @@ dependencies:
     - python setup.py develop
 test:
   override:
+    - find . -name "*.pyc" -exec rm '{}' \;
     - python run_test.py:
         timeout: 720
     # Some rudimentary command line tests for pmg
