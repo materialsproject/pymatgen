@@ -32,7 +32,7 @@ for parent, subdir, files in os.walk("pymatgen"):
 
 nrun = int(run_ratio * len(can_run))
 
-if random.randint(1, 50) % 50 == 0:
+if random.randint(1, 20) % 20 == 0:
     #One in fifty times, we will run a full test.
     to_run = must_run + can_run
 else:
