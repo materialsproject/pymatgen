@@ -44,7 +44,7 @@ class PymatgenTest(unittest.TestCase):
 
     @classmethod
     def get_structure(cls, name):
-        return cls.TEST_STRUCTURES[name]
+        return cls.TEST_STRUCTURES[name].copy()
 
     @staticmethod
     def assert_almost_equal(actual, desired, decimal=7, err_msg='',
