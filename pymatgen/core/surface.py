@@ -739,9 +739,9 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
             usually sufficient.
     """
     all_slabs = []
-    for miller in get_symmetrically_distinct_miller_indices(structure,
-                                                            max_index):
-        gen = SlabGenerator(structure, miller, min_slab_size,
+    for miller in get_symmetrically_distinct_miller_indices(
+            structure, max_index):
+        gen = SlabGenerator(structure.copy(), miller, min_slab_size,
                             min_vacuum_size, lll_reduce=lll_reduce,
                             center_slab=center_slab, primitive=primitive,
                             max_normal_search=max_normal_search)
