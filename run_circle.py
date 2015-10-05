@@ -13,7 +13,7 @@ import random
 
 run_ratio = 1/10
 
-output = subprocess.check_output(["git", "diff", "--name-only", "HEAD~10"])
+output = subprocess.check_output(["git", "diff", "--name-only", "HEAD~20"])
 files_changed = [f for f in output.decode("utf-8").split("\n")
                  if f.startswith("pymatgen")]
 
@@ -28,8 +28,13 @@ for f in files_changed:
 can_run = []
 for parent, subdir, files in os.walk("pymatgen"):
     for f in files:
-        if (parent.endswith("tests") and f.startswith("test_") and f.endswith(".py") and f not in must_run):
+        if (parent.endswith("tests") and f.startswith("test_")
+                and f.endswith(".py") and f not in must_run):
             can_run.append(os.path.join(parent, f))
+
+print("%d test files must be run..." % len(must_run))
+print(must_run)
+print("%d possible test files can be run..." % len(can_run))
 
 nrun = int(run_ratio * len(can_run))
 
@@ -37,7 +42,10 @@ if random.randint(1, 20) % 20 == 0:
     #One in fifty times, we will run a full test.
     to_run = must_run + can_run
 else:
-    to_run = random.sample(can_run, nrun) + must_run
+    to_run = list(set(random.sample(can_run, nrun) + must_run))
+
+
+print("%d test files will be run..." % len(to_run))
 
 status = subprocess.call(["nosetests", "-v"] + to_run)
 sys.exit(status)
