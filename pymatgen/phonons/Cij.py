@@ -1,14 +1,13 @@
 import warnings, sys, operator, os, unittest
 import pymatgen
-from pymatgen.io.vaspio import Poscar
-from pymatgen.io.vaspio import Poscar
-from pymatgen.io.vaspio import Vasprun
-from pymatgen.io.cifio import CifWriter
-from pymatgen.io.cifio import CifParser
+from pymatgen.io.vasp import Poscar
+from pymatgen.io.vasp import Poscar
+from pymatgen.io.vasp import Vasprun
+from pymatgen.io.cif import CifWriter
+from pymatgen.io.cif import CifParser
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import *
-from pymatgen.core.structure_modifier import StructureEditor
 import copy
 import numpy as np
 
@@ -22,15 +21,13 @@ __status__ = "Development"
 __date__ ="March 20, 2012"
 
 
-class CijTensor(object):
-    
+class CijFitter(object): 
     """
     Class that takes a dict in the form {IndependentStrain:stress matrix} and fits the elastic tensor from this.
 
     Args:
         - strain_stress_dict: dict containing stress matrices
     """
-    #TODO: AJ says rename class to CijFitter, otherwise it seems the class's purpose is to represent a CijTensor
     
     def __init__(self, strain_stress_dict):
         self._sig_eps = strain_stress_dict
@@ -41,22 +38,23 @@ class CijTensor(object):
             s.append(el[ind1,ind2])
         return s
 
-
     def fitCij(self, tol=0.1):
         stress_dict = self._sig_eps
+        # Initialize Cij array
         Cij = np.zeros((6, 6))
-
+        # Upper triangular indices
+        # inds = zip(*np.triu_indices(3))
         inds = [[0,0], [1,1], [2,2], [1,2], [0,2], [0,1]]
-        
-        for n1 in range(0, 6):
+
+        for n1 in range(0,6):
             strain = []
             stress = []
             count1 = 0
 
             for c in stress_dict:
                 if c.i == inds[n1][0] and c.j== inds[n1][1]:
-                    strain.append(c.strain[c.i, c.j])
-                    stress.append(stress_dict[c].stress_matrix)
+                    strain.append(c[c.i, c.j])
+                    stress.append(stress_dict[c])
 
             for k in inds:
                 true_data = self._chain_stresses(stress, k[0], k[1])
@@ -97,8 +95,8 @@ class CijTensor(object):
 
             for c in stress_dict:
                 if c.i == inds[n1][0] and c.j== inds[n1][1]:
-                    strain.append(c.strain[c.i, c.j])
-                    stress.append(stress_dict[c].stress_matrix)
+                    strain.append(c[c.i, c.j])
+                    stress.append(stress_dict[c])
 
             for k in inds:
                 true_data = self._chain_stresses(stress, k[0], k[1])
@@ -119,7 +117,7 @@ class CijTensor(object):
                     true_data.pop(kk)
                     straink.pop(kk)
 
-                print straink, true_data
+                #print straink, true_data
                 p1 = np.polyfit(straink, true_data, 1)
                 f1 = np.polyval(p1, straink)
 

@@ -4,11 +4,11 @@ import operator
 import unittest
 from StringIO import StringIO as sio
 import pymatgen
-from pymatgen.io.vaspio import Poscar
-from pymatgen.io.vaspio import Poscar
-from pymatgen.io.vaspio import Vasprun
-from pymatgen.io.cifio import CifWriter
-from pymatgen.io.cifio import CifParser
+from pymatgen.io.vasp import Poscar
+from pymatgen.io.vasp import Poscar
+from pymatgen.io.vasp import Vasprun
+from pymatgen.io.cif import CifWriter
+from pymatgen.io.cif import CifParser
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import *
@@ -17,11 +17,11 @@ import numpy as np
 import random
 #from scipy import stats
 import math
-from genstrain import DeformGeometry
+from strain import generate_deformed_structures
 from pymatgen.phonons.stress import Stress
 from pymatgen.phonons.strain import Strain
 from pymatgen.phonons.strain import IndependentStrain
-from pymatgen.phonons.Cij import CijTensor
+from pymatgen.phonons.Cij import CijFitter
 from pymatgen.phonons.tensors import SQTensor
 
 np.set_printoptions(precision=3)
@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     struct = CifParser('aluminum.cif').get_structures(primitive=False)[0]
     
-    D = DeformGeometry(struct, 0.01, 0.004, 4, 4)
+    D = generate_deformed_structures(struct, 0.01, 0.004, 4, 4)
 
 #   stress_dict: {IndependentStrain object:Stress object}
 
@@ -59,24 +59,24 @@ if __name__ == "__main__":
 
     for c in D:
         if c.i==0 and c.j==0:
-            strain_array1.append(c.strain[c.i, c.j])
+            strain_array1.append(c[c.i, c.j])
             numdefnormal +=1
 
         elif c.i==1 and c.j==1:
-            strain_array2.append(c.strain[c.i, c.j])
+            strain_array2.append(c[c.i, c.j])
 
         elif c.i==2 and c.j==2:
-            strain_array3.append(c.strain[c.i, c.j])
+            strain_array3.append(c[c.i, c.j])
 
         elif c.i==1 and c.j==2:
-            strain_array4.append(c.strain[c.i, c.j])
+            strain_array4.append(c[c.i, c.j])
             numdefshear +=1
 
         elif c.i==0 and c.j==2:
-            strain_array5.append(c.strain[c.i, c.j])
+            strain_array5.append(c[c.i, c.j])
 
         elif c.i==0 and c.j==1:
-            strain_array6.append(c.strain[c.i, c.j])
+            strain_array6.append(c[c.i, c.j])
         
     count = 0
     
@@ -89,37 +89,37 @@ if __name__ == "__main__":
 
     for n in strain_array1:
         for c in D:
-            if c.i==0 and c.j==0 and np.abs(c.strain[c.i, c.j] - n) < 0.00001:
+            if c.i==0 and c.j==0 and np.abs(c[c.i, c.j] - n) < 0.00001:
                 stress_dict[c] = Stress(np.matrix(np.loadtxt(sio('\n'.join(lines[3*count:3*count+3])))))
                 count+=1
 
     for n in strain_array2:
         for c in D:
-            if c.i==1 and c.j==1 and np.abs(c.strain[c.i, c.j] - n) < 0.00001:
+            if c.i==1 and c.j==1 and np.abs(c[c.i, c.j] - n) < 0.00001:
                 stress_dict[c] = Stress(np.matrix(np.loadtxt(sio('\n'.join(lines[3*count:3*count+3])))))
                 count+=1
 
     for n in strain_array3:
         for c in D:
-            if c.i==2 and c.j==2 and np.abs(c.strain[c.i, c.j] - n) < 0.00001:
+            if c.i==2 and c.j==2 and np.abs(c[c.i, c.j] - n) < 0.00001:
                 stress_dict[c] = Stress(np.matrix(np.loadtxt(sio('\n'.join(lines[3*count:3*count+3])))))
                 count+=1
 
     for n in strain_array4:
         for c in D:
-            if c.i==1 and c.j==2 and np.abs(c.strain[c.i, c.j] - n) < 0.00001:
+            if c.i==1 and c.j==2 and np.abs(c[c.i, c.j] - n) < 0.00001:
                 stress_dict[c] = Stress(np.matrix(np.loadtxt(sio('\n'.join(lines[3*count:3*count+3])))))
                 count+=1
 
     for n in strain_array5:
         for c in D:
-            if c.i==0 and c.j==2 and np.abs(c.strain[c.i, c.j] - n) < 0.00001:
+            if c.i==0 and c.j==2 and np.abs(c[c.i, c.j] - n) < 0.00001:
                 stress_dict[c] = Stress(np.matrix(np.loadtxt(sio('\n'.join(lines[3*count:3*count+3])))))
                 count+=1
 
     for n in strain_array6:
         for c in D:
-            if c.i==0 and c.j==1 and np.abs(c.strain[c.i, c.j] - n) < 0.00001:
+            if c.i==0 and c.j==1 and np.abs(c[c.i, c.j] - n) < 0.00001:
                 stress_dict[c] = Stress(np.matrix(np.loadtxt(sio('\n'.join(lines[3*count:3*count+3])))))
                 count+=1
 
@@ -135,16 +135,15 @@ if __name__ == "__main__":
 #    print stress_dict[c].MeanStress
 #    print stress_dict[c].stress_matrix
 
-Cij = CijTensor(stress_dict).fitCij()
+Cij = CijFitter(stress_dict).fitCij()
 
 print Cij
 
-Cij2 = CijTensor(stress_dict).fitCij2()
+Cij2 = CijFitter(stress_dict).fitCij2()
 
 print Cij2
 
 Cij = 0.5*(Cij + np.transpose(Cij))
-
 
 SQTensor(Cij).KG_average
 
