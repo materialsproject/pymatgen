@@ -79,6 +79,11 @@ class CifBlock(object):
         # get an Exception
         self.header = header[:74]
 
+    def __eq__(self, other):
+        return self.loops == other.loops \
+            and self.data == other.data \
+            and self.header == other.header
+
     def __getitem__(self, key):
         return self.data[key]
 
@@ -130,6 +135,8 @@ class CifBlock(object):
         if len(v) > self.maxlen:
             return ';\n' + textwrap.fill(v, self.maxlen) + '\n;'
         #add quotes if necessary
+        if v == '':
+            return '""'
         if (" " in v or v[0] == "_") \
                 and not (v[0] == "'" and v[-1] == "'") \
                 and not (v[0] == '"' and v[-1] == '"'):
@@ -164,7 +171,7 @@ class CifBlock(object):
             if multiline:
                 if l.startswith(";"):
                     multiline = False
-                    q.append(" ".join(ml))
+                    q.append(('', '', '', ' '.join(ml)))
                     ml = []
                     l = l[1:].strip()
                 else:
@@ -581,14 +588,18 @@ class CifWriter(object):
 
         block = OrderedDict()
         loops = []
-        latt = struct.lattice
-        comp = struct.composition
-        no_oxi_comp = comp.element_composition
         spacegroup = ("P 1", 1)
         if symprec is not None:
             sf = SpacegroupAnalyzer(struct, symprec)
             spacegroup = (sf.get_spacegroup_symbol(),
                           sf.get_spacegroup_number())
+            # Needs the refined struture when using symprec. This converts
+            # primitive to conventional structures, the standard for CIF.
+            struct = sf.get_refined_structure()
+
+        latt = struct.lattice
+        comp = struct.composition
+        no_oxi_comp = comp.element_composition
         block["_symmetry_space_group_name_H-M"] = spacegroup[0]
         for cell_attr in ['a', 'b', 'c']:
             block["_cell_length_" + cell_attr] = format_str.format(

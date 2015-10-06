@@ -537,7 +537,7 @@ class PyFlowScheduler(object):
 
         # Allow to change the manager at run-time
         if self.use_dynamic_manager:
-            from pymatgen.io.abinitio.tasks import TaskManager
+            from pymatgen.io.abinit.tasks import TaskManager
             new_manager = TaskManager.from_user_config()
             for work in flow:
                 work.set_manager(new_manager)

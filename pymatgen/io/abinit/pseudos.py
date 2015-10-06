@@ -448,7 +448,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
             ecut: Cutoff energy in Hartree.
             pawecutdg: Cutoff energy for the PAW double grid.
         """
-        from pymatgen.io.abinitio.tasks import AbinitTask
+        from pymatgen.io.abinit.tasks import AbinitTask
         from abipy.core.structure import Structure
         from abipy.abio.factories import gs_input
         from abipy.electrons.psps import PspsFile
@@ -1997,7 +1997,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
             "gbrv_bcc": ["a0_rel_err"],
             "gbrv_fcc": ["a0_rel_err"],
             "phonon": "all",
-            "phwoa": "all"
+            #"phwoa": "all"
         }
 
         rows, names, errors = [], [], []
@@ -2162,7 +2162,7 @@ class DojoDataFrame(DataFrame):
         "gbrv_bcc",
         "gbrv_fcc",
         "phonon",
-        "phwoa"
+        #"phwoa"
     )
 
     _TRIALS2KEY = {
@@ -2171,7 +2171,7 @@ class DojoDataFrame(DataFrame):
         "gbrv_bcc": "gbrv_bcc_a0_rel_err",
         "gbrv_fcc": "gbrv_fcc_a0_rel_err",
         "phonon": "all",
-        "phwoa": "all"
+        #"phwoa": "all"
     }
 
     _TRIALS2YLABEL = {
@@ -2180,7 +2180,7 @@ class DojoDataFrame(DataFrame):
         "gbrv_bcc": "BCC $\Delta a_0$ (%)",
         "gbrv_fcc": "FCC $\Delta a_0$ (%)",
         "phonon": "Phonons with ASR",
-        "phwoa": "Phonons without ASR"
+        #"phwoa": "Phonons without ASR"
     }
 
     ACC2PLTOPTS = dict(
@@ -2318,7 +2318,7 @@ class DojoReport(dict):
         "deltafactor": "dfact_meV",
         "gbrv_bcc": "a0_rel_err",
         "gbrv_fcc": "a0_rel_err",
-        "phwoa": "all",
+        #"phwoa": "all",
         "phonon": "all"
     }
 
@@ -2331,7 +2331,7 @@ class DojoReport(dict):
         "gbrv_bcc",
         "gbrv_fcc",
         "phonon",
-        "phwoa"
+        #"phwoa"
     )
 
     # Tolerances on the deltafactor prime (in eV) used for the hints.

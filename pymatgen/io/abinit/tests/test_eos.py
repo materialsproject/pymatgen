@@ -7,7 +7,7 @@ from __future__ import unicode_literals, division, print_function
 import unittest
 import numpy as np
 
-from pymatgen.io.abinitio.eos import EOS
+from pymatgen.io.abinit.eos import EOS
 
 def have_scipy():
     try:

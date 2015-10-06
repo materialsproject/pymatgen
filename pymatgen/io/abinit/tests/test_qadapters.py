@@ -9,10 +9,10 @@ import unittest
 from collections import OrderedDict
 from monty.collections import AttrDict
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinitio.tasks import ParalConf
-from pymatgen.io.abinitio.qadapters import *
-from pymatgen.io.abinitio.qadapters import QueueAdapter, SlurmAdapter 
-from pymatgen.io.abinitio import qutils as qu
+from pymatgen.io.abinit.tasks import ParalConf
+from pymatgen.io.abinit.qadapters import *
+from pymatgen.io.abinit.qadapters import QueueAdapter, SlurmAdapter 
+from pymatgen.io.abinit import qutils as qu
 
 class ParseTimestr(PymatgenTest):
     def test_slurm_parse_timestr(self):

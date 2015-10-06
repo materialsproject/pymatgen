@@ -15,7 +15,7 @@ __maintainer__ = "Michiel van Setten"
 __email__ = "mjvansetten@gmail.com"
 __date__ = "May 2014"
 
-from pymatgen.io.abinitio.scheduler_error_parsers import get_parser
+from pymatgen.io.abinit.scheduler_error_parsers import get_parser
 from custodian.custodian import ErrorHandler
 
 

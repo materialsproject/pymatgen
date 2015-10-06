@@ -10,7 +10,7 @@ import numpy as np
 
 from pymatgen import Structure
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinitio import ETSF_Reader
+from pymatgen.io.abinit import ETSF_Reader
 
 try:
     import netCDF4
@@ -19,7 +19,7 @@ except ImportError:
 
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
-                         'test_files', "abinitio")
+                         'test_files', "abinit")
 
 def ref_file(filename):
     return os.path.join(_test_dir, filename)
