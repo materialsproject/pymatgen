@@ -1055,15 +1055,15 @@ class NodeHistory(collections.deque):
 
     def _log(self, level, msg, args, exc_info=None, extra=None):
         """Low-level logging routine which creates a :class:`HistoryRecord`."""
-        from monty.inspect import find_caller, caller_name
-        # FIXME: Rewrite this! It does not work if find_caller is not in the module.
-        #c = find_caller()
-        #print(caller_name(skip=3))
-
         if exc_info and not isinstance(exc_info, tuple):
             exc_info = sys.exc_info()
 
         self.append(HistoryRecord(level, "unknown filename", 0, msg, args, exc_info, func="unknown func"))
+
+        #from monty.inspect import find_caller, caller_name
+        # FIXME: Rewrite this! It does not work if find_caller is not in the module.
+        #c = find_caller()
+        #print(caller_name(skip=3))
         #self.append(HistoryRecord(level, c.filename, c.lineno, msg, args, exc_info, func=c.name))
 
 

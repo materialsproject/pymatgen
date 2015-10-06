@@ -1476,7 +1476,7 @@ class IStructure(SiteCollection, PMGSONable):
         """
         if filename.endswith(".nc"):
             # Read Structure from a netcdf file.
-            from pymatgen.io.abinitio.netcdf import structure_from_ncdata
+            from pymatgen.io.abinit.netcdf import structure_from_ncdata
             s = structure_from_ncdata(filename, cls=cls)
             if sort:
                 s = s.get_sorted_structure()
@@ -2328,7 +2328,7 @@ class Structure(IStructure, collections.MutableSequence):
         self._sites = [s for i, s in enumerate(self._sites)
                        if i not in indices]
 
-    def apply_operation(self, symmop):
+    def apply_operation(self, symmop, fractional=False):
         """
         Apply a symmetry operation to the structure and return the new
         structure. The lattice is operated by the rotation matrix only.
@@ -2336,16 +2336,33 @@ class Structure(IStructure, collections.MutableSequence):
 
         Args:
             symmop (SymmOp): Symmetry operation to apply.
+            fractional (bool): Whether the symmetry operation is applied in
+                fractional space. Defaults to False, i.e., symmetry operation
+                is applied in cartesian coordinates.
         """
-        self._lattice = Lattice([symmop.apply_rotation_only(row)
-                                 for row in self._lattice.matrix])
+        if not fractional:
+            self._lattice = Lattice([symmop.apply_rotation_only(row)
+                                     for row in self._lattice.matrix])
 
-        def operate_site(site):
-            new_cart = symmop.operate(site.coords)
-            new_frac = self._lattice.get_fractional_coords(new_cart)
-            return PeriodicSite(site.species_and_occu, new_frac, self._lattice,
-                                properties=site.properties)
-        self._sites = list(map(operate_site, self._sites))
+            def operate_site(site):
+                new_cart = symmop.operate(site.coords)
+                new_frac = self._lattice.get_fractional_coords(new_cart)
+                return PeriodicSite(site.species_and_occu, new_frac, self._lattice,
+                                    properties=site.properties)
+
+        else:
+            new_latt = np.dot(symmop.rotation_matrix, self._lattice.matrix)
+            self._lattice = Lattice(new_latt)
+
+            def operate_site(site):
+                return PeriodicSite(site.species_and_occu,
+                                    symmop.operate(site.frac_coords),
+                                    self._lattice,
+                                    properties=site.properties)
+
+        self._sites = [operate_site(s) for s in self._sites]
+
+
 
     def modify_lattice(self, new_lattice):
         """

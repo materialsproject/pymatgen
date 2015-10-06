@@ -47,17 +47,16 @@ several advantages over other codes out there:
 
 1. **It is (fairly) robust.** Pymatgen is used in the Materials Project. As
    such, the analysis it produces survives rigorous scrutiny every single
-   day. Bugs tend to be found and corrected quickly. Furthermore,
-   pymatgen uses `CircleCI <https://circleci.com>`_ for continuous
-   integration, which ensures that all unittests pass with every commit.
+   day. Bugs tend to be found and corrected quickly. Pymatgen also uses
+   `CircleCI <https://circleci.com>`_ for continuous integration, which ensures
+   that all unittests pass with every commit.
 2. **It is well documented.** A fairly comprehensive documentation has been
-   written to help you get to grips with it quickly. That means more
-   efficient research.
-3. **It is open.** That means you are free to use it, and you can also
-   contribute to it. It also means that pymatgen is continuously being
-   improved. We have a policy of attributing any code you contribute to any
-   publication you choose. Contributing to pymatgen means your research
-   becomes more visible, which translates to greater impact.
+   written to help you get to grips with it quickly.
+3. **It is open.** You are free to use and contribute to pymatgen. It also means
+   that pymatgen is continuously being improved. We have a policy of
+   attributing any code you contribute to any publication you choose.
+   Contributing to pymatgen means your research becomes more visible, which
+   translates to greater impact.
 4. **It is fast.** Many of the core numerical methods in pymatgen have been
    optimized by vectorizing in numpy. This means that coordinate
    manipulations are extremely fast and are in fact comparable to codes
@@ -70,25 +69,10 @@ Python 3.x support
 .. versionadded:: 3.0
 
 With effect from version 3.0, pymatgen now supports both Python 2.7 as well
-as Python 3.x. All underlying core dependencies (numpy, pyhull and the spglib
-library) have been made Python 3 compatible, and a completely rewritten CIF
-parser module (courtesy of William Davidson Richards) has removed the
-dependency on PyCIFRW. We will support Python >= 3.3 (ignoring v3.1 and v3.2).
-
-With the release of a new major version, we are taking the opportunity to
-streamline and cleanup some of the code, which introduces some backwards
-incompatibilities. The major ones are listed below:
-
-* The to_dict property of all classes have been deprecated in favor of the
-  as_dict() method protocol in the monty package. The to_dict property will
-  be available only up till the next minor version, i.e., v3.1.
-* All previously deprecated methods and modules (e.g.,
-  pymatgen.core.structure_editor) have been removed.
-
-For developers working to add new features to pymatgen, this also means that
-all new code going forward has to be Python 2.7+ and 3 compatible. Our approach
-is to have a single codebase support Python 2.7 and 3.x,
-as per current best practices. Please review the `coding guidelines
+as Python 3.x. For developers working to add new features to pymatgen, this
+also means that all new code going forward has to be Python 2.7+ and 3
+compatible. Our approach is to have a single codebase support Python 2.7 and
+3.x, as per current best practices. Please review the `coding guidelines
 </contributing>`_.
 
 .. include:: latest_changes.rst

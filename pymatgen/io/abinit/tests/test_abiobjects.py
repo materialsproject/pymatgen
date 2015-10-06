@@ -8,7 +8,7 @@ import os
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ha_to_eV
-from pymatgen.io.abinitio.abiobjects import *
+from pymatgen.io.abinit.abiobjects import *
 
 import warnings
 

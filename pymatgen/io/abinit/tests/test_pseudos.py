@@ -4,19 +4,21 @@
 
 from __future__ import unicode_literals, division, print_function
 
-"""
-Created on Fri Mar  8 23:14:02 CET 2013
-"""
-
 import os.path
 import collections
 import numpy as np
+import unittest
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinitio.pseudos import *
+from pymatgen.io.abinit.pseudos import *
+
+try:
+    import pseudo_dojo
+except ImportError:
+    pseudo_dojo = False
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files', "abinitio")
+                        'test_files', "abinit")
 
 
 def ref_file(filename):
@@ -41,7 +43,7 @@ class PseudoTestCase(PymatgenTest):
                 pseudo = Pseudo.from_file(ref_file(fname))
                 self.nc_pseudos[symbol].append(pseudo)
 
-                # Save the pseudo as instance attribute whose name 
+                # Save the pseudo as instance attribute whose name
                 # is constructed with the rule: symbol_ppformat
                 attr_name = symbol + "_" + ext[1:]
                 if hasattr(self, attr_name):
@@ -90,7 +92,7 @@ class PseudoTestCase(PymatgenTest):
         self.assertFalse(pseudo.has_nlcc)
         self.assertEqual(pseudo.l_max, 3)
         self.assertEqual(pseudo.l_local, 2)
-        
+
         # Test PseudoTable.
         table = PseudoTable(self.nc_pseudos["Si"])
         print(repr(table))
@@ -114,7 +116,7 @@ class PseudoTestCase(PymatgenTest):
         print(oxygen.as_dict())
 
         self.assertTrue(oxygen.ispaw)
-        self.assertTrue(oxygen.symbol == "O" and 
+        self.assertTrue(oxygen.symbol == "O" and
                        (oxygen.Z, oxygen.core, oxygen.valence) == (8, 2, 6),
                         oxygen.Z_val == 6,
                        )
@@ -128,13 +130,13 @@ class PseudoTestCase(PymatgenTest):
         for o in new_objs:
             print(repr(o))
             print(o)
-                                                                                 
+
             self.assertTrue(o.ispaw)
-            self.assertTrue(o.symbol == "O" and 
+            self.assertTrue(o.symbol == "O" and
                            (o.Z, o.core, o.valence) == (8, 2, 6),
                             o.Z_val == 6,
                            )
-                                                                                 
+
             self.assert_almost_equal(o.paw_radius, 1.4146523028)
 
     def test_oncvpsp_pseudo(self):
@@ -216,16 +218,16 @@ class PseudoTestCase(PymatgenTest):
 
         report.add_ecuts([30])
         assert np.all(report.ecuts == [30.0, 32.0, 34.0, 36.0, 38.0, 40.0, 42.0, 52.0])
-        missing = report.find_missing_entries() 
+        missing = report.find_missing_entries()
         assert missing and all(v == [30] for v in missing.values())
 
         report.add_ecuts([33, 53])
         assert np.all(report.ecuts == [30.0, 32.0, 33.0, 34.0,  36.0, 38.0, 40.0, 42.0, 52.0, 53.0])
-        missing = report.find_missing_entries() 
+        missing = report.find_missing_entries()
         assert missing and all(v == [30, 33, 53] for v in missing.values())
 
         # Test plotting methods.
-        if plot:
+        if plot and pseudo_dojo:
             self.assertIsInstance(report.plot_deltafactor_convergence(show=False), Fig)
             self.assertIsInstance(report.plot_deltafactor_eos(show=False), Fig)
             self.assertIsInstance(report.plot_etotal_vs_ecut(show=False), Fig)

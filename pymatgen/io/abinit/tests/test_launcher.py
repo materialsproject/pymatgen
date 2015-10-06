@@ -6,7 +6,7 @@ from __future__ import unicode_literals, division, print_function
 
 import unittest
 
-from pymatgen.io.abinitio.launcher import ScriptEditor
+from pymatgen.io.abinit.launcher import ScriptEditor
 
 class ScriptEditorTest(unittest.TestCase):
 
