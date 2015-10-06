@@ -20,7 +20,7 @@ import numpy as np
 from pprint import pprint
 from six.moves import map, StringIO
 from atomicfile import AtomicFile
-from prettytable import PrettyTable
+from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict
 from monty.collections import as_set, dict2namedtuple
@@ -826,10 +826,9 @@ class Flow(Node, NodeContainer, PMGSONable):
         app("Number of tasks with a given class:")
 
         # Build Table
-        table = PrettyTable(["Task Class", "Number"])
-        for cls, tasks in self.groupby_task_class().items():
-            table.add_row([cls.__name__, len(tasks)])
-        app(str(table))
+        data = [[cls.__name__, len(tasks)]
+                for cls, tasks in self.groupby_task_class().items()]
+        app(str(tabulate(data, headers=["Task Class", "Number"])))
 
         stream.write("\n".join(lines))
 
