@@ -23,8 +23,9 @@ import logging
 import multiprocessing
 import sys
 import datetime
-
 from collections import OrderedDict
+
+from tabulate import tabulate
 
 from pymatgen import Structure
 from pymatgen.io.vasp import Outcar, Vasprun, Chgcar
@@ -40,7 +41,6 @@ from pymatgen.io.cssr import Cssr
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
-from prettytable import PrettyTable
 
 SAVE_FILE = "vasp_data.gz"
 
@@ -97,11 +97,8 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort):
                          delta_vol))
     if len(all_data) > 0:
         headers = ("Directory", "Formula", "Energy", "E/Atom", "% vol chg")
-        t = PrettyTable(headers)
-        t.align["Directory"] = "l"
-        for d in all_data:
-            t.add_row(d)
-        print(t)
+        print(tabulate(all_data, headers=headers))
+        print("")
         print(msg)
     else:
         print("No valid vasp run found.")
