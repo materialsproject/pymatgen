@@ -57,10 +57,6 @@ class Stress(SQTensor):
         """
 
     @property
-    def stress_matrix(self):
-        return self._matrix
-
-    @property
     def von_mises(self):
         """
         calculates the von mises stress
@@ -75,17 +71,17 @@ class Stress(SQTensor):
         """
         returns the mean stress
         """
-        return 1./3.*self._matrix.trace()
+        return 1./3.*self.trace()
 
     @property
     def deviator_stress(self):
         """
         returns the deviatoric component of the stress
         """
-        if self.is_symmetric() == False:
+        if self.is_symmetric == False:
             raise ValueError("The stress tensor is not symmetric, \
                              so deviator stress will not be either")
-        return SQTensor(self._matrix - self.mean_stress*np.eye(3))
+        return self - self.mean_stress*np.eye(3)
 
     # TODO: JM asks what is the F argument here?
     def piola_kirchoff_1(self, F):
@@ -95,11 +91,11 @@ class Stress(SQTensor):
         Args:
             F (array-like): 
         '''
-        if self.is_symmetric() == False:
+        if not self.is_symmetric:
             raise ValueError("The stress tensor is not symmetric, \
                              PK stress is based on a symmetric stress tensor.")
-        F = np.matrix(F)
-        return np.linalg.det(F)*self._matrix*((F.I).T)
+        F = SQTensor(F)
+        return F.det*self*((F.I).T)
 
     def piola_kirchoff_2(self, F):
         '''
@@ -109,11 +105,11 @@ class Stress(SQTensor):
             F (array-like): 
         '''
 
-        F = np.matrix(F)
-        if self.is_symmetric() == False:
+        F = SQTensor(F)
+        if not self.is_symmetric:
             raise ValueError("The stress tensor is not symmetric, \
                              PK stress is based on a symmetric stress tensor.")
-        return np.linalg.det(F)*F.I*self._matrix*((F.I).T)
+        return F.det*F.I*self*((F.I).T)
 
 
 if __name__ == "__main__":

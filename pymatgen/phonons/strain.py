@@ -61,57 +61,62 @@ class Strain(SQTensor):
         #import pdb; pdb.set_trace()
         return cls(0.5*(dfm*(dfm.T)), dfm)
 
-    # return Green-Lagrange strain matrix
-    @property
-    def strain(self):
-        return self._strain
-
     @property
     def deformation_matrix(self):
+        '''
+        returns the deformation matrix
+        '''
         return self._dfm
+    
+    @property
+    def independent_deformation(self, tol=0.00001):
+        '''
+        determines whether the deformation matrix represents an
+        independent deformation
 
-# TODO: JM asks whether this method should be implemented
-#    # construct def. matrix from indices and amount
-#    @staticmethod
-#    def from_ind_amt_dfm(matrixpos, amt):
-#        F = np.identity(3)
-#        F[matrixpos] = F[matrixpos] + amt
-#        return Strain(F)
+        Args: tol
+        '''
+        if self._dfm == None:
+            raise ValueError("No deformation matrix supplied for this strain tensor.")
+        # TODO: JM asks does this snippet just check to make sure that 
+        #           there is only one entry of the deformation matrix
+        #           that is distinct from the identity?
+        #           (and then returns the index which is distinct)
+        '''
+        df1 = self._dfm
+        counter = 0
+        checkmatrix = np.zeros((3,3))
 
-    def __eq__(self, other):
-        df, df2 = self.deformation_matrix, other.deformation_matrix
-        #TODO: AJ asks can't you just do return self.deformation_matrix == other.deformation_matrix?
-        for i, row in enumerate(df):
-            for j, item in enumerate(row):
-                if np.any(df[i][j] !=df2[i][j]):
-                    return False
-        return True
+        for c1 in range(0,3):
+            for c2 in range(0,3):
+                if c1 != c2:
+                    if np.abs(df1[c1,c2]) > tol:
+                        checkmatrix[c1,c2] = 1
+                        counter = counter + 1
+                else:
+                    if np.abs(df1[c1,c2]-1) > tol:
+                        checkmatrix[c1,c2] = 1
+                        counter = counter + 1
+        '''
+        # TODO: JM suggests if so:
+        indices = zip(*np.asarray(self._dfm - np.eye(3)).nonzero())
+        if len(indices) != 1:
+            raise ValueError("One and only one independent deformation\
+                             must be applied.")
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __hash__(self):
-        #for now, just use a sum of elements * row * column^2
-        df = self.deformation_matrix.tolist()
-        h_sum = 0.0
-        for i, row in enumerate(df):
-            for j, item in enumerate(row):
-                h_sum += item * (i + 1) * (j + 1) * (j + 1) * (i + 2)**3
-        return h_sum
-
-
-# TODO: JM asks whether we should just implement these methods in the superclass
-#           and get rid of this subclass...
+        return indices[0]
 
 class IndependentStrain(Strain):
-    # todo: add polar decomposition method
-    #
+    # todo: add polar decomposition method, JM says this is
+    #           now implemented in SQTensor superclass
 
     def __init__(self, deformation,tol=0.00000001):
-
+        '''
+        '''
         super(Strain, self).__init__(deformation)
-        (self._i, self._j) = self.check_F(tol)
+        (self._i, self._j) = self.independent_deformation
 
+    # TODO: JM asks should this be a class method?
     @staticmethod
     def from_ind_amt_dfm(matrixpos, amt):
         F = np.identity(3)
@@ -150,6 +155,80 @@ class IndependentStrain(Strain):
     def j(self):
         return self._j
 
+def generate_deformed_structures(rlxd_str, nd=0.01, ns=0.08, 
+                                 m=4, n=4, delete_center=True):
+    """
+    function to deform the geometry of a structure.  Generates
+    m + n deformed structures according to the supplied parameters.
+
+    Args:
+        rlxd_str (structure): structure to undergo deformation
+        nd (float): maximum perturbation applied to deformation
+        ns (float): maximum perturbation applied to shear deformation
+        m (int): number of deformation structures to generate for 
+            normal deformation
+        n (int): number of deformation structures to generate for 
+            shear deformation
+    """
+
+    msteps = np.int(m)
+    nsteps = np.int(n)
+
+    # TODO: JHM suggests that we might want to think about the
+    #           conventions specified here
+    if m%2 != 0:
+        raise ValueError("m has to be even.")
+    if n%2 != 0:
+        raise ValueError("n has to be even.")
+
+    defs = np.linspace(-nd, nd, num=m+1)
+    if delete_center:
+        defs = np.delete(defs, np.int(m/2), 0)
+    sheardef = np.linspace(-ns, ns, num=n+1)
+    if delete_center:
+        sheardef = np.delete(sheardef, np.int(n/2), 0)
+    defstructures = {}
+
+    # TODO: Make this section more pythonic
+    # TODO: JHM asks whether indexing the dictionary
+    #           on the strain object is efficient?
+    
+    # Apply normal deformations
+    for i1 in range(0, 3):
+        for i2 in range(0, len(defs)):
+            s=rlxd_str.copy()
+            F = np.identity(3)
+            F[i1, i1] = F[i1, i1] + defs[i2] 
+            StrainObject = IndependentStrain.from_deformation(F)
+            s.apply_deformation_gradient(F)
+            defstructures[StrainObject] = s
+
+    # Apply shear deformations 
+    F_index = [[0, 1], [0, 2], [1, 2]]
+    for j1 in range(0, 3):
+        for j2 in range(0, len(sheardef)):
+            s=rlxd_str.copy()
+            F = np.identity(3)
+            F[F_index[j1][0], F_index[j1][1]] = F[F_index[j1][0], F_index[j1][1]] + sheardef[j2]
+#               F = np.matrix(F)   # this needs to be checked carefully, might give problems in certain cases
+            StrainObject = IndependentStrain.from_deformation(F)
+            s.apply_deformation_gradient(F)
+            defstructures[StrainObject] = s
+
+    '''
+    # Possible alternative
+    struct_strain = [[
+    '''
+    return defstructures
+
+
+# TODO: JM asks whether this method should be implemented
+#    # construct def. matrix from indices and amount
+#    @staticmethod
+#    def from_ind_amt_dfm(matrixpos, amt):
+#        F = np.identity(3)
+#        F[matrixpos] = F[matrixpos] + amt
+#        return Strain(F)
 
 if __name__ == "__main__":
 

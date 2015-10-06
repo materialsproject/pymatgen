@@ -11,10 +11,8 @@ from pymatgen.io.cifio import CifParser
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import *
-from pymatgen.core.structure_modifier import StructureEditor
 import numpy as np
-from pymatgen.phonons.strain import Strain
-from pymatgen.phonons.strain import IndependentStrain
+from pymatgen.phonons.strain import Strain, IndependentStrain
 
 __author__="Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -50,8 +48,6 @@ def deform_geometry(rlxd_str, nd=0.01, ns=0.08, m=4, n=4, delete_center=True):
     if n%2 != 0:
         raise ValueError("n has to be even.")
 
-    # TODO: JM asks is this line necessary?
-    # mystrains = np.zeros((3, 3, np.int(m*3) + np.int(n*3)))   
     defs = np.linspace(-nd, nd, num=m+1)
     if delete_center:
         defs = np.delete(defs, np.int(m/2), 0)
@@ -59,9 +55,6 @@ def deform_geometry(rlxd_str, nd=0.01, ns=0.08, m=4, n=4, delete_center=True):
     if delete_center:
         sheardef = np.delete(sheardef, np.int(n/2), 0)
     defstructures = {}
-
-    # TODO: JM asks is this line necessary?
-    # strcopy = rlxd_str.copy()
 
     # TODO: Make this section more pythonic
     # First apply normal deformations
