@@ -208,9 +208,6 @@ class StringColorizer(object):
             return string
 
 
-
-
-
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
