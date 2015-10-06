@@ -229,12 +229,12 @@ direct
                                     p.structure.lattice.abc, 5)
         os.remove(tempfname)
 
+
 class IncarTest(unittest.TestCase):
 
     def setUp(self):
         file_name = os.path.join(test_dir, 'INCAR')
         self.incar = Incar.from_file(file_name)
-
 
     def test_init(self):
         incar = self.incar
@@ -333,6 +333,38 @@ class IncarTest(unittest.TestCase):
         self.assertEqual(i, self.incar)
         os.remove(tempfname)
 
+
+    def test_get_string(self):
+        s = self.incar.get_string(pretty=True)
+        ans = """NKRED      =  2
+NUPDOWN    =  0
+LCHARG     =  True
+IBRION     =  2
+LPLANE     =  True
+LREAL      =  Auto
+ISMEAR     =  0
+LWAVE      =  True
+NPAR       =  8
+SIGMA      =  0.05
+MAGMOM     =  1*6 2*-6 1*6 20*0.6
+ENCUTFOCK  =  0.0
+ALGO       =  Damped
+HFSCREEN   =  0.207
+LSCALU     =  False
+SYSTEM     =  Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]
+ENCUT      =  500
+NSIM       =  1
+ISIF       =  3
+LMAXMIX    =  4
+ISPIND     =  2
+LHFCALC    =  True
+TIME       =  0.4
+ISPIN      =  2
+EDIFF      =  0.0001
+LORBIT     =  11
+NSW        =  99
+PREC       =  Accurate"""
+        self.assertEqual(s, ans)
 
 class KpointsTest(unittest.TestCase):
 

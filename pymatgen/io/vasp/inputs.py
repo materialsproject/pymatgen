@@ -34,13 +34,15 @@ from monty.io import zopen
 from monty.os.path import zpath
 from monty.json import MontyDecoder
 
+from tabulate import tabulate
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element, get_el_sp
 from monty.design_patterns import cached_class
-from pymatgen.util.string_utils import str_aligned, str_delimited
+from pymatgen.util.string_utils import str_delimited
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.serializers.json_coders import PMGSONable
 
@@ -549,7 +551,8 @@ class Incar(dict, PMGSONable):
                 lines.append([k, self[k]])
 
         if pretty:
-            return str_aligned(lines) + "\n"
+            return str(tabulate([[l[0], "=", l[1]] for l in lines],
+                                tablefmt="plain"))
         else:
             return str_delimited(lines, None, " = ") + "\n"
 
