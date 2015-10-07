@@ -20,11 +20,10 @@ from six.moves import map, zip, StringIO
 from monty.string import is_string, list_strings
 from monty.collections import AttrDict
 from monty.functools import lazy_property, return_none_if_raise
-from monty.json import MontyDecoder
+from monty.json import MSONable
 from monty.fnmatch import WildCard
-from monty.dev import deprecated
 from pymatgen.core.units import Memory
-from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize, MSONable
+from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, FilepathFixer, Condition, SparseHistogram
 from .qadapters import make_qadapter, QueueAdapter, QueueAdapterError
 from . import qutils as qu
