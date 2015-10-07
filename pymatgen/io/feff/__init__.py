@@ -31,10 +31,13 @@ import warnings
 import numpy as np
 
 from collections import defaultdict, OrderedDict
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from operator import itemgetter
+
+from tabulate import tabulate
+
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.io.cif import CifParser
-from pymatgen.util.string_utils import str_aligned, str_delimited
+from pymatgen.util.string_utils import str_delimited
 from monty.io import zopen
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.electronic_structure.core import Spin, Orbital
@@ -515,8 +518,9 @@ class FeffAtoms(MSONable):
         for i in range(end):
             row_sorted[i][6] = i
 
-        row_sorted = str_aligned(row_sorted, ["*       x", "y", "z", "ipot",
-                                              "Atom", "Distance", "Number"])
+        row_sorted = str(tabulate(row_sorted,
+                                  headers=["*       x", "y", "z", "ipot",
+                                           "Atom", "Distance", "Number"]))
         atom_list = row_sorted.replace("--", "**")
 
         return ''.join(["ATOMS\n", atom_list, "\nEND\n"])
@@ -647,7 +651,7 @@ class FeffTags(dict):
                 lines.append([k, self[k]])
 
         if pretty:
-            return str_aligned(lines)
+            return tabulate(lines)
         else:
             return str_delimited(lines, None, "  ")
 
@@ -974,9 +978,10 @@ class FeffPot(MSONable):
             stoic = list(self.struct.composition.items())[i][1]
             ipotrow.append([ipot, cz, cs, -1, -1, stoic, 0])
         ipot_sorted = sorted(ipotrow, key=itemgetter(0))
-        ipotrow = str_aligned(ipot_sorted, ["*ipot", "Z", "tag", "lmax1",
-                                            "lmax2", "xnatph(stoichometry)",
-                                            "spinph"])
+        ipotrow = str(tabulate(ipot_sorted,
+                               headers=["*ipot", "Z", "tag", "lmax1",
+                                        "lmax2", "xnatph(stoichometry)",
+                                        "spinph"]))
         ipotlist = ipotrow.replace("--", "**")
         ipotlist = ''.join(["POTENTIALS\n", ipotlist])
 
