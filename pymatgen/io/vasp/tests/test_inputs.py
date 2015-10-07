@@ -336,7 +336,6 @@ class IncarTest(unittest.TestCase):
 
     def test_get_string(self):
         s = self.incar.get_string(pretty=True, sort_keys=True)
-        print s
         ans = """ALGO       =  Damped
 EDIFF      =  0.0001
 ENCUT      =  500
