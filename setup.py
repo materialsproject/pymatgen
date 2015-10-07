@@ -57,7 +57,7 @@ setup(
     version="3.2.3",
     install_requires=["numpy>=1.8", "pyhull>=1.5.3", "six", "prettytable",
                       "atomicfile", "requests", "pybtex", "pyyaml",
-                      "monty>=0.6.6", "scipy>=0.10"],
+                      "monty>=0.7.0", "scipy>=0.10"],
     extras_require={"plotting": ["matplotlib>=1.1", "prettyplotlib"],
                     "ase_adaptor": ["ase>=3.3"],
                     "vis": ["vtk>=6.0.0"],

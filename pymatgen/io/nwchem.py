@@ -35,12 +35,12 @@ from six.moves import zip
 from monty.io import zopen
 
 from pymatgen.core import Molecule,Structure
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.core.units import Energy
 from pymatgen.core.units import FloatWithUnit
 
 
-class NwTask(PMGSONable):
+class NwTask(MSONable):
     """
     Base task for Nwchem.
     """
@@ -276,7 +276,7 @@ task $theory $operation""")
         return NwTask.from_molecule(mol, theory="esp", **kwargs)
 
 
-class NwInput(PMGSONable):
+class NwInput(MSONable):
     """
     An object representing a Nwchem input file, which is essentially a list
     of tasks on a particular molecule.

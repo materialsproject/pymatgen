@@ -42,13 +42,13 @@ from pymatgen.core.periodic_table import Element, get_el_sp
 from monty.design_patterns import cached_class
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.util.io_utils import clean_lines
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 
 
 logger = logging.getLogger(__name__)
 
 
-class Poscar(PMGSONable):
+class Poscar(MSONable):
     """
     Object for representing the data in a POSCAR or CONTCAR file.
     Please note that this current implementation. Most attributes can be set
@@ -483,7 +483,7 @@ class Poscar(PMGSONable):
         self.velocities = velocities.tolist()
 
 
-class Incar(dict, PMGSONable):
+class Incar(dict, MSONable):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
     a dictionary with some helper functions
@@ -729,7 +729,7 @@ class Incar(dict, PMGSONable):
         return Incar(params)
 
 
-class Kpoints(PMGSONable):
+class Kpoints(MSONable):
     """
     KPOINT reader/writer.
     """
@@ -1501,7 +1501,7 @@ class PotcarSingle(object):
             raise AttributeError(a)
 
 
-class Potcar(list, PMGSONable):
+class Potcar(list, MSONable):
     """
     Object for reading and writing POTCAR files for calculations. Consists of a
     list of PotcarSingle.
@@ -1605,7 +1605,7 @@ class Potcar(list, PMGSONable):
                 self.append(p)
 
 
-class VaspInput(dict, PMGSONable):
+class VaspInput(dict, MSONable):
     """
     Class to contain a set of vasp input objects corresponding to a run.
 

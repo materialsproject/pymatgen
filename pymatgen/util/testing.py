@@ -24,7 +24,7 @@ from monty.json import MontyDecoder
 from monty.serialization import loadfn
 
 
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 
 class PymatgenTest(unittest.TestCase):
     """
@@ -162,10 +162,10 @@ class PymatgenTest(unittest.TestCase):
 
         return tmpfile
 
-    def assertPMGSONable(self, obj):
+    def assertMSONable(self, obj):
         """
-        Tests if obj is PMGSONable and tries to verify whether the contract is fullfilled.
+        Tests if obj is MSONable and tries to verify whether the contract is fullfilled.
         """
-        self.assertIsInstance(obj, PMGSONable)
+        self.assertIsInstance(obj, MSONable)
         self.assertDictEqual(obj.as_dict(), obj.__class__.from_dict(obj.as_dict()).as_dict())
         json.loads(obj.to_json(), cls=MontyDecoder)
