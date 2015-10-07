@@ -25,11 +25,12 @@ from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
 from monty.os.path import find_exts
 from monty.dev import deprecated
+from monty.json import MSONable, MontyDecoder
+
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 from pymatgen.core.periodic_table import PeriodicTable, Element
-from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
+from pymatgen.serializers.json_coders import pmg_serialize
 from .eos import EOS
-from monty.json import MontyDecoder
 
 import logging
 logger = logging.getLogger(__name__)
@@ -99,7 +100,7 @@ def str2l(s):
     return _str2l[s]
 
 
-class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
+class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
     """
     Abstract base class defining the methods that must be 
     implemented by the concrete pseudopotential classes.
@@ -1593,7 +1594,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    return fig
 
 
-class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONable, object)):
+class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable, object)):
     """
     Define the pseudopotentials from the element table.
     Individidual elements are accessed by name, symbol or atomic number.

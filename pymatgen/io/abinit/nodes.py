@@ -21,7 +21,7 @@ from monty.string import is_string
 from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
-from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump, pmg_serialize
+from monty.json import MSONable, json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_extensions
 
 
@@ -261,7 +261,7 @@ class GridFsFile(AttrDict):
         super(GridFsFile, self).__init__(path=path, fs_id=fs_id, mode=mode)
 
 
-class NodeResults(dict, PMGSONable):
+class NodeResults(dict, MSONable):
     """Dictionary used to store the most important results produced by a :class:`Node`."""
     JSON_SCHEMA = {
         "type": "object",

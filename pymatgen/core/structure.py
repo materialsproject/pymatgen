@@ -45,7 +45,7 @@ except ImportError:
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
@@ -329,7 +329,7 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         pass
 
 
-class IStructure(SiteCollection, PMGSONable):
+class IStructure(SiteCollection, MSONable):
     """
     Basic immutable Structure object with periodicity. Essentially a sequence
     of PeriodicSites having a common lattice. IStructure is made to be
@@ -1519,7 +1519,7 @@ class IStructure(SiteCollection, PMGSONable):
         return s
 
 
-class IMolecule(SiteCollection, PMGSONable):
+class IMolecule(SiteCollection, MSONable):
     """
     Basic immutable Molecule object without periodicity. Essentially a
     sequence of sites. IMolecule is made to be immutable so that they can

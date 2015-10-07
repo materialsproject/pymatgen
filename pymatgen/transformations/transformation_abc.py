@@ -17,11 +17,11 @@ __date__ = "Sep 23, 2011"
 
 import abc
 
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 import six
 
 
-class AbstractTransformation(six.with_metaclass(abc.ABCMeta, PMGSONable)):
+class AbstractTransformation(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Abstract transformation class.
     """
@@ -82,3 +82,7 @@ class AbstractTransformation(six.with_metaclass(abc.ABCMeta, PMGSONable)):
         transformations that the transmuter can parallelize.
         """
         return False
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**d["init_args"])

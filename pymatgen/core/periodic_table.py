@@ -26,7 +26,7 @@ from io import open
 from pymatgen.core.units import Mass, Length, unitized
 from monty.design_patterns import singleton, cached_class
 from pymatgen.util.string_utils import formula_double_format
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from functools import total_ordering
 
 
@@ -709,7 +709,7 @@ class Element(object):
 
 @cached_class
 @total_ordering
-class Specie(PMGSONable):
+class Specie(MSONable):
     """
     An extension of Element with an oxidation state and other optional
     properties. Properties associated with Specie should be "idealized"
@@ -936,7 +936,7 @@ class Specie(PMGSONable):
 
 @cached_class
 @total_ordering
-class DummySpecie(PMGSONable):
+class DummySpecie(MSONable):
     """
     A special specie for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special

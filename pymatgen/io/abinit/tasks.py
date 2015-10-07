@@ -24,7 +24,7 @@ from monty.json import MontyDecoder
 from monty.fnmatch import WildCard
 from monty.dev import deprecated
 from pymatgen.core.units import Memory
-from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize, PMGSONable
+from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize, MSONable
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, FilepathFixer, Condition, SparseHistogram
 from .qadapters import make_qadapter, QueueAdapter, QueueAdapterError
 from . import qutils as qu
@@ -485,7 +485,7 @@ class FixQueueCriticalError(Exception):
 _USER_CONFIG_TASKMANAGER = None
 
 
-class TaskManager(PMGSONable):
+class TaskManager(MSONable):
     """
     A `TaskManager` is responsible for the generation of the job script and the submission 
     of the task, as well as for the specification of the parameters passed to the resource manager

@@ -15,7 +15,7 @@ comparisons without the atom order correspondence prerequisite.
 """
 
 import itertools
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from six.moves import zip
 
 __author__ = "Xiaohui Qu"
@@ -63,7 +63,7 @@ class CovalentRadius():
               'Np': 1.90, 'Pu': 1.87, 'Am': 1.80, 'Cm': 1.69}
 
 
-class MoleculeStructureComparator(PMGSONable):
+class MoleculeStructureComparator(MSONable):
 
     """
     Class to check whether the connection tables of the two molecules are the
