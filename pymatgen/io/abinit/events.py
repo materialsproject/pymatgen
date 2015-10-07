@@ -24,7 +24,8 @@ from monty.termcolor import colored
 from monty.inspect import all_subclasses
 from monty.json import MontyDecoder
 from pymatgen.core import Structure
-from monty.json import MSONable, pmg_serialize
+from monty.json import MSONable
+from pymatgen.serializers.json_coders import pmg_serialize
 from .abiinspect import YamlTokenizer
 
 logger = logging.getLogger(__name__)
