@@ -4,7 +4,6 @@
 
 import glob
 import os
-import subprocess
 from io import open
 import sys
 
@@ -13,11 +12,9 @@ from setuptools import setup, find_packages, Extension
 try:
     from numpy.distutils.misc_util import get_numpy_include_dirs
 except ImportError:
-    print("numpy.distutils.misc_util cannot be imported. Attempting to "
-          "install...")
-    subprocess.call(["easy_install", "numpy"])
-    from numpy.distutils.misc_util import get_numpy_include_dirs
-
+    print("numpy.distutils.misc_util cannot be imported. Please install numpy"
+          "first before install pymatgen...")
+    sys.exit(-1)
 
 SETUP_PTH = os.path.dirname(os.path.abspath(__file__))
 
@@ -55,9 +52,9 @@ setup(
     name="pymatgen",
     packages=find_packages(),
     version="3.2.3",
-    install_requires=["numpy>=1.8", "pyhull>=1.5.3", "six", "prettytable",
-                      "atomicfile", "requests", "pybtex", "pyyaml",
-                      "monty>=0.7.0", "scipy>=0.10", "tabulate"],
+    install_requires=["numpy>=1.8", "pyhull>=1.5.3", "six", "atomicfile",
+                      "requests", "pybtex", "pyyaml", "monty>=0.7.0",
+                      "scipy>=0.10", "tabulate"],
     extras_require={"plotting": ["matplotlib>=1.1", "prettyplotlib"],
                     "ase_adaptor": ["ase>=3.3"],
                     "vis": ["vtk>=6.0.0"],
