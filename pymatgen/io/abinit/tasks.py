@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """This module provides functions and classes related to Task objects."""
-from __future__ import division, print_function, unicode_literals
+from __future__ import division, print_function, unicode_literals, absolute_import
 
 import os
 import time
@@ -26,7 +26,7 @@ from pymatgen.core.units import Memory
 from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, FilepathFixer, Condition, SparseHistogram
 from .qadapters import make_qadapter, QueueAdapter, QueueAdapterError
-import pymatgen.io.abinit.qutils as qu
+from . import qutils as qu
 from .db import DBConnector
 from .nodes import Status, Node, NodeError, NodeResults, NodeCorrections, FileNode, check_spectator
 from . import abiinspect
