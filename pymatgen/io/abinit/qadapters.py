@@ -216,6 +216,19 @@ class Hardware(object):
         """Use divmod to compute (num_nodes, rest_cores)"""
         return divmod(mpi_procs * omp_threads, self.cores_per_node)
 
+    def as_dict(self):
+        return {'num_nodes': self.num_nodes,
+                'sockets_per_node': self.sockets_per_node,
+                'cores_per_socket': self.cores_per_socket,
+                'mem_per_node': str(Memory(val=self.mem_per_node, unit='Mb'))}
+
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(num_nodes=dd['num_nodes'],
+                   sockets_per_node=dd['sockets_per_node'],
+                   cores_per_socket=dd['cores_per_socket'],
+                   mem_per_node=dd['mem_per_node'])
+
 
 class _ExcludeNodesFile(object):
     """
@@ -431,6 +444,37 @@ limits:
         # Final consistency check.
         self.validate_qparams()
 
+    def as_dict(self):
+        """
+        Provides a simple though not complete dict serialization of the object (OMP missing right now, other things to
+        be checked)
+
+        Raise:
+            `ValueError` if errors.
+        """
+        if self.has_omp:
+            raise NotImplementedError('as_dict method of QueueAdapter not yet implemented')
+        return {'priority': self.priority,
+                'hardware': self.hw.as_dict(),
+                'queue': {'qtype': self.QTYPE,
+                          'qname': self._qname,
+                          'qparams': self._qparams},
+                'mpi_procs': self._mpi_procs,
+                'mem_per_proc': self._mem_per_proc,
+                'timelimit': self._timelimit,
+                }
+
+    @classmethod
+    def from_dict(cls, dd):
+        priority = dd.pop('priority')
+        hardware = dd.pop('hardware')
+        queue = dd.pop('queue')
+        qa = make_qadapter(priority=priority, hardware=hardware, queue=queue)
+        qa.set_mpi_procs(dd.pop('mpi_procs'))
+        qa.set_timelimit(dd.pop('timelimit'))
+        qa.set_mem_per_proc(dd.pop('mem_per_proc'))
+        return qa
+
     def validate_qparams(self):
         """
         Check if the keys specified by the user in qparams are supported.
@@ -557,7 +601,7 @@ limits:
     @property
     def num_cores(self):
         """Total number of cores employed"""
-        return self.mpi_procs * self.omp_threads 
+        return self.mpi_procs * self.omp_threads
 
     @property
     def omp_threads(self):

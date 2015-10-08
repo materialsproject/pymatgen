@@ -61,7 +61,7 @@ setup(
     extras_require={"plotting": ["matplotlib>=1.1", "prettyplotlib"],
                     "ase_adaptor": ["ase>=3.3"],
                     "vis": ["vtk>=6.0.0"],
-                    "abinitio": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
+                    "abinit": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["*.yaml", "*.csv"],
                   "pymatgen.io.vasp": ["*.yaml"],
