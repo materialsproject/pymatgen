@@ -33,18 +33,18 @@ from pymatgen.io.vasp.outputs import Vasprun, Oszicar, Dynmat
 from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 
 logger = logging.getLogger(__name__)
 
 
-class AbstractDrone(six.with_metaclass(abc.ABCMeta, PMGSONable)):
+class AbstractDrone(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Abstract drone class that defines the various methods that must be
     implemented by drones. Because of the quirky nature of Python"s
     multiprocessing, the intermediate data representations has to be in the
     form of python primitives. So all objects that drones work with must be
-    PMGSONable. All drones must also implement the standard PMGSONable as_dict() and
+    MSONable. All drones must also implement the standard MSONable as_dict() and
     from_dict API.
     """
 

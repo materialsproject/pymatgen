@@ -21,7 +21,7 @@ __date__ = "Nov 25, 2012"
 import collections
 import numpy as np
 from pyhull.simplex import Simplex
-from pymatgen.serializers.json_coders import PMGSONable, MontyDecoder
+from monty.json import MSONable, MontyDecoder
 
 try:
     # If scipy ConvexHull exists, use it because it is faster for large hulls.
@@ -42,7 +42,7 @@ from pymatgen.core.periodic_table import DummySpecie, Element
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 
 
-class PhaseDiagram (PMGSONable):
+class PhaseDiagram (MSONable):
     """
     Simple phase diagram class taking in elements and entries as inputs.
     The algorithm is based on the work in the following papers:

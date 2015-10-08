@@ -26,10 +26,10 @@ from monty.json import MontyEncoder, MontyDecoder
 
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.composition import Composition
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 
 
-class ComputedEntry(PDEntry, PMGSONable):
+class ComputedEntry(PDEntry, MSONable):
     """
     An lightweight ComputedEntry object containing key computed data
     for many purposes. Extends a PDEntry so that it can be used for phase
@@ -63,7 +63,7 @@ class ComputedEntry(PDEntry, PMGSONable):
                 specify that the entry is a newly found compound, or to specify
                 a particular label for the entry, or else ... Used for further
                 analysis and plotting purposes. An attribute can be anything
-                but must be PMGSONable.
+                but must be MSONable.
         """
         self.uncorrected_energy = energy
         self.composition = Composition(composition)

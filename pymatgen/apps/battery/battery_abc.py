@@ -24,7 +24,7 @@ __status__ = "Beta"
 from collections import Sequence
 from abc import ABCMeta, abstractproperty
 
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.core.physical_constants import AVOGADROS_CONST
 
 
@@ -71,7 +71,7 @@ class AbstractVoltagePair(object):
         return self._working_ion_entry
 
 
-class AbstractElectrode(Sequence, PMGSONable):
+class AbstractElectrode(Sequence, MSONable):
     """
     An Abstract Base Class representing an Electrode. It is essentially a
     sequence of VoltagePairs. Generally, subclasses only need to implement
