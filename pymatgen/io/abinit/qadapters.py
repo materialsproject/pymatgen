@@ -446,19 +446,26 @@ limits:
 
     def as_dict(self):
         """
-        Provides a simple though not complete dict serialization of the object (OMP missing right now, other things to
-        be checked)
+        Provides a simple though not complete dict serialization of the object (OMP missing, not all limits are
+        kept in the dictionary, ... other things to be checked)
 
         Raise:
             `ValueError` if errors.
         """
         if self.has_omp:
-            raise NotImplementedError('as_dict method of QueueAdapter not yet implemented')
+            raise NotImplementedError('as_dict method of QueueAdapter not yet implemented when OpenMP is activated')
         return {'priority': self.priority,
                 'hardware': self.hw.as_dict(),
                 'queue': {'qtype': self.QTYPE,
                           'qname': self._qname,
                           'qparams': self._qparams},
+                'limits': {'timelimit': self._timelimit,
+                           'min_cores': self.min_cores,
+                           'max_cores': self.max_cores,
+                           'min_mem_per_proc': self.min_mem_per_proc,
+                           'max_mem_per_proc': self.max_mem_per_proc
+                           },
+                'job': {},
                 'mpi_procs': self._mpi_procs,
                 'mem_per_proc': self._mem_per_proc,
                 'timelimit': self._timelimit,
@@ -469,7 +476,9 @@ limits:
         priority = dd.pop('priority')
         hardware = dd.pop('hardware')
         queue = dd.pop('queue')
-        qa = make_qadapter(priority=priority, hardware=hardware, queue=queue)
+        limits = dd.pop('limits')
+        job = dd.pop('job')
+        qa = make_qadapter(priority=priority, hardware=hardware, queue=queue, limits=limits, job=job)
         qa.set_mpi_procs(dd.pop('mpi_procs'))
         qa.set_timelimit(dd.pop('timelimit'))
         qa.set_mem_per_proc(dd.pop('mem_per_proc'))
