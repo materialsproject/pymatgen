@@ -25,10 +25,10 @@ import collections
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 
 
-class Kpoint(PMGSONable):
+class Kpoint(MSONable):
     """
     Class to store kpoint objects. A kpoint is defined with a lattice and frac
     or cartesian coordinates syntax similar than the site object in
@@ -631,7 +631,7 @@ class BandStructure(object):
             labels_dict, structure=structure, projections=projections)
 
 
-class BandStructureSymmLine(BandStructure, PMGSONable):
+class BandStructureSymmLine(BandStructure, MSONable):
     """
     This object stores band structures along selected (symmetry) lines in the
     Brillouin zone. We call the different symmetry lines (ex: \Gamma to Z)

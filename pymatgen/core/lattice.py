@@ -28,12 +28,12 @@ from numpy import pi, dot, transpose, radians
 
 from pyhull.voronoi import VoronoiTess
 
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.util.num_utils import abs_cap
 from pymatgen.core.units import ArrayWithUnit
 
 
-class Lattice(PMGSONable):
+class Lattice(MSONable):
     """
     A lattice object.  Essentially a matrix with conversion matrices. In
     general, it is assumed that length units are in Angstroms and angles are in

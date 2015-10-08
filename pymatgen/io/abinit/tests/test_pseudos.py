@@ -65,7 +65,7 @@ class PseudoTestCase(PymatgenTest):
                 self.assertGreaterEqual(pseudo.nlcc_radius, 0.0)
                 print(pseudo.as_dict())
 
-                self.assertPMGSONable(pseudo)
+                self.assertMSONable(pseudo)
 
                 # Test pickle
                 self.serialize_with_pickle(pseudo, test_eq=False)
@@ -254,7 +254,7 @@ class PseudoTableTest(PymatgenTest):
 
         #d = table.as_dict()
         #PseudoTable.from_dict(d)
-        #self.assertPMGSONable(table)
+        #self.assertMSONable(table)
 
         selected = table.select_symbols("Si")
         assert len(selected) == len(table) and selected.__class__ is table.__class__

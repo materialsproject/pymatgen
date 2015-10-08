@@ -335,35 +335,35 @@ class IncarTest(unittest.TestCase):
 
 
     def test_get_string(self):
-        s = self.incar.get_string(pretty=True)
-        ans = """NKRED      =  2
-NUPDOWN    =  0
-LCHARG     =  True
+        s = self.incar.get_string(pretty=True, sort_keys=True)
+        ans = """ALGO       =  Damped
+EDIFF      =  0.0001
+ENCUT      =  500
+ENCUTFOCK  =  0.0
+HFSCREEN   =  0.207
 IBRION     =  2
+ISIF       =  3
+ISMEAR     =  0
+ISPIN      =  2
+ISPIND     =  2
+LCHARG     =  True
+LHFCALC    =  True
+LMAXMIX    =  4
+LORBIT     =  11
 LPLANE     =  True
 LREAL      =  Auto
-ISMEAR     =  0
-LWAVE      =  True
-NPAR       =  8
-SIGMA      =  0.05
-MAGMOM     =  1*6 2*-6 1*6 20*0.6
-ENCUTFOCK  =  0.0
-ALGO       =  Damped
-HFSCREEN   =  0.207
 LSCALU     =  False
-SYSTEM     =  Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]
-ENCUT      =  500
+LWAVE      =  True
+MAGMOM     =  1*6 2*-6 1*6 20*0.6
+NKRED      =  2
+NPAR       =  8
 NSIM       =  1
-ISIF       =  3
-LMAXMIX    =  4
-ISPIND     =  2
-LHFCALC    =  True
-TIME       =  0.4
-ISPIN      =  2
-EDIFF      =  0.0001
-LORBIT     =  11
 NSW        =  99
-PREC       =  Accurate"""
+NUPDOWN    =  0
+PREC       =  Accurate
+SIGMA      =  0.05
+SYSTEM     =  Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]
+TIME       =  0.4"""
         self.assertEqual(s, ans)
 
 class KpointsTest(unittest.TestCase):
