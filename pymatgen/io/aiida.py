@@ -9,7 +9,6 @@ This module provides conversion between AiiDA StructureData object and
 pymatgen Molecule/Structure objects.
 """
 
-
 __author__ = "Andrius Merkys"
 __copyright__ = "Copyright 2015, AiiDA Development Team"
 __version__ = "1.0"
@@ -17,7 +16,7 @@ __maintainer__ = "Andrius Merkys"
 __email__ = "andrius.merkys@gmail.com"
 __date__ = "Oct 9, 2015"
 
-from pymatgen.core.structure import Molecule, Structure
+from monty.dev import requires
 
 try:
     from aiida.orm import DataFactory
@@ -31,6 +30,8 @@ except ImportError:
     aiida_loaded = False
 
 
+@requires(aiida_loaded, "To use the AiidaStructureAdaptor, you need to have "
+                        "aiida installed.")
 class AiidaStructureAdaptor(object):
     """
     Adaptor serves as a bridge between AiiDA StructureData and pymatgen
