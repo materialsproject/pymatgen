@@ -18,8 +18,13 @@ __date__ = "Oct 9, 2015"
 from pymatgen.core.structure import Molecule, Structure
 
 try:
-    from aiida.orm.data.structure import StructureData
+    from aiida.orm import DataFactory
+    from aiida.common.exceptions import MissingPluginError
     aiida_loaded = True
+    try:
+        StructureData = DataFactory('structure')
+    except MissingPluginError:
+        raise ImportError
 except ImportError:
     aiida_loaded = False
 
@@ -43,7 +48,7 @@ class AiidaStructureAdaptor(object):
         Returns:
             AiiDA StructureData object
         """
-        return StructureData(pymatgen=structure);
+        return StructureData(pymatgen=structure)
 
     @staticmethod
     def get_molecule(structuredata):
