@@ -2,6 +2,8 @@
 # Copyright (c) AiiDA Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import absolute_import
+
 """
 This module provides conversion between AiiDA StructureData object and
 pymatgen Molecule/Structure objects.
@@ -20,11 +22,11 @@ from pymatgen.core.structure import Molecule, Structure
 try:
     from aiida.orm import DataFactory
     from aiida.common.exceptions import MissingPluginError
-    aiida_loaded = True
     try:
         StructureData = DataFactory('structure')
     except MissingPluginError:
         raise ImportError
+    aiida_loaded = True
 except ImportError:
     aiida_loaded = False
 
