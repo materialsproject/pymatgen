@@ -686,6 +686,70 @@ $end
         self.assertEqual(str(qctask), ans)
         self.elementary_io_verify(ans, qctask)
 
+    def test_qc42_pcm_solvent_format(self):
+        text = '''$molecule
+ -1  2
+ N          -0.00017869        0.00010707        0.20449990
+ H           0.89201838        0.20268122       -0.29656572
+ H          -0.62191133        0.67135171       -0.29649162
+ H          -0.26987729       -0.87406458       -0.29659779
+$end
+
+
+$rem
+         jobtype = sp
+        exchange = b3lyp
+           basis = 6-31+g*
+  solvent_method = pcm
+$end
+
+
+$pcm
+       theory   ssvpe
+     vdwscale   1.1
+$end
+
+
+$pcm_solvent
+  dielectric   78.3553
+$end
+
+'''
+        qctask_qc41 = QcTask.from_string(text)
+        qctask_qc42 = copy.deepcopy(qctask_qc41)
+        solvent_params = qctask_qc42.params.pop("pcm_solvent")
+        qctask_qc42.params["solvent"] = solvent_params
+        ans = '''$molecule
+ -1  2
+ N          -0.00017869        0.00010707        0.20449990
+ H           0.89201838        0.20268122       -0.29656572
+ H          -0.62191133        0.67135171       -0.29649162
+ H          -0.26987729       -0.87406458       -0.29659779
+$end
+
+
+$rem
+         jobtype = sp
+        exchange = b3lyp
+           basis = 6-31+g*
+  solvent_method = pcm
+$end
+
+
+$pcm
+    theory   ssvpe
+  vdwscale   1.1
+$end
+
+
+$solvent
+  dielectric   78.3553
+$end
+
+'''
+        self.assertEqual(str(qctask_qc42), ans)
+        self.elementary_io_verify(ans, qctask_qc42)
+
     def test_set_max_num_of_scratch_files(self):
         ans = '''$comment
  Test Methane
