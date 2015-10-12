@@ -281,6 +281,26 @@ def parse_symmetry(args):
             print("Hall symbol : {}".format(dataset["hall"]))
             print()
 
+def analyze_structure(args):
+    bonds = {}
+    for bond in args.localenv:
+        toks = bond.split("=")
+        species = toks[0].split("-")
+        bonds[(species[0], species[1])] = float(toks[1])
+    data = []
+    for filename in args.filenames:
+        s = Structure.from_file(filename)
+        for i, site in enumerate(s):
+            for species, dist in bonds.items():
+                if species[0] in [sp.symbol
+                                  for sp in site.species_and_occu.keys()]:
+                    dists = []
+                    for nn, d in s.get_neighbors(site, dist):
+                        dists.append(d)
+                    dists = ", ".join(["%.3f" % d for d in sorted(dists)])
+                    data.append([i, species[0], species[1], dists])
+    print(tabulate(data, headers=["#", "Center", "Ligand", "Dists"]))
+
 
 def parse_view(args):
     from pymatgen.vis.structure_vtk import StructureVis
@@ -499,6 +519,18 @@ def main():
                                  help="List of POTCAR symbols. Use -f to set "
                                       "functional. Defaults to PBE.")
     parser_generate.set_defaults(func=generate_files)
+
+    parser_structure = subparsers.add_parser(
+        "structure",
+        help="Structure analysis tools.")
+    parser_structure.add_argument(
+        "filenames", metavar="filenames", type=str, nargs="+",
+        help="List of input structure files to analyze.")
+    parser_structure.add_argument(
+        "-l", "--localenv", dest="localenv", type=str, nargs="+",
+        help="Local environment analysis. Provide bonds in the format of"
+             "Center Species-Ligand Species=max_dist, e.g., H-O=0.5.")
+    parser_structure.set_defaults(func=analyze_structure)
 
     parser_diffraction = subparsers.add_parser(
         "diffraction",
