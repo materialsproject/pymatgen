@@ -422,6 +422,15 @@ class NwOutputTest(unittest.TestCase):
         self.assertAlmostEqual(nwo.data[1]["hessian"][6][6], 1.45055e+02)
         self.assertAlmostEqual(nwo.data[1]["hessian"][11][14], 1.35078e+01)
 
+        # CH4.nwout, line 722
+        self.assertAlmostEqual(nwo.data[0]["forces"][0][3], -0.001991)
+
+        # N2O4.nwout, line 1071
+        self.assertAlmostEqual(nwo_cosmo.data[0]["forces"][0][4], 0.011948)
+
+        # There should be four DFT gradients.
+        self.assertEqual(len(nwo_cosmo.data[0]["forces"]), 4)
+
         ie = (nwo.data[4]["energies"][-1] - nwo.data[2]["energies"][-1])
         ea = (nwo.data[2]["energies"][-1] - nwo.data[3]["energies"][-1])
         self.assertAlmostEqual(0.7575358046858582, ie)
