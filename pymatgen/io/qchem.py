@@ -1416,6 +1416,8 @@ class QcOutput(object):
                 "Freq Job Too Small"),
             (re.compile("Not enough total memory"),
                 "Not Enough Total Memory"),
+            (re.compile("Use of \$pcm_solvent section has been deprecated starting in Q-Chem"),
+                "pcm_solvent deprecated")
         )
 
         energies = []
