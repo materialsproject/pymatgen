@@ -86,7 +86,7 @@ class QcTask(MSONable):
                               "intracule", "isotopes", "aux_basis",
                               "localized_diabatization", "multipole_field",
                               "nbo", "occupied", "swap_occupied_virtual", "opt",
-                              "pcm", "pcm_solvent", "plots", "qm_atoms", "svp",
+                              "pcm", "pcm_solvent", "solvent", "plots", "qm_atoms", "svp",
                               "svpirf", "van_der_waals", "xc_functional",
                               "cdft", "efp_fragments", "efp_params", "alist"}
     alternative_keys = {"job_type": "jobtype",
@@ -761,16 +761,16 @@ class QcTask(MSONable):
             lines.append(rem.format(name=name, value=value))
         return lines
 
-    def _format_pcm_solvent(self):
+    def _format_pcm_solvent(self, key="pcm_solvent"):
         pp_format_template = Template("  {name:>$name_width}   "
                                       "{value}")
         name_width = 0
-        for name in self.params["pcm_solvent"].keys():
+        for name in self.params[key].keys():
             if len(name) > name_width:
                 name_width = len(name)
         rem = pp_format_template.substitute(name_width=name_width)
         lines = []
-        all_keys = set(self.params["pcm_solvent"].keys())
+        all_keys = set(self.params[key].keys())
         priority_keys = []
         for k in ["dielectric", "nonels", "nsolventatoms", "solventatom"]:
             if k in all_keys:
@@ -778,7 +778,7 @@ class QcTask(MSONable):
         additional_keys = all_keys - set(priority_keys)
         ordered_keys = priority_keys + sorted(list(additional_keys))
         for name in ordered_keys:
-            value = self.params["pcm_solvent"][name]
+            value = self.params[key][name]
             if name == "solventatom":
                 for v in copy.deepcopy(value):
                     value = "{:<4d} {:<4d} {:<4d} {:4.2f}".format(*v)
@@ -786,6 +786,9 @@ class QcTask(MSONable):
                 continue
             lines.append(rem.format(name=name, value=value))
         return lines
+
+    def _format_solvent(self):
+        return self._format_pcm_solvent(key="solvent")
 
     def as_dict(self):
         if isinstance(self.mol, six.string_types):
@@ -1278,6 +1281,10 @@ class QcTask(MSONable):
             else:
                 d[k2] = v.lower()
         return d
+
+    @classmethod
+    def _parse_solvent(cls, contents):
+        return cls._parse_pcm_solvent(contents)
 
 
 class QcInput(MSONable):
