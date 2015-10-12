@@ -2147,6 +2147,16 @@ Sites (12)
         qcout = QcOutput(filename)
         self.assertFalse(qcout.data[0]["has_error"])
 
+    def test_pcm_solvent_deprecated(self):
+        filename = os.path.join(test_dir, "pcm_solvent_deprecated.qcout")
+        qcout = QcOutput(filename)
+        self.assertTrue(qcout.data[-1]["has_error"])
+        ans = ['pcm_solvent deprecated',
+               'Molecular charge is not found',
+               'No input text',
+               'Bad SCF convergence']
+        self.assertEqual(qcout.data[-1]["errors"], ans)
+
 
 if __name__ == "__main__":
     unittest.main()
