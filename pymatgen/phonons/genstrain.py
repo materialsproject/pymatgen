@@ -55,7 +55,7 @@ def deform_geometry(rlxd_str, nd=0.01, ns=0.08, m=4, n=4, delete_center=True):
     if delete_center:
         sheardef = np.delete(sheardef, np.int(n/2), 0)
     defstructures = {}
-
+    # TODO: add symmetry
     # TODO: Make this section more pythonic
     # First apply normal deformations
     for i1 in range(0, 3):

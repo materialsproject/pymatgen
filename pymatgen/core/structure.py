@@ -2313,11 +2313,11 @@ class Structure(IStructure, collections.MutableSequence):
         Apply a deformation gradient tensor F to a lattice.
         
         Args:
-            F (3x3 list or numpy matrix): Deformation gradient tensor, a 3x3
+            F (3x3 array-like): Deformation gradient tensor, a 3x3
             array or numpy matrix.
             
         """
-        self.modify_lattice(Lattice(np.dot(self._lattice.matrix,np.matrix(F))))
+        self.modify_lattice(Lattice(np.dot(self._lattice.matrix,np.array(F))))
         
     def sort(self, key=None, reverse=False):
         """
