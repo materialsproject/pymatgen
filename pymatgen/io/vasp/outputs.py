@@ -52,7 +52,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.entries.computed_entries import \
     ComputedEntry, ComputedStructureEntry
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +153,7 @@ def _vasprun_float(f):
         raise e
 
 
-class Vasprun(PMGSONable):
+class Vasprun(MSONable):
     """
     Vastly improved cElementTree-based parser for vasprun.xml files. Uses
     iterparse to support incremental parsing of large files.
@@ -1034,7 +1034,7 @@ class Vasprun(PMGSONable):
         return proj_eigen
 
 
-class Outcar(PMGSONable):
+class Outcar(MSONable):
     """
     Parser for data in OUTCAR that is not available in Vasprun.xml
 

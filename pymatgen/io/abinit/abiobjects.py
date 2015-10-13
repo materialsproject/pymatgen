@@ -16,7 +16,8 @@ from pprint import pformat
 from monty.design_patterns import singleton
 from monty.collections import AttrDict
 from pymatgen.core.design_patterns import Enum
-from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
+from monty.json import MSONable
+from pymatgen.serializers.json_coders import pmg_serialize
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from monty.json import MontyEncoder, MontyDecoder
 
@@ -79,7 +80,7 @@ MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
 
 
-class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"), AbivarAble, PMGSONable):
+class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"), AbivarAble, MSONable):
     """
     Different configurations of the electron density as implemented in abinit:
     One can use as_spinmode to construct the object via SpinMode.as_spinmode
@@ -129,7 +130,7 @@ _mode2spinvars = {
 }
 
 
-class Smearing(AbivarAble, PMGSONable):
+class Smearing(AbivarAble, MSONable):
     """
     Variables defining the smearing technique. The preferred way to instanciate
     a `Smearing` object is via the class method Smearing.as_smearing(string)
@@ -225,7 +226,7 @@ class Smearing(AbivarAble, PMGSONable):
         return Smearing(d["occopt"], d["tsmear"])
 
 
-class ElectronsAlgorithm(dict, AbivarAble, PMGSONable):
+class ElectronsAlgorithm(dict, AbivarAble, MSONable):
     """Variables controlling the SCF/NSCF algorithm."""
     # None indicates that we use abinit defaults.
     _DEFAULT = dict(
@@ -255,7 +256,7 @@ class ElectronsAlgorithm(dict, AbivarAble, PMGSONable):
         return cls(**d)
 
 
-class Electrons(AbivarAble, PMGSONable):
+class Electrons(AbivarAble, MSONable):
     """The electronic degrees of freedom"""
     def __init__(self, spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
                  algorithm=None, nband=None, fband=None, charge=0.0, comment=None):  # occupancies=None,
@@ -334,7 +335,7 @@ class Electrons(AbivarAble, PMGSONable):
         return abivars
 
 
-class KSampling(AbivarAble, PMGSONable):
+class KSampling(AbivarAble, MSONable):
     """
     Input variables defining the K-point sampling.
     """
@@ -652,7 +653,7 @@ class Constraints(AbivarAble):
         raise NotImplementedError("")
 
 
-class RelaxationMethod(AbivarAble, PMGSONable):
+class RelaxationMethod(AbivarAble, MSONable):
     """
     This object stores the variables for the (constrained) structural optimization
     ionmov and optcell specify the type of relaxation.
@@ -765,7 +766,7 @@ class RelaxationMethod(AbivarAble, PMGSONable):
         return cls(**d)
 
 
-class PPModel(AbivarAble, PMGSONable):
+class PPModel(AbivarAble, MSONable):
     """
     Parameters defining the plasmon-pole technique.
     The common way to instanciate a PPModel object is via the class method PPModel.as_ppmodel(string)

@@ -6,9 +6,7 @@ from __future__ import unicode_literals, division, print_function
 
 import os
 
-from subprocess import Popen, PIPE
-from monty.os.path import which
-from pymatgen.util.string_utils import list_strings
+from monty.string import list_strings
 from six.moves import map, cStringIO
 
 import logging
@@ -78,7 +76,7 @@ class ExecWrapper(object):
         if not with_mpirun: qadapter.name = None
 
         script = qadapter.get_script_str(
-            job_name=self.name, 
+            job_name=self.name,
             launch_dir=workdir,
             executable=self.executable,
             qout_path="qout_file.path",
@@ -107,7 +105,7 @@ class Mrgscr(ExecWrapper):
 
     def merge_qpoints(self, workdir, files_to_merge, out_prefix):
         """
-        Execute mrgscr inside directory `workdir` to merge `files_to_merge`. 
+        Execute mrgscr inside directory `workdir` to merge `files_to_merge`.
         Produce new file with prefix `out_prefix`
         """
         # We work with absolute paths.

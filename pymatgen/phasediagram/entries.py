@@ -26,11 +26,11 @@ from monty.json import MontyDecoder
 from io import open
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from monty.string import unicode2str
 
 
-class PDEntry(PMGSONable):
+class PDEntry(MSONable):
     """
     An object encompassing all relevant data for phase diagrams.
 
@@ -49,7 +49,7 @@ class PDEntry(PMGSONable):
             specify that the entry is a newly found compound, or to specify a
             particular label for the entry, or else ... Used for further
             analysis and plotting purposes. An attribute can be anything
-            but must be PMGSONable.
+            but must be MSONable.
     """
 
     def __init__(self, composition, energy, name=None, attribute=None):

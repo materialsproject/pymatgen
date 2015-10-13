@@ -33,12 +33,12 @@ import numpy as np
 
 from pymatgen.core import Structure, get_el_sp
 import pymatgen.core.physical_constants as phyc
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.coord_utils import pbc_diff
 
 
-class DiffusionAnalyzer(PMGSONable):
+class DiffusionAnalyzer(MSONable):
     """
     Class for performing diffusion analysis.
 

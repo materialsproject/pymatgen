@@ -31,7 +31,8 @@ from monty.pprint import draw_tree
 from monty.termcolor import cprint, colored, cprint_map
 from monty.inspect import find_top_pyfile
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump
-from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
+from monty.json import MSONable
+from pymatgen.serializers.json_coders import pmg_serialize
 from pymatgen.core.units import Memory
 from . import wrappers
 from .nodes import Status, Node, NodeError, NodeResults, Dependency, GarbageCollector, check_spectator
@@ -85,7 +86,7 @@ class FlowError(NodeError):
     """Base Exception for :class:`Node` methods"""
 
 
-class Flow(Node, NodeContainer, PMGSONable):
+class Flow(Node, NodeContainer, MSONable):
     """
     This object is a container of work. Its main task is managing the
     possible inter-dependencies among the work and the creation of

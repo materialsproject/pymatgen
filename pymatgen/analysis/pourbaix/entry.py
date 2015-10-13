@@ -27,14 +27,14 @@ from monty.string import unicode2str
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Composition
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.core.ion import Ion
 from pymatgen.phasediagram.entries import PDEntry
 
 PREFAC = 0.0591
 
 
-class PourbaixEntry(PMGSONable):
+class PourbaixEntry(MSONable):
     """
     An object encompassing all data relevant to an ion in a pourbaix diagram.
     Each bulk solid/ion has a free energy g of the form:
