@@ -22,9 +22,9 @@ __date__ ="March 22, 2012"
 
 class SQTensor(np.matrix):
     """
-    Class for doing useful general operations on *square* matrices, without 
-    restrictions on what type of matrix (stress, elastic, strain etc.).
-    An error is thrown when the class is initialized with non-square matrix.
+    Class for doing useful general operations on *square* rank 2 tensors, without 
+    restrictions on what type (stress, elastic, strain etc.).
+    Error is thrown when the class is initialized with non-square matrix.
     """
 
     def __new__(cls, input_matrix):
@@ -107,7 +107,7 @@ class SQTensor(np.matrix):
         return 0.5*(self + self.T)
 
     # TODO: JHM asks should this be implemented?
-    '''def rotate(self, rotation):
+    """def rotate(self, rotation):
         super(StressOps, self).__init__(rotation)
         super(StressOps, self).is_rotatio()
 
@@ -115,7 +115,7 @@ class SQTensor(np.matrix):
             raise ValueError("Not a valid rotation matrix")
 
         else:
-            return rotation*self._StressMatrix*np.transpose(rotation)'''
+            return rotation*self._StressMatrix*np.transpose(rotation)"""
 
     def rotate(self, rotation):
         if not self.is_rotation():
@@ -123,21 +123,23 @@ class SQTensor(np.matrix):
         raise NotImplementedError("matrix rotations are not yet supported")
     
     def get_scaled(self, scale_factor):
-        '''
+        """
         Scales the tensor by a certain multiplicative scale factor
-        '''
+        """
         return SQTensor(self * scale_factor)
 
     @property
     def principal_invariants(self):
-        '''
+        """
         returns a list of principal invariants for the tensor,
         which are the values of the coefficients of the characteristic 
         polynomial for the matrix
-        '''
+        """
         # TODO: JM asks whether this fulfills the necessary sign conventions
-        return np.poly(self)[1:]
-    
+        return np.poly(self)[1:] 
+
+
+voigt_map = [[0,0],[1,1],[2,2],[1,2],[2,0],[0,1]]
 
 class ElasticTensor(SQTensor):
     """
@@ -165,9 +167,9 @@ class ElasticTensor(SQTensor):
     # TODO: JHM suggests might want to split this up
     @property
     def KG_average(self):
-        '''
+        """
         calculates the Voigt-Reuss-Hill average
-        '''
+        """
         K_voigt = self[:3,:3].mean() 
         G_voigt = (2.*self[:3,:3].trace() - np.triu(self[:3,:3]).sum() \
                     + 3*self[3:,3:].trace()) / 15.
@@ -182,29 +184,75 @@ class ElasticTensor(SQTensor):
 
     @property
     def universal_anisotropy(self):
-        '''
-        calculates value for universal anisotropy        
-        '''
+        """
+        calculates value for universal anisotropy
+        """
         average_Cij = self.KG_average
         return 5.*average_Cij[1]/average_Cij[3] \
                 + average_Cij[0]/average_Cij[2] - 6.
     
     @property
     def polar_decomposition(self,side='right'):
-        '''
+        """
         calculates matrices for polar decomposition
-        '''
+        """
         return polar(self,side=side)
 
     @property
     def homogeneous_poisson(self):
-        '''
-        calculates homogeneous poisson 
-        '''
+        """
+        calculates homogeneous poisson
+        """
         average_Cij = self.KG_average
         return (1. - 2./3. * average_Cij[5]/average_Cij[4]) / \
                 (2. + 2./3. * average_Cij[5]/average_Cij[4])
 
+    
+    @property
+    def full_tensor(self):
+        """
+        Returns the tensor in standard notation (i. e. 
+        a 4th order 3-dimensional tensor, C_{ijkl}), which
+        is represented in a np.array with shape (3,3,3,3)
+        """
+        c = np.zeros((3,3,3,3))
+        for p in range(6):
+            for q in range(6):
+                i,j = voigt_map[p]
+                k,l = voigt_map[q]
+                c[i,j,k,l] = c[j,i,k,l] = c[i,j,l,k] = \
+                        c[j,i,l,k] = c[k,l,i,j] = self[p,q]
+        return c
+
+    @classmethod
+    def from_full_tensor(cls,c_ijkl):
+        """
+        Factory method to construct elastic tensor from fourth order
+        tensor C_ijkl.  First tests for appropriate symmetries and then 
+        constructs the 6x6 voigt notation tensor.
+
+        Args:
+            c_ijkl (3x3x3x3 array-like): input fourth order tensor corresponding
+                to the full elastic tensor
+        """
+        # Test symmetry of elastic tensor
+        c_ijkl = np.array(c_ijkl)
+        tol = 1e-10
+        if not ((c_ijkl - np.transpose(c_ijkl,(1,0,2,3)) < tol).all() and
+                (c_ijkl - np.transpose(c_ijkl,(0,1,3,2)) < tol).all() and
+                (c_ijkl - np.transpose(c_ijkl,(1,0,3,2)) < tol).all() and
+                (c_ijkl - np.transpose(c_ijkl,(3,2,0,1)) < tol).all()):
+            raise ValueError("Input elasticity tensor does \
+                             not satisfy necessary symmetries")
+        # Construct elastic tensor
+        c_pq = np.zeros((6,6))
+        for p in range(6):
+            for q in range(6):
+                i,j = voigt_map[p]
+                k,l = voigt_map[q]
+                c_pq[p,q] = c_ijkl[i,j,k,l]
+
+        return cls(c_pq)
 
 if __name__ == "__main__":
     import doctest
@@ -220,7 +268,11 @@ if __name__ == "__main__":
     sigma2.KG_average
     sigma2.universal_anisotropy
     sigma2.polar_decomposition
-    print sigma2
+    this_tensor = sigma2.full_tensor
+    #print sigma2
+    sigma3 = ElasticTensor.from_full_tensor(this_tensor)
+    this_tensor[0,1,0,1] += 0.1
+    sigma4 = ElasticTensor.from_full_tensor(this_tensor)
 
 #    print sigma.is_rotatio(np.matrix(eye))
 #    print np.linalg.inv(eye)

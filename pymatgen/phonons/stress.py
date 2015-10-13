@@ -85,12 +85,12 @@ class Stress(SQTensor):
 
     # TODO: JM asks what is the F argument here?
     def piola_kirchoff_1(self, F):
-        '''
+        """
         calculates the first Piola-Kirchoff stress
 
         Args:
             F (array-like): 
-        '''
+        """
         if not self.is_symmetric:
             raise ValueError("The stress tensor is not symmetric, \
                              PK stress is based on a symmetric stress tensor.")
@@ -98,12 +98,12 @@ class Stress(SQTensor):
         return F.det*self*((F.I).T)
 
     def piola_kirchoff_2(self, F):
-        '''
+        """
         calculates the second Piola-Kirchoff stress
 
         Args:
             F (array-like): 
-        '''
+        """
 
         F = SQTensor(F)
         if not self.is_symmetric:

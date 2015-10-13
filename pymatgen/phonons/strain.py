@@ -28,8 +28,6 @@ class Strain(SQTensor):
     """
     Subclass of SQTensor that describes the strain tensor
     """
-    # TODO: AJ says strain must subclass SQTensor
-    # TODO: AJ says much of this class should be reimplemented from the standpoint of subclassing SQTensor
     # TODO: AJ says there should be a static from_strain(matrix) method that 
     #           constructs the object from a strain matrix rather than deformation matrix
     #           For an example of the above, see the various 'from_xxxxx' methods in 
@@ -59,30 +57,30 @@ class Strain(SQTensor):
         """
         dfm = SQTensor(deformation_matrix)
         #import pdb; pdb.set_trace()
-        return cls(0.5*(dfm*(dfm.T)), dfm)
+        return cls(0.5*(dfm*(dfm.T)) - np.eye(3), dfm)
 
     @property
     def deformation_matrix(self):
-        '''
+        """
         returns the deformation matrix
-        '''
+        """
         return self._dfm
     
     @property
     def independent_deformation(self, tol=0.00001):
-        '''
+        """
         determines whether the deformation matrix represents an
         independent deformation
 
         Args: tol
-        '''
+        """
         if self._dfm == None:
             raise ValueError("No deformation matrix supplied for this strain tensor.")
         # TODO: JM asks does this snippet just check to make sure that 
         #           there is only one entry of the deformation matrix
         #           that is distinct from the identity?
         #           (and then returns the index which is distinct)
-        '''
+        """
         df1 = self._dfm
         counter = 0
         checkmatrix = np.zeros((3,3))
@@ -97,7 +95,7 @@ class Strain(SQTensor):
                     if np.abs(df1[c1,c2]-1) > tol:
                         checkmatrix[c1,c2] = 1
                         counter = counter + 1
-        '''
+        """
         # TODO: JM suggests if so:
         indices = zip(*np.asarray(self._dfm - np.eye(3)).nonzero())
         if len(indices) != 1:
@@ -111,8 +109,8 @@ class IndependentStrain(Strain):
     #           now implemented in SQTensor superclass
 
     def __init__(self, deformation,tol=0.00000001):
-        '''
-        '''
+        """
+        """
         super(Strain, self).__init__(deformation)
         (self._i, self._j) = self.independent_deformation
 
@@ -215,10 +213,10 @@ def generate_deformed_structures(rlxd_str, nd=0.01, ns=0.08,
             s.apply_deformation_gradient(F)
             defstructures[StrainObject] = s
 
-    '''
+    """
     # Possible alternative
     struct_strain = [[
-    '''
+    """
     return defstructures
 
 
