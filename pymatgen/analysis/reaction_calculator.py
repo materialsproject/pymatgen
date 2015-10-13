@@ -22,7 +22,7 @@ import itertools
 import numpy as np
 import re
 
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from monty.json import MontyDecoder
@@ -30,7 +30,7 @@ from monty.json import MontyDecoder
 logger = logging.getLogger(__name__)
 
 
-class BalancedReaction(PMGSONable):
+class BalancedReaction(MSONable):
     """
     An object representing a complete chemical reaction.
     """

@@ -5,7 +5,7 @@
 This module defines the events signaled by abinit during the execution. It also
 provides a parser to extract these events form the main output file and the log file.
 """
-from __future__ import unicode_literals, division, print_function
+from __future__ import unicode_literals, division, print_function, absolute_import
 
 import sys
 import os.path
@@ -24,7 +24,8 @@ from monty.termcolor import colored
 from monty.inspect import all_subclasses
 from monty.json import MontyDecoder
 from pymatgen.core import Structure
-from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
+from monty.json import MSONable
+from pymatgen.serializers.json_coders import pmg_serialize
 from .abiinspect import YamlTokenizer
 
 logger = logging.getLogger(__name__)
@@ -258,7 +259,7 @@ _BASE_CLASSES = [
 ]
 
 
-class EventReport(collections.Iterable, PMGSONable):
+class EventReport(collections.Iterable, MSONable):
     """
     Iterable storing the events raised by an ABINIT calculation.
 
@@ -615,7 +616,7 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
         return log_diff
 
 
-class Correction(PMGSONable):
+class Correction(MSONable):
 
     def __init__(self, handler, actions, event, reset=False):
         self.handler = handler

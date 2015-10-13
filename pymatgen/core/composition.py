@@ -30,12 +30,12 @@ from functools import total_ordering
 from monty.fractions import gcd
 from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.util.string_utils import formula_double_format
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.core.units import unitized
 
 
 @total_ordering
-class Composition(collections.Mapping, collections.Hashable, PMGSONable):
+class Composition(collections.Mapping, collections.Hashable, MSONable):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
     type. Composition is written to be immutable and hashable,
@@ -793,7 +793,7 @@ class CompositionError(Exception):
     pass
 
 
-class ChemicalPotential(dict, PMGSONable):
+class ChemicalPotential(dict, MSONable):
     """
     Class to represent set of chemical potentials. Can be:
     multiplied/divided by a Number

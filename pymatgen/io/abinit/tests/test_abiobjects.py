@@ -44,8 +44,8 @@ class SpinModeTest(PymatgenTest):
         self.serialize_with_pickle(polarized)
 
         # Test dict methods
-        self.assertPMGSONable(polarized)
-        self.assertPMGSONable(unpolarized)
+        self.assertMSONable(polarized)
+        self.assertMSONable(unpolarized)
 
 
 class SmearingTest(PymatgenTest):
@@ -65,7 +65,7 @@ class SmearingTest(PymatgenTest):
 
         self.assertFalse(nosmear)
         self.assertTrue(nosmear != fd1ev)
-        self.assertPMGSONable(nosmear)
+        self.assertMSONable(nosmear)
 
         new_fd1ev = Smearing.from_dict(fd1ev.as_dict())
         self.assertTrue(new_fd1ev == fd1ev)
@@ -74,7 +74,7 @@ class SmearingTest(PymatgenTest):
         self.serialize_with_pickle(fd1ev)
 
         # Test dict methods
-        self.assertPMGSONable(fd1ev)
+        self.assertMSONable(fd1ev)
 
 
 class ElectronsAlgorithmTest(PymatgenTest):
@@ -86,7 +86,7 @@ class ElectronsAlgorithmTest(PymatgenTest):
         self.serialize_with_pickle(algo)
 
         # Test dict methods
-        self.assertPMGSONable(algo)
+        self.assertMSONable(algo)
 
 
 class ElectronsTest(PymatgenTest):
@@ -107,7 +107,7 @@ class ElectronsTest(PymatgenTest):
                  algorithm=ElectronsAlgorithm(nstep=70), nband=10, charge=1.0, comment="Test comment")
 
         # Test dict methods
-        self.assertPMGSONable(custom_electrons)
+        self.assertMSONable(custom_electrons)
 
 
 class KSamplingTest(PymatgenTest):
@@ -119,8 +119,8 @@ class KSamplingTest(PymatgenTest):
         monkhorst.to_abivars()
 
         # Test dict methods
-        self.assertPMGSONable(monkhorst)
-        self.assertPMGSONable(gamma_centered)
+        self.assertMSONable(monkhorst)
+        self.assertMSONable(gamma_centered)
 
 class RelaxationTest(PymatgenTest):
 
@@ -131,8 +131,8 @@ class RelaxationTest(PymatgenTest):
         atoms_and_cell.to_abivars()
 
         # Test dict methods
-        self.assertPMGSONable(atoms_and_cell)
-        self.assertPMGSONable(atoms_only)
+        self.assertMSONable(atoms_and_cell)
+        self.assertMSONable(atoms_only)
 
 
 class PPModelTest(PymatgenTest):
@@ -158,7 +158,7 @@ class PPModelTest(PymatgenTest):
         self.serialize_with_pickle(godby)
 
         # Test dict methods
-        self.assertPMGSONable(godby)
+        self.assertMSONable(godby)
 
 
 if __name__ == '__main__':
