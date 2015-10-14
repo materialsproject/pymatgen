@@ -34,6 +34,7 @@ from monty.collections import AttrDict
 from monty.functools import lazy_property
 from monty.inspect import all_subclasses
 from monty.io import FileLock
+from monty.json import MSONable
 from pymatgen.core.units import Memory
 from .utils import Condition
 from .launcher import ScriptEditor
@@ -216,6 +217,19 @@ class Hardware(object):
         """Use divmod to compute (num_nodes, rest_cores)"""
         return divmod(mpi_procs * omp_threads, self.cores_per_node)
 
+    def as_dict(self):
+        return {'num_nodes': self.num_nodes,
+                'sockets_per_node': self.sockets_per_node,
+                'cores_per_socket': self.cores_per_socket,
+                'mem_per_node': str(Memory(val=self.mem_per_node, unit='Mb'))}
+
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(num_nodes=dd['num_nodes'],
+                   sockets_per_node=dd['sockets_per_node'],
+                   cores_per_socket=dd['cores_per_socket'],
+                   mem_per_node=dd['mem_per_node'])
+
 
 class _ExcludeNodesFile(object):
     """
@@ -305,7 +319,7 @@ class MaxNumLaunchesError(QueueAdapterError):
     """Raised by `submit_to_queue` if we try to submit more than `max_num_launches` times."""
 
 
-class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
+class QueueAdapter(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     The `QueueAdapter` is responsible for all interactions with a specific queue management system.
     This includes handling all details of queue script format as well as queue submission and management.
@@ -430,6 +444,46 @@ limits:
 
         # Final consistency check.
         self.validate_qparams()
+
+    def as_dict(self):
+        """
+        Provides a simple though not complete dict serialization of the object (OMP missing, not all limits are
+        kept in the dictionary, ... other things to be checked)
+
+        Raise:
+            `ValueError` if errors.
+        """
+        if self.has_omp:
+            raise NotImplementedError('as_dict method of QueueAdapter not yet implemented when OpenMP is activated')
+        return {'priority': self.priority,
+                'hardware': self.hw.as_dict(),
+                'queue': {'qtype': self.QTYPE,
+                          'qname': self._qname,
+                          'qparams': self._qparams},
+                'limits': {'timelimit': self._timelimit,
+                           'min_cores': self.min_cores,
+                           'max_cores': self.max_cores,
+                           'min_mem_per_proc': self.min_mem_per_proc,
+                           'max_mem_per_proc': self.max_mem_per_proc
+                           },
+                'job': {},
+                'mpi_procs': self._mpi_procs,
+                'mem_per_proc': self._mem_per_proc,
+                'timelimit': self._timelimit,
+                }
+
+    @classmethod
+    def from_dict(cls, dd):
+        priority = dd.pop('priority')
+        hardware = dd.pop('hardware')
+        queue = dd.pop('queue')
+        limits = dd.pop('limits')
+        job = dd.pop('job')
+        qa = make_qadapter(priority=priority, hardware=hardware, queue=queue, limits=limits, job=job)
+        qa.set_mpi_procs(dd.pop('mpi_procs'))
+        qa.set_timelimit(dd.pop('timelimit'))
+        qa.set_mem_per_proc(dd.pop('mem_per_proc'))
+        return qa
 
     def validate_qparams(self):
         """
@@ -557,7 +611,7 @@ limits:
     @property
     def num_cores(self):
         """Total number of cores employed"""
-        return self.mpi_procs * self.omp_threads 
+        return self.mpi_procs * self.omp_threads
 
     @property
     def omp_threads(self):

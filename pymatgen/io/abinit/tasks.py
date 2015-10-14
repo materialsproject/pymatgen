@@ -383,7 +383,13 @@ class ParalHints(collections.Iterable):
 
         if len(policy.autoparal_priorities) == 1:
             # Example: hints.sort_by_speedup()
-            getattr(hints, "sort_by_" + policy.autoparal_priorities[0])()
+            if policy.autoparal_priorities[0] in ['efficiency', 'speedup', 'mem_per_proc']:
+                getattr(hints, "sort_by_" + policy.autoparal_priorities[0])()
+            elif isinstance(policy.autoparal_priorities[0], collections.Mapping):
+                if policy.autoparal_priorities[0]['meta_priority'] == 'highest_speedup_minimum_efficiency_cutoff':
+                    min_efficiency = policy.autoparal_priorities[0].get('minimum_efficiency', 1.0)
+                    hints.select_with_condition({'efficiency': {'$gte': min_efficiency}})
+                    hints.sort_by_speedup()
         else:
             hints = hints.multidimensional_optimization(priorities=policy.autoparal_priorities)
             if len(hints) == 0: raise ValueError("len(hints) == 0")
