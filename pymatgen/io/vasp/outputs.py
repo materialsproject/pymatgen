@@ -2333,6 +2333,9 @@ class Xdatcar(object):
                     coords_str = []
                 else:
                     coords_str.append(l)
+            p = Poscar.from_string("\n".join(preamble +
+                                             ["Direct"] + coords_str))
+            structures.append(p.structure)
         self.structures = structures
 
 class Dynmat(object):

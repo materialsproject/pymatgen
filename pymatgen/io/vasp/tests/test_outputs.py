@@ -472,14 +472,14 @@ class XdatcarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'XDATCAR_4')
         x = Xdatcar(filepath)
         structures = x.structures
-        self.assertEqual(len(structures), 3)
+        self.assertEqual(len(structures), 4)
         for s in structures:
             self.assertEqual(s.formula, "Li2 O1")
 
         filepath = os.path.join(test_dir, 'XDATCAR_5')
         x = Xdatcar(filepath)
         structures = x.structures
-        self.assertEqual(len(structures), 3)
+        self.assertEqual(len(structures), 4)
         for s in structures:
             self.assertEqual(s.formula, "Li2 O1")
 
