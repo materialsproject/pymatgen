@@ -34,6 +34,7 @@ from monty.collections import AttrDict
 from monty.functools import lazy_property
 from monty.inspect import all_subclasses
 from monty.io import FileLock
+from monty.json import MSONable
 from pymatgen.core.units import Memory
 from .utils import Condition
 from .launcher import ScriptEditor
@@ -318,7 +319,7 @@ class MaxNumLaunchesError(QueueAdapterError):
     """Raised by `submit_to_queue` if we try to submit more than `max_num_launches` times."""
 
 
-class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
+class QueueAdapter(six.with_metaclass(abc.ABCMeta, object, MSONable)):
     """
     The `QueueAdapter` is responsible for all interactions with a specific queue management system.
     This includes handling all details of queue script format as well as queue submission and management.
