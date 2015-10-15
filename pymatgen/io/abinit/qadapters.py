@@ -156,7 +156,7 @@ class OmpEnv(AttrDict):
         return "\n".join("export %s=%s" % (k, v) for k, v in self.items())
 
 
-class Hardware(object):
+class Hardware(MSONable):
     """
     This object collects information on the hardware available in a given queue.
 
@@ -218,7 +218,9 @@ class Hardware(object):
         return divmod(mpi_procs * omp_threads, self.cores_per_node)
 
     def as_dict(self):
-        return {'num_nodes': self.num_nodes,
+        return {'@module': self.__class__.__module__,
+                '@class': self.__class__.__name__,
+                'num_nodes': self.num_nodes,
                 'sockets_per_node': self.sockets_per_node,
                 'cores_per_socket': self.cores_per_socket,
                 'mem_per_node': str(Memory(val=self.mem_per_node, unit='Mb'))}
