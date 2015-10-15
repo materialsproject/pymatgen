@@ -455,7 +455,9 @@ limits:
         """
         if self.has_omp:
             raise NotImplementedError('as_dict method of QueueAdapter not yet implemented when OpenMP is activated')
-        return {'priority': self.priority,
+        return {'@module': self.__class__.__module__,
+                '@class': self.__class__.__name__,
+                'priority': self.priority,
                 'hardware': self.hw.as_dict(),
                 'queue': {'qtype': self.QTYPE,
                           'qname': self._qname,
@@ -483,6 +485,8 @@ limits:
         qa.set_mpi_procs(dd.pop('mpi_procs'))
         qa.set_timelimit(dd.pop('timelimit'))
         qa.set_mem_per_proc(dd.pop('mem_per_proc'))
+        if dd:
+            raise ValueError("Found unknown keywords:\n%s" % list(dd.keys()))
         return qa
 
     def validate_qparams(self):
