@@ -2307,18 +2307,7 @@ class Structure(IStructure, collections.MutableSequence):
         """
         s = (1 + np.array(strain)) * np.eye(3)
         self.modify_lattice(Lattice(np.dot(self._lattice.matrix.T, s).T))
-
-    def apply_deformation_gradient(self, F):
-        """
-        Apply a deformation gradient tensor F to a lattice.
-        
-        Args:
-            F (3x3 array-like): Deformation gradient tensor, a 3x3
-            array or numpy matrix.
-            
-        """
-        self.modify_lattice(Lattice(np.dot(self._lattice.matrix,np.array(F))))
-        
+  
     def sort(self, key=None, reverse=False):
         """
         Sort a structure in place. The parameters have the same meaning as in
