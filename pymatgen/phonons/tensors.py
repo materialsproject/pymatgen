@@ -254,6 +254,49 @@ class ElasticTensor(SQTensor):
 
         return cls(c_pq)
 
+    @classmethod
+    def from_stress_strain_dict(cls,strain_stress_dict):
+        # Initialize Cij array
+        Cij = np.zeros((6, 6))
+        # Upper triangular indices
+        # inds = zip(*np.triu_indices(3))
+        inds = [[0,0], [1,1], [2,2], [1,2], [0,2], [0,1]]
+
+        for n1 in range(0,6):
+            strain = []
+            stress = []
+            count1 = 0
+
+            for c in stress_dict:
+                # c.i and c.j refer to the independent deformation
+                if c.i == inds[n1][0] and c.j == inds[n1][1]:
+                    strain.append(c[c.i, c.j])
+                    stress.append(stress_dict[c])
+
+            for k in inds:
+                true_data = self._chain_stresses(stress, k[0], k[1])
+                p1 = np.polyfit(strain, true_data, 1)
+                #p2 = np.polyfit(strain, true_data, 2)
+                #p3 = np.polyfit(strain, true_data, 3)
+
+                f1 = np.polyval(p1, strain)
+                #f2 = np.polyval(p2, strain)
+                #f3 = np.polyval(p3, strain)
+
+                Cij[count1, n1] = -0.10*p1[0]
+                count1 += 1                
+
+        for n1 in range(0,6):
+            for n2 in range(0,6):
+                if np.abs(Cij[n1, n2]) < tol:
+                    Cij[n1, n2] = 0
+
+                if n2 > 2:
+                    Cij[n1, n2] = Cij[n1, n2]*0.50
+
+        return Cij
+
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
