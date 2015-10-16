@@ -96,14 +96,13 @@ class Deformation(SQTensor):
         F[matrixpos] += amt
         return cls(F)
 
-# TODO: should this be PMGSONABLE?
 class DeformedStructureSet(object):
     """
     class that generates a set of deformed structures that
     can be used to fit the elastic tensor of a material
     """
-    def __init__(self,rlxd_str, nd=0.01, ns=0.08, m=4, n=4, 
-                 delete_center=True, symmetry=False):
+
+    def __init__(self,rlxd_str, nd=0.01, ns=0.08, num_norm=4, num_shear=4, symmetry=False):
         """
         constructs the deformed geometries of a structure.  Generates
         m + n deformed structures according to the supplied parameters.
@@ -120,14 +119,12 @@ class DeformedStructureSet(object):
                 shear deformation
         """
 
-        # TODO: JHM suggests that we might want to think about the
-        #           conventions specified here
-        # TODO: JHM needs to figure out how to do symmetry
-
-        if m%2 != 0:
-            raise ValueError("m has to be even.")
-        if n%2 != 0:
-            raise ValueError("n has to be even.")
+        if num_norm%2 != 0:
+            raise ValueError("Number of normal deformations (num_norm)"\
+                             " must be even.")
+        if num_shear%2 != 0:
+            raise ValueError("Number of shear deformations (num_shear)"\
+                             " must be even.")
         
         self.msteps = np.int(m)
         self.nsteps = np.int(n)
@@ -140,45 +137,9 @@ class DeformedStructureSet(object):
         self.equilibrium_structure = rlxd_str
         self.deformed_structures = []
 
-        # TODO: Make this section more pythonic
-        # TODO: JHM asks whether indexing the dictionary
-        #           on the strain object is efficient?
-        # TODO: Integrate new deformatinos class
         if symmetry:
             raise NotImplementedError("Symmetry reduction of structure "\
-                                      "generation is not yet implemented")
-            '''
-            recp_lattice = rlxd_str.lattice.reciprocal_lattice_crystallographic
-            recp_lattice = recp_lattice.scale(1)
-            recp = Structure(recp_lattice, ["H"], [[0,0,0]])
-            analyzer = SpacegroupAnalyzer(recp, symprec=0.001)
-            symm_ops = analyzer.get_symmetry_operations()
-            self.symmetry = symm_ops
-            # generate a list of unique deformations
-            unique_defs = []
-            for i1 in range(0, 3):
-                for i2 in range(0, len(norm_defs)):
-                    F = np.eye(3)
-                    F[i1, i1] = F[i1, i1] + norm_defs[i2]
-                    #import pdb; pdb.set_trace()
-                    #print F
-                    if not [f for f in [op.operate_multi(F) for op in symm_ops]\
-                            if f in unique_defs]:
-                        unique_defs += [F]
-            for j1 in [(0,1),(0,2),(1,2)]:
-                for j2 in range(0, len(shear_defs)):
-                    F = np.eye(3)
-                    F[j1] = F[j1] + shear_defs[j2]
-                    #import pdb; pdb.set_trace()
-                    if not [f for f in [op.operate_multi(F) for op in symm_ops]\
-                            if f in unique_defs]:
-                        unique_defs += [F]
-            for unique_def in unique_defs:
-                s = rlxd_str.copy()
-                StrainObject = IndependentStrain.from_deformation(F)
-                s.apply_deformation_gradient(unique_def)
-                self.deformed_structures[StrainObject] = s
-            '''
+                                      "generation is not yet implemented") 
         else:
             self.symmetry = None
             # Apply normal deformations
