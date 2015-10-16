@@ -11,6 +11,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.phonons.tensors import SQTensor
 from pymatgen.transformations.standard_transformations import *
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.phonons.strain import IndependentStrain
 import numpy as np
 import os
 
@@ -52,8 +54,8 @@ class Deformation(SQTensor):
         """
         indices = zip(*np.asarray(self - np.eye(3)).nonzero())
         if len(indices) != 1:
-            raise ValueError("One and only one independent deformation\
-                             must be applied.")
+            raise ValueError("One and only one independent deformation"\
+                             "must be applied.")
 
         return indices[0]
 
@@ -63,19 +65,22 @@ class Deformation(SQTensor):
         calculates the euler-lagrange strain from
         the deformation gradient
         """
-        return 0.5*self*self.T - np.eye(3)
+        return Strain.from_deformation(self)
 
     @classmethod
-    def from_ind_amt_dfm(matrixpos, amt):
+    def from_index_amount(matrixpos, amt):
         """
         Factory method for constructing a Deformation object
         from a matrix position and amount
+
+        Args:
+            matrixpos (tuple): 
         """
         F = np.identity(3)
-        F[matrixpos] = F[matrixpos] + amt
+        F[matrixpos] += amt
         return cls(F)
 
-
+# TODO: should this be PMGSONABLE?
 class DeformedStructureSet(object):
     """
     class that generates a set of deformed structures that
@@ -88,7 +93,9 @@ class DeformedStructureSet(object):
         m + n deformed structures according to the supplied parameters.
 
         Args:
-            rlxd_str (structure): structure to undergo deformation
+            rlxd_str (structure): structure to undergo deformation, if 
+                fitting elastic tensor is desired, should be a geometry 
+                optimized structure
             nd (float): maximum perturbation applied to normal deformation
             ns (float): maximum perturbation applied to shear deformation
             m (int): number of deformation structures to generate for 
@@ -110,85 +117,80 @@ class DeformedStructureSet(object):
         self.nsteps = np.int(n)
         
         normal_defs = np.linspace(-nd, nd, num=m+1)
-        if delete_center:
-            normal_defs = np.delete(normal_defs, np.int(m/2), 0)
+        normal_defs = np.delete(normal_defs, np.int(m/2), 0)
         shear_defs = np.linspace(-ns, ns, num=n+1)
-        if delete_center:
-            sheardef = np.delete(sheardef, np.int(n/2), 0)
+        shear_defs = np.delete(shear_defs, np.int(n/2), 0)
 
+        self.equilibrium_structure = rlxd_str
         self.deformed_structures = {}
 
         # TODO: Make this section more pythonic
         # TODO: JHM asks whether indexing the dictionary
         #           on the strain object is efficient?
-
+        # TODO: Integrate new deformatinos class
         if symmetry:
             raise NotImplementedError("Symmetry reduction of structure "\
                                       "generation is not yet implemented")
+            '''
+            recp_lattice = rlxd_str.lattice.reciprocal_lattice_crystallographic
+            recp_lattice = recp_lattice.scale(1)
+            recp = Structure(recp_lattice, ["H"], [[0,0,0]])
+            analyzer = SpacegroupAnalyzer(recp, symprec=0.001)
+            symm_ops = analyzer.get_symmetry_operations()
+            self.symmetry = symm_ops
+            # generate a list of unique deformations
+            unique_defs = []
+            for i1 in range(0, 3):
+                for i2 in range(0, len(normal_defs)):
+                    F = np.eye(3)
+                    F[i1, i1] = F[i1, i1] + normal_defs[i2]
+                    #import pdb; pdb.set_trace()
+                    #print F
+                    if not [f for f in [op.operate_multi(F) for op in symm_ops]\
+                            if f in unique_defs]:
+                        unique_defs += [F]
+            for j1 in [(0,1),(0,2),(1,2)]:
+                for j2 in range(0, len(shear_defs)):
+                    F = np.eye(3)
+                    F[j1] = F[j1] + shear_defs[j2]
+                    #import pdb; pdb.set_trace()
+                    if not [f for f in [op.operate_multi(F) for op in symm_ops]\
+                            if f in unique_defs]:
+                        unique_defs += [F]
+            for unique_def in unique_defs:
+                s = rlxd_str.copy()
+                StrainObject = IndependentStrain.from_deformation(F)
+                s.apply_deformation_gradient(unique_def)
+                self.deformed_structures[StrainObject] = s
+            '''
         else:
             # Apply normal deformations
             self.symmetry = None
             for i1 in range(0, 3):
-                for i2 in range(0, len(defs)):
+                for i2 in range(0, len(normal_defs)):
                     s=rlxd_str.copy()
                     F = np.identity(3)
-                    F[i1, i1] = F[i1, i1] + normal_defs[i2]
+                    F[i1, i1] += normal_defs[i2]
                     StrainObject = IndependentStrain.from_deformation(F)
                     s.apply_deformation_gradient(F)
-                    defstructures[StrainObject] = s
+                    self.deformed_structures[StrainObject] = s
 
             # Apply shear deformations 
             F_index = [[0, 1], [0, 2], [1, 2]]
-            for j1 in range(0, 3):
-                for j2 in range(0, len(sheardef)):
+            for j1 in [(0,1),(0,2),(1,2)]:
+                for j2 in range(0, len(shear_defs)):
                     s=rlxd_str.copy()
                     F = np.identity(3)
-                    F[F_index[j1][0], F_index[j1][1]] = F[F_index[j1][0], F_index[j1][1]] + sheardef[j2]
+                    F[j1] += shear_defs[j2]
                     StrainObject = IndependentStrain.from_deformation(F)
                     s.apply_deformation_gradient(F)
-                    defstructures[StrainObject] = s
+                    self.deformed_structures[StrainObject] = s
 
-        return defstructures
-
-
-
+def list_intersect(list_1,list_2):
+    return None 
+    
 if __name__ == "__main__":
-
-    mat = np.eye(3)
-    mat[0,1] = 0.001
-#    print mat
-
-    my_strain = IndependentStrain.from_deformation(mat)
-    my_strain.check_F()
-
-
-#    print my_strain._strain
-    
-    
-    
-#    print type(mat)
-
-#    print my_strain.deformation_matrix
-#    print my_strain.strain
-
-#    my_strain2 = IndependentStrain(mat)
-#    print my_strain2.__dict__.keys()
-#    print my_strain2.__hash__()
-
-#    print my_strain2._j
-#    print my_strain2.check_F()
-#    my_strain2.checkF
-#    print my_strain.__dict__.keys()
-#    print my_strain.deformation_matrix
-#    print my_strain.strain
-#    my_strain.index
-#    my_scaled_strain = my_strain.get_scaled(1.05)
-#    print my_scaled_strain.deformation_matrix
-#    print my_scaled_strain.strain
-#    print my_strain == my_scaled_strain
-#    mat2 = np.eye(3)
-#    mat2[0,0] = 1.01
-#    my_strain2 = Strain(mat)
-#    print my_strain == my_strain2
-
-
+    from pymatgen.matproj.rest import MPRester
+    mpr = MPRester()
+    Cu_struct = mpr.get_structures('Cu')[0]
+    dss = DeformedStructureSet(Cu_struct)
