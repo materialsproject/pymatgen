@@ -2348,6 +2348,13 @@ class Xdatcar(object):
                 elif not preamble_done:
                     if l == "" or "Direct configuration=" in l:
                         preamble_done = True
+                        tmp_preamble = [preamble[0]]
+                        for i in range(1, len(preamble)):
+                            if preamble[0] != preamble[i]:
+                                tmp_preamble.append(preamble[i])
+                            else:
+                                break
+                        preamble = tmp_preamble
                     else:
                         preamble.append(l)
                 elif l == "" or "Direct configuration=" in l:
