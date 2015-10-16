@@ -43,7 +43,7 @@ class Deformation(SQTensor):
         return "Deformation({})".format(self.__str__())
  
     @property
-    def check_independent(self, tol=0.00001):
+    def check_independent(self):
         """
         a check to determine whether the deformation matrix represents an
         independent deformation, raises a ValueError if not.  If so, returns 
@@ -56,7 +56,6 @@ class Deformation(SQTensor):
         if len(indices) != 1:
             raise ValueError("One and only one independent deformation"\
                              "must be applied.")
-
         return indices[0]
 
     @property
@@ -68,13 +67,22 @@ class Deformation(SQTensor):
         return Strain.from_deformation(self)
 
     @classmethod
+    def apply_to_structure(self,structure):
+        """
+
+        """
+
+    @classmethod
     def from_index_amount(matrixpos, amt):
         """
         Factory method for constructing a Deformation object
         from a matrix position and amount
 
         Args:
-            matrixpos (tuple): 
+            matrixpos (tuple): tuple corresponding the matrix position to
+                have a perturbation added
+            amt (float): amount to add to the identity matrix at position 
+                matrixpos
         """
         F = np.identity(3)
         F[matrixpos] += amt
@@ -122,7 +130,7 @@ class DeformedStructureSet(object):
         shear_defs = np.delete(shear_defs, np.int(n/2), 0)
 
         self.equilibrium_structure = rlxd_str
-        self.deformed_structures = {}
+        self.deformed_structures = []
 
         # TODO: Make this section more pythonic
         # TODO: JHM asks whether indexing the dictionary
@@ -173,7 +181,7 @@ class DeformedStructureSet(object):
                     F[i1, i1] += normal_defs[i2]
                     StrainObject = IndependentStrain.from_deformation(F)
                     s.apply_deformation_gradient(F)
-                    self.deformed_structures[StrainObject] = s
+                    self.deformed_structures.append(s)
 
             # Apply shear deformations 
             F_index = [[0, 1], [0, 2], [1, 2]]
@@ -184,7 +192,7 @@ class DeformedStructureSet(object):
                     F[j1] += shear_defs[j2]
                     StrainObject = IndependentStrain.from_deformation(F)
                     s.apply_deformation_gradient(F)
-                    self.deformed_structures[StrainObject] = s
+                    self.deformed_structures.append(s)
 
 def list_intersect(list_1,list_2):
     return None 
