@@ -12,7 +12,8 @@ from pymatgen.core.structure import Structure
 from pymatgen.phonons.tensors import SQTensor
 from pymatgen.transformations.standard_transformations import *
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.phonons.strain import IndependentStrain
+from pymatgen.phonons.strain import IndependentStrain,Strain
+from pymatgen.phonons.tensors import voigt_map
 import numpy as np
 import os
 
@@ -31,7 +32,7 @@ class Deformation(SQTensor):
     Subclass of SQTensor that describes the deformation gradient tensor
     """
 
-    def __new__(cls, stress_matrix, dfm=None):
+    def __new__(cls, deformation_gradient, dfm=None):
         obj = SQTensor(deformation_gradient).view(cls)
         return obj
 
@@ -42,7 +43,7 @@ class Deformation(SQTensor):
     def __repr__(self):
         return "Deformation({})".format(self.__str__())
  
-    @property
+    @classmethod
     def check_independent(self):
         """
         a check to determine whether the deformation matrix represents an
@@ -81,7 +82,7 @@ class Deformation(SQTensor):
         return def_struct
 
     @classmethod
-    def from_index_amount(matrixpos, amt):
+    def from_index_amount(cls,matrixpos, amt):
         """
         Factory method for constructing a Deformation object
         from a matrix position and amount
@@ -135,25 +136,29 @@ class DeformedStructureSet(object):
         shear_deformations = shear_deformations[shear_deformations.nonzero()]
 
         self.equilibrium_structure = rlxd_str
-        self.deformed_structures = []
-
+        self.deformations = []
+        self.def_structs = []
         if symmetry:
             raise NotImplementedError("Symmetry reduction of structure "\
                                       "generation is not yet implemented") 
         else:
             self.symmetry = None
+            # Determine normal deformation gradients
             # Apply normal deformations
             for ind in [(1,1),(2,2),(3,3)]:
                 for amount in normal_deformations:
                     defo_tensor = Deformation.from_index_amount(ind,amount)
-                    self.deformed_structures.append(defo_tensor.apply_to_structure(s))
+                    self.deformations.append(defo_tensor)
+                    self.def_structs.append(defo_tensor.apply_to_structure(s))
 
             # Apply shear deformations 
             for ind in [(0,1),(0,2),(1,2)]:
                 for amount in shear_deformations:
                     defo_tensor = Deformation.from_index_amount(ind,amount)
-                    self.deformed_structures.append(defo_tensor.apply_to_structure(s))
-    
+                    self.def_structs.append(defo_tensor.apply_to_structure(s))
+
+        def as_stress_strain_dict(self):
+
 if __name__ == "__main__":
     from pymatgen.matproj.rest import MPRester
     mpr = MPRester()

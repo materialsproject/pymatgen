@@ -23,10 +23,14 @@ __date__ ="March 22, 2012"
 
 class Stress(SQTensor):
     """
-    This class extends SQTensor
+    This class extends SQTensor as a representation of the 
+    stress
     """
-
     def __new__(cls, input_matrix):
+        """
+        Constructs the Stress object similarly to other constructors
+        involving SQTensor subclasses
+        """
         obj = SQTensor(input_matrix).view(cls)
         return obj
 
@@ -47,23 +51,15 @@ class Stress(SQTensor):
         stress
         """
         return self.deviator_stress.principal_invariants
-        """
-        I = self.principal_invariants
-        J1 = 0
-        J2 = 1./3. * I[0]**2 - I[1]
-        J3 = 2./27. * I[0]**3 - 1./3.*I[0]*I[1] + I[2]
-        J = [J1, J2, J3]
-        return J
-        """
-
+        
     @property
     def von_mises(self):
         """
         calculates the von mises stress
         """
         if self.is_symmetric() == False:
-            raise ValueError("The stress tensor is not symmetric, \
-                             VM stress is based on a symmetric stress tensor.")
+            raise ValueError("The stress tensor is not symmetric, Von Mises "\
+                             "stress is based on a symmetric stress tensor.")
         return math.sqrt(3*self.deviator_principal_invariants[1])
 
     @property
@@ -89,7 +85,7 @@ class Stress(SQTensor):
         calculates the first Piola-Kirchoff stress
 
         Args:
-            F (array-like): 
+            F (3x3 array-like): rate of deformation tensor
         """
         if not self.is_symmetric:
             raise ValueError("The stress tensor is not symmetric, \
@@ -102,7 +98,7 @@ class Stress(SQTensor):
         calculates the second Piola-Kirchoff stress
 
         Args:
-            F (array-like): 
+            F (3x3 array-like): rate of deformation tensor
         """
 
         F = SQTensor(F)
@@ -111,6 +107,12 @@ class Stress(SQTensor):
                              PK stress is based on a symmetric stress tensor.")
         return F.det*F.I*self*((F.I).T)
 
+    @property
+    def voigt(self):
+        """
+        returns the vector representing to the stress tensor in voigt notation
+        """
+        return [self[ind] for ind in [(0,0),(1,1),(2,2),(1,2),(0,2),(0,1)]]
 
 if __name__ == "__main__":
 

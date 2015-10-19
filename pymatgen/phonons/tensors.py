@@ -11,7 +11,7 @@ from pymatgen.transformations.standard_transformations import *
 from scipy.linalg import polar
 import numpy as np
 
-__author__="Maarten de Jong"
+__author__="Maarten de Jong, Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Mark Asta, Anubhav Jain"
 __version__ = "1.0"
@@ -60,15 +60,9 @@ class SQTensor(np.matrix):
         shorthand for the determinant of the SQTensor
         """
         return np.linalg.det(self)
-
-    # TODO: Note that the boolean properties have keywords,
-    #           but those can't be specified, since they're 
-    #           decorated as properties.  We could either add
-    #           a tolerance property to use in the boolean properties
-    #           or perhaps redecorate them as methods -JHM
-
-    @property
-    def is_symmetric(self, tol=0.001):
+    
+    @classmethod
+    def is_symmetric(self, tol=1e-5):
         """
         Test to see if tensor is symmetric to a user-defined tolerance.
         This is determined by subtracting the transpose; if any of the 
@@ -80,8 +74,8 @@ class SQTensor(np.matrix):
         """
         return (np.abs(self - self.T) < tol).all()
 
-    @property
-    def is_rotation(self, tol=0.001):
+    @classmethod
+    def is_rotation(self, tol=1e-5):
         """
         Test to see if tensor is a valid rotation matrix, performs a 
         test to check whether the inverse is equal to the transpose
@@ -90,7 +84,7 @@ class SQTensor(np.matrix):
 
         Args:
             tol (float): tolerance to both tests of whether the 
-                the determinant is zero and the inverse is equal
+                the determinant is one and the inverse is equal
                 to the transpose
         """
 
@@ -106,22 +100,22 @@ class SQTensor(np.matrix):
         """
         return 0.5*(self + self.T)
 
-    # TODO: JHM asks should this be implemented?
-    """def rotate(self, rotation):
-        super(StressOps, self).__init__(rotation)
-        super(StressOps, self).is_rotatio()
-
-        if super(StressOps, self).is_rotatio() == False:
-            raise ValueError("Not a valid rotation matrix")
-
-        else:
-            return rotation*self._StressMatrix*np.transpose(rotation)"""
-
+    @classmethod
     def rotate(self, rotation):
-        if not self.is_rotation():
+        """
+        Returns a rotated tensor based on input of a another
+        rotation tensor.
+
+        Args:
+            rotation (3x3 array-like): rotation tensor, is tested
+                for rotation properties and then operates on self
+        """
+        rotation = SQTensor(rotation)
+        if not rotation.is_rotation():
             raise ValueError("Specified rotation matrix is invalid")
-        raise NotImplementedError("matrix rotations are not yet supported")
+        return rotation*self*rotation.T
     
+    @classmethod
     def get_scaled(self, scale_factor):
         """
         Scales the tensor by a certain multiplicative scale factor
@@ -131,27 +125,45 @@ class SQTensor(np.matrix):
     @property
     def principal_invariants(self):
         """
-        returns a list of principal invariants for the tensor,
+        Returns a list of principal invariants for the tensor,
         which are the values of the coefficients of the characteristic 
         polynomial for the matrix
         """
         # TODO: JM asks whether this fulfills the necessary sign conventions
-        return np.poly(self)[1:] 
+        return np.poly(self)[1:]
+    
+    @property
+    def polar_decomposition(self,side='right'):
+        """
+        calculates matrices for polar decomposition
+        """
+        return polar(self,side=side)
+
+    @classmethod
+    def zeroed(self,tol):
+        """
+        returns the matrix with all entries below a certain threshold
+        (i.e. tol) set to zero
+        """
+        new_tensor = self.copy()
+        new_tensor[new_tensor < tol] = 0
+        return new_tensor
 
 
-voigt_map = [[0,0],[1,1],[2,2],[1,2],[2,0],[0,1]]
+voigt_map = [(0,0),(1,1),(2,2),(1,2),(2,0),(0,1)]
 
 class ElasticTensor(SQTensor):
     """
     This class extends SQTensor to describe the 6x6
-    elastic tensor, C_{ij}.
+    elastic tensor, C_{ij}, in Voigt-notation
     """
-
     def __new__(cls, input_matrix):
         obj = SQTensor(input_matrix).view(cls)
         if obj.shape[0]!=6:
-            raise ValueError("Elastic tensor input must be\
-                             a 6x6 array")
+            raise ValueError("Default elastic tensor constructor requires "\
+                             "input argument to be the Voigt-notation 6x6 "\
+                             "array.  To construct from a 3x3x3x3 array, use "\
+                             "ElasticTensor.from_full_tensor")
         if not obj.is_symmetric:
             raise ValueError("Elastic tensor input must be\
                              symmetric")
@@ -164,50 +176,53 @@ class ElasticTensor(SQTensor):
     def __repr__(self):
         return "ElasticTensor({})".format(self.__str__())
 
-    # TODO: JHM suggests might want to split this up
     @property
-    def KG_average(self):
-        """
-        calculates the Voigt-Reuss-Hill average
-        """
-        K_voigt = self[:3,:3].mean() 
-        G_voigt = (2.*self[:3,:3].trace() - np.triu(self[:3,:3]).sum() \
+    def compliance_tensor(self):
+        return self.I
+
+    @property 
+    def k_voigt(self):
+        return self[:3,:3].mean()
+
+    @property
+    def g_voigt(self):
+        return (2.*self[:3,:3].trace() - np.triu(self[:3,:3]).sum() \
                     + 3*self[3:,3:].trace()) / 15.
-        K_reuss = 1./self.I[:3,:3].sum()
-        G_reuss = 15./(8.*self.I[:3,:3].trace() \
+
+    @property
+    def k_reuss(self):
+        return 1./self.I[:3,:3].sum()
+
+    @property
+    def g_reuss(self):
+        return 15./(8.*self.I[:3,:3].trace() \
                     - 4.*np.triu(self.I[:3,:3]).sum() \
                     + 3.*self.I[3:,3:].trace())
-        K_vrh = 0.5*(K_voigt + K_reuss)
-        G_vrh = 0.5*(G_voigt + G_reuss)
-        
-        return [K_voigt, G_voigt, K_reuss, G_reuss, K_vrh, G_vrh]
+
+    @property
+    def k_vrh(self):
+        return 0.5*(self.k_voigt + self.k_reuss)
+
+    @property
+    def g_vrh(self):
+        return 0.5*(self.g_voigt + self.g_reuss)
 
     @property
     def universal_anisotropy(self):
         """
         calculates value for universal anisotropy
         """
-        average_Cij = self.KG_average
-        return 5.*average_Cij[1]/average_Cij[3] \
-                + average_Cij[0]/average_Cij[2] - 6.
+        return 5.*self.g_voigt/self.g_reuss \
+                + self.k_voigt/self.k_reuss - 6.
     
-    @property
-    def polar_decomposition(self,side='right'):
-        """
-        calculates matrices for polar decomposition
-        """
-        return polar(self,side=side)
-
     @property
     def homogeneous_poisson(self):
         """
-        calculates homogeneous poisson
+        calculates homogeneous poisson ratio
         """
-        average_Cij = self.KG_average
-        return (1. - 2./3. * average_Cij[5]/average_Cij[4]) / \
-                (2. + 2./3. * average_Cij[5]/average_Cij[4])
+        return (1. - 2./3. * self.g_vrh/self.k_vrh) / \
+                (2. + 2./3. * self.g_vrh/self.k_vrh)
 
-    
     @property
     def full_tensor(self):
         """
@@ -225,19 +240,19 @@ class ElasticTensor(SQTensor):
         return c
 
     @classmethod
-    def from_full_tensor(cls,c_ijkl):
+    def from_full_tensor(cls,c_ijkl,tol=1e-5):
         """
         Factory method to construct elastic tensor from fourth order
         tensor C_ijkl.  First tests for appropriate symmetries and then 
         constructs the 6x6 voigt notation tensor.
 
         Args:
-            c_ijkl (3x3x3x3 array-like): input fourth order tensor corresponding
+            c_ijkl (3x3x3x3 array-like): fourth-order tensor corresponding
                 to the full elastic tensor
+            tol (float): tolerance for the symmetry test of the tensor
         """
         # Test symmetry of elastic tensor
         c_ijkl = np.array(c_ijkl)
-        tol = 1e-10
         if not ((c_ijkl - np.transpose(c_ijkl,(1,0,2,3)) < tol).all() and
                 (c_ijkl - np.transpose(c_ijkl,(0,1,3,2)) < tol).all() and
                 (c_ijkl - np.transpose(c_ijkl,(1,0,3,2)) < tol).all() and
@@ -255,50 +270,44 @@ class ElasticTensor(SQTensor):
         return cls(c_pq)
 
     @classmethod
-    def from_stress_strain_dict(cls,strain_stress_dict):
-        # Initialize Cij array
-        Cij = np.zeros((6, 6))
-        # Upper triangular indices
-        # inds = zip(*np.triu_indices(3))
-        inds = [[0,0], [1,1], [2,2], [1,2], [0,2], [0,1]]
+    def from_stress_strain(cls,strains,stresses):
+        """
+        Class method to fit an elastic tensor from stress/strain data.  Method
+        uses Moore-Penrose pseudoinverse to invert the s = C*e equation with
+        elastic tensor, stress, and strain in voigt format
 
-        for n1 in range(0,6):
-            strain = []
-            stress = []
-            count1 = 0
+        Args:
+            stresses (Nx3x3 array-like): list or array of stresses
+            strains (Nx3x3 array-like): list or array of strains
+        """
+        # convert the stress/strain to Nx6 arrays of voigt-notation
+        stresses = np.array([Stress(stress).voigt for stress in stresses])
+        strains = np.array([Strains(strain).voigt for strain in strains])
 
-            for c in stress_dict:
-                # c.i and c.j refer to the independent deformation
-                if c.i == inds[n1][0] and c.j == inds[n1][1]:
-                    strain.append(c[c.i, c.j])
-                    stress.append(stress_dict[c])
+        return cls(np.transpose(np.dot(np.linalg.pinv(strains),stresses)))
+ 
+    def from_stress_dict(self, stress_dict, tol=0.1):
+        """
+        Constructs the elastic tensor from IndependentStrain-Stress dictionary
+        corresponding to legacy behavior of phonons package.
 
-            for k in inds:
-                true_data = self._chain_stresses(stress, k[0], k[1])
-                p1 = np.polyfit(strain, true_data, 1)
-                #p2 = np.polyfit(strain, true_data, 2)
-                #p3 = np.polyfit(strain, true_data, 3)
-
-                f1 = np.polyval(p1, strain)
-                #f2 = np.polyval(p2, strain)
-                #f3 = np.polyval(p3, strain)
-
-                Cij[count1, n1] = -0.10*p1[0]
-                count1 += 1                
-
-        for n1 in range(0,6):
-            for n2 in range(0,6):
-                if np.abs(Cij[n1, n2]) < tol:
-                    Cij[n1, n2] = 0
-
-                if n2 > 2:
-                    Cij[n1, n2] = Cij[n1, n2]*0.50
-
-        return Cij
-
+        Args:
+            stress_dict (dict): dictionary of stresses indexed by corresponding
+                IndependentStrain objects.
+        """
+        inds = [(0,0), (1,1), (2,2), (1,2), (0,2), (0,1)]
+        Cij = np.array([[np.polyfit([strain[ind1] for strain in stress_dict.keys() 
+                                        if (strain.i,strain.j)==ind1],
+                                    [stress_dict[strain][ind2] for strain 
+                                        in stress_dict.keys() 
+                                        if (strain.i,strain.j)==ind1],1)[0]
+                           for ind1 in inds] for ind2 in inds])
+        Cij = -0.1*Cij # Convert units/sign convention of vasp stress tensor
+        Cij[3:,3:] = 0.5*Cij[3:,3:] # account for voigt doubling of e4,e5,e6
+        return cls(Cij).zeroed(tol)
 
 if __name__ == "__main__":
-    import doctest
+    import dectest
     doctest.testmod()
 
     eye = np.identity(3)
