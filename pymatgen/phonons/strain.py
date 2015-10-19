@@ -10,6 +10,7 @@ from pymatgen.io.cif import CifParser
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.phonons.tensors import SQTensor
+from pymatgen.phonons.deformation import Deformation
 from pymatgen.transformations.standard_transformations import *
 import warnings
 import numpy as np
@@ -29,14 +30,7 @@ class Strain(SQTensor):
     """
     Subclass of SQTensor that describes the strain tensor
     """
-    # TODO: AJ says there should be a static from_strain(matrix) method that 
-    #           constructs the object from a strain matrix rather than deformation matrix
-    #           For an example of the above, see the various 'from_xxxxx' methods in 
-    #           pymatgen.core.structure.Composition
-    # TODO: JM says we might want to have the default 
-    #           constructor use the strain matrix, and have a from_deformation_matrix
-    #           method instead of a from_strain method
-    
+        
     def __new__(cls, strain_matrix, dfm=None):
         obj = SQTensor(strain_matrix).view(cls)
         obj._dfm = dfm
@@ -64,9 +58,8 @@ class Strain(SQTensor):
         Args:
             deformation (3x3 array-like):
         """
-        dfm = SQTensor(deformation)
-        #import pdb; pdb.set_trace()
-        return cls(0.5*(dfm*(dfm.T)) - np.eye(3), dfm)
+        dfm = Deformation(deformation)
+        return cls(0.5*(dfm.T*dfm - np.eye(3)), dfm)
 
     @property
     def deformation_matrix(self):
@@ -87,53 +80,28 @@ class Strain(SQTensor):
         """
         if self._dfm == None:
             raise ValueError("No deformation matrix supplied "\
-                             "for this strain tensor.")
-        indices = zip(*np.asarray(self._dfm - np.eye(3)).nonzero())
-        if len(indices) != 1:
-            raise ValueError("One and only one independent deformation\
-                             must be applied.")
+                             "for this strain tensor.") 
+        return self._dfm.check_independent()
 
-        return indices[0]
+    @property
+    def voigt(self):
+        """
+        translates a strain tensor into a voigt notation vector
+        """
+        return [self[0,0],self[1,1],self[2,2],
+                2.*self[1,2],2.*self[0,2],2.*self[0,1]]
 
 class IndependentStrain(Strain):
-    # todo: add polar decomposition method, JM says this is
-    #           now implemented in SQTensor superclass
-
-    def __init__(self, deformation,tol=0.00000001):
-        """
-        """
-        super(Strain, self).__init__(deformation)
-        (self._i, self._j) = self.independent_deformation
-
-    # TODO: JM asks should this be a class method?
-    @staticmethod
-    def from_ind_amt_dfm(matrixpos, amt):
-        F = np.identity(3)
-        F[matrixpos] = F[matrixpos] + amt
-        return IndependentStrain(F)
-
-    def check_F(self, tol=0.00001):
-        if self._dfm == None:
-            raise ValueError("No deformation matrix supplied for this strain tensor.")
-        df1 = self._dfm
-        counter = 0
-        checkmatrix = np.zeros((3,3))
-
-        for c1 in range(0,3):
-            for c2 in range(0,3):
-                if c1 != c2:
-                    if np.abs(df1[c1,c2]) > tol:
-                        checkmatrix[c1,c2] = 1
-                        counter = counter + 1
-                else:
-                    if np.abs(df1[c1,c2]-1) > tol:
-                        checkmatrix[c1,c2] = 1
-                        counter = counter + 1
-
-        if counter != 1:
-            raise ValueError("One independent deformation must be applied")
-
-        return (checkmatrix.nonzero()[0][0], checkmatrix.nonzero()[1][0])
+    """
+    Class for independent strains intended for use with old Materials Project
+    elasticity workflow.  Note that the default constructor constructs from 
+    a deformation matrix, rather than an array representing the strain, to 
+    emulate the old workflow behavior.
+    """
+    def __new__(cls, deformation_matrix):
+        obj = Strain.from_deformation(deformation_matrix).view(cls)
+        (obj._i,obj._j) = obj.independent_deformation
+        return obj
 
     @property
     def i(self):
@@ -151,7 +119,7 @@ if __name__ == "__main__":
 #    print mat
 
     my_strain = IndependentStrain.from_deformation(mat)
-    my_strain.check_F()
+    #my_strain.check_F()
 
 
 #    print my_strain._strain

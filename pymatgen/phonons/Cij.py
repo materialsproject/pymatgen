@@ -134,5 +134,23 @@ class CijFitter(object):
                     Cij[n1, n2] = Cij[n1, n2]*0.50
 
         return Cij
+    
+    def fitCij3(self, tol=0.1):
+        """
+        Quick check to make sure JHM understands the algorithm
+        and tests to see if it can be shortened.
+        """
+        stress_dict = self._sig_eps
+        # Initialize Cij array
+        inds = [(0,0), (1,1), (2,2), (1,2), (0,2), (0,1)]
+        Cij = np.array([[np.polyfit([strain[ind1] for strain in stress_dict.keys() 
+                                        if (strain.i,strain.j)==ind1],
+                                    [stress_dict[strain][ind2] for strain in stress_dict.keys()
+                                        if (strain.i,strain.j)==ind1],1)[0] 
+                           for ind1 in inds] for ind2 in inds])
+        Cij = -0.1*Cij
+        Cij[3:,3:] = 0.5*Cij[3:,3:]
+        return Cij
+
 
 
