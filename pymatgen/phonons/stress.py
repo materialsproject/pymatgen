@@ -9,6 +9,7 @@ from pymatgen.io.cif import CifParser
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import *
+from pymatgen.phonons import voigt_map
 from pymatgen.phonons.tensors import SQTensor
 import numpy as np
 
@@ -112,7 +113,7 @@ class Stress(SQTensor):
         """
         returns the vector representing to the stress tensor in voigt notation
         """
-        return [self[ind] for ind in [(0,0),(1,1),(2,2),(1,2),(0,2),(0,1)]]
+        return [self[ind] for ind in voigt_map]
 
 if __name__ == "__main__":
 
