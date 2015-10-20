@@ -22,8 +22,8 @@ __date__ ="March 22, 2012"
 
 class SQTensor(np.matrix):
     """
-    Class for doing useful general operations on *square* rank 2 tensors, without 
-    restrictions on what type (stress, elastic, strain etc.).
+    Class for doing useful general operations on *square* second order tensors, 
+    without restrictions on what type (stress, elastic, strain etc.).
     Error is thrown when the class is initialized with non-square matrix.
     """
 
@@ -110,6 +110,9 @@ class SQTensor(np.matrix):
             rotation (3x3 array-like): rotation tensor, is tested
                 for rotation properties and then operates on self
         """
+        if self.shape() != (3,3):
+            raise NotImplementedError("Rotations are only implemented for "\
+                                      "3x3 tensors.")
         rotation = SQTensor(rotation)
         if not rotation.is_rotation():
             raise ValueError("Specified rotation matrix is invalid")
@@ -286,7 +289,7 @@ class ElasticTensor(SQTensor):
 
         return cls(np.transpose(np.dot(np.linalg.pinv(strains),stresses)))
  
-    def from_stress_dict(self, stress_dict, tol=0.1):
+    def from_stress_dict(self, stress_dict, tol=0.1, vasp=True):
         """
         Constructs the elastic tensor from IndependentStrain-Stress dictionary
         corresponding to legacy behavior of phonons package.
@@ -302,12 +305,13 @@ class ElasticTensor(SQTensor):
                                         in stress_dict.keys() 
                                         if (strain.i,strain.j)==ind1],1)[0]
                            for ind1 in inds] for ind2 in inds])
-        Cij = -0.1*Cij # Convert units/sign convention of vasp stress tensor
+        if vasp:
+            Cij = -0.1*Cij # Convert units/sign convention of vasp stress tensor
         Cij[3:,3:] = 0.5*Cij[3:,3:] # account for voigt doubling of e4,e5,e6
         return cls(Cij).zeroed(tol)
 
 if __name__ == "__main__":
-    import dectest
+    import doctest
     doctest.testmod()
 
     eye = np.identity(3)
