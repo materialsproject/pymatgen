@@ -10,7 +10,8 @@ from pymatgen.io.cif import CifParser
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import *
-from pymatgen.phonons.tensors import SQTensor, voigt_map
+from pymatgen.phonons import voigt_map
+from pymatgen.phonons.tensors import SQTensor
 import warnings
 import numpy as np
 import os
