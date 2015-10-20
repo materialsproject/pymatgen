@@ -494,6 +494,7 @@ class ComputedReaction(Reaction):
         """
         self._reactant_entries = reactant_entries
         self._product_entries = product_entries
+        self._all_entries = reactant_entries + product_entries
         reactant_comp = set([e.composition
                              .get_reduced_composition_and_factor()[0]
                              for e in reactant_entries])
@@ -502,6 +503,16 @@ class ComputedReaction(Reaction):
                             for e in product_entries])
         super(ComputedReaction, self).__init__(list(reactant_comp),
                                                list(product_comp))
+
+    @property
+    def all_entries(self):
+        entries = []
+        for c in self._all_comp:
+            for e in self._all_entries:
+                if e.composition.reduced_formula == c.reduced_formula:
+                    entries.append(e)
+                    break
+        return entries
 
     @property
     def calculated_reaction_energy(self):
