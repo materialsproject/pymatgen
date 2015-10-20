@@ -706,9 +706,10 @@ class BandStructureSymmLine(BandStructure, MSONable):
         if len(one_group) != 0:
             branches_tmp.append(one_group)
         for b in branches_tmp:
-            self._branches.append({"start_index": b[0], "end_index": b[-1],
-                                   "name": (self._kpoints[b[0]].label + "-" +
-                                            self._kpoints[b[-1]].label)})
+            self._branches.append(
+                {"start_index": b[0], "end_index": b[-1],
+                "name": str(self._kpoints[b[0]].label) + "-" +
+                        str(self._kpoints[b[-1]].label)})
 
         self._is_spin_polarized = False
         if len(self._bands) == 2:
