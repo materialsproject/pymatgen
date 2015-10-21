@@ -1,9 +1,15 @@
 Change log
 ==========
 
-v3.2.1
+v3.2.3
 ------
-* Fix wrong U value for Ce and Eu.
-* Properly handle empty multiline strings in Cif
-* Add ability to get specific data in MPRester.get_entries. Make all get_entry 
-  methods consistent  in kwargs.
+* Massive update to abinit support. Note that pymatgen.io.abinitio has 
+  been refactored to pymatgen.io.abinit. (Matteo, Setten)
+* NwOutput now supports parsing of Hessian matrices (contributed by Xin 
+  Chen)
+* Gaussian support now has the ability to read potential energy surface
+  and electronic transitions computed with TD-DFT (Germain Salvato 
+  Vallverdu)
+* Bug fixes for CifWriter with symmetry.
+* Bug fixes for surface generation and reactions.
+* Monty requirement increased.

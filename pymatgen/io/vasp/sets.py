@@ -35,14 +35,14 @@ from monty.serialization import loadfn
 
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, PMGSONable)):
+class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Abstract base class representing a set of Vasp input parameters.
     The idea is that using a VaspInputSet, a complete set of input files

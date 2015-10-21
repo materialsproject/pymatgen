@@ -17,3 +17,7 @@ __email__ = 'ongsp@ucsd.edu'
 __date__ = '8/1/15'
 
 from pymatgen.io.vasp import *
+
+import warnings
+warnings.warn("pymatgen.io.vaspio has been moved pymatgen.io.vasp. "
+              "This stub will be removed in pymatgen 4.0.")
