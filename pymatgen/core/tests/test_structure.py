@@ -554,24 +554,6 @@ class StructureTest(PymatgenTest):
         self.assertAlmostEqual(a2 / a1, 1.1)
         self.assertAlmostEqual(b2 / b1, 1.2)
         self.assertAlmostEqual(c2 / c1, 1.3)
-        
-    def test_apply_deformation_gradient(self):
-        s = self.structure
-        initial_coord = s[1].coords
-        s.apply_deformation_gradient([[1.01,0.02,0.03],
-                                      [0.01,1.01,0.01],
-                                      [0.02,0.01,1.03]])
-        self.assertAlmostEqual(
-            s.lattice.abc,
-            (3.8785999130369997, 3.878600984287687, 3.8785999130549516))
-        self.assertArrayAlmostEqual(s[1].coords, initial_coord * 1.01)
-        a1, b1, c1 = s.lattice.abc
-        s.apply_strain([0.1, 0.2, 0.3])
-        a2, b2, c2 = s.lattice.abc
-        self.assertAlmostEqual(a2 / a1, 1.1)
-        self.assertAlmostEqual(b2 / b1, 1.2)
-        self.assertAlmostEqual(c2 / c1, 1.3)
-
 
     def test_scale_lattice(self):
         initial_coord = self.structure[1].coords
