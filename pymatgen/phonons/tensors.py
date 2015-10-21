@@ -20,8 +20,9 @@ class SQTensor(np.ndarray):
 
     def __new__(cls, input_array):
         obj = np.asarray(input_array).view(cls)
-        if obj.shape[0] != obj.shape[1]:
-            raise ValueError("SQTensor only takes square array-likes as input")
+        if not (len(obj.shape) == 2 and obj.shape[0] == obj.shape[1]):
+            raise ValueError("SQTensor only takes 2-D "
+                             "square array-likes as input")
         return obj
 
     def __array_finalize__(self, obj):
@@ -43,6 +44,8 @@ class SQTensor(np.ndarray):
         """
         shorthand for matrix inverse on SQTensor, addresses issue in np.matrix
         """
+        if self.det == 0:
+            raise ValueError("SQTensor is non-invertible")
         return SQTensor(np.linalg.inv(self))
 
     @property
@@ -98,7 +101,7 @@ class SQTensor(np.ndarray):
             rotation (3x3 array-like): rotation tensor, is tested
                 for rotation properties and then operates on self
         """
-        if self.shape() != (3, 3):
+        if self.shape != (3, 3):
             raise NotImplementedError("Rotations are only implemented for "
                                       "3x3 tensors.")
         rotation = SQTensor(rotation)
@@ -126,14 +129,13 @@ class SQTensor(np.ndarray):
         # TODO: JM asks whether this fulfills the necessary sign conventions
         return np.poly(self)[1:]
 
-    @property
     def polar_decomposition(self, side='right'):
         """
         calculates matrices for polar decomposition
         """
         return polar(self, side=side)
 
-    def zeroed(self, tol):
+    def zeroed(self, tol=1e-5):
         """
         returns the matrix with all entries below a certain threshold
         (i.e. tol) set to zero
