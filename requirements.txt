@@ -2,9 +2,9 @@ PyDispatcher==2.0.3
 numpy==1.9.2
 pybtex==0.18
 requests==2.7.0
-monty==0.6.5
+monty==0.7.0
 pyhull==1.5.4
 pyyaml==3.11
 six==1.9.0
-prettytable==0.7.2
 scipy==0.16.0
+tabulate==0.7.5

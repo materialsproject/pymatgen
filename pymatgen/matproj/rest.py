@@ -123,9 +123,9 @@ class MPRester(object):
         url = self.preamble + sub_url
         try:
             if method == "POST":
-                response = self.session.post(url, data=payload)
+                response = self.session.post(url, data=payload, verify=True)
             else:
-                response = self.session.get(url, params=payload)
+                response = self.session.get(url, params=payload, verify=True)
             if response.status_code in [200, 400]:
                 if mp_decode:
                     try:
@@ -907,9 +907,16 @@ class MPRester(object):
                 return {"chemsys": {"$in": chemsyss}}
             else:
                 all_formulas = set()
-                nelements = re.findall(r"(\*[\.\d]*|\{.*\}[\.\d]*|[A-Z]["
-                                       r"a-z]*[\.\d]*)", t)
-                nelements = len(nelements)
+                explicit_els = []
+                wild_card_els = []
+                for sym in re.findall(
+                        r"(\*[\.\d]*|\{.*\}[\.\d]*|[A-Z][a-z]*)[\.\d]*", t):
+                    if ("*" in sym) or ("{" in sym):
+                        wild_card_els.append(sym)
+                    else:
+                        m = re.match("([A-Z][a-z]*)[\.\d]*", sym)
+                        explicit_els.append(m.group(1))
+                nelements = len(wild_card_els) + len(set(explicit_els))
                 parts = re.split(r"(\*|\{.*\})", t)
                 parts = [parse_sym(s) for s in parts if s != ""]
                 for f in itertools.product(*parts):

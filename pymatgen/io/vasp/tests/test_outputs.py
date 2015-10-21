@@ -23,7 +23,7 @@ import numpy as np
 import warnings
 
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
-    Vasprun, Procar, Xdatcar, Dynmat
+    Vasprun, Procar, Xdatcar, Dynmat, BSVasprun
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
@@ -408,8 +408,103 @@ class OutcarTest(unittest.TestCase):
 
         self.assertIsNotNone(outcar.as_dict())
 
+class BSVasprunTest(unittest.TestCase):
 
+    def test_get_band_structure(self):
+        filepath = os.path.join(test_dir, 'vasprun_Si_bands.xml')
+        vasprun = BSVasprun(filepath, parse_potcar_file=False)
+        bs = vasprun.get_band_structure(kpoints_filename=
+                                        os.path.join(test_dir,
+                                                     'KPOINTS_Si_bands'))
+        cbm = bs.get_cbm()
+        vbm = bs.get_vbm()
+        self.assertEqual(cbm['kpoint_index'], [13], "wrong cbm kpoint index")
+        self.assertAlmostEqual(cbm['energy'], 6.2301, "wrong cbm energy")
+        self.assertEqual(cbm['band_index'], {Spin.up: [4], Spin.down: [4]},
+                         "wrong cbm bands")
+        self.assertEqual(vbm['kpoint_index'], [0, 63, 64],
+                         "wrong vbm kpoint index")
+        self.assertAlmostEqual(vbm['energy'], 5.6158, "wrong vbm energy")
+        self.assertEqual(vbm['band_index'], {Spin.up: [1, 2, 3],
+                                             Spin.down: [1, 2, 3]},
+                         "wrong vbm bands")
+        self.assertEqual(vbm['kpoint'].label, "\Gamma", "wrong vbm label")
+        self.assertEqual(cbm['kpoint'].label, None, "wrong cbm label")
 
+    def as_dict(self):
+        """
+        Json-serializable dict representation.
+        """
+        d = {"vasp_version": self.vasp_version,
+             "has_vasp_completed": self.converged,
+             "nsites": len(self.final_structure)}
+        comp = self.final_structure.composition
+        d["unit_cell_formula"] = comp.as_dict()
+        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
+        d["pretty_formula"] = comp.reduced_formula
+        symbols = [s.split()[1] for s in self.potcar_symbols]
+        symbols = [re.split("_", s)[0] for s in symbols]
+        d["is_hubbard"] = self.is_hubbard
+        d["hubbards"] = {}
+        if d["is_hubbard"]:
+            us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
+            js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
+            if len(us) == len(symbols):
+                d["hubbards"] = {symbols[i]: us[i] - js[i]
+                                 for i in range(len(symbols))}
+            else:
+                raise VaspParserError("Length of U value parameters and atomic"
+                                      " symbols are mismatched.")
+
+        unique_symbols = sorted(list(set(self.atomic_symbols)))
+        d["elements"] = unique_symbols
+        d["nelements"] = len(unique_symbols)
+
+        d["run_type"] = self.run_type
+
+        vin = {"incar": {k: v for k, v in self.incar.items()},
+               "crystal": self.final_structure.as_dict(),
+               "kpoints": self.kpoints.as_dict()}
+        actual_kpts = [{"abc": list(self.actual_kpoints[i]),
+                        "weight": self.actual_kpoints_weights[i]}
+                       for i in range(len(self.actual_kpoints))]
+        vin["kpoints"]["actual_points"] = actual_kpts
+        vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
+        vin["potcar_spec"] = self.potcar_spec
+        vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
+        vin["parameters"] = {k: v for k, v in self.parameters.items()}
+        vin["lattice_rec"] = self.lattice_rec.as_dict()
+        d["input"] = vin
+
+        nsites = len(self.final_structure)
+
+        if self.eigenvalues:
+            eigen = defaultdict(dict)
+            for (spin, index), values in self.eigenvalues.items():
+                eigen[index][str(spin)] = values
+            vout["eigenvalues"] = eigen
+            (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
+            vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
+                             is_gap_direct=is_direct))
+
+            if self.projected_eigenvalues:
+                peigen = []
+                for i in range(len(eigen)):
+                    peigen.append({})
+                    for spin in eigen[i].keys():
+                        peigen[i][spin] = []
+                        for j in range(len(eigen[i][spin])):
+                            peigen[i][spin].append({})
+                for (spin, kpoint_index, band_index, ion_index, orbital), \
+                        value in self.projected_eigenvalues.items():
+                    beigen = peigen[kpoint_index][str(spin)][band_index]
+                    if orbital not in beigen:
+                        beigen[orbital] = [0.0] * nsites
+                    beigen[orbital][ion_index] = value
+                vout['projected_eigenvalues'] = peigen
+
+        d['output'] = vout
+        return jsanitize(d, strict=True)
 
 
 class OszicarTest(unittest.TestCase):
@@ -487,14 +582,14 @@ class XdatcarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'XDATCAR_4')
         x = Xdatcar(filepath)
         structures = x.structures
-        self.assertEqual(len(structures), 3)
+        self.assertEqual(len(structures), 4)
         for s in structures:
             self.assertEqual(s.formula, "Li2 O1")
 
         filepath = os.path.join(test_dir, 'XDATCAR_5')
         x = Xdatcar(filepath)
         structures = x.structures
-        self.assertEqual(len(structures), 3)
+        self.assertEqual(len(structures), 4)
         for s in structures:
             self.assertEqual(s.formula, "Li2 O1")
 

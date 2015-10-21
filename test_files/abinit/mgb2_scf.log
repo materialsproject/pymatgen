@@ -1,0 +1,1173 @@
+  ABINIT 
+  
+  Give name for formatted input file: 
+/Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t0/run.abi
+  Give name for formatted output file:
+/Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t0/run.abo
+  Give root name for generic input files:
+/Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t0/indata/in
+  Give root name for generic output files:
+/Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t0/outdata/out
+  Give root name for generic temporary files:
+/Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t0/tmpdata/tmp
+
+.Version 7.11.5 of ABINIT 
+.(MPI version, prepared for a x86_64_darwin10.8.0_gnu4.7 computer) 
+
+.Copyright (C) 1998-2015 ABINIT group . 
+ ABINIT comes with ABSOLUTELY NO WARRANTY.
+ It is free software, and you are welcome to redistribute it
+ under certain conditions (GNU General Public License,
+ see ~abinit/COPYING or http://www.gnu.org/copyleft/gpl.txt).
+
+ ABINIT is a project of the Universite Catholique de Louvain,
+ Corning Inc. and other collaborators, see ~abinit/doc/developers/contributors.txt .
+ Please read ~abinit/doc/users/acknowledgments.html for suggested
+ acknowledgments of the ABINIT effort.
+ For more information, see http://www.abinit.org .
+
+.Starting date : Fri 13 Mar 2015.
+- ( at 20h08 )
+  
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ === Build Information === 
+  Version       : 7.11.5
+  Build target  : x86_64_darwin10.8.0_gnu4.7
+  Build date    : 20150309
+
+ === Compiler Suite === 
+  C compiler       : gnu4.7
+  C++ compiler     : gnu4.7
+  Fortran compiler : gnu4.7
+  CFLAGS           :  -g -O2 -mtune=native -march=native
+  CXXFLAGS         :  -g -O2 -mtune=native -march=native
+  FCFLAGS          :  -g -ffree-line-length-none
+  FC_LDFLAGS       : 
+
+ === Optimizations === 
+  Debug level        : basic
+  Optimization level : standard
+  Architecture       : unknown_unknown
+
+ === Multicore === 
+  Parallel build : yes
+  Parallel I/O   : yes
+  openMP support : no
+  GPU support    : no
+
+ === Connectors / Fallbacks === 
+  Connectors on : yes
+  Fallbacks on  : yes
+  DFT flavor    : libxc-fallback
+  FFT flavor    : fftw3
+  LINALG flavor : netlib-fallback
+  MATH flavor   : none
+  TIMER flavor  : abinit
+  TRIO flavor   : netcdf-fallback+etsf_io-fallback
+
+ === Experimental features === 
+  Bindings            : @enable_bindings@
+  Exports             : no
+  GW double-precision : yes
+
+ === Bazaar branch information === 
+  Branch ID : gmatteo@cenaero-20150309121815-5lbj8ihq15ffcsbb
+  Revision  : 939
+  Committed : 0
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Default optimizations:
+   -O2 -mtune=native -march=native
+
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ CPP options activated during the build:
+
+                    CC_GNU                   CXX_GNU           HAVE_BZR_BRANCH
+ 
+                 HAVE_CLIB            HAVE_DFT_LIBXC HAVE_FC_ALLOCATABLE_DT...
+ 
+             HAVE_FC_ASYNC  HAVE_FC_COMMAND_ARGUMENT      HAVE_FC_COMMAND_LINE
+ 
+        HAVE_FC_CONTIGUOUS           HAVE_FC_CPUTIME              HAVE_FC_EXIT
+ 
+             HAVE_FC_FLUSH             HAVE_FC_GAMMA            HAVE_FC_GETENV
+ 
+          HAVE_FC_INT_QUAD             HAVE_FC_IOMSG     HAVE_FC_ISO_C_BINDING
+ 
+        HAVE_FC_LONG_LINES        HAVE_FC_MOVE_ALLOC           HAVE_FC_PRIVATE
+ 
+         HAVE_FC_PROTECTED         HAVE_FC_STREAM_IO            HAVE_FC_SYSTEM
+ 
+                  HAVE_FFT            HAVE_FFT_FFTW3              HAVE_FFT_MPI
+ 
+           HAVE_FFT_SERIAL               HAVE_GW_DPC        HAVE_LIBPAW_ABINIT
+ 
+     HAVE_LINALG_ZDOTC_B*G     HAVE_LINALG_ZDOTU_B*G                  HAVE_MPI
+ 
+                 HAVE_MPI2       HAVE_MPI_IALLREDUCE        HAVE_MPI_IALLTOALL
+ 
+       HAVE_MPI_IALLTOALLV               HAVE_MPI_IO HAVE_MPI_TYPE_CREATE_S...
+ 
+                HAVE_NUMPY                HAVE_TIMER         HAVE_TIMER_ABINIT
+ 
+            HAVE_TIMER_MPI         HAVE_TIMER_SERIAL         HAVE_TRIO_ETSF_IO
+ 
+          HAVE_TRIO_NETCDF              USE_MACROAVE                            
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+- input  file    -> /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t0/run.abi
+- output file    -> /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t0/run.abo
+- root for input  files -> /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t0/indata/in
+- root for output files -> /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t0/outdata/out
+
+-instrng :    60 lines of input have been read from file /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t0/run.abi
+
+
+ iofn2 : Please give name of formatted atomic psp file
+ iofn2 : for atom type   1 , psp file is /Users/gmatteo/Coding/git_branches/abipy/abipy/data/pseudos/12mg.pspnc
+
+ iofn2 : Please give name of formatted atomic psp file
+ iofn2 : for atom type   2 , psp file is /Users/gmatteo/Coding/git_branches/abipy/abipy/data/pseudos/5b.pspnc
+  read the values zionpsp=  2.0 , pspcod=   1 , lmax=   2
+nproj =      1     1     0     0
+nprojso =      0     0     0
+  read the values zionpsp=  3.0 , pspcod=   1 , lmax=   1
+nproj =      1     0     0     0
+nprojso =      0     0     0
+
+ inpspheads: deduce mpsang  =   3, n1xccc  =2501.
+
+ invars1m : enter jdtset=0
+ invars1 : treat image number     1
+
+ symlatt : the Bravais lattice is hP (primitive hexagonal)
+  xred   is defined in input file
+ ingeo : takes atomic coordinates from input array xred
+
+ symlatt : the Bravais lattice is hP (primitive hexagonal)
+
+ symlatt : the Bravais lattice is hP (primitive hexagonal)
+ symspgr : spgroup= 191  P6/m m m   (=D6h^1)
+       Simple Lattice Grid
+       Simple Lattice Grid
+  dtset%nelect=   8.0000000000000000     
+ chkneu : initialized the occupation numbers for occopt=    4
+    spin-unpolarized case :
+  2.00  2.00  2.00  2.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00
+npfft, npband, npspinor and npkpt:     1    1    1    2
+mpi_setup: mkmem  undefined in the input file.Use default mkmem  = nkpt
+ mpi_setup: With nkpt_me=20 and mkmem  = 40, ground state wf handled in core.
+ Resetting mkmem  to nkpt_me to save memory space.
+mpi_setup: mkqmem undefined in the input file.Use default mkqmem = nkpt
+ mpi_setup: With nkpt_me=20 and mkqmem = 40, ground state wf handled in core.
+ Resetting mkqmem to nkpt_me to save memory space.
+mpi_setup: mk1mem undefined in the input file.Use default mk1mem = nkpt
+ mpi_setup: With nkpt_me=20 and mk1mem = 40, ground state wf handled in core.
+ Resetting mk1mem to nkpt_me to save memory space.
+ For input ecut=  1.000000E+01 best grid ngfft=      18      18      20
+       max ecut=  1.113388E+01
+
+ ==== FFT mesh ====
+  FFT mesh divisions ........................    18   18   20
+  Augmented FFT divisions ...................    19   19   20
+  FFT algorithm .............................   312
+  FFT cache size ............................    16
+ getmpw: optimal value of mpw=     308
+
+ Symmetries : space group P6/m m m (#191); Bravais hP (primitive hexag.)
+
+ getdim_nloc : deduce lmnmax  =   4, lnmax  =   2,
+                      lmnmaxso=   4, lnmaxso=   2.
+memory : analysis of memory needs
+================================================================================
+ Values of the parameters that define the memory need of the present run
+   intxc =         0  ionmov =         0    iscf =         7 xclevel =         1
+  lmnmax =         2   lnmax =         2   mband =        11  mffmem =         1
+P  mgfft =        20   mkmem =        20 mpssoang=         3     mpw =       308
+  mqgrid =      3001   natom =         3    nfft =      6480    nkpt =        40
+  nloalg =         4  nspden =         1 nspinor =         1  nsppol =         1
+    nsym =        24  n1xccc =      2501  ntypat =         2  occopt =         4
+================================================================================
+P This job should need less than                       4.818 Mbytes of memory.
+  Rough estimation (10% accuracy) of disk space for files :
+_ WF disk file :      2.070 Mbytes ; DEN or POT disk file :      0.051 Mbytes.
+================================================================================
+
+ Biggest array : cg(disk), with      1.0359 MBytes.
+ memana : allocated an array of      1.036 Mbytes, for testing purposes.
+ memana : allocated       4.818 Mbytes, for testing purposes. 
+ The job will continue.
+--------------------------------------------------------------------------------
+------------- Echo of variables that govern the present computation ------------
+--------------------------------------------------------------------------------
+-
+- outvars: echo of selected default values                                      
+-   accesswff0 =  0 , fftalg0 =312 , wfoptalg0 =  0
+-
+- outvars: echo of global parameters not present in the input file              
+-  max_nthreads =    0
+-
+ -outvars: echo values of preprocessed input variables --------
+ 
+ These variables are accessible in NetCDF format (/Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t0/outdata/out_OUT.nc)
+
+        accesswff           1
+            acell      1.0000000000E+00  1.0000000000E+00  1.0000000000E+00 Bohr
+              amu      2.43050000E+01  1.08110000E+01
+             ecut      1.00000000E+01 Hartree
+-          fftalg         312
+      fft_opt_lob           2
+           iprcch           6
+              kpt      0.00000000E+00  0.00000000E+00  6.25000000E-02
+                       1.25000000E-01  0.00000000E+00  6.25000000E-02
+                       2.50000000E-01  0.00000000E+00  6.25000000E-02
+                       3.75000000E-01  0.00000000E+00  6.25000000E-02
+                       5.00000000E-01  0.00000000E+00  6.25000000E-02
+                       1.25000000E-01  1.25000000E-01  6.25000000E-02
+                       2.50000000E-01  1.25000000E-01  6.25000000E-02
+                       3.75000000E-01  1.25000000E-01  6.25000000E-02
+                       2.50000000E-01  2.50000000E-01  6.25000000E-02
+                       3.75000000E-01  2.50000000E-01  6.25000000E-02
+                       0.00000000E+00  0.00000000E+00  1.87500000E-01
+                       1.25000000E-01  0.00000000E+00  1.87500000E-01
+                       2.50000000E-01  0.00000000E+00  1.87500000E-01
+                       3.75000000E-01  0.00000000E+00  1.87500000E-01
+                       5.00000000E-01  0.00000000E+00  1.87500000E-01
+                       1.25000000E-01  1.25000000E-01  1.87500000E-01
+                       2.50000000E-01  1.25000000E-01  1.87500000E-01
+                       3.75000000E-01  1.25000000E-01  1.87500000E-01
+                       2.50000000E-01  2.50000000E-01  1.87500000E-01
+                       3.75000000E-01  2.50000000E-01  1.87500000E-01
+                       0.00000000E+00  0.00000000E+00  3.12500000E-01
+                       1.25000000E-01  0.00000000E+00  3.12500000E-01
+                       2.50000000E-01  0.00000000E+00  3.12500000E-01
+                       3.75000000E-01  0.00000000E+00  3.12500000E-01
+                       5.00000000E-01  0.00000000E+00  3.12500000E-01
+                       1.25000000E-01  1.25000000E-01  3.12500000E-01
+                       2.50000000E-01  1.25000000E-01  3.12500000E-01
+                       3.75000000E-01  1.25000000E-01  3.12500000E-01
+                       2.50000000E-01  2.50000000E-01  3.12500000E-01
+                       3.75000000E-01  2.50000000E-01  3.12500000E-01
+                       0.00000000E+00  0.00000000E+00  4.37500000E-01
+                       1.25000000E-01  0.00000000E+00  4.37500000E-01
+                       2.50000000E-01  0.00000000E+00  4.37500000E-01
+                       3.75000000E-01  0.00000000E+00  4.37500000E-01
+                       5.00000000E-01  0.00000000E+00  4.37500000E-01
+                       1.25000000E-01  1.25000000E-01  4.37500000E-01
+                       2.50000000E-01  1.25000000E-01  4.37500000E-01
+                       3.75000000E-01  1.25000000E-01  4.37500000E-01
+                       2.50000000E-01  2.50000000E-01  4.37500000E-01
+                       3.75000000E-01  2.50000000E-01  4.37500000E-01
+         kptrlatt        8    0    0      0    8    0      0    0    8
+          kptrlen      4.66535588E+01
+P           mkmem          20
+            natom           3
+            nband          11
+            ngfft          18      18      20
+             nkpt          40
+-           npkpt           2
+             nsym          24
+           ntypat           2
+              occ      2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+           occopt           4
+           ortalg          -2
+        paral_kgb           1
+            rprim      5.0503958866E+00  2.9158474246E+00  0.0000000000E+00
+                      -5.0503958866E+00  2.9158474246E+00  0.0000000000E+00
+                       0.0000000000E+00  0.0000000000E+00  6.6575051698E+00
+           shiftk      0.00000000E+00  0.00000000E+00  5.00000000E-01
+          spgroup         191
+           symrel      1  0  0   0  1  0   0  0  1      -1  0  0   0 -1  0   0  0 -1
+                       0  1  0   1  0  0   0  0  1       0 -1  0  -1  0  0   0  0 -1
+                       1  1  0  -1  0  0   0  0  1      -1 -1  0   1  0  0   0  0 -1
+                      -1  0  0   1  1  0   0  0  1       1  0  0  -1 -1  0   0  0 -1
+                       0  1  0  -1 -1  0   0  0  1       0 -1  0   1  1  0   0  0 -1
+                      -1 -1  0   0  1  0   0  0  1       1  1  0   0 -1  0   0  0 -1
+                      -1  0  0   0 -1  0   0  0  1       1  0  0   0  1  0   0  0 -1
+                       0 -1  0  -1  0  0   0  0  1       0  1  0   1  0  0   0  0 -1
+                      -1 -1  0   1  0  0   0  0  1       1  1  0  -1  0  0   0  0 -1
+                       1  0  0  -1 -1  0   0  0  1      -1  0  0   1  1  0   0  0 -1
+                       0 -1  0   1  1  0   0  0  1       0  1  0  -1 -1  0   0  0 -1
+                       1  1  0   0 -1  0   0  0  1      -1 -1  0   0  1  0   0  0 -1
+           timopt          -1
+           tolvrs      1.00000000E-06
+           tsmear      3.00000000E-02 Hartree
+            typat      1  2  2
+         wfoptalg          14
+              wtk        0.00391    0.02344    0.02344    0.02344    0.01172    0.02344
+                         0.04688    0.04688    0.02344    0.02344    0.00391    0.02344
+                         0.02344    0.02344    0.01172    0.02344    0.04688    0.04688
+                         0.02344    0.02344    0.00391    0.02344    0.02344    0.02344
+                         0.01172    0.02344    0.04688    0.04688    0.02344    0.02344
+                         0.00391    0.02344    0.02344    0.02344    0.01172    0.02344
+                         0.04688    0.04688    0.02344    0.02344
+           xangst      0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+                      -8.9085146603E-01  1.5430000008E+00  1.7615000010E+00
+                       8.9085146603E-01  1.5430000008E+00  1.7615000010E+00
+            xcart      0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+                      -1.6834652959E+00  2.9158474246E+00  3.3287525849E+00
+                       1.6834652959E+00  2.9158474246E+00  3.3287525849E+00
+             xred      0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+                       3.3333333330E-01  6.6666666670E-01  5.0000000000E-01
+                       6.6666666670E-01  3.3333333330E-01  5.0000000000E-01
+            znucl       12.00000    5.00000
+
+================================================================================
+
+ chkinp: Checking input parameters for consistency.
+ DATA TYPE INFORMATION: 
+ REAL:      Data type name: REAL(DP) 
+            Kind value:      8
+            Precision:      15
+            Smallest nonnegligible quantity relative to 1:  0.22204460E-15
+            Smallest positive number:                       0.22250739-307
+            Largest representable number:                   0.17976931+309
+ INTEGER:   Data type name: INTEGER(default) 
+            Kind value: 4
+            Bit size:   32
+            Largest representable number: 2147483647
+ LOGICAL:   Data type name: LOGICAL 
+            Kind value: 4
+ CHARACTER: Data type name: CHARACTER             Kind value: 1
+
+  ==== OpenMP parallelism is OFF ====
+ 
+  ==== Using MPI-2 specifications ==== 
+  MPI-IO support is ON
+  xmpi_tag_ub ................   2147483647
+  xmpi_bsize_ch ..............            1
+  xmpi_bsize_int .............            4
+  xmpi_bsize_sp ..............            4
+  xmpi_bsize_dp ..............            8
+  xmpi_bsize_spc .............            8
+  xmpi_bsize_dpc .............           16
+  xmpio_bsize_frm ............            4
+  xmpi_address_kind ..........            8
+  xmpi_offset_kind ...........            8
+  MPI_WTICK ..................    9.9999999999999995E-007
+
+================================================================================
+== DATASET  1 ==================================================================
+-   nproc =    2
+
+
+ getdim_nloc : deduce lmnmax  =   4, lnmax  =   2,
+                      lmnmaxso=   4, lnmaxso=   2.
+ Exchange-correlation functional for the present dataset will be:
+  LDA: new Teter (4/93) with spin-polarized option - ixc=1
+ Citation for XC functional:
+  S. Goedecker, M. Teter, J. Huetter, PRB 54, 1703 (1996)
+
+ Unit cell volume ucvol=  1.9607929E+02 bohr^3
+ Angles (23,13,12)=  9.00000000E+01  9.00000000E+01  1.20000000E+02 degrees
+
+ getcut: wavevector=  0.0000  0.0000  0.0000  ngfft=  18  18  20
+         ecut(hartree)=     10.000   => boxcut(ratio)=   2.11034
+ kpgio: loop on k-points done in parallel
+- pspini: atom type   1  psp file is /Users/gmatteo/Coding/git_branches/abipy/abipy/data/pseudos/12mg.pspnc
+- pspatm: opening atomic psp file    /Users/gmatteo/Coding/git_branches/abipy/abipy/data/pseudos/12mg.pspnc
+-  Troullier-Martins psp for element  Mg        Thu Oct 27 17:30:49 EDT 1994
+- 12.00000   2.00000    940714                znucl, zion, pspdat
+    1    1    2    2      2001   0.00000      pspcod,pspxc,lmax,lloc,mmax,r2well
+    0   3.352   8.820    1   2.5922174        l,e99.0,e99.9,nproj,rcpsp
+   0.00000000   0.00000000   0.00000000   0.00000000     rms, ekb1, ekb2, epsatm
+    1   1.127   1.670    1   2.5922174        l,e99.0,e99.9,nproj,rcpsp
+   0.00000000   0.00000000   0.00000000   0.00000000     rms, ekb1, ekb2, epsatm
+    2   0.000   0.000    0   2.5922174        l,e99.0,e99.9,nproj,rcpsp
+   0.00000000   0.00000000   0.00000000   0.00000000     rms, ekb1, ekb2, epsatm
+    2.54196289048337    0.05499530377757    0.78827945413088   rchrg,fchrg,qchrg
+ pspatm: epsatm=   -1.54393848
+         --- l  ekb(1:nproj) -->
+             0    1.755924
+             1    0.853613
+ pspatm: atomic psp has been read  and splines computed
+
+- pspini: atom type   2  psp file is /Users/gmatteo/Coding/git_branches/abipy/abipy/data/pseudos/5b.pspnc
+- pspatm: opening atomic psp file    /Users/gmatteo/Coding/git_branches/abipy/abipy/data/pseudos/5b.pspnc
+-  Troullier-Martins psp for element  B         Thu Oct 27 17:29:24 EDT 1994
+-  5.00000   3.00000    940714                znucl, zion, pspdat
+    1    1    1    1      2001   0.00000      pspcod,pspxc,lmax,lloc,mmax,r2well
+    0   8.313  21.401    1   1.5924135        l,e99.0,e99.9,nproj,rcpsp
+   0.00000000   0.00000000   0.00000000   0.00000000     rms, ekb1, ekb2, epsatm
+    1  11.531  17.234    0   1.5924135        l,e99.0,e99.9,nproj,rcpsp
+   0.00000000   0.00000000   0.00000000   0.00000000     rms, ekb1, ekb2, epsatm
+    1.10004537463277    0.35216853368804    0.40909985967175   rchrg,fchrg,qchrg
+ pspatm: epsatm=    0.59609267
+         --- l  ekb(1:nproj) -->
+             0    3.906219
+ pspatm: atomic psp has been read  and splines computed
+
+  -2.81402505E+00                                ecore*ucvol(ha*bohr**3)
+   1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+   2  3  3  2  3  2  2  3  2  3  3  2  3  2  2  3  2  3  3  2  3  2  2  3
+   3  2  2  3  2  3  3  2  3  2  2  3  2  3  3  2  3  2  2  3  2  3  3  2
+ wfconv:    11 bands initialized randomly with npw=   291, for ikpt=     1
+ wfconv:    11 bands initialized randomly with npw=   300, for ikpt=     2
+ wfconv:    11 bands initialized randomly with npw=   295, for ikpt=     3
+ wfconv:    11 bands initialized randomly with npw=   301, for ikpt=     4
+ wfconv:    11 bands initialized randomly with npw=   308, for ikpt=     5
+ wfconv:    11 bands initialized randomly with npw=   298, for ikpt=     6
+ wfconv:    11 bands initialized randomly with npw=   293, for ikpt=     7
+ wfconv:    11 bands initialized randomly with npw=   298, for ikpt=     8
+ wfconv:    11 bands initialized randomly with npw=   294, for ikpt=     9
+ wfconv:    11 bands initialized randomly with npw=   297, for ikpt=    10
+ wfconv:    11 bands initialized randomly with npw=   291, for ikpt=    11
+ wfconv:    11 bands initialized randomly with npw=   294, for ikpt=    12
+ wfconv:    11 bands initialized randomly with npw=   296, for ikpt=    13
+ wfconv:    11 bands initialized randomly with npw=   295, for ikpt=    14
+ wfconv:    11 bands initialized randomly with npw=   298, for ikpt=    15
+ wfconv:    11 bands initialized randomly with npw=   294, for ikpt=    16
+ wfconv:    11 bands initialized randomly with npw=   295, for ikpt=    17
+ wfconv:    11 bands initialized randomly with npw=   294, for ikpt=    18
+ wfconv:    11 bands initialized randomly with npw=   298, for ikpt=    19
+ wfconv:    11 bands initialized randomly with npw=   303, for ikpt=    20
+
+_setup2: Arith. and geom. avg. npw (full set) are     296.047     296.029
+ initro : for itypat=  1, take decay length=      1.6000,
+ initro : indeed, coreel=     10.0000, nval=  2 and densty=  0.0000E+00.
+ initro : for itypat=  2, take decay length=      1.0000,
+ initro : indeed, coreel=      2.0000, nval=  3 and densty=  0.0000E+00.
+
+================================================================================
+
+ getcut: wavevector=  0.0000  0.0000  0.0000  ngfft=  18  18  20
+         ecut(hartree)=     10.000   => boxcut(ratio)=   2.11034
+
+ ITER STEP NUMBER     1
+ vtorho : nnsclo_now=  2, note that nnsclo,dbl_nnsclo,istep=  0 0  1
+ newocc : new Fermi energy is       0.232117 , with nelect=      8.000000
+  Number of bissection calls =  45
+ newocc : computed new occ. numbers for occopt=    4 , spin-unpolarized case.
+ 2.000 2.000 2.077 2.077 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.010 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.003 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.140 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.284 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.001 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.066 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.408 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.549 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 0.034 0.002 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.086 2.086 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.001 2.014 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.008 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.141 0.005 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.001 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.127 0.002 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.107 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.291 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.111 2.111 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.001 2.020 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.002 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.006 0.089 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.003 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.002 0.005 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.128 0.606 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.122 2.122 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.002 2.025 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.005 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 1.066 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.283 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.012 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.023 1.801 0.000 0.000 0.000 0.000 0.000 0.000
+mkrho: echo density (plane-wave part only)
+ Total charge density [el/Bohr^3]
+,     Maximum=    1.6718E-01  at reduced coord.    0.4444    0.8889    0.5000
+,     Minimum=    2.8199E-04  at reduced coord.    0.0000    0.0000    0.0000
+,  Integrated=    8.0000E+00
+ Total charge density [el/Bohr^3]
+,     Maximum=    1.6718E-01  at reduced coord.    0.4444    0.8889    0.5000
+,     Minimum=    2.8199E-04  at reduced coord.    0.0000    0.0000    0.0000
+,  Integrated=    8.0000E+00
+ ETOT  1  -7.0250417290754    -7.025E+00 2.430E-03 1.769E+02
+ scprqt: <Vxc>= -3.8605413E-01 hartree
+
+Simple mixing update:
+  residual square of the potential :   50.946346437807264
+
+ ITER STEP NUMBER     2
+ vtorho : nnsclo_now=  2, note that nnsclo,dbl_nnsclo,istep=  0 0  2
+ newocc : new Fermi energy is       0.291674 , with nelect=      8.000000
+  Number of bissection calls =  47
+ newocc : computed new occ. numbers for occopt=    4 , spin-unpolarized case.
+ 2.000 2.000 0.052 0.052 0.002 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.088 0.892 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.002 2.140 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.019 2.141 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.005 1.002 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.002 2.086 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.061 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.227 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.435 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 0.007 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 0.024 0.024 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 1.983 0.683 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.141 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.001 2.027 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.008 2.095 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.004 2.113 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.001 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.059 0.005 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.037 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.788 0.014 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 0.001 0.001 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 1.729 0.411 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.113 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.044 0.003 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.016 1.710 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.012 2.139 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.002 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.573 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.018 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.019 1.913 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 1.425 0.261 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.062 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.059 0.208 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.022 2.098 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.027 2.139 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.004 0.004 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 2.046 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.937 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 2.073 0.000 0.000 0.000 0.000 0.000 0.000
+mkrho: echo density (plane-wave part only)
+ Total charge density [el/Bohr^3]
+,     Maximum=    1.2813E-01  at reduced coord.    0.4444    0.8889    0.5000
+,     Minimum=    9.9619E-04  at reduced coord.    0.0000    0.0000    0.0000
+,  Integrated=    8.0000E+00
+ Total charge density [el/Bohr^3]
+,     Maximum=    1.2813E-01  at reduced coord.    0.4444    0.8889    0.5000
+,     Minimum=    9.9619E-04  at reduced coord.    0.0000    0.0000    0.0000
+,  Integrated=    8.0000E+00
+ ETOT  2  -7.1467059890187    -1.217E-01 2.672E-04 7.920E-01
+ scprqt: <Vxc>= -3.9711779E-01 hartree
+
+ Pulay update with  1 previous iterations:
+ mixing of old trial potential : alpha(m:m-4)=  0.951      0.493E-01
+
+ ITER STEP NUMBER     3
+ vtorho : nnsclo_now=  1, note that nnsclo,dbl_nnsclo,istep=  0 0  3
+ newocc : new Fermi energy is       0.278154 , with nelect=      8.000000
+  Number of bissection calls =  46
+ newocc : computed new occ. numbers for occopt=    4 , spin-unpolarized case.
+ 2.000 2.000 0.134 0.134 0.002 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.128 1.169 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.003 2.126 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.012 2.140 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.003 0.840 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.001 2.001 2.069 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.077 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.058 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.271 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 0.002 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 0.079 0.079 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.072 0.954 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.138 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.001 2.018 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.005 2.112 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.002 2.094 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.074 0.005 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.048 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.667 0.006 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 0.017 0.017 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 1.904 0.649 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.139 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.030 0.004 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.010 1.550 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.007 2.127 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.001 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.433 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.007 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.027 1.800 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 0.004 0.004 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 1.671 0.460 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.121 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.040 0.128 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.014 2.118 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.017 2.140 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.003 0.004 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 1.960 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.742 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 2.094 0.000 0.000 0.000 0.000 0.000 0.000
+mkrho: echo density (plane-wave part only)
+ Total charge density [el/Bohr^3]
+,     Maximum=    1.3320E-01  at reduced coord.    0.4444    0.8889    0.5000
+,     Minimum=    9.9649E-04  at reduced coord.    0.0000    0.0000    0.0000
+,  Integrated=    8.0000E+00
+ Total charge density [el/Bohr^3]
+,     Maximum=    1.3320E-01  at reduced coord.    0.4444    0.8889    0.5000
+,     Minimum=    9.9649E-04  at reduced coord.    0.0000    0.0000    0.0000
+,  Integrated=    8.0000E+00
+ ETOT  3  -7.1475123730445    -8.064E-04 1.155E-04 1.570E-01
+ scprqt: <Vxc>= -3.9633999E-01 hartree
+
+ Pulay update with  2 previous iterations:
+ mixing of old trial potential : alpha(m:m-4)=   1.23     -0.190     -0.399E-01
+
+ ITER STEP NUMBER     4
+ vtorho : nnsclo_now=  1, note that nnsclo,dbl_nnsclo,istep=  0 0  4
+ newocc : new Fermi energy is       0.280246 , with nelect=      8.000000
+  Number of bissection calls =  47
+ newocc : computed new occ. numbers for occopt=    4 , spin-unpolarized case.
+ 2.000 2.000 0.112 0.112 0.002 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.121 1.101 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.003 2.131 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.014 2.140 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.004 0.834 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.001 2.001 2.075 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.077 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.055 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.270 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 0.002 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 0.063 0.063 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.052 0.885 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.141 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.001 2.020 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.006 2.109 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.003 2.101 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.001 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.071 0.005 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.046 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.691 0.007 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 0.011 0.011 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 1.861 0.583 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.135 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.034 0.004 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.011 1.625 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.008 2.132 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.001 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.489 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.010 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.024 1.844 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 0.002 0.002 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 1.606 0.402 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.108 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.046 0.161 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.016 2.108 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.020 2.142 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.003 0.004 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 2.003 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.817 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 2.085 0.000 0.000 0.000 0.000 0.000 0.000
+mkrho: echo density (plane-wave part only)
+ Total charge density [el/Bohr^3]
+,     Maximum=    1.3251E-01  at reduced coord.    0.4444    0.8889    0.5000
+,     Minimum=    1.0494E-03  at reduced coord.    0.0000    0.0000    0.0000
+,  Integrated=    8.0000E+00
+ Total charge density [el/Bohr^3]
+,     Maximum=    1.3251E-01  at reduced coord.    0.4444    0.8889    0.5000
+,     Minimum=    1.0494E-03  at reduced coord.    0.0000    0.0000    0.0000
+,  Integrated=    8.0000E+00
+ ETOT  4  -7.1476179372442    -1.056E-04 6.147E-05 4.259E-03
+ scprqt: <Vxc>= -3.9660840E-01 hartree
+
+ Pulay update with  3 previous iterations:
+ mixing of old trial potential : alpha(m:m-4)=  0.928      0.805E-01 -0.993E-02  0.185E-02
+
+ ITER STEP NUMBER     5
+ vtorho : nnsclo_now=  1, note that nnsclo,dbl_nnsclo,istep=  0 0  5
+ newocc : new Fermi energy is       0.279770 , with nelect=      8.000000
+  Number of bissection calls =  47
+ newocc : computed new occ. numbers for occopt=    4 , spin-unpolarized case.
+ 2.000 2.000 0.116 0.116 0.002 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.122 1.115 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.003 2.130 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.013 2.140 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.003 0.832 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.001 2.001 2.074 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.078 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.052 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.267 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 0.002 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 0.066 0.066 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.057 0.899 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.140 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.001 2.020 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.006 2.109 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.003 2.100 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.001 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.072 0.005 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.046 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.686 0.007 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 0.012 0.012 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 1.870 0.596 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.136 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.033 0.004 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.011 1.613 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.008 2.131 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.001 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.479 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.009 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.024 1.836 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 0.002 0.002 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 1.619 0.414 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.111 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.045 0.155 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.016 2.110 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.019 2.142 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.003 0.004 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 1.996 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.803 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 2.087 0.000 0.000 0.000 0.000 0.000 0.000
+mkrho: echo density (plane-wave part only)
+ Total charge density [el/Bohr^3]
+,     Maximum=    1.3271E-01  at reduced coord.    0.4444    0.8889    0.5000
+,     Minimum=    1.0458E-03  at reduced coord.    0.0000    0.0000    0.0000
+,  Integrated=    8.0000E+00
+ Total charge density [el/Bohr^3]
+,     Maximum=    1.3271E-01  at reduced coord.    0.4444    0.8889    0.5000
+,     Minimum=    1.0458E-03  at reduced coord.    0.0000    0.0000    0.0000
+,  Integrated=    8.0000E+00
+ ETOT  5  -7.1476240932598    -6.156E-06 1.241E-04 4.150E-05
+ scprqt: <Vxc>= -3.9655704E-01 hartree
+
+ Pulay update with  4 previous iterations:
+ mixing of old trial potential : alpha(m:m-4)=   1.09     -0.667E-01 -0.316E-01  0.407E-02  0.189E-03
+
+ ITER STEP NUMBER     6
+ vtorho : nnsclo_now=  1, note that nnsclo,dbl_nnsclo,istep=  0 0  6
+ newocc : new Fermi energy is       0.279838 , with nelect=      8.000000
+  Number of bissection calls =  47
+ newocc : computed new occ. numbers for occopt=    4 , spin-unpolarized case.
+ 2.000 2.000 0.116 0.116 0.002 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.122 1.114 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.003 2.130 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.013 2.140 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.003 0.832 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.001 2.001 2.074 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.078 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.053 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.267 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 0.002 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 0.066 0.066 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.056 0.898 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.140 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.001 2.020 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.006 2.109 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.003 2.100 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.001 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.072 0.005 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.046 0.001 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 1.686 0.007 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 0.012 0.012 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 1.869 0.595 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.136 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.033 0.004 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.011 1.614 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.008 2.131 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.001 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.480 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.009 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.024 1.836 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 0.002 0.002 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 1.618 0.413 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.110 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.045 0.156 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.016 2.110 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.019 2.142 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.003 0.004 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 1.997 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 0.804 0.000 0.000 0.000 0.000 0.000 0.000
+ 2.000 2.000 2.000 2.000 2.087 0.000 0.000 0.000 0.000 0.000 0.000
+mkrho: echo density (plane-wave part only)
+ Total charge density [el/Bohr^3]
+,     Maximum=    1.3269E-01  at reduced coord.    0.4444    0.8889    0.5000
+,     Minimum=    1.0465E-03  at reduced coord.    0.0000    0.0000    0.0000
+,  Integrated=    8.0000E+00
+ Total charge density [el/Bohr^3]
+,     Maximum=    1.3269E-01  at reduced coord.    0.4444    0.8889    0.5000
+,     Minimum=    1.0465E-03  at reduced coord.    0.0000    0.0000    0.0000
+,  Integrated=    8.0000E+00
+ ETOT  6  -7.1476241568657    -6.361E-08 2.681E-05 3.879E-08
+ scprqt: <Vxc>= -3.9656085E-01 hartree
+
+ At SCF step    6       vres2   =  3.88E-08 < tolvrs=  1.00E-06 =>converged.
+
+ Cartesian components of stress tensor (hartree/bohr^3)
+  sigma(1 1)=  6.19525691E-04  sigma(3 2)=  0.00000000E+00
+  sigma(2 2)=  6.19525691E-04  sigma(3 1)=  0.00000000E+00
+  sigma(3 3)=  5.35534283E-04  sigma(2 1)=  0.00000000E+00
+
+   1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+   2  3  3  2  3  2  2  3  2  3  3  2  3  2  2  3  2  3  3  2  3  2  2  3
+   3  2  2  3  2  3  3  2  3  2  2  3  2  3  3  2  3  2  2  3  2  3  3  2
+ ioarr: writing density data
+ioarr: file name is /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t0/outdata/out_DEN
+ioarr: data written to disk file /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t0/outdata/out_DEN
+================================================================================
+
+ ----iterations are completed or convergence reached----
+
+
+ outwf: write wavefunction to file /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t0/outdata/out_WFK, with accesswff 1
+ outwf with iomode: 1, cpu:     0.08, wall:     0.11
+
+ Cartesian components of stress tensor (hartree/bohr^3)
+  sigma(1 1)=  6.19525691E-04  sigma(3 2)=  0.00000000E+00
+  sigma(2 2)=  6.19525691E-04  sigma(3 1)=  0.00000000E+00
+  sigma(3 3)=  5.35534283E-04  sigma(2 1)=  0.00000000E+00
+
+-Cartesian components of stress tensor (GPa)         [Pressure= -1.7403E+01 GPa]
+- sigma(1 1)=  1.82270721E+01  sigma(3 2)=  0.00000000E+00
+- sigma(2 2)=  1.82270721E+01  sigma(3 1)=  0.00000000E+00
+- sigma(3 3)=  1.57559599E+01  sigma(2 1)=  0.00000000E+00
+
+== END DATASET(S) ==============================================================
+================================================================================
+  
+ -outvars: echo values of variables after computation  --------
+ 
+ These variables are accessible in NetCDF format (/Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t0/outdata/out_OUT.nc)
+
+        accesswff           1
+            acell      1.0000000000E+00  1.0000000000E+00  1.0000000000E+00 Bohr
+              amu      2.43050000E+01  1.08110000E+01
+             ecut      1.00000000E+01 Hartree
+           etotal     -7.1476241569E+00
+            fcart      1.2440289821E-28  9.2345202991E-29 -0.0000000000E+00
+                      -3.0212132423E-28  2.7703560897E-28 -0.0000000000E+00
+                       1.7771842601E-28 -3.6938081196E-28 -0.0000000000E+00
+-          fftalg         312
+      fft_opt_lob           2
+           iprcch           6
+              kpt      0.00000000E+00  0.00000000E+00  6.25000000E-02
+                       1.25000000E-01  0.00000000E+00  6.25000000E-02
+                       2.50000000E-01  0.00000000E+00  6.25000000E-02
+                       3.75000000E-01  0.00000000E+00  6.25000000E-02
+                       5.00000000E-01  0.00000000E+00  6.25000000E-02
+                       1.25000000E-01  1.25000000E-01  6.25000000E-02
+                       2.50000000E-01  1.25000000E-01  6.25000000E-02
+                       3.75000000E-01  1.25000000E-01  6.25000000E-02
+                       2.50000000E-01  2.50000000E-01  6.25000000E-02
+                       3.75000000E-01  2.50000000E-01  6.25000000E-02
+                       0.00000000E+00  0.00000000E+00  1.87500000E-01
+                       1.25000000E-01  0.00000000E+00  1.87500000E-01
+                       2.50000000E-01  0.00000000E+00  1.87500000E-01
+                       3.75000000E-01  0.00000000E+00  1.87500000E-01
+                       5.00000000E-01  0.00000000E+00  1.87500000E-01
+                       1.25000000E-01  1.25000000E-01  1.87500000E-01
+                       2.50000000E-01  1.25000000E-01  1.87500000E-01
+                       3.75000000E-01  1.25000000E-01  1.87500000E-01
+                       2.50000000E-01  2.50000000E-01  1.87500000E-01
+                       3.75000000E-01  2.50000000E-01  1.87500000E-01
+                       0.00000000E+00  0.00000000E+00  3.12500000E-01
+                       1.25000000E-01  0.00000000E+00  3.12500000E-01
+                       2.50000000E-01  0.00000000E+00  3.12500000E-01
+                       3.75000000E-01  0.00000000E+00  3.12500000E-01
+                       5.00000000E-01  0.00000000E+00  3.12500000E-01
+                       1.25000000E-01  1.25000000E-01  3.12500000E-01
+                       2.50000000E-01  1.25000000E-01  3.12500000E-01
+                       3.75000000E-01  1.25000000E-01  3.12500000E-01
+                       2.50000000E-01  2.50000000E-01  3.12500000E-01
+                       3.75000000E-01  2.50000000E-01  3.12500000E-01
+                       0.00000000E+00  0.00000000E+00  4.37500000E-01
+                       1.25000000E-01  0.00000000E+00  4.37500000E-01
+                       2.50000000E-01  0.00000000E+00  4.37500000E-01
+                       3.75000000E-01  0.00000000E+00  4.37500000E-01
+                       5.00000000E-01  0.00000000E+00  4.37500000E-01
+                       1.25000000E-01  1.25000000E-01  4.37500000E-01
+                       2.50000000E-01  1.25000000E-01  4.37500000E-01
+                       3.75000000E-01  1.25000000E-01  4.37500000E-01
+                       2.50000000E-01  2.50000000E-01  4.37500000E-01
+                       3.75000000E-01  2.50000000E-01  4.37500000E-01
+         kptrlatt        8    0    0      0    8    0      0    0    8
+          kptrlen      4.66535588E+01
+P           mkmem          20
+            natom           3
+            nband          11
+            ngfft          18      18      20
+             nkpt          40
+-           npkpt           2
+             nsym          24
+           ntypat           2
+              occ      2.000000  2.000001  0.115849  0.115849  0.002018  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000010  2.122178  1.113972  0.000724  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.002863  2.130470  0.000009  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.013297  2.139881  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.003459  0.832301  0.000044  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000528  2.001107  2.073641  0.000031  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000166  2.077600  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000002  1.052608  0.000002  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  1.267300  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  0.001542  0.000509  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  0.065673  0.065673  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.056217  0.897651  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000001  2.140175  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.001094  2.019999  0.000072  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.005740  2.109392  0.000401  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.002523  2.099674  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000025  2.000502  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000006  2.071679  0.004777  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.046212  0.000868  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  1.686160  0.006933  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  0.012141  0.012141  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  1.869050  0.595320  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000010  2.135959  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.032965  0.003951  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000167  2.011027  1.614064  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.008201  2.130994  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.001317  0.000149  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000018  2.000052  0.479518  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000011  0.009351  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.024287  1.836439  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  0.002121  0.002121  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  1.618024  0.412567  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000053  2.110351  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.044807  0.155682  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.015639  2.109965  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.019203  2.141665  0.000000  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.002998  0.003921  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000080  1.996841  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000000  0.804041  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+                       2.000000  2.000000  2.000000  2.000200  2.086681  0.000000
+                       0.000000  0.000000  0.000000  0.000000  0.000000
+           occopt           4
+           ortalg          -2
+        paral_kgb           1
+            rprim      5.0503958866E+00  2.9158474246E+00  0.0000000000E+00
+                      -5.0503958866E+00  2.9158474246E+00  0.0000000000E+00
+                       0.0000000000E+00  0.0000000000E+00  6.6575051698E+00
+           shiftk      0.00000000E+00  0.00000000E+00  5.00000000E-01
+          spgroup         191
+           strten      6.1952569136E-04  6.1952569137E-04  5.3553428305E-04
+                       0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+           symrel      1  0  0   0  1  0   0  0  1      -1  0  0   0 -1  0   0  0 -1
+                       0  1  0   1  0  0   0  0  1       0 -1  0  -1  0  0   0  0 -1
+                       1  1  0  -1  0  0   0  0  1      -1 -1  0   1  0  0   0  0 -1
+                      -1  0  0   1  1  0   0  0  1       1  0  0  -1 -1  0   0  0 -1
+                       0  1  0  -1 -1  0   0  0  1       0 -1  0   1  1  0   0  0 -1
+                      -1 -1  0   0  1  0   0  0  1       1  1  0   0 -1  0   0  0 -1
+                      -1  0  0   0 -1  0   0  0  1       1  0  0   0  1  0   0  0 -1
+                       0 -1  0  -1  0  0   0  0  1       0  1  0   1  0  0   0  0 -1
+                      -1 -1  0   1  0  0   0  0  1       1  1  0  -1  0  0   0  0 -1
+                       1  0  0  -1 -1  0   0  0  1      -1  0  0   1  1  0   0  0 -1
+                       0 -1  0   1  1  0   0  0  1       0  1  0  -1 -1  0   0  0 -1
+                       1  1  0   0 -1  0   0  0  1      -1 -1  0   0  1  0   0  0 -1
+           timopt          -1
+           tolvrs      1.00000000E-06
+           tsmear      3.00000000E-02 Hartree
+            typat      1  2  2
+         wfoptalg          14
+              wtk        0.00391    0.02344    0.02344    0.02344    0.01172    0.02344
+                         0.04688    0.04688    0.02344    0.02344    0.00391    0.02344
+                         0.02344    0.02344    0.01172    0.02344    0.04688    0.04688
+                         0.02344    0.02344    0.00391    0.02344    0.02344    0.02344
+                         0.01172    0.02344    0.04688    0.04688    0.02344    0.02344
+                         0.00391    0.02344    0.02344    0.02344    0.01172    0.02344
+                         0.04688    0.04688    0.02344    0.02344
+           xangst      0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+                      -8.9085146585E-01  1.5430000008E+00  1.7615000010E+00
+                       8.9085146585E-01  1.5430000008E+00  1.7615000010E+00
+            xcart      0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+                      -1.6834652955E+00  2.9158474246E+00  3.3287525849E+00
+                       1.6834652955E+00  2.9158474246E+00  3.3287525849E+00
+             xred      0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+                       3.3333333333E-01  6.6666666667E-01  5.0000000000E-01
+                       6.6666666667E-01  3.3333333333E-01  5.0000000000E-01
+            znucl       12.00000    5.00000
+
+================================================================================
+  
+
+================================================================================
+
+ Suggested references for the acknowledgment of ABINIT usage.
+
+ The users of ABINIT have little formal obligations with respect to the ABINIT group
+ (those specified in the GNU General Public License, http://www.gnu.org/copyleft/gpl.txt).
+ However, it is common practice in the scientific literature,
+ to acknowledge the efforts of people that have made the research possible.
+ In this spirit, please find below suggested citations of work written by ABINIT developers,
+ corresponding to implementations inside of ABINIT that you have used in the present run.
+ Note also that it will be of great value to readers of publications presenting these results,
+ to read papers enabling them to understand the theoretical formalism and details
+ of the ABINIT implementation.
+ For information on why they are suggested, see also http://www.abinit.org/about/?text=acknowledgments.
+
+ [1] Large scale ab initio calculations based on three levels of parallelization
+ F. Bottin, S. Leroux, A. Knyazev, G. Zerah, Comput. Mat. Science 42, 329, (2008).
+ Comment : in case paral_kgb is non-zero. Strong suggestion to cite this paper in your publications.
+ This paper is also available at http://www.arxiv.org/abs/0707.3405
+
+ [2] ABINIT : First-principles approach of materials and nanosystem properties.
+ X. Gonze, B. Amadon, P.-M. Anglade, J.-M. Beuken, F. Bottin, P. Boulanger, F. Bruneval,
+ D. Caliste, R. Caracas, M. Cote, T. Deutsch, L. Genovese, Ph. Ghosez, M. Giantomassi
+ S. Goedecker, D.R. Hamann, P. Hermet, F. Jollet, G. Jomard, S. Leroux, M. Mancini, S. Mazevet,
+ M.J.T. Oliveira, G. Onida, Y. Pouillon, T. Rangel, G.-M. Rignanese, D. Sangalli, R. Shaltaf,
+ M. Torrent, M.J. Verstraete, G. Zerah, J.W. Zwanziger
+ Computer Phys. Comm. 180, 2582-2615 (2009).
+ Comment : the third generic paper describing the ABINIT project.
+ Note that a version of this paper, that is not formatted for Computer Phys. Comm. 
+ is available at http://www.abinit.org/about/ABINIT_CPC_v10.pdf .
+ The licence allows the authors to put it on the Web.
+
+ [3] A brief introduction to the ABINIT software package.
+ X. Gonze, G.-M. Rignanese, M. Verstraete, J.-M. Beuken, Y. Pouillon, R. Caracas, F. Jollet,
+ M. Torrent, G. Zerah, M. Mikami, Ph. Ghosez, M. Veithen, J.-Y. Raty, V. Olevano, F. Bruneval,
+ L. Reining, R. Godby, G. Onida, D.R. Hamann, and D.C. Allan.
+ Z. Kristallogr. 220, 558-562 (2005).
+ Comment : the second generic paper describing the ABINIT project. Note that this paper
+ should be cited especially if you are using the GW part of ABINIT, as several authors
+ of this part are not in the list of authors of the first or third paper.
+ The .pdf of the latter paper is available at http://www.abinit.org/about/zfk_0505-06_558-562.pdf.
+ Note that it should not redistributed (Copyright by Oldenburg Wissenshaftverlag,
+ the licence allows the authors to put it on the Web).
+
+
+ And optionally :
+
+ [4] First-principles computation of material properties : the ABINIT software project. 
+ X. Gonze, J.-M. Beuken, R. Caracas, F. Detraux, M. Fuchs, G.-M. Rignanese, L. Sindic,
+ M. Verstraete, G. Zerah, F. Jollet, M. Torrent, A. Roy, M. Mikami, Ph. Ghosez, J.-Y. Raty, D.C. Allan.
+ Computational Materials Science 25, 478-492 (2002). http://dx.doi.org/10.1016/S0927-0256(02)00325-7
+ Comment : the original paper describing the ABINIT project.
+
+ [5] Fast radix 2, 3, 4 and 5 kernels for Fast Fourier Transformations
+ on computers with overlapping multiply-add instructions.
+ S. Goedecker, SIAM J. on Scientific Computing 18, 1605 (1997).
+ Proc.   0 individual time (sec): cpu=          5.1  wall=          5.2
+
+ Calculation completed.
+.Delivered    0 WARNINGs and   0 COMMENTs to log file.
+--- !FinalSummary
+start_datetime: Fri Mar 13 20:08:51 2015
+end_datetime: Fri Mar 13 20:08:57 2015
+overall_cpu_time:          10.2
+overall_wall_time:          10.3
+...
