@@ -1,24 +1,15 @@
-import warnings, sys, os, math
-import unittest
-import pymatgen
-from pymatgen.io.vasp import Poscar
-from pymatgen.io.vasp import Vasprun
-from pymatgen.io.cif import CifWriter
-from pymatgen.io.cif import CifParser
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.transformations.standard_transformations import *
 from scipy.linalg import polar
 import numpy as np
 
-__author__="Maarten de Jong, Joseph Montoya"
+__author__ = "Maarten de Jong, Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Mark Asta, Anubhav Jain"
 __version__ = "1.0"
 __maintainer__ = "Maarten de Jong"
 __email__ = "maartendft@gmail.com"
 __status__ = "Development"
-__date__ ="March 22, 2012"
+__date__ = "March 22, 2012"
+
 
 class SQTensor(np.matrix):
     """
@@ -39,18 +30,18 @@ class SQTensor(np.matrix):
 
     def __repr__(self):
         return "SQTensor({})".format(self.__str__())
-    
+
     @property
     def T(self):
         """
-        shorthand for transpose on SQTensor
+        shorthand for transpose on SQTensor, addresses issue in np.matrix
         """
         return SQTensor(np.transpose(self))
 
     @property
     def I(self):
         """
-        shorthand for matrix inverse on SQTensor
+        shorthand for matrix inverse on SQTensor, addresses issue in np.matrix
         """
         return SQTensor(np.linalg.inv(self))
 
@@ -60,8 +51,7 @@ class SQTensor(np.matrix):
         shorthand for the determinant of the SQTensor
         """
         return np.linalg.det(self)
-    
-    @classmethod
+
     def is_symmetric(self, tol=1e-5):
         """
         Test to see if tensor is symmetric to a user-defined tolerance.
@@ -70,11 +60,10 @@ class SQTensor(np.matrix):
         False.  Otherwise returns true.
 
         Args:
-            tol (float): tolerance to test whether the matrix is symmetric
+            tol (float): tolerance to symmetry test
         """
         return (np.abs(self - self.T) < tol).all()
 
-    @classmethod
     def is_rotation(self, tol=1e-5):
         """
         Test to see if tensor is a valid rotation matrix, performs a 
@@ -89,8 +78,8 @@ class SQTensor(np.matrix):
         """
 
         return (np.abs(self.I - self.T) < tol).all() \
-                and (np.linalg.det(self) - 1. < tol)
-        
+            and (np.linalg.det(self) - 1. < tol)
+
     @property
     def symmetrized(self):
         """
@@ -98,9 +87,8 @@ class SQTensor(np.matrix):
         calculated by taking the sum of the matrix and its
         transpose
         """
-        return 0.5*(self + self.T)
+        return 0.5 * (self + self.T)
 
-    @classmethod
     def rotate(self, rotation):
         """
         Returns a rotated tensor based on input of a another
@@ -110,15 +98,14 @@ class SQTensor(np.matrix):
             rotation (3x3 array-like): rotation tensor, is tested
                 for rotation properties and then operates on self
         """
-        if self.shape() != (3,3):
-            raise NotImplementedError("Rotations are only implemented for "\
+        if self.shape() != (3, 3):
+            raise NotImplementedError("Rotations are only implemented for "
                                       "3x3 tensors.")
         rotation = SQTensor(rotation)
         if not rotation.is_rotation():
             raise ValueError("Specified rotation matrix is invalid")
-        return rotation*self*rotation.T
-    
-    @classmethod
+        return rotation * self * rotation.T
+
     def get_scaled(self, scale_factor):
         """
         Scales the tensor by a certain multiplicative scale factor
@@ -134,16 +121,15 @@ class SQTensor(np.matrix):
         """
         # TODO: JM asks whether this fulfills the necessary sign conventions
         return np.poly(self)[1:]
-    
+
     @property
-    def polar_decomposition(self,side='right'):
+    def polar_decomposition(self, side='right'):
         """
         calculates matrices for polar decomposition
         """
-        return polar(self,side=side)
+        return polar(self, side=side)
 
-    @classmethod
-    def zeroed(self,tol):
+    def zeroed(self, tol):
         """
         returns the matrix with all entries below a certain threshold
         (i.e. tol) set to zero
@@ -153,12 +139,10 @@ class SQTensor(np.matrix):
         return new_tensor
 
 
-
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()
 
     eye = np.identity(3)
-    sigma = SQTensor(np.random.randn(3,3))
-
-
+    sigma = SQTensor(np.random.randn(3, 3))
