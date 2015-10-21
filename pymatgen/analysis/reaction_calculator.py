@@ -506,6 +506,10 @@ class ComputedReaction(Reaction):
 
     @property
     def all_entries(self):
+        """
+        Equivalent of all_comp but returns entries, in the same order as the
+        coefficients.
+        """
         entries = []
         for c in self._all_comp:
             for e in self._all_entries:
