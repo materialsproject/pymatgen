@@ -1,18 +1,4 @@
-import warnings
-import sys
 import unittest
-import pymatgen
-from pymatgen.io.vaspio import Poscar
-from pymatgen.io.vaspio import Poscar
-from pymatgen.io.vaspio import Vasprun
-from pymatgen.io.cifio import CifWriter
-from pymatgen.io.cifio import CifParser
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.transformations.standard_transformations import *
-from pymatgen.core.structure_modifier import StructureEditor
-import numpy as np
-import random
 from pymatgen.phonons.strain import Strain
 
 class StrainTest(unittest.TestCase):
