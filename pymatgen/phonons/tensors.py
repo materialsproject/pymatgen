@@ -11,17 +11,17 @@ __status__ = "Development"
 __date__ = "March 22, 2012"
 
 
-class SQTensor(np.matrix):
+class SQTensor(np.ndarray):
     """
     Class for doing useful general operations on *square* second order tensors, 
     without restrictions on what type (stress, elastic, strain etc.).
     Error is thrown when the class is initialized with non-square matrix.
     """
 
-    def __new__(cls, input_matrix):
-        obj = np.asmatrix(input_matrix).view(cls)
+    def __new__(cls, input_array):
+        obj = np.asarray(input_array).view(cls)
         if obj.shape[0] != obj.shape[1]:
-            raise ValueError("SQTensor only takes square arrays as input")
+            raise ValueError("SQTensor only takes square array-likes as input")
         return obj
 
     def __array_finalize__(self, obj):
@@ -104,11 +104,15 @@ class SQTensor(np.matrix):
         rotation = SQTensor(rotation)
         if not rotation.is_rotation():
             raise ValueError("Specified rotation matrix is invalid")
-        return rotation * self * rotation.T
+        return np.dot(rotation, np.dot(self, rotation.T))
 
     def get_scaled(self, scale_factor):
         """
         Scales the tensor by a certain multiplicative scale factor
+
+        Args:
+            scale_factor (float): scalar multiplier to be applied to the 
+                SQTensor object
         """
         return SQTensor(self * scale_factor)
 
