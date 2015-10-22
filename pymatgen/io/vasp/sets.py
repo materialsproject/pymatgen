@@ -1434,10 +1434,15 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
 
 class MVLElasticInputSet(DictVaspInputSet):
     """
-    Class for writing elastic constant inputs. This input set is used in:
-    Deng, Z.; Wang, Z.; Chu, I-H.;  Luo, J.; Ong, S. P.,
-    “Elastic Properties of Alkali Superionic Conductor Electrolytes
-    from First Principles Calculations”, accepted.
+    MVL denotes VASP input sets that are implemented by the Materials Virtual
+    Lab (http://www.materialsvirtuallab.org) for various research.
+
+    This input set is used to calculate elastic constants in VASP. It is used
+    in the following work::
+
+        Deng, Z.; Wang, Z.; Chu, I-H.;  Luo, J.; Ong, S. P.,
+        “Elastic Properties of Alkali Superionic Conductor Electrolytes
+        from First Principles Calculations”, accepted.
 
     Args:
         user_incar_settings (dict): A dict specifying additional incar
