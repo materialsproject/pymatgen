@@ -1446,7 +1446,8 @@ class MVLElasticInputSet(DictVaspInputSet):
 
     Args:
         user_incar_settings (dict): A dict specifying additional incar
-            settings
+            settings. The key parameter is POTIM. The default of 0.015 is
+            usually fine, but some structures may require a smaller step.
     """
 
     def __init__(self, user_incar_settings=None):
