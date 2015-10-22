@@ -58,14 +58,14 @@ class ExecWrapper(object):
     def name(self):
         return self._name
 
-    def execute(self, workdir):
+    def execute(self, workdir, exec_args=None):
         # Try to execute binary without and with mpirun.
         try:
-            return self._execute(workdir, with_mpirun=True)
+            return self._execute(workdir, with_mpirun=True, exec_args=exec_args)
         except self.Error:
-            return self._execute(workdir, with_mpirun=False)
+            return self._execute(workdir, with_mpirun=False, exec_args=exec_args)
 
-    def _execute(self, workdir, with_mpirun=False):
+    def _execute(self, workdir, with_mpirun=False, exec_args=None):
         """
         Execute the executable in a subprocess inside workdir.
 
@@ -84,6 +84,7 @@ class ExecWrapper(object):
             stdin=self.stdin_fname,
             stdout=self.stdout_fname,
             stderr=self.stderr_fname,
+            exec_args=exec_args
         )
 
         # Write the script.
@@ -238,7 +239,7 @@ class Mrgddb(ExecWrapper):
         with open(self.stdin_fname, "wt") as fh:
             fh.writelines(self.stdin_data)
 
-        retcode = self.execute(workdir)
+        retcode = self.execute(workdir, exec_args=['--nostrict'])
         if retcode == 0 and delete_source_ddbs:
             # Remove ddb files.
             for f in ddb_files:
