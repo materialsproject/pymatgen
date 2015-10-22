@@ -1431,6 +1431,7 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
             include_cif=include_cif
         )
 
+
 class MVLElasticInputSet(DictVaspInputSet):
     """
     Class for writing elastic constant inputs. This input set is used in:
