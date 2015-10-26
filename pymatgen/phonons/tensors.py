@@ -143,12 +143,3 @@ class SQTensor(np.ndarray):
         new_tensor = self.copy()
         new_tensor[new_tensor < tol] = 0
         return new_tensor
-
-
-if __name__ == "__main__":
-    import doctest
-
-    doctest.testmod()
-
-    eye = np.identity(3)
-    sigma = SQTensor(np.random.randn(3, 3))

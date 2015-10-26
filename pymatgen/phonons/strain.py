@@ -2,6 +2,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.phonons.tensors import SQTensor
 import warnings
 import numpy as np
+from six.moves import zip
 
 __author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -38,7 +39,7 @@ class Deformation(SQTensor):
 
         Args: tol
         """
-        indices = zip(*np.asarray(self - np.eye(3)).nonzero())
+        indices = list(zip(*np.asarray(self - np.eye(3)).nonzero()))
         if len(indices) != 1:
             raise ValueError("One and only one independent deformation"
                              "must be applied.")
@@ -140,6 +141,9 @@ class DeformedStructureSet(object):
                     defo = Deformation.from_index_amount(ind, amount)
                     self.deformations.append(defo)
                     self.def_structs.append(defo.apply_to_structure(rlxd_str))
+
+    def __iter__(self):
+        return iter(self.def_structs)
 
     def as_strain_dict(self):
         """
