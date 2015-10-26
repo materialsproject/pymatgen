@@ -2,6 +2,7 @@ from pymatgen.phonons import voigt_map
 from pymatgen.phonons.tensors import SQTensor
 import math
 import numpy as np
+import warnings
 
 __author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -67,8 +68,8 @@ class Stress(SQTensor):
         returns the deviatoric component of the stress
         """
         if not self.is_symmetric:
-            raise ValueError("The stress tensor is not symmetric, "
-                             "so deviator stress will not be either")
+            raise warnings.warn("The stress tensor is not symmetric, "
+                                "so deviator stress will not be either")
         return self - self.mean_stress*np.eye(3)
 
     # TODO: JM asks what is the F argument here?
@@ -90,7 +91,7 @@ class Stress(SQTensor):
         calculates the second Piola-Kirchoff stress
 
         Args:
-            F (3x3 array-like): rate of deformation tensor
+            f (3x3 array-like): rate of deformation tensor
         """
 
         f = SQTensor(f)
