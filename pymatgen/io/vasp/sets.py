@@ -504,7 +504,7 @@ class MITNEBVaspInputSet(DictVaspInputSet):
 
     def __init__(self, nimages=8, user_incar_settings=None, write_endpoint_inputs=False,
                  kpoints_gamma_override=None, write_path_cif=False, unset_encut=False,
-                 **kwargs):
+                 sort_structure=False, **kwargs):
         super(MITNEBVaspInputSet, self).__init__(
             "MIT NEB",
             loadfn(os.path.join(MODULE_DIR, "MITVaspInputSet.yaml")),
