@@ -690,8 +690,7 @@ class GaussianOutput(object):
                     if parse_forces:
                         m = forces_patt.search(line)
                         if m:
-                            fx, fy, fz = map(float, m.groups()[2:5])
-                            forces.extend([fx, fy, fz])
+                            forces.extend([float(_v) for _v in m.groups()[2:5]])
                         elif forces_off_patt.search(line):
                             self.cart_forces.append(forces)
                             forces = []
@@ -700,12 +699,11 @@ class GaussianOutput(object):
                     elif parse_freq:
                         m = freq_patt.search(line)
                         if m:
-                            values = map(float, m.groups()[0].split())
-                            assert 1 <= len(values) <= 3
+                            values = [float(_v) for _v in m.groups()[0].split()]
                             for value in values:
                                 frequencies.append([value, []])
                         elif normal_mode_patt.search(line):
-                            values = map(float, line.strip().split()[2:])
+                            values = [float(_v) for _v in line.split()[2:]]
                             n = int(len(values) / 3)
                             for i in range(0, len(values), 3):
                                 j = -n + int(i / 3)
