@@ -8,7 +8,7 @@ from __future__ import division, unicode_literals
 This module implements input and output processing from Gaussian.
 """
 
-__author__ = 'Shyue Ping Ong, Germain  Salvato-Vallverdu'
+__author__ = 'Shyue Ping Ong, Germain  Salvato-Vallverdu, Xin Chen'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
 __version__ = '0.1'
 __maintainer__ = 'Shyue Ping Ong'
