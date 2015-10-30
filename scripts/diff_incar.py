@@ -18,8 +18,9 @@ __date__ = "Nov 12, 2011"
 import itertools
 import argparse
 
+from tabulate import tabulate
+
 from pymatgen.io.vasp import Incar
-from pymatgen.util.string_utils import str_aligned
 
 
 parser = argparse.ArgumentParser(description='''Convenient INCAR diff.
@@ -54,4 +55,4 @@ output.append(['----------------', '', ''])
 output.extend([(k, format_lists(d['Different'][k]['INCAR1']),
                 format_lists(d['Different'][k]['INCAR2']))
                for k in sorted(d['Different'].keys()) if k != "SYSTEM"])
-print str_aligned(output, ['', filepath1, filepath2])
+print(tabulate(output, headers=['', filepath1, filepath2]))

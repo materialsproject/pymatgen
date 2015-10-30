@@ -259,6 +259,12 @@ class ComputedReactionTest(unittest.TestCase):
         new_rxn = ComputedReaction.from_dict(d)
         self.assertEqual(str(new_rxn), "1.000 O2 + 2.000 Li -> 1.000 Li2O2")
 
+    def test_all_entries(self):
+        for c, e in zip(self.rxn.coeffs, self.rxn.all_entries):
+            if c > 0:
+                self.assertEqual(e.composition.reduced_formula, "Li2O2")
+                self.assertAlmostEqual(e.energy, -959.64693323)
+
 
 if __name__ == '__main__':
     unittest.main()

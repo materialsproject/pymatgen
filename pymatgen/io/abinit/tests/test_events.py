@@ -25,7 +25,7 @@ class EventsParserTest(PymatgenTest):
         # Analyze scf log
         parser = events.EventsParser()
         report = parser.parse(ref_file("mgb2_scf.log"), verbose=1)
-        self.assertPMGSONable(report)
+        self.assertMSONable(report)
 
         print(report)
         assert (report.num_errors, report.num_warnings, report.num_comments) == (0, 0, 0)
@@ -37,7 +37,7 @@ class EventsParserTest(PymatgenTest):
         # Analyze nscf log
         report = events.EventsParser().parse(ref_file("mgb2_nscf.log"), verbose=0)
         assert (report.num_errors, report.num_warnings, report.num_comments) == (0, 2, 0)
-        self.assertPMGSONable(report)
+        self.assertMSONable(report)
 
         #d = report.as_dict()
         #print(d)
@@ -47,7 +47,7 @@ class EventsParserTest(PymatgenTest):
             print(warning)
             assert warning == report[i]
             # Msonable is conflict with YAMLObject
-            #self.assertPMGSONable(warning, check_inst=False)
+            #self.assertMSONable(warning, check_inst=False)
 
         report = parser.report_exception(ref_file("mgb2_scf.log"), "exception")
         assert len(report.errors) == 1 

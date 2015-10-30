@@ -35,14 +35,14 @@ from monty.serialization import loadfn
 
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, PMGSONable)):
+class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Abstract base class representing a set of Vasp input parameters.
     The idea is that using a VaspInputSet, a complete set of input files
@@ -493,21 +493,43 @@ class MITNEBVaspInputSet(DictVaspInputSet):
     Args:
         nimages (int): Number of NEB images (excluding start and ending
             structures).
+        write_endpoint_files (bool): Whether to write KPOINTS, POTCAR, INCAR
+            in the first and last folders.
+        kpoints_gamma_override (iterable of ints): Gamma centered subdivisions
+            to override the kpoints density of MITVaspInputSet.yaml
+        write_path_cif (bool): Whether to write a cif of all the positions along
+            the path. Useful for visualization
         \*\*kwargs: Other kwargs supported by :class:`DictVaspInputSet`.
     """
 
-    def __init__(self, nimages=8, user_incar_settings=None, **kwargs):
-        #NEB specific defaults
-        defaults = {'IMAGES': nimages, 'IBRION': 1, 'NFREE': 2, 'ISYM': 0,
-                    'LORBIT': 0, 'LCHARG': False}
-        if user_incar_settings:
-            defaults.update(user_incar_settings)
-
+    def __init__(self, nimages=8, user_incar_settings=None, write_endpoint_inputs=False,
+                 kpoints_gamma_override=None, write_path_cif=False, unset_encut=False,
+                 sort_structure=False, **kwargs):
         super(MITNEBVaspInputSet, self).__init__(
             "MIT NEB",
             loadfn(os.path.join(MODULE_DIR, "MITVaspInputSet.yaml")),
-            user_incar_settings=defaults, ediff_per_atom=False, **kwargs)
+            ediff_per_atom=False, sort_structure=False,
+            **kwargs)
+        self.endpoint_set = MITVaspInputSet(ediff_per_atom=False, sort_structure=False)
+        if unset_encut:
+            del self.incar_settings["ENCUT"]
+            del self.endpoint_set.incar_settings["ENCUT"]
+
+        #NEB specific defaults
+        defaults = {'IMAGES': nimages, 'IBRION': 1, 'ISYM': 0, 'LCHARG': False}
+        endpoint_defaults = {'ISYM': 0, 'LCHARG': False}
+        if user_incar_settings:
+            defaults.update(user_incar_settings)
+            endpoint_defaults.update(user_incar_settings)
+
+        self.incar_settings.update(defaults)
+        self.endpoint_set.incar_settings.update(endpoint_defaults)
+
         self.nimages = nimages
+
+        self.kpoints_gamma_override = kpoints_gamma_override
+        self.write_endpoint_inputs = write_endpoint_inputs
+        self.write_path_cif = write_path_cif
 
     def _process_structures(self, structures):
         """
@@ -548,8 +570,14 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             os.makedirs(output_dir)
         s0 = structures[0]
         self.get_incar(s0).write_file(os.path.join(output_dir, 'INCAR'))
-        self.get_kpoints(s0).write_file(os.path.join(output_dir, 'KPOINTS'))
-        self.get_potcar(s0).write_file(os.path.join(output_dir, 'POTCAR'))
+        if self.kpoints_gamma_override:
+            kpoints = Kpoints.gamma_automatic(self.kpoints_gamma_override)
+        else:
+            kpoints = self.get_kpoints(s0)
+        potcar = self.get_potcar(s0)
+        kpoints.write_file(os.path.join(output_dir, 'KPOINTS'))
+        potcar.write_file(os.path.join(output_dir, 'POTCAR'))
+
         for i, s in enumerate(structures):
             d = os.path.join(output_dir, str(i).zfill(2))
             if make_dir_if_not_present and not os.path.exists(d):
@@ -557,6 +585,18 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             self.get_poscar(s).write_file(os.path.join(d, 'POSCAR'))
             if write_cif:
                 s.to(filename=os.path.join(d, '{}.cif'.format(i)))
+        if self.write_endpoint_inputs:
+            incar = self.endpoint_set.get_incar(s0)
+            for image in ['00', str(len(structures) - 1).zfill(2)]:
+                incar.write_file(os.path.join(output_dir, image, 'INCAR'))
+                kpoints.write_file(os.path.join(output_dir, image, 'KPOINTS'))
+                potcar.write_file(os.path.join(output_dir, image, 'POTCAR'))
+        if self.write_path_cif:
+            from pymatgen import Structure
+            from itertools import chain
+            path = Structure.from_sites(sorted(set(chain(*(s.sites for s in structures)))))
+            path.to(filename=os.path.join(output_dir, 'path.cif'))
+
 
     def as_dict(self):
         d = super(MITNEBVaspInputSet, self).as_dict()
@@ -1430,3 +1470,35 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
             s, dirname, make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif
         )
+
+
+class MVLElasticInputSet(DictVaspInputSet):
+    """
+    MVL denotes VASP input sets that are implemented by the Materials Virtual
+    Lab (http://www.materialsvirtuallab.org) for various research.
+
+    This input set is used to calculate elastic constants in VASP. It is used
+    in the following work::
+
+        Deng, Z.; Wang, Z.; Chu, I-H.;  Luo, J.; Ong, S. P.,
+        “Elastic Properties of Alkali Superionic Conductor Electrolytes
+        from First Principles Calculations”, accepted.
+
+    To read the elastic constants, you may use the Outcar class which parses the
+    elastic constants.
+
+    Args:
+        user_incar_settings (dict): A dict specifying additional incar
+            settings. The key parameter is POTIM. The default of 0.015 is
+            usually fine, but some structures may require a smaller step.
+    """
+
+    def __init__(self, user_incar_settings=None):
+        super(MVLElasticInputSet, self).__init__(
+            "Materials Virtual Lab Elastic Constant Calculation",
+            loadfn(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")))
+        self.user_incar_settings = user_incar_settings or {}
+        self.incar_settings.update(self.user_incar_settings)
+        self.incar_settings.update({"IBRION": 6, "NFREE": 2, "POTIM": 0.015})
+        if "NPAR" in self.incar_settings:
+            del self.incar_settings["NPAR"]
