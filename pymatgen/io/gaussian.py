@@ -269,7 +269,6 @@ class GaussianInput(object):
                 route_index = i
                 break
         functional, basis_set, route_paras, dieze_tag = read_route_line(route)
-        print(functional, basis_set, route_paras, dieze_tag)
 
         ind = 2
         title = []
