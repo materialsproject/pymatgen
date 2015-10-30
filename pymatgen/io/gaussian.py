@@ -381,7 +381,8 @@ class GaussianInput(object):
         """
         Return GaussianInput string
 
-        Option: whe cart_coords sets to True return the cartesian coordinates instead of the z-matrix
+        Option: whe cart_coords sets to True return the cartesian coordinates
+                instead of the z-matrix
 
         """
         def para_dict_to_string(para, joiner=" "):
@@ -470,6 +471,14 @@ class GaussianOutput(object):
     .. attribute:: energies
 
         All energies from the calculation.
+
+    .. attribute:: cart_forces
+
+        All cartesian forces from the calculation.
+
+    .. attribute:: frequencies
+
+        The frequencies and normal modes.
 
     .. attribute:: properly_terminated
 
@@ -580,15 +589,30 @@ class GaussianOutput(object):
         mp2_patt = re.compile("EUMP2\s*=\s*(.*)")
         oniom_patt = re.compile("ONIOM:\s+extrapolated energy\s*=\s*(.*)")
         termination_patt = re.compile("(Normal|Error) termination")
-        error_patt = re.compile("(! Non-Optimized Parameters !|Convergence failure)")
-        mulliken_patt = re.compile("^\s*(Mulliken charges|Mulliken atomic charges)")
-        mulliken_charge_patt = re.compile('^\s+(\d+)\s+([A-Z][a-z]?)\s*(\S*)')
-        end_mulliken_patt = re.compile('(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)')
+        error_patt = re.compile(
+            "(! Non-Optimized Parameters !|Convergence failure)")
+        mulliken_patt = re.compile(
+            "^\s*(Mulliken charges|Mulliken atomic charges)")
+        mulliken_charge_patt = re.compile(
+            '^\s+(\d+)\s+([A-Z][a-z]?)\s*(\S*)')
+        end_mulliken_patt = re.compile(
+            '(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)')
         std_orientation_patt = re.compile("Standard orientation")
         end_patt = re.compile("--+")
         orbital_patt = re.compile("Alpha\s*\S+\s*eigenvalues --(.*)")
         thermo_patt = re.compile("(Zero-point|Thermal) correction(.*)="
                                  "\s+([\d\.-]+)")
+        forces_on_patt = re.compile(
+            "Center\s+Atomic\s+Forces\s+\(Hartrees/Bohr\)")
+        forces_off_patt = re.compile("Cartesian\s+Forces:\s+Max.*RMS.*")
+        forces_patt = re.compile(
+            "\s+(\d+)\s+(\d+)\s+([0-9\.-]+)\s+([0-9\.-]+)\s+([0-9\.-]+)")
+
+        freq_on_patt = re.compile(
+            "Harmonic\sfrequencies\s+\(cm\*\*-1\),\sIR\sintensities.*Raman.*")
+        freq_patt = re.compile("Frequencies\s--\s+(.*)")
+        normal_mode_patt = re.compile(
+            "\s+(\d+)\s+(\d+)\s+([0-9\.-]{4,5})\s+([0-9\.-]{4,5}).*")
 
         self.properly_terminated = False
         self.is_pcm = False
@@ -600,6 +624,8 @@ class GaussianOutput(object):
         self.errors = []
         self.Mulliken_charges = {}
         self.link0 = {}
+        self.cart_forces = []
+        self.frequencies = []
 
         coord_txt = []
         read_coord = 0
@@ -608,6 +634,10 @@ class GaussianOutput(object):
         parse_stage = 0
         num_basis_found = False
         terminated = False
+        parse_forces = False
+        forces = []
+        parse_freq = False
+        frequencies = []
 
         with zopen(filename) as f:
             for line in f:
@@ -656,15 +686,44 @@ class GaussianOutput(object):
                                     sp.append(Element.from_Z(int(toks[1])))
                                     coords.append([float(i) for i in toks[3:6]])
                                 self.structures.append(Molecule(sp, coords))
+
+                    if parse_forces:
+                        m = forces_patt.search(line)
+                        if m:
+                            forces.extend([float(_v) for _v in m.groups()[2:5]])
+                        elif forces_off_patt.search(line):
+                            self.cart_forces.append(forces)
+                            forces = []
+                            parse_forces = False
+
+                    elif parse_freq:
+                        m = freq_patt.search(line)
+                        if m:
+                            values = [float(_v) for _v in m.groups()[0].split()]
+                            for value in values:
+                                frequencies.append([value, []])
+                        elif normal_mode_patt.search(line):
+                            values = [float(_v) for _v in line.split()[2:]]
+                            n = int(len(values) / 3)
+                            for i in range(0, len(values), 3):
+                                j = -n + int(i / 3)
+                                frequencies[j][1].extend(values[i:i+3])
+                        elif line.find("-------------------") != -1:
+                            parse_freq = False
+                            self.frequencies.append(frequencies)
+                            frequencies = []
+
                     elif termination_patt.search(line):
                         m = termination_patt.search(line)
                         if m.group(1) == "Normal":
                             self.properly_terminated = True
                             terminated = True
                     elif error_patt.search(line):
-                        error_defs = {"! Non-Optimized Parameters !": "Optimization error",
-                                        "Convergence failure": "SCF convergence error"
-                                            }
+                        error_defs = {
+                            "! Non-Optimized Parameters !": "Optimization "
+                                                            "error",
+                            "Convergence failure": "SCF convergence error"
+                        }
                         m = error_patt.search(line)
                         self.errors.append(error_defs[m.group(1)])
                     elif (not num_basis_found) and \
@@ -696,6 +755,10 @@ class GaussianOutput(object):
                     elif mulliken_patt.search(line):
                         mulliken_txt = []
                         read_mulliken = True
+                    elif not parse_forces and forces_on_patt.search(line):
+                        parse_forces = True
+                    elif freq_on_patt.search(line):
+                        parse_freq = True
 
                     if read_mulliken:
                         if not end_mulliken_patt.search(line):
