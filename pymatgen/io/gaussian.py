@@ -608,6 +608,12 @@ class GaussianOutput(object):
         forces_patt = re.compile(
             "\s+(\d+)\s+(\d+)\s+([0-9\.-]+)\s+([0-9\.-]+)\s+([0-9\.-]+)")
 
+        freq_on_patt = re.compile(
+            "Harmonic\sfrequencies\s+\(cm\*\*-1\),\sIR\sintensities.*Raman.*")
+        freq_patt = re.compile("Frequencies\s--\s+(.*)")
+        normal_mode_patt = re.compile(
+            "\s+(\d+)\s+(\d+)\s+([0-9\.-]{4,5})\s+([0-9\.-]{4,5}).*")
+
         self.properly_terminated = False
         self.is_pcm = False
         self.stationary_type = "Minimum"
@@ -630,6 +636,8 @@ class GaussianOutput(object):
         terminated = False
         parse_forces = False
         forces = []
+        parse_freq = False
+        frequencies = []
 
         with zopen(filename) as f:
             for line in f:
@@ -689,6 +697,24 @@ class GaussianOutput(object):
                             forces = []
                             parse_forces = False
 
+                    elif parse_freq:
+                        m = freq_patt.search(line)
+                        if m:
+                            values = map(float, m.groups()[0].split())
+                            assert 1 <= len(values) <= 3
+                            for value in values:
+                                frequencies.append([value, []])
+                        elif normal_mode_patt.search(line):
+                            values = map(float, line.strip().split()[2:])
+                            n = int(len(values) / 3)
+                            for i in range(0, len(values), 3):
+                                j = -n + int(i / 3)
+                                frequencies[j][1].extend(values[i:i+3])
+                        elif line.find("-------------------") != -1:
+                            parse_freq = False
+                            self.frequencies.append(frequencies)
+                            frequencies = []
+
                     elif termination_patt.search(line):
                         m = termination_patt.search(line)
                         if m.group(1) == "Normal":
@@ -733,6 +759,8 @@ class GaussianOutput(object):
                         read_mulliken = True
                     elif not parse_forces and forces_on_patt.search(line):
                         parse_forces = True
+                    elif freq_on_patt.search(line):
+                        parse_freq = True
 
                     if read_mulliken:
                         if not end_mulliken_patt.search(line):
