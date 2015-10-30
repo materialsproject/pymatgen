@@ -165,6 +165,17 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual(gau.cart_forces[0][ 5],  0.009791094)
         self.assertEqual(gau.cart_forces[0][-1], -0.003263698)
         self.assertEqual(gau.cart_forces[2][-1], -0.000000032)
+
+        ch2o_co2 = GaussianOutput(os.path.join(test_dir, "CH2O_CO2.log"))
+        self.assertEqual(len(ch2o_co2.frequencies), 2)
+        self.assertEqual(ch2o_co2.frequencies[0][0][0], 1203.1940)
+        self.assertListEqual(ch2o_co2.frequencies[0][1][1], [ 0.15, 0.00, 0.00,
+                                                             -0.26, 0.65, 0.00,
+                                                             -0.26,-0.65, 0.00,
+                                                             -0.08, 0.00, 0.00])
+        self.assertListEqual(ch2o_co2.frequencies[1][3][1], [ 0.00, 0.00, 0.88,
+                                                              0.00, 0.00,-0.33,
+                                                              0.00, 0.00,-0.33])
         
     def test_scan(self):
         gau = GaussianOutput(os.path.join(test_dir, "so2_scan.log"))
