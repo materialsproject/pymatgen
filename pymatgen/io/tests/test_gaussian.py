@@ -161,6 +161,10 @@ class GaussianOutputTest(unittest.TestCase):
         d = gau.as_dict()
         self.assertEqual(d["input"]["functional"], "hf")
         self.assertAlmostEqual(d["output"]["final_energy"], -39.9768775602)
+        self.assertEqual(len(gau.cart_forces), 3)
+        self.assertEqual(gau.cart_forces[0][ 5],  0.009791094)
+        self.assertEqual(gau.cart_forces[0][-1], -0.003263698)
+        self.assertEqual(gau.cart_forces[2][-1], -0.000000032)
         
     def test_scan(self):
         gau = GaussianOutput(os.path.join(test_dir, "so2_scan.log"))
