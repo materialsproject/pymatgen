@@ -90,6 +90,10 @@ class BoltztrapRunner:
                 results from spin-orbit coupling (soc) computations give typically non-polarized (no spin up or down)
                 results but 1 electron occupations. If the band structure comes from a soc computation, you should set
                 soc to True (default False)
+            doping:
+                the fixed doping levels you want to compute. Boltztrap provides both transport values
+                depending on electron chemical potential (fermi energy) and for a series of fixed
+                carrier concentrations. By default, this is set to 1e16, 1e17, 1e18, 1e19, 1e20 and 1e21
     """
 
     @requires(which('x_trans'),
@@ -99,7 +103,7 @@ class BoltztrapRunner:
               ".html and follow the instructions in the README to compile "
               "Bolztrap accordingly. Then add x_trans to your path")
     def __init__(self, bs, nelec, dos_type="HISTO", energy_grid=0.005,
-                 lpfac=10, run_type="BOLTZ", band_nb=None, tauref=0, tauexp=0, tauen=0, soc=False):
+                 lpfac=10, run_type="BOLTZ", band_nb=None, tauref=0, tauexp=0, tauen=0, soc=False, doping=None):
         self.lpfac = lpfac
         self._bs = bs
         self._nelec = nelec
@@ -112,6 +116,7 @@ class BoltztrapRunner:
         self.tauexp = tauexp
         self.tauen = tauen
         self.soc = soc
+        self.doping = doping or [1e16, 1e17, 1e18, 1e19, 1e20, 1e21]
 
     def _make_energy_file(self, file_name):
         with open(file_name, 'w') as f:
@@ -215,10 +220,8 @@ class BoltztrapRunner:
                                 + "\' \'old\', \'formatted\',0\n")
                         i += 1
 
-    def _make_intrans_file(self, file_name,
-                           doping=[1e16, 1e17, 1e18, 1e19, 1e20, 1e21], run_type="BOLTZ", band_nb=None,
-                           tauref=0, tauexp=0, tauen=0):
-        if run_type == "BOLTZ":
+    def _make_intrans_file(self, file_name):
+        if self.run_type == "BOLTZ":
             with open(file_name, 'w') as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write("1 0 0 0.0         # iskip (not presently used) idebug setgap shiftgap \n")
@@ -233,13 +236,13 @@ class BoltztrapRunner:
                 fout.write("1300. 100.                  # Tmax, temperature grid\n")
                 fout.write("-1.  # energyrange of bands given DOS output sig_xxx and dos_xxx (xxx is band number)\n")
                 fout.write(self.dos_type+"\n")
-                fout.write(str(tauref)+" "+str(tauexp)+" "+str(tauen)+" 0 0 0\n")
-                fout.write(str(2*len(doping))+"\n")
-                for d in doping:
+                fout.write(str(self.tauref)+" "+str(self.tauexp)+" "+str(self.tauen)+" 0 0 0\n")
+                fout.write(str(2*len(self.doping))+"\n")
+                for d in self.doping:
                     fout.write(str(d)+"\n")
-                for d in doping:
+                for d in self.doping:
                     fout.write(str(-d)+"\n")
-        elif run_type == "FERMI":
+        elif self.run_type == "FERMI":
             with open(file_name, 'w') as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write("1 0 0 0.0         # iskip (not presently used) idebug setgap shiftgap \n")
@@ -250,7 +253,7 @@ class BoltztrapRunner:
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
                 fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
                 fout.write("FERMI                     # run mode (only BOLTZ is supported)\n")
-                fout.write(str(band_nb+1))
+                fout.write(str(self.band_nb+1))
 
     def _make_all_files(self, path):
         if self._bs.is_spin_polarized or self.soc:
@@ -258,7 +261,7 @@ class BoltztrapRunner:
         else:
             self._make_energy_file(os.path.join(path, "boltztrap.energy"))
         self._make_struc_file(os.path.join(path, "boltztrap.struct"))
-        self._make_intrans_file(os.path.join(path, "boltztrap.intrans"), run_type=self.run_type, band_nb=self.band_nb)
+        self._make_intrans_file(os.path.join(path, "boltztrap.intrans"))
         self._make_def_file("BoltzTraP.def")
         if len(self._bs._projections) != 0:
             self._make_proj_files(os.path.join(path, "boltztrap.proj"), os.path.join(path, "BoltzTraP.def"))
@@ -315,6 +318,7 @@ class BoltztrapRunner:
         # sometimes boltztrap mess this up because of two small energy grids
         analyzer = BoltztrapAnalyzer.from_files(path_dir)
         doping_ok = True
+        print (analyzer.mu_doping, analyzer.doping)
         for doping in ['n', 'p']:
             for c in analyzer.mu_doping[doping]:
                 if len(analyzer.mu_doping[doping][c]) != len(analyzer.doping[doping]):
@@ -338,22 +342,18 @@ class BoltztrapRunner:
         # here, we test if a property (eff_mass tensor) converges
         if convergence is False:
             return path_dir
-        if prev_sigma is None or \
-                abs(sum(analyzer.get_eig_average_eff_mass_tensor()['n']) / 3
-                        - prev_sigma)\
-                / prev_sigma > 0.05:
+        if prev_sigma is None or abs(sum(analyzer.get_average_eff_mass()['n'][300][int(len(self.doping)/2)]) / 3
+                                     - prev_sigma)/prev_sigma > 0.05:
             if prev_sigma is not None:
-                print((abs(sum(analyzer.get_eig_average_eff_mass_tensor()['n'])
-                          / 3 - prev_sigma) / prev_sigma,
-                    self.lpfac,
-                    analyzer.get_average_eff_mass_tensor(300, 1e18)))
+                print((abs(sum(analyzer.get_average_eff_mass()['n'][300][int(len(self.doping)/2)]) / 3
+                           - prev_sigma) / prev_sigma, self.lpfac))
             self.lpfac *= 2
             if self.lpfac > 100:
                 raise BoltztrapError("lpfac higher than 100 and still not converged")
             self._make_intrans_file(path_dir + "/" + dir_bz_name + ".intrans")
             self.run(
-                prev_sigma=sum(analyzer.get_eig_average_eff_mass_tensor()
-                               ['n']) / 3, path_dir=path_dir_orig)
+                prev_sigma=sum(analyzer.get_average_eff_mass()
+                               ['n'][300][int(len(self.doping)/2)]) / 3, path_dir=path_dir_orig)
         return path_dir
 
 
@@ -466,7 +466,7 @@ class BoltztrapAnalyzer:
         self._kappa_doping = kappa_doping
         self._hall_doping = hall_doping
         self._carrier_conc = carrier_conc
-        self._dos = dos
+        self.dos = dos
         self.vol = vol
         self._dos_partial = dos_partial
 
@@ -892,11 +892,14 @@ class BoltztrapAnalyzer:
                 if not line.startswith(" #"):
                     data_dos['total'].append([Energy(float(line.split()[0]), "Ry").to("eV"),
                                               float(line.split()[1])])
+                    total_elec = float(line.split()[2])
                 else:
                     count_series += 1
                 if count_series > 1:
                     break
-
+        data_dos['total'] = [[data_dos['total'][i][0], 2*data_dos['total'][i][1]/total_elec]
+                             for i in range(len(data_dos['total']))]
+#       TODO: check if the DOS normalization works for spin polarized band structures
         for file_name in os.listdir(path_dir):
             if file_name.endswith("transdos") and file_name != 'boltztrap.transdos':
                 tokens = file_name.split(".")[1].split("_")
@@ -907,7 +910,7 @@ class BoltztrapAnalyzer:
                                 data_dos['partial'][tokens[1]] = {}
                             if tokens[2] not in data_dos['partial'][tokens[1]]:
                                 data_dos['partial'][tokens[1]][tokens[2]] = []
-                            data_dos['partial'][tokens[1]][tokens[2]].append(float(line.split()[1]))
+                            data_dos['partial'][tokens[1]][tokens[2]].append(2*float(line.split()[1])/total_elec)
 
         with open(os.path.join(path_dir, "boltztrap.outputtrans"), 'r') as f:
             warning = False
@@ -917,20 +920,8 @@ class BoltztrapAnalyzer:
                     warning = True
                 if line.startswith("VBM"):
                     efermi = Energy(line.split()[1], "Ry").to("eV")
-
-                if step == 2:
-                    l_tmp = line.split("-")[1:]
-                    doping.extend([-float(d) for d in l_tmp])
-                    step = 0
-
-                if step == 1:
-                    doping.extend([float(d) for d in line.split()])
-                    step = 2
-
-                if line.startswith("Doping levels to be output for") or \
-                        line.startswith(" Doping levels to be output for"):
-                    step = 1
-
+                if line.startswith("Doping level number"):
+                    doping.append(float(line.split()[6]))
                 if line.startswith("Egap:"):
                     gap = float(line.split()[1])
         if len(doping) != 0:
@@ -1043,37 +1034,38 @@ class BoltztrapPlotter:
         self._bz = bz
 
     def _plot_doping(self, temp):
-        limit = 2.21e15
-        plt.axvline(self._bz.mu_doping['n'][temp][1], linewidth=3.0,
-                    linestyle="--")
-        plt.text(self._bz.mu_doping['n'][temp][1] + 0.01,
-                 limit,
-                 "$n$=10$^{" + str(math.log10(self._bz.doping['n'][1])) + "}$",
-                 color='b')
-        plt.axvline(self._bz.mu_doping['n'][temp][-1], linewidth=3.0,
-                    linestyle="--")
-        plt.text(self._bz.mu_doping['n'][temp][-1] + 0.01,
-                 limit,
-                 "$n$=10$^{" + str(math.log10(self._bz.doping['n'][-1]))
-                 + "}$", color='b')
-        plt.axvline(self._bz.mu_doping['p'][temp][1], linewidth=3.0,
-                    linestyle="--")
-        plt.text(self._bz.mu_doping['p'][temp][1] + 0.01,
-                 limit,
-                 "$p$=10$^{" + str(math.log10(self._bz.doping['p'][1])) + "}$",
-                 color='b')
-        plt.axvline(self._bz.mu_doping['p'][temp][-1], linewidth=3.0,
-                    linestyle="--")
-        plt.text(self._bz.mu_doping['p'][temp][-1] + 0.01,
-                 limit, "$p$=10$^{" +
-                        str(math.log10(self._bz.doping['p'][-1])) + "}$",
-                 color='b')
+        if len(self._bz.doping) != 0:
+            limit = 2.21e15
+            plt.axvline(self._bz.mu_doping['n'][temp][0], linewidth=3.0,
+                        linestyle="--")
+            plt.text(self._bz.mu_doping['n'][temp][0] + 0.01,
+                     limit,
+                     "$n$=10$^{" + str(math.log10(self._bz.doping['n'][0])) + "}$",
+                     color='b')
+            plt.axvline(self._bz.mu_doping['n'][temp][-1], linewidth=3.0,
+                        linestyle="--")
+            plt.text(self._bz.mu_doping['n'][temp][-1] + 0.01,
+                     limit,
+                     "$n$=10$^{" + str(math.log10(self._bz.doping['n'][-1]))
+                     + "}$", color='b')
+            plt.axvline(self._bz.mu_doping['p'][temp][0], linewidth=3.0,
+                        linestyle="--")
+            plt.text(self._bz.mu_doping['p'][temp][0] + 0.01,
+                     limit,
+                     "$p$=10$^{" + str(math.log10(self._bz.doping['p'][0])) + "}$",
+                     color='b')
+            plt.axvline(self._bz.mu_doping['p'][temp][-1], linewidth=3.0,
+                        linestyle="--")
+            plt.text(self._bz.mu_doping['p'][temp][-1] + 0.01,
+                     limit, "$p$=10$^{" +
+                            str(math.log10(self._bz.doping['p'][-1])) + "}$",
+                     color='b')
 
     def _plot_bg_limits(self):
         plt.axvline(0.0, color='k', linewidth=3.0)
         plt.axvline(self._bz.gap, color='k', linewidth=3.0)
 
-    def plot_seebeck_mu(self, temp=300, output='eig', xlim=None):
+    def plot_seebeck_mu(self, temp=600, output='eig', xlim=None):
         """
         Plot the seebeck coefficient in function of Fermi level
 
@@ -1085,10 +1077,10 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-        seebeck=self._bz.get_seebeck(output=output,doping_levels=False)[temp]
+        seebeck = self._bz.get_seebeck(output=output,doping_levels=False)[temp]
         plt.plot(self._bz.mu_steps, seebeck,
                  linewidth=3.0)
-        self._plot_BG_limits()
+        self._plot_bg_limits()
         self._plot_doping(temp)
         if output == 'eig':
             plt.legend(['S$_1$', 'S$_2$', 'S$_3$'])
@@ -1102,7 +1094,7 @@ class BoltztrapPlotter:
         plt.yticks(fontsize=25)
         return plt
 
-    def plot_conductivity_mu(self, temp=300, output='eig', relaxation_time=1e-14, xlim=None):
+    def plot_conductivity_mu(self, temp=600, output='eig', relaxation_time=1e-14, xlim=None):
         """
         Plot the conductivity in function of Fermi level. Semi-log plot
 
@@ -1126,14 +1118,14 @@ class BoltztrapPlotter:
             plt.xlim(-0.5, self._bz.gap + 0.5)
         else:
             plt.xlim(xlim)
-        plt.ylim([1e13*relaxation_time,1e20*relaxation_time])
+        plt.ylim([1e13*relaxation_time, 1e20*relaxation_time])
         plt.ylabel("conductivity,\n $\sigma$ (1/($\Omega$ m))", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
         return plt
 
-    def plot_power_factor_mu(self, temp=300, output='eig', relaxation_time=1e-14, xlim=None):
+    def plot_power_factor_mu(self, temp=600, output='eig', relaxation_time=1e-14, xlim=None):
         """
         Plot the power factor in function of Fermi level. Semi-log plot
 
@@ -1163,7 +1155,7 @@ class BoltztrapPlotter:
         plt.yticks(fontsize=25)
         return plt
 
-    def plot_zt_mu(self, temp=300, output='eig', relaxation_time=1e-14, xlim=None):
+    def plot_zt_mu(self, temp=600, output='eig', relaxation_time=1e-14, xlim=None):
         """
         Plot the ZT in function of Fermi level.
 
@@ -1220,10 +1212,10 @@ class BoltztrapPlotter:
         plt.semilogy(self._bz.mu_steps,
                      abs(self._bz.carrier_conc[temp]/(self._bz.vol*1e-24)),
                      linewidth=3.0, color='r')
-        self._plot_BG_limits()
+        self._plot_bg_limits()
         self._plot_doping(temp)
         plt.xlim(-0.5, self._bz.gap+0.5)
-        plt.ylim(1e14,1e22)
+        plt.ylim(1e14, 1e22)
         plt.ylabel("carrier concentration (cm-3)", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30)
         plt.xticks(fontsize=25)
