@@ -70,9 +70,6 @@ compatible. Our approach is to have a single codebase support Python 2.7 and
 3.x, as per current best practices. Please review the `coding guidelines
 </contributing>`_.
 
-Change Log
-==========
-
 .. include:: latest_changes.rst
 
 :doc:`Older versions </change_log>`
@@ -468,6 +465,8 @@ Shyue Ping Ong started Pymatgen in 2011, and is still the project lead.
 
 The Pymatgen Development Team is the set of all contributors to the
 pymatgen project, including all subprojects.
+
+The full list of contributors are listed in the :doc:`team page </team>`.
 
 Our Copyright Policy
 ====================
