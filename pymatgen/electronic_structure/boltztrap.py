@@ -921,7 +921,7 @@ class BoltztrapAnalyzer:
                 if line.startswith("VBM"):
                     efermi = Energy(line.split()[1], "Ry").to("eV")
                 if line.startswith("Doping level number"):
-                    doping.append(float(line.split("=")[-1].split("carriers")[0]))
+                    doping.append(float(line.split()[6]))
                 if line.startswith("Egap:"):
                     gap = float(line.split()[1])
         if len(doping) != 0:
