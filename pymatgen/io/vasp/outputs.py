@@ -29,6 +29,7 @@ from io import StringIO
 import logging
 from collections import defaultdict
 from xml.etree.cElementTree import iterparse
+import warnings
 
 from six.moves import map, zip
 from six import string_types
@@ -356,6 +357,10 @@ class Vasprun(MSONable):
 
             if parse_potcar_file:
                 self.update_potcar_spec(parse_potcar_file)
+
+        if not self.converged:
+            warnings.warn("%s is an unconverged vasp run." % filename,
+                          UnconvergedVaspWarning)
 
     def _parse(self, stream, parse_dos, parse_eigen, parse_projected_eigen):
         self.efermi = None
@@ -2687,3 +2692,9 @@ class Wavederf(object):
 
         return self.data[:,band_i-1,band_j-1,:] # using numpy array multidimensional slicing
 
+
+class UnconvergedVaspWarning(Warning):
+    """
+    Warning for unconverged vasp run.
+    """
+    pass
