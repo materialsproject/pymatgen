@@ -51,7 +51,7 @@ except ImportError:
     pass
 
 
-class BoltztrapRunner:
+class BoltztrapRunner(object):
     """
     This class is used to run Boltztrap on a band structure object.
 
@@ -1233,7 +1233,7 @@ class BoltztrapAnalyzer(object):
             data['vol'], str(data['warning']))
 
 
-class BoltztrapPlotter:
+class BoltztrapPlotter(object):
     """
     class containing methods to plot the data from Boltztrap.
 
