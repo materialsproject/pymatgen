@@ -46,6 +46,7 @@ def read_route_line(route):
     functional = None
     basis_set = None
     route_params = {}
+    dieze_tag = None
     if route:
         if "/" in route:
             tok = route.split("/")
@@ -93,6 +94,9 @@ class GaussianInput(object):
             for example, in PCM calculations.  E.g., {"EPS":12}
         link0_parameters: Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
         dieze_tag: # preceding the route line. E.g. "#p"
+        gen_basis: allows a user-specified basis set to be used in a Gaussian
+            calculation. If this is not None, the attribute ``basis_set`` will
+            be set to "Gen".
     """
 
     #Commonly used regex patterns
@@ -102,7 +106,8 @@ class GaussianInput(object):
 
     def __init__(self, mol, charge=None, spin_multiplicity=None, title=None,
                  functional="HF", basis_set="6-31G(d)", route_parameters=None,
-                 input_parameters=None, link0_parameters=None, dieze_tag="#P"):
+                 input_parameters=None, link0_parameters=None, dieze_tag="#P",
+                 gen_basis=None):
         self._mol = mol
         self.charge = charge if charge is not None else mol.charge
         nelectrons = - self.charge + mol.charge + mol.nelectrons
@@ -122,6 +127,9 @@ class GaussianInput(object):
         self.input_parameters = input_parameters if input_parameters else {}
         self.title = title if title else self._mol.composition.formula
         self.dieze_tag = dieze_tag if dieze_tag[0] == "#" else "#P"
+        self.gen_basis = gen_basis
+        if gen_basis is not None:
+            self.basis_set = "Gen"
 
     @property
     def molecule(self):
@@ -409,6 +417,8 @@ class GaussianInput(object):
         else:
             output.append(str(self._mol))
         output.append("")
+        if self.gen_basis is not None:
+            output.append("{:s}\n".format(self.gen_basis))
         output.append(para_dict_to_string(self.input_parameters, "\n"))
         output.append("\n")
         return "\n".join(output)
