@@ -139,6 +139,45 @@ Sites (6)
         gau = GaussianInput.from_string(gau_str)
         self.assertEqual("X3SiH4", gau.molecule.composition.reduced_formula)
 
+    def test_gen_basis(self):
+        gau_str = """#N B3LYP/Gen Pseudo=Read
+
+Test
+
+0 1
+C
+H 1 B1
+H 1 B2 2 A2
+H 1 B3 2 A3 3 D3
+H 1 B4 2 A4 4 D4
+
+B1=1.089000
+B2=1.089000
+A2=109.471221
+B3=1.089000
+A3=109.471213
+D3=120.000017
+B4=1.089000
+A4=109.471213
+D4=119.999966
+
+C 0
+6-31G(d,p)
+****
+H 0
+6-31G
+****
+
+
+
+"""
+        mol = Molecule(["C", "H", "H", "H", "H"], self.coords)
+        gen_basis = "C 0\n6-31G(d,p)\n****\nH 0\n6-31G\n****"
+        gau = GaussianInput(mol, functional="B3LYP", gen_basis=gen_basis,
+                            dieze_tag="#N", route_parameters={"Pseudo": "Read"},
+                            title="Test")
+        self.assertEqual(gau.to_string(cart_coords=False), gau_str)
+
 
 class GaussianOutputTest(unittest.TestCase):
     # todo: Add unittest for PCM type output.
