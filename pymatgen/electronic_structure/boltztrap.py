@@ -1131,8 +1131,6 @@ class BoltztrapAnalyzer(object):
         data_dos['total'] = [
             [data_dos['total'][i][0], 2 * data_dos['total'][i][1] / total_elec]
             for i in range(len(data_dos['total']))]
-        #       TODO: check if the DOS normalization works for spin polarized
-        #  band structures
         for file_name in os.listdir(path_dir):
             if file_name.endswith(
                     "transdos") and file_name != 'boltztrap.transdos':
@@ -1145,9 +1143,8 @@ class BoltztrapAnalyzer(object):
                             if tokens[2] not in data_dos['partial'][tokens[1]]:
                                 data_dos['partial'][tokens[1]][tokens[2]] = []
                             data_dos['partial'][tokens[1]][tokens[2]].append(
-                                2 * float(line.split()[1]) / total_elec)
+                                2 * float(line.split()[1]))
 
->>>>>>> 950fb3ed6468161725e73d8a1a07747fe73b5d98
         with open(os.path.join(path_dir, "boltztrap.outputtrans"), 'r') as f:
             warning = False
             step = 0
