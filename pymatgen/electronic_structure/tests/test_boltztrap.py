@@ -34,8 +34,8 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(array[1][1], 328834400000000.0)
         self.assertAlmostEqual(array[1][2], 3.7758069e-05)
         self.assertAlmostEqual(array[2][2], 193943750000000.0)
-        self.assertAlmostEqual(self.bz._hall[400][800][3], 9.5623749e-28)
-        self.assertAlmostEqual(self.bz._hall[400][68][7], 6.5106975e-10)
+        self.assertAlmostEqual(self.bz._hall[400][800][1][0][0], 9.5623749e-28)
+        self.assertAlmostEqual(self.bz._hall[400][68][1][2][2], 6.5106975e-10)
         self.assertAlmostEqual(self.bz.doping['p'][3], 1e18)
         self.assertAlmostEqual(self.bz.mu_doping['p'][300][2], 0.1553770018406)
         self.assertAlmostEqual(self.bz.mu_doping['n'][300][-1], 1.6486016911581)
@@ -43,10 +43,8 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(self.bz._seebeck_doping['p'][600][2][0][1], 3.2860613e-23)
         self.assertAlmostEqual(self.bz._carrier_conc[500][67], 38.22832002)
         self.assertAlmostEqual(self.bz.vol, 612.975564135)
+        self.assertAlmostEqual(self.bz._hall_doping['n'][700][-1][2][2][2], 5.0136483e-26)
 
-    """
-    self.bz.get_average_eff_mass()
-    """
     def test_get_seebeck(self):
         ref = [-768.99078999999995, -724.43919999999991, -686.84682999999973]
         for i in range(0, 3):
@@ -107,6 +105,14 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
             for j in range(0, 3):
                 self.assertAlmostEqual(self.bz.get_average_eff_mass(output='tensor')['p'][300][2][i][j], ref[i][j])
         self.assertAlmostEqual(self.bz.get_average_eff_mass(output='average')['n'][300][2], 1.53769093989)
+
+    def test_get_carrier_concentration(self):
+        self.assertAlmostEqual(self.bz.get_carrier_concentration()[300][39], 6.4805157487898182e+22)
+        self.assertAlmostEqual(self.bz.get_carrier_concentration()[300][693], -6590801063499549.0)
+
+    def test_get_hall_carrier_concentration(self):
+        self.assertAlmostEqual(self.bz.get_hall_carrier_concentration()[600][120], 6.773394626767555e+21)
+        self.assertAlmostEqual(self.bz.get_hall_carrier_concentration()[500][892], -9.136803845741777e+21)
 
 if __name__ == '__main__':
     unittest.main()
