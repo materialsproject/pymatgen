@@ -223,7 +223,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         return hashcode
 
     def __contains__(self, el):
-        return el in self._elmap
+        return get_el_sp(el) in self._elmap
 
     def __len__(self):
         return len(self._elmap)

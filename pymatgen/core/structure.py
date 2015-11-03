@@ -2593,7 +2593,7 @@ class Structure(IStructure, collections.MutableSequence):
             for n, i in enumerate(inds[1:]):
                 species += self[i].species_and_occu
                 offset = self[i].frac_coords - coords
-                coords += (offset - np.round(offset)) / (n + 2)
+                coords += ((offset - np.round(offset)) / (n + 2)).astype(coords.dtype)
             sites.append(PeriodicSite(species, coords, self.lattice))
 
         self._sites = sites
