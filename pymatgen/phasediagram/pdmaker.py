@@ -431,7 +431,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
             "terminal_compositions": [c.as_dict()
                                       for c in self.terminal_compositions],
             "normalize_terminal_compositions":
-                self.normalize_terminal_compositions}
+                self.normalize_terminals}
 
     @classmethod
     def from_dict(cls, d):
