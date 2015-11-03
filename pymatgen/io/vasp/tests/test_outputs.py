@@ -23,7 +23,7 @@ import numpy as np
 import warnings
 
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
-    Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVaspWarning
+    Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
@@ -143,7 +143,7 @@ class VasprunTest(unittest.TestCase):
             # Verify some things
             self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[-1].category,
-                                       UnconvergedVaspWarning))
+                                       UnconvergedVASPWarning))
 
             self.assertTrue(vasprun_unconverged.converged_ionic)
             self.assertFalse(vasprun_unconverged.converged_electronic)
