@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 import unittest
 import os
 from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer
+from pymatgen.electronic_structure.core import Spin
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -44,6 +45,13 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(self.bz._carrier_conc[500][67], 38.22832002)
         self.assertAlmostEqual(self.bz.vol, 612.975564135)
         self.assertAlmostEqual(self.bz._hall_doping['n'][700][-1][2][2][2], 5.0136483e-26)
+        self.assertAlmostEqual(self.bz.dos.efermi, -0.0300005507057)
+        self.assertAlmostEqual(self.bz.dos.energies[0], -2.449704832)
+        self.assertAlmostEqual(self.bz.dos.energies[345], -0.727088176739)
+        self.assertAlmostEqual(self.bz.dos.energies[-1], 3.75693971263)
+        self.assertAlmostEqual(self.bz.dos.densities[Spin.up][400], 118.70171)
+        self.assertAlmostEqual(self.bz.dos.densities[Spin.up][200], 179.58562)
+        self.assertAlmostEqual(self.bz.dos.densities[Spin.up][300], 289.43945)
 
     def test_get_seebeck(self):
         ref = [-768.99078999999995, -724.43919999999991, -686.84682999999973]
