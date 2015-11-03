@@ -63,11 +63,6 @@ several advantages over other codes out there:
    written in other languages. Pymatgen also comes with a complete system for
    handling periodic boundary conditions.
 
-Python 3.x support
-==================
-
-.. versionadded:: 3.0
-
 With effect from version 3.0, pymatgen now supports both Python 2.7 as well
 as Python 3.x. For developers working to add new features to pymatgen, this
 also means that all new code going forward has to be Python 2.7+ and 3
@@ -143,6 +138,11 @@ or::
 Detailed installation instructions for various platforms (Mac and Windows)
 are given on this :doc:`page </installation>`.
 
+.. toctree::
+   :maxdepth: 2
+
+   installation
+
 Some extra functionality (e.g., generation of POTCARs) do require additional
 setup. Please see the following sections for further details on the
 dependencies needed, where to get them and how to install them.
@@ -162,8 +162,15 @@ or to install the package in developmental mode::
 
     python setup.py develop
 
-"Sample" version - Using Docker
--------------------------------
+To run the very comprehensive suite of unittests included with the
+developmental version, make sure you have nose installed and then just type::
+
+    nosetests
+
+in the pymatgen root directory.
+
+"Sample" Docker version
+-----------------------
 
 If you would like to try out pymatgen's capabilities before committing to an
 install, one way is to use `Docker <http://www.docker.com/>`_. The
@@ -182,24 +189,6 @@ your files in the /Users/myname/research directory. You may then run docker
 as follows::
 
     docker run -t -i -v /Users/myname/research:/opt/research materialsvirtuallab/pymatgen
-
-Running unittests
-~~~~~~~~~~~~~~~~~
-
-To run the very comprehensive suite of unittests included with the
-developmental version, make sure you have nose installed and then just type::
-
-    nosetests
-
-in the pymatgen root directory.
-
-Installation help
------------------
-
-.. toctree::
-   :maxdepth: 2
-
-   installation
 
 Using pymatgen
 ==============
@@ -323,24 +312,19 @@ some quick examples of the core capabilities and objects:
     >>> # in the x-direction.
     >>> methane[0] = "N", [0.01, 0, 0]
 
-The above illustrates only the most basic capabilities of pymatgen.
+The above illustrates only the most basic capabilities of pymatgen. Users are
+strongly encouraged to explore the :doc:`usage pages </usage>` (toc given below).
+
+.. toctree::
+   :maxdepth: 2
+
+   usage
 
 Examples
 --------
 
 A good way to explore the functionality of pymatgen is to look at examples.
 Please check out the ipython notebooks at our :doc:`examples page </examples>`.
-
-Usage guide
------------
-
-Users are also strongly encouraged to explore the :doc:`usage pages </usage>`
-(toc given below).
-
-.. toctree::
-   :maxdepth: 2
-
-   usage
 
 API documentation
 -----------------
@@ -408,15 +392,6 @@ Here are a few examples of typical usages::
 
     pmg generate --potcar Li_sv O --functional PBE
 
-ipmg - A Custom ipython shell
------------------------------
-
-From version 2.5.2, A custom ipython shell for pymatgen has been implemented.
-Upon installing pymatgen in the usual manner, the "ipmg" script will be
-installed. Running ipmg will bring users into a custom ipython environment
-where the most commonly used pymatgen objects (see Aliases below) are
-automatically loaded into the environment.
-
 Add-ons
 -------
 
@@ -450,18 +425,13 @@ A simple way that anyone can contribute is simply to report bugs and issues
 to the developing team. You can either send an email to the `pymatgen's
 Google Groups page`_ or even better, submit an Issue in our `Github page`_.
 
-Developing for pymatgen
------------------------
+Developing new functionality
+----------------------------
 
 Another way to contribute is to submit new code/bugfixes to pymatgen. While
 you can always zip your code and email it to the maintainer of pymatgen,
 the best way for anyone to develop pymatgen is by adopting the collaborative
-Github workflow (see section below).
-
-.. toctree::
-   :maxdepth: 2
-
-   contributing
+Github workflow (see `contributing page </contributing>`_).
 
 How to cite pymatgen
 ====================
@@ -495,6 +465,8 @@ Shyue Ping Ong started Pymatgen in 2011, and is still the project lead.
 
 The Pymatgen Development Team is the set of all contributors to the
 pymatgen project, including all subprojects.
+
+The full list of contributors are listed in the :doc:`team page </team>`.
 
 Our Copyright Policy
 ====================

@@ -248,6 +248,11 @@ class RemoveExistingFilter(AbstractStructureFilter):
         self.structure_list.append(structure)
         return True
 
+    def as_dict(self):
+        return {"version": __version__, "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "init_args": {"structure_matcher": self.structure_matcher.as_dict()}}
+
 
 class ChargeBalanceFilter(AbstractStructureFilter):
     """
