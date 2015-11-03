@@ -71,15 +71,11 @@ setup(
                   "pymatgen.analysis.defects": ["*.json"],
                   "pymatgen.analysis.diffraction": ["*.json"],
                   "pymatgen.util": ["structures/*.json"]},
-    author="Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier,"
-    "William Davidson Richards, Stephen Dacek, Dan Gunter, Shreyas Cholia, "
-    "Matteo Giantomassi, Vincent L Chevrier, Rickard Armiento",
-    author_email="ongsp@ucsd.edu, anubhavj@mit.edu, mpkocher@lbnl.gov, "
-    "geoffroy.hautier@uclouvain.be, wrichard@mit.edu, sdacek@mit.edu, "
-    "dkgunter@lbl.gov, scholia@lbl.gov, gmatteo@gmail.com, "
-    "vincentchevrier@gmail.com, armiento@mit.edu",
+    author="Pymatgen Development Team",
+    author_email="pymatgen@googlegroups.com",
     maintainer="Shyue Ping Ong",
-    url="https://github.com/materialsproject/pymatgen/",
+    maintainer_email="ongsp@eng.ucsd.edu",
+    url="http://www.pymatgen.org",
     license="MIT",
     description="Python Materials Genomics is a robust materials "
                 "analysis code that defines core object representations for "

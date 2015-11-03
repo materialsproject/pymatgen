@@ -722,7 +722,7 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
         diffusivities ([float]): A sequence of diffusivities (e.g.,
             from DiffusionAnalyzer.diffusivity). units: cm^2/s
         new_temp (float): desired temperature. units: K
-        structure (structure): structure used for the diffusivity calculation
+        structure (structure): Structure used for the diffusivity calculation
         species (string/Specie): conducting species
 
     Returns:
