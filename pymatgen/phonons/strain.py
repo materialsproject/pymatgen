@@ -46,7 +46,7 @@ class Deformation(SQTensor):
         return indices[0]
 
     @property
-    def euler_lagrange_strain(self):
+    def green_lagrange_strain(self):
         """
         calculates the euler-lagrange strain from
         the deformation gradient
@@ -188,7 +188,7 @@ class Strain(SQTensor):
             deformation (3x3 array-like):
         """
         dfm = Deformation(deformation)
-        return cls(0.5 * (dfm.T * dfm - np.eye(3)), dfm)
+        return cls(0.5 * (np.dot(dfm.T,dfm) - np.eye(3)), dfm)
 
     @property
     def deformation_matrix(self):
