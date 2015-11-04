@@ -468,7 +468,8 @@ limits:
                            'min_cores': self.min_cores,
                            'max_cores': self.max_cores,
                            'min_mem_per_proc': self.min_mem_per_proc,
-                           'max_mem_per_proc': self.max_mem_per_proc
+                           'max_mem_per_proc': self.max_mem_per_proc,
+                           'master_mem_overhead': self.master_mem_overhead
                            },
                 'job': {},
                 'mpi_procs': self._mpi_procs,
