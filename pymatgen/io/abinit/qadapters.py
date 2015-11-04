@@ -441,6 +441,7 @@ limits:
         # Initialize some values from the info reported in the partition.
         self.set_mpi_procs(self.min_cores)
         self.set_mem_per_proc(self.min_mem_per_proc)
+        self.set_master_mem_overhead(self.master_mem_overhead)
 
         # Final consistency check.
         self.validate_qparams()
@@ -461,6 +462,7 @@ limits:
                 'hardware': self.hw.as_dict(),
                 'queue': {'qtype': self.QTYPE,
                           'qname': self._qname,
+                          'qnodes': self.qnodes,
                           'qparams': self._qparams},
                 'limits': {'timelimit': self._timelimit,
                            'min_cores': self.min_cores,
@@ -529,6 +531,7 @@ limits:
         # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
         self.min_mem_per_proc = qu.any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
         self.max_mem_per_proc = qu.any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
+        self._master_mem_overhead = qu.any2mb(d.pop("master_mem_overhead", 0))
 
         # Misc
         self.max_num_launches = int(d.pop("max_num_launches", 10))
@@ -576,6 +579,10 @@ limits:
         self._qparams = copy.deepcopy(qparams) if qparams is not None else {}
 
         self.set_qname(d.pop("qname", ""))
+        self.qnodes = d.pop("qnodes", "shared")
+        if self.qnodes not in ["standard", "shared", "exclusive"]:
+            raise ValueError("Nodes must be either in standard, shared or exclusive mode "
+                             "while qnodes parameter was {}".format(self.qnodes))
         if d:
             raise ValueError("Found unknown keyword(s) in queue section:\n %s" % d.keys())
 
@@ -746,6 +753,11 @@ limits:
     def mem_per_proc(self):
         """The memory per process in megabytes."""
         return self._mem_per_proc
+
+    @property
+    def master_mem_overhead(self):
+        """The memory overhead for the master process in megabytes."""
+        return self._master_mem_overhead
                                                 
     def set_mem_per_proc(self, mem_mb):
         """
@@ -755,10 +767,18 @@ limits:
         if mem_mb <= self.min_mem_per_proc: mem_mb = self.min_mem_per_proc
         self._mem_per_proc = int(mem_mb)
 
+    def set_master_mem_overhead(self, mem_mb):
+        """
+        Set the memory overhead for the master process in megabytes.
+        """
+        if mem_mb < 0:
+            raise ValueError("Memory overhead for the master process should be >= 0")
+        self._master_mem_overhead = int(mem_mb)
+
     @property
     def total_mem(self):
         """Total memory required by the job in megabytes."""
-        return Memory(self.mem_per_proc * self.mpi_procs, "Mb")
+        return Memory(self.mem_per_proc * self.mpi_procs + self.master_mem_overhead, "Mb")
 
     @abc.abstractmethod
     def cancel(self, job_id):
@@ -1054,6 +1074,19 @@ limits:
             return new_mem
 
         raise self.Error('could not increase mem_per_proc further')
+
+    def more_master_mem_overhead(self, mem_increase_mb=1000):
+        """
+        Method to increase the amount of memory overheaded asked for the master node.
+        Return: new master memory overhead if success, 0 if it cannot be increased.
+        """
+        old_master_mem_overhead = self.master_mem_overhead
+        new_master_mem_overhead = old_master_mem_overhead + mem_increase_mb
+        if new_master_mem_overhead + self.mem_per_proc < self.hw.mem_per_node:
+            self.set_master_mem_overhead(new_master_mem_overhead)
+            return new_master_mem_overhead
+
+        raise self.Error('could not increase master_mem_overhead further')
 
     def more_cores(self, factor=1):
         """
@@ -1380,6 +1413,90 @@ $${qverbatim}
         else:
             raise RuntimeError("You should not be here")
         """
+        if self.qnodes == "standard":
+            return self._get_select_standard(ret_dict=ret_dict)
+        else:
+            return self._get_select_with_master_mem_overhead(ret_dict=ret_dict)
+
+    def _get_select_with_master_mem_overhead(self, ret_dict=False):
+        if self.has_omp:
+            raise NotImplementedError("select with master mem overhead not yet implemented with has_omp")
+        if self.qnodes == "exclusive":
+            return self._get_select_with_master_mem_overhead_exclusive(ret_dict=ret_dict)
+        elif self.qnodes == "shared":
+            return self._get_select_with_master_mem_overhead_shared(ret_dict=ret_dict)
+        else:
+            raise ValueError("Wrong value of qnodes parameter : {}".format(self.qnodes))
+
+    def _get_select_with_master_mem_overhead_shared(self, ret_dict=False):
+        chunk_master, ncpus_master, vmem_master, mpiprocs_master = 1, 1, self.mem_per_proc+self.master_mem_overhead, 1
+        if self.mpi_procs > 1:
+            chunks_slaves, ncpus_slaves, vmem_slaves, mpiprocs_slaves = self.mpi_procs - 1, 1, self.mem_per_proc, 1
+            select_params = AttrDict(chunk_master=chunk_master, ncpus_master=ncpus_master,
+                                     mpiprocs_master=mpiprocs_master, vmem_master=int(vmem_master),
+                                     chunks_slaves=chunks_slaves, ncpus_slaves=ncpus_slaves,
+                                     mpiprocs_slaves=mpiprocs_slaves, vmem_slaves=int(vmem_slaves))
+            s = "{chunk_master}:ncpus={ncpus_master}:vmem={vmem_master}mb:mpiprocs={mpiprocs_master}+" \
+                "{chunks_slaves}:ncpus={ncpus_slaves}:vmem={vmem_slaves}mb:" \
+                "mpiprocs={mpiprocs_slaves}".format(**select_params)
+            tot_ncpus = chunk_master*ncpus_master + chunks_slaves*ncpus_slaves
+            if tot_ncpus != self.mpi_procs:
+                raise ValueError('Total number of cpus is different from mpi_procs ...')
+        else:
+            select_params = AttrDict(chunk_master=chunk_master, ncpus_master=ncpus_master,
+                                     mpiprocs_master=mpiprocs_master, vmem_master=int(vmem_master))
+            s = "{chunk_master}:ncpus={ncpus_master}:vmem={vmem_master}mb:" \
+                "mpiprocs={mpiprocs_master}".format(**select_params)
+        if ret_dict:
+            return s, select_params
+        return s
+
+    def _get_select_with_master_mem_overhead_exclusive(self, ret_dict=False):
+        max_ncpus_master = min(self.hw.cores_per_node,
+                               int((self.hw.mem_per_node-self.mem_per_proc-self.master_mem_overhead)
+                                   / self.mem_per_proc))
+        if max_ncpus_master >= self.mpi_procs:
+            chunk, ncpus, vmem, mpiprocs = 1, self.mpi_procs, self.hw.mem_per_node, self.mpi_procs
+            select_params = AttrDict(chunks=chunk, ncpus=ncpus, mpiprocs=mpiprocs, vmem=int(vmem))
+            s = "{chunk}:ncpus={ncpus}:vmem={vmem}mb:mpiprocs={mpiprocs}".format(**select_params)
+            tot_ncpus = chunk*ncpus
+        else:
+            ncpus_left = self.mpi_procs-max_ncpus_master
+            max_ncpus_per_slave_node = min(self.hw.cores_per_node, int(self.hw.mem_per_node/self.mem_per_proc))
+            nslaves_float = float(ncpus_left)/float(max_ncpus_per_slave_node)
+            ncpus_per_slave = max_ncpus_per_slave_node
+            mpiprocs_slaves = max_ncpus_per_slave_node
+            chunk_master = 1
+            vmem_slaves = self.hw.mem_per_node
+            if nslaves_float > int(nslaves_float):
+                chunks_slaves = int(nslaves_float) + 1
+                ncpus_all_slaves = chunks_slaves*ncpus_per_slave
+                ncpus_master = self.mpi_procs-ncpus_all_slaves
+                if ncpus_master > max_ncpus_master:
+                    raise ValueError('ncpus for the master node exceeds the maximum ncpus for the master ... this'
+                                     'should not happen ...')
+            elif nslaves_float == int(nslaves_float):
+                chunks_slaves = int(nslaves_float)
+                ncpus_master = max_ncpus_master
+            else:
+                raise ValueError('nslaves_float < int(nslaves_float) ...')
+            vmem_master, mpiprocs_master = self.hw.mem_per_node, ncpus_master
+            select_params = AttrDict(chunk_master=chunk_master, ncpus_master=ncpus_master,
+                                     mpiprocs_master=mpiprocs_master, vmem_master=int(vmem_master),
+                                     chunks_slaves=chunks_slaves, ncpus_per_slave=ncpus_per_slave,
+                                     mpiprocs_slaves=mpiprocs_slaves, vmem_slaves=int(vmem_slaves))
+            s = "{chunk_master}:ncpus={ncpus_master}:vmem={vmem_master}mb:mpiprocs={mpiprocs_master}+" \
+                "{chunks_slaves}:ncpus={ncpus_per_slave}:vmem={vmem_slaves}mb:" \
+                "mpiprocs={mpiprocs_slaves}".format(**select_params)
+            tot_ncpus = chunk_master*ncpus_master + chunks_slaves*ncpus_per_slave
+
+        if tot_ncpus != self.mpi_procs:
+            raise ValueError('Total number of cpus is different from mpi_procs ...')
+        if ret_dict:
+            return s, select_params
+        return s
+
+    def _get_select_standard(self, ret_dict=False):
         if not self.has_omp:
             chunks, ncpus, vmem, mpiprocs = self.mpi_procs, 1, self.mem_per_proc, 1
             select_params = AttrDict(chunks=chunks, ncpus=ncpus, mpiprocs=mpiprocs, vmem=int(vmem))
