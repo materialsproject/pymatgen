@@ -348,7 +348,8 @@ class MPRester(object):
             entries = MaterialsProjectCompatibility().process_entries(entries)
         else:
             entries = []
-            for d in self.get_data(chemsys_formula_id, prop="task_ids"):
+            for d in self.get_data(chemsys_formula_id_criteria,
+                                   prop="task_ids"):
                 for i in d["task_ids"]:
                     e = self.get_task_data(i, prop="entry")
                     e = e[0]["entry"]
