@@ -5,7 +5,7 @@ import os
 import random
 
 import numpy as np
-from pymatgen.phonons.tensors import SQTensor
+from pymatgen.elasticity.tensors import SQTensor
 from pymatgen.util.testing import PymatgenTest
 from numpy.testing import *
 import math
