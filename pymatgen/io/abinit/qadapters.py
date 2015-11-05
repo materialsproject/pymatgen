@@ -580,7 +580,7 @@ limits:
         self._qparams = copy.deepcopy(qparams) if qparams is not None else {}
 
         self.set_qname(d.pop("qname", ""))
-        self.qnodes = d.pop("qnodes", "shared")
+        self.qnodes = d.pop("qnodes", "standard")
         if self.qnodes not in ["standard", "shared", "exclusive"]:
             raise ValueError("Nodes must be either in standard, shared or exclusive mode "
                              "while qnodes parameter was {}".format(self.qnodes))
@@ -765,7 +765,12 @@ limits:
         Set the memory per process in megabytes. If mem_mb <=0, min_mem_per_proc is used.
         """
         # Hack needed because abinit is still not able to estimate memory.
-        if mem_mb <= self.min_mem_per_proc: mem_mb = self.min_mem_per_proc
+        # COMMENTED by David.
+        # This is not needed anymore here because the "hack" is performed directly in select_qadapter/_use_qadpos_pconf
+        # methods of TaskManager. Moreover, this hack should be performed somewhere else (this part should be
+        # independent of abinit ... and if we want to have less memory than the average memory available per node, we
+        # have to allow it!)
+        #if mem_mb <= self.min_mem_per_proc: mem_mb = self.min_mem_per_proc
         self._mem_per_proc = int(mem_mb)
 
     def set_master_mem_overhead(self, mem_mb):
@@ -1455,7 +1460,7 @@ $${qverbatim}
     def _get_select_with_master_mem_overhead_exclusive(self, ret_dict=False):
         max_ncpus_master = min(self.hw.cores_per_node,
                                int((self.hw.mem_per_node-self.mem_per_proc-self.master_mem_overhead)
-                                   / self.mem_per_proc))
+                                   / self.mem_per_proc) + 1)
         if max_ncpus_master >= self.mpi_procs:
             chunk, ncpus, vmem, mpiprocs = 1, self.mpi_procs, self.hw.mem_per_node, self.mpi_procs
             select_params = AttrDict(chunks=chunk, ncpus=ncpus, mpiprocs=mpiprocs, vmem=int(vmem))
@@ -1469,27 +1474,53 @@ $${qverbatim}
             mpiprocs_slaves = max_ncpus_per_slave_node
             chunk_master = 1
             vmem_slaves = self.hw.mem_per_node
+            explicit_last_slave = False
+            chunk_last_slave, ncpus_last_slave, vmem_last_slave, mpiprocs_last_slave = None, None, None, None
             if nslaves_float > int(nslaves_float):
                 chunks_slaves = int(nslaves_float) + 1
-                ncpus_all_slaves = chunks_slaves*ncpus_per_slave
-                ncpus_master = self.mpi_procs-ncpus_all_slaves
+                pot_ncpus_all_slaves = chunks_slaves*ncpus_per_slave
+                if pot_ncpus_all_slaves >= self.mpi_procs-1:
+                    explicit_last_slave = True
+                    chunks_slaves = chunks_slaves-1
+                    chunk_last_slave = 1
+                    ncpus_master = 1
+                    ncpus_last_slave = self.mpi_procs - 1 - chunks_slaves*ncpus_per_slave
+                    vmem_last_slave = self.hw.mem_per_node
+                    mpiprocs_last_slave = ncpus_last_slave
+                else:
+                    ncpus_master = self.mpi_procs-pot_ncpus_all_slaves
                 if ncpus_master > max_ncpus_master:
                     raise ValueError('ncpus for the master node exceeds the maximum ncpus for the master ... this'
                                      'should not happen ...')
+                if ncpus_master < 1:
+                    raise ValueError('ncpus for the master node is 0 ... this should not happen ...')
             elif nslaves_float == int(nslaves_float):
                 chunks_slaves = int(nslaves_float)
                 ncpus_master = max_ncpus_master
             else:
                 raise ValueError('nslaves_float < int(nslaves_float) ...')
             vmem_master, mpiprocs_master = self.hw.mem_per_node, ncpus_master
-            select_params = AttrDict(chunk_master=chunk_master, ncpus_master=ncpus_master,
-                                     mpiprocs_master=mpiprocs_master, vmem_master=int(vmem_master),
-                                     chunks_slaves=chunks_slaves, ncpus_per_slave=ncpus_per_slave,
-                                     mpiprocs_slaves=mpiprocs_slaves, vmem_slaves=int(vmem_slaves))
-            s = "{chunk_master}:ncpus={ncpus_master}:vmem={vmem_master}mb:mpiprocs={mpiprocs_master}+" \
-                "{chunks_slaves}:ncpus={ncpus_per_slave}:vmem={vmem_slaves}mb:" \
-                "mpiprocs={mpiprocs_slaves}".format(**select_params)
-            tot_ncpus = chunk_master*ncpus_master + chunks_slaves*ncpus_per_slave
+            if explicit_last_slave:
+                select_params = AttrDict(chunk_master=chunk_master, ncpus_master=ncpus_master,
+                                         mpiprocs_master=mpiprocs_master, vmem_master=int(vmem_master),
+                                         chunks_slaves=chunks_slaves, ncpus_per_slave=ncpus_per_slave,
+                                         mpiprocs_slaves=mpiprocs_slaves, vmem_slaves=int(vmem_slaves),
+                                         chunk_last_slave=chunk_last_slave, ncpus_last_slave=ncpus_last_slave,
+                                         vmem_last_slave=int(vmem_last_slave), mpiprocs_last_slave=mpiprocs_last_slave)
+                s = "{chunk_master}:ncpus={ncpus_master}:vmem={vmem_master}mb:mpiprocs={mpiprocs_master}+" \
+                    "{chunks_slaves}:ncpus={ncpus_per_slave}:vmem={vmem_slaves}mb:mpiprocs={mpiprocs_slaves}+" \
+                    "{chunk_last_slave}:ncpus={ncpus_last_slave}:vmem={vmem_last_slave}mb:" \
+                    "mpiprocs={mpiprocs_last_slave}".format(**select_params)
+                tot_ncpus = chunk_master*ncpus_master+chunks_slaves*ncpus_per_slave+chunk_last_slave*ncpus_last_slave
+            else:
+                select_params = AttrDict(chunk_master=chunk_master, ncpus_master=ncpus_master,
+                                         mpiprocs_master=mpiprocs_master, vmem_master=int(vmem_master),
+                                         chunks_slaves=chunks_slaves, ncpus_per_slave=ncpus_per_slave,
+                                         mpiprocs_slaves=mpiprocs_slaves, vmem_slaves=int(vmem_slaves))
+                s = "{chunk_master}:ncpus={ncpus_master}:vmem={vmem_master}mb:mpiprocs={mpiprocs_master}+" \
+                    "{chunks_slaves}:ncpus={ncpus_per_slave}:vmem={vmem_slaves}mb:" \
+                    "mpiprocs={mpiprocs_slaves}".format(**select_params)
+                tot_ncpus = chunk_master*ncpus_master + chunks_slaves*ncpus_per_slave
 
         if tot_ncpus != self.mpi_procs:
             raise ValueError('Total number of cpus is different from mpi_procs ...')
