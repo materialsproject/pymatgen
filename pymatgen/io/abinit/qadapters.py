@@ -488,6 +488,8 @@ limits:
         qa.set_mpi_procs(dd.pop('mpi_procs'))
         qa.set_timelimit(dd.pop('timelimit'))
         qa.set_mem_per_proc(dd.pop('mem_per_proc'))
+        dd.pop('@module', None)
+        dd.pop('@class', None)
         if dd:
             raise ValueError("Found unknown keywords:\n%s" % list(dd.keys()))
         return qa
