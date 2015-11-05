@@ -316,7 +316,10 @@ class MPRester(object):
                 else:
                     props.append("initial_structure")
 
-            criteria = MPRester.parse_criteria(chemsys_formula_id)
+            if not isinstance(chemsys_formula_id, dict):
+                criteria = MPRester.parse_criteria(chemsys_formula_id)
+            else:
+                criteria = chemsys_formula_id
 
             data = self.query(criteria, props)
 
