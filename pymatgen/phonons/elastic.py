@@ -3,6 +3,7 @@ from pymatgen.phonons.tensors import SQTensor
 from pymatgen.phonons.stress import Stress
 from pymatgen.phonons.strain import Strain
 import numpy as np
+import warnings
 
 __author__ = "Maarten de Jong, Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -22,14 +23,13 @@ class ElasticTensor(SQTensor):
 
     def __new__(cls, input_matrix):
         obj = SQTensor(input_matrix).view(cls)
-        if obj.shape[0] != 6:
+        if obj.shape != (6,6):
             raise ValueError("Default elastic tensor constructor requires "
                              "input argument to be the Voigt-notation 6x6 "
                              "array.  To construct from a 3x3x3x3 array, use "
                              "ElasticTensor.from_full_tensor")
-        if not obj.is_symmetric:
-            raise ValueError("Elastic tensor input must be\
-                             symmetric")
+        if not obj.is_symmetric():
+            warnings.warn("Elastic tensor input is not symmetric!")
         return obj
 
     def __array_finalize__(self, obj):
@@ -142,19 +142,22 @@ class ElasticTensor(SQTensor):
         return cls(c_pq)
 
     @classmethod
-    def from_stress_strain_list(cls, strains, stresses):
+    def from_strain_stress_list(cls, strains, stresses):
         """
         Class method to fit an elastic tensor from stress/strain data.  Method
         uses Moore-Penrose pseudoinverse to invert the s = C*e equation with
-        elastic tensor, stress, and strain in voigt format
+        elastic tensor, stress, and strain in voigt notation
 
         Args:
             stresses (Nx3x3 array-like): list or array of stresses
             strains (Nx3x3 array-like): list or array of strains
         """
         # convert the stress/strain to Nx6 arrays of voigt-notation
+        warnings.warn("Linear fitting of Strain/Stress lists using "
+                      "pseudoinverse is experimental, use with caution.")
         stresses = np.array([Stress(stress).voigt for stress in stresses])
-        strains = np.array([Strain(strain).voigt for strain in strains])
+        with warnings.catch_warnings(record=True):
+            strains = np.array([Strain(strain).voigt for strain in strains])
 
         return cls(np.transpose(np.dot(np.linalg.pinv(strains), stresses)))
 
@@ -180,6 +183,7 @@ class ElasticTensor(SQTensor):
         c_ij[3:, 3:] = 0.5 * c_ij[3:, 3:]  # account for voigt doubling of e4,e5,e6
         c_ij = SQTensor(c_ij)
         c_ij = c_ij.zeroed(tol)
+        c_ij = c_ij.symmetrized
         return cls(c_ij)
 
 
