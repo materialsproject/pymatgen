@@ -7,7 +7,8 @@ import random
 import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.phonons.strain import Strain, Deformation, DeformedStructureSet
+from pymatgen.phonons.strain import Strain, Deformation, DeformedStructureSet,\
+                                    IndependentStrain
 from pymatgen.util.testing import PymatgenTest
 from numpy.testing import *
 import warnings
@@ -74,18 +75,27 @@ class StrainTest(PymatgenTest):
         self.ind_str = Strain.from_deformation([[1, 0.02, 0],
                                                 [0, 1, 0],
                                                 [0, 0, 1]])
+        
         self.non_ind_str = Strain.from_deformation([[1, 0.02, 0.02],
                                                     [0, 1, 0],
                                                     [0, 0, 1]])
-
-    def test_new(self):
-        # test warning message for constructing Strain without defo. matrix
-        with warnings.catch_warnings(record=True) as w:
+        
+        with warnings.catch_warnings(record=True):
+            warnings.simplefilter("always")
             self.no_dfm = Strain([[0., 0.01, 0.],
                                   [0.01, 0.0002, 0.],
                                   [0., 0., 0.]])
-            assert len(w) == 1
 
+    def test_new(self):
+        # test warning for constructing Strain without defo. matrix
+        with warnings.catch_warnings(record=True) as w:
+            Strain([[0., 0.01, 0.],
+                    [0.01, 0.0002, 0.],
+                    [0., 0., 0.]])
+            self.assertEqual(len(w),1)
+        self.assertRaises(ValueError,Strain,[[0.1, 0.1, 0],
+                                             [0, 0, 0],
+                                             [0, 0, 0]])
     def test_from_deformation(self):
         self.assertArrayAlmostEqual(self.norm_str,
                                     [[0.0202, 0, 0],
@@ -101,17 +111,62 @@ class StrainTest(PymatgenTest):
                                      [0.01, 0.0002, 0.0002]])
 
     def test_properties(self):
-        pass
+        # deformation matrix
+        self.assertArrayAlmostEqual(self.ind_str.deformation_matrix,
+                                    [[1, 0.02, 0],
+                                     [0, 1, 0],
+                                     [0, 0, 1]])
+        self.assertIsNone(self.no_dfm.deformation_matrix)
+        
+        # independent deformation
+        self.assertArrayEqual(self.ind_str.independent_deformation,(0,1))
+        with self.assertRaises(ValueError):
+            self.no_dfm.independent_deformation
+        
+        #voigt
+        self.assertArrayAlmostEqual(self.non_ind_str.voigt,
+                                    [0, 0.0002, 0.0002, 0.0004, 0.02, 0.02])
 
 class DeformedStructureSetTest(PymatgenTest):
     def setUp(self):
-        pass
-
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        self.structure = Structure(lattice, ["Si", "Si"], [[0, 0, 0], 
+                                                           [0.75, 0.5, 0.75]])
+        self.default_dss = DeformedStructureSet(self.structure)
+    
     def test_init(self):
-        pass
+        with self.assertRaises(ValueError):
+            DeformedStructureSet(self.structure,num_norm=5)
+            DeformedStructureSet(self.structure,num_shear=5)
+        self.assertEqual(self.structure,self.default_dss.undeformed_structure)
+
+    def test_as_strain_dict(self):
+        strain_dict = self.default_dss.as_strain_dict()
+        for i, def_struct in enumerate(self.default_dss):
+            test_strain = IndependentStrain(self.default_dss.deformations[i])
+            strain_keys = [strain for strain in strain_dict.keys() 
+                           if (strain == test_strain).all()]
+            self.assertEqual(len(strain_keys),1)
+            self.assertEqual(self.default_dss.def_structs[i],
+                             strain_dict[strain_keys[0]])
+
+class IndependentStrainTest(PymatgenTest):
+    def setUp(self):
+        self.ind_strain = IndependentStrain([[1, 0.1, 0],
+                                             [0, 1, 0],
+                                             [0, 0, 1]])
+
+    def test_new(self):
+        with self.assertRaises(ValueError):
+            IndependentStrain([[0.1, 0.1, 0],
+                               [0, 0, 0],
+                               [0, 0, 0]])
 
     def test_properties(self):
-        pass
+        self.assertEqual(self.ind_strain.i,0)
+        self.assertEqual(self.ind_strain.j,1)
 
 if __name__ == '__main__':
     unittest.main()

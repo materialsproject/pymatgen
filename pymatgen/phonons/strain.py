@@ -19,7 +19,7 @@ class Deformation(SQTensor):
     Subclass of SQTensor that describes the deformation gradient tensor
     """
 
-    def __new__(cls, deformation_gradient, dfm=None):
+    def __new__(cls, deformation_gradient):
         obj = SQTensor(deformation_gradient).view(cls)
         return obj
 
@@ -157,12 +157,15 @@ class DeformedStructureSet(object):
 
 class Strain(SQTensor):
     """
-    Subclass of SQTensor that describes the strain tensor
+    Subclass of SQTensor that describes the Green-Lagrange strain tensor.
     """
 
     def __new__(cls, strain_matrix, dfm=None):
         obj = SQTensor(strain_matrix).view(cls)
         obj._dfm = dfm
+        if not obj.is_symmetric():
+            raise ValueError("Strain objects must be initialized "
+                             "with a symmetric array-like.")
         if dfm is None:
             warnings.warn("Constructing a strain object without a deformation "
                           "matrix makes many methods unusable.  Use "
@@ -204,7 +207,6 @@ class Strain(SQTensor):
         independent deformation, raises a value error if not.
         Returns the index of the deformation gradient corresponding
         to the independent deformation
-
         Args: tol
         """
         if self._dfm is None:
@@ -241,6 +243,9 @@ class IndependentStrain(Strain):
         self._i = getattr(obj, "_i", None)
         self._j = getattr(obj, "_j", None)
 
+    def __repr__(self):
+        return "IndependentStrain({})".format(self.__str__())
+ 
     @property
     def i(self):
         return self._i
@@ -248,52 +253,3 @@ class IndependentStrain(Strain):
     @property
     def j(self):
         return self._j
-
-
-if __name__ == "__main__":
-    from pymatgen.matproj.rest import MPRester
-
-    mpr = MPRester()
-    d = Deformation(np.random.randn(3, 3))
-    d2 = Deformation.from_index_amount((1, 1), 0.1)
-    Cu_struct = mpr.get_structures('Cu')[0]
-    # d.apply_to_structure(Cu_struct)
-    dss = DeformedStructureSet(Cu_struct)
-    dss.as_strain_dict()
-    mat = np.eye(3)
-    mat[0, 1] = 0.001
-
-    #    print mat
-
-    my_strain = IndependentStrain(mat)
-    # my_strain.check_F()
-
-
-#    print my_strain._strain
-
-
-
-#    print type(mat)
-
-#    print my_strain.deformation_matrix
-#    print my_strain.strain
-
-#    my_strain2 = IndependentStrain(mat)
-#    print my_strain2.__dict__.keys()
-#    print my_strain2.__hash__()
-
-#    print my_strain2._j
-#    print my_strain2.check_F()
-#    my_strain2.checkF
-#    print my_strain.__dict__.keys()
-#    print my_strain.deformation_matrix
-#    print my_strain.strain
-#    my_strain.index
-#    my_scaled_strain = my_strain.get_scaled(1.05)
-#    print my_scaled_strain.deformation_matrix
-#    print my_scaled_strain.strain
-#    print my_strain == my_scaled_strain
-#    mat2 = np.eye(3)
-#    mat2[0,0] = 1.01
-#    my_strain2 = Strain(mat)
-#    print my_strain == my_strain2

@@ -55,8 +55,8 @@ class SQTensorTest(PymatgenTest):
         self.assertArrayEqual(self.symm_sqtensor,
                               self.symm_sqtensor.T)
         # inverse
-        self.assertArrayEqual(self.rand_sqtensor.I,
-                              np.linalg.inv(self.rand_sqtensor))
+        self.assertArrayEqual(self.non_symm.I,
+                              np.linalg.inv(self.non_symm))
         with self.assertRaises(ValueError):
             self.non_invertible.I
 

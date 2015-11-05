@@ -13,8 +13,8 @@ __date__ = "March 22, 2012"
 
 class SQTensor(np.ndarray):
     """
-    Class for doing useful general operations on *square* second order tensors, 
-    without restrictions on what type (stress, elastic, strain etc.).
+    Base class for doing useful general operations on *square* second order 
+    tensors, without restrictions on what type (stress, elastic, strain etc.).
     Error is thrown when the class is initialized with non-square matrix.
     """
 
@@ -28,6 +28,12 @@ class SQTensor(np.ndarray):
     def __array_finalize__(self, obj):
         if obj is None:
             return
+        
+    def __array_wrap__(self, obj):
+        if len(obj.shape)==0:
+            return obj[()]
+        else:
+            return np.ndarray.__array_wrap__(self, obj)
 
     def __repr__(self):
         return "SQTensor({})".format(self.__str__())
@@ -35,14 +41,14 @@ class SQTensor(np.ndarray):
     @property
     def T(self):
         """
-        shorthand for transpose on SQTensor, addresses issue in np.matrix
+        shorthand for transpose on SQTensor
         """
         return SQTensor(np.transpose(self))
 
     @property
     def I(self):
         """
-        shorthand for matrix inverse on SQTensor, addresses issue in np.matrix
+        shorthand for matrix inverse on SQTensor
         """
         if self.det == 0:
             raise ValueError("SQTensor is non-invertible")
