@@ -314,12 +314,55 @@ hardware:
     sockets_per_node: 2
     cores_per_socket: 4
     mem_per_node: 8 Gb""")
+    QDICT_SHARED = yaml.load("""\
+priority: 1
+queue:
+    qtype: pbspro
+    qname: fat_shared
+    qnodes: shared
+    qparams:
+        group_list: naps
+limits:
+    timelimit: 0:0:10
+    min_cores: 3
+    max_cores: 200
+    min_mem_per_proc: 2000
+    master_mem_overhead: 1000
+job:
+    mpi_runner: mpirun
+hardware:
+    num_nodes: 100
+    sockets_per_node: 2
+    cores_per_socket: 12
+    mem_per_node: 48000 Mb""")
+    QDICT_EXCLUSIVE = yaml.load("""\
+priority: 1
+queue:
+    qtype: pbspro
+    qname: fat_exclusive
+    qnodes: exclusive
+    qparams:
+        group_list: naps
+limits:
+    timelimit: 0:0:10
+    min_cores: 3
+    max_cores: 200
+    min_mem_per_proc: 2000
+    master_mem_overhead: 1000
+job:
+    mpi_runner: mpirun
+hardware:
+    num_nodes: 100
+    sockets_per_node: 2
+    cores_per_socket: 12
+    mem_per_node: 48000 Mb""")
 
     def test_methods(self):
         self.maxDiff = None
         aequal = self.assertEqual
 
         qad = make_qadapter(**self.QDICT)
+        self.assertMSONable(qad)
         print(qad)
         print(qad.mpi_runner)
 
@@ -374,6 +417,37 @@ mpirun -n 3 executable < stdin > stdout 2> stderr
         aequal(params, 
             {'vmem': mem, 'ncpus': 5, 'chunks': 3, 'ompthreads': 5, 'mpiprocs': 1})
 
+        # Testing the handling of master memory overhead
+        # Shared mode (the nodes might be shared amongst different jobs from different users)
+        qad_shared = make_qadapter(**self.QDICT_SHARED)
+        aequal(qad_shared.hw.mem_per_node, 48000)
+        qad_shared.set_mpi_procs(15)
+        qad_shared.set_mem_per_proc(6000)
+        aequal(qad_shared.get_select(), '1:ncpus=1:vmem=7000mb:mpiprocs=1+'
+                                        '14:ncpus=1:vmem=6000mb:mpiprocs=1')
+        qad_shared.set_mpi_procs(64)
+        qad_shared.set_mem_per_proc(3500)
+        qad_shared.set_master_mem_overhead(4000)
+        self.assertMSONable(qad_shared)
+        aequal(qad_shared.get_select(), '1:ncpus=1:vmem=7500mb:mpiprocs=1+'
+                                        '63:ncpus=1:vmem=3500mb:mpiprocs=1')
+
+        # Exclusive mode (the nodes are attributed exclusively to a given user)
+        qad_exclusive = make_qadapter(**self.QDICT_EXCLUSIVE)
+        aequal(qad_exclusive.hw.mem_per_node, 48000)
+        qad_exclusive.set_mpi_procs(47)
+        qad_exclusive.set_mem_per_proc(2000)
+        qad_exclusive.set_master_mem_overhead(1)
+        self.assertMSONable(qad_exclusive)
+        aequal(qad_exclusive.get_select(), '1:ncpus=23:vmem=48000mb:mpiprocs=23+'
+                                           '1:ncpus=24:vmem=48000mb:mpiprocs=24')
+        qad_exclusive.set_mpi_procs(48)
+        aequal(qad_exclusive.get_select(), '1:ncpus=1:vmem=48000mb:mpiprocs=1+'
+                                           '1:ncpus=24:vmem=48000mb:mpiprocs=24+'
+                                           '1:ncpus=23:vmem=48000mb:mpiprocs=23')
+        qad_exclusive.set_mpi_procs(50)
+        aequal(qad_exclusive.get_select(), '1:ncpus=2:vmem=48000mb:mpiprocs=2+'
+                                           '2:ncpus=24:vmem=48000mb:mpiprocs=24')
 
 if __name__ == '__main__':
     import unittest
