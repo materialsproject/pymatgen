@@ -1,5 +1,5 @@
 from pymatgen.core.lattice import Lattice
-from pymatgen.phonons.tensors import SQTensor
+from pymatgen.elasticity.tensors import SQTensor
 import warnings
 import numpy as np
 from six.moves import zip
@@ -148,7 +148,7 @@ class DeformedStructureSet(object):
     def as_strain_dict(self):
         """
         Returns dictionary of deformed structures indexed by independent
-        strain objects in accordance with legacy behavior of phonons
+        strain objects in accordance with legacy behavior of elasticity
         package
         """
         strains = [IndependentStrain(defo) for defo in self.deformations]

@@ -7,7 +7,7 @@ import random
 import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.phonons.strain import Strain, Deformation, DeformedStructureSet,\
+from pymatgen.elasticity.strain import Strain, Deformation, DeformedStructureSet,\
                                     IndependentStrain
 from pymatgen.util.testing import PymatgenTest
 from numpy.testing import *

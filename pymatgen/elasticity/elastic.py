@@ -1,7 +1,7 @@
-from pymatgen.phonons import voigt_map
-from pymatgen.phonons.tensors import SQTensor
-from pymatgen.phonons.stress import Stress
-from pymatgen.phonons.strain import Strain
+from pymatgen.elasticity import voigt_map
+from pymatgen.elasticity.tensors import SQTensor
+from pymatgen.elasticity.stress import Stress
+from pymatgen.elasticity.strain import Strain
 import numpy as np
 import warnings
 
@@ -165,7 +165,7 @@ class ElasticTensor(SQTensor):
     def from_stress_dict(cls, stress_dict, tol=0.1, vasp=True):
         """
         Constructs the elastic tensor from IndependentStrain-Stress dictionary
-        corresponding to legacy behavior of phonons package.
+        corresponding to legacy behavior of elasticity package.
 
         Args:
             stress_dict (dict): dictionary of stresses indexed by corresponding

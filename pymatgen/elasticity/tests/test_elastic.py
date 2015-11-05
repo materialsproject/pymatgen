@@ -5,9 +5,9 @@ import os
 import random
 
 import numpy as np
-from pymatgen.phonons.elastic import ElasticTensor
-from pymatgen.phonons.strain import Strain, Deformation, IndependentStrain
-from pymatgen.phonons.stress import Stress
+from pymatgen.elasticity.elastic import ElasticTensor
+from pymatgen.elasticity.strain import Strain, Deformation, IndependentStrain
+from pymatgen.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
 from numpy.testing import *
 import math
