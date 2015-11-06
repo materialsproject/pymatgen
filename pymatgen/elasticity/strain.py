@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from pymatgen.core.lattice import Lattice
 from pymatgen.elasticity.tensors import SQTensor
 import warnings
@@ -191,7 +192,7 @@ class Strain(SQTensor):
                           "matrix makes many methods unusable.  Use "
                           "Strain.from_deformation to construct a Strain object"
                           " from a deformation gradient.")
-        elif (Strain.from_deformation(dfm) - obj < 1e-5).all():
+        elif (np.array(dfm) - obj < 1e-5).all():
             warnings.warn("Warning: deformation matrix does not correspond "
                           "to input strain_matrix value")
         return obj

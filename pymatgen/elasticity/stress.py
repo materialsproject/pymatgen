@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from pymatgen.elasticity import voigt_map
 from pymatgen.elasticity.tensors import SQTensor
 import math
@@ -111,7 +112,7 @@ class Stress(SQTensor):
         """
         returns the vector representing to the stress tensor in voigt notation
         """
-        if not self.is_symmetric():
+        if not self.is_symmetric(1e-2):
             raise ValueError("Conversion to voigt notation requires a "
                              "symmetric stress.")
         return [self[ind] for ind in voigt_map]

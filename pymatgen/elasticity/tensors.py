@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from scipy.linalg import polar
 import numpy as np
 

@@ -1,9 +1,11 @@
+from __future__ import absolute_import
 from pymatgen.elasticity import voigt_map
 from pymatgen.elasticity.tensors import SQTensor
 from pymatgen.elasticity.stress import Stress
 from pymatgen.elasticity.strain import Strain
 import numpy as np
 import warnings
+from six.moves import range
 
 __author__ = "Maarten de Jong, Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -206,10 +208,10 @@ class ElasticTensor(SQTensor):
                 IndependentStrain objects.
         """
         inds = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
-        c_ij = np.array([[np.polyfit([strain[ind1] for strain in stress_dict.keys()
+        c_ij = np.array([[np.polyfit([strain[ind1] for strain in list(stress_dict.keys())
                                      if (strain.i, strain.j) == ind1],
                                      [stress_dict[strain][ind2] for strain
-                                     in stress_dict.keys()
+                                     in list(stress_dict.keys())
                                      if (strain.i, strain.j) == ind1], 1)[0]
                          for ind1 in inds] for ind2 in inds])
         if vasp:
