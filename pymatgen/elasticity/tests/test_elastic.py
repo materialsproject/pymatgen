@@ -59,7 +59,7 @@ class ElasticTensorTest(PymatgenTest):
         filepath = os.path.join(test_dir, 'Sn_def_stress.json')
         self.def_stress_dict = json.load(open(filepath))
         warnings.simplefilter("always")
-    
+
     def test_new(self):
         with self.assertRaises(ValueError):
             ElasticTensor([[59.33, 28.08, 28.08, 0],
@@ -88,9 +88,9 @@ class ElasticTensorTest(PymatgenTest):
         self.assertAlmostEqual(38.49111028122, self.elastic_tensor_1.k_vrh)
         self.assertAlmostEqual(21.36506650986, self.elastic_tensor_1.g_vrh)
         self.assertArrayAlmostEqual(self.elastic_tensor_1.kg_average,
-                                    [38.49111111111,                      
+                                    [38.49111111111,
                                      22.05866666666,
-                                     38.49110945133, 
+                                     38.49110945133,
                                      20.67146635306,
                                      38.49111028122,
                                      21.36506650986])
@@ -109,7 +109,7 @@ class ElasticTensorTest(PymatgenTest):
                                     ElasticTensor.from_full_tensor(self.ft))
 
     def test_from_strain_stress_list(self):
-        strain_list = [Strain.from_deformation(def_matrix) 
+        strain_list = [Strain.from_deformation(def_matrix)
                        for def_matrix in self.def_stress_dict['deformations']]
         stress_list = [stress for stress in self.def_stress_dict['stresses']]
         with warnings.catch_warnings(record=True):
@@ -123,7 +123,7 @@ class ElasticTensorTest(PymatgenTest):
                                          [0, 0, 0, 0, 0, 26.35]])
 
     def test_from_stress_dict(self):
-        stress_dict = dict(list(zip([IndependentStrain(def_matrix) for def_matrix 
+        stress_dict = dict(list(zip([IndependentStrain(def_matrix) for def_matrix
                                 in self.def_stress_dict['deformations']],
                                 [Stress(stress_matrix) for stress_matrix
                                 in self.def_stress_dict['stresses']])))

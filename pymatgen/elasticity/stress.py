@@ -1,4 +1,15 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
+
+"""
+This module provides the Stress class used to create, manipulate, and
+calculate relevant properties of the stress tensor.
+"""
+
 from pymatgen.elasticity import voigt_map
 from pymatgen.elasticity.tensors import SQTensor
 import math
@@ -42,17 +53,14 @@ class Stress(SQTensor):
 
     @property
     def dev_principal_invariants(self):
-        # TODO: check sign convention
         """
         returns the principal invariants of the deviatoric stress tensor,
         which is calculated by finding the coefficients of the characteristic
         polynomial of the stress tensor minus the identity times the mean
         stress
         """
-        return self.deviator_stress.principal_invariants
+        return self.deviator_stress.principal_invariants*np.array([1, -1, 1])
 
-    # TODO: fix this method, is there a physical meaning to
-    #           negative J1, and how should it be handled?
     @property
     def von_mises(self):
         """
@@ -80,20 +88,20 @@ class Stress(SQTensor):
                                 "so deviator stress will not be either")
         return self - self.mean_stress*np.eye(3)
 
-    def piola_kirchoff_1(self, f):
+    def piola_kirchoff_1(self, def_grad):
         """
         calculates the first Piola-Kirchoff stress
 
         Args:
-            f (3x3 array-like): rate of deformation tensor
+            def_gradient (3x3 array-like): deformation gradient tensor
         """
         if not self.is_symmetric:
             raise ValueError("The stress tensor is not symmetric, \
                              PK stress is based on a symmetric stress tensor.")
-        f = SQTensor(f)
-        return f.det*np.dot(self, f.I.T)
+        def_grad = SQTensor(def_grad)
+        return def_grad.det*np.dot(self, def_grad.inv.trans)
 
-    def piola_kirchoff_2(self, f):
+    def piola_kirchoff_2(self, def_grad):
         """
         calculates the second Piola-Kirchoff stress
 
@@ -101,11 +109,12 @@ class Stress(SQTensor):
             f (3x3 array-like): rate of deformation tensor
         """
 
-        f = SQTensor(f)
+        def_grad = SQTensor(def_grad)
         if not self.is_symmetric:
             raise ValueError("The stress tensor is not symmetric, \
                              PK stress is based on a symmetric stress tensor.")
-        return f.det*np.dot(np.dot(f.I, self),f.I.T)
+        return def_grad.det*np.dot(np.dot(def_grad.inv, self),
+                                   def_grad.inv.trans)
 
     @property
     def voigt(self):
