@@ -7,7 +7,6 @@ the pymatgen code base. It should also be pointed out that there is an
 actual code demonstrating the use of the code. Learning from those examples
 is the fastest way to get started.
 
-
 Pymatgen is structured in a highly object-oriented manner. Almost everything
 (Element, Site, Structure, etc.) is an object.  Currently, the code is heavily
 biased towards the representation and manipulation of crystals with periodic
