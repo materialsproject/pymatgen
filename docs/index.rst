@@ -136,16 +136,13 @@ or::
     pip install pymatgen
 
 Detailed installation instructions for various platforms (Mac and Windows)
-are given on this :doc:`page </installation>`.
+are given on this :doc:`page </installation>`, including how to setup your
+machine for POTCAR generation, Materials Project REST interface usage, etc.
 
 .. toctree::
    :maxdepth: 2
 
    installation
-
-Some extra functionality (e.g., generation of POTCARs) do require additional
-setup. Please see the following sections for further details on the
-dependencies needed, where to get them and how to install them.
 
 Developmental version
 ---------------------
