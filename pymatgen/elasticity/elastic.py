@@ -19,9 +19,9 @@ import numpy as np
 import warnings
 from six.moves import range
 
-__author__ = "Maarten de Jong, Joseph Montoya"
+__author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Mark Asta, Anubhav Jain"
+__credits__ = "Maarten de Jong, Mark Asta, Anubhav Jain"
 __version__ = "1.0"
 __maintainer__ = "Maarten de Jong"
 __email__ = "maartendft@gmail.com"

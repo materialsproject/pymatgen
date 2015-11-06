@@ -19,7 +19,7 @@ from six.moves import zip
 
 __author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Mark Asta, Anubhav Jain"
+__credits__ = "Joseph Montoya, Mark Asta, Anubhav Jain"
 __version__ = "1.0"
 __maintainer__ = "Maarten de Jong"
 __email__ = "maartendft@gmail.com"

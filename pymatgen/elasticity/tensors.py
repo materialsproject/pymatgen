@@ -13,7 +13,7 @@ creating and manipulating square rank 2 tensors
 
 __author__ = "Maarten de Jong, Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Mark Asta, Anubhav Jain"
+__credits__ = "Wei Chen, Mark Asta, Anubhav Jain"
 __version__ = "1.0"
 __maintainer__ = "Maarten de Jong"
 __email__ = "maartendft@gmail.com"
