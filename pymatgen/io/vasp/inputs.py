@@ -1259,7 +1259,8 @@ class PotcarSingle(object):
                       "LDA52": "POT_LDA_PAW_52",
                       "LDA54": "POT_LDA_PAW_54",
                       "PW91": "POT_GGA_PAW_PW91",
-                      "LDA_US": "POT_LDA_US"}
+                      "LDA_US": "POT_LDA_US",
+                      "PW91_US": "POT_GGA_US_PW91"}
 
     functional_tags = {"pe": {"name": "PBE", "class": "GGA"},
                        "91": {"name": "PW91", "class": "GGA"},
