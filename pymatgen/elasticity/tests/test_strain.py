@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #!/usr/bin/python
 
 import unittest
@@ -146,7 +147,7 @@ class DeformedStructureSetTest(PymatgenTest):
         strain_dict = self.default_dss.as_strain_dict()
         for i, def_struct in enumerate(self.default_dss):
             test_strain = IndependentStrain(self.default_dss.deformations[i])
-            strain_keys = [strain for strain in strain_dict.keys() 
+            strain_keys = [strain for strain in list(strain_dict.keys()) 
                            if (strain == test_strain).all()]
             self.assertEqual(len(strain_keys),1)
             self.assertEqual(self.default_dss.def_structs[i],

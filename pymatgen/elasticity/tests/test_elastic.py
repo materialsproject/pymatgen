@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 #!/usr/bin/python
 
 import unittest
@@ -13,6 +15,7 @@ from numpy.testing import *
 import math
 import warnings
 import json
+from six.moves import zip
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -125,13 +128,12 @@ class ElasticTensorTest(PymatgenTest):
                                          [0, 0, 0, 0, 0, 26.35]])
 
     def test_from_stress_dict(self):
-        stress_dict = dict(zip([IndependentStrain(def_matrix) for def_matrix 
+        stress_dict = dict(list(zip([IndependentStrain(def_matrix) for def_matrix 
                                 in self.def_stress_dict['deformations']],
                                [Stress(stress_matrix) for stress_matrix 
-                                in self.def_stress_dict['stresses']]))
+                                in self.def_stress_dict['stresses']])))
         et_from_sd = ElasticTensor.from_stress_dict(stress_dict)
         self.assertArrayAlmostEqual(et_from_sd.round(2),
                                     self.elastic_tensor_1)
 if __name__ == '__main__':
-    print test_dir
     unittest.main()

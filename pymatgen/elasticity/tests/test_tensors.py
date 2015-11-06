@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #!/usr/bin/python
 
 import unittest
@@ -78,14 +79,14 @@ class SQTensorTest(PymatgenTest):
                                               [0.25,0.55,0.5]]))
 
         # invariants
-        I1 = -np.trace(self.rand_sqtensor)
+        I1 = np.trace(self.rand_sqtensor)
         I2 = self.rand_sqtensor[0, 0]*self.rand_sqtensor[1, 1] + \
                 self.rand_sqtensor[1, 1]*self.rand_sqtensor[2, 2] + \
                 self.rand_sqtensor[2, 2]*self.rand_sqtensor[0, 0] - \
                 self.rand_sqtensor[0, 1]*self.rand_sqtensor[1, 0] - \
                 self.rand_sqtensor[0, 2]*self.rand_sqtensor[2, 0] - \
                 self.rand_sqtensor[2, 1]*self.rand_sqtensor[1, 2]
-        I3 = -np.linalg.det(self.rand_sqtensor)
+        I3 = np.linalg.det(self.rand_sqtensor)
         self.assertArrayAlmostEqual([I1,I2,I3],
                                     self.rand_sqtensor.principal_invariants)
 
