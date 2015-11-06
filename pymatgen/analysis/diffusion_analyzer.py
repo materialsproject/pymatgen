@@ -114,9 +114,9 @@ class DiffusionAnalyzer(MSONable):
         from_vaspruns and from_files).
 
         Given a matrix of displacements (see arguments below for expected
-        format), the diffusivity is given by:
+        format), the diffusivity is given by::
 
-        D = 1 / 2dt * <mean square displacement>
+            D = 1 / 2dt * <mean square displacement>
 
         where d is the dimensionality, t is the time. To obtain a reliable
         diffusion estimate, a least squares regression of the MSD against
@@ -137,15 +137,17 @@ class DiffusionAnalyzer(MSONable):
                 between measurements)
             smoothed (str): Whether to smooth the MSD, and what mode to smooth.
                 Supported modes are:
-                    i. "max", which tries to use the maximum #
-                       of data points for each time origin, subject to a
-                       minimum # of observations given by min_obs, and then
-                       weights the observations based on the variance
-                       accordingly. This is the default.
-                    ii. "constant", in which each timestep is averaged over
-                        the number of time_steps given by min_steps.
-                    iii. None / False / any other false-like quantity. No
-                       smoothing.
+
+                i. "max", which tries to use the maximum #
+                   of data points for each time origin, subject to a
+                   minimum # of observations given by min_obs, and then
+                   weights the observations based on the variance
+                   accordingly. This is the default.
+                ii. "constant", in which each timestep is averaged over
+                    the number of time_steps given by min_steps.
+                iii. None / False / any other false-like quantity. No
+                   smoothing.
+
             min_obs (int): Used with smoothed="max". Minimum number of
                 observations to have before including in the MSD vs dt
                 calculation. E.g. If a structure has 10 diffusing atoms,
@@ -411,15 +413,17 @@ class DiffusionAnalyzer(MSONable):
                 between measurements)
             smoothed (str): Whether to smooth the MSD, and what mode to smooth.
                 Supported modes are:
-                    i. "max", which tries to use the maximum #
-                       of data points for each time origin, subject to a
-                       minimum # of observations given by min_obs, and then
-                       weights the observations based on the variance
-                       accordingly. This is the default.
-                    ii. "constant", in which each timestep is averaged over
-                        the same number of observations given by min_obs.
-                    iii. None / False / any other false-like quantity. No
-                       smoothing.
+
+                i. "max", which tries to use the maximum #
+                   of data points for each time origin, subject to a
+                   minimum # of observations given by min_obs, and then
+                   weights the observations based on the variance
+                   accordingly. This is the default.
+                ii. "constant", in which each timestep is averaged over
+                    the same number of observations given by min_obs.
+                iii. None / False / any other false-like quantity. No
+                   smoothing.
+
             min_obs (int): Used with smoothed="max". Minimum number of
                 observations to have before including in the MSD vs dt
                 calculation. E.g. If a structure has 10 diffusing atoms,
@@ -482,15 +486,17 @@ class DiffusionAnalyzer(MSONable):
                 diffusing atom is measured at least 3 uncorrelated times.
             smoothed (str): Whether to smooth the MSD, and what mode to smooth.
                 Supported modes are:
-                    i. "max", which tries to use the maximum #
-                       of data points for each time origin, subject to a
-                       minimum # of observations given by min_obs, and then
-                       weights the observations based on the variance
-                       accordingly. This is the default.
-                    ii. "constant", in which each timestep is averaged over
-                        the same number of observations given by min_obs.
-                    iii. None / False / any other false-like quantity. No
-                       smoothing.
+
+                i. "max", which tries to use the maximum #
+                   of data points for each time origin, subject to a
+                   minimum # of observations given by min_obs, and then
+                   weights the observations based on the variance
+                   accordingly. This is the default.
+                ii. "constant", in which each timestep is averaged over
+                    the same number of observations given by min_obs.
+                iii. None / False / any other false-like quantity. No
+                   smoothing.
+
             min_obs (int): Used with smoothed="max". Minimum number of
                 observations to have before including in the MSD vs dt
                 calculation. E.g. If a structure has 10 diffusing atoms,
@@ -557,15 +563,17 @@ class DiffusionAnalyzer(MSONable):
                 between measurements)
             smoothed (str): Whether to smooth the MSD, and what mode to smooth.
                 Supported modes are:
-                    i. "max", which tries to use the maximum #
-                       of data points for each time origin, subject to a
-                       minimum # of observations given by min_obs, and then
-                       weights the observations based on the variance
-                       accordingly. This is the default.
-                    ii. "constant", in which each timestep is averaged over
-                        the same number of observations given by min_obs.
-                    iii. None / False / any other false-like quantity. No
-                       smoothing.
+
+                i. "max", which tries to use the maximum #
+                   of data points for each time origin, subject to a
+                   minimum # of observations given by min_obs, and then
+                   weights the observations based on the variance
+                   accordingly. This is the default.
+                ii. "constant", in which each timestep is averaged over
+                    the same number of observations given by min_obs.
+                iii. None / False / any other false-like quantity. No
+                   smoothing.
+
             min_obs (int): Used with smoothed="max". Minimum number of
                 observations to have before including in the MSD vs dt
                 calculation. E.g. If a structure has 10 diffusing atoms,
