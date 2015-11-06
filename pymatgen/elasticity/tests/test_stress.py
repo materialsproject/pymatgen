@@ -1,38 +1,36 @@
 from __future__ import absolute_import
 
 import unittest
-import os
-import random
 
 import numpy as np
+
 from pymatgen.elasticity.stress import Stress
 from pymatgen.elasticity.strain import Deformation
 from pymatgen.util.testing import PymatgenTest
-from numpy.testing import *
-import math
+
 
 class StressTest(PymatgenTest):
     def setUp(self):
-        self.rand_stress = Stress(np.random.randn(3,3))
-        self.symm_stress = Stress([[0.51,2.29,2.42],
-                                   [2.29,5.14,5.07],
-                                   [2.42,5.07,5.33]])
-        self.non_symm = Stress([[0.1,0.2,0.3],
-                                [0.4,0.5,0.6],
-                                [0.2,0.5,0.5]])
- 
+        self.rand_stress = Stress(np.random.randn(3, 3))
+        self.symm_stress = Stress([[0.51, 2.29, 2.42],
+                                   [2.29, 5.14, 5.07],
+                                   [2.42, 5.07, 5.33]])
+        self.non_symm = Stress([[0.1, 0.2, 0.3],
+                                [0.4, 0.5, 0.6],
+                                [0.2, 0.5, 0.5]])
+
     def test_properties(self):
         # mean_stress
         self.assertEqual(self.rand_stress.mean_stress,
-                         1./3.*(self.rand_stress[0,0] +
-                                self.rand_stress[1,1] +
-                                self.rand_stress[2,2]))
-        self.assertAlmostEqual(self.symm_stress.mean_stress,3.66)
+                         1. / 3. * (self.rand_stress[0, 0] +
+                                    self.rand_stress[1, 1] +
+                                    self.rand_stress[2, 2]))
+        self.assertAlmostEqual(self.symm_stress.mean_stress, 3.66)
         # deviator_stress
         self.assertArrayAlmostEqual(self.symm_stress.deviator_stress,
-                                    Stress([[-3.15,2.29,2.42],
-                                            [2.29,1.48,5.07],
-                                            [2.42,5.07,1.67]]))
+                                    Stress([[-3.15, 2.29, 2.42],
+                                            [2.29, 1.48, 5.07],
+                                            [2.42, 5.07, 1.67]]))
         self.assertArrayAlmostEqual(self.non_symm.deviator_stress,
                                     [[-0.2666666667, 0.2, 0.3],
                                      [0.4, 0.133333333, 0.6],
@@ -48,7 +46,7 @@ class StressTest(PymatgenTest):
                                0.99)
         '''
         # piola_kirchoff 1/2
-        f = Deformation.from_index_amount((0,1),0.03)
+        f = Deformation.from_index_amount((0, 1), 0.03)
         self.assertArrayAlmostEqual(self.symm_stress.piola_kirchoff_1(f),
                                     [[0.4413, 2.29, 2.42],
                                      [2.1358, 5.14, 5.07],
@@ -62,6 +60,7 @@ class StressTest(PymatgenTest):
                               [0.51, 5.14, 5.33, 5.07, 2.42, 2.29])
         with self.assertRaises(ValueError):
             self.non_symm.voigt
+
 
 if __name__ == '__main__':
     unittest.main()
