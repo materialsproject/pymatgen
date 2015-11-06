@@ -1,4 +1,16 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
+
+"""
+This module provides classes and methods used to describe deformations and
+strains, including applying those deformations to structure objects and
+generating deformed structure sets for further calculations.
+"""
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.elasticity.tensors import SQTensor
 import warnings
@@ -65,7 +77,7 @@ class Deformation(SQTensor):
     def apply_to_structure(self, structure):
         """
         Apply the deformation gradient to a structure.
-        
+
         Args:
             structure (Structure object): the structure object to
                 be modified by the deformation
@@ -144,7 +156,7 @@ class DeformedStructureSet(object):
                     self.deformations.append(defo)
                     self.def_structs.append(defo.apply_to_structure(rlxd_str))
 
-            # Apply shear deformations 
+            # Apply shear deformations
             for ind in [(0, 1), (0, 2), (1, 2)]:
                 for amount in shear_deformations:
                     defo = Deformation.from_index_amount(ind, amount)
@@ -215,7 +227,7 @@ class Strain(SQTensor):
             deformation (3x3 array-like):
         """
         dfm = Deformation(deformation)
-        return cls(0.5 * (np.dot(dfm.T, dfm) - np.eye(3)), dfm)
+        return cls(0.5 * (np.dot(dfm.trans, dfm) - np.eye(3)), dfm)
 
     @property
     def deformation_matrix(self):
@@ -281,7 +293,7 @@ class IndependentStrain(Strain):
 
     def __repr__(self):
         return "IndependentStrain({})".format(self.__str__())
- 
+
     @property
     def i(self):
         return self._i

@@ -46,18 +46,18 @@ class SQTensorTest(PymatgenTest):
 
     def test_properties(self):
         # transpose
-        self.assertArrayEqual(self.non_symm.T, SQTensor([[0.1, 0.4, 0.2],
+        self.assertArrayEqual(self.non_symm.trans, SQTensor([[0.1, 0.4, 0.2],
                                                          [0.2, 0.5, 0.5],
                                                          [0.3, 0.6, 0.5]]))
-        self.assertArrayEqual(self.rand_sqtensor.T,
+        self.assertArrayEqual(self.rand_sqtensor.trans,
                               np.transpose(self.rand_sqtensor))
         self.assertArrayEqual(self.symm_sqtensor,
-                              self.symm_sqtensor.T)
+                              self.symm_sqtensor.trans)
         # inverse
-        self.assertArrayEqual(self.non_symm.I,
+        self.assertArrayEqual(self.non_symm.inv,
                               np.linalg.inv(self.non_symm))
         with self.assertRaises(ValueError):
-            self.non_invertible.I
+            self.non_invertible.inv
 
         # determinant
         self.assertEqual(self.rand_sqtensor.det,
@@ -68,7 +68,7 @@ class SQTensorTest(PymatgenTest):
 
         # symmetrized
         self.assertArrayEqual(self.rand_sqtensor.symmetrized,
-                              0.5 * (self.rand_sqtensor + self.rand_sqtensor.T))
+                              0.5 * (self.rand_sqtensor + self.rand_sqtensor.trans))
         self.assertArrayEqual(self.symm_sqtensor,
                               self.symm_sqtensor.symmetrized)
         self.assertArrayAlmostEqual(self.non_symm.symmetrized,

@@ -1,6 +1,15 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
-from scipy.linalg import polar
-import numpy as np
+
+"""
+This module provides a base class, SQTensor, and associated methods for
+creating and manipulating square rank 2 tensors
+"""
+
 
 __author__ = "Maarten de Jong, Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -12,18 +21,22 @@ __status__ = "Development"
 __date__ = "March 22, 2012"
 
 
+from scipy.linalg import polar
+import numpy as np
+
+
 class SQTensor(np.ndarray):
     """
     Base class for doing useful general operations on *square* second order
     tensors, without restrictions on what type (stress, elastic, strain etc.).
-    Error is thrown when the class is initialized with non-square matrix.
     """
 
     def __new__(cls, input_array):
         """
         Create a SQTensor object.  Note that the constructor uses __new__
         rather than __init__ according to the standard method of
-        subclassing numpy ndarrays.
+        subclassing numpy ndarrays.  Error is thrown when the class is
+        initialized with non-square matrix.
 
         Args:
             stress_matrix (3x3 array-like): the 3x3 array-like
@@ -39,7 +52,7 @@ class SQTensor(np.ndarray):
     def __array_finalize__(self, obj):
         if obj is None:
             return
-        
+
     def __array_wrap__(self, obj):
         """
         Overrides __array_wrap__ methods in ndarray superclass to avoid errors
@@ -55,14 +68,14 @@ class SQTensor(np.ndarray):
         return "SQTensor({})".format(self.__str__())
 
     @property
-    def T(self):
+    def trans(self):
         """
         shorthand for transpose on SQTensor
         """
         return SQTensor(np.transpose(self))
 
     @property
-    def I(self):
+    def inv(self):
         """
         shorthand for matrix inverse on SQTensor
         """
@@ -87,7 +100,7 @@ class SQTensor(np.ndarray):
         Args:
             tol (float): tolerance to symmetry test
         """
-        return (np.abs(self - self.T) < tol).all()
+        return (np.abs(self - self.trans) < tol).all()
 
     def is_rotation(self, tol=1e-5):
         """
@@ -102,7 +115,7 @@ class SQTensor(np.ndarray):
                 to the transpose
         """
 
-        return (np.abs(self.I - self.T) < tol).all() \
+        return (np.abs(self.inv - self.trans) < tol).all() \
             and (np.linalg.det(self) - 1. < tol)
 
     @property
@@ -112,7 +125,7 @@ class SQTensor(np.ndarray):
         calculated by taking the sum of the matrix and its
         transpose
         """
-        return 0.5 * (self + self.T)
+        return 0.5 * (self + self.trans)
 
     def rotate(self, rotation):
         """
@@ -129,7 +142,7 @@ class SQTensor(np.ndarray):
         rotation = SQTensor(rotation)
         if not rotation.is_rotation():
             raise ValueError("Specified rotation matrix is invalid")
-        return np.dot(rotation, np.dot(self, rotation.T))
+        return np.dot(rotation, np.dot(self, rotation.trans))
 
     def get_scaled(self, scale_factor):
         """
@@ -148,8 +161,7 @@ class SQTensor(np.ndarray):
         which are the values of the coefficients of the characteristic
         polynomial for the matrix
         """
-        # TODO: JM asks whether this fulfills the necessary sign conventions
-        if self.shape == (3,3):
+        if self.shape == (3, 3):
             return np.poly(self)[1:]*np.array([-1, 1, -1])
         else:
             raise ValueError("Principal invariants is only intended for use "

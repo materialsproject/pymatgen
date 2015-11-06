@@ -37,15 +37,11 @@ class StressTest(PymatgenTest):
                                      [0.2, 0.5, 0.133333333]])
         # deviator_principal_invariants
         self.assertArrayAlmostEqual(self.symm_stress.dev_principal_invariants,
-                                    [0, -44.2563, 111.953628])
+                                    [0, 44.2563, 111.953628])
         # von_mises
-        '''
         self.assertAlmostEqual(self.symm_stress.von_mises,
                                11.52253878275)
-        self.assertAlmostEqual(self.non_symm.von_mises,
-                               0.99)
-        '''
-        # piola_kirchoff 1/2
+        # piola_kirchoff 1, 2
         f = Deformation.from_index_amount((0, 1), 0.03)
         self.assertArrayAlmostEqual(self.symm_stress.piola_kirchoff_1(f),
                                     [[0.4413, 2.29, 2.42],

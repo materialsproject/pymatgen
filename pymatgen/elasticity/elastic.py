@@ -1,4 +1,16 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
+
+"""
+This module provides a class used to describe the elastic tensor,
+including methods used to fit the elastic tensor from linear response
+stress-strain data
+"""
+
 from pymatgen.elasticity import voigt_map
 from pymatgen.elasticity.tensors import SQTensor
 from pymatgen.elasticity.stress import Stress
@@ -25,7 +37,7 @@ class ElasticTensor(SQTensor):
 
     def __new__(cls, input_matrix):
         """
-        Create an ElasticTensor object.  The constructor throws an error if 
+        Create an ElasticTensor object.  The constructor throws an error if
         the shape of the input_matrix argument is not 6x6, i. e. in Voigt-
         notation.  Also issues a warning if the input_matrix argument is
         not symmetric.  Note that the constructor uses __new__ rather than
@@ -37,7 +49,7 @@ class ElasticTensor(SQTensor):
                 representing the elastic tensor
         """
         obj = SQTensor(input_matrix).view(cls)
-        if obj.shape != (6,6):
+        if obj.shape != (6, 6):
             raise ValueError("Default elastic tensor constructor requires "
                              "input argument to be the Voigt-notation 6x6 "
                              "array.  To construct from a 3x3x3x3 array, use "
@@ -59,7 +71,7 @@ class ElasticTensor(SQTensor):
         returns the compliance tensor, which is the matrix inverse of the
         Voigt-notation elastic tensor
         """
-        return self.I
+        return self.inv
 
     @property
     def k_voigt(self):
@@ -71,7 +83,7 @@ class ElasticTensor(SQTensor):
     @property
     def g_voigt(self):
         """
-        returns the G_v shear modulus 
+        returns the G_v shear modulus
         """
         return (2. * self[:3, :3].trace() - np.triu(self[:3, :3]).sum() +
                 3 * self[3:, 3:].trace()) / 15.
@@ -81,16 +93,16 @@ class ElasticTensor(SQTensor):
         """
         returns the K_r bulk modulus
         """
-        return 1. / self.I[:3, :3].sum()
+        return 1. / self.inv[:3, :3].sum()
 
     @property
     def g_reuss(self):
         """
         returns the G_r shear modulus
         """
-        return 15. / (8. * self.I[:3, :3].trace() -
-                      4. * np.triu(self.I[:3, :3]).sum() +
-                      3. * self.I[3:, 3:].trace())
+        return 15. / (8. * self.inv[:3, :3].trace() -
+                      4. * np.triu(self.inv[:3, :3]).sum() +
+                      3. * self.inv[3:, 3:].trace())
 
     @property
     def k_vrh(self):
@@ -134,7 +146,7 @@ class ElasticTensor(SQTensor):
     @property
     def full_tensor(self):
         """
-        Returns the tensor in standard notation (i. e. 
+        Returns the tensor in standard notation (i. e.
         a 4th order 3-dimensional tensor, C_{ijkl}), which
         is represented in a np.array with shape (3,3,3,3)
         """
@@ -151,7 +163,7 @@ class ElasticTensor(SQTensor):
     def from_full_tensor(cls, c_ijkl, tol=1e-5):
         """
         Factory method to construct elastic tensor from fourth order
-        tensor C_ijkl.  First tests for appropriate symmetries and then 
+        tensor C_ijkl.  First tests for appropriate symmetries and then
         constructs the 6x6 voigt notation tensor.
 
         Args:
@@ -209,11 +221,11 @@ class ElasticTensor(SQTensor):
         """
         inds = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
         c_ij = np.array([[np.polyfit([strain[ind1] for strain in list(stress_dict.keys())
-                                     if (strain.i, strain.j) == ind1],
+                                      if (strain.i, strain.j) == ind1],
                                      [stress_dict[strain][ind2] for strain
-                                     in list(stress_dict.keys())
-                                     if (strain.i, strain.j) == ind1], 1)[0]
-                         for ind1 in inds] for ind2 in inds])
+                                      in list(stress_dict.keys())
+                                      if (strain.i, strain.j) == ind1], 1)[0]
+                          for ind1 in inds] for ind2 in inds])
         if vasp:
             c_ij *= -0.1  # Convert units/sign convention of vasp stress tensor
         c_ij[3:, 3:] = 0.5 * c_ij[3:, 3:]  # account for voigt doubling of e4,e5,e6
