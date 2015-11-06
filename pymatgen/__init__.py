@@ -1,12 +1,11 @@
 from __future__ import unicode_literals
 
-__author__ = ", ".join(["Shyue Ping Ong", "Anubhav Jain", "Geoffroy Hautier",
-                        "William Davidson Richard", "Stephen Dacek",
-                        "Sai Jayaraman", "Michael Kocher", "Dan Gunter",
-                        "Shreyas Cholia", "Vincent L Chevrier",
-                        "Rickard Armiento"])
-__date__ = "Oct 30 2015"
-__version__ = "3.2.4"
+__author__ = "Pymatgen Development Team"
+__email__ ="pymatgen@googlegroups.com"
+__maintainer__ = "Shyue Ping Ong"
+__maintainer_email__ ="shyuep@gmail.com"
+__date__ = "Nov 6 2015"
+__version__ = "3.2.5"
 
 
 # Useful aliases for commonly used objects and modules.
