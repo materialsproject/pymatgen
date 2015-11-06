@@ -37,7 +37,7 @@ class ElasticTensor(SQTensor):
                 representing the elastic tensor
         """
         obj = SQTensor(input_matrix).view(cls)
-        if obj.shape != (6, 6):
+        if obj.shape != (6,6):
             raise ValueError("Default elastic tensor constructor requires "
                              "input argument to be the Voigt-notation 6x6 "
                              "array.  To construct from a 3x3x3x3 array, use "
