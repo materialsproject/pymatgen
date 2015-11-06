@@ -215,7 +215,7 @@ class Strain(SQTensor):
             deformation (3x3 array-like):
         """
         dfm = Deformation(deformation)
-        return cls(0.5 * (np.dot(dfm.T,dfm) - np.eye(3)), dfm)
+        return cls(0.5 * (np.dot(dfm.T, dfm) - np.eye(3)), dfm)
 
     @property
     def deformation_matrix(self):

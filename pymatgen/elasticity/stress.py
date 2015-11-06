@@ -91,7 +91,7 @@ class Stress(SQTensor):
             raise ValueError("The stress tensor is not symmetric, \
                              PK stress is based on a symmetric stress tensor.")
         f = SQTensor(f)
-        return f.det*np.dot(self,f.I.T)
+        return f.det*np.dot(self, f.I.T)
 
     def piola_kirchoff_2(self, f):
         """
@@ -105,7 +105,7 @@ class Stress(SQTensor):
         if not self.is_symmetric:
             raise ValueError("The stress tensor is not symmetric, \
                              PK stress is based on a symmetric stress tensor.")
-        return f.det*np.dot(np.dot(f.I,self),f.I.T)
+        return f.det*np.dot(np.dot(f.I, self),f.I.T)
 
     @property
     def voigt(self):
