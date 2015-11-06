@@ -96,12 +96,17 @@ class BoltztrapRunner(object):
                 comes from a soc computation, you should set
                 soc to True (default False)
             doping:
-                the fixed doping levels you want to compute. Boltztrap
-                provides both transport values
-                depending on electron chemical potential (fermi energy) and
-                for a series of fixed
-                carrier concentrations. By default, this is set to 1e16,
-                1e17, 1e18, 1e19, 1e20 and 1e21
+                the fixed doping levels you want to compute. Boltztrap provides both transport values
+                depending on electron chemical potential (fermi energy) and for a series of fixed
+                carrier concentrations. By default, this is set to 1e16, 1e17, 1e18, 1e19, 1e20 and 1e21
+            energy_span_around_fermi:
+                usually the interpolation is not needed on the entire energy range but on a specific range around
+                the fermi level. This energy gives this range in eV. by default it is 1.5 eV. If you want to have a dos
+                on the entire energy range, you will need to change this value.
+            scissor:
+                scissor to the band gap in eV. This applies a scissor operation moving the band edges without changing
+                the band shape. This is useful to correct the often underestimated band gap in DFT. Default is 0.0 (no
+                scissor)
     """
 
     @requires(which('x_trans'),
@@ -111,8 +116,8 @@ class BoltztrapRunner(object):
               ".html and follow the instructions in the README to compile "
               "Bolztrap accordingly. Then add x_trans to your path")
     def __init__(self, bs, nelec, dos_type="HISTO", energy_grid=0.005,
-                 lpfac=10, run_type="BOLTZ", band_nb=None, tauref=0, tauexp=0,
-                 tauen=0, soc=False, doping=None):
+                 lpfac=10, run_type="BOLTZ", band_nb=None, tauref=0, tauexp=0, tauen=0, soc=False, doping=None,
+                 energy_span_around_fermi=1.5, scissor=0.0):
         self.lpfac = lpfac
         self._bs = bs
         self._nelec = nelec
@@ -126,6 +131,8 @@ class BoltztrapRunner(object):
         self.tauen = tauen
         self.soc = soc
         self.doping = doping or [1e16, 1e17, 1e18, 1e19, 1e20, 1e21]
+        self.energy_span_around_fermi = energy_span_around_fermi
+        self.scissor = scissor
 
     def _make_energy_file(self, file_name):
         with open(file_name, 'w') as f:
@@ -264,36 +271,25 @@ class BoltztrapRunner(object):
         if self.run_type == "BOLTZ":
             with open(file_name, 'w') as fout:
                 fout.write("GENE          # use generic interface\n")
+                setgap = 0
+                if self.scissor > 0.0001:
+                    setgap = 1
+                fout.write("1 0 %d %f         # iskip (not presently used) idebug setgap shiftgap \n"
+                           % (setgap, Energy(self.scissor,"eV").to("Ry")))
                 fout.write(
-                    "1 0 0 0.0         # iskip (not presently used) idebug "
-                    "setgap shiftgap \n")
-                fout.write(
-                    "0.0 %f 0.1 %6.1f     # Fermilevel (Ry),energygrid,"
-                    "energy span around Fermilevel, "
+                    "0.0 %f %f %6.1f     # Fermilevel (Ry),energygrid,energy span around Fermilevel, "
                     "number of electrons\n"
-                    % (Energy(self.energy_grid, "eV").to("Ry"), self._nelec))
-                fout.write(
-                    "CALC                    # CALC (calculate expansion "
-                    "coeff), NOCALC read from file\n")
-                fout.write(
-                    "%d                        # lpfac, number of latt-points "
-                    "per k-point\n" % self.lpfac)
-                fout.write(
-                    "BOLTZ                     # run mode (only BOLTZ is "
-                    "supported)\n")
-                fout.write(
-                    ".15                       # (efcut) energy range of "
-                    "chemical potential\n")
-                fout.write(
-                    "1300. 100.                  # Tmax, temperature grid\n")
-                fout.write(
-                    "-1.  # energyrange of bands given DOS output sig_xxx and "
-                    "dos_xxx (xxx is band number)\n")
-                fout.write(self.dos_type + "\n")
-                fout.write(
-                    str(self.tauref) + " " + str(self.tauexp) + " " + str(
-                        self.tauen) + " 0 0 0\n")
-                fout.write(str(2 * len(self.doping)) + "\n")
+                    % (Energy(self.energy_grid, "eV").to("Ry"), Energy(self.energy_span_around_fermi, "eV").to("Ry"),
+                       self._nelec))
+                fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
+                fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
+                fout.write("BOLTZ                     # run mode (only BOLTZ is supported)\n")
+                fout.write(".15                       # (efcut) energy range of chemical potential\n")
+                fout.write("1300. 100.                  # Tmax, temperature grid\n")
+                fout.write("-1.  # energyrange of bands given DOS output sig_xxx and dos_xxx (xxx is band number)\n")
+                fout.write(self.dos_type+"\n")
+                fout.write(str(self.tauref)+" "+str(self.tauexp)+" "+str(self.tauen)+" 0 0 0\n")
+                fout.write(str(2*len(self.doping))+"\n")
                 for d in self.doping:
                     fout.write(str(d) + "\n")
                 for d in self.doping:
@@ -596,7 +592,15 @@ class BoltztrapAnalyzer(object):
             kappa[d[1]].append(tens_kappa)
 
         for d in data_hall:
-            hall_tens = d[3:]
+            hall_tens = [[[d[3], d[4], d[5]],
+                          [d[6], d[7], d[8]],
+                          [d[9], d[10], d[11]]],
+                         [[d[12], d[13], d[14]],
+                          [d[15], d[16], d[17]],
+                          [d[18], d[19], d[20]]],
+                         [[d[21], d[22], d[23]],
+                          [d[24], d[25], d[26]],
+                          [d[27], d[28], d[29]]]]
             hall[d[1]].append(hall_tens)
 
         for d in data_doping_full:
@@ -621,12 +625,20 @@ class BoltztrapAnalyzer(object):
                 seebeck_doping['p'][d[0]].append(tens_seebeck)
                 kappa_doping['p'][d[0]].append(tens_kappa)
 
-        for i in range(len(data_doping_hall)):
-            hall_tens = [data_hall[i][j] for j in range(3, len(data_hall[i]))]
-            if data_doping_hall[i][1] < 0:
-                hall_doping['n'][data_doping_hall[i][0]].append(hall_tens)
+        for d in data_doping_hall:
+            hall_tens = [[[d[2], d[3], d[4]],
+                          [d[5], d[6], d[7]],
+                          [d[8], d[9], d[10]]],
+                         [[d[11], d[12], d[13]],
+                          [d[14], d[15], d[16]],
+                          [d[17], d[18], d[19]]],
+                         [[d[20], d[21], d[22]],
+                          [d[23], d[24], d[25]],
+                          [d[26], d[27], d[28]]]]
+            if d[1] < 0:
+                hall_doping['n'][d[0]].append(hall_tens)
             else:
-                hall_doping['p'][data_doping_hall[i][0]].append(hall_tens)
+                hall_doping['p'][d[0]].append(hall_tens)
 
         for t in data_dos['total']:
             dos_full['energy'].append(t[0])
@@ -1046,13 +1058,30 @@ class BoltztrapAnalyzer(object):
         gives the carrier concentration (in cm^-3)
 
         Returns
-            a dictionary {temp:[]} with an array of carrier concentration (in
-            cm^-3) at each temperature
-            The array relates to each step of elecron chemical potential
+            a dictionary {temp:[]} with an array of carrier concentration (in cm^-3) at each temperature
+            The array relates to each step of electron chemical potential
         """
 
-        return {temp: [1e24 * i / self.vol for i in self.carrier_conc[temp]] for
-                temp in self.carrier_conc}
+        return {temp: [1e24*i/self.vol for i in self._carrier_conc[temp]] for temp in self._carrier_conc}
+
+    def get_hall_carrier_concentration(self):
+        """
+        gives the Hall carrier concentration (in cm^-3). This is the trace of the Hall tensor (see Boltztrap source
+        code) Hall carrier concentration are not always exactly the same than carrier concentration.
+
+        Returns
+            a dictionary {temp:[]} with an array of Hall carrier concentration (in cm^-3) at each temperature
+            The array relates to each step of electron chemical potential
+        """
+        result = {temp: [] for temp in self._hall}
+        for temp in self._hall:
+            for i in self._hall[temp]:
+                trace = (i[1][2][0]+i[2][0][1]+i[0][1][2])/3.0
+                if trace != 0.0:
+                    result[temp].append(1e-6/(trace*e))
+                else:
+                    result[temp].append(0.0)
+        return result
 
     @staticmethod
     def from_files(path_dir):
@@ -1102,8 +1131,6 @@ class BoltztrapAnalyzer(object):
         data_dos['total'] = [
             [data_dos['total'][i][0], 2 * data_dos['total'][i][1] / total_elec]
             for i in range(len(data_dos['total']))]
-        #       TODO: check if the DOS normalization works for spin polarized
-        #  band structures
         for file_name in os.listdir(path_dir):
             if file_name.endswith(
                     "transdos") and file_name != 'boltztrap.transdos':
@@ -1116,7 +1143,7 @@ class BoltztrapAnalyzer(object):
                             if tokens[2] not in data_dos['partial'][tokens[1]]:
                                 data_dos['partial'][tokens[1]][tokens[2]] = []
                             data_dos['partial'][tokens[1]][tokens[2]].append(
-                                2 * float(line.split()[1]) / total_elec)
+                                2 * float(line.split()[1]))
 
         with open(os.path.join(path_dir, "boltztrap.outputtrans"), 'r') as f:
             warning = False
@@ -1147,9 +1174,33 @@ class BoltztrapAnalyzer(object):
 
         with open(os.path.join(path_dir, "boltztrap.struct"), 'r') as f:
             tokens = f.readlines()
-            vol = Lattice(
-                [[Length(float(tokens[i].split()[j]), "bohr").to("ang")
-                  for j in range(3)] for i in range(1, 4)]).volume
+            vol = Lattice([[Length(float(tokens[i].split()[j]), "bohr").to("ang")
+                            for j in range(3)] for i in range(1, 4)]).volume
+
+        data_dos = {'total': [], 'partial': {}}
+        with open(os.path.join(path_dir, "boltztrap.transdos"), 'r') as f:
+            count_series = 0
+            normalization_factor = None
+            for line in f:
+                if not line.startswith(" #"):
+                    data_dos['total'].append([Energy(float(line.split()[0]), "Ry").to("eV"),
+                                              float(line.split()[1])])
+                else:
+                    count_series += 1
+                if count_series > 1:
+                    break
+        for file_name in os.listdir(path_dir):
+            if file_name.endswith("transdos") and file_name != 'boltztrap.transdos':
+                tokens = file_name.split(".")[1].split("_")
+                with open(os.path.join(path_dir, file_name), 'r') as f:
+                    for line in f:
+                        if not line.startswith(" #"):
+                            if tokens[1] not in data_dos['partial']:
+                                data_dos['partial'][tokens[1]] = {}
+                            if tokens[2] not in data_dos['partial'][tokens[1]]:
+                                data_dos['partial'][tokens[1]][tokens[2]] = []
+                            data_dos['partial'][tokens[1]][tokens[2]].append(float(line.split()[1]))
+
         return BoltztrapAnalyzer._make_boltztrap_analyzer_from_data(
             data_full, data_hall, data_dos, sorted([t for t in t_steps]),
             sorted([Energy(m, "Ry").to("eV") for m in m_steps]), efermi,
@@ -1437,6 +1488,30 @@ class BoltztrapPlotter(object):
         plt.xlim(-0.5, self._bz.gap + 0.5)
         plt.ylim(1e14, 1e22)
         plt.ylabel("carrier concentration (cm-3)", fontsize=30.0)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        return plt
+
+    def plot_hall_carriers(self, temp=300):
+        """
+        Plot the Hall carrier concentration in function of Fermi level
+
+        Args:
+            temp: the temperature
+
+        Returns:
+            a matplotlib object
+        """
+        hall_carriers = [abs(i) for i in self._bz.get_hall_carrier_concentration()[temp]]
+        plt.semilogy(self._bz.mu_steps,
+                     hall_carriers,
+                     linewidth=3.0, color='r')
+        self._plot_bg_limits()
+        self._plot_doping(temp)
+        plt.xlim(-0.5, self._bz.gap+0.5)
+        plt.ylim(1e14, 1e22)
+        plt.ylabel("Hall carrier concentration (cm-3)", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)

@@ -192,12 +192,30 @@ POTCAR Setup
 
 For the code to generate POTCAR files, it needs to know where the VASP
 pseudopotential files are.  We are not allowed to distribute these under the
-VASP license. The good news is that we have included a setup script to help you
-along.
+VASP license. The good news is that the `pmg` command line utility includes a
+setup functionality.
 
 After installation, do::
 
-    potcar_setup.py
+    pmg setup --input_potcar_dir <EXTRACTED_VASP_POTCAR> --output_potcar_dir <MY_PSP>
+
+In the above, `<EXTRACTED_VASP_POTCAR>` is the location of the directory that
+you extracted the downloaded VASP pseudopotential files. Typically, it has
+the following format::
+
+    - <EXTRACTED_VASP_POTCAR>
+    |- POT_GGA_PAW_PBE
+    ||- Ac_s
+    |||-POTCAR
+    |||-...
+
+or::
+
+    - <EXTRACTED_VASP_POTCAR>
+    |- potpaw_PBE
+    ||- Ac_s
+    |||-POTCAR
+    |||-...
 
 and follow the instructions. If you have done it correctly, you should get a
 resources directory with the following directory structure::
@@ -213,7 +231,8 @@ resources directory with the following directory structure::
 
 After generating the resources directory, you should add a VASP_PSP_DIR
 environment variable pointing to the generated directory and you should then be
-able to generate POTCARs.
+able to generate POTCARs. The setup also provides options to do this
+automatically and setup for Materials API usage as well.
 
 Setup for Developers (using GitHub)
 ===================================

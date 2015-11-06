@@ -35,7 +35,7 @@ hr{
 }
 
 div.document {
-    /*margin-top: 54px;*/
+    margin-top: 54px;
     background-color: #ececec;
 }
 
@@ -72,11 +72,10 @@ div.related {
     color: #ffffff;
     text-shadow: 0px 1px 1px rgba(0,0,0,0.4);
     font-size: 1.1em;
-    /*
     position: fixed;
   top: 0;
   left: 0;
-  width: 100%;*/
+  width: 100%;
 }
 
 div.related a {
@@ -90,7 +89,7 @@ div.related .right {
 div.sphinxsidebar {
     font-size: 0.9em;
     line-height: 1.5em;
-    width: 300px
+    width: 300px;
 }
 div.sphinxsidebar a{
 display:block;
@@ -99,8 +98,11 @@ border-bottom:1px solid #ccc;
 
 div.sphinxsidebarwrapper{
     padding: 20px 0;
-    /*position: fixed;
-    width: 300px;*/
+    position: fixed;
+    width: 300px;
+    overflow-y: scroll;
+    top: 54px;
+    bottom: 0;
 }
 
 div.sphinxsidebar h3,
