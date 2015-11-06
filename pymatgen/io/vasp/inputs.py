@@ -1253,11 +1253,11 @@ class PotcarSingle(object):
         potcar.encut, etc.
     """
     functional_dir = {"PBE": "POT_GGA_PAW_PBE",
-                      "PBE52": "POT_GGA_PAW_PBE_52",
-                      "PBE54": "POT_GGA_PAW_PBE_54",
+                      "PBE_52": "POT_GGA_PAW_PBE_52",
+                      "PBE_54": "POT_GGA_PAW_PBE_54",
                       "LDA": "POT_LDA_PAW",
-                      "LDA52": "POT_LDA_PAW_52",
-                      "LDA54": "POT_LDA_PAW_54",
+                      "LDA_52": "POT_LDA_PAW_52",
+                      "LDA_54": "POT_LDA_PAW_54",
                       "PW91": "POT_GGA_PAW_PW91",
                       "LDA_US": "POT_LDA_US",
                       "PW91_US": "POT_GGA_US_PW91"}
@@ -1519,12 +1519,19 @@ class Potcar(list, MSONable):
     Args:
         symbols ([str]): Element symbols for POTCAR. This should correspond
             to the symbols used by VASP. E.g., "Mg", "Fe_pv", etc.
-        functional (str): Functional used.
+        functional (str): Functional used. To know what functional options
+            there are, use Potcar.FUNCTIONAL_CHOICES. Note that VASP has
+            different versions of the same functional. By default, the old
+            PBE functional is used. If you want the newer ones, use PBE_52 or
+            PBE_54. Note that if you intend to compare your results with the
+            Materials Project, you should use the default setting.
         sym_potcar_map (dict): Allows a user to specify a specific element
             symbol to raw POTCAR mapping.
     """
 
     DEFAULT_FUNCTIONAL = "PBE"
+
+    FUNCTIONAL_CHOICES = list(PotcarSingle.functional_dir.keys())
 
     def __init__(self, symbols=None, functional=DEFAULT_FUNCTIONAL,
                  sym_potcar_map=None):
