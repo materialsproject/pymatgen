@@ -19,6 +19,16 @@ class SQTensor(np.ndarray):
     """
 
     def __new__(cls, input_array):
+        """
+        Create a SQTensor object.  Note that the constructor uses __new__ 
+        rather than __init__ according to the standard method of 
+        subclassing numpy ndarrays.
+
+        Args:
+            stress_matrix (3x3 array-like): the 3x3 array-like
+                representing the Green-Lagrange strain
+        """
+
         obj = np.asarray(input_array).view(cls)
         if not (len(obj.shape) == 2 and obj.shape[0] == obj.shape[1]):
             raise ValueError("SQTensor only takes 2-D "
@@ -30,6 +40,11 @@ class SQTensor(np.ndarray):
             return
         
     def __array_wrap__(self, obj):
+        """
+        Overrides __array_wrap__ methods in ndarray superclass to avoid errors
+        associated with functions that return scalar values
+        """
+
         if len(obj.shape)==0:
             return obj[()]
         else:
@@ -133,7 +148,11 @@ class SQTensor(np.ndarray):
         polynomial for the matrix
         """
         # TODO: JM asks whether this fulfills the necessary sign conventions
-        return np.poly(self)[1:]
+        if self.shape == (3,3):
+            return np.poly(self)[1:]*np.array([-1,1,-1])
+        else:
+            raise ValueError("Principal invariants is only intended for use "
+                             "with 3x3 SQTensors")
 
     def polar_decomposition(self, side='right'):
         """

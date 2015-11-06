@@ -20,6 +20,16 @@ class Deformation(SQTensor):
     """
 
     def __new__(cls, deformation_gradient):
+        """
+        Create a Deformation object.  Note that the constructor uses __new__ 
+        rather than __init__ according to the standard method of subclassing 
+        numpy ndarrays.
+
+        Args:
+            deformation_gradient (3x3 array-like): the 3x3 array-like
+                representing the deformation gradient
+        """
+
         obj = SQTensor(deformation_gradient).view(cls)
         return obj
 
@@ -32,12 +42,10 @@ class Deformation(SQTensor):
 
     def check_independent(self):
         """
-        a check to determine whether the deformation matrix represents an
+        checks to determine whether the deformation matrix represents an
         independent deformation, raises a ValueError if not.  If so, returns 
         the indices of the deformation gradient entry representing the 
         independent component
-
-        Args: tol
         """
         indices = list(zip(*np.asarray(self - np.eye(3)).nonzero()))
         if len(indices) != 1:
@@ -85,8 +93,8 @@ class Deformation(SQTensor):
 
 class DeformedStructureSet(object):
     """
-    class that generates a set of deformed structures that
-    can be used to fit the elastic tensor of a material
+    class that generates a set of independently deformed structures that
+    can be used to calculate linear stress-strain response
     """
 
     def __init__(self, rlxd_str, nd=0.01, ns=0.08,
@@ -102,9 +110,9 @@ class DeformedStructureSet(object):
             nd (float): maximum perturbation applied to normal deformation
             ns (float): maximum perturbation applied to shear deformation
             m (int): number of deformation structures to generate for 
-                normal deformation
+                normal deformation, must be even
             n (int): number of deformation structures to generate for 
-                shear deformation
+                shear deformation, must be even
         """
 
         if num_norm % 2 != 0:
@@ -161,16 +169,31 @@ class Strain(SQTensor):
     """
 
     def __new__(cls, strain_matrix, dfm=None):
+        """
+        Create a Strain object.  Note that the constructor uses __new__ 
+        rather than __init__ according to the standard method of 
+        subclassing numpy ndarrays.  Note also that the default constructor
+        does not include the deformation gradient
+
+        Args:
+            strain_matrix (3x3 array-like): the 3x3 array-like
+                representing the Green-Lagrange strain
+        """
+
         obj = SQTensor(strain_matrix).view(cls)
         obj._dfm = dfm
         if not obj.is_symmetric():
             raise ValueError("Strain objects must be initialized "
                              "with a symmetric array-like.")
+
         if dfm is None:
             warnings.warn("Constructing a strain object without a deformation "
                           "matrix makes many methods unusable.  Use "
                           "Strain.from_deformation to construct a Strain object"
                           " from a deformation gradient.")
+        elif (Strain.from_deformation(dfm) - obj < 1e-5).all():
+            warnings.warn("Warning: deformation matrix does not correspond "
+                          "to input strain_matrix value")
         return obj
 
     def __array_finalize__(self, obj):
@@ -184,7 +207,7 @@ class Strain(SQTensor):
     @classmethod
     def from_deformation(cls, deformation):
         """
-        constructor that returns a Strain object from a deformation
+        Factory method that returns a Strain object from a deformation
         gradient
 
         Args:
@@ -207,7 +230,6 @@ class Strain(SQTensor):
         independent deformation, raises a value error if not.
         Returns the index of the deformation gradient corresponding
         to the independent deformation
-        Args: tol
         """
         if self._dfm is None:
             raise ValueError("No deformation matrix supplied "
@@ -231,8 +253,21 @@ class IndependentStrain(Strain):
     emulate the legacy behavior.
     """
 
-    def __new__(cls, deformation_matrix):
-        obj = Strain.from_deformation(deformation_matrix).view(cls)
+    def __new__(cls, deformation_gradient):
+        """
+        Create an Independent Strain object.  Note that the constructor uses 
+        __new__ rather than __init__ according to the standard method of 
+        subclassing numpy ndarrays.  Note also that, unlike the Strain class,
+        the default constructor of IndependentStrain takes the deformation 
+        gradient as input, rather than an array representing the Green-Lagrange 
+        strain.
+
+        Args:
+            deformation_gradient (3x3 array-like): the 3x3 array-like
+                representing the deformation gradient
+        """
+
+        obj = Strain.from_deformation(deformation_gradient).view(cls)
         (obj._i, obj._j) = obj.independent_deformation
         return obj
 

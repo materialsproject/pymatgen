@@ -19,12 +19,17 @@ class Stress(SQTensor):
     This class extends SQTensor as a representation of the 
     stress
     """
-    def __new__(cls, input_matrix):
+    def __new__(cls, stress_matrix):
         """
-        Constructs the Stress object similarly to other constructors
-        involving SQTensor subclasses
+        Create a Stress object.  Note that the constructor uses __new__ 
+        rather than __init__ according to the standard method of 
+        subclassing numpy ndarrays.  
+
+        Args:
+            stress_matrix (3x3 array-like): the 3x3 array-like
+                representing the stress
         """
-        obj = SQTensor(input_matrix).view(cls)
+        obj = SQTensor(stress_matrix).view(cls)
         return obj
 
     def __array_finalize__(self, obj):
@@ -35,7 +40,7 @@ class Stress(SQTensor):
         return "Stress({})".format(self.__str__())
 
     @property
-    def deviator_principal_invariants(self):
+    def dev_principal_invariants(self):
         # TODO: check sign convention
         """
         returns the principal invariants of the deviatoric stress tensor, 
@@ -44,16 +49,18 @@ class Stress(SQTensor):
         stress
         """
         return self.deviator_stress.principal_invariants
-        
+
+    # TODO: fix this method, is there a physical meaning to 
+    #           negative J1, and how should it be handled?
     @property
     def von_mises(self):
         """
-        calculates the von mises stress
+        returns the von mises stress
         """
         if not self.is_symmetric():
             raise ValueError("The stress tensor is not symmetric, Von Mises "
                              "stress is based on a symmetric stress tensor.")
-        return math.sqrt(3*self.deviator_principal_invariants[1])
+        return math.sqrt(3*self.dev_principal_invariants[1])
 
     @property
     def mean_stress(self):
@@ -83,7 +90,7 @@ class Stress(SQTensor):
             raise ValueError("The stress tensor is not symmetric, \
                              PK stress is based on a symmetric stress tensor.")
         f = SQTensor(f)
-        return f.det*self*f.I.T
+        return f.det*np.dot(self,f.I.T)
 
     def piola_kirchoff_2(self, f):
         """
@@ -97,33 +104,14 @@ class Stress(SQTensor):
         if not self.is_symmetric:
             raise ValueError("The stress tensor is not symmetric, \
                              PK stress is based on a symmetric stress tensor.")
-        return f.det*f.I*self*f.I.T
+        return f.det*np.dot(np.dot(f.I,self),f.I.T)
 
     @property
     def voigt(self):
         """
         returns the vector representing to the stress tensor in voigt notation
         """
+        if not self.is_symmetric():
+            raise ValueError("Conversion to voigt notation requires a "
+                             "symmetric stress.")
         return [self[ind] for ind in voigt_map]
-
-if __name__ == "__main__":
-
-    mat = np.eye(3)
-    mat = np.random.randn(3, 3)
-#    mat[0,2] = 0.1
-#    mat[2,0] = 0.1
-    s = Stress(mat)
-    print s.principal_invariants
-    
-#    for property, value in vars(s).iteritems():
-#            print property, ": ", value
-
-
-#    print s.get_scaled(2.0)
-#    s.get_scaled(1.2)
-#    print s.is_symmetric()
-#    print s.value(1,2)
-#    print s.returntensor()
-#    print s.stress_matrix
-#    print s.PiolaKirchoff1(mat)
-#    print s.PiolaKirchoff2(mat)
