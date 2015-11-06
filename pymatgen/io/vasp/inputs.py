@@ -1252,8 +1252,14 @@ class PotcarSingle(object):
         accessible as attributes in themselves. E.g., potcar.enmax,
         potcar.encut, etc.
     """
-    functional_dir = {"PBE": "POT_GGA_PAW_PBE", "LDA": "POT_LDA_PAW",
-                      "PW91": "POT_GGA_PAW_PW91", "LDA_US": "POT_LDA_US"}
+    functional_dir = {"PBE": "POT_GGA_PAW_PBE",
+                      "PBE52": "POT_GGA_PAW_PBE_52",
+                      "PBE54": "POT_GGA_PAW_PBE_54",
+                      "LDA": "POT_LDA_PAW",
+                      "LDA52": "POT_LDA_PAW_52",
+                      "LDA54": "POT_LDA_PAW_54",
+                      "PW91": "POT_GGA_PAW_PW91",
+                      "LDA_US": "POT_LDA_US"}
 
     functional_tags = {"pe": {"name": "PBE", "class": "GGA"},
                        "91": {"name": "PW91", "class": "GGA"},
