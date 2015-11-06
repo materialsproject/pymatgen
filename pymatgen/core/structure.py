@@ -2394,7 +2394,7 @@ class Structure(IStructure, collections.MutableSequence):
         """
         s = (1 + np.array(strain)) * np.eye(3)
         self.modify_lattice(Lattice(np.dot(self._lattice.matrix.T, s).T))
-  
+
     def sort(self, key=None, reverse=False):
         """
         Sort a structure in place. The parameters have the same meaning as in
