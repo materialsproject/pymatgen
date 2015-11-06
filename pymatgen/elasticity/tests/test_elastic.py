@@ -3,15 +3,12 @@ from __future__ import print_function
 
 import unittest
 import os
-import random
 
 import numpy as np
 from pymatgen.elasticity.elastic import ElasticTensor
-from pymatgen.elasticity.strain import Strain, Deformation, IndependentStrain
+from pymatgen.elasticity.strain import Strain, IndependentStrain
 from pymatgen.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
-from numpy.testing import *
-import math
 import warnings
 import json
 from six.moves import zip
@@ -77,14 +74,13 @@ class ElasticTensorTest(PymatgenTest):
                            [0, 0, 0, 26.35, 0, 0],
                            [0, 0, 0, 0, 26.35, 0],
                            [0, 0, 0, 0, 0, 26.35]])
-            self.assertEqual(len(w),1)
+            self.assertEqual(len(w), 1)
 
     def test_properties(self):
         # compliance tensor
         self.assertArrayAlmostEqual(np.linalg.inv(self.elastic_tensor_1),
                                     self.elastic_tensor_1.compliance_tensor)
         # KG average properties
-        et = self.elastic_tensor_1
         self.assertAlmostEqual(38.49111111111, self.elastic_tensor_1.k_voigt)
         self.assertAlmostEqual(22.05866666666, self.elastic_tensor_1.g_voigt)
         self.assertAlmostEqual(38.49110945133, self.elastic_tensor_1.k_reuss)
@@ -117,7 +113,7 @@ class ElasticTensorTest(PymatgenTest):
                        for def_matrix in self.def_stress_dict['deformations']]
         stress_list = [stress for stress in self.def_stress_dict['stresses']]
         with warnings.catch_warnings(record=True):
-            et_fl = -0.1*ElasticTensor.from_strain_stress_list(strain_list,stress_list)
+            et_fl = -0.1*ElasticTensor.from_strain_stress_list(strain_list, stress_list)
             self.assertArrayAlmostEqual(et_fl.round(2),
                                         [[59.29, 24.36, 22.46, 0, 0, 0],
                                          [28.06, 56.91, 22.46, 0, 0, 0],
@@ -129,7 +125,7 @@ class ElasticTensorTest(PymatgenTest):
     def test_from_stress_dict(self):
         stress_dict = dict(list(zip([IndependentStrain(def_matrix) for def_matrix 
                                 in self.def_stress_dict['deformations']],
-                               [Stress(stress_matrix) for stress_matrix 
+                                [Stress(stress_matrix) for stress_matrix
                                 in self.def_stress_dict['stresses']])))
         et_from_sd = ElasticTensor.from_stress_dict(stress_dict)
         self.assertArrayAlmostEqual(et_from_sd.round(2),

@@ -46,7 +46,7 @@ class SQTensor(np.ndarray):
         associated with functions that return scalar values
         """
 
-        if len(obj.shape)==0:
+        if len(obj.shape) == 0:
             return obj[()]
         else:
             return np.ndarray.__array_wrap__(self, obj)
@@ -150,7 +150,7 @@ class SQTensor(np.ndarray):
         """
         # TODO: JM asks whether this fulfills the necessary sign conventions
         if self.shape == (3,3):
-            return np.poly(self)[1:]*np.array([-1,1,-1])
+            return np.poly(self)[1:]*np.array([-1, 1, -1])
         else:
             raise ValueError("Principal invariants is only intended for use "
                              "with 3x3 SQTensors")
