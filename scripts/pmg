@@ -390,7 +390,9 @@ def setup_potcar(args):
         "potpaw_LDA.54": "POT_LDA_PAW_54",
         "potpaw_LDA_52": "POT_LDA_PAW_52",
         "potpaw_LDA_54": "POT_LDA_PAW_54",
-        "potpaw_GGA": "POT_GGA_PAW_PW91"
+        "potUSPP_LDA": "POT_LDA_US",
+        "potpaw_GGA": "POT_GGA_PAW_PW91",
+        "potUSPP_GGA": "POT_GGA_US_PW91"
     }
 
     for (parent, subdirs, files) in os.walk(pspdir):
