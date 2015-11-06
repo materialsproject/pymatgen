@@ -22,6 +22,18 @@ class ElasticTensor(SQTensor):
     """
 
     def __new__(cls, input_matrix):
+        """
+        Create an ElasticTensor object.  The constructor throws an error if 
+        the shape of the input_matrix argument is not 6x6, i. e. in Voigt-
+        notation.  Also issues a warning if the input_matrix argument is
+        not symmetric.  Note that the constructor uses __new__ rather than
+        __init__ according to the standard method of subclassing numpy
+        ndarrays.
+
+        Args:
+            input_matrix (6x6 array-like): the Voigt-notation 6x6 array-like
+                representing the elastic tensor
+        """
         obj = SQTensor(input_matrix).view(cls)
         if obj.shape != (6,6):
             raise ValueError("Default elastic tensor constructor requires "
@@ -41,40 +53,62 @@ class ElasticTensor(SQTensor):
 
     @property
     def compliance_tensor(self):
+        """
+        returns the compliance tensor, which is the matrix inverse of the
+        Voigt-notation elastic tensor
+        """
         return self.I
 
     @property
     def k_voigt(self):
+        """
+        returns the K_v bulk modulus
+        """
         return self[:3, :3].mean()
 
     @property
     def g_voigt(self):
+        """
+        returns the G_v shear modulus 
+        """
         return (2. * self[:3, :3].trace() - np.triu(self[:3, :3]).sum() +
                 3 * self[3:, 3:].trace()) / 15.
 
     @property
     def k_reuss(self):
+        """
+        returns the K_r bulk modulus
+        """
         return 1. / self.I[:3, :3].sum()
 
     @property
     def g_reuss(self):
+        """
+        returns the G_r shear modulus
+        """
         return 15. / (8. * self.I[:3, :3].trace() -
                       4. * np.triu(self.I[:3, :3]).sum() +
                       3. * self.I[3:, 3:].trace())
 
     @property
     def k_vrh(self):
+        """
+        returns the K_vrh (Voigt-Reuss-Hill) average bulk modulus
+        """
         return 0.5 * (self.k_voigt + self.k_reuss)
 
     @property
     def g_vrh(self):
+        """
+        returns the G_vrh (Voigt-Reuss-Hill) average shear modulus
+        """
         return 0.5 * (self.g_voigt + self.g_reuss)
 
     @property
     def kg_average(self):
         """
-        returns vector of Voigt, Reuss, and Voigt-Reuss-Hill averages similar
-        to legacy behavior
+        returns a list of Voigt, Reuss, and Voigt-Reuss-Hill averages of bulk
+        and shear moduli similar to legacy behavior
         """
         return [self.k_voigt, self.g_voigt, self.k_reuss, self.g_reuss,
                 self.k_vrh, self.g_vrh]
@@ -82,7 +116,7 @@ class ElasticTensor(SQTensor):
     @property
     def universal_anisotropy(self):
         """
-        calculates value for universal anisotropy
+        returns the universal anisotropy value
         """
         return 5. * self.g_voigt / self.g_reuss + \
             self.k_voigt / self.k_reuss - 6.
@@ -90,7 +124,7 @@ class ElasticTensor(SQTensor):
     @property
     def homogeneous_poisson(self):
         """
-        calculates homogeneous poisson ratio
+        returns the homogeneous poisson ratio
         """
         return (1. - 2. / 3. * self.g_vrh / self.k_vrh) / \
                (2. + 2. / 3. * self.g_vrh / self.k_vrh)
@@ -153,8 +187,8 @@ class ElasticTensor(SQTensor):
             strains (Nx3x3 array-like): list or array of strains
         """
         # convert the stress/strain to Nx6 arrays of voigt-notation
-        warnings.warn("Linear fitting of Strain/Stress lists using "
-                      "pseudoinverse is experimental, use with caution.")
+        warnings.warn("Linear fitting of Strain/Stress lists may yield "
+                      "questionable results from vasp data, use with caution.")
         stresses = np.array([Stress(stress).voigt for stress in stresses])
         with warnings.catch_warnings(record=True):
             strains = np.array([Strain(strain).voigt for strain in strains])
@@ -185,18 +219,3 @@ class ElasticTensor(SQTensor):
         c_ij = c_ij.zeroed(tol)
         c_ij = c_ij.symmetrized
         return cls(c_ij)
-
-
-if __name__ == "__main__":
-    mat1 = np.random.randn(6, 6)
-    mat1 = mat1 + np.transpose(mat1)
-
-    sigma2 = ElasticTensor(mat1)
-    print sigma2.kg_average
-    print sigma2.universal_anisotropy
-    print sigma2.polar_decomposition
-    this_tensor = sigma2.full_tensor
-    # print sigma2
-    sigma3 = ElasticTensor.from_full_tensor(this_tensor)
-    this_tensor[0, 1, 0, 1] += 0.1
-    sigma4 = ElasticTensor.from_full_tensor(this_tensor)
