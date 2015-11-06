@@ -17,14 +17,14 @@ __date__ = "March 22, 2012"
 
 class Stress(SQTensor):
     """
-    This class extends SQTensor as a representation of the 
+    This class extends SQTensor as a representation of the
     stress
     """
     def __new__(cls, stress_matrix):
         """
-        Create a Stress object.  Note that the constructor uses __new__ 
-        rather than __init__ according to the standard method of 
-        subclassing numpy ndarrays.  
+        Create a Stress object.  Note that the constructor uses __new__
+        rather than __init__ according to the standard method of
+        subclassing numpy ndarrays.
 
         Args:
             stress_matrix (3x3 array-like): the 3x3 array-like
@@ -44,14 +44,14 @@ class Stress(SQTensor):
     def dev_principal_invariants(self):
         # TODO: check sign convention
         """
-        returns the principal invariants of the deviatoric stress tensor, 
+        returns the principal invariants of the deviatoric stress tensor,
         which is calculated by finding the coefficients of the characteristic
         polynomial of the stress tensor minus the identity times the mean
         stress
         """
         return self.deviator_stress.principal_invariants
 
-    # TODO: fix this method, is there a physical meaning to 
+    # TODO: fix this method, is there a physical meaning to
     #           negative J1, and how should it be handled?
     @property
     def von_mises(self):

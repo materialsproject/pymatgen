@@ -22,8 +22,8 @@ class Deformation(SQTensor):
 
     def __new__(cls, deformation_gradient):
         """
-        Create a Deformation object.  Note that the constructor uses __new__ 
-        rather than __init__ according to the standard method of subclassing 
+        Create a Deformation object.  Note that the constructor uses __new__
+        rather than __init__ according to the standard method of subclassing
         numpy ndarrays.
 
         Args:
@@ -44,8 +44,8 @@ class Deformation(SQTensor):
     def check_independent(self):
         """
         checks to determine whether the deformation matrix represents an
-        independent deformation, raises a ValueError if not.  If so, returns 
-        the indices of the deformation gradient entry representing the 
+        independent deformation, raises a ValueError if not.  If so, returns
+        the indices of the deformation gradient entry representing the
         independent component
         """
         indices = list(zip(*np.asarray(self - np.eye(3)).nonzero()))
@@ -84,7 +84,7 @@ class Deformation(SQTensor):
         Args:
             matrixpos (tuple): tuple corresponding the matrix position to
                 have a perturbation added
-            amt (float): amount to add to the identity matrix at position 
+            amt (float): amount to add to the identity matrix at position
                 matrixpos
         """
         f = np.identity(3)
@@ -105,14 +105,14 @@ class DeformedStructureSet(object):
         m + n deformed structures according to the supplied parameters.
 
         Args:
-            rlxd_str (structure): structure to undergo deformation, if 
-                fitting elastic tensor is desired, should be a geometry 
+            rlxd_str (structure): structure to undergo deformation, if
+                fitting elastic tensor is desired, should be a geometry
                 optimized structure
             nd (float): maximum perturbation applied to normal deformation
             ns (float): maximum perturbation applied to shear deformation
-            m (int): number of deformation structures to generate for 
+            m (int): number of deformation structures to generate for
                 normal deformation, must be even
-            n (int): number of deformation structures to generate for 
+            n (int): number of deformation structures to generate for
                 shear deformation, must be even
         """
 
@@ -171,8 +171,8 @@ class Strain(SQTensor):
 
     def __new__(cls, strain_matrix, dfm=None):
         """
-        Create a Strain object.  Note that the constructor uses __new__ 
-        rather than __init__ according to the standard method of 
+        Create a Strain object.  Note that the constructor uses __new__
+        rather than __init__ according to the standard method of
         subclassing numpy ndarrays.  Note also that the default constructor
         does not include the deformation gradient
 
@@ -249,18 +249,18 @@ class Strain(SQTensor):
 class IndependentStrain(Strain):
     """
     Class for independent strains intended for use with old Materials Project
-    elasticity workflow.  Note that the default constructor constructs from 
-    a deformation matrix, rather than an array representing the strain, to 
+    elasticity workflow.  Note that the default constructor constructs from
+    a deformation matrix, rather than an array representing the strain, to
     emulate the legacy behavior.
     """
 
     def __new__(cls, deformation_gradient):
         """
-        Create an Independent Strain object.  Note that the constructor uses 
-        __new__ rather than __init__ according to the standard method of 
+        Create an Independent Strain object.  Note that the constructor uses
+        __new__ rather than __init__ according to the standard method of
         subclassing numpy ndarrays.  Note also that, unlike the Strain class,
-        the default constructor of IndependentStrain takes the deformation 
-        gradient as input, rather than an array representing the Green-Lagrange 
+        the default constructor of IndependentStrain takes the deformation
+        gradient as input, rather than an array representing the Green-Lagrange
         strain.
 
         Args:

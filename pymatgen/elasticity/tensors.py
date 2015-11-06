@@ -14,15 +14,15 @@ __date__ = "March 22, 2012"
 
 class SQTensor(np.ndarray):
     """
-    Base class for doing useful general operations on *square* second order 
+    Base class for doing useful general operations on *square* second order
     tensors, without restrictions on what type (stress, elastic, strain etc.).
     Error is thrown when the class is initialized with non-square matrix.
     """
 
     def __new__(cls, input_array):
         """
-        Create a SQTensor object.  Note that the constructor uses __new__ 
-        rather than __init__ according to the standard method of 
+        Create a SQTensor object.  Note that the constructor uses __new__
+        rather than __init__ according to the standard method of
         subclassing numpy ndarrays.
 
         Args:
@@ -80,8 +80,8 @@ class SQTensor(np.ndarray):
     def is_symmetric(self, tol=1e-5):
         """
         Test to see if tensor is symmetric to a user-defined tolerance.
-        This is determined by subtracting the transpose; if any of the 
-        resultant elements are above the specified tolerance, returns 
+        This is determined by subtracting the transpose; if any of the
+        resultant elements are above the specified tolerance, returns
         False.  Otherwise returns true.
 
         Args:
@@ -91,13 +91,13 @@ class SQTensor(np.ndarray):
 
     def is_rotation(self, tol=1e-5):
         """
-        Test to see if tensor is a valid rotation matrix, performs a 
+        Test to see if tensor is a valid rotation matrix, performs a
         test to check whether the inverse is equal to the transpose
         and if the determinant is equal to one within the specified
         tolerance
 
         Args:
-            tol (float): tolerance to both tests of whether the 
+            tol (float): tolerance to both tests of whether the
                 the determinant is one and the inverse is equal
                 to the transpose
         """
@@ -108,7 +108,7 @@ class SQTensor(np.ndarray):
     @property
     def symmetrized(self):
         """
-        Returns a symmetrized matrix from the input matrix, 
+        Returns a symmetrized matrix from the input matrix,
         calculated by taking the sum of the matrix and its
         transpose
         """
@@ -136,7 +136,7 @@ class SQTensor(np.ndarray):
         Scales the tensor by a certain multiplicative scale factor
 
         Args:
-            scale_factor (float): scalar multiplier to be applied to the 
+            scale_factor (float): scalar multiplier to be applied to the
                 SQTensor object
         """
         return SQTensor(self * scale_factor)
@@ -145,7 +145,7 @@ class SQTensor(np.ndarray):
     def principal_invariants(self):
         """
         Returns a list of principal invariants for the tensor,
-        which are the values of the coefficients of the characteristic 
+        which are the values of the coefficients of the characteristic
         polynomial for the matrix
         """
         # TODO: JM asks whether this fulfills the necessary sign conventions
