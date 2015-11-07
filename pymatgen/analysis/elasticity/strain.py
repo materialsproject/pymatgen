@@ -12,7 +12,7 @@ generating deformed structure sets for further calculations.
 """
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.elasticity.tensors import SQTensor
+from pymatgen.analysis.elasticity.tensors import SQTensor
 import warnings
 import numpy as np
 from six.moves import zip
@@ -290,7 +290,7 @@ class IndependentStrain(Strain):
         self._dfm = getattr(obj, "_dfm", None)
         self._i = getattr(obj, "_i", None)
         self._j = getattr(obj, "_j", None)
-
+ 
     def __repr__(self):
         return "IndependentStrain({})".format(self.__str__())
 

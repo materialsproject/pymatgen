@@ -5,15 +5,15 @@ import unittest
 import os
 
 import numpy as np
-from pymatgen.elasticity.elastic import ElasticTensor
-from pymatgen.elasticity.strain import Strain, IndependentStrain
-from pymatgen.elasticity.stress import Stress
+from pymatgen.analysis.elasticity.elastic import ElasticTensor
+from pymatgen.analysis.elasticity.strain import Strain, IndependentStrain
+from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
 import warnings
 import json
 from six.moves import zip
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
 
