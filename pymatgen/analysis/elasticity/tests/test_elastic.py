@@ -57,7 +57,8 @@ class ElasticTensorTest(PymatgenTest):
                               [0, 0, 59.32]]]])
 
         filepath = os.path.join(test_dir, 'Sn_def_stress.json')
-        self.def_stress_dict = json.load(open(filepath))
+        with open(filepath) as f:
+            self.def_stress_dict = json.load(open(filepath))
         warnings.simplefilter("always")
 
     def test_new(self):
