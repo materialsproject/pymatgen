@@ -4,8 +4,8 @@ import unittest
 
 import numpy as np
 
-from pymatgen.elasticity.stress import Stress
-from pymatgen.elasticity.strain import Deformation
+from pymatgen.analysis.elasticity.stress import Stress
+from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.util.testing import PymatgenTest
 
 

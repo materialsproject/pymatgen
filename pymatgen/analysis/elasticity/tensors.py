@@ -63,6 +63,13 @@ class SQTensor(np.ndarray):
             return obj[()]
         else:
             return np.ndarray.__array_wrap__(self, obj)
+        
+    def __hash__(self):
+        """
+        define a hash function, since numpy arrays
+        have their own __eq__ method
+        """
+        return hash(self.tostring()) 
 
     def __repr__(self):
         return "SQTensor({})".format(self.__str__())

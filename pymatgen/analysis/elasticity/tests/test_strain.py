@@ -4,7 +4,7 @@ import unittest
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.elasticity.strain import Strain, Deformation, DeformedStructureSet,\
+from pymatgen.analysis.elasticity.strain import Strain, Deformation, DeformedStructureSet,\
                                     IndependentStrain
 from pymatgen.util.testing import PymatgenTest
 import warnings

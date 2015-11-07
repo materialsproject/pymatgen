@@ -5,7 +5,7 @@ import math
 
 import numpy as np
 
-from pymatgen.elasticity.tensors import SQTensor
+from pymatgen.analysis.elasticity.tensors import SQTensor
 from pymatgen.util.testing import PymatgenTest
 
 
