@@ -62,9 +62,6 @@ class ElasticTensor(SQTensor):
         if obj is None:
             return
 
-    def __repr__(self):
-        return "ElasticTensor({})".format(self.__str__())
-
     @property
     def compliance_tensor(self):
         """

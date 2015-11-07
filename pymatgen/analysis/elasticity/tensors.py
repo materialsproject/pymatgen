@@ -71,8 +71,9 @@ class SQTensor(np.ndarray):
         """
         return hash(self.tostring()) 
 
-    def __repr__(self):
-        return "SQTensor({})".format(self.__str__())
+    def __repr__(cls):
+        return "{}({})".format(cls.__class__.__name__,
+                               cls.__str__())
 
     @property
     def trans(self):

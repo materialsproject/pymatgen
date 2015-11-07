@@ -50,9 +50,6 @@ class Deformation(SQTensor):
         if obj is None:
             return
 
-    def __repr__(self):
-        return "Deformation({})".format(self.__str__())
-
     def check_independent(self):
         """
         checks to determine whether the deformation matrix represents an
@@ -214,9 +211,6 @@ class Strain(SQTensor):
             return
         self._dfm = getattr(obj, "_dfm", None)
 
-    def __repr__(self):
-        return "Strain({})".format(self.__str__())
-
     @classmethod
     def from_deformation(cls, deformation):
         """
@@ -291,9 +285,6 @@ class IndependentStrain(Strain):
         self._i = getattr(obj, "_i", None)
         self._j = getattr(obj, "_j", None)
  
-    def __repr__(self):
-        return "IndependentStrain({})".format(self.__str__())
-
     @property
     def i(self):
         return self._i
