@@ -48,9 +48,6 @@ class Stress(SQTensor):
         if obj is None:
             return
 
-    def __repr__(self):
-        return "Stress({})".format(self.__str__())
-
     @property
     def dev_principal_invariants(self):
         """
