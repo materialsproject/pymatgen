@@ -1,0 +1,124 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, print_function, unicode_literals
+from __future__ import absolute_import
+
+"""
+This module provides the Stress class used to create, manipulate, and
+calculate relevant properties of the stress tensor.
+"""
+
+from pymatgen.analysis.elasticity import voigt_map
+from pymatgen.analysis.elasticity.tensors import SQTensor
+import math
+import numpy as np
+import warnings
+
+__author__ = "Maarten de Jong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Joseph Montoya, Mark Asta, Anubhav Jain"
+__version__ = "1.0"
+__maintainer__ = "Maarten de Jong"
+__email__ = "maartendft@gmail.com"
+__status__ = "Development"
+__date__ = "March 22, 2012"
+
+
+class Stress(SQTensor):
+    """
+    This class extends SQTensor as a representation of the
+    stress
+    """
+    def __new__(cls, stress_matrix):
+        """
+        Create a Stress object.  Note that the constructor uses __new__
+        rather than __init__ according to the standard method of
+        subclassing numpy ndarrays.
+
+        Args:
+            stress_matrix (3x3 array-like): the 3x3 array-like
+                representing the stress
+        """
+        obj = SQTensor(stress_matrix).view(cls)
+        return obj
+
+    def __array_finalize__(self, obj):
+        if obj is None:
+            return
+
+    @property
+    def dev_principal_invariants(self):
+        """
+        returns the principal invariants of the deviatoric stress tensor,
+        which is calculated by finding the coefficients of the characteristic
+        polynomial of the stress tensor minus the identity times the mean
+        stress
+        """
+        return self.deviator_stress.principal_invariants*np.array([1, -1, 1])
+
+    @property
+    def von_mises(self):
+        """
+        returns the von mises stress
+        """
+        if not self.is_symmetric():
+            raise ValueError("The stress tensor is not symmetric, Von Mises "
+                             "stress is based on a symmetric stress tensor.")
+        return math.sqrt(3*self.dev_principal_invariants[1])
+
+    @property
+    def mean_stress(self):
+        """
+        returns the mean stress
+        """
+        return 1./3.*self.trace()
+
+    @property
+    def deviator_stress(self):
+        """
+        returns the deviatoric component of the stress
+        """
+        if not self.is_symmetric:
+            raise warnings.warn("The stress tensor is not symmetric, "
+                                "so deviator stress will not be either")
+        return self - self.mean_stress*np.eye(3)
+
+    def piola_kirchoff_1(self, def_grad):
+        """
+        calculates the first Piola-Kirchoff stress
+
+        Args:
+            def_gradient (3x3 array-like): deformation gradient tensor
+        """
+        if not self.is_symmetric:
+            raise ValueError("The stress tensor is not symmetric, \
+                             PK stress is based on a symmetric stress tensor.")
+        def_grad = SQTensor(def_grad)
+        return def_grad.det*np.dot(self, def_grad.inv.trans)
+
+    def piola_kirchoff_2(self, def_grad):
+        """
+        calculates the second Piola-Kirchoff stress
+
+        Args:
+            f (3x3 array-like): rate of deformation tensor
+        """
+
+        def_grad = SQTensor(def_grad)
+        if not self.is_symmetric:
+            raise ValueError("The stress tensor is not symmetric, \
+                             PK stress is based on a symmetric stress tensor.")
+        return def_grad.det*np.dot(np.dot(def_grad.inv, self),
+                                   def_grad.inv.trans)
+
+    @property
+    def voigt(self):
+        """
+        returns the vector representing to the stress tensor in voigt notation
+        """
+        if not self.is_symmetric(1e-2):
+            raise ValueError("Conversion to voigt notation requires a "
+                             "symmetric stress.")
+        return [self[ind] for ind in voigt_map]
