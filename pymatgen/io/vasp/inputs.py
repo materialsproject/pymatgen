@@ -108,17 +108,45 @@ class Poscar(MSONable):
     def __init__(self, structure, comment=None, selective_dynamics=None,
                  true_names=True, velocities=None, predictor_corrector=None):
         if structure.is_ordered:
-            self.structure = structure
+            site_properties = {}
+            if selective_dynamics:
+                site_properties["selective_dynamics"] = selective_dynamics
+            if velocities:
+                site_properties["velocities"] = velocities
+            if predictor_corrector:
+                site_properties["predictor_corrector"] = predictor_corrector
+            self.structure = structure.copy(site_properties=site_properties)
             self.true_names = true_names
-            self.selective_dynamics = selective_dynamics
             self.comment = structure.formula if comment is None else comment
-            self.velocities = velocities
-            self.predictor_corrector = predictor_corrector
         else:
             raise ValueError("Structure with partial occupancies cannot be "
                              "converted into POSCAR!")
 
         self.temperature = -1
+
+    @property
+    def velocities(self):
+        return self.structure.site_properties.get("velocities")
+
+    @property
+    def selective_dynamics(self):
+        return self.structure.site_properties.get("selective_dynamics")
+
+    @property
+    def predictor_corrector(self):
+        return self.structure.site_properties.get("predictor_corrector")
+
+    @velocities.setter
+    def velocities(self, velocities):
+        self.structure.site_properties["velocities"] = velocities
+
+    @selective_dynamics.setter
+    def selective_dynamics(self, selective_dynamics):
+        self.structure.site_properties["selective_dynamics"] = selective_dynamics
+
+    @predictor_corrector.setter
+    def predictor_corrector(self, predictor_corrector):
+        self.structure.site_properties["predictor_corrector"] = predictor_corrector
 
     @property
     def site_symbols(self):
@@ -147,12 +175,6 @@ class Poscar(MSONable):
                     raise ValueError(name + " array must be same length as" +
                                      " the structure.")
                 value = value.tolist()
-        elif name == "structure":
-            #If we set a new structure, we should discard the velocities and
-            #predictor_corrector and selective dynamics.
-            self.velocities = None
-            self.predictor_corrector = None
-            self.selective_dynamics = None
         super(Poscar, self).__setattr__(name, value)
 
     @staticmethod
@@ -478,11 +500,19 @@ class Poscar(MSONable):
         velocities *= scale * 1e-5  # these are in A/fs
 
         self.temperature = temperature
-        self.selective_dynamics = None
-        self.predictor_corrector = None
+        try:
+            del self.structure.site_properties["selective_dynamics"]
+        except KeyError:
+            pass
+
+        try:
+            del self.structure.site_properties["predictor_corrector"]
+        except KeyError:
+            pass
         # returns as a list of lists to be consistent with the other
         # initializations
-        self.velocities = velocities.tolist()
+
+        self.structure.add_site_property("velocities", velocities.tolist())
 
 
 class Incar(dict, MSONable):
