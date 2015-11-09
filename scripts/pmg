@@ -24,6 +24,11 @@ import multiprocessing
 import sys
 import datetime
 from collections import OrderedDict
+import glob
+import shutil
+import subprocess
+
+from six.moves import input
 
 from tabulate import tabulate, tabulate_formats
 
@@ -296,11 +301,9 @@ def analyze_structure(args):
             for species, dist in bonds.items():
                 if species[0] in [sp.symbol
                                   for sp in site.species_and_occu.keys()]:
-                    dists = []
-                    for nn, d in s.get_neighbors(site, dist):
-                        if species[1] in [sp.symbol
-                                          for sp in nn.species_and_occu.keys()]:
-                            dists.append(d)
+                    dists = [d for nn, d in s.get_neighbors(site, dist)
+                             if species[1] in
+                             [sp.symbol for sp in nn.species_and_occu.keys()]]
                     dists = ", ".join(["%.3f" % d for d in sorted(dists)])
                     data.append([i, species[0], species[1], dists])
         print(tabulate(data, headers=["#", "Center", "Ligand", "Dists"]))
@@ -362,6 +365,93 @@ def generate_diffraction_plot(args):
         c.show_xrd_plot(s)
 
 
+def setup_potcar(args):
+    pspdir = os.path.abspath(args.input_potcar_dir)
+    targetdir = os.path.abspath(args.output_potcar_dir)
+
+    try:
+        os.makedirs(targetdir)
+    except OSError:
+        r = input("Destination directory exists. Continue (y/n)? ")
+        if r != "y":
+            print("Exiting ...")
+            sys.exit(0)
+
+    print("Generating pymatgen resources directory...")
+
+    NAME_MAPPINGS = {
+        "potpaw_PBE": "POT_GGA_PAW_PBE",
+        "potpaw_PBE_52": "POT_GGA_PAW_PBE_52",
+        "potpaw_PBE_54": "POT_GGA_PAW_PBE_54",
+        "potpaw_PBE.52": "POT_GGA_PAW_PBE_52",
+        "potpaw_PBE.54": "POT_GGA_PAW_PBE_54",
+        "potpaw_LDA": "POT_LDA_PAW",
+        "potpaw_LDA.52": "POT_LDA_PAW_52",
+        "potpaw_LDA.54": "POT_LDA_PAW_54",
+        "potpaw_LDA_52": "POT_LDA_PAW_52",
+        "potpaw_LDA_54": "POT_LDA_PAW_54",
+        "potUSPP_LDA": "POT_LDA_US",
+        "potpaw_GGA": "POT_GGA_PAW_PW91",
+        "potUSPP_GGA": "POT_GGA_US_PW91"
+    }
+
+    for (parent, subdirs, files) in os.walk(pspdir):
+        basename = os.path.basename(parent)
+        basename = NAME_MAPPINGS.get(basename, basename)
+        for subdir in subdirs:
+            filenames = glob.glob(os.path.join(parent, subdir, "POTCAR*"))
+            if len(filenames) > 0:
+                try:
+                    basedir = os.path.join(targetdir, basename)
+                    if not os.path.exists(basedir):
+                        os.makedirs(basedir)
+                    fname = filenames[0]
+                    dest = os.path.join(basedir, os.path.basename(fname))
+                    shutil.copy(fname, dest)
+                    ext = fname.split(".")[-1]
+                    if ext.upper() in ["Z", "GZ"]:
+                        subprocess.Popen(["gunzip", dest]).communicate()
+                    elif ext.upper() in ["BZ2"]:
+                        subprocess.Popen(["bunzip2", dest]).communicate()
+                    if subdir == "Osmium":
+                        subdir = "Os"
+                    dest = os.path.join(basedir, "POTCAR.{}".format(subdir))
+                    shutil.move(os.path.join(basedir, "POTCAR"), dest)
+                    subprocess.Popen(["gzip", "-f", dest]).communicate()
+                except Exception as ex:
+                    print("An error has occured. Message is %s. Trying to "
+                          "continue... " % str(ex))
+
+    print("")
+    print("PSP resources directory generated. It is recommended that you add "
+          "the following to your environment or .bash_profile if you are on "
+          "Unix-based systems.")
+    print("export VASP_PSP_DIR=\"%s\"" % os.path.abspath(targetdir))
+    if os.name == "posix":
+        r = input("Do you want us to try to automatically do this? (y/n)")
+        if r == "y":
+            bash_file = os.path.join(os.environ["HOME"], ".bash_profile")
+            if os.path.exists(bash_file):
+                with open(bash_file) as f:
+                    contents = f.read()
+                contents += "\n#Added by pymatgen\n"
+                contents += "export VASP_PSP_DIR=\"%s\"\n" % os.path.abspath(
+                    targetdir)
+                r = input("We can also add your Materials Project API key to "
+                          "the MAPI_KEY environment variable. This makes it "
+                          "easier to use MPRester without having to enter "
+                          "your API key each time. Enter an API key (from "
+                          "https://www.materialsproject.org/dashboard) to do "
+                          "this: ")
+                if r:
+                    contents += "export MAPI_KEY=\"%s\"\n" % r
+                with open(bash_file, "w") as f:
+                    f.write(contents)
+    print("Start a new terminal to ensure that your environment variables "
+          "are properly set.")
+
+
+
 def main():
     parser = argparse.ArgumentParser(description="""
     pmg is a convenient script that uses pymatgen to perform many
@@ -374,6 +464,20 @@ def main():
     Last updated: {}""".format(__version__, __date__))
 
     subparsers = parser.add_subparsers()
+
+    parser_setup = subparsers.add_parser("setup", help="Setup pymatgen.")
+    parser_setup.add_argument("-i", "--input_potcar_dir",
+                              dest="input_potcar_dir", type=str, required=True,
+                              help="Initial directory where downloaded VASP "
+                                   "POTCARs are extracted to. This should be "
+                                   "the parent directory that contains the "
+                                   "POT_GGA_PAW_PBE or potpaw_PBE type "
+                                   "subdirectories.")
+    parser_setup.add_argument("-o", "--output_potcar_dir",
+                              dest="output_potcar_dir", type=str, required=True,
+                              help="Output directory where the "
+                                   "reorganized POTCARs will be stored.")
+    parser_setup.set_defaults(func=setup_potcar)
 
     parser_vasp = subparsers.add_parser("analyze", help="Vasp run analysis.")
     parser_vasp.add_argument("directories", metavar="dir", default=".",

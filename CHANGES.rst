@@ -1,6 +1,30 @@
 Change log
 ==========
 
+v3.2.5
+------
+* Improved potcar setup via "pmg setup", with MAPI setup.
+* Support for new POTCARs issued by VASP.
+* Improvements to ABINIT support.
+* Improvement to Boltztrap support, e.g., scissor band gap, etc.
+* Vasprun now issues warning when unconverged run is detected.
+
+v3.2.4
+------
+
+* GaussianOutput can now parse frequencies, normal modes and cartesian forces
+  (Xin Chen).
+* Support for Aiida<->pymatgen conversion by the Aiida development team (Andrius
+  Merkys).
+* Specialized BSVasprun parser that is ~2-3x faster than Vasprun.
+* Refactor the boltztrap package (merge a few methods together) and add several
+  new methods (power factor, seebeck...)
+* Support of the new PCM format in QChem 4.3
+* Local environment analysis to pmg script.
+* Deprecate prettytable in favor of tabulate package.
+* Improvements to MITNEBVaspInputSet.
+* Misc bug fixes.
+
 v3.2.3
 ------
 * Massive update to abinit support. Note that pymatgen.io.abinitio has 
