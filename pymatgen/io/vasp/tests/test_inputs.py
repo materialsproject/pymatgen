@@ -218,6 +218,16 @@ direct
         self.assertAlmostEqual(temperature, 900, 4,
                                'Temperature instantiated incorrectly')
 
+        poscar.set_temperature(700)
+        v = np.array(poscar.velocities)
+        for x in np.sum(v, axis=0):
+            self.assertAlmostEqual(
+                x, 0, 7, 'Velocities initialized with a net momentum')
+
+        temperature = struct[0].specie.atomic_mass.to("kg") * \
+            np.sum(v ** 2) / (3 * BOLTZMANN_CONST) * 1e10
+        self.assertAlmostEqual(temperature, 700, 4,
+                               'Temperature instantiated incorrectly')
 
     def test_write(self):
         filepath = os.path.join(test_dir, 'POSCAR')
