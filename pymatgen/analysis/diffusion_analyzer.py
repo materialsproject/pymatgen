@@ -615,6 +615,12 @@ class DiffusionAnalyzer(MSONable):
             p = multiprocessing.Pool(ncores)
             vaspruns = p.imap(_get_vasprun,
                              [(fp, step_skip) for fp in filepaths])
+            analyzer = cls.from_vaspruns(vaspruns, min_obs=min_obs,
+                smoothed=smoothed, specie=specie, initial_disp=initial_disp,
+                initial_structure=initial_structure, avg_nsteps=avg_nsteps)
+            p.close()
+            p.join()
+            return analyzer
         else:
             vaspruns = []
             offset = 0
@@ -624,10 +630,9 @@ class DiffusionAnalyzer(MSONable):
                 vaspruns.append(v)
                 # Recompute offset.
                 offset = (- (v.nionic_steps - offset)) % step_skip
-        return cls.from_vaspruns(vaspruns, min_obs=min_obs, smoothed=smoothed,
-                                 specie=specie, initial_disp=initial_disp,
-                                 initial_structure=initial_structure,
-                                 avg_nsteps=avg_nsteps)
+            return cls.from_vaspruns(vaspruns, min_obs=min_obs,
+                smoothed=smoothed, specie=specie, initial_disp=initial_disp,
+                initial_structure=initial_structure, avg_nsteps=avg_nsteps)
 
     def as_dict(self):
         return {
