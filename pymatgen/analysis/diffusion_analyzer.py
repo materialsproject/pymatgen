@@ -441,9 +441,12 @@ class DiffusionAnalyzer(MSONable):
                 initial strcture from which the current set of displacements
                 are computed.
         """
-        structure = structures[0]
+        p = []
+        for i, s in enumerate(structures):
+            if i == 0:
+                structure = s
+            p.append(np.array(s.frac_coords)[:, None])
 
-        p = [np.array(s.frac_coords)[:, None] for s in structures]
         if initial_structure is not None:
             p.insert(0, np.array(initial_structure.frac_coords)[:, None])
         else:
@@ -512,26 +515,31 @@ class DiffusionAnalyzer(MSONable):
                 initial strcture from which the current set of displacements
                 are computed.
         """
-        step_skip = vaspruns[0].ionic_step_skip or 1
 
-        final_structure = vaspruns[0].initial_structure
-        structures = []
-        for vr in vaspruns:
-            #check that the runs are continuous
-            fdist = pbc_diff(vr.initial_structure.frac_coords,
-                             final_structure.frac_coords)
-            if np.any(fdist > 0.001):
-                raise ValueError('initial and final structures do not '
-                                 'match.')
-            final_structure = vr.final_structure
+        def get_structures(vaspruns):
+            for i, vr in enumerate(vaspruns):
+                if i == 0:
+                    step_skip = vr.ionic_step_skip or 1
+                    final_structure = vr.initial_structure
+                    temperature = vr.parameters['TEEND']
+                    time_step = vr.parameters['POTIM']
+                    yield step_skip, temperature, time_step
+                #check that the runs are continuous
+                fdist = pbc_diff(vr.initial_structure.frac_coords,
+                                 final_structure.frac_coords)
+                if np.any(fdist > 0.001):
+                    raise ValueError('initial and final structures do not '
+                                     'match.')
+                final_structure = vr.final_structure
 
-            assert (vr.ionic_step_skip or 1) == step_skip
-            structures.extend([s['structure'] for s in vr.ionic_steps])
+                assert (vr.ionic_step_skip or 1) == step_skip
+                for s in vr.ionic_steps:
+                    yield s['structure']
 
-        temperature = vaspruns[0].parameters['TEEND']
-        time_step = vaspruns[0].parameters['POTIM']
+        s = get_structures(vaspruns)
+        step_skip, temperature, time_step = next(s)
 
-        return cls.from_structures(structures=structures, specie=specie,
+        return cls.from_structures(structures=s, specie=specie,
             temperature=temperature, time_step=time_step, step_skip=step_skip,
             smoothed=smoothed, min_obs=min_obs, avg_nsteps=avg_nsteps,
             initial_disp=initial_disp, initial_structure=initial_structure)
@@ -597,10 +605,8 @@ class DiffusionAnalyzer(MSONable):
         if ncores is not None and len(filepaths) > 1:
             import multiprocessing
             p = multiprocessing.Pool(ncores)
-            vaspruns = p.map(_get_vasprun,
+            vaspruns = p.imap(_get_vasprun,
                              [(fp, step_skip) for fp in filepaths])
-            p.close()
-            p.join()
         else:
             vaspruns = []
             offset = 0
@@ -674,7 +680,8 @@ def _get_vasprun(args):
     """
     Internal method to support multiprocessing.
     """
-    return Vasprun(args[0], ionic_step_skip=args[1])
+    return Vasprun(args[0], ionic_step_skip=args[1],
+                   parse_dos=False, parse_eigen=False)
 
 
 def fit_arrhenius(temps, diffusivities):
