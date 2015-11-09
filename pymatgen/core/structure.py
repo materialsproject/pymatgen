@@ -600,9 +600,6 @@ class IStructure(SiteCollection, MSONable):
         #znucl_type = np.rint(znucl_type)
         species = [znucl_type[typ-1] for typ in typat]
 
-        #print(lattice, species, coords)
-        #print(species)
-
         return cls(lattice, species, coords, validate_proximity=False,
                    to_unit_cell=False, coords_are_cartesian=coords_are_cartesian)
 
