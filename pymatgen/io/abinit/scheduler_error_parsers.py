@@ -211,6 +211,18 @@ class MemoryCancelError(AbstractError):
         return [(CorrectorProtocolApplication.decrease_mem,)]
 
 
+class MasterProcessMemoryCancelError(AbstractError):
+    """
+    Error due to exceeding the memory limit for the job on the master node.
+    """
+
+
+class SlaveProcessMemoryCancelError(AbstractError):
+    """
+    Error due to exceeding the memory limit for the job on a node different from the master.
+    """
+
+
 class NodeFailureError(AbstractError):
     """
     Error due the hardware failure of a specific node.
