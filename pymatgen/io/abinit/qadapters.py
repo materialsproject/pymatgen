@@ -429,6 +429,8 @@ limits:
         self._parse_limits(kwargs.pop("limits"))
         self._parse_job(kwargs.pop("job"))
 
+        self.set_master_mem_overhead(kwargs.pop("master_mem_overhead", 0))
+
         # List of dictionaries with the parameters used to submit jobs
         # The launcher will use this information to increase the resources
         self.launches = []
@@ -441,7 +443,6 @@ limits:
         # Initialize some values from the info reported in the partition.
         self.set_mpi_procs(self.min_cores)
         self.set_mem_per_proc(self.min_mem_per_proc)
-        self.set_master_mem_overhead(self.master_mem_overhead)
 
         # Final consistency check.
         self.validate_qparams()
@@ -486,7 +487,6 @@ limits:
         job = dd.pop('job')
         qa = make_qadapter(priority=priority, hardware=hardware, queue=queue, limits=limits, job=job)
         qa.set_mpi_procs(dd.pop('mpi_procs'))
-        qa.set_timelimit(dd.pop('timelimit'))
         qa.set_mem_per_proc(dd.pop('mem_per_proc'))
         qa.set_master_mem_overhead(dd.pop('master_mem_overhead'))
         dd.pop('@module', None)

@@ -327,7 +327,7 @@ limits:
     min_cores: 3
     max_cores: 200
     min_mem_per_proc: 2000
-    master_mem_overhead: 1000
+master_mem_overhead: 1000
 job:
     mpi_runner: mpirun
 hardware:
@@ -348,7 +348,7 @@ limits:
     min_cores: 3
     max_cores: 200
     min_mem_per_proc: 2000
-    master_mem_overhead: 1000
+master_mem_overhead: 1000
 job:
     mpi_runner: mpirun
 hardware:
