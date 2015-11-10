@@ -464,17 +464,17 @@ limits:
                           'qname': self._qname,
                           'qnodes': self.qnodes,
                           'qparams': self._qparams},
-                'limits': {'timelimit': self._timelimit,
+                'limits': {'timelimit_hard': self._timelimit_hard,
+                           'timelimit': self._timelimit,
                            'min_cores': self.min_cores,
                            'max_cores': self.max_cores,
                            'min_mem_per_proc': self.min_mem_per_proc,
                            'max_mem_per_proc': self.max_mem_per_proc,
-                           'master_mem_overhead': self.master_mem_overhead
                            },
                 'job': {},
                 'mpi_procs': self._mpi_procs,
                 'mem_per_proc': self._mem_per_proc,
-                'timelimit': self._timelimit,
+                'master_mem_overhead': self._master_mem_overhead
                 }
 
     @classmethod
@@ -488,6 +488,7 @@ limits:
         qa.set_mpi_procs(dd.pop('mpi_procs'))
         qa.set_timelimit(dd.pop('timelimit'))
         qa.set_mem_per_proc(dd.pop('mem_per_proc'))
+        qa.set_master_mem_overhead(dd.pop('master_mem_overhead'))
         dd.pop('@module', None)
         dd.pop('@class', None)
         if dd:
@@ -534,7 +535,6 @@ limits:
         # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
         self.min_mem_per_proc = qu.any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
         self.max_mem_per_proc = qu.any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
-        self._master_mem_overhead = qu.any2mb(d.pop("master_mem_overhead", 0))
 
         # Misc
         self.max_num_launches = int(d.pop("max_num_launches", 10))
