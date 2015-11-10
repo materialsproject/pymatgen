@@ -488,7 +488,7 @@ limits:
         qa = make_qadapter(priority=priority, hardware=hardware, queue=queue, limits=limits, job=job)
         qa.set_mpi_procs(dd.pop('mpi_procs'))
         qa.set_mem_per_proc(dd.pop('mem_per_proc'))
-        qa.set_master_mem_overhead(dd.pop('master_mem_overhead'))
+        qa.set_master_mem_overhead(dd.pop('master_mem_overhead', 0))
         dd.pop('@module', None)
         dd.pop('@class', None)
         if dd:
