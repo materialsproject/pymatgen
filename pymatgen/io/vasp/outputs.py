@@ -24,7 +24,6 @@ import glob
 import re
 import math
 import itertools
-import warnings
 from io import StringIO
 import logging
 from collections import defaultdict
@@ -953,6 +952,7 @@ class Vasprun(MSONable):
         real = [[float(l) for l in r.text.split()]
                 for r in elem.find("real")
                     .find("array").find("set").findall("r")]
+        elem.clear()
         return [e[0] for e in imag], \
                [e[1:] for e in real], [e[1:] for e in imag]
 
