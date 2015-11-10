@@ -489,6 +489,9 @@ limits:
         qa.set_mpi_procs(dd.pop('mpi_procs'))
         qa.set_mem_per_proc(dd.pop('mem_per_proc'))
         qa.set_master_mem_overhead(dd.pop('master_mem_overhead', 0))
+        timelimit = dd.pop('timelimit', None)
+        if timelimit is not None:
+            qa.set_timelimit(timelimit=timelimit)
         dd.pop('@module', None)
         dd.pop('@class', None)
         if dd:
