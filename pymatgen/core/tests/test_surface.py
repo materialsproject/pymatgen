@@ -220,10 +220,23 @@ class SlabGeneratorTest(PymatgenTest):
             TeI_slabs = trclnc_TeI.get_slabs()
             self.assertEqual(v, len(TeI_slabs))
 
+    def test_get_orthogonal_c_slab(self):
+        TeI = Structure.from_file(get_path("icsd_TeI.cif"),
+                                  primitive=False)
+        trclnc_TeI = SlabGenerator(TeI, (0, 0, 1), 10, 10)
+        TeI_slabs = trclnc_TeI.get_slabs()
+        slab = TeI_slabs[0]
+        norm_slab = slab.get_orthogonal_c_slab()
+        self.assertAlmostEqual(norm_slab.lattice.angles[0], 90)
+        self.assertAlmostEqual(norm_slab.lattice.angles[1], 90)
+
 
 class FuncTest(PymatgenTest):
+
     def setUp(self):
-        self.cscl = self.get_structure("CsCl")
+        self.cscl = Structure.from_spacegroup(
+            "Pm-3m", Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+
         self.lifepo4 = self.get_structure("LiFePO4")
         self.tei = Structure.from_file(get_path("icsd_TeI.cif"),
                                        primitive=False)
@@ -257,6 +270,7 @@ class FuncTest(PymatgenTest):
         self.assertEqual(len(indices), 12)
 
     def test_generate_all_slabs(self):
+
         slabs = generate_all_slabs(self.cscl, 1, 10, 10)
 
         # Only three possible slabs, one each in (100), (110) and (111).

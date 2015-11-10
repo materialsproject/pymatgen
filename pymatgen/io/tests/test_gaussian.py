@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -50,7 +52,7 @@ class GaussianInputTest(unittest.TestCase):
         self.assertRaises(ValueError, GaussianInput, mol, spin_multiplicity=1)
 
     def test_str_and_from_string(self):
-        ans = """#P HF/6-31G(d) SCF=Tight SP Test
+        ans = """#P HF/6-31G(d) SCF=Tight SP
 
 H4 C1
 
@@ -137,6 +139,45 @@ Sites (6)
         gau = GaussianInput.from_string(gau_str)
         self.assertEqual("X3SiH4", gau.molecule.composition.reduced_formula)
 
+    def test_gen_basis(self):
+        gau_str = """#N B3LYP/Gen Pseudo=Read
+
+Test
+
+0 1
+C
+H 1 B1
+H 1 B2 2 A2
+H 1 B3 2 A3 3 D3
+H 1 B4 2 A4 4 D4
+
+B1=1.089000
+B2=1.089000
+A2=109.471221
+B3=1.089000
+A3=109.471213
+D3=120.000017
+B4=1.089000
+A4=109.471213
+D4=119.999966
+
+C 0
+6-31G(d,p)
+****
+H 0
+6-31G
+****
+
+
+
+"""
+        mol = Molecule(["C", "H", "H", "H", "H"], self.coords)
+        gen_basis = "C 0\n6-31G(d,p)\n****\nH 0\n6-31G\n****"
+        gau = GaussianInput(mol, functional="B3LYP", gen_basis=gen_basis,
+                            dieze_tag="#N", route_parameters={"Pseudo": "Read"},
+                            title="Test")
+        self.assertEqual(gau.to_string(cart_coords=False), gau_str)
+
 
 class GaussianOutputTest(unittest.TestCase):
     # todo: Add unittest for PCM type output.
@@ -151,15 +192,43 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual(len(gau.structures), 4)
         for mol in gau.structures:
             self.assertEqual(mol.formula, 'H4 C1')
-        self.assertIn("OPT", gau.route)
+        self.assertIn("opt", gau.route)
         self.assertEqual("Minimum", gau.stationary_type)
-        self.assertEqual("HF", gau.functional)
+        self.assertEqual("hf", gau.functional)
         self.assertEqual("3-21G", gau.basis_set)
         self.assertEqual(17, gau.num_basis_func)
         d = gau.as_dict()
-        self.assertEqual(d["input"]["functional"], "HF")
+        self.assertEqual(d["input"]["functional"], "hf")
         self.assertAlmostEqual(d["output"]["final_energy"], -39.9768775602)
+        self.assertEqual(len(gau.cart_forces), 3)
+        self.assertEqual(gau.cart_forces[0][ 5],  0.009791094)
+        self.assertEqual(gau.cart_forces[0][-1], -0.003263698)
+        self.assertEqual(gau.cart_forces[2][-1], -0.000000032)
 
+        ch2o_co2 = GaussianOutput(os.path.join(test_dir, "CH2O_CO2.log"))
+        self.assertEqual(len(ch2o_co2.frequencies), 2)
+        self.assertEqual(ch2o_co2.frequencies[0][0][0], 1203.1940)
+        self.assertListEqual(ch2o_co2.frequencies[0][1][1], [ 0.15, 0.00, 0.00,
+                                                             -0.26, 0.65, 0.00,
+                                                             -0.26,-0.65, 0.00,
+                                                             -0.08, 0.00, 0.00])
+        self.assertListEqual(ch2o_co2.frequencies[1][3][1], [ 0.00, 0.00, 0.88,
+                                                              0.00, 0.00,-0.33,
+                                                              0.00, 0.00,-0.33])
+        
+    def test_scan(self):
+        gau = GaussianOutput(os.path.join(test_dir, "so2_scan.log"))
+        d = gau.read_scan()
+        self.assertAlmostEqual(-548.02102, d["energies"][-1])
+        self.assertEqual(len(d["coords"]), 1)
+        self.assertEqual(len(d["energies"]), len(gau.energies))
+        self.assertEqual(len(d["energies"]), 21)
+    
+    def test_td(self):
+        gau = GaussianOutput(os.path.join(test_dir, "so2_td.log"))
+        transitions = gau.read_excitation_energies()
+        self.assertEqual(len(transitions), 4)
+        self.assertAlmostEqual(transitions[0], (3.9281, 315.64, 0.0054))
 
 if __name__ == "__main__":
     unittest.main()

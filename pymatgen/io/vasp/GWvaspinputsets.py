@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals, print_function
 
@@ -24,7 +26,7 @@ from monty.serialization import loadfn
 
 from pymatgen.io.vasp.inputs import Kpoints, Potcar
 from pymatgen.io.vasp.sets import DictVaspInputSet
-from pymatgen.io.abinitio.helpers import s_name
+from pymatgen.io.abinit.helpers import s_name
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 

@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -58,7 +60,7 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
     return plt
 
 
-def get_ax_fig_plt(ax):
+def get_ax_fig_plt(ax=None):
     """
     Helper function used in plot functions supporting an optional Axes argument.
     If ax is None, we build the `matplotlib` figure and create the Axes else
@@ -135,15 +137,15 @@ def add_fig_kwargs(func):
                                 **size_kwargs)
 
         if savefig: fig.savefig(savefig)
+        if tight_layout: fig.tight_layout()
         if show:
             import matplotlib.pyplot as plt
             plt.show()
 
-        if tight_layout: fig.tight_layout()
-
         return fig
 
 
+    # Add docstring to the decorated method.
     s = "\n" + """\
     keyword arguments controlling the display of the figure:
 
@@ -151,7 +153,7 @@ def add_fig_kwargs(func):
     kwargs            Meaning
     ================  ====================================================
     title             Title of the plot (Default: None).
-    show              True to show the figure (Default True).
+    show              True to show the figure (default: True).
     savefig           'abc.png' or 'abc.eps' to save the figure to a file.
     size_kwargs       Dictionary with options passed to fig.set_size_inches
                       example: size_kwargs=dict(w=3, h=4)

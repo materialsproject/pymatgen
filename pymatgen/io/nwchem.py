@@ -1,11 +1,27 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
 """
 This module implements input and output processing from Nwchem.
-"""
 
+2015/09/21 - Xin Chen (chenxin13@mails.tsinghua.edu.cn):
+
+    NwOutput will read new kinds of data:
+        1. normal hessian matrix.       ["hessian"]
+        2. projected hessian matrix.    ["projected_hessian"]
+        3. normal frequencies.          ["normal_frequencies"]
+
+    For backward compatibility, the key for accessing the projected frequencies
+    is still 'frequencies'.
+
+2015/10/12 - Xin Chen
+    NwOutput will read new kinds of data:
+        1. forces.                      ["forces"]
+
+"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -13,6 +29,7 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "6/5/13"
+
 
 import re
 from string import Template
@@ -23,12 +40,12 @@ from six.moves import zip
 from monty.io import zopen
 
 from pymatgen.core import Molecule,Structure
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.core.units import Energy
 from pymatgen.core.units import FloatWithUnit
 
 
-class NwTask(PMGSONable):
+class NwTask(MSONable):
     """
     Base task for Nwchem.
     """
@@ -264,7 +281,7 @@ task $theory $operation""")
         return NwTask.from_molecule(mol, theory="esp", **kwargs)
 
 
-class NwInput(PMGSONable):
+class NwInput(MSONable):
     """
     An object representing a Nwchem input file, which is essentially a list
     of tasks on a particular molecule.
@@ -490,35 +507,40 @@ class NwOutput(object):
 
     def _parse_job(self, output):
         energy_patt = re.compile("Total \w+ energy\s+=\s+([\.\-\d]+)")
-
-        #In cosmo solvation results; gas phase energy = -152.5044774212
-
         energy_gas_patt = re.compile("gas phase energy\s+=\s+([\.\-\d]+)")
-
-        #In cosmo solvation results; sol phase energy = -152.5044774212
-
         energy_sol_patt = re.compile("sol phase energy\s+=\s+([\.\-\d]+)")
-
         coord_patt = re.compile("\d+\s+(\w+)\s+[\.\-\d]+\s+([\.\-\d]+)\s+"
                                 "([\.\-\d]+)\s+([\.\-\d]+)")
-
         lat_vector_patt = re.compile("a[123]=<\s+([\.\-\d]+)\s+"
                                      "([\.\-\d]+)\s+([\.\-\d]+)\s+>")
-
         corrections_patt = re.compile("([\w\-]+ correction to \w+)\s+="
                                       "\s+([\.\-\d]+)")
         preamble_patt = re.compile("(No. of atoms|No. of electrons"
                                    "|SCF calculation type|Charge|Spin "
                                    "multiplicity)\s*:\s*(\S+)")
+        force_patt = re.compile("\s+(\d+)\s+(\w+)" + 6 * "\s+([0-9\.\-]+)")
+
         error_defs = {
             "calculations not reaching convergence": "Bad convergence",
             "Calculation failed to converge": "Bad convergence",
             "geom_binvr: #indep variables incorrect": "autoz error",
             "dft optimize failed": "Geometry optimization failed"}
 
+        fort2py = lambda x : x.replace("D", "e")
+        isfloatstring = lambda s : s.find(".") == -1
+
+        parse_hess = False
+        parse_proj_hess = False
+        hessian = None
+        projected_hessian = None
+        parse_force = False
+        all_forces = []
+        forces = []
+
         data = {}
         energies = []
         frequencies = None
+        normal_frequencies = None
         corrections = {}
         molecules = []
         structures = []
@@ -531,6 +553,7 @@ class NwOutput(object):
         parse_geom = False
         parse_freq = False
         parse_bset = False
+        parse_projected_freq = False
         job_type = ""
         for l in output.split("\n"):
             for e, v in error_defs.items():
@@ -557,16 +580,39 @@ class NwOutput(object):
                     if m:
                         lattice.append([float(m.group(1)), float(m.group(2)),
                                         float(m.group(3))])
-            if parse_freq:
+
+            if parse_force:
+                m = force_patt.search(l)
+                if m:
+                    forces.extend(map(float, m.groups()[5:]))
+                elif len(forces) > 0:
+                    all_forces.append(forces)
+                    forces = []
+                    parse_force = False
+
+            elif parse_freq:
                 if len(l.strip()) == 0:
-                    if len(frequencies[-1][1]) == 0:
+                    if len(normal_frequencies[-1][1]) == 0:
                         continue
                     else:
                         parse_freq = False
                 else:
                     vibs = [float(vib) for vib in l.strip().split()[1:]]
                     num_vibs = len(vibs)
-                    for mode, dis in zip(frequencies[-num_vibs:], vibs):
+                    for mode, dis in zip(normal_frequencies[-num_vibs:], vibs):
+                        mode[1].append(dis)
+
+            elif parse_projected_freq:
+                if len(l.strip()) == 0:
+                    if len(frequencies[-1][1]) == 0:
+                        continue
+                    else:
+                        parse_projected_freq = False
+                else:
+                    vibs = [float(vib) for vib in l.strip().split()[1:]]
+                    num_vibs = len(vibs)
+                    for mode, dis in zip(
+                            frequencies[-num_vibs:], vibs):
                         mode[1].append(dis)
 
             elif parse_bset:
@@ -581,6 +627,47 @@ class NwOutput(object):
                         bset_header = toks
                         bset_header.pop(4)
                         bset_header = [h.lower() for h in bset_header]
+
+            elif parse_hess:
+                if l.strip() == "":
+                    continue
+                if len(hessian) > 0 and l.find("----------") != -1:
+                    parse_hess = False
+                    continue
+                toks = l.strip().split()
+                if len(toks) > 1:
+                    try:
+                        row = int(toks[0])
+                    except Exception as e:
+                        continue
+                    if isfloatstring(toks[1]):
+                        continue
+                    vals = [float(fort2py(x)) for x in toks[1:]]
+                    if len(hessian) < row:
+                        hessian.append(vals)
+                    else:
+                        hessian[row - 1].extend(vals)
+
+            elif parse_proj_hess:
+                if l.strip() == "":
+                    continue
+                nat3 = len(hessian)
+                toks = l.strip().split()
+                if len(toks) > 1:
+                    try:
+                        row = int(toks[0])
+                    except Exception as e:
+                        continue
+                    if isfloatstring(toks[1]):
+                        continue
+                    vals = [float(fort2py(x)) for x in toks[1:]]
+                    if len(projected_hessian) < row:
+                        projected_hessian.append(vals)
+                    else:
+                        projected_hessian[row - 1].extend(vals)
+                    if len(projected_hessian[-1]) == nat3:
+                        parse_proj_hess = False
+
             else:
                 m = energy_patt.search(l)
                 if m:
@@ -614,11 +701,33 @@ class NwOutput(object):
                 elif l.find("Summary of \"ao basis\"") != -1:
                     parse_bset = True
                 elif l.find("P.Frequency") != -1:
-                    parse_freq = True
-                    if not frequencies:
+                    parse_projected_freq = True
+                    if frequencies is None:
                         frequencies = []
-                    frequencies.extend([(float(freq), []) for freq
-                                        in l.strip().split()[1:]])
+                    toks = l.strip().split()[1:]
+                    frequencies.extend([(float(freq), []) for freq in toks])
+
+                elif l.find("Frequency") != -1:
+                    toks = l.strip().split()
+                    if len(toks) > 1 and toks[0] == "Frequency":
+                        parse_freq = True
+                        if normal_frequencies is None:
+                            normal_frequencies = []
+                        normal_frequencies.extend([(float(freq), []) for freq
+                                                   in l.strip().split()[1:]])
+
+                elif l.find("MASS-WEIGHTED NUCLEAR HESSIAN") != -1:
+                    parse_hess = True
+                    if not hessian:
+                        hessian = []
+                elif l.find("MASS-WEIGHTED PROJECTED HESSIAN") != -1:
+                    parse_proj_hess = True
+                    if not projected_hessian:
+                        projected_hessian = []
+
+                elif l.find("atom               coordinates                        gradient") != -1:
+                    parse_force = True
+
                 elif job_type == "" and l.strip().startswith("NWChem"):
                     job_type = l.strip()
                     if job_type == "NWChem DFT Module" and \
@@ -629,9 +738,24 @@ class NwOutput(object):
                     if m:
                         corrections[m.group(1)] = FloatWithUnit(
                             m.group(2), "kJ mol^-1").to("eV atom^-1")
+
         if frequencies:
             for freq, mode in frequencies:
                 mode[:] = zip(*[iter(mode)]*3)
+        if normal_frequencies:
+            for freq, mode in normal_frequencies:
+                mode[:] = zip(*[iter(mode)]*3)
+        if hessian:
+            n = len(hessian)
+            for i in range(n):
+                for j in range(i + 1, n):
+                    hessian[i].append(hessian[j][i])
+        if projected_hessian:
+            n = len(projected_hessian)
+            for i in range(n):
+                for j in range(i + 1, n):
+                    projected_hessian[i].append(projected_hessian[j][i])
+
         data.update({"job_type": job_type, "energies": energies,
                      "corrections": corrections,
                      "molecules": molecules,
@@ -639,6 +763,10 @@ class NwOutput(object):
                      "basis_set": basis_set,
                      "errors": errors,
                      "has_error": len(errors) > 0,
-                     "frequencies": frequencies})
+                     "frequencies": frequencies,
+                     "normal_frequencies": normal_frequencies,
+                     "hessian": hessian,
+                     "projected_hessian": projected_hessian,
+                     "forces": all_forces})
 
         return data

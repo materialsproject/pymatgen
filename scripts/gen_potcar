@@ -1,9 +1,9 @@
-# coding: utf-8
 #!/usr/bin/env python
+# coding: utf-8
 
 import os
 
-from pymatgen.io.vaspio import Potcar
+from pymatgen.io.vasp import Potcar
 
 
 def proc_dir(dirname, procfilefunction):

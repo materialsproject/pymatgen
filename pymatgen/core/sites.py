@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -20,12 +22,12 @@ import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
     get_el_sp
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.util.coord_utils import pbc_diff
 from pymatgen.core.composition import Composition
 
 
-class Site(collections.Mapping, collections.Hashable, PMGSONable):
+class Site(collections.Mapping, collections.Hashable, MSONable):
     """
     A generalized *non-periodic* site. This is essentially a composition
     at a point in space, with some optional properties associated with it. A
@@ -273,7 +275,7 @@ class Site(collections.Mapping, collections.Hashable, PMGSONable):
         return cls(atoms_n_occu, d["xyz"], properties=props)
 
 
-class PeriodicSite(Site, PMGSONable):
+class PeriodicSite(Site, MSONable):
     """
     Extension of generic Site object to periodic systems.
     PeriodicSite includes a lattice system.

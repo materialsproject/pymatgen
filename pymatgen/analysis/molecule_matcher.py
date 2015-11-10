@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -24,7 +26,7 @@ import abc
 import itertools
 import copy
 
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from monty.dev import requires
 from pymatgen.io.babel import BabelMolAdaptor
 import six
@@ -35,7 +37,7 @@ except ImportError:
     ob = None
 
 
-class AbstractMolAtomMapper(six.with_metaclass(abc.ABCMeta, PMGSONable)):
+class AbstractMolAtomMapper(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Abstract molecular atom order mapping class. A mapping will be able to
     find the uniform atom order of two molecules that can pair the
@@ -540,7 +542,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         return inchi
 
 
-class MoleculeMatcher(PMGSONable):
+class MoleculeMatcher(MSONable):
     """
     Class to match molecules and identify whether molecules are the same.
 

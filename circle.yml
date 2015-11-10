@@ -16,7 +16,8 @@ dependencies:
     - python setup.py develop
 test:
   override:
-    - nosetests -v:
+    - find . -name "*.pyc" -exec rm '{}' \;
+    - python run_circle.py:
         timeout: 720
     # Some rudimentary command line tests for pmg
     - pmg convert test_files/Li2O.cif POSCAR.pmg

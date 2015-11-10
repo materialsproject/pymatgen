@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -24,10 +26,10 @@ from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord_utils import get_linear_interpolated_value
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 
 
-class Dos(PMGSONable):
+class Dos(MSONable):
     """
     Basic DOS object. All other DOS objects are extended versions of this
     object.

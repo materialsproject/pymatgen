@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -21,7 +23,7 @@ import numpy as np
 import warnings
 
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
-    Vasprun, Procar, Xdatcar, Dynmat
+    Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
@@ -133,10 +135,19 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(d["nelements"], 4)
 
         filepath = os.path.join(test_dir, 'vasprun.xml.unconverged')
-        vasprun_unconverged = Vasprun(filepath, parse_potcar_file=False)
-        self.assertTrue(vasprun_unconverged.converged_ionic)
-        self.assertFalse(vasprun_unconverged.converged_electronic)
-        self.assertFalse(vasprun_unconverged.converged)
+        with warnings.catch_warnings(record=True) as w:
+            # Cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+            # Trigger a warning.
+            vasprun_unconverged = Vasprun(filepath, parse_potcar_file=False)
+            # Verify some things
+            self.assertEqual(len(w), 1)
+            self.assertTrue(issubclass(w[-1].category,
+                                       UnconvergedVASPWarning))
+
+            self.assertTrue(vasprun_unconverged.converged_ionic)
+            self.assertFalse(vasprun_unconverged.converged_electronic)
+            self.assertFalse(vasprun_unconverged.converged)
 
         filepath = os.path.join(test_dir, 'vasprun.xml.dfpt')
         vasprun_dfpt = Vasprun(filepath, parse_potcar_file=False)
@@ -369,6 +380,16 @@ class OutcarTest(unittest.TestCase):
             self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
             self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
 
+    def test_elastic_tensor(self):
+        filepath = os.path.join(test_dir, "OUTCAR.total_tensor.Li2O.gz")
+        outcar = Outcar(filepath)
+
+        elastic_tensor = outcar.elastic_tensor
+
+        self.assertAlmostEqual(elastic_tensor[0][0], 1986.3391)
+        self.assertAlmostEqual(elastic_tensor[0][1], 187.8324)
+        self.assertAlmostEqual(elastic_tensor[3][3], 586.3034)
+
     def test_core_state_eigen(self):
         filepath = os.path.join(test_dir, "OUTCAR.CL")
         cl = Outcar(filepath).read_core_state_eigen()
@@ -395,6 +416,29 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(outcar.total_mag, 8.2e-06)
 
         self.assertIsNotNone(outcar.as_dict())
+
+class BSVasprunTest(unittest.TestCase):
+
+    def test_get_band_structure(self):
+        filepath = os.path.join(test_dir, 'vasprun_Si_bands.xml')
+        vasprun = BSVasprun(filepath, parse_potcar_file=False)
+        bs = vasprun.get_band_structure(kpoints_filename=
+                                        os.path.join(test_dir,
+                                                     'KPOINTS_Si_bands'))
+        cbm = bs.get_cbm()
+        vbm = bs.get_vbm()
+        self.assertEqual(cbm['kpoint_index'], [13], "wrong cbm kpoint index")
+        self.assertAlmostEqual(cbm['energy'], 6.2301, "wrong cbm energy")
+        self.assertEqual(cbm['band_index'], {Spin.up: [4], Spin.down: [4]},
+                         "wrong cbm bands")
+        self.assertEqual(vbm['kpoint_index'], [0, 63, 64],
+                         "wrong vbm kpoint index")
+        self.assertAlmostEqual(vbm['energy'], 5.6158, "wrong vbm energy")
+        self.assertEqual(vbm['band_index'], {Spin.up: [1, 2, 3],
+                                             Spin.down: [1, 2, 3]},
+                         "wrong vbm bands")
+        self.assertEqual(vbm['kpoint'].label, "\Gamma", "wrong vbm label")
+        self.assertEqual(cbm['kpoint'].label, None, "wrong cbm label")
 
 
 class OszicarTest(unittest.TestCase):
@@ -472,14 +516,14 @@ class XdatcarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'XDATCAR_4')
         x = Xdatcar(filepath)
         structures = x.structures
-        self.assertEqual(len(structures), 3)
+        self.assertEqual(len(structures), 4)
         for s in structures:
             self.assertEqual(s.formula, "Li2 O1")
 
         filepath = os.path.join(test_dir, 'XDATCAR_5')
         x = Xdatcar(filepath)
         structures = x.structures
-        self.assertEqual(len(structures), 3)
+        self.assertEqual(len(structures), 4)
         for s in structures:
             self.assertEqual(s.formula, "Li2 O1")
 

@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -22,56 +24,8 @@ from pymatgen.transformations.standard_transformations import \
     IdentityTransformation
 import json
 
-from monty.json import MontyEncoder, MontyDecoder, MSONError
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MontyEncoder, MontyDecoder
 import datetime
-import numpy as np
-
-
-class PMGSONableTest(unittest.TestCase):
-
-    def setUp(self):
-        class GoodMSONClass(PMGSONable):
-
-            def __init__(self, a, b):
-                self.a = a
-                self.b = b
-
-            def as_dict(self):
-                d = {'a': self.a, 'b': self.b}
-                return d
-
-            @classmethod
-            def from_dict(cls, d):
-                return GoodMSONClass(d['a'], d['b'])
-
-        self.good_cls = GoodMSONClass
-
-        class BadMSONClass(PMGSONable):
-
-            def __init__(self, a, b):
-                self.a = a
-                self.b = b
-
-            def as_dict(self):
-                d = {'a': self.a, 'b': self.b}
-                return d
-
-        self.bad_cls = BadMSONClass
-
-    def test_to_from_dict(self):
-        obj = self.good_cls("Hello", "World")
-        d = obj.as_dict()
-        self.assertIsNotNone(d)
-        self.good_cls.from_dict(d)
-        obj = self.bad_cls("Hello", "World")
-        d = obj.as_dict()
-        self.assertIsNotNone(d)
-        self.assertRaises(MSONError, self.bad_cls.from_dict, d)
-
-    def test_to_json(self):
-        obj = self.good_cls("Hello", "World")
-        self.assertIsNotNone(obj.to_json)
 
 
 class MontyTest(unittest.TestCase):

@@ -192,12 +192,30 @@ POTCAR Setup
 
 For the code to generate POTCAR files, it needs to know where the VASP
 pseudopotential files are.  We are not allowed to distribute these under the
-VASP license. The good news is that we have included a setup script to help you
-along.
+VASP license. The good news is that the `pmg` command line utility includes a
+setup functionality.
 
 After installation, do::
 
-    potcar_setup.py
+    pmg setup --input_potcar_dir <EXTRACTED_VASP_POTCAR> --output_potcar_dir <MY_PSP>
+
+In the above, `<EXTRACTED_VASP_POTCAR>` is the location of the directory that
+you extracted the downloaded VASP pseudopotential files. Typically, it has
+the following format::
+
+    - <EXTRACTED_VASP_POTCAR>
+    |- POT_GGA_PAW_PBE
+    ||- Ac_s
+    |||-POTCAR
+    |||-...
+
+or::
+
+    - <EXTRACTED_VASP_POTCAR>
+    |- potpaw_PBE
+    ||- Ac_s
+    |||-POTCAR
+    |||-...
 
 and follow the instructions. If you have done it correctly, you should get a
 resources directory with the following directory structure::
@@ -213,7 +231,8 @@ resources directory with the following directory structure::
 
 After generating the resources directory, you should add a VASP_PSP_DIR
 environment variable pointing to the generated directory and you should then be
-able to generate POTCARs.
+able to generate POTCARs. The setup also provides options to do this
+automatically and setup for Materials API usage as well.
 
 Setup for Developers (using GitHub)
 ===================================
@@ -244,48 +263,6 @@ Please feel free to send in suggestions to update the instructions based on
 your experiences. In all the instructions, it is assumed that you have standard
 gcc and other compilers (e.g., Xcode on Macs) already installed.
 
-Scipy (tested on v0.10.1)
--------------------------
-
-Mac OS X 10.7 - 10.8
-~~~~~~~~~~~~~~~~~~~~
-
-Typical installation of Xcode with python setup.py install seems to work fine.
-The pre-compiled binary for OSX 10.6 also seems to work.
-
-Matplotlib (tested on v1.10)
-----------------------------
-
-Mac OS X 10.7 - 10.8
-~~~~~~~~~~~~~~~~~~~~
-
-This setup assumes you have the latest version of python (2.7 as of this is written)
-and numpy already installed. You will need to set the compiler flags to build
-matplotlib from source.
-
-::
-
-	export CFLAGS="-arch x86_64 -I/usr/X11/include -I/usr/X11/include/freetype2"
-	export LDFLAGS="-arch x86_64 -L/usr/X11/lib"
-	python setup.py build
-	sudo python setup.py install
-
-Solaris 10
-~~~~~~~~~~
-
-First install solstudio 12.2. Then put the following code in a shell script and
-run it.
-
-::
-
-	#!/bin/bash
-	PATH=/opt/solstudio12.2/bin:/usr/ccs/bin:/usr/bin:/usr/sfw/bin:/usr/sbin; export PATH
-	ATLAS=None; export ATLAS
-	BLAS=/opt/solstudio12.2/lib/libsunperf.so; export BLAS
-	LAPACK=/opt/solstudio12.2/lib/libsunmath.so; export LAPACK
-	python setup.py build
-	python setup.py install
-
 VTK (tested on v5.10.0 - 6.1.0)
 -------------------------------
 
@@ -295,15 +272,17 @@ Mac OS X 10.7 - 10.9
 The easiest is to install cmake from
 http://cmake.org/cmake/resources/software.html.
 
-Type the following:
-
-::
+Type the following::
 
 	cd VTK (this is the directory you expanded VTK into)
-	cmake -i (this uses cmake in an interactive manner)
+	mkdir build
+	cd build
+	ccmake .. (this uses cmake in an interactive manner)
 
-For all options, use the defaults, EXCEPT for BUILD_SHARED_LIBS and
-VTK_WRAP_PYTHON which must be set to ON. You may also need to modify the python
+Press "t" to toggle advanced mode. Then press "c" to do an initial
+configuration. After the list of parameters come out, ensure that the
+PYTHON_VERSION is set to 2, the VTK_WRAP_PYTHON is set to ON, and
+BUILD_SHARED_LIBS is set to ON. You may also need to modify the python
 paths and library paths if they are in non-standard locations. For example, if
 you have installed the official version of Python instead of using the
 Mac-provided version, you will probably need to edit the CMakeCache Python
@@ -333,7 +312,8 @@ need to be modified are shown):
     Cocoa garbage collection, but was configured to built with support for it on.
     You can simply remove the -fobjc-gc flag from VTK_REQUIRED_OBJCXX_FLAGS.
 
-After the CMakeCache.txt file is generated, type:
+Then press "c" again to configure and finally "g" to generate the required
+make files After the CMakeCache.txt file is generated, type:
 
 ::
 
@@ -407,7 +387,8 @@ Here are the steps that I took to make it work:
         //Path to a library.
         PYTHON_LIBRARY:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib
 
-12. If you are using Mavericks (OSX 10.9) and encounter errors relating to <tr1/memory>, you might also need to include the following flag in your CMakeCache.txt::
+12. If you are using Mavericks (OSX 10.9) and encounter errors relating to <tr1/memory>, you might also need to include
+    the following flag in your CMakeCache.txt::
 
 		CMAKE_CXX_FLAGS:STRING=-stdlib=libstdc++
 

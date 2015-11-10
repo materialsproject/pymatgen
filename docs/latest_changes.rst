@@ -1,9 +1,10 @@
 Change log
 ==========
 
-v3.1.6
+v3.2.5
 ------
-* Rudimentary PWSCF output reading.
-* Fix ASE support.
-* Support for WAVEDERF and reading multiple dielectricfunctions in vasprun.xml. 
-  (Miguel Dias Costa)
+* Improved potcar setup via "pmg setup", with MAPI setup.
+* Support for new POTCARs issued by VASP.
+* Improvements to ABINIT support.
+* Improvement to Boltztrap support, e.g., scissor band gap, etc.
+* Vasprun now issues warning when unconverged run is detected.

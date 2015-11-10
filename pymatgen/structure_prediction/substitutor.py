@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -20,7 +22,7 @@ import logging
 from operator import mul
 import six
 
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.structure_prediction.substitution_probability \
     import SubstitutionProbability
 from pymatgen.transformations.standard_transformations \
@@ -30,7 +32,7 @@ from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.alchemy.filters import RemoveDuplicatesFilter, RemoveExistingFilter
 
 
-class Substitutor(PMGSONable):
+class Substitutor(MSONable):
     """
     This object uses a data mined ionic substitution approach to propose
     compounds likely to be stable. It relies on an algorithm presented in

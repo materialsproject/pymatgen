@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -520,12 +522,23 @@ class StructureTest(PymatgenTest):
 
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
-        self.structure.apply_operation(op)
+        s = self.structure.copy()
+        s.apply_operation(op)
         self.assertArrayAlmostEqual(
-            self.structure.lattice.matrix,
+            s.lattice.matrix,
             [[0.000000, 3.840198, 0.000000],
              [-3.325710, 1.920099, 0.000000],
              [2.217138, -0.000000, 3.135509]], 5)
+
+        op = SymmOp([[1, 1, 0, 0.5], [1, 0, 0, 0.5], [0, 0, 1, 0.5],
+                     [0, 0, 0, 1]])
+        s = self.structure.copy()
+        s.apply_operation(op, fractional=True)
+        self.assertArrayAlmostEqual(
+            s.lattice.matrix,
+            [[5.760297, 3.325710, 0.000000],
+             [3.840198, 0.000000, 0.000000],
+             [0.000000, -2.217138, 3.135509]], 5)
 
     def test_apply_strain(self):
         s = self.structure
@@ -617,7 +630,7 @@ class StructureTest(PymatgenTest):
                 'to None.')
 
     def test_to_from_file_string(self):
-        for fmt in ["cif", "json", "poscar", "cssr", "yaml"]:
+        for fmt in ["cif", "json", "poscar", "cssr", "yaml", "xsf"]:
             s = self.structure.to(fmt=fmt)
             self.assertIsNotNone(s)
             ss = Structure.from_str(s, fmt=fmt)

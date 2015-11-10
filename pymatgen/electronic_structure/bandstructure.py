@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -23,10 +25,10 @@ import collections
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 
 
-class Kpoint(PMGSONable):
+class Kpoint(MSONable):
     """
     Class to store kpoint objects. A kpoint is defined with a lattice and frac
     or cartesian coordinates syntax similar than the site object in
@@ -629,7 +631,7 @@ class BandStructure(object):
             labels_dict, structure=structure, projections=projections)
 
 
-class BandStructureSymmLine(BandStructure, PMGSONable):
+class BandStructureSymmLine(BandStructure, MSONable):
     """
     This object stores band structures along selected (symmetry) lines in the
     Brillouin zone. We call the different symmetry lines (ex: \Gamma to Z)
@@ -704,9 +706,10 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
         if len(one_group) != 0:
             branches_tmp.append(one_group)
         for b in branches_tmp:
-            self._branches.append({"start_index": b[0], "end_index": b[-1],
-                                   "name": (self._kpoints[b[0]].label + "-" +
-                                            self._kpoints[b[-1]].label)})
+            self._branches.append(
+                {"start_index": b[0], "end_index": b[-1],
+                "name": str(self._kpoints[b[0]].label) + "-" +
+                        str(self._kpoints[b[-1]].label)})
 
         self._is_spin_polarized = False
         if len(self._bands) == 2:

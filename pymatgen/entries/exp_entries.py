@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -17,11 +19,11 @@ __date__ = "Jun 27, 2012"
 
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.composition import Composition
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.analysis.thermochemistry import ThermoData
 
 
-class ExpEntry(PDEntry, PMGSONable):
+class ExpEntry(PDEntry, MSONable):
     """
     An lightweight ExpEntry object containing experimental data for a
     composition for many purposes. Extends a PDEntry so that it can be used for

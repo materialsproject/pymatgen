@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -31,12 +33,12 @@ import numpy as np
 
 from pymatgen.core import Structure, get_el_sp
 import pymatgen.core.physical_constants as phyc
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.coord_utils import pbc_diff
 
 
-class DiffusionAnalyzer(PMGSONable):
+class DiffusionAnalyzer(MSONable):
     """
     Class for performing diffusion analysis.
 
@@ -112,9 +114,9 @@ class DiffusionAnalyzer(PMGSONable):
         from_vaspruns and from_files).
 
         Given a matrix of displacements (see arguments below for expected
-        format), the diffusivity is given by:
+        format), the diffusivity is given by::
 
-        D = 1 / 2dt * <mean square displacement>
+            D = 1 / 2dt * <mean square displacement>
 
         where d is the dimensionality, t is the time. To obtain a reliable
         diffusion estimate, a least squares regression of the MSD against
@@ -135,15 +137,17 @@ class DiffusionAnalyzer(PMGSONable):
                 between measurements)
             smoothed (str): Whether to smooth the MSD, and what mode to smooth.
                 Supported modes are:
-                    i. "max", which tries to use the maximum #
-                       of data points for each time origin, subject to a
-                       minimum # of observations given by min_obs, and then
-                       weights the observations based on the variance
-                       accordingly. This is the default.
-                    ii. "constant", in which each timestep is averaged over
-                        the number of time_steps given by min_steps.
-                    iii. None / False / any other false-like quantity. No
-                       smoothing.
+
+                i. "max", which tries to use the maximum #
+                   of data points for each time origin, subject to a
+                   minimum # of observations given by min_obs, and then
+                   weights the observations based on the variance
+                   accordingly. This is the default.
+                ii. "constant", in which each timestep is averaged over
+                    the number of time_steps given by min_steps.
+                iii. None / False / any other false-like quantity. No
+                   smoothing.
+
             min_obs (int): Used with smoothed="max". Minimum number of
                 observations to have before including in the MSD vs dt
                 calculation. E.g. If a structure has 10 diffusing atoms,
@@ -409,15 +413,17 @@ class DiffusionAnalyzer(PMGSONable):
                 between measurements)
             smoothed (str): Whether to smooth the MSD, and what mode to smooth.
                 Supported modes are:
-                    i. "max", which tries to use the maximum #
-                       of data points for each time origin, subject to a
-                       minimum # of observations given by min_obs, and then
-                       weights the observations based on the variance
-                       accordingly. This is the default.
-                    ii. "constant", in which each timestep is averaged over
-                        the same number of observations given by min_obs.
-                    iii. None / False / any other false-like quantity. No
-                       smoothing.
+
+                i. "max", which tries to use the maximum #
+                   of data points for each time origin, subject to a
+                   minimum # of observations given by min_obs, and then
+                   weights the observations based on the variance
+                   accordingly. This is the default.
+                ii. "constant", in which each timestep is averaged over
+                    the same number of observations given by min_obs.
+                iii. None / False / any other false-like quantity. No
+                   smoothing.
+
             min_obs (int): Used with smoothed="max". Minimum number of
                 observations to have before including in the MSD vs dt
                 calculation. E.g. If a structure has 10 diffusing atoms,
@@ -439,9 +445,12 @@ class DiffusionAnalyzer(PMGSONable):
                 initial strcture from which the current set of displacements
                 are computed.
         """
-        structure = structures[0]
+        p = []
+        for i, s in enumerate(structures):
+            if i == 0:
+                structure = s
+            p.append(np.array(s.frac_coords)[:, None])
 
-        p = [np.array(s.frac_coords)[:, None] for s in structures]
         if initial_structure is not None:
             p.insert(0, np.array(initial_structure.frac_coords)[:, None])
         else:
@@ -480,15 +489,17 @@ class DiffusionAnalyzer(PMGSONable):
                 diffusing atom is measured at least 3 uncorrelated times.
             smoothed (str): Whether to smooth the MSD, and what mode to smooth.
                 Supported modes are:
-                    i. "max", which tries to use the maximum #
-                       of data points for each time origin, subject to a
-                       minimum # of observations given by min_obs, and then
-                       weights the observations based on the variance
-                       accordingly. This is the default.
-                    ii. "constant", in which each timestep is averaged over
-                        the same number of observations given by min_obs.
-                    iii. None / False / any other false-like quantity. No
-                       smoothing.
+
+                i. "max", which tries to use the maximum #
+                   of data points for each time origin, subject to a
+                   minimum # of observations given by min_obs, and then
+                   weights the observations based on the variance
+                   accordingly. This is the default.
+                ii. "constant", in which each timestep is averaged over
+                    the same number of observations given by min_obs.
+                iii. None / False / any other false-like quantity. No
+                   smoothing.
+
             min_obs (int): Used with smoothed="max". Minimum number of
                 observations to have before including in the MSD vs dt
                 calculation. E.g. If a structure has 10 diffusing atoms,
@@ -510,26 +521,31 @@ class DiffusionAnalyzer(PMGSONable):
                 initial strcture from which the current set of displacements
                 are computed.
         """
-        step_skip = vaspruns[0].ionic_step_skip or 1
 
-        final_structure = vaspruns[0].initial_structure
-        structures = []
-        for vr in vaspruns:
-            #check that the runs are continuous
-            fdist = pbc_diff(vr.initial_structure.frac_coords,
-                             final_structure.frac_coords)
-            if np.any(fdist > 0.001):
-                raise ValueError('initial and final structures do not '
-                                 'match.')
-            final_structure = vr.final_structure
+        def get_structures(vaspruns):
+            for i, vr in enumerate(vaspruns):
+                if i == 0:
+                    step_skip = vr.ionic_step_skip or 1
+                    final_structure = vr.initial_structure
+                    temperature = vr.parameters['TEEND']
+                    time_step = vr.parameters['POTIM']
+                    yield step_skip, temperature, time_step
+                #check that the runs are continuous
+                fdist = pbc_diff(vr.initial_structure.frac_coords,
+                                 final_structure.frac_coords)
+                if np.any(fdist > 0.001):
+                    raise ValueError('initial and final structures do not '
+                                     'match.')
+                final_structure = vr.final_structure
 
-            assert (vr.ionic_step_skip or 1) == step_skip
-            structures.extend([s['structure'] for s in vr.ionic_steps])
+                assert (vr.ionic_step_skip or 1) == step_skip
+                for s in vr.ionic_steps:
+                    yield s['structure']
 
-        temperature = vaspruns[0].parameters['TEEND']
-        time_step = vaspruns[0].parameters['POTIM']
+        s = get_structures(vaspruns)
+        step_skip, temperature, time_step = next(s)
 
-        return cls.from_structures(structures=structures, specie=specie,
+        return cls.from_structures(structures=s, specie=specie,
             temperature=temperature, time_step=time_step, step_skip=step_skip,
             smoothed=smoothed, min_obs=min_obs, avg_nsteps=avg_nsteps,
             initial_disp=initial_disp, initial_structure=initial_structure)
@@ -555,15 +571,17 @@ class DiffusionAnalyzer(PMGSONable):
                 between measurements)
             smoothed (str): Whether to smooth the MSD, and what mode to smooth.
                 Supported modes are:
-                    i. "max", which tries to use the maximum #
-                       of data points for each time origin, subject to a
-                       minimum # of observations given by min_obs, and then
-                       weights the observations based on the variance
-                       accordingly. This is the default.
-                    ii. "constant", in which each timestep is averaged over
-                        the same number of observations given by min_obs.
-                    iii. None / False / any other false-like quantity. No
-                       smoothing.
+
+                i. "max", which tries to use the maximum #
+                   of data points for each time origin, subject to a
+                   minimum # of observations given by min_obs, and then
+                   weights the observations based on the variance
+                   accordingly. This is the default.
+                ii. "constant", in which each timestep is averaged over
+                    the same number of observations given by min_obs.
+                iii. None / False / any other false-like quantity. No
+                   smoothing.
+
             min_obs (int): Used with smoothed="max". Minimum number of
                 observations to have before including in the MSD vs dt
                 calculation. E.g. If a structure has 10 diffusing atoms,
@@ -595,10 +613,14 @@ class DiffusionAnalyzer(PMGSONable):
         if ncores is not None and len(filepaths) > 1:
             import multiprocessing
             p = multiprocessing.Pool(ncores)
-            vaspruns = p.map(_get_vasprun,
+            vaspruns = p.imap(_get_vasprun,
                              [(fp, step_skip) for fp in filepaths])
+            analyzer = cls.from_vaspruns(vaspruns, min_obs=min_obs,
+                smoothed=smoothed, specie=specie, initial_disp=initial_disp,
+                initial_structure=initial_structure, avg_nsteps=avg_nsteps)
             p.close()
             p.join()
+            return analyzer
         else:
             vaspruns = []
             offset = 0
@@ -608,10 +630,9 @@ class DiffusionAnalyzer(PMGSONable):
                 vaspruns.append(v)
                 # Recompute offset.
                 offset = (- (v.nionic_steps - offset)) % step_skip
-        return cls.from_vaspruns(vaspruns, min_obs=min_obs, smoothed=smoothed,
-                                 specie=specie, initial_disp=initial_disp,
-                                 initial_structure=initial_structure,
-                                 avg_nsteps=avg_nsteps)
+            return cls.from_vaspruns(vaspruns, min_obs=min_obs,
+                smoothed=smoothed, specie=specie, initial_disp=initial_disp,
+                initial_structure=initial_structure, avg_nsteps=avg_nsteps)
 
     def as_dict(self):
         return {
@@ -672,7 +693,8 @@ def _get_vasprun(args):
     """
     Internal method to support multiprocessing.
     """
-    return Vasprun(args[0], ionic_step_skip=args[1])
+    return Vasprun(args[0], ionic_step_skip=args[1],
+                   parse_dos=False, parse_eigen=False)
 
 
 def fit_arrhenius(temps, diffusivities):
@@ -720,7 +742,7 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
         diffusivities ([float]): A sequence of diffusivities (e.g.,
             from DiffusionAnalyzer.diffusivity). units: cm^2/s
         new_temp (float): desired temperature. units: K
-        structure (structure): structure used for the diffusivity calculation
+        structure (structure): Structure used for the diffusivity calculation
         species (string/Specie): conducting species
 
     Returns:

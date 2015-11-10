@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -176,6 +178,10 @@ class MPResterTest(unittest.TestCase):
         entries = self.rester.get_entries("Fe", compatible_only=True)
         self.assertTrue(len(entries) < len(all_entries))
 
+        entries = self.rester.get_entries("Fe", compatible_only=True,
+                                          property_data=["cif"])
+        self.assertIn("cif", entries[0].data)
+
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
         self.assertEqual(entry.energy, -825.5)
@@ -240,17 +246,20 @@ class MPResterTest(unittest.TestCase):
 
         comps = MPRester.parse_criteria("**O3")["pretty_formula"]["$in"]
         for c in comps:
-            self.assertEqual(len(Composition(c)), 3)
+            self.assertEqual(len(Composition(c)), 3, "Failed in %s" % c)
 
         chemsys = MPRester.parse_criteria("{Fe,Mn}-O")["chemsys"]["$in"]
         self.assertEqual(len(chemsys), 2)
         comps = MPRester.parse_criteria("{Fe,Mn,Co}O")["pretty_formula"]["$in"]
-        self.assertEqual(len(comps), 3)
+        self.assertEqual(len(comps), 3, comps)
 
         #Let's test some invalid symbols
 
         self.assertRaises(KeyError, MPRester.parse_criteria, "li-fe")
         self.assertRaises(KeyError, MPRester.parse_criteria, "LO2")
+
+        crit = MPRester.parse_criteria("POPO2")
+        self.assertIn("P2O3", crit["pretty_formula"]["$in"])
 
 
 if __name__ == "__main__":

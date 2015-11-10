@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 from six import string_types
@@ -121,9 +123,9 @@ class MPRester(object):
         url = self.preamble + sub_url
         try:
             if method == "POST":
-                response = self.session.post(url, data=payload)
+                response = self.session.post(url, data=payload, verify=True)
             else:
-                response = self.session.get(url, params=payload)
+                response = self.session.get(url, params=payload, verify=True)
             if response.status_code in [200, 400]:
                 if mp_decode:
                     try:
@@ -273,15 +275,16 @@ class MPRester(object):
         except Exception as ex:
             raise MPRestError(str(ex))
 
-    def get_entries(self, chemsys_formula_id, compatible_only=True,
-                    inc_structure=None):
+    def get_entries(self, chemsys_formula_id_criteria, compatible_only=True,
+                    inc_structure=None, property_data=None):
         """
         Get a list of ComputedEntries or ComputedStructureEntries corresponding
-        to a chemical system, formula, or materials_id.
+        to a chemical system, formula, or materials_id or full criteria.
 
         Args:
-            chemsys_formula_id (str): A chemical system (e.g., Li-Fe-O),
-                or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).
+            chemsys_formula_id_criteria (str/dict): A chemical system
+                (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or materials_id
+                (e.g., mp-1234) or full Mongo-style dict criteria.
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
                 processed using the MaterialsProjectCompatibility class,
@@ -293,6 +296,9 @@ class MPRester(object):
                 ComputedStructureEntries with final structures are returned.
                 Otherwise, ComputedStructureEntries with initial structures
                 are returned.
+            property_data (list): Specify additional properties to include in
+                entry.data. If None, no data. Should be a subset of
+                supported_properties.
 
         Returns:
             List of ComputedEntry or ComputedStructureEntry objects.
@@ -303,13 +309,18 @@ class MPRester(object):
                   "potcar_symbols"]
         if compatible_only:
             props = ["energy", "unit_cell_formula", "task_id"] + params
+            if property_data:
+                props += property_data
             if inc_structure:
                 if inc_structure == "final":
                     props.append("structure")
                 else:
                     props.append("initial_structure")
 
-            criteria = MPRester.parse_criteria(chemsys_formula_id)
+            if not isinstance(chemsys_formula_id_criteria, dict):
+                criteria = MPRester.parse_criteria(chemsys_formula_id_criteria)
+            else:
+                criteria = chemsys_formula_id_criteria
 
             data = self.query(criteria, props)
 
@@ -318,9 +329,11 @@ class MPRester(object):
                 d["potcar_symbols"] = [
                     "%s %s" % (d["pseudo_potential"]["functional"], l)
                     for l in d["pseudo_potential"]["labels"]]
+                data = {k: d[k] for k in property_data} if property_data else None
                 if not inc_structure:
                     e = ComputedEntry(d["unit_cell_formula"], d["energy"],
                                       parameters={k: d[k] for k in params},
+                                      data=data,
                                       entry_id=d["task_id"])
 
                 else:
@@ -329,12 +342,14 @@ class MPRester(object):
                     e = ComputedStructureEntry(
                         s, d["energy"],
                         parameters={k: d[k] for k in params},
+                        data=data,
                         entry_id=d["task_id"])
                 entries.append(e)
             entries = MaterialsProjectCompatibility().process_entries(entries)
         else:
             entries = []
-            for d in self.get_data(chemsys_formula_id, prop="task_ids"):
+            for d in self.get_data(chemsys_formula_id_criteria,
+                                   prop="task_ids"):
                 for i in d["task_ids"]:
                     e = self.get_task_data(i, prop="entry")
                     e = e[0]["entry"]
@@ -365,24 +380,35 @@ class MPRester(object):
         data = self.get_data(material_id, prop=prop)
         return data[0][prop]
 
-    def get_entry_by_material_id(self, material_id, compatible=True):
+    def get_entry_by_material_id(self, material_id, compatible_only=True,
+                                 inc_structure=None, property_data=None):
         """
         Get a ComputedEntry corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project material_id (a string,
                 e.g., mp-1234).
-            compatible (bool): Whether to process the entry using Materials
-                Project compatibility. Defaults to True.
+            compatible_only (bool): Whether to return only "compatible"
+                entries. Compatible entries are entries that have been
+                processed using the MaterialsProjectCompatibility class,
+                which performs adjustments to allow mixing of GGA and GGA+U
+                calculations for more accurate phase diagrams and reaction
+                energies.
+            inc_structure (str): If None, entries returned are
+                ComputedEntries. If inc_structure="final",
+                ComputedStructureEntries with final structures are returned.
+                Otherwise, ComputedStructureEntries with initial structures
+                are returned.
+            property_data (list): Specify additional properties to include in
+                entry.data. If None, no data. Should be a subset of
+                supported_properties.
 
         Returns:
-            ComputedEntry object.
+            ComputedEntry or ComputedStructureEntry object.
         """
-        data = self.get_data(material_id, prop="entry")
-        e = data[0]["entry"]
-        if compatible:
-            e = MaterialsProjectCompatibility().process_entry(e)
-        return e
+        data = self.get_entries(material_id, compatible_only=compatible_only,\
+               inc_structure=inc_structure, property_data=property_data)
+        return data[0]
 
     def get_dos_by_material_id(self, material_id):
         """
@@ -412,7 +438,7 @@ class MPRester(object):
         return data[0]["bandstructure"]
 
     def get_entries_in_chemsys(self, elements, compatible_only=True,
-                               inc_structure=None):
+                               inc_structure=None, property_data=None):
         """
         Helper method to get a list of ComputedEntries in a chemical system.
         For example, elements = ["Li", "Fe", "O"] will return a list of all
@@ -434,6 +460,9 @@ class MPRester(object):
                 ComputedStructureEntries with final structures are returned.
                 Otherwise, ComputedStructureEntries with initial structures
                 are returned.
+            property_data (list): Specify additional properties to include in
+                entry.data. If None, no data. Should be a subset of
+                supported_properties.
 
         Returns:
             List of ComputedEntries.
@@ -444,8 +473,8 @@ class MPRester(object):
                 entries.extend(
                     self.get_entries(
                         "-".join(els), compatible_only=compatible_only,
-                        inc_structure=inc_structure)
-                )
+                        inc_structure=inc_structure,
+                        property_data=property_data))
         return entries
 
     def get_exp_thermo_data(self, formula):
@@ -883,11 +912,21 @@ class MPRester(object):
                 return {"chemsys": {"$in": chemsyss}}
             else:
                 all_formulas = set()
+                explicit_els = []
+                wild_card_els = []
+                for sym in re.findall(
+                        r"(\*[\.\d]*|\{.*\}[\.\d]*|[A-Z][a-z]*)[\.\d]*", t):
+                    if ("*" in sym) or ("{" in sym):
+                        wild_card_els.append(sym)
+                    else:
+                        m = re.match("([A-Z][a-z]*)[\.\d]*", sym)
+                        explicit_els.append(m.group(1))
+                nelements = len(wild_card_els) + len(set(explicit_els))
                 parts = re.split(r"(\*|\{.*\})", t)
-                parts = [parse_sym(s) for s in parts]
+                parts = [parse_sym(s) for s in parts if s != ""]
                 for f in itertools.product(*parts):
-                    if len(set(f)) == len(f):
-                        c = Composition("".join(f))
+                    c = Composition("".join(f))
+                    if len(c) == nelements:
                         #Check for valid Elements in keys.
                         for e in c.keys():
                             Element(e.symbol)

@@ -92,7 +92,7 @@ def build_bader(fortran_command="gfortran"):
     return state
 
 py_ver = sys.version_info
-print("Detected Python version {}".format(".".join(map(str, py_ver))))
+print("Detected Python version %s" % ".".join(["%s" % i for i in py_ver]))
 
 
 if py_ver < (2, 7) or py_ver >= (2, 8):
@@ -153,7 +153,7 @@ enum = False
 bader = False
 
 if "-f" in sys.argv:
-    for pk in ["scipy", "matplotlib>1.1"]:
+    for pk in ["matplotlib>1.1"]:
         if subprocess.call(["pip", "install", pk]) != 0:
             print("Unable to install {}. Skipping...".format(pk))
 

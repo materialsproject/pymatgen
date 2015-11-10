@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -683,6 +685,70 @@ $end
         qctask.set_memory(total=18000, static=500)
         self.assertEqual(str(qctask), ans)
         self.elementary_io_verify(ans, qctask)
+
+    def test_qc42_pcm_solvent_format(self):
+        text = '''$molecule
+ -1  2
+ N          -0.00017869        0.00010707        0.20449990
+ H           0.89201838        0.20268122       -0.29656572
+ H          -0.62191133        0.67135171       -0.29649162
+ H          -0.26987729       -0.87406458       -0.29659779
+$end
+
+
+$rem
+         jobtype = sp
+        exchange = b3lyp
+           basis = 6-31+g*
+  solvent_method = pcm
+$end
+
+
+$pcm
+       theory   ssvpe
+     vdwscale   1.1
+$end
+
+
+$pcm_solvent
+  dielectric   78.3553
+$end
+
+'''
+        qctask_qc41 = QcTask.from_string(text)
+        qctask_qc42 = copy.deepcopy(qctask_qc41)
+        solvent_params = qctask_qc42.params.pop("pcm_solvent")
+        qctask_qc42.params["solvent"] = solvent_params
+        ans = '''$molecule
+ -1  2
+ N          -0.00017869        0.00010707        0.20449990
+ H           0.89201838        0.20268122       -0.29656572
+ H          -0.62191133        0.67135171       -0.29649162
+ H          -0.26987729       -0.87406458       -0.29659779
+$end
+
+
+$rem
+         jobtype = sp
+        exchange = b3lyp
+           basis = 6-31+g*
+  solvent_method = pcm
+$end
+
+
+$pcm
+    theory   ssvpe
+  vdwscale   1.1
+$end
+
+
+$solvent
+  dielectric   78.3553
+$end
+
+'''
+        self.assertEqual(str(qctask_qc42), ans)
+        self.elementary_io_verify(ans, qctask_qc42)
 
     def test_set_max_num_of_scratch_files(self):
         ans = '''$comment
@@ -2139,6 +2205,21 @@ Sites (12)
 10 O     2.352341    -1.114671     0.001634
 11 H     3.261096    -0.769470     0.003158'''
         self.assertEqual(qcout.final_structure.__str__(), ans)
+
+    def test_time_nan_values(self):
+        filename = os.path.join(test_dir, "time_nan_values.qcout")
+        qcout = QcOutput(filename)
+        self.assertFalse(qcout.data[0]["has_error"])
+
+    def test_pcm_solvent_deprecated(self):
+        filename = os.path.join(test_dir, "pcm_solvent_deprecated.qcout")
+        qcout = QcOutput(filename)
+        self.assertTrue(qcout.data[-1]["has_error"])
+        ans = ['pcm_solvent deprecated',
+               'Molecular charge is not found',
+               'No input text',
+               'Bad SCF convergence']
+        self.assertEqual(qcout.data[-1]["errors"], ans)
 
 
 if __name__ == "__main__":

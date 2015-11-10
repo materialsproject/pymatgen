@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -19,10 +21,10 @@ import numpy as np
 import re
 from math import sin, cos, pi, sqrt
 
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 
 
-class SymmOp(PMGSONable):
+class SymmOp(MSONable):
     """
     A symmetry operation in cartesian space. Consists of a rotation plus a
     translation. Implementation is as an affine transformation matrix of rank 4

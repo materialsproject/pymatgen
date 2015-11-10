@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -26,12 +28,12 @@ from numpy import pi, dot, transpose, radians
 
 from pyhull.voronoi import VoronoiTess
 
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.util.num_utils import abs_cap
 from pymatgen.core.units import ArrayWithUnit
 
 
-class Lattice(PMGSONable):
+class Lattice(MSONable):
     """
     A lattice object.  Essentially a matrix with conversion matrices. In
     general, it is assumed that length units are in Angstroms and angles are in
@@ -74,7 +76,7 @@ class Lattice(PMGSONable):
     @classmethod
     def from_abivars(cls, *args, **kwargs):
         """
-        Returns a new instance from a dictionary with the variables 
+        Returns a new instance from a dictionary with the variables
         used in ABINIT to define the unit cell.
         """
         kwargs.update(dict(*args))
@@ -513,11 +515,15 @@ class Lattice(PMGSONable):
                 scale_m = np.array((f_a[i], f_b[j], f_c[k]))
                 if abs(np.linalg.det(scale_m)) < 1e-8:
                     continue
+
                 aligned_m = np.array((c_a[i], c_b[j], c_c[k]))
+
                 if skip_rotation_matrix:
                     rotation_m = None
                 else:
-                    rotation_m = np.linalg.solve(aligned_m, other_lattice.matrix)
+                    rotation_m = np.linalg.solve(aligned_m,
+                                                 other_lattice.matrix)
+
                 yield Lattice(aligned_m), rotation_m, scale_m
 
     def find_mapping(self, other_lattice, ltol=1e-5, atol=1,
@@ -550,8 +556,9 @@ class Lattice(PMGSONable):
 
             None is returned if no matches are found.
         """
-        for x in self.find_all_mappings(other_lattice, ltol, atol,
-                                        skip_rotation_matrix=skip_rotation_matrix):
+        for x in self.find_all_mappings(
+                other_lattice, ltol, atol,
+                skip_rotation_matrix=skip_rotation_matrix):
             return x
 
     def get_lll_reduced_lattice(self, delta=0.75):
@@ -569,7 +576,7 @@ class Lattice(PMGSONable):
         """
         # Transpose the lattice matrix first so that basis vectors are columns.
         # Makes life easier.
-        a = self._matrix.T
+        a = self._matrix.copy().T
 
         b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
         u = np.zeros((3, 3))  # Gram-Schmidt coeffieicnts
@@ -625,7 +632,9 @@ class Lattice(PMGSONable):
                     result = np.linalg.lstsq(q.T, p.T)[0].T
                     u[k:3, (k - 2):k] = result
 
-        return Lattice(a.T)
+        lll = Lattice(a.T)
+
+        return lll
 
     def get_niggli_reduced_lattice(self, tol=1e-5):
         """
@@ -641,9 +650,10 @@ class Lattice(PMGSONable):
         Returns:
             Niggli-reduced lattice.
         """
-        a = self._matrix[0]
-        b = self._matrix[1]
-        c = self._matrix[2]
+        matrix = self._matrix.copy()
+        a = matrix[0]
+        b = matrix[1]
+        c = matrix[2]
         e = tol * self.volume ** (1 / 3)
 
         #Define metric tensor
@@ -745,7 +755,11 @@ class Lattice(PMGSONable):
 
         mapped = self.find_mapping(latt, e, skip_rotation_matrix=True)
         if mapped is not None:
-            return mapped[0]
+            if np.linalg.det(mapped[0].matrix) > 0:
+                return mapped[0]
+            else:
+                return Lattice(-mapped[0].matrix)
+
         raise ValueError("can't find niggli")
 
     def scale(self, new_volume):
