@@ -27,6 +27,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher,\
     ElementComparator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+from collections import defaultdict
 
 class AbstractStructureFilter(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
@@ -177,30 +178,29 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
                 structure matcher is used. A recommended value is 1e-5.
         """
         self.symprec = symprec
-        self.structure_list = []
+        self.structure_list = defaultdict(list)
         if isinstance(structure_matcher, dict):
             self.structure_matcher = StructureMatcher.from_dict(structure_matcher)
         else:
             self.structure_matcher = structure_matcher
 
     def test(self, structure):
-        if not self.structure_list:
-            self.structure_list.append(structure)
+        h = self.structure_matcher._comparator.get_hash(structure.composition)
+        if not self.structure_list[h]:
+            self.structure_list[h].append(structure)
             return True
 
         def get_sg(s):
             finder = SpacegroupAnalyzer(s, symprec=self.symprec)
             return finder.get_spacegroup_number()
 
-        for s in self.structure_list:
-            if self.structure_matcher._comparator.get_hash(structure.composition) ==\
-                    self.structure_matcher._comparator.get_hash(s.composition):
-                if self.symprec is None or \
-                        get_sg(s) == get_sg(structure):
-                    if self.structure_matcher.fit(s, structure):
-                        return False
+        for s in self.structure_list[h]:
+            if self.symprec is None or \
+                    get_sg(s) == get_sg(structure):
+                if self.structure_matcher.fit(s, structure):
+                    return False
 
-        self.structure_list.append(structure)
+        self.structure_list[h].append(structure)
         return True
 
 
