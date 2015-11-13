@@ -196,7 +196,7 @@ class Slab(Structure):
         return Slab(self.lattice, self.species_and_occu, self.frac_coords,
                     self.miller_index, self.oriented_unit_cell, self.shift,
                     self.scale_factor, site_properties=props)
- 
+
     @property
     def dipole(self):
         """

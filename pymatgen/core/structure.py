@@ -525,7 +525,7 @@ class IStructure(SiteCollection, MSONable):
         See http://www.xcrysden.org/doc/XSF.html
         """
         # CRYSTAL                                        see (1)
-        # these are primitive lattice vectors (in Angstroms) 
+        # these are primitive lattice vectors (in Angstroms)
         # PRIMVEC
         #    0.0000000    2.7100000    2.7100000         see (2)
         #    2.7100000    0.0000000    2.7100000
@@ -553,7 +553,7 @@ class IStructure(SiteCollection, MSONable):
 
             if "PRIMCOORD" in lines[i]:
                 num_sites = int(lines[i+1].split()[0])
-     
+
                 for j in range(i+2, i+2+num_sites):
                     tokens = lines[j].split()
                     species.append(int(tokens[0]))
@@ -1307,11 +1307,11 @@ class IStructure(SiteCollection, MSONable):
         app("CRYSTAL")
         app("# Primitive lattice vectors in Angstrom")
         app("PRIMVEC")
-        cell = self.lattice_vectors(space="r") 
+        cell = self.lattice_vectors(space="r")
         for i in range(3):
             app(' %.14f %.14f %.14f' % tuple(cell[i]))
 
-        cart_coords = self.cart_coords  
+        cart_coords = self.cart_coords
         app("# Cartesian coordinates in Angstrom.")
         app("PRIMCOORD")
         app(" %d 1" % len(cart_coords))
@@ -1455,7 +1455,7 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(s)
 
     @classmethod
-    def from_file(cls, filename, primitive=True, sort=False):
+    def from_file(cls, filename, primitive=False, sort=False):
         """
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
@@ -1465,7 +1465,7 @@ class IStructure(SiteCollection, MSONable):
         Args:
             filename (str): The filename to read from.
             primitive (bool): Whether to convert to a primitive cell
-                Only available for cifs. Defaults to True.
+                Only available for cifs. Defaults to False.
             sort (bool): Whether to sort sites. Default to False.
 
         Returns:
