@@ -179,7 +179,17 @@ class SQTensor(np.ndarray):
         """
         calculates matrices for polar decomposition
         """
-        return polar(self, side=side)
+        if side not in ['right', 'left']:
+            raise ValueError("'side' must be either 'right' or 'left'")
+        w, s, vh = np.linalg.svd(self, full_matrices = False)
+        u = w.dot(vh)
+        if side == 'right':
+            # a = up
+            p = (vh.T.conj() * s).dot(vh)
+        else:
+            # a = pu
+            p = (w * s).dot(w.T.conj())
+        return u, p
 
     def zeroed(self, tol=1e-5):
         """
