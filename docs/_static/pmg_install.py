@@ -101,8 +101,8 @@ try:
 except:
     print("Python version 2.7+ required. Download and install the necessary "
           "python version from http://www.python.org/download/.")
-
-
+    sys.exit(-1)
+    
 try:
     import setuptools
     print("Detected setuptools version {}".format(setuptools.__version__))
