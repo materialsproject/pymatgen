@@ -91,14 +91,17 @@ def build_bader(fortran_command="gfortran"):
         os.chdir(currdir)
     return state
 
-py_ver = sys.version_info
-print("Detected Python version %s" % ".".join(["%s" % i for i in py_ver]))
-
-
-if py_ver < (2, 7) or py_ver >= (2, 8):
+try:
+    py_ver = sys.version_info
+    print("Detected Python version %s" % ".".join(["%s" % i for i in py_ver]))
+    if py_ver < (2, 7) or py_ver >= (2, 8):
+        print("Python version 2.7+ required. Download and install the necessary "
+              "python version from http://www.python.org/download/.")
+        sys.exit(-1)
+except:
     print("Python version 2.7+ required. Download and install the necessary "
           "python version from http://www.python.org/download/.")
-    sys.exit(-1)
+
 
 try:
     import setuptools
