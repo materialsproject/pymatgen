@@ -13,7 +13,7 @@ import yaml
 import six
 
 from six.moves import cStringIO, map, zip
-from prettytable import PrettyTable
+from tabulate import tabulate
 from monty.collections import AttrDict
 from pymatgen.util.plotting_utils import add_fig_kwargs
 
@@ -127,13 +127,10 @@ class ScfCycle(collections.Mapping):
 
     def __str__(self):
         """String representation."""
-        table = PrettyTable(list(self.keys()))
-        for it in range(self.num_iterations):
-            row = list(map(str, (self[k][it] for k in self.keys())))
-            table.add_row(row)
-
+        rows = [list(map(str, (self[k][it] for k in self.keys())))
+                for it in range(self.num_iterations)]
         stream = cStringIO()
-        print(table, file=stream)
+        print(tabulate(rows, headers=list(self.keys())), file=stream)
         stream.seek(0)
 
         return "".join(stream)
@@ -425,7 +422,7 @@ class YamlTokenizer(collections.Iterator):
 
     def __init__(self, filename):
         # The position inside the file.
-        self.linepos = 0 
+        self.linepos = 0
         self.stream = open(filename, "r")
 
     def __iter__(self):

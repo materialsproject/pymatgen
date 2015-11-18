@@ -47,48 +47,27 @@ several advantages over other codes out there:
 
 1. **It is (fairly) robust.** Pymatgen is used in the Materials Project. As
    such, the analysis it produces survives rigorous scrutiny every single
-   day. Bugs tend to be found and corrected quickly. Furthermore,
-   pymatgen uses `CircleCI <https://circleci.com>`_ for continuous
-   integration, which ensures that all unittests pass with every commit.
+   day. Bugs tend to be found and corrected quickly. Pymatgen also uses
+   `CircleCI <https://circleci.com>`_ for continuous integration, which ensures
+   that all unittests pass with every commit.
 2. **It is well documented.** A fairly comprehensive documentation has been
-   written to help you get to grips with it quickly. That means more
-   efficient research.
-3. **It is open.** That means you are free to use it, and you can also
-   contribute to it. It also means that pymatgen is continuously being
-   improved. We have a policy of attributing any code you contribute to any
-   publication you choose. Contributing to pymatgen means your research
-   becomes more visible, which translates to greater impact.
+   written to help you get to grips with it quickly.
+3. **It is open.** You are free to use and contribute to pymatgen. It also means
+   that pymatgen is continuously being improved. We have a policy of
+   attributing any code you contribute to any publication you choose.
+   Contributing to pymatgen means your research becomes more visible, which
+   translates to greater impact.
 4. **It is fast.** Many of the core numerical methods in pymatgen have been
    optimized by vectorizing in numpy. This means that coordinate
    manipulations are extremely fast and are in fact comparable to codes
    written in other languages. Pymatgen also comes with a complete system for
    handling periodic boundary conditions.
 
-Python 3.x support
-==================
-
-.. versionadded:: 3.0
-
 With effect from version 3.0, pymatgen now supports both Python 2.7 as well
-as Python 3.x. All underlying core dependencies (numpy, pyhull and the spglib
-library) have been made Python 3 compatible, and a completely rewritten CIF
-parser module (courtesy of William Davidson Richards) has removed the
-dependency on PyCIFRW. We will support Python >= 3.3 (ignoring v3.1 and v3.2).
-
-With the release of a new major version, we are taking the opportunity to
-streamline and cleanup some of the code, which introduces some backwards
-incompatibilities. The major ones are listed below:
-
-* The to_dict property of all classes have been deprecated in favor of the
-  as_dict() method protocol in the monty package. The to_dict property will
-  be available only up till the next minor version, i.e., v3.1.
-* All previously deprecated methods and modules (e.g.,
-  pymatgen.core.structure_editor) have been removed.
-
-For developers working to add new features to pymatgen, this also means that
-all new code going forward has to be Python 2.7+ and 3 compatible. Our approach
-is to have a single codebase support Python 2.7 and 3.x,
-as per current best practices. Please review the `coding guidelines
+as Python 3.x. For developers working to add new features to pymatgen, this
+also means that all new code going forward has to be Python 2.7+ and 3
+compatible. Our approach is to have a single codebase support Python 2.7 and
+3.x, as per current best practices. Please review the `coding guidelines
 </contributing>`_.
 
 .. include:: latest_changes.rst
@@ -157,11 +136,13 @@ or::
     pip install pymatgen
 
 Detailed installation instructions for various platforms (Mac and Windows)
-are given on this :doc:`page </installation>`.
+are given on this :doc:`page </installation>`, including how to setup your
+machine for POTCAR generation, Materials Project REST interface usage, etc.
 
-Some extra functionality (e.g., generation of POTCARs) do require additional
-setup. Please see the following sections for further details on the
-dependencies needed, where to get them and how to install them.
+.. toctree::
+   :maxdepth: 2
+
+   installation
 
 Developmental version
 ---------------------
@@ -178,8 +159,15 @@ or to install the package in developmental mode::
 
     python setup.py develop
 
-"Sample" version - Using Docker
--------------------------------
+To run the very comprehensive suite of unittests included with the
+developmental version, make sure you have nose installed and then just type::
+
+    nosetests
+
+in the pymatgen root directory.
+
+"Sample" Docker version
+-----------------------
 
 If you would like to try out pymatgen's capabilities before committing to an
 install, one way is to use `Docker <http://www.docker.com/>`_. The
@@ -198,24 +186,6 @@ your files in the /Users/myname/research directory. You may then run docker
 as follows::
 
     docker run -t -i -v /Users/myname/research:/opt/research materialsvirtuallab/pymatgen
-
-Running unittests
-~~~~~~~~~~~~~~~~~
-
-To run the very comprehensive suite of unittests included with the
-developmental version, make sure you have nose installed and then just type::
-
-    nosetests
-
-in the pymatgen root directory.
-
-Installation help
------------------
-
-.. toctree::
-   :maxdepth: 2
-
-   installation
 
 Using pymatgen
 ==============
@@ -339,24 +309,19 @@ some quick examples of the core capabilities and objects:
     >>> # in the x-direction.
     >>> methane[0] = "N", [0.01, 0, 0]
 
-The above illustrates only the most basic capabilities of pymatgen.
+The above illustrates only the most basic capabilities of pymatgen. Users are
+strongly encouraged to explore the :doc:`usage pages </usage>` (toc given below).
+
+.. toctree::
+   :maxdepth: 2
+
+   usage
 
 Examples
 --------
 
 A good way to explore the functionality of pymatgen is to look at examples.
 Please check out the ipython notebooks at our :doc:`examples page </examples>`.
-
-Usage guide
------------
-
-Users are also strongly encouraged to explore the :doc:`usage pages </usage>`
-(toc given below).
-
-.. toctree::
-   :maxdepth: 2
-
-   usage
 
 API documentation
 -----------------
@@ -424,15 +389,6 @@ Here are a few examples of typical usages::
 
     pmg generate --potcar Li_sv O --functional PBE
 
-ipmg - A Custom ipython shell
------------------------------
-
-From version 2.5.2, A custom ipython shell for pymatgen has been implemented.
-Upon installing pymatgen in the usual manner, the "ipmg" script will be
-installed. Running ipmg will bring users into a custom ipython environment
-where the most commonly used pymatgen objects (see Aliases below) are
-automatically loaded into the environment.
-
 Add-ons
 -------
 
@@ -466,18 +422,13 @@ A simple way that anyone can contribute is simply to report bugs and issues
 to the developing team. You can either send an email to the `pymatgen's
 Google Groups page`_ or even better, submit an Issue in our `Github page`_.
 
-Developing for pymatgen
------------------------
+Developing new functionality
+----------------------------
 
 Another way to contribute is to submit new code/bugfixes to pymatgen. While
 you can always zip your code and email it to the maintainer of pymatgen,
 the best way for anyone to develop pymatgen is by adopting the collaborative
-Github workflow (see section below).
-
-.. toctree::
-   :maxdepth: 2
-
-   contributing
+Github workflow (see `contributing page </contributing>`_).
 
 How to cite pymatgen
 ====================
@@ -511,6 +462,8 @@ Shyue Ping Ong started Pymatgen in 2011, and is still the project lead.
 
 The Pymatgen Development Team is the set of all contributors to the
 pymatgen project, including all subprojects.
+
+The full list of contributors are listed in the :doc:`team page </team>`.
 
 Our Copyright Policy
 ====================

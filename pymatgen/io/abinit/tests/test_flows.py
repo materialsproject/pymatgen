@@ -195,7 +195,7 @@ class FlowTest(FlowUnitTest):
         #same_flow = Flow.pickle_loads(s)
         #aequal(same_flow, flow)
 
-        self.assertPMGSONable(flow)
+        self.assertMSONable(flow)
 
         flow.show_info()
         flow.show_summary()

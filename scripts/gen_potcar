@@ -3,7 +3,7 @@
 
 import os
 
-from pymatgen.io.vaspio import Potcar
+from pymatgen.io.vasp import Potcar
 
 
 def proc_dir(dirname, procfilefunction):

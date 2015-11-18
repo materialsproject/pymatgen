@@ -23,12 +23,12 @@ import abc
 
 import six
 
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
-class EnergyModel(six.with_metaclass(abc.ABCMeta, PMGSONable)):
+class EnergyModel(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Abstract structure filter class.
     """

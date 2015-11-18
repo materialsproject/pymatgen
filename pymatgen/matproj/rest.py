@@ -275,15 +275,16 @@ class MPRester(object):
         except Exception as ex:
             raise MPRestError(str(ex))
 
-    def get_entries(self, chemsys_formula_id, compatible_only=True,
+    def get_entries(self, chemsys_formula_id_criteria, compatible_only=True,
                     inc_structure=None, property_data=None):
         """
         Get a list of ComputedEntries or ComputedStructureEntries corresponding
-        to a chemical system, formula, or materials_id.
+        to a chemical system, formula, or materials_id or full criteria.
 
         Args:
-            chemsys_formula_id (str): A chemical system (e.g., Li-Fe-O),
-                or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).
+            chemsys_formula_id_criteria (str/dict): A chemical system
+                (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or materials_id
+                (e.g., mp-1234) or full Mongo-style dict criteria.
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
                 processed using the MaterialsProjectCompatibility class,
@@ -316,7 +317,10 @@ class MPRester(object):
                 else:
                     props.append("initial_structure")
 
-            criteria = MPRester.parse_criteria(chemsys_formula_id)
+            if not isinstance(chemsys_formula_id_criteria, dict):
+                criteria = MPRester.parse_criteria(chemsys_formula_id_criteria)
+            else:
+                criteria = chemsys_formula_id_criteria
 
             data = self.query(criteria, props)
 
@@ -344,7 +348,8 @@ class MPRester(object):
             entries = MaterialsProjectCompatibility().process_entries(entries)
         else:
             entries = []
-            for d in self.get_data(chemsys_formula_id, prop="task_ids"):
+            for d in self.get_data(chemsys_formula_id_criteria,
+                                   prop="task_ids"):
                 for i in d["task_ids"]:
                     e = self.get_task_data(i, prop="entry")
                     e = e[0]["entry"]
@@ -907,9 +912,16 @@ class MPRester(object):
                 return {"chemsys": {"$in": chemsyss}}
             else:
                 all_formulas = set()
-                nelements = re.findall(r"(\*[\.\d]*|\{.*\}[\.\d]*|[A-Z]["
-                                       r"a-z]*[\.\d]*)", t)
-                nelements = len(nelements)
+                explicit_els = []
+                wild_card_els = []
+                for sym in re.findall(
+                        r"(\*[\.\d]*|\{.*\}[\.\d]*|[A-Z][a-z]*)[\.\d]*", t):
+                    if ("*" in sym) or ("{" in sym):
+                        wild_card_els.append(sym)
+                    else:
+                        m = re.match("([A-Z][a-z]*)[\.\d]*", sym)
+                        explicit_els.append(m.group(1))
+                nelements = len(wild_card_els) + len(set(explicit_els))
                 parts = re.split(r"(\*|\{.*\})", t)
                 parts = [parse_sym(s) for s in parts if s != ""]
                 for f in itertools.product(*parts):

@@ -1,15 +1,10 @@
 Change log
 ==========
 
-v3.2.2
+v3.2.5
 ------
-* Massive update to abinit support. Note that pymatgen.io.abinitio has 
-  been refactored to pymatgen.io.abinit. (Matteo, Setten)
-* NwOutput now supports parsing of Hessian Matrics (contributed by Xin 
-  Chen)
-* Gaussian support now has the ability to read potential energy surface
-  and electronic transitions computed with TD-DFT (Germain Salvato 
-  Vallverdu)
-* Bug fixes for CifWriter with symmetry.
-* Bug fixes for surface generation and reactions.
-* Monty requirement increased.
+* Improved potcar setup via "pmg setup", with MAPI setup.
+* Support for new POTCARs issued by VASP.
+* Improvements to ABINIT support.
+* Improvement to Boltztrap support, e.g., scissor band gap, etc.
+* Vasprun now issues warning when unconverged run is detected.

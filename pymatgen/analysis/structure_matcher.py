@@ -24,7 +24,7 @@ import numpy as np
 import itertools
 import abc
 
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
@@ -33,7 +33,7 @@ from pymatgen.util.coord_utils import pbc_shortest_vectors, \
     lattice_points_in_supercell, is_coord_subset_pbc
 
 
-class AbstractComparator(six.with_metaclass(abc.ABCMeta, PMGSONable)):
+class AbstractComparator(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Abstract Comparator class. A Comparator defines how sites are compared in
     a structure.
@@ -258,7 +258,7 @@ class OrderDisorderElementComparator(AbstractComparator):
         return 1
 
 
-class StructureMatcher(PMGSONable):
+class StructureMatcher(MSONable):
     """
     Class to match structures by similarity.
 

@@ -20,11 +20,11 @@ import re
 import numpy as np
 
 from pymatgen.core.composition import Composition
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.util.string_utils import formula_double_format
 
 
-class Ion(PMGSONable):
+class Ion(MSONable):
     """
     Basic ion object. It is just a Composition object with an additional
     variable to store charge.

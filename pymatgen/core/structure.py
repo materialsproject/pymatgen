@@ -45,7 +45,7 @@ except ImportError:
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
@@ -329,7 +329,7 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         pass
 
 
-class IStructure(SiteCollection, PMGSONable):
+class IStructure(SiteCollection, MSONable):
     """
     Basic immutable Structure object with periodicity. Essentially a sequence
     of PeriodicSites having a common lattice. IStructure is made to be
@@ -525,7 +525,7 @@ class IStructure(SiteCollection, PMGSONable):
         See http://www.xcrysden.org/doc/XSF.html
         """
         # CRYSTAL                                        see (1)
-        # these are primitive lattice vectors (in Angstroms) 
+        # these are primitive lattice vectors (in Angstroms)
         # PRIMVEC
         #    0.0000000    2.7100000    2.7100000         see (2)
         #    2.7100000    0.0000000    2.7100000
@@ -553,7 +553,7 @@ class IStructure(SiteCollection, PMGSONable):
 
             if "PRIMCOORD" in lines[i]:
                 num_sites = int(lines[i+1].split()[0])
-     
+
                 for j in range(i+2, i+2+num_sites):
                     tokens = lines[j].split()
                     species.append(int(tokens[0]))
@@ -599,9 +599,6 @@ class IStructure(SiteCollection, PMGSONable):
         # Note Fortran --> C indexing
         #znucl_type = np.rint(znucl_type)
         species = [znucl_type[typ-1] for typ in typat]
-
-        #print(lattice, species, coords)
-        #print(species)
 
         return cls(lattice, species, coords, validate_proximity=False,
                    to_unit_cell=False, coords_are_cartesian=coords_are_cartesian)
@@ -1310,11 +1307,11 @@ class IStructure(SiteCollection, PMGSONable):
         app("CRYSTAL")
         app("# Primitive lattice vectors in Angstrom")
         app("PRIMVEC")
-        cell = self.lattice_vectors(space="r") 
+        cell = self.lattice_vectors(space="r")
         for i in range(3):
             app(' %.14f %.14f %.14f' % tuple(cell[i]))
 
-        cart_coords = self.cart_coords  
+        cart_coords = self.cart_coords
         app("# Cartesian coordinates in Angstrom.")
         app("PRIMCOORD")
         app(" %d 1" % len(cart_coords))
@@ -1458,7 +1455,7 @@ class IStructure(SiteCollection, PMGSONable):
         return cls.from_sites(s)
 
     @classmethod
-    def from_file(cls, filename, primitive=True, sort=False):
+    def from_file(cls, filename, primitive=False, sort=False):
         """
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
@@ -1468,7 +1465,7 @@ class IStructure(SiteCollection, PMGSONable):
         Args:
             filename (str): The filename to read from.
             primitive (bool): Whether to convert to a primitive cell
-                Only available for cifs. Defaults to True.
+                Only available for cifs. Defaults to False.
             sort (bool): Whether to sort sites. Default to False.
 
         Returns:
@@ -1519,7 +1516,7 @@ class IStructure(SiteCollection, PMGSONable):
         return s
 
 
-class IMolecule(SiteCollection, PMGSONable):
+class IMolecule(SiteCollection, MSONable):
     """
     Basic immutable Molecule object without periodicity. Essentially a
     sequence of sites. IMolecule is made to be immutable so that they can
@@ -2593,7 +2590,7 @@ class Structure(IStructure, collections.MutableSequence):
             for n, i in enumerate(inds[1:]):
                 species += self[i].species_and_occu
                 offset = self[i].frac_coords - coords
-                coords += (offset - np.round(offset)) / (n + 2)
+                coords += ((offset - np.round(offset)) / (n + 2)).astype(coords.dtype)
             sites.append(PeriodicSite(species, coords, self.lattice))
 
         self._sites = sites
