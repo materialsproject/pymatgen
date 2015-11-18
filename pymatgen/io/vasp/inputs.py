@@ -34,21 +34,23 @@ from monty.io import zopen
 from monty.os.path import zpath
 from monty.json import MontyDecoder
 
+from tabulate import tabulate
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element, get_el_sp
 from monty.design_patterns import cached_class
-from pymatgen.util.string_utils import str_aligned, str_delimited
+from pymatgen.util.string_utils import str_delimited
 from pymatgen.util.io_utils import clean_lines
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 
 
 logger = logging.getLogger(__name__)
 
 
-class Poscar(PMGSONable):
+class Poscar(MSONable):
     """
     Object for representing the data in a POSCAR or CONTCAR file.
     Please note that this current implementation. Most attributes can be set
@@ -106,17 +108,45 @@ class Poscar(PMGSONable):
     def __init__(self, structure, comment=None, selective_dynamics=None,
                  true_names=True, velocities=None, predictor_corrector=None):
         if structure.is_ordered:
-            self.structure = structure
+            site_properties = {}
+            if selective_dynamics:
+                site_properties["selective_dynamics"] = selective_dynamics
+            if velocities:
+                site_properties["velocities"] = velocities
+            if predictor_corrector:
+                site_properties["predictor_corrector"] = predictor_corrector
+            self.structure = structure.copy(site_properties=site_properties)
             self.true_names = true_names
-            self.selective_dynamics = selective_dynamics
             self.comment = structure.formula if comment is None else comment
-            self.velocities = velocities
-            self.predictor_corrector = predictor_corrector
         else:
             raise ValueError("Structure with partial occupancies cannot be "
                              "converted into POSCAR!")
 
         self.temperature = -1
+
+    @property
+    def velocities(self):
+        return self.structure.site_properties.get("velocities")
+
+    @property
+    def selective_dynamics(self):
+        return self.structure.site_properties.get("selective_dynamics")
+
+    @property
+    def predictor_corrector(self):
+        return self.structure.site_properties.get("predictor_corrector")
+
+    @velocities.setter
+    def velocities(self, velocities):
+        self.structure.site_properties["velocities"] = velocities
+
+    @selective_dynamics.setter
+    def selective_dynamics(self, selective_dynamics):
+        self.structure.site_properties["selective_dynamics"] = selective_dynamics
+
+    @predictor_corrector.setter
+    def predictor_corrector(self, predictor_corrector):
+        self.structure.site_properties["predictor_corrector"] = predictor_corrector
 
     @property
     def site_symbols(self):
@@ -145,12 +175,6 @@ class Poscar(PMGSONable):
                     raise ValueError(name + " array must be same length as" +
                                      " the structure.")
                 value = value.tolist()
-        elif name == "structure":
-            #If we set a new structure, we should discard the velocities and
-            #predictor_corrector and selective dynamics.
-            self.velocities = None
-            self.predictor_corrector = None
-            self.selective_dynamics = None
         super(Poscar, self).__setattr__(name, value)
 
     @staticmethod
@@ -476,14 +500,22 @@ class Poscar(PMGSONable):
         velocities *= scale * 1e-5  # these are in A/fs
 
         self.temperature = temperature
-        self.selective_dynamics = None
-        self.predictor_corrector = None
+        try:
+            del self.structure.site_properties["selective_dynamics"]
+        except KeyError:
+            pass
+
+        try:
+            del self.structure.site_properties["predictor_corrector"]
+        except KeyError:
+            pass
         # returns as a list of lists to be consistent with the other
         # initializations
-        self.velocities = velocities.tolist()
+
+        self.structure.add_site_property("velocities", velocities.tolist())
 
 
-class Incar(dict, PMGSONable):
+class Incar(dict, MSONable):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
     a dictionary with some helper functions
@@ -549,7 +581,8 @@ class Incar(dict, PMGSONable):
                 lines.append([k, self[k]])
 
         if pretty:
-            return str_aligned(lines) + "\n"
+            return str(tabulate([[l[0], "=", l[1]] for l in lines],
+                                tablefmt="plain"))
         else:
             return str_delimited(lines, None, " = ") + "\n"
 
@@ -729,7 +762,7 @@ class Incar(dict, PMGSONable):
         return Incar(params)
 
 
-class Kpoints(PMGSONable):
+class Kpoints(MSONable):
     """
     KPOINT reader/writer.
     """
@@ -1249,8 +1282,15 @@ class PotcarSingle(object):
         accessible as attributes in themselves. E.g., potcar.enmax,
         potcar.encut, etc.
     """
-    functional_dir = {"PBE": "POT_GGA_PAW_PBE", "LDA": "POT_LDA_PAW",
-                      "PW91": "POT_GGA_PAW_PW91", "LDA_US": "POT_LDA_US"}
+    functional_dir = {"PBE": "POT_GGA_PAW_PBE",
+                      "PBE_52": "POT_GGA_PAW_PBE_52",
+                      "PBE_54": "POT_GGA_PAW_PBE_54",
+                      "LDA": "POT_LDA_PAW",
+                      "LDA_52": "POT_LDA_PAW_52",
+                      "LDA_54": "POT_LDA_PAW_54",
+                      "PW91": "POT_GGA_PAW_PW91",
+                      "LDA_US": "POT_LDA_US",
+                      "PW91_US": "POT_GGA_US_PW91"}
 
     functional_tags = {"pe": {"name": "PBE", "class": "GGA"},
                        "91": {"name": "PW91", "class": "GGA"},
@@ -1501,7 +1541,7 @@ class PotcarSingle(object):
             raise AttributeError(a)
 
 
-class Potcar(list, PMGSONable):
+class Potcar(list, MSONable):
     """
     Object for reading and writing POTCAR files for calculations. Consists of a
     list of PotcarSingle.
@@ -1509,12 +1549,19 @@ class Potcar(list, PMGSONable):
     Args:
         symbols ([str]): Element symbols for POTCAR. This should correspond
             to the symbols used by VASP. E.g., "Mg", "Fe_pv", etc.
-        functional (str): Functional used.
+        functional (str): Functional used. To know what functional options
+            there are, use Potcar.FUNCTIONAL_CHOICES. Note that VASP has
+            different versions of the same functional. By default, the old
+            PBE functional is used. If you want the newer ones, use PBE_52 or
+            PBE_54. Note that if you intend to compare your results with the
+            Materials Project, you should use the default setting.
         sym_potcar_map (dict): Allows a user to specify a specific element
             symbol to raw POTCAR mapping.
     """
 
     DEFAULT_FUNCTIONAL = "PBE"
+
+    FUNCTIONAL_CHOICES = list(PotcarSingle.functional_dir.keys())
 
     def __init__(self, symbols=None, functional=DEFAULT_FUNCTIONAL,
                  sym_potcar_map=None):
@@ -1605,7 +1652,7 @@ class Potcar(list, PMGSONable):
                 self.append(p)
 
 
-class VaspInput(dict, PMGSONable):
+class VaspInput(dict, MSONable):
     """
     Class to contain a set of vasp input objects corresponding to a run.
 

@@ -80,7 +80,7 @@ db_connector:
         # Test pickle
         self.serialize_with_pickle(slurm_manager, test_eq=False)
 
-        self.assertPMGSONable(slurm_manager)
+        self.assertMSONable(slurm_manager)
 
 
 class ParalHintsTest(PymatgenTest):

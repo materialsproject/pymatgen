@@ -6,9 +6,7 @@ from __future__ import unicode_literals, division, print_function
 
 import os
 
-from subprocess import Popen, PIPE
-from monty.os.path import which
-from pymatgen.util.string_utils import list_strings
+from monty.string import list_strings
 from six.moves import map, cStringIO
 
 import logging
@@ -60,14 +58,14 @@ class ExecWrapper(object):
     def name(self):
         return self._name
 
-    def execute(self, workdir):
+    def execute(self, workdir, exec_args=None):
         # Try to execute binary without and with mpirun.
         try:
-            return self._execute(workdir, with_mpirun=True)
+            return self._execute(workdir, with_mpirun=True, exec_args=exec_args)
         except self.Error:
-            return self._execute(workdir, with_mpirun=False)
+            return self._execute(workdir, with_mpirun=False, exec_args=exec_args)
 
-    def _execute(self, workdir, with_mpirun=False):
+    def _execute(self, workdir, with_mpirun=False, exec_args=None):
         """
         Execute the executable in a subprocess inside workdir.
 
@@ -78,7 +76,7 @@ class ExecWrapper(object):
         if not with_mpirun: qadapter.name = None
 
         script = qadapter.get_script_str(
-            job_name=self.name, 
+            job_name=self.name,
             launch_dir=workdir,
             executable=self.executable,
             qout_path="qout_file.path",
@@ -86,6 +84,7 @@ class ExecWrapper(object):
             stdin=self.stdin_fname,
             stdout=self.stdout_fname,
             stderr=self.stderr_fname,
+            exec_args=exec_args
         )
 
         # Write the script.
@@ -107,7 +106,7 @@ class Mrgscr(ExecWrapper):
 
     def merge_qpoints(self, workdir, files_to_merge, out_prefix):
         """
-        Execute mrgscr inside directory `workdir` to merge `files_to_merge`. 
+        Execute mrgscr inside directory `workdir` to merge `files_to_merge`.
         Produce new file with prefix `out_prefix`
         """
         # We work with absolute paths.
@@ -240,7 +239,7 @@ class Mrgddb(ExecWrapper):
         with open(self.stdin_fname, "wt") as fh:
             fh.writelines(self.stdin_data)
 
-        retcode = self.execute(workdir)
+        retcode = self.execute(workdir, exec_args=['--nostrict'])
         if retcode == 0 and delete_source_ddbs:
             # Remove ddb files.
             for f in ddb_files:

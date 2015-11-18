@@ -22,7 +22,7 @@ import itertools
 import numpy as np
 import re
 
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from monty.json import MontyDecoder
@@ -30,7 +30,7 @@ from monty.json import MontyDecoder
 logger = logging.getLogger(__name__)
 
 
-class BalancedReaction(PMGSONable):
+class BalancedReaction(MSONable):
     """
     An object representing a complete chemical reaction.
     """
@@ -494,6 +494,7 @@ class ComputedReaction(Reaction):
         """
         self._reactant_entries = reactant_entries
         self._product_entries = product_entries
+        self._all_entries = reactant_entries + product_entries
         reactant_comp = set([e.composition
                              .get_reduced_composition_and_factor()[0]
                              for e in reactant_entries])
@@ -502,6 +503,20 @@ class ComputedReaction(Reaction):
                             for e in product_entries])
         super(ComputedReaction, self).__init__(list(reactant_comp),
                                                list(product_comp))
+
+    @property
+    def all_entries(self):
+        """
+        Equivalent of all_comp but returns entries, in the same order as the
+        coefficients.
+        """
+        entries = []
+        for c in self._all_comp:
+            for e in self._all_entries:
+                if e.composition.reduced_formula == c.reduced_formula:
+                    entries.append(e)
+                    break
+        return entries
 
     @property
     def calculated_reaction_energy(self):

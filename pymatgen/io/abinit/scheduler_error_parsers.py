@@ -211,6 +211,18 @@ class MemoryCancelError(AbstractError):
         return [(CorrectorProtocolApplication.decrease_mem,)]
 
 
+class MasterProcessMemoryCancelError(AbstractError):
+    """
+    Error due to exceeding the memory limit for the job on the master node.
+    """
+
+
+class SlaveProcessMemoryCancelError(AbstractError):
+    """
+    Error due to exceeding the memory limit for the job on a node different from the master.
+    """
+
+
 class NodeFailureError(AbstractError):
     """
     Error due the hardware failure of a specific node.
@@ -365,6 +377,7 @@ class PBSErrorParser(AbstractErrorParser):
 
 #=>> PBS: job killed: walltime 932 exceeded limit 900
 #=>> PBS: job killed: walltime 46 exceeded limit 30
+#=>> PBS: job killed: vmem 2085244kb exceeded limit 1945600kb
     @property
     def error_definitions(self):
         return {
@@ -380,6 +393,14 @@ class PBSErrorParser(AbstractErrorParser):
                 'out': {
                     'string': "a string to be found",
                     'meta_filter': {}
+                }
+            },
+            MemoryCancelError: {
+                'out': {
+                    'string': "job killed: vmem",
+                    'meta_filter': {
+                        'broken_limit': [r"(.*)job killed: vmem (\d+)kb exceeded limit (\d+)kb", 3]
+                    }
                 }
             }
         }

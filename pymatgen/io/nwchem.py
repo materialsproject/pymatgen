@@ -16,6 +16,11 @@ This module implements input and output processing from Nwchem.
 
     For backward compatibility, the key for accessing the projected frequencies
     is still 'frequencies'.
+
+2015/10/12 - Xin Chen
+    NwOutput will read new kinds of data:
+        1. forces.                      ["forces"]
+
 """
 
 __author__ = "Shyue Ping Ong"
@@ -35,12 +40,12 @@ from six.moves import zip
 from monty.io import zopen
 
 from pymatgen.core import Molecule,Structure
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.core.units import Energy
 from pymatgen.core.units import FloatWithUnit
 
 
-class NwTask(PMGSONable):
+class NwTask(MSONable):
     """
     Base task for Nwchem.
     """
@@ -276,7 +281,7 @@ task $theory $operation""")
         return NwTask.from_molecule(mol, theory="esp", **kwargs)
 
 
-class NwInput(PMGSONable):
+class NwInput(MSONable):
     """
     An object representing a Nwchem input file, which is essentially a list
     of tasks on a particular molecule.
@@ -513,22 +518,24 @@ class NwOutput(object):
         preamble_patt = re.compile("(No. of atoms|No. of electrons"
                                    "|SCF calculation type|Charge|Spin "
                                    "multiplicity)\s*:\s*(\S+)")
+        force_patt = re.compile("\s+(\d+)\s+(\w+)" + 6 * "\s+([0-9\.\-]+)")
+
         error_defs = {
             "calculations not reaching convergence": "Bad convergence",
             "Calculation failed to converge": "Bad convergence",
             "geom_binvr: #indep variables incorrect": "autoz error",
             "dft optimize failed": "Geometry optimization failed"}
 
-        # A function for conveting 1.222D0 to 1.222e0.
-        fd2e = lambda x : x.replace("D", "e")
-
-        # A simple function for check if the given one is an ``int string``.
-        is_int = lambda s : s.find(".") == -1
+        fort2py = lambda x : x.replace("D", "e")
+        isfloatstring = lambda s : s.find(".") == -1
 
         parse_hess = False
         parse_proj_hess = False
         hessian = None
         projected_hessian = None
+        parse_force = False
+        all_forces = []
+        forces = []
 
         data = {}
         energies = []
@@ -573,7 +580,17 @@ class NwOutput(object):
                     if m:
                         lattice.append([float(m.group(1)), float(m.group(2)),
                                         float(m.group(3))])
-            if parse_freq:
+
+            if parse_force:
+                m = force_patt.search(l)
+                if m:
+                    forces.extend(map(float, m.groups()[5:]))
+                elif len(forces) > 0:
+                    all_forces.append(forces)
+                    forces = []
+                    parse_force = False
+
+            elif parse_freq:
                 if len(l.strip()) == 0:
                     if len(normal_frequencies[-1][1]) == 0:
                         continue
@@ -623,13 +640,9 @@ class NwOutput(object):
                         row = int(toks[0])
                     except Exception as e:
                         continue
-                    if is_int(toks[1]):
+                    if isfloatstring(toks[1]):
                         continue
-                    try:
-                        vals = [float(fd2e(x)) for x in toks[1:]]
-                    except Exception as e:
-                        print(l)
-                        raise e
+                    vals = [float(fort2py(x)) for x in toks[1:]]
                     if len(hessian) < row:
                         hessian.append(vals)
                     else:
@@ -645,9 +658,9 @@ class NwOutput(object):
                         row = int(toks[0])
                     except Exception as e:
                         continue
-                    if is_int(toks[1]):
+                    if isfloatstring(toks[1]):
                         continue
-                    vals = [float(fd2e(x)) for x in toks[1:]]
+                    vals = [float(fort2py(x)) for x in toks[1:]]
                     if len(projected_hessian) < row:
                         projected_hessian.append(vals)
                     else:
@@ -711,6 +724,10 @@ class NwOutput(object):
                     parse_proj_hess = True
                     if not projected_hessian:
                         projected_hessian = []
+
+                elif l.find("atom               coordinates                        gradient") != -1:
+                    parse_force = True
+
                 elif job_type == "" and l.strip().startswith("NWChem"):
                     job_type = l.strip()
                     if job_type == "NWChem DFT Module" and \
@@ -749,6 +766,7 @@ class NwOutput(object):
                      "frequencies": frequencies,
                      "normal_frequencies": normal_frequencies,
                      "hessian": hessian,
-                     "projected_hessian": projected_hessian})
+                     "projected_hessian": projected_hessian,
+                     "forces": all_forces})
 
         return data

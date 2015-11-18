@@ -639,7 +639,7 @@ loop_
  _atom_site_occupancy
   Li+  Li1  8  0.250000  0.250000  0.250000  1.0
   O2-  O2  4  0.000000  0.000000  0.000000  1.0"""
-        
+
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 

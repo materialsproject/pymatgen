@@ -11,7 +11,7 @@ from pymatgen.io.feff.sets import FeffInputSet
 from pymatgen.io.feff import FeffPot
 from pymatgen.io.cif import CifParser
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 cif_file = 'CoO19128.cif'
 central_atom = 'O'

@@ -4,7 +4,6 @@
 
 import glob
 import os
-import subprocess
 from io import open
 import sys
 
@@ -13,11 +12,9 @@ from setuptools import setup, find_packages, Extension
 try:
     from numpy.distutils.misc_util import get_numpy_include_dirs
 except ImportError:
-    print("numpy.distutils.misc_util cannot be imported. Attempting to "
-          "install...")
-    subprocess.call(["easy_install", "numpy"])
-    from numpy.distutils.misc_util import get_numpy_include_dirs
-
+    print("numpy.distutils.misc_util cannot be imported. Please install numpy"
+          "first before install pymatgen...")
+    sys.exit(-1)
 
 SETUP_PTH = os.path.dirname(os.path.abspath(__file__))
 
@@ -54,14 +51,14 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="3.2.3",
-    install_requires=["numpy>=1.8", "pyhull>=1.5.3", "six", "prettytable",
-                      "atomicfile", "requests", "pybtex", "pyyaml",
-                      "monty>=0.6.6", "scipy>=0.10"],
+    version="3.2.5",
+    install_requires=["numpy>=1.8", "pyhull>=1.5.3", "six", "atomicfile",
+                      "requests", "pybtex", "pyyaml", "monty>=0.7.0",
+                      "scipy>=0.10", "tabulate"],
     extras_require={"plotting": ["matplotlib>=1.1", "prettyplotlib"],
                     "ase_adaptor": ["ase>=3.3"],
                     "vis": ["vtk>=6.0.0"],
-                    "abinitio": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
+                    "abinit": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["*.yaml", "*.csv"],
                   "pymatgen.io.vasp": ["*.yaml"],
@@ -74,15 +71,11 @@ setup(
                   "pymatgen.analysis.defects": ["*.json"],
                   "pymatgen.analysis.diffraction": ["*.json"],
                   "pymatgen.util": ["structures/*.json"]},
-    author="Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier,"
-    "William Davidson Richards, Stephen Dacek, Dan Gunter, Shreyas Cholia, "
-    "Matteo Giantomassi, Vincent L Chevrier, Rickard Armiento",
-    author_email="ongsp@ucsd.edu, anubhavj@mit.edu, mpkocher@lbnl.gov, "
-    "geoffroy.hautier@uclouvain.be, wrichard@mit.edu, sdacek@mit.edu, "
-    "dkgunter@lbl.gov, scholia@lbl.gov, gmatteo@gmail.com, "
-    "vincentchevrier@gmail.com, armiento@mit.edu",
+    author="Pymatgen Development Team",
+    author_email="pymatgen@googlegroups.com",
     maintainer="Shyue Ping Ong",
-    url="https://github.com/materialsproject/pymatgen/",
+    maintainer_email="ongsp@eng.ucsd.edu",
+    url="http://www.pymatgen.org",
     license="MIT",
     description="Python Materials Genomics is a robust materials "
                 "analysis code that defines core object representations for "

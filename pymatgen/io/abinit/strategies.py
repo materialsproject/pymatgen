@@ -16,7 +16,7 @@ from six.moves import map, zip
 from monty.string import is_string
 from monty.json import MontyEncoder, MontyDecoder
 from monty.dev import deprecated
-from pymatgen.util.string_utils import str_aligned, str_delimited
+from pymatgen.util.string_utils import str_delimited
 from .abiobjects import Electrons
 from .pseudos import PseudoTable, Pseudo
 
@@ -843,7 +843,7 @@ def num_valence_electrons(pseudos, structure):
 #        lines = []
 #        app = lines.append
 #
-#        # extra_abivars can contain variables that are already defined 
+#        # extra_abivars can contain variables that are already defined
 #        # in the object. In this case, the value in extra_abivars is used
 #        # TODO: Should find a more elegant way to avoid collission between objects
 #        # and extra_abivars

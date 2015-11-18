@@ -20,7 +20,7 @@ import numpy as np
 from pprint import pprint
 from six.moves import map, StringIO
 from atomicfile import AtomicFile
-from prettytable import PrettyTable
+from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict
 from monty.collections import as_set, dict2namedtuple
@@ -31,7 +31,8 @@ from monty.pprint import draw_tree
 from monty.termcolor import cprint, colored, cprint_map
 from monty.inspect import find_top_pyfile
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump
-from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
+from monty.json import MSONable
+from pymatgen.serializers.json_coders import pmg_serialize
 from pymatgen.core.units import Memory
 from . import wrappers
 from .nodes import Status, Node, NodeError, NodeResults, Dependency, GarbageCollector, check_spectator
@@ -85,7 +86,7 @@ class FlowError(NodeError):
     """Base Exception for :class:`Node` methods"""
 
 
-class Flow(Node, NodeContainer, PMGSONable):
+class Flow(Node, NodeContainer, MSONable):
     """
     This object is a container of work. Its main task is managing the
     possible inter-dependencies among the work and the creation of
@@ -826,10 +827,9 @@ class Flow(Node, NodeContainer, PMGSONable):
         app("Number of tasks with a given class:")
 
         # Build Table
-        table = PrettyTable(["Task Class", "Number"])
-        for cls, tasks in self.groupby_task_class().items():
-            table.add_row([cls.__name__, len(tasks)])
-        app(str(table))
+        data = [[cls.__name__, len(tasks)]
+                for cls, tasks in self.groupby_task_class().items()]
+        app(str(tabulate(data, headers=["Task Class", "Number"])))
 
         stream.write("\n".join(lines))
 
@@ -880,9 +880,10 @@ class Flow(Node, NodeContainer, PMGSONable):
                 print("  Finalized works are not shown. Use verbose > 0 to force output.", file=stream)
                 continue
 
-            table = PrettyTable(["Task", "Status", "Queue", "MPI|Omp|Gb",
-                                 "Err|Warn|Com", "Class", "Rest|Sub|Corr", "Time", "Node_ID"])
-
+            headers = ["Task", "Status", "Queue", "MPI|Omp|Gb",
+                       "Err|Warn|Com", "Class", "Rest|Sub|Corr", "Time",
+                       "Node_ID"]
+            table = []
             tot_num_errors = 0
             for task in work:
                 if nids and task.node_id not in nids: continue
@@ -923,12 +924,14 @@ class Flow(Node, NodeContainer, PMGSONable):
                     task_name = colored(task_name, red)
 
                 if has_colours:
-                    table.add_row([task_name, task.status.colored, qinfo, para_info, events] + task_info)
+                    table.append([task_name, task.status.colored, qinfo,
+                                  para_info, events] + task_info)
                 else:
-                    table.add_row([task_name, str(task.status), qinfo, events, para_info] + task_info)
+                    table.append([task_name, str(task.status), qinfo, events,
+                                  para_info] + task_info)
 
             # Print table and write colorized line with the total number of errors.
-            print(table, file=stream)
+            print(tabulate(table, headers=headers), file=stream)
             if tot_num_errors:
                 cprint("Total number of errors: %d" % tot_num_errors, red, file=stream)
             print("", file=stream)
@@ -975,10 +978,10 @@ class Flow(Node, NodeContainer, PMGSONable):
         if nodes_files:
             print("Found %s files with extension %s produced by the flow" % (len(nodes_files), ext), file=stream)
 
-            table = PrettyTable(["File", "Size [Mb]", "Node_ID", "Node Class"])
-            for node, f in nodes_files:
-                table.add_row([f.relpath, "%.2f" % (f.get_stat().st_size / 1024**2), node.node_id, node.__class__.__name__])
-            print(table, file=stream)
+            table = [[f.relpath, "%.2f" % (f.get_stat().st_size / 1024**2),
+                      node.node_id, node.__class__.__name__]
+                     for node, f in nodes_files]
+            print(tabulate(table, headers=["File", "Size [Mb]", "Node_ID", "Node Class"]), file=stream)
 
         else:
             print("No output file with extension %s has been produced by the flow" % ext, file=stream)

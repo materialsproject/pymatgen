@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """This module provides functions and classes related to Task objects."""
-from __future__ import division, print_function, unicode_literals
+from __future__ import division, print_function, unicode_literals, absolute_import
 
 import os
 import time
@@ -20,11 +20,10 @@ from six.moves import map, zip, StringIO
 from monty.string import is_string, list_strings
 from monty.collections import AttrDict
 from monty.functools import lazy_property, return_none_if_raise
-from monty.json import MontyDecoder
+from monty.json import MSONable
 from monty.fnmatch import WildCard
-from monty.dev import deprecated
 from pymatgen.core.units import Memory
-from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize, PMGSONable
+from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, FilepathFixer, Condition, SparseHistogram
 from .qadapters import make_qadapter, QueueAdapter, QueueAdapterError
 from . import qutils as qu
@@ -384,7 +383,13 @@ class ParalHints(collections.Iterable):
 
         if len(policy.autoparal_priorities) == 1:
             # Example: hints.sort_by_speedup()
-            getattr(hints, "sort_by_" + policy.autoparal_priorities[0])()
+            if policy.autoparal_priorities[0] in ['efficiency', 'speedup', 'mem_per_proc']:
+                getattr(hints, "sort_by_" + policy.autoparal_priorities[0])()
+            elif isinstance(policy.autoparal_priorities[0], collections.Mapping):
+                if policy.autoparal_priorities[0]['meta_priority'] == 'highest_speedup_minimum_efficiency_cutoff':
+                    min_efficiency = policy.autoparal_priorities[0].get('minimum_efficiency', 1.0)
+                    hints.select_with_condition({'efficiency': {'$gte': min_efficiency}})
+                    hints.sort_by_speedup()
         else:
             hints = hints.multidimensional_optimization(priorities=policy.autoparal_priorities)
             if len(hints) == 0: raise ValueError("len(hints) == 0")
@@ -485,7 +490,7 @@ class FixQueueCriticalError(Exception):
 _USER_CONFIG_TASKMANAGER = None
 
 
-class TaskManager(PMGSONable):
+class TaskManager(MSONable):
     """
     A `TaskManager` is responsible for the generation of the job script and the submission 
     of the task, as well as for the specification of the parameters passed to the resource manager
