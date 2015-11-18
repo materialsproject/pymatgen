@@ -22,7 +22,6 @@ from pymatgen.core.structure import Molecule
 from pymatgen.core.units import Energy, FloatWithUnit
 from monty.json import MSONable
 from pymatgen.util.coord_utils import get_angle
-from six.moves import map, zip
 
 __author__ = "Xiaohui Qu"
 __copyright__ = "Copyright 2013, The Electrolyte Genome Project"
