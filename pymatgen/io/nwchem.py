@@ -526,6 +526,8 @@ class NwOutput(object):
             "geom_binvr: #indep variables incorrect": "autoz error",
             "dft optimize failed": "Geometry optimization failed"}
 
+        time_patt = re.compile("\s+ Task \s+ times \s+ cpu: \s+   ([\.\d]+)s .+ ",re.VERBOSE)
+
         fort2py = lambda x : x.replace("D", "e")
         isfloatstring = lambda s : s.find(".") == -1
 
@@ -555,10 +557,17 @@ class NwOutput(object):
         parse_bset = False
         parse_projected_freq = False
         job_type = ""
+        parse_time = False
+        time = 0
         for l in output.split("\n"):
             for e, v in error_defs.items():
                 if l.find(e) != -1:
                     errors.append(v)
+            if parse_time:
+                m = time_patt.search(l)
+                if m:
+                    time = m.group(1)
+                    parse_time = False
             if parse_geom:
                 if l.strip() == "Atomic Mass":
                     if lattice:
@@ -672,6 +681,7 @@ class NwOutput(object):
                 m = energy_patt.search(l)
                 if m:
                     energies.append(Energy(m.group(1), "Ha").to("eV"))
+                    parse_time = True
                     continue
 
                 m = energy_gas_patt.search(l)
@@ -767,6 +777,7 @@ class NwOutput(object):
                      "normal_frequencies": normal_frequencies,
                      "hessian": hessian,
                      "projected_hessian": projected_hessian,
-                     "forces": all_forces})
+                     "forces": all_forces,
+                     "task_time": time})
 
         return data
