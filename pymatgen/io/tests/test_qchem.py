@@ -2221,6 +2221,13 @@ Sites (12)
                'Bad SCF convergence']
         self.assertEqual(qcout.data[-1]["errors"], ans)
 
+    def test_qc43_batch_job(self):
+        filename = os.path.join(test_dir, "qchem43_batch_job.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(len(qcout.data), 2)
+        self.assertEqual(len(qcout.data[0]["scf_iteration_energies"][0]), 22)
+        self.assertTrue("pcm_solvent deprecated" in qcout.data[1]["errors"])
+
 
 if __name__ == "__main__":
     unittest.main()
