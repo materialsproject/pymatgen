@@ -47,7 +47,7 @@ class PointGroupTest(unittest.TestCase):
         pg6mmm = PointGroup("6/mmm")
         pg3m = PointGroup("-3m")
         # TODO: Fix the test below.
-        #self.assertTrue(pg3m.is_subgroup(pgm3m))
+        self.assertTrue(pg3m.is_subgroup(pgm3m))
         self.assertTrue(pg3m.is_subgroup(pg6mmm))
         self.assertFalse(pgm3m.is_supergroup(pg6mmm))
 
@@ -61,12 +61,10 @@ class SpaceGroupTest(unittest.TestCase):
         self.assertEqual(sg.int_number, 166)
 
     def test_attr(self):
-
         sg = SpaceGroup("Fm-3m")
         self.assertEqual(sg.full_symbol, "F4/m-32/m")
         self.assertEqual(sg.patterson_symmetry, "Fm-3m")
         self.assertEqual(sg.point_group, "m-3m")
-
 
     def test_full_symbols(self):
         sg = SpaceGroup("P2/m2/m2/m")
@@ -123,6 +121,9 @@ class SpaceGroupTest(unittest.TestCase):
         self.assertTrue(sg.is_compatible(ortho))
         self.assertTrue(sg.is_compatible(rhom))
         self.assertTrue(sg.is_compatible(hexagonal))
+
+    def test_subgroup_supergroup(self):
+        self.assertTrue(SpaceGroup('Pma2').is_supergroup(SpaceGroup('Pccm')))
 
 if __name__ == '__main__':
     unittest.main()

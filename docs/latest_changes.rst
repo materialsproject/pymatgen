@@ -1,10 +1,8 @@
 Change log
 ==========
 
-v3.2.5
+v3.2.6
 ------
-* Improved potcar setup via "pmg setup", with MAPI setup.
-* Support for new POTCARs issued by VASP.
-* Improvements to ABINIT support.
-* Improvement to Boltztrap support, e.g., scissor band gap, etc.
-* Vasprun now issues warning when unconverged run is detected.
+* Extensive support for elasticity tensor analysis (Joseph Montoya).
+* Misc bug fixes and performance improvements.
+* Add support for QChem4.3 new format of Batch jobs
