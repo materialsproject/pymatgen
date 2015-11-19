@@ -33,7 +33,7 @@ class ElementTestCase(unittest.TestCase):
         self.assertEqual(fe, Element.from_dict(d))
 
     def test_block(self):
-        testsets = {"O": "p", "Fe": "d", "Li": "s", "U": "f"}
+        testsets = {"O": "p", "Fe": "d", "Li": "s", "U": "f", "Er": "f"}
         for k, v in testsets.items():
             self.assertEqual(Element(k).block, v)
 

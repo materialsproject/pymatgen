@@ -598,12 +598,12 @@ class Element(object):
         Return the block character "s,p,d,f"
         """
         block = ""
-        if self.group in [1, 2]:
+        if self.is_actinoid or self.is_lanthanoid:
+            block = "f"
+        elif self.group in [1, 2]:
             block = "s"
         elif self.group in range(13, 19):
             block = "p"
-        elif self.is_actinoid or self.is_lanthanoid:
-            block = "f"
         elif self.group in range(3, 13):
             block = "d"
         else:
