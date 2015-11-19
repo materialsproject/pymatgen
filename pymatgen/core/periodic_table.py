@@ -598,7 +598,7 @@ class Element(object):
         Return the block character "s,p,d,f"
         """
         block = ""
-        if self.is_actinoid or self.is_lanthanoid:
+        if (self.is_actinoid or self.is_lanthanoid) and self.Z not in [71, 103]:
             block = "f"
         elif self.group in [1, 2]:
             block = "s"
