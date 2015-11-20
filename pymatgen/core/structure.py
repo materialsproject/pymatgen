@@ -33,6 +33,7 @@ from fractions import gcd
 
 import six
 from six.moves import map, zip
+from tabulate import tabulate
 
 import numpy as np
 
@@ -1206,10 +1207,17 @@ class IStructure(SiteCollection, MSONable):
         outs.append("angles: " + " ".join([to_s(i).rjust(10)
                                            for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i=len(self)))
+        data = []
+        props = self.site_properties
+        keys = sorted(props.keys())
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i), site.species_string,
-                                  " ".join([to_s(j).rjust(12)
-                                            for j in site.frac_coords])]))
+            row = [str(i), site.species_string]
+            row.extend([to_s(j) for j in site.frac_coords])
+            for k in keys:
+                row.append(props[k][i])
+            data.append(row)
+        outs.append(tabulate(data, headers=["#", "SP", "a", "b", "c"] + keys,
+                             ))
         return "\n".join(outs)
 
     def as_dict(self):
