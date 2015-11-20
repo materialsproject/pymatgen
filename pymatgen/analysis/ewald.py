@@ -244,8 +244,8 @@ class EwaldSummation(object):
         """
         numsites = self._s.num_sites
         prefactor = 2 * pi / self._vol
-        erecip = np.zeros((numsites, numsites))
-        forces = np.zeros((numsites, 3))
+        erecip = np.zeros((numsites, numsites), dtype=np.float)
+        forces = np.zeros((numsites, 3), dtype=np.float)
         coords = self._coords
         rcp_latt = self._s.lattice.reciprocal_lattice
         recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
@@ -298,9 +298,9 @@ class EwaldSummation(object):
         forcepf = 2.0 * self._sqrt_eta / sqrt(pi)
         coords = self._coords
         numsites = self._s.num_sites
-        ereal = np.zeros((numsites, numsites))
-        epoint = np.zeros(numsites)
-        forces = np.zeros((numsites, 3))
+        ereal = np.zeros((numsites, numsites), dtype=np.float)
+        epoint = np.zeros(numsites, dtype=np.float)
+        forces = np.zeros((numsites, 3), dtype=np.float)
         for i in range(numsites):
             nn = all_nn[i]  # self._s.get_neighbors(site, self._rmax)
             num_neighbors = len(nn)
@@ -310,9 +310,9 @@ class EwaldSummation(object):
             # add jellium term
             epoint[i] += qi * pi / (2.0 * self._vol * self._eta)
 
-            rij = np.zeros(num_neighbors)
-            qj = np.zeros(num_neighbors)
-            js = np.zeros(num_neighbors)
+            rij = np.zeros(num_neighbors, dtype=np.float)
+            qj = np.zeros(num_neighbors, dtype=np.float)
+            js = np.zeros(num_neighbors, dtype=np.float)
             ncoords = np.zeros((num_neighbors, 3))
 
             for k, (site, dist, j) in enumerate(nn):
