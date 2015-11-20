@@ -1,14 +1,19 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals
 
 from pymatgen.alchemy.filters import ContainsSpecieFilter, \
-    SpecieProximityFilter, RemoveDuplicatesFilter
+    SpecieProximityFilter, RemoveDuplicatesFilter, RemoveExistingFilter
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Specie
-from pymatgen.io.cifio import CifParser
 from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.serializers.json_coders import PMGJSONDecoder
+from pymatgen.util.testing import PymatgenTest
+
+from monty.json import MontyDecoder
 
 import os
 import json
@@ -18,7 +23,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
-class ContainsSpecieFilterTest(unittest.TestCase):
+class ContainsSpecieFilterTest(PymatgenTest):
 
     def test_filtering(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5],
@@ -57,17 +62,15 @@ class ContainsSpecieFilterTest(unittest.TestCase):
     def test_to_from_dict(self):
         species1 = ['Si5+', 'Mg2+']
         f1 = ContainsSpecieFilter(species1, strict_compare=True, AND=False)
-        d = f1.to_dict
+        d = f1.as_dict()
         self.assertIsInstance(ContainsSpecieFilter.from_dict(d),
                               ContainsSpecieFilter)
 
 
-class SpecieProximityFilterTest(unittest.TestCase):
+class SpecieProximityFilterTest(PymatgenTest):
 
     def test_filter(self):
-        filename = os.path.join(test_dir, "Li10GeP2S12.cif")
-        p = CifParser(filename)
-        s = p.get_structures()[0]
+        s = self.get_structure("Li10GeP2S12")
         sf = SpecieProximityFilter({"Li": 1})
         self.assertTrue(sf.test(s))
         sf = SpecieProximityFilter({"Li": 2})
@@ -79,7 +82,7 @@ class SpecieProximityFilterTest(unittest.TestCase):
 
     def test_to_from_dict(self):
         sf = SpecieProximityFilter({"Li": 1})
-        d = sf.to_dict
+        d = sf.as_dict()
         self.assertIsInstance(SpecieProximityFilter.from_dict(d),
                               SpecieProximityFilter)
 
@@ -88,7 +91,7 @@ class RemoveDuplicatesFilterTest(unittest.TestCase):
 
     def setUp(self):
         with open(os.path.join(test_dir, "TiO2_entries.json"), 'r') as fp:
-            entries = json.load(fp, cls=PMGJSONDecoder)
+            entries = json.load(fp, cls=MontyDecoder)
         self._struct_list = [e.structure for e in entries]
         self._sm = StructureMatcher()
 
@@ -96,14 +99,32 @@ class RemoveDuplicatesFilterTest(unittest.TestCase):
         transmuter = StandardTransmuter.from_structures(self._struct_list)
         fil = RemoveDuplicatesFilter()
         transmuter.apply_filter(fil)
-        out = self._sm.group_structures(transmuter.transformed_structures)
         self.assertEqual(len(transmuter.transformed_structures), 11)
 
     def test_to_from_dict(self):
         fil = RemoveDuplicatesFilter()
-        d = fil.to_dict
+        d = fil.as_dict()
         self.assertIsInstance(RemoveDuplicatesFilter().from_dict(d),
                               RemoveDuplicatesFilter)
+
+
+class RemoveExistingFilterTest(unittest.TestCase):
+
+    def setUp(self):
+        with open(os.path.join(test_dir, "TiO2_entries.json"), 'r') as fp:
+            entries = json.load(fp, cls=MontyDecoder)
+        self._struct_list = [e.structure for e in entries]
+        self._sm = StructureMatcher()
+        self._exisiting_structures = self._struct_list[:-1]
+
+    def test_filter(self):
+        fil = RemoveExistingFilter(self._exisiting_structures)
+        transmuter = StandardTransmuter.from_structures(self._struct_list)
+        transmuter.apply_filter(fil)
+        self.assertEqual(len(transmuter.transformed_structures), 1)
+        self.assertTrue(
+            self._sm.fit(self._struct_list[-1],
+                         transmuter.transformed_structures[-1].final_structure))
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

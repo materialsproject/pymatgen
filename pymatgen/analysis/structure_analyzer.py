@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 This module provides classes to perform topological analyses of structures.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -22,28 +25,26 @@ import collections
 from warnings import warn
 from pyhull.voronoi import VoronoiTess
 from pymatgen import PeriodicSite
-from pymatgen.util.coord_utils import pbc_all_distances
 from pymatgen import Element, Specie, Composition
+from pymatgen.util.num_utils import abs_cap
 
 
 class VoronoiCoordFinder(object):
     """
     Uses a Voronoi algorithm to determine the coordination for each site in a
     structure.
+
+    Args:
+        structure (Structure): Input structure
+        target ([Element/Specie]): A list of target species to determine
+            coordination for.
+        cutoff (float): Radius in Angstrom cutoff to look for coordinating
+            atoms. Defaults to 10.0.
     """
 
-    # Radius in Angstrom cutoff to look for coordinating atoms
-    default_cutoff = 10.0
-
-    def __init__(self, structure, target=None):
-        """
-        Args:
-            structure:
-                Input structure
-            target:
-                A list of target species to determine coordination for.
-        """
+    def __init__(self, structure, target=None, cutoff=10.0):
         self._structure = structure
+        self.cutoff = cutoff
         if target is None:
             self._target = structure.composition.elements
         else:
@@ -57,18 +58,16 @@ class VoronoiCoordFinder(object):
         M. O'Keeffe, Acta Cryst. (1979). A35, 772-775
 
         Args:
-            n:
-                site index
+            n (int): Site index
 
         Returns:
-            A dictionary of sites sharing a common Voronoi facet with the site
+            A dict of sites sharing a common Voronoi facet with the site
             n and their solid angle weights
         """
-
         localtarget = self._target
         center = self._structure[n]
         neighbors = self._structure.get_sites_in_sphere(
-            center.coords, VoronoiCoordFinder.default_cutoff)
+            center.coords, self.cutoff)
         neighbors = [i[0] for i in sorted(neighbors, key=lambda s: s[1])]
         qvoronoi_input = [s.coords for s in neighbors]
         voro = VoronoiTess(qvoronoi_input)
@@ -99,8 +98,7 @@ class VoronoiCoordFinder(object):
         Returns the coordination number of site with index n.
 
         Args:
-            n:
-                site index
+            n (int): Site index
         """
         return sum(self.get_voronoi_polyhedra(n).values())
 
@@ -110,13 +108,10 @@ class VoronoiCoordFinder(object):
         index n.
 
         Args:
-            n:
-                Site number.
-            tol:
-                Weight tolerance to determine if a particular pair is
+            n (int): Site index.
+            tol (float): Weight tolerance to determine if a particular pair is
                 considered a neighbor.
-            Target:
-                Target element
+            target (Element): Target element
 
         Returns:
             Sites coordinating input site.
@@ -140,10 +135,10 @@ class RelaxationAnalyzer(object):
         codes.
 
         Args:
-            initial_structure:
-                Initial input structure to calculation.
-            final_structure:
-                Final output structure from calculation.
+            initial_structure (Structure): Initial input structure to
+                calculation.
+            final_structure (Structure): Final output structure from
+                calculation.
         """
         if final_structure.formula != initial_structure.formula:
             raise ValueError("Initial and final structures have different " +
@@ -183,9 +178,9 @@ class RelaxationAnalyzer(object):
         maximum radius for nearest neighbors.
 
         Args:
-            max_radius:
-                Maximum radius to search for nearest neighbors. This radius is
-                applied to the initial structure, not the final structure.
+            max_radius (float): Maximum radius to search for nearest
+               neighbors. This radius is applied to the initial structure,
+               not the final structure.
 
         Returns:
             Bond distance changes as a dict of dicts. E.g.,
@@ -195,7 +190,7 @@ class RelaxationAnalyzer(object):
             there is no reason to duplicate the information or computation.
         """
         data = collections.defaultdict(dict)
-        for inds in itertools.combinations(xrange(len(self.initial)), 2):
+        for inds in itertools.combinations(list(range(len(self.initial))), 2):
             (i, j) = sorted(inds)
             initial_dist = self.initial[i].distance(self.initial[j])
             if initial_dist < max_radius:
@@ -207,7 +202,11 @@ class RelaxationAnalyzer(object):
 class VoronoiConnectivity(object):
     """
     Computes the solid angles swept out by the shared face of the voronoi
-    polyhedron between two sites
+    polyhedron between two sites.
+
+    Args:
+        structure (Structure): Input structure
+        cutoff (float) Cutoff distance.
     """
 
     # Radius in Angstrom cutoff to look for coordinating atoms
@@ -225,13 +224,14 @@ class VoronoiConnectivity(object):
     @property
     def connectivity_array(self):
         """
+        Provides connectivity array.
+
         Returns:
-            connectivity:
-                an array of shape [atomi, atomj, imagej]. atomi is the
-                index of the atom in the input structure. Since the second
-                atom can be outside of the unit cell, it must be described
-                by both an atom index and an image index. Array data is the
-                solid angle of polygon between atomi and imagej of atomj
+            connectivity: An array of shape [atomi, atomj, imagej]. atomi is
+            the index of the atom in the input structure. Since the second
+            atom can be outside of the unit cell, it must be described
+            by both an atom index and an image index. Array data is the
+            solid angle of polygon between atomi and imagej of atomj
         """
         #shape = [site, axis]
         cart_coords = np.array(self.s.cart_coords)
@@ -298,10 +298,8 @@ class VoronoiConnectivity(object):
         (structure[1]). sitej can be obtained by passing 3, 12 to this function
 
         Args:
-            site_index:
-                index of the site (3 in the example)
-            image_index:
-                index of the image (12 in the example)
+            site_index (int): index of the site (3 in the example)
+            image_index (int): index of the image (12 in the example)
         """
         atoms_n_occu = self.s[site_index].species_and_occu
         lattice = self.s.lattice
@@ -315,10 +313,8 @@ def solid_angle(center, coords):
     center.
 
     Args:
-        center:
-            Center to measure solid angle from.
-        coords:
-            List of coords to determine solid angle.
+        center (3x1 array): Center to measure solid angle from.
+        coords (Nx3 array): List of coords to determine solid angle.
 
     Returns:
         The solid angle.
@@ -328,9 +324,12 @@ def solid_angle(center, coords):
     r.append(r[0])
     n = [np.cross(r[i + 1], r[i]) for i in range(len(r) - 1)]
     n.append(np.cross(r[1], r[0]))
-    phi = sum([math.acos(-np.dot(n[i], n[i + 1])
-                         / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1])))
-               for i in range(len(n) - 1)])
+    vals = []
+    for i in range(len(n) - 1):
+        v = -np.dot(n[i], n[i + 1])\
+            / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
+        vals.append(math.acos(abs_cap(v)))
+    phi = sum(vals)
     return phi + (3 - len(r)) * math.pi
 
 
@@ -339,53 +338,47 @@ def contains_peroxide(structure, relative_cutoff=1.1):
     Determines if a structure contains peroxide anions.
 
     Args:
-        structure:
-            Input structure.
-        relative_cutoff:
-            The peroxide bond distance is 1.49 Angstrom. Relative_cutoff * 1.49
-            stipulates the maximum distance two O atoms must be to each other
-            to be considered a peroxide.
+        structure (Structure): Input structure.
+        relative_cutoff: The peroxide bond distance is 1.49 Angstrom.
+            Relative_cutoff * 1.49 stipulates the maximum distance two O
+            atoms must be to each other to be considered a peroxide.
 
     Returns:
         Boolean indicating if structure contains a peroxide anion.
     """
     ox_type = oxide_type(structure, relative_cutoff)
-    if ox_type is "peroxide":
+    if ox_type == "peroxide":
         return True
     else:
         return False
 
 
-class oxide_type_class():
+class OxideType(object):
     """
     Separate class for determining oxide type.
+
+    Args:
+        structure: Input structure.
+        relative_cutoff: Relative_cutoff * act. cutoff stipulates the max.
+            distance two O atoms must be from each other. Default value is
+            1.1. At most 1.1 is recommended, nothing larger, otherwise the
+            script cannot distinguish between superoxides and peroxides.
     """
     def __init__(self, structure, relative_cutoff=1.1):
-        """
-        Args:
-            structure:
-                Input structure.
-            relative_cutoff:
-                Relative_cutoff * act. cutoff stipulates the max. distance two
-                O atoms must be from each other. Default value is 1.1. At most
-                1.1 is recommended, nothing larger, otherwise the script cannot
-                distinguish between superoxides and peroxides.
-        """
         self.structure = structure
         self.relative_cutoff = relative_cutoff
         self.oxide_type, self.nbonds = self.parse_oxide()
 
     def parse_oxide(self):
         """
-        Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide
+        Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide.
 
         Returns:
-            oxide_type:
-                Type of oxide - ozonide/peroxide/superoxide/hydroxide/None
-            nbonds:
-                Number of peroxide/superoxide/hydroxide bonds in structure
+            oxide_type (str): Type of oxide
+            ozonide/peroxide/superoxide/hydroxide/None.
+            nbonds (int): Number of peroxide/superoxide/hydroxide bonds in
+            structure.
         """
-
         structure = self.structure
         relative_cutoff = self.relative_cutoff
         o_sites_frac_coords = []
@@ -411,12 +404,13 @@ class oxide_type_class():
                 h_sites_frac_coords.append(site.frac_coords)
 
         if h_sites_frac_coords:
-            dist_matrix = pbc_all_distances(lattice, o_sites_frac_coords,
-                                            h_sites_frac_coords)
+            dist_matrix = lattice.get_all_distances(o_sites_frac_coords,
+                                                    h_sites_frac_coords)
             if np.any(dist_matrix < relative_cutoff * 0.93):
-                return "hydroxide", len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2.0
-        dist_matrix = pbc_all_distances(lattice, o_sites_frac_coords,
-                                        o_sites_frac_coords)
+                return "hydroxide", len(
+                    np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2.0
+        dist_matrix = lattice.get_all_distances(o_sites_frac_coords,
+                                                o_sites_frac_coords)
         np.fill_diagonal(dist_matrix, 1000)
         is_superoxide = False
         is_peroxide = False
@@ -443,6 +437,8 @@ class oxide_type_class():
             str_oxide = "peroxide"
         else:
             str_oxide = "oxide"
+        if str_oxide == "oxide":
+            nbonds = comp["O"]
         return str_oxide, nbonds
 
 
@@ -451,16 +447,13 @@ def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
     Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide
 
     Args:
-        structure:
-            Input structure.
-        relative_cutoff:
-            Relative_cutoff * act. cutoff stipulates the max. distance two
-            O atoms must be from each other.
-        return_nbonds:
-            Should number of bonds be requested?
+        structure (Structure): Input structure.
+        relative_cutoff (float): Relative_cutoff * act. cutoff stipulates the
+            max distance two O atoms must be from each other.
+        return_nbonds (bool): Should number of bonds be requested?
     """
 
-    ox_obj = oxide_type_class(structure, relative_cutoff)
+    ox_obj = OxideType(structure, relative_cutoff)
     if return_nbonds:
         return ox_obj.oxide_type, ox_obj.nbonds
     else:

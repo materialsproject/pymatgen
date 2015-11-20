@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 This module contains classes to wrap Python VTK to make nice molecular plots.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -13,8 +16,8 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Nov 27, 2011"
 
+
 import os
-import ConfigParser
 import itertools
 import math
 import subprocess
@@ -22,9 +25,15 @@ import subprocess
 import numpy as np
 import vtk
 
+from monty.serialization import loadfn
+
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.core.periodic_table import Specie
 from pymatgen.core.structure import Structure
+
+
+module_dir = os.path.dirname(os.path.abspath(__file__))
+EL_COLORS = loadfn(os.path.join(module_dir, "ElementColorSchemes.yaml"))
 
 
 class StructureVis(object):
@@ -36,30 +45,27 @@ class StructureVis(object):
                  show_bonds=False, show_polyhedron=True,
                  poly_radii_tol_factor=0.5, excluded_bonding_elements=None):
         """
+        Constructs a Structure Visualization.
+
         Args:
-            element_color_mapping:
-                Optional color mapping for the elements, as a dict of
-                {symbol: rgb tuple}. For example, {"Fe": (255,123,0), ....}
-                If None is specified, a default based on Jmol"s color scheme
-                is used.
-            show_unit_cell:
-                Set to False to not show the unit cell boundaries. Defaults to
-                True.
-            show_bonds:
-                Set to True to show bonds. Defaults to True.
-            show_polyhedron:
-                Set to True to show polyhedrons. Defaults to False.
-            poly_radii_tol_factor:
-                The polyhedron and bonding code uses the ionic radii of the
-                elements or species to determine if two atoms are bonded. This
-                specifies a tolerance scaling factor such that atoms which are
-                (1 + poly_radii_tol_factor) * sum of ionic radii apart are
-                still considered as bonded.
-            excluded_bonding_elements:
-                List of atom types to exclude from bonding determination.
-                Defaults to an empty list. Useful when trying to visualize a
-                certain atom type in the framework (e.g., Li in a Li-ion
-                battery cathode material).
+            element_color_mapping: Optional color mapping for the elements,
+                as a dict of {symbol: rgb tuple}. For example, {"Fe": (255,
+                123,0), ....} If None is specified, a default based on
+                Jmol"s color scheme is used.
+            show_unit_cell: Set to False to not show the unit cell
+                boundaries. Defaults to True.
+            show_bonds: Set to True to show bonds. Defaults to True.
+            show_polyhedron: Set to True to show polyhedrons. Defaults to
+                False.
+            poly_radii_tol_factor: The polyhedron and bonding code uses the
+                ionic radii of the elements or species to determine if two
+                atoms are bonded. This specifies a tolerance scaling factor
+                such that atoms which are (1 + poly_radii_tol_factor) * sum
+                of ionic radii apart are still considered as bonded.
+            excluded_bonding_elements: List of atom types to exclude from
+                bonding determination. Defaults to an empty list. Useful
+                when trying to visualize a certain atom type in the
+                framework (e.g., Li in a Li-ion battery cathode material).
 
         Useful keyboard shortcuts implemented.
             h : Show help
@@ -91,15 +97,7 @@ class StructureVis(object):
         if element_color_mapping:
             self.el_color_mapping = element_color_mapping
         else:
-            module_dir = os.path.dirname(os.path.abspath(__file__))
-            config = ConfigParser.SafeConfigParser()
-            config.optionxform = str
-            config.readfp(open(os.path.join(module_dir,
-                                            "ElementColorSchemes.cfg")))
-
-            self.el_color_mapping = {}
-            for (el, color) in config.items("VESTA"):
-                self.el_color_mapping[el] = [int(i) for i in color.split(",")]
+            self.el_color_mapping = EL_COLORS["VESTA"]
         self.show_unit_cell = show_unit_cell
         self.show_bonds = show_bonds
         self.show_polyhedron = show_polyhedron
@@ -119,10 +117,8 @@ class StructureVis(object):
         Rotate the camera view.
 
         Args:
-            axis_ind:
-                Index of axis to rotate. Defaults to 0, i.e., a-axis.
-            angle:
-                Angle to rotate by. Defaults to 0.
+            axis_ind: Index of axis to rotate. Defaults to 0, i.e., a-axis.
+            angle: Angle to rotate by. Defaults to 0.
         """
         camera = self.ren.GetActiveCamera()
         if axis_ind == 0:
@@ -167,9 +163,8 @@ class StructureVis(object):
         Redraw the render window.
 
         Args:
-            reset_camera:
-                Set to True to reset the camera to a pre-determined default for
-                each structure.  Defaults to False.
+            reset_camera: Set to True to reset the camera to a
+                pre-determined default for each structure.  Defaults to False.
         """
         self.ren.RemoveAllViewProps()
         self.picker = None
@@ -214,11 +209,9 @@ class StructureVis(object):
         Add a structure to the visualizer.
 
         Args:
-            structure:
-                structure to visualize
-            reset_camera:
-                Set to True to reset the camera to a default determined based
-                on the structure.
+            structure: structure to visualize
+            reset_camera: Set to True to reset the camera to a default
+                determined based on the structure.
         """
         self.ren.RemoveAllViewProps()
 
@@ -348,8 +341,7 @@ class StructureVis(object):
         still shows the partial occupancy.
 
         Args:
-            site:
-                Site to add.
+            site: Site to add.
         """
         start_angle = 0
         radius = 0
@@ -362,47 +354,48 @@ class StructureVis(object):
                               else specie.average_ionic_radius)
             total_occu += occu
 
-        def add_partial_sphere(start, end, specie):
-            sphere = vtk.vtkSphereSource()
-            sphere.SetCenter(site.coords)
-            sphere.SetRadius(0.2 + 0.002 * radius)
-            sphere.SetThetaResolution(18)
-            sphere.SetPhiResolution(18)
-            sphere.SetStartTheta(start)
-            sphere.SetEndTheta(end)
-
-            mapper = vtk.vtkPolyDataMapper()
-            mapper.SetInputConnection(sphere.GetOutputPort())
-            self.mapper_map[mapper] = [site]
-            actor = vtk.vtkActor()
-            actor.SetMapper(mapper)
-            color = (0, 0, 0)
+        for specie, occu in site.species_and_occu.items():
             if not specie:
                 color = (1, 1, 1)
             elif specie.symbol in self.el_color_mapping:
                 color = [i / 255 for i in self.el_color_mapping[specie.symbol]]
-            actor.GetProperty().SetColor(color)
-            self.ren.AddActor(actor)
-
-        for specie, occu in site.species_and_occu.items():
-            add_partial_sphere(start_angle, start_angle + 360 * occu, specie)
+            mapper = self.add_partial_sphere(site.coords, radius, color,
+                start_angle, start_angle + 360 * occu)
+            self.mapper_map[mapper] = [site]
             start_angle += 360 * occu
 
         if total_occu < 1:
-            add_partial_sphere(start_angle, start_angle
-                               + 360 * (1 - total_occu), None)
+            mapper = self.add_partial_sphere(site.coords, radius, (1,1,1),
+                start_angle, start_angle + 360 * (1 - total_occu))
+            self.mapper_map[mapper] = [site]
+
+    def add_partial_sphere(self, coords, radius, color, start=0, end=360,
+                           opacity=1):
+        sphere = vtk.vtkSphereSource()
+        sphere.SetCenter(coords)
+        sphere.SetRadius(0.2 + 0.002 * radius)
+        sphere.SetThetaResolution(18)
+        sphere.SetPhiResolution(18)
+        sphere.SetStartTheta(start)
+        sphere.SetEndTheta(end)
+
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputConnection(sphere.GetOutputPort())
+        actor = vtk.vtkActor()
+        actor.SetMapper(mapper)
+        actor.GetProperty().SetColor(color)
+        actor.GetProperty().SetOpacity(opacity)
+        self.ren.AddActor(actor)
+        return mapper
 
     def add_text(self, coords, text, color=(0, 0, 0)):
         """
         Add text at a coordinate.
 
         Args:
-            coords:
-                Coordinates to add text at.
-            text:
-                Text to place.
-            color:
-                Color for text as RGB. Defaults to black.
+            coords: Coordinates to add text at.
+            text: Text to place.
+            color: Color for text as RGB. Defaults to black.
         """
         source = vtk.vtkVectorText()
         source.SetText(text)
@@ -421,14 +414,10 @@ class StructureVis(object):
         Adds a line.
 
         Args:
-            start:
-                Starting coordinates for line.
-            end:
-                Ending coordinates for line.
-            color:
-                Color for text as RGB. Defaults to grey.
-            width:
-                Width of line. Defaults to 1.
+            start: Starting coordinates for line.
+            end: Ending coordinates for line.
+            color: Color for text as RGB. Defaults to grey.
+            width: Width of line. Defaults to 1.
         """
         source = vtk.vtkLineSource()
         source.SetPoint1(start)
@@ -450,27 +439,20 @@ class StructureVis(object):
         actor.GetProperty().SetLineWidth(width)
         self.ren.AddActor(actor)
 
-    def add_polyhedron(self, neighbors, center, color, opacity=0.4,
+    def add_polyhedron(self, neighbors, center, color, opacity=1.0,
                        draw_edges=False, edges_color=[0.0, 0.0, 0.0],
                        edges_linewidth=2):
         """
         Adds a polyhedron.
 
         Args:
-            neighbors:
-                Neighbors of the polyhedron (the vertices).
-            center:
-                The atom in the center of the polyhedron.
-            color:
-                Color for text as RGB.
-            opacity:
-                Opacity of the polyhedron
-            draw_edges:
-                If set to True, the a line will be drawn at each edge
-            edges_color:
-                Color of the line for the edges
-            edges_linewidth:
-                Width of the line drawn for the edges
+            neighbors: Neighbors of the polyhedron (the vertices).
+            center: The atom in the center of the polyhedron.
+            color: Color for text as RGB.
+            opacity: Opacity of the polyhedron
+            draw_edges: If set to True, the a line will be drawn at each edge
+            edges_color: Color of the line for the edges
+            edges_linewidth: Width of the line drawn for the edges
         """
         points = vtk.vtkPoints()
         conv = vtk.vtkConvexPointSet()
@@ -520,20 +502,13 @@ class StructureVis(object):
         Adds a triangular surface between three atoms.
 
         Args:
-            atoms:
-                Atoms between which a triangle will be drawn.
-            color:
-                Color for triangle as RGB.
-            center:
-                The "central atom" of the triangle
-            opacity:
-                opacity of the triangle
-            draw_edges:
-                If set to True, the a line will be drawn at each edge
-            edges_color:
-                Color of the line for the edges
-            edges_linewidth:
-                Width of the line drawn for the edges
+            atoms: Atoms between which a triangle will be drawn.
+            color: Color for triangle as RGB.
+            center: The "central atom" of the triangle
+            opacity: opacity of the triangle
+            draw_edges: If set to True, the a line will be  drawn at each edge
+            edges_color: Color of the line for the edges
+            edges_linewidth: Width of the line drawn for the edges
         """
         points = vtk.vtkPoints()
         triangle = vtk.vtkTriangle()
@@ -680,16 +655,11 @@ class StructureVis(object):
         Adds bonds for a site.
 
         Args:
-            neighbors:
-                Neighbors of the site.
-            center:
-                The site in the center for all bonds.
-            color:
-                Color of the tubes representing the bonds
-            opacity:
-                Opacity of the tubes representing the bonds
-            radius:
-                radius of tube s representing the bonds
+            neighbors: Neighbors of the site.
+            center: The site in the center for all bonds.
+            color: Color of the tubes representing the bonds
+            opacity: Opacity of the tubes representing the bonds
+            radius: Radius of tube s representing the bonds
         """
         points = vtk.vtkPoints()
         points.InsertPoint(0, center.x, center.y, center.z)
@@ -872,26 +842,23 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
 
 
 def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
-               bitrate=10000, quality=5):
+               bitrate="10000k", quality=1, **kwargs):
     """
     Generate a movie from a sequence of structures using vtk and ffmpeg.
 
     Args:
-        structures:
-            sequence of structures
-        output_filename:
-            filename for structure output. defaults to movie.mp4
-        zoom:
-            A zoom to be applied to the visulizer. Defaults to 1.0
-        fps:
-            Frames per second for the movie. Defaults to 20.
-        bitrate:
-            Video bitate.  Defaults to 10000 (fairly high quality).
-        quality:
-            A quality scale. Defaults to 5.
-
+        structures ([Structure]): sequence of structures
+        output_filename (str): filename for structure output. defaults to
+            movie.mp4
+        zoom (float): A zoom to be applied to the visualizer. Defaults to 1.0.
+        fps (int): Frames per second for the movie. Defaults to 20.
+        bitrate (str): Video bitate.  Defaults to "10000k" (fairly high
+            quality).
+        quality (int): A quality scale. Defaults to 1.
+        \*\*kwargs: Any kwargs supported by StructureVis to modify the images
+            generated.
     """
-    vis = StructureVis()
+    vis = StructureVis(**kwargs)
     vis.show_help = False
     vis.redraw()
     vis.zoom(zoom)
@@ -901,6 +868,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
         vis.set_structure(s)
         vis.write_image(filename.format(i), 3)
     filename = "image%0" + str(sigfig) + "d.png"
-    args = ["ffmpeg", "-y", "-qscale", str(quality), "-r", str(fps), "-b",
-            str(bitrate), "-i", filename, output_filename]
+    args = ["ffmpeg", "-y", "-i", filename,
+            "-q:v", str(quality), "-r", str(fps), "-b:v", str(bitrate),
+            output_filename]
     subprocess.Popen(args)

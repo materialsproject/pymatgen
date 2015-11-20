@@ -1,4 +1,8 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 This module implements an interface to the Henkelmann et al.'s excellent
@@ -14,7 +18,8 @@ G. Henkelman, A. Arnaldsson, and H. Jonsson, "A fast and robust algorithm for
 Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 """
 
-from __future__ import division
+from six.moves import map
+from six.moves import zip
 
 __author__ = "shyuepingong"
 __version__ = "0.1"
@@ -25,13 +30,13 @@ __date__ = "4/5/13"
 
 import os
 import subprocess
-import tempfile
 import shutil
 
-from pymatgen.io.vaspio.vasp_output import Chgcar
-from pymatgen.io.vaspio.vasp_input import Potcar
-from pymatgen.util.io_utils import which
-from pymatgen.util.decorators import requires
+from pymatgen.io.vasp.outputs import Chgcar
+from pymatgen.io.vasp.inputs import Potcar
+from monty.os.path import which
+from monty.dev import requires
+from monty.tempfile import ScratchDir
 
 
 @requires(which("bader"),
@@ -84,23 +89,23 @@ class BaderAnalysis(object):
 
     def __init__(self, chgcar_filename, potcar_filename=None):
         """
+        Initializes the Bader caller.
+
         Args:
-            chgcar_filename:
-                The filename of the CHGCAR.
-            potcar_filename:
-                Optional: the filename of the corresponding POTCAR file. Used
-                for calculating the charge transfer. If None, the
-                get_charge_transfer method will raise a ValueError.
+            chgcar_filename: The filename of the CHGCAR.
+            potcar_filename: Optional: the filename of the corresponding
+                POTCAR file. Used for calculating the charge transfer. If
+                None, the get_charge_transfer method will raise a ValueError.
         """
-        temp_dir = tempfile.mkdtemp()
         self.chgcar = Chgcar.from_file(chgcar_filename)
         self.potcar = Potcar.from_file(potcar_filename) \
             if potcar_filename is not None else None
         self.natoms = self.chgcar.poscar.natoms
-        try:
-            shutil.copy(chgcar_filename, os.path.join(temp_dir, "CHGCAR"))
-            current_dir = os.getcwd()
-            os.chdir(temp_dir)
+        chgcarpath = os.path.abspath(chgcar_filename)
+
+        with ScratchDir(".") as temp_dir:
+            shutil.copy(chgcarpath, os.path.join(temp_dir, "CHGCAR"))
+
             rs = subprocess.Popen(["bader", "CHGCAR"],
                                   stdout=subprocess.PIPE,
                                   stdin=subprocess.PIPE, close_fds=True)
@@ -125,11 +130,6 @@ class BaderAnalysis(object):
                     elif toks[0] == "NUMBER OF ELECTRONS":
                         self.nelectrons = float(toks[1])
             self.data = data
-            os.chdir(current_dir)
-        except Exception as ex:
-            print str(ex)
-        finally:
-            shutil.rmtree(temp_dir)
 
     def get_charge(self, atom_index):
         """
@@ -176,6 +176,6 @@ class BaderAnalysis(object):
             to be supplied.
         """
         structure = self.chgcar.structure
-        charges = map(self.get_charge_transfer, xrange(len(structure)))
+        charges = [self.get_charge_transfer(i) for i in range(len(structure))]
         structure.add_oxidation_state_by_site(charges)
         return structure

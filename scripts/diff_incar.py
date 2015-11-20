@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+#  coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
 
 """
 Created on Nov 12, 2011
@@ -14,8 +18,9 @@ __date__ = "Nov 12, 2011"
 import itertools
 import argparse
 
-from pymatgen.io.vaspio import Incar
-from pymatgen.util.string_utils import str_aligned
+from tabulate import tabulate
+
+from pymatgen.io.vasp import Incar
 
 
 parser = argparse.ArgumentParser(description='''Convenient INCAR diff.
@@ -50,4 +55,4 @@ output.append(['----------------', '', ''])
 output.extend([(k, format_lists(d['Different'][k]['INCAR1']),
                 format_lists(d['Different'][k]['INCAR2']))
                for k in sorted(d['Different'].keys()) if k != "SYSTEM"])
-print str_aligned(output, ['', filepath1, filepath2])
+print(tabulate(output, headers=['', filepath1, filepath2]))

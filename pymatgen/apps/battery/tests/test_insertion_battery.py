@@ -1,4 +1,8 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals
 
 """
 Created on Jan 25, 2012
@@ -17,7 +21,7 @@ import json
 
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
-from pymatgen import PMGJSONEncoder, PMGJSONDecoder
+from pymatgen import MontyEncoder, MontyDecoder
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -29,13 +33,13 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.entry_Li = ComputedEntry("Li", -1.90753119)
 
         with open(os.path.join(test_dir, "LiTiO2_batt.json"), "r") as f:
-            self.entries_LTO = json.load(f, cls=PMGJSONDecoder)
+            self.entries_LTO = json.load(f, cls=MontyDecoder)
 
         with open(os.path.join(test_dir, "MgVO_batt.json"), "r") as file:
-            self.entries_MVO = json.load(file, cls=PMGJSONDecoder)
+            self.entries_MVO = json.load(file, cls=MontyDecoder)
 
         with open(os.path.join(test_dir, "Mg_batt.json"), "r") as file:
-            self.entry_Mg = json.load(file, cls=PMGJSONDecoder)
+            self.entry_Mg = json.load(file, cls=MontyDecoder)
 
 
         self.ie_LTO = InsertionElectrode(self.entries_LTO, self.entry_Li)
@@ -74,7 +78,7 @@ class InsertionElectrodeTest(unittest.TestCase):
         #test alternate normalization option
         self.assertAlmostEqual(self.ie_LTO.get_capacity_grav(1, 3, False),
                                160.803169506, 3)
-        self.assertIsNotNone(self.ie_LTO.to_dict_summary(True))
+        self.assertIsNotNone(self.ie_LTO.as_dict_summary(True))
 
         self.assertAlmostEqual(self.ie_MVO.get_capacity_grav(), 281.845548242, 3)
         self.assertAlmostEqual(self.ie_MVO.get_capacity_vol(), 1145.80087994, 3)
@@ -93,15 +97,15 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.ie_LTO.get_all_entries()
 
     def test_to_from_dict(self):
-        d = self.ie_LTO.to_dict
+        d = self.ie_LTO.as_dict()
         ie = InsertionElectrode.from_dict(d)
         self.assertAlmostEqual(ie.max_voltage, 2.78583901, 3)
         self.assertAlmostEqual(ie.min_voltage, 0.89702381, 3)
         self.assertAlmostEqual(ie.get_average_voltage(), 1.84143141, 3)
 
         #Just to make sure json string works.
-        json_str = json.dumps(self.ie_LTO, cls=PMGJSONEncoder)
-        ie = json.loads(json_str, cls=PMGJSONDecoder)
+        json_str = json.dumps(self.ie_LTO, cls=MontyEncoder)
+        ie = json.loads(json_str, cls=MontyDecoder)
         self.assertAlmostEqual(ie.max_voltage, 2.78583901, 3)
         self.assertAlmostEqual(ie.min_voltage, 0.89702381, 3)
         self.assertAlmostEqual(ie.get_average_voltage(), 1.84143141, 3)

@@ -1,4 +1,8 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals
 
 """
 Module containing class to create an ion
@@ -16,7 +20,7 @@ import re
 import numpy as np
 
 from pymatgen.core.composition import Composition
-from pymatgen.serializers.json_coders import MSONable
+from monty.json import MSONable
 from pymatgen.util.string_utils import formula_double_format
 
 
@@ -151,20 +155,19 @@ class Ion(MSONable):
         """
         return self._composition
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Returns:
             dict with composition, as well as charge
         """
-        d = self._composition.to_dict
+        d = self._composition.as_dict()
         d['charge'] = self._charge
         return d
 
     @classmethod
     def from_dict(cls, d):
         """
-        Generates an ion object from a dict created by to_dict.
+        Generates an ion object from a dict created by as_dict().
 
         Args:
             d:
@@ -184,7 +187,7 @@ class Ion(MSONable):
         """
         reduced_formula = self._composition.reduced_formula
         c = Composition(reduced_formula)
-        d = c.to_dict
+        d = c.as_dict()
         d['charge'] = self._charge
         return d
 

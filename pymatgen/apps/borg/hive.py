@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 This module define the various drones used to assimilate data.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -21,38 +24,39 @@ import logging
 import fnmatch
 import json
 
-from pymatgen.util.io_utils import zopen
-from pymatgen.io.vaspio.vasp_input import Incar, Potcar, Poscar
-from pymatgen.io.vaspio.vasp_output import Vasprun, Oszicar
-from pymatgen.io.gaussianio import GaussianOutput
+import six
+from six.moves import zip
+
+from monty.io import zopen
+from pymatgen.io.vasp.inputs import Incar, Potcar, Poscar
+from pymatgen.io.vasp.outputs import Vasprun, Oszicar, Dynmat
+from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
-from pymatgen.serializers.json_coders import MSONable
+from monty.json import MSONable
 
 logger = logging.getLogger(__name__)
 
 
-class AbstractDrone(MSONable):
+class AbstractDrone(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Abstract drone class that defines the various methods that must be
     implemented by drones. Because of the quirky nature of Python"s
     multiprocessing, the intermediate data representations has to be in the
     form of python primitives. So all objects that drones work with must be
-    MSONable. All drones must also implement the standard MSONable to_dict and
+    MSONable. All drones must also implement the standard MSONable as_dict() and
     from_dict API.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def assimilate(self, path):
         """
         Assimilate data in a directory path into a pymatgen object. Because of
         the quirky nature of Python"s multiprocessing, the object must support
-        pymatgen"s to_dict for parallel processing.
+        pymatgen"s as_dict() for parallel processing.
 
         Args:
-            path:
-                directory path
+            path: directory path
 
         Returns:
             An assimilated object
@@ -71,8 +75,7 @@ class AbstractDrone(MSONable):
         example, you will want the file paths.
 
         Args:
-            path:
-                input path as a tuple generated from os.walk, i.e.,
+            path: input path as a tuple generated from os.walk, i.e.,
                 (parent, subdirs, files).
 
         Returns:
@@ -91,26 +94,25 @@ class VaspToComputedEntryDrone(AbstractDrone):
     2. Directories designated "relax1", "relax2" are considered to be 2 parts
        of an aflow style run, and only "relax2" is parsed.
     3. The drone parses only the vasprun.xml file.
+
+
+    Args:
+        inc_structure (bool): Set to True if you want
+            ComputedStructureEntries to be returned instead of
+            ComputedEntries.
+        parameters (list): Input parameters to include. It has to be one of
+            the properties supported by the Vasprun object. See
+            :class:`pymatgen.io.vasp.Vasprun`. If parameters == None,
+            a default set of parameters that are necessary for typical
+            post-processing will be set.
+        data (list): Output data to include. Has to be one of the properties
+            supported by the Vasprun object.
     """
 
     def __init__(self, inc_structure=False, parameters=None, data=None):
-        """
-        Args:
-            inc_structure:
-                Set to True if you want ComputedStructureEntries to be returned
-                instead of ComputedEntries.
-            parameters:
-                Input parameters to include. It has to be one of the properties
-                supported by the Vasprun object. See pymatgen.io.vaspio
-                Vasprun. If parameters == None, a default set of parameters
-                that are necessary for typical post-processing will be set.
-            data:
-                Output data to include. Has to be one of the properties
-                supported by the Vasprun object.
-        """
         self._inc_structure = inc_structure
-        self._parameters = {"is_hubbard", "hubbards", "potcar_symbols",
-                            "run_type"}
+        self._parameters = {"is_hubbard", "hubbards", "potcar_spec",
+                            "potcar_symbols", "run_type"}
         if parameters:
             self._parameters.update(parameters)
         self._data = data if data else []
@@ -150,23 +152,11 @@ class VaspToComputedEntryDrone(AbstractDrone):
         except Exception as ex:
             logger.debug("error in {}: {}".format(filepath, ex))
             return None
-        param = {}
-        for p in self._parameters:
-            param[p] = getattr(vasprun, p)
 
-        param["history"] = _get_transformation_history(path)
-
-        data = {}
-        for d in self._data:
-            data[d] = getattr(vasprun, d)
-        if self._inc_structure:
-            entry = ComputedStructureEntry(vasprun.final_structure,
-                                           vasprun.final_energy,
-                                           parameters=param, data=data)
-        else:
-            entry = ComputedEntry(vasprun.final_structure.composition,
-                                  vasprun.final_energy, parameters=param,
-                                  data=data)
+        entry = vasprun.get_computed_entry(self._inc_structure,
+                                           parameters=self._parameters,
+                                           data=self._data)
+        entry.parameters["history"] = _get_transformation_history(path)
         return entry
 
     def get_valid_paths(self, path):
@@ -174,16 +164,18 @@ class VaspToComputedEntryDrone(AbstractDrone):
         if "relax1" in subdirs and "relax2" in subdirs:
             return [parent]
         if (not parent.endswith("/relax1")) and \
-                (not parent.endswith("/relax2")) and \
-                len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0:
+           (not parent.endswith("/relax2")) and (
+               len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0 or (
+               len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0 and
+               len(glob.glob(os.path.join(parent, "OSZICAR*"))) > 0)
+           ):
             return [parent]
         return []
 
     def __str__(self):
         return " VaspToComputedEntryDrone"
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"init_args": {"inc_structure": self._inc_structure,
                               "parameters": self._parameters,
                               "data": self._data},
@@ -202,18 +194,16 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
     parses only the INCAR, POTCAR, OSZICAR and KPOINTS files, which are much
     smaller and faster to parse. However, much fewer properties are available
     compared to the standard VaspToComputedEntryDrone.
+
+    Args:
+        inc_structure (bool): Set to True if you want
+            ComputedStructureEntries to be returned instead of
+            ComputedEntries. Structure will be parsed from the CONTCAR.
     """
 
     def __init__(self, inc_structure=False):
-        """
-        Args:
-            inc_structure:
-                Set to True if you want ComputedStructureEntries to be returned
-                instead of ComputedEntries. Structure will be parsed from the
-                CONTCAR.
-        """
         self._inc_structure = inc_structure
-        self._parameters = {"is_hubbard", "hubbards", "potcar_symbols",
+        self._parameters = {"is_hubbard", "hubbards", "potcar_spec",
                             "run_type"}
 
     def assimilate(self, path):
@@ -228,23 +218,24 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                     search_str = os.path.join(path, "relax2", filename + "*")
                     files_to_parse[filename] = glob.glob(search_str)[-1]
             else:
-                files_to_parse["INCAR"] = glob.glob(os.path.join(path,
-                                                                 "INCAR*"))[0]
-                files_to_parse["POTCAR"] = glob.glob(
-                    os.path.join(path, "POTCAR*"))[-1]
-
-                for filename in ("CONTCAR", "OSZICAR", "POSCAR"):
+                for filename in (
+                    "INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR", "DYNMAT"
+                ):
                     files = glob.glob(os.path.join(path, filename + "*"))
-                    if len(files) == 1:
-                        files_to_parse[filename] = files[0]
+                    if len(files) < 1:
+                        continue
+                    if len(files) == 1 or filename == "INCAR" or \
+                       filename == "POTCAR" or filename == "DYNMAT":
+                        files_to_parse[filename] = files[-1]\
+                            if filename == "POTCAR" else files[0]
                     elif len(files) > 1:
                         """
                         This is a bit confusing, since there maybe be
                         multiple steps. By default, assimilate will try to find
                         a file simply named filename, filename.bz2, or
                         filename.gz.  Failing which it will try to get a relax2
-                        from an aflow style run if possible. Or else, a
-                        randomly chosen file is chosen.
+                        from a custodian double relaxation style run if
+                        possible. Or else, a random file is chosen.
                         """
                         for fname in files:
                             if fnmatch.fnmatch(os.path.basename(fname),
@@ -262,38 +253,53 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                                 break
                             files_to_parse[filename] = fname
 
-            poscar = Poscar.from_file(files_to_parse["POSCAR"])
-            contcar = Poscar.from_file(files_to_parse["CONTCAR"])
+            poscar, contcar, incar, potcar, oszicar, dynmat = [None]*6
+            if 'POSCAR' in files_to_parse:
+                poscar = Poscar.from_file(files_to_parse["POSCAR"])
+            if 'CONTCAR' in files_to_parse:
+                contcar = Poscar.from_file(files_to_parse["CONTCAR"])
+            if 'INCAR' in files_to_parse:
+                incar = Incar.from_file(files_to_parse["INCAR"])
+            if 'POTCAR' in files_to_parse:
+                potcar = Potcar.from_file(files_to_parse["POTCAR"])
+            if 'OSZICAR' in files_to_parse:
+                oszicar = Oszicar(files_to_parse["OSZICAR"])
+            if 'DYNMAT' in files_to_parse:
+                dynmat = Dynmat(files_to_parse["DYNMAT"])
 
-            param = {}
-
-            incar = Incar.from_file(files_to_parse["INCAR"])
-            if "LDAUU" in incar:
+            param = {"hubbards":{}}
+            if poscar is not None and incar is not None and "LDAUU" in incar:
                 param["hubbards"] = dict(zip(poscar.site_symbols,
                                              incar["LDAUU"]))
-            else:
-                param["hubbards"] = {}
-            param["is_hubbard"] = (incar.get("LDAU", False) and
-                                   sum(param["hubbards"].values()) > 0)
-            param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
+            param["is_hubbard"] = (
+                incar.get("LDAU", False) and sum(param["hubbards"].values()) > 0
+            ) if incar is not None else False
+            param["run_type"] = None
+            if incar is not None:
+                param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
             param["history"] = _get_transformation_history(path)
-
-            potcar = Potcar.from_file(files_to_parse["POTCAR"])
-            param["potcar_symbols"] = potcar.symbols
-            oszicar = Oszicar(files_to_parse["OSZICAR"])
-            energy = oszicar.final_energy
-            structure = contcar.structure
-            initial_vol = poscar.structure.volume
-            final_vol = contcar.structure.volume
-            delta_volume = (final_vol / initial_vol - 1)
+            param["potcar_spec"] = potcar.spec if potcar is not None else None
+            energy = oszicar.final_energy if oszicar is not None else 1e10
+            structure = contcar.structure if contcar is not None\
+                else poscar.structure
+            initial_vol = poscar.structure.volume if poscar is not None else \
+                None
+            final_vol = contcar.structure.volume if contcar is not None else \
+                None
+            delta_volume = None
+            if initial_vol is not None and final_vol is not None:
+                delta_volume = (final_vol / initial_vol - 1)
             data = {"filename": path, "delta_volume": delta_volume}
+            if dynmat is not None:
+                data['phonon_frequencies'] = dynmat.get_phonon_frequencies()
             if self._inc_structure:
-                entry = ComputedStructureEntry(structure, energy,
-                                               parameters=param,
-                                               data=data)
+                entry = ComputedStructureEntry(
+                    structure, energy, parameters=param, data=data
+                )
             else:
-                entry = ComputedEntry(structure.composition, energy,
-                                      parameters=param, data=data)
+                entry = ComputedEntry(
+                  structure.composition, energy, parameters=param, data=data
+                )
             return entry
 
         except Exception as ex:
@@ -303,8 +309,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
     def __str__(self):
         return "SimpleVaspToComputedEntryDrone"
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"init_args": {"inc_structure": self._inc_structure},
                 "version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
@@ -320,6 +325,24 @@ class GaussianToComputedEntryDrone(AbstractDrone):
     ComputedEntry/ComputedStructureEntry objects. By default, it is assumed
     that Gaussian output files have a ".log" extension.
 
+    Args:
+        inc_structure (bool): Set to True if you want
+            ComputedStructureEntries to be returned instead of
+            ComputedEntries.
+        parameters (list): Input parameters to include. It has to be one of
+            the properties supported by the GaussianOutput object. See
+            :class:`pymatgen.io.gaussianio GaussianOutput`. The parameters
+            have to be one of python"s primitive types, i.e., list, dict of
+            strings and integers. If parameters == None, a default set of
+            parameters will be set.
+        data (list): Output data to include. Has to be one of the properties
+            supported by the GaussianOutput object. The parameters have to
+            be one of python"s primitive types, i.e. list, dict of strings
+            and integers. If data == None, a default set will be set.
+        file_extensions (list):
+            File extensions to be considered as Gaussian output files.
+            Defaults to just the typical "log" extension.
+
     .. note::
 
         Like the GaussianOutput class, this is still in early beta.
@@ -327,27 +350,6 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
     def __init__(self, inc_structure=False, parameters=None, data=None,
                  file_extensions=(".log",)):
-        """
-        Args:
-            inc_structure:
-                Set to True if you want ComputedStructureEntries to be returned
-                instead of ComputedEntries.
-            parameters:
-                Input parameters to include. It has to be one of the properties
-                supported by the GaussianOutput object. See
-                pymatgen.io.gaussianio GaussianOutput.
-                The parameters have to be one of python"s primitive types,
-                i.e. list, dict of strings and integers. If parameters == None,
-                a default set of parameters will be set.
-            data:
-                Output data to include. Has to be one of the properties
-                supported by the GaussianOutput object. The parameters have to
-                be one of python"s primitive types, i.e. list, dict of strings
-                and integers. If data == None, a default set will be set.
-            file_extensions:
-                File extensions to be considered as Gaussian output files.
-                Defaults to just the typical "log" extension.
-        """
         self._inc_structure = inc_structure
         self._parameters = {"functional", "basis_set", "charge", "spin_mult",
                             "route"}
@@ -392,8 +394,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
     def __str__(self):
         return " GaussianToComputedEntryDrone"
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"init_args": {"inc_structure": self._inc_structure,
                               "parameters": self._parameters,
                               "data": self._data,

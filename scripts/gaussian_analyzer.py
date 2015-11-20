@@ -1,10 +1,13 @@
 #!/usr/bin/env python
+#  coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 """
 A convenience script engine to read Gaussian output in a directory tree.
 """
 
-from __future__ import division
+from __future__ import division, print_function
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -19,10 +22,10 @@ import os
 import logging
 import re
 
-from pymatgen.util.string_utils import str_aligned
 from pymatgen.apps.borg.hive import GaussianToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 import multiprocessing
+from tabulate import tabulate
 
 save_file = "gau_data.gz"
 
@@ -55,15 +58,9 @@ def get_energies(rootdir, reanalyze, verbose, pretty):
                  ) for e in entries]
     headers = ("Directory", "Formula", "Charge", "Spin Mult.", "Energy",
                "E/Atom")
-    if pretty:
-        from prettytable import PrettyTable
-        t = PrettyTable(headers)
-        t.set_field_align("Directory", "l")
-        map(t.add_row, all_data)
-        print t
-    else:
-        print str_aligned(all_data, headers)
-    print msg
+    print(tabulate(all_data, headers=headers))
+    print("")
+    print(msg)
 
 
 desc = '''
@@ -81,10 +78,6 @@ if __name__ == "__main__":
                         action='store_const', const=True,
                         help='verbose mode. Provides detailed output ' +
                         'on progress.')
-    parser.add_argument('-p', '--pretty', dest="pretty", action='store_const',
-                        const=True,
-                        help='pretty mode. Uses prettytable to format ' +
-                        'output. Must have prettytable module installed.')
     parser.add_argument('-f', '--force', dest="reanalyze",
                         action='store_const',
                         const=True,

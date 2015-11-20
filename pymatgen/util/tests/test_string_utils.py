@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 FIXME: Proper module docstring
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -14,11 +17,9 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Aug 26, 2012"
 
 import unittest
-import random
 
 from pymatgen.util.string_utils import generate_latex_table, str_delimited, \
-    str_aligned, formula_double_format, latexify, latexify_spacegroup, \
-    remove_non_ascii
+    str_aligned, formula_double_format, latexify, latexify_spacegroup
 
 
 class FuncTest(unittest.TestCase):
@@ -26,6 +27,8 @@ class FuncTest(unittest.TestCase):
     def test_latexify(self):
         self.assertEqual(latexify("Li3Fe2(PO4)3"),
                          "Li$_{3}$Fe$_{2}$(PO$_{4}$)$_{3}$")
+        self.assertEqual(latexify("Li0.2Na0.8Cl"),
+                         "Li$_{0.2}$Na$_{0.8}$Cl")
 
     def test_latexify_spacegroup(self):
         self.assertEqual(latexify_spacegroup("Fd-3m"), "Fd$\overline{3}$m")
@@ -48,12 +51,8 @@ ccc   dddd"""
         self.assertEqual(formula_double_format(1.00), "")
         self.assertEqual(formula_double_format(2.00), "2")
         self.assertEqual(formula_double_format(2.10), "2.1")
+        self.assertEqual(formula_double_format(2.10000000002), "2.1")
 
-    def test_remove_non_ascii(self):
-        s = "".join(chr(random.randint(0, 127)) for i in xrange(10))
-        s += "".join(chr(random.randint(128, 150)) for i in xrange(10))
-        clean = remove_non_ascii(s)
-        self.assertEqual(len(clean), 10)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

@@ -1,4 +1,8 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals
 
 """
 Class for analyzing Pourbaix Diagrams. Similar to PDAnalyzer
@@ -18,20 +22,19 @@ from pyhull.simplex import Simplex
 from functools import cmp_to_key
 from pyhull.halfspace import Halfspace, HalfspaceIntersection
 from pyhull.convex_hull import ConvexHull
+from six.moves import zip
 
 
 class PourbaixAnalyzer(object):
     """
     Class for performing analysis on Pourbaix Diagrams
+
+    Args:
+        pd: Pourbaix Diagram to analyze.
     """
     numerical_tol = 1e-8
 
     def __init__(self, pd):
-        """
-        Args:
-            pd:
-                Pourbaix Diagram to analyze.
-        """
         self._pd = pd
         self._keys = ['H+', 'V', '1']
         self.chempot_limits = None
@@ -41,8 +44,7 @@ class PourbaixAnalyzer(object):
         Calculates the chemical potentials for each element within a facet.
 
         Args:
-            facet:
-                Facet of the phase diagram.
+            facet: Facet of the phase diagram.
 
         Returns:
             { element: chempot } for all elements in the phase diagram.
@@ -66,10 +68,9 @@ class PourbaixAnalyzer(object):
         Returns a chemical potential range map for each stable entry.
 
         Args:
-            elements:
-                Sequence of elements to be considered as independent variables.
-                E.g., if you want to show the stability ranges of all Li-Co-O
-                phases wrt to uLi and uO, you will supply
+            elements: Sequence of elements to be considered as independent
+                variables. E.g., if you want to show the stability ranges of
+                all Li-Co-O phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
 
         Returns:
@@ -80,7 +81,6 @@ class PourbaixAnalyzer(object):
         tol = PourbaixAnalyzer.numerical_tol
         all_chempots = []
         facets = self._pd.facets
-        entries = self._pd.qhull_entries
         for facet in facets:
             chempots = self.get_facet_chempots(facet)
             chempots["H+"] /= -0.0591
@@ -91,7 +91,9 @@ class PourbaixAnalyzer(object):
         basis_vecs = []
         on_plane_points = []
         # Create basis vectors
-        for row in self._pd._qhull_data:
+        for entry in self._pd.stable_entries:
+            ie = self._pd.qhull_entries.index(entry)
+            row = self._pd._qhull_data[ie]
             on_plane_points.append([0, 0, row[2]])
             this_basis_vecs = []
             norm_vec = [-0.0591 * row[0], -1 * row[1], 1]
@@ -112,21 +114,21 @@ class PourbaixAnalyzer(object):
 
         # Find point in half-space in which optimization is desired
         ph_max_contrib = -1 * max([abs(0.0591 * row[0])
-                                    for row in self._pd._qhull_data]) * limits[0][1] 
+                                    for row in self._pd._qhull_data]) * limits[0][1]
         V_max_contrib = -1 * max([abs(row[1]) for row in self._pd._qhull_data]) * limits[1][1]
         g_max = (-1 * max([abs(pt[2]) for pt in on_plane_points])
                   + ph_max_contrib + V_max_contrib) - 10
         point_in_region = [7, 0, g_max]
 
         # Append border hyperplanes along limits
-        for i in xrange(len(limits)):
-            for j in xrange(len(limits[i])):
+        for i in range(len(limits)):
+            for j in range(len(limits[i])):
                 basis_vec_1 = [0.0] * 3
                 basis_vec_2 = [0.0] * 3
                 point = [0.0] * 3
                 basis_vec_1[2] = 1.0
                 basis_vec_2[2] = 0.0
-                for axis in xrange(len(limits)):
+                for axis in range(len(limits)):
                     if axis is not i:
                         basis_vec_1[axis] = 0.0
                         basis_vec_2[axis] = 1.0
@@ -138,18 +140,18 @@ class PourbaixAnalyzer(object):
         basis_vecs.append([[1, 0, 0], [0, 1, 0]])
         on_plane_points.append([0, 0, 2 * g_max])
         hyperplane_list = [Halfspace.from_hyperplane(basis_vecs[i], on_plane_points[i], point_in_region)
-                            for i in xrange(len(basis_vecs))]
+                            for i in range(len(basis_vecs))]
         hs_int = HalfspaceIntersection(hyperplane_list, point_in_region)
         int_points = hs_int.vertices
         pourbaix_domains = {}
         self.pourbaix_domain_vertices = {}
 
-        for i in xrange(len(self._pd._qhull_data)):
+        for i in range(len(self._pd.stable_entries)):
             vertices = [[int_points[vert][0], int_points[vert][1]] for vert in
                          hs_int.facets_by_halfspace[i]]
             if len(vertices) < 1:
                 continue
-            pourbaix_domains[self._pd._qhull_entries[i]] = ConvexHull(vertices).simplices
+            pourbaix_domains[self._pd.stable_entries[i]] = ConvexHull(vertices).simplices
 
             # Need to order vertices for highcharts area plot
             cx = sum([vert[0] for vert in vertices]) / len(vertices)
@@ -157,7 +159,7 @@ class PourbaixAnalyzer(object):
             point_comp = lambda x, y: x[0]*y[1] - x[1]*y[0]
             vert_center = [[v[0] - cx, v[1] - cy] for v in vertices]
             vert_center.sort(key=cmp_to_key(point_comp))
-            self.pourbaix_domain_vertices[self._pd._qhull_entries[i]] =\
+            self.pourbaix_domain_vertices[self._pd.stable_entries[i]] =\
              [[v[0] + cx, v[1] + cy] for v in vert_center]
 
         self.pourbaix_domains = pourbaix_domains
@@ -168,15 +170,13 @@ class PourbaixAnalyzer(object):
         Checks if a Pourbaix Entry is in a facet.
 
         Args:
-            facet:
-                facet to test.
-            entry:
-                Pourbaix Entry to test.
+            facet: facet to test.
+            entry: Pourbaix Entry to test.
         """
         dim = len(self._keys)
         if dim > 1:
             coords = [np.array(self._pd.qhull_data[facet[i]][0:dim - 1])
-                      for i in xrange(len(facet))]
+                      for i in range(len(facet))]
             simplex = Simplex(coords)
             comp_point = [entry.npH, entry.nPhi]
             return simplex.in_simplex(comp_point,
@@ -226,8 +226,7 @@ class PourbaixAnalyzer(object):
         Provides the decomposition at a particular composition
 
         Args:
-            comp:
-                A composition
+            comp: A composition
 
         Returns:
             Decomposition as a dict of {PourbaixEntry: amount}
@@ -239,7 +238,7 @@ class PourbaixAnalyzer(object):
         decompamts = np.dot(np.linalg.inv(m.transpose()), compm.transpose())
         decomp = dict()
         #Scrub away zero amounts
-        for i in xrange(len(decompamts)):
+        for i in range(len(decompamts)):
             if abs(decompamts[i][0]) > PourbaixAnalyzer.numerical_tol:
                 decomp[self._pd.qhull_entries[facet[i]]] = decompamts[i][0]
         return decomp
@@ -249,8 +248,7 @@ class PourbaixAnalyzer(object):
         Provides the decomposition and energy above convex hull for an entry
 
         Args:
-            entry:
-                A PourbaixEntry
+            entry: A PourbaixEntry
 
         Returns:
             (decomp, energy above convex hull)  Stable entries should have
@@ -267,7 +265,7 @@ class PourbaixAnalyzer(object):
         Provides the energy above convex hull for an entry
 
         Args:
-            entry - A PourbaixEntry object
+            entry: A PourbaixEntry object
 
         Returns:
             Energy above convex hull of entry. Stable entries should have

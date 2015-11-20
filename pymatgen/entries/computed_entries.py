@@ -1,4 +1,8 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals
 
 """
 This module implements equivalents of the basic ComputedEntry objects, which
@@ -18,10 +22,11 @@ __date__ = "Apr 30, 2012"
 
 import json
 
+from monty.json import MontyEncoder, MontyDecoder
+
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.composition import Composition
-from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder, \
-    PMGJSONEncoder
+from monty.json import MSONable
 
 
 class ComputedEntry(PDEntry, MSONable):
@@ -31,43 +36,43 @@ class ComputedEntry(PDEntry, MSONable):
     diagram generation. The difference between a ComputedEntry and a standard
     PDEntry is that it includes additional parameters like a correction and
     run_parameters.
+
     """
 
     def __init__(self, composition, energy, correction=0.0, parameters=None,
                  data=None, entry_id=None, attribute=None):
         """
+        Initializes a ComputedEntry.
+
         Args:
-            composition:
-                Composition of the entry. For flexibility, this can take the
-                form of all the typical input taken by a Composition, including
-                a {symbol: amt} dict, a string formula, and others.
-            energy:
-                Energy of the entry. Usually the final calculated energy from
-                VASP or other electronic structure codes.
-            correction:
-                A correction to be applied to the energy. This is used to
-                modify the energy for certain analyses. Defaults to 0.0.
-            parameters:
-                An optional dict of parameters associated with the entry.
-                Defaults to None.
-            data:
-                An optional dict of any additional data associated with the
-                entry. Defaults to None.
-            entry_id:
-                An optional id to uniquely identify the entry.
-            attribute:
-                Optional attribute of the entry. This can be used to specify that
-                the entry is a newly found compound, or to specify a particular label for
-                the entry, or else ... Used for further analysis and plotting purposes.
-                An attribute can be anything but must be MSONable.
+            composition (Composition): Composition of the entry. For
+                flexibility, this can take the form of all the typical input
+                taken by a Composition, including a {symbol: amt} dict,
+                a string formula, and others.
+            energy (float): Energy of the entry. Usually the final calculated
+                energy from VASP or other electronic structure codes.
+            correction (float): A correction to be applied to the energy.
+                This is used to modify the energy for certain analyses.
+                Defaults to 0.0.
+            parameters (dict): An optional dict of parameters associated with
+                the entry. Defaults to None.
+            data (dict): An optional dict of any additional data associated
+                with the entry. Defaults to None.
+            entry_id (obj): An optional id to uniquely identify the entry.
+            attribute: Optional attribute of the entry. This can be used to
+                specify that the entry is a newly found compound, or to specify
+                a particular label for the entry, or else ... Used for further
+                analysis and plotting purposes. An attribute can be anything
+                but must be MSONable.
         """
-        comp = Composition(composition)
-        PDEntry.__init__(self, comp, energy, attribute=attribute)
+        self.uncorrected_energy = energy
+        self.composition = Composition(composition)
         self.correction = correction
         self.parameters = parameters if parameters else {}
         self.data = data if data else {}
         self.entry_id = entry_id
-        self._attribute = attribute
+        self.name = self.composition.reduced_formula
+        self.attribute = attribute
 
     @property
     def energy(self):
@@ -75,13 +80,6 @@ class ComputedEntry(PDEntry, MSONable):
         Returns the *corrected* energy of the entry.
         """
         return self.uncorrected_energy + self.correction
-
-    @property
-    def uncorrected_energy(self):
-        """
-        Returns the *uncorrected* energy of the entry.
-        """
-        return super(ComputedEntry, self).energy
 
     def __repr__(self):
         output = ["ComputedEntry {}".format(self.composition.formula),
@@ -99,25 +97,24 @@ class ComputedEntry(PDEntry, MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        dec = PMGJSONDecoder()
+        dec = MontyDecoder()
         return cls(d["composition"], d["energy"], d["correction"],
                    dec.process_decoded(d.get("parameters", {})),
                    dec.process_decoded(d.get("data", {})),
                    entry_id=d.get("entry_id", None),
                    attribute=d["attribute"] if "attribute" in d else None)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "energy": self.uncorrected_energy,
-                "composition": self.composition.to_dict,
+                "composition": self.composition.as_dict(),
                 "correction": self.correction,
                 "parameters": json.loads(json.dumps(self.parameters,
-                                                    cls=PMGJSONEncoder)),
-                "data": json.loads(json.dumps(self.data, cls=PMGJSONEncoder)),
+                                                    cls=MontyEncoder)),
+                "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
                 "entry_id": self.entry_id,
-                "attribute": self._attribute}
+                "attribute": self.attribute}
 
 
 class ComputedStructureEntry(ComputedEntry):
@@ -129,27 +126,24 @@ class ComputedStructureEntry(ComputedEntry):
     def __init__(self, structure, energy, correction=0.0, parameters=None,
                  data=None, entry_id=None):
         """
+        Initializes a ComputedStructureEntry.
+
         Args:
-            structure:
-                The actual structure of an entry.
-            energy:
-                Energy of the entry. Usually the final calculated energy from
-                VASP or other electronic structure codes.
-            correction:
-                A correction to be applied to the energy. This is used to
-                modify the energy for certain analyses. Defaults to 0.0.
-            parameters:
-                An optional dict of parameters associated with the entry.
-                Defaults to None.
-            data:
-                An optional dict of any additional data associated with the
-                entry. Defaults to None.
-            entry_id:
-                An optional id to uniquely identify the entry.
+            structure (Structure): The actual structure of an entry.
+            energy (float): Energy of the entry. Usually the final calculated
+                energy from VASP or other electronic structure codes.
+            correction (float): A correction to be applied to the energy.
+                This is used to modify the energy for certain analyses.
+                Defaults to 0.0.
+            parameters (dict): An optional dict of parameters associated with
+                the entry. Defaults to None.
+            data (dict): An optional dict of any additional data associated
+                with the entry. Defaults to None.
+            entry_id (obj): An optional id to uniquely identify the entry.
         """
-        ComputedEntry.__init__(self, structure.composition, energy,
-                               correction=correction, parameters=parameters,
-                               data=data, entry_id=entry_id)
+        super(ComputedStructureEntry, self).__init__(
+            structure.composition, energy, correction=correction,
+            parameters=parameters, data=data, entry_id=entry_id)
         self.structure = structure
 
     def __repr__(self):
@@ -166,17 +160,16 @@ class ComputedStructureEntry(ComputedEntry):
     def __str__(self):
         return self.__repr__()
 
-    @property
-    def to_dict(self):
-        d = super(ComputedStructureEntry, self).to_dict
+    def as_dict(self):
+        d = super(ComputedStructureEntry, self).as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
-        d["structure"] = self.structure.to_dict
+        d["structure"] = self.structure.as_dict()
         return d
 
     @classmethod
     def from_dict(cls, d):
-        dec = PMGJSONDecoder()
+        dec = MontyDecoder()
         return cls(dec.process_decoded(d["structure"]),
                    d["energy"], d["correction"],
                    dec.process_decoded(d.get("parameters", {})),

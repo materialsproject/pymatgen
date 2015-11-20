@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 TODO: Change the module doc.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -17,7 +20,7 @@ import unittest
 import os
 
 from pymatgen.command_line.bader_caller import BaderAnalysis
-from pymatgen.util.io_utils import which
+from monty.os.path import which
 
 
 @unittest.skipIf(not which('bader'), "bader executable not present.")

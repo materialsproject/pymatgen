@@ -1,31 +1,48 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 """
 Deployment file to facilitate releases of pymatgen.
+Note that this file is meant to be run from the root directory of the pymatgen
+repo.
 """
 
-from __future__ import division
-
 __author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
-__date__ = "Apr 29, 2012"
+__email__ = "ongsp@ucsd.edu"
+__date__ = "Sep 1, 2014"
 
 import glob
 import os
+import json
+import webbrowser
+import requests
+import re
+import subprocess
 
 from fabric.api import local, lcd
 from pymatgen import __version__ as ver
 
 
-def makedoc():
+def make_doc():
+    with open("CHANGES.rst") as f:
+        contents = f.read()
+
+    toks = re.split("\-{3,}", contents)
+    n = len(toks[0].split()[-1])
+    changes = [toks[0]]
+    changes.append("\n" + "\n".join(toks[1].strip().split("\n")[0:-1]))
+    changes = ("-" * n).join(changes)
+
+    with open("docs/latest_changes.rst", "w") as f:
+        f.write(changes)
+
     with lcd("examples"):
         local("ipython nbconvert --to html *.ipynb")
         local("mv *.html ../docs/_static")
     with lcd("docs"):
-        local("sphinx-apidoc -o . -f ../pymatgen")
+        local("cp ../CHANGES.rst change_log.rst")
+        local("sphinx-apidoc -d 6 -o . -f ../pymatgen")
         local("rm pymatgen.*.tests.rst")
         for f in glob.glob("docs/*.rst"):
             if f.startswith('docs/pymatgen') and f.endswith('rst'):
@@ -62,10 +79,6 @@ def publish():
     local("python setup.py release")
 
 
-def test():
-    local("nosetests")
-
-
 def setver():
     local("sed s/version=.*,/version=\\\"{}\\\",/ setup.py > newsetup"
           .format(ver))
@@ -73,11 +86,55 @@ def setver():
 
 
 def update_doc():
-    makedoc()
+    make_doc()
     with lcd("docs/_build/html/"):
         local("git add .")
         local("git commit -a -m \"Update dev docs\"")
         local("git push origin gh-pages")
+
+
+def merge_stable():
+    local("git commit -a -m \"v%s release\"" % ver)
+    local("git push")
+    local("git checkout stable")
+    local("git pull")
+    local("git merge master")
+    local("git push")
+    local("git checkout master")
+
+
+def release_github():
+    with open("CHANGES.rst") as f:
+        contents = f.read()
+    toks = re.split("\-+", contents)
+    desc = toks[1].strip()
+    toks = desc.split("\n")
+    desc = "\n".join(toks[:-1]).strip()
+    payload = {
+        "tag_name": "v" + ver,
+        "target_commitish": "master",
+        "name": "v" + ver,
+        "body": desc,
+        "draft": False,
+        "prerelease": False
+    }
+    response = requests.post(
+        "https://api.github.com/repos/materialsproject/pymatgen/releases",
+        data=json.dumps(payload),
+        headers={"Authorization": "token " + os.environ["GITHUB_RELEASES_TOKEN"]})
+    print response.text
+
+
+def update_changelog():
+    output = subprocess.check_output(["git", "log", "--pretty=format:%s",
+        "v%s..HEAD" % ver])
+    lines = ["* " + l for l in output.strip().split("\n")]
+    with open("CHANGES.rst") as f:
+        contents = f.read()
+    toks = contents.split("==========")
+    toks.insert(-1, "\n\n" + "\n".join(lines))
+    with open("CHANGES.rst", "w") as f:
+        f.write("==========".join(toks))
 
 
 def log_ver():
@@ -87,9 +144,17 @@ def log_ver():
         f.write("Release")
 
 
-def release():
+def release(skip_test=False):
     setver()
-    test()
+    if not skip_test:
+        local("nosetests")
     publish()
     log_ver()
     update_doc()
+    merge_stable()
+    release_github()
+
+
+def open_doc():
+    pth = os.path.abspath("docs/_build/html/index.html")
+    webbrowser.open("file://" + pth)
