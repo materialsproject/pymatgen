@@ -1,10 +1,14 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 This module provides classes for plotting PhaseDiagram objects.
 """
 
-from __future__ import division
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -27,23 +31,21 @@ from pymatgen.util.coord_utils import in_coord_list
 class PDPlotter(object):
     """
     A plotter class for phase diagrams.
+
+    Args:
+        phasediagram: PhaseDiagram object.
+        show_unstable: Whether unstable phases will be plotted as well as
+            red crosses. Defaults to False.
     """
 
     def __init__(self, phasediagram, show_unstable=False):
-        """
-        Args:
-            phasediagram:
-                A PhaseDiagram object.
-            show_unstable:
-                Whether unstable phases will be plotted as well as red crosses.
-                Defaults to False.
-        """
         self._pd = phasediagram
         self._dim = len(self._pd.elements)
-        self.lines = uniquelines(self._pd.facets)
+        if self._dim > 4:
+            raise ValueError("Only 1-4 components supported!")
+        self.lines = uniquelines(self._pd.facets) if self._dim > 1 else \
+            [[self._pd.facets[0][0], self._pd.facets[0][0]]]
         self.show_unstable = show_unstable
-        if self._dim < 2 or self._dim > 4:
-            raise ValueError("Only 2-4 components supported!")
 
     @property
     def pd_plot_data(self):
@@ -54,12 +56,12 @@ class PDPlotter(object):
 
         Returns:
             (lines, stable_entries, unstable_entries):
-                - lines is a list of list of coordinates for lines in the PD.
-                - stable_entries is a {coordinate : entry} for each stable node
-                  in the phase diagram. (Each coordinate can only have one
-                  stable phase)
-                - unstable_entries is a {entry: coordinates} for all unstable
-                  nodes in the phase diagram.
+            - lines is a list of list of coordinates for lines in the PD.
+            - stable_entries is a {coordinate : entry} for each stable node
+            in the phase diagram. (Each coordinate can only have one
+            stable phase)
+            - unstable_entries is a {entry: coordinates} for all unstable
+            nodes in the phase diagram.
         """
         pd = self._pd
         entries = pd.qhull_entries
@@ -69,7 +71,7 @@ class PDPlotter(object):
         for line in self.lines:
             entry1 = entries[line[0]]
             entry2 = entries[line[1]]
-            if self._dim == 2:
+            if self._dim < 3:
                 x = [data[line[0]][0], data[line[1]][0]]
                 y = [pd.get_form_energy_per_atom(entry1),
                      pd.get_form_energy_per_atom(entry2)]
@@ -87,10 +89,10 @@ class PDPlotter(object):
         all_data = np.array(pd.all_entries_hulldata)
         unstable_entries = dict()
         stable = pd.stable_entries
-        for i in xrange(0, len(all_entries)):
+        for i in range(0, len(all_entries)):
             entry = all_entries[i]
             if entry not in stable:
-                if self._dim == 2:
+                if self._dim < 3:
                     x = [all_data[i][0], all_data[i][0]]
                     y = [pd.get_form_energy_per_atom(entry),
                          pd.get_form_energy_per_atom(entry)]
@@ -106,18 +108,25 @@ class PDPlotter(object):
 
         return lines, stable_entries, unstable_entries
 
-    def show(self, label_stable=True, label_unstable=True, ordering=None,
-             energy_colormap=None, process_attributes=False):
-        """
-        Draws the phase diagram using Matplotlib and show it.
-        """
+    def get_plot(self, label_stable=True, label_unstable=True, ordering=None,
+                 energy_colormap=None, process_attributes=False):
         if self._dim < 4:
             plt = self._get_2d_plot(label_stable, label_unstable, ordering,
                                     energy_colormap,
                                     process_attributes=process_attributes)
         elif self._dim == 4:
             plt = self._get_3d_plot(label_stable)
-        plt.show()
+
+        return plt
+
+    def show(self, label_stable=True, label_unstable=True, ordering=None,
+             energy_colormap=None, process_attributes=False):
+        """
+        Draws the phase diagram using Matplotlib and show it.
+        """
+        self.get_plot(label_stable=label_stable, label_unstable=label_unstable,
+                      ordering=ordering, energy_colormap=energy_colormap,
+                      process_attributes=process_attributes).show()
 
     def _get_2d_plot(self, label_stable=True, label_unstable=True,
                      ordering=None, energy_colormap=None, vmin_mev=-60.0,
@@ -135,8 +144,8 @@ class PDPlotter(object):
             (lines, labels, unstable) = self.pd_plot_data
         else:
             (_lines, _labels, _unstable) = self.pd_plot_data
-            (lines, labels, unstable) = order_phase_diagram(_lines, _labels,
-                                                            _unstable, ordering)
+            (lines, labels, unstable) = order_phase_diagram(
+                _lines, _labels, _unstable, ordering)
         if energy_colormap is None:
             if process_attributes:
                 for x, y in lines:
@@ -146,7 +155,7 @@ class PDPlotter(object):
                 #  logic. At this moment, I just use the attributes to know
                 # whether an entry is a new compound or an existing (from the
                 #  ICSD or from the MP) one.
-                for x, y in labels.iterkeys():
+                for x, y in labels.keys():
                     if labels[(x, y)].attribute is None or \
                             labels[(x, y)].attribute == "existing":
                         plt.plot(x, y, "ko", linewidth=3, markeredgecolor="k",
@@ -161,7 +170,6 @@ class PDPlotter(object):
         else:
             from matplotlib.colors import Normalize, LinearSegmentedColormap
             from matplotlib.cm import ScalarMappable
-            from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
             pda = PDAnalyzer(self._pd)
             for x, y in lines:
                 plt.plot(x, y, "k-", linewidth=3, markeredgecolor="k")
@@ -177,12 +185,12 @@ class PDPlotter(object):
             norm = Normalize(vmin=vmin, vmax=vmax)
             _map = ScalarMappable(norm=norm, cmap=cmap)
             _energies = [pda.get_equilibrium_reaction_energy(entry)
-                         for coord, entry in labels.iteritems()]
+                         for coord, entry in labels.items()]
             energies = [en if en < 0.0 else -0.00000001 for en in _energies]
             vals_stable = _map.to_rgba(energies)
             ii = 0
             if process_attributes:
-                for x, y in labels.iterkeys():
+                for x, y in labels.keys():
                     if labels[(x, y)].attribute is None or \
                             labels[(x, y)].attribute == "existing":
                         plt.plot(x, y, "o", markerfacecolor=vals_stable[ii],
@@ -192,7 +200,7 @@ class PDPlotter(object):
                                  markersize=18)
                     ii += 1
             else:
-                for x, y in labels.iterkeys():
+                for x, y in labels.keys():
                     plt.plot(x, y, "o", markerfacecolor=vals_stable[ii],
                              markersize=15)
                     ii += 1
@@ -254,12 +262,11 @@ class PDPlotter(object):
                                  fontproperties=font)
 
         if self.show_unstable:
-            from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
             font = FontProperties()
             font.set_size(16)
             pda = PDAnalyzer(self._pd)
             energies_unstable = [pda.get_e_above_hull(entry)
-                                 for entry, coord in unstable.iteritems()]
+                                 for entry, coord in unstable.items()]
             if energy_colormap is not None:
                 energies.extend(energies_unstable)
                 vals_unstable = _map.to_rgba(energies_unstable)
@@ -295,8 +302,8 @@ class PDPlotter(object):
             ticks = cbar.ax.get_yticklabels()
             cbar.ax.set_yticklabels(['${v}$'.format(
                 v=float(t.get_text().strip('$'))*1000.0) for t in ticks])
-        F = plt.gcf()
-        F.set_size_inches((8, 6))
+        f = plt.gcf()
+        f.set_size_inches((8, 6))
         plt.subplots_adjust(left=0.09, right=0.98, top=0.98, bottom=0.07)
         return plt
 
@@ -334,7 +341,8 @@ class PDPlotter(object):
         ax.axis("off")
         return plt
 
-    def write_image(self, stream, image_format="svg", ordering=None,
+    def write_image(self, stream, image_format="svg", label_stable=True,
+                    label_unstable=True, ordering=None,
                     energy_colormap=None, process_attributes=False):
         """
         Writes the phase diagram to an image in a stream.
@@ -346,49 +354,52 @@ class PDPlotter(object):
                 format for image. Can be any of matplotlib supported formats.
                 Defaults to svg for best results for vector graphics.
         """
-        if self._dim < 4:
-            plt = self._get_2d_plot(ordering=ordering, energy_colormap=energy_colormap,
-                                    process_attributes=process_attributes)
-        elif self._dim == 4:
-            plt = self._get_3d_plot()
+        plt = self.get_plot(
+            label_stable=label_stable, label_unstable=label_unstable,
+            ordering=ordering, energy_colormap=energy_colormap,
+            process_attributes=process_attributes)
 
         f = plt.gcf()
         f.set_size_inches((12, 10))
 
         plt.savefig(stream, format=image_format)
 
-    def plot_chempot_range_map(self, elements):
+    def plot_chempot_range_map(self, elements, referenced=True):
         """
         Plot the chemical potential range _map. Currently works only for
         3-component PDs.
 
         Args:
-            elements:
-                Sequence of elements to be considered as independent variables.
-                E.g., if you want to show the stability ranges of all Li-Co-O
-                phases wrt to uLi and uO, you will supply
+            elements: Sequence of elements to be considered as independent
+                variables. E.g., if you want to show the stability ranges of
+                all Li-Co-O phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
+            referenced: if True, gives the results with a reference being the
+                        energy of the elemental phase. If False, gives absolute values.
         """
-        self.get_chempot_range_map_plot(elements).show()
+        self.get_chempot_range_map_plot(elements, referenced=referenced).show()
 
-    def get_chempot_range_map_plot(self, elements):
+    def get_chempot_range_map_plot(self, elements,referenced=True):
         """
         Returns a plot of the chemical potential range _map. Currently works
         only for 3-component PDs.
 
         Args:
-            elements:
-                Sequence of elements to be considered as independent variables.
-                E.g., if you want to show the stability ranges of all Li-Co-O
-                phases wrt to uLi and uO, you will supply
+            elements: Sequence of elements to be considered as independent
+                variables. E.g., if you want to show the stability ranges of
+                all Li-Co-O phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
+            referenced: if True, gives the results with a reference being the
+                        energy of the elemental phase. If False, gives absolute values.
+
         Returns:
             A matplotlib plot object.
         """
 
         plt = get_publication_quality_plot(12, 8)
         analyzer = PDAnalyzer(self._pd)
-        chempot_ranges = analyzer.get_chempot_range_map(elements)
+        chempot_ranges = analyzer.get_chempot_range_map(
+            elements, referenced=referenced)
         missing_lines = {}
         excluded_region = []
         for entry, lines in chempot_ranges.items():
@@ -517,8 +528,7 @@ def uniquelines(q):
     used for converting convex hull facets into line pairs of coordinates.
 
     Args:
-        q:
-            A 2-dim sequence, where each row represents a facet. E.g.,
+        q: A 2-dim sequence, where each row represents a facet. E.g.,
             [[1,2,3],[3,6,7],...]
 
     Returns:
@@ -538,8 +548,7 @@ def triangular_coord(coord):
     prettier phase diagram.
 
     Args:
-        coordinate:
-            coordinate used in the convex hull computation.
+        coordinate: coordinate used in the convex hull computation.
 
     Returns:
         coordinates in a triangular-based coordinate system.
@@ -555,8 +564,7 @@ def tet_coord(coord):
     prettier phase diagram.
 
     Args:
-        coordinate:
-            coordinate used in the convex hull computation.
+        coordinate: coordinate used in the convex hull computation.
 
     Returns:
         coordinates in a tetrahedron-based coordinate system.
@@ -571,29 +579,27 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
     """
     Orders the entries (their coordinates) in a phase diagram plot according
     to the user specified ordering.
-    Ordering should be given as ['Up','Left','Right'], where Up,
+    Ordering should be given as ['Up', 'Left', 'Right'], where Up,
     Left and Right are the names of the entries in the upper, left and right
     corners of the triangle respectively.
 
     Args:
-        lines:
-            list of list of coordinates for lines in the PD.
-        stable_entries:
-            {coordinate : entry} for each stable node in the phase diagram.
-            (Each coordinate can only have one stable phase)
-        unstable_entries:
-            {entry: coordinates} for all unstable nodes in the phase diagram.
-        ordering:
-            Ordering of the phase diagram, given as a list ['Up','Left','Right']
+        lines: list of list of coordinates for lines in the PD.
+        stable_entries: {coordinate : entry} for each stable node in the
+            phase diagram. (Each coordinate can only have one stable phase)
+        unstable_entries: {entry: coordinates} for all unstable nodes in the
+            phase diagram.
+        ordering: Ordering of the phase diagram, given as a list ['Up',
+            'Left','Right']
 
     Returns:
         (newlines, newstable_entries, newunstable_entries):
-            - newlines is a list of list of coordinates for lines in the PD.
-            - newstable_entries is a {coordinate : entry} for each stable node
-              in the phase diagram. (Each coordinate can only have one
-              stable phase)
-            - newunstable_entries is a {entry: coordinates} for all unstable
-              nodes in the phase diagram.
+        - newlines is a list of list of coordinates for lines in the PD.
+        - newstable_entries is a {coordinate : entry} for each stable node
+        in the phase diagram. (Each coordinate can only have one
+        stable phase)
+        - newunstable_entries is a {entry: coordinates} for all unstable
+        nodes in the phase diagram.
     """
     yup = -1000.0
     xleft = 1000.0
@@ -613,7 +619,8 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
     if (not nameup in ordering) or (not nameright in ordering) or \
             (not nameleft in ordering):
         raise ValueError(
-            'Error in ordering_phase_diagram : \n"{up}", "{left}" and "{right}"'
+            'Error in ordering_phase_diagram : \n"{up}", "{left}" and "{'
+            'right}"'
             ' should be in ordering : {ord}'.format(up=nameup, left=nameleft,
                                                     right=nameright,
                                                     ord=ordering))
@@ -627,9 +634,10 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
         else:
             newlines = [[np.array(1.0 - x), y] for x, y in lines]
             newstable_entries = {(1.0 - c[0], c[1]): entry
-                                 for c, entry in stable_entries.iteritems()}
+                                 for c, entry in stable_entries.items()}
             newunstable_entries = {entry: (1.0 - c[0], c[1])
-                                   for entry, c in unstable_entries.iteritems()}
+                                   for entry, c in
+                                   unstable_entries.items()}
             return newlines, newstable_entries, newunstable_entries
     elif nameup == ordering[1]:
         if nameleft == ordering[2]:
@@ -640,17 +648,19 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 newx = np.zeros_like(x)
                 newy = np.zeros_like(y)
                 for ii, xx in enumerate(x):
-                    newx[ii] = c120*(xx-cc[0])-s120*(y[ii]-cc[1])+cc[0]
-                    newy[ii] = s120*(xx-cc[0])+c120*(y[ii]-cc[1])+cc[1]
+                    newx[ii] = c120 * (xx - cc[0]) - s120 * (y[ii] - cc[1]) + \
+                               cc[0]
+                    newy[ii] = s120 * (xx - cc[0]) + c120 * (y[ii] - cc[1]) + \
+                               cc[1]
                 newlines.append([newx, newy])
             newstable_entries = {
-                (c120*(c[0]-cc[0])-s120*(c[1]-cc[1])+cc[0],
-                 s120*(c[0]-cc[0])+c120*(c[1]-cc[1])+cc[1]): entry
-                for c, entry in stable_entries.iteritems()}
+                (c120 * (c[0] - cc[0]) - s120 * (c[1] - cc[1]) + cc[0],
+                 s120 * (c[0] - cc[0]) + c120 * (c[1] - cc[1]) + cc[1]): entry
+                for c, entry in stable_entries.items()}
             newunstable_entries = {
-                entry: (c120*(c[0]-cc[0])-s120*(c[1]-cc[1])+cc[0],
-                        s120*(c[0]-cc[0])+c120*(c[1] - cc[1])+cc[1])
-                for entry, c in unstable_entries.iteritems()}
+                entry: (c120 * (c[0] - cc[0]) - s120 * (c[1] - cc[1]) + cc[0],
+                        s120 * (c[0] - cc[0]) + c120 * (c[1] - cc[1]) + cc[1])
+                for entry, c in unstable_entries.items()}
             return newlines, newstable_entries, newunstable_entries
         else:
             c120 = np.cos(2.0 * np.pi / 3.0)
@@ -660,15 +670,16 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 newx = np.zeros_like(x)
                 newy = np.zeros_like(y)
                 for ii, xx in enumerate(x):
-                    newx[ii] = -c120*(xx-1.0)-s120*y[ii]+1.0
-                    newy[ii] = -s120*(xx-1.0)+c120*y[ii]
+                    newx[ii] = -c120 * (xx - 1.0) - s120 * y[ii] + 1.0
+                    newy[ii] = -s120 * (xx - 1.0) + c120 * y[ii]
                 newlines.append([newx, newy])
-            newstable_entries = {(-c120*(c[0]-1.0)-s120*c[1]+1.0,
-                                  -s120*(c[0]-1.0)+c120*c[1]): entry
-                                 for c, entry in stable_entries.iteritems()}
-            newunstable_entries = {entry: (-c120*(c[0]-1.0)-s120*c[1]+1.0,
-                                           -s120*(c[0]-1.0)+c120*c[1])
-                                   for entry, c in unstable_entries.iteritems()}
+            newstable_entries = {(-c120 * (c[0] - 1.0) - s120 * c[1] + 1.0,
+                                  -s120 * (c[0] - 1.0) + c120 * c[1]): entry
+                                 for c, entry in stable_entries.items()}
+            newunstable_entries = {
+            entry: (-c120 * (c[0] - 1.0) - s120 * c[1] + 1.0,
+                    -s120 * (c[0] - 1.0) + c120 * c[1])
+            for entry, c in unstable_entries.items()}
             return newlines, newstable_entries, newunstable_entries
     elif nameup == ordering[2]:
         if nameleft == ordering[0]:
@@ -679,17 +690,19 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 newx = np.zeros_like(x)
                 newy = np.zeros_like(y)
                 for ii, xx in enumerate(x):
-                    newx[ii] = c240*(xx-cc[0])-s240*(y[ii]-cc[1])+cc[0]
-                    newy[ii] = s240*(xx-cc[0])+c240*(y[ii]-cc[1])+cc[1]
+                    newx[ii] = c240 * (xx - cc[0]) - s240 * (y[ii] - cc[1]) + \
+                               cc[0]
+                    newy[ii] = s240 * (xx - cc[0]) + c240 * (y[ii] - cc[1]) + \
+                               cc[1]
                 newlines.append([newx, newy])
             newstable_entries = {
-                (c240*(c[0]-cc[0])-s240*(c[1]-cc[1])+cc[0],
-                 s240*(c[0]-cc[0])+c240*(c[1]-cc[1])+cc[1]): entry
-                for c, entry in stable_entries.iteritems()}
+                (c240 * (c[0] - cc[0]) - s240 * (c[1] - cc[1]) + cc[0],
+                 s240 * (c[0] - cc[0]) + c240 * (c[1] - cc[1]) + cc[1]): entry
+                for c, entry in stable_entries.items()}
             newunstable_entries = {
-                entry: (c240*(c[0]-cc[0])-s240*(c[1]-cc[1])+cc[0],
-                        s240*(c[0]-cc[0])+c240*(c[1] - cc[1])+cc[1])
-                for entry, c in unstable_entries.iteritems()}
+                entry: (c240 * (c[0] - cc[0]) - s240 * (c[1] - cc[1]) + cc[0],
+                        s240 * (c[0] - cc[0]) + c240 * (c[1] - cc[1]) + cc[1])
+                for entry, c in unstable_entries.items()}
             return newlines, newstable_entries, newunstable_entries
         else:
             c240 = np.cos(4.0 * np.pi / 3.0)
@@ -699,13 +712,13 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 newx = np.zeros_like(x)
                 newy = np.zeros_like(y)
                 for ii, xx in enumerate(x):
-                    newx[ii] = -c240*xx-s240*y[ii]
-                    newy[ii] = -s240*xx+c240*y[ii]
+                    newx[ii] = -c240 * xx - s240 * y[ii]
+                    newy[ii] = -s240 * xx + c240 * y[ii]
                 newlines.append([newx, newy])
-            newstable_entries = {(-c240*c[0]-s240*c[1],
-                                  -s240*c[0]+c240*c[1]): entry
-                                 for c, entry in stable_entries.iteritems()}
-            newunstable_entries = {entry: (-c240*c[0]-s240*c[1],
-                                           -s240*c[0]+c240*c[1])
-                                   for entry, c in unstable_entries.iteritems()}
+            newstable_entries = {(-c240 * c[0] - s240 * c[1],
+                                  -s240 * c[0] + c240 * c[1]): entry
+                                 for c, entry in stable_entries.items()}
+            newunstable_entries = {entry: (-c240 * c[0] - s240 * c[1],
+                                           -s240 * c[0] + c240 * c[1])
+                                   for entry, c in unstable_entries.items()}
             return newlines, newstable_entries, newunstable_entries

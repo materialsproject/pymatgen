@@ -18,6 +18,14 @@ pymatgen.transformations.advanced_transformations module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.transformations.defect_transformations module
+------------------------------------------------------
+
+.. automodule:: pymatgen.transformations.defect_transformations
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.transformations.site_transformations module
 ----------------------------------------------------
 

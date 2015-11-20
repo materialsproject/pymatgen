@@ -5,27 +5,32 @@ All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on `PyPI <http://pypi.python.org>`_.
 
-1. Python 2.7+ required. New default modules such as json are used, as well as
-   new unittest features in Python 2.7.
-2. numpy - For array, matrix and other numerical manipulations. Used extensively
+1. Python 2.7-3.x supported. All critical dependencies of pymatgen already
+   have Python 3.x support. Only a few optional dependencies (VTK and ASE) do
+   not. If you do not need those features, you can choose to work with Python 3.
+2. numpy: For array, matrix and other numerical manipulations. Used extensively
    by all core modules.
-3. pyhull 1.3.6+: For generation of phase diagrams.
-4. PyCifRW 3.3+: For reading and writing Crystallographic Information Format
-   (CIF) files.
-5. requests 1.0+: For the high-level interface to the Materials API.
+3. pyhull 1.5.2+: For generation of phase diagrams.
+4. requests 2.0+: For the high-level interface to the Materials API.
+5. monty 0.4.2+: For some common complementary functions,
+   design patterns (e.g., singleton) and decorators to the Python
+   standard library.
 
 Optional dependencies
 ---------------------
 
 Optional libraries that are required if you need certain features:
 
-1. scipy 0.10+ (highly recommended): For use in Gaussian smearing.
+1. scipy 0.10+ (highly recommended): For use in Gaussian smearing and faster
+   Phase Diagrams.
 2. matplotlib 1.1+ (highly recommended): For plotting (e.g., Phase Diagrams).
 3. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
-   crystal structures using the pymatgen.vis package.
+   crystal structures using the pymatgen.vis package. Note that the VTK
+   package is incompatible with Python 3.x at the moment.
 4. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
+   Note that the ASE package is incompatible with Python 3.x at the moment.
 5. OpenBabel with Python bindings (http://openbabel.org): Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
@@ -58,6 +63,9 @@ the moment) required only for certain features:
    which is in turn used extensively by :mod:`pymatgen.analysis.defects` to
    compute empirical defect energies.
 5. aconvasp: For use with the :mod:`pymatgen.command_line.aconvasp_caller`.
+6. Zeo++ (http://www.maciejharanczyk.info/Zeopp/): For defect structure
+   generation. This is required in addition to installing the zeo Python
+   package.
 
 Detailed installation instructions
 ==================================
@@ -109,7 +117,6 @@ pymatgen usage.
 5. Install numpy and a few other dependencies::
 
     sudo pip install numpy
-    sudo pip install pycifrw
     sudo pip install pyyaml
 
 6. Install pymatgen, either in development mode or via pip.
@@ -145,7 +152,6 @@ please send me the details.
 4. Install some required packages which seem to have issues when installed as
    part of the pymatgen setup.py process::
 
-    pip install pycifrw
     pip install pyyaml
 
 5. Install pymatgen either using pip or the Github developer procedures
@@ -163,17 +169,53 @@ minor compilation error messages, I generally assume Linux users are usually
 able to diagnose and solve those. For users of Ubuntu, most of the dependencies
 (including the optional ones) are most easily installed using apt-get.
 
+Using pymatgen on public HPC resources
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you wish to use pymatgen on HPC resources (e.g., NERSC or XSEDE resources)
+where you do not have administrator priveleges, there are two options.
+
+1. Use the ``"--user"`` option. Pip, easy_install, python setup.py install all
+   support the ``--user`` option. You can add ``--user`` to all your commands
+   and it will be installed in $HOME/.local/lib/python2.7/site-packages/. You
+   may need to modify your PYTHONPATH accordingly.
+2. Use virtualenv. You may still need to install virtualenv using the
+   ``--user`` option if the HPC resource does not have it. Afterwards,
+   you can create a virtualenv to install everything else. This allows you
+   to properly isolate dependencies.
+
+For most users, option 1 is simpler. Option 2 is useful if you foresee
+potential conflicts with many different python packages.
+
 POTCAR Setup
 ============
 
 For the code to generate POTCAR files, it needs to know where the VASP
 pseudopotential files are.  We are not allowed to distribute these under the
-VASP license. The good news is that we have included a setup script to help you
-along.
+VASP license. The good news is that the `pmg` command line utility includes a
+setup functionality.
 
 After installation, do::
 
-    potcar_setup.py
+    pmg setup --input_potcar_dir <EXTRACTED_VASP_POTCAR> --output_potcar_dir <MY_PSP>
+
+In the above, `<EXTRACTED_VASP_POTCAR>` is the location of the directory that
+you extracted the downloaded VASP pseudopotential files. Typically, it has
+the following format::
+
+    - <EXTRACTED_VASP_POTCAR>
+    |- POT_GGA_PAW_PBE
+    ||- Ac_s
+    |||-POTCAR
+    |||-...
+
+or::
+
+    - <EXTRACTED_VASP_POTCAR>
+    |- potpaw_PBE
+    ||- Ac_s
+    |||-POTCAR
+    |||-...
 
 and follow the instructions. If you have done it correctly, you should get a
 resources directory with the following directory structure::
@@ -189,7 +231,8 @@ resources directory with the following directory structure::
 
 After generating the resources directory, you should add a VASP_PSP_DIR
 environment variable pointing to the generated directory and you should then be
-able to generate POTCARs.
+able to generate POTCARs. The setup also provides options to do this
+automatically and setup for Materials API usage as well.
 
 Setup for Developers (using GitHub)
 ===================================
@@ -220,66 +263,26 @@ Please feel free to send in suggestions to update the instructions based on
 your experiences. In all the instructions, it is assumed that you have standard
 gcc and other compilers (e.g., Xcode on Macs) already installed.
 
-Scipy (tested on v0.10.1)
--------------------------
+VTK (tested on v5.10.0 - 6.1.0)
+-------------------------------
 
-Mac OS X 10.7 - 10.8
+Mac OS X 10.7 - 10.9
 ~~~~~~~~~~~~~~~~~~~~
-
-Typical installation of Xcode with python setup.py install seems to work fine.
-The pre-compiled binary for OSX 10.6 also seems to work.
-
-Matplotlib (tested on v1.10)
-----------------------------
-
-Mac OS X 10.7 - 10.8
-~~~~~~~~~~~~~~~~~~~~
-
-This setup assumes you have the latest version of python (2.7 as of this is written)
-and numpy already installed. You will need to set the compiler flags to build
-matplotlib from source.
-
-::
-
-	export CFLAGS="-arch x86_64 -I/usr/X11/include -I/usr/X11/include/freetype2"
-	export LDFLAGS="-arch x86_64 -L/usr/X11/lib"
-	python setup.py build
-	sudo python setup.py install
-
-Solaris 10
-~~~~~~~~~~
-
-First install solstudio 12.2. Then put the following code in a shell script and
-run it.
-
-::
-
-	#!/bin/bash
-	PATH=/opt/solstudio12.2/bin:/usr/ccs/bin:/usr/bin:/usr/sfw/bin:/usr/sbin; export PATH
-	ATLAS=None; export ATLAS
-	BLAS=/opt/solstudio12.2/lib/libsunperf.so; export BLAS
-	LAPACK=/opt/solstudio12.2/lib/libsunmath.so; export LAPACK
-	python setup.py build
-	python setup.py install
-
-VTK (tested on v5.10.0)
------------------------
-
-Mac OS X 10.7 and 10.8
-~~~~~~~~~~~~~~~~~~~~~~
 
 The easiest is to install cmake from
 http://cmake.org/cmake/resources/software.html.
 
-Type the following:
-
-::
+Type the following::
 
 	cd VTK (this is the directory you expanded VTK into)
-	cmake -i (this uses cmake in an interactive manner)
+	mkdir build
+	cd build
+	ccmake .. (this uses cmake in an interactive manner)
 
-For all options, use the defaults, EXCEPT for BUILD_SHARED_LIBS and
-VTK_WRAP_PYTHON which must be set to ON. You may also need to modify the python
+Press "t" to toggle advanced mode. Then press "c" to do an initial
+configuration. After the list of parameters come out, ensure that the
+PYTHON_VERSION is set to 2, the VTK_WRAP_PYTHON is set to ON, and
+BUILD_SHARED_LIBS is set to ON. You may also need to modify the python
 paths and library paths if they are in non-standard locations. For example, if
 you have installed the official version of Python instead of using the
 Mac-provided version, you will probably need to edit the CMakeCache Python
@@ -299,11 +302,22 @@ need to be modified are shown):
 
    //Also delete the prefix settings for python, which typically links to the Mac python.
 
-After the CMakeCache.txt file is generated, type:
+    VTK_INSTALL_PYTHON_MODULE_DIR:PATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages
+
+.. note:: Garbage collection on new Xcode
+
+    If you are using a very new XCode (e.g. 5.1), please note that Cocoa garbage
+    collection has been removed and during compile, you may get an "error:
+    garbage collection is no longer supported" message. VTK does not require
+    Cocoa garbage collection, but was configured to built with support for it on.
+    You can simply remove the -fobjc-gc flag from VTK_REQUIRED_OBJCXX_FLAGS.
+
+Then press "c" again to configure and finally "g" to generate the required
+make files After the CMakeCache.txt file is generated, type:
 
 ::
 
-	make
+	make -j 4
 	sudo make install
 
 With any luck, you should have vtk with the necessary python wrappers installed.
@@ -311,7 +325,7 @@ With any luck, you should have vtk with the necessary python wrappers installed.
 OpenBabel (tested on v2.3.2)
 ----------------------------
 
-Mac OS X 10.7 - 10.8
+Mac OS X 10.7 - 10.9
 ~~~~~~~~~~~~~~~~~~~~
 
 Openbabel must be compiled with python bindings for integration with pymatgen.
@@ -373,10 +387,11 @@ Here are the steps that I took to make it work:
         //Path to a library.
         PYTHON_LIBRARY:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib
 
-12. If you are using Mavericks (OSX 10.9) and encounter errors relating to <tr1/memory>, you might also need to include the following flag in your CMakeCache.txt::
+12. If you are using Mavericks (OSX 10.9) and encounter errors relating to <tr1/memory>, you might also need to include
+    the following flag in your CMakeCache.txt::
 
 		CMAKE_CXX_FLAGS:STRING=-stdlib=libstdc++
-		
+
 13. Run make and install as follows::
 
         make -j2
@@ -394,8 +409,8 @@ Here are the steps that I took to make it work:
 Enumlib (tested as of version of Jul 2012)
 ------------------------------------------
 
-Mac OS X 10.7
-~~~~~~~~~~~~~
+Mac OS X 10.7 - 10.9
+~~~~~~~~~~~~~~~~~~~~
 
 There does not seem to be any issues with installation as per the instructions
 given by the author. For convenience, the steps are reproduced here:

@@ -1,10 +1,16 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 This module provides classes for plotting Pourbaix objects.
 """
 
-from __future__ import division
+import six
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -32,17 +38,14 @@ from pymatgen.util.coord_utils import in_coord_list
 class PourbaixPlotter(object):
     """
     A plotter class for phase diagrams.
+
+    Args:
+        phasediagram: A PhaseDiagram object.
+        show_unstable: Whether unstable phases will be plotted as well as
+            red crosses. Defaults to False.
     """
 
     def __init__(self, pourbaixdiagram, show_unstable=False):
-        """
-        Args:
-            phasediagram:
-                A PhaseDiagram object.
-            show_unstable:
-                Whether unstable phases will be plotted as well as red crosses.
-                Defaults to False.
-        """
         self._pd = pourbaixdiagram
         self.lines = uniquelines(self._pd.facets)
         self.show_unstable = show_unstable
@@ -53,13 +56,13 @@ class PourbaixPlotter(object):
         Pourbaix diagram convex hull data.
 
         Returns:
-            (lines, stable_entries, unstable_entries):
-                - lines is a list of list of coordinates for lines in the PD.
-                - stable_entries is a {coordinate : entry} for each stable node
-                  in the phase diagram. (Each coordinate can only have one
-                  stable phase)
-                - unstable_entries is a {entry: coordinates} for all unstable
-                  nodes in the phase diagram.
+            (lines, stable_entries, unstable_entries)
+            - lines is a list of list of coordinates for lines in the PD.
+            - stable_entries is a {coordinate : entry} for each stable node
+            in the phase diagram. (Each coordinate can only have one
+            stable phase)
+            - unstable_entries is a {entry: coordinates} for all unstable
+            nodes in the phase diagram.
         """
         pd = self._pd
         entries = pd.qhull_entries
@@ -83,7 +86,7 @@ class PourbaixPlotter(object):
         alldata = np.array(pd.qhull_data)
         unstable_entries = dict()
         stable = pd.stable_entries
-        for i in xrange(len(allentries)):
+        for i in range(len(allentries)):
             entry = allentries[i]
             if entry not in stable:
                 x = [alldata[i][0], alldata[i][0]]
@@ -99,7 +102,8 @@ class PourbaixPlotter(object):
         """
         Draws the convex hull diagram using Matplotlib and show it.
         """
-        plt = self._get_plot(label_stable=label_stable, label_unstable=label_unstable)
+        plt = self._get_plot(label_stable=label_stable,
+                             label_unstable=label_unstable)
         if filename == "":
             plt.show()
         else:
@@ -198,8 +202,7 @@ class PourbaixPlotter(object):
         Get data required to plot Pourbaix diagram.
 
         Args:
-            limits:
-                2D list containing limits of the Pourbaix diagram
+            limits: 2D list containing limits of the Pourbaix diagram
                 of the form [[xlo, xhi], [ylo, yhi]]
 
         Returns:
@@ -269,8 +272,7 @@ class PourbaixPlotter(object):
         Plot Pourbaix diagram.
 
         Args:
-            limits:
-                2D list containing limits of the Pourbaix diagram
+            limits: 2D list containing limits of the Pourbaix diagram
                 of the form [[xlo, xhi], [ylo, yhi]]
 
         Returns:
@@ -405,8 +407,7 @@ class PourbaixPlotter(object):
         Returns the vertices of the Pourbaix domain.
 
         Args:
-            entry:
-                Entry for which domain vertices are desired
+            entry: Entry for which domain vertices are desired
 
         Returns:
             list of vertices
@@ -425,8 +426,10 @@ class PourbaixPlotter(object):
         entry_dict_of_multientries = collections.defaultdict(list)
         plt = get_publication_quality_plot(16)
         optim_colors = ['#0000FF', '#FF0000', '#00FF00', '#FFFF00', '#FF00FF',
-                         '#FF8080', '#808080', '#800000', '#FF8000']
-        hatch = ['//', '\\', '||', '--', '++', 'xx', 'oo', 'OO', '..', '**']
+                         '#FF8080', '#DCDCDC', '#800000', '#FF8000']
+        optim_font_color = ['#FFFFA0', '#00FFFF', '#FF00FF', '#0000FF', '#00FF00',
+                            '#007F7F', '#232323', '#7FFFFF', '#007FFF']
+        hatch = ['/', '\\', '|', '-', '+', 'o', '*']
         (stable, unstable) = self.pourbaix_plot_data(limits)
         num_of_overlaps = {key: 0 for key in stable.keys()}
         for entry in stable:
@@ -435,6 +438,8 @@ class PourbaixPlotter(object):
                     if element in e.composition.elements:
                         entry_dict_of_multientries[e.name].append(entry)
                         num_of_overlaps[entry] += 1
+            else:
+                entry_dict_of_multientries[entry.name].append(entry)
         if limits:
             xlim = limits[0]
             ylim = limits[1]
@@ -452,7 +457,6 @@ class PourbaixPlotter(object):
         ax = plt.gca()
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
-        i = -1
         from pymatgen import Composition, Element
         from pymatgen.core.ion import Ion
 
@@ -466,12 +470,18 @@ class PourbaixPlotter(object):
 
         sorted_entry = entry_dict_of_multientries.keys()
         sorted_entry.sort(key=len_elts)
+        i = -1
+        label_chr = map(chr, list(range(65, 91)))
         for entry in sorted_entry:
+            color_indx = 0
             x_coord = 0.0
             y_coord = 0.0
             npts = 0
             i += 1
             for e in entry_dict_of_multientries[entry]:
+                hc = 0
+                fc = 0
+                bc = 0
                 xy = self.domain_vertices(e)
                 c = self.get_center(stable[e])
                 x_coord += c[0]
@@ -489,14 +499,33 @@ class PourbaixPlotter(object):
                          int(color_indx / len(optim_colors)) * len(optim_colors)
                     patch = Polygon(xy, facecolor=optim_colors[color_indx],
                                      closed=True, lw=3.0, fill=True)
+                    bc = optim_colors[color_indx]
                 else:
                     if color_indx >= len(hatch):
                         color_indx = color_indx - int(color_indx / len(hatch)) * len(hatch)
                     patch = Polygon(xy, hatch=hatch[color_indx], closed=True, lw=3.0, fill=False)
+                    hc = hatch[color_indx]
                 ax.add_patch(patch)
+
             xy_center = (x_coord / npts, y_coord / npts)
             if label_domains:
-                plt.annotate(latexify_ion(latexify(entry)), xy_center, color="b", fontsize=20)
+                if color_indx >= len(optim_colors):
+                    color_indx = color_indx -\
+                        int(color_indx / len(optim_colors)) * len(optim_colors)
+                fc = optim_font_color[color_indx]
+                if bc and not hc:
+                    bbox = dict(boxstyle="round", fc=fc)
+                if hc and not bc:
+                    bc = 'k'
+                    fc = 'w'
+                    bbox = dict(boxstyle="round", hatch=hc, fill=False)
+                if bc and hc:
+                    bbox = dict(boxstyle="round", hatch=hc, fc=fc)
+#                 bbox.set_path_effects([PathEffects.withSimplePatchShadow()])
+                plt.annotate(latexify_ion(latexify(entry)), xy_center,
+                            color=bc, fontsize=30, bbox=bbox)
+#                 plt.annotate(label_chr[i], xy_center,
+#                               color=bc, fontsize=30, bbox=bbox)
 
         lw = 3
         plt.plot(h_line[0], h_line[1], "r--", linewidth=lw)
@@ -509,40 +538,46 @@ class PourbaixPlotter(object):
         plt.title(title, fontsize=20, fontweight='bold')
         return plt
 
-    def get_pourbaix_mark_passive(self, limits=None, title="", label_domains=True):
+    def get_pourbaix_mark_passive(self, limits=None, title="", label_domains=True, passive_entry=None):
         """
         Color domains by element
         """
         from matplotlib.patches import Polygon
         from pymatgen import Element
         from itertools import chain
+        import operator
 
         plt = get_publication_quality_plot(16)
-        optim_colors = ['#0000FF', '#FF0000', '#00FF00', '#FFFF00', '#FF00FF', '#FF8080', '#808080', '#800000', '#FF8000']
+        optim_colors = ['#0000FF', '#FF0000', '#00FF00', '#FFFF00', '#FF00FF',
+                        '#FF8080', '#DCDCDC', '#800000', '#FF8000']
+        optim_font_colors = ['#FFC000', '#00FFFF', '#FF00FF', '#0000FF', '#00FF00',
+                            '#007F7F', '#232323', '#7FFFFF', '#007FFF']
         (stable, unstable) = self.pourbaix_plot_data(limits)
         mark_passive = {key: 0 for key in stable.keys()}
+
+        if self._pd._elt_comp:
+            maxval = max(six.iteritems(self._pd._elt_comp), key=operator.itemgetter(1))[1]
+            key = [k for k, v in self._pd._elt_comp.items() if v == maxval]
+        passive_entry = key[0]
 
         def list_elts(entry):
             elts_list = set()
             if isinstance(entry, MultiEntry):
-                for el in chain.from_iterable([[el for el in e.composition.elements] for e in entry.entrylist]):
+                for el in chain.from_iterable([[el for el in e.composition.elements]
+                                                for e in entry.entrylist]):
                     elts_list.add(el)
             else:
                 elts_list = entry.composition.elements
             return elts_list
 
         for entry in stable:
-            is_passive = False
-            is_corrosive = False
-            if "(s)" not in entry.name:
-                is_corrosive = True
-                continue
-            if len(set([Element("O"), Element("H")]).intersection(set(list_elts(entry)))) > 0:
-                is_passive = True
-            if is_passive:
-                mark_passive[entry] = 1
-            elif not is_corrosive:
+            if passive_entry + str("(s)") in entry.name:
                 mark_passive[entry] = 2
+                continue
+            if "(s)" not in entry.name:
+                continue
+            elif len(set([Element("O"), Element("H")]).intersection(set(list_elts(entry)))) > 0:
+                mark_passive[entry] = 1
 
         if limits:
             xlim = limits[0]
@@ -566,17 +601,20 @@ class PourbaixPlotter(object):
             c = self.get_center(stable[e])
             if mark_passive[e] == 1:
                 color = optim_colors[0]
+                fontcolor = optim_font_colors[0]
                 colorfill = True
             elif mark_passive[e] == 2:
                 color = optim_colors[1]
+                fontcolor = optim_font_colors[1]
                 colorfill = True
             else:
                 color = "w"
                 colorfill = False
+                fontcolor = "k"
             patch = Polygon(xy, facecolor=color, closed=True, lw=3.0, fill=colorfill)
             ax.add_patch(patch)
             if label_domains:
-                plt.annotate(self.print_name(e), c, color="b", fontsize=20)
+                plt.annotate(self.print_name(e), c, color=fontcolor, fontsize=20)
 
         lw = 3
         plt.plot(h_line[0], h_line[1], "r--", linewidth=lw)

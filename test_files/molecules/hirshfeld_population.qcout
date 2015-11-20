@@ -1,0 +1,421 @@
+
+Running Job 1 of 1 mol.qcinp
+qchem mol.qcinp_830.0 /Users/xiaohuiqu/scratch/qchem830/ 1
+                  Welcome to Q-Chem
+     A Quantum Leap Into The Future Of Chemistry
+
+
+ Q-Chem 4.2, Q-Chem, Inc., Pleasanton, CA (2014).
+
+ Y. Shao,  Z. Gan,  E. Epifanovsky,  A. T. B. Gilbert,  M. Wormit,  
+ J. Kussmann,  A. W. Lange,  A. Behn,  J. Deng,  X. Feng,  D. Ghosh,  
+ M. Goldey,  P. R. Horn,  L. D. Jacobson,  I. Kaliman,  R. Z. Khaliullin,  
+ T. Kus,  A. Landau,  J. Liu,  E. I. Proynov,  Y. M. Rhee,  R. M. Richard,  
+ M. A. Rohrdanz,  R. P. Steele,  E. J. Sundstrom,  H. L. Woodcock III,  
+ P. M. Zimmerman,  D. Zuev,  B. Albrecht,  E. Alguire,  B. Austin,  
+ G. J. O. Beran,  Y. A. Bernard,  E. Berquist,  K. Brandhorst,  
+ K. B. Bravaya,  S. T. Brown,  D. Casanova,  C.-M. Chang,  Y. Chen,  
+ S. H. Chien,  K. D. Closser,  D. L. Crittenden,  M. Diedenhofen,  
+ R. A. DiStasio Jr.,  H. Do,  A. D. Dutoi,  R. G. Edgar,  S. Fatehi,  
+ L. Fusti-Molnar,  A. Ghysels,  A. Golubeva-Zadorozhnaya,  J. Gomes,  
+ M. W. D. Hanson-Heine,  P. H. P. Harbach,  A. W. Hauser,  E. G. Hohenstein,  
+ Z. C. Holden,  T.-C. Jagau,  H. Ji,  B. Kaduk,  K. Khistyaev,  Jaehoon Kim,  
+ Jihan Kim,  R. A. King,  P. Klunzinger,  D. Kosenkov,  T. Kowalczyk,  
+ C. M. Krauter,  K. U. Lao,  A. Laurent,  K. V. Lawler,  S. V. Levchenko,  
+ C. Y. Lin,  F. Liu,  E. Livshits,  R. C. Lochan,  A. Luenser,  P. Manohar,  
+ S. F. Manzer,  S.-P. Mao,  N. Mardirossian,  A. V. Marenich,  S. A. Maurer,  
+ N. J. Mayhall,  C. M. Oana,  R. Olivares-Amaya,  D. P. O'Neill,  
+ J. A. Parkhill,  T. M. Perrine,  R. Peverati,  P. A. Pieniazek,  A. Prociuk,  
+ D. R. Rehn,  E. Rosta,  N. J. Russ,  N. Sergueev,  S. M. Sharada,  
+ S. Sharma,  D. W. Small,  A. Sodt,  T. Stein,  D. Stuck,  Y.-C. Su,  
+ A. J. W. Thom,  T. Tsuchimochi,  L. Vogt,  O. Vydrov,  T. Wang,  
+ M. A. Watson,  J. Wenzel,  A. White,  C. F. Williams,  V. Vanovschi,  
+ S. Yeganeh,  S. R. Yost,  Z.-Q. You,  I. Y. Zhang,  X. Zhang,  Y. Zhao,  
+ B. R. Brooks,  G. K. L. Chan,  D. M. Chipman,  C. J. Cramer,  
+ W. A. Goddard III,  M. S. Gordon,  W. J. Hehre,  A. Klamt,  
+ H. F. Schaefer III,  M. W. Schmidt,  C. D. Sherrill,  D. G. Truhlar,  
+ A. Warshel,  X. Xu,  A. Aspuru-Guzik,  R. Baer,  A. T. Bell,  N. A. Besley,  
+ J.-D. Chai,  A. Dreuw,  B. D. Dunietz,  T. R. Furlani,  S. R. Gwaltney,  
+ C.-P. Hsu,  Y. Jung,  J. Kong,  D. S. Lambrecht,  W. Liang,  C. Ochsenfeld,  
+ V. A. Rassolov,  L. V. Slipchenko,  J. E. Subotnik,  T. Van Voorhis,  
+ J. M. Herbert,  A. I. Krylov,  P. M. W. Gill,  M. Head-Gordon
+
+ Contributors to earlier versions of Q-Chem not listed above: 
+ R. D. Adamson,  J. Baker,  E. F. C. Byrd,  A. K. Chakraborty,  C.-L. Cheng,  
+ H. Dachsel,  R. J. Doerksen,  G. Hawkins,  A. Heyden,  S. Hirata,  
+ G. Kedziora,  F. J. Keil,  C. Kelley,  P. P. Korambath,  W. Kurlancheek,  
+ A. M. Lee,  M. S. Lee,  D. Liotard,  I. Lotan,  P. E. Maslen,  N. Nair,  
+ D. Neuhauser,  R. Olson,  B. Peters,  J. Ritchie,  N. E. Schultz,  
+ N. Shenvi,  A. C. Simmonett,  K. S. Thanthiriwatte,  Q. Wu,  W. Zhang
+
+ Q-Chem 4.2.0.0  for Mac (Intel) OS X
+
+ Parts of Q-Chem use Armadillo 4.100.2 (Dirt Cruiser).
+ http://arma.sourceforge.net/
+
+ Q-Chem begins on Thu Aug 14 22:44:50 2014  
+
+Host: 
+0
+
+     Scratch files written to /Users/xiaohuiqu/scratch/qchem830//
+ May1314 814_zgan 4730   
+Processing $rem in /Users/xiaohuiqu/program/qchem/config/preferences.
+ MEM_TOTAL  2000 
+Finally everything over in PARseQInput
+
+--------------------------------------------------------------
+User input:
+--------------------------------------------------------------
+$comment
+Ethane singlet neutral B3LYP/6-31G* single point energy
+Gas Phase
+$end
+
+
+$molecule
+0  1
+O          -0.00008712       -0.11934821        0.00000000
+H          -0.77643410        0.47766052        0.00000000
+H           0.77713103        0.47712512        0.00000000
+$end
+
+
+$rem
+jobtype = sp
+exchange = b3lyp
+basis = 6-31g*
+HIRSHFELD true
+$end
+
+
+--------------------------------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      O      -0.0000871172    -0.1193482060     0.0000000000
+    2      H      -0.7764340963     0.4776605251     0.0000000000
+    3      H       0.7771310337     0.4771251229     0.0000000000
+ ----------------------------------------------------------------
+ Molecular Point Group                 Cs    NOp =  2
+ Largest Abelian Subgroup              Cs    NOp =  2
+ Nuclear Repulsion Energy =     8.9843398569 hartrees
+ There are        5 alpha and        5 beta electrons
+ Requested basis set is 6-31G(d)
+ There are 8 shells and 19 basis functions
+
+Total QAlloc Memory Limit   2000 MB
+Mega-Array Size        61 MB
+MEM_STATIC part        62 MB
+
+                       Distance Matrix (Angstroms)
+             O (  1)   H (  2)
+   H (  2)  0.979354
+   H (  3)  0.979719  1.553565
+ 
+ A cutoff of  1.0D-08 yielded     36 shell pairs
+ There are       217 function pairs
+ Smallest overlap matrix eigenvalue = 2.31E-02
+
+  Scale SEOQF with 1.000000e+00/1.000000e+00/1.000000e+00
+
+ Standard Electronic Orientation quadrupole field applied
+ Nucleus-field energy     =     0.0000000008 hartrees
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+ A restricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-05
+ using 2 threads for integral computing 
+ 
+ -------------------------------------------------------
+ OpenMP Integral Computing Module                       
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ Integral Job Info:
+ Integral job number is                      22
+ Integral operator is                         1
+ short-range coefficients               -999999
+ long-range coefficients                -999999
+ Omega coefficients                           0
+ if combine SR and LR in K              -999999
+ Integral screening is                        1
+ Integral computing path is                   2
+ max size of driver memory is            800000
+ size of driver memory is                593606
+ size of scratch memory is               800000
+ max col of scratch BK array               1296
+ max len of scratch array in speh3          155
+ max len of scratch index in speh4           18
+ max int batch size is                       50
+ min int batch size is                       15
+ fixed nKL is                                18
+ max L of basis functions is                  2
+ order of int derivative is                   0
+ number of shells is                          8
+ number of basis is                          19
+ number of cartesian basis is                19
+ number of contracted shell pairs            36
+ number of primitive shell pairs            199
+ maxK2 (contraction) of shell pair           36
+ max number of K2 of shell pair               1
+ max number of CS2 of shell pair              4
+ max number of PS2 of shell pair             36
+ mem total for path MDJ                    9264
+ -------------------------------------------------------
+         cpu   0.01 wall   0.00
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1     -76.3762351803      1.59E-01
+         cpu   0.01 wall   0.00
+in dftxc.C, eleTot sum is:9.999999, tauTot is:0.000000
+    2     -76.3407996835      4.46E-02
+         cpu   0.00 wall   0.00
+in dftxc.C, eleTot sum is:10.000008, tauTot is:0.000000
+    3     -76.3042841971      5.66E-02
+         cpu   0.01 wall   0.00
+in dftxc.C, eleTot sum is:10.000003, tauTot is:0.000000
+    4     -76.4086128985      1.23E-03
+         cpu   0.00 wall   0.00
+in dftxc.C, eleTot sum is:10.000003, tauTot is:0.000000
+    5     -76.4086643183      2.15E-04
+         cpu   0.00 wall   0.00
+in dftxc.C, eleTot sum is:10.000003, tauTot is:0.000000
+    6     -76.4086657901      2.53E-05
+         cpu   0.01 wall   0.00
+in dftxc.C, eleTot sum is:10.000003, tauTot is:0.000000
+    7     -76.4086658117      4.87E-07 Convergence criterion met
+ ---------------------------------------
+ SCF time:  CPU 0.37 s  wall 0.19 s
+ SCF   energy in the final basis set = -76.4086658117
+ Total energy in the final basis set = -76.4086658117
+ Analysis of SCF Wavefunction
+ 
+ --------------------------------------------------------------
+             Orbital Energies (a.u.) and Symmetries
+ --------------------------------------------------------------
+ 
+ Alpha MOs, Restricted
+ -- Occupied --                  
+-19.139  -0.992  -0.515  -0.369  -0.290
+  1 A'    2 A'    3 A'    4 A'    1 A"                                         
+ -- Virtual --                   
+  0.060   0.145   0.773   0.846   0.891   0.894   1.065   1.187
+  5 A'    6 A'    7 A'    8 A'    2 A"    9 A'   10 A'   11 A'                 
+  1.735   1.748   1.783   2.268   2.560   3.549
+ 12 A'    3 A"    4 A"   13 A'   14 A'   15 A'                                 
+ 
+ Beta MOs, Restricted
+ -- Occupied --                  
+-19.139  -0.992  -0.515  -0.369  -0.290
+  1 A'    2 A'    3 A'    4 A'    1 A"                                         
+ -- Virtual --                   
+  0.060   0.145   0.773   0.846   0.891   0.894   1.065   1.187
+  5 A'    6 A'    7 A'    8 A'    2 A"    9 A'   10 A'   11 A'                 
+  1.735   1.748   1.783   2.268   2.560   3.549
+ 12 A'    3 A"    4 A"   13 A'   14 A'   15 A'                                 
+ --------------------------------------------------------------
+ 
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 O                    -0.773884
+      2 H                     0.386975
+      3 H                     0.386909
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+Performing Hirshfeld population analysis.
+Hirshfeld: calculating atomic densities.
+
+
+Starting CDFT-CI Calculation
+
+
+
+Starting CDFT-CI SCF calculation on state 1 ...
+
+ Smallest overlap matrix eigenvalue = 2.31E-02
+ Smallest overlap matrix eigenvalue = 2.31E-02
+ Smallest overlap matrix eigenvalue = 2.31E-02
+ An unrestricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-05
+CDFT-CI using the default guess for promolecules
+in dftxc.C, eleTot sum is:10.000003, tauTot is:0.000000
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1     -75.8627567884      1.73E-01
+in dftxc.C, eleTot sum is:10.000008, tauTot is:0.000000
+    2     -76.1464187949      1.24E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+    3     -76.2037816504      8.51E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+    4     -76.1922414713      1.11E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+    5     -76.1925320432      1.11E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+    6     -76.1995324301      8.10E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+    7     -76.1883499635      1.15E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+    8     -76.1880920402      1.15E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+    9     -76.1963176947      8.01E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   10     -76.1884261862      1.14E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   11     -76.1882210387      1.15E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+   12     -76.1966791260      8.01E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   13     -76.1879893245      1.15E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   14     -76.1882207440      1.15E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+   15     -76.1966506622      8.01E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   16     -76.1880146144      1.15E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   17     -76.1882313123      1.15E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+   18     -76.1966477706      8.01E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   19     -76.1880230857      1.15E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   20     -76.1882275910      1.15E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+   21     -76.1966505626      8.01E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   22     -76.1880190387      1.15E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   23     -76.1882310755      1.15E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+   24     -76.1966486049      8.01E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   25     -76.1880219504      1.15E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   26     -76.1882288253      1.15E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+   27     -76.1966503005      8.01E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   28     -76.1880197846      1.15E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   29     -76.1882302336      1.15E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+   30     -76.1966490587      8.01E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   31     -76.1880212572      1.15E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   32     -76.1882293689      1.15E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+   33     -76.1966498932      8.01E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   34     -76.1880203016      1.15E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   35     -76.1882299067      1.15E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+   36     -76.1966493591      8.01E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   37     -76.1880209048      1.15E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   38     -76.1882295748      1.15E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+   39     -76.1966496941      8.01E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   40     -76.1880205283      1.15E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   41     -76.1882297805      1.15E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+   42     -76.1966494872      8.01E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   43     -76.1880207610      1.15E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   44     -76.1882296533      1.15E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+   45     -76.1966496141      8.01E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   46     -76.1880206176      1.15E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   47     -76.1882297320      1.15E-01
+in dftxc.C, eleTot sum is:10.000004, tauTot is:0.000000
+   48     -76.1966495367      8.01E-02
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   49     -76.1880207055      1.15E-01
+in dftxc.C, eleTot sum is:10.000009, tauTot is:0.000000
+   50     -76.1882296832      1.15E-01
+   50     -76.1882296832      1.15E-01
+ ---------------------------------------
+ <S^2> = 2.0026
+ SCF time:  CPU 2.13 s  wall 1.07 s
+
+
+CDFT-CI fragment calculation complete,
+beginning diabatic state SCF calculation.
+
+CDFT-CI Calculation complete
+Hirshfeld: atomic densities completed in 2.14 sec.
+Hirshfeld: performing integration.
+Hirshfeld: integration completed in 0.07 sec.
+
+          Hirshfeld Atomic Charges         
+
+     Atom                 Charge (a.u.)    
+  ---------------------------------------- 
+      1 O                    -0.286309
+      2 H                     0.143134
+      3 H                     0.143176
+  ---------------------------------------- 
+  Sum of atomic charges =     0.000001
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X       0.0012      Y       2.0786      Z       0.0000
+       Tot       2.0786
+    Quadrupole Moments (Debye-Ang)
+        XX      -4.2133     XY      -0.0004     YY      -6.0270
+        XZ       0.0000     YZ       0.0000     ZZ      -7.2246
+    Octopole Moments (Debye-Ang^2)
+       XXX       0.0020    XXY       1.2439    XYY      -0.0004
+       YYY       1.1808    XXZ       0.0000    XYZ       0.0000
+       YYZ       0.0000    XZZ       0.0000    YZZ       0.3124
+       ZZZ       0.0000
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -6.1204   XXXY       0.0004   XXYY      -1.7592
+      XYYY      -0.0009   YYYY      -6.3429   XXXZ       0.0000
+      XXYZ       0.0000   XYYZ       0.0000   YYYZ       0.0000
+      XXZZ      -2.1522   XYZZ      -0.0002   YYZZ      -1.9793
+      XZZZ       0.0000   YZZZ       0.0000   ZZZZ      -5.2385
+ -----------------------------------------------------------------
+Archival summary:
+1\1\macqu.local.dhcp.lbl.gov\SP\ProcedureUnspecified\6-31G*\111\ThuAug1422:44:512014ThuAug1422:44:512014\0\\#,ProcedureUnspecified,6-31G*,\\0,1\O\H,1,0.979354\H,1,0.979719,2,104.936\\\@
+
+ Total job time:  1.33s(wall), 2.62s(cpu) 
+ Thu Aug 14 22:44:51 2014
+
+        *************************************************************
+        *                                                           *
+        *  Thank you very much for using Q-Chem.  Have a nice day.  *
+        *                                                           *
+        *************************************************************
+
+

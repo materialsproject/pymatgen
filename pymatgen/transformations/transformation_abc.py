@@ -1,4 +1,8 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals
 
 """
 Defines an abstract base class contract for Transformation object.
@@ -13,14 +17,14 @@ __date__ = "Sep 23, 2011"
 
 import abc
 
-from pymatgen.serializers.json_coders import MSONable
+from monty.json import MSONable
+import six
 
 
-class AbstractTransformation(MSONable):
+class AbstractTransformation(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Abstract transformation class.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def apply_transformation(self, structure):
@@ -78,3 +82,7 @@ class AbstractTransformation(MSONable):
         transformations that the transmuter can parallelize.
         """
         return False
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**d["init_args"])

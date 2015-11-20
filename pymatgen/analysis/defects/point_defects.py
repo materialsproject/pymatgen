@@ -1,38 +1,51 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 This module defines classes for point defects
 """
-from __future__ import division
-import abc
-import re
 
+import os
+import abc
+import json
+from bisect import bisect_left
+
+from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.symmetry.finder import SymmetryFinder
-from pymatgen.io.zeoio import get_voronoi_nodes, get_void_volume_surfarea
-from pymatgen.command_line.gulp_caller import get_energy_buckingham
-from pymatgen.command_line.gulp_caller import \
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.io.zeo import get_voronoi_nodes, get_void_volume_surfarea, \
+    get_high_accuracy_voronoi_nodes
+from pymatgen.command_line.gulp_caller import get_energy_buckingham, \
     get_energy_relax_structure_buckingham
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     RelaxationAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.core.periodic_table import Specie, Element
+import six
+from six.moves import filter
+from six.moves import map
+from six.moves import zip
+
+file_dir = os.path.dirname(__file__)
+rad_file = os.path.join(file_dir, 'ionic_radii.json')
+with open(rad_file, 'r') as fp:
+    _ion_radii = json.load(fp)
 
 
-class ValenceIonicRadiusEvaluator:
+class ValenceIonicRadiusEvaluator(object):
     """
     Computes site valences and ionic radii for a structure using bond valence
     analyzer
+
+    Args:
+        structure: pymatgen.core.structure.Structure
     """
 
     def __init__(self, structure):
-        """
-        Args:
-            structure:
-            pymatgen.core.structure.Structure
-        """
-        self._structure = structure
+        self._structure = structure.copy()
         self._valences = self._get_valences()
         self._ionic_radii = self._get_ionic_radii()
 
@@ -41,61 +54,137 @@ class ValenceIonicRadiusEvaluator:
         """
         List of ionic radii of elements in the order of sites.
         """
-        return self._ionic_radii
+        el = [site.species_string for site in self._structure.sites]
+        radii_dict = dict(zip(el, self._ionic_radii))
+        #print radii_dict
+        return radii_dict
 
     @property
     def valences(self):
         """
         List of oxidation states of elements in the order of sites.
         """
-        return self._valences
+        el = [site.species_string for site in self._structure.sites]
+        valence_dict = dict(zip(el, self._valences))
+        return valence_dict
 
     @property
     def structure(self):
         """
-        Structure used for initialization
+        Returns oxidation state decorated structurel.
         """
-        return self._structure
+        return self._structure.copy()
+
 
     def _get_ionic_radii(self):
         """
         Computes ionic radii of elements for all sites in the structure.
+        If valence is zero, atomic radius is used.
         """
-        rad_dict = {}
-        for k, val in self._valences.items():
-            el = re.sub('[1-9,+,\-]', '', k)
-            if val:
-                #rad_dict[k] = Specie(el, val).ionic_radius
-                rad_dict[k] = float(Element(el).ionic_radii[val])
-                if not rad_dict[k]:  
-                    raise LookupError()
+        radii = []
+        coord_finder = VoronoiCoordFinder(self._structure)
+
+        def nearest_key(sorted_vals, key):
+            i = bisect_left(sorted_vals, key)
+            if i == len(sorted_vals):
+                return sorted_vals[-1]
+            if i == 0:
+                return sorted_vals[0]
+            before = sorted_vals[i-1]
+            after = sorted_vals[i]
+            if after-key < key-before:
+                return after
             else:
-                rad_dict[k] = Element(el).atomic_radius
-        return rad_dict
+                return before
+
+        for i in range(len(self._structure.sites)):
+            site = self._structure.sites[i]
+            if isinstance(site.specie,Element):
+                radius = site.specie.atomic_radius
+                radii.append(radius)
+                continue
+
+            el = site.specie.symbol
+            oxi_state = int(round(site.specie.oxi_state))
+            coord_no = int(round(coord_finder.get_coordination_number(i)))
+            try:
+                tab_oxi_states = sorted(map(int, _ion_radii[el].keys()))
+                oxi_state = nearest_key(tab_oxi_states, oxi_state)
+                radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
+            except KeyError:
+                if coord_finder.get_coordination_number(i)-coord_no > 0:
+                    new_coord_no = coord_no + 1
+                else:
+                    new_coord_no = coord_no - 1
+                try:
+                    radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
+                    coord_no = new_coord_no
+                except:
+                    tab_coords = sorted(map(int, _ion_radii[el][str(oxi_state)].keys()))
+                    new_coord_no = nearest_key(tab_coords, coord_no)
+                    i = 0
+                    for val in tab_coords:
+                        if  val > coord_no:
+                            break
+                        i = i + 1
+                    if i == len(tab_coords):
+                        key = str(tab_coords[-1])
+                        radius = _ion_radii[el][str(oxi_state)][key]
+                    elif i == 0:
+                        key = str(tab_coords[0])
+                        radius = _ion_radii[el][str(oxi_state)][key]
+                    else:
+                        key = str(tab_coords[i-1])
+                        radius1 = _ion_radii[el][str(oxi_state)][key]
+                        key = str(tab_coords[i])
+                        radius2 = _ion_radii[el][str(oxi_state)][key]
+                        radius = (radius1+radius2)/2
+
+            #implement complex checks later
+            radii.append(radius)
+        return radii
 
     def _get_valences(self):
         """
         Computes ionic valences of elements for all sites in the structure.
         """
-        bv = BVAnalyzer()
-        valences = bv.get_valences(self._structure)
-        el = [site.species_string for site in self.structure.sites]
-        valence_dict = dict(zip(el, valences))
-        return valence_dict
+        try:
+            bv = BVAnalyzer()
+            self._structure = bv.get_oxi_state_decorated_structure(self._structure)
+            valences = bv.get_valences(self._structure)
+        except:
+            try:
+                bv = BVAnalyzer(symm_tol=0.0)
+                self._structure = bv.get_oxi_state_decorated_structure(self._structure)
+                valences = bv.get_valences(self._structure)
+            except:
+                valences = []
+                for site in self._structure.sites:
+                    valences.append(site.specie.common_oxidation_states[0])
+                if sum(valences):
+                    valences = [0]*self._structure.num_sites
+                else:
+                    self._structure.add_oxidation_state_by_site(valences)
+                #raise
+
+        #el = [site.specie.symbol for site in self._structure.sites]
+        #el = [site.species_string for site in self._structure.sites]
+        #el = [site.specie for site in self._structure.sites]
+        #valence_dict = dict(zip(el, valences))
+        #print valence_dict
+        return valences
 
 
-class Defect:
+class Defect(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract class for point defects
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def enumerate_defectsites(self):
         """
         Enumerates all the symmetrically distinct defects.
         """
-        print 'Not implemented'
         raise NotImplementedError()
 
     @property
@@ -132,13 +221,18 @@ class Defect:
         """
         return self._defect_sites[n]
 
+    def get_defectsite_multiplicity(self, n):
+        """
+        Returns the symmtric multiplicity of the defect site at the index.
+        """
+        return self._defect_site_multiplicity[n]
+
     def get_defectsite_coordination_number(self, n):
         """
         Coordination number of interstitial site.
 
         Args:
-            n
-                Index of interstitial list
+            n: Index of interstitial list
         """
         return self._defectsite_coord_no[n]
 
@@ -147,8 +241,7 @@ class Defect:
         The sites in structure surrounding the defect site.
 
         Args:
-            n
-                Index of defects list
+            n: Index of defects list
         """
         return self._defect_coord_sites[n]
 
@@ -157,12 +250,11 @@ class Defect:
         Elements of sites in structure surrounding the defect site.
 
         Args:
-            n
-                Index of defect list
+            n: Index of defect list
         """
         coordinated_species = []
         for site in self._defect_coord_sites[n]:
-            coordinated_species.append(site.species_string)
+            coordinated_species.append(site.specie.symbol)
         return list(set(coordinated_species))
 
     @abc.abstractmethod
@@ -172,38 +264,34 @@ class Defect:
         First supercell has no defects.
         To create unit cell with defect pass unit matrix.
         """
-        print 'Not implemented'
         raise NotImplementedError()
 
 
 class Vacancy(Defect):
     """
-    Subclass of Defect to generate vacancies and their analysis
+    Subclass of Defect to generate vacancies and their analysis.
+
+    Args:
+        structure: pymatgen.core.structure.Structure
+        valences: valences of elements as a dictionary
+        radii: Radii of elements as a dictionary
     """
 
     def __init__(self, structure, valences, radii):
-        """
-        Args:
-            structure:
-                pymatgen.core.structure.Structure
-            valences:
-                valences of elements as a dictionary 
-            radii:
-                Radii of elements as a dictionary
-        """
-
         self._structure = structure
         self._valence_dict = valences
         self._rad_dict = radii
         # Store symmetrically distinct sites, their coordination numbers
         # coordinated_sites, effective charge
-        symm_finder = SymmetryFinder(self._structure)
+        symm_finder = SpacegroupAnalyzer(self._structure)
         symm_structure = symm_finder.get_symmetrized_structure()
         equiv_site_seq = symm_structure.equivalent_sites
 
         self._defect_sites = []
+        self._defect_site_multiplicity = []
         for equiv_sites in equiv_site_seq:
             self._defect_sites.append(equiv_sites[0])
+            self._defect_site_multiplicity.append(len(equiv_sites))
 
         self._vac_site_indices = []
         for site in self._defect_sites:
@@ -258,17 +346,16 @@ class Vacancy(Defect):
 
     def get_defectsite_effective_charge(self, n):
         """
-        Effective charge (In Kroger-Vink notation, cation vacancy has 
-        effectively -ve charge and anion vacancy has +ve charge.) 
+        Effective charge (In Kroger-Vink notation, cation vacancy has
+        effectively -ve charge and anion vacancy has +ve charge.)
 
         Args:
-            n:
-                Index of vacancy list
+            n: Index of vacancy list
 
         Returns:
             Effective charnge of defect site
         """
-        # Effective charge (In Kroger-Vink notation, cation vacancy has 
+        # Effective charge (In Kroger-Vink notation, cation vacancy has
         # effectively -ve charge and anion vacancy has +ve charge.) Inverse
         # the BVAnalyzer.get_valences result.
 
@@ -277,7 +364,7 @@ class Vacancy(Defect):
         #if not self._vac_eff_charges:
         #    self._vac_eff_charges = []
         #    for site in self.enumerate_defectsites():
-        #        specie = site.species_string
+        #        specie = site.specie.symbol
         #        self._vac_eff_charges.append(-self._valence_dict[specie])
         #return self._vac_eff_charges[n]
 
@@ -286,8 +373,7 @@ class Vacancy(Defect):
         Minimum and maximum charge of sites surrounding the vacancy site.
 
         Args:
-            n:
-                Index of vacancy list
+            n: Index of vacancy list
         """
         bv = BVAnalyzer()
         struct_valences = bv.get_valences(self._structure)
@@ -311,8 +397,7 @@ class Vacancy(Defect):
         Volume of the nth vacancy
 
         Args:
-            n:
-                Index of symmetrically distinct vacancies list
+            n: Index of symmetrically distinct vacancies list
 
         Returns:
             floating number representing volume of vacancy
@@ -324,7 +409,6 @@ class Vacancy(Defect):
             sc = self.make_supercells_with_defects(um)[1:]
             rad_dict = self.struct_radii
             for i in range(len(sc)):
-                site_radi = rad_dict[self._defect_sites[i].species_string]
                 vol, sa = get_void_volume_surfarea(sc[i], rad_dict)
                 self._vol.append(vol)
                 self._sa.append(sa)
@@ -337,8 +421,7 @@ class Vacancy(Defect):
         Surface area of the nth vacancy
 
         Args:
-            n:
-                Index of symmetrically distinct vacancies list
+            n: Index of symmetrically distinct vacancies list
 
         Returns:
             floating number representing volume of vacancy
@@ -366,18 +449,24 @@ class Vacancy(Defect):
                                       sc.lattice,
                                       properties=defect_site.properties)
         for i in range(len(sc.sites)):
-            if sc_defect_site == sc.sites[i]:
-                sc.remove(i)
+            #if sc_defect_site == sc.sites[i]:
+            if sc_defect_site.distance(sc.sites[i]) < 1e-3:
+                del sc[i]
                 return sc
+        raise ValueError('Something wrong if reached here')
 
-    def make_supercells_with_defects(self, scaling_matrix):
+    def make_supercells_with_defects(self, scaling_matrix, species=None,
+                                     limit_return_structures=False):
         """
         Generate sequence of supercells in pymatgen.core.structure.Structure
         format, with each supercell containing one vacancy.
 
         Args:
-            scaling_matrix:
-                super cell scale parameters in matrix forms
+            scaling_matrix: super cell scale parameters in matrix forms
+            species: Species in list format only for which vacancy supercells
+                are required. If not specified all the species are considered.
+            limit_return_structures: Boolean or positive number
+                If number, only that many structures are returned.
 
         Returns:
             Supercells with vacancies. First supercell has no defects.
@@ -386,13 +475,27 @@ class Vacancy(Defect):
         sc = self._structure.copy()
         sc.make_supercell(scaling_matrix)
         sc_with_vac.append(sc)
+
+        if not species:
+            species = sc.symbol_set
+        if not limit_return_structures:
+            limit_return_structures = self.defectsite_count()
         for defect_site in self.enumerate_defectsites():
-            sc_with_vac.append(self._supercell_with_defect(scaling_matrix,
-                                                           defect_site))
+            if len(sc_with_vac) <= limit_return_structures:
+                if isinstance(defect_site.specie,Specie):
+                    site_specie = defect_site.specie.element.symbol
+                elif isinstance(defect_site.specie,Element):
+                    site_specie = defect_site.specie.symbol
+                else:
+                    raise TypeError("site specie is neither Specie nor Element")
+
+                if site_specie in species:
+                    sc_with_vac.append(self._supercell_with_defect(
+                        scaling_matrix, defect_site))
         return sc_with_vac
 
 
-class VacancyFormationEnergy:
+class VacancyFormationEnergy(object):
     """
     Using GULP compute the vacancy formation energy.
     Works only for binary metal oxides due to the use of Buckingham Potentials
@@ -437,7 +540,7 @@ class VacancyFormationEnergy:
             self._tol_flg = tol_flg
 
         if not self._tol_flg[n]:
-            print "Caution: tolerance not reached for {0} vacancy".format(n)
+            print("Caution: tolerance not reached for {0} vacancy".format(n))
         return self._energies[n]
 
 
@@ -446,34 +549,76 @@ class Interstitial(Defect):
     Subclass of Defect to generate interstitial sites
     """
 
-    def __init__(self, structure, valences, radii):
+    def __init__(self, structure, valences, radii, site_type='voronoi_vertex',
+                 accuracy='Normal', symmetry_flag=True, oxi_state = False):
         """
         Given a structure, generate symmetrically distinct interstitial sites.
-        
-        Args:
-            structure:
-                pymatgen.core.structure.Structure
-            valences:
-                Dictionary of oxidation states of elements in {El:valence} form
-            radii:
-                Radii of elemnts in the structure
-        """
+        For a non-ionic structure, use oxi_state=True and give atomic radii.
 
-        self._structure = structure
+        Args:
+            structure: pymatgen.core.structure.Structure
+            valences: Dictionary of oxidation states of elements in 
+                {el:valence} form
+            radii: Radii of elemnts in the structure
+            site_type: "voronoi_vertex" uses voronoi nodes
+                "voronoi_edgecenter" uses voronoi polyhedra edge centers
+                "voronoi_facecenter" uses voronoi polyhedra face centers
+                "all" combines vertices, edgecenters and facecenters.
+                Default is "voronoi_vertex"
+            accuracy: Flag denoting whether to use high accuracy version 
+                of Zeo++. Options are "Normal" and "High". Default is normal.
+            symmetry_flag: If True, only returns symmetrically distinct sites
+            oxi_state: If False, input structure is considered devoid of 
+                oxidation-state decoration. And oxi-state for each site is 
+                determined. Use True, if input structure is oxi-state 
+                decorated. This option is useful when the structure is 
+                not electro-neutral after deleting/adding sites. In that
+                case oxi-decorate the structure before deleting/adding the
+                sites.
+        """
+        if not oxi_state:
+            self._structure = ValenceIonicRadiusEvaluator(structure).structure
+        else:
+            self._structure = structure
+
         self._valence_dict = valences
         self._rad_dict = radii
 
-        #Use Zeo++ to obtain the voronoi nodes. Apply symmetry reduction and 
-        #the symmetry reduced voronoi nodes
-        #are possible candidates for interstitial sites
-        #try:
-        possible_interstitial_sites = symmetry_reduced_voronoi_nodes(
-            self._structure, self._rad_dict
-        )
-        #except:
-        #    raise ValueError("Symmetry_reduced_voronoi_nodes failed")
+        """
+        Use Zeo++ to obtain the voronoi nodes. Apply symmetry reduction
+        and the symmetry reduced voronoi nodes are possible candidates
+        for interstitial sites.
+        """
+        if accuracy == "Normal":
+            high_accuracy_flag = False
+        elif accuracy == "High":
+            high_accuracy_flag = True
+        else:
+            raise NotImplementedError("Accuracy setting not implemented.")
 
-        #Do futher processing on possibleInterstitialSites to obtain 
+        if accuracy == "High":
+            if site_type in ('voronoi_facecenter','voronoi_edgecenter','all'): 
+                raise NotImplementedError(
+                        "Site type not implemented for the accuracy setting")
+
+
+        vor_node_sites, vor_edgecenter_sites, vor_facecenter_sites = \
+            symmetry_reduced_voronoi_nodes(self._structure, self._rad_dict,
+                                           high_accuracy_flag, symmetry_flag)
+        
+        if site_type == 'voronoi_vertex':
+            possible_interstitial_sites = vor_node_sites
+        elif site_type == 'voronoi_facecenter':
+            possible_interstitial_sites = vor_facecenter_sites
+        elif site_type == 'voronoi_edgecenter':
+            possible_interstitial_sites = vor_edgecenter_sites
+        elif site_type == "all":
+            possible_interstitial_sites = vor_node_sites + \
+                    vor_facecenter_sites + vor_edgecenter_sites
+        else:
+            raise ValueError("Input site type not implemented")
+
+        #Do futher processing on possibleInterstitialSites to obtain
         #interstitial sites
         self._defect_sites = possible_interstitial_sites
         self._defectsite_coord_no = []
@@ -488,7 +633,10 @@ class Interstitial(Defect):
             self._defect_coord_charge.append(chrg)
 
         for site in self._defect_sites:
-            self._radii.append(float(site.properties['voronoi_radius']))
+            vor_radius = site.properties.get('voronoi_radius',None)
+            if vor_radius:
+                vor_radius = float(vor_radius)
+            self._radii.append(vor_radius)
 
     def _get_coord_no_sites_chrg(self, site):
         """
@@ -499,20 +647,20 @@ class Interstitial(Defect):
                 pymatgen.core.sites.Site
         """
         struct = self._structure.copy()
-        struct.append(site.species_string, site.frac_coords)
+        struct.append(site.specie.symbol, site.frac_coords)
         coord_finder = VoronoiCoordFinder(struct)
         coord_no = coord_finder.get_coordination_number(-1)
         coord_sites = coord_finder.get_coordinated_sites(-1)
 
-        # In some cases coordination sites to interstitials include 
+        # In some cases coordination sites to interstitials include
         # interstitials also. Filtering them.
         def no_inter(site):
-            return not site.species_string == 'X'
+            return not site.specie.symbol == 'X'
         coord_sites = filter(no_inter, coord_sites)
 
         coord_chrg = 0
         for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
-            if not site.species_string == 'X':
+            if not site.specie.symbol == 'X':
                 coord_chrg += weight * self._valence_dict[site.species_string]
 
         return coord_no, coord_sites, coord_chrg
@@ -520,7 +668,7 @@ class Interstitial(Defect):
     def enumerate_defectsites(self):
         """
         Enumerate all the symmetrically distinct interstitial sites.
-        The defect site has "Al" as occupied specie.
+        The defect site has "X" as occupied specie.
         """
         return self._defect_sites
 
@@ -529,8 +677,7 @@ class Interstitial(Defect):
         Append a site to list of possible interstitials
 
         Args:
-            site:
-                pymatgen.core.sites.Site
+            site: pymatgen.core.sites.Site
         """
         raise NotImplementedError()
 
@@ -539,8 +686,7 @@ class Interstitial(Defect):
         Remove a symmetrically distinct interstitial site
 
         Args:
-            n:
-                Index of interstitial site
+            n: Index of interstitial site
         """
         del self._defect_sites[n]
 
@@ -549,8 +695,7 @@ class Interstitial(Defect):
         Total charge of the interstitial coordinated sites.
 
         Args:
-            n
-                Index of interstitial list
+            n: Index of interstitial list
         """
         return self._defect_coord_charge[n]
 
@@ -559,13 +704,12 @@ class Interstitial(Defect):
         Minimum and maximum charge of sites surrounding the interstitial site.
 
         Args:
-            n:
-                Index of symmetrical distinct interstitial site
+            n: Index of symmetrical distinct interstitial site
         """
         coord_site_valences = []
 
         for site in self._defect_coord_sites[n]:
-            coord_site_valences.append(self._valence_dict[site.species_string])
+            coord_site_valences.append(self._valence_dict[site.specie.symbol])
         coord_site_valences.sort()
         return coord_site_valences[0], coord_site_valences[-1]
 
@@ -574,8 +718,7 @@ class Interstitial(Defect):
         Volume of the nth interstitial
 
         Args:
-            n:
-            Index of symmetrically distinct vacancies list
+            n: Index of symmetrically distinct vacancies list
 
         Returns:
             floating number representing radius of interstitial sphere
@@ -593,11 +736,9 @@ class Interstitial(Defect):
         coordinates.
         """
         distinct_radii = list(set(self._radii))
-        no_dstnt_radii = len(distinct_radii)
-        flag = [False] * no_dstnt_radii
         for rad in distinct_radii:
             ind = self._radii.index(rad)  # Index of first site with 'rad'
-            for i in reversed(range(ind + 1, len(self._radii))):
+            for i in reversed(list(range(ind + 1, len(self._radii)))):
                 # Backward search for remaining sites so index is not changed
                 if self._radii[i] == rad:
                     self._defect_sites.pop(i)
@@ -609,7 +750,7 @@ class Interstitial(Defect):
         """
         Remove all the defect sites with voronoi radius less than input radius
         """
-        for i in reversed(range(len(self._radii))):
+        for i in reversed(list(range(len(self._radii)))):
             if self._radii[i] < radius:
                 self._defect_sites.pop(i)
                 self._defectsite_coord_no.pop(i)
@@ -618,36 +759,54 @@ class Interstitial(Defect):
 
     def prune_defectsites(self, el="C", oxi_state=4, dlta=0.1):
         """
-        Prune all the defect sites which can't acoomodate the input elment 
+        Prune all the defect sites which can't acoomodate the input elment
         with the input oxidation state.
         """
         rad = float(Specie(el, oxi_state).ionic_radius) - dlta
         self.radius_prune_defectsites(rad)
 
-    def prune_close_defectsites(self, dist=0.5):
+    def prune_close_defectsites(self, dist=0.2):
         """
         Prune the sites that are very close.
         """
+        #print self.defectsite_count()
         ind = 0
         while ind < self.defectsite_count():
-            i = ind + 1
-            while i < self.defectsite_count():
+            #i = ind + 1
+            #while i < self.defectsite_count():
+            i = self.defectsite_count()-1
+            #print ind, i
+            while i > ind: 
                 d = self._defect_sites[ind].distance(self._defect_sites[i])
                 #print d, dist
                 if d < dist:
                     self._defect_sites.pop(i)
-                    self._defectsite_coord_no.pop(i)
-                    self._defect_coord_sites.pop(i)
-                    self._radii.pop(i)
-                i += 1
+                    #self._defectsite_coord_no.pop(i)
+                    #self._defect_coord_sites.pop(i)
+                    #self._radii.pop(i)
+            #    i += 1
+                i -= 1
             ind += 1
+        #print self.defectsite_count()
 
     def _supercell_with_defect(self, scaling_matrix, defect_site, element):
         sc = self._structure.copy()
         sc.make_supercell(scaling_matrix)
         oldf_coords = defect_site.frac_coords
         coords = defect_site.lattice.get_cartesian_coords(oldf_coords)
+        #print coords
         newf_coords = sc.lattice.get_fractional_coords(coords)
+        for i in range(3):
+            coord = newf_coords[i]
+            if coord < 0:
+                while (coord < 0):
+                    coord = coord+1
+                newf_coords[i] = coord
+            elif coord > 1:
+                while (coord > 1):
+                    coord = coord-1
+                newf_coords[i] = coord
+        #print newf_coords
         #sc_defect_site = PeriodicSite(element, newf_coords,
         #                              sc.lattice)
         try:
@@ -677,24 +836,18 @@ class Interstitial(Defect):
         return sc_list_with_interstitial
 
 
-class InterstitialAnalyzer:
+class InterstitialAnalyzer(object):
     """
     Use GULP to compute the interstitial formation energy, relaxed structures.
-    Works only for metal oxides due to the use of Buckingham Potentials
-    """
+    Works only for metal oxides due to the use of Buckingham Potentials.
 
+    Args:
+        inter: pymatgen.defects.point_defects.Interstitial
+        el: Element name in short hand notation ("El")
+        oxi_state: Oxidtation state
+        scd: Super cell dimension as number. The scaling is equal along xyz.
+    """
     def __init__(self, inter, el, oxi_state, scd=2):
-        """
-        Args:
-            inter:
-                pymatgen.defects.point_defects.Interstitial
-            el:
-                Element name in short hand notation ("El")
-            oxi_state:
-                Oxidtation state
-            scd:
-                Super cell dimension as number. The scaling is equal along xyz.
-        """
         self._inter = inter
         self._el = el
         self._oxi_state = oxi_state
@@ -718,8 +871,6 @@ class InterstitialAnalyzer:
             scale_mat = [[scd, 0, 0], [0, scd, 0], [0, 0, scd]]
             sc = self._inter.make_supercells_with_defects(scale_mat, self._el)
             blk_energy = get_energy_buckingham(sc[0])
-            no = len(sc[0].sites)
-            #print no
             for i in range(1, no_inter + 1):
                 inter_energy = get_energy_buckingham(
                     sc[i], keywords=inter_gulp_kw, valence_dict=val_dict
@@ -734,7 +885,7 @@ class InterstitialAnalyzer:
 
     def _relax_analysis(self):
         """
-        Optimize interstitial structures 
+        Optimize interstitial structures
         """
 
         no_inter = self._inter.defectsite_count()
@@ -756,14 +907,15 @@ class InterstitialAnalyzer:
 
     def get_relaxed_structure(self, n):
         """
-        Optimized interstitial structure 
+        Optimized interstitial structure
 
         Args:
-            n:
-                Symmetrically distinct interstitial index
-            Note:
-                To get relaxed bulk structure pass -1.
-                -ve index will not work as expected.
+            n: Symmetrically distinct interstitial index
+
+        .. note::
+
+            To get relaxed bulk structure pass -1.
+            -ve index will not work as expected.
         """
         if not self._relax_struct:
             self._relax_analysis()
@@ -774,16 +926,13 @@ class InterstitialAnalyzer:
         Volume change after the introduction of interstitial
 
         Args:
-            n:
-                Symmetrically distinct interstitial index
+            n: Symmetrically distinct interstitial index
         """
         if not self._relax_struct:
             self._relax_analysis()
         blk_struct = self._relax_struct[0]
-        #print blk_struct
         def_struct = self._relax_struct[n + 1:n + 2][0]
-        #print def_struct
-        def_struct.remove(-1)
+        del def_struct.sites[-1]
         rv = RelaxationAnalyzer(blk_struct, def_struct)
         return rv.get_percentage_volume_change()
 
@@ -792,14 +941,13 @@ class InterstitialAnalyzer:
         Lattice parameter change after the introduction of interstitial
 
         Args:
-            n:
-                Symmetrically distinct interstitial index
+            n: Symmetrically distinct interstitial index
         """
         if not self._relax_struct:
             self._relax_analysis()
         blk_struct = self._relax_struct[0]
         def_struct = self._relax_struct[n + 1:n + 2][0]
-        def_struct.remove(-1)
+        del def_struct.sites[-1]
         rv = RelaxationAnalyzer(blk_struct, def_struct)
         return rv.get_percentage_lattice_parameter_changes()
 
@@ -808,30 +956,29 @@ class InterstitialAnalyzer:
         Bond distance change after the introduction of interstitial
 
         Args:
-            n:
-                Symmetrically distinct interstitial index
+            n: Symmetrically distinct interstitial index
         """
         if not self._relax_struct:
             self._relax_analysis()
         blk_struct = self._relax_struct[0]
         def_struct = self._relax_struct[n + 1:n + 2][0]
-        def_struct.remove(-1)
+        del def_struct.sites[-1]
         #print def_struct
         rv = RelaxationAnalyzer(blk_struct, def_struct)
         return rv.get_percentage_bond_dist_changes()
 
     def relaxed_structure_match(self, i, j):
         """
-        Check if the relaxed structures of two interstitials match 
+        Check if the relaxed structures of two interstitials match
 
         Args:
-            i:
-                Symmetrically distinct interstitial index
-            j:
-                Symmetrically distinct interstitial index
-            Note:
-                To use relaxed bulk structure pass -1.
-                -ve index will not work as expected
+            i: Symmetrically distinct interstitial index
+            j: Symmetrically distinct interstitial index
+
+        .. note::
+
+            To use relaxed bulk structure pass -1.
+            -ve index will not work as expected
         """
         if not self._relax_struct:
             self._relax_analysis()
@@ -841,7 +988,7 @@ class InterstitialAnalyzer:
         return sm.fit(struct1, struct2)
 
 
-class StructureRelaxer:
+class StructureRelaxer(object):
     def __init__(self, structure):
         self._unrelax_struct = structure
         self.relax()
@@ -855,23 +1002,18 @@ class StructureRelaxer:
         return self._relax_struct
 
 
-class InterstitialStructureRelaxer:
+class InterstitialStructureRelaxer(object):
     """
-    Performs structural relaxation for each interstitial supercell
+    Performs structural relaxation for each interstitial supercell.
+
+    Args:
+        interstitial: Unrelaxed interstitial
+        el: Species string in short notation
+        oxi_state: Oxidation state of the element
+        supercell_dim: Dimensions of super cell
     """
 
     def __init__(self, interstitial, el, oxi_state, supercell_dim=2):
-        """
-        Args:
-            interstitial:
-                Unrelaxed interstitial
-            el:
-                Species string in short notation
-            oxi_state:
-                Oxidation state of the element
-            supercell_dim:
-                Dimnetions of super cell
-        """
         self._inter = interstitial
         self._scd = supercell_dim
         self._el = el
@@ -881,7 +1023,7 @@ class InterstitialStructureRelaxer:
 
     def relax(self):
         """
-        Optimize interstitial structures 
+        Optimize interstitial structures
         """
 
         no_inter = self._inter.defectsite_count()
@@ -916,15 +1058,15 @@ class InterstitialStructureRelaxer:
 
     def relaxed_structure_match(self, i, j):
         """
-        Check if the relaxed structures of two interstitials match 
+        Check if the relaxed structures of two interstitials match
 
         Args:
-            i:
-                Symmetrically distinct interstitial index
-            j:
-                Symmetrically distinct interstitial index
-            Note:
-                Index 0 corresponds to bulk. 
+            i: Symmetrically distinct interstitial index
+            j: Symmetrically distinct interstitial index
+
+        .. note::
+
+            Index 0 corresponds to bulk.
         """
         if not self._relax_structs:
             self.relax()
@@ -935,14 +1077,15 @@ class InterstitialStructureRelaxer:
 
     def relaxed_energy_match(self, i, j):
         """
-        Check if the relaxed energies of two interstitials match 
+        Check if the relaxed energies of two interstitials match
 
         Args:
-            i:
-                Symmetrically distinct interstitial index
-            j:
-                Symmetrically distinct interstitial index
-                Note: Index 0 corresponds to bulk. 
+            i: Symmetrically distinct interstitial index
+            j: Symmetrically distinct interstitial index
+
+        .. note::
+
+            Index 0 corresponds to bulk.
         """
         if not self._relax_energies:
             self.relax()
@@ -955,9 +1098,11 @@ class InterstitialStructureRelaxer:
         Get the relaxed structure of nth symmetrically distinct interstitial.
 
         Args:
-            n:
-                Symmetrically distinct interstitial index
-                Note: 0 corresponds to relaxed bulk structure
+            n: Symmetrically distinct interstitial index
+
+        .. note::
+
+            0 corresponds to relaxed bulk structure
         """
         if not self._relax_structs:
             self.relax()
@@ -968,9 +1113,11 @@ class InterstitialStructureRelaxer:
         Get the relaxed structure of nth symmetrically distinct interstitial.
 
         Args:
-            n:
-                Symmetrically distinct interstitial index
-                Note: 0 corresponds to relaxed bulk structure
+            n: Symmetrically distinct interstitial index
+
+        .. note::
+
+            0 corresponds to relaxed bulk structure
         """
         if not self._relax_energies:
             self.relax()
@@ -981,8 +1128,7 @@ class InterstitialStructureRelaxer:
         Get the relaxed structure of nth symmetrically distinct interstitial.
 
         Args:
-            n:
-                Symmetrically distinct interstitial index
+            n: Symmetrically distinct interstitial index
         """
         if not self._relax_energies:
             self.relax()
@@ -1002,27 +1148,23 @@ class InterstitialStructureRelaxer:
         )
 
 
-class RelaxedInterstitial:
+class RelaxedInterstitial(object):
     """
     Stores the relaxed supercell structures for each interstitial
     Used to compute formation energies, displacement of atoms near the
-    the interstitial
+    the interstitial.
+
+    Args:
+        struct_list: List of structures(supercells). The first structure should
+            represent relaxed bulk structure and the subsequent ones
+            interstitial structures (with the extra interstitial site
+            appended at the end).
+        energy_list: List of energies for relaxed interstitial structures.
+            The first energy should correspond to bulk structure
+        valence_dict: Valences of elements in dictionary form
     """
 
     def __init__(self, struct_list, energy_list, valence_dict):
-        """
-        Args:
-            struct_list:
-                List of structures(supercells). The first structure should 
-                represent relaxed bulk structure and the subsequent ones 
-                interstitial structures (with the extra interstitial site 
-                appended at the end).
-            energy_list:
-                List of energies for relaxed interstitial structures. 
-                The first energy should correspond to bulk structure
-            valence_dict:
-                Valences of elements in dictionary form
-        """
         self._blk_struct = struct_list[0]
         struct_list.pop(0)
         self._structs = struct_list
@@ -1040,12 +1182,10 @@ class RelaxedInterstitial:
         Compute the interstitial formation energy
 
         Args:
-            n:
-                Index of interstitials
-            chem_pot:
-                Chemical potential of interstitial site element.
+            n: Index of interstitials
+            chem_pot: Chemical potential of interstitial site element.
                 If not given, assumed as zero. The user is strongly
-                urged to supply the chemical potential value 
+                urged to supply the chemical potential value
         """
         return self._energies[n] - self._blk_energy - chem_pot
 
@@ -1054,11 +1194,10 @@ class RelaxedInterstitial:
         Volume change after the introduction of interstitial
 
         Args:
-            n:
-                index of interstitials
+            n: index of interstitials
         """
         def_struct = self._structs[n:n + 1][0]
-        def_struct.remove(-1)
+        del def_struct.sites[-1]
         rv = RelaxationAnalyzer(self._blk_struct, def_struct)
         return rv.get_percentage_volume_change()
 
@@ -1067,11 +1206,10 @@ class RelaxedInterstitial:
         Lattice parameter change after the introduction of interstitial
 
         Args:
-            n:
-                index of interstitials
+            n: index of interstitials
         """
         def_struct = self._structs[n:n + 1][0]  # copy
-        def_struct.remove(-1)
+        del def_struct.sites[-1]
         rv = RelaxationAnalyzer(self._blk_struct, def_struct)
         return rv.get_percentage_lattice_parameter_changes()
 
@@ -1080,11 +1218,10 @@ class RelaxedInterstitial:
         Bond distance change after the introduction of interstitial.
 
         Args:
-            n:
-                index of interstitials
+            n: index of interstitials
         """
         def_struct = self._structs[n:n + 1][0]  # copy
-        def_struct.remove(-1)
+        del def_struct.sites[-1]
         rv = RelaxationAnalyzer(self._blk_struct, def_struct)
         return rv.get_percentage_bond_dist_changes()
 
@@ -1111,8 +1248,7 @@ class RelaxedInterstitial:
         Returns the defect site of nth interstitial.
 
         Args:
-            n:
-                Index of interstitial
+            n: Index of interstitial
         """
         return self._structs[n][-1]
 
@@ -1121,8 +1257,7 @@ class RelaxedInterstitial:
         Coordination number for nth interstitial.
 
         Args:
-            n:
-                Index of interstitials
+            n: Index of interstitials
         """
         if not self._coord_no:
             self._coord_find()
@@ -1133,8 +1268,7 @@ class RelaxedInterstitial:
         Charge coordination number for nth interstitial.
 
         Args:
-            n:
-                Index of interstitials
+            n: Index of interstitials
         """
         if not self._coord_charge_no:
             self._coord_find()
@@ -1145,8 +1279,7 @@ class RelaxedInterstitial:
         Coordinated sites for nth interstitial.
 
         Args:
-            n:
-                Index of interstitials
+            n: Index of interstitials
         """
         if not self._coord_sites:
             self._coord_find()
@@ -1157,8 +1290,7 @@ class RelaxedInterstitial:
         Bulk sites corresponding to the coordinated sites for nth interstitial.
 
         Args:
-            n
-                Index of interstitials 
+            n: Index of interstitials
         """
         blk_sites = []
         for site in self.get_coordinated_sites(n):
@@ -1172,8 +1304,7 @@ class RelaxedInterstitial:
         interstitial sites during the relaxation
 
         Args:
-            n:
-                Index  of defect site
+            n: Index  of defect site
         """
         coord_sites = self.get_coordinated_sites(n)
         coord_blk_sites = self.get_coordinated_bulk_sites(n)
@@ -1200,26 +1331,21 @@ class RelaxedInterstitial:
             self._coord_charge_no.append(coord_chrg)
 
 
-def symmetry_reduced_voronoi_nodes(structure, rad_dict):
+def symmetry_reduced_voronoi_nodes(
+        structure, rad_dict, high_accuracy_flag=False, symm_flag=True):
     """
-    Obtain symmetry reduced voronoi nodes using Zeo++ and 
-    pymatgen.symmetry.finder.SymmetryFinder
+    Obtain symmetry reduced voronoi nodes using Zeo++ and
+    pymatgen.symmetry.finder.SpacegroupAnalyzer
 
     Args:
-        strucutre:
-            pymatgen Structure object
+        strucutre: pymatgen Structure object
+        rad_dict: Dictionary containing radii of spcies in the structure
+        high_accuracy_flag: Flag denotting whether to use high accuracy version of Zeo++
+        symm_flag: Flag denoting whether to return symmetrically distinct sites only
 
     Returns:
         Symmetrically distinct voronoi nodes as pymatgen Strucutre
     """
-    vor_node_struct = get_voronoi_nodes(structure, rad_dict)
-    vor_symmetry_finder = SymmetryFinder(vor_node_struct, symprec=1e-1)
-    vor_symm_struct = vor_symmetry_finder.get_symmetrized_structure()
-    #print vor_symm_struct.lattice
-    #print vor_symm_struct.lattice.abc, vor_symm_struct.lattice.angles
-    #print vor_node_struct.lattice
-    #print vor_node_struct.lattice.abc, vor_node_struct.lattice.angles
-    equiv_sites_list = vor_symm_struct.equivalent_sites
 
     def add_closest_equiv_site(dist_sites, equiv_sites):
         if not dist_sites:
@@ -1236,16 +1362,128 @@ def symmetry_reduced_voronoi_nodes(structure, rad_dict):
             ind = avg_dists.index(min_avg_dist)
             dist_sites.append(equiv_sites[ind])
 
-    dist_sites = []
-    for equiv_sites in equiv_sites_list:
-        add_closest_equiv_site(dist_sites, equiv_sites)
+    def cmp_memoize_last_site(f): #Compares and stores last site
+        def not_duplicates(site1, site2):
+            if site1.distance(site2) < 1e-5:
+                return False
+            else:
+                return True
 
-    #lat = structure.lattice
-    #sp = [site.specie for site in sites]   # "Al" because to Zeo++
-    #coords = [site.coords for site in sites]
-    #vor_node_radii = [site.properties['voronoi_radius'] for site in sites]
-    #vor_node_struct = Structure(lat, sp, coords, 
-    #        coords_are_cartesian=True, 
-    #        site_properties={'voronoi_radius':vor_node_radii}
-    #        )
-    return dist_sites
+        cmp_memoize_last_site.cache = None
+        def helper(x):
+            if not cmp_memoize_last_site.cache: 
+                cmp_memoize_last_site.cache = f(x)
+                return True
+            y = f(x)
+            if not_duplicates(cmp_memoize_last_site.cache, y):
+                cmp_memoize_last_site.cache = y
+                return True
+            else:
+                return False
+        return helper
+
+    @cmp_memoize_last_site
+    def check_not_duplicates(site):
+        return site
+
+
+    if not symm_flag:
+        if not high_accuracy_flag:
+            vor_node_struct, vor_edgecenter_struct, vor_facecenter_struct = \
+                get_voronoi_nodes(structure, rad_dict)
+            return vor_node_struct.sites, vor_edgecenter_struct.sites, \
+                   vor_facecenter_struct.sites
+        else:
+            # Only the nodes are from high accuracy voronoi decomposition
+            vor_node_struct = \
+                    get_high_accuracy_voronoi_nodes(structure, rad_dict)
+            # Before getting the symmetry, remove the duplicates
+            vor_node_struct.sites.sort(key = lambda site: site.voronoi_radius)
+            #print type(vor_node_struct.sites[0])
+            dist_sites = filter(check_not_duplicates, vor_node_struct.sites)
+            return dist_sites, None, None
+
+    if not high_accuracy_flag:
+        vor_node_struct, vor_edgecenter_struct, vor_facecenter_struct = \
+            get_voronoi_nodes(structure, rad_dict)
+        vor_node_symmetry_finder = SpacegroupAnalyzer(vor_node_struct, symprec=1e-1)
+        vor_node_symm_struct = vor_node_symmetry_finder.get_symmetrized_structure()
+        node_equiv_sites_list = vor_node_symm_struct.equivalent_sites
+
+        node_dist_sites = []
+        for equiv_sites in node_equiv_sites_list:
+            add_closest_equiv_site(node_dist_sites, equiv_sites)
+
+        vor_edge_symmetry_finder = SpacegroupAnalyzer(
+            vor_edgecenter_struct, symprec=1e-1)
+        vor_edge_symm_struct = vor_edge_symmetry_finder.get_symmetrized_structure()
+        edgecenter_equiv_sites_list = vor_edge_symm_struct.equivalent_sites
+
+        edgecenter_dist_sites = []
+        for equiv_sites in edgecenter_equiv_sites_list:
+            add_closest_equiv_site(edgecenter_dist_sites, equiv_sites)
+        if not edgecenter_equiv_sites_list:     # Fix this so doesn't arise
+            edgecenter_dist_sites = vor_edgecenter_struct.sites
+
+        vor_fc_symmetry_finder = SpacegroupAnalyzer(
+                        vor_facecenter_struct, symprec=1e-1)
+        vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
+        facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites
+
+        facecenter_dist_sites = []
+        for equiv_sites in facecenter_equiv_sites_list:
+            add_closest_equiv_site(facecenter_dist_sites, equiv_sites)
+        if not facecenter_equiv_sites_list:     # Fix this so doesn't arise
+            facecenter_dist_sites = vor_facecenter_struct.sites
+
+        return node_dist_sites, edgecenter_dist_sites, facecenter_dist_sites
+    else:
+        # Only the nodes are from high accuracy voronoi decomposition
+        vor_node_struct = \
+                get_high_accuracy_voronoi_nodes(structure, rad_dict)
+
+        # Before getting the symmetry, remove the duplicates
+        vor_node_struct.sites.sort(key = lambda site: site.voronoi_radius)
+        #print type(vor_node_struct.sites[0])
+        dist_sites = list(filter(check_not_duplicates, vor_node_struct.sites))
+
+        # Ignore symmetry from ha voronoi nodes
+        # Increase the symmetry precision to 0.25
+        #spg = SpacegroupAnalyzer(structure,symprec=1e-1).get_spacegroup()
+        
+        # Remove symmetrically equivalent sites
+        #i = 0
+        #while (i < len(dist_sites)-1):
+        #    sites1 = [dist_sites[i]]
+        #    sites2 = [dist_sites[i+1]]
+        #    if spg.are_symmetrically_equivalent(sites1,sites2):
+        #        del dist_sites[i+1]
+        #    else:
+        #        i = i+1
+
+        node_dist_sites = dist_sites
+        return (node_dist_sites, None, None)
+
+        #vor_edge_symmetry_finder = SpacegroupAnalyzer(
+        #    vor_edgecenter_struct, symprec=1e-1)
+        #vor_edge_symm_struct = vor_edge_symmetry_finder.get_symmetrized_structure()
+        #edgecenter_equiv_sites_list = vor_edge_symm_struct.equivalent_sites
+
+        #edgecenter_dist_sites = []
+        #for equiv_sites in edgecenter_equiv_sites_list:
+        #    add_closest_equiv_site(edgecenter_dist_sites, equiv_sites)
+        #if not edgecenter_equiv_sites_list:     
+        #    edgecenter_dist_sites = vor_edgecenter_struct.sites
+
+        #vor_fc_symmetry_finder = SpacegroupAnalyzer(
+        #                vor_facecenter_struct, symprec=1e-1)
+        #vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
+        #facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites
+
+        #facecenter_dist_sites = []
+        #for equiv_sites in facecenter_equiv_sites_list:
+        #    add_closest_equiv_site(facecenter_dist_sites, equiv_sites)
+        #if not facecenter_equiv_sites_list:     
+        #    facecenter_dist_sites = vor_facecenter_struct.sites
+
+        #return node_dist_sites, edgecenter_dist_sites, facecenter_dist_sites

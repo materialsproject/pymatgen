@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 This module defines Entry classes for containing experimental data.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -16,7 +19,7 @@ __date__ = "Jun 27, 2012"
 
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.composition import Composition
-from pymatgen.serializers.json_coders import MSONable
+from monty.json import MSONable
 from pymatgen.analysis.thermochemistry import ThermoData
 
 
@@ -28,34 +31,30 @@ class ExpEntry(PDEntry, MSONable):
 
     Current version works only with solid phases and at 298K. Further
     extensions for temperature dependence are planned.
+
+    Args:
+        composition: Composition of the entry. For flexibility, this can take
+            the form of all the typical input taken by a Composition, including
+            a {symbol: amt} dict, a string formula, and others.
+        thermodata: A sequence of ThermoData associated with the entry.
+        temperature: A temperature for the entry in Kelvin. Defaults to 298K.
     """
 
     def __init__(self, composition, thermodata, temperature=298):
-        """
-        Args:
-            composition:
-                Composition of the entry. For flexibility, this can take the
-                form of all the typical input taken by a Composition, including
-                a {symbol: amt} dict, a string formula, and others.
-            thermodata:
-                A sequence of ThermoData associated with the entry.
-            temperature:
-                A temperature for the entry in Kelvin. Defaults to 298K.
-        """
         comp = Composition(composition)
         self._thermodata = thermodata
         found = False
         enthalpy = float("inf")
         for data in self._thermodata:
             if data.type == "fH" and data.value < enthalpy and \
-                (data.phaseinfo != "gas" and data.phaseinfo != "liquid"):
+                    (data.phaseinfo != "gas" and data.phaseinfo != "liquid"):
                 enthalpy = data.value
                 found = True
         if not found:
             raise ValueError("List of Thermodata does not contain enthalpy "
                              "values.")
         self.temperature = temperature
-        PDEntry.__init__(self, comp, enthalpy)
+        super(ExpEntry, self).__init__(comp, enthalpy)
 
     def __repr__(self):
         return "ExpEntry {}, Energy = {:.4f}".format(self.composition.formula,
@@ -69,10 +68,9 @@ class ExpEntry(PDEntry, MSONable):
         thermodata = [ThermoData.from_dict(td) for td in d["thermodata"]]
         return cls(d["composition"], thermodata, d["temperature"])
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "thermodata": [td.to_dict for td in self._thermodata],
-                "composition": self.composition.to_dict,
+                "thermodata": [td.as_dict() for td in self._thermodata],
+                "composition": self.composition.as_dict(),
                 "temperature": self.temperature}

@@ -1,10 +1,14 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 This module provides classes to create phase diagrams.
 """
 
-from __future__ import division
+from six.moves import filter
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -16,7 +20,8 @@ __date__ = "Nov 25, 2012"
 
 import collections
 import numpy as np
-from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
+from pyhull.simplex import Simplex
+from monty.json import MSONable, MontyDecoder
 
 try:
     # If scipy ConvexHull exists, use it because it is faster for large hulls.
@@ -28,6 +33,7 @@ except ImportError:
     from pyhull.convex_hull import ConvexHull
     HULL_METHOD = "pyhull"
 
+from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -94,23 +100,23 @@ class PhaseDiagram (MSONable):
         Standard constructor for phase diagram.
 
         Args:
-            entries:
-                A list of PDEntry-like objects having an energy,
-                energy_per_atom and composition.
-            elements:
-                Optional list of elements in the phase diagram. If set to None,
-                the elements are determined from the the entries themselves.
+            entries ([PDEntry]): A list of PDEntry-like objects having an
+                energy, energy_per_atom and composition.
+            elements ([Element]): Optional list of elements in the phase
+                diagram. If set to None, the elements are determined from
+                the the entries themselves.
         """
         if elements is None:
             elements = set()
-            map(elements.update, [entry.composition.elements
-                                  for entry in entries])
+            for entry in entries:
+                elements.update(entry.composition.elements)
         elements = list(elements)
         dim = len(elements)
         el_refs = {}
         for el in elements:
-            el_entries = filter(lambda e: e.composition.is_element and
-                                e.composition.elements[0] == el, entries)
+            el_entries = list(filter(lambda e: e.composition.is_element and
+                                               e.composition.elements[0] == el,
+                                     entries))
             if len(el_entries) == 0:
                 raise PhaseDiagramError(
                     "There are no entries associated with terminal {}."
@@ -120,10 +126,9 @@ class PhaseDiagram (MSONable):
         data = []
         for entry in entries:
             comp = entry.composition
-            row = map(comp.get_atomic_fraction, elements)
+            row = [comp.get_atomic_fraction(el) for el in elements]
             row.append(entry.energy_per_atom)
             data.append(row)
-
         data = np.array(data)
         self.all_entries_hulldata = data[:, 1:]
 
@@ -131,14 +136,14 @@ class PhaseDiagram (MSONable):
         vec = [el_refs[el].energy_per_atom for el in elements] + [-1]
         form_e = -np.dot(data, vec)
 
-        #make sure that if there are multiple entries at the same composition 
+        #make sure that if there are multiple entries at the same composition
         #within 1e-4 eV/atom of each other, only use the lower energy one.
         #This fixes the precision errors in the convex hull.
-        #This is significantly faster than grouping by composition and then 
+        #This is significantly faster than grouping by composition and then
         #taking the lowest energy of each group
         ind = []
-        prev_c = [] #compositions within 1e-4 of current entry
-        prev_e = [] #energies of those compositions
+        prev_c = []  # compositions within 1e-4 of current entry
+        prev_e = []  # energies of those compositions
         for i in np.argsort([e.energy_per_atom for e in entries]):
             if form_e[i] > -self.formation_energy_tol:
                 continue
@@ -147,35 +152,40 @@ class PhaseDiagram (MSONable):
             while prev_e and epa > 1e-4 + prev_e[0]:
                 prev_c.pop(0)
                 prev_e.pop(0)
-            if entries[i].composition.get_fractional_composition() not in prev_c:
+            frac_comp = entries[i].composition.fractional_composition
+            if frac_comp not in prev_c:
                 ind.append(i)
             prev_e.append(epa)
-            prev_c.append(entries[i].composition.get_fractional_composition())
+            prev_c.append(frac_comp)
 
         #add the elemental references
-        ind.extend(map(entries.index, el_refs.values()))
+        ind.extend([entries.index(el) for el in el_refs.values()])
 
         qhull_entries = [entries[i] for i in ind]
         qhull_data = data[ind][:, 1:]
 
-        if len(qhull_data) == dim:
-            self.facets = [range(dim)]
+        #add an extra point to enforce full dimensionality
+        #this point will be present in all upper hull facets
+        extra_point = np.zeros(dim) + 1 / dim
+        extra_point[-1] = np.max(qhull_data) + 1
+        qhull_data = np.concatenate([qhull_data, [extra_point]], axis=0)
+
+        if dim == 1:
+            self.facets = [qhull_data.argmin(axis=0)]
         else:
-            if HULL_METHOD == "scipy":
-                facets = ConvexHull(qhull_data, qhull_options="Qt i").simplices
-            else:
-                facets = ConvexHull(qhull_data, joggle=False).vertices
+            facets = get_facets(qhull_data)
             finalfacets = []
             for facet in facets:
-                is_non_element_facet = any(
-                    (len(qhull_entries[i].composition) > 1 for i in facet))
-                if is_non_element_facet:
-                    m = qhull_data[facet]
-                    m[:, -1] = 1
-                    if abs(np.linalg.det(m)) > 1e-8:
-                        finalfacets.append(facet)
+                #skip facets that include the extra point
+                if max(facet) == len(qhull_data)-1:
+                    continue
+                m = qhull_data[facet]
+                m[:, -1] = 1
+                if abs(np.linalg.det(m)) > 1e-14:
+                    finalfacets.append(facet)
             self.facets = finalfacets
 
+        self.simplices = [Simplex(qhull_data[f, :-1]) for f in self.facets]
         self.all_entries = entries
         self.qhull_data = qhull_data
         self.dim = dim
@@ -208,8 +218,7 @@ class PhaseDiagram (MSONable):
         elemental references.
 
         Args:
-            entry:
-                A PDEntry-like object.
+            entry: A PDEntry-like object.
 
         Returns:
             Formation energy from the elemental references.
@@ -226,8 +235,7 @@ class PhaseDiagram (MSONable):
         elemental references.
 
         Args:
-            entry:
-                An PDEntry-like object
+            entry: An PDEntry-like object
 
         Returns:
             Formation energy **per atom** from the elemental references.
@@ -246,12 +254,11 @@ class PhaseDiagram (MSONable):
                              for entry in self.stable_entries])]
         return "\n".join(output)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "all_entries": [e.to_dict for e in self.all_entries],
-                "elements": [e.to_dict for e in self.elements]}
+                "all_entries": [e.as_dict() for e in self.all_entries],
+                "elements": [e.as_dict() for e in self.elements]}
 
     @classmethod
     def from_dict(cls, d):
@@ -287,28 +294,24 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         Standard constructor for grand potential phase diagram.
 
         Args:
-            entries:
-                A list of PDEntry-like objects having an energy,
-                energy_per_atom and composition.
-            chempots:
-                A dict of {element: float} to specify the chemical potentials
+            entries ([PDEntry]): A list of PDEntry-like objects having an
+                energy, energy_per_atom and composition.
+            chempots {Element: float}: Specify the chemical potentials
                 of the open elements.
-            elements:
-                Optional list of elements in the phase diagram. If set to None,
-                the elements are determined from the entries themselves.
+            elements ([Element]): Optional list of elements in the phase
+                diagram. If set to None, the elements are determined from
+                the the entries themselves.
         """
         if elements is None:
             elements = set()
-            map(elements.update, [entry.composition.elements
-                                  for entry in entries])
-
-        elements = set(elements).difference(chempots.keys())
-        all_entries = [GrandPotPDEntry(e, chempots)
-                       for e in entries
-                       if (not e.is_element) or
-                       e.composition.elements[0] in elements]
-        self.chempots = chempots
-
+            for entry in entries:
+                elements.update(entry.composition.elements)
+        self.chempots = {get_el_sp(el): u for el, u in chempots.items()}
+        elements = set(elements).difference(self.chempots.keys())
+        all_entries = []
+        for e in entries:
+            if len(set(e.composition.elements).intersection(set(elements))) > 0:
+                all_entries.append(GrandPotPDEntry(e, self.chempots))
         super(GrandPotentialPhaseDiagram, self).__init__(all_entries, elements)
 
     def __str__(self):
@@ -322,18 +325,17 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                                  for entry in self.stable_entries]))
         return "\n".join(output)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "all_entries": [e.to_dict for e in self.all_entries],
+                "all_entries": [e.as_dict() for e in self.all_entries],
                 "chempots": self.chempots,
-                "elements": [e.to_dict for e in self.elements]}
+                "elements": [e.as_dict() for e in self.elements]}
 
     @classmethod
     def from_dict(cls, d):
-        entries = PMGJSONDecoder().process_decoded(d["all_entries"])
-        elements = PMGJSONDecoder().process_decoded(d["elements"])
+        entries = MontyDecoder().process_decoded(d["all_entries"])
+        elements = MontyDecoder().process_decoded(d["elements"])
         return cls(entries, d["chempots"], elements)
 
 
@@ -349,16 +351,18 @@ class CompoundPhaseDiagram(PhaseDiagram):
     def __init__(self, entries, terminal_compositions,
                  normalize_terminal_compositions=True):
         """
+        Initializes a CompoundPhaseDiagram.
+
         Args:
-            entries:
-                Sequence of input entries. For example, if you want a Li2O-P2O5
-                phase diagram, you might have all Li-P-O entries as an input.
-            terminal_compositions:
-                Terminal compositions of phase space. In the Li2O-P2O5 example,
-                these will be the Li2O and P2O5 compositions.
-            normalize_terminal_compositions:
-                Whether to normalize the terminal compositions to a per atom
-                basis. If normalized, the energy above hulls will be consistent
+            entries ([PDEntry]): Sequence of input entries. For example,
+               if you want a Li2O-P2O5 phase diagram, you might have all
+               Li-P-O entries as an input.
+            terminal_compositions ([Composition]): Terminal compositions of
+                phase space. In the Li2O-P2O5 example, these will be the
+                Li2O and P2O5 compositions.
+            normalize_terminal_compositions (bool): Whether to normalize the
+                terminal compositions to a per atom basis. If normalized,
+                the energy above hulls will be consistent
                 for comparison across systems. Non-normalized terminals are
                 more intuitive in terms of compositional breakdowns.
         """
@@ -368,8 +372,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
         (pentries, species_mapping) = \
             self.transform_entries(entries, terminal_compositions)
         self.species_mapping = species_mapping
-        PhaseDiagram.__init__(self, pentries,
-                              elements=species_mapping.values())
+        super(CompoundPhaseDiagram, self).__init__(
+            pentries, elements=species_mapping.values())
 
     def transform_entries(self, entries, terminal_compositions):
         """
@@ -380,17 +384,15 @@ class CompoundPhaseDiagram(PhaseDiagram):
         compositions are represented by DummySpecies.
 
         Args:
-            entries:
-                Sequence of all input entries
-            terminal_compositions:
-                Terminal compositions of phase space.
+            entries: Sequence of all input entries
+            terminal_compositions: Terminal compositions of phase space.
 
         Returns:
             Sequence of TransformedPDEntries falling within the phase space.
         """
         new_entries = []
         if self.normalize_terminals:
-            fractional_comp = [c.get_fractional_composition()
+            fractional_comp = [c.fractional_composition
                                for c in terminal_compositions]
         else:
             fractional_comp = terminal_compositions
@@ -421,19 +423,23 @@ class CompoundPhaseDiagram(PhaseDiagram):
                 pass
         return new_entries, sp_mapping
 
-    @property
-    def to_dict(self):
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "original_entries": [e.to_dict for e in self.original_entries],
-                "terminal_compositions": [c.to_dict for c in self.terminal_compositions],
-                "normalize_terminal_compositions": self.normalize_terminal_compositions}
+    def as_dict(self):
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "original_entries": [e.as_dict() for e in self.original_entries],
+            "terminal_compositions": [c.as_dict()
+                                      for c in self.terminal_compositions],
+            "normalize_terminal_compositions":
+                self.normalize_terminals}
 
     @classmethod
     def from_dict(cls, d):
-        entries = PMGJSONDecoder().process_decoded(d["original_entries"])
-        terminal_compositions = PMGJSONDecoder().process_decoded(d["terminal_compositions"])
-        return cls(entries, terminal_compositions, d["normalize_terminal_compositions"])
+        dec = MontyDecoder()
+        entries = dec.process_decoded(d["original_entries"])
+        terminal_compositions = dec.process_decoded(d["terminal_compositions"])
+        return cls(entries, terminal_compositions,
+                   d["normalize_terminal_compositions"])
 
 
 class PhaseDiagramError(Exception):
@@ -441,3 +447,28 @@ class PhaseDiagramError(Exception):
     An exception class for Phase Diagram generation.
     """
     pass
+
+
+def get_facets(qhull_data, joggle=False, force_use_pyhull=False):
+    """
+    Get the simplex facets for the Convex hull.
+
+    Args:
+        qhull_data (np.ndarray): The data from which to construct the convex
+            hull as a Nxd array (N being number of data points and d being the
+            dimension)
+        joggle (boolean): Whether to joggle the input to avoid precision
+            errors.
+        force_use_pyhull (boolean): Whether the pyhull algorithm is always
+            used, even when scipy is present.
+
+    Returns:
+        List of simplices of the Convex Hull.
+    """
+    if HULL_METHOD == "scipy" and (not force_use_pyhull):
+        if joggle:
+            return ConvexHull(qhull_data, qhull_options="QJ i").simplices
+        else:
+            return ConvexHull(qhull_data, qhull_options="Qt i").simplices
+    else:
+        return ConvexHull(qhull_data, joggle=joggle).vertices

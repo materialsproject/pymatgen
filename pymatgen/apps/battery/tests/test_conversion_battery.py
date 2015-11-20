@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 Created on Feb 2, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -17,7 +20,9 @@ import unittest
 import os
 import json
 
-from pymatgen import Composition, PMGJSONDecoder
+from monty.json import MontyDecoder
+
+from pymatgen import Composition
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode, \
     ConversionVoltagePair
 
@@ -47,18 +52,18 @@ class ConversionElectrodeTest(unittest.TestCase):
         for f in formulas:
 
             with open(os.path.join(test_dir, f + "_batt.json"), 'r') as fid:
-                entries = json.load(fid, cls=PMGJSONDecoder)
+                entries = json.load(fid, cls=MontyDecoder)
 
                 #entries = computed_entries_from_json(fid.read())
 
             # with open(os.path.join(test_dir, f + "_batt.json"), 'w') as fid:
-            #json.dump(entries, fid, cls=PMGJSONEncoder)
+            #json.dump(entries, fid, cls=MontyEncoder)
 
             c = ConversionElectrode.from_composition_and_entries(
                 Composition(f), entries)
             self.assertEqual(len(c.get_sub_electrodes(True)), c.num_steps)
             self.assertEqual(len(c.get_sub_electrodes(False)),
-                             sum(xrange(1, c.num_steps + 1)))
+                             sum(range(1, c.num_steps + 1)))
             self.assertIsNotNone(str(c))
             p = expected_properties[f]
 
@@ -70,13 +75,13 @@ class ConversionElectrodeTest(unittest.TestCase):
             #Test pair to dict
 
             pair = c.voltage_pairs[0]
-            d = pair.to_dict
+            d = pair.as_dict()
             pair2 = ConversionVoltagePair.from_dict(d)
             for prop in ['voltage', 'mass_charge', 'mass_discharge']:
                 self.assertEqual(getattr(pair, prop), getattr(pair2, prop), 2)
 
             #Test
-            d = c.to_dict
+            d = c.as_dict()
             electrode = ConversionElectrode.from_dict(d)
             for k, v in p.items():
                 self.assertAlmostEqual(getattr(electrode,
