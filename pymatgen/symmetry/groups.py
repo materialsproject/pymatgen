@@ -65,13 +65,31 @@ class SymmetryGroup(Sequence):
     def __len__(self):
         return len(self.symmetry_ops)
 
-    def is_subgroup(self, group):
-        warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
-        return set(self.symmetry_ops).issubset(group.symmetry_ops)
+    def is_subgroup(self, supergroup):
+        """
+        True if this group is a subgroup of the supplied group.
 
-    def is_supergroup(self, group):
+        Args:
+            supergroup (SymmetryGroup): Supergroup to test.
+
+        Returns:
+            True if this group is a subgroup of the supplied group.
+        """
         warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
-        return set(group.symmetry_ops).issubset(self.symmetry_ops)
+        return set(self.symmetry_ops).issubset(supergroup.symmetry_ops)
+
+    def is_supergroup(self, subgroup):
+        """
+        True if this group is a supergroup of the supplied group.
+
+        Args:
+            subgroup (SymmetryGroup): Subgroup to test.
+
+        Returns:
+            True if this group is a supergroup of the supplied group.
+        """
+        warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
+        return set(subgroup.symmetry_ops).issubset(self.symmetry_ops)
 
 
 @cached_class
@@ -330,7 +348,7 @@ class SpaceGroup(SymmetryGroup):
         else:
             return "cubic"
 
-    def is_subgroup(self, group):
+    def is_subgroup(self, supergroup):
         """
         True if this space group is a subgroup of the supplied group.
 
@@ -340,11 +358,11 @@ class SpaceGroup(SymmetryGroup):
         Returns:
             True if this space group is a subgroup of the supplied group.
         """
-        if len(group.symmetry_ops) < len(self.symmetry_ops):
+        if len(supergroup.symmetry_ops) < len(self.symmetry_ops):
             return False
 
-        groups = [[group.int_number]]
-        all_groups = [group.int_number]
+        groups = [[supergroup.int_number]]
+        all_groups = [supergroup.int_number]
         count = 0
         while True:
             new_sub_groups = set()
@@ -360,8 +378,17 @@ class SpaceGroup(SymmetryGroup):
                 all_groups.extend(new_sub_groups)
         return False
 
-    def is_supergroup(self, group):
-        return group.is_subgroup(self)
+    def is_supergroup(self, subgroup):
+        """
+        True if this space group is a supergroup of the supplied group.
+
+        Args:
+            subgroup (Spacegroup): Subgroup to test.
+
+        Returns:
+            True if this space group is a supergroup of the supplied group.
+        """
+        return subgroup.is_subgroup(self)
 
     @classmethod
     def from_int_number(cls, int_number, hexagonal=True):
