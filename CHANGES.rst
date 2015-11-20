@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v3.2.7
+------
+* Add warning for limited subgroup testing functionality in Spacegroup.
+
 v3.2.6
 ------
 * Extensive support for elasticity tensor analysis (Joseph Montoya).

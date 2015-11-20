@@ -23,8 +23,7 @@ from fractions import Fraction
 from abc import ABCMeta, abstractproperty
 from collections import Sequence
 import numpy as np
-from pymatgen.util.coord_utils import pbc_diff
-
+import warnings
 from monty.serialization import loadfn
 
 from pymatgen.core.operations import SymmOp
@@ -64,26 +63,13 @@ class SymmetryGroup(Sequence):
     def __len__(self):
         return len(self.symmetry_ops)
 
-    def get_mapping(self, group):
-        if len(group) > len(self):
-            return None
-        print len(group)
-        print len(self)
-        for h in group.symmetry_ops:
-            for g in self.symmetry_ops:
-                mapping = g * h.inverse
-                found = set([mapping * h2
-                             for h2 in group.symmetry_ops]).issubset(
-                    self.symmetry_ops)
-                if found:
-                    return mapping
-        return None
-
     def is_subgroup(self, group):
-        return self.get_mapping(group) is not None
+        warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
+        return set(self.symmetry_ops).issubset(group.symmetry_ops)
 
     def is_supergroup(self, group):
-        return group.get_mapping(self) is not None
+        warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
+        return set(group.symmetry_ops).issubset(self.symmetry_ops)
 
 
 @cached_class
@@ -411,49 +397,3 @@ def in_array_list(array_list, a, tol=1e-5):
         return np.any(np.all(np.equal(array_list, a[None, :]), axes))
     else:
         return np.any(np.sum(np.abs(array_list - a[None, :]), axes) < tol)
-
-
-if __name__ == "__main__":
-    pg3m = PointGroup("3m")
-    pgm = PointGroup("m")
-    #pg4mmm = PointGroup("4/mmm")
-    #pg6mmm = PointGroup("6/mmm")
-    #pg3m = PointGroup("-3m")
-    # TODO: Fix the test below.
-    #self.assertTrue(pg3m.is_subgroup(pgm3m))
-    #print pg3m.is_subgroup(pg6mmm)
-    #print pg3m.symmetry_ops.issubset(pgm3m.symmetry_ops)
-    #print pgm3m.get_mapping(pg3m)
-    #    self.assertFalse(pgm3m.is_supergroup(pg6mmm))
-    #print pg4mmm.get_mapping(pg6mmm)
-    print len(pg3m)
-    print len(pgm)
-    print pgm.symmetry_ops.issubset(pg3m.symmetry_ops)
-
-    print pg3m.get_mapping(pgm)
-
-
-    print
-
-    for op in pgm.symmetry_ops:
-        print op
-
-    print
-    for op in pg3m.symmetry_ops:
-        print op
-
-    import itertools
-    hs = [h.affine_matrix for h in pgm.symmetry_ops]
-    gs = [g.affine_matrix for g in pg3m.symmetry_ops]
-    for h, g in itertools.product(hs, gs):
-        mapping = np.dot(g, np.linalg.inv(h))
-        print "testing rotation"
-        print mapping
-        print
-        for h2 in hs:
-            newop = np.dot(mapping, h2)
-            print newop
-            print any([np.allclose(newop, g) for g in gs])
-            print
-        print "round"
-        print
