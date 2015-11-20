@@ -326,7 +326,7 @@ class EwaldSummation(object):
 
             #insert new_ereals
             for k, new_e in enumerate(new_ereals):
-                ereal[js[k], i] += new_e
+                ereal[int(js[k]), i] += new_e
 
             fijpf = qj / rij ** 3 * (erfcval + forcepf * rij *
                                      np.exp(-self._eta * rij ** 2))
