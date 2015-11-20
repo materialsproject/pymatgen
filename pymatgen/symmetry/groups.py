@@ -39,6 +39,9 @@ ABBREV_SPACE_GROUP_MAPPING = SYMM_DATA["abbreviated_spacegroup_symbols"]
 TRANSLATIONS = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
 FULL_SPACE_GROUP_MAPPING = {
     v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
+MAXIMAL_SUBGROUPS = {int(k): v for k, v in
+                     loadfn(os.path.join(os.path.dirname(__file__),
+                                         "maximal_subgroups.json")).items()}
 
 
 class SymmetryGroup(Sequence):
@@ -327,6 +330,39 @@ class SpaceGroup(SymmetryGroup):
             return "hexagonal"
         else:
             return "cubic"
+
+    def is_subgroup(self, group):
+        """
+        True if this space group is a subgroup of the supplied group.
+
+        Args:
+            group (Spacegroup): Supergroup to test.
+
+        Returns:
+            True if this space group is a subgroup of the supplied group.
+        """
+        if len(group.symmetry_ops) < len(self.symmetry_ops):
+            return False
+
+        groups = [[group.int_number]]
+        all_groups = [group.int_number]
+        count = 0
+        while True:
+            new_sub_groups = set()
+            for i in groups[-1]:
+                new_sub_groups.update([j for j in MAXIMAL_SUBGROUPS[i] if j
+                                       not in all_groups])
+            if self.int_number in new_sub_groups:
+                return True
+            elif len(new_sub_groups) == 0:
+                break
+            else:
+                groups.append(new_sub_groups)
+                all_groups.extend(new_sub_groups)
+        return False
+
+    def is_supergroup(self, group):
+        return group.is_subgroup(self)
 
     @classmethod
     def from_int_number(cls, int_number, hexagonal=True):
