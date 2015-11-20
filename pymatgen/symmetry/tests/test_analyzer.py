@@ -116,7 +116,6 @@ class SpacegroupAnalyzerTest(PymatgenTest):
 
     def test_get_symmetrized_structure(self):
         symm_struct = self.sg.get_symmetrized_structure()
-        print symm_struct
         for a in symm_struct.lattice.angles:
             self.assertEqual(a, 90)
         self.assertEqual(len(symm_struct.equivalent_sites), 5)
