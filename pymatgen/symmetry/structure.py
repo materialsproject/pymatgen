@@ -38,12 +38,13 @@ class SymmetrizedStructure(Structure):
     """
 
     def __init__(self, structure, spacegroup, equivalent_positions):
+        site_properties = structure.site_properties
+        site_properties["equi_label"] = equivalent_positions
         super(SymmetrizedStructure, self).__init__(
             structure.lattice, [site.species_and_occu for site in structure],
-            structure.frac_coords, site_properties=structure.site_properties)
-
+            structure.frac_coords, site_properties=site_properties)
         self._spacegroup = spacegroup
-        u, inv = np.unique(equivalent_positions, return_inverse = True)
+        u, inv = np.unique(equivalent_positions, return_inverse=True)
         self.equivalent_indices = [[] for i in range(len(u))]
         self._equivalent_sites = [[] for i in range(len(u))]
         for i, inv in enumerate(inv):
