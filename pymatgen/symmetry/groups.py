@@ -39,9 +39,8 @@ ABBREV_SPACE_GROUP_MAPPING = SYMM_DATA["abbreviated_spacegroup_symbols"]
 TRANSLATIONS = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
 FULL_SPACE_GROUP_MAPPING = {
     v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
-MAXIMAL_SUBGROUPS = {int(k): v for k, v in
-                     loadfn(os.path.join(os.path.dirname(__file__),
-                                         "maximal_subgroups.json")).items()}
+MAXIMAL_SUBGROUPS = {int(k): v
+                     for k, v in SYMM_DATA["maximal_subgroups"].items()}
 
 
 class SymmetryGroup(Sequence):
