@@ -1434,6 +1434,40 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
         return incar_settings
 
 
+class MVLElasticInputSet(DictVaspInputSet):
+    """
+    MVL denotes VASP input sets that are implemented by the Materials Virtual
+    Lab (http://www.materialsvirtuallab.org) for various research.
+
+    This input set is used to calculate elastic constants in VASP. It is used
+    in the following work::
+
+        Z. Deng, Z. Wang, I.-H. Chu, J. Luo, S. P. Ong.
+        “Elastic Properties of Alkali Superionic Conductor Electrolytes
+        from First Principles Calculations”, J. Electrochem. Soc.
+        2016, 163(2), A67-A74. doi: 10.1149/2.0061602jes
+
+    To read the elastic constants, you may use the Outcar class which parses the
+    elastic constants.
+
+    Args:
+        scale (float): POTIM parameter. The default of 0.015 is usually fine,
+            but some structures may require a smaller step.
+        user_incar_settings (dict): A dict specifying additional incar
+            settings.
+    """
+
+    def __init__(self, scale=0.015, user_incar_settings=None):
+        super(MVLElasticInputSet, self).__init__(
+            "Materials Virtual Lab Elastic Constant Calculation",
+            loadfn(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")))
+        self.user_incar_settings = user_incar_settings or {}
+        self.incar_settings.update(self.user_incar_settings)
+        self.incar_settings.update({"IBRION": 6, "NFREE": 2, "POTIM": scale})
+        if "NPAR" in self.incar_settings:
+            del self.incar_settings["NPAR"]
+
+
 def batch_write_vasp_input(structures, vasp_input_set, output_dir,
                            make_dir_if_not_present=True, subfolder=None,
                            sanitize=False, include_cif=False):
@@ -1472,33 +1506,3 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
         )
 
 
-class MVLElasticInputSet(DictVaspInputSet):
-    """
-    MVL denotes VASP input sets that are implemented by the Materials Virtual
-    Lab (http://www.materialsvirtuallab.org) for various research.
-
-    This input set is used to calculate elastic constants in VASP. It is used
-    in the following work::
-
-        Deng, Z.; Wang, Z.; Chu, I-H.;  Luo, J.; Ong, S. P.,
-        “Elastic Properties of Alkali Superionic Conductor Electrolytes
-        from First Principles Calculations”, accepted.
-
-    To read the elastic constants, you may use the Outcar class which parses the
-    elastic constants.
-
-    Args:
-        user_incar_settings (dict): A dict specifying additional incar
-            settings. The key parameter is POTIM. The default of 0.015 is
-            usually fine, but some structures may require a smaller step.
-    """
-
-    def __init__(self, user_incar_settings=None):
-        super(MVLElasticInputSet, self).__init__(
-            "Materials Virtual Lab Elastic Constant Calculation",
-            loadfn(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")))
-        self.user_incar_settings = user_incar_settings or {}
-        self.incar_settings.update(self.user_incar_settings)
-        self.incar_settings.update({"IBRION": 6, "NFREE": 2, "POTIM": 0.015})
-        if "NPAR" in self.incar_settings:
-            del self.incar_settings["NPAR"]
