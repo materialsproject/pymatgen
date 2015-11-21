@@ -76,8 +76,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return {k: v for k, v in self._properties.items()}
 
     def __getattr__(self, a):
-        #overriding getattr doens't play nice with pickle, so we
-        #can't use self._properties
+        # overriding getattr doens't play nice with pickle, so we
+        # can't use self._properties
         p = object.__getattribute__(self, '_properties')
         if a in p:
             return p[a]
