@@ -1457,13 +1457,13 @@ class MVLElasticInputSet(DictVaspInputSet):
             settings.
     """
 
-    def __init__(self, scale=0.015, user_incar_settings=None):
+    def __init__(self, potim=0.015, user_incar_settings=None):
         super(MVLElasticInputSet, self).__init__(
             "Materials Virtual Lab Elastic Constant Calculation",
             loadfn(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")))
         self.user_incar_settings = user_incar_settings or {}
         self.incar_settings.update(self.user_incar_settings)
-        self.incar_settings.update({"IBRION": 6, "NFREE": 2, "POTIM": scale})
+        self.incar_settings.update({"IBRION": 6, "NFREE": 2, "POTIM": potim})
         if "NPAR" in self.incar_settings:
             del self.incar_settings["NPAR"]
 
