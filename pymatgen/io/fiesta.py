@@ -420,7 +420,7 @@ class FiestaInput(MSONable):
 
         o.append("=========================================")
 
-        print "\n".join(o)
+        return str(o)
 
 
     @property
