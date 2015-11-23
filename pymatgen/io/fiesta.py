@@ -252,7 +252,7 @@ class Basis_set_reader(object):
 
     def infos_on_basis_set(self):
         """
-        print infos on the basis set as in Fiesta log
+        infos on the basis set as in Fiesta log
         """
         o =[]
         o.append("=========================================")
@@ -264,7 +264,7 @@ class Basis_set_reader(object):
         o.append(" Number of nlm orbitals = {}".format(self.data['n_nlmo']))
         o.append("=========================================")
 
-        print "\n".join(o)
+        return str(0)
 
 
 
