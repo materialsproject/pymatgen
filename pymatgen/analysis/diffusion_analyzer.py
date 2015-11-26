@@ -622,15 +622,15 @@ class DiffusionAnalyzer(MSONable):
             p.join()
             return analyzer
         else:
-            vaspruns = []
-            offset = 0
-            for p in filepaths:
-                v = Vasprun(p, ionic_step_offset=offset,
-                            ionic_step_skip=step_skip)
-                vaspruns.append(v)
-                # Recompute offset.
-                offset = (- (v.nionic_steps - offset)) % step_skip
-            return cls.from_vaspruns(vaspruns, min_obs=min_obs,
+            def vr(filepaths):
+                offset = 0
+                for p in filepaths:
+                    v = Vasprun(p, ionic_step_offset=offset,
+                                ionic_step_skip=step_skip)
+                    yield v
+                    # Recompute offset.
+                    offset = (-(v.nionic_steps - offset)) % step_skip
+            return cls.from_vaspruns(vr(filepaths), min_obs=min_obs,
                 smoothed=smoothed, specie=specie, initial_disp=initial_disp,
                 initial_structure=initial_structure, avg_nsteps=avg_nsteps)
 

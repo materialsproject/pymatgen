@@ -22,7 +22,6 @@ from pymatgen.core.structure import Molecule
 from pymatgen.core.units import Energy, FloatWithUnit
 from monty.json import MSONable
 from pymatgen.util.coord_utils import get_angle
-from six.moves import map, zip
 
 __author__ = "Xiaohui Qu"
 __copyright__ = "Copyright 2013, The Electrolyte Genome Project"
@@ -1339,7 +1338,7 @@ class QcOutput(object):
         self.filename = filename
         with zopen(filename, "rt") as f:
             data = f.read()
-        chunks = re.split("\n\nRunning Job \d+ of \d+ \S+", data)
+        chunks = re.split("\n\nRunning Job \d+ of \d+ \S+|[*]{61}\nJob 2 of 2 \n[*]{61}", data)
         # noinspection PyTypeChecker
         self.data = list(map(self._parse_job, chunks))
 
