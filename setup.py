@@ -63,7 +63,7 @@ setup(
                   "pymatgen.analysis": ["*.yaml", "*.csv"],
                   "pymatgen.io.vasp": ["*.yaml"],
                   "pymatgen.io.feff": ["*.yaml"],
-                  "pymatgen.symmetry": ["*.yaml", "*.json"],
+                  "pymatgen.symmetry": ["*.yaml"],
                   "pymatgen.entries": ["*.yaml"],
                   "pymatgen.structure_prediction": ["data/*.json"],
                   "pymatgen.vis": ["ElementColorSchemes.yaml"],

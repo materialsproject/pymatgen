@@ -53,7 +53,7 @@ class NwTaskTest(unittest.TestCase):
             theory_directives={"xc": "b3lyp"})
         ans = """title "H4C1 dft optimize"
 charge 0
-basis
+basis cartesian
  C library "6-311++G**"
  H library "6-31++G**"
 end
@@ -67,7 +67,7 @@ task dft optimize"""
 
         ans = """title "dft optimize"
 charge 0
-basis
+basis cartesian
  H library "6-31g"
 end
 dft
@@ -91,7 +91,7 @@ task dft optimize"""
         task = NwTask.dft_task(mol, charge=1, operation="energy")
         ans = """title "H4C1 dft energy"
 charge 1
-basis
+basis cartesian
  C library "6-31g"
  H library "6-31g"
 end
@@ -109,7 +109,7 @@ task dft energy"""
             alternate_directives={'cosmo': {"dielec": 78.0}})
         ans = """title "H4C1 dft energy"
 charge 0
-basis
+basis cartesian
  C library "6-311++G**"
  H library "6-311++G**"
 end
@@ -128,7 +128,7 @@ task dft energy"""
                                basis_set="6-311++G**")
         ans = """title "H4C1 esp "
 charge 0
-basis
+basis cartesian
  C library "6-311++G**"
  H library "6-311++G**"
 end
@@ -172,7 +172,7 @@ end
 
 title "H4C1 dft optimize"
 charge 0
-basis
+basis cartesian
  C library "6-31++G*"
  H library "6-31++G*"
 end
@@ -184,7 +184,7 @@ task dft optimize
 
 title "H4C1 dft freq"
 charge 0
-basis
+basis cartesian
  C library "6-31++G*"
  H library "6-31++G*"
 end
@@ -196,7 +196,7 @@ task dft freq
 
 title "H4C1 dft energy"
 charge 0
-basis
+basis cartesian
  C library "6-311++G**"
  H library "6-311++G**"
 end
@@ -208,7 +208,7 @@ task dft energy
 
 title "H4C1 dft energy"
 charge 1
-basis
+basis cartesian
  C library "6-311++G**"
  H library "6-311++G**"
 end
@@ -220,7 +220,7 @@ task dft energy
 
 title "H4C1 dft energy"
 charge -1
-basis
+basis cartesian
  C library "6-311++G**"
  H library "6-311++G**"
 end
@@ -243,7 +243,7 @@ end
 
 title "H4C1 dft optimize"
 charge 0
-basis
+basis cartesian
  C library "6-31++G*"
  H library "6-31++G*"
 end
@@ -255,7 +255,7 @@ task dft optimize
 
 title "H4C1 dft freq"
 charge 0
-basis
+basis cartesian
  C library "6-31++G*"
  H library "6-31++G*"
 end
@@ -267,7 +267,7 @@ task dft freq
 
 title "H4C1 dft energy"
 charge 0
-basis
+basis cartesian
  C library "6-311++G**"
  H library "6-311++G**"
 end
@@ -279,7 +279,7 @@ task dft energy
 
 title "H4C1 dft energy"
 charge 1
-basis
+basis cartesian
  C library "6-311++G**"
  H library "6-311++G**"
 end
@@ -291,7 +291,7 @@ task dft energy
 
 title "H4C1 dft energy"
 charge -1
-basis
+basis cartesian
  C library "6-311++G**"
  H library "6-311++G**"
 end
@@ -333,7 +333,7 @@ end
 
 title "H4C1 dft optimize"
 charge 0
-basis
+basis cartesian
  H library "6-31++G*"
  C library "6-31++G*"
 end
@@ -349,7 +349,7 @@ task scf freq
 
 title "H4C1 dft energy"
 charge 0
-basis
+basis cartesian
  H library "6-311++G**"
  C library "6-311++G**"
 end

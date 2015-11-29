@@ -13,9 +13,14 @@ import random
 
 run_ratio = 1/10
 
-output = subprocess.check_output(["git", "diff", "--name-only", "HEAD~20"])
-files_changed = [f for f in output.decode("utf-8").split("\n")
-                 if f.startswith("pymatgen")]
+try:
+    output = subprocess.check_output(["git", "diff", "--name-only", "HEAD~20"])
+    files_changed = [f for f in output.decode("utf-8").split("\n")
+                     if f.startswith("pymatgen")]
+except subprocess.CalledProcessError:
+    print("Can't get changed_files... Setting run_ratio to 100%")
+    run_ratio = 1
+
 
 must_run = []
 for f in files_changed:
