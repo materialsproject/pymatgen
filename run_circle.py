@@ -20,6 +20,7 @@ try:
 except subprocess.CalledProcessError:
     print("Can't get changed_files... Setting run_ratio to 100%")
     run_ratio = 1
+    files_changed = []
 
 
 must_run = []
@@ -29,7 +30,7 @@ for f in files_changed:
     testname = os.path.join(d, "tests", "test_" + b)
     if os.path.exists(testname):
         must_run.append(testname)
-        
+
 can_run = []
 for parent, subdir, files in os.walk("pymatgen"):
     for f in files:
