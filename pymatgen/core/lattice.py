@@ -105,16 +105,6 @@ class Lattice(MSONable):
         else:
             raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
 
-    #def to_abivars(self, **kwargs):
-    #    # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
-    #    geomode = kwargs.pop("geomode", "rprim")
-    #    if geomode == "rprim":
-    #        return dict(acell=3 * [1.0], rprim=rprim))
-    #    elif geomode == "angdeg":
-    #        return dict(acell=3 * [1.0], angdeg=angdeg))
-    #    else:
-    #        raise ValueError("Wrong value for geomode: %s" % geomode)
-
     def copy(self):
         """Deep copy of self."""
         return self.__class__(self.matrix.copy())
