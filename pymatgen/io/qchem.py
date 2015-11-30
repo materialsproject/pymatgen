@@ -20,9 +20,8 @@ from monty.io import zopen
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule
 from pymatgen.core.units import Energy, FloatWithUnit
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.util.coord_utils import get_angle
-from six.moves import map, zip
 
 __author__ = "Xiaohui Qu"
 __copyright__ = "Copyright 2013, The Electrolyte Genome Project"
@@ -32,7 +31,7 @@ __email__ = "xhqu1981@gmail.com"
 __date__ = "11/4/13"
 
 
-class QcTask(PMGSONable):
+class QcTask(MSONable):
     """
     An object representing a QChem input file.
 
@@ -86,7 +85,7 @@ class QcTask(PMGSONable):
                               "intracule", "isotopes", "aux_basis",
                               "localized_diabatization", "multipole_field",
                               "nbo", "occupied", "swap_occupied_virtual", "opt",
-                              "pcm", "pcm_solvent", "plots", "qm_atoms", "svp",
+                              "pcm", "pcm_solvent", "solvent", "plots", "qm_atoms", "svp",
                               "svpirf", "van_der_waals", "xc_functional",
                               "cdft", "efp_fragments", "efp_params", "alist"}
     alternative_keys = {"job_type": "jobtype",
@@ -761,16 +760,16 @@ class QcTask(PMGSONable):
             lines.append(rem.format(name=name, value=value))
         return lines
 
-    def _format_pcm_solvent(self):
+    def _format_pcm_solvent(self, key="pcm_solvent"):
         pp_format_template = Template("  {name:>$name_width}   "
                                       "{value}")
         name_width = 0
-        for name in self.params["pcm_solvent"].keys():
+        for name in self.params[key].keys():
             if len(name) > name_width:
                 name_width = len(name)
         rem = pp_format_template.substitute(name_width=name_width)
         lines = []
-        all_keys = set(self.params["pcm_solvent"].keys())
+        all_keys = set(self.params[key].keys())
         priority_keys = []
         for k in ["dielectric", "nonels", "nsolventatoms", "solventatom"]:
             if k in all_keys:
@@ -778,7 +777,7 @@ class QcTask(PMGSONable):
         additional_keys = all_keys - set(priority_keys)
         ordered_keys = priority_keys + sorted(list(additional_keys))
         for name in ordered_keys:
-            value = self.params["pcm_solvent"][name]
+            value = self.params[key][name]
             if name == "solventatom":
                 for v in copy.deepcopy(value):
                     value = "{:<4d} {:<4d} {:<4d} {:4.2f}".format(*v)
@@ -786,6 +785,9 @@ class QcTask(PMGSONable):
                 continue
             lines.append(rem.format(name=name, value=value))
         return lines
+
+    def _format_solvent(self):
+        return self._format_pcm_solvent(key="solvent")
 
     def as_dict(self):
         if isinstance(self.mol, six.string_types):
@@ -1279,8 +1281,12 @@ class QcTask(PMGSONable):
                 d[k2] = v.lower()
         return d
 
+    @classmethod
+    def _parse_solvent(cls, contents):
+        return cls._parse_pcm_solvent(contents)
 
-class QcInput(PMGSONable):
+
+class QcInput(MSONable):
     """
     An object representing a multiple step QChem input file.
 
@@ -1332,7 +1338,7 @@ class QcOutput(object):
         self.filename = filename
         with zopen(filename, "rt") as f:
             data = f.read()
-        chunks = re.split("\n\nRunning Job \d+ of \d+ \S+", data)
+        chunks = re.split("\n\nRunning Job \d+ of \d+ \S+|[*]{61}\nJob 2 of 2 \n[*]{61}", data)
         # noinspection PyTypeChecker
         self.data = list(map(self._parse_job, chunks))
 
@@ -1416,6 +1422,8 @@ class QcOutput(object):
                 "Freq Job Too Small"),
             (re.compile("Not enough total memory"),
                 "Not Enough Total Memory"),
+            (re.compile("Use of \$pcm_solvent section has been deprecated starting in Q-Chem"),
+                "pcm_solvent deprecated")
         )
 
         energies = []

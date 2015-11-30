@@ -1,9 +1,6 @@
 Change log
 ==========
 
-v3.2.0
+v3.2.7
 ------
-* Force conversion to an actual list in selective dynamics and velocities in
-  Poscar.
-* fix small bug in BSPlotter (wrong ylim)
-* Elastic tensor parsing in Outcar
+* Add warning for limited subgroup testing functionality in Spacegroup.

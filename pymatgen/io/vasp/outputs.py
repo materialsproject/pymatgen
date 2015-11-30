@@ -24,11 +24,11 @@ import glob
 import re
 import math
 import itertools
-import warnings
 from io import StringIO
 import logging
 from collections import defaultdict
 from xml.etree.cElementTree import iterparse
+import warnings
 
 from six.moves import map, zip
 from six import string_types
@@ -52,7 +52,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.entries.computed_entries import \
     ComputedEntry, ComputedStructureEntry
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +153,7 @@ def _vasprun_float(f):
         raise e
 
 
-class Vasprun(PMGSONable):
+class Vasprun(MSONable):
     """
     Vastly improved cElementTree-based parser for vasprun.xml files. Uses
     iterparse to support incremental parsing of large files.
@@ -357,6 +357,13 @@ class Vasprun(PMGSONable):
             if parse_potcar_file:
                 self.update_potcar_spec(parse_potcar_file)
 
+        if not self.converged:
+            msg = "%s is an unconverged VASP run.\n" % filename
+            msg += "Electronic convergence reached: %s.\n" % \
+                   self.converged_electronic
+            msg += "Ionic convergence reached: %s." % self.converged_ionic
+            warnings.warn(msg, UnconvergedVASPWarning)
+
     def _parse(self, stream, parse_dos, parse_eigen, parse_projected_eigen):
         self.efermi = None
         self.eigenvalues = None
@@ -388,12 +395,6 @@ class Vasprun(PMGSONable):
             if tag == "calculation":
                 parsed_header = True
                 ionic_steps.append(self._parse_calculation(elem))
-            if tag == "dielectricfunction":
-                if ("comment" not in elem.attrib) or \
-                   elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
-                    self.dielectric = self._parse_diel(elem)
-                else:
-                    self.other_dielectric[elem.attrib["comment"]] = self._parse_diel(elem)
             elif parse_dos and tag == "dos":
                 try:
                     self.tdos, self.idos, self.pdos = self._parse_dos(elem)
@@ -405,6 +406,12 @@ class Vasprun(PMGSONable):
                 self.eigenvalues = self._parse_eigen(elem)
             elif parse_projected_eigen and tag == "projected":
                 self.projected_eigenvalues = self._parse_projected_eigen(elem)
+            elif tag == "dielectricfunction":
+                if ("comment" not in elem.attrib) or \
+                   elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
+                    self.dielectric = self._parse_diel(elem)
+                else:
+                    self.other_dielectric[elem.attrib["comment"]] = self._parse_diel(elem)
             elif tag == "structure" and elem.attrib.get("name") == \
                     "finalpos":
                 self.final_structure = self._parse_structure(elem)
@@ -669,7 +676,7 @@ class Vasprun(PMGSONable):
         # check if we have an hybrid band structure computation
         #for this we look at the presence of the LHFCALC tag
         hybrid_band = False
-        if self.parameters['LHFCALC']:
+        if self.parameters.get('LHFCALC', False):
             hybrid_band = True
 
         if kpoint_file is not None:
@@ -939,9 +946,15 @@ class Vasprun(PMGSONable):
         return Structure(latt, self.atomic_symbols, pos)
 
     def _parse_diel(self, elem):
-        imag = [[float(l) for l in r.text.split()] for r in elem.find("imag").find("array").find("set").findall("r")]
-        real = [[float(l) for l in r.text.split()] for r in elem.find("real").find("array").find("set").findall("r")]
-        return [e[0] for e in imag], [e[1:] for e in real], [e[1:] for e in imag]
+        imag = [[float(l) for l in r.text.split()]
+                for r in elem.find("imag").find("array")
+                    .find("set").findall("r")]
+        real = [[float(l) for l in r.text.split()]
+                for r in elem.find("real")
+                    .find("array").find("set").findall("r")]
+        elem.clear()
+        return [e[0] for e in imag], \
+               [e[1:] for e in real], [e[1:] for e in imag]
 
     def _parse_calculation(self, elem):
         try:
@@ -1034,7 +1047,133 @@ class Vasprun(PMGSONable):
         return proj_eigen
 
 
-class Outcar(PMGSONable):
+class BSVasprun(Vasprun):
+    """
+    A highly optimized version of Vasprun that parses only eigenvalues for
+    bandstructures. All other properties like structures, parameters,
+    etc. are ignored.
+    """
+
+    def __init__(self, filename, parse_projected_eigen=False,
+                 parse_potcar_file=False):
+        self.filename = filename
+
+        with zopen(filename, "rt") as f:
+            self.efermi = None
+            parsed_header = False
+            self.eigenvalues = None
+            self.projected_eigenvalues = None
+            for event, elem in iterparse(f):
+                tag = elem.tag
+                if not parsed_header:
+                    if tag == "generator":
+                        self.generator = self._parse_params(elem)
+                    elif tag == "incar":
+                        self.incar = self._parse_params(elem)
+                    elif tag == "kpoints":
+                        self.kpoints, self.actual_kpoints, \
+                            self.actual_kpoints_weights = self._parse_kpoints(elem)
+                    elif tag == "parameters":
+                        self.parameters = self._parse_params(elem)
+                    elif tag == "atominfo":
+                        self.atomic_symbols, self.potcar_symbols = \
+                            self._parse_atominfo(elem)
+                        self.potcar_spec = [{"titel": p,
+                                             "hash": None} for
+                                            p in self.potcar_symbols]
+                        parsed_header = True
+                elif tag == "i" and elem.attrib.get("name") == "efermi":
+                    self.efermi = float(elem.text)
+                elif tag == "eigenvalues":
+                    self.eigenvalues = self._parse_eigen(elem)
+                elif parse_projected_eigen and tag == "projected":
+                    self.projected_eigenvalues = self._parse_projected_eigen(elem)
+                elif tag == "structure" and elem.attrib.get("name") == \
+                        "finalpos":
+                    self.final_structure = self._parse_structure(elem)
+        self.vasp_version = self.generator["version"]
+        if parse_potcar_file:
+            self.update_potcar_spec(parse_potcar_file)
+
+    def as_dict(self):
+        """
+        Json-serializable dict representation.
+        """
+        d = {"vasp_version": self.vasp_version,
+             "has_vasp_completed": True,
+             "nsites": len(self.final_structure)}
+        comp = self.final_structure.composition
+        d["unit_cell_formula"] = comp.as_dict()
+        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
+        d["pretty_formula"] = comp.reduced_formula
+        symbols = [s.split()[1] for s in self.potcar_symbols]
+        symbols = [re.split("_", s)[0] for s in symbols]
+        d["is_hubbard"] = self.is_hubbard
+        d["hubbards"] = {}
+        if d["is_hubbard"]:
+            us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
+            js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
+            if len(us) == len(symbols):
+                d["hubbards"] = {symbols[i]: us[i] - js[i]
+                                 for i in range(len(symbols))}
+            else:
+                raise VaspParserError("Length of U value parameters and atomic"
+                                      " symbols are mismatched.")
+
+        unique_symbols = sorted(list(set(self.atomic_symbols)))
+        d["elements"] = unique_symbols
+        d["nelements"] = len(unique_symbols)
+
+        d["run_type"] = self.run_type
+
+        vin = {"incar": {k: v for k, v in self.incar.items()},
+               "crystal": self.final_structure.as_dict(),
+               "kpoints": self.kpoints.as_dict()}
+        actual_kpts = [{"abc": list(self.actual_kpoints[i]),
+                        "weight": self.actual_kpoints_weights[i]}
+                       for i in range(len(self.actual_kpoints))]
+        vin["kpoints"]["actual_points"] = actual_kpts
+        vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
+        vin["potcar_spec"] = self.potcar_spec
+        vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
+        vin["parameters"] = {k: v for k, v in self.parameters.items()}
+        vin["lattice_rec"] = self.lattice_rec.as_dict()
+        d["input"] = vin
+
+        nsites = len(self.final_structure)
+
+        vout = {"crystal": self.final_structure.as_dict(),
+                "efermi": self.efermi}
+
+        if self.eigenvalues:
+            eigen = defaultdict(dict)
+            for (spin, index), values in self.eigenvalues.items():
+                eigen[index][str(spin)] = values
+            vout["eigenvalues"] = eigen
+            (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
+            vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
+                             is_gap_direct=is_direct))
+
+            if self.projected_eigenvalues:
+                peigen = []
+                for i in range(len(eigen)):
+                    peigen.append({})
+                    for spin in eigen[i].keys():
+                        peigen[i][spin] = []
+                        for j in range(len(eigen[i][spin])):
+                            peigen[i][spin].append({})
+                for (spin, kpoint_index, band_index, ion_index, orbital), \
+                        value in self.projected_eigenvalues.items():
+                    beigen = peigen[kpoint_index][str(spin)][band_index]
+                    if orbital not in beigen:
+                        beigen[orbital] = [0.0] * nsites
+                    beigen[orbital][ion_index] = value
+                vout['projected_eigenvalues'] = peigen
+        d['output'] = vout
+        return jsanitize(d, strict=True)
+
+
+class Outcar(MSONable):
     """
     Parser for data in OUTCAR that is not available in Vasprun.xml
 
@@ -1103,7 +1242,7 @@ class Outcar(PMGSONable):
         nelect_patt = re.compile("number of electron\s+(\S+)\s+"
                                  "magnetization\s+(\S+)")
         etensor_patt = re.compile("[X-Z][X-Z]+\s+-?\d+")
-        
+
         all_lines = []
         for line in reverse_readfile(self.filename):
             clean = line.strip()
@@ -2348,6 +2487,13 @@ class Xdatcar(object):
                 elif not preamble_done:
                     if l == "" or "Direct configuration=" in l:
                         preamble_done = True
+                        tmp_preamble = [preamble[0]]
+                        for i in range(1, len(preamble)):
+                            if preamble[0] != preamble[i]:
+                                tmp_preamble.append(preamble[i])
+                            else:
+                                break
+                        preamble = tmp_preamble
                     else:
                         preamble.append(l)
                 elif l == "" or "Direct configuration=" in l:
@@ -2357,6 +2503,9 @@ class Xdatcar(object):
                     coords_str = []
                 else:
                     coords_str.append(l)
+            p = Poscar.from_string("\n".join(preamble +
+                                             ["Direct"] + coords_str))
+            structures.append(p.structure)
         self.structures = structures
 
 class Dynmat(object):
@@ -2546,3 +2695,9 @@ class Wavederf(object):
 
         return self.data[:,band_i-1,band_j-1,:] # using numpy array multidimensional slicing
 
+
+class UnconvergedVASPWarning(Warning):
+    """
+    Warning for unconverged vasp run.
+    """
+    pass

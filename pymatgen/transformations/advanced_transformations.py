@@ -19,6 +19,7 @@ __date__ = "Jul 24, 2012"
 import numpy as np
 from fractions import gcd, Fraction
 from itertools import groupby
+from warnings import warn
 
 import six
 
@@ -324,10 +325,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
         except ValueError:
             num_to_return = 1
 
-        if structure.is_ordered:
-            raise ValueError("Enumeration can be carried out only on "
-                             "disordered structures!")
-
         if self.refine_structure:
             finder = SpacegroupAnalyzer(structure, self.symm_prec)
             structure = finder.get_refined_structure()
@@ -337,14 +334,20 @@ class EnumerateStructureTransformation(AbstractTransformation):
              structure.composition.elements]
         )
 
-        adaptor = EnumlibAdaptor(
-            structure, min_cell_size=self.min_cell_size,
-            max_cell_size=self.max_cell_size,
-            symm_prec=self.symm_prec, refine_structure=False,
-            enum_precision_parameter=self.enum_precision_parameter,
-            check_ordered_symmetry=self.check_ordered_symmetry)
-        adaptor.run()
-        structures = adaptor.structures
+        if structure.is_ordered:
+            warn("Enumeration skipped for structure with composition {} "
+                 "because it is ordered".format(structure.composition))
+            structures = [structure.copy()]
+        else:
+            adaptor = EnumlibAdaptor(
+                structure, min_cell_size=self.min_cell_size,
+                max_cell_size=self.max_cell_size,
+                symm_prec=self.symm_prec, refine_structure=False,
+                enum_precision_parameter=self.enum_precision_parameter,
+                check_ordered_symmetry=self.check_ordered_symmetry)
+            adaptor.run()
+            structures = adaptor.structures
+
         original_latt = structure.lattice
         inv_latt = np.linalg.inv(original_latt.matrix)
         ewald_matrices = {}

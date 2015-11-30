@@ -79,4 +79,5 @@ def pmg_pickle_dump(obj, filobj, **kwargs):
         \*\*kwargs: Any of the keyword arguments supported by PmgPickler
     """
     #return pickle.dump(obj, filobj)
+    #print(type(obj), type(filobj))
     return PmgPickler(filobj, **kwargs).dump(obj)

@@ -143,6 +143,14 @@ class ReactionTest(unittest.TestCase):
                          "1.000 MgO + 1.000 Al2O3 -> 1.000 MgAl2O4")
         self.assertAlmostEquals(entry.energy, -0.2, 5)
 
+        products = [Composition("Fe"), Composition("O2")]
+        reactants = [Composition("Fe2O3")]
+        rxn = Reaction(reactants, products)
+        energies = {Composition("Fe"): 0, Composition("O2"): 0,
+                    Composition("Fe2O3"): 0.5}
+        entry = rxn.as_entry(energies)
+        self.assertEqual(entry.composition.formula, "Fe1.33333333 O2")
+        self.assertAlmostEquals(entry.energy, -0.333333, 5)
 
     def test_products_reactants(self):
         reactants = [Composition("Li3Fe2(PO4)3"), Composition("Fe2O3"),
@@ -250,6 +258,12 @@ class ComputedReactionTest(unittest.TestCase):
         d = self.rxn.as_dict()
         new_rxn = ComputedReaction.from_dict(d)
         self.assertEqual(str(new_rxn), "1.000 O2 + 2.000 Li -> 1.000 Li2O2")
+
+    def test_all_entries(self):
+        for c, e in zip(self.rxn.coeffs, self.rxn.all_entries):
+            if c > 0:
+                self.assertEqual(e.composition.reduced_formula, "Li2O2")
+                self.assertAlmostEqual(e.energy, -959.64693323)
 
 
 if __name__ == '__main__':

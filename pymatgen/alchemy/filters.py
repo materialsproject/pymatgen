@@ -22,13 +22,14 @@ import six
 from six.moves import map
 
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.analysis.structure_matcher import StructureMatcher,\
     ElementComparator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+from collections import defaultdict
 
-class AbstractStructureFilter(six.with_metaclass(abc.ABCMeta, PMGSONable)):
+class AbstractStructureFilter(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     AbstractStructureFilter that defines an API to perform testing of
     Structures. Structures that return True to a test are retained during
@@ -105,6 +106,10 @@ class ContainsSpecieFilter(AbstractStructureFilter):
                               "AND": self._AND,
                               "exclude": self._exclude}}
 
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**d["init_args"])
+
 
 class SpecieProximityFilter(AbstractStructureFilter):
     """
@@ -147,7 +152,11 @@ class SpecieProximityFilter(AbstractStructureFilter):
                 "@class": self.__class__.__name__,
                 "init_args": {"specie_and_min_dist_dict":
                               {str(sp): v
-                              for sp, v in self.specie_and_min_dist.items()}}}
+                               for sp, v in self.specie_and_min_dist.items()}}}
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**d["init_args"])
 
 
 class RemoveDuplicatesFilter(AbstractStructureFilter):
@@ -168,37 +177,31 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
                 default value), no symmetry check is performed and only the
                 structure matcher is used. A recommended value is 1e-5.
         """
-        self._symprec = symprec
-        self._structure_list = []
+        self.symprec = symprec
+        self.structure_list = defaultdict(list)
         if isinstance(structure_matcher, dict):
-            self._sm = StructureMatcher.from_dict(structure_matcher)
+            self.structure_matcher = StructureMatcher.from_dict(structure_matcher)
         else:
-            self._sm = structure_matcher
+            self.structure_matcher = structure_matcher
 
     def test(self, structure):
-        if not self._structure_list:
-            self._structure_list.append(structure)
+        h = self.structure_matcher._comparator.get_hash(structure.composition)
+        if not self.structure_list[h]:
+            self.structure_list[h].append(structure)
             return True
 
         def get_sg(s):
-            finder = SpacegroupAnalyzer(s, symprec=self._symprec)
+            finder = SpacegroupAnalyzer(s, symprec=self.symprec)
             return finder.get_spacegroup_number()
 
-        for s in self._structure_list:
-            if self._sm._comparator.get_hash(structure.composition) ==\
-                    self._sm._comparator.get_hash(s.composition):
-                if self._symprec is None or \
-                        get_sg(s) == get_sg(structure):
-                    if self._sm.fit(s, structure):
-                        return False
+        for s in self.structure_list[h]:
+            if self.symprec is None or \
+                    get_sg(s) == get_sg(structure):
+                if self.structure_matcher.fit(s, structure):
+                    return False
 
-        self._structure_list.append(structure)
+        self.structure_list[h].append(structure)
         return True
-
-    def as_dict(self):
-        return {"version": __version__, "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "init_args": {"structure_matcher": self._sm.as_dict()}}
 
 
 class RemoveExistingFilter(AbstractStructureFilter):
@@ -220,35 +223,35 @@ class RemoveExistingFilter(AbstractStructureFilter):
                 default value), no symmetry check is performed and only the
                 structure matcher is used. A recommended value is 1e-5.
         """
-        self._symprec = symprec
-        self._structure_list = []
-        self._existing_structures = existing_structures
+        self.symprec = symprec
+        self.structure_list = []
+        self.existing_structures = existing_structures
         if isinstance(structure_matcher, dict):
-            self._sm = StructureMatcher.from_dict(structure_matcher)
+            self.structure_matcher = StructureMatcher.from_dict(structure_matcher)
         else:
-            self._sm = structure_matcher
+            self.structure_matcher = structure_matcher
 
     def test(self, structure):
 
         def get_sg(s):
-            finder = SpacegroupAnalyzer(s, symprec=self._symprec)
+            finder = SpacegroupAnalyzer(s, symprec=self.symprec)
             return finder.get_spacegroup_number()
 
-        for s in self._existing_structures:
-            if self._sm._comparator.get_hash(structure.composition) ==\
-                    self._sm._comparator.get_hash(s.composition):
-                if self._symprec is None or \
+        for s in self.existing_structures:
+            if self.structure_matcher._comparator.get_hash(structure.composition) ==\
+                    self.structure_matcher._comparator.get_hash(s.composition):
+                if self.symprec is None or \
                         get_sg(s) == get_sg(structure):
-                    if self._sm.fit(s, structure):
+                    if self.structure_matcher.fit(s, structure):
                         return False
 
-        self._structure_list.append(structure)
+        self.structure_list.append(structure)
         return True
 
     def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "init_args": {"structure_matcher": self._sm.as_dict()}}
+                "init_args": {"structure_matcher": self.structure_matcher.as_dict()}}
 
 
 class ChargeBalanceFilter(AbstractStructureFilter):
@@ -258,15 +261,14 @@ class ChargeBalanceFilter(AbstractStructureFilter):
     decorated, as structures with only elemental sites are automatically
     assumed to have net charge of 0.
     """
+    def __init__(self):
+        pass
+
     def test(self, structure):
         if structure.charge == 0.0:
             return True
         else:
             return False
-
-    def as_dict(self):
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
 
 
 class SpeciesMaxDistFilter(AbstractStructureFilter):
@@ -295,7 +297,3 @@ class SpeciesMaxDistFilter(AbstractStructureFilter):
         lattice = structure.lattice
         dists = lattice.get_all_distances(fcoords1, fcoords2)
         return all([any(row) for row in dists < self.max_dist])
-
-    def as_dict(self):
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}

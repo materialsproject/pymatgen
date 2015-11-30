@@ -33,6 +33,7 @@ from fractions import gcd
 
 import six
 from six.moves import map, zip
+from tabulate import tabulate
 
 import numpy as np
 
@@ -45,7 +46,7 @@ except ImportError:
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
@@ -329,7 +330,7 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         pass
 
 
-class IStructure(SiteCollection, PMGSONable):
+class IStructure(SiteCollection, MSONable):
     """
     Basic immutable Structure object with periodicity. Essentially a sequence
     of PeriodicSites having a common lattice. IStructure is made to be
@@ -519,6 +520,52 @@ class IStructure(SiteCollection, PMGSONable):
                    site_properties=all_site_properties)
 
     @classmethod
+    def from_xsf_string(cls, input_string):
+        """
+        Initialize a `Structure` object from a string with data in XSF format.
+        See http://www.xcrysden.org/doc/XSF.html
+        """
+        # CRYSTAL                                        see (1)
+        # these are primitive lattice vectors (in Angstroms)
+        # PRIMVEC
+        #    0.0000000    2.7100000    2.7100000         see (2)
+        #    2.7100000    0.0000000    2.7100000
+        #    2.7100000    2.7100000    0.0000000
+
+        # these are conventional lattice vectors (in Angstroms)
+        # CONVVEC
+        #    5.4200000    0.0000000    0.0000000         see (3)
+        #    0.0000000    5.4200000    0.0000000
+        #    0.0000000    0.0000000    5.4200000
+
+        # these are atomic coordinates in a primitive unit cell  (in Angstroms)
+        # PRIMCOORD
+        # 2 1                                            see (4)
+        # 16      0.0000000     0.0000000     0.0000000  see (5)
+        # 30      1.3550000    -1.3550000    -1.3550000
+
+        lattice, coords, species = [], [], []
+        lines = input_string.splitlines()
+
+        for i in range(len(lines)):
+            if "PRIMVEC" in lines[i]:
+                for j in range(i+1, i+4):
+                    lattice.append([float(c) for c in lines[j].split()])
+
+            if "PRIMCOORD" in lines[i]:
+                num_sites = int(lines[i+1].split()[0])
+
+                for j in range(i+2, i+2+num_sites):
+                    tokens = lines[j].split()
+                    species.append(int(tokens[0]))
+                    coords.append([float(j) for j in tokens[1:]])
+                break
+        else:
+            raise ValueError("Invalid XSF data")
+
+        return cls(lattice, species, coords, coords_are_cartesian=True)
+
+    @classmethod
     def from_abivars(cls, *args, **kwargs):
         """Build a :class:`Structure` object from a dictionary with ABINIT variables."""
         kwargs.update(dict(*args))
@@ -550,11 +597,9 @@ class IStructure(SiteCollection, PMGSONable):
 
         assert len(typat) == len(coords)
 
-        # Note Fortan --> C indexing
+        # Note Fortran --> C indexing
+        #znucl_type = np.rint(znucl_type)
         species = [znucl_type[typ-1] for typ in typat]
-
-        #print(lattice, species, coords)
-        #print(species)
 
         return cls(lattice, species, coords, validate_proximity=False,
                    to_unit_cell=False, coords_are_cartesian=coords_are_cartesian)
@@ -1162,10 +1207,17 @@ class IStructure(SiteCollection, PMGSONable):
         outs.append("angles: " + " ".join([to_s(i).rjust(10)
                                            for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i=len(self)))
+        data = []
+        props = self.site_properties
+        keys = sorted(props.keys())
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i), site.species_string,
-                                  " ".join([to_s(j).rjust(12)
-                                            for j in site.frac_coords])]))
+            row = [str(i), site.species_string]
+            row.extend([to_s(j) for j in site.frac_coords])
+            for k in keys:
+                row.append(props[k][i])
+            data.append(row)
+        outs.append(tabulate(data, headers=["#", "SP", "a", "b", "c"] + keys,
+                             ))
         return "\n".join(outs)
 
     def as_dict(self):
@@ -1252,6 +1304,32 @@ class IStructure(SiteCollection, PMGSONable):
 
         return d
 
+    def to_xsf_string(self):
+        """
+        Returns a string with the structure in XSF format
+        See http://www.xcrysden.org/doc/XSF.html
+        """
+        lines = []
+        app = lines.append
+
+        app("CRYSTAL")
+        app("# Primitive lattice vectors in Angstrom")
+        app("PRIMVEC")
+        cell = self.lattice_vectors(space="r")
+        for i in range(3):
+            app(' %.14f %.14f %.14f' % tuple(cell[i]))
+
+        cart_coords = self.cart_coords
+        app("# Cartesian coordinates in Angstrom.")
+        app("PRIMCOORD")
+        app(" %d 1" % len(cart_coords))
+
+        for a in range(len(cart_coords)):
+            sp = "%d" % self.atomic_numbers[a]
+            app(sp + ' %20.14f %20.14f %20.14f' % tuple(cart_coords[a]))
+
+        return "\n".join(lines)
+
     def dot(self, coords_a, coords_b, space="r", frac_coords=False):
         """
         Compute the scalar product of vector(s) either in real space or
@@ -1324,6 +1402,14 @@ class IStructure(SiteCollection, PMGSONable):
                 return
             else:
                 return s
+        elif fmt == "xsf" or fnmatch(fname.lower(), "*.xsf*"):
+            if filename:
+                with zopen(fname, "wt", encoding='utf8') as f:
+                    s = self.to_xsf_string()
+                    f.write(s)
+                    return s
+            else:
+                return self.to_xsf_string()
         else:
             if filename:
                 with open(filename, "w") as f:
@@ -1367,15 +1453,17 @@ class IStructure(SiteCollection, PMGSONable):
         elif fmt == "yaml":
             d = yaml.load(input_string)
             s = cls.from_dict(d)
+        elif fmt == "xsf":
+            s = cls.from_xsf_string(input_string)
         else:
-            raise ValueError("Unrecognized format!")
+            raise ValueError("Unrecognized format `%s`!" % fmt)
 
         if sort:
             s = s.get_sorted_structure()
         return cls.from_sites(s)
 
     @classmethod
-    def from_file(cls, filename, primitive=True, sort=False):
+    def from_file(cls, filename, primitive=False, sort=False):
         """
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
@@ -1385,7 +1473,7 @@ class IStructure(SiteCollection, PMGSONable):
         Args:
             filename (str): The filename to read from.
             primitive (bool): Whether to convert to a primitive cell
-                Only available for cifs. Defaults to True.
+                Only available for cifs. Defaults to False.
             sort (bool): Whether to sort sites. Default to False.
 
         Returns:
@@ -1393,7 +1481,7 @@ class IStructure(SiteCollection, PMGSONable):
         """
         if filename.endswith(".nc"):
             # Read Structure from a netcdf file.
-            from pymatgen.io.abinitio.netcdf import structure_from_ncdata
+            from pymatgen.io.abinit.netcdf import structure_from_ncdata
             s = structure_from_ncdata(filename, cls=cls)
             if sort:
                 s = s.get_sorted_structure()
@@ -1424,6 +1512,9 @@ class IStructure(SiteCollection, PMGSONable):
         elif fnmatch(fname, "*.yaml*"):
             return cls.from_str(contents, fmt="yaml",
                                 primitive=primitive, sort=sort)
+        elif fnmatch(fname, "*.xsf"):
+            return cls.from_str(contents, fmt="xsf",
+                                primitive=primitive, sort=sort)
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
@@ -1433,7 +1524,7 @@ class IStructure(SiteCollection, PMGSONable):
         return s
 
 
-class IMolecule(SiteCollection, PMGSONable):
+class IMolecule(SiteCollection, MSONable):
     """
     Basic immutable Molecule object without periodicity. Essentially a
     sequence of sites. IMolecule is made to be immutable so that they can
@@ -1900,6 +1991,7 @@ class IMolecule(SiteCollection, PMGSONable):
                     return yaml.dump(self.as_dict(), f, Dumper=Dumper)
             else:
                 return yaml.dump(self.as_dict(), Dumper=Dumper)
+
         else:
             m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
                           fname.lower())
@@ -2506,7 +2598,7 @@ class Structure(IStructure, collections.MutableSequence):
             for n, i in enumerate(inds[1:]):
                 species += self[i].species_and_occu
                 offset = self[i].frac_coords - coords
-                coords += (offset - np.round(offset)) / (n + 2)
+                coords += ((offset - np.round(offset)) / (n + 2)).astype(coords.dtype)
             sites.append(PeriodicSite(species, coords, self.lattice))
 
         self._sites = sites
