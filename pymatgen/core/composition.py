@@ -30,12 +30,12 @@ from functools import total_ordering
 from monty.fractions import gcd
 from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.util.string_utils import formula_double_format
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.core.units import unitized
 
 
 @total_ordering
-class Composition(collections.Mapping, collections.Hashable, PMGSONable):
+class Composition(collections.Mapping, collections.Hashable, MSONable):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
     type. Composition is written to be immutable and hashable,
@@ -105,7 +105,7 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
                {"Li":2, "O":1}, {3:2, 8:1} all result in a Li2O composition.
             2. Keyword arg initialization, similar to a dict, e.g.,
 
-               Compostion(Li = 2, O = 1)
+               Composition(Li = 2, O = 1)
 
             In addition, the Composition constructor also allows a single
             string as an input formula. E.g., Composition("Li2O").
@@ -223,7 +223,7 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
         return hashcode
 
     def __contains__(self, el):
-        return el in self._elmap
+        return get_el_sp(el) in self._elmap
 
     def __len__(self):
         return len(self._elmap)
@@ -793,7 +793,7 @@ class CompositionError(Exception):
     pass
 
 
-class ChemicalPotential(dict, PMGSONable):
+class ChemicalPotential(dict, MSONable):
     """
     Class to represent set of chemical potentials. Can be:
     multiplied/divided by a Number

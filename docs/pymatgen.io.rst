@@ -6,13 +6,21 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.io.abinitio
+    pymatgen.io.abinit
     pymatgen.io.feff
     pymatgen.io.vasp
     pymatgen.io.vaspio
 
 Submodules
 ----------
+
+pymatgen.io.aiida module
+------------------------
+
+.. automodule:: pymatgen.io.aiida
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 pymatgen.io.ase module
 ----------------------

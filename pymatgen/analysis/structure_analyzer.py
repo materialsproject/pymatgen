@@ -38,13 +38,13 @@ class VoronoiCoordFinder(object):
         structure (Structure): Input structure
         target ([Element/Specie]): A list of target species to determine
             coordination for.
+        cutoff (float): Radius in Angstrom cutoff to look for coordinating
+            atoms. Defaults to 10.0.
     """
 
-    # Radius in Angstrom cutoff to look for coordinating atoms
-    default_cutoff = 10.0
-
-    def __init__(self, structure, target=None):
+    def __init__(self, structure, target=None, cutoff=10.0):
         self._structure = structure
+        self.cutoff = cutoff
         if target is None:
             self._target = structure.composition.elements
         else:
@@ -67,7 +67,7 @@ class VoronoiCoordFinder(object):
         localtarget = self._target
         center = self._structure[n]
         neighbors = self._structure.get_sites_in_sphere(
-            center.coords, VoronoiCoordFinder.default_cutoff)
+            center.coords, self.cutoff)
         neighbors = [i[0] for i in sorted(neighbors, key=lambda s: s[1])]
         qvoronoi_input = [s.coords for s in neighbors]
         voro = VoronoiTess(qvoronoi_input)

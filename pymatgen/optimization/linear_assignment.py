@@ -20,6 +20,7 @@ import numpy as np
 
 from six.moves import range
 
+
 class LinearAssignment(object):
     """
     This class finds the solution to the Linear Assignment Problem.
