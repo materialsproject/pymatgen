@@ -189,7 +189,7 @@ class GasCorrection(Correction):
                 - entry.uncorrected_energy
 
         correction = 0
-        #add sulfide correction.
+        #add sulfide correction. Note that S correction is only for S2-.
         if len(comp) >=2 and Element("S") in comp:
             correction += self.sulfide_correction['sulfide'] * comp["S"]
             return correction
