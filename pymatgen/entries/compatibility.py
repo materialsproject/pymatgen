@@ -176,6 +176,7 @@ class GasCorrection(Correction):
         c = loadfn(config_file)
         self.cpd_energies = c['Advanced']['CompoundEnergies']
         self.oxide_correction = c['OxideCorrections']
+        self.sulfide_correction = c['SulfideCorrections']
         self.name = c['Name']
         self.correct_peroxide = correct_peroxide
 
@@ -188,6 +189,12 @@ class GasCorrection(Correction):
                 - entry.uncorrected_energy
 
         correction = 0
+        #add sulfide correction.
+        if len(comp) >=2 and Element("S") in comp:
+            correction += self.sulfide_correction['sulfide'] * comp["S"]
+            return correction
+
+
         #Check for oxide, peroxide, superoxide, and ozonide corrections.
         if self.correct_peroxide:
             if len(comp) >= 2 and Element("O") in comp:
