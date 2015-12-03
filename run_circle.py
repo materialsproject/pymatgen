@@ -45,7 +45,7 @@ print("%d possible test files can be run..." % len(can_run))
 nrun = int(run_ratio * len(can_run))
 
 if random.randint(1, 20) % 20 == 0:
-    #One in fifty times, we will run a full test.
+    # One in fifty times, we will run a full test.
     to_run = must_run + can_run
 else:
     to_run = list(set(random.sample(can_run, nrun) + must_run))
