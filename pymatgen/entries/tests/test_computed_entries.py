@@ -64,9 +64,10 @@ class ComputedEntryTest(unittest.TestCase):
 
     def test_sulfide_energy(self):
         self.entry = ComputedEntry("BaS", -10.21249155)
-        self.assertAlmostEqual(self.entry.energy, -10.87595155)
-        self.entry.correction = -0.66346
-        self.assertAlmostEqual(self.entry.energy_per_atom, -10.87595155 / 2)
+        self.assertAlmostEqual(self.entry.energy, -10.21249155)
+        self.assertAlmostEqual(self.entry.energy_per_atom, -10.21249155 / 2)
+        self.entry.correction = 1.0
+        self.assertAlmostEqual(self.entry.energy, -9.21249155)
 
 class ComputedStructureEntryTest(unittest.TestCase):
 
