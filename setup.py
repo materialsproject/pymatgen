@@ -56,7 +56,7 @@ setup(
                       "pybtex", "pyyaml", "monty>=0.7.0", "scipy>=0.10",
                       "tabulate"],
     extras_require={"plotting": ["matplotlib>=1.1", "prettyplotlib"],
-                    "pdanalyzer, pourbaix diagrams, bandstructure": ["pyhull>=1.5.3"],
+                    "pourbaix diagrams, bandstructure": ["pyhull>=1.5.3"],
                     "ase_adaptor": ["ase>=3.3"],
                     "vis": ["vtk>=6.0.0"],
                     "abinit": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
