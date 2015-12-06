@@ -78,7 +78,7 @@ class PDAnalyzer(object):
                              ''.format(comp, self._pd.elements))
         c = [comp.get_atomic_fraction(e) for e in self._pd.elements[1:]]
         for f, s in zip(self._pd.facets, self._pd.simplices):
-            if s.in_simplex(c, PDAnalyzer.numerical_tol / 10):
+            if Simplex(s).in_simplex(c, PDAnalyzer.numerical_tol / 10):
                 return f
         raise RuntimeError("No facet found for comp = {}".format(comp))
 

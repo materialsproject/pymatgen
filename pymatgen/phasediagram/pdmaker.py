@@ -20,7 +20,6 @@ __date__ = "Nov 25, 2012"
 
 import collections
 import numpy as np
-from pyhull.simplex import Simplex
 from monty.json import MSONable, MontyDecoder
 
 try:
@@ -90,6 +89,11 @@ class PhaseDiagram (MSONable):
 
         Actual entries used in convex hull. Excludes all positive formation
         energy entries.
+
+    .. attribute: simplices:
+
+        The simplices of the phase diagram as a list of np.ndarray, i.e.,
+        the list of stable compositional coordinates in the phase diagram.
     """
 
     # Tolerance for determining if formation energy is positive.
@@ -185,7 +189,7 @@ class PhaseDiagram (MSONable):
                     finalfacets.append(facet)
             self.facets = finalfacets
 
-        self.simplices = [Simplex(qhull_data[f, :-1]) for f in self.facets]
+        self.simplices = [qhull_data[f, :-1] for f in self.facets]
         self.all_entries = entries
         self.qhull_data = qhull_data
         self.dim = dim
