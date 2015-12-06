@@ -25,6 +25,7 @@ from six.moves import map, zip
 import numpy as np
 from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
+from scipy.spatial import Voronoi
 
 from monty.json import MSONable
 from pymatgen.util.num_utils import abs_cap
@@ -790,12 +791,11 @@ class Lattice(MSONable):
         list_k_points = []
         for i, j, k in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
             list_k_points.append(i * vec1 + j * vec2 + k * vec3)
-        from pyhull.voronoi import VoronoiTess
-        tess = VoronoiTess(list_k_points)
+        tess = Voronoi(list_k_points)
         to_return = []
-        for r in tess.ridges:
+        for r in tess.ridge_dict:
             if r[0] == 13 or r[1] == 13:
-                to_return.append([tess.vertices[i] for i in tess.ridges[r]])
+                to_return.append([tess.vertices[i] for i in tess.ridge_dict[r]])
 
         return to_return
 
