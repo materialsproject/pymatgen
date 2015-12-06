@@ -51,9 +51,9 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="3.2.7",
-    install_requires=["numpy>=1.8", "six", "atomicfile", "requests",
-                      "pybtex", "pyyaml", "monty>=0.7.0", "scipy>=0.10",
+    version="3.2.8",
+    install_requires=["numpy>=1.9", "six", "atomicfile", "requests",
+                      "pybtex", "pyyaml", "monty>=0.7.0", "scipy>=0.14",
                       "tabulate"],
     extras_require={"plotting": ["matplotlib>=1.1", "prettyplotlib"],
                     "pourbaix diagrams, bandstructure": ["pyhull>=1.5.3"],

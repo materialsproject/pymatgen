@@ -1,6 +1,10 @@
 Change log
 ==========
 
-v3.2.7
+v3.2.8
 ------
-* Add warning for limited subgroup testing functionality in Spacegroup.
+* Make pyhull optional.
+* Sulfur correction added to MaterialsProjectCompatibility for more accurate
+  sulfide formation energies.
+* ADF io support. (Xin Chen)
+* Bug fixes for spacegroup subgroup testing.
