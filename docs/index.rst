@@ -166,6 +166,31 @@ developmental version, make sure you have nose installed and then just type::
 
 in the pymatgen root directory.
 
+Note on Shared Compute Cluster Installation
+-------------------------------------------
+
+If you are installing pymatgen on shared computing clusters, e.g., the XSEDE
+or NERSC resources in the US, there are several things you need to take note of:
+
+1. Some older clusters have Python 2.6 or older by default. Pymatgen requires
+   Python 2.7 or newer. Sometimes, the cluster may have Python 2.7 that you
+   can load, e.g., using "module load python/2.7". Otherwise, you are out of
+   luck and you need to contact the cluster admin to install python 2.7 or
+   you can try to install it in your home directory.
+2. Unless you are the sys admin, you will not have write access to the default
+   locations that python installs packages. What you need to do is to install
+   pymatgen (and other dependencies) using the "--user" option::
+
+    pip install pymatgen --user
+
+   or::
+
+    python setup.py develop --user
+
+   This will install pymatgen in your $HOME/.local/lib/python2.7/site-packages.
+   You may need to add this to your PYTHONPATH variable, e.g., in your
+   .bash_profile if it is not automatically set.
+
 "Sample" Docker version
 -----------------------
 

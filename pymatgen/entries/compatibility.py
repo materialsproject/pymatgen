@@ -188,7 +188,7 @@ class GasCorrection(Correction):
                 - entry.uncorrected_energy
 
         correction = 0
-        #Check for oxide, peroxide, superoxide, and ozonide corrections.
+        # Check for oxide, peroxide, superoxide, and ozonide corrections.
         if self.correct_peroxide:
             if len(comp) >= 2 and Element("O") in comp:
                 if entry.data.get("oxide_type"):

@@ -14,6 +14,14 @@ Subpackages
 Submodules
 ----------
 
+pymatgen.io.adf module
+----------------------
+
+.. automodule:: pymatgen.io.adf
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.io.aiida module
 ------------------------
 
@@ -98,6 +106,14 @@ pymatgen.io.feffio_set module
 -----------------------------
 
 .. automodule:: pymatgen.io.feffio_set
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.io.fiesta module
+-------------------------
+
+.. automodule:: pymatgen.io.fiesta
     :members:
     :undoc-members:
     :show-inheritance:

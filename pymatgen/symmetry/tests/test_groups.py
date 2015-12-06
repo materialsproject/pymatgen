@@ -123,9 +123,10 @@ class SpaceGroupTest(unittest.TestCase):
         self.assertTrue(sg.is_compatible(hexagonal))
 
     def test_subgroup_supergroup(self):
-        # TODO: Fix unittest below.
-        #self.assertTrue(SpaceGroup('Pma2').is_supergroup(SpaceGroup('Pccm')))
-        pass
+        self.assertTrue(SpaceGroup('Pma2').is_subgroup(SpaceGroup('Pccm')))
+        self.assertFalse(SpaceGroup.from_int_number(229).is_subgroup(
+            SpaceGroup.from_int_number(230)))
+
 
 if __name__ == '__main__':
     unittest.main()
