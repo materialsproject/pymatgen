@@ -1059,8 +1059,9 @@ class BSVasprun(Vasprun):
     """
 
     def __init__(self, filename, parse_projected_eigen=False,
-                 parse_potcar_file=False):
+                 parse_potcar_file=False, occu_tol=1e-8):
         self.filename = filename
+        self.occu_tol = occu_tol
 
         with zopen(filename, "rt") as f:
             self.efermi = None
