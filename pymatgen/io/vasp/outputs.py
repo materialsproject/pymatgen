@@ -191,7 +191,10 @@ class Vasprun(MSONable):
             where no hashes will be determined and the potcar_spec dictionaries
             will read {"symbol": ElSymbol, "hash": None}. By Default, looks in
             the same directory as the vasprun.xml, with same extensions as
-             Vasprun.xml. If a string is provided, looks at that filepath
+             Vasprun.xml. If a string is provided, looks at that filepath.
+        occu_tol (float): Sets the minimum tol for the determination of the
+            vbm and cbm. Usually the default of 1e-8 works well enough,
+            but there may be pathological cases.
 
     **Vasp results**
 
@@ -324,10 +327,11 @@ class Vasprun(MSONable):
     def __init__(self, filename, ionic_step_skip=None,
                  ionic_step_offset=0, parse_dos=True,
                  parse_eigen=True, parse_projected_eigen=False,
-                 parse_potcar_file=True):
+                 parse_potcar_file=True, occu_tol=1e-8):
         self.filename = filename
         self.ionic_step_skip = ionic_step_skip
         self.ionic_step_offset = ionic_step_offset
+        self.occu_tol = occu_tol
 
         with zopen(filename, "rt") as f:
             if ionic_step_skip or ionic_step_offset:
@@ -738,10 +742,10 @@ class Vasprun(MSONable):
         cbm_kpoint = None
         for k, val in self.eigenvalues.items():
             for (eigenval, occu) in val:
-                if occu > 1e-8 and eigenval > vbm:
+                if occu > self.occu_tol and eigenval > vbm:
                     vbm = eigenval
                     vbm_kpoint = k[0]
-                elif occu <= 1e-8 and eigenval < cbm:
+                elif occu <= self.occu_tol and eigenval < cbm:
                     cbm = eigenval
                     cbm_kpoint = k[0]
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
