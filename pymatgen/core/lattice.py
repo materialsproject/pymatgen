@@ -26,8 +26,6 @@ import numpy as np
 from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
 
-from pyhull.voronoi import VoronoiTess
-
 from monty.json import MSONable
 from pymatgen.util.num_utils import abs_cap
 from pymatgen.core.units import ArrayWithUnit
@@ -792,6 +790,7 @@ class Lattice(MSONable):
         list_k_points = []
         for i, j, k in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
             list_k_points.append(i * vec1 + j * vec2 + k * vec3)
+        from pyhull.voronoi import VoronoiTess
         tess = VoronoiTess(list_k_points)
         to_return = []
         for r in tess.ridges:

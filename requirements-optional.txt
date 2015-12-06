@@ -2,3 +2,4 @@ pillow==2.5.3
 mock==1.0.1
 sympy==0.7.6
 matplotlib>=1.4.3
+pyhull==1.5.6
