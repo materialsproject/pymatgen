@@ -24,12 +24,11 @@ import collections
 
 from monty.functools import lru_cache
 
-from pyhull.simplex import Simplex
-
 from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
     GrandPotentialPhaseDiagram, get_facets
 from pymatgen.analysis.reaction_calculator import Reaction
+from pymatgen.util.coord_utils import Simplex
 
 
 class PDAnalyzer(object):
