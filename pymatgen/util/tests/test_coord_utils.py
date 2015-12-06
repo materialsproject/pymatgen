@@ -224,7 +224,7 @@ class CoordUtilsTest(PymatgenTest):
         coord_utils.LOOP_THRESHOLD = prev_threshold
 
 
-class SimplexTest(unittest.TestCase):
+class SimplexTest(PymatgenTest):
 
     def setUp(self):
         coords = []
@@ -243,10 +243,11 @@ class SimplexTest(unittest.TestCase):
 
     def test_2dtriangle(self):
         s = Simplex([[0, 1], [1, 1], [1, 0]])
-        np.testing.assert_almost_equal(s.bary_coords([0.5, 0.5]), [0.5, 0, 0.5])
-        np.testing.assert_almost_equal(s.bary_coords([0.5, 1]), [0.5, 0.5, 0])
-        np.testing.assert_almost_equal(s.bary_coords([0.5, 0.75]), [0.5, 0.25, 0.25])
-        np.testing.assert_almost_equal(s.bary_coords([0.75, 0.75]), [0.25, 0.5, 0.25])
+        self.assertArrayAlmostEqual(s.bary_coords([0.5, 0.5]),
+                                    [0.5, 0, 0.5])
+        self.assertArrayAlmostEqual(s.bary_coords([0.5, 1]), [0.5, 0.5, 0])
+        self.assertArrayAlmostEqual(s.bary_coords([0.5, 0.75]), [0.5, 0.25, 0.25])
+        self.assertArrayAlmostEqual(s.bary_coords([0.75, 0.75]), [0.25, 0.5, 0.25])
 
         s = Simplex([[1, 1], [1, 0]])
         self.assertRaises(ValueError, s.bary_coords, [0.5, 0.5])
