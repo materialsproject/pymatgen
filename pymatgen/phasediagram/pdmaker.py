@@ -8,8 +8,6 @@ from __future__ import division, unicode_literals
 This module provides classes to create phase diagrams.
 """
 
-from six.moves import filter
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "2.0"
@@ -110,8 +108,9 @@ class PhaseDiagram(MSONable):
         elements = list(elements)
         dim = len(elements)
 
-        key = lambda e: (e.composition.reduced_composition, e.energy_per_atom)
-        entries = sorted(entries, key=key)
+        entries = sorted(entries,
+                         key=lambda e: (e.composition.reduced_composition,
+                                        e.energy_per_atom))
 
         el_refs = {}
         min_entries = []
@@ -136,20 +135,19 @@ class PhaseDiagram(MSONable):
             data.append(row)
         data = np.array(data)
 
-        #use only entries with negative formation energy
+        # Use only entries with negative formation energy
         vec = [el_refs[el].energy_per_atom for el in elements] + [-1]
         form_e = -np.dot(data, vec)
-
         inds = list(np.where(form_e < -self.formation_energy_tol)[0])
 
-        #add the elemental references
+        # Add the elemental references
         inds.extend([min_entries.index(el) for el in el_refs.values()])
 
         qhull_entries = [min_entries[i] for i in inds]
         qhull_data = data[inds][:, 1:]
 
-        #add an extra point to enforce full dimensionality
-        #this point will be present in all upper hull facets
+        # Add an extra point to enforce full dimensionality.
+        # This point will be present in all upper hull facets.
         extra_point = np.zeros(dim) + 1 / dim
         extra_point[-1] = np.max(qhull_data) + 1
         qhull_data = np.concatenate([qhull_data, [extra_point]], axis=0)
@@ -391,7 +389,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         else:
             fractional_comp = terminal_compositions
 
-        #Map terminal compositions to unique dummy species.
+        # Map terminal compositions to unique dummy species.
         sp_mapping = collections.OrderedDict()
         for i, comp in enumerate(fractional_comp):
             sp_mapping[comp] = DummySpecie("X" + chr(102 + i))
@@ -400,8 +398,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
             try:
                 rxn = Reaction(fractional_comp, [entry.composition])
                 rxn.normalize_to(entry.composition)
-                #We only allow reactions that have positive amounts of
-                #reactants.
+                # We only allow reactions that have positive amounts of
+                # reactants.
                 if all([rxn.get_coeff(comp) <= CompoundPhaseDiagram.amount_tol
                         for comp in fractional_comp]):
                     newcomp = {sp_mapping[comp]: -rxn.get_coeff(comp)
@@ -412,8 +410,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
                         TransformedPDEntry(Composition(newcomp), entry)
                     new_entries.append(transformed_entry)
             except ReactionError:
-                #If the reaction can't be balanced, the entry does not fall
-                #into the phase space. We ignore them.
+                # If the reaction can't be balanced, the entry does not fall
+                # into the phase space. We ignore them.
                 pass
         return new_entries, sp_mapping
 
