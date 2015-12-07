@@ -62,24 +62,27 @@ class PhaseDiagram(MSONable):
         Data used in the convex hull operation. This is essentially a matrix of
         composition data and energy per atom values created from qhull_entries.
 
+    .. attribute: qhull_entries:
+
+        Actual entries used in convex hull. Excludes all positive formation
+        energy entries.
+
     .. attribute: dim
 
         The dimensionality of the phase diagram.
 
     .. attribute: facets
 
-        Facets of the phase diagram in the form of  [[1,2,3],[4,5,6]...]
+        Facets of the phase diagram in the form of  [[1,2,3],[4,5,6]...].
+        For a ternary, it is the indices (references to qhull_entries and
+        qhull_data) for the vertices of the phase triangles. Similarly
+        extended to higher D simplices for higher dimensions.
 
     .. attribute: el_refs:
 
         List of elemental references for the phase diagrams. These are
         entries corresponding to the lowest energy element entries for simple
         compositional phase diagrams.
-
-    .. attribute: qhull_entries:
-
-        Actual entries used in convex hull. Excludes all positive formation
-        energy entries.
 
     .. attribute: simplices:
 
@@ -158,7 +161,7 @@ class PhaseDiagram(MSONable):
             facets = get_facets(qhull_data)
             finalfacets = []
             for facet in facets:
-                #skip facets that include the extra point
+                # Skip facets that include the extra point
                 if max(facet) == len(qhull_data)-1:
                     continue
                 m = qhull_data[facet]
