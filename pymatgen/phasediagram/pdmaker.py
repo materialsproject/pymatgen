@@ -20,17 +20,10 @@ __date__ = "Nov 25, 2012"
 
 import collections
 import numpy as np
+import itertools
 from monty.json import MSONable, MontyDecoder
 
-try:
-    # If scipy ConvexHull exists, use it because it is faster for large hulls.
-    # This requires scipy >= 0.12.0.
-    from scipy.spatial import ConvexHull
-    HULL_METHOD = "scipy"
-except ImportError:
-    # Fall back to pyhull if scipy >= 0.12.0 does not exist.
-    from pyhull.convex_hull import ConvexHull
-    HULL_METHOD = "pyhull"
+from scipy.spatial import ConvexHull
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.composition import Composition
@@ -41,7 +34,7 @@ from pymatgen.core.periodic_table import DummySpecie, Element
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 
 
-class PhaseDiagram (MSONable):
+class PhaseDiagram(MSONable):
     """
     Simple phase diagram class taking in elements and entries as inputs.
     The algorithm is based on the work in the following papers:
@@ -116,57 +109,44 @@ class PhaseDiagram (MSONable):
                 elements.update(entry.composition.elements)
         elements = list(elements)
         dim = len(elements)
+
+        key = lambda e: (e.composition.reduced_composition, e.energy_per_atom)
+        entries = sorted(entries, key=key)
+
         el_refs = {}
-        for el in elements:
-            el_entries = list(filter(lambda e: e.composition.is_element and
-                                               e.composition.elements[0] == el,
-                                     entries))
-            if len(el_entries) == 0:
-                raise PhaseDiagramError(
-                    "There are no entries associated with terminal {}."
-                    .format(el))
-            el_refs[el] = min(el_entries, key=lambda e: e.energy_per_atom)
+        min_entries = []
+        all_entries = []
+        for c, g in itertools.groupby(
+                entries, key=lambda e: e.composition.reduced_composition):
+            g = list(g)
+            if c.is_element:
+                el_refs[c.elements[0]] = g[0]
+            min_entries.append(g[0])
+            all_entries.extend(g)
+
+        if len(el_refs) != dim:
+            raise PhaseDiagramError(
+                "There are no entries associated with a terminal element!.")
 
         data = []
-        for entry in entries:
+        for entry in min_entries:
             comp = entry.composition
             row = [comp.get_atomic_fraction(el) for el in elements]
             row.append(entry.energy_per_atom)
             data.append(row)
         data = np.array(data)
-        self.all_entries_hulldata = data[:, 1:]
 
         #use only entries with negative formation energy
         vec = [el_refs[el].energy_per_atom for el in elements] + [-1]
         form_e = -np.dot(data, vec)
 
-        #make sure that if there are multiple entries at the same composition
-        #within 1e-4 eV/atom of each other, only use the lower energy one.
-        #This fixes the precision errors in the convex hull.
-        #This is significantly faster than grouping by composition and then
-        #taking the lowest energy of each group
-        ind = []
-        prev_c = []  # compositions within 1e-4 of current entry
-        prev_e = []  # energies of those compositions
-        for i in np.argsort([e.energy_per_atom for e in entries]):
-            if form_e[i] > -self.formation_energy_tol:
-                continue
-            epa = entries[i].energy_per_atom
-            #trim the front of the lists
-            while prev_e and epa > 1e-4 + prev_e[0]:
-                prev_c.pop(0)
-                prev_e.pop(0)
-            frac_comp = entries[i].composition.fractional_composition
-            if frac_comp not in prev_c:
-                ind.append(i)
-            prev_e.append(epa)
-            prev_c.append(frac_comp)
+        inds = list(np.where(form_e < -self.formation_energy_tol)[0])
 
         #add the elemental references
-        ind.extend([entries.index(el) for el in el_refs.values()])
+        inds.extend([min_entries.index(el) for el in el_refs.values()])
 
-        qhull_entries = [entries[i] for i in ind]
-        qhull_data = data[ind][:, 1:]
+        qhull_entries = [min_entries[i] for i in inds]
+        qhull_data = data[inds][:, 1:]
 
         #add an extra point to enforce full dimensionality
         #this point will be present in all upper hull facets
@@ -190,12 +170,22 @@ class PhaseDiagram (MSONable):
             self.facets = finalfacets
 
         self.simplices = [qhull_data[f, :-1] for f in self.facets]
-        self.all_entries = entries
+        self.all_entries = all_entries
         self.qhull_data = qhull_data
         self.dim = dim
         self.el_refs = el_refs
         self.elements = elements
         self.qhull_entries = qhull_entries
+
+    @property
+    def all_entries_hulldata(self):
+        data = []
+        for entry in self.all_entries:
+            comp = entry.composition
+            row = [comp.get_atomic_fraction(el) for el in self.elements]
+            row.append(entry.energy_per_atom)
+            data.append(row)
+        return np.array(data)[:, 1:]
 
     @property
     def unstable_entries(self):
@@ -469,10 +459,7 @@ def get_facets(qhull_data, joggle=False, force_use_pyhull=False):
     Returns:
         List of simplices of the Convex Hull.
     """
-    if HULL_METHOD == "scipy" and (not force_use_pyhull):
-        if joggle:
-            return ConvexHull(qhull_data, qhull_options="QJ i").simplices
-        else:
-            return ConvexHull(qhull_data, qhull_options="Qt i").simplices
+    if joggle:
+        return ConvexHull(qhull_data, qhull_options="QJ i").simplices
     else:
-        return ConvexHull(qhull_data, joggle=joggle).vertices
+        return ConvexHull(qhull_data, qhull_options="Qt i").simplices
