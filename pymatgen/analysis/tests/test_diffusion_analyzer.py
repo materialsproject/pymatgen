@@ -46,9 +46,13 @@ class FuncTest(unittest.TestCase):
         c = 12
         temps = np.array([300, 1000, 500])
         diffusivities = c * np.exp(-Ea/(k * temps))
+        diffusivities *= np.array([1.00601834013,
+                                   1.00803236262,
+                                   0.98609720824])
         r = fit_arrhenius(temps, diffusivities)
         self.assertAlmostEqual(r[0], Ea)
         self.assertAlmostEqual(r[1], c)
+        self.assertAlmostEqual(r[2], 0.000895566)
 
 
 class DiffusionAnalyzerTest(PymatgenTest):
