@@ -46,7 +46,7 @@ class EwaldSummation(object):
     CONV_FACT = 1e10 * ELECTRON_CHARGE / (4 * pi * EPSILON_0)
 
     def __init__(self, structure, real_space_cut=None, recip_space_cut=None,
-                 eta=None, acc_factor=8.0):
+                 eta=None, acc_factor=12.0, w=0.7):
         """
         Initializes and calculates the Ewald sum. Default convergence
         parameters have been specified, but you can override them if you wish.
@@ -66,15 +66,21 @@ class EwaldSummation(object):
                 determine automatically.
             acc_factor (float): No. of significant figures each sum is
                 converged to.
+            w (float): Weight parameter, w, has been included that represents
+                the relative computational expense of calculating a term in
+                real and reciprocal space. Default of 0.7 reproduces result
+                similar to GULP 4.2. This has little effect on the total
+                energy, but may influence speed of computation in large
+                systems. Note that this parameter is used only when the
+                cutoffs are set to None.
         """
         self._s = structure
         self._vol = structure.volume
 
         self._acc_factor = acc_factor
-
         # set screening length
         self._eta = eta if eta \
-            else (len(structure) * 0.01 / self._vol) ** (1 / 3) * pi
+            else (len(structure) * w / (self._vol ** 2)) ** (1 / 3) * pi
         self._sqrt_eta = sqrt(self._eta)
 
         # acc factor used to automatically determine the optimal real and
