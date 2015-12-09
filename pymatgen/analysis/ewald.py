@@ -25,7 +25,7 @@ import bisect
 
 import numpy as np
 
-from pymatgen.core.physical_constants import ELECTRON_CHARGE, EPSILON_0
+import scipy.constants as constants
 
 
 class EwaldSummation(object):
@@ -43,7 +43,7 @@ class EwaldSummation(object):
     """
 
     # Converts unit of q*q/r into eV
-    CONV_FACT = 1e10 * ELECTRON_CHARGE / (4 * pi * EPSILON_0)
+    CONV_FACT = 1e10 * constants.e / (4 * pi * constants.epsilon_0)
 
     def __init__(self, structure, real_space_cut=None, recip_space_cut=None,
                  eta=None, acc_factor=12.0, w=1/sqrt(2)):

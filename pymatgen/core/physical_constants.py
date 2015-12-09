@@ -46,19 +46,21 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
+import scipy.constants as constants
+
 #Constants. Note that some of these may replicate functionality in
 #scipy.constants. However, given the difficulty in installing scipy on many
 #systems, the replication of these constants minimizes scipy dependency.
 
-ELECTRON_CHARGE = 1.602176565e-19
-ELECTRON_MASS = 9.10938291e-31
-EPSILON_0 = 8.85418781762e-12
-BOLTZMANN_CONST = 1.3806488e-23
-ELECTRON_VOLT = 1.602176565e-19
-AVOGADROS_CONST = 6.02214129e23
-HARTREE_TO_ELECTRON_VOLT = 27.21138505
-SPEED_OF_LIGHT = 299792458.0
-PLANCK_CONSTANT = 6.62606957e-34
+ELECTRON_CHARGE = constants.e
+ELECTRON_MASS = constants.m_e
+EPSILON_0 = constants.epsilon_0
+BOLTZMANN_CONST = constants.k
+ELECTRON_VOLT = constants.e
+AVOGADROS_CONST = constants.N_A
+HARTREE_TO_ELECTRON_VOLT = 1/constants.physical_constants["electron volt-hartree relationship"][0]
+SPEED_OF_LIGHT = constants.c
+PLANCK_CONSTANT = constants.h
 
 #Some useful aliases
 N_a = AVOGADROS_CONST
