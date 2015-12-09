@@ -14,6 +14,14 @@ Subpackages
 Submodules
 ----------
 
+pymatgen.io.adf module
+----------------------
+
+.. automodule:: pymatgen.io.adf
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.io.aiida module
 ------------------------
 

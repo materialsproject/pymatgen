@@ -699,7 +699,7 @@ def _get_vasprun(args):
 
 def fit_arrhenius(temps, diffusivities):
     """
-    Returns Ea and c from the Arrhenius fit:
+    Returns Ea, c, standard error of Ea from the Arrhenius fit:
         D = c * exp(-Ea/kT)
 
     Args:
@@ -711,8 +711,11 @@ def fit_arrhenius(temps, diffusivities):
     logd = np.log(diffusivities)
     #Do a least squares regression of log(D) vs 1/T
     a = np.array([t_1, np.ones(len(temps))]).T
-    w = np.array(np.linalg.lstsq(a, logd)[0])
-    return -w[0] * phyc.k_b / phyc.e, np.exp(w[1])
+    w, res, _, _ = np.linalg.lstsq(a, logd)
+    w = np.array(w)
+    n = len(temps)
+    std_Ea = (res[0] / (n - 2) / (n * np.var(t_1))) ** 0.5 * phyc.k_b / phyc.e
+    return -w[0] * phyc.k_b / phyc.e, np.exp(w[1]), std_Ea
 
 
 def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
@@ -728,7 +731,7 @@ def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
     Returns:
         (float) Diffusivity at extrapolated temp in mS/cm.
     """
-    Ea, c = fit_arrhenius(temps, diffusivities)
+    Ea, c, _ = fit_arrhenius(temps, diffusivities)
     return c * np.exp(-Ea / (phyc.k_b / phyc.e * new_temp))
 
 
@@ -769,7 +772,7 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
     Returns:
         A matplotlib.pyplot object. Do plt.show() to show the plot.
     """
-    Ea, c = fit_arrhenius(temps, diffusivities)
+    Ea, c, _ = fit_arrhenius(temps, diffusivities)
 
     from pymatgen.util.plotting_utils import get_publication_quality_plot
     plt = get_publication_quality_plot(12, 8)
