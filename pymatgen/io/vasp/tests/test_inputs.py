@@ -21,8 +21,10 @@ import os
 import numpy as np
 import warnings
 
+from scipy.constants import N_A
+
+
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.io.vasp.inputs import Incar, Poscar, Kpoints, Potcar, \
     PotcarSingle, VaspInput
 from pymatgen import Composition, Structure
@@ -214,7 +216,7 @@ direct
                 x, 0, 7, 'Velocities initialized with a net momentum')
 
         temperature = struct[0].specie.atomic_mass.to("kg") * \
-            np.sum(v ** 2) / (3 * BOLTZMANN_CONST) * 1e10
+            np.sum(v ** 2) / (3 * N_A) * 1e10
         self.assertAlmostEqual(temperature, 900, 4,
                                'Temperature instantiated incorrectly')
 
@@ -225,7 +227,7 @@ direct
                 x, 0, 7, 'Velocities initialized with a net momentum')
 
         temperature = struct[0].specie.atomic_mass.to("kg") * \
-            np.sum(v ** 2) / (3 * BOLTZMANN_CONST) * 1e10
+            np.sum(v ** 2) / (3 * N_A) * 1e10
         self.assertAlmostEqual(temperature, 700, 4,
                                'Temperature instantiated incorrectly')
 
