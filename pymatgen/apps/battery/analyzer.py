@@ -137,7 +137,7 @@ class BatteryAnalyzer():
         """
 
         vol = volume if volume else self.struc_oxid.volume
-        return self._get_max_cap_ah(remove, insert) * 1000 * 1E24 / (vol * AVOGADROS_CONST)
+        return self._get_max_cap_ah(remove, insert) * 1000 * 1E24 / (vol * const.N_A)
 
     def get_removals_int_oxid(self):
         """
