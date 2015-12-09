@@ -21,7 +21,7 @@ import os
 import numpy as np
 import warnings
 
-from scipy.constants import N_A
+import scipy.constants as const
 
 
 from pymatgen.util.testing import PymatgenTest
@@ -212,11 +212,10 @@ direct
         v = np.array(poscar.velocities)
 
         for x in np.sum(v, axis=0):
-            self.assertAlmostEqual(
-                x, 0, 7, 'Velocities initialized with a net momentum')
+            self.assertAlmostEqual(x, 0, 7)
 
         temperature = struct[0].specie.atomic_mass.to("kg") * \
-            np.sum(v ** 2) / (3 * N_A) * 1e10
+            np.sum(v ** 2) / (3 * const.k) * 1e10
         self.assertAlmostEqual(temperature, 900, 4,
                                'Temperature instantiated incorrectly')
 
@@ -227,7 +226,7 @@ direct
                 x, 0, 7, 'Velocities initialized with a net momentum')
 
         temperature = struct[0].specie.atomic_mass.to("kg") * \
-            np.sum(v ** 2) / (3 * N_A) * 1e10
+            np.sum(v ** 2) / (3 * const.k) * 1e10
         self.assertAlmostEqual(temperature, 700, 4,
                                'Temperature instantiated incorrectly')
 

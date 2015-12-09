@@ -36,7 +36,7 @@ from monty.json import MontyDecoder
 
 from tabulate import tabulate
 
-from scipy.constants import N_A
+import scipy.constants as const
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.design_patterns import Enum
@@ -496,7 +496,7 @@ class Poscar(MSONable):
         #scale velocities to get correct temperature
         energy = np.sum(1 / 2 * atomic_masses *
                         np.sum(velocities ** 2, axis=1))
-        scale = (temperature * dof / (2 * energy / N_A)) ** (1 / 2)
+        scale = (temperature * dof / (2 * energy / const.k)) ** (1 / 2)
 
         velocities *= scale * 1e-5  # these are in A/fs
 
