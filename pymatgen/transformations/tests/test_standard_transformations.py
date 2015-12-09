@@ -343,7 +343,7 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
                                      {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}],
                            coords)
         output = t.apply_transformation(struct, return_ranked_list=3)
-        self.assertAlmostEqual(output[0]['energy'], -215.75509747311793, 4)
+        self.assertAlmostEqual(output[0]['energy'], -216.42362404816419, 4)
 
 
 class PrimitiveCellTransformationTest(unittest.TestCase):

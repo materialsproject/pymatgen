@@ -44,7 +44,7 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
                        {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}], coords)
 
         m = EwaldElectrostaticModel()
-        self.assertAlmostEqual(m.get_energy(s), -39.90013347055681)
+        self.assertAlmostEqual(m.get_energy(s), -40.655658979571228)
         s2 = Structure.from_file(os.path.join(test_dir, "Li2O.cif"))
         self.assertAlmostEqual(m.get_energy(s2), -145.39050015844839)
 
