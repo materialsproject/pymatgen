@@ -46,7 +46,7 @@ class EwaldSummation(object):
     CONV_FACT = 1e10 * ELECTRON_CHARGE / (4 * pi * EPSILON_0)
 
     def __init__(self, structure, real_space_cut=None, recip_space_cut=None,
-                 eta=None, acc_factor=12.0, w=0.7):
+                 eta=None, acc_factor=12.0, w=1/sqrt(2)):
         """
         Initializes and calculates the Ewald sum. Default convergence
         parameters have been specified, but you can override them if you wish.
