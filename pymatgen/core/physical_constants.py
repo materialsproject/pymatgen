@@ -4,6 +4,8 @@
 
 from __future__ import unicode_literals
 
+import warnings
+
 """
 This module defines useful physical constants and conversion factors.
 All units are in SI units except for conversion factors.
@@ -45,6 +47,10 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
+
+warnings.warn("The pymatgen.core.physical_constants module is deprecated and "
+              "will be removed in pymatgen 4.0. Pls use scipy.constants.",
+              DeprecationWarning)
 
 import scipy.constants as constants
 

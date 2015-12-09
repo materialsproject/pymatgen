@@ -19,5 +19,5 @@ __date__ = '8/1/15'
 
 import warnings
 warnings.warn("pymatgen.io.babelio has been moved pymatgen.io.babel. This stub "
-              "will be removed in pymatgen 4.0.")
+              "will be removed in pymatgen 4.0.", DeprecationWarning)
 from .babel import *
