@@ -19,7 +19,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.bz = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap"))
 
     def test_properties(self):
-        self.assertAlmostEqual(self.bz.gap, 1.66449313933234)
+        self.assertAlmostEqual(self.bz.gap, 1.6644932121620404)
         array = self.bz._cond[300][102]
         self.assertAlmostEqual(array[0][0], 7.5756518e+19)
         self.assertAlmostEqual(array[0][2], -11.14679)
@@ -39,16 +39,16 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(self.bz._hall[400][68][1][2][2], 6.5106975e-10)
         self.assertAlmostEqual(self.bz.doping['p'][3], 1e18)
         self.assertAlmostEqual(self.bz.mu_doping['p'][300][2], 0.1553770018406)
-        self.assertAlmostEqual(self.bz.mu_doping['n'][300][-1], 1.6486016911581)
+        self.assertAlmostEqual(self.bz.mu_doping['n'][300][-1], 1.6486017632924719)
         self.assertAlmostEqual(self.bz._cond_doping['n'][800][3][1][1], 1.5564085e+16)
         self.assertAlmostEqual(self.bz._seebeck_doping['p'][600][2][0][1], 3.2860613e-23)
         self.assertAlmostEqual(self.bz._carrier_conc[500][67], 38.22832002)
-        self.assertAlmostEqual(self.bz.vol, 612.975564135)
+        self.assertAlmostEqual(self.bz.vol, 612.97557323964838)
         self.assertAlmostEqual(self.bz._hall_doping['n'][700][-1][2][2][2], 5.0136483e-26)
         self.assertAlmostEqual(self.bz.dos.efermi, -0.0300005507057)
-        self.assertAlmostEqual(self.bz.dos.energies[0], -2.449704832)
+        self.assertAlmostEqual(self.bz.dos.energies[0], -2.4497049391830448)
         self.assertAlmostEqual(self.bz.dos.energies[345], -0.727088176739)
-        self.assertAlmostEqual(self.bz.dos.energies[-1], 3.75693971263)
+        self.assertAlmostEqual(self.bz.dos.energies[-1], 3.7569398770153524)
         self.assertAlmostEqual(self.bz.dos.densities[Spin.up][400], 118.70171)
         self.assertAlmostEqual(self.bz.dos.densities[Spin.up][200], 179.58562)
         self.assertAlmostEqual(self.bz.dos.densities[Spin.up][300], 289.43945)
@@ -115,8 +115,8 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(self.bz.get_average_eff_mass(output='average')['n'][300][2], 1.53769093989)
 
     def test_get_carrier_concentration(self):
-        self.assertAlmostEqual(self.bz.get_carrier_concentration()[300][39], 6.4805157487898182e+22)
-        self.assertAlmostEqual(self.bz.get_carrier_concentration()[300][693], -6590801063499549.0)
+        self.assertAlmostEqual(self.bz.get_carrier_concentration()[300][39], 6.480515652533115e+22)
+        self.assertAlmostEqual(self.bz.get_carrier_concentration()[300][693], -6590800965604750.0)
 
     def test_get_hall_carrier_concentration(self):
         self.assertAlmostEqual(self.bz.get_hall_carrier_concentration()[600][120], 6.773394626767555e+21)

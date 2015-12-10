@@ -25,7 +25,8 @@ from collections import Sequence
 from abc import ABCMeta, abstractproperty
 
 from monty.json import MSONable
-from pymatgen.core.physical_constants import AVOGADROS_CONST
+
+from scipy.constants import N_A
 
 
 class AbstractVoltagePair(object):
@@ -267,7 +268,7 @@ class AbstractElectrode(Sequence, MSONable):
             if use_overall_normalization or len(pairs_in_range) == 0 \
             else pairs_in_range[-1].vol_discharge
         return sum([pair.mAh for pair in pairs_in_range]) / normalization_vol \
-            * 1e24 / AVOGADROS_CONST
+            * 1e24 / N_A
 
     def get_specific_energy(self, min_voltage=None, max_voltage=None,
                             use_overall_normalization=True):

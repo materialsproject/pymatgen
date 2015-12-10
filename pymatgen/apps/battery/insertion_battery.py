@@ -22,12 +22,13 @@ import itertools
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.units import Charge, Time
-from pymatgen.core.physical_constants import AVOGADROS_CONST
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, \
     AbstractVoltagePair
 from pymatgen.core.periodic_table import Element
+
+from scipy.constants import N_A
 
 
 class InsertionElectrode(AbstractElectrode):
@@ -457,7 +458,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
              (entry_discharge.energy / norm_discharge)) / \
             self._num_ions_transferred + working_ion_entry.energy_per_atom) / working_ion_valence
         self._mAh = self._num_ions_transferred * Charge(1, "e").to("C") * \
-            Time(1, "s").to("h") * AVOGADROS_CONST * 1000 * working_ion_valence
+            Time(1, "s").to("h") * N_A * 1000 * working_ion_valence
 
         #Step 4: add (optional) hull and muO2 data
         self.decomp_e_charge = \
