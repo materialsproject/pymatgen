@@ -30,7 +30,7 @@ Advanced:
     F2:  -1.42055013381    #Fit to all.
     Cl2: -1.25385097674    #Fit to all except AlCl3, which is not present in the database.
     H2:  -3.23973666138
-    S:   -3.464417449325    #Fit to Li2S, Na2S, K2S, Rb2S, CsS, MgS, CaS, BaS, Al2S3.
+
 
 OxideCorrections:
   oxide:       -0.70229    #Oxide Corrections fit to Li2O, Na2O, K2O, Rb2O, MgO, CaO, SrO, BaO, Al2O3 on 09/18
@@ -38,8 +38,9 @@ OxideCorrections:
   superoxide:  -0.14598    #Superoxide Corrections fit to CsO2, NaO2, KO2 on 09/18
   ozonide:     0.00
 
-#SulfideCorrections:
-#  sulfide:     -0.66346     #Sulfide Correction fit to Li2S, Na2S, K2S, Rb2S, CsS, MgS, CaS, BaS, Al2S3.
+
+SulfideCorrections:
+  sulfide:     -0.66346     #Sulfide Correction fit to Li2S, Na2S, K2S, Rb2S, CsS, MgS, CaS, BaS, Al2S3.
 
 # Entropic Correction term for gases. 
 # For H2O, energy is corrected such that the experimental formation energy of water of -2.46 eV is reproduced.

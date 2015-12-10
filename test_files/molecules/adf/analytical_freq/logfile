@@ -1,0 +1,245 @@
+<Dec01-2015> <12:40:35>  ADF 2014  RunTime: Dec01-2015 12:40:35  Nodes: 1  Procs: 1
+<Dec01-2015> <12:40:35>  Hydrogen (TZP)
+<Dec01-2015> <12:40:35>  RunType   : CREATE
+<Dec01-2015> <12:40:36>  Net Charge: 0 (Nuclei minus Electrons)
+<Dec01-2015> <12:40:36>  Symmetry  : ATOM
+ Coordinates
+   Atom         X           Y           Z   (Angstrom)
+   1.H         0.000000    0.000000    0.000000
+<Dec01-2015> <12:40:36>  >>>> CORORT
+<Dec01-2015> <12:40:36>  >>>> CLSMAT
+<Dec01-2015> <12:40:36>  >>>> ORTHON
+<Dec01-2015> <12:40:36>  >>>> GENPT
+<Dec01-2015> <12:40:36>  Block Length=  64
+<Dec01-2015> <12:40:36>  >>>> PTBAS
+<Dec01-2015> <12:40:36>  >>>> CYCLE
+<Dec01-2015> <12:40:36>    1
+<Dec01-2015> <12:40:36>    2  ErrMat   0.04599043  MaxEl -0.04581380
+<Dec01-2015> <12:40:36>    3  ErrMat   0.01042691  MaxEl  0.01001652
+<Dec01-2015> <12:40:36>    4  ErrMat   0.00029286  MaxEl  0.00021096
+<Dec01-2015> <12:40:36>    5  ErrMat   0.00000895  MaxEl  0.00000721
+<Dec01-2015> <12:40:36>    6  ErrMat   0.00000002  MaxEl -0.00000002
+<Dec01-2015> <12:40:36>    7  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <12:40:36>  SCF converged
+<Dec01-2015> <12:40:36>    8  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <12:40:36>   Solutions with partially occupied orbitals may not be
+<Dec01-2015> <12:40:36>   lowest in energy. You might consider lowering the
+<Dec01-2015> <12:40:36>   symmetry in the input and explicitly specifying integer
+<Dec01-2015> <12:40:36>   occupations. In that case always check that you obtain
+<Dec01-2015> <12:40:36>   an aufbau solution.
+<Dec01-2015> <12:40:36>  >>>> POPAN
+<Dec01-2015> <12:40:36>  >>>> DEBYE
+<Dec01-2015> <12:40:36>  NORMAL TERMINATION
+<Dec01-2015> <12:40:36>  END
+<Dec01-2015> <12:40:36>  ADF 2014  RunTime: Dec01-2015 12:40:36  Nodes: 1  Procs: 1
+<Dec01-2015> <12:40:36>  Oxygen (TZP, 1s frozen)
+<Dec01-2015> <12:40:36>  RunType   : CREATE
+<Dec01-2015> <12:40:36>  Net Charge: 0 (Nuclei minus Electrons)
+<Dec01-2015> <12:40:36>  Symmetry  : ATOM
+ Coordinates
+   Atom         X           Y           Z   (Angstrom)
+   1.O         0.000000    0.000000    0.000000
+<Dec01-2015> <12:40:36>  >>>> CORORT
+<Dec01-2015> <12:40:36>  >>>> CLSMAT
+<Dec01-2015> <12:40:36>  >>>> ORTHON
+<Dec01-2015> <12:40:36>  >>>> GENPT
+<Dec01-2015> <12:40:36>  Block Length=  68
+<Dec01-2015> <12:40:36>  >>>> PTBAS
+<Dec01-2015> <12:40:36>  >>>> CYCLE
+<Dec01-2015> <12:40:36>    1
+<Dec01-2015> <12:40:36>    2  ErrMat   4.46943367  MaxEl -2.49054595
+<Dec01-2015> <12:40:36>    3  ErrMat   2.71341124  MaxEl  1.77352949
+<Dec01-2015> <12:40:36>    4  ErrMat   2.00819228  MaxEl  1.23046895
+<Dec01-2015> <12:40:36>    5  ErrMat   1.19632776  MaxEl  0.72642199
+<Dec01-2015> <12:40:36>    6  ErrMat   0.01104866  MaxEl  0.00645407
+<Dec01-2015> <12:40:36>    7  ErrMat   0.00011066  MaxEl -0.00004837
+<Dec01-2015> <12:40:36>    8  ErrMat   0.00001879  MaxEl  0.00000962
+<Dec01-2015> <12:40:36>    9  ErrMat   0.00000011  MaxEl -0.00000007
+<Dec01-2015> <12:40:36>   10  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <12:40:36>  SCF converged
+<Dec01-2015> <12:40:36>   11  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <12:40:36>   Solutions with partially occupied orbitals may not be
+<Dec01-2015> <12:40:36>   lowest in energy. You might consider lowering the
+<Dec01-2015> <12:40:36>   symmetry in the input and explicitly specifying integer
+<Dec01-2015> <12:40:36>   occupations. In that case always check that you obtain
+<Dec01-2015> <12:40:36>   an aufbau solution.
+<Dec01-2015> <12:40:36>  >>>> POPAN
+<Dec01-2015> <12:40:36>  >>>> DEBYE
+<Dec01-2015> <12:40:36>  NORMAL TERMINATION
+<Dec01-2015> <12:40:36>  END
+<Dec01-2015> <12:40:37>  ADF 2014  RunTime: Dec01-2015 12:40:37  Nodes: 1  Procs: 8
+<Dec01-2015> <12:40:37>  WATER
+<Dec01-2015> <12:40:37>  RunType   : GEOMETRY OPTIMIZATION
+<Dec01-2015> <12:40:48>  Net Charge: 0 (Nuclei minus Electrons)
+<Dec01-2015> <12:40:48>  Symmetry  : C(2V)
+<Dec01-2015> <12:40:49>  >>>> FRAGM
+ Coordinates in Geometry Cycle 1
+   Atom         X           Y           Z   (Angstrom)
+   1.O         0.000000    0.000000    0.000000
+   2.H         0.000000   -0.689440   -0.578509
+   3.H         0.000000    0.689440   -0.578509
+<Dec01-2015> <12:40:51>  >>>> CORORT
+<Dec01-2015> <12:40:51>  >>>> CLSMAT
+<Dec01-2015> <12:40:51>  >>>> ORTHON
+<Dec01-2015> <12:40:51>  >>>> GENPT
+<Dec01-2015> <12:40:58>  Block Length= 126
+<Dec01-2015> <12:40:58>  >>>> PTBAS
+<Dec01-2015> <12:40:58>  >>>> CYCLE
+<Dec01-2015> <12:40:58>    1
+<Dec01-2015> <12:40:58>    2  ErrMat   0.88290527  MaxEl -0.36652138
+<Dec01-2015> <12:40:58>    3  ErrMat   0.40509244  MaxEl -0.17290999
+<Dec01-2015> <12:40:58>    4  ErrMat   0.10372105  MaxEl  0.04346364
+<Dec01-2015> <12:40:58>    5  ErrMat   0.00405758  MaxEl  0.00180037
+<Dec01-2015> <12:40:58>    6  ErrMat   0.00059921  MaxEl  0.00019763
+<Dec01-2015> <12:40:58>    7  ErrMat   0.00005995  MaxEl  0.00002948
+<Dec01-2015> <12:40:58>    8  ErrMat   0.00000313  MaxEl  0.00000128
+<Dec01-2015> <12:40:58>    9  ErrMat   0.00000007  MaxEl -0.00000003
+<Dec01-2015> <12:40:58>  SCF converged
+<Dec01-2015> <12:40:58>   10  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <12:40:58>  >>>> TOTEN
+<Dec01-2015> <12:40:58>  >>>> POPAN
+<Dec01-2015> <12:40:58>  >>>> DEBYE
+<Dec01-2015> <12:40:58>  >>>> AMETS
+<Dec01-2015> <12:40:58>  >>>> ENGRAD
+<Dec01-2015> <12:40:58>  current energy                               -0.53043579 Hartree
+<Dec01-2015> <12:40:58>  energy change                      -0.53043579     0.00100000    F
+<Dec01-2015> <12:40:58>  constrained gradient max            0.19193695     0.00100000    F
+<Dec01-2015> <12:40:58>  constrained gradient rms            0.10631570     0.00066667    F
+<Dec01-2015> <12:40:58>  gradient max                        0.19193695
+<Dec01-2015> <12:40:58>  gradient rms                        0.10631570
+<Dec01-2015> <12:40:58>  cart. step max                      0.06974321     0.01000000    F
+<Dec01-2015> <12:40:58>  cart. step rms                      0.03519967     0.00666667    F
+ Coordinates in Geometry Cycle 2
+   Atom         X           Y           Z   (Angstrom)
+   1.O         0.000000    0.000000    0.003355
+   2.H         0.000000   -0.759163   -0.605129
+   3.H         0.000000    0.759163   -0.605129
+<Dec01-2015> <12:40:58>  >>>> CORORT
+<Dec01-2015> <12:40:58>  >>>> CLSMAT
+<Dec01-2015> <12:40:58>  >>>> ORTHON
+<Dec01-2015> <12:40:58>  >>>> GENPT
+<Dec01-2015> <12:41:06>  Block Length= 126
+<Dec01-2015> <12:41:06>  >>>> PTBAS
+<Dec01-2015> <12:41:06>  >>>> CYCLE
+<Dec01-2015> <12:41:06>    1
+<Dec01-2015> <12:41:06>    2  ErrMat   0.03586571  MaxEl  0.01483434
+<Dec01-2015> <12:41:06>    3  ErrMat   0.01921665  MaxEl  0.00680953
+<Dec01-2015> <12:41:06>    4  ErrMat   0.01188524  MaxEl  0.00445747
+<Dec01-2015> <12:41:07>    5  ErrMat   0.00161945  MaxEl  0.00077118
+<Dec01-2015> <12:41:07>    6  ErrMat   0.00001409  MaxEl  0.00000612
+<Dec01-2015> <12:41:07>    7  ErrMat   0.00000235  MaxEl -0.00000118
+<Dec01-2015> <12:41:07>    8  ErrMat   0.00000008  MaxEl  0.00000004
+<Dec01-2015> <12:41:07>  SCF converged
+<Dec01-2015> <12:41:07>    9  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <12:41:07>  >>>> TOTEN
+<Dec01-2015> <12:41:07>  >>>> POPAN
+<Dec01-2015> <12:41:07>  >>>> DEBYE
+<Dec01-2015> <12:41:07>  >>>> AMETS
+<Dec01-2015> <12:41:07>  >>>> ENGRAD
+<Dec01-2015> <12:41:07>  current energy                               -0.54332780 Hartree
+<Dec01-2015> <12:41:07>  energy change                      -0.01289200     0.00100000    F
+<Dec01-2015> <12:41:07>  constrained gradient max            0.00684104     0.00100000    F
+<Dec01-2015> <12:41:07>  constrained gradient rms            0.00334050     0.00066667    F
+<Dec01-2015> <12:41:07>  gradient max                        0.00684104
+<Dec01-2015> <12:41:07>  gradient rms                        0.00334050
+<Dec01-2015> <12:41:07>  cart. step max                      0.00680523     0.01000000    T
+<Dec01-2015> <12:41:07>  cart. step rms                      0.00403053     0.00666667    T
+ Coordinates in Geometry Cycle 3
+   Atom         X           Y           Z   (Angstrom)
+   1.O         0.000000    0.000000    0.002705
+   2.H         0.000000   -0.765968   -0.599973
+   3.H         0.000000    0.765968   -0.599973
+<Dec01-2015> <12:41:07>  >>>> CORORT
+<Dec01-2015> <12:41:07>  >>>> CLSMAT
+<Dec01-2015> <12:41:07>  >>>> ORTHON
+<Dec01-2015> <12:41:07>  >>>> GENPT
+<Dec01-2015> <12:41:08>  Block Length= 126
+<Dec01-2015> <12:41:08>  >>>> PTBAS
+<Dec01-2015> <12:41:08>  >>>> CYCLE
+<Dec01-2015> <12:41:08>    1
+<Dec01-2015> <12:41:08>    2  ErrMat   0.00095742  MaxEl  0.00044745
+<Dec01-2015> <12:41:08>    3  ErrMat   0.00070202  MaxEl  0.00034226
+<Dec01-2015> <12:41:08>    4  ErrMat   0.00037351  MaxEl -0.00016948
+<Dec01-2015> <12:41:08>    5  ErrMat   0.00005986  MaxEl -0.00001987
+<Dec01-2015> <12:41:08>    6  ErrMat   0.00000083  MaxEl -0.00000041
+<Dec01-2015> <12:41:08>  SCF converged
+<Dec01-2015> <12:41:08>    7  ErrMat   0.00000009  MaxEl  0.00000004
+<Dec01-2015> <12:41:08>  >>>> TOTEN
+<Dec01-2015> <12:41:08>  >>>> POPAN
+<Dec01-2015> <12:41:08>  >>>> DEBYE
+<Dec01-2015> <12:41:08>  >>>> AMETS
+<Dec01-2015> <12:41:08>  >>>> ENGRAD
+<Dec01-2015> <12:41:08>  current energy                               -0.54339386 Hartree
+<Dec01-2015> <12:41:08>  energy change                      -0.00006606     0.00100000    T
+<Dec01-2015> <12:41:08>  constrained gradient max            0.00260762     0.00100000    F
+<Dec01-2015> <12:41:08>  constrained gradient rms            0.00133109     0.00066667    F
+<Dec01-2015> <12:41:08>  gradient max                        0.00260762
+<Dec01-2015> <12:41:08>  gradient rms                        0.00133109
+<Dec01-2015> <12:41:08>  cart. step max                      0.00440654     0.01000000    T
+<Dec01-2015> <12:41:08>  cart. step rms                      0.00285539     0.00666667    T
+ Coordinates in Geometry Cycle 4
+   Atom         X           Y           Z   (Angstrom)
+   1.O         0.000000    0.000000    0.002150
+   2.H         0.000000   -0.770106   -0.595566
+   3.H         0.000000    0.770106   -0.595566
+<Dec01-2015> <12:41:08>  >>>> CORORT
+<Dec01-2015> <12:41:08>  >>>> CLSMAT
+<Dec01-2015> <12:41:08>  >>>> ORTHON
+<Dec01-2015> <12:41:08>  >>>> GENPT
+<Dec01-2015> <12:41:11>  Block Length= 126
+<Dec01-2015> <12:41:11>  >>>> PTBAS
+<Dec01-2015> <12:41:11>  >>>> CYCLE
+<Dec01-2015> <12:41:11>    1
+<Dec01-2015> <12:41:11>    2  ErrMat   0.00107082  MaxEl  0.00045248
+<Dec01-2015> <12:41:11>    3  ErrMat   0.00069774  MaxEl  0.00030588
+<Dec01-2015> <12:41:11>    4  ErrMat   0.00053938  MaxEl -0.00021102
+<Dec01-2015> <12:41:11>    5  ErrMat   0.00002612  MaxEl  0.00001267
+<Dec01-2015> <12:41:11>    6  ErrMat   0.00000095  MaxEl -0.00000049
+<Dec01-2015> <12:41:11>  SCF converged
+<Dec01-2015> <12:41:11>    7  ErrMat   0.00000011  MaxEl  0.00000006
+<Dec01-2015> <12:41:11>  >>>> TOTEN
+<Dec01-2015> <12:41:11>  >>>> POPAN
+<Dec01-2015> <12:41:11>  >>>> DEBYE
+<Dec01-2015> <12:41:11>  >>>> AMETS
+<Dec01-2015> <12:41:11>  >>>> ENGRAD
+<Dec01-2015> <12:41:12>  current energy                               -0.54340325 Hartree
+<Dec01-2015> <12:41:12>  energy change                      -0.00000940     0.00100000    T
+<Dec01-2015> <12:41:12>  constrained gradient max            0.00076131     0.00100000    T
+<Dec01-2015> <12:41:12>  constrained gradient rms            0.00038108     0.00066667    T
+<Dec01-2015> <12:41:12>  gradient max                        0.00076131
+<Dec01-2015> <12:41:12>  gradient rms                        0.00038108
+<Dec01-2015> <12:41:12>  cart. step max                      0.00034248     0.01000000    T
+<Dec01-2015> <12:41:12>  cart. step rms                      0.00017501     0.00666667    T
+<Dec01-2015> <12:41:12>  GEOMETRY CONVERGED
+<Dec01-2015> <12:41:12>  Calculating Energy Terms for Final Geometry
+ Coordinates in Geometry Cycle 4
+   Atom         X           Y           Z   (Angstrom)
+   1.O         0.000000    0.000000    0.002150
+   2.H         0.000000   -0.770106   -0.595566
+   3.H         0.000000    0.770106   -0.595566
+<Dec01-2015> <12:41:12>  >>>> CORORT
+<Dec01-2015> <12:41:12>  >>>> CLSMAT
+<Dec01-2015> <12:41:12>  >>>> ORTHON
+<Dec01-2015> <12:41:12>  >>>> GENPT
+<Dec01-2015> <12:41:12>  Block Length= 126
+<Dec01-2015> <12:41:12>  >>>> PTBAS
+<Dec01-2015> <12:41:12>  >>>> CYCLE
+<Dec01-2015> <12:41:13>    1
+<Dec01-2015> <12:41:13>    2  ErrMat   0.00000001  MaxEl  0.00000000
+<Dec01-2015> <12:41:13>  SCF converged
+<Dec01-2015> <12:41:13>    3  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <12:41:13>  >>>> TOTEN
+<Dec01-2015> <12:41:13>  >>>> POPAN
+<Dec01-2015> <12:41:13>  >>>> DEBYE
+<Dec01-2015> <12:41:13>  >>>> AMETS
+<Dec01-2015> <12:41:13>  >>>> POPUL
+<Dec01-2015> <12:41:13>   Bond Energy          -0.54340325 a.u.
+<Dec01-2015> <12:41:13>   Bond Energy         -14.78675492 eV
+<Dec01-2015> <12:41:13>   Bond Energy        -340.99       kcal/mol
+<Dec01-2015> <12:41:13>  >>>> ENHESS
+<Dec01-2015> <12:41:13>  === NUCLEUS:     1
+<Dec01-2015> <12:41:13>  === NUCLEUS:     2
+<Dec01-2015> <12:41:14>  >>>> CALC_HESS_PMAT
+<Dec01-2015> <12:41:14>  >>>> CALC_HESS_WMAT
+<Dec01-2015> <12:41:14>  NORMAL TERMINATION
+<Dec01-2015> <12:41:14>  END

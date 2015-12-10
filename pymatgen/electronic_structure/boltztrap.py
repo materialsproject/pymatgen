@@ -42,8 +42,10 @@ from monty.os.path import which
 from monty.dev import requires
 from monty.json import jsanitize
 from pymatgen.core.units import Energy, Length
-from pymatgen.core.physical_constants import e, ELECTRON_MASS
 import subprocess
+
+from scipy.constants import e, m_e
+
 
 try:
     import matplotlib.pyplot as plt
@@ -968,19 +970,19 @@ class BoltztrapAnalyzer(object):
                                                            self.doping[doping][
                                                                i] * 10 ** 6 *
                                                            e ** 2 /
-                                                           ELECTRON_MASS)
+                                                           m_e)
                     elif output == 'eig':
                         result_doping[doping][temp].append(
                             sorted(np.linalg.eigh(np.linalg.inv(
                                 np.array(self._cond_doping[doping][temp][i])) *
                                                   self.doping[doping][
                                                       i] * 10 ** 6 * e ** 2 \
-                                                  / ELECTRON_MASS)[0]))
+                                                  / m_e)[0]))
                     else:
                         full_tensor = np.linalg.inv(
                             np.array(self._cond_doping[doping][temp][i])) \
                                       * self.doping[doping][
-                                          i] * 10 ** 6 * e ** 2 / ELECTRON_MASS
+                                          i] * 10 ** 6 * e ** 2 / m_e
                         result_doping[doping][temp].append((full_tensor[0][0] \
                                                             + full_tensor[1][
                                                                 1] \
