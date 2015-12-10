@@ -780,7 +780,7 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
     plt = get_publication_quality_plot(12, 8)
 
     #log10 of the arrhenius fit
-    arr = c * np.exp(-Ea / (phyc.k_b / phyc.e *
+    arr = c * np.exp(-Ea / (const.k / const.e *
                                                np.array(temps)))
 
     t_1 = 1000 / np.array(temps)
