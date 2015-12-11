@@ -257,17 +257,17 @@ class EwaldSummation(object):
         recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
                                                  self._gmax)
 
-        frac_to_cart = rcp_latt.get_cartesian_coords
+        frac_coords = [fcoords for (fcoords, dist, i) in recip_nn if dist != 0]
+
+        gvects = rcp_latt.get_cartesian_coords(frac_coords)
 
         oxistates = np.array(self._oxi_states)
         #create array where q_2[i,j] is qi * qj
         qiqj = oxistates[None, :] * oxistates[:, None]
 
-        for (fcoords, dist, i) in recip_nn:
-            if dist == 0:
-                continue
-            gvect = frac_to_cart(fcoords)
-            gsquare = np.linalg.norm(gvect) ** 2
+        for gvect in gvects:
+
+            gsquare = np.sum(gvect * gvect, 0)
 
             expval = exp(-1.0 * gsquare / (4.0 * self._eta))
 
@@ -305,16 +305,18 @@ class EwaldSummation(object):
         coords = self._coords
         numsites = self._s.num_sites
         ereal = np.zeros((numsites, numsites), dtype=np.float)
-        epoint = np.zeros(numsites, dtype=np.float)
+
         forces = np.zeros((numsites, 3), dtype=np.float)
+
+        qs = np.array(self._oxi_states)
+
+        epoint = qs ** 2 * -1.0 * sqrt(self._eta / pi) + \
+                 qs * pi / (2.0 * self._vol * self._eta)  # jellum term
+
         for i in range(numsites):
-            nn = all_nn[i]  # self._s.get_neighbors(site, self._rmax)
+            nn = all_nn[i]
             num_neighbors = len(nn)
-            qi = self._oxi_states[i]
-            epoint[i] = qi * qi
-            epoint[i] *= -1.0 * sqrt(self._eta / pi)
-            # add jellium term
-            epoint[i] += qi * pi / (2.0 * self._vol * self._eta)
+            qi = qs[i]
 
             rij = np.zeros(num_neighbors, dtype=np.float)
             qj = np.zeros(num_neighbors, dtype=np.float)
@@ -323,7 +325,7 @@ class EwaldSummation(object):
 
             for k, (site, dist, j) in enumerate(nn):
                 rij[k] = dist
-                qj[k] = self._oxi_states[j]
+                qj[k] = qs[j]
                 js[k] = j
                 ncoords[k] = site.coords
 
