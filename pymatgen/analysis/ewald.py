@@ -259,39 +259,39 @@ class EwaldSummation(object):
 
         frac_coords = [fcoords for (fcoords, dist, i) in recip_nn if dist != 0]
 
-        gvects = rcp_latt.get_cartesian_coords(frac_coords)
+        gs = rcp_latt.get_cartesian_coords(frac_coords)
+        g2s = np.sum(gs ** 2, 1)
+        expvals = np.exp(-g2s / (4 * self._eta))
 
         oxistates = np.array(self._oxi_states)
         #create array where q_2[i,j] is qi * qj
         qiqj = oxistates[None, :] * oxistates[:, None]
 
-        for gvect in gvects:
+        for g, g2, expval in zip(gs, g2s, expvals):
 
-            gsquare = np.sum(gvect * gvect, 0)
-
-            expval = exp(-1.0 * gsquare / (4.0 * self._eta))
-
-            gvectdot = np.sum(gvect[None, :] * coords, 1)
+            gr = np.sum(g[None, :] * coords, 1)
 
             #calculate the structure factor
-            sreal = np.sum(oxistates * np.cos(gvectdot))
-            simag = np.sum(oxistates * np.sin(gvectdot))
+            sreal = np.sum(oxistates * np.cos(gr))
+            simag = np.sum(oxistates * np.sin(gr))
 
             #create array where exparg[i,j] is gvectdot[i] - gvectdot[j]
-            exparg = gvectdot[None, :] - gvectdot[:, None]
+            exparg = gr[None, :] - gr[:, None]
 
             #uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
             sfactor = qiqj * np.sin(exparg + pi / 4) * 2 ** 0.5
 
-            erecip += expval / gsquare * sfactor
-            pref = 2 * expval / gsquare * oxistates
-            factor = prefactor * pref * \
-                (sreal * np.sin(gvectdot)
-                 - simag * np.cos(gvectdot)) * EwaldSummation.CONV_FACT
+            erecip += expval / g2 * sfactor
+            pref = 2 * expval / g2 * oxistates
+            factor = prefactor * pref * (
+                sreal * np.sin(gr) - simag * np.cos(gr))
 
-            forces += factor[:, None] * gvect[None, :]
+            forces += factor[:, None] * g[None, :]
 
-        return erecip * prefactor * EwaldSummation.CONV_FACT, forces
+        forces *= EwaldSummation.CONV_FACT
+        erecip *= prefactor * EwaldSummation.CONV_FACT
+
+        return erecip, forces
 
     def _calc_real_and_point(self):
         """
