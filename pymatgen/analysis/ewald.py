@@ -262,18 +262,19 @@ class EwaldSummation(object):
         gs = rcp_latt.get_cartesian_coords(frac_coords)
         g2s = np.sum(gs ** 2, 1)
         expvals = np.exp(-g2s / (4 * self._eta))
+        grs = np.sum(gs[:, None] * coords[None, :], 2)
 
         oxistates = np.array(self._oxi_states)
+
         #create array where q_2[i,j] is qi * qj
         qiqj = oxistates[None, :] * oxistates[:, None]
 
-        for g, g2, expval in zip(gs, g2s, expvals):
+        #calculate the structure factor
+        sreals = np.sum(oxistates[None, :] * np.cos(grs), 1)
+        simags = np.sum(oxistates[None, :] * np.sin(grs), 1)
 
-            gr = np.sum(g[None, :] * coords, 1)
-
-            #calculate the structure factor
-            sreal = np.sum(oxistates * np.cos(gr))
-            simag = np.sum(oxistates * np.sin(gr))
+        for g, g2, gr, expval, sreal, simag in zip(gs, g2s, grs, expvals,
+                                                   sreals, simags):
 
             #create array where exparg[i,j] is gvectdot[i] - gvectdot[j]
             exparg = gr[None, :] - gr[:, None]
