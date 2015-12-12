@@ -15,7 +15,7 @@ _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 try:
     import matplotlib
     matplotlib.use("Agg") # Use non-graphical display backend during test.
-    have_matplotlib = True
+    have_matplotlib = "DISPLAY" in os.environ
 except ImportError:
     have_matplotlib = False
 
