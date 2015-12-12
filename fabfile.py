@@ -131,10 +131,11 @@ def update_changelog():
     lines = ["* " + l for l in output.strip().split("\n")]
     with open("CHANGES.rst") as f:
         contents = f.read()
-    toks = contents.split("==========")
-    toks.insert(-1, "\n\n" + "\n".join(lines))
+    l = "=========="
+    toks = contents.split(l)
+    toks.insert(-1, "\n\nvXXXX\n--------\n" + "\n".join(lines))
     with open("CHANGES.rst", "w") as f:
-        f.write("==========".join(toks))
+        f.write(toks[0] + l + "".join(toks[1:]))
 
 
 def log_ver():
