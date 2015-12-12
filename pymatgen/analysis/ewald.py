@@ -24,6 +24,7 @@ from copy import deepcopy, copy
 import bisect
 
 import numpy as np
+from scipy.special import erfc
 
 import scipy.constants as constants
 
@@ -73,6 +74,8 @@ class EwaldSummation(object):
                 energy, but may influence speed of computation in large
                 systems. Note that this parameter is used only when the
                 cutoffs are set to None.
+            compute_forces (bool): Whether to compute forces. False by
+                default since it is usually not needed.
         """
         self._s = structure
         self._vol = structure.volume
@@ -236,6 +239,9 @@ class EwaldSummation(object):
         The forces on each site as a Nx3 matrix. Each row corresponds to a
         site.
         """
+        if not self._compute_forces:
+            raise AttributeError(
+                    "Forces are available only if compute_forces is True!")
         return self._forces
 
     def _calc_recip(self):
@@ -277,10 +283,10 @@ class EwaldSummation(object):
         for g, g2, gr, expval, sreal, simag in zip(gs, g2s, grs, expvals,
                                                    sreals, simags):
 
-            #create array where exparg[i,j] is gvectdot[i] - gvectdot[j]
+            # Create array where exparg[i,j] is gvectdot[i] - gvectdot[j]
             exparg = gr[None, :] - gr[:, None]
 
-            #uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
+            # Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
             sfactor = qiqj * np.sin(exparg + pi / 4) * 2 ** 0.5
 
             erecip += expval / g2 * sfactor
@@ -324,21 +330,21 @@ class EwaldSummation(object):
 
             rij = np.zeros(num_neighbors, dtype=np.float)
             qj = np.zeros(num_neighbors, dtype=np.float)
-            js = np.zeros(num_neighbors, dtype=np.float)
+            js = np.zeros(num_neighbors, dtype=np.int)
             ncoords = np.zeros((num_neighbors, 3), dtype=np.float)
 
             for k, (site, dist, j) in enumerate(nn):
                 rij[k] = dist
                 qj[k] = qs[j]
-                js[k] = j
+                js[k] = int(j)
                 ncoords[k] = site.coords
 
-            erfcval = np.array([erfc(k) for k in self._sqrt_eta * rij])
+            erfcval = erfc(self._sqrt_eta * rij)
             new_ereals = erfcval * qi * qj / rij
 
             # insert new_ereals
             for k, new_e in enumerate(new_ereals):
-                ereal[int(js[k]), i] += new_e
+                ereal[js[k], i] += new_e
 
             if self._compute_forces:
                 fijpf = qj / rij ** 3 * (erfcval + forcepf * rij *
