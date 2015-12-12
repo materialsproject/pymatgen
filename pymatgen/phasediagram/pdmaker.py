@@ -8,8 +8,6 @@ from __future__ import division, unicode_literals
 This module provides classes to create phase diagrams.
 """
 
-from six.moves import filter
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "2.0"
@@ -20,17 +18,10 @@ __date__ = "Nov 25, 2012"
 
 import collections
 import numpy as np
+import itertools
 from monty.json import MSONable, MontyDecoder
 
-try:
-    # If scipy ConvexHull exists, use it because it is faster for large hulls.
-    # This requires scipy >= 0.12.0.
-    from scipy.spatial import ConvexHull
-    HULL_METHOD = "scipy"
-except ImportError:
-    # Fall back to pyhull if scipy >= 0.12.0 does not exist.
-    from pyhull.convex_hull import ConvexHull
-    HULL_METHOD = "pyhull"
+from scipy.spatial import ConvexHull
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.composition import Composition
@@ -41,7 +32,7 @@ from pymatgen.core.periodic_table import DummySpecie, Element
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 
 
-class PhaseDiagram (MSONable):
+class PhaseDiagram(MSONable):
     """
     Simple phase diagram class taking in elements and entries as inputs.
     The algorithm is based on the work in the following papers:
@@ -71,24 +62,27 @@ class PhaseDiagram (MSONable):
         Data used in the convex hull operation. This is essentially a matrix of
         composition data and energy per atom values created from qhull_entries.
 
+    .. attribute: qhull_entries:
+
+        Actual entries used in convex hull. Excludes all positive formation
+        energy entries.
+
     .. attribute: dim
 
         The dimensionality of the phase diagram.
 
     .. attribute: facets
 
-        Facets of the phase diagram in the form of  [[1,2,3],[4,5,6]...]
+        Facets of the phase diagram in the form of  [[1,2,3],[4,5,6]...].
+        For a ternary, it is the indices (references to qhull_entries and
+        qhull_data) for the vertices of the phase triangles. Similarly
+        extended to higher D simplices for higher dimensions.
 
     .. attribute: el_refs:
 
         List of elemental references for the phase diagrams. These are
         entries corresponding to the lowest energy element entries for simple
         compositional phase diagrams.
-
-    .. attribute: qhull_entries:
-
-        Actual entries used in convex hull. Excludes all positive formation
-        energy entries.
 
     .. attribute: simplices:
 
@@ -116,60 +110,47 @@ class PhaseDiagram (MSONable):
                 elements.update(entry.composition.elements)
         elements = list(elements)
         dim = len(elements)
+
+        entries = sorted(entries,
+                         key=lambda e: (e.composition.reduced_composition,
+                                        e.energy_per_atom))
+
         el_refs = {}
-        for el in elements:
-            el_entries = list(filter(lambda e: e.composition.is_element and
-                                               e.composition.elements[0] == el,
-                                     entries))
-            if len(el_entries) == 0:
-                raise PhaseDiagramError(
-                    "There are no entries associated with terminal {}."
-                    .format(el))
-            el_refs[el] = min(el_entries, key=lambda e: e.energy_per_atom)
+        min_entries = []
+        all_entries = []
+        for c, g in itertools.groupby(
+                entries, key=lambda e: e.composition.reduced_composition):
+            g = list(g)
+            if c.is_element:
+                el_refs[c.elements[0]] = g[0]
+            min_entries.append(g[0])
+            all_entries.extend(g)
+
+        if len(el_refs) != dim:
+            raise PhaseDiagramError(
+                "There are no entries associated with a terminal element!.")
 
         data = []
-        for entry in entries:
+        for entry in min_entries:
             comp = entry.composition
             row = [comp.get_atomic_fraction(el) for el in elements]
             row.append(entry.energy_per_atom)
             data.append(row)
         data = np.array(data)
-        self.all_entries_hulldata = data[:, 1:]
 
-        #use only entries with negative formation energy
+        # Use only entries with negative formation energy
         vec = [el_refs[el].energy_per_atom for el in elements] + [-1]
         form_e = -np.dot(data, vec)
+        inds = list(np.where(form_e < -self.formation_energy_tol)[0])
 
-        #make sure that if there are multiple entries at the same composition
-        #within 1e-4 eV/atom of each other, only use the lower energy one.
-        #This fixes the precision errors in the convex hull.
-        #This is significantly faster than grouping by composition and then
-        #taking the lowest energy of each group
-        ind = []
-        prev_c = []  # compositions within 1e-4 of current entry
-        prev_e = []  # energies of those compositions
-        for i in np.argsort([e.energy_per_atom for e in entries]):
-            if form_e[i] > -self.formation_energy_tol:
-                continue
-            epa = entries[i].energy_per_atom
-            #trim the front of the lists
-            while prev_e and epa > 1e-4 + prev_e[0]:
-                prev_c.pop(0)
-                prev_e.pop(0)
-            frac_comp = entries[i].composition.fractional_composition
-            if frac_comp not in prev_c:
-                ind.append(i)
-            prev_e.append(epa)
-            prev_c.append(frac_comp)
+        # Add the elemental references
+        inds.extend([min_entries.index(el) for el in el_refs.values()])
 
-        #add the elemental references
-        ind.extend([entries.index(el) for el in el_refs.values()])
+        qhull_entries = [min_entries[i] for i in inds]
+        qhull_data = data[inds][:, 1:]
 
-        qhull_entries = [entries[i] for i in ind]
-        qhull_data = data[ind][:, 1:]
-
-        #add an extra point to enforce full dimensionality
-        #this point will be present in all upper hull facets
+        # Add an extra point to enforce full dimensionality.
+        # This point will be present in all upper hull facets.
         extra_point = np.zeros(dim) + 1 / dim
         extra_point[-1] = np.max(qhull_data) + 1
         qhull_data = np.concatenate([qhull_data, [extra_point]], axis=0)
@@ -180,7 +161,7 @@ class PhaseDiagram (MSONable):
             facets = get_facets(qhull_data)
             finalfacets = []
             for facet in facets:
-                #skip facets that include the extra point
+                # Skip facets that include the extra point
                 if max(facet) == len(qhull_data)-1:
                     continue
                 m = qhull_data[facet]
@@ -190,12 +171,22 @@ class PhaseDiagram (MSONable):
             self.facets = finalfacets
 
         self.simplices = [qhull_data[f, :-1] for f in self.facets]
-        self.all_entries = entries
+        self.all_entries = all_entries
         self.qhull_data = qhull_data
         self.dim = dim
         self.el_refs = el_refs
         self.elements = elements
         self.qhull_entries = qhull_entries
+
+    @property
+    def all_entries_hulldata(self):
+        data = []
+        for entry in self.all_entries:
+            comp = entry.composition
+            row = [comp.get_atomic_fraction(el) for el in self.elements]
+            row.append(entry.energy_per_atom)
+            data.append(row)
+        return np.array(data)[:, 1:]
 
     @property
     def unstable_entries(self):
@@ -401,7 +392,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         else:
             fractional_comp = terminal_compositions
 
-        #Map terminal compositions to unique dummy species.
+        # Map terminal compositions to unique dummy species.
         sp_mapping = collections.OrderedDict()
         for i, comp in enumerate(fractional_comp):
             sp_mapping[comp] = DummySpecie("X" + chr(102 + i))
@@ -410,8 +401,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
             try:
                 rxn = Reaction(fractional_comp, [entry.composition])
                 rxn.normalize_to(entry.composition)
-                #We only allow reactions that have positive amounts of
-                #reactants.
+                # We only allow reactions that have positive amounts of
+                # reactants.
                 if all([rxn.get_coeff(comp) <= CompoundPhaseDiagram.amount_tol
                         for comp in fractional_comp]):
                     newcomp = {sp_mapping[comp]: -rxn.get_coeff(comp)
@@ -422,8 +413,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
                         TransformedPDEntry(Composition(newcomp), entry)
                     new_entries.append(transformed_entry)
             except ReactionError:
-                #If the reaction can't be balanced, the entry does not fall
-                #into the phase space. We ignore them.
+                # If the reaction can't be balanced, the entry does not fall
+                # into the phase space. We ignore them.
                 pass
         return new_entries, sp_mapping
 
@@ -469,10 +460,7 @@ def get_facets(qhull_data, joggle=False, force_use_pyhull=False):
     Returns:
         List of simplices of the Convex Hull.
     """
-    if HULL_METHOD == "scipy" and (not force_use_pyhull):
-        if joggle:
-            return ConvexHull(qhull_data, qhull_options="QJ i").simplices
-        else:
-            return ConvexHull(qhull_data, qhull_options="Qt i").simplices
+    if joggle:
+        return ConvexHull(qhull_data, qhull_options="QJ i").simplices
     else:
-        return ConvexHull(qhull_data, joggle=joggle).vertices
+        return ConvexHull(qhull_data, qhull_options="Qt i").simplices

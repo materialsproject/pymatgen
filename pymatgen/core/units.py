@@ -29,18 +29,20 @@ import collections
 from numbers import Number
 import numbers
 from functools import partial
-from pymatgen.core.physical_constants import N_a, e
+
 import re
+
+import scipy.constants as const
 
 """
 Some conversion factors
 """
-Ha_to_eV = 27.21138386
+Ha_to_eV = 1/const.physical_constants["electron volt-hartree relationship"][0]
 eV_to_Ha = 1 / Ha_to_eV
 Ry_to_eV = Ha_to_eV / 2
-amu_to_kg = 1.660538921e-27
-mile_to_meters = 1609.347219
-bohr_to_angstrom = 0.5291772083
+amu_to_kg = const.physical_constants["atomic mass unit-kilogram relationship"][0]
+mile_to_meters = const.mile
+bohr_to_angstrom = const.physical_constants["Bohr radius"][0] * 1e10
 bohr_to_ang = bohr_to_angstrom
 
 """
@@ -76,7 +78,7 @@ BASE_UNITS = {
     },
     "amount": {
         "mol": 1,
-        "atom": 1 / N_a
+        "atom": 1 / const.N_A
     },
     "intensity": {
         "cd": 1
@@ -98,16 +100,16 @@ BASE_UNITS["memory"].update({k.lower(): v for k, v in BASE_UNITS["memory"].items
 #SI base units and constants.
 DERIVED_UNITS = {
     "energy": {
-        "eV": {"kg": 1, "m": 2, "s": -2, e: 1},
-        "meV": {"kg": 1, "m": 2, "s": -2, e * 1e-3: 1},
-        "Ha": {"kg": 1, "m": 2, "s": -2, e * Ha_to_eV: 1},
-        "Ry": {"kg": 1, "m": 2, "s": -2, e * Ry_to_eV: 1},
+        "eV": {"kg": 1, "m": 2, "s": -2, const.e: 1},
+        "meV": {"kg": 1, "m": 2, "s": -2, const.e * 1e-3: 1},
+        "Ha": {"kg": 1, "m": 2, "s": -2, const.e * Ha_to_eV: 1},
+        "Ry": {"kg": 1, "m": 2, "s": -2, const.e * Ry_to_eV: 1},
         "J": {"kg": 1, "m": 2, "s": -2},
         "kJ": {"kg": 1, "m": 2, "s": -2, 1000: 1}
     },
     "charge": {
         "C": {"A": 1, "s": 1},
-        "e": {"A": 1, "s": 1, e: 1},
+        "e": {"A": 1, "s": 1, const.e: 1},
     },
     "force": {
         "N": {"kg": 1, "m": 1, "s": -2},
