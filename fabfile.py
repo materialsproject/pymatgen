@@ -127,7 +127,7 @@ def release_github():
 
 def update_changelog():
     output = subprocess.check_output(["git", "log", "--pretty=format:%s",
-        "v%s..HEAD" % ver])
+                                      "v%s..HEAD" % ver])
     lines = ["* " + l for l in output.strip().split("\n")]
     with open("CHANGES.rst") as f:
         contents = f.read()
