@@ -1,10 +1,11 @@
 Change log
 ==========
 
-v3.2.8
+v3.2.9
 ------
-* Make pyhull optional.
-* Sulfur correction added to MaterialsProjectCompatibility for more accurate
-  sulfide formation energies.
-* ADF io support. (Xin Chen)
-* Bug fixes for spacegroup subgroup testing.
+* Major PD stability improvements, especially for very high dim hulls with lots
+  of entries.
+* Improvements to Ewald summation to be close to GULP implementation.
+* Deprecate physical constants module in favor of scipy's version.
+* Remove many pyhull references to use scipy's ConvexHull implementation.
+* Bug fix for sulfide correction.
