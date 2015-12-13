@@ -328,7 +328,7 @@ class EwaldSummation(object):
             qi = qs[i]
 
             d = np.array([(dist, j) for site, dist, j in nn])
-            js = np.array(d[:, 1], dtype=np.int)
+            js = d[:, 1].astype(np.int)
             qj = qs[js]
             rij = d[:, 0]
 
