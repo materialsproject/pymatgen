@@ -325,19 +325,12 @@ class EwaldSummation(object):
 
         for i in range(numsites):
             nn = all_nn[i]
-            num_neighbors = len(nn)
             qi = qs[i]
 
-            rij = np.zeros(num_neighbors, dtype=np.float)
-            qj = np.zeros(num_neighbors, dtype=np.float)
-            js = np.zeros(num_neighbors, dtype=np.int)
-            ncoords = np.zeros((num_neighbors, 3), dtype=np.float)
-
-            for k, (site, dist, j) in enumerate(nn):
-                rij[k] = dist
-                qj[k] = qs[j]
-                js[k] = int(j)
-                ncoords[k] = site.coords
+            d = np.array([(dist, j) for site, dist, j in nn])
+            js = np.array(d[:, 1], dtype=np.int)
+            qj = qs[js]
+            rij = d[:, 0]
 
             erfcval = erfc(self._sqrt_eta * rij)
             new_ereals = erfcval * qi * qj / rij
@@ -347,6 +340,8 @@ class EwaldSummation(object):
                 ereal[js[k], i] += new_e
 
             if self._compute_forces:
+                ncoords = [site.coords for site, dist, j in nn]
+
                 fijpf = qj / rij ** 3 * (erfcval + forcepf * rij *
                                          np.exp(-self._eta * rij ** 2))
                 forces[i] += np.sum(np.expand_dims(fijpf, 1) *
