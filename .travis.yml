@@ -1,7 +1,7 @@
 language: python
 python:
   - "2.7"
-  - "3.4"
+  - "3.5"
 git:
   depth: 1
 env:
@@ -21,6 +21,7 @@ addons:
     - python-pip
 install:
   - travis_wait pip install -q -r requirements.txt
+  - travis_wait pip install -q -r requirements-optional.txt
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
 # extensions.
 before_script:

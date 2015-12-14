@@ -20,4 +20,4 @@ from pymatgen.io.vasp import *
 
 import warnings
 warnings.warn("pymatgen.io.vaspio has been moved pymatgen.io.vasp. "
-              "This stub will be removed in pymatgen 4.0.")
+              "This stub will be removed in pymatgen 4.0.", DeprecationWarning)

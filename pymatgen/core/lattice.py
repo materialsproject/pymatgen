@@ -25,8 +25,7 @@ from six.moves import map, zip
 import numpy as np
 from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
-
-from pyhull.voronoi import VoronoiTess
+from scipy.spatial import Voronoi
 
 from monty.json import MSONable
 from pymatgen.util.num_utils import abs_cap
@@ -104,16 +103,6 @@ class Lattice(MSONable):
 
         else:
             raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
-
-    #def to_abivars(self, **kwargs):
-    #    # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
-    #    geomode = kwargs.pop("geomode", "rprim")
-    #    if geomode == "rprim":
-    #        return dict(acell=3 * [1.0], rprim=rprim))
-    #    elif geomode == "angdeg":
-    #        return dict(acell=3 * [1.0], angdeg=angdeg))
-    #    else:
-    #        raise ValueError("Wrong value for geomode: %s" % geomode)
 
     def copy(self):
         """Deep copy of self."""
@@ -802,11 +791,11 @@ class Lattice(MSONable):
         list_k_points = []
         for i, j, k in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
             list_k_points.append(i * vec1 + j * vec2 + k * vec3)
-        tess = VoronoiTess(list_k_points)
+        tess = Voronoi(list_k_points)
         to_return = []
-        for r in tess.ridges:
+        for r in tess.ridge_dict:
             if r[0] == 13 or r[1] == 13:
-                to_return.append([tess.vertices[i] for i in tess.ridges[r]])
+                to_return.append([tess.vertices[i] for i in tess.ridge_dict[r]])
 
         return to_return
 

@@ -164,6 +164,36 @@ class PotcarCorrection(Correction):
 @cached_class
 class GasCorrection(Correction):
     """
+    Correct anion energies to obtain the right formation energies. Note that
+    this depends on calculations being run within the same input set.
+
+    Args:
+        config_file: Path to the selected compatibility.yaml config file.
+        correct_peroxide: Specify whether peroxide/superoxide/ozonide
+            corrections are to be applied or not.
+    """
+    def __init__(self, config_file):
+        c = loadfn(config_file)
+        self.name = c['Name']
+        self.cpd_energies = c['Advanced']['CompoundEnergies']
+
+    def get_correction(self, entry):
+        comp = entry.composition
+
+        rform = entry.composition.reduced_formula
+        if rform in self.cpd_energies:
+            return self.cpd_energies[rform] * comp.num_atoms \
+                - entry.uncorrected_energy
+
+        return 0
+
+    def __str__(self):
+        return "{} Gas Correction".format(self.name)
+
+
+@cached_class
+class AnionCorrection(Correction):
+    """
     Correct gas energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
 
@@ -174,8 +204,9 @@ class GasCorrection(Correction):
     """
     def __init__(self, config_file, correct_peroxide=True):
         c = loadfn(config_file)
-        self.cpd_energies = c['Advanced']['CompoundEnergies']
         self.oxide_correction = c['OxideCorrections']
+        self.sulfide_correction = c.get('SulfideCorrections', defaultdict(
+            float))
         self.name = c['Name']
         self.correct_peroxide = correct_peroxide
 
@@ -183,12 +214,12 @@ class GasCorrection(Correction):
         comp = entry.composition
 
         rform = entry.composition.reduced_formula
-        if rform in self.cpd_energies:
-            return self.cpd_energies[rform] * comp.num_atoms \
-                - entry.uncorrected_energy
+
+        if len(comp) >= 2 and sorted(comp.keys())[-1].symbol == "S":
+            return self.sulfide_correction["sulfide"] * comp["S"]
 
         correction = 0
-        #Check for oxide, peroxide, superoxide, and ozonide corrections.
+        # Check for oxide, peroxide, superoxide, and ozonide corrections.
         if self.correct_peroxide:
             if len(comp) >= 2 and Element("O") in comp:
                 if entry.data.get("oxide_type"):
@@ -227,7 +258,7 @@ class GasCorrection(Correction):
         return correction
 
     def __str__(self):
-        return "{} Gas Correction".format(self.name)
+        return "{} Anion Correction".format(self.name)
 
 
 @cached_class
@@ -495,7 +526,8 @@ class MaterialsProjectCompatibility(Compatibility):
         i_s = MPVaspInputSet()
         super(MaterialsProjectCompatibility, self).__init__(
             [PotcarCorrection(i_s, check_hash=check_potcar_hash),
-             GasCorrection(fp, correct_peroxide=correct_peroxide),
+             GasCorrection(fp),
+             AnionCorrection(fp, correct_peroxide=correct_peroxide),
              UCorrection(fp, i_s, compat_type)])
 
 
@@ -526,7 +558,8 @@ class MITCompatibility(Compatibility):
         i_s = MITVaspInputSet()
         super(MITCompatibility, self).__init__(
             [PotcarCorrection(i_s, check_hash=check_potcar_hash),
-             GasCorrection(fp, correct_peroxide=correct_peroxide),
+             GasCorrection(fp),
+             AnionCorrection(fp, correct_peroxide=correct_peroxide),
              UCorrection(fp, i_s, compat_type)])
 
 
@@ -557,7 +590,8 @@ class MITAqueousCompatibility(Compatibility):
         i_s = MITVaspInputSet()
         super(MITAqueousCompatibility, self).__init__(
             [PotcarCorrection(i_s, check_hash=check_potcar_hash),
-             GasCorrection(fp, correct_peroxide=correct_peroxide),
+             GasCorrection(fp),
+             AnionCorrection(fp, correct_peroxide=correct_peroxide),
              UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
 
 
@@ -589,5 +623,6 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         i_s = MPVaspInputSet()
         super(MaterialsProjectAqueousCompatibility, self).__init__(
             [PotcarCorrection(i_s, check_hash=check_potcar_hash),
-             GasCorrection(fp, correct_peroxide=correct_peroxide),
+             GasCorrection(fp),
+             AnionCorrection(fp, correct_peroxide=correct_peroxide),
              UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
