@@ -5,6 +5,8 @@ from pymatgen.core.structure import Structure
 class XSF(object):
     """
     Class for parsing XCrysden files.
+
+    TODO: Unittests. Write XCrysden output.
     """
 
     def __init__(self, structure):
