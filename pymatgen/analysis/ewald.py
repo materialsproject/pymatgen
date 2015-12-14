@@ -320,8 +320,8 @@ class EwaldSummation(object):
 
         qs = np.array(self._oxi_states)
 
-        epoint = qs ** 2 * -1.0 * sqrt(self._eta / pi) + \
-                 qs * pi / (2.0 * self._vol * self._eta)  # jellum term
+        epoint = - qs ** 2 * sqrt(self._eta / pi) + \
+            qs * pi / (2.0 * self._vol * self._eta)  # jellum term
 
         for i in range(numsites):
             nn = all_nn[i]
