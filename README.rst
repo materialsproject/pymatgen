@@ -30,13 +30,8 @@ Python 3.x support
 ==================
 
 With effect from version 3.0, pymatgen now supports both Python 2.7 as well
-as Python 3.x. All underlying core dependencies (numpy,
-pyhull and the spglib library) have been made Python 3 compatible,
-and a completely rewritten CIF parser module (courtesy of William Davidson
-Richards) has removed the dependency on PyCIFRW. We will support Python >= 3.3
-(ignoring v3.1 and v3.2). With the release of a new major version,
-we also took the opportunity to streamline and cleanup some of the code,
-which introduces a few backward incompatibilities.
+as Python 3.x. All developers must ensure that their code passes the
+unittests on both Py2.7 and 3.x.
 
 Why use pymatgen?
 =================

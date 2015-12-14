@@ -23,7 +23,7 @@ from pymatgen.util.coord_utils import get_linear_interpolated_value,\
     find_in_coord_list, find_in_coord_list_pbc,\
     barycentric_coords, pbc_shortest_vectors,\
     lattice_points_in_supercell, coord_list_mapping, all_distances,\
-    is_coord_subset_pbc, coord_list_mapping_pbc
+    is_coord_subset_pbc, coord_list_mapping_pbc, Simplex
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -222,6 +222,39 @@ class CoordUtilsTest(PymatgenTest):
         self.assertArrayAlmostEqual(dists, expected, 3)
 
         coord_utils.LOOP_THRESHOLD = prev_threshold
+
+
+class SimplexTest(PymatgenTest):
+
+    def setUp(self):
+        coords = []
+        coords.append([0, 0, 0])
+        coords.append([0, 1, 0])
+        coords.append([0, 0, 1])
+        coords.append([1, 0, 0])
+        self.simplex = Simplex(coords)
+
+    def test_in_simplex(self):
+        self.assertTrue(self.simplex.in_simplex([0.1, 0.1, 0.1]))
+        self.assertFalse(self.simplex.in_simplex([0.6, 0.6, 0.6]))
+        for i in range(10):
+            coord = np.random.random_sample(size=3) / 3
+            self.assertTrue(self.simplex.in_simplex(coord))
+
+    def test_2dtriangle(self):
+        s = Simplex([[0, 1], [1, 1], [1, 0]])
+        self.assertArrayAlmostEqual(s.bary_coords([0.5, 0.5]),
+                                    [0.5, 0, 0.5])
+        self.assertArrayAlmostEqual(s.bary_coords([0.5, 1]), [0.5, 0.5, 0])
+        self.assertArrayAlmostEqual(s.bary_coords([0.5, 0.75]), [0.5, 0.25, 0.25])
+        self.assertArrayAlmostEqual(s.bary_coords([0.75, 0.75]), [0.25, 0.5, 0.25])
+
+        s = Simplex([[1, 1], [1, 0]])
+        self.assertRaises(ValueError, s.bary_coords, [0.5, 0.5])
+
+    def test_volume(self):
+        # Should be value of a right tetrahedron.
+        self.assertAlmostEqual(self.simplex.volume, 1/6)
 
 
 if __name__ == "__main__":

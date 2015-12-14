@@ -40,8 +40,8 @@ class FloatWithUnitTest(PymatgenTest):
         self.assertRaises(UnitError, Energy, 1, "m")
 
         d = Energy(1, "Ha")
-        self.assertAlmostEqual(a + d, 28.31138386)
-        self.assertAlmostEqual(a - d, -26.11138386)
+        self.assertAlmostEqual(a + d, 28.311385050630882)
+        self.assertAlmostEqual(a - d, -26.11138505063088)
         self.assertEqual(a + 1, 2.1)
         self.assertEqual(str(a / d), "1.1 eV Ha^-1")
 
@@ -115,7 +115,7 @@ class FloatWithUnitTest(PymatgenTest):
         self.assertEqual(str(b.unit), "J^3")
         a = FloatWithUnit(1.0, "Ha bohr^-2")
         b = a.to("J m^-2")
-        self.assertAlmostEqual(b, 1556.89291457)
+        self.assertAlmostEqual(b, 1556.8929672799854)
         self.assertEqual(str(b.unit), "J m^-2")
 
 
@@ -142,8 +142,8 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         # self.assertRaises(ValueError, Energy, 1, "m")
 
         d = EnergyArray(1, "Ha")
-        self.assertAlmostEqual(float(a + d), 28.31138386)
-        self.assertAlmostEqual(float(a - d), -26.11138386)
+        self.assertAlmostEqual(float(a + d), 28.311385050630882)
+        self.assertAlmostEqual(float(a - d), -26.11138505063088)
         self.assertEqual(float(a + 1), 2.1)
 
     def test_time(self):
@@ -220,12 +220,11 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
 
     def test_factors(self):
         e = EnergyArray([27.21138386, 1], "eV").to("Ha")
-        self.assertTrue(str(e) == "[ 1.          0.03674933] Ha")
+        self.assertTrue(str(e) == "[ 0.99999996  0.03674932] Ha")
         l = LengthArray([1.0], "ang").to("bohr")
-        self.assertTrue(str(l) == "[ 1.88972613] bohr")
+        self.assertTrue(str(l) == "[ 1.88972612] bohr")
         v = ArrayWithUnit([1, 2, 3], "bohr^3").to("ang^3")
-        self.assertTrue(str(v) == '[ 0.14818471  0.29636942  0.44455413] '
-                                  'ang^3')
+        self.assertTrue(str(v) == '[ 0.14818471  0.29636942  0.44455413] ang^3')
 
 
 class DataPersistenceTest(PymatgenTest):
