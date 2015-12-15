@@ -519,51 +519,6 @@ class IStructure(SiteCollection, MSONable):
         return cls(latt, all_sp, all_coords,
                    site_properties=all_site_properties)
 
-    @classmethod
-    def from_xsf_string(cls, input_string):
-        """
-        Initialize a `Structure` object from a string with data in XSF format.
-        See http://www.xcrysden.org/doc/XSF.html
-        """
-        # CRYSTAL                                        see (1)
-        # these are primitive lattice vectors (in Angstroms)
-        # PRIMVEC
-        #    0.0000000    2.7100000    2.7100000         see (2)
-        #    2.7100000    0.0000000    2.7100000
-        #    2.7100000    2.7100000    0.0000000
-
-        # these are conventional lattice vectors (in Angstroms)
-        # CONVVEC
-        #    5.4200000    0.0000000    0.0000000         see (3)
-        #    0.0000000    5.4200000    0.0000000
-        #    0.0000000    0.0000000    5.4200000
-
-        # these are atomic coordinates in a primitive unit cell  (in Angstroms)
-        # PRIMCOORD
-        # 2 1                                            see (4)
-        # 16      0.0000000     0.0000000     0.0000000  see (5)
-        # 30      1.3550000    -1.3550000    -1.3550000
-
-        lattice, coords, species = [], [], []
-        lines = input_string.splitlines()
-
-        for i in range(len(lines)):
-            if "PRIMVEC" in lines[i]:
-                for j in range(i+1, i+4):
-                    lattice.append([float(c) for c in lines[j].split()])
-
-            if "PRIMCOORD" in lines[i]:
-                num_sites = int(lines[i+1].split()[0])
-
-                for j in range(i+2, i+2+num_sites):
-                    tokens = lines[j].split()
-                    species.append(int(tokens[0]))
-                    coords.append([float(j) for j in tokens[1:]])
-                break
-        else:
-            raise ValueError("Invalid XSF data")
-
-        return cls(lattice, species, coords, coords_are_cartesian=True)
 
     @classmethod
     def from_abivars(cls, *args, **kwargs):
@@ -1330,40 +1285,6 @@ class IStructure(SiteCollection, MSONable):
 
         return "\n".join(lines)
 
-    def dot(self, coords_a, coords_b, space="r", frac_coords=False):
-        """
-        Compute the scalar product of vector(s) either in real space or
-        reciprocal space.
-
-        Args:
-            coords (3x1 array): Array-like object with the coordinates.
-            space (str): "r" for real space, "g" for reciprocal space.
-            frac_coords (bool): Whether the vector corresponds to fractional or
-                cartesian coordinates.
-
-        Returns:
-            one-dimensional `numpy` array.
-        """
-        lattice = {"r": self.lattice,
-                   "g": self.reciprocal_lattice}[space.lower()]
-        return lattice.dot(coords_a, coords_b, frac_coords=frac_coords)
-
-    def norm(self, coords, space="r", frac_coords=True):
-        """
-        Compute the norm of vector(s) either in real space or reciprocal space.
-
-        Args:
-            coords (3x1 array): Array-like object with the coordinates.
-            space (str): "r" for real space, "g" for reciprocal space.
-            frac_coords (bool): Whether the vector corresponds to fractional or
-                cartesian coordinates.
-
-        Returns:
-            one-dimensional `numpy` array.
-        """
-        return np.sqrt(self.dot(coords, coords, space=space,
-                                frac_coords=frac_coords))
-
     def to(self, fmt=None, filename=None):
         """
         Outputs the structure to a file or string.
@@ -1438,6 +1359,7 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.cif import CifParser
         from pymatgen.io.vasp import Poscar
         from pymatgen.io.cssr import Cssr
+        from pymatgen.io.xcrysden import XSF
         fmt = fmt.lower()
         if fmt == "cif":
             parser = CifParser.from_string(input_string)
@@ -1454,7 +1376,7 @@ class IStructure(SiteCollection, MSONable):
             d = yaml.load(input_string)
             s = cls.from_dict(d)
         elif fmt == "xsf":
-            s = cls.from_xsf_string(input_string)
+            s = XSF.from_string(input_string).structure
         else:
             raise ValueError("Unrecognized format `%s`!" % fmt)
 
