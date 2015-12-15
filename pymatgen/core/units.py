@@ -493,6 +493,17 @@ class FloatWithUnit(float):
             unit=new_unit)
 
     @property
+    def as_base_units(self):
+        """
+        Returns this FloatWithUnit in base SI units, including derived units.
+
+        Returns:
+            A FloatWithUnit object in base SI units
+        """
+        return self.to(self.unit.as_base_units[0])
+
+
+    @property
     def supported_units(self):
         """
         Supported units for specific unit type.
@@ -663,6 +674,16 @@ class ArrayWithUnit(np.ndarray):
         return self.__class__(
             np.array(self) * self.unit.get_conversion_factor(new_unit),
             unit_type=self.unit_type, unit=new_unit)
+
+    @property
+    def as_base_units(self):
+        """
+        Returns this ArrayWithUnit in base SI units, including derived units.
+
+        Returns:
+            An ArrayWithUnit object in base SI units
+        """
+        return self.to(self.unit.as_base_units[0])
 
     #TODO abstract base class property?
     @property
