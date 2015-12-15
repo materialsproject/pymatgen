@@ -101,6 +101,21 @@ class FloatWithUnitTest(PymatgenTest):
         self.assertEqual(str(h()[1]), "20.0 pm")
         self.assertIsInstance(h(), collections.OrderedDict)
 
+        @unitized("kg")
+        def i():
+            return FloatWithUnit(5, "g")
+
+        self.assertEqual(i(), FloatWithUnit(0.005, "kg"))
+
+        @unitized("kg")
+        def j():
+            return ArrayWithUnit([5, 10], "g")
+
+        j_out = j()
+        self.assertEqual(j_out.unit, Unit("kg"))
+        self.assertEqual(j_out[0], 0.005)
+        self.assertEqual(j_out[1], 0.01)
+
     def test_compound_operations(self):
         g = 10 * Length(1, "m") / (Time(1, "s") ** 2)
         e = Mass(1, "kg") * g * Length(1, "m")
@@ -117,6 +132,10 @@ class FloatWithUnitTest(PymatgenTest):
         b = a.to("J m^-2")
         self.assertAlmostEqual(b, 1556.8929672799854)
         self.assertEqual(str(b.unit), "J m^-2")
+
+    def test_as_base_units(self):
+        x = FloatWithUnit(5, "MPa")
+        self.assert_equal(FloatWithUnit(5000000, "Pa"), x.as_base_units)
 
 
 class ArrayWithFloatWithUnitTest(PymatgenTest):
@@ -225,6 +244,10 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         self.assertTrue(str(l) == "[ 1.88972612] bohr")
         v = ArrayWithUnit([1, 2, 3], "bohr^3").to("ang^3")
         self.assertTrue(str(v) == '[ 0.14818471  0.29636942  0.44455413] ang^3')
+
+    def test_as_base_units(self):
+        x = ArrayWithUnit([5, 10], "MPa")
+        self.assert_equal(ArrayWithUnit([5000000, 10000000], "Pa"), x.as_base_units)
 
 
 class DataPersistenceTest(PymatgenTest):
