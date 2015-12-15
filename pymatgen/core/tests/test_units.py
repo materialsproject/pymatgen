@@ -101,6 +101,21 @@ class FloatWithUnitTest(PymatgenTest):
         self.assertEqual(str(h()[1]), "20.0 pm")
         self.assertIsInstance(h(), collections.OrderedDict)
 
+        @unitized("kg")
+        def i():
+            return FloatWithUnit(5, "g")
+
+        self.assertEqual(i(), FloatWithUnit(0.005, "kg"))
+
+        @unitized("kg")
+        def j():
+            return ArrayWithUnit([5, 10], "g")
+
+        j_out = j()
+        self.assertEqual(j_out.unit, Unit("kg"))
+        self.assertEqual(j_out[0], 0.005)
+        self.assertEqual(j_out[1], 0.01)
+
     def test_compound_operations(self):
         g = 10 * Length(1, "m") / (Time(1, "s") ** 2)
         e = Mass(1, "kg") * g * Length(1, "m")
