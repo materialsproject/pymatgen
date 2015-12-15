@@ -1,6 +1,12 @@
 Change log
 ==========
 
+v3.2.10
+-------
+* Fix missing scripts
+* Improvements to units module.
+* Speed up EwaldSummation.
+
 v3.2.9
 ------
 * Major PD stability improvements, especially for very high dim hulls with lots

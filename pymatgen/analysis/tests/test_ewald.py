@@ -23,7 +23,7 @@ class EwaldSummationTest(unittest.TestCase):
         s = original_s.copy()
         s.add_oxidation_state_by_element({"Li": 1, "Fe": 2,
                                           "P": 5, "O": -2})
-        ham = EwaldSummation(s)
+        ham = EwaldSummation(s, compute_forces=True)
         self.assertAlmostEqual(ham.real_space_energy, -502.23549897772602, 4)
         self.assertAlmostEqual(ham.reciprocal_space_energy,  6.1541071599534654, 4)
         self.assertAlmostEqual(ham.point_energy, -621.89884253387197, 4)

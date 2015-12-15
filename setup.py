@@ -51,7 +51,7 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="3.2.9",
+    version="3.2.10",
     install_requires=["numpy>=1.9", "six", "atomicfile", "requests",
                       "pybtex", "pyyaml", "monty>=0.7.0", "scipy>=0.14",
                       "tabulate"],
@@ -93,6 +93,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",

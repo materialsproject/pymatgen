@@ -198,6 +198,14 @@ pymatgen.io.vaspio_set module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.io.xcrysden module
+---------------------------
+
+.. automodule:: pymatgen.io.xcrysden
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.io.xyz module
 ----------------------
 
