@@ -1,7 +1,7 @@
 PyDispatcher==2.0.5
-numpy==1.9.2
+numpy==1.10.2
 pybtex==0.19
-requests==2.8.1
+requests==2.9.0
 monty==0.7.2
 pyyaml==3.11
 six==1.10.0

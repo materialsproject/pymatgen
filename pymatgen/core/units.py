@@ -493,6 +493,17 @@ class FloatWithUnit(float):
             unit=new_unit)
 
     @property
+    def as_base_units(self):
+        """
+        Returns this FloatWithUnit in base SI units, including derived units.
+
+        Returns:
+            A FloatWithUnit object in base SI units
+        """
+        return self.to(self.unit.as_base_units[0])
+
+
+    @property
     def supported_units(self):
         """
         Supported units for specific unit type.
@@ -664,6 +675,16 @@ class ArrayWithUnit(np.ndarray):
             np.array(self) * self.unit.get_conversion_factor(new_unit),
             unit_type=self.unit_type, unit=new_unit)
 
+    @property
+    def as_base_units(self):
+        """
+        Returns this ArrayWithUnit in base SI units, including derived units.
+
+        Returns:
+            An ArrayWithUnit object in base SI units
+        """
+        return self.to(self.unit.as_base_units[0])
+
     #TODO abstract base class property?
     @property
     def supported_units(self):
@@ -789,10 +810,12 @@ def obj_with_unit(obj, unit):
 
 def unitized(unit):
     """
-    Useful decorator to assign units to the output of a function. For
-    sequences, all values in the sequences are assigned the same unit. It
-    works with Python sequences only. The creation of numpy arrays loses all
-    unit information. For mapping types, the values are assigned units.
+    Useful decorator to assign units to the output of a function. You can also
+    use it to standardize the output units of a function that already returns
+    a FloatWithUnit or ArrayWithUnit. For sequences, all values in the sequences
+    are assigned the same unit. It works with Python sequences only. The creation
+    of numpy arrays loses all unit information. For mapping types, the values
+    are assigned units.
 
     Args:
         unit: Specific unit (eV, Ha, m, ang, etc.).
@@ -807,9 +830,12 @@ def unitized(unit):
     def wrap(f):
         def wrapped_f(*args, **kwargs):
             val = f(*args, **kwargs)
-            #print(val)
             unit_type = _UNAME2UTYPE[unit]
-            if isinstance(val, collections.Sequence):
+
+            if isinstance(val, FloatWithUnit) or isinstance(val, ArrayWithUnit):
+                return val.to(unit)
+
+            elif isinstance(val, collections.Sequence):
                 # TODO: why don't we return a ArrayWithUnit?
                 # This complicated way is to ensure the sequence type is
                 # preserved (list or tuple).
