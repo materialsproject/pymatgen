@@ -13,6 +13,7 @@ generating deformed structure sets for further calculations.
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.elasticity.tensors import SQTensor
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import warnings
 import numpy as np
 from six.moves import zip
@@ -140,9 +141,12 @@ class DeformedStructureSet(object):
         self.undeformed_structure = rlxd_str
         self.deformations = []
         self.def_structs = []
+        normal_deformations = [Deformation
         if symmetry:
-            raise NotImplementedError("Symmetry reduction of deformed "
-                                      "structure set not yet implemented")
+            all_defos = norm_deformations + shear_deformations
+            sga = SpacegroupAnalyzer(self.undeformed_structure, tol = 0.1)
+            symm_ops = sga.get_symmetry_operations()
+            new_defos = symm_reduce(symm_ops, all_defos)
         else:
             self.symmetry = None
             # Determine normal deformation gradients
@@ -159,6 +163,31 @@ class DeformedStructureSet(object):
                     defo = Deformation.from_index_amount(ind, amount)
                     self.deformations.append(defo)
                     self.def_structs.append(defo.apply_to_structure(rlxd_str))
+
+    def symm_reduce(self, symm_ops, deformation_list, tolerance = 1e-3):
+        """
+        Checks list of deformation gradient tensors for symmetrical
+        equivalents and returns a new list with reduntant ones removed
+
+        Args: 
+            symm_ops (list of SymmOps): list of SymmOps objects with which 
+                to check the list of deformation tensors for duplicates
+            deformation_list (list of Deformations): list of deformation
+                gradient objects to check for duplicates
+            tolerance (float): tolerance for assigning equal defo. gradients
+        """
+        # TODO: abstract into the symmetry package, probably useful elsewhere
+        unique_defos = []
+        for defo in deformation_list:
+            in_unique = False
+            for op in symm_ops:
+                if np.any([(np.abs(unique_defo - op.operate(defo)) < tol).all()
+                           for unique_defo in unique_defos]):
+                    in_unique = True
+                    break
+            if not in_unique:
+                unique_defos += [defo]
+        return unique_defos
 
     def __iter__(self):
         return iter(self.def_structs)
