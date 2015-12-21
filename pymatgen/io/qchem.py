@@ -1342,9 +1342,15 @@ class QcOutput(object):
         except UnicodeDecodeError:
             with zopen(filename, "rt", encoding="iso-8859-1") as f:
                 data = f.read()
-        chunks = re.split("\n\nRunning Job \d+ of \d+ \S+|[*]{61}\nJob 2 of 2 \n[*]{61}", data)
-        # noinspection PyTypeChecker
-        self.data = list(map(self._parse_job, chunks))
+        try:
+            chunks = re.split("\n\nRunning Job \d+ of \d+ \S+|[*]{61}\nJob 2 of 2 \n[*]{61}", data)
+            # noinspection PyTypeChecker
+            self.data = list(map(self._parse_job, chunks))
+        except UnicodeDecodeError:
+            data = data.decode("latin-1")
+            chunks = re.split("\n\nRunning Job \d+ of \d+ \S+|[*]{61}\nJob 2 of 2 \n[*]{61}", data)
+            # noinspection PyTypeChecker
+            self.data = list(map(self._parse_job, chunks))
 
     @property
     def final_energy(self):
