@@ -2231,6 +2231,11 @@ Sites (12)
         self.assertFalse(qcout.data[1]["has_error"])
         self.assertEqual(qcout.data[1]["frequencies"][0]["frequency"], -157.11)
 
+    def test_homo_lumo_nan_values(self):
+        filename = os.path.join(test_dir, "homo_lumo_nan_values.qcout")
+        qcout = QcOutput(filename)
+        self.assertTrue(qcout.data[0]["has_error"])
+
 
 if __name__ == "__main__":
     unittest.main()
