@@ -2236,6 +2236,10 @@ Sites (12)
         qcout = QcOutput(filename)
         self.assertTrue(qcout.data[0]["has_error"])
 
+    def test_ordinal_not_in_range(self):
+        filename = os.path.join(test_dir, "ordinal_not_in_range.qcout.gz")
+        qcout = QcOutput(filename)
+
 
 if __name__ == "__main__":
     unittest.main()
