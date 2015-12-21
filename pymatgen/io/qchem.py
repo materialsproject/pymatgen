@@ -1340,8 +1340,8 @@ class QcOutput(object):
             with zopen(filename, "rt") as f:
                 data = f.read()
         except UnicodeDecodeError:
-            with zopen(filename, "rt", encoding="iso-8859-1") as f:
-                data = f.read()
+            with zopen(filename, "rb") as f:
+                data = f.read().decode("latin-1")
         try:
             chunks = re.split("\n\nRunning Job \d+ of \d+ \S+|[*]{61}\nJob 2 of 2 \n[*]{61}", data)
             # noinspection PyTypeChecker
