@@ -187,5 +187,5 @@ class SQTensor(np.ndarray):
         (i.e. tol) set to zero
         """
         new_tensor = self.copy()
-        new_tensor[new_tensor < tol] = 0
+        new_tensor[abs(new_tensor) < tol] = 0
         return new_tensor
