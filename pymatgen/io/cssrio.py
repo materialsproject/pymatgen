@@ -19,5 +19,5 @@ __date__ = '8/1/15'
 
 import warnings
 warnings.warn("pymatgen.io.cssrio has been moved pymatgen.io.cssr. This stub "
-              "will be removed in pymatgen 4.0.")
+              "will be removed in pymatgen 4.0.", DeprecationWarning)
 from .cssr import *

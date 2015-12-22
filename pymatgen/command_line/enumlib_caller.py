@@ -26,7 +26,6 @@ derivative structures at a fixed concentration," Comp. Mat. Sci. 59
 101-107 (March 2012)
 """
 
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -120,20 +119,21 @@ class EnumlibAdaptor(object):
         self.symm_prec = symm_prec
         self.enum_precision_parameter = enum_precision_parameter
         self.check_ordered_symmetry = check_ordered_symmetry
+        self.structures = None
 
     def run(self):
         """
         Run the enumeration.
         """
-        #Create a temporary directory for working.
+        # Create a temporary directory for working.
         with ScratchDir(".") as d:
             logger.debug("Temp dir : {}".format(d))
             try:
-                #Generate input files
+                # Generate input files
                 self._gen_input_file()
-                #Perform the actual enumeration
+                # Perform the actual enumeration
                 num_structs = self._run_multienum()
-                #Read in the enumeration output as structures.
+                # Read in the enumeration output as structures.
                 if num_structs > 0:
                     self.structures = self._get_structures(num_structs)
                 else:
@@ -176,7 +176,7 @@ class EnumlibAdaptor(object):
         index_species = []
         index_amounts = []
 
-        #Stores the ordered sites, which are not enumerated.
+        # Stores the ordered sites, which are not enumerated.
         ordered_sites = []
         disordered_sites = []
         coord_str = []
@@ -187,8 +187,8 @@ class EnumlibAdaptor(object):
                 sp_label = []
                 species = {k: v for k, v in sites[0].species_and_occu.items()}
                 if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
-                    #Let us first make add a dummy element for every single
-                    #site whose total occupancies don't sum to 1.
+                    # Let us first make add a dummy element for every single
+                    # site whose total occupancies don't sum to 1.
                     species[DummySpecie("X")] = 1 - sum(species.values())
                 for sp in species.keys():
                     if sp not in index_species:
@@ -207,17 +207,17 @@ class EnumlibAdaptor(object):
                 disordered_sites.append(sites)
 
         def get_sg_info(ss):
-            finder = SpacegroupAnalyzer(Structure.from_sites(ss), self.symm_prec)
-            sgnum = finder.get_spacegroup_number()
-            return sgnum
+            finder = SpacegroupAnalyzer(Structure.from_sites(ss),
+                                        self.symm_prec)
+            return finder.get_spacegroup_number()
 
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
         min_sgnum = get_sg_info(curr_sites)
         logger.debug("Disorderd sites has sgnum %d" % (
             min_sgnum))
-        #It could be that some of the ordered sites has a lower symmetry than
-        #the disordered sites.  So we consider the lowest symmetry sites as
-        #disordered in our enumeration.
+        # It could be that some of the ordered sites has a lower symmetry than
+        # the disordered sites.  So we consider the lowest symmetry sites as
+        # disordered in our enumeration.
         self.ordered_sites = []
         to_add = []
 
@@ -270,9 +270,9 @@ class EnumlibAdaptor(object):
                                           self.max_cell_size).denominator
                                        for f in map(fractions.Fraction,
                                                     index_amounts)]))
-        #base = ndisordered #10 ** int(math.ceil(math.log10(ndisordered)))
-        #To get a reasonable number of structures, we fix concentrations to the
-        #range expected in the original structure.
+        # base = ndisordered #10 ** int(math.ceil(math.log10(ndisordered)))
+        # To get a reasonable number of structures, we fix concentrations to the
+        # range expected in the original structure.
         total_amounts = sum(index_amounts)
         for amt in index_amounts:
             conc = amt / total_amounts
@@ -330,9 +330,9 @@ class EnumlibAdaptor(object):
                 data = re.sub("(\d+)-(\d+)", r"\1 -\2", data)
                 poscar = Poscar.from_string(data, self.index_species)
                 sub_structure = poscar.structure
-                #Enumeration may have resulted in a super lattice. We need to
-                #find the mapping from the new lattice to the old lattice, and
-                #perform supercell construction if necessary.
+                # Enumeration may have resulted in a super lattice. We need to
+                # find the mapping from the new lattice to the old lattice, and
+                # perform supercell construction if necessary.
                 new_latt = sub_structure.lattice
 
                 sites = []

@@ -1,10 +1,9 @@
-PyDispatcher==2.0.3
-numpy==1.9.2
-pybtex==0.18
-requests==2.7.0
-monty==0.7.1
-pyhull==1.5.4
+PyDispatcher==2.0.5
+numpy==1.10.2
+pybtex==0.19
+requests==2.9.0
+monty==0.7.2
 pyyaml==3.11
-six==1.9.0
+six==1.10.0
 scipy==0.16.0
 tabulate==0.7.5

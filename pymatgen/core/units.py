@@ -29,18 +29,20 @@ import collections
 from numbers import Number
 import numbers
 from functools import partial
-from pymatgen.core.physical_constants import N_a, e
+
 import re
+
+import scipy.constants as const
 
 """
 Some conversion factors
 """
-Ha_to_eV = 27.21138386
+Ha_to_eV = 1/const.physical_constants["electron volt-hartree relationship"][0]
 eV_to_Ha = 1 / Ha_to_eV
 Ry_to_eV = Ha_to_eV / 2
-amu_to_kg = 1.660538921e-27
-mile_to_meters = 1609.347219
-bohr_to_angstrom = 0.5291772083
+amu_to_kg = const.physical_constants["atomic mass unit-kilogram relationship"][0]
+mile_to_meters = const.mile
+bohr_to_angstrom = const.physical_constants["Bohr radius"][0] * 1e10
 bohr_to_ang = bohr_to_angstrom
 
 """
@@ -76,7 +78,7 @@ BASE_UNITS = {
     },
     "amount": {
         "mol": 1,
-        "atom": 1 / N_a
+        "atom": 1 / const.N_A
     },
     "intensity": {
         "cd": 1
@@ -98,16 +100,16 @@ BASE_UNITS["memory"].update({k.lower(): v for k, v in BASE_UNITS["memory"].items
 #SI base units and constants.
 DERIVED_UNITS = {
     "energy": {
-        "eV": {"kg": 1, "m": 2, "s": -2, e: 1},
-        "meV": {"kg": 1, "m": 2, "s": -2, e * 1e-3: 1},
-        "Ha": {"kg": 1, "m": 2, "s": -2, e * Ha_to_eV: 1},
-        "Ry": {"kg": 1, "m": 2, "s": -2, e * Ry_to_eV: 1},
+        "eV": {"kg": 1, "m": 2, "s": -2, const.e: 1},
+        "meV": {"kg": 1, "m": 2, "s": -2, const.e * 1e-3: 1},
+        "Ha": {"kg": 1, "m": 2, "s": -2, const.e * Ha_to_eV: 1},
+        "Ry": {"kg": 1, "m": 2, "s": -2, const.e * Ry_to_eV: 1},
         "J": {"kg": 1, "m": 2, "s": -2},
         "kJ": {"kg": 1, "m": 2, "s": -2, 1000: 1}
     },
     "charge": {
         "C": {"A": 1, "s": 1},
-        "e": {"A": 1, "s": 1, e: 1},
+        "e": {"A": 1, "s": 1, const.e: 1},
     },
     "force": {
         "N": {"kg": 1, "m": 1, "s": -2},
@@ -491,6 +493,17 @@ class FloatWithUnit(float):
             unit=new_unit)
 
     @property
+    def as_base_units(self):
+        """
+        Returns this FloatWithUnit in base SI units, including derived units.
+
+        Returns:
+            A FloatWithUnit object in base SI units
+        """
+        return self.to(self.unit.as_base_units[0])
+
+
+    @property
     def supported_units(self):
         """
         Supported units for specific unit type.
@@ -662,6 +675,16 @@ class ArrayWithUnit(np.ndarray):
             np.array(self) * self.unit.get_conversion_factor(new_unit),
             unit_type=self.unit_type, unit=new_unit)
 
+    @property
+    def as_base_units(self):
+        """
+        Returns this ArrayWithUnit in base SI units, including derived units.
+
+        Returns:
+            An ArrayWithUnit object in base SI units
+        """
+        return self.to(self.unit.as_base_units[0])
+
     #TODO abstract base class property?
     @property
     def supported_units(self):
@@ -787,10 +810,12 @@ def obj_with_unit(obj, unit):
 
 def unitized(unit):
     """
-    Useful decorator to assign units to the output of a function. For
-    sequences, all values in the sequences are assigned the same unit. It
-    works with Python sequences only. The creation of numpy arrays loses all
-    unit information. For mapping types, the values are assigned units.
+    Useful decorator to assign units to the output of a function. You can also
+    use it to standardize the output units of a function that already returns
+    a FloatWithUnit or ArrayWithUnit. For sequences, all values in the sequences
+    are assigned the same unit. It works with Python sequences only. The creation
+    of numpy arrays loses all unit information. For mapping types, the values
+    are assigned units.
 
     Args:
         unit: Specific unit (eV, Ha, m, ang, etc.).
@@ -805,9 +830,12 @@ def unitized(unit):
     def wrap(f):
         def wrapped_f(*args, **kwargs):
             val = f(*args, **kwargs)
-            #print(val)
             unit_type = _UNAME2UTYPE[unit]
-            if isinstance(val, collections.Sequence):
+
+            if isinstance(val, FloatWithUnit) or isinstance(val, ArrayWithUnit):
+                return val.to(unit)
+
+            elif isinstance(val, collections.Sequence):
                 # TODO: why don't we return a ArrayWithUnit?
                 # This complicated way is to ensure the sequence type is
                 # preserved (list or tuple).

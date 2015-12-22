@@ -23,7 +23,7 @@ import itertools
 import collections
 
 from warnings import warn
-from pyhull.voronoi import VoronoiTess
+from scipy.spatial import Voronoi
 from pymatgen import PeriodicSite
 from pymatgen import Element, Specie, Composition
 from pymatgen.util.num_utils import abs_cap
@@ -38,13 +38,13 @@ class VoronoiCoordFinder(object):
         structure (Structure): Input structure
         target ([Element/Specie]): A list of target species to determine
             coordination for.
+        cutoff (float): Radius in Angstrom cutoff to look for coordinating
+            atoms. Defaults to 10.0.
     """
 
-    # Radius in Angstrom cutoff to look for coordinating atoms
-    default_cutoff = 10.0
-
-    def __init__(self, structure, target=None):
+    def __init__(self, structure, target=None, cutoff=10.0):
         self._structure = structure
+        self.cutoff = cutoff
         if target is None:
             self._target = structure.composition.elements
         else:
@@ -67,22 +67,23 @@ class VoronoiCoordFinder(object):
         localtarget = self._target
         center = self._structure[n]
         neighbors = self._structure.get_sites_in_sphere(
-            center.coords, VoronoiCoordFinder.default_cutoff)
+            center.coords, self.cutoff)
         neighbors = [i[0] for i in sorted(neighbors, key=lambda s: s[1])]
         qvoronoi_input = [s.coords for s in neighbors]
-        voro = VoronoiTess(qvoronoi_input)
+        voro = Voronoi(qvoronoi_input)
         all_vertices = voro.vertices
 
         results = {}
-        for nn, vind in voro.ridges.items():
+        for nn, vind in voro.ridge_dict.items():
             if 0 in nn:
-                if 0 in vind:
+                if -1 in vind:
                     raise RuntimeError("This structure is pathological,"
                                        " infinite vertex in the voronoi "
                                        "construction")
 
                 facets = [all_vertices[i] for i in vind]
-                results[neighbors[nn[1]]] = solid_angle(center.coords, facets)
+                results[neighbors[sorted(nn)[1]]] = solid_angle(
+                    center.coords, facets)
 
         maxangle = max(results.values())
 
@@ -237,12 +238,12 @@ class VoronoiConnectivity(object):
         cart_coords = np.array(self.s.cart_coords)
         #shape = [site, image, axis]
         all_sites = cart_coords[:, None, :] + self.cart_offsets[None, :, :]
-        vt = VoronoiTess(all_sites.reshape((-1, 3)))
+        vt = Voronoi(all_sites.reshape((-1, 3)))
         n_images = all_sites.shape[1]
         cs = (len(self.s), len(self.s), len(self.cart_offsets))
         connectivity = np.zeros(cs)
         vts = np.array(vt.vertices)
-        for (ki, kj), v in vt.ridges.items():
+        for (ki, kj), v in vt.ridge_dict.items():
             atomi = ki // n_images
             atomj = kj // n_images
 

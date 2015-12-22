@@ -517,7 +517,7 @@ a new calculated material can be determined::
    plotter.show()
 
 The query method
-~~~~~~~~~~~~~~~~
+----------------
 
 For the most flexibility, you can also use the query method of the MPRester.
 This method allows any kind of mongo query to be performed on the Materials

@@ -31,8 +31,10 @@ __date__ = "5/2/13"
 
 import numpy as np
 
+import scipy.constants as const
+
 from pymatgen.core import Structure, get_el_sp
-import pymatgen.core.physical_constants as phyc
+
 from monty.json import MSONable
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.coord_utils import pbc_diff
@@ -622,15 +624,15 @@ class DiffusionAnalyzer(MSONable):
             p.join()
             return analyzer
         else:
-            vaspruns = []
-            offset = 0
-            for p in filepaths:
-                v = Vasprun(p, ionic_step_offset=offset,
-                            ionic_step_skip=step_skip)
-                vaspruns.append(v)
-                # Recompute offset.
-                offset = (- (v.nionic_steps - offset)) % step_skip
-            return cls.from_vaspruns(vaspruns, min_obs=min_obs,
+            def vr(filepaths):
+                offset = 0
+                for p in filepaths:
+                    v = Vasprun(p, ionic_step_offset=offset,
+                                ionic_step_skip=step_skip)
+                    yield v
+                    # Recompute offset.
+                    offset = (-(v.nionic_steps - offset)) % step_skip
+            return cls.from_vaspruns(vr(filepaths), min_obs=min_obs,
                 smoothed=smoothed, specie=specie, initial_disp=initial_disp,
                 initial_structure=initial_structure, avg_nsteps=avg_nsteps)
 
@@ -685,8 +687,8 @@ def get_conversion_factor(structure, species, temperature):
     n = structure.composition[species]
 
     vol = structure.volume * 1e-24  # units cm^3
-    return 1000 * n / (vol * phyc.N_a) * z ** 2 * phyc.F ** 2\
-        / (phyc.R * temperature)
+    return 1000 * n / (vol * const.N_A) * z ** 2 * (const.N_A * const.e) ** 2\
+        / (const.R * temperature)
 
 
 def _get_vasprun(args):
@@ -699,7 +701,7 @@ def _get_vasprun(args):
 
 def fit_arrhenius(temps, diffusivities):
     """
-    Returns Ea and c from the Arrhenius fit:
+    Returns Ea, c, standard error of Ea from the Arrhenius fit:
         D = c * exp(-Ea/kT)
 
     Args:
@@ -711,8 +713,11 @@ def fit_arrhenius(temps, diffusivities):
     logd = np.log(diffusivities)
     #Do a least squares regression of log(D) vs 1/T
     a = np.array([t_1, np.ones(len(temps))]).T
-    w = np.array(np.linalg.lstsq(a, logd)[0])
-    return -w[0] * phyc.k_b / phyc.e, np.exp(w[1])
+    w, res, _, _ = np.linalg.lstsq(a, logd)
+    w = np.array(w)
+    n = len(temps)
+    std_Ea = (res[0] / (n - 2) / (n * np.var(t_1))) ** 0.5 * const.k / const.e
+    return -w[0] * const.k / const.e, np.exp(w[1]), std_Ea
 
 
 def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
@@ -728,8 +733,8 @@ def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
     Returns:
         (float) Diffusivity at extrapolated temp in mS/cm.
     """
-    Ea, c = fit_arrhenius(temps, diffusivities)
-    return c * np.exp(-Ea / (phyc.k_b / phyc.e * new_temp))
+    Ea, c, _ = fit_arrhenius(temps, diffusivities)
+    return c * np.exp(-Ea / (const.k / const.e * new_temp))
 
 
 def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
@@ -769,13 +774,13 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
     Returns:
         A matplotlib.pyplot object. Do plt.show() to show the plot.
     """
-    Ea, c = fit_arrhenius(temps, diffusivities)
+    Ea, c, _ = fit_arrhenius(temps, diffusivities)
 
     from pymatgen.util.plotting_utils import get_publication_quality_plot
     plt = get_publication_quality_plot(12, 8)
 
     #log10 of the arrhenius fit
-    arr = c * np.exp(-Ea / (phyc.k_b / phyc.e *
+    arr = c * np.exp(-Ea / (const.k / const.e *
                                                np.array(temps)))
 
     t_1 = 1000 / np.array(temps)
