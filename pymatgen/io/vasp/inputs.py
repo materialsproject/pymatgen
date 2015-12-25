@@ -1292,6 +1292,9 @@ class PotcarSingle(object):
                       "PW91": "POT_GGA_PAW_PW91",
                       "LDA_US": "POT_LDA_US",
                       "PW91_US": "POT_GGA_US_PW91"}
+    if not os.path.isdir(os.path.join(get_potcar_dir(),functional_dir["PBE"])):
+       functional_dir = {"PBE": "potpaw_PBE.52", "LDA": "potpaw_LDA.52",
+                         "PW91": "potpaw_GGA", "LDA_US": "pot"}
 
     functional_tags = {"pe": {"name": "PBE", "class": "GGA"},
                        "91": {"name": "PW91", "class": "GGA"},

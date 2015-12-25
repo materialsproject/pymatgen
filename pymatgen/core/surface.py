@@ -503,8 +503,8 @@ class SlabGenerator(object):
 
         h = self._proj_height
         nlayers_slab = int(math.ceil(self.min_slab_size / h))
-        nlayers_vac = int(math.ceil(self.min_vac_size / h))
-        nlayers = nlayers_slab + nlayers_vac
+        new_size =  nlayers_slab*h + self.min_vac_size
+        coord_scaling = new_size/h
 
         species = self.oriented_unit_cell.species_and_occu
         props = self.oriented_unit_cell.site_properties
@@ -514,12 +514,12 @@ class SlabGenerator(object):
                       np.array([0, 0, -shift])[None, :]
         frac_coords = frac_coords - np.floor(frac_coords)
         a, b, c = self.oriented_unit_cell.lattice.matrix
-        new_lattice = [a, b, nlayers * c]
-        frac_coords[:, 2] = frac_coords[:, 2] / nlayers
+        new_lattice = [a, b, coord_scaling * c]
+        frac_coords[:, 2] = frac_coords[:, 2] / coord_scaling
         all_coords = []
         for i in range(nlayers_slab):
             fcoords = frac_coords.copy()
-            fcoords[:, 2] += i / nlayers
+            fcoords[:, 2] += i / coord_scaling
             all_coords.extend(fcoords)
 
         slab = Structure(new_lattice, species * nlayers_slab, all_coords,
