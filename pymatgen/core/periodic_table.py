@@ -30,75 +30,12 @@ from monty.json import MSONable
 from functools import total_ordering
 
 
-#Loads element data from json file
+# Loads element data from json file
 with open(os.path.join(os.path.dirname(__file__), "periodic_table.json"), "rt"
           ) as f:
     _pt_data = json.load(f)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
-
-_MAXZ = 119
-
-# List with the correspondence Z --> Symbol
-# We use a list instead of a mapping so that we can select slices easily.
-_z2symbol = _MAXZ * [None]
-_symbol2z = {}
-for (symbol, data) in _pt_data.items():
-    z = data["Atomic no"]
-    _z2symbol[z] = symbol
-    _symbol2z[symbol] = z
-
-
-def all_symbols():
-    """tuple with element symbols ordered by Z."""
-    # Break when we get None as we don't want to have None in a list of strings.
-    symbols = []
-    for z in range(1, _MAXZ+1):
-        s = symbol_from_Z(z)
-        if s is None:
-            break
-        symbols.append(s)
-
-    return tuple(symbols)
-
-
-def symbol_from_Z(z):
-    """
-    Return the symbol of the element from the atomic number.
-
-    Args:
-        z (int): Atomic number or slice object
-
-    >>> assert symbol_from_Z(14) == "Si" 
-    """
-    return _z2symbol[z]
-
-
-def sort_symbols_by_Z(symbols):
-    """
-    Given a list of element symbols, sort the strings according to Z, 
-    Return sorted list.
-
-    >>> assert sort_symbols_by_Z(["Si", "H"]) == ["H", "Si"]
-    """
-    return list(sorted(symbols, key=lambda s: _symbol2z[s]))
-
-
-
-_CHARS2L = {
-    "s": 0,
-    "p": 1,
-    "d": 2,
-    "f": 3,
-    "g": 4,
-    "h": 5,
-    "i": 6,
-}
-
-
-def char2l(char):
-    """Concert a character (s, p, d ..) into the angular momentum l (int)."""
-    return _CHARS2L[char]
 
 
 ALL_ELEMENT_SYMBOLS = set(_pt_data.keys())
@@ -1145,23 +1082,28 @@ class PeriodicTable(object):
         for sym in _pt_data.keys():
             self._all_elements[sym] = Element(sym)
 
+    @property
+    def all_symbols(self):
+        """tuple with element symbols ordered by Z."""
+        return sorted(self._all_elements.keys(), key=lambda s: Element(s).Z)
+
     def __getattr__(self, name):
         return self._all_elements[name]
 
     def __iter__(self):
-        for sym in _z2symbol:
+        for sym in self.all_symbols:
             if sym is not None:
                 yield self._all_elements[sym]
 
     def __getitem__(self, Z_or_slice):
-        #print Z_or_slice, symbol_from_Z(Z_or_slice)
+        # print Z_or_slice, symbol_from_Z(Z_or_slice)
         try:
             if isinstance(Z_or_slice, slice):
-                return [self._all_elements[sym]
-                        for sym in symbol_from_Z(Z_or_slice)]
+                return [Element.from_Z(z) for z in list(range(
+                        len(self.all_symbols)))[Z_or_slice]]
             else:
-                return self._all_elements[symbol_from_Z(Z_or_slice)]
-        except:
+                return Element.from_Z(Z_or_slice)
+        except Exception as ex:
             raise IndexError("Z_or_slice: %s" % str(Z_or_slice))
 
     @property
