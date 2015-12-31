@@ -27,7 +27,7 @@ from pymatgen.util.coord_utils import pbc_diff
 from pymatgen.core.composition import Composition
 
 
-class Site(collections.Mapping, collections.Hashable, MSONable):
+class Site(collections.Hashable, MSONable):
     """
     A generalized *non-periodic* site. This is essentially a composition
     at a point in space, with some optional properties associated with it. A
@@ -212,9 +212,6 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
 
     def __len__(self):
         return len(self._species)
-
-    def __iter__(self):
-        return self._species.__iter__()
 
     def __repr__(self):
         return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(
