@@ -4,21 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This module provides classes used to define a non-periodic molecule and a
-periodic structure.
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
-
-
 import math
 import os
 import json
@@ -56,6 +41,20 @@ from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length, ArrayWithUnit
 from pymatgen.symmetry.groups import SpaceGroup
 from monty.io import zopen
+
+"""
+This module provides classes used to define a non-periodic molecule and a
+periodic structure.
+"""
+
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Production"
+__date__ = "Sep 23, 2011"
 
 
 class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
@@ -1259,32 +1258,6 @@ class IStructure(SiteCollection, MSONable):
 
         return d
 
-    def to_xsf_string(self):
-        """
-        Returns a string with the structure in XSF format
-        See http://www.xcrysden.org/doc/XSF.html
-        """
-        lines = []
-        app = lines.append
-
-        app("CRYSTAL")
-        app("# Primitive lattice vectors in Angstrom")
-        app("PRIMVEC")
-        cell = self.lattice_vectors(space="r")
-        for i in range(3):
-            app(' %.14f %.14f %.14f' % tuple(cell[i]))
-
-        cart_coords = self.cart_coords
-        app("# Cartesian coordinates in Angstrom.")
-        app("PRIMCOORD")
-        app(" %d 1" % len(cart_coords))
-
-        for a in range(len(cart_coords)):
-            sp = "%d" % self.atomic_numbers[a]
-            app(sp + ' %20.14f %20.14f %20.14f' % tuple(cart_coords[a]))
-
-        return "\n".join(lines)
-
     def to(self, fmt=None, filename=None):
         """
         Outputs the structure to a file or string.
@@ -1304,6 +1277,7 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.cif import CifWriter
         from pymatgen.io.vasp import Poscar
         from pymatgen.io.cssr import Cssr
+        from pymatgen.io.xcrysden import XSF
         filename = filename or ""
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename)
@@ -1326,11 +1300,11 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "xsf" or fnmatch(fname.lower(), "*.xsf*"):
             if filename:
                 with zopen(fname, "wt", encoding='utf8') as f:
-                    s = self.to_xsf_string()
+                    s = XSF(self).to_string()
                     f.write(s)
                     return s
             else:
-                return self.to_xsf_string()
+                return XSF(self).to_string()
         else:
             if filename:
                 with open(filename, "w") as f:
@@ -2289,8 +2263,6 @@ class Structure(IStructure, collections.MutableSequence):
 
         self._sites = [operate_site(s) for s in self._sites]
 
-
-
     def modify_lattice(self, new_lattice):
         """
         Modify the lattice of the structure.  Mainly used for changing the
@@ -2524,8 +2496,6 @@ class Structure(IStructure, collections.MutableSequence):
             sites.append(PeriodicSite(species, coords, self.lattice))
 
         self._sites = sites
-
-
 
 
 class Molecule(IMolecule, collections.MutableSequence):
