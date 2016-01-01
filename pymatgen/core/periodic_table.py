@@ -301,7 +301,7 @@ class Element(object):
         self.atomic_mass = Mass(self._data["Atomic mass"], "amu")
 
     def __getnewargs__(self):
-        #function used by pickle to recreate object
+        # function used by pickle to recreate object
         return self._symbol,
 
     def __getinitargs__(self):
@@ -407,9 +407,7 @@ class Element(object):
         return data
 
     def __eq__(self, other):
-        if not isinstance(other, Element):
-            return False
-        return self._z == other._z
+        return isinstance(other, Element) and self._z == other._z
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -709,9 +707,7 @@ class Specie(MSONable):
         Specie is equal to other only if element and oxidation states are
         exactly the same.
         """
-        if not isinstance(other, Specie):
-            return False
-        return self.symbol == other.symbol \
+        return isinstance(other, Specie) and self._symbol == other._symbol \
             and self._oxi_state == other._oxi_state \
             and self._properties == other._properties
 
