@@ -111,37 +111,34 @@ class PhaseDiagram(MSONable):
         elements = list(elements)
         dim = len(elements)
 
-        entries = sorted(entries,
-                         key=lambda e: (e.composition.reduced_composition,
-                                        e.energy_per_atom))
+        get_reduced_comp = lambda e: e.composition.reduced_composition
+
+        entries = sorted(entries, key=get_reduced_comp)
 
         el_refs = {}
         min_entries = []
         all_entries = []
-        for c, g in itertools.groupby(
-                entries, key=lambda e: e.composition.reduced_composition):
+        for c, g in itertools.groupby(entries, key=get_reduced_comp):
             g = list(g)
+            min_entry = min(g, key=lambda e: e.energy_per_atom)
             if c.is_element:
-                el_refs[c.elements[0]] = g[0]
-            min_entries.append(g[0])
+                el_refs[c.elements[0]] = min_entry
+            min_entries.append(min_entry)
             all_entries.extend(g)
 
         if len(el_refs) != dim:
             raise PhaseDiagramError(
                 "There are no entries associated with a terminal element!.")
 
-        data = []
-        for entry in min_entries:
-            comp = entry.composition
-            row = [comp.get_atomic_fraction(el) for el in elements]
-            row.append(entry.energy_per_atom)
-            data.append(row)
-        data = np.array(data)
+        data = np.array([
+            [e.composition.get_atomic_fraction(el) for el in elements] + [e.energy_per_atom]
+            for e in min_entries
+        ])
 
         # Use only entries with negative formation energy
         vec = [el_refs[el].energy_per_atom for el in elements] + [-1]
         form_e = -np.dot(data, vec)
-        inds = list(np.where(form_e < -self.formation_energy_tol)[0])
+        inds = np.where(form_e < -self.formation_energy_tol)[0].tolist()
 
         # Add the elemental references
         inds.extend([min_entries.index(el) for el in el_refs.values()])
@@ -201,11 +198,8 @@ class PhaseDiagram(MSONable):
         """
         Returns the stable entries in the phase diagram.
         """
-        stable_entries = set()
-        for facet in self.facets:
-            for vertex in facet:
-                stable_entries.add(self.qhull_entries[vertex])
-        return stable_entries
+        return set([self.qhull_entries[i]
+                    for i in itertools.chain(*self.facets)])
 
     def get_form_energy(self, entry):
         """
@@ -218,11 +212,9 @@ class PhaseDiagram(MSONable):
         Returns:
             Formation energy from the elemental references.
         """
-        comp = entry.composition
-        energy = entry.energy - sum([comp[el] *
-                                     self.el_refs[el].energy_per_atom
-                                     for el in comp.elements])
-        return energy
+        c = entry.composition
+        return entry.energy - sum([c[el] * self.el_refs[el].energy_per_atom
+                                   for el in c.elements])
 
     def get_form_energy_per_atom(self, entry):
         """
@@ -235,8 +227,7 @@ class PhaseDiagram(MSONable):
         Returns:
             Formation energy **per atom** from the elemental references.
         """
-        comp = entry.composition
-        return self.get_form_energy(entry) / comp.num_atoms
+        return self.get_form_energy(entry) / entry.composition.num_atoms
 
     def __repr__(self):
         return self.__str__()
