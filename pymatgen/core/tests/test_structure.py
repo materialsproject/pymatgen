@@ -586,6 +586,10 @@ class StructureTest(PymatgenTest):
         s = [2, 1, 1] * self.structure
         self.assertEqual(s.formula, "Si8")
         self.assertIsInstance(s, Structure)
+        s = self.structure * [[1, 0, 0], [2, 1, 0], [0, 0, 2]]
+        self.assertEqual(s.formula, "Si8")
+        self.assertArrayAlmostEqual(s.lattice.abc,
+                                    [7.6803959, 17.5979979, 7.6803959])
 
     def test_make_supercell(self):
         self.structure.make_supercell([2, 1, 1])
