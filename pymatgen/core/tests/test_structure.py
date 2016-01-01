@@ -580,6 +580,13 @@ class StructureTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.structure.frac_coords[0],
                                     [1.00187517, 1.25665291, 1.15946374])
 
+    def test_mul(self):
+        self.structure *= [2, 1, 1]
+        self.assertEqual(self.structure.formula, "Si4")
+        s = [2, 1, 1] * self.structure
+        self.assertEqual(s.formula, "Si8")
+        self.assertIsInstance(s, Structure)
+
     def test_make_supercell(self):
         self.structure.make_supercell([2, 1, 1])
         self.assertEqual(self.structure.formula, "Si4")

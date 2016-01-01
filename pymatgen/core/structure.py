@@ -629,6 +629,52 @@ class IStructure(SiteCollection, MSONable):
         # For now, just use the composition hash code.
         return self.composition.__hash__()
 
+    def __mul__(self, scaling_matrix):
+        """
+        Makes a supercell.
+
+        Args:
+            scaling_matrix: A scaling matrix for transforming the lattice
+                vectors. Has to be all integers. Several options are possible:
+
+                a. A full 3x3 scaling matrix defining the linear combination
+                   the old lattice vectors. E.g., [[2,1,0],[0,3,0],[0,0,
+                   1]] generates a new structure with lattice vectors a' =
+                   2a + b, b' = 3b, c' = c where a, b, and c are the lattice
+                   vectors of the original structure.
+                b. An sequence of three scaling factors. E.g., [2, 1, 1]
+                   specifies that the supercell should have dimensions 2a x b x
+                   c.
+                c. A number, which simply scales all lattice vectors by the
+                   same factor.
+
+        Returns:
+            Supercell structure.
+        """
+        scale_matrix = np.array(scaling_matrix, np.int16)
+        if scale_matrix.shape != (3, 3):
+            scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
+        new_lattice = Lattice(np.dot(scale_matrix, self._lattice.matrix))
+
+        f_lat = lattice_points_in_supercell(scale_matrix)
+        c_lat = new_lattice.get_cartesian_coords(f_lat)
+
+        new_sites = []
+        for site in self:
+            for v in c_lat:
+                s = PeriodicSite(site.species_and_occu, site.coords + v,
+                                 new_lattice, properties=site.properties,
+                                 coords_are_cartesian=True, to_unit_cell=True)
+                new_sites.append(s)
+
+        return self.__class__.from_sites(new_sites)
+
+    def __rmul__(self, scaling_matrix):
+        """
+        Similar to __mul__ to preserve commutativeness.
+        """
+        return self.__mul__(scaling_matrix)
+
     @property
     def frac_coords(self):
         """
@@ -2443,23 +2489,9 @@ class Structure(IStructure, collections.MutableSequence):
                 c. A number, which simply scales all lattice vectors by the
                    same factor.
         """
-        scale_matrix = np.array(scaling_matrix, np.int16)
-        if scale_matrix.shape != (3, 3):
-            scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
-        new_lattice = Lattice(np.dot(scale_matrix, self._lattice.matrix))
-
-        f_lat = lattice_points_in_supercell(scale_matrix)
-        c_lat = new_lattice.get_cartesian_coords(f_lat)
-
-        new_sites = []
-        for site in self:
-            for v in c_lat:
-                s = PeriodicSite(site.species_and_occu, site.coords + v,
-                                 new_lattice, properties=site.properties,
-                                 coords_are_cartesian=True, to_unit_cell=True)
-                new_sites.append(s)
-        self._sites = new_sites
-        self._lattice = new_lattice
+        s = self * scaling_matrix
+        self._sites = s.sites
+        self._lattice = s.lattice
 
     def scale_lattice(self, volume):
         """
@@ -2549,8 +2581,8 @@ class Molecule(IMolecule, collections.MutableSequence):
         if isinstance(site, Site):
             self._sites[i] = site
         else:
-            if isinstance(site, six.string_types) or (not isinstance(site, \
-                    collections.Sequence)):
+            if isinstance(site, six.string_types) or (
+                    not isinstance(site, collections.Sequence)):
                 sp = site
                 coords = self._sites[i].coords
                 properties = self._sites[i].properties
