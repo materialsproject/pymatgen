@@ -4,21 +4,6 @@
 
 from __future__ import division, unicode_literals, print_function
 
-"""
-Classes for reading/manipulating/writing VASP ouput files.
-"""
-
-
-__author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
-    "Vincent L Chevrier, Ioannis Petousis, Stephen Dacek"
-__credits__ = "Anubhav Jain"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.2"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Nov 30, 2012"
-
 import os
 import glob
 import re
@@ -53,6 +38,20 @@ from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.entries.computed_entries import \
     ComputedEntry, ComputedStructureEntry
 from monty.json import MSONable
+
+"""
+Classes for reading/manipulating/writing VASP ouput files.
+"""
+
+__author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
+    "Vincent L Chevrier, Ioannis Petousis, Stephen Dacek"
+__credits__ = "Anubhav Jain"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.2"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Production"
+__date__ = "Nov 30, 2012"
 
 logger = logging.getLogger(__name__)
 
@@ -2429,15 +2428,15 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
     Returns:
         A BandStructure Object
     """
-    #ToDo: Add better error handling!!!
+    # TODO: Add better error handling!!!
     if os.path.exists(os.path.join(dir_name, "branch_0")):
-        #get all branch dir names
+        # get all branch dir names
         branch_dir_names = [os.path.abspath(d)
                             for d in glob.glob("{i}/branch_*"
                                                .format(i=dir_name))
                             if os.path.isdir(d)]
 
-        #sort by the directory name (e.g, branch_10)
+        # sort by the directory name (e.g, branch_10)
         sort_by = lambda x: int(x.split("_")[-1])
         sorted_branch_dir_names = sorted(branch_dir_names, key=sort_by)
 
