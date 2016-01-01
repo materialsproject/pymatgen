@@ -846,7 +846,8 @@ class ChemicalPotential(dict, MSONable):
 
     def get_energy(self, composition, strict=True):
         """
-        Calculates the energy of a composition
+        Calculates the energy of a composition.
+        
         Args:
             composition (Composition): input composition
             strict (bool): Whether all potentials must be specified
