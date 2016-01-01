@@ -273,7 +273,7 @@ class Element(object):
         self._symbol = "%s" % symbol
         self._data = _pt_data[symbol]
 
-        #Store key variables for quick access
+        # Store key variables for quick access
         self._z = self._data["Atomic no"]
         self._x = self._data.get("X", 0)
         for a in ["name", "mendeleev_no", "electrical_resistivity",
@@ -455,6 +455,10 @@ class Element(object):
         """
         Returns an element from a row and group number.
 
+        Args:
+            row (int): Row number
+            group (int): Group number
+
         .. note::
             The 18 group number system is used, i.e., Noble gases are group 18.
         """
@@ -462,7 +466,7 @@ class Element(object):
             el = Element(sym)
             if el.row == row and el.group == group:
                 return el
-        return None
+        raise ValueError("No element with this row and group!")
 
     @staticmethod
     def is_valid_symbol(symbol):
@@ -483,16 +487,16 @@ class Element(object):
         """
         Returns the periodic table row of the element.
         """
-        Z = self._z
+        z = self._z
         total = 0
-        if 57 <= Z <= 70:
+        if 57 <= z <= 70:
             return 8
-        elif 89 <= Z <= 102:
+        elif 89 <= z <= 102:
             return 9
 
         for i in range(len(_pt_row_sizes)):
             total += _pt_row_sizes[i]
-            if total >= Z:
+            if total >= z:
                 return i + 1
         return 8
 
@@ -501,31 +505,31 @@ class Element(object):
         """
         Returns the periodic table group of the element.
         """
-        Z = self._z
-        if Z == 1:
+        z = self._z
+        if z == 1:
             return 1
-        if Z == 2:
+        if z == 2:
             return 18
-        if 3 <= Z <= 18:
-            if (Z - 2) % 8 == 0:
+        if 3 <= z <= 18:
+            if (z - 2) % 8 == 0:
                 return 18
-            elif (Z - 2) % 8 <= 2:
-                return (Z - 2) % 8
+            elif (z - 2) % 8 <= 2:
+                return (z - 2) % 8
             else:
-                return 10 + (Z - 2) % 8
+                return 10 + (z - 2) % 8
 
-        if 19 <= Z <= 54:
-            if (Z - 18) % 18 == 0:
+        if 19 <= z <= 54:
+            if (z - 18) % 18 == 0:
                 return 18
             else:
-                return (Z - 18) % 18
+                return (z - 18) % 18
 
-        if (Z - 54) % 32 == 0:
+        if (z - 54) % 32 == 0:
             return 18
-        elif (Z - 54) % 32 >= 17:
-            return (Z - 54) % 32 - 14
+        elif (z - 54) % 32 >= 17:
+            return (z - 54) % 32 - 14
         else:
-            return (Z - 54) % 32
+            return (z - 54) % 32
 
     @property
     def block(self):
@@ -692,8 +696,8 @@ class Specie(MSONable):
         return self._el.symbol, self._oxi_state, self._properties
 
     def __getattr__(self, a):
-        #overriding getattr doens't play nice with pickle, so we
-        #can't use self._properties
+        # overriding getattr doens't play nice with pickle, so we
+        # can't use self._properties
         p = object.__getattribute__(self, '_properties')
         if a in p:
             return p[a]
@@ -926,8 +930,8 @@ class DummySpecie(MSONable):
         return self._symbol, self._oxi_state, self._properties
 
     def __getattr__(self, a):
-        #overriding getattr doens't play nice with pickle, so we
-        #can't use self._properties
+        # overriding getattr doens't play nice with pickle, so we
+        # can't use self._properties
         p = object.__getattribute__(self, '_properties')
         if a in p:
             return p[a]
