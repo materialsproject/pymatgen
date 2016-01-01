@@ -58,7 +58,7 @@ class Site(collections.Hashable, MSONable):
         try:
             self._species = Composition({get_el_sp(atoms_n_occu): 1})
             self._is_ordered = True
-        except:
+        except TypeError:
             self._species = Composition(atoms_n_occu)
             totaloccu = self._species.num_atoms
             if totaloccu > 1 + Composition.amount_tolerance:
