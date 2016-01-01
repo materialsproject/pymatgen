@@ -146,11 +146,8 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         Returns a tuple with the sequential indices of the sites
         that contain an element with the given chemical symbol.
         """
-        indices = []
-        for i, specie in enumerate(self.species):
-            if specie.symbol == symbol:
-                indices.append(i)
-        return tuple(indices)
+        return tuple((i for i, specie in enumerate(self.species)
+                      if specie.symbol == symbol))
 
     @property
     def symbol_set(self):
@@ -158,7 +155,7 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         Tuple with the set of chemical symbols.
         Note that len(symbol_set) == len(types_of_specie)
         """
-        return tuple([specie.symbol for specie in self.types_of_specie])
+        return tuple((specie.symbol for specie in self.types_of_specie))
 
     @property
     def atomic_numbers(self):
@@ -206,7 +203,8 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
     @property
     def cart_coords(self):
         """
-        Returns a list of the cartesian coordinates of sites in the structure.
+        Returns a np.array of the cartesian coordinates of sites in the
+        structure.
         """
         return np.array([site.coords for site in self])
 
@@ -517,7 +515,6 @@ class IStructure(SiteCollection, MSONable):
 
         return cls(latt, all_sp, all_coords,
                    site_properties=all_site_properties)
-
 
     @classmethod
     def from_abivars(cls, *args, **kwargs):
