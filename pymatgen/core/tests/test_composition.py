@@ -75,7 +75,7 @@ class CompositionTest(unittest.TestCase):
         f = {'Fe': 4, 'Li': 4, 'O': 16, 'P': 4}
         self.assertEqual("Li4 Fe4 P4 O16", Composition(f).formula)
         f = {None: 4, 'Li': 4, 'O': 16, 'P': 4}
-        self.assertRaises(ValueError, Composition, f)
+        self.assertRaises(TypeError, Composition, f)
         f = {1: 2, 8: 1}
         self.assertEqual("H2 O1", Composition(f).formula)
         self.assertEqual("Na2 O1", Composition(Na=2, O=1).formula)
