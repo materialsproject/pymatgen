@@ -309,9 +309,10 @@ class DiffusionAnalyzer(MSONable):
         latt = self.structure.lattice
         nsites, nsteps, dim = self.corrected_displacements.shape
         for i in range(nsteps):
-            yield Structure(latt, species, coords
-                            + self.corrected_displacements[:, i, :],
-                            coords_are_cartesian=True)
+            yield Structure(
+                    latt, species,
+                    coords + self.corrected_displacements[:, i, :],
+                    coords_are_cartesian=True)
 
     def get_summary_dict(self, include_msd_t=False):
         """
@@ -353,6 +354,8 @@ class DiffusionAnalyzer(MSONable):
         Args:
             plt: A plot object. Defaults to None, which means one will be
                 generated.
+            mode (str): Determines type of msd plot. By "species", "sites",
+                or direction (default).
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8, plt=plt)
@@ -364,13 +367,14 @@ class DiffusionAnalyzer(MSONable):
                 sd = np.average(self.sq_disp_ions[indices, :], axis=0)
                 plt.plot(self.dt, sd, label=sp.__str__())
             plt.legend(loc=2, prop={"size": 20})
-        elif mode == "ions":
+        elif mode == "sites":
             for i, site in enumerate(self.structure):
                 sd = self.sq_disp_ions[i, :]
                 plt.plot(self.dt, sd, label="%s - %d" % (
                     site.specie.__str__(), i))
             plt.legend(loc=2, prop={"size": 20})
-        else: #Handle default / invalid mode case
+        else:
+            # Handle default / invalid mode case
             plt.plot(self.dt, self.msd, 'k')
             plt.plot(self.dt, self.msd_components[:, 0], 'r')
             plt.plot(self.dt, self.msd_components[:, 1], 'g')
@@ -711,7 +715,7 @@ def fit_arrhenius(temps, diffusivities):
     """
     t_1 = 1 / np.array(temps)
     logd = np.log(diffusivities)
-    #Do a least squares regression of log(D) vs 1/T
+    # Do a least squares regression of log(D) vs 1/T
     a = np.array([t_1, np.ones(len(temps))]).T
     w, res, _, _ = np.linalg.lstsq(a, logd)
     w = np.array(w)
@@ -779,9 +783,8 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
     from pymatgen.util.plotting_utils import get_publication_quality_plot
     plt = get_publication_quality_plot(12, 8)
 
-    #log10 of the arrhenius fit
-    arr = c * np.exp(-Ea / (const.k / const.e *
-                                               np.array(temps)))
+    # log10 of the arrhenius fit
+    arr = c * np.exp(-Ea / (const.k / const.e * np.array(temps)))
 
     t_1 = 1000 / np.array(temps)
 
