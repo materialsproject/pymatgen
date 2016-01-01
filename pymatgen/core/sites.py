@@ -55,15 +55,15 @@ class Site(collections.Hashable, MSONable):
             properties: Properties associated with the site as a dict, e.g.
                 {"magmom": 5}. Defaults to None.
         """
-        if isinstance(atoms_n_occu, collections.Mapping):
+        try:
+            self._species = Composition({get_el_sp(atoms_n_occu): 1})
+            self._is_ordered = True
+        except:
             self._species = Composition(atoms_n_occu)
             totaloccu = self._species.num_atoms
             if totaloccu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
             self._is_ordered = totaloccu == 1 and len(self._species) == 1
-        else:
-            self._species = Composition({get_el_sp(atoms_n_occu): 1})
-            self._is_ordered = True
 
         self._coords = coords
         self._properties = properties if properties else {}
