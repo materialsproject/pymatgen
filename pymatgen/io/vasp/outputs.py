@@ -1903,7 +1903,7 @@ class VolumetricData(object):
             raise ValueError("Adding or subtraction operations can only be "
                              "performed for volumetric data with the exact "
                              "same structure.")
-        #To add checks
+        # To add checks
         data = {}
         for k in self.data.keys():
             data[k] = self.data[k] + scale_factor * other.data[k]
@@ -2038,7 +2038,7 @@ class VolumetricData(object):
             ...]. Format is for ease of plotting. E.g., plt.plot(data[:,0],
             data[:,1])
         """
-        #For non-spin-polarized runs, this is zero by definition.
+        # For non-spin-polarized runs, this is zero by definition.
         if not self.is_spin_polarized:
             radii = [radius / nbins * (i + 1) for i in range(nbins)]
             data = np.zeros((nbins, 2))
@@ -2581,6 +2581,7 @@ class Dynmat(object):
         """returns the list of atomic masses"""
         return list(self._masses)
 
+
 def get_adjusted_fermi_level(efermi, cbm, band_structure):
     """
     When running a band structure computations the fermi level needs to be
@@ -2613,14 +2614,14 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
                 return e
     return efermi
 
+
 class Wavederf(object):
     """
     Object for reading a WAVEDERF file.
 
-    Note: This file is only produced when LOPTICS is true AND vasp has been recompiled
-    after uncommenting the line that calls WRT_CDER_BETWEEN_STATES_FORMATTED in
-    linear_optics.F
-
+    Note: This file is only produced when LOPTICS is true AND vasp has been
+    recompiled after uncommenting the line that calls
+    WRT_CDER_BETWEEN_STATES_FORMATTED in linear_optics.F
 
     Args:
         filename: Name of file containing WAVEDERF.
@@ -2631,7 +2632,8 @@ class Wavederf(object):
         be noted that VASP uses 1-based indexing for bands, but this is
         converted to 0-based numpy array indexing.
 
-        For each kpoint (in the same order as in IBZKPT), and for each pair of bands:
+        For each kpoint (in the same order as in IBZKPT), and for each pair of
+        bands:
 
             [ #kpoint index
              [ #band 1 index
@@ -2641,9 +2643,10 @@ class Wavederf(object):
              ]
             ]
 
-        This structure follows the file format. Numpy array methods can be used to fetch data
-        in a more useful way (e.g., get matrix elements between wo specific bands at each kpoint,
-        fetch x/y/z components, real/imaginary parts, abs/phase, etc. )
+        This structure follows the file format. Numpy array methods can be used
+        to fetch data in a more useful way (e.g., get matrix elements between
+        wo specific bands at each kpoint, fetch x/y/z components,
+        real/imaginary parts, abs/phase, etc. )
 
     Author: Miguel Dias Costa
     """
@@ -2657,10 +2660,14 @@ class Wavederf(object):
             for ik in range(nb_kpoints):
                 for ib1 in range(nb_bands):
                     for ib2 in range(nb_bands):
-                        # each line in the file includes besides the band indexes, which are redundant,
-                        # each band's energy and occupation, which are already available elsewhere,
-                        # so we store only the 6 matrix elements after this 6 redundant values
-                        data[ik][ib1][ib2] = [ float(element) for element in f.readline().split()[6:] ]
+                        # each line in the file includes besides the band
+                        # indexes, which are redundant, each band's energy
+                        # and occupation, which are already available elsewhere,
+                        # so we store only the 6 matrix elements after this 6
+                        # redundant values
+                        data[ik][ib1][ib2] = [
+                            float(element)
+                            for element in f.readline().split()[6:]]
 
             self.data = data
             self._nb_kpoints = nb_kpoints
@@ -2698,7 +2705,7 @@ class Wavederf(object):
         if band_i < 1 or band_i > self.nb_bands or band_j < 1 or band_j > self.nb_bands:
             raise ValueError("Band index out of bounds")
 
-        return self.data[:,band_i-1,band_j-1,:] # using numpy array multidimensional slicing
+        return self.data[:, band_i - 1, band_j - 1, :]
 
 
 class UnconvergedVASPWarning(Warning):

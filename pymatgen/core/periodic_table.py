@@ -1180,5 +1180,6 @@ def get_el_sp(obj):
                 try:
                     return DummySpecie.from_string(obj)
                 except:
-                    raise ValueError("Can't parse Element or String from type %s: %s."
-                                     % (type(obj), obj))
+                    raise ValueError(
+                            "Can't parse Element or String from type %s: %s."
+                            % (type(obj), obj))
