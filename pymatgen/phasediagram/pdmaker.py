@@ -198,8 +198,8 @@ class PhaseDiagram(MSONable):
         """
         Returns the stable entries in the phase diagram.
         """
-        return set([self.qhull_entries[i]
-                    for i in itertools.chain(*self.facets)])
+        return set((self.qhull_entries[i]
+                    for i in itertools.chain(*self.facets)))
 
     def get_form_energy(self, entry):
         """
