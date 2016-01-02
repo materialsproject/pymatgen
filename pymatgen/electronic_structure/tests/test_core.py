@@ -27,9 +27,9 @@ class SpinTest(unittest.TestCase):
 class OrbitalTest(unittest.TestCase):
 
     def test_init(self):
-        for i, orb in enumerate(Orbital.all_orbitals):
-            self.assertEqual(Orbital.from_vasp_index(i), orb)
-        self.assertRaises(IndexError, Orbital.from_vasp_index, 100)
+        for orb in Orbital:
+            self.assertEqual(Orbital.from_vasp_index(orb.value[1]), orb)
+        self.assertRaises(ValueError, Orbital.from_vasp_index, 100)
 
     def test_cached(self):
         self.assertEqual(id(Orbital.from_vasp_index(0)), id(Orbital.s))
