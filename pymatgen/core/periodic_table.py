@@ -1127,7 +1127,10 @@ class PeriodicTable(object):
         for row in range(1, 10):
             rowstr = []
             for group in range(1, 19):
-                el = Element.from_row_and_group(row, group)
+                try:
+                    el = Element.from_row_and_group(row, group)
+                except ValueError:
+                    el = None
                 if el and ((not filter_function) or filter_function(el)):
                     rowstr.append("{:3s}".format(el.symbol))
                 else:
