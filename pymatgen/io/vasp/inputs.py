@@ -34,12 +34,12 @@ from monty.io import zopen
 from monty.os.path import zpath
 from monty.json import MontyDecoder
 
+from enum import Enum
 from tabulate import tabulate
 
 import scipy.constants as const
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.design_patterns import Enum
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element, get_el_sp
 from monty.design_patterns import cached_class
@@ -763,12 +763,19 @@ class Incar(dict, MSONable):
         return Incar(params)
 
 
+
 class Kpoints(MSONable):
     """
     KPOINT reader/writer.
     """
-    supported_modes = Enum(("Gamma", "Monkhorst", "Automatic", "Line_mode",
-                            "Cartesian", "Reciprocal"))
+
+    class supported_modes(Enum):
+        Automatic = "Automatic"
+        Gamma = "Gamma"
+        Monkhorst = "Monkhorst"
+        Line_mode = "Line_mode"
+        Cartesian = "Cartesian"
+        Reciprocal = "Reciprocal"
 
     def __init__(self, comment="Default gamma", num_kpts=0,
                  style=supported_modes.Gamma,
@@ -1164,8 +1171,8 @@ class Kpoints(MSONable):
             f.write(self.__str__())
 
     def __str__(self):
-        lines = [self.comment, str(self.num_kpts), self.style]
-        style = self.style.lower()[0]
+        lines = [self.comment, str(self.num_kpts), self.style.value]
+        style = self.style.value.lower()[0]
         if style == "l":
             lines.append(self.coord_type)
         for i in range(len(self.kpts)):
@@ -1198,7 +1205,7 @@ class Kpoints(MSONable):
     def as_dict(self):
         """json friendly dict representation of Kpoints"""
         d = {"comment": self.comment, "nkpoints": self.num_kpts,
-             "generation_style": self.style, "kpoints": self.kpts,
+             "generation_style": self.style.value, "kpoints": self.kpts,
              "usershift": self.kpts_shift,
              "kpts_weights": self.kpts_weights, "coord_type": self.coord_type,
              "labels": self.labels, "tet_number": self.tet_number,
@@ -1217,10 +1224,15 @@ class Kpoints(MSONable):
     def from_dict(cls, d):
         comment = d.get("comment", "")
         generation_style = d.get("generation_style")
+        if generation_style is not None:
+            for s in Kpoints.supported_modes:
+                if s.value == generation_style:
+                    generation_style = s
+                    break
+
         kpts = d.get("kpoints", [[1, 1, 1]])
         kpts_shift = d.get("usershift", [0, 0, 0])
         num_kpts = d.get("nkpoints", 0)
-        #coord_type = d.get("coord_type", None)
         return cls(comment=comment, kpts=kpts, style=generation_style,
                    kpts_shift=kpts_shift, num_kpts=num_kpts,
                    kpts_weights=d.get("kpts_weights"),
