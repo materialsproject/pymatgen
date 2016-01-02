@@ -18,15 +18,21 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-import collections
+from enum import Enum
 
 
-class Spin(object):
+class Spin(Enum):
     """
     Enum type for Spin.  Only up and down.
     Usage: Spin.up, Spin.down.
     """
     up, down = (1, -1)
+
+    def __int__(self):
+        return self.value
+
+    def __str__(self):
+        return str(self.value)
 
     @staticmethod
     def from_int(i):
@@ -43,18 +49,36 @@ class Spin(object):
         else:
             raise ValueError("Spin integers must be 1 or -1")
 
-    all_spins = (up, down)
 
+class Orbital(Enum):
+    """
+    Enum type for OrbitalType. Indices are basically the azimutal quantum
+    number, l.
+    """
 
-class _OrbitalImpl(collections.namedtuple('_Orbital', 'name vasp_index')):
-    """
-    Internal representation of an orbital.  Do not use directly.
-    Use the Orbital class enum types.
-    """
-    __slots__ = ()
+    s = "s", 0
+    py = "py", 1
+    pz = "pz", 2
+    px = "px", 3
+    dxy = "dxy", 4
+    dyz = "dyz", 5
+    dz2 = "dz2", 6
+    dxz = "dxz", 7
+    dx2 = "dx2", 8
+    f_3 = "f_3", 9
+    f_2 = "f_2", 10
+    f_1 = "f_1", 11
+    f0 = "f0", 12
+    f1 = "f1", 13
+    f2 = "f2", 14
+    f3 = "f3", 15
+
+    @property
+    def vasp_index(self):
+        return self.value[1]
 
     def __int__(self):
-        return self.vasp_index
+        return self.value[1]
 
     def __eq__(self, other):
         if other is None:
@@ -65,10 +89,10 @@ class _OrbitalImpl(collections.namedtuple('_Orbital', 'name vasp_index')):
         return self.vasp_index
 
     def __repr__(self):
-        return self.name
+        return self.value[0]
 
     def __str__(self):
-        return self.name
+        return self.value[0]
 
     @property
     def orbital_type(self):
@@ -76,50 +100,24 @@ class _OrbitalImpl(collections.namedtuple('_Orbital', 'name vasp_index')):
         String indicating the type of orbital. Is always uppercase. E.g.,
         S, P, D, F, etc.
         """
-        return self.name[0].upper()
-
-
-class Orbital(object):
-    """
-    Enum type for OrbitalType. Indices are basically the azimutal quantum
-    number, l.
-    """
-
-    s = _OrbitalImpl("s", 0)
-    py = _OrbitalImpl("py", 1)
-    pz = _OrbitalImpl("pz", 2)
-    px = _OrbitalImpl("px", 3)
-    dxy = _OrbitalImpl("dxy", 4)
-    dyz = _OrbitalImpl("dyz", 5)
-    dz2 = _OrbitalImpl("dz2", 6)
-    dxz = _OrbitalImpl("dxz", 7)
-    dx2 = _OrbitalImpl("dx2", 8)
-    f_3 = _OrbitalImpl("f_3", 9)
-    f_2 = _OrbitalImpl("f_2", 10)
-    f_1 = _OrbitalImpl("f_1", 11)
-    f0 = _OrbitalImpl("f0", 12)
-    f1 = _OrbitalImpl("f1", 13)
-    f2 = _OrbitalImpl("f2", 14)
-    f3 = _OrbitalImpl("f3", 15)
-
-    all_orbitals = (s,
-                    py, pz, px,
-                    dxy, dyz, dz2, dxz, dx2,
-                    f_3, f_2, f_1, f0, f1, f2, f3)
+        return self.value[0][0].upper()
 
     @staticmethod
     def from_vasp_index(i):
         """
         Returns an orbital based on the index of the orbital in VASP runs.
         """
-        return Orbital.all_orbitals[i]
+        for orb in Orbital:
+            if orb.value[1] == i:
+                return orb
+        raise ValueError("Invalid vasp index %s" % i)
 
     @staticmethod
     def from_string(orb_str):
         """
         Returns an orbital from a string representation, e.g., "s", "px".
         """
-        for orb in Orbital.all_orbitals:
-            if str(orb) == orb_str:
+        for orb in Orbital:
+            if orb.value[0] == orb_str:
                 return orb
         raise ValueError("Illegal orbital definition!")

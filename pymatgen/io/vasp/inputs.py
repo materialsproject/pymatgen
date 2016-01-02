@@ -777,6 +777,9 @@ class Kpoints(MSONable):
         Cartesian = "Cartesian"
         Reciprocal = "Reciprocal"
 
+        def __str__(self):
+            return self.value
+
     def __init__(self, comment="Default gamma", num_kpts=0,
                  style=supported_modes.Gamma,
                  kpts=((1, 1, 1),), kpts_shift=(0, 0, 0),
@@ -1225,10 +1228,7 @@ class Kpoints(MSONable):
         comment = d.get("comment", "")
         generation_style = d.get("generation_style")
         if generation_style is not None:
-            for s in Kpoints.supported_modes:
-                if s.value == generation_style:
-                    generation_style = s
-                    break
+            generation_style = Kpoints.supported_modes.__members__[generation_style]
 
         kpts = d.get("kpoints", [[1, 1, 1]])
         kpts_shift = d.get("usershift", [0, 0, 0])

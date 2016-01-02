@@ -43,7 +43,7 @@ class DosTest(unittest.TestCase):
         dos = self.dos
         smeared = dos.get_smeared_densities(0.2)
         dens = dos.densities
-        for spin in Spin.all_spins:
+        for spin in Spin:
             self.assertAlmostEqual(sum(dens[spin]), sum(smeared[spin]))
 
 
