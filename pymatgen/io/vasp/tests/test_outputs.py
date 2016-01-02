@@ -231,8 +231,6 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(cbm['energy'], 6.2301, "wrong cbm energy")
         self.assertEqual(cbm['band_index'], {Spin.up: [4], Spin.down: [4]},
                          "wrong cbm bands")
-        print bs._bands.keys()
-        print bs.is_spin_polarized
         self.assertEqual(vbm['kpoint_index'], [0, 63, 64])
         self.assertAlmostEqual(vbm['energy'], 5.6158, "wrong vbm energy")
         self.assertEqual(vbm['band_index'], {Spin.up: [1, 2, 3],
