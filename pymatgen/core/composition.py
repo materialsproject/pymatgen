@@ -221,8 +221,9 @@ class Composition(IterableUserDict, collections.Hashable, MSONable):
         Compositions with different elements.
         """
         hashcode = 0
-        for el in self.keys():
-            hashcode += el.Z
+        for el, amt in self.items():
+            if abs(amt) > Composition.amount_tolerance:
+                hashcode += el.Z
         return hashcode
 
     @property
