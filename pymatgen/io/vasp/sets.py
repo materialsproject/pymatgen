@@ -1035,7 +1035,8 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                 weights.append(0.0)
                 all_labels.append(labels[k])
             return Kpoints(comment="HSE run along symmetry lines",
-                           style="Reciprocal", num_kpts=len(kpts),
+                           style=Kpoints.supported_modes.Reciprocal,
+                           num_kpts=len(kpts),
                            kpts=kpts, kpts_weights=weights, labels=all_labels)
 
         elif self.mode == "Uniform":
@@ -1050,7 +1051,8 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                 kpts.append(k)
                 weights.append(0.0)
             return Kpoints(comment="HSE run on uniform grid",
-                           style="Reciprocal", num_kpts=len(kpts),
+                           style=Kpoints.supported_modes.Reciprocal,
+                           num_kpts=len(kpts),
                            kpts=kpts, kpts_weights=weights)
 
     def as_dict(self):
@@ -1138,10 +1140,12 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         """
         if self.mode == "Line":
             kpath = HighSymmKpath(structure)
-            frac_k_points, k_points_labels = kpath.get_kpoints(line_density=self.kpoints_line_density,
-                                                               coords_are_cartesian=False)
+            frac_k_points, k_points_labels = kpath.get_kpoints(
+                line_density=self.kpoints_line_density,
+                coords_are_cartesian=False)
             return Kpoints(comment="Non SCF run along symmetry lines",
-                           style="Reciprocal", num_kpts=len(frac_k_points),
+                           style=Kpoints.supported_modes.Reciprocal,
+                           num_kpts=len(frac_k_points),
                            kpts=frac_k_points, labels=k_points_labels,
                            kpts_weights=[1] * len(frac_k_points))
         else:
@@ -1158,7 +1162,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 kpts.append(k[0])
                 weights.append(int(k[1]))
             return Kpoints(comment="Non SCF run on uniform grid",
-                           style="Reciprocal", num_kpts=len(ir_kpts),
+                           style=Kpoints.supported_modes.Reciprocal,
+                           num_kpts=len(ir_kpts),
                            kpts=kpts, kpts_weights=weights)
 
     @staticmethod
