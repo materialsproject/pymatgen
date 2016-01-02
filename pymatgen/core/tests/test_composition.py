@@ -21,7 +21,6 @@ __date__ = "Nov 10, 2012"
 
 import unittest
 
-
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition, CompositionError, \
     ChemicalPotential
