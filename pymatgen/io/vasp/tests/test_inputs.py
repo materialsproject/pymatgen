@@ -469,10 +469,8 @@ Cartesian
 class PotcarSingleTest(unittest.TestCase):
 
     def setUp(self):
-        #with zopen(os.path.join(test_dir, "POT_GGA_PAW_PBE",
-        #                        "POTCAR.Mn_pv.gz"), 'rb') as f:
-        self.psingle = PotcarSingle.from_file(os.path.join(test_dir, "POT_GGA_PAW_PBE",
-                                "POTCAR.Mn_pv.gz"))
+        self.psingle = PotcarSingle.from_file(
+            os.path.join(test_dir, "POT_GGA_PAW_PBE", "POTCAR.Mn_pv.gz"))
 
     def test_keywords(self):
         data = {'VRHFIN': 'Mn: 3p4s3d', 'LPAW': True, 'DEXC': -.003,
