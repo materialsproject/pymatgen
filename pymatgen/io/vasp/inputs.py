@@ -1228,7 +1228,7 @@ class Kpoints(MSONable):
         comment = d.get("comment", "")
         generation_style = d.get("generation_style")
         if generation_style is not None:
-            generation_style = Kpoints.supported_modes.__members__[generation_style]
+            generation_style = Kpoints.supported_modes(generation_style)
 
         kpts = d.get("kpoints", [[1, 1, 1]])
         kpts_shift = d.get("usershift", [0, 0, 0])
