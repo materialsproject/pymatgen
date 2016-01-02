@@ -125,15 +125,16 @@ class Composition(IterableUserDict, collections.Hashable, MSONable):
             elmap = self._parse_formula(args[0])
         else:
             elmap = dict(*args, **kwargs)
-        super(Composition, self).__init__()
+        elamt = {}
         self._natoms = 0
         for k, v in elmap.items():
             if v < -Composition.amount_tolerance and not self.allow_negative:
                 raise CompositionError("Amounts in Composition cannot be "
                                        "negative!")
             if abs(v) >= Composition.amount_tolerance:
-                self[get_el_sp(k)] = v
+                elamt[get_el_sp(k)] = v
                 self._natoms += abs(v)
+        super(Composition, self).__init__(elamt)
 
     def __missing__(self, el):
         try:
@@ -152,6 +153,14 @@ class Composition(IterableUserDict, collections.Hashable, MSONable):
             if abs(v - other[el]) > Composition.amount_tolerance:
                 return False
         return True
+
+    def __setitem__(self, key, value):
+        raise TypeError("Composition is immutable by construction."
+            "Setting of values is not allowed.")
+
+    def __delitem__(self, key):
+        raise TypeError("Composition is immutable by construction."
+            "Deleting values is not allowed.")
 
     def __ge__(self, other):
         """

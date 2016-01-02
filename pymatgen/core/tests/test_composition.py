@@ -69,6 +69,17 @@ class CompositionTest(unittest.TestCase):
         self.indeterminate_comp.append(
             Composition.ranked_compositions_from_indeterminate_formula("Fee3"))
 
+    def test_immutable(self):
+        try:
+            self.comp[0]["Fe"] = 1
+        except Exception as ex:
+            self.assertIsInstance(ex, TypeError)
+
+        try:
+            del self.comp[0]["Fe"]
+        except Exception as ex:
+            self.assertIsInstance(ex, TypeError)
+
     def test_init_(self):
         self.assertRaises(CompositionError, Composition, {"H": -0.1})
         f = {'Fe': 4, 'Li': 4, 'O': 16, 'P': 4}
