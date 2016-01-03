@@ -23,12 +23,7 @@ import re
 import string
 
 import six
-from six.moves import filter, map, zip
-
-try:
-    from UserDict import IterableUserDict as UserDict
-except ImportError:
-    from collections import UserDict
+from six.moves import filter, map, zip, UserDict
 
 from fractions import Fraction
 from functools import total_ordering
@@ -139,6 +134,9 @@ class Composition(UserDict, collections.Hashable, MSONable):
                 elamt[get_el_sp(k)] = v
                 self._natoms += abs(v)
         super(Composition, self).__init__(elamt)
+
+    def __iter__(self):
+        return self.keys().__iter__()
 
     def __missing__(self, el):
         try:
