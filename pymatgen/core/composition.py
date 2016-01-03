@@ -36,7 +36,7 @@ from pymatgen.core.units import unitized
 
 
 @total_ordering
-class Composition(UserDict, collections.Hashable, MSONable):
+class Composition(UserDict, collections.Hashable, collections.Mapping, MSONable):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
     type. Composition is written to be immutable and hashable,
