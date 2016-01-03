@@ -80,6 +80,15 @@ class CompositionTest(unittest.TestCase):
         except Exception as ex:
             self.assertIsInstance(ex, TypeError)
 
+    def test_in(self):
+        self.assertIn("Fe", self.comp[0])
+        self.assertNotIn("Fe", self.comp[2])
+        self.assertIn(Element("Fe"), self.comp[0])
+        self.assertEqual(self.comp[0]["Fe"], 2)
+        self.assertEqual(self.comp[0]["Mn"], 0)
+        self.assertRaises(TypeError, self.comp[0].__getitem__, "Hello")
+        self.assertRaises(TypeError, self.comp[0].__getitem__, "Vac")
+
     def test_init_(self):
         self.assertRaises(CompositionError, Composition, {"H": -0.1})
         f = {'Fe': 4, 'Li': 4, 'O': 16, 'P': 4}
