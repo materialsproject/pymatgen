@@ -4,21 +4,6 @@
 
 from __future__ import division, unicode_literals, print_function
 
-"""
-Classes for reading/manipulating/writing VASP ouput files.
-"""
-
-
-__author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
-    "Vincent L Chevrier, Ioannis Petousis, Stephen Dacek"
-__credits__ = "Anubhav Jain"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.2"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Nov 30, 2012"
-
 import os
 import glob
 import re
@@ -53,6 +38,20 @@ from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.entries.computed_entries import \
     ComputedEntry, ComputedStructureEntry
 from monty.json import MSONable
+
+"""
+Classes for reading/manipulating/writing VASP ouput files.
+"""
+
+__author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
+    "Vincent L Chevrier, Ioannis Petousis, Stephen Dacek"
+__credits__ = "Anubhav Jain"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.2"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Production"
+__date__ = "Nov 30, 2012"
 
 logger = logging.getLogger(__name__)
 
@@ -657,13 +656,12 @@ class Vasprun(MSONable):
 
         neigenvalues = [len(v['1']) for v in dict_eigen.values()]
         min_eigenvalues = min(neigenvalues)
-        get_orb = Orbital.from_string
         for i in range(min_eigenvalues):
             eigenvals[Spin.up].append([dict_eigen[str(j)]['1'][i][0]
                                        for j in range(len(kpoints))])
             if len(dict_p_eigen) != 0:
                 p_eigenvals[Spin.up].append(
-                    [{get_orb(orb): dict_p_eigen[j]['1'][i][orb]
+                    [{Orbital[orb]: dict_p_eigen[j]['1'][i][orb]
                       for orb in dict_p_eigen[j]['1'][i]}
                      for j in range(len(kpoints))])
         if Spin.down in eigenvals:
@@ -672,7 +670,7 @@ class Vasprun(MSONable):
                                              for j in range(len(kpoints))])
                 if len(dict_p_eigen) != 0:
                     p_eigenvals[Spin.down].append(
-                        [{get_orb(orb): dict_p_eigen[j]['-1'][i][orb]
+                        [{Orbital[orb]: dict_p_eigen[j]['-1'][i][orb]
                           for orb in dict_p_eigen[j]['-1'][i]}
                          for j in range(len(kpoints))]
                     )
@@ -684,7 +682,7 @@ class Vasprun(MSONable):
             hybrid_band = True
 
         if kpoint_file is not None:
-            if kpoint_file.style == "Line_mode":
+            if kpoint_file.style == Kpoints.supported_modes.Line_mode:
                 line_mode = True
 
         if line_mode:
@@ -699,8 +697,8 @@ class Vasprun(MSONable):
                     if kpoint_file.labels[i] is not None:
                         labels_dict[kpoint_file.labels[i]] = \
                             kpoint_file.kpts[i]
-                #remake the data only considering line band structure k-points
-                #(weight = 0.0 kpoints)
+                # remake the data only considering line band structure k-points
+                # (weight = 0.0 kpoints)
                 kpoints = kpoints[start_bs_index:len(kpoints)]
                 up_eigen = [eigenvals[Spin.up][i][
                             start_bs_index:len(eigenvals[Spin.up][i])]
@@ -907,7 +905,7 @@ class Vasprun(MSONable):
             try:
                 return str(Element(symbol))
             # vasprun.xml uses X instead of Xe for xenon
-            except KeyError as e:
+            except ValueError as e:
                 if symbol == "X":
                     return "Xe"
                 raise e
@@ -921,7 +919,8 @@ class Vasprun(MSONable):
         if elem.find("generation"):
             e = elem.find("generation")
         k = Kpoints("Kpoints from vasprun.xml")
-        k.style = e.attrib["param"] if "param" in e.attrib else "Reciprocal"
+        k.style = Kpoints.supported_modes.from_string(
+            e.attrib["param"] if "param" in e.attrib else "Reciprocal")
         for v in e.findall("v"):
             name = v.attrib.get("name")
             toks = v.text.split()
@@ -938,10 +937,11 @@ class Vasprun(MSONable):
             elif name == "weights":
                 weights = [i[0] for i in _parse_varray(va)]
         elem.clear()
-        if k.style == "Reciprocal":
+        if k.style == Kpoints.supported_modes.Reciprocal:
             k = Kpoints(comment="Kpoints from vasprun.xml",
-                    style="Reciprocal", num_kpts=len(k.kpts),
-                    kpts=actual_kpoints, kpts_weights=weights)
+                style=Kpoints.supported_modes.Reciprocal,
+                num_kpts=len(k.kpts),
+                kpts=actual_kpoints, kpts_weights=weights)
         return k, actual_kpoints, weights
 
     def _parse_structure(self, elem):
@@ -1016,7 +1016,7 @@ class Vasprun(MSONable):
                     nrow, ncol = data.shape
                     for j in range(1, ncol):
                         if lm:
-                            orb = Orbital.from_vasp_index(j - 1)
+                            orb = Orbital(j - 1)
                         else:
                             orb = orbs[j - 1].strip().upper()
                         pdos[orb][spin] = data[:, j]
@@ -1045,7 +1045,7 @@ class Vasprun(MSONable):
                 for band, sss in enumerate(ss.findall("set")):
                     for atom, data in enumerate(_parse_varray(sss)):
                         for i, v in enumerate(data):
-                            orb = Orbital.from_vasp_index(i)
+                            orb = Orbital(i)
                             proj_eigen[(spin, kpt, band, atom, orb)] = v
         elem.clear()
         return proj_eigen
@@ -1903,7 +1903,7 @@ class VolumetricData(object):
             raise ValueError("Adding or subtraction operations can only be "
                              "performed for volumetric data with the exact "
                              "same structure.")
-        #To add checks
+        # To add checks
         data = {}
         for k in self.data.keys():
             data[k] = self.data[k] + scale_factor * other.data[k]
@@ -2038,7 +2038,7 @@ class VolumetricData(object):
             ...]. Format is for ease of plotting. E.g., plt.plot(data[:,0],
             data[:,1])
         """
-        #For non-spin-polarized runs, this is zero by definition.
+        # For non-spin-polarized runs, this is zero by definition.
         if not self.is_spin_polarized:
             radii = [radius / nbins * (i + 1) for i in range(nbins)]
             data = np.zeros((nbins, 2))
@@ -2429,15 +2429,15 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
     Returns:
         A BandStructure Object
     """
-    #ToDo: Add better error handling!!!
+    # TODO: Add better error handling!!!
     if os.path.exists(os.path.join(dir_name, "branch_0")):
-        #get all branch dir names
+        # get all branch dir names
         branch_dir_names = [os.path.abspath(d)
                             for d in glob.glob("{i}/branch_*"
                                                .format(i=dir_name))
                             if os.path.isdir(d)]
 
-        #sort by the directory name (e.g, branch_10)
+        # sort by the directory name (e.g, branch_10)
         sort_by = lambda x: int(x.split("_")[-1])
         sorted_branch_dir_names = sorted(branch_dir_names, key=sort_by)
 
@@ -2581,6 +2581,7 @@ class Dynmat(object):
         """returns the list of atomic masses"""
         return list(self._masses)
 
+
 def get_adjusted_fermi_level(efermi, cbm, band_structure):
     """
     When running a band structure computations the fermi level needs to be
@@ -2613,14 +2614,14 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
                 return e
     return efermi
 
+
 class Wavederf(object):
     """
     Object for reading a WAVEDERF file.
 
-    Note: This file is only produced when LOPTICS is true AND vasp has been recompiled
-    after uncommenting the line that calls WRT_CDER_BETWEEN_STATES_FORMATTED in
-    linear_optics.F
-
+    Note: This file is only produced when LOPTICS is true AND vasp has been
+    recompiled after uncommenting the line that calls
+    WRT_CDER_BETWEEN_STATES_FORMATTED in linear_optics.F
 
     Args:
         filename: Name of file containing WAVEDERF.
@@ -2631,7 +2632,8 @@ class Wavederf(object):
         be noted that VASP uses 1-based indexing for bands, but this is
         converted to 0-based numpy array indexing.
 
-        For each kpoint (in the same order as in IBZKPT), and for each pair of bands:
+        For each kpoint (in the same order as in IBZKPT), and for each pair of
+        bands:
 
             [ #kpoint index
              [ #band 1 index
@@ -2641,9 +2643,10 @@ class Wavederf(object):
              ]
             ]
 
-        This structure follows the file format. Numpy array methods can be used to fetch data
-        in a more useful way (e.g., get matrix elements between wo specific bands at each kpoint,
-        fetch x/y/z components, real/imaginary parts, abs/phase, etc. )
+        This structure follows the file format. Numpy array methods can be used
+        to fetch data in a more useful way (e.g., get matrix elements between
+        wo specific bands at each kpoint, fetch x/y/z components,
+        real/imaginary parts, abs/phase, etc. )
 
     Author: Miguel Dias Costa
     """
@@ -2657,10 +2660,14 @@ class Wavederf(object):
             for ik in range(nb_kpoints):
                 for ib1 in range(nb_bands):
                     for ib2 in range(nb_bands):
-                        # each line in the file includes besides the band indexes, which are redundant,
-                        # each band's energy and occupation, which are already available elsewhere,
-                        # so we store only the 6 matrix elements after this 6 redundant values
-                        data[ik][ib1][ib2] = [ float(element) for element in f.readline().split()[6:] ]
+                        # each line in the file includes besides the band
+                        # indexes, which are redundant, each band's energy
+                        # and occupation, which are already available elsewhere,
+                        # so we store only the 6 matrix elements after this 6
+                        # redundant values
+                        data[ik][ib1][ib2] = [
+                            float(element)
+                            for element in f.readline().split()[6:]]
 
             self.data = data
             self._nb_kpoints = nb_kpoints
@@ -2698,7 +2705,7 @@ class Wavederf(object):
         if band_i < 1 or band_i > self.nb_bands or band_j < 1 or band_j > self.nb_bands:
             raise ValueError("Band index out of bounds")
 
-        return self.data[:,band_i-1,band_j-1,:] # using numpy array multidimensional slicing
+        return self.data[:, band_i - 1, band_j - 1, :]
 
 
 class UnconvergedVASPWarning(Warning):

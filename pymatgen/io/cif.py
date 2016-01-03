@@ -472,7 +472,7 @@ class CifParser(object):
                     get_el_sp(special_symbols.get(symbol))
                 else:
                     Element(symbol)
-            except KeyError:
+            except (KeyError, ValueError):
                 # sometimes the site doesn't have the type_symbol.
                 # we then hope the type_symbol can be parsed from the label
                 if "_atom_site_type_symbol" in data.data.keys():

@@ -19,8 +19,7 @@ __date__ = "Apr 30, 2012"
 import json
 import functools
 
-from monty.io import zopen
-from monty.json import MontyEncoder, MontyDecoder
+from monty.serialization import loadfn, dumpfn
 from monty.dev import deprecated
 
 
@@ -50,6 +49,7 @@ def json_pretty_dump(obj, filename):
         json.dump(obj, fh, indent=4, sort_keys=4)
 
 
+@deprecated(loadfn, "Will be removed in pmg 4.0.")
 def pmg_load(filename, **kwargs):
     """
     Loads a json file and deserialize it with MontyDecoder.
@@ -64,9 +64,10 @@ def pmg_load(filename, **kwargs):
         dicts or otherwise nested pymatgen objects that support the as_dict()
         and from_dict MSONable protocol.
     """
-    return json.load(zopen(filename, "rt"), cls=MontyDecoder, **kwargs)
+    return loadfn(filename, **kwargs)
 
 
+@deprecated(dumpfn, "Will be removed in pmg 4.0.")
 def pmg_dump(obj, filename, **kwargs):
     """
     Dump an object to a json file using MontyEncoder. Note that these
@@ -79,4 +80,4 @@ def pmg_dump(obj, filename, **kwargs):
         \*\*kwargs: Any of the keyword arguments supported by the json.dump
             method.
     """
-    return json.dump(obj, zopen(filename, "wb"), cls=MontyEncoder, **kwargs)
+    return dumpfn(obj, filename, **kwargs)

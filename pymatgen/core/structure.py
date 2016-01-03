@@ -4,21 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This module provides classes used to define a non-periodic molecule and a
-periodic structure.
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
-
-
 import math
 import os
 import json
@@ -56,6 +41,20 @@ from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length, ArrayWithUnit
 from pymatgen.symmetry.groups import SpaceGroup
 from monty.io import zopen
+
+"""
+This module provides classes used to define a non-periodic molecule and a
+periodic structure.
+"""
+
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Production"
+__date__ = "Sep 23, 2011"
 
 
 class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
@@ -147,11 +146,8 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         Returns a tuple with the sequential indices of the sites
         that contain an element with the given chemical symbol.
         """
-        indices = []
-        for i, specie in enumerate(self.species):
-            if specie.symbol == symbol:
-                indices.append(i)
-        return tuple(indices)
+        return tuple((i for i, specie in enumerate(self.species)
+                      if specie.symbol == symbol))
 
     @property
     def symbol_set(self):
@@ -159,7 +155,7 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         Tuple with the set of chemical symbols.
         Note that len(symbol_set) == len(types_of_specie)
         """
-        return tuple([specie.symbol for specie in self.types_of_specie])
+        return tuple((specie.symbol for specie in self.types_of_specie))
 
     @property
     def atomic_numbers(self):
@@ -207,7 +203,8 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
     @property
     def cart_coords(self):
         """
-        Returns a list of the cartesian coordinates of sites in the structure.
+        Returns a np.array of the cartesian coordinates of sites in the
+        structure.
         """
         return np.array([site.coords for site in self])
 
@@ -519,7 +516,6 @@ class IStructure(SiteCollection, MSONable):
         return cls(latt, all_sp, all_coords,
                    site_properties=all_site_properties)
 
-
     @classmethod
     def from_abivars(cls, *args, **kwargs):
         """Build a :class:`Structure` object from a dictionary with ABINIT variables."""
@@ -629,6 +625,52 @@ class IStructure(SiteCollection, MSONable):
     def __hash__(self):
         # For now, just use the composition hash code.
         return self.composition.__hash__()
+
+    def __mul__(self, scaling_matrix):
+        """
+        Makes a supercell.
+
+        Args:
+            scaling_matrix: A scaling matrix for transforming the lattice
+                vectors. Has to be all integers. Several options are possible:
+
+                a. A full 3x3 scaling matrix defining the linear combination
+                   the old lattice vectors. E.g., [[2,1,0],[0,3,0],[0,0,
+                   1]] generates a new structure with lattice vectors a' =
+                   2a + b, b' = 3b, c' = c where a, b, and c are the lattice
+                   vectors of the original structure.
+                b. An sequence of three scaling factors. E.g., [2, 1, 1]
+                   specifies that the supercell should have dimensions 2a x b x
+                   c.
+                c. A number, which simply scales all lattice vectors by the
+                   same factor.
+
+        Returns:
+            Supercell structure.
+        """
+        scale_matrix = np.array(scaling_matrix, np.int16)
+        if scale_matrix.shape != (3, 3):
+            scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
+        new_lattice = Lattice(np.dot(scale_matrix, self._lattice.matrix))
+
+        f_lat = lattice_points_in_supercell(scale_matrix)
+        c_lat = new_lattice.get_cartesian_coords(f_lat)
+
+        new_sites = []
+        for site in self:
+            for v in c_lat:
+                s = PeriodicSite(site.species_and_occu, site.coords + v,
+                                 new_lattice, properties=site.properties,
+                                 coords_are_cartesian=True, to_unit_cell=True)
+                new_sites.append(s)
+
+        return self.__class__.from_sites(new_sites)
+
+    def __rmul__(self, scaling_matrix):
+        """
+        Similar to __mul__ to preserve commutativeness.
+        """
+        return self.__mul__(scaling_matrix)
 
     @property
     def frac_coords(self):
@@ -1259,32 +1301,6 @@ class IStructure(SiteCollection, MSONable):
 
         return d
 
-    def to_xsf_string(self):
-        """
-        Returns a string with the structure in XSF format
-        See http://www.xcrysden.org/doc/XSF.html
-        """
-        lines = []
-        app = lines.append
-
-        app("CRYSTAL")
-        app("# Primitive lattice vectors in Angstrom")
-        app("PRIMVEC")
-        cell = self.lattice_vectors(space="r")
-        for i in range(3):
-            app(' %.14f %.14f %.14f' % tuple(cell[i]))
-
-        cart_coords = self.cart_coords
-        app("# Cartesian coordinates in Angstrom.")
-        app("PRIMCOORD")
-        app(" %d 1" % len(cart_coords))
-
-        for a in range(len(cart_coords)):
-            sp = "%d" % self.atomic_numbers[a]
-            app(sp + ' %20.14f %20.14f %20.14f' % tuple(cart_coords[a]))
-
-        return "\n".join(lines)
-
     def to(self, fmt=None, filename=None):
         """
         Outputs the structure to a file or string.
@@ -1304,6 +1320,7 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.cif import CifWriter
         from pymatgen.io.vasp import Poscar
         from pymatgen.io.cssr import Cssr
+        from pymatgen.io.xcrysden import XSF
         filename = filename or ""
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename)
@@ -1326,11 +1343,11 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "xsf" or fnmatch(fname.lower(), "*.xsf*"):
             if filename:
                 with zopen(fname, "wt", encoding='utf8') as f:
-                    s = self.to_xsf_string()
+                    s = XSF(self).to_string()
                     f.write(s)
                     return s
             else:
-                return self.to_xsf_string()
+                return XSF(self).to_string()
         else:
             if filename:
                 with open(filename, "w") as f:
@@ -2197,7 +2214,7 @@ class Structure(IStructure, collections.MutableSequence):
             return PeriodicSite(c, site.frac_coords, latt,
                                 properties=site.properties)
 
-        self._sites = list(map(mod_site, self._sites))
+        self._sites = [mod_site(site) for site in self._sites]
 
     def replace(self, i, species, coords=None, coords_are_cartesian=False,
                 properties=None):
@@ -2288,8 +2305,6 @@ class Structure(IStructure, collections.MutableSequence):
                                     properties=site.properties)
 
         self._sites = [operate_site(s) for s in self._sites]
-
-
 
     def modify_lattice(self, new_lattice):
         """
@@ -2471,23 +2486,9 @@ class Structure(IStructure, collections.MutableSequence):
                 c. A number, which simply scales all lattice vectors by the
                    same factor.
         """
-        scale_matrix = np.array(scaling_matrix, np.int16)
-        if scale_matrix.shape != (3, 3):
-            scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
-        new_lattice = Lattice(np.dot(scale_matrix, self._lattice.matrix))
-
-        f_lat = lattice_points_in_supercell(scale_matrix)
-        c_lat = new_lattice.get_cartesian_coords(f_lat)
-
-        new_sites = []
-        for site in self:
-            for v in c_lat:
-                s = PeriodicSite(site.species_and_occu, site.coords + v,
-                                 new_lattice, properties=site.properties,
-                                 coords_are_cartesian=True, to_unit_cell=True)
-                new_sites.append(s)
-        self._sites = new_sites
-        self._lattice = new_lattice
+        s = self * scaling_matrix
+        self._sites = s.sites
+        self._lattice = s.lattice
 
     def scale_lattice(self, volume):
         """
@@ -2524,8 +2525,6 @@ class Structure(IStructure, collections.MutableSequence):
             sites.append(PeriodicSite(species, coords, self.lattice))
 
         self._sites = sites
-
-
 
 
 class Molecule(IMolecule, collections.MutableSequence):
@@ -2579,8 +2578,8 @@ class Molecule(IMolecule, collections.MutableSequence):
         if isinstance(site, Site):
             self._sites[i] = site
         else:
-            if isinstance(site, six.string_types) or (not isinstance(site, \
-                    collections.Sequence)):
+            if isinstance(site, six.string_types) or (
+                    not isinstance(site, collections.Sequence)):
                 sp = site
                 coords = self._sites[i].coords
                 properties = self._sites[i].properties

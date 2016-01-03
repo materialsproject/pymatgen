@@ -22,6 +22,8 @@ import json
 import numpy as np
 import warnings
 
+
+from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning
 from pymatgen import Spin, Orbital, Lattice, Structure
@@ -48,9 +50,9 @@ class VasprunTest(unittest.TestCase):
         #test pdos parsing
 
         pdos0 = vasprun.complete_dos.pdos[vasprun.final_structure[0]]
-        self.assertAlmostEqual(pdos0[Orbital.s][1][16], 0.0026)
-        self.assertAlmostEqual(pdos0[Orbital.pz][-1][16], 0.0012)
-        self.assertEqual(pdos0[Orbital.s][1].shape, (301, ))
+        self.assertAlmostEqual(pdos0[Orbital.s][Spin.up][16], 0.0026)
+        self.assertAlmostEqual(pdos0[Orbital.pz][Spin.down][16], 0.0012)
+        self.assertEqual(pdos0[Orbital.s][Spin.up].shape, (301, ))
 
 
         filepath2 = os.path.join(test_dir, 'lifepo4.xml')
@@ -101,7 +103,7 @@ class VasprunTest(unittest.TestCase):
             for orbitaldos in atomdoses:
                 self.assertIsNotNone(orbitaldos, "Partial Dos cannot be read")
 
-        #test skipping ionic steps.
+        # test skipping ionic steps.
         vasprun_skip = Vasprun(filepath, 3, parse_potcar_file=False)
         self.assertEqual(vasprun_skip.nionic_steps, 29)
         self.assertEqual(len(vasprun_skip.ionic_steps),
@@ -110,14 +112,14 @@ class VasprunTest(unittest.TestCase):
                          len(vasprun_skip.structures))
         self.assertEqual(len(vasprun_skip.ionic_steps),
                          int(vasprun.nionic_steps / 3) + 1)
-        #Check that nionic_steps is preserved no matter what.
+        # Check that nionic_steps is preserved no matter what.
         self.assertEqual(vasprun_skip.nionic_steps,
                          vasprun.nionic_steps)
 
         self.assertNotAlmostEqual(vasprun_skip.final_energy,
                                   vasprun.final_energy)
 
-        #Test with ionic_step_offset
+        # Test with ionic_step_offset
         vasprun_offset = Vasprun(filepath, 3, 6, parse_potcar_file=False)
         self.assertEqual(len(vasprun_offset.ionic_steps),
                          int(len(vasprun.ionic_steps) / 3) - 1)
@@ -180,7 +182,8 @@ class VasprunTest(unittest.TestCase):
 
         vasprun_uniform = Vasprun(os.path.join(test_dir, "vasprun.xml.uniform"),
                                   parse_potcar_file=False)
-        self.assertEqual(vasprun_uniform.kpoints.style, "Reciprocal")
+        self.assertEqual(vasprun_uniform.kpoints.style,
+                         Kpoints.supported_modes.Reciprocal)
 
 
         vasprun_no_pdos = Vasprun(os.path.join(test_dir, "Li_no_projected.xml"),
@@ -205,7 +208,8 @@ class VasprunTest(unittest.TestCase):
         self.assertEquals(vr.atomic_symbols, ['Xe'])
 
     def test_invalid_element(self):
-        self.assertRaises(KeyError, Vasprun, os.path.join(test_dir, 'vasprun.xml.wrong_sp'))
+        self.assertRaises(ValueError, Vasprun,
+                          os.path.join(test_dir, 'vasprun.xml.wrong_sp'))
 
     def test_as_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
@@ -229,8 +233,7 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(cbm['energy'], 6.2301, "wrong cbm energy")
         self.assertEqual(cbm['band_index'], {Spin.up: [4], Spin.down: [4]},
                          "wrong cbm bands")
-        self.assertEqual(vbm['kpoint_index'], [0, 63, 64],
-                         "wrong vbm kpoint index")
+        self.assertEqual(vbm['kpoint_index'], [0, 63, 64])
         self.assertAlmostEqual(vbm['energy'], 5.6158, "wrong vbm energy")
         self.assertEqual(vbm['band_index'], {Spin.up: [1, 2, 3],
                                              Spin.down: [1, 2, 3]},
@@ -431,8 +434,7 @@ class BSVasprunTest(unittest.TestCase):
         self.assertAlmostEqual(cbm['energy'], 6.2301, "wrong cbm energy")
         self.assertEqual(cbm['band_index'], {Spin.up: [4], Spin.down: [4]},
                          "wrong cbm bands")
-        self.assertEqual(vbm['kpoint_index'], [0, 63, 64],
-                         "wrong vbm kpoint index")
+        self.assertEqual(vbm['kpoint_index'], [0, 63, 64])
         self.assertAlmostEqual(vbm['energy'], 5.6158, "wrong vbm energy")
         self.assertEqual(vbm['band_index'], {Spin.up: [1, 2, 3],
                                              Spin.down: [1, 2, 3]},
@@ -503,7 +505,8 @@ class ProcarTest(unittest.TestCase):
                                                [0.25, 0.25, 0.25],
                                                [0.75, 0.75, 0.75]])
         d = p.get_projection_on_elements(s)
-        self.assertAlmostEqual(d[1][2][2], {'Na': 0.042, 'K': 0.646, 'Li': 0.042})
+        self.assertAlmostEqual(d[Spin.up][2][2],
+                               {'Na': 0.042, 'K': 0.646, 'Li': 0.042})
         filepath = os.path.join(test_dir, 'PROCAR')
         p = Procar(filepath)
         self.assertAlmostEqual(p.get_occupation(0, 'd'), 4.3698147704200059)
@@ -526,6 +529,7 @@ class XdatcarTest(unittest.TestCase):
         self.assertEqual(len(structures), 4)
         for s in structures:
             self.assertEqual(s.formula, "Li2 O1")
+
 
 class DynmatTest(unittest.TestCase):
 

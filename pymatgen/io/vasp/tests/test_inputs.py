@@ -398,7 +398,7 @@ class KpointsTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'KPOINTS.band')
         kpoints = Kpoints.from_file(filepath)
         self.assertIsNotNone(kpoints.labels)
-        self.assertEqual(kpoints.style, "Line_mode")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Line_mode)
         kpoints_str = str(kpoints)
         self.assertEqual(kpoints_str.split("\n")[3], "Reciprocal")
 
@@ -419,30 +419,30 @@ Cartesian
 
     def test_static_constructors(self):
         kpoints = Kpoints.gamma_automatic([3, 3, 3], [0, 0, 0])
-        self.assertEqual(kpoints.style, "Gamma")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
         self.assertEqual(kpoints.kpts, [[3, 3, 3]])
         kpoints = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
-        self.assertEqual(kpoints.style, "Monkhorst")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
         self.assertEqual(kpoints.kpts, [[2, 2, 2]])
         kpoints = Kpoints.automatic(100)
-        self.assertEqual(kpoints.style, "Automatic")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Automatic)
         self.assertEqual(kpoints.kpts, [[100]])
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         kpoints = Kpoints.automatic_density(poscar.structure, 500)
         self.assertEqual(kpoints.kpts, [[2, 4, 4]])
-        self.assertEqual(kpoints.style, "Monkhorst")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
         kpoints = Kpoints.automatic_density(poscar.structure, 500, True)
-        self.assertEqual(kpoints.style, "Gamma")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
         kpoints = Kpoints.automatic_density_by_vol(poscar.structure, 1000)
         self.assertEqual(kpoints.kpts, [[6, 11, 13]])
-        self.assertEqual(kpoints.style, "Gamma")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
         s = poscar.structure
         s.make_supercell(3)
         kpoints = Kpoints.automatic_density(s, 500)
         self.assertEqual(kpoints.kpts, [[1, 1, 1]])
-        self.assertEqual(kpoints.style, "Gamma")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
     def test_as_dict_from_dict(self):
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
@@ -469,10 +469,8 @@ Cartesian
 class PotcarSingleTest(unittest.TestCase):
 
     def setUp(self):
-        #with zopen(os.path.join(test_dir, "POT_GGA_PAW_PBE",
-        #                        "POTCAR.Mn_pv.gz"), 'rb') as f:
-        self.psingle = PotcarSingle.from_file(os.path.join(test_dir, "POT_GGA_PAW_PBE",
-                                "POTCAR.Mn_pv.gz"))
+        self.psingle = PotcarSingle.from_file(
+            os.path.join(test_dir, "POT_GGA_PAW_PBE", "POTCAR.Mn_pv.gz"))
 
     def test_keywords(self):
         data = {'VRHFIN': 'Mn: 3p4s3d', 'LPAW': True, 'DEXC': -.003,

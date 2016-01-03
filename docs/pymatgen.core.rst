@@ -26,14 +26,6 @@ pymatgen.core.composition module
     :undoc-members:
     :show-inheritance:
 
-pymatgen.core.design_patterns module
-------------------------------------
-
-.. automodule:: pymatgen.core.design_patterns
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pymatgen.core.ion module
 ------------------------
 

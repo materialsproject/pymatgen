@@ -22,7 +22,7 @@ class ElementTestCase(unittest.TestCase):
         fictional_symbols = ["D", "T", "Zebra"]
 
         for sym in fictional_symbols:
-            self.assertRaises(KeyError, Element, sym)
+            self.assertRaises(ValueError, Element, sym)
 
         #Test caching
         self.assertEqual(id(Element("Fe")), id(Element("Fe")))
