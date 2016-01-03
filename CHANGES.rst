@@ -12,7 +12,7 @@ v3.3.0
 * Alternative, more pythonic syntax for creating supercells via simply
   Structure * 3 or Structure * (3, 1, 1).
 * zeo++ fixes.
-* More stable incar settings for MITMDVaspInputSet
+* More stable incar settings for MITMDVaspInputSet.
 
 v3.2.10
 -------
