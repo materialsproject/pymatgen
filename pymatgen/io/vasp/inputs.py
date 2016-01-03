@@ -836,6 +836,9 @@ class Kpoints(MSONable):
         if num_kpts > 0 and (not labels) and (not kpts_weights):
             raise ValueError("For explicit or line-mode kpoints, either the "
                              "labels or kpts_weights must be specified.")
+        if isinstance(style, six.string_types):
+            style = Kpoints.supported_modes.from_string(style)
+
         if style in (Kpoints.supported_modes.Automatic,
                      Kpoints.supported_modes.Gamma,
                      Kpoints.supported_modes.Monkhorst) and len(kpts) > 1:
