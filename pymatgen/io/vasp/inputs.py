@@ -770,15 +770,23 @@ class Kpoints(MSONable):
     """
 
     class supported_modes(Enum):
-        Automatic = "Automatic"
-        Gamma = "Gamma"
-        Monkhorst = "Monkhorst"
-        Line_mode = "Line_mode"
-        Cartesian = "Cartesian"
-        Reciprocal = "Reciprocal"
+        Automatic = 0
+        Gamma = 1
+        Monkhorst = 2
+        Line_mode = 3
+        Cartesian = 4
+        Reciprocal = 5
 
         def __str__(self):
-            return self.value
+            return self.name
+
+        @staticmethod
+        def from_string(s):
+            c = s.lower()[0]
+            for m in Kpoints.supported_modes:
+                if m.name.lower()[0] == c:
+                    return m
+            raise ValueError("Can't interprete Kpoint mode %s" % s)
 
     def __init__(self, comment="Default gamma", num_kpts=0,
                  style=supported_modes.Gamma,
@@ -1158,7 +1166,8 @@ class Kpoints(MSONable):
         except IndexError:
             pass
 
-        return Kpoints(comment=comment, num_kpts=num_kpts, style=style,
+        return Kpoints(comment=comment, num_kpts=num_kpts,
+                       style=Kpoints.supported_modes[str(style)],
                        kpts=kpts, kpts_weights=kpts_weights,
                        tet_number=tet_number, tet_weight=tet_weight,
                        tet_connections=tet_connections, labels=labels)
@@ -1174,8 +1183,8 @@ class Kpoints(MSONable):
             f.write(self.__str__())
 
     def __str__(self):
-        lines = [self.comment, str(self.num_kpts), self.style.value]
-        style = str(self.style).lower()[0]
+        lines = [self.comment, str(self.num_kpts), self.style.name]
+        style = self.style.name.lower()[0]
         if style == "l":
             lines.append(self.coord_type)
         for i in range(len(self.kpts)):
@@ -1208,7 +1217,7 @@ class Kpoints(MSONable):
     def as_dict(self):
         """json friendly dict representation of Kpoints"""
         d = {"comment": self.comment, "nkpoints": self.num_kpts,
-             "generation_style": str(self.style), "kpoints": self.kpts,
+             "generation_style": self.style.name, "kpoints": self.kpts,
              "usershift": self.kpts_shift,
              "kpts_weights": self.kpts_weights, "coord_type": self.coord_type,
              "labels": self.labels, "tet_number": self.tet_number,
@@ -1228,7 +1237,7 @@ class Kpoints(MSONable):
         comment = d.get("comment", "")
         generation_style = d.get("generation_style")
         if generation_style is not None:
-            generation_style = Kpoints.supported_modes(generation_style)
+            generation_style = Kpoints.supported_modes[generation_style]
 
         kpts = d.get("kpoints", [[1, 1, 1]])
         kpts_shift = d.get("usershift", [0, 0, 0])

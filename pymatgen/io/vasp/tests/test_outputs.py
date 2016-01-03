@@ -22,8 +22,8 @@ import json
 import numpy as np
 import warnings
 
-from pymatgen.electronic_structure.core import Spin, Orbital
 
+from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning
 from pymatgen import Spin, Orbital, Lattice, Structure
@@ -182,7 +182,8 @@ class VasprunTest(unittest.TestCase):
 
         vasprun_uniform = Vasprun(os.path.join(test_dir, "vasprun.xml.uniform"),
                                   parse_potcar_file=False)
-        self.assertEqual(vasprun_uniform.kpoints.style, "Reciprocal")
+        self.assertEqual(vasprun_uniform.kpoints.style,
+                         Kpoints.supported_modes.Reciprocal)
 
 
         vasprun_no_pdos = Vasprun(os.path.join(test_dir, "Li_no_projected.xml"),

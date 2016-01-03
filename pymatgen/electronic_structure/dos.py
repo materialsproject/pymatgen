@@ -251,7 +251,7 @@ class Dos(MSONable):
         Returns Dos object from dict representation of Dos.
         """
         return Dos(d["efermi"], d["energies"],
-                   {Spin.from_int(int(k)): v
+                   {Spin(int(k)): v
                     for k, v in d["densities"].items()})
 
     def as_dict(self):
@@ -439,8 +439,8 @@ class CompleteDos(Dos):
             at = struct[i]
             orb_dos = {}
             for orb_str, odos in d["pdos"][i].items():
-                orb = Orbital.from_string(orb_str)
-                orb_dos[orb] = {Spin.from_int(int(k)): v
+                orb = Orbital[orb_str]
+                orb_dos[orb] = {Spin(int(k)): v
                                 for k, v in odos["densities"].items()}
             pdoss[at] = orb_dos
         return CompleteDos(struct, tdos, pdoss)

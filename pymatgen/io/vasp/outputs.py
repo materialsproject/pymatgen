@@ -656,13 +656,12 @@ class Vasprun(MSONable):
 
         neigenvalues = [len(v['1']) for v in dict_eigen.values()]
         min_eigenvalues = min(neigenvalues)
-        get_orb = Orbital.from_string
         for i in range(min_eigenvalues):
             eigenvals[Spin.up].append([dict_eigen[str(j)]['1'][i][0]
                                        for j in range(len(kpoints))])
             if len(dict_p_eigen) != 0:
                 p_eigenvals[Spin.up].append(
-                    [{get_orb(orb): dict_p_eigen[j]['1'][i][orb]
+                    [{Orbital[orb]: dict_p_eigen[j]['1'][i][orb]
                       for orb in dict_p_eigen[j]['1'][i]}
                      for j in range(len(kpoints))])
         if Spin.down in eigenvals:
@@ -671,7 +670,7 @@ class Vasprun(MSONable):
                                              for j in range(len(kpoints))])
                 if len(dict_p_eigen) != 0:
                     p_eigenvals[Spin.down].append(
-                        [{get_orb(orb): dict_p_eigen[j]['-1'][i][orb]
+                        [{Orbital[orb]: dict_p_eigen[j]['-1'][i][orb]
                           for orb in dict_p_eigen[j]['-1'][i]}
                          for j in range(len(kpoints))]
                     )
@@ -920,7 +919,8 @@ class Vasprun(MSONable):
         if elem.find("generation"):
             e = elem.find("generation")
         k = Kpoints("Kpoints from vasprun.xml")
-        k.style = e.attrib["param"] if "param" in e.attrib else "Reciprocal"
+        k.style = Kpoints.supported_modes.from_string(
+            e.attrib["param"] if "param" in e.attrib else "Reciprocal")
         for v in e.findall("v"):
             name = v.attrib.get("name")
             toks = v.text.split()
@@ -937,10 +937,11 @@ class Vasprun(MSONable):
             elif name == "weights":
                 weights = [i[0] for i in _parse_varray(va)]
         elem.clear()
-        if k.style == "Reciprocal":
+        if k.style == Kpoints.supported_modes.Reciprocal:
             k = Kpoints(comment="Kpoints from vasprun.xml",
-                    style="Reciprocal", num_kpts=len(k.kpts),
-                    kpts=actual_kpoints, kpts_weights=weights)
+                style=Kpoints.supported_modes.Reciprocal,
+                num_kpts=len(k.kpts),
+                kpts=actual_kpoints, kpts_weights=weights)
         return k, actual_kpoints, weights
 
     def _parse_structure(self, elem):
@@ -1015,7 +1016,7 @@ class Vasprun(MSONable):
                     nrow, ncol = data.shape
                     for j in range(1, ncol):
                         if lm:
-                            orb = Orbital.from_vasp_index(j - 1)
+                            orb = Orbital(j - 1)
                         else:
                             orb = orbs[j - 1].strip().upper()
                         pdos[orb][spin] = data[:, j]
@@ -1044,7 +1045,7 @@ class Vasprun(MSONable):
                 for band, sss in enumerate(ss.findall("set")):
                     for atom, data in enumerate(_parse_varray(sss)):
                         for i, v in enumerate(data):
-                            orb = Orbital.from_vasp_index(i)
+                            orb = Orbital(i)
                             proj_eigen[(spin, kpt, band, atom, orb)] = v
         elem.clear()
         return proj_eigen
