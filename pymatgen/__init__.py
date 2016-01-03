@@ -9,7 +9,7 @@ __version__ = "3.2.10"
 
 
 # Useful aliases for commonly used objects and modules.
-# Allows from pymatgen import X for quick usage.
+# Allows from pymatgen import <class> for quick usage.
 
 from .core import *
 from .serializers.json_coders import pmg_dump, pmg_load
