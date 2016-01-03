@@ -3,6 +3,7 @@ Change log
 
 v3.3.0
 ------
+* Updated and checked for Python 3.5.* compatibility.
 * Element, Spin, Orbital and various other Enum-like classes are now actually
   implemented using Enum (with enum34 dependency for Python < 3.4).
 * Speed up Site creation by 20% for ordered sites, with cost in terms of
