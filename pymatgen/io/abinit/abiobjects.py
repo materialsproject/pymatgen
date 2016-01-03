@@ -831,7 +831,7 @@ class PPModel(AbivarAble, MSONable):
         return not self == other
 
     def __bool__(self):
-        return self.mode != KSampling.modes.noppmodel
+        return self.mode != PPModel.modes.noppmodel
 
     # py2 old version
     __nonzero__ = __bool__
