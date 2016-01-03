@@ -23,7 +23,7 @@ import re
 import string
 
 import six
-from six.moves import filter, map, zip, UserDict
+from six.moves import filter, map, zip
 
 from fractions import Fraction
 from functools import total_ordering
@@ -36,7 +36,7 @@ from pymatgen.core.units import unitized
 
 
 @total_ordering
-class Composition(UserDict, collections.Hashable, collections.Mapping, MSONable):
+class Composition(collections.Hashable, collections.Mapping, MSONable):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
     type. Composition is written to be immutable and hashable,
@@ -91,7 +91,7 @@ class Composition(UserDict, collections.Hashable, collections.Mapping, MSONable)
                         "O": "O2",  "N": "N2", "F": "F2", "Cl": "Cl2",
                         "H": "H2"}
 
-    def __init__(self, *args, **kwargs): #allow_negative=False
+    def __init__(self, *args, **kwargs):  # allow_negative=False
         """
         Very flexible Composition construction, similar to the built-in Python
         dict(). Also extended to allow simple string init.
@@ -133,25 +133,27 @@ class Composition(UserDict, collections.Hashable, collections.Mapping, MSONable)
             if abs(v) >= Composition.amount_tolerance:
                 elamt[get_el_sp(k)] = v
                 self._natoms += abs(v)
-        super(Composition, self).__init__(elamt)
+        self._data = elamt
 
-    def __iter__(self):
-        return self.keys().__iter__()
-
-    def __missing__(self, el):
+    def __getitem__(self, item):
         try:
-            sp = get_el_sp(el)
-            return self.get(sp, 0)
+            sp = get_el_sp(item)
+            return self._data.get(sp, 0)
         except ValueError as ex:
             raise TypeError("Invalid key type for Composition")
+
+    def __len__(self):
+        return len(self._data)
+
+    def __iter__(self):
+        return self._data.keys().__iter__()
 
     def __contains__(self, item):
         try:
             sp = get_el_sp(item)
-            return sp in self.data
+            return sp in self._data
         except ValueError:
             raise TypeError("Invalid key type for Composition")
-
 
     def __eq__(self, other):
         #  elements with amounts < Composition.amount_tolerance don't show up
@@ -163,14 +165,6 @@ class Composition(UserDict, collections.Hashable, collections.Mapping, MSONable)
             if abs(v - other[el]) > Composition.amount_tolerance:
                 return False
         return True
-
-    def __setitem__(self, key, value):
-        raise TypeError("Composition is immutable by construction."
-            "Setting of values is not allowed.")
-
-    def __delitem__(self, key):
-        raise TypeError("Composition is immutable by construction."
-            "Deleting values is not allowed.")
 
     def __ge__(self, other):
         """
