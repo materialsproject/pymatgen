@@ -682,7 +682,7 @@ class Vasprun(MSONable):
             hybrid_band = True
 
         if kpoint_file is not None:
-            if kpoint_file.style == "Line_mode":
+            if kpoint_file.style == Kpoints.supported_modes.Line_mode:
                 line_mode = True
 
         if line_mode:
@@ -697,8 +697,8 @@ class Vasprun(MSONable):
                     if kpoint_file.labels[i] is not None:
                         labels_dict[kpoint_file.labels[i]] = \
                             kpoint_file.kpts[i]
-                #remake the data only considering line band structure k-points
-                #(weight = 0.0 kpoints)
+                # remake the data only considering line band structure k-points
+                # (weight = 0.0 kpoints)
                 kpoints = kpoints[start_bs_index:len(kpoints)]
                 up_eigen = [eigenvals[Spin.up][i][
                             start_bs_index:len(eigenvals[Spin.up][i])]
