@@ -2207,7 +2207,7 @@ class Structure(IStructure, collections.MutableSequence):
             c = Composition()
             for sp, amt in site.species_and_occu.items():
                 new_sp = species_mapping.get(sp, sp)
-                if isinstance(new_sp, collections.Mapping):
+                if isinstance(new_sp, (Composition, collections.Mapping)):
                     c += Composition(new_sp) * amt
                 else:
                     c += {new_sp: amt}
