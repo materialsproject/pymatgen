@@ -22,6 +22,7 @@ import os
 import re
 import json
 from io import open
+from enum import Enum
 
 from pymatgen.core.units import Mass, Length, unitized
 from monty.design_patterns import singleton, cached_class
@@ -41,9 +42,7 @@ _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 ALL_ELEMENT_SYMBOLS = set(_pt_data.keys())
 
 
-@cached_class
-@total_ordering
-class Element(object):
+class Element(Enum):
     """
     Basic immutable element object with all relevant properties.
     Only one instance of Element for each symbol is stored after creation,
@@ -269,14 +268,121 @@ class Element(object):
         {oxidation state: ionic radii}. Radii are given in ang.
     """
 
+    # This name = value convention is redundant and dumb, but unfortunately is
+    # necessary to preserve backwards compatibility with a time when Element is
+    # a regular object that is constructed with Element(symbol).
+    H = "H"
+    He = "He"
+    Li = "Li"
+    Be = "Be"
+    B = "B"
+    C = "C"
+    N = "N"
+    O = "O"
+    F = "F"
+    Ne = "Ne"
+    Na = "Na"
+    Mg = "Mg"
+    Al = "Al"
+    Si = "Si"
+    P = "P"
+    S = "S"
+    Cl = "Cl"
+    Ar = "Ar"
+    K = "K"
+    Ca = "Ca"
+    Sc = "Sc"
+    Ti = "Ti"
+    V = "V"
+    Cr = "Cr"
+    Mn = "Mn"
+    Fe = "Fe"
+    Co = "Co"
+    Ni = "Ni"
+    Cu = "Cu"
+    Zn = "Zn"
+    Ga = "Ga"
+    Ge = "Ge"
+    As = "As"
+    Se = "Se"
+    Br = "Br"
+    Kr = "Kr"
+    Rb = "Rb"
+    Sr = "Sr"
+    Y = "Y"
+    Zr = "Zr"
+    Nb = "Nb"
+    Mo = "Mo"
+    Tc = "Tc"
+    Ru = "Ru"
+    Rh = "Rh"
+    Pd = "Pd"
+    Ag = "Ag"
+    Cd = "Cd"
+    In = "In"
+    Sn = "Sn"
+    Sb = "Sb"
+    Te = "Te"
+    I = "I"
+    Xe = "Xe"
+    Cs = "Cs"
+    Ba = "Ba"
+    La = "La"
+    Ce = "Ce"
+    Pr = "Pr"
+    Nd = "Nd"
+    Pm = "Pm"
+    Sm = "Sm"
+    Eu = "Eu"
+    Gd = "Gd"
+    Tb = "Tb"
+    Dy = "Dy"
+    Ho = "Ho"
+    Er = "Er"
+    Tm = "Tm"
+    Yb = "Yb"
+    Lu = "Lu"
+    Hf = "Hf"
+    Ta = "Ta"
+    W = "W"
+    Re = "Re"
+    Os = "Os"
+    Ir = "Ir"
+    Pt = "Pt"
+    Au = "Au"
+    Hg = "Hg"
+    Tl = "Tl"
+    Pb = "Pb"
+    Bi = "Bi"
+    Po = "Po"
+    At = "At"
+    Rn = "Rn"
+    Fr = "Fr"
+    Ra = "Ra"
+    Ac = "Ac"
+    Th = "Th"
+    Pa = "Pa"
+    U = "U"
+    Np = "Np"
+    Pu = "Pu"
+    Am = "Am"
+    Cm = "Cm"
+    Bk = "Bk"
+    Cf = "Cf"
+    Es = "Es"
+    Fm = "Fm"
+    Md = "Md"
+    No = "No"
+    Lr = "Lr"
+
     def __init__(self, symbol):
-        self._symbol = "%s" % symbol
+        self.symbol = "%s" % symbol
         self._data = _pt_data[symbol]
 
         # Store key variables for quick access
-        self._z = self._data["Atomic no"]
-        self._x = self._data.get("X", 0)
-        for a in ["name", "mendeleev_no", "electrical_resistivity",
+        self.Z = self._data["Atomic no"]
+        self.X = self._data.get("X", 0)
+        for a in ["mendeleev_no", "electrical_resistivity",
                   "velocity_of_sound", "reflectivity",
                   "refractive_index", "poissons_ratio", "molar_volume",
                   "electronic_structure", "thermal_conductivity",
@@ -292,21 +398,13 @@ class Element(object):
             val = self._data.get(kstr, None)
             if str(val).startswith("no data"):
                 val = None
-            self.__setattr__(a, val)
+            setattr(self, a, val)
         if str(self._data.get("Atomic radius",
                               "no data")).startswith("no data"):
             self.atomic_radius = None
         else:
             self.atomic_radius = Length(self._data["Atomic radius"], "ang")
         self.atomic_mass = Mass(self._data["Atomic mass"], "amu")
-
-    def __getnewargs__(self):
-        # function used by pickle to recreate object
-        return self._symbol,
-
-    def __getinitargs__(self):
-        # function used by pickle to recreate object
-        return self._symbol,
 
     @property
     def data(self):
@@ -339,21 +437,6 @@ class Element(object):
             return {int(k): v for k, v in self._data["Ionic radii"].items()}
         else:
             return {}
-
-    @property
-    def Z(self):
-        """Atomic number"""
-        return self._z
-
-    @property
-    def symbol(self):
-        """Element symbol"""
-        return self._symbol
-
-    @property
-    def X(self):
-        """Electronegativity"""
-        return self._x
 
     @property
     def number(self):
@@ -407,13 +490,13 @@ class Element(object):
         return data
 
     def __eq__(self, other):
-        return isinstance(other, Element) and self._z == other._z
+        return isinstance(other, Element) and self.Z == other.Z
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return self._z
+        return self.Z
 
     def __repr__(self):
         return "Element " + self.symbol
@@ -487,7 +570,7 @@ class Element(object):
         """
         Returns the periodic table row of the element.
         """
-        z = self._z
+        z = self.Z
         total = 0
         if 57 <= z <= 70:
             return 8
@@ -505,7 +588,7 @@ class Element(object):
         """
         Returns the periodic table group of the element.
         """
-        z = self._z
+        z = self.Z
         if z == 1:
             return 1
         if z == 2:
@@ -554,7 +637,7 @@ class Element(object):
         """
         True if element is noble gas.
         """
-        return self._z in (2, 10, 18, 36, 54, 86, 118)
+        return self.Z in (2, 10, 18, 36, 54, 86, 118)
 
     @property
     def is_transition_metal(self):
@@ -567,7 +650,7 @@ class Element(object):
         ns.extend(list(range(72, 81)))
         ns.append(89)
         ns.extend(list(range(104, 113)))
-        return self._z in ns
+        return self.Z in ns
 
     @property
     def is_rare_earth_metal(self):
@@ -588,42 +671,42 @@ class Element(object):
         """
         True if element is an alkali metal.
         """
-        return self._z in (3, 11, 19, 37, 55, 87)
+        return self.Z in (3, 11, 19, 37, 55, 87)
 
     @property
     def is_alkaline(self):
         """
         True if element is an alkaline earth metal (group II).
         """
-        return self._z in (4, 12, 20, 38, 56, 88)
+        return self.Z in (4, 12, 20, 38, 56, 88)
 
     @property
     def is_halogen(self):
         """
         True if element is a halogen.
         """
-        return self._z in (9, 17, 35, 53, 85)
+        return self.Z in (9, 17, 35, 53, 85)
 
     @property
     def is_chalcogen(self):
         """
         True if element is a chalcogen.
         """
-        return self._z in (8, 18, 34, 52, 84)
+        return self.Z in (8, 18, 34, 52, 84)
 
     @property
     def is_lanthanoid(self):
         """
         True if element is a lanthanoid.
         """
-        return 56 < self._z < 72
+        return 56 < self.Z < 72
 
     @property
     def is_actinoid(self):
         """
         True if element is a actinoid.
         """
-        return 88 < self._z < 104
+        return 88 < self.Z < 104
 
     def __deepcopy__(self, memo):
         return Element(self.symbol)
@@ -711,7 +794,7 @@ class Specie(MSONable):
         Specie is equal to other only if element and oxidation states are
         exactly the same.
         """
-        return isinstance(other, Specie) and self._symbol == other._symbol \
+        return isinstance(other, Specie) and self.symbol == other.symbol \
             and self._oxi_state == other._oxi_state \
             and self._properties == other._properties
 
@@ -724,7 +807,7 @@ class Specie(MSONable):
         should effectively ensure that no two unequal Specie have the same
         hash.
         """
-        return self._el._z * 1000 + int(self._oxi_state)
+        return self._el.Z * 1000 + int(self._oxi_state)
 
     def __lt__(self, other):
         """
@@ -1096,7 +1179,6 @@ class PeriodicTable(object):
                 yield self._all_elements[sym]
 
     def __getitem__(self, Z_or_slice):
-        # print Z_or_slice, symbol_from_Z(Z_or_slice)
         try:
             if isinstance(Z_or_slice, slice):
                 return [Element.from_Z(z) for z in list(range(
