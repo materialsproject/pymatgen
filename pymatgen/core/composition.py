@@ -25,9 +25,13 @@ import string
 import six
 from six.moves import filter, map, zip
 
+try:
+    from UserDict import IterableUserDict as UserDict
+except ImportError:
+    from collections import UserDict
+
 from fractions import Fraction
 from functools import total_ordering
-from UserDict import IterableUserDict
 
 from monty.fractions import gcd
 from pymatgen.core.periodic_table import get_el_sp, Element
@@ -37,7 +41,7 @@ from pymatgen.core.units import unitized
 
 
 @total_ordering
-class Composition(IterableUserDict, collections.Hashable, MSONable):
+class Composition(UserDict, collections.Hashable, MSONable):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
     type. Composition is written to be immutable and hashable,
