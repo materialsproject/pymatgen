@@ -208,7 +208,8 @@ class VasprunTest(unittest.TestCase):
         self.assertEquals(vr.atomic_symbols, ['Xe'])
 
     def test_invalid_element(self):
-        self.assertRaises(KeyError, Vasprun, os.path.join(test_dir, 'vasprun.xml.wrong_sp'))
+        self.assertRaises(ValueError, Vasprun,
+                          os.path.join(test_dir, 'vasprun.xml.wrong_sp'))
 
     def test_as_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
