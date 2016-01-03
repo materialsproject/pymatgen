@@ -2207,14 +2207,14 @@ class Structure(IStructure, collections.MutableSequence):
             c = Composition()
             for sp, amt in site.species_and_occu.items():
                 new_sp = species_mapping.get(sp, sp)
-                if isinstance(new_sp, (Composition, collections.Mapping)):
+                if isinstance(new_sp, collections.Mapping):
                     c += Composition(new_sp) * amt
                 else:
                     c += {new_sp: amt}
             return PeriodicSite(c, site.frac_coords, latt,
                                 properties=site.properties)
 
-        self._sites = list(map(mod_site, self._sites))
+        self._sites = [mod_site(site) for site in self._sites]
 
     def replace(self, i, species, coords=None, coords_are_cartesian=False,
                 properties=None):
