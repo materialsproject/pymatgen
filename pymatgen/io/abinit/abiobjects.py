@@ -15,7 +15,7 @@ import pymatgen.core.units as units
 from pprint import pformat
 from monty.design_patterns import singleton
 from monty.collections import AttrDict
-from pymatgen.core.design_patterns import Enum
+from enum import Enum
 from monty.json import MSONable
 from pymatgen.serializers.json_coders import pmg_serialize
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
