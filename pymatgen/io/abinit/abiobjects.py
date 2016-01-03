@@ -340,7 +340,10 @@ class KSampling(AbivarAble, MSONable):
     Input variables defining the K-point sampling.
     """
     # Modes supported by the constructor.
-    modes = Enum("modes", 'monkhorst path automatic')
+    class modes(Enum):
+        monkhorst = 1
+        path = 2
+        automatic = 3
 
     def __init__(self, mode="monkhorst", num_kpts= 0, kpts=((1, 1, 1),),
                  kpt_shifts=(0.5, 0.5, 0.5),
