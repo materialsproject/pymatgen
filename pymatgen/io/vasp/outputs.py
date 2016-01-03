@@ -905,7 +905,7 @@ class Vasprun(MSONable):
             try:
                 return str(Element(symbol))
             # vasprun.xml uses X instead of Xe for xenon
-            except KeyError as e:
+            except ValueError as e:
                 if symbol == "X":
                     return "Xe"
                 raise e
