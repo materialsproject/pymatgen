@@ -334,18 +334,21 @@ class Electrons(AbivarAble, MSONable):
         #abivars["#comment"] = self.comment
         return abivars
 
+class KSamplingModes(Enum):
+    monkhorst = 1
+    path = 2
+    automatic = 3
+
 
 class KSampling(AbivarAble, MSONable):
     """
     Input variables defining the K-point sampling.
     """
     # Modes supported by the constructor.
-    class modes(Enum):
-        monkhorst = 1
-        path = 2
-        automatic = 3
 
-    def __init__(self, mode="monkhorst", num_kpts= 0, kpts=((1, 1, 1),),
+
+    def __init__(self, mode=KSamplingModes.monkhorst, num_kpts= 0,
+                 kpts=((1, 1, 1),),
                  kpt_shifts=(0.5, 0.5, 0.5),
                  kpts_weights=None, use_symmetries=True, use_time_reversal=True, chksymbreak=None,
                  comment=None):
@@ -385,7 +388,7 @@ class KSampling(AbivarAble, MSONable):
             The default behavior of the constructor is monkhorst.
         """
         if isinstance(mode, six.string_types):
-            mode = KSampling.modes[mode]
+            mode = KSamplingModes[mode]
 
         super(KSampling, self).__init__()
 
@@ -402,7 +405,7 @@ class KSampling(AbivarAble, MSONable):
 
         abivars = {}
 
-        if mode == KSampling.modes.monkhorst:
+        if mode == KSamplingModes.monkhorst:
             assert num_kpts == 0
             ngkpt  = np.reshape(kpts, 3)
             shiftk = np.reshape(kpt_shifts, (-1,3))
@@ -771,17 +774,20 @@ class RelaxationMethod(AbivarAble, MSONable):
         return cls(**d)
 
 
+class PPModelModes(Enum):
+    noppmodel = 0
+    godby = 1
+    hybersten = 2
+    linden = 3
+    farid = 4
+
+
 class PPModel(AbivarAble, MSONable):
     """
     Parameters defining the plasmon-pole technique.
     The common way to instanciate a PPModel object is via the class method PPModel.as_ppmodel(string)
     """
-    class modes(Enum):
-        noppmodel = 0
-        godby = 1
-        hybersten = 2
-        linden = 3
-        farid = 4
+
 
     @classmethod
     def as_ppmodel(cls, obj):
@@ -811,7 +817,7 @@ class PPModel(AbivarAble, MSONable):
 
     def __init__(self, mode="godby", plasmon_freq=None):
         if isinstance(mode, six.string_types):
-            mode = PPModel.modes[mode]
+            mode = PPModelModes[mode]
         self.mode = mode
         self.plasmon_freq = plasmon_freq
 
@@ -831,7 +837,7 @@ class PPModel(AbivarAble, MSONable):
         return not self == other
 
     def __bool__(self):
-        return self.mode != PPModel.modes.noppmodel
+        return self.mode != PPModelModes.noppmodel
 
     # py2 old version
     __nonzero__ = __bool__
@@ -852,7 +858,7 @@ class PPModel(AbivarAble, MSONable):
         return cls(mode="noppmodel", plasmon_freq=None)
 
     def as_dict(self):
-        return {"mode": self.mode, "plasmon_freq": self.plasmon_freq,
+        return {"mode": self.mode.name, "plasmon_freq": self.plasmon_freq,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
