@@ -141,7 +141,15 @@ class Composition(IterableUserDict, collections.Hashable, MSONable):
             sp = get_el_sp(el)
             return self.get(sp, 0)
         except ValueError as ex:
-            raise KeyError
+            raise TypeError("Invalid key type for Composition")
+
+    def __contains__(self, item):
+        try:
+            sp = get_el_sp(item)
+            return sp in self.data
+        except ValueError:
+            raise TypeError("Invalid key type for Composition")
+
 
     def __eq__(self, other):
         #  elements with amounts < Composition.amount_tolerance don't show up
