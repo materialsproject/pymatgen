@@ -395,25 +395,25 @@ class NwOutputTest(unittest.TestCase):
 
         self.assertEqual(0, nwo.data[0]["charge"])
         self.assertEqual(-1, nwo.data[-1]["charge"])
-        self.assertAlmostEqual(-1102.622361621359, nwo.data[0]["energies"][-1])
-        self.assertAlmostEqual(-1102.9985415777337, nwo.data[2]["energies"][-1])
-        self.assertAlmostEqual(-11156.353144819144,
+        self.assertAlmostEqual(-1102.6224098664698, nwo.data[0]["energies"][-1])
+        self.assertAlmostEqual(-1102.9985898393043, nwo.data[2]["energies"][-1])
+        self.assertAlmostEqual(-11156.353632964056,
                                nwo_cosmo.data[5]["energies"][0]["cosmo scf"])
-        self.assertAlmostEqual(-11153.37324779646,
+        self.assertAlmostEqual(-11153.373735810987,
                                nwo_cosmo.data[5]["energies"][0]["gas phase"])
-        self.assertAlmostEqual(-11156.353144818084,
+        self.assertAlmostEqual(-11156.353632962995,
                                nwo_cosmo.data[5]["energies"][0]["sol phase"])
-        self.assertAlmostEqual(-11168.818445621277,
+        self.assertAlmostEqual(-11168.818934311605,
                                nwo_cosmo.data[6]["energies"][0]["cosmo scf"])
-        self.assertAlmostEqual(-11166.361953878302,
+        self.assertAlmostEqual(-11166.3624424611462,
                                nwo_cosmo.data[6]["energies"][0]['gas phase'])
-        self.assertAlmostEqual(-11168.818445621277,
+        self.assertAlmostEqual(-11168.818934311605,
                                nwo_cosmo.data[6]["energies"][0]['sol phase'])
-        self.assertAlmostEqual(-11165.227470577684,
+        self.assertAlmostEqual(-11165.227959110889,
                                nwo_cosmo.data[7]["energies"][0]['cosmo scf'])
-        self.assertAlmostEqual(-11165.02495508804,
+        self.assertAlmostEqual(-11165.025443612385,
                                nwo_cosmo.data[7]["energies"][0]['gas phase'])
-        self.assertAlmostEqual(-11165.227470576949,
+        self.assertAlmostEqual(-11165.227959110154,
                                nwo_cosmo.data[7]["energies"][0]['sol phase'])
 
         self.assertAlmostEqual(nwo.data[1]["hessian"][0][0], 4.60187e+01)
@@ -434,7 +434,7 @@ class NwOutputTest(unittest.TestCase):
         ie = (nwo.data[4]["energies"][-1] - nwo.data[2]["energies"][-1])
         ea = (nwo.data[2]["energies"][-1] - nwo.data[3]["energies"][-1])
         self.assertAlmostEqual(0.7575358046858582, ie)
-        self.assertAlmostEqual(-14.997876767843081, ea)
+        self.assertAlmostEqual(-14.997877424073295, ea)
         self.assertEqual(nwo.data[4]["basis_set"]["C"]["description"],
                          "6-311++G**")
 

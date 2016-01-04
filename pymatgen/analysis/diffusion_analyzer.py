@@ -31,8 +31,10 @@ __date__ = "5/2/13"
 
 import numpy as np
 
+import scipy.constants as const
+
 from pymatgen.core import Structure, get_el_sp
-import pymatgen.core.physical_constants as phyc
+
 from monty.json import MSONable
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.coord_utils import pbc_diff
@@ -307,9 +309,10 @@ class DiffusionAnalyzer(MSONable):
         latt = self.structure.lattice
         nsites, nsteps, dim = self.corrected_displacements.shape
         for i in range(nsteps):
-            yield Structure(latt, species, coords
-                            + self.corrected_displacements[:, i, :],
-                            coords_are_cartesian=True)
+            yield Structure(
+                    latt, species,
+                    coords + self.corrected_displacements[:, i, :],
+                    coords_are_cartesian=True)
 
     def get_summary_dict(self, include_msd_t=False):
         """
@@ -351,6 +354,8 @@ class DiffusionAnalyzer(MSONable):
         Args:
             plt: A plot object. Defaults to None, which means one will be
                 generated.
+            mode (str): Determines type of msd plot. By "species", "sites",
+                or direction (default).
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8, plt=plt)
@@ -362,13 +367,14 @@ class DiffusionAnalyzer(MSONable):
                 sd = np.average(self.sq_disp_ions[indices, :], axis=0)
                 plt.plot(self.dt, sd, label=sp.__str__())
             plt.legend(loc=2, prop={"size": 20})
-        elif mode == "ions":
+        elif mode == "sites":
             for i, site in enumerate(self.structure):
                 sd = self.sq_disp_ions[i, :]
                 plt.plot(self.dt, sd, label="%s - %d" % (
                     site.specie.__str__(), i))
             plt.legend(loc=2, prop={"size": 20})
-        else: #Handle default / invalid mode case
+        else:
+            # Handle default / invalid mode case
             plt.plot(self.dt, self.msd, 'k')
             plt.plot(self.dt, self.msd_components[:, 0], 'r')
             plt.plot(self.dt, self.msd_components[:, 1], 'g')
@@ -685,8 +691,8 @@ def get_conversion_factor(structure, species, temperature):
     n = structure.composition[species]
 
     vol = structure.volume * 1e-24  # units cm^3
-    return 1000 * n / (vol * phyc.N_a) * z ** 2 * phyc.F ** 2\
-        / (phyc.R * temperature)
+    return 1000 * n / (vol * const.N_A) * z ** 2 * (const.N_A * const.e) ** 2\
+        / (const.R * temperature)
 
 
 def _get_vasprun(args):
@@ -699,7 +705,7 @@ def _get_vasprun(args):
 
 def fit_arrhenius(temps, diffusivities):
     """
-    Returns Ea and c from the Arrhenius fit:
+    Returns Ea, c, standard error of Ea from the Arrhenius fit:
         D = c * exp(-Ea/kT)
 
     Args:
@@ -709,10 +715,13 @@ def fit_arrhenius(temps, diffusivities):
     """
     t_1 = 1 / np.array(temps)
     logd = np.log(diffusivities)
-    #Do a least squares regression of log(D) vs 1/T
+    # Do a least squares regression of log(D) vs 1/T
     a = np.array([t_1, np.ones(len(temps))]).T
-    w = np.array(np.linalg.lstsq(a, logd)[0])
-    return -w[0] * phyc.k_b / phyc.e, np.exp(w[1])
+    w, res, _, _ = np.linalg.lstsq(a, logd)
+    w = np.array(w)
+    n = len(temps)
+    std_Ea = (res[0] / (n - 2) / (n * np.var(t_1))) ** 0.5 * const.k / const.e
+    return -w[0] * const.k / const.e, np.exp(w[1]), std_Ea
 
 
 def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
@@ -728,8 +737,8 @@ def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
     Returns:
         (float) Diffusivity at extrapolated temp in mS/cm.
     """
-    Ea, c = fit_arrhenius(temps, diffusivities)
-    return c * np.exp(-Ea / (phyc.k_b / phyc.e * new_temp))
+    Ea, c, _ = fit_arrhenius(temps, diffusivities)
+    return c * np.exp(-Ea / (const.k / const.e * new_temp))
 
 
 def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
@@ -769,14 +778,13 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
     Returns:
         A matplotlib.pyplot object. Do plt.show() to show the plot.
     """
-    Ea, c = fit_arrhenius(temps, diffusivities)
+    Ea, c, _ = fit_arrhenius(temps, diffusivities)
 
     from pymatgen.util.plotting_utils import get_publication_quality_plot
     plt = get_publication_quality_plot(12, 8)
 
-    #log10 of the arrhenius fit
-    arr = c * np.exp(-Ea / (phyc.k_b / phyc.e *
-                                               np.array(temps)))
+    # log10 of the arrhenius fit
+    arr = c * np.exp(-Ea / (const.k / const.e * np.array(temps)))
 
     t_1 = 1000 / np.array(temps)
 

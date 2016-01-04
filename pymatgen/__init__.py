@@ -4,12 +4,12 @@ __author__ = "Pymatgen Development Team"
 __email__ ="pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ ="shyuep@gmail.com"
-__date__ = "Nov 19 2015"
-__version__ = "3.2.7"
+__date__ = "Jan 3 2016"
+__version__ = "3.3.0"
 
 
 # Useful aliases for commonly used objects and modules.
-# Allows from pymatgen import X for quick usage.
+# Allows from pymatgen import <class> for quick usage.
 
 from .core import *
 from .serializers.json_coders import pmg_dump, pmg_load

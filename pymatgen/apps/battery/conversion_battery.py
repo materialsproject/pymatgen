@@ -17,9 +17,11 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Feb 1, 2012"
 __status__ = "Beta"
 
+from scipy.constants import N_A
+
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.units import Charge, Time
-from pymatgen.core.physical_constants import AVOGADROS_CONST
+
 from pymatgen.analysis.reaction_calculator import BalancedReaction
 from pymatgen.core.composition import Composition
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, \
@@ -368,8 +370,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
         working_ion = working_ion_entry.composition.elements[0].symbol
         voltage = -step1["chempot"] + working_ion_entry.energy_per_atom
         mAh = (step2["evolution"] - step1["evolution"]) \
-            * Charge(1, "e").to("C") * Time(1, "s").to("h") * AVOGADROS_CONST\
-            * 1000
+            * Charge(1, "e").to("C") * Time(1, "s").to("h") * N_A * 1000
         licomp = Composition(working_ion)
         prev_rxn = step1["reaction"]
         reactants = {comp: abs(prev_rxn.get_coeff(comp))

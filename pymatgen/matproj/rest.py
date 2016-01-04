@@ -32,7 +32,7 @@ import itertools
 
 from monty.json import MontyEncoder, MontyDecoder
 
-from pymatgen.core.periodic_table import ALL_ELEMENT_SYMBOLS, Element
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
@@ -890,7 +890,7 @@ class MPRester(object):
 
         def parse_sym(sym):
             if sym == "*":
-                return ALL_ELEMENT_SYMBOLS
+                return [el.symbol for el in Element]
             else:
                 m = re.match("\{(.*)\}", sym)
                 if m:

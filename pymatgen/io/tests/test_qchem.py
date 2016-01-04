@@ -1531,7 +1531,7 @@ class TestQcOutput(TestCase):
             methods = sorted(ref_energies[molname].keys())
             for method in methods:
                 self.assertAlmostEqual(ref_energies[molname][method],
-                                       parsed_energies[molname][method])
+                                       parsed_energies[molname][method], 2)
 
     def test_unable_to_determine_lambda_in_geom_opt(self):
         filename = os.path.join(test_dir, "unable_to_determine_lambda_in_geom_opt.qcout")
@@ -1545,12 +1545,12 @@ class TestQcOutput(TestCase):
         filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
         qcout = QcOutput(filename)
         self.assertEqual(qcout.data[0]["jobtype"], "opt")
-        ans_energies = [('SCF', -20179.88483906483),
-                        ('SCF', -20180.120269846386),
-                        ('SCF', -20180.14892206486),
-                        ('SCF', -20180.150026022537),
-                        ('SCF', -20180.15020789526),
-                        ('SCF', -20180.150206202714)]
+        ans_energies = [('SCF', -20179.885722033305),
+                        ('SCF', -20180.12115282516),
+                        ('SCF', -20180.149805044883),
+                        ('SCF', -20180.150909002612),
+                        ('SCF', -20180.151090875344),
+                        ('SCF', -20180.151089182797)]
         self.assertEqual(qcout.data[0]["energies"], ans_energies)
         ans_mol1 = '''Full Formula (H4 C5 S1 O2)
 Reduced Formula: H4C5SO2
@@ -1870,7 +1870,7 @@ $end
                      'frequency': 311.74}]
         self.assertEqual(qcout.data[1]['frequencies'], ans_freq)
         self.assertEqual(qcout.data[2]['energies'],
-                         [('SCF', -5296.720321211475)])
+                         [('SCF', -5296.720552968845)])
         ans_scf_iter_ene = [[(-176.9147092199, 0.779),
                              (-156.8236033975, 0.115),
                              (-152.9396694452, 0.157),
@@ -2150,13 +2150,10 @@ $end
             self.assertAlmostEqual(a, b, 5)
         filename = os.path.join(test_dir, "qchem_energies", "hf_ccsd(t).qcout")
         qcout = QcOutput(filename)
-        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[-17.74182227672, 5.2245857011200005],
-                                                       [-17.74182227672, 5.2245857011200005]])
+        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[-17.741823053011334, 5.224585929721129], [-17.741823053011334, 5.224585929721129]])
         filename = os.path.join(test_dir, "crowd_gradient_number.qcout")
         qcout = QcOutput(filename)
-        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[-5.74160199446, -4.544301104620001],
-                                                       [-4.9796832463800005, -4.2993986498800005],
-                                                       [-4.7619921755, -3.8095937404000004]])
+        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[-5.741602245683116, -4.544301303455358], [-4.9796834642654515, -4.2993988379996795], [-4.761992383860404, -3.8095939070883236]])
 
     def test_bsse(self):
         filename = os.path.join(test_dir, "bsse.qcout")
@@ -2183,7 +2180,7 @@ $end
     def test_final_energy(self):
         filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
         qcout = QcOutput(filename)
-        self.assertEqual(qcout.final_energy, -20180.150206202714)
+        self.assertEqual(qcout.final_energy, -20180.151089182797)
 
     def test_final_structure(self):
         filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
@@ -2227,6 +2224,21 @@ Sites (12)
         self.assertEqual(len(qcout.data), 2)
         self.assertEqual(len(qcout.data[0]["scf_iteration_energies"][0]), 22)
         self.assertTrue("pcm_solvent deprecated" in qcout.data[1]["errors"])
+
+    def test_output_file_wierd_encoding(self):
+        filename = os.path.join(test_dir, "ferrocenium_1pos.qcout")
+        qcout = QcOutput(filename)
+        self.assertFalse(qcout.data[1]["has_error"])
+        self.assertEqual(qcout.data[1]["frequencies"][0]["frequency"], -157.11)
+
+    def test_homo_lumo_nan_values(self):
+        filename = os.path.join(test_dir, "homo_lumo_nan_values.qcout")
+        qcout = QcOutput(filename)
+        self.assertTrue(qcout.data[0]["has_error"])
+
+    def test_ordinal_not_in_range(self):
+        filename = os.path.join(test_dir, "ordinal_not_in_range.qcout.gz")
+        qcout = QcOutput(filename)
 
 
 if __name__ == "__main__":
