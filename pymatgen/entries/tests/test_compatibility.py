@@ -37,6 +37,16 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
+
+        self.entry_sulfide = ComputedEntry(
+            'FeS', -1, 0.0,
+            parameters={'is_hubbard': False,
+                        'run_type': 'GGA',
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE S 08Apr2002',
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
+
         self.entry2 = ComputedEntry(
             'Fe3O4', -2, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
@@ -100,6 +110,9 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
 
         #Check actual correction
         self.assertAlmostEqual(self.compat.process_entry(entry).correction, -2.733)
+
+        self.assertAlmostEqual(self.compat.process_entry(
+            self.entry_sulfide).correction, -0.66346)
 
     def test_U_values(self):
         #Wrong U value
@@ -185,8 +198,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                            {'titel': 'PAW_PBE O 08Apr2002',
                                             'hash': "7a25bc5b9a5393f46600a4939d357982"}]})
         c = compat.get_corrections_dict(entry)
-
-        self.assertAlmostEqual(c["MP Gas Correction"], -2.10687)
+        self.assertAlmostEqual(c["MP Anion Correction"], -2.10687)
         self.assertAlmostEqual(c["MP Advanced Correction"], -5.466)
 
         entry.parameters["is_hubbard"] = False
@@ -682,6 +694,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
         ['PAW_PBE Fe 17Jan2003', 'PAW_PBE O 08Apr2002', 'PAW_PBE H 15Jun2001']})
 
         self.assertIsNone(compat.process_entry(lioh_entry))
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

@@ -20,5 +20,5 @@ __date__ = '8/1/15'
 
 import warnings
 warnings.warn("pymatgen.io.gaussianio has been moved pymatgen.io.gaussian. "
-              "This stub will be removed in pymatgen 4.0.")
+              "This stub will be removed in pymatgen 4.0.", DeprecationWarning)
 from .gaussian import *

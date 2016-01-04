@@ -19,5 +19,5 @@ __date__ = '8/1/15'
 
 import warnings
 warnings.warn("pymatgen.io.nwchemio has been moved pymatgen.io.nwchem. "
-              "This stub will be removed in pymatgen 4.0.")
+              "This stub will be removed in pymatgen 4.0.", DeprecationWarning)
 from .nwchem import *

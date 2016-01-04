@@ -512,10 +512,8 @@ class MagOrderingTransformation(AbstractTransformation):
             return n1 * n2 / gcd(n1, n2)
 
         denom = Fraction(order_parameter).limit_denominator(100).denominator
-
-        atom_per_specie = [structure.composition.get(m)
+        atom_per_specie = [structure.composition[m]
                            for m in mag_species_spin.keys()]
-
         n_gcd = six.moves.reduce(gcd, atom_per_specie)
 
         if not n_gcd:

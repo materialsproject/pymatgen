@@ -22,9 +22,10 @@ import json
 import random
 import numpy as np
 
+import scipy.constants as const
+
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer,\
     get_conversion_factor, fit_arrhenius
-import pymatgen.core.physical_constants as phyc
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
@@ -37,18 +38,22 @@ class FuncTest(unittest.TestCase):
     def test_get_conversion_factor(self):
         filepath = os.path.join(test_dir, 'LiFePO4.cif')
         s = Structure.from_file(filepath)
-        self.assertAlmostEqual(41370704.1173,
+        self.assertAlmostEqual(41370704.343540139,
                                get_conversion_factor(s, "Li", 600), 4)
 
     def test_fit_arrhenius(self):
         Ea = 0.5
-        k = phyc.k_b / phyc.e
+        k = const.k / const.e
         c = 12
         temps = np.array([300, 1000, 500])
         diffusivities = c * np.exp(-Ea/(k * temps))
+        diffusivities *= np.array([1.00601834013,
+                                   1.00803236262,
+                                   0.98609720824])
         r = fit_arrhenius(temps, diffusivities)
         self.assertAlmostEqual(r[0], Ea)
         self.assertAlmostEqual(r[1], c)
+        self.assertAlmostEqual(r[2], 0.000895566)
 
 
 class DiffusionAnalyzerTest(PymatgenTest):
@@ -62,13 +67,13 @@ class DiffusionAnalyzerTest(PymatgenTest):
 
             d = DiffusionAnalyzer.from_dict(dd)
 
-            self.assertAlmostEqual(d.conductivity, 74.165372208150615, 7)
+            self.assertAlmostEqual(d.conductivity, 74.165372613735684, 7)
             self.assertAlmostEqual(d.diffusivity,  1.16083658794e-06, 7)
             self.assertAlmostEqual(d.conductivity_std_dev, 0.0097244677795984488, 7)
             self.assertAlmostEqual(d.diffusivity_std_dev, 9.1013023085561779e-09, 7)
             self.assertArrayAlmostEqual(
                 d.conductivity_components,
-                [45.9109701,   26.28563  ,  150.5405718])
+                [45.9109703,   26.2856302,  150.5405727])
             self.assertArrayAlmostEqual(
                 d.diffusivity_components,
                 [7.49601236e-07, 4.90254273e-07, 2.24649255e-06])
@@ -120,19 +125,19 @@ class DiffusionAnalyzerTest(PymatgenTest):
 
             d = DiffusionAnalyzer(d.structure, d.disp, d.specie, d.temperature,
                                   d.time_step, d.step_skip, smoothed="max")
-            self.assertAlmostEqual(d.conductivity, 74.16537220815061, 7)
+            self.assertAlmostEqual(d.conductivity, 74.165372613735684, 7)
             self.assertAlmostEqual(d.diffusivity, 1.14606446822e-06, 7)
 
             d = DiffusionAnalyzer(d.structure, d.disp, d.specie, d.temperature,
                                   d.time_step, d.step_skip, smoothed=False)
-            self.assertAlmostEqual(d.conductivity, 27.2047915553, 7)
+            self.assertAlmostEqual(d.conductivity, 27.20479170406027, 7)
             self.assertAlmostEqual(d.diffusivity, 4.25976905436e-07, 7)
 
             d = DiffusionAnalyzer(d.structure, d.disp, d.specie, d.temperature,
                                   d.time_step, d.step_skip,
                                   smoothed="constant", avg_nsteps=100)
 
-            self.assertAlmostEqual(d.conductivity, 47.404055971202155, 7)
+            self.assertAlmostEqual(d.conductivity, 47.404056230438741, 7)
             self.assertAlmostEqual(d.diffusivity, 7.4226016496716148e-07, 7)
 
             # Can't average over 2000 steps because this is a 1000-step run.
@@ -145,7 +150,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
                 list(d.get_drift_corrected_structures()),
                 d.specie, d.temperature, d.time_step,
                 d.step_skip, d.smoothed, avg_nsteps=100)
-            self.assertAlmostEqual(d.conductivity, 47.404055971202155, 7)
+            self.assertAlmostEqual(d.conductivity, 47.404056230438741, 7)
             self.assertAlmostEqual(d.diffusivity, 7.4226016496716148e-07, 7)
 
 if __name__ == '__main__':

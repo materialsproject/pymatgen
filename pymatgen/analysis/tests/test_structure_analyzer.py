@@ -26,9 +26,7 @@ class VoronoiCoordFinderTest(PymatgenTest):
         self.finder = VoronoiCoordFinder(s, [Element("O")])
 
     def test_get_voronoi_polyhedra(self):
-        self.assertEqual(len(self.finder.get_voronoi_polyhedra(0).items()), 8,
-                         "Incorrect number of results returned for " +
-                         "get_voronoi_polyhedra")
+        self.assertEqual(len(self.finder.get_voronoi_polyhedra(0).items()), 8)
 
     def test_get_coordination_number(self):
         self.assertAlmostEqual(self.finder.get_coordination_number(0),
