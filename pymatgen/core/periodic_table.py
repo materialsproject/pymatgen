@@ -372,11 +372,11 @@ class Element(Enum):
 
     def __init__(self, symbol):
         self.symbol = "%s" % symbol
-        self._data = _pt_data[symbol]
+        d = _pt_data[symbol]
 
         # Store key variables for quick access
-        self.Z = self._data["Atomic no"]
-        self.X = self._data.get("X", 0)
+        self.Z = d["Atomic no"]
+        self.X = d.get("X", 0)
         for a in ["mendeleev_no", "electrical_resistivity",
                   "velocity_of_sound", "reflectivity",
                   "refractive_index", "poissons_ratio", "molar_volume",
@@ -390,16 +390,16 @@ class Element(Enum):
                   "van_der_waals_radius",
                   "coefficient_of_linear_thermal_expansion"]:
             kstr = a.capitalize().replace("_", " ")
-            val = self._data.get(kstr, None)
+            val = d.get(kstr, None)
             if str(val).startswith("no data"):
                 val = None
             setattr(self, a, val)
-        if str(self._data.get("Atomic radius",
-                              "no data")).startswith("no data"):
+        if str(d.get("Atomic radius", "no data")).startswith("no data"):
             self.atomic_radius = None
         else:
-            self.atomic_radius = Length(self._data["Atomic radius"], "ang")
-        self.atomic_mass = Mass(self._data["Atomic mass"], "amu")
+            self.atomic_radius = Length(d["Atomic radius"], "ang")
+        self.atomic_mass = Mass(d["Atomic mass"], "amu")
+        self._data = d
 
     @property
     def data(self):
