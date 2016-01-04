@@ -37,9 +37,6 @@ with open(os.path.join(os.path.dirname(__file__), "periodic_table.json"), "rt"
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
 
-ALL_ELEMENT_SYMBOLS = set(_pt_data.keys())
-
-
 class Element(Enum):
     """
     Basic immutable element object with all relevant properties.
@@ -561,7 +558,11 @@ class Element(Enum):
             True if symbol is a valid element (e.g., "H"). False otherwise
             (e.g., "Zebra").
         """
-        return symbol in ALL_ELEMENT_SYMBOLS
+        try:
+            Element(symbol)
+            return True
+        except:
+            return False
 
     @property
     def row(self):
