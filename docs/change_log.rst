@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v3.3.1
+------
+* Minor bug fix release for pickle and elastic constants.
+
 v3.3.0
 ------
 * Updated and checked for Python 3.5.* compatibility.
