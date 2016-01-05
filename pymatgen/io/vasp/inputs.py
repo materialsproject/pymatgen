@@ -836,27 +836,36 @@ class Kpoints(MSONable):
         if num_kpts > 0 and (not labels) and (not kpts_weights):
             raise ValueError("For explicit or line-mode kpoints, either the "
                              "labels or kpts_weights must be specified.")
-        if isinstance(style, six.string_types):
-            style = Kpoints.supported_modes.from_string(style)
-
-        if style in (Kpoints.supported_modes.Automatic,
-                     Kpoints.supported_modes.Gamma,
-                     Kpoints.supported_modes.Monkhorst) and len(kpts) > 1:
-            raise ValueError("For fully automatic or automatic gamma or monk "
-                             "kpoints, only a single line for the number of "
-                             "divisions is allowed.")
 
         self.comment = comment
         self.num_kpts = num_kpts
-        self.style = style
-        self.coord_type = coord_type
         self.kpts = kpts
+        self._style = style
+        self.coord_type = coord_type
         self.kpts_weights = kpts_weights
         self.kpts_shift = kpts_shift
         self.labels = labels
         self.tet_number = tet_number
         self.tet_weight = tet_weight
         self.tet_connections = tet_connections
+
+    @property
+    def style(self):
+        return self._style
+
+    @style.setter
+    def style(self, style):
+        if isinstance(style, six.string_types):
+            style = Kpoints.supported_modes.from_string(style)
+
+        if style in (Kpoints.supported_modes.Automatic,
+                     Kpoints.supported_modes.Gamma,
+                     Kpoints.supported_modes.Monkhorst) and len(self.kpts) > 1:
+            raise ValueError("For fully automatic or automatic gamma or monk "
+                             "kpoints, only a single line for the number of "
+                             "divisions is allowed.")
+
+        self._style = style
 
     @staticmethod
     def automatic(subdivisions):
