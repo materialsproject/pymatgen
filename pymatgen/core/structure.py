@@ -2512,10 +2512,9 @@ class Structure(IStructure, collections.MutableSequence):
         np.fill_diagonal(d, 0)
         clusters = fcluster(linkage(squareform((d + d.T) / 2)),
                             tol, 'distance')
-
         sites = []
         for c in np.unique(clusters):
-            inds = np.argwhere(clusters == c)
+            inds = np.where(clusters == c)[0]
             species = self[inds[0]].species_and_occu
             coords = self[inds[0]].frac_coords
             for n, i in enumerate(inds[1:]):
