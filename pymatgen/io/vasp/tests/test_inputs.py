@@ -393,6 +393,7 @@ class KpointsTest(unittest.TestCase):
 
         filepath = os.path.join(test_dir, 'KPOINTS')
         kpoints = Kpoints.from_file(filepath)
+        self.kpoints = kpoints
         self.assertEqual(kpoints.kpts, [[2, 4, 6]])
 
         filepath = os.path.join(test_dir, 'KPOINTS.band')
@@ -416,6 +417,13 @@ Cartesian
         filepath = os.path.join(test_dir, 'KPOINTS.explicit_tet')
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.tet_connections, [(6, [1, 2, 3, 4])])
+
+    def test_style_setter(self):
+        filepath = os.path.join(test_dir, 'KPOINTS')
+        kpoints = Kpoints.from_file(filepath)
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
+        kpoints.style = "G"
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
     def test_static_constructors(self):
         kpoints = Kpoints.gamma_automatic([3, 3, 3], [0, 0, 0])
