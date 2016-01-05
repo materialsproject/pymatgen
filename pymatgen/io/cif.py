@@ -31,7 +31,7 @@ import numpy as np
 from functools import partial
 from inspect import getargspec
 from itertools import groupby
-from pymatgen.core.periodic_table import Element, Specie, get_el_sp, PeriodicTable
+from pymatgen.core.periodic_table import Element, Specie, get_el_sp
 from monty.io import zopen
 from pymatgen.util.coord_utils import in_coord_list_pbc
 from monty.string import remove_non_ascii
@@ -41,8 +41,6 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.groups import SpaceGroup, SYMM_DATA, TRANSLATIONS
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-ptable = PeriodicTable()
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
@@ -439,7 +437,7 @@ class CifParser(object):
         # Symbols often representing
         #common representations for elements/water in cif files
         special_symbols = {"D":"D", "Hw":"H", "Ow":"O", "Wat":"O", "wat": "O"}
-        elements = map(str, ptable.all_elements)
+        elements = [el.symbol for el in Element]
 
         lattice = self.get_lattice(data)
         self.symmetry_operations = self.get_symops(data)

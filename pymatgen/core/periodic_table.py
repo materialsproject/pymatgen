@@ -25,11 +25,9 @@ from io import open
 from enum import Enum
 
 from pymatgen.core.units import Mass, Length, unitized
-from monty.design_patterns import singleton, cached_class
 from pymatgen.util.string_utils import formula_double_format
 from monty.json import MSONable
-from functools import total_ordering
-
+from monty.dev import deprecated
 
 # Loads element data from json file
 with open(os.path.join(os.path.dirname(__file__), "periodic_table.json"), "rt"
@@ -37,9 +35,6 @@ with open(os.path.join(os.path.dirname(__file__), "periodic_table.json"), "rt"
     _pt_data = json.load(f)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
-
-
-ALL_ELEMENT_SYMBOLS = set(_pt_data.keys())
 
 
 class Element(Enum):
@@ -377,11 +372,11 @@ class Element(Enum):
 
     def __init__(self, symbol):
         self.symbol = "%s" % symbol
-        self._data = _pt_data[symbol]
+        d = _pt_data[symbol]
 
         # Store key variables for quick access
-        self.Z = self._data["Atomic no"]
-        self.X = self._data.get("X", 0)
+        self.Z = d["Atomic no"]
+        self.X = d.get("X", 0)
         for a in ["mendeleev_no", "electrical_resistivity",
                   "velocity_of_sound", "reflectivity",
                   "refractive_index", "poissons_ratio", "molar_volume",
@@ -395,16 +390,16 @@ class Element(Enum):
                   "van_der_waals_radius",
                   "coefficient_of_linear_thermal_expansion"]:
             kstr = a.capitalize().replace("_", " ")
-            val = self._data.get(kstr, None)
+            val = d.get(kstr, None)
             if str(val).startswith("no data"):
                 val = None
             setattr(self, a, val)
-        if str(self._data.get("Atomic radius",
-                              "no data")).startswith("no data"):
+        if str(d.get("Atomic radius", "no data")).startswith("no data"):
             self.atomic_radius = None
         else:
-            self.atomic_radius = Length(self._data["Atomic radius"], "ang")
-        self.atomic_mass = Mass(self._data["Atomic mass"], "amu")
+            self.atomic_radius = Length(d["Atomic radius"], "ang")
+        self.atomic_mass = Mass(d["Atomic mass"], "amu")
+        self._data = d
 
     @property
     def data(self):
@@ -563,7 +558,11 @@ class Element(Enum):
             True if symbol is a valid element (e.g., "H"). False otherwise
             (e.g., "Zebra").
         """
-        return symbol in ALL_ELEMENT_SYMBOLS
+        try:
+            Element(symbol)
+            return True
+        except:
+            return False
 
     @property
     def row(self):
@@ -728,10 +727,34 @@ class Element(Enum):
                 "@class": self.__class__.__name__,
                 "element": self.symbol}
 
+    @staticmethod
+    def print_periodic_table(filter_function=None):
+        """
+        A pretty ASCII printer for the periodic table, based on some
+        filter_function.
 
-@cached_class
-@total_ordering
+        Args:
+            filter_function: A filtering function taking an Element as input
+                and returning a boolean. For example, setting
+                filter_function = lambda el: el.X > 2 will print a periodic
+                table containing only elements with electronegativity > 2.
+        """
+        for row in range(1, 10):
+            rowstr = []
+            for group in range(1, 19):
+                try:
+                    el = Element.from_row_and_group(row, group)
+                except ValueError:
+                    el = None
+                if el and ((not filter_function) or filter_function(el)):
+                    rowstr.append("{:3s}".format(el.symbol))
+                else:
+                    rowstr.append("   ")
+            print(" ".join(rowstr))
+
+
 class Specie(MSONable):
+
     """
     An extension of Element with an oxidation state and other optional
     properties. Properties associated with Specie should be "idealized"
@@ -760,6 +783,21 @@ class Specie(MSONable):
         Properties are now checked when comparing two Species for equality.
     """
 
+    cache = {}
+
+    def __new__(cls, *args, **kwargs):
+        key = (cls,) + args + tuple(kwargs.items())
+        try:
+            inst = Specie.cache.get(key, None)
+        except TypeError:
+            # Can't cache this set of arguments
+            inst = key = None
+        if inst is None:
+            inst = object.__new__(cls)
+            if key is not None:
+                Specie.cache[key] = inst
+        return inst
+
     supported_properties = ("spin",)
 
     def __init__(self, symbol, oxidation_state, properties=None):
@@ -769,14 +807,6 @@ class Specie(MSONable):
         for k in self._properties.keys():
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
-
-    def __getnewargs__(self):
-        # function used by pickle to recreate object
-        return self._el.symbol, self._oxi_state, self._properties
-
-    def __getinitargs__(self):
-        # function used by pickle to recreate object
-        return self._el.symbol, self._oxi_state, self._properties
 
     def __getattr__(self, a):
         # overriding getattr doens't play nice with pickle, so we
@@ -954,9 +984,7 @@ class Specie(MSONable):
                    d.get("properties", None))
 
 
-@cached_class
-@total_ordering
-class DummySpecie(MSONable):
+class DummySpecie(Specie):
     """
     A special specie for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special
@@ -1003,14 +1031,6 @@ class DummySpecie(MSONable):
         for k in self._properties.keys():
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
-
-    def __getnewargs__(self):
-        # function used by pickle to recreate object
-        return self._symbol, self._oxi_state, self._properties
-
-    def __getinitargs__(self):
-        # function used by pickle to recreate object
-        return self._symbol, self._oxi_state, self._properties
 
     def __getattr__(self, a):
         # overriding getattr doens't play nice with pickle, so we
@@ -1152,7 +1172,11 @@ class DummySpecie(MSONable):
         return output
 
 
-@singleton
+@deprecated(message="PeriodicTable itself is now pretty useless now that "
+                    "Element is an Enum. You can simply iterate over all "
+                    "elements using for el in Element. print_periodic_table "
+                    "functionality has been moved to a staticmethod in "
+                    "Element. This class will be removed in pymatgen 4.0.")
 class PeriodicTable(object):
     """
     A Periodic table singleton class. This class contains methods on the
