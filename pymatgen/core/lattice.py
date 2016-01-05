@@ -64,8 +64,7 @@ class Lattice(MSONable):
             k = (i + 2) % 3
             angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
 
-        angles = np.arccos(angles) * 180. / pi
-        self._angles = angles
+        self._angles = np.arccos(angles) * 180. / pi
         self._lengths = lengths
         self._matrix = m
         # The inverse matrix is lazily generated for efficiency.
