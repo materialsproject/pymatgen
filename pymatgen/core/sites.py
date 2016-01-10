@@ -247,11 +247,14 @@ class Site(collections.Hashable, MSONable):
             del d["@class"]
             d["occu"] = occu
             species_list.append(d)
-        return {"name": self.species_string, "species": species_list,
-                "xyz": [float(c) for c in self._coords],
-                "properties": self._properties,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+        d = {"name": self.species_string, "species": species_list,
+             "xyz": [float(c) for c in self._coords],
+             "properties": self._properties,
+             "@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
+        if self._properties:
+            d["properties"] = self._properties
+        return d
 
     @classmethod
     def from_dict(cls, d):
@@ -477,13 +480,16 @@ class PeriodicSite(Site, MSONable):
             del d["@class"]
             d["occu"] = occu
             species_list.append(d)
-        return {"label": self.species_string, "species": species_list,
-                "xyz": [float(c) for c in self._coords],
-                "abc": [float(c) for c in self._fcoords],
-                "lattice": self._lattice.as_dict(),
-                "properties": self._properties,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+
+        d = {"label": self.species_string, "species": species_list,
+             "xyz": [float(c) for c in self._coords],
+             "abc": [float(c) for c in self._fcoords],
+             "lattice": self._lattice.as_dict(),
+             "@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
+        if self._properties:
+            d["properties"] = self._properties
+        return d
 
     @classmethod
     def from_dict(cls, d, lattice=None):
