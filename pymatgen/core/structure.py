@@ -646,7 +646,11 @@ class IStructure(SiteCollection, MSONable):
                    same factor.
 
         Returns:
-            Supercell structure.
+            Supercell structure. Note that a Structure is always returned,
+            even if the input structure is a subclass of Structure. This is
+            to avoid different arguments signatures from causing problems. If
+            you prefer a subclass to return its own type, you need to override
+            this method in the subclass.
         """
         scale_matrix = np.array(scaling_matrix, np.int16)
         if scale_matrix.shape != (3, 3):
@@ -664,7 +668,7 @@ class IStructure(SiteCollection, MSONable):
                                  coords_are_cartesian=True, to_unit_cell=True)
                 new_sites.append(s)
 
-        return self.__class__.from_sites(new_sites)
+        return Structure.from_sites(new_sites)
 
     def __rmul__(self, scaling_matrix):
         """
