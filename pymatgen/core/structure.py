@@ -1217,13 +1217,22 @@ class IStructure(SiteCollection, MSONable):
                              ))
         return "\n".join(outs)
 
-    def as_dict(self):
+    def as_dict(self, verbosity=1):
         """
-        Json-serializable dict representation of Structure
+        Json-serializable dict representation of Structure.
+
+        Args:
+            verbosity (int): Verbosity level. Default of 1 includes both
+                direct and cartesian coordinates for all sites, lattice
+                parameters, etc. Set to 0 for an extremely lightweight version
+                that only includes sufficient information to reconstruct the
+                object.
         """
         latt_dict = self._lattice.as_dict()
         del latt_dict["@module"]
         del latt_dict["@class"]
+        if verbosity == 0:
+            latt_dict = {"matrix": latt_dict["matrix"]}
 
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
@@ -1233,6 +1242,9 @@ class IStructure(SiteCollection, MSONable):
             del site_dict["lattice"]
             del site_dict["@module"]
             del site_dict["@class"]
+            if verbosity == 0:
+                del site_dict["xyz"]
+                del site_dict["label"]
             d["sites"].append(site_dict)
         return d
 
