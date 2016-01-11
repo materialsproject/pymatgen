@@ -18,11 +18,11 @@ __date__ = "Jul 16, 2012"
 
 import unittest
 import os
+import pickle
 import numpy as np
 import warnings
 
 import scipy.constants as const
-
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.inputs import Incar, Poscar, Kpoints, Potcar, \
@@ -472,6 +472,10 @@ Cartesian
         self.assertEqual(k.style, k2.style)
         self.assertEqual(k.kpts_shift, k2.kpts_shift)
         self.assertEqual(k.num_kpts, k2.num_kpts)
+
+    def test_pickle(self):
+        k = Kpoints.gamma_automatic()
+        pickle.dumps(k)
 
 
 class PotcarSingleTest(unittest.TestCase):
