@@ -121,10 +121,19 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(d['sites'][0]['properties']['magmom'], 5)
         self.assertEqual(d['sites'][0]['species'][0]['properties']['spin'], 3)
 
+        d = s.as_dict(0)
+        self.assertNotIn("volume", d['lattice'])
+        self.assertNotIn("xyz", d['sites'][0])
+
     def test_from_dict(self):
+
         d = self.propertied_structure.as_dict()
         s = IStructure.from_dict(d)
         self.assertEqual(s[0].magmom, 5)
+        d = self.propertied_structure.as_dict(0)
+        s2 = IStructure.from_dict(d)
+        self.assertEqual(s, s2)
+
         d = {'lattice': {'a': 3.8401979337, 'volume': 40.044794644251596,
                          'c': 3.8401979337177736, 'b': 3.840198994344244,
                          'matrix': [[3.8401979337, 0.0, 0.0],
