@@ -469,9 +469,14 @@ class PeriodicSite(Site, MSONable):
                                 self._fcoords[0], self._fcoords[1],
                                 self._fcoords[2])
 
-    def as_dict(self):
+    def as_dict(self, verbosity=0):
         """
         Json-serializable dict representation of PeriodicSite.
+
+        Args:
+            verbosity (int): Verbosity level. Default of 0 only includes the
+                matrix representation. Set to 1 for more details such as
+                cartesian coordinates, etc.
         """
         species_list = []
         for spec, occu in self._species.items():
@@ -481,12 +486,16 @@ class PeriodicSite(Site, MSONable):
             d["occu"] = occu
             species_list.append(d)
 
-        d = {"label": self.species_string, "species": species_list,
-             "xyz": [float(c) for c in self._coords],
+        d = {"species": species_list,
              "abc": [float(c) for c in self._fcoords],
-             "lattice": self._lattice.as_dict(),
+             "lattice": self._lattice.as_dict(verbosity=verbosity),
              "@module": self.__class__.__module__,
              "@class": self.__class__.__name__}
+
+        if verbosity > 1:
+            d["xyz"] = [float(c) for c in self._coords]
+            d["label"] = self.species_string
+
         if self._properties:
             d["properties"] = self._properties
         return d

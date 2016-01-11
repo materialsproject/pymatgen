@@ -1228,27 +1228,26 @@ class IStructure(SiteCollection, MSONable):
         Args:
             verbosity (int): Verbosity level. Default of 1 includes both
                 direct and cartesian coordinates for all sites, lattice
-                parameters, etc. Set to 0 for an extremely lightweight version
+                parameters, etc. Useful for reading and for insertion into a
+                database. Set to 0 for an extremely lightweight version
                 that only includes sufficient information to reconstruct the
                 object.
+
+        Returns:
+            JSON serializable dict representation.
         """
-        latt_dict = self._lattice.as_dict()
+        latt_dict = self._lattice.as_dict(verbosity=verbosity)
         del latt_dict["@module"]
         del latt_dict["@class"]
-        if verbosity == 0:
-            latt_dict = {"matrix": latt_dict["matrix"]}
 
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
              "lattice": latt_dict, "sites": []}
         for site in self:
-            site_dict = site.as_dict()
+            site_dict = site.as_dict(verbosity=verbosity)
             del site_dict["lattice"]
             del site_dict["@module"]
             del site_dict["@class"]
-            if verbosity == 0:
-                del site_dict["xyz"]
-                del site_dict["label"]
             d["sites"].append(site_dict)
         return d
 
