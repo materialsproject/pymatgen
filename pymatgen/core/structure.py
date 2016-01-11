@@ -646,7 +646,11 @@ class IStructure(SiteCollection, MSONable):
                    same factor.
 
         Returns:
-            Supercell structure.
+            Supercell structure. Note that a Structure is always returned,
+            even if the input structure is a subclass of Structure. This is
+            to avoid different arguments signatures from causing problems. If
+            you prefer a subclass to return its own type, you need to override
+            this method in the subclass.
         """
         scale_matrix = np.array(scaling_matrix, np.int16)
         if scale_matrix.shape != (3, 3):
@@ -664,7 +668,7 @@ class IStructure(SiteCollection, MSONable):
                                  coords_are_cartesian=True, to_unit_cell=True)
                 new_sites.append(s)
 
-        return self.__class__.from_sites(new_sites)
+        return Structure.from_sites(new_sites)
 
     def __rmul__(self, scaling_matrix):
         """
@@ -1217,11 +1221,22 @@ class IStructure(SiteCollection, MSONable):
                              ))
         return "\n".join(outs)
 
-    def as_dict(self):
+    def as_dict(self, verbosity=1):
         """
-        Json-serializable dict representation of Structure
+        Json-serializable dict representation of Structure.
+
+        Args:
+            verbosity (int): Verbosity level. Default of 1 includes both
+                direct and cartesian coordinates for all sites, lattice
+                parameters, etc. Useful for reading and for insertion into a
+                database. Set to 0 for an extremely lightweight version
+                that only includes sufficient information to reconstruct the
+                object.
+
+        Returns:
+            JSON serializable dict representation.
         """
-        latt_dict = self._lattice.as_dict()
+        latt_dict = self._lattice.as_dict(verbosity=verbosity)
         del latt_dict["@module"]
         del latt_dict["@class"]
 
@@ -1229,7 +1244,7 @@ class IStructure(SiteCollection, MSONable):
              "@class": self.__class__.__name__,
              "lattice": latt_dict, "sites": []}
         for site in self:
-            site_dict = site.as_dict()
+            site_dict = site.as_dict(verbosity=verbosity)
             del site_dict["lattice"]
             del site_dict["@module"]
             del site_dict["@class"]
