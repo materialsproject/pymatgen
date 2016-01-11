@@ -762,31 +762,30 @@ class Incar(dict, MSONable):
                 params[k] = v
         return Incar(params)
 
+class Kpoints_supported_modes(Enum):
+    Automatic = 0
+    Gamma = 1
+    Monkhorst = 2
+    Line_mode = 3
+    Cartesian = 4
+    Reciprocal = 5
 
+    def __str__(self):
+        return self.name
+
+    @staticmethod
+    def from_string(s):
+        c = s.lower()[0]
+        for m in Kpoints_supported_modes:
+            if m.name.lower()[0] == c:
+                return m
+        raise ValueError("Can't interprete Kpoint mode %s" % s)
 
 class Kpoints(MSONable):
     """
     KPOINT reader/writer.
     """
-
-    class supported_modes(Enum):
-        Automatic = 0
-        Gamma = 1
-        Monkhorst = 2
-        Line_mode = 3
-        Cartesian = 4
-        Reciprocal = 5
-
-        def __str__(self):
-            return self.name
-
-        @staticmethod
-        def from_string(s):
-            c = s.lower()[0]
-            for m in Kpoints.supported_modes:
-                if m.name.lower()[0] == c:
-                    return m
-            raise ValueError("Can't interprete Kpoint mode %s" % s)
+    supported_modes = Kpoints_supported_modes
 
     def __init__(self, comment="Default gamma", num_kpts=0,
                  style=supported_modes.Gamma,
