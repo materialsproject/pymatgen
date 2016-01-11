@@ -1,6 +1,7 @@
 Change log
 ==========
 
-v3.3.1
+v3.3.2
 ------
-* Minor bug fix release for pickle and elastic constants.
+* Bug fixes for pymatgen.io.abinit
+* Other minor big fixes.
