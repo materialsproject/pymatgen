@@ -368,7 +368,7 @@ class KSampling(AbivarAble, MSONable):
         and it is recommended that you use those.
 
         Args:
-            mode: Mode for generating k-poits. Use one of the KSampling.modes enum types.
+            mode: Mode for generating k-poits. Use one of the KSamplingModes enum types.
             num_kpts: Number of kpoints if mode is "automatic"
                 Number of division for the sampling of the smallest segment if mode is "path".
                 Not used for the other modes
@@ -423,7 +423,7 @@ class KSampling(AbivarAble, MSONable):
                 "chksymbreak": chksymbreak,
             })
 
-        elif mode in KSampling.modes.path:
+        elif mode == KSamplingModes.path:
             if num_kpts <= 0:
                 raise ValueError("For Path mode, num_kpts must be specified and >0")
 
@@ -436,7 +436,7 @@ class KSampling(AbivarAble, MSONable):
                 "kptopt"   : -len(kptbounds)+1,
             })
 
-        elif mode in KSampling.modes.automatic:
+        elif mode == KSamplingModes.automatic:
             kpts = np.reshape(kpts, (-1,3))
             if len(kpts) != num_kpts:
                 raise ValueError("For Automatic mode, num_kpts must be specified.")
@@ -567,7 +567,7 @@ class KSampling(AbivarAble, MSONable):
                 #print("label %s, red_coord %s" % (label, red_coord))
                 kpath_bounds.append(red_coord)
 
-        return cls(mode=KSampling.modes.path, num_kpts=ndivsm, kpts=kpath_bounds,
+        return cls(mode=KSamplingModes.path, num_kpts=ndivsm, kpts=kpath_bounds,
                    comment=comment if comment else "K-Path scheme")
 
     @classmethod
@@ -619,10 +619,10 @@ class KSampling(AbivarAble, MSONable):
                         and abs(lengths[right_angles[0]] -
                                 lengths[right_angles[1]]) < hex_length_tol)
 
-        #style = Kpoints.modes.gamma
+        #style = KSamplingModes.gamma
         #if not is_hexagonal:
         #    num_div = [i + i % 2 for i in num_div]
-        #    style = Kpoints.modes.monkhorst
+        #    style = KSamplingModes.monkhorst
 
         comment = "abinitio generated KPOINTS with grid density = " + "{} / atom".format(kppa)
 
