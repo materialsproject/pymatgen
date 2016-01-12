@@ -762,6 +762,7 @@ class Incar(dict, MSONable):
                 params[k] = v
         return Incar(params)
 
+
 class Kpoints_supported_modes(Enum):
     Automatic = 0
     Gamma = 1
@@ -780,6 +781,7 @@ class Kpoints_supported_modes(Enum):
             if m.name.lower()[0] == c:
                 return m
         raise ValueError("Can't interprete Kpoint mode %s" % s)
+
 
 class Kpoints(MSONable):
     """
