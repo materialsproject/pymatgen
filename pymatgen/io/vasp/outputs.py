@@ -12,7 +12,7 @@ import itertools
 from io import StringIO
 import logging
 from collections import defaultdict
-from xml.etree.cElementTree import iterparse
+import xml.etree.cElementTree as ET
 import warnings
 
 from six.moves import map, zip
@@ -374,7 +374,7 @@ class Vasprun(MSONable):
         self.other_dielectric = {}
         ionic_steps = []
         parsed_header = False
-        for event, elem in iterparse(stream):
+        for event, elem in ET.iterparse(stream):
             tag = elem.tag
             if not parsed_header:
                 if tag == "generator":
@@ -1068,7 +1068,7 @@ class BSVasprun(Vasprun):
             parsed_header = False
             self.eigenvalues = None
             self.projected_eigenvalues = None
-            for event, elem in iterparse(f):
+            for event, elem in ET.iterparse(f):
                 tag = elem.tag
                 if not parsed_header:
                     if tag == "generator":

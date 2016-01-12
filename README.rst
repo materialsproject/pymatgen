@@ -63,7 +63,7 @@ but pymatgen offer several advantages:
    research groups. The plan is to make sure pymatgen will stand the test of
    time and be the de facto analysis code for most materials and structural
    analysis.
-   
+
 Getting pymatgen
 ================
 
