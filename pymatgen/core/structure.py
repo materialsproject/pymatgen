@@ -534,7 +534,8 @@ class IStructure(SiteCollection, MSONable):
             coords_are_cartesian = True
 
         if coords is None:
-            raise ValueError("Cannot extract atomic coordinates from dict %s" % str(d))
+            raise ValueError("Cannot extract atomic coordinates from dict %s"
+                             % str(d))
 
         coords = np.reshape(coords, (-1,3))
 
