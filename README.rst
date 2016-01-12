@@ -57,7 +57,13 @@ but pymatgen offer several advantages:
    fast and are in fact comparable to codes written in other languages.
    Pymatgen also comes with a complete system for handling periodic boundary
    conditions.
-
+5. **It will be around.** Pymatgen is not a pet research project. It is used in
+   the well-established Materials Project. It is also actively being developed
+   and maintained by the Materials Virtual Lab, the ABINIT group and many other
+   research groups. The plan is to make sure pymatgen will stand the test of
+   time and be the de facto analysis code for most materials and structural
+   analysis.
+   
 Getting pymatgen
 ================
 
