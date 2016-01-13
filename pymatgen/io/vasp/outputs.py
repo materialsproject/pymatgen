@@ -194,6 +194,11 @@ class Vasprun(MSONable):
         occu_tol (float): Sets the minimum tol for the determination of the
             vbm and cbm. Usually the default of 1e-8 works well enough,
             but there may be pathological cases.
+        exception_on_bad_xml (bool): Whether to throw a ParseException if a
+            malformed XML is detected. Default to True, which ensures only
+            proper vasprun.xml are parsed. You can set to False if you want
+            partial results (e.g., if you are monitoring a calculation during a
+            run), but use the results with care. A warning is issued.
 
     **Vasp results**
 
@@ -326,11 +331,13 @@ class Vasprun(MSONable):
     def __init__(self, filename, ionic_step_skip=None,
                  ionic_step_offset=0, parse_dos=True,
                  parse_eigen=True, parse_projected_eigen=False,
-                 parse_potcar_file=True, occu_tol=1e-8):
+                 parse_potcar_file=True, occu_tol=1e-8,
+                 exception_on_bad_xml=True):
         self.filename = filename
         self.ionic_step_skip = ionic_step_skip
         self.ionic_step_offset = ionic_step_offset
         self.occu_tol = occu_tol
+        self.exception_on_bad_xml = exception_on_bad_xml
 
         with zopen(filename, "rt") as f:
             if ionic_step_skip or ionic_step_offset:
@@ -374,50 +381,58 @@ class Vasprun(MSONable):
         self.other_dielectric = {}
         ionic_steps = []
         parsed_header = False
-        for event, elem in ET.iterparse(stream):
-            tag = elem.tag
-            if not parsed_header:
-                if tag == "generator":
-                    self.generator = self._parse_params(elem)
-                elif tag == "incar":
-                    self.incar = self._parse_params(elem)
-                elif tag == "kpoints":
-                    self.kpoints, self.actual_kpoints, \
-                        self.actual_kpoints_weights = self._parse_kpoints(elem)
-                elif tag == "parameters":
-                    self.parameters = self._parse_params(elem)
+        try:
+            for event, elem in ET.iterparse(stream):
+                tag = elem.tag
+                if not parsed_header:
+                    if tag == "generator":
+                        self.generator = self._parse_params(elem)
+                    elif tag == "incar":
+                        self.incar = self._parse_params(elem)
+                    elif tag == "kpoints":
+                        self.kpoints, self.actual_kpoints, \
+                            self.actual_kpoints_weights = self._parse_kpoints(elem)
+                    elif tag == "parameters":
+                        self.parameters = self._parse_params(elem)
+                    elif tag == "structure" and elem.attrib.get("name") == \
+                            "initialpos":
+                        self.initial_structure = self._parse_structure(elem)
+                    elif tag == "atominfo":
+                        self.atomic_symbols, self.potcar_symbols = \
+                            self._parse_atominfo(elem)
+                        self.potcar_spec = [{"titel": p,
+                                             "hash": None} for
+                                            p in self.potcar_symbols]
+                if tag == "calculation":
+                    parsed_header = True
+                    ionic_steps.append(self._parse_calculation(elem))
+                elif parse_dos and tag == "dos":
+                    try:
+                        self.tdos, self.idos, self.pdos = self._parse_dos(elem)
+                        self.efermi = self.tdos.efermi
+                        self.dos_has_errors = False
+                    except Exception as ex:
+                        self.dos_has_errors = True
+                elif parse_eigen and tag == "eigenvalues":
+                    self.eigenvalues = self._parse_eigen(elem)
+                elif parse_projected_eigen and tag == "projected":
+                    self.projected_eigenvalues = self._parse_projected_eigen(elem)
+                elif tag == "dielectricfunction":
+                    if ("comment" not in elem.attrib) or \
+                       elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
+                        self.dielectric = self._parse_diel(elem)
+                    else:
+                        self.other_dielectric[elem.attrib["comment"]] = self._parse_diel(elem)
                 elif tag == "structure" and elem.attrib.get("name") == \
-                        "initialpos":
-                    self.initial_structure = self._parse_structure(elem)
-                elif tag == "atominfo":
-                    self.atomic_symbols, self.potcar_symbols = \
-                        self._parse_atominfo(elem)
-                    self.potcar_spec = [{"titel": p,
-                                         "hash": None} for
-                                        p in self.potcar_symbols]
-            if tag == "calculation":
-                parsed_header = True
-                ionic_steps.append(self._parse_calculation(elem))
-            elif parse_dos and tag == "dos":
-                try:
-                    self.tdos, self.idos, self.pdos = self._parse_dos(elem)
-                    self.efermi = self.tdos.efermi
-                    self.dos_has_errors = False
-                except Exception as ex:
-                    self.dos_has_errors = True
-            elif parse_eigen and tag == "eigenvalues":
-                self.eigenvalues = self._parse_eigen(elem)
-            elif parse_projected_eigen and tag == "projected":
-                self.projected_eigenvalues = self._parse_projected_eigen(elem)
-            elif tag == "dielectricfunction":
-                if ("comment" not in elem.attrib) or \
-                   elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
-                    self.dielectric = self._parse_diel(elem)
-                else:
-                    self.other_dielectric[elem.attrib["comment"]] = self._parse_diel(elem)
-            elif tag == "structure" and elem.attrib.get("name") == \
-                    "finalpos":
-                self.final_structure = self._parse_structure(elem)
+                        "finalpos":
+                    self.final_structure = self._parse_structure(elem)
+        except ET.ParseError as ex:
+            if self.exception_on_bad_xml:
+                raise ex
+            else:
+                warnings.warn(
+                        "XML is malformed. Parsing has stopped but partial data"
+                        "is available.", UserWarning)
         self.ionic_steps = ionic_steps
         self.vasp_version = self.generator["version"]
 

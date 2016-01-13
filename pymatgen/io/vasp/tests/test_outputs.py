@@ -22,6 +22,8 @@ import json
 import numpy as np
 import warnings
 
+import xml.etree.cElementTree as ET
+
 
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
@@ -34,6 +36,23 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 
 class VasprunTest(unittest.TestCase):
+
+    def test_bad_vasprun(self):
+        self.assertRaises(ET.ParseError,
+                          Vasprun, os.path.join(test_dir, "bad_vasprun.xml"))
+
+
+        with warnings.catch_warnings(record=True) as w:
+            # Cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+            # Trigger a warning.
+            v = Vasprun(os.path.join(test_dir, "bad_vasprun.xml"),
+                        exception_on_bad_xml=False)
+            # Verify some things
+            self.assertEqual(len(v.ionic_steps), 1)
+            self.assertAlmostEqual(v.final_energy, -269.00551374)
+            self.assertTrue(issubclass(w[-1].category,
+                                       UserWarning))
 
     def test_properties(self):
 
