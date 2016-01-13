@@ -84,7 +84,7 @@ class MPRester(object):
                             "e_above_hull", "hubbards", "is_compatible",
                             "spacegroup", "task_ids", "band_gap", "density",
                             "icsd_id", "icsd_ids", "cif", "total_magnetization",
-                            "material_id", "oxide_type", "tags")
+                            "material_id", "oxide_type", "tags", "elasticity")
 
     supported_task_properties = ("energy", "energy_per_atom", "volume",
                                  "formation_energy_per_atom", "nsites",
