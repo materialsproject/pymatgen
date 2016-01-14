@@ -30,7 +30,6 @@ from pymatgen import Element, Specie, Composition
 from pymatgen.util.num_utils import abs_cap
 
 
-
 class VoronoiCoordFinder(object):
     """
     Uses a Voronoi algorithm to determine the coordination for each site in a
@@ -461,30 +460,6 @@ def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
         return ox_obj.oxide_type, ox_obj.nbonds
     else:
         return ox_obj.oxide_type
-
-
-#def inbounds(lower, value, upper):
-#
-#    """
-#    Returns the input value, but constraining it to lie in the interval
-#    between lower and upper bound.  If the original value was outside
-#    the interval [lower,upper] a warning is issued.
-#
-#    Args:
-#        lower (float):
-#            lower bound to which to constrain value
-#        value (float):
-#            value to be kept in bounds between lower and upper
-#        upper (float):
-#            upper bound to which to constrain value
-#    """
-#
-#    if value < lower:
-#        return lower
-#    elif value > upper:
-#        return upper
-#    else:
-#        return value
 
 
 def gramschmidt(vin, uin):
