@@ -7,10 +7,11 @@ from __future__ import unicode_literals
 import numpy as np
 import unittest
 import os
+from math import fabs
 
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
-    oxide_type
+    oxide_type, OrderParameters
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
@@ -187,6 +188,148 @@ class MiscFunctionTest(PymatgenTest):
                   [0.867359, 0.851778, 0.851778]]
         struct = Structure(latt, elts, coords)
         self.assertEqual(oxide_type(struct, 1.1), "None")
+
+
+
+class OrderParametersTest(PymatgenTest):
+
+    def setUp(self):
+        self.cubic = Structure(
+                Lattice.from_lengths_and_angles(
+                        [1.0, 1.0, 1.0], [90.0, 90.0, 90.0]),
+                ["H"], [[0.0, 0.0, 0.0]], validate_proximity=False,
+                to_unit_cell=False, coords_are_cartesian=False,
+                site_properties=None)
+        self.bcc = Structure(
+                Lattice.from_lengths_and_angles(
+                        [1.0, 1.0, 1.0], [90.0, 90.0, 90.0]),
+                ["H", "H"], [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
+                validate_proximity=False, to_unit_cell=False,
+                coords_are_cartesian=False, site_properties=None)
+        self.fcc = Structure(
+                Lattice.from_lengths_and_angles(
+                        [1.0, 1.0, 1.0], [90.0, 90.0, 90.0]),
+                ["H", "H", "H", "H"], [[0.0, 0.0, 0.0], [0.0, 0.5, 0.5],
+                        [0.5, 0.0, 0.5], [0.5, 0.5, 0.0]],
+                validate_proximity=False, to_unit_cell=False,
+                coords_are_cartesian=False, site_properties=None)
+        self.hcp = Structure(
+                Lattice.from_lengths_and_angles(
+                        [1.0, 1.0, 1.633], [90.0, 90.0, 120.0]),
+                ["H", "H"],
+                [[0.3333, 0.6667, 0.25], [0.6667, 0.3333, 0.75]],
+                validate_proximity=False, to_unit_cell=False,
+                coords_are_cartesian=False, site_properties=None)
+        self.diamond = Structure(
+                Lattice.from_lengths_and_angles(
+                        [1.0, 1.0, 1.0], [90.0, 90.0, 90.0]),
+                ["H", "H", "H", "H", "H", "H", "H", "H"],
+                [[0.0, 0.0, 0.5], [0.75, 0.75, 0.75],
+                        [0.0, 0.5, 0.0], [0.75, 0.25, 0.25],
+                        [0.5, 0.0, 0.0], [0.25, 0.75, 0.25],
+                        [0.5, 0.5, 0.5], [0.25, 0.25, 0.75]],
+                validate_proximity=False, to_unit_cell=False,
+                coords_are_cartesian=False, site_properties=None)
+
+
+    def test_init(self):
+        self.assertIsNotNone(OrderParameters(["cn"], [[]], 0.99))
+
+
+    def test_get_order_parameters(self):
+
+        # Set up everything.
+        op_types = ["cn", "tet", "oct", "bcc", "q2", "q4", "q6"]
+        op_paras = [[], [], [], [], [], [], []]
+        ops_044 = OrderParameters(op_types, op_paras, 0.44)
+        ops_071 = OrderParameters(op_types, op_paras, 0.71)
+        ops_087 = OrderParameters(op_types, op_paras, 0.87)
+        ops_099 = OrderParameters(op_types, op_paras, 0.99)
+        ops_101 = OrderParameters(op_types, op_paras, 1.01)
+        ops_voro = OrderParameters(op_types, op_paras)
+
+        # Cubic structure in large box.
+        op_vals = ops_099.get_order_parameters(self.cubic, 0)
+        self.assertAlmostEqual(op_vals[0], 0.0)
+        self.assertIsNone(op_vals[1])
+        self.assertIsNone(op_vals[2])
+        self.assertIsNone(op_vals[3])
+        self.assertIsNone(op_vals[4])
+        self.assertIsNone(op_vals[5])
+        self.assertIsNone(op_vals[6])
+        op_vals = ops_101.get_order_parameters(self.cubic, 0)
+        self.assertAlmostEqual(op_vals[0], 6.0)
+        self.assertAlmostEqual(op_vals[1], -0.07206365327761823)
+        self.assertAlmostEqual(op_vals[2], 1.0)
+        self.assertAlmostEqual(op_vals[3], 0.125)
+        self.assertAlmostEqual(op_vals[4], 0.0)
+        self.assertAlmostEqual(op_vals[5], 0.7637626158259733)
+        self.assertAlmostEqual(op_vals[6], 0.3535533905932738)
+
+        # Bcc structure in large box.
+        op_vals = ops_087.get_order_parameters(self.bcc, 0)
+        self.assertAlmostEqual(op_vals[0], 8.0)
+        self.assertAlmostEqual(op_vals[1], 1.9688949183589557)
+        self.assertAlmostEqual(op_vals[2], 0.12540815310925768)
+        self.assertLess(fabs(op_vals[3]-0.9753713330608598), 1.0e-5)
+        self.assertAlmostEqual(op_vals[4], 0.0)
+        self.assertAlmostEqual(op_vals[5], 0.5091750772173156)
+        self.assertAlmostEqual(op_vals[6], 0.6285393610547088)
+
+        # Bcc structure in large box; neighbors via Voronoi facets.
+        op_vals = ops_voro.get_order_parameters(self.bcc, 0)
+        self.assertAlmostEqual(op_vals[0], 14.0)
+        self.assertAlmostEqual(op_vals[1], -0.43855666168897867)
+        self.assertAlmostEqual(op_vals[2], -1.2026322595911667)
+        self.assertAlmostEqual(op_vals[3], -0.023371430123042443)
+        self.assertAlmostEqual(op_vals[4], 0.0)
+        self.assertAlmostEqual(op_vals[5], 0.036369648372665375)
+        self.assertAlmostEqual(op_vals[6], 0.5106882308569509)
+
+        # Fcc structure in large box.
+        op_vals = ops_071.get_order_parameters(self.fcc, 0)
+        self.assertAlmostEqual(op_vals[0], 12.0)
+        self.assertAlmostEqual(op_vals[1], -0.9989621462333275)
+        self.assertAlmostEqual(op_vals[2], -1.0125484381377454)
+        self.assertLess(fabs(op_vals[3]+0.0007417813723164877), 1.0e-5)
+        self.assertAlmostEqual(op_vals[4], 0.0)
+        self.assertAlmostEqual(op_vals[5], 0.1909406539564932)
+        self.assertAlmostEqual(op_vals[6], 0.57452425971407)
+
+        # Hcp structure in large box.
+        op_vals = ops_101.get_order_parameters(self.hcp, 0)
+        self.assertAlmostEqual(op_vals[0], 12.0)
+        self.assertAlmostEqual(op_vals[1], -0.45564596177828504)
+        self.assertAlmostEqual(op_vals[2], -0.7352383348310614)
+        self.assertAlmostEqual(op_vals[3], -0.1559132191344495)
+        self.assertAlmostEqual(op_vals[4], 9.72025056603629e-06)
+        self.assertAlmostEqual(op_vals[5], 0.09722418406734)
+        self.assertAlmostEqual(op_vals[6], 0.4847621378014553)
+
+        # Diamond structure in large box.
+        op_vals = ops_044.get_order_parameters(self.diamond, 0)
+        self.assertAlmostEqual(op_vals[0], 4.0)
+        self.assertAlmostEqual(op_vals[1], 1.0)
+        self.assertAlmostEqual(op_vals[2], -0.008828657097338058)
+        self.assertAlmostEqual(op_vals[3], 0.08087075431050145)
+        self.assertAlmostEqual(op_vals[4], 0.0)
+        self.assertAlmostEqual(op_vals[5], 0.5091750772173156)
+        self.assertAlmostEqual(op_vals[6], 0.6285393610547088)
+
+        # Test providing explicit neighbor lists.
+        op_vals = ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[1])
+        self.assertIsNotNone(op_vals[0])
+        self.assertIsNone(op_vals[1])
+        with self.assertRaises(ValueError):
+            ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[2])
+
+
+    def tearDown(self):
+        del self.cubic
+        del self.fcc
+        del self.bcc
+        del self.hcp
+        del self.diamond
 
 
 if __name__ == '__main__':
