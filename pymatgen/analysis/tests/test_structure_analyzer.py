@@ -248,7 +248,7 @@ class OrderParametersTest(PymatgenTest):
         ops_101 = OrderParameters(op_types, op_paras, 1.01)
         ops_voro = OrderParameters(op_types, op_paras)
 
-        # Cubic structure in large box.
+        # Cubic structure.
         op_vals = ops_099.get_order_parameters(self.cubic, 0)
         self.assertAlmostEqual(op_vals[0], 0.0)
         self.assertIsNone(op_vals[1])
@@ -266,7 +266,7 @@ class OrderParametersTest(PymatgenTest):
         self.assertAlmostEqual(op_vals[5], 0.7637626158259733)
         self.assertAlmostEqual(op_vals[6], 0.3535533905932738)
 
-        # Bcc structure in large box.
+        # Bcc structure.
         op_vals = ops_087.get_order_parameters(self.bcc, 0)
         self.assertAlmostEqual(op_vals[0], 8.0)
         self.assertAlmostEqual(op_vals[1], 1.9688949183589557)
@@ -276,17 +276,7 @@ class OrderParametersTest(PymatgenTest):
         self.assertAlmostEqual(op_vals[5], 0.5091750772173156)
         self.assertAlmostEqual(op_vals[6], 0.6285393610547088)
 
-        # Bcc structure in large box; neighbors via Voronoi facets.
-        op_vals = ops_voro.get_order_parameters(self.bcc, 0)
-        self.assertAlmostEqual(op_vals[0], 14.0)
-        self.assertAlmostEqual(op_vals[1], -0.43855666168897867)
-        self.assertAlmostEqual(op_vals[2], -1.2026322595911667)
-        self.assertAlmostEqual(op_vals[3], -0.023371430123042443)
-        self.assertAlmostEqual(op_vals[4], 0.0)
-        self.assertAlmostEqual(op_vals[5], 0.036369648372665375)
-        self.assertAlmostEqual(op_vals[6], 0.5106882308569509)
-
-        # Fcc structure in large box.
+        # Fcc structure.
         op_vals = ops_071.get_order_parameters(self.fcc, 0)
         self.assertAlmostEqual(op_vals[0], 12.0)
         self.assertAlmostEqual(op_vals[1], -0.9989621462333275)
@@ -296,7 +286,7 @@ class OrderParametersTest(PymatgenTest):
         self.assertAlmostEqual(op_vals[5], 0.1909406539564932)
         self.assertAlmostEqual(op_vals[6], 0.57452425971407)
 
-        # Hcp structure in large box.
+        # Hcp structure.
         op_vals = ops_101.get_order_parameters(self.hcp, 0)
         self.assertAlmostEqual(op_vals[0], 12.0)
         self.assertAlmostEqual(op_vals[1], -0.45564596177828504)
@@ -306,7 +296,7 @@ class OrderParametersTest(PymatgenTest):
         self.assertAlmostEqual(op_vals[5], 0.09722418406734)
         self.assertAlmostEqual(op_vals[6], 0.4847621378014553)
 
-        # Diamond structure in large box.
+        # Diamond structure.
         op_vals = ops_044.get_order_parameters(self.diamond, 0)
         self.assertAlmostEqual(op_vals[0], 4.0)
         self.assertAlmostEqual(op_vals[1], 1.0)
