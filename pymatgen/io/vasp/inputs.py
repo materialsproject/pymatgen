@@ -139,15 +139,17 @@ class Poscar(MSONable):
 
     @velocities.setter
     def velocities(self, velocities):
-        self.structure.site_properties["velocities"] = velocities
+        self.structure.add_site_property("velocities", velocities)
 
     @selective_dynamics.setter
     def selective_dynamics(self, selective_dynamics):
-        self.structure.site_properties["selective_dynamics"] = selective_dynamics
+        self.structure.add_site_property("selective_dynamics",
+                                         selective_dynamics)
 
     @predictor_corrector.setter
     def predictor_corrector(self, predictor_corrector):
-        self.structure.site_properties["predictor_corrector"] = predictor_corrector
+        self.structure.add_site_property("predictor_corrector",
+                                         predictor_corrector)
 
     @property
     def site_symbols(self):
