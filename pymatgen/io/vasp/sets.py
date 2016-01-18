@@ -930,8 +930,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
 
         # Prefer to use k-point scheme from previous run
         new_kpoints = mpsvip.get_kpoints(structure)
-        if previous_kpoints.style[0] != new_kpoints.style[0]:
-            if previous_kpoints.style[0] == "M" and \
+        if previous_kpoints.style != new_kpoints.style:
+            if previous_kpoints.style == Kpoints.supported_modes.Monkhorst and \
                     SpacegroupAnalyzer(structure, 0.1).get_lattice_type() != \
                     "hexagonal":
                 k_div = (kp + 1 if kp % 2 == 1 else kp

@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v3.3.3
+------
+* Bug fixes for Poscar.
+* Fix Kpoints pickling.
+
 v3.3.2
 ------
 * Bug fixes for pymatgen.io.abinit
