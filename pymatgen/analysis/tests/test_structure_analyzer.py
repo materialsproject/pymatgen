@@ -259,52 +259,52 @@ class OrderParametersTest(PymatgenTest):
         self.assertIsNone(op_vals[6])
         op_vals = ops_101.get_order_parameters(self.cubic, 0)
         self.assertAlmostEqual(op_vals[0], 6.0)
-        self.assertAlmostEqual(op_vals[1], -0.07206365327761823)
-        self.assertAlmostEqual(op_vals[2], 1.0)
-        self.assertAlmostEqual(op_vals[3], 0.125)
-        self.assertAlmostEqual(op_vals[4], 0.0)
-        self.assertAlmostEqual(op_vals[5], 0.7637626158259733)
-        self.assertAlmostEqual(op_vals[6], 0.3535533905932738)
+        self.assertAlmostEqual(int(op_vals[1]*1000), -72)
+        self.assertAlmostEqual(int(op_vals[2]*1000), 1000)
+        self.assertAlmostEqual(int(op_vals[3]*1000), 125)
+        self.assertAlmostEqual(int(op_vals[4]*1000), 0)
+        self.assertAlmostEqual(int(op_vals[5]*1000), 763)
+        self.assertAlmostEqual(int(op_vals[6]*1000), 353)
 
         # Bcc structure.
         op_vals = ops_087.get_order_parameters(self.bcc, 0)
         self.assertAlmostEqual(op_vals[0], 8.0)
-        self.assertAlmostEqual(op_vals[1], 1.9688949183589557)
-        self.assertAlmostEqual(op_vals[2], 0.12540815310925768)
-        self.assertLess(fabs(op_vals[3]-0.9753713330608598), 1.0e-5)
-        self.assertAlmostEqual(op_vals[4], 0.0)
-        self.assertAlmostEqual(op_vals[5], 0.5091750772173156)
-        self.assertAlmostEqual(op_vals[6], 0.6285393610547088)
+        self.assertAlmostEqual(int(op_vals[1]*1000), 1968) # 1.9688949183589557
+        self.assertAlmostEqual(int(op_vals[2]*1000), 125) # 0.12540815310925768
+        self.assertAlmostEqual(int(op_vals[3]*1000), 975) # 0.9753713330608598
+        self.assertAlmostEqual(int(op_vals[4]*1000), 0)
+        self.assertAlmostEqual(int(op_vals[5]*1000), 509) # 0.5091750772173156
+        self.assertAlmostEqual(int(op_vals[6]*1000), 628) # 0.6285393610547088
 
         # Fcc structure.
         op_vals = ops_071.get_order_parameters(self.fcc, 0)
         self.assertAlmostEqual(op_vals[0], 12.0)
-        self.assertAlmostEqual(op_vals[1], -0.9989621462333275)
-        self.assertAlmostEqual(op_vals[2], -1.0125484381377454)
-        self.assertLess(fabs(op_vals[3]+0.0007417813723164877), 1.0e-5)
-        self.assertAlmostEqual(op_vals[4], 0.0)
-        self.assertAlmostEqual(op_vals[5], 0.1909406539564932)
-        self.assertAlmostEqual(op_vals[6], 0.57452425971407)
+        self.assertAlmostEqual(int(op_vals[1]*1000), -998) # -0.9989621462333275
+        self.assertAlmostEqual(int(op_vals[2]*1000), -1012)  # -1.0125484381377454
+        self.assertAlmostEqual(int(op_vals[3]*1000), 0)     # -0.0007417813723164877
+        self.assertAlmostEqual(int(op_vals[4]*1000), 0)
+        self.assertAlmostEqual(int(op_vals[5]*1000), 190)  # 0.1909406539564932
+        self.assertAlmostEqual(int(op_vals[6]*1000), 574)  # 0.57452425971407
 
         # Hcp structure.
         op_vals = ops_101.get_order_parameters(self.hcp, 0)
         self.assertAlmostEqual(op_vals[0], 12.0)
-        self.assertAlmostEqual(op_vals[1], -0.45564596177828504)
-        self.assertAlmostEqual(op_vals[2], -0.7352383348310614)
-        self.assertAlmostEqual(op_vals[3], -0.1559132191344495)
-        self.assertAlmostEqual(op_vals[4], 9.72025056603629e-06)
-        self.assertAlmostEqual(op_vals[5], 0.09722418406734)
-        self.assertAlmostEqual(op_vals[6], 0.4847621378014553)
+        self.assertAlmostEqual(int(op_vals[1]*1000), -455)
+        self.assertAlmostEqual(int(op_vals[2]*1000), -735)
+        self.assertAlmostEqual(int(op_vals[3]*1000), -155)
+        self.assertAlmostEqual(int(op_vals[4]*1000), 0)
+        self.assertAlmostEqual(int(op_vals[5]*1000), 97)
+        self.assertAlmostEqual(int(op_vals[6]*1000), 484)
 
         # Diamond structure.
         op_vals = ops_044.get_order_parameters(self.diamond, 0)
         self.assertAlmostEqual(op_vals[0], 4.0)
-        self.assertAlmostEqual(op_vals[1], 1.0)
-        self.assertAlmostEqual(op_vals[2], -0.008828657097338058)
-        self.assertAlmostEqual(op_vals[3], 0.08087075431050145)
-        self.assertAlmostEqual(op_vals[4], 0.0)
-        self.assertAlmostEqual(op_vals[5], 0.5091750772173156)
-        self.assertAlmostEqual(op_vals[6], 0.6285393610547088)
+        self.assertAlmostEqual(int(op_vals[1]*1000), 1000)
+        self.assertAlmostEqual(int(op_vals[2]*1000), -8)
+        self.assertAlmostEqual(int(op_vals[3]*1000), 80)
+        self.assertAlmostEqual(int(op_vals[4]*1000), 0)
+        self.assertAlmostEqual(int(op_vals[5]*1000), 509)
+        self.assertAlmostEqual(int(op_vals[6]*1000), 628)
 
         # Test providing explicit neighbor lists.
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[1])
