@@ -517,8 +517,9 @@ class ProcarTest(unittest.TestCase):
         self.assertAlmostEqual(p.get_occupation(1, 's'), 0.3538125)
         self.assertAlmostEqual(p.get_occupation(1, 'p'), 1.19540625)
         self.assertRaises(ValueError, p.get_occupation, 1, 'm')
-        self.assertEqual(p.nb_bands, 10)
-        self.assertEqual(p.nb_kpoints, 10)
+        self.assertEqual(p.nbands, 10)
+        self.assertEqual(p.nkpoints, 10)
+        self.assertEqual(p.nions, 3)
         lat = Lattice.cubic(3.)
         s = Structure(lat, ["Li", "Na", "K"], [[0., 0., 0.],
                                                [0.25, 0.25, 0.25],

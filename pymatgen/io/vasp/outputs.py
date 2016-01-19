@@ -2182,6 +2182,13 @@ class Procar(object):
                     },
                     ...
             }
+
+    ..attribute:: phase_factors
+
+        Phase factors, where present (e.g. LORBIT = 12). This attribution is
+        a dict, whose keys are tuples of the format
+        (ion_index, kpoint_index, band_index, orbital_string). The values are
+        complex numbers.
     """
     def __init__(self, filename):
         data = defaultdict(dict)
@@ -2234,17 +2241,29 @@ class Procar(object):
                         for val, o in zip(num_data, headers):
                             key = (index, current_kpoint, current_band, o)
                             if key not in phase_factors:
-                                phase_factors[key] = num_data
+                                phase_factors[key] = val
                             else:
-                                phase_factors[key] += 1j * num_data
+                                phase_factors[key] += 1j * val
                 elif l.startswith("tot"):
                     done = True
 
             self.data = data
             self.phase_factors = phase_factors
-            self.nb_kpoints = len(data[0].keys())
-            self.nb_bands = len(data[0][1]["bands"].keys())
-            self.nions = len(data)
+
+    @property
+    def nbands(self):
+        """Number of bands"""
+        return len(self.data[0][1]["bands"].keys())
+
+    @property
+    def nkpoints(self):
+        """Number of k-points"""
+        return len(self.data[0].keys())
+
+    @property
+    def nions(self):
+        """Number of ions"""
+        return len(self.data)
 
     def get_projection_on_elements(self, structure):
         """
@@ -2259,8 +2278,8 @@ class Procar(object):
         """
         dico = {Spin.up: []}
         dico[Spin.up] = [[defaultdict(float)
-                          for i in range(self.nb_kpoints)]
-                         for j in range(self.nb_bands)]
+                          for i in range(self.nkpoints)]
+                         for j in range(self.nbands)]
 
         for iat in self.data:
             name = structure.species[iat].symbol
