@@ -2217,6 +2217,8 @@ class Procar(object):
                     m = kpointexpr.match(l)
                     current_kpoint = int(m.group(1))
                     weight = float(m.group(2))
+                    if current_kpoint == 1:
+                        phase_factors = {}
                     done = False
                 elif headers is None and ionexpr.match(l):
                     headers = l.split()
@@ -2236,8 +2238,7 @@ class Procar(object):
                         # TODO: Add unit test for phase factor parsing.
                         toks = l.split()
                         index = int(toks.pop(0)) - 1
-                        num_data = np.array([float(i) for i in toks[:-1]],
-                                            dtype=np.complex128)
+                        num_data = [float(i) for i in toks[:-1]]
                         for val, o in zip(num_data, headers):
                             key = (index, current_kpoint, current_band, o)
                             if key not in phase_factors:
