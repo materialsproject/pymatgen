@@ -55,6 +55,12 @@ class FuncTest(unittest.TestCase):
         self.assertAlmostEqual(r[1], c)
         self.assertAlmostEqual(r[2], 0.000895566)
 
+        # when not enough values for error estimate
+        r2 = fit_arrhenius([1, 2], [10, 10])
+        self.assertAlmostEqual(r2[0], 0)
+        self.assertAlmostEqual(r2[1], 10)
+        self.assertEqual(r2[2], None)
+
 
 class DiffusionAnalyzerTest(PymatgenTest):
 
