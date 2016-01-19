@@ -429,6 +429,9 @@ Some add-ons are available for pymatgen today:
    provides tools to create databases of calculated run data using pymatgen.
 2. The `custodian`_ package provides a JIT job management and error
    correction for calculations.
+3. The `pymatgen-diffusion <https://pypi.python.org/pypi/pymatgen-diffusion>`_
+   by the `Materials Virtual Lab`_ provides additional useful analyses for
+   diffusion in materials.
 
 Contributing
 ============
