@@ -2231,17 +2231,17 @@ class Procar(object):
                         index = int(toks.pop(0)) - 1
                         num_data = np.array([float(i) for i in toks[:-1]],
                                             dtype=np.complex128)
-                        key = (index, current_kpoint, current_band)
-                        if key not in phase_factors:
-                            phase_factors[key] = num_data
-                        else:
-                            phase_factors[key] += 1j * num_data
+                        for val, o in zip(num_data, headers):
+                            key = (index, current_kpoint, current_band, o)
+                            if key not in phase_factors:
+                                phase_factors[key] = num_data
+                            else:
+                                phase_factors[key] += 1j * num_data
                 elif l.startswith("tot"):
                     done = True
 
             self.data = data
-            self.phase_factors = {k: dict(zip(headers, v))
-                                  for k, v in phase_factors.items()}
+            self.phase_factors = phase_factors
             self.nb_kpoints = len(data[0].keys())
             self.nb_bands = len(data[0][1]["bands"].keys())
             self.nions = len(data)
@@ -2259,7 +2259,7 @@ class Procar(object):
         """
         dico = {Spin.up: []}
         dico[Spin.up] = [[defaultdict(float)
-                          for i in range(self._nb_kpoints)]
+                          for i in range(self.nb_kpoints)]
                          for j in range(self.nb_bands)]
 
         for iat in self.data:
