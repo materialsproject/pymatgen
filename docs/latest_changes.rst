@@ -1,7 +1,7 @@
 Change log
 ==========
 
-v3.3.3
+v3.3.4
 ------
-* Bug fixes for Poscar.
-* Fix Kpoints pickling.
+* Procar now supports parsing of phase factors.
+* Miscellaneous bug fixes.
