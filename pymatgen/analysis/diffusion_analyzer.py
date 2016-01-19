@@ -720,7 +720,10 @@ def fit_arrhenius(temps, diffusivities):
     w, res, _, _ = np.linalg.lstsq(a, logd)
     w = np.array(w)
     n = len(temps)
-    std_Ea = (res[0] / (n - 2) / (n * np.var(t_1))) ** 0.5 * const.k / const.e
+    if n > 2:
+        std_Ea = (res[0] / (n - 2) / (n * np.var(t_1))) ** 0.5 * const.k / const.e
+    else:
+        std_Ea = None
     return -w[0] * const.k / const.e, np.exp(w[1]), std_Ea
 
 

@@ -1,6 +1,16 @@
 Change log
 ==========
 
+v3.3.4
+------
+* Procar now supports parsing of phase factors.
+* Miscellaneous bug fixes.
+
+v3.3.3
+------
+* Bug fixes for Poscar.
+* Fix Kpoints pickling.
+
 v3.3.2
 ------
 * Bug fixes for pymatgen.io.abinit

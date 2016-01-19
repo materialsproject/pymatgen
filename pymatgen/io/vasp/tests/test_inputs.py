@@ -18,11 +18,11 @@ __date__ = "Jul 16, 2012"
 
 import unittest
 import os
+import pickle
 import numpy as np
 import warnings
 
 import scipy.constants as const
-
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.inputs import Incar, Poscar, Kpoints, Potcar, \
@@ -194,6 +194,41 @@ direct
         self.assertRaises(ValueError, setattr, poscar, 'velocities',
                           [[0, 0, 0]])
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
+        ans = """
+        LiFePO4
+1.0
+10.411767 0.000000 0.000000
+0.000000 6.067172 0.000000
+0.000000 0.000000 4.759490
+Fe P O
+4 4 16
+Selective dynamics
+direct
+0.218728 0.750000 0.474867 T F F Fe
+0.281272 0.250000 0.974867 T F F Fe
+0.718728 0.750000 0.025133 T F F Fe
+0.781272 0.250000 0.525133 T F F Fe
+0.094613 0.250000 0.418243 T F F P
+0.405387 0.750000 0.918243 T F F P
+0.594613 0.250000 0.081757 T F F P
+0.905387 0.750000 0.581757 T F F P
+0.043372 0.750000 0.707138 T F F O
+0.096642 0.250000 0.741320 T F F O
+0.165710 0.046072 0.285384 T F F O
+0.165710 0.453928 0.285384 T F F O
+0.334290 0.546072 0.785384 T F F O
+0.334290 0.953928 0.785384 T F F O
+0.403358 0.750000 0.241320 T F F O
+0.456628 0.250000 0.207138 T F F O
+0.543372 0.750000 0.792862 T F F O
+0.596642 0.250000 0.758680 T F F O
+0.665710 0.046072 0.214616 T F F O
+0.665710 0.453928 0.214616 T F F O
+0.834290 0.546072 0.714616 T F F O
+0.834290 0.953928 0.714616 T F F O
+0.903358 0.750000 0.258680 T F F O
+0.956628 0.250000 0.292862 T F F O"""
+        self.assertEqual(str(poscar).strip(), ans.strip())
 
     def test_velocities(self):
         si = 14
@@ -472,6 +507,10 @@ Cartesian
         self.assertEqual(k.style, k2.style)
         self.assertEqual(k.kpts_shift, k2.kpts_shift)
         self.assertEqual(k.num_kpts, k2.num_kpts)
+
+    def test_pickle(self):
+        k = Kpoints.gamma_automatic()
+        pickle.dumps(k)
 
 
 class PotcarSingleTest(unittest.TestCase):

@@ -22,6 +22,8 @@ import json
 import numpy as np
 import warnings
 
+import xml.etree.cElementTree as ET
+
 
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
@@ -34,6 +36,23 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 
 class VasprunTest(unittest.TestCase):
+
+    def test_bad_vasprun(self):
+        self.assertRaises(ET.ParseError,
+                          Vasprun, os.path.join(test_dir, "bad_vasprun.xml"))
+
+
+        with warnings.catch_warnings(record=True) as w:
+            # Cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+            # Trigger a warning.
+            v = Vasprun(os.path.join(test_dir, "bad_vasprun.xml"),
+                        exception_on_bad_xml=False)
+            # Verify some things
+            self.assertEqual(len(v.ionic_steps), 1)
+            self.assertAlmostEqual(v.final_energy, -269.00551374)
+            self.assertTrue(issubclass(w[-1].category,
+                                       UserWarning))
 
     def test_properties(self):
 
@@ -498,8 +517,9 @@ class ProcarTest(unittest.TestCase):
         self.assertAlmostEqual(p.get_occupation(1, 's'), 0.3538125)
         self.assertAlmostEqual(p.get_occupation(1, 'p'), 1.19540625)
         self.assertRaises(ValueError, p.get_occupation, 1, 'm')
-        self.assertEqual(p.nb_bands, 10)
-        self.assertEqual(p.nb_kpoints, 10)
+        self.assertEqual(p.nbands, 10)
+        self.assertEqual(p.nkpoints, 10)
+        self.assertEqual(p.nions, 3)
         lat = Lattice.cubic(3.)
         s = Structure(lat, ["Li", "Na", "K"], [[0., 0., 0.],
                                                [0.25, 0.25, 0.25],
@@ -511,6 +531,15 @@ class ProcarTest(unittest.TestCase):
         p = Procar(filepath)
         self.assertAlmostEqual(p.get_occupation(0, 'd'), 4.3698147704200059)
         self.assertAlmostEqual(p.get_occupation(0, 'dxy'), 0.85796295426000124)
+
+    def test_phase_factors(self):
+        filepath = os.path.join(test_dir, 'PROCAR.phase')
+        p = Procar(filepath)
+        self.assertAlmostEqual(p.phase_factors[0, 1, 1, "s"], 0.372-0.654j)
+        # Two Li should ahve same phase factor.
+        self.assertAlmostEqual(p.phase_factors[1, 1, 1, "s"],
+                               p.phase_factors[0, 1, 1, "s"])
+        self.assertAlmostEqual(p.phase_factors[2, 1, 1, "s"], 0.027-0.047j)
 
 
 class XdatcarTest(unittest.TestCase):

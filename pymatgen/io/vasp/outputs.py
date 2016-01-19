@@ -12,7 +12,7 @@ import itertools
 from io import StringIO
 import logging
 from collections import defaultdict
-from xml.etree.cElementTree import iterparse
+import xml.etree.cElementTree as ET
 import warnings
 
 from six.moves import map, zip
@@ -194,6 +194,11 @@ class Vasprun(MSONable):
         occu_tol (float): Sets the minimum tol for the determination of the
             vbm and cbm. Usually the default of 1e-8 works well enough,
             but there may be pathological cases.
+        exception_on_bad_xml (bool): Whether to throw a ParseException if a
+            malformed XML is detected. Default to True, which ensures only
+            proper vasprun.xml are parsed. You can set to False if you want
+            partial results (e.g., if you are monitoring a calculation during a
+            run), but use the results with care. A warning is issued.
 
     **Vasp results**
 
@@ -326,11 +331,13 @@ class Vasprun(MSONable):
     def __init__(self, filename, ionic_step_skip=None,
                  ionic_step_offset=0, parse_dos=True,
                  parse_eigen=True, parse_projected_eigen=False,
-                 parse_potcar_file=True, occu_tol=1e-8):
+                 parse_potcar_file=True, occu_tol=1e-8,
+                 exception_on_bad_xml=True):
         self.filename = filename
         self.ionic_step_skip = ionic_step_skip
         self.ionic_step_offset = ionic_step_offset
         self.occu_tol = occu_tol
+        self.exception_on_bad_xml = exception_on_bad_xml
 
         with zopen(filename, "rt") as f:
             if ionic_step_skip or ionic_step_offset:
@@ -374,50 +381,58 @@ class Vasprun(MSONable):
         self.other_dielectric = {}
         ionic_steps = []
         parsed_header = False
-        for event, elem in iterparse(stream):
-            tag = elem.tag
-            if not parsed_header:
-                if tag == "generator":
-                    self.generator = self._parse_params(elem)
-                elif tag == "incar":
-                    self.incar = self._parse_params(elem)
-                elif tag == "kpoints":
-                    self.kpoints, self.actual_kpoints, \
-                        self.actual_kpoints_weights = self._parse_kpoints(elem)
-                elif tag == "parameters":
-                    self.parameters = self._parse_params(elem)
+        try:
+            for event, elem in ET.iterparse(stream):
+                tag = elem.tag
+                if not parsed_header:
+                    if tag == "generator":
+                        self.generator = self._parse_params(elem)
+                    elif tag == "incar":
+                        self.incar = self._parse_params(elem)
+                    elif tag == "kpoints":
+                        self.kpoints, self.actual_kpoints, \
+                            self.actual_kpoints_weights = self._parse_kpoints(elem)
+                    elif tag == "parameters":
+                        self.parameters = self._parse_params(elem)
+                    elif tag == "structure" and elem.attrib.get("name") == \
+                            "initialpos":
+                        self.initial_structure = self._parse_structure(elem)
+                    elif tag == "atominfo":
+                        self.atomic_symbols, self.potcar_symbols = \
+                            self._parse_atominfo(elem)
+                        self.potcar_spec = [{"titel": p,
+                                             "hash": None} for
+                                            p in self.potcar_symbols]
+                if tag == "calculation":
+                    parsed_header = True
+                    ionic_steps.append(self._parse_calculation(elem))
+                elif parse_dos and tag == "dos":
+                    try:
+                        self.tdos, self.idos, self.pdos = self._parse_dos(elem)
+                        self.efermi = self.tdos.efermi
+                        self.dos_has_errors = False
+                    except Exception as ex:
+                        self.dos_has_errors = True
+                elif parse_eigen and tag == "eigenvalues":
+                    self.eigenvalues = self._parse_eigen(elem)
+                elif parse_projected_eigen and tag == "projected":
+                    self.projected_eigenvalues = self._parse_projected_eigen(elem)
+                elif tag == "dielectricfunction":
+                    if ("comment" not in elem.attrib) or \
+                       elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
+                        self.dielectric = self._parse_diel(elem)
+                    else:
+                        self.other_dielectric[elem.attrib["comment"]] = self._parse_diel(elem)
                 elif tag == "structure" and elem.attrib.get("name") == \
-                        "initialpos":
-                    self.initial_structure = self._parse_structure(elem)
-                elif tag == "atominfo":
-                    self.atomic_symbols, self.potcar_symbols = \
-                        self._parse_atominfo(elem)
-                    self.potcar_spec = [{"titel": p,
-                                         "hash": None} for
-                                        p in self.potcar_symbols]
-            if tag == "calculation":
-                parsed_header = True
-                ionic_steps.append(self._parse_calculation(elem))
-            elif parse_dos and tag == "dos":
-                try:
-                    self.tdos, self.idos, self.pdos = self._parse_dos(elem)
-                    self.efermi = self.tdos.efermi
-                    self.dos_has_errors = False
-                except Exception as ex:
-                    self.dos_has_errors = True
-            elif parse_eigen and tag == "eigenvalues":
-                self.eigenvalues = self._parse_eigen(elem)
-            elif parse_projected_eigen and tag == "projected":
-                self.projected_eigenvalues = self._parse_projected_eigen(elem)
-            elif tag == "dielectricfunction":
-                if ("comment" not in elem.attrib) or \
-                   elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
-                    self.dielectric = self._parse_diel(elem)
-                else:
-                    self.other_dielectric[elem.attrib["comment"]] = self._parse_diel(elem)
-            elif tag == "structure" and elem.attrib.get("name") == \
-                    "finalpos":
-                self.final_structure = self._parse_structure(elem)
+                        "finalpos":
+                    self.final_structure = self._parse_structure(elem)
+        except ET.ParseError as ex:
+            if self.exception_on_bad_xml:
+                raise ex
+            else:
+                warnings.warn(
+                        "XML is malformed. Parsing has stopped but partial data"
+                        "is available.", UserWarning)
         self.ionic_steps = ionic_steps
         self.vasp_version = self.generator["version"]
 
@@ -1068,7 +1083,7 @@ class BSVasprun(Vasprun):
             parsed_header = False
             self.eigenvalues = None
             self.projected_eigenvalues = None
-            for event, elem in iterparse(f):
+            for event, elem in ET.iterparse(f):
                 tag = elem.tag
                 if not parsed_header:
                     if tag == "generator":
@@ -2167,61 +2182,88 @@ class Procar(object):
                     },
                     ...
             }
+
+    ..attribute:: phase_factors
+
+        Phase factors, where present (e.g. LORBIT = 12). This attribution is
+        a dict, whose keys are tuples of the format
+        (ion_index, kpoint_index, band_index, orbital_string). The values are
+        complex numbers.
     """
     def __init__(self, filename):
         data = defaultdict(dict)
+        phase_factors = {}
         headers = None
         with zopen(filename, "rt") as f:
-            lines = list(clean_lines(f.readlines()))
-            self.name = lines[0]
-            kpointexpr = re.compile("^\s*k-point\s+(\d+).*weight = ([0-9\.]+)")
-            bandexpr = re.compile("^\s*band\s+(\d+)")
+            lines = list(f.readlines())
+            self.name = lines.pop(0)
+            kpointexpr = re.compile("^k-point\s+(\d+).*weight = ([0-9\.]+)")
+            bandexpr = re.compile("^band\s+(\d+)")
             ionexpr = re.compile("^ion.*")
-            expr = re.compile("^\s*([0-9]+)\s+")
-            dataexpr = re.compile("[\.0-9]+")
+            expr = re.compile("^([0-9]+)\s+")
             weight = 0
             current_kpoint = 0
             current_band = 0
+            done = False
             for l in lines:
+                l = l.strip()
+                # TODO: This is really bad. Why are we not using zero-based
+                # indexing for kpoints and bands?
                 if bandexpr.match(l):
                     m = bandexpr.match(l)
                     current_band = int(m.group(1))
+                    done = False
                 elif kpointexpr.match(l):
                     m = kpointexpr.match(l)
                     current_kpoint = int(m.group(1))
                     weight = float(m.group(2))
+                    if current_kpoint == 1:
+                        phase_factors = {}
+                    done = False
                 elif headers is None and ionexpr.match(l):
                     headers = l.split()
                     headers.pop(0)
                     headers.pop(-1)
                 elif expr.match(l):
-                    linedata = dataexpr.findall(l)
-                    num_data = [float(i) for i in linedata]
-                    #Convert to zero-based indexing for atoms.
-                    index = int(num_data.pop(0)) - 1
-                    num_data.pop(-1)
-                    if current_kpoint not in data[index]:
-                        data[index][current_kpoint] = {"weight": weight,
-                                                       "bands": {}}
-                    data[index][current_kpoint]["bands"][current_band] = \
-                        dict(zip(headers, num_data))
+                    if not done:
+                        toks = l.split()
+                        index = int(toks.pop(0)) - 1
+                        num_data = [float(i) for i in toks[:-1]]
+                        if current_kpoint not in data[index]:
+                            data[index][current_kpoint] = {"weight": weight,
+                                                           "bands": {}}
+                        data[index][current_kpoint]["bands"][current_band] = \
+                            dict(zip(headers, num_data))
+                    else:
+                        toks = l.split()
+                        index = int(toks.pop(0)) - 1
+                        num_data = [float(i) for i in toks[:-1]]
+                        for val, o in zip(num_data, headers):
+                            key = (index, current_kpoint, current_band, o)
+                            if key not in phase_factors:
+                                phase_factors[key] = val
+                            else:
+                                phase_factors[key] += 1j * val
+                elif l.startswith("tot"):
+                    done = True
+
             self.data = data
-            self._nb_kpoints = len(data[0].keys())
-            self._nb_bands = len(data[0][1]["bands"].keys())
+            self.phase_factors = phase_factors
 
     @property
-    def nb_bands(self):
-        """
-        returns the number of bands in the band structure
-        """
-        return self._nb_bands
+    def nbands(self):
+        """Number of bands"""
+        return len(self.data[0][1]["bands"].keys())
 
     @property
-    def nb_kpoints(self):
-        """
-        Returns the number of k-points in the band structure calculation
-        """
-        return self._nb_kpoints
+    def nkpoints(self):
+        """Number of k-points"""
+        return len(self.data[0].keys())
+
+    @property
+    def nions(self):
+        """Number of ions"""
+        return len(self.data)
 
     def get_projection_on_elements(self, structure):
         """
@@ -2236,8 +2278,8 @@ class Procar(object):
         """
         dico = {Spin.up: []}
         dico[Spin.up] = [[defaultdict(float)
-                          for i in range(self._nb_kpoints)]
-                         for j in range(self.nb_bands)]
+                          for i in range(self.nkpoints)]
+                         for j in range(self.nbands)]
 
         for iat in self.data:
             name = structure.species[iat].symbol

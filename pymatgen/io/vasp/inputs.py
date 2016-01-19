@@ -139,15 +139,17 @@ class Poscar(MSONable):
 
     @velocities.setter
     def velocities(self, velocities):
-        self.structure.site_properties["velocities"] = velocities
+        self.structure.add_site_property("velocities", velocities)
 
     @selective_dynamics.setter
     def selective_dynamics(self, selective_dynamics):
-        self.structure.site_properties["selective_dynamics"] = selective_dynamics
+        self.structure.add_site_property("selective_dynamics",
+                                         selective_dynamics)
 
     @predictor_corrector.setter
     def predictor_corrector(self, predictor_corrector):
-        self.structure.site_properties["predictor_corrector"] = predictor_corrector
+        self.structure.add_site_property("predictor_corrector",
+                                         predictor_corrector)
 
     @property
     def site_symbols(self):
@@ -763,30 +765,31 @@ class Incar(dict, MSONable):
         return Incar(params)
 
 
+class Kpoints_supported_modes(Enum):
+    Automatic = 0
+    Gamma = 1
+    Monkhorst = 2
+    Line_mode = 3
+    Cartesian = 4
+    Reciprocal = 5
+
+    def __str__(self):
+        return self.name
+
+    @staticmethod
+    def from_string(s):
+        c = s.lower()[0]
+        for m in Kpoints_supported_modes:
+            if m.name.lower()[0] == c:
+                return m
+        raise ValueError("Can't interprete Kpoint mode %s" % s)
+
 
 class Kpoints(MSONable):
     """
     KPOINT reader/writer.
     """
-
-    class supported_modes(Enum):
-        Automatic = 0
-        Gamma = 1
-        Monkhorst = 2
-        Line_mode = 3
-        Cartesian = 4
-        Reciprocal = 5
-
-        def __str__(self):
-            return self.name
-
-        @staticmethod
-        def from_string(s):
-            c = s.lower()[0]
-            for m in Kpoints.supported_modes:
-                if m.name.lower()[0] == c:
-                    return m
-            raise ValueError("Can't interprete Kpoint mode %s" % s)
+    supported_modes = Kpoints_supported_modes
 
     def __init__(self, comment="Default gamma", num_kpts=0,
                  style=supported_modes.Gamma,

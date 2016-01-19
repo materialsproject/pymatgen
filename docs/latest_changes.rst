@@ -1,7 +1,7 @@
 Change log
 ==========
 
-v3.3.2
+v3.3.4
 ------
-* Bug fixes for pymatgen.io.abinit
-* Other minor big fixes.
+* Procar now supports parsing of phase factors.
+* Miscellaneous bug fixes.
