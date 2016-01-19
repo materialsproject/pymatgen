@@ -128,10 +128,10 @@ class EOS(object):
        birch
            Intermetallic compounds: Principles and Practice, Vol I: Principles. pages 195-210
 
-       birchmurnaghan
+       birch_murnaghan
            PRB 70, 224107
 
-       pouriertarantola
+       pourier_tarantola
            PRB 70, 224107
 
        vinet
