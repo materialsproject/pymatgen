@@ -2235,7 +2235,6 @@ class Procar(object):
                         data[index][current_kpoint]["bands"][current_band] = \
                             dict(zip(headers, num_data))
                     else:
-                        # TODO: Add unit test for phase factor parsing.
                         toks = l.split()
                         index = int(toks.pop(0)) - 1
                         num_data = [float(i) for i in toks[:-1]]
