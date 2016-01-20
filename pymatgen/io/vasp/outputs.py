@@ -2207,11 +2207,6 @@ class Procar(object):
 
             for l in f:
                 l = l.strip()
-                if preambleexpr.match(l):
-                    m = preambleexpr.match(l)
-                    self.nkpoints = int(m.group(1))
-                    self.nbands = int(m.group(2))
-                    self.nions = int(m.group(3))
                 if bandexpr.match(l):
                     m = bandexpr.match(l)
                     current_band = int(m.group(1)) - 1
@@ -2231,27 +2226,33 @@ class Procar(object):
                 elif expr.match(l):
                     toks = l.split()
                     index = int(toks.pop(0)) - 1
+                    num_data = np.array([float(t) for t in toks[:len(headers)]])
                     if not done:
                         if spin not in data:
                             data[spin] = np.zeros((self.nkpoints, self.nbands,
                                                    self.nions, len(headers)))
-                        for i, val in enumerate(toks[:-1]):
-                            data[spin][current_kpoint, current_band, index, i] = float(val)
+                        data[spin][current_kpoint, current_band,
+                                   index, :] = num_data
                     else:
                         if spin not in phase_factors:
                             phase_factors[spin] = np.full(
                                     (self.nkpoints, self.nbands,
-                                     self.nions, len(headers)), np.NaN, dtype=np.complex128)
-                        for i, val in enumerate(toks[:-1]):
-                            if np.isnan(phase_factors[spin][
-                                    current_kpoint, current_band, index, i]):
-                                phase_factors[spin][current_kpoint, current_band,
-                                                    index, i] = float(val)
-                            else:
-                                phase_factors[spin][current_kpoint, current_band,
-                                                    index, i] += 1j * float(val)
+                                     self.nions, len(headers)), np.NaN,
+                                    dtype=np.complex128)
+                        if np.isnan(phase_factors[spin][
+                                current_kpoint, current_band, index, 0]):
+                            phase_factors[spin][current_kpoint, current_band,
+                                                index, :] = num_data
+                        else:
+                            phase_factors[spin][current_kpoint, current_band,
+                                                index, :] += 1j * num_data
                 elif l.startswith("tot"):
                     done = True
+                elif preambleexpr.match(l):
+                    m = preambleexpr.match(l)
+                    self.nkpoints = int(m.group(1))
+                    self.nbands = int(m.group(2))
+                    self.nions = int(m.group(3))
 
             self.weights = weights
             self.orbitals = headers
