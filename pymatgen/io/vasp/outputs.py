@@ -2196,7 +2196,6 @@ class Procar(object):
         phase_factors = {}
         headers = None
 
-
         with zopen(filename, "rt") as f:
             kpointexpr = re.compile("^k-point\s+(\d+).*weight = ([0-9\.]+)")
             bandexpr = re.compile("^band\s+(\d+)")
@@ -2206,6 +2205,7 @@ class Procar(object):
             current_kpoint = 0
             current_band = 0
             done = False
+            spin = Spin.down
 
             for l in f:
                 l = l.strip()
@@ -2218,7 +2218,7 @@ class Procar(object):
                     current_kpoint = int(m.group(1)) - 1
                     weight = float(m.group(2))
                     if current_kpoint == 0:
-                        phase_factors = {}
+                        spin = Spin.up if spin == Spin.down else Spin.down
                     done = False
                 elif headers is None and ionexpr.match(l):
                     headers = l.split()
@@ -2236,7 +2236,7 @@ class Procar(object):
                             dict(zip(headers, num_data))
                     else:
                         for val, o in zip(num_data, headers):
-                            key = (index, current_kpoint, current_band, o)
+                            key = (index, current_kpoint, current_band, o, spin)
                             if key not in phase_factors:
                                 phase_factors[key] = val
                             else:
