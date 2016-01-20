@@ -298,17 +298,22 @@ class DiffusionAnalyzer(MSONable):
             self.indices = indices
             self.framework_indices = framework_indices
 
-    def get_drift_corrected_structures(self):
+    def get_drift_corrected_structures(self, start=None, stop=None, step=None):
         """
         Returns an iterator for the drift-corrected structures. Use of
         iterator is to reduce memory usage as # of structures in MD can be
         huge. You don't often need all the structures all at once.
+
+        Args:
+            start, stop, step (int): applies a start/stop/step to the iterator.
+                Faster than applying it after generation, as it reduces the
+                number of structures created.
         """
         coords = np.array(self.structure.cart_coords)
         species = self.structure.species_and_occu
         latt = self.structure.lattice
         nsites, nsteps, dim = self.corrected_displacements.shape
-        for i in range(nsteps):
+        for i in range(start or 0, stop or nsteps, step or 1):
             yield Structure(
                     latt, species,
                     coords + self.corrected_displacements[:, i, :],

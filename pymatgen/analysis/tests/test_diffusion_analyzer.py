@@ -116,12 +116,13 @@ class DiffusionAnalyzerTest(PymatgenTest):
 
             self.assertAlmostEqual(d.max_framework_displacement, 1.18656839605)
 
-            ss = list(d.get_drift_corrected_structures())
-            self.assertEqual(len(ss), 1000)
-            n = random.randint(0, 999)
+            ss = list(d.get_drift_corrected_structures(10, 1000, 20))
+            self.assertEqual(len(ss), 50)
+            n = random.randint(0, 49)
+            n_orig = n * 20 + 10
             self.assertArrayAlmostEqual(
-                ss[n].cart_coords - d.structure.cart_coords + d.drift[:, n, :],
-                d.disp[:, n, :])
+                ss[n].cart_coords - d.structure.cart_coords + d.drift[:, n_orig, :],
+                d.disp[:, n_orig, :])
 
             d = DiffusionAnalyzer.from_dict(d.as_dict())
             self.assertIsInstance(d, DiffusionAnalyzer)
