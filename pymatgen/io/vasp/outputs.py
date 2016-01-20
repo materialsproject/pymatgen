@@ -2239,9 +2239,8 @@ class Procar(object):
                     else:
                         if spin not in phase_factors:
                             phase_factors[spin] = np.full(
-                                    (self.nkpoints, self.nbands,
-                                     self.nions, len(headers)), np.NaN,
-                                    dtype=np.complex128)
+                                    (nkpoints, nbands, nions, len(headers)),
+                                    np.NaN, dtype=np.complex128)
                         if np.isnan(phase_factors[spin][
                                 current_kpoint, current_band, index, 0]):
                             phase_factors[spin][current_kpoint, current_band,
