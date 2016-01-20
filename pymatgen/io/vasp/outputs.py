@@ -2165,7 +2165,8 @@ class Procar(object):
         A nested dict containing the PROCAR data of the form below. It should
         be noted that VASP uses 1-based indexing for atoms, but this is
         converted to zero-based indexing in this parser to be consistent with
-        representation of structures in pymatgen::
+        representation of structures in pymatgen. Also, the k-point index and
+        band index is converted to 0-based indexing too.::
 
             {
                 atom_index: {
@@ -2194,9 +2195,9 @@ class Procar(object):
         data = defaultdict(dict)
         phase_factors = {}
         headers = None
+
+
         with zopen(filename, "rt") as f:
-            lines = list(f.readlines())
-            self.name = lines.pop(0)
             kpointexpr = re.compile("^k-point\s+(\d+).*weight = ([0-9\.]+)")
             bandexpr = re.compile("^band\s+(\d+)")
             ionexpr = re.compile("^ion.*")
@@ -2205,19 +2206,18 @@ class Procar(object):
             current_kpoint = 0
             current_band = 0
             done = False
-            for l in lines:
+
+            for l in f:
                 l = l.strip()
-                # TODO: This is really bad. Why are we not using zero-based
-                # indexing for kpoints and bands?
                 if bandexpr.match(l):
                     m = bandexpr.match(l)
-                    current_band = int(m.group(1))
+                    current_band = int(m.group(1)) - 1
                     done = False
                 elif kpointexpr.match(l):
                     m = kpointexpr.match(l)
-                    current_kpoint = int(m.group(1))
+                    current_kpoint = int(m.group(1)) - 1
                     weight = float(m.group(2))
-                    if current_kpoint == 1:
+                    if current_kpoint == 0:
                         phase_factors = {}
                     done = False
                 elif headers is None and ionexpr.match(l):
@@ -2225,19 +2225,16 @@ class Procar(object):
                     headers.pop(0)
                     headers.pop(-1)
                 elif expr.match(l):
+                    toks = l.split()
+                    index = int(toks.pop(0)) - 1
+                    num_data = [float(i) for i in toks[:-1]]
                     if not done:
-                        toks = l.split()
-                        index = int(toks.pop(0)) - 1
-                        num_data = [float(i) for i in toks[:-1]]
                         if current_kpoint not in data[index]:
                             data[index][current_kpoint] = {"weight": weight,
                                                            "bands": {}}
                         data[index][current_kpoint]["bands"][current_band] = \
                             dict(zip(headers, num_data))
                     else:
-                        toks = l.split()
-                        index = int(toks.pop(0)) - 1
-                        num_data = [float(i) for i in toks[:-1]]
                         for val, o in zip(num_data, headers):
                             key = (index, current_kpoint, current_band, o)
                             if key not in phase_factors:
@@ -2285,7 +2282,7 @@ class Procar(object):
             name = structure.species[iat].symbol
             for k in self.data[iat]:
                 for b in self.data[iat][k]["bands"]:
-                    dico[Spin.up][b-1][k-1][name] = \
+                    dico[Spin.up][b][k][name] = \
                         sum(self.data[iat][k]["bands"][b].values())
 
         return dico

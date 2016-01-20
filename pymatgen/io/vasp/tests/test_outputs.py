@@ -513,9 +513,9 @@ class ProcarTest(unittest.TestCase):
     def test_init(self):
         filepath = os.path.join(test_dir, 'PROCAR.simple')
         p = Procar(filepath)
-        self.assertAlmostEqual(p.get_occupation(1, 'd'), 0)
-        self.assertAlmostEqual(p.get_occupation(1, 's'), 0.3538125)
-        self.assertAlmostEqual(p.get_occupation(1, 'p'), 1.19540625)
+        self.assertAlmostEqual(p.get_occupation(0, 'd'), 0)
+        self.assertAlmostEqual(p.get_occupation(0, 's'), 0.3538125)
+        self.assertAlmostEqual(p.get_occupation(0, 'p'), 1.19540625)
         self.assertRaises(ValueError, p.get_occupation, 1, 'm')
         self.assertEqual(p.nbands, 10)
         self.assertEqual(p.nkpoints, 10)
@@ -535,11 +535,11 @@ class ProcarTest(unittest.TestCase):
     def test_phase_factors(self):
         filepath = os.path.join(test_dir, 'PROCAR.phase')
         p = Procar(filepath)
-        self.assertAlmostEqual(p.phase_factors[0, 1, 1, "s"], 0.372-0.654j)
+        self.assertAlmostEqual(p.phase_factors[0, 0, 0, "s"], 0.372-0.654j)
         # Two Li should ahve same phase factor.
-        self.assertAlmostEqual(p.phase_factors[1, 1, 1, "s"],
-                               p.phase_factors[0, 1, 1, "s"])
-        self.assertAlmostEqual(p.phase_factors[2, 1, 1, "s"], 0.027-0.047j)
+        self.assertAlmostEqual(p.phase_factors[1, 0, 0, "s"],
+                               p.phase_factors[0, 0, 0, "s"])
+        self.assertAlmostEqual(p.phase_factors[2, 0, 0, "s"], 0.027-0.047j)
 
 
 class XdatcarTest(unittest.TestCase):
