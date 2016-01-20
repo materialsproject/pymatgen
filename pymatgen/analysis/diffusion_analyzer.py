@@ -298,17 +298,22 @@ class DiffusionAnalyzer(MSONable):
             self.indices = indices
             self.framework_indices = framework_indices
 
-    def get_drift_corrected_structures(self):
+    def get_drift_corrected_structures(self, start=None, stop=None, step=None):
         """
         Returns an iterator for the drift-corrected structures. Use of
         iterator is to reduce memory usage as # of structures in MD can be
         huge. You don't often need all the structures all at once.
+
+        Args:
+            start, stop, step (int): applies a start/stop/step to the iterator.
+                Faster than applying it after generation, as it reduces the
+                number of structures created.
         """
         coords = np.array(self.structure.cart_coords)
         species = self.structure.species_and_occu
         latt = self.structure.lattice
         nsites, nsteps, dim = self.corrected_displacements.shape
-        for i in range(nsteps):
+        for i in range(start or 0, stop or nsteps, step or 1):
             yield Structure(
                     latt, species,
                     coords + self.corrected_displacements[:, i, :],
@@ -359,28 +364,34 @@ class DiffusionAnalyzer(MSONable):
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8, plt=plt)
+        if np.max(self.dt) > 100000:
+            plot_dt = self.dt / 1000
+            unit = 'ps'
+        else:
+            plot_dt = self.dt
+            unit = 'fs'
 
         if mode == "species":
             for sp in sorted(self.structure.composition.keys()):
                 indices = [i for i, site in enumerate(self.structure) if
                            site.specie == sp]
                 sd = np.average(self.sq_disp_ions[indices, :], axis=0)
-                plt.plot(self.dt, sd, label=sp.__str__())
+                plt.plot(plot_dt, sd, label=sp.__str__())
             plt.legend(loc=2, prop={"size": 20})
         elif mode == "sites":
             for i, site in enumerate(self.structure):
                 sd = self.sq_disp_ions[i, :]
-                plt.plot(self.dt, sd, label="%s - %d" % (
+                plt.plot(plot_dt, sd, label="%s - %d" % (
                     site.specie.__str__(), i))
             plt.legend(loc=2, prop={"size": 20})
         else:
             # Handle default / invalid mode case
-            plt.plot(self.dt, self.msd, 'k')
-            plt.plot(self.dt, self.msd_components[:, 0], 'r')
-            plt.plot(self.dt, self.msd_components[:, 1], 'g')
-            plt.plot(self.dt, self.msd_components[:, 2], 'b')
+            plt.plot(plot_dt, self.msd, 'k')
+            plt.plot(plot_dt, self.msd_components[:, 0], 'r')
+            plt.plot(plot_dt, self.msd_components[:, 1], 'g')
+            plt.plot(plot_dt, self.msd_components[:, 2], 'b')
             plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
-        plt.xlabel("Timestep (fs)")
+        plt.xlabel("Timestep ({})".format(unit))
         plt.ylabel("MSD ($\AA^2$)")
         plt.tight_layout()
         return plt
