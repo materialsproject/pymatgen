@@ -2003,42 +2003,43 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
             d = {"symbol": p.symbol, "Z": p.Z}
             names.append(p.basename)
 
+            ecut_acc = {}
+
             #read hints
             for acc in accuracies:
                 try:
                     d.update({acc + "_ecut_hint": report['hints'][acc]['ecut']})
+                    ecut_acc[acc] = report['hints'][acc]['ecut']
                 except KeyError:
+                    # using -1 for non existing values facilitates plotting
                     d.update({acc + "_ecut_hint": -1.0 })
-
-            # FIXME
-            try:
-                ecut_acc = dict(
-                    low=report.ecuts[2],
-                    normal=report.ecuts[int(len(report.ecuts)/2)],
-                    high=report.ecuts[-2],
-                )
-            except IndexError:
-                ecut_acc = dict(
-                    low=report.ecuts[0],
-                    normal=report.ecuts[-1],
-                    high=report.ecuts[-1],
-                )
-
+                    ecut_acc[acc] = -1
+ 
             for acc in accuracies:
                 d[acc + "_ecut"] = ecut_acc[acc]
 
             try:
                 for trial, keys in trial2keys.items():
                     data = report.get(trial, None)
+                    
                     if data is None: continue
-                    # if the current trial has an entry for this ecut notting changes, else we take the ecut closes 
-                    ecut_acc = dict(
+
+                    # if the current trial has an entry for this ecut change notting, else we take the 
+                    # smallest, the middle the highest ecut available for this trials 
+                    # precausion, normally eigther there are hint or not in the second case they are all set to -1
+                    ecut_acc_trial = dict(
                         low=sorted(data.keys())[0],
                         normal=sorted(data.keys())[int(len(data.keys())/2)],
                         high=sorted(data.keys())[-1],
                     )
+ 
                     for acc in accuracies:
-                        ecut = ecut_acc[acc]
+                        d[acc + "_ecut"] = ecut_acc[acc]
+
+                    for acc in accuracies:
+                        ecut = ecut_acc[acc] if ecut_acc[acc] in data.keys() else ecut_acc_trial[acc]
+                        #store the actualll ecut for this trial
+                        d.update({acc + "_ecut_" + trial: ecut})
                         if keys is 'all':
                             ecuts = data
                             d.update({acc + "_" + trial: data[ecut]})
@@ -2052,7 +2053,6 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
                 logger.warning("%s raised %s" % (p.basename, exc))
                 errors.append((p.basename, str(exc)))
 
-            #print(d)
             rows.append(d)
 
         # Build sub-class of pandas.DataFrame
@@ -2153,7 +2153,8 @@ class DojoDataFrame(DataFrame):
         "gbrv_bcc",
         "gbrv_fcc",
         "phonon",
-        "phwoa"
+        "phwoa",
+        "ebands"
     )
 
     _TRIALS2KEY = {
@@ -2162,7 +2163,8 @@ class DojoDataFrame(DataFrame):
         "gbrv_bcc": "gbrv_bcc_a0_rel_err",
         "gbrv_fcc": "gbrv_fcc_a0_rel_err",
         "phonon": "all",
-        "phwoa": "all"
+        "phwoa": "all",
+        "ebands": "all"
     }
 
     _TRIALS2YLABEL = {
@@ -2171,7 +2173,8 @@ class DojoDataFrame(DataFrame):
         "gbrv_bcc": "BCC $\Delta a_0$ (%)",
         "gbrv_fcc": "FCC $\Delta a_0$ (%)",
         "phonon": "Phonons with ASR",
-        "phwoa": "Phonons without ASR"
+        "phwoa": "Phonons without ASR",
+        "ebands": "Electronic band structure"
     }
 
     ACC2PLTOPTS = dict(
@@ -2310,7 +2313,8 @@ class DojoReport(dict):
         "gbrv_bcc": "a0_rel_err",
         "gbrv_fcc": "a0_rel_err",
         "phwoa": "all",
-        "phonon": "all"
+        "phonon": "all",
+        "ebands": "all"
     }
 
     ALL_ACCURACIES = ("low", "normal", "high")
@@ -2322,11 +2326,15 @@ class DojoReport(dict):
         "gbrv_bcc",
         "gbrv_fcc",
         "phonon",
-        "phwoa"
+        "phwoa",
+        "ebands"
     )
 
     # Tolerances on the deltafactor prime (in eV) used for the hints.
+
+    #for noble gasses:
     #ATOLS = (1.0, 0.2, 0.04)
+    
     ATOLS = (0.5, 0.1, 0.02)
 
     Error = DojoReportError
@@ -2879,3 +2887,14 @@ class DojoReport(dict):
         ax[0].set_ylim(fmin, fmax)
 
         return fig
+
+    @add_fig_kwargs
+    def plot_ebands(self, ecut=None):
+        if ecut is None:
+            ecut = self['ebands'].keys()[0]
+        print(self['ebands'][ecut]['GSR-nc'])
+        from abipy.abilab import abiopen
+        ebands = abiopen(self['ebands'][self['ebands'].keys()[0]]['GSR-nc']).ebands
+        fig = ebands.plot_with_edos(ebands.get_edos())
+        return fig
+    
