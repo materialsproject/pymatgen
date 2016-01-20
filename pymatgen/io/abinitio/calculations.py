@@ -208,10 +208,13 @@ def g0w0_extended_work(structure, pseudos, kppa, nscf_nband, ecuteps, ecutsigx, 
         scf_ksampling = KSampling.automatic_density(structure, kppa, chksymbreak=0)
         nscf_ksampling = KSampling.automatic_density(structure, kppa, chksymbreak=0)
 
+    print(scf_ksampling)
+    print(nscf_ksampling)
+
     if "istwfk" not in extra_abivars:
         extra_abivars["istwfk"] = "*1"
 
-    scf_strategy = []
+    scf_inputs = []
     to_add = {}
     #scf_nband = min(nscf_nband)
     #print(scf_nband)
@@ -225,7 +228,7 @@ def g0w0_extended_work(structure, pseudos, kppa, nscf_nband, ecuteps, ecutsigx, 
             for value in values:
                 extra_abivars[var] = value
                 extra_abivars['pawecutdg'] = extra_abivars['ecut']*2
-                scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy,
+                scf_inputs.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy,
                                                 spin_mode=spin_mode, smearing=smearing, charge=charge,
                                                 scf_algorithm=None, nband=scf_nband, **extra_abivars))
 
@@ -275,6 +278,7 @@ def g0w0_extended_work(structure, pseudos, kppa, nscf_nband, ecuteps, ecutsigx, 
                                                          **extra_abivars))
 
     if work_class is None: work_class = G0W0Work
+    print(work_class)
 
     return work_class(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager,
                       spread_scr=spread_scr, nksmall=nksmall)
