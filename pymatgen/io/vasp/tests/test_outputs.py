@@ -514,7 +514,7 @@ class ProcarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'PROCAR.simple')
         p = Procar(filepath)
         self.assertAlmostEqual(p.get_occupation(0, 'd'), 0)
-        self.assertAlmostEqual(p.get_occupation(0, 's'), 0.3538125)
+        self.assertAlmostEqual(p.get_occupation(0, 's'), 0.7076250000000001)
         self.assertAlmostEqual(p.get_occupation(0, 'p'), 1.19540625)
         self.assertRaises(ValueError, p.get_occupation, 1, 'm')
         self.assertEqual(p.nbands, 10)
