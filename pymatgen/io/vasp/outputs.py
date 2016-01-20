@@ -2169,12 +2169,17 @@ class Procar(object):
                 spin: nd.array accessed with (k-point index, band index, ion index, orbital index)
             }
 
+    .. attribute:: weights
+
+        The weights associated with each k-point as an nd.array of lenght
+        nkpoints.
+
     ..attribute:: phase_factors
 
-        Phase factors, where present (e.g. LORBIT = 12). This attribution is
-        a dict, whose keys are tuples of the format
-        (ion_index, kpoint_index, band_index, orbital_string, spin). The
-        values are complex numbers.
+        Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
+        {
+            spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index)
+        }
 
     ..attribute:: nbands
 
@@ -2199,7 +2204,6 @@ class Procar(object):
             bandexpr = re.compile("^band\s+(\d+)")
             ionexpr = re.compile("^ion.*")
             expr = re.compile("^([0-9]+)\s+")
-            weights = {}
             current_kpoint = 0
             current_band = 0
             done = False
@@ -2217,7 +2221,6 @@ class Procar(object):
                     weights[current_kpoint] = float(m.group(2))
                     if current_kpoint == 0:
                         spin = Spin.up if spin == Spin.down else Spin.down
-
                     done = False
                 elif headers is None and ionexpr.match(l):
                     headers = l.split()
@@ -2229,8 +2232,8 @@ class Procar(object):
                     num_data = np.array([float(t) for t in toks[:len(headers)]])
                     if not done:
                         if spin not in data:
-                            data[spin] = np.zeros((self.nkpoints, self.nbands,
-                                                   self.nions, len(headers)))
+                            data[spin] = np.zeros((nkpoints, nbands,
+                                                   nions, len(headers)))
                         data[spin][current_kpoint, current_band,
                                    index, :] = num_data
                     else:
@@ -2250,10 +2253,14 @@ class Procar(object):
                     done = True
                 elif preambleexpr.match(l):
                     m = preambleexpr.match(l)
-                    self.nkpoints = int(m.group(1))
-                    self.nbands = int(m.group(2))
-                    self.nions = int(m.group(3))
+                    nkpoints = int(m.group(1))
+                    nbands = int(m.group(2))
+                    nions = int(m.group(3))
+                    weights = np.zeros(nkpoints)
 
+            self.nkpoints = nkpoints
+            self.nbands = nbands
+            self.nions = nions
             self.weights = weights
             self.orbitals = headers
             self.data = data
@@ -2302,13 +2309,10 @@ class Procar(object):
         Returns:
             Sum occupation of orbital of atom.
         """
-        total = defaultdict(dict)
+
         orbital_index = self.orbitals.index(orbital)
-        for spin, d in self.data.items():
-            total[spin] = 0
-            for k_index in range(self.nkpoints):
-                total[spin] += np.sum(d[k_index, :, atom_index, orbital_index]) * self.weights[k_index]
-        return total
+        return {spin: np.sum(d[:, :, atom_index, orbital_index] * self.weights[:, None])
+                for spin, d in self.data.items()}
 
 
 class Oszicar(object):
