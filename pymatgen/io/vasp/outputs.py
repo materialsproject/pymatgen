@@ -2188,8 +2188,8 @@ class Procar(object):
 
         Phase factors, where present (e.g. LORBIT = 12). This attribution is
         a dict, whose keys are tuples of the format
-        (ion_index, kpoint_index, band_index, orbital_string). The values are
-        complex numbers.
+        (ion_index, kpoint_index, band_index, orbital_string, spin). The
+        values are complex numbers.
     """
     def __init__(self, filename):
         data = defaultdict(dict)
@@ -2230,10 +2230,12 @@ class Procar(object):
                     num_data = [float(i) for i in toks[:-1]]
                     if not done:
                         if current_kpoint not in data[index]:
-                            data[index][current_kpoint] = {"weight": weight,
-                                                           "bands": {}}
-                        data[index][current_kpoint]["bands"][current_band] = \
-                            dict(zip(headers, num_data))
+                            data[index][current_kpoint] = {}
+                        if spin not in data[index][current_kpoint]:
+                            data[index][current_kpoint][spin] = {
+                                "weight": weight, "bands": {}}
+                        data[index][current_kpoint][spin]["bands"][
+                            current_band] = dict(zip(headers, num_data))
                     else:
                         for val, o in zip(num_data, headers):
                             key = (index, current_kpoint, current_band, o, spin)
@@ -2308,12 +2310,13 @@ class Procar(object):
         total = 0
         found = False
         for kpoint, d in self.data[atom_index].items():
-            wt = d["weight"]
-            for band, dd in d["bands"].items():
-                for orb, v in dd.items():
-                    if orb.startswith(orbital):
-                        found = True
-                        total += v * wt
+            for spin, dd in d.items():
+                wt = dd["weight"]
+                for band, ddd in dd["bands"].items():
+                    for orb, v in ddd.items():
+                        if orb.startswith(orbital):
+                            found = True
+                            total += v * wt
         if not found:
             raise ValueError("Invalid orbital {}".format(orbital))
         return total
