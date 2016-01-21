@@ -52,10 +52,8 @@
 .highlight .err { border: 1px solid #FF0000 } /* Error */
 .highlight .k { color: #008000; font-weight: bold } /* Keyword */
 .highlight .o { color: #666666 } /* Operator */
-.highlight .ch { color: #408080; font-style: italic } /* Comment.Hashbang */
 .highlight .cm { color: #408080; font-style: italic } /* Comment.Multiline */
 .highlight .cp { color: #BC7A00 } /* Comment.Preproc */
-.highlight .cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
 .highlight .c1 { color: #408080; font-style: italic } /* Comment.Single */
 .highlight .cs { color: #408080; font-style: italic } /* Comment.Special */
 .highlight .gd { color: #A00000 } /* Generic.Deleted */
@@ -192,43 +190,43 @@ div#notebook {
 <span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">FloatWithUnit</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.reaction_calculator</span> <span class="kn">import</span> <span class="n">ComputedReaction</span>
 
-<span class="c1">#This initializes the REST adaptor. Put your own API key in.</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">MPRester</span><span class="p">(</span><span class="s2">&quot;YOUR_API_KEY&quot;</span><span class="p">)</span>
+<span class="c">#This initializes the REST adaptor. Put your own API key in.</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">MPRester</span><span class="p">(</span><span class="s">&quot;YOUR_API_KEY&quot;</span><span class="p">)</span>
 
-<span class="c1">#This gets all entries belonging to the Ca-C-O system.</span>
-<span class="n">all_entries</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_entries_in_chemsys</span><span class="p">([</span><span class="s1">&#39;Ca&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">])</span>
+<span class="c">#This gets all entries belonging to the Ca-C-O system.</span>
+<span class="n">all_entries</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_entries_in_chemsys</span><span class="p">([</span><span class="s">&#39;Ca&#39;</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">])</span>
 
-<span class="c1">#This method simply gets the lowest energy entry for all entry with the same composition.</span>
+<span class="c">#This method simply gets the lowest energy entry for all entry with the same composition.</span>
 <span class="k">def</span> <span class="nf">get_most_stable_entry</span><span class="p">(</span><span class="n">formula</span><span class="p">):</span>
     <span class="n">relevant_entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">all_entries</span> <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="o">==</span> <span class="n">Composition</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">]</span>
     <span class="n">relevant_entries</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">relevant_entries</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">energy_per_atom</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">relevant_entries</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-<span class="n">CaO</span> <span class="o">=</span> <span class="n">get_most_stable_entry</span><span class="p">(</span><span class="s2">&quot;CaO&quot;</span><span class="p">)</span>
-<span class="n">CO2</span> <span class="o">=</span> <span class="n">get_most_stable_entry</span><span class="p">(</span><span class="s2">&quot;CO2&quot;</span><span class="p">)</span>
-<span class="n">CaCO3</span> <span class="o">=</span> <span class="n">get_most_stable_entry</span><span class="p">(</span><span class="s2">&quot;CaCO3&quot;</span><span class="p">)</span>
+<span class="n">CaO</span> <span class="o">=</span> <span class="n">get_most_stable_entry</span><span class="p">(</span><span class="s">&quot;CaO&quot;</span><span class="p">)</span>
+<span class="n">CO2</span> <span class="o">=</span> <span class="n">get_most_stable_entry</span><span class="p">(</span><span class="s">&quot;CO2&quot;</span><span class="p">)</span>
+<span class="n">CaCO3</span> <span class="o">=</span> <span class="n">get_most_stable_entry</span><span class="p">(</span><span class="s">&quot;CaCO3&quot;</span><span class="p">)</span>
 
 <span class="n">reaction</span> <span class="o">=</span> <span class="n">ComputedReaction</span><span class="p">([</span><span class="n">CaO</span><span class="p">,</span> <span class="n">CO2</span><span class="p">],</span> <span class="p">[</span><span class="n">CaCO3</span><span class="p">])</span>
-<span class="n">energy</span> <span class="o">=</span> <span class="n">FloatWithUnit</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">calculated_reaction_energy</span><span class="p">,</span> <span class="s2">&quot;eV atom^-1&quot;</span><span class="p">)</span>
+<span class="n">energy</span> <span class="o">=</span> <span class="n">FloatWithUnit</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">calculated_reaction_energy</span><span class="p">,</span> <span class="s">&quot;eV atom^-1&quot;</span><span class="p">)</span>
 
-<span class="k">print</span> <span class="s2">&quot;Caculated&quot;</span>
+<span class="k">print</span> <span class="s">&quot;Caculated&quot;</span>
 <span class="k">print</span> <span class="n">reaction</span>
-<span class="k">print</span> <span class="s2">&quot;Reaction energy = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">energy</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;kJ mol^-1&quot;</span><span class="p">))</span>
+<span class="k">print</span> <span class="s">&quot;Reaction energy = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">energy</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;kJ mol^-1&quot;</span><span class="p">))</span>
 <span class="k">print</span>
 
-<span class="c1"># The following portions demonstrate how to get the experimental values as well.</span>
-<span class="n">exp_CaO</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_exp_entry</span><span class="p">(</span><span class="s2">&quot;CaO&quot;</span><span class="p">)</span>
-<span class="n">exp_CaCO3</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_exp_entry</span><span class="p">(</span><span class="s2">&quot;CaCO3&quot;</span><span class="p">)</span>
+<span class="c"># The following portions demonstrate how to get the experimental values as well.</span>
+<span class="n">exp_CaO</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_exp_entry</span><span class="p">(</span><span class="s">&quot;CaO&quot;</span><span class="p">)</span>
+<span class="n">exp_CaCO3</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_exp_entry</span><span class="p">(</span><span class="s">&quot;CaCO3&quot;</span><span class="p">)</span>
 
-<span class="c1">#Unfortunately, the Materials Project database does not have gas phase experimental entries. This is the value from NIST. We manually create the entry.</span>
-<span class="c1">#Exp entries should be in kJ/mol.</span>
-<span class="n">exp_CO2</span> <span class="o">=</span> <span class="n">ComputedEntry</span><span class="p">(</span><span class="s2">&quot;CO2&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">393.51</span><span class="p">)</span>
+<span class="c">#Unfortunately, the Materials Project database does not have gas phase experimental entries. This is the value from NIST. We manually create the entry.</span>
+<span class="c">#Exp entries should be in kJ/mol.</span>
+<span class="n">exp_CO2</span> <span class="o">=</span> <span class="n">ComputedEntry</span><span class="p">(</span><span class="s">&quot;CO2&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">393.51</span><span class="p">)</span>
 
 <span class="n">exp_reaction</span> <span class="o">=</span> <span class="n">ComputedReaction</span><span class="p">([</span><span class="n">exp_CaO</span><span class="p">,</span> <span class="n">exp_CO2</span><span class="p">],</span> <span class="p">[</span><span class="n">exp_CaCO3</span><span class="p">])</span>
 
-<span class="k">print</span> <span class="s2">&quot;Experimental&quot;</span>
+<span class="k">print</span> <span class="s">&quot;Experimental&quot;</span>
 <span class="k">print</span> <span class="n">exp_reaction</span>
-<span class="k">print</span> <span class="s2">&quot;Reaction energy = {} kJ mol^-1&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">exp_reaction</span><span class="o">.</span><span class="n">calculated_reaction_energy</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;Reaction energy = {} kJ mol^-1&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">exp_reaction</span><span class="o">.</span><span class="n">calculated_reaction_energy</span><span class="p">)</span>
 </pre></div>
 
 </div>

@@ -52,10 +52,8 @@
 .highlight .err { border: 1px solid #FF0000 } /* Error */
 .highlight .k { color: #008000; font-weight: bold } /* Keyword */
 .highlight .o { color: #666666 } /* Operator */
-.highlight .ch { color: #408080; font-style: italic } /* Comment.Hashbang */
 .highlight .cm { color: #408080; font-style: italic } /* Comment.Multiline */
 .highlight .cp { color: #BC7A00 } /* Comment.Preproc */
-.highlight .cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
 .highlight .c1 { color: #408080; font-style: italic } /* Comment.Single */
 .highlight .cs { color: #408080; font-style: italic } /* Comment.Special */
 .highlight .gd { color: #A00000 } /* Generic.Deleted */
@@ -186,7 +184,7 @@ div#notebook {
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Element</span>
-<span class="n">symbol</span> <span class="o">=</span> <span class="s2">&quot;Fe&quot;</span>
+<span class="n">symbol</span> <span class="o">=</span> <span class="s">&quot;Fe&quot;</span>
 <span class="n">el</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span>
 <span class="n">elec_structure</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">full_electronic_structure</span>
 </pre></div>
@@ -213,34 +211,34 @@ div#notebook {
 <div class=" highlight hl-ipython2"><pre><span class="o">%</span><span class="k">matplotlib</span> inline
 
 <span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">import</span> <span class="n">figure</span><span class="p">,</span> <span class="n">show</span><span class="p">,</span> <span class="n">rc</span><span class="p">,</span> <span class="n">grid</span>
-<span class="n">rc</span><span class="p">(</span><span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#316931&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
-<span class="n">rc</span><span class="p">(</span><span class="s1">&#39;xtick&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
-<span class="n">rc</span><span class="p">(</span><span class="s1">&#39;ytick&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">rc</span><span class="p">(</span><span class="s">&#39;grid&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;#316931&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s">&#39;-&#39;</span><span class="p">)</span>
+<span class="n">rc</span><span class="p">(</span><span class="s">&#39;xtick&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">rc</span><span class="p">(</span><span class="s">&#39;ytick&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="c1"># make a square figure</span>
+<span class="c"># make a square figure</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span> <span class="n">polar</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">axisbg</span><span class="o">=</span><span class="s1">&#39;#d5de9c&#39;</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span> <span class="n">polar</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">axisbg</span><span class="o">=</span><span class="s">&#39;#d5de9c&#39;</span><span class="p">)</span>
 
 <span class="n">rticks</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">rlabels</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">shell</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">elec_structure</span><span class="p">):</span>
-    <span class="c1">#Draw the shell</span>
+    <span class="c">#Draw the shell</span>
     <span class="n">r</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span>
     <span class="n">theta</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">j</span> <span class="o">/</span> <span class="mi">1000</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1000</span><span class="p">)]</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">rad</span><span class="p">,</span> <span class="s1">&#39;k-&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="c1">#Draw the electrons</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">rad</span><span class="p">,</span> <span class="s">&#39;k-&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c">#Draw the electrons</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">*</span> <span class="n">shell</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="n">theta</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">j</span> <span class="o">/</span> <span class="n">shell</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">shell</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">rad</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">rad</span><span class="p">,</span> <span class="s">&#39;o&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
     <span class="n">rticks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
-    <span class="n">rlabels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;{}{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shell</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shell</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">rlabels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;{}{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shell</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shell</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
 
 <span class="n">ax</span><span class="o">.</span><span class="n">set_rmax</span><span class="p">(</span><span class="n">r</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
 
-<span class="n">ax</span><span class="o">.</span><span class="n">set_thetagrids</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">270</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_thetagrids</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">270</span><span class="p">],</span> <span class="p">[</span><span class="s">&quot;&quot;</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;k&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_rgrids</span><span class="p">(</span><span class="n">rticks</span><span class="p">,</span> <span class="n">rlabels</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Electronic structure of {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">symbol</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;Electronic structure of {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">symbol</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 <span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 <span class="n">show</span><span class="p">()</span>
 </pre></div>
