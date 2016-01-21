@@ -45,26 +45,15 @@ A good way to explore the functionality of pymatgen is to look at examples.
 Please check out the ipython notebooks at our :doc:`examples page </examples>`.
 Below are a quick look at some of the graphical output possible.
 
-.. figure:: _static/phase_diagram.png
-   :width: 150%
-   :alt: Phase Diagram
-   :align: center
-
-   Phase diagram generated from the Materials API.
-
-.. figure:: _static/pourbaix_diagram.png
+.. figure:: _static/examples.png
    :width: 100%
-   :alt: Pourbaix Diagram
+   :alt: Examples
    :align: center
 
-   Pourbaix diagram generated from the Materials API.
-
-.. figure:: _static/bandstructure.png
-   :width: 100%
-   :alt: Band structure
-   :align: center
-
-   A calculated bandstructure using pymatgen's parsing and plotting utilities.
+   Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
+   Bottom left: Calculated bandstructure plot using pymatgen's parsing and
+   plotting utilities. Bottom right: Arrhenius plot using pymatgen's
+   DiffusionAnalyzer.
 
 Why use pymatgen?
 =================
