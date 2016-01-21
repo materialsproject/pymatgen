@@ -30,12 +30,12 @@ __date__ = "5/2/13"
 
 
 import numpy as np
-
 import scipy.constants as const
 
-from pymatgen.core import Structure, get_el_sp
-
 from monty.json import MSONable
+
+from pymatgen.analysis.structure_matcher import StructureMatcher, OrderDisorderElementComparator
+from pymatgen.core import Structure, get_el_sp
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.coord_utils import pbc_diff
 
@@ -350,6 +350,51 @@ class DiffusionAnalyzer(MSONable):
             d["msd_components"] = self.msd_components.tolist()
             d["dt"] = self.dt.tolist()
         return d
+
+    def get_framework_rms_plot(self, plt=None, granularity=200, matching_s=None):
+        """
+        Get the plot of rms framework displacement vs time. Useful for checking
+        for melting, especially if framework atoms can move via paddle-wheel
+        or similar mechanism (which would show up in max framework displacement
+        but doesn't constitute melting).
+
+        Args:
+            granularity (int): Number of structures to match
+            matching_s (Structure): Optionally match to a disordered structure
+                instead of the first structure in the analyzer. Required when
+                a secondary mobile ion is present.
+        """
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        plt = get_publication_quality_plot(12, 8, plt=plt)
+        step = (self.corrected_displacements.shape[1] - 1) // (granularity - 1)
+        f = (matching_s or self.structure).copy()
+        f.remove_species([self.specie])
+        sm = StructureMatcher(primitive_cell=False, stol=0.6,
+                              comparator=OrderDisorderElementComparator(),
+                              allow_subset=True)
+        rms = []
+        for s in self.get_drift_corrected_structures(step=step):
+            s.remove_species([self.specie])
+            d = sm.get_rms_dist(f, s)
+            if d:
+                rms.append(d)
+            else:
+                rms.append((1, 1))
+        max_dt = (len(rms) - 1) * step * self.step_skip * self.time_step
+        if max_dt > 100000:
+            plot_dt = np.linspace(0, max_dt/1000, len(rms))
+            unit = 'ps'
+        else:
+            plot_dt = np.linspace(0, max_dt, len(rms))
+            unit = 'fs'
+        rms = np.array(rms)
+        plt.plot(plot_dt, rms[:, 0], label='RMS')
+        plt.plot(plot_dt, rms[:, 1], label='max')
+        plt.legend(loc='best')
+        plt.xlabel("Timestep ({})".format(unit))
+        plt.ylabel("normalized distance")
+        plt.tight_layout()
+        return plt
 
     def get_msd_plot(self, plt=None, mode="specie"):
         """
