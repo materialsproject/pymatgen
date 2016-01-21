@@ -1336,6 +1336,9 @@ class QcOutput(object):
 
     def __init__(self, filename):
         self.filename = filename
+        split_pattern = "\n\nRunning Job \d+ of \d+ \S+|" \
+                        "[*]{61}\nJob \d+ of \d+ \n[*]{61}|" \
+                        "\n.*time.*\nRunning Job \d+ of \d+ \S+"
         try:
             with zopen(filename, "rt") as f:
                 data = f.read()
@@ -1343,12 +1346,12 @@ class QcOutput(object):
             with zopen(filename, "rb") as f:
                 data = f.read().decode("latin-1")
         try:
-            chunks = re.split("\n\nRunning Job \d+ of \d+ \S+|[*]{61}\nJob 2 of 2 \n[*]{61}", data)
+            chunks = re.split(split_pattern, data)
             # noinspection PyTypeChecker
             self.data = list(map(self._parse_job, chunks))
         except UnicodeDecodeError:
             data = data.decode("latin-1")
-            chunks = re.split("\n\nRunning Job \d+ of \d+ \S+|[*]{61}\nJob 2 of 2 \n[*]{61}", data)
+            chunks = re.split(split_pattern, data)
             # noinspection PyTypeChecker
             self.data = list(map(self._parse_job, chunks))
 
