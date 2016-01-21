@@ -2162,46 +2162,48 @@ class Procar(object):
 
     .. attribute:: data
 
-        A nested dict containing the PROCAR data of the form below. It should
-        be noted that VASP uses 1-based indexing for atoms, but this is
-        converted to zero-based indexing in this parser to be consistent with
-        representation of structures in pymatgen. Also, the k-point index and
-        band index is converted to 0-based indexing too.::
+        The PROCAR data of the form below. It should VASP uses 1-based indexing,
+        but all indices are converted to 0-based here.::
 
             {
-                atom_index: {
-                    kpoint_index: {
-                        "bands": {
-                            band_index: {
-                                "p": 0.002,
-                                "s": 0.025,
-                                "d": 0.0
-                            },
-                            ...
-                        },
-                        "weight": 0.03125
-                    },
-                    ...
+                spin: nd.array accessed with (k-point index, band index, ion index, orbital index)
             }
+
+    .. attribute:: weights
+
+        The weights associated with each k-point as an nd.array of lenght
+        nkpoints.
 
     ..attribute:: phase_factors
 
-        Phase factors, where present (e.g. LORBIT = 12). This attribution is
-        a dict, whose keys are tuples of the format
-        (ion_index, kpoint_index, band_index, orbital_string, spin). The
-        values are complex numbers.
+        Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
+        {
+            spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index)
+        }
+
+    ..attribute:: nbands
+
+        Number of bands
+
+    ..attribute:: nkpoints
+
+        Number of k-points
+
+    ..attribute:: nions
+
+        Number of ions
     """
     def __init__(self, filename):
-        data = defaultdict(dict)
+        data = {}
         phase_factors = {}
         headers = None
 
         with zopen(filename, "rt") as f:
+            preambleexpr = re.compile("# of k-points:\s+(\d+)\s+# of bands:\s+(\d+)\s+# of ions:\s+(\d+)")
             kpointexpr = re.compile("^k-point\s+(\d+).*weight = ([0-9\.]+)")
             bandexpr = re.compile("^band\s+(\d+)")
             ionexpr = re.compile("^ion.*")
             expr = re.compile("^([0-9]+)\s+")
-            weight = 0
             current_kpoint = 0
             current_band = 0
             done = False
@@ -2216,7 +2218,7 @@ class Procar(object):
                 elif kpointexpr.match(l):
                     m = kpointexpr.match(l)
                     current_kpoint = int(m.group(1)) - 1
-                    weight = float(m.group(2))
+                    weights[current_kpoint] = float(m.group(2))
                     if current_kpoint == 0:
                         spin = Spin.up if spin == Spin.down else Spin.down
                     done = False
@@ -2227,47 +2229,45 @@ class Procar(object):
                 elif expr.match(l):
                     toks = l.split()
                     index = int(toks.pop(0)) - 1
-                    num_data = [float(i) for i in toks[:-1]]
+                    num_data = np.array([float(t) for t in toks[:len(headers)]])
                     if not done:
-                        if current_kpoint not in data[index]:
-                            data[index][current_kpoint] = {}
-                        if spin not in data[index][current_kpoint]:
-                            data[index][current_kpoint][spin] = {
-                                "weight": weight, "bands": {}}
-                        data[index][current_kpoint][spin]["bands"][
-                            current_band] = dict(zip(headers, num_data))
+                        if spin not in data:
+                            data[spin] = np.zeros((nkpoints, nbands,
+                                                   nions, len(headers)))
+                        data[spin][current_kpoint, current_band,
+                                   index, :] = num_data
                     else:
-                        for val, o in zip(num_data, headers):
-                            key = (index, current_kpoint, current_band, o, spin)
-                            if key not in phase_factors:
-                                phase_factors[key] = val
-                            else:
-                                phase_factors[key] += 1j * val
+                        if spin not in phase_factors:
+                            phase_factors[spin] = np.full(
+                                    (nkpoints, nbands, nions, len(headers)),
+                                    np.NaN, dtype=np.complex128)
+                        if np.isnan(phase_factors[spin][
+                                current_kpoint, current_band, index, 0]):
+                            phase_factors[spin][current_kpoint, current_band,
+                                                index, :] = num_data
+                        else:
+                            phase_factors[spin][current_kpoint, current_band,
+                                                index, :] += 1j * num_data
                 elif l.startswith("tot"):
                     done = True
+                elif preambleexpr.match(l):
+                    m = preambleexpr.match(l)
+                    nkpoints = int(m.group(1))
+                    nbands = int(m.group(2))
+                    nions = int(m.group(3))
+                    weights = np.zeros(nkpoints)
 
+            self.nkpoints = nkpoints
+            self.nbands = nbands
+            self.nions = nions
+            self.weights = weights
+            self.orbitals = headers
             self.data = data
             self.phase_factors = phase_factors
-
-    @property
-    def nbands(self):
-        """Number of bands"""
-        return len(self.data[0][1]["bands"].keys())
-
-    @property
-    def nkpoints(self):
-        """Number of k-points"""
-        return len(self.data[0].keys())
-
-    @property
-    def nions(self):
-        """Number of ions"""
-        return len(self.data)
 
     def get_projection_on_elements(self, structure):
         """
         Method returning a dictionary of projections on elements.
-        Spin polarized calculation are not supported.
 
         Args:
             structure (Structure): Input structure.
@@ -2275,17 +2275,18 @@ class Procar(object):
         Returns:
             a dictionary in the {Spin.up:[k index][b index][{Element:values}]]
         """
-        dico = {Spin.up: []}
-        dico[Spin.up] = [[defaultdict(float)
-                          for i in range(self.nkpoints)]
-                         for j in range(self.nbands)]
+        dico = {}
+        for spin in self.data.keys():
+            dico[spin] = [[defaultdict(float)
+                           for i in range(self.nkpoints)]
+                          for j in range(self.nbands)]
 
-        for iat in self.data:
+        for iat in range(self.nions):
             name = structure.species[iat].symbol
-            for k in self.data[iat]:
-                for b in self.data[iat][k]["bands"]:
-                    dico[Spin.up][b][k][name] = \
-                        sum(self.data[iat][k]["bands"][b].values())
+            for spin, d in self.data.items():
+                for k, b in itertools.product(range(self.nkpoints),
+                                              range(self.nbands)):
+                    dico[spin][b][k][name] = np.sum(d[k, b, iat, :])
 
         return dico
 
@@ -2307,19 +2308,10 @@ class Procar(object):
         Returns:
             Sum occupation of orbital of atom.
         """
-        total = 0
-        found = False
-        for kpoint, d in self.data[atom_index].items():
-            for spin, dd in d.items():
-                wt = dd["weight"]
-                for band, ddd in dd["bands"].items():
-                    for orb, v in ddd.items():
-                        if orb.startswith(orbital):
-                            found = True
-                            total += v * wt
-        if not found:
-            raise ValueError("Invalid orbital {}".format(orbital))
-        return total
+
+        orbital_index = self.orbitals.index(orbital)
+        return {spin: np.sum(d[:, :, atom_index, orbital_index] * self.weights[:, None])
+                for spin, d in self.data.items()}
 
 
 class Oszicar(object):
