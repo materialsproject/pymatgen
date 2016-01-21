@@ -52,10 +52,8 @@
 .highlight .err { border: 1px solid #FF0000 } /* Error */
 .highlight .k { color: #008000; font-weight: bold } /* Keyword */
 .highlight .o { color: #666666 } /* Operator */
-.highlight .ch { color: #408080; font-style: italic } /* Comment.Hashbang */
 .highlight .cm { color: #408080; font-style: italic } /* Comment.Multiline */
 .highlight .cp { color: #BC7A00 } /* Comment.Preproc */
-.highlight .cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
 .highlight .c1 { color: #408080; font-style: italic } /* Comment.Single */
 .highlight .cs { color: #408080; font-style: italic } /* Comment.Special */
 .highlight .gd { color: #A00000 } /* Generic.Deleted */
@@ -250,12 +248,12 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1">#This initializes the REST adaptor. Put your own API key in.</span>
+<div class=" highlight hl-ipython2"><pre><span class="c">#This initializes the REST adaptor. Put your own API key in.</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">MPRester</span><span class="p">()</span>
 
-<span class="c1">#Entries are the basic unit for thermodynamic and other analyses in pymatgen.</span>
-<span class="c1">#This gets all entries belonging to the Fe-O-H system.</span>
-<span class="n">entries</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_entries_in_chemsys</span><span class="p">([</span><span class="s1">&#39;Fe&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">])</span>
+<span class="c">#Entries are the basic unit for thermodynamic and other analyses in pymatgen.</span>
+<span class="c">#This gets all entries belonging to the Fe-O-H system.</span>
+<span class="n">entries</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_entries_in_chemsys</span><span class="p">([</span><span class="s">&#39;Fe&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">,</span> <span class="s">&#39;H&#39;</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -278,15 +276,15 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1">#Dictionary of ion:energy, where the energy is the formation energy of ions from </span>
-<span class="c1">#the NBS tables. (Source: NBS Thermochemical Tables; FeO4[2-]: Misawa T., Corr. Sci., 13(9), 659-676 (1973))</span>
-<span class="n">ion_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Fe[2+]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">0.817471</span><span class="p">,</span> <span class="s2">&quot;Fe[3+]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">0.0478</span><span class="p">,</span> <span class="s2">&quot;FeO2[2-]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">3.06055</span><span class="p">,</span> <span class="s2">&quot;FeOH[+]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">2.8738</span><span class="p">,</span>
-            <span class="s2">&quot;FeOH[2+]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">2.37954</span><span class="p">,</span> <span class="s2">&quot;HFeO2[-]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">3.91578</span><span class="p">,</span> <span class="s2">&quot;Fe(OH)2[+]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">4.54022</span><span class="p">,</span> <span class="s2">&quot;Fe2(OH)2[4+]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">4.84285</span><span class="p">,</span>
-            <span class="s2">&quot;FeO2[-]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">3.81653</span><span class="p">,</span> <span class="s2">&quot;FeO4[2-]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">3.33946</span><span class="p">,</span> <span class="s2">&quot;Fe(OH)3(aq)&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">6.83418</span><span class="p">,</span> <span class="s2">&quot;Fe(OH)2[+]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">4.54022</span><span class="p">}</span>
+<div class=" highlight hl-ipython2"><pre><span class="c">#Dictionary of ion:energy, where the energy is the formation energy of ions from </span>
+<span class="c">#the NBS tables. (Source: NBS Thermochemical Tables; FeO4[2-]: Misawa T., Corr. Sci., 13(9), 659-676 (1973))</span>
+<span class="n">ion_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;Fe[2+]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">0.817471</span><span class="p">,</span> <span class="s">&quot;Fe[3+]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">0.0478</span><span class="p">,</span> <span class="s">&quot;FeO2[2-]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">3.06055</span><span class="p">,</span> <span class="s">&quot;FeOH[+]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">2.8738</span><span class="p">,</span>
+            <span class="s">&quot;FeOH[2+]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">2.37954</span><span class="p">,</span> <span class="s">&quot;HFeO2[-]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">3.91578</span><span class="p">,</span> <span class="s">&quot;Fe(OH)2[+]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">4.54022</span><span class="p">,</span> <span class="s">&quot;Fe2(OH)2[4+]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">4.84285</span><span class="p">,</span>
+            <span class="s">&quot;FeO2[-]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">3.81653</span><span class="p">,</span> <span class="s">&quot;FeO4[2-]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">3.33946</span><span class="p">,</span> <span class="s">&quot;Fe(OH)3(aq)&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">6.83418</span><span class="p">,</span> <span class="s">&quot;Fe(OH)2[+]&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">4.54022</span><span class="p">}</span>
 
-<span class="c1">#Dictionary of reference state:experimental formation energy (from O. Kubaschewski) for reference state.</span>
-<span class="n">ref_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Fe2O3&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">7.685050670886141</span><span class="p">}</span>
-<span class="n">ref_state</span> <span class="o">=</span> <span class="s2">&quot;Fe2O3&quot;</span>
+<span class="c">#Dictionary of reference state:experimental formation energy (from O. Kubaschewski) for reference state.</span>
+<span class="n">ref_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;Fe2O3&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">7.685050670886141</span><span class="p">}</span>
+<span class="n">ref_state</span> <span class="o">=</span> <span class="s">&quot;Fe2O3&quot;</span>
 </pre></div>
 
 </div>
@@ -309,9 +307,9 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1"># Run aqueouscorrection on the entries</span>
+<div class=" highlight hl-ipython2"><pre><span class="c"># Run aqueouscorrection on the entries</span>
 
-<span class="n">aqcompat</span> <span class="o">=</span> <span class="n">AqueousCorrection</span><span class="p">(</span><span class="s2">&quot;MP&quot;</span><span class="p">)</span>
+<span class="n">aqcompat</span> <span class="o">=</span> <span class="n">AqueousCorrection</span><span class="p">(</span><span class="s">&quot;MP&quot;</span><span class="p">)</span>
 <span class="n">entries_aqcorr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
 <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
@@ -319,11 +317,11 @@ div#notebook {
     <span class="k">if</span> <span class="ow">not</span> <span class="n">contains_entry</span><span class="p">(</span><span class="n">entries_aqcorr</span><span class="p">,</span> <span class="n">aq_corrected_entry</span><span class="p">):</span>
         <span class="n">entries_aqcorr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">aq_corrected_entry</span><span class="p">)</span>
 
-<span class="c1"># Generate a phase diagram to consider only solid entries stable in water. </span>
+<span class="c"># Generate a phase diagram to consider only solid entries stable in water. </span>
 <span class="n">pd</span> <span class="o">=</span> <span class="n">PhaseDiagram</span><span class="p">(</span><span class="n">entries_aqcorr</span><span class="p">)</span>
 <span class="n">stable_solids</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">stable_entries</span>
 <span class="n">stable_solids_minus_h2o</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">stable_solids</span> <span class="k">if</span> 
-                           <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;H2&quot;</span><span class="p">,</span> <span class="s2">&quot;O2&quot;</span><span class="p">,</span> <span class="s2">&quot;H2O&quot;</span><span class="p">,</span> <span class="s2">&quot;H2O2&quot;</span><span class="p">]]</span>
+                           <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;H2&quot;</span><span class="p">,</span> <span class="s">&quot;O2&quot;</span><span class="p">,</span> <span class="s">&quot;H2O&quot;</span><span class="p">,</span> <span class="s">&quot;H2O2&quot;</span><span class="p">]]</span>
 <span class="n">pbx_solid_entries</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">stable_solids_minus_h2o</span><span class="p">:</span>
     <span class="n">pbx_entry</span> <span class="o">=</span> <span class="n">PourbaixEntry</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
@@ -331,13 +329,13 @@ div#notebook {
     <span class="n">pbx_entry</span><span class="o">.</span><span class="n">reduced_entry</span><span class="p">()</span>
     <span class="n">pbx_solid_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pbx_entry</span><span class="p">)</span>
 
-<span class="c1"># Calculate DFT reference energy for ions (See Persson et al, PRB (2012))</span>
+<span class="c"># Calculate DFT reference energy for ions (See Persson et al, PRB (2012))</span>
 <span class="n">ref_entry</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">stable_solids_minus_h2o</span> <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="o">==</span> <span class="n">ref_state</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">ion_correction</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_form_energy</span><span class="p">(</span><span class="n">ref_entry</span><span class="p">)</span><span class="o">/</span><span class="n">ref_entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ref_dict</span><span class="p">[</span><span class="n">ref_state</span><span class="p">]</span>
  
-<span class="n">el</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Fe&quot;</span><span class="p">)</span>
+<span class="n">el</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="s">&quot;Fe&quot;</span><span class="p">)</span>
 <span class="n">pbx_ion_entries</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="c1"># Get PourbaixEntry corresponding to each ion</span>
+<span class="c"># Get PourbaixEntry corresponding to each ion</span>
 <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ion_dict</span><span class="p">:</span>
     <span class="n">comp</span> <span class="o">=</span> <span class="n">Ion</span><span class="o">.</span><span class="n">from_formula</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
     <span class="n">factor</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">ref_entry</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">/</span> <span class="n">ref_entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
@@ -359,7 +357,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1"># Generate and plot Pourbaix diagram</span>
+<div class=" highlight hl-ipython2"><pre><span class="c"># Generate and plot Pourbaix diagram</span>
 <span class="n">pourbaix</span> <span class="o">=</span> <span class="n">PourbaixDiagram</span><span class="p">(</span><span class="n">all_entries</span><span class="p">)</span>
 <span class="n">plotter</span> <span class="o">=</span> <span class="n">PourbaixPlotter</span><span class="p">(</span><span class="n">pourbaix</span><span class="p">)</span>
 <span class="n">plotter</span><span class="o">.</span><span class="n">plot_pourbaix</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">[[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">16</span><span class="p">],[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>

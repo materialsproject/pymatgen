@@ -52,10 +52,8 @@
 .highlight .err { border: 1px solid #FF0000 } /* Error */
 .highlight .k { color: #008000; font-weight: bold } /* Keyword */
 .highlight .o { color: #666666 } /* Operator */
-.highlight .ch { color: #408080; font-style: italic } /* Comment.Hashbang */
 .highlight .cm { color: #408080; font-style: italic } /* Comment.Multiline */
 .highlight .cp { color: #BC7A00 } /* Comment.Preproc */
-.highlight .cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
 .highlight .c1 { color: #408080; font-style: italic } /* Comment.Single */
 .highlight .cs { color: #408080; font-style: italic } /* Comment.Special */
 .highlight .gd { color: #A00000 } /* Generic.Deleted */
@@ -205,13 +203,13 @@ div#notebook {
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Molecule</span>
-<span class="c1"># Create a methane molecule.</span>
+<span class="c"># Create a methane molecule.</span>
 <span class="n">coords</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.000000</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">],</span>
           <span class="p">[</span><span class="mf">0.000000</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">,</span> <span class="mf">1.089000</span><span class="p">],</span>
           <span class="p">[</span><span class="mf">1.026719</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.363000</span><span class="p">],</span>
           <span class="p">[</span><span class="o">-</span><span class="mf">0.513360</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.889165</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.363000</span><span class="p">],</span>
           <span class="p">[</span><span class="o">-</span><span class="mf">0.513360</span><span class="p">,</span> <span class="mf">0.889165</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.363000</span><span class="p">]]</span>
-<span class="n">mol</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">([</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">],</span> <span class="n">coords</span><span class="p">)</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">([</span><span class="s">&quot;C&quot;</span><span class="p">,</span> <span class="s">&quot;H&quot;</span><span class="p">,</span> <span class="s">&quot;H&quot;</span><span class="p">,</span> <span class="s">&quot;H&quot;</span><span class="p">,</span> <span class="s">&quot;H&quot;</span><span class="p">],</span> <span class="n">coords</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
 </pre></div>
 
@@ -247,7 +245,7 @@ Sites (5)
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1"># A Molecule is simply a list of Sites.</span>
+<div class=" highlight hl-ipython2"><pre><span class="c"># A Molecule is simply a list of Sites.</span>
 <span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
@@ -277,7 +275,7 @@ Sites (5)
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1"># Break a Molecule into two by breaking a bond.</span>
+<div class=" highlight hl-ipython2"><pre><span class="c"># Break a Molecule into two by breaking a bond.</span>
 <span class="k">for</span> <span class="n">frag</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">break_bond</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
     <span class="k">print</span><span class="p">(</span><span class="n">frag</span><span class="p">)</span>
 </pre></div>
@@ -318,7 +316,7 @@ Sites (1)
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1"># Getting neighbors that are within 3 angstroms from C atom.</span>
+<div class=" highlight hl-ipython2"><pre><span class="c"># Getting neighbors that are within 3 angstroms from C atom.</span>
 <span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">mol</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">3</span><span class="p">))</span>
 </pre></div>
 
@@ -346,7 +344,7 @@ Sites (1)
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1">#Detecting bonds</span>
+<div class=" highlight hl-ipython2"><pre><span class="c">#Detecting bonds</span>
 <span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">get_covalent_bonds</span><span class="p">())</span>
 </pre></div>
 
@@ -374,8 +372,8 @@ Sites (1)
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1"># If you need to run the molecule in a box with a periodic boundary condition</span>
-<span class="c1"># code, you can generate the boxed structure as follows (in a 10Ax10Ax10A box)</span>
+<div class=" highlight hl-ipython2"><pre><span class="c"># If you need to run the molecule in a box with a periodic boundary condition</span>
+<span class="c"># code, you can generate the boxed structure as follows (in a 10Ax10Ax10A box)</span>
 <span class="n">structure</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">get_boxed_structure</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 </pre></div>
@@ -413,10 +411,10 @@ Sites (5)
 <div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1"># Writing to XYZ files (easy to open with many molecule file viewers)</span>
+<div class=" highlight hl-ipython2"><pre><span class="c"># Writing to XYZ files (easy to open with many molecule file viewers)</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.xyzio</span> <span class="kn">import</span> <span class="n">XYZ</span>
 <span class="n">xyz</span> <span class="o">=</span> <span class="n">XYZ</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
-<span class="n">xyz</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s2">&quot;methane.xyz&quot;</span><span class="p">)</span>
+<span class="n">xyz</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s">&quot;methane.xyz&quot;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -451,15 +449,15 @@ Sites (5)
 <div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">pymatgen.io.babelio</span> <span class="kn">import</span> <span class="n">BabelMolAdaptor</span>
 <span class="kn">import</span> <span class="nn">pybel</span> <span class="kn">as</span> <span class="nn">pb</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
-<span class="c1"># Create a pybel.Molecule, which simplifies a lot of access</span>
+<span class="c"># Create a pybel.Molecule, which simplifies a lot of access</span>
 <span class="n">pm</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">openbabel_mol</span><span class="p">)</span>
-<span class="c1"># Print canonical SMILES representation (unique and comparable).</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Canonical SMILES = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;can&quot;</span><span class="p">)))</span>
-<span class="c1"># Print Inchi representation</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Inchi= {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;inchi&quot;</span><span class="p">)))</span>
-<span class="c1"># pb.outformats provides a listing of available formats. </span>
-<span class="c1"># Let&#39;s do a write to the commonly used PDB file.</span>
-<span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;pdb&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;methane.pdb&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c"># Print canonical SMILES representation (unique and comparable).</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&quot;Canonical SMILES = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;can&quot;</span><span class="p">)))</span>
+<span class="c"># Print Inchi representation</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&quot;Inchi= {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;inchi&quot;</span><span class="p">)))</span>
+<span class="c"># pb.outformats provides a listing of available formats. </span>
+<span class="c"># Let&#39;s do a write to the commonly used PDB file.</span>
+<span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;pdb&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s">&quot;methane.pdb&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -489,12 +487,12 @@ Inchi= InChI=1S/CH4/h1H4
 <div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1"># Generating ethylene carbonate (SMILES obtained from Wikipedia)</span>
-<span class="c1"># And displaying the svg.</span>
-<span class="n">ec</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">readstring</span><span class="p">(</span><span class="s2">&quot;smi&quot;</span><span class="p">,</span> <span class="s2">&quot;C1COC(=O)O1&quot;</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span class="c"># Generating ethylene carbonate (SMILES obtained from Wikipedia)</span>
+<span class="c"># And displaying the svg.</span>
+<span class="n">ec</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">readstring</span><span class="p">(</span><span class="s">&quot;smi&quot;</span><span class="p">,</span> <span class="s">&quot;C1COC(=O)O1&quot;</span><span class="p">)</span>
 <span class="n">ec</span><span class="o">.</span><span class="n">make3D</span><span class="p">()</span>
 <span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">SVG</span><span class="p">,</span> <span class="n">display_svg</span>
-<span class="n">svg</span> <span class="o">=</span> <span class="n">SVG</span><span class="p">(</span><span class="n">ec</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;svg&quot;</span><span class="p">))</span>
+<span class="n">svg</span> <span class="o">=</span> <span class="n">SVG</span><span class="p">(</span><span class="n">ec</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;svg&quot;</span><span class="p">))</span>
 <span class="n">display_svg</span><span class="p">(</span><span class="n">svg</span><span class="p">)</span>
 </pre></div>
 
@@ -568,14 +566,14 @@ Inchi= InChI=1S/CH4/h1H4
 <div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;xyz&quot;</span><span class="p">))</span>
-<span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;g09&quot;</span><span class="p">))</span>
-<span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;pdb&quot;</span><span class="p">))</span> <span class="c1">#Needs Openbabel.</span>
+<div class=" highlight hl-ipython2"><pre><span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s">&quot;xyz&quot;</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s">&quot;g09&quot;</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s">&quot;pdb&quot;</span><span class="p">))</span> <span class="c">#Needs Openbabel.</span>
 
-<span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;methane.xyz&quot;</span><span class="p">)</span>
-<span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;methane.pdb&quot;</span><span class="p">)</span> <span class="c1">#Needs Openbabel.</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&quot;methane.xyz&quot;</span><span class="p">)</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&quot;methane.pdb&quot;</span><span class="p">)</span> <span class="c">#Needs Openbabel.</span>
 
-<span class="k">print</span><span class="p">(</span><span class="n">Molecule</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;methane.pdb&quot;</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">Molecule</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s">&quot;methane.pdb&quot;</span><span class="p">))</span>
 </pre></div>
 
 </div>
@@ -667,10 +665,10 @@ Sites (5)
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">pymatgen.io.gaussianio</span> <span class="kn">import</span> <span class="n">GaussianInput</span>
-<span class="n">gau</span> <span class="o">=</span> <span class="n">GaussianInput</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;methane&quot;</span><span class="p">,</span> 
-                    <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;B3LYP&quot;</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-31G(d)&quot;</span><span class="p">,</span> 
-                    <span class="n">route_parameters</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Opt&#39;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;SCF&quot;</span><span class="p">:</span> <span class="s2">&quot;Tight&quot;</span><span class="p">},</span>
-                    <span class="n">link0_parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;%mem&quot;</span><span class="p">:</span> <span class="s2">&quot;1000MW&quot;</span><span class="p">})</span>
+<span class="n">gau</span> <span class="o">=</span> <span class="n">GaussianInput</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&quot;methane&quot;</span><span class="p">,</span> 
+                    <span class="n">functional</span><span class="o">=</span><span class="s">&quot;B3LYP&quot;</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31G(d)&quot;</span><span class="p">,</span> 
+                    <span class="n">route_parameters</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;Opt&#39;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;SCF&quot;</span><span class="p">:</span> <span class="s">&quot;Tight&quot;</span><span class="p">},</span>
+                    <span class="n">link0_parameters</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;%mem&quot;</span><span class="p">:</span> <span class="s">&quot;1000MW&quot;</span><span class="p">})</span>
 <span class="k">print</span><span class="p">(</span><span class="n">gau</span><span class="p">)</span>
 </pre></div>
 
@@ -721,17 +719,17 @@ D4=119.999966
 <div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1"># A standard relaxation + SCF energy nwchem calculation input file for methane.</span>
+<div class=" highlight hl-ipython2"><pre><span class="c"># A standard relaxation + SCF energy nwchem calculation input file for methane.</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.nwchemio</span> <span class="kn">import</span> <span class="n">NwTask</span><span class="p">,</span> <span class="n">NwInput</span>
 <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;optimize&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s2">&quot;b3lyp&quot;</span><span class="p">,</span>
-                    <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-31G&quot;</span><span class="p">),</span>
-    <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s2">&quot;b3lyp&quot;</span><span class="p">,</span>
-                    <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-31G&quot;</span><span class="p">),</span>
-    <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;energy&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s2">&quot;b3lyp&quot;</span><span class="p">,</span>
-                    <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-311G&quot;</span><span class="p">),</span>
+    <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">&quot;optimize&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s">&quot;b3lyp&quot;</span><span class="p">,</span>
+                    <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31G&quot;</span><span class="p">),</span>
+    <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">&quot;freq&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s">&quot;b3lyp&quot;</span><span class="p">,</span>
+                    <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31G&quot;</span><span class="p">),</span>
+    <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">&quot;energy&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s">&quot;b3lyp&quot;</span><span class="p">,</span>
+                    <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-311G&quot;</span><span class="p">),</span>
 <span class="p">]</span>
-<span class="n">nwi</span> <span class="o">=</span> <span class="n">NwInput</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">geometry_options</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">,</span> <span class="s2">&quot;angstroms&quot;</span><span class="p">])</span>
+<span class="n">nwi</span> <span class="o">=</span> <span class="n">NwInput</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">geometry_options</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;units&quot;</span><span class="p">,</span> <span class="s">&quot;angstroms&quot;</span><span class="p">])</span>
 <span class="k">print</span><span class="p">(</span><span class="n">nwi</span><span class="p">)</span>
 </pre></div>
 
