@@ -38,6 +38,34 @@ member of `pymatgen's Google Groups page`_.
 
     *The code is mightier than the pen.*
 
+Examples
+========
+
+A good way to explore the functionality of pymatgen is to look at examples.
+Please check out the ipython notebooks at our :doc:`examples page </examples>`.
+Below are a quick look at some of the graphical output possible.
+
+.. figure:: _static/phase_diagram.png
+   :width: 150%
+   :alt: Phase Diagram
+   :align: center
+
+   Phase diagram generated from the Materials API.
+
+.. figure:: _static/pourbaix_diagram.png
+   :width: 100%
+   :alt: Pourbaix Diagram
+   :align: center
+
+   Pourbaix diagram generated from the Materials API.
+
+.. figure:: _static/bandstructure.png
+   :width: 100%
+   :alt: Band structure
+   :align: center
+
+   A calculated bandstructure using pymatgen's parsing and plotting utilities.
+
 Why use pymatgen?
 =================
 
@@ -347,12 +375,6 @@ strongly encouraged to explore the :doc:`usage pages </usage>` (toc given below)
    :maxdepth: 2
 
    usage
-
-Examples
---------
-
-A good way to explore the functionality of pymatgen is to look at examples.
-Please check out the ipython notebooks at our :doc:`examples page </examples>`.
 
 API documentation
 -----------------

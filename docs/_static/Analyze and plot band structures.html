@@ -52,10 +52,8 @@
 .highlight .err { border: 1px solid #FF0000 } /* Error */
 .highlight .k { color: #008000; font-weight: bold } /* Keyword */
 .highlight .o { color: #666666 } /* Operator */
-.highlight .ch { color: #408080; font-style: italic } /* Comment.Hashbang */
 .highlight .cm { color: #408080; font-style: italic } /* Comment.Multiline */
 .highlight .cp { color: #BC7A00 } /* Comment.Preproc */
-.highlight .cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
 .highlight .c1 { color: #408080; font-style: italic } /* Comment.Single */
 .highlight .cs { color: #408080; font-style: italic } /* Comment.Special */
 .highlight .gd { color: #A00000 } /* Generic.Deleted */
@@ -198,10 +196,10 @@ div#notebook {
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">pymatgen.matproj.rest</span> <span class="kn">import</span> <span class="n">MPRester</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Spin</span>
-<span class="c1">#This initiliazes the Rest connection to the Materials Project db. Put your own API key.</span>
-<span class="n">a</span><span class="o">=</span><span class="n">MPRester</span><span class="p">(</span><span class="s2">&quot;YOUR_API_KEY&quot;</span><span class="p">)</span>
-<span class="c1">#load the band structure from mp-3748, CuAlO2 from the MP db</span>
-<span class="n">bs</span><span class="o">=</span><span class="n">a</span><span class="o">.</span><span class="n">get_bandstructure_by_material_id</span><span class="p">(</span><span class="s2">&quot;mp-3748&quot;</span><span class="p">)</span>
+<span class="c">#This initiliazes the Rest connection to the Materials Project db. Put your own API key.</span>
+<span class="n">a</span><span class="o">=</span><span class="n">MPRester</span><span class="p">(</span><span class="s">&quot;YOUR_API_KEY&quot;</span><span class="p">)</span>
+<span class="c">#load the band structure from mp-3748, CuAlO2 from the MP db</span>
+<span class="n">bs</span><span class="o">=</span><span class="n">a</span><span class="o">.</span><span class="n">get_bandstructure_by_material_id</span><span class="p">(</span><span class="s">&quot;mp-3748&quot;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -224,15 +222,15 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1">#is the material a metal (i.e., the fermi level cross a band)</span>
+<div class=" highlight hl-ipython2"><pre><span class="c">#is the material a metal (i.e., the fermi level cross a band)</span>
 <span class="k">print</span> <span class="n">bs</span><span class="o">.</span><span class="n">is_metal</span><span class="p">()</span>
-<span class="c1">#print information on the band gap</span>
+<span class="c">#print information on the band gap</span>
 <span class="k">print</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_band_gap</span><span class="p">()</span>
-<span class="c1">#print the energy of the 20th band and 10th kpoint</span>
+<span class="c">#print the energy of the 20th band and 10th kpoint</span>
 <span class="k">print</span> <span class="n">bs</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="mi">20</span><span class="p">][</span><span class="mi">10</span><span class="p">]</span>
-<span class="c1">#print energy of direct band gap</span>
+<span class="c">#print energy of direct band gap</span>
 <span class="k">print</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_direct_band_gap</span><span class="p">()</span>
-<span class="c1">#print information on the vbm</span>
+<span class="c">#print information on the vbm</span>
 <span class="k">print</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_vbm</span><span class="p">()</span>
 </pre></div>
 
