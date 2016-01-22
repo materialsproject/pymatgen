@@ -658,16 +658,8 @@ class Vasprun(MSONable):
         if 'projected_eigenvalues' in self.as_dict()['output']:
             dict_p_eigen = self.as_dict()['output']['projected_eigenvalues']
 
-        p_eigenvals = {}
-        if "1" in dict_eigen["0"] and "-1" in dict_eigen["0"] \
-                and self.incar['ISPIN'] == 2:
-            eigenvals = {Spin.up: [], Spin.down: []}
-            if len(dict_p_eigen) != 0:
-                p_eigenvals = {Spin.up: [], Spin.down: []}
-        else:
-            eigenvals = {Spin.up: []}
-            if len(dict_p_eigen) != 0:
-                p_eigenvals = {Spin.up: []}
+        p_eigenvals = defaultdict(list)
+        eigenvals = defaultdict(list)
 
         neigenvalues = [len(v['1']) for v in dict_eigen.values()]
         min_eigenvalues = min(neigenvalues)
@@ -679,7 +671,8 @@ class Vasprun(MSONable):
                     [{Orbital[orb]: dict_p_eigen[j]['1'][i][orb]
                       for orb in dict_p_eigen[j]['1'][i]}
                      for j in range(len(kpoints))])
-        if Spin.down in eigenvals:
+        if "1" in dict_eigen["0"] and "-1" in dict_eigen["0"] \
+                and self.incar['ISPIN'] == 2:
             for i in range(min_eigenvalues):
                 eigenvals[Spin.down].append([dict_eigen[str(j)]['-1'][i][0]
                                              for j in range(len(kpoints))])
