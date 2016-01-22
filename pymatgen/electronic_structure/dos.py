@@ -3,21 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-
-"""
-This module defines classes to represent the density of states, etc.
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 20, 2012"
-
-import collections
-
 import numpy as np
 
 import six
@@ -27,6 +12,17 @@ from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord_utils import get_linear_interpolated_value
 from monty.json import MSONable
+
+"""
+This module defines classes to represent the density of states, etc.
+"""
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "Mar 20, 2012"
 
 
 class Dos(MSONable):
