@@ -2194,8 +2194,6 @@ class Procar(object):
         Number of ions
     """
     def __init__(self, filename):
-        data = {}
-        phase_factors = {}
         headers = None
 
         with zopen(filename, "rt") as f:
@@ -2226,21 +2224,24 @@ class Procar(object):
                     headers = l.split()
                     headers.pop(0)
                     headers.pop(-1)
+
+                    def f():
+                        return np.zeros((nkpoints, nbands, nions, len(headers)))
+
+                    data = defaultdict(f)
+
+                    def f2():
+                        return np.full((nkpoints, nbands, nions, len(headers)),
+                                       np.NaN, dtype=np.complex128)
+                    phase_factors = defaultdict(f2)
                 elif expr.match(l):
                     toks = l.split()
                     index = int(toks.pop(0)) - 1
                     num_data = np.array([float(t) for t in toks[:len(headers)]])
                     if not done:
-                        if spin not in data:
-                            data[spin] = np.zeros((nkpoints, nbands,
-                                                   nions, len(headers)))
                         data[spin][current_kpoint, current_band,
                                    index, :] = num_data
                     else:
-                        if spin not in phase_factors:
-                            phase_factors[spin] = np.full(
-                                    (nkpoints, nbands, nions, len(headers)),
-                                    np.NaN, dtype=np.complex128)
                         if np.isnan(phase_factors[spin][
                                 current_kpoint, current_band, index, 0]):
                             phase_factors[spin][current_kpoint, current_band,
