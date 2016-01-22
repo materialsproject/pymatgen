@@ -8,7 +8,7 @@ import unittest
 import os
 import json
 
-from pymatgen import Spin, Orbital
+from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import CompleteDos
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
