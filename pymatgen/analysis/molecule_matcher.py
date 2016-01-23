@@ -81,8 +81,13 @@ class AbstractMolAtomMapper(six.with_metaclass(abc.ABCMeta, MSONable)):
     @classmethod
     def from_dict(cls, d):
         for trans_modules in ['molecule_matcher']:
+            import sys
+            if sys.version_info > (3, 0):
+                level = 0  # Python 3.x
+            else:
+                level = -1  # Python 2.x
             mod = __import__('pymatgen.analysis.' + trans_modules,
-                             globals(), locals(), [d['@class']], -1)
+                             globals(), locals(), [d['@class']], level)
             if hasattr(mod, d['@class']):
                 class_proxy = getattr(mod, d['@class'])
                 from_dict_proxy = getattr(class_proxy, "from_dict")
