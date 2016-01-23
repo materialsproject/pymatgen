@@ -532,11 +532,7 @@ class StructureMatcher(MSONable):
         Returns:
             True or False.
         """
-        struct1 = Structure.from_sites(struct1)
-        struct2 = Structure.from_sites(struct2)
-        if self._ignored_species:
-            struct1.remove_species(self._ignored_species)
-            struct2.remove_species(self._ignored_species)
+        struct1, struct2 = self._process_species([struct1, struct2])
 
         if not self._subset and self._comparator.get_hash(struct1.composition) \
                 != self._comparator.get_hash(struct2.composition):
@@ -564,6 +560,7 @@ class StructureMatcher(MSONable):
             and maximum distance between paired sites. If no matching
             lattice is found None is returned.
         """
+        struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
         match = self._match(struct1, struct2, fu, s1_supercell, use_rms=True,
                             break_on_match=False)
@@ -572,6 +569,15 @@ class StructureMatcher(MSONable):
             return None
         else:
             return match[0], max(match[1])
+
+    def _process_species(self, structures):
+        copied_structures = []
+        for s in structures:
+            ss = Structure.from_sites(s)
+            if self._ignored_species:
+                ss.remove_species(self._ignored_species)
+            copied_structures.append(ss)
+        return copied_structures
 
     def _preprocess(self, struct1, struct2, niggli=True):
         """
@@ -700,33 +706,37 @@ class StructureMatcher(MSONable):
         if self._subset:
             raise ValueError("allow_subset cannot be used with"
                              " group_structures")
-        
+
+        original_s_list = s_list[:]
+        s_list = self._process_species(s_list)
+
         # Use structure hash to pre-group structures
         if anonymous:
             c_hash = lambda c: c.anonymized_formula
         else:
             c_hash = self._comparator.get_hash
-        s_hash = lambda s: c_hash(s.composition)
-        sorted_s_list = sorted(s_list, key=s_hash)
+        s_hash = lambda s: c_hash(s[1].composition)
+        sorted_s_list = sorted(enumerate(s_list), key=s_hash)
         all_groups = []
 
         # For each pre-grouped list of structures, perform actual matching.
         for k, g in itertools.groupby(sorted_s_list, key=s_hash):
             unmatched = list(g)
             while len(unmatched) > 0:
-                ref = unmatched.pop(0)
-                matches = [ref]
+                i, refs = unmatched.pop(0)
+                matches = [i]
                 if anonymous:
-                    inds = filter(lambda i: self.fit_anonymous(ref,
-                            unmatched[i]), list(range(len(unmatched))))
+                    inds = filter(lambda i: self.fit_anonymous(refs,
+                            unmatched[i][1]), list(range(len(unmatched))))
                 else:
-                    inds = filter(lambda i: self.fit(ref, unmatched[i]),
+                    inds = filter(lambda i: self.fit(refs, unmatched[i][1]),
                                   list(range(len(unmatched))))
                 inds = list(inds)
-                matches.extend([unmatched[i] for i in inds])
+                matches.extend([unmatched[i][0] for i in inds])
                 unmatched = [unmatched[i] for i in range(len(unmatched))
                              if i not in inds]
-                all_groups.append(matches)
+                all_groups.append([original_s_list[i] for i in matches])
+
         return all_groups
 
     def as_dict(self):
@@ -837,6 +847,7 @@ class StructureMatcher(MSONable):
         Returns:
             min_mapping (Dict): Mapping of struct1 species to struct2 species
         """
+        struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
 
         matches = self._anonymous_match(struct1, struct2, fu, s1_supercell,
@@ -866,6 +877,7 @@ class StructureMatcher(MSONable):
         Returns:
             list of species mappings that map struct1 to struct2.
         """
+        struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
 
         matches = self._anonymous_match(struct1, struct2, fu, s1_supercell,
@@ -887,6 +899,7 @@ class StructureMatcher(MSONable):
         Returns:
             True/False: Whether a species mapping can map struct1 to stuct2
         """
+        struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
 
         matches = self._anonymous_match(struct1, struct2, fu, s1_supercell,
@@ -943,6 +956,8 @@ class StructureMatcher(MSONable):
             raise ValueError("get_transformation cannot be used with the "
                              "primitive cell option")
 
+        struct1, struct2 = self._process_species((struct1, struct2))
+
         s1, s2, fu, s1_supercell = self._preprocess(struct1, struct2, False)
         ratio = fu if s1_supercell else 1/fu
         if s1_supercell and fu > 1:
@@ -972,7 +987,7 @@ class StructureMatcher(MSONable):
             mapping = list(match[4]) + not_included
             return match[2], -match[3], mapping
 
-    def get_s2_like_s1(self, struct1, struct2):
+    def get_s2_like_s1(self, struct1, struct2, include_ignored_species=False):
         """
         Performs transformations on struct2 to put it in a basis similar to
         struct1 (without changing any of the inter-site distances)
@@ -980,26 +995,39 @@ class StructureMatcher(MSONable):
         Args:
             struct1 (Structure): Reference structure
             struct2 (Structure): Structure to transform.
+            include_ignored_species (bool): If True, the ignored_species is
+                also transformed to the struct1 lattice orientation, though
+                obviously there is no direct matching to existing sites.
 
         Returns:
             A structure object similar to struct1, obtained by making a
             supercell, sorting, and translating struct2.
         """
-        trans = self.get_transformation(struct1, struct2)
+        s1, s2 = self._process_species([struct1, struct2])
+        trans = self.get_transformation(s1, s2)
         if trans is None:
             return None
         sc, t, mapping = trans
-        temp = struct2.copy()
+        sites = [site for site in s2]
+        # Append the ignored sites at the end.
+        sites.extend([site for site in struct2 if site not in s2])
+        temp = Structure.from_sites(sites)
+
         temp.make_supercell(sc)
         temp.translate_sites(list(range(len(temp))), t)
         # translate sites to correct unit cell
-        for i, j in enumerate(mapping[:len(struct1)]):
+        for i, j in enumerate(mapping[:len(s1)]):
             if j is not None:
                 vec = np.round(struct1[i].frac_coords - temp[j].frac_coords)
                 temp.translate_sites(j, vec, to_unit_cell=False)
 
-        return Structure.from_sites([temp.sites[i] for i in mapping
-                                     if i is not None])
+        sites = [temp.sites[i] for i in mapping if i is not None]
+
+        if include_ignored_species:
+            start = int(round(len(temp) / len(struct2) * len(s2)))
+            sites.extend(temp.sites[start:])
+
+        return Structure.from_sites(sites)
 
     def get_mapping(self, superset, subset):
         """
