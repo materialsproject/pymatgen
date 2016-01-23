@@ -31,6 +31,15 @@ class StructureMatcherTest(PymatgenTest):
                             Structure.from_file(os.path.join(
                                 test_dir, "POSCAR.Li2O"))]
 
+    def test_ignore_species(self):
+        s1 = Structure.from_file(os.path.join(test_dir, "LiFePO4.cif"))
+        s2 = Structure.from_file(os.path.join(test_dir, "POSCAR"))
+        m = StructureMatcher(ignored_species=["Li"])
+        self.assertTrue(m.fit(s1, s2))
+        groups = m.group_structures([s1, s2])
+        self.assertEqual(len(groups), 2)
+
+
     def test_get_supercell_size(self):
         l = Lattice.cubic(1)
         l2 = Lattice.cubic(0.9)
