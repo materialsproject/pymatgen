@@ -709,7 +709,7 @@ class StructureMatcher(MSONable):
             raise ValueError("allow_subset cannot be used with"
                              " group_structures")
 
-        original_s_list = s_list[:]
+        original_s_list = list(s_list)
         s_list = self._process_species(s_list)
 
         # Use structure hash to pre-group structures
@@ -990,7 +990,7 @@ class StructureMatcher(MSONable):
             mapping = list(match[4]) + not_included
             return match[2], -match[3], mapping
 
-    def get_s2_like_s1(self, struct1, struct2, include_ignored_species=False):
+    def get_s2_like_s1(self, struct1, struct2, include_ignored_species=True):
         """
         Performs transformations on struct2 to put it in a basis similar to
         struct1 (without changing any of the inter-site distances)
@@ -998,9 +998,10 @@ class StructureMatcher(MSONable):
         Args:
             struct1 (Structure): Reference structure
             struct2 (Structure): Structure to transform.
-            include_ignored_species (bool): If True, the ignored_species is
-                also transformed to the struct1 lattice orientation, though
-                obviously there is no direct matching to existing sites.
+            include_ignored_species (bool): Defaults to True,
+                the ignored_species is also transformed to the struct1
+                lattice orientation, though obviously there is no direct
+                matching to existing sites.
 
         Returns:
             A structure object similar to struct1, obtained by making a
