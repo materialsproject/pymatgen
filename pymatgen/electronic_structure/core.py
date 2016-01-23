@@ -80,10 +80,6 @@ class Orbital(Enum):
     f2 = 14
     f3 = 15
 
-    @property
-    def vasp_index(self):
-        return self.value
-
     def __int__(self):
         return self.value
 
