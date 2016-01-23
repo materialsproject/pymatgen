@@ -45,6 +45,11 @@ class StructureMatcherTest(PymatgenTest):
         self.assertAlmostEqual(ss1.lattice.a, 20.820740000000001)
         self.assertEqual(ss1.composition.reduced_formula, "LiFePO4")
 
+        self.assertEqual({
+            k.symbol: v.symbol for k, v in
+            m.get_best_electronegativity_anonymous_mapping(s1, s2).items()},
+                         {"Fe": "Fe", "P": "P", "O": "O"})
+
 
 
     def test_get_supercell_size(self):

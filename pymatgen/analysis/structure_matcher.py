@@ -338,7 +338,9 @@ class StructureMatcher(MSONable):
             num_atoms or volume.
         ignored_species (list): A list of ions to be ignored in matching. Useful
             for matching structures that have similar frameworks except for
-            certain ions, e.g., Li-ion intercalation frameworks.
+            certain ions, e.g., Li-ion intercalation frameworks. This is more
+            useful than allow_subset because it allows better control over
+            what species are ignored in the matching.
     """
 
     def __init__(self, ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=True,
@@ -822,6 +824,7 @@ class StructureMatcher(MSONable):
             struct1 to struct2. (None, None) is returned if the minimax_rms
             exceeds the threshold.
         """
+        struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
 
         matches = self._anonymous_match(struct1, struct2, fu, s1_supercell,
