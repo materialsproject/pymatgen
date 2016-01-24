@@ -311,6 +311,10 @@ def make_qadapter(**kwargs):
     return d[qtype](**kwargs)
 
 
+class QScriptTemplate(string.Template):
+    delimiter = '$$'
+
+
 class QueueAdapterError(Exception):
     """Base Error class for exceptions raise by QueueAdapter."""
 
@@ -1578,7 +1582,6 @@ $${qverbatim}
         return njobs, process
 
     def exclude_nodes(self, nodes):
-        """No meaning for Shell"""
         return False
 
 
@@ -1813,5 +1816,98 @@ $${qverbatim}
         return njobs, process
 
 
-class QScriptTemplate(string.Template):
-    delimiter = '$$'
+class BlueGeneAdapter(QueueAdapter):
+    """Adapter for BlueGeneQ"""
+    QTYPE = "bluegene"
+
+    QTEMPLATE = """\
+#!/bin/bash
+
+#PBS -q $${queue}
+#PBS -N $${job_name}
+#PBS -A $${account}
+#PBS -l walltime=$${walltime}
+#PBS -M $${mail_user}
+#PBS -m $${mail_type}
+#PBS -o $${_qout_path}
+#PBS -e $${_qerr_path}
+
+#!/bin/bash
+# @ job_name = $${job_name}
+# @ error = $${_qout_path}
+# @ output = $${_qerr_path}
+# @ wall_clock_limit = $${walltime}
+# @ notification = error
+# @ notify_user = $${mail_user}
+# @ job_type = bluegene
+# @ bg_size = 32
+$${qverbatim}
+# @ queue
+
+##runjob --ranks-per-node 2 --exp-env OMP_NUM_THREADS --exe $ABINIT < run.files > run.log 2> run.err
+"""
+
+    def set_qname(self, qname):
+        super(BlueGeneAdapter, self).set_qname(qname)
+        if qname:
+            self.qparams["queue"] = qname
+
+    def set_timelimit(self, timelimit):
+        super(BlueGeneAdapter, self).set_timelimit(timelimit)
+        self.qparams["walltime"] = qu.time2pbspro(timelimit)
+
+    def set_mem_per_proc(self, mem_mb):
+        """Set the memory per process in megabytes"""
+        super(BlueGeneAdapter, self).set_mem_per_proc(mem_mb)
+        self.qparams["pvmem"] = self.mem_per_proc
+
+    def cancel(self, job_id):
+        return os.system("llcancel %d" % job_id)
+
+    #def optimize_params(self):
+    #    return {"select": self.get_select()}
+
+    def _submit_to_queue(self, script_file):
+        """Submit a job script to the queue."""
+        process = Popen(['llsubmit', script_file], stdout=PIPE, stderr=PIPE)
+        out, err = process.communicate()
+
+        # grab the return code. llsubmit returns 0 if the job was successful
+        queue_id = None
+        if process.returncode == 0:
+            try:
+                # on JUQUEEN, output should of the form 
+		#llsubmit: Processed command file through Submit Filter: "/bgdata/admin/loadl/extensions/filter".
+		#llsubmit: The job "juqueen1c1.zam.kfa-juelich.de.281506" has been submitted.
+                l = out.splitlines()[1]
+                token = l.split()[3]
+                s = token.split(".")[-1].replace('"', "")
+                queue_id = int(s)
+            except:
+                # probably error parsing job code
+                logger.critical("Could not parse job id following llsubmit...")
+
+        return SubmitResults(qid=queue_id, out=out, err=err, process=process)
+
+    def _get_njobs_in_queue(self, username):
+        process = Popen(['llq', '-u', username], stdout=PIPE, stderr=PIPE)
+        out, err = process.communicate()
+
+        njobs = None
+        if process.returncode == 0:
+            # parse the result. lines should have this form:
+            #
+            # Id                       Owner      Submitted   ST PRI Class        Running On 
+            # ------------------------ ---------- ----------- -- --- ------------ -----------
+            # juqueen1c1.281508.0      paj15530    1/23 13:20 I  50  n001                    
+            # 1 job step(s) in query, 1 waiting, 0 pending, 0 running, 0 held, 0 preempted
+            #
+            # count lines that include the username in it
+
+            outs = out.split('\n')
+            njobs = len([line.split() for line in outs if username in line])
+
+        return njobs, process
+
+    def exclude_nodes(self, nodes):
+        return False

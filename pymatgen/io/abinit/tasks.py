@@ -18,6 +18,7 @@ import numpy as np
 from pprint import pprint
 from six.moves import map, zip, StringIO
 from monty.string import is_string, list_strings
+from monty.termcolor import colored
 from monty.collections import AttrDict
 from monty.functools import lazy_property, return_none_if_raise
 from monty.json import MSONable
@@ -553,11 +554,12 @@ batch_adapter:
             path = os.path.join(cls.USER_CONFIG_DIR, cls.YAML_FILE)
 
         if not os.path.exists(path):
-            raise RuntimeError("Cannot locate %s neither in current directory nor in %s\n"
-                               " !!! PLEASE READ THIS : !!! \n"
-                               "To use abipy to run jobs this file needs be be present\n"
-                               "it provides a description of the cluster/computer you are running on\n"
-                               "Examples are provided in abipy/data/managers." % (cls.YAML_FILE, path))
+            raise RuntimeError(colored(
+		"\nCannot locate %s neither in current directory nor in %s\n"
+                "!!! PLEASE READ THIS: !!!\n"
+                "To use abipy to run jobs this file needs be be present\n"
+                "it provides a description of the cluster/computer you are running on\n"
+                "Examples are provided in abipy/data/managers." % (cls.YAML_FILE, path), color="red"))
 
         _USER_CONFIG_TASKMANAGER = cls.from_file(path)
         return _USER_CONFIG_TASKMANAGER 
@@ -671,6 +673,18 @@ batch_adapter:
         new.set_mpi_procs(mpi_procs)
 
         return new
+
+    def new_with_fixed_mpi_omp(self, mpi_procs, omp_threads): 
+	"""
+	Return a new `TaskManager` in which autoparal has been disabled.
+	The jobs will be executed with `mpi_procs` MPI processes and `omp_threads` OpenMP threads.
+	Useful for generating input files for benchmarks.
+	"""
+	new = self.deepcopy()
+	new.policy.autoparal = 0
+	new.set_mpi_procs(mpi_procs)
+        new.set_omp_threads(omp_threads)
+	return new
 
     @property
     def has_queue(self):
