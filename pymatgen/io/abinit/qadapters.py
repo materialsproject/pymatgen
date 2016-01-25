@@ -44,7 +44,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    "MpiRunner",
     "make_qadapter",
 ]
 
@@ -85,24 +84,28 @@ class MpiRunner(object):
         if exec_args:
             executable = executable + " " + " ".join(list_strings(exec_args))
 
-        if self.has_mpirun:
+        if self.name in ["mpirun", "mpiexec", "srun"]:
             if self.type is None:
-                # TODO: better treatment of mpirun syntax.
-                #se.add_line('$MPIRUN -n $MPI_PROCS $EXECUTABLE < $STDIN > $STDOUT 2> $STDERR')
+                #$MPIRUN -n $MPI_PROCS $EXECUTABLE < $STDIN > $STDOUT 2> $STDERR
                 num_opt = "-n " + str(mpi_procs)
                 cmd = " ".join([self.name, num_opt, executable, stdin, stdout, stderr])
             else:
-                raise NotImplementedError("type %s is not supported!")
+                raise NotImplementedError("type %s is not supported!" % self.type)
+
+        elif self.name == "runjobs":
+            #runjob --ranks-per-node 2 --exp-env OMP_NUM_THREADS --exe $ABINIT < $STDIN > $STDOUT 2> $STDERR
+            raise NotImplementedError("runjobs is not supported!")
+
         else:
-            #assert mpi_procs == 1
+            assert mpi_procs == 1
             cmd = " ".join([executable, stdin, stdout, stderr])
 
         return cmd
 
-    @property
-    def has_mpirun(self):
-        """True if we are running via mpirun, mpiexec ..."""
-        return self.name is not None
+    #@property
+    #def has_mpirun(self):
+    #    """True if we are running via mpirun, mpiexec ..."""
+    #    return self.name is not None
 
 
 class OmpEnv(AttrDict):
@@ -352,13 +355,16 @@ hardware:
 
 # dictionary with the options used to prepare the enviroment before submitting the job
 job:
-    setup:       # List of commands (str) executed before running (default empty)
-    omp_env:     # Dictionary with OpenMP env variables (default empty i.e. no OpenMP)
-    modules:     # List of modules to be imported (default empty)
-    shell_env:   # Dictionary with shell env variables.
-    mpi_runner:  # MPI runner i.e. mpirun, mpiexec, Default is None i.e. no mpirunner
-    pre_run:     # List of commands executed before the run (default: empty)
-    post_run:    # List of commands executed after the run (default: empty)
+    setup:            # List of commands (str) executed before running (default empty)
+    omp_env:          # Dictionary with OpenMP env variables (default empty i.e. no OpenMP)
+    modules:          # List of modules to be imported (default empty)
+    shell_env:        # Dictionary with shell env variables.
+    mpi_runner:       # MPI runner i.e. mpirun, mpiexec, Default is None i.e. no mpirunner
+    shell_runner:     # Used for running small sequential jobs on the front-end. Set it to None
+                      # if mpirun or mpiexec are not available on the fron-end. If not
+                      # given, small sequential jobs are executed with `mpi_runner`.
+    pre_run:          # List of commands executed before the run (default: empty)
+    post_run:         # List of commands executed after the run (default: empty)
 
 # dictionary with the name of the queue and optional parameters 
 # used to build/customize the header of the submission script.
@@ -568,6 +574,10 @@ limits:
         self.mpi_runner = d.pop("mpi_runner", None)
         if not isinstance(self.mpi_runner, MpiRunner):
             self.mpi_runner = MpiRunner(self.mpi_runner)
+
+        self.shell_runner = d.pop("shell_runner", None)
+        if self.shell_runner is not None:
+            self.shell_runner = MpiRunner(self.shell_runner)
 
         pre_run = d.pop("pre_run", None)
         if is_string(pre_run): pre_run = [pre_run]
@@ -1824,13 +1834,10 @@ class BlueGeneAdapter(QueueAdapter):
 #!/bin/bash
 
 #PBS -q $${queue}
-#PBS -N $${job_name}
 #PBS -A $${account}
 #PBS -l walltime=$${walltime}
 #PBS -M $${mail_user}
 #PBS -m $${mail_type}
-#PBS -o $${_qout_path}
-#PBS -e $${_qerr_path}
 
 #!/bin/bash
 # @ job_name = $${job_name}
@@ -1852,14 +1859,25 @@ $${qverbatim}
         if qname:
             self.qparams["queue"] = qname
 
-    def set_timelimit(self, timelimit):
-        super(BlueGeneAdapter, self).set_timelimit(timelimit)
-        self.qparams["walltime"] = qu.time2pbspro(timelimit)
+    def set_mpi_procs(self, mpi_procs):
+        """Set the number of CPUs used for MPI."""
+        super(SlurmAdapter, self).set_mpi_procs(mpi_procs)
+        self.qparams["ntasks"] = mpi_procs
+
+    def set_omp_threads(self, omp_threads):
+        super(BlueGeneAdapter, self).set_omp_threads(omp_threads)
+        self.qparams["cpus_per_task"] = omp_threads
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         super(BlueGeneAdapter, self).set_mem_per_proc(mem_mb)
-        self.qparams["pvmem"] = self.mem_per_proc
+        self.qparams["mem_per_cpu"] = self.mem_per_proc
+        # Remove mem if it's defined.
+        #self.qparams.pop("mem", None)
+
+    def set_timelimit(self, timelimit):
+        super(BlueGeneAdapter, self).set_timelimit(timelimit)
+        self.qparams["walltime"] = qu.time2pbspro(timelimit)
 
     def cancel(self, job_id):
         return os.system("llcancel %d" % job_id)
@@ -1877,8 +1895,8 @@ $${qverbatim}
         if process.returncode == 0:
             try:
                 # on JUQUEEN, output should of the form 
-		#llsubmit: Processed command file through Submit Filter: "/bgdata/admin/loadl/extensions/filter".
-		#llsubmit: The job "juqueen1c1.zam.kfa-juelich.de.281506" has been submitted.
+		        #llsubmit: Processed command file through Submit Filter: "/bgdata/admin/loadl/extensions/filter".
+		        #llsubmit: The job "juqueen1c1.zam.kfa-juelich.de.281506" has been submitted.
                 l = out.splitlines()[1]
                 token = l.split()[3]
                 s = token.split(".")[-1].replace('"', "")

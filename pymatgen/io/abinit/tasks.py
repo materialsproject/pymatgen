@@ -668,6 +668,18 @@ batch_adapter:
             d["limits"]["min_cores"] = mpi_procs
             d["limits"]["max_cores"] = mpi_procs
 
+            # If shell_runner is specicied, replace mpi_runner with shell_runner
+            # in the script used to run jobs on the frontend. 
+            # On same machines based on Slurm, indeed, mpirun/mpiexec is not available 
+            # and jobs should be executed with `srun -n4 exec` when running on the computing nodes
+            # or with `exec` when running in sequential on the frontend.
+            if "job" in d and "shell_runner" in d["job"]:
+                shell_runner = d["job"]["shell_runner"]
+                #print("shell_runner:", shell_runner, type(shell_runner))
+                if not shell_runner or shell_runner == "None": shell_runner = ""
+                d["job"]["mpi_runner"] = shell_runner
+                #print("shell_runner:", shell_runner)
+
         #print(my_kwargs)
         new = self.__class__(**my_kwargs)
         new.set_mpi_procs(mpi_procs)
@@ -675,16 +687,16 @@ batch_adapter:
         return new
 
     def new_with_fixed_mpi_omp(self, mpi_procs, omp_threads): 
-	"""
-	Return a new `TaskManager` in which autoparal has been disabled.
-	The jobs will be executed with `mpi_procs` MPI processes and `omp_threads` OpenMP threads.
-	Useful for generating input files for benchmarks.
-	"""
-	new = self.deepcopy()
-	new.policy.autoparal = 0
-	new.set_mpi_procs(mpi_procs)
+        """
+        Return a new `TaskManager` in which autoparal has been disabled.
+        The jobs will be executed with `mpi_procs` MPI processes and `omp_threads` OpenMP threads.
+        Useful for generating input files for benchmarks.
+        """
+        new = self.deepcopy()
+        new.policy.autoparal = 0
+        new.set_mpi_procs(mpi_procs)
         new.set_omp_threads(omp_threads)
-	return new
+        return new
 
     @property
     def has_queue(self):
