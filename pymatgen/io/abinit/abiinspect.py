@@ -7,6 +7,7 @@ by extracting information from the main output file (text format).
 """
 from __future__ import unicode_literals, division, print_function
 
+import os
 import collections
 import numpy as np
 import yaml
@@ -424,7 +425,18 @@ class YamlTokenizer(collections.Iterator):
         # The position inside the file.
         self.linepos = 0
         self.filename = filename
-        self.stream = open(filename, "r")
+
+	try:
+           self.stream = open(filename, "r")
+        except IOError as exc:
+            # Look for associated error file.
+            root, ext = os.path.splitext(self.filename)
+            errfile = root + ".err"
+            if os.path.exists(errfile) and errfile != self.filename:
+		print("Found error file: %s" % errfile)
+            	with open(errfile, "rt") as fh:
+		   print(fh.read())
+	    raise exc
 
     def __iter__(self):
         return self
@@ -443,6 +455,7 @@ class YamlTokenizer(collections.Iterator):
             self.stream.close()
         except:
             print("Exception in YAMLTokenizer.close()")
+            print("Python traceback:")
             print(straceback())
 
     def seek(self, offset, whence=0):

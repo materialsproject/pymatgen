@@ -76,7 +76,7 @@ class MpiRunner(object):
         self.type = None
         self.options = options
 
-    def string_to_run(self, executable, mpi_procs, stdin=None, stdout=None, stderr=None, exec_args=None):
+    def string_to_run(self, qad, executable, stdin=None, stdout=None, stderr=None, exec_args=None):
         stdin = "< " + stdin if stdin is not None else ""
         stdout = "> " + stdout if stdout is not None else ""
         stderr = "2> " + stderr if stderr is not None else ""
@@ -87,17 +87,22 @@ class MpiRunner(object):
         if self.name in ["mpirun", "mpiexec", "srun"]:
             if self.type is None:
                 #$MPIRUN -n $MPI_PROCS $EXECUTABLE < $STDIN > $STDOUT 2> $STDERR
-                num_opt = "-n " + str(mpi_procs)
+                num_opt = "-n " + str(qad.mpi_procs)
                 cmd = " ".join([self.name, num_opt, executable, stdin, stdout, stderr])
             else:
                 raise NotImplementedError("type %s is not supported!" % self.type)
 
-        elif self.name == "runjobs":
+        elif self.name == "runjob":
             #runjob --ranks-per-node 2 --exp-env OMP_NUM_THREADS --exe $ABINIT < $STDIN > $STDOUT 2> $STDERR
-            raise NotImplementedError("runjobs is not supported!")
-
+            #runjob -n 2 --exp-env=OMP_NUM_THREADS --exe $ABINIT < $STDIN > $STDOUT 2> $STDERR
+            # exe must be absolute path or relative to cwd.
+	    bg_size, rpn = qad.bgsize_rankspernode()
+            #num_opt = "-n " + str(qad.mpi_procs)
+            num_opt = "--ranks-per-node " + str(rpn)
+            cmd = " ".join([self.name, num_opt, "--exp-env OMP_NUM_THREADS", 
+                           "--exe `which " + executable + "` ", stdin, stdout, stderr])
         else:
-            assert mpi_procs == 1
+            assert qad.mpi_procs == 1
             cmd = " ".join([executable, stdin, stdout, stderr])
 
         return cmd
@@ -992,7 +997,7 @@ limits:
 
         # Construct the string to run the executable with MPI and mpi_procs.
         if is_string(executable):
-            line = self.mpi_runner.string_to_run(executable, self.mpi_procs, 
+            line = self.mpi_runner.string_to_run(self, executable, 
                                                  stdin=stdin, stdout=stdout, stderr=stderr, exec_args=exec_args)
             se.add_line(line)
         else:
@@ -1829,64 +1834,76 @@ $${qverbatim}
         return njobs, process
 
 
-class BlueGeneAdapter(QueueAdapter):
-    """Adapter for BlueGeneQ"""
-    QTYPE = "bluegene"
+class LoadLever(QueueAdapter):
+    """
+    Adapter for LoadLever (BlueGene architecture).
+    See https://www.lrz.de/services/compute/supermuc/loadleveler/
+    """
+    QTYPE = "loadlever"
 
     QTEMPLATE = """\
 #!/bin/bash
-
-#PBS -q $${queue}
-#PBS -A $${account}
-#PBS -l walltime=$${walltime}
-#PBS -M $${mail_user}
-#PBS -m $${mail_type}
-
-#!/bin/bash
 # @ job_name = $${job_name}
+# @ class = $${class}
 # @ error = $${_qout_path}
 # @ output = $${_qerr_path}
-# @ wall_clock_limit = $${walltime}
-# @ notification = error
+# @ wall_clock_limit = $${wall_clock_limit}
+# @ notification = $${notification}
 # @ notify_user = $${mail_user}
+# @ environment = $${environment}
+# @ account_no = $${account_no}
 # @ job_type = bluegene
-# @ bg_size = 32
+# @ bg_connectivity = $${bg_connectivity}
+# @ bg_size = $${bg_size}
 $${qverbatim}
 # @ queue
-
-##runjob --ranks-per-node 2 --exp-env OMP_NUM_THREADS --exe $ABINIT < run.files > run.log 2> run.err
 """
 
     def set_qname(self, qname):
-        super(BlueGeneAdapter, self).set_qname(qname)
+        super(LoadLever, self).set_qname(qname)
         if qname:
-            self.qparams["queue"] = qname
+            self.qparams["class"] = qname
 
-    def set_mpi_procs(self, mpi_procs):
-        """Set the number of CPUs used for MPI."""
-        super(SlurmAdapter, self).set_mpi_procs(mpi_procs)
-        self.qparams["ntasks"] = mpi_procs
+    #def set_mpi_procs(self, mpi_procs):
+    #    """Set the number of CPUs used for MPI."""
+    #    super(LoadLever, self).set_mpi_procs(mpi_procs)
+    #    #self.qparams["ntasks"] = mpi_procs
 
-    def set_omp_threads(self, omp_threads):
-        super(BlueGeneAdapter, self).set_omp_threads(omp_threads)
-        self.qparams["cpus_per_task"] = omp_threads
+    #def set_omp_threads(self, omp_threads):
+    #    super(LoadLever, self).set_omp_threads(omp_threads)
+    #    #self.qparams["cpus_per_task"] = omp_threads
 
-    def set_mem_per_proc(self, mem_mb):
-        """Set the memory per process in megabytes"""
-        super(BlueGeneAdapter, self).set_mem_per_proc(mem_mb)
-        self.qparams["mem_per_cpu"] = self.mem_per_proc
-        # Remove mem if it's defined.
-        #self.qparams.pop("mem", None)
+    #def set_mem_per_proc(self, mem_mb):
+    #    """Set the memory per process in megabytes"""
+    #    super(LoadLever, self).set_mem_per_proc(mem_mb)
+    #    #self.qparams["mem_per_cpu"] = self.mem_per_proc
 
     def set_timelimit(self, timelimit):
-        super(BlueGeneAdapter, self).set_timelimit(timelimit)
-        self.qparams["walltime"] = qu.time2pbspro(timelimit)
+	"""Limits are specified with the format hh:mm:ss (hours:minutes:seconds)"""
+        super(LoadLever, self).set_timelimit(timelimit)
+        #self.qparams["wall_clock_limit"] = qu.time2pbspro(timelimit)
+        # TODO
+        self.qparams["wall_clock_limit"] = "00:10:00"
 
     def cancel(self, job_id):
         return os.system("llcancel %d" % job_id)
 
-    #def optimize_params(self):
-    #    return {"select": self.get_select()}
+    def bgsize_rankspernode(self):
+	"""Return (bg_size, ranks_per_node) from mpi_procs and omp_threads."""
+	bg_size = int(math.ceil((self.mpi_procs * self.omp_threads)/ self.hw.cores_per_node))
+	bg_size = max(bg_size, 32) # TODO hardcoded
+	ranks_per_node = int(math.ceil(self.mpi_procs / bg_size))
+
+	return bg_size, ranks_per_node
+
+    def optimize_params(self):
+	params = {}
+	bg_size, rpn = self.bgsize_rankspernode()
+        #print("in optimize params")
+        #print("mpi_procs:", self.mpi_procs, "omp_threads:",self.omp_threads)
+        #print("bg_size:",bg_size,"ranks_per_node",rpn)
+
+        return {"bg_size": bg_size}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
@@ -1898,15 +1915,14 @@ $${qverbatim}
         if process.returncode == 0:
             try:
                 # on JUQUEEN, output should of the form 
-		        #llsubmit: Processed command file through Submit Filter: "/bgdata/admin/loadl/extensions/filter".
-		        #llsubmit: The job "juqueen1c1.zam.kfa-juelich.de.281506" has been submitted.
-                l = out.splitlines()[1]
-                token = l.split()[3]
+		#llsubmit: The job "juqueen1c1.zam.kfa-juelich.de.281506" has been submitted.
+                token = out.split()[3]
                 s = token.split(".")[-1].replace('"', "")
                 queue_id = int(s)
             except:
                 # probably error parsing job code
                 logger.critical("Could not parse job id following llsubmit...")
+		raise
 
         return SubmitResults(qid=queue_id, out=out, err=err, process=process)
 
@@ -1924,7 +1940,6 @@ $${qverbatim}
             # 1 job step(s) in query, 1 waiting, 0 pending, 0 running, 0 held, 0 preempted
             #
             # count lines that include the username in it
-
             outs = out.split('\n')
             njobs = len([line.split() for line in outs if username in line])
 

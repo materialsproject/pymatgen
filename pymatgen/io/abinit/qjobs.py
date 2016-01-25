@@ -199,7 +199,6 @@ class QueueJob(object):
         SUSv2 and POSIX.1-2001.
 
         Signal       Value     Action   Comment
-        ────────────────────────────────────────────────────────────────────
         SIGBUS      10,7,10     Core    Bus error (bad memory access)
         SIGPOLL                 Term    Pollable event (Sys V).
                                         Synonym for SIGIO
@@ -456,3 +455,8 @@ class SgeJob(QueueJob):
 class MoabJob(QueueJob):
     """Not supported"""
     QTYPE = "moab"
+
+
+class LoadLeverJob(QueueJob):
+    """Not supported"""
+    QTYPE = "loadlever"
