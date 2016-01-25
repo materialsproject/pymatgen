@@ -57,9 +57,21 @@ class Spin(Enum):
 
 
 @unique
+class OrbitalType(Enum):
+    """
+    Enum type for orbital type.
+    """
+
+    s = 0
+    p = 1
+    d = 2
+    f = 3
+
+
+@unique
 class Orbital(Enum):
     """
-    Enum type for OrbitalType. Indices are basically the azimutal quantum
+    Enum type for Orbital. Indices are basically the azimutal quantum
     number, l.
     """
 

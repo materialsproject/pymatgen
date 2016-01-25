@@ -29,7 +29,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.units import unitized
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
-from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.electronic_structure.bandstructure import BandStructure, \
     BandStructureSymmLine, get_reconstructed_band_structure
@@ -1026,7 +1026,7 @@ class Vasprun(MSONable):
                         if lm:
                             orb = Orbital(j - 1)
                         else:
-                            orb = orbs[j - 1].strip().upper()
+                            orb = OrbitalType(j - 1)
                         pdos[orb][spin] = data[:, j]
                 pdoss.append(pdos)
         elem.clear()
