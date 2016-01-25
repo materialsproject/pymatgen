@@ -1834,12 +1834,15 @@ $${qverbatim}
         return njobs, process
 
 
-class LoadLever(QueueAdapter):
+class BlueGeneAdapter(QueueAdapter):
     """
-    Adapter for LoadLever (BlueGene architecture).
-    See https://www.lrz.de/services/compute/supermuc/loadleveler/
+    Adapter for LoadLever on BlueGene architectures.
+
+    See:
+        http://www.prace-ri.eu/best-practice-guide-blue-gene-q-html/#id-1.5.4.8
+        https://www.lrz.de/services/compute/supermuc/loadleveler/
     """
-    QTYPE = "loadlever"
+    QTYPE = "bluegene"
 
     QTEMPLATE = """\
 #!/bin/bash
@@ -1860,30 +1863,29 @@ $${qverbatim}
 """
 
     def set_qname(self, qname):
-        super(LoadLever, self).set_qname(qname)
+        super(BlueGeneAdapter, self).set_qname(qname)
         if qname:
             self.qparams["class"] = qname
 
     #def set_mpi_procs(self, mpi_procs):
     #    """Set the number of CPUs used for MPI."""
-    #    super(LoadLever, self).set_mpi_procs(mpi_procs)
+    #    super(BlueGeneAdapter, self).set_mpi_procs(mpi_procs)
     #    #self.qparams["ntasks"] = mpi_procs
 
     #def set_omp_threads(self, omp_threads):
-    #    super(LoadLever, self).set_omp_threads(omp_threads)
+    #    super(BlueGeneAdapter, self).set_omp_threads(omp_threads)
     #    #self.qparams["cpus_per_task"] = omp_threads
 
     #def set_mem_per_proc(self, mem_mb):
     #    """Set the memory per process in megabytes"""
-    #    super(LoadLever, self).set_mem_per_proc(mem_mb)
+    #    super(BlueGeneAdapter, self).set_mem_per_proc(mem_mb)
     #    #self.qparams["mem_per_cpu"] = self.mem_per_proc
 
     def set_timelimit(self, timelimit):
 	"""Limits are specified with the format hh:mm:ss (hours:minutes:seconds)"""
-        super(LoadLever, self).set_timelimit(timelimit)
-        #self.qparams["wall_clock_limit"] = qu.time2pbspro(timelimit)
-        # TODO
-        self.qparams["wall_clock_limit"] = "00:10:00"
+        super(BlueGeneAdapter, self).set_timelimit(timelimit)
+        #self.qparams["wall_clock_limit"] = "00:10:00"
+        self.qparams["wall_clock_limit"] = qu.time2loadlever(timelimit)
 
     def cancel(self, job_id):
         return os.system("llcancel %d" % job_id)

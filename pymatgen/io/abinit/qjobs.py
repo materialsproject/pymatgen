@@ -457,6 +457,6 @@ class MoabJob(QueueJob):
     QTYPE = "moab"
 
 
-class LoadLeverJob(QueueJob):
+class BlueGeneJob(QueueJob):
     """Not supported"""
-    QTYPE = "loadlever"
+    QTYPE = "bluegene"
