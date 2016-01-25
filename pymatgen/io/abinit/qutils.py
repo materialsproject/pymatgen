@@ -99,6 +99,22 @@ def time2pbspro(timeval, unit="s"):
     return "%d:%d:%d" % (hours, minutes, secs)
 
 
+def time2loadlever(timeval, unit="s"):
+    """
+    Convert a number representing a time value in the given unit (Default: seconds)
+    to a string following the LoadLever convention. format hh:mm:ss (hours:minutes:seconds)
+
+    >>> assert time2loadlever(2, unit="d") == '48:00:00' 
+    """
+    h, m, s = 3600, 60, 1
+
+    timeval = Time(timeval, unit).to("s")
+    hours, minutes = divmod(timeval, h)
+    minutes, secs = divmod(minutes, m)
+
+    return "%d:%02d:%02d" % (hours, minutes, secs)
+
+
 def timelimit_parser(s):
     """Convert a float or a string into time in seconds."""
     try:

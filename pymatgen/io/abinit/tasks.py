@@ -663,12 +663,26 @@ batch_adapter:
         my_kwargs = copy.deepcopy(self._kwargs)
         my_kwargs["policy"] = TaskPolicy(autoparal=0)
 
+        # On BlueGene we need at least two qadapters.
+        # One for running jobs on the computing nodes and another one
+        # for running small jobs on the fronted. These two qadapters
+        # will have different enviroments and different executables.
+        # If None of the q-adapters has qtype==shell, we change qtype to shell
+        # and we return a new Manager for sequential jobs with the same parameters as self.
+        # If the list contains a qadapter with qtype == shell, we ignore the remaining qadapters
+        # when we build the new Manager.
+        has_shell_qad = False
+        for d in my_kwargs["qadapters"]:
+            if d["queue"]["qtype"] == "shell": has_shell_qad = True
+        if has_shell_qad:
+            my_kwargs["qadapters"] = [d for d in my_kwargs["qadapters"] if d["queue"]["qtype"] == "shell"]
+
         for d in my_kwargs["qadapters"]:
             d["queue"]["qtype"] = "shell"
             d["limits"]["min_cores"] = mpi_procs
             d["limits"]["max_cores"] = mpi_procs
 
-            # If shell_runner is specicied, replace mpi_runner with shell_runner
+            # If shell_runner is specified, replace mpi_runner with shell_runner
             # in the script used to run jobs on the frontend. 
             # On same machines based on Slurm, indeed, mpirun/mpiexec is not available 
             # and jobs should be executed with `srun -n4 exec` when running on the computing nodes
@@ -1681,6 +1695,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             err_msg = self.stderr_file.read()
 
         # Analyze the stderr file of the resource manager runtime errors.
+        # TODO: Why are we looking for errors in queue.qerr?
         qerr_info = None
         if self.qerr_file.exists:
             qerr_info = self.qerr_file.read()
