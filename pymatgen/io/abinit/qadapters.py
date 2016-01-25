@@ -357,7 +357,8 @@ hardware:
 job:
     setup:            # List of commands (str) executed before running (default empty)
     omp_env:          # Dictionary with OpenMP env variables (default empty i.e. no OpenMP)
-    modules:          # List of modules to be imported (default empty)
+    modules:          # List of modules to be imported (default empty). 
+                      # Error messages produced by module load are redirected to mods.err
     shell_env:        # Dictionary with shell env variables.
     mpi_runner:       # MPI runner i.e. mpirun, mpiexec, Default is None i.e. no mpirunner
     shell_runner:     # Used for running small sequential jobs on the front-end. Set it to None
@@ -958,12 +959,17 @@ limits:
         # Add the bash section.
         se = ScriptEditor()
 
+        # Cd to launch_dir immediately.
+        se.add_line("cd " + os.path.abspath(launch_dir))
+
         if self.setup:
             se.add_comment("Setup section")
             se.add_lines(self.setup)
             se.add_emptyline()
 
         if self.modules:
+            # stderr is redirected to mods.err file.
+            # module load 2>> mods.err
             se.add_comment("Load Modules")
             se.add_line("module purge")
             se.load_modules(self.modules)
@@ -978,9 +984,6 @@ limits:
             se.add_comment("Shell Environment")
             se.declare_vars(self.shell_env)
             se.add_emptyline()
-
-        # Cd to launch_dir
-        se.add_line("cd " + os.path.abspath(launch_dir))
 
         if self.pre_run:
             se.add_comment("Commands before execution")
