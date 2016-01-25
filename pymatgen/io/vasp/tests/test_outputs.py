@@ -25,6 +25,7 @@ import warnings
 import xml.etree.cElementTree as ET
 
 
+from pymatgen.electronic_structure.core import OrbitalType
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning
@@ -60,7 +61,7 @@ class VasprunTest(unittest.TestCase):
         vasprun = Vasprun(filepath, parse_potcar_file=False)
         orbs = list(vasprun.complete_dos.pdos[vasprun.final_structure[
             0]].keys())
-        self.assertIn("S", orbs)
+        self.assertIn(OrbitalType.s, orbs)
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath, parse_potcar_file=False)
 
