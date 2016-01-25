@@ -107,7 +107,7 @@ class ScriptEditor(object):
             self.load_module(module)
 
     def load_module(self, module):
-        self._add('module load ' + module)
+        self._add('module load ' + module + " 2>> mods.err")
 
     def add_line(self, line):
         self._add(line)
