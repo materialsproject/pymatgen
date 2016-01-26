@@ -249,11 +249,12 @@ class Directory(object):
             `ValueError` if multiple files with the given ext are found.
             This implies that this method is not compatible with multiple datasets.
         """
-
-        ext = ext if ext.startswith('_') else '_'+ext
+        ext = ext if ext.startswith('_') else '_' + ext
 
         files = []
         for f in self.list_filepaths():
+            # For the time being, we ignore DDB files in nc format.
+            if ext == "_DDB" and f.endswith(".nc"): continue
             if f.endswith(ext) or f.endswith(ext + ".nc"):
                 files.append(f)
 
@@ -266,8 +267,8 @@ class Directory(object):
 
         if len(files) > 1:
             # ABINIT users must learn that multiple datasets are bad!
-            err_msg = "Found multiple files with the same extensions:\n %s\nPlease avoid the use of mutiple datasets!" % files
-            raise ValueError(err_msg)
+            raise ValueError("Found multiple files with the same extensions:\n %s\n" % files +
+                             "Please avoid mutiple datasets!")
 
         return files[0]
 

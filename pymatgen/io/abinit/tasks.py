@@ -63,6 +63,7 @@ def straceback():
     return traceback.format_exc()
 
 def nmltostring(nml):
+    """Convert a dictionary representing a Fortran namelist into a string."""
     if not isinstance(nml,dict):
       raise ValueError("nml should be a dict !")
 
@@ -3295,6 +3296,14 @@ class PhononTask(DfptTask):
         # fix the problem that abinit uses the 1WF extension for the DDK output file but reads it with the irdddk flag
         #if self.indir.has_abiext('DDK'):
         #    self.indir.rename_abiext('DDK', '1WF')
+
+
+
+class EphTask(AbinitTask):
+    """
+    Class for electron-phonon calculations.
+    """
+    color_rgb = np.array((255, 128, 0)) / 255
 
 
 class ManyBodyTask(AbinitTask):

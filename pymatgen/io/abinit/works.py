@@ -25,7 +25,8 @@ from pymatgen.core.units import EnergyArray
 from . import wrappers
 from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
 from .tasks import (Task, AbinitTask, ScfTask, NscfTask, PhononTask, DdkTask, 
-                    BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask)
+                    BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask,
+                    EphTask)
 
 from .utils import Directory
 from .netcdf import ETSF_Reader, NetcdfReader
@@ -318,8 +319,13 @@ class NodeContainer(six.with_metaclass(abc.ABCMeta)):
         return self.register_task(*args, **kwargs)
 
     def register_bse_task(self, *args, **kwargs):
-        """Register a nscf task."""
+        """Register a Bethe-Salpeter task."""
         kwargs["task_class"] = BseTask
+        return self.register_task(*args, **kwargs)
+
+    def register_eph_task(self, *args, **kwargs):
+        """Register an electron-phonon task."""
+        kwargs["task_class"] = EphTask
         return self.register_task(*args, **kwargs)
 
 
@@ -1295,7 +1301,7 @@ class PhononWork(Work, MergeDdb):
     It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced 
     """
     @classmethod
-    def from_scf_task(cls, scf_task, qpt, tolerance=None):
+    def from_scf_task(cls, scf_task, qpoints, tolerance=None):
         """
         Construct a `PhononWork` from a :class:`ScfTask` object.
         The input file for phonons is automatically generated from the input of the ScfTask.
@@ -1303,17 +1309,19 @@ class PhononWork(Work, MergeDdb):
 
         Args:
             scf_task: ScfTask object. 
-            qpt: q-point for phonons in reduced coordinates.
+            qpoints: q-points or in reduced coordinates.
+                Accepts vector or list of q-points
         """
         if not isinstance(scf_task, ScfTask):
             raise TypeError("task %s does not inherit from ScfTask" % scf_task)
 
-        new = cls() #manager=scf_task.manager)
+        qpoints = np.reshape(qpoints, (-1,3))
 
-        multi = scf_task.input.make_ph_inputs_qpoint(qpt, tolerance=tolerance)
-
-        for ph_inp in multi:
-            new.register_phonon_task(ph_inp, deps={scf_task: "WFK"})
+        new = cls()
+        for qpt in qpoints:
+            multi = scf_task.input.make_ph_inputs_qpoint(qpt, tolerance=tolerance)
+            for ph_inp in multi:
+                new.register_phonon_task(ph_inp, deps={scf_task: "WFK"})
 
         return new
 
@@ -1328,6 +1336,38 @@ class PhononWork(Work, MergeDdb):
     #    #atask.start_and_wait()
     #    return phonons
 
+    def merge_pot1_files(self):
+        """
+        This method is called when all the q-points have been computed.
+        It runs `mrgdvdb` in sequential on the local machine to produce
+        the final DVDB file in the outdir of the `Work`.
+
+        Returns:
+            path to the output DVDB file
+        """
+        #pot1_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in self]))
+        pot1_files = []
+        for task in self:
+            pot1_files.extend(task.outdir.list_filepaths(wildcard="*_POT*"))
+        #print(pot1_files)
+
+        if not pot1_files: 
+            return None
+
+        self.history.info("Will call mrgdvdb to merge %s:\n" % str(pot1_files))
+        assert len(pot1_files) == len(self)
+
+        #if len(pot1_files) == 1:
+        # Avoid the merge. Just move the DDB file to the outdir of the work
+
+        # Final DDB file will be produced in the outdir of the work.
+        out_dvdb = self.outdir.path_in("out_DVDB")
+
+        mrgddb = wrappers.Mrgdvdb(manager=self[0].manager, verbose=0)
+        mrgddb.merge(self.outdir.path, pot1_files, out_dvdb)
+
+        return out_dvdb
+
     #@check_spectator 
     def on_all_ok(self):
         """
@@ -1337,6 +1377,9 @@ class PhononWork(Work, MergeDdb):
         """
         # Merge DDB files.
         out_ddb = self.merge_ddb_files()
+
+        # Merge DVDB files.
+        out_dvdb = self.merge_pot1_files()
 
         results = self.Results(node=self, returncode=0, message="DDB merge done")
         results.register_gridfs_files(DDB=(out_ddb, "t"))
