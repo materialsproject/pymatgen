@@ -423,6 +423,7 @@ class YamlTokenizer(collections.Iterator):
     def __init__(self, filename):
         # The position inside the file.
         self.linepos = 0
+        self.filename = filename
         self.stream = open(filename, "r")
 
     def __iter__(self):
@@ -505,7 +506,7 @@ class YamlTokenizer(collections.Iterator):
             if in_doc and line.startswith("..."):
                 return YamlDoc(text="".join(lines), lineno=lineno, tag=doc_tag)
 
-        raise StopIteration("Cannot find next YAML document")
+        raise StopIteration("Cannot find next YAML document in %s" % self.filename)
 
     def all_yaml_docs(self):
         """
