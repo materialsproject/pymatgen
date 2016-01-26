@@ -769,6 +769,7 @@ class PyFlowScheduler(object):
                 app("Flow completed successfully")
             else:
                 app("Flow %s didn't complete successfully" % repr(self.flow.workdir))
+                app("You may want to use `abirun.py FLOWDIR debug` to analyze the problem")
                 app("Shutdown message:\n%s" % msg)
 
             print("")
