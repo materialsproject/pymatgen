@@ -428,6 +428,7 @@ _EXT2VARS = {
     "HAYDR_SAVE": {"irdhaydock": 1},
     "DDK": {"irdddk": 1},
     "DDB": {},
+    "DVDB": {},
     "GKK": {},
     "DKK": {},
 }
