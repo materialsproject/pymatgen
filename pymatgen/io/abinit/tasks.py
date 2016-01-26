@@ -2724,9 +2724,10 @@ class AbinitTask(Task):
 
         return 0
 
-    def get_abitimer(self):
+    def parse_timing(self):
         """
         Parse the timer data in the main output file of Abinit.
+        Requires timopt /= 0 in the input file (usually timopt = -1)
 
         Return: :class:`AbinitTimerParser` instance, None if error.
         """

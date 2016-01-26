@@ -1178,9 +1178,10 @@ class Flow(Node, NodeContainer, MSONable):
 
         return Editor(editor=editor).edit_files(files)
 
-    def get_abitimer(self, nids=None):
+    def parse_timing(self, nids=None):
         """
         Parse the timer data in the main output file(s) of Abinit.
+        Requires timopt /= 0 in the input file (usually timopt = -1)
 
         Args:
             nids: optional list of node identifiers used to filter the tasks.
