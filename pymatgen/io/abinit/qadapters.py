@@ -96,7 +96,7 @@ class MpiRunner(object):
             #runjob --ranks-per-node 2 --exp-env OMP_NUM_THREADS --exe $ABINIT < $STDIN > $STDOUT 2> $STDERR
             #runjob -n 2 --exp-env=OMP_NUM_THREADS --exe $ABINIT < $STDIN > $STDOUT 2> $STDERR
             # exe must be absolute path or relative to cwd.
-	    bg_size, rpn = qad.bgsize_rankspernode()
+            bg_size, rpn = qad.bgsize_rankspernode()
             #num_opt = "-n " + str(qad.mpi_procs)
             num_opt = "--ranks-per-node " + str(rpn)
             cmd = " ".join([self.name, num_opt, "--exp-env OMP_NUM_THREADS", 
@@ -980,10 +980,12 @@ limits:
             se.load_modules(self.modules)
             se.add_emptyline()
 
+        se.add_comment("OpenMp Environment")
         if self.has_omp:
-            se.add_comment("OpenMp Environment")
             se.declare_vars(self.omp_env)
             se.add_emptyline()
+        else:
+            se.declare_vars({"OMP_NUM_THREADS": 1})
 
         if self.shell_env:
             se.add_comment("Shell Environment")
@@ -1882,28 +1884,27 @@ $${qverbatim}
     #    #self.qparams["mem_per_cpu"] = self.mem_per_proc
 
     def set_timelimit(self, timelimit):
-	"""Limits are specified with the format hh:mm:ss (hours:minutes:seconds)"""
+        """Limits are specified with the format hh:mm:ss (hours:minutes:seconds)"""
         super(BlueGeneAdapter, self).set_timelimit(timelimit)
-        #self.qparams["wall_clock_limit"] = "00:10:00"
         self.qparams["wall_clock_limit"] = qu.time2loadlever(timelimit)
 
     def cancel(self, job_id):
         return os.system("llcancel %d" % job_id)
 
     def bgsize_rankspernode(self):
-	"""Return (bg_size, ranks_per_node) from mpi_procs and omp_threads."""
-	bg_size = int(math.ceil((self.mpi_procs * self.omp_threads)/ self.hw.cores_per_node))
-	bg_size = max(bg_size, 32) # TODO hardcoded
-	ranks_per_node = int(math.ceil(self.mpi_procs / bg_size))
+	    """Return (bg_size, ranks_per_node) from mpi_procs and omp_threads."""
+	    bg_size = int(math.ceil((self.mpi_procs * self.omp_threads)/ self.hw.cores_per_node))
+	    bg_size = max(bg_size, 32) # TODO hardcoded
+	    ranks_per_node = int(math.ceil(self.mpi_procs / bg_size))
 
-	return bg_size, ranks_per_node
+	    return bg_size, ranks_per_node
 
     def optimize_params(self):
-	params = {}
-	bg_size, rpn = self.bgsize_rankspernode()
-        #print("in optimize params")
-        #print("mpi_procs:", self.mpi_procs, "omp_threads:",self.omp_threads)
-        #print("bg_size:",bg_size,"ranks_per_node",rpn)
+        params = {}
+        bg_size, rpn = self.bgsize_rankspernode()
+        print("in optimize params")
+        print("mpi_procs:", self.mpi_procs, "omp_threads:",self.omp_threads)
+        print("bg_size:",bg_size,"ranks_per_node",rpn)
 
         return {"bg_size": bg_size}
 
@@ -1917,7 +1918,7 @@ $${qverbatim}
         if process.returncode == 0:
             try:
                 # on JUQUEEN, output should of the form 
-		#llsubmit: The job "juqueen1c1.zam.kfa-juelich.de.281506" has been submitted.
+                #llsubmit: The job "juqueen1c1.zam.kfa-juelich.de.281506" has been submitted.
                 token = out.split()[3]
                 s = token.split(".")[-1].replace('"', "")
                 queue_id = int(s)
