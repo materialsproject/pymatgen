@@ -1350,6 +1350,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.reset()
         return 1
 
+    def with_fixed_mpi_omp(self, mpi_procs, omp_threads):
+        """
+        Disable autoparal and force execution with `mpi_procs` MPI processes 
+        and `omp_threads` OpenMP threads. Useful for generating for benchmarks.
+        """
+        manager = self.manager if hasattr(self, "manager") else self.flow.manager
+        self.manager = manager.new_with_fixed_mpi_omp(mpi_procs, omp_threads)
+
     #@check_spectator 
     def _on_done(self):
         self.fix_ofiles()
