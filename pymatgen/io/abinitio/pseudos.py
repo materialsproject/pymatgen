@@ -2895,6 +2895,7 @@ class DojoReport(dict):
         print(self['ebands'][ecut]['GSR-nc'])
         from abipy.abilab import abiopen
         ebands = abiopen(self['ebands'][self['ebands'].keys()[0]]['GSR-nc']).ebands
-        fig = ebands.plot_with_edos(ebands.get_edos())
+        print("fermi energy: ", ebands.fermie)
+        fig = ebands.plot_with_edos(ebands.get_edos(width=0.05, step=0.02))
         return fig
     
