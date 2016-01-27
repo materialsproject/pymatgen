@@ -8,12 +8,13 @@ import unittest
 import pickle
 import collections
 
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, get_el_sp
 from pymatgen.core.composition import Composition
 from copy import deepcopy
 
 
-class ElementTestCase(unittest.TestCase):
+class ElementTestCase(PymatgenTest):
 
     def test_init(self):
         self.assertEqual("Fe", Element("Fe").symbol, "Fe test failed")
@@ -125,11 +126,15 @@ class ElementTestCase(unittest.TestCase):
         o = pickle.dumps(el1)
         self.assertEqual(el1, pickle.loads(o))
 
+        #Test all elements up to Uranium
+        for i in range(1, 93):
+            self.serialize_with_pickle(Element.from_Z(i), test_eq=True)
+
     def test_print_periodic_table(self):
         Element.print_periodic_table()
 
 
-class SpecieTestCase(unittest.TestCase):
+class SpecieTestCase(PymatgenTest):
 
     def setUp(self):
         self.specie1 = Specie.from_string("Fe2+")
@@ -175,6 +180,8 @@ class SpecieTestCase(unittest.TestCase):
 
     def test_pickle(self):
         self.assertEqual(self.specie1, pickle.loads(pickle.dumps(self.specie1)))
+        for i in range(1, 5):
+            self.serialize_with_pickle(getattr(self, "specie%d" % i) , test_eq=True)
 
     def test_get_crystal_field_spin(self):
         self.assertEqual(Specie("Fe", 2).get_crystal_field_spin(), 4)
