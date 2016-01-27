@@ -261,6 +261,9 @@ class ChargeBalanceFilter(AbstractStructureFilter):
     decorated, as structures with only elemental sites are automatically
     assumed to have net charge of 0.
     """
+    def __init__(self):
+        pass
+
     def test(self, structure):
         if structure.charge == 0.0:
             return True

@@ -20,6 +20,7 @@ build
 setuptools*
 .ipynb_checkpoints
 .cache
+.tox
 
 gulptmp_4_1
 

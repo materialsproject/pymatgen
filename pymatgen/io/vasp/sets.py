@@ -641,8 +641,8 @@ class MITMDVaspInputSet(DictVaspInputSet):
         #MD default settings
         defaults = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
                     'EDIFF': 0.000001, 'LSCALU': False, 'LCHARG': False,
-                    'LPLANE': False, 'LWAVE': True, 'ICHARG': 0, 'ISMEAR': 0,
-                    'SIGMA': 0.05, 'NELMIN': 4, 'LREAL': True, 'BMIX': 1,
+                    'LPLANE': False, 'LWAVE': True, 'ISMEAR': 0,
+                    'NELMIN': 4, 'LREAL': True, 'BMIX': 1,
                     'MAXMIX': 20, 'NELM': 500, 'NSIM': 4, 'ISYM': 0,
                     'ISIF': 0, 'IBRION': 0, 'NBLOCK': 1, 'KBLOCK': 100,
                     'SMASS': 0, 'POTIM': time_step, 'PREC': 'Normal',
@@ -930,8 +930,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
 
         # Prefer to use k-point scheme from previous run
         new_kpoints = mpsvip.get_kpoints(structure)
-        if previous_kpoints.style[0] != new_kpoints.style[0]:
-            if previous_kpoints.style[0] == "M" and \
+        if previous_kpoints.style != new_kpoints.style:
+            if previous_kpoints.style == Kpoints.supported_modes.Monkhorst and \
                     SpacegroupAnalyzer(structure, 0.1).get_lattice_type() != \
                     "hexagonal":
                 k_div = (kp + 1 if kp % 2 == 1 else kp
@@ -1035,7 +1035,8 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                 weights.append(0.0)
                 all_labels.append(labels[k])
             return Kpoints(comment="HSE run along symmetry lines",
-                           style="Reciprocal", num_kpts=len(kpts),
+                           style=Kpoints.supported_modes.Reciprocal,
+                           num_kpts=len(kpts),
                            kpts=kpts, kpts_weights=weights, labels=all_labels)
 
         elif self.mode == "Uniform":
@@ -1050,7 +1051,8 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                 kpts.append(k)
                 weights.append(0.0)
             return Kpoints(comment="HSE run on uniform grid",
-                           style="Reciprocal", num_kpts=len(kpts),
+                           style=Kpoints.supported_modes.Reciprocal,
+                           num_kpts=len(kpts),
                            kpts=kpts, kpts_weights=weights)
 
     def as_dict(self):
@@ -1138,10 +1140,12 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         """
         if self.mode == "Line":
             kpath = HighSymmKpath(structure)
-            frac_k_points, k_points_labels = kpath.get_kpoints(line_density=self.kpoints_line_density,
-                                                               coords_are_cartesian=False)
+            frac_k_points, k_points_labels = kpath.get_kpoints(
+                line_density=self.kpoints_line_density,
+                coords_are_cartesian=False)
             return Kpoints(comment="Non SCF run along symmetry lines",
-                           style="Reciprocal", num_kpts=len(frac_k_points),
+                           style=Kpoints.supported_modes.Reciprocal,
+                           num_kpts=len(frac_k_points),
                            kpts=frac_k_points, labels=k_points_labels,
                            kpts_weights=[1] * len(frac_k_points))
         else:
@@ -1158,7 +1162,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 kpts.append(k[0])
                 weights.append(int(k[1]))
             return Kpoints(comment="Non SCF run on uniform grid",
-                           style="Reciprocal", num_kpts=len(ir_kpts),
+                           style=Kpoints.supported_modes.Reciprocal,
+                           num_kpts=len(ir_kpts),
                            kpts=kpts, kpts_weights=weights)
 
     @staticmethod
@@ -1434,6 +1439,40 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
         return incar_settings
 
 
+class MVLElasticInputSet(DictVaspInputSet):
+    """
+    MVL denotes VASP input sets that are implemented by the Materials Virtual
+    Lab (http://www.materialsvirtuallab.org) for various research.
+
+    This input set is used to calculate elastic constants in VASP. It is used
+    in the following work::
+
+        Z. Deng, Z. Wang, I.-H. Chu, J. Luo, S. P. Ong.
+        “Elastic Properties of Alkali Superionic Conductor Electrolytes
+        from First Principles Calculations”, J. Electrochem. Soc.
+        2016, 163(2), A67-A74. doi: 10.1149/2.0061602jes
+
+    To read the elastic constants, you may use the Outcar class which parses the
+    elastic constants.
+
+    Args:
+        scale (float): POTIM parameter. The default of 0.015 is usually fine,
+            but some structures may require a smaller step.
+        user_incar_settings (dict): A dict specifying additional incar
+            settings.
+    """
+
+    def __init__(self, potim=0.015, user_incar_settings=None):
+        super(MVLElasticInputSet, self).__init__(
+            "Materials Virtual Lab Elastic Constant Calculation",
+            loadfn(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")))
+        self.user_incar_settings = user_incar_settings or {}
+        self.incar_settings.update(self.user_incar_settings)
+        self.incar_settings.update({"IBRION": 6, "NFREE": 2, "POTIM": potim})
+        if "NPAR" in self.incar_settings:
+            del self.incar_settings["NPAR"]
+
+
 def batch_write_vasp_input(structures, vasp_input_set, output_dir,
                            make_dir_if_not_present=True, subfolder=None,
                            sanitize=False, include_cif=False):
@@ -1472,33 +1511,3 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
         )
 
 
-class MVLElasticInputSet(DictVaspInputSet):
-    """
-    MVL denotes VASP input sets that are implemented by the Materials Virtual
-    Lab (http://www.materialsvirtuallab.org) for various research.
-
-    This input set is used to calculate elastic constants in VASP. It is used
-    in the following work::
-
-        Deng, Z.; Wang, Z.; Chu, I-H.;  Luo, J.; Ong, S. P.,
-        “Elastic Properties of Alkali Superionic Conductor Electrolytes
-        from First Principles Calculations”, accepted.
-
-    To read the elastic constants, you may use the Outcar class which parses the
-    elastic constants.
-
-    Args:
-        user_incar_settings (dict): A dict specifying additional incar
-            settings. The key parameter is POTIM. The default of 0.015 is
-            usually fine, but some structures may require a smaller step.
-    """
-
-    def __init__(self, user_incar_settings=None):
-        super(MVLElasticInputSet, self).__init__(
-            "Materials Virtual Lab Elastic Constant Calculation",
-            loadfn(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")))
-        self.user_incar_settings = user_incar_settings or {}
-        self.incar_settings.update(self.user_incar_settings)
-        self.incar_settings.update({"IBRION": 6, "NFREE": 2, "POTIM": 0.015})
-        if "NPAR" in self.incar_settings:
-            del self.incar_settings["NPAR"]

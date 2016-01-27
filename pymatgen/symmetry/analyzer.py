@@ -22,10 +22,9 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 9, 2012"
 
-import re
 import itertools
 import logging
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 import math
 from math import cos

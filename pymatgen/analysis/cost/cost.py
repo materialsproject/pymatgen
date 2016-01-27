@@ -19,8 +19,10 @@ import itertools
 from monty.design_patterns import singleton
 from monty.string import unicode2str
 import six
+
+import scipy.constants as const
+
 from pymatgen import Composition, Element
-from pymatgen.core.physical_constants import AVOGADROS_CONST
 from pymatgen.matproj.snl import is_valid_bibtex
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
@@ -103,8 +105,7 @@ class CostDBCSV(CostDB):
         reader = csv.reader(open(filename, "rt"), quotechar=unicode2str("|"))
         for row in reader:
             comp = Composition(row[0])
-            cost_per_mol = float(row[1]) * comp.weight.to("kg") * \
-                           AVOGADROS_CONST
+            cost_per_mol = float(row[1]) * comp.weight.to("kg") * const.N_A
             pde = CostEntry(comp.formula, cost_per_mol, row[2], row[3])
             chemsys = "-".join(sorted([el.symbol
                                        for el in pde.composition.elements]))
@@ -186,4 +187,4 @@ class CostAnalyzer(object):
         """
         comp = comp if isinstance(comp, Composition) else Composition(comp)
         return self.get_cost_per_mol(comp) / (
-            comp.weight.to("kg") * AVOGADROS_CONST)
+            comp.weight.to("kg") * const.N_A)

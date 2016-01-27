@@ -24,12 +24,11 @@ import collections
 
 from monty.functools import lru_cache
 
-from pyhull.simplex import Simplex
-
 from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
     GrandPotentialPhaseDiagram, get_facets
 from pymatgen.analysis.reaction_calculator import Reaction
+from pymatgen.util.coord_utils import Simplex
 
 
 class PDAnalyzer(object):
@@ -78,7 +77,7 @@ class PDAnalyzer(object):
                              ''.format(comp, self._pd.elements))
         c = [comp.get_atomic_fraction(e) for e in self._pd.elements[1:]]
         for f, s in zip(self._pd.facets, self._pd.simplices):
-            if s.in_simplex(c, PDAnalyzer.numerical_tol / 10):
+            if Simplex(s).in_simplex(c, PDAnalyzer.numerical_tol / 10):
                 return f
         raise RuntimeError("No facet found for comp = {}".format(comp))
 
@@ -138,7 +137,7 @@ class PDAnalyzer(object):
         comp_list = [self._pd.qhull_entries[i].composition for i in facet]
         m = self._make_comp_matrix(comp_list)
         compm = self._make_comp_matrix([entry.composition])
-        decomp_amts = np.linalg.solve(m.T, compm.T)[:,0]
+        decomp_amts = np.linalg.solve(m.T, compm.T)[:, 0]
         decomp = {self._pd.qhull_entries[facet[i]]: decomp_amts[i]
                   for i in range(len(decomp_amts))
                   if abs(decomp_amts[i]) > PDAnalyzer.numerical_tol}

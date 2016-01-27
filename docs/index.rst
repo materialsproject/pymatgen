@@ -38,6 +38,23 @@ member of `pymatgen's Google Groups page`_.
 
     *The code is mightier than the pen.*
 
+Examples
+========
+
+A good way to explore the functionality of pymatgen is to look at examples.
+Please check out the ipython notebooks at our :doc:`examples page </examples>`.
+Below are a quick look at some of the graphical output possible.
+
+.. figure:: _static/examples.png
+   :width: 100%
+   :alt: Examples
+   :align: center
+
+   Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
+   Bottom left: Calculated bandstructure plot using pymatgen's parsing and
+   plotting utilities. Bottom right: Arrhenius plot using pymatgen's
+   DiffusionAnalyzer.
+
 Why use pymatgen?
 =================
 
@@ -62,6 +79,12 @@ several advantages over other codes out there:
    manipulations are extremely fast and are in fact comparable to codes
    written in other languages. Pymatgen also comes with a complete system for
    handling periodic boundary conditions.
+5. **It will be around.** Pymatgen is not a pet research project. It is used in
+   the well-established Materials Project. It is also actively being developed
+   and maintained by the Materials Virtual Lab, the ABINIT group and many other
+   research groups. The plan is to make sure pymatgen will stand the test of
+   time and be the de facto analysis code for most materials and structural
+   analysis.
 
 With effect from version 3.0, pymatgen now supports both Python 2.7 as well
 as Python 3.x. For developers working to add new features to pymatgen, this
@@ -165,6 +188,31 @@ developmental version, make sure you have nose installed and then just type::
     nosetests
 
 in the pymatgen root directory.
+
+Note on Shared Compute Cluster Installation
+-------------------------------------------
+
+If you are installing pymatgen on shared computing clusters, e.g., the XSEDE
+or NERSC resources in the US, there are several things you need to take note of:
+
+1. Some older clusters have Python 2.6 or older by default. Pymatgen requires
+   Python 2.7 or newer. Sometimes, the cluster may have Python 2.7 that you
+   can load, e.g., using "module load python/2.7". Otherwise, you are out of
+   luck and you need to contact the cluster admin to install python 2.7 or
+   you can try to install it in your home directory.
+2. Unless you are the sys admin, you will not have write access to the default
+   locations that python installs packages. What you need to do is to install
+   pymatgen (and other dependencies) using the "--user" option::
+
+    pip install pymatgen --user
+
+   or::
+
+    python setup.py develop --user
+
+   This will install pymatgen in your $HOME/.local/lib/python2.7/site-packages.
+   You may need to add this to your PYTHONPATH variable, e.g., in your
+   .bash_profile if it is not automatically set.
 
 "Sample" Docker version
 -----------------------
@@ -317,12 +365,6 @@ strongly encouraged to explore the :doc:`usage pages </usage>` (toc given below)
 
    usage
 
-Examples
---------
-
-A good way to explore the functionality of pymatgen is to look at examples.
-Please check out the ipython notebooks at our :doc:`examples page </examples>`.
-
 API documentation
 -----------------
 
@@ -398,6 +440,9 @@ Some add-ons are available for pymatgen today:
    provides tools to create databases of calculated run data using pymatgen.
 2. The `custodian`_ package provides a JIT job management and error
    correction for calculations.
+3. The `pymatgen-diffusion <https://pypi.python.org/pypi/pymatgen-diffusion>`_
+   by the `Materials Virtual Lab`_ provides additional useful analyses for
+   diffusion in materials.
 
 Contributing
 ============
