@@ -84,7 +84,8 @@ class MpiRunner(object):
         if exec_args:
             executable = executable + " " + " ".join(list_strings(exec_args))
 
-        if self.name in ["mpirun", "mpiexec", "srun"]:
+        basename = os.path.basename(self.name)
+        if basename in ["mpirun", "mpiexec", "srun"]:
             if self.type is None:
                 #$MPIRUN -n $MPI_PROCS $EXECUTABLE < $STDIN > $STDOUT 2> $STDERR
                 num_opt = "-n " + str(qad.mpi_procs)
@@ -92,7 +93,7 @@ class MpiRunner(object):
             else:
                 raise NotImplementedError("type %s is not supported!" % self.type)
 
-        elif self.name == "runjob":
+        elif basename == "runjob":
             #runjob --ranks-per-node 2 --exp-env OMP_NUM_THREADS --exe $ABINIT < $STDIN > $STDOUT 2> $STDERR
             #runjob -n 2 --exp-env=OMP_NUM_THREADS --exe $ABINIT < $STDIN > $STDOUT 2> $STDERR
             # exe must be absolute path or relative to cwd.
@@ -102,7 +103,8 @@ class MpiRunner(object):
             cmd = " ".join([self.name, num_opt, "--exp-env OMP_NUM_THREADS", 
                            "--exe `which " + executable + "` ", stdin, stdout, stderr])
         else:
-            assert qad.mpi_procs == 1
+            if qad.mpi_procs != 1:
+                raise ValueError("Cannot use mpi_procs > when mpi_runner basename=%" % basename)
             cmd = " ".join([executable, stdin, stdout, stderr])
 
         return cmd
