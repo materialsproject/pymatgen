@@ -426,17 +426,17 @@ class YamlTokenizer(collections.Iterator):
         self.linepos = 0
         self.filename = filename
 
-	try:
-           self.stream = open(filename, "r")
+        try:
+            self.stream = open(filename, "r")
         except IOError as exc:
             # Look for associated error file.
             root, ext = os.path.splitext(self.filename)
             errfile = root + ".err"
             if os.path.exists(errfile) and errfile != self.filename:
-		print("Found error file: %s" % errfile)
-            	with open(errfile, "rt") as fh:
-		   print(fh.read())
-	    raise exc
+                print("Found error file: %s" % errfile)
+                with open(errfile, "rt") as fh:
+                    print(fh.read())
+            raise exc
 
     def __iter__(self):
         return self

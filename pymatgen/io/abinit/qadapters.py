@@ -1927,7 +1927,7 @@ $${qverbatim}
             except:
                 # probably error parsing job code
                 logger.critical("Could not parse job id following llsubmit...")
-		raise
+                raise
 
         return SubmitResults(qid=queue_id, out=out, err=err, process=process)
 
