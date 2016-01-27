@@ -19,6 +19,7 @@ build
 .idea
 setuptools*
 .ipynb_checkpoints
+.cache
 
 gulptmp_4_1
 
