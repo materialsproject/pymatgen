@@ -137,7 +137,11 @@ class PymatgenTest(unittest.TestCase):
             # Test for equality
             if test_eq:
                 for old_obj, new_obj in zip(objects, new_objects):
-                    self.assert_equal(old_obj, new_obj)
+                    #print("old_obj:", type(old_obj))
+                    #print(old_obj)
+                    #print("new_obj:", type(new_obj))
+                    #print(new_obj)
+                    self.assertEqual(old_obj, new_obj)
 
             # Save the deserialized objects and test for equality.
             objects_by_protocol.append(new_objects)
