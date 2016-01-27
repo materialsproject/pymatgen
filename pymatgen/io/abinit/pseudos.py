@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
-This module provides objects describing the basic parameters of the 
+This module provides objects describing the basic parameters of the
 pseudopotentials used in Abinit, and a parser to instantiate pseudopotential objects..
 """
 from __future__ import unicode_literals, division, print_function
@@ -13,7 +13,6 @@ import abc
 import collections
 import json
 import six
-#import pprint
 import numpy as np
 
 from warnings import warn
@@ -28,7 +27,7 @@ from monty.dev import deprecated
 from monty.json import MSONable, MontyDecoder
 
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
-from pymatgen.core.periodic_table import PeriodicTable, Element
+from pymatgen.core.periodic_table import Element
 from pymatgen.serializers.json_coders import pmg_serialize
 from .eos import EOS
 
@@ -44,9 +43,6 @@ __all__ = [
 __author__ = "Matteo Giantomassi"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
-
-
-_PTABLE = PeriodicTable()
 
 # Tools and helper functions.
 
@@ -102,7 +98,7 @@ def str2l(s):
 
 class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
     """
-    Abstract base class defining the methods that must be 
+    Abstract base class defining the methods that must be
     implemented by the concrete pseudopotential classes.
     """
 
@@ -131,8 +127,8 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         # A more robust algorithm would use md5
         #return self.filepath == other.filepath
         return (self.md5 == other.md5 and
-                self.__class__ == other.__class__ and 
-                self.Z == other.Z and 
+                self.__class__ == other.__class__ and
+                self.Z == other.Z and
                 self.Z_val == other.Z_val and
                 self.l_max == other.l_max )
 
@@ -195,9 +191,9 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
     def element(self):
         """Pymatgen :class:`Element`."""
         try:
-            return _PTABLE[self.Z]
+            return Element.from_Z(self.Z)
         except (KeyError, IndexError):
-            return _PTABLE[int(self.Z)]
+            return Element.from_Z(int(self.Z))
 
     @property
     def symbol(self):
@@ -348,7 +344,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         """
         Read the `DOJO_REPORT` section and set the `dojo_report` attribute.
         returns {} if section is not present.
-        """ 
+        """
         self.dojo_report = DojoReport.from_file(self.path)
         return self.dojo_report
 
@@ -414,7 +410,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
     def hint_for_accuracy(self, accuracy="normal"):
         """
-        Returns an hint object with parameters such as ecut [Ha] and 
+        Returns an hint object with parameters such as ecut [Ha] and
         aug_ratio for given accuracy. Returns None if no hint is available.
 
         Args:
@@ -441,7 +437,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
     def open_pspsfile(self, ecut=20, pawecutdg=None):
         """
-        Calls Abinit to compute the internal tables for the application of the 
+        Calls Abinit to compute the internal tables for the application of the
         pseudopotential part. Returns :class:`PspsFile` object providing methods
         to plot and analyze the data or None if file is not found or it's not readable.
 
@@ -459,7 +455,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         structure = Structure(lattice, [self.element], coords=[[0, 0, 0]])
 
         if self.ispaw and pawecutdg is None: pawecudg = ecut * 4
-        inp = gs_input(structure, pseudos=[self], ecut=ecut, pawecutdg=pawecutdg, 
+        inp = gs_input(structure, pseudos=[self], ecut=ecut, pawecutdg=pawecutdg,
                        spin_mode="unpolarized", kppa=1)
         # Add prtpsps = -1 to make Abinit print the PSPS.nc file and stop.
         inp["prtpsps"] = -1
@@ -520,7 +516,7 @@ class PawPseudo(six.with_metaclass(abc.ABCMeta, object)):
     #    Returns 0.0 if nlcc is not used.
     #    """
     #    return 0.0
-    #                                                                           
+    #
 
     #@property
     #def has_nlcc(self):
@@ -626,13 +622,13 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
 #class Hint(namedtuple("Hint", "ecut aug_ratio")):
 class Hint(object):
     """
-    Suggested value for the cutoff energy [Hartree units] 
+    Suggested value for the cutoff energy [Hartree units]
     and the cutoff energy for the dense grid (only for PAW pseudos)
     """
     def __init__(self, ecut, pawecutdg=None):
         self.ecut = ecut
         self.pawecutdg = ecut if pawecutdg is None else pawecutdg
-        
+
     @pmg_serialize
     def as_dict(self):
         return dict(ecut=self.ecut, pawecutdg=self.pawecutdg)
@@ -889,7 +885,7 @@ class NcAbinitHeader(AbinitHeader):
 
         for (lineno, line) in enumerate(lines):
             header.append(line)
-            if lineno == 2: 
+            if lineno == 2:
                 # Read lmax.
                 tokens = line.split()
                 pspcod, pspxc, lmax, lloc = map(int, tokens[:4])
@@ -989,7 +985,7 @@ class PawAbinitHeader(AbinitHeader):
         # 2 1  921 2.500000000000E-03                : mesh 2, type,size,rad_step[,log_step]
         # 3 3  391 1.1803778368E-05 3.5000000000E-02 : mesh 3, type,size,rad_step[,log_step]
         #  2.3000000000                          : r_cut(SPH)
-        # 2 0.                
+        # 2 0.
 
         # Example
         #C  (US d-loc) - PAW data extracted from US-psp (D.Vanderbilt) - generated by USpp2Abinit v2.3.0
@@ -1119,7 +1115,7 @@ class PseudoParser(object):
         for fname in os.listdir(dirname):
             root, ext = os.path.splitext(fname)
             path = os.path.join(dirname, fname)
-            if (ext in exclude_exts or fname in exclude_fnames or 
+            if (ext in exclude_exts or fname in exclude_fnames or
                 fname.startswith(".") or not os.path.isfile(path)): continue
             paths.append(path)
 
@@ -1195,7 +1191,7 @@ class PseudoParser(object):
         """
         Read and parse a pseudopotential file. Main entry point for client code.
 
-        Returns: 
+        Returns:
             pseudopotential object or None if filename is not a valid pseudopotential file.
         """
         path = os.path.abspath(filename)
@@ -1206,7 +1202,7 @@ class PseudoParser(object):
 
         ppdesc = self.read_ppdesc(path)
 
-        if ppdesc is None: 
+        if ppdesc is None:
             return None
 
         psp_type = ppdesc.psp_type
@@ -1309,7 +1305,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     def __getstate__(self):
         """
         Return state is pickled as the contents for the instance.
-                                                                                      
+
         In this case we just remove the XML root element process since Element object cannot be pickled.
         """
         return {k: v for k, v in self.__dict__.items() if k not in ["_root"]}
@@ -1338,7 +1334,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     def l_max(self):
         """Maximum angular momentum."""
         return None
-                                                        
+
     @property
     def l_local(self):
         """Angular momentum used for the local part."""
@@ -1616,7 +1612,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
     def as_table(cls, items):
         """
         Return an instance of :class:`PseudoTable` from the iterable items.
-        """ 
+        """
         if isinstance(items, cls): return items
         return cls(items)
 
@@ -1630,7 +1626,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
             exts: List of files extensions. if exts == "all_files"
                     we try to open all files in top
             exclude_dirs: Wildcard used to exclude directories.
-        
+
         return: :class:`PseudoTable` sorted by atomic number Z.
         """
         pseudos = []
@@ -1776,7 +1772,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
 
     def all_combinations_for_elements(self, element_symbols):
         """
-        Return a list with all the the possible combination of pseudos 
+        Return a list with all the the possible combination of pseudos
         for the given list of element_symbols.
         Each item is a list of pseudopotential objects.
 
@@ -1808,7 +1804,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
         if not pseudos or (len(pseudos) > 1 and not allow_multi):
             raise ValueError("Found %d occurrences of symbol %s" % (len(pseudos), symbol))
 
-        if not allow_multi: 
+        if not allow_multi:
             return pseudos[0]
         else:
             return pseudos
@@ -1845,7 +1841,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
         symbols = list_strings(symbols)
         exclude = symbols[0].startswith("-")
 
-        if exclude: 
+        if exclude:
             if not all(s.startswith("-") for s in symbols):
                 raise ValueError("When excluding symbols, all strings must start with `-`")
             symbols = [s[1:] for s in symbols]
@@ -1860,7 +1856,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
                 if p.symbol not in symbols: continue
 
             pseudos.append(p)
-    
+
         if ret_list:
             return pseudos
         else:
@@ -1874,7 +1870,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
             structure: pymatgen :class:`Structure`.
 
         Raises:
-            `ValueError` if one of the chemical symbols is not found or 
+            `ValueError` if one of the chemical symbols is not found or
             multiple occurences are present in the table.
         """
         symbols = structure.symbol_set
@@ -1982,7 +1978,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
 
     def get_dojo_dataframe(self, **kwargs):
         """
-        Buid a pandas :class:`DataFrame` with the most important parameters extracted from the 
+        Buid a pandas :class:`DataFrame` with the most important parameters extracted from the
         `DOJO_REPORT` section of each pseudo in the table.
 
         Returns:
@@ -1994,7 +1990,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
         accuracies = ["low", "normal", "high"]
 
         trial2keys = {
-            "deltafactor": ["dfact_meV", "dfactprime_meV"] + ["v0", "b0_GPa", "b1"], 
+            "deltafactor": ["dfact_meV", "dfactprime_meV"] + ["v0", "b0_GPa", "b1"],
             "gbrv_bcc": ["a0_rel_err"],
             "gbrv_fcc": ["a0_rel_err"],
             "phonon": "all",
@@ -2034,9 +2030,9 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
                     
                     if data is None: continue
 
-                    # if the current trial has an entry for this ecut change notting, else we take the 
-                    # smallest, the middle the highest ecut available for this trials 
-                    # precausion, normally eigther there are hint or not in the second case they are all set to -1
+                    # if the current trial has an entry for this ecut change nothing, else we take the 
+                    # smallest, the middle and the highest ecut available for this trials 
+                    # precausion, normally either there are hints or not. in the second case they are all set to -1
                     ecut_acc_trial = dict(
                         low=sorted(data.keys())[0],
                         normal=sorted(data.keys())[int(len(data.keys())/2)],
@@ -2055,9 +2051,9 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
                             d.update({acc + "_" + trial: data[ecut]})
                         else:
                             if trial.startswith("gbrv"):
-                                d.update({acc + "_" + trial + "_" + k: float(data[ecut][k]) for k in keys}) 
+                                d.update({acc + "_" + trial + "_" + k: float(data[ecut][k]) for k in keys})
                             else:
-                                d.update({acc + "_" + k: float(data[ecut][k]) for k in keys}) 
+                                d.update({acc + "_" + k: float(data[ecut][k]) for k in keys})
 
             except Exception as exc:
                 logger.warning("%s raised %s" % (p.basename, exc))
@@ -2200,10 +2196,10 @@ class DojoDataFrame(DataFrame):
         from tabulate import tabulate
         if columns is None:
             accuracies = self.ALL_ACCURACIES
-            columns = [acc + "_dfact_meV" for acc in accuracies] 
-            columns += [acc + "_ecut" for acc in accuracies] 
-            columns += [acc + "_gbrv_fcc_a0_rel_err" for acc in accuracies] 
-            columns += [acc + "_gbrv_bcc_a0_rel_err" for acc in accuracies] 
+            columns = [acc + "_dfact_meV" for acc in accuracies]
+            columns += [acc + "_ecut" for acc in accuracies]
+            columns += [acc + "_gbrv_fcc_a0_rel_err" for acc in accuracies]
+            columns += [acc + "_gbrv_bcc_a0_rel_err" for acc in accuracies]
 
         #return self[columns].to_html()
         tablefmt = "grid"
@@ -2217,18 +2213,18 @@ class DojoDataFrame(DataFrame):
     def get_trials(self, accuracies="all"):
         accuracies = self.ALL_ACCURACIES if accuracies == "all" else list_strings(accuracies)
 
-        columns = [acc + "_dfact_meV" for acc in accuracies] 
-        columns += [acc + "_ecut" for acc in accuracies] 
-        columns += [acc + "_gbrv_fcc_a0_rel_err" for acc in accuracies] 
-        columns += [acc + "_gbrv_bcc_a0_rel_err" for acc in accuracies] 
+        columns = [acc + "_dfact_meV" for acc in accuracies]
+        columns += [acc + "_ecut" for acc in accuracies]
+        columns += [acc + "_gbrv_fcc_a0_rel_err" for acc in accuracies]
+        columns += [acc + "_gbrv_bcc_a0_rel_err" for acc in accuracies]
         return self.__class__(data=self[columns])
 
     def select_rows(self, rows):
         if not isinstance(rows, (list, tuple)): rows = [rows]
-        
+
         data = []
         for index, entry in self.iterrows():
-            element = _PTABLE[entry.Z]
+            element = Element.from_Z(entry.Z)
             if element.row in rows:
                 data.append(entry)
 
@@ -2237,7 +2233,7 @@ class DojoDataFrame(DataFrame):
     def select_family(self, family):
         data = []
         for index, entry in self.iterrows():
-            element = _PTABLE[entry.Z]
+            element = Element.from_Z(entry.Z)
             # e.g element.is_alkaline
             if getattr(element, "is_" + family):
                 data.append(entry)
@@ -2265,7 +2261,7 @@ class DojoDataFrame(DataFrame):
 
         fig, ax_list = plt.subplots(nrows=len(trials), ncols=1, sharex=True, sharey=False, squeeze=True)
         #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(trials), ncols=1, sharex=True, sharey=False, squeeze=True)
-                                                                                                                      
+
         # See also http://matplotlib.org/examples/pylab_examples/barchart_demo.html
         for i, (trial, ax) in enumerate(zip(trials, ax_list)):
             what = self._TRIALS2KEY[trial]
@@ -2273,11 +2269,11 @@ class DojoDataFrame(DataFrame):
             minval, maxval = np.inf, -np.inf
             for acc in accuracies:
                 col = acc + "_" + what
-                legend = i == 0 
+                legend = i == 0
                 data = self[col]
                 minval, maxval = min(minval, data.min()), max(maxval, data.max())
                 data.plot(ax=ax, legend=legend, use_index=True, label=acc, **self.ACC2PLTOPTS[acc])
-                #data.plot(ax=ax, kind="bar") 
+                #data.plot(ax=ax, kind="bar")
 
                 if i == 0:
                     ax.legend(loc='best', shadow=True, frameon=True) #fancybox=True)
@@ -2288,7 +2284,7 @@ class DojoDataFrame(DataFrame):
 
             # Set ylimits
             #stepsize = None
-            #if "gbrv" in trial: 
+            #if "gbrv" in trial:
             #    ax.hlines(0.0, 0, len(data.index))
             #    #start, end = -0.6, +0.6
             #    start, end = max(-0.6, minval), min(+0.6, maxval)
@@ -2376,7 +2372,7 @@ class DojoReport(dict):
         ecut_list = list(dense_left) + list(dense_right) + list(coarse_high)
         return cls(ecut_list=ecut_list, symbol=symbol) #, **{k: {}: for k in self.ALL_TRIALS})
 
-    def __init__(self, *args, **kwargs): 
+    def __init__(self, *args, **kwargs):
         super(DojoReport, self).__init__(*args, **kwargs)
 
         try:
@@ -2514,10 +2510,10 @@ class DojoReport(dict):
 
     def find_missing_entries(self):
         """
-        check the DojoReport. 
-        This function tests if each trial contains an ecut entry. 
+        check the DojoReport.
+        This function tests if each trial contains an ecut entry.
         Return a dictionary {trial_name: [list_of_missing_ecuts]}
-        mapping the name of the Dojo trials to the list of ecut values that are missing 
+        mapping the name of the Dojo trials to the list of ecut values that are missing
         """
         d = {}
 
@@ -2525,7 +2521,7 @@ class DojoReport(dict):
             data = self.get(trial, None)
             if data is None:
                 # Gbrv results do not contain noble gases so ignore the error
-                if "gbrv" in trial and self.element.is_noble_gas: 
+                if "gbrv" in trial and self.element.is_noble_gas:
                     assert data is None
                     continue
                 d[trial] = self.ecuts
@@ -2601,7 +2597,7 @@ class DojoReport(dict):
         #ax.set_xlim(0, max(xs))
 
         # Use logscale if possible.
-        if all(ediffs[:-1] > 0): 
+        if all(ediffs[:-1] > 0):
             ax.set_yscale("log")
             ax.set_xlim(xs[0]-1, xs[-2]+1)
 
@@ -2614,7 +2610,7 @@ class DojoReport(dict):
 
         Args:
             ax: matplotlib :class:`Axes` or None if a new figure should be created.
-            
+
         ================  ==============================================================
         kwargs            Meaning
         ================  ==============================================================
@@ -2641,7 +2637,7 @@ class DojoReport(dict):
             eos_fit = EOS.DeltaFactor().fit(volumes/num_sites, etotals/num_sites)
 
             label = "ecut %.1f" % ecut if i % 2 == 0 else ""
-            label = "ecut %.1f" % ecut 
+            label = "ecut %.1f" % ecut
             eos_fit.plot(ax=ax, text=False, label=label, color=cmap(i/num_ecuts, alpha=1), show=False)
 
         return fig
@@ -2663,7 +2659,7 @@ class DojoReport(dict):
             for i in range(3):
                 if adiff <= self.ATOLS[i] and hints[i] is None:
                     hints[i] = ecut
-                if adiff > self.ATOLS[i]: 
+                if adiff > self.ATOLS[i]:
                     hints[i] = None
         return hints
 
@@ -2723,7 +2719,7 @@ class DojoReport(dict):
                 keys = [k for k in all if k not in what]
             else:
                 keys = what
-            
+
         # get reference entry
         from pseudo_dojo.refdata.deltafactor import df_database
         reference = df_database().get_entry(symbol=self.symbol, code=code)
@@ -2740,7 +2736,7 @@ class DojoReport(dict):
 
         #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(keys), ncols=1, sharex=True, squeeze=False)
 
-        if len(keys) != len(ax_list): 
+        if len(keys) != len(ax_list):
             raise ValueError("len(keys)=%s != len(ax_list)=%s" %  (len(keys), len(ax_list)))
 
         for i, (ax, key) in enumerate(zip(ax_list, keys)):
@@ -2764,7 +2760,7 @@ class DojoReport(dict):
                 for pad, color in zip(self.ATOLS, ("blue", "red", "violet")):
                     ax.hlines(y=last + pad, xmin=xmin, xmax=xmax, colors=color, linewidth=1, linestyles='dashed')
                     ax.hlines(y=last - pad, xmin=xmin, xmax=xmax, colors=color, linewidth=1, linestyles='dashed')
-              
+
                 # Set proper limits so that we focus on the relevant region.
                 ax.set_ylim(last - 1.1*self.ATOLS[0], last + 1.1*self.ATOLS[0])
 
@@ -2804,7 +2800,7 @@ class DojoReport(dict):
 
             eos_fit = EOS.Quadratic().fit(volumes, etotals)
             label = "ecut %.1f" % ecut if i % 2 == 0 else ""
-            label = "ecut %.1f" % ecut 
+            label = "ecut %.1f" % ecut
             eos_fit.plot(ax=ax, text=False, label=label, color=cmap(i/num_ecuts, alpha=1), show=False)
 
         return fig
@@ -2830,7 +2826,7 @@ class DojoReport(dict):
 
         #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(stypes), ncols=1, sharex=True, squeeze=False)
 
-        if len(stypes) != len(ax_list): 
+        if len(stypes) != len(ax_list):
             raise ValueError("len(stypes)=%s != len(ax_list)=%s" %  (len(stypes), len(ax_list)))
 
         for i, (ax, stype) in enumerate(zip(ax_list, stypes)):
@@ -2891,8 +2887,8 @@ class DojoReport(dict):
             ax[1].set_xlabel("Ecut [Ha]")
 
         # Adjust limits.
-        fmin -= 10 
-        fmax += 10 
+        fmin -= 10
+        fmax += 10
         ax[0].set_ylim(fmin, fmax)
 
         return fig

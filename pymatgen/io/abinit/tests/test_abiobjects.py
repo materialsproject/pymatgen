@@ -147,7 +147,7 @@ class PPModelTest(PymatgenTest):
         same_godby = PPModel.as_ppmodel("godby:"+ str(12.0/Ha_to_eV))
         self.assertTrue(same_godby == godby)
 
-        noppm = PPModel.noppmodel()
+        noppm = PPModel.get_noppmodel()
 
         self.assertFalse(noppm)
         self.assertTrue(noppm != godby)

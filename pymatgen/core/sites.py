@@ -27,7 +27,7 @@ from pymatgen.util.coord_utils import pbc_diff
 from pymatgen.core.composition import Composition
 
 
-class Site(collections.Mapping, collections.Hashable, MSONable):
+class Site(collections.Hashable, MSONable):
     """
     A generalized *non-periodic* site. This is essentially a composition
     at a point in space, with some optional properties associated with it. A
@@ -55,15 +55,15 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
             properties: Properties associated with the site as a dict, e.g.
                 {"magmom": 5}. Defaults to None.
         """
-        if isinstance(atoms_n_occu, collections.Mapping):
+        try:
+            self._species = Composition({get_el_sp(atoms_n_occu): 1})
+            self._is_ordered = True
+        except TypeError:
             self._species = Composition(atoms_n_occu)
             totaloccu = self._species.num_atoms
             if totaloccu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
             self._is_ordered = totaloccu == 1 and len(self._species) == 1
-        else:
-            self._species = Composition({get_el_sp(atoms_n_occu): 1})
-            self._is_ordered = True
 
         self._coords = coords
         self._properties = properties if properties else {}
@@ -76,8 +76,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return {k: v for k, v in self._properties.items()}
 
     def __getattr__(self, a):
-        #overriding getattr doens't play nice with pickle, so we
-        #can't use self._properties
+        # overriding getattr doens't play nice with pickle, so we
+        # can't use self._properties
         p = object.__getattribute__(self, '_properties')
         if a in p:
             return p[a]
@@ -213,9 +213,6 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
     def __len__(self):
         return len(self._species)
 
-    def __iter__(self):
-        return self._species.__iter__()
-
     def __repr__(self):
         return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(
             self.species_string, *self._coords)
@@ -250,11 +247,14 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
             del d["@class"]
             d["occu"] = occu
             species_list.append(d)
-        return {"name": self.species_string, "species": species_list,
-                "xyz": [float(c) for c in self._coords],
-                "properties": self._properties,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+        d = {"name": self.species_string, "species": species_list,
+             "xyz": [float(c) for c in self._coords],
+             "properties": self._properties,
+             "@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
+        if self._properties:
+            d["properties"] = self._properties
+        return d
 
     @classmethod
     def from_dict(cls, d):
@@ -469,9 +469,14 @@ class PeriodicSite(Site, MSONable):
                                 self._fcoords[0], self._fcoords[1],
                                 self._fcoords[2])
 
-    def as_dict(self):
+    def as_dict(self, verbosity=0):
         """
         Json-serializable dict representation of PeriodicSite.
+
+        Args:
+            verbosity (int): Verbosity level. Default of 0 only includes the
+                matrix representation. Set to 1 for more details such as
+                cartesian coordinates, etc.
         """
         species_list = []
         for spec, occu in self._species.items():
@@ -480,13 +485,20 @@ class PeriodicSite(Site, MSONable):
             del d["@class"]
             d["occu"] = occu
             species_list.append(d)
-        return {"label": self.species_string, "species": species_list,
-                "xyz": [float(c) for c in self._coords],
-                "abc": [float(c) for c in self._fcoords],
-                "lattice": self._lattice.as_dict(),
-                "properties": self._properties,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+
+        d = {"species": species_list,
+             "abc": [float(c) for c in self._fcoords],
+             "lattice": self._lattice.as_dict(verbosity=verbosity),
+             "@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
+
+        if verbosity > 1:
+            d["xyz"] = [float(c) for c in self._coords]
+            d["label"] = self.species_string
+
+        if self._properties:
+            d["properties"] = self._properties
+        return d
 
     @classmethod
     def from_dict(cls, d, lattice=None):
