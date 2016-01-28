@@ -21,7 +21,6 @@ __date__ = "Nov 10, 2012"
 
 import unittest
 
-
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition, CompositionError, \
     ChemicalPotential
@@ -70,12 +69,32 @@ class CompositionTest(unittest.TestCase):
         self.indeterminate_comp.append(
             Composition.ranked_compositions_from_indeterminate_formula("Fee3"))
 
+    def test_immutable(self):
+        try:
+            self.comp[0]["Fe"] = 1
+        except Exception as ex:
+            self.assertIsInstance(ex, TypeError)
+
+        try:
+            del self.comp[0]["Fe"]
+        except Exception as ex:
+            self.assertIsInstance(ex, TypeError)
+
+    def test_in(self):
+        self.assertIn("Fe", self.comp[0])
+        self.assertNotIn("Fe", self.comp[2])
+        self.assertIn(Element("Fe"), self.comp[0])
+        self.assertEqual(self.comp[0]["Fe"], 2)
+        self.assertEqual(self.comp[0]["Mn"], 0)
+        self.assertRaises(TypeError, self.comp[0].__getitem__, "Hello")
+        self.assertRaises(TypeError, self.comp[0].__getitem__, "Vac")
+
     def test_init_(self):
         self.assertRaises(CompositionError, Composition, {"H": -0.1})
         f = {'Fe': 4, 'Li': 4, 'O': 16, 'P': 4}
         self.assertEqual("Li4 Fe4 P4 O16", Composition(f).formula)
         f = {None: 4, 'Li': 4, 'O': 16, 'P': 4}
-        self.assertRaises(ValueError, Composition, f)
+        self.assertRaises(TypeError, Composition, f)
         f = {1: 2, 8: 1}
         self.assertEqual("H2 O1", Composition(f).formula)
         self.assertEqual("Na2 O1", Composition(Na=2, O=1).formula)

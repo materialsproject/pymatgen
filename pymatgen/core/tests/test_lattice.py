@@ -264,6 +264,7 @@ class LatticeTestCase(PymatgenTest):
             self.assertEqual(t.abc[i], self.tetragonal.abc[i])
             self.assertEqual(t.angles[i], self.tetragonal.angles[i])
         #Make sure old style dicts work.
+        d = self.tetragonal.as_dict(verbosity=1)
         del d["matrix"]
         t = Lattice.from_dict(d)
         for i in range(3):

@@ -52,8 +52,10 @@
 .highlight .err { border: 1px solid #FF0000 } /* Error */
 .highlight .k { color: #008000; font-weight: bold } /* Keyword */
 .highlight .o { color: #666666 } /* Operator */
+.highlight .ch { color: #408080; font-style: italic } /* Comment.Hashbang */
 .highlight .cm { color: #408080; font-style: italic } /* Comment.Multiline */
 .highlight .cp { color: #BC7A00 } /* Comment.Preproc */
+.highlight .cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
 .highlight .c1 { color: #408080; font-style: italic } /* Comment.Single */
 .highlight .cs { color: #408080; font-style: italic } /* Comment.Special */
 .highlight .gd { color: #A00000 } /* Generic.Deleted */
@@ -200,14 +202,14 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c">#This initializes the REST adaptor. You may need to put your own API key in as an arg.</span>
+<div class=" highlight hl-ipython2"><pre><span class="c1">#This initializes the REST adaptor. You may need to put your own API key in as an arg.</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">MPRester</span><span class="p">()</span>
 
-<span class="c">#Entries are the basic unit for thermodynamic and other analyses in pymatgen.</span>
-<span class="c">#This gets all entries belonging to the Ca-C-O system.</span>
-<span class="n">entries</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_entries_in_chemsys</span><span class="p">([</span><span class="s">&#39;Ca&#39;</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">])</span>
+<span class="c1">#Entries are the basic unit for thermodynamic and other analyses in pymatgen.</span>
+<span class="c1">#This gets all entries belonging to the Ca-C-O system.</span>
+<span class="n">entries</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_entries_in_chemsys</span><span class="p">([</span><span class="s1">&#39;Ca&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">])</span>
 
-<span class="c">#With entries, you can do many sophisticated analyses, like creating phase diagrams.</span>
+<span class="c1">#With entries, you can do many sophisticated analyses, like creating phase diagrams.</span>
 <span class="n">pd</span> <span class="o">=</span> <span class="n">PhaseDiagram</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
 </pre></div>
 
@@ -232,7 +234,7 @@ div#notebook {
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">pymatgen.phasediagram.plotter</span> <span class="kn">import</span> <span class="n">PDPlotter</span>
-<span class="c">#Let&#39;s show all phases, including unstable ones</span>
+<span class="c1">#Let&#39;s show all phases, including unstable ones</span>
 <span class="n">plotter</span> <span class="o">=</span> <span class="n">PDPlotter</span><span class="p">(</span><span class="n">pd</span><span class="p">,</span> <span class="n">show_unstable</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
@@ -898,13 +900,13 @@ OPFhjDHGWJHBiQ9jjDHGioz/A1WyZ4Tw1wpmAAAAAElFTkSuQmCC
 <span class="n">data</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
     <span class="n">decomp</span><span class="p">,</span> <span class="n">ehull</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_decomp_and_e_above_hull</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s">&quot;Materials ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">entry_id</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s">&quot;Composition&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s">&quot;Ehull&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ehull</span><span class="p">)</span>    
-    <span class="n">data</span><span class="p">[</span><span class="s">&quot;Decomposition&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot; + &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;</span><span class="si">%.2f</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">formula</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">decomp</span><span class="o">.</span><span class="n">items</span><span class="p">()]))</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Materials ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">entry_id</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Composition&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Ehull&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ehull</span><span class="p">)</span>    
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Decomposition&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; + &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%.2f</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">formula</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">decomp</span><span class="o">.</span><span class="n">items</span><span class="p">()]))</span>
 
 <span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;Materials ID&quot;</span><span class="p">,</span> <span class="s">&quot;Composition&quot;</span><span class="p">,</span> <span class="s">&quot;Ehull&quot;</span><span class="p">,</span> <span class="s">&quot;Decomposition&quot;</span><span class="p">])</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Materials ID&quot;</span><span class="p">,</span> <span class="s2">&quot;Composition&quot;</span><span class="p">,</span> <span class="s2">&quot;Ehull&quot;</span><span class="p">,</span> <span class="s2">&quot;Decomposition&quot;</span><span class="p">])</span>
 
 <span class="k">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 </pre></div>
