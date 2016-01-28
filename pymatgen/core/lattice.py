@@ -25,8 +25,7 @@ from six.moves import map, zip
 import numpy as np
 from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
-
-from pyhull.voronoi import VoronoiTess
+from scipy.spatial import Voronoi
 
 from monty.json import MSONable
 from pymatgen.util.num_utils import abs_cap
@@ -65,8 +64,7 @@ class Lattice(MSONable):
             k = (i + 2) % 3
             angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
 
-        angles = np.arccos(angles) * 180. / pi
-        self._angles = angles
+        self._angles = np.arccos(angles) * 180. / pi
         self._lengths = lengths
         self._matrix = m
         # The inverse matrix is lazily generated for efficiency.
@@ -104,16 +102,6 @@ class Lattice(MSONable):
 
         else:
             raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
-
-    #def to_abivars(self, **kwargs):
-    #    # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
-    #    geomode = kwargs.pop("geomode", "rprim")
-    #    if geomode == "rprim":
-    #        return dict(acell=3 * [1.0], rprim=rprim))
-    #    elif geomode == "angdeg":
-    #        return dict(acell=3 * [1.0], angdeg=angdeg))
-    #    else:
-    #        raise ValueError("Wrong value for geomode: %s" % geomode)
 
     def copy(self):
         """Deep copy of self."""
@@ -438,20 +426,30 @@ class Lattice(MSONable):
         return "\n".join([" ".join(["%.6f" % i for i in row])
                           for row in self._matrix])
 
-    def as_dict(self):
+    def as_dict(self, verbosity=0):
         """""
         Json-serialization dict representation of the Lattice.
+
+        Args:
+            verbosity (int): Verbosity level. Default of 0 only includes the
+                matrix representation. Set to 1 for more details.
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "matrix": self._matrix.tolist(),
+
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "matrix": self._matrix.tolist()}
+        if verbosity > 0:
+            d.update({
                 "a": float(self.a),
                 "b": float(self.b),
                 "c": float(self.c),
                 "alpha": float(self.alpha),
                 "beta": float(self.beta),
                 "gamma": float(self.gamma),
-                "volume": float(self.volume)}
+                "volume": float(self.volume)
+            })
+
+        return d
 
     def find_all_mappings(self, other_lattice, ltol=1e-5, atol=1,
                           skip_rotation_matrix=False):
@@ -802,11 +800,11 @@ class Lattice(MSONable):
         list_k_points = []
         for i, j, k in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
             list_k_points.append(i * vec1 + j * vec2 + k * vec3)
-        tess = VoronoiTess(list_k_points)
+        tess = Voronoi(list_k_points)
         to_return = []
-        for r in tess.ridges:
+        for r in tess.ridge_dict:
             if r[0] == 13 or r[1] == 13:
-                to_return.append([tess.vertices[i] for i in tess.ridges[r]])
+                to_return.append([tess.vertices[i] for i in tess.ridge_dict[r]])
 
         return to_return
 

@@ -1,6 +1,7 @@
 Change log
 ==========
 
-v3.2.7
+v3.3.4
 ------
-* Add warning for limited subgroup testing functionality in Spacegroup.
+* Procar now supports parsing of phase factors.
+* Miscellaneous bug fixes.

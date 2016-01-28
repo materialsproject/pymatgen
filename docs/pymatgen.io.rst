@@ -14,6 +14,14 @@ Subpackages
 Submodules
 ----------
 
+pymatgen.io.adf module
+----------------------
+
+.. automodule:: pymatgen.io.adf
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.io.aiida module
 ------------------------
 
@@ -102,6 +110,14 @@ pymatgen.io.feffio_set module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.io.fiesta module
+-------------------------
+
+.. automodule:: pymatgen.io.fiesta
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.io.gaussian module
 ---------------------------
 
@@ -182,6 +198,14 @@ pymatgen.io.vaspio_set module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.io.xcrysden module
+---------------------------
+
+.. automodule:: pymatgen.io.xcrysden
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.io.xyz module
 ----------------------
 
@@ -198,18 +222,18 @@ pymatgen.io.xyzio module
     :undoc-members:
     :show-inheritance:
 
-pymatgen.io.zeo module
-----------------------
-
-.. automodule:: pymatgen.io.zeo
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pymatgen.io.zeoio module
 ------------------------
 
 .. automodule:: pymatgen.io.zeoio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.io.zeopp module
+------------------------
+
+.. automodule:: pymatgen.io.zeopp
     :members:
     :undoc-members:
     :show-inheritance:

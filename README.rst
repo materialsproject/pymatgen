@@ -30,13 +30,8 @@ Python 3.x support
 ==================
 
 With effect from version 3.0, pymatgen now supports both Python 2.7 as well
-as Python 3.x. All underlying core dependencies (numpy,
-pyhull and the spglib library) have been made Python 3 compatible,
-and a completely rewritten CIF parser module (courtesy of William Davidson
-Richards) has removed the dependency on PyCIFRW. We will support Python >= 3.3
-(ignoring v3.1 and v3.2). With the release of a new major version,
-we also took the opportunity to streamline and cleanup some of the code,
-which introduces a few backward incompatibilities.
+as Python 3.x. All developers must ensure that their code passes the
+unittests on both Py2.7 and 3.x.
 
 Why use pymatgen?
 =================
@@ -62,6 +57,12 @@ but pymatgen offer several advantages:
    fast and are in fact comparable to codes written in other languages.
    Pymatgen also comes with a complete system for handling periodic boundary
    conditions.
+5. **It will be around.** Pymatgen is not a pet research project. It is used in
+   the well-established Materials Project. It is also actively being developed
+   and maintained by the Materials Virtual Lab, the ABINIT group and many other
+   research groups. The plan is to make sure pymatgen will stand the test of
+   time and be the de facto analysis code for most materials and structural
+   analysis.
 
 Getting pymatgen
 ================

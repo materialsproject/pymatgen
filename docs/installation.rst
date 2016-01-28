@@ -8,34 +8,41 @@ be available on `PyPI <http://pypi.python.org>`_.
 1. Python 2.7-3.x supported. All critical dependencies of pymatgen already
    have Python 3.x support. Only a few optional dependencies (VTK and ASE) do
    not. If you do not need those features, you can choose to work with Python 3.
-2. numpy: For array, matrix and other numerical manipulations. Used extensively
-   by all core modules.
-3. pyhull 1.5.2+: For generation of phase diagrams.
-4. requests 2.0+: For the high-level interface to the Materials API.
-5. monty 0.4.2+: For some common complementary functions,
-   design patterns (e.g., singleton) and decorators to the Python
-   standard library.
+2. numpy>=1.9
+3. scipy>0.14
+4. monty>=0.7.0
+5. requests 2.0+
+6. pybtex
+7. pyyaml
+8. tabulate
+9. six
+
+Most of these are fairly easy to install. The well-established numpy and scipy
+should have ready-made installation packages for all platforms. The rest are
+pure/semi-pure Python packages that installs without any issues with pip and
+easy_install.
 
 Optional dependencies
 ---------------------
 
-Optional libraries that are required if you need certain features:
+Optional libraries that are required if you need certain features.
 
-1. scipy 0.10+ (highly recommended): For use in Gaussian smearing and faster
-   Phase Diagrams.
+1. pyhull 1.5.2+ (highly recommended): For electronic structure, generation of
+   Pourbaix diagrams.
 2. matplotlib 1.1+ (highly recommended): For plotting (e.g., Phase Diagrams).
-3. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
+3. sympy (highly recommended): For defect generation and analysis.
+4. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
    crystal structures using the pymatgen.vis package. Note that the VTK
    package is incompatible with Python 3.x at the moment.
-4. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
+5. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
    Note that the ASE package is incompatible with Python 3.x at the moment.
-5. OpenBabel with Python bindings (http://openbabel.org): Required for the
+6. OpenBabel with Python bindings (http://openbabel.org): Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
-6. nose - For unittesting. Not optional for developers.
+7. nose - For unittesting. Not optional for developers.
 
 Optional non-Python programs
 ----------------------------

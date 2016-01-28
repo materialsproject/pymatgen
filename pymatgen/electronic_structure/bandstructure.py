@@ -392,7 +392,7 @@ class BandStructure(object):
                     list_ind_kpts.append(i)
         else:
             list_ind_kpts.append(index)
-        #get all other bands sharing the vbm
+        # get all other bands sharing the vbm
         list_ind_band = {Spin.up: []}
         if self.is_spin_polarized:
             list_ind_band = {Spin.up: [], Spin.down: []}
@@ -616,7 +616,7 @@ class BandStructure(object):
         if 'projections' in d and len(d['projections']) != 0:
             projections = {
                 Spin.from_int(int(spin)): [
-                    [{Orbital.from_string(orb): [
+                    [{Orbital[orb]: [
                         d['projections'][spin][i][j][orb][k]
                         for k in range(len(d['projections'][spin][i][j][orb]))]
                       for orb in d['projections'][spin][i][j]}
@@ -889,7 +889,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
     def from_dict(cls, d):
         """
         Args:
-            A dict with all data for a band structure symm line object.
+            d (dict): A dict with all data for a band structure symm line
+                object.
 
         Returns:
             A BandStructureSymmLine object
@@ -901,8 +902,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
         if 'projections' in d and len(d['projections']) != 0:
             structure = Structure.from_dict(d['structure'])
             projections = {
-                Spin.from_int(int(spin)): [
-                    [{Orbital.from_string(orb): [
+                Spin(int(spin)): [
+                    [{Orbital[orb]: [
                         d['projections'][spin][i][j][orb][k]
                         for k in range(len(d['projections'][spin][i][j][orb]))]
                       for orb in d['projections'][spin][i][j]}
@@ -911,7 +912,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                 for spin in d['projections']}
 
         return BandStructureSymmLine(
-            d['kpoints'], {Spin.from_int(int(k)): d['bands'][k]
+            d['kpoints'], {Spin(int(k)): d['bands'][k]
                            for k in d['bands']},
             Lattice(d['lattice_rec']['matrix']), d['efermi'],
             labels_dict, structure=structure, projections=projections)
