@@ -931,7 +931,7 @@ class Flow(Node, NodeContainer, MSONable):
                                   para_info] + task_info)
 
             # Print table and write colorized line with the total number of errors.
-            print(tabulate(table, headers=headers), file=stream)
+            print(tabulate(table, headers=headers, tablefmt="grid"), file=stream)
             if tot_num_errors:
                 cprint("Total number of errors: %d" % tot_num_errors, red, file=stream)
             print("", file=stream)
