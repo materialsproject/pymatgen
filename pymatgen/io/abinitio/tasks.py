@@ -1719,9 +1719,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             elif lennone(qerr_info) > 0:
                 # if only qout_info, we are not necessarily in QCRITICAL state, since there will always be info in the qout file
                 #logger.history.debug('found unknown queue error: %s' % str(qerr_info))
-                msg = 'found unknown queue error: %s' % str(qerr_info)
-                return self.set_status(self.S_QCRITICAL, msg=msg)
-                # The job is killed or crashed but we don't know what happened
+                msg = 'found unknown messages in the queue error: %s' % str(qerr_info)
+                print(msg)
+                self.num_waiting += 1
+                if self.num_waiting > 1000
+                    msg += 'waited for %s wakeups of abirun putting the status to ERROR' % self.waiting
+                    return self.set_status(self.S_ERROR, msg=msg)
+                # The job may be killed or crashed but we don't know what happened
+                # It may also be that an innocent message was written to qerr, so we wait for a while
                 # it is set to QCritical, we will attempt to fix it by running on more resources
 
 
