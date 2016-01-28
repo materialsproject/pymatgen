@@ -60,6 +60,12 @@ def straceback():
     import traceback
     return traceback.format_exc()
 
+def lennone(PropperOrNone):
+    if PropperOrNone is None:
+	return 0
+    else:
+	return len(PropperOrNone)
+
 
 class TaskResults(NodeResults):
 
@@ -1710,19 +1716,18 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 # self.history.critical(msg)
                 return self.set_status(self.S_QCRITICAL, msg=msg)
                 # The job is killed or crashed and we know what happened
-            elif qerr_info:
+            elif lennone(qerr_info) > 0:
                 # if only qout_info, we are not necessarily in QCRITICAL state, since there will always be info in the qout file
-                if len(qerr_info) > 0:
-                    #logger.history.debug('found unknown queue error: %s' % str(qerr_info))
-                    msg = 'found unknown queue error: %s' % str(qerr_info)
-                    return self.set_status(self.S_QCRITICAL, msg=msg)
-                    # The job is killed or crashed but we don't know what happened
-                    # it is set to QCritical, we will attempt to fix it by running on more resources
+                #logger.history.debug('found unknown queue error: %s' % str(qerr_info))
+                msg = 'found unknown queue error: %s' % str(qerr_info)
+                return self.set_status(self.S_QCRITICAL, msg=msg)
+                # The job is killed or crashed but we don't know what happened
+                # it is set to QCritical, we will attempt to fix it by running on more resources
 
 
         # 8) analizing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
-        if err_msg is not None and len(err_msg) > 0:
+        if lennone(err_msg) > 0:
             msg = 'found error message:\n %s' % str(err_msg)
             return self.set_status(self.S_QCRITICAL, msg=msg)
             # The job is killed or crashed but we don't know what happend
