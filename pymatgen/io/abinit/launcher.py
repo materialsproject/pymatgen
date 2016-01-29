@@ -41,6 +41,7 @@ def straceback():
     import traceback
     return traceback.format_exc()
 
+
 class ScriptEditor(object):
     """Simple editor that simplifies the writing of shell scripts"""
     _shell = '/bin/bash'
