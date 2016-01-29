@@ -41,6 +41,7 @@ __maintainer__ = "Matteo Giantomassi"
 
 __all__ = [
     "TaskManager",
+    "AbinitBuild",
     "ParalHintsParser",
     "ScfTask",
     "NscfTask",
@@ -556,7 +557,7 @@ batch_adapter:
 
         if not os.path.exists(path):
             raise RuntimeError(colored(
-		"\nCannot locate %s neither in current directory nor in %s\n"
+		        "\nCannot locate %s neither in current directory nor in %s\n"
                 "!!! PLEASE READ THIS: !!!\n"
                 "To use abipy to run jobs this file needs be be present\n"
                 "it provides a description of the cluster/computer you are running on\n"
@@ -1003,6 +1004,140 @@ batch_adapter:
         except QueueAdapterError:
             # here we should try to switch to an other qadapter
             raise ManagerIncreaseError('manager failed to increase time')
+
+
+class AbinitBuild(object):
+    """
+    This object stores information on the options used to build Abinit
+
+        .. attribute:: info
+            String with build information as produced by `abinit -b`
+
+        .. attribute:: version
+            Abinit version number e.g 8.0.1 (string)
+
+        .. attribute:: has_netcdf
+            True if netcdf is enabled.
+
+        .. attribute:: has_etsfio
+            True if etsf-io is enabled.
+
+        .. attribute:: has_omp
+            True if OpenMP is enabled.
+
+        .. attribute:: has_mpi
+            True if MPI is enabled.
+
+        .. attribute:: has_mpiio
+            True if MPI-IO is supported.
+    """
+    def __init__(self, workdir=None, manager=None):
+        manager = TaskManager.as_manager(manager).to_shell_manager(mpi_procs=1)
+
+        # Build a simple manager to run the job in a shell subprocess
+        import tempfile
+        workdir = tempfile.mkdtemp() if workdir is None else workdir  
+
+        # Generate a shell script to execute `abinit -b`
+        stdout = os.path.join(workdir, "run.abo")
+        script = manager.qadapter.get_script_str(
+            job_name="abinit_b", 
+            launch_dir=workdir,
+            executable="abinit",
+            qout_path=os.path.join(workdir, "queue.qout"),
+            qerr_path=os.path.join(workdir, "queue.qerr"),
+            #stdin=os.path.join(workdir, "run.files"),
+            stdout=stdout,
+            stderr=os.path.join(workdir, "run.err"),
+            exec_args=["-b"],
+        )
+
+        # Execute the script.
+        script_file = os.path.join(workdir, "job.sh")
+        with open(script_file, "wt") as fh:
+            fh.write(script)
+        qjob, process = manager.qadapter.submit_to_queue(script_file)
+        process.wait()
+
+        #if process.returncode != 0:
+        #    logger.critical("")
+
+        with open(stdout, "r") as fh:
+            self.info = fh.read()
+
+        # info string has the following format.
+        """
+        === Build Information === 
+         Version       : 8.0.1
+         Build target  : x86_64_darwin15.0.0_gnu5.3
+         Build date    : 20160122
+
+        === Compiler Suite === 
+         C compiler       : gnu
+         C++ compiler     : gnuApple
+         Fortran compiler : gnu5.3
+         CFLAGS           :  -g -O2 -mtune=native -march=native
+         CXXFLAGS         :  -g -O2 -mtune=native -march=native
+         FCFLAGS          :  -g -ffree-line-length-none
+         FC_LDFLAGS       : 
+
+        === Optimizations === 
+         Debug level        : basic
+         Optimization level : standard
+         Architecture       : unknown_unknown
+
+        === Multicore === 
+         Parallel build : yes
+         Parallel I/O   : yes
+         openMP support : no
+         GPU support    : no
+
+        === Connectors / Fallbacks === 
+         Connectors on : yes
+         Fallbacks on  : yes
+         DFT flavor    : libxc-fallback+atompaw-fallback+wannier90-fallback
+         FFT flavor    : none
+         LINALG flavor : netlib
+         MATH flavor   : none
+         TIMER flavor  : abinit
+         TRIO flavor   : netcdf+etsf_io-fallback
+
+        === Experimental features === 
+         Bindings            : @enable_bindings@
+         Exports             : no
+         GW double-precision : yes
+
+        === Bazaar branch information === 
+         Branch ID : gmatteo@gmac-20160112110440-lf6exhneqim9082h
+         Revision  : 1226
+         Committed : 0
+        """
+        self.has_netcdf = False
+        self.has_etsfio = False
+        self.has_omp = False
+        self.has_mpi, self.has_mpiio = False, False 
+
+        def yesno2bool(line):
+            ans = line.split()[-1]
+            return dict(yes=True, no=False)[ans]
+
+        # Parse info.
+        for line in self.info.splitlines():
+            if "Version" in line: self.version = line.split()[-1]
+            if "TRIO flavor" in line:
+                self.has_netcdf = "netcdf" in line 
+                self.has_etsfio = "etsf_io" in line
+            if "openMP support" in line: self.has_omp = yesno2bool(line)
+            if "Parallel build" in line: self.has_mpi = yesno2bool(line)
+            if "Parallel I/O" in line: self.has_mpiio = yesno2bool(line)
+
+    def __str__(self):
+        lines = []
+        app = lines.append
+        app("Abinit version: %s" % self.version)
+        app("MPI: %s, MPI-IO: %s, OpenMP: %s" % (self.has_mpi, self.has_mpiio, self.has_omp))
+        app("Netcdf: %s, ETSF-IO: %s" % (self.has_netcdf, self.has_etsfio))
+        return "\n".join(lines)
 
 
 class FakeProcess(object):
