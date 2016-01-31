@@ -156,7 +156,7 @@ class Flow(Node, NodeContainer, MSONable):
         else:
             raise TypeError("Don't know how to convert type %s into a Flow" % type(obj))
 
-    def __init__(self, workdir, manager=None, pickle_protocol=-1):
+    def __init__(self, workdir, manager=None, pickle_protocol=-1, remove=False):
         """
         Args:
             workdir: String specifying the directory where the works will be produced.
@@ -167,10 +167,12 @@ class Flow(Node, NodeContainer, MSONable):
                      located either in the working directory or in the user configuration dir.
             pickle_procol: Pickle protocol version used for saving the status of the object.
                           -1 denotes the latest version supported by the python interpreter.
+            remove: attempt to remove working directory `workdir` if directory already exists.
         """
         super(Flow, self).__init__()
 
         if workdir is not None:
+            if remove and os.path.exists(workdir): shutil.rmtree(workdir)
             self.set_workdir(workdir)
 
         self.creation_date = time.asctime()
