@@ -42,7 +42,7 @@ def get_spglib_ext():
         extra_compile_args=c_opt)
 
 
-with open("README.rst") as f:
+with open(os.path.join(SETUP_PTH, "README.rst")) as f:
     long_desc = f.read()
     ind = long_desc.find("\n")
     long_desc = long_desc[ind + 1:]
@@ -51,10 +51,10 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="3.2.10",
+    version="3.3.4",
     install_requires=["numpy>=1.9", "six", "atomicfile", "requests",
                       "pybtex", "pyyaml", "monty>=0.7.0", "scipy>=0.14",
-                      "tabulate"],
+                      "tabulate", "enum34"],
     extras_require={"plotting": ["matplotlib>=1.1", "prettyplotlib"],
                     "pourbaix diagrams, bandstructure": ["pyhull>=1.5.3"],
                     "ase_adaptor": ["ase>=3.3"],
