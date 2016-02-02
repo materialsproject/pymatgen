@@ -1046,9 +1046,9 @@ class BoltztrapAnalyzer(object):
             if structure.sites[int(s)] not in pdoss:
                 pdoss[structure.sites[int(s)]] = {}
             for o in self._dos_partial[s]:
-                if Orbital.from_string(o) not in pdoss[structure.sites[int(s)]]:
-                    pdoss[structure.sites[int(s)]][Orbital.from_string(o)] = {}
-                pdoss[structure.sites[int(s)]][Orbital.from_string(o)][
+                if Orbital[o] not in pdoss[structure.sites[int(s)]]:
+                    pdoss[structure.sites[int(s)]][Orbital[o]] = {}
+                pdoss[structure.sites[int(s)]][Orbital[o]][
                     Spin.up] = self._dos_partial[s][o]
         return CompleteDos(structure, total_dos=self.dos, pdoss=pdoss)
 

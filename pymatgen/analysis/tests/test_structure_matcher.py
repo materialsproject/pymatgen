@@ -31,6 +31,27 @@ class StructureMatcherTest(PymatgenTest):
                             Structure.from_file(os.path.join(
                                 test_dir, "POSCAR.Li2O"))]
 
+    def test_ignore_species(self):
+        s1 = Structure.from_file(os.path.join(test_dir, "LiFePO4.cif"))
+        s2 = Structure.from_file(os.path.join(test_dir, "POSCAR"))
+        m = StructureMatcher(ignored_species=["Li"], primitive_cell=False,
+                             attempt_supercell=True)
+        self.assertTrue(m.fit(s1, s2))
+        self.assertTrue(m.fit_anonymous(s1, s2))
+        groups = m.group_structures([s1, s2])
+        self.assertEqual(len(groups), 1)
+        s2.make_supercell((2, 1, 1))
+        ss1 = m.get_s2_like_s1(s2, s1, include_ignored_species=True)
+        self.assertAlmostEqual(ss1.lattice.a, 20.820740000000001)
+        self.assertEqual(ss1.composition.reduced_formula, "LiFePO4")
+
+        self.assertEqual({
+            k.symbol: v.symbol for k, v in
+            m.get_best_electronegativity_anonymous_mapping(s1, s2).items()},
+                         {"Fe": "Fe", "P": "P", "O": "O"})
+
+
+
     def test_get_supercell_size(self):
         l = Lattice.cubic(1)
         l2 = Lattice.cubic(0.9)

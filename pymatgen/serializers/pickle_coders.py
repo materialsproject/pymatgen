@@ -20,7 +20,7 @@ class PmgPickler(pickle.Pickler):
         """Instead of pickling as a regular class instance, we emit a persistent ID."""
         if isinstance(obj, Element):
             # Here, our persistent ID is simply a tuple, containing a tag and a key
-            return obj.__class__.__name__, obj._symbol
+            return obj.__class__.__name__, obj.symbol
         else:
             # If obj does not have a persistent ID, return None. This means obj needs to be pickled as usual.
             return None

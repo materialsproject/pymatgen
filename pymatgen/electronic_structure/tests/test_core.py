@@ -16,23 +16,23 @@ class SpinTest(unittest.TestCase):
         self.assertEqual(int(Spin.down), -1)
 
     def test_from_int(self):
-        self.assertEqual(Spin.from_int(1), Spin.up)
-        self.assertEqual(Spin.from_int(-1), Spin.down)
-        self.assertRaises(ValueError, Spin.from_int, 0)
+        self.assertEqual(Spin(1), Spin.up)
+        self.assertEqual(Spin(-1), Spin.down)
+        self.assertRaises(ValueError, Spin, 0)
 
     def test_cached(self):
-        self.assertEqual(id(Spin.from_int(1)), id(Spin.up))
+        self.assertEqual(id(Spin(1)), id(Spin.up))
 
 
 class OrbitalTest(unittest.TestCase):
 
     def test_init(self):
-        for i, orb in enumerate(Orbital.all_orbitals):
-            self.assertEqual(Orbital.from_vasp_index(i), orb)
-        self.assertRaises(IndexError, Orbital.from_vasp_index, 100)
+        for orb in Orbital:
+            self.assertEqual(Orbital(orb.value), orb)
+        self.assertRaises(ValueError, Orbital, 100)
 
     def test_cached(self):
-        self.assertEqual(id(Orbital.from_vasp_index(0)), id(Orbital.s))
+        self.assertEqual(id(Orbital(0)), id(Orbital.s))
 
 if __name__ == '__main__':
     unittest.main()

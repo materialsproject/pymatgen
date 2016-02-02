@@ -1,8 +1,7 @@
 Change log
 ==========
 
-v3.2.10
--------
-* Fix missing scripts
-* Improvements to units module.
-* Speed up EwaldSummation.
+v3.3.4
+------
+* Procar now supports parsing of phase factors.
+* Miscellaneous bug fixes.

@@ -1,6 +1,39 @@
 Change log
 ==========
 
+v3.3.4
+------
+* Procar now supports parsing of phase factors.
+* Miscellaneous bug fixes.
+
+v3.3.3
+------
+* Bug fixes for Poscar.
+* Fix Kpoints pickling.
+
+v3.3.2
+------
+* Bug fixes for pymatgen.io.abinit
+* Other minor big fixes.
+
+v3.3.1
+------
+* Minor bug fix release for pickle and elastic constants.
+
+v3.3.0
+------
+* Updated and checked for Python 3.5.* compatibility.
+* Element, Spin, Orbital and various other Enum-like classes are now actually
+  implemented using Enum (with enum34 dependency for Python < 3.4).
+* Speed up Site creation by 20% for ordered sites, with cost in terms of
+  slightly slower non-ordered Sites. Since ordered Sites is the far more common
+  case, this gives significant boost for large scale manipulations of
+  structures.
+* Alternative, more pythonic syntax for creating supercells via simply
+  Structure * 3 or Structure * (3, 1, 1).
+* zeo++ fixes.
+* More stable incar settings for MITMDVaspInputSet.
+
 v3.2.10
 -------
 * Fix missing scripts

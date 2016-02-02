@@ -390,9 +390,9 @@ class BSPlotter(object):
                 if not self._bs.is_metal() else ""}
 
     def get_plot(self, zero_to_efermi=True, ylim=None, smooth=False,
-                 vbm_cbm_marker=False):
+                 vbm_cbm_marker=False,smooth_tol=None):
         """
-        get a matplotlib object for the bandstructure plot.
+        Get a matplotlib object for the bandstructure plot.
         Blue lines are up spin, red lines are down
         spin.
 
@@ -403,6 +403,8 @@ class BSPlotter(object):
                 the code choose. It is vbm-4 and cbm+4 if insulator
                 efermi-10 and efermi+10 if metal
             smooth: interpolates the bands by a spline cubic
+            smooth_tol (float) : tolerance for fitting spline to band data.
+                Default is None such that no tolerance will be used.
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
@@ -433,37 +435,78 @@ class BSPlotter(object):
                                   for j in range(len(data['distances'][d]))],
                                  'r--', linewidth=band_linewidth)
         else:
+            # Interpolation failure can be caused by trying to fit an entire
+            # band with one spline rather than fitting with piecewise splines
+            # (splines are ill-suited to fit discontinuities).
+            #
+            # The number of splines used to fit a band is determined by the 
+            # number of branches (high symmetry lines) defined in the 
+            # BandStructureSymmLine object (see BandStructureSymmLine._branches). 
+            
+            warning = "WARNING! Distance / branch {d}, band {i} cannot be "+\
+                      "interpolated.\n"+\
+                      "See full warning in source.\n"+\
+                      "If this is not a mistake, try increasing "+\
+                      "smooth_tol.\nCurrent smooth_tol is {s}."
+
             for d in range(len(data['distances'])):
                 for i in range(self._nb_bands):
                     tck = scint.splrep(
                         data['distances'][d],
                         [data['energy'][d][str(Spin.up)][i][j]
-                         for j in range(len(data['distances'][d]))])
+                         for j in range(len(data['distances'][d]))],
+                        s = smooth_tol)
                     step = (data['distances'][d][-1]
                             - data['distances'][d][0]) / 1000
 
-                    plt.plot([x * step + data['distances'][d][0]
-                              for x in range(1000)],
-                             [scint.splev(x * step + data['distances'][d][0],
-                                          tck, der=0)
-                              for x in range(1000)], 'b-',
-                             linewidth=band_linewidth)
+                    xs = [x * step + data['distances'][d][0] 
+                          for x in range(1000)]
+
+                    ys = [scint.splev(x * step + data['distances'][d][0],
+                                      tck, der=0)
+                          for x in range(1000)]
+                    
+                    for y in ys:
+                        if np.isnan(y):
+                            print(warning.format(d=str(d),i=str(i),
+                                                 s=str(smooth_tol)))
+                            break
+
+                    plt.plot(xs, ys, 'b-', linewidth=band_linewidth)
 
                     if self._bs.is_spin_polarized:
                         tck = scint.splrep(
                             data['distances'][d],
                             [data['energy'][d][str(Spin.down)][i][j]
-                             for j in range(len(data['distances'][d]))])
+                             for j in range(len(data['distances'][d]))],
+                            s = smooth_tol)
                         step = (data['distances'][d][-1]
                                 - data['distances'][d][0]) / 1000
 
-                        plt.plot([x * step + data['distances'][d][0]
-                                  for x in range(1000)],
-                                 [scint.splev(
-                                     x * step + data['distances'][d][0],
-                                     tck, der=0)
-                                  for x in range(1000)], 'r--',
-                                 linewidth=band_linewidth)
+                        xs = [x * step + data['distances'][d][0]
+                              for x in range(1000)]
+
+                        ys = [scint.splev(
+                                 x * step + data['distances'][d][0],
+                                 tck, der=0)
+                              for x in range(1000)]
+
+                        for y in ys:
+                            if np.isnan(y):
+                                print(warning.format(d=str(d),i=str(i),
+                                                     s=str(smooth_tol)))
+                                break
+
+                        plt.plot(xs, ys, 'r--', linewidth=band_linewidth)
+
+#                        plt.plot([x * step + data['distances'][d][0]
+#                                  for x in range(1000)],
+#                                 [scint.splev(
+#                                     x * step + data['distances'][d][0],
+#                                     tck, der=0)
+#                                  for x in range(1000)], 'r--',
+#                                 linewidth=band_linewidth)
+
         self._maketicks(plt)
 
         # Main X and Y Labels
@@ -506,7 +549,8 @@ class BSPlotter(object):
 
         return plt
 
-    def show(self, zero_to_efermi=True, ylim=None, smooth=False):
+    def show(self, zero_to_efermi=True, ylim=None, smooth=False, 
+             smooth_tol=None):
         """
         Show the plot using matplotlib.
 
@@ -517,6 +561,8 @@ class BSPlotter(object):
                 the code choose. It is vbm-4 and cbm+4 if insulator
                 efermi-10 and efermi+10 if metal
             smooth: interpolates the bands by a spline cubic
+            smooth_tol (float) : tolerance for fitting spline to band data.
+                Default is None such that no tolerance will be used.
         """
         plt = self.get_plot(zero_to_efermi, ylim, smooth)
         plt.show()

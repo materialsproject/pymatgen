@@ -12,6 +12,32 @@ class XSF(object):
     def __init__(self, structure):
         self.structure = structure
 
+    def to_string(self):
+        """
+        Returns a string with the structure in XSF format
+        See http://www.xcrysden.org/doc/XSF.html
+        """
+        lines = []
+        app = lines.append
+
+        app("CRYSTAL")
+        app("# Primitive lattice vectors in Angstrom")
+        app("PRIMVEC")
+        cell = self.structure.lattice_vectors(space="r")
+        for i in range(3):
+            app(' %.14f %.14f %.14f' % tuple(cell[i]))
+
+        cart_coords = self.structure.cart_coords
+        app("# Cartesian coordinates in Angstrom.")
+        app("PRIMCOORD")
+        app(" %d 1" % len(cart_coords))
+
+        for a in range(len(cart_coords)):
+            sp = "%d" % self.structure.atomic_numbers[a]
+            app(sp + ' %20.14f %20.14f %20.14f' % tuple(cart_coords[a]))
+
+        return "\n".join(lines)
+
     @classmethod
     def from_string(self, input_string):
         """

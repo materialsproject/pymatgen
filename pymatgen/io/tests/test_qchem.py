@@ -2225,6 +2225,27 @@ Sites (12)
         self.assertEqual(len(qcout.data[0]["scf_iteration_energies"][0]), 22)
         self.assertTrue("pcm_solvent deprecated" in qcout.data[1]["errors"])
 
+    def test_output_file_wierd_encoding(self):
+        filename = os.path.join(test_dir, "ferrocenium_1pos.qcout")
+        qcout = QcOutput(filename)
+        self.assertFalse(qcout.data[1]["has_error"])
+        self.assertEqual(qcout.data[1]["frequencies"][0]["frequency"], -157.11)
+
+    def test_homo_lumo_nan_values(self):
+        filename = os.path.join(test_dir, "homo_lumo_nan_values.qcout")
+        qcout = QcOutput(filename)
+        self.assertTrue(qcout.data[0]["has_error"])
+
+    def test_ordinal_not_in_range(self):
+        filename = os.path.join(test_dir, "ordinal_not_in_range.qcout.gz")
+        qcout = QcOutput(filename)
+        self.assertEqual(len(qcout.data), 1)
+
+    def test_aux_mpi_time_in_the_end_of_job(self):
+        filename = os.path.join(test_dir, "aux_mpi_time_mol.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(len(qcout.data), 2)
+
 
 if __name__ == "__main__":
     unittest.main()

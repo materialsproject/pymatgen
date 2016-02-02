@@ -222,18 +222,18 @@ pymatgen.io.xyzio module
     :undoc-members:
     :show-inheritance:
 
-pymatgen.io.zeo module
-----------------------
-
-.. automodule:: pymatgen.io.zeo
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pymatgen.io.zeoio module
 ------------------------
 
 .. automodule:: pymatgen.io.zeoio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.io.zeopp module
+------------------------
+
+.. automodule:: pymatgen.io.zeopp
     :members:
     :undoc-members:
     :show-inheritance:

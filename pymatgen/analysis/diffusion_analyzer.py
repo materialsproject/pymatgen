@@ -30,12 +30,12 @@ __date__ = "5/2/13"
 
 
 import numpy as np
-
 import scipy.constants as const
 
-from pymatgen.core import Structure, get_el_sp
-
 from monty.json import MSONable
+
+from pymatgen.analysis.structure_matcher import StructureMatcher, OrderDisorderElementComparator
+from pymatgen.core import Structure, get_el_sp
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.coord_utils import pbc_diff
 
@@ -298,20 +298,26 @@ class DiffusionAnalyzer(MSONable):
             self.indices = indices
             self.framework_indices = framework_indices
 
-    def get_drift_corrected_structures(self):
+    def get_drift_corrected_structures(self, start=None, stop=None, step=None):
         """
         Returns an iterator for the drift-corrected structures. Use of
         iterator is to reduce memory usage as # of structures in MD can be
         huge. You don't often need all the structures all at once.
+
+        Args:
+            start, stop, step (int): applies a start/stop/step to the iterator.
+                Faster than applying it after generation, as it reduces the
+                number of structures created.
         """
         coords = np.array(self.structure.cart_coords)
         species = self.structure.species_and_occu
         latt = self.structure.lattice
         nsites, nsteps, dim = self.corrected_displacements.shape
-        for i in range(nsteps):
-            yield Structure(latt, species, coords
-                            + self.corrected_displacements[:, i, :],
-                            coords_are_cartesian=True)
+        for i in range(start or 0, stop or nsteps, step or 1):
+            yield Structure(
+                    latt, species,
+                    coords + self.corrected_displacements[:, i, :],
+                    coords_are_cartesian=True)
 
     def get_summary_dict(self, include_msd_t=False):
         """
@@ -345,6 +351,51 @@ class DiffusionAnalyzer(MSONable):
             d["dt"] = self.dt.tolist()
         return d
 
+    def get_framework_rms_plot(self, plt=None, granularity=200, matching_s=None):
+        """
+        Get the plot of rms framework displacement vs time. Useful for checking
+        for melting, especially if framework atoms can move via paddle-wheel
+        or similar mechanism (which would show up in max framework displacement
+        but doesn't constitute melting).
+
+        Args:
+            granularity (int): Number of structures to match
+            matching_s (Structure): Optionally match to a disordered structure
+                instead of the first structure in the analyzer. Required when
+                a secondary mobile ion is present.
+        """
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        plt = get_publication_quality_plot(12, 8, plt=plt)
+        step = (self.corrected_displacements.shape[1] - 1) // (granularity - 1)
+        f = (matching_s or self.structure).copy()
+        f.remove_species([self.specie])
+        sm = StructureMatcher(primitive_cell=False, stol=0.6,
+                              comparator=OrderDisorderElementComparator(),
+                              allow_subset=True)
+        rms = []
+        for s in self.get_drift_corrected_structures(step=step):
+            s.remove_species([self.specie])
+            d = sm.get_rms_dist(f, s)
+            if d:
+                rms.append(d)
+            else:
+                rms.append((1, 1))
+        max_dt = (len(rms) - 1) * step * self.step_skip * self.time_step
+        if max_dt > 100000:
+            plot_dt = np.linspace(0, max_dt/1000, len(rms))
+            unit = 'ps'
+        else:
+            plot_dt = np.linspace(0, max_dt, len(rms))
+            unit = 'fs'
+        rms = np.array(rms)
+        plt.plot(plot_dt, rms[:, 0], label='RMS')
+        plt.plot(plot_dt, rms[:, 1], label='max')
+        plt.legend(loc='best')
+        plt.xlabel("Timestep ({})".format(unit))
+        plt.ylabel("normalized distance")
+        plt.tight_layout()
+        return plt
+
     def get_msd_plot(self, plt=None, mode="specie"):
         """
         Get the plot of the smoothed msd vs time graph. Useful for
@@ -353,30 +404,39 @@ class DiffusionAnalyzer(MSONable):
         Args:
             plt: A plot object. Defaults to None, which means one will be
                 generated.
+            mode (str): Determines type of msd plot. By "species", "sites",
+                or direction (default).
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8, plt=plt)
+        if np.max(self.dt) > 100000:
+            plot_dt = self.dt / 1000
+            unit = 'ps'
+        else:
+            plot_dt = self.dt
+            unit = 'fs'
 
         if mode == "species":
             for sp in sorted(self.structure.composition.keys()):
                 indices = [i for i, site in enumerate(self.structure) if
                            site.specie == sp]
                 sd = np.average(self.sq_disp_ions[indices, :], axis=0)
-                plt.plot(self.dt, sd, label=sp.__str__())
+                plt.plot(plot_dt, sd, label=sp.__str__())
             plt.legend(loc=2, prop={"size": 20})
-        elif mode == "ions":
+        elif mode == "sites":
             for i, site in enumerate(self.structure):
                 sd = self.sq_disp_ions[i, :]
-                plt.plot(self.dt, sd, label="%s - %d" % (
+                plt.plot(plot_dt, sd, label="%s - %d" % (
                     site.specie.__str__(), i))
             plt.legend(loc=2, prop={"size": 20})
-        else: #Handle default / invalid mode case
-            plt.plot(self.dt, self.msd, 'k')
-            plt.plot(self.dt, self.msd_components[:, 0], 'r')
-            plt.plot(self.dt, self.msd_components[:, 1], 'g')
-            plt.plot(self.dt, self.msd_components[:, 2], 'b')
+        else:
+            # Handle default / invalid mode case
+            plt.plot(plot_dt, self.msd, 'k')
+            plt.plot(plot_dt, self.msd_components[:, 0], 'r')
+            plt.plot(plot_dt, self.msd_components[:, 1], 'g')
+            plt.plot(plot_dt, self.msd_components[:, 2], 'b')
             plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
-        plt.xlabel("Timestep (fs)")
+        plt.xlabel("Timestep ({})".format(unit))
         plt.ylabel("MSD ($\AA^2$)")
         plt.tight_layout()
         return plt
@@ -711,12 +771,15 @@ def fit_arrhenius(temps, diffusivities):
     """
     t_1 = 1 / np.array(temps)
     logd = np.log(diffusivities)
-    #Do a least squares regression of log(D) vs 1/T
+    # Do a least squares regression of log(D) vs 1/T
     a = np.array([t_1, np.ones(len(temps))]).T
     w, res, _, _ = np.linalg.lstsq(a, logd)
     w = np.array(w)
     n = len(temps)
-    std_Ea = (res[0] / (n - 2) / (n * np.var(t_1))) ** 0.5 * const.k / const.e
+    if n > 2:
+        std_Ea = (res[0] / (n - 2) / (n * np.var(t_1))) ** 0.5 * const.k / const.e
+    else:
+        std_Ea = None
     return -w[0] * const.k / const.e, np.exp(w[1]), std_Ea
 
 
@@ -779,9 +842,8 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
     from pymatgen.util.plotting_utils import get_publication_quality_plot
     plt = get_publication_quality_plot(12, 8)
 
-    #log10 of the arrhenius fit
-    arr = c * np.exp(-Ea / (const.k / const.e *
-                                               np.array(temps)))
+    # log10 of the arrhenius fit
+    arr = c * np.exp(-Ea / (const.k / const.e * np.array(temps)))
 
     t_1 = 1000 / np.array(temps)
 
