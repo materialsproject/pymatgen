@@ -1,0 +1,54 @@
+#generated using pymatgen
+data_Cr2FeO4
+_symmetry_space_group_name_H-M   'P 1'
+_cell_length_a   6.12880221
+_cell_length_b   6.28931199
+_cell_length_c   8.16006188
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   1
+_chemical_formula_structural   Cr2FeO4
+_chemical_formula_sum   'Cr8 Fe4 O16'
+_cell_volume   314.537330926
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Cr  Cr1  1  0.000000  0.500000  0.000000  1.0
+  Cr  Cr2  1  0.750000  0.000000  0.120723  1.0
+  Cr  Cr3  1  0.250000  0.000000  0.879277  1.0
+  Cr  Cr4  1  0.750000  0.500000  0.379277  1.0
+  Cr  Cr5  1  0.250000  0.500000  0.620723  1.0
+  Cr  Cr6  1  0.500000  0.500000  0.000000  1.0
+  Cr  Cr7  1  0.500000  0.000000  0.500000  1.0
+  Cr  Cr8  1  0.000000  0.000000  0.500000  1.0
+  Fe  Fe9  1  0.250000  0.750000  0.250000  1.0
+  Fe  Fe10  1  0.250000  0.250000  0.250000  1.0
+  Fe  Fe11  1  0.750000  0.750000  0.750000  1.0
+  Fe  Fe12  1  0.750000  0.250000  0.750000  1.0
+  O  O13  1  0.986996  0.000000  0.749355  1.0
+  O  O14  1  0.513004  0.000000  0.749355  1.0
+  O  O15  1  0.750000  0.283610  0.009900  1.0
+  O  O16  1  0.750000  0.716390  0.009900  1.0
+  O  O17  1  0.250000  0.216390  0.509900  1.0
+  O  O18  1  0.013004  0.000000  0.250645  1.0
+  O  O19  1  0.013004  0.500000  0.249355  1.0
+  O  O20  1  0.750000  0.216390  0.490100  1.0
+  O  O21  1  0.486996  0.500000  0.249355  1.0
+  O  O22  1  0.250000  0.283610  0.990100  1.0
+  O  O23  1  0.513004  0.500000  0.750645  1.0
+  O  O24  1  0.250000  0.716390  0.990100  1.0
+  O  O25  1  0.986996  0.500000  0.750645  1.0
+  O  O26  1  0.486996  0.000000  0.250645  1.0
+  O  O27  1  0.250000  0.783610  0.509900  1.0
+  O  O28  1  0.750000  0.783610  0.490100  1.0

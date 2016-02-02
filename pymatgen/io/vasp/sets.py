@@ -701,6 +701,15 @@ class MITMDVaspInputSet(DictVaspInputSet):
                    sort_structure=d.get("sort_structure", True))
 
 
+MinimalVaspInputSet = partial(DictVaspInputSet.from_file, "MP",
+                        os.path.join(MODULE_DIR, "MinimalVaspInputSet.yaml"))
+"""
+Implementation of a Minimalist VaspInputSet utilizing PBE 
+GGA calculations, ALGO=Exact, and a basic KPOINT grid density
+of 1000 for use with the User Friendly Vasp Interfaces 
+located in pymatgen.io.vasp.interfaces.  
+"""
+
 MPVaspInputSet = partial(DictVaspInputSet.from_file, "MP",
                          os.path.join(MODULE_DIR, "MPVaspInputSet.yaml"))
 """

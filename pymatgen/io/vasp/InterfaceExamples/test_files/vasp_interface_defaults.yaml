@@ -1,0 +1,20 @@
+VASP_INPUT_SET:  MinimalVaspInputSet
+INPUT_SET_PARAMS:
+  user_incar_settings:
+    ALGO: Normal
+    LOPTICS: .TRUE.
+    CSHIFT: 0.1 
+    NEDOS: 4096
+    SIGMA: 0.01
+CUSTOM_PARAMS:
+  user_kpts_settings:
+    kpts_style:  Gamma
+    kpts: 
+    -   6
+    -   6
+    -   6
+    kpts_shift:  
+    -   0
+    -   0
+    -   0
+
