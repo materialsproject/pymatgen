@@ -75,8 +75,8 @@ class VaspInput:
                     "Configuration File not supplied and\n"
                     "${HOME}/vasp_interface_defaults.yaml does\n"
                     "not exist. You can copy this file from\n"
-                    "pymatgen/io/vasp/InterfaceExamples/test_files/\n
-                    vasp_interface_defaults.yaml and modify it \n"
+                    "pymatgen/io/vasp/InterfaceExamples/test_files/\n"
+                    "vasp_interface_defaults.yaml and modify it \n"
                     "for your project's needs.\n"
                     "*********************************************\n\n"
                     "Will continue with MinimalVaspInputSet parameters.\n")
