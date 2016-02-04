@@ -258,7 +258,11 @@ class VaspFirework():
                 handler_params=self.handler_params)] if isinstance(vasp_task, 
                 VaspInput) else [vasp_task]
         self.Firework=Firework(self.tasks,name=self.name)
-        self.LaunchPad=LaunchPad.from_file(os.path.join(os.environ["HOME"], ".fireworks", "my_launchpad.yaml"))
+        # Try to establish connection with Launchpad
+        try:
+            self.LaunchPad=LaunchPad.from_file(os.path.join(os.environ["HOME"], ".fireworks", "my_launchpad.yaml"))
+        except:
+            self.LaunchPad = None
 
     def add_task(self, task):
         '''
@@ -279,8 +283,13 @@ class VaspFirework():
         self.Firework.to_file(file_name)
 
     def add_fw_to_launchpad(self):
-        self.Workflow=Workflow([self.Firework])
-        self.LaunchPad.add_wf(self.Workflow)
+        if self.LaunchPad:
+            self.Workflow=Workflow([self.Firework])
+            self.LaunchPad.add_wf(self.Workflow)
+        else:
+            print("No connection to LaunchPad. \n"
+                "Use 'to_file(<filename>)' to write a yaml file\n"
+                "to manually add Firework to LaunchPad later.\n")
 
     def copy_files_from_previous(self, *args, **kwargs):
         '''
@@ -401,7 +410,11 @@ class VaspWorkflow():
             if not self.deps and id != 0:
                 self.dependency[self.fws[id-1]]=[fw_task.Firework]
         self.wf = Workflow(self.fws, self.dependency, name=self.name)
-        self.LaunchPad=LaunchPad.from_file(os.path.join(os.environ["HOME"], ".fireworks", "my_launchpad.yaml"))
+        # Try to establish connection with Launchpad
+        try:
+            self.LaunchPad=LaunchPad.from_file(os.path.join(os.environ["HOME"], ".fireworks", "my_launchpad.yaml"))
+        except:
+            self.LaunchPad = None
 
 
     def add_fw(self, fw_task, deps=None):
@@ -423,7 +436,12 @@ class VaspWorkflow():
 
 
     def add_wf_to_launchpad(self):
-        self.LaunchPad.add_wf(self.Workflow)
+        if self.LaunchPad:
+            self.LaunchPad.add_wf(self.Workflow)
+        else:
+            print("No connection to LaunchPad. \n"
+                "Use 'to_file(<filename>)' to write a yaml file\n"
+                "to manually add Workflow to LaunchPad later.\n")
 
 
 @explicit_serialize

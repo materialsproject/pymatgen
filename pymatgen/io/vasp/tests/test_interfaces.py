@@ -12,17 +12,19 @@ __date__ = "2016-01-29"
 
 import unittest
 import shutil
+import pkgutil
 import os
 
-from fireworks import ScriptTask
-from pymatgen.io.vasp.interfaces import VaspInput, VaspFirework, VaspWorkflow, VaspTransferTask
 from pymatgen import Structure
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 test_dir = os.path.join(MODULE_DIR, '..', 'InterfaceExamples', 'test_files')
 
+@unittest.skipUnless(1 if pkgutil.find_loader("fireworks") else 0, "Requires Fireworks")
 class VaspInputTest(unittest.TestCase):
     def setUp(self):
+        from pymatgen.io.vasp.interfaces import VaspInput
+        self.maxDiff=None
         self.mol_dict = {u'@class': 'Structure',
             u'@module': 'pymatgen.core.structure',
             u'lattice': {u'a': 3.09681658,
@@ -163,8 +165,11 @@ class VaspInputTest(unittest.TestCase):
         self.assertEqual(nelect, 8.0, msg=None)
 
 
+@unittest.skipUnless(1 if pkgutil.find_loader("fireworks") else 0, "Requires Fireworks")
 class VaspFireworkTest(unittest.TestCase):
     def setUp(self):
+        from pymatgen.io.vasp.interfaces import VaspFirework
+        from fireworks import ScriptTask
         self.mol_file = 'SiC_0.cif'
         self.config_file = os.path.join(test_dir, 'vasp_interface_defaults.yaml')
         self.input = VaspInput(s=self.mol_file, config_file=self.config_file)
@@ -348,8 +353,10 @@ class VaspFireworkTest(unittest.TestCase):
         self.assertDictEqual(fw_dic, gdic, msg=None)
 
 
+@unittest.skipUnless(1 if pkgutil.find_loader("fireworks") else 0, "Requires Fireworks")
 class VaspWorkflowTest(unittest.TestCase):
     def setUp(self):
+        from pymatgen.io.vasp.interfaces import VaspWorkflow
         self.mol_file = 'SiC_0.cif'
         self.config_file = os.path.join(test_dir, 'vasp_interface_defaults.yaml')
         self.input = VaspInput(s=self.mol_file, config_file=self.config_file)
@@ -416,8 +423,10 @@ class VaspWorkflowTest(unittest.TestCase):
         self.assertDictEqual(link_dic, self.links2, msg=None)
 
 
+@unittest.skipUnless(1 if pkgutil.find_loader("fireworks") else 0, "Requires Fireworks")
 class VaspTransferTaskTest(unittest.TestCase):
     def setUp(self):
+        from pymatgen.io.vasp.interfaces import VaspTransferTask
         self.src_dir  = os.path.join(test_dir, 'VASP_INTERFACES_TEST_FILES', 'TRNFR_TEST_FILES')
         self.dest_dir = os.path.join(os.environ['HOME'], 'TRNFR_TEST')
         if not os.path.exists(self.dest_dir):
