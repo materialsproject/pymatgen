@@ -76,12 +76,20 @@ class Lattice(MSONable):
         """
         Returns a new instance from a dictionary with the variables
         used in ABINIT to define the unit cell.
+        If acell is not give, the Abinit default is used i.e. [1,1,1] Bohr
+
+        Example:
+
+            lattice.from_abivars(
+                acell=3*[10],
+                rprim=np.eye(3),
+            )
         """
         kwargs.update(dict(*args))
         d = kwargs
         rprim = d.get("rprim", None)
         angdeg = d.get("angdeg", None)
-        acell = d["acell"]
+        acell = d.get("acell", [1,1,1])
 
         # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
         if rprim is not None:

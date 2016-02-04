@@ -24,7 +24,7 @@ from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
 from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
-from .tasks import (Task, AbinitTask, ScfTask, NscfTask, PhononTask, DdkTask, 
+from .tasks import (Task, AbinitTask, ScfTask, NscfTask, DfptTask, PhononTask, DdkTask, 
                     BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask,
                     EphTask)
 
@@ -1276,7 +1276,8 @@ class MergeDdb(object):
         Returns:
             path to the output DDB file
         """
-        ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in self]))
+        ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in self \
+                                       if isinstance(task, DfptTask)]))
 
         self.history.info("Will call mrgddb to merge %s:\n" % str(ddb_files))
         # assert len(ddb_files) == len(self)
