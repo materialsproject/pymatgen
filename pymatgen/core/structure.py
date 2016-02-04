@@ -518,7 +518,24 @@ class IStructure(SiteCollection, MSONable):
 
     @classmethod
     def from_abivars(cls, *args, **kwargs):
-        """Build a :class:`Structure` object from a dictionary with ABINIT variables."""
+        """
+        Build a :class:`Structure` object from a dictionary with ABINIT variables.
+
+        example:
+
+            al_structure = Structure.from_abivars(
+                acell=3*[7.5],
+                rprim=[0.0, 0.5, 0.5, 
+                       0.5, 0.0, 0.5,
+                       0.5, 0.5, 0.0],
+                typat=1,
+                xred=[0.0, 0.0, 0.0],
+                ntypat=1,
+                znucl=13,
+            )
+
+        `xred` can be replaced with `xcart` or `xangst`.
+        """
         kwargs.update(dict(*args))
         d = kwargs
 
@@ -528,14 +545,15 @@ class IStructure(SiteCollection, MSONable):
         if coords is None:
             coords = d.get("xcart", None)
             if coords is not None:
+                if "xangst" in d:
+                    raise ValueError("xangst and xcart are mutually exclusive")
                 coords = ArrayWithUnit(coords, "bohr").to("ang")
             else:
                 coords = d.get("xangst", None)
             coords_are_cartesian = True
 
         if coords is None:
-            raise ValueError("Cannot extract atomic coordinates from dict %s"
-                             % str(d))
+            raise ValueError("Cannot extract coordinates from:\n %s" % str(d))
 
         coords = np.reshape(coords, (-1,3))
 
