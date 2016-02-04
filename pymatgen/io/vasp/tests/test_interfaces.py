@@ -427,7 +427,7 @@ class VaspWorkflowTest(unittest.TestCase):
 class VaspTransferTaskTest(unittest.TestCase):
     def setUp(self):
         from pymatgen.io.vasp.interfaces import VaspTransferTask
-        self.src_dir  = os.path.join(test_dir, 'VASP_INTERFACES_TEST_FILES', 'TRNFR_TEST_FILES')
+        self.src_dir  = os.path.join(test_dir, 'TRNFR_TEST_FILES')
         self.dest_dir = os.path.join(os.environ['HOME'], 'TRNFR_TEST')
         if not os.path.exists(self.dest_dir):
             os.mkdir(self.dest_dir)
