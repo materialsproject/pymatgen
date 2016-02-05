@@ -479,10 +479,7 @@ def gramschmidt(vin, uin):
     uin_uin = np.inner(uin, uin)
     if uin_uin <= 0.0:
         raise ValueError("Zero or negative inner product!")
-    vout = np.array([0, 0, 0], float)
-    vout = vin - (vin_uin / uin_uin) * uin
-
-    return vout
+    return vin - (vin_uin / uin_uin) * uin
 
 
 class OrderParameters(object):
