@@ -1617,7 +1617,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # 1) A locked task can only be unlocked by calling set_status explicitly.
         # an errored task, should not end up here but just to be sure
         black_list = (self.S_LOCKED, self.S_ERROR)
-        if self.status in black_list: return self.status
+#        if self.status in black_list: return self.status
 
         # 2) Check the returncode of the process (the process of submitting the job) first.
         # this point type of problem should also be handled by the scheduler error parser
@@ -1721,9 +1721,13 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 #logger.history.debug('found unknown queue error: %s' % str(qerr_info))
                 msg = 'found unknown messages in the queue error: %s' % str(qerr_info)
                 print(msg)
-                self.num_waiting += 1
-                if self.num_waiting > 1000
-                    msg += 'waited for %s wakeups of abirun putting the status to ERROR' % self.waiting
+#                self.num_waiting += 1
+#                if self.num_waiting > 1000:
+                rt = self.datetimes.get_runtime().seconds
+                tl = self.manager.qadapter.timelimit
+                if rt > tl:
+                    msg += 'set to error : runtime (%s) exceded walltime (%s)' % (rt, tl)
+                    print(msg)
                     return self.set_status(self.S_ERROR, msg=msg)
                 # The job may be killed or crashed but we don't know what happened
                 # It may also be that an innocent message was written to qerr, so we wait for a while
