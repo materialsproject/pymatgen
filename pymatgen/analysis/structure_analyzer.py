@@ -8,7 +8,6 @@ from __future__ import division, unicode_literals
 This module provides classes to perform topological analyses of structures.
 """
 
-
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
@@ -220,7 +219,7 @@ class VoronoiConnectivity(object):
         i = np.ceil(cutoff * recp_len / (2 * math.pi))
         offsets = np.mgrid[-i[0]:i[0] + 1, -i[1]:i[1] + 1, -i[2]:i[2] + 1].T
         self.offsets = np.reshape(offsets, (-1, 3))
-        #shape = [image, axis]
+        # shape = [image, axis]
         self.cart_offsets = self.s.lattice.get_cartesian_coords(self.offsets)
 
     @property
@@ -235,9 +234,9 @@ class VoronoiConnectivity(object):
             by both an atom index and an image index. Array data is the
             solid angle of polygon between atomi and imagej of atomj
         """
-        #shape = [site, axis]
+        # shape = [site, axis]
         cart_coords = np.array(self.s.cart_coords)
-        #shape = [site, image, axis]
+        # shape = [site, image, axis]
         all_sites = cart_coords[:, None, :] + self.cart_offsets[None, :, :]
         vt = Voronoi(all_sites.reshape((-1, 3)))
         n_images = all_sites.shape[1]
@@ -255,12 +254,12 @@ class VoronoiConnectivity(object):
                 continue
 
             if imagei == n_images // 2:
-                #atomi is in original cell
+                # atomi is in original cell
                 val = solid_angle(vt.points[ki], vts[v])
                 connectivity[atomi, atomj, imagej] = val
 
             if imagej == n_images // 2:
-                #atomj is in original cell
+                # atomj is in original cell
                 val = solid_angle(vt.points[kj], vts[v])
                 connectivity[atomj, atomi, imagei] = val
 
@@ -328,7 +327,7 @@ def solid_angle(center, coords):
     n.append(np.cross(r[1], r[0]))
     vals = []
     for i in range(len(n) - 1):
-        v = -np.dot(n[i], n[i + 1])\
+        v = -np.dot(n[i], n[i + 1]) \
             / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
         vals.append(math.acos(abs_cap(v)))
     phi = sum(vals)
@@ -366,6 +365,7 @@ class OxideType(object):
             1.1. At most 1.1 is recommended, nothing larger, otherwise the
             script cannot distinguish between superoxides and peroxides.
     """
+
     def __init__(self, structure, relative_cutoff=1.1):
         self.structure = structure
         self.relative_cutoff = relative_cutoff
@@ -399,7 +399,7 @@ class OxideType(object):
             return "None", 0
 
         for site in structure:
-            syms = [sp. symbol for sp in site.species_and_occu.keys()]
+            syms = [sp.symbol for sp in site.species_and_occu.keys()]
             if "O" in syms:
                 o_sites_frac_coords.append(site.frac_coords)
             if "H" in syms:
@@ -463,7 +463,6 @@ def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
 
 
 def gramschmidt(vin, uin):
-
     """
     Returns that part of the first input vector
     that is orthogonal to the second input vector.
@@ -487,7 +486,6 @@ def gramschmidt(vin, uin):
 
 
 def normalize(vec):
-
     """
     Returns the input vector in a normalized form.
 
@@ -509,28 +507,13 @@ def normalize(vec):
     return vout
 
 
-def vlength(v):
-
-    """
-    Returns the length of the input vector.
-
-    Args:
-        v (numpy array):
-            vector for which length is to be computed
-    """
-
-    return math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
-
 class OrderParameters(object):
-
     """
     This class permits the calculation of various types of local order
     parameters.
     """
 
-
     __supported_types = ("cn", "tet", "oct", "bcc", "q2", "q4", "q6")
-
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -633,66 +616,68 @@ class OrderParameters(object):
                         tmpparas[i].append(loc_parameters[i][0])
             elif t == "tet":
                 if len(loc_parameters[i]) == 0:
-                    tmpparas[i].append(1.0/0.0667)
+                    tmpparas[i].append(1.0 / 0.0667)
                 else:
                     if loc_parameters[i][0] == 0.0:
                         raise ValueError("Gaussian width for"
                                          " tetrahedral order"
                                          " parameter is zero!")
                     else:
-                        tmpparas[i].append(1.0/loc_parameters[i][0])
+                        tmpparas[i].append(1.0 / loc_parameters[i][0])
             elif t == "oct":
                 if len(loc_parameters[i]) < 4:
-                    tmpparas[i].append(8.0*pi/9.0)
-                    tmpparas[i].append(1.0/0.0667)
-                    tmpparas[i].append(1.0/0.0556)
+                    tmpparas[i].append(8.0 * pi / 9.0)
+                    tmpparas[i].append(1.0 / 0.0667)
+                    tmpparas[i].append(1.0 / 0.0556)
                     tmpparas[i].append(0.25)
-                    tmpparas[i].append(4.0/3.0)
+                    tmpparas[i].append(4.0 / 3.0)
                 else:
-                    if loc_parameters[i][0]<=0.0 or loc_parameters[i][0]>=180.0:
+                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
+                            0] >= 180.0:
                         warn("Threshold value for south pole"
                              " configurations in octahedral order"
                              " parameter outside ]0,180[")
-                    tmpparas[i].append(loc_parameters[i][0]*pi/180.0)
+                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
                     if loc_parameters[i][1] == 0.0:
                         raise ValueError("Gaussian width for south pole"
                                          " configurations in octahedral"
                                          " order parameter is zero!")
                     else:
-                        tmpparas[i].append(1.0/loc_parameters[i][1])
+                        tmpparas[i].append(1.0 / loc_parameters[i][1])
                     if loc_parameters[i][2] == 0.0:
                         raise ValueError("Gaussian width for equatorial"
                                          " configurations in octahedral"
                                          " order parameter is zero!")
                     else:
-                        tmpparas[i].append(1.0/loc_parameters[i][2])
-                    if loc_parameters[i][3]-1.0 == 0.0:
+                        tmpparas[i].append(1.0 / loc_parameters[i][2])
+                    if loc_parameters[i][3] - 1.0 == 0.0:
                         raise ValueError("Shift constant may not be"
                                          " unity!")
                     if loc_parameters[i][3] < 0.0 or loc_parameters[i][3] > 1.0:
                         warn("Shift constant outside [0,1[.")
                     tmpparas[i].append(loc_parameters[i][3])
-                    tmpparas[i].append(1.0/(1.0-loc_parameters[i][3]))
+                    tmpparas[i].append(1.0 / (1.0 - loc_parameters[i][3]))
             elif t == "bcc":
                 if len(loc_parameters[i]) < 2:
-                    tmpparas[i].append(8.0*pi/9.0)
-                    tmpparas[i].append(1.0/0.0667)
+                    tmpparas[i].append(8.0 * pi / 9.0)
+                    tmpparas[i].append(1.0 / 0.0667)
                 else:
-                    if loc_parameters[i][0]<=0.0 or loc_parameters[i][0]>=180.0:
+                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
+                            0] >= 180.0:
                         warn("Threshold value for south pole"
                              " configurations in bcc order"
                              " parameter outside ]0,180[")
-                    tmpparas[i].append(loc_parameters[i][0]*pi/180.0)
+                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
                     if loc_parameters[i][1] == 0.0:
                         raise ValueError("Gaussian width for south pole"
                                          " configurations in bcc"
                                          " order parameter is zero!")
                     else:
-                        tmpparas[i].append(1.0/loc_parameters[i][1])
+                        tmpparas[i].append(1.0 / loc_parameters[i][1])
             # All following types should be well-defined/-implemented,
             # and they should not require parameters.
             elif t != "q2" and t != "q4" and t != "q6":
-                raise ValueError("unknown order-parameter type \""+t+"\"")
+                raise ValueError("unknown order-parameter type \"" + t + "\"")
 
             # Add here any additional flags to be used during calculation.
             if t == "tet" or t == "oct" or t == "bcc":
@@ -724,7 +709,6 @@ class OrderParameters(object):
         self._sin_n_p = {}
         self._cos_n_p = {}
 
-
     @property
     def num_ops(self):
 
@@ -734,7 +718,6 @@ class OrderParameters(object):
         """
 
         return len(self._types)
-
 
     @property
     def last_nneigh(self):
@@ -746,7 +729,6 @@ class OrderParameters(object):
         """
 
         return len(self._last_nneigh)
-
 
     def compute_trigonometric_terms(self, thetas=[], phis=[]):
 
@@ -783,19 +765,18 @@ class OrderParameters(object):
 
         self._pow_sin_t[1] = [math.sin(float(t)) for t in thetas]
         self._pow_cos_t[1] = [math.cos(float(t)) for t in thetas]
-        self._sin_n_p[1]   = [math.sin(float(p)) for p in phis]
-        self._cos_n_p[1]   = [math.cos(float(p)) for p in phis]
+        self._sin_n_p[1] = [math.sin(float(p)) for p in phis]
+        self._cos_n_p[1] = [math.cos(float(p)) for p in phis]
 
-        for i in range(2, self._max_trig_order+1):
-            self._pow_sin_t[i] = [e[0]*e[1] for e in zip(
-                self._pow_sin_t[i-1], self._pow_sin_t[1])]
-            self._pow_cos_t[i] = [e[0]*e[1] for e in zip(
-                self._pow_cos_t[i-1], self._pow_cos_t[1])]
-            self._sin_n_p[i]  = [math.sin(float(i)*float(p)) \
-                for p in phis]
-            self._cos_n_p[i]  = [math.cos(float(i)*float(p)) \
-                for p in phis]
-
+        for i in range(2, self._max_trig_order + 1):
+            self._pow_sin_t[i] = [e[0] * e[1] for e in zip(
+                self._pow_sin_t[i - 1], self._pow_sin_t[1])]
+            self._pow_cos_t[i] = [e[0] * e[1] for e in zip(
+                self._pow_cos_t[i - 1], self._pow_cos_t[1])]
+            self._sin_n_p[i] = [math.sin(float(i) * float(p)) \
+                                for p in phis]
+            self._cos_n_p[i] = [math.cos(float(i) * float(p)) \
+                                for p in phis]
 
     def get_q2(self, thetas=[], phis=[]):
 
@@ -822,12 +803,12 @@ class OrderParameters(object):
         nnn = len(self._pow_sin_t[1])
         nnn_range = range(nnn)
 
-        sqrt_15_2pi = math.sqrt(15.0/(2.0*pi))
-        sqrt_5_pi   = math.sqrt(5.0/pi)
+        sqrt_15_2pi = math.sqrt(15.0 / (2.0 * pi))
+        sqrt_5_pi = math.sqrt(5.0 / pi)
 
         pre_y_2_2 = [0.25 * sqrt_15_2pi * val for val in self._pow_sin_t[2]]
         pre_y_2_1 = [0.5 * sqrt_15_2pi * val[0] * val[1]
-            for val in zip(self._pow_sin_t[1],self._pow_cos_t[1])]
+                     for val in zip(self._pow_sin_t[1], self._pow_cos_t[1])]
 
         acc = 0.0
 
@@ -836,38 +817,37 @@ class OrderParameters(object):
         for i in nnn_range:
             real += pre_y_2_2[i] * self._cos_n_p[2][i]
             imag -= pre_y_2_2[i] * self._sin_n_p[2][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_2_-1
         real = imag = 0.0
         for i in nnn_range:
             real += pre_y_2_1[i] * self._cos_n_p[1][i]
             imag -= pre_y_2_1[i] * self._sin_n_p[1][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_2_0
         real = imag = 0.0
         for i in nnn_range:
-            real += 0.25 * sqrt_5_pi * (3.0*self._pow_cos_t[2][i] - 1.0)
-        acc += (real*real)
+            real += 0.25 * sqrt_5_pi * (3.0 * self._pow_cos_t[2][i] - 1.0)
+        acc += (real * real)
 
         # Y_2_1
         real = imag = 0.0
         for i in nnn_range:
             real -= pre_y_2_1[i] * self._cos_n_p[1][i]
             imag -= pre_y_2_1[i] * self._sin_n_p[1][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_2_2
         real = imag = 0.0
         for i in nnn_range:
             real += pre_y_2_2[i] * self._cos_n_p[2][i]
             imag += pre_y_2_2[i] * self._sin_n_p[2][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
-        q2 = math.sqrt(4.0 * pi * acc / (5.0 * float(nnn*nnn)))
+        q2 = math.sqrt(4.0 * pi * acc / (5.0 * float(nnn * nnn)))
         return q2
-
 
     def get_q4(self, thetas=[], phis=[]):
 
@@ -897,20 +877,20 @@ class OrderParameters(object):
         i16_3 = 3.0 / 16.0
         i8_3 = 3.0 / 8.0
 
-        sqrt_35_pi  = math.sqrt(35.0/pi)
-        sqrt_35_2pi = math.sqrt(35.0/(2.0*pi))
-        sqrt_5_pi   = math.sqrt(5.0/pi)
-        sqrt_5_2pi  = math.sqrt(5.0/(2.0*pi))
-        sqrt_1_pi   = math.sqrt(1.0/pi)
+        sqrt_35_pi = math.sqrt(35.0 / pi)
+        sqrt_35_2pi = math.sqrt(35.0 / (2.0 * pi))
+        sqrt_5_pi = math.sqrt(5.0 / pi)
+        sqrt_5_2pi = math.sqrt(5.0 / (2.0 * pi))
+        sqrt_1_pi = math.sqrt(1.0 / pi)
 
         pre_y_4_4 = [i16_3 * sqrt_35_2pi * val for val in self._pow_sin_t[4]]
         pre_y_4_3 = [i8_3 * sqrt_35_pi * val[0] * val[1] \
-            for val in zip(self._pow_sin_t[3],self._pow_cos_t[1])]
-        pre_y_4_2 = [i8_3 * sqrt_5_2pi * val[0] * (7.0*val[1] - 1.0) \
-            for val in zip(self._pow_sin_t[2],self._pow_cos_t[2])]
-        pre_y_4_1 = [i8_3 * sqrt_5_pi * val[0] * (7.0*val[1] - 3.0*val[2]) \
-            for val in zip(self._pow_sin_t[1],self._pow_cos_t[3], \
-                           self._pow_cos_t[1])]
+                     for val in zip(self._pow_sin_t[3], self._pow_cos_t[1])]
+        pre_y_4_2 = [i8_3 * sqrt_5_2pi * val[0] * (7.0 * val[1] - 1.0) \
+                     for val in zip(self._pow_sin_t[2], self._pow_cos_t[2])]
+        pre_y_4_1 = [i8_3 * sqrt_5_pi * val[0] * (7.0 * val[1] - 3.0 * val[2]) \
+                     for val in zip(self._pow_sin_t[1], self._pow_cos_t[3], \
+                                    self._pow_cos_t[1])]
 
         acc = 0.0
 
@@ -919,65 +899,65 @@ class OrderParameters(object):
         for i in nnn_range:
             real += pre_y_4_4[i] * self._cos_n_p[4][i]
             imag -= pre_y_4_4[i] * self._sin_n_p[4][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_4_-3
         real = imag = 0.0
         for i in nnn_range:
             real += pre_y_4_3[i] * self._cos_n_p[3][i]
             imag -= pre_y_4_3[i] * self._sin_n_p[3][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_4_-2
         real = imag = 0.0
         for i in nnn_range:
             real += pre_y_4_2[i] * self._cos_n_p[2][i]
             imag -= pre_y_4_2[i] * self._sin_n_p[2][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_4_-1
         real = imag = 0.0
         for i in nnn_range:
             real += pre_y_4_1[i] * self._cos_n_p[1][i]
             imag -= pre_y_4_1[i] * self._sin_n_p[1][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_4_0
         real = imag = 0.0
         for i in nnn_range:
-            real += i16_3 * sqrt_1_pi * (35.0*self._pow_cos_t[4][i] - \
-                30.0*self._pow_cos_t[2][i] + 3.0)
-        acc += (real*real)
+            real += i16_3 * sqrt_1_pi * (35.0 * self._pow_cos_t[4][i] - \
+                                         30.0 * self._pow_cos_t[2][i] + 3.0)
+        acc += (real * real)
 
         # Y_4_1
         real = imag = 0.0
         for i in nnn_range:
             real -= pre_y_4_1[i] * self._cos_n_p[1][i]
             imag -= pre_y_4_1[i] * self._sin_n_p[1][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_4_2
         real = imag = 0.0
         for i in nnn_range:
             real += pre_y_4_2[i] * self._cos_n_p[2][i]
             imag += pre_y_4_2[i] * self._sin_n_p[2][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_4_3
         real = imag = 0.0
         for i in nnn_range:
             real -= pre_y_4_3[i] * self._cos_n_p[3][i]
             imag -= pre_y_4_3[i] * self._sin_n_p[3][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_4_4
         real = imag = 0.0
         for i in nnn_range:
             real += pre_y_4_4[i] * self._cos_n_p[4][i]
             imag += pre_y_4_4[i] * self._sin_n_p[4][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
-        q4 = math.sqrt(4.0 * pi * acc / (9.0 * float(nnn*nnn)))
+        q4 = math.sqrt(4.0 * pi * acc / (9.0 * float(nnn * nnn)))
         return q4
 
     def get_q6(self, thetas=[], phis=[]):
@@ -1010,27 +990,32 @@ class OrderParameters(object):
         i32_3 = 3.0 / 32.0
         i16 = 1.0 / 16.0
 
-        sqrt_3003_pi = math.sqrt(3003.0/pi)
-        sqrt_1001_pi = math.sqrt(1001.0/pi)
-        sqrt_91_2pi  = math.sqrt(91.0/(2.0*pi))
-        sqrt_1365_pi = math.sqrt(1365.0/pi)
-        sqrt_273_2pi = math.sqrt(273.0/(2.0*pi))
-        sqrt_13_pi   = math.sqrt(13.0/pi)
+        sqrt_3003_pi = math.sqrt(3003.0 / pi)
+        sqrt_1001_pi = math.sqrt(1001.0 / pi)
+        sqrt_91_2pi = math.sqrt(91.0 / (2.0 * pi))
+        sqrt_1365_pi = math.sqrt(1365.0 / pi)
+        sqrt_273_2pi = math.sqrt(273.0 / (2.0 * pi))
+        sqrt_13_pi = math.sqrt(13.0 / pi)
 
         pre_y_6_6 = [i64 * sqrt_3003_pi * val for val in self._pow_sin_t[6]]
         pre_y_6_5 = [i32_3 * sqrt_1001_pi * val[0] * val[1] \
-            for val in zip(self._pow_sin_t[5], self._pow_cos_t[1])]
-        pre_y_6_4 = [i32_3 * sqrt_91_2pi * val[0] * (11.0*val[1] - 1.0) \
-            for val in zip(self._pow_sin_t[4], self._pow_cos_t[2])]
-        pre_y_6_3 = [i32 * sqrt_1365_pi * val[0] * (11.0*val[1] - 3.0*val[2]) \
+                     for val in zip(self._pow_sin_t[5], self._pow_cos_t[1])]
+        pre_y_6_4 = [i32_3 * sqrt_91_2pi * val[0] * (11.0 * val[1] - 1.0) \
+                     for val in zip(self._pow_sin_t[4], self._pow_cos_t[2])]
+        pre_y_6_3 = [
+            i32 * sqrt_1365_pi * val[0] * (11.0 * val[1] - 3.0 * val[2]) \
             for val in zip(self._pow_sin_t[3], self._pow_cos_t[3], \
-            self._pow_cos_t[1])]
-        pre_y_6_2 = [i64 * sqrt_1365_pi * val[0] * (33.0*val[1] - \
-            18.0*val[2] + 1.0) for val in zip(self._pow_sin_t[2], \
-            self._pow_cos_t[4], self._pow_cos_t[2])]
-        pre_y_6_1 = [i16 * sqrt_273_2pi * val[0] * (33.0*val[1] - \
-            30.0*val[2] + 5.0*val[3]) for val in zip(self._pow_sin_t[1], \
-            self._pow_cos_t[5], self._pow_cos_t[3], self._pow_cos_t[1])]
+                           self._pow_cos_t[1])]
+        pre_y_6_2 = [i64 * sqrt_1365_pi * val[0] * (33.0 * val[1] - \
+                                                    18.0 * val[2] + 1.0) for val
+                     in zip(self._pow_sin_t[2], \
+                            self._pow_cos_t[4], self._pow_cos_t[2])]
+        pre_y_6_1 = [i16 * sqrt_273_2pi * val[0] * (33.0 * val[1] - \
+                                                    30.0 * val[2] + 5.0 * val[
+                                                        3]) for val in
+                     zip(self._pow_sin_t[1], \
+                         self._pow_cos_t[5], self._pow_cos_t[3],
+                         self._pow_cos_t[1])]
 
         acc = 0.0
 
@@ -1039,9 +1024,9 @@ class OrderParameters(object):
         real = 0.0
         imag = 0.0
         for i in nnn_range:
-            real += pre_y_6_6[i] * self._cos_n_p[6][i] # cos(x) =  cos(-x)
-            imag -= pre_y_6_6[i] * self._sin_n_p[6][i] # sin(x) = -sin(-x)
-        acc += (real*real + imag*imag)
+            real += pre_y_6_6[i] * self._cos_n_p[6][i]  # cos(x) =  cos(-x)
+            imag -= pre_y_6_6[i] * self._sin_n_p[6][i]  # sin(x) = -sin(-x)
+        acc += (real * real + imag * imag)
 
         # Y_6_-5
         real = imag = 0.0
@@ -1050,7 +1035,7 @@ class OrderParameters(object):
         for i in nnn_range:
             real += pre_y_6_5[i] * self._cos_n_p[5][i]
             imag -= pre_y_6_5[i] * self._sin_n_p[5][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_6_-4
         real = imag = 0.0
@@ -1059,7 +1044,7 @@ class OrderParameters(object):
         for i in nnn_range:
             real += pre_y_6_4[i] * self._cos_n_p[4][i]
             imag -= pre_y_6_4[i] * self._sin_n_p[4][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_6_-3
         real = imag = 0.0
@@ -1068,7 +1053,7 @@ class OrderParameters(object):
         for i in nnn_range:
             real += pre_y_6_3[i] * self._cos_n_p[3][i]
             imag -= pre_y_6_3[i] * self._sin_n_p[3][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_6_-2
         real = imag = 0.0
@@ -1077,7 +1062,7 @@ class OrderParameters(object):
         for i in nnn_range:
             real += pre_y_6_2[i] * self._cos_n_p[2][i]
             imag -= pre_y_6_2[i] * self._sin_n_p[2][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_6_-1
         real = imag = 0.0
@@ -1086,16 +1071,17 @@ class OrderParameters(object):
         for i in nnn_range:
             real += pre_y_6_1[i] * self._cos_n_p[1][i]
             imag -= pre_y_6_1[i] * self._sin_n_p[1][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_6_0
         real = imag = 0.0
         real = 0.0
         imag = 0.0
         for i in nnn_range:
-            real += i32 * sqrt_13_pi * (231.0*self._pow_cos_t[6][i] - \
-                315.0*self._pow_cos_t[4][i] + 105.0*self._pow_cos_t[2][i] - 5.0)
-        acc += (real*real)
+            real += i32 * sqrt_13_pi * (231.0 * self._pow_cos_t[6][i] - \
+                                        315.0 * self._pow_cos_t[4][i] + 105.0 *
+                                        self._pow_cos_t[2][i] - 5.0)
+        acc += (real * real)
 
         # Y_6_1
         real = imag = 0.0
@@ -1104,7 +1090,7 @@ class OrderParameters(object):
         for i in nnn_range:
             real -= pre_y_6_1[i] * self._cos_n_p[1][i]
             imag -= pre_y_6_1[i] * self._sin_n_p[1][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_6_2
         real = imag = 0.0
@@ -1113,7 +1099,7 @@ class OrderParameters(object):
         for i in nnn_range:
             real += pre_y_6_2[i] * self._cos_n_p[2][i]
             imag += pre_y_6_2[i] * self._sin_n_p[2][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_6_3
         real = imag = 0.0
@@ -1122,7 +1108,7 @@ class OrderParameters(object):
         for i in nnn_range:
             real -= pre_y_6_3[i] * self._cos_n_p[3][i]
             imag -= pre_y_6_3[i] * self._sin_n_p[3][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_6_4
         real = imag = 0.0
@@ -1131,7 +1117,7 @@ class OrderParameters(object):
         for i in nnn_range:
             real += pre_y_6_4[i] * self._cos_n_p[4][i]
             imag += pre_y_6_4[i] * self._sin_n_p[4][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_6_5
         real = imag = 0.0
@@ -1140,7 +1126,7 @@ class OrderParameters(object):
         for i in nnn_range:
             real -= pre_y_6_5[i] * self._cos_n_p[5][i]
             imag -= pre_y_6_5[i] * self._sin_n_p[5][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
         # Y_6_6
         real = imag = 0.0
@@ -1149,11 +1135,10 @@ class OrderParameters(object):
         for i in nnn_range:
             real += pre_y_6_6[i] * self._cos_n_p[6][i]
             imag += pre_y_6_6[i] * self._sin_n_p[6][i]
-        acc += (real*real + imag*imag)
+        acc += (real * real + imag * imag)
 
-        q6 = math.sqrt(4.0 * pi * acc / (13.0 * float(nnn*nnn)))
+        q6 = math.sqrt(4.0 * pi * acc / (13.0 * float(nnn * nnn)))
         return q6
-
 
     def get_type(self, index):
 
@@ -1169,7 +1154,6 @@ class OrderParameters(object):
             raise ValueError("Index for getting order-parameter type"
                              " out-of-bounds!")
         return self._types[index]
-
 
     def get_parameters(self, index):
 
@@ -1190,9 +1174,8 @@ class OrderParameters(object):
                              " order-parameter calculation out-of-bounds!")
         return self._paras[index]
 
-
     def get_order_parameters(self, structure, n, indeces_neighs=[], \
-            tol=0.0, target_spec=None):
+                             tol=0.0, target_spec=None):
 
         """
         Compute all order parameters of site n.
@@ -1266,7 +1249,7 @@ class OrderParameters(object):
         else:
             # Structure.get_sites_in_sphere --> also other periodic images
             neighsitestmp = [i[0] for i in structure.get_sites_in_sphere(
-                    centsite.coords, self._cutoff)]
+                centsite.coords, self._cutoff)]
             neighsites = []
             if centsite not in neighsitestmp:
                 raise ValueError("Could not find center site!")
@@ -1276,7 +1259,7 @@ class OrderParameters(object):
                 neighsites = list(neighsitestmp)
             else:
                 neighsites[:] = [site for site in neighsitestmp \
-                        if site.specie.symbol == target_spec]
+                                 if site.specie.symbol == target_spec]
         nneigh = len(neighsites)
         self._last_nneigh = nneigh
 
@@ -1289,7 +1272,7 @@ class OrderParameters(object):
             for j, neigh in enumerate(neighsites):
                 rij.append((neigh.coords - centvec))
                 dist.append(np.linalg.norm(rij[j]))
-                rijnorm.append((rij[j]/dist[j]))
+                rijnorm.append((rij[j] / dist[j]))
 
         # Initialize OP list and, then, calculate OPs.
         ops = [0.0 for t in self._types]
@@ -1317,9 +1300,9 @@ class OrderParameters(object):
                     # x is prime meridian --> phi between projection of vec
                     # into x-y plane and (1, 0, 0)^T
                     tmpphi = math.acos(max(
-                            -1.0,
-                            min(vec[0]/(math.sqrt(
-                                    vec[0]*vec[0]+vec[1]*vec[1])),
+                        -1.0,
+                        min(vec[0] / (math.sqrt(
+                            vec[0] * vec[0] + vec[1] * vec[1])),
                             1.0)))
                     if vec[1] < 0.0:
                         tmpphi = -tmpphi
@@ -1329,11 +1312,14 @@ class OrderParameters(object):
             # for calculating BOOPS.
             for i, t in enumerate(self._types):
                 if t == "q2":
-                    ops[i] = self.get_q2(thetas, phis) if len(thetas) > 0 else None
+                    ops[i] = self.get_q2(thetas, phis) if len(
+                        thetas) > 0 else None
                 elif t == "q4":
-                    ops[i] = self.get_q4(thetas, phis) if len(thetas) > 0 else None
+                    ops[i] = self.get_q4(thetas, phis) if len(
+                        thetas) > 0 else None
                 elif t == "q6":
-                    ops[i] = self.get_q6(thetas, phis) if len(thetas) > 0 else None
+                    ops[i] = self.get_q6(thetas, phis) if len(
+                        thetas) > 0 else None
 
         # Then, deal with the Shetty--Peters style OPs that are tailor-made
         # to recognize common structural motifs
@@ -1341,24 +1327,24 @@ class OrderParameters(object):
         #  Peters, J. Chem. Phys., 131, 244103, 2009;
         #  Zimmermann et al., J. Am. Chem. Soc., under revision, 2015).
         if self._geomops:
-            gaussthetak = [0.0 for t in self._types] # not used by all OPs
+            gaussthetak = [0.0 for t in self._types]  # not used by all OPs
             ipi = 1.0 / pi
             piover2 = pi / 2.0
             tetangoverpi = math.acos(-1.0 / 3.0) * ipi
-            itetangminuspihalfoverpi = 1.0/(tetangoverpi-0.5)
+            itetangminuspihalfoverpi = 1.0 / (tetangoverpi - 0.5)
 
-            for j in range(nneigh): # Neighbor j is put to the North pole.
+            for j in range(nneigh):  # Neighbor j is put to the North pole.
                 zaxis = rijnorm[j]
 
-                for k in range(nneigh): # From neighbor k, we construct
-                    if j != k:          # the prime meridian.
+                for k in range(nneigh):  # From neighbor k, we construct
+                    if j != k:  # the prime meridian.
                         tmp = max(
-                              -1.0, min(np.inner(zaxis, rijnorm[k]), 1.0))
+                            -1.0, min(np.inner(zaxis, rijnorm[k]), 1.0))
                         thetak = math.acos(tmp)
                         xaxistmp = gramschmidt(rijnorm[k], zaxis)
                         xaxis = normalize(xaxistmp)
                         flag_xaxis = False
-                        if vlength(xaxis) == 0.0:
+                        if np.linalg.norm(xaxis) == 0.0:
                             flag_xaxis = True
 
                         # Contributions of j-i-k angles, where i represents the central atom
@@ -1366,30 +1352,32 @@ class OrderParameters(object):
                         for i, t in enumerate(self._types):
                             if t == "tet":
                                 tmp = self._paras[i][0] * (
-                                      thetak * ipi - tetangoverpi)
-                                gaussthetak[i] = math.exp(-0.5*tmp*tmp)
+                                    thetak * ipi - tetangoverpi)
+                                gaussthetak[i] = math.exp(-0.5 * tmp * tmp)
                             elif t == "oct":
-                                if thetak >= self._paras[i][0]: # k is south pole to j
+                                if thetak >= self._paras[i][0]:
+                                    # k is south pole to j
                                     tmp = self._paras[i][1] * (
-                                          thetak * ipi - 1.0)
-                                    ops[i] += 3.0 * math.exp(-0.5 * tmp*tmp)
+                                        thetak * ipi - 1.0)
+                                    ops[i] += 3.0 * math.exp(-0.5 * tmp * tmp)
                             elif t == "bcc" and j < k:
-                                if thetak >= self._paras[i][0]: # k is south pole to j
-                                    tmp     = self._paras[i][1] * (
-                                              thetak * ipi - 1.0)
-                                    ops[i] += 6.0 * math.exp(-0.5 * tmp*tmp)
+                                if thetak >= self._paras[i][0]:
+                                    # k is south pole to j
+                                    tmp = self._paras[i][1] * (
+                                        thetak * ipi - 1.0)
+                                    ops[i] += 6.0 * math.exp(-0.5 * tmp * tmp)
 
                         for m in range(nneigh):
                             if (m != j) and (m != k):
                                 tmp = max(
                                     -1.0, min(np.inner(zaxis, rijnorm[m]), 1.0))
                                 thetam = math.acos(tmp)
-                                xtwoaxistmp = gramschmidt(rijnorm[m],zaxis)
+                                xtwoaxistmp = gramschmidt(rijnorm[m], zaxis)
                                 xtwoaxis = normalize(xtwoaxistmp)
                                 phi = math.acos(max(
                                     -1.0, min(np.inner(xtwoaxis, xaxis), 1.0)))
                                 flag_xtwoaxis = False
-                                if vlength(xtwoaxis) == 0.0:
+                                if np.linalg.norm(xtwoaxis) == 0.0:
                                     flag_xtwoaxis = True
 
                                 # Contributions of j-i-m angle and
@@ -1397,32 +1385,36 @@ class OrderParameters(object):
                                 if not flag_xaxis and not flag_xtwoaxis:
                                     for i, t in enumerate(self._types):
                                         if t == "tet":
-                                            tmp     = self._paras[i][0] * (
-                                                      thetam*ipi-tetangoverpi)
-                                            ops[i] += gaussthetak[i] *math.exp(
-                                                      -0.5*tmp*tmp) * math.cos(
-                                                      3.0*phi)
+                                            tmp = self._paras[i][0] * (
+                                                thetam * ipi - tetangoverpi)
+                                            ops[i] += gaussthetak[i] * math.exp(
+                                                -0.5 * tmp * tmp) * math.cos(
+                                                3.0 * phi)
                                         elif t == "oct":
                                             if thetak < self._paras[i][0] and \
-                                                    thetam < self._paras[i][0]:
-                                                tmp     = math.cos(2.0 * phi)
-                                                tmp2    = self._paras[i][2] * (
-                                                          thetam * ipi - 0.5)
-                                                ops[i] += tmp*tmp * \
+                                                            thetam < \
+                                                            self._paras[i][0]:
+                                                tmp = math.cos(2.0 * phi)
+                                                tmp2 = self._paras[i][2] * (
+                                                    thetam * ipi - 0.5)
+                                                ops[i] += tmp * tmp * \
                                                           self._paras[i][4] * (
-                                                          math.exp(
-                                                          -0.5*tmp2*tmp2) - \
-                                                          self._paras[i][3])
+                                                              math.exp(
+                                                                  -0.5 * tmp2 * tmp2) - \
+                                                              self._paras[i][3])
                                         elif t == "bcc" and j < k:
-                                            if thetak<self._paras[i][0]:
+                                            if thetak < self._paras[i][0]:
                                                 if thetak > piover2:
                                                     fac = 1.0
                                                 else:
                                                     fac = -1.0
-                                                tmp = (thetam - piover2) / (19.47 * pi / 180.0)
-                                                ops[i] += fac * math.cos(3.0*phi)* \
+                                                tmp = (thetam - piover2) / (
+                                                19.47 * pi / 180.0)
+                                                ops[i] += fac * math.cos(
+                                                    3.0 * phi) * \
                                                           1.6 * tmp * \
-                                                          math.exp(-0.5*tmp*tmp)
+                                                          math.exp(
+                                                              -0.5 * tmp * tmp)
 
             # Normalize Shetty--Peters style OPs.
             for i, t in enumerate(self._types):
