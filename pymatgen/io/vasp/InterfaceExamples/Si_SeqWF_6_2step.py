@@ -7,7 +7,7 @@ import json
 
 from pymatgen import Structure
 from fireworks import Firework, Workflow, LaunchPad
-from pymatgen.io.vasp.interfaces import VaspInput, VaspFirework, VaspWorkflow
+from pymatgen.io.vasp.interfaces import VaspInputInterface, VaspFirework, VaspWorkflow
 from fireworks.user_objects.firetasks.script_task import ScriptTask
 
 
@@ -33,7 +33,7 @@ fw1_task1=ScriptTask.from_str("pwd")
 fw1=VaspFirework(fw1_task1,name=mname)
 
 # standard DFT first
-vasp1=VaspInput(s)
+vasp1=VaspInputInterface(s)
 nelect=vasp1.get_nelect()
 nbands=nelect*3/2
 remainder=nbands%ncore_per_kpoint_dft
@@ -58,7 +58,7 @@ fw1.add_task(fw1_task3)
 fw1.add_task(fw1_task4)
 
 # create VASP IPA LOPTICS input job yaml file
-vasp2=VaspInput('CONTCAR')
+vasp2=VaspInputInterface('CONTCAR')
 vasp2.ISTART=1
 vasp2.ALGO='Normal'
 vasp2.LHFCALC='.TRUE.'
@@ -79,7 +79,7 @@ vasp2.NKRED=3
 fw1.add_task(vasp2)
 
 # Create VASP LFE Optics input.  This is for a new FireWorker
-vasp3=VaspInput('CONTCAR')
+vasp3=VaspInputInterface('CONTCAR')
 vasp3.ALGO='Chi'
 vasp3.LHFCALC='.TRUE.'
 vasp3.HFSCREEN=0.2

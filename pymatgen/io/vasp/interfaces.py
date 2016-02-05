@@ -34,7 +34,7 @@ def load_class(mod, name):
     return getattr(mod, name)
 
 
-class VaspInput:
+class VaspInputInterface:
     """
     This is an interface class to WriteVaspInputTask(FireTaskBase).  
 
@@ -160,7 +160,7 @@ class VaspInput:
         Example:
         This will put NEDOS=2048 into the WriteVaspInputTask['input_set_params']\
                     ['user_incar_settings']['NEDOS']=2048
-            input = VaspInput(s=s)
+            input = VaspInputInterface(s=s)
             input.NEDOS=2048
         
         This will put KPTS=[12,12,12] into WriteVaspInputTask['custom_params']\
@@ -179,7 +179,7 @@ class VaspInput:
         Example:
         This will put NEDOS=2048 into the WriteVaspInputTask['input_set_params']\
                     ['user_incar_settings']['NEDOS']=2048
-            input = VaspInput(s=s)
+            input = VaspInputInterface(s=s)
             input['NEDOS']=2048
         '''
         self.proc_key_val(key.strip(), val.strip()) if isinstance(
@@ -200,7 +200,7 @@ class VaspInput:
                 key not in self.ignore_list and key not in self.input_set_params:
             print "Parameter '{}' not found in any parameter list".format(key)
             print "Please check spelling and try again."
-            print("Adding {} to base <VaspInput Obj> Attribute\n\n".format(key))
+            print("Adding {} to base <VaspInputInterface Obj> Attribute\n\n".format(key))
 
         if key in self.params:
             incar_dict.update({key: val})
@@ -224,7 +224,7 @@ class VaspInput:
 
 class VaspFirework():
     """
-    This is an interface to Fireworks for VaspInput workflows
+    This is an interface to Fireworks for VaspInputInterface workflows
 
     Required Params:
         -vasp_task (obj):   FireTask Object used to create a Firework.
@@ -256,7 +256,7 @@ class VaspFirework():
 
         self.tasks=[vasp_task.input,RunCustodianTask(handlers=self.handlers, 
                 handler_params=self.handler_params)] if isinstance(vasp_task, 
-                VaspInput) else [vasp_task]
+                VaspInputInterface) else [vasp_task]
         self.Firework=Firework(self.tasks,name=self.name)
         # Try to establish connection with Launchpad
         try:
@@ -267,11 +267,11 @@ class VaspFirework():
     def add_task(self, task):
         '''
         Function used to add another FireTask to the Firework.  If
-        given task is a VaspInput Object, it will create the WriteInputTask
+        given task is a VaspInputInterface Object, it will create the WriteInputTask
         as well as add another RunCustodianTask() to the FireTask list.
         '''
 
-        if isinstance(task, VaspInput):
+        if isinstance(task, VaspInputInterface):
             self.tasks.extend([task.input, 
                     RunCustodianTask(handlers=self.handlers,
                             handler_params=self.handler_params)])
@@ -368,7 +368,7 @@ class VaspWorkflow():
 
     Parameters:
         -args (obj):        List of VaspFirework objects
-        -deps_dict {dict}:  Specifies the dependency of the VaspInput objects given.
+        -deps_dict {dict}:  Specifies the dependency of the VaspInputInterface objects given.
                             If no dependency is given, Firworks are assumed to be
                             sequentially dependent.
         -name (str):        Name to be given to the Workflow
@@ -387,9 +387,9 @@ class VaspWorkflow():
     def __init__(self, *args, **kwargs):
         '''
         :param args:       (VaspFirework objects) objects to create Workflow from.  No limit
-                           on the amount of VaspInput objects to be given.  Entered as just
+                           on the amount of VaspInputInterface objects to be given.  Entered as just
                            comma separated objects passed to class.
-        :param deps_dict:  (dict) specifies the dependency of the VaspInput objects given.  
+        :param deps_dict:  (dict) specifies the dependency of the VaspInputInterface objects given.  
                            If no dependency is given, Firworks are assumed to be 
                            sequentially dependent.
         :param name        (str) Name given to Workflow

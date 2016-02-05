@@ -15,15 +15,18 @@ import shutil
 import pkgutil
 import os
 
+if pkgutil.find_loader('fireworks'):
+    from pymatgen.io.vasp.interfaces import VaspInputInterface, VaspFirework, VaspWorkflow, VaspTransferTask
+    from fireworks import ScriptTask
+
 from pymatgen import Structure
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 test_dir = os.path.join(MODULE_DIR, '..', 'InterfaceExamples', 'test_files')
 
 @unittest.skipUnless(1 if pkgutil.find_loader("fireworks") else 0, "Requires Fireworks")
-class VaspInputTest(unittest.TestCase):
+class VaspInputInterfaceTest(unittest.TestCase):
     def setUp(self):
-        from pymatgen.io.vasp.interfaces import VaspInput
         self.maxDiff=None
         self.mol_dict = {u'@class': 'Structure',
             u'@module': 'pymatgen.core.structure',
@@ -78,12 +81,12 @@ class VaspInputTest(unittest.TestCase):
         pass
 
     def test_input_from_dict(self):
-        input = VaspInput(s=self.mol_dict, config_file=self.config_file)
+        input = VaspInputInterface(s=self.mol_dict, config_file=self.config_file)
         inp_dic = input.input.as_dict()
         self.assertDictEqual(inp_dic, self.gdic, msg=None)
 
     def test_input_from_file(self):
-        input = VaspInput(s=self.mol_file, config_file=self.config_file)
+        input = VaspInputInterface(s=self.mol_file, config_file=self.config_file)
         inp_dic = input.input.as_dict()
         cdic = {u'_fw_name': '{{pymatgen.io.vasp.interfaces.WriteVaspInputTask}}',
                 'custom_params': {'user_kpts_settings': {'kpts': [6, 6, 6],
@@ -100,12 +103,12 @@ class VaspInputTest(unittest.TestCase):
 
     def test_input_from_structure(self):
         s = Structure.from_file(self.mol_file)
-        input = VaspInput(s=s, config_file=self.config_file)
+        input = VaspInputInterface(s=s, config_file=self.config_file)
         inp_dic = input.input.as_dict()
         self.assertDictEqual(inp_dic, self.gdic, msg=None)
 
     def test_custom_incar_and_kpoints(self):
-        input = VaspInput(s=self.mol_dict, isp=self.isp,
+        input = VaspInputInterface(s=self.mol_dict, isp=self.isp,
                             custom_params=self.custom_params,
                             config_file=self.config_file)
         inp_dic = input.input.as_dict()
@@ -137,7 +140,7 @@ class VaspInputTest(unittest.TestCase):
         self.assertDictEqual(inp_dic, cdic, msg=None)
 
     def test_user_friendly_custom_incar(self):
-        input = VaspInput(s=self.mol_file, config_file=self.config_file)
+        input = VaspInputInterface(s=self.mol_file, config_file=self.config_file)
         input.LOPTICS=False
         input.ALGO='Exact'
         input.EDIFF=1e-05
@@ -160,7 +163,7 @@ class VaspInputTest(unittest.TestCase):
         self.assertDictEqual(inp_dic, cdic, msg=None)
 
     def test_get_nelect_from_interface(self):
-        input = VaspInput(s=self.mol_file, config_file=self.config_file)
+        input = VaspInputInterface(s=self.mol_file, config_file=self.config_file)
         nelect = input.get_nelect()
         self.assertEqual(nelect, 8.0, msg=None)
 
@@ -168,18 +171,16 @@ class VaspInputTest(unittest.TestCase):
 @unittest.skipUnless(1 if pkgutil.find_loader("fireworks") else 0, "Requires Fireworks")
 class VaspFireworkTest(unittest.TestCase):
     def setUp(self):
-        from pymatgen.io.vasp.interfaces import VaspFirework
-        from fireworks import ScriptTask
         self.mol_file = 'SiC_0.cif'
         self.config_file = os.path.join(test_dir, 'vasp_interface_defaults.yaml')
-        self.input = VaspInput(s=self.mol_file, config_file=self.config_file)
+        self.input = VaspInputInterface(s=self.mol_file, config_file=self.config_file)
         self.misc_task = ScriptTask.from_str("echo 'Hello World!'")
 
     def tearDown(self):
         pass
 
 
-    def test_add_task_VaspInput(self):
+    def test_add_task_VaspInputInterface(self):
         fw = VaspFirework(self.input, config_file=self.config_file)
         fw.add_task(self.input)
         fw_dic = fw.Firework.as_dict()
@@ -356,10 +357,9 @@ class VaspFireworkTest(unittest.TestCase):
 @unittest.skipUnless(1 if pkgutil.find_loader("fireworks") else 0, "Requires Fireworks")
 class VaspWorkflowTest(unittest.TestCase):
     def setUp(self):
-        from pymatgen.io.vasp.interfaces import VaspWorkflow
         self.mol_file = 'SiC_0.cif'
         self.config_file = os.path.join(test_dir, 'vasp_interface_defaults.yaml')
-        self.input = VaspInput(s=self.mol_file, config_file=self.config_file)
+        self.input = VaspInputInterface(s=self.mol_file, config_file=self.config_file)
         self.fw1 = VaspFirework(self.input, config_file=self.config_file)
         self.fw2 = VaspFirework(self.input, config_file=self.config_file)
         self.fw3 = VaspFirework(self.input, config_file=self.config_file)
@@ -426,7 +426,6 @@ class VaspWorkflowTest(unittest.TestCase):
 @unittest.skipUnless(1 if pkgutil.find_loader("fireworks") else 0, "Requires Fireworks")
 class VaspTransferTaskTest(unittest.TestCase):
     def setUp(self):
-        from pymatgen.io.vasp.interfaces import VaspTransferTask
         self.src_dir  = os.path.join(test_dir, 'TRNFR_TEST_FILES')
         self.dest_dir = os.path.join(os.environ['HOME'], 'TRNFR_TEST')
         if not os.path.exists(self.dest_dir):

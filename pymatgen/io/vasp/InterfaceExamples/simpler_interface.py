@@ -9,12 +9,12 @@ import inspect
 
 from pymatgen import Structure
 from fireworks import Firework, Workflow, LaunchPad
-from pymatgen.io.vasp.interfaces import VaspInput, VaspFirework, VaspWorkflow
+from pymatgen.io.vasp.interfaces import VaspInputInterface, VaspFirework, VaspWorkflow
 
 # get structure from Crystallographic Information File (CIF)
 s = Structure.from_file('./mp-33088_Cr2FeO4.cif')
 
-input=VaspInput(s)
+input=VaspInputInterface(s)
 input.NEDOS=2000 # override default or add INCAR parameter
 
 # Dump VASP Input into current directory for inspection
