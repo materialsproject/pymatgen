@@ -883,7 +883,7 @@ class NcAbinitHeader(AbinitHeader):
         lines = _read_nlines(filename, -1)
         header = []
 
-        for (lineno, line) in enumerate(lines):
+        for lineno, line in enumerate(lines):
             header.append(line)
             if lineno == 2:
                 # Read lmax.
@@ -1070,10 +1070,10 @@ class PseudoParser(object):
 
     # TODO Recheck
     _PSPCODES = OrderedDict( {
-        1: ppdesc(1, "TM",  "NC", None),
-        2: ppdesc(2, "GTH",  "NC", None),
+        1: ppdesc(1, "TM", "NC", None),
+        2: ppdesc(2, "GTH", "NC", None),
         3: ppdesc(3, "HGH", "NC", None),
-        #4: ppdesc(4, "NC",     , None),
+        4: ppdesc(4, "Teter", "NC", None),
         #5: ppdesc(5, "NC",     , None),
         6: ppdesc(6, "FHI", "NC", None),
         7: ppdesc(6, "PAW_abinit_text", "PAW", None),
@@ -1211,6 +1211,7 @@ class PseudoParser(object):
             "FHI"            : NcAbinitHeader.fhi_header,
             "GTH"            : NcAbinitHeader.gth_header,
             "TM"             : NcAbinitHeader.tm_header,
+            "Teter"          : NcAbinitHeader.tm_header,
             "HGH"            : NcAbinitHeader.hgh_header,
             "HGHK"           : NcAbinitHeader.hgh_header,
             "ONCVPSP"        : NcAbinitHeader.oncvpsp_header,
