@@ -485,28 +485,6 @@ def gramschmidt(vin, uin):
     return vout
 
 
-def normalize(vec):
-    """
-    Returns the input vector in a normalized form.
-
-    Args:
-        vec (numpy array):
-            vector to be normalized
-    """
-
-    vout = np.copy(vec)
-    norm2 = np.inner(vout, vout)
-    if norm2 == 0.0:
-        pass
-    elif norm2 < 0.0:
-        raise ValueError("Encountered a negative norm!")
-    else:
-        norm = math.sqrt(norm2)
-        vout = vout / norm
-
-    return vout
-
-
 class OrderParameters(object):
     """
     This class permits the calculation of various types of local order
@@ -1373,7 +1351,8 @@ class OrderParameters(object):
                                     -1.0, min(np.inner(zaxis, rijnorm[m]), 1.0))
                                 thetam = math.acos(tmp)
                                 xtwoaxistmp = gramschmidt(rijnorm[m], zaxis)
-                                xtwoaxis = normalize(xtwoaxistmp)
+                                xtwoaxis = xtwoaxistmp / np.linalg.norm(
+                                    xtwoaxistmp)
                                 phi = math.acos(max(
                                     -1.0, min(np.inner(xtwoaxis, xaxis), 1.0)))
                                 flag_xtwoaxis = False
