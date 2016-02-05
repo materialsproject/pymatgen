@@ -1317,7 +1317,7 @@ class OrderParameters(object):
                             -1.0, min(np.inner(zaxis, rijnorm[k]), 1.0))
                         thetak = math.acos(tmp)
                         xaxistmp = gramschmidt(rijnorm[k], zaxis)
-                        xaxis = normalize(xaxistmp)
+                        xaxis = xaxistmp / np.linalg.norm(xaxistmp)
                         flag_xaxis = False
                         if np.linalg.norm(xaxis) == 0.0:
                             flag_xaxis = True
