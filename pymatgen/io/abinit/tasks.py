@@ -3770,6 +3770,9 @@ class OpticTask(Task):
         kwargs.update(dict(*args))
         self.history.info("OpticTask intercepted _set_inpvars with args %s" % kwargs)
 
+        if "autoparal" in kwargs: self.input.set_vars(autoparal=kwargs["autoparal"])
+        if "max_ncpus" in kwargs: self.input.set_vars(max_ncpus=kwargs["max_ncpus"])
+
     @property
     def executable(self):
         """Path to the executable required for running the :class:`OpticTask`."""
@@ -3995,6 +3998,87 @@ class OpticTask(Task):
                     self.set_status(self.S_ERROR, msg)
 
         return 0
+
+    def autoparal_run(self):
+        """
+        Find an optimal set of parameters for the execution of the Optic task 
+        This method can change the submission parameters e.g. the number of CPUs for MPI and OpenMp.
+
+        Returns 0 if success
+        """
+        policy = self.manager.policy
+
+        if policy.autoparal == 0: # or policy.max_ncpus in [None, 1]:
+            logger.info("Nothing to do in autoparal, returning (None, None)")
+            return 1
+
+        if policy.autoparal != 1:
+            raise NotImplementedError("autoparal != 1")
+
+        ############################################################################
+        # Run ABINIT in sequential to get the possible configurations with max_ncpus
+        ############################################################################
+
+        # Set the variables for automatic parallelization
+        # Will get all the possible configurations up to max_ncpus
+        # Return immediately if max_ncpus == 1 
+        max_ncpus = self.manager.max_cores
+        if max_ncpus == 1: return 0
+
+        autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus)
+        self._set_inpvars(autoparal_vars)
+
+        # Run the job in a shell subprocess with mpi_procs = 1
+        # we don't want to make a request to the queue manager for this simple job!
+        # Return code is always != 0 
+        process = self.manager.to_shell_manager(mpi_procs=1).launch(self)
+        self.history.pop()
+        retcode = process.wait()
+
+        # Remove the variables added for the automatic parallelization
+        self.input.remove_vars(autoparal_vars.keys())
+
+        ##############################################################
+        # Parse the autoparal configurations from the main output file
+        ##############################################################
+        parser = ParalHintsParser()
+        try:
+            pconfs = parser.parse(self.output_file.path)
+        except parser.Error:
+            logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
+            return 2
+
+        ######################################################
+        # Select the optimal configuration according to policy
+        ######################################################
+        #optconf = self.find_optconf(pconfs)
+        # Select the partition on which we'll be running and set MPI/OMP cores.
+        optconf = self.manager.select_qadapter(pconfs)
+
+        ####################################################
+        # Change the input file and/or the submission script
+        ####################################################
+        self._set_inpvars(optconf.vars)
+
+        # Write autoparal configurations to JSON file.
+        d = pconfs.as_dict()
+        d["optimal_conf"] = optconf
+        json_pretty_dump(d, os.path.join(self.workdir, "autoparal.json"))
+
+        ##############
+        # Finalization
+        ##############
+        # Reset the status, remove garbage files ...
+        self.set_status(self.S_INIT, msg='finished auto paralell')
+
+        # Remove the output file since Abinit likes to create new files 
+        # with extension .outA, .outB if the file already exists.
+        os.remove(self.output_file.path)
+        #os.remove(self.log_file.path)
+        os.remove(self.stderr_file.path)
+
+        return 0
+
 
 class AnaddbTask(Task):
     """Task for Anaddb runs (post-processing of DFPT calculations)."""
