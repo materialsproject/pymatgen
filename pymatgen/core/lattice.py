@@ -909,34 +909,30 @@ class Lattice(MSONable):
                 fcoords, dists, inds
         """
         recp_len = np.array(self.reciprocal_lattice.abc)
-        sr = r + 0.15
-        nmax = sr * recp_len / (2 * math.pi)
+        nmax = r * recp_len / (2 * math.pi) + 0.01
+
         pcoords = self.get_fractional_coords(center)
-        floor = math.floor
+        center = np.array(center)
 
         n = len(frac_points)
-        fcoords = np.array(frac_points)
-        pts = np.tile(center, (n, 1))
-        indices = np.array(list(range(n)))
+        fcoords = np.array(frac_points) % 1
+        indices = np.arange(n)
 
-        arange = np.arange(start=int(floor(pcoords[0] - nmax[0])),
-                           stop=int(floor(pcoords[0] + nmax[0])) + 1)
-        brange = np.arange(start=int(floor(pcoords[1] - nmax[1])),
-                           stop=int(floor(pcoords[1] + nmax[1])) + 1)
-        crange = np.arange(start=int(floor(pcoords[2] - nmax[2])),
-                           stop=int(floor(pcoords[2] + nmax[2])) + 1)
-
+        mins = np.floor(pcoords - nmax)
+        maxes = np.ceil(pcoords + nmax)
+        arange = np.arange(start=mins[0], stop=maxes[0])
+        brange = np.arange(start=mins[1], stop=maxes[1])
+        crange = np.arange(start=mins[2], stop=maxes[2])
         arange = arange[:, None] * np.array([1, 0, 0])[None, :]
         brange = brange[:, None] * np.array([0, 1, 0])[None, :]
         crange = crange[:, None] * np.array([0, 0, 1])[None, :]
-
         images = arange[:, None, None] + brange[None, :, None] +\
             crange[None, None, :]
 
         shifted_coords = fcoords[:, None, None, None, :] + \
             images[None, :, :, :, :]
         coords = self.get_cartesian_coords(shifted_coords)
-        dists = np.sqrt(np.sum((coords - pts[:, None, None, None, :]) ** 2,
+        dists = np.sqrt(np.sum((coords - center[None, None, None, None, :]) ** 2,
                                axis=4))
         within_r = np.where(dists <= r)
         if zip_results:
