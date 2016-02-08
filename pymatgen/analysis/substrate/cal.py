@@ -6,16 +6,15 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.matproj.rest import MPRester
 from monty.serialization import dumpfn,loadfn
-from Elastic_Def_Energy_Class import DefGradientMatrix,DefEnergyDensity_from_file
+
 from fractions import gcd
-from MP_API import my_MP_API_Key
 from math import pi
 import numpy as np
 import time
 import json
 
 
-def structure_interface_matching(str_film,str_sub,criteria):
+def structure_interface_matching(str_film,str_sub):
     """
     Calculate the reduced matching lattice vectors for heterostructure interfaces
     The method is proposed in by Zur and McGill:
@@ -140,6 +139,8 @@ def structure_interface_matching(str_film,str_sub,criteria):
             and np.absolute(rel_len_strain(vec_set1[1],vec_set2[1]))< tol_value_length\
             and np.absolute(ref_angle(vec_set1,vec_set2)) < tol_value_angle
 
+
+    criteria = loadfn('matching_criteria.json')
 
     # Specify film miller index under consideration
     if not criteria["film_miller"] == None:
@@ -358,33 +359,3 @@ def Zur_Matching(film_id_list, film_str_list, sub_id_list, sub_str_list, ElaC_fi
         dumpfn(new_area_result,sub_id+'-matrix',indent=4)
         dumpfn(new_energy_result,sub_id+'-energy',indent=4)
         print sub_id, "done"
-
-
-if __name__ == "__main__":
-
-    print time.time()
-
-    #mapi_key  = my_MP_API_Key
-    mprest = MPRester()
-
-    # Matching creteria
-    matching_creteria = loadfn('matching_creteria.json')
-
-    film_str_file_list_by_user = ['POSCAR_0']
-    ElaC_film_file_list = []
-
-    for file in film_str_file_list_by_user:
-        try:
-            ElaC_film_file_list.append(file+'_Cij')
-        except:
-            ElaC_film_file_list.append(None)
-
-    film_str_list, film_id_list = str_prepartion(Source='User',str_file_list_by_user=film_str_file_list_by_user)
-    #film_str_list = str_prepartion(Source='MP',mpid_list=['mp-149','mp-66'],final=False)
-
-    sub_str_list, sub_id_list= str_prepartion(Source='MP',mpid_list=['mp-5229'])#'mp-1143',,'mp-1265','mp-2920','mp-5229'])
-
-
-    Zur_Matching(film_id_list, film_str_list, sub_id_list, sub_str_list,ElaC_film_file_list)
-
-    print  time.time()
