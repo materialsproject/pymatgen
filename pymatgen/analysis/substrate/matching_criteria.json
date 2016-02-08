@@ -1,0 +1,10 @@
+{
+    "max_area_ratio_tol": 0.09,
+    "max_area": 400,
+    "film_max_miller_index": 1,
+    "sub_miller": null,
+    "sub_max_miller_index": 1,
+    "max_length_tol": 0.03,
+    "film_miller": null,
+    "max_angle_tol": 0.01
+}
