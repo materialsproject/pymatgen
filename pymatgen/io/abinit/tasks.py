@@ -2575,7 +2575,7 @@ class AbinitTask(Task):
 
         if policy.autoparal == 0: # or policy.max_ncpus in [None, 1]:
             logger.info("Nothing to do in autoparal, returning (None, None)")
-            return 1
+            return 0
 
         if policy.autoparal != 1:
             raise NotImplementedError("autoparal != 1")
@@ -4010,7 +4010,7 @@ class OpticTask(Task):
 
         if policy.autoparal == 0: # or policy.max_ncpus in [None, 1]:
             logger.info("Nothing to do in autoparal, returning (None, None)")
-            return 1
+            return 0
 
         if policy.autoparal != 1:
             raise NotImplementedError("autoparal != 1")
