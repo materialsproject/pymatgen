@@ -21,22 +21,41 @@ from pymatgen.core.structure import Structure
 from pymatgen.analysis.substrate.analyzer import ZurSuperLatticeGenerator as ZSLGen
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
+from pymatgen.matproj.rest import MPRester
 
 
 class ZSLGenTest(PymatgenTest):
 
-    def test_ZSLGen(self):
-        substrate = SpacegroupAnalyzer(self.get_structure("TiO2"),symprec=0.1).get_conventional_standard_structure()
-        film = SpacegroupAnalyzer(self.get_structure("VO2"),symprec=0.1).get_conventional_standard_structure()
-
-        z = ZSLGen(substrate,film)
-        return z.generate()
-
     def runTest(self):
+        mprest = MPRester()
 
-        self.test_ZSLGen()
-        return True
+        #Film VO2
+        structure_import = mprest.get_structure_by_material_id('mp-19094',final=True)
+        film = SpacegroupAnalyzer(structure_import,symprec=0.1).get_conventional_standard_structure()
+
+        #Substrate
+        structure_import = mprest.get_structure_by_material_id('mp-554278',final=True)
+        substrate = SpacegroupAnalyzer(structure_import,symprec=0.1).get_conventional_standard_structure()
+
+        z = ZSLGen(film,substrate)
+
+
+        self.assertArrayEqual(z.reduce_vectors([1,0,0],[2,2,0]),[[1,0,0],[0,2,0]])
+        self.assertEqual(z.area([1,0,0],[0,2,0]),2)
+        self.assertArrayEqual(list(z.factor(4)),[1,2,4])
+        self.assertTrue(z.is_same_vectors([[1.01,0,0],[0,2,0]],[[1,0,0],[0,2.01,0]]))
+
+        matches = list(z.generate())
+
+        print(z.find_min(matches))
+
+        self.assertEqual(len(matches),82)
+
+        # TODO: Add in test for vector angle calculate
+        # TODO: Add in test for checking if two sets of vectors are equivelant
+        # TODO: Add in test for checking transformations
 
 if __name__ == '__main__':
-    unittest.main()
+    #unittest.main()
+    z = ZSLGenTest()
+    z.runTest()
