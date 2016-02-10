@@ -59,22 +59,25 @@ class StructureMatcherTest(PymatgenTest):
         s2 = Structure(l2, ['Cu', 'Cu', 'Ag'], [[0]*3]*3)
 
         sm = StructureMatcher(supercell_size='volume')
-        result = sm._get_supercell_size(s1, s2)
-        self.assertEqual(result[0], 1)
-        self.assertEqual(result[1], True)
-
-        result = sm._get_supercell_size(s2, s1)
-        self.assertEqual(result[0], 1)
-        self.assertEqual(result[1], True)
+        self.assertEqual(sm._get_supercell_size(s1, s2),
+                         (1, True))
+        self.assertEqual(sm._get_supercell_size(s2, s1),
+                         (1, True))
 
         sm = StructureMatcher(supercell_size='num_sites')
-        result = sm._get_supercell_size(s1, s2)
-        self.assertEqual(result[0], 2)
-        self.assertEqual(result[1], False)
+        self.assertEqual(sm._get_supercell_size(s1, s2),
+                         (2, False))
+        self.assertEqual(sm._get_supercell_size(s2, s1),
+                         (2, True))
 
-        result = sm._get_supercell_size(s2, s1)
-        self.assertEqual(result[0], 2)
-        self.assertEqual(result[1], True)
+        sm = StructureMatcher(supercell_size='Ag')
+        self.assertEqual(sm._get_supercell_size(s1, s2),
+                         (2, False))
+        self.assertEqual(sm._get_supercell_size(s2, s1),
+                         (2, True))
+
+        sm = StructureMatcher(supercell_size='wfieoh')
+        self.assertRaises(ValueError, sm._get_supercell_size, s1, s2)
 
     def test_cmp_fstruct(self):
         sm = StructureMatcher()
