@@ -492,7 +492,7 @@ class PeriodicSite(Site, MSONable):
              "@module": self.__class__.__module__,
              "@class": self.__class__.__name__}
 
-        if verbosity > 1:
+        if verbosity > 0:
             d["xyz"] = [float(c) for c in self._coords]
             d["label"] = self.species_string
 
