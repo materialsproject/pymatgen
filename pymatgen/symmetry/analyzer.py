@@ -44,13 +44,16 @@ from pymatgen.util.coord_utils import find_in_coord_list
 
 try:
     import pymatgen._spglib as spg
-except ImportError:
+except ImportError as pmg_exc:
     try:
-        import pyspglib._spglib as spg
-    except ImportError:
+        import pyspglib._spglib as spglib_exc
+    except ImportError as spglib_exc:
         msg = "Spglib required. Please either run python setup.py install" + \
               " for pymatgen, or install pyspglib from spglib."
-        raise ImportError(msg)
+        raise ImportError("\n\n".join((
+            "Exception raised by `import pymatgen._spglib`:\n" + str(pmg_exc),
+            "Exception raised by `import pyspglib._spglib`:\n" + str(spglib_exc), 
+            msg)))
 
 
 logger = logging.getLogger(__name__)
