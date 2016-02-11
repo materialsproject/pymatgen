@@ -20,6 +20,7 @@ from monty.json import MSONable
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord_utils import pbc_shortest_vectors, \
     lattice_points_in_supercell, is_coord_subset_pbc
@@ -335,7 +336,7 @@ class StructureMatcher(MSONable):
             StructureMatcher with Python's multiprocessing.
         supercell_size (str): Method to use for determining the size of a
             supercell (if applicable). Possible values are num_sites,
-            num_atoms or volume.
+            num_atoms, volume, or an element present in both structures.
         ignored_species (list): A list of ions to be ignored in matching. Useful
             for matching structures that have similar frameworks except for
             certain ions, e.g., Li-ion intercalation frameworks. This is more
@@ -373,7 +374,11 @@ class StructureMatcher(MSONable):
         elif self._supercell_size == 'volume':
             fu = s2.volume / s1.volume
         else:
-            raise ValueError('invalid argument for supercell_size')
+            try:
+                el = get_el_sp(self._supercell_size)
+                fu = s2.composition[el] / s1.composition[el]
+            except:
+                raise ValueError('invalid argument for supercell_size')
 
         if fu < 2/3:
             return int(round(1/fu)), False
