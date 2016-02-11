@@ -630,10 +630,31 @@ class RunCustodianTask(FireTaskBase):
         job = VaspJob(["vasp"],default_vasp_input_set=MinimalVaspInputSet(),auto_npar=False)
 
         #Set up Handlers to be used
+        handler_param_dict = {'VaspErrorHandler': ['output_filename'], 
+                'AliasingErrorHandler': ['output_filename'], 
+                'MeshSymmetryErrorHandler': ['output_filename', 'output_vasprun'],
+                'UnconvergedErrorHandler': ['output_filename'],
+                'MaxForceErrorHandler': ['output_filename', 'max_force_threshold'],
+                'PotimErrorHandler': ['input_filename', 
+                            'output_filename', 'dE_threshold'],
+                'FrozenJobErrorHandler': ['output_filename', 'timeout'],
+                'NonConvergingErrorHandler': ['output_filename', 'nionic_steps',
+                            'change_algo'],
+                'WalltimeHandler': ['wall_time', 'buffer_time',
+                            'electronic_step_stop'],
+                'CheckpointHandler': ['interval'],
+                'PositiveEnergyErrorHandler': ['output_filename']}
+
         hnames = self.get('handlers')
+        handler_params = self.get("handler_params", {})
         logging.info("handler names:  {}".format(hnames))
-        handlers = [load_class("custodian.vasp.handlers", n)(**self.get('handler_params', \
-                                {})) for n in hnames]
+        handlers = []
+        for n in hnames:
+            np = {}
+            for m in handler_params:
+                if m in handler_param_dict[n]:
+                    np[m] = handler_params[m]
+            handlers.append(load_class("custodian.vasp.handlers", n)(np))
 
         c = Custodian(handlers=handlers, validators=[VasprunXMLValidator()], jobs=[job])
         output = c.run()
