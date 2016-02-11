@@ -64,8 +64,7 @@ class Lattice(MSONable):
             k = (i + 2) % 3
             angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
 
-        angles = np.arccos(angles) * 180. / pi
-        self._angles = angles
+        self._angles = np.arccos(angles) * 180. / pi
         self._lengths = lengths
         self._matrix = m
         # The inverse matrix is lazily generated for efficiency.
@@ -427,20 +426,30 @@ class Lattice(MSONable):
         return "\n".join([" ".join(["%.6f" % i for i in row])
                           for row in self._matrix])
 
-    def as_dict(self):
+    def as_dict(self, verbosity=0):
         """""
         Json-serialization dict representation of the Lattice.
+
+        Args:
+            verbosity (int): Verbosity level. Default of 0 only includes the
+                matrix representation. Set to 1 for more details.
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "matrix": self._matrix.tolist(),
+
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "matrix": self._matrix.tolist()}
+        if verbosity > 0:
+            d.update({
                 "a": float(self.a),
                 "b": float(self.b),
                 "c": float(self.c),
                 "alpha": float(self.alpha),
                 "beta": float(self.beta),
                 "gamma": float(self.gamma),
-                "volume": float(self.volume)}
+                "volume": float(self.volume)
+            })
+
+        return d
 
     def find_all_mappings(self, other_lattice, ltol=1e-5, atol=1,
                           skip_rotation_matrix=False):
@@ -892,34 +901,30 @@ class Lattice(MSONable):
                 fcoords, dists, inds
         """
         recp_len = np.array(self.reciprocal_lattice.abc)
-        sr = r + 0.15
-        nmax = sr * recp_len / (2 * math.pi)
+        nmax = r * recp_len / (2 * math.pi) + 0.01
+
         pcoords = self.get_fractional_coords(center)
-        floor = math.floor
+        center = np.array(center)
 
         n = len(frac_points)
-        fcoords = np.array(frac_points)
-        pts = np.tile(center, (n, 1))
-        indices = np.array(list(range(n)))
+        fcoords = np.array(frac_points) % 1
+        indices = np.arange(n)
 
-        arange = np.arange(start=int(floor(pcoords[0] - nmax[0])),
-                           stop=int(floor(pcoords[0] + nmax[0])) + 1)
-        brange = np.arange(start=int(floor(pcoords[1] - nmax[1])),
-                           stop=int(floor(pcoords[1] + nmax[1])) + 1)
-        crange = np.arange(start=int(floor(pcoords[2] - nmax[2])),
-                           stop=int(floor(pcoords[2] + nmax[2])) + 1)
-
+        mins = np.floor(pcoords - nmax)
+        maxes = np.ceil(pcoords + nmax)
+        arange = np.arange(start=mins[0], stop=maxes[0])
+        brange = np.arange(start=mins[1], stop=maxes[1])
+        crange = np.arange(start=mins[2], stop=maxes[2])
         arange = arange[:, None] * np.array([1, 0, 0])[None, :]
         brange = brange[:, None] * np.array([0, 1, 0])[None, :]
         crange = crange[:, None] * np.array([0, 0, 1])[None, :]
-
         images = arange[:, None, None] + brange[None, :, None] +\
             crange[None, None, :]
 
         shifted_coords = fcoords[:, None, None, None, :] + \
             images[None, :, :, :, :]
         coords = self.get_cartesian_coords(shifted_coords)
-        dists = np.sqrt(np.sum((coords - pts[:, None, None, None, :]) ** 2,
+        dists = np.sqrt(np.sum((coords - center[None, None, None, None, :]) ** 2,
                                axis=4))
         within_r = np.where(dists <= r)
         if zip_results:

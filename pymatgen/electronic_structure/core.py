@@ -57,10 +57,26 @@ class Spin(Enum):
 
 
 @unique
+class OrbitalType(Enum):
+    """
+    Enum type for orbital type. Indices are basically the azimutal quantum
+    number, l.
+    """
+
+    s = 0
+    p = 1
+    d = 2
+    f = 3
+
+    def __str__(self):
+        return self.name
+
+
+@unique
 class Orbital(Enum):
     """
-    Enum type for OrbitalType. Indices are basically the azimutal quantum
-    number, l.
+    Enum type for specific orbitals. The indices are basically the order in
+    which the orbitals are reported in VASP and has no special meaning.
     """
 
     s = 0
@@ -80,10 +96,6 @@ class Orbital(Enum):
     f2 = 14
     f3 = 15
 
-    @property
-    def vasp_index(self):
-        return self.value
-
     def __int__(self):
         return self.value
 
@@ -93,10 +105,9 @@ class Orbital(Enum):
     @property
     def orbital_type(self):
         """
-        String indicating the type of orbital. Is always uppercase. E.g.,
-        S, P, D, F, etc.
+        Returns OrbitalType of an orbital.
         """
-        return self.name[0].upper()
+        return OrbitalType[self.name[0]]
 
     @staticmethod
     @deprecated(message="from_vasp_index has been deprecated. Please use the "

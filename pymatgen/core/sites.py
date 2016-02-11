@@ -247,11 +247,14 @@ class Site(collections.Hashable, MSONable):
             del d["@class"]
             d["occu"] = occu
             species_list.append(d)
-        return {"name": self.species_string, "species": species_list,
-                "xyz": [float(c) for c in self._coords],
-                "properties": self._properties,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+        d = {"name": self.species_string, "species": species_list,
+             "xyz": [float(c) for c in self._coords],
+             "properties": self._properties,
+             "@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
+        if self._properties:
+            d["properties"] = self._properties
+        return d
 
     @classmethod
     def from_dict(cls, d):
@@ -466,9 +469,14 @@ class PeriodicSite(Site, MSONable):
                                 self._fcoords[0], self._fcoords[1],
                                 self._fcoords[2])
 
-    def as_dict(self):
+    def as_dict(self, verbosity=0):
         """
         Json-serializable dict representation of PeriodicSite.
+
+        Args:
+            verbosity (int): Verbosity level. Default of 0 only includes the
+                matrix representation. Set to 1 for more details such as
+                cartesian coordinates, etc.
         """
         species_list = []
         for spec, occu in self._species.items():
@@ -477,13 +485,20 @@ class PeriodicSite(Site, MSONable):
             del d["@class"]
             d["occu"] = occu
             species_list.append(d)
-        return {"label": self.species_string, "species": species_list,
-                "xyz": [float(c) for c in self._coords],
-                "abc": [float(c) for c in self._fcoords],
-                "lattice": self._lattice.as_dict(),
-                "properties": self._properties,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+
+        d = {"species": species_list,
+             "abc": [float(c) for c in self._fcoords],
+             "lattice": self._lattice.as_dict(verbosity=verbosity),
+             "@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
+
+        if verbosity > 0:
+            d["xyz"] = [float(c) for c in self._coords]
+            d["label"] = self.species_string
+
+        if self._properties:
+            d["properties"] = self._properties
+        return d
 
     @classmethod
     def from_dict(cls, d, lattice=None):

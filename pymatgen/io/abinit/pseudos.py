@@ -27,7 +27,7 @@ from monty.dev import deprecated
 from monty.json import MSONable, MontyDecoder
 
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
-from pymatgen.core.periodic_table import PeriodicTable, Element
+from pymatgen.core.periodic_table import Element
 from pymatgen.serializers.json_coders import pmg_serialize
 from .eos import EOS
 
@@ -43,9 +43,6 @@ __all__ = [
 __author__ = "Matteo Giantomassi"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
-
-
-_PTABLE = PeriodicTable()
 
 # Tools and helper functions.
 
@@ -194,9 +191,9 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
     def element(self):
         """Pymatgen :class:`Element`."""
         try:
-            return _PTABLE[self.Z]
+            return Element.from_Z(self.Z)
         except (KeyError, IndexError):
-            return _PTABLE[int(self.Z)]
+            return Element.from_Z(int(self.Z))
 
     @property
     def symbol(self):
@@ -2224,7 +2221,7 @@ class DojoDataFrame(DataFrame):
 
         data = []
         for index, entry in self.iterrows():
-            element = _PTABLE[entry.Z]
+            element = Element.from_Z(entry.Z)
             if element.row in rows:
                 data.append(entry)
 
@@ -2233,7 +2230,7 @@ class DojoDataFrame(DataFrame):
     def select_family(self, family):
         data = []
         for index, entry in self.iterrows():
-            element = _PTABLE[entry.Z]
+            element = Element.from_Z(entry.Z)
             # e.g element.is_alkaline
             if getattr(element, "is_" + family):
                 data.append(entry)

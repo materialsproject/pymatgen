@@ -113,7 +113,7 @@ class ElasticTensorTest(PymatgenTest):
         strain_list = [Strain.from_deformation(def_matrix)
                        for def_matrix in self.def_stress_dict['deformations']]
         stress_list = [stress for stress in self.def_stress_dict['stresses']]
-        with warnings.catch_warnings(record=True):
+        with warnings.catch_warnings(record = True):
             et_fl = -0.1*ElasticTensor.from_strain_stress_list(strain_list, stress_list)
             self.assertArrayAlmostEqual(et_fl.round(2),
                                         [[59.29, 24.36, 22.46, 0, 0, 0],
@@ -128,8 +128,9 @@ class ElasticTensorTest(PymatgenTest):
                                 in self.def_stress_dict['deformations']],
                                 [Stress(stress_matrix) for stress_matrix
                                 in self.def_stress_dict['stresses']])))
-        et_from_sd = ElasticTensor.from_stress_dict(stress_dict)
-        self.assertArrayAlmostEqual(et_from_sd.round(2),
+        with warnings.catch_warnings(record = True):
+            et_from_sd = ElasticTensor.from_stress_dict(stress_dict)
+        self.assertArrayAlmostEqual(et_from_sd.symmetrized.round(2),
                                     self.elastic_tensor_1)
 if __name__ == '__main__':
     unittest.main()

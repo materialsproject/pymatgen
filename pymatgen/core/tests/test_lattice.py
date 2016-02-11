@@ -264,6 +264,7 @@ class LatticeTestCase(PymatgenTest):
             self.assertEqual(t.abc[i], self.tetragonal.abc[i])
             self.assertEqual(t.angles[i], self.tetragonal.angles[i])
         #Make sure old style dicts work.
+        d = self.tetragonal.as_dict(verbosity=1)
         del d["matrix"]
         t = Lattice.from_dict(d)
         for i in range(3):
@@ -310,15 +311,16 @@ class LatticeTestCase(PymatgenTest):
             lattice.dot(np.zeros(3), np.zeros(6))
 
     def test_get_points_in_sphere(self):
-        latt = Lattice.cubic(1)
-        pts = []
-        for a, b, c in itertools.product(range(10), range(10), range(10)):
-            pts.append([a / 10, b / 10, c / 10])
+        # This is a non-niggli representation of a cubic lattice
+        latt = Lattice([[1,5,0],[0,1,0],[5,0,1]])
+        # evenly spaced points array between 0 and 1
+        pts = np.array(list(itertools.product(range(5), repeat=3))) / 5
+        pts = latt.get_fractional_coords(pts)
 
         self.assertEqual(len(latt.get_points_in_sphere(
-            pts, [0, 0, 0], 0.1)), 7)
+            pts, [0, 0, 0], 0.20001)), 7)
         self.assertEqual(len(latt.get_points_in_sphere(
-            pts, [0.5, 0.5, 0.5], 0.5)), 515)
+            pts, [0.5, 0.5, 0.5], 1.0001)), 552)
 
     def test_get_all_distances(self):
         fcoords = np.array([[0.3, 0.3, 0.5],
