@@ -8,7 +8,7 @@ import unittest
 import os
 import json
 
-from pymatgen import Spin, Orbital
+from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
 from pymatgen.electronic_structure.dos import CompleteDos
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -65,7 +65,7 @@ class CompleteDosTest(unittest.TestCase):
         self.assertEqual(len(spd_dos), 3)
         el_dos = dos.get_element_dos()
         self.assertEqual(len(el_dos), 4)
-        sum_spd = spd_dos['S'] + spd_dos['P'] + spd_dos['D']
+        sum_spd = spd_dos[OrbitalType.s] + spd_dos[OrbitalType.p] + spd_dos[OrbitalType.d]
         sum_element = None
         for pdos in el_dos.values():
             if sum_element is None:
@@ -114,7 +114,7 @@ class CompleteDosTest(unittest.TestCase):
         el_dos = dos.get_element_dos()
         self.assertEqual(len(el_dos), 4)
         spd_dos = dos.get_spd_dos()
-        sum_spd = spd_dos['S'] + spd_dos['P'] + spd_dos['D']
+        sum_spd = spd_dos[OrbitalType.s] + spd_dos[OrbitalType.p] + spd_dos[OrbitalType.d]
         sum_element = None
         for pdos in el_dos.values():
             if sum_element is None:

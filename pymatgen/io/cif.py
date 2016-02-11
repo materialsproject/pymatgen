@@ -497,13 +497,10 @@ class CifParser(object):
             if occu > 0:
                 coord = (x, y, z)
                 if coord not in coord_to_species:
-                    coord_to_species[coord] = {el: occu}
+                    coord_to_species[coord] = Composition({el: occu})
                 else:
-                    coord_to_species[coord][el] = occu
+                    coord_to_species[coord] += {el: occu}
 
-
-        coord_to_species = {k: Composition(v)
-                            for k, v in coord_to_species.items()}
         allspecies = []
         allcoords = []
 

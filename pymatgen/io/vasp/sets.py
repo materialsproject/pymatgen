@@ -592,9 +592,13 @@ class MITNEBVaspInputSet(DictVaspInputSet):
                 kpoints.write_file(os.path.join(output_dir, image, 'KPOINTS'))
                 potcar.write_file(os.path.join(output_dir, image, 'POTCAR'))
         if self.write_path_cif:
-            from pymatgen import Structure
+            from pymatgen import Structure, PeriodicSite
             from itertools import chain
-            path = Structure.from_sites(sorted(set(chain(*(s.sites for s in structures)))))
+            sites = set()
+            l = structures[0].lattice
+            for site in chain(*(s.sites for s in structures)):
+                sites.add(PeriodicSite(site.species_and_occu, site.frac_coords, l))
+            path = Structure.from_sites(sorted(sites))
             path.to(filename=os.path.join(output_dir, 'path.cif'))
 
 
@@ -930,8 +934,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
 
         # Prefer to use k-point scheme from previous run
         new_kpoints = mpsvip.get_kpoints(structure)
-        if previous_kpoints.style[0] != new_kpoints.style[0]:
-            if previous_kpoints.style[0] == "M" and \
+        if previous_kpoints.style != new_kpoints.style:
+            if previous_kpoints.style == Kpoints.supported_modes.Monkhorst and \
                     SpacegroupAnalyzer(structure, 0.1).get_lattice_type() != \
                     "hexagonal":
                 k_div = (kp + 1 if kp % 2 == 1 else kp

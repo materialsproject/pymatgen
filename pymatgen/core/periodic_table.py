@@ -691,7 +691,7 @@ class Element(Enum):
         """
         True if element is a chalcogen.
         """
-        return self.Z in (8, 18, 34, 52, 84)
+        return self.Z in (8, 16, 34, 52, 84)
 
     @property
     def is_lanthanoid(self):
@@ -972,11 +972,13 @@ class Specie(MSONable):
         return Specie(self.symbol, self.oxi_state, self._properties)
 
     def as_dict(self):
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "element": self.symbol,
-                "oxidation_state": self._oxi_state,
-                "properties": self._properties}
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "element": self.symbol,
+             "oxidation_state": self._oxi_state}
+        if self._properties:
+            d["properties"] = self._properties
+        return d
 
     @classmethod
     def from_dict(cls, d):
@@ -1149,11 +1151,13 @@ class DummySpecie(Specie):
                          "present in {}".format(comp))
 
     def as_dict(self):
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "element": self.symbol,
-                "oxidation_state": self._oxi_state,
-                "properties": self._properties}
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "element": self.symbol,
+             "oxidation_state": self._oxi_state}
+        if self._properties:
+            d["properties"] = self._properties
+        return d
 
     @classmethod
     def from_dict(cls, d):
