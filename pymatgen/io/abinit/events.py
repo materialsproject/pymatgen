@@ -703,26 +703,6 @@ class DilatmxError(AbinitError):
     """
     yaml_tag = '!DilatmxError'
 
-    #def correct(self, task):
-    #    #Idea: decrease dilatxm and restart from the last structure.
-    #    #We would like to end up with a structures optimized with dilatmx 1.01
-    #    #that will be used for phonon calculations.
-    #    if not self.enabled:
-    #        task.log_correction(self, "Handler for %s has been disabled")
-    #        return 1 # what?
-
-    #    # Read the last structure dumped by ABINIT before aborting.
-    #    print("in dilatmx")
-    #    filepath = task.outdir.has_abiext("DILATMX_STRUCT.nc")
-    #    last_structure = Structure.from_file(filepath)
-
-    #    task._change_structure(last_structure)
-    #    #changes = task._modify_vars(dilatmx=1.05)
-
-    #    action = "Take last structure from DILATMX_STRUCT.nc, will restart with dilatmx: %s" % task.get_inpvar("dilatmx")
-    #    task.log_correction(self, action)
-    #    return 1
-
 
 class DilatmxErrorHandler(ErrorHandler):
     """
@@ -764,39 +744,11 @@ class DilatmxErrorHandler(ErrorHandler):
             last_structure = Structure.from_file(filepath)
             abiinput.set_structure(last_structure)
             #FIXME restart from DEN files not always working with interpolation
-            return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, True)
-            # return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, False)
+            return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, reset=True)
+            # return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, event=False)
         except Exception as exc:
             logger.warning('Error while trying to apply the handler {}.'.format(str(self)), exc)
             return None
-
-
-"""
-class DilatmxErrorHandlerTest(ErrorHandler):
-    def __init__(self, max_dilatmx=1.3):
-        self.max_dilatmx = max_dilatmx
-
-    def handle_task_event(self, task, event):
-        msg = event.message
-
-        # Check if the handler is suitable to deal with this error
-        if msg.find("You need at least dilatmx=") == -1:
-            return {"status": self.NOT_FIXED, "msg": "{} can not fix event: {}".format(self.__class__, event)}
-
-        #read the suggested dilatmx
-        try:
-            new_dilatmx = float(msg.split('dilatmx=')[1].split('\n')[0].strip())
-        except:
-            return {"status": self.NOT_FIXED, "msg": "Couldn't parse dilatmx."}
-        if new_dilatmx > self.max_dilatmx:
-            msg = "Suggested dilatmx ({}) exceeds maximux configured value ({}).".format(new_dilatmx, self.max_dilatmx)
-            return self.NOT_FIXED
-        task.strategy.abinit_input.set_vars(dilatmx=new_dilatmx)
-        msg = "Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx %s" % task.get_inpvar("dilatmx")
-        task.log_correction(event, msg)
-
-        return self.FIXED
-"""
 
 
 class TolSymError(AbinitError):
@@ -839,7 +791,38 @@ class TolSymErrorHandler(ErrorHandler):
             old_tolsym = abiinput["tolsym"]
             new_tolsym = 1e-6 if old_tolsym is None else old_tolsym * 10
             abiinput.set_vars(tolsym=new_tolsym)
-            return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, False)
+            return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, reset=False)
+        except Exception as exc:
+            logger.warning('Error while trying to apply the handler {}.'.format(str(self)), exc)
+            return None
+
+
+class MemanaError(AbinitError):
+    """
+    Class of errors raised by the memory analyzer. 
+    (the section that estimates the memory requirements from the input parameters).
+    """
+    yaml_tag = '!MemanaError'
+
+
+class MemanaErrorHandler(ErrorHandler):
+    """
+    Set mem_test to 0 to bypass the memory check.
+    """
+    event_class = MemanaError
+
+    can_change_physics = False
+
+    def handle_task_event(self, task, event):
+        task._set_inpvars(mem_test=0)
+        task.log_correction(event, "Find MemanaError. Setting mem_test to 0 in input file.")
+        return self.FIXED
+
+    def handle_input_event(self, abiinput, outdir, event):
+        try:
+            old_abiinput = abiinput.deepcopy()
+            abiinput.set_vars(mem_test=0)
+            return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, reset=False)
         except Exception as exc:
             logger.warning('Error while trying to apply the handler {}.'.format(str(self)), exc)
             return None
