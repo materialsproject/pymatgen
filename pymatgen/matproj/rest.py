@@ -979,4 +979,3 @@ class MPDecoder(MontyDecoder):
             return {self.process_decoded(k): self.process_decoded(v)
                     for k, v in d.items()}
         return MontyDecoder.process_decoded(self, d)
-
