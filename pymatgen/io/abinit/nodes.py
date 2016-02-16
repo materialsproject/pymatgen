@@ -1111,7 +1111,9 @@ def init_counter():
 
     if _COUNTER is None:
         with open(_COUNTER_FILE, "r") as fh:
-            _COUNTER = int(fh.read())
+            s = fh.read().strip()
+            if not s: s = "-1"
+            _COUNTER = int(s)
 
 
 def get_newnode_id():
