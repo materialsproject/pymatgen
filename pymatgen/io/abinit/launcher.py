@@ -22,9 +22,10 @@ from pymatgen.util.io_utils import ask_yesno
 
 try:
     import apscheduler
+    has_apscheduler = True
     has_sched_v3 = apscheduler.version >= "3.0.0"
 except ImportError:
-    pass
+    has_apscheduler = False
 
 import logging
 logger = logging.getLogger(__name__)
@@ -330,6 +331,9 @@ class PyFlowScheduler(object):
         if kwargs:
             raise self.Error("Unknown arguments %s" % kwargs)
 
+        if not has_apscheduler:
+            raise RuntimeError("Install apscheduler with pip")
+
         if has_sched_v3:
             logger.warning("Using scheduler v>=3.0.0")
             from apscheduler.schedulers.blocking import BlockingScheduler
@@ -496,6 +500,9 @@ class PyFlowScheduler(object):
         """
         self.history.append("Started on %s" % time.asctime())
         self.start_time = time.time()
+
+        if not has_apscheduler:
+            raise RuntimeError("Install apscheduler with pip")
 
         if has_sched_v3:
             self.sched.add_job(self.callback, "interval", **self.sched_options)
