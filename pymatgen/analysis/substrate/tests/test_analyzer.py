@@ -42,12 +42,11 @@ class ZSLGenTest(PymatgenTest):
 
         self.assertArrayEqual(z.reduce_vectors([1,0,0],[2,2,0]),[[1,0,0],[0,2,0]])
         self.assertEqual(z.area([1,0,0],[0,2,0]),2)
-        self.assertArrayEqual(list(z.factor(4)),[1,2,4])
+        self.assertArrayEqual(list(z.factor(18)),[1,2,3,6,9,18])
         self.assertTrue(z.is_same_vectors([[1.01,0,0],[0,2,0]],[[1,0,0],[0,2.01,0]]))
+        self.assertFalse(z.is_same_vectors([[1.01,2,0],[0,2,0]],[[1,0,0],[0,2.01,0]]))
 
         matches = list(z.generate())
-
-        print(z.find_min(matches))
 
         self.assertEqual(len(matches),82)
 
