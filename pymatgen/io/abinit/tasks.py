@@ -70,17 +70,17 @@ def nmltostring(nml):
 
     curstr = ""
     for key,group in nml.items():
-       namelist = ["&"+key]
-       for k,v in group.items():
-         if isinstance(v,list) or isinstance(v,tuple):
-           namelist.append(k + " = "+",".join(map(str,v))+",")
-         elif isinstance(v,unicode) or isinstance(v,str):
-           namelist.append(k + " = '"+str(v)+"',")
+       namelist = ["&" + key]
+       for k, v in group.items():
+         if isinstance(v, list) or isinstance(v, tuple):
+           namelist.append(k + " = " + ",".join(map(str, v)) + ",")
+         elif is_string(v):
+           namelist.append(k + " = '" + str(v) + "',")
          else:
-           namelist.append(k + " = "+str(v)+",")
+           namelist.append(k + " = " + str(v) + ",")
        namelist.append("/")
 
-       curstr = curstr + "\n".join(namelist)+"\n"
+       curstr = curstr + "\n".join(namelist) + "\n"
 
     return curstr
 
