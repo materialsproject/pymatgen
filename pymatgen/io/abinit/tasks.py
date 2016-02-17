@@ -16,6 +16,7 @@ import six
 import numpy as np
 
 from pprint import pprint
+from itertools import product
 from six.moves import map, zip, StringIO
 from monty.string import is_string, list_strings
 from monty.termcolor import colored
@@ -238,6 +239,21 @@ class ParalHints(collections.Iterable):
     def __init__(self, info, confs):
         self.info = info
         self._confs = [ParalConf(**d) for d in confs]
+
+    @classmethod
+    def from_mpi_omp_lists(cls, mpi_procs, omp_threads):
+        """
+        Build a list of Parallel configurations from two lists
+        containing the number of MPI processes and the number of OpenMP threads
+        i.e. product(mpi_procs, omp_threads).
+        The configuration have parallel efficiency set to 1.0 and no input variables.
+        Mainly used for preparing benchmarks.
+        """
+        info = {}
+        confs = [ParalConf(mpi_ncpus=p, omp_ncpus=p, efficiency=1.0) 
+                 for p, t in product(mpi_procs, omp_threads)]
+
+        return cls(info, confs)
 
     def __getitem__(self, key):
         return self._confs[key]
