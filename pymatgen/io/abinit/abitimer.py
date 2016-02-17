@@ -211,7 +211,7 @@ class AbinitTimerParser(collections.Iterable):
         Analyze the parallel efficiency.
         """
         timers = self.timers()
-        #
+
         # Number of CPUs employed in each calculation.
         ncpus = [timer.ncpus for timer in timers]
 
@@ -263,8 +263,15 @@ class AbinitTimerParser(collections.Iterable):
         colnames = ["fname", "wall_time", "cpu_time", "mpi_nprocs", "omp_nthreads", "mpi_rank"]
 
         frame = pd.DataFrame(columns=colnames) 
-        for timer in self.timers():
+        for i, timer in enumerate(self.timers()):
             frame = frame.append({k: getattr(timer, k) for k in colnames}, ignore_index=True)
+        frame["tot_ncpus"] = frame["mpi_nprocs"] * frame["omp_nthreads"]
+
+        # Compute parallel efficiency (use the run with min number of cpus to normalize).
+        i = frame["tot_ncpus"].idxmin()
+        ref_wtime = frame.ix[i]["wall_time"]
+        ref_ncpus = frame.ix[i]["tot_ncpus"]
+        frame["peff"] = (ref_ncpus * ref_wtime) / (frame["wall_time"] * frame["tot_ncpus"]) 
 
         return frame
 
