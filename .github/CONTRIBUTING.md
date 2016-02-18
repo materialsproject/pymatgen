@@ -49,8 +49,7 @@ following practices throughout pymatgen.
    
 # Collaborative Github Workflow
 
-We use the following workflow (adapted from
-http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
+We recommend the following workflow in making contributions:
 
 1. Create a free GitHub account (if you don't already have one) and perform the
    necessary setup (e.g., install SSH keys etc.).
@@ -80,18 +79,15 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
    Remember, pull is a combination of the commands fetch and merge, so there may
    be merge conflicts to be manually resolved.
 7. Publish your contributions. Assuming that you now have a couple of commits
-   that you would like to contribute to the main repository. Please follow the
-   following steps:
-   a. If your change is based on a relatively old state of the main repository,
-      then you should probably bring your repository up-to-date first to see if
-      the change is not creating any merge conflicts.
-   b. Check that everything compiles cleanly and passes all tests.
-      The pymatgen repo comes with a complete set of tests for all modules. If
-      you have written new modules or methods, you must write tests for the new
-      code as well (see `Coding Guidelines`_). Install and run nosetest in your
-      local repo directory and fix all errors before continuing further. There
-      must be **no errors** for the nosetest.
-   c. If everything is ok, publish the commits to your github repository.
+   that you would like to contribute to the main repository. If your change 
+   is based on a relatively old state of the main repository, do step 6 to 
+   bring your repository up-to-date and fix any merge conflicts. Check that 
+   everything compiles cleanly and passes all tests. The pymatgen repo comes 
+   with a complete set of tests for all modules. If you have written new 
+   modules or methods, you must write tests for the new code as well. Install 
+   and run nosetest in your local repo directory and fix all errors before 
+   continuing further. There must be **no errors**. If everything is ok, 
+   publish the commits to your github repository.
    ```
    git push origin master
    ```
