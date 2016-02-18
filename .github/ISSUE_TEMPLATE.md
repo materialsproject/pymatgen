@@ -1,7 +1,30 @@
-When reporting bugs, please make sure the following are submitted:
+When reporting bugs, please supply the following information:
 
-- [] State version of pymatgen
-- [] State OS. If you are on Windows, sorry, you are on your own.
-- [] Code generating the error
-- [] Actual error message
-- [] Any input files
+## System
+
+* <Version of pymatgen>
+* <OS version. If you are writing Windows here, you are on your own.> 
+
+## Summary
+
+<Short 1-2 sentences stating the problem.>
+
+## Example code
+
+```python
+<Example code generating error>
+```
+
+## Error message
+
+```
+<Error message>
+```
+
+## Files
+
+<If input files are needed for the error, please copy and paste them here.>
+
+```
+<contents of file 1>
+```
