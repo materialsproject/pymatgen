@@ -2011,7 +2011,7 @@ space_group_encoding:
     order: 8
     patterson_symmetry: Cmmm
     point_group: mm2
-  Cmca:
+  Cmce:
     enc: 13aDDObODDcODD0
     full_symbol: C2/m2/c2_1/e
     int_number: 64
