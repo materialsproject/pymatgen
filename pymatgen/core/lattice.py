@@ -510,7 +510,7 @@ class Lattice(MSONable):
                                   np.logical_and(alphab,
                                                  betab[i][None, :]))
             for j, k in np.argwhere(inds):
-                scale_m = np.array((f_a[i], f_b[j], f_c[k]))
+                scale_m = np.array((f_a[i], f_b[j], f_c[k]), dtype=np.int)
                 if abs(np.linalg.det(scale_m)) < 1e-8:
                     continue
 
