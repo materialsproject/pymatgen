@@ -3,29 +3,26 @@
 1. **Unittests** are required for all new modules and methods. The only way to
    minimize code regression is to ensure that all code are well-tested. If the
    maintainer cannot test your code, the contribution will be rejected.
-2. **Python PEP 8** `code style <http://www.python.org/dev/peps/pep-0008/>`_.
+2. **Python PEP 8** [code style](http://www.python.org/dev/peps/pep-0008/).
    We allow a few exceptions when they are well-justified (e.g., Element's
    atomic number is given a variable name of capital Z, in line with accepted
-   scientific convention), but generally, PEP 8 must be observed.
+   scientific convention), but generally, PEP 8 should be observed.
 3. **Python 3**. All code should seamless work with Python 2.7 and Python 3.x.
-   Please read [Python's official guidelines](https://docs.python.org/3/howto/pyporting.html) 
-   on how to write Python 3.x compatible code, including the usage of the 
-   "six" package. It is recommended that you install the "python-modernize" 
-   package and run it before submitting any pull requests.
 4. **Documentation** required for all modules, classes and methods. In
    particular, the method docstrings should make clear the arguments expected
    and the return values. For complex algorithms (e.g., an Ewald summation), a
    summary of the alogirthm should be provided, and preferably with a link to a
    publication outlining the method in detail.
 
-If in doubt, please refer to the core classes in pymatgen for examples of 
-what is expected.
+If in doubt, please refer to the core classes in pymatgen as well as 
+associated unittests for examples of what is expected.
 
-# A word on coding for Python 3 compatibility
+# Coding for Python 3 compatibility
 
 With effect from version 3.0, all pymatgen code must be both Python 2.7+ and 3
-compatible. Specifically, we have adopted the following practices throughout
-pymatgen.
+compatible. Please read [Python's official guidelines](https://docs.python.org/3/howto/pyporting.html) 
+on how to write Python 3.x compatible code. Specifically, we have adopted the
+following practices throughout pymatgen.
 
 1. **Unicode-always.** Unless you are absolutely sure you need byte literals
    (rare for pymatgen), always use unicode. In particular, the following should
