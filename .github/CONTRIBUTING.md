@@ -8,11 +8,12 @@
    atomic number is given a variable name of capital Z, in line with accepted
    scientific convention), but generally, PEP 8 should be observed.
 3. **Python 3**. All code should seamless work with Python 2.7 and Python 3.x.
+   See more details below.
 4. **Documentation** required for all modules, classes and methods. In
    particular, the method docstrings should make clear the arguments expected
-   and the return values. For complex algorithms (e.g., an Ewald summation), a
-   summary of the alogirthm should be provided, and preferably with a link to a
-   publication outlining the method in detail.
+   and the return values. For complex algorithms, a summary of the alogirthm 
+   should be provided, and preferably with a link to a publication outlining 
+   the method in detail.
 
 If in doubt, please refer to the core classes in pymatgen as well as 
 associated unittests for examples of what is expected.
@@ -43,5 +44,58 @@ following practices throughout pymatgen.
 3. **Python-modernize**. Use python-modernize to check your code for any
    potential changes that need to be made.
 4. **Unit testing**. The entire pymatgen code base is continuously being
-   tested in both Python 2.7 and >=3.3. If your code fails either of the
+   tested in both Python 2.7 and >=3.4. If your code fails either of the
    tests, you need to fix it.
+   
+# Collaborative Github Workflow
+
+We use the following workflow (adapted from
+http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
+
+1. Create a free GitHub account (if you don't already have one) and perform the
+   necessary setup (e.g., install SSH keys etc.).
+2. Fork the pymatgen GitHub repo.
+3. Install git on your local machine (if you don't already have it).
+4. Clone *your forked repo* to your local machine. You will work mostly with
+   your local repo and only publish changes when they are ready to be merged:
+   ```
+   git clone git@github.com:YOURNAME/pymatgen.git
+   ```
+5. It is highly recommended you install all the optional dependencies as well.
+6. Code, commit early and commit often. Keep your code up to date. You need 
+   to add the main repository to the list of your remotes as "upstream".
+   ```
+   git remote add upstream git://github.com/materialsproject/pymatgen.git
+   ```
+   Make sure your repository is clean (no uncommitted changes) and is currently
+   on the master branch. If not, commit or stash any changes and switch to the
+   master.
+   ```
+   git checkout master
+   ```
+   Then you can pull all the new commits from the main line
+   ```
+   git pull upstream master
+   ```
+   Remember, pull is a combination of the commands fetch and merge, so there may
+   be merge conflicts to be manually resolved.
+7. Publish your contributions. Assuming that you now have a couple of commits
+   that you would like to contribute to the main repository. Please follow the
+   following steps:
+   a. If your change is based on a relatively old state of the main repository,
+      then you should probably bring your repository up-to-date first to see if
+      the change is not creating any merge conflicts.
+   b. Check that everything compiles cleanly and passes all tests.
+      The pymatgen repo comes with a complete set of tests for all modules. If
+      you have written new modules or methods, you must write tests for the new
+      code as well (see `Coding Guidelines`_). Install and run nosetest in your
+      local repo directory and fix all errors before continuing further. There
+      must be **no errors** for the nosetest.
+   c. If everything is ok, publish the commits to your github repository.
+   ```
+   git push origin master
+   ```
+8. Now that your commit is published, it does not mean that it has already been
+   merged into the main repository. You should issue a pull request to
+   pymatgen' maintainers. They will run their own tests and checks, merge if 
+   appropriate and release.
