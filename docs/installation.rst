@@ -444,3 +444,58 @@ given by the author. For convenience, the steps are reproduced here:
 
 After doing the above, make sure that the multienum.x and makestr.x executables
 are available in your path.
+
+Zeo++
+-----
+
+If you use the defects analysis package, you will need to installZeo++/Voro++.
+Here are the steps you need to follow (thanks to Bharat)
+
+Download and install Voro++::
+
+    mkdir Voro++
+    mkdir Voro++/voro
+    cd Voro++/voro
+    svn checkout --username anonsvn https://code.lbl.gov/svn/voro/trunk  # password is 'anonsvn'
+    cd trunk
+
+Add -fPIC to the CFLAGS variable in config.mk, and then::
+
+    make
+
+Download and install Zeo++::
+
+    cd ~
+    mkdir Zeo++; mkdir Zeo++/zeo
+    cd Zeo++/zeo
+    svn checkout --username anonsvn https://code.lbl.gov/svn/zeo/trunk  # password is 'anonsvn'
+    cd trunk
+    make dylib
+
+Create python bindings with Cython::
+
+    pip install cython
+    cd cython_wrapper
+    python setup_alt.py develop
+
+To test that the installation worked, here is an example series of things you
+can do using pymatgen::
+
+    In [1]: from pymatgen.analysis.defects.point_defects import Interstitial
+
+    In [2]: from pymatgen.core.structure import Structure
+
+    In [3]: structure = Structure.from_file('/path/to/file')
+
+    In [4]: radii, valences = {}, {}
+
+    In [5]: for element in structure.composition.elements:
+       ...:     radii[element.symbol] = element.atomic_radius
+       ...:     valence = element.group  # Just a first guess..
+       ...:     if element.group > 12:
+       ...:         valence -= 10
+       ...:     valences[element.symbol] = valence
+
+    In [6]: interstitial = Interstitial(structure, radii=radii, valences=valences)
+
+    In [7]: interstitial._defect_sites
