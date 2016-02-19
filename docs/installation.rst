@@ -465,8 +465,8 @@ Add -fPIC to the CFLAGS variable in config.mk, and then::
 
 Download and install Zeo++::
 
-    cd ~
-    mkdir Zeo++; mkdir Zeo++/zeo
+    mkdir Zeo++
+    mkdir Zeo++/zeo
     cd Zeo++/zeo
     svn checkout --username anonsvn https://code.lbl.gov/svn/zeo/trunk  # password is 'anonsvn'
     cd trunk
