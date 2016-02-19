@@ -103,8 +103,7 @@ class MPResterTest(unittest.TestCase):
 
     def test_get_materials_id_references(self):
         # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_get_materials_id_references
-        # self.rester points to rest/v2 by default which doesn't have the refs endpoint
-        m = MPRester(endpoint="https://www.materialsproject.org/rest")
+        m = MPRester()
         data = m.get_materials_id_references('mp-123')
         self.assertTrue(len(data) > 1000)
 

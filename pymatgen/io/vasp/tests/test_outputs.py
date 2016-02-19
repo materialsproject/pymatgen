@@ -25,6 +25,7 @@ import warnings
 import xml.etree.cElementTree as ET
 
 
+from pymatgen.electronic_structure.core import OrbitalType
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning
@@ -60,7 +61,7 @@ class VasprunTest(unittest.TestCase):
         vasprun = Vasprun(filepath, parse_potcar_file=False)
         orbs = list(vasprun.complete_dos.pdos[vasprun.final_structure[
             0]].keys())
-        self.assertIn("S", orbs)
+        self.assertIn(OrbitalType.s, orbs)
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath, parse_potcar_file=False)
 
@@ -513,9 +514,9 @@ class ProcarTest(unittest.TestCase):
     def test_init(self):
         filepath = os.path.join(test_dir, 'PROCAR.simple')
         p = Procar(filepath)
-        self.assertAlmostEqual(p.get_occupation(1, 'd'), 0)
-        self.assertAlmostEqual(p.get_occupation(1, 's'), 0.3538125)
-        self.assertAlmostEqual(p.get_occupation(1, 'p'), 1.19540625)
+        self.assertAlmostEqual(p.get_occupation(0, 'd')[Spin.up], 0)
+        self.assertAlmostEqual(p.get_occupation(0, 's')[Spin.up], 0.35381249999999997)
+        self.assertAlmostEqual(p.get_occupation(0, 'p')[Spin.up], 1.19540625)
         self.assertRaises(ValueError, p.get_occupation, 1, 'm')
         self.assertEqual(p.nbands, 10)
         self.assertEqual(p.nkpoints, 10)
@@ -529,17 +530,27 @@ class ProcarTest(unittest.TestCase):
                                {'Na': 0.042, 'K': 0.646, 'Li': 0.042})
         filepath = os.path.join(test_dir, 'PROCAR')
         p = Procar(filepath)
-        self.assertAlmostEqual(p.get_occupation(0, 'd'), 4.3698147704200059)
-        self.assertAlmostEqual(p.get_occupation(0, 'dxy'), 0.85796295426000124)
+        self.assertAlmostEqual(p.get_occupation(0, 'dxy')[Spin.up],
+                               0.96214813853000025)
+        self.assertAlmostEqual(p.get_occupation(0, 'dxy')[Spin.down],
+                               0.85796295426000124)
+
 
     def test_phase_factors(self):
         filepath = os.path.join(test_dir, 'PROCAR.phase')
         p = Procar(filepath)
-        self.assertAlmostEqual(p.phase_factors[0, 1, 1, "s"], 0.372-0.654j)
-        # Two Li should ahve same phase factor.
-        self.assertAlmostEqual(p.phase_factors[1, 1, 1, "s"],
-                               p.phase_factors[0, 1, 1, "s"])
-        self.assertAlmostEqual(p.phase_factors[2, 1, 1, "s"], 0.027-0.047j)
+        self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0],
+                               -0.746+0.099j)
+        self.assertAlmostEqual(p.phase_factors[Spin.down][0, 0, 0, 0],
+                               0.372-0.654j)
+
+        # Two Li should have same phase factor.
+        self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0],
+                               p.phase_factors[Spin.up][0, 0, 1, 0])
+        self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 2, 0],
+                               -0.053+0.007j)
+        self.assertAlmostEqual(p.phase_factors[Spin.down][0, 0, 2, 0],
+                               0.027-0.047j)
 
 
 class XdatcarTest(unittest.TestCase):

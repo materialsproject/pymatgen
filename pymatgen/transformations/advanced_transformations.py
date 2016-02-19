@@ -576,6 +576,7 @@ class MagOrderingTransformation(AbstractTransformation):
         out = []
         for _, g in groupby(sorted([d["structure"] for d in alls],
                                    key=key), key):
+            g = list(g)
             grouped = m.group_structures(g)
             out.extend([{"structure": g[0],
                          "energy": self.emodel.get_energy(g[0])}

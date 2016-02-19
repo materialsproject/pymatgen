@@ -592,9 +592,13 @@ class MITNEBVaspInputSet(DictVaspInputSet):
                 kpoints.write_file(os.path.join(output_dir, image, 'KPOINTS'))
                 potcar.write_file(os.path.join(output_dir, image, 'POTCAR'))
         if self.write_path_cif:
-            from pymatgen import Structure
+            from pymatgen import Structure, PeriodicSite
             from itertools import chain
-            path = Structure.from_sites(sorted(set(chain(*(s.sites for s in structures)))))
+            sites = set()
+            l = structures[0].lattice
+            for site in chain(*(s.sites for s in structures)):
+                sites.add(PeriodicSite(site.species_and_occu, site.frac_coords, l))
+            path = Structure.from_sites(sorted(sites))
             path.to(filename=os.path.join(output_dir, 'path.cif'))
 
 

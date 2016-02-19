@@ -2239,6 +2239,12 @@ Sites (12)
     def test_ordinal_not_in_range(self):
         filename = os.path.join(test_dir, "ordinal_not_in_range.qcout.gz")
         qcout = QcOutput(filename)
+        self.assertEqual(len(qcout.data), 1)
+
+    def test_aux_mpi_time_in_the_end_of_job(self):
+        filename = os.path.join(test_dir, "aux_mpi_time_mol.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(len(qcout.data), 2)
 
 
 if __name__ == "__main__":

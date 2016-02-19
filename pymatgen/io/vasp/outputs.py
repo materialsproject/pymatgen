@@ -29,7 +29,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.units import unitized
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
-from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.electronic_structure.bandstructure import BandStructure, \
     BandStructureSymmLine, get_reconstructed_band_structure
@@ -658,16 +658,8 @@ class Vasprun(MSONable):
         if 'projected_eigenvalues' in self.as_dict()['output']:
             dict_p_eigen = self.as_dict()['output']['projected_eigenvalues']
 
-        p_eigenvals = {}
-        if "1" in dict_eigen["0"] and "-1" in dict_eigen["0"] \
-                and self.incar['ISPIN'] == 2:
-            eigenvals = {Spin.up: [], Spin.down: []}
-            if len(dict_p_eigen) != 0:
-                p_eigenvals = {Spin.up: [], Spin.down: []}
-        else:
-            eigenvals = {Spin.up: []}
-            if len(dict_p_eigen) != 0:
-                p_eigenvals = {Spin.up: []}
+        p_eigenvals = defaultdict(list)
+        eigenvals = defaultdict(list)
 
         neigenvalues = [len(v['1']) for v in dict_eigen.values()]
         min_eigenvalues = min(neigenvalues)
@@ -679,7 +671,8 @@ class Vasprun(MSONable):
                     [{Orbital[orb]: dict_p_eigen[j]['1'][i][orb]
                       for orb in dict_p_eigen[j]['1'][i]}
                      for j in range(len(kpoints))])
-        if Spin.down in eigenvals:
+        if "1" in dict_eigen["0"] and "-1" in dict_eigen["0"] \
+                and self.incar['ISPIN'] == 2:
             for i in range(min_eigenvalues):
                 eigenvals[Spin.down].append([dict_eigen[str(j)]['-1'][i][0]
                                              for j in range(len(kpoints))])
@@ -1033,7 +1026,7 @@ class Vasprun(MSONable):
                         if lm:
                             orb = Orbital(j - 1)
                         else:
-                            orb = orbs[j - 1].strip().upper()
+                            orb = OrbitalType(j - 1)
                         pdos[orb][spin] = data[:, j]
                 pdoss.append(pdos)
         elem.clear()
@@ -2162,113 +2155,113 @@ class Procar(object):
 
     .. attribute:: data
 
-        A nested dict containing the PROCAR data of the form below. It should
-        be noted that VASP uses 1-based indexing for atoms, but this is
-        converted to zero-based indexing in this parser to be consistent with
-        representation of structures in pymatgen::
+        The PROCAR data of the form below. It should VASP uses 1-based indexing,
+        but all indices are converted to 0-based here.::
 
             {
-                atom_index: {
-                    kpoint_index: {
-                        "bands": {
-                            band_index: {
-                                "p": 0.002,
-                                "s": 0.025,
-                                "d": 0.0
-                            },
-                            ...
-                        },
-                        "weight": 0.03125
-                    },
-                    ...
+                spin: nd.array accessed with (k-point index, band index, ion index, orbital index)
             }
+
+    .. attribute:: weights
+
+        The weights associated with each k-point as an nd.array of lenght
+        nkpoints.
 
     ..attribute:: phase_factors
 
-        Phase factors, where present (e.g. LORBIT = 12). This attribution is
-        a dict, whose keys are tuples of the format
-        (ion_index, kpoint_index, band_index, orbital_string). The values are
-        complex numbers.
+        Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
+        {
+            spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index)
+        }
+
+    ..attribute:: nbands
+
+        Number of bands
+
+    ..attribute:: nkpoints
+
+        Number of k-points
+
+    ..attribute:: nions
+
+        Number of ions
     """
     def __init__(self, filename):
-        data = defaultdict(dict)
-        phase_factors = {}
         headers = None
+
         with zopen(filename, "rt") as f:
-            lines = list(f.readlines())
-            self.name = lines.pop(0)
+            preambleexpr = re.compile("# of k-points:\s+(\d+)\s+# of bands:\s+(\d+)\s+# of ions:\s+(\d+)")
             kpointexpr = re.compile("^k-point\s+(\d+).*weight = ([0-9\.]+)")
             bandexpr = re.compile("^band\s+(\d+)")
             ionexpr = re.compile("^ion.*")
             expr = re.compile("^([0-9]+)\s+")
-            weight = 0
             current_kpoint = 0
             current_band = 0
             done = False
-            for l in lines:
+            spin = Spin.down
+
+            for l in f:
                 l = l.strip()
-                # TODO: This is really bad. Why are we not using zero-based
-                # indexing for kpoints and bands?
                 if bandexpr.match(l):
                     m = bandexpr.match(l)
-                    current_band = int(m.group(1))
+                    current_band = int(m.group(1)) - 1
                     done = False
                 elif kpointexpr.match(l):
                     m = kpointexpr.match(l)
-                    current_kpoint = int(m.group(1))
-                    weight = float(m.group(2))
-                    if current_kpoint == 1:
-                        phase_factors = {}
+                    current_kpoint = int(m.group(1)) - 1
+                    weights[current_kpoint] = float(m.group(2))
+                    if current_kpoint == 0:
+                        spin = Spin.up if spin == Spin.down else Spin.down
                     done = False
                 elif headers is None and ionexpr.match(l):
                     headers = l.split()
                     headers.pop(0)
                     headers.pop(-1)
+
+                    def f():
+                        return np.zeros((nkpoints, nbands, nions, len(headers)))
+
+                    data = defaultdict(f)
+
+                    def f2():
+                        return np.full((nkpoints, nbands, nions, len(headers)),
+                                       np.NaN, dtype=np.complex128)
+                    phase_factors = defaultdict(f2)
                 elif expr.match(l):
+                    toks = l.split()
+                    index = int(toks.pop(0)) - 1
+                    num_data = np.array([float(t) for t in toks[:len(headers)]])
                     if not done:
-                        toks = l.split()
-                        index = int(toks.pop(0)) - 1
-                        num_data = [float(i) for i in toks[:-1]]
-                        if current_kpoint not in data[index]:
-                            data[index][current_kpoint] = {"weight": weight,
-                                                           "bands": {}}
-                        data[index][current_kpoint]["bands"][current_band] = \
-                            dict(zip(headers, num_data))
+                        data[spin][current_kpoint, current_band,
+                                   index, :] = num_data
                     else:
-                        toks = l.split()
-                        index = int(toks.pop(0)) - 1
-                        num_data = [float(i) for i in toks[:-1]]
-                        for val, o in zip(num_data, headers):
-                            key = (index, current_kpoint, current_band, o)
-                            if key not in phase_factors:
-                                phase_factors[key] = val
-                            else:
-                                phase_factors[key] += 1j * val
+                        if np.isnan(phase_factors[spin][
+                                current_kpoint, current_band, index, 0]):
+                            phase_factors[spin][current_kpoint, current_band,
+                                                index, :] = num_data
+                        else:
+                            phase_factors[spin][current_kpoint, current_band,
+                                                index, :] += 1j * num_data
                 elif l.startswith("tot"):
                     done = True
+                elif preambleexpr.match(l):
+                    m = preambleexpr.match(l)
+                    nkpoints = int(m.group(1))
+                    nbands = int(m.group(2))
+                    nions = int(m.group(3))
+                    weights = np.zeros(nkpoints)
 
+            self.nkpoints = nkpoints
+            self.nbands = nbands
+            self.nions = nions
+            self.weights = weights
+            self.orbitals = headers
             self.data = data
             self.phase_factors = phase_factors
-
-    @property
-    def nbands(self):
-        """Number of bands"""
-        return len(self.data[0][1]["bands"].keys())
-
-    @property
-    def nkpoints(self):
-        """Number of k-points"""
-        return len(self.data[0].keys())
-
-    @property
-    def nions(self):
-        """Number of ions"""
-        return len(self.data)
 
     def get_projection_on_elements(self, structure):
         """
         Method returning a dictionary of projections on elements.
-        Spin polarized calculation are not supported.
 
         Args:
             structure (Structure): Input structure.
@@ -2276,17 +2269,18 @@ class Procar(object):
         Returns:
             a dictionary in the {Spin.up:[k index][b index][{Element:values}]]
         """
-        dico = {Spin.up: []}
-        dico[Spin.up] = [[defaultdict(float)
-                          for i in range(self.nkpoints)]
-                         for j in range(self.nbands)]
+        dico = {}
+        for spin in self.data.keys():
+            dico[spin] = [[defaultdict(float)
+                           for i in range(self.nkpoints)]
+                          for j in range(self.nbands)]
 
-        for iat in self.data:
+        for iat in range(self.nions):
             name = structure.species[iat].symbol
-            for k in self.data[iat]:
-                for b in self.data[iat][k]["bands"]:
-                    dico[Spin.up][b-1][k-1][name] = \
-                        sum(self.data[iat][k]["bands"][b].values())
+            for spin, d in self.data.items():
+                for k, b in itertools.product(range(self.nkpoints),
+                                              range(self.nbands)):
+                    dico[spin][b][k][name] = np.sum(d[k, b, iat, :])
 
         return dico
 
@@ -2308,18 +2302,10 @@ class Procar(object):
         Returns:
             Sum occupation of orbital of atom.
         """
-        total = 0
-        found = False
-        for kpoint, d in self.data[atom_index].items():
-            wt = d["weight"]
-            for band, dd in d["bands"].items():
-                for orb, v in dd.items():
-                    if orb.startswith(orbital):
-                        found = True
-                        total += v * wt
-        if not found:
-            raise ValueError("Invalid orbital {}".format(orbital))
-        return total
+
+        orbital_index = self.orbitals.index(orbital)
+        return {spin: np.sum(d[:, :, atom_index, orbital_index] * self.weights[:, None])
+                for spin, d in self.data.items()}
 
 
 class Oszicar(object):

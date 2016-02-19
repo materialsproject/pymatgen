@@ -38,6 +38,23 @@ member of `pymatgen's Google Groups page`_.
 
     *The code is mightier than the pen.*
 
+Examples
+========
+
+A good way to explore the functionality of pymatgen is to look at examples.
+Please check out the ipython notebooks at our :doc:`examples page </examples>`.
+Below are a quick look at some of the graphical output possible.
+
+.. figure:: _static/examples.png
+   :width: 100%
+   :alt: Examples
+   :align: center
+
+   Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
+   Bottom left: Calculated bandstructure plot using pymatgen's parsing and
+   plotting utilities. Bottom right: Arrhenius plot using pymatgen's
+   DiffusionAnalyzer.
+
 Why use pymatgen?
 =================
 
@@ -347,12 +364,6 @@ strongly encouraged to explore the :doc:`usage pages </usage>` (toc given below)
    :maxdepth: 2
 
    usage
-
-Examples
---------
-
-A good way to explore the functionality of pymatgen is to look at examples.
-Please check out the ipython notebooks at our :doc:`examples page </examples>`.
 
 API documentation
 -----------------

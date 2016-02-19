@@ -691,7 +691,7 @@ class Element(Enum):
         """
         True if element is a chalcogen.
         """
-        return self.Z in (8, 18, 34, 52, 84)
+        return self.Z in (8, 16, 34, 52, 84)
 
     @property
     def is_lanthanoid(self):
