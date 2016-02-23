@@ -118,7 +118,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
 
 
 def _parse_varray(elem):
-    return [[float(i) for i in v.text.split()] for v in elem]
+    return [[_vasprun_float(i) for i in v.text.split()] for v in elem]
 
 
 def _parse_from_incar(filename, key):
