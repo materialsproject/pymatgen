@@ -1,4 +1,5 @@
-When reporting bugs, please supply the following information:
+When reporting bugs/issues, please supply the following information. If this 
+is a feature request, please simply state the requested feature.
 
 ## System
 
@@ -7,7 +8,7 @@ When reporting bugs, please supply the following information:
 
 ## Summary
 
-<Short 1-2 sentences stating the problem.>
+* <Short 1-2 bullet points stating the problem.>
 
 ## Example code
 
@@ -20,6 +21,10 @@ When reporting bugs, please supply the following information:
 ```
 <Error message>
 ```
+
+## Suggested solution (if known)
+
+* <If you have a suggestion on how to solve the issue, you may write it here.>
 
 ## Files
 
