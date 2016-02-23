@@ -3,8 +3,8 @@ is a feature request, please simply state the requested feature.
 
 ## System
 
-* Pymatgen version: <If it is the dev master branch, write "dev" here.>
-* Python version: <note pymatgen works with 2.7.* and 3.* only.>
+* Pymatgen version: <Write "branch_name" if it is development version.>
+* Python version: <Only 2.7.* and 3.* supported.>
 * OS version: <If you are writing Windows here, you are on your own.> 
 
 ## Summary
