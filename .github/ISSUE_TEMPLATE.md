@@ -4,6 +4,7 @@ is a feature request, please simply state the requested feature.
 ## System
 
 * <Version of pymatgen>
+* <Version of python. Note that pymatgen works with 2.7.* and 3.* only.>
 * <OS version. If you are writing Windows here, you are on your own.> 
 
 ## Summary
@@ -22,11 +23,11 @@ is a feature request, please simply state the requested feature.
 <Error message>
 ```
 
-## Suggested solution (if known)
+## Suggested solution (if any)
 
 * <If you have a suggestion on how to solve the issue, you may write it here.>
 
-## Files
+## Files (if any)
 
 <If input files are needed for the error, please copy and paste them here.>
 
