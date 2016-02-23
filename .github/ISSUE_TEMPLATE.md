@@ -3,7 +3,7 @@ is a feature request, please simply state the requested feature.
 
 ## System
 
-* Pymatgen version: <version>
+* Pymatgen version: <If it is the dev master branch, write "dev" here.>
 * Python version: <note pymatgen works with 2.7.* and 3.* only.>
 * OS version: <If you are writing Windows here, you are on your own.> 
 
