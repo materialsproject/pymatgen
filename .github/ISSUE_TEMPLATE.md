@@ -3,9 +3,9 @@ is a feature request, please simply state the requested feature.
 
 ## System
 
-* <Version of pymatgen>
-* <Version of python. Note that pymatgen works with 2.7.* and 3.* only.>
-* <OS version. If you are writing Windows here, you are on your own.> 
+* Pymatgen version: <version>
+* Python version: <note pymatgen works with 2.7.* and 3.* only.>
+* OS version: <If you are writing Windows here, you are on your own.> 
 
 ## Summary
 
