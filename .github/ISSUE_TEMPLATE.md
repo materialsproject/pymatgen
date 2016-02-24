@@ -1,5 +1,5 @@
-When reporting bugs/issues, please supply the following information. If this 
-is a feature request, please simply state the requested feature.
+<When reporting bugs/issues, please supply the following information. If
+this is a feature request, please simply state the requested feature.>
 
 ## System
 
@@ -25,11 +25,14 @@ is a feature request, please simply state the requested feature.
 
 ## Suggested solution (if any)
 
-* <If you have a suggestion on how to solve the issue, you may write it here.>
+* <If you have a suggestion on how to solve the issue, you may write it
+  here.>
 
 ## Files (if any)
 
-<If input files are needed for the error, please copy and paste them here.>
+<If input files are needed to reproduce the error, please provide 
+either links (e.g., Dropbox or GDrive) for large files or simply paste
+the file below for small files.>
 
 ```
 <contents of file 1>
