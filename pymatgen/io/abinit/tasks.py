@@ -2310,7 +2310,7 @@ class AbinitTask(Task):
 
         znucl = [specie.number for specie in
                  self.input.structure.types_of_specie]
-        
+
         for z in znucl:
             for p in self.pseudos:
                 if p.Z == z:

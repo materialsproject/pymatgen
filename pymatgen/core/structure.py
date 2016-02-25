@@ -38,7 +38,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_angle, all_distances, \
     lattice_points_in_supercell
 from monty.design_patterns import singleton
-from pymatgen.core.units import Mass, Length, ArrayWithUnit
+from pymatgen.core.units import Mass, Length
 from pymatgen.symmetry.groups import SpaceGroup
 from monty.io import zopen
 
