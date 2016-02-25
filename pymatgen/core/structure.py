@@ -2197,7 +2197,7 @@ class Structure(IStructure, collections.MutableSequence):
             species: Sequence of species to remove, e.g., ["Li", "Na"].
         """
         new_sites = []
-        species = list(map(get_el_sp, species))
+        species = [get_el_sp(s) for s in species]
 
         for site in self._sites:
             new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
