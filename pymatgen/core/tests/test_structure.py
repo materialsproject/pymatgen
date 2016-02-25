@@ -80,7 +80,7 @@ class IStructureTest(PymatgenTest):
                          ["C", "C", "Se", "Se"])
 
     def test_get_spacegroup_data(self):
-        self.assertEqual(self.struct.get_spacegroup_info(), (u'Fd-3m', 227L))
+        self.assertEqual(self.struct.get_spacegroup_info(), ('Fd-3m', 227))
 
     def test_fractional_occupations(self):
         coords = list()
