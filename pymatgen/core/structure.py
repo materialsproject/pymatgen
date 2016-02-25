@@ -568,6 +568,24 @@ class IStructure(SiteCollection, MSONable):
         m = Mass(self.composition.weight, "amu")
         return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
+    def get_spacegroup_info(self, symprec=1e-2, angle_tolerance=5.0):
+        """
+        Convenience method to quickly get the spacegroup of a structure.
+
+        Args:
+            symprec (float): Same definition as in SpacegroupAnalyzer.
+                Defaults to 1e-2.
+            angle_tolerance (float): Same definition as in SpacegroupAnalyzer.
+                Defaults to 5 degrees.
+
+        Returns:
+            spacegroup_symbol, international_number
+        """
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+        a = SpacegroupAnalyzer(self, symprec=symprec,
+                               angle_tolerance=angle_tolerance)
+        return a.get_spacegroup_symbol(), a.get_spacegroup_number()
+
     def __eq__(self, other):
         if other is None:
             return False
