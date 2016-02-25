@@ -581,6 +581,7 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             spacegroup_symbol, international_number
         """
+        # Import within method needed to avoid cyclic dependency.
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
         a = SpacegroupAnalyzer(self, symprec=symprec,
                                angle_tolerance=angle_tolerance)
