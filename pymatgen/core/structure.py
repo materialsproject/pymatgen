@@ -1310,7 +1310,7 @@ class IStructure(SiteCollection, MSONable):
             kwargs.update(d)
             d = kwargs
 
-            lattice = Lattice.from_abivars(d)
+            lattice = Lattice.from_dict(d, fmt="abivars")
             coords, coords_are_cartesian = d.get("xred", None), False
 
             if coords is None:
