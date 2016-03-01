@@ -18,7 +18,7 @@ __date__ = "2/5/16"
 import unittest
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.substrate.analyzer import ZurSuperLatticeGenerator as ZSLGen
+from pymatgen.analysis.interfaces.topology import ZSLGenerator as ZSLGen
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.matproj.rest import MPRester
@@ -47,6 +47,8 @@ class ZSLGenTest(PymatgenTest):
         self.assertFalse(z.is_same_vectors([[1.01,2,0],[0,2,0]],[[1,0,0],[0,2.01,0]]))
 
         matches = list(z.generate())
+        for m in matches:
+            print str(m.as_dict())
 
         self.assertEqual(len(matches),82)
 
@@ -55,6 +57,6 @@ class ZSLGenTest(PymatgenTest):
         # TODO: Add in test for checking transformations
 
 if __name__ == '__main__':
-    #unittest.main()
-    z = ZSLGenTest()
-    z.runTest()
+    unittest.main()
+    #z = ZSLGenTest()
+    #z.runTest()
