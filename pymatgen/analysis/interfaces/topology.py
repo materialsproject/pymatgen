@@ -9,6 +9,7 @@ import numpy as np
 from monty.serialization import loadfn
 from pymatgen.core.surface import get_symmetrically_distinct_miller_indices
 from pymatgen.core.surface import SlabGenerator
+from monty.json import MSONable
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -20,11 +21,55 @@ __status__ = "Development"
 __date__ = "Feb 3, 2016"
 
 """
-This module provides a class used to determine the optimal substrates for
-the epitaxial growth a given film.
+This module provides a class used to identify matched super lattice solid-solid
+interfaces using the algorithm of Zur and McGill 1984
 """
 
-class ZurSuperLatticeGenerator(object):
+
+class ZSLMatch(MSONable):
+
+    def __init__(self,film_miller,substrate_miller,film_sl_vectors,
+        substrate_sl_vectors,film_vectors,susbtrate_vectors,match_area):
+
+        self.film_miller = film_miller
+        self.substrate_miller = substrate_miller
+        self.film_sl_vectors = film_sl_vectors
+        self.substrate_sl_vectors = substrate_sl_vectors
+        self.film_vectors = film_vectors
+        self.substrate_vectors = susbtrate_vectors
+        self.match_area = match_area
+
+    def as_dict(self):
+        """
+        Returns dict which contains ZSL match
+        """
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
+
+        d["film miller"] = self.film_miller
+        d["susbtrate miller"] = self.substrate_miller
+        d["film super lattice vectors"] = self.film_sl_vectors
+        d["substrate super lattice vectors"] = self.substrate_sl_vectors
+        d["matching area"] = self.match_area
+        d["film vectors"] = self.film_vectors
+        d["susbtrate vectors"] = self.substrate_vectors
+
+        return d
+
+
+    @classmethod
+    def from_dict(cls,d):
+        film_miller = d["film miller"]
+        substrate_miller = d["substrate miller"]
+        film_sl_vectors = d["film super lattice vectors"]
+        substrate_sl_vectors = d["substrate super lattice vectors"]
+        match_area = d["matching area"]
+
+        return ZSLMatch(film_miller,substrate_miller,film_sl_vectors,substrate_sl_vectors,match_area)
+
+
+
+class ZSLGenerator(object):
     """
     This class generate interface super lattices based on the methodology
     of lattice vector matching for heterostructural interfaces proposed by
@@ -122,13 +167,13 @@ class ZurSuperLatticeGenerator(object):
             angle tolerances specified in the criteria dictionary
         """
         if (np.absolute(self.rel_strain(vec_set1[0], vec_set2[0])) >
-                self.criteria["max_length_tol"]):
+                self.criteria["max length tolerance"]):
             return False
         elif (np.absolute(self.rel_strain(vec_set1[1], vec_set2[1])) >
-            self.criteria["max_length_tol"]):
+            self.criteria["max length tolerance"]):
             return False
         elif (np.absolute(self.rel_angle(vec_set1, vec_set2)) >
-            self.criteria["max_angle_tol"]):
+            self.criteria["max angle tolerance"]):
             return False
         else:
             return True
@@ -161,7 +206,7 @@ class ZurSuperLatticeGenerator(object):
             Generates transformation sets for film/substrate pair given the
             area of the unit cell area for the film and substrate. The
             transformation sets map the film and substrate unit cells to super
-            lattices with a maximum area given in criteria["max_area"]
+            lattices with a maximum area given in criteria["max area"]
 
             Args:
                 film_area: the unit cell area for the film
@@ -179,11 +224,11 @@ class ZurSuperLatticeGenerator(object):
 
         """
 
-        for i in range(1, int(self.criteria["max_area"]/film_area)):
-            for j in range (1, int(self.criteria["max_area"]/substrate_area) ):
+        for i in range(1, int(self.criteria["max area"]/film_area)):
+            for j in range (1, int(self.criteria["max area"]/substrate_area) ):
                 if (gcd(i, j) == 1 and
                         np.absolute(film_area/substrate_area - float(j)/i) <
-                        self.criteria["max_area_ratio_tol"]):
+                        self.criteria["max area ratio tolerace"]):
 
                     yield [(i, j), self.generate_sl_transformation(i),
                         self.generate_sl_transformation(j)]
@@ -196,14 +241,16 @@ class ZurSuperLatticeGenerator(object):
             Returns all matching vectors sets.
         """
 
-        for t in transformation_sets:
+        for [ij_pair, film_transformations, substrate_transformations] in\
+            transformation_sets:
+
             films = []
             substrates = []
             # Apply transformations and reduce using Zur reduce methodology
-            for f in t[1]:
+            for f in film_transformations:
                 films.append(self.reduce_vectors(*np.squeeze(np.asarray(
                     f*film_vectors))))
-            for s in t[2]:
+            for s in substrate_transformations:
                 substrates.append(self.reduce_vectors(*np.squeeze(np.asarray(
                     s*substrate_vectors))))
             # Check if equivelant super lattices
@@ -234,7 +281,7 @@ class ZurSuperLatticeGenerator(object):
                 substrate_area = self.area(*substrate_vectors)
 
                 yield [film_area, substrate_area, film_vectors,
-                    substrate_vectors, f]
+                    substrate_vectors, f, s]
 
     def generate(self, film_millers = None, substrate_millers = None):
         """
@@ -245,27 +292,28 @@ class ZurSuperLatticeGenerator(object):
         # Generate miller indicies if none specified for film
         if film_millers is None:
             film_millers = sorted(get_symmetrically_distinct_miller_indices(
-                self.film, self.criteria["film_max_miller_index"]))
+                self.film, self.criteria["film max miller index"]))
 
         # Generate miller indicies if none specified for substrate
         if substrate_millers is None:
             substrate_millers = sorted(
                 get_symmetrically_distinct_miller_indices(self.substrate,
-                    self.criteria["sub_max_miller_index"]))
+                    self.criteria["substrate max miller index"]))
 
 
         # Check each miller index combination
-        for slab_combination in self.generate_slabs(film_millers,
+        for [film_area, substrate_area, film_vectors, substrate_vectors,
+            film_miller, substrate_miller] in self.generate_slabs(film_millers,
             substrate_millers):
             # Generate all super lattice comnbinations for a given set of miller
             # indicies
             transformations = self.generate_sl_transformations(
-                slab_combination[0], slab_combination[1])
+                film_area, substrate_area)
             # Check each super-lattice pair to see if they match
             for match in self.check_transformations(transformations,
-                slab_combination[2], slab_combination[3]):
-                yield [slab_combination[4], self.area(*match[0]), match]
-
+                film_vectors, substrate_vectors):
+                # Yield the match area, the miller indicies,
+                yield ZSLMatch(film_miller,substrate_miller,match[0],match[1],film_vectors,substrate_vectors,self.area(*match[0]))
 
     def find_min(self, matches):
         """
