@@ -18,7 +18,7 @@ __date__ = "2/5/16"
 import unittest
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.interfaces.topology import ZSLGenerator as ZSLGen
+from pymatgen.analysis.interfaces.topology import ZSLGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.matproj.rest import MPRester
@@ -26,25 +26,35 @@ from pymatgen.matproj.rest import MPRester
 
 class ZSLGenTest(PymatgenTest):
 
+    #Clean up test to be based on test structures
+
     def runTest(self):
         mprest = MPRester()
 
         #Film VO2
-        structure_import = mprest.get_structure_by_material_id('mp-19094',final=True)
-        film = SpacegroupAnalyzer(structure_import,symprec=0.1).get_conventional_standard_structure()
+        structure_import = mprest.get_structure_by_material_id('mp-19094',
+            final=True)
+        film = SpacegroupAnalyzer(structure_import,
+            symprec=0.1).get_conventional_standard_structure()
 
         #Substrate
-        structure_import = mprest.get_structure_by_material_id('mp-554278',final=True)
-        substrate = SpacegroupAnalyzer(structure_import,symprec=0.1).get_conventional_standard_structure()
+        structure_import = mprest.get_structure_by_material_id('mp-554278',
+            final=True)
+        substrate = SpacegroupAnalyzer(structure_import,
+            symprec=0.1).get_conventional_standard_structure()
 
-        z = ZSLGen(film,substrate)
+        z = ZSLGenerator(film,substrate)
 
 
-        self.assertArrayEqual(z.reduce_vectors([1,0,0],[2,2,0]),[[1,0,0],[0,2,0]])
-        self.assertEqual(z.area([1,0,0],[0,2,0]),2)
+        self.assertArrayEqual(z.reduce_vectors([1,0,0],[2,2,0]),
+            [[1,0,0],[0,2,0]])
+        self.assertEqual(z.area([1,0,0],[0,2,0]),
+            2)
         self.assertArrayEqual(list(z.factor(18)),[1,2,3,6,9,18])
-        self.assertTrue(z.is_same_vectors([[1.01,0,0],[0,2,0]],[[1,0,0],[0,2.01,0]]))
-        self.assertFalse(z.is_same_vectors([[1.01,2,0],[0,2,0]],[[1,0,0],[0,2.01,0]]))
+        self.assertTrue(z.is_same_vectors([[1.01,0,0],[0,2,0]],
+            [[1,0,0],[0,2.01,0]]))
+        self.assertFalse(z.is_same_vectors([[1.01,2,0],[0,2,0]],
+            [[1,0,0],[0,2.01,0]]))
 
         matches = list(z.generate())
         for m in matches:
