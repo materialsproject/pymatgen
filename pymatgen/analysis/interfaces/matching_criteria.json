@@ -1,8 +1,0 @@
-{
-    "max area ratio tolerace": 0.09,
-    "max area": 400,
-    "film max miller index": 1,
-    "substrate max miller index": 1,
-    "max length tolerance": 0.03,
-    "max angle tolerance": 0.01
-}

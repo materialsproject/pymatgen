@@ -47,7 +47,10 @@ class SubstrateAnalyzer(MSONable):
 
         for match in z.generate():
 
-            m = match.as_dict
+            energy = self.calculate_elastic_energy(match)
+
+
+
 
     def calculate_elastic_energy(self,match):
 
