@@ -89,18 +89,21 @@ class ZSLGenerator(object):
                 therefore coincident
     """
 
-    def __init__(self, film, substrate, criteria=None):
+    def __init__(self, film, substrate, max_area_ratio_tol = 0.09,
+        max_area = 400, film_max_miller = 1, substrate_max_miller = 1,
+        max_length_tol = 0.03, max_angle_tol = 0.01):
         """
             Intialize a Zur Super Lattice Generator for a specific film and
                 substrate
         """
         self.substrate = substrate
         self.film = film
-
-        if criteria is None:
-            self.criteria = loadfn('matching_criteria.json')
-        else:
-            self.criteria = criteria
+        self.max_area_ratio_tol = max_area_ratio_tol
+        self.max_area = max_area
+        self.film_max_miller = film_max_miller
+        self.substrate_max_miller = substrate_max_miller
+        self.max_length_tol = max_length_tol
+        self.max_angle_tol = max_angle_tol
 
 
     def reduce_vectors(self, a, b):
@@ -164,16 +167,16 @@ class ZSLGenerator(object):
     def is_same_vectors(self, vec_set1, vec_set2):
         """
             Determine if two sets of vectors are the same within length and
-            angle tolerances specified in the criteria dictionary
+            angle tolerances
         """
         if (np.absolute(self.rel_strain(vec_set1[0], vec_set2[0])) >
-                self.criteria["max length tolerance"]):
+                self.max_length_tol):
             return False
         elif (np.absolute(self.rel_strain(vec_set1[1], vec_set2[1])) >
-            self.criteria["max length tolerance"]):
+            self.max_length_tol):
             return False
         elif (np.absolute(self.rel_angle(vec_set1, vec_set2)) >
-            self.criteria["max angle tolerance"]):
+            self.max_angle_tol):
             return False
         else:
             return True
@@ -206,7 +209,7 @@ class ZSLGenerator(object):
             Generates transformation sets for film/substrate pair given the
             area of the unit cell area for the film and substrate. The
             transformation sets map the film and substrate unit cells to super
-            lattices with a maximum area given in criteria["max area"]
+            lattices with a maximum area
 
             Args:
                 film_area: the unit cell area for the film
@@ -224,11 +227,11 @@ class ZSLGenerator(object):
 
         """
 
-        for i in range(1, int(self.criteria["max area"]/film_area)):
-            for j in range (1, int(self.criteria["max area"]/substrate_area) ):
+        for i in range(1, int(self.max_area/film_area)):
+            for j in range (1, int(self.max_area/substrate_area) ):
                 if (gcd(i, j) == 1 and
                         np.absolute(film_area/substrate_area - float(j)/i) <
-                        self.criteria["max area ratio tolerace"]):
+                        self.max_area_ratio_tol):
 
                     yield [(i, j), self.generate_sl_transformation(i),
                         self.generate_sl_transformation(j)]
@@ -292,13 +295,13 @@ class ZSLGenerator(object):
         # Generate miller indicies if none specified for film
         if film_millers is None:
             film_millers = sorted(get_symmetrically_distinct_miller_indices(
-                self.film, self.criteria["film max miller index"]))
+                self.film, self.film_max_miller))
 
         # Generate miller indicies if none specified for substrate
         if substrate_millers is None:
             substrate_millers = sorted(
                 get_symmetrically_distinct_miller_indices(self.substrate,
-                    self.criteria["substrate max miller index"]))
+                    self.substrate_max_miller))
 
 
         # Check each miller index combination
