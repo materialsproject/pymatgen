@@ -16,8 +16,7 @@ __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
 
 import unittest
-from pymatgen.analysis.interfaces.substrate_analyzer import SubstrateAnalyzer
-from pymatgen.analysis.interfaces.substrate_analyzer import ZSLGenerator
+from pymatgen.analysis.substrate_analyzer import SubstrateAnalyzer, ZSLGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.elasticity.elastic import ElasticTensor
