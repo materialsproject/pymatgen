@@ -16,10 +16,11 @@ __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
 
 import unittest
-from pymatgen.analysis.interfaces.topology import ZSLGenerator
+from pymatgen.analysis.interfaces.substrate_analyzer import SubstrateAnalyzer
+from pymatgen.analysis.interfaces.substrate_analyzer import ZSLGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
+from pymatgen.analysis.elasticity.elastic import ElasticTensor
 
 
 class ZSLGenTest(PymatgenTest):
@@ -55,8 +56,34 @@ class ZSLGenTest(PymatgenTest):
         self.assertEqual(len(matches),82)
 
 
+class SubstrateAnalyzerTest(PymatgenTest):
+
+    #Clean up test to be based on test structures
+
+    def runTest(self):
+
+        #Film VO2
+        film = SpacegroupAnalyzer(self.get_structure("VO2"),
+            symprec=0.1).get_conventional_standard_structure()
+
+        #Substrate TiO2
+        substrate = SpacegroupAnalyzer(self.get_structure("TiO2"),
+            symprec=0.1).get_conventional_standard_structure()
+
+
+        film_elac = ElasticTensor([
+            [324.32,  187.3,   170.92,    0.,      0.,      0.],
+            [187.3,   324.32,  170.92,    0.,      0.,      0.],
+            [170.92,  170.92,  408.41,    0.,      0.,      0.],
+            [0.,      0.,      0.,    150.73,    0.,      0.],
+            [0.,      0.,      0.,      0.,    150.73,    0.],
+            [0.,      0.,      0.,      0.,      0.,    238.74]])
+
+
+        s = SubstrateAnalyzer(film,film_elac)
+
+        matches = list(s.calculate(substrate))
+        self.assertEqual(len(matches),82)
 
 if __name__ == '__main__':
     unittest.main()
-    #z = ZSLGenTest()
-    #z.runTest()
