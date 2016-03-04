@@ -42,6 +42,7 @@ from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine, Kpoint 
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 from monty.os.path import which
+from monty.os import cd
 from monty.dev import requires
 from monty.json import jsanitize
 from pymatgen.core.units import Energy, Length
@@ -128,7 +129,7 @@ class BoltztrapRunner(object):
               "Bolztrap accordingly. Then add x_trans to your path")
     def __init__(self, bs, nelec, dos_type="HISTO", energy_grid=0.005,
                  lpfac=10, run_type="BOLTZ", band_nb=None, tauref=0, tauexp=0, tauen=0, soc=False, doping=None,
-                 energy_span_around_fermi=1.5, scissor=0.0):
+                 energy_span_around_fermi=1.5, scissor=0.0, run_mode="CALC",kpt_line=None):
         self.lpfac = lpfac
         self._bs = bs
         self._nelec = nelec
@@ -147,7 +148,7 @@ class BoltztrapRunner(object):
         self.energy_span_around_fermi = energy_span_around_fermi
         self.scissor = scissor
 
-    def _make_energy_file(self, file_name, file_name,change_sign=False):
+    def _make_energy_file(self, file_name,change_sign=False):
         with open(file_name, 'w') as f:
             f.write("test\n")
             f.write(str(len(self._bs.kpoints)) + "\n")
@@ -214,10 +215,6 @@ class BoltztrapRunner(object):
                     "24,'boltztrap.halltens',           'unknown',    "
                     "'formatted',0\n" +
                     "30,'boltztrap_BZ.cube',           'unknown',    "
-                    "'formatted',0\n" +
-                    "35,'boltztrap.banddat',           'unknown',    "
-                    "'formatted',0\n" +
-                    "36,'boltztrap_band.gpl',           'unknown',    "
                     "'formatted',0\n")
 
     def _make_proj_files(self, file_name, def_file_name):
@@ -264,10 +261,6 @@ class BoltztrapRunner(object):
                     "24,'boltztrap.halltens',           'unknown',    "
                     "'formatted',0\n" +
                     "30,'boltztrap_BZ.cube',           'unknown',    "
-                    "'formatted',0\n" +
-                    "35,'boltztrap.banddat',           'unknown',    "
-                    "'formatted',0\n" +
-                    "36,'boltztrap_band.gpl',           'unknown',    "
                     "'formatted',0\n")
             i = 1000
             for o in Orbital:
@@ -377,7 +370,7 @@ class BoltztrapRunner(object):
             path_dir_orig = temp_dir
             path_dir = os.path.join(temp_dir, dir_bz_name)
         else:
-            path_dir = os.path.join(path_dir_orig, dir_bz_name)
+            path_dir = os.path.abspath(os.path.join(path_dir_orig, dir_bz_name))
         if not os.path.exists(path_dir):
             os.mkdir(path_dir)
         else:
@@ -387,84 +380,84 @@ class BoltztrapRunner(object):
                 elif self.run_mode == 'CALC':
                     os.remove(path_dir+"/"+c)
 
-        os.chdir(path_dir)
+        with cd(path_dir):
 
 ######## convergence loop over energy_grid, lpfac and not on eff_mass ########################
-        lpfac_start = self.lpfac
-        converged = False
-        
-        while self.energy_grid > 0.00004:
-          sigma_ratio = 1
-          self.lpfac = lpfac_start
-          
-          print("lpfac, energy_grid: ",self.lpfac,self.energy_grid)
-          
-          while self.lpfac < 160:
-        
-            self._make_all_files(path_dir)
-            if self._bs.is_spin_polarized or self.soc:
-                p = subprocess.Popen(["x_trans", "BoltzTraP", "-so"],
-                                    stdout=subprocess.PIPE,
-                                    stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-                p.wait()
-            else:
-                p = subprocess.Popen(["x_trans", "BoltzTraP"],
-                                    stdout=subprocess.PIPE, stdin=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
-                p.wait()
+	  lpfac_start = self.lpfac
+	  converged = False
+	  
+	  while self.energy_grid > 0.00004:
+	    sigma_ratio = 1
+	    self.lpfac = lpfac_start
+	    
+	    print("lpfac, energy_grid: ",self.lpfac,self.energy_grid)
+	    
+	    while self.lpfac < 160:
+	  
+	      self._make_all_files(path_dir)
+	      if self._bs.is_spin_polarized or self.soc:
+		  p = subprocess.Popen(["x_trans", "BoltzTraP", "-so"],
+				      stdout=subprocess.PIPE,
+				      stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+		  p.wait()
+	      else:
+		  p = subprocess.Popen(["x_trans", "BoltzTraP"],
+				      stdout=subprocess.PIPE, stdin=subprocess.PIPE,
+				      stderr=subprocess.PIPE)
+		  p.wait()
 
-            for c in p.communicate():
-                print(c)
-                if "STOP error in factorization" in c:
-                    raise BoltztrapError("STOP error in factorization")
-            
-            with open(os.path.join(path_dir, dir_bz_name+".outputtrans")) as f:
-              warning = False
-              for l in f:
-                  if "WARNING" in l:
-                      warning = True
-                      break
-            if warning:
-                print("There was a warning! Increase lpfac to " +
-                      str(self.lpfac + 10))
-                self.lpfac += 10
-                continue
-            
-            if convergence == True:
-              analyzer = BoltztrapAnalyzer.from_files(path_dir)
-              doping_ok = True
-              for doping in ['n', 'p']:
-                  for c in analyzer.mu_doping[doping]:
-                      if len(analyzer.mu_doping[doping][c]) != len(analyzer.doping[doping]):
-                          doping_ok = False
-                          break
-                      if doping == 'p' and \
-                              sorted(analyzer.mu_doping[doping][c], reverse=True) != analyzer.mu_doping[doping][c]:
-                          doping_ok = False
-                          break
-                      if doping == 'n' and sorted(analyzer.mu_doping[doping][c]) != analyzer.mu_doping[doping][c]:
-                          doping_ok = False
-                          break
-                        
-              print('doping_ok',doping_ok)
-              if not doping_ok:
-                self.lpfac += 10
-                print("doping not ok, increase lpfac to " + str(self.lpfac))
-                continue
-              
-              converged=True
-              break
-            
-            else:
-              converged=True
-              break
-       
-          if not converged:
-            self.energy_grid /= 10
-          else:
-            break
-          
-        return path_dir
+	      for c in p.communicate():
+		  print(c)
+		  if "STOP error in factorization" in c:
+		      raise BoltztrapError("STOP error in factorization")
+	      
+	      with open(os.path.join(path_dir, dir_bz_name+".outputtrans")) as f:
+		warning = False
+		for l in f:
+		    if "WARNING" in l:
+			warning = True
+			break
+	      if warning:
+		  print("There was a warning! Increase lpfac to " +
+			str(self.lpfac + 10))
+		  self.lpfac += 10
+		  continue
+	      
+	      if convergence == True:
+		analyzer = BoltztrapAnalyzer.from_files(path_dir)
+		doping_ok = True
+		for doping in ['n', 'p']:
+		    for c in analyzer.mu_doping[doping]:
+			if len(analyzer.mu_doping[doping][c]) != len(analyzer.doping[doping]):
+			    doping_ok = False
+			    break
+			if doping == 'p' and \
+				sorted(analyzer.mu_doping[doping][c], reverse=True) != analyzer.mu_doping[doping][c]:
+			    doping_ok = False
+			    break
+			if doping == 'n' and sorted(analyzer.mu_doping[doping][c]) != analyzer.mu_doping[doping][c]:
+			    doping_ok = False
+			    break
+			  
+		print('doping_ok',doping_ok)
+		if not doping_ok:
+		  self.lpfac += 10
+		  print("doping not ok, increase lpfac to " + str(self.lpfac))
+		  continue
+		
+		converged=True
+		break
+	      
+	      else:
+		converged=True
+		break
+	
+	    if not converged:
+	      self.energy_grid /= 10
+	    else:
+	      break
+	    
+	  return path_dir
 
 
 class BoltztrapError(Exception):
@@ -1179,7 +1172,7 @@ class BoltztrapAnalyzer(object):
         return result
 
     @staticmethod
-    def from_files(path_dir):
+    def from_files(path_dir,run_type="BOLTZ",run_mode="CALC",efermi=0.0):
         """
         get a BoltztrapAnalyzer object from a set of files
 
