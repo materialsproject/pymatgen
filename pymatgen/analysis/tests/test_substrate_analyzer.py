@@ -16,7 +16,8 @@ __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
 
 import unittest
-from pymatgen.analysis.substrate_analyzer import SubstrateAnalyzer, ZSLGenerator
+from pymatgen.analysis.substrate_analyzer import SubstrateAnalyzer, \
+    ZSLGenerator, fast_norm, reduce_vectors, vec_area, get_factors
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.elasticity.elastic import ElasticTensor
@@ -39,12 +40,12 @@ class ZSLGenTest(PymatgenTest):
         z = ZSLGenerator(film,substrate)
 
 
-        self.assertAlmostEqual(z.norm([3,2,1]),3.7416573867739413)
-        self.assertArrayEqual(z.reduce_vectors([1,0,0],[2,2,0]),
+        self.assertAlmostEqual(fast_norm([3,2,1]),3.7416573867739413)
+        self.assertArrayEqual(reduce_vectors([1,0,0],[2,2,0]),
             [[1,0,0],[0,2,0]])
-        self.assertEqual(z.area([1,0,0],[0,2,0]),
+        self.assertEqual(vec_area([1,0,0],[0,2,0]),
             2)
-        self.assertArrayEqual(list(z.factor(18)),[1,2,3,6,9,18])
+        self.assertArrayEqual(list(get_factors(18)),[1,2,3,6,9,18])
         self.assertTrue(z.is_same_vectors([[1.01,0,0],[0,2,0]],
             [[1,0,0],[0,2.01,0]]))
         self.assertFalse(z.is_same_vectors([[1.01,2,0],[0,2,0]],
