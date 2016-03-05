@@ -91,21 +91,21 @@ class ZSLGenerator(object):
 
     def rel_strain(self, vec1, vec2):
         """
-            Calculate relative strain between two vectors
+        Calculate relative strain between two vectors
         """
         return fast_norm(vec2) / fast_norm(vec1) - 1
 
     def rel_angle(self, vec_set1, vec_set2):
         """
-            Calculate the relative angle between two vectors
+        Calculate the relative angle between two vectors
         """
         return vec_angle(vec_set2[0], vec_set2[1]) / vec_angle(
             vec_set1[0], vec_set1[1]) - 1
 
     def is_same_vectors(self, vec_set1, vec_set2):
         """
-            Determine if two sets of vectors are the same within length and
-            angle tolerances
+        Determine if two sets of vectors are the same within length and
+        angle tolerances
         """
         if (np.absolute(self.rel_strain(vec_set1[0], vec_set2[0])) >
                 self.max_length_tol):
@@ -121,20 +121,20 @@ class ZSLGenerator(object):
 
     def generate_sl_transformation(self, area_multiple):
         """
-            Generates the transformation matricies that convert a set of 2D
-            vectors into a super lattice of integer area multiple as proven
-            in Cassels:
+        Generates the transformation matricies that convert a set of 2D
+        vectors into a super lattice of integer area multiple as proven
+        in Cassels:
 
-            Cassels, John William Scott. An introduction to the geometry of
-            numbers. Springer Science & Business Media, 2012.
+        Cassels, John William Scott. An introduction to the geometry of
+        numbers. Springer Science & Business Media, 2012.
 
-            Args:
-                area_multiple: integer multiple of unit cell area for super
-                lattice area
+        Args:
+            area_multiple: integer multiple of unit cell area for super
+            lattice area
 
-            Returns:
-                matrix_list: transformation matricies to covert unit vectors to
-                super lattice vectors
+        Returns:
+            matrix_list: transformation matricies to covert unit vectors to
+            super lattice vectors
         """
 
         for i in get_factors(area_multiple):
@@ -143,25 +143,24 @@ class ZSLGenerator(object):
 
     def generate_sl_transformations(self, film_area, substrate_area):
         """
-            Generates transformation sets for film/substrate pair given the
-            area of the unit cell area for the film and substrate. The
-            transformation sets map the film and substrate unit cells to super
-            lattices with a maximum area
+        Generates transformation sets for film/substrate pair given the
+        area of the unit cell area for the film and substrate. The
+        transformation sets map the film and substrate unit cells to super
+        lattices with a maximum area
 
-            Args:
-                film_area: the unit cell area for the film
-                substrate_area: the unit cell area for the substrate
+        Args:
+            film_area: the unit cell area for the film
+            substrate_area: the unit cell area for the substrate
 
-            Returns:
-                transformation_sets: a set of transformation_sets defined as:
-                    1.) the (i,j) pair corresponding to the integer multiple of
-                    the film area (i) and substrate area (j) that makes the two
-                    equal within tolerance
-                    2.) the transformation matricies for the film to create a
-                    super lattice of area i*film area
-                    3.) the tranformation matricies for the substrate to create
-                    a super lattice of area j*film area
-
+        Returns:
+            transformation_sets: a set of transformation_sets defined as:
+                1.) the (i,j) pair corresponding to the integer multiple of
+                the film area (i) and substrate area (j) that makes the two
+                equal within tolerance
+                2.) the transformation matricies for the film to create a
+                super lattice of area i*film area
+                3.) the tranformation matricies for the substrate to create
+                a super lattice of area j*film area
         """
 
         for i in range(1, int(self.max_area / film_area)):
@@ -176,9 +175,9 @@ class ZSLGenerator(object):
     def check_transformations(self, transformation_sets, film_vectors,
                               substrate_vectors):
         """
-            Applies the transformation_sets to the film and substrate vectors
-            to generate super-lattices and checks if they matches.
-            Returns all matching vectors sets.
+        Applies the transformation_sets to the film and substrate vectors
+        to generate super-lattices and checks if they matches.
+        Returns all matching vectors sets.
         """
 
         for [ij_pair, film_transformations, substrate_transformations] in \
@@ -201,8 +200,8 @@ class ZSLGenerator(object):
 
     def generate_slabs(self, film_millers, substrate_millers):
         """
-            Generates the film/substrate slab combinations for a set of given
-            miller indicies
+        Generates the film/substrate slab combinations for a set of given
+        miller indicies
         """
 
         for f in film_millers:
@@ -225,8 +224,8 @@ class ZSLGenerator(object):
 
     def generate(self, film_millers=None, substrate_millers=None):
         """
-            Generates the film/substrate combinations for either set miller
-            indicies or all possible miller indices up to a max miller index
+        Generates the film/substrate combinations for either set miller
+        indicies or all possible miller indices up to a max miller index
         """
 
         # Generate miller indicies if none specified for film
