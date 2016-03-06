@@ -385,14 +385,14 @@ class ZSLGenerator(object):
 
 
 class SubstrateAnalyzer(MSONable):
-"""
-    This class applies a set of search criteria to identify suitable substrates
-    for film growth. It first uses a topoplogical search by Zur and McGill to
-    identify matching super-lattices on various faces of the two materials.
-    Additional criteria can then be used to identify the most suitable
-    substrate. Currently, the only additional criteria is the elastic strain
-    energy of the super-lattices
-"""
+    """
+        This class applies a set of search criteria to identify suitable
+        substrates for film growth. It first uses a topoplogical search by Zur
+        and McGill to identify matching super-lattices on various faces of the
+        two materials. Additional criteria can then be used to identify the most
+        suitable substrate. Currently, the only additional criteria is the
+        elastic strain energy of the super-lattices
+    """
 
 
     def __init__(self, film, elasticity_tensor = None, film_millers = None):
@@ -414,10 +414,9 @@ class SubstrateAnalyzer(MSONable):
         """
             Finds all topological matches for
         """
-        z = ZSLGenerator(self.film,substrate,self.film_millers,
-            self.substrate_millers)
+        z = ZSLGenerator(self.film,substrate)
 
-        for match in z.generate():
+        for match in z.generate(self.film_millers,substrate_millers):
             d = match.as_dict()
             energy = self.calculate_3D_elastic_energy(match)
             d["elastic energy"] = energy
