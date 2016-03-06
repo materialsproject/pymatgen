@@ -64,14 +64,17 @@ class ZSLGenerator(object):
     The process of generating all possible interaces is as such:
 
     1.) Generate all slabs for the film and substrate for different orientations
+        given by maximum miller limitations
     2.) For each film/substrate orientation pair:
         1.) Reduce lattice vectors and calculate area
-        2.) Generate all super lattice transformations
+        2.) Generate all super lattice transformations within a maximum area
+            limit that give nearly equal area super-lattices for the two
+            surfaces
         3.) For each superlattice set:
             1.) Reduce super lattice vectors
             2.) Check length and angle between film and substrate super lattice
-                vectors to determine if the super lattices are the same and
-                therefore coincident
+                vectors to determine if the super lattices are the nearly same
+                and therefore coincident
     """
 
     def __init__(self, film, substrate, max_area_ratio_tol = 0.09,
@@ -80,6 +83,23 @@ class ZSLGenerator(object):
         """
             Intialize a Zur Super Lattice Generator for a specific film and
                 substrate
+
+            Args:
+                film(Structure):  Conventional standard pymatgen structure for
+                    the film
+                substrate(Struture): Conventional standard pymatgen Structure
+                    for the substrate
+                max_area_ratio_tol(float): Max tolerance on ratio of
+                    super-lattices to consider equal
+                max_area(float): max super lattice area to generate in search
+                film_max_miller(int): maximum miller index to generate for film
+                    surfaces
+                substrate_max_miller(int): maximum miller index to generate for
+                    substrate surfaces
+                max_length_tol: maximum length tolerance in checking if two
+                    vectors are of nearly the same length
+                max_angle_tol: maximum angle tolerance in checking of two sets
+                    of vectors have nearly the same angle between them
         """
         self.substrate = substrate
         self.film = film
@@ -94,6 +114,9 @@ class ZSLGenerator(object):
     def norm(self,a):
         """
             Much faster variant of numpy linalg norm
+
+            Args:
+                a(array): vector to calc norm of
         """
         return np.sqrt(np.dot(a,a))
 
@@ -102,6 +125,10 @@ class ZSLGenerator(object):
         """
             Generate independent and unique basis vectors based on the
             methodology of Zur and McGill
+
+            Args:
+                a(array): first basis vector
+                b(array): second basis vector
         """
         if np.dot(a, b) < 0:
             return self.reduce_vectors(a, -b)
@@ -121,12 +148,19 @@ class ZSLGenerator(object):
     def area(self, a, b):
         """
             Area of lattice plane defined by two vectors
+
+            Args:
+                a(array): first vector
+                b(array): second vector
         """
         return self.norm(np.cross(a, b))
 
     def factor(self, n):
         """
             Generate all factors of n
+
+            Args:
+                n(int): number to calc factors of
         """
         for x in range(1, n+1):
             if n % x == 0:
@@ -135,6 +169,10 @@ class ZSLGenerator(object):
     def vec_angle(self, a, b):
         """
             Calculate angle between two vectors
+
+            Args:
+                a(array): first vector
+                b(array): second vector
         """
         cosang = np.dot(a, b)
         sinang = self.norm(np.cross(a, b))
@@ -142,13 +180,22 @@ class ZSLGenerator(object):
 
     def rel_strain(self, vec1, vec2):
         """
-            Calculate relative strain between two vectors
+            Calculate relative strain between two vectors defined as the length
+            deformation to convert vec1 to vec2
+
+            Args:
+                vec1(array): first vector
+                vec2(array): second vector
         """
         return self.norm(vec2)/self.norm(vec1)-1
 
     def rel_angle(self, vec_set1, vec_set2):
         """
-            Calculate the relative angle between two vectors
+            Calculate the relative angle between two vector sets
+
+            Args:
+                vec_set1(array[array]): an array of two vectors
+                vec_set2(array[array]): second array of two vectors
         """
         return self.vec_angle(vec_set2[0], vec_set2[1])/self.vec_angle(
             vec_set1[0], vec_set1[1])-1
@@ -157,6 +204,10 @@ class ZSLGenerator(object):
         """
             Determine if two sets of vectors are the same within length and
             angle tolerances
+
+            Args:
+                vec_set1(array[array]): an array of two vectors
+                vec_set2(array[array]): second array of two vectors
         """
         if (np.absolute(self.rel_strain(vec_set1[0], vec_set2[0])) >
                 self.max_length_tol):
@@ -180,12 +231,12 @@ class ZSLGenerator(object):
             numbers. Springer Science & Business Media, 2012.
 
             Args:
-                area_multiple: integer multiple of unit cell area for super
-                lattice area
+                area_multiple(int): integer multiple of unit cell area for super
+                    lattice area
 
             Returns:
                 matrix_list: transformation matricies to covert unit vectors to
-                super lattice vectors
+                    super lattice vectors
         """
 
         for i in self.factor(area_multiple):
@@ -200,8 +251,8 @@ class ZSLGenerator(object):
             lattices with a maximum area
 
             Args:
-                film_area: the unit cell area for the film
-                substrate_area: the unit cell area for the substrate
+                film_area(float): the unit cell area for the film
+                substrate_area(float): the unit cell area for the substrate
 
             Returns:
                 transformation_sets: a set of transformation_sets defined as:
@@ -230,6 +281,18 @@ class ZSLGenerator(object):
             Applies the transformation_sets to the film and substrate vectors
             to generate super-lattices and checks if they matches.
             Returns all matching vectors sets.
+
+            Args:
+                transformation_sets(array): an array of transformation sets:
+                    each transformation set is an array with the (i,j)
+                    indicating the area multipes of the film and subtrate it
+                    corresponds to, an array with all possible transformations
+                    for the film area multiple i and another array for the
+                    substrate area multiple j.
+
+                film_vectors(array): film vectors to generate super lattices
+                substrate_vectors(array): substrate vectors to generate super
+                    lattices
         """
 
         for [ij_pair, film_transformations, substrate_transformations] in\
@@ -254,6 +317,12 @@ class ZSLGenerator(object):
         """
             Generates the film/substrate slab combinations for a set of given
             miller indicies
+
+            Args:
+                film_millers(array): all miller indices to generate slabs for
+                    film
+                substrate_millers(array): all miller indicies to generate slabs
+                    for substrate
         """
 
         for f in film_millers:
@@ -278,6 +347,12 @@ class ZSLGenerator(object):
         """
             Generates the film/substrate combinations for either set miller
             indicies or all possible miller indices up to a max miller index
+
+            Args:
+                film_millers(array): array of film miller indicies to consider
+                    in the matching algorithm
+                substrate_millers(array): array of substrate miller indicies to
+                    consider in the matching algorithm
         """
 
         # Generate miller indicies if none specified for film
@@ -304,25 +379,43 @@ class ZSLGenerator(object):
             for match in self.check_transformations(transformations,
                 film_vectors, substrate_vectors):
                 # Yield the match area, the miller indicies,
-                yield ZSLMatch(film_miller,substrate_miller,match[0],match[1],film_vectors,substrate_vectors,self.area(*match[0]))
-
+                yield ZSLMatch(film_miller,substrate_miller,match[0],
+                    match[1],film_vectors,substrate_vectors,
+                    self.area(*match[0]))
 
 
 class SubstrateAnalyzer(MSONable):
+"""
+    This class applies a set of search criteria to identify suitable substrates
+    for film growth. It first uses a topoplogical search by Zur and McGill to
+    identify matching super-lattices on various faces of the two materials.
+    Additional criteria can then be used to identify the most suitable
+    substrate. Currently, the only additional criteria is the elastic strain
+    energy of the super-lattices
+"""
 
 
+    def __init__(self, film, elasticity_tensor = None, film_millers = None):
+        """
+            Initilize a substrate analyzer
 
-    def __init__(self, film, elasticity_tensor = None):
+            Args:
+                film(Structure): conventional standard structure for the film
+                elasticity_tensor(ElasticTensor): elastic tensor for the film
+        """
 
         self.film = film
         self.elasticity_tensor = elasticity_tensor
+        self.film_millers = film_millers
 
 
 
-
-    def calculate(self,substrate):
-
-        z = ZSLGenerator(self.film,substrate)
+    def calculate(self,substrate, substrate_millers=None):
+        """
+            Finds all topological matches for
+        """
+        z = ZSLGenerator(self.film,substrate,self.film_millers,
+            self.substrate_millers)
 
         for match in z.generate():
             d = match.as_dict()
@@ -332,7 +425,9 @@ class SubstrateAnalyzer(MSONable):
 
     def calculate_3D_elastic_energy(self,match):
         """
-            Calculates the multi-plane elastic energy
+            Calculates the multi-plane elastic energy. Returns 999 if no elastic
+            tensor was given on init
+
         """
         if self.elasticity_tensor is None:
             return 9999
@@ -342,12 +437,13 @@ class SubstrateAnalyzer(MSONable):
         film_matrix.append(np.cross(film_matrix[0],film_matrix[1]))
 
         #Generate 3D lattice vectors for substrate super lattice
-        #Out of place substrate super lattice has to be same length as
-        #Film out of plane vector to ensure no extra deformation in that
+        #Out of plane substrate super lattice has to be same length as
+        #film out of plane vector to ensure no extra deformation in that
         #direction
         substrate_matrix = list(match.substrate_sl_vectors)
         temp_sub = np.cross(substrate_matrix[0],substrate_matrix[1])
-        temp_sub = temp_sub * np.linalg.norm(film_matrix[2])/np.linalg.norm(temp_sub)
+        temp_sub = temp_sub * np.linalg.norm(film_matrix[2])/np.linalg.norm(
+            temp_sub)
         substrate_matrix.append(temp_sub)
 
         transform_matrix = np.transpose(np.linalg.solve(film_matrix,
