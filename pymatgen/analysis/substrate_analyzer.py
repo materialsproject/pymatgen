@@ -328,6 +328,8 @@ class SubstrateAnalyzer(MSONable):
         Args:
             film(Structure): conventional standard structure for the film
             elasticity_tensor(ElasticTensor): elastic tensor for the film
+            film_millers(array): film planes to consider in search as defined
+                by miller indicies
         """
 
         self.film = film
@@ -336,7 +338,13 @@ class SubstrateAnalyzer(MSONable):
 
     def calculate(self,substrate, substrate_millers=None):
         """
-        Finds all topological matches for
+        Finds all topological matches for the substrate
+
+        Args:
+            substrate(Structure): conventional standard structure for the
+                substrate
+            substrate_millers(array): substrate planes to consider in search as defined
+                by miller indicies
         """
         z = ZSLGenerator(self.film,substrate)
 
