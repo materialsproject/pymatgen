@@ -42,13 +42,13 @@ class ZSLMatch(MSONable):
         Returns dict which contains ZSL match
         """
         d = {}
-        d["film miller"] = self.film_miller
-        d["susbtrate miller"] = self.substrate_miller
-        d["film super lattice vectors"] = self.film_sl_vectors
-        d["substrate super lattice vectors"] = self.substrate_sl_vectors
+        d["film miller"] = self.film_miller.tolist()
+        d["susbtrate miller"] = self.substrate_miller.tolist()
+        d["film super lattice vectors"] = np.asarray(self.film_sl_vectors).tolist()
+        d["substrate super lattice vectors"] = np.asarray(self.substrate_sl_vectors).tolist()
         d["matching area"] = self.match_area
-        d["film vectors"] = self.film_vectors
-        d["susbtrate vectors"] = self.substrate_vectors
+        d["film vectors"] = np.asarray(self.film_vectors).tolist()
+        d["susbtrate vectors"] = np.asarray(self.substrate_vectors).tolist()
 
         return d
 
