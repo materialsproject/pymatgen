@@ -196,7 +196,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="kn">import</span> <span class="nn">pymatgen</span> <span class="kn">as</span> <span class="nn">mg</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">pymatgen</span> <span class="kn">as</span> <span class="nn">mg</span>
 </pre></div>
 
 </div>
@@ -228,7 +228,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="n">si</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">si</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Atomic mass of Si is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">atomic_mass</span><span class="p">))</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Si has a melting point of {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">melting_point</span><span class="p">))</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Ionic radii for Si: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">ionic_radii</span><span class="p">))</span>
@@ -270,7 +270,7 @@ Ionic radii for Si: {4: 0.54}
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="k">print</span><span class="p">(</span><span class="s2">&quot;Atomic mass of Si in kg: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">atomic_mass</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;kg&quot;</span><span class="p">)))</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;Atomic mass of Si in kg: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">atomic_mass</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;kg&quot;</span><span class="p">)))</span>
 </pre></div>
 
 </div>
@@ -307,7 +307,7 @@ Ionic radii for Si: {4: 0.54}
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="n">fe2</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Specie</span><span class="p">(</span><span class="s2">&quot;Fe&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">fe2</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Specie</span><span class="p">(</span><span class="s2">&quot;Fe&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">fe2</span><span class="o">.</span><span class="n">atomic_mass</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">fe2</span><span class="o">.</span><span class="n">ionic_radius</span><span class="p">)</span>
 </pre></div>
@@ -347,7 +347,7 @@ Ionic radii for Si: {4: 0.54}
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="n">comp</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Composition</span><span class="p">(</span><span class="s2">&quot;Fe2O3&quot;</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">comp</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Composition</span><span class="p">(</span><span class="s2">&quot;Fe2O3&quot;</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Weight of Fe2O3 is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">weight</span><span class="p">))</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Amount of Fe in Fe2O3 is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp</span><span class="p">[</span><span class="s2">&quot;Fe&quot;</span><span class="p">]))</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Atomic fraction of Fe is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="s2">&quot;Fe&quot;</span><span class="p">)))</span>
@@ -400,7 +400,7 @@ Weight fraction of Fe is 0.699425505454
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1"># Creates cubic Lattice with lattice parameter 4.2</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># Creates cubic Lattice with lattice parameter 4.2</span>
 <span class="n">lattice</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mf">4.2</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">)</span>
 </pre></div>
@@ -439,7 +439,7 @@ Weight fraction of Fe is 0.699425505454
 <div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Cs&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Cs&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Unit cell vol = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">volume</span><span class="p">))</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;First site of the structure is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 </pre></div>
@@ -479,7 +479,7 @@ First site of the structure is [ 0.  0.  0.] Cs
 <div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="n">structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="c1">#Make a 3 x 2 x 1 supercell of the structure</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="c1">#Make a 3 x 2 x 1 supercell of the structure</span>
 <span class="k">del</span> <span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1">#Remove the first site</span>
 <span class="n">structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="c1">#Append a Na atom.</span>
 <span class="n">structure</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Li&quot;</span> <span class="c1">#Change the last added atom to Li.</span>
@@ -543,7 +543,7 @@ Sites (8)
 <div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1">#Determining the symmetry</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1">#Determining the symmetry</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="n">finder</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;The spacegroup is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">finder</span><span class="o">.</span><span class="n">get_spacegroup_symbol</span><span class="p">()))</span>
@@ -583,7 +583,7 @@ Sites (8)
 <div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
 <span class="c1">#Let&#39;s create two structures which are the same topologically, but with different elements, and one lattice is larger.</span>
 <span class="n">s1</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Cs&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
 <span class="n">s2</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="p">(</span><span class="n">mg</span><span class="o">.</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;Rb&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
@@ -634,7 +634,7 @@ Sites (8)
 <div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1">#Convenient IO to various formats. Format is intelligently determined from file name and extension.</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1">#Convenient IO to various formats. Format is intelligently determined from file name and extension.</span>
 <span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">)</span>
 <span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span>
 
@@ -718,7 +718,7 @@ loop_
 <div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1">#Reading a structure from a file.</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1">#Reading a structure from a file.</span>
 <span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">)</span>
 </pre></div>
 
@@ -742,7 +742,7 @@ loop_
 <div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">pymatgen.io.vaspio_set</span> <span class="kn">import</span> <span class="n">MPVaspInputSet</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.vaspio_set</span> <span class="kn">import</span> <span class="n">MPVaspInputSet</span>
 <span class="n">v</span> <span class="o">=</span> <span class="n">MPVaspInputSet</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="s2">&quot;MyInputFiles&quot;</span><span class="p">)</span> <span class="c1">#Writes a complete set of input files for structure to the directory MyInputFiles</span>
 </pre></div>
