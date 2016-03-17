@@ -385,6 +385,12 @@ class DictVaspInputSet(AbstractVaspInputSet):
                 structure, int(self.kpoints_settings['grid_density']),
                 self.force_gamma)
 
+        # If reciprocal_density is in the kpoints_settings use Kpoints.automatic_density_by_vol
+        elif self.kpoints_settings.get('reciprocal_density'):
+            return Kpoints.automatic_density_by_vol(
+                structure, int(self.kpoints_settings['reciprocal_density']),
+                self.force_gamma)
+
         # If length is in the kpoints_settings use Kpoints.automatic
         elif self.kpoints_settings.get('length'):
             return Kpoints.automatic(self.kpoints_settings['length'])
