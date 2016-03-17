@@ -25,6 +25,7 @@ import bisect
 
 import numpy as np
 from scipy.special import erfc
+from scipy.misc import comb
 
 import scipy.constants as constants
 
@@ -101,6 +102,7 @@ class EwaldSummation(object):
         # necessary to obtain several factors of improvement in speedup.
         self._oxi_states = [compute_average_oxidation_state(site)
                             for site in structure]
+
         self._coords = np.array(self._s.cart_coords)
 
         # Now we call the relevant private methods to calculate the reciprocal
@@ -418,9 +420,6 @@ class EwaldMinimizer:
                 value = (self._matrix[i, j] + self._matrix[j, i]) / 2
                 self._matrix[i, j] = value
                 self._matrix[j, i] = value
-
-        def comb(n, k):
-            return factorial(n) / factorial(k) / factorial(n - k)
 
         # sort the m_list based on number of permutations
         self._m_list = sorted(m_list, key=lambda x: comb(len(x[2]), x[1]),

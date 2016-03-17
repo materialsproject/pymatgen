@@ -2307,7 +2307,9 @@ class AbinitTask(Task):
         # Note that here the pseudos **must** be sorted according to znucl.
         # Here we reorder the pseudos if the order is wrong.
         ord_pseudos = []
-        znucl = self.input.structure.to_abivars()["znucl"]
+
+        znucl = [specie.number for specie in
+                 self.input.structure.types_of_specie]
 
         for z in znucl:
             for p in self.pseudos:
