@@ -432,7 +432,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
     @classmethod
     def from_dict(cls, d):
-        return cls(d["name"], d["config_dict"],
+        return cls(name=d["name"], config_dict=d["config_dict"],
                    hubbard_off=d.get("hubbard_off", False),
                    constrain_total_magmom=d["constrain_total_magmom"],
                    sort_structure=d.get("sort_structure", True),
