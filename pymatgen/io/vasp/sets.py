@@ -432,6 +432,9 @@ class DictVaspInputSet(AbstractVaspInputSet):
             "constrain_total_magmom": self.set_nupdown,
             "sort_structure": self.sort_structure,
             "potcar_functional": self.potcar_functional,
+            "ediff_per_atom": self.ediff_per_atom,
+            "force_gamma": self.force_gamma,
+            "reduce_structure": self.reduce_structure,
             "@class": self.__class__.__name__,
             "@module": self.__class__.__module__,
         }
@@ -442,7 +445,10 @@ class DictVaspInputSet(AbstractVaspInputSet):
                    hubbard_off=d.get("hubbard_off", False),
                    constrain_total_magmom=d["constrain_total_magmom"],
                    sort_structure=d.get("sort_structure", True),
-                   potcar_functional=d.get("potcar_functional", None))
+                   potcar_functional=d.get("potcar_functional", None),
+                   ediff_per_atom=d.get("ediff_per_atom", True),
+                   force_gamma=d.get("force_gamma", False),
+                   reduce_structure=d.get("reduce_structure", None))
 
     @staticmethod
     def from_file(name, filename, **kwargs):
