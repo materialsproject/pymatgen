@@ -223,6 +223,10 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(34.186,vasprun_diel.dielectric[2][85][2])
         self.assertAlmostEqual(0.0,vasprun_diel.dielectric[2][85][3])
 
+        v = Vasprun(os.path.join(test_dir, "vasprun.xml.indirect.gz"))
+        (gap, cbm, vbm, direct) = v.eigenvalue_band_properties
+        self.assertFalse(direct)
+
     def test_Xe(self):
         vr = Vasprun(os.path.join(test_dir, 'vasprun.xml.xe'), parse_potcar_file=False)
         self.assertEquals(vr.atomic_symbols, ['Xe'])
