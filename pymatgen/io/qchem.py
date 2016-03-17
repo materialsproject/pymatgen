@@ -569,7 +569,7 @@ class QcTask(MSONable):
         self.params["rem"]["solvent_method"] = "cosmo"
         self.params["rem"]["solvent_dielectric"] = dielectric_constant
 
-    def use_pcm(self, pcm_params=None, solvent_params=None,
+    def use_pcm(self, pcm_params=None, solvent_key="solvent", solvent_params=None,
                 radii_force_field=None):
         """
         Set the solvent model to PCM. Default parameters are trying to comply to
@@ -577,12 +577,13 @@ class QcTask(MSONable):
 
         Args:
             pcm_params (dict): The parameters of "$pcm" section.
-            solvent_params (dict): The parameters of "pcm_solvent" section
+            solvent_key (str): for versions < 4.2 the section name is "pcm_solvent"
+            solvent_params (dict): The parameters of solvent_key section
             radii_force_field (str): The force fied used to set the solute
                 radii. Default to UFF.
         """
         self.params["pcm"] = dict()
-        self.params["pcm_solvent"] = dict()
+        self.params[solvent_key] = dict()
         default_pcm_params = {"Theory": "SSVPE",
                               "vdwScale": 1.1,
                               "Radii": "UFF"}
@@ -598,7 +599,7 @@ class QcTask(MSONable):
                 self.params["pcm"][k.lower()] = v.lower() \
                     if isinstance(v, six.string_types) else v
         for k, v in solvent_params.items():
-            self.params["pcm_solvent"][k.lower()] = v.lower() \
+            self.params[solvent_key][k.lower()] = v.lower() \
                 if isinstance(v, six.string_types) else copy.deepcopy(v)
         self.params["rem"]["solvent_method"] = "pcm"
         if radii_force_field:
