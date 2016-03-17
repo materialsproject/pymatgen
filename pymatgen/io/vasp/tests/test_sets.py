@@ -303,6 +303,12 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.assertAlmostEqual(kpoints.kpts[-1][1], 0.5)
         self.assertAlmostEqual(kpoints.kpts[-1][2], 0.0)
 
+        recip_paramset = MPVaspInputSet(force_gamma=True)
+        recip_paramset.kpoints_settings = {"reciprocal_density": 40}
+        kpoints = recip_paramset.get_kpoints(self.struct)
+        self.assertEqual(kpoints.kpts, [[2, 4, 6]])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+
     def test_get_all_vasp_input(self):
         d = self.mitparamset.get_all_vasp_input(self.struct)
         self.assertEqual(d["INCAR"]["ISMEAR"], -5)
