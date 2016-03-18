@@ -515,8 +515,9 @@ class MITNEBVaspInputSet(DictVaspInputSet):
         \*\*kwargs: Other kwargs supported by :class:`DictVaspInputSet`.
     """
 
-    def __init__(self, nimages=8, user_incar_settings=None, write_endpoint_inputs=False,
-                 kpoints_gamma_override=None, write_path_cif=False, unset_encut=False,
+    def __init__(self, nimages=8, user_incar_settings=None,
+                 write_endpoint_inputs=False, kpoints_gamma_override=None,
+                 write_path_cif=False, unset_encut=False,
                  sort_structure=False, **kwargs):
         super(MITNEBVaspInputSet, self).__init__(
             "MIT NEB",
