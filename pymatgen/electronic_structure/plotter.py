@@ -656,57 +656,6 @@ class BSPlotter(object):
         """
         plot the Brillouin zone
         """
-        # import matplotlib as mpl
-        # import matplotlib.pyplot as plt
-        # from mpl_toolkits.mplot3d import Axes3D
-        # mpl.rcParams['legend.fontsize'] = 10
-        #
-        # fig = plt.figure()
-        # ax = Axes3D(fig)
-        # vec1 = self._bs.lattice.matrix[0]
-        # vec2 = self._bs.lattice.matrix[1]
-        # vec3 = self._bs.lattice.matrix[2]
-        #
-        # # make the grid
-        # max_x = -1000
-        # max_y = -1000
-        # max_z = -1000
-        # min_x = 1000
-        # min_y = 1000
-        # min_z = 1000
-        # list_k_points = []
-        # for i in [-1, 0, 1]:
-        #     for j in [-1, 0, 1]:
-        #         for k in [-1, 0, 1]:
-        #             list_k_points.append(i * vec1 + j * vec2 + k * vec3)
-        #             if list_k_points[-1][0] > max_x:
-        #                 max_x = list_k_points[-1][0]
-        #             if list_k_points[-1][1] > max_y:
-        #                 max_y = list_k_points[-1][1]
-        #             if list_k_points[-1][2] > max_z:
-        #                 max_z = list_k_points[-1][0]
-        #
-        #             if list_k_points[-1][0] < min_x:
-        #                 min_x = list_k_points[-1][0]
-        #             if list_k_points[-1][1] < min_y:
-        #                 min_y = list_k_points[-1][1]
-        #             if list_k_points[-1][2] < min_z:
-        #                 min_z = list_k_points[-1][0]
-        #
-        # vertex = _qvertex_target(list_k_points, 13)
-        # lines = get_lines_voronoi(vertex)
-        #
-        # for i in range(len(lines)):
-        #     vertex1 = lines[i]['start']
-        #     vertex2 = lines[i]['end']
-        #     ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]],
-        #             [vertex1[2], vertex2[2]], color='k')
-        #
-        # for b in self._bs._branches:
-        #     vertex1 = self._bs.kpoints[b['start_index']].cart_coords
-        #     vertex2 = self._bs.kpoints[b['end_index']].cart_coords
-        #     ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]],
-        #             [vertex1[2], vertex2[2]], color='r', linewidth=3)
 
         # get labels and lines
         labels = {}
@@ -1038,16 +987,7 @@ def plot_wigner_seitz(lattice, ax=None, **kwargs):
                 if iface < jface and any(np.all(line[0] == x) for x in bz[jface])\
                         and any(np.all(line[1] == x) for x in bz[jface]):
                     ax.plot(*zip(line[0], line[1]), **kwargs)
- 
- 
-    ax.set_xlim3d(-1,1)
-    ax.set_ylim3d(-1,1)
-    ax.set_zlim3d(-1,1)
 
-    ax.set_aspect('equal')
-    ax.axis("off")
-
-    
     return fig, ax
 
 
@@ -1144,7 +1084,7 @@ def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax=None, **kwa
     if "size" not in kwargs:
         kwargs["size"] = 25
 
-    for k, coords in labels.iteritems():
+    for k, coords in labels.items():
         label = k
         if k.startswith("\\") or k.find("_") != -1:
             label = "$" + k + "$"
@@ -1176,6 +1116,8 @@ def fold_point(p, lattice, coords_are_cartesian=False):
 
     if coords_are_cartesian:
         p = lattice.get_fractional_coords(p)
+    else:
+        p = np.array(p)
 
     p = np.mod(p+0.5-1e-10, 1)-0.5+1e-10
     p = lattice.get_cartesian_coords(p)
@@ -1195,6 +1137,7 @@ def fold_point(p, lattice, coords_are_cartesian=False):
         p = p - closest_lattice_point
 
     return p
+
 
 def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax=None, **kwargs):
     """
@@ -1271,9 +1214,9 @@ def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None, fold=
     if kpoints is not None:
         plot_points(kpoints, bz_lattice, coords_are_cartesian=coords_are_cartesian, ax=ax, fold=fold)
 
-    ax.set_xlim3d(-1,1)
-    ax.set_ylim3d(-1,1)
-    ax.set_zlim3d(-1,1)
+    ax.set_xlim3d(-1, 1)
+    ax.set_ylim3d(-1, 1)
+    ax.set_zlim3d(-1, 1)
 
     ax.set_aspect('equal')
     ax.axis("off")
@@ -1281,34 +1224,43 @@ def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None, fold=
     return fig
 
 
-def plot_ellipsoid(hessian, center,bz_lattice=None,rescale=1.0,ax=None,coords_are_cartesian=False,**kwargs):
+def plot_ellipsoid(hessian, center, lattice=None, rescale=1.0, ax=None, coords_are_cartesian=False, **kwargs):
     """
     Plots a 3D ellipsoid rappresenting the Hessian matrix in input.
     Useful to get a graphical visualization of the effective mass
     of a band in a single k-point.
     
     Args:
-	hessian: the Hessian matrix
-	center: the center of the ellipsoid in reciprocal coords (Default)
-        bz_lattice: Lattice object of the Brillouin zone
+        hessian: the Hessian matrix
+        center: the center of the ellipsoid in reciprocal coords (Default)
+        lattice: Lattice object of the Brillouin zone
         rescale: factor for size scaling of the ellipsoid
         ax: matplotlib :class:`Axes` or None if a new figure should be created.
-	coords_are_cartesian: Set to True if you are providing a center in 
-                              cartesian coordinates. Defaults to False.
-	kwargs: provided by add_fig_kwargs decorator
+        coords_are_cartesian: Set to True if you are providing a center in
+            cartesian coordinates. Defaults to False.
+        kwargs: kwargs passed to the matplotlib function 'plot_wireframe'. Color defaults to blue, rstride and cstride
+            default to 4, alpha defaults to 0.2.
     Returns:
         matplotlib figure and matplotlib ax
     Example of use:
-	fig,ax=plot_wigner_seitz(struct.reciprocal_lattice)
-	plot_ellipsoid(hessian,[0.0,0.0,0.0],struct.reciprocal_lattice,ax=ax)
-	
+        fig,ax=plot_wigner_seitz(struct.reciprocal_lattice)
+        plot_ellipsoid(hessian,[0.0,0.0,0.0], struct.reciprocal_lattice,ax=ax)
     """
     
     if (not coords_are_cartesian) and lattice is None:
-      raise ValueError("coords_are_cartesian False or fold True require the lattice")
+        raise ValueError("coords_are_cartesian False or fold True require the lattice")
     
     if not coords_are_cartesian:
-      center = bz_lattice.get_cartesian_coords(center)
+        center = lattice.get_cartesian_coords(center)
+
+    if "color" not in kwargs:
+        kwargs["color"] = "b"
+    if "rstride" not in kwargs:
+        kwargs["rstride"] = 4
+    if "cstride" not in kwargs:
+        kwargs["cstride"] = 4
+    if "alpha" not in kwargs:
+        kwargs["alpha"] = 0.2
 
     # calculate the ellipsoid
     # find the rotation matrix and radii of the axes
@@ -1322,21 +1274,11 @@ def plot_ellipsoid(hessian, center,bz_lattice=None,rescale=1.0,ax=None,coords_ar
     y = radii[1] * np.outer(np.sin(u), np.sin(v))
     z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
     for i in range(len(x)):
-	for j in range(len(x)):
-	    [x[i,j],y[i,j],z[i,j]] = np.dot([x[i,j],y[i,j],z[i,j]],rotation)*rescale + center
+        for j in range(len(x)):
+            [x[i, j], y[i, j], z[i, j]] = np.dot([x[i, j], y[i, j], z[i, j]], rotation)*rescale + center
 
     # add the ellipsoid to the current axes
     ax, fig, plt = get_ax3d_fig_plt(ax)
-    ax.plot_wireframe(x, y, z,  rstride=4, cstride=4, color='b', alpha=0.2)
-
-    ax.set_xlim3d(-1,1)
-    ax.set_ylim3d(-1,1)
-    ax.set_zlim3d(-1,1)
-
-    ax.set_aspect('equal')
-    ax.axis("off")
-
-
-    fig.show()
+    ax.plot_wireframe(x, y, z,  **kwargs)
 
     return fig, ax
