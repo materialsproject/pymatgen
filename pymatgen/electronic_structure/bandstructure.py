@@ -497,8 +497,8 @@ class BandStructure(object):
 
         result["energy"] = cbm["energy"] - vbm["energy"]
 
-        if cbm["kpoint"].label == vbm["kpoint"].label or \
-                np.linalg.norm(cbm["kpoint"].cart_coords
+        if (cbm["kpoint"].label is not None and cbm["kpoint"].label == vbm["kpoint"].label) \
+                or np.linalg.norm(cbm["kpoint"].cart_coords
                                - vbm["kpoint"].cart_coords) < 0.01:
             result["direct"] = True
 
