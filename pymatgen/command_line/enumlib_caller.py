@@ -59,8 +59,7 @@ logger = logging.getLogger(__name__)
 
 # Favor the use of the newer "enum.x" by Gus Hart instead of the older
 # "multienum.x"
-enum_cmd = which('multienum.x')
-
+enum_cmd = which('enum.x') or which('multienum.x')
 
 @requires(enum_cmd and which('makestr.x'),
           "EnumlibAdaptor requires the executables 'enum.x' or 'multienum.x' "

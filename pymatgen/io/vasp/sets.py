@@ -385,6 +385,12 @@ class DictVaspInputSet(AbstractVaspInputSet):
                 structure, int(self.kpoints_settings['grid_density']),
                 self.force_gamma)
 
+        # If reciprocal_density is in the kpoints_settings use Kpoints.automatic_density_by_vol
+        elif self.kpoints_settings.get('reciprocal_density'):
+            return Kpoints.automatic_density_by_vol(
+                structure, int(self.kpoints_settings['reciprocal_density']),
+                self.force_gamma)
+
         # If length is in the kpoints_settings use Kpoints.automatic
         elif self.kpoints_settings.get('length'):
             return Kpoints.automatic(self.kpoints_settings['length'])
@@ -426,17 +432,23 @@ class DictVaspInputSet(AbstractVaspInputSet):
             "constrain_total_magmom": self.set_nupdown,
             "sort_structure": self.sort_structure,
             "potcar_functional": self.potcar_functional,
+            "ediff_per_atom": self.ediff_per_atom,
+            "force_gamma": self.force_gamma,
+            "reduce_structure": self.reduce_structure,
             "@class": self.__class__.__name__,
             "@module": self.__class__.__module__,
         }
 
     @classmethod
     def from_dict(cls, d):
-        return cls(d["name"], d["config_dict"],
+        return cls(name=d["name"], config_dict=d["config_dict"],
                    hubbard_off=d.get("hubbard_off", False),
                    constrain_total_magmom=d["constrain_total_magmom"],
                    sort_structure=d.get("sort_structure", True),
-                   potcar_functional=d.get("potcar_functional", None))
+                   potcar_functional=d.get("potcar_functional", None),
+                   ediff_per_atom=d.get("ediff_per_atom", True),
+                   force_gamma=d.get("force_gamma", False),
+                   reduce_structure=d.get("reduce_structure", None))
 
     @staticmethod
     def from_file(name, filename, **kwargs):
@@ -502,8 +514,9 @@ class MITNEBVaspInputSet(DictVaspInputSet):
         \*\*kwargs: Other kwargs supported by :class:`DictVaspInputSet`.
     """
 
-    def __init__(self, nimages=8, user_incar_settings=None, write_endpoint_inputs=False,
-                 kpoints_gamma_override=None, write_path_cif=False, unset_encut=False,
+    def __init__(self, nimages=8, user_incar_settings=None,
+                 write_endpoint_inputs=False, kpoints_gamma_override=None,
+                 write_path_cif=False, unset_encut=False,
                  sort_structure=False, **kwargs):
         super(MITNEBVaspInputSet, self).__init__(
             "MIT NEB",

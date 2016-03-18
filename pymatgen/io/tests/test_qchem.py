@@ -1223,7 +1223,7 @@ $end
         qctask = QcTask(mol, title=title, exchange="B3LYP", jobtype="SP", basis_set="6-31+G*")
         self.elementary_io_verify(str(qctask), qctask)
 
-    def test_use_pcm(self):
+    def test_use_pcm_qc41(self):
         ans = '''$comment
  Test Methane
 $end
@@ -1255,6 +1255,108 @@ $end
 
 
 $pcm_solvent
+  dielectric   78.3553
+$end
+
+'''
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-31+G*")
+        qctask.use_pcm(solvent_key="pcm_solvent")
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
+
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-31+G*")
+        qctask.use_pcm(pcm_params={"Radii": "FF",
+                                   "Theory": "CPCM",
+                                   "SASrad": 1.5,
+                                   "HPoints": 1202},
+                       solvent_params={"Dielectric": 20.0,
+                                       "Temperature": 300.75,
+                                       "NSolventAtoms": 2,
+                                       "SolventAtom": [[8, 1, 186, 1.30],
+                                                       [1, 2, 187, 1.01]]},
+                       radii_force_field="OPLSAA",
+                       solvent_key="pcm_solvent")
+        ans = '''$comment
+ Test Methane
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+         jobtype = sp
+        exchange = b3lyp
+           basis = 6-31+g*
+      force_fied = oplsaa
+  solvent_method = pcm
+$end
+
+
+$pcm
+   hpoints   1202
+     radii   bondi
+    sasrad   1.5
+    theory   cpcm
+  vdwscale   1.1
+$end
+
+
+$pcm_solvent
+     dielectric   20.0
+  nsolventatoms   2
+    solventatom   8    1    186  1.30
+    solventatom   1    2    187  1.01
+    temperature   300.75
+$end
+
+'''
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
+
+    def test_use_pcm_qc42(self):
+        ans = '''$comment
+ Test Methane
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+         jobtype = sp
+        exchange = b3lyp
+           basis = 6-31+g*
+  solvent_method = pcm
+$end
+
+
+$pcm
+     radii   uff
+    theory   ssvpe
+  vdwscale   1.1
+$end
+
+
+$solvent
   dielectric   78.3553
 $end
 
@@ -1312,7 +1414,7 @@ $pcm
 $end
 
 
-$pcm_solvent
+$solvent
      dielectric   20.0
   nsolventatoms   2
     solventatom   8    1    186  1.30
