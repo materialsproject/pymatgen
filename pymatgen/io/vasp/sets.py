@@ -400,7 +400,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
             raise ValueError(
                 "Invalid KPoint Generation algo : Supported Keys are "
                 "grid_density: for Kpoints.automatic_density generation, "
-                "reciprocal_density: for KPoints.automatica_density_by_vol generation, "
+                "reciprocal_density: for KPoints.automatic_density_by_vol generation, "
                 "and length  : for Kpoints.automatic generation")
 
     def __str__(self):
