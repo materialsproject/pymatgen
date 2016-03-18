@@ -1038,7 +1038,16 @@ def plot_wigner_seitz(lattice, ax=None, **kwargs):
                 if iface < jface and any(np.all(line[0] == x) for x in bz[jface])\
                         and any(np.all(line[1] == x) for x in bz[jface]):
                     ax.plot(*zip(line[0], line[1]), **kwargs)
+ 
+ 
+    ax.set_xlim3d(-1,1)
+    ax.set_ylim3d(-1,1)
+    ax.set_zlim3d(-1,1)
 
+    ax.set_aspect('equal')
+    ax.axis("off")
+
+    
     return fig, ax
 
 
@@ -1270,3 +1279,64 @@ def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None, fold=
     ax.axis("off")
 
     return fig
+
+
+def plot_ellipsoid(hessian, center,bz_lattice=None,rescale=1.0,ax=None,coords_are_cartesian=False,**kwargs):
+    """
+    Plots a 3D ellipsoid rappresenting the Hessian matrix in input.
+    Useful to get a graphical visualization of the effective mass
+    of a band in a single k-point.
+    
+    Args:
+	hessian: the Hessian matrix
+	center: the center of the ellipsoid in reciprocal coords (Default)
+        bz_lattice: Lattice object of the Brillouin zone
+        rescale: factor for size scaling of the ellipsoid
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+	coords_are_cartesian: Set to True if you are providing a center in 
+                              cartesian coordinates. Defaults to False.
+	kwargs: provided by add_fig_kwargs decorator
+    Returns:
+        matplotlib figure and matplotlib ax
+    Example of use:
+	fig,ax=plot_wigner_seitz(struct.reciprocal_lattice)
+	plot_ellipsoid(hessian,[0.0,0.0,0.0],struct.reciprocal_lattice,ax=ax)
+	
+    """
+    
+    if (not coords_are_cartesian) and lattice is None:
+      raise ValueError("coords_are_cartesian False or fold True require the lattice")
+    
+    if not coords_are_cartesian:
+      center = bz_lattice.get_cartesian_coords(center)
+
+    # calculate the ellipsoid
+    # find the rotation matrix and radii of the axes
+    U, s, rotation = np.linalg.svd(hessian)
+    radii = 1.0/np.sqrt(s)
+    
+    # from polar coordinates
+    u = np.linspace(0.0, 2.0 * np.pi, 100)
+    v = np.linspace(0.0, np.pi, 100)
+    x = radii[0] * np.outer(np.cos(u), np.sin(v)) 
+    y = radii[1] * np.outer(np.sin(u), np.sin(v))
+    z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
+    for i in range(len(x)):
+	for j in range(len(x)):
+	    [x[i,j],y[i,j],z[i,j]] = np.dot([x[i,j],y[i,j],z[i,j]],rotation)*rescale + center
+
+    # add the ellipsoid to the current axes
+    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax.plot_wireframe(x, y, z,  rstride=4, cstride=4, color='b', alpha=0.2)
+
+    ax.set_xlim3d(-1,1)
+    ax.set_ylim3d(-1,1)
+    ax.set_zlim3d(-1,1)
+
+    ax.set_aspect('equal')
+    ax.axis("off")
+
+
+    fig.show()
+
+    return fig, ax
