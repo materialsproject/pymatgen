@@ -35,6 +35,7 @@ import numpy as np
 import tempfile
 from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.electronic_structure.dos import Dos, Spin, CompleteDos
 from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.plotter import DosPlotter
