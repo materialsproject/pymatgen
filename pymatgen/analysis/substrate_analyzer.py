@@ -42,13 +42,13 @@ class ZSLMatch(MSONable):
         Returns dict which contains ZSL match
         """
         d = {}
-        d["film miller"] = self.film_miller.tolist()
-        d["susbtrate miller"] = self.substrate_miller.tolist()
-        d["film super lattice vectors"] = np.asarray(self.film_sl_vectors).tolist()
-        d["substrate super lattice vectors"] = np.asarray(self.substrate_sl_vectors).tolist()
-        d["matching area"] = self.match_area
-        d["film vectors"] = np.asarray(self.film_vectors).tolist()
-        d["susbtrate vectors"] = np.asarray(self.substrate_vectors).tolist()
+        d["film_miller"] = self.film_miller.tolist()
+        d["sub_miller"] = self.substrate_miller.tolist()
+        d["film_sl_vecs"] = np.asarray(self.film_sl_vectors).tolist()
+        d["sub_sl_vecs"] = np.asarray(self.substrate_sl_vectors).tolist()
+        d["match_area"] = self.match_area
+        d["film_vecs"] = np.asarray(self.film_vectors).tolist()
+        d["sub_vecs"] = np.asarray(self.substrate_vectors).tolist()
 
         return d
 
@@ -351,7 +351,7 @@ class SubstrateAnalyzer(MSONable):
         for match in z.generate(self.film_millers,substrate_millers):
             d = match.as_dict()
             energy = self.calculate_3D_elastic_energy(match)
-            d["elastic energy"] = energy
+            d["elastic_energy"] = energy
             yield d
 
     def calculate_3D_elastic_energy(self, match):
