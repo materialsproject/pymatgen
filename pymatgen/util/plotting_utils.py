@@ -81,6 +81,28 @@ def get_ax_fig_plt(ax=None):
     return ax, fig, plt
 
 
+def get_ax3d_fig_plt(ax=None):
+    """
+    Helper function used in plot functions supporting an optional Axes3D argument.
+    If ax is None, we build the `matplotlib` figure and create the Axes3D else
+    we return the current active figure.
+
+    Returns:
+        ax: :class:`Axes` object
+        figure: matplotlib figure
+        plt: matplotlib pyplot module.
+    """
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import axes3d
+    if ax is None:
+        fig = plt.figure()
+        ax = axes3d.Axes3D(fig)
+    else:
+        fig = plt.gcf()
+
+    return ax, fig, plt
+
+
 def get_axarray_fig_plt(ax_array, nrows=1, ncols=1, sharex=False, sharey=False,
                         squeeze=True, subplot_kw=None, gridspec_kw=None, **fig_kw):
     """
