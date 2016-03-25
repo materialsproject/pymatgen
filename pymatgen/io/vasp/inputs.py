@@ -358,7 +358,10 @@ class Poscar(MSONable):
         if len(chunks) > 2:
             lines = chunks[2].strip().split("\n")
             predictor_corrector.append([int(lines[0])])
-            for line in lines[1:]:
+            predictor_corrector.append([int(lines[0])])
+            predictor_corrector.append([int(lines[0])])
+
+            for line in lines[3:]:
                 predictor_corrector.append([float(tok)
                                             for tok in line.split()])
 
