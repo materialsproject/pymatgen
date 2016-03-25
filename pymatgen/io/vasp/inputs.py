@@ -355,7 +355,23 @@ class Poscar(MSONable):
                 velocities.append([float(tok) for tok in line.split()])
 
         predictor_corrector = []
+
         if len(chunks) > 2:
+            # There are 3x 3x N Predictor corrector parameters
+            # So can't be stored as a single set of "site_property"
+            # This is a key in CONTCAR
+            predictor_corrector.append([int(lines[0])])
+
+            # This is the POTIM
+            predictor_corrector.append([float(lines[1])])
+
+            # This is the NOSE Thermostat parameters
+            predictor_corrector.append([float(tok)
+                                            for tok in lines[2].split()])
+            # Rest is three sets of parameters, each set contains
+            # x, y, z predictor-corrector parameters for every atom in orde
+
+
             lines = chunks[2].strip().split("\n")
             predictor_corrector.append([int(lines[0])])
             predictor_corrector.append([int(lines[0])])
