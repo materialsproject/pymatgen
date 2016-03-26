@@ -881,7 +881,7 @@ class PointGroupAnalyzer(object):
             eig_all_same = abs(v1 - v2) < self.eig_tol and abs(
                 v1 - v3) < self.eig_tol
             eig_all_diff = abs(v1 - v2) > self.eig_tol and abs(
-                v1 - v2) > self.eig_tol and abs(v2 - v3) > self.eig_tol
+                v1 - v3) > self.eig_tol and abs(v2 - v3) > self.eig_tol
 
             self.rot_sym = []
             self.symmops = [SymmOp(np.eye(4))]
