@@ -96,7 +96,6 @@ class Poscar(MSONable):
         array of floats.
 
     .. attribute:: predictor_corrector
-
         Predictor corrector coordinates for each site (typically read in from a
         MD CONTCAR).
 
@@ -107,16 +106,20 @@ class Poscar(MSONable):
     """
 
     def __init__(self, structure, comment=None, selective_dynamics=None,
-                 true_names=True, velocities=None, predictor_corrector=None):
+                 true_names=True, velocities=None, predictor_corrector=None,
+                 predictor_corrector_preamble=None):
         if structure.is_ordered:
             site_properties = {}
+            structure_properties = {}
             if selective_dynamics:
                 site_properties["selective_dynamics"] = selective_dynamics
             if velocities:
                 site_properties["velocities"] = velocities
             if predictor_corrector:
                 site_properties["predictor_corrector"] = predictor_corrector
-            self.structure = structure.copy(site_properties=site_properties)
+                structure_properties["predictor_corrector_preamble"] = predictor_corrector_preamble
+            self.structure = structure.copy(site_properties=site_properties,
+                                            structure_properties=structure_properties)
             self.true_names = true_names
             self.comment = structure.formula if comment is None else comment
         else:
@@ -137,6 +140,10 @@ class Poscar(MSONable):
     def predictor_corrector(self):
         return self.structure.site_properties.get("predictor_corrector")
 
+    @property
+    def predictor_corrector_preamble(self):
+        return self.structure.structure_properties.get("predictor_corrector_preamble")
+
     @velocities.setter
     def velocities(self, velocities):
         self.structure.add_site_property("velocities", velocities)
@@ -150,6 +157,11 @@ class Poscar(MSONable):
     def predictor_corrector(self, predictor_corrector):
         self.structure.add_site_property("predictor_corrector",
                                          predictor_corrector)
+
+    @predictor_corrector_preamble.setter
+    def predictor_corrector_preamble(self, predictor_corrector_preamble):
+        self.structure.add_structure_property("predictor_corrector_preamble",
+                                         predictor_corrector_preamble)
 
     @property
     def site_symbols(self):
@@ -354,36 +366,29 @@ class Poscar(MSONable):
             for line in chunks[1].strip().split("\n"):
                 velocities.append([float(tok) for tok in line.split()])
 
-        predictor_corrector = []
+        predictor_corrector = [[],[],[]]
 
         if len(chunks) > 2:
-            # There are 3x 3x N Predictor corrector parameters
+            lines = chunks[2].strip().split("\n")
+            # There are 3 sets of 3xN Predictor corrector parameters
             # So can't be stored as a single set of "site_property"
-            # This is a key in CONTCAR
-            predictor_corrector.append([int(lines[0])])
 
-            # This is the POTIM
-            predictor_corrector.append([float(lines[1])])
-
-            # This is the NOSE Thermostat parameters
-            predictor_corrector.append([float(tok)
-                                            for tok in lines[2].split()])
+            # First line in chunk is a key in CONTCAR
+            # Second line is POTIM
+            # Third line is the thermostat parameters
+            predictor_corrector_preamble = lines[0] + "\n" + lines[1]+"\n" + lines[2]+"\n"
             # Rest is three sets of parameters, each set contains
             # x, y, z predictor-corrector parameters for every atom in orde
-
-
-            lines = chunks[2].strip().split("\n")
-            predictor_corrector.append([int(lines[0])])
-            predictor_corrector.append([int(lines[0])])
-            predictor_corrector.append([int(lines[0])])
-
-            for line in lines[3:]:
-                predictor_corrector.append([float(tok)
-                                            for tok in line.split()])
+            chnk = 0
+            for pred in predictor_corrector:
+                for line in lines[chnk*nsites+3: (chnk+1)*nsites+3]:
+                    pred.append([float(tok) for tok in line.split()])
+                chnk+=1
 
         return Poscar(struct, comment, selective_dynamics, vasp5_symbols,
                       velocities=velocities,
-                      predictor_corrector=predictor_corrector)
+                      predictor_corrector=predictor_corrector,
+                      predictor_corrector_preamble=predictor_corrector_preamble)
 
     def get_string(self, direct=True, vasp4_compatible=False,
                    significant_figures=6):
