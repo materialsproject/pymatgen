@@ -444,10 +444,13 @@ class Poscar(MSONable):
 
         if self.predictor_corrector:
             lines.append("")
-            lines.append(str(self.predictor_corrector[0][0]))
-            lines.append(str(self.predictor_corrector[1][0]))
-            for v in self.predictor_corrector[2:]:
-                lines.append(" ".join([format_str.format(i) for i in v]))
+            try:
+                lines.append(self.predictor_corrector_preamble)
+            except:
+                raise ValueError("Preamble information missing")
+            for v in self.predictor_corrector:
+                for z in v:
+                    lines.append(" ".join([format_str.format(i) for i in z]))
 
         return "\n".join(lines) + "\n"
 
