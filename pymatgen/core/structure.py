@@ -341,7 +341,7 @@ class IStructure(SiteCollection, MSONable):
 
     def __init__(self, lattice, species, coords, validate_proximity=False,
                  to_unit_cell=False, coords_are_cartesian=False,
-                 site_properties=None):
+                 site_properties=None, structure_properties=None):
         """
         Create a periodic structure.
 
@@ -371,6 +371,9 @@ class IStructure(SiteCollection, MSONable):
                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
+            structure_properties (dict): Arbitrary properties associated with the
+                entire structure that are not site specific: e.g., thermostat
+                information to be written to Poscar to continue VASP MD.
         """
         if len(species) != len(coords):
             raise StructureError("The list of atomic species must be of the"
@@ -398,10 +401,12 @@ class IStructure(SiteCollection, MSONable):
         if validate_proximity and not self.is_valid():
             raise StructureError(("Structure contains sites that are ",
                                   "less than 0.01 Angstrom apart!"))
+        self._struct_props = structure_properties
 
     @classmethod
     def from_sites(cls, sites, validate_proximity=False,
-                   to_unit_cell=False):
+                   to_unit_cell=False,
+                   structure_properties = None):
         """
         Convenience constructor to make a Structure from a list of sites.
 
@@ -437,11 +442,13 @@ class IStructure(SiteCollection, MSONable):
                    [site.frac_coords for site in sites],
                    site_properties=props,
                    validate_proximity=validate_proximity,
-                   to_unit_cell=to_unit_cell)
+                   to_unit_cell=to_unit_cell,
+                   structure_properties = structure_properties)
 
     @classmethod
     def from_spacegroup(cls, sg, lattice, species, coords, site_properties=None,
-                        coords_are_cartesian=False, tol=1e-5):
+                        coords_are_cartesian=False, tol=1e-5,
+                        structure_properties = None):
         """
         Generate a structure using a spacegroup. Note that only symmetrically
         distinct species and coords should be provided. All equivalent sites
@@ -515,7 +522,8 @@ class IStructure(SiteCollection, MSONable):
                 all_site_properties[k].extend([v[i]] * len(cc))
 
         return cls(latt, all_sp, all_coords,
-                   site_properties=all_site_properties)
+                   site_properties=all_site_properties,
+                   structure_properties = structure_properties)
 
     @classmethod
     @deprecated(message="from_abivars has been merged with the from_dict "
@@ -877,7 +885,7 @@ class IStructure(SiteCollection, MSONable):
                               self.cart_coords,
                               coords_are_cartesian=True, to_unit_cell=True)
 
-    def copy(self, site_properties=None, sanitize=False):
+    def copy(self, site_properties=None, structure_properties=None, sanitize=False):
         """
         Convenience method to get a copy of the structure, with options to add
         site properties.
@@ -888,6 +896,7 @@ class IStructure(SiteCollection, MSONable):
                 i.e., as a dict of the form {property: [values]}. The
                 properties should be in the order of the *original* structure
                 if you are performing sanitization.
+            structure_properties (dict): Structure specific properties to add or override.
             sanitize (bool): If True, this method will return a sanitized
                 structure. Sanitization performs a few things: (i) The sites are
                 sorted by electronegativity, (ii) a LLL lattice reduction is
@@ -900,13 +909,17 @@ class IStructure(SiteCollection, MSONable):
             optionally sanitized.
         """
         props = self.site_properties
+        struct_props = self.structure_properties
         if site_properties:
             props.update(site_properties)
+        if structure_properties:
+            struct_props.update(structure_properties)
         if not sanitize:
             return self.__class__(self._lattice,
                                   self.species_and_occu,
                                   self.frac_coords,
-                                  site_properties=props)
+                                  site_properties=props,
+                                  structure_properties=struct_props)
         else:
             reduced_latt = self._lattice.get_lll_reduced_lattice()
             new_sites = []
@@ -2084,7 +2097,7 @@ class Structure(IStructure, collections.MutableSequence):
 
     def __init__(self, lattice, species, coords, validate_proximity=False,
                  to_unit_cell=False, coords_are_cartesian=False,
-                 site_properties=None):
+                 site_properties=None, structure_properties=None):
         """
         Create a periodic structure.
 
@@ -2116,7 +2129,7 @@ class Structure(IStructure, collections.MutableSequence):
         super(Structure, self).__init__(lattice, species, coords,
             validate_proximity=validate_proximity, to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
-            site_properties=site_properties)
+            site_properties=site_properties, structure_properties=structure_properties)
 
         self._sites = list(self._sites)
 
@@ -2240,6 +2253,18 @@ class Structure(IStructure, collections.MutableSequence):
             self._sites[i] = PeriodicSite(site.species_and_occu,
                                           site.frac_coords, self._lattice,
                                           properties=props)
+
+    def add_structure_property(self, property_name, value):
+        """
+        Adds an arbitrary property associated with the entire structure.
+
+        Args:
+            property_name (str): The name of the property to add.
+            value: can be of any type.
+        """
+        if not self._struct_props:
+            self._struct_props = {}
+        self._struct_props[property_name] = value
 
     def replace_species(self, species_mapping):
         """
