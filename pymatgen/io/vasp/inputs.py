@@ -367,6 +367,7 @@ class Poscar(MSONable):
                 velocities.append([float(tok) for tok in line.split()])
 
         predictor_corrector = [[],[],[]]
+        predictor_corrector_preamble = None
 
         if len(chunks) > 2:
             lines = chunks[2].strip().split("\n")
