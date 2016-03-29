@@ -909,7 +909,7 @@ class IStructure(SiteCollection, MSONable):
             optionally sanitized.
         """
         props = self.site_properties
-        struct_props = self.structure_properties
+        struct_props = self._struct_props
         if site_properties:
             props.update(site_properties)
         if structure_properties:
