@@ -335,75 +335,6 @@ class SubstrateAnalyzer:
         """
         self.zsl = zslgen
 
-
-    def find_best_substrate(self,film,substrates,film_millers=None,
-                            elastic_tensor=None, plot = False,
-                            return_matches = False):
-
-        def lowest(m,n):
-            if (m['elastic_energy'] < n['elastic_energy']):
-                return m
-            else:
-                return n
-
-        match_db = []
-        lowest_matches = {}
-
-        # Find all match combinatioms
-        for substrate in substrates:
-            for match in self.calculate(film,substrate,film_millers):
-                match['substrate'] = substrate
-                match_db.append(match)
-
-        # Generate miller indicies if none specified
-        if film_millers is None:
-            film_millers = sorted(get_symmetrically_distinct_miller_indices(
-                film, self.zsl.film_max_miller))
-
-        for miller in film_millers:
-            #find the lowest energy match for each plane
-            lowest_elac_energy = reduce(lowest,filter(
-                lambda m: m['film_miller'] is miller,match_db))
-            lowest_matches[miller] = lowest_elac_energy
-
-
-        return lowest_matches
-
-
-    def find_stable_structure(self,films,substrate, ground_state_energies = None,
-                              substrate_miller = None, elastic_tensor = None,
-                              plot = False, return_matches = False):
-
-        def lowest(m,n):
-            if (m['elastic_energy'] < n['elastic_energy']):
-                return m
-            else:
-                return n
-
-        match_db = []
-        lowest_matches = {}
-
-        # Find all match combinatioms
-        for film in films:
-            for match in self.calculate(film,substrate,substrate_millers=substrate_millers):
-                match['film'] = film
-                match_db.append(match)
-
-        # Generate miller indicies if none specified
-        if film_millers is None:
-            film_millers = sorted(get_symmetrically_distinct_miller_indices(
-                film, self.zsl.film_max_miller))
-
-        for miller in film_millers:
-            #find the lowest energy match for each plane
-            lowest_elac_energy = reduce(lowest,filter(
-                lambda m: m['film_miller'] is miller,match_db))
-            lowest_matches[miller] = lowest_elac_energy
-
-
-        return lowest_matches
-
-
     def calculate(self,film,substrate,elasticity_tensor = None,
                   film_millers = None, substrate_millers = None,
                   ground_state_energy = 0, lowest=False):
@@ -422,7 +353,7 @@ class SubstrateAnalyzer:
             substrate_millers(array): substrate planes to consider in search as
                 defined by miller indicies
             ground_state_energy(float): ground state energy for the film
-
+            lowest(bool): only consider lowest matching area for each surface
         """
 
         for match in self.zsl.generate(film,substrate,film_millers,substrate_millers,lowest):
@@ -434,35 +365,6 @@ class SubstrateAnalyzer:
 
             yield match
 
-    def calculate_one(self,film,substrate,elasticity_tensor = None,
-                  film_millers = None, substrate_millers = None,
-                  ground_state_energy = 0):
-        """
-        Finds the first topological matches for the substrate and calculates elastic
-        strain energy and total energy for the film if elasticity tensor and
-        ground state energy are provided:
-
-        Args:
-            film(Structure): conventional standard structure for the film
-            substrate(Structure): conventional standard structure for the
-                substrate
-            elasticity_tensor(ElasticTensor): elasticity tensor for the film
-            film_millers(array): film planes to consider in search as defined by
-                miller indicies
-            substrate_millers(array): substrate planes to consider in search as
-                defined by miller indicies
-            ground_state_energy(float): ground state energy for the film
-
-        """
-
-        for match in self.zsl.generate(film,substrate,film_millers,substrate_millers):
-            if (elasticity_tensor is not None):
-                energy = self.calculate_3D_elastic_energy(film, match,elasticity_tensor)
-                match["elastic_energy"] = energy
-            if (ground_state_energy is not 0):
-                match['total_energy'] = match.get('elastic_energy',0)+ground_state_energy
-
-            yield match
 
     def calculate_3D_elastic_energy(self, film, match, elasticity_tensor = None):
         """
