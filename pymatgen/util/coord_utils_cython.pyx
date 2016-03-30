@@ -24,7 +24,7 @@ cimport numpy as np
 cimport cython
 
 #create images, 2d array of all length 3 combinations of [-1,0,1]
-r = np.arange(-1, 2, dtype=np.float64)
+r = np.arange(-1, 2, dtype=np.float_)
 arange = r[:, None] * np.array([1, 0, 0])[None, :]
 brange = r[:, None] * np.array([0, 1, 0])[None, :]
 crange = r[:, None] * np.array([0, 0, 1])[None, :]
@@ -32,11 +32,11 @@ images_t = arange[:, None, None] + brange[None, :, None] + \
     crange[None, None, :]
 images = images_t.reshape((27, 3))
 
-cdef np.float64_t[:, :] images_view = images
+cdef np.float_t[:, :] images_view = images
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef void dot_2d(np.float64_t[:, :] a, np.float64_t[:, :] b, np.float64_t* o) nogil:
+cdef void dot_2d(np.float_t[:, :] a, np.float_t[:, :] b, np.float_t* o) nogil:
     cdef int i, j, k, I, J, K
     I = a.shape[0]
     J = b.shape[1]
@@ -51,7 +51,7 @@ cdef void dot_2d(np.float64_t[:, :] a, np.float64_t[:, :] b, np.float64_t* o) no
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef void dot_2d_mod(np.float64_t[:, :] a, np.float64_t[:, :] b, np.float64_t* o) nogil:
+cdef void dot_2d_mod(np.float_t[:, :] a, np.float_t[:, :] b, np.float_t* o) nogil:
     cdef int i, j, k, I, J, K
     I = a.shape[0]
     J = b.shape[1]
@@ -75,9 +75,11 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     Args:
         lattice: lattice to use
         fcoords1: First set of fractional coordinates. e.g., [0.5, 0.6, 0.7]
-            or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
-            coord or any array of coords.
+            or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. Must be np.float_
         fcoords2: Second set of fractional coordinates.
+        mask (int_ array): Mask of matches that are not allowed.
+            i.e. if mask[1,2] == True, then subset[1] cannot be matched
+            to superset[2]
 
     Returns:
         array of displacement vectors from fcoords1 to fcoords2
@@ -85,23 +87,23 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     """
 
     #ensure correct shape
-    fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2, dtype=np.float64)
+    fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
 
-    cdef np.float64_t[:, :] lat = np.array(lattice._matrix, dtype=np.float64)
+    cdef np.float_t[:, :] lat = np.array(lattice._matrix, dtype=np.float_, copy=False)
 
     cdef int i, j, k, l, I, J, L = 3
 
     I = len(fcoords1)
     J = len(fcoords2)
 
-    cdef np.float64_t * cart_f1 = <np.float64_t *> malloc(3 * I * sizeof(np.float64_t))
-    cdef np.float64_t * cart_f2 = <np.float64_t *> malloc(3 * J * sizeof(np.float64_t))
-    cdef np.float64_t * cart_im = <np.float64_t *> malloc(81 * sizeof(np.float64_t))
+    cdef np.float_t * cart_f1 = <np.float_t *> malloc(3 * I * sizeof(np.float_t))
+    cdef np.float_t * cart_f2 = <np.float_t *> malloc(3 * J * sizeof(np.float_t))
+    cdef np.float_t * cart_im = <np.float_t *> malloc(81 * sizeof(np.float_t))
 
     cdef bint has_mask = mask is not None
     cdef np.int_t[:, :] m
     if has_mask:
-        m = np.array(mask, dtype=np.int)
+        m = np.array(mask, dtype=np.int_, copy=False)
 
     dot_2d_mod(fcoords1, lat, cart_f1)
     dot_2d_mod(fcoords2, lat, cart_f2)
@@ -109,9 +111,9 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
 
     vectors = np.empty((I, J, 3))
     d2 = np.empty((I, J))
-    cdef np.float64_t[:, :, :] vs = vectors
-    cdef np.float64_t[:, :] ds = d2
-    cdef np.float64_t best, d
+    cdef np.float_t[:, :, :] vs = vectors
+    cdef np.float_t[:, :] ds = d2
+    cdef np.float_t best, d
 
     for i in range(I):
         for j in range(J):
@@ -156,13 +158,13 @@ def is_coord_subset_pbc(subset, superset, atol, mask):
         True if all of subset is in superset.
     """
 
-    cdef np.float64_t[:, :] fc1 = subset
-    cdef np.float64_t[:, :] fc2 = superset
-    cdef np.float64_t[:] t = atol
-    cdef np.int_t[:, :] m = mask
+    cdef np.float_t[:, :] fc1 = subset
+    cdef np.float_t[:, :] fc2 = superset
+    cdef np.float_t[:] t = atol
+    cdef np.int_t[:, :] m = np.array(mask, dtype=np.int_, copy=False)
 
     cdef int i, j, k, I, J
-    cdef np.float64_t d
+    cdef np.float_t d
     cdef bint ok = False
 
     I = fc1.shape[0]
@@ -189,13 +191,13 @@ def is_coord_subset_pbc(subset, superset, atol, mask):
 @cython.initializedcheck(False)
 @cython.cdivision(True)
 def lengths_and_angles(matrix):
-    angles = np.empty(3, dtype=np.float64)
-    lengths = np.empty(3, dtype=np.float64)
+    angles = np.empty(3, dtype=np.float_)
+    lengths = np.empty(3, dtype=np.float_)
 
-    cdef np.float64_t[:] a = angles
-    cdef np.float64_t[:] l = lengths
-    cdef np.float64_t[:, :] m = matrix
-    cdef np.float64_t v
+    cdef np.float_t[:] a = angles
+    cdef np.float_t[:] l = lengths
+    cdef np.float_t[:, :] m = matrix
+    cdef np.float_t v
 
     cdef int i, j, k, n
 
@@ -220,12 +222,12 @@ def lengths_and_angles(matrix):
 @cython.wraparound(False)
 @cython.initializedcheck(False)
 @cython.cdivision(True)
-def matrix_from_parameters(np.float64_t a, np.float64_t b, np.float64_t c,
-                           np.float64_t alpha, np.float64_t beta, np.float64_t gamma):
-    o = np.empty((3, 3), dtype=np.float64)
+def matrix_from_parameters(np.float_t a, np.float_t b, np.float_t c,
+                           np.float_t alpha, np.float_t beta, np.float_t gamma):
+    o = np.empty((3, 3), dtype=np.float_)
 
-    cdef np.float64_t[:, :] m = o
-    cdef np.float64_t alpha_r, beta_r, gamma_r, val, gamma_star
+    cdef np.float_t[:, :] m = o
+    cdef np.float_t alpha_r, beta_r, gamma_r, val, gamma_star
 
     alpha_r = alpha * M_PI / 180
     beta_r = beta * M_PI / 180
@@ -250,15 +252,15 @@ def matrix_from_parameters(np.float64_t a, np.float64_t b, np.float64_t c,
 @cython.wraparound(False)
 @cython.initializedcheck(False)
 def det3x3(matrix):
-    cdef np.float64_t[:, :] m_64
+    cdef np.float_t[:, :] m_f
     cdef np.long_t[:, :] m_l
-    cdef np.float64_t o_64 = 0
+    cdef np.float_t o_64 = 0
     cdef np.long_t o_l = 0
 
-    if matrix.dtype == np.float64:
-        m_64 = matrix
-        o_64 = m_64[0, 0] * m_64[1, 1] * m_64[2, 2] + m_64[1, 0] * m_64[2, 1] * m_64[0, 2] + m_64[2, 0] * m_64[0, 1] * m_64[1, 2] \
-            - m_64[0, 2] * m_64[1, 1] * m_64[2, 0] - m_64[1, 2] * m_64[2, 1] * m_64[0, 0] - m_64[2, 2] * m_64[0, 1] * m_64[1, 0]
+    if matrix.dtype == np.float_:
+        m_f = matrix
+        o_64 = m_f[0, 0] * m_f[1, 1] * m_f[2, 2] + m_f[1, 0] * m_f[2, 1] * m_f[0, 2] + m_f[2, 0] * m_f[0, 1] * m_f[1, 2] \
+            - m_f[0, 2] * m_f[1, 1] * m_f[2, 0] - m_f[1, 2] * m_f[2, 1] * m_f[0, 0] - m_f[2, 2] * m_f[0, 1] * m_f[1, 0]
         return o_64
     if matrix.dtype == np.long:
         m_l = matrix
