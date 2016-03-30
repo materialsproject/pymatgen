@@ -413,37 +413,12 @@ Here are the steps that I took to make it work:
 
         export PYTHONPATH=/usr/local/lib:$PYTHONPATH
 
-Enumlib (tested as of version of Jul 2012)
+Enumlib (updated Mar 2016)
 ------------------------------------------
 
-Mac OS X 10.7 - 10.9
-~~~~~~~~~~~~~~~~~~~~
-
-There does not seem to be any issues with installation as per the instructions
-given by the author. For convenience, the steps are reproduced here:
-
-::
-
-   tar -zxvf enum.tar.gz
-
-   #Compile the symmetry library. Go to the celib/trunk directory:
-   cd celib/trunk
-
-   #Set an environment variable to identify your fortran compiler
-   export F90=gfortran
-
-   make
-
-   Next, make the enumeration library
-   cd ../../enumlib/trunk
-   make
-
-   # Make the necessary standalone executables
-   make multienum.x
-   make makestr.x
-
-After doing the above, make sure that the multienum.x and makestr.x executables
-are available in your path.
+The author now has his own Github repo with the relevant instructions to
+compile a newer version of enumlib. Follow the instructions given at the
+`enumlib repo <https://github.com/msg-byu/enumlib>`_.
 
 Zeo++
 -----
