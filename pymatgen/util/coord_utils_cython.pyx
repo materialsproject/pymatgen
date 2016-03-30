@@ -189,68 +189,6 @@ def is_coord_subset_pbc(subset, superset, atol, mask):
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
-@cython.cdivision(True)
-def lengths_and_angles(matrix):
-    angles = np.empty(3, dtype=np.float_)
-    lengths = np.empty(3, dtype=np.float_)
-
-    cdef np.float_t[:] a = angles
-    cdef np.float_t[:] l = lengths
-    cdef np.float_t[:, :] m = matrix
-    cdef np.float_t v
-
-    cdef int i, j, k, n
-
-    for i in range(3):
-        l[i] = 0
-        for j in range(3):
-            l[i] += m[i, j] ** 2
-        l[i] = sqrt(l[i])
-
-    for i in range(3):
-        j = (i + 1) % 3
-        k = (i + 2) % 3
-        v = 0
-        for n in range(3):
-            v += m[j, n] * m[k, n]
-        v /= l[j] * l[k]
-        a[i] = acos(max(min(v, 1), -1)) * 180 / M_PI
-
-    return lengths, angles
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.initializedcheck(False)
-@cython.cdivision(True)
-def matrix_from_parameters(np.float_t a, np.float_t b, np.float_t c,
-                           np.float_t alpha, np.float_t beta, np.float_t gamma):
-    o = np.empty((3, 3), dtype=np.float_)
-
-    cdef np.float_t[:, :] m = o
-    cdef np.float_t alpha_r, beta_r, gamma_r, val, gamma_star
-
-    alpha_r = alpha * M_PI / 180
-    beta_r = beta * M_PI / 180
-    gamma_r = gamma * M_PI / 180
-    val = (cos(alpha_r) * cos(beta_r) - cos(gamma_r)) / (sin(alpha_r) * sin(beta_r))
-    #Sometimes rounding errors result in values slightly > 1.
-    val = max(min(val, 1), -1)
-    gamma_star = acos(val)
-    m[0, 0] = a * sin(beta_r)
-    m[0, 1] = 0
-    m[0, 2] = a * cos(beta_r)
-    m[1, 0] = -b * sin(alpha_r) * cos(gamma_star)
-    m[1, 1] = b * sin(alpha_r) * sin(gamma_star)
-    m[1, 2] = b * cos(alpha_r)
-    m[2, 0] = 0
-    m[2, 1] = 0
-    m[2, 2] = c
-
-    return o
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.initializedcheck(False)
 def det3x3(matrix):
     cdef np.float_t[:, :] m_f
     cdef np.long_t[:, :] m_l
