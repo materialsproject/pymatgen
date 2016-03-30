@@ -4,8 +4,7 @@
 
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
-boundary conditions or otherwise. Many of these are heavily vectorized in
-numpy for performance.
+boundary conditions or otherwise.
 """
 
 from six.moves import zip
@@ -86,9 +85,9 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     """
 
     #ensure correct shape
-    fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
+    fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2, dtype=np.float64)
 
-    cdef np.float64_t[:, :] lat = lattice._matrix
+    cdef np.float64_t[:, :] lat = np.array(lattice._matrix, dtype=np.float64)
 
     cdef int i, j, k, l, I, J, L = 3
 
@@ -109,9 +108,9 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     dot_2d(images_view, lat, cart_im)
 
     vectors = np.empty((I, J, 3))
-    dists = np.empty((I, J))
+    d2 = np.empty((I, J))
     cdef np.float64_t[:, :, :] vs = vectors
-    cdef np.float64_t[:, :] ds = dists
+    cdef np.float64_t[:, :] ds = d2
     cdef np.float64_t best, d
 
     for i in range(I):
@@ -137,14 +136,14 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     free(<void *>cart_im)
 
     if return_d2:
-        return vectors, dists
+        return vectors, d2
     else:
         return vectors
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
-def is_coord_subset_pbc(fcoords1, fcoords2, tol, mask):
+def is_coord_subset_pbc(subset, superset, atol, mask):
     """
     Tests if all fractional coords in subset are contained in superset.
     Allows specification of a mask determining pairs that are not
@@ -157,10 +156,10 @@ def is_coord_subset_pbc(fcoords1, fcoords2, tol, mask):
         True if all of subset is in superset.
     """
 
-    cdef np.float64_t[:, :] fc1 = fcoords1
-    cdef np.float64_t[:, :] fc2 = fcoords2
-    cdef np.float64_t[:] t = tol
-    cdef np.int_t[:, :] m = np.array(mask, dtype=np.int)
+    cdef np.float64_t[:, :] fc1 = subset
+    cdef np.float64_t[:, :] fc2 = superset
+    cdef np.float64_t[:] t = atol
+    cdef np.int_t[:, :] m = mask
 
     cdef int i, j, k, I, J
     cdef np.float64_t d
