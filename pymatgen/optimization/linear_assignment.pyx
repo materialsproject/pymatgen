@@ -16,7 +16,8 @@ __date__ = "Jan 28, 2013"
 
 import numpy as np
 
-from libc.math cimport abs
+from libc.stdlib cimport malloc, free
+from libc.math cimport fabs
 cimport numpy as np
 cimport cython
 
@@ -33,7 +34,7 @@ class LinearAssignment(object):
 
     Args:
         costs: The cost matrix of the problem. cost[i,j] should be the
-            cost of matching x[i] to y[j]. The cost matrix may be 
+            cost of matching x[i] to y[j]. The cost matrix may be
             rectangular
         epsilon: Tolerance for determining if solution vector is < 0
 
@@ -49,11 +50,11 @@ class LinearAssignment(object):
     """
 
     def __init__(self, costs, epsilon=1e-13):
-        self.orig_c = np.array(costs, dtype=np.float64)
+        self.orig_c = np.array(costs, dtype=np.float_, copy=False, order='C')
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny
 
-        self.epsilon = abs(epsilon)
+        self.epsilon = fabs(epsilon)
 
         #check that cost matrix is square
         if self.nx > self.ny:
@@ -62,7 +63,7 @@ class LinearAssignment(object):
         if self.nx == self.ny:
             self.c = self.orig_c
         else:
-            self.c = np.zeros((self.n, self.n), dtype=np.float64)
+            self.c = np.zeros((self.n, self.n), dtype=np.float_)
             self.c[:self.nx] = self.orig_c
 
         #initialize solution vectors
@@ -74,18 +75,18 @@ class LinearAssignment(object):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef np.float64_t compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, np.float64_t eps):
+cdef np.float_t compute(int size, np.float_t[:, :] c, np.int_t[:] x, np.int_t[:] y, np.float_t eps) nogil:
 
     # augment
     cdef int i, j, k, i1, j1, f, f0, cnt, low, up, z, last, nrr
     cdef int n = size
     cdef bint b
-    cdef np.int_t[:] col = np.empty(n, dtype=np.int)
-    cdef np.int_t[:] free = np.empty(n, dtype=np.int)
-    cdef np.int_t[:] pred = np.empty(n, dtype=np.int)
-    cdef np.float64_t[:] v = np.empty(n, dtype=np.float64)
-    cdef np.float64_t[:] d = np.empty(n, dtype=np.float64)
-    cdef np.float64_t h, m, u1, u2, cost
+    cdef np.int_t * col = <np.int_t *> malloc(n * sizeof(np.int_t))
+    cdef np.int_t * fre = <np.int_t *> malloc(n * sizeof(np.int_t))
+    cdef np.int_t * pred = <np.int_t *> malloc(n * sizeof(np.int_t))
+    cdef np.float_t * v = <np.float_t *> malloc(n * sizeof(np.float_t))
+    cdef np.float_t * d = <np.float_t *> malloc(n * sizeof(np.float_t))
+    cdef np.float_t h, m, u1, u2, cost
 
     for i in range(n):
         x[i] = -1
@@ -114,7 +115,7 @@ cdef np.float64_t compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_
     for i in range(n):
         if x[i] == -1:
             f += 1
-            free[f] = i
+            fre[f] = i
         elif x[i] < -1:
             x[i] = -2 - x[i]
         else:
@@ -137,7 +138,7 @@ cdef np.float64_t compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_
         nrr = 0
         while k <= f0:
             nrr += 1
-            i = free[k]
+            i = fre[k]
             k += 1
             u1 = c[i, 0] - v[0]
             j1 = 0
@@ -162,17 +163,17 @@ cdef np.float64_t compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_
             if i1 > -1:
                 if u1 + eps < u2 and nrr < n * k:
                     k -= 1
-                    free[k] = i1
+                    fre[k] = i1
                 else:
                     f += 1
-                    free[f] = i1
+                    fre[f] = i1
             x[i] = j1
             y[j1] = i
 
     # augmentation
     f0 = f
     for f in range(f0 + 1):
-        i1 = free[f]
+        i1 = fre[f]
         low = 0
         up = 0
         for j in range(n):
@@ -226,7 +227,7 @@ cdef np.float64_t compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_
                 if h + eps < d[j]:
                     d[j] = h
                     pred[j] = i
-                    if abs(h - m) < eps:
+                    if fabs(h - m) < eps:
                         if y[j] == -1:
                             # augment
                             for k in range(last+1):
@@ -251,4 +252,11 @@ cdef np.float64_t compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_
     cost = 0
     for i in range(n):
         cost += c[i, x[i]]
+
+    free(<void *>col)
+    free(<void *>fre)
+    free(<void *>pred)
+    free(<void *>v)
+    free(<void *>d)
+
     return cost
