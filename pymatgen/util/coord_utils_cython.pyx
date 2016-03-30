@@ -32,11 +32,11 @@ images_t = arange[:, None, None] + brange[None, :, None] + \
     crange[None, None, :]
 images = images_t.reshape((27, 3))
 
-cdef np.float_t[:, :] images_view = images
+cdef np.float_t[:, ::1] images_view = images
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef void dot_2d(np.float_t[:, :] a, np.float_t[:, :] b, np.float_t* o) nogil:
+cdef void dot_2d(np.float_t[:, ::1] a, np.float_t[:, ::1] b, np.float_t[:, ::1] o) nogil:
     cdef int i, j, k, I, J, K
     I = a.shape[0]
     J = b.shape[1]
@@ -44,14 +44,14 @@ cdef void dot_2d(np.float_t[:, :] a, np.float_t[:, :] b, np.float_t* o) nogil:
 
     for j in range(J):
         for i in range(I):
-            o[3 * i + j] = 0
+            o[i, j] = 0
         for k in range(K):
             for i in range(I):
-                o[3 * i + j] += a[i, k] * b[k, j]
+                o[i, j] += a[i, k] * b[k, j]
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef void dot_2d_mod(np.float_t[:, :] a, np.float_t[:, :] b, np.float_t* o) nogil:
+cdef void dot_2d_mod(np.float_t[:, ::1] a, np.float_t[:, ::1] b, np.float_t[:, ::1] o) nogil:
     cdef int i, j, k, I, J, K
     I = a.shape[0]
     J = b.shape[1]
@@ -59,10 +59,10 @@ cdef void dot_2d_mod(np.float_t[:, :] a, np.float_t[:, :] b, np.float_t* o) nogi
 
     for j in range(J):
         for i in range(I):
-            o[3 * i + j] = 0
+            o[i, j] = 0
         for k in range(K):
             for i in range(I):
-                o[3 * i + j] += a[i, k] % 1 * b[k, j]
+                o[i, j] += a[i, k] % 1 * b[k, j]
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -89,21 +89,21 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     #ensure correct shape
     fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
 
-    cdef np.float_t[:, :] lat = np.array(lattice._matrix, dtype=np.float_, copy=False)
+    cdef np.float_t[:, ::1] lat = np.array(lattice._matrix, dtype=np.float_, copy=False, order='C')
 
-    cdef int i, j, k, l, I, J, L = 3
+    cdef int i, j, k, l, I, J, bestK
 
     I = len(fcoords1)
     J = len(fcoords2)
 
-    cdef np.float_t * cart_f1 = <np.float_t *> malloc(3 * I * sizeof(np.float_t))
-    cdef np.float_t * cart_f2 = <np.float_t *> malloc(3 * J * sizeof(np.float_t))
-    cdef np.float_t * cart_im = <np.float_t *> malloc(81 * sizeof(np.float_t))
+    cdef np.float_t[:, ::1] cart_f1 = <np.float_t[:I, :3]> malloc(3 * I * sizeof(np.float_t))
+    cdef np.float_t[:, ::1] cart_f2 = <np.float_t[:J, :3]> malloc(3 * J * sizeof(np.float_t))
+    cdef np.float_t[:, ::1] cart_im = <np.float_t[:27, :3]> malloc(81 * sizeof(np.float_t))
 
     cdef bint has_mask = mask is not None
     cdef np.int_t[:, :] m
     if has_mask:
-        m = np.array(mask, dtype=np.int_, copy=False)
+        m = np.array(mask, dtype=np.int_, copy=False, order='C')
 
     dot_2d_mod(fcoords1, lat, cart_f1)
     dot_2d_mod(fcoords2, lat, cart_f2)
@@ -111,9 +111,11 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
 
     vectors = np.empty((I, J, 3))
     d2 = np.empty((I, J))
-    cdef np.float_t[:, :, :] vs = vectors
-    cdef np.float_t[:, :] ds = d2
-    cdef np.float_t best, d
+    cdef np.float_t[:, :, ::1] vs = vectors
+    cdef np.float_t[:, ::1] ds = d2
+    cdef np.float_t best, d, inc_d, da, db, dc
+
+    cdef np.float_t[::1] pre_im = <np.float_t[:3]> malloc(3 * sizeof(np.float_t))
 
     for i in range(I):
         for j in range(J):
@@ -122,20 +124,26 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
                 ds[i, j] = 1e20
                 for l in range(3):
                     vs[i, j, l] = 1e20
-                continue
-            for k in range(27):
-                d = 0
+            else:
                 for l in range(3):
-                    d += (cart_f2[3 * j + l] + cart_im[3 * k + l] - cart_f1[3 * i + l]) ** 2
-                if d < best:
-                    best = d
-                    ds[i, j] = d
-                    for l in range(3):
-                        vs[i, j, l] = cart_f2[3 * j + l] + cart_im[3 * k + l] - cart_f1[3 * i + l]
+                    pre_im[l] = cart_f2[j, l] - cart_f1[i, l]
+                for k in range(27):
+                    # compilers have a hard time unrolling this
+                    da = pre_im[0] + cart_im[k, 0]
+                    db = pre_im[1] + cart_im[k, 1]
+                    dc = pre_im[2] + cart_im[k, 2]
+                    d = da * da + db * db + dc * dc
+                    if d < best:
+                        best = d
+                        bestk = k
+                ds[i, j] = best
+                for l in range(3):
+                    vs[i, j, l] = pre_im[l] + cart_im[bestk, l]
 
-    free(<void *>cart_f1)
-    free(<void *>cart_f2)
-    free(<void *>cart_im)
+    free(&cart_f1[0,0])
+    free(&cart_f2[0,0])
+    free(&cart_im[0,0])
+    free(&pre_im[0])
 
     if return_d2:
         return vectors, d2
@@ -161,7 +169,7 @@ def is_coord_subset_pbc(subset, superset, atol, mask):
     cdef np.float_t[:, :] fc1 = subset
     cdef np.float_t[:, :] fc2 = superset
     cdef np.float_t[:] t = atol
-    cdef np.int_t[:, :] m = np.array(mask, dtype=np.int_, copy=False)
+    cdef np.int_t[:, :] m = np.array(mask, dtype=np.int_, copy=False, order='C')
 
     cdef int i, j, k, I, J
     cdef np.float_t d
