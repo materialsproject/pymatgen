@@ -22,7 +22,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.optimization.linear_assignment_cython import LinearAssignment
+from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord_utils_cython import pbc_shortest_vectors, is_coord_subset_pbc, det3x3
 from pymatgen.util.coord_utils import lattice_points_in_supercell
 
