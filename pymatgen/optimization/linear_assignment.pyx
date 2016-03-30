@@ -48,7 +48,7 @@ class LinearAssignment(object):
         to column 0. Total cost would be c[0, 1] + c[1, 2] + c[2, 0]
     """
 
-    def __init__(self, costs, epsilon=1e-14):
+    def __init__(self, costs, epsilon=1e-13):
         self.orig_c = np.array(costs, dtype=np.float64)
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny
