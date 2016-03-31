@@ -2937,7 +2937,7 @@ static __pyx_t_5numpy_float_t __pyx_f_8pymatgen_12optimization_17linear_assignme
  *             x[i] = -2 - x[i]
  *         else:
  *             j1 = x[i]             # <<<<<<<<<<<<<<
- *             m = 1e20
+ *             m = 1e300
  *             for j in range(n):
  */
     /*else*/ {
@@ -2947,15 +2947,15 @@ static __pyx_t_5numpy_float_t __pyx_f_8pymatgen_12optimization_17linear_assignme
       /* "pymatgen/optimization/linear_assignment.pyx":123
  *         else:
  *             j1 = x[i]
- *             m = 1e20             # <<<<<<<<<<<<<<
+ *             m = 1e300             # <<<<<<<<<<<<<<
  *             for j in range(n):
  *                 if j != j1:
  */
-      __pyx_v_m = 1e20;
+      __pyx_v_m = 1e300;
 
       /* "pymatgen/optimization/linear_assignment.pyx":124
  *             j1 = x[i]
- *             m = 1e20
+ *             m = 1e300
  *             for j in range(n):             # <<<<<<<<<<<<<<
  *                 if j != j1:
  *                     if c[i, j] - v[j] < m:
@@ -2965,7 +2965,7 @@ static __pyx_t_5numpy_float_t __pyx_f_8pymatgen_12optimization_17linear_assignme
         __pyx_v_j = __pyx_t_24;
 
         /* "pymatgen/optimization/linear_assignment.pyx":125
- *             m = 1e20
+ *             m = 1e300
  *             for j in range(n):
  *                 if j != j1:             # <<<<<<<<<<<<<<
  *                     if c[i, j] - v[j] < m:
@@ -3007,7 +3007,7 @@ static __pyx_t_5numpy_float_t __pyx_f_8pymatgen_12optimization_17linear_assignme
           }
 
           /* "pymatgen/optimization/linear_assignment.pyx":125
- *             m = 1e20
+ *             m = 1e300
  *             for j in range(n):
  *                 if j != j1:             # <<<<<<<<<<<<<<
  *                     if c[i, j] - v[j] < m:
@@ -3117,7 +3117,7 @@ static __pyx_t_5numpy_float_t __pyx_f_8pymatgen_12optimization_17linear_assignme
  *             k += 1
  *             u1 = c[i, 0] - v[0]             # <<<<<<<<<<<<<<
  *             j1 = 0
- *             u2 = 1e20
+ *             u2 = 1e300
  */
       __pyx_t_29 = __pyx_v_i;
       __pyx_t_30 = 0;
@@ -3127,7 +3127,7 @@ static __pyx_t_5numpy_float_t __pyx_f_8pymatgen_12optimization_17linear_assignme
  *             k += 1
  *             u1 = c[i, 0] - v[0]
  *             j1 = 0             # <<<<<<<<<<<<<<
- *             u2 = 1e20
+ *             u2 = 1e300
  *             for j in range(1, n):
  */
       __pyx_v_j1 = 0;
@@ -3135,15 +3135,15 @@ static __pyx_t_5numpy_float_t __pyx_f_8pymatgen_12optimization_17linear_assignme
       /* "pymatgen/optimization/linear_assignment.pyx":145
  *             u1 = c[i, 0] - v[0]
  *             j1 = 0
- *             u2 = 1e20             # <<<<<<<<<<<<<<
+ *             u2 = 1e300             # <<<<<<<<<<<<<<
  *             for j in range(1, n):
  *                 h = c[i, j] - v[j]
  */
-      __pyx_v_u2 = 1e20;
+      __pyx_v_u2 = 1e300;
 
       /* "pymatgen/optimization/linear_assignment.pyx":146
  *             j1 = 0
- *             u2 = 1e20
+ *             u2 = 1e300
  *             for j in range(1, n):             # <<<<<<<<<<<<<<
  *                 h = c[i, j] - v[j]
  *                 if h < u2:
@@ -3153,7 +3153,7 @@ static __pyx_t_5numpy_float_t __pyx_f_8pymatgen_12optimization_17linear_assignme
         __pyx_v_j = __pyx_t_23;
 
         /* "pymatgen/optimization/linear_assignment.pyx":147
- *             u2 = 1e20
+ *             u2 = 1e300
  *             for j in range(1, n):
  *                 h = c[i, j] - v[j]             # <<<<<<<<<<<<<<
  *                 if h < u2:

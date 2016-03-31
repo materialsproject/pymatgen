@@ -120,7 +120,7 @@ cdef np.float_t compute(int size, np.float_t[:, :] c, np.int_t[:] x, np.int_t[:]
             x[i] = -2 - x[i]
         else:
             j1 = x[i]
-            m = 1e20
+            m = 1e300
             for j in range(n):
                 if j != j1:
                     if c[i, j] - v[j] < m:
@@ -142,7 +142,7 @@ cdef np.float_t compute(int size, np.float_t[:, :] c, np.int_t[:] x, np.int_t[:]
             k += 1
             u1 = c[i, 0] - v[0]
             j1 = 0
-            u2 = 1e20
+            u2 = 1e300
             for j in range(1, n):
                 h = c[i, j] - v[j]
                 if h < u2:
