@@ -111,12 +111,11 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     if has_mask:
         m = np.array(mask, dtype=np.int_, copy=False, order='C')
 
-
-    if frac_tol is not None:
-        frac_tol = np.array(frac_tol, dtype=np.float_, order='C')
-    else:
-        frac_tol = np.array([2,2,2], dtype=np.float_, order='C')
+    cdef bint has_ftol = (frac_tol is not None)
     cdef np.float_t[:] ftol = frac_tol
+    if has_ftol:
+        ftol = np.array(frac_tol, dtype=np.float_, order='C', copy=False)
+
 
     dot_2d_mod(fc1, lat, cart_f1)
     dot_2d_mod(fc2, lat, cart_f2)
@@ -135,13 +134,15 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
             within_frac = False
             if (not has_mask) or (m[i, j] == 0):
                 within_frac = True
-                for l in range(3):
-                    pre_im[l] = cart_f2[j, l] - cart_f1[i, l]
-                    fdist = fc2[j, l] - fc1[i, l]
-                    if fabs(fdist - round(fdist)) > ftol[l]:
-                        within_frac = False
-                        break
+                if has_ftol:
+                    for l in range(3):
+                        fdist = fc2[j, l] - fc1[i, l]
+                        if fabs(fdist - round(fdist)) > ftol[l]:
+                            within_frac = False
+                            break
                 if within_frac:
+                    for l in range(3):
+                        pre_im[l] = cart_f2[j, l] - cart_f1[i, l]
                     best = 1e100
                     for k in range(27):
                         # compilers have a hard time unrolling this
