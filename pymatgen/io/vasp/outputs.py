@@ -1070,7 +1070,7 @@ class BSVasprun(Vasprun):
                  parse_potcar_file=False, occu_tol=1e-8):
         self.filename = filename
         self.occu_tol = occu_tol
-        
+
         with zopen(filename, "rt") as f:
             self.efermi = None
             parsed_header = False
@@ -1348,6 +1348,14 @@ class Outcar(MSONable):
         self.total_mag = total_mag
         self.elastic_tensor = elastic_tensor
         self.data = {}
+
+        # Check to see if LEPSILON is true and read piezo data if so
+        self.lepsilon = False
+        self.read_pattern({'epsilon': 'LEPSILON=     T'})
+        if self.data['epsilon'] is not []:
+            self.lepsilon = True
+            self.read_lepsilon()
+            self.read_lepsilon_ionic()
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
@@ -1807,6 +1815,14 @@ class Outcar(MSONable):
              "run_stats": self.run_stats, "magnetization": self.magnetization,
              "charge": self.charge, "total_magnetization": self.total_mag,
              "nelect": self.nelect, "is_stopped": self.is_stopped}
+
+        if self.lepsilon:
+            d.update({'piezo_tensor': self.piezo_tensor,
+                      'piezo_ionic_tensor': self.piezo_ionic_tensor,
+                      'dielectric_tensor' : self.dielectric_tensor,
+                      'dielectric_ionic_tensor': self.dielectric_ionic_tensor,
+                      'born_ion' : self.born_ion,
+                      'born' : self.born})
         return d
 
 
