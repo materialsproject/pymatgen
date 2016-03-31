@@ -19,7 +19,7 @@ __date__ = "Nov 27, 2011"
 import numpy as np
 
 from libc.stdlib cimport malloc, free
-from libc.math cimport round, abs, sqrt, acos, M_PI, cos, sin
+from libc.math cimport round, fabs, sqrt, acos, M_PI, cos, sin
 cimport numpy as np
 cimport cython
 
@@ -67,7 +67,7 @@ cdef void dot_2d_mod(np.float_t[:, ::1] a, np.float_t[:, ::1] b, np.float_t[:, :
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
-def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False):
+def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False, frac_tol=None):
     """
     Returns the shortest vectors between two lists of coordinates taking into
     account periodic boundary conditions and the lattice.
@@ -80,6 +80,9 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
         mask (int_ array): Mask of matches that are not allowed.
             i.e. if mask[1,2] == True, then subset[1] cannot be matched
             to superset[2]
+        frac_tol (float_ array of length 3): Fractional tolerance (per lattice vector) over which
+            the calculation of minimum vectors will be skipped.
+            Can speed up calculation considerably for large structures.
 
     Returns:
         array of displacement vectors from fcoords1 to fcoords2
@@ -96,6 +99,9 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     I = len(fcoords1)
     J = len(fcoords2)
 
+    cdef np.float_t[:, ::1] fc1 = fcoords1
+    cdef np.float_t[:, ::1] fc2 = fcoords2
+
     cdef np.float_t[:, ::1] cart_f1 = <np.float_t[:I, :3]> malloc(3 * I * sizeof(np.float_t))
     cdef np.float_t[:, ::1] cart_f2 = <np.float_t[:J, :3]> malloc(3 * J * sizeof(np.float_t))
     cdef np.float_t[:, ::1] cart_im = <np.float_t[:27, :3]> malloc(81 * sizeof(np.float_t))
@@ -105,40 +111,54 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     if has_mask:
         m = np.array(mask, dtype=np.int_, copy=False, order='C')
 
-    dot_2d_mod(fcoords1, lat, cart_f1)
-    dot_2d_mod(fcoords2, lat, cart_f2)
+
+    if frac_tol is not None:
+        frac_tol = np.array(frac_tol, dtype=np.float_, order='C')
+    else:
+        frac_tol = np.array([2,2,2], dtype=np.float_, order='C')
+    cdef np.float_t[:] ftol = frac_tol
+
+    dot_2d_mod(fc1, lat, cart_f1)
+    dot_2d_mod(fc2, lat, cart_f2)
     dot_2d(images_view, lat, cart_im)
 
     vectors = np.empty((I, J, 3))
     d2 = np.empty((I, J))
     cdef np.float_t[:, :, ::1] vs = vectors
     cdef np.float_t[:, ::1] ds = d2
-    cdef np.float_t best, d, inc_d, da, db, dc
-
-    cdef np.float_t[::1] pre_im = <np.float_t[:3]> malloc(3 * sizeof(np.float_t))
+    cdef np.float_t best, d, inc_d, da, db, dc, fdist
+    cdef bint within_frac = True
+    cdef np.float_t[:] pre_im = <np.float_t[:3]> malloc(3 * sizeof(np.float_t))
 
     for i in range(I):
         for j in range(J):
-            best = 1e100
-            if has_mask and m[i, j]:
+            within_frac = False
+            if (not has_mask) or (m[i, j] == 0):
+                within_frac = True
+                for l in range(3):
+                    pre_im[l] = cart_f2[j, l] - cart_f1[i, l]
+                    fdist = fc2[j, l] - fc1[i, l]
+                    if fabs(fdist - round(fdist)) > ftol[l]:
+                        within_frac = False
+                        break
+                if within_frac:
+                    best = 1e100
+                    for k in range(27):
+                        # compilers have a hard time unrolling this
+                        da = pre_im[0] + cart_im[k, 0]
+                        db = pre_im[1] + cart_im[k, 1]
+                        dc = pre_im[2] + cart_im[k, 2]
+                        d = da * da + db * db + dc * dc
+                        if d < best:
+                            best = d
+                            bestk = k
+                    ds[i, j] = best
+                    for l in range(3):
+                        vs[i, j, l] = pre_im[l] + cart_im[bestk, l]
+            if not within_frac:
                 ds[i, j] = 1e20
                 for l in range(3):
                     vs[i, j, l] = 1e20
-            else:
-                for l in range(3):
-                    pre_im[l] = cart_f2[j, l] - cart_f1[i, l]
-                for k in range(27):
-                    # compilers have a hard time unrolling this
-                    da = pre_im[0] + cart_im[k, 0]
-                    db = pre_im[1] + cart_im[k, 1]
-                    dc = pre_im[2] + cart_im[k, 2]
-                    d = da * da + db * db + dc * dc
-                    if d < best:
-                        best = d
-                        bestk = k
-                ds[i, j] = best
-                for l in range(3):
-                    vs[i, j, l] = pre_im[l] + cart_im[bestk, l]
 
     free(&cart_f1[0,0])
     free(&cart_f2[0,0])
@@ -185,7 +205,7 @@ def is_coord_subset_pbc(subset, superset, atol, mask):
             ok = True
             for k in range(3):
                 d = fc1[i, k] - fc2[j, k]
-                if abs(d - round(d)) > t[k]:
+                if fabs(d - round(d)) > t[k]:
                     ok = False
                     break
             if ok:
