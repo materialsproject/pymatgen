@@ -86,7 +86,7 @@ class RotationTransformation(AbstractTransformation):
             self._axis, self._angle, self._angle_in_radians)
 
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure.sites)
+        s = structure.copy()
         s.apply_operation(self._symmop)
         return s
 
@@ -129,7 +129,7 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
         self.oxi_states = oxidation_states
 
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure.sites)
+        s = structure.copy()
         s.add_oxidation_state_by_element(self.oxi_states)
         return s
 
@@ -200,7 +200,7 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
     This transformation removes oxidation states from a structure.
     """
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure.sites)
+        s = structure.copy()
         s.remove_oxidation_states()
         return s
 
@@ -253,9 +253,7 @@ class SupercellTransformation(AbstractTransformation):
                                         [0, 0, scale_c]])
 
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure)
-        s.make_supercell(self._matrix)
-        return s
+        return structure * self._matrix
 
     def __str__(self):
         return "Supercell Transformation with scaling matrix " + \
@@ -305,7 +303,7 @@ class SubstitutionTransformation(AbstractTransformation):
             else:
                 value = get_el_sp(v)
             species_map[get_el_sp(k)] = value
-        s = Structure.from_sites(structure.sites)
+        s = structure.copy()
         s.replace_species(species_map)
         return s
 
@@ -353,7 +351,7 @@ class RemoveSpeciesTransformation(AbstractTransformation):
         self._species = species_to_remove
 
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure.sites)
+        s = structure.copy()
         for sp in self._species:
             s.remove_species([get_el_sp(sp)])
         return s
@@ -723,7 +721,7 @@ class PerturbStructureTransformation(AbstractTransformation):
         self._amp = amplitude
 
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure.sites)
+        s = structure.copy()
         s.perturb(self._amp)
         return s
 
