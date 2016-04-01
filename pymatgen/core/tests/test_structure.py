@@ -37,9 +37,9 @@ class IStructureTest(PymatgenTest):
             self.lattice, ["Si"] * 2, coords,
             site_properties={'magmom': [5, -5]})
 
-    def test_is_similar(self):
+    def test_matches(self):
         ss = self.struct * 2
-        self.assertTrue(ss.is_similar(self.struct))
+        self.assertTrue(ss.matches(self.struct))
 
     def test_bad_structure(self):
         coords = list()
