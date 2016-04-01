@@ -416,8 +416,18 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             (Structure) Note that missing properties are set as None.
         """
+        if len(sites) < 1:
+            raise ValueError("You need at least one site to construct a %s" %
+                             cls)
         if (not validate_proximity) and (not to_unit_cell):
-            s_copy = cls(lattice=sites[0]._lattice, species=[], coords=[])
+            # This is not really a good solution, but if we are not changing
+            # the sites, initializing an empty structure and setting _sites
+            # to be sites is much faster than doing the full initialization.
+            lattice = sites[0].lattice
+            for s in sites[1:]:
+                if s.lattice != lattice:
+                    raise ValueError("Sites must belong to the same lattice")
+            s_copy = cls(lattice=lattice, species=[], coords=[])
             s_copy._sites = list(sites)
             return s_copy
         prop_keys = []
@@ -922,6 +932,10 @@ class IStructure(SiteCollection, MSONable):
             optionally sanitized.
         """
         if (not site_properties) and (not sanitize):
+            # This is not really a good solution, but if we are not changing
+            # the site_properties or sanitizing, initializing an empty
+            # structure and setting _sites to be sites is much faster (~100x)
+            # than doing the full initialization.
             s_copy = self.__class__(lattice=self._lattice, species=[],
                                     coords=[])
             s_copy._sites = list(self._sites)
