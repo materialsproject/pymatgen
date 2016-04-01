@@ -167,10 +167,6 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(s[0].specie.spin, 3)
         self.assertEqual(type(s), IStructure)
 
-    def test_fast_copy(self):
-        s2 = self.struct.fast_copy()
-        self.assertEqual(self.struct, s2)
-
     def test_site_properties(self):
         site_props = self.propertied_structure.site_properties
         self.assertEqual(site_props['magmom'], [5, -5])
