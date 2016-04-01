@@ -414,8 +414,7 @@ class MITNEBVaspInputSetTest(unittest.TestCase):
         s2 = Structure(Lattice.cubic(5), ['Si', 'Si'], c2)
         structs = []
         for s in s1.interpolate(s2, 3, pbc=True):
-            structs.append(Structure.from_sites(s.sites,
-                                        to_unit_cell=True))
+            structs.append(Structure.from_sites(s.sites, to_unit_cell=True))
 
         fc = self.vis._process_structures(structs)[2].frac_coords
         self.assertTrue(np.allclose(fc, [[0.5]*3,[0.9, 1.033333, 1.0333333]]))
