@@ -580,7 +580,8 @@ class StructureMatcher(MSONable):
     def _process_species(self, structures):
         copied_structures = []
         for s in structures:
-            ss = s.copy()
+            ss = s.copy() if type(s) == Structure else \
+                Structure.from_sites(s)
             if self._ignored_species:
                 ss.remove_species(self._ignored_species)
             copied_structures.append(ss)

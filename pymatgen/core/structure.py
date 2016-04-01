@@ -416,6 +416,10 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             (Structure) Note that missing properties are set as None.
         """
+        if (not validate_proximity) and (not to_unit_cell):
+            s_copy = cls(lattice=sites[0]._lattice, species=[], coords=[])
+            s_copy._sites = list(sites)
+            return s_copy
         prop_keys = []
         props = {}
         lattice = None
