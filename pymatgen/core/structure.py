@@ -596,7 +596,7 @@ class IStructure(SiteCollection, MSONable):
                                angle_tolerance=angle_tolerance)
         return a.get_spacegroup_symbol(), a.get_spacegroup_number()
 
-    def is_similar(self, other, **kwargs):
+    def matches(self, other, **kwargs):
         """
         Check whether this structure is similar to another structure.
         Basically a convenience method to call structure matching fitting.
