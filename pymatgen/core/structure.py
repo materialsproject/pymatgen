@@ -612,7 +612,7 @@ class IStructure(SiteCollection, MSONable):
         """
         from pymatgen.analysis.structure_matcher import StructureMatcher
         m = StructureMatcher(**kwargs)
-        return m.fit(self, other)
+        return m.fit(Structure.from_sites(self), Structure.from_sites(other))
 
     def __eq__(self, other):
         if other is None:
