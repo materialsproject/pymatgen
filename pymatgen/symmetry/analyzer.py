@@ -554,7 +554,6 @@ class SpacegroupAnalyzer(object):
             #if so, make a supercell
             a, b, c = latt.abc
             if np.all(np.abs([a - b, c - b, a - c]) < 0.001):
-                struct = Structure.from_sites(struct)
                 struct.make_supercell(((1, -1, 0), (0, 1, -1), (1, 1, 1)))
                 a, b, c = sorted(struct.lattice.abc)
 
