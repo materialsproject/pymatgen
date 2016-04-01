@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
+from __future__ import division, unicode_literals, print_function
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
@@ -36,6 +36,10 @@ class IStructureTest(PymatgenTest):
         self.propertied_structure = IStructure(
             self.lattice, ["Si"] * 2, coords,
             site_properties={'magmom': [5, -5]})
+
+    def test_matches(self):
+        ss = self.struct * 2
+        self.assertTrue(ss.matches(self.struct))
 
     def test_bad_structure(self):
         coords = list()
