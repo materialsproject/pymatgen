@@ -1207,7 +1207,7 @@ class IStructure(SiteCollection, MSONable):
                     return s.get_primitive_structure(
                         tolerance).get_reduced_structure()
 
-        return Structure.from_sites(self)
+        return self.fast_copy()
 
     def __repr__(self):
         outs = ["Structure Summary", repr(self.lattice)]
