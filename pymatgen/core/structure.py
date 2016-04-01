@@ -416,6 +416,20 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             (Structure) Note that missing properties are set as None.
         """
+        if len(sites) < 1:
+            raise ValueError("You need at least one site to construct a %s" %
+                             cls)
+        if (not validate_proximity) and (not to_unit_cell):
+            # This is not really a good solution, but if we are not changing
+            # the sites, initializing an empty structure and setting _sites
+            # to be sites is much faster than doing the full initialization.
+            lattice = sites[0].lattice
+            for s in sites[1:]:
+                if s.lattice != lattice:
+                    raise ValueError("Sites must belong to the same lattice")
+            s_copy = cls(lattice=lattice, species=[], coords=[])
+            s_copy._sites = list(sites)
+            return s_copy
         prop_keys = []
         props = {}
         lattice = None
@@ -612,7 +626,7 @@ class IStructure(SiteCollection, MSONable):
         """
         from pymatgen.analysis.structure_matcher import StructureMatcher
         m = StructureMatcher(**kwargs)
-        return m.fit(self, other)
+        return m.fit(Structure.from_sites(self), Structure.from_sites(other))
 
     def __eq__(self, other):
         if other is None:
@@ -917,6 +931,15 @@ class IStructure(SiteCollection, MSONable):
             A copy of the Structure, with optionally new site_properties and
             optionally sanitized.
         """
+        if (not site_properties) and (not sanitize):
+            # This is not really a good solution, but if we are not changing
+            # the site_properties or sanitizing, initializing an empty
+            # structure and setting _sites to be sites is much faster (~100x)
+            # than doing the full initialization.
+            s_copy = self.__class__(lattice=self._lattice, species=[],
+                                    coords=[])
+            s_copy._sites = list(self._sites)
+            return s_copy
         props = self.site_properties
         if site_properties:
             props.update(site_properties)
@@ -1197,7 +1220,7 @@ class IStructure(SiteCollection, MSONable):
                     return s.get_primitive_structure(
                         tolerance).get_reduced_structure()
 
-        return Structure.from_sites(self)
+        return self.copy()
 
     def __repr__(self):
         outs = ["Structure Summary", repr(self.lattice)]
