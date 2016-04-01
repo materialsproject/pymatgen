@@ -895,16 +895,6 @@ class IStructure(SiteCollection, MSONable):
                               self.cart_coords,
                               coords_are_cartesian=True, to_unit_cell=True)
 
-    def fast_copy(self):
-        """
-        A fast copy of the IStructure or Structure. No changes allowed. Cheats
-        by initializing an empty structure and then assigning sites. ~100x
-        faster than copy or from_sites.
-        """
-        s_copy = self.__class__(lattice=self._lattice, species=[], coords=[])
-        s_copy._sites = list(self._sites)
-        return s_copy
-
     def copy(self, site_properties=None, sanitize=False):
         """
         Convenience method to get a copy of the structure, with options to add
@@ -927,6 +917,11 @@ class IStructure(SiteCollection, MSONable):
             A copy of the Structure, with optionally new site_properties and
             optionally sanitized.
         """
+        if (not site_properties) and (not sanitize):
+            s_copy = self.__class__(lattice=self._lattice, species=[],
+                                    coords=[])
+            s_copy._sites = list(self._sites)
+            return s_copy
         props = self.site_properties
         if site_properties:
             props.update(site_properties)
