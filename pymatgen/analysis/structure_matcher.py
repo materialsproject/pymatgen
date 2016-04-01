@@ -580,6 +580,8 @@ class StructureMatcher(MSONable):
     def _process_species(self, structures):
         copied_structures = []
         for s in structures:
+            # We need the copies to be actual Structure to work properly, not
+            # subclasses. So do type(s) == Structure.
             ss = s.copy() if type(s) == Structure else \
                 Structure.from_sites(s)
             if self._ignored_species:
