@@ -596,6 +596,24 @@ class IStructure(SiteCollection, MSONable):
                                angle_tolerance=angle_tolerance)
         return a.get_spacegroup_symbol(), a.get_spacegroup_number()
 
+    def is_similar(self, other, **kwargs):
+        """
+        Check whether this structure is similar to another structure.
+        Basically a convenience method to call structure matching fitting.
+
+        Args:
+            other (IStructure/Structure): Another structure.
+            **kwargs: Same **kwargs as in
+                :class:`pymatgen.analysis.structure_matcher.StructureMatcher`.
+
+        Returns:
+            (bool) True is the structures are similar under some affine
+            transformation.
+        """
+        from pymatgen.analysis.structure_matcher import StructureMatcher
+        m = StructureMatcher(**kwargs)
+        return m.fit(self, other)
+
     def __eq__(self, other):
         if other is None:
             return False
