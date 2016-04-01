@@ -905,9 +905,12 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError("Invalid reduction algo : {}"
                              .format(reduction_algo))
 
-        return self.__class__(reduced_latt, self.species_and_occu,
-                              self.cart_coords,
-                              coords_are_cartesian=True, to_unit_cell=True)
+        if reduced_latt != self.lattice:
+            return self.__class__(reduced_latt, self.species_and_occu,
+                                  self.cart_coords,
+                                  coords_are_cartesian=True, to_unit_cell=True)
+        else:
+            return self.copy()
 
     def copy(self, site_properties=None, sanitize=False):
         """
