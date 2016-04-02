@@ -205,15 +205,17 @@ div#notebook {
 
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Structure Summary (Cu2 Au2)
+<pre>Full Formula (Cu2 Au2)
 Reduced Formula: CuAu
 abc   :   3.677000   3.677000   3.677000
 angles:  90.000000  90.000000  90.000000
 Sites (4)
-1 Cu0+:0.500, Au0+:0.500     0.000000     0.000000     0.000000
-2 Cu0+:0.500, Au0+:0.500     0.000000     0.500000     0.500000
-3 Cu0+:0.500, Au0+:0.500     0.500000     0.000000     0.500000
-4 Cu0+:0.500, Au0+:0.500     0.500000     0.500000     0.000000
+  #  SP                        a    b    c
+---  ----------------------  ---  ---  ---
+  0  Cu0+:0.500, Au0+:0.500  0    0    0
+  1  Cu0+:0.500, Au0+:0.500  0    0.5  0.5
+  2  Cu0+:0.500, Au0+:0.500  0.5  0    0.5
+  3  Cu0+:0.500, Au0+:0.500  0.5  0.5  0
 </pre>
 </div>
 </div>
@@ -255,7 +257,7 @@ Sites (4)
 
 <span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">))</span>
 
-<span class="k">print</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -308,8 +310,8 @@ PeriodicSite: Au0+ (1.8385, 1.8385, 0.0000) [0.5000, 0.5000, 0.0000]}
 
 <span class="n">matcher</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">()</span>
 <span class="n">groups</span> <span class="o">=</span> <span class="n">matcher</span><span class="o">.</span><span class="n">group_structures</span><span class="p">([</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ss</span><span class="p">])</span>
-<span class="k">print</span> <span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
-<span class="k">print</span> <span class="n">groups</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">groups</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -323,15 +325,17 @@ PeriodicSite: Au0+ (1.8385, 1.8385, 0.0000) [0.5000, 0.5000, 0.0000]}
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>1
-Structure Summary (Cu2 Au2)
+Full Formula (Cu2 Au2)
 Reduced Formula: CuAu
 abc   :   3.677000   3.677000   3.677000
 angles:  90.000000  90.000000  90.000000
 Sites (4)
-1 Cu0+     0.000000     0.000000     0.000000
-2 Cu0+     0.000000     0.500000     0.500000
-3 Au0+     0.500000     0.000000     0.500000
-4 Au0+     0.500000     0.500000     0.000000
+  #  SP      a    b    c
+---  ----  ---  ---  ---
+  0  Cu0+  0    0    0
+  1  Cu0+  0    0.5  0.5
+  2  Au0+  0.5  0    0.5
+  3  Au0+  0.5  0.5  0
 </pre>
 </div>
 </div>
@@ -373,8 +377,8 @@ Sites (4)
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="k">print</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span>
-<span class="k">print</span> <span class="s2">&quot;cell sizes are </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ss</span><span class="p">])</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;cell sizes are </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ss</span><span class="p">]))</span>
 </pre></div>
 
 </div>
