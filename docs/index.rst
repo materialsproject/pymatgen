@@ -29,10 +29,14 @@ become a member of `pymatgen's Google Groups`_.
 
     *The code is mightier than the pen.*
 
-Examples
-========
+Matgenie & Examples
+===================
 
-A good way to explore the functionality of pymatgen is to look at the
+The `Materials Virtual Lab`_ has developed a
+`matgenie web app <http://www.materialsvirtuallab.org/matgenie>`_ which
+demonstrates some of the basic functionality of pymatgen.
+
+Another good way to explore the functionality of pymatgen is to look at the
 examples in a :doc:`series of ipython notebooks </examples>`.
 Below are a quick look at some of the graphical output possible.
 
