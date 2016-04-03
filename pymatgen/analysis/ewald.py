@@ -316,7 +316,7 @@ class EwaldSummation(object):
         forcepf = 2.0 * self._sqrt_eta / sqrt(pi)
         coords = self._coords
         numsites = self._s.num_sites
-        ereal = np.zeros((numsites, numsites), dtype=np.float)
+        ereal = np.empty((numsites, numsites), dtype=np.float)
 
         forces = np.zeros((numsites, 3), dtype=np.float)
 
@@ -338,8 +338,8 @@ class EwaldSummation(object):
             new_ereals = erfcval * qi * qj / rij
 
             # insert new_ereals
-            for k, new_e in enumerate(new_ereals):
-                ereal[js[k], i] += new_e
+            for k in range(numsites):
+                ereal[k, i] = np.sum(new_ereals[js==k])
 
             if self._compute_forces:
                 ncoords = [site.coords for site, dist, j in nn]
