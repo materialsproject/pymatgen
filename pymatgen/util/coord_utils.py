@@ -288,7 +288,7 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None):
     """
     c1 = np.array(subset, dtype=np.float64)
     c2 = np.array(superset, dtype=np.float64)
-    if mask:
+    if mask is not None:
         m = np.array(mask, dtype=np.int)
     else:
         m = np.zeros((len(subset), len(superset)), dtype=np.int)
