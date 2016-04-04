@@ -17,9 +17,10 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Aug 1 2012"
 
-from math import pi, sqrt, log, exp, erfc, factorial
+from math import pi, sqrt, log
 from datetime import datetime
 from copy import deepcopy, copy
+from warnings import warn
 import bisect
 
 import numpy as np
@@ -78,6 +79,10 @@ class EwaldSummation(object):
                 default since it is usually not needed.
         """
         self._s = structure
+        if abs(structure.charge) > 1e-8:
+            warn('Charged structures not supported in EwaldSummation, but '
+                 'charged input structures can be used for '
+                 'EwaldSummation.compute_sub_structure')
         self._vol = structure.volume
         self._compute_forces = compute_forces
 
@@ -320,8 +325,7 @@ class EwaldSummation(object):
 
         qs = np.array(self._oxi_states)
 
-        epoint = - qs ** 2 * sqrt(self._eta / pi) + \
-                 qs * pi / (2.0 * self._vol * self._eta)  # jellum term
+        epoint = - qs ** 2 * sqrt(self._eta / pi)
 
         for i in range(numsites):
             nfcoords, rij, js = self._s.lattice.get_points_in_sphere(fcoords,
