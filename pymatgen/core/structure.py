@@ -417,6 +417,9 @@ class IStructure(SiteCollection, MSONable):
                 that are less than 0.01 Ang apart. Defaults to False.
             to_unit_cell (bool): Whether to translate sites into the unit
                 cell.
+            structure_properties (dict): Arbitrary properties associated with the
+                entire structure that are not site specific: e.g., thermostat
+                information to be written to Poscar to continue VASP MD.
 
         Returns:
             (Structure) Note that missing properties are set as None.
@@ -487,6 +490,9 @@ class IStructure(SiteCollection, MSONable):
                 fractional_coords. Defaults to None for no properties.
             tol (float): A fractional tolerance to deal with numerical
                precision issues in determining if orbits are the same.
+            structure_properties (dict): Arbitrary properties associated with the
+                entire structure that are not site specific: e.g., thermostat
+                information to be written to Poscar to continue VASP MD.
         """
         try:
             i = int(sg)
@@ -562,6 +568,13 @@ class IStructure(SiteCollection, MSONable):
         Reciprocal lattice of the structure.
         """
         return self._lattice.reciprocal_lattice
+
+    @property
+    def structure_properties(self):
+        """
+        Structure properties stored as a part of the Structure
+        """
+        return self._struct_props
 
     def lattice_vectors(self, space="r"):
         """
@@ -2128,6 +2141,9 @@ class Structure(IStructure, collections.MutableSequence):
                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
+            structure_properties (dict): Arbitrary properties associated with the
+                entire structure that are not site specific: e.g., thermostat
+                information to be written to Poscar to continue VASP MD.
         """
         super(Structure, self).__init__(lattice, species, coords,
             validate_proximity=validate_proximity, to_unit_cell=to_unit_cell,
@@ -2263,7 +2279,7 @@ class Structure(IStructure, collections.MutableSequence):
 
         Args:
             property_name (str): The name of the property to add.
-            value: can be of any type.
+            value: can be of any type depending on the property.
         """
         if not self._struct_props:
             self._struct_props = {}
