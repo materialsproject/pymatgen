@@ -181,7 +181,7 @@ direct
         self.assertEqual(str(poscar), expected)
 
     def test_from_md_run(self):
-        #Parsing from an MD type run with velocities
+        #Parsing from an MD type run with velocities and predictor corrector
         p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"),
                              check_for_POTCAR=False)
         self.assertAlmostEqual(np.sum(np.array(p.velocities)), 0.0065417961324)
@@ -273,6 +273,28 @@ direct
         p = Poscar.from_file(tempfname)
         self.assertArrayAlmostEqual(poscar.structure.lattice.abc,
                                     p.structure.lattice.abc, 5)
+        os.remove(tempfname)
+
+    def test_write_MD_poscar(self):
+        # Parsing from an MD type run with velocities and predictor corrector
+        # And writing a new POSCAR from the new structure
+        p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"),
+                             check_for_POTCAR=False)
+
+        tempfname = "POSCAR.testing"
+        structure = p.structure
+        p2 = Poscar(structure)
+        p2.write_file(tempfname)
+        p3 = Poscar.from_file(tempfname)
+
+        self.assertArrayAlmostEqual(p.structure.lattice.abc,
+                                    p3.structure.lattice.abc, 5)
+        self.assertArrayAlmostEqual(p.velocities,
+                                    p3.velocities, 5)
+        self.assertArrayAlmostEqual(p.predictor_corrector,
+                                    p3.predictor_corrector, 5)
+        self.assertEqual(p.predictor_corrector_preamble,
+                                    p3.predictor_corrector_preamble)
         os.remove(tempfname)
 
 
