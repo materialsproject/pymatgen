@@ -185,8 +185,8 @@ direct
         p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"),
                              check_for_POTCAR=False)
         self.assertAlmostEqual(np.sum(np.array(p.velocities)), 0.0065417961324)
-        self.assertEqual(p.predictor_corrector[0][0], 1)
-        self.assertEqual(p.predictor_corrector[1][0], 2)
+        self.assertEqual(p.predictor_corrector[0][0][0], 0.33387820E+00)
+        self.assertEqual(p.predictor_corrector[0][1][1], -0.10583589E-02)
 
     def test_setattr(self):
         filepath = os.path.join(test_dir, 'POSCAR')
