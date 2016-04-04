@@ -366,7 +366,7 @@ class Poscar(MSONable):
             for line in chunks[1].strip().split("\n"):
                 velocities.append([float(tok) for tok in line.split()])
 
-        predictor_corrector = [[],[],[]]
+        predictor_corrector = []
         predictor_corrector_preamble = None
 
         if len(chunks) > 2:
@@ -380,11 +380,12 @@ class Poscar(MSONable):
             predictor_corrector_preamble = lines[0] + "\n" + lines[1]+"\n" + lines[2]+"\n"
             # Rest is three sets of parameters, each set contains
             # x, y, z predictor-corrector parameters for every atom in orde
-            chnk = 0
-            for pred in predictor_corrector:
-                for line in lines[chnk*nsites+3: (chnk+1)*nsites+3]:
-                    pred.append([float(tok) for tok in line.split()])
-                chnk+=1
+            lines = lines[3:]
+            for st in range(nsites):
+                d1 = [float(tok) for tok in lines[st].split()]
+                d2 = [float(tok) for tok in lines[st+nsites].split()]
+                d3 = [float(tok) for tok in lines[st+2*nsites].split()]
+                predictor_corrector.append([d1,d2,d3])
 
         return Poscar(struct, comment, selective_dynamics, vasp5_symbols,
                       velocities=velocities,
