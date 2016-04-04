@@ -35,7 +35,9 @@ class IStructureTest(PymatgenTest):
                           ["Si"] * 2, coords, True)
         self.propertied_structure = IStructure(
             self.lattice, ["Si"] * 2, coords,
-            site_properties={'magmom': [5, -5]})
+            site_properties={'magmom': [5, -5]},
+            structure_properties={'thermostat_params': ["\nsome",
+                            "\nthermostat", "\nparameters"]})
 
     def test_bad_structure(self):
         coords = list()
@@ -168,6 +170,10 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(site_props['magmom'], [5, -5])
         self.assertEqual(self.propertied_structure[0].magmom, 5)
         self.assertEqual(self.propertied_structure[1].magmom, -5)
+
+    def test_structure_properties(self):
+        struct_props = self.propertied_structure.structure_properties
+        self.assertEqual(struct_props['thermostat_params'][2], "\nparameters")
 
     def test_copy(self):
         new_struct = self.propertied_structure.copy(site_properties={'charge':
@@ -481,6 +487,15 @@ class StructureTest(PymatgenTest):
         s.add_site_property("magmom", [3, 2])
         self.assertEqual(s[0].charge, 4.1)
         self.assertEqual(s[0].magmom, 3)
+
+    def test_add_structure_property(self):
+        s = self.structure
+        preamble = "1\n2.\n0.56815805E+00  0.14857275E-02 -0.27337773E-18  0.00000000E+00\n"
+        print s.structure_properties
+        s.add_structure_property("predictor_corrector_preamble", preamble)
+        self.assertEqual(s.structure_properties['predictor_corrector_preamble'][0], "1")
+        self.assertEqual(s.structure_properties['predictor_corrector_preamble'][-1], "\n")
+        print s.structure_properties
 
     def test_propertied_structure(self):
         #Make sure that site properties are set to None for missing values.
