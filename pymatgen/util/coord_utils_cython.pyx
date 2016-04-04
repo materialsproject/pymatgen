@@ -194,12 +194,13 @@ def is_coord_subset_pbc(subset, superset, atol, mask):
 
     cdef int i, j, k, I, J
     cdef np.float_t d
-    cdef bint ok = False
+    cdef bint ok
 
     I = fc1.shape[0]
     J = fc2.shape[0]
 
     for i in range(I):
+        ok = False
         for j in range(J):
             if m[i, j]:
                 continue
