@@ -913,7 +913,10 @@ class IStructure(SiteCollection, MSONable):
         if site_properties:
             props.update(site_properties)
         if structure_properties:
-            struct_props.update(structure_properties)
+            if struct_props:
+                struct_props.update(structure_properties)
+            else:
+                struct_props = structure_properties
         if not sanitize:
             return self.__class__(self._lattice,
                                   self.species_and_occu,
