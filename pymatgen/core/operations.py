@@ -120,7 +120,8 @@ class SymmOp(MSONable):
             Numpy array of coordinates after operation
         """
         points = np.array(points)
-        affine_points = np.concatenate([points, np.ones(points.shape[:-1] + (1,))], axis=-1)
+        affine_points = np.concatenate(
+            [points, np.ones(points.shape[:-1] + (1,))], axis=-1)
         return np.inner(affine_points, self.affine_matrix)[..., :-1]
 
     def apply_rotation_only(self, vector):
@@ -132,6 +133,38 @@ class SymmOp(MSONable):
             vector (3x1 array): A vector.
         """
         return np.dot(self.rotation_matrix, vector)
+
+    def transform_r2_tensor(self, tensor):
+        """
+        Applies the rotation portion to a rank 2 tensor.
+
+        Args:
+            tensor (3x3 array): a rank 2 tensor
+        """
+
+        return np.einsum('ai,bj,ab->ij',self.rotation_matrix,
+                         self.rotation_matrix,tensor)
+
+    def transform_r3_tensor(self, tensor):
+        """
+        Applies the rotation portion to a rank 3 tensor.
+
+        Args:
+            tensor (3x3x3 array): a rank 3 tensor
+        """
+        return np.einsum('ai,bj,ck,ijk->abc',self.rotation_matrix,
+                         self.rotation_matrix,self.rotation_matrix,tensor)
+
+    def transform_r4_tensor(self, tensor):
+        """
+        Applies the rotation portion to a rank 4 tensor.
+
+        Args:
+            tensor (3x3x3x3 array): a rank 4 tensor
+        """
+        return np.einsum('ai,bj,ck,dl,ijkl->abcd',self.rotation_matrix,
+                         self.rotation_matrix,self.rotation_matrix,
+                         self.rotation_matrix,tensor)
 
     def are_symmetrically_related(self, point_a, point_b, tol=0.001):
         """
@@ -295,7 +328,7 @@ class SymmOp(MSONable):
         Returns:
             SymmOp for the reflection about the plane
         """
-        #Normalize the normal vector first.
+        # Normalize the normal vector first.
         n = np.array(normal, dtype=float) / np.linalg.norm(normal)
 
         u, v, w = n
