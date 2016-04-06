@@ -113,7 +113,7 @@ class InsertionElectrodeTest(unittest.TestCase):
     def test_voltage_pair(self):
         vpair = self.ie_LTO[0]
         self.assertAlmostEqual(vpair.voltage, 2.78583901)
-        self.assertAlmostEqual(vpair.mAh, 13400.7411749)
+        self.assertAlmostEqual(vpair.mAh, 13400.7411749, 2)
         self.assertAlmostEqual(vpair.mass_charge, 79.8658)
         self.assertAlmostEqual(vpair.mass_discharge, 83.3363)
         self.assertAlmostEqual(vpair.vol_charge, 37.553684467)

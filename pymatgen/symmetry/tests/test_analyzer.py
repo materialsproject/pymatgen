@@ -27,7 +27,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
     PointGroupAnalyzer, cluster_sites
 from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.structure import Molecule
+from pymatgen.core.structure import Molecule, Structure
 
 
 test_dir_mol = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -425,6 +425,16 @@ class PointGroupAnalyzerTest(PymatgenTest):
         a = PointGroupAnalyzer(m)
         self.assertEqual(a.sch_symbol, "D5d")
 
+    def test_tricky_structure(self):
+        # for some reason this structure kills spglib1.9
+        # 1.7 can't find symmetry either, but at least doesn't kill python
+        s = Structure.from_file(os.path.join(test_dir, 'POSCAR.tricky_symmetry'))
+        sa = SpacegroupAnalyzer(s, 0.1)
+        sa.get_spacegroup_symbol()
+        sa.get_spacegroup_number()
+        sa.get_point_group()
+        sa.get_crystal_system()
+        sa.get_hall()
 
 class FuncTest(unittest.TestCase):
 
