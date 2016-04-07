@@ -580,7 +580,10 @@ class StructureMatcher(MSONable):
     def _process_species(self, structures):
         copied_structures = []
         for s in structures:
-            ss = Structure.from_sites(s)
+            # We need the copies to be actual Structure to work properly, not
+            # subclasses. So do type(s) == Structure.
+            ss = s.copy() if type(s) == Structure else \
+                Structure.from_sites(s)
             if self._ignored_species:
                 ss.remove_species(self._ignored_species)
             copied_structures.append(ss)
@@ -592,8 +595,8 @@ class StructureMatcher(MSONable):
         and finds fu, the supercell size to make struct1 comparable to
         s2
         """
-        struct1 = Structure.from_sites(struct1)
-        struct2 = Structure.from_sites(struct2)
+        struct1 = struct1.copy()
+        struct2 = struct2.copy()
 
         if niggli:
             struct1 = struct1.get_reduced_structure(reduction_algo="niggli")

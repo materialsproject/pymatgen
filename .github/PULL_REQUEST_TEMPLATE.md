@@ -8,9 +8,9 @@ points>
 * Fix 1
 * Fix 2
 
-## TODO
+## TODO (if any)
 
-<If this is a work-in-progress, write something about what else needs to be 
-done>
+<If this is a work-in-progress, write something about what else needs 
+to be done>
 
 * Feature 1 supports a, but not b.

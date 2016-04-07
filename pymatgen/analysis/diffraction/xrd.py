@@ -8,10 +8,6 @@ from __future__ import division, unicode_literals
 This module implements an XRD pattern calculator.
 """
 
-from six.moves import filter
-from six.moves import map
-from six.moves import zip
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -196,7 +192,7 @@ class XRDCalculator(object):
         recip_pts = recip_latt.get_points_in_sphere(
             [[0, 0, 0]], [0, 0, 0], max_r)
         if min_r:
-            recip_pts = filter(lambda d: d[1] >= min_r, recip_pts)
+            recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
 
         # Create a flattened array of zs, coeffs, fcoords and occus. This is
         # used to perform vectorized computation of atomic scattering factors
@@ -367,10 +363,10 @@ def get_unique_families(hkls):
     Returns:
         {hkl: multiplicity}: A dict with unique hkl and multiplicity.
     """
-    #TODO: Definitely can be sped up.
+    # TODO: Definitely can be sped up.
     def is_perm(hkl1, hkl2):
-        h1 = map(abs, hkl1)
-        h2 = map(abs, hkl2)
+        h1 = np.abs(hkl1)
+        h2 = np.abs(hkl2)
         return all([i == j for i, j in zip(sorted(h1), sorted(h2))])
 
     unique = {}

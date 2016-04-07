@@ -1317,10 +1317,11 @@ class OrderParameters(object):
                             -1.0, min(np.inner(zaxis, rijnorm[k]), 1.0))
                         thetak = math.acos(tmp)
                         xaxistmp = gramschmidt(rijnorm[k], zaxis)
-                        xaxis = xaxistmp / np.linalg.norm(xaxistmp)
-                        flag_xaxis = False
-                        if np.linalg.norm(xaxis) == 0.0:
+                        if np.linalg.norm(xaxistmp) == 0.0:
                             flag_xaxis = True
+                        else:
+                            xaxis = xaxistmp / np.linalg.norm(xaxistmp)
+                            flag_xaxis = False
 
                         # Contributions of j-i-k angles, where i represents the central atom
                         # and j and k two of the neighbors.
@@ -1348,13 +1349,14 @@ class OrderParameters(object):
                                     -1.0, min(np.inner(zaxis, rijnorm[m]), 1.0))
                                 thetam = math.acos(tmp)
                                 xtwoaxistmp = gramschmidt(rijnorm[m], zaxis)
-                                xtwoaxis = xtwoaxistmp / np.linalg.norm(
-                                    xtwoaxistmp)
-                                phi = math.acos(max(
-                                    -1.0, min(np.inner(xtwoaxis, xaxis), 1.0)))
-                                flag_xtwoaxis = False
-                                if np.linalg.norm(xtwoaxis) == 0.0:
+                                l = np.linalg.norm(xtwoaxistmp)
+                                if l == 0:
                                     flag_xtwoaxis = True
+                                else:
+                                    xtwoaxis = xtwoaxistmp / l
+                                    phi = math.acos(max(
+                                        -1.0, min(np.inner(xtwoaxis, xaxis), 1.0)))
+                                    flag_xtwoaxis = False
 
                                 # Contributions of j-i-m angle and
                                 # angles between plane j-i-k and i-m vector.

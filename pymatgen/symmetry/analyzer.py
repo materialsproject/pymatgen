@@ -188,7 +188,11 @@ class SpacegroupAnalyzer(object):
         Returns:
             (Pointgroup): Point group for structure.
         """
-        return get_point_group(self._spacegroup_data["rotations"])[0].strip()
+        rotations = self._spacegroup_data["rotations"]
+        # passing a 0-length rotations list to spglib can segfault
+        if len(rotations) == 0:
+            return '1'
+        return get_point_group(rotations)[0].strip()
 
     def get_crystal_system(self):
         """
@@ -554,7 +558,6 @@ class SpacegroupAnalyzer(object):
             #if so, make a supercell
             a, b, c = latt.abc
             if np.all(np.abs([a - b, c - b, a - c]) < 0.001):
-                struct = Structure.from_sites(struct)
                 struct.make_supercell(((1, -1, 0), (0, 1, -1), (1, 1, 1)))
                 a, b, c = sorted(struct.lattice.abc)
 
@@ -881,7 +884,7 @@ class PointGroupAnalyzer(object):
             eig_all_same = abs(v1 - v2) < self.eig_tol and abs(
                 v1 - v3) < self.eig_tol
             eig_all_diff = abs(v1 - v2) > self.eig_tol and abs(
-                v1 - v2) > self.eig_tol and abs(v2 - v3) > self.eig_tol
+                v1 - v3) > self.eig_tol and abs(v2 - v3) > self.eig_tol
 
             self.rot_sym = []
             self.symmops = [SymmOp(np.eye(4))]
