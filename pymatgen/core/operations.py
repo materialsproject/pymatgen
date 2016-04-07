@@ -152,7 +152,7 @@ class SymmOp(MSONable):
         Args:
             tensor (3x3x3 array): a rank 3 tensor
         """
-        return np.einsum('ai,bj,ck,ijk->abc',self.rotation_matrix,
+        return np.einsum('ai,bj,ck,abc->ijk',self.rotation_matrix,
                          self.rotation_matrix,self.rotation_matrix,tensor)
 
     def transform_r4_tensor(self, tensor):
@@ -162,7 +162,7 @@ class SymmOp(MSONable):
         Args:
             tensor (3x3x3x3 array): a rank 4 tensor
         """
-        return np.einsum('ai,bj,ck,dl,ijkl->abcd',self.rotation_matrix,
+        return np.einsum('ai,bj,ck,dl,abcd->ijkl',self.rotation_matrix,
                          self.rotation_matrix,self.rotation_matrix,
                          self.rotation_matrix,tensor)
 
