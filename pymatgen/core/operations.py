@@ -20,6 +20,7 @@ __date__ = "Sep 23, 2011"
 import numpy as np
 import re
 from math import sin, cos, pi, sqrt
+import string
 
 from monty.json import MSONable
 
@@ -120,7 +121,8 @@ class SymmOp(MSONable):
             Numpy array of coordinates after operation
         """
         points = np.array(points)
-        affine_points = np.concatenate([points, np.ones(points.shape[:-1] + (1,))], axis=-1)
+        affine_points = np.concatenate(
+            [points, np.ones(points.shape[:-1] + (1,))], axis=-1)
         return np.inner(affine_points, self.affine_matrix)[..., :-1]
 
     def apply_rotation_only(self, vector):
@@ -132,6 +134,26 @@ class SymmOp(MSONable):
             vector (3x1 array): A vector.
         """
         return np.dot(self.rotation_matrix, vector)
+
+    def transform_tensor(self, tensor):
+        """
+        Applies rotation portion to a tensor
+
+        Args:
+            tensor (numpy array): a rank n tensor
+        """
+        dim = tensor.shape
+        t_rank = len(dim)
+        assert all([i == 3 for i in dim])
+        # Build einstein sum string
+        lc = string.lowercase
+        indices = lc[:t_rank], lc[t_rank:2*t_rank]
+        einsum_string = ','.join([a+i for a,i in zip(*indices)])
+        einsum_string += ',{}->{}'.format(*indices)
+        einsum_args = [self.rotation_matrix]*t_rank + [tensor]
+
+        return np.einsum(einsum_string, *einsum_args)
+
 
     def are_symmetrically_related(self, point_a, point_b, tol=0.001):
         """
@@ -295,7 +317,7 @@ class SymmOp(MSONable):
         Returns:
             SymmOp for the reflection about the plane
         """
-        #Normalize the normal vector first.
+        # Normalize the normal vector first.
         n = np.array(normal, dtype=float) / np.linalg.norm(normal)
 
         u, v, w = n
