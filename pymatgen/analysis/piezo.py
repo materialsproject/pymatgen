@@ -24,6 +24,7 @@ __date__ = "Feb, 2016"
 
 voigt_map = [(0, 0), (1, 1), (2, 2), (1, 2), (2, 0), (0, 1)]
 
+
 class PiezoTensor(np.ndarray):
     """
     This class describes the 3 x 6 piezo tensor in Voigt-notation
@@ -81,15 +82,15 @@ class PiezoTensor(np.ndarray):
         """
         # Test symmetry of elastic tensor
         c_ijk = np.array(c_ijk)
-        if not (c_ijk - np.transpose(c_ijk, (0, 2, 1)) < tol).all() :
+        if not (c_ijk - np.transpose(c_ijk, (0, 2, 1)) < tol).all():
             raise ValueError("Input piezo tensor does "
                              "not satisfy necessary symmetries")
         # Construct elastic tensor
-        c_ip=np.zeros((3, 6))
+        c_ip = np.zeros((3, 6))
         for i in range(3):
             for p in range(6):
-                j, k=voigt_map[p]
-                c_ip[i, p]=c_ijk[i, j, k]
+                j, k = voigt_map[p]
+                c_ip[i, p] = c_ijk[i, j, k]
 
         return cls(c_ip)
 
@@ -124,23 +125,48 @@ class PiezoTensor(np.ndarray):
         """
         return PiezoTensor.from_full_tensor(sym.transform_r3_tensor(self.full_tensor))
 
-    def is_valid(self, structure, symprec=0.1, tol=1e-1):
+    def is_valid(self, structure, symprec=0.1, tol=1e-3):
         """
         Checks the piezo tensor against the symmetries of the structure and
         determine if the piezoelectric tensor is valid for that structure
 
         Args:
             structure (Structure): structure to check against
+            symprec (float): Tolerance for symmetry finding, default good for
+                             as-made structures. Set to 0.1 for MP structures
+            tol (float): tolerance for equality
         """
 
-        sg=SpacegroupAnalyzer(structure, symprec)
+        sg = SpacegroupAnalyzer(structure, symprec)
 
         # Check every symmetry operation in the space group
-        for symm in sg.get_symmetry_operations():
+        for symm in sg.get_symmetry_operations(cartesian=True):
             # does it produce the same tensor?
-            diff=self.transform(symm) - self
-            if not (diff < tol).all():
+            diff = self.transform(symm) - self
+            if not (np.abs(diff) < tol).all():
                 print(diff)
                 return False
 
         return True
+
+    def symmeterize(self, structure, symprec=0.1, tol=1e-3):
+        """
+        Averages the piezo tensor based on the symmetries of the structure
+
+        Args:
+            structure (Structure): structure to check against
+            symprec (float): Tolerance for symmetry finding, default good for
+                             as-made structures. Set to 0.1 for MP structures
+            tol (float): tolerance for zero'ing out indicies. The average procedure produces very small numbers rather then 0. This tolerance is used to zero out those values to make the tensor less messy.
+        """
+
+        sg = SpacegroupAnalyzer(structure, symprec)
+        new_pt = PiezoTensor(self)
+
+        for symm in sg.get_symmetry_operations(cartesian=True):
+            new_pt = (new_pt + new_pt.transform(symm)) / 2
+
+        low_values_indices = np.abs(new_pt) < tol
+        new_pt [low_values_indices] = 0
+
+        return new_pt
