@@ -6,7 +6,7 @@ import os
 
 import numpy as np
 from pymatgen.analysis.elasticity.elastic import ElasticTensor
-from pymatgen.analysis.elasticity.strain import Strain, IndependentStrain
+from pymatgen.analysis.elasticity.strain import Strain, IndependentStrain, Deformation
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
 import warnings
@@ -113,7 +113,7 @@ class ElasticTensorTest(PymatgenTest):
         strain_list = [Strain.from_deformation(def_matrix)
                        for def_matrix in self.def_stress_dict['deformations']]
         stress_list = [stress for stress in self.def_stress_dict['stresses']]
-        with warnings.catch_warnings(record=True):
+        with warnings.catch_warnings(record = True):
             et_fl = -0.1*ElasticTensor.from_strain_stress_list(strain_list, stress_list)
             self.assertArrayAlmostEqual(et_fl.round(2),
                                         [[59.29, 24.36, 22.46, 0, 0, 0],
@@ -128,8 +128,27 @@ class ElasticTensorTest(PymatgenTest):
                                 in self.def_stress_dict['deformations']],
                                 [Stress(stress_matrix) for stress_matrix
                                 in self.def_stress_dict['stresses']])))
-        et_from_sd = ElasticTensor.from_stress_dict(stress_dict)
-        self.assertArrayAlmostEqual(et_from_sd.round(2),
+        with warnings.catch_warnings(record = True):
+            et_from_sd = ElasticTensor.from_stress_dict(stress_dict)
+        self.assertArrayAlmostEqual(et_from_sd.symmetrized.round(2),
                                     self.elastic_tensor_1)
+
+    def test_energy(self):
+
+        film_elac = ElasticTensor([
+            [324.32,  187.3,   170.92,    0.,      0.,      0.],
+            [187.3,   324.32,  170.92,    0.,      0.,      0.],
+            [170.92,  170.92,  408.41,    0.,      0.,      0.],
+            [0.,      0.,      0.,    150.73,    0.,      0.],
+            [0.,      0.,      0.,      0.,    150.73,    0.],
+            [0.,      0.,      0.,      0.,      0.,    238.74]])
+
+        dfm = Deformation([[ -9.86004855e-01,2.27539582e-01,-4.64426035e-17],
+            [ -2.47802121e-01,-9.91208483e-01,-7.58675185e-17],
+            [ -6.12323400e-17,-6.12323400e-17,1.00000000e+00]])
+
+        self.assertAlmostEqual(film_elac.energy_density(dfm.green_lagrange_strain),
+            0.000125664672793)
+
 if __name__ == '__main__':
     unittest.main()

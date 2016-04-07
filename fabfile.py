@@ -38,7 +38,7 @@ def make_doc():
         f.write(changes)
 
     with lcd("examples"):
-        local("ipython nbconvert --to html *.ipynb")
+        local("jupyter nbconvert --to html *.ipynb")
         local("mv *.html ../docs/_static")
     with lcd("docs"):
         local("cp ../CHANGES.rst change_log.rst")

@@ -93,11 +93,12 @@ BASE_UNITS = {
 }
 
 # Accept kb, mb, gb ... as well.
-BASE_UNITS["memory"].update({k.lower(): v for k, v in BASE_UNITS["memory"].items()})
+BASE_UNITS["memory"].update({k.lower(): v
+                             for k, v in BASE_UNITS["memory"].items()})
 
 
-#This current list are supported derived units defined in terms of powers of
-#SI base units and constants.
+# This current list are supported derived units defined in terms of powers of
+# SI base units and constants.
 DERIVED_UNITS = {
     "energy": {
         "eV": {"kg": 1, "m": 2, "s": -2, const.e: 1},
@@ -704,8 +705,9 @@ class ArrayWithUnit(np.ndarray):
 
 def _my_partial(func, *args, **kwargs):
     """
-    Partial returns a partial object and therefore we cannot inherit class methods defined in FloatWithUnit. 
-    This function calls partial and patches the new class before returning.
+    Partial returns a partial object and therefore we cannot inherit class
+    methods defined in FloatWithUnit. This function calls partial and patches
+    the new class before returning.
     """
     newobj = partial(func, *args, **kwargs)
     # monkey patch

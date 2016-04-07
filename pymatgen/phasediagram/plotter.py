@@ -34,11 +34,12 @@ class PDPlotter(object):
 
     Args:
         phasediagram: PhaseDiagram object.
-        show_unstable: Whether unstable phases will be plotted as well as
-            red crosses. Defaults to False.
+        show_unstable (float): Whether unstable phases will be plotted as
+            well as red crosses. If a number > 0 is entered, all phases with
+            ehull < show_unstable will be shown.
     """
 
-    def __init__(self, phasediagram, show_unstable=False):
+    def __init__(self, phasediagram, show_unstable=0):
         self._pd = phasediagram
         self._dim = len(self._pd.elements)
         if self._dim > 4:
@@ -272,26 +273,28 @@ class PDPlotter(object):
                 vals_unstable = _map.to_rgba(energies_unstable)
             ii = 0
             for entry, coords in unstable.items():
-                vec = (np.array(coords) - center)
-                vec = vec / np.linalg.norm(vec) * 10 \
-                    if np.linalg.norm(vec) != 0 else vec
-                label = entry.name
-                if energy_colormap is None:
-                    plt.plot(coords[0], coords[1], "ks", linewidth=3,
-                             markeredgecolor="k", markerfacecolor="r",
-                             markersize=8)
-                else:
-                    plt.plot(coords[0], coords[1], "s", linewidth=3,
-                             markeredgecolor="k",
-                             markerfacecolor=vals_unstable[ii],
-                             markersize=8)
-                if label_unstable:
-                    plt.annotate(latexify(label), coords, xytext=vec,
-                                 textcoords="offset points",
-                                 horizontalalignment=halign, color="b",
-                                 verticalalignment=valign,
-                                 fontproperties=font)
-                ii += 1
+                ehull = pda.get_e_above_hull(entry)
+                if ehull < self.show_unstable:
+                    vec = (np.array(coords) - center)
+                    vec = vec / np.linalg.norm(vec) * 10 \
+                        if np.linalg.norm(vec) != 0 else vec
+                    label = entry.name
+                    if energy_colormap is None:
+                        plt.plot(coords[0], coords[1], "ks", linewidth=3,
+                                 markeredgecolor="k", markerfacecolor="r",
+                                 markersize=8)
+                    else:
+                        plt.plot(coords[0], coords[1], "s", linewidth=3,
+                                 markeredgecolor="k",
+                                 markerfacecolor=vals_unstable[ii],
+                                 markersize=8)
+                    if label_unstable:
+                        plt.annotate(latexify(label), coords, xytext=vec,
+                                     textcoords="offset points",
+                                     horizontalalignment=halign, color="b",
+                                     verticalalignment=valign,
+                                     fontproperties=font)
+                    ii += 1
         if energy_colormap is not None and show_colorbar:
             _map.set_array(energies)
             cbar = plt.colorbar(_map)

@@ -4,12 +4,19 @@
 
 from __future__ import division, unicode_literals
 
+import numpy as np
+import re
+from math import sin, cos, pi, sqrt
+import string
+
+from monty.json import MSONable
+
 """
 This module provides classes that operate on points or vectors in 3D space.
 """
 
 
-__author__ = "Shyue Ping Ong"
+__author__ = "Shyue Ping Ong, Shyam Dwaraknath"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -17,11 +24,6 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-import numpy as np
-import re
-from math import sin, cos, pi, sqrt
-
-from monty.json import MSONable
 
 
 class SymmOp(MSONable):
@@ -120,7 +122,8 @@ class SymmOp(MSONable):
             Numpy array of coordinates after operation
         """
         points = np.array(points)
-        affine_points = np.concatenate([points, np.ones(points.shape[:-1] + (1,))], axis=-1)
+        affine_points = np.concatenate(
+            [points, np.ones(points.shape[:-1] + (1,))], axis=-1)
         return np.inner(affine_points, self.affine_matrix)[..., :-1]
 
     def apply_rotation_only(self, vector):
@@ -132,6 +135,29 @@ class SymmOp(MSONable):
             vector (3x1 array): A vector.
         """
         return np.dot(self.rotation_matrix, vector)
+
+    def transform_tensor(self, tensor):
+        """
+        Applies rotation portion to a tensor. Note that tensor has to be in
+        full form, not the Voigt form.
+
+        Args:
+            tensor (numpy array): a rank n tensor
+
+        Returns:
+            Transformed tensor.
+        """
+        dim = tensor.shape
+        rank = len(dim)
+        assert all([i == 3 for i in dim])
+        # Build einstein sum string
+        lc = string.lowercase
+        indices = lc[:rank], lc[rank:2 * rank]
+        einsum_string = ','.join([a + i for a, i in zip(*indices)])
+        einsum_string += ',{}->{}'.format(*indices)
+        einsum_args = [self.rotation_matrix] * rank + [tensor]
+
+        return np.einsum(einsum_string, *einsum_args)
 
     def are_symmetrically_related(self, point_a, point_b, tol=0.001):
         """
@@ -274,9 +300,9 @@ class SymmOp(MSONable):
         m31 = (u * w * (1 - cos_t) - v * l * sin_t) / l2
         m32 = (v * w * (1 - cos_t) + u * l * sin_t) / l2
         m33 = (w2 + (u2 + v2) * cos_t) / l2
-        m34 = (c * (u2 + v2) - w * (a * u + b * v)
-               + (w * (a * u + b * v) - c * (u2 + v2)) * cos_t
-               + (a * v - b * u) * l * sin_t) / l2
+        m34 = (c * (u2 + v2) - w * (a * u + b * v) +
+               (w * (a * u + b * v) - c * (u2 + v2)) * cos_t +
+               (a * v - b * u) * l * sin_t) / l2
 
         return SymmOp([[m11, m12, m13, m14], [m21, m22, m23, m24],
                        [m31, m32, m33, m34], [0, 0, 0, 1]])
@@ -295,7 +321,7 @@ class SymmOp(MSONable):
         Returns:
             SymmOp for the reflection about the plane
         """
-        #Normalize the normal vector first.
+        # Normalize the normal vector first.
         n = np.array(normal, dtype=float) / np.linalg.norm(normal)
 
         u, v, w = n

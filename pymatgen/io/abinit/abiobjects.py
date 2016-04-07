@@ -15,7 +15,7 @@ import pymatgen.core.units as units
 from pprint import pformat
 from monty.design_patterns import singleton
 from monty.collections import AttrDict
-from pymatgen.core.design_patterns import Enum
+from enum import Enum
 from monty.json import MSONable
 from pymatgen.serializers.json_coders import pmg_serialize
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -334,15 +334,22 @@ class Electrons(AbivarAble, MSONable):
         #abivars["#comment"] = self.comment
         return abivars
 
+class KSamplingModes(Enum):
+    monkhorst = 1
+    path = 2
+    automatic = 3
+
 
 class KSampling(AbivarAble, MSONable):
     """
     Input variables defining the K-point sampling.
     """
     # Modes supported by the constructor.
-    modes = Enum(('monkhorst', 'path', 'automatic',))
 
-    def __init__(self, mode="monkhorst", num_kpts= 0, kpts=((1, 1, 1),), kpt_shifts=(0.5, 0.5, 0.5),
+
+    def __init__(self, mode=KSamplingModes.monkhorst, num_kpts= 0,
+                 kpts=((1, 1, 1),),
+                 kpt_shifts=(0.5, 0.5, 0.5),
                  kpts_weights=None, use_symmetries=True, use_time_reversal=True, chksymbreak=None,
                  comment=None):
         """
@@ -361,7 +368,7 @@ class KSampling(AbivarAble, MSONable):
         and it is recommended that you use those.
 
         Args:
-            mode: Mode for generating k-poits. Use one of the KSampling.modes enum types.
+            mode: Mode for generating k-poits. Use one of the KSamplingModes enum types.
             num_kpts: Number of kpoints if mode is "automatic"
                 Number of division for the sampling of the smallest segment if mode is "path".
                 Not used for the other modes
@@ -380,8 +387,8 @@ class KSampling(AbivarAble, MSONable):
         .. note::
             The default behavior of the constructor is monkhorst.
         """
-        if mode not in KSampling.modes:
-            raise ValueError("Unknown kpoint mode %s" % mode)
+        if isinstance(mode, six.string_types):
+            mode = KSamplingModes[mode]
 
         super(KSampling, self).__init__()
 
@@ -398,7 +405,7 @@ class KSampling(AbivarAble, MSONable):
 
         abivars = {}
 
-        if mode in ("monkhorst",):
+        if mode == KSamplingModes.monkhorst:
             assert num_kpts == 0
             ngkpt  = np.reshape(kpts, 3)
             shiftk = np.reshape(kpt_shifts, (-1,3))
@@ -416,7 +423,7 @@ class KSampling(AbivarAble, MSONable):
                 "chksymbreak": chksymbreak,
             })
 
-        elif mode in ("path",):
+        elif mode == KSamplingModes.path:
             if num_kpts <= 0:
                 raise ValueError("For Path mode, num_kpts must be specified and >0")
 
@@ -429,7 +436,7 @@ class KSampling(AbivarAble, MSONable):
                 "kptopt"   : -len(kptbounds)+1,
             })
 
-        elif mode in ("automatic",):
+        elif mode == KSamplingModes.automatic:
             kpts = np.reshape(kpts, (-1,3))
             if len(kpts) != num_kpts:
                 raise ValueError("For Automatic mode, num_kpts must be specified.")
@@ -560,7 +567,7 @@ class KSampling(AbivarAble, MSONable):
                 #print("label %s, red_coord %s" % (label, red_coord))
                 kpath_bounds.append(red_coord)
 
-        return cls(mode=KSampling.modes.path, num_kpts=ndivsm, kpts=kpath_bounds,
+        return cls(mode=KSamplingModes.path, num_kpts=ndivsm, kpts=kpath_bounds,
                    comment=comment if comment else "K-Path scheme")
 
     @classmethod
@@ -612,10 +619,10 @@ class KSampling(AbivarAble, MSONable):
                         and abs(lengths[right_angles[0]] -
                                 lengths[right_angles[1]]) < hex_length_tol)
 
-        #style = Kpoints.modes.gamma
+        #style = KSamplingModes.gamma
         #if not is_hexagonal:
         #    num_div = [i + i % 2 for i in num_div]
-        #    style = Kpoints.modes.monkhorst
+        #    style = KSamplingModes.monkhorst
 
         comment = "abinitio generated KPOINTS with grid density = " + "{} / atom".format(kppa)
 
@@ -631,7 +638,8 @@ class KSampling(AbivarAble, MSONable):
 
     def as_dict(self):
         enc = MontyEncoder()
-        return {'mode': self.mode, 'comment': self.comment, 'num_kpts': self.num_kpts,
+        return {'mode': self.mode.name, 'comment': self.comment,
+                'num_kpts': self.num_kpts,
                 'kpts': enc.default(np.array(self.kpts)), 'kpt_shifts': self.kpt_shifts,
                 'kpts_weights': self.kpts_weights, 'use_symmetries': self.use_symmetries,
                 'use_time_reversal': self.use_time_reversal, 'chksymbreak': self.chksymbreak,
@@ -766,20 +774,20 @@ class RelaxationMethod(AbivarAble, MSONable):
         return cls(**d)
 
 
+class PPModelModes(Enum):
+    noppmodel = 0
+    godby = 1
+    hybersten = 2
+    linden = 3
+    farid = 4
+
+
 class PPModel(AbivarAble, MSONable):
     """
     Parameters defining the plasmon-pole technique.
     The common way to instanciate a PPModel object is via the class method PPModel.as_ppmodel(string)
     """
-    _mode2ppmodel = {
-        "noppmodel": 0,
-        "godby"    : 1,
-        "hybersten": 2,
-        "linden"   : 3,
-        "farid"    : 4,
-    }
 
-    modes = Enum(k for k in _mode2ppmodel)
 
     @classmethod
     def as_ppmodel(cls, obj):
@@ -808,7 +816,8 @@ class PPModel(AbivarAble, MSONable):
         return cls(mode=mode, plasmon_freq=plasmon_freq)
 
     def __init__(self, mode="godby", plasmon_freq=None):
-        assert mode in PPModel.modes
+        if isinstance(mode, six.string_types):
+            mode = PPModelModes[mode]
         self.mode = mode
         self.plasmon_freq = plasmon_freq
 
@@ -828,7 +837,7 @@ class PPModel(AbivarAble, MSONable):
         return not self == other
 
     def __bool__(self):
-        return self.mode != "noppmodel"
+        return self.mode != PPModelModes.noppmodel
 
     # py2 old version
     __nonzero__ = __bool__
@@ -839,16 +848,17 @@ class PPModel(AbivarAble, MSONable):
 
     def to_abivars(self):
         if self:
-            return {"ppmodel": self._mode2ppmodel[self.mode], "ppmfrq": self.plasmon_freq}
+            return {"ppmodel": self.mode.value,
+                    "ppmfrq": self.plasmon_freq}
         else:
             return {}
 
     @classmethod
-    def noppmodel(cls):
+    def get_noppmodel(cls):
         return cls(mode="noppmodel", plasmon_freq=None)
 
     def as_dict(self):
-        return {"mode": self.mode, "plasmon_freq": self.plasmon_freq,
+        return {"mode": self.mode.name, "plasmon_freq": self.plasmon_freq,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 

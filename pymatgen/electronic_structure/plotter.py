@@ -25,6 +25,7 @@ import numpy as np
 from monty.json import jsanitize
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax3d_fig_plt
 
 logger = logging.getLogger('BSPlotter')
 
@@ -390,9 +391,9 @@ class BSPlotter(object):
                 if not self._bs.is_metal() else ""}
 
     def get_plot(self, zero_to_efermi=True, ylim=None, smooth=False,
-                 vbm_cbm_marker=False):
+                 vbm_cbm_marker=False,smooth_tol=None):
         """
-        get a matplotlib object for the bandstructure plot.
+        Get a matplotlib object for the bandstructure plot.
         Blue lines are up spin, red lines are down
         spin.
 
@@ -403,6 +404,8 @@ class BSPlotter(object):
                 the code choose. It is vbm-4 and cbm+4 if insulator
                 efermi-10 and efermi+10 if metal
             smooth: interpolates the bands by a spline cubic
+            smooth_tol (float) : tolerance for fitting spline to band data.
+                Default is None such that no tolerance will be used.
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
@@ -433,37 +436,78 @@ class BSPlotter(object):
                                   for j in range(len(data['distances'][d]))],
                                  'r--', linewidth=band_linewidth)
         else:
+            # Interpolation failure can be caused by trying to fit an entire
+            # band with one spline rather than fitting with piecewise splines
+            # (splines are ill-suited to fit discontinuities).
+            #
+            # The number of splines used to fit a band is determined by the 
+            # number of branches (high symmetry lines) defined in the 
+            # BandStructureSymmLine object (see BandStructureSymmLine._branches). 
+            
+            warning = "WARNING! Distance / branch {d}, band {i} cannot be "+\
+                      "interpolated.\n"+\
+                      "See full warning in source.\n"+\
+                      "If this is not a mistake, try increasing "+\
+                      "smooth_tol.\nCurrent smooth_tol is {s}."
+
             for d in range(len(data['distances'])):
                 for i in range(self._nb_bands):
                     tck = scint.splrep(
                         data['distances'][d],
                         [data['energy'][d][str(Spin.up)][i][j]
-                         for j in range(len(data['distances'][d]))])
+                         for j in range(len(data['distances'][d]))],
+                        s = smooth_tol)
                     step = (data['distances'][d][-1]
                             - data['distances'][d][0]) / 1000
 
-                    plt.plot([x * step + data['distances'][d][0]
-                              for x in range(1000)],
-                             [scint.splev(x * step + data['distances'][d][0],
-                                          tck, der=0)
-                              for x in range(1000)], 'b-',
-                             linewidth=band_linewidth)
+                    xs = [x * step + data['distances'][d][0] 
+                          for x in range(1000)]
+
+                    ys = [scint.splev(x * step + data['distances'][d][0],
+                                      tck, der=0)
+                          for x in range(1000)]
+                    
+                    for y in ys:
+                        if np.isnan(y):
+                            print(warning.format(d=str(d),i=str(i),
+                                                 s=str(smooth_tol)))
+                            break
+
+                    plt.plot(xs, ys, 'b-', linewidth=band_linewidth)
 
                     if self._bs.is_spin_polarized:
                         tck = scint.splrep(
                             data['distances'][d],
                             [data['energy'][d][str(Spin.down)][i][j]
-                             for j in range(len(data['distances'][d]))])
+                             for j in range(len(data['distances'][d]))],
+                            s = smooth_tol)
                         step = (data['distances'][d][-1]
                                 - data['distances'][d][0]) / 1000
 
-                        plt.plot([x * step + data['distances'][d][0]
-                                  for x in range(1000)],
-                                 [scint.splev(
-                                     x * step + data['distances'][d][0],
-                                     tck, der=0)
-                                  for x in range(1000)], 'r--',
-                                 linewidth=band_linewidth)
+                        xs = [x * step + data['distances'][d][0]
+                              for x in range(1000)]
+
+                        ys = [scint.splev(
+                                 x * step + data['distances'][d][0],
+                                 tck, der=0)
+                              for x in range(1000)]
+
+                        for y in ys:
+                            if np.isnan(y):
+                                print(warning.format(d=str(d),i=str(i),
+                                                     s=str(smooth_tol)))
+                                break
+
+                        plt.plot(xs, ys, 'r--', linewidth=band_linewidth)
+
+#                        plt.plot([x * step + data['distances'][d][0]
+#                                  for x in range(1000)],
+#                                 [scint.splev(
+#                                     x * step + data['distances'][d][0],
+#                                     tck, der=0)
+#                                  for x in range(1000)], 'r--',
+#                                 linewidth=band_linewidth)
+
         self._maketicks(plt)
 
         # Main X and Y Labels
@@ -506,7 +550,8 @@ class BSPlotter(object):
 
         return plt
 
-    def show(self, zero_to_efermi=True, ylim=None, smooth=False):
+    def show(self, zero_to_efermi=True, ylim=None, smooth=False, 
+             smooth_tol=None):
         """
         Show the plot using matplotlib.
 
@@ -517,6 +562,8 @@ class BSPlotter(object):
                 the code choose. It is vbm-4 and cbm+4 if insulator
                 efermi-10 and efermi+10 if metal
             smooth: interpolates the bands by a spline cubic
+            smooth_tol (float) : tolerance for fitting spline to band data.
+                Default is None such that no tolerance will be used.
         """
         plt = self.get_plot(zero_to_efermi, ylim, smooth)
         plt.show()
@@ -609,81 +656,18 @@ class BSPlotter(object):
         """
         plot the Brillouin zone
         """
-        import matplotlib as mpl
-        import matplotlib.pyplot as plt
-        from mpl_toolkits.mplot3d import Axes3D
-        mpl.rcParams['legend.fontsize'] = 10
 
-        fig = plt.figure()
-        ax = Axes3D(fig)
-        vec1 = self._bs.lattice.matrix[0]
-        vec2 = self._bs.lattice.matrix[1]
-        vec3 = self._bs.lattice.matrix[2]
-
-        # make the grid
-        max_x = -1000
-        max_y = -1000
-        max_z = -1000
-        min_x = 1000
-        min_y = 1000
-        min_z = 1000
-        list_k_points = []
-        for i in [-1, 0, 1]:
-            for j in [-1, 0, 1]:
-                for k in [-1, 0, 1]:
-                    list_k_points.append(i * vec1 + j * vec2 + k * vec3)
-                    if list_k_points[-1][0] > max_x:
-                        max_x = list_k_points[-1][0]
-                    if list_k_points[-1][1] > max_y:
-                        max_y = list_k_points[-1][1]
-                    if list_k_points[-1][2] > max_z:
-                        max_z = list_k_points[-1][0]
-
-                    if list_k_points[-1][0] < min_x:
-                        min_x = list_k_points[-1][0]
-                    if list_k_points[-1][1] < min_y:
-                        min_y = list_k_points[-1][1]
-                    if list_k_points[-1][2] < min_z:
-                        min_z = list_k_points[-1][0]
-
-        vertex = _qvertex_target(list_k_points, 13)
-        lines = get_lines_voronoi(vertex)
-
-        for i in range(len(lines)):
-            vertex1 = lines[i]['start']
-            vertex2 = lines[i]['end']
-            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]],
-                    [vertex1[2], vertex2[2]], color='k')
-
-        for b in self._bs._branches:
-            vertex1 = self._bs.kpoints[b['start_index']].cart_coords
-            vertex2 = self._bs.kpoints[b['end_index']].cart_coords
-            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]],
-                    [vertex1[2], vertex2[2]], color='r', linewidth=3)
-
+        # get labels and lines
+        labels = {}
         for k in self._bs.kpoints:
             if k.label:
-                label = k.label
-                if k.label.startswith("\\") or k.label.find("_") != -1:
-                    label = "$" + k.label + "$"
-                off = 0.01
-                ax.text(k.cart_coords[0] + off, k.cart_coords[1] + off,
-                        k.cart_coords[2] + off, label, color='b', size='25')
-                ax.scatter([k.cart_coords[0]], [k.cart_coords[1]],
-                           [k.cart_coords[2]], color='b')
+                labels[k.label] = k.frac_coords
 
-        # make ticklabels and ticklines invisible
-        for a in ax.w_xaxis.get_ticklines() + ax.w_xaxis.get_ticklabels():
-            a.set_visible(False)
-        for a in ax.w_yaxis.get_ticklines() + ax.w_yaxis.get_ticklabels():
-            a.set_visible(False)
-        for a in ax.w_zaxis.get_ticklines() + ax.w_zaxis.get_ticklabels():
-            a.set_visible(False)
+        lines = []
+        for b in self._bs._branches:
+            lines.append([self._bs.kpoints[b['start_index']].frac_coords, self._bs.kpoints[b['end_index']].frac_coords])
 
-        ax.grid(False)
-
-        plt.show()
-        ax.axis("off")
+        plot_brillouin_zone(self._bs.lattice, lines=lines, labels=labels)
 
 
 class BSPlotterProjected(BSPlotter):
@@ -975,55 +959,326 @@ class BSPlotterProjected(BSPlotter):
         return plt
 
 
-def _qvertex_target(data, index):
+def plot_wigner_seitz(lattice, ax=None, **kwargs):
     """
-    Input data should be in the form of a list of a list of floats.
-    index is the index of the targeted point
-    Returns the vertices of the voronoi construction around this target point.
+    Adds the skeleton of the Wigner-Seitz cell of the lattice to a matplotlib Axes
+
+    Args:
+        lattice: Lattice object
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to black
+            and linewidth to 1.
+
+    Returns:
+        matplotlib figure and matplotlib ax
     """
-    from pyhull import qvoronoi
-    output = qvoronoi("p QV" + str(index), data)
-    output.pop(0)
-    output.pop(0)
-    return [[float(i) for i in row.split()] for row in output]
+    ax, fig, plt = get_ax3d_fig_plt(ax)
+
+    if "color" not in kwargs:
+        kwargs["color"] = "k"
+    if "linewidth" not in kwargs:
+        kwargs["linewidth"] = 1
+
+    bz = lattice.get_wigner_seitz_cell()
+    ax, fig, plt = get_ax3d_fig_plt(ax)
+    for iface in range(len(bz)):
+        for line in itertools.combinations(bz[iface], 2):
+            for jface in range(len(bz)):
+                if iface < jface and any(np.all(line[0] == x) for x in bz[jface])\
+                        and any(np.all(line[1] == x) for x in bz[jface]):
+                    ax.plot(*zip(line[0], line[1]), **kwargs)
+
+    return fig, ax
 
 
-def get_lines_voronoi(data):
-    from pyhull import qconvex
-    output = qconvex("o", data)
+def plot_lattice_vectors(lattice, ax=None, **kwargs):
+    """
+    Adds the basis vectors of the lattice provided to a matplotlib Axes
 
-    nb_points = int(output[1].split(" ")[0])
-    list_lines = []
-    list_points = []
-    for i in range(2, 2 + nb_points):
-        list_points.append([float(c) for c in output[i].strip().split()])
-    facets = []
-    for i in range(2 + nb_points, len(output)):
-        if output[i] != '':
-            tmp = output[i].strip().split(" ")
-            facets.append([int(tmp[j]) for j in range(1, len(tmp))])
+    Args:
+        lattice: Lattice object
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to green
+            and linewidth to 3.
 
-    for i in range(len(facets)):
-        for line in itertools.combinations(facets[i], 2):
-            for j in range(len(facets)):
-                if i != j and line[0] in facets[j] and line[1] in facets[j]:
-                    # check if the two facets i and j are not coplanar
-                    vector1 = np.array(list_points[facets[j][0]]) \
-                              - np.array(list_points[facets[j][1]])
-                    vector2 = np.array(list_points[facets[j][0]]) \
-                              - np.array(list_points[facets[j][2]])
-                    n1 = np.cross(vector1, vector2)
-                    vector1 = np.array(list_points[facets[i][0]]) \
-                              - np.array(list_points[facets[i][1]])
-                    vector2 = np.array(list_points[facets[i][0]]) \
-                              - np.array(list_points[facets[i][2]])
-                    n2 = np.cross(vector1, vector2)
+    Returns:
+        matplotlib figure and matplotlib ax
+    """
+    ax, fig, plt = get_ax3d_fig_plt(ax)
 
-                    dot = math.fabs(np.dot(n1, n2) / (np.linalg.norm(n1)
-                                                      * np.linalg.norm(n2)))
-                    if 1.05 > dot > 0.95:
-                        continue
-                    list_lines.append({'start': list_points[line[0]],
-                                       'end': list_points[line[1]]})
-                    break
-    return list_lines
+    if "color" not in kwargs:
+        kwargs["color"] = "g"
+    if "linewidth" not in kwargs:
+        kwargs["linewidth"] = 3
+
+    vertex1 = lattice.get_cartesian_coords([0.0, 0.0, 0.0])
+    vertex2 = lattice.get_cartesian_coords([1.0, 0.0, 0.0])
+    ax.plot(*zip(vertex1, vertex2), **kwargs)
+    vertex2 = lattice.get_cartesian_coords([0.0, 1.0, 0.0])
+    ax.plot(*zip(vertex1, vertex2), **kwargs)
+    vertex2 = lattice.get_cartesian_coords([0.0, 0.0, 1.0])
+    ax.plot(*zip(vertex1, vertex2), **kwargs)
+
+    return fig, ax
+
+
+def plot_path(line, lattice=None, coords_are_cartesian=False, ax=None, **kwargs):
+    """
+    Adds a line passing through the coordinates listed in 'line' to a matplotlib Axes
+
+    Args:
+        line: list of coordinates.
+        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        coords_are_cartesian: Set to True if you are providing
+            coordinates in cartesian coordinates. Defaults to False.
+            Requires lattice if False.
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to red
+            and linewidth to 3.
+
+    Returns:
+        matplotlib figure and matplotlib ax
+    """
+
+    ax, fig, plt = get_ax3d_fig_plt(ax)
+
+    if "color" not in kwargs:
+        kwargs["color"] = "r"
+    if "linewidth" not in kwargs:
+        kwargs["linewidth"] = 3
+
+    for k in range(1, len(line)):
+        vertex1 = line[k-1]
+        vertex2 = line[k]
+        if not coords_are_cartesian:
+            if lattice is None:
+                raise ValueError("coords_are_cartesian False requires the lattice")
+            vertex1 = lattice.get_cartesian_coords(vertex1)
+            vertex2 = lattice.get_cartesian_coords(vertex2)
+        ax.plot(*zip(vertex1, vertex2), **kwargs)
+
+    return fig, ax
+
+
+def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax=None, **kwargs):
+    """
+    Adds labels to a matplotlib Axes
+
+    Args:
+        labels: dict containing the label as a key and the coordinates as value.
+        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        coords_are_cartesian: Set to True if you are providing.
+            coordinates in cartesian coordinates. Defaults to False.
+            Requires lattice if False.
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        kwargs: kwargs passed to the matplotlib function 'text'. Color defaults to blue
+            and size to 25.
+
+    Returns:
+        matplotlib figure and matplotlib ax
+    """
+    ax, fig, plt = get_ax3d_fig_plt(ax)
+
+    if "color" not in kwargs:
+        kwargs["color"] = "b"
+    if "size" not in kwargs:
+        kwargs["size"] = 25
+
+    for k, coords in labels.items():
+        label = k
+        if k.startswith("\\") or k.find("_") != -1:
+            label = "$" + k + "$"
+        off = 0.01
+        if coords_are_cartesian:
+            coords = np.array(coords)
+        else:
+            if lattice is None:
+                raise ValueError("coords_are_cartesian False requires the lattice")
+            coords = lattice.get_cartesian_coords(coords)
+        ax.text(*(coords + off), s=label, **kwargs)
+
+    return fig, ax
+
+
+def fold_point(p, lattice, coords_are_cartesian=False):
+    """
+    Folds a point with coordinates p inside the first Brillouin zone of the lattice.
+
+    Args:
+        p: coordinates of one point
+        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        coords_are_cartesian: Set to True if you are providing
+            coordinates in cartesian coordinates. Defaults to False.
+
+    Returns:
+        The cartesian coordinates folded inside the first Brillouin zone
+    """
+
+    if coords_are_cartesian:
+        p = lattice.get_fractional_coords(p)
+    else:
+        p = np.array(p)
+
+    p = np.mod(p+0.5-1e-10, 1)-0.5+1e-10
+    p = lattice.get_cartesian_coords(p)
+
+    closest_lattice_point = None
+    smallest_distance = 10000
+    for i in (-1, 0, 1):
+        for j in (-1, 0, 1):
+            for k in (-1, 0, 1):
+                lattice_point = np.dot((i, j, k), lattice.matrix)
+                dist = np.linalg.norm(p - lattice_point)
+                if closest_lattice_point is None or dist < smallest_distance:
+                    closest_lattice_point = lattice_point
+                    smallest_distance = dist
+
+    if not np.allclose(closest_lattice_point, (0, 0, 0)):
+        p = p - closest_lattice_point
+
+    return p
+
+
+def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax=None, **kwargs):
+    """
+    Adds Points to a matplotlib Axes
+
+    Args:
+        points: list of coordinates
+        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        coords_are_cartesian: Set to True if you are providing
+            coordinates in cartesian coordinates. Defaults to False.
+            Requires lattice if False.
+        fold: whether the points should be folded inside the first Brillouin Zone.
+            Defaults to False. Requires lattice if True.
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        kwargs: kwargs passed to the matplotlib function 'scatter'. Color defaults to blue
+
+    Returns:
+        matplotlib figure and matplotlib ax
+    """
+    ax, fig, plt = get_ax3d_fig_plt(ax)
+
+    if "color" not in kwargs:
+        kwargs["color"] = "b"
+
+    if (not coords_are_cartesian or fold) and lattice is None:
+        raise ValueError("coords_are_cartesian False or fold True require the lattice")
+
+    for p in points:
+
+        if fold:
+            p = fold_point(p, lattice, coords_are_cartesian=coords_are_cartesian)
+
+        elif not coords_are_cartesian:
+            p = lattice.get_cartesian_coords(p)
+
+        ax.scatter(*p, **kwargs)
+
+    return fig, ax
+
+
+@add_fig_kwargs
+def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None, fold=False, coords_are_cartesian=False,
+                        ax=None, **kwargs):
+    """
+    Plots a 3D representation of the Brillouin zone of the structure.
+    Can add to the plot paths, labels and kpoints
+
+    Args:
+        bz_lattice: Lattice object of the Brillouin zone
+        lines: list of lists of coordinates. Each list represent a different path
+        labels: dict containing the label as a key and the coordinates as value.
+        kpoints: list of coordinates
+        fold: whether the points should be folded inside the first Brillouin Zone.
+            Defaults to False. Requires lattice if True.
+        coords_are_cartesian: Set to True if you are providing
+            coordinates in cartesian coordinates. Defaults to False.
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        kwargs: provided by add_fig_kwargs decorator
+
+    Returns:
+        matplotlib figure and matplotlib ax
+    """
+
+    fig, ax = plot_lattice_vectors(bz_lattice, ax=ax)
+    plot_wigner_seitz(bz_lattice, ax=ax)
+    if lines is not None:
+        for line in lines:
+            plot_path(line, bz_lattice, coords_are_cartesian=coords_are_cartesian, ax=ax)
+
+    if labels is not None:
+        plot_labels(labels, bz_lattice, coords_are_cartesian=coords_are_cartesian, ax=ax)
+        plot_points(labels.values(), bz_lattice, coords_are_cartesian=coords_are_cartesian, fold=False, ax=ax)
+
+    if kpoints is not None:
+        plot_points(kpoints, bz_lattice, coords_are_cartesian=coords_are_cartesian, ax=ax, fold=fold)
+
+    ax.set_xlim3d(-1, 1)
+    ax.set_ylim3d(-1, 1)
+    ax.set_zlim3d(-1, 1)
+
+    ax.set_aspect('equal')
+    ax.axis("off")
+
+    return fig
+
+
+def plot_ellipsoid(hessian, center, lattice=None, rescale=1.0, ax=None, coords_are_cartesian=False, **kwargs):
+    """
+    Plots a 3D ellipsoid rappresenting the Hessian matrix in input.
+    Useful to get a graphical visualization of the effective mass
+    of a band in a single k-point.
+    
+    Args:
+        hessian: the Hessian matrix
+        center: the center of the ellipsoid in reciprocal coords (Default)
+        lattice: Lattice object of the Brillouin zone
+        rescale: factor for size scaling of the ellipsoid
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        coords_are_cartesian: Set to True if you are providing a center in
+            cartesian coordinates. Defaults to False.
+        kwargs: kwargs passed to the matplotlib function 'plot_wireframe'. Color defaults to blue, rstride and cstride
+            default to 4, alpha defaults to 0.2.
+    Returns:
+        matplotlib figure and matplotlib ax
+    Example of use:
+        fig,ax=plot_wigner_seitz(struct.reciprocal_lattice)
+        plot_ellipsoid(hessian,[0.0,0.0,0.0], struct.reciprocal_lattice,ax=ax)
+    """
+    
+    if (not coords_are_cartesian) and lattice is None:
+        raise ValueError("coords_are_cartesian False or fold True require the lattice")
+    
+    if not coords_are_cartesian:
+        center = lattice.get_cartesian_coords(center)
+
+    if "color" not in kwargs:
+        kwargs["color"] = "b"
+    if "rstride" not in kwargs:
+        kwargs["rstride"] = 4
+    if "cstride" not in kwargs:
+        kwargs["cstride"] = 4
+    if "alpha" not in kwargs:
+        kwargs["alpha"] = 0.2
+
+    # calculate the ellipsoid
+    # find the rotation matrix and radii of the axes
+    U, s, rotation = np.linalg.svd(hessian)
+    radii = 1.0/np.sqrt(s)
+    
+    # from polar coordinates
+    u = np.linspace(0.0, 2.0 * np.pi, 100)
+    v = np.linspace(0.0, np.pi, 100)
+    x = radii[0] * np.outer(np.cos(u), np.sin(v)) 
+    y = radii[1] * np.outer(np.sin(u), np.sin(v))
+    z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
+    for i in range(len(x)):
+        for j in range(len(x)):
+            [x[i, j], y[i, j], z[i, j]] = np.dot([x[i, j], y[i, j], z[i, j]], rotation)*rescale + center
+
+    # add the ellipsoid to the current axes
+    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax.plot_wireframe(x, y, z,  **kwargs)
+
+    return fig, ax

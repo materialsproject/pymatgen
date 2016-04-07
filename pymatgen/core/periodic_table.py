@@ -22,91 +22,22 @@ import os
 import re
 import json
 from io import open
+from enum import Enum
 
 from pymatgen.core.units import Mass, Length, unitized
-from monty.design_patterns import singleton, cached_class
 from pymatgen.util.string_utils import formula_double_format
 from monty.json import MSONable
-from functools import total_ordering
+from monty.dev import deprecated
 
-
-#Loads element data from json file
+# Loads element data from json file
 with open(os.path.join(os.path.dirname(__file__), "periodic_table.json"), "rt"
           ) as f:
     _pt_data = json.load(f)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
-_MAXZ = 119
 
-# List with the correspondence Z --> Symbol
-# We use a list instead of a mapping so that we can select slices easily.
-_z2symbol = _MAXZ * [None]
-_symbol2z = {}
-for (symbol, data) in _pt_data.items():
-    z = data["Atomic no"]
-    _z2symbol[z] = symbol
-    _symbol2z[symbol] = z
-
-
-def all_symbols():
-    """tuple with element symbols ordered by Z."""
-    # Break when we get None as we don't want to have None in a list of strings.
-    symbols = []
-    for z in range(1, _MAXZ+1):
-        s = symbol_from_Z(z)
-        if s is None:
-            break
-        symbols.append(s)
-
-    return tuple(symbols)
-
-
-def symbol_from_Z(z):
-    """
-    Return the symbol of the element from the atomic number.
-
-    Args:
-        z (int): Atomic number or slice object
-
-    >>> assert symbol_from_Z(14) == "Si" 
-    """
-    return _z2symbol[z]
-
-
-def sort_symbols_by_Z(symbols):
-    """
-    Given a list of element symbols, sort the strings according to Z, 
-    Return sorted list.
-
-    >>> assert sort_symbols_by_Z(["Si", "H"]) == ["H", "Si"]
-    """
-    return list(sorted(symbols, key=lambda s: _symbol2z[s]))
-
-
-
-_CHARS2L = {
-    "s": 0,
-    "p": 1,
-    "d": 2,
-    "f": 3,
-    "g": 4,
-    "h": 5,
-    "i": 6,
-}
-
-
-def char2l(char):
-    """Concert a character (s, p, d ..) into the angular momentum l (int)."""
-    return _CHARS2L[char]
-
-
-ALL_ELEMENT_SYMBOLS = set(_pt_data.keys())
-
-
-@cached_class
-@total_ordering
-class Element(object):
+class Element(Enum):
     """
     Basic immutable element object with all relevant properties.
     Only one instance of Element for each symbol is stored after creation,
@@ -332,14 +263,121 @@ class Element(object):
         {oxidation state: ionic radii}. Radii are given in ang.
     """
 
-    def __init__(self, symbol):
-        self._symbol = "%s" % symbol
-        self._data = _pt_data[symbol]
+    # This name = value convention is redundant and dumb, but unfortunately is
+    # necessary to preserve backwards compatibility with a time when Element is
+    # a regular object that is constructed with Element(symbol).
+    H = "H"
+    He = "He"
+    Li = "Li"
+    Be = "Be"
+    B = "B"
+    C = "C"
+    N = "N"
+    O = "O"
+    F = "F"
+    Ne = "Ne"
+    Na = "Na"
+    Mg = "Mg"
+    Al = "Al"
+    Si = "Si"
+    P = "P"
+    S = "S"
+    Cl = "Cl"
+    Ar = "Ar"
+    K = "K"
+    Ca = "Ca"
+    Sc = "Sc"
+    Ti = "Ti"
+    V = "V"
+    Cr = "Cr"
+    Mn = "Mn"
+    Fe = "Fe"
+    Co = "Co"
+    Ni = "Ni"
+    Cu = "Cu"
+    Zn = "Zn"
+    Ga = "Ga"
+    Ge = "Ge"
+    As = "As"
+    Se = "Se"
+    Br = "Br"
+    Kr = "Kr"
+    Rb = "Rb"
+    Sr = "Sr"
+    Y = "Y"
+    Zr = "Zr"
+    Nb = "Nb"
+    Mo = "Mo"
+    Tc = "Tc"
+    Ru = "Ru"
+    Rh = "Rh"
+    Pd = "Pd"
+    Ag = "Ag"
+    Cd = "Cd"
+    In = "In"
+    Sn = "Sn"
+    Sb = "Sb"
+    Te = "Te"
+    I = "I"
+    Xe = "Xe"
+    Cs = "Cs"
+    Ba = "Ba"
+    La = "La"
+    Ce = "Ce"
+    Pr = "Pr"
+    Nd = "Nd"
+    Pm = "Pm"
+    Sm = "Sm"
+    Eu = "Eu"
+    Gd = "Gd"
+    Tb = "Tb"
+    Dy = "Dy"
+    Ho = "Ho"
+    Er = "Er"
+    Tm = "Tm"
+    Yb = "Yb"
+    Lu = "Lu"
+    Hf = "Hf"
+    Ta = "Ta"
+    W = "W"
+    Re = "Re"
+    Os = "Os"
+    Ir = "Ir"
+    Pt = "Pt"
+    Au = "Au"
+    Hg = "Hg"
+    Tl = "Tl"
+    Pb = "Pb"
+    Bi = "Bi"
+    Po = "Po"
+    At = "At"
+    Rn = "Rn"
+    Fr = "Fr"
+    Ra = "Ra"
+    Ac = "Ac"
+    Th = "Th"
+    Pa = "Pa"
+    U = "U"
+    Np = "Np"
+    Pu = "Pu"
+    Am = "Am"
+    Cm = "Cm"
+    Bk = "Bk"
+    Cf = "Cf"
+    Es = "Es"
+    Fm = "Fm"
+    Md = "Md"
+    No = "No"
+    Lr = "Lr"
 
-        #Store key variables for quick access
-        self._z = self._data["Atomic no"]
-        self._x = self._data.get("X", 0)
-        for a in ["name", "mendeleev_no", "electrical_resistivity",
+    def __init__(self, symbol):
+        self.symbol = "%s" % symbol
+        d = _pt_data[symbol]
+
+        # Store key variables for quick access
+        self.Z = d["Atomic no"]
+        self.X = d.get("X", 0)
+        for a in ["mendeleev_no", "electrical_resistivity",
                   "velocity_of_sound", "reflectivity",
                   "refractive_index", "poissons_ratio", "molar_volume",
                   "electronic_structure", "thermal_conductivity",
@@ -352,24 +390,16 @@ class Element(object):
                   "van_der_waals_radius",
                   "coefficient_of_linear_thermal_expansion"]:
             kstr = a.capitalize().replace("_", " ")
-            val = self._data.get(kstr, None)
+            val = d.get(kstr, None)
             if str(val).startswith("no data"):
                 val = None
-            self.__setattr__(a, val)
-        if str(self._data.get("Atomic radius",
-                              "no data")).startswith("no data"):
+            setattr(self, a, val)
+        if str(d.get("Atomic radius", "no data")).startswith("no data"):
             self.atomic_radius = None
         else:
-            self.atomic_radius = Length(self._data["Atomic radius"], "ang")
-        self.atomic_mass = Mass(self._data["Atomic mass"], "amu")
-
-    def __getnewargs__(self):
-        #function used by pickle to recreate object
-        return self._symbol,
-
-    def __getinitargs__(self):
-        # function used by pickle to recreate object
-        return self._symbol,
+            self.atomic_radius = Length(d["Atomic radius"], "ang")
+        self.atomic_mass = Mass(d["Atomic mass"], "amu")
+        self._data = d
 
     @property
     def data(self):
@@ -402,21 +432,6 @@ class Element(object):
             return {int(k): v for k, v in self._data["Ionic radii"].items()}
         else:
             return {}
-
-    @property
-    def Z(self):
-        """Atomic number"""
-        return self._z
-
-    @property
-    def symbol(self):
-        """Element symbol"""
-        return self._symbol
-
-    @property
-    def X(self):
-        """Electronegativity"""
-        return self._x
 
     @property
     def number(self):
@@ -470,15 +485,13 @@ class Element(object):
         return data
 
     def __eq__(self, other):
-        if not isinstance(other, Element):
-            return False
-        return self._z == other._z
+        return isinstance(other, Element) and self.Z == other.Z
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return self._z
+        return self.Z
 
     def __repr__(self):
         return "Element " + self.symbol
@@ -520,6 +533,10 @@ class Element(object):
         """
         Returns an element from a row and group number.
 
+        Args:
+            row (int): Row number
+            group (int): Group number
+
         .. note::
             The 18 group number system is used, i.e., Noble gases are group 18.
         """
@@ -527,7 +544,7 @@ class Element(object):
             el = Element(sym)
             if el.row == row and el.group == group:
                 return el
-        return None
+        raise ValueError("No element with this row and group!")
 
     @staticmethod
     def is_valid_symbol(symbol):
@@ -541,23 +558,27 @@ class Element(object):
             True if symbol is a valid element (e.g., "H"). False otherwise
             (e.g., "Zebra").
         """
-        return symbol in ALL_ELEMENT_SYMBOLS
+        try:
+            Element(symbol)
+            return True
+        except:
+            return False
 
     @property
     def row(self):
         """
         Returns the periodic table row of the element.
         """
-        Z = self._z
+        z = self.Z
         total = 0
-        if 57 <= Z <= 70:
+        if 57 <= z <= 70:
             return 8
-        elif 89 <= Z <= 102:
+        elif 89 <= z <= 102:
             return 9
 
         for i in range(len(_pt_row_sizes)):
             total += _pt_row_sizes[i]
-            if total >= Z:
+            if total >= z:
                 return i + 1
         return 8
 
@@ -566,31 +587,31 @@ class Element(object):
         """
         Returns the periodic table group of the element.
         """
-        Z = self._z
-        if Z == 1:
+        z = self.Z
+        if z == 1:
             return 1
-        if Z == 2:
+        if z == 2:
             return 18
-        if 3 <= Z <= 18:
-            if (Z - 2) % 8 == 0:
+        if 3 <= z <= 18:
+            if (z - 2) % 8 == 0:
                 return 18
-            elif (Z - 2) % 8 <= 2:
-                return (Z - 2) % 8
+            elif (z - 2) % 8 <= 2:
+                return (z - 2) % 8
             else:
-                return 10 + (Z - 2) % 8
+                return 10 + (z - 2) % 8
 
-        if 19 <= Z <= 54:
-            if (Z - 18) % 18 == 0:
+        if 19 <= z <= 54:
+            if (z - 18) % 18 == 0:
                 return 18
             else:
-                return (Z - 18) % 18
+                return (z - 18) % 18
 
-        if (Z - 54) % 32 == 0:
+        if (z - 54) % 32 == 0:
             return 18
-        elif (Z - 54) % 32 >= 17:
-            return (Z - 54) % 32 - 14
+        elif (z - 54) % 32 >= 17:
+            return (z - 54) % 32 - 14
         else:
-            return (Z - 54) % 32
+            return (z - 54) % 32
 
     @property
     def block(self):
@@ -615,7 +636,7 @@ class Element(object):
         """
         True if element is noble gas.
         """
-        return self._z in (2, 10, 18, 36, 54, 86, 118)
+        return self.Z in (2, 10, 18, 36, 54, 86, 118)
 
     @property
     def is_transition_metal(self):
@@ -628,7 +649,7 @@ class Element(object):
         ns.extend(list(range(72, 81)))
         ns.append(89)
         ns.extend(list(range(104, 113)))
-        return self._z in ns
+        return self.Z in ns
 
     @property
     def is_rare_earth_metal(self):
@@ -649,42 +670,42 @@ class Element(object):
         """
         True if element is an alkali metal.
         """
-        return self._z in (3, 11, 19, 37, 55, 87)
+        return self.Z in (3, 11, 19, 37, 55, 87)
 
     @property
     def is_alkaline(self):
         """
         True if element is an alkaline earth metal (group II).
         """
-        return self._z in (4, 12, 20, 38, 56, 88)
+        return self.Z in (4, 12, 20, 38, 56, 88)
 
     @property
     def is_halogen(self):
         """
         True if element is a halogen.
         """
-        return self._z in (9, 17, 35, 53, 85)
+        return self.Z in (9, 17, 35, 53, 85)
 
     @property
     def is_chalcogen(self):
         """
         True if element is a chalcogen.
         """
-        return self._z in (8, 18, 34, 52, 84)
+        return self.Z in (8, 16, 34, 52, 84)
 
     @property
     def is_lanthanoid(self):
         """
         True if element is a lanthanoid.
         """
-        return 56 < self._z < 72
+        return 56 < self.Z < 72
 
     @property
     def is_actinoid(self):
         """
         True if element is a actinoid.
         """
-        return 88 < self._z < 104
+        return 88 < self.Z < 104
 
     def __deepcopy__(self, memo):
         return Element(self.symbol)
@@ -706,10 +727,34 @@ class Element(object):
                 "@class": self.__class__.__name__,
                 "element": self.symbol}
 
+    @staticmethod
+    def print_periodic_table(filter_function=None):
+        """
+        A pretty ASCII printer for the periodic table, based on some
+        filter_function.
 
-@cached_class
-@total_ordering
+        Args:
+            filter_function: A filtering function taking an Element as input
+                and returning a boolean. For example, setting
+                filter_function = lambda el: el.X > 2 will print a periodic
+                table containing only elements with electronegativity > 2.
+        """
+        for row in range(1, 10):
+            rowstr = []
+            for group in range(1, 19):
+                try:
+                    el = Element.from_row_and_group(row, group)
+                except ValueError:
+                    el = None
+                if el and ((not filter_function) or filter_function(el)):
+                    rowstr.append("{:3s}".format(el.symbol))
+                else:
+                    rowstr.append("   ")
+            print(" ".join(rowstr))
+
+
 class Specie(MSONable):
+
     """
     An extension of Element with an oxidation state and other optional
     properties. Properties associated with Specie should be "idealized"
@@ -738,6 +783,21 @@ class Specie(MSONable):
         Properties are now checked when comparing two Species for equality.
     """
 
+    cache = {}
+
+    def __new__(cls, *args, **kwargs):
+        key = (cls,) + args + tuple(kwargs.items())
+        try:
+            inst = Specie.cache.get(key, None)
+        except TypeError:
+            # Can't cache this set of arguments
+            inst = key = None
+        if inst is None:
+            inst = object.__new__(cls)
+            if key is not None:
+                Specie.cache[key] = inst
+        return inst
+
     supported_properties = ("spin",)
 
     def __init__(self, symbol, oxidation_state, properties=None):
@@ -748,17 +808,9 @@ class Specie(MSONable):
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
 
-    def __getnewargs__(self):
-        # function used by pickle to recreate object
-        return self._el.symbol, self._oxi_state, self._properties
-
-    def __getinitargs__(self):
-        # function used by pickle to recreate object
-        return self._el.symbol, self._oxi_state, self._properties
-
     def __getattr__(self, a):
-        #overriding getattr doens't play nice with pickle, so we
-        #can't use self._properties
+        # overriding getattr doens't play nice with pickle, so we
+        # can't use self._properties
         p = object.__getattribute__(self, '_properties')
         if a in p:
             return p[a]
@@ -772,9 +824,7 @@ class Specie(MSONable):
         Specie is equal to other only if element and oxidation states are
         exactly the same.
         """
-        if not isinstance(other, Specie):
-            return False
-        return self.symbol == other.symbol \
+        return isinstance(other, Specie) and self.symbol == other.symbol \
             and self._oxi_state == other._oxi_state \
             and self._properties == other._properties
 
@@ -787,7 +837,7 @@ class Specie(MSONable):
         should effectively ensure that no two unequal Specie have the same
         hash.
         """
-        return self._el._z * 1000 + int(self._oxi_state)
+        return self._el.Z * 1000 + int(self._oxi_state)
 
     def __lt__(self, other):
         """
@@ -922,11 +972,13 @@ class Specie(MSONable):
         return Specie(self.symbol, self.oxi_state, self._properties)
 
     def as_dict(self):
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "element": self.symbol,
-                "oxidation_state": self._oxi_state,
-                "properties": self._properties}
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "element": self.symbol,
+             "oxidation_state": self._oxi_state}
+        if self._properties:
+            d["properties"] = self._properties
+        return d
 
     @classmethod
     def from_dict(cls, d):
@@ -934,9 +986,7 @@ class Specie(MSONable):
                    d.get("properties", None))
 
 
-@cached_class
-@total_ordering
-class DummySpecie(MSONable):
+class DummySpecie(Specie):
     """
     A special specie for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special
@@ -984,17 +1034,9 @@ class DummySpecie(MSONable):
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
 
-    def __getnewargs__(self):
-        # function used by pickle to recreate object
-        return self._symbol, self._oxi_state, self._properties
-
-    def __getinitargs__(self):
-        # function used by pickle to recreate object
-        return self._symbol, self._oxi_state, self._properties
-
     def __getattr__(self, a):
-        #overriding getattr doens't play nice with pickle, so we
-        #can't use self._properties
+        # overriding getattr doens't play nice with pickle, so we
+        # can't use self._properties
         p = object.__getattribute__(self, '_properties')
         if a in p:
             return p[a]
@@ -1109,11 +1151,13 @@ class DummySpecie(MSONable):
                          "present in {}".format(comp))
 
     def as_dict(self):
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "element": self.symbol,
-                "oxidation_state": self._oxi_state,
-                "properties": self._properties}
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "element": self.symbol,
+             "oxidation_state": self._oxi_state}
+        if self._properties:
+            d["properties"] = self._properties
+        return d
 
     @classmethod
     def from_dict(cls, d):
@@ -1132,7 +1176,11 @@ class DummySpecie(MSONable):
         return output
 
 
-@singleton
+@deprecated(message="PeriodicTable itself is now pretty useless now that "
+                    "Element is an Enum. You can simply iterate over all "
+                    "elements using for el in Element. print_periodic_table "
+                    "functionality has been moved to a staticmethod in "
+                    "Element. This class will be removed in pymatgen 4.0.")
 class PeriodicTable(object):
     """
     A Periodic table singleton class. This class contains methods on the
@@ -1145,23 +1193,27 @@ class PeriodicTable(object):
         for sym in _pt_data.keys():
             self._all_elements[sym] = Element(sym)
 
+    @property
+    def all_symbols(self):
+        """tuple with element symbols ordered by Z."""
+        return sorted(self._all_elements.keys(), key=lambda s: Element(s).Z)
+
     def __getattr__(self, name):
         return self._all_elements[name]
 
     def __iter__(self):
-        for sym in _z2symbol:
+        for sym in self.all_symbols:
             if sym is not None:
                 yield self._all_elements[sym]
 
     def __getitem__(self, Z_or_slice):
-        #print Z_or_slice, symbol_from_Z(Z_or_slice)
         try:
             if isinstance(Z_or_slice, slice):
-                return [self._all_elements[sym]
-                        for sym in symbol_from_Z(Z_or_slice)]
+                return [Element.from_Z(z) for z in list(range(
+                        len(self.all_symbols)))[Z_or_slice]]
             else:
-                return self._all_elements[symbol_from_Z(Z_or_slice)]
-        except:
+                return Element.from_Z(Z_or_slice)
+        except Exception as ex:
             raise IndexError("Z_or_slice: %s" % str(Z_or_slice))
 
     @property
@@ -1185,7 +1237,10 @@ class PeriodicTable(object):
         for row in range(1, 10):
             rowstr = []
             for group in range(1, 19):
-                el = Element.from_row_and_group(row, group)
+                try:
+                    el = Element.from_row_and_group(row, group)
+                except ValueError:
+                    el = None
                 if el and ((not filter_function) or filter_function(el)):
                     rowstr.append("{:3s}".format(el.symbol))
                 else:
@@ -1218,25 +1273,25 @@ def get_el_sp(obj):
     if isinstance(obj, (Element, Specie, DummySpecie)):
         return obj
 
-    def is_integer(s):
-        try:
-            c = float(s)
-            return int(c) == c
-        except (ValueError, TypeError):
-            return False
+    try:
+        c = float(obj)
+        i = int(c)
+        i = i if i == c else None
+    except (ValueError, TypeError):
+        i = None
 
-    if is_integer(obj):
-        return Element.from_Z(int(float(obj)))
-    else:
-        obj = str(obj)
+    if i is not None:
+        return Element.from_Z(i)
+
+    try:
+        return Specie.from_string(obj)
+    except (ValueError, KeyError):
         try:
-            return Specie.from_string(obj)
+            return Element(obj)
         except (ValueError, KeyError):
             try:
-                return Element(obj)
-            except (ValueError, KeyError):
-                try:
-                    return DummySpecie.from_string(obj)
-                except:
-                    raise ValueError("Can't parse Element or String from type %s: %s."
-                                     % (type(obj), obj))
+                return DummySpecie.from_string(obj)
+            except:
+                raise ValueError(
+                        "Can't parse Element or String from type %s: %s."
+                        % (type(obj), obj))

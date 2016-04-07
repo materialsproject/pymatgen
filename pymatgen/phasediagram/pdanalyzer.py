@@ -137,7 +137,7 @@ class PDAnalyzer(object):
         comp_list = [self._pd.qhull_entries[i].composition for i in facet]
         m = self._make_comp_matrix(comp_list)
         compm = self._make_comp_matrix([entry.composition])
-        decomp_amts = np.linalg.solve(m.T, compm.T)[:,0]
+        decomp_amts = np.linalg.solve(m.T, compm.T)[:, 0]
         decomp = {self._pd.qhull_entries[facet[i]]: decomp_amts[i]
                   for i in range(len(decomp_amts))
                   if abs(decomp_amts[i]) > PDAnalyzer.numerical_tol}

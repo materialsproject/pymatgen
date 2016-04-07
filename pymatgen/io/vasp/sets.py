@@ -385,6 +385,12 @@ class DictVaspInputSet(AbstractVaspInputSet):
                 structure, int(self.kpoints_settings['grid_density']),
                 self.force_gamma)
 
+        # If reciprocal_density is in the kpoints_settings use Kpoints.automatic_density_by_vol
+        elif self.kpoints_settings.get('reciprocal_density'):
+            return Kpoints.automatic_density_by_vol(
+                structure, int(self.kpoints_settings['reciprocal_density']),
+                self.force_gamma)
+
         # If length is in the kpoints_settings use Kpoints.automatic
         elif self.kpoints_settings.get('length'):
             return Kpoints.automatic(self.kpoints_settings['length'])
@@ -393,7 +399,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
         else:
             raise ValueError(
                 "Invalid KPoint Generation algo : Supported Keys are "
-                "grid_density: for Kpoints.automatic_density generation "
+                "grid_density: for Kpoints.automatic_density generation, "
+                "reciprocal_density: for KPoints.automatic_density_by_vol generation, "
                 "and length  : for Kpoints.automatic generation")
 
     def __str__(self):
@@ -426,17 +433,23 @@ class DictVaspInputSet(AbstractVaspInputSet):
             "constrain_total_magmom": self.set_nupdown,
             "sort_structure": self.sort_structure,
             "potcar_functional": self.potcar_functional,
+            "ediff_per_atom": self.ediff_per_atom,
+            "force_gamma": self.force_gamma,
+            "reduce_structure": self.reduce_structure,
             "@class": self.__class__.__name__,
             "@module": self.__class__.__module__,
         }
 
     @classmethod
     def from_dict(cls, d):
-        return cls(d["name"], d["config_dict"],
+        return cls(name=d["name"], config_dict=d["config_dict"],
                    hubbard_off=d.get("hubbard_off", False),
                    constrain_total_magmom=d["constrain_total_magmom"],
                    sort_structure=d.get("sort_structure", True),
-                   potcar_functional=d.get("potcar_functional", None))
+                   potcar_functional=d.get("potcar_functional", None),
+                   ediff_per_atom=d.get("ediff_per_atom", True),
+                   force_gamma=d.get("force_gamma", False),
+                   reduce_structure=d.get("reduce_structure", None))
 
     @staticmethod
     def from_file(name, filename, **kwargs):
@@ -502,8 +515,9 @@ class MITNEBVaspInputSet(DictVaspInputSet):
         \*\*kwargs: Other kwargs supported by :class:`DictVaspInputSet`.
     """
 
-    def __init__(self, nimages=8, user_incar_settings=None, write_endpoint_inputs=False,
-                 kpoints_gamma_override=None, write_path_cif=False, unset_encut=False,
+    def __init__(self, nimages=8, user_incar_settings=None,
+                 write_endpoint_inputs=False, kpoints_gamma_override=None,
+                 write_path_cif=False, unset_encut=False,
                  sort_structure=False, **kwargs):
         super(MITNEBVaspInputSet, self).__init__(
             "MIT NEB",
@@ -592,9 +606,13 @@ class MITNEBVaspInputSet(DictVaspInputSet):
                 kpoints.write_file(os.path.join(output_dir, image, 'KPOINTS'))
                 potcar.write_file(os.path.join(output_dir, image, 'POTCAR'))
         if self.write_path_cif:
-            from pymatgen import Structure
+            from pymatgen import Structure, PeriodicSite
             from itertools import chain
-            path = Structure.from_sites(sorted(set(chain(*(s.sites for s in structures)))))
+            sites = set()
+            l = structures[0].lattice
+            for site in chain(*(s.sites for s in structures)):
+                sites.add(PeriodicSite(site.species_and_occu, site.frac_coords, l))
+            path = Structure.from_sites(sorted(sites))
             path.to(filename=os.path.join(output_dir, 'path.cif'))
 
 
@@ -930,8 +948,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
 
         # Prefer to use k-point scheme from previous run
         new_kpoints = mpsvip.get_kpoints(structure)
-        if previous_kpoints.style[0] != new_kpoints.style[0]:
-            if previous_kpoints.style[0] == "M" and \
+        if previous_kpoints.style != new_kpoints.style:
+            if previous_kpoints.style == Kpoints.supported_modes.Monkhorst and \
                     SpacegroupAnalyzer(structure, 0.1).get_lattice_type() != \
                     "hexagonal":
                 k_div = (kp + 1 if kp % 2 == 1 else kp
@@ -1035,7 +1053,8 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                 weights.append(0.0)
                 all_labels.append(labels[k])
             return Kpoints(comment="HSE run along symmetry lines",
-                           style="Reciprocal", num_kpts=len(kpts),
+                           style=Kpoints.supported_modes.Reciprocal,
+                           num_kpts=len(kpts),
                            kpts=kpts, kpts_weights=weights, labels=all_labels)
 
         elif self.mode == "Uniform":
@@ -1050,7 +1069,8 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                 kpts.append(k)
                 weights.append(0.0)
             return Kpoints(comment="HSE run on uniform grid",
-                           style="Reciprocal", num_kpts=len(kpts),
+                           style=Kpoints.supported_modes.Reciprocal,
+                           num_kpts=len(kpts),
                            kpts=kpts, kpts_weights=weights)
 
     def as_dict(self):
@@ -1138,10 +1158,12 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         """
         if self.mode == "Line":
             kpath = HighSymmKpath(structure)
-            frac_k_points, k_points_labels = kpath.get_kpoints(line_density=self.kpoints_line_density,
-                                                               coords_are_cartesian=False)
+            frac_k_points, k_points_labels = kpath.get_kpoints(
+                line_density=self.kpoints_line_density,
+                coords_are_cartesian=False)
             return Kpoints(comment="Non SCF run along symmetry lines",
-                           style="Reciprocal", num_kpts=len(frac_k_points),
+                           style=Kpoints.supported_modes.Reciprocal,
+                           num_kpts=len(frac_k_points),
                            kpts=frac_k_points, labels=k_points_labels,
                            kpts_weights=[1] * len(frac_k_points))
         else:
@@ -1158,7 +1180,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 kpts.append(k[0])
                 weights.append(int(k[1]))
             return Kpoints(comment="Non SCF run on uniform grid",
-                           style="Reciprocal", num_kpts=len(ir_kpts),
+                           style=Kpoints.supported_modes.Reciprocal,
+                           num_kpts=len(ir_kpts),
                            kpts=kpts, kpts_weights=weights)
 
     @staticmethod

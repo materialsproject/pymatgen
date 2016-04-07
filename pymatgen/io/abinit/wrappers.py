@@ -223,7 +223,7 @@ class Mrgddb(ExecWrapper):
             return out_ddb
 
         self.stdin_fname, self.stdout_fname, self.stderr_fname = \
-            map(os.path.join, 3 * [workdir], ["mrgddb.stdin", "mrgddb.stdout", "mrgddb.stderr"])
+            map(os.path.join, 3 * [os.path.abspath(workdir)], ["mrgddb.stdin", "mrgddb.stdout", "mrgddb.stderr"])
 
         inp = cStringIO()
         inp.write(out_ddb + "\n")              # Name of the output file.
