@@ -25,7 +25,6 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
-
 class SymmOp(MSONable):
     """
     A symmetry operation in cartesian space. Consists of a rotation plus a
@@ -286,16 +285,16 @@ class SymmOp(MSONable):
         m11 = (u2 + (v2 + w2) * cos_t) / l2
         m12 = (u * v * (1 - cos_t) - w * l * sin_t) / l2
         m13 = (u * w * (1 - cos_t) + v * l * sin_t) / l2
-        m14 = (a * (v2 + w2) - u * (b * v + c * w)
-               + (u * (b * v + c * w) - a * (v2 + w2)) * cos_t
-               + (b * w - c * v) * l * sin_t) / l2
+        m14 = (a * (v2 + w2) - u * (b * v + c * w) +
+               (u * (b * v + c * w) - a * (v2 + w2)) * cos_t +
+               (b * w - c * v) * l * sin_t) / l2
 
         m21 = (u * v * (1 - cos_t) + w * l * sin_t) / l2
         m22 = (v2 + (u2 + w2) * cos_t) / l2
         m23 = (v * w * (1 - cos_t) - u * l * sin_t) / l2
-        m24 = (b * (u2 + w2) - v * (a * u + c * w)
-               + (v * (a * u + c * w) - b * (u2 + w2)) * cos_t
-               + (c * u - a * w) * l * sin_t) / l2
+        m24 = (b * (u2 + w2) - v * (a * u + c * w) +
+               (v * (a * u + c * w) - b * (u2 + w2)) * cos_t +
+               (c * u - a * w) * l * sin_t) / l2
 
         m31 = (u * w * (1 - cos_t) - v * l * sin_t) / l2
         m32 = (v * w * (1 - cos_t) + u * l * sin_t) / l2
