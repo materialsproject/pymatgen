@@ -20,6 +20,7 @@ __date__ = "Sep 23, 2011"
 import numpy as np
 import re
 from math import sin, cos, pi, sqrt
+import string
 
 from monty.json import MSONable
 
@@ -134,6 +135,7 @@ class SymmOp(MSONable):
         """
         return np.dot(self.rotation_matrix, vector)
 
+<<<<<<< HEAD
     def transform_r2_tensor(self, tensor):
         """
         Applies the rotation portion to a rank 2 tensor.
@@ -154,17 +156,27 @@ class SymmOp(MSONable):
         """
         return np.einsum('ai,bj,ck,abc->ijk',self.rotation_matrix,
                          self.rotation_matrix,self.rotation_matrix,tensor)
+=======
+>>>>>>> 02cf026586939a750b4c04cbfefcd4978f1716fc
 
-    def transform_r4_tensor(self, tensor):
+    def transform_tensor(self, tensor):
         """
-        Applies the rotation portion to a rank 4 tensor.
+        Applies rotation portion to a tensor
 
         Args:
-            tensor (3x3x3x3 array): a rank 4 tensor
+            tensor (numpy array): a rank n tensor
         """
-        return np.einsum('ai,bj,ck,dl,abcd->ijkl',self.rotation_matrix,
-                         self.rotation_matrix,self.rotation_matrix,
-                         self.rotation_matrix,tensor)
+        dim = tensor.shape
+        t_rank = len(dim)
+        assert all([i == dim[0] for i in dim])
+        # Build einstein sum string
+        lc = string.lowercase
+        indices = lc[:t_rank], lc[t_rank:2*t_rank]
+        einsum_string = ','.join([a+i for a,i in zip(*indices)])
+        einsum_string += ',{}->{}'.format(*indices)
+        einsum_args = [self.rotation_matrix]*t_rank + [tensor]
+
+        return np.einsum(einsum_string, *einsum_args)
 
     def are_symmetrically_related(self, point_a, point_b, tol=0.001):
         """
