@@ -123,7 +123,7 @@ class PiezoTensor(np.ndarray):
         Args:
             symp (SymmOp): symmetry operation
         """
-        return PiezoTensor.from_full_tensor(sym.transform_r3_tensor(self.full_tensor))
+        return PiezoTensor.from_full_tensor(sym.transform_tensor(self.full_tensor))
 
     def is_valid(self, structure, symprec=0.1, tol=1e-3):
         """
