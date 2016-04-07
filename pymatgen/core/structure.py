@@ -949,7 +949,7 @@ class IStructure(SiteCollection, MSONable):
                                               to_unit_cell=True,
                                               properties=site_props))
             new_sites = sorted(new_sites)
-            return self.__class__.from_sites(new_sites)
+            return self.__class__.from_sites(new_sites, structure_properties=struct_props)
 
     def interpolate(self, end_structure, nimages=10,
                     interpolate_lattices=False, pbc=True, autosort_tol=0):
