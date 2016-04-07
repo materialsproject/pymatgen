@@ -567,7 +567,11 @@ class StructureVis(object):
                 trianglePolyData.SetPoints(points)
                 trianglePolyData.SetPolys(triangles)
                 mapper = vtk.vtkPolyDataMapper()
-                mapper.SetInput(trianglePolyData)
+                if vtk.VTK_MAJOR_VERSION <= 5:
+                    mapper.SetInputConnection(trianglePolyData.GetProducerPort())
+                else:
+                    mapper.SetInputData(trianglePolyData)
+                # mapper.SetInput(trianglePolyData)
                 ac = vtk.vtkActor()
                 ac.SetMapper(mapper)
                 ac.GetProperty().SetOpacity(opacity)
@@ -620,7 +624,11 @@ class StructureVis(object):
                     trianglePolyData.SetPoints(points)
                     trianglePolyData.SetPolys(triangles)
                     mapper = vtk.vtkPolyDataMapper()
-                    mapper.SetInput(trianglePolyData)
+                    if vtk.VTK_MAJOR_VERSION <= 5:
+                        mapper.SetInputConnection(trianglePolyData.GetProducerPort())
+                    else:
+                        mapper.SetInputData(trianglePolyData)
+                    # mapper.SetInput(trianglePolyData)
                     ac = vtk.vtkActor()
                     ac.SetMapper(mapper)
                     ac.GetProperty().SetOpacity(opacity)
@@ -642,7 +650,11 @@ class StructureVis(object):
         polydata.SetPoints(points)
         polydata.SetLines(lines)
         mapper = vtk.vtkPolyDataMapper()
-        mapper.SetInput(polydata)
+        if vtk.VTK_MAJOR_VERSION <= 5:
+            mapper.SetInputConnection(polydata.GetProducerPort())
+        else:
+            mapper.SetInputData(polydata)
+        # mapper.SetInput(polydata)
         ac = vtk.vtkActor()
         ac.SetMapper(mapper)
         ac.GetProperty().SetColor(color)
