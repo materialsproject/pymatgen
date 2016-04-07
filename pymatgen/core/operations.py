@@ -135,30 +135,6 @@ class SymmOp(MSONable):
         """
         return np.dot(self.rotation_matrix, vector)
 
-<<<<<<< HEAD
-    def transform_r2_tensor(self, tensor):
-        """
-        Applies the rotation portion to a rank 2 tensor.
-
-        Args:
-            tensor (3x3 array): a rank 2 tensor
-        """
-
-        return np.einsum('ai,bj,ab->ij',self.rotation_matrix,
-                         self.rotation_matrix,tensor)
-
-    def transform_r3_tensor(self, tensor):
-        """
-        Applies the rotation portion to a rank 3 tensor.
-
-        Args:
-            tensor (3x3x3 array): a rank 3 tensor
-        """
-        return np.einsum('ai,bj,ck,abc->ijk',self.rotation_matrix,
-                         self.rotation_matrix,self.rotation_matrix,tensor)
-=======
->>>>>>> 02cf026586939a750b4c04cbfefcd4978f1716fc
-
     def transform_tensor(self, tensor):
         """
         Applies rotation portion to a tensor
@@ -168,7 +144,7 @@ class SymmOp(MSONable):
         """
         dim = tensor.shape
         t_rank = len(dim)
-        assert all([i == dim[0] for i in dim])
+        assert all([i == 3 for i in dim])
         # Build einstein sum string
         lc = string.lowercase
         indices = lc[:t_rank], lc[t_rank:2*t_rank]
@@ -177,6 +153,7 @@ class SymmOp(MSONable):
         einsum_args = [self.rotation_matrix]*t_rank + [tensor]
 
         return np.einsum(einsum_string, *einsum_args)
+
 
     def are_symmetrically_related(self, point_a, point_b, tol=0.001):
         """
