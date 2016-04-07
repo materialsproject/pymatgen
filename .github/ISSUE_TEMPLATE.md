@@ -1,13 +1,15 @@
-When reporting bugs, please supply the following information:
+<When reporting bugs/issues, please supply the following information. If
+this is a feature request, please simply state the requested feature.>
 
 ## System
 
-* <Version of pymatgen>
-* <OS version. If you are writing Windows here, you are on your own.> 
+* Pymatgen version: <Write "branch_name" if it is development version.>
+* Python version: <Only 2.7.* and 3.* supported.>
+* OS version: <If you are writing Windows here, you are on your own.> 
 
 ## Summary
 
-<Short 1-2 sentences stating the problem.>
+* <Short 1-2 bullet points stating the problem.>
 
 ## Example code
 
@@ -21,9 +23,16 @@ When reporting bugs, please supply the following information:
 <Error message>
 ```
 
-## Files
+## Suggested solution (if any)
 
-<If input files are needed for the error, please copy and paste them here.>
+* <If you have a suggestion on how to solve the issue, you may write it
+  here.>
+
+## Files (if any)
+
+<If input files are needed to reproduce the error, please provide 
+either links (e.g., Dropbox or GDrive) for large files or simply paste
+the file below for small files.>
 
 ```
 <contents of file 1>

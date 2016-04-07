@@ -17,7 +17,6 @@ import re
 from fractions import gcd
 
 import six
-from six.moves import map, zip
 from tabulate import tabulate
 
 import numpy as np
@@ -41,6 +40,7 @@ from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length, ArrayWithUnit
 from pymatgen.symmetry.groups import SpaceGroup
 from monty.io import zopen
+from monty.dev import deprecated
 
 """
 This module provides classes used to define a non-periodic molecule and a
@@ -415,6 +415,20 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             (Structure) Note that missing properties are set as None.
         """
+        if len(sites) < 1:
+            raise ValueError("You need at least one site to construct a %s" %
+                             cls)
+        if (not validate_proximity) and (not to_unit_cell):
+            # This is not really a good solution, but if we are not changing
+            # the sites, initializing an empty structure and setting _sites
+            # to be sites is much faster than doing the full initialization.
+            lattice = sites[0].lattice
+            for s in sites[1:]:
+                if s.lattice != lattice:
+                    raise ValueError("Sites must belong to the same lattice")
+            s_copy = cls(lattice=lattice, species=[], coords=[])
+            s_copy._sites = list(sites)
+            return s_copy
         prop_keys = []
         props = {}
         lattice = None
@@ -517,44 +531,12 @@ class IStructure(SiteCollection, MSONable):
                    site_properties=all_site_properties)
 
     @classmethod
-    def from_abivars(cls, *args, **kwargs):
+    @deprecated(message="from_abivars has been merged with the from_dict "
+                        "method. Use from_dict(fmt=\"abivars\"). from_abivars "
+                        "will be removed in pymatgen 4.0.")
+    def from_abivars(cls, d, **kwargs):
         """Build a :class:`Structure` object from a dictionary with ABINIT variables."""
-        kwargs.update(dict(*args))
-        d = kwargs
-
-        lattice = Lattice.from_abivars(d)
-        coords, coords_are_cartesian = d.get("xred", None), False
-
-        if coords is None:
-            coords = d.get("xcart", None)
-            if coords is not None:
-                coords = ArrayWithUnit(coords, "bohr").to("ang")
-            else:
-                coords = d.get("xangst", None)
-            coords_are_cartesian = True
-
-        if coords is None:
-            raise ValueError("Cannot extract atomic coordinates from dict %s"
-                             % str(d))
-
-        coords = np.reshape(coords, (-1,3))
-
-        znucl_type, typat = d["znucl"], d["typat"]
-
-        if not isinstance(znucl_type, collections.Iterable):
-            znucl_type = [znucl_type]
-
-        if not isinstance(typat, collections.Iterable):
-            typat = [typat]
-
-        assert len(typat) == len(coords)
-
-        # Note Fortran --> C indexing
-        #znucl_type = np.rint(znucl_type)
-        species = [znucl_type[typ-1] for typ in typat]
-
-        return cls(lattice, species, coords, validate_proximity=False,
-                   to_unit_cell=False, coords_are_cartesian=coords_are_cartesian)
+        return cls.from_dict(d, fmt="abivars", **kwargs)
 
     @property
     def distance_matrix(self):
@@ -607,6 +589,43 @@ class IStructure(SiteCollection, MSONable):
         """
         m = Mass(self.composition.weight, "amu")
         return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
+
+    def get_spacegroup_info(self, symprec=1e-2, angle_tolerance=5.0):
+        """
+        Convenience method to quickly get the spacegroup of a structure.
+
+        Args:
+            symprec (float): Same definition as in SpacegroupAnalyzer.
+                Defaults to 1e-2.
+            angle_tolerance (float): Same definition as in SpacegroupAnalyzer.
+                Defaults to 5 degrees.
+
+        Returns:
+            spacegroup_symbol, international_number
+        """
+        # Import within method needed to avoid cyclic dependency.
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+        a = SpacegroupAnalyzer(self, symprec=symprec,
+                               angle_tolerance=angle_tolerance)
+        return a.get_spacegroup_symbol(), a.get_spacegroup_number()
+
+    def matches(self, other, **kwargs):
+        """
+        Check whether this structure is similar to another structure.
+        Basically a convenience method to call structure matching fitting.
+
+        Args:
+            other (IStructure/Structure): Another structure.
+            **kwargs: Same **kwargs as in
+                :class:`pymatgen.analysis.structure_matcher.StructureMatcher`.
+
+        Returns:
+            (bool) True is the structures are similar under some affine
+            transformation.
+        """
+        from pymatgen.analysis.structure_matcher import StructureMatcher
+        m = StructureMatcher(**kwargs)
+        return m.fit(Structure.from_sites(self), Structure.from_sites(other))
 
     def __eq__(self, other):
         if other is None:
@@ -885,9 +904,12 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError("Invalid reduction algo : {}"
                              .format(reduction_algo))
 
-        return self.__class__(reduced_latt, self.species_and_occu,
-                              self.cart_coords,
-                              coords_are_cartesian=True, to_unit_cell=True)
+        if reduced_latt != self.lattice:
+            return self.__class__(reduced_latt, self.species_and_occu,
+                                  self.cart_coords,
+                                  coords_are_cartesian=True, to_unit_cell=True)
+        else:
+            return self.copy()
 
     def copy(self, site_properties=None, sanitize=False):
         """
@@ -911,6 +933,15 @@ class IStructure(SiteCollection, MSONable):
             A copy of the Structure, with optionally new site_properties and
             optionally sanitized.
         """
+        if (not site_properties) and (not sanitize):
+            # This is not really a good solution, but if we are not changing
+            # the site_properties or sanitizing, initializing an empty
+            # structure and setting _sites to be sites is much faster (~100x)
+            # than doing the full initialization.
+            s_copy = self.__class__(lattice=self._lattice, species=[],
+                                    coords=[])
+            s_copy._sites = list(self._sites)
+            return s_copy
         props = self.site_properties
         if site_properties:
             props.update(site_properties)
@@ -1191,7 +1222,7 @@ class IStructure(SiteCollection, MSONable):
                     return s.get_primitive_structure(
                         tolerance).get_reduced_structure()
 
-        return Structure.from_sites(self)
+        return self.copy()
 
     def __repr__(self):
         outs = ["Structure Summary", repr(self.lattice)]
@@ -1222,9 +1253,9 @@ class IStructure(SiteCollection, MSONable):
                              ))
         return "\n".join(outs)
 
-    def as_dict(self, verbosity=1):
+    def as_dict(self, verbosity=1, fmt=None, **kwargs):
         """
-        Json-serializable dict representation of Structure.
+        Dict representation of Structure.
 
         Args:
             verbosity (int): Verbosity level. Default of 1 includes both
@@ -1233,10 +1264,64 @@ class IStructure(SiteCollection, MSONable):
                 database. Set to 0 for an extremely lightweight version
                 that only includes sufficient information to reconstruct the
                 object.
+            fmt (str): Specifies a format for the dict. Defaults to None,
+                which is the default format used in pymatgen. Other options
+                include "abivars".
+            **kwargs: Allow passing of other kwargs needed for certain
+            formats, e.g., "abivars".
 
         Returns:
             JSON serializable dict representation.
         """
+        if fmt == "abivars":
+            """Returns a dictionary with the ABINIT variables."""
+            types_of_specie = self.types_of_specie
+            natom = self.num_sites
+
+            znucl_type = [specie.number for specie in types_of_specie]
+
+            znucl_atoms = self.atomic_numbers
+
+            typat = np.zeros(natom, np.int)
+            for (atm_idx, site) in enumerate(self):
+                typat[atm_idx] = types_of_specie.index(site.specie) + 1
+
+            rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
+            xred = np.reshape([site.frac_coords for site in self], (-1,3))
+
+            # Set small values to zero. This usually happens when the CIF file
+            # does not give structure parameters with enough digits.
+            rprim = np.where(np.abs(rprim) > 1e-8, rprim, 0.0)
+            xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
+
+            # Info on atoms.
+            d = dict(
+                natom=natom,
+                ntypat=len(types_of_specie),
+                typat=typat,
+                znucl=znucl_type,
+                xred=xred,
+            )
+
+            # Add info on the lattice.
+            # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
+            geomode = kwargs.pop("geomode", "rprim")
+            #latt_dict = self.lattice.to_abivars(geomode=geomode)
+
+            if geomode == "rprim":
+                d.update(dict(
+                    acell=3 * [1.0],
+                    rprim=rprim))
+
+            elif geomode == "angdeg":
+                d.update(dict(
+                    acell=3 * [1.0],
+                    angdeg=angdeg))
+            else:
+                raise ValueError("Wrong value for geomode: %s" % geomode)
+
+            return d
+
         latt_dict = self._lattice.as_dict(verbosity=verbosity)
         del latt_dict["@module"]
         del latt_dict["@class"]
@@ -1253,7 +1338,7 @@ class IStructure(SiteCollection, MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d, fmt=None, **kwargs):
         """
         Reconstitute a Structure object from a dict representation of Structure
         created using as_dict().
@@ -1264,60 +1349,56 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             Structure object
         """
+        if fmt == "abivars":
+            kwargs.update(d)
+            d = kwargs
+
+            lattice = Lattice.from_dict(d, fmt="abivars")
+            coords, coords_are_cartesian = d.get("xred", None), False
+
+            if coords is None:
+                coords = d.get("xcart", None)
+                if coords is not None:
+                    coords = ArrayWithUnit(coords, "bohr").to("ang")
+                else:
+                    coords = d.get("xangst", None)
+                coords_are_cartesian = True
+
+            if coords is None:
+                raise ValueError("Cannot extract atomic coordinates from dict %s"
+                                 % str(d))
+
+            coords = np.reshape(coords, (-1,3))
+
+            znucl_type, typat = d["znucl"], d["typat"]
+
+            if not isinstance(znucl_type, collections.Iterable):
+                znucl_type = [znucl_type]
+
+            if not isinstance(typat, collections.Iterable):
+                typat = [typat]
+
+            assert len(typat) == len(coords)
+
+            # Note Fortran --> C indexing
+            #znucl_type = np.rint(znucl_type)
+            species = [znucl_type[typ-1] for typ in typat]
+
+            return cls(lattice, species, coords, validate_proximity=False,
+                       to_unit_cell=False,
+                       coords_are_cartesian=coords_are_cartesian)
+
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         return cls.from_sites(sites)
 
+    @deprecated(message="to_abivars has been merged with the as_dict method. "
+                        "Use as_dict(fmt=\"abivars\"). to_abivars will be "
+                        "removed in pymatgen 4.0.")
     def to_abivars(self, **kwargs):
-        """Returns a dictionary with the ABINIT variables."""
-        types_of_specie = self.types_of_specie
-        natom = self.num_sites
+        return self.as_dict(verbosity=1, fmt="abivars", **kwargs)
 
-        znucl_type = [specie.number for specie in types_of_specie]
-
-        znucl_atoms = self.atomic_numbers
-
-        typat = np.zeros(natom, np.int)
-        for (atm_idx, site) in enumerate(self):
-            typat[atm_idx] = types_of_specie.index(site.specie) + 1
-
-        rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
-        xred = np.reshape([site.frac_coords for site in self], (-1,3))
-
-        # Set small values to zero. This usually happens when the CIF file
-        # does not give structure parameters with enough digits.
-        rprim = np.where(np.abs(rprim) > 1e-8, rprim, 0.0)
-        xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
-
-        # Info on atoms.
-        d = dict(
-            natom=natom,
-            ntypat=len(types_of_specie),
-            typat=typat,
-            znucl=znucl_type,
-            xred=xred,
-        )
-
-        # Add info on the lattice.
-        # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
-        geomode = kwargs.pop("geomode", "rprim")
-        #latt_dict = self.lattice.to_abivars(geomode=geomode)
-
-        if geomode == "rprim":
-            d.update(dict(
-                acell=3 * [1.0],
-                rprim=rprim))
-
-        elif geomode == "angdeg":
-            d.update(dict(
-                acell=3 * [1.0],
-                angdeg=angdeg))
-        else:
-            raise ValueError("Wrong value for geomode: %s" % geomode)
-
-        return d
-
-    def to(self, fmt=None, filename=None):
+    def to(self, fmt=None, filename=None, **kwargs):
         """
         Outputs the structure to a file or string.
 
@@ -1329,6 +1410,7 @@ class IStructure(SiteCollection, MSONable):
             filename (str): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
+
 
         Returns:
             (str) if filename is None. None otherwise.
@@ -1351,7 +1433,6 @@ class IStructure(SiteCollection, MSONable):
             s = json.dumps(self.as_dict())
             if filename:
                 with zopen(filename, "wt") as f:
-                    # This complicated for handles unicode in both Py2 and 3.
                     f.write("%s" % s)
                 return
             else:
@@ -2267,7 +2348,7 @@ class Structure(IStructure, collections.MutableSequence):
             species: Sequence of species to remove, e.g., ["Li", "Na"].
         """
         new_sites = []
-        species = list(map(get_el_sp, species))
+        species = [get_el_sp(s) for s in species]
 
         for site in self._sites:
             new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
@@ -2739,7 +2820,7 @@ class Molecule(IMolecule, collections.MutableSequence):
                     else:
                         new_atom_occu[sp] = amt
             return Site(new_atom_occu, site.coords, properties=site.properties)
-        self._sites = list(map(mod_site, self._sites))
+        self._sites = [mod_site(site) for site in self._sites]
 
     def remove_species(self, species):
         """
@@ -2749,7 +2830,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             species: Species to remove.
         """
         new_sites = []
-        species = list(map(get_el_sp, species))
+        species = [get_el_sp(sp) for sp in species]
         for site in self._sites:
             new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
                            if sp not in species}
@@ -2813,7 +2894,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             new_cart = symmop.operate(site.coords)
             return Site(site.species_and_occu, new_cart,
                         properties=site.properties)
-        self._sites = list(map(operate_site, self._sites))
+        self._sites = [operate_site(s) for s in self._sites]
 
     def copy(self):
         """

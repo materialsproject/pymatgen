@@ -118,7 +118,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
 
 
 def _parse_varray(elem):
-    return [[float(i) for i in v.text.split()] for v in elem]
+    return [[_vasprun_float(i) for i in v.text.split()] for v in elem]
 
 
 def _parse_from_incar(filename, key):
@@ -746,14 +746,14 @@ class Vasprun(MSONable):
         vbm_kpoint = None
         cbm = float("inf")
         cbm_kpoint = None
-        for k, val in self.eigenvalues.items():
+        for (spin, k), val in self.eigenvalues.items():
             for (eigenval, occu) in val:
                 if occu > self.occu_tol and eigenval > vbm:
                     vbm = eigenval
-                    vbm_kpoint = k[0]
+                    vbm_kpoint = k
                 elif occu <= self.occu_tol and eigenval < cbm:
                     cbm = eigenval
-                    cbm_kpoint = k[0]
+                    cbm_kpoint = k
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
     def update_potcar_spec(self, path):
