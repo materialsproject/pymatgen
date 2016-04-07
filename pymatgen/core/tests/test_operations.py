@@ -61,7 +61,7 @@ class SymmOpTestCase(PymatgenTest):
             rotate_only + self.op.translation_vector, newcoord, 2)
 
     def test_transform_r2_tensor(self):
-        tensor = np.arange(0, 9).reshape(3, 3)
+        tensor = np.arange(0, 9.).reshape(3, 3)
         new_tensor = self.op.transform_r2_tensor(tensor)
         self.assertArrayAlmostEqual(new_tensor,
                                     [[2.7320508,  1.73205079,  4.2320508],
@@ -69,8 +69,10 @@ class SymmOpTestCase(PymatgenTest):
                                      [8.6961524,  3.0621778,  8.]], 5)
 
     def test_transform_r3_tensor(self):
-        tensor=np.arange(0, 27).reshape(3, 3, 3)
+        tensor=np.arange(0, 27.).reshape(3, 3, 3)
         new_tensor=self.op.transform_r3_tensor(tensor)
+        print(tensor)
+        print(new_tensor)
         self.assertArrayAlmostEqual(new_tensor,
                                     [[[12.12916506,   4.61602535,  11.92820319],
                                      [7.34807613,   2.33493645,   6.19615237],
@@ -82,7 +84,7 @@ class SymmOpTestCase(PymatgenTest):
 
                                     [[36.32050788,  10.73205068,  28.820508],
                                      [12.73205066,   3.67949186,   9.9185842],
-                                     [33.2846096,   9.650635,  26.]]], 5)
+                                     [33.2846096,   9.650635,  26.]]], 3)
 
     def test_transform_r4_tensor(self):
         tensor=np.arange(0, 81).reshape(3, 3, 3, 3)
