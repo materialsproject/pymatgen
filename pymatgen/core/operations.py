@@ -20,6 +20,7 @@ __date__ = "Sep 23, 2011"
 import numpy as np
 import re
 from math import sin, cos, pi, sqrt
+import string
 
 from monty.json import MSONable
 
@@ -133,6 +134,25 @@ class SymmOp(MSONable):
             vector (3x1 array): A vector.
         """
         return np.dot(self.rotation_matrix, vector)
+
+
+    def transform_tensor(self, tensor):
+        """
+        Applies rotation portion to a tensor
+
+        Args:
+            tensor (numpy array): a rank n tensor
+        """
+        
+        t_rank = len(tensor.shape)
+        # Build einstein sum string
+        lc = string.lowercase
+        indices = lc[:t_rank], lc[t_rank:2*t_rank]
+        einsum_string = ','.join([a+i for a,i in zip(*indices)])
+        einsum_string += ',{}->{}'.format(*indices)
+        einsum_args = [self.rotation_matrix for i in range(t_rank)] + [tensor]
+
+        return np.einsum(einsum_string, *einsum_args)
 
     def transform_r2_tensor(self, tensor):
         """
