@@ -103,15 +103,13 @@ class MPResterTest(unittest.TestCase):
 
     def test_get_materials_id_references(self):
         # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_get_materials_id_references
-        # self.rester points to rest/v2 by default which doesn't have the refs endpoint
-        m = MPRester(endpoint="https://www.materialsproject.org/rest")
+        m = MPRester()
         data = m.get_materials_id_references('mp-123')
         self.assertTrue(len(data) > 1000)
 
     def test_find_structure(self):
         # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_find_structure
-        # self.rester points to rest/v2 by default which doesn't have the find_structure endpoint
-        m = MPRester(endpoint="https://www.materialsproject.org/rest")
+        m = MPRester()
         ciffile = os.path.join(test_dir, 'Fe3O4.cif')
         data = m.find_structure(ciffile)
         self.assertTrue(len(data) > 1)
@@ -255,8 +253,8 @@ class MPResterTest(unittest.TestCase):
 
         #Let's test some invalid symbols
 
-        self.assertRaises(KeyError, MPRester.parse_criteria, "li-fe")
-        self.assertRaises(KeyError, MPRester.parse_criteria, "LO2")
+        self.assertRaises(ValueError, MPRester.parse_criteria, "li-fe")
+        self.assertRaises(ValueError, MPRester.parse_criteria, "LO2")
 
         crit = MPRester.parse_criteria("POPO2")
         self.assertIn("P2O3", crit["pretty_formula"]["$in"])

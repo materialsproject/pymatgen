@@ -156,6 +156,31 @@ class ElasticTensor(SQTensor):
                     c[j, i, l, k] = c[k, l, i, j] = self[p, q]
         return c
 
+    def transform(self, symm_op):
+        """
+        Returns a transformed tensor based on input of symmetry operation
+
+        Args:
+            symm_op (symm_op): symmetry operation
+        """
+        
+        new_tensor = symm_op.transform_tensor(self.full_tensor)
+        return ElasticTensor.from_full_tensor(new_tensor)
+
+
+    def energy_density(self,strain):
+        """
+            Calculates the elastic energy density due to a strain
+        """
+        # Conversion factor for GPa to eV/Angstrom^3
+        GPA_EV = 0.000624151
+
+        e_density = np.dot(np.transpose(Strain(strain).voigt),
+            np.dot(self,Strain(strain).voigt))/2*0.000624151
+
+        return e_density
+
+
     @classmethod
     def from_full_tensor(cls, c_ijkl, tol=1e-5):
         """
@@ -225,8 +250,7 @@ class ElasticTensor(SQTensor):
                           for ind1 in inds] for ind2 in inds])
         if vasp:
             c_ij *= -0.1  # Convert units/sign convention of vasp stress tensor
-        c_ij[3:, 3:] = 0.5 * c_ij[3:, 3:]  # account for voigt doubling of e4,e5,e6
+        c_ij[0:, 3:] = 0.5 * c_ij[0:, 3:]  # account for voigt doubling of e4,e5,e6
         c_ij = SQTensor(c_ij)
         c_ij = c_ij.zeroed(tol)
-        c_ij = c_ij.symmetrized
         return cls(c_ij)

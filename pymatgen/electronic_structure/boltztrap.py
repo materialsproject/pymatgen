@@ -35,6 +35,7 @@ import numpy as np
 import tempfile
 from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.electronic_structure.dos import Dos, Spin, CompleteDos
 from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.plotter import DosPlotter
@@ -1046,9 +1047,9 @@ class BoltztrapAnalyzer(object):
             if structure.sites[int(s)] not in pdoss:
                 pdoss[structure.sites[int(s)]] = {}
             for o in self._dos_partial[s]:
-                if Orbital.from_string(o) not in pdoss[structure.sites[int(s)]]:
-                    pdoss[structure.sites[int(s)]][Orbital.from_string(o)] = {}
-                pdoss[structure.sites[int(s)]][Orbital.from_string(o)][
+                if Orbital[o] not in pdoss[structure.sites[int(s)]]:
+                    pdoss[structure.sites[int(s)]][Orbital[o]] = {}
+                pdoss[structure.sites[int(s)]][Orbital[o]][
                     Spin.up] = self._dos_partial[s][o]
         return CompleteDos(structure, total_dos=self.dos, pdoss=pdoss)
 

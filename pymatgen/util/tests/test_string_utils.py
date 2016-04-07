@@ -34,19 +34,6 @@ class FuncTest(unittest.TestCase):
         self.assertEqual(latexify_spacegroup("Fd-3m"), "Fd$\overline{3}$m")
         self.assertEqual(latexify_spacegroup("P2_1/c"), "P2$_{1}$/c")
 
-    def test_str_aligned_delimited(self):
-        data = [["a", "bb"], ["ccc", "dddd"]]
-        ans = """  a     bb
-ccc   dddd"""
-        self.assertEqual(str_aligned(data), ans)
-        self.assertEqual(str_aligned(data, header=["X", "Y"]),
-                         '  X      Y\n----------\n  a     bb\nccc   dddd')
-        self.assertEqual(str_delimited(data), 'a\tbb\nccc\tdddd')
-
-    def test_generate_latex_table(self):
-        data = [["a", "bb"], ["ccc", "dddd"]]
-        self.assertEqual(generate_latex_table(data), '\\begin{table}[H]\n\\caption{Caption}\n\\label{Label}\n\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}cc}\n\\hline\na & bb\\\\\nccc & dddd\\\\\n\\hline\n\\end{tabular*}\n\\end{table}')
-
     def test_formula_double_format(self):
         self.assertEqual(formula_double_format(1.00), "")
         self.assertEqual(formula_double_format(2.00), "2")

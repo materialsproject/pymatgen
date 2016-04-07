@@ -7,36 +7,48 @@ Introduction
 ============
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
-for materials analysis. It currently powers the public Materials Project
-(http://www.materialsproject.org), an initiative to make calculated
-properties of all known inorganic materials available to materials
-researchers. These are some of the main features:
+for materials analysis. These are some of the main features:
 
 1. Highly flexible classes for the representation of Element, Site, Molecule,
    Structure objects.
-2. Extensive io capabilities to manipulate many VASP
-   (http://cms.mpi.univie.ac.at/vasp/) and ABINIT (http://www.abinit.org/)
-   input and output files and the crystallographic information file format.
-   This includes generating Structure objects from vasp input and output.
-   There is also support for Gaussian input files and XYZ file for molecules.
-3. Comprehensive tool to generate and view compositional and grand canonical
-   phase diagrams.
-4. Electronic structure analyses (DOS and Bandstructure).
+2. Extensive input/output support, including support for VASP
+   (http://cms.mpi.univie.ac.at/vasp/), ABINIT (http://www.abinit.org/), CIF,
+   Gaussian, XYZ, and many other file formats.
+3. Powerful analysis tools, including generation of phase diagrams, Pourbaix
+   diagrams, diffusion analyses, reactions, etc.
+4. Electronic structure analyses, such as density of states and band structure.
 5. Integration with the Materials Project REST API.
-
-Pymatgen, like all scientific research, will always be a work in progress.
-While the development team will always strive to avoid backward incompatible
-changes, they are sometimes unavoidable, and tough decisions have to be made
-for the long term health of the code.
 
 Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions.  These contributions can be in the
-form of additional tools or modules you develop, or even simple things such
-as bug reports. Please report any bugs and issues at pymatgen's `Github
-page`_. If you wish to be notified of pymatgen releases, you may become a
-member of `pymatgen's Google Groups page`_.
+form of additional tools or modules you develop, or feature requests and bug
+reports. Please report any bugs and issues at pymatgen's `Github Issues
+page <https://github.com/materialsproject/pymatgen/issues>`_. If you wish to
+be notified of pymatgen releases and need help with using pymatgen, please
+become a member of `pymatgen's Google Groups`_.
 
     *The code is mightier than the pen.*
+
+Matgenie & Examples
+===================
+
+The `Materials Virtual Lab`_ has developed a
+`matgenie web app <http://www.materialsvirtuallab.org/matgenie>`_ which
+demonstrates some of the basic functionality of pymatgen.
+
+Another good way to explore the functionality of pymatgen is to look at the
+examples in a :doc:`series of ipython notebooks </examples>`.
+Below are a quick look at some of the graphical output possible.
+
+.. figure:: _static/examples.png
+   :width: 100%
+   :alt: Examples
+   :align: center
+
+   Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
+   Bottom left: Calculated bandstructure plot using pymatgen's parsing and
+   plotting utilities. Bottom right: Arrhenius plot using pymatgen's
+   DiffusionAnalyzer.
 
 Why use pymatgen?
 =================
@@ -45,11 +57,12 @@ There are many materials analysis codes out there, both commerical and free.
 So you might ask - why should I use pymatgen over others? Pymatgen offer
 several advantages over other codes out there:
 
-1. **It is (fairly) robust.** Pymatgen is used in the Materials Project. As
-   such, the analysis it produces survives rigorous scrutiny every single
-   day. Bugs tend to be found and corrected quickly. Pymatgen also uses
+1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers,
+   and is the analysis code powering the `Materials Project`_. The analysis it
+   produces survives rigorous scrutiny every single day. Bugs tend to be
+   found and corrected quickly. Pymatgen also uses
    `CircleCI <https://circleci.com>`_ for continuous integration, which ensures
-   that all unittests pass with every commit.
+   that every commit passes a comprehensive suite of unittests.
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly.
 3. **It is open.** You are free to use and contribute to pymatgen. It also means
@@ -62,6 +75,12 @@ several advantages over other codes out there:
    manipulations are extremely fast and are in fact comparable to codes
    written in other languages. Pymatgen also comes with a complete system for
    handling periodic boundary conditions.
+5. **It will be around.** Pymatgen is not a pet research project. It is used in
+   the well-established Materials Project. It is also actively being developed
+   and maintained by the Materials Virtual Lab, the ABINIT group and many other
+   research groups. The plan is to make sure pymatgen will stand the test of
+   time and be the de facto analysis code for most materials and structural
+   analysis.
 
 With effect from version 3.0, pymatgen now supports both Python 2.7 as well
 as Python 3.x. For developers working to add new features to pymatgen, this
@@ -182,10 +201,7 @@ or NERSC resources in the US, there are several things you need to take note of:
    pymatgen (and other dependencies) using the "--user" option::
 
     pip install pymatgen --user
-
-   or::
-
-    python setup.py develop --user
+    # or python setup.py develop --user if you are installing the dev version.
 
    This will install pymatgen in your $HOME/.local/lib/python2.7/site-packages.
    You may need to add this to your PYTHONPATH variable, e.g., in your
@@ -342,12 +358,6 @@ strongly encouraged to explore the :doc:`usage pages </usage>` (toc given below)
 
    usage
 
-Examples
---------
-
-A good way to explore the functionality of pymatgen is to look at examples.
-Please check out the ipython notebooks at our :doc:`examples page </examples>`.
-
 API documentation
 -----------------
 
@@ -423,6 +433,9 @@ Some add-ons are available for pymatgen today:
    provides tools to create databases of calculated run data using pymatgen.
 2. The `custodian`_ package provides a JIT job management and error
    correction for calculations.
+3. The `pymatgen-diffusion <https://pypi.python.org/pypi/pymatgen-diffusion>`_
+   by the `Materials Virtual Lab`_ provides additional useful analyses for
+   diffusion in materials.
 
 Contributing
 ============
@@ -450,9 +463,8 @@ Google Groups page`_ or even better, submit an Issue in our `Github page`_.
 Developing new functionality
 ----------------------------
 
-Another way to contribute is to submit new code/bugfixes to pymatgen. While
-you can always zip your code and email it to the maintainer of pymatgen,
-the best way for anyone to develop pymatgen is by adopting the collaborative
+Another way to contribute is to submit new code/bugfixes to pymatgen. The
+best way for anyone to develop pymatgen is by adopting the collaborative
 Github workflow (see `contributing page </contributing>`_).
 
 How to cite pymatgen
@@ -483,7 +495,8 @@ follows:
 About the Pymatgen Development Team
 ===================================
 
-Shyue Ping Ong started Pymatgen in 2011, and is still the project lead.
+Shyue Ping Ong of the `Materials Virtual Lab`_ started Pymatgen in 2011, and is
+still the project lead.
 
 The Pymatgen Development Team is the set of all contributors to the
 pymatgen project, including all subprojects.
@@ -517,9 +530,10 @@ Indices and tables
 * :ref:`search`
 
 
-.. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
-.. _`PyPI` : http://pypi.python.org/pypi/pymatgen
+.. _`pymatgen's Google Groups`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
+.. _`PyPI`: http://pypi.python.org/pypi/pymatgen
 .. _`Github page`: https://github.com/materialsproject/pymatgen/issues
 .. _`custodian`: https://pypi.python.org/pypi/custodian
 .. _`FireWorks`: https://pythonhosted.org/FireWorks/
+.. _`Materials Project`: https://www.materialsproject.org
 .. _`Materials Virtual Lab`: http://www.materialsvirtuallab.org

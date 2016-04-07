@@ -625,7 +625,6 @@ class SlabGenerator(object):
                                 c_ranges.add(c_range)
         return c_ranges
 
-
     def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0):
         """
         This method returns a list of slabs that are generated using the list of

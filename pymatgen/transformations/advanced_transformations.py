@@ -359,8 +359,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                                     for row in transformation])
             if contains_oxidation_state:
                 if transformation not in ewald_matrices:
-                    s_supercell = Structure.from_sites(structure.sites)
-                    s_supercell.make_supercell(transformation)
+                    s_supercell = structure * transformation
                     ewald = EwaldSummation(s_supercell)
                     ewald_matrices[transformation] = ewald
                 else:
@@ -512,10 +511,8 @@ class MagOrderingTransformation(AbstractTransformation):
             return n1 * n2 / gcd(n1, n2)
 
         denom = Fraction(order_parameter).limit_denominator(100).denominator
-
-        atom_per_specie = [structure.composition.get(m)
+        atom_per_specie = [structure.composition[m]
                            for m in mag_species_spin.keys()]
-
         n_gcd = six.moves.reduce(gcd, atom_per_specie)
 
         if not n_gcd:
@@ -578,6 +575,7 @@ class MagOrderingTransformation(AbstractTransformation):
         out = []
         for _, g in groupby(sorted([d["structure"] for d in alls],
                                    key=key), key):
+            g = list(g)
             grouped = m.group_structures(g)
             out.extend([{"structure": g[0],
                          "energy": self.emodel.get_energy(g[0])}

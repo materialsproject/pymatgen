@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
+from __future__ import division, unicode_literals, print_function
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
@@ -36,6 +36,10 @@ class IStructureTest(PymatgenTest):
         self.propertied_structure = IStructure(
             self.lattice, ["Si"] * 2, coords,
             site_properties={'magmom': [5, -5]})
+
+    def test_matches(self):
+        ss = self.struct * 2
+        self.assertTrue(ss.matches(self.struct))
 
     def test_bad_structure(self):
         coords = list()
@@ -79,6 +83,8 @@ class IStructureTest(PymatgenTest):
                           for site in s.get_sorted_structure()],
                          ["C", "C", "Se", "Se"])
 
+    def test_get_spacegroup_data(self):
+        self.assertEqual(self.struct.get_spacegroup_info(), ('Fd-3m', 227))
 
     def test_fractional_occupations(self):
         coords = list()
@@ -121,10 +127,19 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(d['sites'][0]['properties']['magmom'], 5)
         self.assertEqual(d['sites'][0]['species'][0]['properties']['spin'], 3)
 
+        d = s.as_dict(0)
+        self.assertNotIn("volume", d['lattice'])
+        self.assertNotIn("xyz", d['sites'][0])
+
     def test_from_dict(self):
+
         d = self.propertied_structure.as_dict()
         s = IStructure.from_dict(d)
         self.assertEqual(s[0].magmom, 5)
+        d = self.propertied_structure.as_dict(0)
+        s2 = IStructure.from_dict(d)
+        self.assertEqual(s, s2)
+
         d = {'lattice': {'a': 3.8401979337, 'volume': 40.044794644251596,
                          'c': 3.8401979337177736, 'b': 3.840198994344244,
                          'matrix': [[3.8401979337, 0.0, 0.0],
@@ -580,6 +595,17 @@ class StructureTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.structure.frac_coords[0],
                                     [1.00187517, 1.25665291, 1.15946374])
 
+    def test_mul(self):
+        self.structure *= [2, 1, 1]
+        self.assertEqual(self.structure.formula, "Si4")
+        s = [2, 1, 1] * self.structure
+        self.assertEqual(s.formula, "Si8")
+        self.assertIsInstance(s, Structure)
+        s = self.structure * [[1, 0, 0], [2, 1, 0], [0, 0, 2]]
+        self.assertEqual(s.formula, "Si8")
+        self.assertArrayAlmostEqual(s.lattice.abc,
+                                    [7.6803959, 17.5979979, 7.6803959])
+
     def test_make_supercell(self):
         self.structure.make_supercell([2, 1, 1])
         self.assertEqual(self.structure.formula, "Si4")
@@ -612,22 +638,6 @@ class StructureTest(PymatgenTest):
         d = self.structure.as_dict()
         s2 = Structure.from_dict(d)
         self.assertEqual(type(s2), Structure)
-
-    def test_propertied_structure_mod(self):
-        prop_structure = Structure(
-            self.structure.lattice, ["Si"] * 2, self.structure.frac_coords,
-            site_properties={'magmom': [5, -5]})
-        prop_structure.append("C", [0.25, 0.25, 0.25])
-        d = prop_structure.as_dict()
-        with warnings.catch_warnings(record=True) as w:
-            # Cause all warnings to always be triggered.
-            warnings.simplefilter("always")
-            s2 = Structure.from_dict(d)
-            self.assertEqual(len(w), 1)
-            self.assertEqual(
-                str(w[0].message),
-                'Not all sites have property magmom. Missing values are set '
-                'to None.')
 
     def test_to_from_file_string(self):
         for fmt in ["cif", "json", "poscar", "cssr", "yaml", "xsf"]:
