@@ -381,6 +381,8 @@ class OutcarTest(unittest.TestCase):
 
             self.assertIsNotNone(outcar.as_dict())
 
+            self.assertFalse(outcar.lepsilon)
+
         filepath = os.path.join(test_dir, 'OUTCAR.stopped')
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
@@ -389,9 +391,7 @@ class OutcarTest(unittest.TestCase):
             filepath = os.path.join(test_dir, f)
             outcar = Outcar(filepath)
 
-            outcar.read_lepsilon()
-            outcar.read_lepsilon_ionic()
-
+            self.assertTrue(outcar.lepsilon)
             self.assertAlmostEqual(outcar.dielectric_tensor[0][0], 3.716432)
             self.assertAlmostEqual(outcar.dielectric_tensor[0][1], -0.20464)
             self.assertAlmostEqual(outcar.dielectric_tensor[1][2], -0.20464)

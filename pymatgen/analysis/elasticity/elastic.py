@@ -156,6 +156,18 @@ class ElasticTensor(SQTensor):
                     c[j, i, l, k] = c[k, l, i, j] = self[p, q]
         return c
 
+    def transform(self, symm_op):
+        """
+        Returns a transformed tensor based on input of symmetry operation
+
+        Args:
+            symm_op (symm_op): symmetry operation
+        """
+        
+        new_tensor = symm_op.transform_tensor(self.full_tensor)
+        return ElasticTensor.from_full_tensor(new_tensor)
+
+
     def energy_density(self,strain):
         """
             Calculates the elastic energy density due to a strain
