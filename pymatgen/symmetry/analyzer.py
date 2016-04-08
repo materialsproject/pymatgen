@@ -46,11 +46,14 @@ try:
     import pymatgen._spglib as spg
 except ImportError:
     try:
-        import pyspglib._spglib as spg
+        import spglib._spglib as spg
     except ImportError:
-        msg = "Spglib required. Please either run python setup.py install" + \
-              " for pymatgen, or install pyspglib from spglib."
-        raise ImportError(msg)
+        try:
+            import pyspglib._spglib as spg
+        except ImportError:
+            msg = "Spglib required. Please either run python setup.py install" + \
+                  " for pymatgen, or install pyspglib from spglib."
+            raise ImportError(msg)
 
 
 logger = logging.getLogger(__name__)
@@ -188,7 +191,11 @@ class SpacegroupAnalyzer(object):
         Returns:
             (Pointgroup): Point group for structure.
         """
-        return get_point_group(self._spacegroup_data["rotations"])[0].strip()
+        rotations = self._spacegroup_data["rotations"]
+        # passing a 0-length rotations list to spglib can segfault
+        if len(rotations) == 0:
+            return '1'
+        return get_point_group(rotations)[0].strip()
 
     def get_crystal_system(self):
         """
