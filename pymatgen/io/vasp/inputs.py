@@ -377,7 +377,7 @@ class Poscar(MSONable):
             # First line in chunk is a key in CONTCAR
             # Second line is POTIM
             # Third line is the thermostat parameters
-            predictor_corrector_preamble = lines[0] + "\n" + lines[1]+"\n" + lines[2]+"\n"
+            predictor_corrector_preamble = lines[0] + "\n" + lines[1]+"\n" + lines[2]
             # Rest is three sets of parameters, each set contains
             # x, y, z predictor-corrector parameters for every atom in orde
             lines = lines[3:]
@@ -449,9 +449,10 @@ class Poscar(MSONable):
             try:
                 lines.append(self.predictor_corrector_preamble)
             except:
-                raise ValueError("Preamble information missing")
-            for v in self.predictor_corrector:
-                for z in v:
+                raise ValueError("Preamble information missing or corrupt.")
+            pred = np.array(self.predictor_corrector)
+            for col in range(3):
+                for z in pred[:,col]:
                     lines.append(" ".join([format_str.format(i) for i in z]))
 
         return "\n".join(lines) + "\n"
