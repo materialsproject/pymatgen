@@ -429,7 +429,12 @@ class PointGroupAnalyzerTest(PymatgenTest):
         # for some reason this structure kills spglib1.9
         # 1.7 can't find symmetry either, but at least doesn't kill python
         s = Structure.from_file(os.path.join(test_dir, 'POSCAR.tricky_symmetry'))
-        SpacegroupAnalyzer(s, 0.1).get_symmetry_operations()
+        sa = SpacegroupAnalyzer(s, 0.1)
+        sa.get_spacegroup_symbol()
+        sa.get_spacegroup_number()
+        sa.get_point_group()
+        sa.get_crystal_system()
+        sa.get_hall()
 
 class FuncTest(unittest.TestCase):
 
