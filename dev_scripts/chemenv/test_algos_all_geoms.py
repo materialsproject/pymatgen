@@ -1,18 +1,25 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder, AbstractGeometry
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries, UNCLEAR_ENVIRONMENT_SYMBOL
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import StructureEnvironments
-from pymatgen.analysis.chemenv.utils.scripts_utils import draw_cg
-from pymatgen.analysis.chemenv.utils.scripts_utils import visualize
-from pymatgen.analysis.chemenv.utils.chemenv_errors import NeighborsNotComputedChemenvError
-from pymatgen.vis.structure_vtk import StructureVis
-from pymatgen.io.cif import CifParser
-from pymatgen.core.sites import PeriodicSite
+from __future__ import division, unicode_literals
+
+"""
+Development script to test the algorithms of all the model coordination environments
+"""
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from math import factorial
 
-import numpy as np
 import itertools
 from random import shuffle
 
@@ -24,19 +31,27 @@ if __name__ == '__main__':
 
     test = raw_input('Standard ("s", all permutations for cn <= 6, 500 random permutations for cn > 6) or on demand')
     if test == 's':
-        standard = True
+        perms_def = 'standard'
+    elif test == 'o':
+        perms_def = 'on_demand'
     else:
-        standard = False
+        try:
+            nperms = int(test)
+            perms_def = 'ndefined'
+        except:
+            perms_def = 'on_demand'
 
-    for coordination in range(1, 9):
+    for coordination in range(1, 13):
         print('IN COORDINATION {:d}'.format(coordination))
         symbol_name_mapping = allcg.get_symbol_name_mapping(coordination=coordination)
 
-        if standard:
+        if perms_def == 'standard':
             if coordination > 6:
                 test = '500'
             else:
                 test = 'all'
+        elif perms_def == 'ndefined':
+            test = nperms
         else:
             test = raw_input('Enter if you want to test all possible permutations ("all" or "a") or a given number of random permutations (i.e. "25")')
         myindices = range(coordination)
@@ -57,6 +72,9 @@ if __name__ == '__main__':
                 perms_iterator.append(list(myindices))
 
         for cg_symbol, cg_name in symbol_name_mapping.items():
+            cg = allcg[cg_symbol]
+            if cg.deactivate:
+                continue
 
             print('Testing {} ({})'.format(cg_symbol, cg_name))
 
@@ -83,17 +101,20 @@ if __name__ == '__main__':
                                                    random_translation=True, random_rotation=True, random_scale=True)
 
                 lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
+                points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
 
                 print('Perm # {:d}/{:d} : '.format(iperm, nperms), indices_perm)
 
                 algos_results = []
                 for algo in cg.algorithms:
                     if algo.algorithm_type == 'EXPLICIT_PERMUTATIONS':
-                        results = lgf.coordination_geometry_symmetry_measures_newpmg(coordination_geometry=cg)
+                        results = lgf.coordination_geometry_symmetry_measures(coordination_geometry=cg,
+                                                                              points_perfect=points_perfect)
                         # raise ValueError('Do something for the explicit ones ... (these should anyway be by far ok!)')
                     else:
-                        results = lgf.coordination_geometry_symmetry_measures_separation_plane_newpmg(coordination_geometry=cg,
-                                                                                                      separation_plane_algo=algo)
+                        results = lgf.coordination_geometry_symmetry_measures_separation_plane(coordination_geometry=cg,
+                                                                                               separation_plane_algo=algo,
+                                                                                               points_perfect=points_perfect)
                     algos_results.append(min(results[0]))
 
                     if not min(results[0]) < 1.5:

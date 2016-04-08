@@ -24,59 +24,57 @@ class CoordinationGeometryFinderTest(unittest2.TestCase):
         self.lgf.setup_parameters(centering_type='standard')
         self.strategies = [SimplestChemenvStrategy(), SimpleAbundanceChemenvStrategy()]
 
-    def _strategy_test(self, strategy):
-        files = []
-        for (dirpath, dirnames, filenames) in os.walk(json_files_dir):
-            files.extend(filenames)
-            break
-
-        for ifile, json_file in enumerate(files):
-            with self.subTest(json_file=json_file):
-                f = open("{}/{}".format(json_files_dir, json_file), 'r')
-                dd = json.load(f)
-                f.close()
-
-                atom_indices = dd['atom_indices']
-                expected_geoms = dd['expected_geoms']
-
-                struct = Structure.from_dict(dd['structure'])
-
-                struct = self.lgf.setup_structure(struct)
-                se = self.lgf.compute_structure_environments_detailed_voronoi(only_indices=atom_indices,
-                                                                              maximum_distance_factor=2.25,
-                                                                              minimum_angle_factor=0.01)
-
-                #All strategies should get the correct environment with their default parameters
-                strategy.set_structure_environments(se)
-                for ienv, isite in enumerate(atom_indices):
-                    ce = strategy.get_site_coordination_environment(struct[isite])
-                    try:
-                        coord_env = ce[0]
-                    except TypeError:
-                        coord_env = ce
-                    #Check that the environment found is the expected one
-                    self.assertEqual(coord_env, expected_geoms[ienv])
-
-    def test_simplest_chemenv_strategy(self):
-        strategy = SimplestChemenvStrategy()
-        self._strategy_test(strategy)
-
-    def test_simple_abundance_chemenv_strategy(self):
-        strategy = SimpleAbundanceChemenvStrategy()
-        self._strategy_test(strategy)
+    # def _strategy_test(self, strategy):
+    #     files = []
+    #     for (dirpath, dirnames, filenames) in os.walk(json_files_dir):
+    #         files.extend(filenames)
+    #         break
+    #
+    #     for ifile, json_file in enumerate(files):
+    #         with self.subTest(json_file=json_file):
+    #             f = open("{}/{}".format(json_files_dir, json_file), 'r')
+    #             dd = json.load(f)
+    #             f.close()
+    #
+    #             atom_indices = dd['atom_indices']
+    #             expected_geoms = dd['expected_geoms']
+    #
+    #             struct = Structure.from_dict(dd['structure'])
+    #
+    #             struct = self.lgf.setup_structure(struct)
+    #             se = self.lgf.compute_structure_environments_detailed_voronoi(only_indices=atom_indices,
+    #                                                                           maximum_distance_factor=1.5)
+    #
+    #             #All strategies should get the correct environment with their default parameters
+    #             strategy.set_structure_environments(se)
+    #             for ienv, isite in enumerate(atom_indices):
+    #                 ce = strategy.get_site_coordination_environment(struct[isite])
+    #                 try:
+    #                     coord_env = ce[0]
+    #                 except TypeError:
+    #                     coord_env = ce
+    #                 #Check that the environment found is the expected one
+    #                 self.assertEqual(coord_env, expected_geoms[ienv])
+    #
+    # def test_simplest_chemenv_strategy(self):
+    #     strategy = SimplestChemenvStrategy()
+    #     self._strategy_test(strategy)
+    #
+    # def test_simple_abundance_chemenv_strategy(self):
+    #     strategy = SimpleAbundanceChemenvStrategy()
+    #     self._strategy_test(strategy)
 
     def test_perfect_environments(self):
         for coordination in range(1, 13):
             for mp_symbol in AllCoordinationGeometries().get_implemented_geometries(coordination=coordination,
                                                                                     returned='mp_symbol'):
                 with self.subTest(msg=mp_symbol, mp_symbol=mp_symbol):
-                    self.lgf.setup_test_perfect_structure(mp_symbol, randomness=False, randomness_percentage=10,
-                                                          symbol_type='mp_symbol', random_indices=True,
-                                                          random_translation=True, random_rotation=True,
-                                                          random_scale=True)
+                    self.lgf.setup_test_perfect_environment(mp_symbol, randomness=False,
+                                                            indices='RANDOM',
+                                                            random_translation=True, random_rotation=True,
+                                                            random_scale=True)
                     se = self.lgf.compute_structure_environments_detailed_voronoi(only_indices=[0],
-                                                                                  maximum_distance_factor=2.25,
-                                                                                  minimum_angle_factor=0.01)
+                                                                                  maximum_distance_factor=1.5)
                     self.assertAlmostEqual(se.get_csm(0, mp_symbol)['symmetry_measure'], 0.0,
                                            msg='mp_symbol {} not recognized ...'.format(mp_symbol))
 

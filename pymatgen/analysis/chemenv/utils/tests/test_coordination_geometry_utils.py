@@ -261,12 +261,4 @@ class PlanesUtilsTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    expected_projected_points = [np.array([-0.33333333, -0.16666667,  0.33333333]),
-                                 np.array([7.44444444, 8.72222222, 12.55555556]),
-                                 np.array([1.33333333, 2.36666667, 3.26666667]),
-                                 np.array([-1.77777778, -2.38888889, -2.22222222]),
-                                 np.array([-1.55555556,  0.72222222, -0.44444444])]
-    points_to_project = [np.array([1, 0, 0]), np.array([0, 1, 0]), np.array([0, 0, 1]), np.array([0, 0, 0])]
-    Plane.from_npoints_maximum_distance(points=points_to_project)
-
     unittest.main()
