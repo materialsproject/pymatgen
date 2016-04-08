@@ -79,10 +79,7 @@ class EwaldSummation(object):
                 default since it is usually not needed.
         """
         self._s = structure
-        if abs(structure.charge) > 1e-8:
-            warn('Charged structures not supported in EwaldSummation, but '
-                 'charged input structures can be used for '
-                 'EwaldSummation.compute_sub_structure')
+        self._charged = abs(structure.charge) > 1e-8
         self._vol = structure.volume
         self._compute_forces = compute_forces
 
@@ -226,6 +223,10 @@ class EwaldSummation(object):
         """
         The total energy.
         """
+        if self._charged:
+            warn('Charged structures not supported in EwaldSummation, but '
+                 'charged input structures can be used for '
+                 'EwaldSummation.compute_sub_structure')
         return sum(sum(self._recip)) + sum(sum(self._real)) + sum(self._point)
 
     @property
