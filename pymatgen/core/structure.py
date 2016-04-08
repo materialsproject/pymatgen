@@ -2279,7 +2279,8 @@ class Structure(IStructure, collections.MutableSequence):
 
         Args:
             property_name (str): The name of the property to add.
-            value: can be of any type depending on the property.
+            value: Depends on the property to be stored.
+                Can be of any JSON serializable object.
         """
         if not self._struct_props:
             self._struct_props = {}
