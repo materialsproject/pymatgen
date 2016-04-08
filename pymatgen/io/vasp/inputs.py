@@ -843,7 +843,7 @@ class Kpoints(MSONable):
         self.comment = comment
         self.num_kpts = num_kpts
         self.kpts = kpts
-        self._style = style
+        self.style = style
         self.coord_type = coord_type
         self.kpts_weights = kpts_weights
         self.kpts_shift = kpts_shift
@@ -1251,9 +1251,6 @@ class Kpoints(MSONable):
     def from_dict(cls, d):
         comment = d.get("comment", "")
         generation_style = d.get("generation_style")
-        if generation_style is not None:
-            generation_style = Kpoints.supported_modes[generation_style]
-
         kpts = d.get("kpoints", [[1, 1, 1]])
         kpts_shift = d.get("usershift", [0, 0, 0])
         num_kpts = d.get("nkpoints", 0)
