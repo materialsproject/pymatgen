@@ -89,8 +89,7 @@ def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None):
 
 
 # Visualizing a coordination geometry
-def visualize(cg, zoom=None, vis=None):
-    myfactor = 3.0
+def visualize(cg, zoom=None, vis=None, myfactor=1.0):
     if vis is None:
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
     myspecies = ["O"] * (cg.coordination_number+1)
@@ -108,7 +107,6 @@ def visualize(cg, zoom=None, vis=None):
         vis.add_text(neighbor.coords, '{}'.format(ineighbor), color=(0, 0, 0))
     if zoom is not None:
         vis.zoom(zoom)
-    vis.show()
     return vis
 
 
@@ -278,8 +276,10 @@ def compute_environments(chemenv_configuration):
                                                  properties=site._properties)
                             vis.add_site(psite)
                             neighbors = strategy.get_site_neighbors(psite)
+                            # draw_cg(vis, psite, neighbors, cg=lgf.cg.get_geometry_from_mp_symbol(ce[0]),
+                            #         perfect2local_map=ce[1]['perfect2local_map'])
                             draw_cg(vis, psite, neighbors, cg=lgf.cg.get_geometry_from_mp_symbol(ce[0]),
-                                    perfect2local_map=ce[1]['perfect2local_map'])
+                                    perm=ce[1]['permutation'])
                             # neighbors = strategy.get_site_neighbors(site)
                             # draw_cg(vis, site, neighbors, cg=lgf.cg.get_geometry_from_mp_symbol(ce[0]),
                             #        perm=ce[1]['permutation'])

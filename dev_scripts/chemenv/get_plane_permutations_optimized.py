@@ -1,4 +1,20 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
+
+"""
+Development script of the ChemEnv utility to get the optimized explicit permutations for coordination environments
+identified with the separation plane algorithms (typically with coordination numbers >= 6)
+"""
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
@@ -134,6 +150,7 @@ if __name__ == '__main__':
         lgf.setup_test_perfect_environment(cg_symbol, randomness=True, indices=range(cg.coordination_number),
                                            max_random_dist=0.05)
         lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
+        points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
 
         # 1. Check the algorithms defined for this coordination geometry and get the explicit permutations
         original_nexplicit_perms = []
@@ -149,10 +166,10 @@ if __name__ == '__main__':
             print('For ialgo {:d}, plane_points are {}, '
                   'side_0 is {} and '
                   'side_1 is {}.'.format(ialgo,
-                                        '[{}]'.format(', '.join([str(pp) for pp in algo.plane_points])),
-                                        '[{}]'.format(', '.join([str(pp) for pp in algo.point_groups[0]])),
-                                        '[{}]'.format(', '.join([str(pp) for pp in algo.point_groups[1]]))
-                                        ))
+                                         '[{}]'.format(', '.join([str(pp) for pp in algo.plane_points])),
+                                         '[{}]'.format(', '.join([str(pp) for pp in algo.point_groups[0]])),
+                                         '[{}]'.format(', '.join([str(pp) for pp in algo.point_groups[1]]))
+                                         ))
             original_nexplicit_perms.append(len(algo.explicit_permutations))
             original_nexplicit_optimized_perms.append(eop)
             print('  For this algorithm, there are {} optimized permutations and '
@@ -182,13 +199,14 @@ if __name__ == '__main__':
                 local_plane = Plane.from_npoints(points_combination, best_fit='least_square_distance')
 
                 # Actual test of the permutations
-                csms, perms, algos, sep_perms = lgf._cg_csm_separation_plane_newpmg(coordination_geometry=cg,
-                                                                                    sepplane=algo,
-                                                                                    local_plane=local_plane,
-                                                                                    plane_separations=[],
-                                                                                    dist_tolerances=[0.05, 0.1,
-                                                                                                     0.2, 0.3],
-                                                                                    testing=True)
+                csms, perms, algos, sep_perms = lgf._cg_csm_separation_plane(coordination_geometry=cg,
+                                                                             sepplane=algo,
+                                                                             local_plane=local_plane,
+                                                                             plane_separations=[],
+                                                                             dist_tolerances=[0.05, 0.1,
+                                                                                              0.2, 0.3],
+                                                                             testing=True,
+                                                                             points_perfect=points_perfect)
 
                 prt1(string='Continuous symmetry measures', printing_volume=printing_volume)
                 prt1(string=csms, printing_volume=printing_volume)
@@ -296,6 +314,7 @@ if __name__ == '__main__':
                 lgf.setup_test_perfect_environment(cg_symbol, indices=indices_perm, randomness=True,
                                                    max_random_dist=0.02, random_rotation=True)
                 lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
+                points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
 
                 # Loop on the planes
                 separation_permutations = list()
@@ -310,13 +329,14 @@ if __name__ == '__main__':
                     local_plane = Plane.from_npoints(points_combination, best_fit='least_square_distance')
 
                     # Get the results for this algorithm and plane
-                    csms, perms, algos, sep_perms = lgf._cg_csm_separation_plane_newpmg(coordination_geometry=cg,
-                                                                                        sepplane=algo,
-                                                                                        local_plane=local_plane,
-                                                                                        plane_separations=[],
-                                                                                        dist_tolerances=[0.05, 0.1,
-                                                                                                         0.2, 0.3],
-                                                                                        testing=True)
+                    csms, perms, algos, sep_perms = lgf._cg_csm_separation_plane(coordination_geometry=cg,
+                                                                                 sepplane=algo,
+                                                                                 local_plane=local_plane,
+                                                                                 plane_separations=[],
+                                                                                 dist_tolerances=[0.05, 0.1,
+                                                                                                  0.2, 0.3],
+                                                                                 testing=True,
+                                                                                 points_perfect=points_perfect)
 
                     imin = np.argmin(csms)
                     mincsm = min(csms)
@@ -341,9 +361,9 @@ if __name__ == '__main__':
                 iperm += 1
             print('Optimized permutations {:d}/{:d}'
                   '(old : {}/{}) : '.format(len(perms_used),
-                                                len(algo.permutations),
-                                                str(original_nexplicit_optimized_perms[ialgo]),
-                                                str(original_nexplicit_perms[ialgo])))
+                                            len(algo.permutations),
+                                            str(original_nexplicit_optimized_perms[ialgo]),
+                                            str(original_nexplicit_perms[ialgo])))
             for perm, number in perms_used.items():
                 print(' - permutation {} : {:d}'.format('-'.join([str(pp) for pp in perm]), number))
             print('For ialgo {:d} (plane_points : {}, '

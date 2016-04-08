@@ -1338,9 +1338,8 @@ class ChemicalEnvironments(MSONable):
                                            'permutation': [int(i) for i in permutation],
                                            'local2perfect_map': local2perfect_map,
                                            'perfect2local_map': perfect2local_map,
-                                           'detailed_voronoi_index': detailed_voronoi_index}
-        if other_symmetry_measures is not None:
-            self.coord_geoms[mp_symbol].update(other_symmetry_measures)
+                                           'detailed_voronoi_index': detailed_voronoi_index,
+                                           'other_symmetry_measures': other_symmetry_measures}
 
     def __str__(self):
         """

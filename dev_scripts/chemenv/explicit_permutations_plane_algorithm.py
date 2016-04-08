@@ -1,4 +1,13 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
+
+"""
+Development script of the ChemEnv utility to get the explicit permutations for coordination environments identified
+with the separation plane algorithms (typically with coordination numbers >= 6)
+"""
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
@@ -11,16 +20,23 @@ import itertools
 import json
 
 
-
-
 if __name__ == '__main__':
 
-    cg_symbol = 'TT_2:9'
-
+    # Choose the geometry
     allcg = AllCoordinationGeometries()
-    cg = allcg[cg_symbol]
+    while True:
+        cg_symbol = raw_input('Enter symbol of the geometry for which you want to get the explicit permutations : ')
+        try:
+            cg = allcg[cg_symbol]
+            break
+        except LookupError:
+            print('Wrong geometry, try again ...')
+            continue
 
-
+    # Check if the algorithm currently defined for this geometry corresponds to the explicit permutation algorithm
+    for algo in cg.algorithms:
+        if algo.algorithm_type != 'SEPARATION_PLANE':
+            raise ValueError('WRONG ALGORITHM !')
 
     newalgos = []
 
@@ -82,16 +98,15 @@ if __name__ == '__main__':
                 else:
                     raise ValueError('Wrong number of points to initialize separation plane')
 
+        points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
         # Actual test of the permutations
-        cgsm = lgf._cg_csm_separation_plane_newpmg(coordination_geometry=cg,
-                                                   sepplane=sepplanealgo,
-                                                   local_plane=local_plane,
-                                                   plane_separations=[],
-                                                   dist_tolerances=[0.05, 0.1, 0.2, 0.3],
-                                                   testing=True)
-
-        print(cgsm)
-
+        cgsm = lgf._cg_csm_separation_plane(coordination_geometry=cg,
+                                            sepplane=sepplanealgo,
+                                            local_plane=local_plane,
+                                            plane_separations=[],
+                                            dist_tolerances=[0.05, 0.1, 0.2, 0.3],
+                                            testing=True,
+                                            points_perfect=points_perfect)
 
         csms, perms, algos, sep_perms = cgsm[0], cgsm[1], cgsm[2], cgsm[3]
 

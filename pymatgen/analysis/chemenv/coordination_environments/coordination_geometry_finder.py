@@ -23,6 +23,7 @@ from numpy.linalg import norm
 from numpy import transpose
 from pymatgen.core.structure import Molecule
 from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Specie
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.bond_valence import BVAnalyzer
@@ -122,8 +123,6 @@ class AbstractGeometry(object):
         self.central_site = self.bare_central_site - self.centre
         self.coords = self._coords
         self.bare_coords = self._bare_coords
-        self.current_permutation = range(len(self.coords))
-        #self.central_site = self.centre
 
     def __str__(self):
         """
@@ -161,22 +160,11 @@ class AbstractGeometry(object):
         return cls(central_site=central_site, bare_coords=bare_coords, centering_type=centering_type,
                    include_central_site_in_centroid=include_central_site_in_centroid)
 
-    def points_permutation(self, permutation=None):
-        if permutation is None:
-            self.coords = [cc for cc in self._coords]
-            self.bare_coords = [bc for bc in self._bare_coords]
-            self.current_permutation = range(len(self.coords))
-        else:
-            self.coords = [self._coords[ii] for ii in permutation]
-            self.bare_coords = [self._bare_coords[ii] for ii in permutation]
-            self.current_permutation = permutation
-
     def points_wcs_csc(self, permutation=None):
         if permutation is None:
             return self._points_wcs_csc
         perm = [0]
         perm.extend([pp + 1 for pp in permutation])
-        print('perm', perm)
         return [self._points_wcs_csc[ii] for ii in perm]
 
     def points_wocs_csc(self, permutation=None):
@@ -209,10 +197,9 @@ class AbstractGeometry(object):
         return [self._points_wocs_ctwocc[ii] for ii in permutation]
 
 
-
 def symmetry_measure(points_distorted, points_perfect):
     """
-    Computes the continuous symmetry measure of the (distorted) set of points "points_distorted" with respect to
+    Computes the continuous symmetry measure of the (distorted) set of points "points_distorted" with respect to the
     (perfect) set of points "points_perfect".
     :param points_distorted: List of points describing a given (distorted) polyhedron for which the symmetry measure
                              has to be computed with respect to the model polyhedron described by the list of points
@@ -230,6 +217,7 @@ def symmetry_measure(points_distorted, points_perfect):
     scaling_factor, rotated_coords = find_scaling_factor(points_distorted=points_distorted,
                                                          points_perfect=points_perfect,
                                                          rot=rot)
+    # Compute the continuous symmetry measure [see Eq. 1 in Pinsky et al., Inorganic Chemistry 37, 5575 (1998)]
     num = 0.0
     denom = 0.0
     for ip, pp in enumerate(points_perfect):
@@ -241,9 +229,11 @@ def symmetry_measure(points_distorted, points_perfect):
 
 def find_rotation(points_distorted, points_perfect):
     """
-    This finds the rotation matrix that aligns the local_geometry to the perfect_geometry in a least-square sense.
-    :param local_geometry: The local geometry of the system under study
-    :param perfect_geometry: The perfect geometry of the coordination geometry that has to be rotated
+    This finds the rotation matrix that aligns the (distorted) set of points "points_distorted" with respect to the
+    (perfect) set of points "points_perfect" in a least-square sense.
+    :param points_distorted: List of points describing a given (distorted) polyhedron for which the rotation that
+                             aligns these points in a least-square sense to the set of perfect points "points_perfect"
+    :param points_perfect: List of "perfect" points describing a given model polyhedron.
     :return: The rotation matrix
     """
     isexact = True
@@ -261,33 +251,15 @@ def find_rotation(points_distorted, points_perfect):
     rot = matrixMultiplication(transpose(Vt), transpose(U))
     return rot
 
-# def find_scaling_factor(points_distorted, points_perfect, rot):
-#     """
-#     This finds the scaling factor between the perfect_geometry and the local_geometry in a least-square sense.
-#     :param perfect_geometry: The perfect geometry of the coordination geometry that has to be scaled
-#     :param local_geometry: The local geometry of the system under study
-#     :param rot: The rotation matrix
-#     :return: The scaling factor between the two structures
-#     """
-#     rotated_coords = rotateCoords(points_distorted, rot)
-#     total = 0.0
-#     nn = 0
-#     for ip, pp in enumerate(points_perfect):
-#         num = np.sum(pp * rotated_coords[ip])
-#         denom = np.sum(rotated_coords[ip] * rotated_coords[ip])
-#         if denom != 0.0:
-#             total += num / denom
-#             nn += 1
-#     return total / nn, rotated_coords
-
-
 def find_scaling_factor(points_distorted, points_perfect, rot):
     """
-    This finds the scaling factor between the perfect_geometry and the local_geometry in a least-square sense.
-    :param perfect_geometry: The perfect geometry of the coordination geometry that has to be scaled
-    :param local_geometry: The local geometry of the system under study
+    This finds the scaling factor between the (distorted) set of points "points_distorted" and the
+    (perfect) set of points "points_perfect" in a least-square sense.
+    :param points_distorted: List of points describing a given (distorted) polyhedron for which the scaling factor has
+                             to be obtained.
+    :param points_perfect: List of "perfect" points describing a given model polyhedron.
     :param rot: The rotation matrix
-    :return: The scaling factor between the two structures
+    :return: The scaling factor between the two structures and the rotated set of (distorted) points.
     """
     rotated_coords = rotateCoords(points_distorted, rot)
     num = np.sum([np.dot(rc, points_perfect[ii]) for ii, rc in enumerate(rotated_coords)])
@@ -410,13 +382,11 @@ class LocalGeometryFinder(object):
         self.setup_structure(Structure(lattice, species, coords, coords_are_cartesian))
 
     def compute_structure_environments_detailed_voronoi(self, excluded_atoms=None, only_atoms=None,
-                                                               only_cations=True, only_indices=None,
-                                                               source_structure_valence_fallback=False,
-                                                               no_valence_exclude_atoms_fallback=None,
-                                                               maximum_distance_factor=None,
-                                                               minimum_angle_factor=None, max_cn=None):
-
-
+                                                        only_cations=True, only_indices=None,
+                                                        source_structure_valence_fallback=False,
+                                                        no_valence_exclude_atoms_fallback=None,
+                                                        maximum_distance_factor=None,
+                                                        minimum_angle_factor=None, max_cn=None):
         """
         Computes and returns the StructureEnvironments object containing all the information about the coordination
         environments in the structure
@@ -552,296 +522,7 @@ class LocalGeometryFinder(object):
         return StructureEnvironments(self.detailed_voronoi, self.valences, self.sites_map, self.equivalent_sites,
                                      ce_list, self.structure)
 
-    def compute_structure_environments_detailed_voronoi_newpmg(self, excluded_atoms=None, only_atoms=None,
-                                                               only_cations=True, only_indices=None,
-                                                               source_structure_valence_fallback=False,
-                                                               no_valence_exclude_atoms_fallback=None,
-                                                               maximum_distance_factor=None,
-                                                               minimum_angle_factor=None, max_cn=None):
-        """
-        Computes and returns the StructureEnvironments object containing all the information about the coordination
-        environments in the structure
-        :param excluded_atoms: Atoms for which the coordination geometries does not have to be identified
-        :param only_atoms: If not set to None, atoms for which the coordination geometries have to be identified
-        :return: The StructureEnvironments object containing all the information about the coordination
-        environments in the structure
-        """
-
-        # Bond valence analysis to get approximated valences
-        bva = BVAnalyzer(distance_scale_factor=self.bva_distance_scale_factor)
-        self.info = {}
-        try:
-            self.bva_valences = bva.get_valences(self.structure)
-            self.info['valences'] = 'bva'
-        except:
-            self.bva_valences = 'undefined'
-            self.info['valences'] = 'undefined'
-        self.valences = self.bva_valences
-
-        # Get a list of indices of unequivalent sites from the initial structure
-        if (self.structure_refinement == self.STRUCTURE_REFINEMENT_SYMMETRIZED and
-                    len(self.symmetrized_structure.equivalent_sites) > 0):
-            indices = []
-            ind_eqsites_found = []
-            self.equivalent_sites = self.symmetrized_structure.equivalent_sites
-            self.struct_sites_to_irreducible_site_list_map = [-1]*len(self.structure)
-            self.sites_map = [-1]*len(self.structure)
-            eqsite_found = [-1]*len(self.symmetrized_structure.equivalent_sites)
-            for isite, site in enumerate(self.structure):
-                for ieqsites, eqsites in enumerate(self.symmetrized_structure.equivalent_sites):
-                    if site in eqsites:
-                        self.struct_sites_to_irreducible_site_list_map[isite] = ieqsites
-                        if ieqsites not in ind_eqsites_found:
-                            indices.append(isite)
-                            ind_eqsites_found.append(ieqsites)
-                            myieqsite = isite
-                            eqsite_found[ieqsites] = myieqsite
-                        else:
-                            myieqsite = eqsite_found[ieqsites]
-                self.sites_map[isite] = myieqsite
-        else:
-            self.equivalent_sites = [[site] for site in self.structure]
-            self.struct_sites_to_irreducible_site_list_map = list(range(len(self.structure)))
-            self.sites_map = list(range(len(self.structure)))
-            indices = list(range(len(self.structure)))
-
-        if source_structure_valence_fallback and self.bva_valences == 'undefined':
-            dummyspoccu = self.structure[0].species_and_occu
-            ok = False
-            if isinstance(dummyspoccu.keys()[0], Specie):
-                self.valences = []
-                for isite, site in enumerate(self.structure):
-                    oxi_state = sum([frac*sp.oxi_state for sp, frac in site.species_and_occu.items()])
-                    self.valences.append(oxi_state)
-                if any([val != 0 for val in self.valences]):
-                    ok = True
-                else:
-                    self.valences = 'undefined'
-            if not ok:
-                if no_valence_exclude_atoms_fallback is not None:
-                    if excluded_atoms is None:
-                        excluded_atoms = no_valence_exclude_atoms_fallback
-                    else:
-                        for atom in no_valence_exclude_atoms_fallback:
-                            if atom not in excluded_atoms:
-                                excluded_atoms.append(atom)
-
-        # Get list of unequivalent sites with valence >= 0
-        if only_cations and self.valences != 'undefined':
-            sites_indices = [isite for isite in indices if self.valences[isite] >= 0]
-        else:
-            sites_indices = [isite for isite in indices]
-
-        # Include atoms that are in the list of "only_atoms" if it is provided
-        if only_atoms is not None:
-            sites_indices = [isite for isite in sites_indices
-                             if any([at in [sp.symbol for sp in self.structure[isite].species_and_occu]
-                                     for at in only_atoms])]
-
-        # Exclude atoms that are in the list of excluded atoms
-        if excluded_atoms:
-            sites_indices = [isite for isite in sites_indices
-                             if not any([at in [sp.symbol for sp in self.structure[isite].species_and_occu]
-                                         for at in excluded_atoms])]
-
-        if only_indices is not None:
-            sites_indices = [isite for isite in indices if isite in only_indices]
-
-        # Get the VoronoiContainer for this list of unequivalent sites with valence >= 0
-        self.detailed_voronoi = DetailedVoronoiContainer(self.structure, isites=sites_indices,
-                                                         valences=self.valences,
-                                                         maximum_distance_factor=maximum_distance_factor,
-                                                         minimum_angle_factor=minimum_angle_factor)
-
-        ce_list = []
-        skipped = []
-        for isite in range(len(self.structure)):
-            if isite not in sites_indices:
-                skipped.append(isite)
-                ce_list.append(None)
-                continue
-            coords = self.detailed_voronoi.unique_coordinations(isite)
-
-            ce_dict = {}
-            for cn in coords:
-                if max_cn is not None and cn > max_cn:
-                    continue
-                ce_dict[cn] = []
-                for i_nlist, nlist_tuple in enumerate(coords[cn]):
-                    neighb_list = nlist_tuple[0]
-                    ce = ChemicalEnvironments()
-                    mycoords = [st.coords for st in neighb_list]
-                    self.setup_local_geometry_newpmg(isite, coords=mycoords)
-                    cncgsm = self.get_coordination_symmetry_measures_newpmg()
-                    for cg in cncgsm:
-                        ce.add_coord_geom(cg, cncgsm[cg]['csm'], algo=cncgsm[cg]['algo'],
-                                          permutation=cncgsm[cg]['indices'],
-                                          local2perfect_map=cncgsm[cg]['local2perfect_map'],
-                                          perfect2local_map=cncgsm[cg]['perfect2local_map'],
-                                          detailed_voronoi_index={'cn': cn, 'index': i_nlist}
-                                          )
-                    ce_dict[cn].append(ce)
-            ce_list.append(ce_dict)
-        return StructureEnvironments(self.detailed_voronoi, self.valences, self.sites_map, self.equivalent_sites,
-                                     ce_list, self.structure)
-
-    # def compute_structure_environments_detailed_voronoi(self, excluded_atoms=None, only_atoms=None,
-    #                                                     only_cations=True, only_indices=None,
-    #                                                     source_structure_valence_fallback=False,
-    #                                                     no_valence_exclude_atoms_fallback=None,
-    #                                                     maximum_distance_factor=None,
-    #                                                     minimum_angle_factor=None, max_cn=None):
-    #     """
-    #     Computes and returns the StructureEnvironments object containing all the information about the coordination
-    #     environments in the structure
-    #     :param excluded_atoms: Atoms for which the coordination geometries does not have to be identified
-    #     :param only_atoms: If not set to None, atoms for which the coordination geometries have to be identified
-    #     :return: The StructureEnvironments object containing all the information about the coordination
-    #     environments in the structure
-    #     """
-    #
-    #     # Bond valence analysis to get approximated valences
-    #     bva = BVAnalyzer(distance_scale_factor=self.bva_distance_scale_factor)
-    #     self.info = {}
-    #     try:
-    #         self.bva_valences = bva.get_valences(self.structure)
-    #         self.info['valences'] = 'bva'
-    #     except:
-    #         self.bva_valences = 'undefined'
-    #         self.info['valences'] = 'undefined'
-    #     self.valences = self.bva_valences
-    #
-    #     # Get a list of indices of unequivalent sites from the initial structure
-    #     if (self.structure_refinement == self.STRUCTURE_REFINEMENT_SYMMETRIZED and
-    #                 len(self.symmetrized_structure.equivalent_sites) > 0):
-    #         indices = []
-    #         ind_eqsites_found = []
-    #         self.equivalent_sites = self.symmetrized_structure.equivalent_sites
-    #         self.struct_sites_to_irreducible_site_list_map = [-1]*len(self.structure)
-    #         self.sites_map = [-1]*len(self.structure)
-    #         eqsite_found = [-1]*len(self.symmetrized_structure.equivalent_sites)
-    #         for isite, site in enumerate(self.structure):
-    #             for ieqsites, eqsites in enumerate(self.symmetrized_structure.equivalent_sites):
-    #                 if site in eqsites:
-    #                     self.struct_sites_to_irreducible_site_list_map[isite] = ieqsites
-    #                     if ieqsites not in ind_eqsites_found:
-    #                         indices.append(isite)
-    #                         ind_eqsites_found.append(ieqsites)
-    #                         myieqsite = isite
-    #                         eqsite_found[ieqsites] = myieqsite
-    #                     else:
-    #                         myieqsite = eqsite_found[ieqsites]
-    #             self.sites_map[isite] = myieqsite
-    #     else:
-    #         self.equivalent_sites = [[site] for site in self.structure]
-    #         self.struct_sites_to_irreducible_site_list_map = list(range(len(self.structure)))
-    #         self.sites_map = list(range(len(self.structure)))
-    #         indices = list(range(len(self.structure)))
-    #
-    #     if source_structure_valence_fallback and self.bva_valences == 'undefined':
-    #         dummyspoccu = self.structure[0].species_and_occu
-    #         ok = False
-    #         if isinstance(dummyspoccu.keys()[0], Specie):
-    #             self.valences = []
-    #             for isite, site in enumerate(self.structure):
-    #                 oxi_state = sum([frac*sp.oxi_state for sp, frac in site.species_and_occu.items()])
-    #                 self.valences.append(oxi_state)
-    #             if any([val != 0 for val in self.valences]):
-    #                 ok = True
-    #             else:
-    #                 self.valences = 'undefined'
-    #         if not ok:
-    #             if no_valence_exclude_atoms_fallback is not None:
-    #                 if excluded_atoms is None:
-    #                     excluded_atoms = no_valence_exclude_atoms_fallback
-    #                 else:
-    #                     for atom in no_valence_exclude_atoms_fallback:
-    #                         if atom not in excluded_atoms:
-    #                             excluded_atoms.append(atom)
-    #
-    #     # Get list of unequivalent sites with valence >= 0
-    #     if only_cations and self.valences != 'undefined':
-    #         sites_indices = [isite for isite in indices if self.valences[isite] >= 0]
-    #     else:
-    #         sites_indices = [isite for isite in indices]
-    #
-    #     # Include atoms that are in the list of "only_atoms" if it is provided
-    #     if only_atoms is not None:
-    #         sites_indices = [isite for isite in sites_indices
-    #                          if any([at in [sp.symbol for sp in self.structure[isite].species_and_occu]
-    #                                  for at in only_atoms])]
-    #
-    #     # Exclude atoms that are in the list of excluded atoms
-    #     if excluded_atoms:
-    #         sites_indices = [isite for isite in sites_indices
-    #                          if not any([at in [sp.symbol for sp in self.structure[isite].species_and_occu]
-    #                                      for at in excluded_atoms])]
-    #
-    #     if only_indices is not None:
-    #         sites_indices = [isite for isite in indices if isite in only_indices]
-    #
-    #     # Get the VoronoiContainer for this list of unequivalent sites with valence >= 0
-    #     self.detailed_voronoi = DetailedVoronoiContainer(self.structure, isites=sites_indices,
-    #                                                      valences=self.valences,
-    #                                                      maximum_distance_factor=maximum_distance_factor,
-    #                                                      minimum_angle_factor=minimum_angle_factor)
-    #
-    #     ce_list = []
-    #     skipped = []
-    #     for isite in range(len(self.structure)):
-    #         if isite not in sites_indices:
-    #             skipped.append(isite)
-    #             ce_list.append(None)
-    #             continue
-    #         coords = self.detailed_voronoi.unique_coordinations(isite)
-    #
-    #         ce_dict = {}
-    #         for cn in coords:
-    #             if max_cn is not None and cn > max_cn:
-    #                 continue
-    #             ce_dict[cn] = []
-    #             for nlist_tuple in coords[cn]:
-    #                 neighb_list = nlist_tuple[0]
-    #                 ce = ChemicalEnvironments()
-    #                 mycoords = [st.coords for st in neighb_list]
-    #                 self.setup_local_geometry(isite, coords=mycoords)
-    #                 cncgsm = self.get_coordination_symmetry_measures()
-    #                 for cg in cncgsm:
-    #                     ce.add_coord_geom(cg, cncgsm[cg]['csm'], algo=cncgsm[cg]['algo'],
-    #                                       permutation=cncgsm[cg]['indices'],
-    #                                       local2perfect_map=cncgsm[cg]['local2perfect_map'],
-    #                                       perfect2local_map=cncgsm[cg]['perfect2local_map']
-    #                                       )
-    #                 ce_dict[cn].append(ce)
-    #         ce_list.append(ce_dict)
-    #     return StructureEnvironments(self.detailed_voronoi, self.valences, self.sites_map, self.equivalent_sites,
-    #                                  ce_list, self.structure)
-    #
-    # def setup_local_geometry(self, isite, coords):
-    #     """
-    #     Sets up the AbstractGeometry for the local geometry of site with index isite.
-    #     :param isite: Index of the site for which the local geometry has to be set up
-    #     :param coords: The coordinates of the (local) neighbors
-    #     """
-    #     self.local_geometry = AbstractGeometry(central_site=self.structure.cart_coords[isite],
-    #                                            bare_coords=coords,
-    #                                            centering_type=self.centering_type,
-    #                                            include_central_site_in_centroid=
-    #                                            self.include_central_site_in_centroid)
-
     def setup_local_geometry(self, isite, coords):
-        """
-        Sets up the AbstractGeometry for the local geometry of site with index isite.
-        :param isite: Index of the site for which the local geometry has to be set up
-        :param coords: The coordinates of the (local) neighbors
-        """
-        self.local_geometry = AbstractGeometry(central_site=self.structure.cart_coords[isite],
-                                               bare_coords=coords,
-                                               centering_type=self.centering_type,
-                                               include_central_site_in_centroid=
-                                               self.include_central_site_in_centroid)
-
-    def setup_local_geometry_newpmg(self, isite, coords):
         """
         Sets up the AbstractGeometry for the local geometry of site with index isite.
         :param isite: Index of the site for which the local geometry has to be set up
@@ -879,11 +560,13 @@ class LocalGeometryFinder(object):
                 neighb_coords.append(np.array(pp))
         if indices == 'RANDOM':
             shuffle(neighb_coords)
+        elif indices == 'ORDERED':
+            pass
         else:
             neighb_coords = [neighb_coords[ii] for ii in indices]
 
         if random_scale:
-            scale = np.random.random_sample() + 0.5
+            scale = 0.1*np.random.random_sample() + 0.95
             coords = [scale * cc for cc in coords]
             neighb_coords = [scale * cc for cc in neighb_coords]
         if random_rotation:
@@ -909,89 +592,30 @@ class LocalGeometryFinder(object):
                 newcoords.append(newcc.getA1())
             neighb_coords = newcoords
         if random_translation:
-            translation = 10.0 * np.random.random_sample(3)
+            translation = 10.0 * (2.0*np.random.random_sample(3)-1.0)
             coords = [cc + translation for cc in coords]
             neighb_coords = [cc + translation for cc in neighb_coords]
         coords.extend(neighb_coords)
         myspecies = ["O"] * (len(coords))
         myspecies[0] = "Cu"
-        structure = Molecule(myspecies, coords=coords)
-        self.setup_structure(structure=structure)
-        self.setup_local_geometry_newpmg(isite=0, coords=neighb_coords)
 
-    # def setup_test_perfect_structure(self, symbol, randomness=False, randomness_percentage=10, symbol_type='IUPAC',
-    #                                  random_indices=True, center=np.array([0.0, 0.0, 0.0], np.float),
-    #                                  random_translation=False, random_rotation=False, random_scale=False,
-    #                                  explicit_indices=None):
-    #     """
-    #     Sets up a test structure starting from a symbol, for testing purposes of the algorithms.
-    #     :param symbol: Symbol of the coordination environment
-    #     :param randomness: True if the local geometry has to be distorted
-    #     :param randomness_percentage: Percentage of randomness for the distortion
-    #     :param symbol_type: Type of the symbol given
-    #     :param random_indices: True if the coordinates of the structure have to be shuffled
-    #     :param center: coordinates of the center
-    #     """
-    #     if symbol_type == 'IUPAC':
-    #         cg = self.cg.get_geometry_from_IUPAC_symbol(symbol)
-    #     elif symbol_type == 'MP' or symbol_type == 'mp_symbol':
-    #         cg = self.cg.get_geometry_from_mp_symbol(symbol)
-    #     if randomness:
-    #         rv = np.random.random_sample(3)
-    #         while norm(rv) > 1.0:
-    #             rv = np.random.random_sample(3)
-    #         coords = [np.zeros(3, np.float) + 0.002 * randomness_percentage * rv
-    #                   - 0.001 * randomness_percentage + center]
-    #         for pp in cg.points:
-    #             rv = np.random.random_sample(3)
-    #             while norm(rv) > 1.0:
-    #                 rv = np.random.random_sample(3)
-    #             coords.append(0.1 * np.array(pp) + 0.002 * randomness_percentage * rv
-    #                           - 0.001 * randomness_percentage + center)
-    #     else:
-    #         coords = [np.zeros(3, np.float) + center]
-    #         for pp in cg.points:
-    #             coords.append(0.1 * np.array(pp) + center)
-    #     myspecies = ["O"] * (len(coords))
-    #     myspecies[0] = "Cu"
-    #     if random_scale:
-    #         scale = np.random.random_sample() + 0.5
-    #         coords = [scale * cc for cc in coords]
-    #     if random_rotation:
-    #         uu = np.random.random_sample(3) + 0.1
-    #         uu = uu / norm(uu)
-    #         theta = np.pi * np.random.random_sample()
-    #         cc = np.cos(theta)
-    #         ss = np.sin(theta)
-    #         ux = uu[0]
-    #         uy = uu[1]
-    #         uz = uu[2]
-    #         RR = np.matrix([[ux*ux+(1.0-ux*ux)*cc, ux*uy*(1.0-cc)-uz*ss, ux*uz*(1.0-cc)+uy*ss],
-    #                         [ux*uy*(1.0-cc)+uz*ss, uy*uy+(1.0-uy*uy)*cc, uy*uz*(1.0-cc)-ux*ss],
-    #                         [ux*uz*(1.0-cc)-uy*ss, uy*uz*(1.0-cc)+ux*ss, uz*uz+(1.0-uz*uz)*cc]])
-    #         newcoords = []
-    #         for cc in coords:
-    #             newcc = RR * np.matrix(cc).T
-    #             newcoords.append(newcc.getA1())
-    #         coords = newcoords
-    #     if random_translation:
-    #         translation = 2.0 * np.random.random_sample(3) - 1.0
-    #         coords = [cc + translation for cc in coords]
-    #     self.set_structure(lattice=np.array([[10, 0, 0], [0, 10, 0], [0, 0, 10]], np.float),
-    #                        species=myspecies,
-    #                        coords=coords,
-    #                        coords_are_cartesian=False)
-    #     if explicit_indices is None:
-    #         if random_indices:
-    #             self.setup_random_indices_local_geometry(cg.coordination)
-    #         else:
-    #             self.setup_ordered_indices_local_geometry(cg.coordination)
-    #     else:
-    #         self.setup_explicit_indices_local_geometry(explicit_indices)
-    #     bare_coords = list()
-    #     for ii in self.indices:
-    #         bare_coords.append(np.array(self.structure.cart_coords[ii]))
-    #     self.setup_local_geometry(0, coords=bare_coords)
+        amin = np.min([cc[0] for cc in coords])
+        amax = np.max([cc[0] for cc in coords])
+        bmin = np.min([cc[1] for cc in coords])
+        bmax = np.max([cc[1] for cc in coords])
+        cmin = np.min([cc[2] for cc in coords])
+        cmax = np.max([cc[2] for cc in coords])
+
+        factor = 5.0
+        aa = factor * max([amax - amin, bmax - bmin, cmax - cmin])
+
+        lattice = Lattice.cubic(a=aa)
+        structure = Structure(lattice=lattice, species=myspecies, coords=coords,
+                              to_unit_cell=False, coords_are_cartesian=True)
+
+        self.setup_structure(structure=structure)
+        self.setup_local_geometry(isite=0, coords=neighb_coords)
+        self.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
 
     def setup_random_structure(self, coordination):
         """
@@ -1099,68 +723,6 @@ class LocalGeometryFinder(object):
                                                    'perfect2local_map': perfect2local_maps}
         return result_dict
 
-    def get_coordination_symmetry_measures_newpmg(self, only_minimum=True):
-        """
-        Returns the continuous symmetry measures of the current local geometry in a dictionary.
-        :return: the continuous symmetry measures of the current local geometry in a dictionary.
-        """
-        test_geometries = self.cg.get_implemented_geometries(len(self.local_geometry.coords))
-        results = list()
-        result_dict = {}
-        for geometry in test_geometries:
-            self.perfect_geometry = AbstractGeometry.from_cg(cg=geometry,
-                                                             centering_type=self.centering_type,
-                                                             include_central_site_in_centroid=
-                                                             self.include_central_site_in_centroid)
-            cgsm = self.coordination_geometry_symmetry_measures_newpmg(geometry)
-            result, permutations, algos, local2perfect_maps, perfect2local_maps = cgsm
-            if only_minimum:
-                if len(result) > 0:
-                    imin = np.argmin(result)
-                    if geometry.algorithms is not None:
-                        algo = algos[imin]
-                    else:
-                        algo = algos
-                    result_dict[geometry.mp_symbol] = {'csm': result[imin], 'indices': permutations[imin],
-                                                       'algo': algo,
-                                                       'local2perfect_map': local2perfect_maps[imin],
-                                                       'perfect2local_map': perfect2local_maps[imin]}
-            else:
-                result_dict[geometry.mp_symbol] = {'csm': result, 'indices': permutations, 'algo': algos,
-                                                   'local2perfect_map': local2perfect_maps,
-                                                   'perfect2local_map': perfect2local_maps}
-            results.append(result)
-        return result_dict
-
-    # def get_coordination_symmetry_measures(self, only_minimum=True):
-    #     """
-    #     Returns the continuous symmetry measures of the current local geometry in a dictionary.
-    #     :return: the continuous symmetry measures of the current local geometry in a dictionary.
-    #     """
-    #     test_geometries = self.cg.get_implemented_geometries(len(self.local_geometry.coords))
-    #     results = list()
-    #     result_dict = {}
-    #     for geometry in test_geometries:
-    #         cgsm = self.coordination_geometry_symmetry_measures_new(geometry)
-    #         result, permutations, algos, local2perfect_maps, perfect2local_maps = cgsm
-    #         if only_minimum:
-    #             if len(result) > 0:
-    #                 imin = np.argmin(result)
-    #                 if geometry.algorithms is not None:
-    #                     algo = algos[imin]
-    #                 else:
-    #                     algo = algos
-    #                 result_dict[geometry.mp_symbol] = {'csm': result[imin], 'indices': permutations[imin],
-    #                                                    'algo': algo,
-    #                                                    'local2perfect_map': local2perfect_maps[imin],
-    #                                                    'perfect2local_map': perfect2local_maps[imin]}
-    #         else:
-    #             result_dict[geometry.mp_symbol] = {'csm': result, 'indices': permutations, 'algo': algos,
-    #                                                'local2perfect_map': local2perfect_maps,
-    #                                                'perfect2local_map': perfect2local_maps}
-    #         results.append(result)
-    #     return result_dict
-
     def coordination_geometry_symmetry_measures(self, coordination_geometry, tested_permutations=False,
                                                 points_perfect=None):
         """
@@ -1198,71 +760,6 @@ class LocalGeometryFinder(object):
                 perfect2local_maps.extend(perfect2local_map)
         return csms, permutations, algos, local2perfect_maps, perfect2local_maps
 
-    def coordination_geometry_symmetry_measures_newpmg(self, coordination_geometry, tested_permutations=False):
-        """
-        Returns the symmetry measures of a given coordination_geometry for a set of permutations depending on
-        the permutation setup. Depending on the parameters of the LocalGeometryFinder and on the coordination
-         geometry, different methods are called.
-        :param coordination_geometry: Coordination geometry for which the symmetry measures are looked for
-        :return: the symmetry measures of a given coordination_geometry for a set of permutations
-        :raise: NotImplementedError if the permutation_setup does not exists
-        """
-        if tested_permutations:
-            tested_permutations = set()
-        if self.permutations_safe_override:
-            return self.coordination_geometry_symmetry_measures_safe_override(coordination_geometry)
-        csms = []
-        permutations = []
-        algos = []
-        local2perfect_maps = []
-        perfect2local_maps = []
-        for algo in coordination_geometry.algorithms:
-            if algo.algorithm_type == EXPLICIT_PERMUTATIONS:
-                return self.coordination_geometry_symmetry_measures_standard_newpmg(coordination_geometry, algo)
-            if algo.algorithm_type == SEPARATION_PLANE:
-                cgsm = self.coordination_geometry_symmetry_measures_separation_plane_newpmg(coordination_geometry,
-                                                                                            algo,
-                                                                                            tested_permutations=tested_permutations)
-                csm, perm, algo, local2perfect_map, perfect2local_map = cgsm
-
-                csms.extend(csm)
-                permutations.extend(perm)
-                algos.extend(algo)
-                local2perfect_maps.extend(local2perfect_map)
-                perfect2local_maps.extend(perfect2local_map)
-                # print(len(csm), ' leading to ',len(csms))
-        # print('AT THE VERY END : ', len(csms))
-        return csms, permutations, algos, local2perfect_maps, perfect2local_maps
-
-    # def coordination_geometry_symmetry_measures_new(self, coordination_geometry):
-    #     """
-    #     Returns the symmetry measures of a given coordination_geometry for a set of permutations depending on
-    #     the permutation setup. Depending on the parameters of the LocalGeometryFinder and on the coordination
-    #      geometry, different methods are called.
-    #     :param coordination_geometry: Coordination geometry for which the symmetry measures are looked for
-    #     :return: the symmetry measures of a given coordination_geometry for a set of permutations
-    #     :raise: NotImplementedError if the permutation_setup does not exists
-    #     """
-    #     if self.permutations_safe_override:
-    #         return self.coordination_geometry_symmetry_measures_safe_override(coordination_geometry)
-    #     csms = []
-    #     permutations = []
-    #     algos = []
-    #     local2perfect_maps = []
-    #     perfect2local_maps = []
-    #     for algo in coordination_geometry.algorithms:
-    #         if algo.algorithm_type == EXPLICIT_PERMUTATIONS:
-    #             return self.coordination_geometry_symmetry_measures_standard_new(coordination_geometry, algo)
-    #         if algo.algorithm_type == SEPARATION_PLANE:
-    #             csm, perm, algo = (
-    #                 self.coordination_geometry_symmetry_measures_separation_plane_new(coordination_geometry, algo))
-    #             csms.extend(csm)
-    #             permutations.extend(perm)
-    #             algos.extend(algo)
-    #             local2perfect_maps.extend([None]*len(perm))
-    #             perfect2local_maps.extend([None]*len(perm))
-    #     return csms, permutations, algos, local2perfect_maps, perfect2local_maps
-
     def coordination_geometry_symmetry_measures_safe_override(self, coordination_geometry):
         """
         Returns the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
@@ -1289,32 +786,6 @@ class LocalGeometryFinder(object):
             iperm += 1
         return permutations_symmetry_measures, permutations, 'SAFE'
 
-    # def coordination_geometry_symmetry_measures_standard(self, coordination_geometry):
-    #     """
-    #     Returns the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
-    #     for the coordination geometry "coordination_geometry". Standard implementation looking for the symmetry
-    #     measures of each permutation
-    #
-    #     :param coordination_geometry: The coordination geometry to be investigated
-    #     :return: The symmetry measures for the given coordination geometry for each permutation investigated
-    #     """
-    #     permutations_symmetry_measures = np.zeros(coordination_geometry.number_of_permutations, np.float)
-    #     permutations = list()
-    #     algos = list()
-    #     for iperm, perm in enumerate(coordination_geometry.permutations):
-    #         permutations.append(np.argsort(perm))
-    #         bare_coords = list()
-    #         for ii in perm:
-    #             bare_coords.append(coordination_geometry.points[ii])
-    #         perfect_geometry = AbstractGeometry(central_site=coordination_geometry.get_central_site(),
-    #                                             bare_coords=bare_coords,
-    #                                             centering_type=self.centering_type,
-    #                                             include_central_site_in_centroid=
-    #                                             self.include_central_site_in_centroid)
-    #         permutations_symmetry_measures[iperm] = self.symmetry_measure(self.local_geometry, perfect_geometry)
-    #         algos.append('EXPLICIT')
-    #     return permutations_symmetry_measures, permutations, algos
-
     def coordination_geometry_symmetry_measures_standard(self, coordination_geometry, algo, points_perfect=None):
         """
         Returns the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
@@ -1339,156 +810,15 @@ class LocalGeometryFinder(object):
                 local2perfect_map[ii] = iperfect
             local2perfect_maps.append(local2perfect_map)
             perfect2local_maps.append(perfect2local_map)
-            # self.local_geometry.points_permutation(permutation=perm)
+
             points_distorted = self.local_geometry.points_wocs_ctwocc(permutation=perm)
 
             csm = symmetry_measure(points_distorted=points_distorted,
                                    points_perfect=points_perfect)
 
-            # print('COMPUTED SYMMETRY MEASURE :')
-            # csm = self.symmetry_measure_newpmg(local_geometry=self.local_geometry,
-            #                                    perfect_geometry=self.perfect_geometry)
-
-            # if not np.isclose(csm2, csm):
-            #     print('distorted')
-            #     print(points_distorted)
-            #     print('perfect')
-            #     print(points_perfect)
-            #     print(csm, csm2)
-            #     raw_input()
-
             permutations_symmetry_measures[iperm] = csm
-            # print(perm, symmetry_measure)
-            # if symmetry_measure < 1.0:
-            #     print('CENTERED')
-            #     print('CENTRAL SITE : ')
-            #     print(self.local_geometry.central_site)
-            #     print('NEIGHBORS : ')
-            #     for cc in self.local_geometry._coords:
-            #         print(cc)
-            #     print('Permutation ', perm)
-            #     print('Gives : ')
-            #     for cc in self.local_geometry.coords:
-            #         print(cc)
-            #     print('BARE')
-            #     print('CENTRAL SITE : ')
-            #     print(self.local_geometry.bare_central_site)
-            #     print('NEIGHBORS : ')
-            #     for cc in self.local_geometry._bare_coords:
-            #         print(cc)
-            #     print('Permutation ', perm)
-            #     print('Gives : ')
-            #     for cc in self.local_geometry.bare_coords:
-            #         print(cc)
             algos.append(str(algo))
         return permutations_symmetry_measures, permutations, algos, local2perfect_maps, perfect2local_maps
-
-    def coordination_geometry_symmetry_measures_standard_newpmg(self, coordination_geometry, algo):
-        """
-        Returns the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
-        for the coordination geometry "coordination_geometry". Standard implementation looking for the symmetry
-        measures of each permutation
-
-        :param coordination_geometry: The coordination geometry to be investigated
-        :return: The symmetry measures for the given coordination geometry for each permutation investigated
-        """
-        permutations_symmetry_measures = np.zeros(len(algo.permutations), np.float)
-        permutations = list()
-        algos = list()
-        local2perfect_maps = list()
-        perfect2local_maps = list()
-        for iperm, perm in enumerate(algo.permutations):
-
-            local2perfect_map = {}
-            perfect2local_map = {}
-            permutations.append(perm)
-            for iperfect, ii in enumerate(perm):
-                perfect2local_map[iperfect] = ii
-                local2perfect_map[ii] = iperfect
-            local2perfect_maps.append(local2perfect_map)
-            perfect2local_maps.append(perfect2local_map)
-            self.local_geometry.points_permutation(permutation=perm)
-
-            symmetry_measure = self.symmetry_measure_newpmg(local_geometry=self.local_geometry,
-                                                            perfect_geometry=self.perfect_geometry)
-            permutations_symmetry_measures[iperm] = symmetry_measure
-            # print(perm, symmetry_measure)
-            # if symmetry_measure < 1.0:
-            #     print('CENTERED')
-            #     print('CENTRAL SITE : ')
-            #     print(self.local_geometry.central_site)
-            #     print('NEIGHBORS : ')
-            #     for cc in self.local_geometry._coords:
-            #         print(cc)
-            #     print('Permutation ', perm)
-            #     print('Gives : ')
-            #     for cc in self.local_geometry.coords:
-            #         print(cc)
-            #     print('BARE')
-            #     print('CENTRAL SITE : ')
-            #     print(self.local_geometry.bare_central_site)
-            #     print('NEIGHBORS : ')
-            #     for cc in self.local_geometry._bare_coords:
-            #         print(cc)
-            #     print('Permutation ', perm)
-            #     print('Gives : ')
-            #     for cc in self.local_geometry.bare_coords:
-            #         print(cc)
-            algos.append(str(algo))
-        return permutations_symmetry_measures, permutations, algos, local2perfect_maps, perfect2local_maps
-
-    # def coordination_geometry_symmetry_measures_standard_new(self, coordination_geometry, algo):
-    #     """
-    #     Returns the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
-    #     for the coordination geometry "coordination_geometry". Standard implementation looking for the symmetry
-    #     measures of each permutation
-    #
-    #     :param coordination_geometry: The coordination geometry to be investigated
-    #     :return: The symmetry measures for the given coordination geometry for each permutation investigated
-    #     """
-    #     permutations_symmetry_measures = np.zeros(len(algo.permutations), np.float)
-    #     permutations = list()
-    #     algos = list()
-    #     local2perfect_maps = list()
-    #     perfect2local_maps = list()
-    #     for iperm, perm in enumerate(algo.permutations):
-    #         local2perfect_map = {}
-    #         perfect2local_map = {}
-    #         permutations.append(perm)
-    #         bare_coords = list()
-    #         for iperfect, ii in enumerate(perm):
-    #             bare_coords.append(coordination_geometry.points[ii])
-    #             perfect2local_map[permutations[-1][iperfect]] = iperfect
-    #             local2perfect_map[iperfect] = permutations[-1][iperfect]
-    #         local2perfect_maps.append(local2perfect_map)
-    #         perfect2local_maps.append(perfect2local_map)
-    #         perfect_geometry = AbstractGeometry(central_site=coordination_geometry.get_central_site(),
-    #                                             bare_coords=bare_coords,
-    #                                             centering_type=self.centering_type,
-    #                                             include_central_site_in_centroid=
-    #                                             self.include_central_site_in_centroid)
-    #         permutations_symmetry_measures[iperm] = self.symmetry_measure(self.local_geometry, perfect_geometry)
-    #         algos.append(str(algo))
-    #     return permutations_symmetry_measures, permutations, algos, local2perfect_maps, perfect2local_maps
-
-    # def coordination_geometry_symmetry_measure_single(self, coordination_geometry):
-    #     """
-    #     Returns the symmetry measure for a given local_geometry for the coordination geometry
-    #     "coordination_geometry".
-    #
-    #     :param coordination_geometry: The coordination geometry to be investigated
-    #     :return: The symmetry measure for the given coordination geometry for the investigated local_geometry
-    #     """
-    #     perm = np.arange(coordination_geometry.coordination_number)
-    #     bare_coords = list()
-    #     for ii in perm:
-    #         bare_coords.append(coordination_geometry.points[ii])
-    #     perfect_geometry = AbstractGeometry(central_site=coordination_geometry.get_central_site(),
-    #                                         bare_coords=bare_coords,
-    #                                         centering_type=self.centering_type,
-    #                                         include_central_site_in_centroid=
-    #                                         self.include_central_site_in_centroid)
-    #     return self.symmetry_measure(self.local_geometry, perfect_geometry)
 
     def coordination_geometry_symmetry_measures_separation_plane(self, coordination_geometry,
                                                                  separation_plane_algo,
@@ -1503,8 +833,6 @@ class LocalGeometryFinder(object):
         :param coordination_geometry: The coordination geometry to be investigated
         :return: The symmetry measures for the given coordination geometry for each plane and permutation investigated
         """
-        # print('IN SEPPLANE : ')
-        # print(separation_plane_algo)
         permutations = list()
         permutations_symmetry_measures = list()
         plane_separations = list()
@@ -1516,7 +844,6 @@ class LocalGeometryFinder(object):
         nplanes = 0
         for npoints in range(separation_plane_algo.minimum_number_of_points,
                              min(separation_plane_algo.maximum_number_of_points, 4) + 1):
-            # print('IN NPOINTS = ', npoints)
             for points_combination in itertools.combinations(self.local_geometry.coords, npoints):
                 if npoints == 2:
                     if collinear(points_combination[0], points_combination[1],
@@ -1530,7 +857,6 @@ class LocalGeometryFinder(object):
                     plane = Plane.from_3points(points_combination[0], points_combination[1], points_combination[2])
                 elif npoints > 3:
                     plane = Plane.from_npoints(points_combination, best_fit='least_square_distance')
-                    # plane = Plane.from_npoints(points_combination, best_fit='maximum_distance')
                 else:
                     raise ValueError('Wrong number of points to initialize separation plane')
                 cgsm = self._cg_csm_separation_plane(coordination_geometry=coordination_geometry,
@@ -1558,9 +884,6 @@ class LocalGeometryFinder(object):
                     if testing:
                         separation_permutations.extend(cgsm[3])
                     nplanes += 1
-                    # print('in a plane, nresults = ', len(csm), ' leading to ', len(permutations_symmetry_measures))
-                    # if testing:
-                    #     break
             if nplanes > 0:
                 break
         if nplanes == 0:
@@ -1568,229 +891,11 @@ class LocalGeometryFinder(object):
                                                                                 points_perfect=points_perfect)
         if testing:
             return np.array(permutations_symmetry_measures, np.float), permutations, separation_permutations
-        # print('IN THE END : ', len(np.array(permutations_symmetry_measures, np.float)))
         return np.array(permutations_symmetry_measures, np.float), permutations, algos, local2perfect_maps, perfect2local_maps
-
-    def coordination_geometry_symmetry_measures_separation_plane_newpmg(self, coordination_geometry,
-                                                                        separation_plane_algo,
-                                                                        testing=False,
-                                                                        tested_permutations=False):
-        """
-        Returns the symmetry measures of the given coordination geometry "coordination_geometry" using separation
-        planes to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other ...
-        :param coordination_geometry: The coordination geometry to be investigated
-        :return: The symmetry measures for the given coordination geometry for each plane and permutation investigated
-        """
-        # print('IN SEPPLANE : ')
-        # print(separation_plane_algo)
-        permutations = list()
-        permutations_symmetry_measures = list()
-        plane_separations = list()
-        algos = list()
-        perfect2local_maps = list()
-        local2perfect_maps = list()
-        if testing:
-            separation_permutations = list()
-        nplanes = 0
-        for npoints in range(separation_plane_algo.minimum_number_of_points,
-                             min(separation_plane_algo.maximum_number_of_points, 4)+1):
-            # print('IN NPOINTS = ', npoints)
-            for points_combination in itertools.combinations(self.local_geometry.coords, npoints):
-                if npoints == 2:
-                    if collinear(points_combination[0], points_combination[1],
-                                 self.local_geometry.central_site, tolerance=0.25):
-                        continue
-                    plane = Plane.from_3points(points_combination[0], points_combination[1],
-                                               self.local_geometry.central_site)
-                elif npoints == 3:
-                    if collinear(points_combination[0], points_combination[1], points_combination[2], tolerance=0.25):
-                        continue
-                    plane = Plane.from_3points(points_combination[0], points_combination[1], points_combination[2])
-                elif npoints > 3:
-                    plane = Plane.from_npoints(points_combination, best_fit='least_square_distance')
-                    # plane = Plane.from_npoints(points_combination, best_fit='maximum_distance')
-                else:
-                    raise ValueError('Wrong number of points to initialize separation plane')
-                cgsm = self._cg_csm_separation_plane_newpmg(coordination_geometry=coordination_geometry,
-                                                            sepplane=separation_plane_algo,
-                                                            local_plane=plane,
-                                                            plane_separations=plane_separations,
-                                                            dist_tolerances=DIST_TOLERANCES,
-                                                            testing=testing,
-                                                            tested_permutations=tested_permutations)
-                csm, perm, algo = cgsm[0], cgsm[1], cgsm[2]
-
-                if csm is not None:
-                    permutations_symmetry_measures.extend(csm)
-                    permutations.extend(perm)
-                    for thisperm in perm:
-                        p2l = {}
-                        l2p = {}
-                        for i_p, pp in enumerate(thisperm):
-                            p2l[i_p] = pp
-                            l2p[pp] = i_p
-                        perfect2local_maps.append(p2l)
-                        local2perfect_maps.append(l2p)
-                    algos.extend(algo)
-                    if testing:
-                        separation_permutations.extend(cgsm[3])
-                    nplanes += 1
-                    # print('in a plane, nresults = ', len(csm), ' leading to ', len(permutations_symmetry_measures))
-                    # if testing:
-                    #     break
-            if nplanes > 0:
-                break
-        if nplanes == 0:
-            return self.coordination_geometry_symmetry_measures_fallback_random_newpmg(coordination_geometry)
-        if testing:
-            return np.array(permutations_symmetry_measures, np.float), permutations, separation_permutations
-        # print('IN THE END : ', len(np.array(permutations_symmetry_measures, np.float)))
-        return np.array(permutations_symmetry_measures, np.float), permutations, algos, local2perfect_maps, perfect2local_maps
-
-    # def coordination_geometry_symmetry_measures_separation_plane_new(self, coordination_geometry,
-    #                                                                  separation_plane_algo):
-    #     """
-    #     Returns the symmetry measures of the given coordination geometry "coordination_geometry" using separation
-    #     planes to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other ...
-    #     :param coordination_geometry: The coordination geometry to be investigated
-    #     :return: The symmetry measures for the given coordination geometry for each plane and permutation investigated
-    #     """
-    #     permutations = list()
-    #     permutations_symmetry_measures = list()
-    #     plane_separations = list()
-    #     algos = list()
-    #     perfect2local_maps = list()
-    #     local2perfect_maps = list()
-    #     nplanes = 0
-    #     for npoints in range(separation_plane_algo.minimum_number_of_points,
-    #                          min(separation_plane_algo.maximum_number_of_points, 4)+1):
-    #         for points_combination in itertools.combinations(self.local_geometry.coords, npoints):
-    #             if npoints == 2:
-    #                 if collinear(points_combination[0], points_combination[1],
-    #                              self.local_geometry.central_site, tolerance=0.25):
-    #                     continue
-    #                 plane = Plane.from_3points(points_combination[0], points_combination[1],
-    #                                            self.local_geometry.central_site)
-    #             elif npoints == 3:
-    #                 if collinear(points_combination[0], points_combination[1], points_combination[2], tolerance=0.25):
-    #                     continue
-    #                 plane = Plane.from_3points(points_combination[0], points_combination[1], points_combination[2])
-    #             elif npoints > 3:
-    #                 plane = Plane.from_npoints(points_combination, best_fit='least_square_distance')
-    #                 # plane = Plane.from_npoints(points_combination, best_fit='maximum_distance')
-    #             else:
-    #                 raise ValueError('Wrong number of points to initialize separation plane')
-    #             csm, perm, algo = self._cg_csm_separation_plane(coordination_geometry, separation_plane_algo, plane,
-    #                                                             plane_separations,
-    #                                                             dist_tolerances=DIST_TOLERANCES,
-    #                                                             all_permutations=False)
-    #             if csm is not None:
-    #                 permutations_symmetry_measures.append(csm)
-    #                 permutations.append(perm)
-    #                 algos.append(algo)
-    #                 nplanes += 1
-    #         if nplanes > 0:
-    #             break
-    #     if nplanes == 0:
-    #         return self.coordination_geometry_symmetry_measures_fallback_random(coordination_geometry)
-    #     return np.array(permutations_symmetry_measures, np.float), permutations, algos
-
-    # def _cg_csm_separation_plane(self, coordination_geometry, sepplane, local_plane,
-    #                              plane_separations, dist_tolerances=DIST_TOLERANCES,
-    #                              all_permutations=False):
-    #     for dist_tolerance in dist_tolerances:
-    #         permutations = []
-    #         permutations_symmetry_measures = []
-    #         algo = 'NOT_FOUND'
-    #         separation = local_plane.indices_separate(self.local_geometry.coords, dist_tolerance)
-    #         # Do not consider planes leading to the same separation indices
-    #         separation = sort_separation(separation)
-    #
-    #         if separation_in_list(separation, plane_separations):
-    #             continue
-    #         # Do not consider a separation which does not follow the reference separation of the perfect
-    #         # coordination geometry
-    #         if len(separation[1]) != len(sepplane.plane_points):
-    #             continue
-    #         if len(separation[0]) == len(sepplane.point_groups[0]):
-    #             this_separation = separation
-    #             plane_separations.append(this_separation)
-    #         elif len(separation[0]) == len(sepplane.point_groups[1]):
-    #             this_separation = [list(separation[2]), list(separation[1]), list(separation[0])]
-    #             plane_separations.append(this_separation)
-    #         else:
-    #             continue
-    #
-    #         if sepplane.ordered_plane:
-    #             inp = [pp for ip, pp in enumerate(self.local_geometry.coords) if ip in this_separation[1]]
-    #
-    #             if sepplane.ordered_point_groups[0]:
-    #                 pp_s0 = [pp for ip, pp in enumerate(self.local_geometry.coords) if ip in this_separation[0]]
-    #                 ordind_s0 = local_plane.project_and_to2dim_ordered_indices(pp_s0)
-    #                 sep0 = [this_separation[0][ii] for ii in ordind_s0]
-    #             else:
-    #                 sep0 = list(this_separation[0])
-    #             if sepplane.ordered_point_groups[1]:
-    #                 pp_s2 = [pp for ip, pp in enumerate(self.local_geometry.coords) if ip in this_separation[2]]
-    #                 ordind_s2 = local_plane.project_and_to2dim_ordered_indices(pp_s2)
-    #                 sep2 = [this_separation[2][ii] for ii in ordind_s2]
-    #             else:
-    #                 sep2 = list(this_separation[2])
-    #             separation_perm = list(sep0)
-    #             ordind = local_plane.project_and_to2dim_ordered_indices(inp)
-    #             separation_perm.extend([this_separation[1][ii] for ii in ordind])
-    #             algo = 'SEPARATION_PLANE_2POINTS_ORDERED'
-    #             separation_perm.extend(sep2)
-    #         else:
-    #             separation_perm = list(this_separation[0])
-    #             separation_perm.extend(this_separation[1])
-    #             algo = 'SEPARATION_PLANE_2POINTS'
-    #             separation_perm.extend(this_separation[2])
-    #         if self.plane_safe_permutations:
-    #             test_permutations = sepplane.safe_plane_permutations(ordered_plane=sepplane.ordered_plane,
-    #                                                                  ordered_point_groups=sepplane.ordered_point_groups)
-    #         else:
-    #             test_permutations = sepplane.permutations
-    #         for iperm, perm in enumerate(test_permutations):
-    #
-    #             testperm = [separation_perm[ii] for ii in np.argsort(perm)]
-    #             bare_coords = list()
-    #             argsorttestperm = list(np.argsort(testperm))
-    #             myperm = []
-    #             myii = 0
-    #             for ii in iter(np.argsort(testperm)):
-    #                 bare_coords.append(coordination_geometry.points[ii])
-    #                 myperm.append(argsorttestperm.index(myii))
-    #                 myii += 1
-    #             # BE CAREFULL HERE !!!!!!!
-    #             # permutations.append(testperm)
-    #             # permutations.append(np.argsort(testperm))
-    #             permutations.append(myperm)
-    #             perfect_geometry = AbstractGeometry(central_site=coordination_geometry.get_central_site(),
-    #                                                 bare_coords=bare_coords,
-    #                                                 centering_type=self.centering_type,
-    #                                                 include_central_site_in_centroid=
-    #                                                 self.include_central_site_in_centroid)
-    #             test = self.symmetry_measure(self.local_geometry, perfect_geometry)
-    #             permutations_symmetry_measures.append(test)
-    #         imin = np.argmin(permutations_symmetry_measures)
-    #         if len(permutations_symmetry_measures) > 0:
-    #             break
-    #     if len(permutations_symmetry_measures) > 0:
-    #         if all_permutations:
-    #             return permutations_symmetry_measures, permutations, algo
-    #         else:
-    #             imin = np.argmin(permutations_symmetry_measures)
-    #             return [permutations_symmetry_measures[imin]], [permutations[imin]], [sepplane.algorithm_type]
-    #     else:
-    #         return None, None, None
 
     def _cg_csm_separation_plane(self, coordination_geometry, sepplane, local_plane,
                                  plane_separations, dist_tolerances=DIST_TOLERANCES,
                                  testing=False, tested_permutations=False, points_perfect=None):
-
-
-        ref_separation = sepplane.ref_separation_perm
         argref_separation = sepplane.argsorted_ref_separation_perm
         plane_found = False
         for dist_tolerance in dist_tolerances:
@@ -1817,8 +922,6 @@ class LocalGeometryFinder(object):
                 plane_separations.append(this_separation)
             else:
                 continue
-
-            # print('In this separation : ', this_separation)
 
             if sepplane.ordered_plane:
                 inp = [pp for ip, pp in enumerate(self.local_geometry._coords) if ip in this_separation[1]]
@@ -1850,76 +953,27 @@ class LocalGeometryFinder(object):
                                                                   ordered_point_groups=sepplane.ordered_point_groups)
             else:
                 sep_perms = sepplane.permutations
-            # print(' => separation_perm : ', separation_perm)
 
             plane_found = True
-            # print('  Plane found : {} => {}'.format(str(this_separation), str(separation_perm)))
 
-            # for iperm, perm in enumerate(test_permutations):
             for i_sep_perm, sep_perm in enumerate(sep_perms):
-
-                # Get the corresponding permutation
-                # BEGIN NEW IMPLEMENTATION
-                # print('    sep_perm {}'.format(str(sep_perm)))
                 perm1 = [separation_perm[ii] for ii in sep_perm]
-                # print('    perm1 {}'.format(str(perm1)))
                 pp = [perm1[ii] for ii in argref_separation]
-                # END NEW IMPLEMENTATION
-                # BEGIN OLD IMPLEMENTATION
-                # print('    sep_perm {}'.format(str(sep_perm)))
-                #
-                # mysepperm = [separation_perm[ii] for ii in sep_perm]
-                # print('    mysepperm {}'.format(str(mysepperm)))
-                # print('    ref_separation {}'.format(str(ref_separation)))
-                # pp = [-1]*len(sep_perm)
-                # for ip_refsep, p_refsep in enumerate(ref_separation):
-                #     pp[p_refsep] = mysepperm[ip_refsep]
-                # END OLD IMPLEMENTATION
-
                 # Skip permutations that have already been performed
-                # BEGIN NEW IMPLEMENTATION
                 if tested_permutations != False and coordination_geometry.equivalent_indices is not None:
                     tuple_ref_perm = coordination_geometry.ref_permutation(pp)
-                    # print('    permutation {} gives reference permutation {}'.format(str(pp), str(tuple_ref_perm)))
                     if tuple_ref_perm in tested_permutations:
-                        # print('      ... already in tested_permutations')
                         continue
                     tested_permutations.add(tuple_ref_perm)
-                # else:
-                #     print('    permutation {}'.format(str(pp)))
-                # END NEW IMPLEMENTATION
-                # BEGIN OLDIMPLEMENTATION
-                # if tested_permutations != False and coordination_geometry.equivalent_indices is not None:
-                #     tpp = tuple(pp)
-                #     # print('tpp : ', tpp)
-                #     if tpp in tested_permutations:
-                #         # print('In tested_permutations ...', len(tested_permutations))
-                #         continue
-                #     # print('Adding to tested_permutations :')
-                #     for eqv_indices in coordination_geometry.equivalent_indices:
-                #         toadd = tuple([pp[ii] for ii in eqv_indices])
-                #         # print(toadd)
-                #         tested_permutations.add(toadd)
-                # END OLDIMPLEMENTATION
 
                 permutations.append(pp)
                 if testing:
                     separation_permutations.append(sep_perm)
 
-                self.local_geometry.points_permutation(permutation=pp)
-
                 points_distorted = self.local_geometry.points_wocs_ctwocc(permutation=pp)
 
                 csm = symmetry_measure(points_distorted=points_distorted, points_perfect=points_perfect)
 
-                # thiscsm = self.symmetry_measure_newpmg(local_geometry=self.local_geometry,
-                #                                        perfect_geometry=self.perfect_geometry)
-                #
-                # if csm > thiscsm:
-                #     print(csm, thiscsm)
-                #     print('NAAAHHHH')
-                #     raw_input()
-                # print('      ... csm : {:.10f}'.format(thiscsm))
                 permutations_symmetry_measures.append(csm)
             if plane_found:
                 break
@@ -1927,182 +981,12 @@ class LocalGeometryFinder(object):
             if testing:
                 return permutations_symmetry_measures, permutations, algo, separation_permutations
             else:
-                # imin = np.argmin(permutations_symmetry_measures)
-                # return [permutations_symmetry_measures[imin]], [permutations[imin]], [sepplane.algorithm_type]
                 return permutations_symmetry_measures, permutations, [sepplane.algorithm_type] * len(permutations)
         else:
             if plane_found:
                 return permutations_symmetry_measures, permutations, []
             else:
                 return None, None, None
-
-    def _cg_csm_separation_plane_newpmg(self, coordination_geometry, sepplane, local_plane,
-                                        plane_separations, dist_tolerances=DIST_TOLERANCES,
-                                        testing=False, tested_permutations=False):
-        ref_separation = sepplane.ref_separation_perm
-        argref_separation = sepplane.argsorted_ref_separation_perm
-        plane_found = False
-        for dist_tolerance in dist_tolerances:
-            permutations = []
-            permutations_symmetry_measures = []
-            if testing:
-                separation_permutations = []
-            algo = 'NOT_FOUND'
-            separation = local_plane.indices_separate(self.local_geometry._coords, dist_tolerance)
-            # Do not consider planes leading to the same separation indices
-            separation = sort_separation(separation)
-
-            if separation_in_list(separation, plane_separations):
-                continue
-            # Do not consider a separation which does not follow the reference separation of the perfect
-            # coordination geometry
-            if len(separation[1]) != len(sepplane.plane_points):
-                continue
-            if len(separation[0]) == len(sepplane.point_groups[0]):
-                this_separation = separation
-                plane_separations.append(this_separation)
-            elif len(separation[0]) == len(sepplane.point_groups[1]):
-                this_separation = [list(separation[2]), list(separation[1]), list(separation[0])]
-                plane_separations.append(this_separation)
-            else:
-                continue
-
-            # print('In this separation : ', this_separation)
-
-            if sepplane.ordered_plane:
-                inp = [pp for ip, pp in enumerate(self.local_geometry._coords) if ip in this_separation[1]]
-
-                if sepplane.ordered_point_groups[0]:
-                    pp_s0 = [pp for ip, pp in enumerate(self.local_geometry._coords) if ip in this_separation[0]]
-                    ordind_s0 = local_plane.project_and_to2dim_ordered_indices(pp_s0)
-                    sep0 = [this_separation[0][ii] for ii in ordind_s0]
-                else:
-                    sep0 = list(this_separation[0])
-                if sepplane.ordered_point_groups[1]:
-                    pp_s2 = [pp for ip, pp in enumerate(self.local_geometry._coords) if ip in this_separation[2]]
-                    ordind_s2 = local_plane.project_and_to2dim_ordered_indices(pp_s2)
-                    sep2 = [this_separation[2][ii] for ii in ordind_s2]
-                else:
-                    sep2 = list(this_separation[2])
-                separation_perm = list(sep0)
-                ordind = local_plane.project_and_to2dim_ordered_indices(inp)
-                separation_perm.extend([this_separation[1][ii] for ii in ordind])
-                algo = 'SEPARATION_PLANE_2POINTS_ORDERED'
-                separation_perm.extend(sep2)
-            else:
-                separation_perm = list(this_separation[0])
-                separation_perm.extend(this_separation[1])
-                algo = 'SEPARATION_PLANE_2POINTS'
-                separation_perm.extend(this_separation[2])
-            if self.plane_safe_permutations:
-                sep_perms = sepplane.safe_separation_permutations(ordered_plane=sepplane.ordered_plane,
-                                                                  ordered_point_groups=sepplane.ordered_point_groups)
-            else:
-                sep_perms = sepplane.permutations
-            # print(' => separation_perm : ', separation_perm)
-
-            plane_found = True
-            # print('  Plane found : {} => {}'.format(str(this_separation), str(separation_perm)))
-
-            # for iperm, perm in enumerate(test_permutations):
-            for i_sep_perm, sep_perm in enumerate(sep_perms):
-
-                # Get the corresponding permutation
-                # BEGIN NEW IMPLEMENTATION
-                # print('    sep_perm {}'.format(str(sep_perm)))
-                perm1 = [separation_perm[ii] for ii in sep_perm]
-                # print('    perm1 {}'.format(str(perm1)))
-                pp = [perm1[ii] for ii in argref_separation]
-                # END NEW IMPLEMENTATION
-                # BEGIN OLD IMPLEMENTATION
-                # print('    sep_perm {}'.format(str(sep_perm)))
-                #
-                # mysepperm = [separation_perm[ii] for ii in sep_perm]
-                # print('    mysepperm {}'.format(str(mysepperm)))
-                # print('    ref_separation {}'.format(str(ref_separation)))
-                # pp = [-1]*len(sep_perm)
-                # for ip_refsep, p_refsep in enumerate(ref_separation):
-                #     pp[p_refsep] = mysepperm[ip_refsep]
-                # END OLD IMPLEMENTATION
-
-                # Skip permutations that have already been performed
-                # BEGIN NEW IMPLEMENTATION
-                if tested_permutations != False and coordination_geometry.equivalent_indices is not None:
-                    tuple_ref_perm = coordination_geometry.ref_permutation(pp)
-                    # print('    permutation {} gives reference permutation {}'.format(str(pp), str(tuple_ref_perm)))
-                    if tuple_ref_perm in tested_permutations:
-                        # print('      ... already in tested_permutations')
-                        continue
-                    tested_permutations.add(tuple_ref_perm)
-                # else:
-                #     print('    permutation {}'.format(str(pp)))
-                # END NEW IMPLEMENTATION
-                #BEGIN OLDIMPLEMENTATION
-                # if tested_permutations != False and coordination_geometry.equivalent_indices is not None:
-                #     tpp = tuple(pp)
-                #     # print('tpp : ', tpp)
-                #     if tpp in tested_permutations:
-                #         # print('In tested_permutations ...', len(tested_permutations))
-                #         continue
-                #     # print('Adding to tested_permutations :')
-                #     for eqv_indices in coordination_geometry.equivalent_indices:
-                #         toadd = tuple([pp[ii] for ii in eqv_indices])
-                #         # print(toadd)
-                #         tested_permutations.add(toadd)
-                # END OLDIMPLEMENTATION
-
-                permutations.append(pp)
-                if testing:
-                    separation_permutations.append(sep_perm)
-
-                self.local_geometry.points_permutation(permutation=pp)
-
-                thiscsm = self.symmetry_measure_newpmg(local_geometry=self.local_geometry,
-                                                       perfect_geometry=self.perfect_geometry)
-                # print('      ... csm : {:.10f}'.format(thiscsm))
-                permutations_symmetry_measures.append(thiscsm)
-            if plane_found:
-                break
-        if len(permutations_symmetry_measures) > 0:
-            if testing:
-                return permutations_symmetry_measures, permutations, algo, separation_permutations
-            else:
-                # imin = np.argmin(permutations_symmetry_measures)
-                # return [permutations_symmetry_measures[imin]], [permutations[imin]], [sepplane.algorithm_type]
-                return permutations_symmetry_measures, permutations, [sepplane.algorithm_type]*len(permutations)
-        else:
-            if plane_found:
-                return permutations_symmetry_measures, permutations, []
-            else:
-                return None, None, None
-
-    # def coordination_geometry_symmetry_measures_fallback_random(self, coordination_geometry, NRANDOM=200):
-    #     """
-    #     Returns the symmetry measures for a random set of permutations for the coordination geometry
-    #     "coordination_geometry". Fallback implementation for the plane separation algorithms measures
-    #     of each permutation
-    #
-    #     :param coordination_geometry: The coordination geometry to be investigated
-    #     :param NRANDOM: Number of random permutations to be tested
-    #     :return: The symmetry measures for the given coordination geometry for each permutation investigated
-    #     """
-    #     permutations_symmetry_measures = np.zeros(NRANDOM, np.float)
-    #     permutations = list()
-    #     algos = list()
-    #     for iperm in range(NRANDOM):
-    #         perm = np.random.permutation(coordination_geometry.coordination_number)
-    #         permutations.append(perm)
-    #         bare_coords = list()
-    #         for ii in perm:
-    #             bare_coords.append(coordination_geometry.points[ii])
-    #         perfect_geometry = AbstractGeometry(central_site=coordination_geometry.get_central_site(),
-    #                                             bare_coords=bare_coords,
-    #                                             centering_type=self.centering_type,
-    #                                             include_central_site_in_centroid=
-    #                                             self.include_central_site_in_centroid)
-    #         permutations_symmetry_measures[iperm] = self.symmetry_measure(self.local_geometry, perfect_geometry)
-    #         algos.append('APPROXIMATE_FALLBACK')
-    #     return permutations_symmetry_measures, permutations, algos
 
     def coordination_geometry_symmetry_measures_fallback_random(self, coordination_geometry, NRANDOM=200,
                                                                 points_perfect=None):
@@ -2130,172 +1014,9 @@ class LocalGeometryFinder(object):
                 l2p[pp] = i_p
             perfect2local_maps.append(p2l)
             local2perfect_maps.append(l2p)
-            # bare_coords = list()
-            # for ii in perm:
-            #     bare_coords.append(coordination_geometry.points[ii])
-            # perfect_geometry = AbstractGeometry(central_site=coordination_geometry.get_central_site(),
-            #                                     bare_coords=bare_coords,
-            #                                     centering_type=self.centering_type,
-            #                                     include_central_site_in_centroid=
-            #                                     self.include_central_site_in_centroid)
+
             points_distorted = self.local_geometry.points_wocs_ctwocc(permutation=perm)
             csm = symmetry_measure(points_distorted=points_distorted, points_perfect=points_perfect)
-            # permutations_symmetry_measures[iperm] = self.symmetry_measure_newpmg(self.local_geometry, perfect_geometry)
             permutations_symmetry_measures[iperm] = csm
             algos.append('APPROXIMATE_FALLBACK')
         return permutations_symmetry_measures, permutations, algos, local2perfect_maps, perfect2local_maps
-
-    def coordination_geometry_symmetry_measures_fallback_random_newpmg(self, coordination_geometry, NRANDOM=200):
-        """
-        Returns the symmetry measures for a random set of permutations for the coordination geometry
-        "coordination_geometry". Fallback implementation for the plane separation algorithms measures
-        of each permutation
-
-        :param coordination_geometry: The coordination geometry to be investigated
-        :param NRANDOM: Number of random permutations to be tested
-        :return: The symmetry measures for the given coordination geometry for each permutation investigated
-        """
-        permutations_symmetry_measures = np.zeros(NRANDOM, np.float)
-        permutations = list()
-        algos = list()
-        perfect2local_maps = list()
-        local2perfect_maps = list()
-        for iperm in range(NRANDOM):
-            perm = np.random.permutation(coordination_geometry.coordination_number)
-            permutations.append(perm)
-            p2l = {}
-            l2p = {}
-            for i_p, pp in enumerate(perm):
-                p2l[i_p] = pp
-                l2p[pp] = i_p
-            perfect2local_maps.append(p2l)
-            local2perfect_maps.append(l2p)
-            bare_coords = list()
-            for ii in perm:
-                bare_coords.append(coordination_geometry.points[ii])
-            perfect_geometry = AbstractGeometry(central_site=coordination_geometry.get_central_site(),
-                                                bare_coords=bare_coords,
-                                                centering_type=self.centering_type,
-                                                include_central_site_in_centroid=
-                                                self.include_central_site_in_centroid)
-            permutations_symmetry_measures[iperm] = self.symmetry_measure_newpmg(self.local_geometry, perfect_geometry)
-            algos.append('APPROXIMATE_FALLBACK')
-        return permutations_symmetry_measures, permutations, algos, local2perfect_maps, perfect2local_maps
-
-    # def symmetry_measure(self, local_points, perfect_geometry):
-    #     """
-    #     Computes the continuous symmetry measure between the given local_ and perfect_ geometries
-    #     :param local_geometry: Local geometry for which we want the continuous symmetry measure
-    #     :param perfect_geometry: The perfect geometry to which we compare the local geometry
-    #     :return: The continuous symmetry measure
-    #     """
-    #     if len(perfect_geometry.coords) == 1:
-    #         return 0.0
-    #     rot = self.find_rotation(perfect_geometry, local_geometry)
-    #     scaling_factor = self.find_scaling_factor(perfect_geometry, local_geometry, rot)
-    #     rotated_coords = rotateCoords(perfect_geometry.coords, rot)
-    #     num = 0.0
-    #     denom = 0.0
-    #     for ip, pp in enumerate(local_geometry.coords):
-    #         rotated_coords[ip] = scaling_factor * rotated_coords[ip]
-    #         diff = (pp - rotated_coords[ip])
-    #         num += np.sum(diff * diff)
-    #         denom += np.sum(pp * pp)
-    #     return num / denom * 100.0
-    #
-    # def find_rotation(self, perfect_geometry, local_geometry):
-    #     """
-    #     This finds the rotation matrix that aligns the perfect_geometry to the local_geometry in a least-square sense.
-    #     :param perfect_geometry: The perfect geometry of the coordination geometry that has to be rotated
-    #     :param local_geometry: The local geometry of the system under study
-    #     :return: The rotation matrix
-    #     """
-    #     isexact = True
-    #     for ip, pp in enumerate(local_geometry.coords):
-    #         if not np.allclose(pp, perfect_geometry.coords[ip]):
-    #             isexact = False
-    #             break
-    #     if isexact:
-    #         rot = np.eye(3)
-    #         return rot
-    #     H = np.zeros([3, 3], np.float)
-    #     for ip, pp in enumerate(perfect_geometry.coords):
-    #         H += vectorsToMatrix(pp, local_geometry.coords[ip])
-    #     [U, S, Vt] = svd(H)
-    #     rot = matrixMultiplication(transpose(Vt), transpose(U))
-    #     return rot
-    #
-    # def find_scaling_factor(self, perfect_geometry, local_geometry, rot):
-    #     """
-    #     This finds the scaling factor between the perfect_geometry and the local_geometry in a least-square sense.
-    #     :param perfect_geometry: The perfect geometry of the coordination geometry that has to be scaled
-    #     :param local_geometry: The local geometry of the system under study
-    #     :param rot: The rotation matrix
-    #     :return: The scaling factor between the two structures
-    #     """
-    #     rotated_coords = rotateCoords(perfect_geometry.coords, rot)
-    #     total = 0.0
-    #     for ip, pp in enumerate(local_geometry.coords):
-    #         total += np.sum(pp * rotated_coords[ip]) / \
-    #                  np.sum(rotated_coords[ip] * rotated_coords[ip])
-    #     return total / len(perfect_geometry.coords)
-
-    def symmetry_measure_newpmg(self, local_geometry, perfect_geometry):
-        """
-        Computes the continuous symmetry measure between the given local_ and perfect_ geometries
-        :param local_geometry: Local geometry for which we want the continuous symmetry measure
-        :param perfect_geometry: The perfect geometry to which we compare the local geometry
-        :return: The continuous symmetry measure
-        """
-        if len(local_geometry.coords) == 1:
-            return 0.0
-        rot = self.find_rotation_newpmg(local_geometry=local_geometry, perfect_geometry=perfect_geometry)
-        scaling_factor, rotated_coords = self.find_scaling_factor_newpmg(local_geometry=local_geometry,
-                                                                         perfect_geometry=perfect_geometry, rot=rot)
-        num = 0.0
-        denom = 0.0
-        for ip, pp in enumerate(perfect_geometry.coords):
-            rotated_coords[ip] = scaling_factor * rotated_coords[ip]
-            diff = (pp - rotated_coords[ip])
-            num += np.sum(diff * diff)
-            denom += np.sum(pp * pp)
-        return num / denom * 100.0
-
-    def find_rotation_newpmg(self, local_geometry, perfect_geometry):
-        """
-        This finds the rotation matrix that aligns the local_geometry to the perfect_geometry in a least-square sense.
-        :param local_geometry: The local geometry of the system under study
-        :param perfect_geometry: The perfect geometry of the coordination geometry that has to be rotated
-        :return: The rotation matrix
-        """
-        isexact = True
-        for ip, pp in enumerate(local_geometry.coords):
-            if not np.allclose(pp, perfect_geometry.coords[ip]):
-                isexact = False
-                break
-        if isexact:
-            rot = np.eye(3)
-            return rot
-        H = np.zeros([3, 3], np.float)
-        for ip, pp in enumerate(local_geometry.coords):
-            H += vectorsToMatrix(pp, perfect_geometry.coords[ip])
-        [U, S, Vt] = svd(H)
-        rot = matrixMultiplication(transpose(Vt), transpose(U))
-        return rot
-
-    def find_scaling_factor_newpmg(self, local_geometry, perfect_geometry, rot):
-        """
-        This finds the scaling factor between the perfect_geometry and the local_geometry in a least-square sense.
-        :param perfect_geometry: The perfect geometry of the coordination geometry that has to be scaled
-        :param local_geometry: The local geometry of the system under study
-        :param rot: The rotation matrix
-        :return: The scaling factor between the two structures
-        """
-        rotated_coords = rotateCoords(local_geometry.coords, rot)
-        total = 0.0
-        for ip, pp in enumerate(perfect_geometry.coords):
-            total += np.sum(pp * rotated_coords[ip]) / \
-                     np.sum(rotated_coords[ip] * rotated_coords[ip])
-        return total / len(perfect_geometry.coords), rotated_coords
-
-

@@ -28,7 +28,9 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.sites import PeriodicSite
 import numpy as np
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import UNCLEAR_ENVIRONMENT_SYMBOL
-from pymatgen.analysis.chemenv.utils.func_utils import CSMFiniteRatioFunction, CSMInfiniteRatioFunction, DeltaCSMRatioFunction
+from pymatgen.analysis.chemenv.utils.func_utils import CSMFiniteRatioFunction
+from pymatgen.analysis.chemenv.utils.func_utils import CSMInfiniteRatioFunction
+from pymatgen.analysis.chemenv.utils.func_utils import DeltaCSMRatioFunction
 from pymatgen.analysis.chemenv.utils.chemenv_errors import EquivalentSiteSearchError
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
@@ -142,7 +144,6 @@ class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
     Class used to define a Chemenv strategy for the neighbors and coordination environment to be applied to a
     StructureEnvironments object
     """
-    #VORONOI_CONTAINER = 'VoronoiContainer'
     DETAILED_VORONOI_CONTAINER = 'DetailedVoronoiContainer'
     ALLOWED_VORONOI_CONTAINERS = []
     AC = AdditionalConditions()
@@ -472,20 +473,15 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         #    return self.structure_environments.voronoi.get_neighbors(isite=isite, neighbors_map=neighbors_map)
         if isite is None:
             [isite, dequivsite, dthissite, mysym] = self.equivalent_site_index_and_transform(site)
-        print('BEGIN DBG DW')
         eqsite_ps = self.structure_environments.voronoi.neighbors(isite=isite,
                                                                   distfactor=self.distance_cutoff,
                                                                   angfactor=self.angle_cutoff,
                                                                   additional_condition=
                                                                   self._additional_condition)
-        print(eqsite_ps)
         ce = self.get_site_coordination_environment(site=site, isite=isite, dequivsite=dequivsite, dthissite=dthissite, mysym=mysym)
-        print(ce)
         uniquenbs = self.structure_environments.voronoi.unique_coordinated_neighbors(isite=isite)
         detailed_voronoi_index = ce[1]['detailed_voronoi_index']
         eqsite_ps = uniquenbs[detailed_voronoi_index['cn']][detailed_voronoi_index['index']][0]
-        print(eqsite_ps)
-        print('END DBG DW')
 
         coordinated_neighbors = []
         for ips, ps in enumerate(eqsite_ps):

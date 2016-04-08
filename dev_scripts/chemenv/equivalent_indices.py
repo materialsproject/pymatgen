@@ -1,7 +1,21 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
+
+"""
+Development script of the ChemEnv utility to get the equivalent indices of the model coordination environments
+"""
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
 
 import numpy as np
-import itertools
 
 
 if __name__ == '__main__':

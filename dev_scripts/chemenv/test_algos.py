@@ -1,7 +1,23 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder, AbstractGeometry
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries, UNCLEAR_ENVIRONMENT_SYMBOL
+from __future__ import division, unicode_literals
+
+"""
+Development script to test the algorithms of a given model coordination environments
+"""
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from math import factorial
 
 import numpy as np
@@ -12,10 +28,16 @@ import time
 
 if __name__ == '__main__':
 
-    cg_symbol = 'T:6'
-
     allcg = AllCoordinationGeometries()
-    cg = allcg[cg_symbol]
+
+    while True:
+        cg_symbol = raw_input('Enter symbol of the geometry for which you want to get the explicit permutations : ')
+        try:
+            cg = allcg[cg_symbol]
+            break
+        except LookupError:
+            print('Wrong geometry, try again ...')
+            continue
 
     lgf = LocalGeometryFinder()
     lgf.setup_parameters(structure_refinement=lgf.STRUCTURE_REFINEMENT_NONE)
@@ -46,6 +68,7 @@ if __name__ == '__main__':
         lgf.setup_test_perfect_environment(cg_symbol, indices=indices_perm)
 
         lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
+        points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
 
         print('Perm # {:d}/{:d} : '.format(iperm, nperms), indices_perm)
 
@@ -55,9 +78,10 @@ if __name__ == '__main__':
             if algo.algorithm_type == 'EXPLICIT_PERMUTATIONS':
                 raise ValueError('Do something for the explicit ones ... (these should anyway be by far ok!)')
 
-            results = lgf.coordination_geometry_symmetry_measures_separation_plane_newpmg(coordination_geometry=cg,
-                                                                                          separation_plane_algo=algo,
-                                                                                          tested_permutations=False)
+            results = lgf.coordination_geometry_symmetry_measures_separation_plane(coordination_geometry=cg,
+                                                                                   separation_plane_algo=algo,
+                                                                                   tested_permutations=False,
+                                                                                   points_perfect=points_perfect)
             print('Number of permutations tested : ', len(results[0]))
             algos_results.append(min(results[0]))
 

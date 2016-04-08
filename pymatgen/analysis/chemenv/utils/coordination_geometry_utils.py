@@ -230,28 +230,6 @@ class Plane(object):
     Class used to describe a plane
     """
 
-    # def __init__(self, p1, p2, p3):
-    #     """
-    #     Initializes a plane passing through three points p1, p2 and p3
-    #     :param p1: one of the point through which the plane passes
-    #     :param p2: one of the point through which the plane passes
-    #     :param p3: one of the point through which the plane passes
-    #     """
-    #     self.p1 = p1
-    #     self.p2 = p2
-    #     self.p3 = p3
-    #     nn = np.cross(p1 - p3, p2 - p3)
-    #     self.normal_vector = nn / norm(nn)
-    #     nonzeros = np.argwhere(self.normal_vector != 0.0)
-    #     if self.normal_vector[nonzeros[0, 0]] < 0.0:
-    #         self.normal_vector = -self.normal_vector
-    #     dd = - np.dot(self.normal_vector, p1)
-    #     self._coefficients = np.array([self.normal_vector[0],
-    #                                   self.normal_vector[1],
-    #                                   self.normal_vector[2],
-    #                                   dd], np.float)
-    #     self.vector_to_origin = dd * self.normal_vector
-
     TEST_2D_POINTS = [np.array([0, 0], np.float),
                       np.array([1, 0], np.float),
                       np.array([0, 1], np.float),
@@ -310,22 +288,6 @@ class Plane(object):
             self.p1 = np.array([-self.d / self.a, 0.0, 0.0], np.float)
             self.p2 = np.array([0.0, -self.d / self.b, 0.0], np.float)
             self.p3 = np.array([0.0, 0.0, -self.d / self.c], np.float)
-                # p1_x = -self.d / self.a
-                # self.p1 = np.array([p1_x, 0.0, 0.0], np.float)
-                # p2_y = -self.d / self.b
-                # ii = 0
-                # while np.isclose(p2_y, 0.0, atol=1e-1, rtol=0.0):
-                #     ii += 1
-                #     p2_y = -(self.d + self.a*self.TEST_2D_POINTS[ii][0] + self.c*self.TEST_2D_POINTS[ii][1]) / self.b
-                # self.p2 = np.array([self.TEST_2D_POINTS[ii][0], p2_y, self.TEST_2D_POINTS[ii][1]], np.float)
-                # p3_z = -self.d / self.c
-                # while (np.isclose(p3_z, self.p2[2])):
-                # if np.isclose(p2_y, 0.0, atol=1e-4, rtol=0.0):
-                #     p2_y = -self.d / self.b
-                #     self.p2 = np.array([1.0, -self.d / self.b, 1.0], np.float)
-                #     self.p3 = np.array([1.0, 1.0, -self.d / self.c], np.float)
-                # else:
-
         elif len(nonzeros) == 2:
             self.p1 = np.zeros(3, np.float)
             self.p1[nonzeros[1]] = -self.d / self.coefficients[nonzeros[1]]
@@ -363,7 +325,6 @@ class Plane(object):
         :return: True if pp is in the plane, False otherwise
         """
         return np.abs(np.dot(self.normal_vector, pp) + self._coefficients[3]) <= dist_tolerance
-        #return np.abs(np.dot(pp + self.vector_to_origin, self.normal_vector)) <= dist_tolerance
 
     def is_same_plane_as(self, plane):
         """
@@ -408,19 +369,6 @@ class Plane(object):
                     side2.append(ip)
         return [side1, inplane, side2]
 
-    def projection1point(self, pp):
-        """
-        Projects point pp on plane and returns the projected point
-        :param pp: Point to project on plane
-        :return: Projected point on plane
-        """
-        raise NotImplementedError
-        #ff = (np.sum(self.coefficients[:-1] * pp)) / (np.sum(self.coefficients[:-1] * self.coefficients[:-1]))
-        #xp = pp[0] - self.coefficients[0] * ff
-        #yp = pp[1] - self.coefficients[1] * ff
-        #zp = pp[2] - self.coefficients[2] * ff
-        #return np.array([xp, yp, zp])
-
     def distance_to_point(self, point):
         """
         Computes the absolute distance from the plane to the point
@@ -436,11 +384,6 @@ class Plane(object):
         :return: List of projected point on plane
         """
         return [pp - np.dot(pp - self.p1, self.normal_vector) * self.normal_vector for pp in pps]
-        #proj = list()
-        #for ipp, pp in enumerate(pps):
-        #    projected_point = pp - np.dot(pp - self.p1, self.normal_vector) * self.normal_vector
-        #    proj.append(projected_point)
-        #return proj
 
     def orthonormal_vectors(self):
         """
@@ -489,15 +432,6 @@ class Plane(object):
             xy_projected_plane_center = np.dot(projected_plane_center, PP)[0:2]
             xypps = [pp - xy_projected_plane_center for pp in xypps]
         return xypps
-
-    def mirror(self, pps):
-        #TODO: TOBEIMPLEMENTED
-        """
-        Returns the list of mirror points for the list of points in pps
-        :param pps: List of points to be mirrored
-        :return: :raise:
-        """
-        raise NotImplementedError
 
     def fit_error(self, points, fit='least_square_distance'):
         if fit == 'least_square_distance':

@@ -592,7 +592,6 @@ class CoordinationGeometry(object):
         for vv in _vertices:
             out += '{:15.8f} {:15.8f} {:15.8f}\n'.format(vv[0], vv[1], vv[2])
         for fc in _face_centers:
-            print(fc)
             out += '{:15.8f} {:15.8f} {:15.8f}\n'.format(fc[0], fc[1], fc[2])
         out += '{:d}\n'.format(number_of_faces)
         for iface, face in enumerate(self._faces):
@@ -639,7 +638,6 @@ class CoordinationGeometry(object):
         for vv in _vertices:
             out += '{:15.8f} {:15.8f} {:15.8f}\n'.format(vv[0], vv[1], vv[2])
         for fc in _face_centers:
-            print(fc)
             out += '{:15.8f} {:15.8f} {:15.8f}\n'.format(fc[0], fc[1], fc[2])
         out += '{:d}\n'.format(number_of_faces)
         for iface, face in enumerate(self._faces):

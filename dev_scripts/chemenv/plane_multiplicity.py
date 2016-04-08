@@ -1,7 +1,20 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
-import numpy as np
-import itertools
+from __future__ import division, unicode_literals
+
+"""
+Development script to get the multiplicity of the separation planes for some model coordination environments
+"""
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 
 

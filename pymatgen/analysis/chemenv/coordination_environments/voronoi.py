@@ -47,8 +47,9 @@ def from_bson_voronoi_list(bson_nb_voro_list, structure):
         voronoi_list[isite] = []
         for psd, dd in voro:
             struct_site = structure[dd['index']]
-            voronoi_list[isite].append((PeriodicSite(struct_site._species, struct_site._fcoords + psd[1],
-                                                     struct_site._lattice, properties=struct_site._properties), dd))
+            periodic_site = PeriodicSite(struct_site._species, struct_site.frac_coords + psd[1],
+                                         struct_site._lattice, properties=struct_site._properties)
+            voronoi_list[isite].append((periodic_site, dd))
     return voronoi_list
 
 
