@@ -510,7 +510,7 @@ class Vasprun(MSONable):
         Final energy from the vasp run.
         """
         try:
-            return self.ionic_steps[-1]["electronic_steps"][-1]["e_0_energy"]
+            return self.ionic_steps[-1]["e_fr_energy"]
         except (IndexError, KeyError):
             # not all calculations have a total energy, i.e. GW
             return np.inf

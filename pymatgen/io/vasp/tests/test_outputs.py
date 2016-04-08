@@ -55,6 +55,10 @@ class VasprunTest(unittest.TestCase):
             self.assertTrue(issubclass(w[-1].category,
                                        UserWarning))
 
+    def test_vdw(self):
+        v = Vasprun(os.path.join(test_dir, "vasprun.xml.vdw"))
+        self.assertAlmostEqual(v.final_energy, -9.78310677)
+
     def test_properties(self):
 
         filepath = os.path.join(test_dir, 'vasprun.xml.nonlm')
