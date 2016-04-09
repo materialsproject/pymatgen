@@ -512,14 +512,15 @@ class Vasprun(MSONable):
         try:
             final_istep = self.ionic_steps[-1]
             if final_istep["e_wo_entrp"] != final_istep[
-                'electronic_steps'][-1]["e_wo_entrp"]:
+                'electronic_steps'][-1]["e_0_energy"]:
                 warnings.warn("Final e_wo_entrp differs from the final "
                               "electronic step. VASP may have included some "
                               "corrections, e.g., vdw. Vasprun will return "
-                              "the final e_wo_entrp in such instances.")
-            return self.ionic_steps[-1]["e_wo_entrp"]
+                              "the final e_wo_entrp, i.e., including "
+                              "corrections in such instances.")
+                return final_istep["e_wo_entrp"]
+            return final_istep['electronic_steps'][-1]["e_0_energy"]
         except (IndexError, KeyError):
-            # not all calculations have a total energy, i.e. GW
             warnings.warn("Calculation does not have a total energy. "
                           "Possibly a GW or similar kind of run. A value of "
                           "infinity is returned.")
