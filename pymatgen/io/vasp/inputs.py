@@ -97,8 +97,14 @@ class Poscar(MSONable):
 
     .. attribute:: predictor_corrector
 
-        Predictor corrector coordinates for each site (typically read in from a
-        MD CONTCAR).
+        Predictor corrector coordinates and derivatives for each site; i.e.
+        a list of three 1x3 arrays for each site (typically read in from a MD CONTCAR).
+
+    .. attribute:: predictor_corrector_preamble
+
+        Predictor corrector preamble contains the predictor-corrector key, POTIM,
+        and thermostat parameters that precede the site-specic predictor corrector
+        data in MD CONTCAR
 
     .. attribute:: temperature
 
@@ -107,7 +113,8 @@ class Poscar(MSONable):
     """
 
     def __init__(self, structure, comment=None, selective_dynamics=None,
-                 true_names=True, velocities=None, predictor_corrector=None):
+                 true_names=True, velocities=None, predictor_corrector=None,
+                 predictor_corrector_preamble=None):
         if structure.is_ordered:
             site_properties = {}
             if selective_dynamics:
@@ -119,6 +126,7 @@ class Poscar(MSONable):
             self.structure = structure.copy(site_properties=site_properties)
             self.true_names = true_names
             self.comment = structure.formula if comment is None else comment
+            self.predictor_corrector_preamble = predictor_corrector_preamble
         else:
             raise ValueError("Structure with partial occupancies cannot be "
                              "converted into POSCAR!")
@@ -354,17 +362,32 @@ class Poscar(MSONable):
             for line in chunks[1].strip().split("\n"):
                 velocities.append([float(tok) for tok in line.split()])
 
+        # Parse the predictor-corrector data
         predictor_corrector = []
+        predictor_corrector_preamble = None
+
         if len(chunks) > 2:
             lines = chunks[2].strip().split("\n")
-            predictor_corrector.append([int(lines[0])])
-            for line in lines[1:]:
-                predictor_corrector.append([float(tok)
-                                            for tok in line.split()])
+            # There are 3 sets of 3xN Predictor corrector parameters
+            # So can't be stored as a single set of "site_property"
+
+            # First line in chunk is a key in CONTCAR
+            # Second line is POTIM
+            # Third line is the thermostat parameters
+            predictor_corrector_preamble = lines[0] + "\n" + lines[1]+"\n" + lines[2]
+            # Rest is three sets of parameters, each set contains
+            # x, y, z predictor-corrector parameters for every atom in orde
+            lines = lines[3:]
+            for st in range(nsites):
+                d1 = [float(tok) for tok in lines[st].split()]
+                d2 = [float(tok) for tok in lines[st+nsites].split()]
+                d3 = [float(tok) for tok in lines[st+2*nsites].split()]
+                predictor_corrector.append([d1,d2,d3])
 
         return Poscar(struct, comment, selective_dynamics, vasp5_symbols,
                       velocities=velocities,
-                      predictor_corrector=predictor_corrector)
+                      predictor_corrector=predictor_corrector,
+                      predictor_corrector_preamble=predictor_corrector_preamble)
 
     def get_string(self, direct=True, vasp4_compatible=False,
                    significant_figures=6):
@@ -420,10 +443,14 @@ class Poscar(MSONable):
 
         if self.predictor_corrector:
             lines.append("")
-            lines.append(str(self.predictor_corrector[0][0]))
-            lines.append(str(self.predictor_corrector[1][0]))
-            for v in self.predictor_corrector[2:]:
-                lines.append(" ".join([format_str.format(i) for i in v]))
+            try:
+                lines.append(self.predictor_corrector_preamble)
+            except:
+                raise ValueError("Preamble information missing or corrupt.")
+            pred = np.array(self.predictor_corrector)
+            for col in range(3):
+                for z in pred[:,col]:
+                    lines.append(" ".join([format_str.format(i) for i in z]))
 
         return "\n".join(lines) + "\n"
 
