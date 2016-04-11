@@ -107,24 +107,11 @@ class StructureEnvironments(MSONable):
         :param figsize: Size of the figure to be plotted
         :return: The figure object to be plotted or saved to file
         """
-        print('IN GETENVIRONMENTSFIGURE')
-        import matplotlib.pyplot as mpl
-        print('IMPORTED1')
-        from matplotlib import cm
-        print('IMPORTED2')
-        from matplotlib.colors import Normalize, LinearSegmentedColormap, ListedColormap
-        print('IMPORTED3')
-        from matplotlib.patches import Rectangle, Polygon
-        print('IMPORTED4')
         try:
             import matplotlib.pyplot as mpl
-            print('IMPORTED1')
             from matplotlib import cm
-            print('IMPORTED2')
             from matplotlib.colors import Normalize, LinearSegmentedColormap, ListedColormap
-            print('IMPORTED3')
             from matplotlib.patches import Rectangle, Polygon
-            print('IMPORTED4')
         except ImportError:
             print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
             return

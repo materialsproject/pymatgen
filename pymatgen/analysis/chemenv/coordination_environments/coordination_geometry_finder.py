@@ -18,11 +18,11 @@ __date__ = "Feb 20, 2016"
 
 
 import itertools
+import logging
 
 from numpy.linalg import svd
 from numpy.linalg import norm
 from numpy import transpose
-from pymatgen.core.structure import Molecule
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Specie
@@ -32,7 +32,7 @@ import numpy as np
 
 from random import shuffle
 
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import vectorsToMatrix, rotateCoords, Plane, matrixTimesVector
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import vectorsToMatrix, rotateCoords, Plane
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import matrixMultiplication
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import collinear, separation_in_list
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import sort_separation
@@ -45,6 +45,9 @@ from pymatgen.analysis.chemenv.coordination_environments.voronoi import Detailed
 
 debug = False
 DIST_TOLERANCES = [0.02, 0.05, 0.1, 0.2, 0.3]
+
+
+logger = logging.getLogger(__name__)
 
 
 class AbstractGeometry(object):
