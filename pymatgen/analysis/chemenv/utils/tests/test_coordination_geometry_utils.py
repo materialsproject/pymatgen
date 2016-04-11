@@ -73,7 +73,7 @@ class PlanesUtilsTest(PymatgenTest):
         ortho = self.plane.orthonormal_vectors()
         self.assertEqual(np.dot(ortho[0], self.plane.normal_vector), 0.0)
         self.assertEqual(np.dot(ortho[1], self.plane.normal_vector), 0.0)
-        self.assertAlmostEqual(np.dot(ortho[2], self.plane.normal_vector), 1.0)
+        self.assertTrue(np.isclose(np.dot(ortho[2], self.plane.normal_vector), 1.0))
         self.assertEqual(np.dot(ortho[0], ortho[1]), 0.0)
         self.assertEqual(np.dot(ortho[1], ortho[2]), 0.0)
         self.assertEqual(np.dot(ortho[2], ortho[0]), 0.0)
