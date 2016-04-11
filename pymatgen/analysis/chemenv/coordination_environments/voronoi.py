@@ -424,7 +424,6 @@ class DetailedVoronoiContainer(MSONable):
         vertices_dist_ang_list = []
         text_info_dist_ang_list = []
         for i_cn_map, cn_map in enumerate(cn_maps_parameter_indices['cn_maps']):
-            print('In cn map ', cn_map)
             parameter_indices_list = cn_maps_parameter_indices['parameter_indices'][i_cn_map]
             vertices_dist_ang_indices = self._get_vertices_dist_ang_indices(parameter_indices_list)
             vertices_dist_ang = []
@@ -441,9 +440,6 @@ class DetailedVoronoiContainer(MSONable):
             ang = bounds_and_limits['angle_bounds'][iang]
             vertices_dist_ang.append([dist, ang])
             idist, iang = vertices_dist_ang_indices[3]
-            print('Dist ang indices ', vertices_dist_ang_indices)
-            print('distance_bounds ', bounds_and_limits['distance_bounds'])
-            print('angle_bounds ', bounds_and_limits['angle_bounds'])
             dist = bounds_and_limits['distance_bounds'][idist+1]
             ang = bounds_and_limits['angle_bounds'][iang]
             vertices_dist_ang.append([dist, ang])
