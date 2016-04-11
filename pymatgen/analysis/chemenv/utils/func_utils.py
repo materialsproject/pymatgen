@@ -10,6 +10,7 @@ This module contains some utility functions and classes that are used in the che
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
 __version__ = "2.0"
 __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
