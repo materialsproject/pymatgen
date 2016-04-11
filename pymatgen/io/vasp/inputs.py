@@ -443,9 +443,9 @@ class Poscar(MSONable):
 
         if self.predictor_corrector:
             lines.append("")
-            try:
+            if self.predictor_corrector_preamble:
                 lines.append(self.predictor_corrector_preamble)
-            except:
+            else:
                 raise ValueError("Preamble information missing or corrupt.")
             pred = np.array(self.predictor_corrector)
             for col in range(3):
