@@ -12,6 +12,7 @@ import shutil
 import random
 import numpy as np
 import matplotlib.image as mpimg
+from pymatgen.util.testing import PymatgenTest
 
 json_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
                               'test_files', "chemenv", "json_test_files")
@@ -20,7 +21,7 @@ img_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
 
 
 
-class VoronoiContainerTest(unittest.TestCase):
+class VoronoiContainerTest(PymatgenTest):
 
     @classmethod
     def setUpClass(cls):

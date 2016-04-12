@@ -89,8 +89,14 @@ class VoronoiCoordFinder(object):
 
         resultweighted = {}
         for nn, angle in results.items():
-            if nn.specie in localtarget:
-                resultweighted[nn] = angle / maxangle
+            # is nn site is ordered use "nn.specie" to get species, else use "nn.species_and_occu" to get species
+            if nn.is_ordered:
+                if nn.specie in localtarget:
+                    resultweighted[nn] = angle / maxangle
+            else:  # is nn site is disordered
+                for disordered_sp in nn.species_and_occu.keys():
+                    if disordered_sp in localtarget:
+                        resultweighted[nn] = angle / maxangle
 
         return resultweighted
 
