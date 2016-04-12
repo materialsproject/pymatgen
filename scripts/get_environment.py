@@ -4,6 +4,9 @@ from pymatgen.analysis.chemenv.utils.scripts_utils import compute_environments, 
 from pymatgen.analysis.chemenv.utils.chemenv_config import ChemEnvConfig
 from argparse import ArgumentParser
 
+import logging
+
+
 __author__ = 'waroquiers'
 
 
@@ -13,9 +16,8 @@ def run_script():
     setup_help = 'Used to setup the configuration of the package '
     setup_help += '(MaterialsProject access, ICSD database access, package options, ...)'
     parser.add_argument('-s', '--setup', help=setup_help, action='store_true')
-    parser.add_argument('-m', '--message-level', help='Message level (DEBUG, INFO, WARNING, ERROR or CRITICAL) '
-                                                      '(not yet used)',
-                        default='INFO')
+    parser.add_argument('-m', '--message-level', help='Message level (DEBUG, INFO, WARNING, ERROR or CRITICAL)',
+                        default='WARNING')
     args = parser.parse_args()
     if args.setup:
         chemenv_config = ChemEnvConfig.auto_load()
@@ -24,6 +26,7 @@ def run_script():
     else:
         chemenv_config = ChemEnvConfig.auto_load()
     welcome(chemenv_config)
+    logging.basicConfig(format='%(levelname)s:%(module)s:%(funcName)s:%(message)s', level=args.message_level)
     compute_environments(chemenv_config)
     thankyou()
 
