@@ -1343,9 +1343,16 @@ class ChemicalEnvironments(MSONable):
             break
         cn = symbol_cn_mapping[mp_symbol]
         out += ' => Coordination {} <=\n'.format(cn)
-        for mp_symbol in self.coord_geoms:
+        mp_symbols = list(self.coord_geoms.keys())
+        csms_wcs = [self.coord_geoms[mp_symbol]['other_symmetry_measures']['csm_wcs_ctwcc'] for mp_symbol in mp_symbols]
+        icsms_sorted = np.argsort(csms_wcs)
+        mp_symbols = [mp_symbols[ii] for ii in icsms_sorted]
+        for mp_symbol in mp_symbols:
+            csm_wcs = self.coord_geoms[mp_symbol]['other_symmetry_measures']['csm_wcs_ctwcc']
+            csm_wocs = self.coord_geoms[mp_symbol]['other_symmetry_measures']['csm_wocs_ctwocc']
             out += '   - {}\n'.format(mp_symbol)
-            out += '      csm : {}'.format(self.coord_geoms[mp_symbol]['symmetry_measure'])
+            out += '      csm1 (with central site) : {}'.format(csm_wcs)
+            out += '      csm2 (without central site) : {}'.format(csm_wocs)
             out += '     algo : {}'.format(self.coord_geoms[mp_symbol]['algo'])
             out += '     perm : {}\n'.format(self.coord_geoms[mp_symbol]['permutation'])
             out += '       local2perfect : {}\n'.format(str(self.coord_geoms[mp_symbol]['local2perfect_map']))
