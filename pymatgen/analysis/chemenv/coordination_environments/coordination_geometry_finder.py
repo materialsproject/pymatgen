@@ -48,9 +48,6 @@ debug = False
 DIST_TOLERANCES = [0.02, 0.05, 0.1, 0.2, 0.3]
 
 
-logger = logging.getLogger(__name__)
-
-
 class AbstractGeometry(object):
     """
     Class used to describe a geometry (perfect or distorted)
@@ -402,7 +399,7 @@ class LocalGeometryFinder(object):
         """
 
         # Bond valence analysis to get approximated valences
-        logger.info('Getting valences using BVAnalyzer')
+        logging.info('Getting valences using BVAnalyzer')
         bva = BVAnalyzer(distance_scale_factor=self.bva_distance_scale_factor)
         self.info = {}
         try:
@@ -416,7 +413,7 @@ class LocalGeometryFinder(object):
         # Get a list of indices of unequivalent sites from the initial structure
         if (self.structure_refinement == self.STRUCTURE_REFINEMENT_SYMMETRIZED and
                     len(self.symmetrized_structure.equivalent_sites) > 0):
-            logger.info('Symmetrizing and refining structure')
+            logging.info('Symmetrizing and refining structure')
             indices = []
             ind_eqsites_found = []
             self.equivalent_sites = self.symmetrized_structure.equivalent_sites
@@ -484,24 +481,24 @@ class LocalGeometryFinder(object):
             sites_indices = [isite for isite in indices if isite in only_indices]
 
         # Get the VoronoiContainer for this list of unequivalent sites with valence >= 0
-        logger.info('Getting DetailedVoronoiContainer')
+        logging.info('Getting DetailedVoronoiContainer')
         self.detailed_voronoi = DetailedVoronoiContainer(self.structure, isites=sites_indices,
                                                          valences=self.valences,
                                                          maximum_distance_factor=maximum_distance_factor,
                                                          minimum_angle_factor=minimum_angle_factor)
-        logger.info('DetailedVoronoiContainer has been set up')
+        logging.info('DetailedVoronoiContainer has been set up')
 
         ce_list = []
         skipped = []
-        logger.info('Computing structure environments')
+        logging.info('Computing structure environments')
         tse1 = time.clock()
         for isite in range(len(self.structure)):
             if isite not in sites_indices:
-                logger.info(' ... in site #{:d} ({}) : skipped'.format(isite, self.structure[isite].species_string))
+                logging.info(' ... in site #{:d} ({}) : skipped'.format(isite, self.structure[isite].species_string))
                 skipped.append(isite)
                 ce_list.append(None)
                 continue
-            logger.info(' ... in site #{:d} ({})'.format(isite, self.structure[isite].species_string))
+            logging.info(' ... in site #{:d} ({})'.format(isite, self.structure[isite].species_string))
             t1 = time.clock()
             coords = self.detailed_voronoi.unique_coordinations(isite)
 
@@ -533,10 +530,10 @@ class LocalGeometryFinder(object):
                                           )
                     ce_dict[cn].append(ce)
             t2 = time.clock()
-            logger.info('    ... computed in {:.2f}'.format(t2-t1))
+            logging.info('    ... computed in {:.2f} seconds'.format(t2-t1))
             ce_list.append(ce_dict)
         tse2 = time.clock()
-        logger.info('Structure environments computed in {:.2f}s'.format(tse2-tse1))
+        logging.info('Structure environments computed in {:.2f} seconds'.format(tse2-tse1))
         return StructureEnvironments(self.detailed_voronoi, self.valences, self.sites_map, self.equivalent_sites,
                                      ce_list, self.structure)
 
