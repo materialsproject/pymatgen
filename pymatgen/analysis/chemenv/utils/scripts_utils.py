@@ -169,7 +169,7 @@ def compute_environments(chemenv_configuration):
         print('Computing environments finished')
         while True:
             test = input('See list of environments determined for each (unequivalent) site ? '
-                         '("y" or "n", "d" with details, "g" to see the grid')
+                         '("y" or "n", "d" with details, "g" to see the grid) : ')
             strategy = default_strategy
             if test in ['y', 'd', 'g']:
                 strategy.set_structure_environments(se)
@@ -216,7 +216,7 @@ def compute_environments(chemenv_configuration):
                                 mystring += '{} : {:.2f}       '.format(mingeom[0], mingeom[1]['symmetry_measure'])
                     print(mystring)
             if test == 'g':
-                test = input('Enter index of site(s) for which you want to see the grid of parameters :')
+                test = input('Enter index of site(s) for which you want to see the grid of parameters : ')
                 indices = list(map(int, test.split()))
                 print(indices)
                 for isite in indices:
@@ -226,11 +226,11 @@ def compute_environments(chemenv_configuration):
                 if test == 'y':
                     break
                 continue
-            test = input('View structure with environments ? ("y" for the unit cell or "m" for a supercell or "n")')
+            test = input('View structure with environments ? ("y" for the unit cell or "m" for a supercell or "n") : ')
             if test in ['y', 'm']:
                 if test == 'm':
                     mydeltas = []
-                    test = input('Enter multiplicity (e.g. 3 2 2) :')
+                    test = input('Enter multiplicity (e.g. 3 2 2) : ')
                     nns = test.split()
                     for i0 in range(int(nns[0])):
                         for i1 in range(int(nns[1])):
@@ -251,7 +251,6 @@ def compute_environments(chemenv_configuration):
                         continue
                     if len(ces) == 0:
                         continue
-                    #ce = ces[0]
                     ce = strategy.get_site_coordination_environment(site)
                     if ce is not None and ce[0] != UNCLEAR_ENVIRONMENT_SYMBOL:
                         for mydelta in mydeltas:
@@ -259,15 +258,10 @@ def compute_environments(chemenv_configuration):
                                                  properties=site._properties)
                             vis.add_site(psite)
                             neighbors = strategy.get_site_neighbors(psite)
-                            # draw_cg(vis, psite, neighbors, cg=lgf.cg.get_geometry_from_mp_symbol(ce[0]),
-                            #         perfect2local_map=ce[1]['perfect2local_map'])
                             draw_cg(vis, psite, neighbors, cg=lgf.cg.get_geometry_from_mp_symbol(ce[0]),
                                     perm=ce[1]['permutation'])
-                            # neighbors = strategy.get_site_neighbors(site)
-                            # draw_cg(vis, site, neighbors, cg=lgf.cg.get_geometry_from_mp_symbol(ce[0]),
-                            #        perm=ce[1]['permutation'])
                 vis.show()
-            test = input('Go to next structure ? ("y" to do so)')
+            test = input('Go to next structure ? ("y" to do so) : ')
             if test == 'y':
                 break
         print('')
