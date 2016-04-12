@@ -494,11 +494,13 @@ class LocalGeometryFinder(object):
         tse1 = time.clock()
         for isite in range(len(self.structure)):
             if isite not in sites_indices:
-                logging.info(' ... in site #{:d} ({}) : skipped'.format(isite, self.structure[isite].species_string))
+                logging.info(' ... in site #{:d}/{:d} ({}) : skipped'.format(isite+1, len(self.structure),
+                                                                             self.structure[isite].species_string))
                 skipped.append(isite)
                 ce_list.append(None)
                 continue
-            logging.info(' ... in site #{:d} ({})'.format(isite, self.structure[isite].species_string))
+            logging.info(' ... in site #{:d}/{:d} ({})'.format(isite+1, len(self.structure),
+                                                          self.structure[isite].species_string))
             t1 = time.clock()
             coords = self.detailed_voronoi.unique_coordinations(isite)
 
