@@ -15,7 +15,7 @@ __maintainer__ = "Shyam Dwaraknath"
 __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
 
-import unittest
+import unittest2 as unittest
 from pymatgen.analysis.substrate_analyzer import SubstrateAnalyzer, \
     ZSLGenerator, fast_norm, reduce_vectors, vec_area, get_factors
 from pymatgen.util.testing import PymatgenTest

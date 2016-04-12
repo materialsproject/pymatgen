@@ -17,7 +17,7 @@ __status__ = "Development"
 __date__ = "4/1/16"
 
 import os
-import unittest
+import unittest2 as unittest
 import numpy as np
 from pymatgen.analysis.piezo import PiezoTensor
 from pymatgen.util.testing import PymatgenTest
