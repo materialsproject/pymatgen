@@ -170,7 +170,7 @@ class ElasticTensor(SQTensor):
 
     def energy_density(self,strain):
         """
-            Calculates the elastic energy density due to a strain
+        Calculates the elastic energy density due to a strain
         """
         # Conversion factor for GPa to eV/Angstrom^3
         GPA_EV = 0.000624151
@@ -180,6 +180,20 @@ class ElasticTensor(SQTensor):
 
         return e_density
 
+
+    def check_symmetry(self, structure, symprec = 0.1):
+        """
+        """
+
+    def symmetrize_to_structure(self, structure, symprec = 0.1):
+        """
+        Returns an elastic tensor that is symmetrized according
+        to a structure's rotation symmetry operations
+        """
+
+        sg = SpacegroupAnalyzer(structure, symprec)
+
+        numpy.mean([
 
     @classmethod
     def from_full_tensor(cls, c_ijkl, tol=1e-5):
@@ -232,7 +246,7 @@ class ElasticTensor(SQTensor):
         return cls(np.transpose(np.dot(np.linalg.pinv(strains), stresses)))
 
     @classmethod
-    def from_stress_dict(cls, stress_dict, tol=0.1, vasp=True):
+    def from_stress_dict(cls, stress_dict, tol=0.1, vasp=True, symmetry=False):
         """
         Constructs the elastic tensor from IndependentStrain-Stress dictionary
         corresponding to legacy behavior of elasticity package.
@@ -240,6 +254,11 @@ class ElasticTensor(SQTensor):
         Args:
             stress_dict (dict): dictionary of stresses indexed by corresponding
                 IndependentStrain objects.
+            tol (float): tolerance for zeroing small values of the tensor
+            vasp (boolean): flag for whether the stress tensor should be
+                converted based on vasp units/convention for stress
+            symmetry (boolean): flag for whether or not the elastic tensor
+                should fit from data based on symmetry
         """
         inds = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
         c_ij = np.array([[np.polyfit([strain[ind1] for strain in list(stress_dict.keys())
