@@ -183,5 +183,5 @@ class SymmOpTestCase(PymatgenTest):
         self.assertArrayAlmostEqual(o.translation_vector, [0.5, 0.25, 0.75])
 
 if __name__ == '__main__':
-    import unittest
+    import unittest2 as unittest
     unittest.main()

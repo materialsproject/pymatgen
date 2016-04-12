@@ -17,7 +17,7 @@ __date__ = "Sep 23, 2011"
 
 import os
 import random
-import unittest
+import unittest2 as unittest
 import json
 import six
 

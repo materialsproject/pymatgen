@@ -7,7 +7,7 @@ from __future__ import unicode_literals, division, print_function
 import os.path
 import collections
 import numpy as np
-import unittest
+import unittest2 as unittest
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.pseudos import *
@@ -264,5 +264,5 @@ class PseudoTableTest(PymatgenTest):
 
 
 if __name__ == "__main__":
-    import unittest
+    import unittest2 as unittest
     unittest.main()
