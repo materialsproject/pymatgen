@@ -54,15 +54,6 @@ strategies_class_lookup['SimpleAbundanceChemenvStrategy'] = SimpleAbundanceCheme
 strategies_class_lookup['TargettedPenaltiedAbundanceChemenvStrategy'] = TargettedPenaltiedAbundanceChemenvStrategy
 
 
-def get_icsd_collection(chemenv_configuration):
-    serv = pymongo.MongoClient(chemenv_configuration.icsd_database_configuration['server'])
-    icsd_db = serv[chemenv_configuration.icsd_database_configuration['database']]
-    icsd_coll = icsd_db[chemenv_configuration.icsd_database_configuration['collection']]
-    icsd_db.authenticate(chemenv_configuration.icsd_database_configuration['authentication_name'],
-                         chemenv_configuration.icsd_database_configuration['authentication_password'])
-    return icsd_coll
-
-
 def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None):
     if perm is not None and perfect2local_map is not None:
         raise ValueError('Only "perm" or "perfect2local_map" should be provided in draw_cg, not both')
@@ -122,14 +113,10 @@ def thankyou():
 
 def compute_environments(chemenv_configuration):
     string_sources = {'cif': {'string': 'a Cif file', 'regexp': '.*\.cif$'},
-                      'mp': {'string': 'the Materials Project database', 'regexp': 'mp-[0-9]+$'},
-                      'icsd': {'string': 'an ICSD database', 'regexp': '[0-9]+$'}}
+                      'mp': {'string': 'the Materials Project database', 'regexp': 'mp-[0-9]+$'}}
     questions = {'c': 'cif'}
     if chemenv_configuration.has_materials_project_access:
         questions['m'] = 'mp'
-    if chemenv_configuration.has_icsd_database_access:
-        questions['i'] = 'icsd'
-        icsd_collection = get_icsd_collection(chemenv_configuration)
     lgf = LocalGeometryFinder()
     lgf.setup_parameters()
     allcg = AllCoordinationGeometries()
@@ -176,11 +163,6 @@ def compute_environments(chemenv_configuration):
                 input_source = input('Enter materials project id (e.g. "mp-1902") : ')
             a = MPRester(chemenv_configuration.materials_project_api_key)
             structure = a.get_structure_by_material_id(input_source)
-        elif source_type == 'icsd':
-            if not found:
-                input_source = input('Enter ICSD id (e.g. "168") : ')
-            entry = icsd_collection.find_one({'icsd_ids': {'$all': [int(input_source)]}})
-            structure = Structure.from_dict(entry['structure'])
         lgf.setup_structure(structure)
         print('Computing environments for {} ... '.format(structure.composition.reduced_formula))
         se = lgf.compute_structure_environments_detailed_voronoi()
