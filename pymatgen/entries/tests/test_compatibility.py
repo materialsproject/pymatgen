@@ -17,7 +17,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Mar 19, 2012"
 
 import os
-import unittest
+import unittest2 as unittest
 
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility, \
     MITCompatibility, AqueousCorrection, MITAqueousCompatibility, MaterialsProjectAqueousCompatibility

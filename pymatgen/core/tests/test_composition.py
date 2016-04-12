@@ -19,7 +19,7 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Nov 10, 2012"
 
-import unittest
+import unittest2 as unittest
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition, CompositionError, \

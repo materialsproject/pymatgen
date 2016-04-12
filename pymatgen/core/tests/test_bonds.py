@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 26, 2012"
 
-import unittest
+import unittest2 as unittest
 
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.sites import Site

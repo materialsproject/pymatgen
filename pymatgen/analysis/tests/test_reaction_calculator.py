@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals
 
-import unittest
+import unittest2 as unittest
 
 from pymatgen import Composition
 from pymatgen.analysis.reaction_calculator import Reaction, BalancedReaction, \
