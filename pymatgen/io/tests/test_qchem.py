@@ -9,7 +9,7 @@ import glob
 import json
 import os
 from unittest import TestCase
-import unittest
+import unittest2 as unittest
 
 from pymatgen import Molecule
 from pymatgen.io.qchem import QcTask, QcInput, QcOutput

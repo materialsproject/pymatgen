@@ -3,7 +3,7 @@
 
 __author__ = 'waroquiers'
 
-import unittest
+import unittest2 as unittest
 from pymatgen.analysis.chemenv.utils.math_utils import prime_factors, divisors, get_center_of_arc, get_linearly_independent_vectors
 from pymatgen.analysis.chemenv.utils.math_utils import scale_and_clamp, smoothstep, smootherstep, cosinus_step, power3_step
 from pymatgen.analysis.chemenv.utils.math_utils import powern_parts_step

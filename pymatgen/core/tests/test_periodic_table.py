@@ -4,7 +4,7 @@
 
 from __future__ import division, unicode_literals
 
-import unittest
+import unittest2 as unittest
 import pickle
 import collections
 
