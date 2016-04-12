@@ -24,32 +24,30 @@ __date__ = "March 22, 2012"
 from scipy.linalg import polar
 import numpy as np
 
-
-class SQTensor(np.ndarray):
+class TensorBase(np.ndarray):
     """
-    Base class for doing useful general operations on *square* second order
-    tensors, without restrictions on what type (stress, elastic, strain etc.).
+    Base class for doing useful general operations on Nth order tensors,
+    without restrictions on the type (stress, elastic, strain, piezo, etc.)
     """
 
     def __new__(cls, input_array):
         """
-        Create a SQTensor object.  Note that the constructor uses __new__
+        Create a TensorBase object.  Note that the constructor uses __new__
         rather than __init__ according to the standard method of
-        subclassing numpy ndarrays.  Error is thrown when the class is
-        initialized with non-square matrix.
+        subclassing numpy ndarrays.
 
         Args:
-            stress_matrix (3x3 array-like): the 3x3 array-like
-                representing the Green-Lagrange strain
+            input_array: (3xN array-like): the 3xN array-like representing
+                a tensor quantity
         """
-
         obj = np.asarray(input_array).view(cls)
-        if not (len(obj.shape) == 2 and obj.shape[0] == obj.shape[1]):
-            raise ValueError("SQTensor only takes 2-D "
-                             "square array-likes as input")
+        obj.rank = len(obj.shape)
+        if not all([i == 3 for i in obj.shape]):
+            raise ValueError("Pymatgen only supports 3-dimensional tensors")
+        
         return obj
 
-    def __array_finalize__(self, obj):
+    def __array_finalize__:
         if obj is None:
             return
 
@@ -69,12 +67,41 @@ class SQTensor(np.ndarray):
         define a hash function, since numpy arrays
         have their own __eq__ method
         """
-        return hash(self.tostring()) 
+        return hash(self.tostring())
 
     def __repr__(cls):
         return "{}({})".format(cls.__class__.__name__,
                                cls.__str__())
 
+
+class SqTensor(TensorBase):
+    """
+    Base class for doing useful general operations on second rank tensors
+    without restrictions on what type (stress, elastic, strain etc.).
+    """
+
+    def __new__(cls, input_array):
+        """
+        Create a SQTensor object.  Note that the constructor uses __new__
+        rather than __init__ according to the standard method of
+        subclassing numpy ndarrays.  Error is thrown when the class is
+        initialized with non-square matrix.
+
+        Args:
+            stress_matrix (3x3 array-like): the 3x3 array-like
+                representing the Green-Lagrange strain
+        """
+
+        obj = np.asarray(input_array).view(cls)
+        if not (len(obj.shape) == 2):
+            raise ValueError("SqTensor only takes 2-D "
+                             "square array-likes as input")
+        return obj
+
+    def __array_finalize__(self, obj):
+        if obj is None:
+            return
+        
     @property
     def trans(self):
         """
