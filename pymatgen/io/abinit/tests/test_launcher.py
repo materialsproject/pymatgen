@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals, division, print_function
 
-import unittest
+import unittest2 as unittest
 
 from pymatgen.io.abinit.launcher import ScriptEditor
 
