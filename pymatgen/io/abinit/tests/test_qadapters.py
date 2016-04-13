@@ -4,7 +4,7 @@
 from __future__ import unicode_literals, division, print_function
 
 import yaml
-import unittest
+import unittest2 as unittest
 
 from collections import OrderedDict
 from monty.collections import AttrDict
@@ -450,5 +450,5 @@ mpirun -n 3 executable < stdin > stdout 2> stderr
                                            '2:ncpus=24:vmem=48000mb:mpiprocs=24')
 
 if __name__ == '__main__':
-    import unittest
+    import unittest2 as unittest
     unittest.main()

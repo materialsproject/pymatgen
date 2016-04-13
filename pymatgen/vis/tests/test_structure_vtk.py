@@ -15,7 +15,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Apr 25, 2012"
 
-# import unittest
+# import unittest2 as unittest
 #
 # from pymatgen.vis.structure_vtk import StructureVis
 # from pymatgen.core.structure import Structure

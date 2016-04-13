@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-import unittest
+import unittest2 as unittest
 from pymatgen.analysis.hhi.hhi import HHIModel
 
 class HHIModelTest(unittest.TestCase):

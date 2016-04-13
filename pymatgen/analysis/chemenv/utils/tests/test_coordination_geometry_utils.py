@@ -3,7 +3,7 @@
 
 __author__ = 'waroquiers'
 
-import unittest
+import unittest2 as unittest
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 import numpy as np
 import itertools
