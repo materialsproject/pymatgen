@@ -24,7 +24,8 @@ import json
 from io import open
 from enum import Enum
 
-from pymatgen.core.units import Mass, Length, unitized
+from pymatgen.core.units import Mass, Length, unitized, FloatWithUnit, Unit, \
+    ALL_UNITS
 from pymatgen.util.string_utils import formula_double_format
 from monty.json import MSONable
 from monty.dev import deprecated
@@ -393,6 +394,20 @@ class Element(Enum):
             val = d.get(kstr, None)
             if str(val).startswith("no data"):
                 val = None
+            else:
+                try:
+                    val = float(val)
+                except ValueError:
+                    toks = val.split(" ", 1)
+                    if len(toks) == 2:
+                        try:
+                            unit = toks[1].replace("<sup>", "^").replace("</sup>", "").replace("&Omega;", "ohm")
+                            units = Unit(unit)
+                            if set(units.keys()).issubset(ALL_UNITS):
+                                val = FloatWithUnit(toks[0], unit)
+                        except ValueError:
+                            # Ignore error. val will just remain a string.
+                            pass
             setattr(self, a, val)
         if str(d.get("Atomic radius", "no data")).startswith("no data"):
             self.atomic_radius = None
