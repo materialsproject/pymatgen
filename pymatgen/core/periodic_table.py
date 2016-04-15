@@ -403,12 +403,17 @@ class Element(Enum):
                     toks = toks_nobracket.replace("about", "").strip().split(" ", 1)
                     if len(toks) == 2:
                         try:
-                            unit = toks[1].replace("<sup>", "^").replace(
-                                "</sup>", "").replace("&Omega;",
-                                                      "ohm")
-                            units = Unit(unit)
-                            if set(units.keys()).issubset(SUPPORTED_UNIT_NAMES):
-                                val = FloatWithUnit(toks[0], unit)
+                            if "10<sup>" in toks[1]:
+                                base_power = re.findall(r'([+-]?\d+)', toks[1])
+                                factor = "e" + base_power[1]
+                                toks[0] += factor
+                            else:
+                                unit = toks[1].replace("<sup>", "^").replace(
+                                    "</sup>", "").replace("&Omega;",
+                                                          "ohm")
+                                units = Unit(unit)
+                                if set(units.keys()).issubset(SUPPORTED_UNIT_NAMES):
+                                    val = FloatWithUnit(toks[0], unit)
                         except ValueError as ex:
                             # Ignore error. val will just remain a string.
                             pass
