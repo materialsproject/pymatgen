@@ -1334,9 +1334,9 @@ class Outcar(MSONable):
         def as_dict(self):
             d = {"@module": self.__class__.__module__,
                  "@class": self.__class__.__name__,
-                 "delta_11": self.sigma_11,
-                 "delta_22": self.sigma_22,
-                 "delta_33": self.sigma_33}
+                 "sigma_11": self.sigma_11,
+                 "sigma_22": self.sigma_22,
+                 "sigma_33": self.sigma_33}
             return d
 
         @classmethod
