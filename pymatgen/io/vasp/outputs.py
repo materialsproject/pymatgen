@@ -1410,8 +1410,8 @@ class Outcar(MSONable):
 
         @classmethod
         def from_maryland_notation(cls, sigma_iso, omega, kappa):
-            sigma_22 = sigma_iso + kappa * omega / 3.0
-            sigma_33 = (3.0 * sigma_iso - sigma_22 - omega) / 2.0
+            sigma_22 = sigma_iso - kappa * omega / 3.0
+            sigma_33 = (3.0 * sigma_iso + omega - sigma_22) / 2.0
             sigma_11 = 3.0 * sigma_iso - sigma_22 - sigma_33
             return cls(sigma_11, sigma_22, sigma_33)
 
