@@ -2,7 +2,19 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
+from __future__ import division, unicode_literals, print_function
+
+import os
+import re
+import json
+from io import open
+from enum import Enum
+
+from pymatgen.core.units import Mass, Length, unitized, FloatWithUnit, Unit, \
+    SUPPORTED_UNIT_NAMES
+from pymatgen.util.string_utils import formula_double_format
+from monty.json import MSONable
+from monty.dev import deprecated
 
 """
 Module contains classes presenting Element and Specie (Element + oxidation
@@ -18,17 +30,6 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-import os
-import re
-import json
-from io import open
-from enum import Enum
-
-from pymatgen.core.units import Mass, Length, unitized, FloatWithUnit, Unit, \
-    ALL_UNITS
-from pymatgen.util.string_utils import formula_double_format
-from monty.json import MSONable
-from monty.dev import deprecated
 
 # Loads element data from json file
 with open(os.path.join(os.path.dirname(__file__), "periodic_table.json"), "rt"
@@ -398,14 +399,16 @@ class Element(Enum):
                 try:
                     val = float(val)
                 except ValueError:
-                    toks = val.split(" ", 1)
+                    toks = val.replace("about", "").strip().split(" ", 1)
                     if len(toks) == 2:
                         try:
-                            unit = toks[1].replace("<sup>", "^").replace("</sup>", "").replace("&Omega;", "ohm")
+                            unit = toks[1].replace("<sup>", "^").replace(
+                                "</sup>", "").replace("&Omega;",
+                                                      "ohm")
                             units = Unit(unit)
-                            if set(units.keys()).issubset(ALL_UNITS):
+                            if set(units.keys()).issubset(SUPPORTED_UNIT_NAMES):
                                 val = FloatWithUnit(toks[0], unit)
-                        except ValueError:
+                        except ValueError as ex:
                             # Ignore error. val will just remain a string.
                             pass
             setattr(self, a, val)
