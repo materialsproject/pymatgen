@@ -599,5 +599,17 @@ class DynmatTest(unittest.TestCase):
         ))
         # TODO: test get_phonon_frequencies once cross-checked
 
+
+class TestChemicalShiftNotation(unittest.TestCase):
+    def test_nmr_chemical_shift_notation(self):
+        cs1 = Outcar.ChemicalShiftNotation.from_maryland_notation(
+            195.0788, 68.1733, 0.8337)
+        hae1 = cs1.haeberlen_values
+        self.assertAlmostEqual(hae1.sigma_iso, 195.0788, places=5)
+        self.assertAlmostEqual(hae1.delta_sigma, -65.3389950525, places=5)
+        self.assertAlmostEqual(hae1.zeta, -43.55933003499999, places=5)
+        self.assertAlmostEqual(hae1.eta, 0.13013537835511396, places=5)
+
+
 if __name__ == "__main__":
     unittest.main()
