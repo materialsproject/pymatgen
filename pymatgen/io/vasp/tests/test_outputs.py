@@ -606,9 +606,18 @@ class TestChemicalShiftNotation(unittest.TestCase):
             195.0788, 68.1733, 0.8337)
         hae1 = cs1.haeberlen_values
         self.assertAlmostEqual(hae1.sigma_iso, 195.0788, places=5)
-        self.assertAlmostEqual(hae1.delta_sigma, -65.3389950525, places=5)
-        self.assertAlmostEqual(hae1.zeta, -43.55933003499999, places=5)
-        self.assertAlmostEqual(hae1.eta, 0.13013537835511396, places=5)
+        self.assertAlmostEqual(hae1.delta_sigma, 65.33899505250002, places=5)
+        self.assertAlmostEqual(hae1.zeta, 43.559330035000016, places=5)
+        self.assertAlmostEqual(hae1.eta, 0.13013537835511454, places=5)
+        meh1 = cs1.mehring_values
+        self.assertAlmostEqual(meh1.sigma_iso, 195.0788, places=5)
+        self.assertAlmostEqual(meh1.sigma_11, 170.46483003499998, places=5)
+        self.assertAlmostEqual(meh1.sigma_22, 176.13343993, places=5)
+        self.assertAlmostEqual(meh1.sigma_33, 238.63813003500002, places=5)
+        mary1 = cs1.maryland_values
+        self.assertAlmostEqual(mary1.sigma_iso, 195.0788, places=5)
+        self.assertAlmostEqual(mary1.omega, 68.1733, places=5)
+        self.assertAlmostEqual(mary1.kappa, 0.8337, places=5)
 
 
 if __name__ == "__main__":
