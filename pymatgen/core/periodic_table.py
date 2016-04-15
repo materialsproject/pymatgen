@@ -407,6 +407,13 @@ class Element(Enum):
                                 base_power = re.findall(r'([+-]?\d+)', toks[1])
                                 factor = "e" + base_power[1]
                                 toks[0] += factor
+                                if a == "electrical_resistivity":
+                                    unit = "ohm m"
+                                elif a == "coefficient_of_linear_thermal_expansion":
+                                    unit = "K^-1"
+                                else:
+                                    unit = toks[1]
+                                val = FloatWithUnit(toks[0], unit)
                             else:
                                 unit = toks[1].replace("<sup>", "^").replace(
                                     "</sup>", "").replace("&Omega;",
