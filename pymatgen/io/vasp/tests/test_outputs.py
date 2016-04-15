@@ -4,6 +4,8 @@
 
 from __future__ import division, unicode_literals
 
+from monty.json import MontyDecoder
+
 """
 Created on Jul 16, 2012
 """
@@ -28,7 +30,7 @@ import xml.etree.cElementTree as ET
 from pymatgen.electronic_structure.core import OrbitalType
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
-    Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning
+    Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, NMRChemicalShiftNotation
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 import copy
@@ -604,7 +606,7 @@ class DynmatTest(unittest.TestCase):
 
 class TestChemicalShiftNotation(unittest.TestCase):
     def test_nmr_chemical_shift_notation(self):
-        cs1 = Outcar.ChemicalShiftNotation.from_maryland_notation(
+        cs1 = NMRChemicalShiftNotation.from_maryland_notation(
             195.0788, 68.1733, 0.8337)
         hae1 = cs1.haeberlen_values
         self.assertAlmostEqual(hae1.sigma_iso, 195.0788, places=5)
@@ -658,21 +660,23 @@ class TestChemicalShiftNotation(unittest.TestCase):
         self.assertAlmostEqual(mary4.sigma_iso, 500.5, places=5)
         self.assertAlmostEqual(mary4.omega, 999.0, places=5)
         self.assertAlmostEqual(mary4.kappa, 0.0, places=5)
-        cs4 = Outcar.ChemicalShiftNotation(68.1733, 0.8337, 195.0788)
-        cs5 = Outcar.ChemicalShiftNotation(0.8337, 195.0788, 68.1733)
+        cs4 = NMRChemicalShiftNotation(68.1733, 0.8337, 195.0788)
+        cs5 = NMRChemicalShiftNotation(0.8337, 195.0788, 68.1733)
         self.assertAlmostEqual(cs5.sigma_11, cs4.sigma_11)
         self.assertAlmostEqual(cs5.sigma_22, cs4.sigma_22)
         self.assertAlmostEqual(cs5.sigma_33, cs4.sigma_33)
-        cs6 = Outcar.ChemicalShiftNotation(195.0788, 68.1733, 0.8337)
+        cs6 = NMRChemicalShiftNotation(195.0788, 68.1733, 0.8337)
         self.assertAlmostEqual(cs6.sigma_11, cs4.sigma_11)
         self.assertAlmostEqual(cs6.sigma_22, cs4.sigma_22)
         self.assertAlmostEqual(cs6.sigma_33, cs4.sigma_33)
-
         d1 = cs1.as_dict()
-        cs7 = Outcar.ChemicalShiftNotation.from_dict(d1)
+        cs7 = NMRChemicalShiftNotation.from_dict(d1)
         hae7 = cs7.haeberlen_values
         self.assertAlmostEquals(hae1, hae7, places=5)
-
+        j1 = cs1.to_json()
+        cs8 = json.loads(j1, cls=MontyDecoder)
+        hae8 = cs8.haeberlen_values
+        self.assertAlmostEquals(hae1, hae8, places=5)
 
 
 if __name__ == "__main__":
