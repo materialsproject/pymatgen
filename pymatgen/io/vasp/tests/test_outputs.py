@@ -4,8 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-from monty.json import MontyDecoder
-
 """
 Created on Jul 16, 2012
 """
