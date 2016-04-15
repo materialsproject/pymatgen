@@ -1349,6 +1349,7 @@ class Outcar(MSONable):
         # data from end of OUTCAR
         charge = []
         mag = []
+        cs = []
         header = []
         run_stats = {}
         total_mag = None
@@ -1360,7 +1361,6 @@ class Outcar(MSONable):
         efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
         nelect_patt = re.compile("number of electron\s+(\S+)\s+"
                                  "magnetization\s+(\S+)")
-        cs_patt = re.compile("")
         etensor_patt = re.compile("[X-Z][X-Z]+\s+-?\d+")
 
         all_lines = []
@@ -1448,9 +1448,27 @@ class Outcar(MSONable):
         else:
             pass
 
+        # NMR Chemical Shift Tensors
+        cs_tag_title = "CSA tensor (J. Mason, Solid State Nucl. Magn. Reson. 2, 285 (1993))"
+        if cs_tag_title in all_lines:
+            sec1 = all_lines[all_lines.index(cs_tag_title):]
+            sec2_tag = "(absolute, valence and core)"
+            sec3 = sec1[sec1.index(sec2_tag) + 1:]
+            section_end_tag = "-" * 81
+            csa_section = sec3[:sec3.index(section_end_tag)]
+            for clean in csa_section:
+                tokens = clean.split()
+                tensor_tokens = [float(t) for t in tokens[-3:]]
+                sigma_iso, omega, kappa = tensor_tokens
+                tensor = NMRChemicalShiftNotation.from_maryland_notation(sigma_iso, omega, kappa)
+                cs.append(tensor)
+        else:
+            pass
+
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
         self.charge = tuple(charge)
+        self.chemical_shifts = tuple(cs)
         self.efermi = efermi
         self.nelect = nelect
         self.total_mag = total_mag
