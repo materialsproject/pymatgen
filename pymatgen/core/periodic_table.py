@@ -399,7 +399,8 @@ class Element(Enum):
                 try:
                     val = float(val)
                 except ValueError:
-                    toks = val.replace("about", "").strip().split(" ", 1)
+                    toks_nobracket = re.sub(r'\(.*\)', "", val)
+                    toks = toks_nobracket.replace("about", "").strip().split(" ", 1)
                     if len(toks) == 2:
                         try:
                             unit = toks[1].replace("<sup>", "^").replace(
