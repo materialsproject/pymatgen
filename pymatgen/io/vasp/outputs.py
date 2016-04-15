@@ -1361,7 +1361,6 @@ class Outcar(MSONable):
         efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
         nelect_patt = re.compile("number of electron\s+(\S+)\s+"
                                  "magnetization\s+(\S+)")
-        cs_patt = re.compile("")
         etensor_patt = re.compile("[X-Z][X-Z]+\s+-?\d+")
 
         all_lines = []
