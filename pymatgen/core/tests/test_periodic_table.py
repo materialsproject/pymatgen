@@ -119,7 +119,7 @@ class ElementTestCase(unittest.TestCase):
         self.assertEqual(val, 235)
         self.assertEqual(str(val.unit), "W K^-1 m^-1")
         val = al.electrical_resistivity
-        self.assertEqual(val, 2.7)
+        self.assertEqual(val, 2.7e-08)
         self.assertEqual(str(val.unit), "m ohm")
 
     def test_sort(self):
