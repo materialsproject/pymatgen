@@ -403,12 +403,24 @@ class Element(Enum):
                     toks = toks_nobracket.replace("about", "").strip().split(" ", 1)
                     if len(toks) == 2:
                         try:
-                            unit = toks[1].replace("<sup>", "^").replace(
-                                "</sup>", "").replace("&Omega;",
-                                                      "ohm")
-                            units = Unit(unit)
-                            if set(units.keys()).issubset(SUPPORTED_UNIT_NAMES):
+                            if "10<sup>" in toks[1]:
+                                base_power = re.findall(r'([+-]?\d+)', toks[1])
+                                factor = "e" + base_power[1]
+                                toks[0] += factor
+                                if a == "electrical_resistivity":
+                                    unit = "ohm m"
+                                elif a == "coefficient_of_linear_thermal_expansion":
+                                    unit = "K^-1"
+                                else:
+                                    unit = toks[1]
                                 val = FloatWithUnit(toks[0], unit)
+                            else:
+                                unit = toks[1].replace("<sup>", "^").replace(
+                                    "</sup>", "").replace("&Omega;",
+                                                          "ohm")
+                                units = Unit(unit)
+                                if set(units.keys()).issubset(SUPPORTED_UNIT_NAMES):
+                                    val = FloatWithUnit(toks[0], unit)
                         except ValueError as ex:
                             # Ignore error. val will just remain a string.
                             pass
