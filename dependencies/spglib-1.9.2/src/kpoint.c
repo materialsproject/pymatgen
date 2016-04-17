@@ -252,7 +252,9 @@ int kpt_get_stabilized_reciprocal_mesh(int grid_address[][3],
 				  rot_reciprocal_q);
 
   mat_free_MatINT(rot_reciprocal_q);
+  rot_reciprocal_q = NULL;
   mat_free_MatINT(rot_reciprocal);
+  rot_reciprocal = NULL;
   return num_ir;
 }
 
@@ -362,6 +364,7 @@ static MatINT *get_point_group_reciprocal(const MatINT * rotations,
   if ((unique_rot = (int*)malloc(sizeof(int) * rot_reciprocal->size)) == NULL) {
     warning_print("spglib: Memory of unique_rot could not be allocated.");
     mat_free_MatINT(rot_reciprocal);
+    rot_reciprocal = NULL;
     return NULL;
   }
 

@@ -147,7 +147,9 @@ static Symmetry * get_collinear_operations(SPGCONST Symmetry *sym_nonspin,
   }
 
   mat_free_MatINT(rot);
+  rot = NULL;
   mat_free_VecDBL(trans);
+  trans = NULL;
 
   return symmetry;
 }

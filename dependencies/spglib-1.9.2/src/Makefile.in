@@ -93,10 +93,7 @@ check_PROGRAMS = spglib_test$(EXEEXT)
 TESTS = spglib_test$(EXEEXT)
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
-	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
-	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(pkginclude_HEADERS) \
@@ -135,8 +132,8 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgincludedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libsymspg_la_DEPENDENCIES =
-am__objects_1 = cell.lo debug.lo hall_symbol.lo kgrid.lo kpoint.lo \
-	lattice.lo mathfunc.lo niggli.lo pointgroup.lo primitive.lo \
+am__objects_1 = cell.lo debug.lo delaunay.lo hall_symbol.lo kgrid.lo \
+	kpoint.lo mathfunc.lo niggli.lo pointgroup.lo primitive.lo \
 	refinement.lo site_symmetry.lo sitesym_database.lo \
 	spacegroup.lo spg_database.lo spglib.lo spin.lo symmetry.lo
 am__objects_2 =
@@ -147,10 +144,10 @@ am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 am__objects_3 = spglib_test-cell.$(OBJEXT) spglib_test-debug.$(OBJEXT) \
+	spglib_test-delaunay.$(OBJEXT) \
 	spglib_test-hall_symbol.$(OBJEXT) spglib_test-kgrid.$(OBJEXT) \
-	spglib_test-kpoint.$(OBJEXT) spglib_test-lattice.$(OBJEXT) \
-	spglib_test-mathfunc.$(OBJEXT) spglib_test-niggli.$(OBJEXT) \
-	spglib_test-pointgroup.$(OBJEXT) \
+	spglib_test-kpoint.$(OBJEXT) spglib_test-mathfunc.$(OBJEXT) \
+	spglib_test-niggli.$(OBJEXT) spglib_test-pointgroup.$(OBJEXT) \
 	spglib_test-primitive.$(OBJEXT) \
 	spglib_test-refinement.$(OBJEXT) \
 	spglib_test-site_symmetry.$(OBJEXT) \
@@ -526,10 +523,10 @@ lib_LTLIBRARIES = libsymspg.la
 spglib_c = \
 cell.c \
 debug.c \
+delaunay.c \
 hall_symbol.c \
 kgrid.c \
 kpoint.c \
-lattice.c \
 mathfunc.c \
 niggli.c \
 pointgroup.c \
@@ -546,10 +543,10 @@ symmetry.c
 spglib_h = \
 cell.h \
 debug.h \
+delaunay.h \
 hall_symbol.h \
 kgrid.h \
 kpoint.h \
-lattice.h \
 mathfunc.h \
 niggli.h \
 pointgroup.h \
@@ -664,10 +661,10 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cell.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/debug.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/delaunay.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hall_symbol.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kgrid.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kpoint.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lattice.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mathfunc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/niggli.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pointgroup.Plo@am__quote@
@@ -680,10 +677,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spglib.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spglib_test-cell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spglib_test-debug.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spglib_test-delaunay.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spglib_test-hall_symbol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spglib_test-kgrid.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spglib_test-kpoint.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spglib_test-lattice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spglib_test-mathfunc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spglib_test-niggli.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spglib_test-pointgroup.Po@am__quote@
@@ -763,6 +760,20 @@ spglib_test-debug.obj: debug.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(spglib_test_CFLAGS) $(CFLAGS) -c -o spglib_test-debug.obj `if test -f 'debug.c'; then $(CYGPATH_W) 'debug.c'; else $(CYGPATH_W) '$(srcdir)/debug.c'; fi`
 
+spglib_test-delaunay.o: delaunay.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(spglib_test_CFLAGS) $(CFLAGS) -MT spglib_test-delaunay.o -MD -MP -MF $(DEPDIR)/spglib_test-delaunay.Tpo -c -o spglib_test-delaunay.o `test -f 'delaunay.c' || echo '$(srcdir)/'`delaunay.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/spglib_test-delaunay.Tpo $(DEPDIR)/spglib_test-delaunay.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='delaunay.c' object='spglib_test-delaunay.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(spglib_test_CFLAGS) $(CFLAGS) -c -o spglib_test-delaunay.o `test -f 'delaunay.c' || echo '$(srcdir)/'`delaunay.c
+
+spglib_test-delaunay.obj: delaunay.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(spglib_test_CFLAGS) $(CFLAGS) -MT spglib_test-delaunay.obj -MD -MP -MF $(DEPDIR)/spglib_test-delaunay.Tpo -c -o spglib_test-delaunay.obj `if test -f 'delaunay.c'; then $(CYGPATH_W) 'delaunay.c'; else $(CYGPATH_W) '$(srcdir)/delaunay.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/spglib_test-delaunay.Tpo $(DEPDIR)/spglib_test-delaunay.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='delaunay.c' object='spglib_test-delaunay.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(spglib_test_CFLAGS) $(CFLAGS) -c -o spglib_test-delaunay.obj `if test -f 'delaunay.c'; then $(CYGPATH_W) 'delaunay.c'; else $(CYGPATH_W) '$(srcdir)/delaunay.c'; fi`
+
 spglib_test-hall_symbol.o: hall_symbol.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(spglib_test_CFLAGS) $(CFLAGS) -MT spglib_test-hall_symbol.o -MD -MP -MF $(DEPDIR)/spglib_test-hall_symbol.Tpo -c -o spglib_test-hall_symbol.o `test -f 'hall_symbol.c' || echo '$(srcdir)/'`hall_symbol.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/spglib_test-hall_symbol.Tpo $(DEPDIR)/spglib_test-hall_symbol.Po
@@ -804,20 +815,6 @@ spglib_test-kpoint.obj: kpoint.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='kpoint.c' object='spglib_test-kpoint.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(spglib_test_CFLAGS) $(CFLAGS) -c -o spglib_test-kpoint.obj `if test -f 'kpoint.c'; then $(CYGPATH_W) 'kpoint.c'; else $(CYGPATH_W) '$(srcdir)/kpoint.c'; fi`
-
-spglib_test-lattice.o: lattice.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(spglib_test_CFLAGS) $(CFLAGS) -MT spglib_test-lattice.o -MD -MP -MF $(DEPDIR)/spglib_test-lattice.Tpo -c -o spglib_test-lattice.o `test -f 'lattice.c' || echo '$(srcdir)/'`lattice.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/spglib_test-lattice.Tpo $(DEPDIR)/spglib_test-lattice.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='lattice.c' object='spglib_test-lattice.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(spglib_test_CFLAGS) $(CFLAGS) -c -o spglib_test-lattice.o `test -f 'lattice.c' || echo '$(srcdir)/'`lattice.c
-
-spglib_test-lattice.obj: lattice.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(spglib_test_CFLAGS) $(CFLAGS) -MT spglib_test-lattice.obj -MD -MP -MF $(DEPDIR)/spglib_test-lattice.Tpo -c -o spglib_test-lattice.obj `if test -f 'lattice.c'; then $(CYGPATH_W) 'lattice.c'; else $(CYGPATH_W) '$(srcdir)/lattice.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/spglib_test-lattice.Tpo $(DEPDIR)/spglib_test-lattice.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='lattice.c' object='spglib_test-lattice.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(spglib_test_CFLAGS) $(CFLAGS) -c -o spglib_test-lattice.obj `if test -f 'lattice.c'; then $(CYGPATH_W) 'lattice.c'; else $(CYGPATH_W) '$(srcdir)/lattice.c'; fi`
 
 spglib_test-mathfunc.o: mathfunc.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(spglib_test_CFLAGS) $(CFLAGS) -MT spglib_test-mathfunc.o -MD -MP -MF $(DEPDIR)/spglib_test-mathfunc.Tpo -c -o spglib_test-mathfunc.o `test -f 'mathfunc.c' || echo '$(srcdir)/'`mathfunc.c

@@ -1,3 +1,33 @@
+2016-04-17  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.9.2
+
+	* src/symmetry.c (get_lattice_symmetry):
+
+	The treatment after the conditon, order of point symmetry
+	becomes larger than 48, is found was bad and it induced
+	segfault. It is fixed and a better treatment for angle_tolerance
+	is implemented as an iterative method.
+
+	* src/spglib.c (spg_delaunay_reduce):
+
+	spg_delaunay_reduce is made as an interface to the Delaunay
+	reduction.
+
+	* src/spacegroup.c (search_spacegroup):
+
+	A check if excess symmetry operations are found for a primitive
+	cell is inserted by watching its point group. This made the
+	algorithm of database matching safer.
+
+2016-04-11  Atsushi Togo  <atz.togo@gmail.com>
+
+	* src/delaunay.c:
+
+	lattice.{c,h} are renamed to delaunay.{c.h},
+	respectively. Function names in them, *get_smallest_lattice, are
+	changed to *delaunay_reduce.
+
 2016-04-06  Atsushi Togo  <atz.togo@gmail.com>
 
 	* Version 1.9.1

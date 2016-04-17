@@ -315,11 +315,9 @@ int spgat_standardize_cell(double lattice[3][3],
 			   const double symprec,
 			   const double angle_tolerance);
 
-/************/
-/* Obsolete */
-/************/
-/* A primitive cell is found from an input cell. Be careful that  */
-/* ``lattice``, ``position``, and ``types`` are overwritten. */
+/* This is a wrapper of spg_standardize_cell. */
+/* A primitive cell is found from an input cell. */
+/* Be careful that ``lattice``, ``position``, and ``types`` are overwritten. */
 /* ``num_atom`` is returned as return value. */
 /* When any primitive cell is not found, 0 is returned. */
 int spg_find_primitive(double lattice[3][3],
@@ -335,9 +333,7 @@ int spgat_find_primitive(double lattice[3][3],
 			 const double symprec,
 			 const double angle_tolerance);
 
-/************/
-/* Obsolete */
-/************/
+/* This is a wrapper of spg_standardize_cell. */
 /* Bravais lattice with internal atomic points are returned. */
 /* The arrays are require to have 4 times larger memory space */
 /* those of input cell. */
@@ -356,6 +352,9 @@ int spgat_refine_cell(double lattice[3][3],
 		      const double symprec,
 		      const double angle_tolerance);
 
+/* Delaunay reduction for lattice parameters */
+/* ``lattice`` is overwritten when the redution ends succeeded. */
+int spg_delaunay_reduce(double lattice[3][3], const double symprec);
 
 /*---------*/
 /* kpoints */

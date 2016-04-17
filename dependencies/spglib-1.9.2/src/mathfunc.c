@@ -455,7 +455,6 @@ void mat_free_MatINT(MatINT * matint)
     matint->mat = NULL;
   }
   free(matint);
-  matint = NULL;
 }
 
 VecDBL * mat_alloc_VecDBL(const int size)
@@ -490,7 +489,6 @@ void mat_free_VecDBL(VecDBL * vecdbl)
     vecdbl->vec = NULL;
   }
   free(vecdbl);
-  vecdbl = NULL;
 }
 
 
