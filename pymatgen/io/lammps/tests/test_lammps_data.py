@@ -14,7 +14,8 @@ from pymatgen.core.structure import Molecule
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
 
-module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        "test_files", "lammps")
 
 
 class TestLammpsData(unittest.TestCase):
@@ -62,15 +63,15 @@ class TestLammpsData(unittest.TestCase):
 
     def test_from_file(self):
         self.lammps_data.write_data_file(
-            os.path.join(module_dir, "lammps_data.dat"))
+            os.path.join(test_dir, "lammps_data.dat"))
         lammps_data = LammpsData.from_file(
-            os.path.join(module_dir, "lammps_data.dat"))
+            os.path.join(test_dir, "lammps_data.dat"))
         self.assertEqual(str(lammps_data), str(self.lammps_data))
 
     def tearDown(self):
         for x in ["lammps_data.dat"]:
-            if os.path.exists(os.path.join(module_dir, x)):
-                os.remove(os.path.join(module_dir, x))
+            if os.path.exists(os.path.join(test_dir, x)):
+                os.remove(os.path.join(test_dir, x))
 
 
 if __name__ == "__main__":
