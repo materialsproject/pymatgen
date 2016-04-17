@@ -1,0 +1,39 @@
+{
+  "log": "mol.log",
+  "read_restart": "mol.restart",
+  "units": "real",
+  "atom_style": "full",
+  "boundary": "p p p",
+  "pair_style": "lj/cut/coul/long 12",
+  "kspace_style": "pppm 0.0001",
+  "pair_modify": [
+    "tail yes",
+    "mix arithmetic"
+  ],
+  "special_bonds": "amber",
+  "bond_style": "harmonic",
+  "angle_style": "harmonic",
+  "dihedral_style": "charmm",
+  "improper_style": "cvff",
+  "read_data": "mol_data.lammps",
+  "neighbor": "2.0 bin",
+  "neigh_modify": "delay 0 every 1 check yes page 1000000 one 20000",
+  "timestep": 1.0,
+  "minimize": "1e-4 1e-6 10000 10000",
+  "velocity": [
+    "all create 298 313159265 box",
+    "all zero linear units box"
+  ],
+  "dump": "DUMP all custom 2000 mol.lammpstrj id type x y z vx vy vz mol",
+  "thermo_style": "custom step vol temp press ke pe etotal enthalpy evdwl ecoul epair ebond eangle edihed eimp emol elong etail lx ly lz xy xz yz pxy pxz pyz pxx pyy pzz density",
+  "thermo": 1000,
+  "fix1": "NPT all npt temp 298 298 100.0 iso 1.0 1.0 100.0",
+  "run1": 2000000,
+  "unfix1": "NPT",
+  "fix2": "NVT all nvt temp 298 298 100.0",
+  "run2": 1000000,
+  "unfix2": "NVT",
+  "restart": "5000 restart.mol.1 restart.mol.2",
+  "write_restart": "restart.mol",
+  "write_data": "restart.data"
+}
