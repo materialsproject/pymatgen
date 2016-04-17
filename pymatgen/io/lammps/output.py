@@ -101,18 +101,17 @@ class LammpsRun(object):
                         [float(x) for i, x in enumerate(m.groups()) if
                          i + 1 > 2])
                     trajectory.append(tuple(line_data))
-        traj_dtype = np.dtype([('Atoms_id'.encode("ascii"), np.int64),
-                               ('atom_type'.encode("ascii"), np.int64)] +
-                              [(fld.encode("ascii"), np.float64) for fld in
-                               fields])
+        traj_dtype = np.dtype([(str('Atoms_id'), np.int64),
+                               (str('atom_type'), np.int64)] +
+                              [(str(fld), np.float64)
+                               for fld in fields])
         self.trajectory = np.array(trajectory, dtype=traj_dtype)
         self.timesteps = np.array(traj_timesteps, dtype=np.float64)
         for step in range(self.timesteps.size):
             begin = step * self.natoms
             end = (step + 1) * self.natoms
             self.trajectory[begin:end] = np.sort(self.trajectory[begin:end],
-                                                 order="Atoms_id".encode(
-                                                     "ascii"))
+                                                 order=str("Atoms_id"))
 
     def _set_mol_masses_and_charges(self):
         """
@@ -385,8 +384,8 @@ class LammpsLog(object):
                         m = thermo_pattern.search(line)
                         thermo_data.append(tuple(
                             [float(x) for i, x in enumerate(m.groups())]))
-        thermo_data_dtype = np.dtype(
-            [(fld.encode("ascii"), np.float64) for fld in fields])
+        thermo_data_dtype = np.dtype([(str(fld), np.float64)
+                                      for fld in fields])
         self.thermo_data = np.array(thermo_data, dtype=thermo_data_dtype)
 
 
