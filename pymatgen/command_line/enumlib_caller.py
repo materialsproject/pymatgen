@@ -41,7 +41,7 @@ import logging
 
 import numpy as np
 from monty.fractions import lcm
-from monty.fractions import fractions
+import fractions
 
 from six.moves import reduce
 
