@@ -32,17 +32,17 @@
 /* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE */
 /* POSSIBILITY OF SUCH DAMAGE. */
 
-#ifndef __lattice_H__
-#define __lattice_H__
+#ifndef __delaunay_H__
+#define __delaunay_H__
 
 #include "mathfunc.h"
 
-int lat_smallest_lattice_vector(double lattice_new[3][3],
-				SPGCONST double lattice[3][3],
-				const double symprec);
-int lat_smallest_lattice_vector_2D(double min_lattice[3][3],
-				   SPGCONST double lattice[3][3],
-				   const int unique_axis,
-				   const double symprec);
+int del_delaunay_reduce(double lattice_new[3][3],
+			SPGCONST double lattice[3][3],
+			const double symprec);
+int del_delaunay_reduce_2D(double min_lattice[3][3],
+			   SPGCONST double lattice[3][3],
+			   const int unique_axis,
+			   const double symprec);
 
 #endif

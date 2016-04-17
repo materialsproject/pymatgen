@@ -35,7 +35,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "lattice.h"
 #include "pointgroup.h"
 #include "symmetry.h"
 #include "mathfunc.h"
@@ -376,8 +375,6 @@ static int rot_axes[][3] = {
 
 static int get_pointgroup_number_by_rotations(SPGCONST int rotations[][3][3],
 					      const int num_rotations);
-static PointSymmetry get_pointsymmetry(SPGCONST int rotations[][3][3],
-				       const int num_rotations);
 static int get_pointgroup_number(SPGCONST PointSymmetry * pointsym);
 static int get_pointgroup_class_table(int table[10],
 				      SPGCONST PointSymmetry * pointsym);
@@ -442,7 +439,7 @@ Pointgroup ptg_get_transformation_matrix(int transform_mat[3][3],
   
   if (pg_num > 0) {
     pointgroup = ptg_get_pointgroup(pg_num);
-    pointsym = get_pointsymmetry(rotations, num_rotations);
+    pointsym = ptg_get_pointsymmetry(rotations, num_rotations);
     get_axes(axes, pointgroup.laue, &pointsym);
     set_transformation_matrix(transform_mat, axes);
   } else {
@@ -472,17 +469,8 @@ Pointgroup ptg_get_pointgroup(const int pointgroup_number)
   return pointgroup;
 }
 
-static int get_pointgroup_number_by_rotations(SPGCONST int rotations[][3][3],
-					      const int num_rotations)
-{
-  PointSymmetry pointsym;
-
-  pointsym = get_pointsymmetry(rotations, num_rotations);
-  return get_pointgroup_number(&pointsym);
-}
-
-static PointSymmetry get_pointsymmetry(SPGCONST int rotations[][3][3],
-				       const int num_rotations)
+PointSymmetry ptg_get_pointsymmetry(SPGCONST int rotations[][3][3],
+				    const int num_rotations)
 {
   int i, j;
   PointSymmetry pointsym;
@@ -501,6 +489,15 @@ static PointSymmetry get_pointsymmetry(SPGCONST int rotations[][3][3],
   }
 
   return pointsym;
+}
+
+static int get_pointgroup_number_by_rotations(SPGCONST int rotations[][3][3],
+					      const int num_rotations)
+{
+  PointSymmetry pointsym;
+
+  pointsym = ptg_get_pointsymmetry(rotations, num_rotations);
+  return get_pointgroup_number(&pointsym);
 }
 
 static int get_pointgroup_number(SPGCONST PointSymmetry * pointsym)

@@ -288,5 +288,6 @@ static int get_Wyckoff_notation(double position[3],
 
  end:
   mat_free_VecDBL(pos_rot);
+  pos_rot = NULL;
   return wyckoff_letter;
 }

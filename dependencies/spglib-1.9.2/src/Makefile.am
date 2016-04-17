@@ -3,10 +3,10 @@ lib_LTLIBRARIES = libsymspg.la
 spglib_c = \
 cell.c \
 debug.c \
+delaunay.c \
 hall_symbol.c \
 kgrid.c \
 kpoint.c \
-lattice.c \
 mathfunc.c \
 niggli.c \
 pointgroup.c \
@@ -23,10 +23,10 @@ symmetry.c
 spglib_h = \
 cell.h \
 debug.h \
+delaunay.h \
 hall_symbol.h \
 kgrid.h \
 kpoint.h \
-lattice.h \
 mathfunc.h \
 niggli.h \
 pointgroup.h \
