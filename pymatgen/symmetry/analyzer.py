@@ -487,7 +487,6 @@ class SpacegroupAnalyzer(object):
         if lattice == "rhombohedral":
             prim = Structure.from_sites(new_sites)
             lengths, angles = prim.lattice.lengths_and_angles
-            print lengths, angles
             a = lengths[0]
             alpha = math.pi * angles[0] / 180
             new_matrix = [
