@@ -11,25 +11,24 @@ from pymatgen.io.lammps.input import DictLammpsInput
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
 
-module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        "test_files", "lammps")
 
 
 class TestLammpsInput(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.lammps_input = DictLammpsInput.from_file("NVT",
-                                                     os.path.join(module_dir,
-                                                                  "test_files",
+                                                     os.path.join(test_dir,
                                                                   "NVT.json"),
                                                      data_file=os.path.join(
-                                                         module_dir,
-                                                         "test_files",
+                                                         test_dir,
                                                          "nvt.data"),
                                                      is_forcefield=True)
 
     def test_string_rep(self):
         self.lammps_input.config_dict["read_data"] = "nvt.data"
-        with open(os.path.join(module_dir, "test_files", "nvt.inp")) as f:
+        with open(os.path.join(test_dir, "nvt.inp")) as f:
             self.assertEqual(str(self.lammps_input), "".join(f.readlines()))
 
 

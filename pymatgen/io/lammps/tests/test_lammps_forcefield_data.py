@@ -17,7 +17,8 @@ from pymatgen.core.structure import Molecule
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
 
-module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        "test_files", "lammps")
 
 
 class TestLammpsForceFieldData(unittest.TestCase):
@@ -116,10 +117,9 @@ class TestLammpsForceFieldData(unittest.TestCase):
 
     def test_from_file(self):
         self.lammps_ff_data.write_data_file(
-            os.path.join(module_dir, "lammps_ff_data.dat"))
+            os.path.join(test_dir, "lammps_ff_data.dat"))
         lammps_ff_data = LammpsForceFieldData.from_file(
-            os.path.join(module_dir,
-                         "lammps_ff_data.dat"))
+            os.path.join(test_dir, "lammps_ff_data.dat"))
         np.testing.assert_almost_equal(lammps_ff_data.atomic_masses,
                                        self.lammps_ff_data.atomic_masses,
                                        decimal=10)
@@ -145,8 +145,8 @@ class TestLammpsForceFieldData(unittest.TestCase):
 
     def tearDown(self):
         for x in ["lammps_ff_data.dat"]:
-            if os.path.exists(os.path.join(module_dir, x)):
-                os.remove(os.path.join(module_dir, x))
+            if os.path.exists(os.path.join(test_dir, x)):
+                os.remove(os.path.join(test_dir, x))
 
 
 if __name__ == "__main__":

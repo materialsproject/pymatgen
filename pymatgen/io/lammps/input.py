@@ -146,15 +146,12 @@ class DictLammpsInput(MSONable):
 
 # NVT
 NVTLammpsInput = partial(DictLammpsInput.from_file, "NVT",
-                         os.path.join(MODULE_DIR, "tests", "test_files",
-                                      "NVT.json"))
+                         os.path.join(MODULE_DIR, "NVT.json"))
 
 # NPT
 NPTLammpsInput = partial(DictLammpsInput.from_file, "NPT",
-                         os.path.join(MODULE_DIR, "tests", "test_files",
-                                      "NPT.json"))
+                         os.path.join(MODULE_DIR, "NPT.json"))
 
 # NPT followed by NVT
 NPTNVTLammpsInput = partial(DictLammpsInput.from_file, "NPT_NVT",
-                            os.path.join(MODULE_DIR, "tests", "test_files",
-                                         "NPT_NVT.json"))
+                            os.path.join(MODULE_DIR, "NPT_NVT.json"))
