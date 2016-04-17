@@ -35,7 +35,7 @@ class LammpsData(object):
         self.box_size = box_size
         self.natoms = len(atoms_data)
         self.natom_types = len(atomic_masses)
-        self.atomic_masses = atomic_masses
+        self.atomic_masses = list(atomic_masses)
         self.atoms_data = atoms_data
 
     def __str__(self):
