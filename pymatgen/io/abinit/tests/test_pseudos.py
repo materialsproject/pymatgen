@@ -20,7 +20,6 @@ except ImportError:
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files', "abinit")
 
-
 def ref_file(filename):
     return os.path.join(_test_dir, filename)
 
@@ -40,14 +39,14 @@ class PseudoTestCase(PymatgenTest):
         for (symbol, fnames) in nc_pseudo_fnames.items():
             for fname in fnames:
                 root, ext = os.path.splitext(fname)
-                pseudo = Pseudo.from_file(ref_file(fname))
+                pseudo = Pseudo.from_file(fname)
                 self.nc_pseudos[symbol].append(pseudo)
 
                 # Save the pseudo as instance attribute whose name
                 # is constructed with the rule: symbol_ppformat
                 attr_name = symbol + "_" + ext[1:]
                 if hasattr(self, attr_name):
-                    raise RuntimError("self has already the attribute %s" % attr_name)
+                    raise RuntimeError("self has already the attribute %s" % attr_name)
 
                 setattr(self, attr_name, pseudo)
 
