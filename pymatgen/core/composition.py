@@ -772,7 +772,12 @@ def reduce_formula(sym_amt):
                           get_el_sp(syms[num_el - 1]).X
                           - get_el_sp(syms[num_el - 2]).X < 1.65)
 
-    factor = abs(gcd(*sym_amt.values()))
+    #Enforce integers for doing gcd.
+    if all([int(i) == i for i in sym_amt.values()]):
+        factor = abs(gcd(*[int(i) for i in sym_amt.values()]))
+    else:
+        factor = 1
+        
     reduced_form = []
     n = num_el - 2 if contains_polyanion else num_el
     for i in range(0, n):
