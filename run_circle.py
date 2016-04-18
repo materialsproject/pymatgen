@@ -63,18 +63,14 @@ else:
 
 
 print("%d test files will be run..." % len(to_run))
-statuses = []
-
-def run_test(f):
-    print("Running %s" % f)
-    return subprocess.call(["python", f])
 
 #ncpus = multiprocessing.cpu_count()
 #print("Using %d cpus" % ncpus)
 #p = multiprocessing.Pool(ncpus)
 #results = p.map(run_test, to_run)
-for f in to_run:
-    result = run_test(f)
+for i, f in enumerate(to_run):
+    print("Running %d/%d: %s" % (i+1, len(to_run), f))
+    result = subprocess.call(["python", f])
     if result != 0:
         sys.exit(result)
 
