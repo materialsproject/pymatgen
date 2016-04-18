@@ -10,6 +10,7 @@ import sys
 import subprocess
 import random
 import time
+import multiprocessing
 
 
 run_ratio = 1/10
@@ -18,10 +19,11 @@ try:
     files_changed = []
     for parent, sub, files in os.walk("pymatgen"):
         for f in files:
-            p = os.path.join(parent, f)
-            statbuf = os.stat(p)
-            if time.time() - statbuf.st_mtime < 60 * 60 * 24 * 10:
-                files_changed.append(p)
+            if f.endswith(".py"):
+                p = os.path.join(parent, f)
+                statbuf = os.stat(p)
+                if time.time() - statbuf.st_mtime < 60 * 60 * 24 * 10:
+                    files_changed.append(p)
 
             # output = subprocess.check_output(["git", "diff", "--name-only", "HEAD~20"])
             # files_changed = [f for f in output.decode("utf-8").split("\n")
@@ -61,6 +63,18 @@ else:
 
 
 print("%d test files will be run..." % len(to_run))
+statuses = []
 
-status = subprocess.call(["nosetests", "-v"] + to_run)
-sys.exit(status)
+def run_test(f):
+    print("Running %s" % f)
+    return subprocess.call(["python", f])
+
+ncpus = multiprocessing.cpu_count()
+print("Using %d cpus" % ncpus)
+p = multiprocessing.Pool(ncpus)
+results = p.map(run_test, to_run[0:4])
+if any(results):
+    sys.exit(-1)
+else:
+    sys.exit(0)
+
