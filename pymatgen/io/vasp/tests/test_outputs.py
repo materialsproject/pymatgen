@@ -467,6 +467,8 @@ class OutcarTest(unittest.TestCase):
         for c1, c2 in zip(outcar.chemical_shifts[20: 28], expected_chemical_shifts):
             for x1, x2 in zip(list(c1.maryland_values), c2):
                 self.assertAlmostEqual(x1, x2, places=5)
+        d1 = outcar.as_dict()
+        self.assertIn("chemical_shifts", d1)
 
     def test_nmr_efg(self):
         filename = os.path.join(test_dir, "nmr_efg", "AlPO4", "OUTCAR")
@@ -483,6 +485,8 @@ class OutcarTest(unittest.TestCase):
         for e1, e2 in zip(outcar.efg[2:10], expected_efg):
             for k in e1.keys():
                 self.assertAlmostEqual(e1[k], e2[k], places=5)
+        d1 = outcar.as_dict()
+        self.assertIn("efg", d1)
 
 
 class BSVasprunTest(unittest.TestCase):

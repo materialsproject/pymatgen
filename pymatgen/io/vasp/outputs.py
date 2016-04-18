@@ -1309,8 +1309,15 @@ class Outcar(MSONable):
 
     .. attribute:: chemical_shifts
 
-        Chemical Shift on each ion as a tuple of Outcar.ChemicalShiftNotation, e.g.,
+        Chemical Shift on each ion as a tuple of ChemicalShiftNotation, e.g.,
         (cs1, cs2, ...)
+
+    .. attribute:: efg
+
+        Electric Field Gradient (EFG) tensor on each ion as a tuple of dict, e.g.,
+        ({"cq": 0.1, "eta", 0.2, "nuclear_quadrupole_moment": 0.3},
+         {"cq": 0.7, "eta", 0.8, "nuclear_quadrupole_moment": 0.9},
+         ...)
 
     .. attribute:: charge
 
@@ -1960,7 +1967,8 @@ class Outcar(MSONable):
              "@class": self.__class__.__name__, "efermi": self.efermi,
              "run_stats": self.run_stats, "magnetization": self.magnetization,
              "charge": self.charge, "total_magnetization": self.total_mag,
-             "nelect": self.nelect, "is_stopped": self.is_stopped}
+             "nelect": self.nelect, "is_stopped": self.is_stopped,
+             "chemical_shifts": self.chemical_shifts, "efg": self.efg}
 
         if self.lepsilon:
             d.update({'piezo_tensor': self.piezo_tensor,
