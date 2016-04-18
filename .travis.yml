@@ -1,7 +1,7 @@
 language: python
 python:
   - "2.7"
-  - "nightly"
+  - "3.5"
 git:
   depth: 1
 env:
