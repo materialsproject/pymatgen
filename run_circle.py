@@ -69,12 +69,12 @@ def run_test(f):
     print("Running %s" % f)
     return subprocess.call(["python", f])
 
-ncpus = multiprocessing.cpu_count()
-print("Using %d cpus" % ncpus)
-p = multiprocessing.Pool(ncpus)
-results = p.map(run_test, to_run)
-if any(results):
-    sys.exit(-1)
-else:
-    sys.exit(0)
+#ncpus = multiprocessing.cpu_count()
+#print("Using %d cpus" % ncpus)
+#p = multiprocessing.Pool(ncpus)
+#results = p.map(run_test, to_run)
+for f in to_run:
+    result = run_test(f)
+    if result != 0:
+        sys.exit(result)
 
