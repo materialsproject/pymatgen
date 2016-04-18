@@ -1350,6 +1350,7 @@ class Outcar(MSONable):
         charge = []
         mag = []
         cs = []
+        efg = []
         header = []
         run_stats = {}
         total_mag = None
@@ -1465,10 +1466,27 @@ class Outcar(MSONable):
         else:
             pass
 
+        efg_tag_title = "NMR quadrupolar parameters"
+        if efg_tag_title in all_lines:
+            sec1 = all_lines[all_lines.index(efg_tag_title) + 8:]
+            section_end_tag = "-" * 70
+            efg_section = sec1[:sec1.index(section_end_tag)]
+            for clean in efg_section:
+                tokens = clean.split()
+                tensor_tokens = [float(t) for t in tokens[-3:]]
+                cq, eta, nuclear_quadrupole_moment = tensor_tokens
+                d = {"cq": cq,
+                     "eta": eta,
+                     "nuclear_quadrupole_moment": nuclear_quadrupole_moment}
+                efg.append(d)
+        else:
+            pass
+
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
         self.charge = tuple(charge)
         self.chemical_shifts = tuple(cs)
+        self.efg = tuple(efg)
         self.efermi = efermi
         self.nelect = nelect
         self.total_mag = total_mag
