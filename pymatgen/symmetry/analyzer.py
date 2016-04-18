@@ -115,9 +115,11 @@ class SpacegroupAnalyzer(object):
                 'translations',
                 'wyckoffs',
                 'equivalent_atoms',
-                'brv_lattice',
-                'brv_types',
-                'brv_positions')
+                'std_lattice',
+                'std_types',
+                'std_positions',
+                'pointgroup_number',
+                'pointgroup')
         for key, data in zip(keys, spg.dataset(self._transposed_latt.copy(),
                                                self._positions.copy(),
                                                self._numbers, self._symprec,
@@ -138,11 +140,12 @@ class SpacegroupAnalyzer(object):
         dataset['wyckoffs'] = [letters[x] for x in dataset['wyckoffs']]
         dataset['equivalent_atoms'] = np.array(dataset['equivalent_atoms'],
                                                dtype='intc')
-        dataset['brv_lattice'] = np.array(np.transpose(dataset['brv_lattice']),
+        dataset['std_lattice'] = np.array(np.transpose(dataset['std_lattice']),
                                           dtype='double', order='C')
-        dataset['brv_types'] = np.array(dataset['brv_types'], dtype='intc')
-        dataset['brv_positions'] = np.array(dataset['brv_positions'],
+        dataset['std_types'] = np.array(dataset['std_types'], dtype='intc')
+        dataset['std_positions'] = np.array(dataset['std_positions'],
                                             dtype='double', order='C')
+        dataset['pointgroup'] = dataset['pointgroup'].strip()
         self._spacegroup_data = dataset
 
     def get_spacegroup(self):
