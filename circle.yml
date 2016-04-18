@@ -21,7 +21,7 @@ test:
     #    timeout: 720
     - nosetests:
         timeout: 720
-     Some rudimentary command line tests for pmg
+    # Some rudimentary command line tests for pmg
     - pmg convert test_files/Li2O.cif POSCAR.pmg
     - pmg convert POSCAR.pmg pmg.cif
     - pmg analyze -d test_files
