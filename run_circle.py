@@ -72,7 +72,7 @@ def run_test(f):
 ncpus = multiprocessing.cpu_count()
 print("Using %d cpus" % ncpus)
 p = multiprocessing.Pool(ncpus)
-results = p.map(run_test, to_run[0:4])
+results = p.map(run_test, to_run)
 if any(results):
     sys.exit(-1)
 else:
