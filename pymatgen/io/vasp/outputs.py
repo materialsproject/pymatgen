@@ -4,40 +4,39 @@
 
 from __future__ import division, unicode_literals, print_function
 
-import os
 import glob
-import re
-import math
 import itertools
-from io import StringIO
 import logging
-from collections import defaultdict, namedtuple
-import xml.etree.cElementTree as ET
+import math
+import os
+import re
 import warnings
-
-from six.moves import map, zip
-from six import string_types
+import xml.etree.cElementTree as ET
+from collections import defaultdict
+from io import StringIO
 
 import numpy as np
-
 from monty.io import zopen, reverse_readfile
-from monty.re import regrep
+from monty.json import MSONable
 from monty.json import jsanitize
+from monty.re import regrep
+from six import string_types
+from six.moves import map, zip
 
-from pymatgen.util.io_utils import clean_lines, micro_pyawk
+from pymatgen.analysis.nmr import NMRChemicalShiftNotation
+from pymatgen.core.composition import Composition
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import unitized
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
-from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
-from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.electronic_structure.bandstructure import BandStructure, \
     BandStructureSymmLine, get_reconstructed_band_structure
-from pymatgen.core.lattice import Lattice
-from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
+from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
+from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.entries.computed_entries import \
     ComputedEntry, ComputedStructureEntry
-from monty.json import MSONable
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
+from pymatgen.util.io_utils import clean_lines, micro_pyawk
 
 """
 Classes for reading/manipulating/writing VASP ouput files.
@@ -1200,90 +1199,6 @@ class BSVasprun(Vasprun):
                 vout['projected_eigenvalues'] = peigen
         d['output'] = vout
         return jsanitize(d, strict=True)
-
-
-class NMRChemicalShiftNotation(MSONable):
-    """
-    Helper class to convert between different chemical shift conventions
-    internally using the Mehring notation. Note that this is different than the
-    default notion adopted by VASP which is the Maryland notation.
-
-    Three notations to describe chemical shift tensor (RK Harris; Magn. Reson.
-    Chem. 2008, 46, 582–598; DOI: 10.1002/mrc.2225) are supported.
-
-    Args:
-        sigma_1 (float): chemical shift tensor principle component 1
-        sigma_2 (float): chemical shift tensor principle component 2
-        sigma_3 (float): chemical shift tensor principle component 3
-
-    .. attribute:: sigma_11, simga_22, sigma33
-        principle components in Mehring notation
-
-    Authors: Xiaohui Qu
-    """
-
-    HaeberlenNotation = namedtuple(typename="HaeberlenNotion",
-                                   field_names="sigma_iso, delta_sigma, zeta, eta")
-    MehringNotation = namedtuple(typename="MehringNotation",
-                                 field_names="sigma_iso, sigma_11, sigma_22, sigma_33")
-    MarylandNotation = namedtuple(typename="MarylandNotation",
-                                  field_names="sigma_iso, omega, kappa")
-
-    def __init__(self, sigma_1, sigma_2, sigma_3):
-        sigmas = sorted([sigma_1, sigma_2, sigma_3])
-        self.sigma_11, self.sigma_22, self.sigma_33 = sigmas
-
-    @property
-    def haeberlen_values(self):
-        """
-        Returns: the Chemical shift tensor in Haeberlen Notation
-        """
-        sigma_iso = (self.sigma_11 + self.sigma_22 + self.sigma_33) / 3.0
-        h_order_sigmas = sorted([self.sigma_11, self.sigma_22, self.sigma_33],
-                                key=lambda x: abs(x - sigma_iso),
-                                reverse=True)
-        sigma_zz, sigma_xx, sigma_yy = h_order_sigmas
-        delta_sigma = sigma_zz - 0.5 * (sigma_xx + sigma_yy)
-        zeta = sigma_zz - sigma_iso
-        assert abs(delta_sigma - 1.5 * zeta) < 1.0E-5
-        eta = (sigma_yy - sigma_xx) / zeta
-        return self.HaeberlenNotation(sigma_iso, delta_sigma, zeta, eta)
-
-    @property
-    def mehring_values(self):
-        """
-        Returns: the Chemical shift tensor in Mehring Notation
-        """
-        sigma_iso = (self.sigma_11 + self.sigma_22 + self.sigma_33) / 3.0
-        return self.MehringNotation(sigma_iso, self.sigma_11,
-                                    self.sigma_22, self.sigma_33)
-
-    @property
-    def maryland_values(self):
-        """
-        Returns: the Chemical shift tensor in Maryland Notation
-        """
-        sigma_iso = (self.sigma_11 + self.sigma_22 + self.sigma_33) / 3.0
-        omega = self.sigma_33 - self.sigma_11
-        kappa = 3.0 * (sigma_iso - self.sigma_22) / omega
-        return self.MarylandNotation(sigma_iso, omega, kappa)
-
-    @classmethod
-    def from_maryland_notation(cls, sigma_iso, omega, kappa):
-        sigma_22 = sigma_iso - kappa * omega / 3.0
-        sigma_33 = (3.0 * sigma_iso + omega - sigma_22) / 2.0
-        sigma_11 = 3.0 * sigma_iso - sigma_22 - sigma_33
-        return cls(sigma_11, sigma_22, sigma_33)
-
-    def as_dict(self):
-        d = {"sigma_11": self.sigma_11,
-             "sigma_22": self.sigma_22,
-             "sigma_33": self.sigma_33}
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(d["sigma_11"], d["sigma_22"], d["sigma_33"])
 
 
 class Outcar(MSONable):
