@@ -711,12 +711,6 @@ class TestChemicalShiftNotation(unittest.TestCase):
         hae8 = cs8.haeberlen_values
         self.assertAlmostEquals(hae1, hae8, places=5)
 
-        d1 = cs1.as_dict()
-        cs7 = Outcar.ChemicalShiftNotation.from_dict(d1)
-        hae7 = cs7.haeberlen_values
-        self.assertAlmostEquals(hae1, hae7, places=5)
-
-
 
 if __name__ == "__main__":
     unittest.main()
