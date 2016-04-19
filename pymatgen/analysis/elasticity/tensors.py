@@ -6,8 +6,9 @@ from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
 
 """
-This module provides a base class, SQTensor, and associated methods for
-creating and manipulating square rank 2 tensors
+This module provides a base class, for tensor-like objects, methods for
+basic tensor manipulation.  It also provides a class, SquareTensor,
+that provides basic methods for creating and manipulating rank 2 tensors
 """
 
 
@@ -23,6 +24,7 @@ __date__ = "March 22, 2012"
 
 from scipy.linalg import polar
 import numpy as np
+import itertools
 
 class TensorBase(np.ndarray):
     """
@@ -47,9 +49,10 @@ class TensorBase(np.ndarray):
         
         return obj
 
-    def __array_finalize__:
+    def __array_finalize__(self, obj):
         if obj is None:
             return
+        self.rank = getattr(obj, 'rank', None)
 
     def __array_wrap__(self, obj):
         """
@@ -73,8 +76,35 @@ class TensorBase(np.ndarray):
         return "{}({})".format(cls.__class__.__name__,
                                cls.__str__())
 
+    def zeroed(self, tol = 1e-3):
+        """
+        returns the matrix with all entries below a certain threshold
+        (i.e. tol) set to zero
+        """
+        new_tensor = self.copy()
+        new_tensor[abs(new_tensor) < tol] = 0
+        return new_tensor
+    
+    @property
+    def symmetrized(self):
+        """
+        Returns a symmetrized matrix from the input matrix,
+        calculated by taking the sum of the matrix and its
+        transpose
+        """
+        perms = list(itertools.permutations(range(self.rank)))
+        return sum([np.transpose(self, ind) for ind in perms]) / len(perms)
 
-class SqTensor(TensorBase):
+    @property
+    def is_symmetric(self, tol=1e-5):
+        """
+        Tests whether a tensor is symmetric or not based on the residual
+        with its symmetric part, from self.symmetrized
+        """
+        return (self - self.symmetrized < tol).all()
+
+
+class SquareTensor(TensorBase):
     """
     Base class for doing useful general operations on second rank tensors
     without restrictions on what type (stress, elastic, strain etc.).
@@ -82,7 +112,7 @@ class SqTensor(TensorBase):
 
     def __new__(cls, input_array):
         """
-        Create a SQTensor object.  Note that the constructor uses __new__
+        Create a SquareTensor object.  Note that the constructor uses __new__
         rather than __init__ according to the standard method of
         subclassing numpy ndarrays.  Error is thrown when the class is
         initialized with non-square matrix.
@@ -92,36 +122,32 @@ class SqTensor(TensorBase):
                 representing the Green-Lagrange strain
         """
 
-        obj = np.asarray(input_array).view(cls)
+        obj = TensorBase(input_array).view(cls)
         if not (len(obj.shape) == 2):
-            raise ValueError("SqTensor only takes 2-D "
-                             "square array-likes as input")
+            raise ValueError("SquareTensor only takes 2-D "
+                             "tensors as input")
         return obj
-
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
         
     @property
     def trans(self):
         """
-        shorthand for transpose on SQTensor
+        shorthand for transpose on SquareTensor
         """
-        return SQTensor(np.transpose(self))
+        return SquareTensor(np.transpose(self))
 
     @property
     def inv(self):
         """
-        shorthand for matrix inverse on SQTensor
+        shorthand for matrix inverse on SquareTensor
         """
         if self.det == 0:
-            raise ValueError("SQTensor is non-invertible")
-        return SQTensor(np.linalg.inv(self))
+            raise ValueError("SquareTensor is non-invertible")
+        return SquareTensor(np.linalg.inv(self))
 
     @property
     def det(self):
         """
-        shorthand for the determinant of the SQTensor
+        shorthand for the determinant of the SquareTensor
         """
         return np.linalg.det(self)
 
@@ -152,16 +178,7 @@ class SqTensor(TensorBase):
 
         return (np.abs(self.inv - self.trans) < tol).all() \
             and (np.linalg.det(self) - 1. < tol)
-
-    @property
-    def symmetrized(self):
-        """
-        Returns a symmetrized matrix from the input matrix,
-        calculated by taking the sum of the matrix and its
-        transpose
-        """
-        return 0.5 * (self + self.trans)
-
+ 
     def rotate(self, rotation):
         """
         Returns a rotated tensor based on input of a another
@@ -174,7 +191,7 @@ class SqTensor(TensorBase):
         if self.shape != (3, 3):
             raise NotImplementedError("Rotations are only implemented for "
                                       "3x3 tensors.")
-        rotation = SQTensor(rotation)
+        rotation = SquareTensor(rotation)
         if not rotation.is_rotation():
             raise ValueError("Specified rotation matrix is invalid")
         return np.dot(rotation, np.dot(self, rotation.trans))
@@ -185,9 +202,9 @@ class SqTensor(TensorBase):
 
         Args:
             scale_factor (float): scalar multiplier to be applied to the
-                SQTensor object
+                SquareTensor object
         """
-        return SQTensor(self * scale_factor)
+        return SquareTensor(self * scale_factor)
 
     @property
     def principal_invariants(self):
@@ -200,7 +217,7 @@ class SqTensor(TensorBase):
             return np.poly(self)[1:]*np.array([-1, 1, -1])
         else:
             raise ValueError("Principal invariants is only intended for use "
-                             "with 3x3 SQTensors")
+                             "with 3x3 SquareTensors")
 
     def polar_decomposition(self, side='right'):
         """
@@ -208,11 +225,4 @@ class SqTensor(TensorBase):
         """
         return polar(self, side=side)
 
-    def zeroed(self, tol=1e-5):
-        """
-        returns the matrix with all entries below a certain threshold
-        (i.e. tol) set to zero
-        """
-        new_tensor = self.copy()
-        new_tensor[abs(new_tensor) < tol] = 0
-        return new_tensor
+    

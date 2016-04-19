@@ -5,31 +5,31 @@ import math
 
 import numpy as np
 
-from pymatgen.analysis.elasticity.tensors import SQTensor
+from pymatgen.analysis.elasticity.tensors import SquareTensor
 from pymatgen.util.testing import PymatgenTest
 
 
-class SQTensorTest(PymatgenTest):
+class SquareTensorTest(PymatgenTest):
     def setUp(self):
-        self.rand_sqtensor = SQTensor(np.random.randn(3, 3))
-        self.symm_sqtensor = SQTensor([[0.1, 0.3, 0.4],
+        self.rand_sqtensor = SquareTensor(np.random.randn(3, 3))
+        self.symm_sqtensor = SquareTensor([[0.1, 0.3, 0.4],
                                        [0.3, 0.5, 0.2],
                                        [0.4, 0.2, 0.6]])
-        self.non_invertible = SQTensor([[0.1, 0, 0],
+        self.non_invertible = SquareTensor([[0.1, 0, 0],
                                         [0.2, 0, 0],
                                         [0, 0, 0]])
-        self.non_symm = SQTensor([[0.1, 0.2, 0.3],
+        self.non_symm = SquareTensor([[0.1, 0.2, 0.3],
                                   [0.4, 0.5, 0.6],
                                   [0.2, 0.5, 0.5]])
-        self.low_val = SQTensor([[1e-6, 1 + 1e-5, 1e-6],
+        self.low_val = SquareTensor([[1e-6, 1 + 1e-5, 1e-6],
                                  [1 + 1e-6, 1e-6, 1e-6],
                                  [1e-7, 1e-7, 1 + 1e-5]])
-        self.low_val_2 = SQTensor([[1e-6, -1 - 1e-6, 1e-6],
+        self.low_val_2 = SquareTensor([[1e-6, -1 - 1e-6, 1e-6],
                                    [1 + 1e-7, 1e-6, 1e-6],
                                    [1e-7, 1e-7, 1 + 1e-6]])
 
         a = 3.14 * 42.5 / 180
-        self.rotation = SQTensor([[math.cos(a), 0, math.sin(a)],
+        self.rotation = SquareTensor([[math.cos(a), 0, math.sin(a)],
                                   [0, 1, 0],
                                   [-math.sin(a), 0, math.cos(a)]])
 
@@ -41,12 +41,14 @@ class SQTensorTest(PymatgenTest):
         bad_matrix = [[0.1, 0.2],
                       [0.2, 0.3, 0.4],
                       [0.2, 0.3, 0.5]]
-        self.assertRaises(ValueError, SQTensor, non_sq_matrix)
-        self.assertRaises(ValueError, SQTensor, bad_matrix)
+        too_high_rank = np.zeros((3,3,3))
+        self.assertRaises(ValueError, SquareTensor, non_sq_matrix)
+        self.assertRaises(ValueError, SquareTensor, bad_matrix)
+        self.assertRaises(ValueError, SquareTensor, too_high_rank)
 
     def test_properties(self):
         # transpose
-        self.assertArrayEqual(self.non_symm.trans, SQTensor([[0.1, 0.4, 0.2],
+        self.assertArrayEqual(self.non_symm.trans, SquareTensor([[0.1, 0.4, 0.2],
                                                          [0.2, 0.5, 0.5],
                                                          [0.3, 0.6, 0.5]]))
         self.assertArrayEqual(self.rand_sqtensor.trans,
@@ -72,7 +74,7 @@ class SQTensorTest(PymatgenTest):
         self.assertArrayEqual(self.symm_sqtensor,
                               self.symm_sqtensor.symmetrized)
         self.assertArrayAlmostEqual(self.non_symm.symmetrized,
-                                    SQTensor([[0.1, 0.3, 0.25],
+                                    SquareTensor([[0.1, 0.3, 0.25],
                                               [0.3, 0.5, 0.55],
                                               [0.25, 0.55, 0.5]]))
 
@@ -102,7 +104,7 @@ class SQTensorTest(PymatgenTest):
 
     def test_rotate(self):
         self.assertArrayAlmostEqual(self.non_symm.rotate(self.rotation),
-                                    SQTensor([[0.531, 0.485, 0.271],
+                                    SquareTensor([[0.531, 0.485, 0.271],
                                               [0.700, 0.5, 0.172],
                                               [0.171, 0.233, 0.068]]),
                                     decimal=3)
@@ -110,7 +112,7 @@ class SQTensorTest(PymatgenTest):
 
     def test_get_scaled(self):
         self.assertArrayEqual(self.non_symm.get_scaled(10.),
-                              SQTensor([[1, 2, 3], [4, 5, 6], [2, 5, 5]]))
+                              SquareTensor([[1, 2, 3], [4, 5, 6], [2, 5, 5]]))
 
     def test_polar_decomposition(self):
         u, p = self.rand_sqtensor.polar_decomposition()
@@ -120,17 +122,17 @@ class SQTensorTest(PymatgenTest):
 
     def test_zeroed(self):
         self.assertArrayEqual(self.low_val.zeroed(),
-                              SQTensor([[0, 1 + 1e-5, 0],
+                              SquareTensor([[0, 1 + 1e-5, 0],
                                         [1 + 1e-6, 0, 0],
                                         [0, 0, 1 + 1e-5]]))
         self.assertArrayEqual(self.low_val.zeroed(tol=1e-6),
-                              SQTensor([[1e-6, 1 + 1e-5, 1e-6],
+                              SquareTensor([[1e-6, 1 + 1e-5, 1e-6],
                                         [1 + 1e-6, 1e-6, 1e-6],
                                         [0, 0, 1 + 1e-5]]))
-        self.assertArrayEqual(SQTensor([[1e-6, -30, 1],
+        self.assertArrayEqual(SquareTensor([[1e-6, -30, 1],
                                         [1e-7, 1, 0],
                                         [1e-8, 0, 1]]).zeroed(),
-                              SQTensor([[0, -30, 1],
+                              SquareTensor([[0, -30, 1],
                                         [0, 1, 0],
                                         [0, 0, 1]]))
 

@@ -12,7 +12,7 @@ generating deformed structure sets for further calculations.
 """
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.analysis.elasticity.tensors import SQTensor
+from pymatgen.analysis.elasticity.tensors import SquareTensor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import warnings
 import numpy as np
@@ -28,9 +28,9 @@ __status__ = "Development"
 __date__ = "March 13, 2012"
 
 
-class Deformation(SQTensor):
+class Deformation(SquareTensor):
     """
-    Subclass of SQTensor that describes the deformation gradient tensor
+    Subclass of SquareTensor that describes the deformation gradient tensor
     """
 
     def __new__(cls, deformation_gradient):
@@ -44,7 +44,7 @@ class Deformation(SQTensor):
                 representing the deformation gradient
         """
 
-        obj = SQTensor(deformation_gradient).view(cls)
+        obj = SquareTensor(deformation_gradient).view(cls)
         return obj
 
     def __array_finalize__(self, obj):
@@ -141,7 +141,7 @@ class DeformedStructureSet(object):
         self.undeformed_structure = rlxd_str
         self.deformations = []
         self.def_structs = []
-        normal_deformations = [Deformation
+        # normal_deformations = [Deformation
         if symmetry:
             all_defos = norm_deformations + shear_deformations
             sga = SpacegroupAnalyzer(self.undeformed_structure, tol = 0.1)
@@ -202,9 +202,9 @@ class DeformedStructureSet(object):
         return dict(zip(strains, self.def_structs))
 
 
-class Strain(SQTensor):
+class Strain(SquareTensor):
     """
-    Subclass of SQTensor that describes the Green-Lagrange strain tensor.
+    Subclass of SquareTensor that describes the Green-Lagrange strain tensor.
     """
 
     def __new__(cls, strain_matrix, dfm=None):
@@ -219,7 +219,7 @@ class Strain(SQTensor):
                 representing the Green-Lagrange strain
         """
 
-        obj = SQTensor(strain_matrix).view(cls)
+        obj = SquareTensor(strain_matrix).view(cls)
         obj._dfm = dfm
         if not obj.is_symmetric():
             raise ValueError("Strain objects must be initialized "
@@ -238,6 +238,7 @@ class Strain(SQTensor):
     def __array_finalize__(self, obj):
         if obj is None:
             return
+        self.rank = getattr(obj, "rank", None)
         self._dfm = getattr(obj, "_dfm", None)
 
     @classmethod

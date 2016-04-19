@@ -12,7 +12,7 @@ stress-strain data
 """
 
 from pymatgen.analysis.elasticity import voigt_map
-from pymatgen.analysis.elasticity.tensors import SQTensor
+from pymatgen.analysis.elasticity.tensors import TensorBase
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
 import numpy as np
@@ -31,11 +31,11 @@ __date__ = "March 22, 2012"
 
 class ElasticTensor(TensorBase):
     """
-    This class extends SQTensor to describe the 6x6
+    This class extends TensorBase to describe the 3x3x3x3
     elastic tensor, C_{ij}, in Voigt-notation
     """
 
-    def __new__(cls, input_array):
+    def __new__(cls, input_array, tol=1e-3):
         """
         Create an ElasticTensor object.  The constructor throws an error if
         the shape of the input_matrix argument is not 6x6, i. e. in Voigt-
@@ -47,30 +47,28 @@ class ElasticTensor(TensorBase):
         Args:
             input_array (3x3x3x3 array-like): the Voigt-notation 6x6 array-like
                 representing the elastic tensor
+
+            tol (float): tolerance for initial symmetry test of tensor
         """
-        if not ((c_ijkl - np.transpose(c_ijkl, (1, 0, 2, 3)) < tol).all() and
-                (c_ijkl - np.transpose(c_ijkl, (0, 1, 3, 2)) < tol).all() and
-                (c_ijkl - np.transpose(c_ijkl, (1, 0, 3, 2)) < tol).all() and
-                (c_ijkl - np.transpose(c_ijkl, (3, 2, 0, 1)) < tol).all()):
+
+        obj = TensorBase(input_array).view(cls)
+        if not ((obj - np.transpose(obj, (1, 0, 2, 3)) < tol).all() and
+                (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all() and
+                (obj - np.transpose(obj, (1, 0, 3, 2)) < tol).all() and
+                (obj - np.transpose(obj, (3, 2, 0, 1)) < tol).all()):
 
             warnings.warn("Input elasticity tensor does "
                           "not satisfy standard symmetries")
 
-        # Construct elastic tensor
-        obj = np.asarray(input_array).view(cls)
         if obj.shape != (3, 3, 3, 3):
             raise ValueError("Default elastic tensor constructor requires "
                              "input to be the true 3x3x3x3 representation. "
                              "To construct from an elastic tensor from "
                              "6x6 Voigt array, use ElasticTensor.from_voigt")
-        return obj
-
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
+        return obj 
 
     @classmethod
-    def from_voigt(self, voigt_matrix):
+    def from_voigt(cls, voigt_matrix):
         """
         Constructor based on the voigt notation tensor
 
@@ -79,6 +77,9 @@ class ElasticTensor(TensorBase):
                 representing the elastic tensor
         """
         voigt_matrix = np.array(voigt_matrix)
+        if voigt_matrix.shape != (6, 6):
+            raise ValueError("from_voigt takes a 6x6 array corresponding to "
+                             "the elastic tensor in voigt notation as input.")
         c = np.zeros((3, 3, 3, 3))
         for p in range(6):
             for q in range(6):
@@ -99,7 +100,7 @@ class ElasticTensor(TensorBase):
             for q in range(6):
                 i, j = voigt_map[p]
                 k, l = voigt_map[q]
-                c_pq[p, q] = c_ijkl[i, j, k, l]
+                c_pq[p, q] = self[i, j, k, l]
         return c_pq
 
     @property
@@ -108,7 +109,7 @@ class ElasticTensor(TensorBase):
         returns the compliance tensor, which is the matrix inverse of the
         Voigt-notation elastic tensor
         """
-        return np.inverse(self.voigt)
+        return np.linalg.inv(self.voigt)
 
     @property
     def k_voigt(self):
@@ -217,8 +218,8 @@ class ElasticTensor(TensorBase):
         """
 
         sg = SpacegroupAnalyzer(structure, symprec)
-
-        numpy.mean([
+        pass
+        #numpy.mean([
 
     @classmethod
     def from_strain_stress_list(cls, strains, stresses):
@@ -266,6 +267,6 @@ class ElasticTensor(TensorBase):
         if vasp:
             c_ij *= -0.1  # Convert units/sign convention of vasp stress tensor
         c_ij[0:, 3:] = 0.5 * c_ij[0:, 3:]  # account for voigt doubling of e4,e5,e6
-        c_ij = SQTensor(c_ij)
-        c_ij = c_ij.zeroed(tol)
-        return cls.from_voigt(c_ij)
+        c = cls.from_voigt(c_ij)
+        c = c.zeroed()
+        return c
