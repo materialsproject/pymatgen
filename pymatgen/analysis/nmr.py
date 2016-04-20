@@ -83,14 +83,16 @@ class NMRChemicalShiftNotation(MSONable):
         """
         sigma_iso = (self.sigma_11 + self.sigma_22 + self.sigma_33) / 3.0
         omega = self.sigma_33 - self.sigma_11
-        kappa = 3.0 * (sigma_iso - self.sigma_22) / omega
+        # There is a typo in equation 20 from Magn. Reson. Chem. 2008, 46, 582–598, the sign is wrong.
+        # There correct order is presented in Solid State Nucl. Magn. Reson. 1993, 2, 285-288.
+        kappa = 3.0 * (self.sigma_22 - sigma_iso) / omega
         return self.MarylandNotation(sigma_iso, omega, kappa)
 
     @classmethod
     def from_maryland_notation(cls, sigma_iso, omega, kappa):
-        sigma_22 = sigma_iso - kappa * omega / 3.0
-        sigma_33 = (3.0 * sigma_iso + omega - sigma_22) / 2.0
-        sigma_11 = 3.0 * sigma_iso - sigma_22 - sigma_33
+        sigma_22 = sigma_iso + kappa * omega / 3.0
+        sigma_11 = (3.0 * sigma_iso - omega - sigma_22) / 2.0
+        sigma_33 = 3.0 * sigma_iso - sigma_22 - sigma_11
         return cls(sigma_11, sigma_22, sigma_33)
 
     def as_dict(self):
