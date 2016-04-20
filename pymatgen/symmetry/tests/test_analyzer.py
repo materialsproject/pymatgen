@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 9, 2012"
 
-import unittest
+import unittest2 as unittest
 import os
 
 import numpy as np
@@ -27,7 +27,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
     PointGroupAnalyzer, cluster_sites
 from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.structure import Molecule
+from pymatgen.core.structure import Molecule, Structure
 
 
 test_dir_mol = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -209,7 +209,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(conv.lattice.b, 3.96052850731)
         self.assertAlmostEqual(conv.lattice.c, 6.8743926325200002)
 
-        parser = CifParser(os.path.join(test_dir, 'rhomb_1170.cif'))
+        parser = CifParser(os.path.join(test_dir, 'hex_1170.cif'))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
@@ -276,7 +276,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(prim.lattice.b, 7.2908007159612325)
         self.assertAlmostEqual(prim.lattice.c, 6.8743926325200002)
 
-        parser = CifParser(os.path.join(test_dir, 'rhomb_1170.cif'))
+        parser = CifParser(os.path.join(test_dir, 'hex_1170.cif'))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
@@ -286,6 +286,17 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(prim.lattice.a, 3.699919902005897)
         self.assertAlmostEqual(prim.lattice.b, 3.699919902005897)
         self.assertAlmostEqual(prim.lattice.c, 6.9779585500000003)
+
+        parser = CifParser(os.path.join(test_dir, 'rhomb_3478_conv.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
+        prim = s.get_primitive_standard_structure()
+        self.assertAlmostEqual(prim.lattice.alpha, 28.049186140546812)
+        self.assertAlmostEqual(prim.lattice.beta, 28.049186140546812)
+        self.assertAlmostEqual(prim.lattice.gamma, 28.049186140546812)
+        self.assertAlmostEqual(prim.lattice.a, 5.9352627428399982)
+        self.assertAlmostEqual(prim.lattice.b, 5.9352627428399982)
+        self.assertAlmostEqual(prim.lattice.c, 5.9352627428399982)
 
 
 
@@ -425,6 +436,16 @@ class PointGroupAnalyzerTest(PymatgenTest):
         a = PointGroupAnalyzer(m)
         self.assertEqual(a.sch_symbol, "D5d")
 
+    def test_tricky_structure(self):
+        # for some reason this structure kills spglib1.9
+        # 1.7 can't find symmetry either, but at least doesn't kill python
+        s = Structure.from_file(os.path.join(test_dir, 'POSCAR.tricky_symmetry'))
+        sa = SpacegroupAnalyzer(s, 0.1)
+        sa.get_spacegroup_symbol()
+        sa.get_spacegroup_number()
+        sa.get_point_group()
+        sa.get_crystal_system()
+        sa.get_hall()
 
 class FuncTest(unittest.TestCase):
 

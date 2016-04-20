@@ -11,7 +11,7 @@ __maintainer__ = 'Shyue Ping Ong'
 __email__ = 'ongsp@ucsd.edu'
 __date__ = '3/28/15'
 
-import unittest
+import unittest2 as unittest
 import os
 
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput

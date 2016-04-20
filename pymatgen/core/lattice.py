@@ -28,6 +28,7 @@ from numpy import pi, dot, transpose, radians
 from scipy.spatial import Voronoi
 
 from monty.json import MSONable
+from monty.dev import deprecated
 from pymatgen.util.num_utils import abs_cap
 from pymatgen.core.units import ArrayWithUnit
 
@@ -72,36 +73,12 @@ class Lattice(MSONable):
         self._metric_tensor = None
 
     @classmethod
-    def from_abivars(cls, *args, **kwargs):
-        """
-        Returns a new instance from a dictionary with the variables
-        used in ABINIT to define the unit cell.
-        """
-        kwargs.update(dict(*args))
-        d = kwargs
-        rprim = d.get("rprim", None)
-        angdeg = d.get("angdeg", None)
-        acell = d["acell"]
+    @deprecated(message="from_abivars has been merged with the from_dict "
+                "method. Use from_dict(fmt=\"abivars\"). from_abivars "
+                "will be removed in pymatgen 4.0.")
+    def from_abivars(cls, d, **kwargs):
 
-        # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
-        if rprim is not None:
-            assert angdeg is None
-            rprim = np.reshape(rprim, (3,3))
-            rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
-            return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
-
-        elif angdeg is not None:
-            # angdeg(0) is the angle between the 2nd and 3rd vectors,
-            # angdeg(1) is the angle between the 1st and 3rd vectors,
-            # angdeg(2) is the angle between the 1st and 2nd vectors,
-            raise NotImplementedError("angdeg convention should be tested")
-            angles = angdeg
-            angles[1] = -angles[1]
-            l = ArrayWithUnit(acell, "bohr").to("ang")
-            return cls.from_lengths_and_angles(l, angdeg)
-
-        else:
-            raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
+        return Lattice.from_dict(d, fmt="abivars", **kwargs)
 
     def copy(self):
         """Deep copy of self."""
@@ -290,11 +267,39 @@ class Lattice(MSONable):
         return Lattice([vector_a, vector_b, vector_c])
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d, fmt=None, **kwargs):
         """
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
         and gamma parameters.
+
         """
+        if fmt == "abivars":
+            kwargs.update(d)
+            d = kwargs
+            rprim = d.get("rprim", None)
+            angdeg = d.get("angdeg", None)
+            acell = d["acell"]
+
+            # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
+            if rprim is not None:
+                assert angdeg is None
+                rprim = np.reshape(rprim, (3,3))
+                rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
+                return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
+
+            elif angdeg is not None:
+                # angdeg(0) is the angle between the 2nd and 3rd vectors,
+                # angdeg(1) is the angle between the 1st and 3rd vectors,
+                # angdeg(2) is the angle between the 1st and 2nd vectors,
+                raise NotImplementedError("angdeg convention should be tested")
+                angles = angdeg
+                angles[1] = -angles[1]
+                l = ArrayWithUnit(acell, "bohr").to("ang")
+                return cls.from_lengths_and_angles(l, angdeg)
+
+            else:
+                raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
+
         if "matrix" in d:
             return cls(d["matrix"])
         else:

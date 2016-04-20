@@ -13,7 +13,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "4/10/14"
 
-import unittest
+import unittest2 as unittest
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
@@ -83,7 +83,7 @@ class SpaceGroupTest(unittest.TestCase):
 
     def test_get_orbit(self):
         sg = SpaceGroup("Fm-3m")
-        p = np.random.random_integers(0, 100, size=(3,)) / 100
+        p = np.random.randint(0, 100 + 1, size=(3,)) / 100
         self.assertLessEqual(len(sg.get_orbit(p)), sg.order)
 
     def test_is_compatible(self):
