@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals
 
-import unittest
+import unittest2 as unittest
 
 from pymatgen.core.ion import Ion
 from pymatgen.core.periodic_table import Element

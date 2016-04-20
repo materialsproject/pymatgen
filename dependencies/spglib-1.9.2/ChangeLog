@@ -1,0 +1,1187 @@
+2016-04-17  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.9.2
+
+	* src/symmetry.c (get_lattice_symmetry):
+
+	The treatment after the conditon, order of point symmetry
+	becomes larger than 48, is found was bad and it induced
+	segfault. It is fixed and a better treatment for angle_tolerance
+	is implemented as an iterative method.
+
+	* src/spglib.c (spg_delaunay_reduce):
+
+	spg_delaunay_reduce is made as an interface to the Delaunay
+	reduction.
+
+	* src/spacegroup.c (search_spacegroup):
+
+	A check if excess symmetry operations are found for a primitive
+	cell is inserted by watching its point group. This made the
+	algorithm of database matching safer.
+
+2016-04-11  Atsushi Togo  <atz.togo@gmail.com>
+
+	* src/delaunay.c:
+
+	lattice.{c,h} are renamed to delaunay.{c.h},
+	respectively. Function names in them, *get_smallest_lattice, are
+	changed to *delaunay_reduce.
+
+2016-04-06  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.9.1
+
+	This is a minor update. Only a small notable change is in the
+	python wrapper, where for crystal structure, now a tuple format
+	can be sued.
+
+2015-12-20  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.9.0
+
+	Pyspglib was considered as a special extention of spglib, but now
+	it starts to be a part of spglib as a usual extention. Therefore
+	the package name is changed to spglib, and this python wrapper
+	will be maintained to work at every update of c-spglib.
+
+	Scripts for pypi and conda package environments are prepared in
+	python wrapper by a lot of help from Paweł T. Jochym.
+
+	In previous versions, tests were in the test directory and space
+	group numbers were checked for many POSCARs by using combination
+	of ruby-spglib and shell script. Now a similar test is written in
+	a form of python unit test in the 'python' directory. Previous
+	'test' directory is renamed to 'ruby' and the POSCARs were moved
+	under the 'python/test' directory.
+
+2015-12-13  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.8.3
+
+	* src/version.h:
+
+	Made functions to return spglib version number,
+	'spg_get_major_version()', 'spg_get_minor_version()',
+	'spg_get_micro_version()' in 'spglib.c'. This version number is
+	stored in 'version.h'.
+
+2015-08-19  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.8.2.2
+
+	* src/spglib.c (is_rhombohedral):
+
+	Regardless of rhombohedral or hexagonal setting, a primitive
+	rhombohedral is found when using finding primitive cell functions.
+
+2015-08-03  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.8.2.1
+
+	* src/spacegroup.c (spa_transform_to_primitive):
+
+	Bug fix of transformation matrix with centering. The side to be
+	multiplied was wrong.
+
+	* Version 1.8.2
+
+	* k-points and tetrahedron method
+
+	k-point grid definitions are separated to 'kgrid.c'.
+	'kgrid.{c,h}' and 'tetrahedron_method.{c,h}' are moved to a new
+	git repository of kspclib (https://github.com/atztogo/kspclib).
+	Tetrahedron method related spglib-APIs are removed.
+
+	* Choice of triclinic basis vector directions is implemented and
+	the definition is written in the document.
+
+2015-07-09  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.8.1
+
+	In SpglibDataset, definitions of transformation matrix and origin
+	shift are changed, member names of '*brv_*' are changed to
+	'*std_*', and the members, pointgroup_number and
+	pointgroup_symbol, are added.
+
+	New function 'spg_standardize_cell' is implemented. This can also
+	give 'standardized primitive cell' with 'to_primitive =
+	1'.
+
+	Due to change of internal implementation, the order of symmetry
+	operations obtained can be different from the recently released
+	versions, but the set is the same.
+
+2015-06-25  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.8
+
+	Relatively large code refactoring was made. Especially
+	'primitive.c' was changed a lot.
+
+	Write license statement (New BSD) in the source codes.
+
+	* src/spglib.c:
+
+	A new function 'spg_find_standardized_primitive' is
+	implemented. This function allows to create a primitive cell from
+	the obtained standardized conventional unit cell with
+	transformation using pre-determined choice of centring basis
+	vectors.
+
+2015-06-15  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.7.4
+
+	Wyckoff position database for rhombohedral cell was
+	wrong. Probably this bug was hidden by the previous default choice
+	of basis vectors but from version 1.7.3 it became revealed.
+
+2015-06-14  Atsushi Togo  <atz.togo@gmail.com>
+
+	* src/sitesym_database.c
+
+	Bug in database of hP of rhombohedral was fixed. This bug was
+	affected after version 1.7.3. 'make_Wyckoff_db.py' is fixed and
+	then the database in 'sitesym_database.c' is recreated by
+	make_Wyckoff_db.py.
+
+2015-04-06  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.7.3
+
+2015-04-05  Atsushi Togo  <atz.togo@gmail.com>
+
+	* src/triplet_kpoint.{c,h}:
+
+	Code to handle triplets of kpoints was separated from
+	kpoint.c. Detail of functions was revisited and modified, e.g.,
+	taking modulo of grid address is now included in
+	get_grid_point_double_mesh in most cases. This is probably safe
+	change, but may induce some tricky bug, which has to be
+	remembered. kpt_get_grid_point should be moved to spglib.c with
+	calling kpt_get_grid_point_double_mesh someday soon. It is noted
+	here for not forgetting that get_third_q_of_triplets_at_q in
+	triplet_kpoint.c might be written better around the point using
+	mat_modulo_i3. In triplet_kpoint.c, mat_modulo_i3 is used only
+	here, so eliminating this can move mat_modulo_i3 to kpoint.c as a
+	local function as before.
+
+2015-04-03  Atsushi Togo  <atz.togo@gmail.com>
+
+	* src/spacegroup.c (match_hall_symbol_db_ortho):
+
+	Change the convention of lengths of basis vector preference to:
+	a < b < c for hall number 290 and a < c < b for 291 or
+	a < b < c for hall number 291 and a < c < b for 290,
+	to preserve a < b convention found in Parthe et al, Journal of
+	Alloys and Compounds, 197 (1993) 291-301.
+
+2015-03-31  Atsushi Togo  <atz.togo@gmail.com>
+
+	* src/spacegroup.c (match_hall_symbol_db_ortho):
+
+	Fix choice of lengths of basis vectors in orthorhombic Pbca. There
+	are two choices for Pbca. The basis vectors can be chosen so as to
+	a < b < c or b < a < c, which correspond to these two choices,
+	respectively. The correspondance can be flipped, i.e., in a case,
+	a < b < c for hall number 290 and b < a < c for 291, but in some
+	other case, a < b < c for hall number 291 and b < a < c for 290.
+
+2015-03-20  Atsushi Togo  <atz.togo@gmail.com>
+
+	* src/hall_symbol.c (find_hall_symbol):
+
+	A critical bug was found in version 1.7.2, where origin shift was
+	given for the primitive cell but not for the Bravais lattice. This
+	was fixed. The version 1.7.2 was removed from the download site
+	and temporary 1.7.3-pre is put on the download site.
+
+2015-03-08  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.7.2
+
+	* src/niggli.*:
+
+	Routine of Niggli cell reduction is imported from
+	https://github.com/atztogo/niggli.
+
+2015-02-24  Atsushi Togo  <atz.togo@gmail.com>
+
+	* src/spacegroup.c (get_symmetry_settings):
+
+	Monoclinic lattice vectors are chosen as |a| < |c| with b as the
+	unique axis. This is achieved by get_Delaunay_reduction_2D.
+
+	* src/lattice.c (get_Delaunay_reduction_2D):
+
+	2D Delaunay reduction is implemented based on that of 3D.
+
+	* src/lattice.c (lat_smallest_lattice_vector_2D):
+
+	Create an interface to access 2D Delaunay reduction.
+
+
+2015-02-11  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.7.1
+
+	There are minor changes to make functions robust and code clean.
+
+	* src/spglib.c
+
+	spg(at)_get_symmetry_with_collinear_spin is changed to return
+	equivalent atoms.
+	spg_get_international and spg_get_schoenflies call iterative
+	routine to determine space group type.
+
+	* src/primitive.h:
+
+	Primitive structure is defined. This is expected to make routines
+	related to primitive cell comprehensive. Memory for a pointer of
+	the Primitive variable may be allocated using prm_alloc_primitive
+	and freed by prm_free_primitive.
+
+	* src/spacegroup.c:
+
+	spa_get_spacegroup was replaced by iterative routine and now
+	returns a Primitive structure.
+
+2014-11-19  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.7
+
+	Space group operations for non-standard setting can be determined
+	using spg_get_dataset_with_hall_number. To achieve this, many
+	lines are added and changed. Due to the big change of the code,
+	there may be bugs, and maybe it's safer to wait for a while to use
+	this version for mission critical systems.
+
+	Two important changes are:
+
+	* src/spglib.c (spg_get_dataset_with_hall_number)
+
+	In space group type determination, Hall symbol serial number can
+	be specified.
+
+	* src/spglib.h (SpglibDataset)
+
+	Crystallographic setting information is stored in
+	'setting'. Symmetrized and standarized crsytal structure is stored
+	in 'n_brv_atoms', 'brv_lattice', 'brv_types', and 'brv_positions',
+	which are the same information obtained using 'spg_refine_cell',
+	except that non-standard setting can be specified in
+	'spg_get_dataset_with_hall_number'.
+
+2014-10-16  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.6.4
+
+	* src/refinement.c (refine_cell):
+
+	An iterative approach is implemented for refine_cell.
+
+2014-09-12  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.6.3
+
+	* src/primitive.c:
+
+	Atom type is checked in finding a primitive cell. This enables to
+	handle different types of atoms that locate at the same position.
+	for the case of an automatically generated crystal structure data
+	from a fractional occupancy, etc.
+
+	* Version 1.6.2
+
+	Minor bug fixes.
+
+	* src/spglib.c (spg_get_symmetry_from_database):
+
+	An API to access space group operations database is implemented.
+
+2014-08-04  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.6.1:
+
+	* src/{refinement.*,primitive.*,spglib.c}
+
+	Fix symmetry finding bug for supercell that has lower point group
+	than the primitive cell.
+
+	* src/spglib.*
+
+	New functions of spg_get_spacegroup_type and
+	spg_get_grid_point. The former offers difrect access to space
+	group type database using hall symbol number. The later perfoms
+	converting grid address to grid point index on the reciprocal
+	mesh.
+
+	* pyspglib update.
+
+2014-02-17  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.6.0:
+
+	* src/spglib.c (spg_get_spacegroup_type):
+
+	A function is made for accessing space-group-type database.
+
+2014-01-07  Atsushi Togo  <atz.togo@gmail.com>
+
+	* src/tetrahedron_method.*:
+
+	Tetrahedron method is implemented. Example is found in the example
+	directory.
+
+2013-09-10  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.5.2:
+
+	* kpoint.c (kpt_relocate_BZ_grid_address):
+
+	New function kpt_relocate_BZ_grid_address is implemented in
+	kpoint.c. k-points on the mesh of the reciprocal primitive lattice
+	are relocated to fit in the Brillouin zone. To treat
+	translationally equivalent k-points, the memory space of
+	bz_grid_address[prod(mesh + 1)][3] is required.  bz_map[prod(mesh
+	* 2 - 1)] is used to map k-points on the expanded k-space where
+	the shape is same as the reciprocal primitive lattice but the size
+	along each lattice vector is multiplied by mesh * 2 - 1. BZ zone
+	is included in this expanded k-space, so the bz_map can hold the
+	location of relocated k-points. Irreducible k-points are stored
+	from 0 to index of prod(mesh) - 1 in bz_grid_address in the same
+	order of grid_address, and the translationally equivalent k-points
+	are stored after that. Fast indexing of the location of relocated
+	k-points can be executed using bz_map with similar way to usual
+	grid_address scheme.
+
+	* kpoint.c (kpt_get_BZ_triplets_at_q):
+
+	New function kpt_get_BZ_triplets_at_q is implemented using
+	relocate_BZ_grid_address. This generates a set of triplets that
+	cleanly fit in BZ.
+
+2013-09-10  Atsushi Togo  <atz.togo@gmail.com>
+
+	* kpoint.c:
+
+	Remove get_triplets_reciprocal_mesh and
+	extract_triplets_reciprocal_mesh_at_q.  Add
+	get_grid_triplets_at_q. This function treats q-points on boundary
+	correctly.
+
+	* spglib.c (spg_get_symmetry):
+
+	Previously symmetry operations were obtained by sym_get_operation.
+	Now it is changed so that they are extracted from spglib_dataset.
+
+2013-04-16  Atsushi Togo  <atz.togo@gmail.com>
+
+	* symmetry.c (get_operation):
+
+	In some case, get_space_group_operation returns more than 48
+	symmetry operations for a primitive cell. To avoid this, an
+	iterative approach, which is just reducing tolerance gradually to
+	achieve number of symmetry operations <= 48, is implemented.
+
+	* symmetry.c:
+	In the symmetry operation search, rot[] and trans[] were used. Now
+	they are replaced by Symmetry *symmetry in symmetry.c.
+
+
+2013-04-14  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Fortran interface given by Dimitar Pashov:
+
+	The new fortran interface is given by Dimitar Pashov, which is
+	much safer than the previous one. The new fortran interface, its
+	example, and makefile are found in the example directory as
+	spglib_f08.f90, example_f08.f90 and Makefile_f08.
+
+	* spglib.h, spglib.c, kpoint.h, kpoint,c:
+
+	Symprec parameter was removed from spg_get_stabilized_reciprocal_mesh.
+
+2013-01-28  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spglib.c, spglib_f.c:
+
+	Pointerd out by Michael Rutter that the length of charasters of
+	space-group type symbol (International table) was wrong in
+	spglib_f.c. That of Schoenflies symbol was also found wrong. The
+	former and latter were fixed as from 21 to 11 and from 10 to 7,
+	respectively.
+
+2012-10-10  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.3
+
+	Rethink algorithms to search symmetry operations for speed-up and
+	stability. Many small modifications are applied. Some parts of the
+	codes that look unnecessary were removed but this change might
+	make the code unstable.
+
+	* symmetry.c (get_translation):
+
+	Improve OpenMP efficiency. Number of atoms to enable OpenMP
+	concurrency is set as 1000 (NUM_ATOMS_CRITERION_FOR_OPENMP).
+
+2012-10-09  Atsushi Togo  <atz.togo@gmail.com>
+
+	* symmetry.c (sym_get_pure_translation, get_translation):
+
+	In 'sym_get_pure_translation', iterative approach to search
+	pure_translation was employed. But 'sym_get_pure_translation' was
+	only used from two functions in primitive.c. In these two
+	functions, tolerance is iteratively reduced when the search
+	fails. Because there is no need to do iteration twice, the
+	iteration part in 'sym_get_pure_translation' was removed.
+
+	* primitive.{c,h}:
+
+	'get_primitive_with_pure_translation' was replaced by
+	'get_primitive_and_pure_translation'. The former was only used
+	from 'get_operation' in symmetry.c and the interative approach was
+	implemented in 'get_operation'. The iterative part was moved into
+	'get_primitive_and_pure_translation'.
+
+	The Primitive structure was defined in primitive.h. This just
+	packs Cell * primitive_cell and VecDBL * pure_trans. The Primitive
+	structure is only used in 'get_operation' in symmetry.c and
+	'(prm_)get_primitive_and_pure_translation' in primitive.c.
+
+
+2012-10-08  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spacegroup.c (get_hall_number_local_iteration):
+
+	REDUCE_RATE to reduce number of symmetry operations is changed
+	from 0.2 to 0.95. Symmetry operations depend on tolerance
+	delicately.
+
+	* Remove many lines of debug_print:
+
+	Now to follow the flow is more important than to see the
+	detailed behavior of implementation.
+
+2012-10-03  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.2.5
+	* primitive.c:
+
+	Separate out get_primitive_with_mapping_table from
+	prm_get_primitive_with_mapping_table. Rename
+	prm_get_primitive_with_all to
+	get_primitive_with_pure_translation.
+	In get_primitive_with_pure_translation, it was
+	  if (pure_trans->size > 0)
+	but not it was fixed to
+	  if (pure_trans->size > 1)
+	not to search primitive cell when pure_trans->size == 1.
+
+2012-10-01  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.2.4
+	* kpoint.c (get_ir_reciprocal_mesh):
+
+	In spglib, k-point grid is indexed as, for example,
+
+	0 1 2 3 4 5 6 -5 -4 -3 -2 -1
+
+	for 12 points mesh. Now the different index style such as
+
+	0 1 2 3 4 5 -6 -5 -4 -3 -2 -1
+
+	is activated by CFLAGS='-DGRID_BOUNDARY_AS_NEGATIVE' before
+	running configure script at the compilation time.
+
+	* symmetry.c (get_operation):
+
+	In the iterative reduction of tolerance of primitive cell search,
+	pure_trans was searched by a fixed tolerance rather than the
+	reduced one. This is fixed to use the reduced tolerance at each
+	iteration.
+
+2012-08-13  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.2.3
+	* symmetry.c (is_identity_metric):
+
+	To check identity of metric tensors, too small angle induces
+	numerical size error, so if the dtheta is calculated smaller than
+	1e-6, automatically set the angles be identical.
+
+	* spacegroup.c (get_hall_number_local_iteration):
+
+	Implementation of iterative reduction of symmetry tolerance to
+	search symmetry operation to get Hall symbol is separated as the
+	function get_hall_number_local_iteration and the tolerance
+	reduction rate of REDUCE_RATE is changed from 0.2 from 0.95.
+
+2012-07-17  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.2.2
+	* lattice.c (get_centering):
+
+	Tranformation A-centring monoclinic lattice to C-centring
+	monoclinic lattice preserving b-axis is not well handled and now
+	the matrix 'monocli_a2c' is used for it.
+
+2012-07-14  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.2.1
+	* pointgroup.c (laue_one_axis):
+
+	Transformation matrix is expected to be always positive, but it
+	was not correctly implemented.
+
+2012-05-28  Atsushi Togo  <atz.togo@gmail.com>
+
+	* refinement.c (reduce_symmetry_in_frame):
+
+	Fix memory leak by freeing lattice_trans.
+
+2012-04-26  Atsushi Togo  <atz.togo@gmail.com>
+
+	The numbering of the hall symbol is included in the 'struct
+	SpglibDataset'. This starts from 1 to 530.
+
+2012-04-25  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spglib.c, spglib.h:
+
+	To find symmetry with angle tolerance, for spg_* functions,
+	respective spgat_* functions are prepared. In the spgat_*
+	functions, the last variable is the angle tolerance (in degrees).
+
+	* symmetry.c:
+
+	The way to find lattice symmetry is changed. Now a new static
+	variable, 'angle_tolerance', can be used for the tolerance of
+	angle. Therefore the non-diagonal elements of metric tensor are
+	directry compared with this angle. 'angle_tolerance' can be
+	accessed via 'sym_set_angle_tolerance' inside spglib. However the
+	default behavior does not use the angle tolerance. In the default
+	behavior, averaged_lattice_vector_length * sin(delta_theta) is
+	compared with usual 'symprec'. The default behavior is invoked
+	when 'angle_tolerance' has negative value. These are implemented
+	in 'is_identity_metric' in symmetry.c.
+
+2012-04-12  Atsushi Togo  <atz.togo@gmail.com>
+
+	* lattice.c (get_centering):
+
+	Correction matrix for I-centring monoclinic was implemented.
+
+2012-03-03  Atsushi Togo  <atz.togo@gmail.com>
+
+	* primitive.c:
+
+	The functions of 'prm_get_current_tolerance',
+	'set_current_tolerance' and the value of static double
+	current_tolerance were introduced in 'primitive.c'. These are used
+	to return reduced tolerance value that is iteratively determined
+	in 'prm_get_primitive_with_mapping_table'.
+
+	The interative technique is used in several parts to obtain
+	possible primitive cell parameters by reducing symmetry
+	tolerance. Only in 'get_overlap_table' in 'primitive.c', the
+	interative techinique is used with reducing and increasing the
+	tolerance, i.e., in the other parts, only reducing.
+
+2012-03-02  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.1.2
+	* refinement.c, primitive.c, symmetry.c:
+
+	Modifications at many small parts of the code for improve
+	robustness with large symmetry tolerance values.
+
+2012-02-28  Atsushi Togo  <atz.togo@gmail.com>
+
+	* primitive.c (get_overlap_table):
+
+	Simplify the algorithm for search overlapping table. The new
+	algorithm is as follows: Symmetry tolerance monotonically
+	decreases by REDUCE_RATE = 0.95 when the search is failed. When
+	number of overlapping atoms is found smaller than the ratio of
+	number of atoms between original and primitive cells, the symmetry
+	tolerance is doubled. For this algorithm, 'check_overlap_table'
+	function was implemented.
+
+2012-02-09  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spin.{c,h}:
+
+	'spin.{c,h}' are added. Colliear spins on atoms are employed as
+	additional constraints to search symmetry. The API is
+	'spg_get_symmetry_with_collinear_spin'. (reduce_symmetry_in_frame):
+
+	Bug fix to get refined symmetry operations. When the original cell
+	is not primitive and the lattice symmetry is lower than that
+	primitive lattice, the symmetry of primitive has to be
+	reduced to those belongs to the lower symmetry. But this was not
+	correctly done.
+
+2011-10-05  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spglib.c (spg_get_pointgroup):
+
+	'spg_get_pointgroup' is implemented. This is used to obtain point
+	group symbols.
+
+2011-09-30  Atsushi Togo  <atz.togo@gmail.com>
+
+	* site_symmetry.c (get_Wyckoff_notation):
+
+	Bug fix of assignment of Wyckoff letters
+	'sitesym_database.c' is compressed. Now only the first element of
+	'coordinates' is used to aasign a Wyckoff letter.
+
+2011-08-09  Atsushi Togo  <atz.togo@gmail.com>
+
+	* symmetry.c (sym_get_pure_translation):
+
+	Iterative reduction of symmetry tolerance to find pure
+	translations is implemented as well as different parts.
+
+2011-07-29  Atsushi Togo  <atz.togo@gmail.com>
+
+	* kpoint.c, kpoint.h:
+
+	symmetry_kpoint.c and symmetry_kpoint.h are renamed as kpoint.c
+	and kpoint.h, respectively.
+
+2011-07-06  Atsushi Togo  <atz.togo@gmail.com>
+
+	* site_symmetry.c:
+
+	A set of equivalent atoms is returned. It is accessible
+	through spg_get_dataset. (spglib-1.0.7)
+
+2011-07-05  Atsushi Togo  <atz.togo@gmail.com>
+
+	* site_symmetry.c, sitesym_database.c, spglib-1.0.6:
+
+	Newly added two source files (and also *.h). The part related to
+	site symmetry in refinement.c is moved to site_symmetry.c. Wyckoff
+	position determination is implemented in site_symmetry.c and the
+	database is in sitesym_database.c. The pointers in the structure
+	SpglibDataset are made free by calling spg_free_dataset. It was
+	difficult to implement Wyckoff position determination without
+	Yusuke Seko's formated crystallographic database. I appreciate his
+	kind offer. (spglib-1.0.6)
+
+	* primitive.c (prm_get_primitive):
+
+	The function is modified to return mapping table from input cell
+	to primitive cell as the first argument.
+
+2011-06-18  Atsushi Togo  <atz.togo@gmail.com>
+
+	* symmetry.c:
+
+	OpenMP is included to search translations with each rotation.
+	Compilation with gcc is achived by '-lgomp' and '-fopenmp'.
+
+	* refinement.c:
+
+	Performance tuning was made for 'get_refined_symmetry_operations'.
+
+2011-06-18  Atsushi Togo  <atz.togo@gmail.com>
+
+	* refinement.c:
+
+	In 'ref_get_refined_symmetry_operations', it was forgotten to
+	consider origin shift to obtain symmetry operations from
+	database. This is fixed by modifying translations in
+	'set_translation_with_origin_shift'.
+
+2011-06-15  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spglib-1.0.4:
+
+	The new version of spglib is released. To the next version,
+	implementation of Wyckoff positions is planed.
+
+
+2011-06-15  Atsushi Togo  <atz.togo@gmail.com>
+
+	* pyspglib:
+
+	pyspglib didn't work correctly. It was fixed.
+
+
+2011-06-15  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spglib.c:
+
+	A new function 'spg_get_dataset is implmented. This returns a
+	'SpglibDataset' type structure that is defined in 'spglib.h'. This
+	includes refined informations of crystal symmetry. For example,
+	the symmetry operations are derived based on the operations in
+	database and so they are different from those obtained from
+	'spg_get_symmetry'. Wyckoff positions are to be impmemented.
+
+
+2011-06-13  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spg_database.c:
+
+	A static array of 'symmetry_operations' is compressed because it
+	was very large. It contains symmetry operations of 530 hall
+	symbols. Each space group operation requires a rotation 3x3 matrix
+	and a translation vector, therefore 12 elements were implemented
+	for that. Now it is compressed using ternary numerical system for
+	rotation and duodecimal system for translation. This is achieved because
+	each element of rotation matrix can have only one of {-1,0,1}, and
+	the translation can have one of {0,2,3,4,6,8,9,10} divided by
+	12. Therefore 3^9 * 12^3 = 34012224 different values can map space
+	group operations. In principle, octal numerical system can be used
+	for translation, but duodecimal system is used for the convenient.
+	The fact that determinant of rotation matrix is -1 or 1 could be
+	used as a constraint to reduce the number of mapping space. These
+	may be implemented if more compression is required.
+
+2011-06-10  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spglib.c:
+
+	spg_show_symmetry was removed.
+
+2011-05-17  Atsushi Togo  <atz.togo@gmail.com>
+
+	* primitive.c, etc
+
+	A tolerance to find primitive lattice vectors sometimes fails
+	because found pure translations do not give possible lattice
+	vectors in which the volume ratio of the input cell and primitive
+	cell does not match to the number of pure translations. So
+	iterative tolerance reduction is implemented. The reduced
+	tolerance should be used to find spacegroup and refined cell
+	because to hold consistency with symmetry operations to be found
+	for primitive cell. The reduced tolerance is not used inside
+	symmetry opration search. The tolerance used to find primitive
+	cell is stored in a static variable 'tolerance' in primitive.c and
+	this can be accessed via prm_get_tolerance().
+
+	Old 'prm_get_primitive' was removed and new one is that of
+	'prm_get_primitive_with_pure_trans' renamed. So now pure
+	translations are always required to call to obtain primitive cell.
+
+	When calling 'prm_get_primitive' and if the input cell is already
+	primitive, primitive->size=0 was returned in the previous
+	implementation, but in the new implementation, primitive cell that
+	has smallest lattice vectors is returned.
+
+
+2011-04-21  Atsushi Togo  <atz.togo@gmail.com>
+
+	* refinement.c (refine_cell):
+
+	When an input structure is a primitive cell but the lattice is not
+	smallest, 'refine_cell' didn't work correctly. This is fixed by
+	using new function of 'prm_get_cell_with_smallest_lattice' in
+	primitive.c. This function was originally in spacegroup.c as
+	'get_cell_with_smallest_lattice'. Following this, spacegroup.c,
+	primitive.c, and primitive.h were modified.
+
+2011-03-18  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spglib-1.0.3.1:
+
+	A critical bug in the structure refinment in refinement.c was
+	removed. A tolerance parameter in hall_symbol.c came back to
+	is_hall_symbol.
+
+2011-03-15  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spglib-1.0.3:
+
+	Crystal structure refinement by spg_refine_cell is
+	implemented. Code around tolerance is tunded up, hopefully
+	becoming more robust with large tolerance.
+
+	* refinement.c:
+
+	bravais.{c,h} are renamed to refinement.{c,h}.
+
+2011-03-14  Atsushi Togo  <atz.togo@gmail.com>
+
+	* debug.h (SPGWARNING):
+
+	Debug option of SPGWARNING has been defined. This may be used for
+	beta-tests.
+
+	* bravais.c, spacegrouop.c, hall_symbol.c, lattice.c, primitive.c:
+
+	Tolerance parameter has been reconsidered to make finding
+	spacegroup robust with a loose tolerance value. Tolerance is used
+	for Cartesian distance, norm squared, or volume. It wold be
+	avoided for ratio, reduced position or distance.
+
+	* bravais.c:
+
+	Exact locations of atoms are obtained by get_exact_location in
+	bravais.c.
+
+	* sapcegroup.c:
+
+	Iterative search for hall symbol is implemented in
+	get_hall_number. The tolerance is sequentially reduced until
+	finding a hall symbol. With the reduced tolerance, symmetry
+	operations are researched by sym_reduce_operation. The cost of the
+	reduction of symmetry operations is expeted much smaller than that
+	of the increase of symmetry operations with increasing tolerance.
+
+	* hall_symbol.c:
+
+	All tolerance parameters were kicked out.
+
+	* lattice.c:
+
+	get_base_center is modified to remove the tolerance paremeter. The
+	centring check is now based on
+	integers. lat_smallest_lattice_vector returns 1 or 0 to show if
+	the lattice has non-zero volume or not.
+
+	* primitive.c:
+
+	Primitive lattice is made of pure translations. Previously the
+	primitive lattice vectors are constructed from pure
+	translations. Currently, it is set such that the primitive lattice
+	parameters multiplied with 'intergers' become the original
+	latttice parameters.
+
+	* mathfunc.c (mat_is_int_matrix):
+
+	A macro of INT_PREC (currently set 0.1 ) is used for checking a
+	value is integer or not in mat_is_int_matrix.
+
+2011-02-18  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spglib-1.0.2:
+
+	Bug fix in finding lattice point symmetry (symmetry.c).
+	spg_get_bravais is added and spg_get_international_with_bravais
+	was removed.
+
+2010-12-26  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spglib-1.0.1:
+
+	By the help of Pawel T. Jochym, the setup.py in the ASE-interface,
+	pysgpblib, has been updated for matching the latest spglib.
+
+2010-11-08  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spglib-1.0.0:
+
+	A lot of source code was re-written for this one month. This
+	release contains the algorithms of symmetry opertation finding and
+	space-group type determination which are different from the
+	versions before spglib 0.7.4.
+
+2010-11-08  Atsushi Togo  <atz.togo@gmail.com>
+
+	Algorithm to search basis vectors is changed to that of
+	[Grosse-Kunstleve, Acta Cryst. A55, 383-395 (1999)], which is
+	implemented in lattice.c. bravais.{c,h}, bravais_virtual.{c,h} are
+	removed.  spacegroup_type.{c,h} are moved to spacegroup.{c,h}.
+
+2010-11-05  Atsushi Togo  <atz.togo@gmail.com>
+
+	* lattice.c:
+
+	lattice.c and lattice.h are added. Delaunay reduction is moved
+	there from bravais.c.
+
+2010-11-02  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spglib 1.0-beta:
+
+	New release under the modified BSD license.
+
+	* pointgroup.c:
+
+	Sometimes symmetry operations that don't match point-group type
+	can be found. In the current implementation, some of non-necessary
+	operations are abandoned. For this, get_cast_symmetry,
+	check_pointgroup_condition, ptg_get_symmetry_pointgroup are added.
+	However still this implementation is not perfect. Maybe another
+	strategy is required.
+
+2010-10-27  Atsushi Togo  <atz.togo@gmail.com>
+
+	* primitive.c:
+
+	trim_cell is divided into trim_cell, set_primitive_positions,
+	get_positions_primitive, get_overlap_table. is_overlap is
+	modified to check Cartesian distance, and moved to cel_is_overlap
+	in cell.c.
+
+	* symmetry.c (get_translation):
+
+	Atomic position overlap check part is modified to use
+	cel_is_overlap.
+
+	* cell.c:
+
+	cel_frac_to_cart and cel_cart_to_frac are removed.
+
+
+2010-10-25  Atsushi Togo  <atz.togo@gmail.com>
+
+	* bravais_arc.* is renamed to bravais_virtual.*
+
+	The function is_holohedry is removed.
+
+	* bravais.c:
+
+	brv_set_relative_lattice is added. brv_get_brv_lattice_in_loop is
+	modified for handling RHOMB case flexibly. get_metric was removed
+	and moved to mathfunc.c as mat_get_metric.
+
+	* pointgroup.c:
+
+	The first argument of ptg_get_holohedry is removed, which was used
+	just for debugging.
+
+	* symmetry.c:
+
+	get_space_group_operation is separated from
+	get_operation. sym_get_operation_direct, set_axes and
+	get_lattice_symmetry are newly added. sym_get_operation_direct is
+	the function for finding symmetry operations without relying on
+	Bravais lattice. The lattice symmetry is exhaustively searched
+	through the matrices whose elements are -1, 0, or 1.
+
+	* mathfunc.c:
+
+	mat_get_metric and mat_check_identity_matrix_d3 are added.
+
+
+2010-10-22  Atsushi Togo  <atz.togo@gmail.com>
+
+	* bravais.c:
+
+	The names of local functions starting with brv_... is changed to
+	get_brv_.... Add functions get_brv_cubic_primitive,
+	get_brv_tetra_primitive, get_brv_ortho_primitive to find more
+	variety of lattice transformation matrices.
+
+2010-10-22  Atsushi Togo  <atz.togo@gmail.com>
+
+	The space group type finder is replaced completely. spacegroup.*,
+	spacegroup_data.*, spacegroup_database.* are
+	removed. spacegroup_type.*, spg_database.*, and hall_symbol.* are
+	added. The helper tools to create hall symbol related database are
+	in database directories.
+
+2010-10-09  Atsushi Togo  <atz.togo@gmail.com>
+
+	spglib-0.7.4 is released.
+
+	cel_new_cell is renamed to cel_alloc_cell, and cel_alloc_cell
+	returns a poiter of the Cell structure. cel_delete_cell is renamed
+	to cel_free_cell.
+
+	sym_new_symmetry is renamed to sym_alloc_symmetry, and
+	sym_alloc_symmetry returns a poiter of the Symmetry
+	structure. sym_delete_symmetry is renamed to sym_free_symmetry.
+
+	The other functions returns Cell and Symmetry structures are
+	modified to return those pointers.
+
+2010-10-05  Atsushi Togo  <atz.togo@gmail.com>
+
+	* symmetry.c (get_index_with_least_atoms):
+
+	To search translation, it is efficient if an atom in least atoms
+	with an atomic type is used for the search origine. This function
+	looks for it. This is expected to accelerate especially when the
+	cell is huge and the lattice has high symmetry, but the number of
+	atoms of some atomic type is few.
+
+2010-10-04  Atsushi Togo  <atz.togo@gmail.com>
+
+	* primitive.c (prm_get_primitive_with_pure_trans):
+
+	Create new function 'prm_get_primitive_with_pure_trans' to avoid
+	searching same pure translations many times, which leads some
+	speed up.
+
+2010-09-26  Atsushi Togo  <atz.togo@gmail.com>
+
+	'const' of multidimensional arrays are removed. Just to notify it
+	should be 'const', 'SPGCONST' replaces those 'const', however it
+	is defined as nothing in mathfunc.h. This is done because of
+	avoiding lots of waring in C-compiler of 'gcc: incompatible
+	pointer type'.
+
+	* spglib_f.c:
+
+	spglib_f.c is updated and some examples are found in example.f90.
+
+2010-04-12  Atsushi Togo  <atz.togo@gmail.com>
+
+	* symmetry.c, mathfunc.c:
+
+	To make the translations clean, sym_get_fractional_translation in
+	symmetry.c and mat_Dmod1 in mathfunc.c are
+	added. sym_get_fractional_translation is supposed to look for the
+	translation that is most closest to one of 0, 1/6,
+	1/4, 1/3, 1/2, 2/3, 3/4, and 5/6. The first implementation
+	contained a bug and Jorg Meyer solved this.
+
+2010-03-25  Atsushi Togo  <atz.togo@gmail.com>
+
+	* bravais_art.c:
+
+	Space group of the virtual structures in the test directory
+	failed. Fixed points are as follows:
+	P-Cubic, P-Tetra, P-Ortho to Base center monoclinic, which was
+	collect in the old code, and I-Cubic to F-Orthorhombic.
+	Cubic to Rhombohedral. To obtain correct principal axes,
+	'is_rhombo' was implemented.
+
+2010-03-22  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spglib.h, spglib.c:
+
+	spg_get_bravais_lattice is removed.
+
+	spg_get_conventional_symmetry is implemented. This is used to get
+	symmetry operations for the conventional unit cell. The
+	conventional unit cell is searched from the primitive cell found
+	from the input cell, i.e., even if the input cell is not
+	primitive, the primitive cell is automatically searched and the
+	conventional cell is determined. The Bravais lattice of the
+	conventinal cell is returned as bravais_lattice. This
+	bravais_lattice is found including the internal atomic
+	positions. Therefore artificial cell is expected to be handled
+	correctly.
+
+2010-02-11  Atsushi Togo  <atz.togo@gmail.com>
+
+	* primitive.c:
+
+	There was a problem that primitive cell is not well found in naive
+	cases (inconsistency between tolerances in finding pure
+	translations and in finding overlapping atoms). David Lonie
+	implemented an iterative way to adjust symmetry finder tolerance
+	on the fly.
+
+2009-07-15  Atsushi Togo  <atz.togo@gmail.com>
+
+	* bravais.c:
+
+	Bug to find bravais lattice in FCC and rhombohedral, when the cell
+	is a supercell. This is probably ad-hoc fix.
+
+2009-05-19  Atsushi Togo  <atz.togo@gmail.com>
+
+	* symmetry_kpoint.c:
+
+	Time reversal symmetry is included.
+
+	* bravais.c (brv_smallest_lattice_vector):
+
+	Delaunay reduction is implemented instead of ABINIT
+	implementation.
+
+2009-03-09  Atsushi Togo  <atz.togo@gmail.com>
+
+	* symmetry.c:
+
+	Critical bug for finding symmetry for primitive cell which is
+	reduced from convensional cell.
+
+2009-03-05  Atsushi Togo  <atz.togo@gmail.com>
+
+	* symmetry_kpoint.c:
+
+	Functions to look for the irreducible points in reciprocal space
+	are implemented.
+
+2009-02-25  Atsushi Togo  <atz.togo@gmail.com>
+
+	* bravais_art.c:
+
+	Hexagonal to Orthorhombic symmetry lowering case is implemented.
+
+	* python module:
+
+	Python module is implemented. To use them, numpy is
+	required. Interface for ASE is implemented.
+
+2008-08-22  Atsushi Togo  <atz.togo@gmail.com>
+
+	* bravais_art.c:
+
+	This file is used for the cases that the lattice has higher
+	symmetry than the symmetry given by atomic positions. This does
+	not affect to the symmetry operations that is firstly obtained by
+	assuming the bravais lattice having high symmetry. Thus this file
+	works only for changing its bravais lattice. The information about
+	bravais lattice is used for only determing space group. Even if
+	the code in this file fails, or let's say, space group
+	determination fails), we can not say the symmetry operations are
+	wrong.
+
+2008-07-11  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Most of the code
+
+	The procedure for searching a Bravais lattice from a primitive
+	cell is rewritten. The algorithm is also totally changed.
+
+	* test directory
+
+	For the test of space group search, 'test' directory is
+	created. Many POSCAR's are prepared in this directory. For running
+	tests, a small ruby code is written and put into this directory.
+
+2008-05-28  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spacegroup_data.c (get_spacegroup_data_special_case):
+
+	Bug fix for space group determinations for special cases (Pcc2,
+	Pbam, Pccn).
+
+2008-05-25  Atsushi Togo  <atz.togo@gmail.com>
+
+	* *.c, *.h :
+
+	Many codes are re-built. Many functions are changed to
+	"static". The first three characters of public functions are
+	re-named using those file names.
+
+	* bravais.c :
+
+	Monoclinic is possibly improved. Monoclinic is difficult. It may
+	contain further bugs...
+
+2008-05-01  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spacegroup.c (get_proper_rotation_class_6axis):
+
+	exit(1) is inserted.
+
+	* bravais.c/h:
+
+	"lattice_symmetry" is removed from the "Bravais" structure.
+
+	* spglib.h:
+
+	Misspelled function prototypes of spg_get_symmetry and
+	spg_check_symmetry are corrected.
+
+2008-04-23  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Many patches by Xavier Andrade
+
+	For fixing many warning in many codes and gcc-4.3 related problem
+	in bravais.c.

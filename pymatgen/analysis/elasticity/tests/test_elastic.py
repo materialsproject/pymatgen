@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-import unittest
+import unittest2 as unittest
 import os
 
 import numpy as np
