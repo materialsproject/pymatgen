@@ -10,6 +10,7 @@ This module contains the object used to describe the possible bonded atoms based
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
 __version__ = "2.0"
 __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
@@ -18,7 +19,9 @@ __date__ = "Feb 20, 2016"
 
 from operator import attrgetter
 
+import logging
 import numpy as np
+import time
 from pyhull.voronoi import VoronoiTess
 from pymatgen.core.structure import Structure
 from pymatgen.core.sites import PeriodicSite
@@ -28,7 +31,6 @@ from pymatgen.analysis.structure_analyzer import solid_angle
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import my_solid_angle
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
-
 
 
 def from_bson_voronoi_list(bson_nb_voro_list, structure):
@@ -90,16 +92,25 @@ class DetailedVoronoiContainer(MSONable):
         else:
             indices = isites
         self.structure = structure
+        logging.info('Setting Voronoi list')
         if voronoi_list is not None:
             self.voronoi_list = voronoi_list
         else:
             self.setup_voronoi_list(indices=indices, voronoi_cutoff=voronoi_cutoff)
+        logging.info('Setting neighbors distances and angles')
+        t1 = time.clock()
         self.setup_neighbors_distances_and_angles(indices=indices)
+        t2 = time.clock()
+        logging.info('Neighbors distances and angles set up in {:.2f} seconds'.format(t2-t1))
         if neighbors_lists is None:
             self.setup_neighbors(additional_conditions=self.additional_conditions, valences=self.valences)
         else:
             self.neighbors_lists = neighbors_lists
+        logging.info('Setting unique coordinations')
+        t1 = time.clock()
         self.setup_unique_coordinations()
+        t2 = time.clock()
+        logging.info('Unique coordinations set up in {:.2f} seconds'.format(t2-t1))
 
     def setup_voronoi_list(self, indices, voronoi_cutoff):
         """
@@ -109,9 +120,13 @@ class DetailedVoronoiContainer(MSONable):
         :raise RuntimeError: If an infinite vertex is found in the voronoi construction
         """
         self.voronoi_list = [None] * len(self.structure)
+        logging.info('Getting all neighbors in structure')
         struct_neighbors = self.structure.get_all_neighbors(voronoi_cutoff, include_index=True)
+        t1 = time.clock()
+        logging.info('Setting up Voronoi list :')
 
-        for isite in indices:
+        for jj, isite in enumerate(indices):
+            logging.info('  - Voronoi analysis for site #{:d} ({:d}/{:d})'.format(isite, jj+1, len(indices)))
             site = self.structure[isite]
             neighbors1 = [(site, 0.0, isite)]
             neighbors1.extend(struct_neighbors[isite])
@@ -150,6 +165,8 @@ class DetailedVoronoiContainer(MSONable):
                 dd['weighted_angle'] = dd['angle'] / maxangle
                 dd['weighted_distance'] = dd['distance'] / mindist
             self.voronoi_list[isite] = results
+        t2 = time.clock()
+        logging.info('Voronoi list set up in {:.2f} seconds'.format(t2-t1))
 
     def setup_neighbors_distances_and_angles(self, indices):
         """
@@ -423,7 +440,6 @@ class DetailedVoronoiContainer(MSONable):
         vertices_dist_ang_list = []
         text_info_dist_ang_list = []
         for i_cn_map, cn_map in enumerate(cn_maps_parameter_indices['cn_maps']):
-            print('In cn map ', cn_map)
             parameter_indices_list = cn_maps_parameter_indices['parameter_indices'][i_cn_map]
             vertices_dist_ang_indices = self._get_vertices_dist_ang_indices(parameter_indices_list)
             vertices_dist_ang = []
@@ -440,9 +456,6 @@ class DetailedVoronoiContainer(MSONable):
             ang = bounds_and_limits['angle_bounds'][iang]
             vertices_dist_ang.append([dist, ang])
             idist, iang = vertices_dist_ang_indices[3]
-            print('Dist ang indices ', vertices_dist_ang_indices)
-            print('distance_bounds ', bounds_and_limits['distance_bounds'])
-            print('angle_bounds ', bounds_and_limits['angle_bounds'])
             dist = bounds_and_limits['distance_bounds'][idist+1]
             ang = bounds_and_limits['angle_bounds'][iang]
             vertices_dist_ang.append([dist, ang])
