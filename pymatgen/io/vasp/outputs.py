@@ -4,40 +4,39 @@
 
 from __future__ import division, unicode_literals, print_function
 
-import os
 import glob
-import re
-import math
 import itertools
-from io import StringIO
 import logging
-from collections import defaultdict
-import xml.etree.cElementTree as ET
+import math
+import os
+import re
 import warnings
-
-from six.moves import map, zip
-from six import string_types
+import xml.etree.cElementTree as ET
+from collections import defaultdict
+from io import StringIO
 
 import numpy as np
-
 from monty.io import zopen, reverse_readfile
-from monty.re import regrep
+from monty.json import MSONable
 from monty.json import jsanitize
+from monty.re import regrep
+from six import string_types
+from six.moves import map, zip
 
-from pymatgen.util.io_utils import clean_lines, micro_pyawk
+from pymatgen.analysis.nmr import NMRChemicalShiftNotation
+from pymatgen.core.composition import Composition
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import unitized
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
-from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
-from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.electronic_structure.bandstructure import BandStructure, \
     BandStructureSymmLine, get_reconstructed_band_structure
-from pymatgen.core.lattice import Lattice
-from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
+from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
+from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.entries.computed_entries import \
     ComputedEntry, ComputedStructureEntry
-from monty.json import MSONable
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
+from pymatgen.util.io_utils import clean_lines, micro_pyawk
 
 """
 Classes for reading/manipulating/writing VASP ouput files.
@@ -510,10 +509,21 @@ class Vasprun(MSONable):
         Final energy from the vasp run.
         """
         try:
-            return self.ionic_steps[-1]["electronic_steps"][-1]["e_0_energy"]
+            final_istep = self.ionic_steps[-1]
+            if final_istep["e_wo_entrp"] != final_istep[
+                'electronic_steps'][-1]["e_0_energy"]:
+                warnings.warn("Final e_wo_entrp differs from the final "
+                              "electronic step. VASP may have included some "
+                              "corrections, e.g., vdw. Vasprun will return "
+                              "the final e_wo_entrp, i.e., including "
+                              "corrections in such instances.")
+                return final_istep["e_wo_entrp"]
+            return final_istep['electronic_steps'][-1]["e_0_energy"]
         except (IndexError, KeyError):
-            # not all calculations have a total energy, i.e. GW
-            return np.inf
+            warnings.warn("Calculation does not have a total energy. "
+                          "Possibly a GW or similar kind of run. A value of "
+                          "infinity is returned.")
+            return float('inf')
 
     @property
     def complete_dos(self):
@@ -1212,6 +1222,18 @@ class Outcar(MSONable):
         Note that this data is not always present.  LORBIT must be set to some
         other value than the default.
 
+    .. attribute:: chemical_shifts
+
+        Chemical Shift on each ion as a tuple of ChemicalShiftNotation, e.g.,
+        (cs1, cs2, ...)
+
+    .. attribute:: efg
+
+        Electric Field Gradient (EFG) tensor on each ion as a tuple of dict, e.g.,
+        ({"cq": 0.1, "eta", 0.2, "nuclear_quadrupole_moment": 0.3},
+         {"cq": 0.7, "eta", 0.8, "nuclear_quadrupole_moment": 0.9},
+         ...)
+
     .. attribute:: charge
 
         Charge on each ion as a tuple of dict, e.g.,
@@ -1249,6 +1271,8 @@ class Outcar(MSONable):
         # data from end of OUTCAR
         charge = []
         mag = []
+        cs = []
+        efg = []
         header = []
         run_stats = {}
         total_mag = None
@@ -1347,9 +1371,44 @@ class Outcar(MSONable):
         else:
             pass
 
+        # NMR Chemical Shift Tensors
+        cs_tag_title = "CSA tensor (J. Mason, Solid State Nucl. Magn. Reson. 2, 285 (1993))"
+        if cs_tag_title in all_lines:
+            sec1 = all_lines[all_lines.index(cs_tag_title):]
+            sec2_tag = "(absolute, valence and core)"
+            sec3 = sec1[sec1.index(sec2_tag) + 1:]
+            section_end_tag = "-" * 81
+            csa_section = sec3[:sec3.index(section_end_tag)]
+            for clean in csa_section:
+                tokens = clean.split()
+                tensor_tokens = [float(t) for t in tokens[-3:]]
+                sigma_iso, omega, kappa = tensor_tokens
+                tensor = NMRChemicalShiftNotation.from_maryland_notation(sigma_iso, omega, kappa)
+                cs.append(tensor)
+        else:
+            pass
+
+        efg_tag_title = "NMR quadrupolar parameters"
+        if efg_tag_title in all_lines:
+            sec1 = all_lines[all_lines.index(efg_tag_title) + 8:]
+            section_end_tag = "-" * 70
+            efg_section = sec1[:sec1.index(section_end_tag)]
+            for clean in efg_section:
+                tokens = clean.split()
+                tensor_tokens = [float(t) for t in tokens[-3:]]
+                cq, eta, nuclear_quadrupole_moment = tensor_tokens
+                d = {"cq": cq,
+                     "eta": eta,
+                     "nuclear_quadrupole_moment": nuclear_quadrupole_moment}
+                efg.append(d)
+        else:
+            pass
+
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
         self.charge = tuple(charge)
+        self.chemical_shifts = tuple(cs)
+        self.efg = tuple(efg)
         self.efermi = efermi
         self.nelect = nelect
         self.total_mag = total_mag
@@ -1823,7 +1882,8 @@ class Outcar(MSONable):
              "@class": self.__class__.__name__, "efermi": self.efermi,
              "run_stats": self.run_stats, "magnetization": self.magnetization,
              "charge": self.charge, "total_magnetization": self.total_mag,
-             "nelect": self.nelect, "is_stopped": self.is_stopped}
+             "nelect": self.nelect, "is_stopped": self.is_stopped,
+             "chemical_shifts": self.chemical_shifts, "efg": self.efg}
 
         if self.lepsilon:
             d.update({'piezo_tensor': self.piezo_tensor,

@@ -46,11 +46,14 @@ try:
     import pymatgen._spglib as spg
 except ImportError:
     try:
-        import pyspglib._spglib as spg
+        import spglib._spglib as spg
     except ImportError:
-        msg = "Spglib required. Please either run python setup.py install" + \
-              " for pymatgen, or install pyspglib from spglib."
-        raise ImportError(msg)
+        try:
+            import pyspglib._spglib as spg
+        except ImportError:
+            msg = "Spglib required. Please either run python setup.py install" + \
+                  " for pymatgen, or install pyspglib from spglib."
+            raise ImportError(msg)
 
 
 logger = logging.getLogger(__name__)
@@ -112,9 +115,11 @@ class SpacegroupAnalyzer(object):
                 'translations',
                 'wyckoffs',
                 'equivalent_atoms',
-                'brv_lattice',
-                'brv_types',
-                'brv_positions')
+                'std_lattice',
+                'std_types',
+                'std_positions',
+                'pointgroup_number',
+                'pointgroup')
         for key, data in zip(keys, spg.dataset(self._transposed_latt.copy(),
                                                self._positions.copy(),
                                                self._numbers, self._symprec,
@@ -135,11 +140,12 @@ class SpacegroupAnalyzer(object):
         dataset['wyckoffs'] = [letters[x] for x in dataset['wyckoffs']]
         dataset['equivalent_atoms'] = np.array(dataset['equivalent_atoms'],
                                                dtype='intc')
-        dataset['brv_lattice'] = np.array(np.transpose(dataset['brv_lattice']),
+        dataset['std_lattice'] = np.array(np.transpose(dataset['std_lattice']),
                                           dtype='double', order='C')
-        dataset['brv_types'] = np.array(dataset['brv_types'], dtype='intc')
-        dataset['brv_positions'] = np.array(dataset['brv_positions'],
+        dataset['std_types'] = np.array(dataset['std_types'], dtype='intc')
+        dataset['std_positions'] = np.array(dataset['std_positions'],
                                             dtype='double', order='C')
+        dataset['pointgroup'] = dataset['pointgroup'].strip()
         self._spacegroup_data = dataset
 
     def get_spacegroup(self):
@@ -447,26 +453,15 @@ class SpacegroupAnalyzer(object):
             return conv
 
         if lattice == "rhombohedral":
-            conv = self.get_refined_structure()
+            #check if the conventional representation is hexagonal or rhombohedral
             lengths, angles = conv.lattice.lengths_and_angles
-            a = lengths[0]
-            alpha = math.pi * angles[0] / 180
-            new_matrix = [
-                [a * cos(alpha / 2), -a * sin(alpha / 2), 0],
-                [a * cos(alpha / 2), a * sin(alpha / 2), 0],
-                [a * cos(alpha) / cos(alpha / 2), 0,
-                 a * math.sqrt(1 - (cos(alpha) ** 2 / (cos(alpha / 2) ** 2)))]]
-            new_sites = []
-            latt = Lattice(new_matrix)
-            for s in conv:
-                new_s = PeriodicSite(
-                    s.specie, s.frac_coords, latt,
-                    to_unit_cell=True, properties=s.properties)
-                if not any(map(new_s.is_periodic_image, new_sites)):
-                    new_sites.append(new_s)
-            return Structure.from_sites(new_sites)
+            if abs(lengths[0]-lengths[2]) < 0.0001:
+                transf = np.eye
+            else:
+                transf = np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]],
+                                  dtype=np.float) / 3
 
-        if "I" in self.get_spacegroup_symbol():
+        elif "I" in self.get_spacegroup_symbol():
             transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]],
                               dtype=np.float) / 2
         elif "F" in self.get_spacegroup_symbol():
@@ -491,6 +486,27 @@ class SpacegroupAnalyzer(object):
                 properties=s.properties)
             if not any(map(new_s.is_periodic_image, new_sites)):
                 new_sites.append(new_s)
+
+        if lattice == "rhombohedral":
+            prim = Structure.from_sites(new_sites)
+            lengths, angles = prim.lattice.lengths_and_angles
+            a = lengths[0]
+            alpha = math.pi * angles[0] / 180
+            new_matrix = [
+                [a * cos(alpha / 2), -a * sin(alpha / 2), 0],
+                [a * cos(alpha / 2), a * sin(alpha / 2), 0],
+                [a * cos(alpha) / cos(alpha / 2), 0,
+                 a * math.sqrt(1 - (cos(alpha) ** 2 / (cos(alpha / 2) ** 2)))]]
+            new_sites = []
+            latt = Lattice(new_matrix)
+            for s in prim:
+                new_s = PeriodicSite(
+                    s.specie, s.frac_coords, latt,
+                    to_unit_cell=True, properties=s.properties)
+                if not any(map(new_s.is_periodic_image, new_sites)):
+                    new_sites.append(new_s)
+            return Structure.from_sites(new_sites)
+
         return Structure.from_sites(new_sites)
 
     def get_conventional_standard_structure(

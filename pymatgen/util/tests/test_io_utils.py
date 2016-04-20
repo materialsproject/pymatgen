@@ -16,7 +16,7 @@ __maintainer__ = "Anubhav Jain"
 __email__ = "ajain@lbl.gov"
 __date__ = "Nov 14, 2012"
 
-import unittest
+import unittest2 as unittest
 import os
 
 from pymatgen.util.testing import PymatgenTest

@@ -114,6 +114,9 @@ DERIVED_UNITS = {
     },
     "force": {
         "N": {"kg": 1, "m": 1, "s": -2},
+        "KN": {"kg": 1, "m": 1, "s": -2, 1000: 1},
+        "MN": {"kg": 1, "m": 1, "s": -2, 1e6: 1},
+        "GN": {"kg": 1, "m": 1, "s": -2, 1e9: 1},
     },
     "pressure": {
         "Pa": {"kg": 1, "m": -1, "s": -2},
@@ -122,7 +125,10 @@ DERIVED_UNITS = {
         "GPa": {"kg": 1, "m": -1, "s": -2, 1e9: 1}
     },
     "power": {
-        "W": {"m": 2, "kg": 1, "s": -3}
+        "W": {"m": 2, "kg": 1, "s": -3},
+        "KW": {"m": 2, "kg": 1, "s": -3, 1000: 1},
+        "MW": {"m": 2, "kg": 1, "s": -3, 1e6: 1},
+        "GW": {"m": 2, "kg": 1, "s": -3, 1e9: 1}
     },
     "emf": {
         "V": {"m": 2, "kg": 1, "s": -3, "A": -1}
@@ -143,6 +149,7 @@ DERIVED_UNITS = {
 
 
 ALL_UNITS = dict(list(BASE_UNITS.items()) + list(DERIVED_UNITS.items()))
+SUPPORTED_UNIT_NAMES = tuple([i for d in ALL_UNITS.values() for i in d.keys()])
 
 # Mapping unit name --> unit type (unit names must be unique).
 _UNAME2UTYPE = {}
