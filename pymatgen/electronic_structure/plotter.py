@@ -411,7 +411,11 @@ class BSPlotter(object):
         plt = get_publication_quality_plot(12, 8)
         from matplotlib import rc
         import scipy.interpolate as scint
-        rc('text', usetex=True)
+        try:
+            rc('text', usetex=True)
+        except:
+            # Fall back on non Tex if errored.
+            rc('text', usetex=False)
 
         # main internal config options
         e_min = -4
