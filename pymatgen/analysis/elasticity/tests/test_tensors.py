@@ -5,8 +5,57 @@ import math
 
 import numpy as np
 
-from pymatgen.analysis.elasticity.tensors import SquareTensor
+from pymatgen.analysis.elasticity.tensors import TensorBase, SquareTensor
 from pymatgen.util.testing import PymatgenTest
+
+class TensorBaseTest(PymatgenTest):
+    def setUp(self):
+        self.rand_rank2 = TensorBase(np.random.randn(3,3))
+        self.rand_rank3 = TensorBase(np.random.randn(3,3,3))
+        self.rand_rank4 = TensorBase(np.random.randn(3,3,3,3))
+        self.low_val = TensorBase([[1e-6, 1 + 1e-5, 1e-6],
+                                   [1 + 1e-6, 1e-6, 1e-6],
+                                   [1e-7, 1e-7, 1 + 1e-5]])
+    
+    def test_new(self):
+        bad_2 = np.zeros((4, 4))
+        bad_3 = np.zeros((4, 4, 4))
+        self.assertRaises(ValueError, TensorBase, bad_2)
+        self.assertRaises(ValueError, TensorBase, bad_3)
+        self.assertEqual(self.rand_rank2.rank, 2)
+        self.assertEqual(self.rand_rank3.rank, 3)
+        self.assertEqual(self.rand_rank4.rank, 4)
+
+    def test_zeroed(self):
+        self.assertArrayEqual(self.low_val.zeroed(),
+                              TensorBase([[0, 1 + 1e-5, 0],
+                                          [1 + 1e-6, 0, 0],
+                                          [0, 0, 1 + 1e-5]]))
+        self.assertArrayEqual(self.low_val.zeroed(tol=1e-6),
+                              TensorBase([[1e-6, 1 + 1e-5, 1e-6],
+                                          [1 + 1e-6, 1e-6, 1e-6],
+                                          [0, 0, 1 + 1e-5]]))
+        self.assertArrayEqual(TensorBase([[1e-6, -30, 1],
+                                          [1e-7, 1, 0],
+                                          [1e-8, 0, 1]]).zeroed(),
+                              TensorBase([[0, -30, 1],
+                                          [0, 1, 0],
+                                          [0, 0, 1]]))
+
+    def test_transform(self):
+        pass
+
+    def test_symmetrized(self):
+        pass
+
+    def test_is_symmetric(self):
+        pass
+
+    def test_symmetrize_to_structure(self):
+        pass
+
+    def test_is_symmetric_to_structure(self):
+        pass
 
 
 class SquareTensorTest(PymatgenTest):
@@ -120,22 +169,7 @@ class SquareTensorTest(PymatgenTest):
         self.assertArrayAlmostEqual(np.eye(3),
                                     np.dot(u, np.conjugate(np.transpose(u))))
 
-    def test_zeroed(self):
-        self.assertArrayEqual(self.low_val.zeroed(),
-                              SquareTensor([[0, 1 + 1e-5, 0],
-                                        [1 + 1e-6, 0, 0],
-                                        [0, 0, 1 + 1e-5]]))
-        self.assertArrayEqual(self.low_val.zeroed(tol=1e-6),
-                              SquareTensor([[1e-6, 1 + 1e-5, 1e-6],
-                                        [1 + 1e-6, 1e-6, 1e-6],
-                                        [0, 0, 1 + 1e-5]]))
-        self.assertArrayEqual(SquareTensor([[1e-6, -30, 1],
-                                        [1e-7, 1, 0],
-                                        [1e-8, 0, 1]]).zeroed(),
-                              SquareTensor([[0, -30, 1],
-                                        [0, 1, 0],
-                                        [0, 0, 1]]))
-
+    
 
 if __name__ == '__main__':
     unittest.main()

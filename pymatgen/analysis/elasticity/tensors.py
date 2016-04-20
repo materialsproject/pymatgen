@@ -6,7 +6,7 @@ from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
 
 """
-This module provides a base class, for tensor-like objects, methods for
+This module provides a base class for tensor-like objects and methods for
 basic tensor manipulation.  It also provides a class, SquareTensor,
 that provides basic methods for creating and manipulating rank 2 tensors
 """
@@ -16,8 +16,8 @@ __author__ = "Maarten de Jong, Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Wei Chen, Mark Asta, Anubhav Jain"
 __version__ = "1.0"
-__maintainer__ = "Maarten de Jong"
-__email__ = "maartendft@gmail.com"
+__maintainer__ = "Joseph Montoya"
+__email__ = "montoyjh@lbl.gov"
 __status__ = "Development"
 __date__ = "March 22, 2012"
 
@@ -25,6 +25,7 @@ __date__ = "March 22, 2012"
 from scipy.linalg import polar
 import numpy as np
 import itertools
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 class TensorBase(np.ndarray):
     """
@@ -84,30 +85,71 @@ class TensorBase(np.ndarray):
         new_tensor = self.copy()
         new_tensor[abs(new_tensor) < tol] = 0
         return new_tensor
-    
+
+    def transform(self, symm_op):
+        """
+        Applies a transformation (via a symmetry operation) to a tensor. 
+
+        Args:
+            symm_op (3x3 array-like): a symmetry operation to apply to the tensor
+        """
+
+        return symm_op.transform_tensor(self)
+
     @property
     def symmetrized(self):
         """
-        Returns a symmetrized matrix from the input matrix,
-        calculated by taking the sum of the matrix and its
-        transpose
+        Returns a generally symmetrized tensor, calculated by taking 
+        the sum of the tensor and its transpose with respect to all 
+        possible permutations of indices
         """
         perms = list(itertools.permutations(range(self.rank)))
         return sum([np.transpose(self, ind) for ind in perms]) / len(perms)
 
-    @property
     def is_symmetric(self, tol=1e-5):
         """
         Tests whether a tensor is symmetric or not based on the residual
         with its symmetric part, from self.symmetrized
+
+        Args:
+            tol (float): tolerance to test for symmetry
         """
         return (self - self.symmetrized < tol).all()
+
+    def symmetrize_to_structure(self, structure, symprec = 0.1):
+        """
+        Returns a tensor that is invariant with respect to symmetry
+        operations corresponding to a structure
+
+        Args: 
+            structure (Structure): structure from which to generate 
+                symmetry operations
+            symprec (float): symmetry tolerance for the Spacegroup Analyzer
+                used to generate the symmetry operations
+        """
+        sga = SpacegroupAnalyzer(structure, symprec)
+        symm_ops = sga.get_symmetry_operations()
+        return sum([self.transform(symm_op)
+                    for symm_op in symm_ops]) / len(symm_ops)
+
+    def is_symmetric_to_structure(self, tol=1e-2):
+        """
+        Tests whether a tensor is invariant with respect to the
+        symmetry operations of a particular structure by testing
+        whether the residual of the symmetric portion is below a 
+        tolerance
+        
+        Args:
+            tol (float): tolerance for symmetry testing
+        """
+
+        return (self - self.symmetrize_to_structure(structure) < tol).all()
 
 
 class SquareTensor(TensorBase):
     """
     Base class for doing useful general operations on second rank tensors
-    without restrictions on what type (stress, elastic, strain etc.).
+    without restrictions on what type (stress, strain etc.).
     """
 
     def __new__(cls, input_array):
@@ -151,18 +193,6 @@ class SquareTensor(TensorBase):
         """
         return np.linalg.det(self)
 
-    def is_symmetric(self, tol=1e-5):
-        """
-        Test to see if tensor is symmetric to a user-defined tolerance.
-        This is determined by subtracting the transpose; if any of the
-        resultant elements are above the specified tolerance, returns
-        False.  Otherwise returns true.
-
-        Args:
-            tol (float): tolerance to symmetry test
-        """
-        return (np.abs(self - self.trans) < tol).all()
-
     def is_rotation(self, tol=1e-5):
         """
         Test to see if tensor is a valid rotation matrix, performs a
@@ -178,23 +208,6 @@ class SquareTensor(TensorBase):
 
         return (np.abs(self.inv - self.trans) < tol).all() \
             and (np.linalg.det(self) - 1. < tol)
- 
-    def rotate(self, rotation):
-        """
-        Returns a rotated tensor based on input of a another
-        rotation tensor.
-
-        Args:
-            rotation (3x3 array-like): rotation tensor, is tested
-                for rotation properties and then operates on self
-        """
-        if self.shape != (3, 3):
-            raise NotImplementedError("Rotations are only implemented for "
-                                      "3x3 tensors.")
-        rotation = SquareTensor(rotation)
-        if not rotation.is_rotation():
-            raise ValueError("Specified rotation matrix is invalid")
-        return np.dot(rotation, np.dot(self, rotation.trans))
 
     def get_scaled(self, scale_factor):
         """
@@ -213,11 +226,7 @@ class SquareTensor(TensorBase):
         which are the values of the coefficients of the characteristic
         polynomial for the matrix
         """
-        if self.shape == (3, 3):
-            return np.poly(self)[1:]*np.array([-1, 1, -1])
-        else:
-            raise ValueError("Principal invariants is only intended for use "
-                             "with 3x3 SquareTensors")
+        return np.poly(self)[1:]*np.array([-1, 1, -1])
 
     def polar_decomposition(self, side='right'):
         """

@@ -68,7 +68,7 @@ class ElasticTensor(TensorBase):
         return obj 
 
     @classmethod
-    def from_voigt(cls, voigt_matrix):
+    def from_voigt(cls, voigt_matrix, tol=1e-2):
         """
         Constructor based on the voigt notation tensor
 
@@ -78,8 +78,12 @@ class ElasticTensor(TensorBase):
         """
         voigt_matrix = np.array(voigt_matrix)
         if voigt_matrix.shape != (6, 6):
-            raise ValueError("from_voigt takes a 6x6 array corresponding to "
+            raise ValueError("From_voigt takes a 6x6 array corresponding to "
                              "the elastic tensor in voigt notation as input.")
+
+        if not (voigt_matrix - np.transpose(voigt_matrix) < tol).all():
+            warnings.warn("Elastic tensor input is not symmetric!")
+
         c = np.zeros((3, 3, 3, 3))
         for p in range(6):
             for q in range(6):
@@ -193,7 +197,6 @@ class ElasticTensor(TensorBase):
         new_tensor = symm_op.transform_tensor(self.full_tensor)
         return ElasticTensor(new_tensor)
 
-
     def energy_density(self, strain):
         """
         Calculates the elastic energy density due to a strain
@@ -205,21 +208,6 @@ class ElasticTensor(TensorBase):
             np.dot(self.voigt, Strain(strain).voigt))/2 * GPA_EV
 
         return e_density
-
-
-    def check_symmetry(self, structure, symprec = 0.1):
-        """
-        """
-
-    def symmetrize_to_structure(self, structure, symprec = 0.1):
-        """
-        Returns an elastic tensor that is symmetrized according
-        to a structure's rotation symmetry operations
-        """
-
-        sg = SpacegroupAnalyzer(structure, symprec)
-        pass
-        #numpy.mean([
 
     @classmethod
     def from_strain_stress_list(cls, strains, stresses):
@@ -238,9 +226,9 @@ class ElasticTensor(TensorBase):
         stresses = np.array([Stress(stress).voigt for stress in stresses])
         with warnings.catch_warnings(record=True):
             strains = np.array([Strain(strain).voigt for strain in strains])
-
-        return cls.from_voigt(np.transpose(np.dot(np.linalg.pinv(strains), 
-                                                  stresses)))
+        
+        voigt_fit = np.transpose(np.dot(np.linalg.pinv(strains), stresses))
+        return cls.from_voigt(voigt_fit)
 
     @classmethod
     def from_stress_dict(cls, stress_dict, tol=0.1, vasp=True, symmetry=False):
@@ -270,3 +258,14 @@ class ElasticTensor(TensorBase):
         c = cls.from_voigt(c_ij)
         c = c.zeroed()
         return c
+
+    @property
+    def voigt_symmetrized(self):
+        """
+        Reconstructs the elastic tensor by symmetrizing the voigt
+        notation tensor, to allow for legacy behavior
+        """
+
+        v = self.voigt
+        new_v = 0.5 * (np.transpose(v) + v)
+        return ElasticTensor.from_voigt(new_v)

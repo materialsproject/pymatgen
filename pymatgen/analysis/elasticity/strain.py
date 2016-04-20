@@ -141,30 +141,28 @@ class DeformedStructureSet(object):
         self.undeformed_structure = rlxd_str
         self.deformations = []
         self.def_structs = []
-        # normal_deformations = [Deformation
+
+        # Generate deformations
+        for ind in [(0, 0), (1, 1), (2, 2)]:
+            for amount in norm_deformations:
+                defo = Deformation.from_index_amount(ind, amount)
+                self.deformations.append(defo)
+
+        for ind in [(0, 1), (0, 2), (1, 2)]:
+            for amount in shear_deformations:
+                defo = Deformation.from_index_amount(ind, amount)
+                self.deformations.append(defo)
+
+        # Perform symmetry reduction if specified
         if symmetry:
-            all_defos = norm_deformations + shear_deformations
             sga = SpacegroupAnalyzer(self.undeformed_structure, tol = 0.1)
-            symm_ops = sga.get_symmetry_operations()
-            new_defos = symm_reduce(symm_ops, all_defos)
-        else:
-            self.symmetry = None
-            # Determine normal deformation gradients
-            # Apply normal deformations
-            for ind in [(0, 0), (1, 1), (2, 2)]:
-                for amount in norm_deformations:
-                    defo = Deformation.from_index_amount(ind, amount)
-                    self.deformations.append(defo)
-                    self.def_structs.append(defo.apply_to_structure(rlxd_str))
+            symm_ops = sga.get_symmetry_operations(cartesian=True)
+            self.deformations = symm_reduce(symm_ops, self.deformations)
 
-            # Apply shear deformations
-            for ind in [(0, 1), (0, 2), (1, 2)]:
-                for amount in shear_deformations:
-                    defo = Deformation.from_index_amount(ind, amount)
-                    self.deformations.append(defo)
-                    self.def_structs.append(defo.apply_to_structure(rlxd_str))
+        self.def_structs = [defo.apply_to_structure(rlxd_str) 
+                            for defo in self.deformations]
 
-    def symm_reduce(self, symm_ops, deformation_list, tolerance = 1e-3):
+    def symm_reduce(self, symm_ops, deformation_list, tolerance = 1e-2):
         """
         Checks list of deformation gradient tensors for symmetrical
         equivalents and returns a new list with reduntant ones removed
@@ -176,12 +174,11 @@ class DeformedStructureSet(object):
                 gradient objects to check for duplicates
             tolerance (float): tolerance for assigning equal defo. gradients
         """
-        # TODO: abstract into the symmetry package, probably useful elsewhere
         unique_defos = []
         for defo in deformation_list:
             in_unique = False
             for op in symm_ops:
-                if np.any([(np.abs(unique_defo - op.operate(defo)) < tol).all()
+                if np.any([(np.abs(defo - defo.transform(symm_op)) < tol).all()
                            for unique_defo in unique_defos]):
                     in_unique = True
                     break
