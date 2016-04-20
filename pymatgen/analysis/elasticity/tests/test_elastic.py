@@ -62,8 +62,6 @@ class ElasticTensorTest(PymatgenTest):
             self.def_stress_dict = json.load(f)
         warnings.simplefilter("always")
 
-
-
     def test_properties(self):
         # compliance tensor
         self.assertArrayAlmostEqual(np.linalg.inv(self.elastic_tensor_1.voigt),
@@ -120,8 +118,8 @@ class ElasticTensorTest(PymatgenTest):
             et_fl = -0.1*ElasticTensor.from_strain_stress_list(strain_list, 
                                                                stress_list).voigt
             self.assertArrayAlmostEqual(et_fl.round(2),
-                                        [[59.29, 24.36, 22.46, 0, 0, 0],
-                                         [28.06, 56.91, 22.46, 0, 0, 0],
+                                        [[59.29, 28.06, 28.06, 0, 0, 0],
+                                         [28.06, 56.91, 25.98, 0, 0, 0],
                                          [28.06, 25.98, 54.67, 0, 0, 0],
                                          [0, 0, 0, 26.35, 0, 0],
                                          [0, 0, 0, 0, 26.35, 0],
@@ -134,7 +132,7 @@ class ElasticTensorTest(PymatgenTest):
                                 in self.def_stress_dict['stresses']])))
         with warnings.catch_warnings(record = True):
             et_from_sd = ElasticTensor.from_stress_dict(stress_dict)
-        self.assertArrayAlmostEqual(et_from_sd.symmetrized.round(2),
+        self.assertArrayAlmostEqual(et_from_sd.voigt_symmetrized.round(2),
                                     self.elastic_tensor_1)
 
     def test_energy_density(self):
@@ -148,8 +146,8 @@ class ElasticTensorTest(PymatgenTest):
             [0.,      0.,      0.,      0.,      0.,    238.74]])
 
         dfm = Deformation([[ -9.86004855e-01,2.27539582e-01,-4.64426035e-17],
-            [ -2.47802121e-01,-9.91208483e-01,-7.58675185e-17],
-            [ -6.12323400e-17,-6.12323400e-17,1.00000000e+00]])
+                           [ -2.47802121e-01,-9.91208483e-01,-7.58675185e-17],
+                           [ -6.12323400e-17,-6.12323400e-17,1.00000000e+00]])
 
         self.assertAlmostEqual(film_elac.energy_density(dfm.green_lagrange_strain),
             0.000125664672793)
