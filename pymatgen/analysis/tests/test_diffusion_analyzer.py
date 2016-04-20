@@ -16,7 +16,7 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Beta"
 __date__ = "5/2/13"
 
-import unittest
+import unittest2 as unittest
 import os
 import json
 import random

@@ -75,8 +75,7 @@ class CoordinationGeometryFinderTest(unittest2.TestCase):
                                                             random_scale=True)
                     se = self.lgf.compute_structure_environments_detailed_voronoi(only_indices=[0],
                                                                                   maximum_distance_factor=1.5)
-                    self.assertAlmostEqual(se.get_csm(0, mp_symbol)['symmetry_measure'], 0.0,
-                                           msg='mp_symbol {} not recognized ...'.format(mp_symbol))
+                    self.assertAlmostEqual(se.get_csm(0, mp_symbol)['symmetry_measure'], 0.0, 4)
 
 if __name__ == "__main__":
     unittest2.main(verbosity=9)

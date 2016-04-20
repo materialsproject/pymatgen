@@ -22,7 +22,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
 import os
-import unittest
+import unittest2 as unittest
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",

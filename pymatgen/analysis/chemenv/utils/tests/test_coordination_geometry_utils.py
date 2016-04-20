@@ -3,12 +3,13 @@
 
 __author__ = 'waroquiers'
 
-import unittest
+import unittest2 as unittest
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 import numpy as np
 import itertools
+from pymatgen.util.testing import PymatgenTest
 
-class PlanesUtilsTest(unittest.TestCase):
+class PlanesUtilsTest(PymatgenTest):
 
     def setUp(self):
         #Test of plane 4x + 2y - 4z + 3 = 0 (used in most test cases)
@@ -20,7 +21,7 @@ class PlanesUtilsTest(unittest.TestCase):
 
     def test_factors_abcd_normal_vector(self):
         factors = self.plane.coefficients / self.expected_coefficients
-        self.assertListEqual([factors[0]]*4, [ff for ff in factors])
+        self.assertArrayAlmostEqual([factors[0]]*4, [ff for ff in factors])
         self.assertTrue(np.allclose([2.0/3.0, 1.0/3.0, -2.0/3.0], self.plane.normal_vector))
 
     def test_from_npoints_plane(self):
@@ -47,7 +48,7 @@ class PlanesUtilsTest(unittest.TestCase):
             plane_not_changed = Plane.from_coefficients(coeff[0]*plane.a, coeff[1]*plane.b,
                                                         coeff[2]*plane.c, coeff[3]*plane.d)
             fit_error = plane_not_changed.fit_error(points, fit=best_fit)
-            self.assertEqual(fit_error, fit_error_plane)
+            self.assertAlmostEqual(fit_error, fit_error_plane)
 
 
     def test_is_in_plane(self):
@@ -58,24 +59,24 @@ class PlanesUtilsTest(unittest.TestCase):
         self.assertTrue(self.plane.is_in_plane(np.array([1.0, 1.0, 2.25]), 0.001))
         self.assertTrue(self.plane.is_in_plane(np.array([1.0, 1.0, 2.22]), 0.1))
         self.assertFalse(self.plane.is_in_plane(np.array([1.0, 1.0, 2.22]), 0.001))
-        self.assertTrue(self.plane.is_in_plane(self.p1 + self.plane.normal_vector * 1.0, 1.0))
+        self.assertTrue(self.plane.is_in_plane(self.p1 + self.plane.normal_vector * 1.0, 1.000001))
         self.assertFalse(self.plane.is_in_plane(self.p1 + self.plane.normal_vector * 1.00001, 1.0))
-        self.assertFalse(self.plane.is_in_plane(self.p1 + self.plane.normal_vector * 1.0, 0.99999))
+        self.assertFalse(self.plane.is_in_plane(self.p1 + self.plane.normal_vector * 1.0, 0.999999))
         self.assertTrue(self.plane.is_in_plane(self.plane.p1, 0.00001))
         self.assertTrue(self.plane.is_in_plane(self.plane.p2, 0.00001))
         self.assertTrue(self.plane.is_in_plane(self.plane.p3, 0.00001))
 
     def test_normal_vector_is_normed(self):
-        self.assertEqual(np.linalg.norm(self.plane.normal_vector), 1.0)
+        self.assertTrue(np.isclose(np.linalg.norm(self.plane.normal_vector), 1.0))
 
     def test_orthonormal_vectors(self):
         ortho = self.plane.orthonormal_vectors()
-        self.assertEqual(np.dot(ortho[0], self.plane.normal_vector), 0.0)
-        self.assertEqual(np.dot(ortho[1], self.plane.normal_vector), 0.0)
-        self.assertEqual(np.dot(ortho[2], self.plane.normal_vector), 1.0)
-        self.assertEqual(np.dot(ortho[0], ortho[1]), 0.0)
-        self.assertEqual(np.dot(ortho[1], ortho[2]), 0.0)
-        self.assertEqual(np.dot(ortho[2], ortho[0]), 0.0)
+        self.assertTrue(np.isclose(np.dot(ortho[0], self.plane.normal_vector), 0.0))
+        self.assertTrue(np.isclose(np.dot(ortho[1], self.plane.normal_vector), 0.0))
+        self.assertTrue(np.isclose(np.dot(ortho[2], self.plane.normal_vector), 1.0))
+        self.assertTrue(np.isclose(np.dot(ortho[0], ortho[1]), 0.0))
+        self.assertTrue(np.isclose(np.dot(ortho[1], ortho[2]), 0.0))
+        self.assertTrue(np.isclose(np.dot(ortho[2], ortho[0]), 0.0))
         self.assertTrue(np.allclose(np.cross(ortho[0], ortho[1]), ortho[2]))
         self.assertTrue(np.allclose(np.cross(ortho[0], ortho[1]), self.plane.normal_vector))
         self.assertTrue(np.allclose(np.cross(ortho[1], ortho[2]), ortho[0]))

@@ -10,6 +10,7 @@ This module contains some utils for the main script of the chemenv package.
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
 __version__ = "2.0"
 __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
@@ -51,15 +52,6 @@ strategies_class_lookup = OrderedDict()
 strategies_class_lookup['SimplestChemenvStrategy'] = SimplestChemenvStrategy
 strategies_class_lookup['SimpleAbundanceChemenvStrategy'] = SimpleAbundanceChemenvStrategy
 strategies_class_lookup['TargettedPenaltiedAbundanceChemenvStrategy'] = TargettedPenaltiedAbundanceChemenvStrategy
-
-
-def get_icsd_collection(chemenv_configuration):
-    serv = pymongo.MongoClient(chemenv_configuration.icsd_database_configuration['server'])
-    icsd_db = serv[chemenv_configuration.icsd_database_configuration['database']]
-    icsd_coll = icsd_db[chemenv_configuration.icsd_database_configuration['collection']]
-    icsd_db.authenticate(chemenv_configuration.icsd_database_configuration['authentication_name'],
-                         chemenv_configuration.icsd_database_configuration['authentication_password'])
-    return icsd_coll
 
 
 def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None):
@@ -121,14 +113,10 @@ def thankyou():
 
 def compute_environments(chemenv_configuration):
     string_sources = {'cif': {'string': 'a Cif file', 'regexp': '.*\.cif$'},
-                      'mp': {'string': 'the Materials Project database', 'regexp': 'mp-[0-9]+$'},
-                      'icsd': {'string': 'an ICSD database', 'regexp': '[0-9]+$'}}
+                      'mp': {'string': 'the Materials Project database', 'regexp': 'mp-[0-9]+$'}}
     questions = {'c': 'cif'}
     if chemenv_configuration.has_materials_project_access:
         questions['m'] = 'mp'
-    if chemenv_configuration.has_icsd_database_access:
-        questions['i'] = 'icsd'
-        icsd_collection = get_icsd_collection(chemenv_configuration)
     lgf = LocalGeometryFinder()
     lgf.setup_parameters()
     allcg = AllCoordinationGeometries()
@@ -175,18 +163,13 @@ def compute_environments(chemenv_configuration):
                 input_source = input('Enter materials project id (e.g. "mp-1902") : ')
             a = MPRester(chemenv_configuration.materials_project_api_key)
             structure = a.get_structure_by_material_id(input_source)
-        elif source_type == 'icsd':
-            if not found:
-                input_source = input('Enter ICSD id (e.g. "168") : ')
-            entry = icsd_collection.find_one({'icsd_ids': {'$all': [int(input_source)]}})
-            structure = Structure.from_dict(entry['structure'])
         lgf.setup_structure(structure)
         print('Computing environments for {} ... '.format(structure.composition.reduced_formula))
         se = lgf.compute_structure_environments_detailed_voronoi()
         print('Computing environments finished')
         while True:
             test = input('See list of environments determined for each (unequivalent) site ? '
-                         '("y" or "n", "d" with details, "g" to see the grid')
+                         '("y" or "n", "d" with details, "g" to see the grid) : ')
             strategy = default_strategy
             if test in ['y', 'd', 'g']:
                 strategy.set_structure_environments(se)
@@ -233,7 +216,7 @@ def compute_environments(chemenv_configuration):
                                 mystring += '{} : {:.2f}       '.format(mingeom[0], mingeom[1]['symmetry_measure'])
                     print(mystring)
             if test == 'g':
-                test = input('Enter index of site(s) for which you want to see the grid of parameters :')
+                test = input('Enter index of site(s) for which you want to see the grid of parameters : ')
                 indices = list(map(int, test.split()))
                 print(indices)
                 for isite in indices:
@@ -243,11 +226,11 @@ def compute_environments(chemenv_configuration):
                 if test == 'y':
                     break
                 continue
-            test = input('View structure with environments ? ("y" for the unit cell or "m" for a supercell or "n")')
+            test = input('View structure with environments ? ("y" for the unit cell or "m" for a supercell or "n") : ')
             if test in ['y', 'm']:
                 if test == 'm':
                     mydeltas = []
-                    test = input('Enter multiplicity (e.g. 3 2 2) :')
+                    test = input('Enter multiplicity (e.g. 3 2 2) : ')
                     nns = test.split()
                     for i0 in range(int(nns[0])):
                         for i1 in range(int(nns[1])):
@@ -268,7 +251,6 @@ def compute_environments(chemenv_configuration):
                         continue
                     if len(ces) == 0:
                         continue
-                    #ce = ces[0]
                     ce = strategy.get_site_coordination_environment(site)
                     if ce is not None and ce[0] != UNCLEAR_ENVIRONMENT_SYMBOL:
                         for mydelta in mydeltas:
@@ -276,15 +258,10 @@ def compute_environments(chemenv_configuration):
                                                  properties=site._properties)
                             vis.add_site(psite)
                             neighbors = strategy.get_site_neighbors(psite)
-                            # draw_cg(vis, psite, neighbors, cg=lgf.cg.get_geometry_from_mp_symbol(ce[0]),
-                            #         perfect2local_map=ce[1]['perfect2local_map'])
                             draw_cg(vis, psite, neighbors, cg=lgf.cg.get_geometry_from_mp_symbol(ce[0]),
                                     perm=ce[1]['permutation'])
-                            # neighbors = strategy.get_site_neighbors(site)
-                            # draw_cg(vis, site, neighbors, cg=lgf.cg.get_geometry_from_mp_symbol(ce[0]),
-                            #        perm=ce[1]['permutation'])
                 vis.show()
-            test = input('Go to next structure ? ("y" to do so)')
+            test = input('Go to next structure ? ("y" to do so) : ')
             if test == 'y':
                 break
         print('')

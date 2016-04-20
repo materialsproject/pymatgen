@@ -261,5 +261,5 @@ class SimplexTest(PymatgenTest):
 
 
 if __name__ == "__main__":
-    import unittest
+    import unittest2 as unittest
     unittest.main()
