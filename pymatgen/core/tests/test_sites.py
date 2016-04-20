@@ -235,5 +235,5 @@ def get_distance_and_image_old(site1, site2, jimage=None):
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
-    import unittest
+    import unittest2 as unittest
     unittest.main()

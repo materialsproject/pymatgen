@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
+from __future__ import division, unicode_literals, print_function
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
@@ -36,6 +36,10 @@ class IStructureTest(PymatgenTest):
         self.propertied_structure = IStructure(
             self.lattice, ["Si"] * 2, coords,
             site_properties={'magmom': [5, -5]})
+
+    def test_matches(self):
+        ss = self.struct * 2
+        self.assertTrue(ss.matches(self.struct))
 
     def test_bad_structure(self):
         coords = list()
@@ -635,22 +639,6 @@ class StructureTest(PymatgenTest):
         s2 = Structure.from_dict(d)
         self.assertEqual(type(s2), Structure)
 
-    def test_propertied_structure_mod(self):
-        prop_structure = Structure(
-            self.structure.lattice, ["Si"] * 2, self.structure.frac_coords,
-            site_properties={'magmom': [5, -5]})
-        prop_structure.append("C", [0.25, 0.25, 0.25])
-        d = prop_structure.as_dict()
-        with warnings.catch_warnings(record=True) as w:
-            # Cause all warnings to always be triggered.
-            warnings.simplefilter("always")
-            s2 = Structure.from_dict(d)
-            self.assertEqual(len(w), 1)
-            self.assertEqual(
-                str(w[0].message),
-                'Not all sites have property magmom. Missing values are set '
-                'to None.')
-
     def test_to_from_file_string(self):
         for fmt in ["cif", "json", "poscar", "cssr", "yaml", "xsf"]:
             s = self.structure.to(fmt=fmt)
@@ -1020,5 +1008,5 @@ class MoleculeTest(PymatgenTest):
 
 
 if __name__ == '__main__':
-    import unittest
+    import unittest2 as unittest
     unittest.main()

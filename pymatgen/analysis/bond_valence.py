@@ -490,12 +490,12 @@ class BVAnalyzer(object):
         Raises:
             ValueError if the valences cannot be determined.
         """
-        s = Structure.from_sites(structure.sites)
-        if structure.is_ordered:
-            valences = self.get_valences(structure)
+        s = structure.copy()
+        if s.is_ordered:
+            valences = self.get_valences(s)
             s.add_oxidation_state_by_site(valences)
         else:
-            valences = self.get_valences(structure)
+            valences = self.get_valences(s)
             s = add_oxidation_state_by_site_fraction(s, valences)
         return s
 
