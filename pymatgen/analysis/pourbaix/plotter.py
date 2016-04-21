@@ -609,7 +609,7 @@ class PourbaixPlotter(object):
                 y_coord += c[1]
                 npts += 1
                 patch = Polygon(xy, facecolor=domain_color[entry],
-                                    closed=True, lw=3.0, fill=True)
+                                closed=True, lw=3.0, fill=True, antialiased=True)
                 ax.add_patch(patch)
             xy_center = (x_coord / npts, y_coord / npts)
             if label_domains:
@@ -617,10 +617,10 @@ class PourbaixPlotter(object):
                              color=label_color, fontsize=domain_fontsize[entry])
 
         lw = 3
-        plt.plot(h_line[0], h_line[1], "r--", linewidth=lw)
-        plt.plot(o_line[0], o_line[1], "r--", linewidth=lw)
-        plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=lw)
-        plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw)
+        plt.plot(h_line[0], h_line[1], "r--", linewidth=lw, antialiased=True)
+        plt.plot(o_line[0], o_line[1], "r--", linewidth=lw, antialiased=True)
+        plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=lw, antialiased=True)
+        plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw, antialiased=True)
 
         plt.xlabel("pH")
         plt.ylabel("E (V)")
