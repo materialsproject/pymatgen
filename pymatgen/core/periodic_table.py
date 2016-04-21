@@ -602,9 +602,9 @@ class Element(Enum):
         """
         z = self.Z
         total = 0
-        if 57 <= z <= 70:
+        if 57 <= z <= 71:
             return 8
-        elif 89 <= z <= 102:
+        elif 89 <= z <= 103:
             return 9
 
         for i in range(len(_pt_row_sizes)):
@@ -639,7 +639,7 @@ class Element(Enum):
 
         if (z - 54) % 32 == 0:
             return 18
-        elif (z - 54) % 32 >= 17:
+        elif (z - 54) % 32 >= 18:
             return (z - 54) % 32 - 14
         else:
             return (z - 54) % 32
@@ -652,6 +652,8 @@ class Element(Enum):
         block = ""
         if (self.is_actinoid or self.is_lanthanoid) and self.Z not in [71, 103]:
             block = "f"
+        elif self.is_actinoid or self.is_lanthanoid:
+            block = "d"
         elif self.group in [1, 2]:
             block = "s"
         elif self.group in range(13, 19):
