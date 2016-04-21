@@ -539,7 +539,8 @@ class PourbaixPlotter(object):
         return plt
 
     def get_pourbaix_plot_colorfill_by_domain_name(self, limits=None, title="",
-            label_domains=True, label_color='k', domain_color=None, domain_fontsize=None):
+            label_domains=True, label_color='k', domain_color=None, domain_fontsize=None,
+            domain_edge_lw=0, bench_lw=2):
         """
         Color domains by the colors specific by the domain_color dict
 
@@ -608,19 +609,18 @@ class PourbaixPlotter(object):
                 x_coord += c[0]
                 y_coord += c[1]
                 npts += 1
-                patch = Polygon(xy, facecolor=domain_color[entry],
-                                closed=True, lw=3.0, fill=True, antialiased=True)
+                patch = Polygon(xy, facecolor=domain_color[entry], alpha=1.0,
+                                closed=True, lw=domain_edge_lw, fill=True, antialiased=True)
                 ax.add_patch(patch)
             xy_center = (x_coord / npts, y_coord / npts)
             if label_domains:
                 plt.annotate(latexify_ion(latexify(entry)), xy_center,
                              color=label_color, fontsize=domain_fontsize[entry])
 
-        lw = 3
-        plt.plot(h_line[0], h_line[1], "r--", linewidth=lw, antialiased=True)
-        plt.plot(o_line[0], o_line[1], "r--", linewidth=lw, antialiased=True)
-        plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=lw, antialiased=True)
-        plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw, antialiased=True)
+        plt.plot(h_line[0], h_line[1], "r--", linewidth=bench_lw, antialiased=True)
+        plt.plot(o_line[0], o_line[1], "r--", linewidth=bench_lw, antialiased=True)
+        plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=bench_lw, antialiased=True)
+        plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=bench_lw, antialiased=True)
 
         plt.xlabel("pH")
         plt.ylabel("E (V)")
