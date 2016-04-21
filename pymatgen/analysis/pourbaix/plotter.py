@@ -538,6 +538,95 @@ class PourbaixPlotter(object):
         plt.title(title, fontsize=20, fontweight='bold')
         return plt
 
+    def get_pourbaix_plot_colorfill_by_domain_name(self, limits=None, title="",
+            label_domains=True, label_color='k', domain_color=None, domain_fontsize=None):
+        """
+        Color domains by the colors specific by the domain_color dict
+
+        Args:
+            limits: 2D list containing limits of the Pourbaix diagram
+                of the form [[xlo, xhi], [ylo, yhi]]
+            domain_color (dict): colors of each domain e.g {"Al(s)": "#FF1100"}. If set
+                to None default color set will be used.
+            label_color (str): color of domain lables, defaults to be black
+        """
+        # helper functions
+        def len_elts(entry):
+            comp = Composition(entry[:-3]) if "(s)" in entry else Ion.from_formula(entry)
+            return len(set(comp.elements) - {Element("H"), Element("O")})
+
+        def special_lines(xlim, ylim):
+            h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC],
+                                   [xlim[1], -xlim[1] * PREFAC]])
+            o_line = np.transpose([[xlim[0], -xlim[0] * PREFAC + 1.23],
+                                   [xlim[1], -xlim[1] * PREFAC + 1.23]])
+            neutral_line = np.transpose([[7, ylim[0]], [7, ylim[1]]])
+            V0_line = np.transpose([[xlim[0], 0], [xlim[1], 0]])
+            return h_line, o_line, neutral_line, V0_line
+
+        from matplotlib.patches import Polygon
+        from pymatgen import Composition, Element
+        from pymatgen.core.ion import Ion
+
+        default_domain_font_size = 12
+        default_domain_colors = ['#0000FF', '#FF0000', '#00FF00', '#FFFF00', '#FF00FF',
+                                 '#FF8080', '#DCDCDC', '#800000', '#FF8000']
+
+        plt = get_publication_quality_plot(8, dpi=300)
+
+        (stable, unstable) = self.pourbaix_plot_data(limits)
+        num_of_overlaps = {key: 0 for key in stable.keys()}
+        entry_dict_of_multientries = collections.defaultdict(list)
+        for entry in stable:
+            if isinstance(entry, MultiEntry):
+                for e in entry.entrylist:
+                    entry_dict_of_multientries[e.name].append(entry)
+                    num_of_overlaps[entry] += 1
+            else:
+                entry_dict_of_multientries[entry.name].append(entry)
+
+        xlim, ylim = limits[:2] if limits else self._analyzer.chempot_limits[:2]
+        h_line, o_line, neutral_line, V0_line = special_lines(xlim, ylim)
+        ax = plt.gca()
+        ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
+
+        sorted_entry = list(entry_dict_of_multientries.keys())
+        sorted_entry.sort(key=len_elts)
+
+        if domain_fontsize is None:
+            domain_fontsize = {en: default_domain_font_size for en in sorted_entry}
+        if domain_color is None:
+            n = len(default_domain_colors)
+            domain_color = {en: default_domain_colors[i % n] for i, en in enumerate(sorted_entry)}
+
+        for entry in sorted_entry:
+            x_coord, y_coord, npts = 0.0, 0.0, 0
+            for e in entry_dict_of_multientries[entry]:
+                xy = self.domain_vertices(e)
+                c = self.get_center(stable[e])
+                x_coord += c[0]
+                y_coord += c[1]
+                npts += 1
+                patch = Polygon(xy, facecolor=domain_color[entry],
+                                    closed=True, lw=3.0, fill=True)
+                ax.add_patch(patch)
+            xy_center = (x_coord / npts, y_coord / npts)
+            if label_domains:
+                plt.annotate(latexify_ion(latexify(entry)), xy_center,
+                             color=label_color, fontsize=domain_fontsize[entry])
+
+        lw = 3
+        plt.plot(h_line[0], h_line[1], "r--", linewidth=lw)
+        plt.plot(o_line[0], o_line[1], "r--", linewidth=lw)
+        plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=lw)
+        plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw)
+
+        plt.xlabel("pH")
+        plt.ylabel("E (V)")
+        plt.title(title, fontsize=20, fontweight='bold')
+        return plt
+
     def get_pourbaix_mark_passive(self, limits=None, title="", label_domains=True, passive_entry=None):
         """
         Color domains by element
