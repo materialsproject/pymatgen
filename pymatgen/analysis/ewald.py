@@ -8,7 +8,6 @@ from __future__ import division, unicode_literals
 This module provides classes for calculating the ewald sum of a structure.
 """
 
-
 __author__ = "Shyue Ping Ong, William Davidson Richard"
 __copyright__ = "Copyright 2011, The Materials Project"
 __credits__ = "Christopher Fischer"
@@ -18,9 +17,10 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Aug 1 2012"
 
-from math import pi, sqrt, log, exp, erfc, factorial
+from math import pi, sqrt, log
 from datetime import datetime
 from copy import deepcopy, copy
+from warnings import warn
 import bisect
 
 import numpy as np
@@ -48,7 +48,7 @@ class EwaldSummation(object):
     CONV_FACT = 1e10 * constants.e / (4 * pi * constants.epsilon_0)
 
     def __init__(self, structure, real_space_cut=None, recip_space_cut=None,
-                 eta=None, acc_factor=12.0, w=1/sqrt(2), compute_forces=False):
+                 eta=None, acc_factor=12.0, w=1 / sqrt(2), compute_forces=False):
         """
         Initializes and calculates the Ewald sum. Default convergence
         parameters have been specified, but you can override them if you wish.
@@ -79,6 +79,7 @@ class EwaldSummation(object):
                 default since it is usually not needed.
         """
         self._s = structure
+        self._charged = abs(structure.charge) > 1e-8
         self._vol = structure.volume
         self._compute_forces = compute_forces
 
@@ -222,6 +223,10 @@ class EwaldSummation(object):
         """
         The total energy.
         """
+        if self._charged:
+            warn('Charged structures not supported in EwaldSummation, but '
+                 'charged input structures can be used for '
+                 'EwaldSummation.compute_sub_structure')
         return sum(sum(self._recip)) + sum(sum(self._real)) + sum(self._point)
 
     @property
@@ -243,7 +248,7 @@ class EwaldSummation(object):
         """
         if not self._compute_forces:
             raise AttributeError(
-                    "Forces are available only if compute_forces is True!")
+                "Forces are available only if compute_forces is True!")
         return self._forces
 
     def _calc_recip(self):
@@ -275,10 +280,10 @@ class EwaldSummation(object):
 
         oxistates = np.array(self._oxi_states)
 
-        #create array where q_2[i,j] is qi * qj
+        # create array where q_2[i,j] is qi * qj
         qiqj = oxistates[None, :] * oxistates[:, None]
 
-        #calculate the structure factor
+        # calculate the structure factor
         sreals = np.sum(oxistates[None, :] * np.cos(grs), 1)
         simags = np.sum(oxistates[None, :] * np.sin(grs), 1)
 
@@ -311,43 +316,45 @@ class EwaldSummation(object):
 
         If cell is charged a compensating background is added (i.e. a G=0 term)
         """
-        all_nn = self._s.get_all_neighbors(self._rmax, True)
-
+        fcoords = self._s.frac_coords
         forcepf = 2.0 * self._sqrt_eta / sqrt(pi)
         coords = self._coords
         numsites = self._s.num_sites
-        ereal = np.zeros((numsites, numsites), dtype=np.float)
+        ereal = np.empty((numsites, numsites), dtype=np.float)
 
         forces = np.zeros((numsites, 3), dtype=np.float)
 
         qs = np.array(self._oxi_states)
 
-        epoint = - qs ** 2 * sqrt(self._eta / pi) + \
-            qs * pi / (2.0 * self._vol * self._eta)  # jellum term
+        epoint = - qs ** 2 * sqrt(self._eta / pi)
 
         for i in range(numsites):
-            nn = all_nn[i]
-            qi = qs[i]
+            nfcoords, rij, js = self._s.lattice.get_points_in_sphere(fcoords,
+                                    coords[i], self._rmax, zip_results=False)
 
-            d = np.array([(dist, j) for site, dist, j in nn])
-            js = d[:, 1].astype(np.int)
+            # remove the rii term
+            inds = rij > 1e-8
+            js = js[inds]
+            rij = rij[inds]
+            nfcoords = nfcoords[inds]
+
+            qi = qs[i]
             qj = qs[js]
-            rij = d[:, 0]
 
             erfcval = erfc(self._sqrt_eta * rij)
             new_ereals = erfcval * qi * qj / rij
 
             # insert new_ereals
-            for k, new_e in enumerate(new_ereals):
-                ereal[js[k], i] += new_e
+            for k in range(numsites):
+                ereal[k, i] = np.sum(new_ereals[js == k])
 
             if self._compute_forces:
-                ncoords = [site.coords for site, dist, j in nn]
+                nccoords = self._s.lattice.get_cartesian_coords(nfcoords)
 
                 fijpf = qj / rij ** 3 * (erfcval + forcepf * rij *
                                          np.exp(-self._eta * rij ** 2))
                 forces[i] += np.sum(np.expand_dims(fijpf, 1) *
-                                    (np.array([coords[i]]) - ncoords) *
+                                    (np.array([coords[i]]) - nccoords) *
                                     qi * EwaldSummation.CONV_FACT, axis=0)
 
         ereal *= 0.5 * EwaldSummation.CONV_FACT
@@ -453,7 +460,7 @@ class EwaldMinimizer:
         ewald sum calls recursive function to iterate through permutations
         """
         if self._algo == EwaldMinimizer.ALGO_FAST or \
-                self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
+                        self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
             return self._recurse(self._matrix, self._m_list,
                                  set(range(len(self._matrix))))
 
@@ -467,7 +474,7 @@ class EwaldMinimizer:
         else:
             bisect.insort(self._output_lists, [matrix_sum, m_list])
         if self._algo == EwaldMinimizer.ALGO_BEST_FIRST and \
-                len(self._output_lists) == self._num_to_return:
+                        len(self._output_lists) == self._num_to_return:
             self._finished = True
         if len(self._output_lists) > self._num_to_return:
             self._output_lists.pop()
@@ -556,22 +563,22 @@ class EwaldMinimizer:
             indices: Set of indices which haven't had a permutation
                 performed on them.
         """
-        #check to see if we've found all the solutions that we need
+        # check to see if we've found all the solutions that we need
         if self._finished:
             return
 
-        #if we're done with the current manipulation, pop it off.
+        # if we're done with the current manipulation, pop it off.
         while m_list[-1][1] == 0:
             m_list = copy(m_list)
             m_list.pop()
-            #if there are no more manipulations left to do check the value
+            # if there are no more manipulations left to do check the value
             if not m_list:
                 matrix_sum = np.sum(matrix)
                 if matrix_sum < self._current_minimum:
                     self.add_m_list(matrix_sum, output_m_list)
                 return
 
-        #if we wont have enough indices left, return
+        # if we wont have enough indices left, return
         if m_list[-1][1] > len(indices.intersection(m_list[-1][2])):
             return
 
@@ -596,7 +603,7 @@ class EwaldMinimizer:
         indices2.remove(index)
         m_list2[-1][1] -= 1
 
-        #recurse through both the modified and unmodified matrices
+        # recurse through both the modified and unmodified matrices
 
         self._recurse(matrix2, m_list2, indices2, output_m_list2)
         self._recurse(matrix, m_list, indices, output_m_list)

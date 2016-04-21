@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.analysis.chemenv
     pymatgen.analysis.cost
     pymatgen.analysis.defects
     pymatgen.analysis.diffraction
@@ -60,6 +61,22 @@ pymatgen.analysis.molecule_structure_comparator module
 ------------------------------------------------------
 
 .. automodule:: pymatgen.analysis.molecule_structure_comparator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.analysis.nmr module
+----------------------------
+
+.. automodule:: pymatgen.analysis.nmr
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.analysis.piezo module
+------------------------------
+
+.. automodule:: pymatgen.analysis.piezo
     :members:
     :undoc-members:
     :show-inheritance:

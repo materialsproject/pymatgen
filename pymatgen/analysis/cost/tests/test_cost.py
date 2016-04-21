@@ -4,7 +4,7 @@
 
 from __future__ import division, unicode_literals
 import os
-import unittest
+import unittest2 as unittest
 import pymatgen
 from pymatgen.analysis.cost.cost import CostDBCSV, CostAnalyzer, CostDBElements
 

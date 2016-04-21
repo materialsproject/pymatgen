@@ -14,10 +14,15 @@ import random
 import warnings
 from fnmatch import fnmatch
 import re
-from fractions import gcd
+
+try:
+    # New Py>=3.5 import
+    from math import gcd
+except ImportError:
+    # Deprecated import from Py3.5 onwards.
+    from fractions import gcd
 
 import six
-from six.moves import map, zip
 from tabulate import tabulate
 
 import numpy as np
@@ -905,9 +910,12 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError("Invalid reduction algo : {}"
                              .format(reduction_algo))
 
-        return self.__class__(reduced_latt, self.species_and_occu,
-                              self.cart_coords,
-                              coords_are_cartesian=True, to_unit_cell=True)
+        if reduced_latt != self.lattice:
+            return self.__class__(reduced_latt, self.species_and_occu,
+                                  self.cart_coords,
+                                  coords_are_cartesian=True, to_unit_cell=True)
+        else:
+            return self.copy()
 
     def copy(self, site_properties=None, sanitize=False):
         """
@@ -2818,7 +2826,7 @@ class Molecule(IMolecule, collections.MutableSequence):
                     else:
                         new_atom_occu[sp] = amt
             return Site(new_atom_occu, site.coords, properties=site.properties)
-        self._sites = list(map(mod_site, self._sites))
+        self._sites = [mod_site(site) for site in self._sites]
 
     def remove_species(self, species):
         """
@@ -2828,7 +2836,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             species: Species to remove.
         """
         new_sites = []
-        species = list(map(get_el_sp, species))
+        species = [get_el_sp(sp) for sp in species]
         for site in self._sites:
             new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
                            if sp not in species}
@@ -2892,7 +2900,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             new_cart = symmop.operate(site.coords)
             return Site(site.species_and_occu, new_cart,
                         properties=site.properties)
-        self._sites = list(map(operate_site, self._sites))
+        self._sites = [operate_site(s) for s in self._sites]
 
     def copy(self):
         """
