@@ -560,6 +560,12 @@ class Incar(dict, MSONable):
         """
         super(Incar, self).__init__()
         if params:
+            if params.get("MAGMOM") and params.get("LSORBIT") or \
+                    params.get("LNONCOLLINEAR"):
+                val = []
+                for i in range(len(params["MAGMOM"])//3):
+                    val.append(params["MAGMOM"][i*3:(i+1)*3])
+                params["MAGMOM"] = val
             self.update(params)
 
     def __setitem__(self, key, val):
@@ -602,8 +608,15 @@ class Incar(dict, MSONable):
         for k in keys:
             if k == "MAGMOM" and isinstance(self[k], list):
                 value = []
-                for m, g in itertools.groupby(self[k]):
-                    value.append("{}*{}".format(len(tuple(g)), m))
+                if isinstance(self[k][0], list) and "LSORBIT" in keys or \
+                        "LNONCOLLINEAR" in keys:
+                    value.append(" ".join(str(i) for j in self[k] for i in j))
+                elif "LSORBIT" in keys or "LNONCOLLINEAR" in keys:
+                    for m, g in itertools.groupby(self[k]):
+                        value.append("3*{}*{}".format(len(tuple(g)), m))
+                else:
+                    for m, g in itertools.groupby(self[k]):
+                        value.append("{}*{}".format(len(tuple(g)), m))
                 lines.append([k, " ".join(value)])
             elif isinstance(self[k], list):
                 lines.append([k, " ".join([str(i) for i in self[k]])])
@@ -677,7 +690,7 @@ class Incar(dict, MSONable):
         """
         list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM")
         bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE",
-                     "LHFCALC", "ADDGRID")
+                     "LHFCALC", "ADDGRID", "LSORBIT", "LNONCOLLINEAR")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
                       "POTIM", "EDIFFG")
         int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
@@ -693,13 +706,13 @@ class Incar(dict, MSONable):
         try:
             if key in list_keys:
                 output = []
-                toks = re.findall(r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?", val)
-
+                toks = re.findall(r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?\*?(-?\d+\.?\d*)?", val)
                 for tok in toks:
-                    if tok[1]:
-
-                        output.extend([smart_int_or_float(tok[1])]
-                                      * int(tok[0]))
+                    if tok[2] and "3" in tok[0]:
+                        output.extend(
+                            [smart_int_or_float(tok[2])] * int(tok[0]) * int(tok[1]))
+                    elif tok[1]:
+                        output.extend([smart_int_or_float(tok[1])] * int(tok[0]))
                     else:
                         output.append(smart_int_or_float(tok[0]))
                 return output
