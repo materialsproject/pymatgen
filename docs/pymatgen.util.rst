@@ -26,6 +26,14 @@ pymatgen.util.coord_utils module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.util.coord_utils_cython module
+---------------------------------------
+
+.. automodule:: pymatgen.util.coord_utils_cython
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.util.io_utils module
 -----------------------------
 
