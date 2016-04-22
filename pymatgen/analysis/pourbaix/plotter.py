@@ -599,7 +599,8 @@ class PourbaixPlotter(object):
 
     def get_pourbaix_plot_colorfill_by_domain_name(self, limits=None, title="",
             label_domains=True, label_color='k', domain_color=None, domain_fontsize=None,
-            domain_edge_lw=0, bold_domains=None, add_bench_line=False, bench_lw=2):
+            domain_edge_lw=0, bold_domains=None, cluster_domains=(), add_bench_line=False,
+            bench_lw=2):
         """
         Color domains by the colors specific by the domain_color dict
 
@@ -629,8 +630,8 @@ class PourbaixPlotter(object):
         from pymatgen.core.ion import Ion
 
         default_domain_font_size = 12
-        default_domain_colors = ['#0000FF', '#FF0000', '#00FF00', '#FFFF00', '#FF00FF',
-                                 '#FF8080', '#DCDCDC', '#800000', '#FF8000']
+        default_solid_phase_color = '#b8f9e7'    # this slighly darker than the MP scheme, to
+        default_cluster_phase_color = '#d0fbef'  # avoid making the cluster phase too light
 
         plt = get_publication_quality_plot(8, dpi=300)
 
@@ -662,8 +663,9 @@ class PourbaixPlotter(object):
         if domain_fontsize is None:
             domain_fontsize = {en: default_domain_font_size for en in sorted_entry}
         if domain_color is None:
-            n = len(default_domain_colors)
-            domain_color = {en: default_domain_colors[i % n] for i, en in enumerate(sorted_entry)}
+            domain_color = {en: default_solid_phase_color if '(s)' in en else
+                            (default_cluster_phase_color if en in cluster_domains else 'w')
+                            for i, en in enumerate(sorted_entry)}
         if bold_domains is None:
             bold_domains = [en for en in sorted_entry if '(s)' not in en]
 
