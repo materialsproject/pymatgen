@@ -608,10 +608,10 @@ class Incar(dict, MSONable):
         for k in keys:
             if k == "MAGMOM" and isinstance(self[k], list):
                 value = []
-                if isinstance(self[k][0], list) and "LSORBIT" in keys or \
-                        "LNONCOLLINEAR" in keys:
+                if isinstance(self[k][0], list) and self.get("LSORBIT") or \
+                        self.get("LNONCOLLINEAR"):
                     value.append(" ".join(str(i) for j in self[k] for i in j))
-                elif "LSORBIT" in keys or "LNONCOLLINEAR" in keys:
+                elif self.get("LSORBIT") or self.get("LNONCOLLINEAR"):
                     for m, g in itertools.groupby(self[k]):
                         value.append("3*{}*{}".format(len(tuple(g)), m))
                 else:
