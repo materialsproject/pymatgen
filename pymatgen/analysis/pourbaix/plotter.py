@@ -649,6 +649,9 @@ class PourbaixPlotter(object):
         ax.set_ylim(ylim)
         ax.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
         ax.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+        ax.tick_params(direction='out')
+        ax.xaxis.set_ticks_position('bottom')
+        ax.yaxis.set_ticks_position('left')
 
         sorted_entry = list(entry_dict_of_multientries.keys())
         sorted_entry.sort(key=len_elts)
