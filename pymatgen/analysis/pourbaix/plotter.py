@@ -267,6 +267,61 @@ class PourbaixPlotter(object):
         center_y /= count_center
         return center_x, center_y
 
+    def get_distribution_corrected_center(self, lines):
+        """
+        Returns coordinates of center of a domain. Useful
+        for labeling a Pourbaix plot.
+
+        Args:
+            lines:
+                Lines corresponding to a domain
+            limits:
+                Limits of Pourbaix diagram
+
+        Returns:
+            center_x, center_y:
+                x,y coordinate of center of domain. If domain lies
+                outside limits, center will lie on the boundary.
+        """
+        coords = []
+        pts_x = []
+        pts_y = []
+        for line in lines:
+            for coord in np.array(line).T:
+                if not in_coord_list(coords, coord):
+                    coords.append(coord.tolist())
+                    cx = coord[0]
+                    cy = coord[1]
+                    pts_x.append(cx)
+                    pts_y.append(cy)
+        if len(pts_x) < 1:
+            return 0.0, 0.0
+        cx_1 = (max(pts_x) + min(pts_x)) / 2.0
+        cy_1 = (max(pts_y) + min(pts_y)) / 2.0
+        mid_x_list = []
+        mid_y_list = []
+        # move the center to the center of surrounding lines
+        for line in lines:
+            (x1, y1), (x2, y2) = np.array(line).T
+            print(x1, y1, x2, y2)
+            if (x1 - cx_1) * (x2 - cx_1) <= 0.0:
+                # horizontal line
+                mid_y = ((y2 - y1) / (x2 - x1)) * (cx_1 - x1) + y1
+                assert (y2 - mid_y) * (y1 - mid_y) <= 0.0
+                mid_y_list.append(mid_y)
+            if (y1 - cy_1) * (y2 - cy_1) <= 0.0:
+                # vertical line
+                mid_x = ((x2 - x1) / (y2 - y1)) * (cy_1 - y1) + x1
+                assert (x2 - mid_x) * (x1 - mid_x) <= 0.0
+                mid_x_list.append(mid_x)
+        upper_y = sorted([y for y in mid_y_list if y >= cy_1])[0]
+        lower_y = sorted([y for y in mid_y_list if y < cy_1])[-1]
+        left_x = sorted([x for x in mid_x_list if x <= cx_1])[-1]
+        right_x = sorted([x for x in mid_x_list if x > cx_1])[0]
+        center_x = (left_x + right_x) / 2.0
+        center_y = (upper_y + lower_y) / 2.0
+        return center_x, center_y
+
     def get_pourbaix_plot(self, limits=None, title="", label_domains=True):
         """
         Plot Pourbaix diagram.
@@ -605,7 +660,7 @@ class PourbaixPlotter(object):
             x_coord, y_coord, npts = 0.0, 0.0, 0
             for e in entry_dict_of_multientries[entry]:
                 xy = self.domain_vertices(e)
-                c = self.get_center(stable[e])
+                c = self.get_distribution_corrected_center(stable[e])
                 x_coord += c[0]
                 y_coord += c[1]
                 npts += 1
@@ -615,7 +670,9 @@ class PourbaixPlotter(object):
             xy_center = (x_coord / npts, y_coord / npts)
             if label_domains:
                 plt.annotate(latexify_ion(latexify(entry)), xy_center,
-                             color=label_color, fontsize=domain_fontsize[entry])
+                             color=label_color, fontsize=domain_fontsize[entry],
+                             horizontalalignment="center", verticalalignment="center",
+                             multialignment="center")
 
         if add_bench_line:
             plt.plot(h_line[0], h_line[1], "r--", linewidth=bench_lw, antialiased=True)
