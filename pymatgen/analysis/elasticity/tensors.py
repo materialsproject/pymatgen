@@ -154,7 +154,7 @@ class TensorBase(np.ndarray):
             tol (float): tolerance for symmetry testing
         """
 
-        return (self - self.symmetrize_to_structure(structure) < tol).all()
+        return (self - self.fit_to_structure(structure) < tol).all()
 
 
 class SquareTensor(TensorBase):
