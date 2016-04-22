@@ -131,11 +131,6 @@ class TensorBaseTest(PymatgenTest):
 
     def test_transform(self):
         pass
-
-    def test_symmetrized(self):
-        self.assertTrue(self.rand_rank2.symmetrized.is_symmetric())
-        self.assertTrue(self.rand_rank3.symmetrized.is_symmetric())
-        self.assertTrue(self.rand_rank4.symmetrized.is_symmetric())
     
     def test_rotate(self):
         self.assertArrayEqual(self.vec.rotate([[0, -1, 0],
@@ -150,7 +145,12 @@ class TensorBaseTest(PymatgenTest):
         self.assertRaises(ValueError, self.non_symm.rotate, 
                           self.symm_rank2)
 
-
+    def test_symmetrized(self):
+        self.assertTrue(self.rand_rank2.symmetrized.is_symmetric())
+        self.assertTrue(self.rand_rank3.symmetrized.is_symmetric())
+        self.assertTrue(self.rand_rank4.symmetrized.is_symmetric())
+    
+    
     def test_is_symmetric(self):
         self.assertTrue(self.symm_rank2.is_symmetric())
         self.assertTrue(self.symm_rank3.is_symmetric())
@@ -160,11 +160,17 @@ class TensorBaseTest(PymatgenTest):
         self.assertFalse(self.low_val.is_symmetric(tol=1e-8))
 
     def test_fit_to_structure(self):
-        pass
+        # Perturb BaNiO3 example
+        perturbed_r3 = self.fit_r3
+        perturbed_r3[1, 2, 3] += 1.
+        self.assertFalse(perturbed_r3.is_fit_to_structure(self.structure))
+        new_fit = perturbed_r3.fit_to_structure(self.structure)
+        self.assertArrayAlmostEqual(new_fit, self.fit_r3)
 
     def test_is_fit_to_structure(self):
         self.assertTrue(self.fit_r3.is_fit_to_structure(self.structure))
         self.assertTrue(self.fit_r4.is_fit_to_structure(self.structure))
+
 
 class SquareTensorTest(PymatgenTest):
     def setUp(self):
