@@ -303,7 +303,6 @@ class PourbaixPlotter(object):
         # move the center to the center of surrounding lines
         for line in lines:
             (x1, y1), (x2, y2) = np.array(line).T
-            print(x1, y1, x2, y2)
             if (x1 - cx_1) * (x2 - cx_1) <= 0.0:
                 # horizontal line
                 mid_y = ((y2 - y1) / (x2 - x1)) * (cx_1 - x1) + y1
@@ -672,7 +671,7 @@ class PourbaixPlotter(object):
                 plt.annotate(latexify_ion(latexify(entry)), xy_center,
                              color=label_color, fontsize=domain_fontsize[entry],
                              horizontalalignment="center", verticalalignment="center",
-                             multialignment="center")
+                             multialignment="center", fontname="Times New Roman")
 
         if add_bench_line:
             plt.plot(h_line[0], h_line[1], "r--", linewidth=bench_lw, antialiased=True)
@@ -680,9 +679,9 @@ class PourbaixPlotter(object):
             plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=bench_lw, antialiased=True)
             plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=bench_lw, antialiased=True)
 
-        plt.xlabel("pH")
-        plt.ylabel("E (V)")
-        plt.title(title, fontsize=20, fontweight='bold')
+        plt.xlabel("pH", fontname="Times New Roman")
+        plt.ylabel("E (V)", fontname="Times New Roman")
+        plt.title(title, fontsize=20, fontweight='bold', fontname="Times New Roman")
         return plt
 
     def get_pourbaix_mark_passive(self, limits=None, title="", label_domains=True, passive_entry=None):
