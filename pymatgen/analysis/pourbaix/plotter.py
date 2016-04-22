@@ -647,6 +647,8 @@ class PourbaixPlotter(object):
         ax = plt.gca()
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
+        ax.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+        ax.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
 
         sorted_entry = list(entry_dict_of_multientries.keys())
         sorted_entry.sort(key=len_elts)
