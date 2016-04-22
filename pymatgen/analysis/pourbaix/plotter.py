@@ -4,6 +4,8 @@
 
 from __future__ import division, unicode_literals
 
+from matplotlib.ticker import FormatStrFormatter
+
 """
 This module provides classes for plotting Pourbaix objects.
 """
@@ -681,6 +683,8 @@ class PourbaixPlotter(object):
 
         plt.xlabel("pH", fontname="Times New Roman")
         plt.ylabel("E (V)", fontname="Times New Roman")
+        plt.xticks(fontname="Times New Roman")
+        plt.yticks(fontname="Times New Roman")
         plt.title(title, fontsize=20, fontweight='bold', fontname="Times New Roman")
         return plt
 
