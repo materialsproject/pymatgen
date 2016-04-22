@@ -4,6 +4,9 @@
 
 from __future__ import division, unicode_literals
 
+import platform
+
+from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import FormatStrFormatter
 
 """
@@ -596,7 +599,7 @@ class PourbaixPlotter(object):
 
     def get_pourbaix_plot_colorfill_by_domain_name(self, limits=None, title="",
             label_domains=True, label_color='k', domain_color=None, domain_fontsize=None,
-            domain_edge_lw=0, add_bench_line=False, bench_lw=2):
+            domain_edge_lw=0, bold_domains=None, add_bench_line=False, bench_lw=2):
         """
         Color domains by the colors specific by the domain_color dict
 
@@ -661,6 +664,8 @@ class PourbaixPlotter(object):
         if domain_color is None:
             n = len(default_domain_colors)
             domain_color = {en: default_domain_colors[i % n] for i, en in enumerate(sorted_entry)}
+        if bold_domains is None:
+            bold_domains = [en for en in sorted_entry if '(s)' not in en]
 
         for entry in sorted_entry:
             x_coord, y_coord, npts = 0.0, 0.0, 0
@@ -675,10 +680,26 @@ class PourbaixPlotter(object):
                 ax.add_patch(patch)
             xy_center = (x_coord / npts, y_coord / npts)
             if label_domains:
-                plt.annotate(latexify_ion(latexify(entry)), xy_center,
-                             color=label_color, fontsize=domain_fontsize[entry],
-                             horizontalalignment="center", verticalalignment="center",
-                             multialignment="center", fontname="Times New Roman")
+                if platform.system() == 'Darwin':
+                    # Have to hack to the hard coded font path to get current font On Mac OS X
+                    if entry in bold_domains:
+                        font = FontProperties(fname='/Library/Fonts/Times New Roman Bold.ttf',
+                                              size=domain_fontsize[entry])
+                    else:
+                        font = FontProperties(fname='/Library/Fonts/Times New Roman.ttf',
+                                              size=domain_fontsize[entry])
+                else:
+                    if entry in bold_domains:
+                        font = FontProperties(family='Times New Roman',
+                                              weight='bold',
+                                              size=domain_fontsize[entry])
+                    else:
+                        font = FontProperties(family='Times New Roman',
+                                              weight='regular',
+                                              size=domain_fontsize[entry])
+                plt.text(*xy_center, s=latexify_ion(latexify(entry)), fontproperties=font,
+                         horizontalalignment="center", verticalalignment="center",
+                         multialignment="center", color=label_color)
 
         if add_bench_line:
             plt.plot(h_line[0], h_line[1], "r--", linewidth=bench_lw, antialiased=True)
