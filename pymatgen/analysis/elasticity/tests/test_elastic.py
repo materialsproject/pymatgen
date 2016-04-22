@@ -60,6 +60,7 @@ class ElasticTensorTest(PymatgenTest):
         filepath = os.path.join(test_dir, 'Sn_def_stress.json')
         with open(filepath) as f:
             self.def_stress_dict = json.load(f)
+
         warnings.simplefilter("always")
 
     def test_properties(self):
@@ -90,6 +91,7 @@ class ElasticTensorTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.elastic_tensor_1.voigt,
                                     self.voigt_1)
 
+
     def test_new(self):
         self.assertArrayAlmostEqual(self.elastic_tensor_1,
                                     ElasticTensor(self.ft))
@@ -114,12 +116,12 @@ class ElasticTensorTest(PymatgenTest):
         strain_list = [Strain.from_deformation(def_matrix)
                        for def_matrix in self.def_stress_dict['deformations']]
         stress_list = [stress for stress in self.def_stress_dict['stresses']]
-        with warnings.catch_warnings(record = True):
+        with warnings.catch_warnings(record=True):
             et_fl = -0.1*ElasticTensor.from_strain_stress_list(strain_list, 
                                                                stress_list).voigt
             self.assertArrayAlmostEqual(et_fl.round(2),
-                                        [[59.29, 28.06, 28.06, 0, 0, 0],
-                                         [28.06, 56.91, 25.98, 0, 0, 0],
+                                        [[59.29, 24.36, 22.46, 0, 0, 0],
+                                         [28.06, 56.91, 22.46, 0, 0, 0],
                                          [28.06, 25.98, 54.67, 0, 0, 0],
                                          [0, 0, 0, 26.35, 0, 0],
                                          [0, 0, 0, 0, 26.35, 0],

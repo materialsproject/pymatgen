@@ -11,20 +11,21 @@ including methods used to fit the elastic tensor from linear response
 stress-strain data
 """
 
-from pymatgen.analysis.elasticity import voigt_map
+from pymatgen.analysis.elasticity import voigt_map, reverse_voigt_map
 from pymatgen.analysis.elasticity.tensors import TensorBase
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
 import numpy as np
 import warnings
+import itertools
 from six.moves import range
 
-__author__ = "Joseph Montoya"
+__author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Maarten de Jong, Mark Asta, Anubhav Jain"
+__credits__ = "Joseph Montoya, Shyam Dwaraknath, Mark Asta, Anubhav Jain"
 __version__ = "1.0"
-__maintainer__ = "Maarten de Jong"
-__email__ = "maartendft@gmail.com"
+__maintainer__ = "Joseph Montoya"
+__email__ = "montoyjh@lbl.gov"
 __status__ = "Development"
 __date__ = "March 22, 2012"
 
@@ -81,22 +82,17 @@ class ElasticTensor(TensorBase):
             raise ValueError("From_voigt takes a 6x6 array corresponding to "
                              "the elastic tensor in voigt notation as input.")
 
-        if not (voigt_matrix - np.transpose(voigt_matrix) < tol).all():
-            warnings.warn("Elastic tensor input is not symmetric!")
-
         c = np.zeros((3, 3, 3, 3))
-        for p in range(6):
-            for q in range(6):
-                i, j = voigt_map[p]
-                k, l = voigt_map[q]
-                c[i, j, k, l] = c[j, i, k, l] = c[i, j, l, k] = \
-                    c[j, i, l, k] = c[k, l, i, j] = voigt_matrix[p, q]
+        for ind in itertools.product(*[range(3)]*4):
+            v_ind = (reverse_voigt_map[ind[:2]], 
+                     reverse_voigt_map[ind[2:]])
+            c[ind] = voigt_matrix[v_ind]
         return cls(c)
 
     @property
     def voigt(self):
         """
-        Returns the voigt notation 6x6 array corresponding to the e
+        Returns the voigt notation 6x6 array corresponding to the
         elastic tensor
         """
         c_pq = np.zeros((6, 6))
@@ -203,9 +199,10 @@ class ElasticTensor(TensorBase):
         """
         # Conversion factor for GPa to eV/Angstrom^3
         GPA_EV = 0.000624151
-
-        e_density = np.dot(np.transpose(Strain(strain).voigt),
-            np.dot(self.voigt, Strain(strain).voigt))/2 * GPA_EV
+        
+        with warnings.catch_warnings(record=True):
+            e_density = np.dot(np.transpose(Strain(strain).voigt),
+                np.dot(self.voigt, Strain(strain).voigt))/2 * GPA_EV
 
         return e_density
 
@@ -226,7 +223,7 @@ class ElasticTensor(TensorBase):
         stresses = np.array([Stress(stress).voigt for stress in stresses])
         with warnings.catch_warnings(record=True):
             strains = np.array([Strain(strain).voigt for strain in strains])
-        
+
         voigt_fit = np.transpose(np.dot(np.linalg.pinv(strains), stresses))
         return cls.from_voigt(voigt_fit)
 

@@ -12,9 +12,10 @@ that provides basic methods for creating and manipulating rank 2 tensors
 """
 
 
-__author__ = "Maarten de Jong, Joseph Montoya"
+__author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Wei Chen, Mark Asta, Anubhav Jain"
+__credits__ = ("Joseph Montoya, Shyam Dwaraknath, Wei Chen, "
+               "Mark Asta, Anubhav Jain, Terence Lew")
 __version__ = "1.0"
 __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
@@ -26,6 +27,7 @@ from scipy.linalg import polar
 import numpy as np
 import itertools
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.core.operations import SymmOp
 
 class TensorBase(np.ndarray):
     """
@@ -95,6 +97,15 @@ class TensorBase(np.ndarray):
         """
 
         return symm_op.transform_tensor(self)
+
+    def rotate(self, matrix, tol=1e-5):
+        matrix = SquareTensor(matrix)
+        if not matrix.is_rotation(tol):
+            raise ValueError("Rotation matrix is not valid.")
+        sop = SymmOp.from_rotation_and_translation(matrix,
+                                                   [0., 0., 0.])
+        return self.transform(sop)
+
 
     @property
     def symmetrized(self):
@@ -233,5 +244,3 @@ class SquareTensor(TensorBase):
         calculates matrices for polar decomposition
         """
         return polar(self, side=side)
-
-    
