@@ -21,11 +21,6 @@ reports. Please report any bugs and issues at pymatgen's `Github page
 of pymatgen releases, you may become a member of `pymatgen's Google Groups page
 <https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_.
 
-Python 3.x support
-==================
-
-
-
 Why use pymatgen?
 =================
 
