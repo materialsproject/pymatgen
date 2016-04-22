@@ -560,8 +560,8 @@ class Incar(dict, MSONable):
         """
         super(Incar, self).__init__()
         if params:
-            if params.get("MAGMOM") and params.get("LSORBIT") or \
-                    params.get("LNONCOLLINEAR"):
+            if params.get("MAGMOM") and (params.get("LSORBIT") or \
+                    params.get("LNONCOLLINEAR")):
                 val = []
                 for i in range(len(params["MAGMOM"])//3):
                     val.append(params["MAGMOM"][i*3:(i+1)*3])
@@ -608,8 +608,8 @@ class Incar(dict, MSONable):
         for k in keys:
             if k == "MAGMOM" and isinstance(self[k], list):
                 value = []
-                if isinstance(self[k][0], list) and self.get("LSORBIT") or \
-                        self.get("LNONCOLLINEAR"):
+                if isinstance(self[k][0], list) and (self.get("LSORBIT") or \
+                        self.get("LNONCOLLINEAR")):
                     value.append(" ".join(str(i) for j in self[k] for i in j))
                 elif self.get("LSORBIT") or self.get("LNONCOLLINEAR"):
                     for m, g in itertools.groupby(self[k]):
