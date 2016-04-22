@@ -182,17 +182,6 @@ class ElasticTensor(TensorBase):
         return (1. - 2. / 3. * self.g_vrh / self.k_vrh) / \
                (2. + 2. / 3. * self.g_vrh / self.k_vrh) 
 
-    def transform(self, symm_op):
-        """
-        Returns a transformed tensor based on input of symmetry operation
-
-        Args:
-            symm_op (symm_op): symmetry operation
-        """
-        
-        new_tensor = symm_op.transform_tensor(self.full_tensor)
-        return ElasticTensor(new_tensor)
-
     def energy_density(self, strain):
         """
         Calculates the elastic energy density due to a strain

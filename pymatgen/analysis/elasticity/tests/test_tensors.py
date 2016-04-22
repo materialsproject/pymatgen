@@ -63,7 +63,47 @@ class TensorBaseTest(PymatgenTest):
                                        [[-0.02, 0., -0.3],
                                         [0., 0.3, -0.18],
                                         [-0.3, -0.18, -0.51]]]])
-    
+
+        # Structural symmetries tested using BaNiO3 piezo/elastic tensors
+        self.fit_r3 = TensorBase([[[0., 0., 0.03839],
+                                 [0., 0., 0.],
+                                 [0.03839, 0., 0.]],
+                                [[0., 0., 0.],
+                                 [0., 0., 0.03839],
+                                 [0., 0.03839, 0.]],
+                                [[6.89822, 0., 0.],
+                                 [0., 6.89822, 0.],
+                                 [0., 0., 27.4628]]])
+
+        self.fit_r4 = TensorBase([[[[157.9, 0., 0.],
+                                      [0., 63.1, 0.],
+                                      [0., 0., 29.4]],
+                                     [[0., 47.4, 0.],
+                                      [47.4, 0., 0.],
+                                      [0., 0., 0.]],
+                                     [[0., 0., 4.3],
+                                      [0., 0., 0.],
+                                      [4.3, 0., 0.]]],
+                                    [[[0., 47.4, 0.],
+                                      [47.4, 0., 0.],
+                                      [0., 0., 0.]],
+                                     [[63.1, 0., 0.],
+                                      [0., 157.9, 0.],
+                                      [0., 0., 29.4]],
+                                     [[0., 0., 0.],
+                                      [0., 0., 4.3],
+                                      [0., 4.3, 0.]]]
+                                    [[[0., 0., 4.3],
+                                      [0., 0., 0.],
+                                      [4.3, 0., 0.]],
+                                     [[0., 0., 0.],
+                                      [0., 0., 4.3],
+                                      [0., 4.3, 0.]],
+                                     [[29.4, 0., 0.],
+                                      [0., 29.4, 0.],
+                                      [0., 0., 207.6]]]])
+        self.structure = self.get_structure('BaNiO3')
+
     def test_new(self):
         bad_2 = np.zeros((4, 4))
         bad_3 = np.zeros((4, 4, 4))
@@ -119,12 +159,12 @@ class TensorBaseTest(PymatgenTest):
         tol_test[0, 1, 2, 2] += 1e-6
         self.assertFalse(self.low_val.is_symmetric(tol=1e-8))
 
-    def test_symmetrize_to_structure(self):
+    def test_fit_to_structure(self):
         pass
 
-    def test_is_symmetric_to_structure(self):
-        pass
-
+    def test_is_fit_to_structure(self):
+        self.assertTrue(self.fit_r3.is_fit_to_structure(self.structure))
+        self.assertTrue(self.fit_r4.is_fit_to_structure(self.structure))
 
 class SquareTensorTest(PymatgenTest):
     def setUp(self):
