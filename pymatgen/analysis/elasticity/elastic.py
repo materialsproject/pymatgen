@@ -180,7 +180,7 @@ class ElasticTensor(TensorBase):
         returns the homogeneous poisson ratio
         """
         return (1. - 2. / 3. * self.g_vrh / self.k_vrh) / \
-               (2. + 2. / 3. * self.g_vrh / self.k_vrh) 
+               (2. + 2. / 3. * self.g_vrh / self.k_vrh)
 
     def energy_density(self, strain):
         """

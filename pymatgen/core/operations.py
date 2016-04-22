@@ -142,6 +142,7 @@ class SymmOp(MSONable):
 
         Args:
             tensor (numpy array): a rank n tensor
+
         Returns:
             Transformed tensor.
         """
@@ -156,7 +157,7 @@ class SymmOp(MSONable):
         einsum_args = [self.rotation_matrix] * rank + [tensor]
 
         return np.einsum(einsum_string, *einsum_args)
- 
+
     def are_symmetrically_related(self, point_a, point_b, tol=0.001):
         """
         Checks if two points are symmetrically related.
