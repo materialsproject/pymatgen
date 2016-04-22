@@ -127,7 +127,7 @@ class TensorBase(np.ndarray):
         """
         return (self - self.symmetrized < tol).all()
 
-    def symmetrize_to_structure(self, structure, symprec = 0.1):
+    def fit_to_structure(self, structure, symprec = 0.1):
         """
         Returns a tensor that is invariant with respect to symmetry
         operations corresponding to a structure
@@ -139,11 +139,11 @@ class TensorBase(np.ndarray):
                 used to generate the symmetry operations
         """
         sga = SpacegroupAnalyzer(structure, symprec)
-        symm_ops = sga.get_symmetry_operations()
+        symm_ops = sga.get_symmetry_operations(cartesian=True)
         return sum([self.transform(symm_op)
                     for symm_op in symm_ops]) / len(symm_ops)
 
-    def is_symmetric_to_structure(self, tol=1e-2):
+    def is_fit_to_structure(self, structure, tol=1e-2):
         """
         Tests whether a tensor is invariant with respect to the
         symmetry operations of a particular structure by testing
@@ -160,7 +160,7 @@ class TensorBase(np.ndarray):
 class SquareTensor(TensorBase):
     """
     Base class for doing useful general operations on second rank tensors
-    without restrictions on what type (stress, strain etc.).
+    (stress, strain etc.).
     """
 
     def __new__(cls, input_array):
