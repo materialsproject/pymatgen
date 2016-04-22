@@ -6,6 +6,7 @@ import math
 import numpy as np
 
 from pymatgen.analysis.elasticity.tensors import TensorBase, SquareTensor
+from pymatgen.core.operations import SymmOp
 from pymatgen.util.testing import PymatgenTest
 
 class TensorBaseTest(PymatgenTest):
@@ -74,34 +75,62 @@ class TensorBaseTest(PymatgenTest):
                                 [[6.89822, 0., 0.],
                                  [0., 6.89822, 0.],
                                  [0., 0., 27.4628]]])
-
         self.fit_r4 = TensorBase([[[[157.9, 0., 0.],
-                                      [0., 63.1, 0.],
-                                      [0., 0., 29.4]],
-                                     [[0., 47.4, 0.],
-                                      [47.4, 0., 0.],
-                                      [0., 0., 0.]],
-                                     [[0., 0., 4.3],
-                                      [0., 0., 0.],
-                                      [4.3, 0., 0.]]],
-                                    [[[0., 47.4, 0.],
-                                      [47.4, 0., 0.],
-                                      [0., 0., 0.]],
-                                     [[63.1, 0., 0.],
-                                      [0., 157.9, 0.],
-                                      [0., 0., 29.4]],
-                                     [[0., 0., 0.],
-                                      [0., 0., 4.3],
-                                      [0., 4.3, 0.]]]
-                                    [[[0., 0., 4.3],
-                                      [0., 0., 0.],
-                                      [4.3, 0., 0.]],
-                                     [[0., 0., 0.],
-                                      [0., 0., 4.3],
-                                      [0., 4.3, 0.]],
-                                     [[29.4, 0., 0.],
-                                      [0., 29.4, 0.],
-                                      [0., 0., 207.6]]]])
+                                    [0., 63.1, 0.],
+                                    [0., 0., 29.4]],
+                                   [[0., 47.4, 0.],
+                                    [47.4, 0., 0.],
+                                    [0., 0., 0.]],
+                                   [[0., 0., 4.3],
+                                    [0., 0., 0.],
+                                    [4.3, 0., 0.]]],
+                                  [[[0., 47.4, 0.],
+                                    [47.4, 0., 0.],
+                                    [0., 0., 0.]],
+                                   [[63.1, 0., 0.],
+                                    [0., 157.9, 0.],
+                                    [0., 0., 29.4]],
+                                   [[0., 0., 0.],
+                                    [0., 0., 4.3],
+                                    [0., 4.3, 0.]]],
+                                  [[[0., 0., 4.3],
+                                    [0., 0., 0.],
+                                    [4.3, 0., 0.]],
+                                   [[0., 0., 0.],
+                                    [0., 0., 4.3],
+                                    [0., 4.3, 0.]],
+                                   [[29.4, 0., 0.],
+                                    [0., 29.4, 0.],
+                                    [0., 0., 207.6]]]])
+        
+        self.unfit4 = TensorBase([[[[161.26, 0., 0.],
+                                    [0., 62.76, 0.],
+                                    [0., 0., 30.18]],
+                                   [[0., 47.08, 0.],
+                                    [47.08, 0., 0.],
+                                    [0., 0., 0.]],
+                                   [[0., 0., 4.23],
+                                    [0., 0., 0.],
+                                    [4.23, 0., 0.]]],
+                                  [[[0., 47.08, 0.],
+                                    [47.08, 0., 0.],
+                                    [0., 0., 0.]],
+                                   [[62.76, 0., 0.],
+                                    [0., 155.28, -0.06],
+                                    [0., -0.06, 28.53]],
+                                   [[0., 0., 0.],
+                                    [0., -0.06, 4.44],
+                                    [0., 4.44, 0.]]],
+                                  [[[0., 0., 4.23],
+                                    [0., 0., 0.],
+                                    [4.23, 0., 0.]],
+                                   [[0., 0., 0.],
+                                    [0., -0.06, 4.44],
+                                    [0., 4.44, 0.]],
+                                   [[30.18, 0., 0.],
+                                    [0., 28.53, 0.],
+                                    [0., 0., 207.57]]]])
+
         self.structure = self.get_structure('BaNiO3')
 
     def test_new(self):
@@ -130,7 +159,23 @@ class TensorBaseTest(PymatgenTest):
                                           [0, 0, 1]]))
 
     def test_transform(self):
-        pass
+        # Rank 3
+        tensor = TensorBase(np.arange(0, 27).reshape(3, 3, 3))
+        symm_op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30,
+                                                         False, [0, 0, 1])
+        new_tensor = tensor.transform(symm_op)
+
+        self.assertArrayAlmostEqual(new_tensor,
+                                    [[[-0.871, -2.884, -1.928],
+                                      [-2.152, -6.665, -4.196],
+                                      [-1.026, -2.830, -1.572]],
+                                     [[0.044, 1.531, 1.804],
+                                      [4.263, 21.008, 17.928],
+                                      [5.170, 23.026, 18.722]],
+                                     [[1.679, 7.268, 5.821],
+                                      [9.268, 38.321, 29.919],
+                                      [8.285, 33.651, 26.000]]], 3)
+
     
     def test_rotate(self):
         self.assertArrayEqual(self.vec.rotate([[0, -1, 0],
@@ -160,14 +205,11 @@ class TensorBaseTest(PymatgenTest):
         self.assertFalse(self.low_val.is_symmetric(tol=1e-8))
 
     def test_fit_to_structure(self):
-        # Perturb BaNiO3 example
-        perturbed_r3 = self.fit_r3
-        perturbed_r3[1, 2, 3] += 1.
-        self.assertFalse(perturbed_r3.is_fit_to_structure(self.structure))
-        new_fit = perturbed_r3.fit_to_structure(self.structure)
-        self.assertArrayAlmostEqual(new_fit, self.fit_r3)
+        new_fit = self.unfit4.fit_to_structure(self.structure)
+        self.assertArrayAlmostEqual(new_fit, self.fit_r4, 1)
 
     def test_is_fit_to_structure(self):
+        self.assertFalse(self.unfit4.is_fit_to_structure(self.structure))
         self.assertTrue(self.fit_r3.is_fit_to_structure(self.structure))
         self.assertTrue(self.fit_r4.is_fit_to_structure(self.structure))
 
