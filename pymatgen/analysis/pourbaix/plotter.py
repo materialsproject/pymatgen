@@ -609,7 +609,7 @@ class PourbaixPlotter(object):
                 x_coord += c[0]
                 y_coord += c[1]
                 npts += 1
-                patch = Polygon(xy, facecolor=domain_color[entry], alpha=1.0,
+                patch = Polygon(xy, facecolor=domain_color[entry],
                                 closed=True, lw=domain_edge_lw, fill=True, antialiased=True)
                 ax.add_patch(patch)
             xy_center = (x_coord / npts, y_coord / npts)
