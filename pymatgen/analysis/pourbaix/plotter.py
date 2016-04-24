@@ -599,7 +599,7 @@ class PourbaixPlotter(object):
 
     def get_pourbaix_plot_colorfill_by_domain_name(self, limits=None, title="",
             label_domains=True, label_color='k', domain_color=None, domain_fontsize=None,
-            domain_edge_lw=0, bold_domains=None, cluster_domains=(), add_bench_line=False,
+            domain_edge_lw=0.5, bold_domains=None, cluster_domains=(), add_bench_line=False,
             bench_lw=2):
         """
         Color domains by the colors specific by the domain_color dict
