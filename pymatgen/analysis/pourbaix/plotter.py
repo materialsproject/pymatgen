@@ -272,7 +272,7 @@ class PourbaixPlotter(object):
         center_y /= count_center
         return center_x, center_y
 
-    def get_distribution_corrected_center(self, lines):
+    def get_distribution_corrected_center(self, lines, h2o_h_line=None, h2o_o_line=None, radius=None):
         """
         Returns coordinates of center of a domain. Useful
         for labeling a Pourbaix plot.
@@ -324,6 +324,25 @@ class PourbaixPlotter(object):
         right_x = sorted([x for x in mid_x_list if x > cx_1])[0]
         center_x = (left_x + right_x) / 2.0
         center_y = (upper_y + lower_y) / 2.0
+        if h2o_h_line is not None:
+            (h2o_h_x1, h2o_h_y1), (h2o_h_x2, h2o_h_y2) = h2o_h_line.T
+            h_slope = (h2o_h_y2 - h2o_h_y1) / (h2o_h_x2 - h2o_h_x1)
+            (h2o_o_x1, h2o_o_y1), (h2o_o_x2, h2o_o_y2) = h2o_o_line.T
+            o_slope = (h2o_o_y2 - h2o_o_y1) / (h2o_o_x2 - h2o_o_x1)
+            h_y = h_slope * (cx_1 - h2o_h_x1) + h2o_h_y1
+            o_y = o_slope * (cx_1 - h2o_o_x1) + h2o_o_y1
+            h2o_y = None
+            if abs(center_y - h_y) < radius:
+                h2o_y = h_y
+            elif  abs(center_y - o_y) < radius:
+                h2o_y = o_y
+            if h2o_y is not None:
+                if (upper_y - lower_y) / 2.0 > radius * 2.0:
+                    # The space can hold the whole text (radius * 2.0)
+                    if h2o_y > center_y:
+                        center_y = h2o_y - radius
+                    else:
+                        center_y = h2o_y + radius
         return center_x, center_y
 
     def get_pourbaix_plot(self, limits=None, title="", label_domains=True):
@@ -673,7 +692,10 @@ class PourbaixPlotter(object):
             x_coord, y_coord, npts = 0.0, 0.0, 0
             for e in entry_dict_of_multientries[entry]:
                 xy = self.domain_vertices(e)
-                c = self.get_distribution_corrected_center(stable[e])
+                if add_bench_line:
+                    c = self.get_distribution_corrected_center(stable[e], h_line, o_line, 0.3)
+                else:
+                    c = self.get_distribution_corrected_center(stable[e])
                 x_coord += c[0]
                 y_coord += c[1]
                 npts += 1
@@ -725,7 +747,7 @@ class PourbaixPlotter(object):
         from itertools import chain
         import operator
 
-        plt = get_publication_quality_plot(16)
+        plt = get_publication_quality_plot(8)
         optim_colors = ['#0000FF', '#FF0000', '#00FF00', '#FFFF00', '#FF00FF',
                         '#FF8080', '#DCDCDC', '#800000', '#FF8000']
         optim_font_colors = ['#FFC000', '#00FFFF', '#FF00FF', '#0000FF', '#00FF00',
