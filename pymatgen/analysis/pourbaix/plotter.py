@@ -765,7 +765,7 @@ class PourbaixPlotter(object):
         from itertools import chain
         import operator
 
-        plt = get_publication_quality_plot(8)
+        plt = get_publication_quality_plot(16)
         optim_colors = ['#0000FF', '#FF0000', '#00FF00', '#FFFF00', '#FF00FF',
                         '#FF8080', '#DCDCDC', '#800000', '#FF8000']
         optim_font_colors = ['#FFC000', '#00FFFF', '#FF00FF', '#0000FF', '#00FF00',
