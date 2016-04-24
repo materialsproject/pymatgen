@@ -274,14 +274,19 @@ class PourbaixPlotter(object):
 
     def get_distribution_corrected_center(self, lines, h2o_h_line=None, h2o_o_line=None, radius=None):
         """
-        Returns coordinates of center of a domain. Useful
-        for labeling a Pourbaix plot.
+        Returns coordinates of distribution corrected center of a domain. Similar to get_center(), but
+        considers the distance to the surronding lines that mostly affects the feeling of "center".
+        This function will also try avoid overalapping the text babel with H2O stability line if H2O
+        stability line is provided. Useful for labeling a Pourbaix plot.
 
         Args:
             lines:
                 Lines corresponding to a domain
             limits:
                 Limits of Pourbaix diagram
+            h2o_h_line: Hydrogen line of H2O stability
+            h2o_o_line: Oxygen line of H2O stablity
+            radius: Half height of the text label.
 
         Returns:
             center_x, center_y:
@@ -626,9 +631,18 @@ class PourbaixPlotter(object):
         Args:
             limits: 2D list containing limits of the Pourbaix diagram
                 of the form [[xlo, xhi], [ylo, yhi]]
+            lable_domains (Bool): whether add the text lable for domains
+            label_color (str): color of domain lables, defaults to be black
             domain_color (dict): colors of each domain e.g {"Al(s)": "#FF1100"}. If set
                 to None default color set will be used.
-            label_color (str): color of domain lables, defaults to be black
+            domain_fontsize (int): Font size used in domain text labels.
+            domain_edge_lw (int): line width for the boundaries between domains.
+            bold_domains (list): List of domain names to use bold text style for domain
+                lables.
+            cluster_domains (list): List of domain names in cluster phase
+            add_h2o_stablity_line (Bool): whether plot H2O stability line
+            add_center_line (Bool): whether plot lines shows the center coordinate
+            h2o_lw (int): line width for H2O stability line and center lines
         """
         # helper functions
         def len_elts(entry):
