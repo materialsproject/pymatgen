@@ -618,8 +618,8 @@ class PourbaixPlotter(object):
 
     def get_pourbaix_plot_colorfill_by_domain_name(self, limits=None, title="",
             label_domains=True, label_color='k', domain_color=None, domain_fontsize=None,
-            domain_edge_lw=0.5, bold_domains=None, cluster_domains=(), add_bench_line=False,
-            bench_lw=2):
+            domain_edge_lw=0.5, bold_domains=None, cluster_domains=(),
+            add_h2o_stablity_line=True, add_center_line=False, h2o_lw=0.5):
         """
         Color domains by the colors specific by the domain_color dict
 
@@ -692,7 +692,7 @@ class PourbaixPlotter(object):
             x_coord, y_coord, npts = 0.0, 0.0, 0
             for e in entry_dict_of_multientries[entry]:
                 xy = self.domain_vertices(e)
-                if add_bench_line:
+                if add_h2o_stablity_line:
                     c = self.get_distribution_corrected_center(stable[e], h_line, o_line, 0.3)
                 else:
                     c = self.get_distribution_corrected_center(stable[e])
@@ -725,11 +725,15 @@ class PourbaixPlotter(object):
                          horizontalalignment="center", verticalalignment="center",
                          multialignment="center", color=label_color)
 
-        if add_bench_line:
-            plt.plot(h_line[0], h_line[1], "r--", linewidth=bench_lw, antialiased=True)
-            plt.plot(o_line[0], o_line[1], "r--", linewidth=bench_lw, antialiased=True)
-            plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=bench_lw, antialiased=True)
-            plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=bench_lw, antialiased=True)
+        if add_h2o_stablity_line:
+            dashes = (3, 1.5)
+            line, = plt.plot(h_line[0], h_line[1], "k--", linewidth=h2o_lw, antialiased=True)
+            line.set_dashes(dashes)
+            line, = plt.plot(o_line[0], o_line[1], "k--", linewidth=h2o_lw, antialiased=True)
+            line.set_dashes(dashes)
+        if add_center_line:
+            plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=h2o_lw, antialiased=False)
+            plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=h2o_lw, antialiased=False)
 
         plt.xlabel("pH", fontname="Times New Roman")
         plt.ylabel("E (V)", fontname="Times New Roman")
