@@ -272,16 +272,21 @@ class PourbaixPlotter(object):
         center_y /= count_center
         return center_x, center_y
 
-    def get_distribution_corrected_center(self, lines):
+    def get_distribution_corrected_center(self, lines, h2o_h_line=None, h2o_o_line=None, radius=None):
         """
-        Returns coordinates of center of a domain. Useful
-        for labeling a Pourbaix plot.
+        Returns coordinates of distribution corrected center of a domain. Similar to get_center(), but
+        considers the distance to the surronding lines that mostly affects the feeling of "center".
+        This function will also try avoid overalapping the text babel with H2O stability line if H2O
+        stability line is provided. Useful for labeling a Pourbaix plot.
 
         Args:
             lines:
                 Lines corresponding to a domain
             limits:
                 Limits of Pourbaix diagram
+            h2o_h_line: Hydrogen line of H2O stability
+            h2o_o_line: Oxygen line of H2O stablity
+            radius: Half height of the text label.
 
         Returns:
             center_x, center_y:
@@ -324,6 +329,25 @@ class PourbaixPlotter(object):
         right_x = sorted([x for x in mid_x_list if x > cx_1])[0]
         center_x = (left_x + right_x) / 2.0
         center_y = (upper_y + lower_y) / 2.0
+        if h2o_h_line is not None:
+            (h2o_h_x1, h2o_h_y1), (h2o_h_x2, h2o_h_y2) = h2o_h_line.T
+            h_slope = (h2o_h_y2 - h2o_h_y1) / (h2o_h_x2 - h2o_h_x1)
+            (h2o_o_x1, h2o_o_y1), (h2o_o_x2, h2o_o_y2) = h2o_o_line.T
+            o_slope = (h2o_o_y2 - h2o_o_y1) / (h2o_o_x2 - h2o_o_x1)
+            h_y = h_slope * (cx_1 - h2o_h_x1) + h2o_h_y1
+            o_y = o_slope * (cx_1 - h2o_o_x1) + h2o_o_y1
+            h2o_y = None
+            if abs(center_y - h_y) < radius:
+                h2o_y = h_y
+            elif  abs(center_y - o_y) < radius:
+                h2o_y = o_y
+            if h2o_y is not None:
+                if (upper_y - lower_y) / 2.0 > radius * 2.0:
+                    # The space can hold the whole text (radius * 2.0)
+                    if h2o_y > center_y:
+                        center_y = h2o_y - radius
+                    else:
+                        center_y = h2o_y + radius
         return center_x, center_y
 
     def get_pourbaix_plot(self, limits=None, title="", label_domains=True):
@@ -599,17 +623,26 @@ class PourbaixPlotter(object):
 
     def get_pourbaix_plot_colorfill_by_domain_name(self, limits=None, title="",
             label_domains=True, label_color='k', domain_color=None, domain_fontsize=None,
-            domain_edge_lw=0, bold_domains=None, cluster_domains=(), add_bench_line=False,
-            bench_lw=2):
+            domain_edge_lw=0.5, bold_domains=None, cluster_domains=(),
+            add_h2o_stablity_line=True, add_center_line=False, h2o_lw=0.5):
         """
         Color domains by the colors specific by the domain_color dict
 
         Args:
             limits: 2D list containing limits of the Pourbaix diagram
                 of the form [[xlo, xhi], [ylo, yhi]]
+            lable_domains (Bool): whether add the text lable for domains
+            label_color (str): color of domain lables, defaults to be black
             domain_color (dict): colors of each domain e.g {"Al(s)": "#FF1100"}. If set
                 to None default color set will be used.
-            label_color (str): color of domain lables, defaults to be black
+            domain_fontsize (int): Font size used in domain text labels.
+            domain_edge_lw (int): line width for the boundaries between domains.
+            bold_domains (list): List of domain names to use bold text style for domain
+                lables.
+            cluster_domains (list): List of domain names in cluster phase
+            add_h2o_stablity_line (Bool): whether plot H2O stability line
+            add_center_line (Bool): whether plot lines shows the center coordinate
+            h2o_lw (int): line width for H2O stability line and center lines
         """
         # helper functions
         def len_elts(entry):
@@ -673,7 +706,10 @@ class PourbaixPlotter(object):
             x_coord, y_coord, npts = 0.0, 0.0, 0
             for e in entry_dict_of_multientries[entry]:
                 xy = self.domain_vertices(e)
-                c = self.get_distribution_corrected_center(stable[e])
+                if add_h2o_stablity_line:
+                    c = self.get_distribution_corrected_center(stable[e], h_line, o_line, 0.3)
+                else:
+                    c = self.get_distribution_corrected_center(stable[e])
                 x_coord += c[0]
                 y_coord += c[1]
                 npts += 1
@@ -703,16 +739,20 @@ class PourbaixPlotter(object):
                          horizontalalignment="center", verticalalignment="center",
                          multialignment="center", color=label_color)
 
-        if add_bench_line:
-            plt.plot(h_line[0], h_line[1], "r--", linewidth=bench_lw, antialiased=True)
-            plt.plot(o_line[0], o_line[1], "r--", linewidth=bench_lw, antialiased=True)
-            plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=bench_lw, antialiased=True)
-            plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=bench_lw, antialiased=True)
+        if add_h2o_stablity_line:
+            dashes = (3, 1.5)
+            line, = plt.plot(h_line[0], h_line[1], "k--", linewidth=h2o_lw, antialiased=True)
+            line.set_dashes(dashes)
+            line, = plt.plot(o_line[0], o_line[1], "k--", linewidth=h2o_lw, antialiased=True)
+            line.set_dashes(dashes)
+        if add_center_line:
+            plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=h2o_lw, antialiased=False)
+            plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=h2o_lw, antialiased=False)
 
-        plt.xlabel("pH", fontname="Times New Roman")
-        plt.ylabel("E (V)", fontname="Times New Roman")
-        plt.xticks(fontname="Times New Roman")
-        plt.yticks(fontname="Times New Roman")
+        plt.xlabel("pH", fontname="Times New Roman", fontsize=18)
+        plt.ylabel("E (V)", fontname="Times New Roman", fontsize=18)
+        plt.xticks(fontname="Times New Roman", fontsize=16)
+        plt.yticks(fontname="Times New Roman", fontsize=16)
         plt.title(title, fontsize=20, fontweight='bold', fontname="Times New Roman")
         return plt
 
