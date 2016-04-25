@@ -20,7 +20,7 @@ import math
 import numpy as np
 
 
-def get_publication_quality_plot(width=8, height=None, plt=None):
+def get_publication_quality_plot(width=8, height=None, plt=None, dpi=None):
     """
     Provides a publication quality plot, with nice defaults for font sizes etc.
 
@@ -42,7 +42,7 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
 
     if plt is None:
         import matplotlib.pyplot as plt
-        plt.figure(figsize=(width, height), facecolor="w")
+        plt.figure(figsize=(width, height), facecolor="w", dpi=dpi)
     else:
         fig = plt.gcf()
         fig.set_size_inches(width, height)
