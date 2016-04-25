@@ -1460,7 +1460,7 @@ class Outcar(MSONable):
         for k in patterns.keys():
             self.data[k] = [i[0] for i in matches.get(k, [])]
 
-    def read_dielectric(self, reverse=True, terminate_on_match=True):
+    def read_corrections(self, reverse=True, terminate_on_match=True):
         patterns = {
             "dipol_quadrupol_correction": "dipol\+quadrupol energy correction\s+([\d\-\.]+)"
         }
