@@ -414,7 +414,7 @@ class OutcarTest(unittest.TestCase):
     def test_dielectric(self):
         filepath = os.path.join(test_dir, "OUTCAR.dielectric")
         outcar = Outcar(filepath)
-        outcar.read_dielectric()
+        outcar.read_corrections()
         self.assertAlmostEqual(outcar.data["dipol_quadrupol_correction"], 0.03565)
         self.assertAlmostEqual(outcar.final_energy, -797.46760559)
 
