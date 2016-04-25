@@ -411,6 +411,13 @@ class OutcarTest(unittest.TestCase):
             self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
             self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
 
+    def test_dielectric(self):
+        filepath = os.path.join(test_dir, "OUTCAR.dielectric")
+        outcar = Outcar(filepath)
+        outcar.read_dielectric()
+        self.assertAlmostEqual(outcar.data["dipol_quadrupol_correction"], 0.03565)
+        self.assertAlmostEqual(outcar.final_energy, -797.46760559)
+
     def test_elastic_tensor(self):
         filepath = os.path.join(test_dir, "OUTCAR.total_tensor.Li2O.gz")
         outcar = Outcar(filepath)

@@ -1279,12 +1279,14 @@ class Outcar(MSONable):
         nelect = None
         efermi = None
         elastic_tensor = None
+        total_energy = None
 
         time_patt = re.compile("\((sec|kb)\)")
         efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
         nelect_patt = re.compile("number of electron\s+(\S+)\s+"
                                  "magnetization\s+(\S+)")
         etensor_patt = re.compile("[X-Z][X-Z]+\s+-?\d+")
+        toten_pattern = re.compile("free  energy   TOTEN\s+=\s+([\d\-\.]+)")
 
         all_lines = []
         for line in reverse_readfile(self.filename):
@@ -1312,6 +1314,10 @@ class Outcar(MSONable):
                 if m:
                     nelect = float(m.group(1))
                     total_mag = float(m.group(2))
+                if total_energy is None:
+                    m = toten_pattern.search(clean)
+                    if m:
+                        total_energy = float(m.group(1))
             if all([nelect, total_mag is not None, efermi is not None,
                     run_stats]):
                 break
@@ -1413,6 +1419,7 @@ class Outcar(MSONable):
         self.nelect = nelect
         self.total_mag = total_mag
         self.elastic_tensor = elastic_tensor
+        self.final_energy = total_energy
         self.data = {}
 
         # Check to see if LEPSILON is true and read piezo data if so
@@ -1452,6 +1459,15 @@ class Outcar(MSONable):
                          postprocess=postprocess)
         for k in patterns.keys():
             self.data[k] = [i[0] for i in matches.get(k, [])]
+
+    def read_dielectric(self, reverse=True, terminate_on_match=True):
+        patterns = {
+            "dipol_quadrupol_correction": "dipol\+quadrupol energy correction\s+([\d\-\.]+)"
+        }
+        self.read_pattern(patterns, reverse=reverse,
+                          terminate_on_match=terminate_on_match,
+                          postprocess=float)
+        self.data["dipol_quadrupol_correction"] = self.data["dipol_quadrupol_correction"][0][0]
 
     def read_neb(self, reverse=True, terminate_on_match=True):
         """
