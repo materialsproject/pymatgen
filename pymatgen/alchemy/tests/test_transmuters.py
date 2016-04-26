@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 5, 2012"
 
-import unittest
+import unittest2 as unittest
 import os
 from pymatgen.alchemy.transmuters import CifTransmuter, PoscarTransmuter
 from pymatgen.alchemy.filters import ContainsSpecieFilter

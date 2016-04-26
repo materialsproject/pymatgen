@@ -159,6 +159,9 @@ class CoordUtilsTest(PymatgenTest):
         mask2 = [[True, False]]
         self.assertTrue(is_coord_subset_pbc([c1], [c2, c1], mask=mask2))
         self.assertFalse(is_coord_subset_pbc([c1], [c1, c2], mask=mask2))
+        mask3 = [[False, True]]
+        self.assertFalse(is_coord_subset_pbc([c1], [c2, c1], mask=mask3))
+        self.assertTrue(is_coord_subset_pbc([c1], [c1, c2], mask=mask3))
 
 
     def test_lattice_points_in_supercell(self):
@@ -258,5 +261,5 @@ class SimplexTest(PymatgenTest):
 
 
 if __name__ == "__main__":
-    import unittest
+    import unittest2 as unittest
     unittest.main()

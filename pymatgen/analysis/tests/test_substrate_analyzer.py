@@ -15,7 +15,7 @@ __maintainer__ = "Shyam Dwaraknath"
 __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
 
-import unittest
+import unittest2 as unittest
 from pymatgen.analysis.substrate_analyzer import SubstrateAnalyzer, \
     ZSLGenerator, fast_norm, reduce_vectors, vec_area, get_factors
 from pymatgen.util.testing import PymatgenTest
@@ -65,7 +65,7 @@ class SubstrateAnalyzerTest(PymatgenTest):
         substrate = SpacegroupAnalyzer(self.get_structure("TiO2"),
                                        symprec=0.1).get_conventional_standard_structure()
 
-        film_elac = ElasticTensor([
+        film_elac = ElasticTensor.from_voigt([
             [324.32, 187.3, 170.92, 0., 0., 0.],
             [187.3, 324.32, 170.92, 0., 0., 0.],
             [170.92, 170.92, 408.41, 0., 0., 0.],

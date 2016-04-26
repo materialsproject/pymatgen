@@ -13,7 +13,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "4/10/14"
 
-import unittest
+import unittest2 as unittest
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
