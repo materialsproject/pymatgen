@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 16, 2012"
 
-import unittest
+import unittest2 as unittest
 import os
 import pickle
 import numpy as np
@@ -431,6 +431,37 @@ SIGMA      =  0.05
 SYSTEM     =  Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]
 TIME       =  0.4"""
         self.assertEqual(s, ans)
+
+    def test_lsorbit_magmom(self):
+        magmom1 = [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]]
+        magmom2 = [-1,-1,-1, 0, 0, 0, 0 ,0 ]
+
+        ans_string1 = "LSORBIT = True\nMAGMOM = 0.0 0.0 3.0 0 1 0 2 1 2\n"
+        ans_string2 = "LSORBIT = True\nMAGMOM = 3*3*-1 3*5*0\n"
+        ans_string3 = "LSORBIT = False\nMAGMOM = 2*-1 2*9\n"
+
+        incar = Incar({})
+        incar["MAGMOM"] = magmom1
+        incar["LSORBIT"] = "T"
+        self.assertEqual(ans_string1, str(incar))
+
+        incar["MAGMOM"] = magmom2
+        incar["LSORBIT"] = "T"
+        self.assertEqual(ans_string2, str(incar))
+
+        incar = Incar.from_string(ans_string1)
+        self.assertEqual(incar["MAGMOM"], [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]])
+
+        incar = Incar.from_string(ans_string2)
+        self.assertEqual(incar["MAGMOM"], [[-1, -1, -1], [-1, -1, -1],
+                                           [-1, -1, -1], [0, 0, 0],
+                                           [0, 0, 0], [0, 0, 0],
+                                           [0, 0, 0], [0, 0, 0]])
+
+        incar = Incar.from_string(ans_string3)
+        self.assertFalse(incar["LSORBIT"])
+        self.assertEqual(incar["MAGMOM"], [-1, -1, 9, 9])
+
 
 class KpointsTest(unittest.TestCase):
 

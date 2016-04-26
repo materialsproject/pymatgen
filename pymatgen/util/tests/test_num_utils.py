@@ -11,7 +11,7 @@ __maintainer__ = 'Shyue Ping Ong'
 __email__ = 'ongsp@ucsd.edu'
 __date__ = '9/25/14'
 
-import unittest
+import unittest2 as unittest
 
 import random
 

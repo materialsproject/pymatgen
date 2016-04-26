@@ -5,7 +5,7 @@
 from __future__ import unicode_literals
 
 import numpy as np
-import unittest
+import unittest2 as unittest
 import os
 from math import fabs
 
