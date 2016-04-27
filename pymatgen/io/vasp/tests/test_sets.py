@@ -445,6 +445,7 @@ class MPStaticSetTest(PymatgenTest):
 
         # Code below is just to make sure that the parameters are the same
         # between the old MPStaticVaspInputSet and the new MPStaticSet.
+        # TODO: Delete code below in future.
         MPStaticVaspInputSet.from_previous_vasp_run(
             previous_vasp_dir=prev_run, output_dir=self.tmp)
 
