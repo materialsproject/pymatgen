@@ -1349,8 +1349,8 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
         sym_prec (float): Tolerance for symmetry finding
     """
 
-    @deprecated(message="Replaced by MPOpticsDerivedSet. Will be removed in "
-                        "pymatgen 4.0.")
+    @deprecated(message="Replaced by MPNonSCFDerivedSet with optics=True. Will "
+                        "be removed in pymatgen 4.0.")
     def __init__(self, user_incar_settings,
                  constrain_total_magmom=False, sort_structure=False,
                  kpoints_density=1000, sym_prec=0.1, nedos=2001):
@@ -1745,7 +1745,7 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
         if mode not in ["Line", "Uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
-        if mode != "Uniform" and optics:
+        if (mode != "Uniform" or nedos < 2000) and optics:
             warnings.warn("It is recommended to use Uniform mode with a high "
                           "NEDOS for optics calculations.")
         self.mode = mode
