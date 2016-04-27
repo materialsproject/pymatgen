@@ -1816,7 +1816,8 @@ class MPNonSCFSet(DerivedVaspInputSet):
             self.chgcar.write_file(os.path.join(output_dir, "CHGCAR"))
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True, **kwargs):
+    def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True, nbands_factor=1.2,
+                       **kwargs):
         """
         Generate a set of Vasp input files for NonSCF calculations from a
         directory of previous static Vasp run.
@@ -1824,6 +1825,9 @@ class MPNonSCFSet(DerivedVaspInputSet):
         Args:
             prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml and OUTCAR) of previous vasp run.
+            copy_chgcar: Whether to copy the old CHGCAR. Defaults to True.
+            nbands_factor (float): Multiplicative factor for NBANDS. Choose a
+                higher number if you are doing an LOPTICS calculation.
             \*\*kwargs: All kwargs supported by MPNonSCFSet,
                 other than structure, prev_incar and prev_chgcar which
                 are determined from the prev_calc_dir.
@@ -1842,7 +1846,7 @@ class MPNonSCFSet(DerivedVaspInputSet):
             ispin = 2
         else:
             ispin = 1
-        nbands = int(np.ceil(vasprun.parameters["NBANDS"] * 1.2))
+        nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
         incar.update({"ISPIN": ispin, "NBANDS": nbands})
 
         chgcar = None
