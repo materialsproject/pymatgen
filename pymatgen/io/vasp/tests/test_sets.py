@@ -430,7 +430,7 @@ class MVLVaspInputSetTest(PymatgenTest):
         self.assertNotIn("NPAR", incar)
 
 
-class MPStaticDerivedSetTest(PymatgenTest):
+class MPStaticSetTest(PymatgenTest):
 
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
@@ -438,20 +438,20 @@ class MPStaticDerivedSetTest(PymatgenTest):
     def test_init(self):
         prev_run = os.path.join(test_dir, "relaxation")
 
-        vis = MPStaticDerivedSet.from_prev_calc(prev_calc_dir=prev_run)
+        vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run)
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
         self.assertEqual(vis.incar["ENCUT"], 600)
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
 
         # Check as from dict.
-        vis = MPStaticDerivedSet.from_dict(vis.as_dict())
+        vis = MPStaticSet.from_dict(vis.as_dict())
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
         self.assertEqual(vis.incar["ENCUT"], 600)
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
 
-        non_prev_vis = MPStaticDerivedSet(vis.structure)
+        non_prev_vis = MPStaticSet(vis.structure)
         self.assertEqual(non_prev_vis.incar["NSW"], 0)
         # Check that the ENCUT and Kpoints style has NOT been inherited.
         self.assertEqual(non_prev_vis.incar["ENCUT"], 520)
@@ -492,7 +492,7 @@ class MPNonSCFDerivedSetTest(PymatgenTest):
 
     def test_init(self):
         prev_run = os.path.join(test_dir, "relaxation")
-        vis = MPNonSCFDerivedSet.from_prev_calc(
+        vis = MPNonSCFSet.from_prev_calc(
             prev_calc_dir=prev_run, mode="Line", copy_chgcar=False)
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
@@ -500,7 +500,7 @@ class MPNonSCFDerivedSetTest(PymatgenTest):
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
 
         # Check as from dict.
-        vis = MPNonSCFDerivedSet.from_dict(vis.as_dict())
+        vis = MPNonSCFSet.from_dict(vis.as_dict())
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
         self.assertEqual(vis.incar["ENCUT"], 600)
@@ -509,7 +509,7 @@ class MPNonSCFDerivedSetTest(PymatgenTest):
         vis.write_input(self.tmp)
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
 
-        vis = MPNonSCFDerivedSet.from_prev_calc(prev_calc_dir=prev_run,
+        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run,
                                                 mode="Line", copy_chgcar=True)
         vis.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
@@ -538,7 +538,7 @@ class MPNonSCFDerivedSetTest(PymatgenTest):
 
     def test_optics(self):
         prev_run = os.path.join(test_dir, "relaxation")
-        vis = MPNonSCFDerivedSet.from_prev_calc(prev_calc_dir=prev_run,
+        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run,
                                                 copy_chgcar=False, optics=True)
 
         self.assertEqual(vis.incar["NSW"], 0)

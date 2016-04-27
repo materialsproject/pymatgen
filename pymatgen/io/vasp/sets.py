@@ -869,8 +869,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             return sym_finder.get_primitive_standard_structure(False)
 
     @staticmethod
-    @deprecated(message="Replaced by MPStaticDerivedSet. Will be removed in "
-                        "pymatgen 4.0.")
+    @deprecated(message="Replaced by MPStaticSet. Will be removed in pmg 4.0.")
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
                                user_incar_settings=None,
                                make_dir_if_not_present=True,
@@ -1127,8 +1126,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         sym_prec (float): Tolerance for symmetry finding
     """
 
-    @deprecated(message="Replaced by MPNonSCFDerivedSet. Will be removed in "
-                        "pymatgen 4.0.")
+    @deprecated(message="Replaced by MPNonSCFSet. Will be removed in pmg 4.0.")
     def __init__(self, user_incar_settings, mode="Line",
                  constrain_total_magmom=False, sort_structure=False,
                  kpoints_density=1000, sym_prec=0.1, kpoints_line_density=20):
@@ -1349,8 +1347,8 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
         sym_prec (float): Tolerance for symmetry finding
     """
 
-    @deprecated(message="Replaced by MPNonSCFDerivedSet with optics=True. Will "
-                        "be removed in pymatgen 4.0.")
+    @deprecated(message="Replaced by MPNonSCFSet with optics=True. Will "
+                        "be removed in pmg 4.0.")
     def __init__(self, user_incar_settings,
                  constrain_total_magmom=False, sort_structure=False,
                  kpoints_density=1000, sym_prec=0.1, nedos=2001):
@@ -1592,12 +1590,12 @@ class DerivedVaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         return cls(**decoded)
 
 
-class MPStaticDerivedSet(DerivedVaspInputSet):
+class MPStaticSet(DerivedVaspInputSet):
 
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
                  kpoints_density=90, **kwargs):
         """
-        Init a MPStaticDerivedSet. Typically, you would use the classmethod
+        Init a MPStaticSet. Typically, you would use the classmethod
         from_prev_calc instead.
 
         Args:
@@ -1684,7 +1682,7 @@ class MPStaticDerivedSet(DerivedVaspInputSet):
                 the final structure from the previous run will be symmetrized
                 to get a primitive standard cell. Set to 0 if you don't want
                 that.
-            \*\*kwargs: All kwargs supported by MPStaticDerivedSet,
+            \*\*kwargs: All kwargs supported by MPStaticSet,
                 other than prev_incar and prev_structure and prev_kpoints which
                 are determined from the prev_calc_dir.
         """
@@ -1705,18 +1703,18 @@ class MPStaticDerivedSet(DerivedVaspInputSet):
         prev_structure = get_structure_from_prev_run(
             vasprun, outcar, sym_prec=sym_prec, standardize=standardize)
 
-        return MPStaticDerivedSet(
+        return MPStaticSet(
             structure=prev_structure, prev_incar=prev_incar,
             prev_kpoints=prev_kpoints, **kwargs)
 
 
-class MPNonSCFDerivedSet(DerivedVaspInputSet):
+class MPNonSCFSet(DerivedVaspInputSet):
 
     def __init__(self, structure, prev_incar=None, prev_chgcar=None,
                  mode="Line", nedos=601, kpoints_density=1000, sym_prec=0.1,
                  kpoints_line_density=20, optics=False, **kwargs):
         """
-        Init a MPNonSCFDerivedSet. Typically, you would use the classmethod
+        Init a MPNonSCFSet. Typically, you would use the classmethod
         from_prev_calc instead.
 
         Args:
@@ -1808,7 +1806,7 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
-        super(MPNonSCFDerivedSet, self).write_input(output_dir,
+        super(MPNonSCFSet, self).write_input(output_dir,
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
         if self.chgcar:
@@ -1823,8 +1821,8 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
         Args:
             prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml and OUTCAR) of previous vasp run.
-            \*\*kwargs: All kwargs supported by MPNonSCFDerivedSet,
-            other than prev_incar and prev_structure and prev_chgcar which
+            \*\*kwargs: All kwargs supported by MPNonSCFSet,
+                other than structure, prev_incar and prev_chgcar which
                 are determined from the prev_calc_dir.
         """
 
@@ -1857,9 +1855,8 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
             chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
             if len(chgcars) > 0:
                 chgcar = Chgcar.from_file(sorted(chgcars)[-1])
-        return MPNonSCFDerivedSet(
-            structure=structure, prev_incar=incar,
-            prev_chgcar=chgcar, **kwargs)
+        return MPNonSCFSet(structure=structure, prev_incar=incar,
+                           prev_chgcar=chgcar, **kwargs)
 
 
 def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
