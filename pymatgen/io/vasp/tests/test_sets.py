@@ -451,12 +451,14 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(vis.incar["ENCUT"], 600)
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
 
-        non_prev_vis = MPStaticSet(vis.structure, user_incar_settings={"LORBIT": 12})
+        non_prev_vis = MPStaticSet(vis.structure,
+                                   user_incar_settings={"LORBIT": 12, "LWAVE": True})
         self.assertEqual(non_prev_vis.incar["NSW"], 0)
         # Check that the ENCUT and Kpoints style has NOT been inherited.
         self.assertEqual(non_prev_vis.incar["ENCUT"], 520)
         # Check that user incar settings are applied.
         self.assertEqual(non_prev_vis.incar["LORBIT"], 12)
+        self.assertTrue(non_prev_vis.incar["LWAVE"])
 
         self.assertEqual(non_prev_vis.kpoints.style,
                          Kpoints.supported_modes.Gamma)
