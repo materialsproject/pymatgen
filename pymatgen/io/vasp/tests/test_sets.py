@@ -443,6 +443,14 @@ class MPStaticDerivedSetTest(PymatgenTest):
         self.assertEqual(vis.incar["ENCUT"], 600)
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
 
+        # Check as from dict.
+        vis = MPStaticDerivedSet.from_dict(vis.as_dict())
+        self.assertEqual(vis.incar["NSW"], 0)
+        # Check that the ENCUT has been inherited.
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
+        #self.assertEqual(vis.user_incar_settings["ISMEAR"], 0)
+
         # Code below is just to make sure that the parameters are the same
         # between the old MPStaticVaspInputSet and the new MPStaticSet.
         # TODO: Delete code below in future.
@@ -476,12 +484,20 @@ class MPNonSCFDerivedSetTest(PymatgenTest):
 
     def test_init(self):
         prev_run = os.path.join(test_dir, "relaxation")
-        vis = MPNonSCFDerivedSet.from_prev_calc(prev_calc_dir=prev_run,
-                                                mode="Line", copy_chgcar=False)
+        vis = MPNonSCFDerivedSet.from_prev_calc(
+            prev_calc_dir=prev_run, mode="Line", copy_chgcar=False)
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
         self.assertEqual(vis.incar["ENCUT"], 600)
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+
+        # Check as from dict.
+        vis = MPNonSCFDerivedSet.from_dict(vis.as_dict())
+        self.assertEqual(vis.incar["NSW"], 0)
+        # Check that the ENCUT has been inherited.
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+
         vis.write_input(self.tmp)
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
 
@@ -531,6 +547,15 @@ class MPOpticsDerivedSetTest(PymatgenTest):
         self.assertEqual(vis.incar["ENCUT"], 600)
         self.assertTrue(vis.incar["LOPTICS"])
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+
+        # Check as from dict.
+        vis = MPOpticsDerivedSet.from_dict(vis.as_dict())
+        self.assertEqual(vis.incar["NSW"], 0)
+        # Check that the ENCUT has been inherited.
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertTrue(vis.incar["LOPTICS"])
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+
         vis.write_input(self.tmp)
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
 
