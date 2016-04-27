@@ -2,7 +2,29 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
+from __future__ import division, unicode_literals, print_function
+
+import os
+import abc
+
+import re
+import traceback
+import shutil
+from functools import partial
+from glob import glob
+import warnings
+
+import six
+import numpy as np
+
+from monty.serialization import loadfn
+from monty.dev import deprecated
+
+from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
+from pymatgen.io.vasp.outputs import Vasprun, Outcar, Chgcar
+from monty.json import MSONable, MontyDecoder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 """
 This module defines the VaspInputSet abstract base class and a concrete
@@ -20,26 +42,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Nov 16, 2011"
 
-import os
-import abc
 
-import re
-import traceback
-import shutil
-from functools import partial
-from glob import glob
-
-import six
-import numpy as np
-
-from monty.serialization import loadfn
-from monty.dev import deprecated
-
-from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
-from pymatgen.io.vasp.outputs import Vasprun, Outcar, Chgcar
-from monty.json import MSONable, MontyDecoder
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -1591,39 +1594,39 @@ class DerivedVaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
 
 class MPStaticDerivedSet(DerivedVaspInputSet):
 
-    def __init__(self, prev_incar, prev_kpoints, prev_structure,
+    def __init__(self, structure, prev_incar=None, prev_kpoints=None,
                  kpoints_density=90, **kwargs):
         """
         Init a MPStaticDerivedSet. Typically, you would use the classmethod
         from_prev_calc instead.
 
         Args:
+            structure (Structure): Structure from previous run.
             prev_incar (Incar): Incar file from previous run.
             prev_kpoints (Kpoints): Kpoints from previous run.
-            prev_structure (Structure): Structure from previous run.
-            mode (str): Line or Uniform mode supported.
             kpoints_density (int): Kpoints density. Defaults to 90.
             \*\*kwargs: kwargs supported by MPVaspInputSet.
         """
 
         self.prev_incar = prev_incar
         self.prev_kpoints = prev_kpoints
-        self.prev_structure = prev_structure
         self.kpoints_density = kpoints_density
 
-        self.structure = prev_structure
+        self.structure = structure
         parent_vis = MPVaspInputSet(**kwargs)
 
-        incar = Incar(prev_incar)
+        parent_incar = parent_vis.get_incar(structure)
+        incar = Incar(prev_incar) if prev_incar is not None else \
+            Incar(parent_incar)
+
         incar.update(
             {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
              "ICHARG": 0, "ALGO": "Normal"})
 
-        new_incar = parent_vis.get_incar(prev_structure)
         for k in ["MAGMOM", "NUPDOWN"]:
-            if new_incar.get(k, None):
-                incar[k] = new_incar[k]
+            if parent_incar.get(k, None):
+                incar[k] = parent_incar[k]
             else:
                 incar.pop(k, None)
 
@@ -1634,15 +1637,14 @@ class MPStaticDerivedSet(DerivedVaspInputSet):
             j = incar.get('LDAUJ', [])
             if sum([u[x] - j[x] for x, y in enumerate(u)]) > 0:
                 for tag in ('LDAUU', 'LDAUL', 'LDAUJ'):
-                    incar.update({tag: new_incar[tag]})
+                    incar.update({tag: parent_incar[tag]})
             # ensure to have LMAXMIX for GGA+U static run
             if "LMAXMIX" not in incar:
-                incar.update({"LMAXMIX": new_incar["LMAXMIX"]})
+                incar.update({"LMAXMIX": parent_incar["LMAXMIX"]})
 
         # Compare ediff between previous and staticinputset values,
         # choose the tighter ediff
-        incar["EDIFF"] = min(incar.get("EDIFF", 1),
-                             new_incar["EDIFF"])
+        incar["EDIFF"] = min(incar.get("EDIFF", 1), parent_incar["EDIFF"])
 
         self.incar = incar
 
@@ -1667,7 +1669,8 @@ class MPStaticDerivedSet(DerivedVaspInputSet):
         self.potcar = parent_vis.get_potcar(self.structure)
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, sym_prec=0.1, **kwargs):
+    def from_prev_calc(cls, prev_calc_dir, standardize=False, sym_prec=0.1,
+            **kwargs):
         """
         Generate a set of Vasp input files for static calculations from a
         directory of previous Vasp run.
@@ -1675,6 +1678,8 @@ class MPStaticDerivedSet(DerivedVaspInputSet):
         Args:
             prev_calc_dir (str): Directory containing the outputs(
                 vasprun.xml and OUTCAR) of previous vasp run.
+            standardize (float): Whether to standardize to a primitive
+                standard cell. Defaults to False.
             sym_prec (float): Tolerance for symmetry finding. If not 0,
                 the final structure from the previous run will be symmetrized
                 to get a primitive standard cell. Set to 0 if you don't want
@@ -1697,19 +1702,19 @@ class MPStaticDerivedSet(DerivedVaspInputSet):
         prev_kpoints = vasprun.kpoints
 
         # We will make a standard structure for the given symprec.
-        prev_structure = get_structure_from_prev_run(vasprun, outcar,
-                                                     sym_prec=sym_prec)
+        prev_structure = get_structure_from_prev_run(
+            vasprun, outcar, sym_prec=sym_prec, standardize=standardize)
 
         return MPStaticDerivedSet(
-            prev_incar=prev_incar, prev_kpoints=prev_kpoints,
-            prev_structure=prev_structure, **kwargs)
+            structure=prev_structure, prev_incar=prev_incar,
+            prev_kpoints=prev_kpoints, **kwargs)
 
 
 class MPNonSCFDerivedSet(DerivedVaspInputSet):
 
-    def __init__(self, prev_incar, prev_structure, prev_chgcar=None,
+    def __init__(self, structure, prev_incar=None, prev_chgcar=None,
                  mode="Line", nedos=601, kpoints_density=1000, sym_prec=0.1,
-                 kpoints_line_density=20, **kwargs):
+                 kpoints_line_density=20, optics=False, **kwargs):
         """
         Init a MPNonSCFDerivedSet. Typically, you would use the classmethod
         from_prev_calc instead.
@@ -1726,24 +1731,30 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
             kpoints_line_density (int): Line density for Line mode.
             \*\*kwargs: kwargs supported by MPVaspInputSet.
         """
+        self.structure = structure
         self.prev_incar = prev_incar
         self.prev_chgcar = prev_chgcar
-        self.prev_structure = prev_structure
+
         self.kpoints_density = kpoints_density
         self.nedos = nedos
         self.kpoints_density = kpoints_density
         self.sym_prec = sym_prec
         self.kpoints_line_density = kpoints_line_density
+        self.optics = optics
 
         if mode not in ["Line", "Uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
+        if mode != "Uniform" and optics:
+            warnings.warn("It is recommended to use Uniform mode with a high "
+                          "NEDOS for optics calculations.")
         self.mode = mode
 
         parent_vis = MPVaspInputSet(**kwargs)
 
-        incar = parent_vis.get_incar(prev_structure)
-        incar.update(prev_incar)
+        incar = parent_vis.get_incar(structure)
+        if prev_incar is not None:
+            incar.update(prev_incar)
 
         # Overwrite necessary INCAR parameters from previous runs
         incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001,
@@ -1753,12 +1764,16 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
         if mode == "Uniform":
             # Set smaller steps for DOS output
             incar["NEDOS"] = nedos
+
+        if optics:
+            incar["LOPTICS"] = True
+
         incar.pop("MAGMOM", None)
 
         self.incar = incar
 
         if self.mode == "Line":
-            kpath = HighSymmKpath(prev_structure)
+            kpath = HighSymmKpath(structure)
             frac_k_points, k_points_labels = kpath.get_kpoints(
                 line_density=self.kpoints_line_density,
                 coords_are_cartesian=False)
@@ -1770,11 +1785,11 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
                 kpts_weights=[1] * len(frac_k_points))
         else:
             num_kpoints = kpoints_density * \
-                          prev_structure.lattice.reciprocal_lattice.volume
+                          structure.lattice.reciprocal_lattice.volume
             kpoints = Kpoints.automatic_density(
-                prev_structure, num_kpoints * prev_structure.num_sites)
+                structure, num_kpoints * structure.num_sites)
             mesh = kpoints.kpts[0]
-            ir_kpts = SpacegroupAnalyzer(prev_structure,
+            ir_kpts = SpacegroupAnalyzer(structure,
                                          symprec=self.sym_prec) \
                 .get_ir_reciprocal_mesh(mesh)
             kpts = []
@@ -1788,8 +1803,8 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
                            kpts=kpts, kpts_weights=weights)
 
         self.chgcar = prev_chgcar
-        self.poscar = Poscar(prev_structure)
-        self.potcar = parent_vis.get_potcar(prev_structure)
+        self.poscar = Poscar(structure)
+        self.potcar = parent_vis.get_potcar(structure)
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
@@ -1843,98 +1858,12 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
             if len(chgcars) > 0:
                 chgcar = Chgcar.from_file(sorted(chgcars)[-1])
         return MPNonSCFDerivedSet(
-            prev_incar=incar, prev_structure=structure,
-            prev_chgcar=chgcar, **kwargs)
-
-
-class MPOpticsDerivedSet(MPNonSCFDerivedSet):
-    """
-    Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
-    for non self-consistent field (NonSCF) calculation with the computation
-    of the dielectric function that follows a static run.
-
-    Args:
-        kpoints_density (int): kpoints density for the reciprocal cell
-            of structure. Might need to increase the default value when
-            calculating metallic materials.
-        sym_prec (float): Tolerance for symmetry finding
-    """
-
-    def __init__(self, prev_incar, prev_structure, prev_chgcar=None,
-                 nedos=2001, kpoints_density=1000, sym_prec=0.1, **kwargs):
-        """
-        Init a MPOpticsDerivedSet. Typically, you would use the classmethod
-        from_prev_calc instead.
-
-        Args:
-            prev_incar (Incar): Incar file from previous run.
-            prev_structure (Structure): Structure from previous run.
-            prev_chgcar (Chgcar): Chgcar from previous run.
-            nedos (int): nedos parameter. Default to 601.
-            kpoints_density (int): Kpoints density for uniform mode.
-                Defaults to 1000.
-            sym_prec (float): Symmetry precision (for Uniform mode).
-            \*\*kwargs: kwargs supported by MPVaspInputSet.
-        """
-        super(MPOpticsDerivedSet, self).__init__(
-            prev_incar, prev_structure, prev_chgcar=prev_chgcar, mode="Uniform",
-            nedos=nedos, kpoints_density=kpoints_density,
-            sym_prec=sym_prec, **kwargs)
-
-        self.incar["LOPTICS"] = True
-
-    @classmethod
-    def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
-                       nbands_factor=5.0, **kwargs):
-        """
-        Generate a set of Vasp input files for optics calculations from a
-        directory of previous static Vasp run.
-
-        Args:
-            prev_calc_dir (str): The directory contains the outputs(
-                vasprun.xml and OUTCAR) of previous vasp run.
-            nbands_factor (float): Multiplicative factor to increase the
-                number of bands. Default is 5.
-            \*\*kwargs: All kwargs supported by MPNonSCFDerivedSet,
-                other than prev_incar and prev_structure and prev_chgcar which
-                are determined from the prev_calc_dir.
-        """
-        vruns = glob(os.path.join(prev_calc_dir, "vasprun.xml*"))
-        outcars = glob(os.path.join(prev_calc_dir, "OUTCAR*"))
-
-        if len(vruns) == 0 or len(outcars) == 0:
-            raise ValueError(
-                "Unable to get vasprun.xml/OUTCAR from prev calculation in %s" % prev_calc_dir)
-        vasprun = Vasprun(sorted(vruns)[-1], parse_dos=False, parse_eigen=None)
-        outcar = Outcar(sorted(outcars)[-1])
-
-        incar = vasprun.incar
-        # Get a Magmom-decorated structure
-        structure = get_structure_from_prev_run(vasprun, outcar,
-                                                standardize=False)
-        # Turn off spin when magmom for every site is smaller than 0.02.
-        if outcar and outcar.magnetization:
-            site_magmom = np.array([i['tot'] for i in outcar.magnetization])
-            ispin = 2 if np.any(site_magmom[np.abs(site_magmom) > 0.02]) else 1
-        elif vasprun.is_spin:
-            ispin = 2
-        else:
-            ispin = 1
-        nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
-        incar.update({"ISPIN": ispin, "NBANDS": nbands})
-
-        chgcar = None
-        if copy_chgcar:
-            chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
-            if len(chgcars) > 0:
-                chgcar = Chgcar.from_file(sorted(chgcars)[-1])
-        return MPOpticsDerivedSet(
-            prev_incar=incar, prev_structure=structure,
+            structure=structure, prev_incar=incar,
             prev_chgcar=chgcar, **kwargs)
 
 
 def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
-                                standardize=True):
+                                standardize=False):
     """
     Process structure from previous run.
     Args:
