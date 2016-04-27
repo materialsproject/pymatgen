@@ -36,7 +36,7 @@ from monty.serialization import loadfn
 
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, Outcar, Chgcar
-from monty.json import MSONable
+from monty.json import MSONable, MontyDecoder
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
@@ -1574,29 +1574,37 @@ class DerivedVaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
                     filename=os.path.join(output_dir,
                                           "%s.cif" % v.structure.formula))
 
+    @classmethod
+    def from_dict(cls, d):
+        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items()
+                   if not k.startswith("@")}
+        return cls(**decoded)
+
 
 class MPStaticDerivedSet(DerivedVaspInputSet):
-    """
-    Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
-    for static calculations that typically follow relaxation runs. Uses the
-    standard MPStaticVaspInputSet if you are doing this from scratch. This is
-    meant for rerunning from a previous calculation.
-
-    Args:
-        prev_incar (Incar): INCAR from previous calculation.
-        prev_structure (Structure): Structure from previous calculation.
-        kpoints_density (int): kpoints density for the reciprocal cell of
-            structure. Might need to increase the default value when
-            calculating metallic materials.
-        sym_prec (float): Tolerance for symmetry finding
-    """
 
     def __init__(self, prev_incar, prev_kpoints, prev_structure,
                  kpoints_density=90, **kwargs):
+        """
+        Init a MPStaticDerivedSet. Typically, you would use the classmethod
+        from_prev_calc instead.
+
+        Args:
+            prev_incar (Incar): Incar file from previous run.
+            prev_kpoints (Kpoints): Kpoints from previous run.
+            prev_structure (Structure): Structure from previous run.
+            mode (str): Line or Uniform mode supported.
+            kpoints_density (int): Kpoints density. Defaults to 90.
+            \*\*kwargs: kwargs supported by MPVaspInputSet.
+        """
+
+        self.prev_incar = prev_incar
+        self.prev_kpoints = prev_kpoints
+        self.prev_structure = prev_structure
+        self.kpoints_density = kpoints_density
 
         self.structure = prev_structure
         parent_vis = MPVaspInputSet(**kwargs)
-
 
         incar = Incar(prev_incar)
         incar.update(
@@ -1651,8 +1659,7 @@ class MPStaticDerivedSet(DerivedVaspInputSet):
         self.potcar = parent_vis.get_potcar(self.structure)
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, kpoints_density=90, sym_prec=0.1,
-                       **kwargs):
+    def from_prev_calc(cls, prev_calc_dir, sym_prec=0.1, **kwargs):
         """
         Generate a set of Vasp input files for static calculations from a
         directory of previous Vasp run.
@@ -1660,13 +1667,13 @@ class MPStaticDerivedSet(DerivedVaspInputSet):
         Args:
             prev_calc_dir (str): Directory containing the outputs(
                 vasprun.xml and OUTCAR) of previous vasp run.
-            kpoints_density (int): kpoints density for the reciprocal cell
-                of structure. Might need to increase the default value when
-                calculating metallic materials.
             sym_prec (float): Tolerance for symmetry finding. If not 0,
                 the final structure from the previous run will be symmetrized
                 to get a primitive standard cell. Set to 0 if you don't want
                 that.
+            \*\*kwargs: All kwargs supported by MPStaticDerivedSet,
+                other than prev_incar and prev_structure and prev_kpoints which
+                are determined from the prev_calc_dir.
         """
         # Read input and output from previous run
         vruns = glob(os.path.join(prev_calc_dir, "vasprun.xml*"))
@@ -1687,8 +1694,7 @@ class MPStaticDerivedSet(DerivedVaspInputSet):
 
         return MPStaticDerivedSet(
             prev_incar=prev_incar, prev_kpoints=prev_kpoints,
-            prev_structure=prev_structure,
-            kpoints_density=kpoints_density, **kwargs)
+            prev_structure=prev_structure, **kwargs)
 
 
 class MPNonSCFDerivedSet(DerivedVaspInputSet):
@@ -1696,6 +1702,30 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
     def __init__(self, prev_incar, prev_structure, prev_chgcar=None,
                  mode="Line", nedos=601, kpoints_density=1000, sym_prec=0.1,
                  kpoints_line_density=20, **kwargs):
+        """
+        Init a MPNonSCFDerivedSet. Typically, you would use the classmethod
+        from_prev_calc instead.
+
+        Args:
+            prev_incar (Incar): Incar file from previous run.
+            prev_structure (Structure): Structure from previous run.
+            prev_chgcar (Chgcar): Chgcar from previous run.
+            mode (str): Line or Uniform mode supported.
+            nedos (int): nedos parameter. Default to 601.
+            kpoints_density (int): Kpoints density for uniform mode.
+                Defaults to 1000.
+            sym_prec (float): Symmetry precision (for Uniform mode).
+            kpoints_line_density (int): Line density for Line mode.
+            \*\*kwargs: kwargs supported by MPVaspInputSet.
+        """
+        self.prev_incar = prev_incar
+        self.prev_chgcar = prev_chgcar
+        self.prev_structure = prev_structure
+        self.kpoints_density = kpoints_density
+        self.nedos = nedos
+        self.kpoints_density = kpoints_density
+        self.sym_prec = sym_prec
+        self.kpoints_line_density = kpoints_line_density
 
         if mode not in ["Line", "Uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
@@ -1718,9 +1748,6 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
         incar.pop("MAGMOM", None)
 
         self.incar = incar
-
-        self.sym_prec = sym_prec
-        self.kpoints_line_density = kpoints_line_density
 
         if self.mode == "Line":
             kpath = HighSymmKpath(prev_structure)
@@ -1765,35 +1792,17 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
             self.chgcar.write_file(os.path.join(output_dir, "CHGCAR"))
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, mode="Uniform",
-                       copy_chgcar=True, nedos=601,
-                       kpoints_density=1000, kpoints_line_density=20, **kwargs):
+    def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True, **kwargs):
         """
         Generate a set of Vasp input files for NonSCF calculations from a
         directory of previous static Vasp run.
 
         Args:
-            previous_vasp_dir (str): The directory contains the outputs(
+            prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml and OUTCAR) of previous vasp run.
-            output_dir (str): The directory to write the VASP input files
-                for the NonSCF calculations. Default to write in the current
-                directory.
-            mode (str): Line: Generate k-points along symmetry lines for
-                bandstructure. Uniform: Generate uniform k-points
-                grids for DOS.
-            user_incar_settings (dict): A dict specify customized settings
-                for INCAR. Must contain a NBANDS value, suggest to use
-                1.2*(NBANDS from static run).
-            copy_chgcar (bool): Default to copy CHGCAR from SC run
-            make_dir_if_not_present (bool): Set to True if you want the
-                directory (and the whole path) to be created if it is not
-                present.
-            kpoints_density (int): kpoints density for the reciprocal cell
-                of structure. Might need to increase the default value when
-                calculating metallic materials.
-            kpoints_line_density (int): kpoints density to use in line-mode.
-                Might need to increase the default value when calculating
-                metallic materials.
+            \*\*kwargs: All kwargs supported by MPNonSCFDerivedSet,
+            other than prev_incar and prev_structure and prev_chgcar which
+                are determined from the prev_calc_dir.
         """
 
         vruns = glob(os.path.join(prev_calc_dir, "vasprun.xml*"))
@@ -1827,8 +1836,7 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
                 chgcar = Chgcar.from_file(sorted(chgcars)[-1])
         return MPNonSCFDerivedSet(
             prev_incar=incar, prev_structure=structure,
-            prev_chgcar=chgcar, kpoints_density=kpoints_density,
-            nedos=nedos, kpoints_line_density=kpoints_line_density, mode=mode)
+            prev_chgcar=chgcar, **kwargs)
 
 
 class MPOpticsDerivedSet(MPNonSCFDerivedSet):
@@ -1846,6 +1854,20 @@ class MPOpticsDerivedSet(MPNonSCFDerivedSet):
 
     def __init__(self, prev_incar, prev_structure, prev_chgcar=None,
                  nedos=2001, kpoints_density=1000, sym_prec=0.1, **kwargs):
+        """
+        Init a MPOpticsDerivedSet. Typically, you would use the classmethod
+        from_prev_calc instead.
+
+        Args:
+            prev_incar (Incar): Incar file from previous run.
+            prev_structure (Structure): Structure from previous run.
+            prev_chgcar (Chgcar): Chgcar from previous run.
+            nedos (int): nedos parameter. Default to 601.
+            kpoints_density (int): Kpoints density for uniform mode.
+                Defaults to 1000.
+            sym_prec (float): Symmetry precision (for Uniform mode).
+            \*\*kwargs: kwargs supported by MPVaspInputSet.
+        """
         super(MPOpticsDerivedSet, self).__init__(
             prev_incar, prev_structure, prev_chgcar=prev_chgcar, mode="Uniform",
             nedos=nedos, kpoints_density=kpoints_density,
@@ -1855,20 +1877,19 @@ class MPOpticsDerivedSet(MPNonSCFDerivedSet):
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
-                       kpoints_density=1000,
-                       nbands_factor=5.0, nedos=2001, **kwargs):
+                       nbands_factor=5.0, **kwargs):
         """
-        Generate a set of Vasp input files for NonSCF calculations from a
+        Generate a set of Vasp input files for optics calculations from a
         directory of previous static Vasp run.
 
         Args:
-            previous_vasp_dir (str): The directory contains the outputs(
+            prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml and OUTCAR) of previous vasp run.
-            copy_chgcar (bool): Default to copy CHGCAR from SC run
-            nbands_factor (float): Factor by which the number of bands is to be
-                multiplied. Typical calculations of dielectric functions need a
-                total number of bands of 5 to 10 times the number of valence
-                bands.
+            nbands_factor (float): Multiplicative factor to increase the
+                number of bands. Default is 5.
+            \*\*kwargs: All kwargs supported by MPNonSCFDerivedSet,
+                other than prev_incar and prev_structure and prev_chgcar which
+                are determined from the prev_calc_dir.
         """
         vruns = glob(os.path.join(prev_calc_dir, "vasprun.xml*"))
         outcars = glob(os.path.join(prev_calc_dir, "OUTCAR*"))
@@ -1901,8 +1922,7 @@ class MPOpticsDerivedSet(MPNonSCFDerivedSet):
                 chgcar = Chgcar.from_file(sorted(chgcars)[-1])
         return MPOpticsDerivedSet(
             prev_incar=incar, prev_structure=structure,
-            prev_chgcar=chgcar, kpoints_density=kpoints_density,
-            nedos=nedos)
+            prev_chgcar=chgcar, **kwargs)
 
 
 def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
