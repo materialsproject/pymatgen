@@ -1702,27 +1702,24 @@ class MPNonSCFSet(DerivedVaspInputSet):
 
         parent_vis = MPVaspInputSet(**kwargs)
 
-        incar = Incar(prev_incar)
-
-        nscf_incar_settings = parent_vis.get_incar_settings(prev_structure)
+        incar = parent_vis.get_incar(prev_structure)
+        incar.update(prev_incar)
 
         # Overwrite necessary INCAR parameters from previous runs
         incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001,
                       "LCHARG": False, "LORBIT": 11, "LWAVE": False,
                       "NSW": 0, "ISYM": 0, "ICHARG": 11})
-        incar.update(nscf_incar_settings)
-        #incar.update(user_incar_settings)
+
         if mode == "Uniform":
             # Set smaller steps for DOS output
             incar["NEDOS"] = nedos
+            print(mode)
         incar.pop("MAGMOM", None)
 
         self.incar = incar
 
         self.sym_prec = sym_prec
         self.kpoints_line_density = kpoints_line_density
-
-        self.kpoints_settings.update({"kpoints_density": kpoints_density})
 
         if self.mode == "Line":
             kpath = HighSymmKpath(prev_structure)
@@ -1736,7 +1733,7 @@ class MPNonSCFSet(DerivedVaspInputSet):
                 kpts=frac_k_points, labels=k_points_labels,
                 kpts_weights=[1] * len(frac_k_points))
         else:
-            num_kpoints = self.kpoints_settings["kpoints_density"] * \
+            num_kpoints = kpoints_density * \
                           prev_structure.lattice.reciprocal_lattice.volume
             kpoints = Kpoints.automatic_density(
                 prev_structure, num_kpoints * prev_structure.num_sites)
@@ -1757,7 +1754,6 @@ class MPNonSCFSet(DerivedVaspInputSet):
             self.chgcar = prev_chgcar
             self.poscar = Poscar(prev_structure)
             self.potcar = parent_vis.get_potcar(prev_structure)
-
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
@@ -1825,7 +1821,7 @@ class MPNonSCFSet(DerivedVaspInputSet):
         chgcar = None
         if copy_chgcar:
             chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
-            chgcar = Chgcar(sorted(chgcars)[-1])
+            chgcar = Chgcar.from_file(sorted(chgcars)[-1])
         return MPNonSCFSet(prev_incar=incar, prev_structure=structure,
                            prev_chgcar=chgcar, kpoints_density=kpoints_density,
                            nedos=nedos,

@@ -469,5 +469,43 @@ class MPStaticSetTest(PymatgenTest):
         shutil.rmtree(self.tmp)
 
 
+class MPNonSCFSetTest(PymatgenTest):
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+
+    def test_init(self):
+        prev_run = os.path.join(test_dir, "relaxation")
+        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run, mode="Line")
+        self.assertEqual(vis.incar["NSW"], 0)
+        # Check that the ENCUT has been inherited.
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+
+        # Code below is just to make sure that the parameters are the same
+        # between the old MPStaticVaspInputSet and the new MPStaticSet.
+        # TODO: Delete code below in future.
+        MPNonSCFVaspInputSet.from_previous_vasp_run(
+            previous_vasp_dir=prev_run, output_dir=self.tmp, mode="Line")
+
+        incar = Incar.from_file(os.path.join(self.tmp, "INCAR"))
+
+        for k, v1 in vis.incar.items():
+            v2 = incar.get(k)
+            try:
+                v1 = v1.upper()
+                v2 = v2.upper()
+            except:
+                # Convert strings to upper case for comparison. Ignore other
+                # types.
+                pass
+            self.assertEqual(v1, v2, str(v1)+str(v2))
+        kpoints = Kpoints.from_file(os.path.join(self.tmp, "KPOINTS"))
+        self.assertEqual(kpoints.style, vis.kpoints.style)
+        self.assertArrayAlmostEqual(kpoints.kpts, vis.kpoints.kpts)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
 if __name__ == '__main__':
     unittest.main()
