@@ -27,6 +27,7 @@ import re
 import traceback
 import shutil
 from functools import partial
+from glob import glob
 
 import six
 import numpy as np
@@ -1529,3 +1530,194 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
         )
 
 
+class DerivedVaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
+    """
+    Base class representing a set of DERIVED Vasp input parameters,
+    which means that a previous run, including a structure is supplied as
+    init parameters. The different with AbstractVaspInputSet is that these
+    are simpler because a structure is not supplied to each of the abstract
+    methods but is instead already provided. See examples below.
+    """
+
+    def get_all_vasp_input(self):
+        """
+        Returns all input files as a dict of {filename: vasp object}
+
+        Returns:
+            dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
+        """
+        return  {'INCAR': self.incar,
+             'KPOINTS': self.kpoints,
+             'POSCAR': self.poscar,
+             'POTCAR': self.potcar}
+
+    def write_input(self, output_dir,
+                    make_dir_if_not_present=True, include_cif=False):
+        """
+        Writes a set of VASP input to a directory.
+
+        Args:
+            output_dir (str): Directory to output the VASP input files
+            make_dir_if_not_present (bool): Set to True if you want the
+                directory (and the whole path) to be created if it is not
+                present.
+            include_cif (bool): Whether to write a CIF file in the output
+                directory for easier opening by VESTA.
+        """
+        if make_dir_if_not_present and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        for k, v in self.get_all_vasp_input().items():
+            v.write_file(os.path.join(output_dir, k))
+            if k == "POSCAR" and include_cif:
+                v.structure.to(
+                    filename=os.path.join(output_dir,
+                                          "%s.cif" % v.structure.formula))
+
+
+class MPStaticSet(DerivedVaspInputSet):
+    """
+    Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
+    for static calculations that typically follow relaxation runs. Uses the
+    standard MPStaticVaspInputSet if you are doing this from scratch. This is
+    meant for rerunning from a previous calculation.
+
+    Args:
+        prev_incar (Incar): INCAR from previous calculation.
+        prev_structure (Structure): Structure from previous calculation.
+        kpoints_density (int): kpoints density for the reciprocal cell of
+            structure. Might need to increase the default value when
+            calculating metallic materials.
+        sym_prec (float): Tolerance for symmetry finding
+    """
+
+    def __init__(self, prev_incar, prev_kpoints, prev_structure,
+                 kpoints_density=90, **kwargs):
+
+        self.structure = prev_structure
+        parent_vis = MPVaspInputSet(**kwargs)
+
+
+        incar = Incar(prev_incar)
+        incar.update(
+            {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
+             "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
+             "ICHARG": 0, "ALGO": "Normal"})
+
+        new_incar = parent_vis.get_incar(prev_structure)
+        for k in ["MAGMOM", "NUPDOWN"]:
+            if new_incar.get(k, None):
+                incar[k] = new_incar[k]
+            else:
+                incar.pop(k, None)
+
+        # use new LDAUU when possible b/c the Poscar might have changed
+        # representation
+        if incar.get('LDAU'):
+            u = incar.get('LDAUU', [])
+            j = incar.get('LDAUJ', [])
+            if sum([u[x] - j[x] for x, y in enumerate(u)]) > 0:
+                for tag in ('LDAUU', 'LDAUL', 'LDAUJ'):
+                    incar.update({tag: new_incar[tag]})
+            # ensure to have LMAXMIX for GGA+U static run
+            if "LMAXMIX" not in incar:
+                incar.update({"LMAXMIX": new_incar["LMAXMIX"]})
+
+        # Compare ediff between previous and staticinputset values,
+        # choose the tighter ediff
+        incar["EDIFF"] = min(incar.get("EDIFF", 1),
+                             new_incar["EDIFF"])
+
+        self.incar = incar
+
+        parent_vis.kpoints_settings['grid_density'] = \
+                kpoints_density * \
+                self.structure.lattice.reciprocal_lattice.volume * \
+                self.structure.num_sites
+        kpoints = parent_vis.get_kpoints(self.structure)
+
+        # Prefer to use k-point scheme from previous run
+        if prev_kpoints.style != kpoints.style:
+            if prev_kpoints.style == Kpoints.supported_modes.Monkhorst:
+                k_div = [kp + 1 if kp % 2 == 1 else kp
+                         for kp in kpoints.kpts[0]]
+                kpoints = Kpoints.monkhorst_automatic(k_div)
+            else:
+                kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])
+
+        self.poscar = Poscar(self.structure)
+        self.kpoints = kpoints
+
+        self.potcar = parent_vis.get_potcar(self.structure)
+
+    @staticmethod
+    def from_prev_calc(prev_calc_dir, kpoints_density=90, sym_prec=0.1,
+                       **kwargs):
+        """
+        Generate a set of Vasp input files for static calculations from a
+        directory of previous Vasp run.
+
+        Args:
+            prev_calc_dir (str): Directory containing the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            kpoints_density (int): kpoints density for the reciprocal cell
+                of structure. Might need to increase the default value when
+                calculating metallic materials.
+            sym_prec (float): Tolerance for symmetry finding
+        """
+        # Read input and output from previous run
+        vruns = glob(os.path.join(prev_calc_dir, "vasprun.xml*"))
+        outcars = glob(os.path.join(prev_calc_dir, "OUTCAR*"))
+
+        if len(vruns) == 0 or len(outcars) == 0:
+            raise ValueError(
+                "Unable to get vasprun.xml/OUTCAR from prev calculation in %s" % prev_calc_dir)
+        vasprun = Vasprun(sorted(vruns)[-1], parse_dos=False, parse_eigen=None)
+        outcar = Outcar(sorted(outcars)[-1])
+
+        prev_incar = vasprun.incar
+        prev_kpoints = vasprun.kpoints
+
+        # We will make a standard
+        prev_structure = get_structure_from_prev_run(vasprun, outcar,
+                                                     sym_prec=sym_prec)
+
+        return MPStaticSet(prev_incar=prev_incar, prev_kpoints=prev_kpoints,
+                           prev_structure=prev_structure,
+                           kpoints_density=kpoints_density, **kwargs)
+
+
+def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1):
+    """
+    Process structure from previous run.
+    Args:
+        vasp_run (Vasprun): Vasprun that contains the final structure
+            from previous run.
+        outcar (Outcar): Outcar that contains the magnetization info from
+            previous run.
+        initial_structure (bool): Whether to return the structure from
+            previous run. Default is False.
+        additional_info (bool):
+            Whether to return additional symmetry info related to the
+            structure. If True, return a list of the refined structure (
+            conventional cell), the conventional standard structure,
+            the symmetry dataset and symmetry operations of the
+            structure (see SpacegroupAnalyzer doc for details).
+        sym_prec (float): Tolerance for symmetry finding
+
+    Returns:
+        Returns the magmom-decorated structure that can be passed to get
+        Vasp input files, e.g. get_kpoints.
+    """
+    if vasprun.is_spin:
+        if outcar and outcar.magnetization:
+            magmom = {"magmom": [i['tot'] for i in outcar.magnetization]}
+        else:
+            magmom = {"magmom": vasprun.parameters['MAGMOM']}
+    else:
+        magmom = None
+
+    structure = vasprun.final_structure
+    if magmom:
+        structure = structure.copy(site_properties=magmom)
+    sym_finder = SpacegroupAnalyzer(structure, symprec=sym_prec)
+    return sym_finder.get_primitive_standard_structure(False)
