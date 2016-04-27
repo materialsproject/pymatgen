@@ -1686,15 +1686,7 @@ class MPStaticSet(DerivedVaspInputSet):
                 other than prev_incar and prev_structure and prev_kpoints which
                 are determined from the prev_calc_dir.
         """
-        # Read input and output from previous run
-        vruns = glob(os.path.join(prev_calc_dir, "vasprun.xml*"))
-        outcars = glob(os.path.join(prev_calc_dir, "OUTCAR*"))
-
-        if len(vruns) == 0 or len(outcars) == 0:
-            raise ValueError(
-                "Unable to get vasprun.xml/OUTCAR from prev calculation in %s" % prev_calc_dir)
-        vasprun = Vasprun(sorted(vruns)[-1], parse_dos=False, parse_eigen=None)
-        outcar = Outcar(sorted(outcars)[-1])
+        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
 
         prev_incar = vasprun.incar
         prev_kpoints = vasprun.kpoints
@@ -1826,15 +1818,7 @@ class MPNonSCFSet(DerivedVaspInputSet):
                 other than structure, prev_incar and prev_chgcar which
                 are determined from the prev_calc_dir.
         """
-
-        vruns = glob(os.path.join(prev_calc_dir, "vasprun.xml*"))
-        outcars = glob(os.path.join(prev_calc_dir, "OUTCAR*"))
-
-        if len(vruns) == 0 or len(outcars) == 0:
-            raise ValueError(
-                "Unable to get vasprun.xml/OUTCAR from prev calculation in %s" % prev_calc_dir)
-        vasprun = Vasprun(sorted(vruns)[-1], parse_dos=False, parse_eigen=None)
-        outcar = Outcar(sorted(outcars)[-1])
+        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
 
         incar = vasprun.incar
         # Get a Magmom-decorated structure
@@ -1858,6 +1842,21 @@ class MPNonSCFSet(DerivedVaspInputSet):
                 chgcar = Chgcar.from_file(sorted(chgcars)[-1])
         return MPNonSCFSet(structure=structure, prev_incar=incar,
                            prev_chgcar=chgcar, **kwargs)
+
+
+def get_vasprun_outcar(path):
+    vruns = glob(os.path.join(path, "vasprun.xml*"))
+    outcars = glob(os.path.join(path, "OUTCAR*"))
+
+    if len(vruns) == 0 or len(outcars) == 0:
+        raise ValueError(
+            "Unable to get vasprun.xml/OUTCAR from prev calculation in %s" %
+            path)
+
+    vsfile = "vasprun.xml" if "vasprun.xml" in vruns else sorted(vruns)[-1]
+    outcarfile = "OUTCAR" if "OUTCAR" in outcars else sorted(outcars)[-1]
+    return Vasprun(vsfile, parse_dos=False, parse_eigen=None), Outcar(
+        outcarfile)
 
 
 def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
