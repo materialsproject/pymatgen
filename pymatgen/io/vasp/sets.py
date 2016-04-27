@@ -35,7 +35,7 @@ import numpy as np
 from monty.serialization import loadfn
 
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
-from pymatgen.io.vasp.outputs import Vasprun, Outcar
+from pymatgen.io.vasp.outputs import Vasprun, Outcar, Chgcar
 from monty.json import MSONable
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -1662,7 +1662,10 @@ class MPStaticSet(DerivedVaspInputSet):
             kpoints_density (int): kpoints density for the reciprocal cell
                 of structure. Might need to increase the default value when
                 calculating metallic materials.
-            sym_prec (float): Tolerance for symmetry finding
+            sym_prec (float): Tolerance for symmetry finding. If not 0,
+                the final structure from the previous run will be symmetrized
+                to get a primitive standard cell. Set to 0 if you don't want
+                that.
         """
         # Read input and output from previous run
         vruns = glob(os.path.join(prev_calc_dir, "vasprun.xml*"))
@@ -1677,13 +1680,158 @@ class MPStaticSet(DerivedVaspInputSet):
         prev_incar = vasprun.incar
         prev_kpoints = vasprun.kpoints
 
-        # We will make a standard
+        # We will make a standard structure for the given symprec.
         prev_structure = get_structure_from_prev_run(vasprun, outcar,
                                                      sym_prec=sym_prec)
 
         return MPStaticSet(prev_incar=prev_incar, prev_kpoints=prev_kpoints,
                            prev_structure=prev_structure,
                            kpoints_density=kpoints_density, **kwargs)
+
+
+class MPNonSCFSet(DerivedVaspInputSet):
+
+    def __init__(self, prev_incar, prev_structure, prev_chgcar=None,
+                 mode="Line", nedos=601, kpoints_density=1000, sym_prec=0.1,
+                 kpoints_line_density=20, **kwargs):
+
+        if mode not in ["Line", "Uniform"]:
+            raise ValueError("Supported modes for NonSCF runs are 'Line' and "
+                             "'Uniform'!")
+        self.mode = mode
+
+        parent_vis = MPVaspInputSet(**kwargs)
+
+        incar = Incar(prev_incar)
+
+        nscf_incar_settings = parent_vis.get_incar_settings(prev_structure)
+
+        # Overwrite necessary INCAR parameters from previous runs
+        incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001,
+                      "LCHARG": False, "LORBIT": 11, "LWAVE": False,
+                      "NSW": 0, "ISYM": 0, "ICHARG": 11})
+        incar.update(nscf_incar_settings)
+        #incar.update(user_incar_settings)
+        if mode == "Uniform":
+            # Set smaller steps for DOS output
+            incar["NEDOS"] = nedos
+        incar.pop("MAGMOM", None)
+
+        self.incar = incar
+
+        self.sym_prec = sym_prec
+        self.kpoints_line_density = kpoints_line_density
+
+        self.kpoints_settings.update({"kpoints_density": kpoints_density})
+
+        if self.mode == "Line":
+            kpath = HighSymmKpath(prev_structure)
+            frac_k_points, k_points_labels = kpath.get_kpoints(
+                line_density=self.kpoints_line_density,
+                coords_are_cartesian=False)
+            self.kpoints = Kpoints(
+                comment="Non SCF run along symmetry lines",
+                style=Kpoints.supported_modes.Reciprocal,
+                num_kpts=len(frac_k_points),
+                kpts=frac_k_points, labels=k_points_labels,
+                kpts_weights=[1] * len(frac_k_points))
+        else:
+            num_kpoints = self.kpoints_settings["kpoints_density"] * \
+                          prev_structure.lattice.reciprocal_lattice.volume
+            kpoints = Kpoints.automatic_density(
+                prev_structure, num_kpoints * prev_structure.num_sites)
+            mesh = kpoints.kpts[0]
+            ir_kpts = SpacegroupAnalyzer(prev_structure,
+                                         symprec=self.sym_prec) \
+                .get_ir_reciprocal_mesh(mesh)
+            kpts = []
+            weights = []
+            for k in ir_kpts:
+                kpts.append(k[0])
+                weights.append(int(k[1]))
+            self.kpoints = Kpoints(comment="Non SCF run on uniform grid",
+                           style=Kpoints.supported_modes.Reciprocal,
+                           num_kpts=len(ir_kpts),
+                           kpts=kpts, kpts_weights=weights)
+
+            self.chgcar = prev_chgcar
+            self.poscar = Poscar(prev_structure)
+            self.potcar = parent_vis.get_potcar(prev_structure)
+
+
+    def write_input(self, output_dir,
+                    make_dir_if_not_present=True, include_cif=False):
+        super(MPNonSCFSet, self).write_input(output_dir,
+            make_dir_if_not_present=make_dir_if_not_present,
+            include_cif=include_cif)
+        if self.chgcar:
+            self.chgcar.write_file(os.path.join(output_dir, "CHGCAR"))
+
+    @staticmethod
+    def from_prev_calc(prev_calc_dir, mode="Uniform",
+                       copy_chgcar=True, nedos=601,
+                       kpoints_density=1000, kpoints_line_density=20, **kwargs):
+        """
+        Generate a set of Vasp input files for NonSCF calculations from a
+        directory of previous static Vasp run.
+
+        Args:
+            previous_vasp_dir (str): The directory contains the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            output_dir (str): The directory to write the VASP input files
+                for the NonSCF calculations. Default to write in the current
+                directory.
+            mode (str): Line: Generate k-points along symmetry lines for
+                bandstructure. Uniform: Generate uniform k-points
+                grids for DOS.
+            user_incar_settings (dict): A dict specify customized settings
+                for INCAR. Must contain a NBANDS value, suggest to use
+                1.2*(NBANDS from static run).
+            copy_chgcar (bool): Default to copy CHGCAR from SC run
+            make_dir_if_not_present (bool): Set to True if you want the
+                directory (and the whole path) to be created if it is not
+                present.
+            kpoints_density (int): kpoints density for the reciprocal cell
+                of structure. Might need to increase the default value when
+                calculating metallic materials.
+            kpoints_line_density (int): kpoints density to use in line-mode.
+                Might need to increase the default value when calculating
+                metallic materials.
+        """
+
+        vruns = glob(os.path.join(prev_calc_dir, "vasprun.xml*"))
+        outcars = glob(os.path.join(prev_calc_dir, "OUTCAR*"))
+
+        if len(vruns) == 0 or len(outcars) == 0:
+            raise ValueError(
+                "Unable to get vasprun.xml/OUTCAR from prev calculation in %s" % prev_calc_dir)
+        vasprun = Vasprun(sorted(vruns)[-1], parse_dos=False, parse_eigen=None)
+        outcar = Outcar(sorted(outcars)[-1])
+
+        incar = vasprun.incar
+        # Get a Magmom-decorated structure
+        structure = get_structure_from_prev_run(vasprun, outcar, sym_prec=0)
+        # Turn off spin when magmom for every site is smaller than 0.02.
+        if outcar and outcar.magnetization:
+            site_magmom = np.array([i['tot'] for i in outcar.magnetization])
+            ispin = 2 if np.any(site_magmom[np.abs(site_magmom) > 0.02]) else 1
+        elif vasprun.is_spin:
+            ispin = 2
+        else:
+            ispin = 1
+        nbands = int(np.ceil(vasprun.parameters["NBANDS"] * 1.2))
+        incar.update({"ISPIN": ispin, "NBANDS": nbands})
+
+        chgcar = None
+        if copy_chgcar:
+            chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
+            chgcar = Chgcar(sorted(chgcars)[-1])
+        return MPNonSCFSet(prev_incar=incar, prev_structure=structure,
+                           prev_chgcar=chgcar, kpoints_density=kpoints_density,
+                           nedos=nedos,
+                           kpoints_line_density=kpoints_line_density,
+                           mode=mode)
+
 
 
 def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1):
@@ -1719,5 +1867,7 @@ def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1):
     structure = vasprun.final_structure
     if magmom:
         structure = structure.copy(site_properties=magmom)
-    sym_finder = SpacegroupAnalyzer(structure, symprec=sym_prec)
-    return sym_finder.get_primitive_standard_structure(False)
+    if sym_prec:
+        sym_finder = SpacegroupAnalyzer(structure, symprec=sym_prec)
+        structure = sym_finder.get_primitive_standard_structure(False)
+    return structure
