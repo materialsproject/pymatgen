@@ -33,6 +33,7 @@ import six
 import numpy as np
 
 from monty.serialization import loadfn
+from monty.dev import deprecated
 
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, Outcar, Chgcar
@@ -865,6 +866,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             return sym_finder.get_primitive_standard_structure(False)
 
     @staticmethod
+    @deprecated(message="Replaced by MPStaticDerivedSet. Will be removed in "
+                        "pymatgen 4.0.")
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
                                user_incar_settings=None,
                                make_dir_if_not_present=True,
@@ -1091,6 +1094,7 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                    kpoints_line_density=d.get("kpoints_line_density", 20))
 
 
+
 class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     """
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
@@ -1120,6 +1124,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         sym_prec (float): Tolerance for symmetry finding
     """
 
+    @deprecated(message="Replaced by MPNonSCFDerivedSet. Will be removed in "
+                        "pymatgen 4.0.")
     def __init__(self, user_incar_settings, mode="Line",
                  constrain_total_magmom=False, sort_structure=False,
                  kpoints_density=1000, sym_prec=0.1, kpoints_line_density=20):
@@ -1340,6 +1346,8 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
         sym_prec (float): Tolerance for symmetry finding
     """
 
+    @deprecated(message="Replaced by MPOpticsDerivedSet. Will be removed in "
+                        "pymatgen 4.0.")
     def __init__(self, user_incar_settings,
                  constrain_total_magmom=False, sort_structure=False,
                  kpoints_density=1000, sym_prec=0.1, nedos=2001):
