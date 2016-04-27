@@ -437,7 +437,7 @@ class MPStaticSetTest(PymatgenTest):
 
     def test_init(self):
         prev_run = os.path.join(test_dir, "relaxation")
-        vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run)
+        vis = MPStaticDerivedSet.from_prev_calc(prev_calc_dir=prev_run)
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
         self.assertEqual(vis.incar["ENCUT"], 600)
@@ -476,11 +476,19 @@ class MPNonSCFSetTest(PymatgenTest):
 
     def test_init(self):
         prev_run = os.path.join(test_dir, "relaxation")
-        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run, mode="Line")
+        vis = MPNonSCFDerivedSet.from_prev_calc(prev_calc_dir=prev_run,
+                                                mode="Line", copy_chgcar=False)
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
         self.assertEqual(vis.incar["ENCUT"], 600)
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+        vis.write_input(self.tmp)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
+
+        vis = MPNonSCFDerivedSet.from_prev_calc(prev_calc_dir=prev_run,
+                                                mode="Line", copy_chgcar=True)
+        vis.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
 
         # Code below is just to make sure that the parameters are the same
         # between the old MPStaticVaspInputSet and the new MPStaticSet.

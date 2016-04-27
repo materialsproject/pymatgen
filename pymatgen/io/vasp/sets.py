@@ -1546,10 +1546,10 @@ class DerivedVaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         Returns:
             dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
         """
-        return  {'INCAR': self.incar,
-             'KPOINTS': self.kpoints,
-             'POSCAR': self.poscar,
-             'POTCAR': self.potcar}
+        return {'INCAR': self.incar,
+                'KPOINTS': self.kpoints,
+                'POSCAR': self.poscar,
+                'POTCAR': self.potcar}
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
@@ -1574,7 +1574,7 @@ class DerivedVaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
                                           "%s.cif" % v.structure.formula))
 
 
-class MPStaticSet(DerivedVaspInputSet):
+class MPStaticDerivedSet(DerivedVaspInputSet):
     """
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
     for static calculations that typically follow relaxation runs. Uses the
@@ -1684,12 +1684,13 @@ class MPStaticSet(DerivedVaspInputSet):
         prev_structure = get_structure_from_prev_run(vasprun, outcar,
                                                      sym_prec=sym_prec)
 
-        return MPStaticSet(prev_incar=prev_incar, prev_kpoints=prev_kpoints,
-                           prev_structure=prev_structure,
-                           kpoints_density=kpoints_density, **kwargs)
+        return MPStaticDerivedSet(
+            prev_incar=prev_incar, prev_kpoints=prev_kpoints,
+            prev_structure=prev_structure,
+            kpoints_density=kpoints_density, **kwargs)
 
 
-class MPNonSCFSet(DerivedVaspInputSet):
+class MPNonSCFDerivedSet(DerivedVaspInputSet):
 
     def __init__(self, prev_incar, prev_structure, prev_chgcar=None,
                  mode="Line", nedos=601, kpoints_density=1000, sym_prec=0.1,
@@ -1751,13 +1752,13 @@ class MPNonSCFSet(DerivedVaspInputSet):
                            num_kpts=len(ir_kpts),
                            kpts=kpts, kpts_weights=weights)
 
-            self.chgcar = prev_chgcar
-            self.poscar = Poscar(prev_structure)
-            self.potcar = parent_vis.get_potcar(prev_structure)
+        self.chgcar = prev_chgcar
+        self.poscar = Poscar(prev_structure)
+        self.potcar = parent_vis.get_potcar(prev_structure)
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
-        super(MPNonSCFSet, self).write_input(output_dir,
+        super(MPNonSCFDerivedSet, self).write_input(output_dir,
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
         if self.chgcar:
@@ -1821,12 +1822,12 @@ class MPNonSCFSet(DerivedVaspInputSet):
         chgcar = None
         if copy_chgcar:
             chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
-            chgcar = Chgcar.from_file(sorted(chgcars)[-1])
-        return MPNonSCFSet(prev_incar=incar, prev_structure=structure,
-                           prev_chgcar=chgcar, kpoints_density=kpoints_density,
-                           nedos=nedos,
-                           kpoints_line_density=kpoints_line_density,
-                           mode=mode)
+            if len(chgcars) > 0:
+                chgcar = Chgcar.from_file(sorted(chgcars)[-1])
+        return MPNonSCFDerivedSet(
+            prev_incar=incar, prev_structure=structure,
+            prev_chgcar=chgcar, kpoints_density=kpoints_density,
+            nedos=nedos, kpoints_line_density=kpoints_line_density, mode=mode)
 
 
 
