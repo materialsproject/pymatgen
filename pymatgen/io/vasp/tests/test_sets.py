@@ -468,7 +468,8 @@ class MPStaticDerivedSetTest(PymatgenTest):
                 # Convert strings to upper case for comparison. Ignore other
                 # types.
                 pass
-            self.assertEqual(v1, v2)
+            if k != "MAGMOM":
+                self.assertEqual(v1, v2)
         kpoints = Kpoints.from_file(os.path.join(self.tmp, "KPOINTS"))
         self.assertEqual(kpoints.style, vis.kpoints.style)
         self.assertEqual(kpoints.kpts, vis.kpoints.kpts)
@@ -528,63 +529,16 @@ class MPNonSCFDerivedSetTest(PymatgenTest):
         self.assertEqual(kpoints.style, vis.kpoints.style)
         self.assertArrayAlmostEqual(kpoints.kpts, vis.kpoints.kpts)
 
-    def tearDown(self):
-        shutil.rmtree(self.tmp)
-
-
-class MPOpticsDerivedSetTest(PymatgenTest):
-
-    def setUp(self):
-        self.tmp = tempfile.mkdtemp()
-
-    def test_init(self):
+    def test_optics(self):
         prev_run = os.path.join(test_dir, "relaxation")
-        vis = MPOpticsDerivedSet.from_prev_calc(prev_calc_dir=prev_run,
-                                                copy_chgcar=False)
+        vis = MPNonSCFDerivedSet.from_prev_calc(prev_calc_dir=prev_run,
+                                                copy_chgcar=False, optics=True)
 
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
         self.assertEqual(vis.incar["ENCUT"], 600)
         self.assertTrue(vis.incar["LOPTICS"])
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
-
-        # Check as from dict.
-        vis = MPOpticsDerivedSet.from_dict(vis.as_dict())
-        self.assertEqual(vis.incar["NSW"], 0)
-        # Check that the ENCUT has been inherited.
-        self.assertEqual(vis.incar["ENCUT"], 600)
-        self.assertTrue(vis.incar["LOPTICS"])
-        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
-
-        vis.write_input(self.tmp)
-        self.assertFalse(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
-
-        vis = MPOpticsDerivedSet.from_prev_calc(prev_calc_dir=prev_run,
-                                                copy_chgcar=True)
-        vis.write_input(self.tmp)
-        self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
-
-        # Code below is just to make sure that the parameters are the same
-        # between the old MPStaticVaspInputSet and the new MPStaticSet.
-        # TODO: Delete code below in future.
-        MPOpticsNonSCFVaspInputSet.from_previous_vasp_run(
-            previous_vasp_dir=prev_run, output_dir=self.tmp)
-
-        incar = Incar.from_file(os.path.join(self.tmp, "INCAR"))
-
-        for k, v1 in vis.incar.items():
-            v2 = incar.get(k)
-            try:
-                v1 = v1.upper()
-                v2 = v2.upper()
-            except:
-                # Convert strings to upper case for comparison. Ignore other
-                # types.
-                pass
-            self.assertEqual(v1, v2, k)
-        kpoints = Kpoints.from_file(os.path.join(self.tmp, "KPOINTS"))
-        self.assertEqual(kpoints.style, vis.kpoints.style)
-        self.assertArrayAlmostEqual(kpoints.kpts, vis.kpoints.kpts)
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
