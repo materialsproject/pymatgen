@@ -1711,7 +1711,7 @@ class MPStaticSet(DerivedVaspInputSet):
 class MPNonSCFSet(DerivedVaspInputSet):
 
     def __init__(self, structure, prev_incar=None, prev_chgcar=None,
-                 mode="Line", nedos=601, kpoints_density=1000, sym_prec=0.1,
+                 mode="line", nedos=601, kpoints_density=1000, sym_prec=0.1,
                  kpoints_line_density=20, optics=False, **kwargs):
         """
         Init a MPNonSCFSet. Typically, you would use the classmethod
@@ -1739,14 +1739,15 @@ class MPNonSCFSet(DerivedVaspInputSet):
         self.sym_prec = sym_prec
         self.kpoints_line_density = kpoints_line_density
         self.optics = optics
+        self.mode = mode.lower()
 
-        if mode not in ["Line", "Uniform"]:
+        if self.mode not in ["line", "uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
-        if (mode != "Uniform" or nedos < 2000) and optics:
+        if (self.mode != "uniform" or nedos < 2000) and optics:
             warnings.warn("It is recommended to use Uniform mode with a high "
                           "NEDOS for optics calculations.")
-        self.mode = mode
+
 
         parent_vis = MPVaspInputSet(**kwargs)
 
@@ -1759,7 +1760,7 @@ class MPNonSCFSet(DerivedVaspInputSet):
                       "LCHARG": False, "LORBIT": 11, "LWAVE": False,
                       "NSW": 0, "ISYM": 0, "ICHARG": 11})
 
-        if mode == "Uniform":
+        if self.mode == "uniform":
             # Set smaller steps for DOS output
             incar["NEDOS"] = nedos
 
@@ -1770,7 +1771,7 @@ class MPNonSCFSet(DerivedVaspInputSet):
 
         self.incar = incar
 
-        if self.mode == "Line":
+        if self.mode == "line":
             kpath = HighSymmKpath(structure)
             frac_k_points, k_points_labels = kpath.get_kpoints(
                 line_density=self.kpoints_line_density,
