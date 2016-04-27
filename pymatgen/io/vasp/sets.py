@@ -1807,7 +1807,8 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
 
         incar = vasprun.incar
         # Get a Magmom-decorated structure
-        structure = get_structure_from_prev_run(vasprun, outcar, sym_prec=0)
+        structure = get_structure_from_prev_run(vasprun, outcar,
+                                                standardize=False)
         # Turn off spin when magmom for every site is smaller than 0.02.
         if outcar and outcar.magnetization:
             site_magmom = np.array([i['tot'] for i in outcar.magnetization])
@@ -1880,7 +1881,8 @@ class MPOpticsDerivedSet(MPNonSCFDerivedSet):
 
         incar = vasprun.incar
         # Get a Magmom-decorated structure
-        structure = get_structure_from_prev_run(vasprun, outcar, sym_prec=0)
+        structure = get_structure_from_prev_run(vasprun, outcar,
+                                                standardize=False)
         # Turn off spin when magmom for every site is smaller than 0.02.
         if outcar and outcar.magnetization:
             site_magmom = np.array([i['tot'] for i in outcar.magnetization])
@@ -1903,7 +1905,8 @@ class MPOpticsDerivedSet(MPNonSCFDerivedSet):
             nedos=nedos)
 
 
-def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1):
+def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
+                                standardize=True):
     """
     Process structure from previous run.
     Args:
@@ -1936,7 +1939,7 @@ def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1):
     structure = vasprun.final_structure
     if magmom:
         structure = structure.copy(site_properties=magmom)
-    if sym_prec:
+    if standardize and sym_prec:
         sym_finder = SpacegroupAnalyzer(structure, symprec=sym_prec)
         structure = sym_finder.get_primitive_standard_structure(False)
     return structure
