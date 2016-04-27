@@ -1655,7 +1655,7 @@ class MPStaticDerivedSet(DerivedVaspInputSet):
         kpoints = parent_vis.get_kpoints(self.structure)
 
         # Prefer to use k-point scheme from previous run
-        if prev_kpoints.style != kpoints.style:
+        if prev_kpoints and prev_kpoints.style != kpoints.style:
             if prev_kpoints.style == Kpoints.supported_modes.Monkhorst:
                 k_div = [kp + 1 if kp % 2 == 1 else kp
                          for kp in kpoints.kpts[0]]

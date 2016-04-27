@@ -437,6 +437,7 @@ class MPStaticDerivedSetTest(PymatgenTest):
 
     def test_init(self):
         prev_run = os.path.join(test_dir, "relaxation")
+
         vis = MPStaticDerivedSet.from_prev_calc(prev_calc_dir=prev_run)
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
@@ -449,7 +450,13 @@ class MPStaticDerivedSetTest(PymatgenTest):
         # Check that the ENCUT has been inherited.
         self.assertEqual(vis.incar["ENCUT"], 600)
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
-        #self.assertEqual(vis.user_incar_settings["ISMEAR"], 0)
+
+        non_prev_vis = MPStaticDerivedSet(vis.structure)
+        self.assertEqual(non_prev_vis.incar["NSW"], 0)
+        # Check that the ENCUT and Kpoints style has NOT been inherited.
+        self.assertEqual(non_prev_vis.incar["ENCUT"], 520)
+        self.assertEqual(non_prev_vis.kpoints.style,
+                         Kpoints.supported_modes.Gamma)
 
         # Code below is just to make sure that the parameters are the same
         # between the old MPStaticVaspInputSet and the new MPStaticSet.
