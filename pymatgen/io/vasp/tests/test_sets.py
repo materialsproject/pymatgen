@@ -7,15 +7,12 @@ from __future__ import unicode_literals
 import unittest2 as unittest
 import os
 import shutil
+import tempfile
 
 import numpy as np
 from monty.json import MontyDecoder
 
-from pymatgen.io.vasp.sets import MITVaspInputSet, MITHSEVaspInputSet, \
-    MPVaspInputSet, MITGGAVaspInputSet, MITNEBVaspInputSet,\
-    MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet,\
-    MPHSEVaspInputSet, MPBSHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet,\
-    MPOpticsNonSCFVaspInputSet, MVLElasticInputSet
+from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Incar, Kpoints
 from pymatgen import Specie, Lattice, Structure
 from pymatgen.util.testing import PymatgenTest
@@ -431,6 +428,44 @@ class MVLVaspInputSetTest(PymatgenTest):
         self.assertEqual(incar["NFREE"], 2)
         self.assertEqual(incar["POTIM"], 0.015)
         self.assertNotIn("NPAR", incar)
+
+
+class MPStaticSetTest(PymatgenTest):
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+
+    def test_init(self):
+        prev_run = os.path.join(test_dir, "relaxation")
+        vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run)
+        self.assertEqual(vis.incar["NSW"], 0)
+        # Check that the ENCUT has been inherited.
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
+
+        # Code below is just to make sure that the parameters are the same
+        # between the old MPStaticVaspInputSet and the new MPStaticSet.
+        MPStaticVaspInputSet.from_previous_vasp_run(
+            previous_vasp_dir=prev_run, output_dir=self.tmp)
+
+        incar = Incar.from_file(os.path.join(self.tmp, "INCAR"))
+
+        for k, v1 in vis.incar.items():
+            v2 = incar[k]
+            try:
+                v1 = v1.upper()
+                v2 = v2.upper()
+            except:
+                # Convert strings to upper case for comparison. Ignore other
+                # types.
+                pass
+            self.assertEqual(v1, v2)
+        kpoints = Kpoints.from_file(os.path.join(self.tmp, "KPOINTS"))
+        self.assertEqual(kpoints.style, vis.kpoints.style)
+        self.assertEqual(kpoints.kpts, vis.kpoints.kpts)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
 
 
 if __name__ == '__main__':
