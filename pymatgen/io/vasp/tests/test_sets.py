@@ -451,12 +451,19 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(vis.incar["ENCUT"], 600)
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
 
-        non_prev_vis = MPStaticSet(vis.structure)
+        non_prev_vis = MPStaticSet(vis.structure, user_incar_settings={"LORBIT": 12})
         self.assertEqual(non_prev_vis.incar["NSW"], 0)
         # Check that the ENCUT and Kpoints style has NOT been inherited.
         self.assertEqual(non_prev_vis.incar["ENCUT"], 520)
+        # Check that user incar settings are applied.
+        self.assertEqual(non_prev_vis.incar["LORBIT"], 12)
+
         self.assertEqual(non_prev_vis.kpoints.style,
                          Kpoints.supported_modes.Gamma)
+        v2 = MPStaticSet.from_dict(non_prev_vis.as_dict())
+        self.assertEqual(v2.incar["ENCUT"], 520)
+        # Check that user incar settings are applied.
+        self.assertEqual(v2.incar["LORBIT"], 12)
 
         # Code below is just to make sure that the parameters are the same
         # between the old MPStaticVaspInputSet and the new MPStaticSet.

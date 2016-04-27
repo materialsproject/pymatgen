@@ -1583,6 +1583,12 @@ class DerivedVaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
                     filename=os.path.join(output_dir,
                                           "%s.cif" % v.structure.formula))
 
+    def as_dict(self):
+        d = MSONable.as_dict(self)
+        if hasattr(self, "kwargs"):
+            d.update(**self.kwargs)
+        return d
+
     @classmethod
     def from_dict(cls, d):
         decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items()
@@ -1609,8 +1615,9 @@ class MPStaticSet(DerivedVaspInputSet):
         self.prev_incar = prev_incar
         self.prev_kpoints = prev_kpoints
         self.kpoints_density = kpoints_density
-
         self.structure = structure
+        self.kwargs = kwargs
+
         parent_vis = MPVaspInputSet(**kwargs)
 
         parent_incar = parent_vis.get_incar(structure)
@@ -1622,8 +1629,10 @@ class MPStaticSet(DerivedVaspInputSet):
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
              "ICHARG": 0, "ALGO": "Normal"})
 
-        for k in ["MAGMOM", "NUPDOWN"]:
-            if parent_incar.get(k, None):
+        for k in ["MAGMOM", "NUPDOWN"] + list(kwargs.get("user_incar_settings", {}).keys()):
+            # For these parameters as well as user specified settings, override
+            # the incar settings.
+            if parent_incar.get(k, None) is not None:
                 incar[k] = parent_incar[k]
             else:
                 incar.pop(k, None)
@@ -1724,6 +1733,7 @@ class MPNonSCFSet(DerivedVaspInputSet):
         self.structure = structure
         self.prev_incar = prev_incar
         self.prev_chgcar = prev_chgcar
+        self.kwargs = kwargs
 
         self.kpoints_density = kpoints_density
         self.nedos = nedos
@@ -1740,12 +1750,12 @@ class MPNonSCFSet(DerivedVaspInputSet):
             warnings.warn("It is recommended to use Uniform mode with a high "
                           "NEDOS for optics calculations.")
 
-
         parent_vis = MPVaspInputSet(**kwargs)
 
         incar = parent_vis.get_incar(structure)
         if prev_incar is not None:
-            incar.update(prev_incar)
+            incar.update({k: v for k, v in prev_incar.items()
+                         if k not in kwargs.get("user_incar_settings", {})})
 
         # Overwrite necessary INCAR parameters from previous runs
         incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001,
