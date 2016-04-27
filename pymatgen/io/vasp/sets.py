@@ -1416,6 +1416,7 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
                                "NSW": 0, "ISYM": 0, "ICHARG": 11,
                                "LOPTICS": True, "NEDOS": nedos})
         previous_incar.update(nscf_incar_settings)
+        previous_incar.update(spin_band_settings)
         previous_incar.update(user_incar_settings)
         previous_incar.pop("MAGMOM", None)
         previous_incar.write_file(os.path.join(output_dir, "INCAR"))
@@ -1649,8 +1650,8 @@ class MPStaticDerivedSet(DerivedVaspInputSet):
 
         self.potcar = parent_vis.get_potcar(self.structure)
 
-    @staticmethod
-    def from_prev_calc(prev_calc_dir, kpoints_density=90, sym_prec=0.1,
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir, kpoints_density=90, sym_prec=0.1,
                        **kwargs):
         """
         Generate a set of Vasp input files for static calculations from a
@@ -1714,7 +1715,6 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
         if mode == "Uniform":
             # Set smaller steps for DOS output
             incar["NEDOS"] = nedos
-            print(mode)
         incar.pop("MAGMOM", None)
 
         self.incar = incar
@@ -1764,8 +1764,8 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
         if self.chgcar:
             self.chgcar.write_file(os.path.join(output_dir, "CHGCAR"))
 
-    @staticmethod
-    def from_prev_calc(prev_calc_dir, mode="Uniform",
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir, mode="Uniform",
                        copy_chgcar=True, nedos=601,
                        kpoints_density=1000, kpoints_line_density=20, **kwargs):
         """
@@ -1829,6 +1829,78 @@ class MPNonSCFDerivedSet(DerivedVaspInputSet):
             prev_chgcar=chgcar, kpoints_density=kpoints_density,
             nedos=nedos, kpoints_line_density=kpoints_line_density, mode=mode)
 
+
+class MPOpticsDerivedSet(MPNonSCFDerivedSet):
+    """
+    Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
+    for non self-consistent field (NonSCF) calculation with the computation
+    of the dielectric function that follows a static run.
+
+    Args:
+        kpoints_density (int): kpoints density for the reciprocal cell
+            of structure. Might need to increase the default value when
+            calculating metallic materials.
+        sym_prec (float): Tolerance for symmetry finding
+    """
+
+    def __init__(self, prev_incar, prev_structure, prev_chgcar=None,
+                 nedos=2001, kpoints_density=1000, sym_prec=0.1, **kwargs):
+        super(MPOpticsDerivedSet, self).__init__(
+            prev_incar, prev_structure, prev_chgcar=prev_chgcar, mode="Uniform",
+            nedos=nedos, kpoints_density=kpoints_density,
+            sym_prec=sym_prec, **kwargs)
+
+        self.incar["LOPTICS"] = True
+
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
+                       kpoints_density=1000,
+                       nbands_factor=5.0, nedos=2001, **kwargs):
+        """
+        Generate a set of Vasp input files for NonSCF calculations from a
+        directory of previous static Vasp run.
+
+        Args:
+            previous_vasp_dir (str): The directory contains the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            copy_chgcar (bool): Default to copy CHGCAR from SC run
+            nbands_factor (float): Factor by which the number of bands is to be
+                multiplied. Typical calculations of dielectric functions need a
+                total number of bands of 5 to 10 times the number of valence
+                bands.
+        """
+        vruns = glob(os.path.join(prev_calc_dir, "vasprun.xml*"))
+        outcars = glob(os.path.join(prev_calc_dir, "OUTCAR*"))
+
+        if len(vruns) == 0 or len(outcars) == 0:
+            raise ValueError(
+                "Unable to get vasprun.xml/OUTCAR from prev calculation in %s" % prev_calc_dir)
+        vasprun = Vasprun(sorted(vruns)[-1], parse_dos=False, parse_eigen=None)
+        outcar = Outcar(sorted(outcars)[-1])
+
+        incar = vasprun.incar
+        # Get a Magmom-decorated structure
+        structure = get_structure_from_prev_run(vasprun, outcar, sym_prec=0)
+        # Turn off spin when magmom for every site is smaller than 0.02.
+        if outcar and outcar.magnetization:
+            site_magmom = np.array([i['tot'] for i in outcar.magnetization])
+            ispin = 2 if np.any(site_magmom[np.abs(site_magmom) > 0.02]) else 1
+        elif vasprun.is_spin:
+            ispin = 2
+        else:
+            ispin = 1
+        nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
+        incar.update({"ISPIN": ispin, "NBANDS": nbands})
+
+        chgcar = None
+        if copy_chgcar:
+            chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
+            if len(chgcars) > 0:
+                chgcar = Chgcar.from_file(sorted(chgcars)[-1])
+        return MPOpticsDerivedSet(
+            prev_incar=incar, prev_structure=structure,
+            prev_chgcar=chgcar, kpoints_density=kpoints_density,
+            nedos=nedos)
 
 
 def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1):
