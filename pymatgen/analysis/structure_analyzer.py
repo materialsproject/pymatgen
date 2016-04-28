@@ -172,11 +172,12 @@ class VoronoiAnalysis(object):
         Stepanyuk et al., J. Non-cryst. Solids (1993), 159, 80-87.
     """
 
-    def __init__(self):
-        self.vor_ensemble = None
+    def __init__(self, cutoff=5.0, qhull_options="Qbb Qc Qz"):
+        self.cutoff = cutoff
+        self.qhull_options=qhull_options
+        self.voronoi_ensemble = None
 
-    @staticmethod
-    def voronoi_analysis(structure, n=0, cutoff=5.0, qhull_options="Qbb Qc Qz"):
+    def voronoi_analysis(self, structure, n=0):
         """
         Performs Voronoi analysis and returns the polyhedra around atom n
         in Schlaefli notation.
@@ -190,10 +191,10 @@ class VoronoiAnalysis(object):
                 where c_i denotes number of facets with i vertices.
         """
         center = structure[n]
-        neighbors = structure.get_sites_in_sphere(center.coords, cutoff)
+        neighbors = structure.get_sites_in_sphere(center.coords, self.cutoff)
         neighbors = [i[0] for i in sorted(neighbors, key=lambda s: s[1])]
         qvoronoi_input = np.array([s.coords for s in neighbors])
-        voro = Voronoi(qvoronoi_input, qhull_options=qhull_options)
+        voro = Voronoi(qvoronoi_input, qhull_options=self.qhull_options)
         vor_index = np.array([0,0,0,0,0,0,0,0])
 
         for key in voro.ridge_dict:
@@ -208,19 +209,19 @@ class VoronoiAnalysis(object):
                         pass
         return vor_index
 
-    def from_structures(self, structures, cutoff=4.0, step_freq=10, qhull_options="Qbb Qc Qz"):
+    def from_structures(self, structures, step_freq=10, most_frequent_polyhedra=15):
         """
-        A constructor to perform Voronoi analysis on a list of pymatgen structrue objects
-
+        Perform Voronoi analysis on a list of Structures.
+        Note that this might take a significant amount of time depending on the size and number of structures
         Args:
             structures (list): list of Structures
             cutoff (float: cutoff distance around an atom to search for neighbors
             step_freq (int): perform analysis every step_freq steps
             qhull_options (str): options to pass to qhull
+            most_frequent_polyhedra (int): this many unique polyhedra with highest frequences is stored.
         Returns:
-            A list of [voronoi_tesellation, count]
+            A list of tuples in the form (voronoi_index,frequency)
         """
-        print "This might take a while..."
         voro_dict = {}
         step = 0
         for structure in structures:
@@ -230,19 +231,19 @@ class VoronoiAnalysis(object):
 
             v = []
             for n in range(len(structure)):
-                v.append(str(self.voronoi_analysis(structure,n=n,cutoff=cutoff,
-                                                   qhull_options=qhull_options).view()))
+                v.append(str(self.voronoi_analysis(structure,n=n).view()))
             for voro in v:
                 if voro in voro_dict:
                     voro_dict[voro]+=1
                 else:
                     voro_dict[voro]=1
-        self.vor_ensemble = sorted(voro_dict.items(), key=lambda x: (x[1],x[0]), reverse=True)[:15 ]
-        return self.vor_ensemble
+        self.voronoi_ensemble = sorted(voro_dict.items(),
+                                       key=lambda x: (x[1], x[0]), reverse=True)[:most_frequent_polyhedra]
+        return self.voronoi_ensemble
 
     @property
     def plot_vor_analysis(self):
-        t = zip(*self.vor_ensemble)
+        t = zip(*self.voronoi_ensemble)
         labels = t[0]
         val = list(t[1])
         tot = np.sum(val)
