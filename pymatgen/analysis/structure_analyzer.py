@@ -130,7 +130,7 @@ class VoronoiCoordFinder(object):
         return coordinated_sites
 
 
-def average_coordination_number(structures, freq=100):
+def average_coordination_number(structures, freq=10):
     """
     Calculates the ensemble averaged Voronoi coordination numbers of a list of Structures.
     Order of sites in structures should be identical. Typically used for analyzing the
