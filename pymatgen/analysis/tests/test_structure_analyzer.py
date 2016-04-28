@@ -12,7 +12,9 @@ from math import fabs
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
     oxide_type, OrderParameters
+from pymatgen.analysis.structure_analyzer import average_coordination_number
 from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 
@@ -30,7 +32,7 @@ class VoronoiCoordFinderTest(PymatgenTest):
         self.assertEqual(len(self.finder.get_voronoi_polyhedra(0).items()), 8)
 
     def test_get_coordination_number(self):
-        self.assertAlmostEqual(self.finder.get_coordination_number(0),
+        self.assertAlmostEqual(self.finder.get_csoordination_number(0),
                                5.809265748999465, 7)
 
     def test_get_coordinated_sites(self):
@@ -85,6 +87,11 @@ class VoronoiConnectivityTest(PymatgenTest):
 
 
 class MiscFunctionTest(PymatgenTest):
+
+    def test_average_coordination_number(self):
+        xdatcar = Xdatcar(os.path.join(test_dir, 'XDATCAR.MD'))
+        coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)
+        print coordination_numbers
 
     def test_solid_angle(self):
         center = [2.294508207929496, 4.4078057081404, 2.299997773791287]
