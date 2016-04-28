@@ -1866,9 +1866,10 @@ def get_vasprun_outcar(path):
         raise ValueError(
             "Unable to get vasprun.xml/OUTCAR from prev calculation in %s" %
             path)
-
-    vsfile = "vasprun.xml" if "vasprun.xml" in vruns else sorted(vruns)[-1]
-    outcarfile = "OUTCAR" if "OUTCAR" in outcars else sorted(outcars)[-1]
+    vsfile_fullpath = os.path.join(path, "vasprun.xml")
+    outcarfile_fullpath = os.path.join(path, "OUTCAR")
+    vsfile = vsfile_fullpath if vsfile_fullpath in vruns else sorted(vruns)[-1]
+    outcarfile = outcarfile_fullpath if outcarfile_fullpath in outcars else sorted(outcars)[-1]
     return Vasprun(vsfile, parse_dos=False, parse_eigen=None), Outcar(
         outcarfile)
 
