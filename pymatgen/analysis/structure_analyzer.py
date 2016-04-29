@@ -171,6 +171,10 @@ class VoronoiAnalysis(object):
     there is a statistical distribution of polyhedra.
     See ref: Microstructure and its relaxation in Fe-B amorphous system simulated by molecular dynamics,
         Stepanyuk et al., J. Non-cryst. Solids (1993), 159, 80-87.
+
+    Args:
+        cutoff (float): cutoff distance to search for neighbors of a given atom (default = 5.0)
+        qhull_options (str): options to pass to qhull (optional)
     """
 
     def __init__(self, cutoff=5.0, qhull_options="Qbb Qc Qz"):
@@ -185,8 +189,6 @@ class VoronoiAnalysis(object):
         Args:
             structure (Structure): structure to analyze
             n (int): index of the center atom in structure
-            cutoff (float): cutoff distance around n to search for neighbors
-            qhull_options (str): options to pass to qhull
         Returns:
             voronoi index of n: <c3,c4,c6,c6,c7,c8,c9,c10>
                 where c_i denotes number of facets with i vertices.
