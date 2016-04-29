@@ -231,6 +231,15 @@ class VasprunTest(unittest.TestCase):
         (gap, cbm, vbm, direct) = v.eigenvalue_band_properties
         self.assertFalse(direct)
 
+    def test_force_constants(self):
+        vasprun_fc = Vasprun(os.path.join(test_dir, "vasprun.xml.dfpt.phonon"),
+                             parse_potcar_file=False)
+        ans =[[-0.00184451, -0., -0.],
+              [-0. , -0.00933824, -0.03021279],
+              [-0., -0.03021279,  0.01202547]]
+        self.assertEqual(vasprun_fc.force_constants.shape, (16, 16, 3, 3))
+        self.assertTrue(np.allclose(vasprun_fc.force_constants[8, 9], ans))
+
     def test_Xe(self):
         vr = Vasprun(os.path.join(test_dir, 'vasprun.xml.xe'), parse_potcar_file=False)
         self.assertEquals(vr.atomic_symbols, ['Xe'])

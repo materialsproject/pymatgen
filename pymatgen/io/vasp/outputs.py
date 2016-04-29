@@ -289,6 +289,11 @@ class Vasprun(MSONable):
         to the total number of steps in the actual run even if
         ionic_step_skip is used.
 
+    .. attribute:: force_constants
+
+        Force constants computed in phonon DFPT run(IBRION = 8).
+        The data is a 4D numpy array of shape (natoms, natoms, 3, 3).
+
     **Vasp inputs**
 
     .. attribute:: incar
@@ -428,6 +433,13 @@ class Vasprun(MSONable):
                 elif tag == "structure" and elem.attrib.get("name") == \
                         "finalpos":
                     self.final_structure = self._parse_structure(elem)
+                elif tag == "dynmat":
+                    natoms = len(self.atomic_symbols)
+                    hessian = np.array(self._parse_dynmat(elem))
+                    self.force_constants = np.zeros((natoms, natoms, 3, 3), dtype='double')
+                    for i in range(natoms):
+                        for j in range(natoms):
+                            self.force_constants[i, j] = hessian[i*3:(i+1)*3,j*3:(j+1)*3]
         except ET.ParseError as ex:
             if self.exception_on_bad_xml:
                 raise ex
@@ -1070,6 +1082,14 @@ class Vasprun(MSONable):
                             proj_eigen[(spin, kpt, band, atom, orb)] = v
         elem.clear()
         return proj_eigen
+
+    def _parse_dynmat(self, elem):
+        for va in elem.findall("varray"):
+            if va.attrib["name"] == "hessian":
+                hessian = []
+                for v in va.findall("v"):
+                    hessian.append([float(i) for i in v.text.split()])
+        return hessian
 
 
 class BSVasprun(Vasprun):
