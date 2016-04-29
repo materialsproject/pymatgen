@@ -1253,6 +1253,16 @@ class BoltztrapAnalyzer(object):
                 analyzer_for_second_spin must be specified to have a CompleteDos with both Spin components
             Returns:
                 a CompleteDos object
+            Example of use in case of spin polarized case:
+            
+                BoltztrapRunner(bs=bs,nelec=10,run_type="DOS",spin=1).run(path_dir='dos_up/')
+                an_up=BoltztrapAnalyzer.from_files("dos_up/boltztrap/",dos_spin=1)
+
+                BoltztrapRunner(bs=bs,nelec=10,run_type="DOS",spin=-1).run(path_dir='dos_dw/')
+                an_dw=BoltztrapAnalyzer.from_files("dos_dw/boltztrap/",dos_spin=-1)
+
+                cdos=an_up.get_complete_dos(bs._structure,an_dw)
+
         """
         pdoss = {}
         spin_1 = self.dos.densities.keys()[0]
