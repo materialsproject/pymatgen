@@ -11,7 +11,8 @@ from math import fabs
 
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
-    oxide_type, OrderParameters, average_coordination_number, VoronoiAnalysis
+    oxide_type, OrderParameters, average_coordination_number, VoronoiAnalysis, \
+    RadialDistributionFunction
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen import Element, Structure, Lattice
@@ -54,6 +55,26 @@ class VoronoiAnalysisTest(PymatgenTest):
         ensemble = self.va.from_structures(self.ss,step_freq=2,most_frequent_polyhedra=10)
         self.assertIn(('[2 3 3 3 1 1 0 0]', 6),
                       ensemble, "Cannot find the right polyhedron in ensemble.")
+
+
+class RadialDistributionFunctionTest(PymatgenTest):
+
+    def test_radial_distribution_function(self):
+        structures = Xdatcar(os.path.join(test_dir, 'XDATCAR.MD')).structures
+        rdf = RadialDistributionFunction(structures, cutoff=4.5, bin_size=0.05, step_freq=1, smooth=3)
+        rdf.get_radial_distribution_functions()
+        test_pair = (u'O', u'O')
+        self.assertIn(test_pair,rdf.RDFs.keys(), "Cannot find the correct pairs in RDFs.")
+        self.assertEqual(len(rdf.RDFs[test_pair]),90)
+        self.assertAlmostEqual(rdf.RDFs[test_pair][45], 0.65090630685010054)
+        # Test changing input parameters and getting a new set of RDFs
+        rdf.smooth=5
+        rdf.bin_size=0.1
+        rdf.cutoff=4.25
+        rdf.step_freq=2
+        rdf.get_radial_distribution_functions()
+        self.assertEqual(len(rdf.RDFs[test_pair]),43)
+        self.assertAlmostEqual(rdf.RDFs[test_pair][25], 1.2698824400563458)
 
 class RelaxationAnalyzerTest(unittest.TestCase):
 
