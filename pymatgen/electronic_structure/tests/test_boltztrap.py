@@ -12,10 +12,17 @@ from pymatgen.electronic_structure.core import Spin, OrbitalType
 from pymatgen.core.structure import Structure
 from monty.serialization import loadfn
 
+
+try:
+    from ase.io.cube import read_cube
+except ImportError:
+    read_cube = None
+
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
+@unittest.skipIf(read_cube is None, "No ase.io.read_cube.")
 class BoltztrapAnalyzerTest(unittest.TestCase):
 
     def setUp(self):
