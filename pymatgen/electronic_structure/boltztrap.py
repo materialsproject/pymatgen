@@ -81,7 +81,7 @@ class BoltztrapRunner(object):
                 coefficients but you can have also:
                 - BANDS to interpolate all bands contained in the energy range specified in 
                 energy_span_around_fermi variable, along specified k-points
-                - DOS to compute total and partial dos (modified BoltzTraP code needed!)
+                - DOS to compute total and partial dos (custom BoltzTraP code needed!)
                 - FERMI to compute fermi surface or more correctly to get certain bands interpolated
             band_nb:
                 indicates a band number. Used for Fermi Surface interpolation (run_type="FERMI")
@@ -239,6 +239,8 @@ class BoltztrapRunner(object):
                                    for row in c]))
                 f.write('\n')
 
+    # This function is useless in std version of BoltzTraP code
+    # because x_trans script overwrite BoltzTraP.def
     def _make_def_file(self, def_file_name):
         with open(def_file_name, 'w') as f:
             so = ""
@@ -267,6 +269,8 @@ class BoltztrapRunner(object):
                     "30,'boltztrap_BZ.cube',           'unknown',    "
                     "'formatted',0\n")
 
+    # This function is useless in std version of BoltzTraP code
+    # because x_trans script overwrite BoltzTraP.def
     def _make_proj_files(self, file_name, def_file_name):
         for o in Orbital:
             for site_nb in range(0, len(self._bs._structure.sites)):
@@ -481,6 +485,8 @@ class BoltztrapRunner(object):
                             if "WARNING" in l:
                                 warning = True
                                 break
+                            if "Option unknown" in l:
+                                raise BoltztrapError("DOS mode needs a custom version of BoltzTraP code is needed")
                     if warning:
                         print("There was a warning! Increase lpfac to " +
                               str(self.lpfac + 10))
@@ -833,8 +839,7 @@ class BoltztrapAnalyzer(object):
             return sbs
 
         except:
-            raise BoltztrapError(
-                "Kpoints and bands are not in output of BoltzTraP.\nBolztrapRunner and BoltztrapAnalyzer have to be run with run_type=BANDS")
+            raise BoltztrapError("Bands are not in output of BoltzTraP.\nBolztrapRunner have to be run with run_type=BANDS")
 
     def check_acc_bzt_bands(self, sbs_bz, sbs_ref, warn_thr=0.01):
         """
@@ -848,18 +853,22 @@ class BoltztrapAnalyzer(object):
             and a boolean variable to signal the presence of not accurate bands around the gap.
             warn_thr is a threshold to get a warning in the accuracy of Boltztap interpolated bands.
         """
-        vbm_idx = sbs_bz.get_vbm()['band_index'][Spin.up][-1]
-        cbm_idx = sbs_bz.get_cbm()['band_index'][Spin.up][0]
-        corr, werr_vbm = compare_sym_bands(sbs_bz, sbs_ref, vbm_idx)
-        corr, werr_cbm = compare_sym_bands(sbs_bz, sbs_ref, cbm_idx)
+        if not sbs_ref.is_metal():
+            vbm_idx = sbs_ref.get_vbm()['band_index'][Spin.up][-1]
+            cbm_idx = sbs_ref.get_cbm()['band_index'][Spin.up][0]
+            corr, werr_vbm = compare_sym_bands(sbs_bz, sbs_ref, vbm_idx)
+            corr, werr_cbm = compare_sym_bands(sbs_bz, sbs_ref, cbm_idx)
 
-        acc_err = False
-        warn_thr = 0.01
-        if any(corr[vbm_idx - 3:vbm_idx + 1] > warn_thr) or any(corr[cbm_idx:cbm_idx + 4] > warn_thr):
-            print("Warning! some bands around gap are not accurate")
-            acc_err = True
+            acc_err = False
+            warn_thr = 0.01
+            if any(corr[vbm_idx - 3:vbm_idx + 1] > warn_thr) or any(corr[cbm_idx:cbm_idx + 4] > warn_thr):
+                print("Warning! some bands around gap are not accurate")
+                acc_err = True
 
-        return corr, werr_vbm, werr_cbm, acc_err
+            return corr, werr_vbm, werr_cbm, acc_err
+        
+        else:
+            print("check implemented only for bandstructure with gap")
 
     def get_seebeck(self, output='eig', doping_levels=True):
         """
@@ -1443,7 +1452,13 @@ class BoltztrapAnalyzer(object):
 
         elif run_type == "FERMI":
             from ase.io.cube import read_cube
-            fs_data = read_cube(str(os.path.join(path_dir, 'boltztrap_BZ.cube')), read_data=True)
+            if os.path.exists(os.path.join(path_dir, 'boltztrap_BZ.cube')):
+                fs_data = read_cube(str(os.path.join(path_dir, 'boltztrap_BZ.cube')), read_data=True)
+            if os.path.exists(os.path.join(path_dir, 'fort.30')):
+                fs_data = read_cube(str(os.path.join(path_dir, 'fort.30')), read_data=True)
+            else:
+                raise BoltztrapError("No data file found for fermi surface")
+            
             return BoltztrapAnalyzer._make_boltztrap_analyzer_from_data(run_type="FERMI", fermi_surface_data=fs_data)
 
         elif run_type == "BANDS":
@@ -1819,12 +1834,15 @@ class BoltztrapPlotter(object):
         Returns:
             a matplotlib object
 
-    Note: Experimental
+        Note: Experimental
         """
         from mpl_toolkits.mplot3d import Axes3D
         from pymatgen.electronic_structure.plotter import plot_brillouin_zone
-        from skimage import measure
-
+        try:
+            from skimage import measure
+        except ImportError:
+            raise BoltztrapError("skimage package should be installed to use this function")
+        
         fig = None
 
         data = self._bz.fermi_surface_data
