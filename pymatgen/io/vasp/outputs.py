@@ -289,6 +289,21 @@ class Vasprun(MSONable):
         to the total number of steps in the actual run even if
         ionic_step_skip is used.
 
+    .. attribute:: force_constants
+
+        Force constants computed in phonon DFPT run(IBRION = 8).
+        The data is a 4D numpy array of shape (natoms, natoms, 3, 3).
+
+    .. attribute:: normalmode_eigenvals
+
+        Normal mode frequencies.
+        1D numpy array of size 3*natoms.
+
+    .. attribute:: normalmode_eigenvecs
+
+        Normal mode eigen vectoes.
+        3D numpy array of shape (3*natoms, natoms, 3).
+
     **Vasp inputs**
 
     .. attribute:: incar
@@ -428,6 +443,19 @@ class Vasprun(MSONable):
                 elif tag == "structure" and elem.attrib.get("name") == \
                         "finalpos":
                     self.final_structure = self._parse_structure(elem)
+                elif tag == "dynmat":
+                    hessian, eigenvalues, eigenvectors = self._parse_dynmat(elem)
+                    natoms = len(self.atomic_symbols)
+                    hessian = np.array(hessian)
+                    self.force_constants = np.zeros((natoms, natoms, 3, 3), dtype='double')
+                    for i in range(natoms):
+                        for j in range(natoms):
+                            self.force_constants[i, j] = hessian[i*3:(i+1)*3,j*3:(j+1)*3]
+                    phonon_eigenvectors = []
+                    for ev in eigenvectors:
+                        phonon_eigenvectors.append(np.array(ev).reshape(natoms, 3))
+                    self.normalmode_eigenvals = np.array(eigenvalues)
+                    self.normalmode_eigenvecs = np.array(phonon_eigenvectors)
         except ET.ParseError as ex:
             if self.exception_on_bad_xml:
                 raise ex
@@ -1070,6 +1098,22 @@ class Vasprun(MSONable):
                             proj_eigen[(spin, kpt, band, atom, orb)] = v
         elem.clear()
         return proj_eigen
+
+    def _parse_dynmat(self, elem):
+        hessian = []
+        eigenvalues = []
+        eigenvectors = []
+        for v in elem.findall("v"):
+            if v.attrib["name"] == "eigenvalues":
+                eigenvalues = [float(i) for i in v.text.split()]
+        for va in elem.findall("varray"):
+            if va.attrib["name"] == "hessian":
+                for v in va.findall("v"):
+                    hessian.append([float(i) for i in v.text.split()])
+            elif va.attrib["name"] == "eigenvectors":
+                for v in va.findall("v"):
+                    eigenvectors.append([float(i) for i in v.text.split()])
+        return hessian, eigenvalues, eigenvectors
 
 
 class BSVasprun(Vasprun):
