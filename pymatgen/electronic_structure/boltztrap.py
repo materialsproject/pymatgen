@@ -868,7 +868,7 @@ class BoltztrapAnalyzer(object):
             return corr, werr_vbm, werr_cbm, acc_err
         
         else:
-            print("check implemented only for bandstructure with gap")
+            raise BoltztrapError("band check implemented only for bandstructure with gap")
 
     def get_seebeck(self, output='eig', doping_levels=True):
         """
