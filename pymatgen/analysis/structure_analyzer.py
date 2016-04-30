@@ -133,9 +133,9 @@ class VoronoiCoordFinder(object):
 
 def average_coordination_number(structures, freq=10):
     """
-    Calculates the ensemble averaged Voronoi coordination numbers of a list of Structures.
-    Order of sites in structures should be identical. Typically used for analyzing the
-    output of a Molecular Dynamics run.
+    Calculates the ensemble averaged Voronoi coordination numbers
+    of a list of Structures using VoronoiCoordFinder.
+    Typically used for analyzing the output of a Molecular Dynamics run.
     Args:
         structures (list): list of Structures.
         freq (int): sampling frequency of coordination number [every freq steps].
