@@ -467,29 +467,6 @@ class MPStaticSetTest(PymatgenTest):
         # Check that user incar settings are applied.
         self.assertEqual(v2.incar["LORBIT"], 12)
 
-        # Code below is just to make sure that the parameters are the same
-        # between the old MPStaticVaspInputSet and the new MPStaticSet.
-        # TODO: Delete code below in future.
-        MPStaticVaspInputSet.from_previous_vasp_run(
-            previous_vasp_dir=prev_run, output_dir=self.tmp)
-
-        incar = Incar.from_file(os.path.join(self.tmp, "INCAR"))
-
-        for k, v1 in vis.incar.items():
-            v2 = incar[k]
-            try:
-                v1 = v1.upper()
-                v2 = v2.upper()
-            except:
-                # Convert strings to upper case for comparison. Ignore other
-                # types.
-                pass
-            if k != "MAGMOM":
-                self.assertEqual(v1, v2)
-        kpoints = Kpoints.from_file(os.path.join(self.tmp, "KPOINTS"))
-        self.assertEqual(kpoints.style, vis.kpoints.style)
-        self.assertEqual(kpoints.kpts, vis.kpoints.kpts)
-
     def tearDown(self):
         shutil.rmtree(self.tmp)
 
