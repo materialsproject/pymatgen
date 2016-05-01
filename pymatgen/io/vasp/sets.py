@@ -1934,7 +1934,8 @@ class MPNonSCFSet(DerivedVaspInputSet):
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
 
         return MPNonSCFSet(structure=structure, prev_incar=incar,
-                           prev_chgcar=chgcar, **kwargs)
+                           prev_chgcar=chgcar,
+                           reciprocal_density=reciprocal_density, **kwargs)
 
 
 def get_vasprun_outcar(path):
