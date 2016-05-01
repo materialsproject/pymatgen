@@ -231,6 +231,39 @@ class VasprunTest(unittest.TestCase):
         (gap, cbm, vbm, direct) = v.eigenvalue_band_properties
         self.assertFalse(direct)
 
+    def test_force_constants(self):
+        vasprun_fc = Vasprun(os.path.join(test_dir, "vasprun.xml.dfpt.phonon"),
+                             parse_potcar_file=False)
+        fc_ans =[[-0.00184451, -0., -0.],
+              [-0. , -0.00933824, -0.03021279],
+              [-0., -0.03021279,  0.01202547]]
+        nm_ans = [[ 0.0884346, -0.08837289, -0.24995639],
+                   [-0.0884346,  0.08837289,  0.24995639],
+                   [ 0.15306645, -0.05105771, -0.14441306],
+                   [-0.15306645,  0.05105771,  0.14441306],
+                   [-0.0884346,  0.08837289,  0.24995639],
+                   [ 0.0884346, -0.08837289, -0.24995639],
+                   [-0.15306645,  0.05105771,  0.14441306],
+                   [ 0.15306645, -0.05105771, -0.14441306],
+                   [-0.0884346,  0.08837289,  0.24995639],
+                   [ 0.0884346, -0.08837289, -0.24995639],
+                   [-0.15306645,  0.05105771,  0.14441306],
+                   [ 0.15306645, -0.05105771, -0.14441306],
+                   [ 0.0884346, -0.08837289, -0.24995639],
+                   [-0.0884346,  0.08837289,  0.24995639],
+                   [ 0.15306645, -0.05105771, -0.14441306],
+                   [-0.15306645,  0.05105771,  0.14441306]]
+        nm_eigenval_ans = [-0.59067079, -0.59067079, -0.59067003, -0.59067003,
+                           -0.59067003, -0.59067003, -0.585009, -0.585009,
+                           -0.58500895, -0.58500883, -0.5062956 , -0.5062956]
+        self.assertEqual(vasprun_fc.force_constants.shape, (16, 16, 3, 3))
+        self.assertTrue(np.allclose(vasprun_fc.force_constants[8, 9], fc_ans))
+        self.assertEqual(vasprun_fc.normalmode_eigenvals.size, 48)
+        self.assertTrue(np.allclose(vasprun_fc.normalmode_eigenvals[17:29],
+                                    nm_eigenval_ans))
+        self.assertEqual(vasprun_fc.normalmode_eigenvecs.shape, (48, 16, 3))
+        self.assertTrue(np.allclose(vasprun_fc.normalmode_eigenvecs[33], nm_ans))
+
     def test_Xe(self):
         vr = Vasprun(os.path.join(test_dir, 'vasprun.xml.xe'), parse_potcar_file=False)
         self.assertEquals(vr.atomic_symbols, ['Xe'])
@@ -410,6 +443,13 @@ class OutcarTest(unittest.TestCase):
             self.assertAlmostEqual(outcar.piezo_ionic_tensor[2][5], 0.06242)
             self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
             self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
+
+    def test_dielectric(self):
+        filepath = os.path.join(test_dir, "OUTCAR.dielectric")
+        outcar = Outcar(filepath)
+        outcar.read_corrections()
+        self.assertAlmostEqual(outcar.data["dipol_quadrupol_correction"], 0.03565)
+        self.assertAlmostEqual(outcar.final_energy, -797.46760559)
 
     def test_elastic_tensor(self):
         filepath = os.path.join(test_dir, "OUTCAR.total_tensor.Li2O.gz")

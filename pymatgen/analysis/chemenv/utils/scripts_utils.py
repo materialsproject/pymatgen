@@ -42,7 +42,6 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import TargettedPenaltiedAbundanceChemenvStrategy
 
-from pymatgen.vis.structure_vtk import StructureVis
 from pymatgen.core.structure import Molecule
 from collections import OrderedDict
 import numpy as np

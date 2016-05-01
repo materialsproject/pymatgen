@@ -1,6 +1,15 @@
 Change log
 ==========
 
+v3.5.2
+------
+* Minor update to DerivedInputSet interface.
+
+v3.5.1
+------
+* New derived input sets for generating inputs that depende on previuos
+  calculations. Old input sets deprecated.
+
 v3.5.0
 ------
 * Chemical environment analysis package (David Waroquiers).
