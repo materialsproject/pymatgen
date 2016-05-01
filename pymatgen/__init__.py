@@ -5,7 +5,7 @@ __email__ ="pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ ="shyuep@gmail.com"
 __date__ = "Apr 30 2016"
-__version__ = "3.5.1"
+__version__ = "3.5.2"
 
 
 # Useful aliases for commonly used objects and modules.

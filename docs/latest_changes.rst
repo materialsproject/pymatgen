@@ -1,7 +1,6 @@
 Change log
 ==========
 
-v3.5.1
+v3.5.2
 ------
-* New derived input sets for generating inputs that depende on previuos
-  calculations. Old input sets deprecated.
+* Minor update to DerivedInputSet interface.
