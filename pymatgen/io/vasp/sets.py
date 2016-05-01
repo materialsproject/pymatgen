@@ -1549,6 +1549,26 @@ class DerivedVaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
     methods but is instead already provided. See examples below.
     """
 
+    @abc.abstractproperty
+    def incar(self):
+        """Incar object"""
+        pass
+
+    @abc.abstractproperty
+    def kpoints(self):
+        """Kpoints object"""
+        pass
+
+    @abc.abstractproperty
+    def poscar(self):
+        """Poscar object"""
+        pass
+
+    @abc.abstractproperty
+    def potcar(self):
+        """Potcar object"""
+        pass
+
     def get_all_vasp_input(self):
         """
         Returns all input files as a dict of {filename: vasp object}
@@ -1618,11 +1638,13 @@ class MPStaticSet(DerivedVaspInputSet):
         self.reciprocal_density = reciprocal_density
         self.structure = structure
         self.kwargs = kwargs
+        self.parent_vis = MPVaspInputSet(**self.kwargs)
 
-        parent_vis = MPVaspInputSet(**kwargs)
+    @property
+    def incar(self):
 
-        parent_incar = parent_vis.get_incar(structure)
-        incar = Incar(prev_incar) if prev_incar is not None else \
+        parent_incar = self.parent_vis.get_incar(self.structure)
+        incar = Incar(self.prev_incar) if self.prev_incar is not None else \
             Incar(parent_incar)
 
         incar.update(
@@ -1630,7 +1652,8 @@ class MPStaticSet(DerivedVaspInputSet):
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
              "ICHARG": 0, "ALGO": "Normal"})
 
-        for k in ["MAGMOM", "NUPDOWN"] + list(kwargs.get("user_incar_settings", {}).keys()):
+        for k in ["MAGMOM", "NUPDOWN"] + list(self.kwargs.get(
+                "user_incar_settings", {}).keys()):
             # For these parameters as well as user specified settings, override
             # the incar settings.
             if parent_incar.get(k, None) is not None:
@@ -1653,27 +1676,33 @@ class MPStaticSet(DerivedVaspInputSet):
         # Compare ediff between previous and staticinputset values,
         # choose the tighter ediff
         incar["EDIFF"] = min(incar.get("EDIFF", 1), parent_incar["EDIFF"])
+        return incar
 
-        self.incar = incar
-
-        if parent_vis.kpoints_settings.get("grid_density"):
-            del parent_vis.kpoints_settings["grid_density"]
-        parent_vis.kpoints_settings["reciprocal_density"] = reciprocal_density
-        kpoints = parent_vis.get_kpoints(self.structure)
+    @property
+    def kpoints(self):
+        if self.parent_vis.kpoints_settings.get("grid_density"):
+            del self.parent_vis.kpoints_settings["grid_density"]
+        self.parent_vis.kpoints_settings["reciprocal_density"] = \
+            self.reciprocal_density
+        kpoints = self.parent_vis.get_kpoints(self.structure)
 
         # Prefer to use k-point scheme from previous run
-        if prev_kpoints and prev_kpoints.style != kpoints.style:
-            if prev_kpoints.style == Kpoints.supported_modes.Monkhorst:
+        if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
+            if self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst:
                 k_div = [kp + 1 if kp % 2 == 1 else kp
                          for kp in kpoints.kpts[0]]
                 kpoints = Kpoints.monkhorst_automatic(k_div)
             else:
                 kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])
+        return kpoints
 
-        self.poscar = Poscar(self.structure)
-        self.kpoints = kpoints
+    @property
+    def poscar(self):
+        return Poscar(self.structure)
 
-        self.potcar = parent_vis.get_potcar(self.structure)
+    @property
+    def potcar(self):
+        return self.parent_vis.get_potcar(self.structure)
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, standardize=False, sym_prec=0.1,
@@ -1765,12 +1794,16 @@ class MPNonSCFSet(DerivedVaspInputSet):
             warnings.warn("It is recommended to use Uniform mode with a high "
                           "NEDOS for optics calculations.")
 
-        parent_vis = MPVaspInputSet(**kwargs)
+        self.parent_vis = MPVaspInputSet(**kwargs)
 
-        incar = parent_vis.get_incar(structure)
-        if prev_incar is not None:
-            incar.update({k: v for k, v in prev_incar.items()
-                         if k not in kwargs.get("user_incar_settings", {})})
+
+    @property
+    def incar(self):
+        incar = self.parent_vis.get_incar(self.structure)
+        if self.prev_incar is not None:
+            incar.update({k: v for k, v in self.prev_incar.items()
+                         if k not in self.kwargs.get("user_incar_settings",
+                                                     {})})
 
         # Overwrite necessary INCAR parameters from previous runs
         incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001,
@@ -1779,52 +1812,60 @@ class MPNonSCFSet(DerivedVaspInputSet):
 
         if self.mode == "uniform":
             # Set smaller steps for DOS output
-            incar["NEDOS"] = nedos
+            incar["NEDOS"] = self.nedos
 
-        if optics:
+        if self.optics:
             incar["LOPTICS"] = True
 
         incar.pop("MAGMOM", None)
 
-        self.incar = incar
+        return incar
 
+    @property
+    def kpoints(self):
         if self.mode == "line":
-            kpath = HighSymmKpath(structure)
+            kpath = HighSymmKpath(self.structure)
             frac_k_points, k_points_labels = kpath.get_kpoints(
                 line_density=self.kpoints_line_density,
                 coords_are_cartesian=False)
-            self.kpoints = Kpoints(
+            kpoints = Kpoints(
                 comment="Non SCF run along symmetry lines",
                 style=Kpoints.supported_modes.Reciprocal,
                 num_kpts=len(frac_k_points),
                 kpts=frac_k_points, labels=k_points_labels,
                 kpts_weights=[1] * len(frac_k_points))
         else:
-            kpoints = Kpoints.automatic_density_by_vol(structure, reciprocal_density)
+            kpoints = Kpoints.automatic_density_by_vol(self.structure,
+                                                       self.reciprocal_density)
             mesh = kpoints.kpts[0]
-            ir_kpts = SpacegroupAnalyzer(structure,
+            ir_kpts = SpacegroupAnalyzer(self.structure,
                                          symprec=self.sym_prec).get_ir_reciprocal_mesh(mesh)
             kpts = []
             weights = []
             for k in ir_kpts:
                 kpts.append(k[0])
                 weights.append(int(k[1]))
-            self.kpoints = Kpoints(comment="Non SCF run on uniform grid",
-                           style=Kpoints.supported_modes.Reciprocal,
-                           num_kpts=len(ir_kpts),
-                           kpts=kpts, kpts_weights=weights)
+            kpoints = Kpoints(comment="Non SCF run on uniform grid",
+                              style=Kpoints.supported_modes.Reciprocal,
+                              num_kpts=len(ir_kpts),
+                              kpts=kpts, kpts_weights=weights)
+        return kpoints
 
-        self.chgcar = prev_chgcar
-        self.poscar = Poscar(structure)
-        self.potcar = parent_vis.get_potcar(structure)
+    @property
+    def poscar(self):
+        return Poscar(self.structure)
+
+    @property
+    def potcar(self):
+        return self.parent_vis.get_potcar(self.structure)
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
         super(MPNonSCFSet, self).write_input(output_dir,
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
-        if self.chgcar:
-            self.chgcar.write_file(os.path.join(output_dir, "CHGCAR"))
+        if self.prev_chgcar:
+            self.prev_chgcar.write_file(os.path.join(output_dir, "CHGCAR"))
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
