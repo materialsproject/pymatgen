@@ -272,7 +272,11 @@ class DictVaspInputSet(AbstractVaspInputSet):
                         mag.append(setting.get(site.specie.symbol, 0.6))
                 incar[key] = mag
             elif key in ('LDAUU', 'LDAUJ', 'LDAUL'):
-                if most_electroneg in setting.keys():
+                if hasattr(structure[0], key.lower()):
+                    m = dict([(site.specie.symbol, getattr(site, key.lower()))
+                              for site in structure])
+                    incar[key] = [m[sym] for sym in poscar.site_symbols]
+                elif most_electroneg in setting.keys():
                     incar[key] = [setting[most_electroneg].get(sym, 0)
                                   for sym in poscar.site_symbols]
                 else:
@@ -1930,7 +1934,8 @@ class MPNonSCFSet(DerivedVaspInputSet):
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
 
         return MPNonSCFSet(structure=structure, prev_incar=incar,
-                           prev_chgcar=chgcar, **kwargs)
+                           prev_chgcar=chgcar,
+                           reciprocal_density=reciprocal_density, **kwargs)
 
 
 def get_vasprun_outcar(path):
@@ -1969,17 +1974,35 @@ def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
         Returns the magmom-decorated structure that can be passed to get
         Vasp input files, e.g. get_kpoints.
     """
+    structure = vasprun.final_structure
+
+    site_properties = {}
+    # magmom
     if vasprun.is_spin:
         if outcar and outcar.magnetization:
-            magmom = {"magmom": [i['tot'] for i in outcar.magnetization]}
+            site_properties.update({"magmom": [i['tot']
+                                               for i in outcar.magnetization]})
         else:
-            magmom = {"magmom": vasprun.parameters['MAGMOM']}
-    else:
-        magmom = None
+            site_properties.update({"magmom": vasprun.parameters['MAGMOM']})
+    # ldau
+    if vasprun.parameters.get("LDAU", False):
+        for k in ("LDAUU", "LDAUJ", "LDAUL"):
+            vals = vasprun.incar[k]
+            m = {}
+            l = []
+            m[structure[0].specie.symbol] = vals.pop(0)
+            for site in structure:
+                if site.specie.symbol not in m:
+                    m[site.specie.symbol] = vals.pop(0)
+                l.append(m[site.specie.symbol])
+            if len(l) == len(structure):
+                site_properties.update({k.lower(): l})
+            else:
+                raise ValueError("length of list {} not the same as"
+                                 "structure".format(l))
 
-    structure = vasprun.final_structure
-    if magmom:
-        structure = structure.copy(site_properties=magmom)
+    structure = structure.copy(site_properties=site_properties)
+
     if standardize and sym_prec:
         sym_finder = SpacegroupAnalyzer(structure, symprec=sym_prec)
         new_structure = sym_finder.get_primitive_standard_structure(
@@ -1997,4 +2020,5 @@ def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
             raise ValueError(
                 "Standardizing cell failed! Old structure doesn't match new.")
         structure = new_structure
+
     return structure
