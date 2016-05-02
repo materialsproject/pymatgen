@@ -25,6 +25,7 @@ from pymatgen.io.vasp.outputs import Vasprun, Outcar, Chgcar
 from monty.json import MSONable, MontyDecoder
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
 """
 This module defines the VaspInputSet abstract base class and a concrete
