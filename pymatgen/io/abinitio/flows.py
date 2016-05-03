@@ -806,7 +806,7 @@ class Flow(Node, NodeContainer, PMGSONable):
         for task in self.iflat_tasks(status=self.S_QCRITICAL):
             logger.info("Will try to fix task %s" % str(task))
             try:
-                task.fix_queue_critical()
+                print(task.fix_queue_critical())
                 count += 1
             except FixQueueCriticalError:
                 logger.info("Not able to fix task %s" % task)

@@ -420,7 +420,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
         if self.has_dojo_report:
             try:
                 return Hint.from_dict(self.dojo_report["hints"][accuracy])
-            except KeyError:
+            except (KeyError, TypeError):
                 return None
         else:
             return None
@@ -1189,7 +1189,6 @@ class PseudoParser(object):
             pseudopotential object or None if filename is not a valid pseudopotential file.
         """
         path = os.path.abspath(filename)
-
         # Only PAW supports XML at present.
         if filename.endswith(".xml"):
             return PawXmlSetup(path)
@@ -1667,13 +1666,14 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
             pseudos = list_strings(pseudos)
 
         self._pseudos_with_z = defaultdict(list)
-
+        print(pseudos)
         for pseudo in pseudos:
-            p = pseudo
-            if not isinstance(pseudo, Pseudo):
-                p = Pseudo.from_file(pseudo)
+            if pseudo is not None:
+		p = pseudo
+            	if not isinstance(pseudo, Pseudo):
+                    p = Pseudo.from_file(pseudo)
 
-            self._pseudos_with_z[p.Z].append(p)
+                self._pseudos_with_z[p.Z].append(p)
 
         for z in self.zlist:
             pseudo_list = self._pseudos_with_z[z]
@@ -2714,10 +2714,12 @@ class DojoReport(dict):
                 keys = [k for k in all if k not in what]
             else:
                 keys = what
-            
+        
+        xc = kwargs.pop('xc', None)
+          
         # get reference entry
         from pseudo_dojo.refdata.deltafactor import df_database
-        reference = df_database().get_entry(symbol=self.symbol, code=code)
+        reference = df_database(xc=xc).get_entry(symbol=self.symbol, code=code)
 
         d = self["deltafactor"]
         ecuts = list(d.keys())
