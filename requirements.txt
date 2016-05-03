@@ -9,3 +9,4 @@ scipy==0.17.0
 tabulate==0.7.5
 enum34==1.1.2
 Cython==0.24
+palettable==2.1.1
