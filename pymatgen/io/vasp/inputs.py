@@ -451,7 +451,7 @@ class Poscar(MSONable):
                         lines.append(" ".join([format_str.format(i) for i in z]))
             else:
                 warnings.warn("Preamble information missing or corrupt.\n \
-                               Not able to write predictor corrector data.")
+                               Writing Poscar with no predictor corrector data.")
 
         return "\n".join(lines) + "\n"
 
