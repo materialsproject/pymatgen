@@ -454,7 +454,7 @@ limits:
     def _parse_limits(self, d):
         # Time limits.
         self.set_timelimit(qu.timelimit_parser(d.pop("timelimit")))
-        tl_hard = d.pop("timelimit_hard", None)
+        tl_hard = d.pop("timelimit_hard",None)
         tl_hard = qu.timelimit_parser(tl_hard) if tl_hard is not None else self.timelimit
         self.set_timelimit_hard(tl_hard)
 
@@ -1021,13 +1021,15 @@ limits:
         base_increase = int(self.timelimit_hard / 10)
 
         new_time = self.timelimit + base_increase*factor
+        print('qadapter: trying to increase time')
         if new_time < self.timelimit_hard:
             self.set_timelimit(new_time)
+            print('new time set: ', new_time)
             return new_time
 
         self.priority = -1
-
-        raise self.Error("increasing time is not possible, the hard limit has been raised")
+        
+        raise self.Error("increasing time is not possible, the hard limit has been reached")
 
 ####################
 # Concrete classes #

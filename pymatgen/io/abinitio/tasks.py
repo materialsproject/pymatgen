@@ -436,7 +436,7 @@ class TaskPolicy(object):
         self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup"])
         #self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup", "efficiecy", "memory"]
         # TODO frozen_timeout could be computed as a fraction of the timelimit of the qadapter!
-        self.frozen_timeout = qu.slurm_parse_timestr(kwargs.pop("frozen_timeout", "0-1"))
+        self.frozen_timeout = qu.slurm_parse_timestr(kwargs.pop("frozen_timeout", "0-1:00:00"))
 
         if kwargs:
             raise ValueError("Found invalid keywords in policy section:\n %s" % str(kwargs.keys()))
@@ -2590,8 +2590,11 @@ class AbinitTask(Task):
         from pymatgen.io.abinitio.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
         assert isinstance(self.manager, TaskManager)
 
-        self.manager
-
+#        self.manager
+        ret = "task.fix_queue_critical: "
+        self.history.info('fixing queue critical')
+        print("list of errors:" + str(self.queue_errors))        
+ 
         if not self.queue_errors:
             # TODO
             # paral_kgb = 1 leads to nasty sigegv that are seen as Qcritical errors!
@@ -2607,7 +2610,8 @@ class AbinitTask(Task):
                 try:
                     self.manager.increase_resources()  # acts either on the policy or on the qadapter
                     self.reset_from_scratch()
-                    return
+                    ret += "increased resources"
+                    return ret
                 except ManagerIncreaseError:
                     self.set_status(self.S_ERROR, msg='unknown queue error, could not increase resources any further')
                     raise FixQueueCriticalError
@@ -2617,8 +2621,8 @@ class AbinitTask(Task):
 
         else:
             for error in self.queue_errors:
-                logger.info('fixing: %s' % str(error))
-
+                self.history.info('fixing: %s' % str(error))
+                ret += str(error)
                 if isinstance(error, NodeFailureError):
                     # if the problematic node is known, exclude it
                     if error.nodes is not None:
@@ -2643,7 +2647,7 @@ class AbinitTask(Task):
                             self.set_status(self.S_READY, msg='increased ncps to solve memory problem')
                             return
                         except ManagerIncreaseError:
-                            logger.warning('increasing ncpus failed')
+                            self.history.warning('increasing ncpus failed')
 
                     # if the max is reached, try to increase the memory per cpu:
                     try:
@@ -2652,7 +2656,7 @@ class AbinitTask(Task):
                         self.set_status(self.S_READY, msg='increased mem')
                         return
                     except ManagerIncreaseError:
-                        logger.warning('increasing mem failed')
+                        self.history.warning('increasing mem failed')
 
                     # if this failed ask the task to provide a method to reduce the memory demand
                     try:
@@ -2661,7 +2665,7 @@ class AbinitTask(Task):
                         self.set_status(self.S_READY, msg='decreased mem demand')
                         return
                     except DecreaseDemandsError:
-                        logger.warning('decreasing demands failed')
+                        self.history.warning('decreasing demands failed')
 
                     msg = ('Memory error detected but the memory could not be increased neigther could the\n'
                            'memory demand be decreased. Unrecoverable error.')
@@ -2670,13 +2674,14 @@ class AbinitTask(Task):
 
                 elif isinstance(error, TimeCancelError):
                     # ask the qadapter to provide more time
+                    print('trying to increase time')
                     try:
                         self.manager.increase_time()
                         self.reset_from_scratch()
                         self.set_status(self.S_READY, msg='increased wall time')
                         return
                     except ManagerIncreaseError:
-                        logger.warning('increasing the waltime failed')
+                        self.history.warning('increasing the waltime failed')
 
                     # if this fails ask the qadapter to increase the number of cpus
                     if self.load_scales:
@@ -2686,7 +2691,7 @@ class AbinitTask(Task):
                             self.set_status(self.S_READY, msg='increased number of cpus')
                             return
                         except ManagerIncreaseError:
-                            logger.warning('increase ncpus to speed up the calculation to stay in the walltime failed')
+                            self.history.warning('increase ncpus to speed up the calculation to stay in the walltime failed')
 
                     # if this failed ask the task to provide a method to speed up the task
                     try:
@@ -2695,7 +2700,7 @@ class AbinitTask(Task):
                         self.set_status(self.S_READY, msg='task speedup')
                         return
                     except DecreaseDemandsError:
-                        logger.warning('decreasing demands failed')
+                        self.history.warning('decreasing demands failed')
 
                     msg = ('Time cancel error detected but the time could not be increased neither could\n'
                            'the time demand be decreased by speedup of increasing the number of cpus.\n'
