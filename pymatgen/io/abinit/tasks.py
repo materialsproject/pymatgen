@@ -90,7 +90,6 @@ def nmltostring(nml):
        curstr = curstr + "\n".join(namelist) + "\n"
 
     return curstr
->>>>>>> matteospymatgen/master:pymatgen/io/abinit/tasks.py
 
 class TaskResults(NodeResults):
 

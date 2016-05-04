@@ -1673,14 +1673,12 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
             pseudos = list_strings(pseudos)
 
         self._pseudos_with_z = defaultdict(list)
-        print(pseudos)
+        #print(pseudos)
         for pseudo in pseudos:
-            if pseudo is not None:
-		p = pseudo
-            	if not isinstance(pseudo, Pseudo):
-                    p = Pseudo.from_file(pseudo)
-
-                self._pseudos_with_z[p.Z].append(p)
+       	    if not isinstance(pseudo, Pseudo):
+                pseudo = Pseudo.from_file(pseudo)
+            if pseudo is not None:    
+                self._pseudos_with_z[pseudo.Z].append(pseudo)
 
         for z in self.zlist:
             pseudo_list = self._pseudos_with_z[z]
