@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 #!/usr/bin/env python
 
 from __future__ import division, unicode_literals
@@ -18,5 +20,5 @@ __date__ = '8/1/15'
 import warnings
 warnings.warn("pymatgen.io.vaspio.vasp_output has been moved "
               "pymatgen.io.vasp.outputs "
-              "This stub will be removed in pymatgen 4.0.")
+              "This stub will be removed in pymatgen 4.0.", DeprecationWarning)
 from pymatgen.io.vasp.outputs import *

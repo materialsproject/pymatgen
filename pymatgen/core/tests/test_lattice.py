@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -202,11 +204,11 @@ class LatticeTestCase(PymatgenTest):
 
         latt = Lattice.from_parameters(7.365450, 6.199506, 5.353878,
                                        75.542191, 81.181757, 156.396627)
-        ans = [[-2.578932, -0.826965, 0.000000],
-               [0.831059, -2.067413, -1.547813],
-               [0.458407, 2.480895, -1.129126]]
+        ans = [[2.578932, 0.826965, 0.000000],
+               [-0.831059, 2.067413, 1.547813],
+               [-0.458407, -2.480895, 1.129126]]
         self.assertArrayAlmostEqual(latt.get_niggli_reduced_lattice().matrix,
-                                    ans, 5)
+                                    np.array(ans), 5)
 
     def test_find_mapping(self):
         m = np.array([[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]])
@@ -239,8 +241,10 @@ class LatticeTestCase(PymatgenTest):
         latt2 = Lattice(np.dot(rot, np.dot(scale, m).T).T)
 
         for (aligned_out, rot_out, scale_out) in latt.find_all_mappings(latt2):
-            self.assertArrayAlmostEqual(np.inner(latt2.matrix, rot_out), aligned_out.matrix)
-            self.assertArrayAlmostEqual(np.dot(scale_out, latt.matrix), aligned_out.matrix)
+            self.assertArrayAlmostEqual(np.inner(latt2.matrix, rot_out),
+                                        aligned_out.matrix, 5)
+            self.assertArrayAlmostEqual(np.dot(scale_out, latt.matrix),
+                                        aligned_out.matrix)
             self.assertArrayAlmostEqual(aligned_out.lengths_and_angles, latt2.lengths_and_angles)
             self.assertFalse(np.allclose(aligned_out.lengths_and_angles,
                                          latt.lengths_and_angles))
@@ -260,6 +264,7 @@ class LatticeTestCase(PymatgenTest):
             self.assertEqual(t.abc[i], self.tetragonal.abc[i])
             self.assertEqual(t.angles[i], self.tetragonal.angles[i])
         #Make sure old style dicts work.
+        d = self.tetragonal.as_dict(verbosity=1)
         del d["matrix"]
         t = Lattice.from_dict(d)
         for i in range(3):
@@ -306,15 +311,16 @@ class LatticeTestCase(PymatgenTest):
             lattice.dot(np.zeros(3), np.zeros(6))
 
     def test_get_points_in_sphere(self):
-        latt = Lattice.cubic(1)
-        pts = []
-        for a, b, c in itertools.product(range(10), range(10), range(10)):
-            pts.append([a / 10, b / 10, c / 10])
+        # This is a non-niggli representation of a cubic lattice
+        latt = Lattice([[1,5,0],[0,1,0],[5,0,1]])
+        # evenly spaced points array between 0 and 1
+        pts = np.array(list(itertools.product(range(5), repeat=3))) / 5
+        pts = latt.get_fractional_coords(pts)
 
         self.assertEqual(len(latt.get_points_in_sphere(
-            pts, [0, 0, 0], 0.1)), 7)
+            pts, [0, 0, 0], 0.20001)), 7)
         self.assertEqual(len(latt.get_points_in_sphere(
-            pts, [0.5, 0.5, 0.5], 0.5)), 515)
+            pts, [0.5, 0.5, 0.5], 1.0001)), 552)
 
     def test_get_all_distances(self):
         fcoords = np.array([[0.3, 0.3, 0.5],

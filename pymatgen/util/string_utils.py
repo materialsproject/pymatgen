@@ -1,15 +1,18 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """
 This module provides utility classes for string operations.
 """
 from __future__ import unicode_literals
 import re
-import sys
 
 
 from six.moves import zip
-from monty.string import list_strings
-from monty.fnmatch import WildCard
+
+from tabulate import tabulate
+
+from monty.dev import deprecated
 
 
 __author__ = "Shyue Ping Ong"
@@ -21,6 +24,9 @@ __status__ = "Production"
 __date__ = "$Sep 23, 2011M$"
 
 
+@deprecated(tabulate, "In-house method has been deprecated in favor of using "
+                      "the tabulate package. Please switch all usages. Will "
+                      "be removed in pymagen v4.0.")
 def generate_latex_table(results, header=None, caption=None, label=None):
     """
     Generates a string latex table from a sequence of sequence.
@@ -73,6 +79,9 @@ def str_delimited(results, header=None, delimiter="\t"):
                                   for result in results])
 
 
+@deprecated(tabulate, "In-house method has been deprecated in favor of using "
+                      "the tabulate package. Please switch all usages. Will "
+                      "be removed in pymagen v4.0.")
 def str_aligned(results, header=None):
     """
     Given a tuple, generate a nicely aligned string form.
@@ -197,9 +206,6 @@ class StringColorizer(object):
                 return string
         else:
             return string
-
-
-
 
 
 if __name__ == "__main__":

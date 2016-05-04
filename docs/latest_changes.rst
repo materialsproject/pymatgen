@@ -1,9 +1,7 @@
 Change log
 ==========
 
-v3.1.6
+v3.3.4
 ------
-* Rudimentary PWSCF output reading.
-* Fix ASE support.
-* Support for WAVEDERF and reading multiple dielectricfunctions in vasprun.xml. 
-  (Miguel Dias Costa)
+* Procar now supports parsing of phase factors.
+* Miscellaneous bug fixes.

@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -29,7 +31,7 @@ import numpy as np
 from functools import partial
 from inspect import getargspec
 from itertools import groupby
-from pymatgen.core.periodic_table import Element, Specie, get_el_sp, PeriodicTable
+from pymatgen.core.periodic_table import Element, Specie, get_el_sp
 from monty.io import zopen
 from pymatgen.util.coord_utils import in_coord_list_pbc
 from monty.string import remove_non_ascii
@@ -39,8 +41,6 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.groups import SpaceGroup, SYMM_DATA, TRANSLATIONS
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-ptable = PeriodicTable()
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
@@ -76,6 +76,11 @@ class CifBlock(object):
         # AJ says: CIF Block names cannot be more than 75 characters or you
         # get an Exception
         self.header = header[:74]
+
+    def __eq__(self, other):
+        return self.loops == other.loops \
+            and self.data == other.data \
+            and self.header == other.header
 
     def __getitem__(self, key):
         return self.data[key]
@@ -128,6 +133,8 @@ class CifBlock(object):
         if len(v) > self.maxlen:
             return ';\n' + textwrap.fill(v, self.maxlen) + '\n;'
         #add quotes if necessary
+        if v == '':
+            return '""'
         if (" " in v or v[0] == "_") \
                 and not (v[0] == "'" and v[-1] == "'") \
                 and not (v[0] == '"' and v[-1] == '"'):
@@ -162,7 +169,7 @@ class CifBlock(object):
             if multiline:
                 if l.startswith(";"):
                     multiline = False
-                    q.append(" ".join(ml))
+                    q.append(('', '', '', ' '.join(ml)))
                     ml = []
                     l = l[1:].strip()
                 else:
@@ -221,7 +228,7 @@ class CifFile(object):
     Reads and parses CifBlocks from a .cif file
     """
 
-    def __init__(self, data, orig_string=None):
+    def __init__(self, data, orig_string=None, comment=None):
         """
         Args:
             data: OrderedDict of CifBlock objects
@@ -229,11 +236,12 @@ class CifFile(object):
         """
         self.data = data
         self.orig_string = orig_string
+        self.comment = "# generated using pymatgen" if comment is None else \
+            comment
 
     def __str__(self):
         s = ["%s" % v for v in self.data.values()]
-        comment = "#generated using pymatgen\n"
-        return comment + "\n".join(s)+"\n"
+        return self.comment + "\n" + "\n".join(s)+"\n"
 
     @classmethod
     def from_string(cls, string):
@@ -429,7 +437,7 @@ class CifParser(object):
         # Symbols often representing
         #common representations for elements/water in cif files
         special_symbols = {"D":"D", "Hw":"H", "Ow":"O", "Wat":"O", "wat": "O"}
-        elements = map(str, ptable.all_elements)
+        elements = [el.symbol for el in Element]
 
         lattice = self.get_lattice(data)
         self.symmetry_operations = self.get_symops(data)
@@ -462,7 +470,7 @@ class CifParser(object):
                     get_el_sp(special_symbols.get(symbol))
                 else:
                     Element(symbol)
-            except KeyError:
+            except (KeyError, ValueError):
                 # sometimes the site doesn't have the type_symbol.
                 # we then hope the type_symbol can be parsed from the label
                 if "_atom_site_type_symbol" in data.data.keys():
@@ -489,13 +497,10 @@ class CifParser(object):
             if occu > 0:
                 coord = (x, y, z)
                 if coord not in coord_to_species:
-                    coord_to_species[coord] = {el: occu}
+                    coord_to_species[coord] = Composition({el: occu})
                 else:
-                    coord_to_species[coord][el] = occu
+                    coord_to_species[coord] += {el: occu}
 
-
-        coord_to_species = {k: Composition(v)
-                            for k, v in coord_to_species.items()}
         allspecies = []
         allcoords = []
 
@@ -578,14 +583,18 @@ class CifWriter(object):
 
         block = OrderedDict()
         loops = []
-        latt = struct.lattice
-        comp = struct.composition
-        no_oxi_comp = comp.element_composition
         spacegroup = ("P 1", 1)
         if symprec is not None:
             sf = SpacegroupAnalyzer(struct, symprec)
             spacegroup = (sf.get_spacegroup_symbol(),
                           sf.get_spacegroup_number())
+            # Needs the refined struture when using symprec. This converts
+            # primitive to conventional structures, the standard for CIF.
+            struct = sf.get_refined_structure()
+
+        latt = struct.lattice
+        comp = struct.composition
+        no_oxi_comp = comp.element_composition
         block["_symmetry_space_group_name_H-M"] = spacegroup[0]
         for cell_attr in ['a', 'b', 'c']:
             block["_cell_length_" + cell_attr] = format_str.format(

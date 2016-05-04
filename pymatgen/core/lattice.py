@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -23,15 +25,14 @@ from six.moves import map, zip
 import numpy as np
 from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
+from scipy.spatial import Voronoi
 
-from pyhull.voronoi import VoronoiTess
-
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.util.num_utils import abs_cap
 from pymatgen.core.units import ArrayWithUnit
 
 
-class Lattice(PMGSONable):
+class Lattice(MSONable):
     """
     A lattice object.  Essentially a matrix with conversion matrices. In
     general, it is assumed that length units are in Angstroms and angles are in
@@ -63,8 +64,7 @@ class Lattice(PMGSONable):
             k = (i + 2) % 3
             angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
 
-        angles = np.arccos(angles) * 180. / pi
-        self._angles = angles
+        self._angles = np.arccos(angles) * 180. / pi
         self._lengths = lengths
         self._matrix = m
         # The inverse matrix is lazily generated for efficiency.
@@ -74,14 +74,22 @@ class Lattice(PMGSONable):
     @classmethod
     def from_abivars(cls, *args, **kwargs):
         """
-        Returns a new instance from a dictionary with the variables 
+        Returns a new instance from a dictionary with the variables
         used in ABINIT to define the unit cell.
+        If acell is not give, the Abinit default is used i.e. [1,1,1] Bohr
+
+        Example:
+
+            lattice.from_abivars(
+                acell=3*[10],
+                rprim=np.eye(3),
+            )
         """
         kwargs.update(dict(*args))
         d = kwargs
         rprim = d.get("rprim", None)
         angdeg = d.get("angdeg", None)
-        acell = d["acell"]
+        acell = d.get("acell", [1,1,1])
 
         # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
         if rprim is not None:
@@ -102,16 +110,6 @@ class Lattice(PMGSONable):
 
         else:
             raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
-
-    #def to_abivars(self, **kwargs):
-    #    # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
-    #    geomode = kwargs.pop("geomode", "rprim")
-    #    if geomode == "rprim":
-    #        return dict(acell=3 * [1.0], rprim=rprim))
-    #    elif geomode == "angdeg":
-    #        return dict(acell=3 * [1.0], angdeg=angdeg))
-    #    else:
-    #        raise ValueError("Wrong value for geomode: %s" % geomode)
 
     def copy(self):
         """Deep copy of self."""
@@ -436,20 +434,30 @@ class Lattice(PMGSONable):
         return "\n".join([" ".join(["%.6f" % i for i in row])
                           for row in self._matrix])
 
-    def as_dict(self):
+    def as_dict(self, verbosity=0):
         """""
         Json-serialization dict representation of the Lattice.
+
+        Args:
+            verbosity (int): Verbosity level. Default of 0 only includes the
+                matrix representation. Set to 1 for more details.
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "matrix": self._matrix.tolist(),
+
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "matrix": self._matrix.tolist()}
+        if verbosity > 0:
+            d.update({
                 "a": float(self.a),
                 "b": float(self.b),
                 "c": float(self.c),
                 "alpha": float(self.alpha),
                 "beta": float(self.beta),
                 "gamma": float(self.gamma),
-                "volume": float(self.volume)}
+                "volume": float(self.volume)
+            })
+
+        return d
 
     def find_all_mappings(self, other_lattice, ltol=1e-5, atol=1,
                           skip_rotation_matrix=False):
@@ -513,11 +521,15 @@ class Lattice(PMGSONable):
                 scale_m = np.array((f_a[i], f_b[j], f_c[k]))
                 if abs(np.linalg.det(scale_m)) < 1e-8:
                     continue
+
                 aligned_m = np.array((c_a[i], c_b[j], c_c[k]))
+
                 if skip_rotation_matrix:
                     rotation_m = None
                 else:
-                    rotation_m = np.linalg.solve(aligned_m, other_lattice.matrix)
+                    rotation_m = np.linalg.solve(aligned_m,
+                                                 other_lattice.matrix)
+
                 yield Lattice(aligned_m), rotation_m, scale_m
 
     def find_mapping(self, other_lattice, ltol=1e-5, atol=1,
@@ -550,8 +562,9 @@ class Lattice(PMGSONable):
 
             None is returned if no matches are found.
         """
-        for x in self.find_all_mappings(other_lattice, ltol, atol,
-                                        skip_rotation_matrix=skip_rotation_matrix):
+        for x in self.find_all_mappings(
+                other_lattice, ltol, atol,
+                skip_rotation_matrix=skip_rotation_matrix):
             return x
 
     def get_lll_reduced_lattice(self, delta=0.75):
@@ -569,7 +582,7 @@ class Lattice(PMGSONable):
         """
         # Transpose the lattice matrix first so that basis vectors are columns.
         # Makes life easier.
-        a = self._matrix.T
+        a = self._matrix.copy().T
 
         b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
         u = np.zeros((3, 3))  # Gram-Schmidt coeffieicnts
@@ -625,7 +638,9 @@ class Lattice(PMGSONable):
                     result = np.linalg.lstsq(q.T, p.T)[0].T
                     u[k:3, (k - 2):k] = result
 
-        return Lattice(a.T)
+        lll = Lattice(a.T)
+
+        return lll
 
     def get_niggli_reduced_lattice(self, tol=1e-5):
         """
@@ -641,9 +656,10 @@ class Lattice(PMGSONable):
         Returns:
             Niggli-reduced lattice.
         """
-        a = self._matrix[0]
-        b = self._matrix[1]
-        c = self._matrix[2]
+        matrix = self._matrix.copy()
+        a = matrix[0]
+        b = matrix[1]
+        c = matrix[2]
         e = tol * self.volume ** (1 / 3)
 
         #Define metric tensor
@@ -745,7 +761,11 @@ class Lattice(PMGSONable):
 
         mapped = self.find_mapping(latt, e, skip_rotation_matrix=True)
         if mapped is not None:
-            return mapped[0]
+            if np.linalg.det(mapped[0].matrix) > 0:
+                return mapped[0]
+            else:
+                return Lattice(-mapped[0].matrix)
+
         raise ValueError("can't find niggli")
 
     def scale(self, new_volume):
@@ -788,11 +808,11 @@ class Lattice(PMGSONable):
         list_k_points = []
         for i, j, k in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
             list_k_points.append(i * vec1 + j * vec2 + k * vec3)
-        tess = VoronoiTess(list_k_points)
+        tess = Voronoi(list_k_points)
         to_return = []
-        for r in tess.ridges:
+        for r in tess.ridge_dict:
             if r[0] == 13 or r[1] == 13:
-                to_return.append([tess.vertices[i] for i in tess.ridges[r]])
+                to_return.append([tess.vertices[i] for i in tess.ridge_dict[r]])
 
         return to_return
 
@@ -889,34 +909,30 @@ class Lattice(PMGSONable):
                 fcoords, dists, inds
         """
         recp_len = np.array(self.reciprocal_lattice.abc)
-        sr = r + 0.15
-        nmax = sr * recp_len / (2 * math.pi)
+        nmax = r * recp_len / (2 * math.pi) + 0.01
+
         pcoords = self.get_fractional_coords(center)
-        floor = math.floor
+        center = np.array(center)
 
         n = len(frac_points)
-        fcoords = np.array(frac_points)
-        pts = np.tile(center, (n, 1))
-        indices = np.array(list(range(n)))
+        fcoords = np.array(frac_points) % 1
+        indices = np.arange(n)
 
-        arange = np.arange(start=int(floor(pcoords[0] - nmax[0])),
-                           stop=int(floor(pcoords[0] + nmax[0])) + 1)
-        brange = np.arange(start=int(floor(pcoords[1] - nmax[1])),
-                           stop=int(floor(pcoords[1] + nmax[1])) + 1)
-        crange = np.arange(start=int(floor(pcoords[2] - nmax[2])),
-                           stop=int(floor(pcoords[2] + nmax[2])) + 1)
-
+        mins = np.floor(pcoords - nmax)
+        maxes = np.ceil(pcoords + nmax)
+        arange = np.arange(start=mins[0], stop=maxes[0])
+        brange = np.arange(start=mins[1], stop=maxes[1])
+        crange = np.arange(start=mins[2], stop=maxes[2])
         arange = arange[:, None] * np.array([1, 0, 0])[None, :]
         brange = brange[:, None] * np.array([0, 1, 0])[None, :]
         crange = crange[:, None] * np.array([0, 0, 1])[None, :]
-
         images = arange[:, None, None] + brange[None, :, None] +\
             crange[None, None, :]
 
         shifted_coords = fcoords[:, None, None, None, :] + \
             images[None, :, :, :, :]
         coords = self.get_cartesian_coords(shifted_coords)
-        dists = np.sqrt(np.sum((coords - pts[:, None, None, None, :]) ** 2,
+        dists = np.sqrt(np.sum((coords - center[None, None, None, None, :]) ** 2,
                                axis=4))
         within_r = np.where(dists <= r)
         if zip_results:

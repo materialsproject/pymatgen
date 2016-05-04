@@ -9,6 +9,7 @@ Subpackages
     pymatgen.analysis.cost
     pymatgen.analysis.defects
     pymatgen.analysis.diffraction
+    pymatgen.analysis.elasticity
     pymatgen.analysis.hhi
     pymatgen.analysis.pourbaix
 
