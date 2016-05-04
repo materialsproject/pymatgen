@@ -370,7 +370,7 @@ class Directory(object):
         e.g. out_1WF4. This method scans the files in the directories and returns a list of namedtuple
         Each named tuple gives the `path` of the 1FK file and the `pertcase` index.
         """
-        regex = re.compile("out_1WF(\d+)(.nc)?$")
+        regex = re.compile("out_1WF(\d+)(\.nc)?$")
 
         wf_paths = [f for f in self.list_filepaths() if regex.match(os.path.basename(f))]
         if not wf_paths: return None
@@ -393,7 +393,7 @@ class Directory(object):
         e.g. out_DEN1. This method scans the files in the directories and returns a list of namedtuple
         Each named tuple gives the `path` of the 1DEN file and the `pertcase` index.
         """
-        regex = re.compile("out_DEN(\d+)(.nc)?$")
+        regex = re.compile("out_DEN(\d+)(\.nc)?$")
         den_paths = [f for f in self.list_filepaths() if regex.match(os.path.basename(f))]
         if not den_paths: return None
 
@@ -509,12 +509,12 @@ class FilepathFixer(object):
     def __init__(self):
         # dictionary mapping the *official* file extension to
         # the regular expression used to tokenize the basename of the file
-        # To add a new fix it's sufficient to add a new regexp and 
+        # To add a new file it's sufficient to add a new regexp and 
         # a static method _fix_EXTNAME
         self.regs = regs = {}
         import re
-        regs["1WF"] = re.compile("(\w+_)1WF(\d+)(.nc)?$")
-        regs["1DEN"] = re.compile("(\w+_)1DEN(\d+)(.nc)?$")
+        regs["1WF"] = re.compile("(\w+_)1WF(\d+)(\.nc)?$")
+        regs["1DEN"] = re.compile("(\w+_)1DEN(\d+)(\.nc)?$")
 
     @staticmethod
     def _fix_1WF(match):
