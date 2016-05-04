@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -22,8 +24,9 @@ __status__ = "Beta"
 from collections import Sequence
 from abc import ABCMeta, abstractproperty
 
-from pymatgen.serializers.json_coders import PMGSONable
-from pymatgen.core.physical_constants import AVOGADROS_CONST
+from monty.json import MSONable
+
+from scipy.constants import N_A
 
 
 class AbstractVoltagePair(object):
@@ -69,7 +72,7 @@ class AbstractVoltagePair(object):
         return self._working_ion_entry
 
 
-class AbstractElectrode(Sequence, PMGSONable):
+class AbstractElectrode(Sequence, MSONable):
     """
     An Abstract Base Class representing an Electrode. It is essentially a
     sequence of VoltagePairs. Generally, subclasses only need to implement
@@ -265,7 +268,7 @@ class AbstractElectrode(Sequence, PMGSONable):
             if use_overall_normalization or len(pairs_in_range) == 0 \
             else pairs_in_range[-1].vol_discharge
         return sum([pair.mAh for pair in pairs_in_range]) / normalization_vol \
-            * 1e24 / AVOGADROS_CONST
+            * 1e24 / N_A
 
     def get_specific_energy(self, min_voltage=None, max_voltage=None,
                             use_overall_normalization=True):

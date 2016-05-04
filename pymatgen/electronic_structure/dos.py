@@ -1,21 +1,8 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-
-"""
-This module defines classes to represent the density of states, etc.
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 20, 2012"
-
-import collections
-
 import numpy as np
 
 import six
@@ -24,10 +11,21 @@ from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord_utils import get_linear_interpolated_value
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
+
+"""
+This module defines classes to represent the density of states, etc.
+"""
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "Mar 20, 2012"
 
 
-class Dos(PMGSONable):
+class Dos(MSONable):
     """
     Basic DOS object. All other DOS objects are extended versions of this
     object.
@@ -249,7 +247,7 @@ class Dos(PMGSONable):
         Returns Dos object from dict representation of Dos.
         """
         return Dos(d["efermi"], d["energies"],
-                   {Spin.from_int(int(k)): v
+                   {Spin(int(k)): v
                     for k, v in d["densities"].items()})
 
     def as_dict(self):
@@ -437,8 +435,8 @@ class CompleteDos(Dos):
             at = struct[i]
             orb_dos = {}
             for orb_str, odos in d["pdos"][i].items():
-                orb = Orbital.from_string(orb_str)
-                orb_dos[orb] = {Spin.from_int(int(k)): v
+                orb = Orbital[orb_str]
+                orb_dos[orb] = {Spin(int(k)): v
                                 for k, v in odos["densities"].items()}
             pdoss[at] = orb_dos
         return CompleteDos(struct, tdos, pdoss)

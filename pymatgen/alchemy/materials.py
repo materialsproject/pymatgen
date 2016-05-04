@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -27,7 +29,7 @@ from monty.json import MontyDecoder
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.matproj.snl import StructureNL
 
 from warnings import warn
@@ -35,7 +37,7 @@ from warnings import warn
 dec = MontyDecoder()
 
 
-class TransformedStructure(PMGSONable):
+class TransformedStructure(MSONable):
     """
     Container object for new structures that include history of
     transformations.

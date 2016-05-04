@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -20,8 +23,14 @@ import logging
 import multiprocessing
 import sys
 import datetime
-
 from collections import OrderedDict
+import glob
+import shutil
+import subprocess
+
+from six.moves import input
+
+from tabulate import tabulate, tabulate_formats
 
 from pymatgen import Structure
 from pymatgen.io.vasp import Outcar, Vasprun, Chgcar
@@ -37,12 +46,11 @@ from pymatgen.io.cssr import Cssr
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
-from prettytable import PrettyTable
 
 SAVE_FILE = "vasp_data.gz"
 
 
-def get_energies(rootdir, reanalyze, verbose, detailed, sort):
+def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
     """
     Doc string.
     """
@@ -62,7 +70,7 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort):
     queen = BorgQueen(drone, number_of_drones=ncpus)
     if os.path.exists(SAVE_FILE) and not reanalyze:
         msg = "Using previously assimilated data from {}.".format(SAVE_FILE) \
-            + " Use -f to force re-analysis."
+            + " Use -r to force re-analysis."
         queen.load_data(SAVE_FILE)
     else:
         if ncpus > 1:
@@ -94,11 +102,8 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort):
                          delta_vol))
     if len(all_data) > 0:
         headers = ("Directory", "Formula", "Energy", "E/Atom", "% vol chg")
-        t = PrettyTable(headers)
-        t.align["Directory"] = "l"
-        for d in all_data:
-            t.add_row(d)
-        print(t)
+        print(tabulate(all_data, headers=headers, tablefmt=fmt))
+        print("")
         print(msg)
     else:
         print("No valid vasp run found.")
@@ -201,7 +206,7 @@ def parse_vasp(args):
     if args.get_energies or default_energies:
         for d in args.directories:
             get_energies(d, args.reanalyze, args.verbose,
-                         args.detailed, args.sort[0])
+                         args.detailed, args.sort[0], args.format)
     if args.ion_list:
         if args.ion_list[0] == "All":
             ion_list = None
@@ -279,7 +284,29 @@ def parse_symmetry(args):
             print("Spacegroup  : {}".format(dataset["international"]))
             print("Int number  : {}".format(dataset["number"]))
             print("Hall symbol : {}".format(dataset["hall"]))
-            print()
+            print("")
+
+
+def analyze_structure(args):
+    bonds = {}
+    for bond in args.localenv:
+        toks = bond.split("=")
+        species = toks[0].split("-")
+        bonds[(species[0], species[1])] = float(toks[1])
+    for filename in args.filenames:
+        print("Analyzing %s..." % filename)
+        data = []
+        s = Structure.from_file(filename)
+        for i, site in enumerate(s):
+            for species, dist in bonds.items():
+                if species[0] in [sp.symbol
+                                  for sp in site.species_and_occu.keys()]:
+                    dists = [d for nn, d in s.get_neighbors(site, dist)
+                             if species[1] in
+                             [sp.symbol for sp in nn.species_and_occu.keys()]]
+                    dists = ", ".join(["%.3f" % d for d in sorted(dists)])
+                    data.append([i, species[0], species[1], dists])
+        print(tabulate(data, headers=["#", "Center", "Ligand", "Dists"]))
 
 
 def parse_view(args):
@@ -338,6 +365,93 @@ def generate_diffraction_plot(args):
         c.show_xrd_plot(s)
 
 
+def setup_potcar(args):
+    pspdir = os.path.abspath(args.input_potcar_dir)
+    targetdir = os.path.abspath(args.output_potcar_dir)
+
+    try:
+        os.makedirs(targetdir)
+    except OSError:
+        r = input("Destination directory exists. Continue (y/n)? ")
+        if r != "y":
+            print("Exiting ...")
+            sys.exit(0)
+
+    print("Generating pymatgen resources directory...")
+
+    NAME_MAPPINGS = {
+        "potpaw_PBE": "POT_GGA_PAW_PBE",
+        "potpaw_PBE_52": "POT_GGA_PAW_PBE_52",
+        "potpaw_PBE_54": "POT_GGA_PAW_PBE_54",
+        "potpaw_PBE.52": "POT_GGA_PAW_PBE_52",
+        "potpaw_PBE.54": "POT_GGA_PAW_PBE_54",
+        "potpaw_LDA": "POT_LDA_PAW",
+        "potpaw_LDA.52": "POT_LDA_PAW_52",
+        "potpaw_LDA.54": "POT_LDA_PAW_54",
+        "potpaw_LDA_52": "POT_LDA_PAW_52",
+        "potpaw_LDA_54": "POT_LDA_PAW_54",
+        "potUSPP_LDA": "POT_LDA_US",
+        "potpaw_GGA": "POT_GGA_PAW_PW91",
+        "potUSPP_GGA": "POT_GGA_US_PW91"
+    }
+
+    for (parent, subdirs, files) in os.walk(pspdir):
+        basename = os.path.basename(parent)
+        basename = NAME_MAPPINGS.get(basename, basename)
+        for subdir in subdirs:
+            filenames = glob.glob(os.path.join(parent, subdir, "POTCAR*"))
+            if len(filenames) > 0:
+                try:
+                    basedir = os.path.join(targetdir, basename)
+                    if not os.path.exists(basedir):
+                        os.makedirs(basedir)
+                    fname = filenames[0]
+                    dest = os.path.join(basedir, os.path.basename(fname))
+                    shutil.copy(fname, dest)
+                    ext = fname.split(".")[-1]
+                    if ext.upper() in ["Z", "GZ"]:
+                        subprocess.Popen(["gunzip", dest]).communicate()
+                    elif ext.upper() in ["BZ2"]:
+                        subprocess.Popen(["bunzip2", dest]).communicate()
+                    if subdir == "Osmium":
+                        subdir = "Os"
+                    dest = os.path.join(basedir, "POTCAR.{}".format(subdir))
+                    shutil.move(os.path.join(basedir, "POTCAR"), dest)
+                    subprocess.Popen(["gzip", "-f", dest]).communicate()
+                except Exception as ex:
+                    print("An error has occured. Message is %s. Trying to "
+                          "continue... " % str(ex))
+
+    print("")
+    print("PSP resources directory generated. It is recommended that you add "
+          "the following to your environment or .bash_profile if you are on "
+          "Unix-based systems.")
+    print("export VASP_PSP_DIR=\"%s\"" % os.path.abspath(targetdir))
+    if os.name == "posix":
+        r = input("Do you want us to try to automatically do this? (y/n)")
+        if r == "y":
+            bash_file = os.path.join(os.environ["HOME"], ".bash_profile")
+            if os.path.exists(bash_file):
+                with open(bash_file) as f:
+                    contents = f.read()
+                contents += "\n#Added by pymatgen\n"
+                contents += "export VASP_PSP_DIR=\"%s\"\n" % os.path.abspath(
+                    targetdir)
+                r = input("We can also add your Materials Project API key to "
+                          "the MAPI_KEY environment variable. This makes it "
+                          "easier to use MPRester without having to enter "
+                          "your API key each time. Enter an API key (from "
+                          "https://www.materialsproject.org/dashboard) to do "
+                          "this: ")
+                if r:
+                    contents += "export MAPI_KEY=\"%s\"\n" % r
+                with open(bash_file, "w") as f:
+                    f.write(contents)
+    print("Start a new terminal to ensure that your environment variables "
+          "are properly set.")
+
+
+
 def main():
     parser = argparse.ArgumentParser(description="""
     pmg is a convenient script that uses pymatgen to perform many
@@ -351,6 +465,20 @@ def main():
 
     subparsers = parser.add_subparsers()
 
+    parser_setup = subparsers.add_parser("setup", help="Setup pymatgen.")
+    parser_setup.add_argument("-i", "--input_potcar_dir",
+                              dest="input_potcar_dir", type=str, required=True,
+                              help="Initial directory where downloaded VASP "
+                                   "POTCARs are extracted to. This should be "
+                                   "the parent directory that contains the "
+                                   "POT_GGA_PAW_PBE or potpaw_PBE type "
+                                   "subdirectories.")
+    parser_setup.add_argument("-o", "--output_potcar_dir",
+                              dest="output_potcar_dir", type=str, required=True,
+                              help="Output directory where the "
+                                   "reorganized POTCARs will be stored.")
+    parser_setup.set_defaults(func=setup_potcar)
+
     parser_vasp = subparsers.add_parser("analyze", help="Vasp run analysis.")
     parser_vasp.add_argument("directories", metavar="dir", default=".",
                              type=str, nargs="*",
@@ -360,12 +488,17 @@ def main():
     parser_vasp.add_argument("-m", "--mag", dest="ion_list", type=str, nargs=1,
                              help="Print magmoms. ION LIST can be a range "
                              "(e.g., 1-2) or the string 'All' for all ions.")
-    parser_vasp.add_argument("-f", "--force", dest="reanalyze",
+    parser_vasp.add_argument("-r", "--reanalyze", dest="reanalyze",
                              action="store_true",
                              help="Force reanalysis. Typically, vasp_analyzer"
                              " will just reuse a vasp_analyzer_data.gz if "
                              "present. This forces the analyzer to reanalyze "
                              "the data.")
+    parser_vasp.add_argument("-f", "--format", dest="format",
+                             choices=tabulate_formats, default="simple",
+                             type=str,
+                             help="Format for table. Supports all options in "
+                                  "tabulate package.")
     parser_vasp.add_argument("-v", "--verbose", dest="verbose",
                              action="store_true",
                              help="verbose mode. Provides detailed output on "
@@ -494,6 +627,18 @@ def main():
                                  help="List of POTCAR symbols. Use -f to set "
                                       "functional. Defaults to PBE.")
     parser_generate.set_defaults(func=generate_files)
+
+    parser_structure = subparsers.add_parser(
+        "structure",
+        help="Structure analysis tools.")
+    parser_structure.add_argument(
+        "filenames", metavar="filenames", type=str, nargs="+",
+        help="List of input structure files to analyze.")
+    parser_structure.add_argument(
+        "-l", "--localenv", dest="localenv", type=str, nargs="+",
+        help="Local environment analysis. Provide bonds in the format of"
+             "Center Species-Ligand Species=max_dist, e.g., H-O=0.5.")
+    parser_structure.set_defaults(func=analyze_structure)
 
     parser_diffraction = subparsers.add_parser(
         "diffraction",

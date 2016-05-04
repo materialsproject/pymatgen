@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -13,9 +15,10 @@ from pymatgen.io.vasp.sets import MITVaspInputSet, MITHSEVaspInputSet, \
     MPVaspInputSet, MITGGAVaspInputSet, MITNEBVaspInputSet,\
     MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet,\
     MPHSEVaspInputSet, MPBSHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet,\
-    MPOpticsNonSCFVaspInputSet
-from pymatgen.io.vasp.inputs import Poscar, Incar
+    MPOpticsNonSCFVaspInputSet, MVLElasticInputSet
+from pymatgen.io.vasp.inputs import Poscar, Incar, Kpoints
 from pymatgen import Specie, Lattice, Structure
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -262,19 +265,19 @@ class MITMPVaspInputSetTest(unittest.TestCase):
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)
         self.assertEqual(kpoints.kpts, [[2, 4, 6]])
-        self.assertEqual(kpoints.style, 'Monkhorst')
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
 
         kpoints = self.mitparamset.get_kpoints(self.struct)
         self.assertEqual(kpoints.kpts, [[2, 4, 6]])
-        self.assertEqual(kpoints.style, 'Monkhorst')
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
 
         kpoints = self.mpstaticparamset.get_kpoints(self.struct)
         self.assertEqual(kpoints.kpts, [[6, 6, 4]])
-        self.assertEqual(kpoints.style, 'Monkhorst')
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
 
         kpoints = self.mpnscfparamsetl.get_kpoints(self.struct)
         self.assertEqual(kpoints.num_kpts, 140)
-        self.assertEqual(kpoints.style, 'Reciprocal')
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Reciprocal)
 
         kpoints = self.mpnscfparamsetu.get_kpoints(self.struct)
         self.assertEqual(kpoints.num_kpts, 168)
@@ -362,7 +365,7 @@ class MITMDVaspInputSetTest(unittest.TestCase):
     def test_get_kpoints(self):
         kpoints = self.mitmdparam.get_kpoints(self.struct)
         self.assertEqual(kpoints.kpts, [(1, 1, 1)])
-        self.assertEqual(kpoints.style, 'Gamma')
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
     def test_to_from_dict(self):
         d = self.mitmdparam.as_dict()
@@ -391,7 +394,7 @@ class MITNEBVaspInputSetTest(unittest.TestCase):
     def test_get_kpoints(self):
         kpoints = self.vis.get_kpoints(self.struct)
         self.assertEqual(kpoints.kpts, [[2, 4, 6]])
-        self.assertEqual(kpoints.style, 'Monkhorst')
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
 
     def test_to_from_dict(self):
         d = self.vis.as_dict()
@@ -410,6 +413,19 @@ class MITNEBVaspInputSetTest(unittest.TestCase):
 
         fc = self.vis._process_structures(structs)[2].frac_coords
         self.assertTrue(np.allclose(fc, [[0.5]*3,[0.9, 1.033333, 1.0333333]]))
+
+
+class MVLVaspInputSetTest(PymatgenTest):
+
+    def setUp(self):
+        self.mvlparam = MVLElasticInputSet()
+
+    def test_get_incar(self):
+        incar = self.mvlparam.get_incar(self.get_structure("Graphite"))
+        self.assertEqual(incar["IBRION"], 6)
+        self.assertEqual(incar["NFREE"], 2)
+        self.assertEqual(incar["POTIM"], 0.015)
+        self.assertNotIn("NPAR", incar)
 
 
 if __name__ == '__main__':

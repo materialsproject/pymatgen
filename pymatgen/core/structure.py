@@ -1,21 +1,8 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-
-"""
-This module provides classes used to define a non-periodic molecule and a
-periodic structure.
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
-
 
 import math
 import os
@@ -31,6 +18,7 @@ from fractions import gcd
 
 import six
 from six.moves import map, zip
+from tabulate import tabulate
 
 import numpy as np
 
@@ -43,7 +31,7 @@ except ImportError:
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
@@ -53,6 +41,20 @@ from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length, ArrayWithUnit
 from pymatgen.symmetry.groups import SpaceGroup
 from monty.io import zopen
+
+"""
+This module provides classes used to define a non-periodic molecule and a
+periodic structure.
+"""
+
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Production"
+__date__ = "Sep 23, 2011"
 
 
 class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
@@ -144,11 +146,8 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         Returns a tuple with the sequential indices of the sites
         that contain an element with the given chemical symbol.
         """
-        indices = []
-        for i, specie in enumerate(self.species):
-            if specie.symbol == symbol:
-                indices.append(i)
-        return tuple(indices)
+        return tuple((i for i, specie in enumerate(self.species)
+                      if specie.symbol == symbol))
 
     @property
     def symbol_set(self):
@@ -156,7 +155,7 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         Tuple with the set of chemical symbols.
         Note that len(symbol_set) == len(types_of_specie)
         """
-        return tuple([specie.symbol for specie in self.types_of_specie])
+        return tuple((specie.symbol for specie in self.types_of_specie))
 
     @property
     def atomic_numbers(self):
@@ -204,7 +203,8 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
     @property
     def cart_coords(self):
         """
-        Returns a list of the cartesian coordinates of sites in the structure.
+        Returns a np.array of the cartesian coordinates of sites in the
+        structure.
         """
         return np.array([site.coords for site in self])
 
@@ -327,7 +327,7 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         pass
 
 
-class IStructure(SiteCollection, PMGSONable):
+class IStructure(SiteCollection, MSONable):
     """
     Basic immutable Structure object with periodicity. Essentially a sequence
     of PeriodicSites having a common lattice. IStructure is made to be
@@ -517,54 +517,25 @@ class IStructure(SiteCollection, PMGSONable):
                    site_properties=all_site_properties)
 
     @classmethod
-    def from_xsf_string(cls, input_string):
-        """
-        Initialize a `Structure` object from a string with data in XSF format.
-        See http://www.xcrysden.org/doc/XSF.html
-        """
-        # CRYSTAL                                        see (1)
-        # these are primitive lattice vectors (in Angstroms) 
-        # PRIMVEC
-        #    0.0000000    2.7100000    2.7100000         see (2)
-        #    2.7100000    0.0000000    2.7100000
-        #    2.7100000    2.7100000    0.0000000
-
-        # these are conventional lattice vectors (in Angstroms)
-        # CONVVEC
-        #    5.4200000    0.0000000    0.0000000         see (3)
-        #    0.0000000    5.4200000    0.0000000
-        #    0.0000000    0.0000000    5.4200000
-
-        # these are atomic coordinates in a primitive unit cell  (in Angstroms)
-        # PRIMCOORD
-        # 2 1                                            see (4)
-        # 16      0.0000000     0.0000000     0.0000000  see (5)
-        # 30      1.3550000    -1.3550000    -1.3550000
-
-        lattice, coords, species = [], [], []
-        lines = input_string.splitlines()
-
-        for i in range(len(lines)):
-            if "PRIMVEC" in lines[i]:
-                for j in range(i+1, i+4):
-                    lattice.append([float(c) for c in lines[j].split()])
-
-            if "PRIMCOORD" in lines[i]:
-                num_sites = int(lines[i+1].split()[0])
-     
-                for j in range(i+2, i+2+num_sites):
-                    tokens = lines[j].split()
-                    species.append(int(tokens[0]))
-                    coords.append([float(j) for j in tokens[1:]])
-                break
-        else:
-            raise ValueError("Invalid XSF data")
-
-        return cls(lattice, species, coords, coords_are_cartesian=True)
-
-    @classmethod
     def from_abivars(cls, *args, **kwargs):
-        """Build a :class:`Structure` object from a dictionary with ABINIT variables."""
+        """
+        Build a :class:`Structure` object from a dictionary with ABINIT variables.
+
+        example:
+
+            al_structure = Structure.from_abivars(
+                acell=3*[7.5],
+                rprim=[0.0, 0.5, 0.5, 
+                       0.5, 0.0, 0.5,
+                       0.5, 0.5, 0.0],
+                typat=1,
+                xred=[0.0, 0.0, 0.0],
+                ntypat=1,
+                znucl=13,
+            )
+
+        `xred` can be replaced with `xcart` or `xangst`.
+        """
         kwargs.update(dict(*args))
         d = kwargs
 
@@ -574,13 +545,15 @@ class IStructure(SiteCollection, PMGSONable):
         if coords is None:
             coords = d.get("xcart", None)
             if coords is not None:
+                if "xangst" in d:
+                    raise ValueError("xangst and xcart are mutually exclusive")
                 coords = ArrayWithUnit(coords, "bohr").to("ang")
             else:
                 coords = d.get("xangst", None)
             coords_are_cartesian = True
 
         if coords is None:
-            raise ValueError("Cannot extract atomic coordinates from dict %s" % str(d))
+            raise ValueError("Cannot extract coordinates from:\n %s" % str(d))
 
         coords = np.reshape(coords, (-1,3))
 
@@ -597,9 +570,6 @@ class IStructure(SiteCollection, PMGSONable):
         # Note Fortran --> C indexing
         #znucl_type = np.rint(znucl_type)
         species = [znucl_type[typ-1] for typ in typat]
-
-        #print(lattice, species, coords)
-        #print(species)
 
         return cls(lattice, species, coords, validate_proximity=False,
                    to_unit_cell=False, coords_are_cartesian=coords_are_cartesian)
@@ -674,6 +644,56 @@ class IStructure(SiteCollection, PMGSONable):
     def __hash__(self):
         # For now, just use the composition hash code.
         return self.composition.__hash__()
+
+    def __mul__(self, scaling_matrix):
+        """
+        Makes a supercell.
+
+        Args:
+            scaling_matrix: A scaling matrix for transforming the lattice
+                vectors. Has to be all integers. Several options are possible:
+
+                a. A full 3x3 scaling matrix defining the linear combination
+                   the old lattice vectors. E.g., [[2,1,0],[0,3,0],[0,0,
+                   1]] generates a new structure with lattice vectors a' =
+                   2a + b, b' = 3b, c' = c where a, b, and c are the lattice
+                   vectors of the original structure.
+                b. An sequence of three scaling factors. E.g., [2, 1, 1]
+                   specifies that the supercell should have dimensions 2a x b x
+                   c.
+                c. A number, which simply scales all lattice vectors by the
+                   same factor.
+
+        Returns:
+            Supercell structure. Note that a Structure is always returned,
+            even if the input structure is a subclass of Structure. This is
+            to avoid different arguments signatures from causing problems. If
+            you prefer a subclass to return its own type, you need to override
+            this method in the subclass.
+        """
+        scale_matrix = np.array(scaling_matrix, np.int16)
+        if scale_matrix.shape != (3, 3):
+            scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
+        new_lattice = Lattice(np.dot(scale_matrix, self._lattice.matrix))
+
+        f_lat = lattice_points_in_supercell(scale_matrix)
+        c_lat = new_lattice.get_cartesian_coords(f_lat)
+
+        new_sites = []
+        for site in self:
+            for v in c_lat:
+                s = PeriodicSite(site.species_and_occu, site.coords + v,
+                                 new_lattice, properties=site.properties,
+                                 coords_are_cartesian=True, to_unit_cell=True)
+                new_sites.append(s)
+
+        return Structure.from_sites(new_sites)
+
+    def __rmul__(self, scaling_matrix):
+        """
+        Similar to __mul__ to preserve commutativeness.
+        """
+        return self.__mul__(scaling_matrix)
 
     @property
     def frac_coords(self):
@@ -1207,17 +1227,35 @@ class IStructure(SiteCollection, PMGSONable):
         outs.append("angles: " + " ".join([to_s(i).rjust(10)
                                            for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i=len(self)))
+        data = []
+        props = self.site_properties
+        keys = sorted(props.keys())
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i), site.species_string,
-                                  " ".join([to_s(j).rjust(12)
-                                            for j in site.frac_coords])]))
+            row = [str(i), site.species_string]
+            row.extend([to_s(j) for j in site.frac_coords])
+            for k in keys:
+                row.append(props[k][i])
+            data.append(row)
+        outs.append(tabulate(data, headers=["#", "SP", "a", "b", "c"] + keys,
+                             ))
         return "\n".join(outs)
 
-    def as_dict(self):
+    def as_dict(self, verbosity=1):
         """
-        Json-serializable dict representation of Structure
+        Json-serializable dict representation of Structure.
+
+        Args:
+            verbosity (int): Verbosity level. Default of 1 includes both
+                direct and cartesian coordinates for all sites, lattice
+                parameters, etc. Useful for reading and for insertion into a
+                database. Set to 0 for an extremely lightweight version
+                that only includes sufficient information to reconstruct the
+                object.
+
+        Returns:
+            JSON serializable dict representation.
         """
-        latt_dict = self._lattice.as_dict()
+        latt_dict = self._lattice.as_dict(verbosity=verbosity)
         del latt_dict["@module"]
         del latt_dict["@class"]
 
@@ -1225,7 +1263,7 @@ class IStructure(SiteCollection, PMGSONable):
              "@class": self.__class__.__name__,
              "lattice": latt_dict, "sites": []}
         for site in self:
-            site_dict = site.as_dict()
+            site_dict = site.as_dict(verbosity=verbosity)
             del site_dict["lattice"]
             del site_dict["@module"]
             del site_dict["@class"]
@@ -1297,66 +1335,6 @@ class IStructure(SiteCollection, PMGSONable):
 
         return d
 
-    def to_xsf_string(self):
-        """
-        Returns a string with the structure in XSF format
-        See http://www.xcrysden.org/doc/XSF.html
-        """
-        lines = []
-        app = lines.append
-
-        app("CRYSTAL")
-        app("# Primitive lattice vectors in Angstrom")
-        app("PRIMVEC")
-        cell = self.lattice_vectors(space="r") 
-        for i in range(3):
-            app(' %.14f %.14f %.14f' % tuple(cell[i]))
-
-        cart_coords = self.cart_coords  
-        app("# Cartesian coordinates in Angstrom.")
-        app("PRIMCOORD")
-        app(" %d 1" % len(cart_coords))
-
-        for a in range(len(cart_coords)):
-            sp = "%d" % self.atomic_numbers[a]
-            app(sp + ' %20.14f %20.14f %20.14f' % tuple(cart_coords[a]))
-
-        return "\n".join(lines)
-
-    def dot(self, coords_a, coords_b, space="r", frac_coords=False):
-        """
-        Compute the scalar product of vector(s) either in real space or
-        reciprocal space.
-
-        Args:
-            coords (3x1 array): Array-like object with the coordinates.
-            space (str): "r" for real space, "g" for reciprocal space.
-            frac_coords (bool): Whether the vector corresponds to fractional or
-                cartesian coordinates.
-
-        Returns:
-            one-dimensional `numpy` array.
-        """
-        lattice = {"r": self.lattice,
-                   "g": self.reciprocal_lattice}[space.lower()]
-        return lattice.dot(coords_a, coords_b, frac_coords=frac_coords)
-
-    def norm(self, coords, space="r", frac_coords=True):
-        """
-        Compute the norm of vector(s) either in real space or reciprocal space.
-
-        Args:
-            coords (3x1 array): Array-like object with the coordinates.
-            space (str): "r" for real space, "g" for reciprocal space.
-            frac_coords (bool): Whether the vector corresponds to fractional or
-                cartesian coordinates.
-
-        Returns:
-            one-dimensional `numpy` array.
-        """
-        return np.sqrt(self.dot(coords, coords, space=space,
-                                frac_coords=frac_coords))
-
     def to(self, fmt=None, filename=None):
         """
         Outputs the structure to a file or string.
@@ -1376,6 +1354,7 @@ class IStructure(SiteCollection, PMGSONable):
         from pymatgen.io.cif import CifWriter
         from pymatgen.io.vasp import Poscar
         from pymatgen.io.cssr import Cssr
+        from pymatgen.io.xcrysden import XSF
         filename = filename or ""
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename)
@@ -1398,11 +1377,11 @@ class IStructure(SiteCollection, PMGSONable):
         elif fmt == "xsf" or fnmatch(fname.lower(), "*.xsf*"):
             if filename:
                 with zopen(fname, "wt", encoding='utf8') as f:
-                    s = self.to_xsf_string()
+                    s = XSF(self).to_string()
                     f.write(s)
                     return s
             else:
-                return self.to_xsf_string()
+                return XSF(self).to_string()
         else:
             if filename:
                 with open(filename, "w") as f:
@@ -1431,6 +1410,7 @@ class IStructure(SiteCollection, PMGSONable):
         from pymatgen.io.cif import CifParser
         from pymatgen.io.vasp import Poscar
         from pymatgen.io.cssr import Cssr
+        from pymatgen.io.xcrysden import XSF
         fmt = fmt.lower()
         if fmt == "cif":
             parser = CifParser.from_string(input_string)
@@ -1447,7 +1427,7 @@ class IStructure(SiteCollection, PMGSONable):
             d = yaml.load(input_string)
             s = cls.from_dict(d)
         elif fmt == "xsf":
-            s = cls.from_xsf_string(input_string)
+            s = XSF.from_string(input_string).structure
         else:
             raise ValueError("Unrecognized format `%s`!" % fmt)
 
@@ -1456,7 +1436,7 @@ class IStructure(SiteCollection, PMGSONable):
         return cls.from_sites(s)
 
     @classmethod
-    def from_file(cls, filename, primitive=True, sort=False):
+    def from_file(cls, filename, primitive=False, sort=False):
         """
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
@@ -1466,7 +1446,7 @@ class IStructure(SiteCollection, PMGSONable):
         Args:
             filename (str): The filename to read from.
             primitive (bool): Whether to convert to a primitive cell
-                Only available for cifs. Defaults to True.
+                Only available for cifs. Defaults to False.
             sort (bool): Whether to sort sites. Default to False.
 
         Returns:
@@ -1474,7 +1454,7 @@ class IStructure(SiteCollection, PMGSONable):
         """
         if filename.endswith(".nc"):
             # Read Structure from a netcdf file.
-            from pymatgen.io.abinitio.netcdf import structure_from_ncdata
+            from pymatgen.io.abinit.netcdf import structure_from_ncdata
             s = structure_from_ncdata(filename, cls=cls)
             if sort:
                 s = s.get_sorted_structure()
@@ -1517,7 +1497,7 @@ class IStructure(SiteCollection, PMGSONable):
         return s
 
 
-class IMolecule(SiteCollection, PMGSONable):
+class IMolecule(SiteCollection, MSONable):
     """
     Basic immutable Molecule object without periodicity. Essentially a
     sequence of sites. IMolecule is made to be immutable so that they can
@@ -2268,7 +2248,7 @@ class Structure(IStructure, collections.MutableSequence):
             return PeriodicSite(c, site.frac_coords, latt,
                                 properties=site.properties)
 
-        self._sites = list(map(mod_site, self._sites))
+        self._sites = [mod_site(site) for site in self._sites]
 
     def replace(self, i, species, coords=None, coords_are_cartesian=False,
                 properties=None):
@@ -2326,7 +2306,7 @@ class Structure(IStructure, collections.MutableSequence):
         self._sites = [s for i, s in enumerate(self._sites)
                        if i not in indices]
 
-    def apply_operation(self, symmop):
+    def apply_operation(self, symmop, fractional=False):
         """
         Apply a symmetry operation to the structure and return the new
         structure. The lattice is operated by the rotation matrix only.
@@ -2334,16 +2314,31 @@ class Structure(IStructure, collections.MutableSequence):
 
         Args:
             symmop (SymmOp): Symmetry operation to apply.
+            fractional (bool): Whether the symmetry operation is applied in
+                fractional space. Defaults to False, i.e., symmetry operation
+                is applied in cartesian coordinates.
         """
-        self._lattice = Lattice([symmop.apply_rotation_only(row)
-                                 for row in self._lattice.matrix])
+        if not fractional:
+            self._lattice = Lattice([symmop.apply_rotation_only(row)
+                                     for row in self._lattice.matrix])
 
-        def operate_site(site):
-            new_cart = symmop.operate(site.coords)
-            new_frac = self._lattice.get_fractional_coords(new_cart)
-            return PeriodicSite(site.species_and_occu, new_frac, self._lattice,
-                                properties=site.properties)
-        self._sites = list(map(operate_site, self._sites))
+            def operate_site(site):
+                new_cart = symmop.operate(site.coords)
+                new_frac = self._lattice.get_fractional_coords(new_cart)
+                return PeriodicSite(site.species_and_occu, new_frac, self._lattice,
+                                    properties=site.properties)
+
+        else:
+            new_latt = np.dot(symmop.rotation_matrix, self._lattice.matrix)
+            self._lattice = Lattice(new_latt)
+
+            def operate_site(site):
+                return PeriodicSite(site.species_and_occu,
+                                    symmop.operate(site.frac_coords),
+                                    self._lattice,
+                                    properties=site.properties)
+
+        self._sites = [operate_site(s) for s in self._sites]
 
     def modify_lattice(self, new_lattice):
         """
@@ -2525,23 +2520,9 @@ class Structure(IStructure, collections.MutableSequence):
                 c. A number, which simply scales all lattice vectors by the
                    same factor.
         """
-        scale_matrix = np.array(scaling_matrix, np.int16)
-        if scale_matrix.shape != (3, 3):
-            scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
-        new_lattice = Lattice(np.dot(scale_matrix, self._lattice.matrix))
-
-        f_lat = lattice_points_in_supercell(scale_matrix)
-        c_lat = new_lattice.get_cartesian_coords(f_lat)
-
-        new_sites = []
-        for site in self:
-            for v in c_lat:
-                s = PeriodicSite(site.species_and_occu, site.coords + v,
-                                 new_lattice, properties=site.properties,
-                                 coords_are_cartesian=True, to_unit_cell=True)
-                new_sites.append(s)
-        self._sites = new_sites
-        self._lattice = new_lattice
+        s = self * scaling_matrix
+        self._sites = s.sites
+        self._lattice = s.lattice
 
     def scale_lattice(self, volume):
         """
@@ -2565,21 +2546,18 @@ class Structure(IStructure, collections.MutableSequence):
         np.fill_diagonal(d, 0)
         clusters = fcluster(linkage(squareform((d + d.T) / 2)),
                             tol, 'distance')
-
         sites = []
         for c in np.unique(clusters):
-            inds = np.argwhere(clusters == c)
+            inds = np.where(clusters == c)[0]
             species = self[inds[0]].species_and_occu
             coords = self[inds[0]].frac_coords
             for n, i in enumerate(inds[1:]):
                 species += self[i].species_and_occu
                 offset = self[i].frac_coords - coords
-                coords += (offset - np.round(offset)) / (n + 2)
+                coords += ((offset - np.round(offset)) / (n + 2)).astype(coords.dtype)
             sites.append(PeriodicSite(species, coords, self.lattice))
 
         self._sites = sites
-
-
 
 
 class Molecule(IMolecule, collections.MutableSequence):
@@ -2633,8 +2611,8 @@ class Molecule(IMolecule, collections.MutableSequence):
         if isinstance(site, Site):
             self._sites[i] = site
         else:
-            if isinstance(site, six.string_types) or (not isinstance(site, \
-                    collections.Sequence)):
+            if isinstance(site, six.string_types) or (
+                    not isinstance(site, collections.Sequence)):
                 sp = site
                 coords = self._sites[i].coords
                 properties = self._sites[i].properties

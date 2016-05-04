@@ -6,13 +6,29 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.io.abinitio
+    pymatgen.io.abinit
     pymatgen.io.feff
     pymatgen.io.vasp
     pymatgen.io.vaspio
 
 Submodules
 ----------
+
+pymatgen.io.adf module
+----------------------
+
+.. automodule:: pymatgen.io.adf
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.io.aiida module
+------------------------
+
+.. automodule:: pymatgen.io.aiida
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 pymatgen.io.ase module
 ----------------------
@@ -90,6 +106,14 @@ pymatgen.io.feffio_set module
 -----------------------------
 
 .. automodule:: pymatgen.io.feffio_set
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.io.fiesta module
+-------------------------
+
+.. automodule:: pymatgen.io.fiesta
     :members:
     :undoc-members:
     :show-inheritance:
@@ -174,6 +198,14 @@ pymatgen.io.vaspio_set module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.io.xcrysden module
+---------------------------
+
+.. automodule:: pymatgen.io.xcrysden
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.io.xyz module
 ----------------------
 
@@ -190,18 +222,18 @@ pymatgen.io.xyzio module
     :undoc-members:
     :show-inheritance:
 
-pymatgen.io.zeo module
-----------------------
-
-.. automodule:: pymatgen.io.zeo
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pymatgen.io.zeoio module
 ------------------------
 
 .. automodule:: pymatgen.io.zeoio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.io.zeopp module
+------------------------
+
+.. automodule:: pymatgen.io.zeopp
     :members:
     :undoc-members:
     :show-inheritance:

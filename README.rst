@@ -30,13 +30,8 @@ Python 3.x support
 ==================
 
 With effect from version 3.0, pymatgen now supports both Python 2.7 as well
-as Python 3.x. All underlying core dependencies (numpy,
-pyhull and the spglib library) have been made Python 3 compatible,
-and a completely rewritten CIF parser module (courtesy of William Davidson
-Richards) has removed the dependency on PyCIFRW. We will support Python >= 3.3
-(ignoring v3.1 and v3.2). With the release of a new major version,
-we also took the opportunity to streamline and cleanup some of the code,
-which introduces a few backward incompatibilities.
+as Python 3.x. All developers must ensure that their code passes the
+unittests on both Py2.7 and 3.x.
 
 Why use pymatgen?
 =================
@@ -62,6 +57,12 @@ but pymatgen offer several advantages:
    fast and are in fact comparable to codes written in other languages.
    Pymatgen also comes with a complete system for handling periodic boundary
    conditions.
+5. **It will be around.** Pymatgen is not a pet research project. It is used in
+   the well-established Materials Project. It is also actively being developed
+   and maintained by the Materials Virtual Lab, the ABINIT group and many other
+   research groups. The plan is to make sure pymatgen will stand the test of
+   time and be the de facto analysis code for most materials and structural
+   analysis.
 
 Getting pymatgen
 ================
@@ -140,5 +141,32 @@ follows::
     COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
     IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
     CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+About the Pymatgen Development Team
+===================================
+
+Shyue Ping Ong started Pymatgen in 2011, and is still the project lead.
+
+The Pymatgen Development Team is the set of all contributors to the
+pymatgen project, including all subprojects.
+
+Our Copyright Policy
+====================
+
+Pymatgen uses a shared copyright model. Each contributor maintains copyright
+over their contributions to pymatgen. But, it is important to note that these
+contributions are typically only changes to the repositories. Thus, the
+pymatgen source code, in its entirety is not the copyright of any
+single person or institution. Instead, it is the collective copyright of the
+entire pymatgen Development Team. If individual contributors want to maintain a
+record of what changes/contributions they have specific copyright on, they
+should indicate their copyright in the commit message of the change, when
+they commit the change to one of the pymatgen repositories.
+
+With this in mind, the following banner should be used in any source code file
+to indicate the copyright and license terms::
+
+    # Copyright (c) Pymatgen Development Team.
+    # Distributed under the terms of the MIT License.
 
 .. _`pymatgen page` : http://www.pymatgen.org

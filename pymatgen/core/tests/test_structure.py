@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -119,10 +121,19 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(d['sites'][0]['properties']['magmom'], 5)
         self.assertEqual(d['sites'][0]['species'][0]['properties']['spin'], 3)
 
+        d = s.as_dict(0)
+        self.assertNotIn("volume", d['lattice'])
+        self.assertNotIn("xyz", d['sites'][0])
+
     def test_from_dict(self):
+
         d = self.propertied_structure.as_dict()
         s = IStructure.from_dict(d)
         self.assertEqual(s[0].magmom, 5)
+        d = self.propertied_structure.as_dict(0)
+        s2 = IStructure.from_dict(d)
+        self.assertEqual(s, s2)
+
         d = {'lattice': {'a': 3.8401979337, 'volume': 40.044794644251596,
                          'c': 3.8401979337177736, 'b': 3.840198994344244,
                          'matrix': [[3.8401979337, 0.0, 0.0],
@@ -520,12 +531,23 @@ class StructureTest(PymatgenTest):
 
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
-        self.structure.apply_operation(op)
+        s = self.structure.copy()
+        s.apply_operation(op)
         self.assertArrayAlmostEqual(
-            self.structure.lattice.matrix,
+            s.lattice.matrix,
             [[0.000000, 3.840198, 0.000000],
              [-3.325710, 1.920099, 0.000000],
              [2.217138, -0.000000, 3.135509]], 5)
+
+        op = SymmOp([[1, 1, 0, 0.5], [1, 0, 0, 0.5], [0, 0, 1, 0.5],
+                     [0, 0, 0, 1]])
+        s = self.structure.copy()
+        s.apply_operation(op, fractional=True)
+        self.assertArrayAlmostEqual(
+            s.lattice.matrix,
+            [[5.760297, 3.325710, 0.000000],
+             [3.840198, 0.000000, 0.000000],
+             [0.000000, -2.217138, 3.135509]], 5)
 
     def test_apply_strain(self):
         s = self.structure
@@ -566,6 +588,17 @@ class StructureTest(PymatgenTest):
                                        frac_coords=True, to_unit_cell=False)
         self.assertArrayAlmostEqual(self.structure.frac_coords[0],
                                     [1.00187517, 1.25665291, 1.15946374])
+
+    def test_mul(self):
+        self.structure *= [2, 1, 1]
+        self.assertEqual(self.structure.formula, "Si4")
+        s = [2, 1, 1] * self.structure
+        self.assertEqual(s.formula, "Si8")
+        self.assertIsInstance(s, Structure)
+        s = self.structure * [[1, 0, 0], [2, 1, 0], [0, 0, 2]]
+        self.assertEqual(s.formula, "Si8")
+        self.assertArrayAlmostEqual(s.lattice.abc,
+                                    [7.6803959, 17.5979979, 7.6803959])
 
     def test_make_supercell(self):
         self.structure.make_supercell([2, 1, 1])
