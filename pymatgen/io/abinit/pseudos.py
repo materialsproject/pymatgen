@@ -2720,13 +2720,9 @@ class DojoReport(dict):
                 keys = [k for k in all if k not in what]
             else:
                 keys = what
-<<<<<<< HEAD:pymatgen/io/abinitio/pseudos.py
         
         xc = kwargs.pop('xc', None)
           
-=======
-
->>>>>>> matteospymatgen/master:pymatgen/io/abinit/pseudos.py
         # get reference entry
         from pseudo_dojo.refdata.deltafactor import df_database
         reference = df_database(xc=xc).get_entry(symbol=self.symbol, code=code)

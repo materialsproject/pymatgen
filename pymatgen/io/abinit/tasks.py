@@ -64,14 +64,12 @@ def straceback():
     import traceback
     return traceback.format_exc()
 
-<<<<<<< HEAD:pymatgen/io/abinitio/tasks.py
 def lennone(PropperOrNone):
     if PropperOrNone is None:
 	return 0
     else:
 	return len(PropperOrNone)
 
-=======
 def nmltostring(nml):
     """Convert a dictionary representing a Fortran namelist into a string."""
     if not isinstance(nml,dict):
