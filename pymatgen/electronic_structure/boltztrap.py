@@ -166,6 +166,7 @@ class BoltztrapRunner(object):
                 sign = -1.0
 
             if self.run_type in ("DOS", "BANDS"):
+                # automatically set energy span around Fermi
                 const = Energy(2, "eV").to("Ry")
                 emin_up = np.min(np.array(self._bs.bands[Spin.up]))
                 emax_up = np.max(np.array(self._bs.bands[Spin.up]))
@@ -876,14 +877,14 @@ class BoltztrapAnalyzer(object):
     def get_symm_bands(self, structure, efermi, kpt_line=None,
                        labels_dict=None):
         """
-            Function usefull to read bands from Boltztap output and get a
+            Function useful to read bands from Boltztap output and get a
             BandStructureSymmLine object comparable with that one from a DFT
             calculation (if the same kpt_line is provided). Default kpt_line
             and labels_dict is the standard path of high symmetry k-point for
             the specified structure. They could be extracted from the
             BandStructureSymmLine object that you want to compare with. efermi
             variable must be specified to create the BandStructureSymmLine
-            object (usually it comes from DFT or Boltztap calc)
+            object (usually it comes from DFT or Boltztrap calc)
         """
         try:
             if kpt_line is None:
@@ -1747,7 +1748,7 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
     """
 
     nkpt = len(bands_obj.kpoints)
-    if bands_ref_obj._is_spin_polarized:
+    if bands_ref_obj.is_spin_polarized:
         nbands = np.min((bands_obj.nb_bands, 2 * bands_ref_obj.nb_bands))
     else:
         nbands = np.min(
@@ -1756,7 +1757,7 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
     arr_bands = np.array(bands_obj.bands[Spin.up][:nbands])
     # arr_bands_lavg = (arr_bands-np.mean(arr_bands,axis=1).reshape(nbands,1))
 
-    if bands_ref_obj._is_spin_polarized:
+    if bands_ref_obj.is_spin_polarized:
         arr_bands_ref_up = np.array(bands_ref_obj.bands[Spin.up])
         arr_bands_ref_dw = np.array(bands_ref_obj.bands[Spin.down])
         # print(arr_bands_ref_up.shape)
