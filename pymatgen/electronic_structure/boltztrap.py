@@ -240,15 +240,15 @@ class BoltztrapRunner(object):
                         f.write("%18.8f\n" % (sign * float(tmp_eigs[j])))
 
     def _make_struc_file(self, file_name):
-        sym = SpacegroupAnalyzer(self._bs._structure, symprec=0.01)
+        sym = SpacegroupAnalyzer(self._bs.structure, symprec=0.01)
         with open(file_name, 'w') as f:
-            f.write(self._bs._structure.composition.formula + " " +
+            f.write(self._bs.structure.composition.formula + " " +
                     str(sym.get_spacegroup_symbol()) + "\n")
             for i in range(3):
                 line = ''
                 for j in range(3):
                     line += "%12.5f" % (
-                        Length(self._bs._structure.lattice.matrix[i][j],
+                        Length(self._bs.structure.lattice.matrix[i][j],
                                "ang").to("bohr"))
                 f.write(line + '\n')
             ops = sym.get_symmetry_dataset()['rotations']
@@ -292,11 +292,11 @@ class BoltztrapRunner(object):
     # because x_trans script overwrite BoltzTraP.def
     def _make_proj_files(self, file_name, def_file_name):
         for o in Orbital:
-            for site_nb in range(0, len(self._bs._structure.sites)):
+            for site_nb in range(0, len(self._bs.structure.sites)):
                 if o in self._bs._projections[Spin.up][0][0]:
                     with open(file_name + "_" + str(site_nb) + "_" + str(o),
                               'w') as f:
-                        f.write(self._bs._structure.composition.formula + "\n")
+                        f.write(self._bs.structure.composition.formula + "\n")
                         f.write(str(len(self._bs.kpoints)) + "\n")
                         for i in range(len(self._bs.kpoints)):
                             tmp_proj = []
@@ -349,7 +349,7 @@ class BoltztrapRunner(object):
                     "'formatted',0\n")
             i = 1000
             for o in Orbital:
-                for site_nb in range(0, len(self._bs._structure.sites)):
+                for site_nb in range(0, len(self._bs.structure.sites)):
                     if o in self._bs._projections[Spin.up][0][0]:
                         f.write(str(i) + ",\'" + "boltztrap.proj_" + str(
                             site_nb) + "_" + str(o.name) +
@@ -430,8 +430,8 @@ class BoltztrapRunner(object):
             if self.scissor > 0.0001:
                 setgap = 1
             if self.kpt_line is None:
-                kpath = HighSymmKpath(self._bs._structure)
-                self.kpt_line = [Kpoint(k, self._bs._structure.lattice) for k
+                kpath = HighSymmKpath(self._bs.structure)
+                self.kpt_line = [Kpoint(k, self._bs.structure.lattice) for k
                                  in
                                  kpath.get_kpoints(coords_are_cartesian=False)[
                                      0]]
@@ -1367,7 +1367,7 @@ class BoltztrapAnalyzer(object):
                 BoltztrapRunner(bs=bs,nelec=10,run_type="DOS",spin=-1).run(path_dir='dos_dw/')
                 an_dw=BoltztrapAnalyzer.from_files("dos_dw/boltztrap/",dos_spin=-1)
 
-                cdos=an_up.get_complete_dos(bs._structure,an_dw)
+                cdos=an_up.get_complete_dos(bs.structure,an_dw)
 
         """
         pdoss = {}
