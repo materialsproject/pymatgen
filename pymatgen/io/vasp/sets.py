@@ -625,7 +625,6 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             path = Structure.from_sites(sorted(sites))
             path.to(filename=os.path.join(output_dir, 'path.cif'))
 
-
     def as_dict(self):
         d = super(MITNEBVaspInputSet, self).as_dict()
         d["nimages"] = self.nimages
@@ -1624,6 +1623,7 @@ class DerivedVaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
 class MPStaticSet(DerivedVaspInputSet):
 
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
+                 lepsilon=False,
                  reciprocal_density=100, **kwargs):
         """
         Init a MPStaticSet. Typically, you would use the classmethod
@@ -1643,6 +1643,7 @@ class MPStaticSet(DerivedVaspInputSet):
         self.reciprocal_density = reciprocal_density
         self.structure = structure
         self.kwargs = kwargs
+        self.lepsilon = lepsilon
         self.parent_vis = MPVaspInputSet(**self.kwargs)
 
     @property
@@ -1656,6 +1657,14 @@ class MPStaticSet(DerivedVaspInputSet):
             {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
              "ICHARG": 0, "ALGO": "Normal"})
+
+        if self.lepsilon:
+            incar["IBRION"] = 8
+            incar["LEPSILON"] = True
+            # Note that DFPT calculations MUST unset NSW. NSW = 0 will fail
+            # to output ionic.
+            incar.pop("NSW", None)
+            incar.pop("NPAR", None)
 
         for k in ["MAGMOM", "NUPDOWN"] + list(self.kwargs.get(
                 "user_incar_settings", {}).keys()):
