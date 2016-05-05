@@ -1749,10 +1749,11 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
 
     nkpt = len(bands_obj.kpoints)
     if bands_ref_obj.is_spin_polarized:
-        nbands = np.min((bands_obj.nb_bands, 2 * bands_ref_obj.nb_bands))
+        nbands = min(bands_obj.nb_bands, 2 * bands_ref_obj.nb_bands)
     else:
-        nbands = np.min(
-            (len(bands_obj.bands[Spin.up]), len(bands_ref_obj.bands[Spin.up])))
+        # TODO: why is this needed? Shouldn't pmg take care of nb_bands?
+        nbands = min(len(bands_obj.bands[Spin.up]),
+                     len(bands_ref_obj.bands[Spin.up]))
     # print(nbands)
     arr_bands = np.array(bands_obj.bands[Spin.up][:nbands])
     # arr_bands_lavg = (arr_bands-np.mean(arr_bands,axis=1).reshape(nbands,1))
