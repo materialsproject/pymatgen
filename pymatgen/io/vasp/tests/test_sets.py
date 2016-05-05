@@ -467,6 +467,12 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(v2.incar["ENCUT"], 520)
         # Check that user incar settings are applied.
         self.assertEqual(v2.incar["LORBIT"], 12)
+        leps_vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run,
+                                              lepsilon=True)
+        self.assertTrue(leps_vis.incar["LEPSILON"])
+        self.assertEqual(leps_vis.incar["IBRION"], 8)
+        self.assertNotIn("NPAR", leps_vis.incar)
+        self.assertNotIn("NSW", leps_vis.incar)
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
