@@ -498,7 +498,6 @@ class BoltztrapRunner(object):
         path_dir_orig = path_dir
         if path_dir is None:
             temp_dir = tempfile.mkdtemp()
-            path_dir_orig = temp_dir
             path_dir = os.path.join(temp_dir, dir_bz_name)
         else:
             path_dir = os.path.abspath(
