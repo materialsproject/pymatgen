@@ -632,7 +632,7 @@ class BandStructure(object):
                 for spin in d['projections']}
 
         return BandStructure(
-            d['kpoints'], {Spin.from_int(int(k)): d['bands'][k]
+            d['kpoints'], {Spin(int(k)): d['bands'][k]
                            for k in d['bands']},
             Lattice(d['lattice_rec']['matrix']), d['efermi'],
             labels_dict, structure=structure, projections=projections)
