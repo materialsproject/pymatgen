@@ -201,7 +201,7 @@ class BoltztrapRunner(object):
                         spin_lst = self._bs.bands
 
                     for spin in spin_lst:
-                        for j in range(int(math.floor(self._bs._nb_bands * 0.9))):
+                        for j in range(int(math.floor(self._bs.nb_bands * 0.9))):
                             tmp_eigs.append(Energy(self._bs.bands[Spin(spin)][j][i] -
                                                    self._bs.efermi, "eV").to("Ry"))
                     tmp_eigs.sort()
@@ -290,7 +290,7 @@ class BoltztrapRunner(object):
                         f.write(str(len(self._bs.kpoints)) + "\n")
                         for i in range(len(self._bs.kpoints)):
                             tmp_proj = []
-                            for j in range(int(math.floor(self._bs._nb_bands * 0.9))):
+                            for j in range(int(math.floor(self._bs.nb_bands * 0.9))):
                                 tmp_proj.append(self._bs._projections[Spin(self.spin)][j][i][o][site_nb])
                             # TODO deal with the sorting going on at the energy level!!!
                             # tmp_proj.sort()
