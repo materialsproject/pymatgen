@@ -1487,7 +1487,29 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
 
 
 @add_fig_kwargs
-def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None, fold=False, coords_are_cartesian=False,
+def plot_brillouin_zone_from_kpath(kpath, **kwargs):
+
+    """
+    Gives the plot (as a matplotlib object) of the symmetry line path in
+        the Brillouin Zone.
+
+    Args:
+        kpath (HighSymmKpath): a HighSymmKPath object
+        **kwargs: provided by add_fig_kwargs decorator
+
+    Returns:
+        a matplotlib figure and matplotlib_ax
+
+    """
+    lines = [[kpath.kpath['kpoints'][k] for k in p]
+             for p in kpath.kpath['path']]
+    return plot_brillouin_zone(bz_lattice=kpath._prim_rec, lines=lines,
+                               labels=kpath.kpath['kpoints'], **kwargs)
+
+
+@add_fig_kwargs
+def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None,
+                        fold=False, coords_are_cartesian=False,
                         ax=None, **kwargs):
     """
     Plots a 3D representation of the Brillouin zone of the structure.
@@ -1513,14 +1535,20 @@ def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None, fold=
     plot_wigner_seitz(bz_lattice, ax=ax)
     if lines is not None:
         for line in lines:
-            plot_path(line, bz_lattice, coords_are_cartesian=coords_are_cartesian, ax=ax)
+            plot_path(line, bz_lattice,
+                      coords_are_cartesian=coords_are_cartesian, ax=ax)
 
     if labels is not None:
-        plot_labels(labels, bz_lattice, coords_are_cartesian=coords_are_cartesian, ax=ax)
-        plot_points(labels.values(), bz_lattice, coords_are_cartesian=coords_are_cartesian, fold=False, ax=ax)
+        plot_labels(labels, bz_lattice,
+                    coords_are_cartesian=coords_are_cartesian, ax=ax)
+        plot_points(labels.values(), bz_lattice,
+                    coords_are_cartesian=coords_are_cartesian,
+                    fold=False, ax=ax)
 
     if kpoints is not None:
-        plot_points(kpoints, bz_lattice, coords_are_cartesian=coords_are_cartesian, ax=ax, fold=fold)
+        plot_points(kpoints, bz_lattice,
+                    coords_are_cartesian=coords_are_cartesian,
+                    ax=ax, fold=fold)
 
     ax.set_xlim3d(-1, 1)
     ax.set_ylim3d(-1, 1)
