@@ -486,7 +486,7 @@ class BoltztrapRunner(object):
             self._make_proj_files(os.path.join(path, "boltztrap.proj"),
                                   os.path.join(path, "BoltzTraP.def"))
 
-    def run(self, path_dir=None, prev_sigma=None, convergence=True):
+    def run(self, path_dir=None, convergence=True):
         if self.run_type in ("BANDS", "DOS", "FERMI"):
             convergence = False
 
