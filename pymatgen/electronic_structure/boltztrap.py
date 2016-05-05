@@ -125,6 +125,10 @@ class BoltztrapRunner(object):
                 list/array of kpoints in fractional coordinates for BANDS mode
                 calculation (standard path of high symmetry k-points is
                 automatically set as default)
+            tmax:
+                Maximum temperature (K) for calculation (default=1300)
+            tgrid:
+                Temperature interval for calculation (default=100)
 
     """
 
@@ -137,7 +141,8 @@ class BoltztrapRunner(object):
     def __init__(self, bs, nelec, dos_type="HISTO", energy_grid=0.005,
                  lpfac=10, run_type="BOLTZ", band_nb=None, tauref=0, tauexp=0,
                  tauen=0, soc=False, doping=None, energy_span_around_fermi=1.5,
-                 scissor=0.0, kpt_line=None, spin=None, cond_band=False):
+                 scissor=0.0, kpt_line=None, spin=None, cond_band=False,
+                 tmax=1300, tgrid=100):
         self.lpfac = lpfac
         self._bs = bs
         self._nelec = nelec
@@ -156,6 +161,8 @@ class BoltztrapRunner(object):
         self.doping = doping or [1e16, 1e17, 1e18, 1e19, 1e20, 1e21, 1e22]
         self.energy_span_around_fermi = energy_span_around_fermi
         self.scissor = scissor
+        self.tmax = tmax
+        self.tgrid = tgrid
 
     def _make_energy_file(self, file_name):
         with open(file_name, 'w') as f:
@@ -386,7 +393,8 @@ class BoltztrapRunner(object):
                     ".15                       # (efcut) energy range of "
                     "chemical potential\n")
                 fout.write(
-                    "1300. 100.                  # Tmax, temperature grid\n")
+                    "{} {}                  # Tmax, temperature grid\n".\
+                    format(self.tmax, self.tgrid))
                 fout.write(
                     "-1.  # energyrange of bands given DOS output sig_xxx and "
                     "dos_xxx (xxx is band number)\n")
