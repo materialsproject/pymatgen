@@ -253,7 +253,7 @@ class BandStructure(object):
         """
         returns the structure
         """
-        return self.structure
+        return self._structure
 
     def get_projection_on_elements(self):
         """
