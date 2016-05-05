@@ -138,8 +138,9 @@ class BoltztrapRunner(object):
               ".html and follow the instructions in the README to compile "
               "Bolztrap accordingly. Then add x_trans to your path")
     def __init__(self, bs, nelec, dos_type="HISTO", energy_grid=0.005,
-                 lpfac=10, run_type="BOLTZ", band_nb=None, tauref=0, tauexp=0, tauen=0, soc=False, doping=None,
-                 energy_span_around_fermi=1.5, scissor=0.0, kpt_line=None, spin=None, cond_band=False):
+                 lpfac=10, run_type="BOLTZ", band_nb=None, tauref=0, tauexp=0,
+                 tauen=0, soc=False, doping=None, energy_span_around_fermi=1.5,
+                 scissor=0.0, kpt_line=None, spin=None, cond_band=False):
         self.lpfac = lpfac
         self._bs = bs
         self._nelec = nelec
@@ -169,15 +170,15 @@ class BoltztrapRunner(object):
 
             if self.run_type in ("DOS", "BANDS"):
                 const = Energy(2, "eV").to("Ry")
-                emin_up = np.min(np.array(self._bs._bands[Spin.up]))
-                emax_up = np.max(np.array(self._bs._bands[Spin.up]))
+                emin_up = np.min(np.array(self._bs.bands[Spin.up]))
+                emax_up = np.max(np.array(self._bs.bands[Spin.up]))
 
                 if self._bs.is_spin_polarized:
-                    emin_dw = np.min(np.array(self._bs._bands[Spin.down]))
+                    emin_dw = np.min(np.array(self._bs.bands[Spin.down]))
                     low_en_lim = Energy(min((emin_up, emin_dw)) -
                                         self._bs.efermi, "eV").to("Ry")
 
-                    emax_dw = np.max(np.array(self._bs._bands[Spin.down]))
+                    emax_dw = np.max(np.array(self._bs.bands[Spin.down]))
                     high_en_lim = Energy(max((emax_up, emax_dw)) -
                                          self._bs.efermi, "eV").to("Ry")
 
@@ -197,11 +198,11 @@ class BoltztrapRunner(object):
                     if self.run_type == "DOS":
                         spin_lst = [self.spin]
                     else:
-                        spin_lst = self._bs._bands
+                        spin_lst = self._bs.bands
 
                     for spin in spin_lst:
                         for j in range(int(math.floor(self._bs._nb_bands * 0.9))):
-                            tmp_eigs.append(Energy(self._bs._bands[Spin(spin)][j][i] -
+                            tmp_eigs.append(Energy(self._bs.bands[Spin(spin)][j][i] -
                                                    self._bs.efermi, "eV").to("Ry"))
                     tmp_eigs.sort()
 
@@ -220,7 +221,7 @@ class BoltztrapRunner(object):
             else:
                 for i in range(len(self._bs.kpoints)):
                     tmp_eigs = []
-                    tmp_eigs.append(Energy(self._bs._bands[Spin(self.spin)][self.band_nb][i] -
+                    tmp_eigs.append(Energy(self._bs.bands[Spin(self.spin)][self.band_nb][i] -
                                            self._bs.efermi, "eV").to("Ry"))
                     f.write("%12.8f %12.8f %12.8f %d\n"
                             % (self._bs.kpoints[i].frac_coords[0],
