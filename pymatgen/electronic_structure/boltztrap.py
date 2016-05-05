@@ -241,22 +241,22 @@ class BoltztrapRunner(object):
 
     def _make_struc_file(self, file_name):
         sym = SpacegroupAnalyzer(self._bs.structure, symprec=0.01)
+
         with open(file_name, 'w') as f:
-            f.write(self._bs.structure.composition.formula + " " +
-                    str(sym.get_spacegroup_symbol()) + "\n")
-            for i in range(3):
-                line = ''
-                for j in range(3):
-                    line += "%12.5f" % (
-                        Length(self._bs.structure.lattice.matrix[i][j],
-                               "ang").to("bohr"))
-                f.write(line + '\n')
+            f.write("{} {}\n".format(self._bs.structure.composition.formula,
+                    sym.get_spacegroup_symbol()))
+
+            f.write("{}\n".format(self._bs.structure.lattice))
+
             ops = sym.get_symmetry_dataset()['rotations']
-            f.write(str(len(ops)) + "\n")
+            f.write("{}\n".format(len(ops)))
+
             for c in ops:
-                f.write('\n'.join([' '.join([str(int(i)) for i in row])
-                                   for row in c]))
-                f.write('\n')
+                for row in c:
+                    f.write("{}\n".format(" ".join(str(i) for i in row)))
+                #f.write('\n'.join([' '.join([str(int(i)) for i in row])
+                #                   for row in c]))
+                #f.write('\n')
 
     # This function is useless in std version of BoltzTraP code
     # because x_trans script overwrite BoltzTraP.def
