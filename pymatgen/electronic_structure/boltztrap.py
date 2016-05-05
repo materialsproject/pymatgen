@@ -1,34 +1,6 @@
 # coding: utf-8
 
 from __future__ import division, unicode_literals, print_function
-
-"""
-This module provides classes to run and analyze boltztrap on pymatgen band
-structure objects. Boltztrap is a software interpolating band structures and
-computing materials properties from this band structure using Boltzmann
-semi-classical transport theory.
-
-Boltztrap has been developped by Georg Madsen.
-
-http://www.icams.de/content/departments/ams/madsen/boltztrap.html
-
-You need the version 1.2.3
-
-References are::
-
-    Madsen, G. K. H., and Singh, D. J. (2006).
-    BoltzTraP. A code for calculating band-structure dependent quantities.
-    Computer Physics Communications, 175, 67-71
-"""
-
-__author__ = "Geoffroy Hautier, Zachary Gibbs"
-__copyright__ = "Copyright 2013, The Materials Project"
-__version__ = "1.1"
-__maintainer__ = "Geoffroy Hautier"
-__email__ = "geoffroy@uclouvain.be"
-__status__ = "Development"
-__date__ = "August 23, 2013"
-
 import os
 import math
 import numpy as np
@@ -55,6 +27,33 @@ try:
 except ImportError:
     pass
 
+"""
+This module provides classes to run and analyze boltztrap on pymatgen band
+structure objects. Boltztrap is a software interpolating band structures and
+computing materials properties from this band structure using Boltzmann
+semi-classical transport theory.
+
+Boltztrap has been developed by Georg Madsen.
+
+http://www.icams.de/content/departments/ams/madsen/boltztrap.html
+
+You need version 1.2.3 or higher
+
+References are::
+
+    Madsen, G. K. H., and Singh, D. J. (2006).
+    BoltzTraP. A code for calculating band-structure dependent quantities.
+    Computer Physics Communications, 175, 67-71
+"""
+
+__author__ = "Geoffroy Hautier, Zachary Gibbs, Francesco Ricci, Anubhav Jain"
+__copyright__ = "Copyright 2013, The Materials Project"
+__version__ = "1.1"
+__maintainer__ = "Geoffroy Hautier"
+__email__ = "geoffroy@uclouvain.be"
+__status__ = "Development"
+__date__ = "August 23, 2013"
+
 
 class BoltztrapRunner(object):
     """
@@ -66,33 +65,38 @@ class BoltztrapRunner(object):
             nelec:
                 the number of electrons
             dos_type:
-                two options here for the band structure integration: "HISTO"
+                two options for the band structure integration: "HISTO"
                 (histogram) or "TETRA" using the tetrahedon method. TETRA
-                gives typically better results especially for DOSes but takes
-                more time
+                typically gives better results (especially for DOSes)
+                but takes more time
             energy_grid:
-                the energy steps used for the integration. in eV
+                the energy steps used for the integration (eV)
             lpfac:
                 the number of interpolation points in the real space. By
                 default 10 gives 10 time more points in the real space than
                 the number of kpoints given in reciprocal space
             run_type:
-                type of boltztrap usage by default BOLTZ to compute transport
-                coefficients but you can have also:
-                - BANDS to interpolate all bands contained in the energy range specified in 
-                energy_span_around_fermi variable, along specified k-points
-                - DOS to compute total and partial dos (custom BoltzTraP code needed!)
-                - FERMI to compute fermi surface or more correctly to get certain bands interpolated
+                type of boltztrap usage. by default
+                - BOLTZ: (default) compute transport coefficients
+                - BANDS: interpolate all bands contained in the energy range
+                specified in energy_span_around_fermi variable, along specified
+                k-points
+                - DOS: compute total and partial dos (custom BoltzTraP code
+                needed!)
+                - FERMI: compute fermi surface or more correctly to
+                get certain bands interpolated
             band_nb:
-                indicates a band number. Used for Fermi Surface interpolation (run_type="FERMI")
+                indicates a band number. Used for Fermi Surface interpolation
+                (run_type="FERMI")
             spin:
-                specific spin component (1: up, -1: down) of the band selected in FERMI mode (mandatory).
+                specific spin component (1: up, -1: down) of the band selected
+                in FERMI mode (mandatory).
             cond_band:
-                if a conduction band is specified in FERMI mode set this variable as True
+                if a conduction band is specified in FERMI mode,
+                set this variable as True
             tauref:
                 reference relaxation time. Only set to a value different than
-                zero if we want to model
-                beyond the constant relaxation time.
+                zero if we want to model beyond the constant relaxation time.
             tauexp:
                 exponent for the energy in the non-constant relaxation time
                 approach
@@ -100,25 +104,30 @@ class BoltztrapRunner(object):
                 reference energy for the non-constant relaxation time approach
             soc:
                 results from spin-orbit coupling (soc) computations give
-                typically non-polarized (no spin up or down)
-                results but 1 electron occupations. If the band structure
-                comes from a soc computation, you should set
-                soc to True (default False)
+                typically non-polarized (no spin up or down) results but single
+                electron occupations. If the band structure comes from a soc
+                computation, you should set soc to True (default False)
             doping:
-                the fixed doping levels you want to compute. Boltztrap provides both transport values
-                depending on electron chemical potential (fermi energy) and for a series of fixed
-                carrier concentrations. By default, this is set to 1e16, 1e17, 1e18, 1e19, 1e20 and 1e21
+                the fixed doping levels you want to compute. Boltztrap provides
+                both transport values depending on electron chemical potential
+                (fermi energy) and for a series of fixed carrier concentrations.
+                By default, this is set to 1e16 to 1e22 in increments of factors
+                of 10.
             energy_span_around_fermi:
-                usually the interpolation is not needed on the entire energy range but on a specific range around
-                the fermi level. This energy gives this range in eV. by default it is 1.5 eV.
-                If DOS or BANDS type are selected, this range is automatically set to cover the entire energy range.
+                usually the interpolation is not needed on the entire energy
+                range but on a specific range around the fermi level.
+                This energy gives this range in eV. by default it is 1.5 eV.
+                If DOS or BANDS type are selected, this range is automatically
+                set to cover the entire energy range.
             scissor:
-                scissor to the band gap in eV. This applies a scissor operation moving the band edges without changing
-                the band shape. This is useful to correct the often underestimated band gap in DFT. Default is 0.0 (no
-                scissor)
+                scissor to apply to the band gap (eV). This applies a scissor
+                operation moving the band edges without changing the band
+                shape. This is useful to correct the often underestimated band
+                gap in DFT. Default is 0.0 (no scissor)
             kpt_line:
-                list/array of kpoints in fractional coordinates for BANDS mode calculation 
-                (standard path of high symmetry k-points is automatically set as default)
+                list/array of kpoints in fractional coordinates for BANDS mode
+                calculation (standard path of high symmetry k-points is
+                automatically set as default)
 
     """
 
@@ -146,7 +155,7 @@ class BoltztrapRunner(object):
         self.tauen = tauen
         self.soc = soc
         self.kpt_line = kpt_line
-        self.doping = doping or [1e16, 1e17, 1e18, 1e19, 1e20, 1e21]
+        self.doping = doping or [1e16, 1e17, 1e18, 1e19, 1e20, 1e21, 1e22]
         self.energy_span_around_fermi = energy_span_around_fermi
         self.scissor = scissor
 
