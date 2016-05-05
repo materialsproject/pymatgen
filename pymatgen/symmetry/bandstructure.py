@@ -160,6 +160,30 @@ class HighSymmKpath(object):
         return self._prim
 
     @property
+    def conventional(self):
+        """
+        Returns:
+            The conventional cell structure
+        """
+        return self._conv
+
+    @property
+    def prim(self):
+        """
+        Returns:
+            The primitive cell structure
+        """
+        return self._prim
+
+    @property
+    def prim_rec(self):
+        """
+        Returns:
+            The primitive reciprocal cell structure
+        """
+        return self._prim_rec
+
+    @property
     def kpath(self):
         """
         Returns:
