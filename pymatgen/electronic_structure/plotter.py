@@ -1503,7 +1503,7 @@ def plot_brillouin_zone_from_kpath(kpath, **kwargs):
     """
     lines = [[kpath.kpath['kpoints'][k] for k in p]
              for p in kpath.kpath['path']]
-    return plot_brillouin_zone(bz_lattice=kpath._prim_rec, lines=lines,
+    return plot_brillouin_zone(bz_lattice=kpath.prim_rec, lines=lines,
                                labels=kpath.kpath['kpoints'], **kwargs)
 
 
