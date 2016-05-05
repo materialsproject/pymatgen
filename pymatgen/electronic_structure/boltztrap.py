@@ -168,15 +168,17 @@ class BoltztrapRunner(object):
             if self.run_type in ("DOS", "BANDS"):
                 # automatically set energy span around Fermi
                 const = Energy(2, "eV").to("Ry")
-                emin_up = np.min(np.array(self._bs.bands[Spin.up]))
-                emax_up = np.max(np.array(self._bs.bands[Spin.up]))
+                emin_up = min([e_k[0] for e_k in self._bs.bands[Spin.up]])
+                emax_up = max([e_k[0] for e_k in self._bs.bands[Spin.up]])
 
                 if self._bs.is_spin_polarized:
-                    emin_dw = np.min(np.array(self._bs.bands[Spin.down]))
+                    emin_dw = min([e_k[0] for e_k in
+                                   self._bs.bands[Spin.down]])
                     low_en_lim = Energy(min((emin_up, emin_dw)) -
                                         self._bs.efermi, "eV").to("Ry")
 
-                    emax_dw = np.max(np.array(self._bs.bands[Spin.down]))
+                    emax_dw = max([e_k[0] for e_k in
+                                   self._bs.bands[Spin.down]])
                     high_en_lim = Energy(max((emax_up, emax_dw)) -
                                          self._bs.efermi, "eV").to("Ry")
 
