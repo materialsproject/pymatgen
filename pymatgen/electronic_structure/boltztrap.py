@@ -230,7 +230,7 @@ class BoltztrapRunner(object):
                                len(tmp_eigs)))
 
                     for j in range(len(tmp_eigs)):
-                        f.write("%18.8f\n" % (sign * float(tmp_eigs[j])))
+                        f.write("%18.8f\n" % (float(tmp_eigs[j])))
 
             else:
                 for i in range(len(self._bs.kpoints)):
