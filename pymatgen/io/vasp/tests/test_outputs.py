@@ -525,6 +525,13 @@ class OutcarTest(unittest.TestCase):
         self.assertIn("efg", d1)
 
 
+class TestTT(unittest.TestCase):
+    def test_chemical_shifts(self):
+        filename = os.path.join(test_dir, "nmr_chemical_shift", "hydromagnesite", "OUTCAR")
+        outcar = Outcar(filename)
+        outcar.read_chemical_shifts()
+
+
 class BSVasprunTest(unittest.TestCase):
 
     def test_get_band_structure(self):
