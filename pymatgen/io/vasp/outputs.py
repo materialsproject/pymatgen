@@ -1547,7 +1547,7 @@ class Outcar(MSONable):
         for sigma_iso, omega, kappa in cs_table:
             tensor = NMRChemicalShiftNotation.from_maryland_notation(sigma_iso, omega, kappa)
             cs.append(tensor)
-        self.chemical_shifts = tuple(cs)
+        self.data["chemical_shifts"] = tuple(cs)
 
     def read_nmr_efg(self):
         """
@@ -1567,9 +1567,8 @@ class Outcar(MSONable):
         row_pattern = r"\d+\s+(?P<cq>[-]?\d+\.\d+)\s+(?P<eta>[-]?\d+\.\d+)\s+" \
                       r"(?P<nuclear_quadrupole_moment>[-]?\d+\.\d+)"
         footer_pattern = "-{50,}\s*$"
-        efg_table = self.read_table_pattern(header_pattern, row_pattern, footer_pattern,
-                                            postprocess=float, last_one_only=True)
-        self.efg = tuple(efg_table)
+        self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float,
+                                last_one_only=True, attribute_name="efg")
 
     def read_corrections(self, reverse=True, terminate_on_match=True):
         patterns = {

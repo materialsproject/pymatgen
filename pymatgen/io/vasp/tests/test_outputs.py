@@ -501,8 +501,10 @@ class OutcarTest(unittest.TestCase):
                                     [192.0237, 69.565, 0.6333],
                                     [195.0788, 68.1733, 0.8337]]
 
-        self.assertAlmostEqual(len(outcar.chemical_shifts[20: 28]), len(expected_chemical_shifts))
-        for c1, c2 in zip(outcar.chemical_shifts[20: 28], expected_chemical_shifts):
+        self.assertAlmostEqual(len(outcar.data["chemical_shifts"][20: 28]),
+                               len(expected_chemical_shifts))
+        for c1, c2 in zip(outcar.data["chemical_shifts"][20: 28],
+                          expected_chemical_shifts):
             for x1, x2 in zip(list(c1.maryland_values), c2):
                 self.assertAlmostEqual(x1, x2, places=5)
 
@@ -518,8 +520,8 @@ class OutcarTest(unittest.TestCase):
                         {'eta': 0.112, 'nuclear_quadrupole_moment': 146.6, 'cq': -7.453},
                         {'eta': 0.42, 'nuclear_quadrupole_moment': 146.6, 'cq': -5.58},
                         {'eta': 0.42, 'nuclear_quadrupole_moment': 146.6, 'cq': -5.58}]
-        self.assertEqual(len(outcar.efg[2:10]), len(expected_efg))
-        for e1, e2 in zip(outcar.efg[2:10], expected_efg):
+        self.assertEqual(len(outcar.data["efg"][2:10]), len(expected_efg))
+        for e1, e2 in zip(outcar.data["efg"][2:10], expected_efg):
             for k in e1.keys():
                 self.assertAlmostEqual(e1[k], e2[k], places=5)
 
