@@ -1469,6 +1469,34 @@ class Outcar(MSONable):
 
     def read_table_pattern(self, header_pattern, row_pattern, footer_pattern,
                            postprocess=str, attribute_name=None, last_one_only=True):
+        """
+        Parse table-like data. A table composes of three parts: header, main body, footer.
+        All the data matches "row pattern" in the main body will be returned.
+
+        Args:
+            header_pattern (str): The regular expression pattern matches the table header.
+                This pattern should match all the text immediately before the main body of
+                the table. For multiple sections table match the text until the section of
+                interest. MULTILINE and DOTALL options are enforced, as a result, the "."
+                meta-character will also match "\n" in this section.
+            row_pattern (str): The regular expression matches a single line in the table.
+                Capture interested field using regular expression groups
+            footer_pattern (str): The regular expression matches the end of the table.
+                E.g. a long dash line.
+            postprocess (callable): A post processing function to convert all
+                matches. Defaults to str, i.e., no change.
+            attribute_name (str): Name of this table. If presense the parsed data will be
+                attached to "data. e.g. self.data["efg"] = [...]
+            last_one_only (bool): All the tables will be parsed, if this option is set to
+                True, only the last table will be returned. The enclosing list will be removed.
+                i.e. Only a single table wil be returned. Default to be True.
+
+        Returns:
+            List of tables. 1) A table is a list of rows. 2) A row if either a list of
+            attribute values in case the the capturing group is defined without name in
+            row_pattern, or a dict in case that named capturing groups are defined by
+            row_pattern.
+        """
         with open(self.filename) as f:
             text = f.read()
         table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + \
@@ -1497,6 +1525,13 @@ class Outcar(MSONable):
         return retained_data
 
     def read_chemical_shifts(self):
+        """
+        Parse the NMR chemical shifts data. Only the second part "absolute, valence and core"
+        will be parsed. And only the three right most field (ISO_SHIFT, SPAN, SKEW) will be retrieved.
+
+        Returns:
+            List of chemical shifts in the order of atoms from the OUTCAR. Maryland notation is adopted.
+        """
         header_pattern = r"\s+CSA tensor \(J\. Mason, Solid State Nucl\. Magn\. Reson\. 2, " \
                          r"285 \(1993\)\)\s+" \
                          r"\s+-{50,}\s+" \
@@ -1515,6 +1550,13 @@ class Outcar(MSONable):
         self.chemical_shifts = tuple(cs)
 
     def read_nmr_efg(self):
+        """
+        Parse the NMR Electric Field Gradient tensors.
+
+        Returns:
+            Electric Field Gradient tensors as a list of dict in the order of atoms from OUTCAR.
+            Each dict key/value pair corresponds to a component of the tensors.
+        """
         header_pattern = r"^\s+NMR quadrupolar parameters\s+$\n" \
                          r"^\s+Cq : quadrupolar parameter\s+Cq=e[*]Q[*]V_zz/h$\n" \
                          r"^\s+eta: asymmetry parameters\s+\(V_yy - V_xx\)/ V_zz$\n" \
