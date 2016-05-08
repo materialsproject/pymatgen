@@ -1497,7 +1497,7 @@ class Outcar(MSONable):
             row_pattern, or a dict in case that named capturing groups are defined by
             row_pattern.
         """
-        with open(self.filename) as f:
+        with zopen(self.filename, 'rt') as f:
             text = f.read()
         table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + \
                              row_pattern + r")+)\s+" + footer_pattern
@@ -1517,12 +1517,14 @@ class Outcar(MSONable):
                 table_contents.append(processed_line)
             tables.append(table_contents)
         if last_one_only:
+            import pdb; pdb.set_trace()
             retained_data = tables[-1]
         else:
             retained_data = tables
         if attribute_name is not None:
             self.data[attribute_name] = retained_data
         return retained_data
+
 
     def read_chemical_shifts(self):
         """
@@ -1569,6 +1571,28 @@ class Outcar(MSONable):
         footer_pattern = "-{50,}\s*$"
         self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float,
                                 last_one_only=True, attribute_name="efg")
+
+    def read_elastic_tensor(self):
+        """
+        Parse the elastic tensor data.
+
+        Returns:
+            6x6 array corresponding to the elastic tensor from the OUTCAR.
+        """
+        header_pattern = "TOTAL ELASTIC MODULI \(kBar\)\s+"\
+                         "Direction\s+([X-Z][X-Z]\s+)+"\
+                         "\-+"
+        row_pattern = "[X-Z][X-Z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
+        footer_pattern = "\-+"
+        et_table = self.read_table_pattern(header_pattern, row_pattern, 
+                                           footer_pattern, postprocess=float)
+        self.data["elastic_tensor"] = et_table
+
+    def read_piezo_tensor(self):
+        """
+        Parse the piezo tensor data
+        """
+        pass
 
     def read_corrections(self, reverse=True, terminate_on_match=True):
         patterns = {
