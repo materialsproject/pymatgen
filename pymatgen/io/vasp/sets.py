@@ -44,7 +44,6 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Nov 16, 2011"
 
 
-
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -1623,8 +1622,7 @@ class DerivedVaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
 class MPStaticSet(DerivedVaspInputSet):
 
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
-                 lepsilon=False,
-                 reciprocal_density=100, **kwargs):
+                 lepsilon=False, reciprocal_density=100, **kwargs):
         """
         Init a MPStaticSet. Typically, you would use the classmethod
         from_prev_calc instead.
@@ -1634,7 +1632,7 @@ class MPStaticSet(DerivedVaspInputSet):
             prev_incar (Incar): Incar file from previous run.
             prev_kpoints (Kpoints): Kpoints from previous run.
             reciprocal_density (int): density of k-mesh by reciprocal
-                                    volume (defaults to 100)
+                volume (defaults to 100)
             \*\*kwargs: kwargs supported by MPVaspInputSet.
         """
 
@@ -1751,10 +1749,9 @@ class MPStaticSet(DerivedVaspInputSet):
         prev_kpoints = vasprun.kpoints
 
         # We will make a standard structure for the given symprec.
-        prev_structure = get_structure_from_prev_run(vasprun, outcar,
-                                                     sym_prec=sym_prec,
-                                                     standardize=standardize,
-                                                     international_monoclinic=international_monoclinic)
+        prev_structure = get_structure_from_prev_run(
+            vasprun, outcar, sym_prec=sym_prec, standardize=standardize,
+            international_monoclinic=international_monoclinic)
 
         # multiply the reciprocal density if needed:
         if small_gap_multiply:
@@ -1852,8 +1849,9 @@ class MPNonSCFSet(DerivedVaspInputSet):
             kpoints = Kpoints.automatic_density_by_vol(self.structure,
                                                        self.reciprocal_density)
             mesh = kpoints.kpts[0]
-            ir_kpts = SpacegroupAnalyzer(self.structure,
-                                         symprec=self.sym_prec).get_ir_reciprocal_mesh(mesh)
+            ir_kpts = SpacegroupAnalyzer(
+                self.structure,
+                symprec=self.sym_prec).get_ir_reciprocal_mesh(mesh)
             kpts = []
             weights = []
             for k in ir_kpts:
@@ -1903,11 +1901,12 @@ class MPNonSCFSet(DerivedVaspInputSet):
                 to get a primitive standard cell. Set to 0 if you don't want
                 that.
             international_monoclinic (bool): Whether to use international
-                    convention (vs Curtarolo) for monoclinic. Defaults True.
+                convention (vs Curtarolo) for monoclinic. Defaults True.
             reciprocal_density (int): density of k-mesh by reciprocal
-                                    volume (defaults to 100)
-            small_gap_multiply ([float, float]) - if the gap is less than 1st index,
-                                multiply the default reciprocal_density by the 2nd index
+                volume (defaults to 100)
+            small_gap_multiply ([float, float]): If the gap is less than
+                1st index, multiply the default reciprocal_density by the 2nd
+                index.
             \*\*kwargs: All kwargs supported by MPNonSCFSet,
                 other than structure, prev_incar and prev_chgcar which
                 are determined from the prev_calc_dir.
@@ -1916,10 +1915,9 @@ class MPNonSCFSet(DerivedVaspInputSet):
 
         incar = vasprun.incar
         # Get a Magmom-decorated structure
-        structure = get_structure_from_prev_run(vasprun, outcar,
-                                                sym_prec=sym_prec,
-                                                standardize=standardize,
-                                                international_monoclinic=international_monoclinic)
+        structure = get_structure_from_prev_run(
+            vasprun, outcar, sym_prec=sym_prec, standardize=standardize,
+            international_monoclinic=international_monoclinic)
         # Turn off spin when magmom for every site is smaller than 0.02.
         if outcar and outcar.magnetization:
             site_magmom = np.array([i['tot'] for i in outcar.magnetization])
