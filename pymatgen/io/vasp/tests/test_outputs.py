@@ -525,8 +525,6 @@ class TestTT(unittest.TestCase):
         for c1, c2 in zip(outcar.chemical_shifts[20: 28], expected_chemical_shifts):
             for x1, x2 in zip(list(c1.maryland_values), c2):
                 self.assertAlmostEqual(x1, x2, places=5)
-        d1 = outcar.as_dict()
-        self.assertIn("chemical_shifts", d1)
 
 
 class BSVasprunTest(unittest.TestCase):
