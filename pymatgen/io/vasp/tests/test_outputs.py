@@ -451,15 +451,24 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(outcar.data["dipol_quadrupol_correction"], 0.03565)
         self.assertAlmostEqual(outcar.final_energy, -797.46760559)
 
-    def test_elastic_tensor(self):
+    def test_read_elastic_tensor(self):
         filepath = os.path.join(test_dir, "OUTCAR.total_tensor.Li2O.gz")
         outcar = Outcar(filepath)
 
-        elastic_tensor = outcar.elastic_tensor
+        outcar.read_elastic_tensor()
 
-        self.assertAlmostEqual(elastic_tensor[0][0], 1986.3391)
-        self.assertAlmostEqual(elastic_tensor[0][1], 187.8324)
-        self.assertAlmostEqual(elastic_tensor[3][3], 586.3034)
+        self.assertAlmostEqual(outcar.data["elastic_tensor"][0][0], 1986.3391)
+        self.assertAlmostEqual(outcar.data["elastic_tensor"][0][1], 187.8324)
+        self.assertAlmostEqual(outcar.data["elastic_tensor"][3][3], 586.3034)
+
+    def test_read_piezo_tensor(self):
+        filepath = os.path.join(test_dir, "OUTCAR.lepsilon.gz")
+        outcar = Outcar(filepath)
+
+        outcar.read_piezo_tensor()
+        self.assertAlmostEqual(outcar.data["piezo_tensor"][0][0], 0.52799)
+        self.assertAlmostEqual(outcar.data["piezo_tensor"][1][3], 0.35998)
+        self.assertAlmostEqual(outcar.data["piezo_tensor"][2][5], 0.35997)
 
     def test_core_state_eigen(self):
         filepath = os.path.join(test_dir, "OUTCAR.CL")

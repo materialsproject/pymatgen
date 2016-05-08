@@ -1517,7 +1517,6 @@ class Outcar(MSONable):
                 table_contents.append(processed_line)
             tables.append(table_contents)
         if last_one_only:
-            import pdb; pdb.set_trace()
             retained_data = tables[-1]
         else:
             retained_data = tables
@@ -1592,7 +1591,14 @@ class Outcar(MSONable):
         """
         Parse the piezo tensor data
         """
-        pass
+        header_pattern = "PIEZOELECTRIC TENSOR  for field in x, y, z\s+\(C/m\^2\)\s+" \
+                         "([X-Z][X-Z]\s+)+" \
+                         "\-+"
+        row_pattern = "[x-z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
+        footer_pattern = "BORN EFFECTIVE"
+        pt_table = self.read_table_pattern(header_pattern, row_pattern,
+                                           footer_pattern, postprocess=float)
+        self.data["piezo_tensor"] = pt_table
 
     def read_corrections(self, reverse=True, terminate_on_match=True):
         patterns = {
