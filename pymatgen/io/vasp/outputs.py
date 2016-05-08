@@ -1315,7 +1315,6 @@ class Outcar(MSONable):
         # data from end of OUTCAR
         charge = []
         mag = []
-        cs = []
         efg = []
         header = []
         run_stats = {}
@@ -1421,23 +1420,6 @@ class Outcar(MSONable):
         else:
             pass
 
-        # NMR Chemical Shift Tensors
-        cs_tag_title = "CSA tensor (J. Mason, Solid State Nucl. Magn. Reson. 2, 285 (1993))"
-        if cs_tag_title in all_lines:
-            sec1 = all_lines[all_lines.index(cs_tag_title):]
-            sec2_tag = "(absolute, valence and core)"
-            sec3 = sec1[sec1.index(sec2_tag) + 1:]
-            section_end_tag = "-" * 81
-            csa_section = sec3[:sec3.index(section_end_tag)]
-            for clean in csa_section:
-                tokens = clean.split()
-                tensor_tokens = [float(t) for t in tokens[-3:]]
-                sigma_iso, omega, kappa = tensor_tokens
-                tensor = NMRChemicalShiftNotation.from_maryland_notation(sigma_iso, omega, kappa)
-                cs.append(tensor)
-        else:
-            pass
-
         efg_tag_title = "NMR quadrupolar parameters"
         if efg_tag_title in all_lines:
             sec1 = all_lines[all_lines.index(efg_tag_title) + 8:]
@@ -1457,7 +1439,6 @@ class Outcar(MSONable):
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
         self.charge = tuple(charge)
-        self.chemical_shifts = tuple(cs)
         self.efg = tuple(efg)
         self.efermi = efermi
         self.nelect = nelect
@@ -1991,8 +1972,7 @@ class Outcar(MSONable):
              "@class": self.__class__.__name__, "efermi": self.efermi,
              "run_stats": self.run_stats, "magnetization": self.magnetization,
              "charge": self.charge, "total_magnetization": self.total_mag,
-             "nelect": self.nelect, "is_stopped": self.is_stopped,
-             "chemical_shifts": self.chemical_shifts, "efg": self.efg}
+             "nelect": self.nelect, "is_stopped": self.is_stopped}
 
         if self.lepsilon:
             d.update({'piezo_tensor': self.piezo_tensor,
