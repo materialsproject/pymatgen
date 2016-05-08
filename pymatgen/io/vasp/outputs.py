@@ -1315,7 +1315,6 @@ class Outcar(MSONable):
         # data from end of OUTCAR
         charge = []
         mag = []
-        efg = []
         header = []
         run_stats = {}
         total_mag = None
@@ -1420,26 +1419,9 @@ class Outcar(MSONable):
         else:
             pass
 
-        efg_tag_title = "NMR quadrupolar parameters"
-        if efg_tag_title in all_lines:
-            sec1 = all_lines[all_lines.index(efg_tag_title) + 8:]
-            section_end_tag = "-" * 70
-            efg_section = sec1[:sec1.index(section_end_tag)]
-            for clean in efg_section:
-                tokens = clean.split()
-                tensor_tokens = [float(t) for t in tokens[-3:]]
-                cq, eta, nuclear_quadrupole_moment = tensor_tokens
-                d = {"cq": cq,
-                     "eta": eta,
-                     "nuclear_quadrupole_moment": nuclear_quadrupole_moment}
-                efg.append(d)
-        else:
-            pass
-
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
         self.charge = tuple(charge)
-        self.efg = tuple(efg)
         self.efermi = efermi
         self.nelect = nelect
         self.total_mag = total_mag
@@ -1514,8 +1496,6 @@ class Outcar(MSONable):
             self.data[attribute_name] = retained_data
         return retained_data
 
-
-
     def read_chemical_shifts(self):
         header_pattern = r"\s+CSA tensor \(J\. Mason, Solid State Nucl\. Magn\. Reson\. 2, " \
                          r"285 \(1993\)\)\s+" \
@@ -1533,6 +1513,21 @@ class Outcar(MSONable):
             tensor = NMRChemicalShiftNotation.from_maryland_notation(sigma_iso, omega, kappa)
             cs.append(tensor)
         self.chemical_shifts = tuple(cs)
+
+    def read_nmr_efg(self):
+        header_pattern = r"^\s+NMR quadrupolar parameters\s+$\n" \
+                         r"^\s+Cq : quadrupolar parameter\s+Cq=e[*]Q[*]V_zz/h$\n" \
+                         r"^\s+eta: asymmetry parameters\s+\(V_yy - V_xx\)/ V_zz$\n" \
+                         r"^\s+Q  : nuclear electric quadrupole moment in mb \(millibarn\)$\n" \
+                         r"^-{50,}$\n" \
+                         r"^\s+ion\s+Cq\(MHz\)\s+eta\s+Q \(mb\)\s+$\n" \
+                         r"^-{50,}\s*$\n"
+        row_pattern = r"\d+\s+(?P<cq>[-]?\d+\.\d+)\s+(?P<eta>[-]?\d+\.\d+)\s+" \
+                      r"(?P<nuclear_quadrupole_moment>[-]?\d+\.\d+)"
+        footer_pattern = "-{50,}\s*$"
+        efg_table = self.read_table_pattern(header_pattern, row_pattern, footer_pattern,
+                                            postprocess=float, last_one_only=True)
+        self.efg = tuple(efg_table)
 
     def read_corrections(self, reverse=True, terminate_on_match=True):
         patterns = {
