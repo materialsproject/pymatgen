@@ -1320,7 +1320,6 @@ class Outcar(MSONable):
         total_mag = None
         nelect = None
         efermi = None
-        elastic_tensor = None
         total_energy = None
 
         time_patt = re.compile("\((sec|kb)\)")
@@ -1404,28 +1403,12 @@ class Outcar(MSONable):
                     run_stats['cores'] = line.split()[2]
                     break
 
-        # 6x6 tensor matrix for TOTAL ELASTIC MODULI
-        tensor_matrix = []
-        tag = "TOTAL ELASTIC MODULI (kBar)"
-        if tag in all_lines:
-            for clean in all_lines:
-                if etensor_patt.search(clean):
-                    tok = clean.strip().split()
-                    tok.pop(0)
-                    tok = [float(i) for i in tok]
-                    tensor_matrix.append(tok)
-            total_elm = [tensor_matrix[i] for i in range(18, 24)]
-            elastic_tensor = np.asarray(total_elm).reshape(6, 6)
-        else:
-            pass
-
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
         self.charge = tuple(charge)
         self.efermi = efermi
         self.nelect = nelect
         self.total_mag = total_mag
-        self.elastic_tensor = elastic_tensor
         self.final_energy = total_energy
         self.data = {}
 
