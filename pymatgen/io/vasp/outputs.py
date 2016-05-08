@@ -1547,7 +1547,11 @@ class Outcar(MSONable):
         footer_pattern = "-{50,}\s*$"
         cs_table = self.read_table_pattern(header_pattern, row_pattern, footer_pattern,
                                            postprocess=float, last_one_only=True)
-        print(cs_table)
+        cs = []
+        for sigma_iso, omega, kappa in cs_table:
+            tensor = NMRChemicalShiftNotation.from_maryland_notation(sigma_iso, omega, kappa)
+            cs.append(tensor)
+        self.chemical_shifts = tuple(cs)
 
     def read_corrections(self, reverse=True, terminate_on_match=True):
         patterns = {
