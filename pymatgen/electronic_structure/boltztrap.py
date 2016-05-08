@@ -167,13 +167,10 @@ class BoltztrapRunner(object):
     def _make_energy_file(self, file_name):
         with open(file_name, 'w') as f:
             f.write("test\n")
-            f.write(str(len(self._bs.kpoints)) + "\n")
-            sign = 1.0
-            if self.cond_band:
-                sign = -1.0
+            f.write("{}\n".format(len(self._bs.kpoints)))
 
             if self.run_type in ("DOS", "BANDS"):
-                # automatically set energy span around Fermi
+                # automatically set the energy span around Fermi level
                 const = Energy(2, "eV").to("Ry")
                 emin_up = min([e_k[0] for e_k in self._bs.bands[Spin.up]])
                 emax_up = max([e_k[0] for e_k in self._bs.bands[Spin.up]])
@@ -233,6 +230,7 @@ class BoltztrapRunner(object):
                         f.write("%18.8f\n" % (float(tmp_eigs[j])))
 
             else:
+                sign = 1.0 if self.cond_band else -1.0
                 for i in range(len(self._bs.kpoints)):
                     tmp_eigs = []
                     tmp_eigs.append(Energy(
