@@ -491,6 +491,7 @@ class OutcarTest(unittest.TestCase):
     def test_chemical_shifts(self):
         filename = os.path.join(test_dir, "nmr_chemical_shift", "hydromagnesite", "OUTCAR")
         outcar = Outcar(filename)
+        outcar.read_chemical_shifts()
         expected_chemical_shifts = [[191.9974, 69.5232, 0.6342],
                                     [195.0808, 68.183, 0.833],
                                     [192.0389, 69.5762, 0.6329],
@@ -499,16 +500,18 @@ class OutcarTest(unittest.TestCase):
                                     [195.0913, 68.1859, 0.833],
                                     [192.0237, 69.565, 0.6333],
                                     [195.0788, 68.1733, 0.8337]]
-        self.assertAlmostEqual(len(outcar.chemical_shifts[20: 28]), len(expected_chemical_shifts))
-        for c1, c2 in zip(outcar.chemical_shifts[20: 28], expected_chemical_shifts):
+
+        self.assertAlmostEqual(len(outcar.data["chemical_shifts"][20: 28]),
+                               len(expected_chemical_shifts))
+        for c1, c2 in zip(outcar.data["chemical_shifts"][20: 28],
+                          expected_chemical_shifts):
             for x1, x2 in zip(list(c1.maryland_values), c2):
                 self.assertAlmostEqual(x1, x2, places=5)
-        d1 = outcar.as_dict()
-        self.assertIn("chemical_shifts", d1)
 
     def test_nmr_efg(self):
         filename = os.path.join(test_dir, "nmr_efg", "AlPO4", "OUTCAR")
         outcar = Outcar(filename)
+        outcar.read_nmr_efg()
         expected_efg = [{'eta': 0.465, 'nuclear_quadrupole_moment': 146.6, 'cq': -5.573},
                         {'eta': 0.465, 'nuclear_quadrupole_moment': 146.6, 'cq': -5.573},
                         {'eta': 0.137, 'nuclear_quadrupole_moment': 146.6, 'cq': 6.327},
@@ -517,12 +520,10 @@ class OutcarTest(unittest.TestCase):
                         {'eta': 0.112, 'nuclear_quadrupole_moment': 146.6, 'cq': -7.453},
                         {'eta': 0.42, 'nuclear_quadrupole_moment': 146.6, 'cq': -5.58},
                         {'eta': 0.42, 'nuclear_quadrupole_moment': 146.6, 'cq': -5.58}]
-        self.assertEqual(len(outcar.efg[2:10]), len(expected_efg))
-        for e1, e2 in zip(outcar.efg[2:10], expected_efg):
+        self.assertEqual(len(outcar.data["efg"][2:10]), len(expected_efg))
+        for e1, e2 in zip(outcar.data["efg"][2:10], expected_efg):
             for k in e1.keys():
                 self.assertAlmostEqual(e1[k], e2[k], places=5)
-        d1 = outcar.as_dict()
-        self.assertIn("efg", d1)
 
 
 class BSVasprunTest(unittest.TestCase):
