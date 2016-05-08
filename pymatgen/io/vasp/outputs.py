@@ -1504,6 +1504,51 @@ class Outcar(MSONable):
         for k in patterns.keys():
             self.data[k] = [i[0] for i in matches.get(k, [])]
 
+    def read_table_pattern(self, header_pattern, row_pattern, footer_pattern,
+                           postprocess=str, attribute_name=None, last_one_only=True):
+        with open(self.filename) as f:
+            text = f.read()
+        table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + \
+                             row_pattern + r")+)\s+" + footer_pattern
+        table_pattern = re.compile(table_pattern_text, re.MULTILINE | re.DOTALL)
+        rp = re.compile(row_pattern)
+        tables = []
+        for mt in table_pattern.finditer(text):
+            table_body_text = mt.group("table_body")
+            table_contents = []
+            for line in table_body_text.split("\n"):
+                ml = rp.search(line)
+                d = ml.groupdict()
+                if len(d) > 0:
+                    processed_line = {k: postprocess(v) for k, v in d.items()}
+                else:
+                    processed_line = [postprocess(v) for v in ml.groups()]
+                table_contents.append(processed_line)
+            tables.append(table_contents)
+        if last_one_only:
+            retained_data = tables[-1]
+        else:
+            retained_data = tables
+        if attribute_name is not None:
+            self.data[attribute_name] = retained_data
+        return retained_data
+
+
+
+    def read_chemical_shifts(self):
+        header_pattern = r"\s+CSA tensor \(J\. Mason, Solid State Nucl\. Magn\. Reson\. 2, " \
+                         r"285 \(1993\)\)\s+" \
+                         r"\s+-{50,}\s+" \
+                         r"\s+EXCLUDING G=0 CONTRIBUTION\s+INCLUDING G=0 CONTRIBUTION\s+" \
+                         r"\s+-{20,}\s+-{20,}\s+" \
+                         r"\s+ATOM\s+ISO_SHIFT\s+SPAN\s+SKEW\s+ISO_SHIFT\s+SPAN\s+SKEW\s+" \
+                         r".+?\(absolute, valence and core\)\s+$"
+        row_pattern = r"\d+(?:\s+[-]?\d+\.\d+){3}\s+" + r'\s+'.join([r"([-]?\d+\.\d+)"] * 3)
+        footer_pattern = "-{50,}\s*$"
+        cs_table = self.read_table_pattern(header_pattern, row_pattern, footer_pattern,
+                                           postprocess=float, last_one_only=True)
+        print(cs_table)
+
     def read_corrections(self, reverse=True, terminate_on_match=True):
         patterns = {
             "dipol_quadrupol_correction": "dipol\+quadrupol energy correction\s+([\d\-\.]+)"
