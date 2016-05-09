@@ -144,9 +144,6 @@ class BandStructure(object):
         lattice: The reciprocal lattice as a pymatgen Lattice object.
             Pymatgen uses the physics convention of reciprocal lattice vectors
             WITH a 2*pi coefficient
-        label_dict: (dict) of {} this link a kpoint (in frac coords or
-            cartesian coordinates depending on the coords).
-        coords_are_cartesian: Whether coordinates are cartesian.
         efermi: fermi energy
         labels_dict: (dict) of {} this links a kpoint (in frac coords or
             cartesian coordinates depending on the coords) to a label.
