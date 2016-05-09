@@ -43,10 +43,12 @@ def get_publication_quality_plot(width=8, height=None, plt=None, dpi=None):
     if plt is None:
         import matplotlib.pyplot as plt
         import palettable
+        from cycler import cycler
 
         plt.figure(figsize=(width, height), facecolor="w", dpi=dpi)
         ax = plt.gca()
-        ax.set_prop_cycle(palettable.colorbrewer.qualitative.Set1_9.mpl_colors)
+        ax.set_prop_cycle(cycler('color',
+                                 palettable.colorbrewer.qualitative.Set1_9.mpl_colors))
     else:
         fig = plt.gcf()
         fig.set_size_inches(width, height)
