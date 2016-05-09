@@ -1240,6 +1240,7 @@ def bandstructure_flow(workdir, manager, scf_input, nscf_input, dos_inputs=None,
     Returns:
         :class:`Flow` object
     """
+
     flow = flow_class(workdir, manager)
     work = BandStructureWork(scf_input, nscf_input, dos_inputs=dos_inputs)
     flow.register_work(work)
