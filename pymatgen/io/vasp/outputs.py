@@ -1320,7 +1320,6 @@ class Outcar(MSONable):
         total_mag = None
         nelect = None
         efermi = None
-        elastic_tensor = None
         total_energy = None
 
         time_patt = re.compile("\((sec|kb)\)")
@@ -1404,28 +1403,12 @@ class Outcar(MSONable):
                     run_stats['cores'] = line.split()[2]
                     break
 
-        # 6x6 tensor matrix for TOTAL ELASTIC MODULI
-        tensor_matrix = []
-        tag = "TOTAL ELASTIC MODULI (kBar)"
-        if tag in all_lines:
-            for clean in all_lines:
-                if etensor_patt.search(clean):
-                    tok = clean.strip().split()
-                    tok.pop(0)
-                    tok = [float(i) for i in tok]
-                    tensor_matrix.append(tok)
-            total_elm = [tensor_matrix[i] for i in range(18, 24)]
-            elastic_tensor = np.asarray(total_elm).reshape(6, 6)
-        else:
-            pass
-
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
         self.charge = tuple(charge)
         self.efermi = efermi
         self.nelect = nelect
         self.total_mag = total_mag
-        self.elastic_tensor = elastic_tensor
         self.final_energy = total_energy
         self.data = {}
 
@@ -1497,7 +1480,7 @@ class Outcar(MSONable):
             row_pattern, or a dict in case that named capturing groups are defined by
             row_pattern.
         """
-        with open(self.filename) as f:
+        with zopen(self.filename, 'rt') as f:
             text = f.read()
         table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + \
                              row_pattern + r")+)\s+" + footer_pattern
@@ -1523,6 +1506,7 @@ class Outcar(MSONable):
         if attribute_name is not None:
             self.data[attribute_name] = retained_data
         return retained_data
+
 
     def read_chemical_shifts(self):
         """
@@ -1569,6 +1553,35 @@ class Outcar(MSONable):
         footer_pattern = "-{50,}\s*$"
         self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float,
                                 last_one_only=True, attribute_name="efg")
+
+    def read_elastic_tensor(self):
+        """
+        Parse the elastic tensor data.
+
+        Returns:
+            6x6 array corresponding to the elastic tensor from the OUTCAR.
+        """
+        header_pattern = "TOTAL ELASTIC MODULI \(kBar\)\s+"\
+                         "Direction\s+([X-Z][X-Z]\s+)+"\
+                         "\-+"
+        row_pattern = "[X-Z][X-Z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
+        footer_pattern = "\-+"
+        et_table = self.read_table_pattern(header_pattern, row_pattern, 
+                                           footer_pattern, postprocess=float)
+        self.data["elastic_tensor"] = et_table
+
+    def read_piezo_tensor(self):
+        """
+        Parse the piezo tensor data
+        """
+        header_pattern = "PIEZOELECTRIC TENSOR  for field in x, y, z\s+\(C/m\^2\)\s+" \
+                         "([X-Z][X-Z]\s+)+" \
+                         "\-+"
+        row_pattern = "[x-z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
+        footer_pattern = "BORN EFFECTIVE"
+        pt_table = self.read_table_pattern(header_pattern, row_pattern,
+                                           footer_pattern, postprocess=float)
+        self.data["piezo_tensor"] = pt_table
 
     def read_corrections(self, reverse=True, terminate_on_match=True):
         patterns = {
