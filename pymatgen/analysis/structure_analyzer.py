@@ -1347,7 +1347,10 @@ class OrderParameters(object):
                     raise ValueError("Neighbor site index beyond maximum!")
         if tol < 0.0:
             raise ValueError("Negative tolerance for weighted solid angle!")
+
         left_of_unity = 1.0 - 1.0e-12
+        # The following threshold has to be adapted to non-Angstrom units.
+        very_small = 1.0e-12
 
         # Find central site and its neighbors.
         # Note that we adopt the same way of accessing sites here as in
@@ -1454,7 +1457,7 @@ class OrderParameters(object):
                             -1.0, min(np.inner(zaxis, rijnorm[k]), 1.0))
                         thetak = math.acos(tmp)
                         xaxistmp = gramschmidt(rijnorm[k], zaxis)
-                        if np.linalg.norm(xaxistmp) == 0.0:
+                        if np.linalg.norm(xaxistmp) < very_small:
                             flag_xaxis = True
                         else:
                             xaxis = xaxistmp / np.linalg.norm(xaxistmp)
@@ -1481,13 +1484,13 @@ class OrderParameters(object):
                                     ops[i] += 6.0 * math.exp(-0.5 * tmp * tmp)
 
                         for m in range(nneigh):
-                            if (m != j) and (m != k):
+                            if (m != j) and (m != k) and (not flag_xaxis):
                                 tmp = max(
                                     -1.0, min(np.inner(zaxis, rijnorm[m]), 1.0))
                                 thetam = math.acos(tmp)
                                 xtwoaxistmp = gramschmidt(rijnorm[m], zaxis)
                                 l = np.linalg.norm(xtwoaxistmp)
-                                if l == 0:
+                                if l < very_small:
                                     flag_xtwoaxis = True
                                 else:
                                     xtwoaxis = xtwoaxistmp / l
