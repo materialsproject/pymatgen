@@ -516,7 +516,6 @@ class LocalGeometryFinder(object):
                     self.setup_local_geometry(isite, coords=mycoords)
                     cncgsm = self.get_coordination_symmetry_measures()
                     for cg in cncgsm:
-
                         other_csms = {'csm_wocs_ctwocc': cncgsm[cg]['csm_wocs_ctwocc'],
                                       'csm_wocs_ctwcc': cncgsm[cg]['csm_wocs_ctwcc'],
                                       'csm_wocs_csc': cncgsm[cg]['csm_wocs_csc'],
