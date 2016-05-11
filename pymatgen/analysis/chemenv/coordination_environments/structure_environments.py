@@ -1259,7 +1259,7 @@ class ChemicalEnvironments(MSONable):
         """
         return len(self.coord_geoms)
 
-    def minimum_geometry(self, symmetry_measure_type=None):
+    def minimum_geometry(self, symmetry_measure_type=None, max_csm=None):
         """
         Returns the geometry with the minimum continuous symmetry measure of this ChemicalEnvironments
         :return: tuple (symbol, csm) with symbol being the geometry with the minimum continuous symmetry measure and
@@ -1275,9 +1275,12 @@ class ChemicalEnvironments(MSONable):
             csms = np.array([self.coord_geoms[cg]['other_symmetry_measures'][symmetry_measure_type] for cg in cglist])
         csmlist = [self.coord_geoms[cg] for cg in cglist]
         imin = np.argmin(csms)
+        if max_csm is not None:
+            if csmlist[imin] > max_csm:
+                return None
         return cglist[imin], csmlist[imin]
 
-    def minimum_geometries(self, n=None, symmetry_measure_type=None):
+    def minimum_geometries(self, n=None, symmetry_measure_type=None, max_csm=None):
         """
         Returns a list of geometries with increasing continuous symmetry measure in this ChemicalEnvironments object
         :param n: Number of geometries to be included in the list
@@ -1291,10 +1294,16 @@ class ChemicalEnvironments(MSONable):
             csms = np.array([self.coord_geoms[cg]['other_symmetry_measures'][symmetry_measure_type] for cg in cglist])
         csmlist = [self.coord_geoms[cg] for cg in cglist]
         isorted = np.argsort(csms)
-        if n is None:
-            return [(cglist[ii], csmlist[ii]) for ii in isorted]
+        if max_csm is not None:
+            if n is None:
+                return [(cglist[ii], csmlist[ii]) for ii in isorted if csmlist[ii] <= max_csm]
+            else:
+                return [(cglist[ii], csmlist[ii]) for ii in isorted[:n] if csmlist[ii] <= max_csm]
         else:
-            return [(cglist[ii], csmlist[ii]) for ii in isorted[:n]]
+            if n is None:
+                return [(cglist[ii], csmlist[ii]) for ii in isorted]
+            else:
+                return [(cglist[ii], csmlist[ii]) for ii in isorted[:n]]
 
     def add_coord_geom(self, mp_symbol, symmetry_measure, algo='UNKNOWN', permutation=None, override=False,
                        local2perfect_map=None, perfect2local_map=None, detailed_voronoi_index=None,

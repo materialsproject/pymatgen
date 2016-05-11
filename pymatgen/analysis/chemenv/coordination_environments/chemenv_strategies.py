@@ -530,7 +530,8 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         return (self.__class__.__name__ == other.__class__.__name__ and
                 self._distance_cutoff == other._distance_cutoff and self._angle_cutoff == other._angle_cutoff and
                 self._additional_condition == other._additional_condition and
-                self._continuous_symmetry_measure_cutoff == other._continuous_symmetry_measure_cutoff)
+                self._continuous_symmetry_measure_cutoff == other._continuous_symmetry_measure_cutoff and
+                self._symmetry_measure_type == other._symmetry_measure_type)
 
     def as_dict(self):
         """
