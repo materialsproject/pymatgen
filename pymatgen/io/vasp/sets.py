@@ -1750,7 +1750,7 @@ class MPStaticSet(DerivedVaspInputSet):
 
         # We will make a standard structure for the given symprec.
         prev_structure = get_structure_from_prev_run(
-            vasprun, outcar, sym_prec=sym_prec, standardize=standardize,
+            vasprun, outcar, sym_prec=standardize and sym_prec,
             international_monoclinic=international_monoclinic)
 
         # multiply the reciprocal density if needed:
@@ -1916,7 +1916,7 @@ class MPNonSCFSet(DerivedVaspInputSet):
         incar = vasprun.incar
         # Get a Magmom-decorated structure
         structure = get_structure_from_prev_run(
-            vasprun, outcar, sym_prec=sym_prec, standardize=standardize,
+            vasprun, outcar, sym_prec=standardize and sym_prec,
             international_monoclinic=international_monoclinic)
         # Turn off spin when magmom for every site is smaller than 0.02.
         if outcar and outcar.magnetization:
@@ -1963,7 +1963,7 @@ def get_vasprun_outcar(path):
 
 
 def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
-                                standardize=False, international_monoclinic=True):
+                                international_monoclinic=True):
     """
     Process structure from previous run.
 
@@ -1972,9 +1972,8 @@ def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
             from previous run.
         outcar (Outcar): Outcar that contains the magnetization info from
             previous run.
-        sym_prec (float): Tolerance for symmetry finding.
-        standardize (float): Whether to standardize to a primitive
-                standard cell. Defaults to False.
+        sym_prec (float): Tolerance for symmetry finding for standardization. If
+            no standardization is desired, set to 0 or a False.
         international_monoclinic (bool): Whether to use international
                     convention (vs Curtarolo) for monoclinic. Defaults True.
 
@@ -2011,7 +2010,7 @@ def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
 
     structure = structure.copy(site_properties=site_properties)
 
-    if standardize and sym_prec:
+    if sym_prec:
         sym_finder = SpacegroupAnalyzer(structure, symprec=sym_prec)
         new_structure = sym_finder.get_primitive_standard_structure(
             international_monoclinic=international_monoclinic)
