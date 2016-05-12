@@ -16,6 +16,7 @@ from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Incar, Kpoints
 from pymatgen import Specie, Lattice, Structure
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.io.vasp.outputs import Vasprun
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -466,6 +467,12 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(v2.incar["ENCUT"], 520)
         # Check that user incar settings are applied.
         self.assertEqual(v2.incar["LORBIT"], 12)
+        leps_vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run,
+                                              lepsilon=True)
+        self.assertTrue(leps_vis.incar["LEPSILON"])
+        self.assertEqual(leps_vis.incar["IBRION"], 8)
+        self.assertNotIn("NPAR", leps_vis.incar)
+        self.assertNotIn("NSW", leps_vis.incar)
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
@@ -536,6 +543,27 @@ class MPNonSCFDerivedSetTest(PymatgenTest):
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
+
+
+class MagmomLdauTest(PymatgenTest):
+
+    def test_structure_from_prev_run(self):
+        vrun = Vasprun(os.path.join(test_dir, "vasprun.xml.magmom_ldau"))
+        structure = vrun.final_structure
+        poscar = Poscar(structure)
+        structure_decorated = get_structure_from_prev_run(vrun, sym_prec=0)
+        ldau_ans = {'LDAUU': [5.3, 0.0], 'LDAUL': [2, 0], 'LDAUJ': [0.0, 0.0]}
+        magmom_ans = [5.0, 5.0, 5.0, 5.0, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]
+        ldau_dict = {}
+        for key in ('LDAUU', 'LDAUJ', 'LDAUL'):
+            if hasattr(structure_decorated[0], key.lower()):
+                m = dict(
+                    [(site.specie.symbol, getattr(site, key.lower()))
+                     for site in structure_decorated])
+                ldau_dict[key] = [m[sym] for sym in poscar.site_symbols]
+        magmom = [site.magmom for site in structure_decorated]
+        self.assertEqual(ldau_dict, ldau_ans)
+        self.assertEqual(magmom, magmom_ans)
 
 
 if __name__ == '__main__':

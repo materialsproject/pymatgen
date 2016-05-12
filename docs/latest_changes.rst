@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v3.5.2
+v3.5.3
 ------
-* Minor update to DerivedInputSet interface.
+* Misc refactorings and bug fixes, especially for Outcar and Boltztrap classes.

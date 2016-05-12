@@ -42,20 +42,26 @@ def get_publication_quality_plot(width=8, height=None, plt=None, dpi=None):
 
     if plt is None:
         import matplotlib.pyplot as plt
+        import palettable
+        from cycler import cycler
+
         plt.figure(figsize=(width, height), facecolor="w", dpi=dpi)
+        ax = plt.gca()
+        ax.set_prop_cycle(cycler('color',
+                                 palettable.colorbrewer.qualitative.Set1_9.mpl_colors))
     else:
         fig = plt.gcf()
         fig.set_size_inches(width, height)
     plt.xticks(fontsize=ticksize)
     plt.yticks(fontsize=ticksize)
 
-    axes = plt.gca()
-    axes.set_title(axes.get_title(), size=width * 4)
+    ax = plt.gca()
+    ax.set_title(ax.get_title(), size=width * 4)
 
     labelsize = int(width * 3)
 
-    axes.set_xlabel(axes.get_xlabel(), size=labelsize)
-    axes.set_ylabel(axes.get_ylabel(), size=labelsize)
+    ax.set_xlabel(ax.get_xlabel(), size=labelsize)
+    ax.set_ylabel(ax.get_ylabel(), size=labelsize)
 
     return plt
 

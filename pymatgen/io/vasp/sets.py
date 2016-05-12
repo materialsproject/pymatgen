@@ -25,6 +25,7 @@ from pymatgen.io.vasp.outputs import Vasprun, Outcar, Chgcar
 from monty.json import MSONable, MontyDecoder
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
 """
 This module defines the VaspInputSet abstract base class and a concrete
@@ -41,7 +42,6 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Nov 16, 2011"
-
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -272,7 +272,11 @@ class DictVaspInputSet(AbstractVaspInputSet):
                         mag.append(setting.get(site.specie.symbol, 0.6))
                 incar[key] = mag
             elif key in ('LDAUU', 'LDAUJ', 'LDAUL'):
-                if most_electroneg in setting.keys():
+                if hasattr(structure[0], key.lower()):
+                    m = dict([(site.specie.symbol, getattr(site, key.lower()))
+                              for site in structure])
+                    incar[key] = [m[sym] for sym in poscar.site_symbols]
+                elif most_electroneg in setting.keys():
                     incar[key] = [setting[most_electroneg].get(sym, 0)
                                   for sym in poscar.site_symbols]
                 else:
@@ -619,7 +623,6 @@ class MITNEBVaspInputSet(DictVaspInputSet):
                 sites.add(PeriodicSite(site.species_and_occu, site.frac_coords, l))
             path = Structure.from_sites(sorted(sites))
             path.to(filename=os.path.join(output_dir, 'path.cif'))
-
 
     def as_dict(self):
         d = super(MITNEBVaspInputSet, self).as_dict()
@@ -1619,7 +1622,7 @@ class DerivedVaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
 class MPStaticSet(DerivedVaspInputSet):
 
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
-                 reciprocal_density=100, **kwargs):
+                 lepsilon=False, reciprocal_density=100, **kwargs):
         """
         Init a MPStaticSet. Typically, you would use the classmethod
         from_prev_calc instead.
@@ -1629,7 +1632,7 @@ class MPStaticSet(DerivedVaspInputSet):
             prev_incar (Incar): Incar file from previous run.
             prev_kpoints (Kpoints): Kpoints from previous run.
             reciprocal_density (int): density of k-mesh by reciprocal
-                                    volume (defaults to 100)
+                volume (defaults to 100)
             \*\*kwargs: kwargs supported by MPVaspInputSet.
         """
 
@@ -1638,6 +1641,7 @@ class MPStaticSet(DerivedVaspInputSet):
         self.reciprocal_density = reciprocal_density
         self.structure = structure
         self.kwargs = kwargs
+        self.lepsilon = lepsilon
         self.parent_vis = MPVaspInputSet(**self.kwargs)
 
     @property
@@ -1651,6 +1655,14 @@ class MPStaticSet(DerivedVaspInputSet):
             {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
              "ICHARG": 0, "ALGO": "Normal"})
+
+        if self.lepsilon:
+            incar["IBRION"] = 8
+            incar["LEPSILON"] = True
+            # Note that DFPT calculations MUST unset NSW. NSW = 0 will fail
+            # to output ionic.
+            incar.pop("NSW", None)
+            incar.pop("NPAR", None)
 
         for k in ["MAGMOM", "NUPDOWN"] + list(self.kwargs.get(
                 "user_incar_settings", {}).keys()):
@@ -1737,10 +1749,9 @@ class MPStaticSet(DerivedVaspInputSet):
         prev_kpoints = vasprun.kpoints
 
         # We will make a standard structure for the given symprec.
-        prev_structure = get_structure_from_prev_run(vasprun, outcar,
-                                                     sym_prec=sym_prec,
-                                                     standardize=standardize,
-                                                     international_monoclinic=international_monoclinic)
+        prev_structure = get_structure_from_prev_run(
+            vasprun, outcar, sym_prec=standardize and sym_prec,
+            international_monoclinic=international_monoclinic)
 
         # multiply the reciprocal density if needed:
         if small_gap_multiply:
@@ -1838,8 +1849,9 @@ class MPNonSCFSet(DerivedVaspInputSet):
             kpoints = Kpoints.automatic_density_by_vol(self.structure,
                                                        self.reciprocal_density)
             mesh = kpoints.kpts[0]
-            ir_kpts = SpacegroupAnalyzer(self.structure,
-                                         symprec=self.sym_prec).get_ir_reciprocal_mesh(mesh)
+            ir_kpts = SpacegroupAnalyzer(
+                self.structure,
+                symprec=self.sym_prec).get_ir_reciprocal_mesh(mesh)
             kpts = []
             weights = []
             for k in ir_kpts:
@@ -1889,11 +1901,12 @@ class MPNonSCFSet(DerivedVaspInputSet):
                 to get a primitive standard cell. Set to 0 if you don't want
                 that.
             international_monoclinic (bool): Whether to use international
-                    convention (vs Curtarolo) for monoclinic. Defaults True.
+                convention (vs Curtarolo) for monoclinic. Defaults True.
             reciprocal_density (int): density of k-mesh by reciprocal
-                                    volume (defaults to 100)
-            small_gap_multiply ([float, float]) - if the gap is less than 1st index,
-                                multiply the default reciprocal_density by the 2nd index
+                volume (defaults to 100)
+            small_gap_multiply ([float, float]): If the gap is less than
+                1st index, multiply the default reciprocal_density by the 2nd
+                index.
             \*\*kwargs: All kwargs supported by MPNonSCFSet,
                 other than structure, prev_incar and prev_chgcar which
                 are determined from the prev_calc_dir.
@@ -1902,10 +1915,9 @@ class MPNonSCFSet(DerivedVaspInputSet):
 
         incar = vasprun.incar
         # Get a Magmom-decorated structure
-        structure = get_structure_from_prev_run(vasprun, outcar,
-                                                sym_prec=sym_prec,
-                                                standardize=standardize,
-                                                international_monoclinic=international_monoclinic)
+        structure = get_structure_from_prev_run(
+            vasprun, outcar, sym_prec=standardize and sym_prec,
+            international_monoclinic=international_monoclinic)
         # Turn off spin when magmom for every site is smaller than 0.02.
         if outcar and outcar.magnetization:
             site_magmom = np.array([i['tot'] for i in outcar.magnetization])
@@ -1930,7 +1942,8 @@ class MPNonSCFSet(DerivedVaspInputSet):
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
 
         return MPNonSCFSet(structure=structure, prev_incar=incar,
-                           prev_chgcar=chgcar, **kwargs)
+                           prev_chgcar=chgcar,
+                           reciprocal_density=reciprocal_density, **kwargs)
 
 
 def get_vasprun_outcar(path):
@@ -1950,7 +1963,7 @@ def get_vasprun_outcar(path):
 
 
 def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
-                                standardize=False, international_monoclinic=True):
+                                international_monoclinic=True):
     """
     Process structure from previous run.
 
@@ -1959,9 +1972,8 @@ def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
             from previous run.
         outcar (Outcar): Outcar that contains the magnetization info from
             previous run.
-        sym_prec (float): Tolerance for symmetry finding.
-        standardize (float): Whether to standardize to a primitive
-                standard cell. Defaults to False.
+        sym_prec (float): Tolerance for symmetry finding for standardization. If
+            no standardization is desired, set to 0 or a False.
         international_monoclinic (bool): Whether to use international
                     convention (vs Curtarolo) for monoclinic. Defaults True.
 
@@ -1969,18 +1981,36 @@ def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
         Returns the magmom-decorated structure that can be passed to get
         Vasp input files, e.g. get_kpoints.
     """
+    structure = vasprun.final_structure
+
+    site_properties = {}
+    # magmom
     if vasprun.is_spin:
         if outcar and outcar.magnetization:
-            magmom = {"magmom": [i['tot'] for i in outcar.magnetization]}
+            site_properties.update({"magmom": [i['tot']
+                                               for i in outcar.magnetization]})
         else:
-            magmom = {"magmom": vasprun.parameters['MAGMOM']}
-    else:
-        magmom = None
+            site_properties.update({"magmom": vasprun.parameters['MAGMOM']})
+    # ldau
+    if vasprun.parameters.get("LDAU", False):
+        for k in ("LDAUU", "LDAUJ", "LDAUL"):
+            vals = vasprun.incar[k]
+            m = {}
+            l = []
+            m[structure[0].specie.symbol] = vals.pop(0)
+            for site in structure:
+                if site.specie.symbol not in m:
+                    m[site.specie.symbol] = vals.pop(0)
+                l.append(m[site.specie.symbol])
+            if len(l) == len(structure):
+                site_properties.update({k.lower(): l})
+            else:
+                raise ValueError("length of list {} not the same as"
+                                 "structure".format(l))
 
-    structure = vasprun.final_structure
-    if magmom:
-        structure = structure.copy(site_properties=magmom)
-    if standardize and sym_prec:
+    structure = structure.copy(site_properties=site_properties)
+
+    if sym_prec:
         sym_finder = SpacegroupAnalyzer(structure, symprec=sym_prec)
         new_structure = sym_finder.get_primitive_standard_structure(
             international_monoclinic=international_monoclinic)
@@ -1997,4 +2027,5 @@ def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
             raise ValueError(
                 "Standardizing cell failed! Old structure doesn't match new.")
         structure = new_structure
+
     return structure
