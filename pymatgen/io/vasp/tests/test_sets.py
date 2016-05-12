@@ -551,7 +551,7 @@ class MagmomLdauTest(PymatgenTest):
         vrun = Vasprun(os.path.join(test_dir, "vasprun.xml.magmom_ldau"))
         structure = vrun.final_structure
         poscar = Poscar(structure)
-        structure_decorated = get_structure_from_prev_run(vrun)
+        structure_decorated = get_structure_from_prev_run(vrun, sym_prec=0)
         ldau_ans = {'LDAUU': [5.3, 0.0], 'LDAUL': [2, 0], 'LDAUJ': [0.0, 0.0]}
         magmom_ans = [5.0, 5.0, 5.0, 5.0, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]
         ldau_dict = {}
