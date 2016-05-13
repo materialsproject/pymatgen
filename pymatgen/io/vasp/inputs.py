@@ -446,9 +446,12 @@ class Poscar(MSONable):
             lines.append(line)
 
         if self.velocities:
-            lines.append("")
-            for v in self.velocities:
-                lines.append(" ".join([format_str.format(i) for i in v]))
+            try:
+                lines.append("")
+                for v in self.velocities:
+                    lines.append(" ".join([format_str.format(i) for i in v]))
+            except:
+                warnings.warn("Velocities are missing or corrupted.")
 
         if self.predictor_corrector:
             lines.append("")
