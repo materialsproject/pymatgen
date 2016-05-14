@@ -1313,14 +1313,14 @@ class ExcHamiltonian(AbivarAble):
         "model_df"
         ]
 
-    def __init__(self, bs_loband, nband, soenergy, coulomb_mode, ecuteps, spin_mode="polarized", mdf_epsinf=None,
+    def __init__(self, bs_loband, nband, mbpt_sciss, coulomb_mode, ecuteps, spin_mode="polarized", mdf_epsinf=None,
                  exc_type="TDA", algo="haydock", with_lf=True, bs_freq_mesh=None, zcut=None, **kwargs):
         """
         Args:
             bs_loband: Lowest band index (Fortran convention) used in the e-h  basis set. 
                 Can be scalar or array of shape (nsppol,). Must be >= 1 and <= nband 
             nband: Max band index used in the e-h  basis set.
-            soenergy: Scissors energy in Hartree.
+            mbpt_sciss: Scissors energy in Hartree.
             coulomb_mode: Treatment of the Coulomb term.
             ecuteps: Cutoff energy for W in Hartree.
             mdf_epsinf: Macroscopic dielectric function :math:`\epsilon_\inf` used in
@@ -1342,7 +1342,7 @@ class ExcHamiltonian(AbivarAble):
 
         self.bs_loband = bs_loband
         self.nband  = nband
-        self.soenergy = soenergy
+        self.mbpt_sciss = mbpt_sciss
         self.coulomb_mode = coulomb_mode
         assert coulomb_mode in self._COULOMB_MODES
         self.ecuteps = ecuteps
@@ -1396,7 +1396,7 @@ class ExcHamiltonian(AbivarAble):
             bs_calctype=1,
             bs_loband=self.bs_loband,
             #nband=self.nband,
-            soenergy=self.soenergy,
+            mbpt_sciss=self.mbpt_sciss,
             ecuteps=self.ecuteps,
             bs_algorithm = self._ALGO2VAR[self.algo],
             bs_coulomb_term=21,

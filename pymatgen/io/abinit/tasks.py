@@ -940,13 +940,14 @@ batch_adapter:
         task.build()
 
         # Pass information on the time limit to Abinit (we always assume ndtset == 1)
-        if False and isinstance(task, AbinitTask):
+        #if False and isinstance(task, AbinitTask):
+        if isinstance(task, AbinitTask):
             args = kwargs.get("exec_args", [])
             if args is None: args = []
             args = args[:]
             args.append("--timelimit %s" % qu.time2slurm(self.qadapter.timelimit))
             kwargs["exec_args"] = args
-            print("Will pass timelimit option to abinit %s:" % args)
+            logger.info("Will pass timelimit option to abinit %s:" % args)
 
         # Write the submission script
         script_file = self.write_jobfile(task, **kwargs)
