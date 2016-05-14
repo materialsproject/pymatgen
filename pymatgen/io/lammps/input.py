@@ -128,12 +128,14 @@ class DictLammpsInput(MSONable):
         d = MSONable.as_dict(self)
         if hasattr(self, "kwargs"):
             d.update(**self.kwargs)
+        d["config_dict"] = self.config_dict.items()
         return d
 
     @classmethod
     def from_dict(cls, d):
         decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items()
-                   if not k.startswith("@")}
+                   if k not in ["@module", "@class", "config_dict"]}
+        decoded["config_dict"] = OrderedDict(d["config_dict"])
         return cls(**decoded)
 
 
