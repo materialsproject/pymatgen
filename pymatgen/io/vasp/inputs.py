@@ -97,8 +97,14 @@ class Poscar(MSONable):
 
     .. attribute:: predictor_corrector
 
-        Predictor corrector coordinates for each site (typically read in from a
-        MD CONTCAR).
+        Predictor corrector coordinates and derivatives for each site; i.e.
+        a list of three 1x3 arrays for each site (typically read in from a MD CONTCAR).
+
+    .. attribute:: predictor_corrector_preamble
+
+        Predictor corrector preamble contains the predictor-corrector key, POTIM,
+        and thermostat parameters that precede the site-specic predictor corrector
+        data in MD CONTCAR
 
     .. attribute:: temperature
 
@@ -107,7 +113,8 @@ class Poscar(MSONable):
     """
 
     def __init__(self, structure, comment=None, selective_dynamics=None,
-                 true_names=True, velocities=None, predictor_corrector=None):
+                 true_names=True, velocities=None, predictor_corrector=None,
+                 predictor_corrector_preamble=None):
         if structure.is_ordered:
             site_properties = {}
             if selective_dynamics:
@@ -119,6 +126,7 @@ class Poscar(MSONable):
             self.structure = structure.copy(site_properties=site_properties)
             self.true_names = true_names
             self.comment = structure.formula if comment is None else comment
+            self.predictor_corrector_preamble = predictor_corrector_preamble
         else:
             raise ValueError("Structure with partial occupancies cannot be "
                              "converted into POSCAR!")
@@ -354,17 +362,32 @@ class Poscar(MSONable):
             for line in chunks[1].strip().split("\n"):
                 velocities.append([float(tok) for tok in line.split()])
 
+        # Parse the predictor-corrector data
         predictor_corrector = []
+        predictor_corrector_preamble = None
+
         if len(chunks) > 2:
             lines = chunks[2].strip().split("\n")
-            predictor_corrector.append([int(lines[0])])
-            for line in lines[1:]:
-                predictor_corrector.append([float(tok)
-                                            for tok in line.split()])
+            # There are 3 sets of 3xN Predictor corrector parameters
+            # So can't be stored as a single set of "site_property"
+
+            # First line in chunk is a key in CONTCAR
+            # Second line is POTIM
+            # Third line is the thermostat parameters
+            predictor_corrector_preamble = lines[0] + "\n" + lines[1]+"\n" + lines[2]
+            # Rest is three sets of parameters, each set contains
+            # x, y, z predictor-corrector parameters for every atom in orde
+            lines = lines[3:]
+            for st in range(nsites):
+                d1 = [float(tok) for tok in lines[st].split()]
+                d2 = [float(tok) for tok in lines[st+nsites].split()]
+                d3 = [float(tok) for tok in lines[st+2*nsites].split()]
+                predictor_corrector.append([d1,d2,d3])
 
         return Poscar(struct, comment, selective_dynamics, vasp5_symbols,
                       velocities=velocities,
-                      predictor_corrector=predictor_corrector)
+                      predictor_corrector=predictor_corrector,
+                      predictor_corrector_preamble=predictor_corrector_preamble)
 
     def get_string(self, direct=True, vasp4_compatible=False,
                    significant_figures=6):
@@ -420,10 +443,15 @@ class Poscar(MSONable):
 
         if self.predictor_corrector:
             lines.append("")
-            lines.append(str(self.predictor_corrector[0][0]))
-            lines.append(str(self.predictor_corrector[1][0]))
-            for v in self.predictor_corrector[2:]:
-                lines.append(" ".join([format_str.format(i) for i in v]))
+            if self.predictor_corrector_preamble:
+                lines.append(self.predictor_corrector_preamble)
+                pred = np.array(self.predictor_corrector)
+                for col in range(3):
+                    for z in pred[:,col]:
+                        lines.append(" ".join([format_str.format(i) for i in z]))
+            else:
+                warnings.warn("Preamble information missing or corrupt. " +
+                              "Writing Poscar with no predictor corrector data.")
 
         return "\n".join(lines) + "\n"
 
@@ -533,6 +561,12 @@ class Incar(dict, MSONable):
         """
         super(Incar, self).__init__()
         if params:
+            if params.get("MAGMOM") and (params.get("LSORBIT") or \
+                    params.get("LNONCOLLINEAR")):
+                val = []
+                for i in range(len(params["MAGMOM"])//3):
+                    val.append(params["MAGMOM"][i*3:(i+1)*3])
+                params["MAGMOM"] = val
             self.update(params)
 
     def __setitem__(self, key, val):
@@ -575,8 +609,15 @@ class Incar(dict, MSONable):
         for k in keys:
             if k == "MAGMOM" and isinstance(self[k], list):
                 value = []
-                for m, g in itertools.groupby(self[k]):
-                    value.append("{}*{}".format(len(tuple(g)), m))
+                if isinstance(self[k][0], list) and (self.get("LSORBIT") or \
+                        self.get("LNONCOLLINEAR")):
+                    value.append(" ".join(str(i) for j in self[k] for i in j))
+                elif self.get("LSORBIT") or self.get("LNONCOLLINEAR"):
+                    for m, g in itertools.groupby(self[k]):
+                        value.append("3*{}*{}".format(len(tuple(g)), m))
+                else:
+                    for m, g in itertools.groupby(self[k]):
+                        value.append("{}*{}".format(len(tuple(g)), m))
                 lines.append([k, " ".join(value)])
             elif isinstance(self[k], list):
                 lines.append([k, " ".join([str(i) for i in self[k]])])
@@ -650,7 +691,7 @@ class Incar(dict, MSONable):
         """
         list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM")
         bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE",
-                     "LHFCALC", "ADDGRID")
+                     "LHFCALC", "ADDGRID", "LSORBIT", "LNONCOLLINEAR")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
                       "POTIM", "EDIFFG")
         int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
@@ -666,13 +707,13 @@ class Incar(dict, MSONable):
         try:
             if key in list_keys:
                 output = []
-                toks = re.findall(r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?", val)
-
+                toks = re.findall(r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?\*?(-?\d+\.?\d*)?", val)
                 for tok in toks:
-                    if tok[1]:
-
-                        output.extend([smart_int_or_float(tok[1])]
-                                      * int(tok[0]))
+                    if tok[2] and "3" in tok[0]:
+                        output.extend(
+                            [smart_int_or_float(tok[2])] * int(tok[0]) * int(tok[1]))
+                    elif tok[1]:
+                        output.extend([smart_int_or_float(tok[1])] * int(tok[0]))
                     else:
                         output.append(smart_int_or_float(tok[0]))
                 return output
@@ -843,7 +884,7 @@ class Kpoints(MSONable):
         self.comment = comment
         self.num_kpts = num_kpts
         self.kpts = kpts
-        self._style = style
+        self.style = style
         self.coord_type = coord_type
         self.kpts_weights = kpts_weights
         self.kpts_shift = kpts_shift
@@ -1251,9 +1292,6 @@ class Kpoints(MSONable):
     def from_dict(cls, d):
         comment = d.get("comment", "")
         generation_style = d.get("generation_style")
-        if generation_style is not None:
-            generation_style = Kpoints.supported_modes[generation_style]
-
         kpts = d.get("kpoints", [[1, 1, 1]])
         kpts_shift = d.get("usershift", [0, 0, 0])
         num_kpts = d.get("nkpoints", 0)

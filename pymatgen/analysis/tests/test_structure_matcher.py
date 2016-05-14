@@ -4,7 +4,7 @@
 
 from __future__ import division, unicode_literals
 
-import unittest
+import unittest2 as unittest
 import os
 import json
 import numpy as np
@@ -677,13 +677,13 @@ class StructureMatcherTest(PymatgenTest):
     def test_rms_vs_minimax(self):
         # This tests that structures with adjusted RMS less than stol, but minimax
         # greater than stol are treated properly
-        sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=False)
+        # stol=0.3 gives exactly an ftol of 0.1 on the c axis
+        sm = StructureMatcher(ltol=0.2, stol=0.301, angle_tol=1, primitive_cell=False)
         l = Lattice.orthorhombic(1, 2, 12)
 
         sp = ["Si", "Si", "Al"]
         s1 = Structure(l, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.5]])
         s2 = Structure(l, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.6]])
-
         self.assertArrayAlmostEqual(sm.get_rms_dist(s1, s2),
                                     (0.32 ** 0.5 / 2, 0.4))
 

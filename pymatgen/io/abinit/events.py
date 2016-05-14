@@ -457,8 +457,10 @@ class EventsParser(object):
 
                 # Check whether the calculation completed.
                 if doc.tag == "!FinalSummary":
+                    #print(doc)
                     run_completed = True
                     d = doc.as_dict()
+                    #print(d)
                     start_datetime, end_datetime = d["start_datetime"], d["end_datetime"]
 
         report.set_run_completed(run_completed, start_datetime, end_datetime)
