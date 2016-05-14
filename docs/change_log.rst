@@ -1,6 +1,60 @@
 Change log
 ==========
 
+v3.5.3
+------
+* Misc refactorings and bug fixes, especially for Outcar and Boltztrap classes.
+
+v3.5.2
+------
+* Minor update to DerivedInputSet interface.
+
+v3.5.1
+------
+* New derived input sets for generating inputs that depende on previuos
+  calculations. Old input sets deprecated.
+
+v3.5.0
+------
+* Chemical environment analysis package (David Waroquiers).
+* Piezoelectric property analysis (Shayam).
+* Cythonize certain expensive core functions. 5-10x speedup in large structure matching (Will Richards).
+* New NMR parsing functionality for Outcar (Xiaohui Qu).
+* Improved io.lammps (Kiran Mathews).
+* Update to spglib 1.9.2.
+* Element properties now return unitized float where possible.
+* Bug fix for get_primitive_standard affecting rhombohedral cells (important for band structures).
+* Vasprun.final_energy now returns corrected energy with warning if it is different from final electronic step.
+
+v3.4.0
+------
+* 10-100x speed up to Structure copying and Site init, which means many
+  functionality has seen signifcant speed improvement (e.g., structure
+  matching).
+* Convenience method Structure.matches now perform similarity matching
+  for Structures.
+* Bugfix for band gap determination.
+
+v3.3.6
+------
+* Update to use enum.x instead of multienum.x.
+* Minor robustness fixes to VaspInputSet serialization.
+* Add a reciprocal density parameter to vasp sets.
+* Minor bug fixes to Vasprun parsing. 
+
+v3.3.5
+------
+* StructureMatcher can now work with ignored species.
+* Added interpolation failure warnings and smooth tolerance for
+  scipy.interpolate.splrep in bandstructures (Tess).
+* Added DiffusionAnalyzer.get_framework_rms_plot.
+* Complete rewrite of Procar class to use ND array access and zero-based
+  indexing.
+* OrderParameters class for analysis of local structural features
+  (Nils Zimmermann).
+* Bug fixes for Procar, MPRester and SpaceGroup 64.
+* Added Github templates for contributing to pymatgen.
+
 v3.3.4
 ------
 * Procar now supports parsing of phase factors.

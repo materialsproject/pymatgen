@@ -160,6 +160,30 @@ class HighSymmKpath(object):
         return self._prim
 
     @property
+    def conventional(self):
+        """
+        Returns:
+            The conventional cell structure
+        """
+        return self._conv
+
+    @property
+    def prim(self):
+        """
+        Returns:
+            The primitive cell structure
+        """
+        return self._prim
+
+    @property
+    def prim_rec(self):
+        """
+        Returns:
+            The primitive reciprocal cell structure
+        """
+        return self._prim_rec
+
+    @property
     def kpath(self):
         """
         Returns:
@@ -196,94 +220,6 @@ class HighSymmKpath(object):
             frac_k_points = [self._prim_rec.get_fractional_coords(k)
                              for k in list_k_points]
             return frac_k_points, sym_point_labels
-
-    def get_kpath_plot(self, **kwargs):
-        """
-        Gives the plot (as a matplotlib object) of the symmetry line path in
-        the Brillouin Zone.
-
-        Returns:
-            `matplotlib` figure.
-
-        ================  ==============================================================
-        kwargs            Meaning
-        ================  ==============================================================
-        show              True to show the figure (Default).
-        savefig           'abc.png' or 'abc.eps'* to save the figure to a file.
-        ================  ==============================================================
-        """
-        import itertools
-        import matplotlib.pyplot as plt
-        from mpl_toolkits.mplot3d import axes3d
-
-        def _plot_shape_skeleton(bz, style):
-            for iface in range(len(bz)):
-                for line in itertools.combinations(bz[iface], 2):
-                    for jface in range(len(bz)):
-                        if iface < jface and line[0] in bz[jface]\
-                                and line[1] in bz[jface]:
-                            ax.plot([line[0][0], line[1][0]],
-                                    [line[0][1], line[1][1]],
-                                    [line[0][2], line[1][2]], style)
-
-        def _plot_lattice(lattice):
-            vertex1 = lattice.get_cartesian_coords([0.0, 0.0, 0.0])
-            vertex2 = lattice.get_cartesian_coords([1.0, 0.0, 0.0])
-            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]],
-                    [vertex1[2], vertex2[2]], color='g', linewidth=3)
-            vertex2 = lattice.get_cartesian_coords([0.0, 1.0, 0.0])
-            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]],
-                    [vertex1[2], vertex2[2]], color='g', linewidth=3)
-            vertex2 = lattice.get_cartesian_coords([0.0, 0.0, 1.0])
-            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]],
-                    [vertex1[2], vertex2[2]], color='g', linewidth=3)
-
-        def _plot_kpath(kpath, lattice):
-            for line in kpath['path']:
-                for k in range(len(line) - 1):
-                    vertex1 = lattice.get_cartesian_coords(kpath['kpoints']
-                                                           [line[k]])
-                    vertex2 = lattice.get_cartesian_coords(kpath['kpoints']
-                                                           [line[k + 1]])
-                    ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]],
-                            [vertex1[2], vertex2[2]], color='r', linewidth=3)
-
-        def _plot_labels(kpath, lattice):
-            for k in kpath['kpoints']:
-                label = k
-                if k.startswith("\\") or k.find("_") != -1:
-                    label = "$" + k + "$"
-                off = 0.01
-                ax.text(lattice.get_cartesian_coords(kpath['kpoints'][k])[0]
-                        + off,
-                        lattice.get_cartesian_coords(kpath['kpoints'][k])[1]
-                        + off,
-                        lattice.get_cartesian_coords(kpath['kpoints'][k])[2]
-                        + off,
-                        label, color='b', size='25')
-                ax.scatter([lattice.get_cartesian_coords(
-                            kpath['kpoints'][k])[0]],
-                           [lattice.get_cartesian_coords(
-                            kpath['kpoints'][k])[1]],
-                           [lattice.get_cartesian_coords(
-                            kpath['kpoints'][k])[2]], color='b')
-        fig = plt.figure()
-        ax = axes3d.Axes3D(fig)
-        _plot_lattice(self._prim_rec)
-        _plot_shape_skeleton(self._prim_rec.get_wigner_seitz_cell(), '-k')
-        _plot_kpath(self.kpath, self._prim_rec)
-        _plot_labels(self.kpath, self._prim_rec)
-        ax.axis("off")
-
-        show = kwargs.pop("show", True)
-        if show:
-            plt.show()
-
-        savefig = kwargs.pop("savefig", None)
-        if savefig:
-            fig.savefig(savefig)
-
-        return fig
 
     def cubic(self):
         self.name = "CUB"

@@ -55,7 +55,7 @@ class InsertSitesTransformation(AbstractTransformation):
         self._validate_proximity = validate_proximity
 
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure.sites)
+        s = structure.copy()
         for i, sp in enumerate(self._species):
             s.insert(i, sp, self._coords[i],
                      coords_are_cartesian=self._cartesian,
@@ -102,7 +102,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         self._indices_species_map = indices_species_map
 
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure.sites)
+        s = structure.copy()
         for i, sp in self._indices_species_map.items():
             s[int(i)] = sp
         return s
@@ -142,7 +142,7 @@ class RemoveSitesTransformation(AbstractTransformation):
         self._indices = indices_to_remove
 
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure.sites)
+        s = structure.copy()
         s.remove_sites(self._indices)
         return s
 
@@ -186,7 +186,7 @@ class TranslateSitesTransformation(AbstractTransformation):
         self._frac = vector_in_frac_coords
 
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure.sites)
+        s = structure.copy()
         s.translate_sites(self._indices, self._vector, self._frac)
         return s
 
@@ -311,7 +311,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             to_delete.append(maxindex)
             ematrix[:, maxindex] = 0
             ematrix[maxindex, :] = 0
-        s = Structure.from_sites(structure.sites)
+        s = structure.copy()
         s.remove_sites(to_delete)
         self.logger.debug("Minimizing Ewald took {} seconds."
                           .format(time.time() - starttime))
@@ -345,7 +345,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             for indices in allindices:
                 sites_to_remove.extend([structure[i] for i in indices])
                 indices_list.extend(indices)
-            s_new = Structure.from_sites(structure.sites)
+            s_new = structure.copy()
             s_new.remove_sites(indices_list)
             energy = ewaldsum.compute_partial_energy(indices_list)
             already_tested = False
@@ -409,7 +409,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         num_atoms = sum(structure.composition.values())
 
         for output in minimizer.output_lists:
-            s = Structure.from_sites(structure.sites)
+            s = structure.copy()
             del_indices = []
 
             for manipulation in output[1]:
@@ -429,7 +429,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
     def enumerate_ordering(self, structure):
         # Generate the disordered structure first.
-        s = Structure.from_sites(structure.sites)
+        s = structure.copy()
         for indices, fraction in zip(self._indices, self._fractions):
             for ind in indices:
                 new_sp = {sp: occu * fraction

@@ -176,7 +176,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">pymatgen.matproj.rest</span> <span class="kn">import</span> <span class="n">MPRester</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.matproj.rest</span> <span class="kn">import</span> <span class="n">MPRester</span>
 <span class="kn">from</span> <span class="nn">pymatgen.phasediagram.pdmaker</span> <span class="kn">import</span> <span class="n">PhaseDiagram</span>
 
 <span class="o">%</span><span class="k">matplotlib</span> inline
@@ -202,7 +202,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c1">#This initializes the REST adaptor. You may need to put your own API key in as an arg.</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1">#This initializes the REST adaptor. You may need to put your own API key in as an arg.</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">MPRester</span><span class="p">()</span>
 
 <span class="c1">#Entries are the basic unit for thermodynamic and other analyses in pymatgen.</span>
@@ -233,7 +233,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">pymatgen.phasediagram.plotter</span> <span class="kn">import</span> <span class="n">PDPlotter</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.phasediagram.plotter</span> <span class="kn">import</span> <span class="n">PDPlotter</span>
 <span class="c1">#Let&#39;s show all phases, including unstable ones</span>
 <span class="n">plotter</span> <span class="o">=</span> <span class="n">PDPlotter</span><span class="p">(</span><span class="n">pd</span><span class="p">,</span> <span class="n">show_unstable</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -881,7 +881,7 @@ OPFhjDHGWJHBiQ9jjDHGioz/A1WyZ4Tw1wpmAAAAAElFTkSuQmCC
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">pymatgen.phasediagram.pdanalyzer</span> <span class="kn">import</span> <span class="n">PDAnalyzer</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.phasediagram.pdanalyzer</span> <span class="kn">import</span> <span class="n">PDAnalyzer</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">PDAnalyzer</span><span class="p">(</span><span class="n">pd</span><span class="p">)</span>
 </pre></div>
 
@@ -895,7 +895,7 @@ OPFhjDHGWJHBiQ9jjDHGioz/A1WyZ4Tw1wpmAAAAAElFTkSuQmCC
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="kn">import</span> <span class="nn">collections</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">collections</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
@@ -998,7 +998,7 @@ OPFhjDHGWJHBiQ9jjDHGioz/A1WyZ4Tw1wpmAAAAAElFTkSuQmCC
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre> 
+<div class=" highlight hl-ipython2"><pre><span></span> 
 </pre></div>
 
 </div>

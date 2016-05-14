@@ -51,7 +51,7 @@ with open(os.path.join(SETUP_PTH, "README.rst")) as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="3.3.4",
+    version="3.5.3",
     install_requires=["numpy>=1.9", "six", "atomicfile", "requests",
                       "pybtex", "pyyaml", "monty>=0.7.0", "scipy>=0.14",
                       "tabulate", "enum34"],
@@ -59,9 +59,13 @@ setup(
                     "pourbaix diagrams, bandstructure": ["pyhull>=1.5.3"],
                     "ase_adaptor": ["ase>=3.3"],
                     "vis": ["vtk>=6.0.0"],
-                    "abinit": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
+                    "abinit": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"],
+                    "chemenv": ["unittest2"]},
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["*.yaml", "*.csv"],
+                  "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt",
+                                                                                                        "*.json"],
+                  "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
                   "pymatgen.io.vasp": ["*.yaml"],
                   "pymatgen.io.feff": ["*.yaml"],
                   "pymatgen.symmetry": ["*.yaml"],
@@ -103,6 +107,12 @@ setup(
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
-    ext_modules=[get_spglib_ext()],
+    ext_modules=[get_spglib_ext(),
+                 Extension("pymatgen.optimization.linear_assignment",
+                           ["pymatgen/optimization/linear_assignment.c"],
+                           include_dirs=get_numpy_include_dirs()),
+                 Extension("pymatgen.util.coord_utils_cython",
+                           ["pymatgen/util/coord_utils_cython.c"],
+                           include_dirs=get_numpy_include_dirs())],
     scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
 )

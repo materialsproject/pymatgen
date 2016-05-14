@@ -44,26 +44,36 @@ class Site(collections.Hashable, MSONable):
 
         Args:
             atoms_n_occu: Species on the site. Can be:
-
-                i.  A sequence of element / specie specified either as string
-                    symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Specie objects.
-                ii. List of dict of elements/species and occupancies, e.g.,
-                    [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
+                i.  A Composition object (preferred)
+                ii. An  element / specie specified either as a string
+                    symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
+                    e.g., 3, 56, or actual Element or Specie objects.
+                iii.Dict of elements/species and occupancies, e.g.,
+                    {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
                     disordered structures.
             coords: Cartesian coordinates of site.
             properties: Properties associated with the site as a dict, e.g.
                 {"magmom": 5}. Defaults to None.
         """
-        try:
-            self._species = Composition({get_el_sp(atoms_n_occu): 1})
-            self._is_ordered = True
-        except TypeError:
-            self._species = Composition(atoms_n_occu)
-            totaloccu = self._species.num_atoms
+        if isinstance(atoms_n_occu, Composition):
+            # Compositions are immutable, so don't need to copy (much much faster)
+            self._species = atoms_n_occu
+            # Kludgy lookup of private attribute, but its faster
+            totaloccu = atoms_n_occu._natoms
             if totaloccu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
-            self._is_ordered = totaloccu == 1 and len(self._species) == 1
+            # Another kludgy lookup of private attribute, but its faster
+            self._is_ordered = totaloccu == 1 and len(self._species._data) == 1
+        else:
+            try:
+                self._species = Composition({get_el_sp(atoms_n_occu): 1})
+                self._is_ordered = True
+            except TypeError:
+                self._species = Composition(atoms_n_occu)
+                totaloccu = self._species.num_atoms
+                if totaloccu > 1 + Composition.amount_tolerance:
+                    raise ValueError("Species occupancies sum to more than 1!")
+                self._is_ordered = totaloccu == 1 and len(self._species) == 1
 
         self._coords = coords
         self._properties = properties if properties else {}

@@ -8,6 +8,7 @@ Subpackages
 
     pymatgen.io.abinit
     pymatgen.io.feff
+    pymatgen.io.lammps
     pymatgen.io.vasp
     pymatgen.io.vaspio
 

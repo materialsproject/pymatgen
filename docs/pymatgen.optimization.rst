@@ -18,6 +18,14 @@ pymatgen.optimization.linear_assignment module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.optimization.linear_assignment_numpy module
+----------------------------------------------------
+
+.. automodule:: pymatgen.optimization.linear_assignment_numpy
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

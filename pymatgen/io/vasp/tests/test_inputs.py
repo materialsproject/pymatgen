@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 16, 2012"
 
-import unittest
+import unittest2 as unittest
 import os
 import pickle
 import numpy as np
@@ -181,12 +181,32 @@ direct
         self.assertEqual(str(poscar), expected)
 
     def test_from_md_run(self):
-        #Parsing from an MD type run with velocities
+        # Parsing from an MD type run with velocities and predictor corrector data
         p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"),
                              check_for_POTCAR=False)
         self.assertAlmostEqual(np.sum(np.array(p.velocities)), 0.0065417961324)
-        self.assertEqual(p.predictor_corrector[0][0], 1)
-        self.assertEqual(p.predictor_corrector[1][0], 2)
+        self.assertEqual(p.predictor_corrector[0][0][0], 0.33387820E+00)
+        self.assertEqual(p.predictor_corrector[0][1][1], -0.10583589E-02)
+
+    def test_write_MD_poscar(self):
+        # Parsing from an MD type run with velocities and predictor corrector data
+        # And writing a new POSCAR from the new structure
+        p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"),
+                             check_for_POTCAR=False)
+
+        tempfname = "POSCAR.testing"
+        p.write_file(tempfname)
+        p3 = Poscar.from_file(tempfname)
+
+        self.assertArrayAlmostEqual(p.structure.lattice.abc,
+                                    p3.structure.lattice.abc, 5)
+        self.assertArrayAlmostEqual(p.velocities,
+                                    p3.velocities, 5)
+        self.assertArrayAlmostEqual(p.predictor_corrector,
+                                    p3.predictor_corrector, 5)
+        self.assertEqual(p.predictor_corrector_preamble,
+                                    p3.predictor_corrector_preamble)
+        os.remove(tempfname)
 
     def test_setattr(self):
         filepath = os.path.join(test_dir, 'POSCAR')
@@ -411,6 +431,37 @@ SIGMA      =  0.05
 SYSTEM     =  Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]
 TIME       =  0.4"""
         self.assertEqual(s, ans)
+
+    def test_lsorbit_magmom(self):
+        magmom1 = [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]]
+        magmom2 = [-1,-1,-1, 0, 0, 0, 0 ,0 ]
+
+        ans_string1 = "LSORBIT = True\nMAGMOM = 0.0 0.0 3.0 0 1 0 2 1 2\n"
+        ans_string2 = "LSORBIT = True\nMAGMOM = 3*3*-1 3*5*0\n"
+        ans_string3 = "LSORBIT = False\nMAGMOM = 2*-1 2*9\n"
+
+        incar = Incar({})
+        incar["MAGMOM"] = magmom1
+        incar["LSORBIT"] = "T"
+        self.assertEqual(ans_string1, str(incar))
+
+        incar["MAGMOM"] = magmom2
+        incar["LSORBIT"] = "T"
+        self.assertEqual(ans_string2, str(incar))
+
+        incar = Incar.from_string(ans_string1)
+        self.assertEqual(incar["MAGMOM"], [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]])
+
+        incar = Incar.from_string(ans_string2)
+        self.assertEqual(incar["MAGMOM"], [[-1, -1, -1], [-1, -1, -1],
+                                           [-1, -1, -1], [0, 0, 0],
+                                           [0, 0, 0], [0, 0, 0],
+                                           [0, 0, 0], [0, 0, 0]])
+
+        incar = Incar.from_string(ans_string3)
+        self.assertFalse(incar["LSORBIT"])
+        self.assertEqual(incar["MAGMOM"], [-1, -1, 9, 9])
+
 
 class KpointsTest(unittest.TestCase):
 

@@ -4,8 +4,9 @@
 
 from __future__ import unicode_literals
 
-import unittest
+import unittest2 as unittest
 import os
+import warnings
 
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.io.vasp.inputs import Poscar
@@ -23,11 +24,14 @@ class EwaldSummationTest(unittest.TestCase):
         s = original_s.copy()
         s.add_oxidation_state_by_element({"Li": 1, "Fe": 2,
                                           "P": 5, "O": -2})
+
         ham = EwaldSummation(s, compute_forces=True)
         self.assertAlmostEqual(ham.real_space_energy, -502.23549897772602, 4)
         self.assertAlmostEqual(ham.reciprocal_space_energy,  6.1541071599534654, 4)
-        self.assertAlmostEqual(ham.point_energy, -621.89884253387197, 4)
-        self.assertAlmostEqual(ham.total_energy, -1117.9802343516444, 2)
+        self.assertAlmostEqual(ham.point_energy, -620.22598358035918, 4)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            self.assertAlmostEqual(ham.total_energy, -1116.30737539811, 2)
         self.assertAlmostEqual(ham.forces[0, 0], -1.98818620e-01, 4)
         self.assertAlmostEqual(sum(sum(abs(ham.forces))), 915.925354346, 4,
                                "Forces incorrect")

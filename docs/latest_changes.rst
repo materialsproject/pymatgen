@@ -1,7 +1,6 @@
 Change log
 ==========
 
-v3.3.4
+v3.5.3
 ------
-* Procar now supports parsing of phase factors.
-* Miscellaneous bug fixes.
+* Misc refactorings and bug fixes, especially for Outcar and Boltztrap classes.
