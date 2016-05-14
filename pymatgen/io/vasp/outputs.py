@@ -1830,7 +1830,7 @@ class Outcar(MSONable):
 
             def born_ion(results, match):
                 results.born_ion = int(match.group(1)) - 1
-                results.born[results.born_ion] = np.zeros((3, 3))
+                results.born.append(np.zeros((3, 3)))
 
             search.append(["ion +([0-9]+)", lambda results,
                            line: results.born_ion is not None, born_ion])
@@ -1857,9 +1857,11 @@ class Outcar(MSONable):
                  born_section_stop])
 
             self.born_ion = None
-            self.born = {}
+            self.born = []
 
             micro_pyawk(self.filename, search, self)
+
+            self.born = np.array(self.born)
 
             self.dielectric_tensor = self.dielectric_tensor.tolist()
             self.piezo_tensor = self.piezo_tensor.tolist()
