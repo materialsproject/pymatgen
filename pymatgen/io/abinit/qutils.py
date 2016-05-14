@@ -33,6 +33,10 @@ def slurm_parse_timestr(s):
         `ValueError` if string is not valid.
     """
     days, hours, minutes, seconds = 0, 0, 0, 0
+    
+    if type(s) == type(1):
+        return Time(s, "s")
+    
     if '-' in s:
         # "days-hours",
         # "days-hours:minutes",                                        
