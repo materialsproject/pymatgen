@@ -42,19 +42,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord_utils import find_in_coord_list
 
 
-try:
-    import pymatgen._spglib as spg
-except ImportError:
-    try:
-        import spglib._spglib as spg
-    except ImportError:
-        try:
-            import pyspglib._spglib as spg
-        except ImportError:
-            msg = "Spglib required. Please either run python setup.py install" + \
-                  " for pymatgen, or install pyspglib from spglib."
-            raise ImportError(msg)
-
+import spglib
 
 logger = logging.getLogger(__name__)
 
@@ -82,10 +70,7 @@ class SpacegroupAnalyzer(object):
         self._structure = structure
         #Spglib"s convention for the lattice definition is the transpose of the
         #pymatgen version.
-        self._transposed_latt = structure.lattice.matrix.transpose()
-        #Spglib requires numpy floats.
-        self._transposed_latt = np.array(
-            self._transposed_latt, dtype='double', order='C')
+        self._latt = structure.lattice.matrix
         self._positions = np.array(
             [site.frac_coords for site in structure], dtype='double',
             order='C'
@@ -103,50 +88,11 @@ class SpacegroupAnalyzer(object):
                 zs.extend([len(unique_species)] * len(tuple(g)))
         self._unique_species = unique_species
         self._numbers = np.array(zs, dtype='intc')
+        self._cell = (self._latt, self._positions, self._numbers,
+                      [0] * len(self._numbers))
 
-        dataset = {}
-        keys = ('number',
-                'hall_number',
-                'international',
-                'hall',
-                'transformation_matrix',
-                'origin_shift',
-                'rotations',
-                'translations',
-                'wyckoffs',
-                'equivalent_atoms',
-                'std_lattice',
-                'std_types',
-                'std_positions',
-                'pointgroup_number',
-                'pointgroup')
-        for key, data in zip(keys, spg.dataset(self._transposed_latt.copy(),
-                                               self._positions.copy(),
-                                               self._numbers, self._symprec,
-                                               self._angle_tol)):
-
-            dataset[key] = data
-
-        dataset['international'] = dataset['international'].strip()
-        dataset['hall'] = dataset['hall'].strip()
-        dataset['transformation_matrix'] = np.array(
-            dataset['transformation_matrix'], dtype='double', order='C')
-        dataset['origin_shift'] = np.array(dataset['origin_shift'], dtype='double')
-        dataset['rotations'] = np.array(dataset['rotations'],
-                                        dtype='intc', order='C')
-        dataset['translations'] = np.array(dataset['translations'],
-                                           dtype='double', order='C')
-        letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        dataset['wyckoffs'] = [letters[x] for x in dataset['wyckoffs']]
-        dataset['equivalent_atoms'] = np.array(dataset['equivalent_atoms'],
-                                               dtype='intc')
-        dataset['std_lattice'] = np.array(np.transpose(dataset['std_lattice']),
-                                          dtype='double', order='C')
-        dataset['std_types'] = np.array(dataset['std_types'], dtype='intc')
-        dataset['std_positions'] = np.array(dataset['std_positions'],
-                                            dtype='double', order='C')
-        dataset['pointgroup'] = dataset['pointgroup'].strip()
-        self._spacegroup_data = dataset
+        self._spacegroup_data = spglib.get_symmetry_dataset(
+            self._cell, symprec=self._symprec, angle_tolerance=angle_tolerance)
 
     def get_spacegroup(self):
         """
@@ -273,18 +219,8 @@ class SpacegroupAnalyzer(object):
             "translations" gives the numpy float64 array of the translation
             vectors in scaled positions.
         """
-
-        # Get number of symmetry operations and allocate symmetry operations
-        # multi = spg.multiplicity(cell, positions, numbers, symprec)
-        multi = 48 * self._structure.num_sites
-        rotation = np.zeros((multi, 3, 3), dtype='intc')
-        translation = np.zeros((multi, 3), dtype='double')
-
-        num_sym = spg.symmetry(rotation, translation,
-                               self._transposed_latt.copy(),
-                               self._positions, self._numbers, self._symprec,
-                               self._angle_tol)
-        return rotation[:num_sym], translation[:num_sym]
+        d = spglib.get_symmetry(self._cell, self._symprec, self._angle_tol)
+        return d[0]["rotations"], d[0]["translations"]
 
     def get_symmetry_operations(self, cartesian=False):
         """
@@ -356,21 +292,11 @@ class SpacegroupAnalyzer(object):
             Refined structure.
         """
         # Atomic positions have to be specified by scaled positions for spglib.
-        num_atom = self._structure.num_sites
-        lattice = self._transposed_latt.copy()
-        pos = np.zeros((num_atom * 4, 3), dtype='double')
-        pos[:num_atom] = self._positions.copy()
+        lattice, scaled_positions, numbers \
+            = spglib.refine_cell(self._cell, self._symprec, self._angle_tol)
 
-        zs = np.zeros(num_atom * 4, dtype='intc')
-        zs[:num_atom] = np.array(self._numbers, dtype='intc')
-        num_atom_bravais = spg.refine_cell(
-            lattice, pos, zs, num_atom, self._symprec, self._angle_tol)
-
-        zs = zs[:num_atom_bravais]
-        species = [self._unique_species[i - 1] for i in zs]
-        s = Structure(lattice.T.copy(),
-                      species,
-                      pos[:num_atom_bravais])
+        species = [self._unique_species[i - 1] for i in numbers]
+        s = Structure(lattice, species, scaled_positions)
         return s.get_sorted_structure()
 
     def find_primitive(self):
@@ -382,26 +308,15 @@ class SpacegroupAnalyzer(object):
             as an Structure object. If no primitive cell is found, None is
             returned.
         """
-        # Atomic positions have to be specified by scaled positions for spglib.
-        pos = self._positions.copy()
-        lattice = self._transposed_latt.copy()
-        numbers = self._numbers.copy()
-        # lattice is transposed with respect to the definition of Atoms class
-        num_atom_prim = spg.primitive(lattice, pos, numbers,
-                                      self._symprec, self._angle_tol)
-        zs = numbers[:num_atom_prim]
-        species = [self._unique_species[i - 1] for i in zs]
+        lattice, scaled_positions, numbers = spglib.find_primitive(
+            self._cell, symprec=self._symprec)
 
-        if num_atom_prim > 0:
-            return Structure(lattice.T, species, pos[:num_atom_prim],
-                             to_unit_cell=True).get_reduced_structure()
-        else:
-            #Not sure if we should return None or just return the full
-            #structure.
-            return self._structure.get_reduced_structure()
+        species = [self._unique_species[i - 1] for i in numbers]
 
-    def get_ir_reciprocal_mesh(self, mesh=(10, 10, 10), shift=(0, 0, 0),
-                               is_time_reversal=True):
+        return Structure(lattice, species, scaled_positions,
+                         to_unit_cell=True).get_reduced_structure()
+
+    def get_ir_reciprocal_mesh(self, mesh=(10, 10, 10), shift=(0, 0, 0)):
         """
         k-point mesh of the Brillouin zone generated taken into account
         symmetry.The method returns the irreducible kpoints of the mesh
@@ -420,19 +335,13 @@ class SpacegroupAnalyzer(object):
             tuples [(ir_kpoint, weight)], with ir_kpoint given
             in fractional coordinates
         """
-        mapping = np.zeros(np.prod(mesh), dtype='intc')
-        mesh_points = np.zeros((np.prod(mesh), 3), dtype='intc')
-        spg.ir_reciprocal_mesh(
-            mesh_points, mapping, np.array(mesh, dtype='intc'),
-            np.array(shift, dtype='intc'), is_time_reversal * 1,
-            self._transposed_latt, self._positions, self._numbers,
-            self._symprec)
+        mapping, grid = spglib.get_ir_reciprocal_mesh(
+            np.array(mesh), self._cell, is_shift=np.array(shift))
 
-        results = []
-        tmp_map = list(mapping)
+        ir_grid = []
         for i in np.unique(mapping):
-            results.append((mesh_points[i] / mesh, tmp_map.count(i)))
-        return results
+            ir_grid.append(grid[i] / mesh)
+        return np.array(ir_grid)
 
     def get_primitive_standard_structure(self, international_monoclinic=True):
         """
@@ -822,7 +731,8 @@ def get_point_group(rotations):
     31  "-43m "
     32  "m-3m "
     """
-    return spg.pointgroup(np.array(rotations, dtype='intc', order='C'))
+    return spglib._spglib.pointgroup(np.array(rotations, dtype='intc',
+                                              order='C'))
 
 
 class PointGroupAnalyzer(object):
