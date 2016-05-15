@@ -3,28 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals, print_function
-
-"""
-An interface to the excellent spglib library by Atsushi Togo
-(http://spglib.sourceforge.net/) for pymatgen.
-
-v1.0 - Now works with both ordered and disordered structure.
-v2.0 - Updated for spglib 1.6.
-v3.0 - pymatgen no longer ships with spglib. Instead, spglib (the python
-       version) is now a dependency and the SpacegroupAnalyzer merely serves
-       as an interface to spglib for pymatgen Structures.
-
-.. note::
-    Not all spglib functions are implemented.
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "3.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "May 14, 2016"
-
 import itertools
 import logging
 from collections import defaultdict
@@ -43,6 +21,25 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord_utils import find_in_coord_list
+
+
+"""
+An interface to the excellent spglib library by Atsushi Togo
+(http://spglib.sourceforge.net/) for pymatgen.
+
+v1.0 - Now works with both ordered and disordered structure.
+v2.0 - Updated for spglib 1.6.
+v3.0 - pymatgen no longer ships with spglib. Instead, spglib (the python
+       version) is now a dependency and the SpacegroupAnalyzer merely serves
+       as an interface to spglib for pymatgen Structures.
+"""
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "3.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "May 14, 2016"
 
 
 import spglib
@@ -265,11 +262,11 @@ class SpacegroupAnalyzer(object):
         Returns:
             ([SymmOp]): List of point group symmetry operations.
         """
-        (rotation, translation) = self._get_symmetry()
+        rotation, translation = self._get_symmetry()
         symmops = []
         mat = self._structure.lattice.matrix.T
         invmat = np.linalg.inv(mat)
-        for rot, trans in zip(rotation, translation):
+        for rot in rotation:
             if cartesian:
                 rot = np.dot(mat, np.dot(rot, invmat))
             op = SymmOp.from_rotation_and_translation(rot, np.array([0, 0, 0]))
