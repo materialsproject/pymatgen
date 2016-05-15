@@ -1127,8 +1127,7 @@ class Screening(AbivarAble):
             raise NotImplementedError("Hilber transform not coded yet")
             self.hilbert = hilbert
 
-        # Default values
-        # TODO Change abinit defaults
+        # Default values (equivalent to those used in Abinit8)
         self.gwpara=2
         self.awtr  =1
         self.symchi=1
@@ -1317,8 +1316,8 @@ class ExcHamiltonian(AbivarAble):
                  exc_type="TDA", algo="haydock", with_lf=True, bs_freq_mesh=None, zcut=None, **kwargs):
         """
         Args:
-            bs_loband: Lowest band index (Fortran convention) used in the e-h  basis set. 
-                Can be scalar or array of shape (nsppol,). Must be >= 1 and <= nband 
+            bs_loband: Lowest band index (Fortran convention) used in the e-h  basis set.
+                Can be scalar or array of shape (nsppol,). Must be >= 1 and <= nband
             nband: Max band index used in the e-h  basis set.
             mbpt_sciss: Scissors energy in Hartree.
             coulomb_mode: Treatment of the Coulomb term.
@@ -1365,9 +1364,9 @@ class ExcHamiltonian(AbivarAble):
         #    self.kwargs["chksymbreak"] = 0
 
         # Consistency check
-        if any(bs_loband < 0): 
+        if any(bs_loband < 0):
             raise ValueError("bs_loband <= 0 while it is %s" % bs_loband)
-        if any(bs_loband >= nband): 
+        if any(bs_loband >= nband):
             raise ValueError("bs_loband (%s) >= nband (%s)" % (bs_loband, nband))
 
     @property
@@ -1398,7 +1397,7 @@ class ExcHamiltonian(AbivarAble):
             #nband=self.nband,
             mbpt_sciss=self.mbpt_sciss,
             ecuteps=self.ecuteps,
-            bs_algorithm = self._ALGO2VAR[self.algo],
+            bs_algorithm=self._ALGO2VAR[self.algo],
             bs_coulomb_term=21,
             mdf_epsinf=self.mdf_epsinf,
             bs_exchange_term=1 if self.with_lf else 0,
