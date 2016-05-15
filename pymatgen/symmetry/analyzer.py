@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
+from __future__ import division, unicode_literals, print_function
 
 """
 An interface to the excellent spglib library by Atsushi Togo
@@ -220,6 +220,7 @@ class SpacegroupAnalyzer(object):
             vectors in scaled positions.
         """
         d = spglib.get_symmetry(self._cell, self._symprec, self._angle_tol)
+
         return d[0]["rotations"], d[0]["translations"]
 
     def get_symmetry_operations(self, cartesian=False):
@@ -231,7 +232,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             ([SymmOp]): List of symmetry operations.
         """
-        (rotation, translation) = self._get_symmetry()
+        rotation, translation = self._get_symmetry()
         symmops = []
         mat = self._structure.lattice.matrix.T
         invmat = np.linalg.inv(mat)

@@ -53,6 +53,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         graphite = self.get_structure('Graphite')
         graphite.add_site_property("magmom", [0.1] * len(graphite))
         self.sg4 = SpacegroupAnalyzer(graphite, 0.001)
+        self.structure4 = graphite
 
     def test_get_space_symbol(self):
         self.assertEqual(self.sg.get_spacegroup_symbol(), "Pnma")
@@ -84,24 +85,27 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual('tetragonal', self.disordered_sg.get_crystal_system())
 
     def test_get_symmetry_operations(self):
-        fracsymmops = self.sg.get_symmetry_operations()
-        symmops = self.sg.get_symmetry_operations(True)
-        self.assertEqual(len(symmops), 8)
-        latt = self.structure.lattice
-        for fop, op in zip(fracsymmops, symmops):
-            for site in self.structure:
-                newfrac = fop.operate(site.frac_coords)
-                newcart = op.operate(site.coords)
-                self.assertTrue(np.allclose(latt.get_fractional_coords(newcart),
-                                            newfrac))
-                found = False
-                newsite = PeriodicSite(site.species_and_occu, newcart, latt,
-                                       coords_are_cartesian=True)
-                for testsite in self.structure:
-                    if newsite.is_periodic_image(testsite, 1e-3):
-                        found = True
-                        break
-                self.assertTrue(found)
+        for sg, structure in [(self.sg, self.structure),
+                              (self.sg4, self.structure4)]:
+
+            fracsymmops = sg.get_symmetry_operations()
+            symmops = sg.get_symmetry_operations(True)
+            #self.assertEqual(len(symmops), 8)
+            latt = structure.lattice
+            for fop, op in zip(fracsymmops, symmops):
+                for site in structure:
+                    newfrac = fop.operate(site.frac_coords)
+                    newcart = op.operate(site.coords)
+                    self.assertTrue(np.allclose(latt.get_fractional_coords(newcart),
+                                                newfrac))
+                    found = False
+                    newsite = PeriodicSite(site.species_and_occu, newcart, latt,
+                                           coords_are_cartesian=True)
+                    for testsite in structure:
+                        if newsite.is_periodic_image(testsite, 1e-3):
+                            found = True
+                            break
+                    self.assertTrue(found)
 
     def test_get_refined_structure(self):
         for a in self.sg.get_refined_structure().lattice.angles:
