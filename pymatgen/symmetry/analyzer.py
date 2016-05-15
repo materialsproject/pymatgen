@@ -41,20 +41,8 @@ from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord_utils import find_in_coord_list
 
-
-try:
-    import pymatgen._spglib as spg
-except ImportError:
-    try:
-        import spglib._spglib as spg
-    except ImportError:
-        try:
-            import pyspglib._spglib as spg
-        except ImportError:
-            msg = "Spglib required. Please either run python setup.py install" + \
-                  " for pymatgen, or install pyspglib from spglib."
-            raise ImportError(msg)
-
+import spglib
+import spglib._spglib as spg
 
 logger = logging.getLogger(__name__)
 
@@ -104,49 +92,10 @@ class SpacegroupAnalyzer(object):
         self._unique_species = unique_species
         self._numbers = np.array(zs, dtype='intc')
 
-        dataset = {}
-        keys = ('number',
-                'hall_number',
-                'international',
-                'hall',
-                'transformation_matrix',
-                'origin_shift',
-                'rotations',
-                'translations',
-                'wyckoffs',
-                'equivalent_atoms',
-                'std_lattice',
-                'std_types',
-                'std_positions',
-                'pointgroup_number',
-                'pointgroup')
-        for key, data in zip(keys, spg.dataset(self._transposed_latt.copy(),
-                                               self._positions.copy(),
-                                               self._numbers, self._symprec,
-                                               self._angle_tol)):
-
-            dataset[key] = data
-
-        dataset['international'] = dataset['international'].strip()
-        dataset['hall'] = dataset['hall'].strip()
-        dataset['transformation_matrix'] = np.array(
-            dataset['transformation_matrix'], dtype='double', order='C')
-        dataset['origin_shift'] = np.array(dataset['origin_shift'], dtype='double')
-        dataset['rotations'] = np.array(dataset['rotations'],
-                                        dtype='intc', order='C')
-        dataset['translations'] = np.array(dataset['translations'],
-                                           dtype='double', order='C')
-        letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        dataset['wyckoffs'] = [letters[x] for x in dataset['wyckoffs']]
-        dataset['equivalent_atoms'] = np.array(dataset['equivalent_atoms'],
-                                               dtype='intc')
-        dataset['std_lattice'] = np.array(np.transpose(dataset['std_lattice']),
-                                          dtype='double', order='C')
-        dataset['std_types'] = np.array(dataset['std_types'], dtype='intc')
-        dataset['std_positions'] = np.array(dataset['std_positions'],
-                                            dtype='double', order='C')
-        dataset['pointgroup'] = dataset['pointgroup'].strip()
-        self._spacegroup_data = dataset
+        self._spacegroup_data = spglib.get_symmetry_dataset(
+            (self._transposed_latt.copy(), self._positions.copy(),
+             self._numbers), symprec=self._symprec,
+            angle_tolerance=self._angle_tol)
 
     def get_spacegroup(self):
         """

@@ -52,7 +52,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.sg3 = SpacegroupAnalyzer(s, 0.001)
         graphite = self.get_structure('Graphite')
         graphite.add_site_property("magmom", [0.1] * len(graphite))
-        self.sg4 = SpacegroupAnalyzer(graphite, 0.001)
+        self.sg4 = SpacegroupAnalyzer(graphite, 0.01)
 
     def test_get_space_symbol(self):
         self.assertEqual(self.sg.get_spacegroup_symbol(), "Pnma")
