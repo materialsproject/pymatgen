@@ -148,7 +148,7 @@ class SpacegroupAnalyzer(object):
         # passing a 0-length rotations list to spglib can segfault
         if len(rotations) == 0:
             return '1'
-        return get_point_group(rotations)[0].strip()
+        return spglib.get_pointgroup(rotations)[0].strip()
 
     def get_crystal_system(self):
         """
@@ -693,52 +693,6 @@ class SpacegroupAnalyzer(object):
                                site_properties=struct.site_properties,
                                to_unit_cell=True)
         return new_struct.get_sorted_structure()
-
-
-def get_point_group(rotations):
-    """
-    Get point group from a set of rotations.
-
-    Returns:
-        (pointgroup_symbol, pointgroup_number, transformation_matrix)
-
-    symbol and number are those used in international table.
-    The symbols are mapped to the numbers as follows:
-    1   "1    "
-    2   "-1   "
-    3   "2    "
-    4   "m    "
-    5   "2/m  "
-    6   "222  "
-    7   "mm2  "
-    8   "mmm  "
-    9   "4    "
-    10  "-4   "
-    11  "4/m  "
-    12  "422  "
-    13  "4mm  "
-    14  "-42m "
-    15  "4/mmm"
-    16  "3    "
-    17  "-3   "
-    18  "32   "
-    19  "3m   "
-    20  "-3m  "
-    21  "6    "
-    22  "-6   "
-    23  "6/m  "
-    24  "622  "
-    25  "6mm  "
-    26  "-62m "
-    27  "6/mmm"
-    28  "23   "
-    29  "m-3  "
-    30  "432  "
-    31  "-43m "
-    32  "m-3m "
-    """
-    return spglib._spglib.pointgroup(np.array(rotations, dtype='intc',
-                                              order='C'))
 
 
 class PointGroupAnalyzer(object):
