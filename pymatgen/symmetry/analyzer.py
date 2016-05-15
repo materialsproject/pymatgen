@@ -22,7 +22,6 @@ from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord_utils import find_in_coord_list
 
-
 """
 An interface to the excellent spglib library by Atsushi Togo
 (http://spglib.sourceforge.net/) for pymatgen.
