@@ -120,6 +120,15 @@ class SpacegroupAnalyzerTest(PymatgenTest):
                             break
                     self.assertTrue(found)
 
+                # Make sure this works for any position, not just the atomic
+                # ones.
+                random_fcoord = np.random.uniform(size=(3))
+                random_ccoord = latt.get_cartesian_coords(random_fcoord)
+                newfrac = fop.operate(random_fcoord)
+                newcart = op.operate(random_ccoord)
+                self.assertTrue(np.allclose(latt.get_fractional_coords(newcart),
+                                            newfrac))
+
     def test_get_refined_structure(self):
         for a in self.sg.get_refined_structure().lattice.angles:
             self.assertEqual(a, 90)
