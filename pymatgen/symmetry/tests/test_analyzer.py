@@ -55,6 +55,19 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.sg4 = SpacegroupAnalyzer(graphite, 0.001)
         self.structure4 = graphite
 
+    def test_magnetic(self):
+        lfp = PymatgenTest.get_structure("LiFePO4")
+        sg = SpacegroupAnalyzer(lfp, 0.1)
+        self.assertEqual(sg.get_spacegroup_symbol(), "Pnma")
+        magmoms = [0] * len(lfp)
+        magmoms[4] = 1
+        magmoms[5] = -1
+        magmoms[6] = 1
+        magmoms[7] = -1
+        lfp.add_site_property("magmom", magmoms)
+        sg = SpacegroupAnalyzer(lfp, 0.1)
+        self.assertEqual(sg.get_spacegroup_symbol(), "Pnma")
+
     def test_get_space_symbol(self):
         self.assertEqual(self.sg.get_spacegroup_symbol(), "Pnma")
         self.assertEqual(self.disordered_sg.get_spacegroup_symbol(),
