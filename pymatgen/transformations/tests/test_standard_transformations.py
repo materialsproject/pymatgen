@@ -199,7 +199,7 @@ class OxidationStateRemovalTransformationTest(unittest.TestCase):
 class PartialRemoveSpecieTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
-        t = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, True)
+        t = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
