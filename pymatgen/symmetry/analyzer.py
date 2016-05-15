@@ -10,6 +10,9 @@ An interface to the excellent spglib library by Atsushi Togo
 
 v1.0 - Now works with both ordered and disordered structure.
 v2.0 - Updated for spglib 1.6.
+v3.0 - pymatgen no longer ships with spglib. Instead, spglib (the python
+       version) is now a dependency and the SpacegroupAnalyzer merely serves
+       as an interface to spglib for pymatgen Structures.
 
 .. note::
     Not all spglib functions are implemented.
@@ -17,14 +20,14 @@ v2.0 - Updated for spglib 1.6.
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "2.0"
+__version__ = "3.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
-__date__ = "Mar 9, 2012"
+__date__ = "May 14, 2016"
 
 import itertools
 import logging
-from collections import defaultdict, Counter
+from collections import defaultdict
 
 import math
 from math import cos
