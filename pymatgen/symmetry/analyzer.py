@@ -227,8 +227,8 @@ class SpacegroupAnalyzer(object):
             "translations" gives the numpy float64 array of the translation
             vectors in scaled positions.
         """
-        d = spglib.get_symmetry(self._cell, self._symprec, self._angle_tol)
-
+        #TODO: Add back angle tol.
+        d = spglib.get_symmetry(self._cell, self._symprec)
         return d[0]["rotations"], d[0]["translations"]
 
     def get_symmetry_operations(self, cartesian=False):
