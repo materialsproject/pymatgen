@@ -338,10 +338,11 @@ class SpacegroupAnalyzer(object):
         mapping, grid = spglib.get_ir_reciprocal_mesh(
             np.array(mesh), self._cell, is_shift=np.array(shift))
 
-        ir_grid = []
+        results = []
+        tmp_map = list(mapping)
         for i in np.unique(mapping):
-            ir_grid.append(grid[i] / mesh)
-        return np.array(ir_grid)
+            results.append((grid[i] / mesh, tmp_map.count(i)))
+        return results
 
     def get_primitive_standard_structure(self, international_monoclinic=True):
         """
