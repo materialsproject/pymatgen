@@ -71,28 +71,33 @@ class SpacegroupAnalyzer(object):
         self._symprec = symprec
         self._angle_tol = angle_tolerance
         self._structure = structure
-        #Spglib"s convention for the lattice definition is the transpose of the
-        #pymatgen version.
-        self._latt = structure.lattice.matrix
-        self._positions = np.array(
-            [site.frac_coords for site in structure], dtype='double',
-            order='C'
-        )
+        latt = structure.lattice.matrix
+        positions = structure.frac_coords
         unique_species = []
         zs = []
+        magmoms = []
 
         for species, g in itertools.groupby(structure,
                                             key=lambda s: s.species_and_occu):
-            try:
+            if species in unique_species:
                 ind = unique_species.index(species)
                 zs.extend([ind + 1] * len(tuple(g)))
-            except ValueError:
+            else:
                 unique_species.append(species)
                 zs.extend([len(unique_species)] * len(tuple(g)))
+
+        for site in structure:
+            if hasattr(site, 'magmom'):
+                magmoms.append(site.magmom)
+            elif site.is_ordered and hasattr(site.specie, 'spin'):
+                magmoms.append(site.specie.spin)
+            else:
+                magmoms.append(0)
+
         self._unique_species = unique_species
-        self._numbers = np.array(zs, dtype='intc')
-        self._cell = (self._latt, self._positions, self._numbers,
-                      [0] * len(self._numbers))
+        self._numbers = zs
+        # For now, we are setting magmom to zero.
+        self._cell = latt, positions, zs, magmoms
 
         self._spacegroup_data = spglib.get_symmetry_dataset(
             self._cell, symprec=self._symprec, angle_tolerance=angle_tolerance)
