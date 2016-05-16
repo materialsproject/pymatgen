@@ -25,7 +25,6 @@ from monty.functools import lazy_property
 from monty.os.path import find_exts
 from monty.dev import deprecated
 from monty.json import MSONable, MontyDecoder
-
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 from pymatgen.core.periodic_table import Element
 from pymatgen.serializers.json_coders import pmg_serialize
@@ -65,7 +64,7 @@ def _read_nlines(filename, nlines):
 
     lines = []
     with open(filename, 'r') as fh:
-        for (lineno, line) in enumerate(fh):
+        for lineno, line in enumerate(fh):
             if lineno == nlines: break
             lines.append(line)
         return lines
@@ -265,17 +264,12 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             report["md5"] = self.compute_md5()
             self.write_dojo_report(report=report)
 
-    #@abc.abstractproperty
-    #def has_soc(self):
-    #    """True if pseudo contains spin-orbit coupling."""
-
-    #@abc.abstractmethod
-    #def num_of_projectors(self, l='s'):
-    #    """Number of projectors for the angular channel l"""
-
-    #@abc.abstractmethod
-    #def generation_mode
-    #    """scalar scalar-relativistic, relativistic."""
+    @abc.abstractproperty
+    def supports_soc(self):
+        """
+        True if the pseudo can be used in a calculation with spin-orbit coupling.
+        Base classes should provide a concrete implementation.
+        """
 
     @pmg_serialize
     def as_dict(self, **kwargs):
@@ -287,7 +281,8 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             Z_val=self.Z_val,
             l_max=self.l_max,
             md5=self.md5,
-            filepath=self.filepath
+            filepath=self.filepath,
+            #xc=self.xc.as_dict(),
         )
 
     @classmethod
@@ -534,14 +529,13 @@ class AbinitPseudo(Pseudo):
             header: :class:`AbinitHeader` instance.
         """
         self.path = path
+        self.header = header
         self._summary = header.summary
 
         if hasattr(header, "dojo_report"):
             self.dojo_report = header.dojo_report
         else:
             self.dojo_report = {}
-
-        #self.pspcod  = header.pspcod
 
         for attr_name, desc in header.items():
             value = header.get(attr_name, None)
@@ -569,6 +563,18 @@ class AbinitPseudo(Pseudo):
     @property
     def l_local(self):
         return self._lloc
+
+    @property
+    def supports_soc(self):
+        # Treate ONCVPSP pseudos
+        if self._pspcod == 8:
+            print(self.header.keys())
+            switch = self.header["extension_switch"]
+            if switch in [0, 1]: return False
+            if switch in [2, 3]: return True
+            raise ValueError("Don't know how to handle extension_switch: %s" % switch)
+
+        return False
 
 
 class NcAbinitPseudo(NcPseudo, AbinitPseudo):
@@ -607,6 +613,10 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
         return self._r_cut
 
     #def orbitals(self):
+
+    @property
+    def supports_soc(self):
+        return True
 
 
 #class Hint(namedtuple("Hint", "ecut aug_ratio")):
@@ -711,7 +721,6 @@ def _int_from_str(string):
         int_num = np.rint(float_num)
         warn("Converting float %s to int %s" % (float_num, int_num))
         return int_num
-        #raise TypeError("Cannot convert string %s to int" % string)
 
 
 class NcAbinitHeader(AbinitHeader):
@@ -745,9 +754,8 @@ class NcAbinitHeader(AbinitHeader):
 
         self.summary = summary.strip()
 
-        for (key, desc) in NcAbinitHeader._VARS.items():
+        for key, desc in NcAbinitHeader._VARS.items():
             default, astype = desc.default, desc.astype
-
             value = kwargs.pop(key, None)
 
             if value is None:
@@ -765,8 +773,9 @@ class NcAbinitHeader(AbinitHeader):
         # Add dojo_report
         self["dojo_report"] = kwargs.pop("dojo_report", {})
 
-        #if kwargs:
-        #    raise RuntimeError("kwargs should be empty but got %s" % str(kwargs))
+        # Add remaining arguments, e.g. extension_switch
+        if kwargs:
+            self.update(kwargs)
 
     @staticmethod
     def fhi_header(filename, ppdesc):
@@ -778,7 +787,7 @@ class NcAbinitHeader(AbinitHeader):
            1    1    2    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
         1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg
         """
-        lines = _read_nlines(filename, -1)
+        lines = _read_nlines(filename, 4)
 
         try:
             header = _dict_from_lines(lines[:4], [0, 3, 6, 3])
@@ -801,7 +810,7 @@ class NcAbinitHeader(AbinitHeader):
            10   8  010605 zatom,zion,pspdat
          3 1   1 0 2001 0  pspcod,pspxc,lmax,lloc,mmax,r2well
         """
-        lines = _read_nlines(filename, -1)
+        lines = _read_nlines(filename, 3)
 
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
@@ -822,7 +831,7 @@ class NcAbinitHeader(AbinitHeader):
         0 0                                rp, h1p
           1.36 .2   0.6                    rcutoff, rloc
         """
-        lines = _read_nlines(filename, -1)
+        lines = _read_nlines(filename, 7)
 
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
@@ -845,13 +854,18 @@ class NcAbinitHeader(AbinitHeader):
              1  0.0000000000000D+00  0.0000000000000D+00  0.0000000000000D+00
              2  1.0000000000000D-02  4.4140499497377D-02  1.9909081701712D-02
         """
-        lines = _read_nlines(filename, -1)
+        lines = _read_nlines(filename, 6)
 
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
 
+        # Replace pspd with pspdata
         header.update({'pspdat': header['pspd']})
         header.pop('pspd')
+
+        # Read extension switch
+        header["extension_switch"] = int(lines[5].split()[0])
+
         try:
             header["dojo_report"] = DojoReport.from_file(filename)
         except DojoReport.Error:
@@ -1108,7 +1122,7 @@ class PseudoParser(object):
         Returns:
             List of pseudopotential objects.
         """
-        for (i, ext) in enumerate(exclude_exts):
+        for i, ext in enumerate(exclude_exts):
             if not ext.strip().startswith("."):
                 exclude_exts[i] =  "." + ext.strip()
 
@@ -1348,6 +1362,10 @@ class PawXmlSetup(Pseudo, PawPseudo):
     @property
     def paw_radius(self):
         return self._paw_radius
+
+    @property
+    def supports_soc(self):
+        return True
 
     @staticmethod
     def _eval_grid(grid_params):
