@@ -163,40 +163,47 @@ class BoltztrapRunner(object):
         self.scissor = scissor
         self.tmax = tmax
         self.tgrid = tgrid
+        if self.run_type in ("DOS", "BANDS"):
+            self.auto_set_energy_range()
+
+    def auto_set_energy_range(self, buffer_in_ev=2.0):
+        """
+        automatically determine the energy range as min/max eigenvalue
+        minus/plus the buffer_in_ev
+        Args:
+            buffer_in_ev:
+        """
+        emins = [min([e_k[0] for e_k in self._bs.bands[Spin.up]])]
+        emaxs = [max([e_k[0] for e_k in self._bs.bands[Spin.up]])]
+
+        if self._bs.is_spin_polarized:
+            emins.append(min([e_k[0] for e_k in
+                              self._bs.bands[Spin.down]]))
+
+            emaxs.append(max([e_k[0] for e_k in
+                              self._bs.bands[Spin.down]]))
+
+        min_eigenval = Energy(min(emins) - self._bs.efermi, "eV").\
+            to("Ry")
+        max_eigenval = Energy(max(emaxs) - self._bs.efermi, "eV").\
+            to("Ry")
+
+        # set energy range to buffer around min/max EV
+        const = Energy(buffer_in_ev, "eV").to("Ry")
+        self._ll = min_eigenval - const
+        self._hl = max_eigenval + const
+
+        en_range = Energy(max((abs(self._ll), abs(self._hl))),
+                          "Ry").to("eV")
+
+        self.energy_span_around_fermi = en_range * 1.01
+        print("energy_span_around_fermi = ",
+              self.energy_span_around_fermi)
 
     def _make_energy_file(self, file_name):
         with open(file_name, 'w') as f:
             f.write("test\n")
             f.write("{}\n".format(len(self._bs.kpoints)))
-
-            if self.run_type in ("DOS", "BANDS"):
-                # figure out the min/max eigenvalue
-                emins = [min([e_k[0] for e_k in self._bs.bands[Spin.up]])]
-                emaxs = [max([e_k[0] for e_k in self._bs.bands[Spin.up]])]
-
-                if self._bs.is_spin_polarized:
-                    emins.append(min([e_k[0] for e_k in
-                                      self._bs.bands[Spin.down]]))
-
-                    emaxs.append(max([e_k[0] for e_k in
-                                      self._bs.bands[Spin.down]]))
-
-                min_eigenval = Energy(min(emins) - self._bs.efermi, "eV").\
-                    to("Ry")
-                max_eigenval = Energy(max(emaxs) - self._bs.efermi, "eV").\
-                    to("Ry")
-
-                # set energy range to buffer around min/max EV
-                const = Energy(2, "eV").to("Ry")
-                self._ll = min_eigenval - const
-                self._hl = max_eigenval + const
-
-                en_range = Energy(max((abs(self._ll), abs(self._hl))),
-                                  "Ry").to("eV")
-
-                self.energy_span_around_fermi = en_range * 1.01
-                print("energy_span_around_fermi = ",
-                      self.energy_span_around_fermi)
 
             if self.run_type != "FERMI":
                 for i in range(len(self._bs.kpoints)):
