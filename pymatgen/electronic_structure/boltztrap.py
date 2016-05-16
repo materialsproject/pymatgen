@@ -205,7 +205,22 @@ class BoltztrapRunner(object):
             f.write("test\n")
             f.write("{}\n".format(len(self._bs.kpoints)))
 
-            if self.run_type != "FERMI":
+            if self.run_type == "FERMI":
+                sign = 1.0 if self.cond_band else -1.0
+                for i in range(len(self._bs.kpoints)):
+                    tmp_eigs = []
+                    tmp_eigs.append(Energy(
+                        self._bs.bands[Spin(self.spin)][self.band_nb][i] -
+                        self._bs.efermi, "eV").to("Ry"))
+                    f.write("%12.8f %12.8f %12.8f %d\n"
+                            % (self._bs.kpoints[i].frac_coords[0],
+                               self._bs.kpoints[i].frac_coords[1],
+                               self._bs.kpoints[i].frac_coords[2],
+                               len(tmp_eigs)))
+                    for j in range(len(tmp_eigs)):
+                        f.write("%18.8f\n" % (sign * float(tmp_eigs[j])))
+
+            else:
                 for i in range(len(self._bs.kpoints)):
                     tmp_eigs = []
                     if self.run_type == "DOS":
@@ -233,21 +248,6 @@ class BoltztrapRunner(object):
 
                     for j in range(len(tmp_eigs)):
                         f.write("%18.8f\n" % (float(tmp_eigs[j])))
-
-            else:
-                sign = 1.0 if self.cond_band else -1.0
-                for i in range(len(self._bs.kpoints)):
-                    tmp_eigs = []
-                    tmp_eigs.append(Energy(
-                        self._bs.bands[Spin(self.spin)][self.band_nb][i] -
-                        self._bs.efermi, "eV").to("Ry"))
-                    f.write("%12.8f %12.8f %12.8f %d\n"
-                            % (self._bs.kpoints[i].frac_coords[0],
-                               self._bs.kpoints[i].frac_coords[1],
-                               self._bs.kpoints[i].frac_coords[2],
-                               len(tmp_eigs)))
-                    for j in range(len(tmp_eigs)):
-                        f.write("%18.8f\n" % (sign * float(tmp_eigs[j])))
 
     def _make_struc_file(self, file_name):
         sym = SpacegroupAnalyzer(self._bs.structure, symprec=0.01)
