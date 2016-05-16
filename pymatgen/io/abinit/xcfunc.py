@@ -11,6 +11,15 @@ from monty.functools import lazy_property
 from pymatgen.serializers.json_coders import pmg_serialize
 from pymatgen.io.abinit.libxcfunc import LibxcFunc
 
+__author__ = "Matteo Giantomassi"
+__copyright__ = "Copyright 2016, The Materials Project"
+__version__ = "3.0.0"  # The libxc version used to generate this file!
+__maintainer__ = "Matteo Giantomassi"
+__email__ = "gmatteo@gmail.com"
+__status__ = "Production"
+__date__ = "May 16, 2016"
+
+
 class XcFunc(MSONable):
     """
     This object stores information about the XC correlation functional 
@@ -53,7 +62,7 @@ class XcFunc(MSONable):
     type_name = namedtuple("type_name", "type, name")
     
     xcf = LibxcFunc
-    aliases = OrderedDict([  # (x, c) --> type_name 
+    defined_aliases = OrderedDict([  # (x, c) --> type_name 
 	((xcf.LDA_X, xcf.LDA_C_PW), type_name("LDA", "PW")),
 	((xcf.GGA_X_PW91, xcf.GGA_C_PW91), type_name("GGA", "PW91")),
 	((xcf.GGA_X_PBE, xcf.GGA_C_PBE), type_name("GGA", "PBE")),
@@ -68,23 +77,26 @@ class XcFunc(MSONable):
     # Correspondence between Abinit ixc and libxc notation.
     # see: http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#ixc
     abinitixc_to_libxc = {
-	"11": dict(x=xcf.GGA_X_PBE, c=xcf.GGA_C_PBE),
+         1: dict(xc=xcf.LDA_XC_TETER93),
+         2: dict(x=xcf.LDA_X, c=xcf.LDA_C_PZ),
+         7: dict(x=xcf.LDA_X, c=xcf.LDA_C_PW),
+	11: dict(x=xcf.GGA_X_PBE, c=xcf.GGA_C_PBE),
     }
     del xcf
 
     @classmethod 
-    def known_names(cls):
+    def aliases(cls):
 	"""List of registered names."""
-	return [nt.name for nt in cls.aliases.values()]
+	return [nt.name for nt in cls.defined_aliases.values()]
 
     @classmethod
-    def from_abinit_ixc(cls, ixc_string):
-        """Build the object from Abinit ixc (string)"""
-        ixc = ixc_string.strip()
-        if not ixc.startswith("-"):
+    def from_abinit_ixc(cls, ixc):
+        """Build the object from Abinit ixc (int)"""
+        if ixc >= 0:
             return cls(**cls.abinitixc_to_libxc[ixc])
         else:
             # libxc notation employed in Abinit: a six-digit number in the form XXXCCC or CCCXXX
+            ixc = str(ixc)
 	    assert len(ixc[1:]) == 6
             first, last = ixc[1:4], ixc[4:]
             x, c = LibxcFunc(int(first)), LibxcFunc(int(last))
@@ -94,14 +106,27 @@ class XcFunc(MSONable):
 
     @classmethod
     def from_name(cls, name):
-        """Build the object from one of the registered named"""
-	for k, type_name in cls.aliases.items():
-	    if type_name.name == name: 
+        """Build the object from one of the registered names"""
+        return cls.from_type_name(None, name)
+
+    @classmethod
+    def from_type_name(cls, typ, name):
+        """Build the object from (type, name)."""
+        # Handle <xc_functional type="GGA", name="GGA_X_PBE+GGA_C_PBE"/>
+        #if "+" in name or name in LibxcFunc:
+
+        # Handle <xc_functional type="LDA", name="LDA_X+LDA_C_PW"/>
+	for k, nt in cls.defined_aliases.items():
+            if typ is not None and typ != nt.type: continue
+	    if name == nt.name:
 		if len(k) == 1: return cls(xc=k)
 		if len(k) == 2: return cls(x=k[0], c=k[1])
 		raise ValueError("Wrong key: %s" % k)
 
-	raise ValueError("Cannot find name=%s in aliases" % name)
+        if typ is None:
+	    raise ValueError("Cannot find name=%s in defined_aliases" % name)
+        else:
+	    raise ValueError("Cannot find type=%s, name=%s in defined_aliases" % (typ, name))
 
     @classmethod
     def from_dict(cls, d):
@@ -138,20 +163,21 @@ class XcFunc(MSONable):
 
         self.xc, self.x, self.c = xc, x, c
 
-    @lazy_property
-    def type_name(self):
-	"""String in the form `type-name` e.g. GGA-PBE"""
-	return "-".join([self.type, self.name])
+    #@lazy_property
+    #def type_name(self):
+    #    """String in the form `type-name` e.g. GGA-PBE"""
+    #   return "-".join([self.type, self.name])
 
     @lazy_property
     def type(self):
 	"""The type of the functional."""
-	if self.xc in self.aliases: return self.aliases[self.xc].type
+	if self.xc in self.defined_aliases: return self.defined_aliases[self.xc].type
 	xc = (self.x, self.c)
-	if xc in self.aliases: return self.aliases[xc].type
-	raise NotImplementedError()
-	if self.xc is not None: return self.xc.type
-	return "+".join([self.x.type, self.c.type])
+	if xc in self.defined_aliases: return self.defined_aliases[xc].type
+
+        # If self is not in defined_aliases, use LibxcFunc family
+	if self.xc is not None: return self.xc.family
+	return "+".join([self.x.family, self.c.family])
 
     @lazy_property
     def name(self):
@@ -159,9 +185,9 @@ class XcFunc(MSONable):
         The name of the functional. If the functional is not found in the aliases,
         the string has the form X_NAME+C_NAME
         """
-	if self.xc in self.aliases: return self.aliases[self.xc].name
+	if self.xc in self.defined_aliases: return self.defined_aliases[self.xc].name
 	xc = (self.x, self.c)
-	if xc in self.aliases: return self.aliases[xc].name
+	if xc in self.defined_aliases: return self.defined_aliases[xc].name
 	if self.xc is not None: return self.xc.name
 	return "+".join([self.x.name, self.c.name])
 

@@ -12,14 +12,6 @@ Use To add support for a new libxc version:
 """
 from __future__ import division, unicode_literals, print_function
 
-__author__ = "Matteo Giantomassi"
-__copyright__ = "Copyright 2016, The Materials Project"
-__version__ = "3.0.0"  # The libxc version used to generate this file!
-__maintainer__ = "Matteo Giantomassi"
-__email__ = "gmatteo@gmail.com"
-__status__ = "Production"
-__date__ = "May 16, 2016"
-
 import json
 import os
 
@@ -28,9 +20,22 @@ from enum import Enum, unique
 from monty.json import MontyEncoder
 from pymatgen.serializers.json_coders import pmg_serialize
 
+__author__ = "Matteo Giantomassi"
+__copyright__ = "Copyright 2016, The Materials Project"
+__version__ = "3.0.0"  # The libxc version used to generate this file!
+__maintainer__ = "Matteo Giantomassi"
+__email__ = "gmatteo@gmail.com"
+__status__ = "Production"
+__date__ = "May 16, 2016"
+
+
 # Loads libxc info from json file
 with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"), "rt") as fh:
     _all_xcfuncs = {int(k): v for k, v in json.load(fh).items()}
+    # Remove XC_FAMILY from Family and XC_ from Kind to make strings more human-readable.
+    for d in _all_xcfuncs.values():
+        d["Family"] = d["Family"].replace("XC_FAMILY_", "", 1)
+        d["Kind"] = d["Kind"].replace("XC_", "", 1)
 
 # @unique
 class LibxcFunc(Enum):
@@ -421,27 +426,27 @@ class LibxcFunc(Enum):
 
     @property
     def is_x_kind(self):
-        return self.kind == "XC_EXCHANGE"
+        return self.kind == "EXCHANGE"
 
     @property
     def is_c_kind(self):
-        return self.kind == "XC_CORRELATION"
+        return self.kind == "CORRELATION"
 
     @property
     def is_k_kind(self):
-        return self.kind == "XC_KINETIC"
+        return self.kind == "KINETIC"
 
     @property
     def is_xc_kind(self):
-        return self.kind == "XC_EXCHANGE_CORRELATION"
+        return self.kind == "EXCHANGE_CORRELATION"
 
     @property
     def is_lda_family(self):
-        return self.family == "XC_FAMILY_LDA"
+        return self.family == "LDA"
 
     @property
     def is_gga_family(self):
-        return self.family == "XC_FAMILY_GGA"
+        return self.family == "GGA"
 
     #@property
     #def is_lda_xc(self):
@@ -462,7 +467,7 @@ class LibxcFunc(Enum):
     @staticmethod
     def from_dict(d):
         """
-        Makes Element obey the general json interface used in pymatgen for
+        Makes LibxcFunc obey the general json interface used in pymatgen for
         easier serialization.
         """
         return LibxcFunc[d["name"]]
