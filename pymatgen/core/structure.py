@@ -1319,12 +1319,6 @@ class IStructure(SiteCollection, MSONable):
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         return cls.from_sites(sites)
 
-    #@deprecated(message="to_abivars has been merged with the as_dict method. "
-    #                    "Use as_dict(fmt=\"abivars\"). to_abivars will be "
-    #                    "removed in pymatgen 4.0.")
-    #def to_abivars(self, **kwargs):
-    #    return self.as_dict(verbosity=1, fmt="abivars", **kwargs)
-
     def to(self, fmt=None, filename=None, **kwargs):
         """
         Outputs the structure to a file or string.
