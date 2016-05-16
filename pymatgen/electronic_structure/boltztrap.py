@@ -261,13 +261,10 @@ class BoltztrapRunner(object):
             for c in ops:
                 for row in c:
                     f.write("{}\n".format(" ".join(str(i) for i in row)))
-                #f.write('\n'.join([' '.join([str(int(i)) for i in row])
-                #                   for row in c]))
-                #f.write('\n')
 
-    # This function is useless in std version of BoltzTraP code
-    # because x_trans script overwrite BoltzTraP.def
     def _make_def_file(self, def_file_name):
+        # This function is useless in std version of BoltzTraP code
+        # because x_trans script overwrite BoltzTraP.def
         with open(def_file_name, 'w') as f:
             so = ""
             if self._bs.is_spin_polarized or self.soc:
@@ -295,9 +292,9 @@ class BoltztrapRunner(object):
                     "30,'boltztrap_BZ.cube',           'unknown',    "
                     "'formatted',0\n")
 
-    # This function is useless in std version of BoltzTraP code
-    # because x_trans script overwrite BoltzTraP.def
     def _make_proj_files(self, file_name, def_file_name):
+        # This function is useless in std version of BoltzTraP code
+        # because x_trans script overwrite BoltzTraP.def
         for o in Orbital:
             for site_nb in range(0, len(self._bs.structure.sites)):
                 if o in self._bs._projections[Spin.up][0][0]:
