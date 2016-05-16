@@ -6,10 +6,12 @@
 from __future__ import unicode_literals, division, print_function
 
 from collections import namedtuple, OrderedDict
+from monty.json import MSONable, MontyEncoder
 from monty.functools import lazy_property
-from pymatgen.io.abinit.libxcfuncs import LibxcFuncs
+from pymatgen.serializers.json_coders import pmg_serialize
+from pymatgen.io.abinit.libxcfunc import LibxcFunc
 
-class XcFunctional(object):
+class XcFunc(MSONable):
     """
     This object stores information about the XC correlation functional 
     used to generate the pseudo. The implementation is based on the libxc conventions 
@@ -50,7 +52,7 @@ class XcFunctional(object):
     """
     type_name = namedtuple("type_name", "type, name")
     
-    xcf = LibxcFuncs
+    xcf = LibxcFunc
     aliases = OrderedDict([  # (x, c) --> type_name 
 	((xcf.LDA_X, xcf.LDA_C_PW), type_name("LDA", "PW")),
 	((xcf.GGA_X_PW91, xcf.GGA_C_PW91), type_name("GGA", "PW91")),
@@ -85,7 +87,7 @@ class XcFunctional(object):
             # libxc notation employed in Abinit: a six-digit number in the form XXXCCC or CCCXXX
 	    assert len(ixc[1:]) == 6
             first, last = ixc[1:4], ixc[4:]
-            x, c = LibxcFuncs(int(first)), LibxcFuncs(int(last))
+            x, c = LibxcFunc(int(first)), LibxcFunc(int(last))
 	    if not x.is_x_kind: x, c = c, x # Swap
             assert x.is_x_kind and c.is_c_kind
             return cls(x=x, c=c)
@@ -101,11 +103,30 @@ class XcFunctional(object):
 
 	raise ValueError("Cannot find name=%s in aliases" % name)
 
+    @classmethod
+    def from_dict(cls, d):
+	return cls(xc=d.get("xc"), x=d.get("x"), c=d.get("c"))
+
+    @pmg_serialize
+    def as_dict(self):
+	d = {}
+        print("in as_dict", type(self.x), type(self.c), type(self.xc))
+	if self.x is not None: d["x"] = self.x.as_dict()
+	if self.c is not None: d["c"] = self.c.as_dict()
+	if self.xc is not None: d["xc"] = self.xc.as_dict()
+	return d
+
+    #def to_json(self):
+    #    """
+    #    Returns a json string representation of the MSONable object.
+    #    """
+    #    return json.dumps(self.as_dict()) #, cls=MontyEncoder)
+
     def __init__(self, xc=None, x=None, c=None):
 	"""
 	Args:
-	    xc: LibxcFuncs for XC functional.
-	    x, c: LibxcFuncs for exchange and correlation part. Mutually exclusive with xc.
+	    xc: LibxcFunc for XC functional.
+	    x, c: LibxcFunc for exchange and correlation part. Mutually exclusive with xc.
 	"""
         # Consistency check
         if xc is None:
@@ -155,7 +176,7 @@ class XcFunctional(object):
 
     def __eq__(self, other):
 	if other is None: return False
-	if isinstance(other, XcFunctional): return self.name == other.name
+	if isinstance(other, XcFunc): return self.name == other.name
 	# assume other is a string
 	return self.name == other
 
