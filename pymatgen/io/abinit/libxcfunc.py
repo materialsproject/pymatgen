@@ -4,7 +4,7 @@
 """
 Part of this module is automatically generated 
 
-Use To add support for a new libxc version:
+To add support for a new libxc version:
 
 1)
 
@@ -20,9 +20,12 @@ from enum import Enum, unique
 from monty.json import MontyEncoder
 from pymatgen.serializers.json_coders import pmg_serialize
 
+# The libxc version used to generate this file!
+libxc_version = "3.0.0"  
+
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2016, The Materials Project"
-__version__ = "3.0.0"  # The libxc version used to generate this file!
+__version__ = libxc_version
 __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo@gmail.com"
 __status__ = "Production"
@@ -32,6 +35,7 @@ __date__ = "May 16, 2016"
 # Loads libxc info from json file
 with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"), "rt") as fh:
     _all_xcfuncs = {int(k): v for k, v in json.load(fh).items()}
+    # TODO: This should be done when I parse libxc_docs.txt, not here.
     # Remove XC_FAMILY from Family and XC_ from Kind to make strings more human-readable.
     for d in _all_xcfuncs.values():
         d["Family"] = d["Family"].replace("XC_FAMILY_", "", 1)
@@ -448,13 +452,17 @@ class LibxcFunc(Enum):
     def is_gga_family(self):
         return self.family == "GGA"
 
-    #@property
-    #def is_lda_xc(self):
-    #    return self.is_lda_family and self.is_xc_kind
+    @property
+    def is_mgga_family(self):
+        return self.family == "MGGA"
 
-    #@property
-    #def is_gga_xc(self):
-    #    return self.is_gga_family and self.is_xc_kind
+    @property
+    def is_hyb_gga_family(self):
+        return self.family == "HYB_GGA"
+
+    @property
+    def is_hyb_mgga_family(self):
+        return self.family == "HYB_MGGA"
 
     @pmg_serialize
     def as_dict(self):
