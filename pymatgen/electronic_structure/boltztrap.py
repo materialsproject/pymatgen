@@ -200,7 +200,7 @@ class BoltztrapRunner(object):
         print("energy_span_around_fermi = ",
               self.energy_span_around_fermi)
 
-    def _make_energy_file(self, file_name):
+    def write_energy(self, file_name):
         with open(file_name, 'w') as f:
             f.write("test\n")
             f.write("{}\n".format(len(self._bs.kpoints)))
@@ -249,7 +249,7 @@ class BoltztrapRunner(object):
                     for j in range(len(eigs)):
                         f.write("%18.8f\n" % (float(eigs[j])))
 
-    def _make_struc_file(self, file_name):
+    def write_struct(self, file_name):
         sym = SpacegroupAnalyzer(self._bs.structure, symprec=0.01)
 
         with open(file_name, 'w') as f:
@@ -267,7 +267,7 @@ class BoltztrapRunner(object):
                 for row in c:
                     f.write("{}\n".format(" ".join(str(i) for i in row)))
 
-    def _make_def_file(self, def_file_name):
+    def write_def(self, def_file_name):
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def
         with open(def_file_name, 'w') as f:
@@ -297,7 +297,7 @@ class BoltztrapRunner(object):
                     "30,'boltztrap_BZ.cube',           'unknown',    "
                     "'formatted',0\n")
 
-    def _make_proj_files(self, file_name, def_file_name):
+    def write_proj(self, file_name, def_file_name):
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def
         for o in Orbital:
@@ -365,7 +365,7 @@ class BoltztrapRunner(object):
                                 "\' \'old\', \'formatted\',0\n")
                         i += 1
 
-    def _make_intrans_file(self, file_name):
+    def write_intrans(self, file_name):
         setgap = 1 if self.scissor > 0.0001 else 0
 
         if self.run_type == "BOLTZ" or self.run_type == "DOS":
@@ -470,18 +470,18 @@ class BoltztrapRunner(object):
                     fout.writelines([str(k) + " " for k in kp])
                     fout.write('\n')
 
-    def _make_all_files(self, path):
+    def write_input(self, path):
         if self._bs.is_spin_polarized or self.soc:
-            self._make_energy_file(os.path.join(path, "boltztrap.energyso"))
+            self.write_energy(os.path.join(path, "boltztrap.energyso"))
         else:
-            self._make_energy_file(os.path.join(path, "boltztrap.energy"))
+            self.write_energy(os.path.join(path, "boltztrap.energy"))
 
-        self._make_struc_file(os.path.join(path, "boltztrap.struct"))
-        self._make_intrans_file(os.path.join(path, "boltztrap.intrans"))
-        self._make_def_file("BoltzTraP.def")
+        self.write_struct(os.path.join(path, "boltztrap.struct"))
+        self.write_intrans(os.path.join(path, "boltztrap.intrans"))
+        self.write_def("BoltzTraP.def")
         if len(self._bs._projections) != 0 and self.run_type == "DOS":
-            self._make_proj_files(os.path.join(path, "boltztrap.proj"),
-                                  os.path.join(path, "BoltzTraP.def"))
+            self.write_proj(os.path.join(path, "boltztrap.proj"),
+                            os.path.join(path, "BoltzTraP.def"))
 
     def run(self, path_dir=None, convergence=True):
         if self.run_type in ("BANDS", "DOS", "FERMI"):
@@ -528,7 +528,7 @@ class BoltztrapRunner(object):
 
                 while self.lpfac < 160:
 
-                    self._make_all_files(path_dir)
+                    self.write_input(path_dir)
                     if self._bs.is_spin_polarized or self.soc:
                         p = subprocess.Popen(["x_trans", "BoltzTraP", "-so"],
                                              stdout=subprocess.PIPE,
