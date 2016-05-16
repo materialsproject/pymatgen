@@ -367,11 +367,9 @@ class BoltztrapRunner(object):
 
     def _make_intrans_file(self, file_name):
         if self.run_type == "BOLTZ" or self.run_type == "DOS":
+            setgap = 1 if self.scissor > 0.0001 else 0
             with open(file_name, 'w') as fout:
                 fout.write("GENE          # use generic interface\n")
-                setgap = 0
-                if self.scissor > 0.0001:
-                    setgap = 1
                 fout.write(
                     "1 0 %d %f         # iskip (not presently used) idebug "
                     "setgap shiftgap \n"
@@ -400,11 +398,11 @@ class BoltztrapRunner(object):
                 fout.write(
                     "-1.  # energyrange of bands given DOS output sig_xxx and "
                     "dos_xxx (xxx is band number)\n")
-                fout.write(self.dos_type + "\n")
-                fout.write(
-                    str(self.tauref) + " " + str(self.tauexp) + " " + str(
-                        self.tauen) + " 0 0 0\n")
-                fout.write(str(2 * len(self.doping)) + "\n")
+                fout.write(self.dos_type + "\n")  # e.g., HISTO or TETRA
+                fout.write("{} {} {} 0 0 0\n".format(
+                    self.tauref, self.tauexp, self.tauen))
+                fout.write("{}\n".format(2 * len(self.doping)))
+
                 for d in self.doping:
                     fout.write(str(d) + "\n")
                 for d in self.doping:
