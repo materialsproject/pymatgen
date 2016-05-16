@@ -72,13 +72,6 @@ class Lattice(MSONable):
         self._inv_matrix = None
         self._metric_tensor = None
 
-    #@classmethod
-    #@deprecated(message="from_abivars has been merged with the from_dict "
-    #            "method. Use from_dict(fmt=\"abivars\"). from_abivars "
-    #            "will be removed in pymatgen 4.0.")
-    #def from_abivars(cls, d, **kwargs):
-    #    return Lattice.from_dict(d, fmt="abivars", **kwargs)
-
     def copy(self):
         """Deep copy of self."""
         return self.__class__(self.matrix.copy())
