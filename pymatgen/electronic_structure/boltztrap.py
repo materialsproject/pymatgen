@@ -208,8 +208,8 @@ class BoltztrapRunner(object):
     def nelec(self):
         return self._nelec
 
-    def write_energy(self, file_name):
-        with open(file_name, 'w') as f:
+    def write_energy(self, output_file):
+        with open(output_file, 'w') as f:
             f.write("test\n")
             f.write("{}\n".format(len(self._bs.kpoints)))
 
@@ -257,10 +257,10 @@ class BoltztrapRunner(object):
                     for j in range(len(eigs)):
                         f.write("%18.8f\n" % (float(eigs[j])))
 
-    def write_struct(self, file_name):
+    def write_struct(self, output_file):
         sym = SpacegroupAnalyzer(self._bs.structure, symprec=0.01)
 
-        with open(file_name, 'w') as f:
+        with open(output_file, 'w') as f:
             f.write("{} {}\n".format(self._bs.structure.composition.formula,
                     sym.get_spacegroup_symbol()))
 
@@ -275,10 +275,10 @@ class BoltztrapRunner(object):
                 for row in c:
                     f.write("{}\n".format(" ".join(str(i) for i in row)))
 
-    def write_def(self, def_file_name):
+    def write_def(self, output_file):
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def
-        with open(def_file_name, 'w') as f:
+        with open(output_file, 'w') as f:
             so = ""
             if self._bs.is_spin_polarized or self.soc:
                 so = "so"
@@ -305,13 +305,13 @@ class BoltztrapRunner(object):
                     "30,'boltztrap_BZ.cube',           'unknown',    "
                     "'formatted',0\n")
 
-    def write_proj(self, file_name, def_file_name):
+    def write_proj(self, output_file_proj, output_file_def):
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def
         for o in Orbital:
             for site_nb in range(0, len(self._bs.structure.sites)):
                 if o in self._bs._projections[Spin.up][0][0]:
-                    with open(file_name + "_" + str(site_nb) + "_" + str(o),
+                    with open(output_file_proj + "_" + str(site_nb) + "_" + str(o),
                               'w') as f:
                         f.write(self._bs.structure.composition.formula + "\n")
                         f.write(str(len(self._bs.kpoints)) + "\n")
@@ -338,7 +338,7 @@ class BoltztrapRunner(object):
                                        len(tmp_proj)))
                             for j in range(len(tmp_proj)):
                                 f.write("%18.8f\n" % float(tmp_proj[j]))
-        with open(def_file_name, 'w') as f:
+        with open(output_file_def, 'w') as f:
             so = ""
             if self._bs.is_spin_polarized:
                 so = "so"
@@ -373,11 +373,11 @@ class BoltztrapRunner(object):
                                 "\' \'old\', \'formatted\',0\n")
                         i += 1
 
-    def write_intrans(self, file_name):
+    def write_intrans(self, output_file):
         setgap = 1 if self.scissor > 0.0001 else 0
 
         if self.run_type == "BOLTZ" or self.run_type == "DOS":
-            with open(file_name, 'w') as fout:
+            with open(output_file, 'w') as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
                     "1 0 %d %f         # iskip (not presently used) idebug "
@@ -418,7 +418,7 @@ class BoltztrapRunner(object):
                     fout.write(str(-d) + "\n")
 
         elif self.run_type == "FERMI":
-            with open(file_name, 'w') as fout:
+            with open(output_file, 'w') as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
                     "1 0 0 0.0         # iskip (not presently used) idebug "
@@ -451,7 +451,7 @@ class BoltztrapRunner(object):
                 self.kpt_line = np.array(
                     [kp.frac_coords for kp in self.kpt_line])
 
-            with open(file_name, 'w') as fout:
+            with open(output_file, 'w') as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
                     "1 0 %d %f         # iskip (not presently used) idebug "
@@ -478,19 +478,19 @@ class BoltztrapRunner(object):
                     fout.writelines([str(k) + " " for k in kp])
                     fout.write('\n')
 
-    def write_input(self, path):
+    def write_input(self, output_dir):
         if self._bs.is_spin_polarized or self.soc:
-            self.write_energy(os.path.join(path, "boltztrap.energyso"))
+            self.write_energy(os.path.join(output_dir, "boltztrap.energyso"))
         else:
-            self.write_energy(os.path.join(path, "boltztrap.energy"))
+            self.write_energy(os.path.join(output_dir, "boltztrap.energy"))
 
-        self.write_struct(os.path.join(path, "boltztrap.struct"))
-        self.write_intrans(os.path.join(path, "boltztrap.intrans"))
+        self.write_struct(os.path.join(output_dir, "boltztrap.struct"))
+        self.write_intrans(os.path.join(output_dir, "boltztrap.intrans"))
         self.write_def(os.path.join("BoltzTraP.def"))
 
         if len(self.bs.projections) != 0 and self.run_type == "DOS":
-            self.write_proj(os.path.join(path, "boltztrap.proj"),
-                            os.path.join(path, "BoltzTraP.def"))
+            self.write_proj(os.path.join(output_dir, "boltztrap.proj"),
+                            os.path.join(output_dir, "BoltzTraP.def"))
 
     def run(self, path_dir=None, convergence=True):
         if self.run_type in ("BANDS", "DOS", "FERMI"):
