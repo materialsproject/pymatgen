@@ -496,15 +496,16 @@ class BoltztrapRunner(object):
         if self.run_type in ("BANDS", "DOS", "FERMI"):
             convergence = False
 
-        if self.run_type == "BANDS" and self._bs.is_spin_polarized:
+        if self.run_type == "BANDS" and self.bs.is_spin_polarized:
             print("Reminder: for run_type " + str(
-                self.run_type) + " spin component are not separated!")
+                self.run_type) + ", spin component are not separated! "
+                                 "(you have a spin polarized band structure)")
 
         if self.run_type in ("FERMI", "DOS") and self.spin is None:
-            if self._bs.is_spin_polarized:
+            if self.bs.is_spin_polarized:
                 raise BoltztrapError(
-                    "Spin component must be specified for spin polarized "
-                    "case!")
+                    "Spin parameter must be specified for spin polarized "
+                    "band structures!")
             else:
                 self.spin = 1
 
