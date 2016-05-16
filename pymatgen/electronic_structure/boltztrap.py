@@ -478,7 +478,7 @@ class BoltztrapRunner(object):
 
         self.write_struct(os.path.join(path, "boltztrap.struct"))
         self.write_intrans(os.path.join(path, "boltztrap.intrans"))
-        self.write_def("BoltzTraP.def")
+        self.write_def(os.path.join("BoltzTraP.def"))
         if len(self._bs._projections) != 0 and self.run_type == "DOS":
             self.write_proj(os.path.join(path, "boltztrap.proj"),
                             os.path.join(path, "BoltzTraP.def"))
