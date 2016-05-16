@@ -208,46 +208,46 @@ class BoltztrapRunner(object):
             if self.run_type == "FERMI":
                 sign = 1.0 if self.cond_band else -1.0
                 for i in range(len(self._bs.kpoints)):
-                    tmp_eigs = []
-                    tmp_eigs.append(Energy(
+                    eigs = []
+                    eigs.append(Energy(
                         self._bs.bands[Spin(self.spin)][self.band_nb][i] -
                         self._bs.efermi, "eV").to("Ry"))
                     f.write("%12.8f %12.8f %12.8f %d\n"
                             % (self._bs.kpoints[i].frac_coords[0],
                                self._bs.kpoints[i].frac_coords[1],
                                self._bs.kpoints[i].frac_coords[2],
-                               len(tmp_eigs)))
-                    for j in range(len(tmp_eigs)):
-                        f.write("%18.8f\n" % (sign * float(tmp_eigs[j])))
+                               len(eigs)))
+                    for j in range(len(eigs)):
+                        f.write("%18.8f\n" % (sign * float(eigs[j])))
 
             else:
-                for i in range(len(self._bs.kpoints)):
-                    tmp_eigs = []
+                for i, kpt in enumerate(self._bs.kpoints):
+                    eigs = []
                     if self.run_type == "DOS":
                         spin_lst = [self.spin]
                     else:
                         spin_lst = self._bs.bands
 
                     for spin in spin_lst:
-                        for j in range(
-                                int(math.floor(self._bs.nb_bands * 0.9))):
-                            tmp_eigs.append(
+                        nb_bands = int(math.floor(self._bs.nb_bands * 0.9))
+                        for j in range(nb_bands):
+                            eigs.append(
                                 Energy(self._bs.bands[Spin(spin)][j][i] -
                                        self._bs.efermi, "eV").to("Ry"))
-                    tmp_eigs.sort()
+                    eigs.sort()
 
                     if self.run_type == "DOS" and self._bs.is_spin_polarized:
-                        tmp_eigs.insert(0, self._ll)
-                        tmp_eigs.append(self._hl)
+                        eigs.insert(0, self._ll)
+                        eigs.append(self._hl)
 
                     f.write("%12.8f %12.8f %12.8f %d\n"
-                            % (self._bs.kpoints[i].frac_coords[0],
-                               self._bs.kpoints[i].frac_coords[1],
-                               self._bs.kpoints[i].frac_coords[2],
-                               len(tmp_eigs)))
+                            % (kpt.frac_coords[0],
+                               kpt.frac_coords[1],
+                               kpt.frac_coords[2],
+                               len(eigs)))
 
-                    for j in range(len(tmp_eigs)):
-                        f.write("%18.8f\n" % (float(tmp_eigs[j])))
+                    for j in range(len(eigs)):
+                        f.write("%18.8f\n" % (float(eigs[j])))
 
     def _make_struc_file(self, file_name):
         sym = SpacegroupAnalyzer(self._bs.structure, symprec=0.01)
