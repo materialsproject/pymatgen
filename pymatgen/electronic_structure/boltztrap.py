@@ -492,10 +492,11 @@ class BoltztrapRunner(object):
             self.write_proj(os.path.join(output_dir, "boltztrap.proj"),
                             os.path.join(output_dir, "BoltzTraP.def"))
 
-    def run(self, path_dir=None, convergence=True, clear_dir=False):
+    def run(self, path_dir=None, convergence=True, clear_dir=False,
+            min_egrid=0.00005, max_lpfac=150):
         # TODO: consider making this a part of custodian rather than pymatgen
-        # A lot functionality (scratch dirs, handlers, monitors) are built
-        # into custodian
+        # A lot of this functionality (scratch dirs, handlers, monitors)
+        # is built into custodian framework
 
         if self.run_type in ("BANDS", "DOS", "FERMI"):
             convergence = False
@@ -535,13 +536,12 @@ class BoltztrapRunner(object):
             lpfac_start = self.lpfac
             converged = False
 
-            while self.energy_grid > 0.00004:
-                sigma_ratio = 1
+            while self.energy_grid >= min_egrid:
                 self.lpfac = lpfac_start
 
                 print("lpfac, energy_grid: ", self.lpfac, self.energy_grid)
 
-                while self.lpfac < 160:
+                while self.lpfac <= max_lpfac:
 
                     self.write_input(path_dir)
                     if self._bs.is_spin_polarized or self.soc:
