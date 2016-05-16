@@ -164,9 +164,9 @@ class BoltztrapRunner(object):
         self.tmax = tmax
         self.tgrid = tgrid
         if self.run_type in ("DOS", "BANDS"):
-            self.auto_set_energy_range()
+            self._auto_set_energy_range()
 
-    def auto_set_energy_range(self, buffer_in_ev=2.0):
+    def _auto_set_energy_range(self, buffer_in_ev=2.0):
         """
         automatically determine the energy range as min/max eigenvalue
         minus/plus the buffer_in_ev
