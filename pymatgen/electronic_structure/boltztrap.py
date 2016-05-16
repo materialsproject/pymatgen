@@ -170,31 +170,29 @@ class BoltztrapRunner(object):
             f.write("{}\n".format(len(self._bs.kpoints)))
 
             if self.run_type in ("DOS", "BANDS"):
-                # automatically set the energy span around Fermi level
-                const = Energy(2, "eV").to("Ry")
-                emin_up = min([e_k[0] for e_k in self._bs.bands[Spin.up]])
-                emax_up = max([e_k[0] for e_k in self._bs.bands[Spin.up]])
+                # figure out the min/max eigenvalue
+                emins = [min([e_k[0] for e_k in self._bs.bands[Spin.up]])]
+                emaxs = [max([e_k[0] for e_k in self._bs.bands[Spin.up]])]
 
                 if self._bs.is_spin_polarized:
-                    emin_dw = min([e_k[0] for e_k in
-                                   self._bs.bands[Spin.down]])
-                    low_en_lim = Energy(min((emin_up, emin_dw)) -
-                                        self._bs.efermi, "eV").to("Ry")
+                    emins.append(min([e_k[0] for e_k in
+                                      self._bs.bands[Spin.down]]))
 
-                    emax_dw = max([e_k[0] for e_k in
-                                   self._bs.bands[Spin.down]])
-                    high_en_lim = Energy(max((emax_up, emax_dw)) -
-                                         self._bs.efermi, "eV").to("Ry")
+                    emaxs.append(max([e_k[0] for e_k in
+                                      self._bs.bands[Spin.down]]))
 
-                    self._ll = low_en_lim - const
-                    self._hl = high_en_lim + const
+                min_eigenval = Energy(min(emins) - self._bs.efermi, "eV").\
+                    to("Ry")
+                max_eigenval = Energy(max(emaxs) - self._bs.efermi, "eV").\
+                    to("Ry")
 
-                    en_range = Energy(max((abs(self._ll), abs(self._hl))),
-                                      "Ry").to("eV")
-                else:
-                    en_range = Energy(
-                        max((abs(emin_up - const), abs(emax_up + const))),
-                        "Ry").to("eV")
+                # set energy range to buffer around min/max EV
+                const = Energy(2, "eV").to("Ry")
+                self._ll = min_eigenval - const
+                self._hl = max_eigenval + const
+
+                en_range = Energy(max((abs(self._ll), abs(self._hl))),
+                                  "Ry").to("eV")
 
                 self.energy_span_around_fermi = en_range * 1.01
                 print("energy_span_around_fermi = ",
