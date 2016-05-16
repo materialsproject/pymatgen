@@ -492,7 +492,11 @@ class BoltztrapRunner(object):
             self.write_proj(os.path.join(output_dir, "boltztrap.proj"),
                             os.path.join(output_dir, "BoltzTraP.def"))
 
-    def run(self, path_dir=None, convergence=True):
+    def run(self, path_dir=None, convergence=True, clear_dir=False):
+        # TODO: consider making this a part of custodian rather than pymatgen
+        # A lot functionality (scratch dirs, handlers, monitors) are built
+        # into custodian
+
         if self.run_type in ("BANDS", "DOS", "FERMI"):
             convergence = False
 
@@ -517,11 +521,12 @@ class BoltztrapRunner(object):
         else:
             path_dir = os.path.abspath(
                 os.path.join(path_dir_orig, dir_bz_name))
+
         if not os.path.exists(path_dir):
             os.mkdir(path_dir)
-        else:
+        elif clear_dir:
             for c in os.listdir(path_dir):
-                os.remove(path_dir + "/" + c)
+                os.remove(os.path.join(path_dir, c))
 
         with cd(path_dir):
 
