@@ -112,6 +112,7 @@ class XcFunc(MSONable):
     @classmethod
     def from_type_name(cls, typ, name):
         """Build the object from (type, name)."""
+        # TODO
         # Handle <xc_functional type="GGA", name="GGA_X_PBE+GGA_C_PBE"/>
         #if "+" in name or name in LibxcFunc:
 

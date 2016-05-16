@@ -444,12 +444,9 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         # Add prtpsps = -1 to make Abinit print the PSPS.nc file and stop.
         inp["prtpsps"] = -1
 
-        # Build temporary task and run it.
+        # Build temporary task and run it (ignore retcode because we don't exit cleanly)
         task = AbinitTask.temp_shell_task(inp)
         retcode = task.start_and_wait()
-        if retcode != 0:
-            logger.critical("Abinit task returned retcode=%s" % retcode)
-            return None
 
         filepath = task.outdir.has_abiext("_PSPS.nc")
         if not filepath:
