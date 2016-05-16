@@ -27,13 +27,12 @@ from monty.dev import deprecated
 from monty.json import MSONable, MontyDecoder
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 from pymatgen.core.periodic_table import Element
+from pymatgen.core.xcfunc import XcFunc
 from pymatgen.serializers.json_coders import pmg_serialize
 from .eos import EOS
 
 import logging
 logger = logging.getLogger(__name__)
-
-from pymatgen.io.abinit.xcfunc import XcFunc
 
 
 __all__ = [
@@ -570,12 +569,14 @@ class AbinitPseudo(Pseudo):
     def supports_soc(self):
         # Treate ONCVPSP pseudos
         if self._pspcod == 8:
-            print(self.header.keys())
             switch = self.header["extension_switch"]
-            if switch in [0, 1]: return False
-            if switch in [2, 3]: return True
+            if switch in (0, 1): return False
+            if switch in (2, 3): return True
             raise ValueError("Don't know how to handle extension_switch: %s" % switch)
 
+        # TODO Treate HGH HGHK pseudos
+
+        # As far as I know, other Abinit pseudos do not support SOC.
         return False
 
 

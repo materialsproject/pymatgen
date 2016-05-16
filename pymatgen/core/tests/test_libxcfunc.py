@@ -4,7 +4,7 @@
 from __future__ import unicode_literals, division, print_function
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinit.libxcfunc import LibxcFunc
+from pymatgen.core.libxcfunc import LibxcFunc
 
 class LibxcFuncTest(PymatgenTest):
     def test_libxcfunc_api(self):
