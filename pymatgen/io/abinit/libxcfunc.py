@@ -25,13 +25,15 @@ import os
 
 from io import open
 from enum import Enum, unique
+from monty.json import MontyEncoder
+from pymatgen.serializers.json_coders import pmg_serialize
 
 # Loads libxc info from json file
 with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"), "rt") as fh:
     _all_xcfuncs = {int(k): v for k, v in json.load(fh).items()}
 
 # @unique
-class LibxcFuncs(Enum):
+class LibxcFunc(Enum):
 # Begin include
     LDA_C_1D_CSC = 18
     LDA_C_1D_LOOS = 26
@@ -407,11 +409,11 @@ class LibxcFuncs(Enum):
 
     @staticmethod
     def all_families():
-        return sorted(set(d[Family] for d in _all_xcfuncs.values()))
+        return sorted(set(d["Family"] for d in _all_xcfuncs.values()))
 
     @staticmethod
     def all_kinds():
-        return sorted(set(d[Kind] for d in _all_xcfuncs.values()))
+        return sorted(set(d["Kind"] for d in _all_xcfuncs.values()))
 
     @property
     def info_dict(self):
@@ -449,13 +451,29 @@ class LibxcFuncs(Enum):
     #def is_gga_xc(self):
     #    return self.is_gga_family and self.is_xc_kind
 
+    @pmg_serialize
+    def as_dict(self):
+        """
+        Makes LibxcFunc obey the general json interface used in pymatgen for
+        easier serialization.
+        """
+        return {"name": self.name}
+
+    @staticmethod
+    def from_dict(d):
+        """
+        Makes Element obey the general json interface used in pymatgen for
+        easier serialization.
+        """
+        return LibxcFunc[d["name"]]
+
+    def to_json(self):
+        """
+        Returns a json string representation of the MSONable object.
+        """
+        return json.dumps(self.as_dict(), cls=MontyEncoder)
+
 
 if __name__ == "__main__":
-    for xc in LibxcFuncs: 
+    for xc in LibxcFunc: 
         print(xc)
-
-    # LDA correlation: Hedin & Lundqvist
-    xc = LibxcFuncs.LDA_C_HL  
-    assert not xc.is_x_kind and xc.is_c_kind and not xc.is_xc_kind 
-    assert xc.is_lda_family and not xc.is_gga_family 
-    print(xc.info_dict)
