@@ -18,7 +18,6 @@ import os
 from io import open
 from enum import Enum, unique
 from monty.json import MontyEncoder
-from pymatgen.serializers.json_coders import pmg_serialize
 
 # The libxc version used to generate this file!
 libxc_version = "3.0.0"  
@@ -464,13 +463,14 @@ class LibxcFunc(Enum):
     def is_hyb_mgga_family(self):
         return self.family == "HYB_MGGA"
 
-    @pmg_serialize
     def as_dict(self):
         """
         Makes LibxcFunc obey the general json interface used in pymatgen for
         easier serialization.
         """
-        return {"name": self.name}
+        return {"name": self.name,
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
     @staticmethod
     def from_dict(d):

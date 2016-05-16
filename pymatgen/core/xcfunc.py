@@ -8,8 +8,7 @@ from __future__ import unicode_literals, division, print_function
 from collections import namedtuple, OrderedDict
 from monty.json import MSONable, MontyEncoder
 from monty.functools import lazy_property
-from pymatgen.serializers.json_coders import pmg_serialize
-from pymatgen.io.abinit.libxcfunc import LibxcFunc
+from pymatgen.core.libxcfunc import LibxcFunc
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -133,10 +132,10 @@ class XcFunc(MSONable):
     def from_dict(cls, d):
 	return cls(xc=d.get("xc"), x=d.get("x"), c=d.get("c"))
 
-    @pmg_serialize
     def as_dict(self):
-	d = {}
-        print("in as_dict", type(self.x), type(self.c), type(self.xc))
+	d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
+        #print("in as_dict", type(self.x), type(self.c), type(self.xc))
 	if self.x is not None: d["x"] = self.x.as_dict()
 	if self.c is not None: d["c"] = self.c.as_dict()
 	if self.xc is not None: d["xc"] = self.xc.as_dict()
