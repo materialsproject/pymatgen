@@ -122,6 +122,7 @@ class PseudoTestCase(PymatgenTest):
                         oxygen.Z_val == 6,
                        )
 
+        assert oxygen.xc.type == "GGA" and oxygen.xc.name == "PBE"
         assert oxygen.supports_soc
         assert oxygen.md5 is not None
         self.assert_almost_equal(oxygen.paw_radius, 1.4146523028)

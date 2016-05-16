@@ -33,6 +33,8 @@ from .eos import EOS
 import logging
 logger = logging.getLogger(__name__)
 
+from pymatgen.io.abinit.xcfunc import XcFunc
+
 
 __all__ = [
     "Pseudo",
@@ -531,6 +533,9 @@ class AbinitPseudo(Pseudo):
         self.path = path
         self.header = header
         self._summary = header.summary
+
+        # Build xc from header.
+        self.xc = XcFunc.from_abinit_ixc(header["pspxc"])
 
         if hasattr(header, "dojo_report"):
             self.dojo_report = header.dojo_report
@@ -1272,14 +1277,15 @@ class PawXmlSetup(Pseudo, PawPseudo):
         self._zatom = int(float(atom_attrib["Z"]))
         self.core, self.valence = map(float, [atom_attrib["core"], atom_attrib["valence"]])
 
-        #xc_info = root.find("atom").attrib
-        #self.xc_type, self.xc_name  = xc_info["type"], xc_info["name"]
-        #self.ae_energy = {k: float(v) for k,v in root.find("ae_energy").attrib.items()}
+        # Build xc from header.
+        xc_info = root.find("xc_functional").attrib
+        self.xc = XcFunc.from_type_name(xc_info["type"], xc_info["name"])
 
         # Old XML files do not define this field!
         # In this case we set the PAW radius to None.
         #self._paw_radius = float(root.find("PAW_radius").attrib["rpaw"])
 
+        #self.ae_energy = {k: float(v) for k,v in root.find("ae_energy").attrib.items()}
         pawr_element = root.find("PAW_radius")
         self._paw_radius = None
         if pawr_element is not None:
