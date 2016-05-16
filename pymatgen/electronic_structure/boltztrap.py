@@ -366,8 +366,9 @@ class BoltztrapRunner(object):
                         i += 1
 
     def _make_intrans_file(self, file_name):
+        setgap = 1 if self.scissor > 0.0001 else 0
+
         if self.run_type == "BOLTZ" or self.run_type == "DOS":
-            setgap = 1 if self.scissor > 0.0001 else 0
             with open(file_name, 'w') as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
@@ -428,15 +429,11 @@ class BoltztrapRunner(object):
                 fout.write(
                     "FERMI                     # run mode (only BOLTZ is "
                     "supported)\n")
-                fout.write(str(
-                    1) + "                        # actual band selected: " +
+                fout.write(str(1) +
+                           "                        # actual band selected: " +
                            str(self.band_nb + 1) + " spin: " + str(self.spin))
 
         elif self.run_type == "BANDS":
-
-            setgap = 0
-            if self.scissor > 0.0001:
-                setgap = 1
             if self.kpt_line is None:
                 kpath = HighSymmKpath(self._bs.structure)
                 self.kpt_line = [Kpoint(k, self._bs.structure.lattice) for k
@@ -470,7 +467,7 @@ class BoltztrapRunner(object):
                     "supported)\n")
                 fout.write("P " + str(len(self.kpt_line)) + "\n")
                 for kp in self.kpt_line:
-                    fout.writelines([str(k) + ' ' for k in kp])
+                    fout.writelines([str(k) + " " for k in kp])
                     fout.write('\n')
 
     def _make_all_files(self, path):
