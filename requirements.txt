@@ -11,3 +11,4 @@ enum34==1.1.5
 Cython==0.24
 matplotlib==1.5.1
 palettable==2.1.1
+spglib==1.9.4.2
