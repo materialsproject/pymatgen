@@ -22,7 +22,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
 import os
-import unittest
+import unittest2 as unittest
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -45,7 +45,7 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
 
         m = EwaldElectrostaticModel()
         # large tolerance because scipy constants changed between 0.16.1 and 0.17
-        self.assertAlmostEqual(m.get_energy(s), -40.655658979571228, 4)
+        self.assertAlmostEqual(m.get_energy(s), -59.322817600353616, 4)
         s2 = Structure.from_file(os.path.join(test_dir, "Li2O.cif"))
         self.assertAlmostEqual(m.get_energy(s2), -145.39050015844839, 4)
 

@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 22, 2012"
 
-import unittest
+import unittest2 as unittest
 import os
 
 from pymatgen.command_line.enumlib_caller import EnumlibAdaptor

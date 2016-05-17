@@ -144,9 +144,6 @@ class BandStructure(object):
         lattice: The reciprocal lattice as a pymatgen Lattice object.
             Pymatgen uses the physics convention of reciprocal lattice vectors
             WITH a 2*pi coefficient
-        label_dict: (dict) of {} this link a kpoint (in frac coords or
-            cartesian coordinates depending on the coords).
-        coords_are_cartesian: Whether coordinates are cartesian.
         efermi: fermi energy
         labels_dict: (dict) of {} this links a kpoint (in frac coords or
             cartesian coordinates depending on the coords) to a label.
@@ -247,6 +244,13 @@ class BandStructure(object):
         returns the number of bands in the band structure
         """
         return self._nb_bands
+
+    @property
+    def structure(self):
+        """
+        returns the structure
+        """
+        return self._structure
 
     def get_projection_on_elements(self):
         """
@@ -625,7 +629,7 @@ class BandStructure(object):
                 for spin in d['projections']}
 
         return BandStructure(
-            d['kpoints'], {Spin.from_int(int(k)): d['bands'][k]
+            d['kpoints'], {Spin(int(k)): d['bands'][k]
                            for k in d['bands']},
             Lattice(d['lattice_rec']['matrix']), d['efermi'],
             labels_dict, structure=structure, projections=projections)

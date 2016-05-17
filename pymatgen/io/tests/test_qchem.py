@@ -9,11 +9,11 @@ import glob
 import json
 import os
 from unittest import TestCase
-import unittest
+import unittest2 as unittest
 
 from pymatgen import Molecule
 from pymatgen.io.qchem import QcTask, QcInput, QcOutput
-
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = 'xiaohuiqu'
 
@@ -41,7 +41,7 @@ coords3 = [[2.632273, -0.313504, -0.750376],
 water_mol = Molecule(["O", "H", "H"], coords3)
 
 
-class TestQcTask(TestCase):
+class QcTaskTest(PymatgenTest):
 
     def elementary_io_verify(self, text, qctask):
         self.to_and_from_dict_verify(qctask)
@@ -1459,7 +1459,7 @@ $end
         self.assertEqual(qctask.spin_multiplicity, 2)
 
 
-class TestQcInput(TestCase):
+class TestQcInput(PymatgenTest):
     def test_str_and_from_string(self):
         ans = '''$comment
  Test Methane Opt
@@ -1554,7 +1554,7 @@ $end
         self.assertEqual(d1, d2)
 
 
-class TestQcOutput(TestCase):
+class TestQcOutput(PymatgenTest):
     def test_energy(self):
         ref_energies_text = '''
 {
@@ -1647,12 +1647,12 @@ class TestQcOutput(TestCase):
         filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
         qcout = QcOutput(filename)
         self.assertEqual(qcout.data[0]["jobtype"], "opt")
-        ans_energies = [('SCF', -20179.885722033305),
-                        ('SCF', -20180.12115282516),
-                        ('SCF', -20180.149805044883),
-                        ('SCF', -20180.150909002612),
-                        ('SCF', -20180.151090875344),
-                        ('SCF', -20180.151089182797)]
+        ans_energies = [(u'SCF', -20179.886441383995),
+                        (u'SCF', -20180.12187218424),
+                        (u'SCF', -20180.150524404988),
+                        (u'SCF', -20180.151628362753),
+                        (u'SCF', -20180.151810235497),
+                        (u'SCF', -20180.15180854295)]
         self.assertEqual(qcout.data[0]["energies"], ans_energies)
         ans_mol1 = '''Full Formula (H4 C5 S1 O2)
 Reduced Formula: H4C5SO2
@@ -1971,8 +1971,8 @@ $end
                                   (0.0, 0.0, -0.505)),
                      'frequency': 311.74}]
         self.assertEqual(qcout.data[1]['frequencies'], ans_freq)
-        self.assertEqual(qcout.data[2]['energies'],
-                         [('SCF', -5296.720552968845)])
+        self.assertAlmostEqual(qcout.data[2]['energies'][0][1],
+                               -5296.720741780598, 5)
         ans_scf_iter_ene = [[(-176.9147092199, 0.779),
                              (-156.8236033975, 0.115),
                              (-152.9396694452, 0.157),
@@ -2252,10 +2252,16 @@ $end
             self.assertAlmostEqual(a, b, 5)
         filename = os.path.join(test_dir, "qchem_energies", "hf_ccsd(t).qcout")
         qcout = QcOutput(filename)
-        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[-17.741823053011334, 5.224585929721129], [-17.741823053011334, 5.224585929721129]])
+        self.assertArrayAlmostEqual(qcout.data[0]["HOMO/LUMOs"],
+                              [[-17.741823053011334, 5.224585929721129],
+                               [-17.741823053011334, 5.224585929721129]], 4)
         filename = os.path.join(test_dir, "crowd_gradient_number.qcout")
         qcout = QcOutput(filename)
-        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[-5.741602245683116, -4.544301303455358], [-4.9796834642654515, -4.2993988379996795], [-4.761992383860404, -3.8095939070883236]])
+        self.assertArrayAlmostEqual(
+            qcout.data[0]["HOMO/LUMOs"], [[-5.741602245683116,
+                                                        -4.544301303455358],
+                                                       [-4.9796834642654515,
+                                                        -4.2993988379996795], [-4.761992383860404, -3.8095939070883236]], 4)
 
     def test_bsse(self):
         filename = os.path.join(test_dir, "bsse.qcout")
@@ -2282,7 +2288,7 @@ $end
     def test_final_energy(self):
         filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
         qcout = QcOutput(filename)
-        self.assertEqual(qcout.final_energy, -20180.151089182797)
+        self.assertEqual(qcout.final_energy, -20180.15180854295)
 
     def test_final_structure(self):
         filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")

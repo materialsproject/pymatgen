@@ -19,29 +19,6 @@ except ImportError:
 SETUP_PTH = os.path.dirname(os.path.abspath(__file__))
 
 
-def get_spglib_ext():
-    """
-    Set up spglib extension.
-    """
-    spglibs = glob.glob(os.path.join(SETUP_PTH, "dependencies", "spglib*"))
-    if len(spglibs) != 1:
-        raise ValueError("Incorrect number of spglib found in dependencies. "
-                         "Expected 1, got %d" % len(spglibs))
-    spglibdir = spglibs[0]
-
-    # set rest of spglib
-    spgsrcdir = os.path.join(spglibdir, "src")
-    include_dirs = [spgsrcdir]
-    sources = glob.glob(os.path.join(spgsrcdir, "*.c"))
-    c_opt = [] if sys.version_info.major < 3 else [
-        "-Wno-error=declaration-after-statement"]
-    return Extension(
-        "pymatgen._spglib",
-        include_dirs=include_dirs + get_numpy_include_dirs(),
-        sources=[os.path.join(spglibdir, "_spglib.c")] + sources,
-        extra_compile_args=c_opt)
-
-
 with open(os.path.join(SETUP_PTH, "README.rst")) as f:
     long_desc = f.read()
     ind = long_desc.find("\n")
@@ -51,17 +28,21 @@ with open(os.path.join(SETUP_PTH, "README.rst")) as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="3.3.6",
+    version="3.6.0",
     install_requires=["numpy>=1.9", "six", "atomicfile", "requests",
                       "pybtex", "pyyaml", "monty>=0.7.0", "scipy>=0.14",
-                      "tabulate", "enum34"],
+                      "tabulate", "enum34", "spglib"],
     extras_require={"plotting": ["matplotlib>=1.1", "prettyplotlib"],
                     "pourbaix diagrams, bandstructure": ["pyhull>=1.5.3"],
                     "ase_adaptor": ["ase>=3.3"],
                     "vis": ["vtk>=6.0.0"],
-                    "abinit": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
+                    "abinit": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"],
+                    "chemenv": ["unittest2"]},
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["*.yaml", "*.csv"],
+                  "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt",
+                                                                                                        "*.json"],
+                  "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
                   "pymatgen.io.vasp": ["*.yaml"],
                   "pymatgen.io.feff": ["*.yaml"],
                   "pymatgen.symmetry": ["*.yaml"],
@@ -103,6 +84,11 @@ setup(
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
-    ext_modules=[get_spglib_ext()],
+    ext_modules=[Extension("pymatgen.optimization.linear_assignment",
+                           ["pymatgen/optimization/linear_assignment.c"],
+                           include_dirs=get_numpy_include_dirs()),
+                 Extension("pymatgen.util.coord_utils_cython",
+                           ["pymatgen/util/coord_utils_cython.c"],
+                           include_dirs=get_numpy_include_dirs())],
     scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
 )

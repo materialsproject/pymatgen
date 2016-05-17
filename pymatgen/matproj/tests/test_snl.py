@@ -18,7 +18,7 @@ __email__ = "ajain@lbl.gov"
 __date__ = "2/14/13"
 
 import datetime
-import unittest
+import unittest2 as unittest
 import numpy as np
 
 from pymatgen import Structure, Molecule

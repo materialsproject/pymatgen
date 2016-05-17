@@ -9,7 +9,7 @@ Created on Jan 22, 2013
 
 @author: Bharat Medasani
 """
-import unittest
+import unittest2 as unittest
 
 from pymatgen.command_line.gulp_caller import *
 from pymatgen.core.structure import Structure

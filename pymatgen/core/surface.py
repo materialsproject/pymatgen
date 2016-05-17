@@ -17,7 +17,12 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "6/10/14"
 
-from fractions import gcd
+try:
+    # New Py>=3.5 import
+    from math import gcd
+except ImportError:
+    # Deprecated import from Py3.5 onwards.
+    from fractions import gcd
 import math
 import itertools
 import logging
@@ -624,7 +629,6 @@ class SlabGenerator(object):
                             elif c_range[0] != c_range[1]:
                                 c_ranges.add(c_range)
         return c_ranges
-
 
     def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0):
         """

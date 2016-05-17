@@ -11,7 +11,7 @@ calculate relevant properties of the stress tensor.
 """
 
 from pymatgen.analysis.elasticity import voigt_map
-from pymatgen.analysis.elasticity.tensors import SQTensor
+from pymatgen.analysis.elasticity.tensors import SquareTensor
 import math
 import numpy as np
 import warnings
@@ -26,9 +26,9 @@ __status__ = "Development"
 __date__ = "March 22, 2012"
 
 
-class Stress(SQTensor):
+class Stress(SquareTensor):
     """
-    This class extends SQTensor as a representation of the
+    This class extends SquareTensor as a representation of the
     stress
     """
     def __new__(cls, stress_matrix):
@@ -41,12 +41,8 @@ class Stress(SQTensor):
             stress_matrix (3x3 array-like): the 3x3 array-like
                 representing the stress
         """
-        obj = SQTensor(stress_matrix).view(cls)
+        obj = SquareTensor(stress_matrix).view(cls)
         return obj
-
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
 
     @property
     def dev_principal_invariants(self):
@@ -95,7 +91,7 @@ class Stress(SQTensor):
         if not self.is_symmetric:
             raise ValueError("The stress tensor is not symmetric, \
                              PK stress is based on a symmetric stress tensor.")
-        def_grad = SQTensor(def_grad)
+        def_grad = SquareTensor(def_grad)
         return def_grad.det*np.dot(self, def_grad.inv.trans)
 
     def piola_kirchoff_2(self, def_grad):
@@ -106,7 +102,7 @@ class Stress(SQTensor):
             f (3x3 array-like): rate of deformation tensor
         """
 
-        def_grad = SQTensor(def_grad)
+        def_grad = SquareTensor(def_grad)
         if not self.is_symmetric:
             raise ValueError("The stress tensor is not symmetric, \
                              PK stress is based on a symmetric stress tensor.")

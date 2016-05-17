@@ -15,7 +15,7 @@ __maintainer__ = "Shyam Dwaraknath"
 __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
 
-import unittest
+import unittest2 as unittest
 from pymatgen.analysis.substrate_analyzer import SubstrateAnalyzer, \
     ZSLGenerator, fast_norm, reduce_vectors, vec_area, get_factors
 from pymatgen.util.testing import PymatgenTest
@@ -35,7 +35,7 @@ class ZSLGenTest(PymatgenTest):
         substrate = SpacegroupAnalyzer(self.get_structure("TiO2"),
                                        symprec=0.1).get_conventional_standard_structure()
 
-        z = ZSLGenerator(film, substrate)
+        z = ZSLGenerator()
 
         self.assertAlmostEqual(fast_norm([3, 2, 1]), 3.7416573867739413)
         self.assertArrayEqual(reduce_vectors([1, 0, 0], [2, 2, 0]),
@@ -48,7 +48,7 @@ class ZSLGenTest(PymatgenTest):
         self.assertFalse(z.is_same_vectors([[1.01, 2, 0], [0, 2, 0]],
                                            [[1, 0, 0], [0, 2.01, 0]]))
 
-        matches = list(z.generate())
+        matches = list(z.generate(film, substrate))
 
         self.assertEqual(len(matches), 82)
 
@@ -65,7 +65,7 @@ class SubstrateAnalyzerTest(PymatgenTest):
         substrate = SpacegroupAnalyzer(self.get_structure("TiO2"),
                                        symprec=0.1).get_conventional_standard_structure()
 
-        film_elac = ElasticTensor([
+        film_elac = ElasticTensor.from_voigt([
             [324.32, 187.3, 170.92, 0., 0., 0.],
             [187.3, 324.32, 170.92, 0., 0., 0.],
             [170.92, 170.92, 408.41, 0., 0., 0.],
@@ -73,9 +73,9 @@ class SubstrateAnalyzerTest(PymatgenTest):
             [0., 0., 0., 0., 150.73, 0.],
             [0., 0., 0., 0., 0., 238.74]])
 
-        s = SubstrateAnalyzer(film, film_elac)
+        s = SubstrateAnalyzer()
 
-        matches = list(s.calculate(substrate))
+        matches = list(s.calculate(film,substrate,film_elac))
         self.assertEqual(len(matches), 82)
 
 

@@ -14,10 +14,15 @@ import random
 import warnings
 from fnmatch import fnmatch
 import re
-from fractions import gcd
+
+try:
+    # New Py>=3.5 import
+    from math import gcd
+except ImportError:
+    # Deprecated import from Py3.5 onwards.
+    from fractions import gcd
 
 import six
-from six.moves import map, zip
 from tabulate import tabulate
 
 import numpy as np
@@ -416,6 +421,20 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             (Structure) Note that missing properties are set as None.
         """
+        if len(sites) < 1:
+            raise ValueError("You need at least one site to construct a %s" %
+                             cls)
+        if (not validate_proximity) and (not to_unit_cell):
+            # This is not really a good solution, but if we are not changing
+            # the sites, initializing an empty structure and setting _sites
+            # to be sites is much faster than doing the full initialization.
+            lattice = sites[0].lattice
+            for s in sites[1:]:
+                if s.lattice != lattice:
+                    raise ValueError("Sites must belong to the same lattice")
+            s_copy = cls(lattice=lattice, species=[], coords=[])
+            s_copy._sites = list(sites)
+            return s_copy
         prop_keys = []
         props = {}
         lattice = None
@@ -595,6 +614,24 @@ class IStructure(SiteCollection, MSONable):
         a = SpacegroupAnalyzer(self, symprec=symprec,
                                angle_tolerance=angle_tolerance)
         return a.get_spacegroup_symbol(), a.get_spacegroup_number()
+
+    def matches(self, other, **kwargs):
+        """
+        Check whether this structure is similar to another structure.
+        Basically a convenience method to call structure matching fitting.
+
+        Args:
+            other (IStructure/Structure): Another structure.
+            **kwargs: Same **kwargs as in
+                :class:`pymatgen.analysis.structure_matcher.StructureMatcher`.
+
+        Returns:
+            (bool) True is the structures are similar under some affine
+            transformation.
+        """
+        from pymatgen.analysis.structure_matcher import StructureMatcher
+        m = StructureMatcher(**kwargs)
+        return m.fit(Structure.from_sites(self), Structure.from_sites(other))
 
     def __eq__(self, other):
         if other is None:
@@ -873,9 +910,12 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError("Invalid reduction algo : {}"
                              .format(reduction_algo))
 
-        return self.__class__(reduced_latt, self.species_and_occu,
-                              self.cart_coords,
-                              coords_are_cartesian=True, to_unit_cell=True)
+        if reduced_latt != self.lattice:
+            return self.__class__(reduced_latt, self.species_and_occu,
+                                  self.cart_coords,
+                                  coords_are_cartesian=True, to_unit_cell=True)
+        else:
+            return self.copy()
 
     def copy(self, site_properties=None, sanitize=False):
         """
@@ -899,6 +939,15 @@ class IStructure(SiteCollection, MSONable):
             A copy of the Structure, with optionally new site_properties and
             optionally sanitized.
         """
+        if (not site_properties) and (not sanitize):
+            # This is not really a good solution, but if we are not changing
+            # the site_properties or sanitizing, initializing an empty
+            # structure and setting _sites to be sites is much faster (~100x)
+            # than doing the full initialization.
+            s_copy = self.__class__(lattice=self._lattice, species=[],
+                                    coords=[])
+            s_copy._sites = list(self._sites)
+            return s_copy
         props = self.site_properties
         if site_properties:
             props.update(site_properties)
@@ -1179,7 +1228,7 @@ class IStructure(SiteCollection, MSONable):
                     return s.get_primitive_structure(
                         tolerance).get_reduced_structure()
 
-        return Structure.from_sites(self)
+        return self.copy()
 
     def __repr__(self):
         outs = ["Structure Summary", repr(self.lattice)]
@@ -2777,7 +2826,7 @@ class Molecule(IMolecule, collections.MutableSequence):
                     else:
                         new_atom_occu[sp] = amt
             return Site(new_atom_occu, site.coords, properties=site.properties)
-        self._sites = list(map(mod_site, self._sites))
+        self._sites = [mod_site(site) for site in self._sites]
 
     def remove_species(self, species):
         """
@@ -2787,7 +2836,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             species: Species to remove.
         """
         new_sites = []
-        species = list(map(get_el_sp, species))
+        species = [get_el_sp(sp) for sp in species]
         for site in self._sites:
             new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
                            if sp not in species}
@@ -2851,7 +2900,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             new_cart = symmop.operate(site.coords)
             return Site(site.species_and_occu, new_cart,
                         properties=site.properties)
-        self._sites = list(map(operate_site, self._sites))
+        self._sites = [operate_site(s) for s in self._sites]
 
     def copy(self):
         """
