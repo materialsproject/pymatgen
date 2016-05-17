@@ -563,7 +563,7 @@ class BoltztrapRunner(object):
                         if "STOP error in factorization" in c:
                             raise BoltztrapError("STOP error in factorization")
 
-                    warnings = []
+                    warning = ""
 
                     with open(os.path.join(path_dir,
                                            dir_bz_name + ".outputtrans")) as f:
@@ -573,18 +573,18 @@ class BoltztrapRunner(object):
                                     "DOS mode needs a custom version of "
                                     "BoltzTraP code is needed")
                             if "WARNING" in l:
-                                warnings.append(l)
+                                warning = l
                                 break
 
-                    if not warnings and convergence:
-                        # check convergence
+                    if not warning and convergence:
+                        # check convergence for warning
                         analyzer = BoltztrapAnalyzer.from_files(path_dir)
                         for doping in ['n', 'p']:
                             for c in analyzer.mu_doping[doping]:
                                 if len(analyzer.mu_doping[doping][c]) != len(
                                         analyzer.doping[doping]):
-                                    warnings.append("length of mu_doping array"
-                                                    " is incorrect")
+                                    warning = "length of mu_doping array is " \
+                                              "incorrect"
                                     break
 
                                 if doping == 'p' and \
@@ -592,36 +592,35 @@ class BoltztrapRunner(object):
                                                     analyzer.mu_doping[doping][
                                                         c], reverse=True) != \
                                                 analyzer.mu_doping[doping][c]:
-                                    warnings.append("sorting of mu_doping "
-                                                    "array incorrect for "
-                                                    "p-type")
+                                    warning = "sorting of mu_doping array " \
+                                              "incorrect for p-type"
                                     break
 
                                 # ensure n-type doping sorted correctly
                                 if doping == 'n' and sorted(
                                         analyzer.mu_doping[doping][c]) != \
                                         analyzer.mu_doping[doping][c]:
-                                    warnings.append("sorting of mu_doping "
-                                                    "array incorrect for "
-                                                    "n-type")
+                                    warning = "sorting of mu_doping array " \
+                                              "incorrect for n-type"
                                     break
 
-                    if warnings:
+                    if warning:
                         self.lpfac += 10
-                        self.energy_grid /= 10
-                        print("Warning(s) detected: {}! Increase lpfac to "
-                              "{}".format(warnings, self.lpfac))
+                        print("Warning detected: {}! Increase lpfac to "
+                              "{}".format(warning, self.lpfac))
 
                     else:
                         converged = True
 
-
+                if not converged:
+                    self.energy_grid /= 10
+                    print("Could not converge with max lpfac; "
+                          "Decrease egrid to {}".format(self.energy_grid))
 
             if not converged:
                 raise BoltztrapError(
                     "Doping convergence not reached with lpfac=" + str(
-                        self.lpfac)
-                    + ", energy_grid=" + str(self.energy_grid))
+                        self.lpfac) + ", energy_grid=" + str(self.energy_grid))
 
             return path_dir
 
