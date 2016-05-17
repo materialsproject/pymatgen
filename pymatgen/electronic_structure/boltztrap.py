@@ -555,7 +555,9 @@ class BoltztrapRunner(object):
                     if self._bs.is_spin_polarized or self.soc:
                         bt_exe.append("-so")
 
-                    p = subprocess.Popen(bt_exe, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+                    p = subprocess.Popen(bt_exe, stdout=subprocess.PIPE,
+                                         stdin=subprocess.PIPE,
+                                         stderr=subprocess.PIPE)
                     p.wait()
 
                     for c in p.communicate():
