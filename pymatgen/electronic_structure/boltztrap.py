@@ -497,8 +497,8 @@ class BoltztrapRunner(object):
             self.write_proj(os.path.join(output_dir, "boltztrap.proj"),
                             os.path.join(output_dir, "BoltzTraP.def"))
 
-    def run(self, path_dir=None, convergence=True, clear_dir=False,
-            min_egrid=0.00005, max_lpfac=150):
+    def run(self, path_dir=None, convergence=True, write_input=True,
+            clear_dir=False, min_egrid=0.00005, max_lpfac=150):
         # TODO: consider making this a part of custodian rather than pymatgen
         # A lot of this functionality (scratch dirs, handlers, monitors)
         # is built into custodian framework
@@ -541,89 +541,81 @@ class BoltztrapRunner(object):
             lpfac_start = self.lpfac
             converged = False
 
-            while self.energy_grid >= min_egrid:
+            while self.energy_grid >= min_egrid and not converged:
                 self.lpfac = lpfac_start
 
                 print("lpfac, energy_grid: ", self.lpfac, self.energy_grid)
 
-                while self.lpfac <= max_lpfac:
+                while self.lpfac <= max_lpfac and not converged:
 
-                    self.write_input(path_dir)
+                    if write_input:
+                        self.write_input(path_dir)
+
+                    bt_exe = ["x_trans", "BoltzTraP"]
                     if self._bs.is_spin_polarized or self.soc:
-                        p = subprocess.Popen(["x_trans", "BoltzTraP", "-so"],
-                                             stdout=subprocess.PIPE,
-                                             stdin=subprocess.PIPE,
-                                             stderr=subprocess.PIPE)
-                        p.wait()
-                    else:
-                        p = subprocess.Popen(["x_trans", "BoltzTraP"],
-                                             stdout=subprocess.PIPE,
-                                             stdin=subprocess.PIPE,
-                                             stderr=subprocess.PIPE)
-                        p.wait()
+                        bt_exe.append("-so")
+
+                    p = subprocess.Popen(bt_exe, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+                    p.wait()
 
                     for c in p.communicate():
                         print(c)
                         if "STOP error in factorization" in c:
                             raise BoltztrapError("STOP error in factorization")
 
+                    warnings = []
+
                     with open(os.path.join(path_dir,
                                            dir_bz_name + ".outputtrans")) as f:
-                        warning = False
                         for l in f:
-                            if "WARNING" in l:
-                                warning = True
-                                break
                             if "Option unknown" in l:
                                 raise BoltztrapError(
                                     "DOS mode needs a custom version of "
                                     "BoltzTraP code is needed")
-                    if warning:
-                        print("There was a warning! Increase lpfac to " +
-                              str(self.lpfac + 10))
-                        self.lpfac += 10
-                        continue
+                            if "WARNING" in l:
+                                warnings.append(l)
+                                break
 
-                    if convergence:
+                    if not warnings and convergence:
+                        # check convergence
                         analyzer = BoltztrapAnalyzer.from_files(path_dir)
-                        doping_ok = True
                         for doping in ['n', 'p']:
                             for c in analyzer.mu_doping[doping]:
                                 if len(analyzer.mu_doping[doping][c]) != len(
                                         analyzer.doping[doping]):
-                                    doping_ok = False
+                                    warnings.append("length of mu_doping array"
+                                                    " is incorrect")
                                     break
+
                                 if doping == 'p' and \
                                                 sorted(
                                                     analyzer.mu_doping[doping][
                                                         c], reverse=True) != \
                                                 analyzer.mu_doping[doping][c]:
-                                    doping_ok = False
+                                    warnings.append("sorting of mu_doping "
+                                                    "array incorrect for "
+                                                    "p-type")
                                     break
+
+                                # ensure n-type doping sorted correctly
                                 if doping == 'n' and sorted(
                                         analyzer.mu_doping[doping][c]) != \
                                         analyzer.mu_doping[doping][c]:
-                                    doping_ok = False
+                                    warnings.append("sorting of mu_doping "
+                                                    "array incorrect for "
+                                                    "n-type")
                                     break
 
-                        print('doping_ok', doping_ok)
-                        if not doping_ok:
-                            self.lpfac += 10
-                            print("doping not ok, increase lpfac to " + str(
-                                self.lpfac))
-                            continue
-
-                        converged = True
-                        break
+                    if warnings:
+                        self.lpfac += 10
+                        self.energy_grid /= 10
+                        print("Warning(s) detected: {}! Increase lpfac to "
+                              "{}".format(warnings, self.lpfac))
 
                     else:
                         converged = True
-                        break
 
-                if not converged:
-                    self.energy_grid /= 10
-                else:
-                    break
+
 
             if not converged:
                 raise BoltztrapError(
