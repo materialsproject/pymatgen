@@ -37,7 +37,7 @@ with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"), "rt") as f
 
 # @unique
 class LibxcFunc(Enum):
-# Begin include
+#begin_include_dont_touch
     LDA_C_1D_CSC = 18
     LDA_C_1D_LOOS = 26
     LDA_C_2D_AMGB = 15
@@ -400,7 +400,7 @@ class LibxcFunc(Enum):
     HYB_MGGA_X_MS2H = 224
     HYB_MGGA_X_SCAN0 = 264
     HYB_MGGA_XC_WB97M_V = 531
-# End include
+#end_include_dont_touch
 
     def __init__(self, num):
         info = _all_xcfuncs[self.value]
