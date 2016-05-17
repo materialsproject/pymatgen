@@ -12,7 +12,8 @@ generating deformed structure sets for further calculations.
 """
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.analysis.elasticity.tensors import SQTensor
+from pymatgen.analysis.elasticity.tensors import SquareTensor
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import warnings
 import numpy as np
 from six.moves import zip
@@ -21,15 +22,15 @@ __author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Joseph Montoya, Mark Asta, Anubhav Jain"
 __version__ = "1.0"
-__maintainer__ = "Maarten de Jong"
-__email__ = "maartendft@gmail.com"
+__maintainer__ = "Joseph Montoya"
+__email__ = "montoyjh@lbl.gov"
 __status__ = "Development"
 __date__ = "March 13, 2012"
 
 
-class Deformation(SQTensor):
+class Deformation(SquareTensor):
     """
-    Subclass of SQTensor that describes the deformation gradient tensor
+    Subclass of SquareTensor that describes the deformation gradient tensor
     """
 
     def __new__(cls, deformation_gradient):
@@ -43,7 +44,7 @@ class Deformation(SQTensor):
                 representing the deformation gradient
         """
 
-        obj = SQTensor(deformation_gradient).view(cls)
+        obj = SquareTensor(deformation_gradient).view(cls)
         return obj
 
     def __array_finalize__(self, obj):
@@ -140,25 +141,50 @@ class DeformedStructureSet(object):
         self.undeformed_structure = rlxd_str
         self.deformations = []
         self.def_structs = []
-        if symmetry:
-            raise NotImplementedError("Symmetry reduction of deformed "
-                                      "structure set not yet implemented")
-        else:
-            self.symmetry = None
-            # Determine normal deformation gradients
-            # Apply normal deformations
-            for ind in [(0, 0), (1, 1), (2, 2)]:
-                for amount in norm_deformations:
-                    defo = Deformation.from_index_amount(ind, amount)
-                    self.deformations.append(defo)
-                    self.def_structs.append(defo.apply_to_structure(rlxd_str))
 
-            # Apply shear deformations
-            for ind in [(0, 1), (0, 2), (1, 2)]:
-                for amount in shear_deformations:
-                    defo = Deformation.from_index_amount(ind, amount)
-                    self.deformations.append(defo)
-                    self.def_structs.append(defo.apply_to_structure(rlxd_str))
+        # Generate deformations
+        for ind in [(0, 0), (1, 1), (2, 2)]:
+            for amount in norm_deformations:
+                defo = Deformation.from_index_amount(ind, amount)
+                self.deformations.append(defo)
+
+        for ind in [(0, 1), (0, 2), (1, 2)]:
+            for amount in shear_deformations:
+                defo = Deformation.from_index_amount(ind, amount)
+                self.deformations.append(defo)
+
+        # Perform symmetry reduction if specified
+        if symmetry:
+            sga = SpacegroupAnalyzer(self.undeformed_structure, tol = 0.1)
+            symm_ops = sga.get_symmetry_operations(cartesian=True)
+            self.deformations = symm_reduce(symm_ops, self.deformations)
+
+        self.def_structs = [defo.apply_to_structure(rlxd_str) 
+                            for defo in self.deformations]
+
+    def symm_reduce(self, symm_ops, deformation_list, tolerance = 1e-2):
+        """
+        Checks list of deformation gradient tensors for symmetrical
+        equivalents and returns a new list with reduntant ones removed
+
+        Args: 
+            symm_ops (list of SymmOps): list of SymmOps objects with which 
+                to check the list of deformation tensors for duplicates
+            deformation_list (list of Deformations): list of deformation
+                gradient objects to check for duplicates
+            tolerance (float): tolerance for assigning equal defo. gradients
+        """
+        unique_defos = []
+        for defo in deformation_list:
+            in_unique = False
+            for op in symm_ops:
+                if np.any([(np.abs(defo - defo.transform(symm_op)) < tol).all()
+                           for unique_defo in unique_defos]):
+                    in_unique = True
+                    break
+            if not in_unique:
+                unique_defos += [defo]
+        return unique_defos
 
     def __iter__(self):
         return iter(self.def_structs)
@@ -173,9 +199,9 @@ class DeformedStructureSet(object):
         return dict(zip(strains, self.def_structs))
 
 
-class Strain(SQTensor):
+class Strain(SquareTensor):
     """
-    Subclass of SQTensor that describes the Green-Lagrange strain tensor.
+    Subclass of SquareTensor that describes the Green-Lagrange strain tensor.
     """
 
     def __new__(cls, strain_matrix, dfm=None):
@@ -190,7 +216,7 @@ class Strain(SQTensor):
                 representing the Green-Lagrange strain
         """
 
-        obj = SQTensor(strain_matrix).view(cls)
+        obj = SquareTensor(strain_matrix).view(cls)
         obj._dfm = dfm
         if not obj.is_symmetric():
             raise ValueError("Strain objects must be initialized "
@@ -209,6 +235,7 @@ class Strain(SQTensor):
     def __array_finalize__(self, obj):
         if obj is None:
             return
+        self.rank = getattr(obj, "rank", None)
         self._dfm = getattr(obj, "_dfm", None)
 
     @classmethod

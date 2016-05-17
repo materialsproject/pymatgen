@@ -20,10 +20,11 @@ from monty.json import MSONable
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
+
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
-from pymatgen.util.coord_utils import pbc_shortest_vectors, \
-    lattice_points_in_supercell, is_coord_subset_pbc
+from pymatgen.util.coord_utils_cython import pbc_shortest_vectors, is_coord_subset_pbc, det3x3
+from pymatgen.util.coord_utils import lattice_points_in_supercell
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -399,7 +400,7 @@ class StructureMatcher(MSONable):
             target_lattice, ltol=self.ltol, atol=self.angle_tol,
             skip_rotation_matrix=True)
         for l, _, scale_m in lattices:
-            if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
+            if abs(abs(det3x3(scale_m)) - supercell_size) < 0.5:
                 yield l, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
@@ -452,7 +453,7 @@ class StructureMatcher(MSONable):
 
         return is_coord_subset_pbc(s2, s1, frac_tol, mask)
 
-    def _cart_dists(self, s1, s2, avg_lattice, mask, normalization):
+    def _cart_dists(self, s1, s2, avg_lattice, mask, normalization, frac_tol=None):
         """
         Finds a matching in cartesian space. Finds an additional
         fractional translation vector to minimize RMS distance
@@ -474,11 +475,8 @@ class StructureMatcher(MSONable):
         if mask.shape != (len(s2), len(s1)):
             raise ValueError("mask has incorrect shape")
 
-        mask_val = 1e10 * self.stol / normalization
         #vectors are from s2 to s1
-        vecs = pbc_shortest_vectors(avg_lattice, s2, s1)
-        vecs[mask] = mask_val
-        d_2 = np.sum(vecs ** 2, axis=-1)
+        vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask, return_d2=True, frac_tol=frac_tol)
         lin = LinearAssignment(d_2)
         s = lin.solution
         short_vecs = vecs[np.arange(len(s)), s]
@@ -526,7 +524,7 @@ class StructureMatcher(MSONable):
         if s1_supercell:
             # remove the symmetrically equivalent s1 indices
             inds = inds[::fu]
-        return mask, inds, i
+        return np.array(mask, dtype=np.int_), inds, i
 
     def fit(self, struct1, struct2):
         """
@@ -580,7 +578,10 @@ class StructureMatcher(MSONable):
     def _process_species(self, structures):
         copied_structures = []
         for s in structures:
-            ss = Structure.from_sites(s)
+            # We need the copies to be actual Structure to work properly, not
+            # subclasses. So do type(s) == Structure.
+            ss = s.copy() if type(s) == Structure else \
+                Structure.from_sites(s)
             if self._ignored_species:
                 ss.remove_species(self._ignored_species)
             copied_structures.append(ss)
@@ -592,8 +593,8 @@ class StructureMatcher(MSONable):
         and finds fu, the supercell size to make struct1 comparable to
         s2
         """
-        struct1 = Structure.from_sites(struct1)
-        struct2 = Structure.from_sites(struct2)
+        struct1 = struct1.copy()
+        struct2 = struct2.copy()
 
         if niggli:
             struct1 = struct1.get_reduced_structure(reduction_algo="niggli")
@@ -681,7 +682,7 @@ class StructureMatcher(MSONable):
                 t_s2fc = s2fc + t
                 if self._cmp_fstruct(s1fc, t_s2fc, frac_tol, mask):
                     dist, t_adj, mapping = self._cart_dists(
-                        s1fc, t_s2fc, avg_l, mask, normalization)
+                        s1fc, t_s2fc, avg_l, mask, normalization, frac_tol)
                     if use_rms:
                         val = np.linalg.norm(dist) / len(dist) ** 0.5
                     else:

@@ -28,16 +28,20 @@ for POTCAR and Materials API support.
 Report any issues or suggestions for this script to shyuep@gmail.com.
 """
 
-__author__ = "Shyue Ping Ong"
-__version__ = "1.0"
-__email__ = "shyuep@gmail.com"
-__date__ = "Apr 28, 2013"
+from __future__ import print_function
 
 import sys
 import subprocess
 import urllib
 import os
 import shutil
+
+__author__ = "Shyue Ping Ong"
+__version__ = "1.1"
+__email__ = "shyuep@gmail.com"
+__date__ = "Apr 28, 2013"
+
+
 
 
 def build_enum(fortran_command="gfortran"):
@@ -123,7 +127,7 @@ except:
 try:
     import pip
     print("Detected pip version {}".format(pip.__version__))
-except ImportError:
+except (AttributeError, ImportError):
     print("pip not detected. Installing...")
     subprocess.call(["easy_install", "pip"])
 
@@ -145,12 +149,12 @@ for pk in ["pyhull>=1.3.6", "pyyaml", "PyCifRW>=3.3", "requests>=1.0",
         if ret != 0:
             print("Error installing required dependency {}".format(pk))
             sys.exit(-1)
-    print
+    print("")
 
 if subprocess.call(["pip", "install", "pymatgen"]) != 0:
     print("Error installing pymatgen")
     sys.exit(-1)
-print
+print("")
 
 enum = False
 bader = False
@@ -165,7 +169,7 @@ if "-f" in sys.argv:
             "https://wiki.fysik.dtu.dk/ase-files/python-ase-3.6.0.2515.tar.gz"]
     ) != 0:
         print("Unable to install ASE. Skipping...")
-    print
+    print("")
 
     fortran_command = None
     try:
@@ -181,10 +185,10 @@ if "-f" in sys.argv:
     if fortran_command is not None:
         print("Building enumlib")
         enum = build_enum(fortran_command)
-        print
+        print("")
         print("Building bader")
         bader = build_bader(fortran_command)
-        print
+        print("")
     else:
         print("No fortran compiler found. Skipping enumlib and bader build.")
 
@@ -194,19 +198,19 @@ if "-f" in sys.argv:
         subprocess.call(["potcar_setup"])
     except:
         print("Skipping POTCAR setup.")
-    print
+    print("")
 
 print("------------ Setup complete --------------")
 print("You still need to perform a few manual changes.")
-print
+print("")
 if enum or bader:
     print("Please add {} to your PATH or move the executables multinum.x, "
           "makestr.x and bader to a location in your PATH."
           .format(os.path.abspath(".")))
-    print
+    print("")
 
 print("To use the Materials API, get your Materials API key at "
       "https://www.materialsproject.org/profile and add it to your "
       "environment")
 print("export MAPI_KEY=YOUR_API_KEY")
-print
+print("")

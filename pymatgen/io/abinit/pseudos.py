@@ -25,9 +25,9 @@ from monty.functools import lazy_property
 from monty.os.path import find_exts
 from monty.dev import deprecated
 from monty.json import MSONable, MontyDecoder
-
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 from pymatgen.core.periodic_table import Element
+from pymatgen.core.xcfunc import XcFunc
 from pymatgen.serializers.json_coders import pmg_serialize
 from .eos import EOS
 
@@ -65,7 +65,7 @@ def _read_nlines(filename, nlines):
 
     lines = []
     with open(filename, 'r') as fh:
-        for (lineno, line) in enumerate(fh):
+        for lineno, line in enumerate(fh):
             if lineno == nlines: break
             lines.append(line)
         return lines
@@ -265,30 +265,12 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             report["md5"] = self.compute_md5()
             self.write_dojo_report(report=report)
 
-    #@abc.abstractproperty
-    #def xc_type(self):
-    #    """XC family e.g LDA, GGA, MGGA."""
-
-    #@abc.abstractproperty
-    #def xc_flavor(self):
-    #    """XC flavor e.g PW, PW91, PBE."""
-
-    #@property
-    #def xc_functional(self):
-    #    """XC identifier e.g LDA-PW91, GGA-PBE, GGA-revPBE."""
-    #    return "-".join([self.xc_type, self.xc_flavor])
-
-    #@abc.abstractproperty
-    #def has_soc(self):
-    #    """True if pseudo contains spin-orbit coupling."""
-
-    #@abc.abstractmethod
-    #def num_of_projectors(self, l='s'):
-    #    """Number of projectors for the angular channel l"""
-
-    #@abc.abstractmethod
-    #def generation_mode
-    #    """scalar scalar-relativistic, relativistic."""
+    @abc.abstractproperty
+    def supports_soc(self):
+        """
+        True if the pseudo can be used in a calculation with spin-orbit coupling.
+        Base classes should provide a concrete implementation.
+        """
 
     @pmg_serialize
     def as_dict(self, **kwargs):
@@ -300,7 +282,8 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             Z_val=self.Z_val,
             l_max=self.l_max,
             md5=self.md5,
-            filepath=self.filepath
+            filepath=self.filepath,
+            #xc=self.xc.as_dict(),
         )
 
     @classmethod
@@ -460,7 +443,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         # Add prtpsps = -1 to make Abinit print the PSPS.nc file and stop.
         inp["prtpsps"] = -1
 
-        # Build temporary task and run it.
+        # Build temporary task and run it (ignore retcode because we don't exit cleanly)
         task = AbinitTask.temp_shell_task(inp)
         retcode = task.start_and_wait()
 
@@ -544,14 +527,16 @@ class AbinitPseudo(Pseudo):
             header: :class:`AbinitHeader` instance.
         """
         self.path = path
+        self.header = header
         self._summary = header.summary
+
+        # Build xc from header.
+        self.xc = XcFunc.from_abinit_ixc(header["pspxc"])
 
         if hasattr(header, "dojo_report"):
             self.dojo_report = header.dojo_report
         else:
             self.dojo_report = {}
-
-        #self.pspcod  = header.pspcod
 
         for attr_name, desc in header.items():
             value = header.get(attr_name, None)
@@ -579,6 +564,20 @@ class AbinitPseudo(Pseudo):
     @property
     def l_local(self):
         return self._lloc
+
+    @property
+    def supports_soc(self):
+        # Treate ONCVPSP pseudos
+        if self._pspcod == 8:
+            switch = self.header["extension_switch"]
+            if switch in (0, 1): return False
+            if switch in (2, 3): return True
+            raise ValueError("Don't know how to handle extension_switch: %s" % switch)
+
+        # TODO Treate HGH HGHK pseudos
+
+        # As far as I know, other Abinit pseudos do not support SOC.
+        return False
 
 
 class NcAbinitPseudo(NcPseudo, AbinitPseudo):
@@ -617,6 +616,10 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
         return self._r_cut
 
     #def orbitals(self):
+
+    @property
+    def supports_soc(self):
+        return True
 
 
 #class Hint(namedtuple("Hint", "ecut aug_ratio")):
@@ -672,7 +675,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
 
         tokens = [t.strip() for t in line.split()]
         values, keys = tokens[:nk], "".join(tokens[nk:])
-        # Sanitize keys: In some case we might string in for  foo[,bar]
+        # Sanitize keys: In some case we might get strings in the form: foo[,bar]
         keys.replace("[", "").replace("]", "")
         keys = keys.split(",")
 
@@ -721,7 +724,6 @@ def _int_from_str(string):
         int_num = np.rint(float_num)
         warn("Converting float %s to int %s" % (float_num, int_num))
         return int_num
-        #raise TypeError("Cannot convert string %s to int" % string)
 
 
 class NcAbinitHeader(AbinitHeader):
@@ -730,34 +732,33 @@ class NcAbinitHeader(AbinitHeader):
 
     _VARS = {
         # Mandatory
-        "zatom"        : _attr_desc(None, _int_from_str),
-        "zion"         : _attr_desc(None, float),
-        "pspdat"       : _attr_desc(None, float),
-        "pspcod"       : _attr_desc(None, int),
-        "pspxc"        : _attr_desc(None, int),
-        "lmax"         : _attr_desc(None, int),
-        "lloc"         : _attr_desc(None, int),
-        "r2well"       : _attr_desc(None, float),
-        "mmax"         : _attr_desc(None, float),
+        "zatom": _attr_desc(None, _int_from_str),
+        "zion": _attr_desc(None, float),
+        "pspdat": _attr_desc(None, float),
+        "pspcod": _attr_desc(None, int),
+        "pspxc": _attr_desc(None, int),
+        "lmax": _attr_desc(None, int),
+        "lloc": _attr_desc(None, int),
+        "r2well": _attr_desc(None, float),
+        "mmax": _attr_desc(None, float),
         # Optional variables for non linear-core correction. HGH does not have it.
-        "rchrg"        : _attr_desc(0.0,  float),  # radius at which the core charge vanish (i.e. cut-off in a.u.)
-        "fchrg"        : _attr_desc(0.0,  float),
-        "qchrg"        : _attr_desc(0.0,  float),
+        "rchrg": _attr_desc(0.0,  float),  # radius at which the core charge vanish (i.e. cut-off in a.u.)
+        "fchrg": _attr_desc(0.0,  float),
+        "qchrg": _attr_desc(0.0,  float),
     }
     del _attr_desc
 
     def __init__(self, summary, **kwargs):
         super(NcAbinitHeader, self).__init__()
 
-        # APE uses llocal instead of lloc.
+        # pseudos generated by APE use llocal instead of lloc.
         if "llocal" in kwargs:
             kwargs["lloc"] = kwargs.pop("llocal")
 
         self.summary = summary.strip()
 
-        for (key, desc) in NcAbinitHeader._VARS.items():
+        for key, desc in NcAbinitHeader._VARS.items():
             default, astype = desc.default, desc.astype
-
             value = kwargs.pop(key, None)
 
             if value is None:
@@ -775,18 +776,21 @@ class NcAbinitHeader(AbinitHeader):
         # Add dojo_report
         self["dojo_report"] = kwargs.pop("dojo_report", {})
 
-        #if kwargs:
-        #    raise RuntimeError("kwargs should be empty but got %s" % str(kwargs))
+        # Add remaining arguments, e.g. extension_switch
+        if kwargs:
+            self.update(kwargs)
 
     @staticmethod
     def fhi_header(filename, ppdesc):
-        """Parse the FHI abinit header."""
-        # Example:
-        # Troullier-Martins psp for element  Sc        Thu Oct 27 17:33:22 EDT 1994
-        #  21.00000   3.00000    940714                zatom, zion, pspdat
-        #    1    1    2    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
-        # 1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg
-        lines = _read_nlines(filename, -1)
+        """
+        Parse the FHI abinit header. Example:
+
+        Troullier-Martins psp for element  Sc        Thu Oct 27 17:33:22 EDT 1994
+         21.00000   3.00000    940714                zatom, zion, pspdat
+           1    1    2    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
+        1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg
+        """
+        lines = _read_nlines(filename, 4)
 
         try:
             header = _dict_from_lines(lines[:4], [0, 3, 6, 3])
@@ -802,12 +806,14 @@ class NcAbinitHeader(AbinitHeader):
 
     @staticmethod
     def hgh_header(filename, ppdesc):
-        """Parse the HGH abinit header."""
-        # Example:
-        #Hartwigsen-Goedecker-Hutter psp for Ne,  from PRB58, 3641 (1998)
-        #   10   8  010605 zatom,zion,pspdat
-        # 3 1   1 0 2001 0  pspcod,pspxc,lmax,lloc,mmax,r2well
-        lines = _read_nlines(filename, -1)
+        """
+        Parse the HGH abinit header. Example:
+
+        Hartwigsen-Goedecker-Hutter psp for Ne,  from PRB58, 3641 (1998)
+           10   8  010605 zatom,zion,pspdat
+         3 1   1 0 2001 0  pspcod,pspxc,lmax,lloc,mmax,r2well
+        """
+        lines = _read_nlines(filename, 3)
 
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
@@ -818,16 +824,17 @@ class NcAbinitHeader(AbinitHeader):
 
     @staticmethod
     def gth_header(filename, ppdesc):
-        """Parse the GTH abinit header."""
-        # Example:
-        #Goedecker-Teter-Hutter  Wed May  8 14:27:44 EDT 1996
-        #1   1   960508                     zatom,zion,pspdat
-        #2   1   0    0    2001    0.       pspcod,pspxc,lmax,lloc,mmax,r2well
-        #0.2000000 -4.0663326  0.6778322 0 0     rloc, c1, c2, c3, c4
-        #0 0 0                              rs, h1s, h2s
-        #0 0                                rp, h1p
-        #  1.36 .2   0.6                    rcutoff, rloc
-        lines = _read_nlines(filename, -1)
+        """Parse the GTH abinit header. Example:
+
+        Goedecker-Teter-Hutter  Wed May  8 14:27:44 EDT 1996
+        1   1   960508                     zatom,zion,pspdat
+        2   1   0    0    2001    0.       pspcod,pspxc,lmax,lloc,mmax,r2well
+        0.2000000 -4.0663326  0.6778322 0 0     rloc, c1, c2, c3, c4
+        0 0 0                              rs, h1s, h2s
+        0 0                                rp, h1p
+          1.36 .2   0.6                    rcutoff, rloc
+        """
+        lines = _read_nlines(filename, 7)
 
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
@@ -838,24 +845,30 @@ class NcAbinitHeader(AbinitHeader):
 
     @staticmethod
     def oncvpsp_header(filename, ppdesc):
-        """Parse the ONCVPSP abinit header."""
-        # Example
-        #Li    ONCVPSP  r_core=  2.01  3.02
-        #      3.0000      3.0000      140504    zatom,zion,pspd
-        #     8     2     1     4   600     0    pspcod,pspxc,lmax,lloc,mmax,r2well
-        #  5.99000000  0.00000000  0.00000000    rchrg fchrg qchrg
-        #     2     2     0     0     0    nproj
-        #     0                 extension_switch
-        #   0                        -2.5000025868368D+00 -1.2006906995331D+00
-        #     1  0.0000000000000D+00  0.0000000000000D+00  0.0000000000000D+00
-        #     2  1.0000000000000D-02  4.4140499497377D-02  1.9909081701712D-02
-        lines = _read_nlines(filename, -1)
+        """Parse the ONCVPSP abinit header. Example:
+
+        Li    ONCVPSP  r_core=  2.01  3.02
+              3.0000      3.0000      140504    zatom,zion,pspd
+             8     2     1     4   600     0    pspcod,pspxc,lmax,lloc,mmax,r2well
+          5.99000000  0.00000000  0.00000000    rchrg fchrg qchrg
+             2     2     0     0     0    nproj
+             0                 extension_switch
+           0                        -2.5000025868368D+00 -1.2006906995331D+00
+             1  0.0000000000000D+00  0.0000000000000D+00  0.0000000000000D+00
+             2  1.0000000000000D-02  4.4140499497377D-02  1.9909081701712D-02
+        """
+        lines = _read_nlines(filename, 6)
 
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
 
+        # Replace pspd with pspdata
         header.update({'pspdat': header['pspd']})
         header.pop('pspd')
+
+        # Read extension switch
+        header["extension_switch"] = int(lines[5].split()[0])
+
         try:
             header["dojo_report"] = DojoReport.from_file(filename)
         except DojoReport.Error:
@@ -866,20 +879,21 @@ class NcAbinitHeader(AbinitHeader):
 
     @staticmethod
     def tm_header(filename, ppdesc):
-        """Parse the TM abinit header."""
-        # Example:
-        #Troullier-Martins psp for element Fm         Thu Oct 27 17:28:39 EDT 1994
-        #100.00000  14.00000    940714                zatom, zion, pspdat
-        #   1    1    3    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
-        #   0   4.085   6.246    0   2.8786493        l,e99.0,e99.9,nproj,rcpsp
-        #   .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
-        #   1   3.116   4.632    1   3.4291849        l,e99.0,e99.9,nproj,rcpsp
-        #   .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
-        #   2   4.557   6.308    1   2.1865358        l,e99.0,e99.9,nproj,rcpsp
-        #   .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
-        #   3  23.251  29.387    1   2.4776730        l,e99.0,e99.9,nproj,rcpsp
-        #   .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
-        #   3.62474762267880     .07409391739104    3.07937699839200   rchrg,fchrg,qchrg
+        """Parse the TM abinit header. Example:
+
+        Troullier-Martins psp for element Fm         Thu Oct 27 17:28:39 EDT 1994
+        100.00000  14.00000    940714                zatom, zion, pspdat
+           1    1    3    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
+           0   4.085   6.246    0   2.8786493        l,e99.0,e99.9,nproj,rcpsp
+           .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
+           1   3.116   4.632    1   3.4291849        l,e99.0,e99.9,nproj,rcpsp
+           .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
+           2   4.557   6.308    1   2.1865358        l,e99.0,e99.9,nproj,rcpsp
+           .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
+           3  23.251  29.387    1   2.4776730        l,e99.0,e99.9,nproj,rcpsp
+           .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
+           3.62474762267880     .07409391739104    3.07937699839200   rchrg,fchrg,qchrg
+        """
         lines = _read_nlines(filename, -1)
         header = []
 
@@ -925,24 +939,24 @@ class PawAbinitHeader(AbinitHeader):
     _attr_desc = namedtuple("att", "default astype")
 
     _VARS = {
-        "zatom"           : _attr_desc(None, _int_from_str),
-        "zion"            : _attr_desc(None, float),
-        "pspdat"          : _attr_desc(None, float),
-        "pspcod"          : _attr_desc(None, int),
-        "pspxc"           : _attr_desc(None, int),
-        "lmax"            : _attr_desc(None, int),
-        "lloc"            : _attr_desc(None, int),
-        "mmax"            : _attr_desc(None, int),
-        "r2well"          : _attr_desc(None, float),
-        "pspfmt"          : _attr_desc(None, str),
-        "creatorID"       : _attr_desc(None, int),
-        "basis_size"      : _attr_desc(None, int),
-        "lmn_size"        : _attr_desc(None, int),
-        "orbitals"        : _attr_desc(None, list),
+        "zatom": _attr_desc(None, _int_from_str),
+        "zion": _attr_desc(None, float),
+        "pspdat": _attr_desc(None, float),
+        "pspcod": _attr_desc(None, int),
+        "pspxc": _attr_desc(None, int),
+        "lmax": _attr_desc(None, int),
+        "lloc": _attr_desc(None, int),
+        "mmax": _attr_desc(None, int),
+        "r2well": _attr_desc(None, float),
+        "pspfmt": _attr_desc(None, str),
+        "creatorID": _attr_desc(None, int),
+        "basis_size": _attr_desc(None, int),
+        "lmn_size": _attr_desc(None, int),
+        "orbitals": _attr_desc(None, list),
         "number_of_meshes": _attr_desc(None, int),
-        "r_cut"           : _attr_desc(None, float), # r_cut(PAW) in the header
-        "shape_type"      : _attr_desc(None, int),
-        "rshape"          : _attr_desc(None, float),
+        "r_cut": _attr_desc(None, float), # r_cut(PAW) in the header
+        "shape_type": _attr_desc(None, int),
+        "rshape": _attr_desc(None, float),
     }
     del _attr_desc
 
@@ -951,7 +965,7 @@ class PawAbinitHeader(AbinitHeader):
 
         self.summary = summary.strip()
 
-        for (key, desc) in self._VARS.items():
+        for key, desc in self._VARS.items():
             default, astype = desc.default, desc.astype
 
             value = kwargs.pop(key, None)
@@ -973,50 +987,55 @@ class PawAbinitHeader(AbinitHeader):
 
     @staticmethod
     def paw_header(filename, ppdesc):
-        """Parse the PAW abinit header."""
-        #Paw atomic data for element Ni - Generated by AtomPAW (N. Holzwarth) + AtomPAW2Abinit v3.0.5
-        #  28.000  18.000 20061204               : zatom,zion,pspdat
-        #  7  7  2 0   350 0.                    : pspcod,pspxc,lmax,lloc,mmax,r2well
-        # paw3 1305                              : pspfmt,creatorID
-        #  5 13                                  : basis_size,lmn_size
-        # 0 0 1 1 2                              : orbitals
-        # 3                                      : number_of_meshes
-        # 1 3  350 1.1803778368E-05 3.5000000000E-02 : mesh 1, type,size,rad_step[,log_step]
-        # 2 1  921 2.500000000000E-03                : mesh 2, type,size,rad_step[,log_step]
-        # 3 3  391 1.1803778368E-05 3.5000000000E-02 : mesh 3, type,size,rad_step[,log_step]
-        #  2.3000000000                          : r_cut(SPH)
-        # 2 0.
+        """Parse the PAW abinit header. Examples:
 
-        # Example
-        #C  (US d-loc) - PAW data extracted from US-psp (D.Vanderbilt) - generated by USpp2Abinit v2.3.0
-        #   6.000   4.000 20090106               : zatom,zion,pspdat
-        #  7 11  1 0   560 0.                    : pspcod,pspxc,lmax,lloc,mmax,r2well
-        # paw4 2230                              : pspfmt,creatorID
-        #  4  8                                  : basis_size,lmn_size
-        # 0 0 1 1                                : orbitals
-        # 5                                      : number_of_meshes
-        # 1 2  560 1.5198032759E-04 1.6666666667E-02 : mesh 1, type,size,rad_step[,log_step]
-        # 2 2  556 1.5198032759E-04 1.6666666667E-02 : mesh 2, type,size,rad_step[,log_step]
-        # 3 2  576 1.5198032759E-04 1.6666666667E-02 : mesh 3, type,size,rad_step[,log_step]
-        # 4 2  666 1.5198032759E-04 1.6666666667E-02 : mesh 4, type,size,rad_step[,log_step]
-        # 5 2  673 1.5198032759E-04 1.6666666667E-02 : mesh 5, type,size,rad_step[,log_step]
-        #  1.5550009124                          : r_cut(PAW)
-        # 3 0.                                   : shape_type,rshape
+        Paw atomic data for element Ni - Generated by AtomPAW (N. Holzwarth) + AtomPAW2Abinit v3.0.5
+          28.000  18.000 20061204               : zatom,zion,pspdat
+          7  7  2 0   350 0.                    : pspcod,pspxc,lmax,lloc,mmax,r2well
+         paw3 1305                              : pspfmt,creatorID
+          5 13                                  : basis_size,lmn_size
+         0 0 1 1 2                              : orbitals
+         3                                      : number_of_meshes
+         1 3  350 1.1803778368E-05 3.5000000000E-02 : mesh 1, type,size,rad_step[,log_step]
+         2 1  921 2.500000000000E-03                : mesh 2, type,size,rad_step[,log_step]
+         3 3  391 1.1803778368E-05 3.5000000000E-02 : mesh 3, type,size,rad_step[,log_step]
+          2.3000000000                          : r_cut(SPH)
+         2 0.
 
-        #Paw atomic data for element Si - Generated by atompaw v3.0.1.3 & AtomPAW2Abinit v3.3.1
-        #  14.000   4.000 20120814               : zatom,zion,pspdat
-        #  7      11  1 0   663 0.               : pspcod,pspxc,lmax,lloc,mmax,r2well
-        # paw5 1331                              : pspfmt,creatorID
-        #  4  8                                  : basis_size,lmn_size
-        # 0 0 1 1                                : orbitals
-        # 5                                      : number_of_meshes
-        # 1 2  663 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 1, type,size,rad_step[,log_step]
-        # 2 2  658 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 2, type,size,rad_step[,log_step]
-        # 3 2  740 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 3, type,size,rad_step[,log_step]
-        # 4 2  819 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 4, type,size,rad_step[,log_step]
-        # 5 2  870 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 5, type,size,rad_step[,log_step]
-        #  1.5669671236                          : r_cut(PAW)
-        # 2 0.                                   : shape_type,rshape
+        Another format:
+
+        C  (US d-loc) - PAW data extracted from US-psp (D.Vanderbilt) - generated by USpp2Abinit v2.3.0
+           6.000   4.000 20090106               : zatom,zion,pspdat
+          7 11  1 0   560 0.                    : pspcod,pspxc,lmax,lloc,mmax,r2well
+         paw4 2230                              : pspfmt,creatorID
+          4  8                                  : basis_size,lmn_size
+         0 0 1 1                                : orbitals
+         5                                      : number_of_meshes
+         1 2  560 1.5198032759E-04 1.6666666667E-02 : mesh 1, type,size,rad_step[,log_step]
+         2 2  556 1.5198032759E-04 1.6666666667E-02 : mesh 2, type,size,rad_step[,log_step]
+         3 2  576 1.5198032759E-04 1.6666666667E-02 : mesh 3, type,size,rad_step[,log_step]
+         4 2  666 1.5198032759E-04 1.6666666667E-02 : mesh 4, type,size,rad_step[,log_step]
+         5 2  673 1.5198032759E-04 1.6666666667E-02 : mesh 5, type,size,rad_step[,log_step]
+          1.5550009124                          : r_cut(PAW)
+         3 0.                                   : shape_type,rshape
+
+        Yet nnother one:
+
+        Paw atomic data for element Si - Generated by atompaw v3.0.1.3 & AtomPAW2Abinit v3.3.1
+          14.000   4.000 20120814               : zatom,zion,pspdat
+          7      11  1 0   663 0.               : pspcod,pspxc,lmax,lloc,mmax,r2well
+         paw5 1331                              : pspfmt,creatorID
+          4  8                                  : basis_size,lmn_size
+         0 0 1 1                                : orbitals
+         5                                      : number_of_meshes
+         1 2  663 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 1, type,size,rad_step[,log_step]
+         2 2  658 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 2, type,size,rad_step[,log_step]
+         3 2  740 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 3, type,size,rad_step[,log_step]
+         4 2  819 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 4, type,size,rad_step[,log_step]
+         5 2  870 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 5, type,size,rad_step[,log_step]
+          1.5669671236                          : r_cut(PAW)
+         2 0.                                   : shape_type,rshape
+        """
         supported_formats = ["paw3", "paw4", "paw5"]
         if ppdesc.format not in supported_formats:
             raise NotImplementedError("format %s not in %s" % (ppdesc.format, supported_formats))
@@ -1106,7 +1125,7 @@ class PseudoParser(object):
         Returns:
             List of pseudopotential objects.
         """
-        for (i, ext) in enumerate(exclude_exts):
+        for i, ext in enumerate(exclude_exts):
             if not ext.strip().startswith("."):
                 exclude_exts[i] =  "." + ext.strip()
 
@@ -1152,7 +1171,7 @@ class PseudoParser(object):
             # Assume file with the abinit header.
             lines = _read_nlines(filename, 80)
 
-            for (lineno, line) in enumerate(lines):
+            for lineno, line in enumerate(lines):
 
                 if lineno == 2:
                     try:
@@ -1207,22 +1226,20 @@ class PseudoParser(object):
         psp_type = ppdesc.psp_type
 
         parsers = {
-            "FHI"            : NcAbinitHeader.fhi_header,
-            "GTH"            : NcAbinitHeader.gth_header,
-            "TM"             : NcAbinitHeader.tm_header,
-            "Teter"          : NcAbinitHeader.tm_header,
-            "HGH"            : NcAbinitHeader.hgh_header,
-            "HGHK"           : NcAbinitHeader.hgh_header,
-            "ONCVPSP"        : NcAbinitHeader.oncvpsp_header,
+            "FHI": NcAbinitHeader.fhi_header,
+            "GTH": NcAbinitHeader.gth_header,
+            "TM": NcAbinitHeader.tm_header,
+            "Teter": NcAbinitHeader.tm_header,
+            "HGH": NcAbinitHeader.hgh_header,
+            "HGHK": NcAbinitHeader.hgh_header,
+            "ONCVPSP": NcAbinitHeader.oncvpsp_header,
             "PAW_abinit_text": PawAbinitHeader.paw_header,
         }
 
         try:
             header = parsers[ppdesc.name](path, ppdesc)
-        except Exception as exc:
+        except Exception:
             raise self.Error(path + ":\n" + straceback())
-
-        root, ext = os.path.splitext(path)
 
         if psp_type == "NC":
             pseudo = NcAbinitPseudo(path, header)
@@ -1258,14 +1275,15 @@ class PawXmlSetup(Pseudo, PawPseudo):
         self._zatom = int(float(atom_attrib["Z"]))
         self.core, self.valence = map(float, [atom_attrib["core"], atom_attrib["valence"]])
 
-        #xc_info = root.find("atom").attrib
-        #self.xc_type, self.xc_name  = xc_info["type"], xc_info["name"]
-        #self.ae_energy = {k: float(v) for k,v in root.find("ae_energy").attrib.items()}
+        # Build xc from header.
+        xc_info = root.find("xc_functional").attrib
+        self.xc = XcFunc.from_type_name(xc_info["type"], xc_info["name"])
 
         # Old XML files do not define this field!
         # In this case we set the PAW radius to None.
         #self._paw_radius = float(root.find("PAW_radius").attrib["rpaw"])
 
+        #self.ae_energy = {k: float(v) for k,v in root.find("ae_energy").attrib.items()}
         pawr_element = root.find("PAW_radius")
         self._paw_radius = None
         if pawr_element is not None:
@@ -1349,6 +1367,10 @@ class PawXmlSetup(Pseudo, PawPseudo):
     def paw_radius(self):
         return self._paw_radius
 
+    @property
+    def supports_soc(self):
+        return True
+
     @staticmethod
     def _eval_grid(grid_params):
         """
@@ -1430,11 +1452,10 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         except AttributeError:
             self._ae_partial_waves = {}
-            for (mesh, values, attrib) in self._parse_all_radfuncs("ae_partial_wave"):
+            for mesh, values, attrib in self._parse_all_radfuncs("ae_partial_wave"):
                 state = attrib["state"]
                 val_state = self.valence_states[state]
                 self._ae_partial_waves[state] = RadialFunction(mesh, values)
-                #print("val_state", val_state)
 
             return self._ae_partial_waves
 
@@ -1673,11 +1694,11 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
             pseudos = list_strings(pseudos)
 
         self._pseudos_with_z = defaultdict(list)
-        #print(pseudos)
+
         for pseudo in pseudos:
-       	    if not isinstance(pseudo, Pseudo):
+            if not isinstance(pseudo, Pseudo):
                 pseudo = Pseudo.from_file(pseudo)
-            if pseudo is not None:    
+            if pseudo is not None:
                 self._pseudos_with_z[pseudo.Z].append(pseudo)
 
         for z in self.zlist:
@@ -2019,25 +2040,25 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
                     # using -1 for non existing values facilitates plotting
                     d.update({acc + "_ecut_hint": -1.0 })
                     ecut_acc[acc] = -1
- 
+
             for acc in accuracies:
                 d[acc + "_ecut"] = ecut_acc[acc]
 
             try:
                 for trial, keys in trial2keys.items():
                     data = report.get(trial, None)
-                    
+
                     if data is None: continue
 
-                    # if the current trial has an entry for this ecut change nothing, else we take the 
-                    # smallest, the middle and the highest ecut available for this trials 
+                    # if the current trial has an entry for this ecut change nothing, else we take the
+                    # smallest, the middle and the highest ecut available for this trials
                     # precausion, normally either there are hints or not. in the second case they are all set to -1
                     ecut_acc_trial = dict(
                         low=sorted(data.keys())[0],
                         normal=sorted(data.keys())[int(len(data.keys())/2)],
                         high=sorted(data.keys())[-1],
                     )
- 
+
                     for acc in accuracies:
                         d[acc + "_ecut"] = ecut_acc[acc]
 
@@ -2136,9 +2157,11 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
                         logger.info('Skipping file %s' % f)
                 except:
                     logger.info('Skipping file %s' % f)
+
         if not pseudos:
             logger.warning('No pseudopotentials parsed from folder %s' % path)
             return None
+
         logger.info('Creating PseudoTable with %i pseudopotentials' % len(pseudos))
         return cls(pseudos)
 
@@ -2339,7 +2362,7 @@ class DojoReport(dict):
 
     #for noble gasses:
     #ATOLS = (1.0, 0.2, 0.04)
-    
+
     ATOLS = (0.5, 0.1, 0.02)
 
     Error = DojoReportError
@@ -2382,8 +2405,8 @@ class DojoReport(dict):
                 except KeyError:
                     continue
                 ecuts_keys = sorted([(float(k), k) for k in d], key=lambda t:t[0])
-                ord = OrderedDict([(t[0], d[t[1]]) for t in ecuts_keys])
-                self[trial] = ord
+                od = OrderedDict([(t[0], d[t[1]]) for t in ecuts_keys])
+                self[trial] = od
 
         except ValueError:
             raise self.Error('Error while initializing the dojo report')
@@ -2667,7 +2690,8 @@ class DojoReport(dict):
         Check the dojo report for inconsistencies.
         Return a string with the errors found in the DOJO_REPORT.
         """
-        errors = []; app = errors.append
+        errors = []
+        app = errors.append
 
         for k in ("version", "ppgen_hints", "md5"):
             if k not in self: app("%s is missing" % k)
@@ -2691,7 +2715,7 @@ class DojoReport(dict):
             for ecut in self[trial]:
                 if ecut not in global_ecuts:
                     app("%s: ecut %s is not in the global list" % (trial, ecut))
-            
+
         return "\n".join(errors)
 
     @add_fig_kwargs
@@ -2718,9 +2742,9 @@ class DojoReport(dict):
                 keys = [k for k in all if k not in what]
             else:
                 keys = what
-        
+
         xc = kwargs.pop('xc', None)
-          
+
         # get reference entry
         from pseudo_dojo.refdata.deltafactor import df_database
         reference = df_database(xc=xc).get_entry(symbol=self.symbol, code=code)
@@ -2895,13 +2919,13 @@ class DojoReport(dict):
         return fig
 
     @add_fig_kwargs
-    def plot_ebands(self, ecut=None):
+    def plot_ebands(self, ecut=None, **kwargs):
         if ecut is None:
             ecut = self['ebands'].keys()[0]
-        print(self['ebands'][ecut]['GSR-nc'])
+        path = self['ebands'][self['ebands'].keys()[0]]['GSR-nc']
+
         from abipy.abilab import abiopen
-        ebands = abiopen(self['ebands'][self['ebands'].keys()[0]]['GSR-nc']).ebands
-        print("fermi energy: ", ebands.fermie)
-        fig = ebands.plot_with_edos(ebands.get_edos(width=0.05, step=0.02))
-        return fig
-    
+        with abiopen(path) as gsr:
+            ebands = gsr.ebands
+            fig = ebands.plot_with_edos(ebands.get_edos(width=0.05, step=0.02))
+            return fig

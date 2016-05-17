@@ -720,10 +720,15 @@ class PyFlowScheduler(object):
             g = self.flow.find_deadlocks()
             if not g.runnables and not g.running:
                 err_lines.append("No task is running and cannot find other tasks to submit.")
-        #"""
 
         if err_lines:
             # Something wrong. Quit
+            # Cancel all jobs.
+            #try:
+            #   for task in self.flow.iflat_tasks()
+            #       task.cancel()
+            #except:
+            #   pass
             self.shutdown("\n".join(err_lines))
 
         return len(self.exceptions)
@@ -759,13 +764,6 @@ class PyFlowScheduler(object):
                 with open(dump_file, "w") as fh:
                     fh.writelines(self.exceptions)
                     fh.write("Shutdown message:\n%s" % msg)
-
-                # Cancel all jobs.
-                #try:
-                #   for task in self.flow.iflat_tasks()
-                #       task.cancel()
-                #except:
-                #   pass
 
             lines = []
             app = lines.append

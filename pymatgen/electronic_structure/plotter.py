@@ -4,6 +4,12 @@
 
 from __future__ import division, unicode_literals, print_function
 
+from matplotlib import pyplot as plt
+
+from pymatgen import Energy
+from pymatgen.electronic_structure.boltztrap import BoltztrapError
+from pymatgen.symmetry.bandstructure import HighSymmKpath
+
 """
 This module implements plotter for DOS and band structure.
 """
@@ -25,6 +31,7 @@ import numpy as np
 from monty.json import jsanitize
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax3d_fig_plt
 
 logger = logging.getLogger('BSPlotter')
 
@@ -410,7 +417,11 @@ class BSPlotter(object):
         plt = get_publication_quality_plot(12, 8)
         from matplotlib import rc
         import scipy.interpolate as scint
-        rc('text', usetex=True)
+        try:
+            rc('text', usetex=True)
+        except:
+            # Fall back on non Tex if errored.
+            rc('text', usetex=False)
 
         # main internal config options
         e_min = -4
@@ -640,96 +651,34 @@ class BSPlotter(object):
         plt = self.get_plot()
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
-        band_linewidth = 3
+        band_linewidth = 1
         for i in range(other_plotter._nb_bands):
-            plt.plot(data_orig['distances'],
-                     [e for e in data['energy'][str(Spin.up)][i]],
-                     'r-', linewidth=band_linewidth)
-            if other_plotter._bs.is_spin_polarized:
-                plt.plot(data_orig['distances'],
-                         [e for e in data['energy'][str(Spin.down)][i]],
+            for d in range(len(data_orig['distances'])):
+                plt.plot(data_orig['distances'][d],
+                         [e[str(Spin.up)][i] for e in data['energy']][d],
                          'r-', linewidth=band_linewidth)
+        if other_plotter._bs.is_spin_polarized:
+            plt.plot(data_orig['distances'],
+                     [e for e in data['energy'][i][str(Spin.down)]],
+                     'r-', linewidth=band_linewidth)
         return plt
 
     def plot_brillouin(self):
         """
         plot the Brillouin zone
         """
-        import matplotlib as mpl
-        import matplotlib.pyplot as plt
-        from mpl_toolkits.mplot3d import Axes3D
-        mpl.rcParams['legend.fontsize'] = 10
 
-        fig = plt.figure()
-        ax = Axes3D(fig)
-        vec1 = self._bs.lattice.matrix[0]
-        vec2 = self._bs.lattice.matrix[1]
-        vec3 = self._bs.lattice.matrix[2]
-
-        # make the grid
-        max_x = -1000
-        max_y = -1000
-        max_z = -1000
-        min_x = 1000
-        min_y = 1000
-        min_z = 1000
-        list_k_points = []
-        for i in [-1, 0, 1]:
-            for j in [-1, 0, 1]:
-                for k in [-1, 0, 1]:
-                    list_k_points.append(i * vec1 + j * vec2 + k * vec3)
-                    if list_k_points[-1][0] > max_x:
-                        max_x = list_k_points[-1][0]
-                    if list_k_points[-1][1] > max_y:
-                        max_y = list_k_points[-1][1]
-                    if list_k_points[-1][2] > max_z:
-                        max_z = list_k_points[-1][0]
-
-                    if list_k_points[-1][0] < min_x:
-                        min_x = list_k_points[-1][0]
-                    if list_k_points[-1][1] < min_y:
-                        min_y = list_k_points[-1][1]
-                    if list_k_points[-1][2] < min_z:
-                        min_z = list_k_points[-1][0]
-
-        vertex = _qvertex_target(list_k_points, 13)
-        lines = get_lines_voronoi(vertex)
-
-        for i in range(len(lines)):
-            vertex1 = lines[i]['start']
-            vertex2 = lines[i]['end']
-            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]],
-                    [vertex1[2], vertex2[2]], color='k')
-
-        for b in self._bs._branches:
-            vertex1 = self._bs.kpoints[b['start_index']].cart_coords
-            vertex2 = self._bs.kpoints[b['end_index']].cart_coords
-            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]],
-                    [vertex1[2], vertex2[2]], color='r', linewidth=3)
-
+        # get labels and lines
+        labels = {}
         for k in self._bs.kpoints:
             if k.label:
-                label = k.label
-                if k.label.startswith("\\") or k.label.find("_") != -1:
-                    label = "$" + k.label + "$"
-                off = 0.01
-                ax.text(k.cart_coords[0] + off, k.cart_coords[1] + off,
-                        k.cart_coords[2] + off, label, color='b', size='25')
-                ax.scatter([k.cart_coords[0]], [k.cart_coords[1]],
-                           [k.cart_coords[2]], color='b')
+                labels[k.label] = k.frac_coords
 
-        # make ticklabels and ticklines invisible
-        for a in ax.w_xaxis.get_ticklines() + ax.w_xaxis.get_ticklabels():
-            a.set_visible(False)
-        for a in ax.w_yaxis.get_ticklines() + ax.w_yaxis.get_ticklabels():
-            a.set_visible(False)
-        for a in ax.w_zaxis.get_ticklines() + ax.w_zaxis.get_ticklabels():
-            a.set_visible(False)
+        lines = []
+        for b in self._bs._branches:
+            lines.append([self._bs.kpoints[b['start_index']].frac_coords, self._bs.kpoints[b['end_index']].frac_coords])
 
-        ax.grid(False)
-
-        plt.show()
-        ax.axis("off")
+        plot_brillouin_zone(self._bs.lattice, lines=lines, labels=labels)
 
 
 class BSPlotterProjected(BSPlotter):
@@ -1020,56 +969,652 @@ class BSPlotterProjected(BSPlotter):
         plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 2.0)
         return plt
 
-
-def _qvertex_target(data, index):
+class BoltztrapPlotter(object):
     """
-    Input data should be in the form of a list of a list of floats.
-    index is the index of the targeted point
-    Returns the vertices of the voronoi construction around this target point.
+    class containing methods to plot the data from Boltztrap.
+
+    Args:
+        bz: a BoltztrapAnalyzer object
     """
-    from pyhull import qvoronoi
-    output = qvoronoi("p QV" + str(index), data)
-    output.pop(0)
-    output.pop(0)
-    return [[float(i) for i in row.split()] for row in output]
+
+    def __init__(self, bz):
+        self._bz = bz
+
+    def _plot_doping(self, temp):
+        if len(self._bz.doping) != 0:
+            limit = 2.21e15
+            plt.axvline(self._bz.mu_doping['n'][temp][0], linewidth=3.0,
+                        linestyle="--")
+            plt.text(self._bz.mu_doping['n'][temp][0] + 0.01,
+                     limit,
+                     "$n$=10$^{" + str(
+                         math.log10(self._bz.doping['n'][0])) + "}$",
+                     color='b')
+            plt.axvline(self._bz.mu_doping['n'][temp][-1], linewidth=3.0,
+                        linestyle="--")
+            plt.text(self._bz.mu_doping['n'][temp][-1] + 0.01,
+                     limit,
+                     "$n$=10$^{" + str(math.log10(self._bz.doping['n'][-1]))
+                     + "}$", color='b')
+            plt.axvline(self._bz.mu_doping['p'][temp][0], linewidth=3.0,
+                        linestyle="--")
+            plt.text(self._bz.mu_doping['p'][temp][0] + 0.01,
+                     limit,
+                     "$p$=10$^{" + str(
+                         math.log10(self._bz.doping['p'][0])) + "}$",
+                     color='b')
+            plt.axvline(self._bz.mu_doping['p'][temp][-1], linewidth=3.0,
+                        linestyle="--")
+            plt.text(self._bz.mu_doping['p'][temp][-1] + 0.01,
+                     limit, "$p$=10$^{" +
+                     str(math.log10(self._bz.doping['p'][-1])) + "}$",
+                     color='b')
+
+    def _plot_bg_limits(self):
+        plt.axvline(0.0, color='k', linewidth=3.0)
+        plt.axvline(self._bz.gap, color='k', linewidth=3.0)
+
+    def plot_seebeck_mu(self, temp=600, output='eig', xlim=None):
+        """
+        Plot the seebeck coefficient in function of Fermi level
+
+        Args:
+            temp:
+                the temperature
+            xlim:
+                a list of min and max fermi energy by default (0, and band gap)
+        Returns:
+            a matplotlib object
+        """
+        seebeck = self._bz.get_seebeck(output=output, doping_levels=False)[
+            temp]
+        plt.plot(self._bz.mu_steps, seebeck,
+                 linewidth=3.0)
+        self._plot_bg_limits()
+        self._plot_doping(temp)
+        if output == 'eig':
+            plt.legend(['S$_1$', 'S$_2$', 'S$_3$'])
+        if xlim is None:
+            plt.xlim(-0.5, self._bz.gap + 0.5)
+        else:
+            plt.xlim(xlim[0], xlim[1])
+        plt.ylabel("Seebeck \n coefficient  ($\mu$V/K)", fontsize=30.0)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        return plt
+
+    def plot_conductivity_mu(self, temp=600, output='eig',
+                             relaxation_time=1e-14, xlim=None):
+        """
+        Plot the conductivity in function of Fermi level. Semi-log plot
+
+        Args:
+            temp: the temperature
+            xlim: a list of min and max fermi energy by default (0, and band
+                gap)
+            tau: A relaxation time in s. By default none and the plot is by
+               units of relaxation time
+
+        Returns:
+            a matplotlib object
+        """
+        cond = self._bz.get_conductivity(relaxation_time=relaxation_time,
+                                         output=output, doping_levels=False)[
+            temp]
+        plt.semilogy(self._bz.mu_steps, cond, linewidth=3.0)
+        self._plot_bg_limits()
+        self._plot_doping(temp)
+        if output == 'eig':
+            plt.legend(['$\sigma_1$', '$\sigma_2$', '$\sigma_3$'])
+        if xlim is None:
+            plt.xlim(-0.5, self._bz.gap + 0.5)
+        else:
+            plt.xlim(xlim)
+        plt.ylim([1e13 * relaxation_time, 1e20 * relaxation_time])
+        plt.ylabel("conductivity,\n $\sigma$ (1/($\Omega$ m))", fontsize=30.0)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        return plt
+
+    def plot_power_factor_mu(self, temp=600, output='eig',
+                             relaxation_time=1e-14, xlim=None):
+        """
+        Plot the power factor in function of Fermi level. Semi-log plot
+
+        Args:
+            temp: the temperature
+            xlim: a list of min and max fermi energy by default (0, and band
+                gap)
+            tau: A relaxation time in s. By default none and the plot is by
+               units of relaxation time
+
+        Returns:
+            a matplotlib object
+        """
+        pf = self._bz.get_power_factor(relaxation_time=relaxation_time,
+                                       output=output, doping_levels=False)[
+            temp]
+        plt.semilogy(self._bz.mu_steps, pf, linewidth=3.0)
+        self._plot_bg_limits()
+        self._plot_doping(temp)
+        if output == 'eig':
+            plt.legend(['PF$_1$', 'PF$_2$', 'PF$_3$'])
+        if xlim is None:
+            plt.xlim(-0.5, self._bz.gap + 0.5)
+        else:
+            plt.xlim(xlim)
+        plt.ylabel("Power factor, ($\mu$W/(mK$^2$))", fontsize=30.0)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        return plt
+
+    def plot_zt_mu(self, temp=600, output='eig', relaxation_time=1e-14,
+                   xlim=None):
+        """
+        Plot the ZT in function of Fermi level.
+
+        Args:
+            temp: the temperature
+            xlim: a list of min and max fermi energy by default (0, and band
+                gap)
+            tau: A relaxation time in s. By default none and the plot is by
+               units of relaxation time
+
+        Returns:
+            a matplotlib object
+        """
+        zt = self._bz.get_zt(relaxation_time=relaxation_time, output=output,
+                             doping_levels=False)[temp]
+        plt.plot(self._bz.mu_steps, zt, linewidth=3.0)
+        self._plot_bg_limits()
+        self._plot_doping(temp)
+        if output == 'eig':
+            plt.legend(['ZT$_1$', 'ZT$_2$', 'ZT$_3$'])
+        if xlim is None:
+            plt.xlim(-0.5, self._bz.gap + 0.5)
+        else:
+            plt.xlim(xlim)
+        plt.ylabel("ZT", fontsize=30.0)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        return plt
+
+    def plot_dos(self, sigma=0.05):
+        """
+        plot dos
+
+        Args:
+            sigma: a smearing
+
+        Returns:
+            a matplotlib object
+        """
+        plotter = DosPlotter(sigma=sigma)
+        plotter.add_dos("t", self._bz.dos)
+        return plotter.get_plot()
+
+    def plot_carriers(self, temp=300):
+        """
+        Plot the carrier concentration in function of Fermi level
+
+        Args:
+            temp: the temperature
+
+        Returns:
+            a matplotlib object
+        """
+        plt.semilogy(self._bz.mu_steps,
+                     abs(self._bz.carrier_conc[temp] / (self._bz.vol * 1e-24)),
+                     linewidth=3.0, color='r')
+        self._plot_bg_limits()
+        self._plot_doping(temp)
+        plt.xlim(-0.5, self._bz.gap + 0.5)
+        plt.ylim(1e14, 1e22)
+        plt.ylabel("carrier concentration (cm-3)", fontsize=30.0)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        return plt
+
+    def plot_hall_carriers(self, temp=300):
+        """
+        Plot the Hall carrier concentration in function of Fermi level
+
+        Args:
+            temp: the temperature
+
+        Returns:
+            a matplotlib object
+        """
+        hall_carriers = [abs(i) for i in
+                         self._bz.get_hall_carrier_concentration()[temp]]
+        plt.semilogy(self._bz.mu_steps,
+                     hall_carriers,
+                     linewidth=3.0, color='r')
+        self._plot_bg_limits()
+        self._plot_doping(temp)
+        plt.xlim(-0.5, self._bz.gap + 0.5)
+        plt.ylim(1e14, 1e22)
+        plt.ylabel("Hall carrier concentration (cm-3)", fontsize=30.0)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        return plt
+
+    def plot_fermi_surface(self, structure=None, isolevel=None):
+        """
+        Plot the Fermi surface at a aspecific energy value
+
+        Args:
+            bz_lattice: structure object of the material
+            isolevel: energy value fo fermi surface, Default: max energy value + 0.1eV
+
+        Returns:
+            a matplotlib object
+
+        Note: Experimental
+        """
+        from mpl_toolkits.mplot3d import Axes3D
+        from pymatgen.electronic_structure.plotter import plot_brillouin_zone
+        try:
+            from skimage import measure
+        except ImportError:
+            raise BoltztrapError(
+                "skimage package should be installed to use this function")
+
+        fig = None
+
+        data = self._bz.fermi_surface_data
+
+        if not isolevel:
+            isolevel = max(data[0].flat) - Energy(0.1, "eV").to("Ry")
+
+        verts, faces = measure.marching_cubes(data[0], isolevel)
+        verts -= 1
+        verts2 = np.dot(verts,
+                        data[1].cell / np.array(data[0].shape)[:, np.newaxis])
+        verts2 /= max(verts2.flat) / 1.5
+
+        cx, cy, cz = [
+            (max(verts2[:, i]) - min(verts2[:, i])) / 2 + min(verts2[:, i]) for
+            i in range(3)]
+
+        if structure is not None:
+            kpath = HighSymmKpath(structure).kpath
+            lines = [[kpath['kpoints'][k] for k in p] for p in kpath['path']]
+            fig = plot_brillouin_zone(bz_lattice=structure.reciprocal_lattice,
+                                      lines=lines, labels=kpath['kpoints'])
+
+        if fig:
+            ax = fig.gca()
+            ax.plot_trisurf(verts2[:, 0] - cx, verts2[:, 1] - cy, faces,
+                            verts2[:, 2] - cz, lw=0)
+        else:
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+            ax.plot_trisurf(verts2[:, 0] - cx, verts2[:, 1] - cy, faces,
+                            verts2[:, 2] - cz, lw=0)
+            ax.set_xlim3d(-1, 1)
+            ax.set_ylim3d(-1, 1)
+            ax.set_zlim3d(-1, 1)
+            ax.set_aspect('equal')
+            ax.axis("off")
+
+        return fig, ax
 
 
-def get_lines_voronoi(data):
-    from pyhull import qconvex
-    output = qconvex("o", data)
+def plot_wigner_seitz(lattice, ax=None, **kwargs):
+    """
+    Adds the skeleton of the Wigner-Seitz cell of the lattice to a matplotlib Axes
 
-    nb_points = int(output[1].split(" ")[0])
-    list_lines = []
-    list_points = []
-    for i in range(2, 2 + nb_points):
-        list_points.append([float(c) for c in output[i].strip().split()])
-    facets = []
-    for i in range(2 + nb_points, len(output)):
-        if output[i] != '':
-            tmp = output[i].strip().split(" ")
-            facets.append([int(tmp[j]) for j in range(1, len(tmp))])
+    Args:
+        lattice: Lattice object
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to black
+            and linewidth to 1.
 
-    for i in range(len(facets)):
-        for line in itertools.combinations(facets[i], 2):
-            for j in range(len(facets)):
-                if i != j and line[0] in facets[j] and line[1] in facets[j]:
-                    # check if the two facets i and j are not coplanar
-                    vector1 = np.array(list_points[facets[j][0]]) \
-                              - np.array(list_points[facets[j][1]])
-                    vector2 = np.array(list_points[facets[j][0]]) \
-                              - np.array(list_points[facets[j][2]])
-                    n1 = np.cross(vector1, vector2)
-                    vector1 = np.array(list_points[facets[i][0]]) \
-                              - np.array(list_points[facets[i][1]])
-                    vector2 = np.array(list_points[facets[i][0]]) \
-                              - np.array(list_points[facets[i][2]])
-                    n2 = np.cross(vector1, vector2)
+    Returns:
+        matplotlib figure and matplotlib ax
+    """
+    ax, fig, plt = get_ax3d_fig_plt(ax)
 
-                    dot = math.fabs(np.dot(n1, n2) / (np.linalg.norm(n1)
-                                                      * np.linalg.norm(n2)))
-                    if 1.05 > dot > 0.95:
-                        continue
-                    list_lines.append({'start': list_points[line[0]],
-                                       'end': list_points[line[1]]})
-                    break
-    return list_lines
+    if "color" not in kwargs:
+        kwargs["color"] = "k"
+    if "linewidth" not in kwargs:
+        kwargs["linewidth"] = 1
+
+    bz = lattice.get_wigner_seitz_cell()
+    ax, fig, plt = get_ax3d_fig_plt(ax)
+    for iface in range(len(bz)):
+        for line in itertools.combinations(bz[iface], 2):
+            for jface in range(len(bz)):
+                if iface < jface and any(np.all(line[0] == x) for x in bz[jface])\
+                        and any(np.all(line[1] == x) for x in bz[jface]):
+                    ax.plot(*zip(line[0], line[1]), **kwargs)
+
+    return fig, ax
+
+
+def plot_lattice_vectors(lattice, ax=None, **kwargs):
+    """
+    Adds the basis vectors of the lattice provided to a matplotlib Axes
+
+    Args:
+        lattice: Lattice object
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to green
+            and linewidth to 3.
+
+    Returns:
+        matplotlib figure and matplotlib ax
+    """
+    ax, fig, plt = get_ax3d_fig_plt(ax)
+
+    if "color" not in kwargs:
+        kwargs["color"] = "g"
+    if "linewidth" not in kwargs:
+        kwargs["linewidth"] = 3
+
+    vertex1 = lattice.get_cartesian_coords([0.0, 0.0, 0.0])
+    vertex2 = lattice.get_cartesian_coords([1.0, 0.0, 0.0])
+    ax.plot(*zip(vertex1, vertex2), **kwargs)
+    vertex2 = lattice.get_cartesian_coords([0.0, 1.0, 0.0])
+    ax.plot(*zip(vertex1, vertex2), **kwargs)
+    vertex2 = lattice.get_cartesian_coords([0.0, 0.0, 1.0])
+    ax.plot(*zip(vertex1, vertex2), **kwargs)
+
+    return fig, ax
+
+
+def plot_path(line, lattice=None, coords_are_cartesian=False, ax=None, **kwargs):
+    """
+    Adds a line passing through the coordinates listed in 'line' to a matplotlib Axes
+
+    Args:
+        line: list of coordinates.
+        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        coords_are_cartesian: Set to True if you are providing
+            coordinates in cartesian coordinates. Defaults to False.
+            Requires lattice if False.
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to red
+            and linewidth to 3.
+
+    Returns:
+        matplotlib figure and matplotlib ax
+    """
+
+    ax, fig, plt = get_ax3d_fig_plt(ax)
+
+    if "color" not in kwargs:
+        kwargs["color"] = "r"
+    if "linewidth" not in kwargs:
+        kwargs["linewidth"] = 3
+
+    for k in range(1, len(line)):
+        vertex1 = line[k-1]
+        vertex2 = line[k]
+        if not coords_are_cartesian:
+            if lattice is None:
+                raise ValueError("coords_are_cartesian False requires the lattice")
+            vertex1 = lattice.get_cartesian_coords(vertex1)
+            vertex2 = lattice.get_cartesian_coords(vertex2)
+        ax.plot(*zip(vertex1, vertex2), **kwargs)
+
+    return fig, ax
+
+
+def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax=None, **kwargs):
+    """
+    Adds labels to a matplotlib Axes
+
+    Args:
+        labels: dict containing the label as a key and the coordinates as value.
+        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        coords_are_cartesian: Set to True if you are providing.
+            coordinates in cartesian coordinates. Defaults to False.
+            Requires lattice if False.
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        kwargs: kwargs passed to the matplotlib function 'text'. Color defaults to blue
+            and size to 25.
+
+    Returns:
+        matplotlib figure and matplotlib ax
+    """
+    ax, fig, plt = get_ax3d_fig_plt(ax)
+
+    if "color" not in kwargs:
+        kwargs["color"] = "b"
+    if "size" not in kwargs:
+        kwargs["size"] = 25
+
+    for k, coords in labels.items():
+        label = k
+        if k.startswith("\\") or k.find("_") != -1:
+            label = "$" + k + "$"
+        off = 0.01
+        if coords_are_cartesian:
+            coords = np.array(coords)
+        else:
+            if lattice is None:
+                raise ValueError("coords_are_cartesian False requires the lattice")
+            coords = lattice.get_cartesian_coords(coords)
+        ax.text(*(coords + off), s=label, **kwargs)
+
+    return fig, ax
+
+
+def fold_point(p, lattice, coords_are_cartesian=False):
+    """
+    Folds a point with coordinates p inside the first Brillouin zone of the lattice.
+
+    Args:
+        p: coordinates of one point
+        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        coords_are_cartesian: Set to True if you are providing
+            coordinates in cartesian coordinates. Defaults to False.
+
+    Returns:
+        The cartesian coordinates folded inside the first Brillouin zone
+    """
+
+    if coords_are_cartesian:
+        p = lattice.get_fractional_coords(p)
+    else:
+        p = np.array(p)
+
+    p = np.mod(p+0.5-1e-10, 1)-0.5+1e-10
+    p = lattice.get_cartesian_coords(p)
+
+    closest_lattice_point = None
+    smallest_distance = 10000
+    for i in (-1, 0, 1):
+        for j in (-1, 0, 1):
+            for k in (-1, 0, 1):
+                lattice_point = np.dot((i, j, k), lattice.matrix)
+                dist = np.linalg.norm(p - lattice_point)
+                if closest_lattice_point is None or dist < smallest_distance:
+                    closest_lattice_point = lattice_point
+                    smallest_distance = dist
+
+    if not np.allclose(closest_lattice_point, (0, 0, 0)):
+        p = p - closest_lattice_point
+
+    return p
+
+
+def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax=None, **kwargs):
+    """
+    Adds Points to a matplotlib Axes
+
+    Args:
+        points: list of coordinates
+        lattice: Lattice object used to convert from reciprocal to cartesian coordinates
+        coords_are_cartesian: Set to True if you are providing
+            coordinates in cartesian coordinates. Defaults to False.
+            Requires lattice if False.
+        fold: whether the points should be folded inside the first Brillouin Zone.
+            Defaults to False. Requires lattice if True.
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        kwargs: kwargs passed to the matplotlib function 'scatter'. Color defaults to blue
+
+    Returns:
+        matplotlib figure and matplotlib ax
+    """
+    ax, fig, plt = get_ax3d_fig_plt(ax)
+
+    if "color" not in kwargs:
+        kwargs["color"] = "b"
+
+    if (not coords_are_cartesian or fold) and lattice is None:
+        raise ValueError("coords_are_cartesian False or fold True require the lattice")
+
+    for p in points:
+
+        if fold:
+            p = fold_point(p, lattice, coords_are_cartesian=coords_are_cartesian)
+
+        elif not coords_are_cartesian:
+            p = lattice.get_cartesian_coords(p)
+
+        ax.scatter(*p, **kwargs)
+
+    return fig, ax
+
+
+@add_fig_kwargs
+def plot_brillouin_zone_from_kpath(kpath, **kwargs):
+
+    """
+    Gives the plot (as a matplotlib object) of the symmetry line path in
+        the Brillouin Zone.
+
+    Args:
+        kpath (HighSymmKpath): a HighSymmKPath object
+        **kwargs: provided by add_fig_kwargs decorator
+
+    Returns:
+        a matplotlib figure and matplotlib_ax
+
+    """
+    lines = [[kpath.kpath['kpoints'][k] for k in p]
+             for p in kpath.kpath['path']]
+    return plot_brillouin_zone(bz_lattice=kpath.prim_rec, lines=lines,
+                               labels=kpath.kpath['kpoints'], **kwargs)
+
+
+@add_fig_kwargs
+def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None,
+                        fold=False, coords_are_cartesian=False,
+                        ax=None, **kwargs):
+    """
+    Plots a 3D representation of the Brillouin zone of the structure.
+    Can add to the plot paths, labels and kpoints
+
+    Args:
+        bz_lattice: Lattice object of the Brillouin zone
+        lines: list of lists of coordinates. Each list represent a different path
+        labels: dict containing the label as a key and the coordinates as value.
+        kpoints: list of coordinates
+        fold: whether the points should be folded inside the first Brillouin Zone.
+            Defaults to False. Requires lattice if True.
+        coords_are_cartesian: Set to True if you are providing
+            coordinates in cartesian coordinates. Defaults to False.
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        kwargs: provided by add_fig_kwargs decorator
+
+    Returns:
+        matplotlib figure and matplotlib ax
+    """
+
+    fig, ax = plot_lattice_vectors(bz_lattice, ax=ax)
+    plot_wigner_seitz(bz_lattice, ax=ax)
+    if lines is not None:
+        for line in lines:
+            plot_path(line, bz_lattice,
+                      coords_are_cartesian=coords_are_cartesian, ax=ax)
+
+    if labels is not None:
+        plot_labels(labels, bz_lattice,
+                    coords_are_cartesian=coords_are_cartesian, ax=ax)
+        plot_points(labels.values(), bz_lattice,
+                    coords_are_cartesian=coords_are_cartesian,
+                    fold=False, ax=ax)
+
+    if kpoints is not None:
+        plot_points(kpoints, bz_lattice,
+                    coords_are_cartesian=coords_are_cartesian,
+                    ax=ax, fold=fold)
+
+    ax.set_xlim3d(-1, 1)
+    ax.set_ylim3d(-1, 1)
+    ax.set_zlim3d(-1, 1)
+
+    ax.set_aspect('equal')
+    ax.axis("off")
+
+    return fig
+
+
+def plot_ellipsoid(hessian, center, lattice=None, rescale=1.0, ax=None, coords_are_cartesian=False, **kwargs):
+    """
+    Plots a 3D ellipsoid rappresenting the Hessian matrix in input.
+    Useful to get a graphical visualization of the effective mass
+    of a band in a single k-point.
+    
+    Args:
+        hessian: the Hessian matrix
+        center: the center of the ellipsoid in reciprocal coords (Default)
+        lattice: Lattice object of the Brillouin zone
+        rescale: factor for size scaling of the ellipsoid
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        coords_are_cartesian: Set to True if you are providing a center in
+            cartesian coordinates. Defaults to False.
+        kwargs: kwargs passed to the matplotlib function 'plot_wireframe'. Color defaults to blue, rstride and cstride
+            default to 4, alpha defaults to 0.2.
+    Returns:
+        matplotlib figure and matplotlib ax
+    Example of use:
+        fig,ax=plot_wigner_seitz(struct.reciprocal_lattice)
+        plot_ellipsoid(hessian,[0.0,0.0,0.0], struct.reciprocal_lattice,ax=ax)
+    """
+    
+    if (not coords_are_cartesian) and lattice is None:
+        raise ValueError("coords_are_cartesian False or fold True require the lattice")
+    
+    if not coords_are_cartesian:
+        center = lattice.get_cartesian_coords(center)
+
+    if "color" not in kwargs:
+        kwargs["color"] = "b"
+    if "rstride" not in kwargs:
+        kwargs["rstride"] = 4
+    if "cstride" not in kwargs:
+        kwargs["cstride"] = 4
+    if "alpha" not in kwargs:
+        kwargs["alpha"] = 0.2
+
+    # calculate the ellipsoid
+    # find the rotation matrix and radii of the axes
+    U, s, rotation = np.linalg.svd(hessian)
+    radii = 1.0/np.sqrt(s)
+    
+    # from polar coordinates
+    u = np.linspace(0.0, 2.0 * np.pi, 100)
+    v = np.linspace(0.0, np.pi, 100)
+    x = radii[0] * np.outer(np.cos(u), np.sin(v)) 
+    y = radii[1] * np.outer(np.sin(u), np.sin(v))
+    z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
+    for i in range(len(x)):
+        for j in range(len(x)):
+            [x[i, j], y[i, j], z[i, j]] = np.dot([x[i, j], y[i, j], z[i, j]], rotation)*rescale + center
+
+    # add the ellipsoid to the current axes
+    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax.plot_wireframe(x, y, z,  **kwargs)
+
+    return fig, ax

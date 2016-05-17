@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "6/6/13"
 
-import unittest
+import unittest2 as unittest
 import os
 import json
 
@@ -395,26 +395,26 @@ class NwOutputTest(unittest.TestCase):
 
         self.assertEqual(0, nwo.data[0]["charge"])
         self.assertEqual(-1, nwo.data[-1]["charge"])
-        self.assertAlmostEqual(-1102.6224098664698, nwo.data[0]["energies"][-1])
-        self.assertAlmostEqual(-1102.9985898393043, nwo.data[2]["energies"][-1])
-        self.assertAlmostEqual(-11156.353632964056,
+        self.assertAlmostEqual(-1102.6224491715582, nwo.data[0]["energies"][-1])
+        self.assertAlmostEqual(-1102.9986291578023, nwo.data[2]["energies"][-1])
+        self.assertAlmostEqual(-11156.354030653656,
                                nwo_cosmo.data[5]["energies"][0]["cosmo scf"])
-        self.assertAlmostEqual(-11153.373735810987,
+        self.assertAlmostEqual(-11153.374133394364,
                                nwo_cosmo.data[5]["energies"][0]["gas phase"])
         self.assertAlmostEqual(-11156.353632962995,
-                               nwo_cosmo.data[5]["energies"][0]["sol phase"])
+                               nwo_cosmo.data[5]["energies"][0]["sol phase"], 2)
         self.assertAlmostEqual(-11168.818934311605,
-                               nwo_cosmo.data[6]["energies"][0]["cosmo scf"])
+                               nwo_cosmo.data[6]["energies"][0]["cosmo scf"], 2)
         self.assertAlmostEqual(-11166.3624424611462,
-                               nwo_cosmo.data[6]["energies"][0]['gas phase'])
+                               nwo_cosmo.data[6]["energies"][0]['gas phase'], 2)
         self.assertAlmostEqual(-11168.818934311605,
-                               nwo_cosmo.data[6]["energies"][0]['sol phase'])
+                               nwo_cosmo.data[6]["energies"][0]['sol phase'], 2)
         self.assertAlmostEqual(-11165.227959110889,
-                               nwo_cosmo.data[7]["energies"][0]['cosmo scf'])
+                               nwo_cosmo.data[7]["energies"][0]['cosmo scf'], 2)
         self.assertAlmostEqual(-11165.025443612385,
-                               nwo_cosmo.data[7]["energies"][0]['gas phase'])
+                               nwo_cosmo.data[7]["energies"][0]['gas phase'], 2)
         self.assertAlmostEqual(-11165.227959110154,
-                               nwo_cosmo.data[7]["energies"][0]['sol phase'])
+                               nwo_cosmo.data[7]["energies"][0]['sol phase'], 2)
 
         self.assertAlmostEqual(nwo.data[1]["hessian"][0][0], 4.60187e+01)
         self.assertAlmostEqual(nwo.data[1]["hessian"][1][2], -1.14030e-08)
@@ -433,8 +433,8 @@ class NwOutputTest(unittest.TestCase):
 
         ie = (nwo.data[4]["energies"][-1] - nwo.data[2]["energies"][-1])
         ea = (nwo.data[2]["energies"][-1] - nwo.data[3]["energies"][-1])
-        self.assertAlmostEqual(0.7575358046858582, ie)
-        self.assertAlmostEqual(-14.997877424073295, ea)
+        self.assertAlmostEqual(0.7575358648355177, ie)
+        self.assertAlmostEqual(-14.997877958701338, ea)
         self.assertEqual(nwo.data[4]["basis_set"]["C"]["description"],
                          "6-311++G**")
 
