@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -17,6 +19,7 @@ from math import tan
 from math import pi
 from warnings import warn
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 
 class HighSymmKpath(object):
     """
@@ -164,7 +167,7 @@ class HighSymmKpath(object):
         """
         return self._kpath
 
-    def get_kpoints(self, line_density=20):
+    def get_kpoints(self, line_density=20, coords_are_cartesian=True):
         """
         Returns:
             the kpoints along the paths in cartesian coordinates
@@ -187,7 +190,12 @@ class HighSymmKpath(object):
                      (self._prim_rec.get_cartesian_coords(end)
                       - self._prim_rec.get_cartesian_coords(start))
                      for i in range(0, nb + 1)])
-        return list_k_points, sym_point_labels
+        if coords_are_cartesian:
+            return list_k_points, sym_point_labels
+        else:
+            frac_k_points = [self._prim_rec.get_fractional_coords(k)
+                             for k in list_k_points]
+            return frac_k_points, sym_point_labels
 
     def get_kpath_plot(self, **kwargs):
         """

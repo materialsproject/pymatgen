@@ -1,5 +1,7 @@
-# coding: utf-8
 #!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 
 from IPython.config.loader import Config
@@ -19,7 +21,7 @@ else:
     nested = 1
 
 # First import the embeddable shell class
-from IPython.frontend.terminal.embed import InteractiveShellEmbed
+from IPython.terminal.embed import InteractiveShellEmbed
 
 # Now create an instance of the embeddable shell. The first argument is a
 # string with options exactly as you would type them if you were starting

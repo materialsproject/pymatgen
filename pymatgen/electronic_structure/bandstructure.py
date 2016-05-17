@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -23,10 +25,10 @@ import collections
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 
 
-class Kpoint(PMGSONable):
+class Kpoint(MSONable):
     """
     Class to store kpoint objects. A kpoint is defined with a lattice and frac
     or cartesian coordinates syntax similar than the site object in
@@ -140,6 +142,8 @@ class BandStructure(object):
             kpoints array. If the band structure is not spin polarized, we
             only store one data set under Spin.up
         lattice: The reciprocal lattice as a pymatgen Lattice object.
+            Pymatgen uses the physics convention of reciprocal lattice vectors
+            WITH a 2*pi coefficient
         label_dict: (dict) of {} this link a kpoint (in frac coords or
             cartesian coordinates depending on the coords).
         coords_are_cartesian: Whether coordinates are cartesian.
@@ -388,7 +392,7 @@ class BandStructure(object):
                     list_ind_kpts.append(i)
         else:
             list_ind_kpts.append(index)
-        #get all other bands sharing the vbm
+        # get all other bands sharing the vbm
         list_ind_band = {Spin.up: []}
         if self.is_spin_polarized:
             list_ind_band = {Spin.up: [], Spin.down: []}
@@ -545,8 +549,8 @@ class BandStructure(object):
         """
         Json-serializable dict representation of BandStructureSymmLine.
         """
-        d = {"module": self.__class__.__module__,
-             "class": self.__class__.__name__,
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
              "lattice_rec": self._lattice_rec.as_dict(), "efermi": self._efermi,
              "kpoints": []}
         #kpoints are not kpoint objects dicts but are frac coords (this makes
@@ -612,7 +616,7 @@ class BandStructure(object):
         if 'projections' in d and len(d['projections']) != 0:
             projections = {
                 Spin.from_int(int(spin)): [
-                    [{Orbital.from_string(orb): [
+                    [{Orbital[orb]: [
                         d['projections'][spin][i][j][orb][k]
                         for k in range(len(d['projections'][spin][i][j][orb]))]
                       for orb in d['projections'][spin][i][j]}
@@ -627,7 +631,7 @@ class BandStructure(object):
             labels_dict, structure=structure, projections=projections)
 
 
-class BandStructureSymmLine(BandStructure, PMGSONable):
+class BandStructureSymmLine(BandStructure, MSONable):
     """
     This object stores band structures along selected (symmetry) lines in the
     Brillouin zone. We call the different symmetry lines (ex: \Gamma to Z)
@@ -643,6 +647,8 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
             kpoints array. If the band structure is not spin polarized, we
             only store one data set under Spin.up.
         lattice: The reciprocal lattice.
+            Pymatgen uses the physics convention of reciprocal lattice vectors
+            WITH a 2*pi coefficient
         efermi: fermi energy
         label_dict: (dict) of {} this link a kpoint (in frac coords or
             cartesian coordinates depending on the coords).
@@ -666,9 +672,9 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
     def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict,
                  coords_are_cartesian=False, structure=None,
                  projections=None):
-        BandStructure.__init__(self, kpoints, eigenvals, lattice, efermi,
-                               labels_dict, coords_are_cartesian, structure,
-                               projections)
+        super(BandStructureSymmLine, self).__init__(
+            kpoints, eigenvals, lattice, efermi, labels_dict,
+            coords_are_cartesian, structure, projections)
         self._distance = []
         self._branches = []
         one_group = []
@@ -700,9 +706,10 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
         if len(one_group) != 0:
             branches_tmp.append(one_group)
         for b in branches_tmp:
-            self._branches.append({"start_index": b[0], "end_index": b[-1],
-                                   "name": (self._kpoints[b[0]].label + "-" +
-                                            self._kpoints[b[-1]].label)})
+            self._branches.append(
+                {"start_index": b[0], "end_index": b[-1],
+                "name": str(self._kpoints[b[0]].label) + "-" +
+                        str(self._kpoints[b[-1]].label)})
 
         self._is_spin_polarized = False
         if len(self._bands) == 2:
@@ -827,8 +834,8 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
         Json-serializable dict representation of BandStructureSymmLine.
         """
 
-        d = {"module": self.__class__.__module__,
-             "class": self.__class__.__name__,
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
              "lattice_rec": self._lattice_rec.as_dict(), "efermi": self._efermi,
              "kpoints": []}
         #kpoints are not kpoint objects dicts but are frac coords (this makes
@@ -882,7 +889,8 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
     def from_dict(cls, d):
         """
         Args:
-            A dict with all data for a band structure symm line object.
+            d (dict): A dict with all data for a band structure symm line
+                object.
 
         Returns:
             A BandStructureSymmLine object
@@ -894,8 +902,8 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
         if 'projections' in d and len(d['projections']) != 0:
             structure = Structure.from_dict(d['structure'])
             projections = {
-                Spin.from_int(int(spin)): [
-                    [{Orbital.from_string(orb): [
+                Spin(int(spin)): [
+                    [{Orbital[orb]: [
                         d['projections'][spin][i][j][orb][k]
                         for k in range(len(d['projections'][spin][i][j][orb]))]
                       for orb in d['projections'][spin][i][j]}
@@ -904,7 +912,7 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
                 for spin in d['projections']}
 
         return BandStructureSymmLine(
-            d['kpoints'], {Spin.from_int(int(k)): d['bands'][k]
+            d['kpoints'], {Spin(int(k)): d['bands'][k]
                            for k in d['bands']},
             Lattice(d['lattice_rec']['matrix']), d['efermi'],
             labels_dict, structure=structure, projections=projections)

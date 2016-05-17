@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -15,9 +17,27 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import re
-import numpy
-import six
 from monty.io import zopen
+
+
+def prompt(question):
+    import six
+    # Fix python 2.x.
+    if six.PY2:
+        my_input = raw_input
+    else:
+        my_input = input
+    
+    return my_input(question)
+
+
+def ask_yesno(question, default=True):
+    try:
+        answer = prompt(question)
+        return answer.lower().strip() in ["y", "yes"]
+    except EOFError:
+        return default
+
 
 def clean_lines(string_list, remove_empty_lines=True):
     """
@@ -76,15 +96,15 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     for entry in search:
         entry[0] = re.compile(entry[0])
 
-    with zopen(filename) as f:
+    with zopen(filename, "rt") as f:
         for line in f:
-            for i in range(len(search)):
-                match = re.search(search[i][0], line)
-                if match and (search[i][1] is None
-                              or search[i][1](results, line)):
+            for entry in search:
+                match = re.search(entry[0], line)
+                if match and (entry[1] is None
+                              or entry[1](results, line)):
                     if debug is not None:
                         debug(results, match)
-                    search[i][2](results, match)
+                    entry[2](results, match)
                     if postdebug is not None:
                         postdebug(results, match)
 

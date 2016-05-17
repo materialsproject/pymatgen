@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -22,7 +24,7 @@ import six
 from pymatgen.core.lattice import Lattice
 from pymatgen.core import PeriodicSite
 from monty.json import MontyDecoder
-from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.transformations.standard_transformations import *
 from pymatgen.symmetry.structure import SymmetrizedStructure
 
@@ -341,8 +343,7 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
                                      {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}],
                            coords)
         output = t.apply_transformation(struct, return_ranked_list=3)
-        self.assertAlmostEqual(output[0]['energy'], -175.0599307, 4,
-                               'got incorrect energy')
+        self.assertAlmostEqual(output[0]['energy'], -216.42362404816419, 4)
 
 
 class PrimitiveCellTransformationTest(unittest.TestCase):

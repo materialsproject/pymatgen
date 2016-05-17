@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -24,9 +26,9 @@ import abc
 import itertools
 import copy
 
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from monty.dev import requires
-from pymatgen.io.babelio import BabelMolAdaptor
+from pymatgen.io.babel import BabelMolAdaptor
 import six
 from six.moves import zip
 try:
@@ -35,7 +37,7 @@ except ImportError:
     ob = None
 
 
-class AbstractMolAtomMapper(six.with_metaclass(abc.ABCMeta, PMGSONable)):
+class AbstractMolAtomMapper(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Abstract molecular atom order mapping class. A mapping will be able to
     find the uniform atom order of two molecules that can pair the
@@ -79,8 +81,13 @@ class AbstractMolAtomMapper(six.with_metaclass(abc.ABCMeta, PMGSONable)):
     @classmethod
     def from_dict(cls, d):
         for trans_modules in ['molecule_matcher']:
+            import sys
+            if sys.version_info > (3, 0):
+                level = 0  # Python 3.x
+            else:
+                level = -1  # Python 2.x
             mod = __import__('pymatgen.analysis.' + trans_modules,
-                             globals(), locals(), [d['@class']], -1)
+                             globals(), locals(), [d['@class']], level)
             if hasattr(mod, d['@class']):
                 class_proxy = getattr(mod, d['@class'])
                 from_dict_proxy = getattr(class_proxy, "from_dict")
@@ -540,7 +547,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         return inchi
 
 
-class MoleculeMatcher(PMGSONable):
+class MoleculeMatcher(MSONable):
     """
     Class to match molecules and identify whether molecules are the same.
 

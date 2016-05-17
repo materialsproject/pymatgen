@@ -1,6 +1,224 @@
 Change log
 ==========
 
+v3.3.4
+------
+* Procar now supports parsing of phase factors.
+* Miscellaneous bug fixes.
+
+v3.3.3
+------
+* Bug fixes for Poscar.
+* Fix Kpoints pickling.
+
+v3.3.2
+------
+* Bug fixes for pymatgen.io.abinit
+* Other minor big fixes.
+
+v3.3.1
+------
+* Minor bug fix release for pickle and elastic constants.
+
+v3.3.0
+------
+* Updated and checked for Python 3.5.* compatibility.
+* Element, Spin, Orbital and various other Enum-like classes are now actually
+  implemented using Enum (with enum34 dependency for Python < 3.4).
+* Speed up Site creation by 20% for ordered sites, with cost in terms of
+  slightly slower non-ordered Sites. Since ordered Sites is the far more common
+  case, this gives significant boost for large scale manipulations of
+  structures.
+* Alternative, more pythonic syntax for creating supercells via simply
+  Structure * 3 or Structure * (3, 1, 1).
+* zeo++ fixes.
+* More stable incar settings for MITMDVaspInputSet.
+
+v3.2.10
+-------
+* Fix missing scripts
+* Improvements to units module.
+* Speed up EwaldSummation.
+
+v3.2.9
+------
+* Major PD stability improvements, especially for very high dim hulls with lots
+  of entries.
+* Improvements to Ewald summation to be close to GULP implementation.
+* Deprecate physical constants module in favor of scipy's version.
+* Remove many pyhull references to use scipy's ConvexHull implementation.
+* Bug fix for sulfide correction.
+
+v3.2.8
+------
+
+* Make pyhull optional.
+* Sulfur correction added to MaterialsProjectCompatibility for more accurate
+  sulfide formation energies.
+* ADF io support. (Xin Chen)
+* Bug fixes for spacegroup subgroup testing.
+
+v3.2.7
+------
+* Add warning for limited subgroup testing functionality in Spacegroup.
+
+v3.2.6
+------
+* Extensive support for elasticity tensor analysis (Joseph Montoya).
+* Misc bug fixes and performance improvements.
+* Add support for QChem4.3 new format of Batch jobs
+
+v3.2.5
+------
+* Improved potcar setup via "pmg setup", with MAPI setup.
+* Support for new POTCARs issued by VASP.
+* Improvements to ABINIT support.
+* Improvement to Boltztrap support, e.g., scissor band gap, etc.
+* Vasprun now issues warning when unconverged run is detected.
+
+v3.2.4
+------
+
+* GaussianOutput can now parse frequencies, normal modes and cartesian forces
+  (Xin Chen).
+* Support for Aiida<->pymatgen conversion by the Aiida development team (Andrius
+  Merkys).
+* Specialized BSVasprun parser that is ~2-3x faster than Vasprun.
+* Refactor the boltztrap package (merge a few methods together) and add several
+  new methods (power factor, seebeck...)
+* Support of the new PCM format in QChem 4.3
+* Local environment analysis to pmg script.
+* Deprecate prettytable in favor of tabulate package.
+* Improvements to MITNEBVaspInputSet.
+* Misc bug fixes.
+
+v3.2.3
+------
+* Massive update to abinit support. Note that pymatgen.io.abinitio has 
+  been refactored to pymatgen.io.abinit. (Matteo, Setten)
+* NwOutput now supports parsing of Hessian matrices (contributed by Xin 
+  Chen)
+* Gaussian support now has the ability to read potential energy surface
+  and electronic transitions computed with TD-DFT (Germain Salvato 
+  Vallverdu)
+* Bug fixes for CifWriter with symmetry.
+* Bug fixes for surface generation and reactions.
+* Monty requirement increased.
+
+v3.2.1
+------
+* Fix wrong U value for Ce and Eu.
+* Properly handle empty multiline strings in Cif
+* Add ability to get specific data in MPRester.get_entries. Make all get_entry 
+  methods consistent  in kwargs.
+
+v3.2.0
+------
+* Force conversion to an actual list in selective dynamics and velocities in
+  Poscar.
+* fix small bug in BSPlotter (wrong ylim)
+* Elastic tensor parsing in Outcar
+
+v3.1.9
+------
+* Fix scripts.
+
+v3.1.7
+------
+* Bug fixes for MPRester.
+* Ensure correct monty version requirement in setup.py.
+
+v3.1.6
+------
+* Rudimentary PWSCF output reading.
+* Fix ASE support.
+* Support for WAVEDERF and reading multiple dielectricfunctions in vasprun.xml. 
+  (Miguel Dias Costa)
+
+v3.1.5
+------
+* Move vasp.vasp*put to vasp.*puts. Also, maintain backwards compatibility with 
+  vaspio.vasp_*put
+
+v3.1.4
+------
+* Fix missing yaml files that have been moved.
+
+v3.1.3
+------
+* Major refactoring of pymatgen.io. Now, the io suffix is dropped from all io
+  classes. i.e., it is just pymatgen.io.vasp, not pymatgen.io.vaspio. Also, all
+  input sets have been moved within the relevant package, e.g.,
+  pymatgen.io.vasp.sets. All changes are backwards compatible for now. But
+  deprecation messages have been included which states that the stubs will be
+  removed in pymatgen 4.0. Pls migrate code when you see the deprecation
+  messages.
+* Make Composition.anonymized_formula truly chemistry independent (No A2B2
+  for peroxides or A2 for diatomic gasses) 
+* Allowing CIF data_* header to be prefixed with spaces and tabulations.
+
+v3.1.2
+------
+* HHI Resource Analysis (by Anubhav Jain).
+* Bug fixes for surfaces normalizatino.
+* Bug fix for Vasprun parsing of response function keys.
+* Dockerfile for generation of an image for pymatgen.
+* Updated requirements.txt for latest requests, scipy, numpy.
+
+v3.1.1
+------
+* Bug fixes for SpacegroupAnalyzer and SlabGenerator.
+* Much faster normal vec search.
+
+v3.1.0
+------
+* Much improved surface generation algorithm that provides for
+  orthogonality constraints.
+* Transition state analysis tools! (beta)
+* Massive improvements in Outcar parsing which provides a powerful grepping
+  syntax.
+* PWSCFInput generation (beta).
+* Reduce default SIGMA to 0.05 for MP input sets.
+* Update spglib to 1.7.3 as per recommendation of Togo.
+* Many bug fixes and efficiency improvements.
+
+v3.0.13
+-------
+
+* Bug fix for parsing certain types of CIFs.
+* MPRester now has get_materials_id_references helper method.
+* Minor fix for Vasprun.final_energy.
+* Added mp_decode option to MPRester.query to allow option to not decode into
+  pymatgen objects.
+* New POTCAR hash scheme to more robustly identify unique POTCARs.
+* Link to http://bit.ly/materialsapi for information on Materials API
+  document schema for use with MPRester.query method.
+
+v3.0.11
+-------
+* Lots of abinitio improvements (Matteo).
+* Added mp_decode option to MPRester.query to allow option to not decode into pymatgen objects.
+
+v3.0.10
+------
+
+* Fix cartesian coord parsing in Poscar class.
+* Vasprun now works with non-GGA PBE runs
+* Misc bug fixes
+
+v3.0.9
+------
+* Major bug fixes for CIF parsing (Will Richards).
+* Support for {Li,Na} syntax in parse_criteria for MPRester.
+* Additional example notebook for ordering and enumeration. 
+* More robust checking for oxidation states in EnumerateStructureTRansformation.
+* Improvements to Slab polarity checking.
+
+v3.0.8
+------
+* Massive update to abinitio (Matteo).
+* Improvements to OUTCAR parsing (Ioannis Petousis).
+
 v3.0.7
 ------
 * Powerful Slab generation algorithms (beta!).

@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -30,8 +32,8 @@ import os
 import subprocess
 import shutil
 
-from pymatgen.io.vaspio.vasp_output import Chgcar
-from pymatgen.io.vaspio.vasp_input import Potcar
+from pymatgen.io.vasp.outputs import Chgcar
+from pymatgen.io.vasp.inputs import Potcar
 from monty.os.path import which
 from monty.dev import requires
 from monty.tempfile import ScratchDir

@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -99,8 +101,19 @@ class SymmOpTestCase(PymatgenTest):
         op3 = SymmOp.from_xyz_string('3x - 2y - z+1 /2 , -x+12/ 13, z+1/2')
         self.assertEqual(op2, op3)
 
+        # Ensure strings can be read in any order
+        op4 = SymmOp.from_xyz_string('1 /2 + 3X - 2y - z , 12/ 13-x, z+1/2')
+        op5 = SymmOp.from_xyz_string('+1 /2 + 3x - 2y - z , 12/ 13-x, +1/2+z')
+        self.assertEqual(op4, op3)
+        self.assertEqual(op4, op5)
+        self.assertEqual(op3, op5)
+
         self.assertRaises(ValueError, self.op.as_xyz_string)
 
+        o = SymmOp.from_xyz_string('0.5+x, 0.25+y, 0.75+z')
+        self.assertArrayAlmostEqual(o.translation_vector, [0.5, 0.25, 0.75])
+        o = SymmOp.from_xyz_string('x + 0.5, y + 0.25, z + 0.75')
+        self.assertArrayAlmostEqual(o.translation_vector, [0.5, 0.25, 0.75])
 
 if __name__ == '__main__':
     import unittest

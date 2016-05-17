@@ -1,0 +1,846 @@
+
+.Version 7.11.5 of ABINIT 
+.(MPI version, prepared for a x86_64_darwin10.8.0_gnu4.7 computer) 
+
+.Copyright (C) 1998-2015 ABINIT group . 
+ ABINIT comes with ABSOLUTELY NO WARRANTY.
+ It is free software, and you are welcome to redistribute it
+ under certain conditions (GNU General Public License,
+ see ~abinit/COPYING or http://www.gnu.org/copyleft/gpl.txt).
+
+ ABINIT is a project of the Universite Catholique de Louvain,
+ Corning Inc. and other collaborators, see ~abinit/doc/developers/contributors.txt .
+ Please read ~abinit/doc/users/acknowledgments.html for suggested
+ acknowledgments of the ABINIT effort.
+ For more information, see http://www.abinit.org .
+
+.Starting date : Fri 13 Mar 2015.
+- ( at 22h38 )
+  
+- input  file    -> /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_relax/w0/t1/run.abi
+- output file    -> /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_relax/w0/t1/run.abo
+- root for input  files -> /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_relax/w0/t1/indata/in
+- root for output files -> /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_relax/w0/t1/outdata/out
+
+
+ Symmetries : space group P-1 (#  2); Bravais aP (primitive triclinic)
+================================================================================
+ Values of the parameters that define the memory need of the present run
+   intxc =         0  ionmov =         2    iscf =         7 xclevel =         1
+  lmnmax =         2   lnmax =         2   mband =         5  mffmem =         1
+P  mgfft =        15   mkmem =        18 mpssoang=         3     mpw =       108
+  mqgrid =      3001   natom =         2    nfft =      3375    nkpt =        36
+  nloalg =         4  nspden =         1 nspinor =         1  nsppol =         1
+    nsym =         2  n1xccc =      2501  ntypat =         1  occopt =         1
+================================================================================
+P This job should need less than                       1.801 Mbytes of memory.
+  Rough estimation (10% accuracy) of disk space for files :
+_ WF disk file :      0.299 Mbytes ; DEN or POT disk file :      0.028 Mbytes.
+================================================================================
+
+--------------------------------------------------------------------------------
+------------- Echo of variables that govern the present computation ------------
+--------------------------------------------------------------------------------
+-
+- outvars: echo of selected default values                                      
+-   accesswff0 =  0 , fftalg0 =312 , wfoptalg0 =  0
+-
+- outvars: echo of global parameters not present in the input file              
+-  max_nthreads =    0
+-
+ -outvars: echo values of preprocessed input variables --------
+        accesswff           1
+            acell      1.0000000000E+00  1.0000000000E+00  1.0000000000E+00 Bohr
+              amu      2.80855000E+01
+      chksymbreak           0
+          dilatmx      1.05000000E+00
+             ecut      4.00000000E+00 Hartree
+           ecutsm      5.00000000E-01 Hartree
+-          fftalg         312
+      fft_opt_lob           2
+           ionmov           2
+           iprcch           6
+           istwfk        2    0    1    0    0    0    0    1    0    1
+                         0    0    0    0    0    0    0    0    0    0
+                         0    0    0    0    0    0    1    0    1    0
+                         0    0    0    1    0    1
+              kpt      0.00000000E+00  0.00000000E+00  0.00000000E+00
+                       2.50000000E-01  0.00000000E+00  0.00000000E+00
+                       5.00000000E-01  0.00000000E+00  0.00000000E+00
+                       0.00000000E+00  2.50000000E-01  0.00000000E+00
+                       2.50000000E-01  2.50000000E-01  0.00000000E+00
+                       5.00000000E-01  2.50000000E-01  0.00000000E+00
+                      -2.50000000E-01  2.50000000E-01  0.00000000E+00
+                       0.00000000E+00  5.00000000E-01  0.00000000E+00
+                       2.50000000E-01  5.00000000E-01  0.00000000E+00
+                       5.00000000E-01  5.00000000E-01  0.00000000E+00
+                       0.00000000E+00  0.00000000E+00  2.50000000E-01
+                       2.50000000E-01  0.00000000E+00  2.50000000E-01
+                       5.00000000E-01  0.00000000E+00  2.50000000E-01
+                      -2.50000000E-01  0.00000000E+00  2.50000000E-01
+                       0.00000000E+00  2.50000000E-01  2.50000000E-01
+                       2.50000000E-01  2.50000000E-01  2.50000000E-01
+                       5.00000000E-01  2.50000000E-01  2.50000000E-01
+                      -2.50000000E-01  2.50000000E-01  2.50000000E-01
+                       0.00000000E+00  5.00000000E-01  2.50000000E-01
+                       2.50000000E-01  5.00000000E-01  2.50000000E-01
+                       5.00000000E-01  5.00000000E-01  2.50000000E-01
+                      -2.50000000E-01  5.00000000E-01  2.50000000E-01
+                       0.00000000E+00 -2.50000000E-01  2.50000000E-01
+                       2.50000000E-01 -2.50000000E-01  2.50000000E-01
+                       5.00000000E-01 -2.50000000E-01  2.50000000E-01
+                      -2.50000000E-01 -2.50000000E-01  2.50000000E-01
+                       0.00000000E+00  0.00000000E+00  5.00000000E-01
+                       2.50000000E-01  0.00000000E+00  5.00000000E-01
+                       5.00000000E-01  0.00000000E+00  5.00000000E-01
+                       0.00000000E+00  2.50000000E-01  5.00000000E-01
+                       2.50000000E-01  2.50000000E-01  5.00000000E-01
+                       5.00000000E-01  2.50000000E-01  5.00000000E-01
+                      -2.50000000E-01  2.50000000E-01  5.00000000E-01
+                       0.00000000E+00  5.00000000E-01  5.00000000E-01
+                       2.50000000E-01  5.00000000E-01  5.00000000E-01
+                       5.00000000E-01  5.00000000E-01  5.00000000E-01
+         kptrlatt        4    0    0      0    4    0      0    0    4
+          kptrlen      2.73685731E+01
+P           mkmem          18
+            natom           2
+            nband           5
+            ngfft          15      15      15
+             nkpt          36
+-           npkpt           2
+             nsym           2
+            ntime           5
+           ntypat           1
+              occ      2.000000  2.000000  2.000000  2.000000  0.000000
+          optcell           1
+        optforces           1
+           ortalg          -2
+        paral_kgb           1
+            rprim     -5.9254698865E+00  0.0000000000E+00 -3.4210716340E+00
+                      -5.9254698865E+00  0.0000000000E+00  3.4210716340E+00
+                      -3.9503132577E+00  5.5865865847E+00  0.0000000000E+00
+          spgroup           2
+           symrel      1  0  0   0  1  0   0  0  1      -1  0  0   0 -1  0   0  0 -1
+            tnons      0.0000000  0.0000000  0.0000000     0.2148537  0.2756820  0.2950373
+           tolrff      2.00000000E-02
+            typat      1  1
+         wfoptalg          14
+              wtk        0.01563    0.03125    0.01563    0.03125    0.03125    0.03125
+                         0.03125    0.01563    0.03125    0.01563    0.03125    0.03125
+                         0.03125    0.03125    0.03125    0.03125    0.03125    0.03125
+                         0.03125    0.03125    0.03125    0.03125    0.03125    0.03125
+                         0.03125    0.03125    0.01563    0.03125    0.01563    0.03125
+                         0.03125    0.03125    0.03125    0.01563    0.03125    0.01563
+           xangst     -3.1678585739E+00  6.6571691475E-02 -1.7552928861E+00
+                      -2.1226509128E+00  8.0564545872E-01  5.5060542331E-02
+            xcart     -5.9863851323E+00  1.2580226509E-01 -3.3170228377E+00
+                      -4.0112289009E+00  1.5224492772E+00  1.0404934573E-01
+             xred      9.8242686280E-01  1.2840957400E-02  2.2518628000E-02
+                       2.3242679420E-01  2.6284104940E-01  2.7251869350E-01
+            znucl       14.00000
+
+================================================================================
+
+ chkinp: Checking input parameters for consistency.
+
+================================================================================
+== DATASET  1 ==================================================================
+-   nproc =    2
+
+ Exchange-correlation functional for the present dataset will be:
+  LDA: new Teter (4/93) with spin-polarized option - ixc=1
+ Citation for XC functional:
+  S. Goedecker, M. Teter, J. Huetter, PRB 54, 1703 (1996)
+
+ Real(R)+Recip(G) space primitive vectors, cartesian coordinates (Bohr,Bohr^-1):
+ R(1)= -5.9254699  0.0000000 -3.4210716  G(1)= -0.0843815 -0.0596667 -0.1461530
+ R(2)= -5.9254699  0.0000000  3.4210716  G(2)= -0.0843815 -0.0596667  0.1461530
+ R(3)= -3.9503133  5.5865866  0.0000000  G(3)=  0.0000000  0.1790002  0.0000000
+ Unit cell volume ucvol=  2.2649650E+02 bohr^3
+ Angles (23,13,12)=  6.00000000E+01  6.00000000E+01  6.00000000E+01 degrees
+
+ getcut: wavevector=  0.0000  0.0000  0.0000  ngfft=  15  15  15
+         ecut(hartree)=      4.410   => boxcut(ratio)=   2.17548
+
+--- Pseudopotential description ------------------------------------------------
+- pspini: atom type   1  psp file is /Users/gmatteo/Coding/git_branches/abipy/abipy/data/pseudos/14si.pspnc
+- pspatm: opening atomic psp file    /Users/gmatteo/Coding/git_branches/abipy/abipy/data/pseudos/14si.pspnc
+-  Troullier-Martins psp for element  Si        Thu Oct 27 17:31:21 EDT 1994
+- 14.00000   4.00000    940714                znucl, zion, pspdat
+    1    1    2    2      2001   0.00000      pspcod,pspxc,lmax,lloc,mmax,r2well
+    0   5.907  14.692    1   2.0872718        l,e99.0,e99.9,nproj,rcpsp
+   0.00000000   0.00000000   0.00000000   0.00000000     rms, ekb1, ekb2, epsatm
+    1   2.617   4.181    1   2.0872718        l,e99.0,e99.9,nproj,rcpsp
+   0.00000000   0.00000000   0.00000000   0.00000000     rms, ekb1, ekb2, epsatm
+    2   0.000   0.000    0   2.0872718        l,e99.0,e99.9,nproj,rcpsp
+   0.00000000   0.00000000   0.00000000   0.00000000     rms, ekb1, ekb2, epsatm
+    1.80626423934776    0.22824404341771    1.17378968127746   rchrg,fchrg,qchrg
+ pspatm: epsatm=    1.43386982
+         --- l  ekb(1:nproj) -->
+             0    3.287949
+             1    1.849886
+ pspatm: atomic psp has been read  and splines computed
+
+   2.29419171E+01                                ecore*ucvol(ha*bohr**3)
+--------------------------------------------------------------------------------
+
+P newkpt: treating      5 bands with npw=      57 for ikpt=   1 by node    0
+P newkpt: treating      5 bands with npw=      98 for ikpt=   2 by node    0
+P newkpt: treating      5 bands with npw=     108 for ikpt=   3 by node    0
+P newkpt: treating      5 bands with npw=      98 for ikpt=   4 by node    0
+P newkpt: treating      5 bands with npw=     101 for ikpt=   5 by node    0
+P newkpt: treating      5 bands with npw=     100 for ikpt=   6 by node    0
+P newkpt: treating      5 bands with npw=      97 for ikpt=   7 by node    0
+P newkpt: treating      5 bands with npw=     108 for ikpt=   8 by node    0
+P newkpt: treating      5 bands with npw=     100 for ikpt=   9 by node    0
+P newkpt: treating      5 bands with npw=      92 for ikpt=  10 by node    0
+P newkpt: treating      5 bands with npw=      98 for ikpt=  11 by node    0
+P newkpt: treating      5 bands with npw=     101 for ikpt=  12 by node    0
+P newkpt: treating      5 bands with npw=     100 for ikpt=  13 by node    0
+P newkpt: treating      5 bands with npw=      97 for ikpt=  14 by node    0
+P newkpt: treating      5 bands with npw=     101 for ikpt=  15 by node    0
+P newkpt: treating      5 bands with npw=      98 for ikpt=  16 by node    0
+P newkpt: treating      5 bands with npw=      97 for ikpt=  17 by node    0
+P newkpt: treating      5 bands with npw=     100 for ikpt=  18 by node    0
+P newkpt: treating      5 bands with npw=     100 for ikpt=  19 by node    1
+P newkpt: treating      5 bands with npw=      97 for ikpt=  20 by node    1
+P newkpt: treating      5 bands with npw=     100 for ikpt=  21 by node    1
+P newkpt: treating      5 bands with npw=     100 for ikpt=  22 by node    1
+P newkpt: treating      5 bands with npw=      97 for ikpt=  23 by node    1
+P newkpt: treating      5 bands with npw=     100 for ikpt=  24 by node    1
+P newkpt: treating      5 bands with npw=     100 for ikpt=  25 by node    1
+P newkpt: treating      5 bands with npw=     100 for ikpt=  26 by node    1
+P newkpt: treating      5 bands with npw=     108 for ikpt=  27 by node    1
+P newkpt: treating      5 bands with npw=     100 for ikpt=  28 by node    1
+P newkpt: treating      5 bands with npw=      92 for ikpt=  29 by node    1
+P newkpt: treating      5 bands with npw=     100 for ikpt=  30 by node    1
+P newkpt: treating      5 bands with npw=      97 for ikpt=  31 by node    1
+P newkpt: treating      5 bands with npw=     100 for ikpt=  32 by node    1
+P newkpt: treating      5 bands with npw=     100 for ikpt=  33 by node    1
+P newkpt: treating      5 bands with npw=      92 for ikpt=  34 by node    1
+P newkpt: treating      5 bands with npw=     100 for ikpt=  35 by node    1
+P newkpt: treating      5 bands with npw=     108 for ikpt=  36 by node    1
+
+_setup2: Arith. and geom. avg. npw (full set) are      99.609      99.552
+
+================================================================================
+
+=== [ionmov= 2] Broyden-Fletcher-Goldfard-Shanno method (forces)            
+================================================================================
+
+--- Iteration: (1/5) Internal Cycle: (1/1)
+--------------------------------------------------------------------------------
+
+---SELF-CONSISTENT-FIELD CONVERGENCE--------------------------------------------
+
+     iter   Etot(hartree)      deltaE(h)  residm     vres2    diffor    maxfor
+ ETOT  1  -8.8018619964173    -8.802E+00 6.123E-04 3.378E+00 5.372E-05 5.372E-05
+ ETOT  2  -8.8076348545882    -5.773E-03 3.335E-07 9.257E-02 5.372E-05 5.535E-06
+ ETOT  3  -8.8077398147713    -1.050E-04 1.883E-08 1.534E-03 6.243E-06 7.082E-07
+ ETOT  4  -8.8077409155889    -1.101E-06 2.510E-09 5.209E-06 7.423E-07 1.784E-07
+ ETOT  5  -8.8077409200440    -4.455E-09 1.224E-10 2.852E-09 3.081E-07 1.297E-07
+ ETOT  6  -8.8077409200470    -3.020E-12 4.709E-12 2.165E-11 3.632E-08 9.339E-08
+ ETOT  7  -8.8077409200473    -2.380E-13 3.867E-13 2.313E-13 1.690E-08 1.103E-07
+ ETOT  8  -8.8077409200473    -1.066E-14 1.063E-13 2.667E-15 1.664E-09 1.086E-07
+ ETOT  9  -8.8077409200473     8.882E-15 1.146E-14 3.557E-17 3.086E-11 1.086E-07
+
+ At SCF step    9, forces are sufficiently converged : 
+  for the second time, max diff in force=  3.086E-11 is less than < tolrff=  2.000E-02 times max force
+
+ Cartesian components of stress tensor (hartree/bohr^3)
+  sigma(1 1)= -7.85786112E-04  sigma(3 2)=  4.69982184E-10
+  sigma(2 2)= -7.85787595E-04  sigma(3 1)=  7.17941533E-10
+  sigma(3 3)= -7.85787137E-04  sigma(2 1)= -3.40386765E-10
+
+
+---OUTPUT-----------------------------------------------------------------------
+
+ Cartesian coordinates (xcart) [bohr]
+ -5.98638513233121E+00  1.25802265090650E-01 -3.31702283769015E+00
+ -4.01122890090772E+00  1.52244927718707E+00  1.04049345733957E-01
+ Reduced coordinates (xred)
+  9.82426862800000E-01  1.28409574000000E-02  2.25186280000000E-02
+  2.32426794200000E-01  2.62841049400000E-01  2.72518693500000E-01
+ Cartesian forces (fcart) [Ha/bohr]; max,rms= 1.08617E-07 8.76665E-08 (free atoms)
+ -7.81879441466226E-08  7.17306015324279E-08  1.08616871253424E-07
+  7.81879441466226E-08 -7.17306015324279E-08 -1.08616871253424E-07
+ Reduced forces (fred)
+ -9.17142113092379E-08 -8.34886405747074E-07 -7.09596088588233E-07
+  9.17142113092379E-08  8.34886405747074E-07  7.09596088588233E-07
+ Scale of Primitive Cell (acell) [bohr]
+  1.00000000000000E+00  1.00000000000000E+00  1.00000000000000E+00
+ Real space primitive translations (rprimd) [bohr]
+ -5.92546988650000E+00  0.00000000000000E+00 -3.42107163400000E+00
+ -5.92546988650000E+00  0.00000000000000E+00  3.42107163400000E+00
+ -3.95031325770000E+00  5.58658658470000E+00  0.00000000000000E+00
+ Unitary Cell Volume (ucvol) [Bohr^3]=  2.26496498862927E+02
+ Angles (23,13,12)= [degrees]
+  6.00000000000409E+01  6.00000000000409E+01  5.99999999993358E+01
+ Lengths [Bohr]
+  6.84214326806869E+00  6.84214326806869E+00  6.84214326818069E+00
+ Stress tensor in cartesian coordinates (strten) [Ha/bohr^3]
+ -7.85786112177577E-04 -3.40386764515403E-10  7.17941533331348E-10
+ -3.40386764515403E-10 -7.85787594550156E-04  4.69982184420506E-10
+  7.17941533331348E-10  4.69982184420506E-10 -7.85787136738803E-04
+ Total energy (etotal) [Ha]= -8.80774092004726E+00
+
+--- Iteration: (2/5) Internal Cycle: (1/1)
+--------------------------------------------------------------------------------
+
+---SELF-CONSISTENT-FIELD CONVERGENCE--------------------------------------------
+
+     iter   Etot(hartree)      deltaE(h)  residm     vres2    diffor    maxfor
+ ETOT  1  -8.8177444375800    -8.818E+00 3.210E-10 2.472E-02 1.412E-07 2.129E-07
+ ETOT  2  -8.8177955590092    -5.112E-05 2.705E-12 1.878E-04 1.854E-07 4.428E-08
+ ETOT  3  -8.8177957698934    -2.109E-07 1.997E-10 3.553E-06 1.620E-07 2.063E-07
+ ETOT  4  -8.8177957729974    -3.104E-09 8.212E-13 7.518E-08 1.620E-07 4.430E-08
+ ETOT  5  -8.8177957730596    -6.220E-11 2.037E-14 4.829E-11 1.804E-08 6.234E-08
+ ETOT  6  -8.8177957730597    -5.329E-14 3.239E-13 2.815E-13 7.166E-09 5.517E-08
+ ETOT  7  -8.8177957730597    -1.243E-14 3.704E-15 1.599E-15 1.830E-09 5.700E-08
+ ETOT  8  -8.8177957730597     7.105E-15 1.134E-13 1.201E-17 1.591E-10 5.690E-08
+ ETOT  9  -8.8177957730597    -3.553E-15 2.894E-15 1.135E-18 3.516E-11 5.693E-08
+
+ At SCF step    9, forces are sufficiently converged : 
+  for the second time, max diff in force=  3.516E-11 is less than < tolrff=  2.000E-02 times max force
+
+ Cartesian components of stress tensor (hartree/bohr^3)
+  sigma(1 1)= -4.61268050E-04  sigma(3 2)=  2.46626208E-10
+  sigma(2 2)= -4.61268695E-04  sigma(3 1)=  3.19245418E-10
+  sigma(3 3)= -4.61268506E-04  sigma(2 1)= -1.72934396E-10
+
+
+---OUTPUT-----------------------------------------------------------------------
+
+ Cartesian coordinates (xcart) [bohr]
+ -6.12750591141101E+00  1.28767951849641E-01 -3.39521692405733E+00
+ -4.10578796032842E+00  1.55833882688757E+00  1.06502053090810E-01
+ Reduced coordinates (xred)
+  9.82426849243000E-01  1.28409755923706E-02  2.25186408397905E-02
+  2.32426807757000E-01  2.62841031207629E-01  2.72518680660209E-01
+ Cartesian forces (fcart) [Ha/bohr]; max,rms= 5.69301E-08 4.60109E-08 (free atoms)
+ -4.11880266811024E-08  3.75967161821256E-08  5.69301113622132E-08
+  4.11880266811024E-08 -3.75967161821256E-08 -5.69301113622132E-08
+ Reduced forces (fred)
+ -5.04585172470257E-08 -4.49164981188564E-07 -3.81529813706985E-07
+  5.04585172470257E-08  4.49164981188564E-07  3.81529813706985E-07
+ Scale of Primitive Cell (acell) [bohr]
+  1.02357360843467E+00  1.02357360843467E+00  1.02357360843467E+00
+ Real space primitive translations (rprimd) [bohr]
+ -6.06515459339575E+00  0.00000000000000E+00 -3.50171863712686E+00
+ -6.06515459339575E+00  0.00000000000000E+00  3.50171863712686E+00
+ -4.04343639563129E+00  5.71828258933407E+00  0.00000000000000E+00
+ Unitary Cell Volume (ucvol) [Bohr^3]=  2.42895087857799E+02
+ Angles (23,13,12)= [degrees]
+  6.00000000000409E+01  6.00000000000409E+01  5.99999999993358E+01
+ Lengths [Bohr]
+  7.00343727432403E+00  7.00343727432403E+00  7.00343727443867E+00
+ Stress tensor in cartesian coordinates (strten) [Ha/bohr^3]
+ -4.61268050361893E-04 -1.72934396250415E-10  3.19245418430947E-10
+ -1.72934396250415E-10 -4.61268694664836E-04  2.46626208130621E-10
+  3.19245418430947E-10  2.46626208130621E-10 -4.61268506221830E-04
+ Total energy (etotal) [Ha]= -8.81779577305969E+00
+
+ Difference of energy with previous step (new-old):
+           Absolute (Ha)=-1.00549E-02
+           Relative     =-1.14094E-03
+
+--- Iteration: (3/5) Internal Cycle: (1/1)
+--------------------------------------------------------------------------------
+
+---SELF-CONSISTENT-FIELD CONVERGENCE--------------------------------------------
+
+     iter   Etot(hartree)      deltaE(h)  residm     vres2    diffor    maxfor
+ ETOT  1  -8.8232546046236    -8.823E+00 1.253E-09 5.910E-02 4.292E-07 3.880E-07
+ ETOT  2  -8.8233823221287    -1.277E-04 1.036E-11 6.693E-04 4.117E-07 2.732E-08
+ ETOT  3  -8.8233830566410    -7.345E-07 1.355E-10 2.143E-05 7.058E-08 5.732E-08
+ ETOT  4  -8.8233830753731    -1.873E-08 5.376E-12 4.425E-07 6.606E-08 8.740E-09
+ ETOT  5  -8.8233830757632    -3.900E-10 1.220E-13 1.780E-10 4.927E-09 3.868E-09
+ ETOT  6  -8.8233830757634    -2.771E-13 4.515E-16 2.843E-13 1.006E-09 4.819E-09
+ ETOT  7  -8.8233830757634     1.421E-14 6.639E-17 8.003E-16 1.142E-10 4.705E-09
+ ETOT  8  -8.8233830757634     1.776E-15 2.629E-17 1.013E-17 7.965E-11 4.785E-09
+ ETOT  9  -8.8233830757634     0.000E+00 3.584E-17 1.375E-19 1.426E-12 4.785E-09
+
+ At SCF step    9, forces are sufficiently converged : 
+  for the second time, max diff in force=  1.426E-12 is less than < tolrff=  2.000E-02 times max force
+
+ Cartesian components of stress tensor (hartree/bohr^3)
+  sigma(1 1)=  5.75922744E-05  sigma(3 2)=  1.57384342E-11
+  sigma(2 2)=  5.75922772E-05  sigma(3 1)= -1.83203858E-11
+  sigma(3 3)=  5.75922921E-05  sigma(2 1)= -9.87854794E-12
+
+
+---OUTPUT-----------------------------------------------------------------------
+
+ Cartesian coordinates (xcart) [bohr]
+ -6.36729342954193E+00  1.33807132459912E-01 -3.52808161900358E+00
+ -4.26645944406577E+00  1.61932111552525E+00  1.10669625569609E-01
+ Reduced coordinates (xred)
+  9.82426829659555E-01  1.28410019846344E-02  2.25186594328963E-02
+  2.32426827340444E-01  2.62841004815366E-01  2.72518662067104E-01
+ Cartesian forces (fcart) [Ha/bohr]; max,rms= 4.78496E-09 3.62027E-09 (free atoms)
+ -3.22999441702607E-09  2.44753514382466E-09  4.78495978006022E-09
+  3.22999441702607E-09 -2.44753514382466E-09 -4.78495978006022E-09
+ Reduced forces (fred)
+ -2.94576800587890E-09 -3.77683245364018E-08 -2.81147547484150E-08
+  2.94576800587890E-09  3.77683245364018E-08  2.81147547484150E-08
+ Scale of Primitive Cell (acell) [bohr]
+  1.06362906572046E+00  1.06362906572046E+00  1.06362906572046E+00
+ Real space primitive translations (rprimd) [bohr]
+ -6.30250199933273E+00  0.00000000000000E+00 -3.63875122583419E+00
+ -6.30250199933273E+00  0.00000000000000E+00  3.63875122583419E+00
+ -4.20166799959060E+00  5.94205586965093E+00  0.00000000000000E+00
+ Unitary Cell Volume (ucvol) [Bohr^3]=  2.72541149577007E+02
+ Angles (23,13,12)= [degrees]
+  6.00000000000409E+01  6.00000000000409E+01  5.99999999993358E+01
+ Lengths [Bohr]
+  7.27750245174145E+00  7.27750245174145E+00  7.27750245186058E+00
+ Stress tensor in cartesian coordinates (strten) [Ha/bohr^3]
+  5.75922744121232E-05 -9.87854794290995E-12 -1.83203858035658E-11
+ -9.87854794290995E-12  5.75922771561365E-05  1.57384342469797E-11
+ -1.83203858035658E-11  1.57384342469797E-11  5.75922921364088E-05
+ Total energy (etotal) [Ha]= -8.82338307576341E+00
+
+ Difference of energy with previous step (new-old):
+           Absolute (Ha)=-5.58730E-03
+           Relative     =-6.33439E-04
+
+--- Iteration: (4/5) Internal Cycle: (1/1)
+--------------------------------------------------------------------------------
+
+---SELF-CONSISTENT-FIELD CONVERGENCE--------------------------------------------
+
+     iter   Etot(hartree)      deltaE(h)  residm     vres2    diffor    maxfor
+ ETOT  1  -8.8234887399797    -8.823E+00 1.543E-11 8.428E-04 4.921E-08 4.598E-08
+ ETOT  2  -8.8234906425621    -1.903E-06 2.866E-12 9.420E-06 5.242E-08 7.385E-09
+ ETOT  3  -8.8234906606655    -1.810E-08 2.020E-11 4.627E-08 1.130E-08 1.869E-08
+ ETOT  4  -8.8234906607133    -4.785E-11 1.017E-14 1.812E-09 1.653E-08 5.295E-09
+ ETOT  5  -8.8234906607147    -1.437E-12 3.763E-16 5.778E-12 4.670E-09 6.831E-09
+ ETOT  6  -8.8234906607147     1.776E-14 3.655E-15 9.649E-15 1.767E-09 5.064E-09
+ ETOT  7  -8.8234906607147    -1.421E-14 3.395E-16 2.869E-16 1.023E-09 6.086E-09
+ ETOT  8  -8.8234906607147     1.776E-15 2.507E-17 3.939E-18 7.555E-11 6.011E-09
+ ETOT  9  -8.8234906607147    -5.329E-15 2.637E-16 7.325E-20 1.707E-11 6.019E-09
+
+ At SCF step    9, forces are sufficiently converged : 
+  for the second time, max diff in force=  1.707E-11 is less than < tolrff=  2.000E-02 times max force
+
+ Cartesian components of stress tensor (hartree/bohr^3)
+  sigma(1 1)= -3.20727740E-07  sigma(3 2)=  5.66233372E-14
+  sigma(2 2)= -3.20702234E-07  sigma(3 1)= -3.09387150E-11
+  sigma(3 3)= -3.20697799E-07  sigma(2 1)= -1.63898545E-12
+
+
+---OUTPUT-----------------------------------------------------------------------
+
+ Cartesian coordinates (xcart) [bohr]
+ -6.33782824488678E+00  1.33187922765549E-01 -3.51175513680463E+00
+ -4.24671605520529E+00  1.61182757882625E+00  1.10157500852065E-01
+ Reduced coordinates (xred)
+  9.82426830640032E-01  1.28410007135204E-02  2.25186584033502E-02
+  2.32426826359967E-01  2.62841006086480E-01  2.72518663096650E-01
+ Cartesian forces (fcart) [Ha/bohr]; max,rms= 6.01926E-09 4.72550E-09 (free atoms)
+ -4.31509019239645E-09  3.48419857254510E-09  6.01925811747481E-09
+  4.31509019239645E-09 -3.48419857254510E-09 -6.01925811747481E-09
+ Reduced forces (fred)
+ -5.26878661109743E-09 -4.88712402802012E-08 -3.86541719595376E-08
+  5.26878661109743E-09  4.88712402802012E-08  3.86541719595376E-08
+ Scale of Primitive Cell (acell) [bohr]
+  1.05870703398849E+00  1.05870703398849E+00  1.05870703398849E+00
+ Real space primitive translations (rprimd) [bohr]
+ -6.27333664852451E+00  0.00000000000000E+00 -3.62191260269429E+00
+ -6.27333664852451E+00  0.00000000000000E+00  3.62191260269429E+00
+ -4.18222443238496E+00  5.91455851320761E+00  0.00000000000000E+00
+ Unitary Cell Volume (ucvol) [Bohr^3]=  2.68775011253160E+02
+ Angles (23,13,12)= [degrees]
+  6.00000000000409E+01  6.00000000000409E+01  5.99999999993358E+01
+ Lengths [Bohr]
+  7.24382520546130E+00  7.24382520546130E+00  7.24382520557988E+00
+ Stress tensor in cartesian coordinates (strten) [Ha/bohr^3]
+ -3.20727739712347E-07 -1.63898544952095E-12 -3.09387149959647E-11
+ -1.63898544952095E-12 -3.20702233889091E-07  5.66233372130464E-14
+ -3.09387149959647E-11  5.66233372130464E-14 -3.20697799309705E-07
+ Total energy (etotal) [Ha]= -8.82349066071474E+00
+
+ Difference of energy with previous step (new-old):
+           Absolute (Ha)=-1.07585E-04
+           Relative     =-1.21931E-05
+
+ At Broyd/MD step   4, gradients are converged : 
+  max grad (force/stress) = 3.2071E-05 < tolmxf= 5.0000E-05 ha/bohr (free atoms)
+
+================================================================================
+
+ ----iterations are completed or convergence reached----
+
+ Mean square residual over all n,k,spin=   4.4159E-18; max=  2.6368E-16
+   0.0000  0.0000  0.0000    1  6.98492E-17 kpt; spin; max resid(k); each band:
+  7.57E-28 6.24E-21 6.72E-22 2.76E-23 6.98E-17
+   0.2500  0.0000  0.0000    1  9.62988E-23 kpt; spin; max resid(k); each band:
+  1.02E-25 9.68E-25 9.63E-23 4.19E-23 1.53E-23
+   0.5000  0.0000  0.0000    1  5.52546E-23 kpt; spin; max resid(k); each band:
+  6.27E-27 5.73E-27 5.53E-23 4.47E-23 4.58E-24
+   0.0000  0.2500  0.0000    1  1.93981E-23 kpt; spin; max resid(k); each band:
+  7.13E-26 9.09E-25 1.94E-23 1.12E-23 1.59E-23
+   0.2500  0.2500  0.0000    1  6.71956E-23 kpt; spin; max resid(k); each band:
+  1.59E-26 6.72E-23 2.94E-23 5.63E-25 2.55E-24
+   0.5000  0.2500  0.0000    1  3.14297E-24 kpt; spin; max resid(k); each band:
+  6.62E-25 1.01E-24 3.14E-24 5.63E-25 1.42E-24
+  -0.2500  0.2500  0.0000    1  1.69217E-23 kpt; spin; max resid(k); each band:
+  1.14E-25 1.69E-23 1.70E-24 2.28E-25 8.41E-24
+   0.0000  0.5000  0.0000    1  1.44249E-23 kpt; spin; max resid(k); each band:
+  5.11E-27 1.08E-26 1.44E-23 1.07E-23 6.55E-25
+   0.2500  0.5000  0.0000    1  3.39503E-24 kpt; spin; max resid(k); each band:
+  1.55E-24 9.37E-25 3.40E-24 1.81E-25 5.95E-25
+   0.5000  0.5000  0.0000    1  7.20956E-20 kpt; spin; max resid(k); each band:
+  4.87E-25 8.81E-26 4.07E-26 6.04E-26 7.21E-20
+   0.0000  0.0000  0.2500    1  2.54528E-23 kpt; spin; max resid(k); each band:
+  5.65E-26 2.00E-24 2.55E-23 1.63E-23 1.10E-23
+   0.2500  0.0000  0.2500    1  2.66078E-23 kpt; spin; max resid(k); each band:
+  4.68E-26 2.66E-23 3.82E-24 1.18E-23 8.61E-24
+   0.5000  0.0000  0.2500    1  8.51935E-24 kpt; spin; max resid(k); each band:
+  4.59E-24 1.88E-24 8.52E-24 5.51E-24 8.95E-25
+  -0.2500  0.0000  0.2500    1  6.94904E-24 kpt; spin; max resid(k); each band:
+  3.30E-25 2.71E-24 6.95E-24 9.99E-25 9.40E-25
+   0.0000  0.2500  0.2500    1  4.32063E-23 kpt; spin; max resid(k); each band:
+  4.88E-26 4.32E-23 1.38E-23 5.37E-24 4.16E-24
+   0.2500  0.2500  0.2500    1  1.01956E-22 kpt; spin; max resid(k); each band:
+  7.20E-27 1.50E-24 1.02E-22 3.97E-23 9.33E-24
+   0.5000  0.2500  0.2500    1  7.89843E-24 kpt; spin; max resid(k); each band:
+  5.93E-25 5.21E-24 7.90E-24 6.11E-25 1.72E-24
+  -0.2500  0.2500  0.2500    1  2.89261E-23 kpt; spin; max resid(k); each band:
+  5.14E-24 1.61E-24 2.89E-23 7.17E-24 5.09E-25
+   0.0000  0.5000  0.2500    1  4.81936E-24 kpt; spin; max resid(k); each band:
+  3.01E-24 7.48E-25 4.82E-24 2.76E-24 4.09E-25
+   0.2500  0.5000  0.2500    1  9.40551E-24 kpt; spin; max resid(k); each band:
+  4.83E-25 9.41E-24 1.70E-24 3.24E-25 5.33E-24
+   0.5000  0.5000  0.2500    1  2.92613E-23 kpt; spin; max resid(k); each band:
+  2.56E-25 5.26E-25 2.93E-23 7.22E-24 4.35E-25
+  -0.2500  0.5000  0.2500    1  2.43663E-16 kpt; spin; max resid(k); each band:
+  1.36E-24 8.18E-25 7.49E-24 4.01E-24 2.44E-16
+   0.0000 -0.2500  0.2500    1  7.97802E-24 kpt; spin; max resid(k); each band:
+  6.34E-25 7.98E-24 1.17E-24 3.64E-25 3.28E-24
+   0.2500 -0.2500  0.2500    1  2.46231E-24 kpt; spin; max resid(k); each band:
+  2.46E-24 9.44E-25 4.20E-25 1.13E-24 9.00E-25
+   0.5000 -0.2500  0.2500    1  1.57581E-18 kpt; spin; max resid(k); each band:
+  1.55E-22 4.52E-23 5.90E-23 2.83E-23 1.58E-18
+  -0.2500 -0.2500  0.2500    1  2.85258E-23 kpt; spin; max resid(k); each band:
+  1.04E-24 1.32E-24 2.85E-23 6.98E-24 3.31E-25
+   0.0000  0.0000  0.5000    1  2.10840E-23 kpt; spin; max resid(k); each band:
+  4.16E-27 4.92E-27 2.11E-23 1.66E-23 1.04E-24
+   0.2500  0.0000  0.5000    1  8.26413E-24 kpt; spin; max resid(k); each band:
+  3.72E-24 1.79E-24 8.26E-24 4.13E-24 3.67E-25
+   0.5000  0.0000  0.5000    1  4.46985E-20 kpt; spin; max resid(k); each band:
+  1.14E-23 4.40E-24 3.99E-24 7.63E-25 4.47E-20
+   0.0000  0.2500  0.5000    1  3.88605E-24 kpt; spin; max resid(k); each band:
+  5.35E-25 8.58E-25 3.89E-24 4.14E-25 5.00E-25
+   0.2500  0.2500  0.5000    1  1.09213E-23 kpt; spin; max resid(k); each band:
+  2.13E-25 1.08E-24 1.09E-23 5.27E-25 1.40E-24
+   0.5000  0.2500  0.5000    1  1.53671E-24 kpt; spin; max resid(k); each band:
+  1.54E-24 1.16E-24 3.36E-25 1.44E-25 3.42E-25
+  -0.2500  0.2500  0.5000    1  2.63678E-16 kpt; spin; max resid(k); each band:
+  2.06E-22 4.60E-23 6.70E-23 4.29E-23 2.64E-16
+   0.0000  0.5000  0.5000    1  2.15968E-16 kpt; spin; max resid(k); each band:
+  2.89E-25 2.27E-25 4.48E-26 7.75E-26 2.16E-16
+   0.2500  0.5000  0.5000    1  2.92514E-23 kpt; spin; max resid(k); each band:
+  2.27E-24 1.48E-24 2.93E-23 5.58E-24 4.60E-25
+   0.5000  0.5000  0.5000    1  5.06443E-23 kpt; spin; max resid(k); each band:
+  6.42E-27 5.32E-27 5.06E-23 4.22E-23 2.01E-24
+ reduced coordinates (array xred) for    2 atoms
+       0.982426830640      0.012841000714      0.022518658403
+       0.232426826360      0.262841006086      0.272518663097
+ rms dE/dt=  3.6103E-08; max dE/dt=  4.8871E-08; dE/dt below (all hartree)
+    1      -0.000000005269     -0.000000048871     -0.000000038654
+    2       0.000000005269      0.000000048871      0.000000038654
+
+ cartesian coordinates (angstrom) at end:
+    1     -3.35383425915204     0.07048001318697    -1.85834078054587
+    2     -2.24726534776787     0.85294241889165     0.05829283880615
+
+ cartesian forces (hartree/bohr) at end:
+    1     -0.00000000431509     0.00000000348420     0.00000000601926
+    2      0.00000000431509    -0.00000000348420    -0.00000000601926
+ frms,max,avg= 4.7255021E-09 6.0192581E-09   0.000E+00  0.000E+00  0.000E+00 h/b
+
+ cartesian forces (eV/Angstrom) at end:
+    1     -0.00000022189084     0.00000017916468     0.00000030952267
+    2      0.00000022189084    -0.00000017916468    -0.00000030952267
+ frms,max,avg= 2.4299507E-07 3.0952267E-07   0.000E+00  0.000E+00  0.000E+00 e/A
+ length scales=  1.058707033988  1.058707033988  1.058707033988 bohr
+              =  0.560243632961  0.560243632961  0.560243632961 angstroms
+ prteigrs : about to open file /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_relax/w0/t1/outdata/out_EIG
+ Fermi (or HOMO) energy (hartree) =   0.21844   Average Vxc (hartree)=  -0.35324
+ Eigenvalues (hartree) for nkpt=  36  k points:
+ kpt#   1, nband=  5, wtk=  0.01563, kpt=  0.0000  0.0000  0.0000 (reduced coord)
+  -0.21939   0.21844   0.21844   0.21844   0.31075
+ kpt#   2, nband=  5, wtk=  0.03125, kpt=  0.2500  0.0000  0.0000 (reduced coord)
+  -0.18884   0.07436   0.18858   0.18858   0.29651
+ kpt#   3, nband=  5, wtk=  0.01563, kpt=  0.5000  0.0000  0.0000 (reduced coord)
+  -0.12903  -0.04037   0.17170   0.17170   0.27809
+ kpt#   4, nband=  5, wtk=  0.03125, kpt=  0.0000  0.2500  0.0000 (reduced coord)
+  -0.18884   0.07436   0.18858   0.18858   0.29651
+ kpt#   5, nband=  5, wtk=  0.03125, kpt=  0.2500  0.2500  0.0000 (reduced coord)
+  -0.17789   0.09382   0.14558   0.14558   0.26023
+ kpt#   6, nband=  5, wtk=  0.03125, kpt=  0.5000  0.2500  0.0000 (reduced coord)
+  -0.11749  -0.01464   0.08458   0.13338   0.27492
+ kpt#   7, nband=  5, wtk=  0.03125, kpt= -0.2500  0.2500  0.0000 (reduced coord)
+  -0.14235   0.01908   0.07575   0.16672   0.30941
+ kpt#   8, nband=  5, wtk=  0.01563, kpt=  0.0000  0.5000  0.0000 (reduced coord)
+  -0.12903  -0.04037   0.17170   0.17170   0.27809
+ kpt#   9, nband=  5, wtk=  0.03125, kpt=  0.2500  0.5000  0.0000 (reduced coord)
+  -0.11749  -0.01464   0.08458   0.13338   0.27492
+ kpt#  10, nband=  5, wtk=  0.01563, kpt=  0.5000  0.5000  0.0000 (reduced coord)
+  -0.06507  -0.06507   0.10896   0.10896   0.24476
+ kpt#  11, nband=  5, wtk=  0.03125, kpt=  0.0000  0.0000  0.2500 (reduced coord)
+  -0.18884   0.07436   0.18858   0.18858   0.29651
+ kpt#  12, nband=  5, wtk=  0.03125, kpt=  0.2500  0.0000  0.2500 (reduced coord)
+  -0.17789   0.09382   0.14558   0.14558   0.26023
+ kpt#  13, nband=  5, wtk=  0.03125, kpt=  0.5000  0.0000  0.2500 (reduced coord)
+  -0.11749  -0.01464   0.08458   0.13338   0.27492
+ kpt#  14, nband=  5, wtk=  0.03125, kpt= -0.2500  0.0000  0.2500 (reduced coord)
+  -0.14235   0.01908   0.07575   0.16672   0.30941
+ kpt#  15, nband=  5, wtk=  0.03125, kpt=  0.0000  0.2500  0.2500 (reduced coord)
+  -0.17789   0.09382   0.14558   0.14558   0.26023
+ kpt#  16, nband=  5, wtk=  0.03125, kpt=  0.2500  0.2500  0.2500 (reduced coord)
+  -0.18884   0.07436   0.18858   0.18858   0.29651
+ kpt#  17, nband=  5, wtk=  0.03125, kpt=  0.5000  0.2500  0.2500 (reduced coord)
+  -0.14235   0.01908   0.07575   0.16672   0.30941
+ kpt#  18, nband=  5, wtk=  0.03125, kpt= -0.2500  0.2500  0.2500 (reduced coord)
+  -0.11749  -0.01464   0.08458   0.13338   0.27492
+ kpt#  19, nband=  5, wtk=  0.03125, kpt=  0.0000  0.5000  0.2500 (reduced coord)
+  -0.11749  -0.01464   0.08458   0.13338   0.27492
+ kpt#  20, nband=  5, wtk=  0.03125, kpt=  0.2500  0.5000  0.2500 (reduced coord)
+  -0.14235   0.01908   0.07575   0.16672   0.30941
+ kpt#  21, nband=  5, wtk=  0.03125, kpt=  0.5000  0.5000  0.2500 (reduced coord)
+  -0.11749  -0.01464   0.08458   0.13338   0.27492
+ kpt#  22, nband=  5, wtk=  0.03125, kpt= -0.2500  0.5000  0.2500 (reduced coord)
+  -0.05977  -0.05977   0.07099   0.07099   0.37911
+ kpt#  23, nband=  5, wtk=  0.03125, kpt=  0.0000 -0.2500  0.2500 (reduced coord)
+  -0.14235   0.01908   0.07575   0.16672   0.30941
+ kpt#  24, nband=  5, wtk=  0.03125, kpt=  0.2500 -0.2500  0.2500 (reduced coord)
+  -0.11749  -0.01464   0.08458   0.13338   0.27492
+ kpt#  25, nband=  5, wtk=  0.03125, kpt=  0.5000 -0.2500  0.2500 (reduced coord)
+  -0.05977  -0.05977   0.07099   0.07099   0.37911
+ kpt#  26, nband=  5, wtk=  0.03125, kpt= -0.2500 -0.2500  0.2500 (reduced coord)
+  -0.11749  -0.01464   0.08458   0.13338   0.27492
+ kpt#  27, nband=  5, wtk=  0.01563, kpt=  0.0000  0.0000  0.5000 (reduced coord)
+  -0.12903  -0.04037   0.17170   0.17170   0.27809
+ kpt#  28, nband=  5, wtk=  0.03125, kpt=  0.2500  0.0000  0.5000 (reduced coord)
+  -0.11749  -0.01464   0.08458   0.13338   0.27492
+ kpt#  29, nband=  5, wtk=  0.01563, kpt=  0.5000  0.0000  0.5000 (reduced coord)
+  -0.06507  -0.06507   0.10896   0.10896   0.24476
+ kpt#  30, nband=  5, wtk=  0.03125, kpt=  0.0000  0.2500  0.5000 (reduced coord)
+  -0.11749  -0.01464   0.08458   0.13338   0.27492
+ kpt#  31, nband=  5, wtk=  0.03125, kpt=  0.2500  0.2500  0.5000 (reduced coord)
+  -0.14235   0.01908   0.07575   0.16672   0.30941
+ kpt#  32, nband=  5, wtk=  0.03125, kpt=  0.5000  0.2500  0.5000 (reduced coord)
+  -0.11749  -0.01464   0.08458   0.13338   0.27492
+ kpt#  33, nband=  5, wtk=  0.03125, kpt= -0.2500  0.2500  0.5000 (reduced coord)
+  -0.05977  -0.05977   0.07099   0.07099   0.37911
+ kpt#  34, nband=  5, wtk=  0.01563, kpt=  0.0000  0.5000  0.5000 (reduced coord)
+  -0.06507  -0.06507   0.10896   0.10896   0.24476
+ kpt#  35, nband=  5, wtk=  0.03125, kpt=  0.2500  0.5000  0.5000 (reduced coord)
+  -0.11749  -0.01464   0.08458   0.13338   0.27492
+ kpt#  36, nband=  5, wtk=  0.01563, kpt=  0.5000  0.5000  0.5000 (reduced coord)
+  -0.12903  -0.04037   0.17170   0.17170   0.27809
+ Total charge density [el/Bohr^3]
+,     Maximum=    8.7741E-02  at reduced coord.    0.1333    0.1333    0.1333
+,Next maximum=    8.7730E-02  at reduced coord.    0.6000    0.1333    0.1333
+,     Minimum=    3.3765E-03  at reduced coord.    0.4667    0.5333    0.5333
+,Next minimum=    3.4027E-03  at reduced coord.    0.7333    0.7333    0.8000
+,  Integrated=    8.0000E+00
+
+--------------------------------------------------------------------------------
+ Components of total free energy (in Hartree) :
+
+    Kinetic energy  =  2.96263789469485E+00
+    Hartree energy  =  5.39051055654384E-01
+    XC energy       = -3.53513299408573E+00
+    Ewald energy    = -8.41332598253905E+00
+    PspCore energy  =  8.53573292961368E-02
+    Loc. psp. energy= -2.49606077883060E+00
+    NL   psp  energy=  2.03398281509527E+00
+    >>>>>>>>> Etotal= -8.82349066071474E+00
+
+ Other information on the energy :
+    Total energy(eV)= -2.40099391353834E+02 ; Band energy (Ha)=   2.6137564682E-01
+--------------------------------------------------------------------------------
+
+ Cartesian components of stress tensor (hartree/bohr^3)
+  sigma(1 1)= -3.20727740E-07  sigma(3 2)=  5.66233372E-14
+  sigma(2 2)= -3.20702234E-07  sigma(3 1)= -3.09387150E-11
+  sigma(3 3)= -3.20697799E-07  sigma(2 1)= -1.63898545E-12
+
+-Cartesian components of stress tensor (GPa)         [Pressure=  9.4356E-03 GPa]
+- sigma(1 1)= -9.43613429E-03  sigma(3 2)=  1.66591582E-09
+- sigma(2 2)= -9.43538389E-03  sigma(3 1)= -9.10248268E-07
+- sigma(3 3)= -9.43525342E-03  sigma(2 1)= -4.82206086E-08
+
+== END DATASET(S) ==============================================================
+================================================================================
+  
+ -outvars: echo values of variables after computation  --------
+        accesswff           1
+            acell      1.0587070340E+00  1.0587070340E+00  1.0587070340E+00 Bohr
+              amu      2.80855000E+01
+      chksymbreak           0
+          dilatmx      1.05000000E+00
+             ecut      4.00000000E+00 Hartree
+           ecutsm      5.00000000E-01 Hartree
+           etotal     -8.8234906607E+00
+            fcart     -4.3150901924E-09  3.4841985725E-09  6.0192581175E-09
+                       4.3150901924E-09 -3.4841985725E-09 -6.0192581175E-09
+-          fftalg         312
+      fft_opt_lob           2
+           ionmov           2
+           iprcch           6
+           istwfk        2    0    1    0    0    0    0    1    0    1
+                         0    0    0    0    0    0    0    0    0    0
+                         0    0    0    0    0    0    1    0    1    0
+                         0    0    0    1    0    1
+              kpt      0.00000000E+00  0.00000000E+00  0.00000000E+00
+                       2.50000000E-01  0.00000000E+00  0.00000000E+00
+                       5.00000000E-01  0.00000000E+00  0.00000000E+00
+                       0.00000000E+00  2.50000000E-01  0.00000000E+00
+                       2.50000000E-01  2.50000000E-01  0.00000000E+00
+                       5.00000000E-01  2.50000000E-01  0.00000000E+00
+                      -2.50000000E-01  2.50000000E-01  0.00000000E+00
+                       0.00000000E+00  5.00000000E-01  0.00000000E+00
+                       2.50000000E-01  5.00000000E-01  0.00000000E+00
+                       5.00000000E-01  5.00000000E-01  0.00000000E+00
+                       0.00000000E+00  0.00000000E+00  2.50000000E-01
+                       2.50000000E-01  0.00000000E+00  2.50000000E-01
+                       5.00000000E-01  0.00000000E+00  2.50000000E-01
+                      -2.50000000E-01  0.00000000E+00  2.50000000E-01
+                       0.00000000E+00  2.50000000E-01  2.50000000E-01
+                       2.50000000E-01  2.50000000E-01  2.50000000E-01
+                       5.00000000E-01  2.50000000E-01  2.50000000E-01
+                      -2.50000000E-01  2.50000000E-01  2.50000000E-01
+                       0.00000000E+00  5.00000000E-01  2.50000000E-01
+                       2.50000000E-01  5.00000000E-01  2.50000000E-01
+                       5.00000000E-01  5.00000000E-01  2.50000000E-01
+                      -2.50000000E-01  5.00000000E-01  2.50000000E-01
+                       0.00000000E+00 -2.50000000E-01  2.50000000E-01
+                       2.50000000E-01 -2.50000000E-01  2.50000000E-01
+                       5.00000000E-01 -2.50000000E-01  2.50000000E-01
+                      -2.50000000E-01 -2.50000000E-01  2.50000000E-01
+                       0.00000000E+00  0.00000000E+00  5.00000000E-01
+                       2.50000000E-01  0.00000000E+00  5.00000000E-01
+                       5.00000000E-01  0.00000000E+00  5.00000000E-01
+                       0.00000000E+00  2.50000000E-01  5.00000000E-01
+                       2.50000000E-01  2.50000000E-01  5.00000000E-01
+                       5.00000000E-01  2.50000000E-01  5.00000000E-01
+                      -2.50000000E-01  2.50000000E-01  5.00000000E-01
+                       0.00000000E+00  5.00000000E-01  5.00000000E-01
+                       2.50000000E-01  5.00000000E-01  5.00000000E-01
+                       5.00000000E-01  5.00000000E-01  5.00000000E-01
+         kptrlatt        4    0    0      0    4    0      0    0    4
+          kptrlen      2.73685731E+01
+P           mkmem          18
+            natom           2
+            nband           5
+            ngfft          15      15      15
+             nkpt          36
+-           npkpt           2
+             nsym           2
+            ntime           5
+           ntypat           1
+              occ      2.000000  2.000000  2.000000  2.000000  0.000000
+          optcell           1
+        optforces           1
+           ortalg          -2
+        paral_kgb           1
+            rprim     -5.9254698865E+00  0.0000000000E+00 -3.4210716340E+00
+                      -5.9254698865E+00  0.0000000000E+00  3.4210716340E+00
+                      -3.9503132577E+00  5.5865865847E+00  0.0000000000E+00
+          spgroup           2
+           strten     -3.2072773971E-07 -3.2070223389E-07 -3.2069779931E-07
+                       5.6623337213E-14 -3.0938714996E-11 -1.6389854495E-12
+           symrel      1  0  0   0  1  0   0  0  1      -1  0  0   0 -1  0   0  0 -1
+            tnons      0.0000000  0.0000000  0.0000000     0.2148537  0.2756820  0.2950373
+           tolrff      2.00000000E-02
+            typat      1  1
+         wfoptalg          14
+              wtk        0.01563    0.03125    0.01563    0.03125    0.03125    0.03125
+                         0.03125    0.01563    0.03125    0.01563    0.03125    0.03125
+                         0.03125    0.03125    0.03125    0.03125    0.03125    0.03125
+                         0.03125    0.03125    0.03125    0.03125    0.03125    0.03125
+                         0.03125    0.03125    0.01563    0.03125    0.01563    0.03125
+                         0.03125    0.03125    0.03125    0.01563    0.03125    0.01563
+           xangst     -3.3538342592E+00  7.0480013187E-02 -1.8583407805E+00
+                      -2.2472653478E+00  8.5294241889E-01  5.8292838806E-02
+            xcart     -6.3378282449E+00  1.3318792277E-01 -3.5117551368E+00
+                      -4.2467160552E+00  1.6118275788E+00  1.1015750085E-01
+             xred      9.8242683064E-01  1.2841000714E-02  2.2518658403E-02
+                       2.3242682636E-01  2.6284100609E-01  2.7251866310E-01
+            znucl       14.00000
+
+================================================================================
+
+
+- Timing analysis has been suppressed with timopt=0
+
+
+
+================================================================================
+
+ Suggested references for the acknowledgment of ABINIT usage.
+
+ The users of ABINIT have little formal obligations with respect to the ABINIT group
+ (those specified in the GNU General Public License, http://www.gnu.org/copyleft/gpl.txt).
+ However, it is common practice in the scientific literature,
+ to acknowledge the efforts of people that have made the research possible.
+ In this spirit, please find below suggested citations of work written by ABINIT developers,
+ corresponding to implementations inside of ABINIT that you have used in the present run.
+ Note also that it will be of great value to readers of publications presenting these results,
+ to read papers enabling them to understand the theoretical formalism and details
+ of the ABINIT implementation.
+ For information on why they are suggested, see also http://www.abinit.org/about/?text=acknowledgments.
+
+ [1] Large scale ab initio calculations based on three levels of parallelization
+ F. Bottin, S. Leroux, A. Knyazev, G. Zerah, Comput. Mat. Science 42, 329, (2008).
+ Comment : in case paral_kgb is non-zero. Strong suggestion to cite this paper in your publications.
+ This paper is also available at http://www.arxiv.org/abs/0707.3405
+
+ [2] ABINIT : First-principles approach of materials and nanosystem properties.
+ X. Gonze, B. Amadon, P.-M. Anglade, J.-M. Beuken, F. Bottin, P. Boulanger, F. Bruneval,
+ D. Caliste, R. Caracas, M. Cote, T. Deutsch, L. Genovese, Ph. Ghosez, M. Giantomassi
+ S. Goedecker, D.R. Hamann, P. Hermet, F. Jollet, G. Jomard, S. Leroux, M. Mancini, S. Mazevet,
+ M.J.T. Oliveira, G. Onida, Y. Pouillon, T. Rangel, G.-M. Rignanese, D. Sangalli, R. Shaltaf,
+ M. Torrent, M.J. Verstraete, G. Zerah, J.W. Zwanziger
+ Computer Phys. Comm. 180, 2582-2615 (2009).
+ Comment : the third generic paper describing the ABINIT project.
+ Note that a version of this paper, that is not formatted for Computer Phys. Comm. 
+ is available at http://www.abinit.org/about/ABINIT_CPC_v10.pdf .
+ The licence allows the authors to put it on the Web.
+
+ [3] A brief introduction to the ABINIT software package.
+ X. Gonze, G.-M. Rignanese, M. Verstraete, J.-M. Beuken, Y. Pouillon, R. Caracas, F. Jollet,
+ M. Torrent, G. Zerah, M. Mikami, Ph. Ghosez, M. Veithen, J.-Y. Raty, V. Olevano, F. Bruneval,
+ L. Reining, R. Godby, G. Onida, D.R. Hamann, and D.C. Allan.
+ Z. Kristallogr. 220, 558-562 (2005).
+ Comment : the second generic paper describing the ABINIT project. Note that this paper
+ should be cited especially if you are using the GW part of ABINIT, as several authors
+ of this part are not in the list of authors of the first or third paper.
+ The .pdf of the latter paper is available at http://www.abinit.org/about/zfk_0505-06_558-562.pdf.
+ Note that it should not redistributed (Copyright by Oldenburg Wissenshaftverlag,
+ the licence allows the authors to put it on the Web).
+
+
+ And optionally :
+
+ [4] First-principles computation of material properties : the ABINIT software project. 
+ X. Gonze, J.-M. Beuken, R. Caracas, F. Detraux, M. Fuchs, G.-M. Rignanese, L. Sindic,
+ M. Verstraete, G. Zerah, F. Jollet, M. Torrent, A. Roy, M. Mikami, Ph. Ghosez, J.-Y. Raty, D.C. Allan.
+ Computational Materials Science 25, 478-492 (2002). http://dx.doi.org/10.1016/S0927-0256(02)00325-7
+ Comment : the original paper describing the ABINIT project.
+
+ [5] Fast radix 2, 3, 4 and 5 kernels for Fast Fourier Transformations
+ on computers with overlapping multiply-add instructions.
+ S. Goedecker, SIAM J. on Scientific Computing 18, 1605 (1997).
+-
+- Proc.   0 individual time (sec): cpu=          4.3  wall=          5.1
+
+================================================================================
+
+ Calculation completed.
+.Delivered    0 WARNINGs and   2 COMMENTs to log file.
++Overall time at end (sec) : cpu=          9.1  wall=         10.2

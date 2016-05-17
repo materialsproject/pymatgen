@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -17,6 +19,7 @@ __date__ = "Jan 28, 2013"
 import numpy as np
 
 from six.moves import range
+
 
 class LinearAssignment(object):
     """
