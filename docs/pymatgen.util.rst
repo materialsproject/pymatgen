@@ -10,6 +10,14 @@ Subpackages
 Submodules
 ----------
 
+pymatgen.util.convergence module
+--------------------------------
+
+.. automodule:: pymatgen.util.convergence
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.util.coord_utils module
 --------------------------------
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from pymatgen.io.vaspio import Poscar
+from pymatgen.io.vasp import Poscar
 import cProfile
 import pstats
 import os
@@ -16,12 +16,12 @@ def test():
     print len(nn)
 
 def chgcar_test():
-    from pymatgen.io.vaspio import Chgcar
+    from pymatgen.io.vasp import Chgcar
     c = Chgcar.from_file("../test_files/CHGCAR.noncubic")
     print c.get_integrated_diff(1, 2.5, 3)
 
 def vasprun_test():
-    from pymatgen.io.vaspio import Vasprun
+    from pymatgen.io.vasp import Vasprun
     v = Vasprun("../test_files/vasprun.xml")
     print v.final_energy
 

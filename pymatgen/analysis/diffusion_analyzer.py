@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -28,15 +30,17 @@ __date__ = "5/2/13"
 
 
 import numpy as np
+import scipy.constants as const
 
+from monty.json import MSONable
+
+from pymatgen.analysis.structure_matcher import StructureMatcher, OrderDisorderElementComparator
 from pymatgen.core import Structure, get_el_sp
-import pymatgen.core.physical_constants as phyc
-from pymatgen.serializers.json_coders import PMGSONable
-from pymatgen.io.vaspio.vasp_output import Vasprun
+from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.coord_utils import pbc_diff
 
 
-class DiffusionAnalyzer(PMGSONable):
+class DiffusionAnalyzer(MSONable):
     """
     Class for performing diffusion analysis.
 
@@ -112,9 +116,9 @@ class DiffusionAnalyzer(PMGSONable):
         from_vaspruns and from_files).
 
         Given a matrix of displacements (see arguments below for expected
-        format), the diffusivity is given by:
+        format), the diffusivity is given by::
 
-        D = 1 / 2dt * <mean square displacement>
+            D = 1 / 2dt * <mean square displacement>
 
         where d is the dimensionality, t is the time. To obtain a reliable
         diffusion estimate, a least squares regression of the MSD against
@@ -135,15 +139,17 @@ class DiffusionAnalyzer(PMGSONable):
                 between measurements)
             smoothed (str): Whether to smooth the MSD, and what mode to smooth.
                 Supported modes are:
-                    i. "max", which tries to use the maximum #
-                       of data points for each time origin, subject to a
-                       minimum # of observations given by min_obs, and then
-                       weights the observations based on the variance
-                       accordingly. This is the default.
-                    ii. "constant", in which each timestep is averaged over
-                        the number of time_steps given by min_steps.
-                    iii. None / False / any other false-like quantity. No
-                       smoothing.
+
+                i. "max", which tries to use the maximum #
+                   of data points for each time origin, subject to a
+                   minimum # of observations given by min_obs, and then
+                   weights the observations based on the variance
+                   accordingly. This is the default.
+                ii. "constant", in which each timestep is averaged over
+                    the number of time_steps given by min_steps.
+                iii. None / False / any other false-like quantity. No
+                   smoothing.
+
             min_obs (int): Used with smoothed="max". Minimum number of
                 observations to have before including in the MSD vs dt
                 calculation. E.g. If a structure has 10 diffusing atoms,
@@ -292,20 +298,26 @@ class DiffusionAnalyzer(PMGSONable):
             self.indices = indices
             self.framework_indices = framework_indices
 
-    def get_drift_corrected_structures(self):
+    def get_drift_corrected_structures(self, start=None, stop=None, step=None):
         """
         Returns an iterator for the drift-corrected structures. Use of
         iterator is to reduce memory usage as # of structures in MD can be
         huge. You don't often need all the structures all at once.
+
+        Args:
+            start, stop, step (int): applies a start/stop/step to the iterator.
+                Faster than applying it after generation, as it reduces the
+                number of structures created.
         """
         coords = np.array(self.structure.cart_coords)
         species = self.structure.species_and_occu
         latt = self.structure.lattice
         nsites, nsteps, dim = self.corrected_displacements.shape
-        for i in range(nsteps):
-            yield Structure(latt, species, coords
-                            + self.corrected_displacements[:, i, :],
-                            coords_are_cartesian=True)
+        for i in range(start or 0, stop or nsteps, step or 1):
+            yield Structure(
+                    latt, species,
+                    coords + self.corrected_displacements[:, i, :],
+                    coords_are_cartesian=True)
 
     def get_summary_dict(self, include_msd_t=False):
         """
@@ -339,6 +351,51 @@ class DiffusionAnalyzer(PMGSONable):
             d["dt"] = self.dt.tolist()
         return d
 
+    def get_framework_rms_plot(self, plt=None, granularity=200, matching_s=None):
+        """
+        Get the plot of rms framework displacement vs time. Useful for checking
+        for melting, especially if framework atoms can move via paddle-wheel
+        or similar mechanism (which would show up in max framework displacement
+        but doesn't constitute melting).
+
+        Args:
+            granularity (int): Number of structures to match
+            matching_s (Structure): Optionally match to a disordered structure
+                instead of the first structure in the analyzer. Required when
+                a secondary mobile ion is present.
+        """
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        plt = get_publication_quality_plot(12, 8, plt=plt)
+        step = (self.corrected_displacements.shape[1] - 1) // (granularity - 1)
+        f = (matching_s or self.structure).copy()
+        f.remove_species([self.specie])
+        sm = StructureMatcher(primitive_cell=False, stol=0.6,
+                              comparator=OrderDisorderElementComparator(),
+                              allow_subset=True)
+        rms = []
+        for s in self.get_drift_corrected_structures(step=step):
+            s.remove_species([self.specie])
+            d = sm.get_rms_dist(f, s)
+            if d:
+                rms.append(d)
+            else:
+                rms.append((1, 1))
+        max_dt = (len(rms) - 1) * step * self.step_skip * self.time_step
+        if max_dt > 100000:
+            plot_dt = np.linspace(0, max_dt/1000, len(rms))
+            unit = 'ps'
+        else:
+            plot_dt = np.linspace(0, max_dt, len(rms))
+            unit = 'fs'
+        rms = np.array(rms)
+        plt.plot(plot_dt, rms[:, 0], label='RMS')
+        plt.plot(plot_dt, rms[:, 1], label='max')
+        plt.legend(loc='best')
+        plt.xlabel("Timestep ({})".format(unit))
+        plt.ylabel("normalized distance")
+        plt.tight_layout()
+        return plt
+
     def get_msd_plot(self, plt=None, mode="specie"):
         """
         Get the plot of the smoothed msd vs time graph. Useful for
@@ -347,30 +404,39 @@ class DiffusionAnalyzer(PMGSONable):
         Args:
             plt: A plot object. Defaults to None, which means one will be
                 generated.
+            mode (str): Determines type of msd plot. By "species", "sites",
+                or direction (default).
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8, plt=plt)
+        if np.max(self.dt) > 100000:
+            plot_dt = self.dt / 1000
+            unit = 'ps'
+        else:
+            plot_dt = self.dt
+            unit = 'fs'
 
         if mode == "species":
             for sp in sorted(self.structure.composition.keys()):
                 indices = [i for i, site in enumerate(self.structure) if
                            site.specie == sp]
                 sd = np.average(self.sq_disp_ions[indices, :], axis=0)
-                plt.plot(self.dt, sd, label=sp.__str__())
+                plt.plot(plot_dt, sd, label=sp.__str__())
             plt.legend(loc=2, prop={"size": 20})
-        elif mode == "ions":
+        elif mode == "sites":
             for i, site in enumerate(self.structure):
                 sd = self.sq_disp_ions[i, :]
-                plt.plot(self.dt, sd, label="%s - %d" % (
+                plt.plot(plot_dt, sd, label="%s - %d" % (
                     site.specie.__str__(), i))
             plt.legend(loc=2, prop={"size": 20})
-        else: #Handle default / invalid mode case
-            plt.plot(self.dt, self.msd, 'k')
-            plt.plot(self.dt, self.msd_components[:, 0], 'r')
-            plt.plot(self.dt, self.msd_components[:, 1], 'g')
-            plt.plot(self.dt, self.msd_components[:, 2], 'b')
+        else:
+            # Handle default / invalid mode case
+            plt.plot(plot_dt, self.msd, 'k')
+            plt.plot(plot_dt, self.msd_components[:, 0], 'r')
+            plt.plot(plot_dt, self.msd_components[:, 1], 'g')
+            plt.plot(plot_dt, self.msd_components[:, 2], 'b')
             plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
-        plt.xlabel("Timestep (fs)")
+        plt.xlabel("Timestep ({})".format(unit))
         plt.ylabel("MSD ($\AA^2$)")
         plt.tight_layout()
         return plt
@@ -409,15 +475,17 @@ class DiffusionAnalyzer(PMGSONable):
                 between measurements)
             smoothed (str): Whether to smooth the MSD, and what mode to smooth.
                 Supported modes are:
-                    i. "max", which tries to use the maximum #
-                       of data points for each time origin, subject to a
-                       minimum # of observations given by min_obs, and then
-                       weights the observations based on the variance
-                       accordingly. This is the default.
-                    ii. "constant", in which each timestep is averaged over
-                        the same number of observations given by min_obs.
-                    iii. None / False / any other false-like quantity. No
-                       smoothing.
+
+                i. "max", which tries to use the maximum #
+                   of data points for each time origin, subject to a
+                   minimum # of observations given by min_obs, and then
+                   weights the observations based on the variance
+                   accordingly. This is the default.
+                ii. "constant", in which each timestep is averaged over
+                    the same number of observations given by min_obs.
+                iii. None / False / any other false-like quantity. No
+                   smoothing.
+
             min_obs (int): Used with smoothed="max". Minimum number of
                 observations to have before including in the MSD vs dt
                 calculation. E.g. If a structure has 10 diffusing atoms,
@@ -439,9 +507,12 @@ class DiffusionAnalyzer(PMGSONable):
                 initial strcture from which the current set of displacements
                 are computed.
         """
-        structure = structures[0]
+        p = []
+        for i, s in enumerate(structures):
+            if i == 0:
+                structure = s
+            p.append(np.array(s.frac_coords)[:, None])
 
-        p = [np.array(s.frac_coords)[:, None] for s in structures]
         if initial_structure is not None:
             p.insert(0, np.array(initial_structure.frac_coords)[:, None])
         else:
@@ -480,15 +551,17 @@ class DiffusionAnalyzer(PMGSONable):
                 diffusing atom is measured at least 3 uncorrelated times.
             smoothed (str): Whether to smooth the MSD, and what mode to smooth.
                 Supported modes are:
-                    i. "max", which tries to use the maximum #
-                       of data points for each time origin, subject to a
-                       minimum # of observations given by min_obs, and then
-                       weights the observations based on the variance
-                       accordingly. This is the default.
-                    ii. "constant", in which each timestep is averaged over
-                        the same number of observations given by min_obs.
-                    iii. None / False / any other false-like quantity. No
-                       smoothing.
+
+                i. "max", which tries to use the maximum #
+                   of data points for each time origin, subject to a
+                   minimum # of observations given by min_obs, and then
+                   weights the observations based on the variance
+                   accordingly. This is the default.
+                ii. "constant", in which each timestep is averaged over
+                    the same number of observations given by min_obs.
+                iii. None / False / any other false-like quantity. No
+                   smoothing.
+
             min_obs (int): Used with smoothed="max". Minimum number of
                 observations to have before including in the MSD vs dt
                 calculation. E.g. If a structure has 10 diffusing atoms,
@@ -510,26 +583,31 @@ class DiffusionAnalyzer(PMGSONable):
                 initial strcture from which the current set of displacements
                 are computed.
         """
-        step_skip = vaspruns[0].ionic_step_skip or 1
 
-        final_structure = vaspruns[0].initial_structure
-        structures = []
-        for vr in vaspruns:
-            #check that the runs are continuous
-            fdist = pbc_diff(vr.initial_structure.frac_coords,
-                             final_structure.frac_coords)
-            if np.any(fdist > 0.001):
-                raise ValueError('initial and final structures do not '
-                                 'match.')
-            final_structure = vr.final_structure
+        def get_structures(vaspruns):
+            for i, vr in enumerate(vaspruns):
+                if i == 0:
+                    step_skip = vr.ionic_step_skip or 1
+                    final_structure = vr.initial_structure
+                    temperature = vr.parameters['TEEND']
+                    time_step = vr.parameters['POTIM']
+                    yield step_skip, temperature, time_step
+                #check that the runs are continuous
+                fdist = pbc_diff(vr.initial_structure.frac_coords,
+                                 final_structure.frac_coords)
+                if np.any(fdist > 0.001):
+                    raise ValueError('initial and final structures do not '
+                                     'match.')
+                final_structure = vr.final_structure
 
-            assert (vr.ionic_step_skip or 1) == step_skip
-            structures.extend([s['structure'] for s in vr.ionic_steps])
+                assert (vr.ionic_step_skip or 1) == step_skip
+                for s in vr.ionic_steps:
+                    yield s['structure']
 
-        temperature = vaspruns[0].parameters['TEEND']
-        time_step = vaspruns[0].parameters['POTIM']
+        s = get_structures(vaspruns)
+        step_skip, temperature, time_step = next(s)
 
-        return cls.from_structures(structures=structures, specie=specie,
+        return cls.from_structures(structures=s, specie=specie,
             temperature=temperature, time_step=time_step, step_skip=step_skip,
             smoothed=smoothed, min_obs=min_obs, avg_nsteps=avg_nsteps,
             initial_disp=initial_disp, initial_structure=initial_structure)
@@ -555,15 +633,17 @@ class DiffusionAnalyzer(PMGSONable):
                 between measurements)
             smoothed (str): Whether to smooth the MSD, and what mode to smooth.
                 Supported modes are:
-                    i. "max", which tries to use the maximum #
-                       of data points for each time origin, subject to a
-                       minimum # of observations given by min_obs, and then
-                       weights the observations based on the variance
-                       accordingly. This is the default.
-                    ii. "constant", in which each timestep is averaged over
-                        the same number of observations given by min_obs.
-                    iii. None / False / any other false-like quantity. No
-                       smoothing.
+
+                i. "max", which tries to use the maximum #
+                   of data points for each time origin, subject to a
+                   minimum # of observations given by min_obs, and then
+                   weights the observations based on the variance
+                   accordingly. This is the default.
+                ii. "constant", in which each timestep is averaged over
+                    the same number of observations given by min_obs.
+                iii. None / False / any other false-like quantity. No
+                   smoothing.
+
             min_obs (int): Used with smoothed="max". Minimum number of
                 observations to have before including in the MSD vs dt
                 calculation. E.g. If a structure has 10 diffusing atoms,
@@ -595,23 +675,26 @@ class DiffusionAnalyzer(PMGSONable):
         if ncores is not None and len(filepaths) > 1:
             import multiprocessing
             p = multiprocessing.Pool(ncores)
-            vaspruns = p.map(_get_vasprun,
+            vaspruns = p.imap(_get_vasprun,
                              [(fp, step_skip) for fp in filepaths])
+            analyzer = cls.from_vaspruns(vaspruns, min_obs=min_obs,
+                smoothed=smoothed, specie=specie, initial_disp=initial_disp,
+                initial_structure=initial_structure, avg_nsteps=avg_nsteps)
             p.close()
             p.join()
+            return analyzer
         else:
-            vaspruns = []
-            offset = 0
-            for p in filepaths:
-                v = Vasprun(p, ionic_step_offset=offset,
-                            ionic_step_skip=step_skip)
-                vaspruns.append(v)
-                # Recompute offset.
-                offset = (- (v.nionic_steps - offset)) % step_skip
-        return cls.from_vaspruns(vaspruns, min_obs=min_obs, smoothed=smoothed,
-                                 specie=specie, initial_disp=initial_disp,
-                                 initial_structure=initial_structure,
-                                 avg_nsteps=avg_nsteps)
+            def vr(filepaths):
+                offset = 0
+                for p in filepaths:
+                    v = Vasprun(p, ionic_step_offset=offset,
+                                ionic_step_skip=step_skip)
+                    yield v
+                    # Recompute offset.
+                    offset = (-(v.nionic_steps - offset)) % step_skip
+            return cls.from_vaspruns(vr(filepaths), min_obs=min_obs,
+                smoothed=smoothed, specie=specie, initial_disp=initial_disp,
+                initial_structure=initial_structure, avg_nsteps=avg_nsteps)
 
     def as_dict(self):
         return {
@@ -664,20 +747,21 @@ def get_conversion_factor(structure, species, temperature):
     n = structure.composition[species]
 
     vol = structure.volume * 1e-24  # units cm^3
-    return 1000 * n / (vol * phyc.N_a) * z ** 2 * phyc.F ** 2\
-        / (phyc.R * temperature)
+    return 1000 * n / (vol * const.N_A) * z ** 2 * (const.N_A * const.e) ** 2\
+        / (const.R * temperature)
 
 
 def _get_vasprun(args):
     """
     Internal method to support multiprocessing.
     """
-    return Vasprun(args[0], ionic_step_skip=args[1])
+    return Vasprun(args[0], ionic_step_skip=args[1],
+                   parse_dos=False, parse_eigen=False)
 
 
 def fit_arrhenius(temps, diffusivities):
     """
-    Returns Ea and c from the Arrhenius fit:
+    Returns Ea, c, standard error of Ea from the Arrhenius fit:
         D = c * exp(-Ea/kT)
 
     Args:
@@ -687,10 +771,16 @@ def fit_arrhenius(temps, diffusivities):
     """
     t_1 = 1 / np.array(temps)
     logd = np.log(diffusivities)
-    #Do a least squares regression of log(D) vs 1/T
+    # Do a least squares regression of log(D) vs 1/T
     a = np.array([t_1, np.ones(len(temps))]).T
-    w = np.array(np.linalg.lstsq(a, logd)[0])
-    return -w[0] * phyc.k_b / phyc.e, np.exp(w[1])
+    w, res, _, _ = np.linalg.lstsq(a, logd)
+    w = np.array(w)
+    n = len(temps)
+    if n > 2:
+        std_Ea = (res[0] / (n - 2) / (n * np.var(t_1))) ** 0.5 * const.k / const.e
+    else:
+        std_Ea = None
+    return -w[0] * const.k / const.e, np.exp(w[1]), std_Ea
 
 
 def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
@@ -706,8 +796,8 @@ def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
     Returns:
         (float) Diffusivity at extrapolated temp in mS/cm.
     """
-    Ea, c = fit_arrhenius(temps, diffusivities)
-    return c * np.exp(-Ea / (phyc.k_b / phyc.e * new_temp))
+    Ea, c, _ = fit_arrhenius(temps, diffusivities)
+    return c * np.exp(-Ea / (const.k / const.e * new_temp))
 
 
 def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
@@ -720,7 +810,7 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
         diffusivities ([float]): A sequence of diffusivities (e.g.,
             from DiffusionAnalyzer.diffusivity). units: cm^2/s
         new_temp (float): desired temperature. units: K
-        structure (structure): structure used for the diffusivity calculation
+        structure (structure): Structure used for the diffusivity calculation
         species (string/Specie): conducting species
 
     Returns:
@@ -747,14 +837,13 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
     Returns:
         A matplotlib.pyplot object. Do plt.show() to show the plot.
     """
-    Ea, c = fit_arrhenius(temps, diffusivities)
+    Ea, c, _ = fit_arrhenius(temps, diffusivities)
 
     from pymatgen.util.plotting_utils import get_publication_quality_plot
     plt = get_publication_quality_plot(12, 8)
 
-    #log10 of the arrhenius fit
-    arr = c * np.exp(-Ea / (phyc.k_b / phyc.e *
-                                               np.array(temps)))
+    # log10 of the arrhenius fit
+    arr = c * np.exp(-Ea / (const.k / const.e * np.array(temps)))
 
     t_1 = 1000 / np.array(temps)
 

@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """
 This module implements the pickler objects used in abinitio.
 """
@@ -18,7 +20,7 @@ class PmgPickler(pickle.Pickler):
         """Instead of pickling as a regular class instance, we emit a persistent ID."""
         if isinstance(obj, Element):
             # Here, our persistent ID is simply a tuple, containing a tag and a key
-            return obj.__class__.__name__, obj._symbol
+            return obj.__class__.__name__, obj.symbol
         else:
             # If obj does not have a persistent ID, return None. This means obj needs to be pickled as usual.
             return None
@@ -77,4 +79,5 @@ def pmg_pickle_dump(obj, filobj, **kwargs):
         \*\*kwargs: Any of the keyword arguments supported by PmgPickler
     """
     #return pickle.dump(obj, filobj)
+    #print(type(obj), type(filobj))
     return PmgPickler(filobj, **kwargs).dump(obj)

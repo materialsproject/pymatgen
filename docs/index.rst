@@ -38,6 +38,23 @@ member of `pymatgen's Google Groups page`_.
 
     *The code is mightier than the pen.*
 
+Examples
+========
+
+A good way to explore the functionality of pymatgen is to look at examples.
+Please check out the ipython notebooks at our :doc:`examples page </examples>`.
+Below are a quick look at some of the graphical output possible.
+
+.. figure:: _static/examples.png
+   :width: 100%
+   :alt: Examples
+   :align: center
+
+   Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
+   Bottom left: Calculated bandstructure plot using pymatgen's parsing and
+   plotting utilities. Bottom right: Arrhenius plot using pymatgen's
+   DiffusionAnalyzer.
+
 Why use pymatgen?
 =================
 
@@ -47,48 +64,33 @@ several advantages over other codes out there:
 
 1. **It is (fairly) robust.** Pymatgen is used in the Materials Project. As
    such, the analysis it produces survives rigorous scrutiny every single
-   day. Bugs tend to be found and corrected quickly. Furthermore,
-   pymatgen uses `CircleCI <https://circleci.com>`_ for continuous
-   integration, which ensures that all unittests pass with every commit.
+   day. Bugs tend to be found and corrected quickly. Pymatgen also uses
+   `CircleCI <https://circleci.com>`_ for continuous integration, which ensures
+   that all unittests pass with every commit.
 2. **It is well documented.** A fairly comprehensive documentation has been
-   written to help you get to grips with it quickly. That means more
-   efficient research.
-3. **It is open.** That means you are free to use it, and you can also
-   contribute to it. It also means that pymatgen is continuously being
-   improved. We have a policy of attributing any code you contribute to any
-   publication you choose. Contributing to pymatgen means your research
-   becomes more visible, which translates to greater impact.
+   written to help you get to grips with it quickly.
+3. **It is open.** You are free to use and contribute to pymatgen. It also means
+   that pymatgen is continuously being improved. We have a policy of
+   attributing any code you contribute to any publication you choose.
+   Contributing to pymatgen means your research becomes more visible, which
+   translates to greater impact.
 4. **It is fast.** Many of the core numerical methods in pymatgen have been
    optimized by vectorizing in numpy. This means that coordinate
    manipulations are extremely fast and are in fact comparable to codes
    written in other languages. Pymatgen also comes with a complete system for
    handling periodic boundary conditions.
-
-Python 3.x support
-==================
-
-.. versionadded:: 3.0
+5. **It will be around.** Pymatgen is not a pet research project. It is used in
+   the well-established Materials Project. It is also actively being developed
+   and maintained by the Materials Virtual Lab, the ABINIT group and many other
+   research groups. The plan is to make sure pymatgen will stand the test of
+   time and be the de facto analysis code for most materials and structural
+   analysis.
 
 With effect from version 3.0, pymatgen now supports both Python 2.7 as well
-as Python 3.x. All underlying core dependencies (numpy, pyhull and the spglib
-library) have been made Python 3 compatible, and a completely rewritten CIF
-parser module (courtesy of William Davidson Richards) has removed the
-dependency on PyCIFRW. We will support Python >= 3.3 (ignoring v3.1 and v3.2).
-
-With the release of a new major version, we are taking the opportunity to
-streamline and cleanup some of the code, which introduces some backwards
-incompatibilities. The major ones are listed below:
-
-* The to_dict property of all classes have been deprecated in favor of the
-  as_dict() method protocol in the monty package. The to_dict property will
-  be available only up till the next minor version, i.e., v3.1.
-* All previously deprecated methods and modules (e.g.,
-  pymatgen.core.structure_editor) have been removed.
-
-For developers working to add new features to pymatgen, this also means that
-all new code going forward has to be Python 2.7+ and 3 compatible. Our approach
-is to have a single codebase support Python 2.7 and 3.x,
-as per current best practices. Please review the `coding guidelines
+as Python 3.x. For developers working to add new features to pymatgen, this
+also means that all new code going forward has to be Python 2.7+ and 3
+compatible. Our approach is to have a single codebase support Python 2.7 and
+3.x, as per current best practices. Please review the `coding guidelines
 </contributing>`_.
 
 .. include:: latest_changes.rst
@@ -157,11 +159,13 @@ or::
     pip install pymatgen
 
 Detailed installation instructions for various platforms (Mac and Windows)
-are given on this :doc:`page </installation>`.
+are given on this :doc:`page </installation>`, including how to setup your
+machine for POTCAR generation, Materials Project REST interface usage, etc.
 
-Some extra functionality (e.g., generation of POTCARs) do require additional
-setup. Please see the following sections for further details on the
-dependencies needed, where to get them and how to install them.
+.. toctree::
+   :maxdepth: 2
+
+   installation
 
 Developmental version
 ---------------------
@@ -178,9 +182,6 @@ or to install the package in developmental mode::
 
     python setup.py develop
 
-Running unittests
-~~~~~~~~~~~~~~~~~
-
 To run the very comprehensive suite of unittests included with the
 developmental version, make sure you have nose installed and then just type::
 
@@ -188,13 +189,51 @@ developmental version, make sure you have nose installed and then just type::
 
 in the pymatgen root directory.
 
-Installation help
------------------
+Note on Shared Compute Cluster Installation
+-------------------------------------------
 
-.. toctree::
-   :maxdepth: 2
+If you are installing pymatgen on shared computing clusters, e.g., the XSEDE
+or NERSC resources in the US, there are several things you need to take note of:
 
-   installation
+1. Some older clusters have Python 2.6 or older by default. Pymatgen requires
+   Python 2.7 or newer. Sometimes, the cluster may have Python 2.7 that you
+   can load, e.g., using "module load python/2.7". Otherwise, you are out of
+   luck and you need to contact the cluster admin to install python 2.7 or
+   you can try to install it in your home directory.
+2. Unless you are the sys admin, you will not have write access to the default
+   locations that python installs packages. What you need to do is to install
+   pymatgen (and other dependencies) using the "--user" option::
+
+    pip install pymatgen --user
+
+   or::
+
+    python setup.py develop --user
+
+   This will install pymatgen in your $HOME/.local/lib/python2.7/site-packages.
+   You may need to add this to your PYTHONPATH variable, e.g., in your
+   .bash_profile if it is not automatically set.
+
+"Sample" Docker version
+-----------------------
+
+If you would like to try out pymatgen's capabilities before committing to an
+install, one way is to use `Docker <http://www.docker.com/>`_. The
+`Materials Virtual Lab`_ has created an Docker image for the latest version of
+pymatgen. After installing Docker for your platform, you may pull and run the
+pymatgen Docker image as follows::
+
+    docker pull materialsvirtuallab/pymatgen
+    docker run -t -i materialsvirtuallab/pymatgen
+
+This will run ipython shell where you can import pymatgen and run most of the
+examples. If you want to use your own files to run some examples, you may
+mount a directory in your host computer containing the files you wish to work
+in the docker container using the -v option. For example, let's say you have
+your files in the /Users/myname/research directory. You may then run docker
+as follows::
+
+    docker run -t -i -v /Users/myname/research:/opt/research materialsvirtuallab/pymatgen
 
 Using pymatgen
 ==============
@@ -250,8 +289,9 @@ some quick examples of the core capabilities and objects:
     PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
     >>>
     >>> # You can create a Structure using spacegroup symmetry as well.
-    >>> li2o = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"],
-                                         [[0.25, 0.25, 0.25], [0, 0, 0]])
+    >>> li2o = mg.Structure.from_spacegroup("Fm-3m", mg.Lattice.cubic(3),
+                                            ["Li", "O"],
+                                            [[0.25, 0.25, 0.25], [0, 0, 0]])
     >>>
     >>> #Integrated symmetry analysis tools from spglib.
     >>> from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -317,19 +357,8 @@ some quick examples of the core capabilities and objects:
     >>> # in the x-direction.
     >>> methane[0] = "N", [0.01, 0, 0]
 
-The above illustrates only the most basic capabilities of pymatgen.
-
-Examples
---------
-
-A good way to explore the functionality of pymatgen is to look at examples.
-Please check out the ipython notebooks at our :doc:`examples page </examples>`.
-
-Usage guide
------------
-
-Users are also strongly encouraged to explore the :doc:`usage pages </usage>`
-(toc given below).
+The above illustrates only the most basic capabilities of pymatgen. Users are
+strongly encouraged to explore the :doc:`usage pages </usage>` (toc given below).
 
 .. toctree::
    :maxdepth: 2
@@ -341,6 +370,15 @@ API documentation
 
 For detailed documentation of all modules and classes, please refer to the
 :doc:`API docs </modules>`.
+
+More resources
+--------------
+
+The founder and maintainer of pymatgen, Shyue Ping Ong, has conducted several
+workshops (together with Anubhav Jain) on how to effectively use pymatgen (as
+well as the extremely useful `custodian`_ error management and `FireWorks`_
+workflow software. The slides for these workshops are available on the
+`Materials Virtual Lab`_.
 
 pmg - Command line tool
 -----------------------
@@ -393,15 +431,6 @@ Here are a few examples of typical usages::
 
     pmg generate --potcar Li_sv O --functional PBE
 
-ipmg - A Custom ipython shell
------------------------------
-
-From version 2.5.2, A custom ipython shell for pymatgen has been implemented.
-Upon installing pymatgen in the usual manner, the "ipmg" script will be
-installed. Running ipmg will bring users into a custom ipython environment
-where the most commonly used pymatgen objects (see Aliases below) are
-automatically loaded into the environment.
-
 Add-ons
 -------
 
@@ -409,9 +438,11 @@ Some add-ons are available for pymatgen today:
 
 1. The `pymatgen-db <https://pypi.python.org/pypi/pymatgen-db>`_ add-on
    provides tools to create databases of calculated run data using pymatgen.
-2. The `custodian <https://pypi.python.org/pypi/custodian>`_ pacakge provides
-   a JIT job management and error correction for calculations, particularly
-   VASP calculations.
+2. The `custodian`_ package provides a JIT job management and error
+   correction for calculations.
+3. The `pymatgen-diffusion <https://pypi.python.org/pypi/pymatgen-diffusion>`_
+   by the `Materials Virtual Lab`_ provides additional useful analyses for
+   diffusion in materials.
 
 Contributing
 ============
@@ -436,18 +467,13 @@ A simple way that anyone can contribute is simply to report bugs and issues
 to the developing team. You can either send an email to the `pymatgen's
 Google Groups page`_ or even better, submit an Issue in our `Github page`_.
 
-Developing for pymatgen
------------------------
+Developing new functionality
+----------------------------
 
 Another way to contribute is to submit new code/bugfixes to pymatgen. While
 you can always zip your code and email it to the maintainer of pymatgen,
 the best way for anyone to develop pymatgen is by adopting the collaborative
-Github workflow (see section below).
-
-.. toctree::
-   :maxdepth: 2
-
-   contributing
+Github workflow (see `contributing page </contributing>`_).
 
 How to cite pymatgen
 ====================
@@ -474,6 +500,35 @@ follows:
 
 .. literalinclude:: ../LICENSE.rst
 
+About the Pymatgen Development Team
+===================================
+
+Shyue Ping Ong started Pymatgen in 2011, and is still the project lead.
+
+The Pymatgen Development Team is the set of all contributors to the
+pymatgen project, including all subprojects.
+
+The full list of contributors are listed in the :doc:`team page </team>`.
+
+Our Copyright Policy
+====================
+
+Pymatgen uses a shared copyright model. Each contributor maintains copyright
+over their contributions to pymatgen. But, it is important to note that these
+contributions are typically only changes to the repositories. Thus, the
+pymatgen source code, in its entirety is not the copyright of any
+single person or institution. Instead, it is the collective copyright of the
+entire pymatgen Development Team. If individual contributors want to maintain a
+record of what changes/contributions they have specific copyright on, they
+should indicate their copyright in the commit message of the change, when
+they commit the change to one of the pymatgen repositories.
+
+With this in mind, the following banner should be used in any source code file
+to indicate the copyright and license terms::
+
+    # Copyright (c) Pymatgen Development Team.
+    # Distributed under the terms of the MIT License.
+
 Indices and tables
 ==================
 
@@ -485,3 +540,6 @@ Indices and tables
 .. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
 .. _`PyPI` : http://pypi.python.org/pypi/pymatgen
 .. _`Github page`: https://github.com/materialsproject/pymatgen/issues
+.. _`custodian`: https://pypi.python.org/pypi/custodian
+.. _`FireWorks`: https://pythonhosted.org/FireWorks/
+.. _`Materials Virtual Lab`: http://www.materialsvirtuallab.org

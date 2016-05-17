@@ -1,8 +1,7 @@
 Change log
 ==========
 
-v3.0.7
+v3.3.4
 ------
-* Powerful Slab generation algorithms (beta!).
-* Improvements to DiffusionAnalyzer with constant smoothing option.
-* Significantly improve look of DOS plots using prettyplotlib.
+* Procar now supports parsing of phase factors.
+* Miscellaneous bug fixes.

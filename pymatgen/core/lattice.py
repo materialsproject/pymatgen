@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -23,14 +25,14 @@ from six.moves import map, zip
 import numpy as np
 from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
+from scipy.spatial import Voronoi
 
-from pyhull.voronoi import VoronoiTess
-
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.util.num_utils import abs_cap
+from pymatgen.core.units import ArrayWithUnit
 
 
-class Lattice(PMGSONable):
+class Lattice(MSONable):
     """
     A lattice object.  Essentially a matrix with conversion matrices. In
     general, it is assumed that length units are in Angstroms and angles are in
@@ -62,13 +64,52 @@ class Lattice(PMGSONable):
             k = (i + 2) % 3
             angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
 
-        angles = np.arccos(angles) * 180. / pi
-        self._angles = angles
+        self._angles = np.arccos(angles) * 180. / pi
         self._lengths = lengths
         self._matrix = m
         # The inverse matrix is lazily generated for efficiency.
         self._inv_matrix = None
         self._metric_tensor = None
+
+    @classmethod
+    def from_abivars(cls, *args, **kwargs):
+        """
+        Returns a new instance from a dictionary with the variables
+        used in ABINIT to define the unit cell.
+        If acell is not give, the Abinit default is used i.e. [1,1,1] Bohr
+
+        Example:
+
+            lattice.from_abivars(
+                acell=3*[10],
+                rprim=np.eye(3),
+            )
+        """
+        kwargs.update(dict(*args))
+        d = kwargs
+        rprim = d.get("rprim", None)
+        angdeg = d.get("angdeg", None)
+        acell = d.get("acell", [1,1,1])
+
+        # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
+        if rprim is not None:
+            assert angdeg is None
+            rprim = np.reshape(rprim, (3,3))
+            rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
+            return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
+
+        elif angdeg is not None:
+            # angdeg(0) is the angle between the 2nd and 3rd vectors,
+            # angdeg(1) is the angle between the 1st and 3rd vectors,
+            # angdeg(2) is the angle between the 1st and 2nd vectors,
+            raise NotImplementedError("angdeg convention should be tested")
+            angles = angdeg
+            angles[1] = -angles[1]
+            l = ArrayWithUnit(acell, "bohr").to("ang")
+            return cls.from_lengths_and_angles(l, angdeg)
+
+        else:
+            raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
 
     def copy(self):
         """Deep copy of self."""
@@ -379,7 +420,9 @@ class Lattice(PMGSONable):
         """
         if other is None:
             return False
-        return np.allclose(self.matrix, other.matrix)
+        # shortcut the np.allclose if the memory addresses are the same
+        # (very common in Structure.from_sites)
+        return self is other or np.allclose(self.matrix, other.matrix)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -391,22 +434,33 @@ class Lattice(PMGSONable):
         return "\n".join([" ".join(["%.6f" % i for i in row])
                           for row in self._matrix])
 
-    def as_dict(self):
+    def as_dict(self, verbosity=0):
         """""
         Json-serialization dict representation of the Lattice.
+
+        Args:
+            verbosity (int): Verbosity level. Default of 0 only includes the
+                matrix representation. Set to 1 for more details.
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "matrix": self._matrix.tolist(),
+
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "matrix": self._matrix.tolist()}
+        if verbosity > 0:
+            d.update({
                 "a": float(self.a),
                 "b": float(self.b),
                 "c": float(self.c),
                 "alpha": float(self.alpha),
                 "beta": float(self.beta),
                 "gamma": float(self.gamma),
-                "volume": float(self.volume)}
+                "volume": float(self.volume)
+            })
 
-    def find_all_mappings(self, other_lattice, ltol=1e-5, atol=1):
+        return d
+
+    def find_all_mappings(self, other_lattice, ltol=1e-5, atol=1,
+                          skip_rotation_matrix=False):
         """
         Finds all mappings between current lattice and another lattice.
 
@@ -415,6 +469,8 @@ class Lattice(PMGSONable):
                 this one.
             ltol (float): Tolerance for matching lengths. Defaults to 1e-5.
             atol (float): Tolerance for matching angles. Defaults to 1.
+            skip_rotation_matrix (bool): Whether to skip calculation of the
+                rotation matrix
 
         Yields:
             (aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
@@ -435,42 +491,49 @@ class Lattice(PMGSONable):
         (lengths, angles) = other_lattice.lengths_and_angles
         (alpha, beta, gamma) = angles
 
-        points = self.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
-                                           max(lengths) * (1 + ltol))
-        frac = np.array([p[0] for p in points])
-        dist = np.array([p[1] for p in points])
+        frac, dist, _ = self.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
+                                                  max(lengths) * (1 + ltol),
+                                                  zip_results=False)
         cart = self.get_cartesian_coords(frac)
 
+        # this can't be broadcast because they're different lengths
         inds = [np.abs(dist - l) / l <= ltol for l in lengths]
-        c_cand = [cart[i] for i in inds]
-        f_cand = [frac[i] for i in inds]
-        lengths = [np.sum(c ** 2, axis=-1) ** 0.5 for c in c_cand]
+        c_a, c_b, c_c = (cart[i] for i in inds)
+        f_a, f_b, f_c = (frac[i] for i in inds)
+        l_a, l_b, l_c = (np.sum(c ** 2, axis=-1) ** 0.5 for c in (c_a, c_b, c_c))
 
         def get_angles(v1, v2, l1, l2):
-            x = np.inner(np.atleast_2d(v1), v2) / np.atleast_1d(l1)[:, None] / l2
-            x[x>1] = 1
-            x[x<-1] = -1
+            x = np.inner(v1, v2) / l1[:, None] / l2
+            x[x > 1] = 1
+            x[x < -1] = -1
             angles = np.arccos(x) * 180. / pi
             return angles
 
-        gammas = get_angles(c_cand[0], c_cand[1], lengths[0], lengths[1])
-        for i, j in np.argwhere(np.abs(gammas - gamma) < atol):
-            alphas = get_angles(c_cand[1][j], c_cand[2], lengths[1][j],
-                                lengths[2])[0]
-            betas = get_angles(c_cand[0][i], c_cand[2], lengths[0][i],
-                               lengths[2])[0]
-            inds = np.logical_and(np.abs(alphas - alpha) < atol,
-                                  np.abs(betas - beta) < atol)
+        alphab = np.abs(get_angles(c_b, c_c, l_b, l_c) - alpha) < atol
+        betab = np.abs(get_angles(c_a, c_c, l_a, l_c) - beta) < atol
+        gammab = np.abs(get_angles(c_a, c_b, l_a, l_b) - gamma) < atol
 
-            for c, f in zip(c_cand[2][inds], f_cand[2][inds]):
-                aligned_m = np.array([c_cand[0][i], c_cand[1][j], c])
-                scale_m = np.array([f_cand[0][i], f_cand[1][j], f])
+        for i, all_j in enumerate(gammab):
+            inds = np.logical_and(all_j[:, None],
+                                  np.logical_and(alphab,
+                                                 betab[i][None, :]))
+            for j, k in np.argwhere(inds):
+                scale_m = np.array((f_a[i], f_b[j], f_c[k]))
                 if abs(np.linalg.det(scale_m)) < 1e-8:
                     continue
-                rotation_m = np.linalg.solve(aligned_m, other_lattice.matrix)
+
+                aligned_m = np.array((c_a[i], c_b[j], c_c[k]))
+
+                if skip_rotation_matrix:
+                    rotation_m = None
+                else:
+                    rotation_m = np.linalg.solve(aligned_m,
+                                                 other_lattice.matrix)
+
                 yield Lattice(aligned_m), rotation_m, scale_m
 
-    def find_mapping(self, other_lattice, ltol=1e-5, atol=1):
+    def find_mapping(self, other_lattice, ltol=1e-5, atol=1,
+                     skip_rotation_matrix=False):
         """
         Finds a mapping between current lattice and another lattice. There
         are an infinite number of choices of basis vectors for two entirely
@@ -499,7 +562,9 @@ class Lattice(PMGSONable):
 
             None is returned if no matches are found.
         """
-        for x in self.find_all_mappings(other_lattice, ltol, atol):
+        for x in self.find_all_mappings(
+                other_lattice, ltol, atol,
+                skip_rotation_matrix=skip_rotation_matrix):
             return x
 
     def get_lll_reduced_lattice(self, delta=0.75):
@@ -517,7 +582,7 @@ class Lattice(PMGSONable):
         """
         # Transpose the lattice matrix first so that basis vectors are columns.
         # Makes life easier.
-        a = self._matrix.T
+        a = self._matrix.copy().T
 
         b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
         u = np.zeros((3, 3))  # Gram-Schmidt coeffieicnts
@@ -573,7 +638,9 @@ class Lattice(PMGSONable):
                     result = np.linalg.lstsq(q.T, p.T)[0].T
                     u[k:3, (k - 2):k] = result
 
-        return Lattice(a.T)
+        lll = Lattice(a.T)
+
+        return lll
 
     def get_niggli_reduced_lattice(self, tol=1e-5):
         """
@@ -589,9 +656,10 @@ class Lattice(PMGSONable):
         Returns:
             Niggli-reduced lattice.
         """
-        a = self._matrix[0]
-        b = self._matrix[1]
-        c = self._matrix[2]
+        matrix = self._matrix.copy()
+        a = matrix[0]
+        b = matrix[1]
+        c = matrix[2]
         e = tol * self.volume ** (1 / 3)
 
         #Define metric tensor
@@ -691,9 +759,13 @@ class Lattice(PMGSONable):
 
         latt = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
 
-        mapped = self.find_mapping(latt, e, e)
+        mapped = self.find_mapping(latt, e, skip_rotation_matrix=True)
         if mapped is not None:
-            return mapped[0]
+            if np.linalg.det(mapped[0].matrix) > 0:
+                return mapped[0]
+            else:
+                return Lattice(-mapped[0].matrix)
+
         raise ValueError("can't find niggli")
 
     def scale(self, new_volume):
@@ -736,11 +808,11 @@ class Lattice(PMGSONable):
         list_k_points = []
         for i, j, k in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
             list_k_points.append(i * vec1 + j * vec2 + k * vec3)
-        tess = VoronoiTess(list_k_points)
+        tess = Voronoi(list_k_points)
         to_return = []
-        for r in tess.ridges:
+        for r in tess.ridge_dict:
             if r[0] == 13 or r[1] == 13:
-                to_return.append([tess.vertices[i] for i in tess.ridges[r]])
+                to_return.append([tess.vertices[i] for i in tess.ridge_dict[r]])
 
         return to_return
 
@@ -804,7 +876,7 @@ class Lattice(PMGSONable):
         """
         return np.sqrt(self.dot(coords, coords, frac_coords=frac_coords))
 
-    def get_points_in_sphere(self, frac_points, center, r):
+    def get_points_in_sphere(self, frac_points, center, r, zip_results=True):
         """
         Find all points within a sphere from the point taking into account
         periodic boundary conditions. This includes sites in other periodic
@@ -826,44 +898,49 @@ class Lattice(PMGSONable):
             frac_points: All points in the lattice in fractional coordinates.
             center: Cartesian coordinates of center of sphere.
             r: radius of sphere.
+            zip_results (bool): Whether to zip the results together to group by
+                 point, or return the raw fcoord, dist, index arrays
 
         Returns:
-            [(fcoord, dist) ...] since most of the time, subsequent processing
-            requires the distance.
+            if zip_results:
+                [(fcoord, dist, index) ...] since most of the time, subsequent
+                processing requires the distance.
+            else:
+                fcoords, dists, inds
         """
         recp_len = np.array(self.reciprocal_lattice.abc)
-        sr = r + 0.15
-        nmax = sr * recp_len / (2 * math.pi)
+        nmax = r * recp_len / (2 * math.pi) + 0.01
+
         pcoords = self.get_fractional_coords(center)
-        floor = math.floor
+        center = np.array(center)
 
         n = len(frac_points)
-        fcoords = np.array(frac_points)
-        pts = np.tile(center, (n, 1))
-        indices = np.array(list(range(n)))
+        fcoords = np.array(frac_points) % 1
+        indices = np.arange(n)
 
-        arange = np.arange(start=int(floor(pcoords[0] - nmax[0])),
-                           stop=int(floor(pcoords[0] + nmax[0])) + 1)
-        brange = np.arange(start=int(floor(pcoords[1] - nmax[1])),
-                           stop=int(floor(pcoords[1] + nmax[1])) + 1)
-        crange = np.arange(start=int(floor(pcoords[2] - nmax[2])),
-                           stop=int(floor(pcoords[2] + nmax[2])) + 1)
-
+        mins = np.floor(pcoords - nmax)
+        maxes = np.ceil(pcoords + nmax)
+        arange = np.arange(start=mins[0], stop=maxes[0])
+        brange = np.arange(start=mins[1], stop=maxes[1])
+        crange = np.arange(start=mins[2], stop=maxes[2])
         arange = arange[:, None] * np.array([1, 0, 0])[None, :]
         brange = brange[:, None] * np.array([0, 1, 0])[None, :]
         crange = crange[:, None] * np.array([0, 0, 1])[None, :]
-
         images = arange[:, None, None] + brange[None, :, None] +\
             crange[None, None, :]
 
-        shifted_coords = fcoords[:, None, None, None, :] + images[None, :, :, :, :]
+        shifted_coords = fcoords[:, None, None, None, :] + \
+            images[None, :, :, :, :]
         coords = self.get_cartesian_coords(shifted_coords)
-        dists = np.sqrt(np.sum((coords - pts[:, None, None, None, :]) ** 2,
+        dists = np.sqrt(np.sum((coords - center[None, None, None, None, :]) ** 2,
                                axis=4))
         within_r = np.where(dists <= r)
-
-        return list(zip(shifted_coords[within_r], dists[within_r],
-                        indices[within_r[0]]))
+        if zip_results:
+            return list(zip(shifted_coords[within_r], dists[within_r],
+                            indices[within_r[0]]))
+        else:
+            return shifted_coords[within_r], dists[within_r], \
+                indices[within_r[0]]
 
     def get_all_distances(self, fcoords1, fcoords2):
         """

@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -125,7 +127,7 @@ class BorgQueen(object):
         """
         Load assimilated data from a file
         """
-        with zopen(filename, "r") as f:
+        with zopen(filename, "rt") as f:
             self._data = json.load(f, cls=MontyDecoder)
 
 

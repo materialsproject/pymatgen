@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -12,7 +14,7 @@ import unittest
 from pymatgen.command_line.gulp_caller import *
 from pymatgen.core.structure import Structure
 from monty.os.path import which
-from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')

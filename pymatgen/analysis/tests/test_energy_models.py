@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -42,9 +44,10 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
                        {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}], coords)
 
         m = EwaldElectrostaticModel()
-        self.assertAlmostEqual(m.get_energy(s), 44.1070954178)
+        # large tolerance because scipy constants changed between 0.16.1 and 0.17
+        self.assertAlmostEqual(m.get_energy(s), -40.655658979571228, 4)
         s2 = Structure.from_file(os.path.join(test_dir, "Li2O.cif"))
-        self.assertAlmostEqual(m.get_energy(s2), -36.3476248117)
+        self.assertAlmostEqual(m.get_energy(s2), -145.39050015844839, 4)
 
     def test_to_from_dict(self):
         m = EwaldElectrostaticModel()

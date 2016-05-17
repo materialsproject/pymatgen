@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -17,6 +19,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Nov 27, 2011"
 
+import itertools
 import numpy as np
 import math
 
@@ -199,6 +202,14 @@ def pbc_diff(fcoords1, fcoords2):
     fdist = np.subtract(fcoords1, fcoords2)
     return fdist - np.round(fdist)
 
+#create images, 2d array of all length 3 combinations of [-1,0,1]
+r = np.arange(-1, 2)
+arange = r[:, None] * np.array([1, 0, 0])[None, :]
+brange = r[:, None] * np.array([0, 1, 0])[None, :]
+crange = r[:, None] * np.array([0, 0, 1])[None, :]
+images = arange[:, None, None] + brange[None, :, None] + \
+    crange[None, None, :]
+images = images.reshape((27, 3))
 
 def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     """
@@ -222,15 +233,6 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     #ensure that all points are in the unit cell
     fcoords1 = np.mod(fcoords1, 1)
     fcoords2 = np.mod(fcoords2, 1)
-
-    #create images, 2d array of all length 3 combinations of [-1,0,1]
-    r = np.arange(-1, 2)
-    arange = r[:, None] * np.array([1, 0, 0])[None, :]
-    brange = r[:, None] * np.array([0, 1, 0])[None, :]
-    crange = r[:, None] * np.array([0, 0, 1])[None, :]
-    images = arange[:, None, None] + brange[None, :, None] + \
-        crange[None, None, :]
-    images = images.reshape((27, 3))
 
     #create images of f2
     shifted_f2 = fcoords2[:, None, :] + images[None, :, :]
@@ -291,12 +293,16 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
     return len(find_in_coord_list_pbc(fcoord_list, fcoord, atol=atol)) > 0
 
 
-def is_coord_subset_pbc(subset, superset, atol=1e-8):
+def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None):
     """
     Tests if all fractional coords in subset are contained in superset.
 
     Args:
         subset, superset: List of fractional coords
+        atol (float or size 3 array): Tolerance for matching
+        mask (boolean array): Mask of matches that are not allowed.
+            i.e. if mask[1,2] == True, then subset[1] cannot be matched
+            to superset[2]
 
     Returns:
         True if all of subset is in superset.
@@ -305,6 +311,8 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8):
     c2 = np.array(superset)
     dist = c1[:, None, :] - c2[None, :, :]
     dist -= np.round(dist)
+    if mask is not None:
+        dist[np.array(mask)] = np.inf
     is_close = np.all(np.abs(dist) < atol, axis=-1)
     any_close = np.any(is_close, axis=-1)
     return np.all(any_close)
@@ -392,3 +400,92 @@ def get_angle(v1, v2, units="degrees"):
         return angle
     else:
         raise ValueError("Invalid units {}".format(units))
+
+
+class Simplex(object):
+    """
+    A generalized simplex object. See http://en.wikipedia.org/wiki/Simplex.
+
+    .. attribute: space_dim
+
+        Dimension of the space. Usually, this is 1 more than the simplex_dim.
+
+    .. attribute: simplex_dim
+
+        Dimension of the simplex coordinate space.
+    """
+
+    def __init__(self, coords):
+        """
+        Initializes a Simplex from vertex coordinates.
+
+        Args:
+            coords ([[float]]): Coords of the vertices of the simplex. E.g.,
+                [[1, 2, 3], [2, 4, 5], [6, 7, 8], [8, 9, 10].
+        """
+        self._coords = np.array(coords)
+        self.space_dim, self.simplex_dim = self._coords.shape
+        self.origin = self._coords[-1]
+        if self.space_dim == self.simplex_dim + 1:
+            # precompute attributes for calculating bary_coords
+            self.T = self._coords[:-1] - self.origin
+            self.T_inv = np.linalg.inv(self.T)
+
+    @property
+    def volume(self):
+        """
+        Volume of the simplex.
+        """
+        return abs(np.linalg.det(self.T)) / math.factorial(self.simplex_dim)
+
+    def bary_coords(self, point):
+        try:
+            c = np.dot((point - self.origin), self.T_inv)
+            return np.concatenate([c, [1 - np.sum(c)]])
+        except AttributeError:
+            raise ValueError('Simplex is not full-dimensional')
+
+    def in_simplex(self, point, tolerance=1e-8):
+        """
+        Checks if a point is in the simplex using the standard barycentric
+        coordinate system algorithm.
+
+        Taking an arbitrary vertex as an origin, we compute the basis for the
+        simplex from this origin by subtracting all other vertices from the
+        origin. We then project the point into this coordinate system and
+        determine the linear decomposition coefficients in this coordinate
+        system.  If the coeffs satisfy that all coeffs >= 0, the composition
+        is in the facet.
+
+        Args:
+            point ([float]): Point to test
+            tolerance (float): Tolerance to test if point is in simplex.
+        """
+        return (self.bary_coords(point) >= -tolerance).all()
+
+    def __eq__(self, other):
+        for p in itertools.permutations(self._coords):
+            if np.allclose(p, other.coords):
+                return True
+        return False
+
+    def __hash__(self):
+        return len(self._coords)
+
+    def __repr__(self):
+        output = ["{}-simplex in {}D space".format(self.simplex_dim,
+                                                   self.space_dim),
+                  "Vertices:"]
+        for coord in self._coords:
+            output.append("\t({})".format(", ".join(map(str, coord))))
+        return "\n".join(output)
+
+    def __str__(self):
+        return self.__repr__()
+
+    @property
+    def coords(self):
+        """
+        Returns a copy of the vertex coordinates in the simplex.
+        """
+        return self._coords.copy()

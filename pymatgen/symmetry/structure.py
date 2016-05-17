@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -36,19 +38,21 @@ class SymmetrizedStructure(Structure):
     """
 
     def __init__(self, structure, spacegroup, equivalent_positions):
-        Structure.__init__(self, structure.lattice,
-                           [site.species_and_occu
-                            for site in structure],
-                           structure.frac_coords,
-                           site_properties=structure.site_properties)
-
+        super(SymmetrizedStructure, self).__init__(
+            structure.lattice, [site.species_and_occu for site in structure],
+            structure.frac_coords, site_properties=structure.site_properties)
         self._spacegroup = spacegroup
-        u, inv = np.unique(equivalent_positions, return_inverse = True)
+        u, inv = np.unique(equivalent_positions, return_inverse=True)
+        self.site_labels = equivalent_positions
         self.equivalent_indices = [[] for i in range(len(u))]
         self._equivalent_sites = [[] for i in range(len(u))]
         for i, inv in enumerate(inv):
             self.equivalent_indices[inv].append(i)
             self._equivalent_sites[inv].append(self.sites[i])
+
+    @property
+    def spacegroup(self):
+        return self._spacegroup
 
     @property
     def equivalent_sites(self):

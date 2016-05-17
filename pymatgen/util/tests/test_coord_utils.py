@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -21,7 +23,7 @@ from pymatgen.util.coord_utils import get_linear_interpolated_value,\
     find_in_coord_list, find_in_coord_list_pbc,\
     barycentric_coords, pbc_shortest_vectors,\
     lattice_points_in_supercell, coord_list_mapping, all_distances,\
-    is_coord_subset_pbc, coord_list_mapping_pbc
+    is_coord_subset_pbc, coord_list_mapping_pbc, Simplex
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -134,9 +136,9 @@ class CoordUtilsTest(PymatgenTest):
             find_in_coord_list_pbc(coords, test_coord, atol=0.01)[0], 1)
 
     def test_is_coord_subset_pbc(self):
-        c1 = [0,0,0]
-        c2 = [0,1.2,-1]
-        c3 = [2.3,0,1]
+        c1 = [0, 0, 0]
+        c2 = [0, 1.2, -1]
+        c3 = [2.3, 0, 1]
         c4 = [1.3-9e-9, -1-9e-9, 1-9e-9]
         self.assertTrue(is_coord_subset_pbc([c1, c2, c3], [c1, c4, c2]))
         self.assertTrue(is_coord_subset_pbc([c1], [c2, c1]))
@@ -144,14 +146,29 @@ class CoordUtilsTest(PymatgenTest):
         self.assertFalse(is_coord_subset_pbc([c1, c2], [c2, c3]))
         self.assertFalse(is_coord_subset_pbc([c1, c2], [c2]))
 
+        # test tolerances
+        c5 = [0.1, 0.1, 0.2]
+        atol1 = [0.25, 0.15, 0.15]
+        atol2 = [0.15, 0.15, 0.25]
+        self.assertFalse(is_coord_subset_pbc([c1], [c5], atol1))
+        self.assertTrue(is_coord_subset_pbc([c1], [c5], atol2))
+
+        # test mask
+        mask1 = [[True]]
+        self.assertFalse(is_coord_subset_pbc([c1], [c5], atol2, mask1))
+        mask2 = [[True, False]]
+        self.assertTrue(is_coord_subset_pbc([c1], [c2, c1], mask=mask2))
+        self.assertFalse(is_coord_subset_pbc([c1], [c1, c2], mask=mask2))
+
+
     def test_lattice_points_in_supercell(self):
-        supercell = np.array([[1,3,5], [-3,2,3], [-5,3,1]])
+        supercell = np.array([[1, 3, 5], [-3, 2, 3], [-5, 3, 1]])
         points = lattice_points_in_supercell(supercell)
         self.assertAlmostEqual(len(points), abs(np.linalg.det(supercell)))
         self.assertGreaterEqual(np.min(points), -1e-10)
         self.assertLessEqual(np.max(points), 1-1e-10)
 
-        supercell = np.array([[-5, -5, -3],[0, -4, -2],[0, -5, -2]])
+        supercell = np.array([[-5, -5, -3], [0, -4, -2], [0, -5, -2]])
         points = lattice_points_in_supercell(supercell)
         self.assertAlmostEqual(len(points), abs(np.linalg.det(supercell)))
         self.assertGreaterEqual(np.min(points), -1e-10)
@@ -205,6 +222,39 @@ class CoordUtilsTest(PymatgenTest):
         self.assertArrayAlmostEqual(dists, expected, 3)
 
         coord_utils.LOOP_THRESHOLD = prev_threshold
+
+
+class SimplexTest(PymatgenTest):
+
+    def setUp(self):
+        coords = []
+        coords.append([0, 0, 0])
+        coords.append([0, 1, 0])
+        coords.append([0, 0, 1])
+        coords.append([1, 0, 0])
+        self.simplex = Simplex(coords)
+
+    def test_in_simplex(self):
+        self.assertTrue(self.simplex.in_simplex([0.1, 0.1, 0.1]))
+        self.assertFalse(self.simplex.in_simplex([0.6, 0.6, 0.6]))
+        for i in range(10):
+            coord = np.random.random_sample(size=3) / 3
+            self.assertTrue(self.simplex.in_simplex(coord))
+
+    def test_2dtriangle(self):
+        s = Simplex([[0, 1], [1, 1], [1, 0]])
+        self.assertArrayAlmostEqual(s.bary_coords([0.5, 0.5]),
+                                    [0.5, 0, 0.5])
+        self.assertArrayAlmostEqual(s.bary_coords([0.5, 1]), [0.5, 0.5, 0])
+        self.assertArrayAlmostEqual(s.bary_coords([0.5, 0.75]), [0.5, 0.25, 0.25])
+        self.assertArrayAlmostEqual(s.bary_coords([0.75, 0.75]), [0.25, 0.5, 0.25])
+
+        s = Simplex([[1, 1], [1, 0]])
+        self.assertRaises(ValueError, s.bary_coords, [0.5, 0.5])
+
+    def test_volume(self):
+        # Should be value of a right tetrahedron.
+        self.assertAlmostEqual(self.simplex.volume, 1/6)
 
 
 if __name__ == "__main__":

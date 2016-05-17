@@ -1,28 +1,24 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+#!/usr/bin/env python
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, unicode_literals
 
 """
-Classes for reading/manipulating/writing VASP ouput files.
+#TODO: Write module doc.
 """
 
+__author__ = 'Shyue Ping Ong'
+__copyright__ = 'Copyright 2013, The Materials Virtual Lab'
+__version__ = '0.1'
+__maintainer__ = 'Shyue Ping Ong'
+__email__ = 'ongsp@ucsd.edu'
+__date__ = '8/1/15'
 
-__author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
-    "Vincent L Chevrier, Ioannis Petousis"
-__credits__ = "Anubhav Jain"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.2"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Nov 30, 2012"
 
-import os
-import glob
-import re
-import math
-import itertools
 import warnings
+<<<<<<< HEAD
 from io import StringIO
 import logging
 from collections import defaultdict
@@ -2188,3 +2184,9 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
             if not bs_working.is_metal():
                 return e
     return efermi
+=======
+warnings.warn("pymatgen.io.vaspio.vasp_output has been moved "
+              "pymatgen.io.vasp.outputs "
+              "This stub will be removed in pymatgen 4.0.", DeprecationWarning)
+from pymatgen.io.vasp.outputs import *
+>>>>>>> origin/master

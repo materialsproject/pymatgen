@@ -34,6 +34,23 @@ class PointGroupTest(unittest.TestCase):
         self.assertEqual(len(pg.get_orbit([0, 0, 0.1])), 2)
         self.assertEqual(len(pg.get_orbit([1.2, 1.2, 1])), 8)
 
+    def test_is_sub_super_group(self):
+        pgmmm = PointGroup("mmm")
+        pgmm2 = PointGroup("mm2")
+        pg222 = PointGroup("222")
+        pg4 = PointGroup("4")
+        self.assertTrue(pgmmm.is_supergroup(pgmm2))
+        self.assertTrue(pgmm2.is_subgroup(pgmmm))
+        self.assertTrue(pgmmm.is_supergroup(pg222))
+        self.assertFalse(pgmmm.is_supergroup(pg4))
+        pgm3m = PointGroup("m-3m")
+        pg6mmm = PointGroup("6/mmm")
+        pg3m = PointGroup("-3m")
+        # TODO: Fix the test below.
+        # self.assertTrue(pg3m.is_subgroup(pgm3m))
+        self.assertTrue(pg3m.is_subgroup(pg6mmm))
+        self.assertFalse(pgm3m.is_supergroup(pg6mmm))
+
 
 class SpaceGroupTest(unittest.TestCase):
 
@@ -44,12 +61,10 @@ class SpaceGroupTest(unittest.TestCase):
         self.assertEqual(sg.int_number, 166)
 
     def test_attr(self):
-
         sg = SpaceGroup("Fm-3m")
         self.assertEqual(sg.full_symbol, "F4/m-32/m")
         self.assertEqual(sg.patterson_symmetry, "Fm-3m")
         self.assertEqual(sg.point_group, "m-3m")
-
 
     def test_full_symbols(self):
         sg = SpaceGroup("P2/m2/m2/m")
@@ -68,8 +83,7 @@ class SpaceGroupTest(unittest.TestCase):
 
     def test_get_orbit(self):
         sg = SpaceGroup("Fm-3m")
-        p = np.random.random_integers(0, 100, size=(3,))
-        p /= 100
+        p = np.random.random_integers(0, 100, size=(3,)) / 100
         self.assertLessEqual(len(sg.get_orbit(p)), sg.order)
 
     def test_is_compatible(self):
@@ -106,6 +120,12 @@ class SpaceGroupTest(unittest.TestCase):
         self.assertTrue(sg.is_compatible(ortho))
         self.assertTrue(sg.is_compatible(rhom))
         self.assertTrue(sg.is_compatible(hexagonal))
+
+    def test_subgroup_supergroup(self):
+        self.assertTrue(SpaceGroup('Pma2').is_subgroup(SpaceGroup('Pccm')))
+        self.assertFalse(SpaceGroup.from_int_number(229).is_subgroup(
+            SpaceGroup.from_int_number(230)))
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 from functools import reduce
@@ -125,6 +127,27 @@ class Slab(Structure):
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties)
 
+    def get_orthogonal_c_slab(self):
+        """
+        This method returns a Slab where the normal (c lattice vector) is
+        "forced" to be exactly orthogonal to the surface a and b lattice
+        vectors. **Note that this breaks inherent symmetries in the slab.**
+        It should be pointed out that orthogonality is not required to get good
+        surface energies, but it can be useful in cases where the slabs are
+        subsequently used for postprocessing of some kind, e.g. generating
+        GBs or interfaces.
+        """
+        a, b, c = self.lattice.matrix
+        new_c = np.cross(a, b)
+        new_c /= np.linalg.norm(new_c)
+        new_c = np.dot(c, new_c) * new_c
+        new_latt = Lattice([a, b, new_c])
+        return Slab(lattice=new_latt, species=self.species,
+                    coords=self.cart_coords, miller_index=self.miller_index,
+                    oriented_unit_cell=self.oriented_unit_cell,
+                    shift=self.shift, scale_factor=self.scale_factor,
+                    coords_are_cartesian=True, energy=self.energy)
+
     def get_sorted_structure(self, key=None, reverse=False):
         """
         Get a sorted copy of the structure. The parameters have the same
@@ -144,6 +167,68 @@ class Slab(Structure):
         return Slab(s.lattice, s.species_and_occu, s.frac_coords,
                     self.miller_index, self.oriented_unit_cell, self.shift,
                     self.scale_factor, site_properties=s.site_properties)
+
+    def copy(self, site_properties=None, sanitize=False):
+        """
+        Convenience method to get a copy of the structure, with options to add
+        site properties.
+
+        Args:
+            site_properties (dict): Properties to add or override. The
+                properties are specified in the same way as the constructor,
+                i.e., as a dict of the form {property: [values]}. The
+                properties should be in the order of the *original* structure
+                if you are performing sanitization.
+            sanitize (bool): If True, this method will return a sanitized
+                structure. Sanitization performs a few things: (i) The sites are
+                sorted by electronegativity, (ii) a LLL lattice reduction is
+                carried out to obtain a relatively orthogonalized cell,
+                (iii) all fractional coords for sites are mapped into the
+                unit cell.
+
+        Returns:
+            A copy of the Structure, with optionally new site_properties and
+            optionally sanitized.
+        """
+        props = self.site_properties
+        if site_properties:
+            props.update(site_properties)
+        return Slab(self.lattice, self.species_and_occu, self.frac_coords,
+                    self.miller_index, self.oriented_unit_cell, self.shift,
+                    self.scale_factor, site_properties=props)
+
+    @property
+    def dipole(self):
+        """
+        Calculates the dipole of the Slab in the direction of the surface
+        normal. Note that the Slab must be oxidation state-decorated for this
+        to work properly. Otherwise, the Slab will always have a dipole of 0.
+        """
+        dipole = np.zeros(3)
+        mid_pt = np.sum(self.cart_coords, axis=0) / len(self)
+        normal = self.normal
+        for site in self:
+            charge = sum([getattr(sp, "oxi_state", 0) * amt
+                          for sp, amt in site.species_and_occu.items()])
+            dipole += charge * np.dot(site.coords - mid_pt, normal) * normal
+        return dipole
+
+    def is_polar(self, tol_dipole_per_unit_area=1e-3):
+        """
+        Checks whether the surface is polar by computing the dipole per unit
+        area. Note that the Slab must be oxidation state-decorated for this
+        to work properly. Otherwise, the Slab will always be non-polar.
+
+        Args:
+            tol_dipole_per_unit_area (float): A tolerance. If the dipole
+                magnitude per unit area is less than this value, the Slab is
+                considered non-polar. Defaults to 1e-3, which is usually
+                pretty good. Normalized dipole per unit area is used as it is
+                more reliable than using the total, which tends to be larger for
+                slabs with larger surface areas.
+        """
+        dip_per_unit_area = self.dipole / self.surface_area
+        return np.linalg.norm(dip_per_unit_area) > tol_dipole_per_unit_area
 
     @property
     def normal(self):
@@ -277,14 +362,17 @@ class SlabGenerator(object):
 
     def __init__(self, initial_structure, miller_index, min_slab_size,
                  min_vacuum_size, lll_reduce=False, center_slab=False,
-                 primitive=True):
+                 primitive=True, max_normal_search=None):
         """
         Calculates the slab scale factor and uses it to generate a unit cell
         of the initial structure that has been oriented by its miller index.
         Also stores the initial information needed later on to generate a slab.
 
         Args:
-            initial_structure (Structure): Initial input structure.
+            initial_structure (Structure): Initial input structure. Note that to
+                ensure that the miller indices correspond to usual
+                crystallographic definitions, you should supply a conventional
+                unit cell structure.
             miller_index ([h, k, l]): Miller index of plane parallel to
                 surface. Note that this is referenced to the input structure. If
                 you need this to be based on the conventional cell,
@@ -300,6 +388,18 @@ class SlabGenerator(object):
                 from a primitive cell, it simply means that after slab
                 generation, we attempt to find shorter lattice vectors,
                 which lead to less surface area and smaller cells).
+            max_normal_search (int): If set to a positive integer, the code will
+                conduct a search for a normal lattice vector that is as
+                perpendicular to the surface as possible by considering
+                multiples linear combinations of lattice vectors up to
+                max_normal_search. This has no bearing on surface energies,
+                but may be useful as a preliminary step to generating slabs
+                for absorption and other sizes. It is typical that this will
+                not be the smallest possible cell for simulation. Normality
+                is not guaranteed, but the oriented cell will have the c
+                vector as normal as possible (within the search range) to the
+                surface. A value of up to the max absolute Miller index is
+                usually sufficient.
         """
         latt = initial_structure.lattice
         d = abs(reduce(gcd, miller_index))
@@ -338,7 +438,28 @@ class SlabGenerator(object):
                 if len(slab_scale_factor) == 2:
                     break
 
-        slab_scale_factor.append(eye[c_index])
+        if max_normal_search is None:
+            slab_scale_factor.append(eye[c_index])
+        else:
+            index_range = sorted(
+                reversed(range(-max_normal_search, max_normal_search + 1)),
+                key=lambda x: abs(x))
+            candidates = []
+            for uvw in itertools.product(index_range, index_range, index_range):
+                if (not any(uvw)) or abs(
+                        np.linalg.det(slab_scale_factor + [uvw])) < 1e-8:
+                    continue
+                vec = latt.get_cartesian_coords(uvw)
+                l = np.linalg.norm(vec)
+                cosine = abs(np.dot(vec, normal) / l)
+                candidates.append((uvw, cosine, l))
+                if abs(abs(cosine) - 1) < 1e-8:
+                    # If cosine of 1 is found, no need to search further.
+                    break
+            # We want the indices with the maximum absolute cosine,
+            # but smallest possible length.
+            uvw, cosine, l = max(candidates, key=lambda x: (x[1], -l))
+            slab_scale_factor.append(uvw)
 
         slab_scale_factor = np.array(slab_scale_factor)
 
@@ -433,6 +554,11 @@ class SlabGenerator(object):
         frac_coords = self.oriented_unit_cell.frac_coords
         n = len(frac_coords)
 
+        if n == 1:
+            # Clustering does not work when there is only one data point.
+            shift = frac_coords[0][2] + 0.5
+            return [shift - math.floor(shift)]
+
         # We cluster the sites according to the c coordinates. But we need to
         # take into account PBC. Let's compute a fractional c-coordinate
         # distance matrix that accounts for PBC.
@@ -473,6 +599,33 @@ class SlabGenerator(object):
         shifts = sorted(shifts)
         return shifts
 
+    def _get_c_ranges(self, bonds):
+        c_ranges = set()
+        bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in
+                 bonds.items()}
+        for (sp1, sp2), bond_dist in bonds.items():
+            for site in self.oriented_unit_cell:
+                if sp1 in site.species_and_occu:
+                    for nn, d in self.oriented_unit_cell.get_neighbors(
+                            site, bond_dist):
+                        if sp2 in nn.species_and_occu:
+                            c_range = tuple(sorted([site.frac_coords[2],
+                                                    nn.frac_coords[2]]))
+                            if c_range[1] > 1:
+                                # Takes care of PBC when c coordinate of site
+                                # goes beyond the upper boundary of the cell
+                                c_ranges.add((c_range[0], 1))
+                                c_ranges.add((0, c_range[1] - 1))
+                            elif c_range[0] < 0:
+                                # Takes care of PBC when c coordinate of site
+                                # is below the lower boundary of the unit cell
+                                c_ranges.add((0, c_range[1]))
+                                c_ranges.add((c_range[0] + 1, 1))
+                            elif c_range[0] != c_range[1]:
+                                c_ranges.add(c_range)
+        return c_ranges
+
+
     def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0):
         """
         This method returns a list of slabs that are generated using the list of
@@ -499,52 +652,12 @@ class SlabGenerator(object):
             ([Slab]) List of all possible terminations of a particular surface.
             Slabs are sorted by the # of bonds broken.
         """
-        def get_c_ranges(site1, site2, bond_dist):
-            lattice = site1.lattice
-            f1 = site1.frac_coords
-            c_ranges = []
-            for dist, image in lattice.get_all_distance_and_image(
-                    f1, site2.frac_coords):
-                if dist < bond_dist:
-                    f2 = site2.frac_coords + image
-                    # Checks if the distance between the two species
-                    # is less then the user input bond distance
-                    min_c = f1[2]
-                    max_c = f2[2]
-                    c_range = sorted([min_c, max_c])
-                    if c_range[1] > 1:
-                        # Takes care of PBC when c coordinate of site
-                        # goes beyond the upper boundary of the cell
-                        c_ranges.append((c_range[0], 1))
-                        c_ranges.append((0, c_range[1] - 1))
-                    elif c_range[0] < 0:
-                        # Takes care of PBC when c coordinate of site
-                        # is below the lower boundary of the unit cell
-                        c_ranges.append((0, c_range[1]))
-                        c_ranges.append((c_range[0] + 1, 1))
-                    else:
-                        c_ranges.append(c_range)
-            return c_ranges
-
-        bond_c_ranges = []
-        if bonds is not None:
-            #Convert to species first
-            bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in
-                     bonds.items()}
-            for s1, s2 in itertools.combinations(self.oriented_unit_cell, 2):
-                # Iterates through every possible pair of species in the
-                # oriented unit cell
-                all_sp = set(s1.species_and_occu.keys())
-                all_sp.update(s2.species_and_occu.keys())
-                for species, bond_dist in bonds.items():
-                    # Checks if elements in species is in all_sp
-                    if all_sp.issuperset(species):
-                        bond_c_ranges.extend(get_c_ranges(s1, s2, bond_dist))
+        c_ranges = set() if bonds is None else self._get_c_ranges(bonds)
 
         slabs = []
         for shift in self._calculate_possible_shifts(tol=tol):
             bonds_broken = 0
-            for r in bond_c_ranges:
+            for r in c_ranges:
                 if r[0] <= shift <= r[1]:
                     bonds_broken += 1
             if bonds_broken <= max_broken_bonds:
@@ -603,9 +716,9 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
 
 
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
-                       bonds=None, tol=0.1, max_broken_bonds=0,
-                       lll_reduce=False,
-                       center_slab=False, primitive=True):
+                       bonds=None, tol=1e-3, max_broken_bonds=0,
+                       lll_reduce=False, center_slab=False, primitive=True,
+                       max_normal_search=None):
     """
     A function that finds all different slabs up to a certain miller index.
     Slabs oriented under certain Miller indices that are equivalent to other
@@ -614,15 +727,24 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
     CsCl has equivalent slabs in the (0,0,1), (0,1,0), and (1,0,0) direction.
 
     Args:
-        structure (Structure): Initial input structure.
+        structure (Structure): Initial input structure. Note that to
+                ensure that the miller indices correspond to usual
+                crystallographic definitions, you should supply a conventional
+                unit cell structure.
         max_index (int): The maximum Miller index to go up to.
-        symprec (float): Tolerance for symmetry finding. Defaults to 1e-3,
-            which is fairly strict and works well for properly refined
-            structures with atoms in the proper symmetry coordinates. For
-            structures with slight deviations from their proper atomic
-            positions (e.g., structures relaxed with electronic structure
-            codes), a looser tolerance of 0.1 (the value used in Materials
-            Project) is often needed.
+        min_slab_size (float): In Angstroms
+        min_vac_size (float): In Angstroms
+        bonds ({(specie1, specie2): max_bond_dist}: bonds are
+            specified as a dict of tuples: float of specie1, specie2
+            and the max bonding distance. For example, PO4 groups may be
+            defined as {("P", "O"): 3}.
+        tol (float): Threshold parameter in fcluster in order to check
+            if two atoms are lying on the same plane. Default thresh set
+            to 0.1 Angstrom in the direction of the surface normal.
+        max_broken_bonds (int): Maximum number of allowable broken bonds
+            for the slab. Use this to limit # of slabs (some structures
+            may have a lot of slabs). Defaults to zero, which means no
+            defined bonds must be broken.
         lll_reduce (bool): Whether to perform an LLL reduction on the
             eventual structure.
         center_slab (bool): Whether to center the slab in the cell with
@@ -632,13 +754,26 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
             from a primitive cell, it simply means that after slab
             generation, we attempt to find shorter lattice vectors,
             which lead to less surface area and smaller cells).
+        max_normal_search (int): If set to a positive integer, the code will
+            conduct a search for a normal lattice vector that is as
+            perpendicular to the surface as possible by considering
+            multiples linear combinations of lattice vectors up to
+            max_normal_search. This has no bearing on surface energies,
+            but may be useful as a preliminary step to generating slabs
+            for absorption and other sizes. It is typical that this will
+            not be the smallest possible cell for simulation. Normality
+            is not guaranteed, but the oriented cell will have the c
+            vector as normal as possible (within the search range) to the
+            surface. A value of up to the max absolute Miller index is
+            usually sufficient.
     """
     all_slabs = []
-    for miller in get_symmetrically_distinct_miller_indices(structure,
-                                                            max_index):
-        gen = SlabGenerator(structure, miller, min_slab_size,
+    for miller in get_symmetrically_distinct_miller_indices(
+            structure, max_index):
+        gen = SlabGenerator(structure.copy(), miller, min_slab_size,
                             min_vacuum_size, lll_reduce=lll_reduce,
-                            center_slab=center_slab, primitive=primitive)
+                            center_slab=center_slab, primitive=primitive,
+                            max_normal_search=max_normal_search)
         slabs = gen.get_slabs(bonds=bonds, tol=tol,
                               max_broken_bonds=max_broken_bonds)
         if len(slabs) > 0:

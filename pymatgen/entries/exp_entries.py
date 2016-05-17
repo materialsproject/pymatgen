@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -17,11 +19,11 @@ __date__ = "Jun 27, 2012"
 
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.composition import Composition
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
 from pymatgen.analysis.thermochemistry import ThermoData
 
 
-class ExpEntry(PDEntry, PMGSONable):
+class ExpEntry(PDEntry, MSONable):
     """
     An lightweight ExpEntry object containing experimental data for a
     composition for many purposes. Extends a PDEntry so that it can be used for
@@ -45,14 +47,14 @@ class ExpEntry(PDEntry, PMGSONable):
         enthalpy = float("inf")
         for data in self._thermodata:
             if data.type == "fH" and data.value < enthalpy and \
-                (data.phaseinfo != "gas" and data.phaseinfo != "liquid"):
+                    (data.phaseinfo != "gas" and data.phaseinfo != "liquid"):
                 enthalpy = data.value
                 found = True
         if not found:
             raise ValueError("List of Thermodata does not contain enthalpy "
                              "values.")
         self.temperature = temperature
-        PDEntry.__init__(self, comp, enthalpy)
+        super(ExpEntry, self).__init__(comp, enthalpy)
 
     def __repr__(self):
         return "ExpEntry {}, Energy = {:.4f}".format(self.composition.formula,
