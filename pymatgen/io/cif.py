@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
+from __future__ import division, unicode_literals, print_function
 
 """
 Wrapper classes for Cif input and output from Structures.
@@ -569,6 +569,8 @@ class CifParser(object):
                 # A user reported a problem with cif files produced by Avogadro
                 # in which the atomic coordinates are in Cartesian coords.
                 warnings.warn(str(exc))
+        if len(structures) == 0:
+            raise ValueError("Invalid cif file with no structures!")
         return structures
 
     def as_dict(self):
