@@ -20,7 +20,7 @@ import math
 import numpy as np
 
 
-def get_publication_quality_plot(width=8, height=None, plt=None):
+def get_publication_quality_plot(width=8, height=None, plt=None, dpi=None):
     """
     Provides a publication quality plot, with nice defaults for font sizes etc.
 
@@ -42,20 +42,26 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
 
     if plt is None:
         import matplotlib.pyplot as plt
-        plt.figure(figsize=(width, height), facecolor="w")
+        import palettable
+        from cycler import cycler
+
+        plt.figure(figsize=(width, height), facecolor="w", dpi=dpi)
+        ax = plt.gca()
+        ax.set_prop_cycle(cycler('color',
+                                 palettable.colorbrewer.qualitative.Set1_9.mpl_colors))
     else:
         fig = plt.gcf()
         fig.set_size_inches(width, height)
     plt.xticks(fontsize=ticksize)
     plt.yticks(fontsize=ticksize)
 
-    axes = plt.gca()
-    axes.set_title(axes.get_title(), size=width * 4)
+    ax = plt.gca()
+    ax.set_title(ax.get_title(), size=width * 4)
 
     labelsize = int(width * 3)
 
-    axes.set_xlabel(axes.get_xlabel(), size=labelsize)
-    axes.set_ylabel(axes.get_ylabel(), size=labelsize)
+    ax.set_xlabel(ax.get_xlabel(), size=labelsize)
+    ax.set_ylabel(ax.get_ylabel(), size=labelsize)
 
     return plt
 
@@ -75,6 +81,28 @@ def get_ax_fig_plt(ax=None):
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
+    else:
+        fig = plt.gcf()
+
+    return ax, fig, plt
+
+
+def get_ax3d_fig_plt(ax=None):
+    """
+    Helper function used in plot functions supporting an optional Axes3D argument.
+    If ax is None, we build the `matplotlib` figure and create the Axes3D else
+    we return the current active figure.
+
+    Returns:
+        ax: :class:`Axes` object
+        figure: matplotlib figure
+        plt: matplotlib pyplot module.
+    """
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import axes3d
+    if ax is None:
+        fig = plt.figure()
+        ax = axes3d.Axes3D(fig)
     else:
         fig = plt.gcf()
 

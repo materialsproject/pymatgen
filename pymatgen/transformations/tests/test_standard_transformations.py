@@ -17,7 +17,7 @@ __date__ = "Sep 23, 2011"
 
 import os
 import random
-import unittest
+import unittest2 as unittest
 import json
 import six
 
@@ -199,7 +199,7 @@ class OxidationStateRemovalTransformationTest(unittest.TestCase):
 class PartialRemoveSpecieTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
-        t = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, True)
+        t = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
@@ -343,7 +343,7 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
                                      {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}],
                            coords)
         output = t.apply_transformation(struct, return_ranked_list=3)
-        self.assertAlmostEqual(output[0]['energy'], -216.42362404816419, 4)
+        self.assertAlmostEqual(output[0]['energy'], -234.57813667648315, 4)
 
 
 class PrimitiveCellTransformationTest(unittest.TestCase):

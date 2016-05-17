@@ -5,14 +5,15 @@
 from __future__ import unicode_literals
 
 import numpy as np
-import unittest
+import unittest2 as unittest
 import os
 from math import fabs
 
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
-    oxide_type, OrderParameters
+    oxide_type, OrderParameters, average_coordination_number, VoronoiAnalysis
 from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 
@@ -35,6 +36,24 @@ class VoronoiCoordFinderTest(PymatgenTest):
 
     def test_get_coordinated_sites(self):
         self.assertEqual(len(self.finder.get_coordinated_sites(0)), 8)
+
+
+class VoronoiAnalysisTest(PymatgenTest):
+
+    def setUp(self):
+        self.ss = Xdatcar(os.path.join(test_dir, 'XDATCAR.MD')).structures
+        self.s = self.ss[19]
+        self.va = VoronoiAnalysis(cutoff=4.0)
+    def test_voronoi_analysis(self):
+        # Check for the Voronoi index of site i in Structure
+        single_structure = self.va.voronoi_analysis(self.s, n=5)
+        self.assertIn(single_structure.view(), np.array([5,4,2,5,3,1,0,2]).view(),
+                      "Cannot find the right polyhedron.")
+        # Check for the presence of a Voronoi index and its frequency in
+        # a ensemble (list) of Structures
+        ensemble = self.va.from_structures(self.ss,step_freq=2,most_frequent_polyhedra=10)
+        self.assertIn(('[2 3 3 3 1 1 0 0]', 6),
+                      ensemble, "Cannot find the right polyhedron in ensemble.")
 
 
 class RelaxationAnalyzerTest(unittest.TestCase):
@@ -85,6 +104,12 @@ class VoronoiConnectivityTest(PymatgenTest):
 
 
 class MiscFunctionTest(PymatgenTest):
+
+    def test_average_coordination_number(self):
+        xdatcar = Xdatcar(os.path.join(test_dir, 'XDATCAR.MD'))
+        coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)
+        self.assertAlmostEqual(coordination_numbers['Fe'], 4.74806409454929, 5,
+                               "Coordination number not calculated properly.")
 
     def test_solid_angle(self):
         center = [2.294508207929496, 4.4078057081404, 2.299997773791287]

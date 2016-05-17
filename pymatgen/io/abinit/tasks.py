@@ -946,13 +946,14 @@ batch_adapter:
         task.build()
 
         # Pass information on the time limit to Abinit (we always assume ndtset == 1)
-        if False and isinstance(task, AbinitTask):
+        #if False and isinstance(task, AbinitTask):
+        if isinstance(task, AbinitTask):
             args = kwargs.get("exec_args", [])
             if args is None: args = []
             args = args[:]
             args.append("--timelimit %s" % qu.time2slurm(self.qadapter.timelimit))
             kwargs["exec_args"] = args
-            print("Will pass timelimit option to abinit %s:" % args)
+            logger.info("Will pass timelimit option to abinit %s:" % args)
 
         # Write the submission script
         script_file = self.write_jobfile(task, **kwargs)
@@ -2522,7 +2523,9 @@ class AbinitTask(Task):
         # Note that here the pseudos **must** be sorted according to znucl.
         # Here we reorder the pseudos if the order is wrong.
         ord_pseudos = []
-        znucl = self.input.structure.to_abivars()["znucl"]
+
+        znucl = [specie.number for specie in
+                 self.input.structure.types_of_specie]
 
         for z in znucl:
             for p in self.pseudos:

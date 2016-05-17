@@ -11,7 +11,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "bkmedasani@lbl.gov"
 __date__ = "Aug 2, 2013"
 
-import unittest
+import unittest2 as unittest
 import os
 import re
 

@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals
 
-import unittest
+import unittest2 as unittest
 
 from pymatgen.electronic_structure.core import Orbital, Spin
 

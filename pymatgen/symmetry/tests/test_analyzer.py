@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 9, 2012"
 
-import unittest
+import unittest2 as unittest
 import os
 
 import numpy as np
@@ -27,7 +27,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
     PointGroupAnalyzer, cluster_sites
 from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.structure import Molecule
+from pymatgen.core.structure import Molecule, Structure
 
 
 test_dir_mol = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -53,6 +53,20 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         graphite = self.get_structure('Graphite')
         graphite.add_site_property("magmom", [0.1] * len(graphite))
         self.sg4 = SpacegroupAnalyzer(graphite, 0.001)
+        self.structure4 = graphite
+
+    def test_magnetic(self):
+        lfp = PymatgenTest.get_structure("LiFePO4")
+        sg = SpacegroupAnalyzer(lfp, 0.1)
+        self.assertEqual(sg.get_spacegroup_symbol(), "Pnma")
+        magmoms = [0] * len(lfp)
+        magmoms[4] = 1
+        magmoms[5] = -1
+        magmoms[6] = 1
+        magmoms[7] = -1
+        lfp.add_site_property("magmom", magmoms)
+        sg = SpacegroupAnalyzer(lfp, 0.1)
+        self.assertEqual(sg.get_spacegroup_symbol(), "Pnma")
 
     def test_get_space_symbol(self):
         self.assertEqual(self.sg.get_spacegroup_symbol(), "Pnma")
@@ -84,24 +98,36 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual('tetragonal', self.disordered_sg.get_crystal_system())
 
     def test_get_symmetry_operations(self):
-        fracsymmops = self.sg.get_symmetry_operations()
-        symmops = self.sg.get_symmetry_operations(True)
-        self.assertEqual(len(symmops), 8)
-        latt = self.structure.lattice
-        for fop, op in zip(fracsymmops, symmops):
-            for site in self.structure:
-                newfrac = fop.operate(site.frac_coords)
-                newcart = op.operate(site.coords)
+        for sg, structure in [(self.sg, self.structure),
+                              (self.sg4, self.structure4)]:
+
+            fracsymmops = sg.get_symmetry_operations()
+            symmops = sg.get_symmetry_operations(True)
+            #self.assertEqual(len(symmops), 8)
+            latt = structure.lattice
+            for fop, op in zip(fracsymmops, symmops):
+                for site in structure:
+                    newfrac = fop.operate(site.frac_coords)
+                    newcart = op.operate(site.coords)
+                    self.assertTrue(np.allclose(latt.get_fractional_coords(newcart),
+                                                newfrac))
+                    found = False
+                    newsite = PeriodicSite(site.species_and_occu, newcart, latt,
+                                           coords_are_cartesian=True)
+                    for testsite in structure:
+                        if newsite.is_periodic_image(testsite, 1e-3):
+                            found = True
+                            break
+                    self.assertTrue(found)
+
+                # Make sure this works for any position, not just the atomic
+                # ones.
+                random_fcoord = np.random.uniform(size=(3))
+                random_ccoord = latt.get_cartesian_coords(random_fcoord)
+                newfrac = fop.operate(random_fcoord)
+                newcart = op.operate(random_ccoord)
                 self.assertTrue(np.allclose(latt.get_fractional_coords(newcart),
                                             newfrac))
-                found = False
-                newsite = PeriodicSite(site.species_and_occu, newcart, latt,
-                                       coords_are_cartesian=True)
-                for testsite in self.structure:
-                    if newsite.is_periodic_image(testsite, 1e-3):
-                        found = True
-                        break
-                self.assertTrue(found)
 
     def test_get_refined_structure(self):
         for a in self.sg.get_refined_structure().lattice.angles:
@@ -146,12 +172,12 @@ class SpacegroupAnalyzerTest(PymatgenTest):
                                structure.lattice.volume / 4.0)
 
     def test_get_ir_reciprocal_mesh(self):
-        grid=self.sg.get_ir_reciprocal_mesh()
+        grid = self.sg.get_ir_reciprocal_mesh()
         self.assertEqual(len(grid), 216)
         self.assertAlmostEquals(grid[1][0][0], 0.1)
         self.assertAlmostEquals(grid[1][0][1], 0.0)
         self.assertAlmostEquals(grid[1][0][2], 0.0)
-        self.assertEqual(grid[1][1], 2)
+        self.assertAlmostEquals(grid[1][1], 2)
 
     def test_get_conventional_standard_structure(self):
         parser = CifParser(os.path.join(test_dir, 'bcc_1927.cif'))
@@ -209,7 +235,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(conv.lattice.b, 3.96052850731)
         self.assertAlmostEqual(conv.lattice.c, 6.8743926325200002)
 
-        parser = CifParser(os.path.join(test_dir, 'rhomb_1170.cif'))
+        parser = CifParser(os.path.join(test_dir, 'hex_1170.cif'))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
@@ -276,7 +302,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(prim.lattice.b, 7.2908007159612325)
         self.assertAlmostEqual(prim.lattice.c, 6.8743926325200002)
 
-        parser = CifParser(os.path.join(test_dir, 'rhomb_1170.cif'))
+        parser = CifParser(os.path.join(test_dir, 'hex_1170.cif'))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
@@ -286,6 +312,17 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(prim.lattice.a, 3.699919902005897)
         self.assertAlmostEqual(prim.lattice.b, 3.699919902005897)
         self.assertAlmostEqual(prim.lattice.c, 6.9779585500000003)
+
+        parser = CifParser(os.path.join(test_dir, 'rhomb_3478_conv.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
+        prim = s.get_primitive_standard_structure()
+        self.assertAlmostEqual(prim.lattice.alpha, 28.049186140546812)
+        self.assertAlmostEqual(prim.lattice.beta, 28.049186140546812)
+        self.assertAlmostEqual(prim.lattice.gamma, 28.049186140546812)
+        self.assertAlmostEqual(prim.lattice.a, 5.9352627428399982)
+        self.assertAlmostEqual(prim.lattice.b, 5.9352627428399982)
+        self.assertAlmostEqual(prim.lattice.c, 5.9352627428399982)
 
 
 
@@ -425,6 +462,16 @@ class PointGroupAnalyzerTest(PymatgenTest):
         a = PointGroupAnalyzer(m)
         self.assertEqual(a.sch_symbol, "D5d")
 
+    def test_tricky_structure(self):
+        # for some reason this structure kills spglib1.9
+        # 1.7 can't find symmetry either, but at least doesn't kill python
+        s = Structure.from_file(os.path.join(test_dir, 'POSCAR.tricky_symmetry'))
+        sa = SpacegroupAnalyzer(s, 0.1)
+        sa.get_spacegroup_symbol()
+        sa.get_spacegroup_number()
+        sa.get_point_group()
+        sa.get_crystal_system()
+        sa.get_hall()
 
 class FuncTest(unittest.TestCase):
 

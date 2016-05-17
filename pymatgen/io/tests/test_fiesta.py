@@ -10,7 +10,7 @@ Created on July 2015
 __author__ = "ndardenne"
 
 
-import unittest
+import unittest2 as unittest
 import os
 
 from pymatgen import Molecule

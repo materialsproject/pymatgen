@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals
 
-import unittest
+import unittest2 as unittest
 
 from pymatgen.command_line.aconvasp_caller import get_num_division_kpoints, \
     get_minkowski_red, get_vasp_kpoint_file_sym

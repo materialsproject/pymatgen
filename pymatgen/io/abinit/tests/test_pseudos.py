@@ -7,7 +7,7 @@ from __future__ import unicode_literals, division, print_function
 import os.path
 import collections
 import numpy as np
-import unittest
+import unittest2 as unittest
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.pseudos import *
@@ -19,7 +19,6 @@ except ImportError:
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files', "abinit")
-
 
 def ref_file(filename):
     return os.path.join(_test_dir, filename)
@@ -37,23 +36,23 @@ class PseudoTestCase(PymatgenTest):
 
         self.nc_pseudos = collections.defaultdict(list)
 
-        for (symbol, fnames) in nc_pseudo_fnames.items():
+        for symbol, fnames in nc_pseudo_fnames.items():
             for fname in fnames:
                 root, ext = os.path.splitext(fname)
-                pseudo = Pseudo.from_file(ref_file(fname))
+                pseudo = Pseudo.from_file(fname)
                 self.nc_pseudos[symbol].append(pseudo)
 
                 # Save the pseudo as instance attribute whose name
                 # is constructed with the rule: symbol_ppformat
                 attr_name = symbol + "_" + ext[1:]
                 if hasattr(self, attr_name):
-                    raise RuntimError("self has already the attribute %s" % attr_name)
+                    raise RuntimeError("self has already the attribute %s" % attr_name)
 
                 setattr(self, attr_name, pseudo)
 
     def test_nc_pseudos(self):
         """Test norm-conserving pseudopotentials"""
-        for (symbol, pseudos) in self.nc_pseudos.items():
+        for symbol, pseudos in self.nc_pseudos.items():
             for pseudo in pseudos:
                 print(repr(pseudo))
                 print(pseudo)
@@ -63,19 +62,20 @@ class PseudoTestCase(PymatgenTest):
                 self.assertEqual(pseudo.symbol, symbol)
                 self.assertEqual(pseudo.Z_val, 4)
                 self.assertGreaterEqual(pseudo.nlcc_radius, 0.0)
-                print(pseudo.as_dict())
-
-                self.assertMSONable(pseudo)
 
                 # Test pickle
                 self.serialize_with_pickle(pseudo, test_eq=False)
+
+                # Test MSONable
+                #print(pseudo.as_dict())
+                self.assertMSONable(pseudo)
 
         # HGH pseudos
         pseudo = self.Si_hgh
         self.assertFalse(pseudo.has_nlcc)
         self.assertEqual(pseudo.l_max, 1)
         self.assertEqual(pseudo.l_local, 0)
-
+        assert not pseudo.supports_soc
         assert self.Si_hgh.md5 is not None
         assert self.Si_hgh == self.Si_hgh
 
@@ -84,7 +84,7 @@ class PseudoTestCase(PymatgenTest):
         self.assertTrue(pseudo.has_nlcc)
         self.assertEqual(pseudo.l_max, 2)
         self.assertEqual(pseudo.l_local, 2)
-
+        assert not pseudo.supports_soc
         assert self.Si_hgh != self.Si_pspnc
 
         # FHI pseudos
@@ -92,6 +92,7 @@ class PseudoTestCase(PymatgenTest):
         self.assertFalse(pseudo.has_nlcc)
         self.assertEqual(pseudo.l_max, 3)
         self.assertEqual(pseudo.l_local, 2)
+        assert not pseudo.supports_soc
 
         # Test PseudoTable.
         table = PseudoTable(self.nc_pseudos["Si"])
@@ -121,11 +122,15 @@ class PseudoTestCase(PymatgenTest):
                         oxygen.Z_val == 6,
                        )
 
+        assert oxygen.xc.type == "GGA" and oxygen.xc.name == "PBE"
+        assert oxygen.supports_soc
         assert oxygen.md5 is not None
         self.assert_almost_equal(oxygen.paw_radius, 1.4146523028)
 
         # Test pickle
         new_objs = self.serialize_with_pickle(oxygen, test_eq=False)
+        # Test MSONable
+        self.assertMSONable(oxygen)
 
         for o in new_objs:
             print(repr(o))
@@ -139,9 +144,9 @@ class PseudoTestCase(PymatgenTest):
 
             self.assert_almost_equal(o.paw_radius, 1.4146523028)
 
-    def test_oncvpsp_pseudo(self):
+    def test_oncvpsp_pseudo_sr(self):
         """
-        Test the ONCVPSP Ge pseudo
+        Test the ONCVPSP Ge pseudo (scalar relativistic version).
         """
         ger = Pseudo.from_file(ref_file("ge.oncvpsp"))
         print(repr(ger))
@@ -158,6 +163,35 @@ class PseudoTestCase(PymatgenTest):
         self.assert_equal(ger.l_local, 4)
         self.assert_equal(ger.rcore, None)
         self.assertFalse(ger.has_dojo_report)
+        assert not ger.supports_soc
+
+        # Data persistence
+        self.serialize_with_pickle(ger, test_eq=False)
+        self.assertMSONable(ger)
+
+    def test_oncvpsp_pseudo_fr(self):
+        """
+        Test the ONCVPSP Pb pseudo (relativistic version with SO).
+        """
+        pb = Pseudo.from_file(ref_file("Pb-d-3_r.psp8"))
+        print(repr(pb))
+        print(pb)
+        #print(pb.as_dict())
+        #pb.as_tmpfile()
+
+        # Data persistence
+        self.serialize_with_pickle(pb, test_eq=False)
+        self.assertMSONable(pb)
+
+        self.assertTrue(pb.symbol == "Pb")
+        self.assert_equal(pb.Z, 82.0)
+        self.assert_equal(pb.Z_val, 14.0)
+        self.assertTrue(pb.isnc)
+        self.assertFalse(pb.ispaw)
+        self.assert_equal(pb.l_max, 2)
+        self.assert_equal(pb.l_local, 4)
+        self.assertFalse(pb.has_dojo_report)
+        self.assertTrue(pb.supports_soc)
 
     def test_oncvpsp_dojo_report(self):
         """Testing pseudopotentials with dojo report"""
@@ -171,7 +205,6 @@ class PseudoTestCase(PymatgenTest):
         h_wdr = Pseudo.from_file(ref_file("H-wdr.oncvpsp"))
 
         # Test DOJO REPORT and md5
-
         assert h_wdr.symbol == "H" and h_wdr.has_dojo_report
 
         #h_wdr.check_and_fix_dojo_md5()
@@ -267,5 +300,5 @@ class PseudoTableTest(PymatgenTest):
 
 
 if __name__ == "__main__":
-    import unittest
+    import unittest2 as unittest
     unittest.main()

@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Mar 18, 2012"
 
-import unittest
+import unittest2 as unittest
 import os
 
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
@@ -34,7 +34,7 @@ class BorgQueenTest(unittest.TestCase):
 
     def test_get_data(self):
         data = self.queen.get_data()
-        self.assertEqual(len(data), 2)
+        self.assertEqual(len(data), 4)
 
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()

@@ -28,6 +28,7 @@ from numpy import pi, dot, transpose, radians
 from scipy.spatial import Voronoi
 
 from monty.json import MSONable
+from monty.dev import deprecated
 from pymatgen.util.num_utils import abs_cap
 from pymatgen.core.units import ArrayWithUnit
 
@@ -70,46 +71,6 @@ class Lattice(MSONable):
         # The inverse matrix is lazily generated for efficiency.
         self._inv_matrix = None
         self._metric_tensor = None
-
-    @classmethod
-    def from_abivars(cls, *args, **kwargs):
-        """
-        Returns a new instance from a dictionary with the variables
-        used in ABINIT to define the unit cell.
-        If acell is not give, the Abinit default is used i.e. [1,1,1] Bohr
-
-        Example:
-
-            lattice.from_abivars(
-                acell=3*[10],
-                rprim=np.eye(3),
-            )
-        """
-        kwargs.update(dict(*args))
-        d = kwargs
-        rprim = d.get("rprim", None)
-        angdeg = d.get("angdeg", None)
-        acell = d.get("acell", [1,1,1])
-
-        # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
-        if rprim is not None:
-            assert angdeg is None
-            rprim = np.reshape(rprim, (3,3))
-            rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
-            return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
-
-        elif angdeg is not None:
-            # angdeg(0) is the angle between the 2nd and 3rd vectors,
-            # angdeg(1) is the angle between the 1st and 3rd vectors,
-            # angdeg(2) is the angle between the 1st and 2nd vectors,
-            raise NotImplementedError("angdeg convention should be tested")
-            angles = angdeg
-            angles[1] = -angles[1]
-            l = ArrayWithUnit(acell, "bohr").to("ang")
-            return cls.from_lengths_and_angles(l, angdeg)
-
-        else:
-            raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
 
     def copy(self):
         """Deep copy of self."""
@@ -298,11 +259,24 @@ class Lattice(MSONable):
         return Lattice([vector_a, vector_b, vector_c])
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d, fmt=None, **kwargs):
         """
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
-        and gamma parameters.
+        and gamma parameters if fmt is None.
+        
+        If fmt == "abivars", the function build a `Lattice` object from a dictionary
+        with the Abinit variables `acell` and `rprim` in Bohr. 
+        If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr
+
+        Example:
+
+            Lattice.from_dict(fmt="abivars", acell=3*[10], rprim=np.eye(3))
         """
+        if fmt == "abivars":
+            from pymatgen.io.abinit.abiobjects import lattice_from_abivars
+            kwargs.update(d)
+            return lattice_from_abivars(cls=cls, **kwargs)
+
         if "matrix" in d:
             return cls(d["matrix"])
         else:
@@ -518,7 +492,7 @@ class Lattice(MSONable):
                                   np.logical_and(alphab,
                                                  betab[i][None, :]))
             for j, k in np.argwhere(inds):
-                scale_m = np.array((f_a[i], f_b[j], f_c[k]))
+                scale_m = np.array((f_a[i], f_b[j], f_c[k]), dtype=np.int)
                 if abs(np.linalg.det(scale_m)) < 1e-8:
                     continue
 
@@ -908,8 +882,8 @@ class Lattice(MSONable):
             else:
                 fcoords, dists, inds
         """
-        recp_len = np.array(self.reciprocal_lattice.abc)
-        nmax = r * recp_len / (2 * math.pi) + 0.01
+        recp_len = np.array(self.reciprocal_lattice_crystallographic.abc)
+        nmax = float(r) * recp_len + 0.01
 
         pcoords = self.get_fractional_coords(center)
         center = np.array(center)

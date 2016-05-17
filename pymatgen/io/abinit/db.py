@@ -164,5 +164,5 @@ if __name__ == "__main__":
     print(connector)
     print(connector.get_collection())
 
-    #import unittest
+    #import unittest2 as unittest
     #unittest.main()
