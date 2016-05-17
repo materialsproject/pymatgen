@@ -252,6 +252,13 @@ class BandStructure(object):
         """
         return self._structure
 
+    @property
+    def projections(self):
+        """
+        returns the raw projections dict
+        """
+        return self._projections
+
     def get_projection_on_elements(self):
         """
         Method returning a dictionary of projections on elements.
