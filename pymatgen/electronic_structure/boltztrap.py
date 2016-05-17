@@ -535,9 +535,6 @@ class BoltztrapRunner(object):
                 os.remove(os.path.join(path_dir, c))
 
         with cd(path_dir):
-
-            ######## convergence loop over energy_grid, lpfac and not on
-            # eff_mass (as previously) ########################
             lpfac_start = self.lpfac
             converged = False
 
