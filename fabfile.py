@@ -86,6 +86,8 @@ def setver():
 
 
 def update_doc():
+    with lcd("docs/_build/html/"):
+        local("git pull")
     make_doc()
     with lcd("docs/_build/html/"):
         local("git add .")

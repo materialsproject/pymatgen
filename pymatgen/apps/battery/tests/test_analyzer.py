@@ -1,4 +1,4 @@
-import unittest
+import unittest2 as unittest
 import os
 from pymatgen.apps.battery.analyzer import BatteryAnalyzer
 
@@ -18,7 +18,7 @@ class BatteryAnalyzerTest(PymatgenTest):
         return BatteryAnalyzer(s, cation)
 
     def load_from_internal(self, name, oxidations, cation="Li"):
-        s = Structure.from_sites(self.get_structure(name))
+        s = self.get_structure(name).copy()
         s.add_oxidation_state_by_element(oxidations)
         return BatteryAnalyzer(s, cation)
 

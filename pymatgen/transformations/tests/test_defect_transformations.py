@@ -16,7 +16,7 @@ __maintainier__ = "Bharat Medasani"
 __email__ = "mbkumar@gmail.com"
 __date__ = "Jul 1 2014"
 
-import unittest
+import unittest2 as unittest
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure

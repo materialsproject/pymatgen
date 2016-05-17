@@ -4,6 +4,12 @@
 
 from __future__ import division, unicode_literals, print_function
 
+from matplotlib import pyplot as plt
+
+from pymatgen import Energy
+from pymatgen.electronic_structure.boltztrap import BoltztrapError
+from pymatgen.symmetry.bandstructure import HighSymmKpath
+
 """
 This module implements plotter for DOS and band structure.
 """
@@ -411,7 +417,11 @@ class BSPlotter(object):
         plt = get_publication_quality_plot(12, 8)
         from matplotlib import rc
         import scipy.interpolate as scint
-        rc('text', usetex=True)
+        try:
+            rc('text', usetex=True)
+        except:
+            # Fall back on non Tex if errored.
+            rc('text', usetex=False)
 
         # main internal config options
         e_min = -4
@@ -641,15 +651,16 @@ class BSPlotter(object):
         plt = self.get_plot()
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
-        band_linewidth = 3
+        band_linewidth = 1
         for i in range(other_plotter._nb_bands):
-            plt.plot(data_orig['distances'],
-                     [e for e in data['energy'][str(Spin.up)][i]],
-                     'r-', linewidth=band_linewidth)
-            if other_plotter._bs.is_spin_polarized:
-                plt.plot(data_orig['distances'],
-                         [e for e in data['energy'][str(Spin.down)][i]],
+            for d in range(len(data_orig['distances'])):
+                plt.plot(data_orig['distances'][d],
+                         [e[str(Spin.up)][i] for e in data['energy']][d],
                          'r-', linewidth=band_linewidth)
+        if other_plotter._bs.is_spin_polarized:
+            plt.plot(data_orig['distances'],
+                     [e for e in data['energy'][i][str(Spin.down)]],
+                     'r-', linewidth=band_linewidth)
         return plt
 
     def plot_brillouin(self):
@@ -958,6 +969,303 @@ class BSPlotterProjected(BSPlotter):
         plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 2.0)
         return plt
 
+class BoltztrapPlotter(object):
+    """
+    class containing methods to plot the data from Boltztrap.
+
+    Args:
+        bz: a BoltztrapAnalyzer object
+    """
+
+    def __init__(self, bz):
+        self._bz = bz
+
+    def _plot_doping(self, temp):
+        if len(self._bz.doping) != 0:
+            limit = 2.21e15
+            plt.axvline(self._bz.mu_doping['n'][temp][0], linewidth=3.0,
+                        linestyle="--")
+            plt.text(self._bz.mu_doping['n'][temp][0] + 0.01,
+                     limit,
+                     "$n$=10$^{" + str(
+                         math.log10(self._bz.doping['n'][0])) + "}$",
+                     color='b')
+            plt.axvline(self._bz.mu_doping['n'][temp][-1], linewidth=3.0,
+                        linestyle="--")
+            plt.text(self._bz.mu_doping['n'][temp][-1] + 0.01,
+                     limit,
+                     "$n$=10$^{" + str(math.log10(self._bz.doping['n'][-1]))
+                     + "}$", color='b')
+            plt.axvline(self._bz.mu_doping['p'][temp][0], linewidth=3.0,
+                        linestyle="--")
+            plt.text(self._bz.mu_doping['p'][temp][0] + 0.01,
+                     limit,
+                     "$p$=10$^{" + str(
+                         math.log10(self._bz.doping['p'][0])) + "}$",
+                     color='b')
+            plt.axvline(self._bz.mu_doping['p'][temp][-1], linewidth=3.0,
+                        linestyle="--")
+            plt.text(self._bz.mu_doping['p'][temp][-1] + 0.01,
+                     limit, "$p$=10$^{" +
+                     str(math.log10(self._bz.doping['p'][-1])) + "}$",
+                     color='b')
+
+    def _plot_bg_limits(self):
+        plt.axvline(0.0, color='k', linewidth=3.0)
+        plt.axvline(self._bz.gap, color='k', linewidth=3.0)
+
+    def plot_seebeck_mu(self, temp=600, output='eig', xlim=None):
+        """
+        Plot the seebeck coefficient in function of Fermi level
+
+        Args:
+            temp:
+                the temperature
+            xlim:
+                a list of min and max fermi energy by default (0, and band gap)
+        Returns:
+            a matplotlib object
+        """
+        seebeck = self._bz.get_seebeck(output=output, doping_levels=False)[
+            temp]
+        plt.plot(self._bz.mu_steps, seebeck,
+                 linewidth=3.0)
+        self._plot_bg_limits()
+        self._plot_doping(temp)
+        if output == 'eig':
+            plt.legend(['S$_1$', 'S$_2$', 'S$_3$'])
+        if xlim is None:
+            plt.xlim(-0.5, self._bz.gap + 0.5)
+        else:
+            plt.xlim(xlim[0], xlim[1])
+        plt.ylabel("Seebeck \n coefficient  ($\mu$V/K)", fontsize=30.0)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        return plt
+
+    def plot_conductivity_mu(self, temp=600, output='eig',
+                             relaxation_time=1e-14, xlim=None):
+        """
+        Plot the conductivity in function of Fermi level. Semi-log plot
+
+        Args:
+            temp: the temperature
+            xlim: a list of min and max fermi energy by default (0, and band
+                gap)
+            tau: A relaxation time in s. By default none and the plot is by
+               units of relaxation time
+
+        Returns:
+            a matplotlib object
+        """
+        cond = self._bz.get_conductivity(relaxation_time=relaxation_time,
+                                         output=output, doping_levels=False)[
+            temp]
+        plt.semilogy(self._bz.mu_steps, cond, linewidth=3.0)
+        self._plot_bg_limits()
+        self._plot_doping(temp)
+        if output == 'eig':
+            plt.legend(['$\sigma_1$', '$\sigma_2$', '$\sigma_3$'])
+        if xlim is None:
+            plt.xlim(-0.5, self._bz.gap + 0.5)
+        else:
+            plt.xlim(xlim)
+        plt.ylim([1e13 * relaxation_time, 1e20 * relaxation_time])
+        plt.ylabel("conductivity,\n $\sigma$ (1/($\Omega$ m))", fontsize=30.0)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        return plt
+
+    def plot_power_factor_mu(self, temp=600, output='eig',
+                             relaxation_time=1e-14, xlim=None):
+        """
+        Plot the power factor in function of Fermi level. Semi-log plot
+
+        Args:
+            temp: the temperature
+            xlim: a list of min and max fermi energy by default (0, and band
+                gap)
+            tau: A relaxation time in s. By default none and the plot is by
+               units of relaxation time
+
+        Returns:
+            a matplotlib object
+        """
+        pf = self._bz.get_power_factor(relaxation_time=relaxation_time,
+                                       output=output, doping_levels=False)[
+            temp]
+        plt.semilogy(self._bz.mu_steps, pf, linewidth=3.0)
+        self._plot_bg_limits()
+        self._plot_doping(temp)
+        if output == 'eig':
+            plt.legend(['PF$_1$', 'PF$_2$', 'PF$_3$'])
+        if xlim is None:
+            plt.xlim(-0.5, self._bz.gap + 0.5)
+        else:
+            plt.xlim(xlim)
+        plt.ylabel("Power factor, ($\mu$W/(mK$^2$))", fontsize=30.0)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        return plt
+
+    def plot_zt_mu(self, temp=600, output='eig', relaxation_time=1e-14,
+                   xlim=None):
+        """
+        Plot the ZT in function of Fermi level.
+
+        Args:
+            temp: the temperature
+            xlim: a list of min and max fermi energy by default (0, and band
+                gap)
+            tau: A relaxation time in s. By default none and the plot is by
+               units of relaxation time
+
+        Returns:
+            a matplotlib object
+        """
+        zt = self._bz.get_zt(relaxation_time=relaxation_time, output=output,
+                             doping_levels=False)[temp]
+        plt.plot(self._bz.mu_steps, zt, linewidth=3.0)
+        self._plot_bg_limits()
+        self._plot_doping(temp)
+        if output == 'eig':
+            plt.legend(['ZT$_1$', 'ZT$_2$', 'ZT$_3$'])
+        if xlim is None:
+            plt.xlim(-0.5, self._bz.gap + 0.5)
+        else:
+            plt.xlim(xlim)
+        plt.ylabel("ZT", fontsize=30.0)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        return plt
+
+    def plot_dos(self, sigma=0.05):
+        """
+        plot dos
+
+        Args:
+            sigma: a smearing
+
+        Returns:
+            a matplotlib object
+        """
+        plotter = DosPlotter(sigma=sigma)
+        plotter.add_dos("t", self._bz.dos)
+        return plotter.get_plot()
+
+    def plot_carriers(self, temp=300):
+        """
+        Plot the carrier concentration in function of Fermi level
+
+        Args:
+            temp: the temperature
+
+        Returns:
+            a matplotlib object
+        """
+        plt.semilogy(self._bz.mu_steps,
+                     abs(self._bz.carrier_conc[temp] / (self._bz.vol * 1e-24)),
+                     linewidth=3.0, color='r')
+        self._plot_bg_limits()
+        self._plot_doping(temp)
+        plt.xlim(-0.5, self._bz.gap + 0.5)
+        plt.ylim(1e14, 1e22)
+        plt.ylabel("carrier concentration (cm-3)", fontsize=30.0)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        return plt
+
+    def plot_hall_carriers(self, temp=300):
+        """
+        Plot the Hall carrier concentration in function of Fermi level
+
+        Args:
+            temp: the temperature
+
+        Returns:
+            a matplotlib object
+        """
+        hall_carriers = [abs(i) for i in
+                         self._bz.get_hall_carrier_concentration()[temp]]
+        plt.semilogy(self._bz.mu_steps,
+                     hall_carriers,
+                     linewidth=3.0, color='r')
+        self._plot_bg_limits()
+        self._plot_doping(temp)
+        plt.xlim(-0.5, self._bz.gap + 0.5)
+        plt.ylim(1e14, 1e22)
+        plt.ylabel("Hall carrier concentration (cm-3)", fontsize=30.0)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        return plt
+
+    def plot_fermi_surface(self, structure=None, isolevel=None):
+        """
+        Plot the Fermi surface at a aspecific energy value
+
+        Args:
+            bz_lattice: structure object of the material
+            isolevel: energy value fo fermi surface, Default: max energy value + 0.1eV
+
+        Returns:
+            a matplotlib object
+
+        Note: Experimental
+        """
+        from mpl_toolkits.mplot3d import Axes3D
+        from pymatgen.electronic_structure.plotter import plot_brillouin_zone
+        try:
+            from skimage import measure
+        except ImportError:
+            raise BoltztrapError(
+                "skimage package should be installed to use this function")
+
+        fig = None
+
+        data = self._bz.fermi_surface_data
+
+        if not isolevel:
+            isolevel = max(data[0].flat) - Energy(0.1, "eV").to("Ry")
+
+        verts, faces = measure.marching_cubes(data[0], isolevel)
+        verts -= 1
+        verts2 = np.dot(verts,
+                        data[1].cell / np.array(data[0].shape)[:, np.newaxis])
+        verts2 /= max(verts2.flat) / 1.5
+
+        cx, cy, cz = [
+            (max(verts2[:, i]) - min(verts2[:, i])) / 2 + min(verts2[:, i]) for
+            i in range(3)]
+
+        if structure is not None:
+            kpath = HighSymmKpath(structure).kpath
+            lines = [[kpath['kpoints'][k] for k in p] for p in kpath['path']]
+            fig = plot_brillouin_zone(bz_lattice=structure.reciprocal_lattice,
+                                      lines=lines, labels=kpath['kpoints'])
+
+        if fig:
+            ax = fig.gca()
+            ax.plot_trisurf(verts2[:, 0] - cx, verts2[:, 1] - cy, faces,
+                            verts2[:, 2] - cz, lw=0)
+        else:
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+            ax.plot_trisurf(verts2[:, 0] - cx, verts2[:, 1] - cy, faces,
+                            verts2[:, 2] - cz, lw=0)
+            ax.set_xlim3d(-1, 1)
+            ax.set_ylim3d(-1, 1)
+            ax.set_zlim3d(-1, 1)
+            ax.set_aspect('equal')
+            ax.axis("off")
+
+        return fig, ax
+
 
 def plot_wigner_seitz(lattice, ax=None, **kwargs):
     """
@@ -1179,7 +1487,29 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
 
 
 @add_fig_kwargs
-def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None, fold=False, coords_are_cartesian=False,
+def plot_brillouin_zone_from_kpath(kpath, **kwargs):
+
+    """
+    Gives the plot (as a matplotlib object) of the symmetry line path in
+        the Brillouin Zone.
+
+    Args:
+        kpath (HighSymmKpath): a HighSymmKPath object
+        **kwargs: provided by add_fig_kwargs decorator
+
+    Returns:
+        a matplotlib figure and matplotlib_ax
+
+    """
+    lines = [[kpath.kpath['kpoints'][k] for k in p]
+             for p in kpath.kpath['path']]
+    return plot_brillouin_zone(bz_lattice=kpath.prim_rec, lines=lines,
+                               labels=kpath.kpath['kpoints'], **kwargs)
+
+
+@add_fig_kwargs
+def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None,
+                        fold=False, coords_are_cartesian=False,
                         ax=None, **kwargs):
     """
     Plots a 3D representation of the Brillouin zone of the structure.
@@ -1205,14 +1535,20 @@ def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None, fold=
     plot_wigner_seitz(bz_lattice, ax=ax)
     if lines is not None:
         for line in lines:
-            plot_path(line, bz_lattice, coords_are_cartesian=coords_are_cartesian, ax=ax)
+            plot_path(line, bz_lattice,
+                      coords_are_cartesian=coords_are_cartesian, ax=ax)
 
     if labels is not None:
-        plot_labels(labels, bz_lattice, coords_are_cartesian=coords_are_cartesian, ax=ax)
-        plot_points(labels.values(), bz_lattice, coords_are_cartesian=coords_are_cartesian, fold=False, ax=ax)
+        plot_labels(labels, bz_lattice,
+                    coords_are_cartesian=coords_are_cartesian, ax=ax)
+        plot_points(labels.values(), bz_lattice,
+                    coords_are_cartesian=coords_are_cartesian,
+                    fold=False, ax=ax)
 
     if kpoints is not None:
-        plot_points(kpoints, bz_lattice, coords_are_cartesian=coords_are_cartesian, ax=ax, fold=fold)
+        plot_points(kpoints, bz_lattice,
+                    coords_are_cartesian=coords_are_cartesian,
+                    ax=ax, fold=fold)
 
     ax.set_xlim3d(-1, 1)
     ax.set_ylim3d(-1, 1)

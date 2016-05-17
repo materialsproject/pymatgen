@@ -19,7 +19,6 @@ from math import tan
 from math import pi
 from warnings import warn
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.electronic_structure.plotter import plot_brillouin_zone
 
 
 class HighSymmKpath(object):
@@ -161,6 +160,30 @@ class HighSymmKpath(object):
         return self._prim
 
     @property
+    def conventional(self):
+        """
+        Returns:
+            The conventional cell structure
+        """
+        return self._conv
+
+    @property
+    def prim(self):
+        """
+        Returns:
+            The primitive cell structure
+        """
+        return self._prim
+
+    @property
+    def prim_rec(self):
+        """
+        Returns:
+            The primitive reciprocal cell structure
+        """
+        return self._prim_rec
+
+    @property
     def kpath(self):
         """
         Returns:
@@ -197,31 +220,6 @@ class HighSymmKpath(object):
             frac_k_points = [self._prim_rec.get_fractional_coords(k)
                              for k in list_k_points]
             return frac_k_points, sym_point_labels
-
-    def get_kpath_plot(self, **kwargs):
-        """
-        Gives the plot (as a matplotlib object) of the symmetry line path in
-        the Brillouin Zone.
-
-        Returns:
-            `matplotlib` figure.
-
-
-        ================  ====================================================
-        kwargs            Meaning
-        ================  ====================================================
-        title             Title of the plot (Default: None).
-        show              True to show the figure (default: True).
-        savefig           'abc.png' or 'abc.eps' to save the figure to a file.
-        size_kwargs       Dictionary with options passed to fig.set_size_inches
-                          example: size_kwargs=dict(w=3, h=4)
-        tight_layout      True if to call fig.tight_layout (default: False)
-        ================  ====================================================
-        """
-
-        lines = [[self.kpath['kpoints'][k] for k in p] for p in self.kpath['path']]
-        return plot_brillouin_zone(bz_lattice=self._prim_rec, lines=lines, labels=self.kpath['kpoints'], **kwargs)
-
 
     def cubic(self):
         self.name = "CUB"

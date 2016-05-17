@@ -41,7 +41,7 @@ import logging
 
 import numpy as np
 from monty.fractions import lcm
-from monty.fractions import fractions
+import fractions
 
 from six.moves import reduce
 
@@ -151,7 +151,6 @@ class EnumlibAdaptor(object):
         documentation for details.
         """
         coord_format = "{:.6f} {:.6f} {:.6f}"
-
         # Using symmetry finder, get the symmetrically distinct sites.
         fitter = SpacegroupAnalyzer(self.structure, self.symm_prec)
         symmetrized_structure = fitter.get_symmetrized_structure()
@@ -341,8 +340,7 @@ class EnumlibAdaptor(object):
                     transformation = [[int(round(cell)) for cell in row]
                                       for row in transformation]
                     logger.debug("Supercell matrix: {}".format(transformation))
-                    s = Structure.from_sites(ordered_structure)
-                    s.make_supercell(transformation)
+                    s = ordered_structure * transformation
                     sites.extend([site.to_unit_cell for site in s])
                     super_latt = sites[-1].lattice
                 else:

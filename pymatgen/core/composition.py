@@ -28,7 +28,7 @@ from six.moves import filter, map, zip
 from fractions import Fraction
 from functools import total_ordering
 
-from monty.fractions import gcd
+from monty.fractions import gcd, lcm
 from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.util.string_utils import formula_double_format
 from monty.json import MSONable
@@ -366,14 +366,17 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             A pretty normalized formula and a multiplicative factor, i.e.,
             Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)
         """
-        mul = gcd(*[Fraction(v).limit_denominator(max_denominator) for v
-                    in self.values()])
-        d = {k: round(v / mul) for k, v in self.get_el_amt_dict().items()}
+        vals = [Fraction(v).limit_denominator(max_denominator)
+                for v in self.values()]
+        denom = lcm(*(f.denominator for f in vals))
+
+        mul = gcd(*[int(v * denom) for v in vals])
+        d = {k: round(v / mul * denom) for k, v in self.get_el_amt_dict().items()}
         (formula, factor) = reduce_formula(d)
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
             factor /= 2
-        return formula, factor * mul
+        return formula, factor * mul / denom
 
     @property
     def reduced_formula(self):
@@ -479,7 +482,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         """
         reduced = self.element_composition
         if all(x == int(x) for x in self.values()):
-            reduced /= gcd(*self.values())
+            reduced /= gcd(*(int(i) for i in self.values()))
 
         anon = ""
         for e, amt in zip(string.ascii_uppercase, sorted(reduced.values())):
@@ -772,7 +775,11 @@ def reduce_formula(sym_amt):
                           get_el_sp(syms[num_el - 1]).X
                           - get_el_sp(syms[num_el - 2]).X < 1.65)
 
-    factor = abs(gcd(*sym_amt.values()))
+    factor = 1
+    # Enforce integers for doing gcd.
+    if all((int(i) == i for i in sym_amt.values())):
+        factor = abs(gcd(*(int(i) for i in sym_amt.values())))
+
     reduced_form = []
     n = num_el - 2 if contains_polyanion else num_el
     for i in range(0, n):

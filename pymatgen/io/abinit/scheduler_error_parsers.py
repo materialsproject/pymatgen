@@ -323,7 +323,6 @@ class SlurmErrorParser(AbstractErrorParser):
     """
     Implementation of the error definitions for the Slurm scheduler
     """
-
     @property
     def error_definitions(self):
         return {
@@ -345,11 +344,13 @@ class SlurmErrorParser(AbstractErrorParser):
                     'meta_filter': {}
                 }
             },
+#slurmstepd: error: *** JOB 1803480 CANCELLED AT 2015-12-16T14:57:32 DUE TO TIME LIMIT on lmWn009 ***
+#slurmstepd: error: *** JOB 1803712 CANCELLED AT 2015-12-17T15:21:41 DUE TO TIME LIMIT on lmWn001 ***
             TimeCancelError: {
                 'err': {
                     'string': "DUE TO TIME LIMIT",
                     'meta_filter': {
-                        'time_of_cancel': [r"JOB (\d+) CANCELLED AT (\S*) DUE TO TIME LIMIT", 1]
+                        'time_of_cancel': [r"(.*)JOB (\d+) CANCELLED AT (\S*) DUE TO TIME LIMIT(.*)", 3]
                     }
                 }
             },

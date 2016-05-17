@@ -905,8 +905,8 @@ class Lattice(MSONable):
             else:
                 fcoords, dists, inds
         """
-        recp_len = np.array(self.reciprocal_lattice.abc)
-        nmax = r * recp_len / (2 * math.pi) + 0.01
+        recp_len = np.array(self.reciprocal_lattice_crystallographic.abc)
+        nmax = float(r) * recp_len + 0.01
 
         pcoords = self.get_fractional_coords(center)
         center = np.array(center)

@@ -8,10 +8,6 @@ from __future__ import division, unicode_literals
 This module implements an XRD pattern calculator.
 """
 
-from six.moves import filter
-from six.moves import map
-from six.moves import zip
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -22,6 +18,7 @@ __date__ = "5/22/14"
 
 from math import sin, cos, asin, pi, degrees, radians
 import os
+import collections
 
 import numpy as np
 import json
@@ -196,7 +193,7 @@ class XRDCalculator(object):
         recip_pts = recip_latt.get_points_in_sphere(
             [[0, 0, 0]], [0, 0, 0], max_r)
         if min_r:
-            recip_pts = filter(lambda d: d[1] >= min_r, recip_pts)
+            recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
 
         # Create a flattened array of zs, coeffs, fcoords and occus. This is
         # used to perform vectorized computation of atomic scattering factors
@@ -233,6 +230,7 @@ class XRDCalculator(object):
 
         for hkl, g_hkl, ind in sorted(
                 recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
+            hkl = [int(round(i)) for i in hkl] #Force miller indices to be integers.
             if g_hkl != 0:
 
                 d_hkl = 1 / g_hkl
@@ -270,7 +268,7 @@ class XRDCalculator(object):
                 f_hkl = np.sum(fs * occus * np.exp(2j * pi * g_dot_r)
                                * dw_correction)
 
-                #Lorentz polarization correction for hkl
+                # Lorentz polarization correction for hkl
                 lorentz_factor = (1 + cos(2 * theta) ** 2) / \
                     (sin(theta) ** 2 * cos(theta))
 
@@ -280,14 +278,14 @@ class XRDCalculator(object):
                 two_theta = degrees(2 * theta)
 
                 if is_hex:
-                    #Use Miller-Bravais indices for hexagonal lattices.
+                    # Use Miller-Bravais indices for hexagonal lattices.
                     hkl = (hkl[0], hkl[1], - hkl[0] - hkl[1], hkl[2])
-                #Deal with floating point precision issues.
+                # Deal with floating point precision issues.
                 ind = np.where(np.abs(np.subtract(two_thetas, two_theta)) <
                                XRDCalculator.TWO_THETA_TOL)
                 if len(ind[0]) > 0:
-                    peaks[two_thetas[ind[0]]][0] += i_hkl * lorentz_factor
-                    peaks[two_thetas[ind[0]]][1].append(tuple(hkl))
+                    peaks[two_thetas[ind[0][0]]][0] += i_hkl * lorentz_factor
+                    peaks[two_thetas[ind[0][0]]][1].append(tuple(hkl))
                 else:
                     peaks[two_theta] = [i_hkl * lorentz_factor, [tuple(hkl)],
                                         d_hkl]
@@ -367,21 +365,25 @@ def get_unique_families(hkls):
     Returns:
         {hkl: multiplicity}: A dict with unique hkl and multiplicity.
     """
-    #TODO: Definitely can be sped up.
+    # TODO: Definitely can be sped up.
     def is_perm(hkl1, hkl2):
-        h1 = map(abs, hkl1)
-        h2 = map(abs, hkl2)
+        h1 = np.abs(hkl1)
+        h2 = np.abs(hkl2)
         return all([i == j for i, j in zip(sorted(h1), sorted(h2))])
 
-    unique = {}
+    unique = collections.defaultdict(list)
     for hkl1 in hkls:
         found = False
         for hkl2 in unique.keys():
             if is_perm(hkl1, hkl2):
                 found = True
-                unique[hkl2] += 1
+                unique[hkl2].append(hkl1)
                 break
         if not found:
-            unique[hkl1] = 1
+            unique[hkl1].append(hkl1)
 
-    return unique
+    pretty_unique = {}
+    for k, v in unique.items():
+        pretty_unique[sorted(v)[-1]] = len(v)
+
+    return pretty_unique

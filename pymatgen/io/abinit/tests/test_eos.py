@@ -4,10 +4,10 @@
 
 from __future__ import unicode_literals, division, print_function
 
-import unittest
 import numpy as np
+import unittest2 as unittest
 
-from pymatgen.io.abinit.eos import EOS
+from pymatgen.analysis.eos import EOS
 
 def have_scipy():
     try:

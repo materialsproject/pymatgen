@@ -4,21 +4,19 @@
 
 from __future__ import unicode_literals
 
-import unittest
+import unittest2 as unittest
 import os
 import shutil
+import tempfile
 
 import numpy as np
 from monty.json import MontyDecoder
 
-from pymatgen.io.vasp.sets import MITVaspInputSet, MITHSEVaspInputSet, \
-    MPVaspInputSet, MITGGAVaspInputSet, MITNEBVaspInputSet,\
-    MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet,\
-    MPHSEVaspInputSet, MPBSHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet,\
-    MPOpticsNonSCFVaspInputSet, MVLElasticInputSet
+from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Incar, Kpoints
 from pymatgen import Specie, Lattice, Structure
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.io.vasp.outputs import Vasprun
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -414,8 +412,7 @@ class MITNEBVaspInputSetTest(unittest.TestCase):
         s2 = Structure(Lattice.cubic(5), ['Si', 'Si'], c2)
         structs = []
         for s in s1.interpolate(s2, 3, pbc=True):
-            structs.append(Structure.from_sites(s.sites,
-                                        to_unit_cell=True))
+            structs.append(Structure.from_sites(s.sites, to_unit_cell=True))
 
         fc = self.vis._process_structures(structs)[2].frac_coords
         self.assertTrue(np.allclose(fc, [[0.5]*3,[0.9, 1.033333, 1.0333333]]))
@@ -432,6 +429,141 @@ class MVLVaspInputSetTest(PymatgenTest):
         self.assertEqual(incar["NFREE"], 2)
         self.assertEqual(incar["POTIM"], 0.015)
         self.assertNotIn("NPAR", incar)
+
+
+class MPStaticSetTest(PymatgenTest):
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+
+    def test_init(self):
+        prev_run = os.path.join(test_dir, "relaxation")
+
+        vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run)
+        self.assertEqual(vis.incar["NSW"], 0)
+        # Check that the ENCUT has been inherited.
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
+
+        # Check as from dict.
+        vis = MPStaticSet.from_dict(vis.as_dict())
+        self.assertEqual(vis.incar["NSW"], 0)
+        # Check that the ENCUT has been inherited.
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
+
+        non_prev_vis = MPStaticSet(vis.structure,
+                                   user_incar_settings={"LORBIT": 12, "LWAVE": True})
+        self.assertEqual(non_prev_vis.incar["NSW"], 0)
+        # Check that the ENCUT and Kpoints style has NOT been inherited.
+        self.assertEqual(non_prev_vis.incar["ENCUT"], 520)
+        # Check that user incar settings are applied.
+        self.assertEqual(non_prev_vis.incar["LORBIT"], 12)
+        self.assertTrue(non_prev_vis.incar["LWAVE"])
+
+        self.assertEqual(non_prev_vis.kpoints.style,
+                         Kpoints.supported_modes.Gamma)
+        v2 = MPStaticSet.from_dict(non_prev_vis.as_dict())
+        self.assertEqual(v2.incar["ENCUT"], 520)
+        # Check that user incar settings are applied.
+        self.assertEqual(v2.incar["LORBIT"], 12)
+        leps_vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run,
+                                              lepsilon=True)
+        self.assertTrue(leps_vis.incar["LEPSILON"])
+        self.assertEqual(leps_vis.incar["IBRION"], 8)
+        self.assertNotIn("NPAR", leps_vis.incar)
+        self.assertNotIn("NSW", leps_vis.incar)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+
+class MPNonSCFDerivedSetTest(PymatgenTest):
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+
+    def test_init(self):
+        prev_run = os.path.join(test_dir, "relaxation")
+        vis = MPNonSCFSet.from_prev_calc(
+            prev_calc_dir=prev_run, mode="Line", copy_chgcar=False)
+        self.assertEqual(vis.incar["NSW"], 0)
+        # Check that the ENCUT has been inherited.
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+
+        # Check as from dict.
+        vis = MPNonSCFSet.from_dict(vis.as_dict())
+        self.assertEqual(vis.incar["NSW"], 0)
+        # Check that the ENCUT has been inherited.
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+
+        vis.write_input(self.tmp)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
+
+        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run,
+                                                mode="Line", copy_chgcar=True)
+        vis.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
+
+        # Code below is just to make sure that the parameters are the same
+        # between the old MPStaticVaspInputSet and the new MPStaticSet.
+        # TODO: Delete code below in future.
+        MPNonSCFVaspInputSet.from_previous_vasp_run(
+            previous_vasp_dir=prev_run, output_dir=self.tmp, mode="Line")
+
+        incar = Incar.from_file(os.path.join(self.tmp, "INCAR"))
+
+        for k, v1 in vis.incar.items():
+            v2 = incar.get(k)
+            try:
+                v1 = v1.upper()
+                v2 = v2.upper()
+            except:
+                # Convert strings to upper case for comparison. Ignore other
+                # types.
+                pass
+            self.assertEqual(v1, v2, str(v1)+str(v2))
+        kpoints = Kpoints.from_file(os.path.join(self.tmp, "KPOINTS"))
+        self.assertEqual(kpoints.style, vis.kpoints.style)
+        self.assertArrayAlmostEqual(kpoints.kpts, vis.kpoints.kpts)
+
+    def test_optics(self):
+        prev_run = os.path.join(test_dir, "relaxation")
+        vis = MPNonSCFSet.from_prev_calc(
+            prev_calc_dir=prev_run, copy_chgcar=False, optics=True,
+            mode="Uniform", nedos=2001)
+
+        self.assertEqual(vis.incar["NSW"], 0)
+        # Check that the ENCUT has been inherited.
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertTrue(vis.incar["LOPTICS"])
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+
+class MagmomLdauTest(PymatgenTest):
+
+    def test_structure_from_prev_run(self):
+        vrun = Vasprun(os.path.join(test_dir, "vasprun.xml.magmom_ldau"))
+        structure = vrun.final_structure
+        poscar = Poscar(structure)
+        structure_decorated = get_structure_from_prev_run(vrun, sym_prec=0)
+        ldau_ans = {'LDAUU': [5.3, 0.0], 'LDAUL': [2, 0], 'LDAUJ': [0.0, 0.0]}
+        magmom_ans = [5.0, 5.0, 5.0, 5.0, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]
+        ldau_dict = {}
+        for key in ('LDAUU', 'LDAUJ', 'LDAUL'):
+            if hasattr(structure_decorated[0], key.lower()):
+                m = dict(
+                    [(site.specie.symbol, getattr(site, key.lower()))
+                     for site in structure_decorated])
+                ldau_dict[key] = [m[sym] for sym in poscar.site_symbols]
+        magmom = [site.magmom for site in structure_decorated]
+        self.assertEqual(ldau_dict, ldau_ans)
+        self.assertEqual(magmom, magmom_ans)
 
 
 if __name__ == '__main__':

@@ -2,7 +2,19 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
+from __future__ import division, unicode_literals, print_function
+
+import os
+import re
+import json
+from io import open
+from enum import Enum
+
+from pymatgen.core.units import Mass, Length, unitized, FloatWithUnit, Unit, \
+    SUPPORTED_UNIT_NAMES
+from pymatgen.util.string_utils import formula_double_format
+from monty.json import MSONable
+from monty.dev import deprecated
 
 """
 Module contains classes presenting Element and Specie (Element + oxidation
@@ -18,16 +30,6 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-import os
-import re
-import json
-from io import open
-from enum import Enum
-
-from pymatgen.core.units import Mass, Length, unitized
-from pymatgen.util.string_utils import formula_double_format
-from monty.json import MSONable
-from monty.dev import deprecated
 
 # Loads element data from json file
 with open(os.path.join(os.path.dirname(__file__), "periodic_table.json"), "rt"
@@ -393,6 +395,35 @@ class Element(Enum):
             val = d.get(kstr, None)
             if str(val).startswith("no data"):
                 val = None
+            else:
+                try:
+                    val = float(val)
+                except ValueError:
+                    toks_nobracket = re.sub(r'\(.*\)', "", val)
+                    toks = toks_nobracket.replace("about", "").strip().split(" ", 1)
+                    if len(toks) == 2:
+                        try:
+                            if "10<sup>" in toks[1]:
+                                base_power = re.findall(r'([+-]?\d+)', toks[1])
+                                factor = "e" + base_power[1]
+                                toks[0] += factor
+                                if a == "electrical_resistivity":
+                                    unit = "ohm m"
+                                elif a == "coefficient_of_linear_thermal_expansion":
+                                    unit = "K^-1"
+                                else:
+                                    unit = toks[1]
+                                val = FloatWithUnit(toks[0], unit)
+                            else:
+                                unit = toks[1].replace("<sup>", "^").replace(
+                                    "</sup>", "").replace("&Omega;",
+                                                          "ohm")
+                                units = Unit(unit)
+                                if set(units.keys()).issubset(SUPPORTED_UNIT_NAMES):
+                                    val = FloatWithUnit(toks[0], unit)
+                        except ValueError as ex:
+                            # Ignore error. val will just remain a string.
+                            pass
             setattr(self, a, val)
         if str(d.get("Atomic radius", "no data")).startswith("no data"):
             self.atomic_radius = None
@@ -571,9 +602,9 @@ class Element(Enum):
         """
         z = self.Z
         total = 0
-        if 57 <= z <= 70:
+        if 57 <= z <= 71:
             return 8
-        elif 89 <= z <= 102:
+        elif 89 <= z <= 103:
             return 9
 
         for i in range(len(_pt_row_sizes)):
@@ -608,7 +639,7 @@ class Element(Enum):
 
         if (z - 54) % 32 == 0:
             return 18
-        elif (z - 54) % 32 >= 17:
+        elif (z - 54) % 32 >= 18:
             return (z - 54) % 32 - 14
         else:
             return (z - 54) % 32
@@ -621,6 +652,8 @@ class Element(Enum):
         block = ""
         if (self.is_actinoid or self.is_lanthanoid) and self.Z not in [71, 103]:
             block = "f"
+        elif self.is_actinoid or self.is_lanthanoid:
+            block = "d"
         elif self.group in [1, 2]:
             block = "s"
         elif self.group in range(13, 19):
