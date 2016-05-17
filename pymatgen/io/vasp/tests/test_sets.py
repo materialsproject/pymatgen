@@ -566,5 +566,18 @@ class MagmomLdauTest(PymatgenTest):
         self.assertEqual(magmom, magmom_ans)
 
 
+class MPSOCSetTest(PymatgenTest):
+
+    def test_from_prev_calc(self):
+        prev_run = os.path.join(test_dir, "fe_monomer")
+        vis = MPSOCSet.from_prev_calc(prev_calc_dir=prev_run, magmom=[3],
+                                      saxis=(1, 0, 0))
+        self.assertEqual(vis.incar["ISYM"], -1)
+        self.assertTrue(vis.incar["LSORBIT"])
+        self.assertEqual(vis.incar["ICHARG"], 11)
+        self.assertEqual(vis.incar["SAXIS"], [1, 0, 0])
+        self.assertEqual(vis.incar["MAGMOM"], [[0, 0, 3]])
+
+
 if __name__ == '__main__':
     unittest.main()

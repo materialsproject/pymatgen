@@ -1946,6 +1946,132 @@ class MPNonSCFSet(DerivedVaspInputSet):
                            reciprocal_density=reciprocal_density, **kwargs)
 
 
+class MPSOCSet(MPStaticSet):
+
+    def __init__(self, structure, saxis=(0, 0, 1), prev_incar=None,
+                 prev_chgcar=None, reciprocal_density=100, **kwargs):
+        """
+        Init a MPSOCSet. Typically, you would use the classmethod
+        from_prev_calc instead.
+
+        Args:
+            structure (Structure): the structure must have the 'magmom' site
+                property and each magnetic moment value must have 3
+                components. eg:- magmom = [[0,0,2], ...]
+            saxis (tuple): magnetic moment orientation
+            prev_incar (Incar): Incar file from previous run.
+            prev_chgcar (Chgcar): Chgcar from previous run.
+            reciprocal_density (int): density of k-mesh by reciprocal
+                                    volume (defaults to 100)
+            \*\*kwargs: kwargs supported by MPVaspInputSet.
+        """
+        if not hasattr(structure[0], "magmom") and \
+                not isinstance(structure[0].magmom, list):
+            raise ValueError("The structure must have the 'magmom' site "
+                             "property and each magnetic moment value must have 3 "
+                             "components. eg:- magmom = [0,0,2]")
+        self.saxis = saxis
+        self.prev_chgcar = prev_chgcar
+        super(MPSOCSet, self).__init__(structure, prev_incar=prev_incar,
+                                      reciprocal_density=reciprocal_density,
+                                      **kwargs)
+
+    @property
+    def incar(self):
+        incar = self.parent_vis.get_incar(self.structure)
+        if self.prev_incar is not None:
+            incar.update({k: v for k, v in self.prev_incar.items()
+                         if k not in self.kwargs.get("user_incar_settings",
+                                                     {})})
+
+        # Overwrite necessary INCAR parameters from previous runs
+        incar.update({"ISYM": -1, "LSORBIT": "T", "ICHARG": 11,
+                      "SAXIS": list(self.saxis)})
+
+        return incar
+
+    def write_input(self, output_dir,
+                    make_dir_if_not_present=True, include_cif=False):
+        super(MPSOCSet, self).write_input(output_dir,
+            make_dir_if_not_present=make_dir_if_not_present,
+            include_cif=include_cif)
+        if self.prev_chgcar:
+            self.prev_chgcar.write_file(os.path.join(output_dir, "CHGCAR"))
+
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
+                       nbands_factor=1.2, standardize=False, sym_prec=0.1,
+                       international_monoclinic=True, reciprocal_density=100,
+                       small_gap_multiply=None, **kwargs):
+        """
+        Generate a set of Vasp input files for SOC calculations from a
+        directory of previous static Vasp run. SOC calc requires all 3
+        components for MAGMOM for each atom in the structure.
+
+        Args:
+            prev_calc_dir (str): The directory contains the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            copy_chgcar: Whether to copy the old CHGCAR. Defaults to True.
+            nbands_factor (float): Multiplicative factor for NBANDS. Choose a
+                higher number if you are doing an LOPTICS calculation.
+            standardize (float): Whether to standardize to a primitive
+                standard cell. Defaults to False.
+            sym_prec (float): Tolerance for symmetry finding. If not 0,
+                the final structure from the previous run will be symmetrized
+                to get a primitive standard cell. Set to 0 if you don't want
+                that.
+            international_monoclinic (bool): Whether to use international
+                convention (vs Curtarolo) for monoclinic. Defaults True.
+            reciprocal_density (int): density of k-mesh by reciprocal
+                volume (defaults to 100)
+            small_gap_multiply ([float, float]): If the gap is less than
+                1st index, multiply the default reciprocal_density by the 2nd
+                index.
+            \*\*kwargs: All kwargs supported by MPSOCSet,
+                other than structure, prev_incar and prev_chgcar which
+                are determined from the prev_calc_dir.
+        """
+        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
+
+        incar = vasprun.incar
+        # Get a magmom-decorated structure
+        structure = get_structure_from_prev_run(
+            vasprun, outcar, sym_prec=standardize and sym_prec,
+            international_monoclinic=international_monoclinic)
+        # override magmom if provided
+        if kwargs.get("magmom", None):
+            structure = structure.copy(
+                site_properties={"magmom": kwargs["magmom"]})
+            kwargs.pop("magmom", None)
+        # magmom has to be 3D for SOC calculation.
+        if hasattr(structure[0], "magmom"):
+            if not isinstance(structure[0].magmom, list):
+                structure = structure.copy(site_properties={
+                    "magmom": [[0, 0, site.magmom] for site in structure]})
+        else:
+            raise ValueError("Neither the previous structure has mamgom "
+                             "property nor magmom provided")
+
+        nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
+        incar.update({"NBANDS": nbands})
+
+        chgcar = None
+        if copy_chgcar:
+            chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
+            if len(chgcars) > 0:
+                chgcar = Chgcar.from_file(sorted(chgcars)[-1])
+
+        # multiply the reciprocal density if needed:
+        if small_gap_multiply:
+            gap = vasprun.eigenvalue_band_properties[0]
+            if gap <= small_gap_multiply[0]:
+                reciprocal_density = reciprocal_density * small_gap_multiply[1]
+
+        return MPSOCSet(structure, prev_incar=incar,
+                        prev_chgcar=chgcar,
+                        reciprocal_density=reciprocal_density, **kwargs)
+
+
 def get_vasprun_outcar(path):
     vruns = glob(os.path.join(path, "vasprun.xml*"))
     outcars = glob(os.path.join(path, "OUTCAR*"))
