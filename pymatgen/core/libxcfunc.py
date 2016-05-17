@@ -34,11 +34,6 @@ __date__ = "May 16, 2016"
 # Loads libxc info from json file
 with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"), "rt") as fh:
     _all_xcfuncs = {int(k): v for k, v in json.load(fh).items()}
-    # TODO: This should be done when I parse libxc_docs.txt, not here.
-    # Remove XC_FAMILY from Family and XC_ from Kind to make strings more human-readable.
-    for d in _all_xcfuncs.values():
-        d["Family"] = d["Family"].replace("XC_FAMILY_", "", 1)
-        d["Kind"] = d["Kind"].replace("XC_", "", 1)
 
 # @unique
 class LibxcFunc(Enum):
