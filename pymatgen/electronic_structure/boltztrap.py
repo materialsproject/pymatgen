@@ -166,7 +166,7 @@ class BoltztrapRunner(object):
         if self.run_type in ("DOS", "BANDS"):
             self._auto_set_energy_range()
 
-    def _auto_set_energy_range(self, buffer_in_ev=2.0):
+    def _auto_set_energy_range(self):
         """
         automatically determine the energy range as min/max eigenvalue
         minus/plus the buffer_in_ev
@@ -189,7 +189,9 @@ class BoltztrapRunner(object):
             to("Ry")
 
         # set energy range to buffer around min/max EV
-        const = Energy(buffer_in_ev, "eV").to("Ry")
+        # buffer does not increase CPU time but will help get equal
+        # energies for spin up/down for band structure
+        const = Energy(2, "eV").to("Ry")
         self._ll = min_eigenval - const
         self._hl = max_eigenval + const
 
@@ -237,6 +239,9 @@ class BoltztrapRunner(object):
                         spin_lst = self._bs.bands
 
                     for spin in spin_lst:
+                        # use 90% of bottom bands since highest eigenvalues
+                        # are usually incorrect
+                        # ask Geoffroy Hautier for more details
                         nb_bands = int(math.floor(self._bs.nb_bands * 0.9))
                         for j in range(nb_bands):
                             eigs.append(
