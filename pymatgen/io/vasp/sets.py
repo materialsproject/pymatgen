@@ -1965,18 +1965,16 @@ class MPSOCSet(MPStaticSet):
                                     volume (defaults to 100)
             \*\*kwargs: kwargs supported by MPVaspInputSet.
         """
-        if not hasattr(structure, "magmom") and \
-                not isinstance(structure.magmom[0]):
-            raise ValueError("the structure must have the 'magmom' site "
+        if not hasattr(structure[0], "magmom") and \
+                not isinstance(structure[0].magmom, list):
+            raise ValueError("The structure must have the 'magmom' site "
                              "property and each magnetic moment value must have 3 "
-                             "components. eg:- magmom = [[0,0,2], ...]")
+                             "components. eg:- magmom = [0,0,2]")
         self.saxis = saxis
         self.prev_chgcar = prev_chgcar
         super(MPSOCSet, self).__init__(structure, prev_incar=prev_incar,
-                                      prev_kpoints=None, lepsilon=False,
                                       reciprocal_density=reciprocal_density,
                                       **kwargs)
-
 
     @property
     def incar(self):
@@ -2001,19 +1999,18 @@ class MPSOCSet(MPStaticSet):
             self.prev_chgcar.write_file(os.path.join(output_dir, "CHGCAR"))
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, magmom=None, copy_chgcar=True,
+    def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
                        nbands_factor=1.2, standardize=False, sym_prec=0.1,
                        international_monoclinic=True, reciprocal_density=100,
                        small_gap_multiply=None, **kwargs):
         """
-        Generate a set of Vasp input files for NonSCF calculations from a
-        directory of previous static Vasp run.
+        Generate a set of Vasp input files for SOC calculations from a
+        directory of previous static Vasp run. SOC calc requires all 3
+        components for MAGMOM for each atom in the structure.
 
         Args:
             prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml and OUTCAR) of previous vasp run.
-            magmom (list): list of magnetic moments for each site in the
-                structure
             copy_chgcar: Whether to copy the old CHGCAR. Defaults to True.
             nbands_factor (float): Multiplicative factor for NBANDS. Choose a
                 higher number if you are doing an LOPTICS calculation.
@@ -2030,7 +2027,7 @@ class MPSOCSet(MPStaticSet):
             small_gap_multiply ([float, float]): If the gap is less than
                 1st index, multiply the default reciprocal_density by the 2nd
                 index.
-            \*\*kwargs: All kwargs supported by MPNonSCFSet,
+            \*\*kwargs: All kwargs supported by MPSOCSet,
                 other than structure, prev_incar and prev_chgcar which
                 are determined from the prev_calc_dir.
         """
@@ -2041,14 +2038,16 @@ class MPSOCSet(MPStaticSet):
         structure = get_structure_from_prev_run(
             vasprun, outcar, sym_prec=standardize and sym_prec,
             international_monoclinic=international_monoclinic)
-        # overrride magmom if provided
-        if magmom:
-            structure = structure.copy(site_properties={"magmom": magmom})
-        # magmom has to be 3D for SOC calculation
-        if hasattr(structure, "magmom"):
-            if not isinstance(structure.magmom[0], list):
+        # override magmom if provided
+        if kwargs.get("magmom", None):
+            structure = structure.copy(
+                site_properties={"magmom": kwargs["magmom"]})
+            kwargs.pop("magmom", None)
+        # magmom has to be 3D for SOC calculation.
+        if hasattr(structure[0], "magmom"):
+            if not isinstance(structure[0].magmom, list):
                 structure = structure.copy(site_properties={
-                    "magmom": [[0, 0, m] for m in structure.magmom]})
+                    "magmom": [[0, 0, site.magmom] for site in structure]})
         else:
             raise ValueError("Neither the previous structure has mamgom "
                              "property nor magmom provided")
