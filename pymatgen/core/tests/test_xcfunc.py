@@ -15,6 +15,7 @@ class LibxcFuncTest(PymatgenTest):
         print(ixc_1)
         assert ixc_1.type == "LDA"
         assert ixc_1.name == "LDA_XC_TETER93"
+        assert ixc_1 == ixc_1 and ixc_1 == "LDA_XC_TETER93"
         assert ixc_1.name not in XcFunc.aliases()
 
         # LDA-PW (in aliases)
