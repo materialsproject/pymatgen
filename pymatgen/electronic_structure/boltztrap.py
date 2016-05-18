@@ -158,7 +158,13 @@ class BoltztrapRunner(object):
         self.tauen = tauen
         self.soc = soc
         self.kpt_line = kpt_line
-        self.doping = doping or [1e16, 1e17, 1e18, 1e19, 1e20, 1e21, 1e22]
+        if doping:
+            self.doping = doping
+        else:
+            self.doping = []
+            for d in [1e16, 1e17, 1e18, 1e19, 1e20, 1e21]:
+                self.doping.extend([1*d, 2.5*d, 5*d, 7.5*d])
+            self.doping.append(1e22)
         self.energy_span_around_fermi = energy_span_around_fermi
         self.scissor = scissor
         self.tmax = tmax
