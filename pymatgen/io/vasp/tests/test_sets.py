@@ -5,16 +5,13 @@
 from __future__ import unicode_literals
 
 import unittest2 as unittest
-import os
-import shutil
 import tempfile
 
-import numpy as np
-from monty.json import MontyDecoder
 
 from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Incar, Kpoints
 from pymatgen import Specie, Lattice, Structure
+from pymatgen.core.surface import SlabGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.outputs import Vasprun
 
@@ -564,6 +561,37 @@ class MagmomLdauTest(PymatgenTest):
         magmom = [site.magmom for site in structure_decorated]
         self.assertEqual(ldau_dict, ldau_ans)
         self.assertEqual(magmom, magmom_ans)
+
+
+class MPSOCSetTest(PymatgenTest):
+
+    def test_from_prev_calc(self):
+        prev_run = os.path.join(test_dir, "fe_monomer")
+        vis = MPSOCSet.from_prev_calc(prev_calc_dir=prev_run, magmom=[3],
+                                      saxis=(1, 0, 0))
+        self.assertEqual(vis.incar["ISYM"], -1)
+        self.assertTrue(vis.incar["LSORBIT"])
+        self.assertEqual(vis.incar["ICHARG"], 11)
+        self.assertEqual(vis.incar["SAXIS"], [1, 0, 0])
+        self.assertEqual(vis.incar["MAGMOM"], [[0, 0, 3]])
+
+
+class MVLSlabSetTest(PymatgenTest):
+
+    def setUp(self):
+        if "VASP_PSP_DIR" not in os.environ:
+            os.environ["VASP_PSP_DIR"] = test_dir
+        s = PymatgenTest.get_structure("Li2O")
+        gen = SlabGenerator(s, (1, 0, 0), 10, 10)
+        self.slab = gen.get_slab()
+
+    def test_init(self):
+        vis = MVLSlabSet()
+        d = vis.get_all_vasp_input(self.slab)
+        incar = d["INCAR"]
+        self.assertEqual(incar["ISIF"], 2)
+        # TODO: Need tests for POSCAR, KPOINTS, etc. Also, more tests for INCAR.
+        # TODO: Add tests for both bulk and slab calculations.
 
 
 if __name__ == '__main__':

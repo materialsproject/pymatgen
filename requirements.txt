@@ -7,7 +7,7 @@ pyyaml==3.11
 six==1.10.0
 scipy==0.17.1
 tabulate==0.7.5
-enum34==1.1.5
+enum34==1.1.6
 Cython==0.24
 matplotlib==1.5.1
 palettable==2.1.1

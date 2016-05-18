@@ -1946,6 +1946,277 @@ class MPNonSCFSet(DerivedVaspInputSet):
                            reciprocal_density=reciprocal_density, **kwargs)
 
 
+class MPSOCSet(MPStaticSet):
+
+    def __init__(self, structure, saxis=(0, 0, 1), prev_incar=None,
+                 prev_chgcar=None, reciprocal_density=100, **kwargs):
+        """
+        Init a MPSOCSet. Typically, you would use the classmethod
+        from_prev_calc instead.
+
+        Args:
+            structure (Structure): the structure must have the 'magmom' site
+                property and each magnetic moment value must have 3
+                components. eg:- magmom = [[0,0,2], ...]
+            saxis (tuple): magnetic moment orientation
+            prev_incar (Incar): Incar file from previous run.
+            prev_chgcar (Chgcar): Chgcar from previous run.
+            reciprocal_density (int): density of k-mesh by reciprocal
+                                    volume (defaults to 100)
+            \*\*kwargs: kwargs supported by MPVaspInputSet.
+        """
+        if not hasattr(structure[0], "magmom") and \
+                not isinstance(structure[0].magmom, list):
+            raise ValueError("The structure must have the 'magmom' site "
+                             "property and each magnetic moment value must have 3 "
+                             "components. eg:- magmom = [0,0,2]")
+        self.saxis = saxis
+        self.prev_chgcar = prev_chgcar
+        super(MPSOCSet, self).__init__(structure, prev_incar=prev_incar,
+                                      reciprocal_density=reciprocal_density,
+                                      **kwargs)
+
+    @property
+    def incar(self):
+        incar = self.parent_vis.get_incar(self.structure)
+        if self.prev_incar is not None:
+            incar.update({k: v for k, v in self.prev_incar.items()
+                         if k not in self.kwargs.get("user_incar_settings",
+                                                     {})})
+
+        # Overwrite necessary INCAR parameters from previous runs
+        incar.update({"ISYM": -1, "LSORBIT": "T", "ICHARG": 11,
+                      "SAXIS": list(self.saxis)})
+
+        return incar
+
+    def write_input(self, output_dir,
+                    make_dir_if_not_present=True, include_cif=False):
+        super(MPSOCSet, self).write_input(output_dir,
+            make_dir_if_not_present=make_dir_if_not_present,
+            include_cif=include_cif)
+        if self.prev_chgcar:
+            self.prev_chgcar.write_file(os.path.join(output_dir, "CHGCAR"))
+
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
+                       nbands_factor=1.2, standardize=False, sym_prec=0.1,
+                       international_monoclinic=True, reciprocal_density=100,
+                       small_gap_multiply=None, **kwargs):
+        """
+        Generate a set of Vasp input files for SOC calculations from a
+        directory of previous static Vasp run. SOC calc requires all 3
+        components for MAGMOM for each atom in the structure.
+
+        Args:
+            prev_calc_dir (str): The directory contains the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            copy_chgcar: Whether to copy the old CHGCAR. Defaults to True.
+            nbands_factor (float): Multiplicative factor for NBANDS. Choose a
+                higher number if you are doing an LOPTICS calculation.
+            standardize (float): Whether to standardize to a primitive
+                standard cell. Defaults to False.
+            sym_prec (float): Tolerance for symmetry finding. If not 0,
+                the final structure from the previous run will be symmetrized
+                to get a primitive standard cell. Set to 0 if you don't want
+                that.
+            international_monoclinic (bool): Whether to use international
+                convention (vs Curtarolo) for monoclinic. Defaults True.
+            reciprocal_density (int): density of k-mesh by reciprocal
+                volume (defaults to 100)
+            small_gap_multiply ([float, float]): If the gap is less than
+                1st index, multiply the default reciprocal_density by the 2nd
+                index.
+            \*\*kwargs: All kwargs supported by MPSOCSet,
+                other than structure, prev_incar and prev_chgcar which
+                are determined from the prev_calc_dir.
+        """
+        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
+
+        incar = vasprun.incar
+        # Get a magmom-decorated structure
+        structure = get_structure_from_prev_run(
+            vasprun, outcar, sym_prec=standardize and sym_prec,
+            international_monoclinic=international_monoclinic)
+        # override magmom if provided
+        if kwargs.get("magmom", None):
+            structure = structure.copy(
+                site_properties={"magmom": kwargs["magmom"]})
+            kwargs.pop("magmom", None)
+        # magmom has to be 3D for SOC calculation.
+        if hasattr(structure[0], "magmom"):
+            if not isinstance(structure[0].magmom, list):
+                structure = structure.copy(site_properties={
+                    "magmom": [[0, 0, site.magmom] for site in structure]})
+        else:
+            raise ValueError("Neither the previous structure has mamgom "
+                             "property nor magmom provided")
+
+        nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
+        incar.update({"NBANDS": nbands})
+
+        chgcar = None
+        if copy_chgcar:
+            chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
+            if len(chgcars) > 0:
+                chgcar = Chgcar.from_file(sorted(chgcars)[-1])
+
+        # multiply the reciprocal density if needed:
+        if small_gap_multiply:
+            gap = vasprun.eigenvalue_band_properties[0]
+            if gap <= small_gap_multiply[0]:
+                reciprocal_density = reciprocal_density * small_gap_multiply[1]
+
+        return MPSOCSet(structure, prev_incar=incar,
+                        prev_chgcar=chgcar,
+                        reciprocal_density=reciprocal_density, **kwargs)
+
+
+class MVLSlabSet(DictVaspInputSet):
+    """
+    Class for writing a slab vasp run.
+
+    Args:
+        user_incar_settings(dict): A dict specifying additional incar
+            settings, default to None
+            (ediff_per_atom=False)
+        kpoints0: specify kpts[0] = kpoints0, default to []
+        k_product: kpts[0][0]*a. Decide k density without kpoint0,
+        default to 45
+        potcar_functional: default to PBE
+        bulk (bool): Set to True for bulk calculation. Defaults to False.
+        **kwargs:
+            Other kwargs supported by :class:`DictVaspInputSet`.
+    """
+    def __init__(self, user_incar_settings=None, kpoints0=[],
+                  k_product=50, potcar_functional='PBE', bulk=False, **kwargs):
+        vis = MPVaspInputSet(ediff_per_atom=False).as_dict()
+        DictVaspInputSet.__init__(self, "MVLSlabSet",
+                                  vis["config_dict"],
+                                  **kwargs)
+        incar_settings_basic = {
+            "EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400, "ISMEAR": 0,
+            "SIGMA": 0.05, "ISIF": 3}
+
+        if bulk:
+             self.incar_settings.update(incar_settings_basic)
+        else:
+            incar_settings_basic["ISIF"] = 2
+            incar_settings_basic["AMIN"] = 0.01
+            incar_settings_basic["AMIX"] = 0.2
+            incar_settings_basic["BMIX"] = 0.001
+            incar_settings_basic["NELMIN"] = 8
+            self.incar_settings.update(incar_settings_basic)
+        self.user_incar_settings = user_incar_settings or {}
+        if user_incar_settings:
+            self.incar_settings.update(user_incar_settings)
+
+        self.k_product = k_product
+        self.kpoints0 = kpoints0
+        self.potcar_functional = potcar_functional
+        self.bulk = bulk
+
+    def get_kpoints(self, structure):
+        """
+        kpoint0 is the first consideration,
+        k_product is a second choice, default to 40
+        """
+
+        # To get input sets, the input structure has to has the same number
+        # of required parameters as a Structure object (ie. 4). Slab
+        # attributes aren't going to affect the VASP inputs anyways so
+        # converting the slab into a structure should not matter
+
+        kpt = super(MVLSlabSet, self).get_kpoints(structure)
+        kpt.comment = "Automatic mesh"
+        kpt.style = 'Gamma'
+
+        # use k_product to calculate kpoints, k_product = kpts[0][0] * a
+        abc = structure.lattice.abc
+        kpt_calc = [int(self.k_product/abc[0]+0.5),
+                    int(self.k_product/abc[1]+0.5), 1]
+        self.kpt_calc = kpt_calc
+        # calculate kpts (c direction) for bulk. (for slab, set to 1)
+        if self.bulk:
+            kpt_calc[2] = int(self.k_product/abc[2]+0.5)
+
+        # kpoint0 is prior to k_product
+        if self.kpoints0:
+            kpt.kpts[0] = self.kpoints0
+        else:
+            kpt.kpts[0] = kpt_calc
+
+        return kpt
+
+    def get_incar(self, structure):
+
+        # To get input sets, the input structure has to has the same number
+        # of required parameters as a Structure object (ie. 4). Slab
+        # attributes aren't going to affect the VASP inputs anyways so
+        # converting the slab into a structure should not matter
+
+        abc = structure.lattice.abc
+        kpt_calc = [int(self.k_product/abc[0]+0.5),
+                    int(self.k_product/abc[1]+0.5),
+                    int(self.k_product/abc[1]+0.5)]
+
+        if self.kpoints0:
+            kpts = self.kpoints0
+        else:
+            kpts = kpt_calc
+
+        if kpts[0]<5 and kpts[1]<5:
+            if not self.bulk:
+                self.incar_settings.update(
+                    {"ISMEAR": 0})
+            else:
+                if kpts[2]<5:
+                    self.incar_settings.update(
+                        {"ISMEAR": 0})
+        if self.user_incar_settings:
+                self.incar_settings.update(self.user_incar_settings)
+
+        incr = super(MVLSlabSet, self).get_incar(structure)
+
+        return incr
+
+    def as_dict(self):
+        d = super(MVLSlabSet, self).as_dict()
+        d.update({
+            "kpoints0": self.kpoints0,
+            "potcar_functional": self.potcar_functional,
+            "user_incar_settings": self.user_incar_settings
+        })
+        return d
+
+    def from_dict(cls, d):
+        return cls(kpoints0=d.get("kpoints0", []),
+                   user_incar_settings=d.get("user_incar_settings", None),
+                   potcar_functional=d.get("potcar_functional", None))
+
+    def get_all_vasp_input(self, structure):
+        """
+        Returns all input files as a dict of {filename: vaspio object}
+
+        Args:
+            structure (Structure/IStructure): Structure to generate vasp
+                input for.
+        Returns:
+            dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
+        """
+
+        # To get input sets, the input structure has to has the same number
+        # of required parameters as a Structure object (ie. 4). Slab
+        # attributes aren't going to affect the VASP inputs anyways so
+        # converting the slab into a structure should not matter
+
+        data = {'INCAR': self.get_incar(structure),
+                'KPOINTS': self.get_kpoints(structure),
+                'POSCAR': self.get_poscar(structure),
+                'POTCAR': self.get_potcar(structure)}
+        return data
+
+
 def get_vasprun_outcar(path):
     vruns = glob(os.path.join(path, "vasprun.xml*"))
     outcars = glob(os.path.join(path, "OUTCAR*"))

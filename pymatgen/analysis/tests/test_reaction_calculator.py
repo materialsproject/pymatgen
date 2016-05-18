@@ -130,7 +130,7 @@ class ReactionTest(unittest.TestCase):
         self.assertEqual(str(rxn),
                          "1.000 MgO + 1.000 Al2O3 -> 1.000 MgAl2O4")
         self.assertEqual(rxn.normalized_repr, "MgO + Al2O3 -> MgAl2O4")
-        self.assertAlmostEquals(rxn.calculate_energy(energies), -0.2, 5)
+        self.assertAlmostEqual(rxn.calculate_energy(energies), -0.2, 5)
 
     def test_as_entry(self):
         reactants = [Composition("MgO"), Composition("Al2O3")]
@@ -141,7 +141,7 @@ class ReactionTest(unittest.TestCase):
         entry = rxn.as_entry(energies)
         self.assertEqual(entry.name,
                          "1.000 MgO + 1.000 Al2O3 -> 1.000 MgAl2O4")
-        self.assertAlmostEquals(entry.energy, -0.2, 5)
+        self.assertAlmostEqual(entry.energy, -0.2, 5)
 
         products = [Composition("Fe"), Composition("O2")]
         reactants = [Composition("Fe2O3")]
@@ -150,7 +150,7 @@ class ReactionTest(unittest.TestCase):
                     Composition("Fe2O3"): 0.5}
         entry = rxn.as_entry(energies)
         self.assertEqual(entry.composition.formula, "Fe1.33333333 O2")
-        self.assertAlmostEquals(entry.energy, -0.333333, 5)
+        self.assertAlmostEqual(entry.energy, -0.333333, 5)
 
     def test_products_reactants(self):
         reactants = [Composition("Li3Fe2(PO4)3"), Composition("Fe2O3"),
@@ -169,7 +169,7 @@ class ReactionTest(unittest.TestCase):
                          "0.333 Li3Fe2(PO4)3 + 0.167 Fe2O3 -> 0.250 O2 + 1.000 LiFePO4")
         self.assertEqual(rxn.normalized_repr,
                          "4 Li3Fe2(PO4)3 + 2 Fe2O3 -> 3 O2 + 12 LiFePO4")
-        self.assertAlmostEquals(rxn.calculate_energy(energies), -0.48333333, 5)
+        self.assertAlmostEqual(rxn.calculate_energy(energies), -0.48333333, 5)
 
     def test_to_from_dict(self):
         reactants = [Composition("Fe"), Composition("O2")]
