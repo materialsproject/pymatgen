@@ -253,7 +253,9 @@ class BoltztrapRunner(object):
             f.write("{} {}\n".format(self._bs.structure.composition.formula,
                     sym.get_spacegroup_symbol()))
 
-            f.write("{}\n".format(self._bs.structure.lattice))
+            f.write("{}\n".format("\n".join(
+                [" ".join(["%.5f" % Length(i, "ang").to("bohr") for i in row])
+                 for row in self._bs.structure.lattice.matrix])))
 
             ops = sym.get_symmetry_dataset()['rotations']
             f.write("{}\n".format(len(ops)))

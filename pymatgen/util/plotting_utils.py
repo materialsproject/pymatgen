@@ -20,15 +20,19 @@ import math
 import numpy as np
 
 
-def get_publication_quality_plot(width=8, height=None, plt=None, dpi=None):
+def get_publication_quality_plot(width=8, height=None, plt=None, dpi=None,
+                                 color_cycle=("qualitative", "Set1_9")):
     """
     Provides a publication quality plot, with nice defaults for font sizes etc.
 
     Args:
-        width: Width of plot in inches. Defaults to 8in.
-        height. Height of plot in inches. Defaults to width * golden ratio.
-        plt: If plt is supplied, changes will be made to an existing plot.
-            Otherwise, a new plot will be created.
+        width (float): Width of plot in inches. Defaults to 8in.
+        height (float): Height of plot in inches. Defaults to width * golden
+            ratio.
+        plt (matplotlib.pyplot): If plt is supplied, changes will be made to an
+            existing plot. Otherwise, a new plot will be created.
+        color_cycle (tuple): Set the color cycle for new plots to one of the
+            color sets in palettable. Defaults to a qualitative Set1_9.
 
     Returns:
         Matplotlib plot object with properly sized fonts.
@@ -42,13 +46,15 @@ def get_publication_quality_plot(width=8, height=None, plt=None, dpi=None):
 
     if plt is None:
         import matplotlib.pyplot as plt
-        import palettable
+        import importlib
+        mod = importlib.import_module("palettable.colorbrewer.%s" %
+                                      color_cycle[0])
+        colors = getattr(mod, color_cycle[1]).mpl_colors
         from cycler import cycler
 
         plt.figure(figsize=(width, height), facecolor="w", dpi=dpi)
         ax = plt.gca()
-        ax.set_prop_cycle(cycler('color',
-                                 palettable.colorbrewer.qualitative.Set1_9.mpl_colors))
+        ax.set_prop_cycle(cycler('color', colors))
     else:
         fig = plt.gcf()
         fig.set_size_inches(width, height)
