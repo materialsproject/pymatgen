@@ -76,9 +76,9 @@ class BatteryAnalyzerTest(PymatgenTest):
 
     def test_delithiation(self):
 
-        self.assertEquals(self.lifemnpo4.get_removals_int_oxid(), set([1.0, 2.0, 3.0, 4.0]))
+        self.assertEqual(self.lifemnpo4.get_removals_int_oxid(), set([1.0, 2.0, 3.0, 4.0]))
 
-        self.assertEquals(self.li8nicofe208.get_removals_int_oxid(), set([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]))
+        self.assertEqual(self.li8nicofe208.get_removals_int_oxid(), set([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]))
 
         self.assertEqual(self.li3v2p3o12.get_removals_int_oxid(), set([4.0, 6.0]))
 

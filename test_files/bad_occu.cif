@@ -1,0 +1,119 @@
+data_107716-ICSD
+#c2014 by Fachinformationszentrum Karlsruhe, and the U.S. Secretary of
+#Commerce on behalf of the United States.  All rights reserved.
+_database_code_ICSD                107716
+_audit_creation_date               2006/10/01
+_chemical_name_systematic
+;
+Sodium Calcium Manganese Irion Zirconium Cyclo-hexasilicate Hydroxide
+Oxide Hydrate *
+;
+_chemical_formula_structural
+;
+Na2.5 Ca.35 Mn.1 Fe.15 Zr.85 (Si6 O12) (O H)4.67 O1.33 (H2 O)
+;
+_chemical_formula_sum
+;
+H6.67 Ca0.35 Fe0.15 Mn0.1 Na2.5 O19 Si6 Zr0.85
+;
+_chemical_name_mineral             Lovozerite
+_publ_section_title
+;
+Structures of the lovozerite-type - a quantitative investigation
+;
+loop_
+_citation_id
+_citation_journal_abbrev
+_citation_year
+_citation_journal_volume
+_citation_page_first
+_citation_page_last
+_citation_journal_id_ASTM
+primary 'Acta Crystallographica, Section B: Structural Science'
+ 1993 49 158 164 ASBSDK
+_publ_author_name
+;
+Malinovskii, Yu.A.;Burzlaff, H.;Rothammel, W.
+;
+_cell_length_a                     10.344
+_cell_length_b                     10.344
+_cell_length_c                     13.149
+_cell_angle_alpha                  90.
+_cell_angle_beta                   90.
+_cell_angle_gamma                  120.
+_cell_volume                       1218.43
+_cell_formula_units_Z              3
+_symmetry_space_group_name_H-M     'R -3 m H'
+_symmetry_Int_Tables_number        166
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+  1    'x-y, -y, -z'
+  2    '-x, -x+y, -z'
+  3    'y, x, -z'
+  4    'x-y, x, -z'
+  5    'y, -x+y, -z'
+  6    '-x, -y, -z'
+  7    '-x+y, y, z'
+  8    'x, x-y, z'
+  9    '-y, -x, z'
+ 10    '-x+y, -x, z'
+ 11    '-y, x-y, z'
+ 12    'x, y, z'
+ 13    'x-y+2/3, -y+1/3, -z+1/3'
+ 14    'x-y+1/3, -y+2/3, -z+2/3'
+ 15    '-x+2/3, -x+y+1/3, -z+1/3'
+ 16    '-x+1/3, -x+y+2/3, -z+2/3'
+ 17    'y+2/3, x+1/3, -z+1/3'
+ 18    'y+1/3, x+2/3, -z+2/3'
+ 19    'x-y+2/3, x+1/3, -z+1/3'
+ 20    'x-y+1/3, x+2/3, -z+2/3'
+ 21    'y+2/3, -x+y+1/3, -z+1/3'
+ 22    'y+1/3, -x+y+2/3, -z+2/3'
+ 23    '-x+2/3, -y+1/3, -z+1/3'
+ 24    '-x+1/3, -y+2/3, -z+2/3'
+ 25    '-x+y+2/3, y+1/3, z+1/3'
+ 26    '-x+y+1/3, y+2/3, z+2/3'
+ 27    'x+2/3, x-y+1/3, z+1/3'
+ 28    'x+1/3, x-y+2/3, z+2/3'
+ 29    '-y+2/3, -x+1/3, z+1/3'
+ 30    '-y+1/3, -x+2/3, z+2/3'
+ 31    '-x+y+2/3, -x+1/3, z+1/3'
+ 32    '-x+y+1/3, -x+2/3, z+2/3'
+ 33    '-y+2/3, x-y+1/3, z+1/3'
+ 34    '-y+1/3, x-y+2/3, z+2/3'
+ 35    'x+2/3, y+1/3, z+1/3'
+ 36    'x+1/3, y+2/3, z+2/3'
+loop_
+_atom_type_symbol
+_atom_type_oxidation_number
+Ca2+    2
+Fe3+    3
+H1+    1
+Mn2+    2
+Na1+    1
+O2-    -2
+Si4+    4
+Zr4+    4
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_attached_hydrogens
+Na1 Na1+ 9 e 0.5 0 0 .833 0
+Ca1 Ca2+ 6 c 0 0 0.24764 0.175 0
+Mn1 Mn2+ 6 c 0 0 0.24764 0.05 0
+Fe1 Fe3+ 3 a 0 0 0 .15 0
+Zr1 Zr4+ 3 a 0 0 0 .85 0
+Si1 Si4+ 18 h 0.15124 -.15124 0.56600 1. 0
+O1 O2- 18 g -.25444 0 0.5 1. 0
+O2 O2- 18 h 0.24038 -.24038 0.56018 1. 0
+O3 O2- 18 h 0.11401 -.11401 0.67443 1. 0
+O4 O2- 9 e 0 0.5 0 .333 0
+#Position of  Element of H Is Undetermined.
+
