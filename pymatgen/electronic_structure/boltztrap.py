@@ -744,7 +744,7 @@ class BoltztrapAnalyzer(object):
             dos_partial: Data for the partial DOS projected on sites and
                 orbitals
             vol: Volume of the unit cell in angstrom cube (A^3)
-            warning: True if Boltztrap spitted out a warning
+            warning: True if Boltztrap printed a warning
             bz_bands: Data for interpolated bands on a k-point line
                 (run_type=BANDS)
             bz_kpoints: k-point in reciprocal coordinates for interpolated
@@ -895,7 +895,8 @@ class BoltztrapAnalyzer(object):
         elif run_type == "DOS":
             if not dos_spin:
                 print(
-                    "Spin component set to up (dos_spin=1). Set dos_spin=-1 in from_files function if you want spin down")
+                    "Spin component set to up (dos_spin=1). Set dos_spin=-1 "
+                    "in from_files function if you want spin down")
                 dos_spin = 1
 
             dos_full = {'energy': [], 'density': []}
@@ -916,7 +917,7 @@ class BoltztrapAnalyzer(object):
     def get_symm_bands(self, structure, efermi, kpt_line=None,
                        labels_dict=None):
         """
-            Function useful to read bands from Boltztap output and get a
+            Function useful to read bands from Boltztrap output and get a
             BandStructureSymmLine object comparable with that one from a DFT
             calculation (if the same kpt_line is provided). Default kpt_line
             and labels_dict is the standard path of high symmetry k-point for
@@ -974,10 +975,11 @@ class BoltztrapAnalyzer(object):
 
         except:
             raise BoltztrapError(
-                "Bands are not in output of BoltzTraP.\nBolztrapRunner have "
-                "to be run with run_type=BANDS")
+                "Bands are not in output of BoltzTraP.\nBolztrapRunner must "
+                "be run with run_type=BANDS")
 
-    def check_acc_bzt_bands(self, sbs_bz, sbs_ref, warn_thr=0.01):
+    @staticmethod
+    def check_acc_bzt_bands(sbs_bz, sbs_ref):
         """
             Compare sbs_bz BandStructureSymmLine calculated with boltztrap with
             the sbs_ref BandStructureSymmLine as reference (from MP for
@@ -1027,7 +1029,7 @@ class BoltztrapAnalyzer(object):
                 at different electron chemical potentials
 
             Returns:
-                If doping_levels=True, a dictionnary {temp:{'p':[],'n':[]}}.
+                If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}.
                 The 'p' links to Seebeck at p-type doping
                 and 'n' to the Seebeck at n-type doping. Otherwise, returns a
                 {temp:[]} dictionary
@@ -1063,7 +1065,7 @@ class BoltztrapAnalyzer(object):
                 at different electron chemical potentials
 
             Returns:
-                If doping_levels=True, a dictionnary {temp:{'p':[],'n':[]}}.
+                If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}.
                 The 'p' links to conductivity
                 at p-type doping and 'n' to the conductivity at n-type
                 doping. Otherwise,
@@ -1271,7 +1273,7 @@ class BoltztrapAnalyzer(object):
         """
         Gives the average effective mass tensor. We call it average because
         it takes into account all the bands
-        and regons in the Brillouin zone. This is different than the standard
+        and regions in the Brillouin zone. This is different than the standard
         textbook effective mass which relates
         often to only one (parabolic) band.
         The average effective mass tensor is defined as the integrated
@@ -1594,7 +1596,6 @@ class BoltztrapAnalyzer(object):
             data_dos = {'total': [], 'partial': {}}
             with open(os.path.join(path_dir, "boltztrap.transdos"), 'r') as f:
                 count_series = 0
-                normalization_factor = None
                 for line in f:
                     if not line.startswith(" #"):
                         data_dos['total'].append(
