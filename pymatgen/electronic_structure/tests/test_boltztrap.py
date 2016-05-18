@@ -158,7 +158,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         structure = loadfn(os.path.join(test_dir,'boltztrap/structure_mp-12103.json'))
         sbs = loadfn(os.path.join(test_dir,'boltztrap/dft_bs_sym_line.json'))
         sbs_bzt = self.bz_bands.get_symm_bands(structure,-5.25204548)
-        corr,werr_vbm,werr_cbm,warn = self.bz_bands.check_acc_bzt_bands(sbs_bzt,sbs)
+        corr,werr_vbm,werr_cbm,warn = BoltztrapAnalyzer.check_acc_bzt_bands(sbs_bzt,sbs)
         self.assertAlmostEqual(corr[2],9.16851750e-05)
         self.assertAlmostEqual(werr_vbm['K-H'],0.18260273521047862)
         self.assertAlmostEqual(werr_cbm['M-K'],0.071552669981356981)
