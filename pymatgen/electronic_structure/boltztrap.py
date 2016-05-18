@@ -520,13 +520,12 @@ class BoltztrapRunner(object):
                 self.spin = 1
 
         dir_bz_name = "boltztrap"
-        path_dir_orig = path_dir
         if path_dir is None:
             temp_dir = tempfile.mkdtemp()
             path_dir = os.path.join(temp_dir, dir_bz_name)
         else:
             path_dir = os.path.abspath(
-                os.path.join(path_dir_orig, dir_bz_name))
+                os.path.join(path_dir, dir_bz_name))
 
         if not os.path.exists(path_dir):
             os.mkdir(path_dir)
