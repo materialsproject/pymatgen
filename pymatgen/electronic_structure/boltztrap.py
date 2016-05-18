@@ -498,10 +498,34 @@ class BoltztrapRunner(object):
                             os.path.join(output_dir, "BoltzTraP.def"))
 
     def run(self, path_dir=None, convergence=True, write_input=True,
-            clear_dir=False, min_egrid=0.00005, max_lpfac=150):
+            clear_dir=False, max_lpfac=150, min_egrid=0.00005):
+        """
+        Write inputs (optional), run BoltzTraP, and ensure
+        convergence (optional)
+        Args:
+            path_dir (str): directory in which to run BoltzTraP
+            convergence (bool): whether to check convergence and make
+                corrections if needed
+            write_input: (bool) whether to write input files before the run
+                (required for convergence mode)
+            clear_dir: (bool) whether to remove all files in the path_dir
+                before starting
+            max_lpfac: (float) maximum lpfac value to try before reducing egrid
+                in convergence mode
+            min_egrid: (float) minimum egrid value to try before giving up in
+                convergence mode
+
+        Returns:
+
+        """
+
         # TODO: consider making this a part of custodian rather than pymatgen
         # A lot of this functionality (scratch dirs, handlers, monitors)
         # is built into custodian framework
+
+        if convergence and not write_input:
+            raise ValueError("Convergence mode requires write_input to be "
+                             "true")
 
         if self.run_type in ("BANDS", "DOS", "FERMI"):
             convergence = False
