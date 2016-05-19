@@ -266,6 +266,9 @@ class CifParser(object):
         filename (str): Cif filename. bzipped or gzipped cifs are fine too.
         occupancy_tolerance (float): If total occupancy of a site is between 1
             and occupancy_tolerance, the occupancies will be scaled down to 1.
+        site_tolerance (float): This tolerance is used to determine if two
+            sites are sitting in the same position, in which case they will be
+            combined to a single disordered site. Defaults to 1e-5.
     """
 
     def __init__(self, filename, occupancy_tolerance=1., site_tolerance=1e-5):
