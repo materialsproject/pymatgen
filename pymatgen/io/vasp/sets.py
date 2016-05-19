@@ -2091,6 +2091,7 @@ class MVLSlabSet(DictVaspInputSet):
     def __init__(self, user_incar_settings=None, gpu=False, k_product=50,
                  potcar_functional='PBE', bulk=False, **kwargs):
 
+        user_incar_settings = user_incar_settings or {}
         vis = MPVaspInputSet(ediff_per_atom=False).as_dict()
         DictVaspInputSet.__init__(self, "MVLSlabSet",
                                   vis["config_dict"],
@@ -2123,7 +2124,7 @@ class MVLSlabSet(DictVaspInputSet):
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
 
-        self.user_incar_settings = user_incar_settings or {}
+        self.user_incar_settings = user_incar_settings
         self.k_product = k_product
         self.potcar_functional = potcar_functional
         self.bulk = bulk
