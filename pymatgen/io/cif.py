@@ -33,7 +33,7 @@ from inspect import getargspec
 from itertools import groupby
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp
 from monty.io import zopen
-from pymatgen.util.coord_utils import in_coord_list_pbc
+from pymatgen.util.coord_utils import in_coord_list_pbc, pbc_diff
 from monty.string import remove_non_ascii
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -268,8 +268,9 @@ class CifParser(object):
             and occupancy_tolerance, the occupancies will be scaled down to 1.
     """
 
-    def __init__(self, filename, occupancy_tolerance=1.):
+    def __init__(self, filename, occupancy_tolerance=1., site_tolerance=1e-5):
         self._occupancy_tolerance = occupancy_tolerance
+        self._site_tolerance = site_tolerance
         if isinstance(filename, six.string_types):
             self._cif = CifFile.from_file(filename)
         else:
@@ -461,7 +462,8 @@ class CifParser(object):
             for op in self.symmetry_operations:
                 c = op.operate(coord)
                 for k in coord_to_species.keys():
-                    if np.allclose(c, k):
+                    if np.allclose(pbc_diff(c, k), (0, 0, 0),
+                                   atol=self._site_tolerance):
                         return tuple(k)
             return False
 
