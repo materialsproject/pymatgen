@@ -5,16 +5,13 @@
 from __future__ import unicode_literals
 
 import unittest2 as unittest
-import os
-import shutil
 import tempfile
 
-import numpy as np
-from monty.json import MontyDecoder
 
 from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Incar, Kpoints
 from pymatgen import Specie, Lattice, Structure
+from pymatgen.core.surface import SlabGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.outputs import Vasprun
 
@@ -564,6 +561,82 @@ class MagmomLdauTest(PymatgenTest):
         magmom = [site.magmom for site in structure_decorated]
         self.assertEqual(ldau_dict, ldau_ans)
         self.assertEqual(magmom, magmom_ans)
+
+
+class MPSOCSetTest(PymatgenTest):
+
+    def test_from_prev_calc(self):
+        prev_run = os.path.join(test_dir, "fe_monomer")
+        vis = MPSOCSet.from_prev_calc(prev_calc_dir=prev_run, magmom=[3],
+                                      saxis=(1, 0, 0))
+        self.assertEqual(vis.incar["ISYM"], -1)
+        self.assertTrue(vis.incar["LSORBIT"])
+        self.assertEqual(vis.incar["ICHARG"], 11)
+        self.assertEqual(vis.incar["SAXIS"], [1, 0, 0])
+        self.assertEqual(vis.incar["MAGMOM"], [[0, 0, 3]])
+
+
+class MVLSlabSetTest(PymatgenTest):
+
+    def setUp(self):
+
+        if "VASP_PSP_DIR" not in os.environ:
+            os.environ["VASP_PSP_DIR"] = test_dir
+        s = PymatgenTest.get_structure("Li2O")
+        gen = SlabGenerator(s, (1, 0, 0), 10, 10)
+        vis_bulk = MVLSlabSet(bulk=True)
+        vis = MVLSlabSet()
+        vis_bulk_gpu = MVLSlabSet(bulk=True, gpu=True)
+
+        self.slab = gen.get_slab()
+        self.bulk = self.slab.oriented_unit_cell
+        self.d_bulk = vis_bulk.get_all_vasp_input(self.bulk)
+        self.d_slab = vis.get_all_vasp_input(self.slab)
+        self.d_bulk_gpu = vis_bulk_gpu.get_all_vasp_input(self.bulk)
+
+    def test_bulk(self):
+
+        incar_bulk = self.d_bulk["INCAR"]
+        incar_bulk_gpu = self.d_bulk_gpu["INCAR"]
+        poscar_bulk = self.d_bulk["POSCAR"]
+
+        self.assertEqual(incar_bulk["ISIF"], 3)
+        self.assertEqual(poscar_bulk.structure.formula,
+                         self.bulk.formula)
+        # Test VASP-gpu compatibility
+        self.assertEqual(incar_bulk_gpu["KPAR"], 1)
+        self.assertTrue("NPAR" not in incar_bulk_gpu.keys())
+
+    def test_slab(self):
+
+        incar_slab = self.d_slab["INCAR"]
+        poscar_slab = self.d_slab["POSCAR"]
+        potcar_slab = self.d_slab["POTCAR"]
+
+        self.assertEqual(incar_slab["AMIN"], 0.01)
+        self.assertEqual(incar_slab["AMIX"], 0.2)
+        self.assertEqual(incar_slab["BMIX"], 0.001)
+        self.assertEqual(incar_slab["NELMIN"], 8)
+        # No volume relaxation during slab calculations
+        self.assertEqual(incar_slab["ISIF"], 2)
+        self.assertEqual(potcar_slab.functional, 'PBE')
+        self.assertEqual(potcar_slab.symbols[0], u'Li_sv')
+        self.assertEqual(potcar_slab.symbols[1], u'O')
+        self.assertEqual(poscar_slab.structure.formula,
+                         self.slab.formula)
+
+    def test_kpoints(self):
+
+        kpoints_slab = self.d_slab["KPOINTS"].kpts[0]
+        kpoints_bulk = self.d_bulk["KPOINTS"].kpts[0]
+
+        self.assertEqual(kpoints_bulk[0], kpoints_slab[0])
+        self.assertEqual(kpoints_bulk[1], kpoints_slab[1])
+        self.assertEqual(kpoints_bulk[0], 15)
+        self.assertEqual(kpoints_bulk[1], 15)
+        self.assertEqual(kpoints_bulk[2], 15)
+        # The last kpoint in a slab should always be 1
+        self.assertEqual(kpoints_slab[2], 1)
 
 
 if __name__ == '__main__':
