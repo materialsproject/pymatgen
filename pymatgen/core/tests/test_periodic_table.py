@@ -95,6 +95,9 @@ class ElementTestCase(PymatgenTest):
                 self.assertEqual(min(el.oxidation_states),
                                  el.min_oxidation_state)
 
+        self.assertRaises(ValueError, Element.from_Z, 1000)
+
+
     def test_oxidation_states(self):
         el = Element.Fe
         self.assertEqual(el.oxidation_states, (-2, -1, 1, 2, 3, 4, 5, 6))
@@ -213,6 +216,9 @@ class SpecieTestCase(PymatgenTest):
         self.assertRaises(ValueError, Specie("Fe", 2).get_crystal_field_spin,
                           "hex")
 
+        s = Specie("Co", 3).get_crystal_field_spin("tet", spin_config="low")
+        self.assertEqual(s, 2)
+
     def test_sort(self):
         els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
         self.assertEqual(sorted(els), [Specie("Si", 3), Specie("Si", 4),
@@ -266,6 +272,7 @@ class DummySpecieTestCase(unittest.TestCase):
     def test_sort(self):
         r = sorted([Element.Fe, DummySpecie("X")])
         self.assertEqual(r, [DummySpecie("X"), Element.Fe])
+        self.assertTrue(DummySpecie("X", 3) < DummySpecie("X", 4))
 
     def test_safe_from_composition(self):
         c = Composition({'Xa': 1, 'Fe': 1})
