@@ -67,6 +67,9 @@ class PiezoTensor(TensorBase):
                 representing the piezo tensor
         """
         voigt_matrix = np.array(voigt_matrix)
+        if voigt_matrix.shape != (3, 6):
+            raise ValueError("PiezoTensor.from_voigt takes "
+                             "a 3x6 array-like as input.")
         c = np.zeros((3, 3, 3))
         for i in range(3):
             for p in range(6):
@@ -85,11 +88,6 @@ class PiezoTensor(TensorBase):
                 to the piezo tensor
             tol (float): tolerance for the symmetry test of the tensor
         """
-        # Test symmetry of piezo tensor
-        c_ijk = np.array(c_ijk)
-        if not (c_ijk - np.transpose(c_ijk, (0, 2, 1)) < tol).all():
-            raise ValueError("Input piezo tensor does "
-                             "not satisfy necessary symmetries")
         # Construct piezo tensor
         c_ip = np.zeros((3, 6))
         for i in range(3):
