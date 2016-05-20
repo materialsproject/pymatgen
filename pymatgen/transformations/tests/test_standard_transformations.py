@@ -402,7 +402,7 @@ class PerturbStructureTransformationTest(unittest.TestCase):
 class DeformStructureTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
-        t = DeformedStructureTransformation([[ 1., 0., 0.],
+        t = DeformStructureTransformation([[ 1., 0., 0.],
                                              [ 0., 1., 0.05],
                                              [ 0., 0., 1.]])
         coords = list()
