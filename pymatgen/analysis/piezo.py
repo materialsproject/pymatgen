@@ -93,6 +93,6 @@ class PiezoTensor(TensorBase):
         for i in range(3):
             for p in range(6):
                 j, k = voigt_map[p]
-                c_ip[i, p] = c_ijk[i, j, k]
+                c_ip[i, p] = self[i, j, k]
 
         return c_ip
