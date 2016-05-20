@@ -163,97 +163,115 @@ class BoltztrapRunner(object):
         self.scissor = scissor
         self.tmax = tmax
         self.tgrid = tgrid
+        if self.run_type in ("DOS", "BANDS"):
+            self._auto_set_energy_range()
 
-    def _make_energy_file(self, file_name):
-        with open(file_name, 'w') as f:
+    def _auto_set_energy_range(self):
+        """
+        automatically determine the energy range as min/max eigenvalue
+        minus/plus the buffer_in_ev
+        Args:
+            buffer_in_ev:
+        """
+        emins = [min([e_k[0] for e_k in self._bs.bands[Spin.up]])]
+        emaxs = [max([e_k[0] for e_k in self._bs.bands[Spin.up]])]
+
+        if self._bs.is_spin_polarized:
+            emins.append(min([e_k[0] for e_k in
+                              self._bs.bands[Spin.down]]))
+
+            emaxs.append(max([e_k[0] for e_k in
+                              self._bs.bands[Spin.down]]))
+
+        min_eigenval = Energy(min(emins) - self._bs.efermi, "eV").\
+            to("Ry")
+        max_eigenval = Energy(max(emaxs) - self._bs.efermi, "eV").\
+            to("Ry")
+
+        # set energy range to buffer around min/max EV
+        # buffer does not increase CPU time but will help get equal
+        # energies for spin up/down for band structure
+        const = Energy(2, "eV").to("Ry")
+        self._ll = min_eigenval - const
+        self._hl = max_eigenval + const
+
+        en_range = Energy(max((abs(self._ll), abs(self._hl))),
+                          "Ry").to("eV")
+
+        self.energy_span_around_fermi = en_range * 1.01
+        print("energy_span_around_fermi = ",
+              self.energy_span_around_fermi)
+
+    @property
+    def bs(self):
+        return self._bs
+
+    @property
+    def nelec(self):
+        return self._nelec
+
+    def write_energy(self, output_file):
+        with open(output_file, 'w') as f:
             f.write("test\n")
-            f.write(str(len(self._bs.kpoints)) + "\n")
-            sign = 1.0
-            if self.cond_band:
-                sign = -1.0
+            f.write("{}\n".format(len(self._bs.kpoints)))
 
-            if self.run_type in ("DOS", "BANDS"):
-                # automatically set energy span around Fermi
-                const = Energy(2, "eV").to("Ry")
-                emin_up = min([e_k[0] for e_k in self._bs.bands[Spin.up]])
-                emax_up = max([e_k[0] for e_k in self._bs.bands[Spin.up]])
-
-                if self._bs.is_spin_polarized:
-                    emin_dw = min([e_k[0] for e_k in
-                                   self._bs.bands[Spin.down]])
-                    low_en_lim = Energy(min((emin_up, emin_dw)) -
-                                        self._bs.efermi, "eV").to("Ry")
-
-                    emax_dw = max([e_k[0] for e_k in
-                                   self._bs.bands[Spin.down]])
-                    high_en_lim = Energy(max((emax_up, emax_dw)) -
-                                         self._bs.efermi, "eV").to("Ry")
-
-                    self._ll = low_en_lim - const
-                    self._hl = high_en_lim + const
-
-                    en_range = Energy(max((abs(self._ll), abs(self._hl))),
-                                      "Ry").to("eV")
-                else:
-                    en_range = Energy(
-                        max((abs(emin_up - const), abs(emax_up + const))),
-                        "Ry").to("eV")
-
-                self.energy_span_around_fermi = en_range * 1.01
-                print("energy_span_around_fermi = ",
-                      self.energy_span_around_fermi)
-
-            if self.run_type != "FERMI":
+            if self.run_type == "FERMI":
+                sign = 1.0 if self.cond_band else -1.0
                 for i in range(len(self._bs.kpoints)):
-                    tmp_eigs = []
-                    if self.run_type == "DOS":
-                        spin_lst = [self.spin]
-                    else:
-                        spin_lst = self._bs.bands
-
-                    for spin in spin_lst:
-                        for j in range(
-                                int(math.floor(self._bs.nb_bands * 0.9))):
-                            tmp_eigs.append(
-                                Energy(self._bs.bands[Spin(spin)][j][i] -
-                                       self._bs.efermi, "eV").to("Ry"))
-                    tmp_eigs.sort()
-
-                    if self.run_type == "DOS" and self._bs.is_spin_polarized:
-                        tmp_eigs.insert(0, self._ll)
-                        tmp_eigs.append(self._hl)
-
-                    f.write("%12.8f %12.8f %12.8f %d\n"
-                            % (self._bs.kpoints[i].frac_coords[0],
-                               self._bs.kpoints[i].frac_coords[1],
-                               self._bs.kpoints[i].frac_coords[2],
-                               len(tmp_eigs)))
-
-                    for j in range(len(tmp_eigs)):
-                        f.write("%18.8f\n" % (sign * float(tmp_eigs[j])))
-
-            else:
-                for i in range(len(self._bs.kpoints)):
-                    tmp_eigs = []
-                    tmp_eigs.append(Energy(
+                    eigs = []
+                    eigs.append(Energy(
                         self._bs.bands[Spin(self.spin)][self.band_nb][i] -
                         self._bs.efermi, "eV").to("Ry"))
                     f.write("%12.8f %12.8f %12.8f %d\n"
                             % (self._bs.kpoints[i].frac_coords[0],
                                self._bs.kpoints[i].frac_coords[1],
                                self._bs.kpoints[i].frac_coords[2],
-                               len(tmp_eigs)))
-                    for j in range(len(tmp_eigs)):
-                        f.write("%18.8f\n" % (sign * float(tmp_eigs[j])))
+                               len(eigs)))
+                    for j in range(len(eigs)):
+                        f.write("%18.8f\n" % (sign * float(eigs[j])))
 
-    def _make_struc_file(self, file_name):
+            else:
+                for i, kpt in enumerate(self._bs.kpoints):
+                    eigs = []
+                    if self.run_type == "DOS":
+                        spin_lst = [self.spin]
+                    else:
+                        spin_lst = self._bs.bands
+
+                    for spin in spin_lst:
+                        # use 90% of bottom bands since highest eigenvalues
+                        # are usually incorrect
+                        # ask Geoffroy Hautier for more details
+                        nb_bands = int(math.floor(self._bs.nb_bands * 0.9))
+                        for j in range(nb_bands):
+                            eigs.append(
+                                Energy(self._bs.bands[Spin(spin)][j][i] -
+                                       self._bs.efermi, "eV").to("Ry"))
+                    eigs.sort()
+
+                    if self.run_type == "DOS" and self._bs.is_spin_polarized:
+                        eigs.insert(0, self._ll)
+                        eigs.append(self._hl)
+
+                    f.write("%12.8f %12.8f %12.8f %d\n"
+                            % (kpt.frac_coords[0],
+                               kpt.frac_coords[1],
+                               kpt.frac_coords[2],
+                               len(eigs)))
+
+                    for j in range(len(eigs)):
+                        f.write("%18.8f\n" % (float(eigs[j])))
+
+    def write_struct(self, output_file):
         sym = SpacegroupAnalyzer(self._bs.structure, symprec=0.01)
 
-        with open(file_name, 'w') as f:
+        with open(output_file, 'w') as f:
             f.write("{} {}\n".format(self._bs.structure.composition.formula,
                     sym.get_spacegroup_symbol()))
 
-            f.write("{}\n".format(self._bs.structure.lattice))
+            f.write("{}\n".format("\n".join(
+                [" ".join(["%.5f" % Length(i, "ang").to("bohr") for i in row])
+                 for row in self._bs.structure.lattice.matrix])))
 
             ops = sym.get_symmetry_dataset()['rotations']
             f.write("{}\n".format(len(ops)))
@@ -261,14 +279,11 @@ class BoltztrapRunner(object):
             for c in ops:
                 for row in c:
                     f.write("{}\n".format(" ".join(str(i) for i in row)))
-                #f.write('\n'.join([' '.join([str(int(i)) for i in row])
-                #                   for row in c]))
-                #f.write('\n')
 
-    # This function is useless in std version of BoltzTraP code
-    # because x_trans script overwrite BoltzTraP.def
-    def _make_def_file(self, def_file_name):
-        with open(def_file_name, 'w') as f:
+    def write_def(self, output_file):
+        # This function is useless in std version of BoltzTraP code
+        # because x_trans script overwrite BoltzTraP.def
+        with open(output_file, 'w') as f:
             so = ""
             if self._bs.is_spin_polarized or self.soc:
                 so = "so"
@@ -295,13 +310,13 @@ class BoltztrapRunner(object):
                     "30,'boltztrap_BZ.cube',           'unknown',    "
                     "'formatted',0\n")
 
-    # This function is useless in std version of BoltzTraP code
-    # because x_trans script overwrite BoltzTraP.def
-    def _make_proj_files(self, file_name, def_file_name):
+    def write_proj(self, output_file_proj, output_file_def):
+        # This function is useless in std version of BoltzTraP code
+        # because x_trans script overwrite BoltzTraP.def
         for o in Orbital:
             for site_nb in range(0, len(self._bs.structure.sites)):
                 if o in self._bs._projections[Spin.up][0][0]:
-                    with open(file_name + "_" + str(site_nb) + "_" + str(o),
+                    with open(output_file_proj + "_" + str(site_nb) + "_" + str(o),
                               'w') as f:
                         f.write(self._bs.structure.composition.formula + "\n")
                         f.write(str(len(self._bs.kpoints)) + "\n")
@@ -328,7 +343,7 @@ class BoltztrapRunner(object):
                                        len(tmp_proj)))
                             for j in range(len(tmp_proj)):
                                 f.write("%18.8f\n" % float(tmp_proj[j]))
-        with open(def_file_name, 'w') as f:
+        with open(output_file_def, 'w') as f:
             so = ""
             if self._bs.is_spin_polarized:
                 so = "so"
@@ -363,13 +378,12 @@ class BoltztrapRunner(object):
                                 "\' \'old\', \'formatted\',0\n")
                         i += 1
 
-    def _make_intrans_file(self, file_name):
+    def write_intrans(self, output_file):
+        setgap = 1 if self.scissor > 0.0001 else 0
+
         if self.run_type == "BOLTZ" or self.run_type == "DOS":
-            with open(file_name, 'w') as fout:
+            with open(output_file, 'w') as fout:
                 fout.write("GENE          # use generic interface\n")
-                setgap = 0
-                if self.scissor > 0.0001:
-                    setgap = 1
                 fout.write(
                     "1 0 %d %f         # iskip (not presently used) idebug "
                     "setgap shiftgap \n"
@@ -398,18 +412,18 @@ class BoltztrapRunner(object):
                 fout.write(
                     "-1.  # energyrange of bands given DOS output sig_xxx and "
                     "dos_xxx (xxx is band number)\n")
-                fout.write(self.dos_type + "\n")
-                fout.write(
-                    str(self.tauref) + " " + str(self.tauexp) + " " + str(
-                        self.tauen) + " 0 0 0\n")
-                fout.write(str(2 * len(self.doping)) + "\n")
+                fout.write(self.dos_type + "\n")  # e.g., HISTO or TETRA
+                fout.write("{} {} {} 0 0 0\n".format(
+                    self.tauref, self.tauexp, self.tauen))
+                fout.write("{}\n".format(2 * len(self.doping)))
+
                 for d in self.doping:
                     fout.write(str(d) + "\n")
                 for d in self.doping:
                     fout.write(str(-d) + "\n")
 
         elif self.run_type == "FERMI":
-            with open(file_name, 'w') as fout:
+            with open(output_file, 'w') as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
                     "1 0 0 0.0         # iskip (not presently used) idebug "
@@ -428,15 +442,11 @@ class BoltztrapRunner(object):
                 fout.write(
                     "FERMI                     # run mode (only BOLTZ is "
                     "supported)\n")
-                fout.write(str(
-                    1) + "                        # actual band selected: " +
+                fout.write(str(1) +
+                           "                        # actual band selected: " +
                            str(self.band_nb + 1) + " spin: " + str(self.spin))
 
         elif self.run_type == "BANDS":
-
-            setgap = 0
-            if self.scissor > 0.0001:
-                setgap = 1
             if self.kpt_line is None:
                 kpath = HighSymmKpath(self._bs.structure)
                 self.kpt_line = [Kpoint(k, self._bs.structure.lattice) for k
@@ -446,7 +456,7 @@ class BoltztrapRunner(object):
                 self.kpt_line = np.array(
                     [kp.frac_coords for kp in self.kpt_line])
 
-            with open(file_name, 'w') as fout:
+            with open(output_file, 'w') as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
                     "1 0 %d %f         # iskip (not presently used) idebug "
@@ -470,35 +480,66 @@ class BoltztrapRunner(object):
                     "supported)\n")
                 fout.write("P " + str(len(self.kpt_line)) + "\n")
                 for kp in self.kpt_line:
-                    fout.writelines([str(k) + ' ' for k in kp])
+                    fout.writelines([str(k) + " " for k in kp])
                     fout.write('\n')
 
-    def _make_all_files(self, path):
+    def write_input(self, output_dir):
         if self._bs.is_spin_polarized or self.soc:
-            self._make_energy_file(os.path.join(path, "boltztrap.energyso"))
+            self.write_energy(os.path.join(output_dir, "boltztrap.energyso"))
         else:
-            self._make_energy_file(os.path.join(path, "boltztrap.energy"))
+            self.write_energy(os.path.join(output_dir, "boltztrap.energy"))
 
-        self._make_struc_file(os.path.join(path, "boltztrap.struct"))
-        self._make_intrans_file(os.path.join(path, "boltztrap.intrans"))
-        self._make_def_file("BoltzTraP.def")
-        if len(self._bs._projections) != 0 and self.run_type == "DOS":
-            self._make_proj_files(os.path.join(path, "boltztrap.proj"),
-                                  os.path.join(path, "BoltzTraP.def"))
+        self.write_struct(os.path.join(output_dir, "boltztrap.struct"))
+        self.write_intrans(os.path.join(output_dir, "boltztrap.intrans"))
+        self.write_def(os.path.join(output_dir, "BoltzTraP.def"))
 
-    def run(self, path_dir=None, convergence=True):
+        if len(self.bs.projections) != 0 and self.run_type == "DOS":
+            self.write_proj(os.path.join(output_dir, "boltztrap.proj"),
+                            os.path.join(output_dir, "BoltzTraP.def"))
+
+    def run(self, path_dir=None, convergence=True, write_input=True,
+            clear_dir=False, max_lpfac=150, min_egrid=0.00005):
+        """
+        Write inputs (optional), run BoltzTraP, and ensure
+        convergence (optional)
+        Args:
+            path_dir (str): directory in which to run BoltzTraP
+            convergence (bool): whether to check convergence and make
+                corrections if needed
+            write_input: (bool) whether to write input files before the run
+                (required for convergence mode)
+            clear_dir: (bool) whether to remove all files in the path_dir
+                before starting
+            max_lpfac: (float) maximum lpfac value to try before reducing egrid
+                in convergence mode
+            min_egrid: (float) minimum egrid value to try before giving up in
+                convergence mode
+
+        Returns:
+
+        """
+
+        # TODO: consider making this a part of custodian rather than pymatgen
+        # A lot of this functionality (scratch dirs, handlers, monitors)
+        # is built into custodian framework
+
+        if convergence and not write_input:
+            raise ValueError("Convergence mode requires write_input to be "
+                             "true")
+
         if self.run_type in ("BANDS", "DOS", "FERMI"):
             convergence = False
 
-        if self.run_type == "BANDS" and self._bs.is_spin_polarized:
+        if self.run_type == "BANDS" and self.bs.is_spin_polarized:
             print("Reminder: for run_type " + str(
-                self.run_type) + " spin component are not separated!")
+                self.run_type) + ", spin component are not separated! "
+                                 "(you have a spin polarized band structure)")
 
         if self.run_type in ("FERMI", "DOS") and self.spin is None:
-            if self._bs.is_spin_polarized:
+            if self.bs.is_spin_polarized:
                 raise BoltztrapError(
-                    "Spin component must be specified for spin polarized "
-                    "case!")
+                    "Spin parameter must be specified for spin polarized "
+                    "band structures!")
             else:
                 self.spin = 1
 
@@ -510,109 +551,99 @@ class BoltztrapRunner(object):
         else:
             path_dir = os.path.abspath(
                 os.path.join(path_dir_orig, dir_bz_name))
+
         if not os.path.exists(path_dir):
             os.mkdir(path_dir)
-        else:
+        elif clear_dir:
             for c in os.listdir(path_dir):
-                os.remove(path_dir + "/" + c)
+                os.remove(os.path.join(path_dir, c))
 
         with cd(path_dir):
-
-            ######## convergence loop over energy_grid, lpfac and not on
-            # eff_mass (as previously) ########################
             lpfac_start = self.lpfac
             converged = False
 
-            while self.energy_grid > 0.00004:
-                sigma_ratio = 1
+            while self.energy_grid >= min_egrid and not converged:
                 self.lpfac = lpfac_start
 
                 print("lpfac, energy_grid: ", self.lpfac, self.energy_grid)
 
-                while self.lpfac < 160:
+                while self.lpfac <= max_lpfac and not converged:
 
-                    self._make_all_files(path_dir)
+                    if write_input:
+                        self.write_input(path_dir)
+
+                    bt_exe = ["x_trans", "BoltzTraP"]
                     if self._bs.is_spin_polarized or self.soc:
-                        p = subprocess.Popen(["x_trans", "BoltzTraP", "-so"],
-                                             stdout=subprocess.PIPE,
-                                             stdin=subprocess.PIPE,
-                                             stderr=subprocess.PIPE)
-                        p.wait()
-                    else:
-                        p = subprocess.Popen(["x_trans", "BoltzTraP"],
-                                             stdout=subprocess.PIPE,
-                                             stdin=subprocess.PIPE,
-                                             stderr=subprocess.PIPE)
-                        p.wait()
+                        bt_exe.append("-so")
+
+                    p = subprocess.Popen(bt_exe, stdout=subprocess.PIPE,
+                                         stdin=subprocess.PIPE,
+                                         stderr=subprocess.PIPE)
+                    p.wait()
 
                     for c in p.communicate():
                         print(c)
                         if "STOP error in factorization" in c:
                             raise BoltztrapError("STOP error in factorization")
 
+                    warning = ""
+
                     with open(os.path.join(path_dir,
                                            dir_bz_name + ".outputtrans")) as f:
-                        warning = False
                         for l in f:
-                            if "WARNING" in l:
-                                warning = True
-                                break
                             if "Option unknown" in l:
                                 raise BoltztrapError(
                                     "DOS mode needs a custom version of "
                                     "BoltzTraP code is needed")
-                    if warning:
-                        print("There was a warning! Increase lpfac to " +
-                              str(self.lpfac + 10))
-                        self.lpfac += 10
-                        continue
+                            if "WARNING" in l:
+                                warning = l
+                                break
 
-                    if convergence:
+                    if not warning and convergence:
+                        # check convergence for warning
                         analyzer = BoltztrapAnalyzer.from_files(path_dir)
-                        doping_ok = True
                         for doping in ['n', 'p']:
                             for c in analyzer.mu_doping[doping]:
                                 if len(analyzer.mu_doping[doping][c]) != len(
                                         analyzer.doping[doping]):
-                                    doping_ok = False
+                                    warning = "length of mu_doping array is " \
+                                              "incorrect"
                                     break
+
                                 if doping == 'p' and \
                                                 sorted(
                                                     analyzer.mu_doping[doping][
                                                         c], reverse=True) != \
                                                 analyzer.mu_doping[doping][c]:
-                                    doping_ok = False
+                                    warning = "sorting of mu_doping array " \
+                                              "incorrect for p-type"
                                     break
+
+                                # ensure n-type doping sorted correctly
                                 if doping == 'n' and sorted(
                                         analyzer.mu_doping[doping][c]) != \
                                         analyzer.mu_doping[doping][c]:
-                                    doping_ok = False
+                                    warning = "sorting of mu_doping array " \
+                                              "incorrect for n-type"
                                     break
 
-                        print('doping_ok', doping_ok)
-                        if not doping_ok:
-                            self.lpfac += 10
-                            print("doping not ok, increase lpfac to " + str(
-                                self.lpfac))
-                            continue
-
-                        converged = True
-                        break
+                    if warning:
+                        self.lpfac += 10
+                        print("Warning detected: {}! Increase lpfac to "
+                              "{}".format(warning, self.lpfac))
 
                     else:
                         converged = True
-                        break
 
                 if not converged:
                     self.energy_grid /= 10
-                else:
-                    break
+                    print("Could not converge with max lpfac; "
+                          "Decrease egrid to {}".format(self.energy_grid))
 
             if not converged:
                 raise BoltztrapError(
                     "Doping convergence not reached with lpfac=" + str(
-                        self.lpfac)
-                    + ", energy_grid=" + str(self.energy_grid))
+                        self.lpfac) + ", energy_grid=" + str(self.energy_grid))
 
             return path_dir
 
