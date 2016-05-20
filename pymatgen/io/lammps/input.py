@@ -16,7 +16,7 @@ import os
 from functools import partial
 from collections import OrderedDict
 
-from monty.json import MSONable
+from monty.json import MSONable, MontyDecoder
 
 from pymatgen.io.lammps.data import LammpsData, LammpsForceFieldData
 
@@ -44,8 +44,7 @@ class DictLammpsInput(MSONable):
     """
 
     def __init__(self, name, config_dict, lammps_data=None,
-                 data_file="in.data",
-                 user_lammps_settings={}):
+                 data_file="in.data", user_lammps_settings={}):
         self.name = name
         self.lines = []
         self.config_dict = config_dict
@@ -125,23 +124,19 @@ class DictLammpsInput(MSONable):
             lammps_data = data_obj
         return DictLammpsInput(name, config_dict, lammps_data)
 
-    @property
     def as_dict(self):
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "name": self.name,
-                "config_dict": self.config_dict,
-                "lammps_data": self.lammps_data,
-                "data_filename": self.data_file,
-                "user_lammps_settings": self.user_lammps_settings}
+        d = MSONable.as_dict(self)
+        if hasattr(self, "kwargs"):
+            d.update(**self.kwargs)
+        d["config_dict"] = self.config_dict.items()
+        return d
 
     @classmethod
     def from_dict(cls, d):
-        return DictLammpsInput(d["name"], d["config_dict"],
-                               lammps_data=d.get("lammps_data"),
-                               data_file=d.get("data_filename"),
-                               user_lammps_settings=d.get(
-                                   "user_lammps_settings"))
+        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items()
+                   if k not in ["@module", "@class", "config_dict"]}
+        decoded["config_dict"] = OrderedDict(d["config_dict"])
+        return cls(**decoded)
 
 
 # NVT

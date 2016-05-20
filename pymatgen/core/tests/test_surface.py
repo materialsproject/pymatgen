@@ -12,6 +12,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator, generate_all_slabs, \
     get_symmetrically_distinct_miller_indices
 from pymatgen.symmetry.groups import SpaceGroup
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -29,12 +30,30 @@ class SlabTest(PymatgenTest):
         zno55 = SlabGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False,
                               center_slab=False).get_slab()
 
+        Ti = Structure(Lattice.hexagonal(4.6, 2.82), ["Ti", "Ti", "Ti"],
+                       [[0.000000, 0.000000, 0.000000],
+                       [0.333333, 0.666667, 0.500000],
+                       [0.666667, 0.333333, 0.500000]])
+
+        Ag_fcc = Structure(Lattice.cubic(4.06), ["Ag", "Ag", "Ag", "Ag"],
+                           [[0.000000, 0.000000, 0.000000],
+                           [0.000000, 0.500000, 0.500000],
+                           [0.500000, 0.000000, 0.500000],
+                           [0.500000, 0.500000, 0.000000]])
+
+        laue_groups = ["-1", "2/m", "mmm", "4/m",
+                       "4/mmm", "-3", "-3m", "6/m",
+                       "6/mmm", "m-3", "m-3m"]
+
+        self.ti = Ti
+        self.agfcc = Ag_fcc
         self.zno1 = zno1
         self.zno55 = zno55
         self.h = Structure(Lattice.cubic(3), ["H"],
                             [[0, 0, 0]])
         self.libcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"],
                                [[0, 0, 0], [0.5, 0.5, 0.5]])
+        self.laue_groups = laue_groups
 
     def test_init(self):
         zno_slab = Slab(self.zno55.lattice, self.zno55.species,
@@ -93,6 +112,45 @@ class SlabTest(PymatgenTest):
         self.assertArrayAlmostEqual(slab.dipole, [-4.209, 0, 0])
         self.assertTrue(slab.is_polar())
 
+    def test_symmetrization(self):
+
+        # Restricted to elemental materials due to the risk of
+        # broken stoichiometry. For compound materials, use is_polar()
+
+        # Get all slabs for P6/mmm Ti and Fm-3m Ag up to index of 2
+
+        all_Ti_slabs = generate_all_slabs(self.ti, 2, 10, 10, bonds=None,
+                                          tol=1e-3, max_broken_bonds=0,
+                                          lll_reduce=False, center_slab=False,
+                                          primitive=True, max_normal_search=2,
+                                          symmetrize=True)
+
+        all_Ag_fcc_slabs = generate_all_slabs(self.agfcc, 2, 10, 10, bonds=None,
+                                              tol=1e-3, max_broken_bonds=0,
+                                              lll_reduce=False, center_slab=False,
+                                              primitive=True, max_normal_search=2,
+                                              symmetrize=True)
+
+        all_slabs = [all_Ti_slabs, all_Ag_fcc_slabs]
+
+        for i, slabs in enumerate(all_slabs):
+
+            assymetric_count = 0
+            symmetric_count = 0
+
+            for i, slab in enumerate(slabs):
+                sg = SpacegroupAnalyzer(slab)
+                pg = sg.get_point_group()
+
+                # Check if a slab is symmetric
+                if str(pg) not in self.laue_groups:
+                    assymetric_count += 1
+                else:
+                    symmetric_count += 1
+
+            # Check if slabs are all symmetric
+            self.assertEqual(assymetric_count, 0)
+            self.assertEqual(symmetric_count, len(slabs))
 
 class SlabGeneratorTest(PymatgenTest):
 
@@ -188,7 +246,7 @@ class SlabGeneratorTest(PymatgenTest):
         # slabs is of sites in LiFePO4 unit cell - 2 + 1.
         self.assertEqual(len(gen.get_slabs(tol=1e-4)), 15)
 
-        LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif"),
+        LiCoO2=Structure.from_file(get_path("icsd_LiCoO2.cif"),
                                           primitive=False)
         gen = SlabGenerator(LiCoO2, [0, 0, 1], 10, 10)
         lco = gen.get_slabs(bonds={("Co", "O"): 3})
@@ -231,11 +289,12 @@ class SlabGeneratorTest(PymatgenTest):
         self.assertAlmostEqual(norm_slab.lattice.angles[1], 90)
 
 
-class FuncTest(PymatgenTest):
+class MillerIndexFinderTests(PymatgenTest):
 
     def setUp(self):
         self.cscl = Structure.from_spacegroup(
-            "Pm-3m", Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+            "Pm-3m", Lattice.cubic(4.2), ["Cs", "Cl"],
+            [[0, 0, 0], [0.5, 0.5, 0.5]])
 
         self.lifepo4 = self.get_structure("LiFePO4")
         self.tei = Structure.from_file(get_path("icsd_TeI.cif"),
@@ -248,13 +307,15 @@ class FuncTest(PymatgenTest):
         self.graphite = self.get_structure("Graphite")
 
     def test_get_symmetrically_distinct_miller_indices(self):
+
+        # Tests to see if the function obtains the known number of unique slabs
+
         indices = get_symmetrically_distinct_miller_indices(self.cscl, 1)
         self.assertEqual(len(indices), 3)
         indices = get_symmetrically_distinct_miller_indices(self.cscl, 2)
         self.assertEqual(len(indices), 6)
 
-        self.assertEqual(len(get_symmetrically_distinct_miller_indices(
-                         self.lifepo4, 1)), 7)
+        self.assertEqual(len(get_symmetrically_distinct_miller_indices(self.lifepo4, 1)), 7)
 
         # The TeI P-1 structure should have 13 unique millers (only inversion
         # symmetry eliminates pairs)
