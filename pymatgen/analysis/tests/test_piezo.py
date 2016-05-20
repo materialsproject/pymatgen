@@ -53,6 +53,7 @@ class PiezoTest(PymatgenTest):
         pt = PiezoTensor.from_voigt(self.voigt_matrix)
         self.assertArrayEqual(pt, self.full_tensor_array)
         self.assertRaises(ValueError, PiezoTensor.from_voigt, bad_voigt)
+        self.assertArrayEqual(self.voigt_matrix, pt.voigt)
 
 if __name__ == '__main__':
     unittest.main()
