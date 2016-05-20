@@ -39,14 +39,14 @@ class ElasticTensor(TensorBase):
     def __new__(cls, input_array, tol=1e-3):
         """
         Create an ElasticTensor object.  The constructor throws an error if
-        the shape of the input_matrix argument is not 6x6, i. e. in Voigt-
-        notation.  Also issues a warning if the input_matrix argument is
-        not symmetric.  Note that the constructor uses __new__ rather than
-        __init__ according to the standard method of subclassing numpy
-        ndarrays.
+        the shape of the input_matrix argument is not 3x3x3x3, i. e. in true
+        tensor notation.  Issues a warning if the input_matrix argument does
+        not satisfy standard symmetries.  Note that the constructor uses
+        __new__ rather than __init__ according to the standard method of
+        subclassing numpy ndarrays.
 
         Args:
-            input_array (3x3x3x3 array-like): the Voigt-notation 6x6 array-like
+            input_array (3x3x3x3 array-like): the 3x3x3x3 array-like
                 representing the elastic tensor
 
             tol (float): tolerance for initial symmetry test of tensor
