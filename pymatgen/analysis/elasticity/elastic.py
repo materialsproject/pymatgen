@@ -46,7 +46,7 @@ class ElasticTensor(TensorBase):
         subclassing numpy ndarrays.
 
         Args:
-            input_array (3x3x3x3 array-like): the Voigt-notation 6x6 array-like
+            input_array (3x3x3x3 array-like): the 3x3x3x3 array-like
                 representing the elastic tensor
 
             tol (float): tolerance for initial symmetry test of tensor
