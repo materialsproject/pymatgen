@@ -749,8 +749,7 @@ class PerturbStructureTransformation(AbstractTransformation):
 
 class DeformStructureTransformation(AbstractTransformation):
     """
-    This transformation perturbs a structure by a specified distance in random
-    directions. Used for breaking symmetries.
+    This transformation deforms a structure by a deformation gradient matrix
 
     Args:
         deformation (array): deformation gradient for the transformation
