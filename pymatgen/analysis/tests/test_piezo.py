@@ -41,28 +41,18 @@ class PiezoTest(PymatgenTest):
                                   [[6.89822, 0., 0.],
                                    [0.,  6.89822, 0.],
                                    [0.,  0.,  27.4628]]]
+    
     def test_new(self):
         pt = PiezoTensor(self.full_tensor_array)
         self.assertArrayAlmostEqual(pt, self.full_tensor_array)
         bad_dim_array = np.zeros((3, 3))
         self.assertRaises(ValueError, PiezoTensor, bad_dim_array)
 
-        bad_pt = PiezoTensor.from_voigt([[0., 0., 1., 0., 0.03839, 2.],
-                                         [0., 0., 0., 0.03839, 0., 0.],
-                                         [6.89822, 6.89822, 27.4628, 0., 0., 0.]])
-
-        sym_pt = bad_pt.symmeterized(piezo_struc)
-        alt_tensor = pt(full_tensor)
-
-        self.assertArrayAlmostEqual(pt.voigt, full_tensor)
-        self.assertArrayEqual(pt, alt_tensor)
-        #TODO Recheck this test. Commented out for now to enable Py3k testing.
-        self.assertTrue(pt.is_fit_to_structure(piezo_struc))
-
-        self.assertTrue(sym_pt.is_fit_to_structure(piezo_struc))
-        self.assertArrayAlmostEqual(sym_pt, pt)
-
     def test_from_voigt(self):
+        bad_voigt = np.zeros((3, 7))
+        pt = PiezoTensor.from_voigt(self.voigt_matrix)
+        self.assertArrayEqual(pt, self.full_tensor_array)
+        self.assertRaises(ValueError, PiezoTensor.from_voigt, bad_voigt)
 
 if __name__ == '__main__':
     unittest.main()
