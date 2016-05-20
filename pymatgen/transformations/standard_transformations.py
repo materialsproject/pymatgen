@@ -747,7 +747,7 @@ class PerturbStructureTransformation(AbstractTransformation):
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
-class DeformedStructureTransformation(AbstractTransformation):
+class DeformStructureTransformation(AbstractTransformation):
     """
     This transformation perturbs a structure by a specified distance in random
     directions. Used for breaking symmetries.

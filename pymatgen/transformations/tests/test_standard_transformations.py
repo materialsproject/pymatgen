@@ -399,7 +399,7 @@ class PerturbStructureTransformationTest(unittest.TestCase):
             self.assertAlmostEqual(site.distance(struct[i]), 0.05)
 
 
-class DeformedStructureTransformationTest(unittest.TestCase):
+class DeformStructureTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
         t = DeformedStructureTransformation([[ 1., 0., 0.],
