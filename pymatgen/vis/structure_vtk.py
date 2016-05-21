@@ -25,8 +25,10 @@ import subprocess
 import numpy as np
 try:
     import vtk
+    from vtk import vtkInteractorStyleTrackballCamera
 except ImportError:
     vtk = None
+    vtkInteractorStyleTrackballCamera = None
 
 from monty.serialization import loadfn
 from monty.dev import requires
@@ -775,7 +777,7 @@ class StructureVis(object):
         self.iren.SetPicker(picker)
 
 
-class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
+class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
     """
     A custom interactor style for visualizing structures.
     """
