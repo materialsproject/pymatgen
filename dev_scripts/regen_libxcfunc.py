@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 This script regenerates the enum values in pymatgen.core.libxc_func.py.
-It requires in input the path of the `libxc_docs.txt` contained in libxc/src
+It requires in input the path of the `libxc_docs.txt` file contained in libxc/src
 The script parses this file, creates a new json file inside pymatgen.core 
 and updatse the enum values declared in LibxcFunc.
 The script must be executed inside pymatgen/dev_scripts.
@@ -16,7 +16,8 @@ from collections import OrderedDict
 
 def parse_libxc_docs(path):
     """
-    Parse libxc_docs.txt file, return dict libxc_id --> info_dict
+    Parse libxc_docs.txt file, return dictionary with mapping:
+    libxc_id --> info_dict
     """
     def parse_section(section):
 	d = {}
@@ -67,6 +68,7 @@ def write_libxc_docs_json(xcfuncs, jpath):
     return xcfuncs
 
 def main():
+    """Main function."""
     if "-h" in sys.argv or "--help" in sys.argv:
         print(__doc__)
         print("Usage: regen_libxcfunc.py path_to_libxc_docs.txt")

@@ -15,14 +15,18 @@ class LibxcFuncTest(PymatgenTest):
         print(ixc_1)
         assert ixc_1.type == "LDA"
         assert ixc_1.name == "LDA_XC_TETER93"
-        assert ixc_1 == ixc_1 and ixc_1 == "LDA_XC_TETER93"
+        assert ixc_1 == ixc_1 
+        assert ixc_1 == "LDA_XC_TETER93"
+        assert ixc_1 != "PBE"
         assert ixc_1.name not in XcFunc.aliases()
+        assert ixc_1 == XcFunc.from_name(ixc_1.name)
 
         # LDA-PW (in aliases)
         ixc_7 = XcFunc.from_abinit_ixc(7)
         assert ixc_7.type == "LDA"
         assert ixc_7.name == "PW"
         assert ixc_7.name in XcFunc.aliases()
+        assert ixc_7.name == XcFunc.from_name(ixc_7.name)
         assert ixc_7 != ixc_1
 
         # GGA-PBE from ixc == 11 (in aliases)
@@ -55,5 +59,8 @@ class LibxcFuncTest(PymatgenTest):
         assert gga_pbe.type == "GGA" and gga_pbe.name == "PBE"
         assert ixc_11 == gga_pbe
 
-        #gga_pbe_libxc = XcFunc.from_type_name("GGA", "GGA_X_PBE+GGA_C_PBE")
-        #assert ixc_11 == gga_pbe_libxc
+        # Use X from GGA and C from LDA!
+        unknown_xc = XcFunc.from_name("GGA_X_PBE+ LDA_C_PW")
+        assert unknown_xc not in XcFunc.aliases()
+        assert unknown_xc.type == "GGA+LDA"
+        assert unknown_xc.name == "GGA_X_PBE+LDA_C_PW"
