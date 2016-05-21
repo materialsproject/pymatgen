@@ -1498,7 +1498,6 @@ class BoltztrapAnalyzer(object):
             for line in f:
                 if "Calc type:" in line:
                     run_type = line.split()[-1]
-                    print(run_type, " calc type found")
                     break
 
         if run_type == "BOLTZ":
@@ -1628,18 +1627,20 @@ class BoltztrapAnalyzer(object):
                 doping, data_doping_full, data_doping_hall, vol, warning)
 
         elif run_type == "FERMI":
-            from ase.io.cube import read_cube
-            if os.path.exists(os.path.join(path_dir, 'boltztrap_BZ.cube')):
-                with open(os.path.join(path_dir, 'boltztrap_BZ.cube')):
-                    fs_data = read_cube(f,  read_data=True)
-            if os.path.exists(os.path.join(path_dir, 'fort.30')):
-                with open(os.path.join(path_dir, 'fort.30')):
-                    fs_data = read_cube(f, read_data=True)
-            else:
-                raise BoltztrapError("No data file found for fermi surface")
+            # TODO: There is no way to get this shitty ASE crap working.
+            # If you want to read CUBE files, write a proper IO class in
+            # pymatgen. I refuse to let pymatgen be bogged down by ASE crap.
+
+            # from ase.io.cube import read_cube
+            # if os.path.exists(os.path.join(path_dir, 'boltztrap_BZ.cube')):
+            #     fs_data = read_cube(open(os.path.join(path_dir, 'boltztrap_BZ.cube'), "rt"),  read_data=True)
+            # if os.path.exists(os.path.join(path_dir, 'fort.30')):
+            #     fs_data = read_cube(open(os.path.join(path_dir, 'fort.30'), "rt"), read_data=True)
+            # else:
+            #     raise BoltztrapError("No data file found for fermi surface")
 
             return BoltztrapAnalyzer._make_boltztrap_analyzer_from_data(
-                run_type="FERMI", fermi_surface_data=fs_data)
+                run_type="FERMI", fermi_surface_data=None)
 
         elif run_type == "BANDS":
             bz_kpoints = np.loadtxt(
@@ -1663,7 +1664,6 @@ class BoltztrapAnalyzer(object):
                         count_series += 1
                     if count_series > 1:
                         break
-            print("here")
             tmp_data = np.array(data_dos['total'])
             tmp_den = np.trim_zeros(tmp_data[:, 1], 'f')[1:]
             lw_l = len(tmp_data[:, 1]) - len(tmp_den)
