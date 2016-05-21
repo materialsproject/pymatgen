@@ -2,13 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
-Part of this module is automatically generated 
-
-To add support for a new libxc version:
-
-1)
-
-3) Change __version__ below.
+Part of this module is automatically generated so be careful when refactoring stuff.
+Use the script ~pymatgen/dev_scripts/regen_libxcfunc.py to regenerate the enum values.
 """
 from __future__ import division, unicode_literals, print_function
 
@@ -37,6 +32,12 @@ with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"), "rt") as f
 
 # @unique
 class LibxcFunc(Enum):
+    """
+    Enumerator with the identifiers. This object is used by Xcfunc
+    declared in xcfunc.py to create an internal representation of the XC functional.
+    This is a low level object, client code should not interact with LibxcFunc directly
+    but use the API provided by Xcfunc.
+    """
 #begin_include_dont_touch
     LDA_C_1D_CSC = 18
     LDA_C_1D_LOOS = 26
@@ -412,50 +413,69 @@ class LibxcFunc(Enum):
 
     @staticmethod
     def all_families():
+        """
+        List of strings with the libxc families.
+        Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA
+        """
         return sorted(set(d["Family"] for d in _all_xcfuncs.values()))
 
     @staticmethod
     def all_kinds():
+        """
+        List of strings with the libxc kinds.
+        Also in this case, the string is obtained by remove the XC_ prefix.
+        XC_CORRELATION --> CORRELATION
+        """
         return sorted(set(d["Kind"] for d in _all_xcfuncs.values()))
 
     @property
     def info_dict(self):
+        """Dictionary with metadata. see libxc_docs.json"""
         return _all_xcfuncs[self.value]
 
     @property
     def is_x_kind(self):
+        """True if this is an exchange-only functional"""
         return self.kind == "EXCHANGE"
 
     @property
     def is_c_kind(self):
+        """True if this is a correlation-only functional"""
         return self.kind == "CORRELATION"
 
     @property
     def is_k_kind(self):
+        """True if this is a kinetic functional"""
         return self.kind == "KINETIC"
 
     @property
     def is_xc_kind(self):
+        """True if this is a exchange+correlation functional"""
         return self.kind == "EXCHANGE_CORRELATION"
 
     @property
     def is_lda_family(self):
+        """True if this functional belongs to the LDA family."""
         return self.family == "LDA"
 
     @property
     def is_gga_family(self):
+        """True if this functional belongs to the GGA family."""
         return self.family == "GGA"
 
     @property
     def is_mgga_family(self):
+        """True if this functional belongs to the meta-GGA family."""
         return self.family == "MGGA"
 
     @property
     def is_hyb_gga_family(self):
+        """True if this functional belongs to the hybrid + GGA family."""
         return self.family == "HYB_GGA"
 
     @property
     def is_hyb_mgga_family(self):
+        """True if this functional belongs to the hybrid + meta-GGA family."""
         return self.family == "HYB_MGGA"
 
     def as_dict(self):

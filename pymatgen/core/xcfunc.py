@@ -2,11 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
+This module provides 
 """
 from __future__ import unicode_literals, division, print_function
 
 from collections import namedtuple, OrderedDict
-from monty.json import MSONable, MontyEncoder
+from monty.json import MSONable #, MontyEncoder
 from monty.functools import lazy_property
 from pymatgen.core.libxcfunc import LibxcFunc
 
@@ -25,7 +26,7 @@ class XcFunc(MSONable):
     used to generate the pseudo. The implementation is based on the libxc conventions 
     and is inspired to the XML specification for atomic PAW datasets documented at:
 
-	https://wiki.fysik.dtu.dk/gpaw/setups/pawxml.html
+        https://wiki.fysik.dtu.dk/gpaw/setups/pawxml.html
 
     For convenience, part of the pawxml documentation is reported here.
 
@@ -40,11 +41,11 @@ class XcFunc(MSONable):
         are stripped from their XC_ part and combined with a + sign. 
         Here is an example for an LDA functional:
 
-	    <xc_functional type="LDA", name="LDA_X+LDA_C_PW"/>
+        <xc_functional type="LDA", name="LDA_X+LDA_C_PW"/>
 
-	and this is what PBE will look like:
+        and this is what PBE will look like:
 
-	    <xc_functional type="GGA", name="GGA_X_PBE+GGA_C_PBE"/>
+        <xc_functional type="GGA", name="GGA_X_PBE+GGA_C_PBE"/>
 
     [2] Using one of the following pre-defined aliases:
 
@@ -59,34 +60,34 @@ class XcFunc(MSONable):
     GGA     BLYP    GGA_X_B88+GGA_C_LYP          Becke, PRA 38, 3098 (1988); Lee, Yang, Parr, PRB 37, 785
     """
     type_name = namedtuple("type_name", "type, name")
-    
+
     xcf = LibxcFunc
     defined_aliases = OrderedDict([  # (x, c) --> type_name 
-	((xcf.LDA_X, xcf.LDA_C_PW), type_name("LDA", "PW")),
-	((xcf.GGA_X_PW91, xcf.GGA_C_PW91), type_name("GGA", "PW91")),
-	((xcf.GGA_X_PBE, xcf.GGA_C_PBE), type_name("GGA", "PBE")),
-	((xcf.GGA_X_RPBE, xcf.GGA_C_PBE), type_name("GGA", "RPBE")),
-	((xcf.GGA_X_PBE_R, xcf.GGA_C_PBE), type_name("GGA", "revPBE")), 
-	((xcf.GGA_X_PBE_SOL, xcf.GGA_C_PBE_SOL), type_name("GGA", "PBEsol")),
-	((xcf.GGA_X_AM05, xcf.GGA_C_AM05), type_name("GGA", "AM05")),
-	((xcf.GGA_X_B88, xcf.GGA_C_LYP), type_name("GGA", "BLYP")), 
+        ((xcf.LDA_X, xcf.LDA_C_PW), type_name("LDA", "PW")),
+        ((xcf.GGA_X_PW91, xcf.GGA_C_PW91), type_name("GGA", "PW91")),
+        ((xcf.GGA_X_PBE, xcf.GGA_C_PBE), type_name("GGA", "PBE")),
+        ((xcf.GGA_X_RPBE, xcf.GGA_C_PBE), type_name("GGA", "RPBE")),
+        ((xcf.GGA_X_PBE_R, xcf.GGA_C_PBE), type_name("GGA", "revPBE")),
+        ((xcf.GGA_X_PBE_SOL, xcf.GGA_C_PBE_SOL), type_name("GGA", "PBEsol")),
+        ((xcf.GGA_X_AM05, xcf.GGA_C_AM05), type_name("GGA", "AM05")),
+        ((xcf.GGA_X_B88, xcf.GGA_C_LYP), type_name("GGA", "BLYP")),
     ])
     del type_name
 
     # Correspondence between Abinit ixc and libxc notation.
     # see: http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#ixc
     abinitixc_to_libxc = {
-         1: dict(xc=xcf.LDA_XC_TETER93),
-         2: dict(x=xcf.LDA_X, c=xcf.LDA_C_PZ),
-         7: dict(x=xcf.LDA_X, c=xcf.LDA_C_PW),
-	11: dict(x=xcf.GGA_X_PBE, c=xcf.GGA_C_PBE),
+        1: dict(xc=xcf.LDA_XC_TETER93),
+        2: dict(x=xcf.LDA_X, c=xcf.LDA_C_PZ),
+        7: dict(x=xcf.LDA_X, c=xcf.LDA_C_PW),
+        11: dict(x=xcf.GGA_X_PBE, c=xcf.GGA_C_PBE),
     }
     del xcf
 
-    @classmethod 
+    @classmethod
     def aliases(cls):
-	"""List of registered names."""
-	return [nt.name for nt in cls.defined_aliases.values()]
+        """List of registered names."""
+        return [nt.name for nt in cls.defined_aliases.values()]
 
     @classmethod
     def from_abinit_ixc(cls, ixc):
@@ -96,10 +97,10 @@ class XcFunc(MSONable):
         else:
             # libxc notation employed in Abinit: a six-digit number in the form XXXCCC or CCCXXX
             ixc = str(ixc)
-	    assert len(ixc[1:]) == 6
+            assert len(ixc[1:]) == 6
             first, last = ixc[1:4], ixc[4:]
             x, c = LibxcFunc(int(first)), LibxcFunc(int(last))
-	    if not x.is_x_kind: x, c = c, x # Swap
+            if not x.is_x_kind: x, c = c, x  # Swap
             assert x.is_x_kind and c.is_c_kind
             return cls(x=x, c=c)
 
@@ -111,103 +112,118 @@ class XcFunc(MSONable):
     @classmethod
     def from_type_name(cls, typ, name):
         """Build the object from (type, name)."""
-        # TODO
-        # Handle <xc_functional type="GGA", name="GGA_X_PBE+GGA_C_PBE"/>
-        #if "+" in name or name in LibxcFunc:
-
-        # Handle <xc_functional type="LDA", name="LDA_X+LDA_C_PW"/>
-	for k, nt in cls.defined_aliases.items():
+        # Try aliases first.
+        for k, nt in cls.defined_aliases.items():
             if typ is not None and typ != nt.type: continue
-	    if name == nt.name:
-		if len(k) == 1: return cls(xc=k)
-		if len(k) == 2: return cls(x=k[0], c=k[1])
-		raise ValueError("Wrong key: %s" % k)
+            if name == nt.name:
+                if len(k) == 1: return cls(xc=k)
+                if len(k) == 2: return cls(x=k[0], c=k[1])
+                raise ValueError("Wrong key: %s" % k)
+
+        # At this point, we should have something in the form
+        # name="GGA_X_PBE+GGA_C_PBE" or  name=""LDA_XC_TETER93"
+        if "+" in name: 
+            assert typ is None
+            x, c = (s.strip() for s in name.split("+"))
+            x, c = LibxcFunc[x], LibxcFunc[c]
+            return cls(x=x, c=c)
+        else:
+            assert typ is None
+            xc = LibxcFunc[name]
+            return cls(xc=xc)
 
         if typ is None:
-	    raise ValueError("Cannot find name=%s in defined_aliases" % name)
+            raise ValueError("Cannot find name=%s in defined_aliases" % name)
         else:
-	    raise ValueError("Cannot find type=%s, name=%s in defined_aliases" % (typ, name))
+            raise ValueError("Cannot find type=%s, name=%s in defined_aliases" % (typ, name))
 
     @classmethod
     def from_dict(cls, d):
-	return cls(xc=d.get("xc"), x=d.get("x"), c=d.get("c"))
+        """
+        Makes XcFunc obey the general json interface used in pymatgen for easier serialization.
+        """
+        return cls(xc=d.get("xc"), x=d.get("x"), c=d.get("c"))
 
     def as_dict(self):
-	d = {"@module": self.__class__.__module__,
+        """
+        Makes XcFunc obey the general json interface used in pymatgen for easier serialization.
+        """
+        d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__}
-        #print("in as_dict", type(self.x), type(self.c), type(self.xc))
-	if self.x is not None: d["x"] = self.x.as_dict()
-	if self.c is not None: d["c"] = self.c.as_dict()
-	if self.xc is not None: d["xc"] = self.xc.as_dict()
-	return d
+        # print("in as_dict", type(self.x), type(self.c), type(self.xc))
+        if self.x is not None: d["x"] = self.x.as_dict()
+        if self.c is not None: d["c"] = self.c.as_dict()
+        if self.xc is not None: d["xc"] = self.xc.as_dict()
+        return d
 
-    #def to_json(self):
+    # def to_json(self):
     #    """
     #    Returns a json string representation of the MSONable object.
     #    """
     #    return json.dumps(self.as_dict()) #, cls=MontyEncoder)
 
     def __init__(self, xc=None, x=None, c=None):
-	"""
-	Args:
-	    xc: LibxcFunc for XC functional.
-	    x, c: LibxcFunc for exchange and correlation part. Mutually exclusive with xc.
-	"""
+        """
+        Args:
+            xc: LibxcFunc for XC functional.
+            x, c: LibxcFunc for exchange and correlation part. Mutually exclusive with xc.
+        """
         # Consistency check
         if xc is None:
-             if x is None or c is None:
+            if x is None or c is None:
                 raise ValueError("x or c must be specified when xc is None")
         else:
-             if x is not None or c is not None:
+            if x is not None or c is not None:
                 raise ValueError("x and c should be None when xc is specified")
 
         self.xc, self.x, self.c = xc, x, c
 
-    #@lazy_property
-    #def type_name(self):
-    #    """String in the form `type-name` e.g. GGA-PBE"""
-    #   return "-".join([self.type, self.name])
-
     @lazy_property
     def type(self):
-	"""The type of the functional."""
-	if self.xc in self.defined_aliases: return self.defined_aliases[self.xc].type
-	xc = (self.x, self.c)
-	if xc in self.defined_aliases: return self.defined_aliases[xc].type
+        """The type of the functional."""
+        if self.xc in self.defined_aliases: return self.defined_aliases[self.xc].type
+        xc = (self.x, self.c)
+        if xc in self.defined_aliases: return self.defined_aliases[xc].type
 
         # If self is not in defined_aliases, use LibxcFunc family
-	if self.xc is not None: return self.xc.family
-	return "+".join([self.x.family, self.c.family])
+        if self.xc is not None: return self.xc.family
+        return "+".join([self.x.family, self.c.family])
 
     @lazy_property
     def name(self):
-	"""
+        """
         The name of the functional. If the functional is not found in the aliases,
         the string has the form X_NAME+C_NAME
         """
-	if self.xc in self.defined_aliases: return self.defined_aliases[self.xc].name
-	xc = (self.x, self.c)
-	if xc in self.defined_aliases: return self.defined_aliases[xc].name
-	if self.xc is not None: return self.xc.name
-	return "+".join([self.x.name, self.c.name])
+        if self.xc in self.defined_aliases: return self.defined_aliases[self.xc].name
+        xc = (self.x, self.c)
+        if xc in self.defined_aliases: return self.defined_aliases[xc].name
+        if self.xc is not None: return self.xc.name
+        return "+".join([self.x.name, self.c.name])
 
-    #def __repr__(self):
-    #return "<%s: %s at %s>" % (self.name, self.__class__.__name__, id(self))
-    #def __str__(self):
+    # def __repr__(self):
+    # return "<%s: %s at %s>" % (self.name, self.__class__.__name__, id(self))
+    # def __str__(self):
     def __repr__(self):
-	 return "%s" % self.name
+        return "%s" % self.name
 
     def __hash__(self):
         return hash(self.name)
 
     def __eq__(self, other):
-	if other is None: return False
-	if isinstance(other, XcFunc): return self.name == other.name
-	# assume other is a string
-	return self.name == other
+        if other is None: return False
+        if isinstance(other, XcFunc): return self.name == other.name
+        # assume other is a string
+        return self.name == other
 
     def __ne__(self, other):
         return not self == other
 
-    #@property
-    #def refs(self):
+    # @property
+    # def refs(self):
+
+    #def info_dict()
+    #    if self.xc is not None:
+    #        return {"xc", self.xc.info_dict}
+    #    else:
+    #        return {"x", self.x.info_dict, "c", self.c.info_dict}

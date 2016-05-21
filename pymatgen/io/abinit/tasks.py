@@ -1844,7 +1844,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # 1) A locked task can only be unlocked by calling set_status explicitly.
         # an errored task, should not end up here but just to be sure
         black_list = (self.S_LOCKED, self.S_ERROR)
-#        if self.status in black_list: return self.status
+        #if self.status in black_list: return self.status
 
         # 2) Check the returncode of the process (the process of submitting the job) first.
         # this point type of problem should also be handled by the scheduler error parser
