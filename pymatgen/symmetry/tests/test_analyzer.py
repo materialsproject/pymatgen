@@ -138,9 +138,6 @@ class SpacegroupAnalyzerTest(PymatgenTest):
                 self.assertTrue(np.allclose(latt.get_fractional_coords(newcart),
                                             newfrac))
 
-    def test_get_point_group_operations(self):
-        self.sg.get_point_group_operations()
-
     def test_get_refined_structure(self):
         for a in self.sg.get_refined_structure().lattice.angles:
             self.assertEqual(a, 90)
