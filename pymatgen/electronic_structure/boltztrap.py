@@ -1630,12 +1630,11 @@ class BoltztrapAnalyzer(object):
         elif run_type == "FERMI":
             from ase.io.cube import read_cube
             if os.path.exists(os.path.join(path_dir, 'boltztrap_BZ.cube')):
-                fs_data = read_cube(
-                    str(os.path.join(path_dir, 'boltztrap_BZ.cube')),
-                    read_data=True)
+                with open(os.path.join(path_dir, 'boltztrap_BZ.cube')):
+                    fs_data = read_cube(f,  read_data=True)
             if os.path.exists(os.path.join(path_dir, 'fort.30')):
-                fs_data = read_cube(str(os.path.join(path_dir, 'fort.30')),
-                                    read_data=True)
+                with open(os.path.join(path_dir, 'fort.30')):
+                    fs_data = read_cube(f, read_data=True)
             else:
                 raise BoltztrapError("No data file found for fermi surface")
 
