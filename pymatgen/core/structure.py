@@ -71,8 +71,8 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
     periodicity). Not meant to be instantiated directly.
     """
 
-    #Tolerance in Angstrom for determining if sites are too close.
-    DISTANCE_TOLERANCE = 0.01
+    # Tolerance in Angstrom for determining if sites are too close.
+    DISTANCE_TOLERANCE = 0.5
 
     @abstractproperty
     def sites(self):

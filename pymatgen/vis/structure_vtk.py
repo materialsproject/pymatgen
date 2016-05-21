@@ -23,9 +23,15 @@ import math
 import subprocess
 
 import numpy as np
-import vtk
+try:
+    import vtk
+    from vtk import vtkInteractorStyleTrackballCamera
+except ImportError:
+    vtk = None
+    vtkInteractorStyleTrackballCamera = None
 
 from monty.serialization import loadfn
+from monty.dev import requires
 
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.core.periodic_table import Specie
@@ -41,6 +47,8 @@ class StructureVis(object):
     Provides Structure object visualization using VTK.
     """
 
+    @requires(vtk, "Visualization requires the installation of VTK with "
+                   "Python bindings.")
     def __init__(self, element_color_mapping=None, show_unit_cell=True,
                  show_bonds=False, show_polyhedron=True,
                  poly_radii_tol_factor=0.5, excluded_bonding_elements=None):
@@ -769,7 +777,7 @@ class StructureVis(object):
         self.iren.SetPicker(picker)
 
 
-class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
+class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
     """
     A custom interactor style for visualizing structures.
     """
