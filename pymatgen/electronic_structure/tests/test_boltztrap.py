@@ -168,7 +168,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
     #     self.assertAlmostEqual(werr_cbm['M-K'],0.071552669981356981)
     #     self.assertFalse(warn)
         
-    def test_get_comlete_dos(self):
+    def test_get_complete_dos(self):
         structure = loadfn(os.path.join(test_dir,'boltztrap/structure_mp-12103.json'))
         cdos = self.bz_up.get_complete_dos(structure,self.bz_dw)
         self.assertIs(cdos.densities.keys()[0],Spin.down)
