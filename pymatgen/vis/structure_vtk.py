@@ -27,8 +27,9 @@ try:
     import vtk
     from vtk import vtkInteractorStyleTrackballCamera
 except ImportError:
+    # VTK not present. The Camera is to set object to avoid errors in unittest.
     vtk = None
-    vtkInteractorStyleTrackballCamera = None
+    vtkInteractorStyleTrackballCamera = object
 
 from monty.serialization import loadfn
 from monty.dev import requires
