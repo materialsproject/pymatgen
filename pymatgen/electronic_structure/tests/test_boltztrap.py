@@ -172,8 +172,8 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         structure = loadfn(os.path.join(test_dir,'boltztrap/structure_mp-12103.json'))
         cdos = self.bz_up.get_complete_dos(structure,self.bz_dw)
         spins = list(cdos.densities.keys())
-        self.assertIs(spins[0], Spin.down)
-        self.assertIs(spins[1], Spin.up)
+        self.assertIn(Spin.down, spins)
+        self.assertIn(Spin.up, spins)
         self.assertAlmostEqual(cdos.get_spd_dos()[OrbitalType.p].densities[Spin.up][3134],43.839230100999991)
         self.assertAlmostEqual(cdos.get_spd_dos()[OrbitalType.s].densities[Spin.down][716],6.5383268000000001)
         
