@@ -1410,7 +1410,7 @@ class BoltztrapAnalyzer(object):
 
         """
         pdoss = {}
-        spin_1 = self.dos.densities.keys()[0]
+        spin_1 = list(self.dos.densities.keys())[0]
 
         if analyzer_for_second_spin:
             if not np.all(self.dos.energies ==
