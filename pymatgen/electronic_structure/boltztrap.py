@@ -1410,7 +1410,7 @@ class BoltztrapAnalyzer(object):
 
         """
         pdoss = {}
-        spin_1 = self.dos.densities.keys()[0]
+        spin_1 = list(self.dos.densities.keys())[0]
 
         if analyzer_for_second_spin:
             if not np.all(self.dos.energies ==
@@ -1418,7 +1418,7 @@ class BoltztrapAnalyzer(object):
                 raise BoltztrapError(
                     "Dos merging error: energies of the two dos are different")
 
-            spin_2 = analyzer_for_second_spin.dos.densities.keys()[0]
+            spin_2 = list(analyzer_for_second_spin.dos.densities.keys())[0]
             if spin_1 == spin_2:
                 raise BoltztrapError(
                     "Dos merging error: spin component are the same")

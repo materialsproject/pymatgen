@@ -78,4 +78,4 @@ class CoordinationGeometryFinderTest(unittest2.TestCase):
     #                 self.assertAlmostEqual(se.get_csm(0, mp_symbol)['symmetry_measure'], 0.0, 4)
 
 if __name__ == "__main__":
-    unittest2.main(verbosity=9)
+    unittest2.main()
