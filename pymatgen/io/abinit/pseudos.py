@@ -1982,7 +1982,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
                 print("ignoring old report in ", p.basename)
                 continue
 
-            d = {"symbol": p.symbol, "Z": p.Z}
+            d = {"symbol": p.symbol, "Z": p.Z, "filepath": p.filepath}
             names.append(p.basename)
 
             ecut_acc = {}
@@ -2641,11 +2641,16 @@ class DojoReport(dict):
                     hints[i] = None
         return hints
 
-    def check(self):
+    def check(self, check_trials=None):
         """
         Check the dojo report for inconsistencies.
         Return a string with the errors found in the DOJO_REPORT.
+
+        Args:
+            check_trials: string or list of strings selecting the trials to be tested.
+                If None, all trials are analyzed.
         """
+        check_trials = self.ALL_TRIALS if check_trials is None else list_strings(check_trials)
         errors = []
         app = errors.append
 
@@ -2656,7 +2661,7 @@ class DojoReport(dict):
         global_ecuts = self.ecuts
 
         missing = defaultdict(list)
-        for trial in self.ALL_TRIALS:
+        for trial in check_trials:
             for ecut in global_ecuts:
                 if not self.has_trial(trial, ecut=ecut):
                     missing[trial].append(ecut)
@@ -2666,7 +2671,7 @@ class DojoReport(dict):
             for trial, ecuts in missing.items():
                 app("    %s: %s" % (trial, ecuts))
 
-        for trial in self.ALL_TRIALS:
+        for trial in check_trials:
             if not self.has_trial(trial): continue
             for ecut in self[trial]:
                 if ecut not in global_ecuts:
