@@ -98,7 +98,7 @@ def update_doc():
 def update_coverage():
     with lcd("docs/_build/html/"):
         local("git pull")
-    local("nosetests --all-modules --cover-html --cover-html-dir=docs/_build/html")
+    local("nosetests --config=nose.cfg --cover-html --cover-html-dir=docs/_build/html")
     update_doc()
 
 
