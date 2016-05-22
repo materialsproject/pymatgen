@@ -188,9 +188,11 @@ class VoronoiAnalyzer(object):
         """
         Performs Voronoi analysis and returns the polyhedra around atom n
         in Schlaefli notation.
+
         Args:
             structure (Structure): structure to analyze
             n (int): index of the center atom in structure
+
         Returns:
             voronoi index of n: <c3,c4,c6,c6,c7,c8,c9,c10>
                 where c_i denotes number of facets with i vertices.
