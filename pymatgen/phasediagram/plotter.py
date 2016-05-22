@@ -303,8 +303,8 @@ class PDPlotter(object):
                 'meV/at] above hull (in green)',
                 rotation=-90, ha='left', va='center')
             ticks = cbar.ax.get_yticklabels()
-            cbar.ax.set_yticklabels(['${v}$'.format(
-                v=float(t.get_text().strip('$'))*1000.0) for t in ticks])
+            # cbar.ax.set_yticklabels(['${v}$'.format(
+            #     v=float(t.get_text().strip('$'))*1000.0) for t in ticks])
         f = plt.gcf()
         f.set_size_inches((8, 6))
         plt.subplots_adjust(left=0.09, right=0.98, top=0.98, bottom=0.07)
