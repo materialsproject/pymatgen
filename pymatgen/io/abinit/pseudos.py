@@ -144,9 +144,9 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         app("  maximum angular momentum: %s" % l2str(self.l_max))
         app("  angular momentum for local part: %s" % l2str(self.l_local))
         app("  XC correlation: %s" % self.xc) 
+        app("  supports spin-orbit: %s" % self.supports_soc)
         if self.isnc:
             app("  radius for non-linear core correction: %s" % self.nlcc_radius)
-        app("")
 
         if self.has_hints:
             hint_normal = self.hint_for_accuracy()

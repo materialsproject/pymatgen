@@ -15,6 +15,7 @@ import collections
 import warnings
 import shutil
 import copy
+import tempfile
 import numpy as np
 
 from pprint import pprint
@@ -240,6 +241,11 @@ class Flow(Node, NodeContainer, MSONable):
     def from_dict(cls, d, **kwargs):
         """Reconstruct the flow from the pickle file."""
         return cls.pickle_load(d["workdir"], **kwargs)
+
+    @classmethod
+    def temporary_flow(cls, manager=None):
+        """Return a Flow in a temporary directory. Useful for unit tests."""
+        return cls(workdir=tempfile.mkdtemp(), manager=manager)
 
     def set_workdir(self, workdir, chroot=False):
         """
@@ -2361,8 +2367,6 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
 
         # Run abinit on the front-end to get the list of irreducible pertubations.
         tmp_dir = os.path.join(workdir, "__ph_run" + str(i) + "__")
-        #import tempfile
-        #tmp_dir = tempfile.mkdtemp()
         w = PhononWork(workdir=tmp_dir, manager=shell_manager)
         fake_task = w.register(fake_input)
 
