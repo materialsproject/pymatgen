@@ -600,8 +600,9 @@ class Work(BaseWork, NodeContainer):
     def check_status(self):
         """Check the status of the tasks."""
         # Recompute the status of the tasks
+        # Ignore OK and LOCKED tasks.
         for task in self:
-            if task.status == task.S_LOCKED: continue
+            if task.status in (task.S_OK, task.S_LOCKED): continue
             task.check_status()
 
         # Take into account possible dependencies. Use a list instead of generators 
