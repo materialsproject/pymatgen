@@ -22,7 +22,7 @@ import math
 import numpy as np
 import itertools
 
-from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
+from pymatgen.phasediagram.analyzer import PDAnalyzer
 from pymatgen.util.string_utils import latexify
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 from pymatgen.util.coord_utils import in_coord_list
