@@ -25,8 +25,8 @@ import scipy.constants as const
 from pymatgen import Composition, Element
 from pymatgen.matproj.snl import is_valid_bibtex
 from pymatgen.phasediagram.entries import PDEntry
-from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
-from pymatgen.phasediagram.pdmaker import PhaseDiagram
+from pymatgen.phasediagram.analyzer import PDAnalyzer
+from pymatgen.phasediagram.maker import PhaseDiagram
 from io import open
 
 

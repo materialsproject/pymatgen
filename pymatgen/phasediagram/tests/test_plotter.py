@@ -10,7 +10,7 @@ import numpy as np
 
 from pymatgen import Element
 from pymatgen.phasediagram.entries import PDEntryIO, PDEntry
-from pymatgen.phasediagram.pdmaker import PhaseDiagram
+from pymatgen.phasediagram.maker import PhaseDiagram
 from pymatgen.phasediagram.plotter import PDPlotter, uniquelines, \
      triangular_coord, tet_coord
 
