@@ -17,6 +17,7 @@ dependencies:
 test:
   override:
     - find . -name "*.pyc" -exec rm '{}' \;
+    - find . -name "test_*.py" -exec chmod -x '{}' \;
     #- python run_circle.py:
     #    timeout: 720
     - nosetests --config=nose.cfg --cover-html --cover-html-dir=$CIRCLE_ARTIFACTS:
