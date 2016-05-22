@@ -263,8 +263,10 @@ class PseudoTestCase(PymatgenTest):
         #assert missing and all(v == [30, 33, 53] for v in missing.values())
 
         # Test plotting methods.
+        xc = h_wdr.xc
+        assert xc == "PBE"
         if plot and pseudo_dojo:
-            self.assertIsInstance(report.plot_deltafactor_convergence(show=False), Fig)
+            self.assertIsInstance(report.plot_deltafactor_convergence(xc=xc, show=False), Fig)
             self.assertIsInstance(report.plot_deltafactor_eos(show=False), Fig)
             self.assertIsInstance(report.plot_etotal_vs_ecut(show=False), Fig)
             self.assertIsInstance(report.plot_gbrv_convergence(show=False), Fig)

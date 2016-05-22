@@ -122,10 +122,6 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
     def __eq__(self, other):
         if other is None: return False
-        # TODO
-        # For the time being we check the filepath
-        # A more robust algorithm would use md5
-        #return self.filepath == other.filepath
         return (self.md5 == other.md5 and
                 self.__class__ == other.__class__ and
                 self.Z == other.Z and
@@ -145,10 +141,9 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         app("<%s: %s>" % (self.__class__.__name__, self.basename))
         app("  summary: " + self.summary.strip())
         app("  number of valence electrons: %s" % self.Z_val)
-        #FIXME: rewrite the treatment of xc, use XML specs as starting point
-        #app("  XC correlation (ixc): %s" % self._pspxc)  #FIXME
         app("  maximum angular momentum: %s" % l2str(self.l_max))
         app("  angular momentum for local part: %s" % l2str(self.l_local))
+        app("  XC correlation: %s" % self.xc) 
         if self.isnc:
             app("  radius for non-linear core correction: %s" % self.nlcc_radius)
         app("")
@@ -1179,7 +1174,7 @@ class PseudoParser(object):
                         pspcod, pspxc = map(int, tokens[:2])
                     except:
                         msg = "%s: Cannot parse pspcod, pspxc in line\n %s" % (filename, line)
-                        sys.stderr.write(msg)
+                        logger.critical(msg)
                         return None
 
                     #if tokens[-1].strip().replace(" ","") not in ["pspcod,pspxc,lmax,lloc,mmax,r2well",
@@ -1214,6 +1209,7 @@ class PseudoParser(object):
             pseudopotential object or None if filename is not a valid pseudopotential file.
         """
         path = os.path.abspath(filename)
+
         # Only PAW supports XML at present.
         if filename.endswith(".xml"):
             return PawXmlSetup(path)
@@ -1221,6 +1217,7 @@ class PseudoParser(object):
         ppdesc = self.read_ppdesc(path)
 
         if ppdesc is None:
+            logger.critical("Cannot find ppdesc in %s" % path)
             return None
 
         psp_type = ppdesc.psp_type
@@ -1369,6 +1366,9 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
     @property
     def supports_soc(self):
+        """
+        Here I assume that the ab-initio code can treat the SOC within the on-site approximation 
+        """
         return True
 
     @staticmethod
@@ -1895,50 +1895,6 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
         """
         symbols = structure.symbol_set
         return self.pseudos_with_symbols(symbols)
-
-    #def list_properties(self, *props, **kw):
-    #    """
-    #    Print a list of elements with the given set of properties.
-
-    #    Args:
-    #        *prop1*, *prop2*, ... : string
-    #            Name of the properties to print
-    #        *format*: string
-    #            Template for displaying the element properties, with one
-    #            % for each property.
-
-    #    For example, print a table of mass and density.
-
-    #    from periodictable import elements
-    #    elements.list_properties('symbol','mass','density', format="%-2s: %6.2f u %5.2f g/cm^3")
-    #    H :   1.01 u   0.07 g/cm^3
-    #    He:   4.00 u   0.12 g/cm^3
-    #    Li:   6.94 u   0.53 g/cm^3
-    #    ...
-    #    Bk: 247.00 u  14.00 g/cm^3
-    #    """
-    #    format = kw.pop('format', None)
-    #    assert len(kw) == 0
-
-    #    for pseudo in self:
-    #        try:
-    #            values = tuple(getattr(pseudo, p) for p in props)
-    #        except AttributeError:
-    #            # Skip elements which don't define all the attributes
-    #            continue
-
-    #        # Skip elements with a value of None
-    #        if any(v is None for v in values):
-    #            continue
-
-    #        if format is None:
-    #            print(" ".join(str(p) for p in values))
-    #        else:
-    #            try:
-    #                print(format % values)
-    #            except:
-    #                print("format",format,"args",values)
-    #                raise
 
     #def print_table(self, stream=sys.stdout, filter_function=None):
     #    """
@@ -2730,6 +2686,8 @@ class DojoReport(dict):
         Returns:
             `matplotlib` figure.
         """
+        xc = kwargs.pop('xc', None)
+
         all = ["dfact_meV", "dfactprime_meV", "v0", "b0_GPa", "b1"]
         if what is None:
             keys = all
@@ -2742,8 +2700,6 @@ class DojoReport(dict):
                 keys = [k for k in all if k not in what]
             else:
                 keys = what
-
-        xc = kwargs.pop('xc', None)
 
         # get reference entry
         from pseudo_dojo.refdata.deltafactor import df_database

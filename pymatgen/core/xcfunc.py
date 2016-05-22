@@ -7,6 +7,8 @@ This module provides
 from __future__ import unicode_literals, division, print_function
 
 from collections import namedtuple, OrderedDict
+from monty.string import is_string
+#from monty.design_patterns import cached_class
 from monty.json import MSONable #, MontyEncoder
 from monty.functools import lazy_property
 from pymatgen.core.libxcfunc import LibxcFunc
@@ -20,6 +22,7 @@ __status__ = "Production"
 __date__ = "May 16, 2016"
 
 
+#@cached_class
 class XcFunc(MSONable):
     """
     This object stores information about the XC correlation functional 
@@ -88,6 +91,13 @@ class XcFunc(MSONable):
     def aliases(cls):
         """List of registered names."""
         return [nt.name for nt in cls.defined_aliases.values()]
+
+    @classmethod
+    def asxc(cls, obj):
+        """Convert object into Xcfunc."""
+        if isinstance(obj, cls): return obj
+        if is_string(obj): return cls.from_name(obj)
+        raise TypeError("Don't know how to convert <%s:%s> to Xcfunc" % (type(obj), str(obj)))
 
     @classmethod
     def from_abinit_ixc(cls, ixc):
