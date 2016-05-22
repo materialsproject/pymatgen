@@ -183,7 +183,6 @@ class VoronoiAnalyzer(object):
     def __init__(self, cutoff=5.0, qhull_options="Qbb Qc Qz"):
         self.cutoff = cutoff
         self.qhull_options = qhull_options
-        self.voronoi_ensemble = None
 
     def analyze(self, structure, n=0):
         """
@@ -224,10 +223,12 @@ class VoronoiAnalyzer(object):
 
         Args:
             structures (list): list of Structures
-            cutoff (float: cutoff distance around an atom to search for neighbors
+            cutoff (float: cutoff distance around an atom to search for
+                neighbors
             step_freq (int): perform analysis every step_freq steps
             qhull_options (str): options to pass to qhull
-            most_frequent_polyhedra (int): this many unique polyhedra with highest frequences is stored.
+            most_frequent_polyhedra (int): this many unique polyhedra with
+                highest frequences is stored.
 
         Returns:
             A list of tuples in the form (voronoi_index,frequency)
@@ -247,14 +248,13 @@ class VoronoiAnalyzer(object):
                     voro_dict[voro] += 1
                 else:
                     voro_dict[voro] = 1
-        self.voronoi_ensemble = sorted(voro_dict.items(),
-                                       key=lambda x: (x[1], x[0]),
-                                       reverse=True)[:most_frequent_polyhedra]
-        return self.voronoi_ensemble
+        return sorted(voro_dict.items(),
+                      key=lambda x: (x[1], x[0]),
+                      reverse=True)[:most_frequent_polyhedra]
 
-    @property
-    def plot_vor_analysis(self):
-        t = zip(*self.voronoi_ensemble)
+    @staticmethod
+    def plot_vor_analysis(voronoi_ensemble):
+        t = zip(*voronoi_ensemble)
         labels = t[0]
         val = list(t[1])
         tot = np.sum(val)
