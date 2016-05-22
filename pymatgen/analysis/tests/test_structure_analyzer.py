@@ -36,7 +36,8 @@ class VoronoiCoordFinderTest(PymatgenTest):
         self.assertEqual(len(self.finder.get_coordinated_sites(0)), 8)
 
 
-class VoronoiAnalyserTest(PymatgenTest):
+class VoronoiAnalyzerTest(PymatgenTest):
+
     def setUp(self):
         self.ss = Xdatcar(os.path.join(test_dir, 'XDATCAR.MD')).structures
         self.s = self.ss[19]
