@@ -290,8 +290,10 @@ class PyFlowScheduler(object):
                 file before launching the jobs. Default: False
             max_nlaunches: Maximum number of tasks launched by radpifire (default -1 i.e. no limit)
             fix_qcritical: True if the launcher should try to fix QCritical Errors (default: True)
-            rmflow: If set to True, the scheduler will remove the flow directory if the calculation
+            rmflow: If "yes", the scheduler will remove the flow directory if the calculation
                 completed successfully. Default: False
+            killjobs_if_errors: "yes" if the scheduler should try to kill all the runnnig jobs
+                before exiting due to an error.
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
@@ -302,13 +304,12 @@ class PyFlowScheduler(object):
             seconds=kwargs.pop("seconds", 0),
             #start_date=kwargs.pop("start_date", None),
         )
-
         if all(not v for v in self.sched_options.values()):
             raise self.Error("Wrong set of options passed to the scheduler.")
 
         self.mailto = kwargs.pop("mailto", None)
         self.verbose = int(kwargs.pop("verbose", 0))
-        self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", False)
+        self.use_dynamic_manager = as_bool(kwargs.pop("use_dynamic_manager", False))
         self.max_njobs_inqueue = kwargs.pop("max_njobs_inqueue", 200)
         self.max_ncores_used = kwargs.pop("max_ncores_used", None)
         self.contact_resource_manager = as_bool(kwargs.pop("contact_resource_manager", False))
@@ -320,8 +321,9 @@ class PyFlowScheduler(object):
         #self.max_etime_s = kwargs.pop("max_etime_s", )
         self.max_nlaunches = kwargs.pop("max_nlaunches", -1)
         self.debug = kwargs.pop("debug", 0)
-        self.fix_qcritical = kwargs.pop("fix_qcritical", True)
-        self.rmflow = kwargs.pop("rmflow", False)
+        self.fix_qcritical = as_bool(kwargs.pop("fix_qcritical", True))
+        self.rmflow = as_bool(kwargs.pop("rmflow", False))
+        self.killjobs_if_errors = as_bool(kwargs.pop("killjobs_if_errors", True))
 
         self.customer_service_dir = kwargs.pop("customer_service_dir", None)
         if self.customer_service_dir is not None:
@@ -703,7 +705,6 @@ class PyFlowScheduler(object):
             err_lines.append(boxed(msg))
 
         # Test on the presence of deadlocks.
-        #"""
         g = self.flow.find_deadlocks()
         if g.deadlocked: 
             # Check the flow again so that status are updated. 
@@ -721,14 +722,18 @@ class PyFlowScheduler(object):
             if not g.runnables and not g.running:
                 err_lines.append("No task is running and cannot find other tasks to submit.")
 
+        # Something wrong. Quit
         if err_lines:
-            # Something wrong. Quit
             # Cancel all jobs.
-            #try:
-            #   for task in self.flow.iflat_tasks()
-            #       task.cancel()
-            #except:
-            #   pass
+            if self.killjobs_if_errors: 
+                try:
+                    num_cancelled = 0
+                    for task in self.flow.iflat_tasks():
+                        num_cancelled += task.cancel()
+                    print("Killed %d tasks" % num_cancelled)
+                except Exception as exc:
+                    print("Exception while trying to kill jobs:\n%s" % str(exc))
+
             self.shutdown("\n".join(err_lines))
 
         return len(self.exceptions)

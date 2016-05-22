@@ -34,6 +34,9 @@ class LibxcFuncTest(PymatgenTest):
         assert ixc_11.type == "GGA" and ixc_11.name == "PBE"
         assert ixc_11.name in XcFunc.aliases()
         assert ixc_1 != ixc_11
+        # Test asxc
+        assert XcFunc.asxc(ixc_11) is ixc_11
+        assert XcFunc.asxc("PBE") == ixc_11
 
         d = {ixc_11: ixc_11.name}
         print(d)
