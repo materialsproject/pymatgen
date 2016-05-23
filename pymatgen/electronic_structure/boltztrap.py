@@ -1348,7 +1348,129 @@ class BoltztrapAnalyzer(object):
         return result
 
     @staticmethod
-    def from_files(path_dir, dos_spin=None):
+    def parse_outputtrans(path_dir):
+        """
+        Parses .outputtrans file
+
+        Args:
+            path_dir: dir containing boltztrap.outputtrans
+
+        Returns:
+            tuple - (run_type, warning, efermi, gap, doping_levels)
+
+        """
+        run_type = None
+        warning = False
+        efermi = None
+        gap = None
+        doping_levels = []
+
+        with open(os.path.join(path_dir, "boltztrap.outputtrans"), 'r') \
+                    as f:
+            for line in f:
+                if "WARNING" in line:
+                    warning = line
+                elif "Calc type:" in line:
+                    run_type = line.split()[-1]
+                elif line.startswith("VBM"):
+                    efermi = Energy(line.split()[1], "Ry").to("eV")
+                elif line.startswith("Egap:"):
+                    gap = Energy(float(line.split()[1]), "Ry").to("eV")
+                elif line.startswith("Doping level number"):
+                    doping_levels.append(float(line.split()[6]))
+
+        return run_type, warning, efermi, gap, doping_levels
+
+
+    @staticmethod
+    def parse_transdos(path_dir, efermi, dos_spin=1, process_dos=False,
+                   normalize_dos=False):
+
+        """
+        Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files
+        Args:
+            path_dir: (str) dir containing DOS files
+            efermi: (float) Fermi energy
+            dos_spin: (int) -1 for spin down, +1 for spin up
+            process_dos: (bool) whether to post-process / trim DOS
+            normalize_dos: (bool) whether to normalize DOS values
+
+        Returns:
+            tuple - (DOS, dict of partial DOS)
+        """
+
+        data_dos = {'total': [], 'partial': {}}
+        # parse the total DOS data
+        ## format is energy, DOS, integrated DOS
+        with open(os.path.join(path_dir, "boltztrap.transdos"), 'r') as f:
+            count_series = 0  # TODO: why is count_series needed?
+            for line in f:
+                if line.lstrip().startswith("#"):
+                    count_series += 1
+                    if count_series > 1:
+                        break
+                else:
+                    data_dos['total'].append(
+                        [Energy(float(line.split()[0]), "Ry").to("eV"),
+                         float(line.split()[1])])
+                    total_elec = float(line.split()[2])
+
+        if normalize_dos:
+            # TODO: do we want to normalize the DOS or no? unit tests fail...
+            ## normalize the DOS to 2*DOS / total electrons
+            ## TODO: why is there a 2X multiplier?
+            data_dos['total'] = [
+                [data_dos['total'][i][0],
+                 2 * data_dos['total'][i][1] / total_elec]
+                for i in range(len(data_dos['total']))]
+
+        if process_dos:
+            # TODO: is this needed? What does it do?
+            tmp_data = np.array(data_dos['total'])
+            tmp_den = np.trim_zeros(tmp_data[:, 1], 'f')[1:]
+            lw_l = len(tmp_data[:, 1]) - len(tmp_den)
+            tmp_ene = tmp_data[lw_l:, 0]
+            tmp_den = np.trim_zeros(tmp_den, 'b')[:-1]
+            hg_l = len(tmp_ene) - len(tmp_den)
+            tmp_ene = tmp_ene[:-hg_l]
+            tmp_data = np.vstack((tmp_ene, tmp_den)).T
+            data_dos['total'] = tmp_data.tolist()
+
+        # parse partial DOS data
+        # TODO: Why is there no energy conversion from Ry to eV here?
+        for file_name in os.listdir(path_dir):
+            if file_name.endswith(
+                    "transdos") and file_name != 'boltztrap.transdos':
+                tokens = file_name.split(".")[1].split("_")
+                site = tokens[1]
+                orb = '_'.join(tokens[2:])
+                with open(os.path.join(path_dir, file_name), 'r') as f:
+                    for line in f:
+                        if not line.lstrip().startswith(" #"):
+                            if site not in data_dos['partial']:
+                                data_dos['partial'][site] = {}
+                            if orb not in data_dos['partial'][site]:
+                                data_dos['partial'][site][orb] = []
+                            data_dos['partial'][site][orb].append(
+                                float(line.split()[1]))
+                data_dos['partial'][site][orb] = data_dos['partial'][site][
+                                                     orb][lw_l:-hg_l]
+
+        dos_full = {'energy': [], 'density': []}
+
+        for t in data_dos['total']:
+            dos_full['energy'].append(t[0])
+            dos_full['density'].append(t[1])
+
+        dos = Dos(efermi, dos_full['energy'],
+                  {Spin(dos_spin): dos_full['density']})
+        dos_partial = data_dos['partial']
+
+        return dos, dos_partial
+
+
+    @staticmethod
+    def from_files(path_dir, dos_spin=1):
         """
         get a BoltztrapAnalyzer object from a set of files
 
@@ -1360,24 +1482,36 @@ class BoltztrapAnalyzer(object):
             a BoltztrapAnalyzer object
 
         """
-        run_type = None
+        run_type, warning, efermi, gap, doping_levels = \
+            BoltztrapAnalyzer.parse_outputtrans(path_dir)
 
-        with open(os.path.join(path_dir, "boltztrap.outputtrans"), 'r') as f:
-            for line in f:
-                if "Calc type:" in line:
-                    run_type = line.split()[-1]
-                    break
+        if run_type == "DOS":
+            dos, pdos = BoltztrapAnalyzer.parse_transdos(
+                path_dir, efermi, dos_spin=dos_spin, process_dos=True,
+                normalize_dos=False)
 
-        if run_type == "BOLTZ":
+            return BoltztrapAnalyzer(gap=gap, dos=dos, dos_partial=pdos,
+                                     warning=warning)
+
+        elif run_type == "BANDS":
+            bz_kpoints = np.loadtxt(
+                os.path.join(path_dir, "boltztrap_band.dat"))[:, -3:]
+            bz_bands = np.loadtxt(
+                os.path.join(path_dir, "boltztrap_band.dat"))[:, 1:-6]
+            return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints)
+
+
+        elif run_type == "BOLTZ":
+            dos, pdos = BoltztrapAnalyzer.parse_transdos(
+                path_dir, efermi, dos_spin=dos_spin, process_dos=False,
+                normalize_dos=False)
+
             t_steps = set()
             mu_steps = set()
-            gap = None
-            doping_levels = []
             data_full = []
             data_hall = []
             data_doping_full = []
             data_doping_hall = []
-            data_dos = {'total': [], 'partial': {}}
 
             # 1. Parse steps: parse raw data but do not convert to final format
 
@@ -1402,67 +1536,6 @@ class BoltztrapAnalyzer(object):
                 for line in f:
                     if not line.startswith("#"):
                         data_hall.append([float(c) for c in line.split()])
-
-            # parse the total DOS data
-            ## format is energy, DOS, integrated DOS
-            with open(os.path.join(path_dir, "boltztrap.transdos"), 'r') as f:
-                count_series = 0  # TODO: why is count_series needed?
-                for line in f:
-                    if line.lstrip().startswith("#"):
-                        count_series += 1
-                        if count_series > 1:
-                            break
-
-                    else:
-                        data_dos['total'].append(
-                            [Energy(float(line.split()[0]), "Ry").to("eV"),
-                             float(line.split()[1])])
-                        total_elec = float(line.split()[2])
-
-            # TODO: do we want to normalize the DOS or no?
-            # Unit tests fail if we normalize the DOS
-            """
-            ## normalize the DOS to 2*DOS / total electrons
-            ## TODO: why is there a 2X multiplier?
-            data_dos['total'] = [
-                [data_dos['total'][i][0],
-                 2 * data_dos['total'][i][1] / total_elec]
-                for i in range(len(data_dos['total']))]
-            """
-
-            # parse partial DOS data
-            # TODO: Why is there no energy conversion from Ry to eV here?
-            # TODO: AJ still needs improve this code after talking to Francesco
-            for file_name in os.listdir(path_dir):
-                if file_name.endswith(
-                        "transdos") and file_name != 'boltztrap.transdos':
-                    tokens = file_name.split(".")[1].split("_")
-                    with open(os.path.join(path_dir, file_name), 'r') as f:
-                        for line in f:
-                            if not line.lstrip().startswith("#"):
-                                if tokens[1] not in data_dos['partial']:
-                                    data_dos['partial'][tokens[1]] = {}
-                                if tokens[2] not in data_dos['partial'][
-                                    tokens[1]]:
-                                    data_dos['partial'][tokens[1]][
-                                        tokens[2]] = []
-                                data_dos['partial'][tokens[1]][
-                                    tokens[2]].append(
-                                    2 * float(line.split()[1]))
-
-            # parse log output
-            with open(os.path.join(path_dir, "boltztrap.outputtrans"), 'r') \
-                    as f:
-                warning = False
-                for line in f:
-                    if "WARNING" in line:
-                        warning = line
-                    if line.startswith("VBM"):
-                        efermi = Energy(line.split()[1], "Ry").to("eV")
-                    elif line.startswith("Doping level number"):
-                        doping_levels.append(float(line.split()[6]))
-                    elif line.startswith("Egap:"):
-                        gap = Energy(float(line.split()[1]), "Ry").to("eV")
 
             if len(doping_levels) != 0:
                 # parse doping levels version of full cond. tensor, etc.
@@ -1556,18 +1629,10 @@ class BoltztrapAnalyzer(object):
                              np.reshape(d[20:29], (3, 3)).tolist()]
                 hall_doping[pn][temp].append(hall_tens)
 
-            # process DOS (total and partial)
-            for t in data_dos['total']:
-                dos_full['energy'].append(t[0])
-                dos_full['density'].append(t[1])
-            dos = Dos(efermi, dos_full['energy'],
-                      {Spin.up: dos_full['density']})
-            dos_partial = data_dos['partial']
-
             return BoltztrapAnalyzer(
                 gap, mu_steps, cond, seebeck, kappa, hall, pn_doping_levels,
                 mu_doping, seebeck_doping, cond_doping, kappa_doping,
-                hall_doping, dos, dos_partial, carrier_conc, vol, warning)
+                hall_doping, dos, pdos, carrier_conc, vol, warning)
 
         elif run_type == "FERMI":
             # TODO: There is no way to get this shitty ASE crap working.
@@ -1584,81 +1649,8 @@ class BoltztrapAnalyzer(object):
                  raise BoltztrapError("No data file found for fermi surface")
             return BoltztrapAnalyzer(fermi_surface_data=fermi_surface_data)
             """
-
-            raise ValueError("Parsing Boltztrap output in FERMI mode is "
-                             "currently unsupported!")
-
-        elif run_type == "BANDS":
-            bz_kpoints = np.loadtxt(
-                os.path.join(path_dir, "boltztrap_band.dat"))[:, -3:]
-            bz_bands = np.loadtxt(
-                os.path.join(path_dir, "boltztrap_band.dat"))[:, 1:-6]
-            return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints)
-
-        elif run_type == "DOS":
-            data_dos = {'total': [], 'partial': {}}
-            with open(os.path.join(path_dir, "boltztrap.transdos"), 'r') as f:
-                count_series = 0
-                for line in f:
-                    if not line.startswith(" #"):
-                        data_dos['total'].append(
-                            [Energy(float(line.split()[0]), "Ry").to("eV"),
-                             float(line.split()[1])])
-                    else:
-                        count_series += 1
-                    if count_series > 1:
-                        break
-            tmp_data = np.array(data_dos['total'])
-            tmp_den = np.trim_zeros(tmp_data[:, 1], 'f')[1:]
-            lw_l = len(tmp_data[:, 1]) - len(tmp_den)
-            tmp_ene = tmp_data[lw_l:, 0]
-            tmp_den = np.trim_zeros(tmp_den, 'b')[:-1]
-            hg_l = len(tmp_ene) - len(tmp_den)
-            tmp_ene = tmp_ene[:-hg_l]
-            tmp_data = np.vstack((tmp_ene, tmp_den)).T
-            data_dos['total'] = tmp_data.tolist()
-
-            for file_name in os.listdir(path_dir):
-                if file_name.endswith(
-                        "transdos") and file_name != 'boltztrap.transdos':
-                    tokens = file_name.split(".")[1].split("_")
-                    site = tokens[1]
-                    orb = '_'.join(tokens[2:])
-                    with open(os.path.join(path_dir, file_name), 'r') as f:
-                        for line in f:
-                            if not line.startswith(" #"):
-                                if site not in data_dos['partial']:
-                                    data_dos['partial'][site] = {}
-                                if orb not in data_dos['partial'][site]:
-                                    data_dos['partial'][site][orb] = []
-                                data_dos['partial'][site][orb].append(
-                                    float(line.split()[1]))
-                    data_dos['partial'][site][orb] = data_dos['partial'][site][
-                                                         orb][lw_l:-hg_l]
-
-            with open(os.path.join(path_dir, "boltztrap.outputtrans"),
-                      'r') as f:
-                for line in f:
-                    if line.startswith("VBM"):
-                        efermi = Energy(line.split()[1], "Ry").to("eV")
-
-            if not dos_spin:
-                print(
-                    "Spin component set to up (dos_spin=1). Set dos_spin=-1 "
-                    "in from_files function if you want spin down")
-                dos_spin = 1
-
-            dos_full = {'energy': [], 'density': []}
-
-            for t in data_dos['total']:
-                dos_full['energy'].append(t[0])
-                dos_full['density'].append(t[1])
-
-            dos = Dos(efermi, dos_full['energy'],
-                      {Spin(dos_spin): dos_full['density']})
-            dos_partial = data_dos['partial']
-
-            return BoltztrapAnalyzer(dos=dos, dos_partial=dos_partial)
+            print("FERMI mode parsing is currently unavailable!")
+            return BoltztrapAnalyzer(fermi_surface_data=None)
 
         else:
             raise ValueError("Run type: {} not recognized!".format(run_type))
