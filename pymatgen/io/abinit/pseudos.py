@@ -1977,7 +1977,6 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
 
         for p in self:
             report = p.dojo_report
-            #assert "version"  in report
             if "version" not in report:
                 print("ignoring old report in ", p.basename)
                 continue
@@ -1987,7 +1986,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
 
             ecut_acc = {}
 
-            #read hints
+            # read hints
             for acc in accuracies:
                 try:
                     d.update({acc + "_ecut_hint": report['hints'][acc]['ecut']})
@@ -2020,7 +2019,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
 
                     for acc in accuracies:
                         ecut = ecut_acc[acc] if ecut_acc[acc] in data.keys() else ecut_acc_trial[acc]
-                        #store the actualll ecut for this trial
+                        #store the actuall ecut for this trial
                         d.update({acc + "_ecut_" + trial: ecut})
                         if keys is 'all':
                             ecuts = data
@@ -2078,7 +2077,8 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
             figs.append(fig_deltafactor)
 
             for ax_list, pseudo in zip(ax_grid.T, self):
-                pseudo.dojo_report.plot_deltafactor_convergence(ax_list=ax_list, show=False)
+                #print("pseudo.xc:", pseudo.xc)
+                pseudo.dojo_report.plot_deltafactor_convergence(xc=pseudo.xc, ax_list=ax_list, show=False)
 
             fig_deltafactor.suptitle(" vs ".join(p.basename for p in self))
             if show: plt.show()
@@ -2680,19 +2680,18 @@ class DojoReport(dict):
         return "\n".join(errors)
 
     @add_fig_kwargs
-    def plot_deltafactor_convergence(self, code="WIEN2k", what=None, ax_list=None, **kwargs):
+    def plot_deltafactor_convergence(self, xc, code="WIEN2k", what=None, ax_list=None, **kwargs):
         """
         plot the convergence of the deltafactor parameters wrt ecut.
 
         Args:
+            xc=String or XcFunc object specifying the XC functional. E.g "PBE" or XcFunc.from_name("PBE"
             code: Reference code
             ax_list: List of matplotlib Axes, if ax_list is None a new figure is created
 
         Returns:
             `matplotlib` figure.
         """
-        xc = kwargs.pop('xc', None)
-
         all = ["dfact_meV", "dfactprime_meV", "v0", "b0_GPa", "b1"]
         if what is None:
             keys = all
