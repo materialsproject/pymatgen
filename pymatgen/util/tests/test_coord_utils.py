@@ -70,13 +70,12 @@ class CoordUtilsTest(PymatgenTest):
         a = np.array([c1, c3, c2])
         b = np.array([c4, c2, c1])
 
-        inds =  coord_list_mapping_pbc(a, b)
+        inds = coord_list_mapping_pbc(a, b)
         diff = a - b[inds]
         diff -= np.round(diff)
         self.assertTrue(np.allclose(diff, 0))
-
-        self.assertRaises(Exception, coord_list_mapping, [c1,c2], [c2,c3])
-        self.assertRaises(Exception, coord_list_mapping, [c2], [c2,c2])
+        self.assertRaises(Exception, coord_list_mapping_pbc, [c1,c2], [c2,c3])
+        self.assertRaises(Exception, coord_list_mapping_pbc, [c2], [c2,c2])
 
     def test_find_in_coord_list(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]

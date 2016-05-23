@@ -8,7 +8,6 @@ from __future__ import division, unicode_literals, print_function
 Wrapper classes for Cif input and output from Structures.
 """
 
-
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "3.0"
@@ -16,7 +15,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
-
 
 import math
 import re
@@ -52,7 +50,6 @@ space_groups.update({sub_spgrp(k): k
 
 
 class CifBlock(object):
-
     maxlen = 70  # not quite 80 so we can deal with semicolons and things
 
     def __init__(self, data, loops, header):
@@ -79,8 +76,8 @@ class CifBlock(object):
 
     def __eq__(self, other):
         return self.loops == other.loops \
-            and self.data == other.data \
-            and self.header == other.header
+               and self.data == other.data \
+               and self.header == other.header
 
     def __getitem__(self, key):
         return self.data[key]
@@ -241,14 +238,14 @@ class CifFile(object):
 
     def __str__(self):
         s = ["%s" % v for v in self.data.values()]
-        return self.comment + "\n" + "\n".join(s)+"\n"
+        return self.comment + "\n" + "\n".join(s) + "\n"
 
     @classmethod
     def from_string(cls, string):
         d = OrderedDict()
-        for x in re.split("^\s*data_", "x\n"+string,
+        for x in re.split("^\s*data_", "x\n" + string,
                           flags=re.MULTILINE | re.DOTALL)[1:]:
-            c = CifBlock.from_string("data_"+x)
+            c = CifBlock.from_string("data_" + x)
             d[c.header] = c
         return cls(d, string)
 
@@ -327,7 +324,7 @@ class CifParser(object):
                 return Lattice.from_lengths_and_angles(lengths, angles)
 
             else:
-                return getattr(Lattice, lattice_type)(*(lengths+angles))
+                return getattr(Lattice, lattice_type)(*(lengths + angles))
 
         except KeyError:
             # Missing Key search for cell setting
@@ -388,7 +385,7 @@ class CifParser(object):
                 if data.data.get(symmetry_label):
                     try:
                         spg = space_groups.get(sub_spgrp(
-                                        data.data.get(symmetry_label)))
+                            data.data.get(symmetry_label)))
                         if spg:
                             symops = SpaceGroup(spg).symmetry_ops
                             break
@@ -422,7 +419,7 @@ class CifParser(object):
         try:
             oxi_states = {
                 data["_atom_type_symbol"][i]:
-                str2float(data["_atom_type_oxidation_number"][i])
+                    str2float(data["_atom_type_oxidation_number"][i])
                 for i in range(len(data["_atom_type_symbol"]))}
             # attempt to strip oxidation state from _atom_type_symbol
             # in case the label does not contain an oxidation state
@@ -458,6 +455,8 @@ class CifParser(object):
             else:
                 m = re.findall(r"w?[A-Z][a-z]*", sym)
                 if m and m != "?":
+                    if len(m) > 1:     # if more than one specie on site
+                        return m
                     return m[0]
                 return ""
 
@@ -471,51 +470,75 @@ class CifParser(object):
             return False
 
         for i in range(len(data["_atom_site_label"])):
-            symbol = parse_symbol(data["_atom_site_label"][i])
-
-            if symbol:
-                if symbol not in elements and symbol not in special_symbols:
-                    symbol = symbol[:2]
-            else:
-                continue
-            # make sure symbol was properly parsed from _atom_site_label
-            # otherwise get it from _atom_site_type_symbol
-            try:
-                if symbol in special_symbols:
-                    get_el_sp(special_symbols.get(symbol))
-                else:
-                    Element(symbol)
-            except (KeyError, ValueError):
-                # sometimes the site doesn't have the type_symbol.
-                # we then hope the type_symbol can be parsed from the label
-                if "_atom_site_type_symbol" in data.data.keys():
-                    symbol = data["_atom_site_type_symbol"][i]
-
-            if oxi_states is not None:
-                if symbol in special_symbols:
-                    el = get_el_sp(special_symbols.get(symbol) +
-                                   str(oxi_states[symbol]))
-                else:
-                    el = Specie(symbol, oxi_states.get(symbol, 0))
-            else:
-
-                el = get_el_sp(special_symbols.get(symbol, symbol))
 
             x = str2float(data["_atom_site_fract_x"][i])
             y = str2float(data["_atom_site_fract_y"][i])
             z = str2float(data["_atom_site_fract_z"][i])
+
             try:
                 occu = str2float(data["_atom_site_occupancy"][i])
             except (KeyError, ValueError):
                 occu = 1
 
-            if occu > 0:
-                coord = (x, y, z)
-                match = get_matching_coord(coord)
-                if not match:
-                    coord_to_species[coord] = Composition({el: occu})
+            symbol = parse_symbol(data["_atom_site_label"][i])
+
+            # if parse_symbol() returns list, i.e. more than one specie on site
+            if type(symbol) == list:
+
+                els_occu = {}
+
+                # parse symbol to get element names and occupancy and store in "els_occu"
+                elemocc_list = []
+                symbol_str = data["_atom_site_type_symbol"][i]
+                elemocc_brackets = symbol_str.split('+')
+                for x in elemocc_brackets:
+                    elemocc_list.append(re.sub('\([0-9]*\)', '', x.strip()))
+                for y in range(len(elemocc_list)):
+                    els_occu[str(re.findall('\D+', elemocc_list[y].strip())[1]).replace('<sup>', '')] = float(
+                        '0' + re.findall('\.?\d+', elemocc_list[y].strip())[1])
+
+                if occu > 0:
+                    coord = (x, y, z)
+                    if coord not in coord_to_species:
+                        coord_to_species[coord] = Composition(els_occu)
+                    else:
+                        coord_to_species[coord] += els_occu
+            else:
+                if symbol:
+                    if symbol not in elements and symbol not in special_symbols:
+                        symbol = symbol[:2]
                 else:
-                    coord_to_species[match] += {el: occu}
+                    continue
+                # make sure symbol was properly parsed from _atom_site_label
+                # otherwise get it from _atom_site_type_symbol
+                try:
+                    if symbol in special_symbols:
+                        get_el_sp(special_symbols.get(symbol))
+                    else:
+                        Element(symbol)
+                except (KeyError, ValueError):
+                    # sometimes the site doesn't have the type_symbol.
+                    # we then hope the type_symbol can be parsed from the label
+                    if "_atom_site_type_symbol" in data.data.keys():
+                        symbol = data["_atom_site_type_symbol"][i]
+
+                if oxi_states is not None:
+                    if symbol in special_symbols:
+                        el = get_el_sp(special_symbols.get(symbol) +
+                                       str(oxi_states[symbol]))
+                    else:
+                        el = Specie(symbol, oxi_states.get(symbol, 0))
+                else:
+
+                    el = get_el_sp(special_symbols.get(symbol, symbol))
+
+                if occu > 0:
+                    coord = (x, y, z)
+                    match = get_matching_coord(coord)
+                    if not match:
+                        coord_to_species[coord] = Composition({el: occu})
+                    else:
+                        coord_to_species[match] += {el: occu}
 
         if any([sum(c.values()) > 1 for c in coord_to_species.values()]):
             warnings.warn("Some occupancies sum to > 1! If they are within "
@@ -528,7 +551,6 @@ class CifParser(object):
             for species, group in groupby(
                     sorted(list(coord_to_species.items()), key=lambda x: x[1]),
                     key=lambda x: x[1]):
-
                 tmp_coords = [site[0] for site in group]
 
                 coords = self._unique_coords(tmp_coords)
@@ -663,8 +685,8 @@ class CifWriter(object):
         contains_oxidation = True
         try:
             symbol_to_oxinum = OrderedDict([
-                (el.__str__(), float(el.oxi_state))
-                for el in sorted(comp.elements)])
+                                               (el.__str__(), float(el.oxi_state))
+                                               for el in sorted(comp.elements)])
         except AttributeError:
             symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in
                                             sorted(comp.elements)])
@@ -697,10 +719,10 @@ class CifWriter(object):
             # The following just presents a deterministic ordering.
             unique_sites = [
                 (sorted(sites, key=lambda s: tuple([abs(x) for x in
-                                                   s.frac_coords]))[0],
+                                                    s.frac_coords]))[0],
                  len(sites))
                 for sites in sf.get_symmetrized_structure().equivalent_sites
-            ]
+                ]
             for site, mult in sorted(
                     unique_sites,
                     key=lambda t: (t[0].species_and_occu.average_electroneg,
