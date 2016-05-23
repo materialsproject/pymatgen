@@ -470,16 +470,6 @@ class CifParser(object):
             return False
 
         for i in range(len(data["_atom_site_label"])):
-
-            x = str2float(data["_atom_site_fract_x"][i])
-            y = str2float(data["_atom_site_fract_y"][i])
-            z = str2float(data["_atom_site_fract_z"][i])
-
-            try:
-                occu = str2float(data["_atom_site_occupancy"][i])
-            except (KeyError, ValueError):
-                occu = 1
-
             symbol = parse_symbol(data["_atom_site_label"][i])
 
             # if parse_symbol() returns list, i.e. more than one specie on site
@@ -496,6 +486,15 @@ class CifParser(object):
                 for y in range(len(elemocc_list)):
                     els_occu[str(re.findall('\D+', elemocc_list[y].strip())[1]).replace('<sup>', '')] = float(
                         '0' + re.findall('\.?\d+', elemocc_list[y].strip())[1])
+
+                x = str2float(data["_atom_site_fract_x"][i])
+                y = str2float(data["_atom_site_fract_y"][i])
+                z = str2float(data["_atom_site_fract_z"][i])
+
+                try:
+                    occu = str2float(data["_atom_site_occupancy"][i])
+                except (KeyError, ValueError):
+                    occu = 1
 
                 if occu > 0:
                     coord = (x, y, z)
@@ -531,6 +530,14 @@ class CifParser(object):
                 else:
 
                     el = get_el_sp(special_symbols.get(symbol, symbol))
+
+                x = str2float(data["_atom_site_fract_x"][i])
+                y = str2float(data["_atom_site_fract_y"][i])
+                z = str2float(data["_atom_site_fract_z"][i])
+                try:
+                    occu = str2float(data["_atom_site_occupancy"][i])
+                except (KeyError, ValueError):
+                    occu = 1
 
                 if occu > 0:
                     coord = (x, y, z)
