@@ -1486,7 +1486,6 @@ class BoltztrapAnalyzer(object):
 
     @staticmethod
     def parse_cond_and_hall(path_dir, doping_levels=None):
-        # 1. Parse steps: parse raw data but do not convert to final format
         """
         Parses the conductivity and Hall tensors
         Args:
@@ -1498,7 +1497,8 @@ class BoltztrapAnalyzer(object):
             mu_doping, seebeck_doping, cond_doping, kappa_doping,
             hall_doping, carrier_conc
         """
-        
+
+        # Step 1: parse raw data but do not convert to final format
         t_steps = set()
         mu_steps = set()
         data_full = []
@@ -1541,7 +1541,7 @@ class BoltztrapAnalyzer(object):
                         data_doping_hall.append(
                             [float(c) for c in line.split()])
 
-        # 2. Convert step: convert raw data to final format
+        # Step 2: convert raw data to final format
 
         # sort t and mu_steps (b/c they are sets not lists)
         # and convert to correct energy
