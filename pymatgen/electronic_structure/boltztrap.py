@@ -1458,12 +1458,16 @@ class BoltztrapAnalyzer(object):
                              float(line.split()[1])])
                         total_elec = float(line.split()[2])
 
+            # TODO: do we want to normalize the DOS or no?
+            # Unit tests fail if we normalize the DOS
+            """
             ## normalize the DOS to 2*DOS / total electrons
             ## TODO: why is there a 2X multiplier?
             data_dos['total'] = [
                 [data_dos['total'][i][0],
                  2 * data_dos['total'][i][1] / total_elec]
                 for i in range(len(data_dos['total']))]
+            """
 
             # parse partial DOS data
             # TODO: Why is there no energy conversion from Ry to eV here?
