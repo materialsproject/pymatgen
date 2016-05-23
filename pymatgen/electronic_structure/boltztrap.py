@@ -1448,7 +1448,7 @@ class BoltztrapAnalyzer(object):
             with open(os.path.join(path_dir, "boltztrap.transdos"), 'r') as f:
                 count_series = 0  # TODO: why is count_series needed?
                 for line in f:
-                    if line.startswith("#"):
+                    if line.lstrip().startswith("#"):
                         count_series += 1
                         if count_series > 1:
                             break
@@ -1475,7 +1475,7 @@ class BoltztrapAnalyzer(object):
                     tokens = file_name.split(".")[1].split("_")
                     with open(os.path.join(path_dir, file_name), 'r') as f:
                         for line in f:
-                            if not line.startswith(" #"):  # TODO: add 1st char #
+                            if not line.lstrip().startswith("#"):
                                 if tokens[1] not in data_dos['partial']:
                                     data_dos['partial'][tokens[1]] = {}
                                 if tokens[2] not in data_dos['partial'][
@@ -1520,7 +1520,9 @@ class BoltztrapAnalyzer(object):
                                 [float(c) for c in line.split()])
 
             # 2. Convert step: convert raw data to final format
+
             # sort t and mu_steps (not sure why) and convert to correct energy
+            print(t_steps)
             t_steps = sorted([t for t in t_steps])
             mu_steps = sorted([Energy(m, "Ry").to("eV") for m in mu_steps])
 
