@@ -750,7 +750,7 @@ class BoltztrapAnalyzer(object):
             dos_partial: Data for the partial DOS projected on sites and
                 orbitals
             vol: Volume of the unit cell in angstrom cube (A^3)
-            warning: True if Boltztrap printed a warning
+            warning: string if BoltzTraP outputted a warning, else None
             bz_bands: Data for interpolated bands on a k-point line
                 (run_type=BANDS)
             bz_kpoints: k-point in reciprocal coordinates for interpolated
@@ -1360,7 +1360,7 @@ class BoltztrapAnalyzer(object):
 
         """
         run_type = None
-        warning = False
+        warning = None
         efermi = None
         gap = None
         doping_levels = []
@@ -1673,7 +1673,7 @@ class BoltztrapAnalyzer(object):
                    'seebeck': self._seebeck,
                    'kappa': self._kappa,
                    'hall': self._hall,
-                   'warning': self.warning, 'doping': self.doping,
+                   'doping': self.doping,
                    'mu_doping': self.mu_doping,
                    'seebeck_doping': self._seebeck_doping,
                    'cond_doping': self._cond_doping,
@@ -1682,7 +1682,8 @@ class BoltztrapAnalyzer(object):
                    'dos': self.dos.as_dict(),
                    'dos_partial': self._dos_partial,
                    'carrier_conc': self._carrier_conc,
-                   'vol': self.vol}
+                   'vol': self.vol,
+                   'warning': self.warning}
         return jsanitize(results)
 
     @staticmethod
