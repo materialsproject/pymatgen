@@ -6,6 +6,7 @@ __author__ = 'waroquiers'
 import unittest2
 import os
 import json
+import numpy as np
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
@@ -65,14 +66,33 @@ class CoordinationGeometryFinderTest(unittest2.TestCase):
     #     self._strategy_test(strategy)
 
     def test_perfect_environments(self):
+        indices_CN = {1: [0],
+                      2: [1, 0],
+                      3: [1, 0, 2],
+                      4: [2, 0, 3, 1],
+                      5: [2, 3, 1, 0, 4],
+                      6: [0, 2, 3, 1, 5, 4],
+                      7: [2, 6, 0, 3, 4, 5, 1],
+                      8: [1, 2, 6, 3, 7, 0, 4, 5],
+                      9: [5, 2, 6, 0, 4, 7, 3, 8, 1],
+                      10: [8, 5, 6, 3, 0, 7, 2, 4, 9, 1],
+                      11: [7, 6, 4, 1, 2, 5, 0, 8, 9, 10, 3],
+                      12: [5, 8, 9, 0, 3, 1, 4, 2, 6, 11, 10, 7],
+                      }
+        rot = np.matrix([[-0.03401121,  0.77394081,  1.14757531],
+                         [ 1.37742696,  0.87821562,  0.33842773],
+                         [-0.1364127 ,  1.18863535, -0.38742099]])
+        trans = np.array([-0.07242986, -0.10078038,  0.23120371])
+        scale = 0.9734713746980164
+
         for coordination in range(1, 13):
             for mp_symbol in AllCoordinationGeometries().get_implemented_geometries(coordination=coordination,
                                                                                     returned='mp_symbol'):
                 with self.subTest(msg=mp_symbol, mp_symbol=mp_symbol):
                     self.lgf.setup_test_perfect_environment(mp_symbol, randomness=False,
-                                                            indices='RANDOM',
-                                                            random_translation=True, random_rotation=True,
-                                                            random_scale=True)
+                                                            indices=indices_CN[coordination],
+                                                            random_translation=trans, random_rotation=rot,
+                                                            random_scale=scale)
                     se = self.lgf.compute_structure_environments_detailed_voronoi(only_indices=[0],
                                                                                   maximum_distance_factor=1.5)
                     self.assertAlmostEqual(se.get_csm(0, mp_symbol)['symmetry_measure'], 0.0, 4)
