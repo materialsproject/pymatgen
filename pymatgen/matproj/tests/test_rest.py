@@ -31,6 +31,10 @@ from pymatgen.phasediagram.analyzer import PDAnalyzer
 from pymatgen.io.cif import CifParser
 
 
+import random
+
+TEST_FREQ = 5 # 1/TEST_FREQ are tested.
+
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
@@ -42,6 +46,7 @@ class MPResterTest(unittest.TestCase):
     def setUp(self):
         self.rester = MPRester()
 
+    @unittest.skipIf(random.randint(0, TEST_FREQ) % TEST_FREQ != 0)
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
                  "nsites", "unit_cell_formula", "pretty_formula", "is_hubbard",
@@ -97,16 +102,19 @@ class MPResterTest(unittest.TestCase):
         self.assertRaises(MPRestError, self.rester.get_data, "Fe2O3",
                           "badmethod")
 
+    @unittest.skipIf(random.randint(0, TEST_FREQ) % TEST_FREQ != 0)
     def test_get_materials_id_from_task_id(self):
         self.assertEqual(self.rester.get_materials_id_from_task_id(
             "mp-540081"), "mp-19017")
 
+    @unittest.skipIf(random.randint(0, TEST_FREQ) % TEST_FREQ != 0)
     def test_get_materials_id_references(self):
         # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_get_materials_id_references
         m = MPRester()
         data = m.get_materials_id_references('mp-123')
         self.assertTrue(len(data) > 1000)
 
+    @unittest.skipIf(random.randint(0, TEST_FREQ) % TEST_FREQ != 0)
     def test_find_structure(self):
         # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_find_structure
         m = MPRester()
@@ -117,6 +125,7 @@ class MPResterTest(unittest.TestCase):
         data = m.find_structure(s)
         self.assertTrue(len(data) > 1)
 
+    @unittest.skipIf(random.randint(0, TEST_FREQ) % TEST_FREQ != 0)
     def test_get_entries_in_chemsys(self):
         syms = ["Li", "Fe", "O"]
         entries = self.rester.get_entries_in_chemsys(syms)
@@ -125,15 +134,18 @@ class MPResterTest(unittest.TestCase):
             self.assertIsInstance(e, ComputedEntry)
             self.assertTrue(set(e.composition.elements).issubset(elements))
 
+    @unittest.skipIf(random.randint(0, TEST_FREQ) % TEST_FREQ != 0)
     def test_get_structure_by_material_id(self):
         s1 = self.rester.get_structure_by_material_id("mp-1")
         self.assertEqual(s1.formula, "Cs1")
 
+    @unittest.skipIf(random.randint(0, TEST_FREQ) % TEST_FREQ != 0)
     def test_get_entry_by_material_id(self):
         e = self.rester.get_entry_by_material_id("mp-19017")
         self.assertIsInstance(e, ComputedEntry)
         self.assertTrue(e.composition.reduced_formula, "LiFePO4")
 
+    @unittest.skipIf(random.randint(0, TEST_FREQ) % TEST_FREQ != 0)
     def test_query(self):
         criteria = {'elements': {'$in': ['Li', 'Na', 'K'], '$all': ['O']}}
         props = ['pretty_formula', 'energy']
@@ -143,16 +155,19 @@ class MPResterTest(unittest.TestCase):
         self.assertGreaterEqual(len(data), 52)
         self.assertIn("Li2O", (d["pretty_formula"] for d in data))
 
+    @unittest.skipIf(random.randint(0, TEST_FREQ) % TEST_FREQ != 0)
     def test_get_exp_thermo_data(self):
         data = self.rester.get_exp_thermo_data("Fe2O3")
         self.assertTrue(len(data) > 0)
         for d in data:
             self.assertEqual(d.formula, "Fe2O3")
 
+    @unittest.skipIf(random.randint(0, TEST_FREQ) % TEST_FREQ != 0)
     def test_get_dos_by_id(self):
         dos = self.rester.get_dos_by_material_id("mp-2254")
         self.assertIsInstance(dos, CompleteDos)
 
+    @unittest.skipIf(random.randint(0, TEST_FREQ) % TEST_FREQ != 0)
     def test_get_bandstructure_by_material_id(self):
         bs = self.rester.get_bandstructure_by_material_id("mp-2254")
         self.assertIsInstance(bs, BandStructureSymmLine)
@@ -161,6 +176,7 @@ class MPResterTest(unittest.TestCase):
         structs = self.rester.get_structures("Mn3O4")
         self.assertTrue(len(structs) > 0)
 
+    @unittest.skipIf(random.randint(0, TEST_FREQ) % TEST_FREQ != 0)
     def test_get_entries(self):
         entries = self.rester.get_entries("TiO2")
         self.assertTrue(len(entries) > 1)
@@ -197,6 +213,7 @@ class MPResterTest(unittest.TestCase):
         # data = self.rester.query_snl({"about.remarks": "unittest"})
         # self.assertEqual(len(data), 0)
 
+    @unittest.skipIf(random.randint(0, TEST_FREQ) % TEST_FREQ != 0)
     def test_get_stability(self):
         entries = self.rester.get_entries_in_chemsys(["Fe", "O"])
         modified_entries = []
