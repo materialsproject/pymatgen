@@ -174,6 +174,20 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertIn(Spin.up, spins)
         self.assertAlmostEqual(cdos.get_spd_dos()[OrbitalType.p].densities[Spin.up][3134],43.839230100999991)
         self.assertAlmostEqual(cdos.get_spd_dos()[OrbitalType.s].densities[Spin.down][716],6.5383268000000001)
-        
+
+    def test_extreme(self):
+        x = self.bz.get_extreme("seebeck")
+        self.assertEqual(x["best"]["carrier_type"], "n")
+        self.assertAlmostEqual(x["p"]["value"], 1255.365, 2)
+        self.assertEqual(x["n"]["isotropic"], True)
+        self.assertEqual(x["n"]["temperature"], 600)
+
+        x = self.bz.get_extreme("kappa", maximize=False, min_temp=400,
+                                min_doping=1E20)
+        self.assertAlmostEqual(x["best"]["value"], 0.105, 2)
+        self.assertAlmostEqual(x["n"]["value"], 0.139, 2)
+        self.assertEqual(x["p"]["temperature"], 400)
+        self.assertEqual(x["n"]["isotropic"], False)
+
 if __name__ == '__main__':
     unittest.main()
