@@ -998,8 +998,7 @@ class BoltztrapAnalyzer(object):
                                                  self._seebeck_doping[doping][
                                                      t][i],
                                                  self._seebeck_doping[doping][
-                                                     t][
-                                                     i]))
+                                                     t][i]))
                         result_doping[doping][t].append(full_tensor)
 
         else:
@@ -1101,6 +1100,7 @@ class BoltztrapAnalyzer(object):
             doping_levels (boolean): True for the results to be given at
             different doping levels, False for results
             at different electron chemical potentials
+            relaxation_time (float): constant relaxation time in secs
 
         Returns:
             If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}. The
@@ -1225,11 +1225,9 @@ class BoltztrapAnalyzer(object):
                             np.array(self._cond_doping[doping][temp][i])) \
                                       * self.doping[doping][
                                           i] * 10 ** 6 * e ** 2 / m_e
-                        result_doping[doping][temp].append((full_tensor[0][0] \
-                                                            + full_tensor[1][
-                                                                1] \
-                                                            + full_tensor[2][
-                                                                2]) / 3.0)
+                        result_doping[doping][temp].append(
+                            (full_tensor[0][0] + full_tensor[1][1] +
+                             full_tensor[2][2]) / 3.0)
         return result_doping
 
     def get_extreme(self, target_prop, maximize=True, min_temp=None,
