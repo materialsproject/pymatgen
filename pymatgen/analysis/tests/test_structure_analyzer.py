@@ -40,20 +40,20 @@ class VoronoiAnalyzerTest(PymatgenTest):
 
     def setUp(self):
         self.ss = Xdatcar(os.path.join(test_dir, 'XDATCAR.MD')).structures
-        self.s = self.ss[19]
+        self.s = self.ss[1]
         self.va = VoronoiAnalyzer(cutoff=4.0)
 
     def test_analyze(self):
         # Check for the Voronoi index of site i in Structure
         single_structure = self.va.analyze(self.s, n=5)
         self.assertIn(single_structure.view(),
-                      np.array([5, 4, 2, 5, 3, 1, 0, 2]).view(),
+                      np.array([4, 3, 3, 4, 2, 2, 1, 0]).view(),
                       "Cannot find the right polyhedron.")
         # Check for the presence of a Voronoi index and its frequency in
         # a ensemble (list) of Structures
         ensemble = self.va.analyze_structures(self.ss, step_freq=2,
                                               most_frequent_polyhedra=10)
-        self.assertIn(('[2 3 3 3 1 1 0 0]', 6),
+        self.assertIn(('[1 3 4 7 1 0 0 0]', 3),
                       ensemble, "Cannot find the right polyhedron in ensemble.")
 
 
@@ -107,7 +107,7 @@ class MiscFunctionTest(PymatgenTest):
         xdatcar = Xdatcar(os.path.join(test_dir, 'XDATCAR.MD'))
         coordination_numbers = average_coordination_number(xdatcar.structures,
                                                            freq=1)
-        self.assertAlmostEqual(coordination_numbers['Fe'], 4.74806409454929, 5,
+        self.assertAlmostEqual(coordination_numbers['Fe'], 4.771903318390836, 5,
                                "Coordination number not calculated properly.")
 
     def test_solid_angle(self):
