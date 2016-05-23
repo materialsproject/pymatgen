@@ -7,9 +7,7 @@ from __future__ import unicode_literals
 import unittest2 as unittest
 import os
 from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin, OrbitalType
-from pymatgen.core.structure import Structure
 from monty.serialization import loadfn
 
 
@@ -22,7 +20,6 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
-# @unittest.skipIf(read_cube is None, "No ase.io.read_cube.")
 class BoltztrapAnalyzerTest(unittest.TestCase):
 
     @classmethod
@@ -31,7 +28,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         cls.bz_bands = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/bands/"))
         cls.bz_up = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/dos_up/"),dos_spin=1)
         cls.bz_dw = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/dos_dw/"),dos_spin=-1)
-        cls.bz_fermi = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/fermi/"))
+        # cls.bz_fermi = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/fermi/"))
         
     def test_properties(self):
         self.assertAlmostEqual(self.bz.gap, 1.6644932121620404, 4)
