@@ -128,7 +128,7 @@ class BoltztrapRunner(object):
             tmax:
                 Maximum temperature (K) for calculation (default=1300)
             tgrid:
-                Temperature interval for calculation (default=100)
+                Temperature interval for calculation (default=50)
 
     """
 
@@ -142,7 +142,7 @@ class BoltztrapRunner(object):
                  lpfac=10, run_type="BOLTZ", band_nb=None, tauref=0, tauexp=0,
                  tauen=0, soc=False, doping=None, energy_span_around_fermi=1.5,
                  scissor=0.0, kpt_line=None, spin=None, cond_band=False,
-                 tmax=1300, tgrid=100):
+                 tmax=1300, tgrid=50):
         self.lpfac = lpfac
         self._bs = bs
         self._nelec = nelec
