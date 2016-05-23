@@ -983,28 +983,35 @@ class BoltztrapAnalyzer(object):
 
             units are microW/(m K^2)
         """
-        result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]}
-                         for doping in self._seebeck_doping}
-        for doping in result_doping:
-            for temp in result_doping[doping]:
-                for i in range(len(self.doping[doping])):
-                    full_tensor = np.dot(self._cond_doping[doping][temp][i],
-                                         np.dot(
-                                             self._seebeck_doping[doping][
-                                                 temp][
-                                                 i],
-                                             self._seebeck_doping[doping][
-                                                 temp][
-                                                 i]))
-                    result_doping[doping][temp].append(full_tensor)
+        result = None
+        result_doping = None
+        if doping_levels:
+            result_doping = {doping: {t: [] for t in 
+                                      self._seebeck_doping[doping]} for 
+                             doping in self._seebeck_doping}
+            
+            for doping in result_doping:
+                for t in result_doping[doping]:
+                    for i in range(len(self.doping[doping])):
+                        full_tensor = np.dot(self._cond_doping[doping][t][i],
+                                             np.dot(
+                                                 self._seebeck_doping[doping][
+                                                     t][
+                                                     i],
+                                                 self._seebeck_doping[doping][
+                                                     t][
+                                                     i]))
+                        result_doping[doping][t].append(full_tensor)
 
-        result = {temp: [] for temp in self._seebeck}
-        for temp in result:
-            for i in range(len(self.mu_steps)):
-                full_tensor = np.dot(self._cond[temp][i],
-                                     np.dot(self._seebeck[temp][i],
-                                            self._seebeck[temp][i]))
-                result[temp].append(full_tensor)
+        else:
+            result = {t: [] for t in self._seebeck}
+            for t in result:
+                for i in range(len(self.mu_steps)):
+                    full_tensor = np.dot(self._cond[t][i],
+                                         np.dot(self._seebeck[t][i],
+                                                self._seebeck[t][i]))
+                    result[t].append(full_tensor)
+
         return BoltztrapAnalyzer._format_to_output(result, result_doping,
                                                    output, doping_levels,
                                                    multi=1e6 * relaxation_time)
@@ -1027,6 +1034,7 @@ class BoltztrapAnalyzer(object):
             doping_levels (boolean): True for the results to be given at
             different doping levels, False for results
             at different electron chemical potentials
+            relaxation_time (float): constant relaxation time in secs
 
         Returns:
             If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}. The
@@ -1042,29 +1050,33 @@ class BoltztrapAnalyzer(object):
 
             units are W/mK
         """
-        result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]}
-                         for doping in self._seebeck_doping}
-        for doping in result_doping:
-            for temp in result_doping[doping]:
-                for i in range(len(self.doping[doping])):
-                    pf_tensor = np.dot(self._cond_doping[doping][temp][i],
-                                       np.dot(
-                                           self._seebeck_doping[doping][temp][
-                                               i],
-                                           self._seebeck_doping[doping][temp][
-                                               i]))
-                    result_doping[doping][temp].append((self._kappa_doping[
-                                                            doping][temp][
-                                                            i] - pf_tensor *
-                                                        temp))
-
-        result = {temp: [] for temp in self._seebeck}
-        for temp in result:
-            for i in range(len(self.mu_steps)):
-                pf_tensor = np.dot(self._cond[temp][i],
-                                   np.dot(self._seebeck[temp][i],
-                                          self._seebeck[temp][i]))
-                result[temp].append((self._kappa[temp][i] - pf_tensor * temp))
+        result = None
+        result_doping = None
+        if doping_levels:
+            result_doping = {doping: {t: [] for t in 
+                                      self._seebeck_doping[doping]} for 
+                             doping in self._seebeck_doping}
+            for doping in result_doping:
+                for t in result_doping[doping]:
+                    for i in range(len(self.doping[doping])):
+                        pf_tensor = np.dot(self._cond_doping[doping][t][i],
+                                           np.dot(
+                                               self._seebeck_doping[doping][t][
+                                                   i],
+                                               self._seebeck_doping[doping][t][
+                                                   i]))
+                        result_doping[doping][t].append((self._kappa_doping[
+                                                                doping][t][
+                                                                i] -
+                                                         pf_tensor * t))
+        else:
+            result = {t: [] for t in self._seebeck}
+            for t in result:
+                for i in range(len(self.mu_steps)):
+                    pf_tensor = np.dot(self._cond[t][i],
+                                       np.dot(self._seebeck[t][i],
+                                              self._seebeck[t][i]))
+                    result[t].append((self._kappa[t][i] - pf_tensor * t))
 
         return BoltztrapAnalyzer._format_to_output(result, result_doping,
                                                    output, doping_levels,
@@ -1103,36 +1115,42 @@ class BoltztrapAnalyzer(object):
             The result includes a given constant relaxation time and lattice
             thermal conductivity
         """
-        result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]}
-                         for doping in self._seebeck_doping}
-        for doping in result_doping:
-            for temp in result_doping[doping]:
-                for i in range(len(self.doping[doping])):
-                    pf_tensor = np.dot(self._cond_doping[doping][temp][i],
-                                       np.dot(
-                                           self._seebeck_doping[doping][temp][
-                                               i],
-                                           self._seebeck_doping[doping][temp][
-                                               i]))
-                    thermal_conduct = (self._kappa_doping[doping][temp][i]
-                                       - pf_tensor * temp) * relaxation_time
-                    result_doping[doping][temp].append(
-                        np.dot(pf_tensor * relaxation_time * temp,
-                               np.linalg.inv(
-                                   thermal_conduct + kl * np.eye(3, 3))))
+        result = None
+        result_doping = None
+        if doping_levels:
+            result_doping = {doping: {t: [] for t in
+                                      self._seebeck_doping[doping]} for
+                             doping in self._seebeck_doping}
 
-        result = {temp: [] for temp in self._seebeck}
-        for temp in result:
-            for i in range(len(self.mu_steps)):
-                pf_tensor = np.dot(self._cond[temp][i],
-                                   np.dot(self._seebeck[temp][i],
-                                          self._seebeck[temp][i]))
-                thermal_conduct = (self._kappa[temp][
-                                       i] - pf_tensor * temp) * relaxation_time
-                result[temp].append(np.dot(pf_tensor * relaxation_time * temp,
-                                           np.linalg.inv(
-                                               thermal_conduct + kl *
-                                               np.eye(3, 3))))
+            for doping in result_doping:
+                for t in result_doping[doping]:
+                    for i in range(len(self.doping[doping])):
+                        pf_tensor = np.dot(self._cond_doping[doping][t][i],
+                                           np.dot(
+                                               self._seebeck_doping[doping][t][
+                                                   i],
+                                               self._seebeck_doping[doping][t][
+                                                   i]))
+                        thermal_conduct = (self._kappa_doping[doping][t][i]
+                                           - pf_tensor * t) * relaxation_time
+                        result_doping[doping][t].append(
+                            np.dot(pf_tensor * relaxation_time * t,
+                                   np.linalg.inv(
+                                       thermal_conduct + kl * np.eye(3, 3))))
+        else:
+            result = {t: [] for t in self._seebeck}
+            for t in result:
+                for i in range(len(self.mu_steps)):
+                    pf_tensor = np.dot(self._cond[t][i],
+                                       np.dot(self._seebeck[t][i],
+                                              self._seebeck[t][i]))
+                    thermal_conduct = (self._kappa[t][i]
+                                       - pf_tensor * t) * relaxation_time
+                    result[t].append(np.dot(pf_tensor * relaxation_time * t,
+                                               np.linalg.inv(
+                                                   thermal_conduct + kl *
+                                                   np.eye(3, 3))))
+
         return BoltztrapAnalyzer._format_to_output(result, result_doping,
                                                    output, doping_levels)
 
@@ -1829,49 +1847,67 @@ class BoltztrapAnalyzer(object):
         def _make_float_hall(a):
             return [i for i in a[:27]]
 
-        return BoltztrapAnalyzer(
-            float(data['gap']), [float(d) for d in data['mu_steps']],
-            {int(d): [_make_float_array(v) for v in data['cond'][d]]
-             for d in data['cond']},
-            {int(d): [_make_float_array(v) for v in data['seebeck'][d]]
-             for d in data['seebeck']},
-            {int(d): [_make_float_array(v) for v in data['kappa'][d]]
-             for d in data['kappa']},
-            {int(d): [_make_float_hall(v) for v in data['hall'][d]]
-             for d in data['hall']},
-            {'p': [float(d) for d in data['doping']['p']],
-             'n': [float(d) for d in data['doping']['n']]},
-            {'p': {int(d): [float(v) for v in data['mu_doping']['p'][d]]
-                   for d in data['mu_doping']['p']},
-             'n': {int(d): [float(v) for v in data['mu_doping']['n'][d]]
-                   for d in data['mu_doping']['n']}},
-            {'p': {int(d): [_make_float_array(v)
-                            for v in data['seebeck_doping']['p'][d]]
-                   for d in data['seebeck_doping']['p']},
-             'n': {int(d): [_make_float_array(v)
-                            for v in data['seebeck_doping']['n'][d]]
-                   for d in data['seebeck_doping']['n']}},
-            {'p': {int(d): [_make_float_array(v)
-                            for v in data['cond_doping']['p'][d]]
-                   for d in data['cond_doping']['p']},
-             'n': {int(d): [_make_float_array(v)
-                            for v in data['cond_doping']['n'][d]]
-                   for d in data['cond_doping']['n']}},
-            {'p': {int(d): [_make_float_array(v)
-                            for v in data['kappa_doping']['p'][d]]
-                   for d in data['kappa_doping']['p']},
-             'n': {int(d): [_make_float_array(v)
-                            for v in data['kappa_doping']['n'][d]]
-                   for d in data['kappa_doping']['n']}},
-            {'p': {int(d): [_make_float_hall(v)
-                            for v in data['hall_doping']['p'][d]]
-                   for d in data['hall_doping']['p']},
-             'n': {int(d): [_make_float_hall(v)
-                            for v in data['hall_doping']['n'][d]]
-                   for d in data['hall_doping']['n']}},
-            Dos.from_dict(data['dos']), data['dos_partial'],
-            data['carrier_conc'],
-            data['vol'], str(data['warning']))
+        gap = data.get('gap')
+        mu_steps = [float(d) for d in data['mu_steps']] if \
+            'mu_steps' in data else None
+        cond = {int(d): [_make_float_array(v) for v in data['cond'][d]]
+             for d in data['cond']} if 'cond' in data else None
+        seebeck = {int(d): [_make_float_array(v) for v in data['seebeck'][d]]
+                   for d in data['seebeck']} if 'seebeck' in data else None
+        kappa = {int(d): [_make_float_array(v) for v in data['kappa'][d]]
+                 for d in data['kappa']} if 'kappa' in data else None
+        hall = {int(d): [_make_float_hall(v) for v in data['hall'][d]]
+                for d in data['hall']} if 'hall' in data else None
+        doping = {'p': [float(d) for d in data['doping']['p']],
+                  'n': [float(d) for d in data['doping']['n']]} if \
+            'doping' in data else None
+
+        mu_doping = {'p': {int(d): [
+            float(v) for v in data['mu_doping']['p'][d]] for d in
+                           data['mu_doping']['p']}, 'n':
+            {int(d): [float(v) for v in data['mu_doping']['n'][d]]
+             for d in data['mu_doping']['n']}} if 'mu_doping' in data else None
+
+        seebeck_doping = {'p': {int(d): [
+            _make_float_array(v) for v in data['seebeck_doping']['p'][d]]
+                                for d in data['seebeck_doping']['p']}, 'n':
+            {int(d): [_make_float_array(v) for v in
+                      data['seebeck_doping']['n'][d]] for d in
+             data['seebeck_doping']['n']}} if 'seebeck_doping' in data \
+            else None
+
+        cond_doping = {'p': {int(d): [_make_float_array(v)
+                                      for v in data['cond_doping']['p'][d]]
+                             for d in data['cond_doping']['p']}, 'n':
+            {int(d): [_make_float_array(v) for v in
+                      data['cond_doping']['n'][d]] for
+             d in data['cond_doping']['n']}} if 'cond_doping' in data else None
+
+        kappa_doping = {'p': {int(d): [_make_float_array(v)
+                                       for v in data['kappa_doping']['p'][d]]
+                              for d in data['kappa_doping']['p']},
+                        'n': {int(d): [_make_float_array(v) for v in
+                                       data['kappa_doping']['n'][d]]
+                              for d in data['kappa_doping']['n']}}\
+            if 'kappa_doping' in data else None
+
+        hall_doping = {'p': {int(d): [_make_float_hall(v) for v in
+                                      data['hall_doping']['p'][d]] for d in
+                             data['hall_doping']['p']}, 'n':
+            {int(d): [_make_float_hall(v) for v in
+                      data['hall_doping']['n'][d]] for d in
+             data['hall_doping']['n']}} if "hall_doping" in data else None
+
+        dos = Dos.from_dict(data['dos']) if 'dos' in data else None
+        dos_partial = data.get('dos_partial')
+        carrier_conc = data.get('carrier_conc')
+        vol = data.get('vol')
+        warning = data.get('warning')
+
+        return BoltztrapAnalyzer(gap, mu_steps, cond, seebeck, kappa, hall,
+                                 doping, mu_doping, seebeck_doping,
+                                 cond_doping, kappa_doping, hall_doping, dos,
+                                 dos_partial, carrier_conc, vol, warning)
 
 
 def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
