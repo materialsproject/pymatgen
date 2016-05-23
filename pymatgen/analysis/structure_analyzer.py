@@ -130,6 +130,148 @@ class VoronoiCoordFinder(object):
         return coordinated_sites
 
 
+def average_coordination_number(structures, freq=10):
+    """
+    Calculates the ensemble averaged Voronoi coordination numbers
+    of a list of Structures using VoronoiCoordFinder.
+    Typically used for analyzing the output of a Molecular Dynamics run.
+    Args:
+        structures (list): list of Structures.
+        freq (int): sampling frequency of coordination number [every freq steps].
+    Returns:
+        Dictionary of elements as keys and average coordination numbers as values.
+    """
+    coordination_numbers = {}
+    for el in structures[0].composition.elements:
+        coordination_numbers[el.name] = 0.0
+    count = 0
+    for t in range(len(structures)):
+        if t % freq != 0:
+            continue
+        count += 1
+        vor = VoronoiCoordFinder(structures[t])
+        for atom in range(len(structures[0])):
+            cn = vor.get_coordination_number(atom)
+            coordination_numbers[structures[t][atom].species_string] += cn
+    elements = structures[0].composition.as_dict()
+    for el in coordination_numbers:
+        coordination_numbers[el] = coordination_numbers[el] / elements[
+            el] / count
+    return coordination_numbers
+
+
+class VoronoiAnalyzer(object):
+    """
+    Performs a statistical analysis of Voronoi polyhedra around each site.
+    Each Voronoi polyhedron is described using Schaefli notation.
+    That is a set of indices {c_i} where c_i is the number of faces with i
+    number of vertices.  E.g. for a bcc crystal, there is only one polyhedron
+    notation of which is [0,6,0,8,0,0,...].
+    In perfect crystals, these also corresponds to the Wigner-Seitz cells.
+    For distorted-crystals, liquids or amorphous structures, rather than one-type,
+    there is a statistical distribution of polyhedra.
+    See ref: Microstructure and its relaxation in Fe-B amorphous system
+    simulated by molecular dynamics,
+        Stepanyuk et al., J. Non-cryst. Solids (1993), 159, 80-87.
+
+    Args:
+        cutoff (float): cutoff distance to search for neighbors of a given atom
+            (default = 5.0)
+        qhull_options (str): options to pass to qhull (optional)
+    """
+
+    def __init__(self, cutoff=5.0, qhull_options="Qbb Qc Qz"):
+        self.cutoff = cutoff
+        self.qhull_options = qhull_options
+
+    def analyze(self, structure, n=0):
+        """
+        Performs Voronoi analysis and returns the polyhedra around atom n
+        in Schlaefli notation.
+
+        Args:
+            structure (Structure): structure to analyze
+            n (int): index of the center atom in structure
+
+        Returns:
+            voronoi index of n: <c3,c4,c6,c6,c7,c8,c9,c10>
+                where c_i denotes number of facets with i vertices.
+        """
+        center = structure[n]
+        neighbors = structure.get_sites_in_sphere(center.coords, self.cutoff)
+        neighbors = [i[0] for i in sorted(neighbors, key=lambda s: s[1])]
+        qvoronoi_input = np.array([s.coords for s in neighbors])
+        voro = Voronoi(qvoronoi_input, qhull_options=self.qhull_options)
+        vor_index = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+
+        for key in voro.ridge_dict:
+            if 0 in key:  # This means if the center atom is in key
+                if -1 in key:  # This means if an infinity point is in key
+                    raise ValueError("Cutoff too short.")
+                else:
+                    try:
+                        vor_index[len(voro.ridge_dict[key]) - 3] += 1
+                    except IndexError:
+                        # If a facet has more than 10 edges, it's skipped here.
+                        pass
+        return vor_index
+
+    def analyze_structures(self, structures, step_freq=10,
+                           most_frequent_polyhedra=15):
+        """
+        Perform Voronoi analysis on a list of Structures.
+        Note that this might take a significant amount of time depending on the
+        size and number of structures.
+
+        Args:
+            structures (list): list of Structures
+            cutoff (float: cutoff distance around an atom to search for
+                neighbors
+            step_freq (int): perform analysis every step_freq steps
+            qhull_options (str): options to pass to qhull
+            most_frequent_polyhedra (int): this many unique polyhedra with
+                highest frequences is stored.
+
+        Returns:
+            A list of tuples in the form (voronoi_index,frequency)
+        """
+        voro_dict = {}
+        step = 0
+        for structure in structures:
+            step += 1
+            if step % step_freq != 0:
+                continue
+
+            v = []
+            for n in range(len(structure)):
+                v.append(str(self.analyze(structure, n=n).view()))
+            for voro in v:
+                if voro in voro_dict:
+                    voro_dict[voro] += 1
+                else:
+                    voro_dict[voro] = 1
+        return sorted(voro_dict.items(),
+                      key=lambda x: (x[1], x[0]),
+                      reverse=True)[:most_frequent_polyhedra]
+
+    @staticmethod
+    def plot_vor_analysis(voronoi_ensemble):
+        t = zip(*voronoi_ensemble)
+        labels = t[0]
+        val = list(t[1])
+        tot = np.sum(val)
+        val = [float(j) / tot for j in val]
+        pos = np.arange(len(val)) + .5  # the bar centers on the y axis
+        import matplotlib.pyplot as plt
+        plt.figure()
+        plt.barh(pos, val, align='center', alpha=0.5)
+        plt.yticks(pos, labels)
+        plt.xlabel('Count')
+        plt.title('Voronoi Spectra')
+        plt.grid(True)
+        return plt
+
+
 class RelaxationAnalyzer(object):
     """
     This class analyzes the relaxation in a calculation.
@@ -614,7 +756,7 @@ class OrderParameters(object):
                     tmpparas[i].append(4.0 / 3.0)
                 else:
                     if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                            0] >= 180.0:
+                        0] >= 180.0:
                         warn("Threshold value for south pole"
                              " configurations in octahedral order"
                              " parameter outside ]0,180[")
@@ -644,7 +786,7 @@ class OrderParameters(object):
                     tmpparas[i].append(1.0 / 0.0667)
                 else:
                     if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                            0] >= 180.0:
+                        0] >= 180.0:
                         warn("Threshold value for south pole"
                              " configurations in bcc order"
                              " parameter outside ]0,180[")
@@ -1216,7 +1358,10 @@ class OrderParameters(object):
                     raise ValueError("Neighbor site index beyond maximum!")
         if tol < 0.0:
             raise ValueError("Negative tolerance for weighted solid angle!")
+
         left_of_unity = 1.0 - 1.0e-12
+        # The following threshold has to be adapted to non-Angstrom units.
+        very_small = 1.0e-12
 
         # Find central site and its neighbors.
         # Note that we adopt the same way of accessing sites here as in
@@ -1323,7 +1468,7 @@ class OrderParameters(object):
                             -1.0, min(np.inner(zaxis, rijnorm[k]), 1.0))
                         thetak = math.acos(tmp)
                         xaxistmp = gramschmidt(rijnorm[k], zaxis)
-                        if np.linalg.norm(xaxistmp) == 0.0:
+                        if np.linalg.norm(xaxistmp) < very_small:
                             flag_xaxis = True
                         else:
                             xaxis = xaxistmp / np.linalg.norm(xaxistmp)
@@ -1350,18 +1495,19 @@ class OrderParameters(object):
                                     ops[i] += 6.0 * math.exp(-0.5 * tmp * tmp)
 
                         for m in range(nneigh):
-                            if (m != j) and (m != k):
+                            if (m != j) and (m != k) and (not flag_xaxis):
                                 tmp = max(
                                     -1.0, min(np.inner(zaxis, rijnorm[m]), 1.0))
                                 thetam = math.acos(tmp)
                                 xtwoaxistmp = gramschmidt(rijnorm[m], zaxis)
                                 l = np.linalg.norm(xtwoaxistmp)
-                                if l == 0:
+                                if l < very_small:
                                     flag_xtwoaxis = True
                                 else:
                                     xtwoaxis = xtwoaxistmp / l
                                     phi = math.acos(max(
-                                        -1.0, min(np.inner(xtwoaxis, xaxis), 1.0)))
+                                        -1.0,
+                                        min(np.inner(xtwoaxis, xaxis), 1.0)))
                                     flag_xtwoaxis = False
 
                                 # Contributions of j-i-m angle and
@@ -1393,7 +1539,7 @@ class OrderParameters(object):
                                                 else:
                                                     fac = -1.0
                                                 tmp = (thetam - piover2) / (
-                                                19.47 * pi / 180.0)
+                                                    19.47 * pi / 180.0)
                                                 ops[i] += fac * math.cos(
                                                     3.0 * phi) * \
                                                           1.6 * tmp * \

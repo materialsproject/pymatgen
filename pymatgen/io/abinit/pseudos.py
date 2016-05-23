@@ -7,31 +7,30 @@ pseudopotentials used in Abinit, and a parser to instantiate pseudopotential obj
 """
 from __future__ import unicode_literals, division, print_function
 
-import sys
-import os
 import abc
 import collections
 import json
-import six
-import numpy as np
-
-from warnings import warn
+import logging
+import os
+import sys
 from collections import OrderedDict, defaultdict, namedtuple
-from monty.string import list_strings, is_string
-from monty.itertools import iterator_from_slice
-from monty.io import FileLock
-from monty.collections import AttrDict, Namespace
-from monty.functools import lazy_property
-from monty.os.path import find_exts
-from monty.dev import deprecated
-from monty.json import MSONable, MontyDecoder
+from warnings import warn
 
-from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
+import numpy as np
+import six
+from monty.collections import AttrDict, Namespace
+from monty.dev import deprecated
+from monty.functools import lazy_property
+from monty.io import FileLock
+from monty.itertools import iterator_from_slice
+from monty.json import MSONable, MontyDecoder
+from monty.os.path import find_exts
+from monty.string import list_strings, is_string
+
+from pymatgen.analysis.eos import EOS
 from pymatgen.core.periodic_table import Element
 from pymatgen.serializers.json_coders import pmg_serialize
-from .eos import EOS
-
-import logging
+from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 logger = logging.getLogger(__name__)
 
 

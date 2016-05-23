@@ -17,9 +17,10 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 
-from pymatgen import MPRester, Structure
+from pymatgen import MPRester
 from pymatgen.io.cif import CifParser
 try:
+    import vtk
     from pymatgen.vis.structure_vtk import StructureVis
     no_vis = False
 except ImportError:
@@ -32,7 +33,6 @@ except NameError:
     pass
 
 from pymatgen.core.sites import PeriodicSite
-import pymongo
 import re
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import UNCLEAR_ENVIRONMENT_SYMBOL
@@ -42,7 +42,6 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import TargettedPenaltiedAbundanceChemenvStrategy
 
-from pymatgen.vis.structure_vtk import StructureVis
 from pymatgen.core.structure import Molecule
 from collections import OrderedDict
 import numpy as np

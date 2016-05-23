@@ -5,20 +5,15 @@
 from __future__ import unicode_literals
 
 import unittest2 as unittest
-import os
-import shutil
+import tempfile
 
-import numpy as np
-from monty.json import MontyDecoder
 
-from pymatgen.io.vasp.sets import MITVaspInputSet, MITHSEVaspInputSet, \
-    MPVaspInputSet, MITGGAVaspInputSet, MITNEBVaspInputSet,\
-    MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet,\
-    MPHSEVaspInputSet, MPBSHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet,\
-    MPOpticsNonSCFVaspInputSet, MVLElasticInputSet
+from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Incar, Kpoints
 from pymatgen import Specie, Lattice, Structure
+from pymatgen.core.surface import SlabGenerator
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.io.vasp.outputs import Vasprun
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -431,6 +426,217 @@ class MVLVaspInputSetTest(PymatgenTest):
         self.assertEqual(incar["NFREE"], 2)
         self.assertEqual(incar["POTIM"], 0.015)
         self.assertNotIn("NPAR", incar)
+
+
+class MPStaticSetTest(PymatgenTest):
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+
+    def test_init(self):
+        prev_run = os.path.join(test_dir, "relaxation")
+
+        vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run)
+        self.assertEqual(vis.incar["NSW"], 0)
+        # Check that the ENCUT has been inherited.
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
+
+        # Check as from dict.
+        vis = MPStaticSet.from_dict(vis.as_dict())
+        self.assertEqual(vis.incar["NSW"], 0)
+        # Check that the ENCUT has been inherited.
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
+
+        non_prev_vis = MPStaticSet(vis.structure,
+                                   user_incar_settings={"LORBIT": 12, "LWAVE": True})
+        self.assertEqual(non_prev_vis.incar["NSW"], 0)
+        # Check that the ENCUT and Kpoints style has NOT been inherited.
+        self.assertEqual(non_prev_vis.incar["ENCUT"], 520)
+        # Check that user incar settings are applied.
+        self.assertEqual(non_prev_vis.incar["LORBIT"], 12)
+        self.assertTrue(non_prev_vis.incar["LWAVE"])
+
+        self.assertEqual(non_prev_vis.kpoints.style,
+                         Kpoints.supported_modes.Gamma)
+        v2 = MPStaticSet.from_dict(non_prev_vis.as_dict())
+        self.assertEqual(v2.incar["ENCUT"], 520)
+        # Check that user incar settings are applied.
+        self.assertEqual(v2.incar["LORBIT"], 12)
+        leps_vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run,
+                                              lepsilon=True)
+        self.assertTrue(leps_vis.incar["LEPSILON"])
+        self.assertEqual(leps_vis.incar["IBRION"], 8)
+        self.assertNotIn("NPAR", leps_vis.incar)
+        self.assertNotIn("NSW", leps_vis.incar)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+
+class MPNonSCFDerivedSetTest(PymatgenTest):
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+
+    def test_init(self):
+        prev_run = os.path.join(test_dir, "relaxation")
+        vis = MPNonSCFSet.from_prev_calc(
+            prev_calc_dir=prev_run, mode="Line", copy_chgcar=False)
+        self.assertEqual(vis.incar["NSW"], 0)
+        # Check that the ENCUT has been inherited.
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+
+        # Check as from dict.
+        vis = MPNonSCFSet.from_dict(vis.as_dict())
+        self.assertEqual(vis.incar["NSW"], 0)
+        # Check that the ENCUT has been inherited.
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+
+        vis.write_input(self.tmp)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
+
+        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run,
+                                                mode="Line", copy_chgcar=True)
+        vis.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
+
+        # Code below is just to make sure that the parameters are the same
+        # between the old MPStaticVaspInputSet and the new MPStaticSet.
+        # TODO: Delete code below in future.
+        MPNonSCFVaspInputSet.from_previous_vasp_run(
+            previous_vasp_dir=prev_run, output_dir=self.tmp, mode="Line")
+
+        incar = Incar.from_file(os.path.join(self.tmp, "INCAR"))
+
+        for k, v1 in vis.incar.items():
+            v2 = incar.get(k)
+            try:
+                v1 = v1.upper()
+                v2 = v2.upper()
+            except:
+                # Convert strings to upper case for comparison. Ignore other
+                # types.
+                pass
+            self.assertEqual(v1, v2, str(v1)+str(v2))
+        kpoints = Kpoints.from_file(os.path.join(self.tmp, "KPOINTS"))
+        self.assertEqual(kpoints.style, vis.kpoints.style)
+        self.assertArrayAlmostEqual(kpoints.kpts, vis.kpoints.kpts)
+
+    def test_optics(self):
+        prev_run = os.path.join(test_dir, "relaxation")
+        vis = MPNonSCFSet.from_prev_calc(
+            prev_calc_dir=prev_run, copy_chgcar=False, optics=True,
+            mode="Uniform", nedos=2001)
+
+        self.assertEqual(vis.incar["NSW"], 0)
+        # Check that the ENCUT has been inherited.
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertTrue(vis.incar["LOPTICS"])
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+
+class MagmomLdauTest(PymatgenTest):
+
+    def test_structure_from_prev_run(self):
+        vrun = Vasprun(os.path.join(test_dir, "vasprun.xml.magmom_ldau"))
+        structure = vrun.final_structure
+        poscar = Poscar(structure)
+        structure_decorated = get_structure_from_prev_run(vrun, sym_prec=0)
+        ldau_ans = {'LDAUU': [5.3, 0.0], 'LDAUL': [2, 0], 'LDAUJ': [0.0, 0.0]}
+        magmom_ans = [5.0, 5.0, 5.0, 5.0, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]
+        ldau_dict = {}
+        for key in ('LDAUU', 'LDAUJ', 'LDAUL'):
+            if hasattr(structure_decorated[0], key.lower()):
+                m = dict(
+                    [(site.specie.symbol, getattr(site, key.lower()))
+                     for site in structure_decorated])
+                ldau_dict[key] = [m[sym] for sym in poscar.site_symbols]
+        magmom = [site.magmom for site in structure_decorated]
+        self.assertEqual(ldau_dict, ldau_ans)
+        self.assertEqual(magmom, magmom_ans)
+
+
+class MPSOCSetTest(PymatgenTest):
+
+    def test_from_prev_calc(self):
+        prev_run = os.path.join(test_dir, "fe_monomer")
+        vis = MPSOCSet.from_prev_calc(prev_calc_dir=prev_run, magmom=[3],
+                                      saxis=(1, 0, 0))
+        self.assertEqual(vis.incar["ISYM"], -1)
+        self.assertTrue(vis.incar["LSORBIT"])
+        self.assertEqual(vis.incar["ICHARG"], 11)
+        self.assertEqual(vis.incar["SAXIS"], [1, 0, 0])
+        self.assertEqual(vis.incar["MAGMOM"], [[0, 0, 3]])
+
+
+class MVLSlabSetTest(PymatgenTest):
+
+    def setUp(self):
+
+        if "VASP_PSP_DIR" not in os.environ:
+            os.environ["VASP_PSP_DIR"] = test_dir
+        s = PymatgenTest.get_structure("Li2O")
+        gen = SlabGenerator(s, (1, 0, 0), 10, 10)
+        vis_bulk = MVLSlabSet(bulk=True)
+        vis = MVLSlabSet()
+        vis_bulk_gpu = MVLSlabSet(bulk=True, gpu=True)
+
+        self.slab = gen.get_slab()
+        self.bulk = self.slab.oriented_unit_cell
+        self.d_bulk = vis_bulk.get_all_vasp_input(self.bulk)
+        self.d_slab = vis.get_all_vasp_input(self.slab)
+        self.d_bulk_gpu = vis_bulk_gpu.get_all_vasp_input(self.bulk)
+
+    def test_bulk(self):
+
+        incar_bulk = self.d_bulk["INCAR"]
+        incar_bulk_gpu = self.d_bulk_gpu["INCAR"]
+        poscar_bulk = self.d_bulk["POSCAR"]
+
+        self.assertEqual(incar_bulk["ISIF"], 3)
+        self.assertEqual(poscar_bulk.structure.formula,
+                         self.bulk.formula)
+        # Test VASP-gpu compatibility
+        self.assertEqual(incar_bulk_gpu["KPAR"], 1)
+        self.assertTrue("NPAR" not in incar_bulk_gpu.keys())
+
+    def test_slab(self):
+
+        incar_slab = self.d_slab["INCAR"]
+        poscar_slab = self.d_slab["POSCAR"]
+        potcar_slab = self.d_slab["POTCAR"]
+
+        self.assertEqual(incar_slab["AMIN"], 0.01)
+        self.assertEqual(incar_slab["AMIX"], 0.2)
+        self.assertEqual(incar_slab["BMIX"], 0.001)
+        self.assertEqual(incar_slab["NELMIN"], 8)
+        # No volume relaxation during slab calculations
+        self.assertEqual(incar_slab["ISIF"], 2)
+        self.assertEqual(potcar_slab.functional, 'PBE')
+        self.assertEqual(potcar_slab.symbols[0], u'Li_sv')
+        self.assertEqual(potcar_slab.symbols[1], u'O')
+        self.assertEqual(poscar_slab.structure.formula,
+                         self.slab.formula)
+
+    def test_kpoints(self):
+
+        kpoints_slab = self.d_slab["KPOINTS"].kpts[0]
+        kpoints_bulk = self.d_bulk["KPOINTS"].kpts[0]
+
+        self.assertEqual(kpoints_bulk[0], kpoints_slab[0])
+        self.assertEqual(kpoints_bulk[1], kpoints_slab[1])
+        self.assertEqual(kpoints_bulk[0], 15)
+        self.assertEqual(kpoints_bulk[1], 15)
+        self.assertEqual(kpoints_bulk[2], 15)
+        # The last kpoint in a slab should always be 1
+        self.assertEqual(kpoints_slab[2], 1)
 
 
 if __name__ == '__main__':

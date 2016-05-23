@@ -22,7 +22,7 @@ import itertools
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.units import Charge, Time
-from pymatgen.phasediagram.pdmaker import PhaseDiagram
+from pymatgen.phasediagram.maker import PhaseDiagram
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, \
     AbstractVoltagePair
