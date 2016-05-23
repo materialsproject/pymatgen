@@ -22,15 +22,16 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
-@unittest.skipIf(read_cube is None, "No ase.io.read_cube.")
+# @unittest.skipIf(read_cube is None, "No ase.io.read_cube.")
 class BoltztrapAnalyzerTest(unittest.TestCase):
 
-    def setUp(self):
-        self.bz = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/transp/"))
-        self.bz_bands = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/bands/"))
-        self.bz_up = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/dos_up/"),dos_spin=1)
-        self.bz_dw = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/dos_dw/"),dos_spin=-1)
-        self.bz_fermi = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/fermi/"))
+    @classmethod
+    def setUpClass(cls):
+        cls.bz = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/transp/"))
+        cls.bz_bands = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/bands/"))
+        cls.bz_up = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/dos_up/"),dos_spin=1)
+        cls.bz_dw = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/dos_dw/"),dos_spin=-1)
+        cls.bz_fermi = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/fermi/"))
         
     def test_properties(self):
         self.assertAlmostEqual(self.bz.gap, 1.6644932121620404, 4)
