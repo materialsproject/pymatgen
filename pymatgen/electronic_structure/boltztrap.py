@@ -779,45 +779,6 @@ class BoltztrapAnalyzer(object):
         self._bz_kpoints = bz_kpoints
         self.fermi_surface_data = fermi_surface_data
 
-    @staticmethod
-    def _make_boltztrap_analyzer_from_data(
-            data_full=None, data_hall=None, data_dos=None,
-            temperature_steps=None, mu_steps=None,
-            efermi=None, gap=None, doping=None, data_doping_full=None,
-            data_doping_hall=None, vol=None,
-            warning=False, bz_bands=None, bz_kpoints=None, run_type="BOLTZ",
-            dos_spin=None, fermi_surface_data=None):
-        """
-        Make a BoltztrapAnalyzer object from raw data typically parse from
-        files.
-        """
-
-        if run_type == "BANDS":
-
-            return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints)
-
-        elif run_type == "DOS":
-            if not dos_spin:
-                print(
-                    "Spin component set to up (dos_spin=1). Set dos_spin=-1 "
-                    "in from_files function if you want spin down")
-                dos_spin = 1
-
-            dos_full = {'energy': [], 'density': []}
-
-            for t in data_dos['total']:
-                dos_full['energy'].append(t[0])
-                dos_full['density'].append(t[1])
-
-            dos = Dos(efermi, dos_full['energy'],
-                      {Spin(dos_spin): dos_full['density']})
-            dos_partial = data_dos['partial']
-
-            return BoltztrapAnalyzer(dos=dos, dos_partial=dos_partial)
-
-        elif run_type == "FERMI":
-            return BoltztrapAnalyzer(fermi_surface_data=fermi_surface_data)
-
     def get_symm_bands(self, structure, efermi, kpt_line=None,
                        labels_dict=None):
         """
@@ -1529,7 +1490,7 @@ class BoltztrapAnalyzer(object):
             t_steps = sorted([t for t in t_steps])
             mu_steps = sorted([Energy(m, "Ry").to("eV") for m in mu_steps])
 
-            # initialize output varibles - could skip this by using defaultdict
+            # initialize output variables - could use defaultdict instead
             # I am leaving things like this for clarity
             cond = {t: [] for t in t_steps}
             seebeck = {t: [] for t in t_steps}
@@ -1613,25 +1574,26 @@ class BoltztrapAnalyzer(object):
             # If you want to read CUBE files, write a proper IO class in
             # pymatgen. I refuse to let pymatgen be bogged down by ASE crap.
 
-            # from ase.io.cube import read_cube
-            # if os.path.exists(os.path.join(path_dir, 'boltztrap_BZ.cube')):
-            #     fs_data = read_cube(open(os.path.join(path_dir, 'boltztrap_BZ.cube'), "rt"),  read_data=True)
-            # if os.path.exists(os.path.join(path_dir, 'fort.30')):
-            #     fs_data = read_cube(open(os.path.join(path_dir, 'fort.30'), "rt"), read_data=True)
-            # else:
-            #     raise BoltztrapError("No data file found for fermi surface")
+            """
+            from ase.io.cube import read_cube
+            if os.path.exists(os.path.join(path_dir, 'boltztrap_BZ.cube')):
+                 fs_data = read_cube(open(os.path.join(path_dir, 'boltztrap_BZ.cube'), "rt"),  read_data=True)
+            if os.path.exists(os.path.join(path_dir, 'fort.30')):
+                 fs_data = read_cube(open(os.path.join(path_dir, 'fort.30'), "rt"), read_data=True)
+            else:
+                 raise BoltztrapError("No data file found for fermi surface")
+            return BoltztrapAnalyzer(fermi_surface_data=fermi_surface_data)
+            """
 
-            return BoltztrapAnalyzer._make_boltztrap_analyzer_from_data(
-                run_type="FERMI", fermi_surface_data=None)
+            raise ValueError("Parsing Boltztrap output in FERMI mode is "
+                             "currently unsupported!")
 
         elif run_type == "BANDS":
             bz_kpoints = np.loadtxt(
                 os.path.join(path_dir, "boltztrap_band.dat"))[:, -3:]
             bz_bands = np.loadtxt(
                 os.path.join(path_dir, "boltztrap_band.dat"))[:, 1:-6]
-            return BoltztrapAnalyzer._make_boltztrap_analyzer_from_data(
-                run_type="BANDS",
-                bz_bands=bz_bands, bz_kpoints=bz_kpoints)
+            return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints)
 
         elif run_type == "DOS":
             data_dos = {'total': [], 'partial': {}}
@@ -1680,9 +1642,23 @@ class BoltztrapAnalyzer(object):
                     if line.startswith("VBM"):
                         efermi = Energy(line.split()[1], "Ry").to("eV")
 
-            return BoltztrapAnalyzer._make_boltztrap_analyzer_from_data(
-                efermi=efermi, run_type="DOS",
-                data_dos=data_dos, dos_spin=dos_spin)
+            if not dos_spin:
+                print(
+                    "Spin component set to up (dos_spin=1). Set dos_spin=-1 "
+                    "in from_files function if you want spin down")
+                dos_spin = 1
+
+            dos_full = {'energy': [], 'density': []}
+
+            for t in data_dos['total']:
+                dos_full['energy'].append(t[0])
+                dos_full['density'].append(t[1])
+
+            dos = Dos(efermi, dos_full['energy'],
+                      {Spin(dos_spin): dos_full['density']})
+            dos_partial = data_dos['partial']
+
+            return BoltztrapAnalyzer(dos=dos, dos_partial=dos_partial)
 
         else:
             raise ValueError("Run type: {} not recognized!".format(run_type))
