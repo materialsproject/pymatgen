@@ -1399,7 +1399,6 @@ class BoltztrapAnalyzer(object):
             a BoltztrapAnalyzer object
 
         """
-
         run_type = None
 
         with open(os.path.join(path_dir, "boltztrap.outputtrans"), 'r') as f:
@@ -1521,24 +1520,19 @@ class BoltztrapAnalyzer(object):
 
             # 2. Convert step: convert raw data to final format
 
-            # sort t and mu_steps (not sure why) and convert to correct energy
-            print(t_steps)
+            # sort t and mu_steps (b/c they are sets not lists)
+            # and convert to correct energy
             t_steps = sorted([t for t in t_steps])
             mu_steps = sorted([Energy(m, "Ry").to("eV") for m in mu_steps])
 
+            # initialize output varibles - could skip this by using defaultdict
+            # I am leaving things like this for clarity
             cond = {t: [] for t in t_steps}
             seebeck = {t: [] for t in t_steps}
             kappa = {t: [] for t in t_steps}
             hall = {t: [] for t in t_steps}
             carrier_conc = {t: [] for t in t_steps}
             dos_full = {'energy': [], 'density': []}
-            warning = warning
-            new_doping = {'p': [], 'n': []}
-            for d in doping_levels:
-                if d > 0:
-                    new_doping['p'].append(d)
-                else:
-                    new_doping['n'].append(-d)
 
             mu_doping = {'p': {t: [] for t in t_steps},
                          'n': {t: [] for t in t_steps}}
@@ -1550,83 +1544,65 @@ class BoltztrapAnalyzer(object):
                             'n': {t: [] for t in t_steps}}
             hall_doping = {'p': {t: [] for t in t_steps},
                            'n': {t: [] for t in t_steps}}
+
+            # process doping levels
+            pn_doping_levels = {'p': [], 'n': []}
+            for d in doping_levels:
+                if d > 0:
+                    pn_doping_levels['p'].append(d)
+                else:
+                    pn_doping_levels['n'].append(-d)
+
+            # process raw conductivity data, etc.
             for d in data_full:
-                carrier_conc[d[1]].append(d[2])
-                tens_cond = [[d[3], d[4], d[5]],
-                             [d[6], d[7], d[8]],
-                             [d[9], d[10], d[11]]]
-                cond[d[1]].append(tens_cond)
-                tens_seebeck = [[d[12], d[13], d[14]],
-                                [d[15], d[16], d[17]],
-                                [d[18], d[19], d[20]]]
-                seebeck[d[1]].append(tens_seebeck)
-                tens_kappa = [[d[21], d[22], d[23]],
-                              [d[24], d[25], d[26]],
-                              [d[27], d[28], d[29]]]
-                kappa[d[1]].append(tens_kappa)
+                temp, doping = d[1], d[2]
+                carrier_conc[temp].append(doping)
 
+                cond[temp].append(np.reshape(d[3:12], (3, 3)).tolist())
+                seebeck[temp].append(np.reshape(d[12:21], (3, 3)).tolist())
+                kappa[temp].append(np.reshape(d[21:30], (3, 3)).tolist())
+
+            # process raw Hall data
             for d in data_hall:
-                hall_tens = [[[d[3], d[4], d[5]],
-                              [d[6], d[7], d[8]],
-                              [d[9], d[10], d[11]]],
-                             [[d[12], d[13], d[14]],
-                              [d[15], d[16], d[17]],
-                              [d[18], d[19], d[20]]],
-                             [[d[21], d[22], d[23]],
-                              [d[24], d[25], d[26]],
-                              [d[27], d[28], d[29]]]]
-                hall[d[1]].append(hall_tens)
+                temp, doping = d[1], d[2]
+                hall_tens = [np.reshape(d[3:12], (3, 3)).tolist(),
+                             np.reshape(d[12:21], (3, 3)).tolist(),
+                             np.reshape(d[21:30], (3, 3)).tolist()]
+                hall[temp].append(hall_tens)
 
+            # process doping conductivity data, etc.
             for d in data_doping_full:
-                tens_cond = [[d[2], d[3], d[4]],
-                             [d[5], d[6], d[7]],
-                             [d[8], d[9], d[10]]]
-                tens_seebeck = [[d[11], d[12], d[13]],
-                                [d[14], d[15], d[16]],
-                                [d[17], d[18], d[19]]]
-                tens_kappa = [[d[20], d[21], d[22]],
-                              [d[23], d[24], d[25]],
-                              [d[26], d[27], d[28]]]
+                temp, doping, mu = d[0], d[1], d[-1]
+                pn = 'p' if doping > 0 else 'n'
+                mu_doping[pn][temp].append(Energy(mu, "Ry").to("eV"))
+                cond_doping[pn][temp].append(
+                    np.reshape(d[2:11], (3, 3)).tolist())
+                seebeck_doping[pn][temp].append(
+                    np.reshape(d[11:20], (3, 3)).tolist())
+                kappa_doping[pn][temp].append(
+                    np.reshape(d[20:29], (3, 3)).tolist())
 
-                if d[1] < 0:
-                    mu_doping['n'][d[0]].append(Energy(d[-1], "Ry").to("eV"))
-                    cond_doping['n'][d[0]].append(tens_cond)
-                    seebeck_doping['n'][d[0]].append(tens_seebeck)
-                    kappa_doping['n'][d[0]].append(tens_kappa)
-                else:
-                    mu_doping['p'][d[0]].append(Energy(d[-1], "Ry").to("eV"))
-                    cond_doping['p'][d[0]].append(tens_cond)
-                    seebeck_doping['p'][d[0]].append(tens_seebeck)
-                    kappa_doping['p'][d[0]].append(tens_kappa)
-
+            # process doping Hall data
             for d in data_doping_hall:
-                hall_tens = [[[d[2], d[3], d[4]],
-                              [d[5], d[6], d[7]],
-                              [d[8], d[9], d[10]]],
-                             [[d[11], d[12], d[13]],
-                              [d[14], d[15], d[16]],
-                              [d[17], d[18], d[19]]],
-                             [[d[20], d[21], d[22]],
-                              [d[23], d[24], d[25]],
-                              [d[26], d[27], d[28]]]]
-                if d[1] < 0:
-                    hall_doping['n'][d[0]].append(hall_tens)
-                else:
-                    hall_doping['p'][d[0]].append(hall_tens)
+                temp, doping, mu = d[0], d[1], d[-1]
+                pn = 'p' if doping > 0 else 'n'
+                hall_tens = [np.reshape(d[2:11], (3, 3)).tolist(),
+                             np.reshape(d[11:20], (3, 3)).tolist(),
+                             np.reshape(d[20:29], (3, 3)).tolist()]
+                hall_doping[pn][temp].append(hall_tens)
 
+            # process DOS (total and partial)
             for t in data_dos['total']:
                 dos_full['energy'].append(t[0])
                 dos_full['density'].append(t[1])
-
             dos = Dos(efermi, dos_full['energy'],
                       {Spin.up: dos_full['density']})
             dos_partial = data_dos['partial']
 
             return BoltztrapAnalyzer(
-                gap, mu_steps, cond, seebeck, kappa, hall, new_doping,
-                mu_doping,
-                seebeck_doping, cond_doping, kappa_doping, hall_doping, dos,
-                dos_partial, carrier_conc, vol, warning)
+                gap, mu_steps, cond, seebeck, kappa, hall, pn_doping_levels,
+                mu_doping, seebeck_doping, cond_doping, kappa_doping,
+                hall_doping, dos, dos_partial, carrier_conc, vol, warning)
 
         elif run_type == "FERMI":
             # TODO: There is no way to get this shitty ASE crap working.
