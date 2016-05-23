@@ -878,8 +878,8 @@ class BoltztrapAnalyzer(object):
 
     def get_seebeck(self, output='eig', doping_levels=True):
         """
-            Gives the seebeck coefficient in either a full 3x3 tensor form,
-            as 3 eigenvalues, or as the average value
+            Gives the seebeck coefficient (microV/K) in either a
+            full 3x3 tensor form, as 3 eigenvalues, or as the average value
             (trace/3.0) If doping_levels=True, the results are given at
             different p and n doping
             levels (given by self.doping), otherwise it is given as a series
@@ -914,8 +914,8 @@ class BoltztrapAnalyzer(object):
     def get_conductivity(self, output='eig', doping_levels=True,
                          relaxation_time=1e-14):
         """
-            Gives the conductivity in either a full 3x3 tensor form,
-            as 3 eigenvalues, or as the average value
+            Gives the conductivity (1/Ohm*m) in either a full 3x3 tensor
+            form, as 3 eigenvalues, or as the average value
             (trace/3.0) If doping_levels=True, the results are given at
             different p and n doping
             levels (given by self.doping), otherwise it is given as a series
@@ -928,6 +928,7 @@ class BoltztrapAnalyzer(object):
                 doping_levels (boolean): True for the results to be given at
                 different doping levels, False for results
                 at different electron chemical potentials
+                relaxation_time (float): constant relaxation time in secs
 
             Returns:
                 If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}.
@@ -951,8 +952,8 @@ class BoltztrapAnalyzer(object):
     def get_power_factor(self, output='eig', doping_levels=True,
                          relaxation_time=1e-14):
         """
-        Gives the power factor (Seebeck^2 * conductivity) in either a full
-        3x3 tensor form,
+        Gives the power factor (Seebeck^2 * conductivity) in units
+        microW/(m*K^2) in either a full 3x3 tensor form,
         as 3 eigenvalues, or as the average value (trace/3.0) If
         doping_levels=True, the results are given at
         different p and n doping levels (given by self.doping), otherwise it
@@ -966,6 +967,7 @@ class BoltztrapAnalyzer(object):
             doping_levels (boolean): True for the results to be given at
             different doping levels, False for results
             at different electron chemical potentials
+            relaxation_time (float): constant relaxation time in secs
 
         Returns:
             If doping_levels=True, a dictionnary {temp:{'p':[],'n':[]}}. The
