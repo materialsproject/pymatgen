@@ -86,11 +86,20 @@ def setver():
 
 
 def update_doc():
+    with lcd("docs/_build/html/"):
+        local("git pull")
     make_doc()
     with lcd("docs/_build/html/"):
         local("git add .")
         local("git commit -a -m \"Update dev docs\"")
         local("git push origin gh-pages")
+
+
+def update_coverage():
+    with lcd("docs/_build/html/"):
+        local("git pull")
+    local("nosetests --config=nose.cfg --cover-html --cover-html-dir=docs/_build/html/coverage")
+    update_doc()
 
 
 def merge_stable():

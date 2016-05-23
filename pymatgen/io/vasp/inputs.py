@@ -189,7 +189,7 @@ class Poscar(MSONable):
         super(Poscar, self).__setattr__(name, value)
 
     @staticmethod
-    def from_file(filename, check_for_POTCAR=True):
+    def from_file(filename, check_for_POTCAR=True, read_velocities=True):
         """
         Reads a Poscar from a file.
 
@@ -214,6 +214,8 @@ class Poscar(MSONable):
             filename (str): File name containing Poscar data.
             check_for_POTCAR (bool): Whether to check if a POTCAR is present
                 in the same directory as the POSCAR. Defaults to True.
+            read_velocities (bool): Whether to read or not velocities if they
+                are present in the POSCAR. Default is True.
 
         Returns:
             Poscar object.
@@ -230,10 +232,10 @@ class Poscar(MSONable):
                     except:
                         names = None
         with zopen(filename, "rt") as f:
-            return Poscar.from_string(f.read(), names)
+            return Poscar.from_string(f.read(), names, read_velocities=read_velocities)
 
     @staticmethod
-    def from_string(data, default_names=None):
+    def from_string(data, default_names=None, read_velocities=True):
         """
         Reads a Poscar from a string.
 
@@ -257,6 +259,8 @@ class Poscar(MSONable):
             data (str): String containing Poscar data.
             default_names ([str]): Default symbols for the POSCAR file,
                 usually coming from a POTCAR in the same directory.
+            read_velocities (bool): Whether to read or not velocities if they
+                are present in the POSCAR. Default is True.
 
         Returns:
             Poscar object.
@@ -356,33 +360,38 @@ class Poscar(MSONable):
                            to_unit_cell=False, validate_proximity=False,
                            coords_are_cartesian=cart)
 
-        # Parse velocities if any
-        velocities = []
-        if len(chunks) > 1:
-            for line in chunks[1].strip().split("\n"):
-                velocities.append([float(tok) for tok in line.split()])
+        if read_velocities:
+            # Parse velocities if any
+            velocities = []
+            if len(chunks) > 1:
+                for line in chunks[1].strip().split("\n"):
+                    velocities.append([float(tok) for tok in line.split()])
 
-        # Parse the predictor-corrector data
-        predictor_corrector = []
-        predictor_corrector_preamble = None
+            # Parse the predictor-corrector data
+            predictor_corrector = []
+            predictor_corrector_preamble = None
 
-        if len(chunks) > 2:
-            lines = chunks[2].strip().split("\n")
-            # There are 3 sets of 3xN Predictor corrector parameters
-            # So can't be stored as a single set of "site_property"
+            if len(chunks) > 2:
+                lines = chunks[2].strip().split("\n")
+                # There are 3 sets of 3xN Predictor corrector parameters
+                # So can't be stored as a single set of "site_property"
 
-            # First line in chunk is a key in CONTCAR
-            # Second line is POTIM
-            # Third line is the thermostat parameters
-            predictor_corrector_preamble = lines[0] + "\n" + lines[1]+"\n" + lines[2]
-            # Rest is three sets of parameters, each set contains
-            # x, y, z predictor-corrector parameters for every atom in orde
-            lines = lines[3:]
-            for st in range(nsites):
-                d1 = [float(tok) for tok in lines[st].split()]
-                d2 = [float(tok) for tok in lines[st+nsites].split()]
-                d3 = [float(tok) for tok in lines[st+2*nsites].split()]
-                predictor_corrector.append([d1,d2,d3])
+                # First line in chunk is a key in CONTCAR
+                # Second line is POTIM
+                # Third line is the thermostat parameters
+                predictor_corrector_preamble = lines[0] + "\n" + lines[1]+"\n" + lines[2]
+                # Rest is three sets of parameters, each set contains
+                # x, y, z predictor-corrector parameters for every atom in orde
+                lines = lines[3:]
+                for st in range(nsites):
+                    d1 = [float(tok) for tok in lines[st].split()]
+                    d2 = [float(tok) for tok in lines[st+nsites].split()]
+                    d3 = [float(tok) for tok in lines[st+2*nsites].split()]
+                    predictor_corrector.append([d1,d2,d3])
+        else:
+            velocities = None
+            predictor_corrector = None
+            predictor_corrector_preamble = None
 
         return Poscar(struct, comment, selective_dynamics, vasp5_symbols,
                       velocities=velocities,
@@ -437,20 +446,24 @@ class Poscar(MSONable):
             lines.append(line)
 
         if self.velocities:
-            lines.append("")
-            for v in self.velocities:
-                lines.append(" ".join([format_str.format(i) for i in v]))
+            try:
+                lines.append("")
+                for v in self.velocities:
+                    lines.append(" ".join([format_str.format(i) for i in v]))
+            except:
+                warnings.warn("Velocities are missing or corrupted.")
 
         if self.predictor_corrector:
             lines.append("")
             if self.predictor_corrector_preamble:
                 lines.append(self.predictor_corrector_preamble)
+                pred = np.array(self.predictor_corrector)
+                for col in range(3):
+                    for z in pred[:,col]:
+                        lines.append(" ".join([format_str.format(i) for i in z]))
             else:
-                raise ValueError("Preamble information missing or corrupt.")
-            pred = np.array(self.predictor_corrector)
-            for col in range(3):
-                for z in pred[:,col]:
-                    lines.append(" ".join([format_str.format(i) for i in z]))
+                warnings.warn("Preamble information missing or corrupt. " +
+                              "Writing Poscar with no predictor corrector data.")
 
         return "\n".join(lines) + "\n"
 
@@ -688,7 +701,7 @@ class Incar(dict, MSONable):
             key: INCAR parameter key
             val: Actual value of INCAR parameter.
         """
-        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM")
+        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM", "DIPOL")
         bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE",
                      "LHFCALC", "ADDGRID", "LSORBIT", "LNONCOLLINEAR")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",

@@ -41,6 +41,14 @@ pymatgen.analysis.energy_models module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.analysis.eos module
+----------------------------
+
+.. automodule:: pymatgen.analysis.eos
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.analysis.ewald module
 ------------------------------
 

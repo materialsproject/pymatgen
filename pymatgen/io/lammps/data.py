@@ -14,13 +14,15 @@ from io import open
 import re
 from collections import OrderedDict
 
+from monty.json import MSONable, MontyDecoder
+
 from pymatgen.core.structure import Molecule, Structure
 
 __author__ = 'Kiran Mathew'
 __email__ = "kmathew@lbl.gov"
 
 
-class LammpsData(object):
+class LammpsData(MSONable):
     """
     Basic Lammps data: just the atoms section
 
@@ -219,6 +221,18 @@ class LammpsData(object):
                     atoms_data.append(line_data)
         return LammpsData(box_size, atomic_masses, atoms_data)
 
+    def as_dict(self):
+        d = MSONable.as_dict(self)
+        if hasattr(self, "kwargs"):
+            d.update(**self.kwargs)
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items()
+                   if not k.startswith("@")}
+        return cls(**decoded)
+
 
 class LammpsForceFieldData(LammpsData):
     """
@@ -248,10 +262,8 @@ class LammpsForceFieldData(LammpsData):
     """
 
     def __init__(self, box_size, atomic_masses, pair_coeffs, bond_coeffs,
-                 angle_coeffs,
-                 dihedral_coeffs, improper_coeffs, atoms_data, bonds_data,
-                 angles_data,
-                 dihedrals_data, imdihedrals_data):
+                 angle_coeffs, dihedral_coeffs, improper_coeffs, atoms_data,
+                 bonds_data, angles_data, dihedrals_data, imdihedrals_data):
         super(LammpsForceFieldData, self).__init__(box_size, atomic_masses,
                                                    atoms_data)
         # number of types

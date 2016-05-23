@@ -22,14 +22,7 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 import numpy as np
-try:
-    from scipy.misc import factorial
-except ImportError:
-    def factorial(nn):
-        result = 1
-        for ii in range(1, nn+1):
-            result = result*ii
-        return result
+from scipy.misc import factorial
 import itertools
 import abc
 from monty.json import MSONable, MontyDecoder
@@ -71,12 +64,12 @@ class AbstractChemenvAlgorithm(with_metaclass(abc.ABCMeta, MSONable)):
 
 
 class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
-
     def __init__(self, permutations):
         """
             Initializes a separation plane for a given perfect coordination geometry
         """
-        super(ExplicitPermutationsAlgorithm, self).__init__(algorithm_type=EXPLICIT_PERMUTATIONS)
+        super(ExplicitPermutationsAlgorithm, self).__init__(
+            algorithm_type=EXPLICIT_PERMUTATIONS)
         self._permutations = permutations
 
     def __str__(self):
@@ -98,14 +91,15 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
 
 
 class SeparationPlane(AbstractChemenvAlgorithm):
-
-    def __init__(self, plane_points, mirror_plane=False, ordered_plane=False, point_groups=None,
-                 ordered_point_groups=None, #include_inverted_plane=False,
-                 point_groups_permutations=None, #do_inverse_pt_gp_permutations=False, plane_type='MIRROR',
+    def __init__(self, plane_points, mirror_plane=False, ordered_plane=False,
+                 point_groups=None,
+                 ordered_point_groups=None,  # include_inverted_plane=False,
+                 point_groups_permutations=None,
+                 # do_inverse_pt_gp_permutations=False, plane_type='MIRROR',
                  explicit_permutations=None, minimum_number_of_points=None,
                  explicit_optimized_permutations=None,
                  multiplicity=None,
-                 other_plane_points=None): #, plane_safe_permutations=False):
+                 other_plane_points=None):  # , plane_safe_permutations=False):
         """
             Initializes a separation plane for a given perfect coordination geometry
 
@@ -131,11 +125,14 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         self.plane_points = plane_points
         self.point_groups = point_groups
         if len(point_groups[0]) > len(point_groups[1]):
-            raise RuntimeError("The number of points in the first group should be\n"
-                               "less than or equal to the number of points in the second group")
-        self._hash = 10000*len(plane_points)+100*len(point_groups[0])+len(point_groups[1])
+            raise RuntimeError(
+                "The number of points in the first group should be\n"
+                "less than or equal to the number of points in the second group")
+        self._hash = 10000 * len(plane_points) + 100 * len(
+            point_groups[0]) + len(point_groups[1])
         self.ordered_plane = ordered_plane
-        self.ordered_point_groups = [False, False] if ordered_point_groups is None else ordered_point_groups
+        self.ordered_point_groups = [False,
+                                     False] if ordered_point_groups is None else ordered_point_groups
         self._ordered_indices = list(point_groups[0])
         self._ordered_indices.extend(plane_points)
         self._ordered_indices.extend(point_groups[1])
@@ -155,7 +152,8 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         self._ref_separation_perm = list(self.point_groups[0])
         self._ref_separation_perm.extend(list(self.plane_points))
         self._ref_separation_perm.extend(list(self.point_groups[1]))
-        self._argsorted_ref_separation_perm = list(np.argsort(self._ref_separation_perm))
+        self._argsorted_ref_separation_perm = list(
+            np.argsort(self._ref_separation_perm))
 
     @property
     def ordered_indices(self):
@@ -177,33 +175,33 @@ class SeparationPlane(AbstractChemenvAlgorithm):
     def argsorted_ref_separation_perm(self):
         return self._argsorted_ref_separation_perm
 
-    def safe_plane_permutations(self, ordered_plane=False, ordered_point_groups=None):
-        ordered_point_groups = [False, False] if ordered_point_groups is None else ordered_point_groups
+    def safe_plane_permutations(self, ordered_plane=False,
+                                ordered_point_groups=None):
+        ordered_point_groups = [False,
+                                False] if ordered_point_groups is None else ordered_point_groups
         rotate = lambda s, n: s[-n:] + s[:-n]
         if ordered_plane and self.ordered_plane:
-            plane_perms = [rotate(self.plane_points, ii) for ii in range(len(self.plane_points))]
+            plane_perms = [rotate(self.plane_points, ii) for ii in
+                           range(len(self.plane_points))]
             invplanepoints = self.plane_points[::-1]
-            plane_perms.extend([rotate(invplanepoints, ii) for ii in range(len(self.plane_points)-1, -1, -1)])
+            plane_perms.extend([rotate(invplanepoints, ii) for ii in
+                                range(len(self.plane_points) - 1, -1, -1)])
         else:
-            plane_perms = []
-            for perm in itertools.permutations(self.plane_points):
-                plane_perms.append(perm)
+            plane_perms = list(itertools.permutations(self.plane_points))
         if ordered_point_groups[0] and self.ordered_point_groups[0]:
-            s0_perms = [rotate(self.point_groups[0], ii) for ii in range(len(self.point_groups[0]))]
+            s0_perms = [rotate(self.point_groups[0], ii) for ii in
+                        range(len(self.point_groups[0]))]
             invpg0 = self.point_groups[0][::-1]
             s0_perms.extend([rotate(invpg0, ii) for ii in range(len(invpg0))])
         else:
-            s0_perms = []
-            for perm in itertools.permutations(self.point_groups[0]):
-                s0_perms.append(perm)
+            s0_perms = list(itertools.permutations(self.point_groups[0]))
         if ordered_point_groups[1] and self.ordered_point_groups[1]:
-            s2_perms = [rotate(self.point_groups[1], ii) for ii in range(len(self.point_groups[1]))]
+            s2_perms = [rotate(self.point_groups[1], ii) for ii in
+                        range(len(self.point_groups[1]))]
             invpg2 = self.point_groups[1][::-1]
             s2_perms.extend([rotate(invpg2, ii) for ii in range(len(invpg2))])
         else:
-            s2_perms = []
-            for perm in itertools.permutations(self.point_groups[1]):
-                s2_perms.append(perm)
+            s2_perms = list(itertools.permutations(self.point_groups[1]))
         add_opposite = False
         if self._safe_permutations is None:
             self._safe_permutations = []
@@ -221,37 +219,37 @@ class SeparationPlane(AbstractChemenvAlgorithm):
                             self._safe_permutations.append(perm)
         return self._safe_permutations
 
-    def safe_separation_permutations(self, ordered_plane=False, ordered_point_groups=None, add_opposite=False):
+    def safe_separation_permutations(self, ordered_plane=False,
+                                     ordered_point_groups=None,
+                                     add_opposite=False):
         s0 = range(len(self.point_groups[0]))
-        plane = range(len(self.point_groups[0]), len(self.point_groups[0])+len(self.plane_points))
-        s1 = range(len(self.point_groups[0])+len(self.plane_points),
-                   len(self.point_groups[0])+len(self.plane_points)+len(self.point_groups[1]))
-        ordered_point_groups = [False, False] if ordered_point_groups is None else ordered_point_groups
+        plane = range(len(self.point_groups[0]),
+                      len(self.point_groups[0]) + len(self.plane_points))
+        s1 = range(len(self.point_groups[0]) + len(self.plane_points),
+                   len(self.point_groups[0]) + len(self.plane_points) + len(
+                       self.point_groups[1]))
+        ordered_point_groups = [False,
+                                False] if ordered_point_groups is None else ordered_point_groups
         rotate = lambda s, n: s[-n:] + s[:-n]
         if ordered_plane and self.ordered_plane:
             plane_perms = [rotate(plane, ii) for ii in range(len(plane))]
             inv_plane = plane[::-1]
-            plane_perms.extend([rotate(inv_plane, ii) for ii in range(len(inv_plane))])
+            plane_perms.extend(
+                [rotate(inv_plane, ii) for ii in range(len(inv_plane))])
         else:
-            plane_perms = []
-            for perm in itertools.permutations(plane):
-                plane_perms.append(perm)
+            plane_perms = list(itertools.permutations(plane))
         if ordered_point_groups[0] and self.ordered_point_groups[0]:
             s0_perms = [rotate(s0, ii) for ii in range(len(s0))]
             inv_s0 = s0[::-1]
             s0_perms.extend([rotate(inv_s0, ii) for ii in range(len(inv_s0))])
         else:
-            s0_perms = []
-            for perm in itertools.permutations(s0):
-                s0_perms.append(perm)
+            s0_perms = list(itertools.permutations(s0))
         if ordered_point_groups[1] and self.ordered_point_groups[1]:
             s1_perms = [rotate(s1, ii) for ii in range(len(s1))]
             inv_s1 = s1[::-1]
             s1_perms.extend([rotate(inv_s1, ii) for ii in range(len(inv_s1))])
         else:
-            s1_perms = []
-            for perm in itertools.permutations(s1):
-                s1_perms.append(perm)
+            s1_perms = list(itertools.permutations(s1))
         if self._safe_permutations is None:
             self._safe_permutations = []
             for perm_side1 in s0_perms:
@@ -286,7 +284,8 @@ class SeparationPlane(AbstractChemenvAlgorithm):
 
     @classmethod
     def from_dict(cls, dd):
-        eop = dd['explicit_optimized_permutations'] if 'explicit_optimized_permutations' in dd else None
+        eop = dd[
+            'explicit_optimized_permutations'] if 'explicit_optimized_permutations' in dd else None
         return cls(plane_points=dd['plane_points'],
                    mirror_plane=dd['mirror_plane'],
                    ordered_plane=dd['ordered_plane'],
@@ -295,16 +294,19 @@ class SeparationPlane(AbstractChemenvAlgorithm):
                    point_groups_permutations=dd['point_groups_permutations'],
                    explicit_permutations=dd['explicit_permutations'],
                    explicit_optimized_permutations=eop,
-                   multiplicity=dd['multiplicity'] if 'multiplicity' in dd else None,
-                   other_plane_points=dd['other_plane_points'] if 'other_plane_points' in dd else None,
+                   multiplicity=dd[
+                       'multiplicity'] if 'multiplicity' in dd else None,
+                   other_plane_points=dd[
+                       'other_plane_points'] if 'other_plane_points' in dd else None,
                    minimum_number_of_points=dd['minimum_number_of_points'])
 
     def __str__(self):
         out = 'Separation plane algorithm with the following reference separation :\n'
-        out += '[{}] | [{}] | [{}]'.format('-'.join(str(pp) for pp in [self.point_groups[0]]),
-                                           '-'.join(str(pp) for pp in [self.plane_points]),
-                                           '-'.join(str(pp) for pp in [self.point_groups[1]]),
-                                           )
+        out += '[{}] | [{}] | [{}]'.format(
+            '-'.join(str(pp) for pp in [self.point_groups[0]]),
+            '-'.join(str(pp) for pp in [self.plane_points]),
+            '-'.join(str(pp) for pp in [self.point_groups[1]]),
+        )
         return out
 
 
@@ -313,10 +315,12 @@ class CoordinationGeometry(object):
     Class used to store the ideal representation of a chemical environment or "coordination geometry"
     """
 
-    def __init__(self, mp_symbol, name, alternative_names=None, IUPAC_symbol=None, IUCr_symbol=None, coordination=None,
+    def __init__(self, mp_symbol, name, alternative_names=None,
+                 IUPAC_symbol=None, IUCr_symbol=None, coordination=None,
                  central_site=np.zeros(3), points=None, solid_angles=None,
                  permutations_safe_override=False,
-                 plane_ordering_override=True, deactivate=False, faces=None, edges=None,
+                 plane_ordering_override=True, deactivate=False, faces=None,
+                 edges=None,
                  plane_safe_permutations=False, algorithms=None,
                  equivalent_indices=None):
         """
@@ -352,7 +356,7 @@ class CoordinationGeometry(object):
         self.permutations_safe_override = permutations_safe_override
         self.plane_ordering_override = plane_ordering_override
         self.plane_safe_permutations = plane_safe_permutations
-        #self.setup_permutations(permutations)
+        # self.setup_permutations(permutations)
         self.deactivate = deactivate
         self._faces = faces
         self._edges = edges
@@ -371,12 +375,15 @@ class CoordinationGeometry(object):
                 'IUCr_symbol': self.IUCrsymbol,
                 'coordination': self.coordination,
                 'central_site': [float(xx) for xx in self.central_site],
-                'points': [[float(xx) for xx in pp] for pp in self.points] if self.points is not None else None,
-                'solid_angles': [float(ang) for ang in self._solid_angles] if self._solid_angles is not None else None,
-                'deactivate':  self.deactivate,
+                'points': [[float(xx) for xx in pp] for pp in
+                           self.points] if self.points is not None else None,
+                'solid_angles': [float(ang) for ang in
+                                 self._solid_angles] if self._solid_angles is not None else None,
+                'deactivate': self.deactivate,
                 '_faces': self._faces,
                 '_edges': self._edges,
-                '_algorithms': [algo.as_dict for algo in self._algorithms] if self._algorithms is not None else None,
+                '_algorithms': [algo.as_dict for algo in
+                                self._algorithms] if self._algorithms is not None else None,
                 'equivalent_indices': self.equivalent_indices}
 
     @classmethod
@@ -391,13 +398,16 @@ class CoordinationGeometry(object):
                    central_site=dd['central_site'],
                    points=dd['points'],
                    solid_angles=(dd['solid_angles'] if 'solid_angles' in dd
-                                 else [4.0 * np.pi / dd['coordination']] * dd['coordination']),
+                                 else [4.0 * np.pi / dd['coordination']] * dd[
+                       'coordination']),
                    deactivate=dd['deactivate'],
                    faces=dd['_faces'],
                    edges=dd['_edges'],
                    algorithms=[dec.process_decoded(algo_d)
-                               for algo_d in dd['_algorithms']] if dd['_algorithms'] is not None else None,
-                   equivalent_indices=dd['equivalent_indices'] if 'equivalent_indices' in dd else None)
+                               for algo_d in dd['_algorithms']] if dd[
+                                                                       '_algorithms'] is not None else None,
+                   equivalent_indices=dd[
+                       'equivalent_indices'] if 'equivalent_indices' in dd else None)
 
     def __str__(self):
         symbol = ''
@@ -409,7 +419,8 @@ class CoordinationGeometry(object):
                 symbol += ')'
         elif self.IUCr_symbol is not None:
             symbol += ' (IUCr: {s})'.format(s=self.IUCr_symbol)
-        outs = ['Coordination geometry type : {n}{s}\n'.format(n=self.name, s=symbol),
+        outs = ['Coordination geometry type : {n}{s}\n'.format(n=self.name,
+                                                               s=symbol),
                 '  - coordination number : {c}'.format(c=self.coordination)]
         if self.points is None:
             outs.append('... not yet implemented')
@@ -417,7 +428,8 @@ class CoordinationGeometry(object):
             outs.append('  - list of points :')
             for pp in self.points:
                 outs.append('    - {p}'.format(p=pp))
-        outs.append('------------------------------------------------------------')
+        outs.append(
+            '------------------------------------------------------------')
         outs.append('')
 
         return '\n'.join(outs)
@@ -432,9 +444,11 @@ class CoordinationGeometry(object):
                 symbol += ')'
         elif self.IUCr_symbol is not None:
             symbol += ' (IUCr: {s})'.format(s=self.IUCr_symbol)
-        outs = ['Coordination geometry type : {n}{s}\n'.format(n=self.name, s=symbol),
+        outs = ['Coordination geometry type : {n}{s}\n'.format(n=self.name,
+                                                               s=symbol),
                 '  - coordination number : {c}'.format(c=self.coordination)]
-        outs.append('------------------------------------------------------------')
+        outs.append(
+            '------------------------------------------------------------')
         outs.append('')
         return '\n'.join(outs)
 
@@ -443,7 +457,7 @@ class CoordinationGeometry(object):
 
     def set_permutations_safe_override(self, permutations_safe_override):
         self.permutations_safe_override = permutations_safe_override
-        #self.setup_permutations()
+        # self.setup_permutations()
 
     @property
     def coordination_number(self):
@@ -573,7 +587,7 @@ class CoordinationGeometry(object):
         Returns the pmesh strings used for jmol to show this geometry.
         """
         pmeshes = []
-        #_vertices = [site.coords for site in sites]
+        # _vertices = [site.coords for site in sites]
         if permutation is None:
             _vertices = [site.coords for site in sites]
         else:
@@ -587,9 +601,10 @@ class CoordinationGeometry(object):
                 number_of_faces += len(face)
 
             _face_centers.append(np.array([np.mean([_vertices[face_vertex][ii]
-                                                    for face_vertex in face]) for ii in range(3)]))
+                                                    for face_vertex in face])
+                                           for ii in range(3)]))
 
-        out = '{}\n'.format(len(_vertices)+len(_face_centers))
+        out = '{}\n'.format(len(_vertices) + len(_face_centers))
         for vv in _vertices:
             out += '{:15.8f} {:15.8f} {:15.8f}\n'.format(vv[0], vv[1], vv[2])
         for fc in _face_centers:
@@ -603,10 +618,10 @@ class CoordinationGeometry(object):
             else:
                 for ii in range(len(face)):
                     out += '4\n'
-                    out += '{:d}\n'.format(len(_vertices)+iface)
+                    out += '{:d}\n'.format(len(_vertices) + iface)
                     out += '{:d}\n'.format(face[ii])
-                    out += '{:d}\n'.format(face[np.mod(ii+1, len(face))])
-                    out += '{:d}\n'.format(len(_vertices)+iface)
+                    out += '{:d}\n'.format(face[np.mod(ii + 1, len(face))])
+                    out += '{:d}\n'.format(len(_vertices) + iface)
             if len(face) in [3, 4]:
                 for face_vertex in face:
                     out += '{:d}\n'.format(face_vertex)
@@ -620,9 +635,9 @@ class CoordinationGeometry(object):
         """
         pmeshes = []
         _vertices = [site.coords for site in sites]
-        #if permutation is None:
+        # if permutation is None:
         #    _vertices = [site.coords for site in sites]
-        #else:
+        # else:
         #    _vertices = [sites[ii].coords for ii in permutation]
         _face_centers = []
         number_of_faces = 0
@@ -633,9 +648,10 @@ class CoordinationGeometry(object):
                 number_of_faces += len(face)
 
             _face_centers.append(np.array([np.mean([_vertices[face_vertex][ii]
-                                                    for face_vertex in face]) for ii in range(3)]))
+                                                    for face_vertex in face])
+                                           for ii in range(3)]))
 
-        out = '{}\n'.format(len(_vertices)+len(_face_centers))
+        out = '{}\n'.format(len(_vertices) + len(_face_centers))
         for vv in _vertices:
             out += '{:15.8f} {:15.8f} {:15.8f}\n'.format(vv[0], vv[1], vv[2])
         for fc in _face_centers:
@@ -649,16 +665,18 @@ class CoordinationGeometry(object):
             else:
                 for ii in range(len(face)):
                     out += '4\n'
-                    out += '{:d}\n'.format(len(_vertices)+iface)
+                    out += '{:d}\n'.format(len(_vertices) + iface)
                     out += '{:d}\n'.format(permutation[face[ii]])
-                    out += '{:d}\n'.format(permutation[face[np.mod(ii+1, len(face))]])
-                    out += '{:d}\n'.format(len(_vertices)+iface)
+                    out += '{:d}\n'.format(
+                        permutation[face[np.mod(ii + 1, len(face))]])
+                    out += '{:d}\n'.format(len(_vertices) + iface)
             if len(face) in [3, 4]:
                 for face_vertex in face:
                     out += '{:d}\n'.format(permutation[face_vertex])
                 out += '{:d}\n'.format(permutation[face[0]])
         pmeshes.append({"pmesh_string": out})
         return pmeshes
+
 
 class AllCoordinationGeometries(dict):
     """
@@ -675,7 +693,9 @@ class AllCoordinationGeometries(dict):
         dict.__init__(self)
         self.cg_list = list()
         if only_symbols is None:
-            f = open('{}/coordination_geometries_files/allcg.txt'.format(module_dir), 'r')
+            f = open(
+                '{}/coordination_geometries_files/allcg.txt'.format(module_dir),
+                'r')
             data = f.readlines()
             f.close()
             for line in data:
@@ -686,14 +706,19 @@ class AllCoordinationGeometries(dict):
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
         else:
             for symbol in only_symbols:
-                cg_file = '{}/coordination_geometries_files/{}.json'.format(module_dir, symbol)
+                cg_file = '{}/coordination_geometries_files/{}.json'.format(
+                    module_dir, symbol)
                 f = open(cg_file, 'r')
                 dd = json.load(f)
                 f.close()
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
 
-        self.cg_list.append(CoordinationGeometry(UNKNOWN_ENVIRONMENT_SYMBOL, "Unknown environment", deactivate=True))
-        self.cg_list.append(CoordinationGeometry(UNCLEAR_ENVIRONMENT_SYMBOL, "Unclear environment", deactivate=True))
+        self.cg_list.append(CoordinationGeometry(UNKNOWN_ENVIRONMENT_SYMBOL,
+                                                 "Unknown environment",
+                                                 deactivate=True))
+        self.cg_list.append(CoordinationGeometry(UNCLEAR_ENVIRONMENT_SYMBOL,
+                                                 "Unclear environment",
+                                                 deactivate=True))
         if permutations_safe_override:
             for cg in self.cg_list:
                 cg.set_permutations_safe_override(True)
@@ -769,7 +794,8 @@ class AllCoordinationGeometries(dict):
                     geom[gg.mp_symbol] = gg.coordination_number
         return geom
 
-    def get_implemented_geometries(self, coordination=None, returned='cg', include_deactivated=False):
+    def get_implemented_geometries(self, coordination=None, returned='cg',
+                                   include_deactivated=False):
         """
         Returns a list of the implemented coordination geometries with the given coordination number.
         :param coordination: The coordination number of which the list of implemented coordination geometries
@@ -778,14 +804,15 @@ class AllCoordinationGeometries(dict):
         geom = list()
         if coordination is None:
             for gg in self.cg_list:
-                if gg.points is not None and ((not gg.deactivate) or include_deactivated):
+                if gg.points is not None and (
+                            (not gg.deactivate) or include_deactivated):
                     if returned == 'cg':
                         geom.append(gg)
                     elif returned == 'mp_symbol':
                         geom.append(gg.mp_symbol)
         else:
             for gg in self.cg_list:
-                if gg.get_coordination_number() == coordination and gg.points is not None and\
+                if gg.get_coordination_number() == coordination and gg.points is not None and \
                         ((not gg.deactivate) or include_deactivated):
                     if returned == 'cg':
                         geom.append(gg)
@@ -793,7 +820,8 @@ class AllCoordinationGeometries(dict):
                         geom.append(gg.mp_symbol)
         return geom
 
-    def get_not_implemented_geometries(self, coordination=None, returned='mp_symbol'):
+    def get_not_implemented_geometries(self, coordination=None,
+                                       returned='mp_symbol'):
         """
         Returns a list of the implemented coordination geometries with the given coordination number.
         :param coordination: The coordination number of which the list of implemented coordination geometries
@@ -824,7 +852,9 @@ class AllCoordinationGeometries(dict):
         for gg in self.cg_list:
             if gg.name == name or name in gg.alternative_names:
                 return gg
-        raise LookupError('No coordination geometry found with name "{name}"'.format(name=name))
+        raise LookupError(
+            'No coordination geometry found with name "{name}"'.format(
+                name=name))
 
     def get_geometry_from_IUPAC_symbol(self, IUPAC_symbol):
         """
@@ -834,7 +864,9 @@ class AllCoordinationGeometries(dict):
         for gg in self.cg_list:
             if gg.IUPAC_symbol == IUPAC_symbol:
                 return gg
-        raise LookupError('No coordination geometry found with IUPAC symbol "{symbol}"'.format(symbol=IUPAC_symbol))
+        raise LookupError(
+            'No coordination geometry found with IUPAC symbol "{symbol}"'.format(
+                symbol=IUPAC_symbol))
 
     def get_geometry_from_IUCr_symbol(self, IUCr_symbol):
         """
@@ -844,7 +876,9 @@ class AllCoordinationGeometries(dict):
         for gg in self.cg_list:
             if gg.IUCr_symbol == IUCr_symbol:
                 return gg
-        raise LookupError('No coordination geometry found with IUCr symbol "{symbol}"'.format(symbol=IUCr_symbol))
+        raise LookupError(
+            'No coordination geometry found with IUCr symbol "{symbol}"'.format(
+                symbol=IUCr_symbol))
 
     def get_geometry_from_mp_symbol(self, mp_symbol):
         """
@@ -854,9 +888,13 @@ class AllCoordinationGeometries(dict):
         for gg in self.cg_list:
             if gg.mp_symbol == mp_symbol:
                 return gg
-        raise LookupError('No coordination geometry found with mp_symbol "{symbol}"'.format(symbol=mp_symbol))
+        raise LookupError(
+            'No coordination geometry found with mp_symbol "{symbol}"'.format(
+                symbol=mp_symbol))
 
-    def is_a_valid_coordination_geometry(self, mp_symbol=None, IUPAC_symbol=None, IUCr_symbol=None, name=None, cn=None):
+    def is_a_valid_coordination_geometry(self, mp_symbol=None,
+                                         IUPAC_symbol=None, IUCr_symbol=None,
+                                         name=None, cn=None):
         """
         Checks whether a given coordination geometry is valid (exists) and whether the parameters are coherent with
         each other.
@@ -867,10 +905,12 @@ class AllCoordinationGeometries(dict):
         :param mp_symbol: The mp_symbol of the coordination geometry.
         """
         if name is not None:
-            raise NotImplementedError('is_a_valid_coordination_geometry not implemented for the name')
+            raise NotImplementedError(
+                'is_a_valid_coordination_geometry not implemented for the name')
         if mp_symbol is None and IUPAC_symbol is None and IUCr_symbol is None:
-            raise SyntaxError('missing argument for is_a_valid_coordination_geometry : at least one of mp_symbol, '
-                              'IUPAC_symbol and IUCr_symbol must be passed to the function')
+            raise SyntaxError(
+                'missing argument for is_a_valid_coordination_geometry : at least one of mp_symbol, '
+                'IUPAC_symbol and IUCr_symbol must be passed to the function')
         if mp_symbol is not None:
             try:
                 cg = self.get_geometry_from_mp_symbol(mp_symbol)
@@ -912,44 +952,63 @@ class AllCoordinationGeometries(dict):
     def pretty_print(self, type='implemented_geometries', maxcn=8):
         if type == 'all_geometries_latex_images':
             mystring = ''
-            for cn in range(1, maxcn+1):
+            for cn in range(1, maxcn + 1):
                 mystring += '\section*{{Coordination {cn}}}\n\n'.format(cn=cn)
-                for cg in self.get_implemented_geometries(coordination=cn, returned='cg'):
-                    mystring += '\subsubsection*{{{mp} : {name}}}\n\n'.format(mp=cg.mp_symbol, name=cg.get_name())
-                    mystring += 'IUPAC : {iupac}\n\nIUCr : {iucr}\n\n'.format(iupac=cg.IUPAC_symbol, iucr=cg.IUCr_symbol)
+                for cg in self.get_implemented_geometries(coordination=cn,
+                                                          returned='cg'):
+                    mystring += '\subsubsection*{{{mp} : {name}}}\n\n'.format(
+                        mp=cg.mp_symbol, name=cg.get_name())
+                    mystring += 'IUPAC : {iupac}\n\nIUCr : {iucr}\n\n'.format(
+                        iupac=cg.IUPAC_symbol, iucr=cg.IUCr_symbol)
                     mystring += '\\begin{center}\n'
-                    mystring += '\\includegraphics[scale=0.15]{{images/{let}_{cif}.png}}\n'.format(let=cg.mp_symbol.split(':')[0], cif=cg.mp_symbol.split(':')[1])
+                    mystring += '\\includegraphics[scale=0.15]{{images/{let}_{cif}.png}}\n'.format(
+                        let=cg.mp_symbol.split(':')[0],
+                        cif=cg.mp_symbol.split(':')[1])
                     mystring += '\\end{center}\n\n'
-                for cg in self.get_not_implemented_geometries(cn, returned='cg'):
-                    mystring += '\subsubsection*{{{mp} : {name}}}\n\n'.format(mp=cg.mp_symbol, name=cg.get_name())
-                    mystring += 'IUPAC : {iupac}\n\nIUCr : {iucr}\n\n'.format(iupac=cg.IUPAC_symbol, iucr=cg.IUCr_symbol)
+                for cg in self.get_not_implemented_geometries(cn,
+                                                              returned='cg'):
+                    mystring += '\subsubsection*{{{mp} : {name}}}\n\n'.format(
+                        mp=cg.mp_symbol, name=cg.get_name())
+                    mystring += 'IUPAC : {iupac}\n\nIUCr : {iucr}\n\n'.format(
+                        iupac=cg.IUPAC_symbol, iucr=cg.IUCr_symbol)
         elif type == 'all_geometries_latex':
             mystring = ''
-            for cn in range(1, maxcn+1):
-                mystring += '\subsection*{{Coordination {cn}}}\n\n'.format(cn=cn)
+            for cn in range(1, maxcn + 1):
+                mystring += '\subsection*{{Coordination {cn}}}\n\n'.format(
+                    cn=cn)
                 mystring += '\\begin{itemize}\n'
-                for cg in self.get_implemented_geometries(coordination=cn, returned='cg'):
-                    mystring += '\\item {mp} $\\rightarrow$ {name} '.format(mp=cg.mp_symbol.replace('_',
-                                                                                                              '\\_'),
-                                                                                      name=cg.get_name())
-                    mystring += '(IUPAC : {iupac} - IUCr : {iucr})\n'.format(iupac=cg.IUPAC_symbol_str,
-                                                                                 iucr=cg.IUCr_symbol_str.replace('[', '$[$').replace(']', '$]$'))
-                for cg in self.get_not_implemented_geometries(cn, returned='cg'):
-                    mystring += '\\item {mp} $\\rightarrow$ {name} '.format(mp=cg.mp_symbol.replace('_',
-                                                                                                              '\\_'),
-                                                                                      name=cg.get_name())
-                    mystring += '(IUPAC : {iupac} - IUCr : {iucr})\n'.format(iupac=cg.IUPAC_symbol_str,
-                                                                                 iucr=cg.IUCr_symbol_str.replace('[', '$[$').replace(']', '$]$'))
+                for cg in self.get_implemented_geometries(coordination=cn,
+                                                          returned='cg'):
+                    mystring += '\\item {mp} $\\rightarrow$ {name} '.format(
+                        mp=cg.mp_symbol.replace('_',
+                                                '\\_'),
+                        name=cg.get_name())
+                    mystring += '(IUPAC : {iupac} - IUCr : {iucr})\n'.format(
+                        iupac=cg.IUPAC_symbol_str,
+                        iucr=cg.IUCr_symbol_str.replace('[', '$[$').replace(']',
+                                                                            '$]$'))
+                for cg in self.get_not_implemented_geometries(cn,
+                                                              returned='cg'):
+                    mystring += '\\item {mp} $\\rightarrow$ {name} '.format(
+                        mp=cg.mp_symbol.replace('_',
+                                                '\\_'),
+                        name=cg.get_name())
+                    mystring += '(IUPAC : {iupac} - IUCr : {iucr})\n'.format(
+                        iupac=cg.IUPAC_symbol_str,
+                        iucr=cg.IUCr_symbol_str.replace('[', '$[$').replace(']',
+                                                                            '$]$'))
                 mystring += '\\end{itemize}\n\n'
         else:
             mystring = '+-------------------------+\n| Coordination geometries |\n+-------------------------+\n\n'
-            for cn in range(1, maxcn+1):
+            for cn in range(1, maxcn + 1):
                 mystring += '==>> CN = {cn} <<==\n'.format(cn=cn)
                 if type == 'implemented_geometries':
                     for cg in self.get_implemented_geometries(coordination=cn):
-                        mystring += ' - {mp} : {name}\n'.format(mp=cg.mp_symbol, name=cg.get_name())
+                        mystring += ' - {mp} : {name}\n'.format(mp=cg.mp_symbol,
+                                                                name=cg.get_name())
                 elif type == 'all_geometries':
                     for cg in self.get_geometries(coordination=cn):
-                        mystring += ' - {mp} : {name}\n'.format(mp=cg.mp_symbol, name=cg.get_name())
-                mystring+='\n'
+                        mystring += ' - {mp} : {name}\n'.format(mp=cg.mp_symbol,
+                                                                name=cg.get_name())
+                mystring += '\n'
         return mystring

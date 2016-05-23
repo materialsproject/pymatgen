@@ -289,6 +289,21 @@ class Vasprun(MSONable):
         to the total number of steps in the actual run even if
         ionic_step_skip is used.
 
+    .. attribute:: force_constants
+
+        Force constants computed in phonon DFPT run(IBRION = 8).
+        The data is a 4D numpy array of shape (natoms, natoms, 3, 3).
+
+    .. attribute:: normalmode_eigenvals
+
+        Normal mode frequencies.
+        1D numpy array of size 3*natoms.
+
+    .. attribute:: normalmode_eigenvecs
+
+        Normal mode eigen vectoes.
+        3D numpy array of shape (3*natoms, natoms, 3).
+
     **Vasp inputs**
 
     .. attribute:: incar
@@ -428,6 +443,19 @@ class Vasprun(MSONable):
                 elif tag == "structure" and elem.attrib.get("name") == \
                         "finalpos":
                     self.final_structure = self._parse_structure(elem)
+                elif tag == "dynmat":
+                    hessian, eigenvalues, eigenvectors = self._parse_dynmat(elem)
+                    natoms = len(self.atomic_symbols)
+                    hessian = np.array(hessian)
+                    self.force_constants = np.zeros((natoms, natoms, 3, 3), dtype='double')
+                    for i in range(natoms):
+                        for j in range(natoms):
+                            self.force_constants[i, j] = hessian[i*3:(i+1)*3,j*3:(j+1)*3]
+                    phonon_eigenvectors = []
+                    for ev in eigenvectors:
+                        phonon_eigenvectors.append(np.array(ev).reshape(natoms, 3))
+                    self.normalmode_eigenvals = np.array(eigenvalues)
+                    self.normalmode_eigenvecs = np.array(phonon_eigenvectors)
         except ET.ParseError as ex:
             if self.exception_on_bad_xml:
                 raise ex
@@ -1071,6 +1099,22 @@ class Vasprun(MSONable):
         elem.clear()
         return proj_eigen
 
+    def _parse_dynmat(self, elem):
+        hessian = []
+        eigenvalues = []
+        eigenvectors = []
+        for v in elem.findall("v"):
+            if v.attrib["name"] == "eigenvalues":
+                eigenvalues = [float(i) for i in v.text.split()]
+        for va in elem.findall("varray"):
+            if va.attrib["name"] == "hessian":
+                for v in va.findall("v"):
+                    hessian.append([float(i) for i in v.text.split()])
+            elif va.attrib["name"] == "eigenvectors":
+                for v in va.findall("v"):
+                    eigenvectors.append([float(i) for i in v.text.split()])
+        return hessian, eigenvalues, eigenvectors
+
 
 class BSVasprun(Vasprun):
     """
@@ -1271,14 +1315,11 @@ class Outcar(MSONable):
         # data from end of OUTCAR
         charge = []
         mag = []
-        cs = []
-        efg = []
         header = []
         run_stats = {}
         total_mag = None
         nelect = None
         efermi = None
-        elastic_tensor = None
         total_energy = None
 
         time_patt = re.compile("\((sec|kb)\)")
@@ -1362,63 +1403,12 @@ class Outcar(MSONable):
                     run_stats['cores'] = line.split()[2]
                     break
 
-        # 6x6 tensor matrix for TOTAL ELASTIC MODULI
-        tensor_matrix = []
-        tag = "TOTAL ELASTIC MODULI (kBar)"
-        if tag in all_lines:
-            for clean in all_lines:
-                if etensor_patt.search(clean):
-                    tok = clean.strip().split()
-                    tok.pop(0)
-                    tok = [float(i) for i in tok]
-                    tensor_matrix.append(tok)
-            total_elm = [tensor_matrix[i] for i in range(18, 24)]
-            elastic_tensor = np.asarray(total_elm).reshape(6, 6)
-        else:
-            pass
-
-        # NMR Chemical Shift Tensors
-        cs_tag_title = "CSA tensor (J. Mason, Solid State Nucl. Magn. Reson. 2, 285 (1993))"
-        if cs_tag_title in all_lines:
-            sec1 = all_lines[all_lines.index(cs_tag_title):]
-            sec2_tag = "(absolute, valence and core)"
-            sec3 = sec1[sec1.index(sec2_tag) + 1:]
-            section_end_tag = "-" * 81
-            csa_section = sec3[:sec3.index(section_end_tag)]
-            for clean in csa_section:
-                tokens = clean.split()
-                tensor_tokens = [float(t) for t in tokens[-3:]]
-                sigma_iso, omega, kappa = tensor_tokens
-                tensor = NMRChemicalShiftNotation.from_maryland_notation(sigma_iso, omega, kappa)
-                cs.append(tensor)
-        else:
-            pass
-
-        efg_tag_title = "NMR quadrupolar parameters"
-        if efg_tag_title in all_lines:
-            sec1 = all_lines[all_lines.index(efg_tag_title) + 8:]
-            section_end_tag = "-" * 70
-            efg_section = sec1[:sec1.index(section_end_tag)]
-            for clean in efg_section:
-                tokens = clean.split()
-                tensor_tokens = [float(t) for t in tokens[-3:]]
-                cq, eta, nuclear_quadrupole_moment = tensor_tokens
-                d = {"cq": cq,
-                     "eta": eta,
-                     "nuclear_quadrupole_moment": nuclear_quadrupole_moment}
-                efg.append(d)
-        else:
-            pass
-
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
         self.charge = tuple(charge)
-        self.chemical_shifts = tuple(cs)
-        self.efg = tuple(efg)
         self.efermi = efermi
         self.nelect = nelect
         self.total_mag = total_mag
-        self.elastic_tensor = elastic_tensor
         self.final_energy = total_energy
         self.data = {}
 
@@ -1459,6 +1449,139 @@ class Outcar(MSONable):
                          postprocess=postprocess)
         for k in patterns.keys():
             self.data[k] = [i[0] for i in matches.get(k, [])]
+
+    def read_table_pattern(self, header_pattern, row_pattern, footer_pattern,
+                           postprocess=str, attribute_name=None, last_one_only=True):
+        """
+        Parse table-like data. A table composes of three parts: header, main body, footer.
+        All the data matches "row pattern" in the main body will be returned.
+
+        Args:
+            header_pattern (str): The regular expression pattern matches the table header.
+                This pattern should match all the text immediately before the main body of
+                the table. For multiple sections table match the text until the section of
+                interest. MULTILINE and DOTALL options are enforced, as a result, the "."
+                meta-character will also match "\n" in this section.
+            row_pattern (str): The regular expression matches a single line in the table.
+                Capture interested field using regular expression groups
+            footer_pattern (str): The regular expression matches the end of the table.
+                E.g. a long dash line.
+            postprocess (callable): A post processing function to convert all
+                matches. Defaults to str, i.e., no change.
+            attribute_name (str): Name of this table. If presense the parsed data will be
+                attached to "data. e.g. self.data["efg"] = [...]
+            last_one_only (bool): All the tables will be parsed, if this option is set to
+                True, only the last table will be returned. The enclosing list will be removed.
+                i.e. Only a single table wil be returned. Default to be True.
+
+        Returns:
+            List of tables. 1) A table is a list of rows. 2) A row if either a list of
+            attribute values in case the the capturing group is defined without name in
+            row_pattern, or a dict in case that named capturing groups are defined by
+            row_pattern.
+        """
+        with zopen(self.filename, 'rt') as f:
+            text = f.read()
+        table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + \
+                             row_pattern + r")+)\s+" + footer_pattern
+        table_pattern = re.compile(table_pattern_text, re.MULTILINE | re.DOTALL)
+        rp = re.compile(row_pattern)
+        tables = []
+        for mt in table_pattern.finditer(text):
+            table_body_text = mt.group("table_body")
+            table_contents = []
+            for line in table_body_text.split("\n"):
+                ml = rp.search(line)
+                d = ml.groupdict()
+                if len(d) > 0:
+                    processed_line = {k: postprocess(v) for k, v in d.items()}
+                else:
+                    processed_line = [postprocess(v) for v in ml.groups()]
+                table_contents.append(processed_line)
+            tables.append(table_contents)
+        if last_one_only:
+            retained_data = tables[-1]
+        else:
+            retained_data = tables
+        if attribute_name is not None:
+            self.data[attribute_name] = retained_data
+        return retained_data
+
+
+    def read_chemical_shifts(self):
+        """
+        Parse the NMR chemical shifts data. Only the second part "absolute, valence and core"
+        will be parsed. And only the three right most field (ISO_SHIFT, SPAN, SKEW) will be retrieved.
+
+        Returns:
+            List of chemical shifts in the order of atoms from the OUTCAR. Maryland notation is adopted.
+        """
+        header_pattern = r"\s+CSA tensor \(J\. Mason, Solid State Nucl\. Magn\. Reson\. 2, " \
+                         r"285 \(1993\)\)\s+" \
+                         r"\s+-{50,}\s+" \
+                         r"\s+EXCLUDING G=0 CONTRIBUTION\s+INCLUDING G=0 CONTRIBUTION\s+" \
+                         r"\s+-{20,}\s+-{20,}\s+" \
+                         r"\s+ATOM\s+ISO_SHIFT\s+SPAN\s+SKEW\s+ISO_SHIFT\s+SPAN\s+SKEW\s+" \
+                         r".+?\(absolute, valence and core\)\s+$"
+        row_pattern = r"\d+(?:\s+[-]?\d+\.\d+){3}\s+" + r'\s+'.join([r"([-]?\d+\.\d+)"] * 3)
+        footer_pattern = "-{50,}\s*$"
+        cs_table = self.read_table_pattern(header_pattern, row_pattern, footer_pattern,
+                                           postprocess=float, last_one_only=True)
+        cs = []
+        for sigma_iso, omega, kappa in cs_table:
+            tensor = NMRChemicalShiftNotation.from_maryland_notation(sigma_iso, omega, kappa)
+            cs.append(tensor)
+        self.data["chemical_shifts"] = tuple(cs)
+
+    def read_nmr_efg(self):
+        """
+        Parse the NMR Electric Field Gradient tensors.
+
+        Returns:
+            Electric Field Gradient tensors as a list of dict in the order of atoms from OUTCAR.
+            Each dict key/value pair corresponds to a component of the tensors.
+        """
+        header_pattern = r"^\s+NMR quadrupolar parameters\s+$\n" \
+                         r"^\s+Cq : quadrupolar parameter\s+Cq=e[*]Q[*]V_zz/h$\n" \
+                         r"^\s+eta: asymmetry parameters\s+\(V_yy - V_xx\)/ V_zz$\n" \
+                         r"^\s+Q  : nuclear electric quadrupole moment in mb \(millibarn\)$\n" \
+                         r"^-{50,}$\n" \
+                         r"^\s+ion\s+Cq\(MHz\)\s+eta\s+Q \(mb\)\s+$\n" \
+                         r"^-{50,}\s*$\n"
+        row_pattern = r"\d+\s+(?P<cq>[-]?\d+\.\d+)\s+(?P<eta>[-]?\d+\.\d+)\s+" \
+                      r"(?P<nuclear_quadrupole_moment>[-]?\d+\.\d+)"
+        footer_pattern = "-{50,}\s*$"
+        self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float,
+                                last_one_only=True, attribute_name="efg")
+
+    def read_elastic_tensor(self):
+        """
+        Parse the elastic tensor data.
+
+        Returns:
+            6x6 array corresponding to the elastic tensor from the OUTCAR.
+        """
+        header_pattern = "TOTAL ELASTIC MODULI \(kBar\)\s+"\
+                         "Direction\s+([X-Z][X-Z]\s+)+"\
+                         "\-+"
+        row_pattern = "[X-Z][X-Z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
+        footer_pattern = "\-+"
+        et_table = self.read_table_pattern(header_pattern, row_pattern, 
+                                           footer_pattern, postprocess=float)
+        self.data["elastic_tensor"] = et_table
+
+    def read_piezo_tensor(self):
+        """
+        Parse the piezo tensor data
+        """
+        header_pattern = "PIEZOELECTRIC TENSOR  for field in x, y, z\s+\(C/m\^2\)\s+" \
+                         "([X-Z][X-Z]\s+)+" \
+                         "\-+"
+        row_pattern = "[x-z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
+        footer_pattern = "BORN EFFECTIVE"
+        pt_table = self.read_table_pattern(header_pattern, row_pattern,
+                                           footer_pattern, postprocess=float)
+        self.data["piezo_tensor"] = pt_table
 
     def read_corrections(self, reverse=True, terminate_on_match=True):
         patterns = {
@@ -1707,7 +1830,7 @@ class Outcar(MSONable):
 
             def born_ion(results, match):
                 results.born_ion = int(match.group(1)) - 1
-                results.born[results.born_ion] = np.zeros((3, 3))
+                results.born.append(np.zeros((3, 3)))
 
             search.append(["ion +([0-9]+)", lambda results,
                            line: results.born_ion is not None, born_ion])
@@ -1734,9 +1857,11 @@ class Outcar(MSONable):
                  born_section_stop])
 
             self.born_ion = None
-            self.born = {}
+            self.born = []
 
             micro_pyawk(self.filename, search, self)
+
+            self.born = np.array(self.born)
 
             self.dielectric_tensor = self.dielectric_tensor.tolist()
             self.piezo_tensor = self.piezo_tensor.tolist()
@@ -1898,8 +2023,7 @@ class Outcar(MSONable):
              "@class": self.__class__.__name__, "efermi": self.efermi,
              "run_stats": self.run_stats, "magnetization": self.magnetization,
              "charge": self.charge, "total_magnetization": self.total_mag,
-             "nelect": self.nelect, "is_stopped": self.is_stopped,
-             "chemical_shifts": self.chemical_shifts, "efg": self.efg}
+             "nelect": self.nelect, "is_stopped": self.is_stopped}
 
         if self.lepsilon:
             d.update({'piezo_tensor': self.piezo_tensor,
