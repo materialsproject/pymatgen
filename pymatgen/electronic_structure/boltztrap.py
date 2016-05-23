@@ -1384,7 +1384,7 @@ class BoltztrapAnalyzer(object):
 
     @staticmethod
     def parse_transdos(path_dir, efermi, dos_spin=1, process_dos=False,
-                   normalize_dos=False):
+                       normalize_dos=False):
 
         """
         Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files
@@ -1484,6 +1484,139 @@ class BoltztrapAnalyzer(object):
                            to("ang") for j in range(3)] for i in
                             range(1, 4)]).volume
 
+    @staticmethod
+    def parse_cond_and_hall(path_dir, doping_levels=None):
+        # 1. Parse steps: parse raw data but do not convert to final format
+        """
+        Parses the conductivity and Hall tensors
+        Args:
+            path_dir: Path containing .condtens / .halltens files
+            doping_levels: ([float]) - doping lvls, parse outtrans to get this
+
+        Returns:
+            mu_steps, cond, seebeck, kappa, hall, pn_doping_levels,
+            mu_doping, seebeck_doping, cond_doping, kappa_doping,
+            hall_doping, carrier_conc
+        """
+        
+        t_steps = set()
+        mu_steps = set()
+        data_full = []
+        data_hall = []
+        data_doping_full = []
+        data_doping_hall = []
+        doping_levels = doping_levels or []
+
+        # parse the full conductivity/Seebeck/kappa0/etc data
+        ## also initialize t_steps and mu_steps
+        with open(os.path.join(path_dir, "boltztrap.condtens"), 'r') as f:
+            for line in f:
+                if not line.startswith("#"):
+                    mu_steps.add(float(line.split()[0]))
+                    t_steps.add(int(float(line.split()[1])))
+                    data_full.append([float(c) for c in line.split()])
+
+        # parse the full Hall tensor
+        with open(os.path.join(path_dir, "boltztrap.halltens"), 'r') as f:
+            for line in f:
+                if not line.startswith("#"):
+                    data_hall.append([float(c) for c in line.split()])
+
+        if len(doping_levels) != 0:
+            # parse doping levels version of full cond. tensor, etc.
+            with open(
+                    os.path.join(path_dir, "boltztrap.condtens_fixdoping"),
+                    'r') as f:
+                for line in f:
+                    if not line.startswith("#") and len(line) > 2:
+                        data_doping_full.append([float(c)
+                                                 for c in line.split()])
+
+            # parse doping levels version of full hall tensor
+            with open(
+                    os.path.join(path_dir, "boltztrap.halltens_fixdoping"),
+                    'r') as f:
+                for line in f:
+                    if not line.startswith("#") and len(line) > 2:
+                        data_doping_hall.append(
+                            [float(c) for c in line.split()])
+
+        # 2. Convert step: convert raw data to final format
+
+        # sort t and mu_steps (b/c they are sets not lists)
+        # and convert to correct energy
+        t_steps = sorted([t for t in t_steps])
+        mu_steps = sorted([Energy(m, "Ry").to("eV") for m in mu_steps])
+
+        # initialize output variables - could use defaultdict instead
+        # I am leaving things like this for clarity
+        cond = {t: [] for t in t_steps}
+        seebeck = {t: [] for t in t_steps}
+        kappa = {t: [] for t in t_steps}
+        hall = {t: [] for t in t_steps}
+        carrier_conc = {t: [] for t in t_steps}
+        dos_full = {'energy': [], 'density': []}
+
+        mu_doping = {'p': {t: [] for t in t_steps},
+                     'n': {t: [] for t in t_steps}}
+        seebeck_doping = {'p': {t: [] for t in t_steps},
+                          'n': {t: [] for t in t_steps}}
+        cond_doping = {'p': {t: [] for t in t_steps},
+                       'n': {t: [] for t in t_steps}}
+        kappa_doping = {'p': {t: [] for t in t_steps},
+                        'n': {t: [] for t in t_steps}}
+        hall_doping = {'p': {t: [] for t in t_steps},
+                       'n': {t: [] for t in t_steps}}
+
+        # process doping levels
+        pn_doping_levels = {'p': [], 'n': []}
+        for d in doping_levels:
+            if d > 0:
+                pn_doping_levels['p'].append(d)
+            else:
+                pn_doping_levels['n'].append(-d)
+
+        # process raw conductivity data, etc.
+        for d in data_full:
+            temp, doping = d[1], d[2]
+            carrier_conc[temp].append(doping)
+
+            cond[temp].append(np.reshape(d[3:12], (3, 3)).tolist())
+            seebeck[temp].append(np.reshape(d[12:21], (3, 3)).tolist())
+            kappa[temp].append(np.reshape(d[21:30], (3, 3)).tolist())
+
+        # process raw Hall data
+        for d in data_hall:
+            temp, doping = d[1], d[2]
+            hall_tens = [np.reshape(d[3:12], (3, 3)).tolist(),
+                         np.reshape(d[12:21], (3, 3)).tolist(),
+                         np.reshape(d[21:30], (3, 3)).tolist()]
+            hall[temp].append(hall_tens)
+
+        # process doping conductivity data, etc.
+        for d in data_doping_full:
+            temp, doping, mu = d[0], d[1], d[-1]
+            pn = 'p' if doping > 0 else 'n'
+            mu_doping[pn][temp].append(Energy(mu, "Ry").to("eV"))
+            cond_doping[pn][temp].append(
+                np.reshape(d[2:11], (3, 3)).tolist())
+            seebeck_doping[pn][temp].append(
+                np.reshape(d[11:20], (3, 3)).tolist())
+            kappa_doping[pn][temp].append(
+                np.reshape(d[20:29], (3, 3)).tolist())
+
+        # process doping Hall data
+        for d in data_doping_hall:
+            temp, doping, mu = d[0], d[1], d[-1]
+            pn = 'p' if doping > 0 else 'n'
+            hall_tens = [np.reshape(d[2:11], (3, 3)).tolist(),
+                         np.reshape(d[11:20], (3, 3)).tolist(),
+                         np.reshape(d[20:29], (3, 3)).tolist()]
+            hall_doping[pn][temp].append(hall_tens)
+
+        return mu_steps, cond, seebeck, kappa, hall, pn_doping_levels, \
+               mu_doping, seebeck_doping, cond_doping, kappa_doping, \
+               hall_doping, carrier_conc
 
     @staticmethod
     def from_files(path_dir, dos_spin=1):
@@ -1508,121 +1641,10 @@ class BoltztrapAnalyzer(object):
                 path_dir, efermi, dos_spin=dos_spin, process_dos=False,
                 normalize_dos=False)
 
-            # 1. Parse steps: parse raw data but do not convert to final format
-
-            t_steps = set()
-            mu_steps = set()
-            data_full = []
-            data_hall = []
-            data_doping_full = []
-            data_doping_hall = []
-
-            # parse the full conductivity/Seebeck/kappa0/etc data
-            ## also initialize t_steps and mu_steps
-            with open(os.path.join(path_dir, "boltztrap.condtens"), 'r') as f:
-                for line in f:
-                    if not line.startswith("#"):
-                        mu_steps.add(float(line.split()[0]))
-                        t_steps.add(int(float(line.split()[1])))
-                        data_full.append([float(c) for c in line.split()])
-
-            # parse the full Hall tensor
-            with open(os.path.join(path_dir, "boltztrap.halltens"), 'r') as f:
-                for line in f:
-                    if not line.startswith("#"):
-                        data_hall.append([float(c) for c in line.split()])
-
-            if len(doping_levels) != 0:
-                # parse doping levels version of full cond. tensor, etc.
-                with open(
-                        os.path.join(path_dir, "boltztrap.condtens_fixdoping"),
-                        'r') as f:
-                    for line in f:
-                        if not line.startswith("#") and len(line) > 2:
-                            data_doping_full.append([float(c)
-                                                     for c in line.split()])
-
-                # parse doping levels version of full hall tensor
-                with open(
-                        os.path.join(path_dir, "boltztrap.halltens_fixdoping"),
-                        'r') as f:
-                    for line in f:
-                        if not line.startswith("#") and len(line) > 2:
-                            data_doping_hall.append(
-                                [float(c) for c in line.split()])
-
-            # 2. Convert step: convert raw data to final format
-
-            # sort t and mu_steps (b/c they are sets not lists)
-            # and convert to correct energy
-            t_steps = sorted([t for t in t_steps])
-            mu_steps = sorted([Energy(m, "Ry").to("eV") for m in mu_steps])
-
-            # initialize output variables - could use defaultdict instead
-            # I am leaving things like this for clarity
-            cond = {t: [] for t in t_steps}
-            seebeck = {t: [] for t in t_steps}
-            kappa = {t: [] for t in t_steps}
-            hall = {t: [] for t in t_steps}
-            carrier_conc = {t: [] for t in t_steps}
-            dos_full = {'energy': [], 'density': []}
-
-            mu_doping = {'p': {t: [] for t in t_steps},
-                         'n': {t: [] for t in t_steps}}
-            seebeck_doping = {'p': {t: [] for t in t_steps},
-                              'n': {t: [] for t in t_steps}}
-            cond_doping = {'p': {t: [] for t in t_steps},
-                           'n': {t: [] for t in t_steps}}
-            kappa_doping = {'p': {t: [] for t in t_steps},
-                            'n': {t: [] for t in t_steps}}
-            hall_doping = {'p': {t: [] for t in t_steps},
-                           'n': {t: [] for t in t_steps}}
-
-            # process doping levels
-            pn_doping_levels = {'p': [], 'n': []}
-            for d in doping_levels:
-                if d > 0:
-                    pn_doping_levels['p'].append(d)
-                else:
-                    pn_doping_levels['n'].append(-d)
-
-            # process raw conductivity data, etc.
-            for d in data_full:
-                temp, doping = d[1], d[2]
-                carrier_conc[temp].append(doping)
-
-                cond[temp].append(np.reshape(d[3:12], (3, 3)).tolist())
-                seebeck[temp].append(np.reshape(d[12:21], (3, 3)).tolist())
-                kappa[temp].append(np.reshape(d[21:30], (3, 3)).tolist())
-
-            # process raw Hall data
-            for d in data_hall:
-                temp, doping = d[1], d[2]
-                hall_tens = [np.reshape(d[3:12], (3, 3)).tolist(),
-                             np.reshape(d[12:21], (3, 3)).tolist(),
-                             np.reshape(d[21:30], (3, 3)).tolist()]
-                hall[temp].append(hall_tens)
-
-            # process doping conductivity data, etc.
-            for d in data_doping_full:
-                temp, doping, mu = d[0], d[1], d[-1]
-                pn = 'p' if doping > 0 else 'n'
-                mu_doping[pn][temp].append(Energy(mu, "Ry").to("eV"))
-                cond_doping[pn][temp].append(
-                    np.reshape(d[2:11], (3, 3)).tolist())
-                seebeck_doping[pn][temp].append(
-                    np.reshape(d[11:20], (3, 3)).tolist())
-                kappa_doping[pn][temp].append(
-                    np.reshape(d[20:29], (3, 3)).tolist())
-
-            # process doping Hall data
-            for d in data_doping_hall:
-                temp, doping, mu = d[0], d[1], d[-1]
-                pn = 'p' if doping > 0 else 'n'
-                hall_tens = [np.reshape(d[2:11], (3, 3)).tolist(),
-                             np.reshape(d[11:20], (3, 3)).tolist(),
-                             np.reshape(d[20:29], (3, 3)).tolist()]
-                hall_doping[pn][temp].append(hall_tens)
+            mu_steps, cond, seebeck, kappa, hall, pn_doping_levels, mu_doping,\
+            seebeck_doping, cond_doping, kappa_doping, hall_doping, \
+            carrier_conc = BoltztrapAnalyzer.\
+                parse_cond_and_hall(path_dir, doping_levels)
 
             return BoltztrapAnalyzer(
                 gap, mu_steps, cond, seebeck, kappa, hall, pn_doping_levels,
