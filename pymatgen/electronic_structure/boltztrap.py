@@ -876,7 +876,7 @@ class BoltztrapAnalyzer(object):
             raise BoltztrapError(
                 "band check implemented only for bandstructure with gap")
 
-    def get_seebeck(self, output='eig', doping_levels=True):
+    def get_seebeck(self, output='eigs', doping_levels=True):
         """
             Gives the seebeck coefficient (microV/K) in either a
             full 3x3 tensor form, as 3 eigenvalues, or as the average value
@@ -887,7 +887,7 @@ class BoltztrapAnalyzer(object):
 
             Args:
                 output (string): the type of output. 'tensor' give the full
-                3x3 tensor, 'eig' its 3 eigenvalues and
+                3x3 tensor, 'eigs' its 3 eigenvalues and
                 'average' the average of the three eigenvalues
                 doping_levels (boolean): True for the results to be given at
                 different doping levels, False for results
@@ -900,7 +900,7 @@ class BoltztrapAnalyzer(object):
                 {temp:[]} dictionary
                 The result contains either the sorted three eigenvalues of
                 the symmetric
-                Seebeck tensor (output='eig') or a full tensor (3x3 array) (
+                Seebeck tensor (output='eigs') or a full tensor (3x3 array) (
                 output='tensor') or as an average
                 (output='average').
 
@@ -911,7 +911,7 @@ class BoltztrapAnalyzer(object):
                                                    output,
                                                    doping_levels, 1e6)
 
-    def get_conductivity(self, output='eig', doping_levels=True,
+    def get_conductivity(self, output='eigs', doping_levels=True,
                          relaxation_time=1e-14):
         """
             Gives the conductivity (1/Ohm*m) in either a full 3x3 tensor
@@ -923,7 +923,7 @@ class BoltztrapAnalyzer(object):
 
             Args:
                 output (string): the type of output. 'tensor' give the full
-                3x3 tensor, 'eig' its 3 eigenvalues and
+                3x3 tensor, 'eigs' its 3 eigenvalues and
                 'average' the average of the three eigenvalues
                 doping_levels (boolean): True for the results to be given at
                 different doping levels, False for results
@@ -937,7 +937,7 @@ class BoltztrapAnalyzer(object):
                 doping. Otherwise,
                 returns a {temp:[]} dictionary. The result contains either
                 the sorted three eigenvalues of the symmetric
-                conductivity tensor (format='eig') or a full tensor (3x3
+                conductivity tensor (format='eigs') or a full tensor (3x3
                 array) (output='tensor') or as an average
                 (output='average').
                 The result includes a given constant relaxation time
@@ -949,7 +949,7 @@ class BoltztrapAnalyzer(object):
                                                    doping_levels,
                                                    relaxation_time)
 
-    def get_power_factor(self, output='eig', doping_levels=True,
+    def get_power_factor(self, output='eigs', doping_levels=True,
                          relaxation_time=1e-14):
         """
         Gives the power factor (Seebeck^2 * conductivity) in units
@@ -962,7 +962,7 @@ class BoltztrapAnalyzer(object):
 
         Args:
             output (string): the type of output. 'tensor' give the full 3x3
-            tensor, 'eig' its 3 eigenvalues and
+            tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
             doping_levels (boolean): True for the results to be given at
             different doping levels, False for results
@@ -976,7 +976,7 @@ class BoltztrapAnalyzer(object):
             Otherwise,
             returns a {temp:[]} dictionary. The result contains either the
             sorted three eigenvalues of the symmetric
-            power factor tensor (format='eig') or a full tensor (3x3 array) (
+            power factor tensor (format='eigs') or a full tensor (3x3 array) (
             output='tensor') or as an average
             (output='average').
             The result includes a given constant relaxation time
@@ -996,8 +996,7 @@ class BoltztrapAnalyzer(object):
                         full_tensor = np.dot(self._cond_doping[doping][t][i],
                                              np.dot(
                                                  self._seebeck_doping[doping][
-                                                     t][
-                                                     i],
+                                                     t][i],
                                                  self._seebeck_doping[doping][
                                                      t][
                                                      i]))
@@ -1016,7 +1015,7 @@ class BoltztrapAnalyzer(object):
                                                    output, doping_levels,
                                                    multi=1e6 * relaxation_time)
 
-    def get_thermal_conductivity(self, output='eig', doping_levels=True,
+    def get_thermal_conductivity(self, output='eigs', doping_levels=True,
                                  relaxation_time=1e-14):
         """
         Gives the electronic part of the thermal conductivity in either a
@@ -1029,7 +1028,7 @@ class BoltztrapAnalyzer(object):
 
         Args:
             output (string): the type of output. 'tensor' give the full 3x3
-            tensor, 'eig' its 3 eigenvalues and
+            tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
             doping_levels (boolean): True for the results to be given at
             different doping levels, False for results
@@ -1043,7 +1042,7 @@ class BoltztrapAnalyzer(object):
             doping. Otherwise,
             returns a {temp:[]} dictionary. The result contains either the
             sorted three eigenvalues of the symmetric
-            conductivity tensor (format='eig') or a full tensor (3x3 array) (
+            conductivity tensor (format='eigs') or a full tensor (3x3 array) (
             output='tensor') or as an average
             (output='average').
             The result includes a given constant relaxation time
@@ -1082,7 +1081,7 @@ class BoltztrapAnalyzer(object):
                                                    output, doping_levels,
                                                    multi=relaxation_time)
 
-    def get_zt(self, output='eig', doping_levels=True, relaxation_time=1e-14,
+    def get_zt(self, output='eigs', doping_levels=True, relaxation_time=1e-14,
                kl=0.2):
         """
         Gives the ZT coefficient (S^2*cond*T/thermal cond) in either a full
@@ -1097,7 +1096,7 @@ class BoltztrapAnalyzer(object):
 
         Args:
             output (string): the type of output. 'tensor' give the full 3x3
-            tensor, 'eig' its 3 eigenvalues and
+            tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
             doping_levels (boolean): True for the results to be given at
             different doping levels, False for results
@@ -1109,7 +1108,7 @@ class BoltztrapAnalyzer(object):
             at p-type doping and 'n' to the ZT at n-type doping. Otherwise,
             returns a {temp:[]} dictionary. The result contains either the
             sorted three eigenvalues of the symmetric
-            ZT tensor (format='eig') or a full tensor (3x3 array) (
+            ZT tensor (format='eigs') or a full tensor (3x3 array) (
             output='tensor') or as an average
             (output='average').
             The result includes a given constant relaxation time and lattice
@@ -1154,7 +1153,7 @@ class BoltztrapAnalyzer(object):
         return BoltztrapAnalyzer._format_to_output(result, result_doping,
                                                    output, doping_levels)
 
-    def get_average_eff_mass(self, output='eig'):
+    def get_average_eff_mass(self, output='eigs'):
         """
         Gives the average effective mass tensor. We call it average because
         it takes into account all the bands
@@ -1214,7 +1213,7 @@ class BoltztrapAnalyzer(object):
                                                                i] * 10 ** 6 *
                                                            e ** 2 /
                                                            m_e)
-                    elif output == 'eig':
+                    elif output in ['eig', 'eigs']:
                         result_doping[doping][temp].append(
                             sorted(np.linalg.eigh(np.linalg.inv(
                                 np.array(self._cond_doping[doping][temp][i])) *
@@ -1233,9 +1232,9 @@ class BoltztrapAnalyzer(object):
                                                                 2]) / 3.0)
         return result_doping
 
-    def get_extreme(self, target_prop, maximize=True, min_temp=None, max_temp=None,
-                    min_doping=None, max_doping=None, isotropy_tolerance=0.05,
-                    use_average=True):
+    def get_extreme(self, target_prop, maximize=True, min_temp=None,
+                    max_temp=None, min_doping=None, max_doping=None,
+                    isotropy_tolerance=0.05, use_average=True):
 
         """
         This method takes in eigenvalues over a range of carriers,
@@ -1263,6 +1262,10 @@ class BoltztrapAnalyzer(object):
         def is_isotropic(x, isotropy_tolerance):
             """
             Internal method to tell you if 3-vector "x" is isotropic
+
+            Args:
+                x: the vector to determine isotropy for
+                isotropy_tolerance: tolerance, e.g. 0.05 is 5%
             """
             if len(x) != 3:
                 raise ValueError("Invalid input to is_isotropic!")
@@ -1274,19 +1277,19 @@ class BoltztrapAnalyzer(object):
                    (abs((st[2]-st[1])/st[2]) <= isotropy_tolerance)
 
         if target_prop.lower() == "seebeck":
-            d = self.get_seebeck(output="eig", doping_levels=True)
+            d = self.get_seebeck(output="eigs", doping_levels=True)
 
         elif target_prop.lower() == "power factor":
-            d = self.get_power_factor(output="eig", doping_levels=True)
+            d = self.get_power_factor(output="eigs", doping_levels=True)
 
         elif target_prop.lower() == "conductivity":
-            d = self.get_conductivity(output="eig", doping_levels=True)
+            d = self.get_conductivity(output="eigs", doping_levels=True)
 
         elif target_prop.lower() == "kappa":
-            d = self.get_thermal_conductivity(output="eig",
+            d = self.get_thermal_conductivity(output="eigs",
                                               doping_levels=True)
         elif target_prop.lower() == "zt":
-            d = self.get_zt(output="eig", doping_levels=True)
+            d = self.get_zt(output="eigs", doping_levels=True)
 
         else:
             raise ValueError("Target property: {} not recognized!".
@@ -1351,35 +1354,41 @@ class BoltztrapAnalyzer(object):
             for doping in full_tensor:
                 for temp in full_tensor[doping]:
                     for i in range(len(full_tensor[doping][temp])):
-                        if output == 'eig':
+                        if output in ['eig', 'eigs']:
                             result[doping][temp].append(sorted(
                                 np.linalg.eigh(full_tensor[doping][temp][i])[
                                     0] * multi))
                         elif output == 'tensor':
                             result[doping][temp].append(
                                 np.array(full_tensor[doping][temp][i]) * multi)
-                        else:
+                        elif output == 'average':
                             result[doping][temp].append(
                                 (full_tensor[doping][temp][i][0][0] \
                                  + full_tensor[doping][temp][i][1][1] \
                                  + full_tensor[doping][temp][i][2][
                                      2]) * multi / 3.0)
+                        else:
+                            raise ValueError("Unknown output format: "
+                                             "{}".format(output))
         else:
             full_tensor = tensor
             result = {t: [] for t in tensor}
             for temp in full_tensor:
                 for i in range(len(tensor[temp])):
-                    if output == 'eig':
+                    if output in ['eig', 'eigs']:
                         result[temp].append(sorted(
                             np.linalg.eigh(full_tensor[temp][i])[0] * multi))
                     elif output == 'tensor':
                         result[temp].append(
                             np.array(full_tensor[temp][i]) * multi)
-                    else:
+                    elif output == 'average':
                         result[temp].append((full_tensor[temp][i][0][0]
                                              + full_tensor[temp][i][1][1]
                                              + full_tensor[temp][i][2][
                                                  2]) * multi / 3.0)
+                    else:
+                        raise ValueError("Unknown output format: {}".
+                                         format(output))
         return result
 
     def get_complete_dos(self, structure, analyzer_for_second_spin=None):

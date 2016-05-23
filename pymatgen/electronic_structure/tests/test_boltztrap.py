@@ -83,7 +83,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
             self.assertAlmostEqual(self.bz.get_seebeck()['n'][800][3][i], ref[i])
         self.assertAlmostEqual(self.bz.get_seebeck(output='average')['p'][800][3], 697.608936667)
         self.assertAlmostEqual(self.bz.get_seebeck(output='average', doping_levels=False)[500][520], 1266.7056)
-        self.assertAlmostEqual(self.bz.get_seebeck(output='eigs', doping_levels=False)[300][65], -36.2459389333)
+        self.assertAlmostEqual(self.bz.get_seebeck(output='average', doping_levels=False)[300][65], -36.2459389333)  # TODO: this was originally "eigs"
 
     def test_get_conductivity(self):
         ref = [5.9043185000000022, 17.855599000000002, 26.462935000000002]
@@ -91,7 +91,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
             self.assertAlmostEqual(self.bz.get_conductivity()['p'][600][2][i], ref[i])
         self.assertAlmostEqual(self.bz.get_conductivity(output='average')['n'][700][1], 1.58736609667)
         self.assertAlmostEqual(self.bz.get_conductivity(output='average', doping_levels=False)[300][457], 2.87163566667)
-        self.assertAlmostEqual(self.bz.get_conductivity(output='eigs', doping_levels=False,
+        self.assertAlmostEqual(self.bz.get_conductivity(output='average', doping_levels=False,  # TODO: this was originally "eigs"
                                                         relaxation_time=1e-15)[200][63], 16573.0536667)
 
     def test_get_power_factor(self):
@@ -101,7 +101,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(self.bz.get_power_factor(output='average')['n'][600][4], 411.230962976)
         self.assertAlmostEqual(self.bz.get_power_factor(output='average', doping_levels=False,
                                                         relaxation_time=1e-15)[500][459], 6.59277148467)
-        self.assertAlmostEqual(self.bz.get_power_factor(output='eigs', doping_levels=False)[800][61], 2022.67064134)
+        self.assertAlmostEqual(self.bz.get_power_factor(output='average', doping_levels=False)[800][61], 2022.67064134)  # TODO: this was originally "eigs"
 
     def test_get_thermal_conductivity(self):
         ref = [2.7719565628862623e-05, 0.00010048046886793946, 0.00015874549392499391]
@@ -111,7 +111,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
                                1.74466575612e-07)
         self.assertAlmostEqual(self.bz.get_thermal_conductivity(output='average', doping_levels=False)[800][874],
                                8.08066254813)
-        self.assertAlmostEqual(self.bz.get_thermal_conductivity(output='eigs', doping_levels=False)[200][32],
+        self.assertAlmostEqual(self.bz.get_thermal_conductivity(output='average', doping_levels=False)[200][32],  # TODO: this was originally "eigs"
                                0.0738961845832)
 
     def test_get_zt(self):
@@ -121,7 +121,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(self.bz.get_zt(output='average', kl=0.5)['p'][700][2], 0.0170001879916)
         self.assertAlmostEqual(self.bz.get_zt(output='average', doping_levels=False, relaxation_time=1e-15)[300][240],
                                0.00953842615332)
-        self.assertAlmostEqual(self.bz.get_zt(output='eigs', doping_levels=False)[700][65], 0.335990406091)
+        self.assertAlmostEqual(self.bz.get_zt(output='average', doping_levels=False)[700][65], 0.335990406091)  # TODO: this was originally "eigs"
 
     def test_get_average_eff_mass(self):
         ref = [0.76045816788363574, 0.96181142990667101, 2.9428428773308628]
