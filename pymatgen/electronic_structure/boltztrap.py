@@ -1495,6 +1495,7 @@ class BoltztrapAnalyzer(object):
 
         Args:
             path_dir: directory where the boltztrap files are
+            dos_spin: in DOS mode, set to 1 for spin up and -1 for spin down
 
         Returns:
             a BoltztrapAnalyzer object
