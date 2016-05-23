@@ -16,7 +16,8 @@ def run_script():
     setup_help = 'Used to setup the configuration of the package '
     setup_help += '(MaterialsProject access, ICSD database access, package options, ...)'
     parser.add_argument('-s', '--setup', help=setup_help, action='store_true')
-    parser.add_argument('-m', '--message-level', help='Message level (DEBUG, INFO, WARNING, ERROR or CRITICAL)',
+    parser.add_argument('-m', '--message-level', help='Message level (DEBUG, INFO, WARNING, ERROR or CRITICAL - '
+                                                      'default : WARNING)',
                         default='WARNING')
     args = parser.parse_args()
     if args.setup:

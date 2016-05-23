@@ -667,11 +667,18 @@ class LocalGeometryFinder(object):
         else:
             neighb_coords = [neighb_coords[ii] for ii in indices]
 
-        if random_scale:
-            scale = 0.1 * np.random.random_sample() + 0.95
-            coords = [scale * cc for cc in coords]
-            neighb_coords = [scale * cc for cc in neighb_coords]
-        if random_rotation:
+        # Scaling the test environment
+        if random_scale == 'RANDOM':
+            scale = 0.1*np.random.random_sample() + 0.95
+        elif random_scale == 'NONE':
+            scale = 1.0
+        else:
+            scale = random_scale
+        coords = [scale * cc for cc in coords]
+        neighb_coords = [scale * cc for cc in neighb_coords]
+
+        # Rotating the test environment
+        if random_rotation == 'RANDOM':
             uu = np.random.random_sample(3) + 0.1
             uu = uu / norm(uu)
             theta = np.pi * np.random.random_sample()
@@ -680,29 +687,36 @@ class LocalGeometryFinder(object):
             ux = uu[0]
             uy = uu[1]
             uz = uu[2]
-            RR = np.matrix([[ux * ux + (1.0 - ux * ux) * cc,
-                             ux * uy * (1.0 - cc) - uz * ss,
-                             ux * uz * (1.0 - cc) + uy * ss],
-                            [ux * uy * (1.0 - cc) + uz * ss,
-                             uy * uy + (1.0 - uy * uy) * cc,
-                             uy * uz * (1.0 - cc) - ux * ss],
-                            [ux * uz * (1.0 - cc) - uy * ss,
-                             uy * uz * (1.0 - cc) + ux * ss,
-                             uz * uz + (1.0 - uz * uz) * cc]])
-            newcoords = []
-            for cc in coords:
-                newcc = RR * np.matrix(cc).T
-                newcoords.append(newcc.getA1())
-            coords = newcoords
-            newcoords = []
-            for cc in neighb_coords:
-                newcc = RR * np.matrix(cc).T
-                newcoords.append(newcc.getA1())
-            neighb_coords = newcoords
-        if random_translation:
-            translation = 10.0 * (2.0 * np.random.random_sample(3) - 1.0)
-            coords = [cc + translation for cc in coords]
-            neighb_coords = [cc + translation for cc in neighb_coords]
+            RR = np.matrix([[ux*ux+(1.0-ux*ux)*cc, ux*uy*(1.0-cc)-uz*ss, ux*uz*(1.0-cc)+uy*ss],
+                            [ux*uy*(1.0-cc)+uz*ss, uy*uy+(1.0-uy*uy)*cc, uy*uz*(1.0-cc)-ux*ss],
+                            [ux*uz*(1.0-cc)-uy*ss, uy*uz*(1.0-cc)+ux*ss, uz*uz+(1.0-uz*uz)*cc]])
+        elif random_rotation == 'NONE':
+            RR = [[1.0, 0.0, 0.0],
+                  [0.0, 1.0, 0.0],
+                  [0.0, 0.0, 1.0]]
+        else:
+            RR = random_rotation
+        newcoords = []
+        for cc in coords:
+            newcc = RR * np.matrix(cc).T
+            newcoords.append(newcc.getA1())
+        coords = newcoords
+        newcoords = []
+        for cc in neighb_coords:
+            newcc = RR * np.matrix(cc).T
+            newcoords.append(newcc.getA1())
+        neighb_coords = newcoords
+
+        # Translating the test environment
+        if random_translation == 'RANDOM':
+            translation = 10.0 * (2.0*np.random.random_sample(3)-1.0)
+        elif random_translation == 'NONE':
+            translation = np.zeros(3, np.float)
+        else:
+            translation = random_translation
+        coords = [cc + translation for cc in coords]
+        neighb_coords = [cc + translation for cc in neighb_coords]
+
         coords.extend(neighb_coords)
         myspecies = ["O"] * (len(coords))
         myspecies[0] = "Cu"
