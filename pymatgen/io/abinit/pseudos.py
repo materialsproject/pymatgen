@@ -370,28 +370,6 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             with open(self.path, "w") as fh:
                 fh.writelines(lines)
 
-    #def remove_dojo_report(self):
-    #    """Remove the `DOJO_REPORT` section from the pseudopotential file."""
-    #    # Read lines from file and insert jstring between the tags.
-    #    with open(self.path, "r") as fh:
-    #        lines = fh.readlines()
-    #        try:
-    #            start = lines.index("<DOJO_REPORT>\n")
-    #        except ValueError:
-    #            start = -1
-
-    #        if start == -1: return
-
-    #        stop = lines.index("</DOJO_REPORT>\n")
-    #        if stop == -1: return
-
-    #        del lines[start+1:stop]
-
-    #    # Write new file.
-    #    with FileLock(self.path):
-    #        with open(self.path, "w") as fh:
-    #            fh.writelines(lines)
-
     def hint_for_accuracy(self, accuracy="normal"):
         """
         Returns an hint object with parameters such as ecut [Ha] and
@@ -1787,8 +1765,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
             d[symbol] = self.select_symbols(symbol, ret_list=True)
 
         from itertools import product
-        all = product(*d.values())
-        return list(all)
+        return list(product(*d.values()))
 
     def pseudo_with_symbol(self, symbol, allow_multi=False):
         """
@@ -1932,95 +1909,6 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
         """Select pseudos containing the DOJO_REPORT section. Return new class:`PseudoTable` object."""
         return self.select(condition=lambda p: p.has_dojo_report)
 
-    def get_dojo_dataframe(self, **kwargs):
-        """
-        Buid a pandas :class:`DataFrame` with the most important parameters extracted from the
-        `DOJO_REPORT` section of each pseudo in the table.
-
-        Returns:
-            frame, errors
-
-            where frame is the pandas :class:`DataFrame` and errors is a list of errors
-            encountered while trying to read the `DOJO_REPORT` from the pseudopotential file.
-        """
-        accuracies = ["low", "normal", "high"]
-
-        trial2keys = {
-            "deltafactor": ["dfact_meV", "dfactprime_meV"] + ["v0", "b0_GPa", "b1"],
-            "gbrv_bcc": ["a0_rel_err"],
-            "gbrv_fcc": ["a0_rel_err"],
-            "phonon": "all",
-            #"phwoa": "all"
-        }
-
-        rows, names, errors = [], [], []
-
-        for p in self:
-            report = p.dojo_report
-            if "version" not in report:
-                print("ignoring old report in ", p.basename)
-                continue
-
-            d = {"symbol": p.symbol, "Z": p.Z, "filepath": p.filepath}
-            names.append(p.basename)
-
-            ecut_acc = {}
-
-            # read hints
-            for acc in accuracies:
-                try:
-                    d.update({acc + "_ecut_hint": report['hints'][acc]['ecut']})
-                    ecut_acc[acc] = report['hints'][acc]['ecut']
-                except KeyError:
-                    # using -1 for non existing values facilitates plotting
-                    d.update({acc + "_ecut_hint": -1.0 })
-                    ecut_acc[acc] = -1
-
-            for acc in accuracies:
-                d[acc + "_ecut"] = ecut_acc[acc]
-
-            try:
-                for trial, keys in trial2keys.items():
-                    data = report.get(trial, None)
-
-                    if data is None: continue
-
-                    # if the current trial has an entry for this ecut change nothing, else we take the
-                    # smallest, the middle and the highest ecut available for this trials
-                    # precausion, normally either there are hints or not. in the second case they are all set to -1
-                    ecut_acc_trial = dict(
-                        low=sorted(data.keys())[0],
-                        normal=sorted(data.keys())[int(len(data.keys())/2)],
-                        high=sorted(data.keys())[-1],
-                    )
-
-                    for acc in accuracies:
-                        d[acc + "_ecut"] = ecut_acc[acc]
-
-                    for acc in accuracies:
-                        ecut = ecut_acc[acc] if ecut_acc[acc] in data.keys() else ecut_acc_trial[acc]
-                        #store the actuall ecut for this trial
-                        d.update({acc + "_ecut_" + trial: ecut})
-                        if keys is 'all':
-                            ecuts = data
-                            d.update({acc + "_" + trial: data[ecut]})
-                        else:
-                            if trial.startswith("gbrv"):
-                                d.update({acc + "_" + trial + "_" + k: float(data[ecut][k]) for k in keys})
-                            else:
-                                d.update({acc + "_" + k: float(data[ecut][k]) for k in keys})
-
-            except Exception as exc:
-                logger.warning("%s raised %s" % (p.basename, exc))
-                errors.append((p.basename, str(exc)))
-
-            rows.append(d)
-
-        # Build sub-class of pandas.DataFrame
-        # FIXME: 
-        from pseudo_dojo.core.dojoreport import DojoDataFrame
-        return DojoDataFrame(rows, index=names), errors
-
     def select_rows(self, rows):
         """
         Return new class:`PseudoTable` object with pseudos in the given rows of the periodic table.
@@ -2032,74 +1920,3 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
     def select_family(self, family):
         # e.g element.is_alkaline
         return self.__class__([p for p in self if getattr(p.element, "is_" + family)])
-
-    def dojo_compare(self, what="all", **kwargs):
-        """Compare ecut convergence and Deltafactor, GBRV results"""
-        import matplotlib.pyplot as plt
-        show = kwargs.pop("show", True)
-        what = list_strings(what)
-        figs = []
-
-        if all(p.dojo_report.has_trial("deltafactor") for p in self) and \
-               any(k in what for k in ("all", "ecut")):
-
-            fig_etotal, ax_list = plt.subplots(nrows=len(self), ncols=1, sharex=True, squeeze=True)
-            #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(self), ncols=1, sharex=True, squeeze=True)
-            figs.append(fig_etotal)
-
-            for ax, pseudo in zip(ax_list, self):
-                pseudo.dojo_report.plot_etotal_vs_ecut(ax=ax, show=False, label=pseudo.basename)
-            if show: plt.show()
-
-        if all(p.dojo_report.has_trial("deltafactor") for p in self) and \
-               any(k in what for k in ("all", "df", "deltafactor")):
-
-            fig_deltafactor, ax_grid = plt.subplots(nrows=5, ncols=len(self), sharex=True, sharey="row", squeeze=False)
-            #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=5, ncols=len(self), sharex=True, sharey="row", squeeze=False))
-            figs.append(fig_deltafactor)
-
-            for ax_list, pseudo in zip(ax_grid.T, self):
-                #print("pseudo.xc:", pseudo.xc)
-                pseudo.dojo_report.plot_deltafactor_convergence(xc=pseudo.xc, ax_list=ax_list, show=False)
-
-            fig_deltafactor.suptitle(" vs ".join(p.basename for p in self))
-            if show: plt.show()
-
-        # Compare GBRV results
-        if all(p.dojo_report.has_trial("gbrv_bcc") for p in self) and \
-           any(k in what for k in ("all", "gbrv")):
-
-            fig_gbrv, ax_grid = plt.subplots(nrows=2, ncols=len(self), sharex=True, sharey="row", squeeze=False)
-            figs.append(fig_gbrv)
-            #ax_list, fig, plt = get_axarray_fig_plt(ax_list, ncols=len(self), sharex=True, sharey="row", squeeze=False))
-
-            for ax_list, pseudo in zip(ax_grid.T, self):
-                pseudo.dojo_report.plot_gbrv_convergence(ax_list=ax_list, show=False)
-
-            fig_gbrv.suptitle(" vs ".join(p.basename for p in self))
-            if show: plt.show()
-
-        return figs
-
-    @classmethod
-    @deprecated(replacement=from_dir)
-    def from_directory(cls, path):
-        # FIXME: Remove
-        pseudos = []
-        for f in [os.path.join(path, fn) for fn in os.listdir(path)]:
-            if os.path.isfile(f):
-                try:
-                    p = Pseudo.from_file(f)
-                    if p:
-                        pseudos.append(p)
-                    else:
-                        logger.info('Skipping file %s' % f)
-                except:
-                    logger.info('Skipping file %s' % f)
-
-        if not pseudos:
-            logger.warning('No pseudopotentials parsed from folder %s' % path)
-            return None
-
-        logger.info('Creating PseudoTable with %i pseudopotentials' % len(pseudos))
-        return cls(pseudos)
