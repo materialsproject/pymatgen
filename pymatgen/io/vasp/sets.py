@@ -2074,29 +2074,31 @@ class MPSOCSet(MPStaticSet):
 
 class MVLSlabSet(DictVaspInputSet):
     """
-    Class for writing a slab vasp run.
+    Class for writing a set of slab vasp runs,
+    including both slabs (along the c direction) and orient unit cells (bulk),
+    to ensure the same KPOINTS, POTCAR and INCAR criterion.
 
     Args:
         user_incar_settings(dict): A dict specifying additional incar
-            settings, default to None
-            (ediff_per_atom=False)
-        kpoints0: specify kpts[0] = kpoints0, default to []
-        k_product: kpts[0][0]*a. Decide k density without kpoint0,
-        default to 45
+            settings, default to None, ediff_per_atom=False
+        k_product: default to 50, kpoint number * length for a & b directions,
+            also for c direction in bulk calculations
         potcar_functional: default to PBE
         bulk (bool): Set to True for bulk calculation. Defaults to False.
         **kwargs:
             Other kwargs supported by :class:`DictVaspInputSet`.
     """
-    def __init__(self, user_incar_settings=None, kpoints0=[],
-                  k_product=50, potcar_functional='PBE', bulk=False, **kwargs):
+    def __init__(self, user_incar_settings=None, gpu=False, k_product=50,
+                 potcar_functional='PBE', bulk=False, **kwargs):
+
+        user_incar_settings = user_incar_settings or {}
         vis = MPVaspInputSet(ediff_per_atom=False).as_dict()
         DictVaspInputSet.__init__(self, "MVLSlabSet",
                                   vis["config_dict"],
                                   **kwargs)
         incar_settings_basic = {
-            "EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400, "ISMEAR": 0,
-            "SIGMA": 0.05, "ISIF": 3}
+            "EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
+            "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
 
         if bulk:
              self.incar_settings.update(incar_settings_basic)
@@ -2107,19 +2109,31 @@ class MVLSlabSet(DictVaspInputSet):
             incar_settings_basic["BMIX"] = 0.001
             incar_settings_basic["NELMIN"] = 8
             self.incar_settings.update(incar_settings_basic)
-        self.user_incar_settings = user_incar_settings or {}
+
+        if gpu:
+            # Sets KPAR to allow for the use of VASP-gpu
+            if "KPAR" not in user_incar_settings.keys():
+                # KPAR setting of 1 is the safest setting,
+                # but for optimal performance, we normally
+                # use the square root of the number of KPOINTS
+                self.incar_settings["KPAR"] = 1
+            if "NPAR" in self.incar_settings.keys():
+                del self.incar_settings["NPAR"]
+
+
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
 
+        self.user_incar_settings = user_incar_settings
         self.k_product = k_product
-        self.kpoints0 = kpoints0
         self.potcar_functional = potcar_functional
         self.bulk = bulk
 
     def get_kpoints(self, structure):
         """
-        kpoint0 is the first consideration,
-        k_product is a second choice, default to 40
+        k_product, default to 50, is kpoint number * length for a & b directions,
+            also for c direction in bulk calculations
+        Automatic mesh & Gamma is the default setting.
         """
 
         # To get input sets, the input structure has to has the same number
@@ -2140,11 +2154,7 @@ class MVLSlabSet(DictVaspInputSet):
         if self.bulk:
             kpt_calc[2] = int(self.k_product/abc[2]+0.5)
 
-        # kpoint0 is prior to k_product
-        if self.kpoints0:
-            kpt.kpts[0] = self.kpoints0
-        else:
-            kpt.kpts[0] = kpt_calc
+        kpt.kpts[0] = kpt_calc
 
         return kpt
 
@@ -2160,10 +2170,8 @@ class MVLSlabSet(DictVaspInputSet):
                     int(self.k_product/abc[1]+0.5),
                     int(self.k_product/abc[1]+0.5)]
 
-        if self.kpoints0:
-            kpts = self.kpoints0
-        else:
-            kpts = kpt_calc
+
+        kpts = kpt_calc
 
         if kpts[0]<5 and kpts[1]<5:
             if not self.bulk:
@@ -2183,14 +2191,13 @@ class MVLSlabSet(DictVaspInputSet):
     def as_dict(self):
         d = super(MVLSlabSet, self).as_dict()
         d.update({
-            "kpoints0": self.kpoints0,
             "potcar_functional": self.potcar_functional,
             "user_incar_settings": self.user_incar_settings
         })
         return d
 
     def from_dict(cls, d):
-        return cls(kpoints0=d.get("kpoints0", []),
+        return cls(
                    user_incar_settings=d.get("user_incar_settings", None),
                    potcar_functional=d.get("potcar_functional", None))
 

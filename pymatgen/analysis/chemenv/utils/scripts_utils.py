@@ -17,9 +17,10 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 
-from pymatgen import MPRester, Structure
+from pymatgen import MPRester
 from pymatgen.io.cif import CifParser
 try:
+    import vtk
     from pymatgen.vis.structure_vtk import StructureVis
     no_vis = False
 except ImportError:
@@ -32,7 +33,6 @@ except NameError:
     pass
 
 from pymatgen.core.sites import PeriodicSite
-import pymongo
 import re
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import UNCLEAR_ENVIRONMENT_SYMBOL
@@ -123,6 +123,7 @@ def compute_environments(chemenv_configuration):
     #TODO: Add the possibility to change the parameters and save them in the chemenv_configuration
     default_strategy = strategy_class()
     default_strategy.setup_options(chemenv_configuration.package_options['default_strategy']['strategy_options'])
+    max_dist_factor = chemenv_configuration.package_options['default_max_distance_factor']
     firsttime = True
     while True:
         if len(questions) > 1:
@@ -135,10 +136,6 @@ def compute_environments(chemenv_configuration):
                 break
             if test not in list(questions.keys()):
                 for key_character, qq in questions.items():
-                    print(test)
-                    print(test.__class__)
-                    print(string_sources[qq]['regexp'].__class__)
-
                     if re.match(string_sources[qq]['regexp'], str(test)) is not None:
                         found = True
                         source_type = qq
@@ -164,7 +161,7 @@ def compute_environments(chemenv_configuration):
             structure = a.get_structure_by_material_id(input_source)
         lgf.setup_structure(structure)
         print('Computing environments for {} ... '.format(structure.composition.reduced_formula))
-        se = lgf.compute_structure_environments_detailed_voronoi()
+        se = lgf.compute_structure_environments_detailed_voronoi(maximum_distance_factor=max_dist_factor)
         print('Computing environments finished')
         while True:
             test = input('See list of environments determined for each (unequivalent) site ? '
@@ -204,15 +201,17 @@ def compute_environments(chemenv_configuration):
                                                                                    str(comp))
                         for ce in ces:
                             cg = allcg.get_geometry_from_mp_symbol(ce[0])
+                            csm = ce[1]['other_symmetry_measures']['csm_wcs_ctwcc']
                             mystring += ' - {} ({}): {:.2f} % (csm : {:2f})\n'.format(cg.name, cg.mp_symbol,
                                                                                       100.0*ce[2],
-                                                                                      ce[1]['symmetry_measure'])
+                                                                                      csm)
                     if test in ['d', 'g'] and strategy.uniquely_determines_coordination_environments:
                         if thecg.mp_symbol != UNCLEAR_ENVIRONMENT_SYMBOL:
                             mystring += '  <Continuous symmetry measures>  '
                             mingeoms = se.ce_list[isite][thecg.coordination_number][0].minimum_geometries()
                             for mingeom in mingeoms:
-                                mystring += '{} : {:.2f}       '.format(mingeom[0], mingeom[1]['symmetry_measure'])
+                                csm = mingeom[1]['other_symmetry_measures']['csm_wcs_ctwcc']
+                                mystring += '{} : {:.2f}       '.format(mingeom[0], csm)
                     print(mystring)
             if test == 'g':
                 test = input('Enter index of site(s) for which you want to see the grid of parameters : ')

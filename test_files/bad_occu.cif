@@ -1,25 +1,19 @@
-data_107716-ICSD
+data_110578-ICSD
 #c2014 by Fachinformationszentrum Karlsruhe, and the U.S. Secretary of
 #Commerce on behalf of the United States.  All rights reserved.
-_database_code_ICSD                107716
-_audit_creation_date               2006/10/01
+_database_code_ICSD                110578
+_audit_creation_date               2008/08/01
 _chemical_name_systematic
 ;
-Sodium Calcium Manganese Irion Zirconium Cyclo-hexasilicate Hydroxide
-Oxide Hydrate *
+Heptakis(dimethylammonium)
+Tetradecakis(phosphato(V))heptaalumoheptacobaltate
 ;
-_chemical_formula_structural
-;
-Na2.5 Ca.35 Mn.1 Fe.15 Zr.85 (Si6 O12) (O H)4.67 O1.33 (H2 O)
-;
-_chemical_formula_sum
-;
-H6.67 Ca0.35 Fe0.15 Mn0.1 Na2.5 O19 Si6 Zr0.85
-;
-_chemical_name_mineral             Lovozerite
+_chemical_formula_structural       '((C H3)2 N H2)7 (Al7 Co7 (P O4)14)'
+_chemical_formula_sum              'C14 H56 Al7 Co7 N7 O56 P14'
 _publ_section_title
 ;
-Structures of the lovozerite-type - a quantitative investigation
+Transformations of a layer and a chain aluminophosphates to the
+zeotype Al-P-M-O-GIS (M= Co2+, Mn2+, Mg2+)
 ;
 loop_
 _citation_id
@@ -29,72 +23,52 @@ _citation_journal_volume
 _citation_page_first
 _citation_page_last
 _citation_journal_id_ASTM
-primary 'Acta Crystallographica, Section B: Structural Science'
- 1993 49 158 164 ASBSDK
+primary 'Microporous and Mesoporous Materials' 2007 98 47 54 MIMMFJ
 _publ_author_name
 ;
-Malinovskii, Yu.A.;Burzlaff, H.;Rothammel, W.
+Li Jiyang;Song Yu;Yu Jihong;Chen Peng;Xu Ruren
 ;
-_cell_length_a                     10.344
-_cell_length_b                     10.344
-_cell_length_c                     13.149
-_cell_angle_alpha                  90.
-_cell_angle_beta                   90.
-_cell_angle_gamma                  120.
-_cell_volume                       1218.43
-_cell_formula_units_Z              3
-_symmetry_space_group_name_H-M     'R -3 m H'
-_symmetry_Int_Tables_number        166
+_cell_length_a                     71.008(4)
+_cell_length_b                     13.7444(6)
+_cell_length_c                     14.3221(5)
+_cell_angle_alpha                  90
+_cell_angle_beta                   90
+_cell_angle_gamma                  90
+_cell_volume                       13977.83
+_cell_formula_units_Z              8
+_symmetry_space_group_name_H-M     'F d d 2'
+_symmetry_Int_Tables_number        43
+_refine_ls_R_factor_all            0.0796
 loop_
 _symmetry_equiv_pos_site_id
 _symmetry_equiv_pos_as_xyz
-  1    'x-y, -y, -z'
-  2    '-x, -x+y, -z'
-  3    'y, x, -z'
-  4    'x-y, x, -z'
-  5    'y, -x+y, -z'
-  6    '-x, -y, -z'
-  7    '-x+y, y, z'
-  8    'x, x-y, z'
-  9    '-y, -x, z'
- 10    '-x+y, -x, z'
- 11    '-y, x-y, z'
- 12    'x, y, z'
- 13    'x-y+2/3, -y+1/3, -z+1/3'
- 14    'x-y+1/3, -y+2/3, -z+2/3'
- 15    '-x+2/3, -x+y+1/3, -z+1/3'
- 16    '-x+1/3, -x+y+2/3, -z+2/3'
- 17    'y+2/3, x+1/3, -z+1/3'
- 18    'y+1/3, x+2/3, -z+2/3'
- 19    'x-y+2/3, x+1/3, -z+1/3'
- 20    'x-y+1/3, x+2/3, -z+2/3'
- 21    'y+2/3, -x+y+1/3, -z+1/3'
- 22    'y+1/3, -x+y+2/3, -z+2/3'
- 23    '-x+2/3, -y+1/3, -z+1/3'
- 24    '-x+1/3, -y+2/3, -z+2/3'
- 25    '-x+y+2/3, y+1/3, z+1/3'
- 26    '-x+y+1/3, y+2/3, z+2/3'
- 27    'x+2/3, x-y+1/3, z+1/3'
- 28    'x+1/3, x-y+2/3, z+2/3'
- 29    '-y+2/3, -x+1/3, z+1/3'
- 30    '-y+1/3, -x+2/3, z+2/3'
- 31    '-x+y+2/3, -x+1/3, z+1/3'
- 32    '-x+y+1/3, -x+2/3, z+2/3'
- 33    '-y+2/3, x-y+1/3, z+1/3'
- 34    '-y+1/3, x-y+2/3, z+2/3'
- 35    'x+2/3, y+1/3, z+1/3'
- 36    'x+1/3, y+2/3, z+2/3'
+  1    'x+1/4, -y+1/4, z+1/4'
+  2    '-x+1/4, y+1/4, z+1/4'
+  3    '-x, -y, z'
+  4    'x, y, z'
+  5    'x+1/4, -y+3/4, z+3/4'
+  6    'x+3/4, -y+1/4, z+3/4'
+  7    'x+3/4, -y+3/4, z+1/4'
+  8    '-x+1/4, y+3/4, z+3/4'
+  9    '-x+3/4, y+1/4, z+3/4'
+ 10    '-x+3/4, y+3/4, z+1/4'
+ 11    '-x, -y+1/2, z+1/2'
+ 12    '-x+1/2, -y, z+1/2'
+ 13    '-x+1/2, -y+1/2, z'
+ 14    'x, y+1/2, z+1/2'
+ 15    'x+1/2, y, z+1/2'
+ 16    'x+1/2, y+1/2, z'
 loop_
 _atom_type_symbol
 _atom_type_oxidation_number
-Ca2+    2
-Fe3+    3
+Al3+    3
+C4+    4
+Co2+    2
+H1-    -1
 H1+    1
-Mn2+    2
-Na1+    1
+N3-    -3
 O2-    -2
-Si4+    4
-Zr4+    4
+P5+    5
 loop_
 _atom_site_label
 _atom_site_type_symbol
@@ -105,15 +79,70 @@ _atom_site_fract_y
 _atom_site_fract_z
 _atom_site_occupancy
 _atom_site_attached_hydrogens
-Na1 Na1+ 9 e 0.5 0 0 .833 0
-Ca1 Ca2+ 6 c 0 0 0.24764 0.175 0
-Mn1 Mn2+ 6 c 0 0 0.24764 0.05 0
-Fe1 Fe3+ 3 a 0 0 0 .15 0
-Zr1 Zr4+ 3 a 0 0 0 .85 0
-Si1 Si4+ 18 h 0.15124 -.15124 0.56600 1. 0
-O1 O2- 18 g -.25444 0 0.5 1. 0
-O2 O2- 18 h 0.24038 -.24038 0.56018 1. 0
-O3 O2- 18 h 0.11401 -.11401 0.67443 1. 0
-O4 O2- 9 e 0 0.5 0 .333 0
+Co1 Co2+ 8 a 0 0.5 0.31404(17) .778 0
+Al1 Al3+ 16 b 0.29291(4) 0.4814(2) 0.3377(2) .778 0
+Al2 Al3+ 16 b 0.11218(4) 0.7347(2) -0.1304(2) .778 0
+Co2 Co2+ 16 b 0.07444(3) 0.50479(13) 0.14527(14) .778 0
+Al3 Al3+ 8 a 0.25 0.75 -0.1409(3) .778 0
+Co3 Co2+ 16 b 0.02880(3) 0.26675(16) 0.88311(14) .778 0
+Al4 Al3+ 16 b 0.22120(3) 0.51675(16) 0.13311(14) .778 0
+Co4 Co2+ 16 b 0.14860(3) 0.48384(15) 0.32219(14) .778 0
+Al5 Al3+ 16 b 0.18107(3) 0.75596(17) 0.1011(2) .778 0
+Co5 Co2+ 16 b 0.06893(3) 0.00596(17) 0.3511(2) .778 0
+P1 P5+ 16 b 0.07683(4) 0.6720(2) -0.0079(2) 1. 0
+P2 P5+ 16 b 0.03751(4) 0.59468(17) 0.2338(3) 1. 0
+P3 P5+ 16 b 0.18479(4) 0.5852(2) 0.2461(2) 1. 0
+P4 P5+ 16 b 0.14603(4) 0.8190(2) -0.0229(2) 1. 0
+P5 P5+ 16 b 0.21569(5) 0.68348(17) -0.0179(3) 1. 0
+P6 P5+ 16 b 0.11186(5) 0.4051(2) 0.2204(2) 1. 0
+P7 P5+ 16 b 0.25748(4) 0.4182(2) 0.2144(2) 1. 0
+O1 O2- 16 b 0.09663(15) 0.4842(7) 0.2203(8) 1. 0
+O2 O2- 16 b 0.16139(16) 0.7639(9) 0.0294(8) 1. 0
+O3 O2- 16 b 0.13040(15) 0.4525(8) 0.2297(9) 1. 0
+O4 O2- 16 b 0.27602(17) 0.4570(9) 0.2564(8) 1. 0
+O5 O2- 16 b 0.09256(18) 0.7243(8) -0.0554(9) 1. 0
+O6 O2- 16 b 0.05598(16) 0.5349(8) 0.2388(8) 1. 0
+O7 O2- 16 b 0.02049(17) 0.5295(9) 0.2281(8) 1. 0
+O8 O2- 16 b 0.20471(12) 0.5434(7) 0.2287(8) 1. 0
+O9 O2- 16 b 0.17179(15) 0.4983(8) 0.2547(9) 1. 0
+O10 O2- 16 b 0.24424(15) 0.4983(8) 0.1936(8) 1. 0
+O11 O2- 16 b 0.20225(16) 0.7530(7) 0.0253(7) 1. 0
+O12 O2- 16 b 0.11206(16) 0.3478(8) 0.1302(8) 1. 0
+O13 O2- 16 b 0.22885(13) 0.7459(7) -0.0750(8) 1. 0
+O14 O2- 16 b 0.08398(15) 0.6097(7) 0.0719(7) 1. 0
+O15 O2- 16 b 0.17891(17) 0.6494(8) 0.1691(8) 1. 0
+O16 O2- 16 b 0.06503(16) 0.6121(7) -0.0743(8) 1. 0
+O17 O2- 16 b 0.31431(14) 0.4927(6) 0.2816(7) 1. 0
+O18 O2- 16 b 0.13266(15) 0.7454(9) -0.068(1) 1. 0
+O19 O2- 16 b 0.06396(16) 0.3971(8) 0.0854(7) 1. 0
+O20 O2- 16 b 0.22481(16) 0.6216(8) 0.0543(8) 1. 0
+O21 O2- 16 b 0.11401(12) 0.6333(7) -0.2026(7) 1. 0
+O22 O2- 16 b 0.29647(13) 0.3831(7) 0.4170(7) 1. 0
+O23 O2- 16 b 0.24710(13) 0.3585(7) 0.2920(7) 1. 0
+O24 O2- 16 b 0.01171(12) 0.3929(7) 0.3805(8) 1. 0
+O25 O2- 16 b 0.03715(15) 0.6624(9) 0.1462(8) 1. 0
+O26 O2- 16 b 0.10794(15) 0.3422(7) 0.3051(7) 1. 0
+O27 O2- 16 b 0.15576(15) 0.3789(7) 0.4062(8) 1. 0
+O28 O2- 16 b 0.03622(13) 0.6558(8) 0.3216(6) 1. 0
+N1 N3- 16 b 0.1087(2) -0.3186(12) 0.2546(12) 1. 0
+N2 N3- 16 b 0.0366(2) 0.3212(9) 0.2229(13) 1. 0
+N3 N3- 16 b 0.0676(2) 0.5598(11) 0.4423(11) 1. 0
+N4 N3- 8 a 0.25000 -0.75000 0.6925(14) 1. 0
+C1 C4+ 16 b 0.1023(9) -0.227(3) 0.282(5) .5 0
+C2 C4+ 16 b 0.0956(5) -0.243(2) 0.239(3) .5 0
+C3 C4+ 16 b 0.1244(5) -0.268(3) 0.219(3) .5 0
+C4 C4+ 16 b 0.1199(5) -0.272(3) 0.186(2) .5 0
+C5 C4+ 16 b 0.0228(7) 0.252(3) 0.195(4) .25 0
+C6 C4+ 16 b 0.0194(5) 0.272(4) 0.190(4) .5 0
+C7 C4+ 16 b 0.0221(12) 0.272(9) 0.174(6) .25 0
+C8 C4+ 16 b 0.0529(4) 0.301(3) 0.281(3) .25 0
+C9 C4+ 16 b 0.0379(9) 0.232(3) 0.269(4) .5 0
+C10 C4+ 16 b 0.0522(8) 0.275(5) 0.267(5) .25 0
+C11 C4+ 16 b 0.0528(2) 0.5406(14) 0.5100(14) .5 0
+C12 C4+ 16 b 0.0701(14) 0.457(2) 0.445(7) .5 0
+C13 C4+ 16 b 0.0845(3) 0.4967(16) 0.4515(17) .5 0
+C14 C4+ 16 b 0.0867(5) 0.526(5) 0.431(5) .5 0
+C15 C4+ 16 b 0.2460(5) -0.693(2) 0.7751(18) .5 0
+C16 C4+ 16 b 0.2330(3) -0.7275(17) 0.7376(16) .5 0
 #Position of  Element of H Is Undetermined.
-
+#Position of  Element of H Is Undetermined
