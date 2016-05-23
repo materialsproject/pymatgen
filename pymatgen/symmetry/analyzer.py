@@ -368,7 +368,8 @@ class SpacegroupAnalyzer(object):
             return conv
 
         if lattice == "rhombohedral":
-            #check if the conventional representation is hexagonal or rhombohedral
+            # check if the conventional representation is hexagonal or
+            # rhombohedral
             lengths, angles = conv.lattice.lengths_and_angles
             if abs(lengths[0]-lengths[2]) < 0.0001:
                 transf = np.eye
