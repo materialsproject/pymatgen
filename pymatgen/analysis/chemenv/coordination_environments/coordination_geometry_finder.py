@@ -672,6 +672,8 @@ class LocalGeometryFinder(object):
             scale = 0.1*np.random.random_sample() + 0.95
         elif random_scale == 'NONE':
             scale = 1.0
+        else:
+            scale = random_scale
         coords = [scale * cc for cc in coords]
         neighb_coords = [scale * cc for cc in neighb_coords]
 
@@ -692,6 +694,8 @@ class LocalGeometryFinder(object):
             RR = [[1.0, 0.0, 0.0],
                   [0.0, 1.0, 0.0],
                   [0.0, 0.0, 1.0]]
+        else:
+            RR = random_rotation
         newcoords = []
         for cc in coords:
             newcc = RR * np.matrix(cc).T
@@ -708,6 +712,8 @@ class LocalGeometryFinder(object):
             translation = 10.0 * (2.0*np.random.random_sample(3)-1.0)
         elif random_translation == 'NONE':
             translation = np.zeros(3, np.float)
+        else:
+            translation = random_translation
         coords = [cc + translation for cc in coords]
         neighb_coords = [cc + translation for cc in neighb_coords]
 
