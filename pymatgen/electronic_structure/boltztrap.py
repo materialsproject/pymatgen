@@ -1215,6 +1215,114 @@ class BoltztrapAnalyzer(object):
                                                                 2]) / 3.0)
         return result_doping
 
+    def get_extreme(self, target_prop, maximize=True, min_temp=None, max_temp=None,
+                    min_doping=None, max_doping=None, isotropy_tolerance=0.05,
+                    use_average=True):
+
+        """
+        This method takes in eigenvalues over a range of carriers,
+        temperatures, and doping levels, and tells you what is the "best"
+        value that can be achieved for the given target_property. Note that
+        this method searches the doping dict only, not the full mu dict.
+
+        Args:
+            target_prop: target property, i.e. "seebeck", "power factor",
+                         "conductivity", "kappa", or "zt"
+            maximize: True to maximize, False to minimize (e.g. kappa)
+            min_temp: minimum temperature allowed
+            max_temp: maximum temperature allowed
+            min_doping: minimum doping allowed (e.g., 1E18)
+            max_doping: maximum doping allowed (e.g., 1E20)
+            isotropy_tolerance: tolerance for isotropic (0.05 = 5%)
+            use_average: True for avg of eigenval, False for max eigenval
+
+        Returns:
+            A dictionary with keys {"p", "n", "best"} with sub-keys:
+            {"value", "temperature", "doping", "isotropic"}
+
+        """
+
+        def is_isotropic(x, isotropy_tolerance):
+            """
+            Internal method to tell you if 3-vector "x" is isotropic
+            """
+            if len(x) != 3:
+                raise ValueError("Invalid input to is_isotropic!")
+
+            st = sorted(x)
+            return all([st[0],st[1],st[2]]) and \
+                   (abs((st[1]-st[0])/st[1]) <= isotropy_tolerance) and \
+                   (abs((st[2]-st[0]))/st[2] <= isotropy_tolerance) and \
+                   (abs((st[2]-st[1])/st[2]) <= isotropy_tolerance)
+
+        if target_prop.lower() == "seebeck":
+            d = self.get_seebeck(output="eig", doping_levels=True)
+
+        elif target_prop.lower() == "power factor":
+            d = self.get_power_factor(output="eig", doping_levels=True)
+
+        elif target_prop.lower() == "conductivity":
+            d = self.get_conductivity(output="eig", doping_levels=True)
+
+        elif target_prop.lower() == "kappa":
+            d = self.get_thermal_conductivity(output="eig",
+                                              doping_levels=True)
+        elif target_prop.lower() == "zt":
+            d = self.get_zt(output="eig", doping_levels=True)
+
+        else:
+            raise ValueError("Target property: {} not recognized!".
+                             format(target_prop))
+
+        absval = True  # take the absolute value of properties
+
+        x_val = None
+        x_temp = None
+        x_doping = None
+        x_isotropic = None
+        output = {}
+
+        min_temp = min_temp or 0
+        max_temp = max_temp or float('inf')
+        min_doping = min_doping or 0
+        max_doping = max_doping or float('inf')
+
+        for pn in ('p', 'n'):
+            for t in d[pn]:  # temperatures
+                if min_temp <= float(t) <= max_temp:
+                    for didx, evs in enumerate(d[pn][t]):
+                        doping_lvl = self.doping[pn][didx]
+                        if min_doping <= doping_lvl <= max_doping:
+                            isotropic = is_isotropic(evs, isotropy_tolerance)
+                            if absval:
+                                evs = [abs(x) for x in evs]
+                            if use_average:
+                                val = float(sum(evs))/len(evs)
+                            else:
+                                val = max(evs)
+                            if x_val is None or (val > x_val and maximize) \
+                                    or (val < x_val and not maximize):
+                                x_val = val
+                                x_temp = t
+                                x_doping = doping_lvl
+                                x_isotropic = isotropic
+
+            output[pn] = {'value': x_val, 'temperature': x_temp,
+                          'doping': x_doping, 'isotropic': x_isotropic}
+            x_val = None
+
+        if maximize:
+            max_type = 'p' if output['p']['value'] >= \
+                              output['n']['value'] else 'n'
+        else:
+            max_type = 'p' if output['p']['value'] <= \
+                              output['n']['value'] else 'n'
+
+        output['best'] = output[max_type]
+        output['best']['carrier_type'] = max_type
+
+        return output
+
     @staticmethod
     def _format_to_output(tensor, tensor_doping, output, doping_levels,
                           multi=1.0):
@@ -1418,7 +1526,6 @@ class BoltztrapAnalyzer(object):
                     total_elec = float(line.split()[2])
 
         if normalize_dos:
-            # TODO: do we want to normalize the DOS or no? unit tests fail...
             ## normalize the DOS to 2*DOS / total electrons
             ## TODO: why is there a 2X multiplier?
             data_dos['total'] = [
