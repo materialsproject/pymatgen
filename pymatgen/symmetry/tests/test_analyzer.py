@@ -55,6 +55,13 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.sg4 = SpacegroupAnalyzer(graphite, 0.001)
         self.structure4 = graphite
 
+    def test_primitive(self):
+        s = Structure.from_spacegroup("Fm-3m", np.eye(3) * 3, ["Cu"],
+                                      [[0, 0, 0]])
+        a = SpacegroupAnalyzer(s)
+        self.assertEqual(len(s), 4)
+        self.assertEqual(len(a.find_primitive()), 1)
+
     def test_magnetic(self):
         lfp = PymatgenTest.get_structure("LiFePO4")
         sg = SpacegroupAnalyzer(lfp, 0.1)
@@ -101,11 +108,13 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         for sg, structure in [(self.sg, self.structure),
                               (self.sg4, self.structure4)]:
 
+            pgops = sg.get_point_group_operations()
             fracsymmops = sg.get_symmetry_operations()
             symmops = sg.get_symmetry_operations(True)
-            #self.assertEqual(len(symmops), 8)
             latt = structure.lattice
-            for fop, op in zip(fracsymmops, symmops):
+            for fop, op, pgop in zip(fracsymmops, symmops, pgops):
+                self.assertArrayAlmostEqual(fop.rotation_matrix,
+                                            pgop.rotation_matrix)
                 for site in structure:
                     newfrac = fop.operate(site.frac_coords)
                     newcart = op.operate(site.coords)
