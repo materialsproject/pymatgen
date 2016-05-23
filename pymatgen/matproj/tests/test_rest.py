@@ -31,6 +31,8 @@ from pymatgen.phasediagram.analyzer import PDAnalyzer
 from pymatgen.io.cif import CifParser
 
 
+import random
+
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
