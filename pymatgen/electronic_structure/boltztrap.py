@@ -1503,26 +1503,12 @@ class BoltztrapAnalyzer(object):
 
         vol = BoltztrapAnalyzer.parse_struct(path_dir)
 
-        if run_type == "DOS":
-            dos, pdos = BoltztrapAnalyzer.parse_transdos(
-                path_dir, efermi, dos_spin=dos_spin, process_dos=True,
-                normalize_dos=False)
-
-            return BoltztrapAnalyzer(gap=gap, dos=dos, dos_partial=pdos,
-                                     warning=warning, vol=vol)
-
-        elif run_type == "BANDS":
-            bz_kpoints = np.loadtxt(
-                os.path.join(path_dir, "boltztrap_band.dat"))[:, -3:]
-            bz_bands = np.loadtxt(
-                os.path.join(path_dir, "boltztrap_band.dat"))[:, 1:-6]
-            return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints,
-                                     warning=warning, vol=vol)
-
-        elif run_type == "BOLTZ":
+        if run_type == "BOLTZ":
             dos, pdos = BoltztrapAnalyzer.parse_transdos(
                 path_dir, efermi, dos_spin=dos_spin, process_dos=False,
                 normalize_dos=False)
+
+            # 1. Parse steps: parse raw data but do not convert to final format
 
             t_steps = set()
             mu_steps = set()
@@ -1530,8 +1516,6 @@ class BoltztrapAnalyzer(object):
             data_hall = []
             data_doping_full = []
             data_doping_hall = []
-
-            # 1. Parse steps: parse raw data but do not convert to final format
 
             # parse the full conductivity/Seebeck/kappa0/etc data
             ## also initialize t_steps and mu_steps
@@ -1645,6 +1629,22 @@ class BoltztrapAnalyzer(object):
                 mu_doping, seebeck_doping, cond_doping, kappa_doping,
                 hall_doping, dos, pdos, carrier_conc, vol, warning)
 
+        elif run_type == "DOS":
+            dos, pdos = BoltztrapAnalyzer.parse_transdos(
+                path_dir, efermi, dos_spin=dos_spin, process_dos=True,
+                normalize_dos=False)
+
+            return BoltztrapAnalyzer(gap=gap, dos=dos, dos_partial=pdos,
+                                     warning=warning, vol=vol)
+
+        elif run_type == "BANDS":
+            bz_kpoints = np.loadtxt(
+                os.path.join(path_dir, "boltztrap_band.dat"))[:, -3:]
+            bz_bands = np.loadtxt(
+                os.path.join(path_dir, "boltztrap_band.dat"))[:, 1:-6]
+            return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints,
+                                     warning=warning, vol=vol)
+
         elif run_type == "FERMI":
             # TODO: There is no way to get this shitty ASE crap working.
             # If you want to read CUBE files, write a proper IO class in
@@ -1660,8 +1660,7 @@ class BoltztrapAnalyzer(object):
                  raise BoltztrapError("No data file found for fermi surface")
             return BoltztrapAnalyzer(fermi_surface_data=fermi_surface_data)
             """
-            print("FERMI mode parsing is currently unavailable!")
-            return BoltztrapAnalyzer(fermi_surface_data=None)
+            raise ValueError("FERMI mode parsing is currently unavailable!")
 
         else:
             raise ValueError("Run type: {} not recognized!".format(run_type))
