@@ -36,6 +36,7 @@ class ChemEnvConfig():
                                                                          'angle_cutoff': strategies_class_lookup['SimplestChemenvStrategy'].DEFAULT_ANGLE_CUTOFF,
                                                                          'additional_condition': strategies_class_lookup['SimplestChemenvStrategy'].DEFAULT_ADDITIONAL_CONDITION,
                                                                          'continuous_symmetry_measure_cutoff': strategies_class_lookup['SimplestChemenvStrategy'].DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF}},
+                               'default_max_distance_factor': 1.5
                                }
 
     def __init__(self, materials_project_configuration=None, package_options=None):
@@ -113,6 +114,7 @@ class ChemEnvConfig():
 
     def package_options_description(self):
         out = 'Package options :\n'
+        out += ' - Maximum distance factor : {:.4f}\n'.format(self.package_options['default_max_distance_factor'])
         out += ' - Default strategy is "{}" :\n'.format(self.package_options['default_strategy']['strategy'])
         strategy_class = strategies_class_lookup[self.package_options['default_strategy']['strategy']]
         out += '{}\n'.format(strategy_class.STRATEGY_DESCRIPTION)

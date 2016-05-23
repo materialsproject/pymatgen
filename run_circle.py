@@ -10,10 +10,9 @@ import sys
 import subprocess
 import random
 import time
-import multiprocessing
 
 
-run_ratio = 1/10
+run_ratio = 1 #1/10
 
 try:
     files_changed = []

@@ -701,7 +701,7 @@ class Incar(dict, MSONable):
             key: INCAR parameter key
             val: Actual value of INCAR parameter.
         """
-        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM")
+        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM", "DIPOL")
         bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE",
                      "LHFCALC", "ADDGRID", "LSORBIT", "LNONCOLLINEAR")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
