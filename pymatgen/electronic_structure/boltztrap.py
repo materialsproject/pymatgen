@@ -1468,6 +1468,22 @@ class BoltztrapAnalyzer(object):
 
         return dos, dos_partial
 
+    @staticmethod
+    def parse_struct(path_dir):
+        """
+        Parses Boltztrap .struct file (only the volume)
+        Args:
+            path_dir: (str) dir containing the boltztrap.struct file
+
+        Returns:
+            (float) volume
+        """
+        with open(os.path.join(path_dir, "boltztrap.struct"), 'r') as f:
+            tokens = f.readlines()
+            return Lattice([[Length(float(tokens[i].split()[j]), "bohr").
+                           to("ang") for j in range(3)] for i in
+                            range(1, 4)]).volume
+
 
     @staticmethod
     def from_files(path_dir, dos_spin=1):
@@ -1485,21 +1501,23 @@ class BoltztrapAnalyzer(object):
         run_type, warning, efermi, gap, doping_levels = \
             BoltztrapAnalyzer.parse_outputtrans(path_dir)
 
+        vol = BoltztrapAnalyzer.parse_struct(path_dir)
+
         if run_type == "DOS":
             dos, pdos = BoltztrapAnalyzer.parse_transdos(
                 path_dir, efermi, dos_spin=dos_spin, process_dos=True,
                 normalize_dos=False)
 
             return BoltztrapAnalyzer(gap=gap, dos=dos, dos_partial=pdos,
-                                     warning=warning)
+                                     warning=warning, vol=vol)
 
         elif run_type == "BANDS":
             bz_kpoints = np.loadtxt(
                 os.path.join(path_dir, "boltztrap_band.dat"))[:, -3:]
             bz_bands = np.loadtxt(
                 os.path.join(path_dir, "boltztrap_band.dat"))[:, 1:-6]
-            return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints)
-
+            return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints,
+                                     warning=warning, vol=vol)
 
         elif run_type == "BOLTZ":
             dos, pdos = BoltztrapAnalyzer.parse_transdos(
@@ -1515,13 +1533,6 @@ class BoltztrapAnalyzer(object):
 
             # 1. Parse steps: parse raw data but do not convert to final format
 
-            # parse structure file to get cell volume in ang^3
-            with open(os.path.join(path_dir, "boltztrap.struct"), 'r') as f:
-                tokens = f.readlines()
-                vol = Lattice(
-                    [[Length(float(tokens[i].split()[j]), "bohr").to("ang")
-                      for j in range(3)] for i in range(1, 4)]).volume
-            
             # parse the full conductivity/Seebeck/kappa0/etc data
             ## also initialize t_steps and mu_steps
             with open(os.path.join(path_dir, "boltztrap.condtens"), 'r') as f:
