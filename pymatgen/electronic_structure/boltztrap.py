@@ -1517,7 +1517,7 @@ class BoltztrapAnalyzer(object):
 
 
     @staticmethod
-    def parse_transdos(path_dir, efermi, dos_spin=1, process_dos=False):
+    def parse_transdos(path_dir, efermi, dos_spin=1, trim_dos=False):
 
         """
         Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files
@@ -1525,7 +1525,7 @@ class BoltztrapAnalyzer(object):
             path_dir: (str) dir containing DOS files
             efermi: (float) Fermi energy
             dos_spin: (int) -1 for spin down, +1 for spin up
-            process_dos: (bool) whether to post-process / trim DOS
+            trim_dos: (bool) whether to post-process / trim DOS
 
         Returns:
             tuple - (DOS, dict of partial DOS)
@@ -1547,10 +1547,11 @@ class BoltztrapAnalyzer(object):
                          float(line.split()[1])])
                     total_elec = float(line.split()[2])
 
-        if process_dos:
+        if trim_dos:
             # Francesco knows what this does
             # It has something to do with a trick of adding fake energies
-            # at the endpoints of the DOS, and then re-trimming it...
+            # at the endpoints of the DOS, and then re-trimming it. This is
+            # to get the same energy scale for up and down spin DOS.
             tmp_data = np.array(data_dos['total'])
             tmp_den = np.trim_zeros(tmp_data[:, 1], 'f')[1:]
             lw_l = len(tmp_data[:, 1]) - len(tmp_den)
@@ -1762,7 +1763,7 @@ class BoltztrapAnalyzer(object):
 
         if run_type == "BOLTZ":
             dos, pdos = BoltztrapAnalyzer.parse_transdos(
-                path_dir, efermi, dos_spin=dos_spin, process_dos=False)
+                path_dir, efermi, dos_spin=dos_spin, trim_dos=False)
 
             mu_steps, cond, seebeck, kappa, hall, pn_doping_levels, mu_doping,\
             seebeck_doping, cond_doping, kappa_doping, hall_doping, \
@@ -1776,7 +1777,7 @@ class BoltztrapAnalyzer(object):
 
         elif run_type == "DOS":
             dos, pdos = BoltztrapAnalyzer.parse_transdos(
-                path_dir, efermi, dos_spin=dos_spin, process_dos=True)
+                path_dir, efermi, dos_spin=dos_spin, trim_dos=True)
 
             return BoltztrapAnalyzer(gap=gap, dos=dos, dos_partial=pdos,
                                      warning=warning, vol=vol)
