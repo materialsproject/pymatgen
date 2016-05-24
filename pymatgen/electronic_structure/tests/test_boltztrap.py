@@ -115,13 +115,17 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
                                0.0738961845832)
 
     def test_get_zt(self):
-        ref = [0.0002228294548133532, 0.00081441896388844142, 0.00085232847622913053]
+        ref = [0.097408810215, 0.29335112354, 0.614673998089]
         for i in range(0, 3):
-            self.assertAlmostEqual(self.bz.get_zt()['n'][400][0][i], ref[i])
+            self.assertAlmostEqual(self.bz.get_zt()['n'][800][4][i], ref[i])
         self.assertAlmostEqual(self.bz.get_zt(output='average', kl=0.5)['p'][700][2], 0.0170001879916)
         self.assertAlmostEqual(self.bz.get_zt(output='average', doping_levels=False, relaxation_time=1e-15)[300][240],
-                               0.00953842615332)
-        self.assertAlmostEqual(self.bz.get_zt(output='average', doping_levels=False)[700][65], 0.335990406091)  # TODO: this was originally "eigs"
+                               0.0041923533238348342)
+
+        eigs = self.bz.get_zt(output='eigs', doping_levels=False)[700][65]
+        ref_eigs = [0.082420053399668847, 0.29408035502671648, 0.40822061215079392]
+        for idx, val in enumerate(ref_eigs):
+            self.assertAlmostEqual(eigs[idx], val, 5)
 
     def test_get_average_eff_mass(self):
         ref = [0.76045816788363574, 0.96181142990667101, 2.9428428773308628]
