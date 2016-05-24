@@ -1519,8 +1519,7 @@ class BoltztrapAnalyzer(object):
 
 
     @staticmethod
-    def parse_transdos(path_dir, efermi, dos_spin=1, process_dos=False,
-                       normalize_dos=False):
+    def parse_transdos(path_dir, efermi, dos_spin=1, process_dos=False):
 
         """
         Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files
@@ -1529,7 +1528,6 @@ class BoltztrapAnalyzer(object):
             efermi: (float) Fermi energy
             dos_spin: (int) -1 for spin down, +1 for spin up
             process_dos: (bool) whether to post-process / trim DOS
-            normalize_dos: (bool) whether to normalize DOS values
 
         Returns:
             tuple - (DOS, dict of partial DOS)
@@ -1551,14 +1549,6 @@ class BoltztrapAnalyzer(object):
                          float(line.split()[1])])
                     total_elec = float(line.split()[2])
 
-        if normalize_dos:
-            ## normalize the DOS to 2*DOS / total electrons
-            ## TODO: why is there a 2X multiplier?
-            data_dos['total'] = [
-                [data_dos['total'][i][0],
-                 2 * data_dos['total'][i][1] / total_elec]
-                for i in range(len(data_dos['total']))]
-
         if process_dos:
             # TODO: is this needed? What does it do?
             tmp_data = np.array(data_dos['total'])
@@ -1572,7 +1562,6 @@ class BoltztrapAnalyzer(object):
             data_dos['total'] = tmp_data.tolist()
 
         # parse partial DOS data
-        # TODO: Why is there no energy conversion from Ry to eV here?
         for file_name in os.listdir(path_dir):
             if file_name.endswith(
                     "transdos") and file_name != 'boltztrap.transdos':
@@ -1773,8 +1762,7 @@ class BoltztrapAnalyzer(object):
 
         if run_type == "BOLTZ":
             dos, pdos = BoltztrapAnalyzer.parse_transdos(
-                path_dir, efermi, dos_spin=dos_spin, process_dos=False,
-                normalize_dos=False)
+                path_dir, efermi, dos_spin=dos_spin, process_dos=False)
 
             mu_steps, cond, seebeck, kappa, hall, pn_doping_levels, mu_doping,\
             seebeck_doping, cond_doping, kappa_doping, hall_doping, \
@@ -1788,8 +1776,7 @@ class BoltztrapAnalyzer(object):
 
         elif run_type == "DOS":
             dos, pdos = BoltztrapAnalyzer.parse_transdos(
-                path_dir, efermi, dos_spin=dos_spin, process_dos=True,
-                normalize_dos=False)
+                path_dir, efermi, dos_spin=dos_spin, process_dos=True)
 
             return BoltztrapAnalyzer(gap=gap, dos=dos, dos_partial=pdos,
                                      warning=warning, vol=vol)
