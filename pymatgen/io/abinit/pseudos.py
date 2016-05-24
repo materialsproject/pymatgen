@@ -13,14 +13,13 @@ import json
 import logging
 import os
 import sys
-from collections import OrderedDict, defaultdict, namedtuple
-
 import numpy as np
 import six
+
+from collections import OrderedDict, defaultdict, namedtuple
 from monty.collections import AttrDict, Namespace
 from monty.dev import deprecated
 from monty.functools import lazy_property
-from monty.io import FileLock
 from monty.itertools import iterator_from_slice
 from monty.json import MSONable, MontyDecoder
 from monty.os.path import find_exts
@@ -215,35 +214,16 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
     @lazy_property
     def md5(self):
         """MD5 hash value."""
-        if self.has_dojo_report:
-            if "md5" in self.dojo_report:
-                return self.dojo_report["md5"]
+        if self.has_dojo_report and "md5" in self.dojo_report: return self.dojo_report["md5"]
         return self.compute_md5()
 
     def compute_md5(self):
-        """Compute MD5 hash value."""
+        """Compute and erturn MD5 hash value."""
         import hashlib
-
-        if self.path.endswith(".xml"):
-            # TODO: XML + DOJO_REPORT
-            #raise NotImplementedError("md5 for XML files!")
-            with open(self.path, "rt") as fh:
-                text = fh.read()
-
-        else:
-            # If we have a pseudo with a dojo_report at the end.
-            # we compute the hash from the data before DOJO_REPORT.
-            # else all the lines are taken.
-            with open(self.path, "rt") as fh:
-                lines = fh.readlines()
-                try:
-                    start = lines.index("<DOJO_REPORT>\n")
-                except ValueError:
-                    start = len(lines)
-                text = "".join(lines[:start])
-
-        m = hashlib.md5(text.encode("utf-8"))
-        return m.hexdigest()
+        with open(self.path, "rt") as fh:
+            text = fh.read()
+            m = hashlib.md5(text.encode("utf-8"))
+            return m.hexdigest()
 
     @abc.abstractproperty
     def supports_soc(self):
@@ -283,77 +263,26 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         Useful for unit tests in which we have to change the content of the file.
         """
         import tempfile, shutil
-        _, dst = tempfile.mkstemp(suffix=self.basename, text=True)
-        shutil.copy(self.path, dst)
-        return self.__class__.from_file(dst)
+        tmpdir = tempfile.mkdtemp()
+        new_path = os.path.join(tmpdir, self.basename)
+        shutil.copy(self.filepath, new_path)
+
+        # Copy dojoreport file if present.
+        root, ext = os.path.splitext(self.filepath)
+        djrepo = root + ".djrepo"
+        if os.path.exists(djrepo):
+            shutil.copy(djrepo, os.path.join(tmpdir, os.path.basename(djrepo)))
+
+        # Build new object and copy dojo_report if present.
+        new = self.__class__.from_file(new_path)
+        if self.has_dojo_report: new.dojo_report = self.dojo_report.deepcopy()
+
+        return new
 
     @property
     def has_dojo_report(self):
         """True if the pseudo has an associated `DOJO_REPORT` section."""
         return hasattr(self, "dojo_report") and bool(self.dojo_report)
-
-    #def delta_factor(self, accuracy="normal"):
-    #    """
-    #    Returns the deltafactor [meV/natom] computed with the given accuracy.
-    #    None if the `Pseudo` does not have info on the deltafactor.
-    #    """
-    #    if not self.has_dojo_report:
-    #        return None
-    #    try:
-    #        return self.dojo_report["delta_factor"][accuracy]["dfact"]
-    #    except KeyError:
-    #        return None
-
-    def read_dojo_report(self):
-        """
-        Read the `DOJO_REPORT` section and set the `dojo_report` attribute.
-        returns {} if section is not present.
-        """
-        # FIXME Remove
-        from pseudo_dojo.core.dojoreport import DojoReport
-        self.dojo_report = DojoReport.from_file(self.path)
-        return self.dojo_report
-
-    def write_dojo_report(self, report=None):
-        """Write a new `DOJO_REPORT` section to the pseudopotential file."""
-        # FIXME Remove
-        if report is None:
-            if not self.has_dojo_report:
-                raise RuntimeError("Pseudo %s does not have a DojoReport" % self.filepath)
-            report = self.dojo_report
-
-        report["symbol"] = self.symbol
-
-        if "md5" not in report:
-            report["md5"] = self.md5
-
-        if report["md5"] != self.md5:
-            raise ValueError("md5 found in dojo_report does not agree\n"
-               "with the computed value\nreport: %s\npseudo %s" % (report["md5"], self.md5))
-
-        # Create JSON string from report.
-        jstring = json.dumps(report, indent=4, sort_keys=True) + "\n"
-
-        # Read lines from file and insert jstring between the tags.
-        with open(self.path, "r") as fh:
-            lines = fh.readlines()
-            try:
-                start = lines.index("<DOJO_REPORT>\n")
-            except ValueError:
-                start = -1
-
-            if start == -1:
-                # DOJO_REPORT was not present.
-                lines += ["<DOJO_REPORT>\n", jstring , "</DOJO_REPORT>\n",]
-            else:
-                stop = lines.index("</DOJO_REPORT>\n")
-                lines.insert(stop, jstring)
-                del lines[start+1:stop]
-
-        #  Write new file.
-        with FileLock(self.path):
-            with open(self.path, "w") as fh:
-                fh.writelines(lines)
 
     def hint_for_accuracy(self, accuracy="normal"):
         """
