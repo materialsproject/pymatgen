@@ -1550,7 +1550,9 @@ class BoltztrapAnalyzer(object):
                     total_elec = float(line.split()[2])
 
         if process_dos:
-            # TODO: is this needed? What does it do?
+            # Francesco knows what this does
+            # It has something to do with a trick of adding fake energies
+            # at the endpoints of the DOS, and then re-trimming it...
             tmp_data = np.array(data_dos['total'])
             tmp_den = np.trim_zeros(tmp_data[:, 1], 'f')[1:]
             lw_l = len(tmp_data[:, 1]) - len(tmp_den)
@@ -1588,7 +1590,7 @@ class BoltztrapAnalyzer(object):
 
         dos = Dos(efermi, dos_full['energy'],
                   {Spin(dos_spin): dos_full['density']})
-        dos_partial = data_dos['partial']
+        dos_partial = data_dos['partial']  # TODO: make this real DOS object?
 
         return dos, dos_partial
 
