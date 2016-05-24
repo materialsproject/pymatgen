@@ -1764,6 +1764,82 @@ class MPStaticSet(DerivedVaspInputSet):
             prev_kpoints=prev_kpoints,
             reciprocal_density=reciprocal_density, **kwargs)
 
+class MPHSEGapSet(DerivedVaspInputSet):
+
+    def __init__(self, structure, reciprocal_density=100, **kwargs):
+        """
+        Init a MPHSEGapSet. Typically, you would use the classmethod
+        from_prev_calc instead.
+
+        Args:
+            structure (Structure): Structure from previous run.
+            reciprocal_density (int): density of k-mesh by reciprocal
+                volume (defaults to 100)
+            \*\*kwargs: kwargs supported by MPBSHSEVaspInputSet.
+        """
+        self.reciprocal_density = reciprocal_density
+        self.structure = structure
+        self.kwargs = kwargs
+        self.parent_vis = MPBSHSEVaspInputSet(**self.kwargs)
+
+    @property
+    def incar(self):
+        return self.parent_vis.get_incar(self.structure)
+
+    @property
+    def kpoints(self):
+        return self.parent_vis.get_kpoints(self.structure)
+
+    @property
+    def poscar(self):
+        return self.parent_vis.get_poscar(self.structure)
+
+    @property
+    def potcar(self):
+        return self.parent_vis.get_potcar(self.structure)
+
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir, reciprocal_density=100,
+                       small_gap_multiply=None, **kwargs):
+        """
+        Generate a set of Vasp input files for static calculations from a
+        directory of previous Vasp run.
+
+        Args:
+            prev_calc_dir (str): Directory containing the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            reciprocal_density (int): density of k-mesh by reciprocal
+                                    volume (defaults to 100)
+            small_gap_multiply ([float, float]) - if the gap is less than 1st index,
+                                multiply the default reciprocal_density by the 2nd index
+            \*\*kwargs: All kwargs supported by MPBSHSEStaticSet,
+                other than prev_incar and prev_structure and prev_kpoints which
+                are determined from the prev_calc_dir / inputset.
+        """
+        vasprun, outcar = get_vasprun_outcar(prev_calc_dir, parse_dos=True,
+                                             parse_eigen=True)
+        added_kpoints = []
+        bs = vasprun.get_band_structure()
+        vbm, cbm = bs.get_vbm()["kpoint"], bs.get_cbm()["kpoint"]
+        if vbm:
+            added_kpoints.append(vbm.frac_coords)
+        if cbm:
+            added_kpoints.append(cbm.frac_coords)
+
+        # multiply the reciprocal density if needed:
+        if small_gap_multiply:
+            gap = vasprun.eigenvalue_band_properties[0]
+            if gap <= small_gap_multiply[0]:
+                reciprocal_density = reciprocal_density * small_gap_multiply[1]
+
+        # note: don't standardize the cell because we want to retain k-points
+        prev_structure = get_structure_from_prev_run(vasprun, outcar,
+                                                     sym_prec=0)
+
+        return MPHSEGapSet(
+            structure=prev_structure, reciprocal_density=reciprocal_density,
+            added_kpoints=added_kpoints, mode="Uniform")
+
 
 class MPNonSCFSet(DerivedVaspInputSet):
 
@@ -2224,7 +2300,7 @@ class MVLSlabSet(DictVaspInputSet):
         return data
 
 
-def get_vasprun_outcar(path):
+def get_vasprun_outcar(path, parse_dos=False, parse_eigen=False):
     vruns = glob(os.path.join(path, "vasprun.xml*"))
     outcars = glob(os.path.join(path, "OUTCAR*"))
 
@@ -2236,8 +2312,8 @@ def get_vasprun_outcar(path):
     outcarfile_fullpath = os.path.join(path, "OUTCAR")
     vsfile = vsfile_fullpath if vsfile_fullpath in vruns else sorted(vruns)[-1]
     outcarfile = outcarfile_fullpath if outcarfile_fullpath in outcars else sorted(outcars)[-1]
-    return Vasprun(vsfile, parse_dos=False, parse_eigen=None), Outcar(
-        outcarfile)
+    return Vasprun(vsfile, parse_dos=parse_dos, parse_eigen=parse_eigen), \
+           Outcar(outcarfile)
 
 
 def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
