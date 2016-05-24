@@ -176,8 +176,6 @@ class BoltztrapRunner(object):
         """
         automatically determine the energy range as min/max eigenvalue
         minus/plus the buffer_in_ev
-        Args:
-            buffer_in_ev:
         """
         emins = [min([e_k[0] for e_k in self._bs.bands[Spin.up]])]
         emaxs = [max([e_k[0] for e_k in self._bs.bands[Spin.up]])]
