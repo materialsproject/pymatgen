@@ -1081,7 +1081,7 @@ class BoltztrapAnalyzer(object):
                                                    multi=relaxation_time)
 
     def get_zt(self, output='eigs', doping_levels=True, relaxation_time=1e-14,
-               kl=0.2):
+               kl=1.0):
         """
         Gives the ZT coefficient (S^2*cond*T/thermal cond) in either a full
         3x3 tensor form,
@@ -1101,6 +1101,7 @@ class BoltztrapAnalyzer(object):
             different doping levels, False for results
             at different electron chemical potentials
             relaxation_time (float): constant relaxation time in secs
+            k_l (float): lattice thermal cond in W/(m*K)
 
         Returns:
             If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}. The
