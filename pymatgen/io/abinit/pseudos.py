@@ -14,7 +14,6 @@ import logging
 import os
 import sys
 from collections import OrderedDict, defaultdict, namedtuple
-from warnings import warn
 
 import numpy as np
 import six
@@ -26,12 +25,12 @@ from monty.itertools import iterator_from_slice
 from monty.json import MSONable, MontyDecoder
 from monty.os.path import find_exts
 from monty.string import list_strings, is_string
-
 from pymatgen.analysis.eos import EOS
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.serializers.json_coders import pmg_serialize
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
+
 logger = logging.getLogger(__name__)
 
 
@@ -45,7 +44,6 @@ __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
 # Tools and helper functions.
-
 
 def straceback():
     """Returns a string with the traceback."""
@@ -220,9 +218,6 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         if self.has_dojo_report:
             if "md5" in self.dojo_report:
                 return self.dojo_report["md5"]
-            else:
-                warn("Dojo report without md5 entry")
-
         return self.compute_md5()
 
     def compute_md5(self):
@@ -249,16 +244,6 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
         m = hashlib.md5(text.encode("utf-8"))
         return m.hexdigest()
-
-    #def check_and_fix_dojo_md5(self):
-    #    report = self.read_dojo_report()
-    #    if "md5" in report:
-    #        if report["md5"] != self.md5:
-    #            raise ValueError("md5 found in dojo_report does not agree\n"
-    #                "with the computed value\nFound %s\nComputed %s"  % (report["md5"], hash))
-    #    else:
-    #        report["md5"] = self.compute_md5()
-    #        self.write_dojo_report(report=report)
 
     @abc.abstractproperty
     def supports_soc(self):
@@ -307,17 +292,17 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         """True if the pseudo has an associated `DOJO_REPORT` section."""
         return hasattr(self, "dojo_report") and bool(self.dojo_report)
 
-    def delta_factor(self, accuracy="normal"):
-        """
-        Returns the deltafactor [meV/natom] computed with the given accuracy.
-        None if the `Pseudo` does not have info on the deltafactor.
-        """
-        if not self.has_dojo_report:
-            return None
-        try:
-            return self.dojo_report["delta_factor"][accuracy]["dfact"]
-        except KeyError:
-            return None
+    #def delta_factor(self, accuracy="normal"):
+    #    """
+    #    Returns the deltafactor [meV/natom] computed with the given accuracy.
+    #    None if the `Pseudo` does not have info on the deltafactor.
+    #    """
+    #    if not self.has_dojo_report:
+    #        return None
+    #    try:
+    #        return self.dojo_report["delta_factor"][accuracy]["dfact"]
+    #    except KeyError:
+    #        return None
 
     def read_dojo_report(self):
         """
@@ -696,7 +681,7 @@ def _int_from_str(string):
     else:
         # Needed to handle pseudos with fractional charge
         int_num = np.rint(float_num)
-        warn("Converting float %s to int %s" % (float_num, int_num))
+        logger.warning("Converting float %s to int %s" % (float_num, int_num))
         return int_num
 
 
@@ -1058,10 +1043,10 @@ class PseudoParser(object):
     })
     del ppdesc
     # renumber functionals from oncvpsp todo confrim that 3 is 2
-    _FUNCTIONALS = {1: {'n': 4, 'name': 'Wigner'},
-                    2: {'n': 5, 'name': 'HL'},
-                    3: {'n': 2, 'name': 'PWCA'},
-                    4: {'n': 11, 'name': 'PBE'}}
+    #_FUNCTIONALS = {1: {'n': 4, 'name': 'Wigner'},
+    #                2: {'n': 5, 'name': 'HL'},
+    #                3: {'n': 2, 'name': 'PWCA'},
+    #                4: {'n': 11, 'name': 'PBE'}}
 
     def __init__(self):
         # List of files that have been parsed succesfully.
