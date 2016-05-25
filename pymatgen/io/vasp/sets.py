@@ -1810,8 +1810,7 @@ class MPHSEGapSet(DerivedVaspInputSet):
                 are determined from the prev_calc_dir / inputset.
         """
 
-        vasprun, outcar = get_vasprun_outcar(prev_calc_dir, parse_dos=True,
-                                             parse_eigen=True)
+        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
         added_kpoints = []
         bs = vasprun.get_band_structure()
         vbm, cbm = bs.get_vbm()["kpoint"], bs.get_cbm()["kpoint"]
@@ -2288,7 +2287,7 @@ class MVLSlabSet(DictVaspInputSet):
         return data
 
 
-def get_vasprun_outcar(path, parse_dos=False, parse_eigen=False):
+def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
     vruns = glob(os.path.join(path, "vasprun.xml*"))
     outcars = glob(os.path.join(path, "OUTCAR*"))
 
