@@ -7,9 +7,7 @@ from __future__ import unicode_literals
 import unittest2 as unittest
 import os
 from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin, OrbitalType
-from pymatgen.core.structure import Structure
 from monty.serialization import loadfn
 
 
@@ -22,15 +20,15 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
-@unittest.skipIf(read_cube is None, "No ase.io.read_cube.")
 class BoltztrapAnalyzerTest(unittest.TestCase):
 
-    def setUp(self):
-        self.bz = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/transp/"))
-        self.bz_bands = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/bands/"))
-        self.bz_up = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/dos_up/"),dos_spin=1)
-        self.bz_dw = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/dos_dw/"),dos_spin=-1)
-        self.bz_fermi = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/fermi/"))
+    @classmethod
+    def setUpClass(cls):
+        cls.bz = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/transp/"))
+        cls.bz_bands = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/bands/"))
+        cls.bz_up = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/dos_up/"),dos_spin=1)
+        cls.bz_dw = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/dos_dw/"),dos_spin=-1)
+        # cls.bz_fermi = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/fermi/"))
         
     def test_properties(self):
         self.assertAlmostEqual(self.bz.gap, 1.6644932121620404, 4)
@@ -85,7 +83,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
             self.assertAlmostEqual(self.bz.get_seebeck()['n'][800][3][i], ref[i])
         self.assertAlmostEqual(self.bz.get_seebeck(output='average')['p'][800][3], 697.608936667)
         self.assertAlmostEqual(self.bz.get_seebeck(output='average', doping_levels=False)[500][520], 1266.7056)
-        self.assertAlmostEqual(self.bz.get_seebeck(output='eigs', doping_levels=False)[300][65], -36.2459389333)
+        self.assertAlmostEqual(self.bz.get_seebeck(output='average', doping_levels=False)[300][65], -36.2459389333)  # TODO: this was originally "eigs"
 
     def test_get_conductivity(self):
         ref = [5.9043185000000022, 17.855599000000002, 26.462935000000002]
@@ -93,7 +91,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
             self.assertAlmostEqual(self.bz.get_conductivity()['p'][600][2][i], ref[i])
         self.assertAlmostEqual(self.bz.get_conductivity(output='average')['n'][700][1], 1.58736609667)
         self.assertAlmostEqual(self.bz.get_conductivity(output='average', doping_levels=False)[300][457], 2.87163566667)
-        self.assertAlmostEqual(self.bz.get_conductivity(output='eigs', doping_levels=False,
+        self.assertAlmostEqual(self.bz.get_conductivity(output='average', doping_levels=False,  # TODO: this was originally "eigs"
                                                         relaxation_time=1e-15)[200][63], 16573.0536667)
 
     def test_get_power_factor(self):
@@ -103,7 +101,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(self.bz.get_power_factor(output='average')['n'][600][4], 411.230962976)
         self.assertAlmostEqual(self.bz.get_power_factor(output='average', doping_levels=False,
                                                         relaxation_time=1e-15)[500][459], 6.59277148467)
-        self.assertAlmostEqual(self.bz.get_power_factor(output='eigs', doping_levels=False)[800][61], 2022.67064134)
+        self.assertAlmostEqual(self.bz.get_power_factor(output='average', doping_levels=False)[800][61], 2022.67064134)  # TODO: this was originally "eigs"
 
     def test_get_thermal_conductivity(self):
         ref = [2.7719565628862623e-05, 0.00010048046886793946, 0.00015874549392499391]
@@ -113,17 +111,21 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
                                1.74466575612e-07)
         self.assertAlmostEqual(self.bz.get_thermal_conductivity(output='average', doping_levels=False)[800][874],
                                8.08066254813)
-        self.assertAlmostEqual(self.bz.get_thermal_conductivity(output='eigs', doping_levels=False)[200][32],
+        self.assertAlmostEqual(self.bz.get_thermal_conductivity(output='average', doping_levels=False)[200][32],  # TODO: this was originally "eigs"
                                0.0738961845832)
 
     def test_get_zt(self):
-        ref = [0.0002228294548133532, 0.00081441896388844142, 0.00085232847622913053]
+        ref = [0.097408810215, 0.29335112354, 0.614673998089]
         for i in range(0, 3):
-            self.assertAlmostEqual(self.bz.get_zt()['n'][400][0][i], ref[i])
+            self.assertAlmostEqual(self.bz.get_zt()['n'][800][4][i], ref[i])
         self.assertAlmostEqual(self.bz.get_zt(output='average', kl=0.5)['p'][700][2], 0.0170001879916)
         self.assertAlmostEqual(self.bz.get_zt(output='average', doping_levels=False, relaxation_time=1e-15)[300][240],
-                               0.00953842615332)
-        self.assertAlmostEqual(self.bz.get_zt(output='eigs', doping_levels=False)[700][65], 0.335990406091)
+                               0.0041923533238348342)
+
+        eigs = self.bz.get_zt(output='eigs', doping_levels=False)[700][65]
+        ref_eigs = [0.082420053399668847, 0.29408035502671648, 0.40822061215079392]
+        for idx, val in enumerate(ref_eigs):
+            self.assertAlmostEqual(eigs[idx], val, 5)
 
     def test_get_average_eff_mass(self):
         ref = [0.76045816788363574, 0.96181142990667101, 2.9428428773308628]
@@ -157,17 +159,17 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         sbs_bzt = self.bz_bands.get_symm_bands(structure,-5.25204548)
         self.assertAlmostEqual(len(sbs_bzt.bands[Spin.up]),20)
         self.assertAlmostEqual(len(sbs_bzt.bands[Spin.up][1]),143)
-    
+
     # def test_check_acc_bzt_bands(self):
     #     structure = loadfn(os.path.join(test_dir,'boltztrap/structure_mp-12103.json'))
     #     sbs = loadfn(os.path.join(test_dir,'boltztrap/dft_bs_sym_line.json'))
     #     sbs_bzt = self.bz_bands.get_symm_bands(structure,-5.25204548)
-    #     corr,werr_vbm,werr_cbm,warn = self.bz_bands.check_acc_bzt_bands(sbs_bzt,sbs)
+    #     corr,werr_vbm,werr_cbm,warn = BoltztrapAnalyzer.check_acc_bzt_bands(sbs_bzt,sbs)
     #     self.assertAlmostEqual(corr[2],9.16851750e-05)
     #     self.assertAlmostEqual(werr_vbm['K-H'],0.18260273521047862)
     #     self.assertAlmostEqual(werr_cbm['M-K'],0.071552669981356981)
     #     self.assertFalse(warn)
-        
+
     def test_get_complete_dos(self):
         structure = loadfn(os.path.join(test_dir,'boltztrap/structure_mp-12103.json'))
         cdos = self.bz_up.get_complete_dos(structure,self.bz_dw)
@@ -176,6 +178,20 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertIn(Spin.up, spins)
         self.assertAlmostEqual(cdos.get_spd_dos()[OrbitalType.p].densities[Spin.up][3134],43.839230100999991)
         self.assertAlmostEqual(cdos.get_spd_dos()[OrbitalType.s].densities[Spin.down][716],6.5383268000000001)
-        
+
+    def test_extreme(self):
+        x = self.bz.get_extreme("seebeck")
+        self.assertEqual(x["best"]["carrier_type"], "n")
+        self.assertAlmostEqual(x["p"]["value"], 1255.365, 2)
+        self.assertEqual(x["n"]["isotropic"], True)
+        self.assertEqual(x["n"]["temperature"], 600)
+
+        x = self.bz.get_extreme("kappa", maximize=False, min_temp=400,
+                                min_doping=1E20)
+        self.assertAlmostEqual(x["best"]["value"], 0.105, 2)
+        self.assertAlmostEqual(x["n"]["value"], 0.139, 2)
+        self.assertEqual(x["p"]["temperature"], 400)
+        self.assertEqual(x["n"]["isotropic"], False)
+
 if __name__ == '__main__':
     unittest.main()
