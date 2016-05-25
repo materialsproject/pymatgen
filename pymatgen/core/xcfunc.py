@@ -67,6 +67,7 @@ class XcFunc(MSONable):
     xcf = LibxcFunc
     defined_aliases = OrderedDict([  # (x, c) --> type_name 
         ((xcf.LDA_X, xcf.LDA_C_PW), type_name("LDA", "PW")),
+        #((xcf.LDA_X, xcf.LDA_C_PW_MOD), type_name("LDA", "PW_MOD")),
         ((xcf.GGA_X_PW91, xcf.GGA_C_PW91), type_name("GGA", "PW91")),
         ((xcf.GGA_X_PBE, xcf.GGA_C_PBE), type_name("GGA", "PBE")),
         ((xcf.GGA_X_RPBE, xcf.GGA_C_PBE), type_name("GGA", "RPBE")),
@@ -101,14 +102,17 @@ class XcFunc(MSONable):
 
     @classmethod
     def from_abinit_ixc(cls, ixc):
-        """Build the object from Abinit ixc (int)"""
+        """Build the object from Abinit ixc (integer)"""
         if ixc >= 0:
             return cls(**cls.abinitixc_to_libxc[ixc])
         else:
             # libxc notation employed in Abinit: a six-digit number in the form XXXCCC or CCCXXX
-            ixc = str(ixc)
-            assert len(ixc[1:]) == 6
-            first, last = ixc[1:4], ixc[4:]
+            #ixc = str(ixc)
+            #assert len(ixc[1:]) == 6
+            #first, last = ixc[1:4], ixc[4:]
+	    ixc = abs(ixc)
+	    first = ixc // 1000
+	    last = ixc - first * 1000
             x, c = LibxcFunc(int(first)), LibxcFunc(int(last))
             if not x.is_x_kind: x, c = c, x  # Swap
             assert x.is_x_kind and c.is_c_kind
