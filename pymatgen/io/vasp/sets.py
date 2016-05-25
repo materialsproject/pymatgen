@@ -1764,23 +1764,20 @@ class MPStaticSet(DerivedVaspInputSet):
             prev_kpoints=prev_kpoints,
             reciprocal_density=reciprocal_density, **kwargs)
 
+
 class MPHSEGapSet(DerivedVaspInputSet):
 
-    def __init__(self, structure, reciprocal_density=100, **kwargs):
+    def __init__(self, structure, **kwargs):
         """
-        Init a MPHSEGapSet. Typically, you would use the classmethod
-        from_prev_calc instead.
+        Init a MPHSEGapSet. This input set does a static HSE calculation at
+        gamma point only, but adds the explicit CBM and VBM for accurate gaps
 
         Args:
             structure (Structure): Structure from previous run.
-            reciprocal_density (int): density of k-mesh by reciprocal
-                volume (defaults to 100)
             \*\*kwargs: kwargs supported by MPBSHSEVaspInputSet.
         """
-        self.reciprocal_density = reciprocal_density
         self.structure = structure
-        self.kwargs = kwargs
-        self.parent_vis = MPBSHSEVaspInputSet(**self.kwargs)
+        self.parent_vis = MPBSHSEVaspInputSet(**kwargs)
 
     @property
     def incar(self):
@@ -1799,8 +1796,7 @@ class MPHSEGapSet(DerivedVaspInputSet):
         return self.parent_vis.get_potcar(self.structure)
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, reciprocal_density=100,
-                       small_gap_multiply=None, **kwargs):
+    def from_prev_calc(cls, prev_calc_dir, kpoints_density=1, **kwargs):
         """
         Generate a set of Vasp input files for static calculations from a
         directory of previous Vasp run.
@@ -1808,14 +1804,12 @@ class MPHSEGapSet(DerivedVaspInputSet):
         Args:
             prev_calc_dir (str): Directory containing the outputs(
                 vasprun.xml and OUTCAR) of previous vasp run.
-            reciprocal_density (int): density of k-mesh by reciprocal
-                                    volume (defaults to 100)
-            small_gap_multiply ([float, float]) - if the gap is less than 1st index,
-                                multiply the default reciprocal_density by the 2nd index
+            kpoints_density (int): density of k-mesh
             \*\*kwargs: All kwargs supported by MPBSHSEStaticSet,
                 other than prev_incar and prev_structure and prev_kpoints which
                 are determined from the prev_calc_dir / inputset.
         """
+
         vasprun, outcar = get_vasprun_outcar(prev_calc_dir, parse_dos=True,
                                              parse_eigen=True)
         added_kpoints = []
@@ -1826,18 +1820,12 @@ class MPHSEGapSet(DerivedVaspInputSet):
         if cbm:
             added_kpoints.append(cbm.frac_coords)
 
-        # multiply the reciprocal density if needed:
-        if small_gap_multiply:
-            gap = vasprun.eigenvalue_band_properties[0]
-            if gap <= small_gap_multiply[0]:
-                reciprocal_density = reciprocal_density * small_gap_multiply[1]
-
         # note: don't standardize the cell because we want to retain k-points
         prev_structure = get_structure_from_prev_run(vasprun, outcar,
                                                      sym_prec=0)
 
         return MPHSEGapSet(
-            structure=prev_structure, reciprocal_density=reciprocal_density,
+            structure=prev_structure, kpoints_density=kpoints_density,
             added_kpoints=added_kpoints, mode="Uniform")
 
 
