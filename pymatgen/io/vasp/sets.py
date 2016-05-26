@@ -19,12 +19,16 @@ import numpy as np
 
 from monty.serialization import loadfn
 
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from monty.json import MSONable, MontyDecoder
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.analysis.structure_matcher import StructureMatcher
+
+# This mass import is for deprecation stub purposes.
+from pymatgen.io.vasp.sets_deprecated import *
 
 """
 This module defines the VaspInputSet abstract base class and a concrete
@@ -44,8 +48,6 @@ __date__ = "Nov 16, 2011"
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-from pymatgen.io.vasp.sets_deprecated import *
 
 
 class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
@@ -73,19 +75,49 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         pass
 
     @abc.abstractproperty
-    def potcar(self):
+    def potcar_symbols(self):
         """Potcar object"""
         pass
 
-    def get_all_vasp_input(self):
+    @property
+    def potcar_symbols(self):
+        elements = self.poscar.site_symbols
+        potcar_symbols = []
+
+        if isinstance(self.potcar_settings[elements[-1]], dict):
+            for el in elements:
+                potcar_symbols.append(self.potcar_settings[el]['symbol']
+                                      if el in self.potcar_settings else el)
+        else:
+            for el in elements:
+                potcar_symbols.append(self.potcar_settings[el]
+                                      if el in self.potcar_settings else el)
+
+        return potcar_symbols
+
+    @property
+    def potcar(self):
+        if self.potcar_functional:
+            p = Potcar(self.potcar_symbols, functional=self.potcar_functional)
+        else:
+            p = Potcar(self.potcar_symbols)
+        return p
+
+    @property
+    def all_input(self):
         """
         Returns all input files as a dict of {filename: vasp object}
 
         Returns:
             dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
         """
-        return {'INCAR': self.incar,
-                'KPOINTS': self.kpoints,
+        kpoints = self.kpoints
+        incar = self.incar
+        if np.product(kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
+            incar["ISMEAR"] = 0
+
+        return {'INCAR': incar,
+                'KPOINTS': kpoints,
                 'POSCAR': self.poscar,
                 'POTCAR': self.potcar}
 
@@ -104,7 +136,7 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         """
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        for k, v in self.get_all_vasp_input().items():
+        for k, v in self.all_input.items():
             v.write_file(os.path.join(output_dir, k))
             if k == "POSCAR" and include_cif:
                 v.structure.to(
@@ -122,6 +154,304 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items()
                    if not k.startswith("@")}
         return cls(**decoded)
+
+
+class DictSet(VaspInputSet):
+    """
+    Concrete implementation of VaspInputSet that is initialized from a dict
+    settings. This allows arbitrary settings to be input. In general,
+    this is rarely used directly unless there is a source of settings in yaml
+    format (e.g., from a REST interface). It is typically used by other
+    VaspInputSets for initialization.
+
+    Special consideration should be paid to the way the MAGMOM initialization
+    for the INCAR is done. The initialization differs depending on the type of
+    structure and the configuration settings. The order in which the magmom is
+    determined is as follows:
+
+    1. If the site itself has a magmom setting, that is used.
+    2. If the species on the site has a spin setting, that is used.
+    3. If the species itself has a particular setting in the config file, that
+       is used, e.g., Mn3+ may have a different magmom than Mn4+.
+    4. Lastly, the element symbol itself is checked in the config file. If
+       there are no settings, VASP's default of 0.6 is used.
+
+    Args:
+        name (str): A name fo the input set.
+        config_dict (dict): The config dictionary to use.
+        hubbard_off (bool): Whether to turn off Hubbard U if it is specified in
+            config_dict. Defaults to False, i.e., follow settings in
+            config_dict.
+        user_incar_settings (dict): User INCAR settings. This allows a user
+            to override INCAR settings, e.g., setting a different MAGMOM for
+            various elements or species.
+        constrain_total_magmom (bool): Whether to constrain the total magmom
+            (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
+            species. Defaults to False.
+        sort_structure (bool): Whether to sort the structure (using the
+            default sort order of electronegativity) before generating input
+            files. Defaults to True, the behavior you would want most of the
+            time. This ensures that similar atomic species are grouped
+            together.
+        ediff_per_atom (bool): Whether the EDIFF is specified on a per atom
+            basis. This is generally desired, though for some calculations (
+            e.g. NEB) this should be turned off (and an appropriate EDIFF
+            supplied in user_incar_settings)
+        potcar_functional (str): Functional to use. Default (None) is to use
+            the functional in Potcar.DEFAULT_FUNCTIONAL. Valid values:
+            "PBE", "LDA", "PW91", "LDA_US"
+        force_gamma (bool): Force gamma centered kpoint generation. Default
+            (False) is to use the Automatic Density kpoint scheme, which
+            will use the Gamma centered generation scheme for hexagonal
+            cells, and Monkhorst-Pack otherwise.
+        reduce_structure (None/str): Before generating the input files,
+            generate the reduced structure. Default (None), does not
+            alter the structure. Valid values: None, "niggli", "LLL"
+    """
+
+    def __init__(self, structure, name, config_dict, hubbard_off=False,
+                 user_incar_settings=None,
+                 constrain_total_magmom=False, sort_structure=True,
+                 ediff_per_atom=True, potcar_functional=None,
+                 force_gamma=False, reduce_structure=None):
+        if reduce_structure:
+            structure = structure.get_reduced_structure(reduce_structure)
+        if sort_structure:
+            structure = structure.get_sorted_structure()
+        self.structure = structure
+        self.name = name
+        self.potcar_settings = config_dict["POTCAR"]
+        self.kpoints_settings = config_dict['KPOINTS']
+        self.incar_settings = config_dict['INCAR']
+        self.set_nupdown = constrain_total_magmom
+        self.sort_structure = sort_structure
+        self.ediff_per_atom = ediff_per_atom
+        self.hubbard_off = hubbard_off
+        self.potcar_functional = potcar_functional
+        self.force_gamma = force_gamma
+        self.reduce_structure = reduce_structure
+        if hubbard_off:
+            for k in list(self.incar_settings.keys()):
+                if k.startswith("LDAU"):
+                    del self.incar_settings[k]
+        if user_incar_settings:
+            self.incar_settings.update(user_incar_settings)
+
+    @property
+    def incar(self):
+        structure = self.structure
+        incar = Incar()
+        comp = structure.composition
+        elements = sorted([el for el in comp.elements if comp[el] > 0],
+                          key=lambda e: e.X)
+        most_electroneg = elements[-1].symbol
+        poscar = Poscar(structure)
+        for key, setting in self.incar_settings.items():
+            if key == "MAGMOM":
+                mag = []
+                for site in structure:
+                    if hasattr(site, 'magmom'):
+                        mag.append(site.magmom)
+                    elif hasattr(site.specie, 'spin'):
+                        mag.append(site.specie.spin)
+                    elif str(site.specie) in setting:
+                        mag.append(setting.get(str(site.specie)))
+                    else:
+                        mag.append(setting.get(site.specie.symbol, 0.6))
+                incar[key] = mag
+            elif key in ('LDAUU', 'LDAUJ', 'LDAUL'):
+                if hasattr(structure[0], key.lower()):
+                    m = dict([(site.specie.symbol, getattr(site, key.lower()))
+                              for site in structure])
+                    incar[key] = [m[sym] for sym in poscar.site_symbols]
+                elif most_electroneg in setting.keys():
+                    incar[key] = [setting[most_electroneg].get(sym, 0)
+                                  for sym in poscar.site_symbols]
+                else:
+                    incar[key] = [0] * len(poscar.site_symbols)
+            elif key == "EDIFF":
+                if self.ediff_per_atom:
+                    incar[key] = float(setting) * structure.num_sites
+                else:
+                    incar[key] = float(setting)
+            else:
+                incar[key] = setting
+
+        has_u = ("LDAUU" in incar and sum(incar['LDAUU']) > 0)
+        if has_u:
+            # modify LMAXMIX if LSDA+U and you have d or f electrons
+            # note that if the user explicitly sets LMAXMIX in settings it will
+            # override this logic.
+            if 'LMAXMIX' not in self.incar_settings.keys():
+                # contains f-electrons
+                if any([el.Z > 56 for el in structure.composition]):
+                    incar['LMAXMIX'] = 6
+                # contains d-electrons
+                elif any([el.Z > 20 for el in structure.composition]):
+                    incar['LMAXMIX'] = 4
+        else:
+            for key in list(incar.keys()):
+                if key.startswith('LDAU'):
+                    del incar[key]
+
+        if self.set_nupdown:
+            nupdown = sum([mag if abs(mag) > 0.6 else 0
+                           for mag in incar['MAGMOM']])
+            incar['NUPDOWN'] = nupdown
+
+        return incar
+
+    @property
+    def poscar(self):
+        return Poscar(self.structure)
+
+    @property
+    def nelect(self):
+        """
+        Gets the default number of electrons for a given structure.
+        """
+        n = 0
+        for ps in self.potcar:
+            n += self.structure.composition[ps.element] * ps.ZVAL
+        return n
+
+    @property
+    def kpoints(self):
+        """
+        Writes out a KPOINTS file using the fully automated grid method. Uses
+        Gamma centered meshes  for hexagonal cells and Monk grids otherwise.
+
+        Algorithm:
+            Uses a simple approach scaling the number of divisions along each
+            reciprocal lattice vector proportional to its length.
+        """
+        # If grid_density is in the kpoints_settings use Kpoints.automatic_density
+        if self.kpoints_settings.get('grid_density'):
+            return Kpoints.automatic_density(
+                self.structure, int(self.kpoints_settings['grid_density']),
+                self.force_gamma)
+
+        # If reciprocal_density is in the kpoints_settings use Kpoints.automatic_density_by_vol
+        elif self.kpoints_settings.get('reciprocal_density'):
+            return Kpoints.automatic_density_by_vol(
+                self.structure, int(self.kpoints_settings[
+                                        'reciprocal_density']),
+                self.force_gamma)
+
+        # If length is in the kpoints_settings use Kpoints.automatic
+        elif self.kpoints_settings.get('length'):
+            return Kpoints.automatic(self.kpoints_settings['length'])
+
+        # Raise error. Unsure of which kpoint generation to use
+        else:
+            raise ValueError(
+                "Invalid KPoint Generation algo : Supported Keys are "
+                "grid_density: for Kpoints.automatic_density generation, "
+                "reciprocal_density: for KPoints.automatic_density_by_vol generation, "
+                "and length  : for Kpoints.automatic generation")
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        output = [self.name, ""]
+        section_names = ['INCAR settings', 'KPOINTS settings',
+                         'POTCAR settings']
+        count = 0
+        for d in [self.incar_settings, self.kpoints_settings,
+                  self.potcar_settings]:
+            output.append(section_names[count])
+            for k, v in d.items():
+                output.append("%s = %s" % (k, str(v)))
+            output.append("")
+            count += 1
+        return "\n".join(output)
+
+    def as_dict(self):
+        config_dict = {
+            "INCAR": self.incar_settings,
+            "KPOINTS": self.kpoints_settings,
+            "POTCAR": self.potcar_settings
+        }
+        return {
+            "structure": self.structure.as_dict(),
+            "name": self.name,
+            "config_dict": config_dict,
+            "hubbard_off": self.hubbard_off,
+            "constrain_total_magmom": self.set_nupdown,
+            "sort_structure": self.sort_structure,
+            "potcar_functional": self.potcar_functional,
+            "ediff_per_atom": self.ediff_per_atom,
+            "force_gamma": self.force_gamma,
+            "reduce_structure": self.reduce_structure,
+            "@class": self.__class__.__name__,
+            "@module": self.__class__.__module__,
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(structure=Structure.from_dict(d["structure"]),
+                   name=d["name"], config_dict=d["config_dict"],
+                   hubbard_off=d.get("hubbard_off", False),
+                   constrain_total_magmom=d["constrain_total_magmom"],
+                   sort_structure=d.get("sort_structure", True),
+                   potcar_functional=d.get("potcar_functional", None),
+                   ediff_per_atom=d.get("ediff_per_atom", True),
+                   force_gamma=d.get("force_gamma", False),
+                   reduce_structure=d.get("reduce_structure", None))
+
+
+class BuiltinConfigSet(DictSet):
+    """
+    Creates a DictVaspInputSet from a yaml/json file.
+
+    Args:
+        name (str): A name for the input set.
+        filename (str): Path to a yaml/json file containing the settings.
+        \*\*kwargs: Same kwargs as in the constructor.
+
+    Returns:
+        DictVaspInputSet
+    """
+
+    def __init__(self, structure, config_name, **kwargs):
+        d = loadfn(os.path.join(MODULE_DIR, "%sVaspInputSet.yaml" % config_name))
+        super(BuiltinConfigSet, self).__init__(structure, config_name, d,
+                                               **kwargs)
+        self.kwargs = kwargs
+
+    def as_dict(self):
+        return {
+            "structure": self.structure.as_dict(),
+            "config_name": self.name,
+            "kwargs": self.kwargs,
+            "@class": self.__class__.__name__,
+            "@module": self.__class__.__module__,
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(Structure.from_dict(d["structure"]), d["config_name"],
+                   **d["kwargs"])
+
+
+MITRelaxSet = partial(BuiltinConfigSet, config_name="MIT")
+"""
+Standard implementation of VaspInputSet utilizing parameters in the MIT
+High-throughput project.
+The parameters are chosen specifically for a high-throughput project,
+which means in general pseudopotentials with fewer electrons were chosen.
+
+Please refer::
+
+    A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,
+    K. A. Persson, G. Ceder. A high-throughput infrastructure for density
+    functional theory calculations. Computational Materials Science,
+    2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
+"""
+
+
+MPRelaxSet = partial(BuiltinConfigSet, config_name="MP")
 
 
 class MPStaticSet(VaspInputSet):
