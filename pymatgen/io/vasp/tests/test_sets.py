@@ -510,5 +510,20 @@ class MVLSlabSetTest(PymatgenTest):
         self.assertEqual(kpoints_slab[2], 1)
 
 
+class MPHSEBSTest(PymatgenTest):
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+
+    def test_init(self):
+        prev_run = os.path.join(test_dir, "static_silicon")
+        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="Uniform")
+        self.assertTrue(vis.incar["LHFCALC"])
+        self.assertEqual(len(vis.kpoints.kpts), 31)
+
+        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="Line")
+        self.assertTrue(vis.incar["LHFCALC"])
+        self.assertEqual(len(vis.kpoints.kpts), 195)
+
 if __name__ == '__main__':
     unittest.main()
