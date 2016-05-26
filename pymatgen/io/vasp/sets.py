@@ -1847,6 +1847,7 @@ class MPHSEBSSet(DerivedVaspInputSet):
         if cbm:
             added_kpoints.append(cbm.frac_coords)
 
+        chgcar_path = None
         if copy_chgcar:
             chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
             if chgcars:
