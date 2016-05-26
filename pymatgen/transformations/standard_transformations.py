@@ -747,6 +747,7 @@ class PerturbStructureTransformation(AbstractTransformation):
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
+
 class DeformStructureTransformation(AbstractTransformation):
     """
     This transformation deforms a structure by a deformation gradient matrix
@@ -772,7 +773,7 @@ class DeformStructureTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        return DeformedStructureTransformation(self.deformation.inv())
+        return DeformStructureTransformation(self.deformation.inv())
 
     @property
     def is_one_to_many(self):
