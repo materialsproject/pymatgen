@@ -44,8 +44,8 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.mpnscfparamsetl = MPNonSCFVaspInputSet(
             {"NBANDS": 60}, mode="Line")
         self.mphseparamset = MPHSEVaspInputSet()
-        self.mpbshseparamsetl = MPHSEBSVaspInputSet(mode="Line")
-        self.mpbshseparamsetu = MPHSEBSVaspInputSet(
+        self.mphsebsparamsetl = MPHSEBSVaspInputSet(mode="Line")
+        self.mphsebsparamsetu = MPHSEBSVaspInputSet(
             mode="Uniform", added_kpoints=[[0.5, 0.5, 0.0]])
         self.mpdielparamset = MPStaticDielectricDFPTVaspInputSet()
 
@@ -137,12 +137,12 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.assertEqual(incar_hse['LHFCALC'], True)
         self.assertEqual(incar_hse['HFSCREEN'], 0.2)
 
-        incar_hse_bsl = self.mpbshseparamsetl.get_incar(self.struct)
+        incar_hse_bsl = self.mphsebsparamsetl.get_incar(self.struct)
         self.assertEqual(incar_hse_bsl['LHFCALC'], True)
         self.assertEqual(incar_hse_bsl['HFSCREEN'], 0.2)
         self.assertEqual(incar_hse_bsl['NSW'], 0)
 
-        incar_hse_bsu = self.mpbshseparamsetu.get_incar(self.struct)
+        incar_hse_bsu = self.mphsebsparamsetu.get_incar(self.struct)
         self.assertEqual(incar_hse_bsu['LHFCALC'], True)
         self.assertEqual(incar_hse_bsu['HFSCREEN'], 0.2)
         self.assertEqual(incar_hse_bsu['NSW'], 0)
@@ -277,7 +277,7 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         kpoints = self.mpnscfparamsetu.get_kpoints(self.struct)
         self.assertEqual(kpoints.num_kpts, 168)
 
-        kpoints = self.mpbshseparamsetl.get_kpoints(self.struct)
+        kpoints = self.mphsebsparamsetl.get_kpoints(self.struct)
         self.assertAlmostEqual(kpoints.num_kpts, 164)
         self.assertAlmostEqual(kpoints.kpts[10][0], 0.0)
         self.assertAlmostEqual(kpoints.kpts[10][1], 0.5)
@@ -289,7 +289,7 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.assertAlmostEqual(kpoints.kpts[-1][1], 0.5)
         self.assertAlmostEqual(kpoints.kpts[-1][2], 0.5)
 
-        kpoints = self.mpbshseparamsetu.get_kpoints(self.struct)
+        kpoints = self.mphsebsparamsetu.get_kpoints(self.struct)
         self.assertAlmostEqual(kpoints.num_kpts, 25)
         self.assertAlmostEqual(kpoints.kpts[10][0], 0.0)
         self.assertAlmostEqual(kpoints.kpts[10][1], 0.5)
@@ -639,21 +639,20 @@ class MVLSlabSetTest(PymatgenTest):
         self.assertEqual(kpoints_slab[2], 1)
 
 
-class MPHSEGapTest(PymatgenTest):
+class MPHSEBSTest(PymatgenTest):
 
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
 
     def test_init(self):
-        pass
-        """
         prev_run = os.path.join(test_dir, "static_silicon")
-        vis = MPHSEGapSet.from_prev_calc(prev_calc_dir=prev_run)
+        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="Uniform")
         self.assertTrue(vis.incar["LHFCALC"])
-        self.assertEqual(vis.kpoints.kpts[0].tolist(), [0, 0, 0])
-        self.assertEqual(vis.kpoints.kpts[1].tolist(), [0.125, 0.125, 0.125])
-        self.assertEqual(vis.kpoints.kpts[2].tolist(), [-0.375, -0.375, 0.125])
-        """
+        self.assertEqual(len(vis.kpoints.kpts), 31)
+
+        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="Line")
+        self.assertTrue(vis.incar["LHFCALC"])
+        self.assertEqual(len(vis.kpoints.kpts), 195)
 
 if __name__ == '__main__':
     unittest.main()
