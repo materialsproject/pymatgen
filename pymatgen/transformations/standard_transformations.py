@@ -24,6 +24,7 @@ import logging
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
+from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import get_el_sp
@@ -746,3 +747,39 @@ class PerturbStructureTransformation(AbstractTransformation):
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
+
+class DeformStructureTransformation(AbstractTransformation):
+    """
+    This transformation deforms a structure by a deformation gradient matrix
+
+    Args:
+        deformation (array): deformation gradient for the transformation
+    """
+
+    def __init__(self, deformation):
+
+        self.deformation = Deformation(deformation)
+
+    def apply_transformation(self, structure):
+        return self.deformation.apply_to_structure(structure)
+
+    def __str__(self):
+        return "DeformStructureTransformation : " + \
+            "Deformation = {}".format(str(self.deformation.tolist()))
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return DeformStructureTransformation(self.deformation.inv())
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+    def as_dict(self):
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"deformation": self.deformation.tolist()},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
