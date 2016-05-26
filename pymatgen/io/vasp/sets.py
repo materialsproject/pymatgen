@@ -52,11 +52,8 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
-    Base class representing a set of DERIVED Vasp input parameters,
-    which means that a previous run, including a structure is supplied as
-    init parameters. The different with AbstractVaspInputSet is that these
-    are simpler because a structure is not supplied to each of the abstract
-    methods but is instead already provided. See examples below.
+    Base class representing a set of Vasp input parameters with a structure
+    supplied as init parameters.
     """
 
     @abc.abstractproperty
@@ -76,6 +73,10 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
 
     @property
     def potcar_symbols(self):
+        """
+        Returns:
+            List of POTCAR symbols.
+        """
         elements = self.poscar.site_symbols
         potcar_symbols = []
 
@@ -92,6 +93,11 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
 
     @property
     def potcar(self):
+        """
+
+        Returns:
+            Potcar object.
+        """
         if self.potcar_functional:
             p = Potcar(self.potcar_symbols, functional=self.potcar_functional)
         else:
@@ -172,6 +178,7 @@ class DictSet(VaspInputSet):
        there are no settings, VASP's default of 0.6 is used.
 
     Args:
+        structure (Structure): The Structure to create inputs for.
         name (str): A name fo the input set.
         config_dict (dict): The config dictionary to use.
         hubbard_off (bool): Whether to turn off Hubbard U if it is specified in

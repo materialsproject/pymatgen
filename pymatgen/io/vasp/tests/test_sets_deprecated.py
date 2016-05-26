@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import unittest2 as unittest
+import os
 
 
 from pymatgen.io.vasp.sets_deprecated import *
@@ -42,8 +43,8 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.mpnscfparamsetl = MPNonSCFVaspInputSet(
             {"NBANDS": 60}, mode="Line")
         self.mphseparamset = MPHSEVaspInputSet()
-        self.mpbshseparamsetl = MPBSHSEVaspInputSet(mode="Line")
-        self.mpbshseparamsetu = MPBSHSEVaspInputSet(
+        self.mpbshseparamsetl = MPHSEBSVaspInputSet(mode="Line")
+        self.mpbshseparamsetu = MPHSEBSVaspInputSet(
             mode="Uniform", added_kpoints=[[0.5, 0.5, 0.0]])
         self.mpdielparamset = MPStaticDielectricDFPTVaspInputSet()
 
