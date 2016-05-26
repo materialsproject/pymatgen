@@ -109,7 +109,7 @@ def coord_list_mapping(subset, superset):
 def coord_list_mapping_pbc(subset, superset, atol=1e-8):
     """
     Gives the index mapping from a subset to a superset.
-    Subset and superset cannot contain duplicate rows
+    Superset cannot contain duplicate matching rows
 
     Args:
         subset, superset: List of frac_coords
@@ -117,24 +117,8 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8):
     Returns:
         list of indices such that superset[indices] = subset
     """
-    c1 = np.array(subset)
-    c2 = np.array(superset)
-
-    diff = c1[:, None, :] - c2[None, :, :]
-    diff -= np.round(diff)
-    inds = np.where(np.all(np.abs(diff) < atol, axis = 2))[1]
-
-    #verify result (its easier to check validity of the result than
-    #the validity of inputs)
-    test = c2[inds] - c1
-    test -= np.round(test)
-    if not np.allclose(test, 0):
-        if not is_coord_subset_pbc(subset, superset):
-            raise ValueError("subset is not a subset of superset")
-    if not test.shape == c1.shape:
-        raise ValueError("Something wrong with the inputs, likely duplicates "
-                         "in superset")
-    return inds
+    atol = np.array([1., 1. ,1.]) * atol
+    return cuc.coord_list_mapping_pbc(subset, superset, atol)
 
 
 def get_linear_interpolated_value(x_values, y_values, x):

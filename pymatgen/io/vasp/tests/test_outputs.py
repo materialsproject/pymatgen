@@ -266,7 +266,7 @@ class VasprunTest(unittest.TestCase):
 
     def test_Xe(self):
         vr = Vasprun(os.path.join(test_dir, 'vasprun.xml.xe'), parse_potcar_file=False)
-        self.assertEquals(vr.atomic_symbols, ['Xe'])
+        self.assertEqual(vr.atomic_symbols, ['Xe'])
 
     def test_invalid_element(self):
         self.assertRaises(ValueError, Vasprun,

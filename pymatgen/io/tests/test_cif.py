@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
+from __future__ import unicode_literals, division, print_function
 
 import unittest2 as unittest
 import os
@@ -15,10 +15,10 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen import Element, Specie, Lattice, Structure, Composition, DummySpecie
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.util.coord_utils import pbc_diff
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
+
 
 class CifBlockTest(unittest.TestCase):
 
@@ -790,7 +790,7 @@ loop_
   ? ? ? ? ? ? ?
 """
         parser = CifParser.from_string(string)
-        self.assertEqual(len(parser.get_structures()), 0)
+        self.assertRaises(ValueError, parser.get_structures)
 
     def test_get_lattice_from_lattice_type(self):
         cif_structure = """#generated using pymatgen
@@ -852,16 +852,24 @@ loop_
         self.assertTrue(sm.fit(s_ref, s_test))
 
     def test_empty(self):
-        #single line
+        # single line
         cb = CifBlock.from_string("data_mwe\nloop_\n_tag\n ''")
         self.assertEqual(cb.data['_tag'][0], '')
 
-        #multi line
+        # multi line
         cb = CifBlock.from_string("data_mwe\nloop_\n_tag\n;\n;")
         self.assertEqual(cb.data['_tag'][0], '')
 
         cb2 = CifBlock.from_string(str(cb))
         self.assertEqual(cb, cb2)
+
+    def test_bad_cif(self):
+        f = os.path.join(test_dir, "bad_occu.cif")
+        p = CifParser(f)
+        self.assertRaises(ValueError, p.get_structures)
+        p = CifParser(f, occupancy_tolerance=2)
+        s = p.get_structures()[0]
+        self.assertAlmostEqual(s[0].species_and_occu["Al3+"], 0.5)
 
 if __name__ == '__main__':
     unittest.main()
