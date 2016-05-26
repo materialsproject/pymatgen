@@ -451,6 +451,23 @@ Please refer::
 
 
 MPRelaxSet = partial(BuiltinConfigSet, config_name="MP")
+"""
+Implementation of VaspInputSet utilizing parameters in the public
+Materials Project. Typically, the pseudopotentials chosen contain more
+electrons than the MIT parameters, and the k-point grid is ~50% more dense.
+The LDAUU parameters are also different due to the different psps used,
+which result in different fitted values.
+"""
+
+MPGGARelaxSet = partial(BuiltinConfigSet, config_name="MP", hubbard_off=True)
+"""
+Same as the MPRelaxSet, but the +U is enforced to be turned off.
+"""
+
+MPHSESet = partial(BuiltinConfigSet, config_name="MPHSE")
+"""
+Same as the MPRelaxSet, but with HSE parameters.
+"""
 
 
 class MPStaticSet(VaspInputSet):
@@ -476,12 +493,12 @@ class MPStaticSet(VaspInputSet):
         self.structure = structure
         self.kwargs = kwargs
         self.lepsilon = lepsilon
-        self.parent_vis = MPVaspInputSet(**self.kwargs)
+        self.parent_vis = MPRelaxSet(self.structure, **self.kwargs)
 
     @property
     def incar(self):
 
-        parent_incar = self.parent_vis.get_incar(self.structure)
+        parent_incar = self.parent_vis.incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else \
             Incar(parent_incar)
 
@@ -530,7 +547,7 @@ class MPStaticSet(VaspInputSet):
             del self.parent_vis.kpoints_settings["grid_density"]
         self.parent_vis.kpoints_settings["reciprocal_density"] = \
             self.reciprocal_density
-        kpoints = self.parent_vis.get_kpoints(self.structure)
+        kpoints = self.parent_vis.kpoints
 
         # Prefer to use k-point scheme from previous run
         if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
@@ -725,12 +742,12 @@ class MPNonSCFSet(VaspInputSet):
             warnings.warn("It is recommended to use Uniform mode with a high "
                           "NEDOS for optics calculations.")
 
-        self.parent_vis = MPVaspInputSet(**kwargs)
+        self.parent_vis = MPRelaxSet(self.structure, **kwargs)
 
 
     @property
     def incar(self):
-        incar = self.parent_vis.get_incar(self.structure)
+        incar = self.parent_vis.incar
         if self.prev_incar is not None:
             incar.update({k: v for k, v in self.prev_incar.items()
                          if k not in self.kwargs.get("user_incar_settings",
@@ -789,7 +806,7 @@ class MPNonSCFSet(VaspInputSet):
 
     @property
     def potcar(self):
-        return self.parent_vis.get_potcar(self.structure)
+        return self.parent_vis.potcar
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
@@ -899,7 +916,7 @@ class MPSOCSet(MPStaticSet):
 
     @property
     def incar(self):
-        incar = self.parent_vis.get_incar(self.structure)
+        incar = self.parent_vis.incar
         if self.prev_incar is not None:
             incar.update({k: v for k, v in self.prev_incar.items()
                          if k not in self.kwargs.get("user_incar_settings",
