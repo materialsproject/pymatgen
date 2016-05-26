@@ -763,7 +763,6 @@ class DeformStructureTransformation(AbstractTransformation):
     def apply_transformation(self, structure):
         return self.deformation.apply_to_structure(structure)
 
-
     def __str__(self):
         return "DeformStructureTransformation : " + \
             "Deformation = {}".format(str(self.deformation.tolist()))
