@@ -1776,7 +1776,7 @@ class MPStaticSet(DerivedVaspInputSet):
 
 class MPHSEBSSet(DerivedVaspInputSet):
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure, prev_chgcar_path=None, **kwargs):
         """
         Init a MPHSEBSSet. Note that HSE is SCF calcs only. This input set
         does a static HSE calculation at either a uniform mesh or
@@ -1784,9 +1784,11 @@ class MPHSEBSSet(DerivedVaspInputSet):
 
         Args:
             structure (Structure): Structure from previous run.
+            prev_chgcar_path (str): Path to CHGCAR from previous run.
             \*\*kwargs: kwargs supported by MPHSEBSVaspInputSet.
         """
         self.structure = structure
+        self.prev_chgcar_path = prev_chgcar_path
         self.parent_vis = MPHSEBSVaspInputSet(**kwargs)
 
     @property
@@ -1805,9 +1807,18 @@ class MPHSEBSSet(DerivedVaspInputSet):
     def potcar(self):
         return self.parent_vis.get_potcar(self.structure)
 
+    def write_input(self, output_dir,
+                    make_dir_if_not_present=True, include_cif=False):
+        super(MPHSEBSSet, self).write_input(output_dir,
+            make_dir_if_not_present=make_dir_if_not_present,
+            include_cif=include_cif)
+        if self.prev_chgcar_path:
+            shutil.copy(self.prev_chgcar_path,
+                        os.path.join(output_dir, "CHGCAR"))
+
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, mode="Uniform",
-                       reciprocal_density=50, **kwargs):
+                       reciprocal_density=50, copy_chgcar=True, **kwargs):
         """
         Generate a set of Vasp input files for static calculations from a
         directory of previous Vasp run.
@@ -1823,6 +1834,11 @@ class MPHSEBSSet(DerivedVaspInputSet):
         """
 
         vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
+
+        # note: don't standardize the cell because we want to retain k-points
+        prev_structure = get_structure_from_prev_run(vasprun, outcar,
+                                                     sym_prec=0)
+
         added_kpoints = []
         bs = vasprun.get_band_structure()
         vbm, cbm = bs.get_vbm()["kpoint"], bs.get_cbm()["kpoint"]
@@ -1831,14 +1847,15 @@ class MPHSEBSSet(DerivedVaspInputSet):
         if cbm:
             added_kpoints.append(cbm.frac_coords)
 
-        # note: don't standardize the cell because we want to retain k-points
-        prev_structure = get_structure_from_prev_run(vasprun, outcar,
-                                                     sym_prec=0)
+        if copy_chgcar:
+            chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
+            if chgcars:
+                chgcar_path = sorted(chgcars)[-1]
 
         return MPHSEBSSet(
             structure=prev_structure,
             added_kpoints=added_kpoints, reciprocal_density=reciprocal_density,
-            mode=mode, **kwargs)
+            mode=mode, prev_chgcar_path=chgcar_path, **kwargs)
 
 
 class MPNonSCFSet(DerivedVaspInputSet):
