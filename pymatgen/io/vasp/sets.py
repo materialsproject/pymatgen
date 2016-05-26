@@ -74,11 +74,6 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         """Poscar object"""
         pass
 
-    @abc.abstractproperty
-    def potcar_symbols(self):
-        """Potcar object"""
-        pass
-
     @property
     def potcar_symbols(self):
         elements = self.poscar.site_symbols
@@ -373,10 +368,7 @@ class DictSet(VaspInputSet):
             "KPOINTS": self.kpoints_settings,
             "POTCAR": self.potcar_settings
         }
-        return {
-            "structure": self.structure.as_dict(),
-            "name": self.name,
-            "config_dict": config_dict,
+        kwargs = {
             "hubbard_off": self.hubbard_off,
             "constrain_total_magmom": self.set_nupdown,
             "sort_structure": self.sort_structure,
@@ -384,6 +376,12 @@ class DictSet(VaspInputSet):
             "ediff_per_atom": self.ediff_per_atom,
             "force_gamma": self.force_gamma,
             "reduce_structure": self.reduce_structure,
+        }
+        return {
+            "structure": self.structure.as_dict(),
+            "name": self.name,
+            "config_dict": config_dict,
+            "kwargs": kwargs,
             "@class": self.__class__.__name__,
             "@module": self.__class__.__module__,
         }
@@ -392,13 +390,7 @@ class DictSet(VaspInputSet):
     def from_dict(cls, d):
         return cls(structure=Structure.from_dict(d["structure"]),
                    name=d["name"], config_dict=d["config_dict"],
-                   hubbard_off=d.get("hubbard_off", False),
-                   constrain_total_magmom=d["constrain_total_magmom"],
-                   sort_structure=d.get("sort_structure", True),
-                   potcar_functional=d.get("potcar_functional", None),
-                   ediff_per_atom=d.get("ediff_per_atom", True),
-                   force_gamma=d.get("force_gamma", False),
-                   reduce_structure=d.get("reduce_structure", None))
+                   **d["kwargs"])
 
 
 class BuiltinConfigSet(DictSet):
