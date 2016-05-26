@@ -214,7 +214,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
     @lazy_property
     def md5(self):
         """MD5 hash value."""
-        if self.has_dojo_report and "md5" in self.dojo_report: return self.dojo_report["md5"]
+        #if self.has_dojo_report and "md5" in self.dojo_report: return self.dojo_report["md5"]
         return self.compute_md5()
 
     def compute_md5(self):
