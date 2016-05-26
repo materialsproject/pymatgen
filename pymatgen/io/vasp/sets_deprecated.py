@@ -985,89 +985,99 @@ class MPStaticDielectricDFPTVaspInputSet(DictVaspInputSet):
             del self.incar_settings['NSW']
 
 
-class MPBSHSEVaspInputSet(DictVaspInputSet):
+class MPHSEBSVaspInputSet(DictVaspInputSet):
     """
-    Implementation of a VaspInputSet for HSE band structure computations
+    Implementation of a VaspInputSet for HSE band structure computations.
     Remember that HSE band structures cannot be non-self consistent. So, a band
-    structure along syymetry lines for instance needs a uniform grid with
-    appropriate weights + weight 0 path in reciprocal space
+    structure along symmetry lines for instance needs BOTH a uniform grid with
+    appropriate weights + weight 0 path in reciprocal space.
+
+    Thus, the "Uniform" mode is just like regular static SCF but allows adding
+    custom kpoints (e.g., corresponding to known VBM/CBM) to the uniform grid
+    that have zero weight (e.g., for better gap estimate).
+
+    The "Line" mode is just like Uniform mode, but additionally adds k-points
+    along symmetry lines with zero weight.
 
     Args:
         user_incar_settings(dict): A dict specifying additional incar
             settings
         added_kpoints: a list of kpoints (list of 3 number list) with weight 0
             added to the run. The k-points are in fractional coordinates
-        kpoints_density: the kpoint density of the uniform grid used for the
+        kpoints_density: the reciprocal_density of the uniform grid used for the
             band structure run (By default: this is the same as in
-            MPHSEVaspInputSet, i.e. 1000 / atom). Note that the uniform grid is
+            MPHSEVaspInputSet). Note that the uniform grid is
             always Gamma centered for now (this might be changed ?).
         mode: Line: Generate k-points along symmetry lines for
             bandstructure. Uniform: Generate uniform k-points grid
 
     """
 
-    def __init__(self, user_incar_settings=None, added_kpoints=None, mode="Line",
-                 kpoints_density=None, kpoints_line_density=20):
-        super(MPBSHSEVaspInputSet, self).__init__(
+    def __init__(self, user_incar_settings=None, added_kpoints=None,
+                 mode="Uniform", reciprocal_density=None,
+                 kpoints_line_density=20):
+
+        super(MPHSEBSVaspInputSet, self).__init__(
             "Materials Project HSE Band Structure",
             loadfn(os.path.join(MODULE_DIR, "MPHSEVaspInputSet.yaml")))
-        self.user_incar_settings = user_incar_settings if \
-            user_incar_settings is not None else {}
+
+        self.user_incar_settings = user_incar_settings or {}
         self.incar_settings.update(
             {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 0, "LCHARG": False})
         self.incar_settings.update(self.user_incar_settings)
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
-        self.kpoints_density = (kpoints_density if kpoints_density is not None
-                                else self.kpoints_settings['grid_density'])
+        self.reciprocal_density = reciprocal_density or \
+                                  self.kpoints_settings['reciprocal_density']
         self.kpoints_line_density = kpoints_line_density
 
     def get_kpoints(self, structure):
-        self.kpoints_settings['grid_density'] = self.kpoints_density
-        grid = super(MPBSHSEVaspInputSet, self).get_kpoints(structure).kpts
+        kpts = []
+        weights = []
+        all_labels = []
+
+        # for both modes, include the Uniform mesh w/standard weights
+        grid = Kpoints.automatic_density_by_vol(structure,
+                                                self.reciprocal_density).kpts
+        ir_kpts = SpacegroupAnalyzer(structure, symprec=0.1)\
+            .get_ir_reciprocal_mesh(grid[0])
+        for k in ir_kpts:
+            kpts.append(k[0])
+            weights.append(int(k[1]))
+            all_labels.append(None)
+
+        # for both modes, include any user-added kpoints w/zero weight
+        for k in self.added_kpoints:
+            kpts.append(k)
+            weights.append(0.0)
+            all_labels.append("user-defined")
+
+        # for line mode only, add the symmetry lines w/zero weight
         if self.mode == "Line":
-            ir_kpts = SpacegroupAnalyzer(structure, symprec=0.1)\
-                .get_ir_reciprocal_mesh(grid[0])
             kpath = HighSymmKpath(structure)
-            frac_k_points, labels = kpath.get_kpoints(line_density=self.kpoints_line_density,
-                                                      coords_are_cartesian=False)
-            kpts = []
-            weights = []
-            all_labels = []
-            for k in ir_kpts:
-                kpts.append(k[0])
-                weights.append(int(k[1]))
-                all_labels.append(None)
+            frac_k_points, labels = kpath.get_kpoints(
+                line_density=self.kpoints_line_density,
+                coords_are_cartesian=False)
+
             for k in range(len(frac_k_points)):
                 kpts.append(frac_k_points[k])
                 weights.append(0.0)
                 all_labels.append(labels[k])
-            return Kpoints(comment="HSE run along symmetry lines",
-                           style=Kpoints.supported_modes.Reciprocal,
-                           num_kpts=len(kpts),
-                           kpts=kpts, kpts_weights=weights, labels=all_labels)
 
-        elif self.mode == "Uniform":
-            ir_kpts = SpacegroupAnalyzer(structure, symprec=0.1)\
-                .get_ir_reciprocal_mesh(grid[0])
-            kpts = []
-            weights = []
-            for k in ir_kpts:
-                kpts.append(k[0])
-                weights.append(int(k[1]))
-            for k in self.added_kpoints:
-                kpts.append(k)
-                weights.append(0.0)
-            return Kpoints(comment="HSE run on uniform grid",
-                           style=Kpoints.supported_modes.Reciprocal,
-                           num_kpts=len(kpts),
-                           kpts=kpts, kpts_weights=weights)
+        comment = "HSE run along symmetry lines" if self.mode == "Line" \
+            else "HSE run on uniform grid"
+
+        return Kpoints(comment=comment,
+                       style=Kpoints.supported_modes.Reciprocal,
+                       num_kpts=len(kpts), kpts=kpts, kpts_weights=weights,
+                       labels=all_labels)
 
     def as_dict(self):
-        d = super(MPBSHSEVaspInputSet, self).as_dict()
+        d = super(MPHSEBSVaspInputSet, self).as_dict()
+        d['user_incar_settings'] = self.user_incar_settings
         d['added_kpoints'] = self.added_kpoints
         d['mode'] = self.mode
-        d['kpoints_density'] = self.kpoints_density
+        d['reciprocal_density'] = self.reciprocal_density
         d['kpoints_line_density'] = self.kpoints_line_density
         return d
 
@@ -1075,8 +1085,8 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
     def from_dict(cls, d):
         return cls(user_incar_settings=d.get("user_incar_settings", None),
                    added_kpoints=d.get("added_kpoints", []),
-                   mode=d.get("mode", "Line"),
-                   kpoints_density=d.get("kpoints_density", None),
+                   mode=d.get("mode", "Uniform"),
+                   reciprocal_density=d.get("reciprocal_density", None),
                    kpoints_line_density=d.get("kpoints_line_density", 20))
 
 
