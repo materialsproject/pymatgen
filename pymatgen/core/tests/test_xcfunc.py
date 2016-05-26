@@ -10,6 +10,9 @@ class LibxcFuncTest(PymatgenTest):
 
     def test_xcfunc_api(self):
         """Testing XcFunc API."""
+        # Aliases should be unique
+        assert len(XcFunc.aliases) == len(set(XcFunc.aliases))
+
         # LDA-Teter
         ixc_1 = XcFunc.from_abinit_ixc(1)
         print(ixc_1)
@@ -67,3 +70,5 @@ class LibxcFuncTest(PymatgenTest):
         assert unknown_xc not in XcFunc.aliases()
         assert unknown_xc.type == "GGA+LDA"
         assert unknown_xc.name == "GGA_X_PBE+LDA_C_PW"
+
+
