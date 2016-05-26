@@ -8,7 +8,6 @@ from __future__ import unicode_literals, division, print_function
 
 from collections import namedtuple, OrderedDict
 from monty.string import is_string
-#from monty.design_patterns import cached_class
 from monty.json import MSONable #, MontyEncoder
 from monty.functools import lazy_property
 from pymatgen.core.libxcfunc import LibxcFunc
@@ -22,7 +21,6 @@ __status__ = "Production"
 __date__ = "May 16, 2016"
 
 
-#@cached_class
 class XcFunc(MSONable):
     """
     This object stores information about the XC correlation functional 
@@ -67,19 +65,18 @@ class XcFunc(MSONable):
     xcf = LibxcFunc
     defined_aliases = OrderedDict([  # (x, c) --> type_name 
 	# LDAs
-	#TODO: This one if the good LDA-PW.
-        #((xcf.LDA_X, xcf.LDA_C_PW_MOD), type_name("LDA", "PW_MOD")),
-        ((xcf.LDA_X, xcf.LDA_C_PW), type_name("LDA", "PW")),    # 7
-        ((xcf.LDA_X, xcf.LDA_C_PZ), type_name("LDA", "PZ")),    # 2
-        ((xcf.LDA_X, xcf.LDA_C_WIGNER), type_name("LDA", "W")), # 4
-        ((xcf.LDA_X, xcf.LDA_C_HL), type_name("LDA", "HL")),    # 5
+        ((xcf.LDA_X, xcf.LDA_C_PW), type_name("LDA", "PW")),             # ixc 7
+        ((xcf.LDA_X, xcf.LDA_C_PW_MOD), type_name("LDA", "PW_MOD")),
+        ((xcf.LDA_X, xcf.LDA_C_PZ), type_name("LDA", "PZ")),             # ixc 2
+        ((xcf.LDA_X, xcf.LDA_C_WIGNER), type_name("LDA", "W")),          # ixc 4
+        ((xcf.LDA_X, xcf.LDA_C_HL), type_name("LDA", "HL")),             # ixc 5
         ((xcf.LDA_X, xcf.LDA_C_GL), type_name("LDA", "GL")),
         ((xcf.LDA_X, xcf.LDA_C_VWN), type_name("LDA", "VWN")),
 	# GGAs
         ((xcf.GGA_X_PW91, xcf.GGA_C_PW91), type_name("GGA", "PW91")),
         ((xcf.GGA_X_PBE, xcf.GGA_C_PBE), type_name("GGA", "PBE")),
-        ((xcf.GGA_X_RPBE, xcf.GGA_C_PBE), type_name("GGA", "RPBE")),      # 15
-        ((xcf.GGA_X_PBE_R, xcf.GGA_C_PBE), type_name("GGA", "revPBE")),   # 14
+        ((xcf.GGA_X_RPBE, xcf.GGA_C_PBE), type_name("GGA", "RPBE")),      # ixc 15
+        ((xcf.GGA_X_PBE_R, xcf.GGA_C_PBE), type_name("GGA", "revPBE")),   # ixc 14
         ((xcf.GGA_X_PBE_SOL, xcf.GGA_C_PBE_SOL), type_name("GGA", "PBEsol")),
         ((xcf.GGA_X_AM05, xcf.GGA_C_AM05), type_name("GGA", "AM05")),
         ((xcf.GGA_X_B88, xcf.GGA_C_LYP), type_name("GGA", "BLYP")),
@@ -92,10 +89,10 @@ class XcFunc(MSONable):
     # Fortunately, all the other cases are handled with libxc.
     abinitixc_to_libxc = {
         1: dict(xc=xcf.LDA_XC_TETER93),
-        2: dict(x=xcf.LDA_X, c=xcf.LDA_C_PZ),          # PZ
+        2: dict(x=xcf.LDA_X, c=xcf.LDA_C_PZ),          # PZ  001009
         4: dict(x=xcf.LDA_X, c=xcf.LDA_C_WIGNER),      # W
-        5: dict(x=xcf.LDA_X, c=xcf.LDA_C_HL),          # HL
-        7: dict(x=xcf.LDA_X, c=xcf.LDA_C_PW),          # PW
+        5: dict(x=xcf.LDA_X, c=xcf.LDA_C_HL),          # HL  
+        7: dict(x=xcf.LDA_X, c=xcf.LDA_C_PW),          # PW 001012
         11: dict(x=xcf.GGA_X_PBE, c=xcf.GGA_C_PBE),    # PBE
         14: dict(x=xcf.GGA_X_PBE_R, c=xcf.GGA_C_PBE),  # revPBE
         15: dict(x=xcf.GGA_X_RPBE, c=xcf.GGA_C_PBE),   # RPBE
