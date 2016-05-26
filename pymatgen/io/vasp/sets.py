@@ -1065,7 +1065,7 @@ class MPHSEBSVaspInputSet(DictVaspInputSet):
             weights.append(int(k[1]))
             all_labels.append(None)
 
-        # for both modes, include any added kpoints w/zero weight
+        # for both modes, include any user-added kpoints w/zero weight
         for k in self.added_kpoints:
             kpts.append(k)
             weights.append(0.0)
@@ -1774,16 +1774,17 @@ class MPStaticSet(DerivedVaspInputSet):
             reciprocal_density=reciprocal_density, **kwargs)
 
 
-class MPHSEGapSet(DerivedVaspInputSet):
+class MPHSEBSSet(DerivedVaspInputSet):
 
     def __init__(self, structure, **kwargs):
         """
-        Init a MPHSEGapSet. This input set does a static HSE calculation at
-        gamma point only, but adds the explicit CBM and VBM for accurate gaps
+        Init a MPHSEBSSet. Note that HSE is SCF calcs only. This input set
+        does a static HSE calculation at either a uniform mesh or
+        uniform+line mesh, with added kpoints.
 
         Args:
             structure (Structure): Structure from previous run.
-            \*\*kwargs: kwargs supported by MPBSHSEVaspInputSet.
+            \*\*kwargs: kwargs supported by MPHSEBSVaspInputSet.
         """
         self.structure = structure
         self.parent_vis = MPHSEBSVaspInputSet(**kwargs)
@@ -1805,18 +1806,20 @@ class MPHSEGapSet(DerivedVaspInputSet):
         return self.parent_vis.get_potcar(self.structure)
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, kpoints_density=1, **kwargs):
+    def from_prev_calc(cls, prev_calc_dir, mode="Uniform",
+                       reciprocal_density=50, **kwargs):
         """
         Generate a set of Vasp input files for static calculations from a
         directory of previous Vasp run.
 
         Args:
-            prev_calc_dir (str): Directory containing the outputs(
-                vasprun.xml and OUTCAR) of previous vasp run.
-            kpoints_density (int): density of k-mesh
-            \*\*kwargs: All kwargs supported by MPBSHSEStaticSet,
-                other than prev_incar and prev_structure and prev_kpoints which
-                are determined from the prev_calc_dir / inputset.
+            prev_calc_dir (str): Directory containing the outputs
+                (vasprun.xml and OUTCAR) of previous vasp run.
+            mode (str): Either "Uniform" or "Line"
+            reciprocal_density (int): density of k-mesh
+            \*\*kwargs: All kwargs supported by MPHSEBSStaticSet,
+                other than prev_structure which is determined from the previous
+                calc dir.
         """
 
         vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
@@ -1832,9 +1835,10 @@ class MPHSEGapSet(DerivedVaspInputSet):
         prev_structure = get_structure_from_prev_run(vasprun, outcar,
                                                      sym_prec=0)
 
-        return MPHSEGapSet(
+        return MPHSEBSSet(
             structure=prev_structure,
-            added_kpoints=added_kpoints, mode="Uniform")
+            added_kpoints=added_kpoints, reciprocal_density=reciprocal_density,
+            mode=mode, **kwargs)
 
 
 class MPNonSCFSet(DerivedVaspInputSet):
