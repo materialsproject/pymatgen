@@ -873,7 +873,7 @@ class StructureMatcher(MSONable):
                     best = m[0]
             return best
 
-    def get_all_anonymous_mappings(self, struct1, struct2):
+    def get_all_anonymous_mappings(self, struct1, struct2, niggli=True):
         """
         Performs an anonymous fitting, which allows distinct species in one
         structure to map to another. Returns a dictionary of species
@@ -887,7 +887,8 @@ class StructureMatcher(MSONable):
             list of species mappings that map struct1 to struct2.
         """
         struct1, struct2 = self._process_species([struct1, struct2])
-        struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
+        struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2,
+                                                              niggli)
 
         matches = self._anonymous_match(struct1, struct2, fu, s1_supercell,
                                         break_on_match=True)
@@ -895,7 +896,7 @@ class StructureMatcher(MSONable):
         if matches:
             return [m[0] for m in matches]
 
-    def fit_anonymous(self, struct1, struct2):
+    def fit_anonymous(self, struct1, struct2, niggli=True):
         """
         Performs an anonymous fitting, which allows distinct species in one
         structure to map to another. E.g., to compare if the Li2O and Na2O
@@ -909,7 +910,8 @@ class StructureMatcher(MSONable):
             True/False: Whether a species mapping can map struct1 to stuct2
         """
         struct1, struct2 = self._process_species([struct1, struct2])
-        struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
+        struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2,
+                                                              niggli)
 
         matches = self._anonymous_match(struct1, struct2, fu, s1_supercell,
                                         break_on_match=True, single_match=True)
