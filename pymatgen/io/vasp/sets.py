@@ -1055,7 +1055,7 @@ class MPHSEBSVaspInputSet(DictVaspInputSet):
         weights = []
         all_labels = []
 
-        # for both modes, include the Uniform mesh
+        # for both modes, include the Uniform mesh w/standard weights
         grid = Kpoints.automatic_density_by_vol(structure,
                                                 self.reciprocal_density).kpts
         ir_kpts = SpacegroupAnalyzer(structure, symprec=0.1)\
@@ -1065,13 +1065,13 @@ class MPHSEBSVaspInputSet(DictVaspInputSet):
             weights.append(int(k[1]))
             all_labels.append(None)
 
-        # for both modes, include any added kpoints
+        # for both modes, include any added kpoints w/zero weight
         for k in self.added_kpoints:
             kpts.append(k)
             weights.append(0.0)
             all_labels.append("user-defined")
 
-        # for line mode only, add the symmetry lines
+        # for line mode only, add the symmetry lines w/zero weight
         if self.mode == "Line":
             kpath = HighSymmKpath(structure)
             frac_k_points, labels = kpath.get_kpoints(
@@ -1087,15 +1087,16 @@ class MPHSEBSVaspInputSet(DictVaspInputSet):
             else "HSE run on uniform grid"
 
         return Kpoints(comment=comment,
-                           style=Kpoints.supported_modes.Reciprocal,
-                           num_kpts=len(kpts),
-                           kpts=kpts, kpts_weights=weights, labels=all_labels)
+                       style=Kpoints.supported_modes.Reciprocal,
+                       num_kpts=len(kpts), kpts=kpts, kpts_weights=weights,
+                       labels=all_labels)
 
     def as_dict(self):
         d = super(MPHSEBSVaspInputSet, self).as_dict()
+        d['user_incar_settings'] = self.user_incar_settings
         d['added_kpoints'] = self.added_kpoints
         d['mode'] = self.mode
-        d['kpoints_density'] = self.kpoints_density
+        d['reciprocal_density'] = self.reciprocal_density
         d['kpoints_line_density'] = self.kpoints_line_density
         return d
 
@@ -1103,10 +1104,9 @@ class MPHSEBSVaspInputSet(DictVaspInputSet):
     def from_dict(cls, d):
         return cls(user_incar_settings=d.get("user_incar_settings", None),
                    added_kpoints=d.get("added_kpoints", []),
-                   mode=d.get("mode", "Line"),
-                   kpoints_density=d.get("kpoints_density", None),
+                   mode=d.get("mode", "Uniform"),
+                   reciprocal_density=d.get("reciprocal_density", None),
                    kpoints_line_density=d.get("kpoints_line_density", 20))
-
 
 
 class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
