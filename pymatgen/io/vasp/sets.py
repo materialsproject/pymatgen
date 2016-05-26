@@ -21,7 +21,7 @@ from monty.serialization import loadfn
 from monty.dev import deprecated
 
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
-from pymatgen.io.vasp.outputs import Vasprun, Outcar, Chgcar
+from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from monty.json import MSONable, MontyDecoder
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -1830,7 +1830,7 @@ class MPHSEGapSet(DerivedVaspInputSet):
 
 class MPNonSCFSet(DerivedVaspInputSet):
 
-    def __init__(self, structure, prev_incar=None, prev_chgcar=None,
+    def __init__(self, structure, prev_incar=None, prev_chgcar_path=None,
                  mode="line", nedos=601, reciprocal_density=100, sym_prec=0.1,
                  kpoints_line_density=20, optics=False, **kwargs):
         """
@@ -1840,7 +1840,7 @@ class MPNonSCFSet(DerivedVaspInputSet):
         Args:
             prev_incar (Incar): Incar file from previous run.
             prev_structure (Structure): Structure from previous run.
-            prev_chgcar (Chgcar): Chgcar from previous run.
+            prev_chgcar_path (str): Path to CHGCAR from previous run.
             mode (str): Line or Uniform mode supported.
             nedos (int): nedos parameter. Default to 601.
             reciprocal_density (int): density of k-mesh by reciprocal
@@ -1851,7 +1851,7 @@ class MPNonSCFSet(DerivedVaspInputSet):
         """
         self.structure = structure
         self.prev_incar = prev_incar
-        self.prev_chgcar = prev_chgcar
+        self.prev_chgcar_path = prev_chgcar_path
         self.kwargs = kwargs
 
         self.nedos = nedos
@@ -1939,8 +1939,9 @@ class MPNonSCFSet(DerivedVaspInputSet):
         super(MPNonSCFSet, self).write_input(output_dir,
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
-        if self.prev_chgcar:
-            self.prev_chgcar.write_file(os.path.join(output_dir, "CHGCAR"))
+        if self.prev_chgcar_path:
+            shutil.copy(self.prev_chgcar_path,
+                        os.path.join(output_dir, "CHGCAR"))
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
@@ -1992,11 +1993,11 @@ class MPNonSCFSet(DerivedVaspInputSet):
         nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
         incar.update({"ISPIN": ispin, "NBANDS": nbands})
 
-        chgcar = None
+        chgcar_path = None
         if copy_chgcar:
             chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
-            if len(chgcars) > 0:
-                chgcar = Chgcar.from_file(sorted(chgcars)[-1])
+            if chgcars:
+                chgcar_path = sorted(chgcars)[-1]
 
         # multiply the reciprocal density if needed:
         if small_gap_multiply:
@@ -2005,14 +2006,14 @@ class MPNonSCFSet(DerivedVaspInputSet):
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
 
         return MPNonSCFSet(structure=structure, prev_incar=incar,
-                           prev_chgcar=chgcar,
+                           prev_chgcar_path=chgcar_path,
                            reciprocal_density=reciprocal_density, **kwargs)
 
 
 class MPSOCSet(MPStaticSet):
 
     def __init__(self, structure, saxis=(0, 0, 1), prev_incar=None,
-                 prev_chgcar=None, reciprocal_density=100, **kwargs):
+                 prev_chgcar_path=None, reciprocal_density=100, **kwargs):
         """
         Init a MPSOCSet. Typically, you would use the classmethod
         from_prev_calc instead.
@@ -2023,7 +2024,7 @@ class MPSOCSet(MPStaticSet):
                 components. eg:- magmom = [[0,0,2], ...]
             saxis (tuple): magnetic moment orientation
             prev_incar (Incar): Incar file from previous run.
-            prev_chgcar (Chgcar): Chgcar from previous run.
+            prev_chgcar_path (str): Path to CHGCAR from previous run.
             reciprocal_density (int): density of k-mesh by reciprocal
                                     volume (defaults to 100)
             \*\*kwargs: kwargs supported by MPVaspInputSet.
@@ -2034,7 +2035,7 @@ class MPSOCSet(MPStaticSet):
                              "property and each magnetic moment value must have 3 "
                              "components. eg:- magmom = [0,0,2]")
         self.saxis = saxis
-        self.prev_chgcar = prev_chgcar
+        self.prev_chgcar_path = prev_chgcar_path
         super(MPSOCSet, self).__init__(structure, prev_incar=prev_incar,
                                       reciprocal_density=reciprocal_density,
                                       **kwargs)
@@ -2058,8 +2059,9 @@ class MPSOCSet(MPStaticSet):
         super(MPSOCSet, self).write_input(output_dir,
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
-        if self.prev_chgcar:
-            self.prev_chgcar.write_file(os.path.join(output_dir, "CHGCAR"))
+        if self.prev_chgcar_path:
+            shutil.copy(self.prev_chgcar_path,
+                        os.path.join(output_dir, "CHGCAR"))
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
@@ -2118,11 +2120,11 @@ class MPSOCSet(MPStaticSet):
         nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
         incar.update({"NBANDS": nbands})
 
-        chgcar = None
+        chgcar_path = None
         if copy_chgcar:
             chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
-            if len(chgcars) > 0:
-                chgcar = Chgcar.from_file(sorted(chgcars)[-1])
+            if chgcars:
+                chgcar_path = sorted(chgcars)[-1]
 
         # multiply the reciprocal density if needed:
         if small_gap_multiply:
@@ -2131,7 +2133,7 @@ class MPSOCSet(MPStaticSet):
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
 
         return MPSOCSet(structure, prev_incar=incar,
-                        prev_chgcar=chgcar,
+                        prev_chgcar_path=chgcar_path,
                         reciprocal_density=reciprocal_density, **kwargs)
 
 
