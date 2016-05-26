@@ -419,14 +419,26 @@ class BuiltinConfigSet(DictSet):
                                                **kwargs)
         self.kwargs = kwargs
 
-    def as_dict(self):
-        return {
-            "structure": self.structure.as_dict(),
+    def as_dict(self, verbosity=2):
+        """
+
+        Args:
+            verbosity (int): How many info to include in dict. If verbosity = 1,
+                the Structure is not included. Note that verbosities lower than
+                the default is not guanranteed to work with the from_dict.
+
+        Returns:
+            Dict representation.
+        """
+        d = {
             "config_name": self.name,
             "kwargs": self.kwargs,
             "@class": self.__class__.__name__,
             "@module": self.__class__.__module__,
         }
+        if verbosity > 1:
+            d["structure"] = self.structure.as_dict()
+        return d
 
     @classmethod
     def from_dict(cls, d):
@@ -699,7 +711,6 @@ class MPHSEBSSet(VaspInputSet):
             structure=prev_structure,
             added_kpoints=added_kpoints, reciprocal_density=reciprocal_density,
             mode=mode, prev_chgcar_path=chgcar_path, **kwargs)
-
 
 
 class MPNonSCFSet(VaspInputSet):
