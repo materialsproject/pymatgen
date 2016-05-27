@@ -7,8 +7,6 @@ from __future__ import division, unicode_literals, print_function
 import os
 import abc
 
-import re
-import traceback
 import shutil
 from functools import partial
 from glob import glob
@@ -22,7 +20,7 @@ from monty.serialization import loadfn
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
-from monty.json import MSONable, MontyDecoder, jsanitize
+from monty.json import MSONable, MontyDecoder
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.analysis.structure_matcher import StructureMatcher
