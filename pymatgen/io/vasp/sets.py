@@ -137,8 +137,8 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
             v.write_file(os.path.join(output_dir, k))
             if k == "POSCAR" and include_cif:
                 v.structure.to(
-                    filename=os.path.join(output_dir,
-                                          "%s.cif" % v.structure.formula))
+                    filename=os.path.join(
+                        output_dir, "%s.cif" % v.structure.formula))
 
     def as_dict(self, verbosity=2):
         d = MSONable.as_dict(self)
@@ -649,14 +649,6 @@ class MPHSEBSSet(MPHSERelaxSet):
                        style=Kpoints.supported_modes.Reciprocal,
                        num_kpts=len(kpts), kpts=kpts, kpts_weights=weights,
                        labels=all_labels)
-
-    def write_input(self, output_dir,
-                    make_dir_if_not_present=True, include_cif=False):
-        super(MPHSEBSSet, self).write_input(output_dir,
-            make_dir_if_not_present=make_dir_if_not_present,
-            include_cif=include_cif)
-        for k, v in self.files_to_transfer.items():
-            shutil.copy(v, os.path.join(output_dir, k))
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, mode="Uniform",
