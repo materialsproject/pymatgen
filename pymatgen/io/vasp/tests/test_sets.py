@@ -170,7 +170,6 @@ class MITMPRelaxSetTest(unittest.TestCase):
         #Make sure Matproject sulfates are ok.
         self.assertEqual(MPRelaxSet(struct).incar['LDAUU'], [5.3, 0, 0])
 
-
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
         self.assertEqual(kpoints.kpts, [[2, 4, 6]])
@@ -216,6 +215,9 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(v.incar_settings["MAGMOM"],
                          {"Fe": 10, "S": -5, "Mn3+": 100})
 
+    def test_hubbard_off(self):
+        p = MPRelaxSet(self.structure, user_incar_settings={"LDAU": False})
+        self.assertNotIn("LDAUU", p.incar)
 
 # class MITMDVaspInputSetTest(unittest.TestCase):
 #
