@@ -73,8 +73,7 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
     @property
     def potcar_symbols(self):
         """
-        Returns:
-            List of POTCAR symbols.
+        List of POTCAR symbols.
         """
         elements = self.poscar.site_symbols
         potcar_symbols = []
@@ -93,9 +92,7 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
     @property
     def potcar(self):
         """
-
-        Returns:
-            Potcar object.
+        Potcar object.
         """
         if self.potcar_functional:
             p = Potcar(self.potcar_symbols, functional=self.potcar_functional)
@@ -109,7 +106,7 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         Returns all input files as a dict of {filename: vasp object}
 
         Returns:
-            dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
+            dict of {filename: object}, e.g., {'INCAR': Incar object, ...}
         """
         kpoints = self.kpoints
         incar = self.incar
@@ -235,11 +232,12 @@ class DictSet(VaspInputSet):
         self.potcar_functional = potcar_functional
         self.force_gamma = force_gamma
         self.reduce_structure = reduce_structure
-        if user_incar_settings:
-            self.incar_settings.update(user_incar_settings)
+        self.user_incar_settings = user_incar_settings
 
     @property
     def incar(self):
+        settings = dict(self.incar_settings)
+        settings.update(self.user_incar_settings)
         structure = self.structure
         incar = Incar()
         comp = structure.composition
@@ -247,45 +245,45 @@ class DictSet(VaspInputSet):
                           key=lambda e: e.X)
         most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
-        hubbard_u = self.incar_settings.get("LDAU", False)
-        for key, setting in self.incar_settings.items():
-            if key == "MAGMOM":
+        hubbard_u = settings.get("LDAU", False)
+        for k, v in settings.items():
+            if k == "MAGMOM":
                 mag = []
                 for site in structure:
                     if hasattr(site, 'magmom'):
                         mag.append(site.magmom)
                     elif hasattr(site.specie, 'spin'):
                         mag.append(site.specie.spin)
-                    elif str(site.specie) in setting:
-                        mag.append(setting.get(str(site.specie)))
+                    elif str(site.specie) in v:
+                        mag.append(v.get(str(site.specie)))
                     else:
-                        mag.append(setting.get(site.specie.symbol, 0.6))
-                incar[key] = mag
-            elif key in ('LDAUU', 'LDAUJ', 'LDAUL'):
+                        mag.append(v.get(site.specie.symbol, 0.6))
+                incar[k] = mag
+            elif k in ('LDAUU', 'LDAUJ', 'LDAUL'):
                 if hubbard_u:
-                    if hasattr(structure[0], key.lower()):
-                        m = dict([(site.specie.symbol, getattr(site, key.lower()))
+                    if hasattr(structure[0], k.lower()):
+                        m = dict([(site.specie.symbol, getattr(site, k.lower()))
                                   for site in structure])
-                        incar[key] = [m[sym] for sym in poscar.site_symbols]
-                    elif most_electroneg in setting.keys():
-                        incar[key] = [setting[most_electroneg].get(sym, 0)
+                        incar[k] = [m[sym] for sym in poscar.site_symbols]
+                    elif most_electroneg in v.keys():
+                        incar[k] = [v[most_electroneg].get(sym, 0)
                                       for sym in poscar.site_symbols]
                     else:
-                        incar[key] = [0] * len(poscar.site_symbols)
-            elif key.startswith("EDIFF"):
-                if "EDIFF" not in self.incar_settings and key == "EDIFF_PER_ATOM":
-                    incar["EDIFF"] = float(setting) * structure.num_sites
+                        incar[k] = [0] * len(poscar.site_symbols)
+            elif k.startswith("EDIFF"):
+                if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
+                    incar["EDIFF"] = float(v) * structure.num_sites
                 else:
                     incar["EDIFF"] = float(self.incar_settings["EDIFF"])
             else:
-                incar[key] = setting
+                incar[k] = v
 
         has_u = hubbard_u and sum(incar['LDAUU']) > 0
         if has_u:
             # modify LMAXMIX if LSDA+U and you have d or f electrons
             # note that if the user explicitly sets LMAXMIX in settings it will
             # override this logic.
-            if 'LMAXMIX' not in self.incar_settings.keys():
+            if 'LMAXMIX' not in settings.keys():
                 # contains f-electrons
                 if any([el.Z > 56 for el in structure.composition]):
                     incar['LMAXMIX'] = 6
