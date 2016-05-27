@@ -26,8 +26,8 @@ from pymatgen.analysis.reaction_calculator import BalancedReaction
 from pymatgen.core.composition import Composition
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, \
     AbstractVoltagePair
-from pymatgen.phasediagram.pdmaker import PhaseDiagram
-from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
+from pymatgen.phasediagram.maker import PhaseDiagram
+from pymatgen.phasediagram.analyzer import PDAnalyzer
 from monty.json import MontyDecoder
 
 

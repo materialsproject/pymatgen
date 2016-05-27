@@ -128,7 +128,7 @@ class BoltztrapRunner(object):
             tmax:
                 Maximum temperature (K) for calculation (default=1300)
             tgrid:
-                Temperature interval for calculation (default=100)
+                Temperature interval for calculation (default=50)
 
     """
 
@@ -142,7 +142,7 @@ class BoltztrapRunner(object):
                  lpfac=10, run_type="BOLTZ", band_nb=None, tauref=0, tauexp=0,
                  tauen=0, soc=False, doping=None, energy_span_around_fermi=1.5,
                  scissor=0.0, kpt_line=None, spin=None, cond_band=False,
-                 tmax=1300, tgrid=100):
+                 tmax=1300, tgrid=50):
         self.lpfac = lpfac
         self._bs = bs
         self._nelec = nelec
@@ -158,7 +158,13 @@ class BoltztrapRunner(object):
         self.tauen = tauen
         self.soc = soc
         self.kpt_line = kpt_line
-        self.doping = doping or [1e16, 1e17, 1e18, 1e19, 1e20, 1e21, 1e22]
+        if doping:
+            self.doping = doping
+        else:
+            self.doping = []
+            for d in [1e16, 1e17, 1e18, 1e19, 1e20, 1e21]:
+                self.doping.extend([1*d, 2.5*d, 5*d, 7.5*d])
+            self.doping.append(1e22)
         self.energy_span_around_fermi = energy_span_around_fermi
         self.scissor = scissor
         self.tmax = tmax
@@ -170,8 +176,6 @@ class BoltztrapRunner(object):
         """
         automatically determine the energy range as min/max eigenvalue
         minus/plus the buffer_in_ev
-        Args:
-            buffer_in_ev:
         """
         emins = [min([e_k[0] for e_k in self._bs.bands[Spin.up]])]
         emaxs = [max([e_k[0] for e_k in self._bs.bands[Spin.up]])]
@@ -498,10 +502,34 @@ class BoltztrapRunner(object):
                             os.path.join(output_dir, "BoltzTraP.def"))
 
     def run(self, path_dir=None, convergence=True, write_input=True,
-            clear_dir=False, min_egrid=0.00005, max_lpfac=150):
+            clear_dir=False, max_lpfac=150, min_egrid=0.00005):
+        """
+        Write inputs (optional), run BoltzTraP, and ensure
+        convergence (optional)
+        Args:
+            path_dir (str): directory in which to run BoltzTraP
+            convergence (bool): whether to check convergence and make
+                corrections if needed
+            write_input: (bool) whether to write input files before the run
+                (required for convergence mode)
+            clear_dir: (bool) whether to remove all files in the path_dir
+                before starting
+            max_lpfac: (float) maximum lpfac value to try before reducing egrid
+                in convergence mode
+            min_egrid: (float) minimum egrid value to try before giving up in
+                convergence mode
+
+        Returns:
+
+        """
+
         # TODO: consider making this a part of custodian rather than pymatgen
         # A lot of this functionality (scratch dirs, handlers, monitors)
         # is built into custodian framework
+
+        if convergence and not write_input:
+            raise ValueError("Convergence mode requires write_input to be "
+                             "true")
 
         if self.run_type in ("BANDS", "DOS", "FERMI"):
             convergence = False
@@ -520,13 +548,12 @@ class BoltztrapRunner(object):
                 self.spin = 1
 
         dir_bz_name = "boltztrap"
-        path_dir_orig = path_dir
         if path_dir is None:
             temp_dir = tempfile.mkdtemp()
             path_dir = os.path.join(temp_dir, dir_bz_name)
         else:
             path_dir = os.path.abspath(
-                os.path.join(path_dir_orig, dir_bz_name))
+                os.path.join(path_dir, dir_bz_name))
 
         if not os.path.exists(path_dir):
             os.mkdir(path_dir)
@@ -721,7 +748,7 @@ class BoltztrapAnalyzer(object):
             dos_partial: Data for the partial DOS projected on sites and
                 orbitals
             vol: Volume of the unit cell in angstrom cube (A^3)
-            warning: True if Boltztrap spitted out a warning
+            warning: string if BoltzTraP outputted a warning, else None
             bz_bands: Data for interpolated bands on a k-point line
                 (run_type=BANDS)
             bz_kpoints: k-point in reciprocal coordinates for interpolated
@@ -750,150 +777,10 @@ class BoltztrapAnalyzer(object):
         self._bz_kpoints = bz_kpoints
         self.fermi_surface_data = fermi_surface_data
 
-    @staticmethod
-    def _make_boltztrap_analyzer_from_data(
-            data_full=None, data_hall=None, data_dos=None,
-            temperature_steps=None, mu_steps=None,
-            efermi=None, gap=None, doping=None, data_doping_full=None,
-            data_doping_hall=None, vol=None,
-            warning=False, bz_bands=None, bz_kpoints=None, run_type="BOLTZ",
-            dos_spin=None, fermi_surface_data=None):
-        """
-        Make a BoltztrapAnalyzer object from raw data typically parse from
-        files.
-        """
-        if run_type == "BOLTZ":
-            cond = {t: [] for t in temperature_steps}
-            seebeck = {t: [] for t in temperature_steps}
-            kappa = {t: [] for t in temperature_steps}
-            hall = {t: [] for t in temperature_steps}
-            carrier_conc = {t: [] for t in temperature_steps}
-            dos_full = {'energy': [], 'density': []}
-            warning = warning
-            new_doping = {'p': [], 'n': []}
-            for d in doping:
-                if d > 0:
-                    new_doping['p'].append(d)
-                else:
-                    new_doping['n'].append(-d)
-
-            mu_doping = {'p': {t: [] for t in temperature_steps},
-                         'n': {t: [] for t in temperature_steps}}
-            seebeck_doping = {'p': {t: [] for t in temperature_steps},
-                              'n': {t: [] for t in temperature_steps}}
-            cond_doping = {'p': {t: [] for t in temperature_steps},
-                           'n': {t: [] for t in temperature_steps}}
-            kappa_doping = {'p': {t: [] for t in temperature_steps},
-                            'n': {t: [] for t in temperature_steps}}
-            hall_doping = {'p': {t: [] for t in temperature_steps},
-                           'n': {t: [] for t in temperature_steps}}
-            for d in data_full:
-                carrier_conc[d[1]].append(d[2])
-                tens_cond = [[d[3], d[4], d[5]],
-                             [d[6], d[7], d[8]],
-                             [d[9], d[10], d[11]]]
-                cond[d[1]].append(tens_cond)
-                tens_seebeck = [[d[12], d[13], d[14]],
-                                [d[15], d[16], d[17]],
-                                [d[18], d[19], d[20]]]
-                seebeck[d[1]].append(tens_seebeck)
-                tens_kappa = [[d[21], d[22], d[23]],
-                              [d[24], d[25], d[26]],
-                              [d[27], d[28], d[29]]]
-                kappa[d[1]].append(tens_kappa)
-
-            for d in data_hall:
-                hall_tens = [[[d[3], d[4], d[5]],
-                              [d[6], d[7], d[8]],
-                              [d[9], d[10], d[11]]],
-                             [[d[12], d[13], d[14]],
-                              [d[15], d[16], d[17]],
-                              [d[18], d[19], d[20]]],
-                             [[d[21], d[22], d[23]],
-                              [d[24], d[25], d[26]],
-                              [d[27], d[28], d[29]]]]
-                hall[d[1]].append(hall_tens)
-
-            for d in data_doping_full:
-                tens_cond = [[d[2], d[3], d[4]],
-                             [d[5], d[6], d[7]],
-                             [d[8], d[9], d[10]]]
-                tens_seebeck = [[d[11], d[12], d[13]],
-                                [d[14], d[15], d[16]],
-                                [d[17], d[18], d[19]]]
-                tens_kappa = [[d[20], d[21], d[22]],
-                              [d[23], d[24], d[25]],
-                              [d[26], d[27], d[28]]]
-
-                if d[1] < 0:
-                    mu_doping['n'][d[0]].append(Energy(d[-1], "Ry").to("eV"))
-                    cond_doping['n'][d[0]].append(tens_cond)
-                    seebeck_doping['n'][d[0]].append(tens_seebeck)
-                    kappa_doping['n'][d[0]].append(tens_kappa)
-                else:
-                    mu_doping['p'][d[0]].append(Energy(d[-1], "Ry").to("eV"))
-                    cond_doping['p'][d[0]].append(tens_cond)
-                    seebeck_doping['p'][d[0]].append(tens_seebeck)
-                    kappa_doping['p'][d[0]].append(tens_kappa)
-
-            for d in data_doping_hall:
-                hall_tens = [[[d[2], d[3], d[4]],
-                              [d[5], d[6], d[7]],
-                              [d[8], d[9], d[10]]],
-                             [[d[11], d[12], d[13]],
-                              [d[14], d[15], d[16]],
-                              [d[17], d[18], d[19]]],
-                             [[d[20], d[21], d[22]],
-                              [d[23], d[24], d[25]],
-                              [d[26], d[27], d[28]]]]
-                if d[1] < 0:
-                    hall_doping['n'][d[0]].append(hall_tens)
-                else:
-                    hall_doping['p'][d[0]].append(hall_tens)
-
-            for t in data_dos['total']:
-                dos_full['energy'].append(t[0])
-                dos_full['density'].append(t[1])
-
-            dos = Dos(efermi, dos_full['energy'],
-                      {Spin.up: dos_full['density']})
-            dos_partial = data_dos['partial']
-
-            return BoltztrapAnalyzer(
-                gap, mu_steps, cond, seebeck, kappa, hall, new_doping,
-                mu_doping,
-                seebeck_doping, cond_doping, kappa_doping, hall_doping, dos,
-                dos_partial, carrier_conc, vol, warning)
-
-        elif run_type == "BANDS":
-
-            return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints)
-
-        elif run_type == "DOS":
-            if not dos_spin:
-                print(
-                    "Spin component set to up (dos_spin=1). Set dos_spin=-1 in from_files function if you want spin down")
-                dos_spin = 1
-
-            dos_full = {'energy': [], 'density': []}
-
-            for t in data_dos['total']:
-                dos_full['energy'].append(t[0])
-                dos_full['density'].append(t[1])
-
-            dos = Dos(efermi, dos_full['energy'],
-                      {Spin(dos_spin): dos_full['density']})
-            dos_partial = data_dos['partial']
-
-            return BoltztrapAnalyzer(dos=dos, dos_partial=dos_partial)
-
-        elif run_type == "FERMI":
-            return BoltztrapAnalyzer(fermi_surface_data=fermi_surface_data)
-
     def get_symm_bands(self, structure, efermi, kpt_line=None,
                        labels_dict=None):
         """
-            Function useful to read bands from Boltztap output and get a
+            Function useful to read bands from Boltztrap output and get a
             BandStructureSymmLine object comparable with that one from a DFT
             calculation (if the same kpt_line is provided). Default kpt_line
             and labels_dict is the standard path of high symmetry k-point for
@@ -951,10 +838,11 @@ class BoltztrapAnalyzer(object):
 
         except:
             raise BoltztrapError(
-                "Bands are not in output of BoltzTraP.\nBolztrapRunner have "
-                "to be run with run_type=BANDS")
+                "Bands are not in output of BoltzTraP.\nBolztrapRunner must "
+                "be run with run_type=BANDS")
 
-    def check_acc_bzt_bands(self, sbs_bz, sbs_ref, warn_thr=0.01):
+    @staticmethod
+    def check_acc_bzt_bands(sbs_bz, sbs_ref):
         """
             Compare sbs_bz BandStructureSymmLine calculated with boltztrap with
             the sbs_ref BandStructureSymmLine as reference (from MP for
@@ -986,10 +874,10 @@ class BoltztrapAnalyzer(object):
             raise BoltztrapError(
                 "band check implemented only for bandstructure with gap")
 
-    def get_seebeck(self, output='eig', doping_levels=True):
+    def get_seebeck(self, output='eigs', doping_levels=True):
         """
-            Gives the seebeck coefficient in either a full 3x3 tensor form,
-            as 3 eigenvalues, or as the average value
+            Gives the seebeck coefficient (microV/K) in either a
+            full 3x3 tensor form, as 3 eigenvalues, or as the average value
             (trace/3.0) If doping_levels=True, the results are given at
             different p and n doping
             levels (given by self.doping), otherwise it is given as a series
@@ -997,20 +885,20 @@ class BoltztrapAnalyzer(object):
 
             Args:
                 output (string): the type of output. 'tensor' give the full
-                3x3 tensor, 'eig' its 3 eigenvalues and
+                3x3 tensor, 'eigs' its 3 eigenvalues and
                 'average' the average of the three eigenvalues
                 doping_levels (boolean): True for the results to be given at
                 different doping levels, False for results
                 at different electron chemical potentials
 
             Returns:
-                If doping_levels=True, a dictionnary {temp:{'p':[],'n':[]}}.
+                If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}.
                 The 'p' links to Seebeck at p-type doping
                 and 'n' to the Seebeck at n-type doping. Otherwise, returns a
                 {temp:[]} dictionary
                 The result contains either the sorted three eigenvalues of
                 the symmetric
-                Seebeck tensor (output='eig') or a full tensor (3x3 array) (
+                Seebeck tensor (output='eigs') or a full tensor (3x3 array) (
                 output='tensor') or as an average
                 (output='average').
 
@@ -1021,11 +909,11 @@ class BoltztrapAnalyzer(object):
                                                    output,
                                                    doping_levels, 1e6)
 
-    def get_conductivity(self, output='eig', doping_levels=True,
+    def get_conductivity(self, output='eigs', doping_levels=True,
                          relaxation_time=1e-14):
         """
-            Gives the conductivity in either a full 3x3 tensor form,
-            as 3 eigenvalues, or as the average value
+            Gives the conductivity (1/Ohm*m) in either a full 3x3 tensor
+            form, as 3 eigenvalues, or as the average value
             (trace/3.0) If doping_levels=True, the results are given at
             different p and n doping
             levels (given by self.doping), otherwise it is given as a series
@@ -1033,20 +921,21 @@ class BoltztrapAnalyzer(object):
 
             Args:
                 output (string): the type of output. 'tensor' give the full
-                3x3 tensor, 'eig' its 3 eigenvalues and
+                3x3 tensor, 'eigs' its 3 eigenvalues and
                 'average' the average of the three eigenvalues
                 doping_levels (boolean): True for the results to be given at
                 different doping levels, False for results
                 at different electron chemical potentials
+                relaxation_time (float): constant relaxation time in secs
 
             Returns:
-                If doping_levels=True, a dictionnary {temp:{'p':[],'n':[]}}.
+                If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}.
                 The 'p' links to conductivity
                 at p-type doping and 'n' to the conductivity at n-type
                 doping. Otherwise,
                 returns a {temp:[]} dictionary. The result contains either
                 the sorted three eigenvalues of the symmetric
-                conductivity tensor (format='eig') or a full tensor (3x3
+                conductivity tensor (format='eigs') or a full tensor (3x3
                 array) (output='tensor') or as an average
                 (output='average').
                 The result includes a given constant relaxation time
@@ -1058,11 +947,11 @@ class BoltztrapAnalyzer(object):
                                                    doping_levels,
                                                    relaxation_time)
 
-    def get_power_factor(self, output='eig', doping_levels=True,
+    def get_power_factor(self, output='eigs', doping_levels=True,
                          relaxation_time=1e-14):
         """
-        Gives the power factor (Seebeck^2 * conductivity) in either a full
-        3x3 tensor form,
+        Gives the power factor (Seebeck^2 * conductivity) in units
+        microW/(m*K^2) in either a full 3x3 tensor form,
         as 3 eigenvalues, or as the average value (trace/3.0) If
         doping_levels=True, the results are given at
         different p and n doping levels (given by self.doping), otherwise it
@@ -1071,11 +960,12 @@ class BoltztrapAnalyzer(object):
 
         Args:
             output (string): the type of output. 'tensor' give the full 3x3
-            tensor, 'eig' its 3 eigenvalues and
+            tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
             doping_levels (boolean): True for the results to be given at
             different doping levels, False for results
             at different electron chemical potentials
+            relaxation_time (float): constant relaxation time in secs
 
         Returns:
             If doping_levels=True, a dictionnary {temp:{'p':[],'n':[]}}. The
@@ -1084,40 +974,45 @@ class BoltztrapAnalyzer(object):
             Otherwise,
             returns a {temp:[]} dictionary. The result contains either the
             sorted three eigenvalues of the symmetric
-            power factor tensor (format='eig') or a full tensor (3x3 array) (
+            power factor tensor (format='eigs') or a full tensor (3x3 array) (
             output='tensor') or as an average
             (output='average').
             The result includes a given constant relaxation time
 
             units are microW/(m K^2)
         """
-        result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]}
-                         for doping in self._seebeck_doping}
-        for doping in result_doping:
-            for temp in result_doping[doping]:
-                for i in range(len(self.doping[doping])):
-                    full_tensor = np.dot(self._cond_doping[doping][temp][i],
-                                         np.dot(
-                                             self._seebeck_doping[doping][
-                                                 temp][
-                                                 i],
-                                             self._seebeck_doping[doping][
-                                                 temp][
-                                                 i]))
-                    result_doping[doping][temp].append(full_tensor)
+        result = None
+        result_doping = None
+        if doping_levels:
+            result_doping = {doping: {t: [] for t in 
+                                      self._seebeck_doping[doping]} for 
+                             doping in self._seebeck_doping}
+            
+            for doping in result_doping:
+                for t in result_doping[doping]:
+                    for i in range(len(self.doping[doping])):
+                        full_tensor = np.dot(self._cond_doping[doping][t][i],
+                                             np.dot(
+                                                 self._seebeck_doping[doping][
+                                                     t][i],
+                                                 self._seebeck_doping[doping][
+                                                     t][i]))
+                        result_doping[doping][t].append(full_tensor)
 
-        result = {temp: [] for temp in self._seebeck}
-        for temp in result:
-            for i in range(len(self.mu_steps)):
-                full_tensor = np.dot(self._cond[temp][i],
-                                     np.dot(self._seebeck[temp][i],
-                                            self._seebeck[temp][i]))
-                result[temp].append(full_tensor)
+        else:
+            result = {t: [] for t in self._seebeck}
+            for t in result:
+                for i in range(len(self.mu_steps)):
+                    full_tensor = np.dot(self._cond[t][i],
+                                         np.dot(self._seebeck[t][i],
+                                                self._seebeck[t][i]))
+                    result[t].append(full_tensor)
+
         return BoltztrapAnalyzer._format_to_output(result, result_doping,
                                                    output, doping_levels,
                                                    multi=1e6 * relaxation_time)
 
-    def get_thermal_conductivity(self, output='eig', doping_levels=True,
+    def get_thermal_conductivity(self, output='eigs', doping_levels=True,
                                  relaxation_time=1e-14):
         """
         Gives the electronic part of the thermal conductivity in either a
@@ -1130,11 +1025,12 @@ class BoltztrapAnalyzer(object):
 
         Args:
             output (string): the type of output. 'tensor' give the full 3x3
-            tensor, 'eig' its 3 eigenvalues and
+            tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
             doping_levels (boolean): True for the results to be given at
             different doping levels, False for results
             at different electron chemical potentials
+            relaxation_time (float): constant relaxation time in secs
 
         Returns:
             If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}. The
@@ -1143,43 +1039,47 @@ class BoltztrapAnalyzer(object):
             doping. Otherwise,
             returns a {temp:[]} dictionary. The result contains either the
             sorted three eigenvalues of the symmetric
-            conductivity tensor (format='eig') or a full tensor (3x3 array) (
+            conductivity tensor (format='eigs') or a full tensor (3x3 array) (
             output='tensor') or as an average
             (output='average').
             The result includes a given constant relaxation time
 
             units are W/mK
         """
-        result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]}
-                         for doping in self._seebeck_doping}
-        for doping in result_doping:
-            for temp in result_doping[doping]:
-                for i in range(len(self.doping[doping])):
-                    pf_tensor = np.dot(self._cond_doping[doping][temp][i],
-                                       np.dot(
-                                           self._seebeck_doping[doping][temp][
-                                               i],
-                                           self._seebeck_doping[doping][temp][
-                                               i]))
-                    result_doping[doping][temp].append((self._kappa_doping[
-                                                            doping][temp][
-                                                            i] - pf_tensor *
-                                                        temp))
-
-        result = {temp: [] for temp in self._seebeck}
-        for temp in result:
-            for i in range(len(self.mu_steps)):
-                pf_tensor = np.dot(self._cond[temp][i],
-                                   np.dot(self._seebeck[temp][i],
-                                          self._seebeck[temp][i]))
-                result[temp].append((self._kappa[temp][i] - pf_tensor * temp))
+        result = None
+        result_doping = None
+        if doping_levels:
+            result_doping = {doping: {t: [] for t in 
+                                      self._seebeck_doping[doping]} for 
+                             doping in self._seebeck_doping}
+            for doping in result_doping:
+                for t in result_doping[doping]:
+                    for i in range(len(self.doping[doping])):
+                        pf_tensor = np.dot(self._cond_doping[doping][t][i],
+                                           np.dot(
+                                               self._seebeck_doping[doping][t][
+                                                   i],
+                                               self._seebeck_doping[doping][t][
+                                                   i]))
+                        result_doping[doping][t].append((self._kappa_doping[
+                                                                doping][t][
+                                                                i] -
+                                                         pf_tensor * t))
+        else:
+            result = {t: [] for t in self._seebeck}
+            for t in result:
+                for i in range(len(self.mu_steps)):
+                    pf_tensor = np.dot(self._cond[t][i],
+                                       np.dot(self._seebeck[t][i],
+                                              self._seebeck[t][i]))
+                    result[t].append((self._kappa[t][i] - pf_tensor * t))
 
         return BoltztrapAnalyzer._format_to_output(result, result_doping,
                                                    output, doping_levels,
                                                    multi=relaxation_time)
 
-    def get_zt(self, output='eig', doping_levels=True, relaxation_time=1e-14,
-               kl=0.2):
+    def get_zt(self, output='eigs', doping_levels=True, relaxation_time=1e-14,
+               kl=1.0):
         """
         Gives the ZT coefficient (S^2*cond*T/thermal cond) in either a full
         3x3 tensor form,
@@ -1193,11 +1093,13 @@ class BoltztrapAnalyzer(object):
 
         Args:
             output (string): the type of output. 'tensor' give the full 3x3
-            tensor, 'eig' its 3 eigenvalues and
+            tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
             doping_levels (boolean): True for the results to be given at
             different doping levels, False for results
             at different electron chemical potentials
+            relaxation_time (float): constant relaxation time in secs
+            k_l (float): lattice thermal cond in W/(m*K)
 
         Returns:
             If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}. The
@@ -1205,50 +1107,56 @@ class BoltztrapAnalyzer(object):
             at p-type doping and 'n' to the ZT at n-type doping. Otherwise,
             returns a {temp:[]} dictionary. The result contains either the
             sorted three eigenvalues of the symmetric
-            ZT tensor (format='eig') or a full tensor (3x3 array) (
+            ZT tensor (format='eigs') or a full tensor (3x3 array) (
             output='tensor') or as an average
             (output='average').
             The result includes a given constant relaxation time and lattice
             thermal conductivity
         """
-        result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]}
-                         for doping in self._seebeck_doping}
-        for doping in result_doping:
-            for temp in result_doping[doping]:
-                for i in range(len(self.doping[doping])):
-                    pf_tensor = np.dot(self._cond_doping[doping][temp][i],
-                                       np.dot(
-                                           self._seebeck_doping[doping][temp][
-                                               i],
-                                           self._seebeck_doping[doping][temp][
-                                               i]))
-                    thermal_conduct = (self._kappa_doping[doping][temp][i]
-                                       - pf_tensor * temp) * relaxation_time
-                    result_doping[doping][temp].append(
-                        np.dot(pf_tensor * relaxation_time * temp,
-                               np.linalg.inv(
-                                   thermal_conduct + kl * np.eye(3, 3))))
+        result = None
+        result_doping = None
+        if doping_levels:
+            result_doping = {doping: {t: [] for t in
+                                      self._seebeck_doping[doping]} for
+                             doping in self._seebeck_doping}
 
-        result = {temp: [] for temp in self._seebeck}
-        for temp in result:
-            for i in range(len(self.mu_steps)):
-                pf_tensor = np.dot(self._cond[temp][i],
-                                   np.dot(self._seebeck[temp][i],
-                                          self._seebeck[temp][i]))
-                thermal_conduct = (self._kappa[temp][
-                                       i] - pf_tensor * temp) * relaxation_time
-                result[temp].append(np.dot(pf_tensor * relaxation_time * temp,
-                                           np.linalg.inv(
-                                               thermal_conduct + kl *
-                                               np.eye(3, 3))))
+            for doping in result_doping:
+                for t in result_doping[doping]:
+                    for i in range(len(self.doping[doping])):
+                        pf_tensor = np.dot(self._cond_doping[doping][t][i],
+                                           np.dot(
+                                               self._seebeck_doping[doping][t][
+                                                   i],
+                                               self._seebeck_doping[doping][t][
+                                                   i]))
+                        thermal_conduct = (self._kappa_doping[doping][t][i]
+                                           - pf_tensor * t) * relaxation_time
+                        result_doping[doping][t].append(
+                            np.dot(pf_tensor * relaxation_time * t,
+                                   np.linalg.inv(
+                                       thermal_conduct + kl * np.eye(3, 3))))
+        else:
+            result = {t: [] for t in self._seebeck}
+            for t in result:
+                for i in range(len(self.mu_steps)):
+                    pf_tensor = np.dot(self._cond[t][i],
+                                       np.dot(self._seebeck[t][i],
+                                              self._seebeck[t][i]))
+                    thermal_conduct = (self._kappa[t][i]
+                                       - pf_tensor * t) * relaxation_time
+                    result[t].append(np.dot(pf_tensor * relaxation_time * t,
+                                               np.linalg.inv(
+                                                   thermal_conduct + kl *
+                                                   np.eye(3, 3))))
+
         return BoltztrapAnalyzer._format_to_output(result, result_doping,
                                                    output, doping_levels)
 
-    def get_average_eff_mass(self, output='eig'):
+    def get_average_eff_mass(self, output='eigs'):
         """
         Gives the average effective mass tensor. We call it average because
         it takes into account all the bands
-        and regons in the Brillouin zone. This is different than the standard
+        and regions in the Brillouin zone. This is different than the standard
         textbook effective mass which relates
         often to only one (parabolic) band.
         The average effective mass tensor is defined as the integrated
@@ -1304,7 +1212,7 @@ class BoltztrapAnalyzer(object):
                                                                i] * 10 ** 6 *
                                                            e ** 2 /
                                                            m_e)
-                    elif output == 'eig':
+                    elif output in ['eig', 'eigs']:
                         result_doping[doping][temp].append(
                             sorted(np.linalg.eigh(np.linalg.inv(
                                 np.array(self._cond_doping[doping][temp][i])) *
@@ -1316,12 +1224,122 @@ class BoltztrapAnalyzer(object):
                             np.array(self._cond_doping[doping][temp][i])) \
                                       * self.doping[doping][
                                           i] * 10 ** 6 * e ** 2 / m_e
-                        result_doping[doping][temp].append((full_tensor[0][0] \
-                                                            + full_tensor[1][
-                                                                1] \
-                                                            + full_tensor[2][
-                                                                2]) / 3.0)
+                        result_doping[doping][temp].append(
+                            (full_tensor[0][0] + full_tensor[1][1] +
+                             full_tensor[2][2]) / 3.0)
         return result_doping
+
+    def get_extreme(self, target_prop, maximize=True, min_temp=None,
+                    max_temp=None, min_doping=None, max_doping=None,
+                    isotropy_tolerance=0.05, use_average=True):
+
+        """
+        This method takes in eigenvalues over a range of carriers,
+        temperatures, and doping levels, and tells you what is the "best"
+        value that can be achieved for the given target_property. Note that
+        this method searches the doping dict only, not the full mu dict.
+
+        Args:
+            target_prop: target property, i.e. "seebeck", "power factor",
+                         "conductivity", "kappa", or "zt"
+            maximize: True to maximize, False to minimize (e.g. kappa)
+            min_temp: minimum temperature allowed
+            max_temp: maximum temperature allowed
+            min_doping: minimum doping allowed (e.g., 1E18)
+            max_doping: maximum doping allowed (e.g., 1E20)
+            isotropy_tolerance: tolerance for isotropic (0.05 = 5%)
+            use_average: True for avg of eigenval, False for max eigenval
+
+        Returns:
+            A dictionary with keys {"p", "n", "best"} with sub-keys:
+            {"value", "temperature", "doping", "isotropic"}
+
+        """
+
+        def is_isotropic(x, isotropy_tolerance):
+            """
+            Internal method to tell you if 3-vector "x" is isotropic
+
+            Args:
+                x: the vector to determine isotropy for
+                isotropy_tolerance: tolerance, e.g. 0.05 is 5%
+            """
+            if len(x) != 3:
+                raise ValueError("Invalid input to is_isotropic!")
+
+            st = sorted(x)
+            return all([st[0],st[1],st[2]]) and \
+                   (abs((st[1]-st[0])/st[1]) <= isotropy_tolerance) and \
+                   (abs((st[2]-st[0]))/st[2] <= isotropy_tolerance) and \
+                   (abs((st[2]-st[1])/st[2]) <= isotropy_tolerance)
+
+        if target_prop.lower() == "seebeck":
+            d = self.get_seebeck(output="eigs", doping_levels=True)
+
+        elif target_prop.lower() == "power factor":
+            d = self.get_power_factor(output="eigs", doping_levels=True)
+
+        elif target_prop.lower() == "conductivity":
+            d = self.get_conductivity(output="eigs", doping_levels=True)
+
+        elif target_prop.lower() == "kappa":
+            d = self.get_thermal_conductivity(output="eigs",
+                                              doping_levels=True)
+        elif target_prop.lower() == "zt":
+            d = self.get_zt(output="eigs", doping_levels=True)
+
+        else:
+            raise ValueError("Target property: {} not recognized!".
+                             format(target_prop))
+
+        absval = True  # take the absolute value of properties
+
+        x_val = None
+        x_temp = None
+        x_doping = None
+        x_isotropic = None
+        output = {}
+
+        min_temp = min_temp or 0
+        max_temp = max_temp or float('inf')
+        min_doping = min_doping or 0
+        max_doping = max_doping or float('inf')
+
+        for pn in ('p', 'n'):
+            for t in d[pn]:  # temperatures
+                if min_temp <= float(t) <= max_temp:
+                    for didx, evs in enumerate(d[pn][t]):
+                        doping_lvl = self.doping[pn][didx]
+                        if min_doping <= doping_lvl <= max_doping:
+                            isotropic = is_isotropic(evs, isotropy_tolerance)
+                            if absval:
+                                evs = [abs(x) for x in evs]
+                            if use_average:
+                                val = float(sum(evs))/len(evs)
+                            else:
+                                val = max(evs)
+                            if x_val is None or (val > x_val and maximize) \
+                                    or (val < x_val and not maximize):
+                                x_val = val
+                                x_temp = t
+                                x_doping = doping_lvl
+                                x_isotropic = isotropic
+
+            output[pn] = {'value': x_val, 'temperature': x_temp,
+                          'doping': x_doping, 'isotropic': x_isotropic}
+            x_val = None
+
+        if maximize:
+            max_type = 'p' if output['p']['value'] >= \
+                              output['n']['value'] else 'n'
+        else:
+            max_type = 'p' if output['p']['value'] <= \
+                              output['n']['value'] else 'n'
+
+        output['best'] = output[max_type]
+        output['best']['carrier_type'] = max_type
+
+        return output
 
     @staticmethod
     def _format_to_output(tensor, tensor_doping, output, doping_levels,
@@ -1333,35 +1351,41 @@ class BoltztrapAnalyzer(object):
             for doping in full_tensor:
                 for temp in full_tensor[doping]:
                     for i in range(len(full_tensor[doping][temp])):
-                        if output == 'eig':
+                        if output in ['eig', 'eigs']:
                             result[doping][temp].append(sorted(
                                 np.linalg.eigh(full_tensor[doping][temp][i])[
                                     0] * multi))
                         elif output == 'tensor':
                             result[doping][temp].append(
                                 np.array(full_tensor[doping][temp][i]) * multi)
-                        else:
+                        elif output == 'average':
                             result[doping][temp].append(
                                 (full_tensor[doping][temp][i][0][0] \
                                  + full_tensor[doping][temp][i][1][1] \
                                  + full_tensor[doping][temp][i][2][
                                      2]) * multi / 3.0)
+                        else:
+                            raise ValueError("Unknown output format: "
+                                             "{}".format(output))
         else:
             full_tensor = tensor
             result = {t: [] for t in tensor}
             for temp in full_tensor:
                 for i in range(len(tensor[temp])):
-                    if output == 'eig':
+                    if output in ['eig', 'eigs']:
                         result[temp].append(sorted(
                             np.linalg.eigh(full_tensor[temp][i])[0] * multi))
                     elif output == 'tensor':
                         result[temp].append(
                             np.array(full_tensor[temp][i]) * multi)
-                    else:
+                    elif output == 'average':
                         result[temp].append((full_tensor[temp][i][0][0]
                                              + full_tensor[temp][i][1][1]
                                              + full_tensor[temp][i][2][
                                                  2]) * multi / 3.0)
+                    else:
+                        raise ValueError("Unknown output format: {}".
+                                         format(output))
         return result
 
     def get_complete_dos(self, structure, analyzer_for_second_spin=None):
@@ -1386,7 +1410,7 @@ class BoltztrapAnalyzer(object):
 
         """
         pdoss = {}
-        spin_1 = self.dos.densities.keys()[0]
+        spin_1 = list(self.dos.densities.keys())[0]
 
         if analyzer_for_second_spin:
             if not np.all(self.dos.energies ==
@@ -1394,7 +1418,7 @@ class BoltztrapAnalyzer(object):
                 raise BoltztrapError(
                     "Dos merging error: energies of the two dos are different")
 
-            spin_2 = analyzer_for_second_spin.dos.densities.keys()[0]
+            spin_2 = list(analyzer_for_second_spin.dos.densities.keys())[0]
             if spin_1 == spin_2:
                 raise BoltztrapError(
                     "Dos merging error: spin component are the same")
@@ -1458,189 +1482,76 @@ class BoltztrapAnalyzer(object):
         return result
 
     @staticmethod
-    def from_files(path_dir, dos_spin=None):
+    def parse_outputtrans(path_dir):
         """
-        get a BoltztrapAnalyzer object from a set of files
+        Parses .outputtrans file
 
         Args:
-            path_dir: directory where the boltztrap files are
+            path_dir: dir containing boltztrap.outputtrans
 
         Returns:
-            a BoltztrapAnalyzer object
+            tuple - (run_type, warning, efermi, gap, doping_levels)
 
         """
+        run_type = None
+        warning = None
+        efermi = None
+        gap = None
+        doping_levels = []
 
-        with open(os.path.join(path_dir, "boltztrap.outputtrans"), 'r') as f:
+        with open(os.path.join(path_dir, "boltztrap.outputtrans"), 'r') \
+                    as f:
             for line in f:
-                if "Calc type:" in line:
+                if "WARNING" in line:
+                    warning = line
+                elif "Calc type:" in line:
                     run_type = line.split()[-1]
-                    print(run_type, " calc type found")
-                    break
+                elif line.startswith("VBM"):
+                    efermi = Energy(line.split()[1], "Ry").to("eV")
+                elif line.startswith("Egap:"):
+                    gap = Energy(float(line.split()[1]), "Ry").to("eV")
+                elif line.startswith("Doping level number"):
+                    doping_levels.append(float(line.split()[6]))
 
-        if run_type == "BOLTZ":
-            t_steps = set()
-            m_steps = set()
-            gap = None
-            doping = []
-            data_doping_full = []
-            data_doping_hall = []
-            with open(os.path.join(path_dir, "boltztrap.condtens"), 'r') as f:
-                data_full = []
-                for line in f:
-                    if not line.startswith("#"):
-                        t_steps.add(int(float(line.split()[1])))
-                        m_steps.add(float(line.split()[0]))
-                        data_full.append([float(c) for c in line.split()])
+        return run_type, warning, efermi, gap, doping_levels
 
-            with open(os.path.join(path_dir, "boltztrap.halltens"), 'r') as f:
-                data_hall = []
-                for line in f:
-                    if not line.startswith("#"):
-                        data_hall.append([float(c) for c in line.split()])
 
-            data_dos = {'total': [], 'partial': {}}
-            with open(os.path.join(path_dir, "boltztrap.transdos"), 'r') as f:
-                count_series = 0
-                for line in f:
-                    if not line.startswith(" #"):
-                        data_dos['total'].append(
-                            [Energy(float(line.split()[0]), "Ry").to("eV"),
-                             float(line.split()[1])])
-                        total_elec = float(line.split()[2])
-                    else:
-                        count_series += 1
+    @staticmethod
+    def parse_transdos(path_dir, efermi, dos_spin=1, trim_dos=False):
+
+        """
+        Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files
+        Args:
+            path_dir: (str) dir containing DOS files
+            efermi: (float) Fermi energy
+            dos_spin: (int) -1 for spin down, +1 for spin up
+            trim_dos: (bool) whether to post-process / trim DOS
+
+        Returns:
+            tuple - (DOS, dict of partial DOS)
+        """
+
+        data_dos = {'total': [], 'partial': {}}
+        # parse the total DOS data
+        ## format is energy, DOS, integrated DOS
+        with open(os.path.join(path_dir, "boltztrap.transdos"), 'r') as f:
+            count_series = 0  # TODO: why is count_series needed?
+            for line in f:
+                if line.lstrip().startswith("#"):
+                    count_series += 1
                     if count_series > 1:
                         break
-            data_dos['total'] = [
-                [data_dos['total'][i][0],
-                 2 * data_dos['total'][i][1] / total_elec]
-                for i in range(len(data_dos['total']))]
-            for file_name in os.listdir(path_dir):
-                if file_name.endswith(
-                        "transdos") and file_name != 'boltztrap.transdos':
-                    tokens = file_name.split(".")[1].split("_")
-                    with open(os.path.join(path_dir, file_name), 'r') as f:
-                        for line in f:
-                            if not line.startswith(" #"):
-                                if tokens[1] not in data_dos['partial']:
-                                    data_dos['partial'][tokens[1]] = {}
-                                if tokens[2] not in data_dos['partial'][
-                                    tokens[1]]:
-                                    data_dos['partial'][tokens[1]][
-                                        tokens[2]] = []
-                                data_dos['partial'][tokens[1]][
-                                    tokens[2]].append(
-                                    2 * float(line.split()[1]))
+                else:
+                    data_dos['total'].append(
+                        [Energy(float(line.split()[0]), "Ry").to("eV"),
+                         float(line.split()[1])])
+                    total_elec = float(line.split()[2])
 
-            with open(os.path.join(path_dir, "boltztrap.outputtrans"),
-                      'r') as f:
-                warning = False
-                step = 0
-                for line in f:
-                    if "WARNING" in line:
-                        warning = True
-                    if line.startswith("VBM"):
-                        efermi = Energy(line.split()[1], "Ry").to("eV")
-                    if line.startswith("Doping level number"):
-                        doping.append(float(line.split()[6]))
-                    if line.startswith("Egap:"):
-                        gap = float(line.split()[1])
-            if len(doping) != 0:
-                with open(
-                        os.path.join(path_dir, "boltztrap.condtens_fixdoping"),
-                        'r') as f:
-                    for line in f:
-                        if not line.startswith("#") and len(line) > 2:
-                            data_doping_full.append([float(c)
-                                                     for c in line.split()])
-
-                with open(
-                        os.path.join(path_dir, "boltztrap.halltens_fixdoping"),
-                        'r') as f:
-                    for line in f:
-                        if not line.startswith("#") and len(line) > 2:
-                            data_doping_hall.append(
-                                [float(c) for c in line.split()])
-
-            with open(os.path.join(path_dir, "boltztrap.struct"), 'r') as f:
-                tokens = f.readlines()
-                vol = Lattice(
-                    [[Length(float(tokens[i].split()[j]), "bohr").to("ang")
-                      for j in range(3)] for i in range(1, 4)]).volume
-
-            data_dos = {'total': [], 'partial': {}}
-            with open(os.path.join(path_dir, "boltztrap.transdos"), 'r') as f:
-                count_series = 0
-                normalization_factor = None
-                for line in f:
-                    if not line.startswith(" #"):
-                        data_dos['total'].append(
-                            [Energy(float(line.split()[0]), "Ry").to("eV"),
-                             float(line.split()[1])])
-                    else:
-                        count_series += 1
-                    if count_series > 1:
-                        break
-            for file_name in os.listdir(path_dir):
-                if file_name.endswith(
-                        "transdos") and file_name != 'boltztrap.transdos':
-                    tokens = file_name.split(".")[1].split("_")
-                    with open(os.path.join(path_dir, file_name), 'r') as f:
-                        for line in f:
-                            if not line.startswith(" #"):
-                                if tokens[1] not in data_dos['partial']:
-                                    data_dos['partial'][tokens[1]] = {}
-                                if tokens[2] not in data_dos['partial'][
-                                    tokens[1]]:
-                                    data_dos['partial'][tokens[1]][
-                                        tokens[2]] = []
-                                data_dos['partial'][tokens[1]][
-                                    tokens[2]].append(float(line.split()[1]))
-
-            return BoltztrapAnalyzer._make_boltztrap_analyzer_from_data(
-                data_full, data_hall, data_dos, sorted([t for t in t_steps]),
-                sorted([Energy(m, "Ry").to("eV") for m in m_steps]), efermi,
-                Energy(gap, "Ry").to("eV"),
-                doping, data_doping_full, data_doping_hall, vol, warning)
-
-        elif run_type == "FERMI":
-            from ase.io.cube import read_cube
-            if os.path.exists(os.path.join(path_dir, 'boltztrap_BZ.cube')):
-                fs_data = read_cube(
-                    str(os.path.join(path_dir, 'boltztrap_BZ.cube')),
-                    read_data=True)
-            if os.path.exists(os.path.join(path_dir, 'fort.30')):
-                fs_data = read_cube(str(os.path.join(path_dir, 'fort.30')),
-                                    read_data=True)
-            else:
-                raise BoltztrapError("No data file found for fermi surface")
-
-            return BoltztrapAnalyzer._make_boltztrap_analyzer_from_data(
-                run_type="FERMI", fermi_surface_data=fs_data)
-
-        elif run_type == "BANDS":
-            bz_kpoints = np.loadtxt(
-                os.path.join(path_dir, "boltztrap_band.dat"))[:, -3:]
-            bz_bands = np.loadtxt(
-                os.path.join(path_dir, "boltztrap_band.dat"))[:, 1:-6]
-            return BoltztrapAnalyzer._make_boltztrap_analyzer_from_data(
-                run_type="BANDS",
-                bz_bands=bz_bands, bz_kpoints=bz_kpoints)
-
-        elif run_type == "DOS":
-            data_dos = {'total': [], 'partial': {}}
-            with open(os.path.join(path_dir, "boltztrap.transdos"), 'r') as f:
-                count_series = 0
-                for line in f:
-                    if not line.startswith(" #"):
-                        data_dos['total'].append(
-                            [Energy(float(line.split()[0]), "Ry").to("eV"),
-                             float(line.split()[1])])
-                    else:
-                        count_series += 1
-                    if count_series > 1:
-                        break
-            print("here")
+        if trim_dos:
+            # Francesco knows what this does
+            # It has something to do with a trick of adding fake energies
+            # at the endpoints of the DOS, and then re-trimming it. This is
+            # to get the same energy scale for up and down spin DOS.
             tmp_data = np.array(data_dos['total'])
             tmp_den = np.trim_zeros(tmp_data[:, 1], 'f')[1:]
             lw_l = len(tmp_data[:, 1]) - len(tmp_den)
@@ -1651,33 +1562,253 @@ class BoltztrapAnalyzer(object):
             tmp_data = np.vstack((tmp_ene, tmp_den)).T
             data_dos['total'] = tmp_data.tolist()
 
-            for file_name in os.listdir(path_dir):
-                if file_name.endswith(
-                        "transdos") and file_name != 'boltztrap.transdos':
-                    tokens = file_name.split(".")[1].split("_")
-                    site = tokens[1]
-                    orb = '_'.join(tokens[2:])
-                    with open(os.path.join(path_dir, file_name), 'r') as f:
-                        for line in f:
-                            if not line.startswith(" #"):
-                                if site not in data_dos['partial']:
-                                    data_dos['partial'][site] = {}
-                                if orb not in data_dos['partial'][site]:
-                                    data_dos['partial'][site][orb] = []
-                                data_dos['partial'][site][orb].append(
-                                    float(line.split()[1]))
-                    data_dos['partial'][site][orb] = data_dos['partial'][site][
-                                                         orb][lw_l:-hg_l]
+        # parse partial DOS data
+        for file_name in os.listdir(path_dir):
+            if file_name.endswith(
+                    "transdos") and file_name != 'boltztrap.transdos':
+                tokens = file_name.split(".")[1].split("_")
+                site = tokens[1]
+                orb = '_'.join(tokens[2:])
+                with open(os.path.join(path_dir, file_name), 'r') as f:
+                    for line in f:
+                        if not line.lstrip().startswith(" #"):
+                            if site not in data_dos['partial']:
+                                data_dos['partial'][site] = {}
+                            if orb not in data_dos['partial'][site]:
+                                data_dos['partial'][site][orb] = []
+                            data_dos['partial'][site][orb].append(
+                                float(line.split()[1]))
+                data_dos['partial'][site][orb] = data_dos['partial'][site][
+                                                     orb][lw_l:-hg_l]
 
-            with open(os.path.join(path_dir, "boltztrap.outputtrans"),
-                      'r') as f:
+        dos_full = {'energy': [], 'density': []}
+
+        for t in data_dos['total']:
+            dos_full['energy'].append(t[0])
+            dos_full['density'].append(t[1])
+
+        dos = Dos(efermi, dos_full['energy'],
+                  {Spin(dos_spin): dos_full['density']})
+        dos_partial = data_dos['partial']  # TODO: make this real DOS object?
+
+        return dos, dos_partial
+
+    @staticmethod
+    def parse_struct(path_dir):
+        """
+        Parses Boltztrap .struct file (only the volume)
+        Args:
+            path_dir: (str) dir containing the boltztrap.struct file
+
+        Returns:
+            (float) volume
+        """
+        with open(os.path.join(path_dir, "boltztrap.struct"), 'r') as f:
+            tokens = f.readlines()
+            return Lattice([[Length(float(tokens[i].split()[j]), "bohr").
+                           to("ang") for j in range(3)] for i in
+                            range(1, 4)]).volume
+
+    @staticmethod
+    def parse_cond_and_hall(path_dir, doping_levels=None):
+        """
+        Parses the conductivity and Hall tensors
+        Args:
+            path_dir: Path containing .condtens / .halltens files
+            doping_levels: ([float]) - doping lvls, parse outtrans to get this
+
+        Returns:
+            mu_steps, cond, seebeck, kappa, hall, pn_doping_levels,
+            mu_doping, seebeck_doping, cond_doping, kappa_doping,
+            hall_doping, carrier_conc
+        """
+
+        # Step 1: parse raw data but do not convert to final format
+        t_steps = set()
+        mu_steps = set()
+        data_full = []
+        data_hall = []
+        data_doping_full = []
+        data_doping_hall = []
+        doping_levels = doping_levels or []
+
+        # parse the full conductivity/Seebeck/kappa0/etc data
+        ## also initialize t_steps and mu_steps
+        with open(os.path.join(path_dir, "boltztrap.condtens"), 'r') as f:
+            for line in f:
+                if not line.startswith("#"):
+                    mu_steps.add(float(line.split()[0]))
+                    t_steps.add(int(float(line.split()[1])))
+                    data_full.append([float(c) for c in line.split()])
+
+        # parse the full Hall tensor
+        with open(os.path.join(path_dir, "boltztrap.halltens"), 'r') as f:
+            for line in f:
+                if not line.startswith("#"):
+                    data_hall.append([float(c) for c in line.split()])
+
+        if len(doping_levels) != 0:
+            # parse doping levels version of full cond. tensor, etc.
+            with open(
+                    os.path.join(path_dir, "boltztrap.condtens_fixdoping"),
+                    'r') as f:
                 for line in f:
-                    if line.startswith("VBM"):
-                        efermi = Energy(line.split()[1], "Ry").to("eV")
+                    if not line.startswith("#") and len(line) > 2:
+                        data_doping_full.append([float(c)
+                                                 for c in line.split()])
 
-            return BoltztrapAnalyzer._make_boltztrap_analyzer_from_data(
-                efermi=efermi, run_type="DOS",
-                data_dos=data_dos, dos_spin=dos_spin)
+            # parse doping levels version of full hall tensor
+            with open(
+                    os.path.join(path_dir, "boltztrap.halltens_fixdoping"),
+                    'r') as f:
+                for line in f:
+                    if not line.startswith("#") and len(line) > 2:
+                        data_doping_hall.append(
+                            [float(c) for c in line.split()])
+
+        # Step 2: convert raw data to final format
+
+        # sort t and mu_steps (b/c they are sets not lists)
+        # and convert to correct energy
+        t_steps = sorted([t for t in t_steps])
+        mu_steps = sorted([Energy(m, "Ry").to("eV") for m in mu_steps])
+
+        # initialize output variables - could use defaultdict instead
+        # I am leaving things like this for clarity
+        cond = {t: [] for t in t_steps}
+        seebeck = {t: [] for t in t_steps}
+        kappa = {t: [] for t in t_steps}
+        hall = {t: [] for t in t_steps}
+        carrier_conc = {t: [] for t in t_steps}
+        dos_full = {'energy': [], 'density': []}
+
+        mu_doping = {'p': {t: [] for t in t_steps},
+                     'n': {t: [] for t in t_steps}}
+        seebeck_doping = {'p': {t: [] for t in t_steps},
+                          'n': {t: [] for t in t_steps}}
+        cond_doping = {'p': {t: [] for t in t_steps},
+                       'n': {t: [] for t in t_steps}}
+        kappa_doping = {'p': {t: [] for t in t_steps},
+                        'n': {t: [] for t in t_steps}}
+        hall_doping = {'p': {t: [] for t in t_steps},
+                       'n': {t: [] for t in t_steps}}
+
+        # process doping levels
+        pn_doping_levels = {'p': [], 'n': []}
+        for d in doping_levels:
+            if d > 0:
+                pn_doping_levels['p'].append(d)
+            else:
+                pn_doping_levels['n'].append(-d)
+
+        # process raw conductivity data, etc.
+        for d in data_full:
+            temp, doping = d[1], d[2]
+            carrier_conc[temp].append(doping)
+
+            cond[temp].append(np.reshape(d[3:12], (3, 3)).tolist())
+            seebeck[temp].append(np.reshape(d[12:21], (3, 3)).tolist())
+            kappa[temp].append(np.reshape(d[21:30], (3, 3)).tolist())
+
+        # process raw Hall data
+        for d in data_hall:
+            temp, doping = d[1], d[2]
+            hall_tens = [np.reshape(d[3:12], (3, 3)).tolist(),
+                         np.reshape(d[12:21], (3, 3)).tolist(),
+                         np.reshape(d[21:30], (3, 3)).tolist()]
+            hall[temp].append(hall_tens)
+
+        # process doping conductivity data, etc.
+        for d in data_doping_full:
+            temp, doping, mu = d[0], d[1], d[-1]
+            pn = 'p' if doping > 0 else 'n'
+            mu_doping[pn][temp].append(Energy(mu, "Ry").to("eV"))
+            cond_doping[pn][temp].append(
+                np.reshape(d[2:11], (3, 3)).tolist())
+            seebeck_doping[pn][temp].append(
+                np.reshape(d[11:20], (3, 3)).tolist())
+            kappa_doping[pn][temp].append(
+                np.reshape(d[20:29], (3, 3)).tolist())
+
+        # process doping Hall data
+        for d in data_doping_hall:
+            temp, doping, mu = d[0], d[1], d[-1]
+            pn = 'p' if doping > 0 else 'n'
+            hall_tens = [np.reshape(d[2:11], (3, 3)).tolist(),
+                         np.reshape(d[11:20], (3, 3)).tolist(),
+                         np.reshape(d[20:29], (3, 3)).tolist()]
+            hall_doping[pn][temp].append(hall_tens)
+
+        return mu_steps, cond, seebeck, kappa, hall, pn_doping_levels, \
+               mu_doping, seebeck_doping, cond_doping, kappa_doping, \
+               hall_doping, carrier_conc
+
+    @staticmethod
+    def from_files(path_dir, dos_spin=1):
+        """
+        get a BoltztrapAnalyzer object from a set of files
+
+        Args:
+            path_dir: directory where the boltztrap files are
+            dos_spin: in DOS mode, set to 1 for spin up and -1 for spin down
+
+        Returns:
+            a BoltztrapAnalyzer object
+
+        """
+        run_type, warning, efermi, gap, doping_levels = \
+            BoltztrapAnalyzer.parse_outputtrans(path_dir)
+
+        vol = BoltztrapAnalyzer.parse_struct(path_dir)
+
+        if run_type == "BOLTZ":
+            dos, pdos = BoltztrapAnalyzer.parse_transdos(
+                path_dir, efermi, dos_spin=dos_spin, trim_dos=False)
+
+            mu_steps, cond, seebeck, kappa, hall, pn_doping_levels, mu_doping,\
+            seebeck_doping, cond_doping, kappa_doping, hall_doping, \
+            carrier_conc = BoltztrapAnalyzer.\
+                parse_cond_and_hall(path_dir, doping_levels)
+
+            return BoltztrapAnalyzer(
+                gap, mu_steps, cond, seebeck, kappa, hall, pn_doping_levels,
+                mu_doping, seebeck_doping, cond_doping, kappa_doping,
+                hall_doping, dos, pdos, carrier_conc, vol, warning)
+
+        elif run_type == "DOS":
+            dos, pdos = BoltztrapAnalyzer.parse_transdos(
+                path_dir, efermi, dos_spin=dos_spin, trim_dos=True)
+
+            return BoltztrapAnalyzer(gap=gap, dos=dos, dos_partial=pdos,
+                                     warning=warning, vol=vol)
+
+        elif run_type == "BANDS":
+            bz_kpoints = np.loadtxt(
+                os.path.join(path_dir, "boltztrap_band.dat"))[:, -3:]
+            bz_bands = np.loadtxt(
+                os.path.join(path_dir, "boltztrap_band.dat"))[:, 1:-6]
+            return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints,
+                                     warning=warning, vol=vol)
+
+        elif run_type == "FERMI":
+            # TODO: There is no way to get this shitty ASE crap working.
+            # If you want to read CUBE files, write a proper IO class in
+            # pymatgen. I refuse to let pymatgen be bogged down by ASE crap.
+
+            """
+            from ase.io.cube import read_cube
+            if os.path.exists(os.path.join(path_dir, 'boltztrap_BZ.cube')):
+                 fs_data = read_cube(open(os.path.join(path_dir, 'boltztrap_BZ.cube'), "rt"),  read_data=True)
+            if os.path.exists(os.path.join(path_dir, 'fort.30')):
+                 fs_data = read_cube(open(os.path.join(path_dir, 'fort.30'), "rt"), read_data=True)
+            else:
+                 raise BoltztrapError("No data file found for fermi surface")
+            return BoltztrapAnalyzer(fermi_surface_data=fermi_surface_data)
+            """
+            raise ValueError("FERMI mode parsing is currently unavailable!")
+
+        else:
+            raise ValueError("Run type: {} not recognized!".format(run_type))
 
     def as_dict(self):
 
@@ -1687,7 +1818,7 @@ class BoltztrapAnalyzer(object):
                    'seebeck': self._seebeck,
                    'kappa': self._kappa,
                    'hall': self._hall,
-                   'warning': self.warning, 'doping': self.doping,
+                   'doping': self.doping,
                    'mu_doping': self.mu_doping,
                    'seebeck_doping': self._seebeck_doping,
                    'cond_doping': self._cond_doping,
@@ -1696,7 +1827,8 @@ class BoltztrapAnalyzer(object):
                    'dos': self.dos.as_dict(),
                    'dos_partial': self._dos_partial,
                    'carrier_conc': self._carrier_conc,
-                   'vol': self.vol}
+                   'vol': self.vol,
+                   'warning': self.warning}
         return jsanitize(results)
 
     @staticmethod
@@ -1711,49 +1843,67 @@ class BoltztrapAnalyzer(object):
         def _make_float_hall(a):
             return [i for i in a[:27]]
 
-        return BoltztrapAnalyzer(
-            float(data['gap']), [float(d) for d in data['mu_steps']],
-            {int(d): [_make_float_array(v) for v in data['cond'][d]]
-             for d in data['cond']},
-            {int(d): [_make_float_array(v) for v in data['seebeck'][d]]
-             for d in data['seebeck']},
-            {int(d): [_make_float_array(v) for v in data['kappa'][d]]
-             for d in data['kappa']},
-            {int(d): [_make_float_hall(v) for v in data['hall'][d]]
-             for d in data['hall']},
-            {'p': [float(d) for d in data['doping']['p']],
-             'n': [float(d) for d in data['doping']['n']]},
-            {'p': {int(d): [float(v) for v in data['mu_doping']['p'][d]]
-                   for d in data['mu_doping']['p']},
-             'n': {int(d): [float(v) for v in data['mu_doping']['n'][d]]
-                   for d in data['mu_doping']['n']}},
-            {'p': {int(d): [_make_float_array(v)
-                            for v in data['seebeck_doping']['p'][d]]
-                   for d in data['seebeck_doping']['p']},
-             'n': {int(d): [_make_float_array(v)
-                            for v in data['seebeck_doping']['n'][d]]
-                   for d in data['seebeck_doping']['n']}},
-            {'p': {int(d): [_make_float_array(v)
-                            for v in data['cond_doping']['p'][d]]
-                   for d in data['cond_doping']['p']},
-             'n': {int(d): [_make_float_array(v)
-                            for v in data['cond_doping']['n'][d]]
-                   for d in data['cond_doping']['n']}},
-            {'p': {int(d): [_make_float_array(v)
-                            for v in data['kappa_doping']['p'][d]]
-                   for d in data['kappa_doping']['p']},
-             'n': {int(d): [_make_float_array(v)
-                            for v in data['kappa_doping']['n'][d]]
-                   for d in data['kappa_doping']['n']}},
-            {'p': {int(d): [_make_float_hall(v)
-                            for v in data['hall_doping']['p'][d]]
-                   for d in data['hall_doping']['p']},
-             'n': {int(d): [_make_float_hall(v)
-                            for v in data['hall_doping']['n'][d]]
-                   for d in data['hall_doping']['n']}},
-            Dos.from_dict(data['dos']), data['dos_partial'],
-            data['carrier_conc'],
-            data['vol'], str(data['warning']))
+        gap = data.get('gap')
+        mu_steps = [float(d) for d in data['mu_steps']] if \
+            'mu_steps' in data else None
+        cond = {int(d): [_make_float_array(v) for v in data['cond'][d]]
+             for d in data['cond']} if 'cond' in data else None
+        seebeck = {int(d): [_make_float_array(v) for v in data['seebeck'][d]]
+                   for d in data['seebeck']} if 'seebeck' in data else None
+        kappa = {int(d): [_make_float_array(v) for v in data['kappa'][d]]
+                 for d in data['kappa']} if 'kappa' in data else None
+        hall = {int(d): [_make_float_hall(v) for v in data['hall'][d]]
+                for d in data['hall']} if 'hall' in data else None
+        doping = {'p': [float(d) for d in data['doping']['p']],
+                  'n': [float(d) for d in data['doping']['n']]} if \
+            'doping' in data else None
+
+        mu_doping = {'p': {int(d): [
+            float(v) for v in data['mu_doping']['p'][d]] for d in
+                           data['mu_doping']['p']}, 'n':
+            {int(d): [float(v) for v in data['mu_doping']['n'][d]]
+             for d in data['mu_doping']['n']}} if 'mu_doping' in data else None
+
+        seebeck_doping = {'p': {int(d): [
+            _make_float_array(v) for v in data['seebeck_doping']['p'][d]]
+                                for d in data['seebeck_doping']['p']}, 'n':
+            {int(d): [_make_float_array(v) for v in
+                      data['seebeck_doping']['n'][d]] for d in
+             data['seebeck_doping']['n']}} if 'seebeck_doping' in data \
+            else None
+
+        cond_doping = {'p': {int(d): [_make_float_array(v)
+                                      for v in data['cond_doping']['p'][d]]
+                             for d in data['cond_doping']['p']}, 'n':
+            {int(d): [_make_float_array(v) for v in
+                      data['cond_doping']['n'][d]] for
+             d in data['cond_doping']['n']}} if 'cond_doping' in data else None
+
+        kappa_doping = {'p': {int(d): [_make_float_array(v)
+                                       for v in data['kappa_doping']['p'][d]]
+                              for d in data['kappa_doping']['p']},
+                        'n': {int(d): [_make_float_array(v) for v in
+                                       data['kappa_doping']['n'][d]]
+                              for d in data['kappa_doping']['n']}}\
+            if 'kappa_doping' in data else None
+
+        hall_doping = {'p': {int(d): [_make_float_hall(v) for v in
+                                      data['hall_doping']['p'][d]] for d in
+                             data['hall_doping']['p']}, 'n':
+            {int(d): [_make_float_hall(v) for v in
+                      data['hall_doping']['n'][d]] for d in
+             data['hall_doping']['n']}} if "hall_doping" in data else None
+
+        dos = Dos.from_dict(data['dos']) if 'dos' in data else None
+        dos_partial = data.get('dos_partial')
+        carrier_conc = data.get('carrier_conc')
+        vol = data.get('vol')
+        warning = data.get('warning')
+
+        return BoltztrapAnalyzer(gap, mu_steps, cond, seebeck, kappa, hall,
+                                 doping, mu_doping, seebeck_doping,
+                                 cond_doping, kappa_doping, hall_doping, dos,
+                                 dos_partial, carrier_conc, vol, warning)
 
 
 def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):

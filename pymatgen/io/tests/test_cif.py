@@ -867,9 +867,9 @@ loop_
         f = os.path.join(test_dir, "bad_occu.cif")
         p = CifParser(f)
         self.assertRaises(ValueError, p.get_structures)
-        p = CifParser(f, occupancy_tolerance=1.5)
+        p = CifParser(f, occupancy_tolerance=2)
         s = p.get_structures()[0]
-        self.assertAlmostEqual(s[2].species_and_occu["Na+"], 0.7144082332761578)
+        self.assertAlmostEqual(s[0].species_and_occu["Al3+"], 0.5)
 
 if __name__ == '__main__':
     unittest.main()
