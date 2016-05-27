@@ -402,8 +402,7 @@ class MITRelaxSet(ConfigFileSet):
 
     def __init__(self, structure, **kwargs):
         super(MITRelaxSet, self).__init__(
-            structure,
-            os.path.join(MODULE_DIR, "MITRelaxSet.yaml"), **kwargs)
+            structure, os.path.join(MODULE_DIR, "MITRelaxSet.yaml"), **kwargs)
 
 
 class MPRelaxSet(ConfigFileSet):
@@ -417,8 +416,7 @@ class MPRelaxSet(ConfigFileSet):
 
     def __init__(self, structure, **kwargs):
         super(MPRelaxSet, self).__init__(
-            structure,
-            os.path.join(MODULE_DIR, "MPRelaxSet.yaml"), **kwargs)
+            structure, os.path.join(MODULE_DIR, "MPRelaxSet.yaml"), **kwargs)
 
 
 class MPHSERelaxSet(ConfigFileSet):
@@ -428,8 +426,7 @@ class MPHSERelaxSet(ConfigFileSet):
 
     def __init__(self, structure, **kwargs):
         super(MPHSERelaxSet, self).__init__(
-            structure,
-            os.path.join(MODULE_DIR, "MPHSERelaxSet.yaml"), **kwargs)
+            structure, os.path.join(MODULE_DIR, "MPHSERelaxSet.yaml"), **kwargs)
 
 
 class MPStaticSet(MPRelaxSet):
@@ -445,8 +442,7 @@ class MPStaticSet(MPRelaxSet):
             prev_kpoints (Kpoints): Kpoints from previous run.
             lepsilon (bool): Whether to add static dielectric calculation
             reciprocal_density (int): density of k-mesh by reciprocal
-                volume (defaults to 100)
-            files_to_transfer (dict): A dictionary of {filename: filepath}.
+                volume (defaults to 100).
             \*\*kwargs: kwargs supported by MPRelaxSet.
         """
         super(MPStaticSet, self).__init__(structure, **kwargs)
@@ -593,7 +589,6 @@ class MPHSEBSSet(MPHSERelaxSet):
                 bandstructure. "Uniform" - generate uniform k-points grid
             reciprocal_density (int): k-point density to use for uniform mesh
             kpoints_line_density (int): k-point density for high symmetry lines
-            files_to_transfer (dict): A dictionary of {filename: filepath}.
             **kwargs (dict): Any other parameters to pass into DictVaspInputSet
 
         """
@@ -713,7 +708,6 @@ class MPNonSCFSet(MPRelaxSet):
             sym_prec (float): Symmetry precision (for Uniform mode).
             kpoints_line_density (int): Line density for Line mode.
             optics (bool): whether to add dielectric function
-            files_to_transfer (dict): A dictionary of {filename: filepath}.
             \*\*kwargs: kwargs supported by MPVaspInputSet.
         """
         super(MPNonSCFSet, self).__init__(structure, **kwargs)
@@ -970,6 +964,36 @@ class MPSOCSet(MPStaticSet):
                         reciprocal_density=reciprocal_density, **kwargs)
 
 
+class MVLElasticSet(MPStaticSet):
+    """
+    MVL denotes VASP input sets that are implemented by the Materials Virtual
+    Lab (http://www.materialsvirtuallab.org) for various research.
+
+    This input set is used to calculate elastic constants in VASP. It is used
+    in the following work::
+
+        Z. Deng, Z. Wang, I.-H. Chu, J. Luo, S. P. Ong.
+        “Elastic Properties of Alkali Superionic Conductor Electrolytes
+        from First Principles Calculations”, J. Electrochem. Soc.
+        2016, 163(2), A67-A74. doi: 10.1149/2.0061602jes
+
+    To read the elastic constants, you may use the Outcar class which parses the
+    elastic constants.
+
+    Args:
+        scale (float): POTIM parameter. The default of 0.015 is usually fine,
+            but some structures may require a smaller step.
+        user_incar_settings (dict): A dict specifying additional incar
+            settings.
+    """
+
+    def __init__(self, structure, potim=0.015, **kwargs):
+        super(MVLElasticSet, self).__init__(structure, **kwargs)
+        self.config_dict["INCAR"].update({"IBRION": 6, "NFREE": 2,
+                                          "POTIM": potim})
+        self.config_dict["INCAR"].pop("NPAR", None)
+
+
 class MVLSlabSet(MPRelaxSet):
     """
     Class for writing a set of slab vasp runs,
@@ -1025,11 +1049,9 @@ class MVLSlabSet(MPRelaxSet):
     def incar(self):
         incar = super(MVLSlabSet, self).incar
 
-        incar_settings_basic = {
-            "EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
-            "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
+        incar.update({"EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
+                      "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3})
 
-        incar.update(incar_settings_basic)
         if not self.bulk:
             incar["ISIF"] = 2
             incar["AMIN"] = 0.01
@@ -1065,6 +1087,60 @@ class MVLSlabSet(MPRelaxSet):
                 incar["ISMEAR"] = 0
 
         return incar
+
+
+class MITMDSet(MITRelaxSet):
+    """
+    Class for writing a vasp md run. This DOES NOT do multiple stage
+    runs.
+
+    Args:
+        start_temp (int): Starting temperature.
+        end_temp (int): Final temperature.
+        nsteps (int): Number of time steps for simulations. The NSW parameter.
+        time_step (int): The time step for the simulation. The POTIM
+            parameter. Defaults to 2fs.
+        spin_polarized (bool): Whether to do spin polarized calculations.
+            The ISPIN parameter. Defaults to False.
+        sort_structure (bool): Whether to sort structure. Defaults to False
+            (different behavior from standard input sets).
+        **kwargs:
+            Other kwargs supported by :class:`DictVaspInputSet`.
+    """
+
+    def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2,
+                 spin_polarized=False, **kwargs):
+
+        # MD default settings
+        defaults = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
+                    'EDIFF_PER_ATOM': 0.000001, 'LSCALU': False,
+                    'LCHARG': False,
+                    'LPLANE': False, 'LWAVE': True, 'ISMEAR': 0,
+                    'NELMIN': 4, 'LREAL': True, 'BMIX': 1,
+                    'MAXMIX': 20, 'NELM': 500, 'NSIM': 4, 'ISYM': 0,
+                    'ISIF': 0, 'IBRION': 0, 'NBLOCK': 1, 'KBLOCK': 100,
+                    'SMASS': 0, 'POTIM': time_step, 'PREC': 'Normal',
+                    'ISPIN': 2 if spin_polarized else 1,
+                    "LDAU": False}
+
+        super(MITMDSet, self).__init__(structure, **kwargs)
+
+        self.start_temp = start_temp
+        self.end_temp = end_temp
+        self.nsteps = nsteps
+        self.time_step = time_step
+        self.spin_polarized = spin_polarized
+
+        # use VASP default ENCUT
+        self.config_dict["INCAR"].pop('ENCUT', None)
+
+        if defaults['ISPIN'] == 1:
+            self.config_dict["INCAR"].pop('MAGMOM')
+        self.config_dict["INCAR"].update(defaults)
+
+    @property
+    def kpoints(self):
+        return Kpoints.gamma_automatic()
 
 
 def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):

@@ -440,6 +440,32 @@ class MagmomLdauTest(PymatgenTest):
         self.assertEqual(magmom, magmom_ans)
 
 
+class MITMDSetTest(unittest.TestCase):
+
+    def setUp(self):
+        filepath = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(filepath)
+        self.struct = poscar.structure
+        self.mitmdparam = MITMDSet(self.struct, 300, 1200, 10000)
+
+    def test_params(self):
+        param = self.mitmdparam
+        syms = param.potcar_symbols
+        self.assertEqual(syms, ['Fe', 'P', 'O'])
+        incar = param.incar
+        self.assertNotIn("LDAUU", incar)
+        self.assertAlmostEqual(incar['EDIFF'], 2.4e-5)
+        kpoints = param.kpoints
+        self.assertEqual(kpoints.kpts, [(1, 1, 1)])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+
+    def test_as_from_dict(self):
+        d = self.mitmdparam.as_dict()
+        v = dec.process_decoded(d)
+        self.assertEqual(type(v), MITMDSet)
+        self.assertEqual(v.config_dict["INCAR"]["TEBEG"], 300)
+
+
 class MPSOCSetTest(PymatgenTest):
 
     def test_from_prev_calc(self):
