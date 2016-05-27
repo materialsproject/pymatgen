@@ -194,7 +194,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
         d = paramset.all_input
         self.assertEqual(d["INCAR"]["ISMEAR"], 0)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         mitset = MITRelaxSet(self.structure)
         mpset = MPRelaxSet(self.structure)
         mpuserset = MPRelaxSet(self.structure,
