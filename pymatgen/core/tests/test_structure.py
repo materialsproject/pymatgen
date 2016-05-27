@@ -903,7 +903,7 @@ class MoleculeTest(PymatgenTest):
         self.assertEqual(mol.formula, "H3 C1 O1")
         mol.set_charge_and_spin(0)
         self.assertEqual(mol.spin_multiplicity, 2)
-        mol.append("N", [0.25, 0.25, 0.25])
+        mol.append("N", [1, 1, 1])
         self.assertEqual(mol.formula, "H3 C1 N1 O1")
         self.assertRaises(TypeError, dict, [(mol, 1)])
         mol.remove_sites([0, 1])

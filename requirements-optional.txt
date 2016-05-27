@@ -4,3 +4,5 @@ sympy==0.7.6.1
 pyhull==1.5.6
 unittest2==1.1.0
 coverage==4.0.3
+Fabric==1.11.1
+ase==3.11.0
