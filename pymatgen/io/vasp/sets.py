@@ -181,6 +181,8 @@ class DictSet(VaspInputSet):
         structure (Structure): The Structure to create inputs for.
         name (str): A name fo the input set.
         config_dict (dict): The config dictionary to use.
+        files_to_transfer (dict): A dictionary of {filename: filepath}. This
+            allows the transfer of files from a previous calculation.
         hubbard_off (bool): Whether to turn off Hubbard U if it is specified in
             config_dict. Defaults to False, i.e., follow settings in
             config_dict.
@@ -211,8 +213,9 @@ class DictSet(VaspInputSet):
             alter the structure. Valid values: None, "niggli", "LLL"
     """
 
-    def __init__(self, structure, name, config_dict, hubbard_off=False,
-                 user_incar_settings=None,
+    def __init__(self, structure, name, config_dict,
+                 files_to_transfer=None,
+                 hubbard_off=False, user_incar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
                  ediff_per_atom=True, potcar_functional=None,
                  force_gamma=False, reduce_structure=None):
@@ -222,6 +225,7 @@ class DictSet(VaspInputSet):
             structure = structure.get_sorted_structure()
         self.structure = structure
         self.name = name
+        self.files_to_transfer = files_to_transfer or {}
         self.potcar_settings = config_dict["POTCAR"]
         self.kpoints_settings = config_dict['KPOINTS']
         self.incar_settings = config_dict['INCAR']
@@ -368,6 +372,15 @@ class DictSet(VaspInputSet):
             output.append("")
             count += 1
         return "\n".join(output)
+
+    def write_input(self, output_dir,
+                    make_dir_if_not_present=True, include_cif=False):
+        super(DictSet, self).write_input(
+            output_dir=output_dir,
+            make_dir_if_not_present=make_dir_if_not_present,
+            include_cif=include_cif)
+        for k, v in self.files_to_transfer.items():
+            shutil.copy(v, os.path.join(output_dir, k))
 
     def as_dict(self):
         config_dict = {
@@ -579,6 +592,15 @@ class MPStaticSet(VaspInputSet):
     def potcar(self):
         return self.parent_vis.get_potcar(self.structure)
 
+    def write_input(self, output_dir,
+                    make_dir_if_not_present=True, include_cif=False):
+        super(DictSet, self).write_input(
+            output_dir=output_dir,
+            make_dir_if_not_present=make_dir_if_not_present,
+            include_cif=include_cif)
+        for k, v in self.files_to_transfer.items():
+            shutil.copy(v, os.path.join(output_dir, k))
+
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, standardize=False, sym_prec=0.1,
                        international_monoclinic=True, reciprocal_density=100,
@@ -628,9 +650,9 @@ class MPStaticSet(VaspInputSet):
             reciprocal_density=reciprocal_density, **kwargs)
 
 
-class MPHSEBSSet(VaspInputSet):
+class MPHSEBSSet(DictSet):
 
-    def __init__(self, structure, prev_chgcar_path=None, **kwargs):
+    def __init__(self, structure, files_to_transfer=None, **kwargs):
         """
         Init a MPHSEBSSet. Note that HSE is SCF calcs only. This input set
         does a static HSE calculation at either a uniform mesh or
@@ -642,7 +664,7 @@ class MPHSEBSSet(VaspInputSet):
             \*\*kwargs: kwargs supported by MPHSEBSVaspInputSet.
         """
         self.structure = structure
-        self.prev_chgcar_path = prev_chgcar_path
+        self.files_to_transfer = files_to_transfer or {}
         self.parent_vis = MPHSEBSVaspInputSet(**kwargs)
 
     @property
@@ -701,23 +723,24 @@ class MPHSEBSSet(VaspInputSet):
         if cbm:
             added_kpoints.append(cbm.frac_coords)
 
-        chgcar_path = None
+        files_to_transfer = {}
         if copy_chgcar:
             chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
             if chgcars:
-                chgcar_path = sorted(chgcars)[-1]
+                files_to_transfer["CHGCAR"] = sorted(chgcars)[-1]
 
         return MPHSEBSSet(
             structure=prev_structure,
             added_kpoints=added_kpoints, reciprocal_density=reciprocal_density,
-            mode=mode, prev_chgcar_path=chgcar_path, **kwargs)
+            mode=mode, files_to_transfer=files_to_transfer, **kwargs)
 
 
 class MPNonSCFSet(VaspInputSet):
 
-    def __init__(self, structure, prev_incar=None, prev_chgcar_path=None,
+    def __init__(self, structure, prev_incar=None,
                  mode="line", nedos=601, reciprocal_density=100, sym_prec=0.1,
-                 kpoints_line_density=20, optics=False, **kwargs):
+                 kpoints_line_density=20, optics=False,
+                 files_to_transfer=None, **kwargs):
         """
         Init a MPNonSCFSet. Typically, you would use the classmethod
         from_prev_calc instead.
@@ -736,9 +759,8 @@ class MPNonSCFSet(VaspInputSet):
         """
         self.structure = structure
         self.prev_incar = prev_incar
-        self.prev_chgcar_path = prev_chgcar_path
         self.kwargs = kwargs
-
+        self.files_to_transfer = files_to_transfer or {}
         self.nedos = nedos
         self.reciprocal_density = reciprocal_density
         self.sym_prec = sym_prec
@@ -752,9 +774,7 @@ class MPNonSCFSet(VaspInputSet):
         if (self.mode != "uniform" or nedos < 2000) and optics:
             warnings.warn("It is recommended to use Uniform mode with a high "
                           "NEDOS for optics calculations.")
-
         self.parent_vis = MPRelaxSet(self.structure, **kwargs)
-
 
     @property
     def incar(self):
@@ -821,12 +841,12 @@ class MPNonSCFSet(VaspInputSet):
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
-        super(MPNonSCFSet, self).write_input(output_dir,
+        super(MPNonSCFSet, self).write_input(
+            output_dir=output_dir,
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
-        if self.prev_chgcar_path:
-            shutil.copy(self.prev_chgcar_path,
-                        os.path.join(output_dir, "CHGCAR"))
+        for k, v in self.files_to_transfer.items():
+            shutil.copy(v, os.path.join(output_dir, k))
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
@@ -878,11 +898,11 @@ class MPNonSCFSet(VaspInputSet):
         nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
         incar.update({"ISPIN": ispin, "NBANDS": nbands})
 
-        chgcar_path = None
+        files_to_transfer = {}
         if copy_chgcar:
             chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
             if chgcars:
-                chgcar_path = sorted(chgcars)[-1]
+                files_to_transfer["CHGCAR"] = sorted(chgcars)[-1]
 
         # multiply the reciprocal density if needed:
         if small_gap_multiply:
@@ -891,14 +911,14 @@ class MPNonSCFSet(VaspInputSet):
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
 
         return MPNonSCFSet(structure=structure, prev_incar=incar,
-                           prev_chgcar_path=chgcar_path,
-                           reciprocal_density=reciprocal_density, **kwargs)
+                           reciprocal_density=reciprocal_density,
+                           files_to_transfer=files_to_transfer, **kwargs)
 
 
 class MPSOCSet(MPStaticSet):
 
     def __init__(self, structure, saxis=(0, 0, 1), prev_incar=None,
-                 prev_chgcar_path=None, reciprocal_density=100, **kwargs):
+                 reciprocal_density=100, **kwargs):
         """
         Init a MPSOCSet. Typically, you would use the classmethod
         from_prev_calc instead.
@@ -920,10 +940,9 @@ class MPSOCSet(MPStaticSet):
                              "property and each magnetic moment value must have 3 "
                              "components. eg:- magmom = [0,0,2]")
         self.saxis = saxis
-        self.prev_chgcar_path = prev_chgcar_path
-        super(MPSOCSet, self).__init__(structure, prev_incar=prev_incar,
-                                      reciprocal_density=reciprocal_density,
-                                      **kwargs)
+        super(MPSOCSet, self).__init__(
+            structure, prev_incar=prev_incar,
+            reciprocal_density=reciprocal_density, **kwargs)
 
     @property
     def incar(self):
@@ -938,15 +957,6 @@ class MPSOCSet(MPStaticSet):
                       "SAXIS": list(self.saxis)})
 
         return incar
-
-    def write_input(self, output_dir,
-                    make_dir_if_not_present=True, include_cif=False):
-        super(MPSOCSet, self).write_input(output_dir,
-            make_dir_if_not_present=make_dir_if_not_present,
-            include_cif=include_cif)
-        if self.prev_chgcar_path:
-            shutil.copy(self.prev_chgcar_path,
-                        os.path.join(output_dir, "CHGCAR"))
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
@@ -1005,11 +1015,11 @@ class MPSOCSet(MPStaticSet):
         nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
         incar.update({"NBANDS": nbands})
 
-        chgcar_path = None
+        files_to_transfer = {}
         if copy_chgcar:
             chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
             if chgcars:
-                chgcar_path = sorted(chgcars)[-1]
+                files_to_transfer["CHGCAR"] = sorted(chgcars)[-1]
 
         # multiply the reciprocal density if needed:
         if small_gap_multiply:
@@ -1018,7 +1028,7 @@ class MPSOCSet(MPStaticSet):
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
 
         return MPSOCSet(structure, prev_incar=incar,
-                        prev_chgcar_path=chgcar_path,
+                        files_to_transfer=files_to_transfer,
                         reciprocal_density=reciprocal_density, **kwargs)
 
 

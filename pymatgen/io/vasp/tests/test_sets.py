@@ -371,7 +371,7 @@ class MPNonSCFDerivedSetTest(PymatgenTest):
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
 
         vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run,
-                                                mode="Line", copy_chgcar=True)
+                                         mode="Line", copy_chgcar=True)
         vis.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
 
