@@ -30,11 +30,35 @@ from pymatgen.io.vasp.sets_deprecated import *
 
 """
 This module defines the VaspInputSet abstract base class and a concrete
-implementation for the parameters used by the Materials Project and the MIT
+implementation for the parameters developed and tested by the core team
+of pymatgen, including the Materials Virtual Lab, Materials Project and the MIT
 high throughput project.  The basic concept behind an input set is to specify
 a scheme to generate a consistent set of VASP inputs from a structure
 without further user intervention. This ensures comparability across
 runs.
+
+Read the following carefully before implementing new input sets:
+
+1. 99% of what needs to be done can be done by specifying user_incar_settings
+   to override some of the defaults of various input sets. Unless there is an
+   extremely good reason to add a new set, DO NOT add one. E.g., if you want
+   to turn the hubbard U off, just set "LDAU": False as a user_incar_setting.
+2. All derivative input sets should inherit from one of the usual MPRelaxSet or
+   MITRelaxSet, and proper superclass delegation should be used where possible.
+   In particular, you are not supposed to implement your own as_dict or
+   from_dict for derivative sets unless you know what you are doing.
+   Improper overriding the as_dict and from_dict protocols is the major
+   cause of implementation headaches. If you need an example, look at how the
+   MPStaticSet or MPNonSCFSets from constructed.
+
+The above are recommendations. The following are UNBREAKABLE rules:
+1. user_incar_settings is absolute. Any new sets you implement must obey
+   this. If a user wants to override your settings, you assume he knows what he
+   is doing. Do not magically override user supplied settings. You can of course
+   issue a warning if you think the user is wrong.
+2. All input sets must save all supplied args and kwargs as instance variables.
+   E.g., self.my_arg = myarg and self.kwargs = kwargs in the __init__. This
+   ensures the as_dict and from_dict work correctly.
 """
 
 __author__ = "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier"
@@ -1014,6 +1038,7 @@ class MVLSlabSet(MPRelaxSet):
         self.gpu = gpu
         self.k_product = k_product
         self.bulk = bulk
+        self.kwargs = kwargs
 
     @property
     def kpoints(self):
@@ -1130,6 +1155,7 @@ class MITMDSet(MITRelaxSet):
         self.nsteps = nsteps
         self.time_step = time_step
         self.spin_polarized = spin_polarized
+        self.kwargs = kwargs
 
         # use VASP default ENCUT
         self.config_dict["INCAR"].pop('ENCUT', None)
