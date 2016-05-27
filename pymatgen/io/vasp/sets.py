@@ -77,15 +77,15 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         """
         elements = self.poscar.site_symbols
         potcar_symbols = []
+        settings = self.config_dict["POTCAR"]
 
-        if isinstance(self.potcar_settings[elements[-1]], dict):
+        if isinstance(settings[elements[-1]], dict):
             for el in elements:
-                potcar_symbols.append(self.potcar_settings[el]['symbol']
-                                      if el in self.potcar_settings else el)
+                potcar_symbols.append(settings[el]['symbol']
+                                      if el in settings else el)
         else:
             for el in elements:
-                potcar_symbols.append(self.potcar_settings[el]
-                                      if el in self.potcar_settings else el)
+                potcar_symbols.append(settings.get(el, el))
 
         return potcar_symbols
 
@@ -175,8 +175,6 @@ class DictSet(VaspInputSet):
     4. Lastly, the element symbol itself is checked in the config file. If
        there are no settings, VASP's default of 0.6 is used.
 
-    .
-
     Args:
         structure (Structure): The Structure to create inputs for.
         name (str): A name fo the input set.
@@ -224,9 +222,6 @@ class DictSet(VaspInputSet):
         self.config_dict = config_dict
         self.name = name
         self.files_to_transfer = files_to_transfer or {}
-        self.potcar_settings = config_dict["POTCAR"]
-        self.kpoints_settings = config_dict['KPOINTS']
-        self.incar_settings = config_dict['INCAR']
         self.set_nupdown = constrain_total_magmom
         self.sort_structure = sort_structure
         self.potcar_functional = potcar_functional
@@ -236,7 +231,7 @@ class DictSet(VaspInputSet):
 
     @property
     def incar(self):
-        settings = dict(self.incar_settings)
+        settings = dict(self.config_dict["INCAR"])
         settings.update(self.user_incar_settings)
         structure = self.structure
         incar = Incar()
@@ -326,22 +321,24 @@ class DictSet(VaspInputSet):
             Uses a simple approach scaling the number of divisions along each
             reciprocal lattice vector proportional to its length.
         """
-        # If grid_density is in the kpoints_settings use Kpoints.automatic_density
-        if self.kpoints_settings.get('grid_density'):
+        settings = self.config_dict["KPOINTS"]
+        # If grid_density is in the kpoints_settings use
+        # Kpoints.automatic_density
+        if settings.get('grid_density'):
             return Kpoints.automatic_density(
-                self.structure, int(self.kpoints_settings['grid_density']),
+                self.structure, int(settings['grid_density']),
                 self.force_gamma)
 
-        # If reciprocal_density is in the kpoints_settings use Kpoints.automatic_density_by_vol
-        elif self.kpoints_settings.get('reciprocal_density'):
+        # If reciprocal_density is in the kpoints_settings use
+        # Kpoints.automatic_density_by_vol
+        elif settings.get('reciprocal_density'):
             return Kpoints.automatic_density_by_vol(
-                self.structure, int(self.kpoints_settings[
-                                        'reciprocal_density']),
+                self.structure, int(settings['reciprocal_density']),
                 self.force_gamma)
 
         # If length is in the kpoints_settings use Kpoints.automatic
-        elif self.kpoints_settings.get('length'):
-            return Kpoints.automatic(self.kpoints_settings['length'])
+        elif settings.get('length'):
+            return Kpoints.automatic(settings['length'])
 
         # Raise error. Unsure of which kpoint generation to use
         else:
@@ -355,18 +352,7 @@ class DictSet(VaspInputSet):
         return self.name
 
     def __repr__(self):
-        output = [self.name, ""]
-        section_names = ['INCAR settings', 'KPOINTS settings',
-                         'POTCAR settings']
-        count = 0
-        for d in [self.incar_settings, self.kpoints_settings,
-                  self.potcar_settings]:
-            output.append(section_names[count])
-            for k, v in d.items():
-                output.append("%s = %s" % (k, str(v)))
-            output.append("")
-            count += 1
-        return "\n".join(output)
+        return self.name
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
@@ -518,9 +504,6 @@ class MPStaticSet(MPRelaxSet):
 
     @property
     def kpoints(self):
-        if self.kpoints_settings.get("grid_density"):
-            self.kpoints_settings["grid_density"]
-        self.kpoints_settings["reciprocal_density"] = self.reciprocal_density
         kpoints = super(MPStaticSet, self).kpoints
 
         # Prefer to use k-point scheme from previous run
@@ -617,9 +600,8 @@ class MPHSEBSSet(MPHSERelaxSet):
         super(MPHSEBSSet, self).__init__(structure, **kwargs)
         self.structure = structure
         self.user_incar_settings = user_incar_settings or {}
-        self.incar_settings.update(
+        self.config_dict["INCAR"].update(
             {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 0, "LCHARG": False})
-        self.incar_settings.update(self.user_incar_settings)
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
         self.reciprocal_density = reciprocal_density or \
