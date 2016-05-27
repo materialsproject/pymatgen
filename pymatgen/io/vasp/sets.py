@@ -651,8 +651,38 @@ class MPStaticSet(VaspInputSet):
 
 
 class MPHSEBSSet(DictSet):
+    """
+    Implementation of a VaspInputSet for HSE band structure computations.
+    Remember that HSE band structures must be self-consistent in VASP. A band
+    structure along symmetry lines for instance needs BOTH a uniform grid with
+    appropriate weights AND a path along the lines with weight 0.
 
-    def __init__(self, structure, files_to_transfer=None, **kwargs):
+    Thus, the "Uniform" mode is just like regular static SCF but allows adding
+    custom kpoints (e.g., corresponding to known VBM/CBM) to the uniform grid
+    that have zero weight (e.g., for better gap estimate).
+
+    The "Line" mode is just like Uniform mode, but additionally adds k-points
+    along symmetry lines with zero weight.
+
+    Args:
+        structure (Structure): Structure to compute
+        user_incar_settings (dict): A dict specifying additional incar
+            settings
+        added_kpoints (list): a list of kpoints (list of 3 number list)
+            added to the run. The k-points are in fractional coordinates
+        mode (str): "Line" - generate k-points along symmetry lines for
+            bandstructure. "Uniform" - generate uniform k-points grid
+        reciprocal_density (int): k-point density to use for uniform mesh
+        kpoints_line_density (int): k-point density for high symmetry lines
+        files_to_transfer (dict): A dictionary of {filename: filepath}. This
+            allows the transfer of files from a previous calculation.
+        **kwargs (dict): Any other parameters to pass into DictVaspInputSet
+
+    """
+
+    def __init__(self, structure, user_incar_settings=None, added_kpoints=None,
+                 mode="Uniform", reciprocal_density=None,
+                 kpoints_line_density=20, files_to_transfer=None, **kwargs):
         """
         Init a MPHSEBSSet. Note that HSE is SCF calcs only. This input set
         does a static HSE calculation at either a uniform mesh or
@@ -663,25 +693,63 @@ class MPHSEBSSet(DictSet):
             prev_chgcar_path (str): Path to CHGCAR from previous run.
             \*\*kwargs: kwargs supported by MPHSEBSVaspInputSet.
         """
-        self.structure = structure
-        self.files_to_transfer = files_to_transfer or {}
-        self.parent_vis = MPHSEBSVaspInputSet(**kwargs)
 
-    @property
-    def incar(self):
-        return self.parent_vis.get_incar(self.structure)
+        d = loadfn(os.path.join(MODULE_DIR, "MPHSEVaspInputSet.yaml"))
+        super(MPHSEBSSet, self).__init__(structure, "MPHSE", d,
+                                               **kwargs)
+        self.structure = structure
+        self.user_incar_settings = user_incar_settings or {}
+        self.incar_settings.update(
+            {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 0, "LCHARG": False})
+        self.incar_settings.update(self.user_incar_settings)
+        self.added_kpoints = added_kpoints if added_kpoints is not None else []
+        self.mode = mode
+        self.reciprocal_density = reciprocal_density or \
+                                  self.kpoints_settings['reciprocal_density']
+        self.kpoints_line_density = kpoints_line_density
+        self.files_to_transfer = files_to_transfer or {}
 
     @property
     def kpoints(self):
-        return self.parent_vis.get_kpoints(self.structure)
+        kpts = []
+        weights = []
+        all_labels = []
 
-    @property
-    def poscar(self):
-        return self.parent_vis.get_poscar(self.structure)
+        # for both modes, include the Uniform mesh w/standard weights
+        grid = Kpoints.automatic_density_by_vol(self.structure,
+                                                self.reciprocal_density).kpts
+        ir_kpts = SpacegroupAnalyzer(self.structure, symprec=0.1)\
+            .get_ir_reciprocal_mesh(grid[0])
+        for k in ir_kpts:
+            kpts.append(k[0])
+            weights.append(int(k[1]))
+            all_labels.append(None)
 
-    @property
-    def potcar(self):
-        return self.parent_vis.get_potcar(self.structure)
+        # for both modes, include any user-added kpoints w/zero weight
+        for k in self.added_kpoints:
+            kpts.append(k)
+            weights.append(0.0)
+            all_labels.append("user-defined")
+
+        # for line mode only, add the symmetry lines w/zero weight
+        if self.mode == "Line":
+            kpath = HighSymmKpath(self.structure)
+            frac_k_points, labels = kpath.get_kpoints(
+                line_density=self.kpoints_line_density,
+                coords_are_cartesian=False)
+
+            for k in range(len(frac_k_points)):
+                kpts.append(frac_k_points[k])
+                weights.append(0.0)
+                all_labels.append(labels[k])
+
+        comment = "HSE run along symmetry lines" if self.mode == "Line" \
+            else "HSE run on uniform grid"
+
+        return Kpoints(comment=comment,
+                       style=Kpoints.supported_modes.Reciprocal,
+                       num_kpts=len(kpts), kpts=kpts, kpts_weights=weights,
+                       labels=all_labels)
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
