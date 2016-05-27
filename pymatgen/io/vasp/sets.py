@@ -500,13 +500,13 @@ class MPStaticSet(VaspInputSet):
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
                  lepsilon=False, reciprocal_density=100, **kwargs):
         """
-        Init a MPStaticSet. Typically, you would use the classmethod
-        from_prev_calc instead.
+        Run a static calculation.
 
         Args:
             structure (Structure): Structure from previous run.
             prev_incar (Incar): Incar file from previous run.
             prev_kpoints (Kpoints): Kpoints from previous run.
+            lepsilon (bool): Whether to add static dielectric calculation
             reciprocal_density (int): density of k-mesh by reciprocal
                 volume (defaults to 100)
             \*\*kwargs: kwargs supported by MPVaspInputSet.
@@ -522,7 +522,6 @@ class MPStaticSet(VaspInputSet):
 
     @property
     def incar(self):
-
         parent_incar = self.parent_vis.incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else \
             Incar(parent_incar)
@@ -651,47 +650,36 @@ class MPStaticSet(VaspInputSet):
 
 
 class MPHSEBSSet(DictSet):
-    """
-    Implementation of a VaspInputSet for HSE band structure computations.
-    Remember that HSE band structures must be self-consistent in VASP. A band
-    structure along symmetry lines for instance needs BOTH a uniform grid with
-    appropriate weights AND a path along the lines with weight 0.
-
-    Thus, the "Uniform" mode is just like regular static SCF but allows adding
-    custom kpoints (e.g., corresponding to known VBM/CBM) to the uniform grid
-    that have zero weight (e.g., for better gap estimate).
-
-    The "Line" mode is just like Uniform mode, but additionally adds k-points
-    along symmetry lines with zero weight.
-
-    Args:
-        structure (Structure): Structure to compute
-        user_incar_settings (dict): A dict specifying additional incar
-            settings
-        added_kpoints (list): a list of kpoints (list of 3 number list)
-            added to the run. The k-points are in fractional coordinates
-        mode (str): "Line" - generate k-points along symmetry lines for
-            bandstructure. "Uniform" - generate uniform k-points grid
-        reciprocal_density (int): k-point density to use for uniform mesh
-        kpoints_line_density (int): k-point density for high symmetry lines
-        files_to_transfer (dict): A dictionary of {filename: filepath}. This
-            allows the transfer of files from a previous calculation.
-        **kwargs (dict): Any other parameters to pass into DictVaspInputSet
-
-    """
 
     def __init__(self, structure, user_incar_settings=None, added_kpoints=None,
                  mode="Uniform", reciprocal_density=None,
                  kpoints_line_density=20, files_to_transfer=None, **kwargs):
         """
-        Init a MPHSEBSSet. Note that HSE is SCF calcs only. This input set
-        does a static HSE calculation at either a uniform mesh or
-        uniform+line mesh, with added kpoints.
+        Implementation of a VaspInputSet for HSE band structure computations.
+        Remember that HSE band structures must be self-consistent in VASP. A
+        band structure along symmetry lines for instance needs BOTH a uniform
+        grid with appropriate weights AND a path along the lines with weight 0.
+
+        Thus, the "Uniform" mode is just like regular static SCF but allows
+        adding custom kpoints (e.g., corresponding to known VBM/CBM) to the
+        uniform grid that have zero weight (e.g., for better gap estimate).
+
+        The "Line" mode is just like Uniform mode, but additionally adds
+        k-points along symmetry lines with zero weight.
 
         Args:
-            structure (Structure): Structure from previous run.
-            prev_chgcar_path (str): Path to CHGCAR from previous run.
-            \*\*kwargs: kwargs supported by MPHSEBSVaspInputSet.
+            structure (Structure): Structure to compute
+            user_incar_settings (dict): A dict specifying additional incar
+                settings
+            added_kpoints (list): a list of kpoints (list of 3 number list)
+                added to the run. The k-points are in fractional coordinates
+            mode (str): "Line" - generate k-points along symmetry lines for
+                bandstructure. "Uniform" - generate uniform k-points grid
+            reciprocal_density (int): k-point density to use for uniform mesh
+            kpoints_line_density (int): k-point density for high symmetry lines
+            files_to_transfer (dict): A dictionary of {filename: filepath}.
+            **kwargs (dict): Any other parameters to pass into DictVaspInputSet
+
         """
 
         d = loadfn(os.path.join(MODULE_DIR, "MPHSEVaspInputSet.yaml"))
@@ -772,6 +760,7 @@ class MPHSEBSSet(DictSet):
                 (vasprun.xml and OUTCAR) of previous vasp run.
             mode (str): Either "Uniform" or "Line"
             reciprocal_density (int): density of k-mesh
+            copy_chgcar (bool): whether to copy CHGCAR of previous run
             \*\*kwargs: All kwargs supported by MPHSEBSStaticSet,
                 other than prev_structure which is determined from the previous
                 calc dir.
@@ -811,18 +800,19 @@ class MPNonSCFSet(VaspInputSet):
                  files_to_transfer=None, **kwargs):
         """
         Init a MPNonSCFSet. Typically, you would use the classmethod
-        from_prev_calc instead.
+        from_prev_calc to initialize from a previous SCF run.
 
         Args:
+            structure (Structure): Structure to compute
             prev_incar (Incar): Incar file from previous run.
-            prev_structure (Structure): Structure from previous run.
-            prev_chgcar_path (str): Path to CHGCAR from previous run.
             mode (str): Line or Uniform mode supported.
             nedos (int): nedos parameter. Default to 601.
             reciprocal_density (int): density of k-mesh by reciprocal
                                     volume (defaults to 100)
             sym_prec (float): Symmetry precision (for Uniform mode).
             kpoints_line_density (int): Line density for Line mode.
+            optics (bool): whether to add dielectric function
+            files_to_transfer (dict): A dictionary of {filename: filepath}.
             \*\*kwargs: kwargs supported by MPVaspInputSet.
         """
         self.structure = structure
@@ -988,8 +978,7 @@ class MPSOCSet(MPStaticSet):
     def __init__(self, structure, saxis=(0, 0, 1), prev_incar=None,
                  reciprocal_density=100, **kwargs):
         """
-        Init a MPSOCSet. Typically, you would use the classmethod
-        from_prev_calc instead.
+        Init a MPSOCSet.
 
         Args:
             structure (Structure): the structure must have the 'magmom' site
@@ -997,7 +986,6 @@ class MPSOCSet(MPStaticSet):
                 components. eg:- magmom = [[0,0,2], ...]
             saxis (tuple): magnetic moment orientation
             prev_incar (Incar): Incar file from previous run.
-            prev_chgcar_path (str): Path to CHGCAR from previous run.
             reciprocal_density (int): density of k-mesh by reciprocal
                                     volume (defaults to 100)
             \*\*kwargs: kwargs supported by MPVaspInputSet.
