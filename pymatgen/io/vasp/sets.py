@@ -744,9 +744,8 @@ class MPHSEBSSet(DictSet):
         super(MPHSEBSSet, self).write_input(output_dir,
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
-        if self.prev_chgcar_path:
-            shutil.copy(self.prev_chgcar_path,
-                        os.path.join(output_dir, "CHGCAR"))
+        for k, v in self.files_to_transfer.items():
+            shutil.copy(v, os.path.join(output_dir, k))
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, mode="Uniform",
