@@ -22,7 +22,7 @@ from monty.serialization import loadfn
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
-from monty.json import MSONable, MontyDecoder
+from monty.json import MSONable, MontyDecoder, jsanitize
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -144,8 +144,10 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
                     filename=os.path.join(output_dir,
                                           "%s.cif" % v.structure.formula))
 
-    def as_dict(self):
+    def as_dict(self, verbosity=2):
         d = MSONable.as_dict(self)
+        if verbosity==1:
+            d.pop("structure", None)
         if hasattr(self, "kwargs"):
             d.update(**self.kwargs)
         return d
@@ -224,6 +226,7 @@ class DictSet(VaspInputSet):
         if sort_structure:
             structure = structure.get_sorted_structure()
         self.structure = structure
+        self.config_dict = config_dict
         self.name = name
         self.files_to_transfer = files_to_transfer or {}
         self.potcar_settings = config_dict["POTCAR"]
@@ -382,36 +385,6 @@ class DictSet(VaspInputSet):
         for k, v in self.files_to_transfer.items():
             shutil.copy(v, os.path.join(output_dir, k))
 
-    def as_dict(self):
-        config_dict = {
-            "INCAR": self.incar_settings,
-            "KPOINTS": self.kpoints_settings,
-            "POTCAR": self.potcar_settings
-        }
-        kwargs = {
-            "hubbard_off": self.hubbard_off,
-            "constrain_total_magmom": self.set_nupdown,
-            "sort_structure": self.sort_structure,
-            "potcar_functional": self.potcar_functional,
-            "ediff_per_atom": self.ediff_per_atom,
-            "force_gamma": self.force_gamma,
-            "reduce_structure": self.reduce_structure,
-        }
-        return {
-            "structure": self.structure.as_dict(),
-            "name": self.name,
-            "config_dict": config_dict,
-            "kwargs": kwargs,
-            "@class": self.__class__.__name__,
-            "@module": self.__class__.__module__,
-        }
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(structure=Structure.from_dict(d["structure"]),
-                   name=d["name"], config_dict=d["config_dict"],
-                   **d["kwargs"])
-
 
 class BuiltinConfigSet(DictSet):
     """
@@ -430,33 +403,8 @@ class BuiltinConfigSet(DictSet):
         d = loadfn(os.path.join(MODULE_DIR, "%sVaspInputSet.yaml" % config_name))
         super(BuiltinConfigSet, self).__init__(structure, config_name, d,
                                                **kwargs)
+        self.config_name = config_name
         self.kwargs = kwargs
-
-    def as_dict(self, verbosity=2):
-        """
-
-        Args:
-            verbosity (int): How many info to include in dict. If verbosity = 1,
-                the Structure is not included. Note that verbosities lower than
-                the default is not guanranteed to work with the from_dict.
-
-        Returns:
-            Dict representation.
-        """
-        d = {
-            "config_name": self.name,
-            "kwargs": self.kwargs,
-            "@class": self.__class__.__name__,
-            "@module": self.__class__.__module__,
-        }
-        if verbosity > 1:
-            d["structure"] = self.structure.as_dict()
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(Structure.from_dict(d["structure"]), d["config_name"],
-                   **d["kwargs"])
 
 
 MITRelaxSet = partial(BuiltinConfigSet, config_name="MIT")
@@ -495,7 +443,7 @@ Same as the MPRelaxSet, but with HSE parameters.
 """
 
 
-class MPStaticSet(VaspInputSet):
+class MPStaticSet(BuiltinConfigSet):
 
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
                  lepsilon=False, reciprocal_density=100, files_to_transfer=None,
@@ -513,19 +461,18 @@ class MPStaticSet(VaspInputSet):
             files_to_transfer (dict): A dictionary of {filename: filepath}.
             \*\*kwargs: kwargs supported by MPVaspInputSet.
         """
-
+        super(MPStaticSet, self).__init__(structure, "MP", **kwargs)
         self.prev_incar = prev_incar
         self.prev_kpoints = prev_kpoints
         self.reciprocal_density = reciprocal_density
         self.structure = structure
         self.kwargs = kwargs
         self.lepsilon = lepsilon
-        self.parent_vis = MPRelaxSet(self.structure, **self.kwargs)
         self.files_to_transfer = files_to_transfer or {}
 
     @property
     def incar(self):
-        parent_incar = self.parent_vis.incar
+        parent_incar = super(MPStaticSet, self).incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else \
             Incar(parent_incar)
 
@@ -570,11 +517,10 @@ class MPStaticSet(VaspInputSet):
 
     @property
     def kpoints(self):
-        if self.parent_vis.kpoints_settings.get("grid_density"):
-            del self.parent_vis.kpoints_settings["grid_density"]
-        self.parent_vis.kpoints_settings["reciprocal_density"] = \
-            self.reciprocal_density
-        kpoints = self.parent_vis.kpoints
+        if self.kpoints_settings.get("grid_density"):
+            self.kpoints_settings["grid_density"]
+        self.kpoints_settings["reciprocal_density"] = self.reciprocal_density
+        kpoints = super(MPStaticSet, self).kpoints
 
         # Prefer to use k-point scheme from previous run
         if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
@@ -585,23 +531,6 @@ class MPStaticSet(VaspInputSet):
             else:
                 kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])
         return kpoints
-
-    @property
-    def poscar(self):
-        return Poscar(self.structure)
-
-    @property
-    def potcar(self):
-        return self.parent_vis.potcar
-
-    def write_input(self, output_dir,
-                    make_dir_if_not_present=True, include_cif=False):
-        super(MPStaticSet, self).write_input(
-            output_dir=output_dir,
-            make_dir_if_not_present=make_dir_if_not_present,
-            include_cif=include_cif)
-        for k, v in self.files_to_transfer.items():
-            shutil.copy(v, os.path.join(output_dir, k))
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, standardize=False, sym_prec=0.1,
@@ -794,7 +723,7 @@ class MPHSEBSSet(DictSet):
             mode=mode, files_to_transfer=files_to_transfer, **kwargs)
 
 
-class MPNonSCFSet(VaspInputSet):
+class MPNonSCFSet(BuiltinConfigSet):
 
     def __init__(self, structure, prev_incar=None,
                  mode="line", nedos=601, reciprocal_density=100, sym_prec=0.1,
@@ -817,7 +746,8 @@ class MPNonSCFSet(VaspInputSet):
             files_to_transfer (dict): A dictionary of {filename: filepath}.
             \*\*kwargs: kwargs supported by MPVaspInputSet.
         """
-        self.structure = structure
+        super(MPNonSCFSet, self).__init__(structure, "MP", **kwargs)
+        self.name = "MPNonSCF"
         self.prev_incar = prev_incar
         self.kwargs = kwargs
         self.files_to_transfer = files_to_transfer or {}
@@ -834,11 +764,10 @@ class MPNonSCFSet(VaspInputSet):
         if (self.mode != "uniform" or nedos < 2000) and optics:
             warnings.warn("It is recommended to use Uniform mode with a high "
                           "NEDOS for optics calculations.")
-        self.parent_vis = MPRelaxSet(self.structure, **kwargs)
 
     @property
     def incar(self):
-        incar = self.parent_vis.incar
+        incar = super(MPNonSCFSet, self).incar
         if self.prev_incar is not None:
             incar.update({k: v for k, v in self.prev_incar.items()
                          if k not in self.kwargs.get("user_incar_settings",
@@ -890,23 +819,6 @@ class MPNonSCFSet(VaspInputSet):
                               num_kpts=len(ir_kpts),
                               kpts=kpts, kpts_weights=weights)
         return kpoints
-
-    @property
-    def poscar(self):
-        return Poscar(self.structure)
-
-    @property
-    def potcar(self):
-        return self.parent_vis.potcar
-
-    def write_input(self, output_dir,
-                    make_dir_if_not_present=True, include_cif=False):
-        super(MPNonSCFSet, self).write_input(
-            output_dir=output_dir,
-            make_dir_if_not_present=make_dir_if_not_present,
-            include_cif=include_cif)
-        for k, v in self.files_to_transfer.items():
-            shutil.copy(v, os.path.join(output_dir, k))
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
@@ -1004,7 +916,7 @@ class MPSOCSet(MPStaticSet):
 
     @property
     def incar(self):
-        incar = self.parent_vis.incar
+        incar = super(MPSOCSet, self).incar
         if self.prev_incar is not None:
             incar.update({k: v for k, v in self.prev_incar.items()
                          if k not in self.kwargs.get("user_incar_settings",
