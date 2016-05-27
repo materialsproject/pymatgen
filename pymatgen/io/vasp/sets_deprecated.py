@@ -507,7 +507,8 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             the path. Useful for visualization
         \*\*kwargs: Other kwargs supported by :class:`DictVaspInputSet`.
     """
-
+    
+    @deprecated(message="Replaced by MITNEBSet. Will be removed in pmg 4.0.")
     def __init__(self, nimages=8, user_incar_settings=None,
                  write_endpoint_inputs=False, kpoints_gamma_override=None,
                  write_path_cif=False, unset_encut=False,
@@ -643,6 +644,7 @@ class MITMDVaspInputSet(DictVaspInputSet):
             Other kwargs supported by :class:`DictVaspInputSet`.
     """
 
+    @deprecated(message="Replaced by MITMDSet. Will be removed in pmg 4.0.")
     def __init__(self, start_temp, end_temp, nsteps, time_step=2,
                  hubbard_off=True, spin_polarized=False,
                  sort_structure=False, user_incar_settings=None,
