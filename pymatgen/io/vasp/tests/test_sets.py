@@ -455,15 +455,16 @@ class MVLSlabSetTest(PymatgenTest):
             os.environ["VASP_PSP_DIR"] = test_dir
         s = PymatgenTest.get_structure("Li2O")
         gen = SlabGenerator(s, (1, 0, 0), 10, 10)
-        vis_bulk = MVLSlabSet(bulk=True)
-        vis = MVLSlabSet()
-        vis_bulk_gpu = MVLSlabSet(bulk=True, gpu=True)
-
         self.slab = gen.get_slab()
         self.bulk = self.slab.oriented_unit_cell
-        self.d_bulk = vis_bulk.get_all_vasp_input(self.bulk)
-        self.d_slab = vis.get_all_vasp_input(self.slab)
-        self.d_bulk_gpu = vis_bulk_gpu.get_all_vasp_input(self.bulk)
+
+        vis_bulk = MVLSlabSet(self.bulk, bulk=True)
+        vis = MVLSlabSet(self.slab)
+        vis_bulk_gpu = MVLSlabSet(self.bulk, bulk=True, gpu=True)
+
+        self.d_bulk = vis_bulk.all_input
+        self.d_slab = vis.all_input
+        self.d_bulk_gpu = vis_bulk_gpu.all_input
 
     def test_bulk(self):
 
