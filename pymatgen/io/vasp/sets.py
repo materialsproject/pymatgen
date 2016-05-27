@@ -441,7 +441,7 @@ class MPHSERelaxSet(ConfigFileSet):
     """
 
     def __init__(self, structure, **kwargs):
-        super(MPRelaxSet, self).__init__(
+        super(MPHSERelaxSet, self).__init__(
             structure,
             os.path.join(MODULE_DIR, "MPHSERelaxSet.yaml"), **kwargs)
 
@@ -449,8 +449,7 @@ class MPHSERelaxSet(ConfigFileSet):
 class MPStaticSet(MPRelaxSet):
 
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
-                 lepsilon=False, reciprocal_density=100, files_to_transfer=None,
-                 **kwargs):
+                 lepsilon=False, reciprocal_density=100, **kwargs):
         """
         Run a static calculation.
 
@@ -462,7 +461,7 @@ class MPStaticSet(MPRelaxSet):
             reciprocal_density (int): density of k-mesh by reciprocal
                 volume (defaults to 100)
             files_to_transfer (dict): A dictionary of {filename: filepath}.
-            \*\*kwargs: kwargs supported by MPVaspInputSet.
+            \*\*kwargs: kwargs supported by MPRelaxSet.
         """
         super(MPStaticSet, self).__init__(structure, **kwargs)
         self.prev_incar = prev_incar
@@ -471,7 +470,6 @@ class MPStaticSet(MPRelaxSet):
         self.structure = structure
         self.kwargs = kwargs
         self.lepsilon = lepsilon
-        self.files_to_transfer = files_to_transfer or {}
 
     @property
     def incar(self):
@@ -584,11 +582,11 @@ class MPStaticSet(MPRelaxSet):
             reciprocal_density=reciprocal_density, **kwargs)
 
 
-class MPHSEBSSet(DictSet):
+class MPHSEBSSet(MPHSERelaxSet):
 
     def __init__(self, structure, user_incar_settings=None, added_kpoints=None,
                  mode="Uniform", reciprocal_density=None,
-                 kpoints_line_density=20, files_to_transfer=None, **kwargs):
+                 kpoints_line_density=20, **kwargs):
         """
         Implementation of a VaspInputSet for HSE band structure computations.
         Remember that HSE band structures must be self-consistent in VASP. A
@@ -616,10 +614,7 @@ class MPHSEBSSet(DictSet):
             **kwargs (dict): Any other parameters to pass into DictVaspInputSet
 
         """
-
-        d = loadfn(os.path.join(MODULE_DIR, "MPHSEVaspInputSet.yaml"))
-        super(MPHSEBSSet, self).__init__(structure, "MPHSE", d,
-                                               **kwargs)
+        super(MPHSEBSSet, self).__init__(structure, **kwargs)
         self.structure = structure
         self.user_incar_settings = user_incar_settings or {}
         self.incar_settings.update(
@@ -630,7 +625,6 @@ class MPHSEBSSet(DictSet):
         self.reciprocal_density = reciprocal_density or \
                                   self.kpoints_settings['reciprocal_density']
         self.kpoints_line_density = kpoints_line_density
-        self.files_to_transfer = files_to_transfer or {}
 
     @property
     def kpoints(self):
@@ -730,8 +724,7 @@ class MPNonSCFSet(MPRelaxSet):
 
     def __init__(self, structure, prev_incar=None,
                  mode="line", nedos=601, reciprocal_density=100, sym_prec=0.1,
-                 kpoints_line_density=20, optics=False,
-                 files_to_transfer=None, **kwargs):
+                 kpoints_line_density=20, optics=False, **kwargs):
         """
         Init a MPNonSCFSet. Typically, you would use the classmethod
         from_prev_calc to initialize from a previous SCF run.
@@ -752,7 +745,6 @@ class MPNonSCFSet(MPRelaxSet):
         super(MPNonSCFSet, self).__init__(structure, **kwargs)
         self.prev_incar = prev_incar
         self.kwargs = kwargs
-        self.files_to_transfer = files_to_transfer or {}
         self.nedos = nedos
         self.reciprocal_density = reciprocal_density
         self.sym_prec = sym_prec
