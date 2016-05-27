@@ -215,9 +215,13 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(v.incar_settings["MAGMOM"],
                          {"Fe": 10, "S": -5, "Mn3+": 100})
 
-    def test_hubbard_off(self):
-        p = MPRelaxSet(self.structure, user_incar_settings={"LDAU": False})
+    def test_hubbard_off_and_ediff_override(self):
+        p = MPRelaxSet(self.structure, user_incar_settings={"LDAU": False,
+                                                            "EDIFF": 1e-10})
         self.assertNotIn("LDAUU", p.incar)
+        self.assertEqual(p.incar["EDIFF"], 1e-10)
+
+
 
 # class MITMDVaspInputSetTest(unittest.TestCase):
 #
