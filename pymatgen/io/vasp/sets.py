@@ -232,7 +232,7 @@ class DictSet(VaspInputSet):
         self.potcar_functional = potcar_functional
         self.force_gamma = force_gamma
         self.reduce_structure = reduce_structure
-        self.user_incar_settings = user_incar_settings
+        self.user_incar_settings = user_incar_settings or {}
 
     @property
     def incar(self):
@@ -274,7 +274,7 @@ class DictSet(VaspInputSet):
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
                 else:
-                    incar["EDIFF"] = float(self.incar_settings["EDIFF"])
+                    incar["EDIFF"] = float(settings["EDIFF"])
             else:
                 incar[k] = v
 
