@@ -261,16 +261,17 @@ class DictSet(VaspInputSet):
                     else:
                         mag.append(setting.get(site.specie.symbol, 0.6))
                 incar[key] = mag
-            elif key in ('LDAUU', 'LDAUJ', 'LDAUL') and hubbard_u:
-                if hasattr(structure[0], key.lower()):
-                    m = dict([(site.specie.symbol, getattr(site, key.lower()))
-                              for site in structure])
-                    incar[key] = [m[sym] for sym in poscar.site_symbols]
-                elif most_electroneg in setting.keys():
-                    incar[key] = [setting[most_electroneg].get(sym, 0)
-                                  for sym in poscar.site_symbols]
-                else:
-                    incar[key] = [0] * len(poscar.site_symbols)
+            elif key in ('LDAUU', 'LDAUJ', 'LDAUL'):
+                if hubbard_u:
+                    if hasattr(structure[0], key.lower()):
+                        m = dict([(site.specie.symbol, getattr(site, key.lower()))
+                                  for site in structure])
+                        incar[key] = [m[sym] for sym in poscar.site_symbols]
+                    elif most_electroneg in setting.keys():
+                        incar[key] = [setting[most_electroneg].get(sym, 0)
+                                      for sym in poscar.site_symbols]
+                    else:
+                        incar[key] = [0] * len(poscar.site_symbols)
             elif key.startswith("EDIFF"):
                 if "EDIFF" not in self.incar_settings and key == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(setting) * structure.num_sites
@@ -279,7 +280,7 @@ class DictSet(VaspInputSet):
             else:
                 incar[key] = setting
 
-        has_u = ("LDAUU" in incar and sum(incar['LDAUU']) > 0)
+        has_u = hubbard_u and sum(incar['LDAUU']) > 0
         if has_u:
             # modify LMAXMIX if LSDA+U and you have d or f electrons
             # note that if the user explicitly sets LMAXMIX in settings it will
