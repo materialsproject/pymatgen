@@ -51,7 +51,8 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Base class representing a set of Vasp input parameters with a structure
-    supplied as init parameters.
+    supplied as init parameters. Typically, you should not inherit from this
+    class. Start from DictSet or MPRelaxSet or MITRelaxSet.
     """
 
     @abc.abstractproperty
@@ -144,7 +145,7 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
 
     def as_dict(self, verbosity=2):
         d = MSONable.as_dict(self)
-        if verbosity==1:
+        if verbosity == 1:
             d.pop("structure", None)
         if hasattr(self, "kwargs"):
             d.update(**self.kwargs)
@@ -177,18 +178,22 @@ class DictSet(VaspInputSet):
     4. Lastly, the element symbol itself is checked in the config file. If
        there are no settings, VASP's default of 0.6 is used.
 
+    .
+
     Args:
         structure (Structure): The Structure to create inputs for.
         name (str): A name fo the input set.
         config_dict (dict): The config dictionary to use.
         files_to_transfer (dict): A dictionary of {filename: filepath}. This
             allows the transfer of files from a previous calculation.
-        hubbard_off (bool): Whether to turn off Hubbard U if it is specified in
-            config_dict. Defaults to False, i.e., follow settings in
-            config_dict.
         user_incar_settings (dict): User INCAR settings. This allows a user
             to override INCAR settings, e.g., setting a different MAGMOM for
-            various elements or species.
+            various elements or species. Note that in the new scheme,
+            ediff_per_atom and hubbard_u are no longer args. Instead, the
+            config_dict supports EDIFF_PER_ATOM and EDIFF keys. The former
+            scales with # of atoms, the latter does not. If both are
+            present, EDIFF is preferred. To force such settings, just supply
+            user_incar_settings={"EDIFF": 1e-5, "LDAU": False} for example.
         constrain_total_magmom (bool): Whether to constrain the total magmom
             (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
             species. Defaults to False.
@@ -197,10 +202,6 @@ class DictSet(VaspInputSet):
             files. Defaults to True, the behavior you would want most of the
             time. This ensures that similar atomic species are grouped
             together.
-        ediff_per_atom (bool): Whether the EDIFF is specified on a per atom
-            basis. This is generally desired, though for some calculations (
-            e.g. NEB) this should be turned off (and an appropriate EDIFF
-            supplied in user_incar_settings)
         potcar_functional (str): Functional to use. Default (None) is to use
             the functional in Potcar.DEFAULT_FUNCTIONAL. Valid values:
             "PBE", "LDA", "PW91", "LDA_US"
@@ -214,11 +215,10 @@ class DictSet(VaspInputSet):
     """
 
     def __init__(self, structure, name, config_dict,
-                 files_to_transfer=None,
-                 hubbard_off=False, user_incar_settings=None,
+                 files_to_transfer=None, user_incar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
-                 ediff_per_atom=True, potcar_functional=None,
-                 force_gamma=False, reduce_structure=None):
+                 potcar_functional=None, force_gamma=False,
+                 reduce_structure=None):
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
         if sort_structure:
@@ -232,15 +232,9 @@ class DictSet(VaspInputSet):
         self.incar_settings = config_dict['INCAR']
         self.set_nupdown = constrain_total_magmom
         self.sort_structure = sort_structure
-        self.ediff_per_atom = ediff_per_atom
-        self.hubbard_off = hubbard_off
         self.potcar_functional = potcar_functional
         self.force_gamma = force_gamma
         self.reduce_structure = reduce_structure
-        if hubbard_off:
-            for k in list(self.incar_settings.keys()):
-                if k.startswith("LDAU"):
-                    del self.incar_settings[k]
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
 
@@ -253,6 +247,7 @@ class DictSet(VaspInputSet):
                           key=lambda e: e.X)
         most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
+        hubbard_u = self.incar_settings.get("LDAU", False)
         for key, setting in self.incar_settings.items():
             if key == "MAGMOM":
                 mag = []
@@ -266,7 +261,7 @@ class DictSet(VaspInputSet):
                     else:
                         mag.append(setting.get(site.specie.symbol, 0.6))
                 incar[key] = mag
-            elif key in ('LDAUU', 'LDAUJ', 'LDAUL'):
+            elif key in ('LDAUU', 'LDAUJ', 'LDAUL') and hubbard_u:
                 if hasattr(structure[0], key.lower()):
                     m = dict([(site.specie.symbol, getattr(site, key.lower()))
                               for site in structure])
@@ -276,11 +271,11 @@ class DictSet(VaspInputSet):
                                   for sym in poscar.site_symbols]
                 else:
                     incar[key] = [0] * len(poscar.site_symbols)
-            elif key == "EDIFF":
-                if self.ediff_per_atom:
-                    incar[key] = float(setting) * structure.num_sites
+            elif key.startswith("EDIFF"):
+                if "EDIFF" not in self.incar_settings and key == "EDIFF_PER_ATOM":
+                    incar["EDIFF"] = float(setting) * structure.num_sites
                 else:
-                    incar[key] = float(setting)
+                    incar["EDIFF"] = float(self.incar_settings["EDIFF"])
             else:
                 incar[key] = setting
 
@@ -384,7 +379,7 @@ class DictSet(VaspInputSet):
             shutil.copy(v, os.path.join(output_dir, k))
 
 
-class BuiltinConfigSet(DictSet):
+class ConfigFileSet(DictSet):
     """
     Creates a DictVaspInputSet from a yaml/json file.
 
@@ -397,51 +392,62 @@ class BuiltinConfigSet(DictSet):
         DictVaspInputSet
     """
 
-    def __init__(self, structure, config_name, **kwargs):
-        d = loadfn(os.path.join(MODULE_DIR, "%sVaspInputSet.yaml" % config_name))
-        super(BuiltinConfigSet, self).__init__(structure, config_name, d,
-                                               **kwargs)
-        self.config_name = config_name
+    def __init__(self, structure, config_file, **kwargs):
+        d = loadfn(config_file)
+        super(ConfigFileSet, self).__init__(structure, config_file, d,
+                                            **kwargs)
+        self.config_file = config_file
         self.kwargs = kwargs
 
 
-MITRelaxSet = partial(BuiltinConfigSet, config_name="MIT")
-"""
-Standard implementation of VaspInputSet utilizing parameters in the MIT
-High-throughput project.
-The parameters are chosen specifically for a high-throughput project,
-which means in general pseudopotentials with fewer electrons were chosen.
+class MITRelaxSet(ConfigFileSet):
+    """
+    Standard implementation of VaspInputSet utilizing parameters in the MIT
+    High-throughput project.
+    The parameters are chosen specifically for a high-throughput project,
+    which means in general pseudopotentials with fewer electrons were chosen.
 
-Please refer::
+    Please refer::
 
-    A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,
-    K. A. Persson, G. Ceder. A high-throughput infrastructure for density
-    functional theory calculations. Computational Materials Science,
-    2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
-"""
+        A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,
+        K. A. Persson, G. Ceder. A high-throughput infrastructure for density
+        functional theory calculations. Computational Materials Science,
+        2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
+    """
 
-
-MPRelaxSet = partial(BuiltinConfigSet, config_name="MP")
-"""
-Implementation of VaspInputSet utilizing parameters in the public
-Materials Project. Typically, the pseudopotentials chosen contain more
-electrons than the MIT parameters, and the k-point grid is ~50% more dense.
-The LDAUU parameters are also different due to the different psps used,
-which result in different fitted values.
-"""
-
-MPGGARelaxSet = partial(BuiltinConfigSet, config_name="MP", hubbard_off=True)
-"""
-Same as the MPRelaxSet, but the +U is enforced to be turned off.
-"""
-
-MPHSESet = partial(BuiltinConfigSet, config_name="MPHSE")
-"""
-Same as the MPRelaxSet, but with HSE parameters.
-"""
+    def __init__(self, structure, **kwargs):
+        super(MITRelaxSet, self).__init__(
+            structure,
+            os.path.join(MODULE_DIR, "MITRelaxSet.yaml"), **kwargs)
 
 
-class MPStaticSet(BuiltinConfigSet):
+class MPRelaxSet(ConfigFileSet):
+    """
+    Implementation of VaspInputSet utilizing parameters in the public
+    Materials Project. Typically, the pseudopotentials chosen contain more
+    electrons than the MIT parameters, and the k-point grid is ~50% more dense.
+    The LDAUU parameters are also different due to the different psps used,
+    which result in different fitted values.
+    """
+
+    def __init__(self, structure, **kwargs):
+        super(MPRelaxSet, self).__init__(
+            structure,
+            os.path.join(MODULE_DIR, "MPRelaxSet.yaml"), **kwargs)
+
+
+class MPHSERelaxSet(ConfigFileSet):
+    """
+    Same as the MPRelaxSet, but with HSE parameters.
+    """
+
+    def __init__(self, structure, **kwargs):
+        super(MPRelaxSet, self).__init__(
+            structure,
+            os.path.join(MODULE_DIR, "MPHSERelaxSet.yaml"), **kwargs)
+
+
+class MPStaticSet(MPRelaxSet):
 
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
                  lepsilon=False, reciprocal_density=100, files_to_transfer=None,
@@ -459,7 +465,7 @@ class MPStaticSet(BuiltinConfigSet):
             files_to_transfer (dict): A dictionary of {filename: filepath}.
             \*\*kwargs: kwargs supported by MPVaspInputSet.
         """
-        super(MPStaticSet, self).__init__(structure, "MP", **kwargs)
+        super(MPStaticSet, self).__init__(structure, **kwargs)
         self.prev_incar = prev_incar
         self.prev_kpoints = prev_kpoints
         self.reciprocal_density = reciprocal_density
@@ -721,7 +727,7 @@ class MPHSEBSSet(DictSet):
             mode=mode, files_to_transfer=files_to_transfer, **kwargs)
 
 
-class MPNonSCFSet(BuiltinConfigSet):
+class MPNonSCFSet(MPRelaxSet):
 
     def __init__(self, structure, prev_incar=None,
                  mode="line", nedos=601, reciprocal_density=100, sym_prec=0.1,
@@ -744,8 +750,7 @@ class MPNonSCFSet(BuiltinConfigSet):
             files_to_transfer (dict): A dictionary of {filename: filepath}.
             \*\*kwargs: kwargs supported by MPVaspInputSet.
         """
-        super(MPNonSCFSet, self).__init__(structure, "MP", **kwargs)
-        self.name = "MPNonSCF"
+        super(MPNonSCFSet, self).__init__(structure, **kwargs)
         self.prev_incar = prev_incar
         self.kwargs = kwargs
         self.files_to_transfer = files_to_transfer or {}
@@ -1000,7 +1005,7 @@ class MPSOCSet(MPStaticSet):
                         reciprocal_density=reciprocal_density, **kwargs)
 
 
-class MVLSlabSet(BuiltinConfigSet):
+class MVLSlabSet(MPRelaxSet):
     """
     Class for writing a set of slab vasp runs,
     including both slabs (along the c direction) and orient unit cells (bulk),
@@ -1014,12 +1019,9 @@ class MVLSlabSet(BuiltinConfigSet):
             Other kwargs supported by :class:`DictSet`.
     """
     def __init__(self, structure, gpu=False, k_product=50, bulk=False,
-                 ediff_per_atom=False, **kwargs):
-        super(MVLSlabSet, self).__init__(structure, "MP",
-                                         ediff_per_atom=ediff_per_atom,
-                                         **kwargs)
+                 **kwargs):
+        super(MVLSlabSet, self).__init__(structure, **kwargs)
         self.structure = structure
-        self.ediff_per_atom = ediff_per_atom
         self.gpu = gpu
         self.k_product = k_product
         self.bulk = bulk
