@@ -205,6 +205,9 @@ class DictVaspInputSet(AbstractVaspInputSet):
             alter the structure. Valid values: None, "niggli", "LLL"
     """
 
+    @deprecated(
+        message="All input sets have been replaced by equivalents "
+                "pymatgen.io.sets. Will be removed in pmg 4.0.")
     def __init__(self, name, config_dict, hubbard_off=False,
                  user_incar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
@@ -504,7 +507,8 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             the path. Useful for visualization
         \*\*kwargs: Other kwargs supported by :class:`DictVaspInputSet`.
     """
-
+    
+    @deprecated(message="Replaced by MITNEBSet. Will be removed in pmg 4.0.")
     def __init__(self, nimages=8, user_incar_settings=None,
                  write_endpoint_inputs=False, kpoints_gamma_override=None,
                  write_path_cif=False, unset_encut=False,
@@ -640,6 +644,7 @@ class MITMDVaspInputSet(DictVaspInputSet):
             Other kwargs supported by :class:`DictVaspInputSet`.
     """
 
+    @deprecated(message="Replaced by MITMDSet. Will be removed in pmg 4.0.")
     def __init__(self, start_temp, end_temp, nsteps, time_step=2,
                  hubbard_off=True, spin_polarized=False,
                  sort_structure=False, user_incar_settings=None,
@@ -761,6 +766,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             basis.
     """
 
+    @deprecated(message="Replaced by MPStaticSet. Will be removed in pmg 4.0.")
     def __init__(self, kpoints_density=90, sym_prec=0.1, **kwargs):
         super(MPStaticVaspInputSet, self).__init__(
             "MP Static",
@@ -1379,6 +1385,7 @@ class MVLElasticInputSet(DictVaspInputSet):
             settings.
     """
 
+    @deprecated(message="Replaced by MPElasticSet. Will be removed in pmg 4.0.")
     def __init__(self, potim=0.015, user_incar_settings=None):
         super(MVLElasticInputSet, self).__init__(
             "Materials Virtual Lab Elastic Constant Calculation",
