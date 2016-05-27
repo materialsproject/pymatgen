@@ -346,7 +346,7 @@ class MPStaticSetTest(PymatgenTest):
         shutil.rmtree(self.tmp)
 
 
-class MPNonSCFDerivedSetTest(PymatgenTest):
+class MPNonSCFSetTest(PymatgenTest):
 
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
