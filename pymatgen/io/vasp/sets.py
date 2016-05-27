@@ -498,7 +498,8 @@ Same as the MPRelaxSet, but with HSE parameters.
 class MPStaticSet(VaspInputSet):
 
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
-                 lepsilon=False, reciprocal_density=100, **kwargs):
+                 lepsilon=False, reciprocal_density=100, files_to_transfer=None,
+                 **kwargs):
         """
         Run a static calculation.
 
@@ -509,6 +510,7 @@ class MPStaticSet(VaspInputSet):
             lepsilon (bool): Whether to add static dielectric calculation
             reciprocal_density (int): density of k-mesh by reciprocal
                 volume (defaults to 100)
+            files_to_transfer (dict): A dictionary of {filename: filepath}.
             \*\*kwargs: kwargs supported by MPVaspInputSet.
         """
 
@@ -519,6 +521,7 @@ class MPStaticSet(VaspInputSet):
         self.kwargs = kwargs
         self.lepsilon = lepsilon
         self.parent_vis = MPRelaxSet(self.structure, **self.kwargs)
+        self.files_to_transfer = files_to_transfer or {}
 
     @property
     def incar(self):
@@ -589,11 +592,11 @@ class MPStaticSet(VaspInputSet):
 
     @property
     def potcar(self):
-        return self.parent_vis.get_potcar(self.structure)
+        return self.parent_vis.potcar
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
-        super(DictSet, self).write_input(
+        super(MPStaticSet, self).write_input(
             output_dir=output_dir,
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
