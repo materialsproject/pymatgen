@@ -65,12 +65,12 @@ The above are recommendations. The following are UNBREAKABLE rules:
    ensures the as_dict and from_dict work correctly.
 """
 
-__author__ = "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier"
+__author__ = "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
-__date__ = "Nov 16, 2011"
+__date__ = "May 28 2016"
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -122,11 +122,7 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         """
         Potcar object.
         """
-        if self.potcar_functional:
-            p = Potcar(self.potcar_symbols, functional=self.potcar_functional)
-        else:
-            p = Potcar(self.potcar_symbols)
-        return p
+        return Potcar(self.potcar_symbols, functional=self.potcar_functional)
 
     @property
     def all_input(self):
@@ -240,7 +236,7 @@ class DictSet(VaspInputSet):
     def __init__(self, structure, name, config_dict,
                  files_to_transfer=None, user_incar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
-                 potcar_functional=None, force_gamma=False,
+                 potcar_functional="PBE", force_gamma=False,
                  reduce_structure=None):
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)

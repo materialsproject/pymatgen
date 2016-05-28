@@ -206,7 +206,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
     """
 
     @deprecated(
-        message="All input sets have been replaced by equivalents "
+        message="All vasp input sets have been replaced by equivalents "
                 "pymatgen.io.sets. Will be removed in pmg 4.0.")
     def __init__(self, name, config_dict, hubbard_off=False,
                  user_incar_settings=None,
