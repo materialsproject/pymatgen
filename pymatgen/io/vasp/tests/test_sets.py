@@ -221,6 +221,16 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertNotIn("LDAUU", p.incar)
         self.assertEqual(p.incar["EDIFF"], 1e-10)
 
+    def test_write_input(self):
+        with ScratchDir(".") as d:
+            self.mitset.write_input(d, make_dir_if_not_present=True)
+            print(self.mitset.structure.formula)
+            for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
+                self.assertTrue(os.path.exists(f))
+            self.assertFalse(os.path.exists("Fe4P4O16.cif"))
+            self.mitset.write_input(d, make_dir_if_not_present=True,
+                                    include_cif=True)
+            self.assertTrue(os.path.exists("Fe4P4O16.cif"))
 
 
 # class MITMDVaspInputSetTest(unittest.TestCase):
@@ -603,6 +613,18 @@ class MPHSEBSTest(PymatgenTest):
         self.assertEqual(vis.incar['HFSCREEN'], 0.2)
         self.assertEqual(vis.incar['NSW'], 0)
         self.assertEqual(len(vis.kpoints.kpts), 195)
+
+
+class FuncTest(PymatgenTest):
+
+    def test_batch_write_input(self):
+        with ScratchDir(".") as d:
+            structures = [PymatgenTest.get_structure("Li2O"),
+                          PymatgenTest.get_structure("Graphite")]
+            batch_write_input(structures)
+            for d in ['C4_1', 'Li2O1_0']:
+                for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
+                    self.assertTrue(os.path.exists(os.path.join(d, f)))
 
 if __name__ == '__main__':
     unittest.main()
