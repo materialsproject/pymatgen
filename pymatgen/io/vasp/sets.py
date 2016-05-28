@@ -159,10 +159,10 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
             os.makedirs(output_dir)
         for k, v in self.all_input.items():
             v.write_file(os.path.join(output_dir, k))
-            if k == "POSCAR" and include_cif:
-                v.structure.to(
-                    filename=os.path.join(
-                        output_dir, "%s.cif" % v.structure.formula))
+        if include_cif:
+            fname = os.path.join(
+                output_dir, "%s.cif" % re.sub("\s", "", v.structure.formula))
+            self.all_input["POSCAR"].structure.to(filename=fname)
 
     def as_dict(self, verbosity=2):
         d = MSONable.as_dict(self)
@@ -1350,3 +1350,46 @@ def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
         structure = new_structure
 
     return structure
+
+
+def batch_write_input(structures, vasp_input_set=MPRelaxSet, output_dir=".",
+                      make_dir_if_not_present=True, subfolder=None,
+                      sanitize=False, include_cif=False, **kwargs):
+    """
+    Batch write vasp input for a sequence of structures to
+    output_dir, following the format output_dir/{group}/{formula}_{number}.
+
+    Args:
+        structures ([Structure]): Sequence of Structures.
+        vasp_input_set (VaspInputSet): VaspInputSet class that creates
+            vasp input files from structures. Note that a class should be
+            supplied. Defaults to MPRelaxSet.
+        output_dir (str): Directory to output files. Defaults to current
+            directory ".".
+        make_dir_if_not_present (bool): Create the directory if not present.
+            Defaults to True.
+        subfolder (callable): Function to create subdirectory name from
+            structure. Defaults to simply "formula_count".
+        sanitize (bool): Boolean indicating whether to sanitize the
+            structure before writing the VASP input files. Sanitized output
+            are generally easier for viewing and certain forms of analysis.
+            Defaults to False.
+        include_cif (bool): Whether to output a CIF as well. CIF files are
+            generally better supported in visualization programs.
+        \*\*kwargs: Additional kwargs are passed to the vasp_input_set class in
+            addition to structure.
+    """
+    for i, s in enumerate(structures):
+        formula = re.sub("\s+", "", s.formula)
+        if subfolder is not None:
+            subdir = subfolder(s)
+            dirname = os.path.join(output_dir, subdir)
+        else:
+            dirname = os.path.join(output_dir, '{}_{}'.format(formula, i))
+        if sanitize:
+            s = s.copy(sanitize=True)
+        v = vasp_input_set(s, **kwargs)
+        v.write_input(
+            s, dirname, make_dir_if_not_present=make_dir_if_not_present,
+            include_cif=include_cif
+        )

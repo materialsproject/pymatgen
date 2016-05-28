@@ -221,6 +221,16 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertNotIn("LDAUU", p.incar)
         self.assertEqual(p.incar["EDIFF"], 1e-10)
 
+    def test_write_input(self):
+        with ScratchDir(".") as d:
+            self.mitset.write_input(d, make_dir_if_not_present=True)
+            print(self.mitset.structure.formula)
+            for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
+                self.assertTrue(os.path.exists(f))
+            self.assertFalse(os.path.exists("Fe4P4O16.cif"))
+            self.mitset.write_input(d, make_dir_if_not_present=True,
+                                    include_cif=True)
+            self.assertTrue(os.path.exists("Fe4P4O16.cif"))
 
 
 # class MITMDVaspInputSetTest(unittest.TestCase):
