@@ -620,9 +620,9 @@ class FuncTest(PymatgenTest):
     def test_batch_write_input(self):
         with ScratchDir(".") as d:
             structures = [PymatgenTest.get_structure("Li2O"),
-                          PymatgenTest.get_structure("Graphite")]
+                          PymatgenTest.get_structure("LiFePO4")]
             batch_write_input(structures)
-            for d in ['C4_1', 'Li2O1_0']:
+            for d in ['Li4Fe4P4O16_1', 'Li2O1_0']:
                 for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
                     self.assertTrue(os.path.exists(os.path.join(d, f)))
 
