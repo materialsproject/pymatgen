@@ -618,7 +618,7 @@ class MPHSEBSTest(PymatgenTest):
 class FuncTest(PymatgenTest):
 
     def test_batch_write_input(self):
-        with ScratchDir(".") as d:
+        with ScratchDir("."):
             structures = [PymatgenTest.get_structure("Li2O"),
                           PymatgenTest.get_structure("LiFePO4")]
             batch_write_input(structures)
