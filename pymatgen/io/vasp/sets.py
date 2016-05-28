@@ -160,9 +160,10 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         for k, v in self.all_input.items():
             v.write_file(os.path.join(output_dir, k))
         if include_cif:
+            s = self.all_input["POSCAR"].structure
             fname = os.path.join(
-                output_dir, "%s.cif" % re.sub("\s", "", v.structure.formula))
-            self.all_input["POSCAR"].structure.to(filename=fname)
+                output_dir, "%s.cif" % re.sub("\s", "", s.formula))
+            s.to(filename=fname)
 
     def as_dict(self, verbosity=2):
         d = MSONable.as_dict(self)
@@ -1390,6 +1391,6 @@ def batch_write_input(structures, vasp_input_set=MPRelaxSet, output_dir=".",
             s = s.copy(sanitize=True)
         v = vasp_input_set(s, **kwargs)
         v.write_input(
-            s, dirname, make_dir_if_not_present=make_dir_if_not_present,
+            dirname, make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif
         )
