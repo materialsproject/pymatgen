@@ -114,7 +114,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         """
         Build an instance of a concrete Pseudo subclass from filename.
         Note: the parser knows the concrete class that should be instantiated
-        Client code should rely on the abstract interface provided by Pseudo. 
+        Client code should rely on the abstract interface provided by Pseudo.
         """
         return PseudoParser().parse(filename)
 
@@ -141,7 +141,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         app("  number of valence electrons: %s" % self.Z_val)
         app("  maximum angular momentum: %s" % l2str(self.l_max))
         app("  angular momentum for local part: %s" % l2str(self.l_local))
-        app("  XC correlation: %s" % self.xc) 
+        app("  XC correlation: %s" % self.xc)
         app("  supports spin-orbit: %s" % self.supports_soc)
         if self.isnc:
             app("  radius for non-linear core correction: %s" % self.nlcc_radius)
@@ -1250,7 +1250,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     @property
     def supports_soc(self):
         """
-        Here I assume that the ab-initio code can treat the SOC within the on-site approximation 
+        Here I assume that the ab-initio code can treat the SOC within the on-site approximation
         """
         return True
 

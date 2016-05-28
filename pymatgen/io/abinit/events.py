@@ -41,15 +41,15 @@ def straceback():
     return traceback.format_exc()
 
 
-class AbinitEvent(yaml.YAMLObject): 
+class AbinitEvent(yaml.YAMLObject):
     """
     Example (YAML syntax)::
 
         Normal warning without any handler:
 
         --- !Warning
-        message: | 
-            This is a normal warning that won't 
+        message: |
+            This is a normal warning that won't
             trigger any handler in the python code!
         src_file: routine_name
         src_line:  112
@@ -70,18 +70,18 @@ class AbinitEvent(yaml.YAMLObject):
 
     The algorithm to extract the YAML sections is very simple.
 
-    1) We use YamlTokenizer to extract the documents from the output file 
+    1) We use YamlTokenizer to extract the documents from the output file
     2) If we have a tag that ends with "Warning", "Error", "Bug", "Comment
-       we know we have encountered a new ABINIT event 
+       we know we have encountered a new ABINIT event
     3) We parse the document with yaml.load(doc.text) and we get the object
 
     Note that:
         # --- and ... become reserved words (whey they are placed at
-          the begining of a line) since they are used to mark the beginning and 
+          the begining of a line) since they are used to mark the beginning and
           the end of YAML documents.
 
-        # All the possible events should subclass `AbinitEvent` and define 
-          the class attribute yaml_tag so that yaml.load will know how to 
+        # All the possible events should subclass `AbinitEvent` and define
+          the class attribute yaml_tag so that yaml.load will know how to
           build the instance.
     """
     color = None
@@ -148,7 +148,7 @@ class AbinitEvent(yaml.YAMLObject):
         return self.__class__.__name__
 
     @property
-    def baseclass(self): 
+    def baseclass(self):
         """The baseclass of self."""
         for cls in _BASE_CLASSES:
             if isinstance(self, cls):
@@ -158,9 +158,9 @@ class AbinitEvent(yaml.YAMLObject):
 
     def correct(self, task):
         """
-        This method is called when an error is detected in a :class:`Task` 
+        This method is called when an error is detected in a :class:`Task`
         It should perform any corrective measures relating to the detected error.
-        The idea is similar to the one used in custodian but the handler receives 
+        The idea is similar to the one used in custodian but the handler receives
         a :class:`Task` object so that we have access to its methods.
 
         Returns:
@@ -329,8 +329,8 @@ class EventReport(collections.Iterable, MSONable):
             # end_datetime: Sat Feb 28 23:54:30 2015
             try:
                 fmt = "%a %b %d %H:%M:%S %Y"
-                self.start_datetime = datetime.datetime.strptime(start_datetime, fmt) 
-                self.end_datetime = datetime.datetime.strptime(end_datetime, fmt) 
+                self.start_datetime = datetime.datetime.strptime(start_datetime, fmt)
+                self.end_datetime = datetime.datetime.strptime(end_datetime, fmt)
             except Exception as exc:
                 # Maybe LOCALE != en_US
                 logger.warning(str(exc))
@@ -437,7 +437,7 @@ class EventsParser(object):
                         event = yaml.load(doc.text)
                         #print(event.yaml_tag, type(event))
                     except:
-                        #raise 
+                        #raise
                         # Wrong YAML doc. Check tha doc tag and instantiate the proper event.
                         message = "Malformatted YAML document at line: %d\n" % doc.lineno
                         message += doc.text
@@ -480,7 +480,7 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract base class defining the interface for an EventHandler.
 
-    The__init__ should always provide default values for its arguments so that we can 
+    The__init__ should always provide default values for its arguments so that we can
     easily instantiate the handlers with:
 
         handlers = [cls() for cls in get_event_handler_classes()]
@@ -488,26 +488,26 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
     The defaul values should be chosen so to cover the most typical cases.
 
     Each EventHandler should define the class attribute `can_change_physics`
-    that is true if the handler changes `important` parameters of the 
+    that is true if the handler changes `important` parameters of the
     run that are tightly connected to the physics of the system.
 
-    For example, an `EventHandler` that changes the value of `dilatmx` and 
+    For example, an `EventHandler` that changes the value of `dilatmx` and
     prepare the restart is not changing the physics. Similarly a handler
     that changes the mixing algorithm. On the contrary, a handler that
-    changes the value of the smearing is modifying an important physical 
-    parameter, and the user should be made aware of this so that 
+    changes the value of the smearing is modifying an important physical
+    parameter, and the user should be made aware of this so that
     there's an explicit agreement between the user and the code.
 
-    The default handlers are those that do not change the physics,  
+    The default handlers are those that do not change the physics,
     other handlers can be installed by the user when constructing with the flow with
 
         TODO
 
     .. warning::
 
-        The EventHandler should perform any action at the level of the input files 
+        The EventHandler should perform any action at the level of the input files
         needed to solve the problem and then prepare the task for a new submission
-        The handler should never try to resubmit the task. The submission must be 
+        The handler should never try to resubmit the task. The submission must be
         delegated to the scheduler or Fireworks.
     """
 
@@ -544,7 +544,7 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
 
     def count(self, task):
         """
-        Return the number of times the event associated to this handler 
+        Return the number of times the event associated to this handler
         has been already fixed in the :class:`Task`.
         """
         return len([c for c in task.corrections if c["event"]["@class"] == self.event_class])
@@ -656,7 +656,7 @@ _ABC_EVHANDLER_CLASSES = set([ErrorHandler,])
 # Public API
 def autodoc_event_handlers(stream=sys.stdout):
     """
-    Print to the given string, the documentation for the events 
+    Print to the given string, the documentation for the events
     and the associated handlers.
     """
     lines = []
@@ -665,7 +665,7 @@ def autodoc_event_handlers(stream=sys.stdout):
         event_class = cls.event_class
         lines.extend(cls.cls2str().split("\n"))
 
-        # Here we enforce the abstract protocol of the class 
+        # Here we enforce the abstract protocol of the class
         # The unit test in tests_events will detect the problem.
         if not hasattr(cls, "can_change_physics"):
             raise RuntimeError("%s: can_change_physics must be defined" % cls)
@@ -681,14 +681,14 @@ def get_event_handler_classes(categories=None):
 
 def as_event_class(obj):
     """
-    Convert obj into a subclass of AbinitEvent. 
+    Convert obj into a subclass of AbinitEvent.
     obj can be either a class or a string with the class name or the YAML tag
     """
     if is_string(obj):
         for c in all_subclasses(AbinitEvent):
             if c.__name__ == obj or c.yaml_tag == obj: return c
         raise ValueError("Cannot find event class associated to %s" % obj)
-    
+
     # Assume class.
     assert obj in all_subclasses(AbinitEvent)
     return obj
@@ -700,7 +700,7 @@ def as_event_class(obj):
 
 class DilatmxError(AbinitError):
     """
-    This Error occurs in variable cell calculations when the increase in the 
+    This Error occurs in variable cell calculations when the increase in the
     unit cell volume is too large.
     """
     yaml_tag = '!DilatmxError'
@@ -777,7 +777,7 @@ class TolSymErrorHandler(ErrorHandler):
     def handle_task_event(self, task, event):
         # TODO: Add limit on the number of fixes one can do for the same error
         # For example in this case, the scheduler will stop after 20 submissions
-        if self.count(task) > self.max_nfixes: 
+        if self.count(task) > self.max_nfixes:
             return self.NOT_FIXED
 
         old_tolsym = task.get_inpvar("tolsym")
@@ -801,7 +801,7 @@ class TolSymErrorHandler(ErrorHandler):
 
 class MemanaError(AbinitError):
     """
-    Class of errors raised by the memory analyzer. 
+    Class of errors raised by the memory analyzer.
     (the section that estimates the memory requirements from the input parameters).
     """
     yaml_tag = '!MemanaError'

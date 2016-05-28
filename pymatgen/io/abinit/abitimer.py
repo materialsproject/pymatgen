@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
-This module provides objects for extracting timing data from the ABINIT output files 
+This module provides objects for extracting timing data from the ABINIT output files
 It also provides tools to analye and to visualize the parallel efficiency.
 """
 from __future__ import unicode_literals, division
@@ -262,7 +262,7 @@ class AbinitTimerParser(collections.Iterable):
         import pandas as pd
         colnames = ["fname", "wall_time", "cpu_time", "mpi_nprocs", "omp_nthreads", "mpi_rank"]
 
-        frame = pd.DataFrame(columns=colnames) 
+        frame = pd.DataFrame(columns=colnames)
         for i, timer in enumerate(self.timers()):
             frame = frame.append({k: getattr(timer, k) for k in colnames}, ignore_index=True)
         frame["tot_ncpus"] = frame["mpi_nprocs"] * frame["omp_nthreads"]
@@ -271,7 +271,7 @@ class AbinitTimerParser(collections.Iterable):
         i = frame["tot_ncpus"].idxmin()
         ref_wtime = frame.ix[i]["wall_time"]
         ref_ncpus = frame.ix[i]["tot_ncpus"]
-        frame["peff"] = (ref_ncpus * ref_wtime) / (frame["wall_time"] * frame["tot_ncpus"]) 
+        frame["peff"] = (ref_ncpus * ref_wtime) / (frame["wall_time"] * frame["tot_ncpus"])
 
         return frame
 
@@ -613,7 +613,7 @@ class AbinitTimer(object):
         frame.cpu_time =  self.cpu_time
         frame.wall_time =  self.wall_time
         frame.mpi_nprocs =  self.mpi_nprocs
-        frame.omp_nthreads =  self.omp_nthreads 
+        frame.omp_nthreads =  self.omp_nthreads
         frame.mpi_rank =  self.mpi_rank
         frame.fname =  self.fname
 
