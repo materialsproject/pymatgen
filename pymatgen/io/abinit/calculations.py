@@ -56,7 +56,7 @@ __email__ = "gmatteo at gmail.com"
 #                               smearing=smearing, charge=charge,
 #                               scf_algorithm=scf_algorithm, **extra_abivars)
 #
-#    #scf_electrons = Electrons(spin_mode=spin_mode, smearing=smearing, algorithm=scf_algorithm, 
+#    #scf_electrons = Electrons(spin_mode=spin_mode, smearing=smearing, algorithm=scf_algorithm,
 #    #                          charge=charge, nband=scf_nband, fband=None)
 #    #multi[0].set_vars(scf_ksampling.to_abivars())
 #    #multi[0].set_vars(scf_electrons.to_abivars())
@@ -73,7 +73,7 @@ __email__ = "gmatteo at gmail.com"
 #        #dos_ksampling = KSampling.monkhorst(dos_ngkpt, shiftk=dos_shiftk, chksymbreak=0)
 #        dos_strategy = NscfStrategy(scf_strategy, dos_ksampling, nscf_nband, nscf_solver=None, **extra_abivars)
 #        #dos_electrons = aobj.Electrons(spin_mode=spin_mode, smearing=smearing, algorithm={"iscf": -2},
-#        #                               charge=charge, nband=nscf_nband) 
+#        #                               charge=charge, nband=nscf_nband)
 #
 #        #dt = 2 + i
 #        #multi[dt].set_vars(dos_ksampling.to_abivars())
@@ -286,10 +286,10 @@ def g0w0_extended_work(structure, pseudos, kppa, nscf_nband, ecuteps, ecutsigx, 
                       spread_scr=spread_scr, nksmall=nksmall)
 
 
-#def bse_with_mdf_work(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shiftk, 
-#                      ecuteps, bs_loband, bs_nband, soenergy, mdf_epsinf, 
-#                      exc_type="TDA", bs_algo="haydock", accuracy="normal", spin_mode="polarized", 
-#                      smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, workdir=None, manager=None, 
+#def bse_with_mdf_work(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shiftk,
+#                      ecuteps, bs_loband, bs_nband, soenergy, mdf_epsinf,
+#                      exc_type="TDA", bs_algo="haydock", accuracy="normal", spin_mode="polarized",
+#                      smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, workdir=None, manager=None,
 #                      work_class=None, **extra_abivars):
 #    """
 #    Returns a :class:`Work` object that performs a GS + NSCF + Bethe-Salpeter calculation.
@@ -338,7 +338,7 @@ def g0w0_extended_work(structure, pseudos, kppa, nscf_nband, ecuteps, ecutsigx, 
 #    nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, nscf_nband, **extra_abivars)
 #
 #    # Strategy for the BSE calculation.
-#    exc_ham = ExcHamiltonian(bs_loband, bs_nband, soenergy, coulomb_mode="model_df", ecuteps=ecuteps, 
+#    exc_ham = ExcHamiltonian(bs_loband, bs_nband, soenergy, coulomb_mode="model_df", ecuteps=ecuteps,
 #                             spin_mode=spin_mode, mdf_epsinf=mdf_epsinf, exc_type=exc_type, algo=bs_algo,
 #                             bs_freq_mesh=None, with_lf=True, zcut=None)
 #

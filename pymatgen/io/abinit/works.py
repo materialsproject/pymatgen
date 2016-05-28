@@ -24,7 +24,7 @@ from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
 from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
-from .tasks import (Task, AbinitTask, ScfTask, NscfTask, DfptTask, PhononTask, DdkTask, 
+from .tasks import (Task, AbinitTask, ScfTask, NscfTask, DfptTask, PhononTask, DdkTask,
                     BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask,
                     EphTask)
 
@@ -54,14 +54,14 @@ __all__ = [
 
 
 class WorkResults(NodeResults):
-    JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy() 
+    JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy()
 
     @classmethod
     def from_node(cls, work):
         """Initialize an instance from a :class:`Work` instance."""
         new = super(WorkResults, cls).from_node(work)
 
-        # Will put all files found in outdir in GridFs 
+        # Will put all files found in outdir in GridFs
         # Warning: assuming binary files.
         d = {os.path.basename(f): f for f in work.outdir.list_filepaths()}
         new.register_gridfs_files(**d)
@@ -120,7 +120,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
     def ncores_reserved(self):
         """
         Returns the number of cores reserved in this moment.
-        A core is reserved if it's still not running but 
+        A core is reserved if it's still not running but
         we have submitted the task to the queue manager.
         """
         return sum(task.manager.num_cores for task in self if task.status == task.S_SUB)
@@ -144,13 +144,13 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
 
     def fetch_task_to_run(self):
         """
-        Returns the first task that is ready to run or 
+        Returns the first task that is ready to run or
         None if no task can be submitted at present"
 
         Raises:
             `StopIteration` if all tasks are done.
         """
-        # All the tasks are done so raise an exception 
+        # All the tasks are done so raise an exception
         # that will be handled by the client code.
         if all(task.is_completed for task in self):
             raise StopIteration("All tasks completed.")
@@ -159,7 +159,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
             if task.can_run:
                 return task
 
-        # No task found, this usually happens when we have dependencies. 
+        # No task found, this usually happens when we have dependencies.
         # Beware of possible deadlocks here!
         logger.warning("Possible deadlock in fetch_task_to_run!")
         return None
@@ -181,7 +181,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
     def connect_signals(self):
         """
         Connect the signals within the work.
-        The :class:`Work` is responsible for catching the important signals raised from 
+        The :class:`Work` is responsible for catching the important signals raised from
         its task and raise new signals when some particular condition occurs.
         """
         for task in self:
@@ -209,7 +209,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         """
         logger.debug("in on_ok with sender %s" % sender)
 
-        if self.all_ok: 
+        if self.all_ok:
             if self.finalized:
                 return AttrDict(returncode=0, message="Work has been already finalized")
             else:
@@ -241,8 +241,8 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         Returns:
             Dictionary that must contain at least the following entries:
                 returncode:
-                    0 on success. 
-                message: 
+                    0 on success.
+                message:
                     a string that should provide a human-readable description of what has been performed.
         """
         return dict(returncode=0, message="Calling on_all_ok of the base class!")
@@ -276,12 +276,12 @@ class NodeContainer(six.with_metaclass(abc.ABCMeta)):
         """Register a Scf task."""
         kwargs["task_class"] = ScfTask
         return self.register_task(*args, **kwargs)
-                                                    
+
     def register_nscf_task(self, *args, **kwargs):
         """Register a nscf task."""
         kwargs["task_class"] = NscfTask
         return self.register_task(*args, **kwargs)
-                                                    
+
     def register_relax_task(self, *args, **kwargs):
         """Register a task for structural optimization."""
         kwargs["task_class"] = RelaxTask
@@ -364,7 +364,7 @@ class Work(BaseWork, NodeContainer):
         """Set the flow associated to this :class:`Work`."""
         if not hasattr(self, "_flow"):
             self._flow = flow
-        else: 
+        else:
             if self._flow != flow:
                 raise ValueError("self._flow != flow")
 
@@ -372,14 +372,14 @@ class Work(BaseWork, NodeContainer):
     def pos(self):
         """The position of self in the :class:`Flow`"""
         for i, work in enumerate(self.flow):
-            if self == work: 
+            if self == work:
                 return i
         raise ValueError("Cannot find the position of %s in flow %s" % (self, self.flow))
 
     @property
     def pos_str(self):
         """String representation of self.pos"""
-        return "w" + str(self.pos) 
+        return "w" + str(self.pos)
 
     def set_workdir(self, workdir, chroot=False):
         """Set the working directory. Cannot be set more than once unless chroot is True"""
@@ -387,10 +387,10 @@ class Work(BaseWork, NodeContainer):
             raise ValueError("self.workdir != workdir: %s, %s" % (self.workdir,  workdir))
 
         self.workdir = os.path.abspath(workdir)
-                                                                       
+
         # Directories with (input|output|temporary) data.
-        # The work will use these directories to connect 
-        # itself to other works and/or to produce new data 
+        # The work will use these directories to connect
+        # itself to other works and/or to produce new data
         # that will be used by its children.
         self.indir = Directory(os.path.join(self.workdir, "indata"))
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
@@ -453,10 +453,10 @@ class Work(BaseWork, NodeContainer):
     @property
     def status_counter(self):
         """
-        Returns a `Counter` object that counts the number of task with 
+        Returns a `Counter` object that counts the number of task with
         given status (use the string representation of the status as key).
         """
-        counter = collections.Counter() 
+        counter = collections.Counter()
 
         for task in self:
             counter[str(task.status)] += 1
@@ -465,7 +465,7 @@ class Work(BaseWork, NodeContainer):
 
     def allocate(self, manager=None):
         """
-        This function is called once we have completed the initialization 
+        This function is called once we have completed the initialization
         of the :class:`Work`. It sets the manager of each task (if not already done)
         and defines the working directories of the tasks.
 
@@ -497,14 +497,14 @@ class Work(BaseWork, NodeContainer):
                   None means that this obj has no dependency.
             required_files: List of strings with the path of the files used by the task.
                 Note that the files must exist when the task is registered.
-                Use the standard approach based on Works, Tasks and deps 
+                Use the standard approach based on Works, Tasks and deps
                 if the files will be produced in the future.
             manager:
                 The :class:`TaskManager` responsible for the submission of the task. If manager is None, we use
                 the `TaskManager` specified during the creation of the :class:`Work`.
             task_class: Task subclass to instantiate. Default: :class:`AbinitTask`
 
-        Returns:   
+        Returns:
             :class:`Task` object
         """
         task_workdir = None
@@ -605,7 +605,7 @@ class Work(BaseWork, NodeContainer):
             if task.status in (task.S_OK, task.S_LOCKED): continue
             task.check_status()
 
-        # Take into account possible dependencies. Use a list instead of generators 
+        # Take into account possible dependencies. Use a list instead of generators
         for task in self:
             if task.status == task.S_LOCKED: continue
             if task.status < task.S_SUB and all([status == task.S_OK for status in task.deps_status]):
@@ -669,7 +669,7 @@ class Work(BaseWork, NodeContainer):
         """
         for task in self:
             task.start()
-    
+
         if wait:
             for task in self: task.wait()
 
@@ -707,7 +707,7 @@ class Work(BaseWork, NodeContainer):
             if gsr_path:
                 with ETSF_Reader(gsr_path) as r:
                     etot = r.read_value("etotal")
-                
+
             etotals.append(etot)
 
         return EnergyArray(etotals, "Ha").to(unit)
@@ -720,10 +720,10 @@ class Work(BaseWork, NodeContainer):
             :class:`AbinitTimerParser` object
         """
         filenames = list(filter(os.path.exists, [task.output_file.path for task in self]))
-                                                                           
+
         parser = AbinitTimerParser()
         parser.parse(filenames)
-                                                                           
+
         return parser
 
 
@@ -733,7 +733,7 @@ class BandStructureWork(Work):
     def __init__(self, scf_input, nscf_input, dos_inputs=None, workdir=None, manager=None):
         """
         Args:
-            scf_input: Input for the SCF run 
+            scf_input: Input for the SCF run
             nscf_input: Input for the NSCF run defining the band structure calculation.
             dos_inputs: Input(s) for the DOS. DOS is computed only if dos_inputs is not None.
             workdir: Working directory.
@@ -764,7 +764,7 @@ class BandStructureWork(Work):
         Returns:
             `matplotlib` figure
         """
-        with self.nscf_task.open_gsr() as gsr: 
+        with self.nscf_task.open_gsr() as gsr:
             return gsr.ebands.plot(**kwargs)
 
     def plot_ebands_with_edos(self, dos_pos=0, method="gaussian", step=0.01, width=0.1, **kwargs):
@@ -781,10 +781,10 @@ class BandStructureWork(Work):
         Returns:
             `matplotlib` figure.
         """
-        with self.nscf_task.open_gsr() as gsr: 
+        with self.nscf_task.open_gsr() as gsr:
             gs_ebands = gsr.ebands
 
-        with self.dos_tasks[dos_pos].open_gsr() as gsr: 
+        with self.dos_tasks[dos_pos].open_gsr() as gsr:
             dos_ebands = gsr.ebands
 
         edos = dos_ebands.get_edos(method=method, step=step, width=width)
@@ -795,7 +795,7 @@ class BandStructureWork(Work):
         Plot the band structure and the DOS.
 
         Args:
-            dos_pos: Index of the task from which the DOS should be obtained. 
+            dos_pos: Index of the task from which the DOS should be obtained.
                      None is all DOSes should be displayed. Accepts integer or list of integers.
             method: String defining the method for the computation of the DOS.
             step: Energy step (eV) of the linear mesh.
@@ -822,7 +822,7 @@ class BandStructureWork(Work):
 class RelaxWork(Work):
     """
     Work for structural relaxations. The first task relaxes the atomic position
-    while keeping the unit cell parameters fixed. The second task uses the final 
+    while keeping the unit cell parameters fixed. The second task uses the final
     structure to perform a structural relaxation in which both the atomic positions
     and the lattice parameters are optimized.
     """
@@ -850,7 +850,7 @@ class RelaxWork(Work):
 
         self.ioncell_task = self.register_relax_task(ioncell_input, deps=deps)
 
-        # Lock ioncell_task as ion_task should communicate to ioncell_task that 
+        # Lock ioncell_task as ion_task should communicate to ioncell_task that
         # the calculation is OK and pass the final structure.
         self.ioncell_task.lock(source_node=self)
         self.transfer_done = False
@@ -889,7 +889,7 @@ class RelaxWork(Work):
 
     def plot_ion_relaxation(self, **kwargs):
         """
-        Plot the history of the ion-cell relaxation. 
+        Plot the history of the ion-cell relaxation.
         kwargs are passed to the plot method of :class:`HistFile`
 
         Return `matplotlib` figure or None if hist file is not found.
@@ -1030,7 +1030,7 @@ class SigmaConvWork(Work):
         super(SigmaConvWork, self).__init__(workdir=workdir, manager=manager)
 
         # Register the SIGMA runs.
-        if not isinstance(sigma_inputs, (list, tuple)): 
+        if not isinstance(sigma_inputs, (list, tuple)):
             sigma_inputs = [sigma_inputs]
 
         for sigma_input in sigma_inputs:
@@ -1129,7 +1129,7 @@ class QptdmWork(Work):
             qptdm_input.set_vars(nqptdm=1, qptdm=qpoint)
             new_task = self.register_scr_task(qptdm_input, manager=self.manager)
             # Add the garbage collector.
-            if self.flow.gc is not None: 
+            if self.flow.gc is not None:
                 new_task.set_gc(self.flow.gc)
 
         self.allocate()
@@ -1172,8 +1172,8 @@ class QptdmWork(Work):
 def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, work_class=None):
     """
     Returns a work for the computation of phonon frequencies
-    ph_inputs is a list of input for Phonon calculation in which all the independent perturbations 
-    are explicitly computed i.e. 
+    ph_inputs is a list of input for Phonon calculation in which all the independent perturbations
+    are explicitly computed i.e.
 
         * rfdir 1 1 1
         * rfatpol 1 natom
@@ -1218,11 +1218,11 @@ class OneShotPhononWork(Work):
 
         Return:
             List of namedtuples. Each `namedtuple` has the following attributes:
-                
+
                 - qpt: ndarray with the q-point in reduced coordinates.
                 - freqs: ndarray with 3 x Natom phonon frequencies in meV
         """
-        # 
+        #
         #   Phonon wavevector (reduced coordinates) :  0.00000  0.00000  0.00000
         #  Phonon energies in Hartree :
         #    1.089934E-04  4.990512E-04  1.239177E-03  1.572715E-03  1.576801E-03
@@ -1238,7 +1238,7 @@ class OneShotPhononWork(Work):
 
             # Parse output file.
             with open(task.output_file.path, "r") as fh:
-                qpt, inside = None, 0 
+                qpt, inside = None, 0
                 for line in fh:
                     if line.startswith(BEGIN):
                         qpts.append([float(s) for s in line[len(BEGIN):].split()])
@@ -1298,9 +1298,9 @@ class MergeDdb(object):
 
 class PhononWork(Work, MergeDdb):
     """
-    This work usually consists of nirred Phonon tasks where nirred is 
+    This work usually consists of nirred Phonon tasks where nirred is
     the number of irreducible perturbations for a given q-point.
-    It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced 
+    It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced
     """
     @classmethod
     def from_scf_task(cls, scf_task, qpoints, tolerance=None):
@@ -1310,7 +1310,7 @@ class PhononWork(Work, MergeDdb):
         Each phonon task depends on the WFK file produced by scf_task.
 
         Args:
-            scf_task: ScfTask object. 
+            scf_task: ScfTask object.
             qpoints: q-points or in reduced coordinates.
                 Accepts vector or list of q-points
         """
@@ -1353,7 +1353,7 @@ class PhononWork(Work, MergeDdb):
             pot1_files.extend(task.outdir.list_filepaths(wildcard="*_POT*"))
         #print(pot1_files)
 
-        if not pot1_files: 
+        if not pot1_files:
             return None
 
         self.history.info("Will call mrgdvdb to merge %s:\n" % str(pot1_files))
@@ -1370,7 +1370,7 @@ class PhononWork(Work, MergeDdb):
 
         return out_dvdb
 
-    #@check_spectator 
+    #@check_spectator
     def on_all_ok(self):
         """
         This method is called when all the q-points have been computed.
@@ -1394,7 +1394,7 @@ class BecWork(Work, MergeDdb):
     Work for the computation of the Born effective charges.
 
     This work consists of DDK tasks and phonon + electric fiel perturbation
-    It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced 
+    It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced
     """
     @classmethod
     def from_scf_task(cls, scf_task, ddk_tolerance=None):

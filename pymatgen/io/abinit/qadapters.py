@@ -7,10 +7,10 @@ present in FireWorks (https://pypi.python.org/pypi/FireWorks).
 Work done by D. Waroquiers, A. Jain, and M. Kocher.
 
 The main difference wrt the Fireworks implementation is that the QueueAdapter
-objects provide a programmatic interface for setting important attributes 
+objects provide a programmatic interface for setting important attributes
 such as the number of MPI nodes, the number of OMP threads and the memory requirements.
 This programmatic interface is used by the `TaskManager` for optimizing the parameters
-of the run before submitting the job (Abinit provides the autoparal option that 
+of the run before submitting the job (Abinit provides the autoparal option that
 allows one to get a list of parallel configuration and their expected efficiency).
 """
 from __future__ import print_function, division, unicode_literals
@@ -67,7 +67,7 @@ class SubmitResults(namedtuple("SubmitResult", "qid, out, err, process")):
 
 class MpiRunner(object):
     """
-    This object provides an abstraction for the mpirunner provided 
+    This object provides an abstraction for the mpirunner provided
     by the different MPI libraries. It's main task is handling the
     different syntax and options supported by the different mpirunners.
     """
@@ -100,7 +100,7 @@ class MpiRunner(object):
             bg_size, rpn = qad.bgsize_rankspernode()
             #num_opt = "-n " + str(qad.mpi_procs)
             num_opt = "--ranks-per-node " + str(rpn)
-            cmd = " ".join([self.name, num_opt, "--exp-env OMP_NUM_THREADS", 
+            cmd = " ".join([self.name, num_opt, "--exp-env OMP_NUM_THREADS",
                            "--exe `which " + executable + "` ", stdin, stdout, stderr])
         else:
             if qad.mpi_procs != 1:
@@ -178,7 +178,7 @@ class Hardware(object):
         - A cpu socket is the connector to these systems and the cpu cores
 
         - A cpu core is an independent computing with its own computing pipeline, logical units, and memory controller.
-          Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream 
+          Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream
           but sharing the cores memory controller and other logical units.
     """
     def __init__(self, **kwargs):
@@ -200,7 +200,7 @@ class Hardware(object):
         """String representation."""
         lines = []
         app = lines.append
-        app("   num_nodes: %d, sockets_per_node: %d, cores_per_socket: %d, mem_per_node %s," % 
+        app("   num_nodes: %d, sockets_per_node: %d, cores_per_socket: %d, mem_per_node %s," %
             (self.num_nodes, self.sockets_per_node, self.cores_per_socket, self.mem_per_node))
         return "\n".join(lines)
 
@@ -243,9 +243,9 @@ class Hardware(object):
 
 class _ExcludeNodesFile(object):
     """
-    This file contains the list of nodes to be excluded. 
+    This file contains the list of nodes to be excluded.
     Nodes are indexed by queue name.
-    """ 
+    """
     DIRPATH = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
     FILEPATH = os.path.join(DIRPATH, "exclude_nodes.json")
 
@@ -295,7 +295,7 @@ def make_qadapter(**kwargs):
 
     .. example::
 
-        from qadapters import SlurmAdapter 
+        from qadapters import SlurmAdapter
 
         class MyAdapter(SlurmAdapter):
             QTYPE = "myslurm"
@@ -308,7 +308,7 @@ def make_qadapter(**kwargs):
 
     .. warning::
 
-        MyAdapter should be pickleable, hence one should declare it 
+        MyAdapter should be pickleable, hence one should declare it
         at the module level so that pickle can import it at run-time.
     """
     # Get all known subclasses of QueueAdapter.
@@ -342,7 +342,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, MSONable)):
     Concrete classes should extend this class with implementations that work on specific queue systems.
 
     .. note::
-    
+
         A `QueueAdapter` has a handler (:class:`QueueJob`) defined in qjobs.py that allows one
         to contact the resource manager to get info about the status of the job.
         Each concrete implementation of `QueueAdapter` should have a corresponding `QueueJob`.
@@ -355,7 +355,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, MSONable)):
     def autodoc(cls):
         return """
 # dictionary with info on the hardware available on this particular queue.
-hardware:  
+hardware:
     num_nodes:        # Number of nodes available on this queue. Mandatory
     sockets_per_node: # Mandatory.
     cores_per_socket: # Mandatory.
@@ -364,7 +364,7 @@ hardware:
 job:
     setup:            # List of commands (str) executed before running (default empty)
     omp_env:          # Dictionary with OpenMP env variables (default empty i.e. no OpenMP)
-    modules:          # List of modules to be imported (default empty). 
+    modules:          # List of modules to be imported (default empty).
                       # Error messages produced by module load are redirected to mods.err
     shell_env:        # Dictionary with shell env variables.
     mpi_runner:       # MPI runner i.e. mpirun, mpiexec, Default is None i.e. no mpirunner
@@ -374,7 +374,7 @@ job:
     pre_run:          # List of commands executed before the run (default: empty)
     post_run:         # List of commands executed after the run (default: empty)
 
-# dictionary with the name of the queue and optional parameters 
+# dictionary with the name of the queue and optional parameters
 # used to build/customize the header of the submission script.
 queue:
     qname:   # Name of the queue (mandatory)
@@ -553,7 +553,7 @@ limits:
             raise ValueError("min_cores %s cannot be greater than max_cores %s" % (self.min_cores, self.max_cores))
 
         # Memory
-        # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
+        # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory
         self.min_mem_per_proc = qu.any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
         self.max_mem_per_proc = qu.any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
 
@@ -631,9 +631,9 @@ limits:
     @lazy_property
     def supported_qparams(self):
         """
-        Dictionary with the supported parameters that can be passed to the 
+        Dictionary with the supported parameters that can be passed to the
         queue manager (obtained by parsing QTEMPLATE).
-        """ 
+        """
         import re
         return re.findall("\$\$\{(\w+)\}", self.QTEMPLATE)
 
@@ -725,7 +725,7 @@ limits:
         if not self.max_mem_per_proc >= self.mem_per_proc >= self.min_mem_per_proc:
             app("self.max_mem_per_proc >= mem_mb >= self.min_mem_per_proc not satisfied")
 
-        if self.priority <= 0: 
+        if self.priority <= 0:
             app("priority must be > 0")
 
         if not (1 <= self.min_cores <= self.hw.num_cores >= self.hint_cores):
@@ -786,7 +786,7 @@ limits:
     def master_mem_overhead(self):
         """The memory overhead for the master process in megabytes."""
         return self._master_mem_overhead
-                                                
+
     def set_mem_per_proc(self, mem_mb):
         """
         Set the memory per process in megabytes. If mem_mb <=0, min_mem_per_proc is used.
@@ -816,7 +816,7 @@ limits:
     @abc.abstractmethod
     def cancel(self, job_id):
         """
-        Cancel the job. 
+        Cancel the job.
 
         Args:
             job_id: Job identifier.
@@ -912,7 +912,7 @@ limits:
         """
         Return substitution dict for replacements into the template
         Subclasses may want to customize this method.
-        """ 
+        """
         #d = self.qparams.copy()
         d = self.qparams
         d.update(self.optimize_params())
@@ -923,10 +923,10 @@ limits:
 
     def _make_qheader(self, job_name, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
-        # get substitution dict for replacements into the template 
+        # get substitution dict for replacements into the template
         subs_dict = self.get_subs_dict()
 
-        # Set job_name and the names for the stderr and stdout of the 
+        # Set job_name and the names for the stderr and stdout of the
         # queue manager (note the use of the extensions .qout and .qerr
         # so that we can easily locate this file.
         subs_dict['job_name'] = job_name.replace('/', '_')
@@ -935,7 +935,7 @@ limits:
 
         qtemplate = QScriptTemplate(self.QTEMPLATE)
         # might contain unused parameters as leftover $$.
-        unclean_template = qtemplate.safe_substitute(subs_dict)  
+        unclean_template = qtemplate.safe_substitute(subs_dict)
 
         # Remove lines with leftover $$.
         clean_template = []
@@ -1004,7 +1004,7 @@ limits:
 
         # Construct the string to run the executable with MPI and mpi_procs.
         if is_string(executable):
-            line = self.mpi_runner.string_to_run(self, executable, 
+            line = self.mpi_runner.string_to_run(self, executable,
                                                  stdin=stdin, stdout=stdout, stderr=stderr, exec_args=exec_args)
             se.add_line(line)
         else:
@@ -1158,7 +1158,7 @@ limits:
             return new_time
 
         self.priority = -1
-        
+
         raise self.Error("increasing time is not possible, the hard limit has been reached")
 
 ####################
@@ -1430,7 +1430,7 @@ $${qverbatim}
             #print(num_nodes, rest_cores)
             # TODO: test this
 
-            if rest_cores == 0 or num_nodes == 0:  
+            if rest_cores == 0 or num_nodes == 0:
                 logger.info("HYBRID MPI-OPENMP run, perfectly divisible among nodes: %s" % self.run_info)
                 chunks = max(num_nodes, 1)
                 mpiprocs = self.mpi_procs // chunks
@@ -1438,7 +1438,7 @@ $${qverbatim}
                 chunks = chunks
                 ncpus = mpiprocs * self.omp_threads
                 mpiprocs = mpiprocs
-                vmem = mpiprocs * mem_per_proc 
+                vmem = mpiprocs * mem_per_proc
                 ompthreads = self.omp_threads
 
             else:
@@ -1678,9 +1678,9 @@ class SGEAdapter(QueueAdapter):
 #$ -q $${queue_name}
 #$ -pe $${parallel_environment} $${ncpus}
 #$ -l h_rt=$${walltime}
-# request a per slot memory limit of size bytes. 
-##$ -l h_vmem=$${mem_per_slot}  
-##$ -l mf=$${mem_per_slot}  
+# request a per slot memory limit of size bytes.
+##$ -l h_vmem=$${mem_per_slot}
+##$ -l mf=$${mem_per_slot}
 ###$ -j no
 #$ -M $${mail_user}
 #$ -m $${mail_type}
@@ -1728,8 +1728,8 @@ $${qverbatim}
         queue_id = None
         if process.returncode == 0:
             try:
-                # output should of the form 
-                # Your job 1659048 ("NAME_OF_JOB") has been submitted 
+                # output should of the form
+                # Your job 1659048 ("NAME_OF_JOB") has been submitted
                 queue_id = int(out.split(' ')[2])
             except:
                 # probably error parsing job code
@@ -1831,7 +1831,7 @@ $${qverbatim}
         if process.returncode == 0:
             # parse the result
             # lines should have this form:
-            ## 
+            ##
             ## active jobs: N  eligible jobs: M  blocked jobs: P
             ##
             ## Total job:  1
@@ -1924,7 +1924,7 @@ $${qverbatim}
         queue_id = None
         if process.returncode == 0:
             try:
-                # on JUQUEEN, output should of the form 
+                # on JUQUEEN, output should of the form
                 #llsubmit: The job "juqueen1c1.zam.kfa-juelich.de.281506" has been submitted.
                 token = out.split()[3]
                 s = token.split(".")[-1].replace('"', "")
@@ -1944,9 +1944,9 @@ $${qverbatim}
         if process.returncode == 0:
             # parse the result. lines should have this form:
             #
-            # Id                       Owner      Submitted   ST PRI Class        Running On 
+            # Id                       Owner      Submitted   ST PRI Class        Running On
             # ------------------------ ---------- ----------- -- --- ------------ -----------
-            # juqueen1c1.281508.0      paj15530    1/23 13:20 I  50  n001                    
+            # juqueen1c1.281508.0      paj15530    1/23 13:20 I  50  n001
             # 1 job step(s) in query, 1 waiting, 0 pending, 0 running, 0 held, 0 preempted
             #
             # count lines that include the username in it

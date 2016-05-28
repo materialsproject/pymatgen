@@ -439,7 +439,7 @@ class PyFlowScheduler(object):
         # Check if we are already using a scheduler to run this flow
         flow.check_pid_file()
         flow.set_spectator_mode(False)
-                                                 
+
         # Build dirs and files (if not yet done)
         flow.build()
 
@@ -468,18 +468,18 @@ class PyFlowScheduler(object):
         """
         This method is called before the shutdown of the scheduler.
         If customer_service is on and the flow didn't completed successfully,
-        a lightweight tarball file with inputs and the most important output files 
+        a lightweight tarball file with inputs and the most important output files
         is created in customer_servide_dir.
         """
         if self.customer_service_dir is None: return
         doit = self.exceptions or not self.flow.all_ok
         doit = True
         if not doit: return
-        
+
         prefix = os.path.basename(self.flow.workdir) + "_"
 
         import tempfile, datetime
-        suffix = str(datetime.datetime.now()).replace(" ", "-") 
+        suffix = str(datetime.datetime.now()).replace(" ", "-")
         # Remove milliseconds
         i = suffix.index(".")
         if i != -1: suffix = suffix[:i]
@@ -530,7 +530,7 @@ class PyFlowScheduler(object):
 
         except KeyboardInterrupt:
             self.shutdown(msg="KeyboardInterrupt from user")
-            if ask_yesno("Do you want to cancel all the jobs in the queue? [Y/n]"): 
+            if ask_yesno("Do you want to cancel all the jobs in the queue? [Y/n]"):
                 print("Number of jobs cancelled:", self.flow.cancel())
 
             self.flow.pickle_dump()
@@ -573,7 +573,7 @@ class PyFlowScheduler(object):
         flow.check_status(show=False)
 
         # This check is not perfect, we should make a list of tasks to sumbit
-        # and select only the subset so that we don't exceeed mac_ncores_used 
+        # and select only the subset so that we don't exceeed mac_ncores_used
         # Many sections of this code should be rewritten.
         #if self.max_ncores_used is not None and flow.ncores_used > self.max_ncores_used:
         if self.max_ncores_used is not None and flow.ncores_allocated > self.max_ncores_used:
@@ -587,7 +587,7 @@ class PyFlowScheduler(object):
             try:
                 logger.info("Flow will try restart task %s" % task)
                 fired = task.restart()
-                if fired: 
+                if fired:
                     self.nlaunch += 1
                     max_nlaunch -= 1
                     if max_nlaunch == 0:
@@ -640,7 +640,7 @@ class PyFlowScheduler(object):
             s = straceback()
             self.exceptions.append(s)
 
-            # This is useful when debugging 
+            # This is useful when debugging
             #try:
             #    print("Exception in callback, will cancel all tasks")
             #    for task in self.flow.iflat_tasks():
@@ -691,7 +691,7 @@ class PyFlowScheduler(object):
             err_lines.append(boxed(msg))
 
         # Paranoid check: disable the scheduler if we have submitted
-        # too many jobs (it might be due to some bug or other external reasons 
+        # too many jobs (it might be due to some bug or other external reasons
         # such as race conditions between difference callbacks!)
         if self.nlaunch > self.safety_ratio * self.flow.num_tasks:
             msg = "Too many jobs launched %d. Total number of tasks = %s, Will shutdown the scheduler and exit" % (
@@ -706,8 +706,8 @@ class PyFlowScheduler(object):
 
         # Test on the presence of deadlocks.
         g = self.flow.find_deadlocks()
-        if g.deadlocked: 
-            # Check the flow again so that status are updated. 
+        if g.deadlocked:
+            # Check the flow again so that status are updated.
             self.flow.check_status()
 
             g = self.flow.find_deadlocks()
@@ -716,7 +716,7 @@ class PyFlowScheduler(object):
                 err_lines.append("No runnable job with deadlocked tasks:\n%s." % str(g.deadlocked))
 
         if not g.runnables and not g.running:
-            # Check the flow again to that status are updated. 
+            # Check the flow again to that status are updated.
             self.flow.check_status()
             g = self.flow.find_deadlocks()
             if not g.runnables and not g.running:
@@ -725,7 +725,7 @@ class PyFlowScheduler(object):
         # Something wrong. Quit
         if err_lines:
             # Cancel all jobs.
-            if self.killjobs_if_errors: 
+            if self.killjobs_if_errors:
                 try:
                     num_cancelled = 0
                     for task in self.flow.iflat_tasks():
@@ -809,7 +809,7 @@ class PyFlowScheduler(object):
                 for job in self.sched.get_jobs():
                     self.sched.unschedule_job(job)
             #self.sched.print_jobs()
-                
+
             self.sched.shutdown()
             # Uncomment the line below if shutdown does not work!
             #os.system("kill -9 %d" % os.getpid())
@@ -919,7 +919,7 @@ class BatchLauncher(object):
     to submit the tasks of the flow in autparal mode.
 
     The `BatchLauncher` is pickleable, hence one can reload it, check if all flows are completed
-    and rerun only those that are not completed due to the timelimit. 
+    and rerun only those that are not completed due to the timelimit.
     """
     PICKLE_FNAME = "__BatchLauncher__.pickle"
 
@@ -1013,7 +1013,7 @@ class BatchLauncher(object):
         """
         Return state is pickled as the contents for the instance.
 
-        Here we replace the flow objects with their workdir because we are observing 
+        Here we replace the flow objects with their workdir because we are observing
         the flows and we want to have the updated version when we reload the `BatchLauncher` from pickle.
         """
         d = {k: v for k, v in self.__dict__.items() if k not in ["flows"]}
@@ -1029,7 +1029,7 @@ class BatchLauncher(object):
             manager: :class:`TaskManager` object responsible for the submission of the jobs.
                      If manager is None, the object is initialized from the yaml file
                      located either in the working directory or in the user configuration dir.
-            timelimit: Time limit (int with seconds or string with time given with 
+            timelimit: Time limit (int with seconds or string with time given with
                 the slurm convention: "days-hours:minutes:seconds".
                 If timelimit is None, the default value specified in the `batch_adapter` is taken.
         """
@@ -1059,11 +1059,11 @@ class BatchLauncher(object):
 
         if qad is None:
             raise RuntimeError("Your manager.yml file does not define an entry for the batch_adapter")
-           
-        # Set mpi_procs to 1 just to be on the safe side 
+
+        # Set mpi_procs to 1 just to be on the safe side
         # Then allow the user to change the timelimit via __init__
         qad.set_mpi_procs(1)
-        if timelimit is not None: 
+        if timelimit is not None:
             self.set_timelimit(timelimit)
             # FIXME: Remove me!
             self.set_timelimit(36000)
@@ -1140,7 +1140,7 @@ class BatchLauncher(object):
                 retcode: Return code as returned by the submission script.
                 qjob: :class:`QueueJob` object.
                 num_flows_inbatch: Number of flows executed by the batch script
-                
+
             Return code of the job script submission.
         """
         verbose, dry_run = kwargs.pop("verbose", 0), kwargs.pop("dry_run", False)
@@ -1154,7 +1154,7 @@ class BatchLauncher(object):
             # and we have already submitted to batch script to the queue.
             # At this point we need to understand if the previous batch job
             # is still running before trying to submit it again. There are three cases:
-            # 
+            #
             # 1) The batch script has completed withing timelimit and therefore
             #    the pid_file has been removed by the script. In this case, we
             #    should not try to submit it again.
@@ -1256,7 +1256,7 @@ class BatchLauncher(object):
         ])
 
         return self.qadapter.get_script_str(
-            job_name=self.name, 
+            job_name=self.name,
             launch_dir=self.workdir,
             executable=executable,
             qout_path=self.qout_file.path,
