@@ -5,10 +5,8 @@
 from __future__ import unicode_literals
 
 import unittest2 as unittest
-import os
 
-
-from pymatgen.io.vasp.sets_deprecated import *
+from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Incar, Kpoints
 from pymatgen import Specie, Lattice, Structure
 from pymatgen.util.testing import PymatgenTest
@@ -379,18 +377,6 @@ class MITNEBVaspInputSetTest(unittest.TestCase):
         fc = self.vis._process_structures(structs)[2].frac_coords
         self.assertTrue(np.allclose(fc, [[0.5]*3,[0.9, 1.033333, 1.0333333]]))
 
-
-class MVLVaspInputSetTest(PymatgenTest):
-
-    def setUp(self):
-        self.mvlparam = MVLElasticInputSet()
-
-    def test_get_incar(self):
-        incar = self.mvlparam.get_incar(self.get_structure("Graphite"))
-        self.assertEqual(incar["IBRION"], 6)
-        self.assertEqual(incar["NFREE"], 2)
-        self.assertEqual(incar["POTIM"], 0.015)
-        self.assertNotIn("NPAR", incar)
 
 
 if __name__ == '__main__':

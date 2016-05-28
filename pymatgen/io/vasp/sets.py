@@ -6,9 +6,9 @@ from __future__ import division, unicode_literals, print_function
 
 import os
 import abc
+import re
 
 import shutil
-from functools import partial
 from glob import glob
 import warnings
 from itertools import chain
@@ -28,7 +28,11 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.sites import PeriodicSite
 
 # This mass import is for deprecation stub purposes.
-from pymatgen.io.vasp.sets_deprecated import *
+from pymatgen.io.vasp.sets_deprecated import MPVaspInputSet, \
+    MITHSEVaspInputSet, MITVaspInputSet, MITGGAVaspInputSet, \
+    MPStaticVaspInputSet, MITMDVaspInputSet, \
+    MVLElasticInputSet, MITNEBVaspInputSet, MPNonSCFVaspInputSet, \
+    MPOpticsNonSCFVaspInputSet, MPHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet
 
 """
 This module defines the VaspInputSet abstract base class and a concrete
@@ -989,7 +993,7 @@ class MPSOCSet(MPStaticSet):
                         reciprocal_density=reciprocal_density, **kwargs)
 
 
-class MVLElasticSet(MPStaticSet):
+class MVLElasticSet(MPRelaxSet):
     """
     MVL denotes VASP input sets that are implemented by the Materials Virtual
     Lab (http://www.materialsvirtuallab.org) for various research.
