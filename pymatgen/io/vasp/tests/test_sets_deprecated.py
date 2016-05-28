@@ -43,9 +43,6 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.mpnscfparamsetl = MPNonSCFVaspInputSet(
             {"NBANDS": 60}, mode="Line")
         self.mphseparamset = MPHSEVaspInputSet()
-        self.mpbshseparamsetl = MPHSEBSVaspInputSet(mode="Line")
-        self.mpbshseparamsetu = MPHSEBSVaspInputSet(
-            mode="Uniform", added_kpoints=[[0.5, 0.5, 0.0]])
         self.mpdielparamset = MPStaticDielectricDFPTVaspInputSet()
 
     def test_get_poscar(self):
@@ -135,16 +132,6 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         incar_hse = self.mphseparamset.get_incar(self.struct)
         self.assertEqual(incar_hse['LHFCALC'], True)
         self.assertEqual(incar_hse['HFSCREEN'], 0.2)
-
-        incar_hse_bsl = self.mpbshseparamsetl.get_incar(self.struct)
-        self.assertEqual(incar_hse_bsl['LHFCALC'], True)
-        self.assertEqual(incar_hse_bsl['HFSCREEN'], 0.2)
-        self.assertEqual(incar_hse_bsl['NSW'], 0)
-
-        incar_hse_bsu = self.mpbshseparamsetu.get_incar(self.struct)
-        self.assertEqual(incar_hse_bsu['LHFCALC'], True)
-        self.assertEqual(incar_hse_bsu['HFSCREEN'], 0.2)
-        self.assertEqual(incar_hse_bsu['NSW'], 0)
 
         incar_diel = self.mpdielparamset.get_incar(self.struct)
         self.assertEqual(incar_diel['IBRION'], 8)
@@ -275,27 +262,6 @@ class MITMPVaspInputSetTest(unittest.TestCase):
 
         kpoints = self.mpnscfparamsetu.get_kpoints(self.struct)
         self.assertEqual(kpoints.num_kpts, 168)
-
-        kpoints = self.mpbshseparamsetl.get_kpoints(self.struct)
-        self.assertAlmostEqual(kpoints.num_kpts, 164)
-        self.assertAlmostEqual(kpoints.kpts[10][0], 0.0)
-        self.assertAlmostEqual(kpoints.kpts[10][1], 0.5)
-        self.assertAlmostEqual(kpoints.kpts[10][2], 0.16666667)
-        self.assertAlmostEqual(kpoints.kpts[26][0], 0.0714285714286)
-        self.assertAlmostEqual(kpoints.kpts[26][1], 0.0)
-        self.assertAlmostEqual(kpoints.kpts[26][2], 0.0)
-        self.assertAlmostEqual(kpoints.kpts[-1][0], 0.5)
-        self.assertAlmostEqual(kpoints.kpts[-1][1], 0.5)
-        self.assertAlmostEqual(kpoints.kpts[-1][2], 0.5)
-
-        kpoints = self.mpbshseparamsetu.get_kpoints(self.struct)
-        self.assertAlmostEqual(kpoints.num_kpts, 25)
-        self.assertAlmostEqual(kpoints.kpts[10][0], 0.0)
-        self.assertAlmostEqual(kpoints.kpts[10][1], 0.5)
-        self.assertAlmostEqual(kpoints.kpts[10][2], 0.16666667)
-        self.assertAlmostEqual(kpoints.kpts[-1][0], 0.5)
-        self.assertAlmostEqual(kpoints.kpts[-1][1], 0.5)
-        self.assertAlmostEqual(kpoints.kpts[-1][2], 0.0)
 
         recip_paramset = MPVaspInputSet(force_gamma=True)
         recip_paramset.kpoints_settings = {"reciprocal_density": 40}

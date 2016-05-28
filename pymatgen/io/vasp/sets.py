@@ -7,12 +7,11 @@ from __future__ import division, unicode_literals, print_function
 import os
 import abc
 
-import re
-import traceback
 import shutil
 from functools import partial
 from glob import glob
 import warnings
+from itertools import chain
 
 import six
 import numpy as np
@@ -26,17 +25,44 @@ from monty.json import MSONable, MontyDecoder
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.sites import PeriodicSite
 
 # This mass import is for deprecation stub purposes.
 from pymatgen.io.vasp.sets_deprecated import *
 
 """
 This module defines the VaspInputSet abstract base class and a concrete
-implementation for the parameters used by the Materials Project and the MIT
+implementation for the parameters developed and tested by the core team
+of pymatgen, including the Materials Virtual Lab, Materials Project and the MIT
 high throughput project.  The basic concept behind an input set is to specify
 a scheme to generate a consistent set of VASP inputs from a structure
 without further user intervention. This ensures comparability across
 runs.
+
+Read the following carefully before implementing new input sets:
+
+1. 99% of what needs to be done can be done by specifying user_incar_settings
+   to override some of the defaults of various input sets. Unless there is an
+   extremely good reason to add a new set, DO NOT add one. E.g., if you want
+   to turn the hubbard U off, just set "LDAU": False as a user_incar_setting.
+2. All derivative input sets should inherit from one of the usual MPRelaxSet or
+   MITRelaxSet, and proper superclass delegation should be used where possible.
+   In particular, you are not supposed to implement your own as_dict or
+   from_dict for derivative sets unless you know what you are doing.
+   Improper overriding the as_dict and from_dict protocols is the major
+   cause of implementation headaches. If you need an example, look at how the
+   MPStaticSet or MPNonSCFSets from constructed.
+
+The above are recommendations. The following are UNBREAKABLE rules:
+1. All input sets must take in a structure or list of structures as the first
+   argument.
+2. user_incar_settings is absolute. Any new sets you implement must obey
+   this. If a user wants to override your settings, you assume he knows what he
+   is doing. Do not magically override user supplied settings. You can of course
+   issue a warning if you think the user is wrong.
+3. All input sets must save all supplied args and kwargs as instance variables.
+   E.g., self.my_arg = myarg and self.kwargs = kwargs in the __init__. This
+   ensures the as_dict and from_dict work correctly.
 """
 
 __author__ = "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier"
@@ -53,7 +79,8 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Base class representing a set of Vasp input parameters with a structure
-    supplied as init parameters.
+    supplied as init parameters. Typically, you should not inherit from this
+    class. Start from DictSet or MPRelaxSet or MITRelaxSet.
     """
 
     @abc.abstractproperty
@@ -74,29 +101,26 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
     @property
     def potcar_symbols(self):
         """
-        Returns:
-            List of POTCAR symbols.
+        List of POTCAR symbols.
         """
         elements = self.poscar.site_symbols
         potcar_symbols = []
+        settings = self.config_dict["POTCAR"]
 
-        if isinstance(self.potcar_settings[elements[-1]], dict):
+        if isinstance(settings[elements[-1]], dict):
             for el in elements:
-                potcar_symbols.append(self.potcar_settings[el]['symbol']
-                                      if el in self.potcar_settings else el)
+                potcar_symbols.append(settings[el]['symbol']
+                                      if el in settings else el)
         else:
             for el in elements:
-                potcar_symbols.append(self.potcar_settings[el]
-                                      if el in self.potcar_settings else el)
+                potcar_symbols.append(settings.get(el, el))
 
         return potcar_symbols
 
     @property
     def potcar(self):
         """
-
-        Returns:
-            Potcar object.
+        Potcar object.
         """
         if self.potcar_functional:
             p = Potcar(self.potcar_symbols, functional=self.potcar_functional)
@@ -110,7 +134,7 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         Returns all input files as a dict of {filename: vasp object}
 
         Returns:
-            dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
+            dict of {filename: object}, e.g., {'INCAR': Incar object, ...}
         """
         kpoints = self.kpoints
         incar = self.incar
@@ -141,11 +165,13 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
             v.write_file(os.path.join(output_dir, k))
             if k == "POSCAR" and include_cif:
                 v.structure.to(
-                    filename=os.path.join(output_dir,
-                                          "%s.cif" % v.structure.formula))
+                    filename=os.path.join(
+                        output_dir, "%s.cif" % v.structure.formula))
 
-    def as_dict(self):
+    def as_dict(self, verbosity=2):
         d = MSONable.as_dict(self)
+        if verbosity == 1:
+            d.pop("structure", None)
         if hasattr(self, "kwargs"):
             d.update(**self.kwargs)
         return d
@@ -181,12 +207,16 @@ class DictSet(VaspInputSet):
         structure (Structure): The Structure to create inputs for.
         name (str): A name fo the input set.
         config_dict (dict): The config dictionary to use.
-        hubbard_off (bool): Whether to turn off Hubbard U if it is specified in
-            config_dict. Defaults to False, i.e., follow settings in
-            config_dict.
+        files_to_transfer (dict): A dictionary of {filename: filepath}. This
+            allows the transfer of files from a previous calculation.
         user_incar_settings (dict): User INCAR settings. This allows a user
             to override INCAR settings, e.g., setting a different MAGMOM for
-            various elements or species.
+            various elements or species. Note that in the new scheme,
+            ediff_per_atom and hubbard_u are no longer args. Instead, the
+            config_dict supports EDIFF_PER_ATOM and EDIFF keys. The former
+            scales with # of atoms, the latter does not. If both are
+            present, EDIFF is preferred. To force such settings, just supply
+            user_incar_settings={"EDIFF": 1e-5, "LDAU": False} for example.
         constrain_total_magmom (bool): Whether to constrain the total magmom
             (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
             species. Defaults to False.
@@ -195,10 +225,6 @@ class DictSet(VaspInputSet):
             files. Defaults to True, the behavior you would want most of the
             time. This ensures that similar atomic species are grouped
             together.
-        ediff_per_atom (bool): Whether the EDIFF is specified on a per atom
-            basis. This is generally desired, though for some calculations (
-            e.g. NEB) this should be turned off (and an appropriate EDIFF
-            supplied in user_incar_settings)
         potcar_functional (str): Functional to use. Default (None) is to use
             the functional in Potcar.DEFAULT_FUNCTIONAL. Valid values:
             "PBE", "LDA", "PW91", "LDA_US"
@@ -211,36 +237,30 @@ class DictSet(VaspInputSet):
             alter the structure. Valid values: None, "niggli", "LLL"
     """
 
-    def __init__(self, structure, name, config_dict, hubbard_off=False,
-                 user_incar_settings=None,
+    def __init__(self, structure, name, config_dict,
+                 files_to_transfer=None, user_incar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
-                 ediff_per_atom=True, potcar_functional=None,
-                 force_gamma=False, reduce_structure=None):
+                 potcar_functional=None, force_gamma=False,
+                 reduce_structure=None):
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
         if sort_structure:
             structure = structure.get_sorted_structure()
         self.structure = structure
+        self.config_dict = config_dict
         self.name = name
-        self.potcar_settings = config_dict["POTCAR"]
-        self.kpoints_settings = config_dict['KPOINTS']
-        self.incar_settings = config_dict['INCAR']
+        self.files_to_transfer = files_to_transfer or {}
         self.set_nupdown = constrain_total_magmom
         self.sort_structure = sort_structure
-        self.ediff_per_atom = ediff_per_atom
-        self.hubbard_off = hubbard_off
         self.potcar_functional = potcar_functional
         self.force_gamma = force_gamma
         self.reduce_structure = reduce_structure
-        if hubbard_off:
-            for k in list(self.incar_settings.keys()):
-                if k.startswith("LDAU"):
-                    del self.incar_settings[k]
-        if user_incar_settings:
-            self.incar_settings.update(user_incar_settings)
+        self.user_incar_settings = user_incar_settings or {}
 
     @property
     def incar(self):
+        settings = dict(self.config_dict["INCAR"])
+        settings.update(self.user_incar_settings)
         structure = self.structure
         incar = Incar()
         comp = structure.composition
@@ -248,43 +268,45 @@ class DictSet(VaspInputSet):
                           key=lambda e: e.X)
         most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
-        for key, setting in self.incar_settings.items():
-            if key == "MAGMOM":
+        hubbard_u = settings.get("LDAU", False)
+        for k, v in settings.items():
+            if k == "MAGMOM":
                 mag = []
                 for site in structure:
                     if hasattr(site, 'magmom'):
                         mag.append(site.magmom)
                     elif hasattr(site.specie, 'spin'):
                         mag.append(site.specie.spin)
-                    elif str(site.specie) in setting:
-                        mag.append(setting.get(str(site.specie)))
+                    elif str(site.specie) in v:
+                        mag.append(v.get(str(site.specie)))
                     else:
-                        mag.append(setting.get(site.specie.symbol, 0.6))
-                incar[key] = mag
-            elif key in ('LDAUU', 'LDAUJ', 'LDAUL'):
-                if hasattr(structure[0], key.lower()):
-                    m = dict([(site.specie.symbol, getattr(site, key.lower()))
-                              for site in structure])
-                    incar[key] = [m[sym] for sym in poscar.site_symbols]
-                elif most_electroneg in setting.keys():
-                    incar[key] = [setting[most_electroneg].get(sym, 0)
-                                  for sym in poscar.site_symbols]
+                        mag.append(v.get(site.specie.symbol, 0.6))
+                incar[k] = mag
+            elif k in ('LDAUU', 'LDAUJ', 'LDAUL'):
+                if hubbard_u:
+                    if hasattr(structure[0], k.lower()):
+                        m = dict([(site.specie.symbol, getattr(site, k.lower()))
+                                  for site in structure])
+                        incar[k] = [m[sym] for sym in poscar.site_symbols]
+                    elif most_electroneg in v.keys():
+                        incar[k] = [v[most_electroneg].get(sym, 0)
+                                      for sym in poscar.site_symbols]
+                    else:
+                        incar[k] = [0] * len(poscar.site_symbols)
+            elif k.startswith("EDIFF"):
+                if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
+                    incar["EDIFF"] = float(v) * structure.num_sites
                 else:
-                    incar[key] = [0] * len(poscar.site_symbols)
-            elif key == "EDIFF":
-                if self.ediff_per_atom:
-                    incar[key] = float(setting) * structure.num_sites
-                else:
-                    incar[key] = float(setting)
+                    incar["EDIFF"] = float(settings["EDIFF"])
             else:
-                incar[key] = setting
+                incar[k] = v
 
-        has_u = ("LDAUU" in incar and sum(incar['LDAUU']) > 0)
+        has_u = hubbard_u and sum(incar['LDAUU']) > 0
         if has_u:
             # modify LMAXMIX if LSDA+U and you have d or f electrons
             # note that if the user explicitly sets LMAXMIX in settings it will
             # override this logic.
-            if 'LMAXMIX' not in self.incar_settings.keys():
+            if 'LMAXMIX' not in settings.keys():
                 # contains f-electrons
                 if any([el.Z > 56 for el in structure.composition]):
                     incar['LMAXMIX'] = 6
@@ -327,22 +349,24 @@ class DictSet(VaspInputSet):
             Uses a simple approach scaling the number of divisions along each
             reciprocal lattice vector proportional to its length.
         """
-        # If grid_density is in the kpoints_settings use Kpoints.automatic_density
-        if self.kpoints_settings.get('grid_density'):
+        settings = self.config_dict["KPOINTS"]
+        # If grid_density is in the kpoints_settings use
+        # Kpoints.automatic_density
+        if settings.get('grid_density'):
             return Kpoints.automatic_density(
-                self.structure, int(self.kpoints_settings['grid_density']),
+                self.structure, int(settings['grid_density']),
                 self.force_gamma)
 
-        # If reciprocal_density is in the kpoints_settings use Kpoints.automatic_density_by_vol
-        elif self.kpoints_settings.get('reciprocal_density'):
+        # If reciprocal_density is in the kpoints_settings use
+        # Kpoints.automatic_density_by_vol
+        elif settings.get('reciprocal_density'):
             return Kpoints.automatic_density_by_vol(
-                self.structure, int(self.kpoints_settings[
-                                        'reciprocal_density']),
+                self.structure, int(settings['reciprocal_density']),
                 self.force_gamma)
 
         # If length is in the kpoints_settings use Kpoints.automatic
-        elif self.kpoints_settings.get('length'):
-            return Kpoints.automatic(self.kpoints_settings['length'])
+        elif settings.get('length'):
+            return Kpoints.automatic(settings['length'])
 
         # Raise error. Unsure of which kpoint generation to use
         else:
@@ -356,51 +380,19 @@ class DictSet(VaspInputSet):
         return self.name
 
     def __repr__(self):
-        output = [self.name, ""]
-        section_names = ['INCAR settings', 'KPOINTS settings',
-                         'POTCAR settings']
-        count = 0
-        for d in [self.incar_settings, self.kpoints_settings,
-                  self.potcar_settings]:
-            output.append(section_names[count])
-            for k, v in d.items():
-                output.append("%s = %s" % (k, str(v)))
-            output.append("")
-            count += 1
-        return "\n".join(output)
+        return self.name
 
-    def as_dict(self):
-        config_dict = {
-            "INCAR": self.incar_settings,
-            "KPOINTS": self.kpoints_settings,
-            "POTCAR": self.potcar_settings
-        }
-        kwargs = {
-            "hubbard_off": self.hubbard_off,
-            "constrain_total_magmom": self.set_nupdown,
-            "sort_structure": self.sort_structure,
-            "potcar_functional": self.potcar_functional,
-            "ediff_per_atom": self.ediff_per_atom,
-            "force_gamma": self.force_gamma,
-            "reduce_structure": self.reduce_structure,
-        }
-        return {
-            "structure": self.structure.as_dict(),
-            "name": self.name,
-            "config_dict": config_dict,
-            "kwargs": kwargs,
-            "@class": self.__class__.__name__,
-            "@module": self.__class__.__module__,
-        }
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(structure=Structure.from_dict(d["structure"]),
-                   name=d["name"], config_dict=d["config_dict"],
-                   **d["kwargs"])
+    def write_input(self, output_dir,
+                    make_dir_if_not_present=True, include_cif=False):
+        super(DictSet, self).write_input(
+            output_dir=output_dir,
+            make_dir_if_not_present=make_dir_if_not_present,
+            include_cif=include_cif)
+        for k, v in self.files_to_transfer.items():
+            shutil.copy(v, os.path.join(output_dir, k))
 
 
-class BuiltinConfigSet(DictSet):
+class ConfigFileSet(DictSet):
     """
     Creates a DictVaspInputSet from a yaml/json file.
 
@@ -413,104 +405,85 @@ class BuiltinConfigSet(DictSet):
         DictVaspInputSet
     """
 
-    def __init__(self, structure, config_name, **kwargs):
-        d = loadfn(os.path.join(MODULE_DIR, "%sVaspInputSet.yaml" % config_name))
-        super(BuiltinConfigSet, self).__init__(structure, config_name, d,
-                                               **kwargs)
+    def __init__(self, structure, config_file, **kwargs):
+        d = loadfn(config_file)
+        super(ConfigFileSet, self).__init__(structure, config_file, d,
+                                            **kwargs)
+        self.config_file = config_file
         self.kwargs = kwargs
 
-    def as_dict(self, verbosity=2):
-        """
 
-        Args:
-            verbosity (int): How many info to include in dict. If verbosity = 1,
-                the Structure is not included. Note that verbosities lower than
-                the default is not guanranteed to work with the from_dict.
+class MITRelaxSet(ConfigFileSet):
+    """
+    Standard implementation of VaspInputSet utilizing parameters in the MIT
+    High-throughput project.
+    The parameters are chosen specifically for a high-throughput project,
+    which means in general pseudopotentials with fewer electrons were chosen.
 
-        Returns:
-            Dict representation.
-        """
-        d = {
-            "config_name": self.name,
-            "kwargs": self.kwargs,
-            "@class": self.__class__.__name__,
-            "@module": self.__class__.__module__,
-        }
-        if verbosity > 1:
-            d["structure"] = self.structure.as_dict()
-        return d
+    Please refer::
 
-    @classmethod
-    def from_dict(cls, d):
-        return cls(Structure.from_dict(d["structure"]), d["config_name"],
-                   **d["kwargs"])
+        A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,
+        K. A. Persson, G. Ceder. A high-throughput infrastructure for density
+        functional theory calculations. Computational Materials Science,
+        2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
+    """
+
+    def __init__(self, structure, **kwargs):
+        super(MITRelaxSet, self).__init__(
+            structure, os.path.join(MODULE_DIR, "MITRelaxSet.yaml"), **kwargs)
 
 
-MITRelaxSet = partial(BuiltinConfigSet, config_name="MIT")
-"""
-Standard implementation of VaspInputSet utilizing parameters in the MIT
-High-throughput project.
-The parameters are chosen specifically for a high-throughput project,
-which means in general pseudopotentials with fewer electrons were chosen.
+class MPRelaxSet(ConfigFileSet):
+    """
+    Implementation of VaspInputSet utilizing parameters in the public
+    Materials Project. Typically, the pseudopotentials chosen contain more
+    electrons than the MIT parameters, and the k-point grid is ~50% more dense.
+    The LDAUU parameters are also different due to the different psps used,
+    which result in different fitted values.
+    """
 
-Please refer::
-
-    A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,
-    K. A. Persson, G. Ceder. A high-throughput infrastructure for density
-    functional theory calculations. Computational Materials Science,
-    2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
-"""
+    def __init__(self, structure, **kwargs):
+        super(MPRelaxSet, self).__init__(
+            structure, os.path.join(MODULE_DIR, "MPRelaxSet.yaml"), **kwargs)
 
 
-MPRelaxSet = partial(BuiltinConfigSet, config_name="MP")
-"""
-Implementation of VaspInputSet utilizing parameters in the public
-Materials Project. Typically, the pseudopotentials chosen contain more
-electrons than the MIT parameters, and the k-point grid is ~50% more dense.
-The LDAUU parameters are also different due to the different psps used,
-which result in different fitted values.
-"""
+class MPHSERelaxSet(ConfigFileSet):
+    """
+    Same as the MPRelaxSet, but with HSE parameters.
+    """
 
-MPGGARelaxSet = partial(BuiltinConfigSet, config_name="MP", hubbard_off=True)
-"""
-Same as the MPRelaxSet, but the +U is enforced to be turned off.
-"""
-
-MPHSESet = partial(BuiltinConfigSet, config_name="MPHSE")
-"""
-Same as the MPRelaxSet, but with HSE parameters.
-"""
+    def __init__(self, structure, **kwargs):
+        super(MPHSERelaxSet, self).__init__(
+            structure, os.path.join(MODULE_DIR, "MPHSERelaxSet.yaml"), **kwargs)
 
 
-class MPStaticSet(VaspInputSet):
+class MPStaticSet(MPRelaxSet):
 
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
                  lepsilon=False, reciprocal_density=100, **kwargs):
         """
-        Init a MPStaticSet. Typically, you would use the classmethod
-        from_prev_calc instead.
+        Run a static calculation.
 
         Args:
             structure (Structure): Structure from previous run.
             prev_incar (Incar): Incar file from previous run.
             prev_kpoints (Kpoints): Kpoints from previous run.
+            lepsilon (bool): Whether to add static dielectric calculation
             reciprocal_density (int): density of k-mesh by reciprocal
-                volume (defaults to 100)
-            \*\*kwargs: kwargs supported by MPVaspInputSet.
+                volume (defaults to 100).
+            \*\*kwargs: kwargs supported by MPRelaxSet.
         """
-
+        super(MPStaticSet, self).__init__(structure, **kwargs)
         self.prev_incar = prev_incar
         self.prev_kpoints = prev_kpoints
         self.reciprocal_density = reciprocal_density
         self.structure = structure
         self.kwargs = kwargs
         self.lepsilon = lepsilon
-        self.parent_vis = MPRelaxSet(self.structure, **self.kwargs)
 
     @property
     def incar(self):
-
-        parent_incar = self.parent_vis.incar
+        parent_incar = super(MPStaticSet, self).incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else \
             Incar(parent_incar)
 
@@ -555,11 +528,7 @@ class MPStaticSet(VaspInputSet):
 
     @property
     def kpoints(self):
-        if self.parent_vis.kpoints_settings.get("grid_density"):
-            del self.parent_vis.kpoints_settings["grid_density"]
-        self.parent_vis.kpoints_settings["reciprocal_density"] = \
-            self.reciprocal_density
-        kpoints = self.parent_vis.kpoints
+        kpoints = super(MPStaticSet, self).kpoints
 
         # Prefer to use k-point scheme from previous run
         if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
@@ -570,14 +539,6 @@ class MPStaticSet(VaspInputSet):
             else:
                 kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])
         return kpoints
-
-    @property
-    def poscar(self):
-        return Poscar(self.structure)
-
-    @property
-    def potcar(self):
-        return self.parent_vis.get_potcar(self.structure)
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, standardize=False, sym_prec=0.1,
@@ -628,47 +589,89 @@ class MPStaticSet(VaspInputSet):
             reciprocal_density=reciprocal_density, **kwargs)
 
 
-class MPHSEBSSet(VaspInputSet):
+class MPHSEBSSet(MPHSERelaxSet):
 
-    def __init__(self, structure, prev_chgcar_path=None, **kwargs):
+    def __init__(self, structure, user_incar_settings=None, added_kpoints=None,
+                 mode="Uniform", reciprocal_density=None,
+                 kpoints_line_density=20, **kwargs):
         """
-        Init a MPHSEBSSet. Note that HSE is SCF calcs only. This input set
-        does a static HSE calculation at either a uniform mesh or
-        uniform+line mesh, with added kpoints.
+        Implementation of a VaspInputSet for HSE band structure computations.
+        Remember that HSE band structures must be self-consistent in VASP. A
+        band structure along symmetry lines for instance needs BOTH a uniform
+        grid with appropriate weights AND a path along the lines with weight 0.
+
+        Thus, the "Uniform" mode is just like regular static SCF but allows
+        adding custom kpoints (e.g., corresponding to known VBM/CBM) to the
+        uniform grid that have zero weight (e.g., for better gap estimate).
+
+        The "Line" mode is just like Uniform mode, but additionally adds
+        k-points along symmetry lines with zero weight.
 
         Args:
-            structure (Structure): Structure from previous run.
-            prev_chgcar_path (str): Path to CHGCAR from previous run.
-            \*\*kwargs: kwargs supported by MPHSEBSVaspInputSet.
-        """
-        self.structure = structure
-        self.prev_chgcar_path = prev_chgcar_path
-        self.parent_vis = MPHSEBSVaspInputSet(**kwargs)
+            structure (Structure): Structure to compute
+            user_incar_settings (dict): A dict specifying additional incar
+                settings
+            added_kpoints (list): a list of kpoints (list of 3 number list)
+                added to the run. The k-points are in fractional coordinates
+            mode (str): "Line" - generate k-points along symmetry lines for
+                bandstructure. "Uniform" - generate uniform k-points grid
+            reciprocal_density (int): k-point density to use for uniform mesh
+            kpoints_line_density (int): k-point density for high symmetry lines
+            **kwargs (dict): Any other parameters to pass into DictVaspInputSet
 
-    @property
-    def incar(self):
-        return self.parent_vis.get_incar(self.structure)
+        """
+        super(MPHSEBSSet, self).__init__(structure, **kwargs)
+        self.structure = structure
+        self.user_incar_settings = user_incar_settings or {}
+        self.config_dict["INCAR"].update(
+            {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 0, "LCHARG": False})
+        self.added_kpoints = added_kpoints if added_kpoints is not None else []
+        self.mode = mode
+        self.reciprocal_density = reciprocal_density or \
+                                  self.kpoints_settings['reciprocal_density']
+        self.kpoints_line_density = kpoints_line_density
 
     @property
     def kpoints(self):
-        return self.parent_vis.get_kpoints(self.structure)
+        kpts = []
+        weights = []
+        all_labels = []
 
-    @property
-    def poscar(self):
-        return self.parent_vis.get_poscar(self.structure)
+        # for both modes, include the Uniform mesh w/standard weights
+        grid = Kpoints.automatic_density_by_vol(self.structure,
+                                                self.reciprocal_density).kpts
+        ir_kpts = SpacegroupAnalyzer(self.structure, symprec=0.1)\
+            .get_ir_reciprocal_mesh(grid[0])
+        for k in ir_kpts:
+            kpts.append(k[0])
+            weights.append(int(k[1]))
+            all_labels.append(None)
 
-    @property
-    def potcar(self):
-        return self.parent_vis.get_potcar(self.structure)
+        # for both modes, include any user-added kpoints w/zero weight
+        for k in self.added_kpoints:
+            kpts.append(k)
+            weights.append(0.0)
+            all_labels.append("user-defined")
 
-    def write_input(self, output_dir,
-                    make_dir_if_not_present=True, include_cif=False):
-        super(MPHSEBSSet, self).write_input(output_dir,
-            make_dir_if_not_present=make_dir_if_not_present,
-            include_cif=include_cif)
-        if self.prev_chgcar_path:
-            shutil.copy(self.prev_chgcar_path,
-                        os.path.join(output_dir, "CHGCAR"))
+        # for line mode only, add the symmetry lines w/zero weight
+        if self.mode == "Line":
+            kpath = HighSymmKpath(self.structure)
+            frac_k_points, labels = kpath.get_kpoints(
+                line_density=self.kpoints_line_density,
+                coords_are_cartesian=False)
+
+            for k in range(len(frac_k_points)):
+                kpts.append(frac_k_points[k])
+                weights.append(0.0)
+                all_labels.append(labels[k])
+
+        comment = "HSE run along symmetry lines" if self.mode == "Line" \
+            else "HSE run on uniform grid"
+
+        return Kpoints(comment=comment,
+                       style=Kpoints.supported_modes.Reciprocal,
+                       num_kpts=len(kpts), kpts=kpts, kpts_weights=weights,
+                       labels=all_labels)
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, mode="Uniform",
@@ -682,6 +685,7 @@ class MPHSEBSSet(VaspInputSet):
                 (vasprun.xml and OUTCAR) of previous vasp run.
             mode (str): Either "Uniform" or "Line"
             reciprocal_density (int): density of k-mesh
+            copy_chgcar (bool): whether to copy CHGCAR of previous run
             \*\*kwargs: All kwargs supported by MPHSEBSStaticSet,
                 other than prev_structure which is determined from the previous
                 calc dir.
@@ -701,44 +705,42 @@ class MPHSEBSSet(VaspInputSet):
         if cbm:
             added_kpoints.append(cbm.frac_coords)
 
-        chgcar_path = None
+        files_to_transfer = {}
         if copy_chgcar:
             chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
             if chgcars:
-                chgcar_path = sorted(chgcars)[-1]
+                files_to_transfer["CHGCAR"] = sorted(chgcars)[-1]
 
         return MPHSEBSSet(
             structure=prev_structure,
             added_kpoints=added_kpoints, reciprocal_density=reciprocal_density,
-            mode=mode, prev_chgcar_path=chgcar_path, **kwargs)
+            mode=mode, files_to_transfer=files_to_transfer, **kwargs)
 
 
-class MPNonSCFSet(VaspInputSet):
+class MPNonSCFSet(MPRelaxSet):
 
-    def __init__(self, structure, prev_incar=None, prev_chgcar_path=None,
+    def __init__(self, structure, prev_incar=None,
                  mode="line", nedos=601, reciprocal_density=100, sym_prec=0.1,
                  kpoints_line_density=20, optics=False, **kwargs):
         """
         Init a MPNonSCFSet. Typically, you would use the classmethod
-        from_prev_calc instead.
+        from_prev_calc to initialize from a previous SCF run.
 
         Args:
+            structure (Structure): Structure to compute
             prev_incar (Incar): Incar file from previous run.
-            prev_structure (Structure): Structure from previous run.
-            prev_chgcar_path (str): Path to CHGCAR from previous run.
             mode (str): Line or Uniform mode supported.
             nedos (int): nedos parameter. Default to 601.
             reciprocal_density (int): density of k-mesh by reciprocal
                                     volume (defaults to 100)
             sym_prec (float): Symmetry precision (for Uniform mode).
             kpoints_line_density (int): Line density for Line mode.
+            optics (bool): whether to add dielectric function
             \*\*kwargs: kwargs supported by MPVaspInputSet.
         """
-        self.structure = structure
+        super(MPNonSCFSet, self).__init__(structure, **kwargs)
         self.prev_incar = prev_incar
-        self.prev_chgcar_path = prev_chgcar_path
         self.kwargs = kwargs
-
         self.nedos = nedos
         self.reciprocal_density = reciprocal_density
         self.sym_prec = sym_prec
@@ -753,12 +755,9 @@ class MPNonSCFSet(VaspInputSet):
             warnings.warn("It is recommended to use Uniform mode with a high "
                           "NEDOS for optics calculations.")
 
-        self.parent_vis = MPRelaxSet(self.structure, **kwargs)
-
-
     @property
     def incar(self):
-        incar = self.parent_vis.incar
+        incar = super(MPNonSCFSet, self).incar
         if self.prev_incar is not None:
             incar.update({k: v for k, v in self.prev_incar.items()
                          if k not in self.kwargs.get("user_incar_settings",
@@ -811,23 +810,6 @@ class MPNonSCFSet(VaspInputSet):
                               kpts=kpts, kpts_weights=weights)
         return kpoints
 
-    @property
-    def poscar(self):
-        return Poscar(self.structure)
-
-    @property
-    def potcar(self):
-        return self.parent_vis.potcar
-
-    def write_input(self, output_dir,
-                    make_dir_if_not_present=True, include_cif=False):
-        super(MPNonSCFSet, self).write_input(output_dir,
-            make_dir_if_not_present=make_dir_if_not_present,
-            include_cif=include_cif)
-        if self.prev_chgcar_path:
-            shutil.copy(self.prev_chgcar_path,
-                        os.path.join(output_dir, "CHGCAR"))
-
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
                        nbands_factor=1.2, standardize=False, sym_prec=0.1,
@@ -878,11 +860,11 @@ class MPNonSCFSet(VaspInputSet):
         nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
         incar.update({"ISPIN": ispin, "NBANDS": nbands})
 
-        chgcar_path = None
+        files_to_transfer = {}
         if copy_chgcar:
             chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
             if chgcars:
-                chgcar_path = sorted(chgcars)[-1]
+                files_to_transfer["CHGCAR"] = sorted(chgcars)[-1]
 
         # multiply the reciprocal density if needed:
         if small_gap_multiply:
@@ -891,17 +873,16 @@ class MPNonSCFSet(VaspInputSet):
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
 
         return MPNonSCFSet(structure=structure, prev_incar=incar,
-                           prev_chgcar_path=chgcar_path,
-                           reciprocal_density=reciprocal_density, **kwargs)
+                           reciprocal_density=reciprocal_density,
+                           files_to_transfer=files_to_transfer, **kwargs)
 
 
 class MPSOCSet(MPStaticSet):
 
     def __init__(self, structure, saxis=(0, 0, 1), prev_incar=None,
-                 prev_chgcar_path=None, reciprocal_density=100, **kwargs):
+                 reciprocal_density=100, **kwargs):
         """
-        Init a MPSOCSet. Typically, you would use the classmethod
-        from_prev_calc instead.
+        Init a MPSOCSet.
 
         Args:
             structure (Structure): the structure must have the 'magmom' site
@@ -909,7 +890,6 @@ class MPSOCSet(MPStaticSet):
                 components. eg:- magmom = [[0,0,2], ...]
             saxis (tuple): magnetic moment orientation
             prev_incar (Incar): Incar file from previous run.
-            prev_chgcar_path (str): Path to CHGCAR from previous run.
             reciprocal_density (int): density of k-mesh by reciprocal
                                     volume (defaults to 100)
             \*\*kwargs: kwargs supported by MPVaspInputSet.
@@ -920,14 +900,13 @@ class MPSOCSet(MPStaticSet):
                              "property and each magnetic moment value must have 3 "
                              "components. eg:- magmom = [0,0,2]")
         self.saxis = saxis
-        self.prev_chgcar_path = prev_chgcar_path
-        super(MPSOCSet, self).__init__(structure, prev_incar=prev_incar,
-                                      reciprocal_density=reciprocal_density,
-                                      **kwargs)
+        super(MPSOCSet, self).__init__(
+            structure, prev_incar=prev_incar,
+            reciprocal_density=reciprocal_density, **kwargs)
 
     @property
     def incar(self):
-        incar = self.parent_vis.incar
+        incar = super(MPSOCSet, self).incar
         if self.prev_incar is not None:
             incar.update({k: v for k, v in self.prev_incar.items()
                          if k not in self.kwargs.get("user_incar_settings",
@@ -938,15 +917,6 @@ class MPSOCSet(MPStaticSet):
                       "SAXIS": list(self.saxis)})
 
         return incar
-
-    def write_input(self, output_dir,
-                    make_dir_if_not_present=True, include_cif=False):
-        super(MPSOCSet, self).write_input(output_dir,
-            make_dir_if_not_present=make_dir_if_not_present,
-            include_cif=include_cif)
-        if self.prev_chgcar_path:
-            shutil.copy(self.prev_chgcar_path,
-                        os.path.join(output_dir, "CHGCAR"))
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
@@ -1005,11 +975,11 @@ class MPSOCSet(MPStaticSet):
         nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
         incar.update({"NBANDS": nbands})
 
-        chgcar_path = None
+        files_to_transfer = {}
         if copy_chgcar:
             chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
             if chgcars:
-                chgcar_path = sorted(chgcars)[-1]
+                files_to_transfer["CHGCAR"] = sorted(chgcars)[-1]
 
         # multiply the reciprocal density if needed:
         if small_gap_multiply:
@@ -1018,68 +988,64 @@ class MPSOCSet(MPStaticSet):
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
 
         return MPSOCSet(structure, prev_incar=incar,
-                        prev_chgcar_path=chgcar_path,
+                        files_to_transfer=files_to_transfer,
                         reciprocal_density=reciprocal_density, **kwargs)
 
 
-class MVLSlabSet(DictVaspInputSet):
+class MVLElasticSet(MPStaticSet):
+    """
+    MVL denotes VASP input sets that are implemented by the Materials Virtual
+    Lab (http://www.materialsvirtuallab.org) for various research.
+
+    This input set is used to calculate elastic constants in VASP. It is used
+    in the following work::
+
+        Z. Deng, Z. Wang, I.-H. Chu, J. Luo, S. P. Ong.
+        “Elastic Properties of Alkali Superionic Conductor Electrolytes
+        from First Principles Calculations”, J. Electrochem. Soc.
+        2016, 163(2), A67-A74. doi: 10.1149/2.0061602jes
+
+    To read the elastic constants, you may use the Outcar class which parses the
+    elastic constants.
+
+    Args:
+        scale (float): POTIM parameter. The default of 0.015 is usually fine,
+            but some structures may require a smaller step.
+        user_incar_settings (dict): A dict specifying additional incar
+            settings.
+    """
+
+    def __init__(self, structure, potim=0.015, **kwargs):
+        super(MVLElasticSet, self).__init__(structure, **kwargs)
+        self.config_dict["INCAR"].update({"IBRION": 6, "NFREE": 2,
+                                          "POTIM": potim})
+        self.config_dict["INCAR"].pop("NPAR", None)
+
+
+class MVLSlabSet(MPRelaxSet):
     """
     Class for writing a set of slab vasp runs,
     including both slabs (along the c direction) and orient unit cells (bulk),
     to ensure the same KPOINTS, POTCAR and INCAR criterion.
 
     Args:
-        user_incar_settings(dict): A dict specifying additional incar
-            settings, default to None, ediff_per_atom=False
         k_product: default to 50, kpoint number * length for a & b directions,
             also for c direction in bulk calculations
-        potcar_functional: default to PBE
         bulk (bool): Set to True for bulk calculation. Defaults to False.
         **kwargs:
-            Other kwargs supported by :class:`DictVaspInputSet`.
+            Other kwargs supported by :class:`DictSet`.
     """
-    def __init__(self, user_incar_settings=None, gpu=False, k_product=50,
-                 potcar_functional='PBE', bulk=False, **kwargs):
-
-        user_incar_settings = user_incar_settings or {}
-        vis = MPVaspInputSet(ediff_per_atom=False).as_dict()
-        DictVaspInputSet.__init__(self, "MVLSlabSet",
-                                  vis["config_dict"],
-                                  **kwargs)
-        incar_settings_basic = {
-            "EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
-            "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
-
-        if bulk:
-             self.incar_settings.update(incar_settings_basic)
-        else:
-            incar_settings_basic["ISIF"] = 2
-            incar_settings_basic["AMIN"] = 0.01
-            incar_settings_basic["AMIX"] = 0.2
-            incar_settings_basic["BMIX"] = 0.001
-            incar_settings_basic["NELMIN"] = 8
-            self.incar_settings.update(incar_settings_basic)
-
-        if gpu:
-            # Sets KPAR to allow for the use of VASP-gpu
-            if "KPAR" not in user_incar_settings.keys():
-                # KPAR setting of 1 is the safest setting,
-                # but for optimal performance, we normally
-                # use the square root of the number of KPOINTS
-                self.incar_settings["KPAR"] = 1
-            if "NPAR" in self.incar_settings.keys():
-                del self.incar_settings["NPAR"]
-
-
-        if user_incar_settings:
-            self.incar_settings.update(user_incar_settings)
-
-        self.user_incar_settings = user_incar_settings
+    def __init__(self, structure, gpu=False, k_product=50, bulk=False,
+                 **kwargs):
+        super(MVLSlabSet, self).__init__(structure, **kwargs)
+        self.structure = structure
+        self.gpu = gpu
         self.k_product = k_product
-        self.potcar_functional = potcar_functional
         self.bulk = bulk
+        self.kwargs = kwargs
 
-    def get_kpoints(self, structure):
+    @property
+    def kpoints(self):
         """
         k_product, default to 50, is kpoint number * length for a & b directions,
             also for c direction in bulk calculations
@@ -1091,12 +1057,12 @@ class MVLSlabSet(DictVaspInputSet):
         # attributes aren't going to affect the VASP inputs anyways so
         # converting the slab into a structure should not matter
 
-        kpt = super(MVLSlabSet, self).get_kpoints(structure)
+        kpt = super(MVLSlabSet, self).kpoints
         kpt.comment = "Automatic mesh"
         kpt.style = 'Gamma'
 
         # use k_product to calculate kpoints, k_product = kpts[0][0] * a
-        abc = structure.lattice.abc
+        abc = self.structure.lattice.abc
         kpt_calc = [int(self.k_product/abc[0]+0.5),
                     int(self.k_product/abc[1]+0.5), 1]
         self.kpt_calc = kpt_calc
@@ -1108,70 +1074,201 @@ class MVLSlabSet(DictVaspInputSet):
 
         return kpt
 
-    def get_incar(self, structure):
+    @property
+    def incar(self):
+        incar = super(MVLSlabSet, self).incar
+
+        incar.update({"EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
+                      "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3})
+
+        if not self.bulk:
+            incar["ISIF"] = 2
+            incar["AMIN"] = 0.01
+            incar["AMIX"] = 0.2
+            incar["BMIX"] = 0.001
+            incar["NELMIN"] = 8
+
+        if self.gpu:
+            # Sets KPAR to allow for the use of VASP-gpu
+            if "KPAR" not in incar:
+                # KPAR setting of 1 is the safest setting,
+                # but for optimal performance, we normally
+                # use the square root of the number of KPOINTS
+                incar["KPAR"] = 1
+            if "NPAR" in incar:
+                del incar["NPAR"]
+
 
         # To get input sets, the input structure has to has the same number
         # of required parameters as a Structure object (ie. 4). Slab
         # attributes aren't going to affect the VASP inputs anyways so
         # converting the slab into a structure should not matter
 
-        abc = structure.lattice.abc
+        abc = self.structure.lattice.abc
         kpt_calc = [int(self.k_product/abc[0]+0.5),
                     int(self.k_product/abc[1]+0.5),
                     int(self.k_product/abc[1]+0.5)]
 
-
         kpts = kpt_calc
 
         if kpts[0]<5 and kpts[1]<5:
-            if not self.bulk:
-                self.incar_settings.update(
-                    {"ISMEAR": 0})
-            else:
-                if kpts[2]<5:
-                    self.incar_settings.update(
-                        {"ISMEAR": 0})
-        if self.user_incar_settings:
-                self.incar_settings.update(self.user_incar_settings)
+            if (not self.bulk) or kpts[2] < 5:
+                incar["ISMEAR"] = 0
 
-        incr = super(MVLSlabSet, self).get_incar(structure)
+        return incar
 
-        return incr
 
-    def as_dict(self):
-        d = super(MVLSlabSet, self).as_dict()
-        d.update({
-            "potcar_functional": self.potcar_functional,
-            "user_incar_settings": self.user_incar_settings
-        })
-        return d
+class MITNEBSet(MITRelaxSet):
+    """
+    Class for writing NEB inputs. Note that EDIFF is not on a per atom
+    basis for this input set.
 
-    def from_dict(cls, d):
-        return cls(
-                   user_incar_settings=d.get("user_incar_settings", None),
-                   potcar_functional=d.get("potcar_functional", None))
+    Args:
+        unset_encut (bool): Whether to unset ENCUT.
+        \*\*kwargs: Other kwargs supported by :class:`DictSet`.
+    """
 
-    def get_all_vasp_input(self, structure):
+    def __init__(self, structures, unset_encut=False, **kwargs):
+        if len(structures) < 3:
+            raise ValueError("You need at least 3 structures for an NEB.")
+        kwargs["sort_structure"] = False
+        super(MITNEBSet, self).__init__(structures[0], **kwargs)
+        self.structures = self._process_structures(structures)
+        self.unset_encut = False
+        if unset_encut:
+            self.config_dict["INCAR"].pop("ENCUT", None)
+
+        if "EDIFF" not in self.config_dict["INCAR"]:
+            self.config_dict["INCAR"]["EDIFF"] = self.config_dict[
+                "INCAR"].pop("EDIFF_PER_ATOM")
+
+        # NEB specific defaults
+        defaults = {'IMAGES': len(structures) - 2, 'IBRION': 1, 'ISYM': 0,
+                    'LCHARG': False, "LDAU": False}
+        self.config_dict["INCAR"].update(defaults)
+
+    @property
+    def poscar(self):
+        return Poscar(self.structures[0])
+
+    @property
+    def poscars(self):
+        return [Poscar(s) for s in self.structures]
+
+    def _process_structures(self, structures):
         """
-        Returns all input files as a dict of {filename: vaspio object}
+        Remove any atom jumps across the cell
+        """
+        input_structures = structures
+        structures = [input_structures[0]]
+        for s in input_structures[1:]:
+            prev = structures[-1]
+            for i in range(len(s)):
+                t = np.round(prev[i].frac_coords - s[i].frac_coords)
+                if np.sum(t) > 0.5:
+                    s.translate_sites([i], t, to_unit_cell=False)
+            structures.append(s)
+        return structures
+
+    def write_input(self, output_dir, make_dir_if_not_present=True,
+                    write_cif=False, write_path_cif=False,
+                    write_endpoint_inputs=False):
+        """
+        NEB inputs has a special directory structure where inputs are in 00,
+        01, 02, ....
 
         Args:
-            structure (Structure/IStructure): Structure to generate vasp
-                input for.
-        Returns:
-            dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
+            output_dir (str): Directory to output the VASP input files
+            make_dir_if_not_present (bool): Set to True if you want the
+                directory (and the whole path) to be created if it is not
+                present.
+            write_cif (bool): If true, writes a cif along with each POSCAR.
         """
 
-        # To get input sets, the input structure has to has the same number
-        # of required parameters as a Structure object (ie. 4). Slab
-        # attributes aren't going to affect the VASP inputs anyways so
-        # converting the slab into a structure should not matter
+        if make_dir_if_not_present and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        self.incar.write_file(os.path.join(output_dir, 'INCAR'))
+        self.kpoints.write_file(os.path.join(output_dir, 'KPOINTS'))
+        self.potcar.write_file(os.path.join(output_dir, 'POTCAR'))
 
-        data = {'INCAR': self.get_incar(structure),
-                'KPOINTS': self.get_kpoints(structure),
-                'POSCAR': self.get_poscar(structure),
-                'POTCAR': self.get_potcar(structure)}
-        return data
+        for i, p in enumerate(self.poscars):
+            d = os.path.join(output_dir, str(i).zfill(2))
+            if not os.path.exists(d):
+                os.makedirs(d)
+            p.write_file(os.path.join(d, 'POSCAR'))
+            if write_cif:
+                p.to(filename=os.path.join(d, '{}.cif'.format(i)))
+        if write_endpoint_inputs:
+            end_point_param = MITRelaxSet(
+                self.structures[0],
+                user_incar_settings=self.user_incar_settings)
+
+            for image in ['00', str(len(self.structures) - 1).zfill(2)]:
+                end_point_param.incar.write_file(os.path.join(output_dir, image, 'INCAR'))
+                end_point_param.kpoints.write_file(os.path.join(output_dir, image, 'KPOINTS'))
+                end_point_param.potcar.write_file(os.path.join(output_dir, image, 'POTCAR'))
+        if write_path_cif:
+            sites = set()
+            l = self.structures[0].lattice
+            for site in chain(*(s.sites for s in self.structures)):
+                sites.add(PeriodicSite(site.species_and_occu, site.frac_coords, l))
+            path = Structure.from_sites(sorted(sites))
+            path.to(filename=os.path.join(output_dir, 'path.cif'))
+
+
+class MITMDSet(MITRelaxSet):
+    """
+    Class for writing a vasp md run. This DOES NOT do multiple stage
+    runs.
+
+    Args:
+        start_temp (int): Starting temperature.
+        end_temp (int): Final temperature.
+        nsteps (int): Number of time steps for simulations. The NSW parameter.
+        time_step (int): The time step for the simulation. The POTIM
+            parameter. Defaults to 2fs.
+        spin_polarized (bool): Whether to do spin polarized calculations.
+            The ISPIN parameter. Defaults to False.
+        sort_structure (bool): Whether to sort structure. Defaults to False
+            (different behavior from standard input sets).
+        **kwargs:
+            Other kwargs supported by :class:`DictVaspInputSet`.
+    """
+
+    def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2,
+                 spin_polarized=False, **kwargs):
+
+        # MD default settings
+        defaults = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
+                    'EDIFF_PER_ATOM': 0.000001, 'LSCALU': False,
+                    'LCHARG': False,
+                    'LPLANE': False, 'LWAVE': True, 'ISMEAR': 0,
+                    'NELMIN': 4, 'LREAL': True, 'BMIX': 1,
+                    'MAXMIX': 20, 'NELM': 500, 'NSIM': 4, 'ISYM': 0,
+                    'ISIF': 0, 'IBRION': 0, 'NBLOCK': 1, 'KBLOCK': 100,
+                    'SMASS': 0, 'POTIM': time_step, 'PREC': 'Normal',
+                    'ISPIN': 2 if spin_polarized else 1,
+                    "LDAU": False}
+
+        super(MITMDSet, self).__init__(structure, **kwargs)
+
+        self.start_temp = start_temp
+        self.end_temp = end_temp
+        self.nsteps = nsteps
+        self.time_step = time_step
+        self.spin_polarized = spin_polarized
+        self.kwargs = kwargs
+
+        # use VASP default ENCUT
+        self.config_dict["INCAR"].pop('ENCUT', None)
+
+        if defaults['ISPIN'] == 1:
+            self.config_dict["INCAR"].pop('MAGMOM')
+        self.config_dict["INCAR"].update(defaults)
+
+    @property
+    def kpoints(self):
+        return Kpoints.gamma_automatic()
 
 
 def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
