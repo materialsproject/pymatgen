@@ -38,7 +38,6 @@ from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
-from pymatgen.io.vasp.sets import DictVaspInputSet
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.matproj.snl import StructureNL
@@ -526,6 +525,7 @@ class MPRester(object):
                 if data["valid_response"]:
                     if data.get("warning"):
                         warnings.warn(data["warning"])
+                    from pymatgen.io.vasp.sets_deprecated import DictVaspInputSet
                     return DictVaspInputSet("MPVaspInputSet", data["response"])
                 else:
                     raise MPRestError(data["error"])
