@@ -661,7 +661,7 @@ class Element(Enum):
         elif self.group in range(3, 13):
             block = "d"
         else:
-            print("unable to determine block")
+            raise ValueError("unable to determine block")
         return block
 
     @property
