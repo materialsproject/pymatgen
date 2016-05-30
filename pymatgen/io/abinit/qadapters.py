@@ -405,7 +405,7 @@ limits:
                        # smallest number of nodes compatible with the optimal configuration.
                        # Use `force_nodes` to enfore entire nodes allocation.
                        # `shared` mode does not enforce any constraint (default).
-    max_num_launches   # limit to the time a specific task can be restarted (default 10)
+    max_num_launches   # limit to the time a specific task can be restarted (default 5)
 """
 
     def __init__(self, **kwargs):
@@ -420,7 +420,7 @@ limits:
             pre_run: String or list of commands to execute before launching the calculation.
             post_run: String or list of commands to execute once the calculation is completed.
             mpi_runner: Path to the MPI runner or :class:`MpiRunner` instance. None if not used
-            max_num_launches: Maximum number of submissions that can be done for a specific task. Defaults to 10
+            max_num_launches: Maximum number of submissions that can be done for a specific task. Defaults to 5
             qverbatim:
             min_cores, max_cores, hint_cores: Minimum, maximum, and hint limits of number of cores that can be used
             min_mem_per_proc=Minimun memory per process in megabytes.
@@ -558,7 +558,7 @@ limits:
         self.max_mem_per_proc = qu.any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
 
         # Misc
-        self.max_num_launches = int(d.pop("max_num_launches", 10))
+        self.max_num_launches = int(d.pop("max_num_launches", 5))
         self.condition = Condition(d.pop("condition", {}))
         self.allocation = d.pop("allocation", "shared")
         if self.allocation not in ("nodes", "force_nodes", "shared"):

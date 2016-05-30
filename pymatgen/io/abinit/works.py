@@ -937,8 +937,6 @@ class G0W0Work(Work):
         else:
             self.scf_task = self.register_scf_task(scf_input)
 
-
-
         nogw = False
 
         if nksmall:
