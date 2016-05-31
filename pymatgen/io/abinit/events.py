@@ -782,7 +782,7 @@ class TolSymErrorHandler(ErrorHandler):
 
         old_tolsym = task.get_inpvar("tolsym")
         new_tolsym = 1e-6 if old_tolsym is None else old_tolsym * 10
-        task._set_inpvars(tolsym=new_tolsym)
+        task.set_vars(tolsym=new_tolsym)
 
         task.log_correction(event, "Increasing tolsym from %s to %s" % (old_tolsym, new_tolsym))
         return self.FIXED
@@ -816,7 +816,7 @@ class MemanaErrorHandler(ErrorHandler):
     can_change_physics = False
 
     def handle_task_event(self, task, event):
-        task._set_inpvars(mem_test=0)
+        task.set_vars(mem_test=0)
         task.log_correction(event, "Find MemanaError. Setting mem_test to 0 in input file.")
         return self.FIXED
 

@@ -224,7 +224,6 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
 
                 # Signal to possible observers that the `Work` reached S_OK
                 self.history.info("Work %s is finalized and broadcasts signal S_OK" % str(self))
-
                 if self._finalized:
                     self.send_signal(self.S_OK)
 
@@ -1112,7 +1111,7 @@ class QptdmWork(Work):
         # Create the symbolic link and add the magic value
         # nqpdm = -1 to the input to get the list of q-points.
         fake_task.inlink_file(wfk_file)
-        fake_task._set_inpvars({"nqptdm": -1})
+        fake_task.set_vars({"nqptdm": -1})
         fake_task.start_and_wait()
 
         # Parse the section with the q-points

@@ -25,7 +25,7 @@ import stat
 from monty.serialization import loadfn
 
 from pymatgen.io.vasp.inputs import Kpoints, Potcar
-from pymatgen.io.vasp.sets import DictVaspInputSet
+from pymatgen.io.vasp.sets_deprecated import DictVaspInputSet
 from pymatgen.io.abinit.helpers import s_name
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
