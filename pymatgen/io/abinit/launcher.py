@@ -432,7 +432,9 @@ class PyFlowScheduler(object):
         return timedelta(seconds=(time.time() - self.start_time))
 
     def add_flow(self, flow):
-        """Add an :class:`Flow` flow to the scheduler."""
+        """
+        Add an :class:`Flow` flow to the scheduler.
+        """
         if hasattr(self, "_flow"):
             raise self.Error("Only one flow can be added to the scheduler.")
 
