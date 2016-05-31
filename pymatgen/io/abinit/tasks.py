@@ -71,6 +71,7 @@ def lennone(PropperOrNone):
     else:
 	return len(PropperOrNone)
 
+
 def nmltostring(nml):
     """Convert a dictionary representing a Fortran namelist into a string."""
     if not isinstance(nml,dict):
@@ -1669,7 +1670,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         # Can only reset tasks that are done.
         # One should be able to reset 'Submitted' tasks (sometimes, they are not in the queue
-        #   and we want to restart them)
+        # and we want to restart them)
         if self.status != self.S_SUB and self.status < self.S_DONE: return 1
 
         # Remove output files otherwise the EventParser will think the job is still running
@@ -2736,7 +2737,7 @@ class AbinitTask(Task):
     #@check_spectator
     def reset_from_scratch(self):
         """
-        restart from scratch, this is to be used if a job is restarted with more resources after a crash
+        Restart from scratch, this is to be used if a job is restarted with more resources after a crash
         """
         # Move output files produced in workdir to _reset otherwise check_status continues
         # to see the task as crashed even if the job did not run
@@ -2829,7 +2830,7 @@ class AbinitTask(Task):
         from pymatgen.io.abinit.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
         assert isinstance(self.manager, TaskManager)
 
-#        self.manager
+        #self.manager
         ret = "task.fix_queue_critical: "
         self.history.info('fixing queue critical')
         print("list of errors:" + str(self.queue_errors))
@@ -3914,7 +3915,7 @@ class OpticTask(Task):
             except OSError as exc:
                 logger.warning("Couldn't move file {}. exc: {}".format(f, str(exc)))
 
-        for fname in ("output_file", "log_file", "stderr_file", "qout_file", "qerr_file"):
+        for fname in ("output_file", "log_file", "stderr_file", "qout_file", "qerr_file", "mpiabort_file"):
             move_file(getattr(self, fname))
 
         with open(reset_file, "wt") as fh:
