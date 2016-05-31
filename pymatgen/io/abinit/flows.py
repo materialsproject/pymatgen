@@ -1349,13 +1349,26 @@ class Flow(Node, NodeContainer, MSONable):
         for work in self:
             work.build(*args, **kwargs)
 
-    def build_and_pickle_dump(self):
+    def build_and_pickle_dump(self, abivalidate=False):
         """
         Build dirs and file of the `Flow` and save the object in pickle format.
         Returns 0 if success
+
+
+        Args:
+            abivalidate: If True, all the input files are validate by calling
+                the abinit parser. If the validation fails, ValueError is raise.
         """
         self.build()
-        return self.pickle_dump()
+        if not abivalidate: return self.pickle_dump()
+
+        # Validation with Abinit.
+        isok, errors = self.abivalidate_inputs()
+        if isok: return 0
+        errlines = []
+        for i, e in enumerate(errors):
+            errlines.append("[%d] %s" % (i, e))
+        raise ValueError("\n".join(errlines))
 
     @check_spectator
     def pickle_dump(self):
