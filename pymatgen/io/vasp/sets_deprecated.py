@@ -206,7 +206,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
     """
 
     @deprecated(
-        message="All input sets have been replaced by equivalents "
+        message="All vasp input sets have been replaced by equivalents "
                 "pymatgen.io.sets. Will be removed in pmg 4.0.")
     def __init__(self, name, config_dict, hubbard_off=False,
                  user_incar_settings=None,
@@ -507,7 +507,7 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             the path. Useful for visualization
         \*\*kwargs: Other kwargs supported by :class:`DictVaspInputSet`.
     """
-    
+
     @deprecated(message="Replaced by MITNEBSet. Will be removed in pmg 4.0.")
     def __init__(self, nimages=8, user_incar_settings=None,
                  write_endpoint_inputs=False, kpoints_gamma_override=None,
