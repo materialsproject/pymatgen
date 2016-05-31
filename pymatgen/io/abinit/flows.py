@@ -1545,7 +1545,7 @@ class Flow(Node, NodeContainer, MSONable):
                 # Change the input so that output files are produced
                 # only if the calculation is not converged.
                 task.history.info("Will disable IO for task")
-                task._set_inpvars(prtwf=-1, prtden=0) # TODO: prt1wf=-1,
+                task.set_vars(prtwf=-1, prtden=0) # TODO: prt1wf=-1,
             else:
                 must_produce_abiexts = []
                 for child in children:
@@ -1565,7 +1565,7 @@ class Flow(Node, NodeContainer, MSONable):
                 for varname, abiext in smart_prtvars.items():
                     if abiext not in must_produce_abiexts:
                         print("%s: setting %s to -1" % (task, varname))
-                        task._set_inpvars({varname: -1})
+                        task.set_vars({varname: -1})
 
     #def new_from_input_decorators(self, new_workdir, decorators)
     #    """
@@ -2377,7 +2377,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
             rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
         )
 
-        fake_task._set_inpvars(abivars)
+        fake_task.set_vars(abivars)
         w.allocate()
         w.start(wait=True)
 

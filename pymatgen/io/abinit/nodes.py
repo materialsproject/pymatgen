@@ -757,17 +757,17 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
         elif self.is_task:
             if not change_task(self): return
-            self._set_inpvars(*args, **kwargs)
+            self.set_vars(*args, **kwargs)
 
         elif self.is_work:
             for task in self:
                 if not change_task(task): continue
-                task._set_inpvars(*args, **kwargs)
+                task.set_vars(*args, **kwargs)
 
         elif self.is_flow:
             for task in self.iflat_tasks():
                 if not change_task(task): continue
-                task._set_inpvars(*args, **kwargs)
+                task.set_vars(*args, **kwargs)
 
         else:
             raise TypeError("Don't know how to set variables for object class %s"  % self.__class__.__name__)

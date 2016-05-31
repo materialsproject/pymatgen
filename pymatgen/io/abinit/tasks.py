@@ -18,6 +18,7 @@ import numpy as np
 from pprint import pprint
 from itertools import product
 from six.moves import map, zip, StringIO
+from monty.dev import deprecated
 from monty.string import is_string, list_strings
 from monty.termcolor import colored
 from monty.collections import AttrDict
@@ -1427,7 +1428,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """Return the value of the ABINIT variable varname, None if not present."""
         return self.input.get(varname, default)
 
+    @deprecated(message="_set_inpvars is deprecated. Use set_vars")
     def _set_inpvars(self, *args, **kwargs):
+        return self.set_vars(*args, **kwargs)
+
+    def set_vars(self, *args, **kwargs):
         """
         Set the values of the ABINIT variables in the input file. Return dict with old values.
         """
@@ -2361,7 +2366,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         for d in self.deps:
             cvars = d.connecting_vars()
             logger.debug("Adding connecting vars %s " % cvars)
-            self._set_inpvars(cvars)
+            self.set_vars(cvars)
 
             # Get (python) data from other nodes
             d.apply_getters(self)
@@ -2624,7 +2629,7 @@ class AbinitTask(Task):
         if max_ncpus == 1: return 0
 
         autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus)
-        self._set_inpvars(autoparal_vars)
+        self.set_vars(autoparal_vars)
 
         # Run the job in a shell subprocess with mpi_procs = 1
         # we don't want to make a request to the queue manager for this simple job!
@@ -2654,7 +2659,7 @@ class AbinitTask(Task):
         ####################################################
         # Change the input file and/or the submission script
         ####################################################
-        self._set_inpvars(optconf.vars)
+        self.set_vars(optconf.vars)
 
         # Write autoparal configurations to JSON file.
         d = pconfs.as_dict()
@@ -2835,7 +2840,7 @@ class AbinitTask(Task):
             # Try to fallback to the conjugate gradient.
             #if self.uses_paral_kgb(1):
             #    logger.critical("QCRITICAL with PARAL_KGB==1. Will try CG!")
-            #    self._set_inpvars(paral_kgb=0)
+            #    self.set_vars(paral_kgb=0)
             #    self.reset_from_scratch()
             #    return
             # queue error but no errors detected, try to solve by increasing ncpus if the task scales
@@ -3058,7 +3063,7 @@ class ScfTask(GsTask):
         self.out_to_in(restart_file)
 
         # Add the appropriate variable for restarting.
-        self._set_inpvars(irdvars)
+        self.set_vars(irdvars)
 
         # Now we can resubmit the job.
         self.history.info("Will restart from %s", restart_file)
@@ -3116,7 +3121,7 @@ class NscfTask(GsTask):
 
         # Add the appropriate variable for restarting.
         irdvars = irdvars_for_ext(ext)
-        self._set_inpvars(irdvars)
+        self.set_vars(irdvars)
 
         # Now we can resubmit the job.
         self.history.info("Will restart from %s", restart_file)
@@ -3206,11 +3211,11 @@ class RelaxTask(GsTask, ProduceHist):
             self.history.warning("Cannot find the WFK|DEN|TIM?_DEN file to restart from.")
         else:
             # Add the appropriate variable for restarting.
-            self._set_inpvars(irdvars)
+            self.set_vars(irdvars)
             self.history.info("Will restart from %s", restart_file)
 
         # FIXME Here we should read the HIST file but restartxf if broken!
-        #self._set_inpvars({"restartxf": -1})
+        #self.set_vars({"restartxf": -1})
 
         # Read the relaxed structure from the GSR file and change the input.
         self._change_structure(self.get_final_structure())
@@ -3262,7 +3267,7 @@ class RelaxTask(GsTask, ProduceHist):
     def reduce_dilatmx(self, target=1.01):
         actual_dilatmx = self.get_inpvar('dilatmx', 1.)
         new_dilatmx = actual_dilatmx - min((actual_dilatmx-target), actual_dilatmx*0.05)
-        self._set_inpvars(dilatmx=new_dilatmx)
+        self.set_vars(dilatmx=new_dilatmx)
 
     def fix_ofiles(self):
         """
@@ -3451,7 +3456,7 @@ class PhononTask(DfptTask):
         restart_file = self.out_to_in(restart_file)
 
         # Add the appropriate variable for restarting.
-        self._set_inpvars(irdvars)
+        self.set_vars(irdvars)
 
         # Now we can resubmit the job.
         return self._restart()
@@ -3507,11 +3512,11 @@ class ManyBodyTask(AbinitTask):
         first_dig, second_dig = prev_gwmem // 10, prev_gwmem % 10
 
         if second_dig == 1:
-            self._set_inpvars(gwmem="%.2d" % (10 * first_dig))
+            self.set_vars(gwmem="%.2d" % (10 * first_dig))
             return True
 
         if first_dig == 1:
-            self._set_inpvars(gwmem="%.2d" % 00)
+            self.set_vars(gwmem="%.2d" % 00)
             return True
 
         # gwmem 00 d'oh!
@@ -3579,7 +3584,7 @@ class SigmaTask(ManyBodyTask):
 
         # Add the appropriate variable for restarting.
         irdvars = irdvars_for_ext(ext)
-        self._set_inpvars(irdvars)
+        self.set_vars(irdvars)
 
         # Now we can resubmit the job.
         self.history.info("Will restart from %s", restart_file)
@@ -3706,7 +3711,7 @@ class BseTask(ManyBodyTask):
             raise self.RestartError("%s: Cannot find the HAYDR_SAVE file to restart from." % self)
 
         # Add the appropriate variable for restarting.
-        self._set_inpvars(irdvars)
+        self.set_vars(irdvars)
 
         # Now we can resubmit the job.
         #self.history.info("Will restart from %s", restart_file)
@@ -3800,13 +3805,17 @@ class OpticTask(Task):
         # Small hack: the log file of optics is actually the main output file.
         self.output_file = self.log_file
 
+    @deprecated(message="_set_inpvars is deprecated. Use set_vars")
     def _set_inpvars(self, *args, **kwargs):
+        return self.set_vars(*args, **kwargs)
+
+    def set_vars(self, *args, **kwargs):
         """
         Optic does not use `get` or `ird` variables hence we should never try
         to change the input when we connect this task
         """
         kwargs.update(dict(*args))
-        self.history.info("OpticTask intercepted _set_inpvars with args %s" % kwargs)
+        self.history.info("OpticTask intercepted set_vars with args %s" % kwargs)
 
         if "autoparal" in kwargs: self.input.set_vars(autoparal=kwargs["autoparal"])
         if "max_ncpus" in kwargs: self.input.set_vars(max_ncpus=kwargs["max_ncpus"])
@@ -4064,7 +4073,7 @@ class OpticTask(Task):
         if max_ncpus == 1: return 0
 
         autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus)
-        self._set_inpvars(autoparal_vars)
+        self.set_vars(autoparal_vars)
 
         # Run the job in a shell subprocess with mpi_procs = 1
         # we don't want to make a request to the queue manager for this simple job!
@@ -4096,7 +4105,7 @@ class OpticTask(Task):
         ####################################################
         # Change the input file and/or the submission script
         ####################################################
-        self._set_inpvars(optconf.vars)
+        self.set_vars(optconf.vars)
 
         # Write autoparal configurations to JSON file.
         d = pconfs.as_dict()
