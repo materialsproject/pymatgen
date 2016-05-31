@@ -536,14 +536,6 @@ class IStructure(SiteCollection, MSONable):
         return cls(latt, all_sp, all_coords,
                    site_properties=all_site_properties)
 
-    #@classmethod
-    #@deprecated(message="from_abivars has been merged with the from_dict "
-    #                    "method. Use from_dict(fmt=\"abivars\"). from_abivars "
-    #                    "will be removed in pymatgen 4.0.")
-    #def from_abivars(cls, d, **kwargs):
-    #    """Build a :class:`Structure` object from a dictionary with ABINIT variables."""
-    #    return cls.from_dict(d, fmt="abivars", **kwargs)
-
     @property
     def distance_matrix(self):
         """
