@@ -31,6 +31,7 @@ from monty.io import FileLock
 from monty.pprint import draw_tree
 from monty.termcolor import cprint, colored, cprint_map
 from monty.inspect import find_top_pyfile
+from monty.dev import deprecated
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump
 from monty.json import MSONable
 from pymatgen.serializers.json_coders import pmg_serialize
@@ -674,6 +675,7 @@ class Flow(Node, NodeContainer, MSONable):
                         else:
                             yield task
 
+    @deprecated(message="show_inpvars will be removed in pymatgen 4.0. Use show_inputs")
     def show_inpvars(self, *varnames):
         from abipy.htc.variable import InputVariable
         lines = []
@@ -947,30 +949,59 @@ class Flow(Node, NodeContainer, MSONable):
         if self.all_ok:
             print("\nall_ok reached\n", file=stream)
 
-    def show_inputs(self, nids=None, wslice=None, stream=sys.stdout):
+    def show_inputs(self, varnames=None, nids=None, wslice=None, stream=sys.stdout):
         """
         Print the input of the tasks to the given stream.
 
         Args:
-            stream:
-                File-like object, Default: sys.stdout
+            varnames:
+                List of Abinit variables. If not None, only the variable in varnames
+                are selected and printed.
             nids:
                 List of node identifiers. By defaults all nodes are shown
-            wslice: Slice object used to select works.
+            wslice:
+                Slice object used to select works.
+            stream:
+                File-like object, Default: sys.stdout
         """
-        lines = []
-        for task in self.select_tasks(nids=nids, wslice=wslice):
-            s = task.make_input(with_header=True)
+        if varnames is not None:
+            # Build dictionary varname --> [(task1, value), (task2, value), ...]
+            varnames = [s.strip() for s in list_strings(varnames)]
+            dlist = collections.defaultdict(list)
+            for task in self.select_tasks(nids=nids, wslice=wslice):
+                dstruct = task.input.structure.as_dict(fmt="abivars")
 
-            # Add info on dependencies.
-            if task.deps:
-                s += "\n\nDependencies:\n" + "\n".join(str(dep) for dep in task.deps)
-            else:
-                s += "\n\nDependencies: None"
+                for vname in varnames:
+                    value = task.input.get(vname, None)
+                    if value is None: # maybe in structure?
+                        value = dstruct.get(vname, None)
+                    if value is not None:
+                        dlist[vname].append((task, value))
 
-            lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
+            for vname in varnames:
+                tv_list = dlist[vname]
+                if not tv_list:
+                    stream.write("[%s]: Found 0 tasks with this variable\n" % vname)
+                else:
+                    stream.write("[%s]: Found %s tasks with this variable\n" % (vname, len(tv_list)))
+                    for i, (task, value) in enumerate(tv_list):
+                        stream.write("   %s --> %s\n" % (str(value), task))
+                stream.write("\n")
 
-        stream.writelines(lines)
+        else:
+            lines = []
+            for task in self.select_tasks(nids=nids, wslice=wslice):
+                s = task.make_input(with_header=True)
+
+                # Add info on dependencies.
+                if task.deps:
+                    s += "\n\nDependencies:\n" + "\n".join(str(dep) for dep in task.deps)
+                else:
+                    s += "\n\nDependencies: None"
+
+                lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
+
+            stream.writelines(lines)
 
     def listext(self, ext, stream=sys.stdout):
         """
