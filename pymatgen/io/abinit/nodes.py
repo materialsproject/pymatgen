@@ -743,35 +743,6 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
                 if task.depends_on(self): children.append(task)
         return children
 
-    def walknset_vars(self, task_class=None, *args, **kwargs):
-        """
-        Set the values of the ABINIT variables in the input files.
-        """
-        def change_task(task):
-            if task_class is not None and task.__class__ is not task_class:
-                return False
-            return True
-
-        if self.is_file:
-            return None
-
-        elif self.is_task:
-            if not change_task(self): return
-            self.set_vars(*args, **kwargs)
-
-        elif self.is_work:
-            for task in self:
-                if not change_task(task): continue
-                task.set_vars(*args, **kwargs)
-
-        elif self.is_flow:
-            for task in self.iflat_tasks():
-                if not change_task(task): continue
-                task.set_vars(*args, **kwargs)
-
-        else:
-            raise TypeError("Don't know how to set variables for object class %s"  % self.__class__.__name__)
-
     def str_deps(self):
         """Return the string representation of the dependencies of the node."""
         lines = []

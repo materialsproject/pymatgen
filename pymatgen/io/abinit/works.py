@@ -257,8 +257,8 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
 
 class NodeContainer(six.with_metaclass(abc.ABCMeta)):
     """
-    Mixin classes for `Work` and `Flow` objects providing helperf functions
-    to register tasks in the container. The helperfunctios call the
+    Mixin classes for `Work` and `Flow` objects providing helper functions
+    to register tasks in the container. The helper function call the
     `register` method of the container.
     """
     # TODO: Abstract protocol for containers
@@ -326,6 +326,35 @@ class NodeContainer(six.with_metaclass(abc.ABCMeta)):
         """Register an electron-phonon task."""
         kwargs["task_class"] = EphTask
         return self.register_task(*args, **kwargs)
+
+    def walknset_vars(self, task_class=None, *args, **kwargs):
+        """
+        Set the values of the ABINIT variables in the input files of the nodes
+
+        Args:
+            task_class: If not None, only the input files of the tasks belonging
+                to class `task_class` are modified.
+
+        Example:
+
+            flow.walknset_vars(ecut=10, kptopt=4)
+        """
+        def change_task(task):
+            if task_class is not None and task.__class__ is not task_class: return False
+            return True
+
+        if self.is_work:
+            for task in self:
+                if not change_task(task): continue
+                task.set_vars(*args, **kwargs)
+
+        elif self.is_flow:
+            for task in self.iflat_tasks():
+                if not change_task(task): continue
+                task.set_vars(*args, **kwargs)
+
+        else:
+            raise TypeError("Don't know how to set variables for object class %s"  % self.__class__.__name__)
 
 
 class Work(BaseWork, NodeContainer):
