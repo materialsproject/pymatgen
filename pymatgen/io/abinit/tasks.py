@@ -2834,12 +2834,10 @@ class AbinitTask(Task):
             1 if task has been fixed else 0.
         """
         from pymatgen.io.abinit.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
-        assert isinstance(self.manager, TaskManager)
+        #assert isinstance(self.manager, TaskManager)
 
-        #self.manager
-        ret = "task.fix_queue_critical: "
         self.history.info('fixing queue critical')
-        print("list of errors:" + str(self.queue_errors))
+        ret = "task.fix_queue_critical: "
 
         if not self.queue_errors:
             # TODO
@@ -2866,6 +2864,9 @@ class AbinitTask(Task):
                 raise FixQueueCriticalError
 
         else:
+            print("Fix_qcritical: received %d queue_errors" % len(self.queue_errors))
+            print("type_list: %s" % list(type(qe) for qe in self.queue_errors))
+
             for error in self.queue_errors:
                 self.history.info('fixing: %s' % str(error))
                 ret += str(error)
