@@ -581,10 +581,10 @@ batch_adapter:
 
         if not os.path.exists(path):
             raise RuntimeError(colored(
-		        "\nCannot locate %s neither in current directory nor in %s\n"
+		"\nCannot locate %s neither in current directory nor in %s\n"
                 "!!! PLEASE READ THIS: !!!\n"
-                "To use abipy to run jobs this file needs be be present\n"
-                "it provides a description of the cluster/computer you are running on\n"
+                "To use abipy to run jobs this file must be present\n"
+                "It provides a description of the cluster/computer you are running on\n"
                 "Examples are provided in abipy/data/managers." % (cls.YAML_FILE, path), color="red"))
 
         _USER_CONFIG_TASKMANAGER = cls.from_file(path)
@@ -1234,6 +1234,10 @@ class TaskDateTimes(object):
 
         return "\n".join(lines)
 
+    def reset(self):
+        """Reinitialize the counters."""
+        self = self.__class__()
+
     def get_runtime(self):
         """:class:`timedelta` with the run-time, None if the Task is not running"""
         if self.start is None: return None
@@ -1357,7 +1361,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.log_file = File(os.path.join(self.workdir, "run.log"))
         self.stderr_file = File(os.path.join(self.workdir, "run.err"))
         self.start_lockfile = File(os.path.join(self.workdir, "__startlock__"))
-        # This file is produce by Abinit if nprocs > 1 and MPI_ABORT.
+        # This file is produced by Abinit if nprocs > 1 and MPI_ABORT.
         self.mpiabort_file = File(os.path.join(self.workdir, "__ABI_MPIABORTFILE__"))
 
         # Directories with input|output|temporary data.
@@ -1422,7 +1426,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     @property
     def input(self):
-        """AbinitInput" object."""
+        """AbinitInput object."""
         return self._input
 
     def get_inpvar(self, varname, default=None):
@@ -1440,8 +1444,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         kwargs.update(dict(*args))
         old_values = {vname: self.input.get(vname) for vname in kwargs}
         self.input.set_vars(**kwargs)
-        self.history.info("Setting input variables: %s" % str(kwargs))
-        self.history.info("Old values: %s" % str(old_values))
+        if kwargs or old_values:
+            self.history.info("Setting input variables: %s" % str(kwargs))
+            self.history.info("Old values: %s" % str(old_values))
 
         return old_values
 
@@ -1518,7 +1523,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def with_fixed_mpi_omp(self, mpi_procs, omp_threads):
         """
         Disable autoparal and force execution with `mpi_procs` MPI processes
-        and `omp_threads` OpenMP threads. Useful for generating for benchmarks.
+        and `omp_threads` OpenMP threads. Useful for generating benchmarks.
         """
         manager = self.manager if hasattr(self, "manager") else self.flow.manager
         self.manager = manager.new_with_fixed_mpi_omp(mpi_procs, omp_threads)
@@ -1586,7 +1591,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.history.info("Restarted, num_restarts %d" % self.num_restarts)
 
         # Reset datetimes
-        self.datetimes = TaskDateTimes()
+        self.datetimes.reset()
 
         if submit:
             # Remove the lock file
@@ -2671,7 +2676,7 @@ class AbinitTask(Task):
         # Finalization
         ##############
         # Reset the status, remove garbage files ...
-        self.set_status(self.S_INIT, msg='finished auto paralell')
+        self.set_status(self.S_INIT, msg='finished autoparallel run')
 
         # Remove the output file since Abinit likes to create new files
         # with extension .outA, .outB if the file already exists.
@@ -2738,9 +2743,10 @@ class AbinitTask(Task):
     def reset_from_scratch(self):
         """
         Restart from scratch, this is to be used if a job is restarted with more resources after a crash
+
+        Move output files produced in workdir to _reset otherwise check_status continues
+        to see the task as crashed even if the job did not run
         """
-        # Move output files produced in workdir to _reset otherwise check_status continues
-        # to see the task as crashed even if the job did not run
         # Create reset directory if not already done.
         reset_dir = os.path.join(self.workdir, "_reset")
         reset_file = os.path.join(reset_dir, "_counter")
@@ -2768,7 +2774,7 @@ class AbinitTask(Task):
         self.start_lockfile.remove()
 
         # Reset datetimes
-        self.datetimes = TaskDateTimes()
+        self.datetimes.reset()
 
         return self._restart(submit=False)
 
@@ -3924,7 +3930,7 @@ class OpticTask(Task):
         self.start_lockfile.remove()
 
         # Reset datetimes
-        self.datetimes = TaskDateTimes()
+        self.datetimes.reset()
 
         return self._restart(submit=False)
 

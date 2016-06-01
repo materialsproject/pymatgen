@@ -95,10 +95,14 @@ class AbinitEvent(yaml.YAMLObject):
             src_file: String with the name of the Fortran file where the event is raised.
             src_line Integer giving the line number in src_file.
         """
-        self.message = message
-        self._src_file = src_file
-        self._src_line = src_line
         #print("src_file", src_file, "src_line", src_line)
+        self.message = message
+
+        #self._src_file = src_file
+        #self._src_line = src_line
+        self.src_file = src_file
+        self.src_line = src_line
+
 
     @pmg_serialize
     def as_dict(self):
@@ -107,7 +111,7 @@ class AbinitEvent(yaml.YAMLObject):
     @classmethod
     def from_dict(cls, d):
         cls = as_event_class(d.get("yaml_tag"))
-        return cls(**{k: v for k,v in d.items() if k != "yaml_tag" and not k.startswith("@")})
+        return cls(**{k: v for k, v in d.items() if k != "yaml_tag" and not k.startswith("@")})
 
     @property
     def header(self):
@@ -126,21 +130,21 @@ class AbinitEvent(yaml.YAMLObject):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    @property
-    def src_file(self):
-        """String with the name of the Fortran file where the event is raised."""
-        try:
-            return self._src_file
-        except AttributeError:
-            return "Unknown"
+    #@property
+    #def src_file(self):
+    #    """String with the name of the Fortran file where the event is raised."""
+    #    try:
+    #        return self._src_file
+    #    except AttributeError:
+    #        return "Unknown"
 
-    @property
-    def src_line(self):
-        """Integer giving the line number in src_file."""
-        try:
-            return self._src_line
-        except AttributeError:
-            return "Unknown"
+    #@property
+    #def src_line(self):
+    #    """Integer giving the line number in src_file."""
+    #    try:
+    #        return self._src_line
+    #    except AttributeError:
+    #        return "Unknown"
 
     @property
     def name(self):
@@ -203,7 +207,7 @@ class AbinitWarning(AbinitEvent):
     raised by the code and the possible actions that can be performed.
     """
     yaml_tag = '!WARNING'
-    color = None
+    color = "magenta"
 
 
 class AbinitCriticalWarning(AbinitWarning):
@@ -215,7 +219,9 @@ class AbinitYamlWarning(AbinitCriticalWarning):
     Raised if the YAML parser cannot parse the document and the doc tas is a Warning.
     """
 
-# Warnings that trigger restart.
+###############################
+# Warnings triggering restart #
+###############################
 
 class ScfConvergenceWarning(AbinitCriticalWarning):
     """Warning raised when the GS SCF cycle did not converge."""

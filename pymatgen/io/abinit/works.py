@@ -547,13 +547,6 @@ class Work(BaseWork, NodeContainer):
             if task_class is None:
                 task_class = AbinitTask
 
-            #from .strategies import HtcStrategy
-            #if isinstance(obj, HtcStrategy):
-            #    # Create the new task (note the factory so that we create subclasses easily).
-            #    raise NotImplementedError("HtcStrategy")
-            #    task = task_class(obj, task_workdir, manager)
-            #
-            #else:
             task = task_class.from_input(obj, task_workdir, manager)
 
         self._tasks.append(task)
@@ -1391,8 +1384,8 @@ class PhononWork(Work, MergeDdb):
         # Final DDB file will be produced in the outdir of the work.
         out_dvdb = self.outdir.path_in("out_DVDB")
 
-        mrgddb = wrappers.Mrgdvdb(manager=self[0].manager, verbose=0)
-        mrgddb.merge(self.outdir.path, pot1_files, out_dvdb)
+        mrgdvdb = wrappers.Mrgdvdb(manager=self[0].manager, verbose=0)
+        mrgdvdb.merge(self.outdir.path, pot1_files, out_dvdb)
 
         return out_dvdb
 

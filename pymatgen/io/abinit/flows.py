@@ -872,11 +872,11 @@ class Flow(Node, NodeContainer, MSONable):
         stream = kwargs.pop("stream", sys.stdout)
         nids = as_set(kwargs.pop("nids", None))
         wslice = kwargs.pop("wslice", None)
+        verbose = kwargs.pop("verbose", 0)
         wlist = None
         if wslice is not None:
             # Convert range to list of work indices.
             wlist = list(range(wslice.start, wslice.step, wslice.stop))
-        verbose = kwargs.pop("verbose", 0)
 
         #has_colours = stream_has_colours(stream)
         has_colours = True
@@ -891,7 +891,7 @@ class Flow(Node, NodeContainer, MSONable):
                 continue
 
             headers = ["Task", "Status", "Queue", "MPI|Omp|Gb",
-                       "Err|Warn|Com", "Class", "Rest|Sub|Corr", "Time",
+                       "Warn|Com", "Class", "Sub|Rest|Corr", "Time",
                        "Node_ID"]
             table = []
             tot_num_errors = 0
@@ -914,16 +914,16 @@ class Flow(Node, NodeContainer, MSONable):
                     if timedelta is not None:
                         stime = str(timedelta) + "Q"
 
-                events = "|".join(3*["NA"])
+                events = "|".join(2*["NA"])
                 if report is not None:
-                    #events = "%03.d"|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
-                    events = '{:>3}|{:>4}|{:>3}'.format(*map(str, (report.num_errors, report.num_warnings, report.num_comments)))
+                    events = '{:>4}|{:>3}'.format(*map(str, (
+                       report.num_warnings, report.num_comments)))
 
-                #para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
-                para_info = '{:>4}|{:>3}|{:>3}'.format(*map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
+                para_info = '{:>4}|{:>3}|{:>3}'.format(*map(str, (
+                   task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
 
                 task_info = list(map(str, [task.__class__.__name__,
-                                 (task.num_restarts, task.num_launches, task.num_corrections), stime, task.node_id]))
+                                 (task.num_launches, task.num_restarts, task.num_corrections), stime, task.node_id]))
 
                 qinfo = "None"
                 if task.queue_id is not None:
