@@ -91,7 +91,7 @@ class Status(int):
     @property
     def is_critical(self):
         """True if status is critical."""
-        return str(self) in ("AbiCritical", "QCritical", "Uncoverged", "Error")
+        return str(self) in ("AbiCritical", "QCritical", "Unconverged", "Error")
 
     @property
     def color_opts(self):
@@ -594,7 +594,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     @finalized.setter
     def finalized(self, boolean):
         self._finalized = boolean
-        self.history.info("Status set to finalized")
+        self.history.info("Finalized set to %s" % self._finalized)
 
     @property
     def in_spectator_mode(self):

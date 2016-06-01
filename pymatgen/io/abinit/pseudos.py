@@ -257,13 +257,17 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
         return new
 
-    def as_tmpfile(self):
+    def as_tmpfile(self, tmpdir=None):
         """
         Copy the pseudopotential to a temporary a file and returns a new pseudopotential object.
         Useful for unit tests in which we have to change the content of the file.
+
+        Args:
+            tmpdir: If None, a new temporary directory is created and files are copied here
+                else tmpdir is used.
         """
         import tempfile, shutil
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = tempfile.mkdtemp() if tmpdir is None else tmpdir
         new_path = os.path.join(tmpdir, self.basename)
         shutil.copy(self.filepath, new_path)
 
