@@ -20,6 +20,7 @@ from monty.collections import AttrDict
 from monty.itertools import chunks
 from monty.functools import lazy_property
 from monty.fnmatch import WildCard
+from monty.dev import deprecated
 from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
@@ -1231,6 +1232,7 @@ class OneShotPhononWork(Work):
 
     Use ``build_oneshot_phononwork`` to construct this work from the input files.
     """
+    @deprecated(message="This class is deprecated and will be removed in pymatgen 4.0. Use PhononWork")
     def read_phonons(self):
         """
         Read phonon frequencies from the output file.
@@ -1285,7 +1287,7 @@ class OneShotPhononWork(Work):
 
 
 class MergeDdb(object):
-    """Mixin classes for Works that have to merge the DDB files produced by the tasks."""
+    """Mixin class for Works that have to merge the DDB files produced by the tasks."""
 
     def merge_ddb_files(self):
         """
@@ -1300,29 +1302,34 @@ class MergeDdb(object):
                                        if isinstance(task, DfptTask)]))
 
         self.history.info("Will call mrgddb to merge %s:\n" % str(ddb_files))
-        # assert len(ddb_files) == len(self)
-
-        #if len(ddb_files) == 1:
-        # Avoid the merge. Just move the DDB file to the outdir of the work
+        # DDB files are always produces so this should never happen!
+        if not ddb_files:
+            raise RuntimeError("Cannot find any DDB file to merge by the task of " % self)
 
         # Final DDB file will be produced in the outdir of the work.
         out_ddb = self.outdir.path_in("out_DDB")
-        desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
 
-        mrgddb = wrappers.Mrgddb(manager=self[0].manager, verbose=0)
-        mrgddb.merge(self.outdir.path, ddb_files, out_ddb=out_ddb, description=desc)
+        if len(ddb_files) == 1:
+            # Avoid the merge. Just copy the DDB file to the outdir of the work.
+            shutil.copy(ddb_files[0], out_ddb)
+        else:
+            # Call mrgddb
+            desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
+            mrgddb = wrappers.Mrgddb(manager=self[0].manager, verbose=0)
+            mrgddb.merge(self.outdir.path, ddb_files, out_ddb=out_ddb, description=desc)
 
         return out_ddb
 
 
 class PhononWork(Work, MergeDdb):
     """
-    This work usually consists of nirred Phonon tasks where nirred is
+    This work usually consists of one GS + nirred Phonon tasks where nirred is
     the number of irreducible perturbations for a given q-point.
     It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced
     """
+
     @classmethod
-    def from_scf_task(cls, scf_task, qpoints, tolerance=None):
+    def from_scf_task(cls, scf_task, qpoints, tolerance=None, manager=None):
         """
         Construct a `PhononWork` from a :class:`ScfTask` object.
         The input file for phonons is automatically generated from the input of the ScfTask.
@@ -1330,15 +1337,17 @@ class PhononWork(Work, MergeDdb):
 
         Args:
             scf_task: ScfTask object.
-            qpoints: q-points or in reduced coordinates.
-                Accepts vector or list of q-points
+            qpoints: q-points in reduced coordinates. Accepts single q-point or list of q-points
+            tolerance: dict {varname: value} with the tolerance to be used in the DFPT run.
+                Defaults to {"tolvrs": 1.0e-10}.
+            manager: :class:`TaskManager` object.
         """
         if not isinstance(scf_task, ScfTask):
             raise TypeError("task %s does not inherit from ScfTask" % scf_task)
 
         qpoints = np.reshape(qpoints, (-1,3))
 
-        new = cls()
+        new = cls(manager=manager)
         for qpt in qpoints:
             multi = scf_task.input.make_ph_inputs_qpoint(qpt, tolerance=tolerance)
             for ph_inp in multi:
@@ -1346,16 +1355,23 @@ class PhononWork(Work, MergeDdb):
 
         return new
 
-    # TODO
-    #def compute_phonons(self)
-    #    """
-    #    Call anaddb to compute the phonon frequencies for this q-point and
-    #    store the results in the outdir of the work.
-    #    """
-    #    #atask = AnaddbTask(anaddb_input, ddb_node,
-    #    #         gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None)
-    #    #atask.start_and_wait()
-    #    return phonons
+    @classmethod
+    def from_scf_input(cls, scf_input, qpoints, tolerance=None, manager=None):
+        """
+        Similar to `from_scf_task`, the difference is that this method requires
+        an input for SCF calculation instead of a ScfTask. All the tasks (Scf + Phonon)
+        are packed in a single Work whereas in the previous case we usually have multiple works.
+        """
+        qpoints = np.reshape(qpoints, (-1,3))
+
+        new = cls(manager=manager)
+        scf_task = new.register_scf_task(scf_input)
+        for qpt in qpoints:
+            multi = scf_task.input.make_ph_inputs_qpoint(qpt, tolerance=tolerance)
+            for ph_inp in multi:
+                new.register_phonon_task(ph_inp, deps={scf_task: "WFK"})
+
+        return new
 
     def merge_pot1_files(self):
         """
@@ -1364,28 +1380,27 @@ class PhononWork(Work, MergeDdb):
         the final DVDB file in the outdir of the `Work`.
 
         Returns:
-            path to the output DVDB file
+            path to the output DVDB file. None if not DFPT POT file is found.
         """
-        #pot1_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in self]))
         pot1_files = []
         for task in self:
+            if not isinstance(task, DfptTask): continue
             pot1_files.extend(task.outdir.list_filepaths(wildcard="*_POT*"))
-        #print(pot1_files)
 
-        if not pot1_files:
-            return None
+        # prtpot=0 disables the output of the DFPT POT files so an empty list is not fatal here.
+        if not pot1_files: return None
 
         self.history.info("Will call mrgdvdb to merge %s:\n" % str(pot1_files))
-        assert len(pot1_files) == len(self)
-
-        #if len(pot1_files) == 1:
-        # Avoid the merge. Just move the DDB file to the outdir of the work
 
         # Final DDB file will be produced in the outdir of the work.
         out_dvdb = self.outdir.path_in("out_DVDB")
 
-        mrgdvdb = wrappers.Mrgdvdb(manager=self[0].manager, verbose=0)
-        mrgdvdb.merge(self.outdir.path, pot1_files, out_dvdb)
+        if len(pot1_files) == 1:
+            # Avoid the merge. Just move the DDB file to the outdir of the work
+            shutil.copy(pot1_files[0], out_dvdb)
+        else:
+            mrgdvdb = wrappers.Mrgdvdb(manager=self[0].manager, verbose=0)
+            mrgdvdb.merge(self.outdir.path, pot1_files, out_dvdb)
 
         return out_dvdb
 
@@ -1412,8 +1427,9 @@ class BecWork(Work, MergeDdb):
     """
     Work for the computation of the Born effective charges.
 
-    This work consists of DDK tasks and phonon + electric fiel perturbation
-    It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced
+    This work consists of DDK tasks and phonon + electric field perturbation
+    It provides the callback method (on_all_ok) that calls mrgddb to merge the
+    partial DDB files produced by the work.
     """
     @classmethod
     def from_scf_task(cls, scf_task, ddk_tolerance=None):
