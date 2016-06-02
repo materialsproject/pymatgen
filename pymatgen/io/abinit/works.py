@@ -1189,6 +1189,7 @@ class QptdmWork(Work):
         return self.Results(node=self, returncode=0, message="mrgscr done", final_scr=final_scr)
 
 
+@deprecated(message="This class is deprecated and will be removed in pymatgen 4.0. Use PhononWork")
 def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, work_class=None):
     """
     Returns a work for the computation of phonon frequencies
