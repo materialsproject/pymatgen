@@ -180,6 +180,8 @@ class StructureEnvironments(MSONable):
         subplot.set_ylabel('Angle factor')
         subplot.set_xlim(dist_limits)
         subplot.set_ylim(ang_limits)
+        if plot_type['angle_parameter'][0] == 'initial_normalized':
+            subplot.axes.invert_yaxis()
         # ax2 = subplot.twin()  # ax2 is responsible for "top" axis and "right" axis
         # ax2.set_xticks([0., .5*np.pi, np.pi, 1.5*np.pi, 2*np.pi])
         # ax2.set_xticklabels(["$0$", r"$\frac{1}{2}\pi$",
@@ -561,34 +563,6 @@ class LightStructureEnvironments(MSONable):
                 self.statistics_dict['structure_anion_atom_number'] = len(self.statistics_dict['structure_anion_atom_list'])
                 self.statistics_dict['structure_cation_number'] = len(self.statistics_dict['structure_cation_list']) + len(self.statistics_dict['structure_cation_undefined_oxidation_list'])
                 self.statistics_dict['structure_cation_atom_number'] = len(self.statistics_dict['structure_cation_atom_list'])
-            # for prefix in ['structure_', 'bva_']:
-            #     if ((prefix == 'bva_' and self._bva_valences != 'undefined') or
-            #             (prefix == 'structure_' and structure_has_species)):
-            #         for sp, occ in site.species_and_occu.items():
-            #             valence = self._bva_valences[isite] if prefix == 'bva_' else sp.oxi_state
-            #             if valence < 0:
-            #                 specielist = self.statistics_dict['{}anion_list'.format(prefix)]
-            #                 atomlist = self.statistics_dict['{}anion_atom_list'.format(prefix)]
-            #             elif valence > 0:
-            #                 specielist = self.statistics_dict['{}cation_list'.format(prefix)]
-            #                 atomlist = self.statistics_dict['{}cation_atom_list'.format(prefix)]
-            #             else:
-            #                 specielist = self.statistics_dict['{}neutral_list'.format(prefix)]
-            #                 atomlist = self.statistics_dict['{}neutral_atom_list'.format(prefix)]
-            #             strspecie = str(Specie(sp.symbol, valence))
-            #             if strspecie not in specielist:
-            #                 specielist[strspecie] = occ
-            #             else:
-            #                 specielist[strspecie] += occ
-            #             if sp.symbol not in atomlist:
-            #                 atomlist[sp.symbol] = occ
-            #             else:
-            #                 atomlist[sp.symbol] += occ
-            #             site_species['{}oxistates'.format(prefix)].append((sp.symbol, valence, occ))
-            #         self.statistics_dict['{}anion_number'.format(prefix)] = len(self.statistics_dict['{}anion_list'.format(prefix)])
-            #         self.statistics_dict['{}anion_atom_number'.format(prefix)] = len(self.statistics_dict['{}anion_atom_list'.format(prefix)])
-            #         self.statistics_dict['{}cation_number'.format(prefix)] = len(self.statistics_dict['{}cation_list'.format(prefix)])
-            #         self.statistics_dict['{}cation_atom_number'.format(prefix)] = len(self.statistics_dict['{}cation_atom_list'.format(prefix)])
 
             #Building environments lists
             if self._coordination_environments[isite] is not None:
@@ -676,35 +650,6 @@ class LightStructureEnvironments(MSONable):
                             #TODO: make something slightly better here ... like put the fractional oxidation states
                             #somewhere ...
                             continue
-                # for prefix in ['structure_', 'bva_']:
-                #     if prefix == 'bva_' and self._bva_valences == 'undefined':
-                #         continue
-                #     elif prefix == 'structure_' and not structure_has_species:
-                #         continue
-                #     ion_stat = self.statistics_dict['{}ion_coordination_environments_present'.format(prefix)]
-                #     ce_ion_stat = self.statistics_dict['coordination_environments_{}ion_present'.format(prefix)]
-                #     count_ions = self.statistics_dict['count_{}ion_present'.format(prefix)]
-                #     for elmt, oxi_state, occ in site_species['{}oxistates'.format(prefix)]:
-                #         if elmt not in ion_stat:
-                #             ion_stat[elmt] = {}
-                #             count_ions[elmt] = {}
-                #         if oxi_state not in ion_stat[elmt]:
-                #             ion_stat[elmt][oxi_state] = {}
-                #             count_ions[elmt][oxi_state] = 0.0
-                #         count_ions[elmt][oxi_state] += occ
-                #         for ce_symbol, fraction in site_envs:
-                #             if fraction is None:
-                #                 continue
-                #             if ce_symbol not in ion_stat[elmt][oxi_state]:
-                #                 ion_stat[elmt][oxi_state][ce_symbol] = 0.0
-                #             ion_stat[elmt][oxi_state][ce_symbol] += occ * fraction
-                #             if ce_symbol not in ce_ion_stat:
-                #                 ce_ion_stat[ce_symbol] = {}
-                #             if elmt not in ce_ion_stat[ce_symbol]:
-                #                 ce_ion_stat[ce_symbol][elmt] = {}
-                #             if oxi_state not in ce_ion_stat[ce_symbol][elmt]:
-                #                 ce_ion_stat[ce_symbol][elmt][oxi_state] = 0.0
-                #             ce_ion_stat[ce_symbol][elmt][oxi_state] += occ * fraction
         for elmt, envs in atom_stat.items():
             sumelement = count_atoms[elmt]
             fraction_atom_stat[elmt] = {env: fraction / sumelement for env, fraction in envs.items()}
@@ -831,6 +776,8 @@ class LightStructureEnvironments(MSONable):
     def get_statistics(self, statistics_fields=DEFAULT_STATISTICS_FIELDS, bson_compatible=False):
         if self.statistics_dict is None:
             self.setup_statistic_lists()
+        if statistics_fields == 'ALL':
+            statistics_fields = [key for key in self.statistics_dict]
         if bson_compatible:
             dd = jsanitize({field: self.statistics_dict[field] for field in statistics_fields})
         else:
