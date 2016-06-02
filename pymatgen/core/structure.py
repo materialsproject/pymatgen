@@ -1080,10 +1080,10 @@ class IStructure(SiteCollection, MSONable):
         distance in the primitive cell, the algorithm will reject this lattice.
 
         Args:
-            tolerance (float): Tolerance for each coordinate of a particular
-                site. For example, [0.1, 0, 0.1] in cartesian coordinates
-                will be considered to be on the same coordinates as
-                [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.
+            tolerance (float), Angstroms: Tolerance for each coordinate of a
+                particular site. For example, [0.1, 0, 0.1] in cartesian
+                coordinates will be considered to be on the same coordinates
+                as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.
 
         Returns:
             The most primitive structure found.
