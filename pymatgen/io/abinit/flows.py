@@ -950,12 +950,52 @@ class Flow(Node, NodeContainer, MSONable):
         if self.all_ok:
             print("\nall_ok reached\n", file=stream)
 
+    def show_events(self, status=None, nids=None):
+	"""
+	Print the Abinit events (ERRORS, WARNIING, COMMENTS) to stdout
+
+	Args:
+	    status: if not None, only the tasks with this status are select
+	    nids: optional list of node identifiers used to filter the tasks.
+	"""
+        nrows, ncols = get_terminal_size()
+
+        for task in self.iflat_tasks(status=status, nids=nids):
+            report = task.get_event_report()
+            if report:
+                print(make_banner(str(task), width=ncols, mark="="))
+                #report = report.filter_types()
+                print(report)
+
+    def show_corrections(self, status=None, nids=None):
+	"""
+	Show the corrections applied to the flow at run-time.
+
+	Args:
+	    status: if not None, only the tasks with this status are select.
+	    nids: optional list of node identifiers used to filter the tasks.
+
+	Return: The number of corrections found.
+	"""
+        nrows, ncols = get_terminal_size()
+        count = 0
+        for task in self.iflat_tasks(status=status, nids=nids):
+            if task.num_corrections == 0: continue
+            count += 1
+            print(make_banner(str(task), width=ncols, mark="="))
+            for corr in task.corrections:
+                pprint(corr)
+
+        if not count: print("No correction found.")
+
+	return count
+
     def show_history(self, status=None, nids=None, full_history=False, metadata=False):
 	"""
 	Print the history of the flow to stdout.
 
 	Args:
-            status: if not None, only the tasks with this status are select
+	    status: if not None, only the tasks with this status are select
 	    full_history: Print full info set, including nodes with an empty history.
             nids: optional list of node identifiers used to filter the tasks.
 	    metadata: print history metadata (experimental)
