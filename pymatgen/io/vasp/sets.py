@@ -28,7 +28,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.sites import PeriodicSite
 
 # This mass import is for deprecation stub purposes.
-from pymatgen.io.vasp.sets_deprecated import MPVaspInputSet, \
+from pymatgen.io.vasp.sets_deprecated import MPVaspInputSet, MPGGAVaspInputSet,\
     MITHSEVaspInputSet, MITVaspInputSet, MITGGAVaspInputSet, \
     MPStaticVaspInputSet, MITMDVaspInputSet, \
     MVLElasticInputSet, MITNEBVaspInputSet, MPNonSCFVaspInputSet, \
@@ -294,7 +294,7 @@ class DictSet(VaspInputSet):
                                       for sym in poscar.site_symbols]
                     else:
                         incar[k] = [0] * len(poscar.site_symbols)
-            elif k.startswith("EDIFF"):
+            elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
                 else:
@@ -815,7 +815,8 @@ class MPNonSCFSet(MPRelaxSet):
     def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
                        nbands_factor=1.2, standardize=False, sym_prec=0.1,
                        international_monoclinic=True, reciprocal_density=100,
-                       small_gap_multiply=None, **kwargs):
+                       kpoints_line_density=20, small_gap_multiply=None,
+                       **kwargs):
         """
         Generate a set of Vasp input files for NonSCF calculations from a
         directory of previous static Vasp run.
@@ -835,7 +836,9 @@ class MPNonSCFSet(MPRelaxSet):
             international_monoclinic (bool): Whether to use international
                 convention (vs Curtarolo) for monoclinic. Defaults True.
             reciprocal_density (int): density of k-mesh by reciprocal
-                volume (defaults to 100)
+                volume in uniform mode (defaults to 100)
+            kpoints_line_density (int): density of k-mesh in line mode
+                (defaults to 20)
             small_gap_multiply ([float, float]): If the gap is less than
                 1st index, multiply the default reciprocal_density by the 2nd
                 index.
@@ -872,9 +875,12 @@ class MPNonSCFSet(MPRelaxSet):
             gap = vasprun.eigenvalue_band_properties[0]
             if gap <= small_gap_multiply[0]:
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
+                kpoints_line_density = kpoints_line_density * \
+                                       small_gap_multiply[1]
 
         return MPNonSCFSet(structure=structure, prev_incar=incar,
                            reciprocal_density=reciprocal_density,
+                           kpoints_line_density=kpoints_line_density,
                            files_to_transfer=files_to_transfer, **kwargs)
 
 
