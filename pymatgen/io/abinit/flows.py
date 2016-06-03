@@ -133,7 +133,7 @@ class Flow(Node, NodeContainer, MSONable):
             manager: :class:`TaskManager` object responsible for the submission of the jobs.
                 If manager is None, the object is initialized from the yaml file
                 located either in the working directory or in the user configuration dir.
-            pickle_procol: Pickle protocol version used for saving the status of the object.
+            pickle_protocol: Pickle protocol version used for saving the status of the object.
                 -1 denotes the latest version supported by the python interpreter.
             task_class: The class of the :class:`Task`.
             work_class: The class of the :class:`Work`.
@@ -168,7 +168,7 @@ class Flow(Node, NodeContainer, MSONable):
             manager: :class:`TaskManager` object responsible for the submission of the jobs.
                      If manager is None, the object is initialized from the yaml file
                      located either in the working directory or in the user configuration dir.
-            pickle_procol: Pickle protocol version used for saving the status of the object.
+            pickle_protocol: Pickle protocol version used for saving the status of the object.
                           -1 denotes the latest version supported by the python interpreter.
             remove: attempt to remove working directory `workdir` if directory already exists.
         """
@@ -1268,7 +1268,6 @@ class Flow(Node, NodeContainer, MSONable):
             else:
                 app("get_envent_report returned None!")
 
-
             app("=" * len(header) + 2*"\n")
 
         return stream.writelines(lines)
@@ -1400,8 +1399,8 @@ class Flow(Node, NodeContainer, MSONable):
 
         # If we are running with the scheduler, we must send a SIGKILL signal.
         if os.path.exists(self.pid_file):
-            print("Found scheduler attached to this flow.")
-            print("Will send SIGKILL to the scheduler before cancelling the tasks!")
+            cprint("Found scheduler attached to this flow.", "yellow")
+            cprint("Sending SIGKILL to the scheduler before cancelling the tasks!", "yellow")
 
             with open(self.pid_file, "r") as fh:
                 pid = int(fh.readline())
