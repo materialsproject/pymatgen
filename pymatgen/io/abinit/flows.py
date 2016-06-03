@@ -25,11 +25,11 @@ from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict
 from monty.collections import as_set, dict2namedtuple
-from monty.string import list_strings, is_string
+from monty.string import list_strings, is_string, make_banner
 from monty.operator import operator_from_str
 from monty.io import FileLock
 from monty.pprint import draw_tree
-from monty.termcolor import cprint, colored, cprint_map
+from monty.termcolor import cprint, colored, cprint_map, get_terminal_size
 from monty.inspect import find_top_pyfile
 from monty.dev import deprecated
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump
@@ -42,6 +42,7 @@ from .tasks import ScfTask, DdkTask, DdeTask, TaskManager, FixQueueCriticalError
 from .utils import File, Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .works import NodeContainer, Work, BandStructureWork, PhononWork, BecWork, G0W0Work, QptdmWork
+from .events import EventsParser # autodoc_event_handlers
 
 
 import logging
@@ -1294,6 +1295,95 @@ class Flow(Node, NodeContainer, MSONable):
             lines.append("=" * len(header) + 2*"\n")
 
         return stream.writelines(lines)
+
+    def debug(self, status=None, nids=None):
+        """
+        This method is usually used when the flow didn't completed succesfully
+        It analyzes the files produced the tasks to facilitate debugging.
+        Info are printed to stdout.
+
+        Args:
+            status: If not None, only the tasks with this status are selected
+            nids: optional list of node identifiers used to filter the tasks.
+        """
+        nrows, ncols = get_terminal_size()
+
+        # Test for scheduler exceptions first.
+        sched_excfile = os.path.join(self.workdir, "_exceptions")
+        if os.path.exists(sched_excfile):
+            with open(sched_excfile, "r") as fh:
+                cprint("Found exceptions  raised by the scheduler", "red")
+                cprint(fh.read(), color="red")
+                return
+
+        if status is not None:
+            tasks = list(self.iflat_tasks(status=status, nids=nids))
+        else:
+            errors = list(self.iflat_tasks(status=self.S_ERROR, nids=nids))
+            qcriticals = list(self.iflat_tasks(status=self.S_QCRITICAL, nids=nids))
+            abicriticals = list(self.iflat_tasks(status=self.S_ABICRITICAL, nids=nids))
+            tasks = errors + qcriticals + abicriticals
+
+        # For each task selected:
+        #     1) Check the error files of the task. If not empty, print the content to stdout and we are done.
+        #     2) If error files are empty, look at the master log file for possible errors
+        #     3) If also this check failes, scan all the process log files.
+        #        TODO: This check is not needed if we introduce a new __abinit_error__ file
+        #        that is created by the first MPI process that invokes MPI abort!
+        #
+        ntasks = 0
+        for task in tasks:
+            print(make_banner(str(task), width=ncols, mark="="))
+            ntasks += 1
+
+            #  Start with error files.
+            for efname in ["qerr_file", "stderr_file",]:
+                err_file = getattr(task, efname)
+                if err_file.exists:
+                    s = err_file.read()
+                    if not s: continue
+                    print(make_banner(str(err_file), width=ncols, mark="="))
+                    cprint(s, color="red")
+                    #count += 1
+
+            # Check main log file.
+            try:
+                report = task.get_event_report()
+                if report and report.num_errors:
+                    print(make_banner(os.path.basename(report.filename), width=ncols, mark="="))
+                    s = "\n".join(str(e) for e in report.errors)
+                else:
+                    s = None
+            except Exception as exc:
+                s = str(exc)
+
+            count = 0 # count > 0 means we found some useful info that could explain the failures.
+            if s is not None:
+                cprint(s, color="red")
+                count += 1
+
+            if not count:
+                # Inspect all log files produced by the other nodes.
+                log_files = task.tmpdir.list_filepaths(wildcard="*LOG_*")
+                if not log_files:
+                    cprint("No *LOG_* file in tmpdir. This usually happens if you are running with many CPUs", color="magenta")
+
+                for log_file in log_files:
+                    try:
+                        report = EventsParser().parse(log_file)
+                        if report.errors:
+                            print(report)
+                            count += 1
+                            break
+                    except Exception as exc:
+                        cprint(str(exc), color="red")
+                        count += 1
+                        break
+
+            if not count:
+                cprint("Houston, we could not find any error message that can explain the problem", color="magenta")
+
+        print("Number of tasks analyzed: %d" % ntasks)
 
     def cancel(self, nids=None):
         """
