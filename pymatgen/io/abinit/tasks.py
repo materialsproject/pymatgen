@@ -59,16 +59,19 @@ logger = logging.getLogger(__name__)
 
 # Tools and helper functions.
 
+
 def straceback():
     """Returns a string with the traceback."""
     import traceback
     return traceback.format_exc()
 
+
 def lennone(PropperOrNone):
     if PropperOrNone is None:
-	return 0
+        return 0
     else:
-	return len(PropperOrNone)
+        return len(PropperOrNone)
+
 
 def nmltostring(nml):
     """Convert a dictionary representing a Fortran namelist into a string."""
@@ -90,6 +93,7 @@ def nmltostring(nml):
        curstr = curstr + "\n".join(namelist) + "\n"
 
     return curstr
+
 
 class TaskResults(NodeResults):
 
@@ -579,7 +583,7 @@ batch_adapter:
 
         if not os.path.exists(path):
             raise RuntimeError(colored(
-		        "\nCannot locate %s neither in current directory nor in %s\n"
+                "\nCannot locate %s neither in current directory nor in %s\n"
                 "!!! PLEASE READ THIS: !!!\n"
                 "To use abipy to run jobs this file needs be be present\n"
                 "it provides a description of the cluster/computer you are running on\n"
@@ -3400,7 +3404,6 @@ class BecTask(DfptTask):
                 raise ValueError("Don't know how to handle extension: %s" % dep.exts)
 
 
-
 class PhononTask(DfptTask):
     """
     DFPT calculations for a single atomic perturbation.
@@ -3477,7 +3480,6 @@ class PhononTask(DfptTask):
         # fix the problem that abinit uses the 1WF extension for the DDK output file but reads it with the irdddk flag
         #if self.indir.has_abiext('DDK'):
         #    self.indir.rename_abiext('DDK', '1WF')
-
 
 
 class EphTask(AbinitTask):
