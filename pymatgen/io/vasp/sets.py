@@ -678,8 +678,9 @@ class MPHSEBSSet(MPHSERelaxSet):
     def from_prev_calc(cls, prev_calc_dir, mode="Uniform",
                        reciprocal_density=50, copy_chgcar=True, **kwargs):
         """
-        Generate a set of Vasp input files for static calculations from a
-        directory of previous Vasp run.
+        Generate a set of Vasp input files for HSE calculations from a
+        directory of previous Vasp run. Explicitly adds VBM and CBM of prev.
+        run to the k-point list of this run.
 
         Args:
             prev_calc_dir (str): Directory containing the outputs
