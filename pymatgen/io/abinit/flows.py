@@ -1908,8 +1908,7 @@ class Flow(Node, NodeContainer, MSONable):
     #    return abirobot(flow=self, ext=ext, nids=nids):
 
     def plot_networkx(self, mode="network", with_edge_labels=False,
-                      node_size="num_cores", node_label="name_class", layout_type="spring",
-                     **kwargs):
+                      node_size="num_cores", node_label="name_class", layout_type="spring", **kwargs):
         """
         Use networkx to draw the flow with the connections among the nodes and
         the status of the tasks.
@@ -1938,27 +1937,21 @@ class Flow(Node, NodeContainer, MSONable):
         pos = getattr(nx, layout_type + "_layout")(g)
 
         # Select function used to compute the size of the node
-        make_node_size = dict(
-            num_cores=lambda task: 300 * task.manager.num_cores
-        )[node_size]
+        make_node_size = dict(num_cores=lambda task: 300 * task.manager.num_cores)[node_size]
 
         # Select function used to build the label
-        make_node_label = dict(
-            name_class=lambda task: task.pos_str + "\n" + task.__class__.__name__,
-        )[node_label]
+        make_node_label = dict(name_class=lambda task: task.pos_str + "\n" + task.__class__.__name__,)[node_label]
 
-        labels = {task: make_node_label(task) for task in tasks}
+        labels = {task: make_node_label(task) for task in g.nodes()}
 
         import matplotlib.pyplot as plt
 
         # Select plot type.
         if mode == "network":
             nx.draw_networkx(g, pos, labels=labels,
-                             #node_color='#A0CBE2',
-                             # FIXME: This does not work as expected. Likely bug in networkx!
-                             node_color=[task.color_rgb for task in tasks],
-                             node_size=[make_node_size(task) for task in tasks],
-                             width=2, style="dotted", with_labels=True)
+                             node_color=[task.color_rgb for task in g.nodes()],
+                             node_size=[make_node_size(task) for task in g.nodes()],
+                             width=1, style="dotted", with_labels=True)
 
             # Draw edge labels
             if with_edge_labels:
