@@ -950,6 +950,38 @@ class Flow(Node, NodeContainer, MSONable):
         if self.all_ok:
             print("\nall_ok reached\n", file=stream)
 
+    def show_history(self, status=None, nids=None, full_history=False, metadata=False):
+	"""
+	Print the history of the flow to stdout.
+
+	Args:
+            status: if not None, only the tasks with this status are select
+	    full_history: Print full info set, including nodes with an empty history.
+            nids: optional list of node identifiers used to filter the tasks.
+	    metadata: print history metadata (experimental)
+	"""
+        nrows, ncols = get_terminal_size()
+
+        works_done = []
+        # Loop on the tasks and show the history of the work is not in works_done
+        for task in self.iflat_tasks(status=status, nids=nids):
+            work = task.work
+
+            if work not in works_done:
+                works_done.append(work)
+                if work.history or full_history:
+                    cprint(make_banner(str(work), width=ncols, mark="="), **work.status.color_opts)
+                    print(work.history.to_string(metadata=metadata))
+
+            if task.history or full_history:
+                cprint(make_banner(str(task), width=ncols, mark="="), **task.status.color_opts)
+                print(task.history.to_string(metadata=metadata))
+
+        # Print the history of the flow.
+        if self.history or full_history:
+            cprint(make_banner(str(self), width=ncols, mark="="), **self.status.color_opts)
+            print(self.history.to_string(metadata=metadata))
+
     def show_inputs(self, varnames=None, nids=None, wslice=None, stream=sys.stdout):
         """
         Print the input of the tasks to the given stream.
