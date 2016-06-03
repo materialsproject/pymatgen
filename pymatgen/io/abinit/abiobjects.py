@@ -781,7 +781,7 @@ class KSampling(AbivarAble, MSONable):
         #    num_div = [i + i % 2 for i in num_div]
         #    style = KSamplingModes.monkhorst
 
-        comment = "abinitio generated KPOINTS with grid density = " + "{} / atom".format(kppa)
+        comment = "pymatge.io.abinit generated KPOINTS with grid density = " + "{} / atom".format(kppa)
 
         shifts = np.reshape(shifts, (-1, 3))
 

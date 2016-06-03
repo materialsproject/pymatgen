@@ -1771,11 +1771,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             status: Status object or string representation of the status
             msg: string with human-readable message used in the case of errors.
         """
-        # msg = "No message provided" if msg is None else msg
-        # lets refuse to accept changes in the status the do not have a message
-
-        # truncate strig if it's long. msg will be logged in the object and we don't want
-        # to waste memory.
+        # truncate string if it's long. msg will be logged in the object and we don't want to waste memory.
         if len(msg) > 2000:
             msg = msg[:2000]
             msg += "\n... snip ...\n"
@@ -1956,12 +1952,13 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 return self.set_status(self.S_QCRITICAL, msg=msg)
                 # The job is killed or crashed and we know what happened
             elif lennone(qerr_info) > 0:
-                # if only qout_info, we are not necessarily in QCRITICAL state, since there will always be info in the qout file
-                #logger.history.debug('found unknown queue error: %s' % str(qerr_info))
+                # if only qout_info, we are not necessarily in QCRITICAL state,
+                # since there will always be info in the qout file
                 msg = 'found unknown messages in the queue error: %s' % str(qerr_info)
+                logger.history.info(msg)
                 print(msg)
-#                self.num_waiting += 1
-#                if self.num_waiting > 1000:
+                # self.num_waiting += 1
+                # if self.num_waiting > 1000:
                 rt = self.datetimes.get_runtime().seconds
                 tl = self.manager.qadapter.timelimit
                 if rt > tl:
@@ -2073,8 +2070,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
                 if not os.path.exists(path):
                     # Try netcdf file. TODO: this case should be treated in a cleaner way.
-                    path += "-etsf.nc"
-                    if os.path.exists(path): dest += "-etsf.nc"
+                    path += ".nc"
+                    if os.path.exists(path): dest += ".nc"
 
                 if not os.path.exists(path):
                     raise self.Error("%s: %s is needed by this task but it does not exist" % (self, path))
@@ -2371,7 +2368,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Add the variables needed to connect the node.
         for d in self.deps:
             cvars = d.connecting_vars()
-            logger.debug("Adding connecting vars %s " % cvars)
+            self.history.info("Adding connecting vars %s" % cvars)
             self.set_vars(cvars)
 
             # Get (python) data from other nodes
@@ -2385,7 +2382,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 # If autoparal cannot find a qadapter to run the calculation raises an Exception
                 self.history.critical(exc)
                 msg = "Error trying to find a running configuration:\n%s" % straceback()
-                #logger.critical(msg)
                 self.set_status(self.S_QCRITICAL, msg=msg)
                 return 0
             except Exception as exc:
@@ -3553,7 +3549,7 @@ class ScrTask(ManyBodyTask):
     def open_scr(self):
         """
         Open the SIGRES file located in the in self.outdir.
-        Returns SigresFile object, None if file could not be found or file is not readable.
+        Returns :class:`ScrFile` object, None if file could not be found or file is not readable.
         """
         scr_path = self.scr_path
 
@@ -3562,9 +3558,9 @@ class ScrTask(ManyBodyTask):
             return None
 
         # Open the GSR file and add its data to results.out
-        from abipy.electrons.scr import SctFile
+        from abipy.electrons.scr import ScrFile
         try:
-            return SctFile(sigres_path)
+            return ScrFile(sigres_path)
         except Exception as exc:
             logger.critical("Exception while reading SCR file at %s:\n%s" % (scr_path, str(exc)))
             return None
@@ -3615,7 +3611,7 @@ class SigmaTask(ManyBodyTask):
     def open_sigres(self):
         """
         Open the SIGRES file located in the in self.outdir.
-        Returns SigresFile object, None if file could not be found or file is not readable.
+        Returns :class:`SigresFile` object, None if file could not be found or file is not readable.
         """
         sigres_path = self.sigres_path
 
@@ -3945,8 +3941,8 @@ class OpticTask(Task):
         Returns:
             1 if task has been fixed else 0.
         """
-        from pymatgen.io.abinitio.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
-        assert isinstance(self.manager, TaskManager)
+        from pymatgen.io.abinit.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
+        #assert isinstance(self.manager, TaskManager)
 
         if not self.queue_errors:
             if self.mem_scales or self.load_scales:

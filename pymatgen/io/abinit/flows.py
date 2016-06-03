@@ -341,7 +341,7 @@ class Flow(Node, NodeContainer, MSONable):
 
             flow.set_pyfile(__file__)
         """
-        # TODO: Could use a frame hack to get the caller outside abinitio
+        # TODO: Could use a frame hack to get the caller outside abinit
         # so that pyfile is automatically set when we __init__ it!
         self._pyfile = os.path.abspath(pyfile)
 
