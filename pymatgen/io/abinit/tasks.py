@@ -460,16 +460,16 @@ class TaskPolicy(object):
     @classmethod
     def autodoc(cls):
         return """
-    autoparal: 0 to disable the autoparal feature (default 1 i.e. autoparal is on)
-    condition: condition used to filter the autoparal configurations (Mongodb-like syntax).
-               Default: empty
-    vars_condition: condition used to filter the list of ABINIT variables reported autoparal
-                    (Mongodb-like syntax). Default: empty
-    frozen_timeout: A job is considered to be frozen and its status is set to Error if no change to
-                    the output file has been done for frozen_timeout seconds. Accepts int with seconds or
-                    string in slurm form i.e. days-hours:minutes:seconds. Default: 1 hour.
-    precedence:
-    autoparal_priorities:
+    autoparal:            # 0 to disable the autoparal feature (DEFAULT: 1 i.e. autoparal is on)
+    condition:            # condition used to filter the autoparal configurations (Mongodb-like syntax).
+                          # DEFAULT: empty i.e. ignored.
+    vars_condition:       # Condition used to filter the list of ABINIT variables reported autoparal
+                          # (Mongodb-like syntax). DEFAULT: empty i.e. ignored.
+    frozen_timeout:       # A job is considered frozen and its status is set to Error if no change to
+                          # the output file has been done for frozen_timeout seconds. Accepts int with seconds or
+                          # string in slurm form i.e. days-hours:minutes:seconds. DEFAULT: 1 hour.
+    precedence:           # Under development.
+    autoparal_priorities: # Under development.
 """
 
     def __init__(self, **kwargs):
@@ -3354,7 +3354,7 @@ class DdkTask(DfptTask):
     def _on_ok(self):
         super(DdkTask, self)._on_ok()
         # Copy instead of removing, otherwise optic tests fail
-        # Fixing this proble requires a rationalization of file extensions.
+        # Fixing this problem requires a rationalization of file extensions.
         #if self.outdir.rename_abiext('1WF', 'DDK') > 0:
         #if self.outdir.copy_abiext('1WF', 'DDK') > 0:
         if self.outdir.symlink_abiext('1WF', 'DDK') > 0:

@@ -285,6 +285,14 @@ class Directory(object):
             raise RuntimeError('Extension %s could not be detected in file %s' % (inext, infile))
 
         outfile = infile[:i] + '_' + outext
+
+        #if os.path.exists(outfile):
+        #    if os.path.islink(outfile) and os.path.realpath(outfile) == infile:
+        #        print("link %s already exists but it's ok because it points to the correct file")
+        #        return 0
+        #    else:
+        #        raise RuntimeError("Expecting link at %s already exists but it does not point to %s" % (outfile, infile))
+
         os.symlink(infile, outfile)
         return 0
 
