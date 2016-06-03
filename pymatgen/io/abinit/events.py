@@ -430,8 +430,6 @@ class EventsParser(object):
         filename = os.path.abspath(filename)
         report = EventReport(filename)
 
-        # TODO Use CamelCase for the Fortran messages.
-        # Bug is still an error of class SoftwareError
         w = WildCard("*Error|*Warning|*Comment|*Bug|*ERROR|*WARNING|*COMMENT|*BUG")
 
         with YamlTokenizer(filename) as tokens:
@@ -834,3 +832,31 @@ class MemanaErrorHandler(ErrorHandler):
         except Exception as exc:
             logger.warning('Error while trying to apply the handler {}.'.format(str(self)), exc)
             return None
+
+
+class MemoryError(AbinitError):
+    """
+    This error occurs when a checked allocation fails in Abinit
+    The only way to go is to increase memory
+    """
+    yaml_tag = '!MemoryError'
+
+
+class MemoryErrorHandler(ErrorHandler):
+    """
+    Handle MemoryError. Increase the resources requirements
+    """
+    event_class = MemoryError
+
+    can_change_physics = False
+
+    def handle_task_event(self, task, event):
+
+      task.manager.increase_resources()
+      return self.FIXED
+
+    def handle_input_event(self, abiinput, outdir, event):
+      """
+      Shouldn't do anything on the input
+      """
+      return None
