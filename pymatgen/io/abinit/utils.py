@@ -488,7 +488,7 @@ class FilepathFixer(object):
     This object modifies the names of particular output files
     produced by ABINIT so that the file extension is preserved.
     Having a one-to-one mapping between file extension and data format
-    is indeed fundamental for the correct behaviour of abinitio since:
+    is indeed fundamental for the correct behaviour of abinit since:
 
         - We locate the output file by just inspecting the extension
 

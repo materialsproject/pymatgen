@@ -379,7 +379,7 @@ job:
 queue:
     qname:   # Name of the queue (mandatory)
     qparams: # Dictionary with values used to generate the header of the job script
-             # See pymatgen.io.abinitio.qadapters.py for the list of supported values.
+             # See pymatgen.io.abinit.qadapters.py for the list of supported values.
 
 # dictionary with the constraints that must be fulfilled in order to run on this queue.
 limits:

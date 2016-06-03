@@ -626,7 +626,6 @@ class PyFlowScheduler(object):
             excs.append(straceback())
 
         # check status.
-        #flow.check_status(show=True)
         flow.show_status()
 
         if excs:
@@ -718,7 +717,7 @@ class PyFlowScheduler(object):
                 err_lines.append("No runnable job with deadlocked tasks:\n%s." % str(g.deadlocked))
 
         if not g.runnables and not g.running:
-            # Check the flow again to that status are updated.
+            # Check the flow again so that status are updated.
             self.flow.check_status()
             g = self.flow.find_deadlocks()
             if not g.runnables and not g.running:
