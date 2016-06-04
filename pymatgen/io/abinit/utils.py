@@ -17,6 +17,7 @@ from six.moves import filter
 from monty.collections import dict2namedtuple
 from monty.string import list_strings
 from monty.fnmatch import WildCard
+from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 
 import logging
 logger = logging.getLogger(__name__)
@@ -860,7 +861,6 @@ class SparseHistogram(object):
         self.values = [hist[pos] for pos in self.binvals]
         self.start, self.stop, self.num = start, stop, num
 
-    from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
     @add_fig_kwargs
     def plot(self, ax=None, **kwargs):
         """

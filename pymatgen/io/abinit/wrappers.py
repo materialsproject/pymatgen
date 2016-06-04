@@ -24,7 +24,7 @@ __all__ = [
     "Mrgscr",
     "Mrggkk",
     "Mrgddb",
-    "Mrgdv",
+    "Mrgdvdb",
 ]
 
 
@@ -160,12 +160,12 @@ class Mrggkk(ExecWrapper):
         #out_gkk = out_gkk if cwd is None else os.path.join(os.path.abspath(cwd), out_gkk)
 
         # We work with absolute paths.
-        gswfk_file = absath(gswfk_file)
+        gswfk_file = os.path.absath(gswfk_file)
         dfpt_files = [os.path.abspath(s) for s in list_strings(dfpt_files)]
         gkk_files = [os.path.abspath(s) for s in list_strings(gkk_files)]
 
         print("Will merge %d 1WF files, %d GKK file in output %s" %
-              (len(dfpt_nfiles), len_gkk_files, out_gkk))
+              (len(dfpt_files), len(gkk_files), out_gkk))
 
         if self.verbose:
             for i, f in enumerate(dfpt_files): print(" [%d] 1WF %s" % (i, f))

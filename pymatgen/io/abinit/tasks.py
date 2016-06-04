@@ -1502,7 +1502,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     @property
     def can_run(self):
         """The task can run if its status is < S_SUB and all the other dependencies (if any) are done!"""
-        all_ok = all([stat == self.S_OK for stat in self.deps_status])
+        all_ok = all(stat == self.S_OK for stat in self.deps_status)
         return self.status < self.S_SUB and self.status != self.S_LOCKED and all_ok
 
     #@check_spectator
@@ -3560,7 +3560,7 @@ class ScrTask(ManyBodyTask):
         # Open the GSR file and add its data to results.out
         from abipy.electrons.scr import ScrFile
         try:
-            return ScrFile(sigres_path)
+            return ScrFile(scr_path)
         except Exception as exc:
             logger.critical("Exception while reading SCR file at %s:\n%s" % (scr_path, str(exc)))
             return None

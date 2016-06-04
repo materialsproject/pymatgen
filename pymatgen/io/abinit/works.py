@@ -630,7 +630,7 @@ class Work(BaseWork, NodeContainer):
         # Take into account possible dependencies. Use a list instead of generators
         for task in self:
             if task.status == task.S_LOCKED: continue
-            if task.status < task.S_SUB and all([status == task.S_OK for status in task.deps_status]):
+            if task.status < task.S_SUB and all(status == task.S_OK for status in task.deps_status):
                 task.set_status(task.S_READY, "Status set to Ready")
 
     def rmtree(self, exclude_wildcard=""):

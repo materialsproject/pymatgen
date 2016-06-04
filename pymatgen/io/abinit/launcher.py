@@ -205,7 +205,7 @@ class PyLauncher(object):
 
             # I don't know why but we receive duplicated tasks.
             if any(task in launched for task in tasks):
-                logger.critical("numtasks %d already in launched list:\n%s" % (len(task), launched))
+                logger.critical("numtasks %d already in launched list:\n%s" % (len(tasks), launched))
 
             # Preventive test.
             tasks = [t for t in tasks if t not in launched]
