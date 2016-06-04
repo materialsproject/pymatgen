@@ -273,7 +273,20 @@ class Directory(object):
         return files[0]
 
     def symlink_abiext(self, inext, outext):
-        """Create a simbolic link"""
+        """
+        Create a simbolic link (outext --> inext). The file names are implicitly
+        given by the ABINIT file extension.
+
+        Example:
+
+            outdir.symlink_abiext('1WF', 'DDK')
+
+        creates the link out_DDK that points to out_1WF
+
+        Return: 0 if success.
+
+        Raise: RuntimeError
+        """
         infile = self.has_abiext(inext)
         if not infile:
             raise RuntimeError('no file with extension %s in %s' % (inext, self))
@@ -286,12 +299,15 @@ class Directory(object):
 
         outfile = infile[:i] + '_' + outext
 
-        #if os.path.exists(outfile):
-        #    if os.path.islink(outfile) and os.path.realpath(outfile) == infile:
-        #        print("link %s already exists but it's ok because it points to the correct file")
-        #        return 0
-        #    else:
-        #        raise RuntimeError("Expecting link at %s already exists but it does not point to %s" % (outfile, infile))
+        if os.path.exists(outfile):
+            if os.path.islink(outfile):
+                if os.path.realpath(outfile) == infile:
+                    logger.debug("link %s already exists but it's ok because it points to the correct file" % outfile)
+                    return 0
+                else:
+                    raise RuntimeError("Expecting link at %s already exists but it does not point to %s" % (outfile, infile))
+            else:
+                raise RuntimeError('Expecting link at %s but found file.' % outfile)
 
         os.symlink(infile, outfile)
         return 0
