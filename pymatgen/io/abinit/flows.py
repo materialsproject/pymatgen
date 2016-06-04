@@ -884,6 +884,7 @@ class Flow(Node, NodeContainer, MSONable):
         red = "red" if has_colours else None
 
         for i, work in enumerate(self):
+            if nids and work.node_id not in nids: continue
             print("", file=stream)
             cprint_map("Work #%d: %s, Finalized=%s" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
             if wlist is not None and i in wlist: continue

@@ -460,16 +460,16 @@ class TaskPolicy(object):
     @classmethod
     def autodoc(cls):
         return """
-    autoparal:            # 0 to disable the autoparal feature (DEFAULT: 1 i.e. autoparal is on)
-    condition:            # condition used to filter the autoparal configurations (Mongodb-like syntax).
-                          # DEFAULT: empty i.e. ignored.
-    vars_condition:       # Condition used to filter the list of ABINIT variables reported autoparal
-                          # (Mongodb-like syntax). DEFAULT: empty i.e. ignored.
-    frozen_timeout:       # A job is considered frozen and its status is set to Error if no change to
-                          # the output file has been done for frozen_timeout seconds. Accepts int with seconds or
-                          # string in slurm form i.e. days-hours:minutes:seconds. DEFAULT: 1 hour.
-    precedence:           # Under development.
-    autoparal_priorities: # Under development.
+    autoparal:                # (integer). 0 to disable the autoparal feature (DEFAULT: 1 i.e. autoparal is on)
+    condition:                # condition used to filter the autoparal configurations (Mongodb-like syntax).
+                              # DEFAULT: empty i.e. ignored.
+    vars_condition:           # Condition used to filter the list of ABINIT variables reported by autoparal
+                              # (Mongodb-like syntax). DEFAULT: empty i.e. ignored.
+    frozen_timeout:           # A job is considered frozen and its status is set to ERROR if no change to
+                              # the output file has been done for `frozen_timeout` seconds. Accepts int with seconds or
+                              # string in slurm form i.e. days-hours:minutes:seconds. DEFAULT: 1 hour.
+    precedence:               # Under development.
+    autoparal_priorities:     # Under development.
 """
 
     def __init__(self, **kwargs):
@@ -558,7 +558,7 @@ batch_adapter:
 """
         s += "policy: " + TaskPolicy.autodoc() + "\n"
         s += "qadapter: " + QueueAdapter.autodoc() + "\n"
-        s += "db_connector: " + DBConnector.autodoc()
+        #s += "db_connector: " + DBConnector.autodoc()
         return s
 
     @classmethod
@@ -1084,8 +1084,8 @@ class AbinitBuild(object):
         qjob, process = manager.qadapter.submit_to_queue(script_file)
         process.wait()
 
-        #if process.returncode != 0:
-        #    logger.critical("")
+        if process.returncode != 0:
+            logger.critical("Error while executing %s" % script_file)
 
         with open(stdout, "r") as fh:
             self.info = fh.read()
@@ -1159,9 +1159,10 @@ class AbinitBuild(object):
     def __str__(self):
         lines = []
         app = lines.append
-        app("Abinit version: %s" % self.version)
-        app("MPI: %s, MPI-IO: %s, OpenMP: %s" % (self.has_mpi, self.has_mpiio, self.has_omp))
-        app("Netcdf: %s, ETSF-IO: %s" % (self.has_netcdf, self.has_etsfio))
+        app("Abinit Build Information:")
+        app("    Abinit version: %s" % self.version)
+        app("    MPI: %s, MPI-IO: %s, OpenMP: %s" % (self.has_mpi, self.has_mpiio, self.has_omp))
+        app("    Netcdf: %s, ETSF-IO: %s" % (self.has_netcdf, self.has_etsfio))
         return "\n".join(lines)
 
 
@@ -3357,8 +3358,7 @@ class DdkTask(DfptTask):
         # Fixing this problem requires a rationalization of file extensions.
         #if self.outdir.rename_abiext('1WF', 'DDK') > 0:
         #if self.outdir.copy_abiext('1WF', 'DDK') > 0:
-        if self.outdir.symlink_abiext('1WF', 'DDK') > 0:
-            raise RuntimeError
+        self.outdir.symlink_abiext('1WF', 'DDK')
 
     def get_results(self, **kwargs):
         results = super(DdkTask, self).get_results(**kwargs)

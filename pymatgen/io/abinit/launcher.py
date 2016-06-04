@@ -248,26 +248,26 @@ class PyFlowSchedulerError(Exception):
 
 class PyFlowScheduler(object):
     """
-    This object schedules the submission of the tasks in an :class:`Flow`.
+    This object schedules the submission of the tasks in a :class:`Flow`.
     There are two types of errors that might occur during the execution of the jobs:
 
         #. Python exceptions
-        #. Abinit Errors.
+        #. Errors in the ab-initio code
 
-    Python exceptions are easy to detect and are usually due to a bug in abinitio or random errors such as IOError.
-    The set of Abinit Errors is much much broader. It includes wrong input data, segmentation
-    faults, problems with the resource manager, etc. Abinitio tries to handle the most common cases
+    Python exceptions are easy to detect and are usually due to a bug in the python code or random errors such as IOError.
+    The set of errors in the ab-initio is much much broader. It includes wrong input data, segmentation
+    faults, problems with the resource manager, etc. The flow tries to handle the most common cases
     but there's still a lot of room for improvement.
-    Note, in particular, that `PyFlowScheduler` will shutdown automatically if
+    Note, in particular, that `PyFlowScheduler` will shutdown automatically in the following cases:
 
-        #. The number of python exceptions is > MAX_NUM_PYEXC
+        #. The number of python exceptions is > max_num_pyexcs
 
-        #. The number of Abinit Errors (i.e. the number of tasks whose status is S_ERROR) is > MAX_NUM_ERRORS
+        #. The number of task errors (i.e. the number of tasks whose status is S_ERROR) is > max_num_abierrs
 
         #. The number of jobs launched becomes greater than (`safety_ratio` * total_number_of_tasks).
 
         #. The scheduler will send an email to the user (specified by `mailto`) every `remindme_s` seconds.
-           If the mail cannot be sent, it will shutdown automatically.
+           If the mail cannot be sent, the scheduler will shutdown automatically.
            This check prevents the scheduler from being trapped in an infinite loop.
     """
     # Configuration file.
@@ -276,24 +276,41 @@ class PyFlowScheduler(object):
 
     Error = PyFlowSchedulerError
 
+    @classmethod
+    def autodoc(cls):
+        i = cls.__init__.__doc__.index("Args:")
+        return cls.__init__.__doc__[i+5:]
+
     def __init__(self, **kwargs):
         """
         Args:
-            weeks: number of weeks to wait
-            days: number of days to wait
-            hours: number of hours to wait
-            minutes: number of minutes to wait
-            seconds: number of seconds to wait
-            verbose: (int) verbosity level
-            max_njobs_inque: Limit on the number of jobs that can be present in the queue
-            use_dynamic_manager: True if the :class:`TaskManager` must be re-initialized from
-                file before launching the jobs. Default: False
-            max_nlaunches: Maximum number of tasks launched by radpifire (default -1 i.e. no limit)
-            fix_qcritical: True if the launcher should try to fix QCritical Errors (default: True)
+            weeks: number of weeks to wait (DEFAULT: 0).
+            days: number of days to wait (DEFAULT: 0).
+            hours: number of hours to wait (DEFAULT: 0).
+            minutes: number of minutes to wait (DEFAULT: 0).
+            seconds: number of seconds to wait (DEFAULT: 0).
+            mailto: The scheduler will send an email to `mailto` every `remindme_s` seconds.
+                (DEFAULT: None i.e. not used).
+            verbose: (int) verbosity level. (DEFAULT: 0)
+            use_dynamic_manager: "yes" if the :class:`TaskManager` must be re-initialized from
+                file before launching the jobs. (DEFAULT: "no")
+            max_njobs_inqueue: Limit on the number of jobs that can be present in the queue. (DEFAULT: 200)
+            remindme_s: The scheduler will send an email to the user specified by `mailto` every `remindme_s` seconds.
+                (int, DEFAULT: 1 day).
+            max_num_pyexcs: The scheduler will exit if the number of python exceptions is > max_num_pyexcs
+                (int, DEFAULT: 0)
+            max_num_abierrs: The scheduler will exit if the number of errored tasks is > max_num_abierrs
+                (int, DEFAULT: 0)
+            safety_ratio: The scheduler will exits if the number of jobs launched becomes greater than
+               `safety_ratio` * total_number_of_tasks_in_flow. (int, DEFAULT: 5)
+            max_nlaunches: Maximum number of tasks launched in a single iteration of the scheduler.
+                (DEFAULT: -1 i.e. no limit)
+            debug: Debug level. Use 0 for production (int, DEFAULT: 0)
+            fix_qcritical: "yes" if the launcher should try to fix QCritical Errors (DEFAULT: "yes")
             rmflow: If "yes", the scheduler will remove the flow directory if the calculation
-                completed successfully. Default: False
+                completed successfully. (DEFAULT: "no")
             killjobs_if_errors: "yes" if the scheduler should try to kill all the runnnig jobs
-                before exiting due to an error.
+                before exiting due to an error. (DEFAULT: "yes")
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
@@ -314,7 +331,7 @@ class PyFlowScheduler(object):
         self.max_ncores_used = kwargs.pop("max_ncores_used", None)
         self.contact_resource_manager = as_bool(kwargs.pop("contact_resource_manager", False))
 
-        self.remindme_s = float(kwargs.pop("remindme_s", 4 * 24 * 3600))
+        self.remindme_s = float(kwargs.pop("remindme_s", 1 * 24 * 3600))
         self.max_num_pyexcs = int(kwargs.pop("max_num_pyexcs", 0))
         self.max_num_abierrs = int(kwargs.pop("max_num_abierrs", 0))
         self.safety_ratio = int(kwargs.pop("safety_ratio", 5))
@@ -393,10 +410,11 @@ class PyFlowScheduler(object):
         """String representation."""
         lines = [self.__class__.__name__ + ", Pid: %d" % self.pid]
         app = lines.append
-
         app("Scheduler options: %s" % str(self.sched_options))
-        app(80 * "=")
-        app(str(self.flow))
+
+        if self.flow is not None:
+            app(80 * "=")
+            app(str(self.flow))
 
         return "\n".join(lines)
 
@@ -420,7 +438,10 @@ class PyFlowScheduler(object):
     @property
     def flow(self):
         """`Flow`."""
-        return self._flow
+        try:
+            return self._flow
+        except AttributeError:
+            return None
 
     @property
     def num_excs(self):
@@ -882,7 +903,6 @@ def sendmail(subject, text, mailto, sender=None):
     if is_string(mailto): mailto = [mailto]
 
     from email.mime.text import MIMEText
-
     mail = MIMEText(text)
     mail["Subject"] = subject
     mail["From"] = sender
