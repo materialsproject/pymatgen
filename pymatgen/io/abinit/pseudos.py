@@ -46,7 +46,6 @@ __maintainer__ = "Matteo Giantomassi"
 
 def straceback():
     """Returns a string with the traceback."""
-    import sys
     import traceback
     return "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
 
@@ -343,7 +342,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         lattice = 10 * np.eye(3)
         structure = Structure(lattice, [self.element], coords=[[0, 0, 0]])
 
-        if self.ispaw and pawecutdg is None: pawecudg = ecut * 4
+        if self.ispaw and pawecutdg is None: pawecutdg = ecut * 4
         inp = gs_input(structure, pseudos=[self], ecut=ecut, pawecutdg=pawecutdg,
                        spin_mode="unpolarized", kppa=1)
         # Add prtpsps = -1 to make Abinit print the PSPS.nc file and stop.
@@ -351,7 +350,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
         # Build temporary task and run it (ignore retcode because we don't exit cleanly)
         task = AbinitTask.temp_shell_task(inp)
-        retcode = task.start_and_wait()
+        task.start_and_wait()
 
         filepath = task.outdir.has_abiext("_PSPS.nc")
         if not filepath:
@@ -1341,7 +1340,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
             self._ae_partial_waves = {}
             for mesh, values, attrib in self._parse_all_radfuncs("ae_partial_wave"):
                 state = attrib["state"]
-                val_state = self.valence_states[state]
+                #val_state = self.valence_states[state]
                 self._ae_partial_waves[state] = RadialFunction(mesh, values)
 
             return self._ae_partial_waves
@@ -1356,7 +1355,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
             self._pseudo_partial_waves = {}
             for (mesh, values, attrib) in self._parse_all_radfuncs("pseudo_partial_wave"):
                 state = attrib["state"]
-                val_state = self.valence_states[state]
+                #val_state = self.valence_states[state]
                 self._pseudo_partial_waves[state] = RadialFunction(mesh, values)
 
             return self._pseudo_partial_waves
@@ -1371,7 +1370,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
             self._projector_functions = {}
             for (mesh, values, attrib) in self._parse_all_radfuncs("projector_function"):
                 state = attrib["state"]
-                val_state = self.valence_states[state]
+                #val_state = self.valence_states[state]
                 self._projector_functions[state] = RadialFunction(mesh, values)
 
             return self._projector_functions
