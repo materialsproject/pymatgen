@@ -238,7 +238,7 @@ class DictSet(VaspInputSet):
             alter the structure. Valid values: None, "niggli", "LLL"
     """
 
-    def __init__(self, structure, name, config_dict,
+    def __init__(self, structure, config_dict,
                  files_to_transfer=None, user_incar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
                  potcar_functional="PBE", force_gamma=False,
@@ -249,7 +249,6 @@ class DictSet(VaspInputSet):
             structure = structure.get_sorted_structure()
         self.structure = structure
         self.config_dict = config_dict
-        self.name = name
         self.files_to_transfer = files_to_transfer or {}
         self.set_nupdown = constrain_total_magmom
         self.sort_structure = sort_structure
@@ -378,10 +377,10 @@ class DictSet(VaspInputSet):
                 "and length  : for Kpoints.automatic generation")
 
     def __str__(self):
-        return self.name
+        return self.__class__.__name__
 
     def __repr__(self):
-        return self.name
+        return self.__class__.__name__
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
@@ -408,8 +407,7 @@ class ConfigFileSet(DictSet):
 
     def __init__(self, structure, config_file, **kwargs):
         d = loadfn(config_file)
-        super(ConfigFileSet, self).__init__(structure, config_file, d,
-                                            **kwargs)
+        super(ConfigFileSet, self).__init__(structure, d, **kwargs)
         self.config_file = config_file
         self.kwargs = kwargs
 
