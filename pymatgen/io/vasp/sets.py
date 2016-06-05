@@ -250,7 +250,7 @@ class DictSet(VaspInputSet):
         self.structure = structure
         self.config_dict = config_dict
         self.files_to_transfer = files_to_transfer or {}
-        self.set_nupdown = constrain_total_magmom
+        self.constrain_total_magmom = constrain_total_magmom
         self.sort_structure = sort_structure
         self.potcar_functional = potcar_functional
         self.force_gamma = force_gamma
@@ -318,7 +318,7 @@ class DictSet(VaspInputSet):
                 if key.startswith('LDAU'):
                     del incar[key]
 
-        if self.set_nupdown:
+        if self.constrain_total_magmom:
             nupdown = sum([mag if abs(mag) > 0.6 else 0
                            for mag in incar['MAGMOM']])
             incar['NUPDOWN'] = nupdown
