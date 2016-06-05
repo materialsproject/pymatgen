@@ -262,6 +262,15 @@ class Flow(Node, NodeContainer, MSONable):
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
 
+    def reload(self):
+        """
+        Reload the flow from the pickle file. Used when we are monitoring the flow
+        executed by the scheduler. In this case, indeed, the flow might have benn changed
+        by the scheduler and we have to reload the new flow in memory.
+        """
+        new = self.__class__.pickle_load(self.workdir)
+        self = new
+
     @classmethod
     def pickle_load(cls, filepath, spectator_mode=True, remove_lock=False):
         """
@@ -828,7 +837,18 @@ class Flow(Node, NodeContainer, MSONable):
         return count
 
     def show_info(self, **kwargs):
-        """Print info on the flow i.e. total number of tasks, works, tasks grouped by class."""
+        """
+        Print info on the flow i.e. total number of tasks, works, tasks grouped by class.
+
+        Example:
+
+            Task Class      Number
+            ------------  --------
+            ScfTask              1
+            NscfTask             1
+            ScrTask              2
+            SigmaTask            6
+        """
         stream = kwargs.pop("stream", sys.stdout)
 
         lines = [str(self)]
@@ -850,15 +870,23 @@ class Flow(Node, NodeContainer, MSONable):
 
         Args:
             stream: File-like object, Default: sys.stdout
+
+        Example:
+
+            Status       Count
+            ---------  -------
+            Completed       10
+
+            <Flow, node_id=27163, workdir=flow_gwconv_ecuteps>, num_tasks=10, all_ok=True
         """
         stream = kwargs.pop("stream", sys.stdout)
-
-        lines = ["%s, num_tasks=%s, all_ok=%s" % (str(self), self.num_tasks, self.all_ok)]
-        for k, v in self.status_counter.items():
-            lines.append("    %s: %s" % (k, v))
-        lines.append("")
-
-        stream.write("\n".join(lines))
+        stream.write("\n")
+        table = list(self.status_counter.items())
+        s = tabulate(table, headers=["Status", "Count"])
+        stream.write(s + "\n")
+        stream.write("\n")
+        stream.write("%s, num_tasks=%s, all_ok=%s\n" % (str(self), self.num_tasks, self.all_ok))
+        stream.write("\n")
 
     def show_status(self, **kwargs):
         """
