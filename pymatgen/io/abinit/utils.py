@@ -864,7 +864,7 @@ class SparseHistogram(object):
     @add_fig_kwargs
     def plot(self, ax=None, **kwargs):
         """
-        Plot the histogram with matplotlib, returns `matplotlib figure
+        Plot the histogram with matplotlib, returns `matplotlib` figure.
         """
         ax, fig, plt = get_ax_fig_plt(ax)
 
