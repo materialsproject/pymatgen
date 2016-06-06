@@ -1042,6 +1042,7 @@ class Vasprun(MSONable):
                         calculation.append({"electronic_steps": [d]})
             except AttributeError:  # not all calculations have an energy
                 pass
+        calculation[-1].update(calculation[-1]["electronic_steps"][-1])
         return calculation
 
 
