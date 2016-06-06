@@ -1152,3 +1152,187 @@ class ComplexCSMBasedChemenvStrategy(AbstractChemenvStrategy):
                        ce_estimator=d['ce_estimator'])
         else:
             return cls()
+
+class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
+    """
+    Complex ChemenvStrategy
+    """
+
+    ALLOWED_VORONOI_CONTAINERS = [AbstractChemenvStrategy.DETAILED_VORONOI_CONTAINER]
+    DEFAULT_SURFACE_CALCULATION_OPTIONS = {'type': 'standard_elliptic',
+                                           'distance_bounds': {'lower': 1.2, 'upper': 1.8},
+                                           'angle_bounds': {'lower': 0.1, 'upper': 0.8}}
+    DEFAULT_MAX_CSM = 8.0
+    DEFAULT_LOWER_CSM = 5.0
+    DEFAULT_UPPER_CSM = DEFAULT_MAX_CSM
+    DEFAULT_MEAN_CSM_ESTIMATOR = ('power2_inverse_decreasing', {'max_csm': DEFAULT_MAX_CSM})
+    DEFAULT_CN_SELF_MEAN_CSM_ESTIMATOR = ('smootherstep', {'lower_csm': DEFAULT_LOWER_CSM,
+                                                            'upper_csm': DEFAULT_UPPER_CSM})
+    DEFAULT_CE_ESTIMATOR = ('power2_inverse_power2_decreasing', {'max_csm': DEFAULT_MAX_CSM})
+    DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
+    STRATEGY_OPTIONS = OrderedDict({'additional_condition': {'type': AdditionalConditionInt,
+                                                             'internal': '_additional_condition',
+                                                             'default': DEFAULT_ADDITIONAL_CONDITION},
+                                    'surface_calculation_type': {}})
+    STRATEGY_DESCRIPTION = '    Multiple Abundance ChemenvStrategy'
+
+    def __init__(self, structure_environments=None,
+                 additional_condition=AbstractChemenvStrategy.AC.ONLY_ACB,
+                 symmetry_measure_type=AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE,
+                 surface_calculation_options=DEFAULT_SURFACE_CALCULATION_OPTIONS,
+                 mean_csm_estimator=DEFAULT_MEAN_CSM_ESTIMATOR,
+                 cn_self_mean_csm_estimator=DEFAULT_CN_SELF_MEAN_CSM_ESTIMATOR,
+                 ce_estimator=DEFAULT_CE_ESTIMATOR,
+                 max_csm=DEFAULT_MAX_CSM):
+        """
+        Constructor for the SimpleAbundanceChemenvStrategy.
+        :param structure_environments: StructureEnvironments object containing all the information on the
+        coordination of the sites in a structure
+        """
+        AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
+        self._additional_condition = additional_condition
+        self._surface_calculation_options = surface_calculation_options
+        # Definition of the estimator/function used to estimate the "mean" csm used for the calculation of
+        # the fractions of each cn_map
+        self._mean_csm_estimator = mean_csm_estimator
+        self._mean_csm_estimator_ratio_function = CSMInfiniteRatioFunction(mean_csm_estimator[0],
+                                                                           options_dict=mean_csm_estimator[1])
+        self._mean_csm = self._mean_csm_estimator_ratio_function.mean_estimator
+        # Definition of the estimator/function used to compute the "self" contribution to the fraction of the cn_map
+        self._cn_self_mean_csm_estimator = cn_self_mean_csm_estimator
+        self._cn_self_mean_csm_estimator_ratio_function = \
+            CSMFiniteRatioFunction(cn_self_mean_csm_estimator[0],
+                                   options_dict=cn_self_mean_csm_estimator[1])
+        self._cn_self_mean_csm_evaluate = self._cn_self_mean_csm_estimator_ratio_function.evaluate
+        self._max_csm = max_csm
+        # Definition of the estimator/function used to compute the fractions of each coordination environment within
+        # one cn_map
+        self._ce_estimator = ce_estimator
+        self._ce_estimator_ratio_function = CSMInfiniteRatioFunction(ce_estimator[0], options_dict=ce_estimator[1])
+        self._ce_estimator_fractions = self._ce_estimator_ratio_function.fractions
+
+    @property
+    def uniquely_determines_coordination_environments(self):
+        return False
+
+    def get_site_coordination_environments_fractions(self, site, isite=None, dequivsite=None, dthissite=None,
+                                                     mysym=None, ordered=True, min_fraction=0.0, return_maps=True):
+        if isite is None or dequivsite is None or dthissite is None or mysym is None:
+            [isite, dequivsite, dthissite, mysym] = self.equivalent_site_index_and_transform(site)
+        # Get the cn_maps and the corresponding surfaces
+        maps_and_surfaces = self._get_maps_surfaces(isite=isite,
+                                                    surface_calculation_options=self._surface_calculation_options)
+        # List of ChemicalEnvironments for the site
+        site_ce_list = self.structure_environments.ce_list[isite]
+        site_mingeoms_list = {}
+        # Remove neighbors sets for which the surface is 0 or for which the lowest csm is larger than
+        #  the max_csm allowed
+        new_maps_and_surfaces = []
+        for i_map_and_surface, map_and_surface in enumerate(maps_and_surfaces):
+            if np.isclose(map_and_surface['surface'], 0.0):
+                continue
+            cn, i_nbs = map_and_surface['map']
+            mingeoms = site_ce_list[cn][i_nbs].minimum_geometries(symmetry_measure_type=self._symmetry_measure_type)
+            mincsm = mingeoms[0][1]['other_symmetry_measures'][self._symmetry_measure_type]
+            if mincsm >= self._max_csm:
+                continue
+            if cn not in site_mingeoms_list:
+                # Use a dictionnary here as not all i_nbs might be there ...
+                site_mingeoms_list[cn] = {}
+            site_mingeoms_list[cn][i_nbs] = mingeoms
+            new_maps_and_surfaces.append(map_and_surface)
+        maps_and_surfaces = new_maps_and_surfaces
+        # Get the total surface
+        surf_total = sum([mas['surface'] for mas in maps_and_surfaces])
+        # Get the mean csms and the corresponding "csm weight" for each neighbors set (i.e. for each cn_map)
+        mean_csms = {}
+        cn_maps_csm_weights = {}
+        for i_map_and_surface, map_and_surface in enumerate(maps_and_surfaces):
+            cn, i_nbs = map_and_surface['map']
+            mingeoms = site_mingeoms_list[cn][i_nbs]
+            mean_csm_max = self._mean_csm_estimator[1]['max_csm']
+            csms = [ce_dict['other_symmetry_measures'][self._symmetry_measure_type] for ce_symbol, ce_dict in mingeoms
+                    if ce_dict['other_symmetry_measures'][self._symmetry_measure_type] <= mean_csm_max]
+            mean_csms[(cn, i_nbs)] = self._mean_csm(csms)
+            cn_maps_csm_weights[(cn, i_nbs)] = self._cn_self_mean_csm_evaluate(mean_csms[(cn, i_nbs)])
+        # Get the fractions for each neighbors set (i.e. for each cn_map)
+        cn_map_fractions = {}
+        for i_map_and_surface, map_and_surface in enumerate(maps_and_surfaces):
+            cn, i_nbs = map_and_surface['map']
+            surf_ratio = map_and_surface['surface'] / surf_total
+            cn_map_fractions[(cn, i_nbs)] = surf_ratio * cn_maps_csm_weights[(cn, i_nbs)]
+        cn_map_fractions_sum = sum(cn_map_fractions.values())
+        cn_map_fractions = {cn_map: frac / cn_map_fractions_sum for cn_map, frac in cn_map_fractions.items()}
+
+        ce_symbols = []
+        ce_dicts = []
+        ce_fractions = []
+        ce_maps = []
+        for cn_map, cn_map_fraction in cn_map_fractions.items():
+            if cn_map_fraction > 0.0:
+                mingeoms = site_mingeoms_list[cn_map[0]][cn_map[1]]
+                csms = [ce_dict['other_symmetry_measures'][self._symmetry_measure_type]
+                        for ce_symbol, ce_dict in mingeoms]
+                fractions = self._ce_estimator_fractions(csms)
+                for ifraction, fraction in enumerate(fractions):
+                    if fraction > 0.0:
+                        ce_symbols.append(mingeoms[ifraction][0])
+                        ce_dicts.append(mingeoms[ifraction][1])
+                        ce_fractions.append(cn_map_fraction * fraction)
+                        ce_maps.append(cn_map)
+        if ordered:
+            indices = np.argsort(ce_fractions)[::-1]
+        else:
+            indices = list(range(len(ce_fractions)))
+        if return_maps:
+            return [(ce_symbols[ii], ce_dicts[ii], ce_fractions[ii], ce_maps[ii])
+                    for ii in indices if ce_fractions[ii] > min_fraction]
+        else:
+            return [(ce_symbols[ii], ce_dicts[ii], ce_fractions[ii])
+                    for ii in indices if ce_fractions[ii] > min_fraction]
+
+    def get_site_coordination_environment(self, site):
+        pass
+
+    def get_site_neighbors(self, site):
+        pass
+
+    def get_site_coordination_environments(self, site, isite=None, dequivsite=None, dthissite=None, mysym=None,
+                                           return_maps=False):
+        if isite is None or dequivsite is None or dthissite is None or mysym is None:
+            [isite, dequivsite, dthissite, mysym] = self.equivalent_site_index_and_transform(site)
+        return [self.get_site_coordination_environment(site=site, isite=isite, dequivsite=dequivsite,
+                                                       dthissite=dthissite, mysym=mysym, return_map=return_maps)]
+
+    def _get_maps_surfaces(self, isite, surface_calculation_options=None):
+        if surface_calculation_options is None:
+            surface_calculation_options = {'type': 'standard_elliptic',
+                                           'distance_bounds': {'lower': 1.2, 'upper': 1.8},
+                                           'angle_bounds': {'lower': 0.1, 'upper': 0.8}}
+        voronoi = self.structure_environments.voronoi
+        return voronoi.maps_and_surfaces_bounded(isite=isite,
+                                                 surface_calculation_options=surface_calculation_options,
+                                                 additional_conditions=None)
+
+    def __eq__(self, other):
+        return (self.__class__.__name__ == other.__class__.__name__ and
+                self._additional_condition == other.additional_condition)
+
+    def as_dict(self):
+        """
+        Bson-serializable dict representation of the SimpleAbundanceChemenvStrategy object.
+        :return: Bson-serializable dict representation of the SimpleAbundanceChemenvStrategy object.
+        """
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "additional_condition": self._additional_condition}
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Reconstructs the SimpleAbundanceChemenvStrategy object from a dict representation of the
+        SimpleAbundanceChemenvStrategy object created using the as_dict method.
+        :param d: dict representation of the SimpleAbundanceChemenvStrategy object
+        :return: StructureEnvironments object
+        """
+        return cls(additional_condition=d["additional_condition"])
