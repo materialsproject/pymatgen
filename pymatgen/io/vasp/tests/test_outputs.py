@@ -378,6 +378,13 @@ class VasprunTest(unittest.TestCase):
                                                {"titel": "PAW_PBE P 17Jan2003", "hash": None},
                                                {"titel": "PAW_PBE O 08Apr2002", "hash": None}])
 
+    def test_parsing_chemical_shift_calculations(self):
+        filepath = os.path.join(test_dir, "chemical_shift", 'vasprun.xml.chemical_shift.scstep')
+        vasprun = Vasprun(filepath)
+        nestep = len(vasprun.ionic_steps[-1]['electronic_steps'])
+        self.assertEqual(nestep, 10)
+        self.assertTrue(vasprun.converged)
+
 
 class OutcarTest(unittest.TestCase):
 
