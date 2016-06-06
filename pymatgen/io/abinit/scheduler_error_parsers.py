@@ -3,6 +3,11 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals, division, print_function
+import re
+import abc
+import six
+
+from abc import ABCMeta, abstractproperty, abstractmethod
 
 """
 Error handlers for errors originating from the Submission systems.
@@ -18,11 +23,6 @@ __date__ = "May 2014"
 __all_errors__ = ['SubmitError', 'FullQueueError', 'DiskError', 'TimeCancelError', 'MemoryCancelError',
                   'NodeFailureError']
 
-import re
-import abc
-import six
-
-from abc import ABCMeta, abstractproperty, abstractmethod
 
 @six.add_metaclass(ABCMeta)
 class CorrectorProtocolScheduler(object):
@@ -262,7 +262,7 @@ class AbstractErrorParser(object):
 
     @abc.abstractproperty
     def error_definitions(self):
-        return {}
+        return dict()
 
     @staticmethod
     def extract_metadata(lines, meta_filter):
@@ -286,7 +286,7 @@ class AbstractErrorParser(object):
         metadata = None
         for k in errmsg.keys():
             if self.files[k] is not None:
-                # print 'parsing ', self.files[k], ' for ', errmsg[k]['string']
+                print('parsing ', self.files[k], ' for ', errmsg[k]['string'])
                 try:
                     with open(self.files[k], mode='r') as f:
                         lines = f.read().split('\n')
@@ -309,7 +309,9 @@ class AbstractErrorParser(object):
         """
         Parse for the occurens of all errors defined in ERRORS
         """
+        errors_tested = 0
         for error in self.error_definitions:
+            errors_tested += 1
             result = self.parse_single(self.error_definitions[error])
             if result[0]:
                 self.errors.append(error(result[1], result[2]))
@@ -317,6 +319,8 @@ class AbstractErrorParser(object):
             print('QUEUE_ERROR FOUND')
             for error in self.errors:
                 print(error)
+
+        return errors_tested
 
 
 class SlurmErrorParser(AbstractErrorParser):
@@ -334,7 +338,7 @@ class SlurmErrorParser(AbstractErrorParser):
             },
             FullQueueError: {
                 'batch_err': {
-                    'string': "sbatch: error: Batch job submission failed: Job violates accounting/QOS policy",
+                    'string': "Job violates accounting/QOS policy",
                     'meta_filter': {}
                 }
             },
@@ -374,11 +378,11 @@ class SlurmErrorParser(AbstractErrorParser):
 class PBSErrorParser(AbstractErrorParser):
     """
     Implementation for the PBS scheduler
+        PBS: job killed: walltime 932 exceeded limit 900
+        PBS: job killed: walltime 46 exceeded limit 30
+        PBS: job killed: vmem 2085244kb exceeded limit 1945600kb
     """
 
-#=>> PBS: job killed: walltime 932 exceeded limit 900
-#=>> PBS: job killed: walltime 46 exceeded limit 30
-#=>> PBS: job killed: vmem 2085244kb exceeded limit 1945600kb
     @property
     def error_definitions(self):
         return {

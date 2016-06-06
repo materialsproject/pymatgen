@@ -30,6 +30,7 @@ __date__ = "May 16, 2016"
 with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"), "rt") as fh:
     _all_xcfuncs = {int(k): v for k, v in json.load(fh).items()}
 
+
 # @unique
 class LibxcFunc(Enum):
     """

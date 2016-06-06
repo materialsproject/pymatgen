@@ -932,101 +932,61 @@ class RelaxWork(Work):
 
 class G0W0Work(Work):
     """
-    Work for G0W0 calculations.
+    Work for general G0W0 calculations.
+    All input can be either single inputs or lists of inputs
     """
-    def __init__(self, scf_input, nscf_input, scr_input, sigma_inputs,
-                 workdir=None, manager=None, spread_scr=False, nksmall=None):
+    def __init__(self, scf_inputs, nscf_inputs, scr_inputs, sigma_inputs,
+                 workdir=None, manager=None):
         """
         Args:
-            scf_input: Input for the SCF run
-            nscf_input: Input for the NSCF run
-            scr_input: Input for the screening run
+            scf_inputs: Input for the SCF run, if it is a list add all but only link 
+                to the last input (used for convergence studies on the KS band gap)
+            nscf_inputs: Input for the NSCF run, if it is a list add all but only 
+                link to the last (i.e. addditiona DOS and BANDS)
+            scr_inputs: Input for the screening run
             sigma_inputs: List of :class:AbinitInput`for the self-energy run.
+                if scr and sigma are lists of the same length every sigma gets it's own screening
+                if there is only one screening all sigma's link to this one
             workdir: Working directory of the calculation.
             manager: :class:`TaskManager` object.
-            spread_scr: Attach a screening task to every sigma task
-                if false only one screening task with the max ecuteps and nbands for all sigma tasks
-            nksmall: if not None add a dos and bands calculation to the Work
         """
         super(G0W0Work, self).__init__(workdir=workdir, manager=manager)
 
+        if isinstance(sigma_inputs, list) and isinstance(scr_inputs, list) and len(sigma_inputs) == len(scr_inputs):
+            spread_scr = True
+        else:
+            spread_scr = False
+
+        self.sigma_tasks = []
+
         # Register the GS-SCF run.
         # register all scf_inputs but link the nscf only the last scf in the list
-        #MG: FIXME Why this?
-        if isinstance(scf_input, (list, tuple)):
-            for single_scf_input in scf_input:
-                self.scf_task = self.register_scf_task(single_scf_input)
+        # multiple scf_inputs can be provided to perform convergence studies
+
+        if isinstance(scf_inputs, list):
+            for scf_input in scf_inputs:
+                self.scf_task = self.register_scf_task(scf_input)
         else:
-            self.scf_task = self.register_scf_task(scf_input)
+            self.scf_task = self.register_scf_task(scf_inputs)
 
-        nogw = False
+        # Register the NSCF run (s).
 
-        if nksmall:
-            raise NotImplementedError("with nksmall but strategies have been removed")
-            # if nksmall add bandstructure and dos calculations as well
+        if isinstance(nscf_inputs, list):
+            for nscf_input in nscf_inputs:
+                self.nscf_task = nscf_task = self.register_nscf_task(nscf_input, deps={self.scf_task: "DEN"})
+        else:
+            self.nscf_task = nscf_task = self.register_nscf_task(nscf_inputs, deps={self.scf_task: "DEN"})
 
-            from abiobjects import KSampling
-            if nksmall < 0:
-                nksmall = -nksmall
-                nogw = True
-            scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
-            logger.info('added band structure calculation')
-            bands_input = NscfStrategy(scf_strategy=scf_in,
-                                       ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_in.structure),
-                                       nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0, tolwfr=1e-18)
-            self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
-            # note we don not let abinit print the dos, since this is inconpatible with parakgb
-            # the dos will be evaluated later using abipy
-            dos_input = NscfStrategy(scf_strategy=scf_in,
-                                     ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure,
-                                                                           shifts=(0.0, 0.0, 0.0)),
-                                     nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
+        # Register the SCR and SIGMA run(s).
 
-            self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
-
-            #from abiobjects import KSampling
-            #if nksmall < 0:
-            #    nksmall = -nksmall
-            #    nogw = True
-            #scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
-            #logger.info('added band structure calculation')
-            #bands_input = NscfStrategy(scf_strategy=scf_in,
-            #                           ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_in.structure),
-            #                           nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
-
-            #self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
-            ## note we don not let abinit print the dos, since this is inconpatible with parakgb
-            ## the dos will be evaluated later using abipy
-            #dos_input = NscfStrategy(scf_strategy=scf_in,
-            #                         ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure,
-            #                                                               shifts=(0.0, 0.0, 0.0)),
-            #                         nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
-
-            #self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
-
-        # Register the SIGMA runs.
-        if not nogw:
-            # Construct the input for the NSCF run.
-            self.nscf_task = nscf_task = self.register_nscf_task(nscf_input, deps={self.scf_task: "DEN"})
-
-            # Register the SCREENING run.
-            if not spread_scr:
-                self.scr_task = scr_task = self.register_scr_task(scr_input, deps={nscf_task: "WFK"})
-            else:
-                self.scr_tasks = []
-
-            if not isinstance(sigma_inputs, (list, tuple)):
-                sigma_inputs = [sigma_inputs]
-
-            self.sigma_tasks = []
+        if spread_scr:
+            for scr_input, sigma_input in zip(scr_inputs, sigma_inputs):
+                scr_task = self.register_scr_task(scr_input, deps={nscf_task: "WFK"})
+                sigma_task = self.register_sigma_task(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
+                self.sigma_tasks.append(sigma_task)
+        else:
+            scr_task = self.register_scr_task(scr_inputs, deps={nscf_task: "WFK"})
             for sigma_input in sigma_inputs:
-                if spread_scr:
-                    new_scr_input = copy.deepcopy(scr_input)
-                    new_scr_input.screening.ecuteps = sigma_input.sigma.ecuteps
-                    new_scr_input.screening.nband = sigma_input.sigma.nband
-                    new_scr_input.electrons.nband = sigma_input.sigma.nband
-                    scr_task = self.register_scr_task(new_scr_input, deps={nscf_task: "WFK"})
-
                 task = self.register_sigma_task(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
                 self.sigma_tasks.append(task)
 
