@@ -378,7 +378,6 @@ class VasprunTest(unittest.TestCase):
                                                {"titel": "PAW_PBE P 17Jan2003", "hash": None},
                                                {"titel": "PAW_PBE O 08Apr2002", "hash": None}])
 
-class TT(unittest.TestCase):
     def test_parsing_chemical_shift_calculations(self):
         filepath = os.path.join(test_dir, "chemical_shift", 'vasprun.xml.chemical_shift.scstep')
         vasprun = Vasprun(filepath)
