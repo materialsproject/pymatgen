@@ -213,6 +213,8 @@ class TensorBaseTest(PymatgenTest):
         self.assertTrue(self.fit_r3.is_fit_to_structure(self.structure))
         self.assertTrue(self.fit_r4.is_fit_to_structure(self.structure))
 
+    def test_convert_to_ieee(self):
+        ieee_tensor = self.fit_r4.convert_to_ieee(self.structure)
 
 class SquareTensorTest(PymatgenTest):
     def setUp(self):

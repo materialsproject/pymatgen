@@ -425,7 +425,7 @@ class SpacegroupAnalyzer(object):
 
         return Structure.from_sites(new_sites)
 
-    def get_conventional_standard_structure(
+    def get_conventional_standard_transformation(
             self, international_monoclinic=True):
         """
         Gives a structure with a conventional cell according to certain
@@ -688,7 +688,11 @@ class SpacegroupAnalyzer(object):
                 new_matrix = test_matrix
 
             latt = Lattice(new_matrix)
+        return transf, latt
 
+    def get_conventional_standard_structure(self, international_monoclinic=True):
+        struct = self.get_refined_structure()
+        transf, latt = self.get_conventional_standard_transformation(international_monoclinic=True)
         new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T
         new_struct = Structure(latt, struct.species_and_occu, new_coords,
                                site_properties=struct.site_properties,
