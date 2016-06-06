@@ -95,8 +95,7 @@ class TensorBase(np.ndarray):
         Args:
             symm_op (3x3 array-like): a symmetry operation to apply to the tensor
         """
-
-        return symm_op.transform_tensor(self)
+        return self.__class__(symm_op.transform_tensor(self))
 
     def rotate(self, matrix, tol=1e-5):
         matrix = SquareTensor(matrix)
@@ -153,8 +152,49 @@ class TensorBase(np.ndarray):
         Args:
             tol (float): tolerance for symmetry testing
         """
-
         return (self - self.fit_to_structure(structure) < tol).all()
+
+    def convert_to_ieee(self, structure, atol = 0.1, ltol = 1e-3):
+        """
+        Given a structure associated with a tensor, attempts a
+        calculation of the tensor in IEEE format according to
+        the 1978 IEEE standards.
+
+        Args:
+            structure (structure): a structure associated with the
+            symprec (float): precision for the symmetry analyzer
+        """
+        sga = SpacegroupAnalyzer(structure)
+        trans, latt = sga.get_conventional_standard_transformation()
+        return self.rotate(trans)
+        """
+        vecs = structure.lattice.matrix
+        lengths = np.array(structure.lattice.abc)
+        angles = np.array(structure.lattice.angles)
+
+        a = b = c = None
+        xtal_sys = sga.get_crystal_system()
+        angle_error = "Angle check failure. {} crystal "\
+                      "may not be in conventional representation"
+        import pdb; pdb.set_trace()
+        if xtal_sys == "cubic":
+            if (abs(angles - 90.0) > atol).any():
+                raise ValueError(angle_error)
+            if (abs(lengths - lengths[0]) > ltol).any():
+                raise ValueError("Cubic vectors not equal in length")
+            rotation = [vecs[i]/lengths[i] for i in range(3)]
+        elif xtal_sys == "tetragonal":
+            if (abs(angles - 90.0) > atol).any():
+                raise ValueError(angle_error)
+            # This may be redundant, should be cubic
+            if (abs(lengths - lengths[0]) < ltol).all():
+                raise ValueError("Tetragonal c vector indistinguishable")
+
+            if abs(lengths[1] - lengths[0]) < ltol:
+                rotation = [vecs[i]/lengths[i] for i in range(3)]
+            if abs(lengths[2] - lengths[0]) < ltol:
+                rotation =""" 
+
 
 
 class SquareTensor(TensorBase):
