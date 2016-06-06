@@ -420,7 +420,10 @@ class Vasprun(MSONable):
                                             p in self.potcar_symbols]
                 if tag == "calculation":
                     parsed_header = True
-                    ionic_steps.append(self._parse_calculation(elem))
+                    if not self.parameters.get("LCHIMAG", False):
+                        ionic_steps.append(self._parse_calculation(elem))
+                    else:
+                        ionic_steps.extend(self._parse_chemical_shift_calculation(elem))
                 elif parse_dos and tag == "dos":
                     try:
                         self.tdos, self.idos, self.pdos = self._parse_dos(elem)
@@ -1008,6 +1011,39 @@ class Vasprun(MSONable):
         elem.clear()
         return [e[0] for e in imag], \
                [e[1:] for e in real], [e[1:] for e in imag]
+
+
+    def _parse_chemical_shift_calculation(self, elem):
+        calculation = []
+        istep = {}
+        try:
+            s = self._parse_structure(elem.find("structure"))
+        except AttributeError:  # not all calculations have a structure
+            s = None
+            pass
+        for va in elem.findall("varray"):
+            istep[va.attrib["name"]] = _parse_varray(va)
+        istep["structure"] = s
+        istep["electronic_steps"] = []
+        calculation.append(istep)
+        for scstep in elem.findall("scstep"):
+            try:
+                d = {i.attrib["name"]: _vasprun_float(i.text)
+                     for i in scstep.find("energy").findall("i")}
+                cur_ene = d['e_fr_energy']
+                min_steps = 1 if len(calculation) >= 1 else self.parameters.get("NELMIN", 5)
+                if len(calculation[-1]["electronic_steps"]) <= min_steps:
+                    calculation[-1]["electronic_steps"].append(d)
+                else:
+                    last_ene = calculation[-1]["electronic_steps"][-1]["e_fr_energy"]
+                    if abs(cur_ene - last_ene) < 1.0:
+                        calculation[-1]["electronic_steps"].append(d)
+                    else:
+                        calculation.append({"electronic_steps": [d]})
+            except AttributeError:  # not all calculations have an energy
+                pass
+        return calculation
+
 
     def _parse_calculation(self, elem):
         try:
