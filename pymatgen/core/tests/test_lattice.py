@@ -30,8 +30,14 @@ class LatticeTestCase(PymatgenTest):
             self.families[name] = getattr(self, name)
 
     def test_format(self):
-        print(format(self.lattice, ".3fl"))
-        print(format(self.lattice, "s"))
+        self.assertEqual("[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]",
+                         format(self.lattice, ".3fl"))
+        self.assertEqual(
+            """10.000 0.000 0.000
+0.000 10.000 0.000
+0.000 0.000 10.000""",
+            format(self.lattice, ".3f"))
+
 
     def test_init(self):
         a = 9.026
