@@ -37,7 +37,8 @@ class LatticeTestCase(PymatgenTest):
 0.000 10.000 0.000
 0.000 0.000 10.000""",
             format(self.lattice, ".3f"))
-
+        self.assertEqual("{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}",
+                         format(self.lattice, ".1fp"))
 
     def test_init(self):
         a = 9.026

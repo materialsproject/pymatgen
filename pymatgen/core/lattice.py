@@ -76,13 +76,24 @@ class Lattice(MSONable):
         """
         Support format printing. Supported formats are:
 
-        i. "l" for a list format that can be easily copied and pasted, e.g.,
-           "%.3fl" prints something like [[0.000, 0.000, 0.000], ...]
+        1. "l" for a list format that can be easily copied and pasted, e.g.,
+           ".3fl" prints something like
+           "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]"
+        2. "p" for lattice parameters ".1fp" prints something like
+           "{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}"
+        3. Default will simply print a 3x3 matrix form. E.g.,
+           10.000 0.000 0.000
+           0.000 10.000 0.000
+           0.000 0.000 10.000
         """
         m = self.matrix.tolist()
         if fmt_spec.endswith("l"):
             fmt = "[[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]]"
             fmt_spec = fmt_spec[:-1]
+        elif fmt_spec.endswith("p"):
+            fmt = "{{{}, {}, {}, {}, {}, {}}}"
+            fmt_spec = fmt_spec[:-1]
+            m = self.lengths_and_angles
         else:
             fmt = "{} {} {}\n{} {} {}\n{} {} {}"
         return fmt.format(*[format(c, fmt_spec) for row in m
