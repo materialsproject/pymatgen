@@ -72,6 +72,19 @@ class Lattice(MSONable):
         self._inv_matrix = None
         self._metric_tensor = None
 
+    def __format__(self, fmt_spec=''):
+        """
+        Support format printing. Supported formats are:
+
+        i. "l" for a list format that can be easily copied and pasted, e.g.,
+           "%.3fl" prints something like [[0.000, 0.000, 0.000], ...]
+        """
+        if fmt_spec.endswith("l"):
+            m = self.matrix.tolist()
+            fmt = "[[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]]"
+            return fmt.format(*[format(c, fmt_spec[:-1]) for row in m for c in row])
+        raise ValueError("Unsupported format specification.")
+
     @classmethod
     @deprecated(message="from_abivars has been merged with the from_dict "
                 "method. Use from_dict(fmt=\"abivars\"). from_abivars "
