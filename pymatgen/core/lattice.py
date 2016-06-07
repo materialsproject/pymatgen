@@ -79,11 +79,14 @@ class Lattice(MSONable):
         i. "l" for a list format that can be easily copied and pasted, e.g.,
            "%.3fl" prints something like [[0.000, 0.000, 0.000], ...]
         """
+        m = self.matrix.tolist()
         if fmt_spec.endswith("l"):
-            m = self.matrix.tolist()
             fmt = "[[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]]"
-            return fmt.format(*[format(c, fmt_spec[:-1]) for row in m for c in row])
-        raise ValueError("Unsupported format specification.")
+            fmt_spec = fmt_spec[:-1]
+        else:
+            fmt = "{} {} {}\n{} {} {}\n{} {} {}"
+        return fmt.format(*[format(c, fmt_spec) for row in m
+                            for c in row])
 
     @classmethod
     @deprecated(message="from_abivars has been merged with the from_dict "
