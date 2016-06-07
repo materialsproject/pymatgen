@@ -1257,10 +1257,11 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
             cn_maps_csm_weights[(cn, i_nbs)] = self._cn_self_mean_csm_evaluate(mean_csms[(cn, i_nbs)])
         # Get the fractions for each neighbors set (i.e. for each cn_map)
         cn_map_fractions = {}
+        cn_map_surface_fractions = {}
         for i_map_and_surface, map_and_surface in enumerate(maps_and_surfaces):
             cn, i_nbs = map_and_surface['map']
-            surf_ratio = map_and_surface['surface'] / surf_total
-            cn_map_fractions[(cn, i_nbs)] = surf_ratio * cn_maps_csm_weights[(cn, i_nbs)]
+            cn_map_surface_fractions[(cn, i_nbs)] = map_and_surface['surface'] / surf_total
+            cn_map_fractions[(cn, i_nbs)] = cn_map_surface_fractions[(cn, i_nbs)] * cn_maps_csm_weights[(cn, i_nbs)]
         cn_map_fractions_sum = sum(cn_map_fractions.values())
         cn_map_fractions = {cn_map: frac / cn_map_fractions_sum for cn_map, frac in cn_map_fractions.items()}
 
@@ -1280,6 +1281,14 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
                         ce_dicts.append(mingeoms[ifraction][1])
                         ce_fractions.append(cn_map_fraction * fraction)
                         ce_maps.append(cn_map)
+        if len(ce_fractions) == 0:
+            for cn_map, cn_map_surface_fraction in cn_map_surface_fractions.items():
+                if cn_map_surface_fraction > 0.0:
+                    ce_symbols.append('UNCLEAR:{:d}'.format(cn_map[0]))
+                    ce_dicts.append(None)
+                    ce_fractions.append(cn_map_surface_fraction)
+                    ce_maps.append(cn_map)
+
         if ordered:
             indices = np.argsort(ce_fractions)[::-1]
         else:

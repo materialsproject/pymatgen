@@ -30,7 +30,11 @@ from pymatgen.analysis.structure_analyzer import solid_angle
 
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import my_solid_angle
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import quarter_ellipsis_functions
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rectangle_surface_intersection
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
+
+from scipy.integrate import quad
 
 
 def from_bson_voronoi_list(bson_nb_voro_list, structure):
@@ -324,7 +328,7 @@ class DetailedVoronoiContainer(MSONable):
             self._unique_coordinated_neighbors[isite] = {}
             self._unique_coordinated_neighbors_parameters_indices[isite] = {}
             self._parameters_to_unique_coordinated_neighbors_map[isite] = [None] * ndist_params
-            for idp, dp in enumerate(self.neighbors_distances[isite]):
+            for idp, dp in enumerate(self.neighbors_weighted_distances[isite]):
                 self._parameters_to_unique_coordinated_neighbors_map[isite][idp] = [None] * nang_params
                 for iap, ap in enumerate(self.neighbors_weighted_angles[isite]):
                     self._parameters_to_unique_coordinated_neighbors_map[isite][idp][iap] = [None] * ncond_params
@@ -407,6 +411,62 @@ class DetailedVoronoiContainer(MSONable):
             for iap in range(len(angle_bounds) - 1):
                 this_ang_plateau = angle_bounds[iap + 1] - angle_bounds[iap]
                 surfaces[idp][iap] = np.absolute(this_dist_plateau*this_ang_plateau)
+        return surfaces
+
+    def neighbors_surfaces_bounded(self, isite, surface_calculation_options=None):
+        if self.voronoi_list[isite] is None:
+            return None
+        if surface_calculation_options is None:
+            surface_calculation_options = {'type': 'standard_elliptic',
+                                           'distance_bounds': {'lower': 1.2, 'upper': 1.8},
+                                           'angle_bounds': {'lower': 0.1, 'upper': 0.8}}
+        if surface_calculation_options['type'] == 'standard_elliptic':
+            plot_type = {'distance_parameter': ('initial_normalized', None),
+                         'angle_parameter': ('initial_normalized', None)}
+        else:
+            raise ValueError('Type "{}" for the surface calculation in DetailedVoronoiContainer '
+                             'is invalid'.format(surface_calculation_options['type']))
+        max_dist = surface_calculation_options['distance_bounds']['upper'] + 0.1
+        bounds_and_limits = self.voronoi_parameters_bounds_and_limits(isite=isite,
+                                                                      plot_type=plot_type,
+                                                                      max_dist=max_dist)
+        distance_bounds = bounds_and_limits['distance_bounds']
+        angle_bounds = bounds_and_limits['angle_bounds']
+        mindist = surface_calculation_options['distance_bounds']['lower']
+        maxdist = surface_calculation_options['distance_bounds']['upper']
+        minang = surface_calculation_options['angle_bounds']['lower']
+        maxang = surface_calculation_options['angle_bounds']['upper']
+        ellipsis_functions = quarter_ellipsis_functions(xx=(mindist, minang), yy=(maxdist, maxang))
+        surfaces = np.zeros((len(distance_bounds), len(angle_bounds)), np.float)
+        for idp in range(len(distance_bounds) - 1):
+            dp1 = distance_bounds[idp]
+            dp2 = distance_bounds[idp+1]
+            if dp2 < mindist or dp1 > maxdist:
+                continue
+            if dp1 < mindist:
+                d1 = mindist
+            else:
+                d1 = dp1
+            if dp2 > maxdist:
+                d2 = maxdist
+            else:
+                d2 = dp2
+            for iap in range(len(angle_bounds) - 1):
+                ap1 = angle_bounds[iap]
+                ap2 = angle_bounds[iap+1]
+                if ap1 > ap2:
+                    ap1 = angle_bounds[iap + 1]
+                    ap2 = angle_bounds[iap]
+                if ap2 < minang or ap1 > maxang:
+                    continue
+                intersection, interror = rectangle_surface_intersection(rectangle=((d1, d2),
+                                                                                   (ap1, ap2)),
+                                                                        f_lower=ellipsis_functions['lower'],
+                                                                        f_upper=ellipsis_functions['upper'],
+                                                                        bounds_lower=[mindist, maxdist],
+                                                                        bounds_upper=[mindist, maxdist],
+                                                                        check=False)
+                surfaces[idp][iap] = intersection
         return surfaces
 
     def maps_with_condition(self, isite, additional_condition, return_parameter_indices=False):
@@ -522,6 +582,23 @@ class DetailedVoronoiContainer(MSONable):
                                           'parameters_indices': list_parameters_indices})
         return maps_and_surfaces
 
+    def maps_and_surfaces_bounded(self, isite, surface_calculation_options=None, additional_conditions=None):
+        if self.voronoi_list[isite] is None:
+            return None
+        if additional_conditions is None:
+            additional_conditions = [self.AC.ONLY_ACB]
+        surfaces = self.neighbors_surfaces_bounded(isite=isite, surface_calculation_options=surface_calculation_options)
+        maps_and_surfaces = []
+        for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():
+            for imap, list_parameters_indices in enumerate(value):
+                thissurf = 0.0
+                for (idp, iap, iacb) in list_parameters_indices:
+                    if iacb in additional_conditions:
+                        thissurf += surfaces[idp, iap]
+                maps_and_surfaces.append({'map': (cn, imap), 'surface': thissurf,
+                                          'parameters_indices': list_parameters_indices})
+        return maps_and_surfaces
+
     def get_neighbors(self, isite, neighbors_map):
         """
         Returns the list of neighbours of a given site given the neighbors_map indices (index of the distance and
@@ -618,11 +695,7 @@ class DetailedVoronoiContainer(MSONable):
         if plot_type is None:
             plot_type = {'distance_parameter': ('initial_inverse_opposite', None),
                          'angle_parameter': ('initial_opposite', None)}
-        if plot_type['distance_parameter'][0] == 'initial_normalized':
-            #dd = [dist['min'] for dist in self.neighbors_weighted_distances[isite] if dist['min'] <= max_dist]
-            dd = [dist['min'] for dist in self.neighbors_weighted_distances[isite]]
-        else:
-            dd = [dist['min'] for dist in self.neighbors_weighted_distances[isite]]
+        dd = [dist['min'] for dist in self.neighbors_weighted_distances[isite]]
         dd[0] = 1.0
         if plot_type['distance_parameter'][0] == 'initial_normalized':
             dd.append(max_dist)

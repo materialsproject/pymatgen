@@ -22,10 +22,170 @@ import math
 import numpy as np
 from numpy.linalg import norm
 from scipy.spatial import ConvexHull
+from scipy.integrate import quad
 
 from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
 
 
+def function_comparison(f1, f2, x1, x2, numpoints_check=500):
+    """
+        Method that compares two functions
+
+        Args:
+            f1: First function to compare
+            f2: Second function to compare
+            x1: Lower bound of the interval to compare
+            x2: Upper bound of the interval to compare
+            numpoints_check: Number of points used to compare the functions
+
+        Returns:
+            Whether the function are equal ("="), f1 is always lower than f2 ("<"), f1 is always larger than f2 (">"),
+             f1 is always lower than or equal to f2 ("<"), f1 is always larger than or equal to f2 (">") on the
+             interval [x1, x2]. If the two functions cross, a RuntimeError is thrown (i.e. we expect to compare
+             functions that do not cross...)
+        """
+    xx = np.linspace(x1, x2, num=numpoints_check)
+    y1 = f1(xx)
+    y2 = f2(xx)
+    if np.all(y1 < y2):
+        return '<'
+    elif np.all(y1 > y2):
+        return '>'
+    elif np.all(y1 == y2):
+        return '='
+    elif np.all(y1 <= y2):
+        return '<='
+    elif np.all(y1 >= y2):
+        return '>='
+    else:
+        raise RuntimeError('Error in comparing functions f1 and f2 ...')
+
+
+def quarter_ellipsis_functions(xx, yy):
+    """
+    Method that creates two quarter-ellipse functions based on points xx and yy. The aellipsis is supposed to
+    be aligned with the axes. The two ellipsis pass through the two points xx and yy.
+
+    Args:
+        xx:
+            First point
+        yy:
+            Second point
+
+    Returns:
+        A dictionary with the lower and upper quarter ellipsis functions.
+    """
+    npxx = np.array(xx)
+    npyy = np.array(yy)
+    if np.any(npxx == npyy):
+        raise RuntimeError('Invalid points for quarter_ellipsis_functions')
+    if np.all(npxx < npyy) or np.all(npxx > npyy):
+        if npxx[0] < npyy[0]:
+            p1 = npxx
+            p2 = npyy
+        else:
+            p1 = npyy
+            p2 = npxx
+        c_lower = np.array([p1[0], p2[1]])
+        c_upper = np.array([p2[0], p1[1]])
+        b2 = (p2[1] - p1[1]) ** 2
+    else:
+        if npxx[0] < npyy[0]:
+            p1 = npxx
+            p2 = npyy
+        else:
+            p1 = npyy
+            p2 = npxx
+        c_lower = np.array([p2[0], p1[1]])
+        c_upper = np.array([p1[0], p2[1]])
+        b2 = (p1[1] - p2[1]) ** 2
+    b2overa2 = b2 / (p2[0] - p1[0]) ** 2
+
+    def lower(x):
+        return c_lower[1] - np.sqrt(b2 - b2overa2 * (x - c_lower[0]) ** 2)
+
+    def upper(x):
+        return c_upper[1] + np.sqrt(b2 - b2overa2 * (x - c_upper[0]) ** 2)
+
+    return {'lower': lower, 'upper': upper}
+
+
+def rectangle_surface_intersection(rectangle, f_lower, f_upper,
+                                   bounds_lower=None, bounds_upper=None,
+                                   check=True, numpoints_check=500):
+    """
+    Method to calculate the surface of the intersection of a rectangle (aligned with axes) and another surface
+    defined by two functions f_lower and f_upper.
+
+    Args:
+        rectangle:
+            Rectangle defined as : ((x1, x2), (y1, y2)).
+        f_lower:
+            Function defining the lower bound of the surface.
+        f_upper:
+            Function defining the upper bound of the surface.
+        bounds_lower:
+            Interval in which the f_lower function is defined.
+        bounds_upper:
+            Interval in which the f_upper function is defined.
+        check:
+            Whether to check if f_lower is always lower than f_upper.
+        numpoints_check:
+            Number of points used to check whether f_lower is always lower than f_upper
+
+    Returns:
+        The surface of the intersection of the rectangle and the surface defined by f_lower and f_upper.
+    """
+    x1 = np.min(rectangle[0])
+    x2 = np.max(rectangle[0])
+    y1 = np.min(rectangle[1])
+    y2 = np.max(rectangle[1])
+    # Check that f_lower is allways lower than f_upper between x1 and x2 if no bounds are given or between the bounds
+    #  of the f_lower and f_upper functions if they are given.
+    if check:
+        if bounds_lower is not None:
+            if bounds_upper is not None:
+                if not all(np.array(bounds_lower) == np.array(bounds_upper)):
+                    raise ValueError('Bounds should be identical for both f_lower and f_upper')
+            else:
+                raise ValueError('Bounds are given for f_lower but not for f_upper')
+        elif bounds_upper is not None:
+            if bounds_lower is None:
+                raise ValueError('Bounds are given for f_upper but not for f_lower')
+            else:
+                if not '<' in function_comparison(f1=f_lower, f2=f_upper,
+                                                  x1=bounds_lower[0], x2=bounds_lower[1],
+                                                  numpoints_check=numpoints_check):
+                    raise RuntimeError('Function f_lower is not allways lower or equal to function f_upper within '
+                                       'the domain defined by the functions bounds.')
+        else:
+            if not '<' in function_comparison(f1=f_lower, f2=f_upper,
+                                              x1=x1, x2=x2, numpoints_check=numpoints_check):
+                raise RuntimeError('Function f_lower is not allways lower or equal to function f_upper within '
+                                   'the domain defined by x1 and x2.')
+    if bounds_lower is None:
+        raise NotImplementedError('Bounds should be given right now ...')
+    else:
+        if x2 < bounds_lower[0] or x1 > bounds_lower[1]:
+            return (0.0, 0.0)
+        if x1 < bounds_lower[0]:
+            xmin = bounds_lower[0]
+        else:
+            xmin = x1
+        if x2 > bounds_lower[1]:
+            xmax = bounds_lower[1]
+        else:
+            xmax = x2
+        def diff(x):
+            flwx = f_lower(x)
+            fupx = f_upper(x)
+            minup = np.min([fupx, y2 * np.ones_like(fupx)], axis=0)
+            maxlw = np.max([flwx, y1 * np.ones_like(flwx)], axis=0)
+            zeros = np.zeros_like(fupx)
+            upper = np.where(y2 >= flwx, np.where(y1 <= fupx, minup, zeros), zeros)
+            lower = np.where(y1 <= fupx, np.where(y2 >= flwx, maxlw, zeros), zeros)
+            return upper-lower
+        return quad(diff, xmin, xmax)
 
 def my_solid_angle(center, coords):
     """

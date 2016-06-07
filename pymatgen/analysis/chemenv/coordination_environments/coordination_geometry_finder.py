@@ -448,7 +448,8 @@ class LocalGeometryFinder(object):
                                                         no_valence_exclude_atoms_fallback=None,
                                                         maximum_distance_factor=None,
                                                         minimum_angle_factor=None,
-                                                        max_cn=None):
+                                                        max_cn=None,
+                                                        valences=None):
         """
         Computes and returns the StructureEnvironments object containing all the information about the coordination
         environments in the structure
@@ -459,16 +460,19 @@ class LocalGeometryFinder(object):
         """
 
         # Bond valence analysis to get approximated valences
-        logging.info('Getting valences using BVAnalyzer')
-        bva = BVAnalyzer(distance_scale_factor=self.bva_distance_scale_factor)
-        self.info = {}
-        try:
-            self.bva_valences = bva.get_valences(self.structure)
-            self.info['valences'] = 'bva'
-        except:
-            self.bva_valences = 'undefined'
-            self.info['valences'] = 'undefined'
-        self.valences = self.bva_valences
+        if valences is None:
+            logging.info('Getting valences using BVAnalyzer')
+            bva = BVAnalyzer(distance_scale_factor=self.bva_distance_scale_factor)
+            self.info = {}
+            try:
+                self.bva_valences = bva.get_valences(self.structure)
+                self.info['valences'] = 'bva'
+            except:
+                self.bva_valences = 'undefined'
+                self.info['valences'] = 'undefined'
+            self.valences = self.bva_valences
+        else:
+            self.valences = valences
 
         # Get a list of indices of unequivalent sites from the initial structure
         if (
@@ -504,7 +508,7 @@ class LocalGeometryFinder(object):
             self.sites_map = list(range(len(self.structure)))
             indices = list(range(len(self.structure)))
 
-        if source_structure_valence_fallback and self.bva_valences == 'undefined':
+        if source_structure_valence_fallback and self.valences == 'undefined':
             dummyspoccu = self.structure[0].species_and_occu
             ok = False
             if isinstance(dummyspoccu.keys()[0], Specie):
