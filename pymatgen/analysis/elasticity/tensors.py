@@ -28,6 +28,7 @@ import numpy as np
 import itertools
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
+from numpy.linalg import norm
 
 class TensorBase(np.ndarray):
     """
@@ -164,25 +165,30 @@ class TensorBase(np.ndarray):
             structure (structure): a structure associated with the
             symprec (float): precision for the symmetry analyzer
         """
-        sga = SpacegroupAnalyzer(structure)
-        trans, latt = sga.get_conventional_standard_transformation()
-        return self.rotate(trans)
-        """
+        def get_uvec(vec):
+            """ Gets a unit vector parallel to input vector"""
+            return vec / np.linalg.norm(vec)
+
         vecs = structure.lattice.matrix
         lengths = np.array(structure.lattice.abc)
         angles = np.array(structure.lattice.angles)
 
         a = b = c = None
+        sga = SpacegroupAnalyzer(structure)
         xtal_sys = sga.get_crystal_system()
-        angle_error = "Angle check failure. {} crystal "\
-                      "may not be in conventional representation"
-        import pdb; pdb.set_trace()
+        angle_error = "Angle check failure. {} crystal may not be in "\
+                      "conventional representation".format(xtal_sys)
+        rotation = np.zeros((3,3))
+
+        # IEEE rules: a,b,c || x1,x2,x3
         if xtal_sys == "cubic":
             if (abs(angles - 90.0) > atol).any():
                 raise ValueError(angle_error)
             if (abs(lengths - lengths[0]) > ltol).any():
                 raise ValueError("Cubic vectors not equal in length")
             rotation = [vecs[i]/lengths[i] for i in range(3)]
+        
+        # IEEE rules: a=b in length; c,a || x3, x1
         elif xtal_sys == "tetragonal":
             if (abs(angles - 90.0) > atol).any():
                 raise ValueError(angle_error)
@@ -190,11 +196,63 @@ class TensorBase(np.ndarray):
             if (abs(lengths - lengths[0]) < ltol).all():
                 raise ValueError("Tetragonal c vector indistinguishable")
 
-            if abs(lengths[1] - lengths[0]) < ltol:
-                rotation = [vecs[i]/lengths[i] for i in range(3)]
+            rotation = [vecs[i]/lengths[i] for i in range(3)]
             if abs(lengths[2] - lengths[0]) < ltol:
-                rotation =""" 
+                rotation[1], rotation[2] = rotation[2], rotation[1].copy()
+            elif abs(lengths[2] - lengths[1]) < ltol:
+                rotation[0], rotation[2] = rotation[2], rotation[0].copy()
+            else:
+                raise ValueError("No latt. vecs equal for tetragonal system")
 
+        # IEEE rules: c<a<b; c,a || x3,x1
+        elif xtal_sys == "orthorhombic":
+            if (abs(angles - 90.0) > atol).any():
+                raise ValueError(angle_error)
+            # May be redundant, should be tetragonal
+            if len(np.unique(np.floor(lengths/ltol))) < 3:
+                raise ValueError("Orthorhombic vectors indistinguishable")
+            # TODO: Check this
+            # import pdb; pdb.set_trace()
+            rotation = [vec/mag for (mag, vec) in sorted(zip(lengths, vecs))]
+            rotation = np.roll(rotation, 2, axis = 0)
+
+        # IEEE rules: c,a || x3,x1, c is threefold axis
+        elif xtal_sys in ("trigonal", "hexagonal"):
+            # Rhombohedral lattice
+            if xtal_sys == "trigonal" and (angles - angles[0] < atol).all():
+                rotation[0] = get_uvec(vecs[2] - vecs[0])
+                rotation[2] = get_uvec(np.sum(vecs, axis=0))
+                rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
+            # Standard hexagonal lattice
+            else:
+                # find threefold axis:
+                tf_mask = np.where(abs(angles-120.0) < atol)
+                non_tf_mask = np.logical_not(tf_mask)
+                rotation[2] = get_uvec(vecs[tf_mask])
+                rotation[0] = get_uvec(vecs[non_tf_mask][0])
+                rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
+
+        # IEEE rules: b,c || x2,x3; alpha=beta=90, c<a
+        elif xtal_sys == "monoclinic":
+            # Find unique axis
+            umask = np.where(angles - 90.0 > atol)
+            n_umask = np.logical_not(umask)
+            if sum(umask) != 1:
+                raise ValueError(angle_error)
+            rotation[1] = get_uvec(vecs[umask])
+            # Shorter of remaining lattice vectors for c axis
+            rotation[2] = [vec/mag for (mag, vec) in 
+                           sorted(zip(lengths[n_umask], vecs[n_umask]))][0]
+            rotation[0] = np.cross(rotation[1], rotation[2])
+
+        # IEEE rules: c || x3
+        elif xtal_sys == "triclinic":
+
+        else:
+            print("{} crystal not implemented".format(xtal_sys))
+            return np.zeros(self.shape)
+        # import pdb; pdb.set_trace()
+        return self.rotate(rotation)
 
 
 class SquareTensor(TensorBase):
