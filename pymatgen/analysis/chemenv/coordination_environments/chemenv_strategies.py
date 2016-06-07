@@ -309,8 +309,10 @@ class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
                                                                unique_coordinated_neighbors(isite=isite,
                                                                                             cn_map=cn_map))[0]
             if mingeom is not None:
+                csm = mingeom[1]['other_symmetry_measures'][self._symmetry_measure_type]
                 geom_dict = {'mp_symbol': mingeom[0], 'fraction': 1.0,
-                             'cn_map': tuple_cn_map, 'csm': mingeom[1]['symmetry_measure']}
+                             'cn_map': tuple_cn_map, 'csm': csm,
+                             'other_symmetry_measures': mingeom[1]['other_symmetry_measures']}
                 if full_ce_info:
                     geom_dict['coordination_geometry_info'] = mingeom[1]
             else:
@@ -331,8 +333,10 @@ class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
                     ce_and_neighbors['neighbors'][tuple_cn_map] = (self.structure_environments.
                                                                    unique_coordinated_neighbors(isite=isite,
                                                                                                 cn_map=cn_map))[0]
+                csm = ce_dict['other_symmetry_measures'][self._symmetry_measure_type]
                 geom_dict = {'mp_symbol': ce_symbol, 'fraction': ce_fraction,
-                             'cn_map': tuple_cn_map, 'csm': ce_dict['symmetry_measure']}
+                             'cn_map': tuple_cn_map, 'csm': csm,
+                             'other_symmetry_measures': ce_dict['other_symmetry_measures']}
                 if full_ce_info:
                     geom_dict['coordination_geometry_info'] = ce_dict
                 ce_and_neighbors['ce'].append(geom_dict)
@@ -990,7 +994,8 @@ class ComplexCSMBasedChemenvStrategy(AbstractChemenvStrategy):
         for cn_map, cn_map_fraction in cn_maps_fractions.items():
             if cn_map_fraction > 0.0:
                 mingeoms = self._mingeoms_isite[cn_map]
-                csms = [ce_dict['symmetry_measure'] for ce_symbol, ce_dict in mingeoms]
+                csms = [ce_dict['other_symmetry_measures'][self._symmetry_measure_type]
+                        for ce_symbol, ce_dict in mingeoms]
                 fractions = self._ce_estimator_fractions(csms)
                 for ifraction, fraction in enumerate(fractions):
                     if fraction > 0.0:
@@ -1057,6 +1062,7 @@ class ComplexCSMBasedChemenvStrategy(AbstractChemenvStrategy):
     def _setup_mean_csms(self, isite):
         self._mean_csms_isite = {}
         self._mingeoms_isite = {}
+        max_csm = self._cn_self_mean_csm_estimator[1]['max_csm']
         for cn, cn_coordnbs_list in self.structure_environments.unique_coordinated_neighbors(isite).items():
             if cn > 12 or cn == 0:
                 continue
@@ -1066,8 +1072,9 @@ class ComplexCSMBasedChemenvStrategy(AbstractChemenvStrategy):
                     continue
                 mingeoms = self.structure_environments.ce_list[isite][cn][i_coordnbs].\
                     minimum_geometries(symmetry_measure_type=self._symmetry_measure_type)
-                csms = [ce_dict['symmetry_measure'] for ce_symbol, ce_dict in mingeoms
-                        if ce_dict['symmetry_measure'] <= self._cn_self_mean_csm_estimator[1]['max_csm']]
+                csms = [ce_dict['other_symmetry_measures'][self._symmetry_measure_type]
+                        for ce_symbol, ce_dict in mingeoms
+                        if ce_dict['other_symmetry_measures'][self._symmetry_measure_type] <= max_csm]
                 mean_csm = self._mean_csm(csms)
                 if mean_csm is None:
                     continue
@@ -1325,23 +1332,43 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     def __eq__(self, other):
         return (self.__class__.__name__ == other.__class__.__name__ and
-                self._additional_condition == other.additional_condition)
+                self._additional_condition == other.additional_condition,
+                self._symmetry_measure_type == other._symmetry_measure_type,
+                self._surface_calculation_options == other._surface_calculation_options,
+                self._mean_csm_estimator == other._mean_csm_estimator,
+                self._cn_self_mean_csm_estimator == other._cn_self_mean_csm_estimator,
+                self._ce_estimator == other._ce_estimator,
+                self._max_csm == other._max_csm)
 
     def as_dict(self):
         """
-        Bson-serializable dict representation of the SimpleAbundanceChemenvStrategy object.
-        :return: Bson-serializable dict representation of the SimpleAbundanceChemenvStrategy object.
+        Bson-serializable dict representation of the MultipleAbundanceChemenvStrategy object.
+        :return: Bson-serializable dict representation of the MultipleAbundanceChemenvStrategy object.
         """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "additional_condition": self._additional_condition}
+                "additional_condition": self._additional_condition,
+                "symmetry_measure_type": self._symmetry_measure_type,
+                "surface_calculation_options": self._surface_calculation_options,
+                "mean_csm_estimator": self._mean_csm_estimator,
+                "cn_self_mean_csm_estimator": self._cn_self_mean_csm_estimator,
+                "ce_estimator": self._ce_estimator,
+                "max_csm": self._max_csm
+                }
 
     @classmethod
     def from_dict(cls, d):
         """
-        Reconstructs the SimpleAbundanceChemenvStrategy object from a dict representation of the
-        SimpleAbundanceChemenvStrategy object created using the as_dict method.
-        :param d: dict representation of the SimpleAbundanceChemenvStrategy object
-        :return: StructureEnvironments object
+        Reconstructs the MultipleAbundanceChemenvStrategy object from a dict representation of the
+        MultipleAbundanceChemenvStrategy object created using the as_dict method.
+        :param d: dict representation of the MultipleAbundanceChemenvStrategy object
+        :return: MultipleAbundanceChemenvStrategy object
         """
-        return cls(additional_condition=d["additional_condition"])
+        return cls(additional_condition=d["additional_condition"],
+                   symmetry_measure_type=d["symmetry_measure_type"],
+                   surface_calculation_options=d["surface_calculation_options"],
+                   mean_csm_estimator=d["mean_csm_estimator"],
+                   cn_self_mean_csm_estimator=d["cn_self_mean_csm_estimator"],
+                   ce_estimator=d["ce_estimator"],
+                   max_csm=d["max_csm"]
+                   )
