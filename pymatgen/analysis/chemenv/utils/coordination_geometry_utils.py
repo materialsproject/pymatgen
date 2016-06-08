@@ -63,7 +63,7 @@ def function_comparison(f1, f2, x1, x2, numpoints_check=500):
 
 def quarter_ellipsis_functions(xx, yy):
     """
-    Method that creates two quarter-ellipse functions based on points xx and yy. The aellipsis is supposed to
+    Method that creates two quarter-ellipse functions based on points xx and yy. The ellipsis is supposed to
     be aligned with the axes. The two ellipsis pass through the two points xx and yy.
 
     Args:
@@ -106,6 +106,88 @@ def quarter_ellipsis_functions(xx, yy):
 
     def upper(x):
         return c_upper[1] + np.sqrt(b2 - b2overa2 * (x - c_upper[0]) ** 2)
+
+    return {'lower': lower, 'upper': upper}
+
+
+def diamond_functions(xx, yy, y_x0, x_y0):
+    """
+    Method that creates two upper and lower functions based on points xx and yy as well as intercepts defined by
+     y_x0 and x_y0. The resulting functions form kind of a distorted diamond-like structure aligned from
+     point xx to point yy.
+
+    Schematically :
+
+    xx is symbolized by x, yy is symbolized by y, y_x0 is equal to the distance from x to a, x_y0 is equal to the
+     distance from x to b, the lines a-p and b-q are parallel to the line x-y such that points p and q are
+     obtained automatically.
+    In case of an increasing diamond the lower function is x-b-q and the upper function is a-p-y while in case of a
+     decreasing diamond, the lower function is a-p-y and the upper function is x-b-q.
+
+           Increasing diamond      |     Decreasing diamond
+                     p--y                    x----b
+                    /  /|                    |\    \
+                   /  / |                    | \    q
+                  /  /  |                    a  \   |
+                 a  /   |                     \  \  |
+                 | /    q                      \  \ |
+                 |/    /                        \  \|
+                 x----b                          p--y
+
+    Args:
+        xx:
+            First point
+        yy:
+            Second point
+
+    Returns:
+        A dictionary with the lower and upper quarter ellipsis functions.
+    """
+    npxx = np.array(xx)
+    npyy = np.array(yy)
+    if np.any(npxx == npyy):
+        raise RuntimeError('Invalid points for diamond_functions')
+    if np.all(npxx < npyy) or np.all(npxx > npyy):
+        if npxx[0] < npyy[0]:
+            p1 = npxx
+            p2 = npyy
+        else:
+            p1 = npyy
+            p2 = npxx
+    else:
+        if npxx[0] < npyy[0]:
+            p1 = npxx
+            p2 = npyy
+        else:
+            p1 = npyy
+            p2 = npxx
+    slope = (p2[1]-p1[1]) / (p2[0]- p1[0])
+    if slope > 0.0:
+        x_bpoint = p1[0] + x_y0
+        myy = p1[1]
+        bq_intercept = myy - slope*x_bpoint
+        myx = p1[0]
+        myy = p1[1] + y_x0
+        ap_intercept = myy - slope*myx
+        x_ppoint = (p2[1] - ap_intercept) / slope
+        def lower(x):
+            return np.where(x <= x_bpoint, p1[1] * np.ones_like(x), slope * x + bq_intercept)
+
+        def upper(x):
+            return np.where(x >= x_ppoint, p2[1] * np.ones_like(x), slope * x + ap_intercept)
+    else:
+        x_bpoint = p1[0] + x_y0
+        myy = p1[1]
+        bq_intercept = myy - slope * x_bpoint
+        myx = p1[0]
+        myy = p1[1] - y_x0
+        ap_intercept = myy - slope * myx
+        x_ppoint = (p2[1] - ap_intercept) / slope
+        def lower(x):
+            return np.where(x >= x_ppoint, p2[1] * np.ones_like(x), slope * x + ap_intercept)
+
+        def upper(x):
+            return np.where(x <= x_bpoint, p1[1] * np.ones_like(x), slope * x + bq_intercept)
 
     return {'lower': lower, 'upper': upper}
 

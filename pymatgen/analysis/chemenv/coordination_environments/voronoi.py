@@ -31,6 +31,7 @@ from pymatgen.analysis.structure_analyzer import solid_angle
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import my_solid_angle
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import quarter_ellipsis_functions
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import diamond_functions
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rectangle_surface_intersection
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 
@@ -420,7 +421,7 @@ class DetailedVoronoiContainer(MSONable):
             surface_calculation_options = {'type': 'standard_elliptic',
                                            'distance_bounds': {'lower': 1.2, 'upper': 1.8},
                                            'angle_bounds': {'lower': 0.1, 'upper': 0.8}}
-        if surface_calculation_options['type'] == 'standard_elliptic':
+        if surface_calculation_options['type'] in ['standard_elliptic', 'standard_diamond']:
             plot_type = {'distance_parameter': ('initial_normalized', None),
                          'angle_parameter': ('initial_normalized', None)}
         else:
@@ -436,7 +437,15 @@ class DetailedVoronoiContainer(MSONable):
         maxdist = surface_calculation_options['distance_bounds']['upper']
         minang = surface_calculation_options['angle_bounds']['lower']
         maxang = surface_calculation_options['angle_bounds']['upper']
-        ellipsis_functions = quarter_ellipsis_functions(xx=(mindist, minang), yy=(maxdist, maxang))
+        if surface_calculation_options['type'] == 'standard_elliptic':
+            lower_and_upper_functions = quarter_ellipsis_functions(xx=(mindist, maxang), yy=(maxdist, minang))
+        elif surface_calculation_options['type'] == 'standard_diamond':
+            deltadist = surface_calculation_options['distance_bounds']['delta']
+            deltaang = surface_calculation_options['angle_bounds']['delta']
+            lower_and_upper_functions = diamond_functions(xx=(mindist, maxang), yy=(maxdist, minang),
+                                                          x_y0=deltadist, y_x0=deltaang)
+        f_lower = lower_and_upper_functions['lower']
+        f_upper = lower_and_upper_functions['upper']
         surfaces = np.zeros((len(distance_bounds), len(angle_bounds)), np.float)
         for idp in range(len(distance_bounds) - 1):
             dp1 = distance_bounds[idp]
@@ -461,8 +470,8 @@ class DetailedVoronoiContainer(MSONable):
                     continue
                 intersection, interror = rectangle_surface_intersection(rectangle=((d1, d2),
                                                                                    (ap1, ap2)),
-                                                                        f_lower=ellipsis_functions['lower'],
-                                                                        f_upper=ellipsis_functions['upper'],
+                                                                        f_lower=f_lower,
+                                                                        f_upper=f_upper,
                                                                         bounds_lower=[mindist, maxdist],
                                                                         bounds_upper=[mindist, maxdist],
                                                                         check=False)
