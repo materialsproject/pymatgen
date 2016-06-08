@@ -163,7 +163,7 @@ class TensorBase(np.ndarray):
         """
         return (self - self.fit_to_structure(structure) < tol).all()
 
-    def convert_to_ieee(self, structure, atol = 0.1, ltol = 1e-3):
+    def convert_to_ieee(self, structure, atol = 0.1, ltol = 1e-2):
         """
         Given a structure associated with a tensor, attempts a
         calculation of the tensor in IEEE format according to
@@ -177,33 +177,32 @@ class TensorBase(np.ndarray):
             """ Gets a unit vector parallel to input vector"""
             return vec / np.linalg.norm(vec)
 
-        vecs = structure.lattice.matrix
-        lengths = np.array(structure.lattice.abc)
-        angles = np.array(structure.lattice.angles)
+        vecs = struct.lattice.matrix
+        lengths = np.array(struct.lattice.abc)
+        angles = np.array(struct.lattice.angles)
+        
+        # Check conventional setting:
+        sga = SpacegroupAnalyzer(structure)
+        conv_struct = sga.get_refined_structure()
+        conv_lengths = np.array(conv_struct.lattice.abc)
+        conv_angles = np.array(conv_struct.lattice.angles)
+        if (np.sort(lengths) - np.sort(conv_lengths) > ltol).any() \
+           or (np.sort(angles) - np.sort(conv_angles) > atol).any()\
+           or len(struct.sites) != len(conv_struct.sites):
+            raise ValueError("{} structure not in conventional cell, IEEE "\
+                             "conversion from non-conventional settings "\
+                             "is not yet supported."
 
         a = b = c = None
-        sga = SpacegroupAnalyzer(structure)
         xtal_sys = sga.get_crystal_system()
-        angle_error = "Angle check failure. {} crystal may not be in "\
-                      "conventional representation".format(xtal_sys)
         rotation = np.zeros((3,3))
 
         # IEEE rules: a,b,c || x1,x2,x3
         if xtal_sys == "cubic":
-            if (abs(angles - 90.0) > atol).any():
-                raise ValueError(angle_error)
-            if (abs(lengths - lengths[0]) > ltol).any():
-                raise ValueError("Cubic vectors not equal in length")
             rotation = [vecs[i]/lengths[i] for i in range(3)]
         
         # IEEE rules: a=b in length; c,a || x3, x1
-        elif xtal_sys == "tetragonal":
-            if (abs(angles - 90.0) > atol).any():
-                raise ValueError(angle_error)
-            # This may be redundant, should be cubic
-            if (abs(lengths - lengths[0]) < ltol).all():
-                raise ValueError("Tetragonal c vector indistinguishable")
-
+        elif xtal_sys == "tetragonal":            
             rotation = [vecs[i]/lengths[i] for i in range(3)]
             if abs(lengths[2] - lengths[0]) < ltol:
                 rotation[1], rotation[2] = rotation[2], rotation[1].copy()
@@ -214,12 +213,6 @@ class TensorBase(np.ndarray):
 
         # IEEE rules: c<a<b; c,a || x3,x1
         elif xtal_sys == "orthorhombic":
-            if (abs(angles - 90.0) > atol).any():
-                raise ValueError(angle_error)
-            # May be redundant, should be tetragonal
-            if len(np.unique(np.floor(lengths/ltol))) < 3:
-                raise ValueError("Orthorhombic vectors indistinguishable")
-            # TODO: Check this
             rotation = [vec/mag for (mag, vec) in sorted(zip(lengths, vecs))]
             rotation = np.roll(rotation, 2, axis = 0)
 
@@ -244,8 +237,6 @@ class TensorBase(np.ndarray):
             # Find unique axis
             umask = angles - 90.0 > atol
             n_umask = np.logical_not(umask)
-            if np.sum(umask) != 1:
-                raise ValueError(angle_error)
             rotation[1] = get_uvec(vecs[umask])
             # Shorter of remaining lattice vectors for c axis
             c = [vec/mag for (mag, vec) in 
@@ -259,10 +250,6 @@ class TensorBase(np.ndarray):
             rotation = np.roll(rotation, 2, axis = 0)
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[1]))
             rotation[0] = np.cross(rotation[1], rotation[2])
-
-        else:
-            print("{} crystal not implemented".format(xtal_sys))
-            return np.zeros(self.shape)
         
         return self.rotate(rotation)
 
