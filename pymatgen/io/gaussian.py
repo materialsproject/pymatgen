@@ -27,6 +27,7 @@ from monty.io import zopen
 from pymatgen.util.coord_utils import get_angle
 import pymatgen.core.physical_constants as cst
 
+float_patt = re.compile("\s*([+-]?\d+\.\d+)")
 
 def read_route_line(route):
     """
@@ -39,7 +40,7 @@ def read_route_line(route):
     return
         functional (str) : the method (HF, PBE ...)
         basis_set (str) : the basis set
-        route (dict) : dictionary of parameters 
+        route (dict) : dictionary of parameters
     """
     scrf_patt = re.compile("^([sS][cC][rR][fF])\s*=\s*(.+)")
 
@@ -60,7 +61,7 @@ def read_route_line(route):
                 m = scrf_patt.match(tok)
                 route_params[m.group(1)] = m.group(2)
             elif "#" in tok:
-                # does not store # in route to avoid error in input 
+                # does not store # in route to avoid error in input
                 dieze_tag = tok
                 continue
             else:
@@ -481,6 +482,10 @@ class GaussianOutput(object):
 
         All energies from the calculation.
 
+    .. attribute:: eigenvalues
+
+        List of eigenvalues for each geometry
+
     .. attribute:: cart_forces
 
         All cartesian forces from the calculation.
@@ -525,7 +530,7 @@ class GaussianOutput(object):
         # preceding the route line, e.g. "#P"
 
     .. attribute:: link0
-    
+
         Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
 
     .. attribute:: charge
@@ -540,6 +545,10 @@ class GaussianOutput(object):
 
         Number of basis functions in the run.
 
+    .. attribute:: electrons
+
+        number of alpha and beta electrons as (N alpha, N beta)
+
     .. attribute:: pcm
 
         PCM parameters and output if available.
@@ -553,22 +562,22 @@ class GaussianOutput(object):
         Mulliken atomic charges
 
     Methods:
-    
+
     .. method:: to_input()
-    
+
         Return a GaussianInput object using the last geometry and the same
         calculation parameters.
-        
+
     .. method:: read_scan()
-    
+
         Read a potential energy surface from a gaussian scan calculation.
 
     .. method:: get_scan_plot()
-    
+
         Get a matplotlib plot of the potential energy surface
-        
+
     .. method:: save_scan_plot()
-    
+
         Save a matplotlib plot of the potential energy surface to a file
 
     """
@@ -592,6 +601,7 @@ class GaussianOutput(object):
         charge_mul_patt = re.compile("Charge\s+=\s*([-\\d]+)\s+"
                                      "Multiplicity\s+=\s*(\d+)")
         num_basis_func_patt = re.compile("([0-9]+)\s+basis functions")
+        num_elec_patt = re.compile("(\d+)\s+alpha electrons\s+(\d+)\s+beta electrons")
         pcm_patt = re.compile("Polarizable Continuum Model")
         stat_type_patt = re.compile("imaginary frequencies")
         scf_patt = re.compile("E\(.*\)\s*=\s*([-\.\d]+)\s+")
@@ -740,6 +750,9 @@ class GaussianOutput(object):
                         m = num_basis_func_patt.search(line)
                         self.num_basis_func = int(m.group(1))
                         num_basis_found = True
+                    elif num_elec_patt.search(line):
+                        m = num_elec_patt.search(line)
+                        self.electrons = (int(m.group(1)), int(m.group(2)))
                     elif (not self.is_pcm) and pcm_patt.search(line):
                         self.is_pcm = True
                         self.pcm = {}
@@ -787,6 +800,9 @@ class GaussianOutput(object):
             #raise IOError("Bad Gaussian output file.")
             warnings.warn("\n" + self.filename + \
                 ": Termination error or bad Gaussian output file !")
+
+        # eignevalues
+        self.eigenvalues = [float(e) for e in float_patt.findall("".join(orbitals_txt))]
 
     def _check_pcm(self, line):
         energy_patt = re.compile("(Dispersion|Cavitation|Repulsion) energy"
@@ -852,17 +868,17 @@ class GaussianOutput(object):
         return d
 
     def read_scan(self):
-        """  
+        """
         Read a potential energy surface from a gaussian scan calculation.
-        
+
         Returns:
-        
-            A dict: {"energies": [ values ], 
+
+            A dict: {"energies": [ values ],
                      "coords": {"d1": [ values ], "A2", [ values ], ... }}
-            
+
             "energies" are the energies of all points of the potential energy
-            surface. "coords" are the internal coordinates used to compute the 
-            potential energy surface and the internal coordinates optimized, 
+            surface. "coords" are the internal coordinates used to compute the
+            potential energy surface and the internal coordinates optimized,
             labelled by their name as defined in the calculation.
         """
 
@@ -872,7 +888,6 @@ class GaussianOutput(object):
 
         scan_patt = re.compile("^\sSummary of the potential surface scan:")
         optscan_patt = re.compile("^\sSummary of Optimized Potential Surface Scan")
-        float_patt = re.compile("\s*([+-]?\d+\.\d+)")
 
         # data dict return
         data = {"energies": list(), "coords": dict()}
@@ -911,7 +926,7 @@ class GaussianOutput(object):
                         data["energies"].append(values[-1])
                         for i, icname in enumerate(data["coords"]):
                             data["coords"][icname].append(values[i+1])
-                        line = f.readline()    
+                        line = f.readline()
                 else:
                     line = f.readline()
 
@@ -936,15 +951,15 @@ class GaussianOutput(object):
         else:
             x = range(len(d["energies"]))
             plt.xlabel("points")
-        
+
         plt.ylabel("Energy   /   eV")
-        
+
         e_min = min(d["energies"])
         y = [(e - e_min) * cst.HARTREE_TO_ELECTRON_VOLT for e in d["energies"]]
-        
+
         plt.plot(x, y, "ro--")
         return plt
-        
+
     def save_scan_plot(self, filename="scan.pdf", img_format="pdf", coords=None):
         """
         Save matplotlib plot of the potential energy surface to a file.
@@ -963,10 +978,9 @@ class GaussianOutput(object):
 
         Returns:
 
-            A list: A list of tuple for each transition such as 
+            A list: A list of tuple for each transition such as
                     [(energie (eV), lambda (nm), oscillatory strength), ... ]
         """
-        float_patt = re.compile("\s*([+-]?\d+\.\d+)")
 
         transitions = list()
 
@@ -977,7 +991,7 @@ class GaussianOutput(object):
             while line != "":
                 if re.search("^\sExcitation energies and oscillator strengths:", line):
                     td = True
-   
+
                 if td:
                     if re.search("^\sExcited State\s*\d", line):
                         val = [float(v) for v in float_patt.findall(line)]
@@ -995,7 +1009,7 @@ class GaussianOutput(object):
         Args:
             sigma: Full width at half maximum in eV for normal functions.
             step: bin interval in eV
-            
+
         Returns:
             A dict: {"energies": values, "lambda": values, "spectra": values}
                     where values are lists of abscissa (energies, lamba) and
@@ -1015,13 +1029,13 @@ class GaussianOutput(object):
         eneval = np.linspace(minval, maxval, npts) # in eV
         lambdaval = [cst.h * cst.c / (val * cst.e) * 1.e9 for val in eneval] # in nm
 
-        # sum of gaussian functions        
+        # sum of gaussian functions
         spectre = np.zeros(npts)
         for trans in transitions:
             spectre += trans[2] * normpdf(eneval, trans[0], sigma)
         spectre /= spectre.max()
         plt.plot(lambdaval, spectre, "r-", label="spectre")
-        
+
         data = {"energies": eneval, "lambda": lambdaval, "spectra": spectre}
 
         # plot transitions as vlines
@@ -1038,7 +1052,7 @@ class GaussianOutput(object):
 
         return data, plt
 
-    def save_spectre_plot(self, filename="spectre.pdf", img_format="pdf", 
+    def save_spectre_plot(self, filename="spectre.pdf", img_format="pdf",
                           sigma=0.05, step=0.01):
         """
         Save matplotlib plot of the spectre to a file.
@@ -1047,7 +1061,7 @@ class GaussianOutput(object):
             filename: Filename to write to.
             img_format: Image format to use. Defaults to EPS.
             sigma: Full width at half maximum in eV for normal functions.
-            step: bin interval in eV            
+            step: bin interval in eV
         """
         d, plt = self.get_spectre_plot(sigma, step)
         plt.savefig(filename, format=img_format)
@@ -1105,4 +1119,3 @@ class GaussianOutput(object):
         gauinp.write_file(filename, cart_coords=cart_coords)
 
         return gauinp
-
