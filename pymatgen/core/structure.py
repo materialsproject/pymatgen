@@ -43,7 +43,6 @@ from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_angle, all_distances, \
     lattice_points_in_supercell
-from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length, ArrayWithUnit
 from pymatgen.symmetry.groups import SpaceGroup
 from monty.io import zopen
@@ -2212,8 +2211,8 @@ class Structure(IStructure, collections.MutableSequence):
                                  "as Structure!")
             self._sites[i] = site
         else:
-            if isinstance(site, six.string_types) or (not isinstance(site, \
-                                                                     collections.Sequence)):
+            if isinstance(site, six.string_types) or (
+                    not isinstance(site, collections.Sequence)):
                 sp = site
                 frac_coords = self._sites[i].frac_coords
                 properties = self._sites[i].properties
@@ -2245,6 +2244,7 @@ class Structure(IStructure, collections.MutableSequence):
                 Defaults to False.
             validate_proximity (bool): Whether to check if inserted site is
                 too close to an existing site. Defaults to False.
+            properties (dict): Properties of the site.
 
         Returns:
             New structure with inserted site.
@@ -2267,6 +2267,7 @@ class Structure(IStructure, collections.MutableSequence):
                 Defaults to False.
             validate_proximity (bool): Whether to check if inserted site is
                 too close to an existing site. Defaults to False.
+            properties (dict): Properties associated with the site.
 
         Returns:
             New structure with inserted site.
@@ -2350,8 +2351,7 @@ class Structure(IStructure, collections.MutableSequence):
                 the current coordinates are assumed.
             coords_are_cartesian (bool): Whether coordinates are cartesian.
                 Defaults to False.
-            validate_proximity (bool): Whether to check if inserted site is
-                too close to an existing site. Defaults to False.
+            properties (dict): Properties associated with the site.
         """
         if coords is None:
             frac_coords = self[i].frac_coords
@@ -2500,8 +2500,8 @@ class Structure(IStructure, collections.MutableSequence):
             if frac_coords:
                 fcoords = site.frac_coords + vector
             else:
-                fcoords = self._lattice.get_fractional_coords(site.coords
-                                                              + vector)
+                fcoords = self._lattice.get_fractional_coords(
+                    site.coords + vector)
             new_site = PeriodicSite(site.species_and_occu, fcoords,
                                     self._lattice, to_unit_cell=to_unit_cell,
                                     coords_are_cartesian=False,
