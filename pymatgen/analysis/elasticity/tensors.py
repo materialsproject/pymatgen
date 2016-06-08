@@ -94,11 +94,19 @@ class TensorBase(np.ndarray):
         Applies a transformation (via a symmetry operation) to a tensor. 
 
         Args:
-            symm_op (3x3 array-like): a symmetry operation to apply to the tensor
+            symm_op (SymmOp): a symmetry operation to apply to the tensor
         """
         return self.__class__(symm_op.transform_tensor(self))
 
     def rotate(self, matrix, tol=1e-5):
+        """
+        Applies a rotation directly, and tests input matrix to ensure a valid
+        rotation.
+
+        Args:
+            matrix (3x3 array-like): rotation matrix to be applied to tensor
+            tol (float): tolerance for testing rotation matrix validity
+        """
         matrix = SquareTensor(matrix)
         if not matrix.is_rotation(tol):
             raise ValueError("Rotation matrix is not valid.")
@@ -212,7 +220,6 @@ class TensorBase(np.ndarray):
             if len(np.unique(np.floor(lengths/ltol))) < 3:
                 raise ValueError("Orthorhombic vectors indistinguishable")
             # TODO: Check this
-            # import pdb; pdb.set_trace()
             rotation = [vec/mag for (mag, vec) in sorted(zip(lengths, vecs))]
             rotation = np.roll(rotation, 2, axis = 0)
 
@@ -235,23 +242,28 @@ class TensorBase(np.ndarray):
         # IEEE rules: b,c || x2,x3; alpha=beta=90, c<a
         elif xtal_sys == "monoclinic":
             # Find unique axis
-            umask = np.where(angles - 90.0 > atol)
+            umask = angles - 90.0 > atol
             n_umask = np.logical_not(umask)
-            if sum(umask) != 1:
+            if np.sum(umask) != 1:
                 raise ValueError(angle_error)
             rotation[1] = get_uvec(vecs[umask])
             # Shorter of remaining lattice vectors for c axis
-            rotation[2] = [vec/mag for (mag, vec) in 
-                           sorted(zip(lengths[n_umask], vecs[n_umask]))][0]
+            c = [vec/mag for (mag, vec) in 
+                 sorted(zip(lengths[n_umask], vecs[n_umask]))][0]
+            rotation[2] = np.array(c)
             rotation[0] = np.cross(rotation[1], rotation[2])
-
+        
         # IEEE rules: c || x3
         elif xtal_sys == "triclinic":
+            rotation = [vec/mag for (mag, vec) in sorted(zip(lengths, vecs))]
+            rotation = np.roll(rotation, 2, axis = 0)
+            rotation[1] = get_uvec(np.cross(rotation[2], rotation[1]))
+            rotation[0] = np.cross(rotation[1], rotation[2])
 
         else:
             print("{} crystal not implemented".format(xtal_sys))
             return np.zeros(self.shape)
-        # import pdb; pdb.set_trace()
+        
         return self.rotate(rotation)
 
 
