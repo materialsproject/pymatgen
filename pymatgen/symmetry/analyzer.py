@@ -425,10 +425,10 @@ class SpacegroupAnalyzer(object):
 
         return Structure.from_sites(new_sites)
 
-    def get_conventional_standard_transformation(
+    def get_conventional_standard_structure(
             self, international_monoclinic=True):
         """
-        Gives a structure with a conventional cell according to certain
+        Gives a transformation to a conventional cell according to certain
         standards. The standards are defined in Setyawan, W., & Curtarolo,
         S. (2010). High-throughput electronic band structure calculations:
         Challenges and tools. Computational Materials Science,
@@ -437,7 +437,8 @@ class SpacegroupAnalyzer(object):
         norm(a1)<norm(a2)<norm(a3)
 
         Returns:
-            The structure in a conventional standardized cell
+            A lattice and rotation corresponding to the transformation
+            necessary to convert a structure to it's conventional cell
         """
         tol = 1e-5
         struct = self.get_refined_structure()
@@ -688,11 +689,8 @@ class SpacegroupAnalyzer(object):
                 new_matrix = test_matrix
 
             latt = Lattice(new_matrix)
-        return transf, latt
 
-    def get_conventional_standard_structure(self, international_monoclinic=True):
         struct = self.get_refined_structure()
-        transf, latt = self.get_conventional_standard_transformation(international_monoclinic=True)
         new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T
         new_struct = Structure(latt, struct.species_and_occu, new_coords,
                                site_properties=struct.site_properties,
