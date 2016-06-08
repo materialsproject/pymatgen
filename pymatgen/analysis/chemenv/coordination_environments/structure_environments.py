@@ -356,7 +356,7 @@ class LightStructureEnvironments(MSONable):
                 self._coordination_environments.append([])
                 self._neighbors.append({})
                 continue
-            site_ce_list = self._strategy.get_site_ce_fractions_and_neighbors(site)
+            site_ce_list = self._strategy.get_site_ce_fractions_and_neighbors(site, strategy_info=True)
             if site_ce_list is None:
                 self._coordination_environments.append([])
                 self._neighbors.append({})
@@ -372,7 +372,8 @@ class LightStructureEnvironments(MSONable):
                 if ce_piece['cn_map'] not in neighbors_list:
                     neighbors_list[ce_piece['cn_map']] = site_ce_list['neighbors'][ce_piece['cn_map']]
                 ce_piece_dict = {'ce_symbol': ce_piece['mp_symbol'], 'fraction': ce_piece['fraction'],
-                                 'csm': ce_piece['csm'], 'cn_map': ce_piece['cn_map']}
+                                 'csm': ce_piece['csm'], 'cn_map': ce_piece['cn_map'],
+                                 'strategy_info': ce_piece['strategy_info']}
                 ce_piece_dict_list.append(ce_piece_dict)
             self._coordination_environments.append(ce_piece_dict_list)
             self._neighbors.append(neighbors_list)
@@ -380,38 +381,37 @@ class LightStructureEnvironments(MSONable):
             self._setup_neighbors_by_indices()
 
     def _setup_neighbors_by_indices(self):
-        if not self._strategy.uniquely_determines_coordination_environments:
-            raise ValueError('Should use a strategy that uniquely determines coordination environments !')
         self._neighbors_by_indices = []
-        for isite_this_site, this_site_neighbors_all_cn_maps in enumerate(self._neighbors):
-            if len(self._coordination_environments[isite_this_site]) == 0:
-                self._neighbors_by_indices.append(None)
-                continue
-            cn_map = self._coordination_environments[isite_this_site][0]['cn_map']
-            this_site_neighbors = this_site_neighbors_all_cn_maps[tuple(cn_map)]
-            if this_site_neighbors is None:
-                self._neighbors_by_indices.append(None)
-            else:
-                this_site_neighbors_indices = []
-                for neighbor in this_site_neighbors:
-                    ineighbor = None
-                    for isite, site in enumerate(self.structure):
-                        found = False
-                        for tolerance in [1e-8, 1e-6, 1e-4, 1e-3]:
-                            if site.is_periodic_image(neighbor, check_lattice=False, tolerance=tolerance):
-                                ineighbor = isite
-                                diff = neighbor.frac_coords - site.frac_coords
-                                image_cell = np.array(np.round(diff), np.int)
-                                #if np.allclose(image_cell, np.zeros(3, np.int)):
-                                #    image_cell = 0
-                                found = True
+        if self._strategy.uniquely_determines_coordination_environments:
+            for isite_this_site, this_site_neighbors_all_cn_maps in enumerate(self._neighbors):
+                if len(self._coordination_environments[isite_this_site]) == 0:
+                    self._neighbors_by_indices.append(None)
+                    continue
+                cn_map = self._coordination_environments[isite_this_site][0]['cn_map']
+                this_site_neighbors = this_site_neighbors_all_cn_maps[tuple(cn_map)]
+                if this_site_neighbors is None:
+                    self._neighbors_by_indices.append(None)
+                else:
+                    this_site_neighbors_indices = []
+                    for neighbor in this_site_neighbors:
+                        ineighbor = None
+                        for isite, site in enumerate(self.structure):
+                            found = False
+                            for tolerance in [1e-8, 1e-6, 1e-4, 1e-3]:
+                                if site.is_periodic_image(neighbor, check_lattice=False, tolerance=tolerance):
+                                    ineighbor = isite
+                                    diff = neighbor.frac_coords - site.frac_coords
+                                    image_cell = np.array(np.round(diff), np.int)
+                                    #if np.allclose(image_cell, np.zeros(3, np.int)):
+                                    #    image_cell = 0
+                                    found = True
+                                    break
+                            if found:
                                 break
-                        if found:
-                            break
-                    if not found:
-                        raise ChemenvError('LightStructureEnvironments', '__init__', 'Site indices not found')
-                    this_site_neighbors_indices.append((ineighbor, image_cell))
-                self._neighbors_by_indices.append(this_site_neighbors_indices)
+                        if not found:
+                            raise ChemenvError('LightStructureEnvironments', '__init__', 'Site indices not found')
+                        this_site_neighbors_indices.append((ineighbor, image_cell))
+                    self._neighbors_by_indices.append(this_site_neighbors_indices)
 
     def setup_statistic_lists(self):
         self.statistics_dict = {'anion_list': {},                                                    # OK
@@ -906,275 +906,6 @@ class LightStructureEnvironments(MSONable):
                    coordination_environments=coordination_environments,
                    neighbors=neighbors,
                    neighbors_by_indices=neighbors_by_indices)
-
-
-# class LightStructureEnvironmentsOld(MSONable):
-#     """
-#     Class used to store the chemical environments of a given structure obtained from a given ChemenvStrategy. Currently,
-#     only strategies leading to the determination of a unique environment for each site is allowed
-#     This class does not store all the information contained in the StructureEnvironments object, only the coordination
-#     environment found
-#     """
-#
-#     def __init__(self, strategy_used, structure_environments=None, structure=None, bva_valences=None,
-#                  coordination_environments=None, neighbors=None):
-#         """
-#         Constructor for the LightStructureEnvironments object.
-#         """
-#         if not strategy_used.uniquely_determines_coordination_environments:
-#             raise NotImplementedError('LightStructureEnvironments not yet implemented with complex strategies leading '
-#                                       'to multiple environments of a same site ...')
-#         self.strategy_used = strategy_used
-#         self._uniquely_determined_coordination_environments = strategy_used.uniquely_determines_coordination_environments
-#         self._neighbors = []
-#         self._coordination_environments = []
-#         if structure_environments is not None:
-#             self.strategy_used.set_structure_environments(structure_environments)
-#             self.structure = structure_environments.structure
-#             self.bva_valences = structure_environments.bva_valences
-#             for site in self.strategy_used.structure_environments.structure:
-#                 try:
-#                     this_site_neighbors = self.strategy_used.get_site_neighbors(site)
-#                     self._neighbors.append(this_site_neighbors)
-#                     try:
-#                         (ce, ce_dict) = self.strategy_used.get_site_coordination_environment(site)
-#                         self._coordination_environments.append(ce)
-#                     except TypeError:
-#                         cn = self.strategy_used.get_site_coordination_environment(site)
-#                         self._coordination_environments.append(cn)
-#                 except NeighborsNotComputedChemenvError:
-#                     self._neighbors.append(None)
-#                     self._coordination_environments.append(None)
-#         else:
-#             if structure is None or coordination_environments is None or neighbors is None or bva_valences is None:
-#                 raise InitializationChemenvError(self.__class__.__name__)
-#             self.structure = structure
-#             self._coordination_environments = coordination_environments
-#             self._neighbors = neighbors
-#             self.bva_valences = bva_valences
-#         self._neighbors_by_indices = []
-#         for this_site_neighbors in self._neighbors:
-#             if this_site_neighbors is None:
-#                 self._neighbors_by_indices.append(None)
-#             else:
-#                 this_site_neighbors_indices = []
-#                 for neighbor in this_site_neighbors:
-#                     ineighbor = None
-#                     for isite, site in enumerate(self.structure):
-#                         found = False
-#                         for tolerance in [1e-8, 1e-6, 1e-4, 1e-3]:
-#                             if site.is_periodic_image(neighbor, check_lattice=False, tolerance=tolerance):
-#                                 ineighbor = isite
-#                                 diff = neighbor.frac_coords - site.frac_coords
-#                                 image_cell = np.array(np.round(diff), np.int)
-#                                 #if np.allclose(image_cell, np.zeros(3, np.int)):
-#                                 #    image_cell = 0
-#                                 found = True
-#                                 break
-#                         if found:
-#                             break
-#                     if not found:
-#                         raise ChemenvError('LightStructureEnvironments', '__init__', 'Site indices not found')
-#                     this_site_neighbors_indices.append((ineighbor, image_cell))
-#                 self._neighbors_by_indices.append(this_site_neighbors_indices)
-#         self.setup_statistic_lists()
-#
-#     def contains_only_one_anion_atom(self, anion_atom):
-#         return len(self.anion_atom_list) == 1 and self.anion_atom_list[0] == anion_atom
-#
-#     def contains_only_one_anion(self, anion):
-#         return len(self.anion_list) == 1 and self.anion_list[0] == anion
-#
-#     def site_contains_environment(self, isite, mp_symbol):
-#         if self.uniquely_determined_coordination_environments:
-#             return self.coordination_environments[isite] == mp_symbol
-#         else:
-#             return mp_symbol in self.coordination_environments[isite]
-#
-#     def structure_contains_atom_environment(self, atom_symbol, mp_symbol):
-#         """
-#         Checks whether the structure contains a given atom in a given environment
-#         :param atom_symbol: Symbol of the atom
-#         :param mp_symbol: Symbol of the coordination environment
-#         :return: True if the coordination environment is found, False otherwise
-#         """
-#         if self.uniquely_determined_coordination_environments:
-#             for isite, site in enumerate(self.structure):
-#                 if Element(atom_symbol) in site.species_and_occu.element_composition:
-#                     if self.coordination_environments[isite] == mp_symbol:
-#                         return True
-#             return False
-#         else:
-#             for isite, site in enumerate(self.structure):
-#                 if Element(atom_symbol) in site.species_and_occu.element_composition:
-#                     if mp_symbol in self.coordination_environments[isite]:
-#                         return True
-#             return False
-#
-#     def setup_statistic_lists(self):
-#         self.anion_list = []
-#         self.anion_atom_list = []
-#         self.cation_list = []
-#         self.cation_atom_list = []
-#         self.coordination_environments_present = {}
-#         self.site_count_with_computed_ce = 0.0
-#         self.atom_coordination_environments_present = {}
-#         self.atom_count_with_computed_ce = {}
-#         self.structure_ion_coordination_environments_present = {}
-#         self.structure_ion_count_with_computed_ce = {}
-#         self.bva_ion_coordination_environments_present = {}
-#         self.bva_ion_count_with_computed_ce = {}
-#         self.coordination_environments_bva_ion_present = {}
-#         self.fraction_bva_ion_coordination_environments_present = {}
-#         self.fraction_coordination_environments_bva_ion_present = {}
-#         for isite, site in enumerate(self.structure):
-#             #Building anion list
-#             if self.bva_valences != 'undefined':
-#                 for sp, occ in site.species_and_occu.items():
-#                     if self.bva_valences[isite] < 0:
-#                         stranion = str(Specie(sp.symbol, self.bva_valences[isite]))
-#                         if stranion not in self.anion_list:
-#                             self.anion_list.append(stranion)
-#                         if sp.symbol not in self.anion_atom_list:
-#                             self.anion_atom_list.append(sp.symbol)
-#                     else:
-#                         strcation = str(Specie(sp.symbol, self.bva_valences[isite]))
-#                         if strcation not in self.cation_list:
-#                             self.cation_list.append(strcation)
-#                         if sp.symbol not in self.cation_atom_list:
-#                             self.cation_atom_list.append(sp.symbol)
-#             if self.coordination_environments[isite] is not None:
-#                 ce = '{}'.format(self.coordination_environments[isite])
-#                 self.site_count_with_computed_ce += 1.0
-#                 if not ce in self.coordination_environments_present:
-#                     self.coordination_environments_present[ce] = 1
-#                 else:
-#                     self.coordination_environments_present[ce] += 1
-#                 for specie in site.species_and_occu:
-#                     #Counting atoms in specific environments
-#                     if specie.symbol not in self.atom_coordination_environments_present:
-#                         self.atom_coordination_environments_present[specie.symbol] = {}
-#                     atom_ce = '{}'.format(self.coordination_environments[isite])
-#                     if not atom_ce in self.atom_coordination_environments_present:
-#                         self.atom_coordination_environments_present[specie.symbol][atom_ce] = site.species_and_occu[specie]
-#                     else:
-#                         self.atom_coordination_environments_present[specie.symbol][atom_ce] += site.species_and_occu[specie]
-#                     #Counting atoms for which environments are determined
-#                     if specie.symbol not in self.atom_count_with_computed_ce:
-#                         self.atom_count_with_computed_ce[specie.symbol] = site.species_and_occu[specie]
-#                     else:
-#                         self.atom_count_with_computed_ce[specie.symbol] += site.species_and_occu[specie]
-#                     #Counting ions in specific environments
-#                     if specie.symbol not in self.structure_ion_coordination_environments_present:
-#                         self.structure_ion_coordination_environments_present[specie.symbol] = {}
-#                     try:
-#                         str_sp_oxi_state = str(specie.oxi_state)
-#                     except AttributeError:
-#                         str_sp_oxi_state = 'element'
-#                     str_sp_oxi_state = str_sp_oxi_state.replace('.', ',')
-#                     if str_sp_oxi_state not in self.structure_ion_coordination_environments_present[specie.symbol]:
-#                         self.structure_ion_coordination_environments_present[specie.symbol][str_sp_oxi_state] = {}
-#                     ion_ce = '{}'.format(self.coordination_environments[isite])
-#                     if ion_ce not in self.structure_ion_coordination_environments_present[specie.symbol][str_sp_oxi_state]:
-#                         self.structure_ion_coordination_environments_present[specie.symbol][str_sp_oxi_state][ion_ce] = site.species_and_occu[specie]
-#                     else:
-#                         self.structure_ion_coordination_environments_present[specie.symbol][str_sp_oxi_state][ion_ce] += site.species_and_occu[specie]
-#                     #Counting ions for which environments are determined
-#                     if specie.symbol not in self.structure_ion_count_with_computed_ce:
-#                         self.structure_ion_count_with_computed_ce[specie.symbol] = {}
-#                     if str_sp_oxi_state not in self.structure_ion_count_with_computed_ce[specie.symbol]:
-#                         self.structure_ion_count_with_computed_ce[specie.symbol][str_sp_oxi_state] = site.species_and_occu[specie]
-#                     else:
-#                         self.structure_ion_count_with_computed_ce[specie.symbol][str_sp_oxi_state] += site.species_and_occu[specie]
-#                         #Counting ions in specific environments
-#                     if specie.symbol not in self.bva_ion_coordination_environments_present:
-#                         self.bva_ion_coordination_environments_present[specie.symbol] = {}
-#                     if self.bva_valences != 'undefined':
-#                         str_val = str(self.bva_valences[isite])
-#                         if str_val not in self.bva_ion_coordination_environments_present[specie.symbol]:
-#                             self.bva_ion_coordination_environments_present[specie.symbol][str_val] = {}
-#                         ion_ce = '{}'.format(self.coordination_environments[isite])
-#                         if ion_ce not in self.bva_ion_coordination_environments_present[specie.symbol][str_val]:
-#                             self.bva_ion_coordination_environments_present[specie.symbol][str_val][ion_ce] = site.species_and_occu[specie]
-#                         else:
-#                             self.bva_ion_coordination_environments_present[specie.symbol][str_val][ion_ce] += site.species_and_occu[specie]
-#                         if specie.symbol not in self.bva_ion_count_with_computed_ce:
-#                             self.bva_ion_count_with_computed_ce[specie.symbol] = {}
-#                         if str_val not in self.bva_ion_count_with_computed_ce[specie.symbol]:
-#                             self.bva_ion_count_with_computed_ce[specie.symbol][str_val] = site.species_and_occu[specie]
-#                         else:
-#                             self.bva_ion_count_with_computed_ce[specie.symbol][str_val] += site.species_and_occu[specie]
-#         for ce in self.coordination_environments_present:
-#             self.coordination_environments_bva_ion_present[ce] = {}
-#         for sp, spdict in self.bva_ion_coordination_environments_present.items():
-#             self.fraction_bva_ion_coordination_environments_present[sp] = {}
-#             for val, valdict in spdict.items():
-#                 strbvasp = str(Specie(sp, int(val)))
-#                 self.fraction_bva_ion_coordination_environments_present[sp][val] = {}
-#                 for ion_ce, n_ion_ce in valdict.items():
-#                     self.fraction_bva_ion_coordination_environments_present[sp][val][ion_ce] = float(n_ion_ce) / self.bva_ion_count_with_computed_ce[sp][val]
-#                     if strbvasp in self.coordination_environments_bva_ion_present[ion_ce]:
-#                         self.coordination_environments_bva_ion_present[ion_ce][strbvasp] += n_ion_ce
-#                     else:
-#                         self.coordination_environments_bva_ion_present[ion_ce][strbvasp] = n_ion_ce
-#         for ce, cedict in self.coordination_environments_bva_ion_present.items():
-#             self.fraction_coordination_environments_bva_ion_present[ce] = {}
-#             for cation, ncations in cedict.items():
-#                 self.fraction_coordination_environments_bva_ion_present[ce][cation] = float(ncations) / self.coordination_environments_present[ce]
-#
-#     @property
-#     def coordination_environments(self):
-#         return self._coordination_environments
-#
-#     @property
-#     def uniquely_determined_coordination_environments(self):
-#         return self._uniquely_determined_coordination_environments
-#
-#     @property
-#     def neighbors(self):
-#         return self._neighbors
-#
-#     @property
-#     def neighbors_by_indices(self):
-#         return self._neighbors_by_indices
-#
-#     def __eq__(self, other):
-#         return (self.strategy_used == other.strategy_used and self.structure == other.structure and
-#                 self.bva_valences == other.bva_valences and
-#                 self._coordination_environments == other._coordination_environments and
-#                 self._neighbors == other._neighbors)
-#
-#     def as_dict(self):
-#         """
-#         Bson-serializable dict representation of the LightStructureEnvironments object.
-#         :return: Bson-serializable dict representation of the LightStructureEnvironments object.
-#         """
-#         #strategy_used, structure_environments=None, structure=None, coordination_environments=None,
-#         #         neighbors=None
-#         return {"@module": self.__class__.__module__,
-#                 "@class": self.__class__.__name__,
-#                 "strategy_used": self.strategy_used.as_dict(),
-#                 "structure": self.structure.as_dict(),
-#                 "bva_valences": self.bva_valences,
-#                 "coordination_environments": self._coordination_environments,
-#                 "neighbors": [[ps.as_dict() for ps in neighbs] if neighbs is not None else None
-#                               for neighbs in self._neighbors]}
-#
-#     @classmethod
-#     def from_dict(cls, d):
-#         """
-#         Reconstructs the LightStructureEnvironments object from a dict representation of the
-#         LightStructureEnvironments created using the as_dict method.
-#         :param d: dict representation of the LightStructureEnvironments object
-#         :return: LightStructureEnvironments object
-#         """
-#         dec = MontyDecoder()
-#         return cls(dec.process_decoded(d['strategy_used']), structure_environments=None,
-#                    structure=dec.process_decoded(d['structure']),
-#                    bva_valences=d['bva_valences'],
-#                    coordination_environments=d['coordination_environments'],
-#                    neighbors=dec.process_decoded(d['neighbors']))
-
 
 class ChemicalEnvironments(MSONable):
     """

@@ -145,8 +145,6 @@ class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
     Class used to define a Chemenv strategy for the neighbors and coordination environment to be applied to a
     StructureEnvironments object
     """
-    DETAILED_VORONOI_CONTAINER = 'DetailedVoronoiContainer'
-    ALLOWED_VORONOI_CONTAINERS = []
     AC = AdditionalConditions()
     STRATEGY_OPTIONS = OrderedDict()
     STRATEGY_DESCRIPTION = None
@@ -283,7 +281,7 @@ class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
         """
         return None
 
-    def get_site_ce_fractions_and_neighbors(self, site, full_ce_info=False):
+    def get_site_ce_fractions_and_neighbors(self, site, full_ce_info=False, strategy_info=False):
         """
         Applies the strategy to the structure_environments object in order to get coordination environments, their
         fraction, csm, geometry_info, and neighbors
@@ -323,11 +321,16 @@ class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
             geoms_and_maps_list = self.get_site_coordination_environments_fractions(site=site, isite=isite,
                                                                                     dequivsite=dequivsite,
                                                                                     dthissite=dthissite, mysym=mysym,
-                                                                                    return_maps=True)
+                                                                                    return_maps=True,
+                                                                                    return_strategy_dict_info=True)
             if geoms_and_maps_list is None:
                 return None
             ce_and_neighbors = {'ce': [], 'neighbors': {}}
-            for ce_symbol, ce_dict, ce_fraction, cn_map in geoms_and_maps_list:
+            for fractions_dict in geoms_and_maps_list:
+                ce_symbol = fractions_dict['ce_symbol']
+                ce_dict = fractions_dict['ce_dict']
+                ce_fraction = fractions_dict['ce_fraction']
+                cn_map = fractions_dict['ce_map']
                 tuple_cn_map = tuple(cn_map)
                 if tuple_cn_map not in ce_and_neighbors['neighbors']:
                     ce_and_neighbors['neighbors'][tuple_cn_map] = (self.structure_environments.
@@ -339,6 +342,8 @@ class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
                              'other_symmetry_measures': ce_dict['other_symmetry_measures']}
                 if full_ce_info:
                     geom_dict['coordination_geometry_info'] = ce_dict
+                if strategy_info:
+                    geom_dict['strategy_info'] = fractions_dict['strategy_info']
                 ce_and_neighbors['ce'].append(geom_dict)
         return ce_and_neighbors
 
@@ -421,7 +426,6 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    ALLOWED_VORONOI_CONTAINERS = [AbstractChemenvStrategy.DETAILED_VORONOI_CONTAINER]
     STRATEGY_OPTIONS = OrderedDict({'distance_cutoff': {'type': DistanceCutoffFloat, 'internal': '_distance_cutoff',
                                                         'default': DEFAULT_DISTANCE_CUTOFF},
                                     'angle_cutoff': {'type': AngleCutoffFloat, 'internal': '_angle_cutoff',
@@ -571,7 +575,6 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
     The coordination environment is then given as the one with the lowest continuous symmetry measure
     """
 
-    ALLOWED_VORONOI_CONTAINERS = [AbstractChemenvStrategy.DETAILED_VORONOI_CONTAINER]
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
     STRATEGY_OPTIONS = OrderedDict({'additional_condition': {'type': AdditionalConditionInt,
@@ -684,7 +687,6 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
     environments. This can be useful in the case of, e.g. connectivity search of some given environment.
     The coordination environment is then given as the one with the lowest continuous symmetry measure
     """
-    ALLOWED_VORONOI_CONTAINERS = [AbstractChemenvStrategy.DETAILED_VORONOI_CONTAINER]
     DEFAULT_TARGET_ENVIRONMENTS = ['O:6']
 
     def __init__(self, structure_environments=None, truncate_dist_ang=True,
@@ -806,7 +808,6 @@ class ImprovedConfidenceCutoffChemenvStrategy(AbstractChemenvStrategy):
     the Voronoi ...
     """
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    ALLOWED_VORONOI_CONTAINERS = []
 
     def __init__(self, structure_environments=None, additional_condition=DEFAULT_ADDITIONAL_CONDITION,
                  csm_cutoffs=None,
@@ -883,7 +884,6 @@ class ComplexCSMBasedChemenvStrategy(AbstractChemenvStrategy):
     ChemenvStrategy giving a percentage for each environment.
     #TODO: document how this is performed exactly
     """
-    ALLOWED_VORONOI_CONTAINERS = [AbstractChemenvStrategy.DETAILED_VORONOI_CONTAINER]
     ALLOWED_CN_DELTA_MEAN_CSM_ESTIMATOR_CONCATENATORS = {'product': np.product,
                                                          'minimum': np.min,
                                                          'min': np.min}
@@ -1165,12 +1165,11 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
     Complex ChemenvStrategy
     """
 
-    ALLOWED_VORONOI_CONTAINERS = [AbstractChemenvStrategy.DETAILED_VORONOI_CONTAINER]
     DEFAULT_SURFACE_CALCULATION_OPTIONS = {'type': 'standard_elliptic',
                                            'distance_bounds': {'lower': 1.2, 'upper': 1.8},
                                            'angle_bounds': {'lower': 0.1, 'upper': 0.8}}
     DEFAULT_MAX_CSM = 8.0
-    DEFAULT_LOWER_CSM = 5.0
+    DEFAULT_LOWER_CSM = 4.0
     DEFAULT_UPPER_CSM = DEFAULT_MAX_CSM
     DEFAULT_MEAN_CSM_ESTIMATOR = ('power2_inverse_decreasing', {'max_csm': DEFAULT_MAX_CSM})
     DEFAULT_CN_SELF_MEAN_CSM_ESTIMATOR = ('smootherstep', {'lower_csm': DEFAULT_LOWER_CSM,
@@ -1223,7 +1222,8 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         return False
 
     def get_site_coordination_environments_fractions(self, site, isite=None, dequivsite=None, dthissite=None,
-                                                     mysym=None, ordered=True, min_fraction=0.0, return_maps=True):
+                                                     mysym=None, ordered=True, min_fraction=0.0, return_maps=True,
+                                                     return_strategy_dict_info=False):
         if isite is None or dequivsite is None or dthissite is None or mysym is None:
             [isite, dequivsite, dthissite, mysym] = self.equivalent_site_index_and_transform(site)
         # Get the cn_maps and the corresponding surfaces
@@ -1275,6 +1275,7 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         ce_symbols = []
         ce_dicts = []
         ce_fractions = []
+        ce_dict_fractions = []
         ce_maps = []
         for cn_map, cn_map_fraction in cn_map_fractions.items():
             if cn_map_fraction > 0.0:
@@ -1287,6 +1288,14 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
                         ce_symbols.append(mingeoms[ifraction][0])
                         ce_dicts.append(mingeoms[ifraction][1])
                         ce_fractions.append(cn_map_fraction * fraction)
+                        dict_fractions = {'cn_map_surface_fraction': cn_map_surface_fractions[cn_map],
+                                          'cn_map_mean_csm': mean_csms[cn_map],
+                                          'cn_map_csm_weight': cn_maps_csm_weights[cn_map],
+                                          'cn_map_fraction': cn_map_fraction,
+                                          'cn_map_ce_fraction': fraction,
+                                          'ce_fraction': ce_fractions[-1]
+                                          }
+                        ce_dict_fractions.append(dict_fractions)
                         ce_maps.append(cn_map)
         if len(ce_fractions) == 0:
             for cn_map, cn_map_surface_fraction in cn_map_surface_fractions.items():
@@ -1294,18 +1303,38 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
                     ce_symbols.append('UNCLEAR:{:d}'.format(cn_map[0]))
                     ce_dicts.append(None)
                     ce_fractions.append(cn_map_surface_fraction)
+                    dict_fractions = {'cn_map_surface_fraction': cn_map_surface_fractions[cn_map],
+                                      'cn_map_mean_csm': mean_csms[cn_map],
+                                      'cn_map_csm_weight': None,
+                                      'cn_map_fraction': cn_map_surface_fractions[cn_map],
+                                      'cn_map_ce_fraction': None,
+                                      'ce_fraction': cn_map_surface_fractions[cn_map]
+                                      }
+                    ce_dict_fractions.append(dict_fractions)
                     ce_maps.append(cn_map)
 
         if ordered:
             indices = np.argsort(ce_fractions)[::-1]
         else:
             indices = list(range(len(ce_fractions)))
+
+        fractions_info_list = [{'ce_symbol': ce_symbols[ii], 'ce_dict': ce_dicts[ii], 'ce_fraction': ce_fractions[ii]}
+                               for ii in indices if ce_fractions[ii] > min_fraction]
         if return_maps:
-            return [(ce_symbols[ii], ce_dicts[ii], ce_fractions[ii], ce_maps[ii])
-                    for ii in indices if ce_fractions[ii] > min_fraction]
-        else:
-            return [(ce_symbols[ii], ce_dicts[ii], ce_fractions[ii])
-                    for ii in indices if ce_fractions[ii] > min_fraction]
+            for ifinfo, ii in enumerate(indices):
+                if ce_fractions[ii] > min_fraction:
+                    fractions_info_list[ifinfo]['ce_map'] = ce_maps[ii]
+        if return_strategy_dict_info:
+            for ifinfo, ii in enumerate(indices):
+                if ce_fractions[ii] > min_fraction:
+                    fractions_info_list[ifinfo]['strategy_info'] = ce_dict_fractions[ii]
+        return fractions_info_list
+        # if return_maps:
+        #     return [(ce_symbols[ii], ce_dicts[ii], ce_fractions[ii], ce_maps[ii])
+        #             for ii in indices if ce_fractions[ii] > min_fraction]
+        # else:
+        #     return [(ce_symbols[ii], ce_dicts[ii], ce_fractions[ii])
+        #             for ii in indices if ce_fractions[ii] > min_fraction]
 
     def get_site_coordination_environment(self, site):
         pass
