@@ -167,11 +167,13 @@ class TensorBase(np.ndarray):
         """
         Given a structure associated with a tensor, attempts a
         calculation of the tensor in IEEE format according to
-        the 1978 IEEE standards.
+        the 1987 IEEE standards.
 
         Args:
             structure (Structure): a structure associated with the
-            symprec (float): precision for the symmetry analyzer
+                tensor to be converted to the IEEE standard
+            atol (float): angle tolerance for conversion routines
+            ltol (float): length tolerance for conversion routines
         """
         def get_uvec(vec):
             """ Gets a unit vector parallel to input vector"""
