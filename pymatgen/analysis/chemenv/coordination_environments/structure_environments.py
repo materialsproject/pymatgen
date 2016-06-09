@@ -92,7 +92,8 @@ class StructureEnvironments(MSONable):
             return [envs[mp_symbol] for envs in self.ce_list[isite][cn]]
 
     def get_environments_figure(self, isite, plot_type=None, title='Coordination numbers', max_dist=2.0,
-                                additional_condition=AC.ONLY_ACB, colormap=None, figsize=None):
+                                additional_condition=AC.ONLY_ACB, colormap=None, figsize=None,
+                                strategy=None):
         """
         Plotting of the coordination environments of a given site for all the distfactor/angfactor regions. The
         chemical environments with the lowest continuous symmetry measure is shown for each distfactor/angfactor
@@ -180,6 +181,11 @@ class StructureEnvironments(MSONable):
         subplot.set_ylabel('Angle factor')
         subplot.set_xlim(dist_limits)
         subplot.set_ylim(ang_limits)
+        if strategy is not None:
+            try:
+                strategy.add_strategy_visualization_to_subplot(subplot=subplot)
+            except:
+                pass
         if plot_type['angle_parameter'][0] == 'initial_normalized':
             subplot.axes.invert_yaxis()
         # ax2 = subplot.twin()  # ax2 is responsible for "top" axis and "right" axis
@@ -194,7 +200,7 @@ class StructureEnvironments(MSONable):
         return fig
 
     def plot_environments(self,  isite, plot_type=None, title='Coordination numbers', max_dist=2.0,
-                          additional_condition=AC.ONLY_ACB, figsize=None):
+                          additional_condition=AC.ONLY_ACB, figsize=None, strategy=None):
         """
         Plotting of the coordination numbers of a given site for all the distfactor/angfactor parameters. If the
         chemical environments are given, a color map is added to the plot, with the lowest continuous symmetry measure
@@ -210,7 +216,8 @@ class StructureEnvironments(MSONable):
         :return: Nothing returned, just plot the figure
         """
         fig = self.get_environments_figure(isite=isite, plot_type=plot_type, title=title, max_dist=max_dist,
-                                           additional_condition=additional_condition, figsize=figsize)
+                                           additional_condition=additional_condition, figsize=figsize,
+                                           strategy=strategy)
         if fig is None:
             return
         fig.show()
@@ -372,8 +379,9 @@ class LightStructureEnvironments(MSONable):
                 if ce_piece['cn_map'] not in neighbors_list:
                     neighbors_list[ce_piece['cn_map']] = site_ce_list['neighbors'][ce_piece['cn_map']]
                 ce_piece_dict = {'ce_symbol': ce_piece['mp_symbol'], 'fraction': ce_piece['fraction'],
-                                 'csm': ce_piece['csm'], 'cn_map': ce_piece['cn_map'],
-                                 'strategy_info': ce_piece['strategy_info']}
+                                 'csm': ce_piece['csm'], 'cn_map': ce_piece['cn_map']}
+                if 'strategy_info' in ce_piece:
+                    ce_piece_dict['strategy_info'] = ce_piece['strategy_info']
                 ce_piece_dict_list.append(ce_piece_dict)
             self._coordination_environments.append(ce_piece_dict_list)
             self._neighbors.append(neighbors_list)

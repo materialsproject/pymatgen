@@ -29,6 +29,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.sites import PeriodicSite
 import numpy as np
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import UNCLEAR_ENVIRONMENT_SYMBOL
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import get_lower_and_upper_f
 from pymatgen.analysis.chemenv.utils.func_utils import CSMFiniteRatioFunction
 from pymatgen.analysis.chemenv.utils.func_utils import CSMInfiniteRatioFunction
 from pymatgen.analysis.chemenv.utils.func_utils import DeltaCSMRatioFunction
@@ -533,6 +534,10 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
                                            return_maps=False):
         return [self.get_site_coordination_environment(site=site, isite=isite, dequivsite=dequivsite,
                                                        dthissite=dthissite, mysym=mysym, return_map=return_maps)]
+
+    def add_strategy_visualization_to_subplot(self, subplot, visualization_options=None, plot_type=None):
+        subplot.plot(self._distance_cutoff, self._angle_cutoff, 'o', mec=None, mfc='w', markersize=12)
+        subplot.plot(self._distance_cutoff, self._angle_cutoff, 'x', linewidth=2, markersize=12)
 
     def __eq__(self, other):
         return (self.__class__.__name__ == other.__class__.__name__ and
@@ -1165,15 +1170,25 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
     Complex ChemenvStrategy
     """
 
-    DEFAULT_SURFACE_CALCULATION_OPTIONS = {'type': 'standard_elliptic',
-                                           'distance_bounds': {'lower': 1.2, 'upper': 1.8},
-                                           'angle_bounds': {'lower': 0.1, 'upper': 0.8}}
+    DEFAULT_SURFACE_CALCULATION_OPTIONS = {'type': 'standard_spline',
+                                           'distance_bounds': {'lower': 1.1, 'upper': 1.8},
+                                           'angle_bounds': {'lower': 0.0, 'upper': 0.9},
+                                           'lower_points': [[1.1, 0.8],
+                                                            [1.4, 0.0],
+                                                            [1.8, 0.0]],
+                                           'upper_points': [[1.1, 0.9],
+                                                            [1.2, 0.9],
+                                                            [1.8, 0.4]],
+                                           'degree': 1
+                                           }
     DEFAULT_MAX_CSM = 8.0
     DEFAULT_LOWER_CSM = 4.0
     DEFAULT_UPPER_CSM = DEFAULT_MAX_CSM
     DEFAULT_MEAN_CSM_ESTIMATOR = ('power2_inverse_decreasing', {'max_csm': DEFAULT_MAX_CSM})
     DEFAULT_CN_SELF_MEAN_CSM_ESTIMATOR = ('smootherstep', {'lower_csm': DEFAULT_LOWER_CSM,
                                                             'upper_csm': DEFAULT_UPPER_CSM})
+    DEFAULT_CN_DELTA_MEAN_CSM_ESTIMATOR = ('smootherstep', {'delta_csm_min': 0.5,
+                                                            'delta_csm_max': 3.0})
     DEFAULT_CE_ESTIMATOR = ('power2_inverse_power2_decreasing', {'max_csm': DEFAULT_MAX_CSM})
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
     STRATEGY_OPTIONS = OrderedDict({'additional_condition': {'type': AdditionalConditionInt,
@@ -1188,6 +1203,7 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
                  surface_calculation_options=DEFAULT_SURFACE_CALCULATION_OPTIONS,
                  mean_csm_estimator=DEFAULT_MEAN_CSM_ESTIMATOR,
                  cn_self_mean_csm_estimator=DEFAULT_CN_SELF_MEAN_CSM_ESTIMATOR,
+                 cn_delta_mean_csm_estimator=DEFAULT_CN_DELTA_MEAN_CSM_ESTIMATOR,
                  ce_estimator=DEFAULT_CE_ESTIMATOR,
                  max_csm=DEFAULT_MAX_CSM):
         """
@@ -1211,6 +1227,12 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
                                    options_dict=cn_self_mean_csm_estimator[1])
         self._cn_self_mean_csm_evaluate = self._cn_self_mean_csm_estimator_ratio_function.evaluate
         self._max_csm = max_csm
+        # Definition of the estimator/function used to compute the "delta" contribution to the fraction of the cn_map
+        self._cn_delta_mean_csm_estimator = cn_delta_mean_csm_estimator
+        self._cn_delta_mean_csm_estimator_ratio_function = \
+            DeltaCSMRatioFunction(cn_delta_mean_csm_estimator[0],
+                                  options_dict=cn_delta_mean_csm_estimator[1])
+        self._cn_delta_mean_csm_evaluate = self._cn_delta_mean_csm_estimator_ratio_function.evaluate
         # Definition of the estimator/function used to compute the fractions of each coordination environment within
         # one cn_map
         self._ce_estimator = ce_estimator
@@ -1265,10 +1287,28 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         # Get the fractions for each neighbors set (i.e. for each cn_map)
         cn_map_fractions = {}
         cn_map_surface_fractions = {}
+        cn_map_delta_csms = {}
+        cn_map_delta_csm_weights = {}
         for i_map_and_surface, map_and_surface in enumerate(maps_and_surfaces):
             cn, i_nbs = map_and_surface['map']
             cn_map_surface_fractions[(cn, i_nbs)] = map_and_surface['surface'] / surf_total
-            cn_map_fractions[(cn, i_nbs)] = cn_map_surface_fractions[(cn, i_nbs)] * cn_maps_csm_weights[(cn, i_nbs)]
+            cn_map_delta_csms[(cn, i_nbs)] = None
+            cn_map_delta_csm_weights[(cn, i_nbs)] = 1.0
+            # Get the mean csm deltas for each cn_map
+            for i_map_and_surface2, map_and_surface2 in enumerate(maps_and_surfaces):
+                cn2, i_nbs2 = map_and_surface2['map']
+                if cn2 < cn:
+                    continue
+                if cn2 == cn and i_nbs == i_nbs2:
+                    continue
+                delta_csm = mean_csms[(cn2, i_nbs2)] - mean_csms[(cn, i_nbs)]
+                cn_map_delta_csms[(cn, i_nbs)] = delta_csm
+                cn_map_delta_csm_weights[(cn, i_nbs)] = min(cn_map_delta_csm_weights[(cn, i_nbs)],
+                                                            self._cn_delta_mean_csm_evaluate(delta_csm))
+            cn_map_fractions[(cn, i_nbs)] = cn_map_surface_fractions[(cn, i_nbs)] * \
+                                            cn_maps_csm_weights[(cn, i_nbs)] * \
+                                            cn_map_delta_csm_weights[(cn, i_nbs)]
+
         cn_map_fractions_sum = sum(cn_map_fractions.values())
         cn_map_fractions = {cn_map: frac / cn_map_fractions_sum for cn_map, frac in cn_map_fractions.items()}
 
@@ -1291,6 +1331,8 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
                         dict_fractions = {'cn_map_surface_fraction': cn_map_surface_fractions[cn_map],
                                           'cn_map_mean_csm': mean_csms[cn_map],
                                           'cn_map_csm_weight': cn_maps_csm_weights[cn_map],
+                                          'cn_map_delta_csm': cn_map_delta_csms[cn_map],
+                                          'cn_map_delta_csm_weight': cn_map_delta_csm_weights[cn_map],
                                           'cn_map_fraction': cn_map_fraction,
                                           'cn_map_ce_fraction': fraction,
                                           'ce_fraction': ce_fractions[-1]
@@ -1306,6 +1348,8 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
                     dict_fractions = {'cn_map_surface_fraction': cn_map_surface_fractions[cn_map],
                                       'cn_map_mean_csm': mean_csms[cn_map],
                                       'cn_map_csm_weight': None,
+                                      'cn_map_delta_csm': None,
+                                      'cn_map_delta_csm_weight': None,
                                       'cn_map_fraction': cn_map_surface_fractions[cn_map],
                                       'cn_map_ce_fraction': None,
                                       'ce_fraction': cn_map_surface_fractions[cn_map]
@@ -1359,6 +1403,32 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
                                                  surface_calculation_options=surface_calculation_options,
                                                  additional_conditions=None)
 
+    def add_strategy_visualization_to_subplot(self, subplot, visualization_options=None):
+        distmin = self._surface_calculation_options['distance_bounds']['lower']
+        distmax = self._surface_calculation_options['distance_bounds']['upper']
+        angmin = self._surface_calculation_options['angle_bounds']['lower']
+        angmax = self._surface_calculation_options['angle_bounds']['upper']
+        distances = np.linspace(distmin, distmax, num=100)
+        lower_and_upper_functions = get_lower_and_upper_f(surface_calculation_options=self._surface_calculation_options)
+        angles_lower = lower_and_upper_functions['lower'](distances)
+        angles_upper = lower_and_upper_functions['upper'](distances)
+        if not np.isclose(angles_lower[0], angmax):
+            subplot.plot([distmin, distances[0]], [angmax, angles_lower[0]], 'k-')
+        if not np.isclose(angles_upper[-1], angmin):
+            subplot.plot([distmax, distances[-1]], [angmin, angles_upper[-1]], 'k-')
+        subplot.plot(distances, angles_lower, 'k-')
+        subplot.plot(distances, angles_upper, 'k-')
+        xlims = subplot.get_xlim()
+        ylims = subplot.get_ylim()
+        subplot.fill_between([xlims[0], distmin], [ylims[0], ylims[0]], [ylims[1], ylims[1]],
+                             facecolor='k', zorder=1000, alpha=0.5, lw=0, interpolate=True)
+        subplot.fill_between([distmax, xlims[1]], [ylims[0], ylims[0]], [ylims[1], ylims[1]],
+                             facecolor='k', zorder=1000, alpha=0.5, lw=0, interpolate=True)
+        subplot.fill_between(distances, angles_upper, ylims[1] * np.ones_like(distances),
+                             facecolor='k', zorder=1000, alpha=0.5, lw=0, interpolate=True)
+        subplot.fill_between(distances, ylims[0] * np.ones_like(distances), angles_lower,
+                             facecolor='k', zorder=1000, alpha=0.5, lw=0, interpolate=True)
+
     def __eq__(self, other):
         return (self.__class__.__name__ == other.__class__.__name__ and
                 self._additional_condition == other.additional_condition,
@@ -1381,6 +1451,7 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
                 "surface_calculation_options": self._surface_calculation_options,
                 "mean_csm_estimator": self._mean_csm_estimator,
                 "cn_self_mean_csm_estimator": self._cn_self_mean_csm_estimator,
+                "cn_delta_mean_csm_estimator": self._cn_delta_mean_csm_estimator,
                 "ce_estimator": self._ce_estimator,
                 "max_csm": self._max_csm
                 }
@@ -1398,6 +1469,7 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
                    surface_calculation_options=d["surface_calculation_options"],
                    mean_csm_estimator=d["mean_csm_estimator"],
                    cn_self_mean_csm_estimator=d["cn_self_mean_csm_estimator"],
+                   cn_delta_mean_csm_estimator=d["cn_delta_mean_csm_estimator"],
                    ce_estimator=d["ce_estimator"],
                    max_csm=d["max_csm"]
                    )
