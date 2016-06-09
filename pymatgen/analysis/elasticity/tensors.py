@@ -98,7 +98,7 @@ class TensorBase(np.ndarray):
         """
         return self.__class__(symm_op.transform_tensor(self))
 
-    def rotate(self, matrix, tol=1e-5):
+    def rotate(self, matrix, tol=1e-3):
         """
         Applies a rotation directly, and tests input matrix to ensure a valid
         rotation.
@@ -163,53 +163,54 @@ class TensorBase(np.ndarray):
         """
         return (self - self.fit_to_structure(structure) < tol).all()
 
-    def convert_to_ieee(self, structure, atol = 0.1, ltol = 1e-2):
+    def convert_to_ieee(self, structure, atol = 0.1, ltol = 0.05):
         """
         Given a structure associated with a tensor, attempts a
         calculation of the tensor in IEEE format according to
         the 1978 IEEE standards.
 
         Args:
-            structure (structure): a structure associated with the
+            structure (Structure): a structure associated with the
             symprec (float): precision for the symmetry analyzer
         """
         def get_uvec(vec):
             """ Gets a unit vector parallel to input vector"""
             return vec / np.linalg.norm(vec)
 
-        vecs = struct.lattice.matrix
-        lengths = np.array(struct.lattice.abc)
-        angles = np.array(struct.lattice.angles)
-        
+        vecs = structure.lattice.matrix
+        lengths = np.array(structure.lattice.abc)
+        angles = np.array(structure.lattice.angles)
+
         # Check conventional setting:
         sga = SpacegroupAnalyzer(structure)
+        xtal_sys = sga.get_crystal_system()
         conv_struct = sga.get_refined_structure()
         conv_lengths = np.array(conv_struct.lattice.abc)
         conv_angles = np.array(conv_struct.lattice.angles)
-        if (np.sort(lengths) - np.sort(conv_lengths) > ltol).any() \
-           or (np.sort(angles) - np.sort(conv_angles) > atol).any()\
-           or len(struct.sites) != len(conv_struct.sites):
+        rhombohedral = xtal_sys == "trigonal" and \
+                (angles - angles[0] < atol).all()
+        if ((np.sort(lengths) - np.sort(conv_lengths) > ltol).any() \
+           or (np.sort(angles) - np.sort(conv_angles) > atol).any() \
+           or len(structure.sites) != len(conv_struct.sites)) \
+           and not rhombohedral:
             raise ValueError("{} structure not in conventional cell, IEEE "\
                              "conversion from non-conventional settings "\
-                             "is not yet supported."
+                             "is not yet supported.".format(xtal_sys))
 
         a = b = c = None
-        xtal_sys = sga.get_crystal_system()
         rotation = np.zeros((3,3))
 
         # IEEE rules: a,b,c || x1,x2,x3
         if xtal_sys == "cubic":
             rotation = [vecs[i]/lengths[i] for i in range(3)]
-        
+
         # IEEE rules: a=b in length; c,a || x3, x1
         elif xtal_sys == "tetragonal":            
-            rotation = [vecs[i]/lengths[i] for i in range(3)]
-            if abs(lengths[2] - lengths[0]) < ltol:
-                rotation[1], rotation[2] = rotation[2], rotation[1].copy()
-            elif abs(lengths[2] - lengths[1]) < ltol:
+            rotation = np.array([vec/mag for (mag, vec) in 
+                                 sorted(zip(lengths, vecs))])
+            if abs(lengths[2] - lengths[1]) < ltol:
                 rotation[0], rotation[2] = rotation[2], rotation[0].copy()
-            else:
-                raise ValueError("No latt. vecs equal for tetragonal system")
+            rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
 
         # IEEE rules: c<a<b; c,a || x3,x1
         elif xtal_sys == "orthorhombic":
@@ -219,7 +220,7 @@ class TensorBase(np.ndarray):
         # IEEE rules: c,a || x3,x1, c is threefold axis
         elif xtal_sys in ("trigonal", "hexagonal"):
             # Rhombohedral lattice
-            if xtal_sys == "trigonal" and (angles - angles[0] < atol).all():
+            if rhombohedral:
                 rotation[0] = get_uvec(vecs[2] - vecs[0])
                 rotation[2] = get_uvec(np.sum(vecs, axis=0))
                 rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
@@ -235,7 +236,7 @@ class TensorBase(np.ndarray):
         # IEEE rules: b,c || x2,x3; alpha=beta=90, c<a
         elif xtal_sys == "monoclinic":
             # Find unique axis
-            umask = angles - 90.0 > atol
+            umask = abs(angles - 90.0) > atol
             n_umask = np.logical_not(umask)
             rotation[1] = get_uvec(vecs[umask])
             # Shorter of remaining lattice vectors for c axis
@@ -301,7 +302,7 @@ class SquareTensor(TensorBase):
         """
         return np.linalg.det(self)
 
-    def is_rotation(self, tol=1e-5):
+    def is_rotation(self, tol=1e-3):
         """
         Test to see if tensor is a valid rotation matrix, performs a
         test to check whether the inverse is equal to the transpose
