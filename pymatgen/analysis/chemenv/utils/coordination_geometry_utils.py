@@ -23,8 +23,34 @@ import numpy as np
 from numpy.linalg import norm
 from scipy.spatial import ConvexHull
 from scipy.integrate import quad
+from scipy.interpolate import UnivariateSpline
 
 from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
+
+
+def get_lower_and_upper_f(surface_calculation_options):
+    mindist = surface_calculation_options['distance_bounds']['lower']
+    maxdist = surface_calculation_options['distance_bounds']['upper']
+    minang = surface_calculation_options['angle_bounds']['lower']
+    maxang = surface_calculation_options['angle_bounds']['upper']
+    if surface_calculation_options['type'] == 'standard_elliptic':
+        lower_and_upper_functions = quarter_ellipsis_functions(xx=(mindist, maxang), yy=(maxdist, minang))
+    elif surface_calculation_options['type'] == 'standard_diamond':
+        deltadist = surface_calculation_options['distance_bounds']['delta']
+        deltaang = surface_calculation_options['angle_bounds']['delta']
+        lower_and_upper_functions = diamond_functions(xx=(mindist, maxang), yy=(maxdist, minang),
+                                                      x_y0=deltadist, y_x0=deltaang)
+    elif surface_calculation_options['type'] == 'standard_spline':
+        lower_points = surface_calculation_options['lower_points']
+        upper_points = surface_calculation_options['upper_points']
+        degree = surface_calculation_options['degree']
+        lower_and_upper_functions = spline_functions(lower_points=lower_points,
+                                                     upper_points=upper_points,
+                                                     degree=degree)
+    else:
+        raise ValueError('Surface calculation of type "{}" '
+                         'is not implemented'.format(surface_calculation_options['type']))
+    return lower_and_upper_functions
 
 
 def function_comparison(f1, f2, x1, x2, numpoints_check=500):
@@ -110,6 +136,38 @@ def quarter_ellipsis_functions(xx, yy):
     return {'lower': lower, 'upper': upper}
 
 
+def spline_functions(lower_points, upper_points, degree=3):
+    """
+    Method that creates two (upper and lower) spline functions based on points lower_points and upper_points.
+
+    Args:
+        lower_points:
+            Points defining the lower function.
+        upper_points:
+            Points defining the upper function.
+        degree:
+            Degree for the spline function
+
+    Returns:
+        A dictionary with the lower and upper spline functions.
+    """
+    lower_xx = np.array([pp[0] for pp in lower_points])
+    lower_yy = np.array([pp[1] for pp in lower_points])
+    upper_xx = np.array([pp[0] for pp in upper_points])
+    upper_yy = np.array([pp[1] for pp in upper_points])
+
+    lower_spline = UnivariateSpline(lower_xx, lower_yy, k=degree, s=0)
+    upper_spline = UnivariateSpline(upper_xx, upper_yy, k=degree, s=0)
+
+    def lower(x):
+        return lower_spline(x)
+
+    def upper(x):
+        return upper_spline(x)
+
+    return {'lower': lower, 'upper': upper}
+
+
 def diamond_functions(xx, yy, y_x0, x_y0):
     """
     Method that creates two upper and lower functions based on points xx and yy as well as intercepts defined by
@@ -141,7 +199,7 @@ def diamond_functions(xx, yy, y_x0, x_y0):
             Second point
 
     Returns:
-        A dictionary with the lower and upper quarter ellipsis functions.
+        A dictionary with the lower and upper diamond functions.
     """
     npxx = np.array(xx)
     npyy = np.array(yy)
@@ -229,6 +287,11 @@ def rectangle_surface_intersection(rectangle, f_lower, f_upper,
             if bounds_upper is not None:
                 if not all(np.array(bounds_lower) == np.array(bounds_upper)):
                     raise ValueError('Bounds should be identical for both f_lower and f_upper')
+                if not '<' in function_comparison(f1=f_lower, f2=f_upper,
+                                                  x1=bounds_lower[0], x2=bounds_lower[1],
+                                                  numpoints_check=numpoints_check):
+                    raise RuntimeError('Function f_lower is not allways lower or equal to function f_upper within '
+                                       'the domain defined by the functions bounds.')
             else:
                 raise ValueError('Bounds are given for f_lower but not for f_upper')
         elif bounds_upper is not None:

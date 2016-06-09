@@ -30,8 +30,7 @@ from pymatgen.analysis.structure_analyzer import solid_angle
 
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import my_solid_angle
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import quarter_ellipsis_functions
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import diamond_functions
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import get_lower_and_upper_f
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rectangle_surface_intersection
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 
@@ -399,6 +398,66 @@ class DetailedVoronoiContainer(MSONable):
         i_additional_condition = self.additional_conditions.index(additional_condition)
         return {'i_distfactor': idist, 'i_angfactor': iang, 'i_additional_condition': i_additional_condition}
 
+    def dist_ang_corners_maps(self, isite, additional_condition,
+                              mindistfactor=1.01, maxdistfactor=2.0,
+                              minangfactor=0.0, maxangfactor=0.99):
+        if self.neighbors_weighted_distances[isite] is None or self.neighbors_weighted_angles[isite] is None:
+            return None
+        dist_ang_corners = []
+        dist_maps = []
+        for wd in self.neighbors_weighted_distances[isite]:
+            if wd['max'] < mindistfactor or wd['max'] > maxdistfactor:
+                continue
+            nbmap = self.neighbors_map(isite=isite, distfactor=wd['max'],
+                                       angfactor=minangfactor, additional_condition=additional_condition)
+            idp = nbmap['i_distfactor']
+            iap = nbmap['i_angfactor']
+            iac = nbmap['i_additional_condition']
+            nbmap['cn_map'] = tuple(self.parameters_to_unique_coordinated_neighbors_map[isite][idp][iap][iac])
+            # print(wd['max'])
+            # print('    ', nbmap)
+            # print('        ', self.parameters_to_unique_coordinated_neighbors_map[isite][idp][iap][iac])
+            # print('')
+            dist_maps.append(nbmap)
+        # raw_input('distance maps')
+        ang_maps = []
+        for wa in self.neighbors_weighted_angles[isite]:
+            if wa['min'] < minangfactor or wa['min'] > maxangfactor:
+                continue
+            nbmap = self.neighbors_map(isite=isite, distfactor=maxdistfactor,
+                                       angfactor=wa['min'], additional_condition=additional_condition)
+            idp = nbmap['i_distfactor']
+            iap = nbmap['i_angfactor']
+            iac = nbmap['i_additional_condition']
+            nbmap['cn_map'] = tuple(self.parameters_to_unique_coordinated_neighbors_map[isite][idp][iap][iac])
+            # print(wa['min'])
+            # print('    ', nbmap)
+            # print('        ', self.parameters_to_unique_coordinated_neighbors_map[isite][idp][iap][iac])
+            # print('')
+            ang_maps.append(nbmap)
+        # raw_input('angle maps')
+
+        ang_cn_maps = [ang_map['cn_map'] for ang_map in ang_maps]
+        for dist_map in dist_maps:
+            cn_map = dist_map['cn_map']
+            cnt = ang_cn_maps.count(cn_map)
+            if cnt == 0:
+                continue
+            elif cnt == 1:
+                ang_map_index = ang_cn_maps.index(cn_map)
+                ang_map = ang_maps[ang_map_index]
+                idp = dist_map['i_distfactor']
+                iap = ang_map['i_angfactor']
+                iac = dist_map['i_additional_condition']
+                dist_ang_corners.append({'i_distfactor': idp,
+                                         'i_angfactor': iap,
+                                         'i_additional_condition': iac,
+                                         'distfactor': self.neighbors_weighted_distances[isite][idp]['max'],
+                                         'angfactor': self.neighbors_weighted_angles[isite][iap]['min'],
+                                         'cn_map': cn_map})
+        return dist_ang_corners
+
+
     def neighbors_surfaces(self, isite, surface_calculation_type=None, max_dist=2.0):
         if self.voronoi_list[isite] is None:
             return None
@@ -421,7 +480,7 @@ class DetailedVoronoiContainer(MSONable):
             surface_calculation_options = {'type': 'standard_elliptic',
                                            'distance_bounds': {'lower': 1.2, 'upper': 1.8},
                                            'angle_bounds': {'lower': 0.1, 'upper': 0.8}}
-        if surface_calculation_options['type'] in ['standard_elliptic', 'standard_diamond']:
+        if surface_calculation_options['type'] in ['standard_elliptic', 'standard_diamond', 'standard_spline']:
             plot_type = {'distance_parameter': ('initial_normalized', None),
                          'angle_parameter': ('initial_normalized', None)}
         else:
@@ -431,19 +490,21 @@ class DetailedVoronoiContainer(MSONable):
         bounds_and_limits = self.voronoi_parameters_bounds_and_limits(isite=isite,
                                                                       plot_type=plot_type,
                                                                       max_dist=max_dist)
+
         distance_bounds = bounds_and_limits['distance_bounds']
         angle_bounds = bounds_and_limits['angle_bounds']
+        lower_and_upper_functions = get_lower_and_upper_f(surface_calculation_options=surface_calculation_options)
         mindist = surface_calculation_options['distance_bounds']['lower']
         maxdist = surface_calculation_options['distance_bounds']['upper']
         minang = surface_calculation_options['angle_bounds']['lower']
         maxang = surface_calculation_options['angle_bounds']['upper']
-        if surface_calculation_options['type'] == 'standard_elliptic':
-            lower_and_upper_functions = quarter_ellipsis_functions(xx=(mindist, maxang), yy=(maxdist, minang))
-        elif surface_calculation_options['type'] == 'standard_diamond':
-            deltadist = surface_calculation_options['distance_bounds']['delta']
-            deltaang = surface_calculation_options['angle_bounds']['delta']
-            lower_and_upper_functions = diamond_functions(xx=(mindist, maxang), yy=(maxdist, minang),
-                                                          x_y0=deltadist, y_x0=deltaang)
+        # if surface_calculation_options['type'] == 'standard_elliptic':
+        #     lower_and_upper_functions = quarter_ellipsis_functions(xx=(mindist, maxang), yy=(maxdist, minang))
+        # elif surface_calculation_options['type'] == 'standard_diamond':
+        #     deltadist = surface_calculation_options['distance_bounds']['delta']
+        #     deltaang = surface_calculation_options['angle_bounds']['delta']
+        #     lower_and_upper_functions = diamond_functions(xx=(mindist, maxang), yy=(maxdist, minang),
+        #                                                   x_y0=deltadist, y_x0=deltaang)
         f_lower = lower_and_upper_functions['lower']
         f_upper = lower_and_upper_functions['upper']
         surfaces = np.zeros((len(distance_bounds), len(angle_bounds)), np.float)
