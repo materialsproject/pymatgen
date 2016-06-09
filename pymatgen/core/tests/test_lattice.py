@@ -29,6 +29,17 @@ class LatticeTestCase(PymatgenTest):
         for name in family_names:
             self.families[name] = getattr(self, name)
 
+    def test_format(self):
+        self.assertEqual("[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]",
+                         format(self.lattice, ".3fl"))
+        self.assertEqual(
+            """10.000 0.000 0.000
+0.000 10.000 0.000
+0.000 0.000 10.000""",
+            format(self.lattice, ".3f"))
+        self.assertEqual("{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}",
+                         format(self.lattice, ".1fp"))
+
     def test_init(self):
         a = 9.026
         lattice = Lattice.cubic(a)

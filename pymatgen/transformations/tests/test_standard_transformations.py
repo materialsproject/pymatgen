@@ -399,5 +399,31 @@ class PerturbStructureTransformationTest(unittest.TestCase):
             self.assertAlmostEqual(site.distance(struct[i]), 0.05)
 
 
+class DeformStructureTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        t = DeformStructureTransformation([[ 1., 0., 0.],
+                                             [ 0., 1., 0.05],
+                                             [ 0., 0., 1.]])
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.375, 0.375, 0.375])
+        coords.append([.5, .5, .5])
+        coords.append([0.875, 0.875, 0.875])
+        coords.append([0.125, 0.125, 0.125])
+        coords.append([0.25, 0.25, 0.25])
+        coords.append([0.625, 0.625, 0.625])
+        coords.append([0.75, 0.75, 0.75])
+
+        lattice = [[3.8401979337, 0.00, 0.00],
+                   [1.9200989668, 3.3257101909, 0.00],
+                   [0.00, -2.2171384943, 3.1355090603]]
+        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+",
+                                     "O2-", "O2-", "O2-", "O2-"], coords)
+        transformed_s = t.apply_transformation(struct)
+        self.assertAlmostEqual(transformed_s.lattice.a,3.84019793)
+        self.assertAlmostEqual(transformed_s.lattice.b,3.84379750)
+        self.assertAlmostEqual(transformed_s.lattice.c,3.75022981)
+
 if __name__ == "__main__":
     unittest.main()

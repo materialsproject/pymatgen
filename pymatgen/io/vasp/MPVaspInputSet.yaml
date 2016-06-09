@@ -90,7 +90,7 @@ INCAR:
   PREC: Accurate
   SIGMA: 0.05
 KPOINTS:
-  grid_density: 1000
+  reciprocal_density: 50
 POTCAR:
   Ac: Ac
   Ag: Ag
