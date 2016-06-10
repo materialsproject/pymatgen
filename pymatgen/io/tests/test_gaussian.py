@@ -253,6 +253,11 @@ class GaussianOutputTest(unittest.TestCase):
                                                                         -0.06348,
                                                                         -1.00532])
 
+        self.assertListEqual(gau.atom_basis_labels[0], ["1S", "2S", "2PX", "2PY",
+                                                        "2PZ", "3S", "3PX", "3PY",
+                                                        "3PZ"])
+        self.assertListEqual(gau.atom_basis_labels[2], ["1S", "2S"])
+
     def test_scan(self):
         gau = GaussianOutput(os.path.join(test_dir, "so2_scan.log"))
         d = gau.read_scan()
