@@ -211,7 +211,7 @@ class DiffusionAnalyzer(MSONable):
 
             dt = timesteps * self.time_step * self.step_skip
 
-            #calculate the smoothed msd values
+            # calculate the smoothed msd values
             msd = np.zeros_like(dt, dtype=np.double)
             sq_disp_ions = np.zeros((len(dc), len(dt)), dtype=np.double)
             msd_components = np.zeros(dt.shape + (3,))
@@ -452,6 +452,24 @@ class DiffusionAnalyzer(MSONable):
                 displacement by specie).
         """
         self.get_msd_plot(mode=mode).show()
+
+    def write_msdt_csv(self, filename):
+        """
+        Writes MSD data to a csv file that can be easily plotted in other
+        software.
+
+        Args:
+            filename:
+
+        Returns:
+
+        """
+        import csv
+        with open(filename, "wt") as f:
+            w = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
+            w.writerow(["t", "MSD", "MSD_a", "MSD_b", "MSD_c"])
+            for dt, msd, msdc in zip(self.dt, self.msd, self.msd_components):
+                w.writerow([dt, msd] + list(msdc))
 
     @classmethod
     def from_structures(cls, structures, specie, temperature,
