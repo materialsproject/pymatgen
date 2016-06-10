@@ -162,9 +162,8 @@ class DiffusionAnalyzerTest(PymatgenTest):
                 d.step_skip, d.smoothed, avg_nsteps=100)
             self.assertAlmostEqual(d.conductivity, 47.404056230438741, 4)
             self.assertAlmostEqual(d.diffusivity, 7.4226016496716148e-07, 7)
-
             with ScratchDir("."):
-                d.write_msdt_csv("test.csv")
+                d.export_msdt("test.csv")
                 with open("test.csv") as f:
                     data = []
                     for row in csv.reader(f):
