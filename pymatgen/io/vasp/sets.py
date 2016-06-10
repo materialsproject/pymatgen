@@ -28,7 +28,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.sites import PeriodicSite
 
 # This mass import is for deprecation stub purposes.
-from pymatgen.io.vasp.sets_deprecated import MPVaspInputSet, \
+from pymatgen.io.vasp.sets_deprecated import MPVaspInputSet, MPGGAVaspInputSet,\
     MITHSEVaspInputSet, MITVaspInputSet, MITGGAVaspInputSet, \
     MPStaticVaspInputSet, MITMDVaspInputSet, \
     MVLElasticInputSet, MITNEBVaspInputSet, MPNonSCFVaspInputSet, \
@@ -238,7 +238,7 @@ class DictSet(VaspInputSet):
             alter the structure. Valid values: None, "niggli", "LLL"
     """
 
-    def __init__(self, structure, name, config_dict,
+    def __init__(self, structure, config_dict,
                  files_to_transfer=None, user_incar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
                  potcar_functional="PBE", force_gamma=False,
@@ -249,9 +249,8 @@ class DictSet(VaspInputSet):
             structure = structure.get_sorted_structure()
         self.structure = structure
         self.config_dict = config_dict
-        self.name = name
         self.files_to_transfer = files_to_transfer or {}
-        self.set_nupdown = constrain_total_magmom
+        self.constrain_total_magmom = constrain_total_magmom
         self.sort_structure = sort_structure
         self.potcar_functional = potcar_functional
         self.force_gamma = force_gamma
@@ -294,7 +293,7 @@ class DictSet(VaspInputSet):
                                       for sym in poscar.site_symbols]
                     else:
                         incar[k] = [0] * len(poscar.site_symbols)
-            elif k.startswith("EDIFF"):
+            elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
                 else:
@@ -319,7 +318,7 @@ class DictSet(VaspInputSet):
                 if key.startswith('LDAU'):
                     del incar[key]
 
-        if self.set_nupdown:
+        if self.constrain_total_magmom:
             nupdown = sum([mag if abs(mag) > 0.6 else 0
                            for mag in incar['MAGMOM']])
             incar['NUPDOWN'] = nupdown
@@ -378,10 +377,10 @@ class DictSet(VaspInputSet):
                 "and length  : for Kpoints.automatic generation")
 
     def __str__(self):
-        return self.name
+        return self.__class__.__name__
 
     def __repr__(self):
-        return self.name
+        return self.__class__.__name__
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
@@ -408,8 +407,7 @@ class ConfigFileSet(DictSet):
 
     def __init__(self, structure, config_file, **kwargs):
         d = loadfn(config_file)
-        super(ConfigFileSet, self).__init__(structure, config_file, d,
-                                            **kwargs)
+        super(ConfigFileSet, self).__init__(structure, d, **kwargs)
         self.config_file = config_file
         self.kwargs = kwargs
 
@@ -678,8 +676,9 @@ class MPHSEBSSet(MPHSERelaxSet):
     def from_prev_calc(cls, prev_calc_dir, mode="Uniform",
                        reciprocal_density=50, copy_chgcar=True, **kwargs):
         """
-        Generate a set of Vasp input files for static calculations from a
-        directory of previous Vasp run.
+        Generate a set of Vasp input files for HSE calculations from a
+        directory of previous Vasp run. Explicitly adds VBM and CBM of prev.
+        run to the k-point list of this run.
 
         Args:
             prev_calc_dir (str): Directory containing the outputs
@@ -815,7 +814,8 @@ class MPNonSCFSet(MPRelaxSet):
     def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
                        nbands_factor=1.2, standardize=False, sym_prec=0.1,
                        international_monoclinic=True, reciprocal_density=100,
-                       small_gap_multiply=None, **kwargs):
+                       kpoints_line_density=20, small_gap_multiply=None,
+                       **kwargs):
         """
         Generate a set of Vasp input files for NonSCF calculations from a
         directory of previous static Vasp run.
@@ -835,7 +835,9 @@ class MPNonSCFSet(MPRelaxSet):
             international_monoclinic (bool): Whether to use international
                 convention (vs Curtarolo) for monoclinic. Defaults True.
             reciprocal_density (int): density of k-mesh by reciprocal
-                volume (defaults to 100)
+                volume in uniform mode (defaults to 100)
+            kpoints_line_density (int): density of k-mesh in line mode
+                (defaults to 20)
             small_gap_multiply ([float, float]): If the gap is less than
                 1st index, multiply the default reciprocal_density by the 2nd
                 index.
@@ -872,9 +874,12 @@ class MPNonSCFSet(MPRelaxSet):
             gap = vasprun.eigenvalue_band_properties[0]
             if gap <= small_gap_multiply[0]:
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
+                kpoints_line_density = kpoints_line_density * \
+                                       small_gap_multiply[1]
 
         return MPNonSCFSet(structure=structure, prev_incar=incar,
                            reciprocal_density=reciprocal_density,
+                           kpoints_line_density=kpoints_line_density,
                            files_to_transfer=files_to_transfer, **kwargs)
 
 
