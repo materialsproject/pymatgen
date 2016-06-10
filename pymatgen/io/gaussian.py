@@ -26,6 +26,7 @@ from pymatgen.core import Element, Molecule, Composition
 from monty.io import zopen
 from pymatgen.util.coord_utils import get_angle
 import pymatgen.core.physical_constants as cst
+from pymatgen.electronic_structure.core import Spin
 
 float_patt = re.compile("\s*([+-]?\d+\.\d+)")
 
@@ -484,7 +485,11 @@ class GaussianOutput(object):
 
     .. attribute:: eigenvalues
 
-        List of eigenvalues for each geometry
+        List of eigenvalues for the last geometry
+
+    .. attribute:: MO_coefficients
+
+        Matrix of MO coefficients for the last geometry
 
     .. attribute:: cart_forces
 
@@ -501,6 +506,10 @@ class GaussianOutput(object):
     .. attribute:: is_pcm
 
         True if run is a PCM run.
+
+    .. attribute:: is_spin
+
+        True if it is an unrestricted run
 
     .. attribute:: stationary_type
 
@@ -561,6 +570,20 @@ class GaussianOutput(object):
 
         Mulliken atomic charges
 
+    .. attribute:: eigenvectors
+
+        Matrix of shape (num_basis_func, num_basis_func). Each column is an
+        eigenvectors and contains AO coefficients of an MO.
+
+        eigenvectors[Spin] = mat(num_basis_func, num_basis_func)
+
+    .. attribute:: molecular_orbital
+
+        MO development coefficients on AO in a more convenient array dict
+        for each atom and basis set label.
+
+        mo[Spin][OM j][atom i] = {AO_k: coeff, AO_k: coeff ... }
+
     Methods:
 
     .. method:: to_input()
@@ -618,7 +641,7 @@ class GaussianOutput(object):
             '(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)')
         std_orientation_patt = re.compile("Standard orientation")
         end_patt = re.compile("--+")
-        orbital_patt = re.compile("Alpha\s*\S+\s*eigenvalues --(.*)")
+        orbital_patt = re.compile("(Alpha|Beta)\s*\S+\s*eigenvalues --(.*)")
         thermo_patt = re.compile("(Zero-point|Thermal) correction(.*)="
                                  "\s+([\d\.-]+)")
         forces_on_patt = re.compile(
@@ -633,6 +656,9 @@ class GaussianOutput(object):
         normal_mode_patt = re.compile(
             "\s+(\d+)\s+(\d+)\s+([0-9\.-]{4,5})\s+([0-9\.-]{4,5}).*")
 
+        mo_coeff_patt = re.compile("Molecular Orbital Coefficients:")
+        mo_coeff_name_patt = re.compile("\d+\s((\d+|\s+)\s+([a-zA-Z]{1,2}|\s+))\s+(\d+\S+)")
+
         self.properly_terminated = False
         self.is_pcm = False
         self.stationary_type = "Minimum"
@@ -645,11 +671,14 @@ class GaussianOutput(object):
         self.link0 = {}
         self.cart_forces = []
         self.frequencies = []
+        self.eigenvalues = []
+        self.is_spin = False
 
         coord_txt = []
         read_coord = 0
         read_mulliken = False
-        orbitals_txt = []
+        read_eigen = False
+        eigen_txt = []
         parse_stage = 0
         num_basis_found = False
         terminated = False
@@ -657,6 +686,7 @@ class GaussianOutput(object):
         forces = []
         parse_freq = False
         frequencies = []
+        read_mo = False
 
         with zopen(filename) as f:
             for line in f:
@@ -715,6 +745,87 @@ class GaussianOutput(object):
                             forces = []
                             parse_forces = False
 
+                    # read molecular orbital eigenvalues
+                    if read_eigen:
+                        m = orbital_patt.search(line)
+                        if m:
+                            eigen_txt.append(line)
+                        else:
+                            read_eigen = False
+                            self.eigenvalues = {Spin.up: []}
+                            for eigenline in eigen_txt:
+                                if "Alpha" in eigenline:
+                                    self.eigenvalues[Spin.up] += [float(e)
+                                        for e in float_patt.findall(eigenline)]
+                                elif "Beta" in eigenline:
+                                    if Spin.down not in self.eigenvalues:
+                                        self.eigenvalues[Spin.down] = []
+                                    self.eigenvalues[Spin.down] += [float(e)
+                                        for e in float_patt.findall(eigenline)]
+                            eigen_txt = []
+
+                    # read molecular orbital coefficients
+                    if read_mo:
+                        # build a matrix with all coefficients
+                        all_spin = [Spin.up]
+                        if self.is_spin:
+                            all_spin.append(Spin.down)
+
+                        mat_mo = {}
+                        for spin in all_spin:
+                            mat_mo[spin] = np.zeros((self.num_basis_func, self.num_basis_func))
+                            nMO = 0
+                            end_mo = False
+                            while nMO < self.num_basis_func and not end_mo:
+                                f.readline()
+                                f.readline()
+                                atom_basis_labels = []
+                                for i in range(self.num_basis_func):
+                                    line = f.readline()
+
+                                    # identify atom and OA labels
+                                    m = mo_coeff_name_patt.search(line)
+                                    if m.group(1).strip() != "":
+                                        iat = int(m.group(2)) - 1
+                                        # atname = m.group(3)
+                                        atom_basis_labels.append([m.group(4)])
+                                    else:
+                                        atom_basis_labels[iat].append(m.group(4))
+
+                                    # MO coefficients
+                                    coeffs = [float(c) for c in float_patt.findall(line)]
+                                    for j in range(len(coeffs)):
+                                        mat_mo[spin][i, nMO + j] = coeffs[j]
+                                        
+                                nMO += len(coeffs)
+                                line = f.readline()
+                                # manage pop=regular case (not all MO)
+                                if nMO < self.num_basis_func and \
+                                    ("Density Matrix:" in line or mo_coeff_patt.search(line)):
+                                    end_mo = True
+                                    warnings.warn("POP=regular case, matrix coefficients not complete")
+                            f.readline()
+
+                        self.eigenvectors = mat_mo
+                        read_mo = False
+
+                        # build a more convenient array dict with MO coefficient of
+                        # each atom in each MO.
+                        # mo[Spin][OM j][atom i] = {AO_k: coeff, AO_k: coeff ... }
+                        mo = {}
+                        for spin in all_spin:
+                            mo[spin] = [[{} for iat in range(len(atom_basis_labels))]
+                                                for j in range(self.num_basis_func)]
+                            for j in range(self.num_basis_func):
+                                i = 0
+                                for iat in range(len(atom_basis_labels)):
+                                    for label in atom_basis_labels[iat]:
+                                        mo[spin][j][iat][label] = self.eigenvectors[spin][i, j]
+                                        i += 1
+
+                        self.molecular_orbital = mo
+
+
                     elif parse_freq:
                         m = freq_patt.search(line)
                         if m:
@@ -772,8 +883,9 @@ class GaussianOutput(object):
                     elif std_orientation_patt.search(line):
                         coord_txt = []
                         read_coord = 1
-                    elif orbital_patt.search(line):
-                        orbitals_txt.append(line)
+                    elif not read_eigen and orbital_patt.search(line):
+                        eigen_txt.append(line)
+                        read_eigen = True
                     elif mulliken_patt.search(line):
                         mulliken_txt = []
                         read_mulliken = True
@@ -781,6 +893,10 @@ class GaussianOutput(object):
                         parse_forces = True
                     elif freq_on_patt.search(line):
                         parse_freq = True
+                    elif mo_coeff_patt.search(line):
+                        if "Alpha" in line:
+                            self.is_spin = True
+                        read_mo = True
 
                     if read_mulliken:
                         if not end_mulliken_patt.search(line):
@@ -800,9 +916,6 @@ class GaussianOutput(object):
             #raise IOError("Bad Gaussian output file.")
             warnings.warn("\n" + self.filename + \
                 ": Termination error or bad Gaussian output file !")
-
-        # eignevalues
-        self.eigenvalues = [float(e) for e in float_patt.findall("".join(orbitals_txt))]
 
     def _check_pcm(self, line):
         energy_patt = re.compile("(Dispersion|Cavitation|Repulsion) energy"
