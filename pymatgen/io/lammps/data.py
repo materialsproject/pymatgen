@@ -487,10 +487,19 @@ class LammpsForceFieldData(LammpsData):
                     global_atom_id = molid_to_atomid[mol_id][atomid - 1]
                     param_atomids.append(global_atom_id + 1)
                 param_type = param[-1]
+                param_type_reversed = tuple(reversed(param_type))
                 # example: get the unique number id for the bond_type
-                param_type_id = param_map[param_type]
-                param_data.append(
-                    [param_id + 1, param_type_id + 1] + param_atomids)
+                if param_map.has_key(param_type):
+                    key = param_type
+                elif param_map.has_key(param_type_reversed):
+                    key = param_type_reversed
+                else:
+                    key = None
+                if key:
+                    param_type_id = param_map[key]
+                    param_data.append([param_id + 1, param_type_id + 1] + param_atomids)
+                else:
+                    print("{} or {} Not available".format(param_type, param_type_reversed))
             return param_data
         else:
             return []
