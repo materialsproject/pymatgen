@@ -453,23 +453,28 @@ class DiffusionAnalyzer(MSONable):
         """
         self.get_msd_plot(mode=mode).show()
 
-    def write_msdt_csv(self, filename):
+    def export_msdt(self, filename):
         """
         Writes MSD data to a csv file that can be easily plotted in other
         software.
 
         Args:
-            filename:
-
-        Returns:
-
+            filename (str): Filename. Supported formats are csv and dat. If
+                the extension is csv, a csv file is written. Otherwise,
+                a dat format is assumed.
         """
-        import csv
+        fmt = "csv" if filename.lower().endswith(".csv") else "dat"
+        delimiter = ", " if fmt == "csv" else " "
         with open(filename, "wt") as f:
-            w = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
-            w.writerow(["t", "MSD", "MSD_a", "MSD_b", "MSD_c"])
+            if fmt == "dat":
+                f.write("# ")
+            f.write(delimiter.join(["t", "MSD", "MSD_a", "MSD_b", "MSD_c"]))
+            f.write("\n")
+
             for dt, msd, msdc in zip(self.dt, self.msd, self.msd_components):
-                w.writerow([dt, msd] + list(msdc))
+                f.write(delimiter.join(["%s" % v for v in [dt, msd] + list(
+                    msdc)]))
+                f.write("\n")
 
     @classmethod
     def from_structures(cls, structures, specie, temperature,
