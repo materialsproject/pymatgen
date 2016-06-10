@@ -779,7 +779,7 @@ class GaussianOutput(object):
                             while nMO < self.num_basis_func and not end_mo:
                                 f.readline()
                                 f.readline()
-                                atom_basis_labels = []
+                                self.atom_basis_labels = []
                                 for i in range(self.num_basis_func):
                                     line = f.readline()
 
@@ -788,15 +788,15 @@ class GaussianOutput(object):
                                     if m.group(1).strip() != "":
                                         iat = int(m.group(2)) - 1
                                         # atname = m.group(3)
-                                        atom_basis_labels.append([m.group(4)])
+                                        self.atom_basis_labels.append([m.group(4)])
                                     else:
-                                        atom_basis_labels[iat].append(m.group(4))
+                                        self.atom_basis_labels[iat].append(m.group(4))
 
                                     # MO coefficients
                                     coeffs = [float(c) for c in float_patt.findall(line)]
                                     for j in range(len(coeffs)):
                                         mat_mo[spin][i, nMO + j] = coeffs[j]
-                                        
+
                                 nMO += len(coeffs)
                                 line = f.readline()
                                 # manage pop=regular case (not all MO)
@@ -814,12 +814,12 @@ class GaussianOutput(object):
                         # mo[Spin][OM j][atom i] = {AO_k: coeff, AO_k: coeff ... }
                         mo = {}
                         for spin in all_spin:
-                            mo[spin] = [[{} for iat in range(len(atom_basis_labels))]
+                            mo[spin] = [[{} for iat in range(len(self.atom_basis_labels))]
                                                 for j in range(self.num_basis_func)]
                             for j in range(self.num_basis_func):
                                 i = 0
-                                for iat in range(len(atom_basis_labels)):
-                                    for label in atom_basis_labels[iat]:
+                                for iat in range(len(self.atom_basis_labels)):
+                                    for label in self.atom_basis_labels[iat]:
                                         mo[spin][j][iat][label] = self.eigenvectors[spin][i, j]
                                         i += 1
 
