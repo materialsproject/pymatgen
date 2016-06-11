@@ -35,7 +35,8 @@ class ForceField(MSONable):
             { ("atom name1", "atom name2", "atom name3", "atom name4"): [
             function type, value, angle], ... }
         imdihedrals (OrderedDict): store improper dihedral information.
-            similar to dihedrals but the gaff atom name1 and gaff atom name2 are marked 'X'
+            similar to dihedrals but the gaff atom name1 and gaff atom name2
+            are marked 'X'
         vdws (OrderedDict): store the van der waal radius (A) and van der wall
             depth for a given atom (Kcal/mol). Lennard-Jones parameters.
             { "atom name": [sigma, epsilon], ... }
