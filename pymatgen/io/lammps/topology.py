@@ -19,15 +19,20 @@ __author__ = 'Kiran Mathew'
 class Topology(object):
     """
     Args:
-        atoms (list): map atom names to force field(ff) atom name, [['c', 'c1'],...]
+        atoms (list): map atom names to force field(ff) atom name,
+            [['c', 'c1'],...]
         charges (list): List of charges, [0.4, 0.7, ... ]
-        bonds (list): List of bonds, [[i,j, bond_type], ... ] where i, j are integer(starts from 1)
+        bonds (list): List of bonds,
+            [[i,j, bond_type], ... ] where i, j are integer(starts from 1)
             atom ids in the molecules and bond_type = (ff atomname_i, ff atomname_j)
-        angles (list): List of angles, [[i,j,k, angle_type], ... ],
+        angles (list): List of angles,
+            [[i,j,k, angle_type], ... ],
             angle_type = (ff atomname_i, ff atomname_j, ff atomname_k)
-        dihedrals (list): List of dihedrals, [[i,j,k,l, dihedral_type], ... ]
+        dihedrals (list): List of dihedrals,
+            [[i,j,k,l, dihedral_type], ... ]
             dihedral_type = (ff atomname_i, ff atomname_j, ff atomname_k, ff atomname_l)
-        imdihedrals (list): List of improper dihedrals, [['i,j,k,l, dihedral_type], ... ]
+        imdihedrals (list): List of improper dihedrals,
+            [['i,j,k,l, dihedral_type], ... ]
 
     """
 
@@ -47,10 +52,10 @@ class Topology(object):
 
         Args:
             molecule (Molecule)
-            tol (float): Relative tolerance to test. Basically, the code
-                checks if the distance between the sites is less than (1 +
-                tol) * typical bond distances. Defaults to 0.1, i.e.,
-                10% longer.
+            tol (float): Relative tolerance to test in determining the bonds
+                in the molecule. Basically, the code checks if the distance
+                between the sites is less than (1 + tol) * typical bond
+                distances. Defaults to 0.1, i.e., 10% longer.
 
         Returns:
             Topology object
