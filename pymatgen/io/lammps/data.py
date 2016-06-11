@@ -469,6 +469,7 @@ class LammpsForceFieldData(LammpsData):
             # set the parameter data using the topology info
             # example: loop over all bonds in the system
             param_data = []
+            skip = 0
             for param_id, pinfo in param_to_mol.items():
                 mol_id = pinfo[0]  # global molecule id
                 mol_type = pinfo[1]  # type of molecule
@@ -497,8 +498,10 @@ class LammpsForceFieldData(LammpsData):
                     key = None
                 if key:
                     param_type_id = param_map[key]
-                    param_data.append([param_id + 1, param_type_id + 1] + param_atomids)
+                    param_data.append([param_id + 1 - skip, param_type_id +
+                                       1] + param_atomids)
                 else:
+                    skip += 1
                     print("{} or {} Not available".format(param_type, param_type_reversed))
             return param_data
         else:
