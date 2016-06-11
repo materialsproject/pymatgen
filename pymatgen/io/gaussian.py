@@ -584,6 +584,14 @@ class GaussianOutput(object):
 
         mo[Spin][OM j][atom i] = {AO_k: coeff, AO_k: coeff ... }
 
+    .. attribute:: atom_basis_labels
+
+        Labels of AO for each atoms. These labels are those used in the output
+        of molecular orbital coefficients (POP=Full) and in the molecular_orbital
+        array dict.
+
+        atom_basis_labels[iatom] = [AO_k, AO_k, ...]
+
     Methods:
 
     .. method:: to_input()
