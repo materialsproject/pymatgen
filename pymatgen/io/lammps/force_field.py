@@ -8,15 +8,14 @@ from __future__ import division, print_function, unicode_literals, \
 """
 This module defines classes that set the force field parameters for the bonds,
 angles and dihedrals.
-
-TODO: complete the class by defining interfaces to AMBER and CHARMM forcefields
 """
 
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
+import yaml
 
 from monty.json import MSONable
 
-__author__ = 'Kiran Mathew, Navnidhi Rajput'
+__author__ = 'Kiran Mathew'
 
 
 class ForceField(MSONable):
@@ -52,10 +51,16 @@ class ForceField(MSONable):
         self.vdws = vdws
         self.masses = masses
         self.charges = OrderedDict() if charges is None else charges
-        self.atomindex_to_atomname = OrderedDict()
-        self.atomindex_to_gaffname = OrderedDict()
-        self.atomname_to_gaffname = OrderedDict()
-        self.gaffname_to_atomindex = OrderedDict()
-        # self.set_atom_mappings()
 
-    # TODO: add interfaces to AMBER and CHARMM force fields
+    @staticmethod
+    def from_file(filename):
+        with open(filename, 'r') as f:
+            d = yaml.load(f)
+        ff_data = defaultdict(dict)
+        for coeff_key, coeff in d.items():
+            for k, v in coeff.items():
+                tokens = k.split("-")
+                key = tuple(tokens) if len(tokens) > 1 else k
+                ff_data[coeff_key][key] = v
+        return ForceField(ff_data["Atoms"], ff_data["Bond Coeffs"],
+                          ff_data["Angle Coeffs"], ff_data["Dihedral Coeffs"])
