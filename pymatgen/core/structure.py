@@ -1515,7 +1515,7 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(s)
 
     @classmethod
-    def from_file(cls, filename, primitive=False, sort=False):
+    def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0):
         """
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
@@ -1527,6 +1527,9 @@ class IStructure(SiteCollection, MSONable):
             primitive (bool): Whether to convert to a primitive cell
                 Only available for cifs. Defaults to False.
             sort (bool): Whether to sort sites. Default to False.
+            merge_tol (float): If this is some positive number, sites that
+                are within merge_tol from each other will be merged. Usually
+                0.01 should be enough to deal with common numerical issues.
 
         Returns:
             Structure.
@@ -1545,32 +1548,34 @@ class IStructure(SiteCollection, MSONable):
         with zopen(filename) as f:
             contents = f.read()
         if fnmatch(fname.lower(), "*.cif*"):
-            return cls.from_str(contents, fmt="cif",
-                                primitive=primitive, sort=sort)
+            s = cls.from_str(contents, fmt="cif",
+                             primitive=primitive, sort=sort)
         elif fnmatch(fname, "POSCAR*") or fnmatch(fname, "CONTCAR*"):
-            return cls.from_str(contents, fmt="poscar",
-                                primitive=primitive, sort=sort)
+            s = cls.from_str(contents, fmt="poscar",
+                             primitive=primitive, sort=sort)
 
         elif fnmatch(fname, "CHGCAR*") or fnmatch(fname, "LOCPOT*"):
             s = Chgcar.from_file(filename).structure
         elif fnmatch(fname, "vasprun*.xml*"):
             s = Vasprun(filename).final_structure
         elif fnmatch(fname.lower(), "*.cssr*"):
-            return cls.from_str(contents, fmt="cssr",
-                                primitive=primitive, sort=sort)
+            s = cls.from_str(contents, fmt="cssr",
+                             primitive=primitive, sort=sort)
         elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
-            return cls.from_str(contents, fmt="json",
-                                primitive=primitive, sort=sort)
+            s = cls.from_str(contents, fmt="json",
+                             primitive=primitive, sort=sort)
         elif fnmatch(fname, "*.yaml*"):
-            return cls.from_str(contents, fmt="yaml",
-                                primitive=primitive, sort=sort)
+            s = cls.from_str(contents, fmt="yaml",
+                             primitive=primitive, sort=sort)
         elif fnmatch(fname, "*.xsf"):
-            return cls.from_str(contents, fmt="xsf",
-                                primitive=primitive, sort=sort)
+            s = cls.from_str(contents, fmt="xsf",
+                             primitive=primitive, sort=sort)
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
             s = s.get_sorted_structure()
+        if merge_tol:
+            s.merge_sites(merge_tol)
 
         s.__class__ = cls
         return s
