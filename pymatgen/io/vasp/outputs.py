@@ -1559,16 +1559,26 @@ class Outcar(MSONable):
                          r"\s+EXCLUDING G=0 CONTRIBUTION\s+INCLUDING G=0 CONTRIBUTION\s+" \
                          r"\s+-{20,}\s+-{20,}\s+" \
                          r"\s+ATOM\s+ISO_SHIFT\s+SPAN\s+SKEW\s+ISO_SHIFT\s+SPAN\s+SKEW\s+" \
-                         r".+?\(absolute, valence and core\)\s+$"
+                         "-{50,}\s*$"
+        first_part_pattern = r"\s+\(absolute, valence only\)\s+$"
+        swallon_valence_body_pattern = r".+?\(absolute, valence and core\)\s+$"
         row_pattern = r"\d+(?:\s+[-]?\d+\.\d+){3}\s+" + r'\s+'.join([r"([-]?\d+\.\d+)"] * 3)
         footer_pattern = "-{50,}\s*$"
-        cs_table = self.read_table_pattern(header_pattern, row_pattern, footer_pattern,
-                                           postprocess=float, last_one_only=True)
-        cs = []
-        for sigma_iso, omega, kappa in cs_table:
-            tensor = NMRChemicalShiftNotation.from_maryland_notation(sigma_iso, omega, kappa)
-            cs.append(tensor)
-        self.data["chemical_shifts"] = tuple(cs)
+        h1 = header_pattern + first_part_pattern
+        cs_valence_only = self.read_table_pattern(h1, row_pattern, footer_pattern,
+                                                  postprocess=float, last_one_only=True)
+        h2 = header_pattern + swallon_valence_body_pattern
+        cs_valence_and_core = self.read_table_pattern(h2, row_pattern, footer_pattern,
+                                                      postprocess=float, last_one_only=True)
+        all_cs = {}
+        for name, cs_table in [["valence_only", cs_valence_only],
+                               ["valence_and_core", cs_valence_and_core]]:
+            cs = []
+            for sigma_iso, omega, kappa in cs_table:
+                tensor = NMRChemicalShiftNotation.from_maryland_notation(sigma_iso, omega, kappa)
+                cs.append(tensor)
+            all_cs[name] = tuple(cs)
+        self.data["chemical_shifts"] = all_cs
 
     def read_nmr_efg(self):
         """

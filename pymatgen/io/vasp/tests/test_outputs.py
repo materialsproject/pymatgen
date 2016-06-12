@@ -518,12 +518,25 @@ class OutcarTest(unittest.TestCase):
                                     [192.0237, 69.565, 0.6333],
                                     [195.0788, 68.1733, 0.8337]]
 
-        self.assertAlmostEqual(len(outcar.data["chemical_shifts"][20: 28]),
+        self.assertAlmostEqual(len(outcar.data["chemical_shifts"]["valence_only"][20: 28]),
                                len(expected_chemical_shifts))
-        for c1, c2 in zip(outcar.data["chemical_shifts"][20: 28],
+        for c1, c2 in zip(outcar.data["chemical_shifts"]["valence_only"][20: 28],
                           expected_chemical_shifts):
             for x1, x2 in zip(list(c1.maryland_values), c2):
                 self.assertAlmostEqual(x1, x2, places=5)
+
+    def test_chemical_shifts_with_different_core_contribution(self):
+        filename = os.path.join(test_dir, "nmr_chemical_shift", "core.diff.chemical.shifts.OUTCAR")
+        outcar = Outcar(filename)
+        outcar.read_chemical_shifts()
+        c_vo = outcar.data["chemical_shifts"]["valence_only"][7].maryland_values
+        for x1, x2 in zip(list(c_vo),
+                          [198.7009, 73.7484, 1.0000]):
+            self.assertAlmostEqual(x1, x2)
+        c_vc = outcar.data["chemical_shifts"]["valence_and_core"][7].maryland_values
+        for x1, x2 in zip(list(c_vc),
+                          [-1.9406, 73.7484, 1.0000]):
+            self.assertAlmostEqual(x1, x2)
 
     def test_nmr_efg(self):
         filename = os.path.join(test_dir, "nmr_efg", "AlPO4", "OUTCAR")
