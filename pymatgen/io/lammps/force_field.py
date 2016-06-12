@@ -55,6 +55,18 @@ class ForceField(MSONable):
 
     @staticmethod
     def from_file(filename):
+        """
+        Read in forcefield parameters from yaml file and return Forcefield
+        object. Basically read in atom name mappings(key='Atoms'), bond
+        coefficients(key='Bond Coeffs'), angle coefficients(key='Angle Coeffs')
+        and the dihedral coefficients(key='Dihedral Coeffs').
+
+        Args:
+            filename (string)
+
+        Returns:
+            ForceField object
+        """
         with open(filename, 'r') as f:
             d = yaml.load(f)
         ff_data = defaultdict(dict)
