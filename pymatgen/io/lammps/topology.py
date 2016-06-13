@@ -46,7 +46,7 @@ class Topology(object):
         self.imdihedrals = imdihedrals
 
     @staticmethod
-    def from_molecule(molecule, tol=0.1, linear_molecule=None):
+    def from_molecule(molecule, tol=0.1):
         """
         Return Topology object from molecule.
 
@@ -56,21 +56,12 @@ class Topology(object):
                 in the molecule. Basically, the code checks if the distance
                 between the sites is less than (1 + tol) * typical bond
                 distances. Defaults to 0.1, i.e., 10% longer.
-            linear_molecule (Molecule): For polymer chains the bonds must be
-                based on the geodesic distance rather than simple eucledean one.
-                The linear_molecule is the linear polymer chain that
-                corresponds to the coiled one specified as molecule.
 
         Returns:
             Topology object
 
         """
         bonds = molecule.get_covalent_bonds(tol=tol)
-        # filter bonds based on the geodesic distance
-        if linear_molecule:
-            bonds = [b for b in bonds if CovalentBond.is_bonded(
-                linear_molecule[molecule.index(b.site1)],
-                linear_molecule[molecule.index(b.site2)])]
         angles = []
         dihedrals = []
         for bond1, bond2 in itertools.combinations(bonds, 2):
