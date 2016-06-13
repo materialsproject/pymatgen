@@ -227,6 +227,7 @@ class TensorBaseTest(PymatgenTest):
             orig = TensorBase(self.ieee_data[xtal]['original_tensor'])
             ieee = TensorBase(self.ieee_data[xtal]['ieee_tensor'])
             struct = Structure.from_dict(self.ieee_data[xtal]['structure'])
+            import pdb; pdb.set_trace()
             self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct))
 
 class SquareTensorTest(PymatgenTest):

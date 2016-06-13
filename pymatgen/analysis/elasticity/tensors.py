@@ -27,6 +27,7 @@ from scipy.linalg import polar
 import numpy as np
 import itertools
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.operations import SymmOp
 from numpy.linalg import norm
 
@@ -179,14 +180,20 @@ class TensorBase(np.ndarray):
             """ Gets a unit vector parallel to input vector"""
             return vec / np.linalg.norm(vec)
 
-        vecs = structure.lattice.matrix
-        lengths = np.array(structure.lattice.abc)
-        angles = np.array(structure.lattice.angles)
+        sm = StructureMatcher(primitive_cell=False)
 
         # Check conventional setting:
         sga = SpacegroupAnalyzer(structure)
         xtal_sys = sga.get_crystal_system()
         conv_struct = sga.get_refined_structure()
+        oriented_conv = sm.get_s2_like_s1(structure,
+                                          conv_struct)
+        
+        vecs = oriented_conv.lattice.matrix
+        lengths = np.array(oriented_conv.lattice.abc)
+        angles = np.array(oriented_conv.lattice.angles)
+
+        """
         conv_lengths = np.array(conv_struct.lattice.abc)
         conv_angles = np.array(conv_struct.lattice.angles)
         rhombohedral = xtal_sys == "trigonal" and \
@@ -198,7 +205,7 @@ class TensorBase(np.ndarray):
             raise ValueError("{} structure not in conventional cell, IEEE "\
                              "conversion from non-conventional settings "\
                              "is not yet supported.".format(xtal_sys))
-
+        """
         a = b = c = None
         rotation = np.zeros((3,3))
 
@@ -207,7 +214,8 @@ class TensorBase(np.ndarray):
             rotation = [vecs[i]/lengths[i] for i in range(3)]
 
         # IEEE rules: a=b in length; c,a || x3, x1
-        elif xtal_sys == "tetragonal":            
+        elif xtal_sys == "tetragonal":
+            import pdb; pdb.set_trace()
             rotation = np.array([vec/mag for (mag, vec) in 
                                  sorted(zip(lengths, vecs))])
             if abs(lengths[2] - lengths[1]) < ltol:
