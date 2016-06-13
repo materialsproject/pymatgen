@@ -27,12 +27,6 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.sites import PeriodicSite
 
-# This mass import is for deprecation stub purposes.
-from pymatgen.io.vasp.sets_deprecated import MPVaspInputSet, MPGGAVaspInputSet,\
-    MITHSEVaspInputSet, MITVaspInputSet, MITGGAVaspInputSet, \
-    MPStaticVaspInputSet, MITMDVaspInputSet, \
-    MVLElasticInputSet, MITNEBVaspInputSet, MPNonSCFVaspInputSet, \
-    MPOpticsNonSCFVaspInputSet, MPHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet
 
 """
 This module defines the VaspInputSet abstract base class and a concrete

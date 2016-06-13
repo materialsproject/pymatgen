@@ -233,88 +233,6 @@ class MITMPRelaxSetTest(unittest.TestCase):
             self.assertTrue(os.path.exists("Fe4P4O16.cif"))
 
 
-# class MITMDVaspInputSetTest(unittest.TestCase):
-#
-#     def setUp(self):
-#         filepath = os.path.join(test_dir, 'POSCAR')
-#         poscar = Poscar.from_file(filepath)
-#         self.struct = poscar.structure
-#         self.mitmdparam = MITMDVaspInputSet(300, 1200, 10000)
-#
-#     def test_get_potcar_symbols(self):
-#         syms = self.mitmdparam.get_potcar_symbols(self.struct)
-#         self.assertEqual(syms, ['Fe', 'P', 'O'])
-#
-#     def test_get_incar(self):
-#         incar = self.mitmdparam.get_incar(self.struct)
-#         self.assertNotIn("LDAUU", incar)
-#         self.assertAlmostEqual(incar['EDIFF'], 2.4e-5)
-#
-#     def test_get_kpoints(self):
-#         kpoints = self.mitmdparam.get_kpoints(self.struct)
-#         self.assertEqual(kpoints.kpts, [(1, 1, 1)])
-#         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
-#
-#     def test_to_from_dict(self):
-#         d = self.mitmdparam.as_dict()
-#         v = dec.process_decoded(d)
-#         self.assertEqual(type(v), MITMDVaspInputSet)
-#         self.assertEqual(v.incar_settings["TEBEG"], 300)
-#
-#
-# class MITNEBVaspInputSetTest(unittest.TestCase):
-#
-#     def setUp(self):
-#         filepath = os.path.join(test_dir, 'POSCAR')
-#         poscar = Poscar.from_file(filepath)
-#         self.struct = poscar.structure
-#         self.vis = MITNEBVaspInputSet(nimages=10, hubbard_off=True)
-#
-#     def test_get_potcar_symbols(self):
-#         syms = self.vis.get_potcar_symbols(self.struct)
-#         self.assertEqual(syms, ['Fe', 'P', 'O'])
-#
-#     def test_get_incar(self):
-#         incar = self.vis.get_incar(self.struct)
-#         self.assertNotIn("LDAUU", incar)
-#         self.assertAlmostEqual(incar['EDIFF'], 0.00005)
-#
-#     def test_get_kpoints(self):
-#         kpoints = self.vis.get_kpoints(self.struct)
-#         self.assertEqual(kpoints.kpts, [[2, 4, 6]])
-#         self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
-#
-#     def test_to_from_dict(self):
-#         d = self.vis.as_dict()
-#         v = dec.process_decoded(d)
-#         self.assertEqual(v.incar_settings["IMAGES"], 10)
-#
-#     def test_write_inputs(self):
-#         c1 = [[0.5] * 3, [0.9] * 3]
-#         c2 = [[0.5] * 3, [0.9, 0.1, 0.1]]
-#         s1 = Structure(Lattice.cubic(5), ['Si', 'Si'], c1)
-#         s2 = Structure(Lattice.cubic(5), ['Si', 'Si'], c2)
-#         structs = []
-#         for s in s1.interpolate(s2, 3, pbc=True):
-#             structs.append(Structure.from_sites(s.sites, to_unit_cell=True))
-#
-#         fc = self.vis._process_structures(structs)[2].frac_coords
-#         self.assertTrue(np.allclose(fc, [[0.5]*3,[0.9, 1.033333, 1.0333333]]))
-#
-#
-# class MVLVaspInputSetTest(PymatgenTest):
-#
-#     def setUp(self):
-#         self.mvlparam = MVLElasticInputSet()
-#
-#     def test_get_incar(self):
-#         incar = self.mvlparam.get_incar(self.get_structure("Graphite"))
-#         self.assertEqual(incar["IBRION"], 6)
-#         self.assertEqual(incar["NFREE"], 2)
-#         self.assertEqual(incar["POTIM"], 0.015)
-#         self.assertNotIn("NPAR", incar)
-
-
 class MPStaticSetTest(PymatgenTest):
 
     def setUp(self):
@@ -390,28 +308,6 @@ class MPNonSCFSetTest(PymatgenTest):
                                          mode="Line", copy_chgcar=True)
         vis.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
-
-        # Code below is just to make sure that the parameters are the same
-        # between the old MPStaticVaspInputSet and the new MPStaticSet.
-        # TODO: Delete code below in future.
-        MPNonSCFVaspInputSet.from_previous_vasp_run(
-            previous_vasp_dir=prev_run, output_dir=self.tmp, mode="Line")
-
-        incar = Incar.from_file(os.path.join(self.tmp, "INCAR"))
-
-        for k, v1 in vis.incar.items():
-            v2 = incar.get(k)
-            try:
-                v1 = v1.upper()
-                v2 = v2.upper()
-            except:
-                # Convert strings to upper case for comparison. Ignore other
-                # types.
-                pass
-            self.assertEqual(v1, v2, str(v1)+str(v2))
-        kpoints = Kpoints.from_file(os.path.join(self.tmp, "KPOINTS"))
-        self.assertEqual(kpoints.style, vis.kpoints.style)
-        self.assertArrayAlmostEqual(kpoints.kpts, vis.kpoints.kpts)
 
     def test_optics(self):
         prev_run = os.path.join(test_dir, "relaxation")
