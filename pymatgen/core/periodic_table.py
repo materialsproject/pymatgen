@@ -14,7 +14,6 @@ from pymatgen.core.units import Mass, Length, unitized, FloatWithUnit, Unit, \
     SUPPORTED_UNIT_NAMES
 from pymatgen.util.string_utils import formula_double_format
 from monty.json import MSONable
-from monty.dev import deprecated
 
 """
 Module contains classes presenting Element and Specie (Element + oxidation
@@ -1207,78 +1206,6 @@ class DummySpecie(Specie):
         else:
             output += formula_double_format(-self._oxi_state) + "-"
         return output
-
-
-@deprecated(message="PeriodicTable itself is now pretty useless now that "
-                    "Element is an Enum. You can simply iterate over all "
-                    "elements using for el in Element. print_periodic_table "
-                    "functionality has been moved to a staticmethod in "
-                    "Element. This class will be removed in pymatgen 4.0.")
-class PeriodicTable(object):
-    """
-    A Periodic table singleton class. This class contains methods on the
-    collection of all known elements. For example, printing all elements, etc.
-    """
-
-    def __init__(self):
-        """ Implementation of the singleton interface """
-        self._all_elements = dict()
-        for sym in _pt_data.keys():
-            self._all_elements[sym] = Element(sym)
-
-    @property
-    def all_symbols(self):
-        """tuple with element symbols ordered by Z."""
-        return sorted(self._all_elements.keys(), key=lambda s: Element(s).Z)
-
-    def __getattr__(self, name):
-        return self._all_elements[name]
-
-    def __iter__(self):
-        for sym in self.all_symbols:
-            if sym is not None:
-                yield self._all_elements[sym]
-
-    def __getitem__(self, Z_or_slice):
-        try:
-            if isinstance(Z_or_slice, slice):
-                return [Element.from_Z(z) for z in list(range(
-                        len(self.all_symbols)))[Z_or_slice]]
-            else:
-                return Element.from_Z(Z_or_slice)
-        except Exception as ex:
-            raise IndexError("Z_or_slice: %s" % str(Z_or_slice))
-
-    @property
-    def all_elements(self):
-        """
-        List of all known elements as Element objects.
-        """
-        return self._all_elements.values()
-
-    def print_periodic_table(self, filter_function=None):
-        """
-        A pretty ASCII printer for the periodic table, based on some
-        filter_function.
-
-        Args:
-            filter_function: A filtering function taking an Element as input
-                and returning a boolean. For example, setting
-                filter_function = lambda el: el.X > 2 will print a periodic
-                table containing only elements with electronegativity > 2.
-        """
-        for row in range(1, 10):
-            rowstr = []
-            for group in range(1, 19):
-                try:
-                    el = Element.from_row_and_group(row, group)
-                except ValueError:
-                    el = None
-                if el and ((not filter_function) or filter_function(el)):
-                    rowstr.append("{:3s}".format(el.symbol))
-                else:
-                    rowstr.append("   ")
-            print(" ".join(rowstr))
 
 
 def get_el_sp(obj):
