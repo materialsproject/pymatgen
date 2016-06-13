@@ -618,9 +618,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MPCompatibility.yaml")
-        i_s = MPVaspInputSet()
         super(MaterialsProjectAqueousCompatibility, self).__init__(
-            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
+            [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
              AnionCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
+             UCorrection(fp, MPRelaxSet, compat_type), AqueousCorrection(fp)])
