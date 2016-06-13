@@ -12,6 +12,7 @@ import shutil
 from glob import glob
 import warnings
 from itertools import chain
+from copy import deepcopy
 
 import six
 import numpy as np
@@ -242,7 +243,7 @@ class DictSet(VaspInputSet):
         if sort_structure:
             structure = structure.get_sorted_structure()
         self.structure = structure
-        self.config_dict = config_dict
+        self.config_dict = deepcopy(config_dict)
         self.files_to_transfer = files_to_transfer or {}
         self.constrain_total_magmom = constrain_total_magmom
         self.sort_structure = sort_structure
@@ -386,27 +387,7 @@ class DictSet(VaspInputSet):
             shutil.copy(v, os.path.join(output_dir, k))
 
 
-class ConfigFileSet(DictSet):
-    """
-    Creates a DictVaspInputSet from a yaml/json file.
-
-    Args:
-        name (str): A name for the input set.
-        filename (str): Path to a yaml/json file containing the settings.
-        \*\*kwargs: Same kwargs as in the constructor.
-
-    Returns:
-        DictVaspInputSet
-    """
-
-    def __init__(self, structure, config_file, **kwargs):
-        d = loadfn(config_file)
-        super(ConfigFileSet, self).__init__(structure, d, **kwargs)
-        self.config_file = config_file
-        self.kwargs = kwargs
-
-
-class MITRelaxSet(ConfigFileSet):
+class MITRelaxSet(DictSet):
     """
     Standard implementation of VaspInputSet utilizing parameters in the MIT
     High-throughput project.
@@ -420,13 +401,15 @@ class MITRelaxSet(ConfigFileSet):
         functional theory calculations. Computational Materials Science,
         2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
     """
+    CONFIG = loadfn(os.path.join(MODULE_DIR, "MITRelaxSet.yaml"))
 
     def __init__(self, structure, **kwargs):
         super(MITRelaxSet, self).__init__(
-            structure, os.path.join(MODULE_DIR, "MITRelaxSet.yaml"), **kwargs)
+            structure, MITRelaxSet.CONFIG, **kwargs)
+        self.kwargs = kwargs
 
 
-class MPRelaxSet(ConfigFileSet):
+class MPRelaxSet(DictSet):
     """
     Implementation of VaspInputSet utilizing parameters in the public
     Materials Project. Typically, the pseudopotentials chosen contain more
@@ -434,20 +417,24 @@ class MPRelaxSet(ConfigFileSet):
     The LDAUU parameters are also different due to the different psps used,
     which result in different fitted values.
     """
+    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPRelaxSet.yaml"))
 
     def __init__(self, structure, **kwargs):
         super(MPRelaxSet, self).__init__(
-            structure, os.path.join(MODULE_DIR, "MPRelaxSet.yaml"), **kwargs)
+            structure, MPRelaxSet.CONFIG, **kwargs)
+        self.kwargs = kwargs
 
 
-class MPHSERelaxSet(ConfigFileSet):
+class MPHSERelaxSet(DictSet):
     """
     Same as the MPRelaxSet, but with HSE parameters.
     """
+    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPHSERelaxSet.yaml"))
 
     def __init__(self, structure, **kwargs):
         super(MPHSERelaxSet, self).__init__(
-            structure, os.path.join(MODULE_DIR, "MPHSERelaxSet.yaml"), **kwargs)
+            structure, MPHSERelaxSet.CONFIG, **kwargs)
+        self.kwargs = kwargs
 
 
 class MPStaticSet(MPRelaxSet):
@@ -1263,7 +1250,7 @@ class MITMDSet(MITRelaxSet):
         self.config_dict["INCAR"].pop('ENCUT', None)
 
         if defaults['ISPIN'] == 1:
-            self.config_dict["INCAR"].pop('MAGMOM')
+            self.config_dict["INCAR"].pop('MAGMOM', None)
         self.config_dict["INCAR"].update(defaults)
 
     @property
