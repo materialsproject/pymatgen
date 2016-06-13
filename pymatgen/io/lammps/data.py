@@ -490,9 +490,9 @@ class LammpsForceFieldData(LammpsData):
                 param_type = param[-1]
                 param_type_reversed = tuple(reversed(param_type))
                 # example: get the unique number id for the bond_type
-                if param_map.has_key(param_type):
+                if param_type in param_map:
                     key = param_type
-                elif param_map.has_key(param_type_reversed):
+                elif param_type_reversed in param_map:
                     key = param_type_reversed
                 else:
                     key = None
