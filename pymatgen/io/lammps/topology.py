@@ -14,6 +14,8 @@ import itertools
 from pymatgen.core.bonds import CovalentBond
 
 __author__ = 'Kiran Mathew'
+__email__ = 'kmathew@lbl.gov'
+__credits__ = 'Brandon Wood'
 
 
 class Topology(object):

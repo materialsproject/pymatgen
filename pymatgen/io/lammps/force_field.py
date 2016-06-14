@@ -16,6 +16,8 @@ import yaml
 from monty.json import MSONable
 
 __author__ = 'Kiran Mathew'
+__email__ = 'kmathew@lbl.gov'
+__credits__ = 'Brandon Wood'
 
 
 class ForceField(MSONable):
