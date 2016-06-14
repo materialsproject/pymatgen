@@ -12,6 +12,7 @@ from pymatgen.core.structure import Molecule
 
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
+__credits__ = 'Brandon Wood'
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
