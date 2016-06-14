@@ -55,8 +55,10 @@ class ForceField(MSONable):
         """
         Read in forcefield parameters from yaml file and return Forcefield
         object. Basically read in atom name mappings(key='Atoms'), bond
-        coefficients(key='Bond Coeffs'), angle coefficients(key='Angle Coeffs')
-        and the dihedral coefficients(key='Dihedral Coeffs').
+        coefficients(key='Bond Coeffs'), angle coefficients(key='Angle
+        Coeffs'), pair coefficients(key='Pair Coeffs'),
+        dihedral coefficients(key='Dihedral Coeffs') and the
+        improper dihedral coefficients(key='Improper Coeffs').
 
         Args:
             filename (string)
@@ -72,6 +74,9 @@ class ForceField(MSONable):
                 tokens = k.split("-")
                 key = tuple(tokens) if len(tokens) > 1 else k
                 ff_data[coeff_key][key] = v
-        return ForceField(ff_data["Atoms"], ff_data["Bond Coeffs"],
-                          ff_data["Angle Coeffs"], ff_data["Dihedral Coeffs"],
-                          ff_data["Improper Coeffs"], ff_data["Pair Coeffs"])
+        return ForceField(ff_data["Atoms"],
+                          ff_data["Bond Coeffs"],
+                          ff_data["Angle Coeffs"],
+                          dihedrals=ff_data.get("Dihedral Coeffs", None),
+                          imdihedrals=ff_data.get("Improper Coeffs", None),
+                          pairs=ff_data.get("Pair Coeffs", None))
