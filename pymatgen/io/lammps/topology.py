@@ -33,13 +33,12 @@ class Topology(object):
             dihedral_type = (ff atomname_i, ff atomname_j, ff atomname_k, ff atomname_l)
         imdihedrals (list): List of improper dihedrals,
             [['i,j,k,l, dihedral_type], ... ]
-
     """
 
     def __init__(self, atoms, bonds, angles, charges=None, dihedrals=None,
                  imdihedrals=None):
         self.atoms = atoms
-        self.charges = dict() if charges is None else charges
+        self.charges = [] if charges is None else charges
         self.bonds = bonds
         self.angles = angles
         self.dihedrals = dihedrals
