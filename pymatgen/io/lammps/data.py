@@ -241,7 +241,7 @@ class LammpsForceFieldData(LammpsData):
     Args:
         box_size (list): [[x_min,x_max], [y_min,y_max], [z_min,z_max]]
         atomic_masses (list): [ [atom type, atomic mass], ... ]
-        pair_coeffs (list): vdw coefficients,
+        pair_coeffs (list): pair coefficients,
             [[unique id, sigma, epsilon ], ... ]
         bond_coeffs (list): bond coefficients,
             [[unique id, value1, value2 ], ... ]
@@ -419,8 +419,7 @@ class LammpsForceFieldData(LammpsData):
             charge = 0.0
             if hasattr(topologies[0], "charges"):
                 if topologies[mol_type - 1].charges:
-                    charge = topologies[mol_type - 1].charges[mol_atom_id - 1][
-                        0]
+                    charge = topologies[mol_type - 1].charges[mol_atom_id - 1]
             atoms_data.append([atom_id, mol_type, atom_type, charge,
                                site.x, site.y, site.z])
         return atoms_data, molid_to_atomid
@@ -534,7 +533,7 @@ class LammpsForceFieldData(LammpsData):
         angle_coeffs, angle_map = LammpsForceFieldData.get_param_coeff(
             forcefield, "angles")
         pair_coeffs, _ = LammpsForceFieldData.get_param_coeff(forcefield,
-                                                              "vdws")
+                                                              "pairs")
         dihedral_coeffs, dihedral_map = LammpsForceFieldData.get_param_coeff(
             forcefield, "dihedrals")
         improper_coeffs, imdihedral_map = LammpsForceFieldData.get_param_coeff(
