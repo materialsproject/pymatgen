@@ -99,4 +99,7 @@ class Topology(object):
         atoms = [[str(site.specie), str(site.specie)] for site in molecule]
         bonds = [[molecule.index(b.site1), molecule.index(b.site2),
                   (str(b.site1.specie), str(b.site2.specie))] for b in bonds]
-        return Topology(atoms, bonds, angles, dihedrals=dihedrals)
+        charges = None
+        if hasattr(molecule[0], "charge"):
+            charges = [site.charge for site in molecule]
+        return Topology(atoms, bonds, angles, charges=charges, dihedrals=dihedrals)
