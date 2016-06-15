@@ -368,7 +368,8 @@ class SpacegroupAnalyzer(object):
             return conv
 
         if lattice == "rhombohedral":
-            #check if the conventional representation is hexagonal or rhombohedral
+            # check if the conventional representation is hexagonal or
+            # rhombohedral
             lengths, angles = conv.lattice.lengths_and_angles
             if abs(lengths[0]-lengths[2]) < 0.0001:
                 transf = np.eye
@@ -992,8 +993,11 @@ class PointGroupAnalyzer(object):
         groups.
         """
         self._find_spherical_axes()
+        if len(self.rot_sym) == 0:
+            logger.debug("Accidental speherical top!")
+            self._proc_sym_top()
         main_axis, rot = max(self.rot_sym, key=lambda v: v[1])
-        if len(self.rot_sym) == 0 or rot < 3:
+        if rot < 3:
             logger.debug("Accidental speherical top!")
             self._proc_sym_top()
         elif rot == 3:

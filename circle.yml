@@ -2,7 +2,7 @@ machine:
   timezone:
     America/Los_Angeles
   python:
-    version: 2.7.8
+    version: 2.7.11
   environment:
       PATH: $PATH:/home/ubuntu/pymatgen/cmd_line/enum/Linux_64bit:/home/ubuntu/pymatgen/cmd_line/bader/Linux_64bit:/home/ubuntu/pymatgen/cmd_line/gulp/Linux_64bit:/home/ubuntu/pymatgen/cmd_line/aconvasp/Linux_64bit
       GULP_LIB: /home/ubuntu/pymatgen/cmd_line/gulp/Libraries
@@ -12,15 +12,17 @@ dependencies:
     - pip install -q numpy
     - pip install -r requirements.txt
     - pip install -r requirements-optional.txt
-    - sudo apt-get install python-openbabel
+    - sudo apt-get install python-openbabel python-vtk
     - python setup.py develop
 test:
   override:
     - find . -name "*.pyc" -exec rm '{}' \;
-    - python run_circle.py:
-        timeout: 720
-    #- nosetests:
+    - find . -name "test_*.py" -exec chmod -x '{}' \;
+    #- python run_circle.py:
     #    timeout: 720
+    - nosetests --config=nose.cfg --cover-html --cover-html-dir=$CIRCLE_ARTIFACTS:
+        timeout: 720
+    - coveralls
     # Some rudimentary command line tests for pmg
     - pmg convert test_files/Li2O.cif POSCAR.pmg
     - pmg convert POSCAR.pmg pmg.cif

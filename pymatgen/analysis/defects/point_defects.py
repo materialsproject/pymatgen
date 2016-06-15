@@ -101,6 +101,14 @@ class ValenceIonicRadiusEvaluator(object):
             site = self._structure.sites[i]
             if isinstance(site.specie,Element):
                 radius = site.specie.atomic_radius
+                # Handle elements with no atomic_radius
+                # by using calculated values instead.
+                if radius == None:
+                    radius = site.specie.atomic_radius_calculated
+                if radius == None:
+                    raise ValueError(
+                            "cannot assign radius to element {}".format(
+                            site.specie))
                 radii.append(radius)
                 continue
 
@@ -160,7 +168,12 @@ class ValenceIonicRadiusEvaluator(object):
             except:
                 valences = []
                 for site in self._structure.sites:
-                    valences.append(site.specie.common_oxidation_states[0])
+                    if len(site.specie.common_oxidation_states) > 0:
+                        valences.append(site.specie.common_oxidation_states[0])
+                    # Handle noble gas species
+                    # which have no entries in common_oxidation_states.
+                    else:
+                        valences.append(0)
                 if sum(valences):
                     valences = [0]*self._structure.num_sites
                 else:
