@@ -150,8 +150,9 @@ class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
     AC = AdditionalConditions()
     STRATEGY_OPTIONS = OrderedDict()
     STRATEGY_DESCRIPTION = None
+    DEFAULT_SYMMETRY_MEASURE_TYPE = 'csm_wcs_ctwcc'
 
-    def __init__(self, structure_environments=None):
+    def __init__(self, structure_environments=None, symmetry_measure_type=DEFAULT_SYMMETRY_MEASURE_TYPE):
         """
         Abstract constructor for the all chemenv strategies.
         :param structure_environments: StructureEnvironments object containing all the information on the
@@ -160,6 +161,7 @@ class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
         self.structure_environments = None
         if structure_environments is not None:
             self.set_structure_environments(structure_environments)
+        self._symmetry_measure_type = symmetry_measure_type
 
     def set_structure_environments(self, structure_environments):
         self.structure_environments = structure_environments
@@ -434,13 +436,14 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
 
     def __init__(self, structure_environments=None, distance_cutoff=DEFAULT_DISTANCE_CUTOFF,
                  angle_cutoff=DEFAULT_ANGLE_CUTOFF, additional_condition=DEFAULT_ADDITIONAL_CONDITION,
-                 continuous_symmetry_measure_cutoff=DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF):
+                 continuous_symmetry_measure_cutoff=DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF,
+                 symmetry_measure_type=AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE):
         """
         Constructor for this SimplestChemenvStrategy.
         :param distance_cutoff: Distance cutoff used
         :param angle_cutoff: Angle cutoff used
         """
-        AbstractChemenvStrategy.__init__(self, structure_environments)
+        AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
         self._distance_cutoff = DistanceCutoffFloat(distance_cutoff)
         self._angle_cutoff = AngleCutoffFloat(angle_cutoff)
         self._additional_condition = AdditionalConditionInt(additional_condition)
@@ -511,12 +514,12 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
             if coord_geoms is None:
                 return cn_map[0], cn_map
             return (self.structure_environments.ce_list[self.structure_environments.sites_map[isite]][cn_map[0]][
-                cn_map[1]].minimum_geometry(), cn_map)
+                cn_map[1]].minimum_geometry(symmetry_measure_type=self._symmetry_measure_type), cn_map)
         else:
             if coord_geoms is None:
                 return cn_map[0]
             return self.structure_environments.ce_list[self.structure_environments.sites_map[isite]][cn_map[0]][
-                cn_map[1]].minimum_geometry()
+                cn_map[1]].minimum_geometry(symmetry_measure_type=self._symmetry_measure_type)
 
     def get_site_coordination_environments(self, site, isite=None, dequivsite=None, dthissite=None, mysym=None,
                                            return_maps=False):
@@ -527,7 +530,8 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         return (self.__class__.__name__ == other.__class__.__name__ and
                 self._distance_cutoff == other._distance_cutoff and self._angle_cutoff == other._angle_cutoff and
                 self._additional_condition == other._additional_condition and
-                self._continuous_symmetry_measure_cutoff == other._continuous_symmetry_measure_cutoff)
+                self._continuous_symmetry_measure_cutoff == other._continuous_symmetry_measure_cutoff and
+                self._symmetry_measure_type == other._symmetry_measure_type)
 
     def as_dict(self):
         """
@@ -539,7 +543,8 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
                 "distance_cutoff": float(self._distance_cutoff),
                 "angle_cutoff": float(self._angle_cutoff),
                 "additional_condition": int(self._additional_condition),
-                "continuous_symmetry_measure_cutoff": float(self._continuous_symmetry_measure_cutoff)}
+                "continuous_symmetry_measure_cutoff": float(self._continuous_symmetry_measure_cutoff),
+                "symmetry_measure_type": self._symmetry_measure_type}
 
     @classmethod
     def from_dict(cls, d):
@@ -551,7 +556,8 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         """
         return cls(distance_cutoff=d["distance_cutoff"], angle_cutoff=d["angle_cutoff"],
                    additional_condition=d["additional_condition"],
-                   continuous_symmetry_measure_cutoff=d["continuous_symmetry_measure_cutoff"])
+                   continuous_symmetry_measure_cutoff=d["continuous_symmetry_measure_cutoff"],
+                   symmetry_measure_type=d["symmetry_measure_type"])
 
 
 class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
@@ -574,13 +580,14 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
                            '    lowest continuous symmetry measure.'
 
     def __init__(self, structure_environments=None,
-                 additional_condition=AbstractChemenvStrategy.AC.ONLY_ACB):
+                 additional_condition=AbstractChemenvStrategy.AC.ONLY_ACB,
+                 symmetry_measure_type=AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE):
         """
         Constructor for the SimpleAbundanceChemenvStrategy.
         :param structure_environments: StructureEnvironments object containing all the information on the
         coordination of the sites in a structure
         """
-        AbstractChemenvStrategy.__init__(self, structure_environments)
+        AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
         self._additional_condition = additional_condition
 
     @property
@@ -610,11 +617,11 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         if return_map:
             if coord_geoms is None:
                 return cn_map[0], cn_map
-            return coord_geoms.minimum_geometry(), cn_map
+            return coord_geoms.minimum_geometry(symmetry_measure_type=self._symmetry_measure_type), cn_map
         else:
             if coord_geoms is None:
                 return cn_map[0]
-            return coord_geoms.minimum_geometry()
+            return coord_geoms.minimum_geometry(symmetry_measure_type=self._symmetry_measure_type)
 
     def get_site_coordination_environments(self, site, isite=None, dequivsite=None, dthissite=None, mysym=None,
                                            return_maps=False):
@@ -679,9 +686,10 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
     def __init__(self, structure_environments=None, truncate_dist_ang=True,
                  additional_condition=AbstractChemenvStrategy.AC.ONLY_ACB,
                  max_nabundant=5, target_environments=DEFAULT_TARGET_ENVIRONMENTS, target_penalty_type='max_csm',
-                 max_csm=5.0):
+                 max_csm=5.0, symmetry_measure_type=AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE):
         SimpleAbundanceChemenvStrategy.__init__(self, structure_environments,
-                                                additional_condition=additional_condition)
+                                                additional_condition=additional_condition,
+                                                symmetry_measure_type=symmetry_measure_type)
         self.max_nabundant = max_nabundant
         self.target_environments = target_environments
         self.target_penalty_type = target_penalty_type
@@ -700,11 +708,11 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
         if return_map:
             if chemical_environments.coord_geoms is None or len(chemical_environments) == 0:
                 return cn_map[0], cn_map
-            return chemical_environments.minimum_geometry(), cn_map
+            return chemical_environments.minimum_geometry(symmetry_measure_type=self._symmetry_measure_type), cn_map
         else:
             if chemical_environments.coord_geoms is None:
                 return cn_map[0]
-            return chemical_environments.minimum_geometry()
+            return chemical_environments.minimum_geometry(symmetry_measure_type=self._symmetry_measure_type)
 
     def _get_map(self, isite):
         maps_and_surfaces = SimpleAbundanceChemenvStrategy._get_maps_surfaces(self, isite)
@@ -727,7 +735,8 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
             if self._additional_condition not in all_conditions:
                 continue
             cg, cgdict = (self.structure_environments.ce_list
-                          [self.structure_environments.sites_map[isite]][mymap[0]][mymap[1]].minimum_geometry())
+                          [self.structure_environments.sites_map[isite]]
+                          [mymap[0]][mymap[1]].minimum_geometry(symmetry_measure_type=self._symmetry_measure_type))
             if (cg in self.target_environments and cgdict['symmetry_measure'] <= self.max_csm and
                         cgdict['symmetry_measure'] < current_target_env_csm):
                 current_map = mymap
@@ -797,13 +806,14 @@ class ImprovedConfidenceCutoffChemenvStrategy(AbstractChemenvStrategy):
 
     def __init__(self, structure_environments=None, additional_condition=DEFAULT_ADDITIONAL_CONDITION,
                  csm_cutoffs=None,
-                 voronoi_parameters_fractions=None):
+                 voronoi_parameters_fractions=None,
+                 symmetry_measure_type=AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE):
         """
         Constructor for the SimpleAbundanceChemenvStrategy.
         :param structure_environments: StructureEnvironments object containing all the information on the
         coordination of the sites in a structure
         """
-        AbstractChemenvStrategy.__init__(self, structure_environments)
+        AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
         self._additional_condition = additional_condition
         if csm_cutoffs is None:
             self.csm_cutoffs = DEFAULT_CSM_CUTOFFS
@@ -827,7 +837,8 @@ class ImprovedConfidenceCutoffChemenvStrategy(AbstractChemenvStrategy):
                 continue
             maps_minimum_geometries[some_map] = (
                 self.structure_environments.ce_list[self.structure_environments.sites_map[isite]][
-                    some_map[0]][some_map[1]].minimum_geometry(), counts(imap))
+                    some_map[0]][some_map[1]].minimum_geometry(symmetry_measure_type=self._symmetry_measure_type),
+                counts(imap))
         return UNCLEAR_ENVIRONMENT_SYMBOL, None
 
     def __eq__(self, other):
@@ -895,8 +906,9 @@ class ComplexCSMBasedChemenvStrategy(AbstractChemenvStrategy):
                  cn_delta_mean_csm_estimator_cn_specifics=DEFAULT_CN_DELTA_MEAN_CSM_ESTIMATOR_CN_SPECIFICS,
                  cn_delta_mean_csm_estimator_ce_specifics=DEFAULT_CN_DELTA_MEAN_CSM_ESTIMATOR_CE_SPECIFICS,
                  cn_delta_mean_csm_estimator_concatenator=DEFAULT_CN_DELTA_MEAN_CSM_ESTIMATOR_CONCATENATOR,
-                 ce_estimator=DEFAULT_CE_ESTIMATOR):
-        AbstractChemenvStrategy.__init__(self, structure_environments)
+                 ce_estimator=DEFAULT_CE_ESTIMATOR,
+                 symmetry_measure_type=AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE):
+        AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
         self._additional_condition = additional_condition
         #Definition of the estimator/function used to estimate the "mean" csm used for the calculation of
         # the fractions of each cn_map
@@ -1052,7 +1064,8 @@ class ComplexCSMBasedChemenvStrategy(AbstractChemenvStrategy):
                 if not (self.structure_environments.voronoi.satisfy_condition(isite, cn, i_coordnbs,
                                                                               self._additional_condition)):
                     continue
-                mingeoms = self.structure_environments.ce_list[isite][cn][i_coordnbs].minimum_geometries()
+                mingeoms = self.structure_environments.ce_list[isite][cn][i_coordnbs].\
+                    minimum_geometries(symmetry_measure_type=self._symmetry_measure_type)
                 csms = [ce_dict['symmetry_measure'] for ce_symbol, ce_dict in mingeoms
                         if ce_dict['symmetry_measure'] <= self._cn_self_mean_csm_estimator[1]['max_csm']]
                 mean_csm = self._mean_csm(csms)

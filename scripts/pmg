@@ -34,14 +34,13 @@ from tabulate import tabulate, tabulate_formats
 
 from pymatgen import Structure
 from pymatgen.io.vasp import Outcar, Vasprun, Chgcar
-from pymatgen.util.string_utils import str_aligned
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
     VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.io.vasp import Poscar
 from pymatgen.io.cif import CifParser, CifWriter
-from pymatgen.io.vasp.sets import MPVaspInputSet, MITVaspInputSet
+from pymatgen.io.vasp.sets import MPRelaxSet, MITRelaxSet
 from pymatgen.io.cssr import Cssr
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.alchemy.materials import TransformedStructure
@@ -139,7 +138,7 @@ def get_magnetizations(mydir, ion_list):
     headers = ["Filename"]
     for i in range(max_row):
         headers.append(str(i))
-    print(str_aligned(data, headers))
+    print(tabulate(data, headers))
 
 
 def plot_dos(args):
@@ -250,21 +249,19 @@ def convert_fmt(args):
             c = Cssr(structure)
             c.write_file(out_filename)
         elif oformat == "VASP":
-            input_set = MPVaspInputSet()
             ts = TransformedStructure(
                 structure, [],
                 history=[{"source": "file",
                           "datetime": str(datetime.datetime.now()),
                           "original_file": open(filename).read()}])
-            ts.write_vasp_input(input_set, output_dir=out_filename)
+            ts.write_vasp_input(MPRelaxSet, output_dir=out_filename)
         elif oformat == "MITVASP":
-            input_set = MITVaspInputSet()
             ts = TransformedStructure(
                 structure, [],
                 history=[{"source": "file",
                           "datetime": str(datetime.datetime.now()),
                           "original_file": open(filename).read()}])
-            ts.write_vasp_input(input_set, output_dir=out_filename)
+            ts.write_vasp_input(MITRelaxSet, output_dir=out_filename)
 
     except Exception as ex:
         print("Error converting file. Are they in the right format?")

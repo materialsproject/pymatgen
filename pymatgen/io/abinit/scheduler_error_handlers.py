@@ -16,9 +16,14 @@ __email__ = "mjvansetten@gmail.com"
 __date__ = "May 2014"
 
 from pymatgen.io.abinit.scheduler_error_parsers import get_parser
-from custodian.custodian import ErrorHandler
+try:
+    from custodian.custodian import ErrorHandler
+except ImportError:
+    ErrorHandler = object
 
 
+# TODO (from SP): Pls move this somewhere else. Custodian and Workflow stuff
+# really shouldn't be in pymatgen.
 class SchedulerErrorHandler(ErrorHandler):
     """
     Custodian error handler for scheduler related errors

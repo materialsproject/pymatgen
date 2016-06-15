@@ -7,11 +7,10 @@ from __future__ import unicode_literals
 import numpy as np
 import unittest2 as unittest
 import os
-from math import fabs
 
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
-    oxide_type, OrderParameters, average_coordination_number, VoronoiAnalysis
+    oxide_type, OrderParameters, average_coordination_number, VoronoiAnalyzer
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen import Element, Structure, Lattice
@@ -22,7 +21,6 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 
 class VoronoiCoordFinderTest(PymatgenTest):
-
     def setUp(self):
         s = self.get_structure('LiFePO4')
         self.finder = VoronoiCoordFinder(s, [Element("O")])
@@ -38,26 +36,28 @@ class VoronoiCoordFinderTest(PymatgenTest):
         self.assertEqual(len(self.finder.get_coordinated_sites(0)), 8)
 
 
-class VoronoiAnalysisTest(PymatgenTest):
+class VoronoiAnalyzerTest(PymatgenTest):
 
     def setUp(self):
         self.ss = Xdatcar(os.path.join(test_dir, 'XDATCAR.MD')).structures
-        self.s = self.ss[19]
-        self.va = VoronoiAnalysis(cutoff=4.0)
-    def test_voronoi_analysis(self):
+        self.s = self.ss[1]
+        self.va = VoronoiAnalyzer(cutoff=4.0)
+
+    def test_analyze(self):
         # Check for the Voronoi index of site i in Structure
-        single_structure = self.va.voronoi_analysis(self.s, n=5)
-        self.assertIn(single_structure.view(), np.array([5,4,2,5,3,1,0,2]).view(),
+        single_structure = self.va.analyze(self.s, n=5)
+        self.assertIn(single_structure.view(),
+                      np.array([4, 3, 3, 4, 2, 2, 1, 0]).view(),
                       "Cannot find the right polyhedron.")
         # Check for the presence of a Voronoi index and its frequency in
         # a ensemble (list) of Structures
-        ensemble = self.va.from_structures(self.ss,step_freq=2,most_frequent_polyhedra=10)
-        self.assertIn(('[2 3 3 3 1 1 0 0]', 6),
+        ensemble = self.va.analyze_structures(self.ss, step_freq=2,
+                                              most_frequent_polyhedra=10)
+        self.assertIn(('[1 3 4 7 1 0 0 0]', 3),
                       ensemble, "Cannot find the right polyhedron in ensemble.")
 
 
 class RelaxationAnalyzerTest(unittest.TestCase):
-
     def setUp(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.Li2O'),
                              check_for_POTCAR=False)
@@ -74,8 +74,8 @@ class RelaxationAnalyzerTest(unittest.TestCase):
         vol_change = self.analyzer.get_percentage_volume_change()
         self.assertAlmostEqual(-0.0273589101391,
                                vol_change)
-        #This is a simple cubic cell, so the latt and vol change are simply
-        #Related. So let's test that.
+        # This is a simple cubic cell, so the latt and vol change are simply
+        # Related. So let's test that.
         self.assertAlmostEqual((1 + latt_change) ** 3 - 1, vol_change)
 
     def test_get_percentage_bond_dist_changes(self):
@@ -85,11 +85,10 @@ class RelaxationAnalyzerTest(unittest.TestCase):
 
 
 class VoronoiConnectivityTest(PymatgenTest):
-
     def test_connectivity_array(self):
         vc = VoronoiConnectivity(self.get_structure("LiFePO4"))
         ca = vc.connectivity_array
-        np.set_printoptions(threshold = np.NAN, linewidth = np.NAN, suppress = np.NAN)
+        np.set_printoptions(threshold=np.NAN, linewidth=np.NAN, suppress=np.NAN)
 
         expected = np.array([0, 1.96338392, 0, 0.04594495])
         self.assertTrue(np.allclose(ca[15, :4, ca.shape[2] // 2], expected))
@@ -104,11 +103,11 @@ class VoronoiConnectivityTest(PymatgenTest):
 
 
 class MiscFunctionTest(PymatgenTest):
-
     def test_average_coordination_number(self):
         xdatcar = Xdatcar(os.path.join(test_dir, 'XDATCAR.MD'))
-        coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)
-        self.assertAlmostEqual(coordination_numbers['Fe'], 4.74806409454929, 5,
+        coordination_numbers = average_coordination_number(xdatcar.structures,
+                                                           freq=1)
+        self.assertAlmostEqual(coordination_numbers['Fe'], 4.771903318390836, 5,
                                "Coordination number not calculated properly.")
 
     def test_solid_angle(self):
@@ -149,7 +148,8 @@ class MiscFunctionTest(PymatgenTest):
         el_li = Element("Li")
         el_o = Element("O")
         elts = [el_li, el_o, el_o, el_o]
-        latt = Lattice.from_parameters(3.999911, 3.999911, 3.999911, 133.847504, 102.228244, 95.477342)
+        latt = Lattice.from_parameters(3.999911, 3.999911, 3.999911, 133.847504,
+                                       102.228244, 95.477342)
         coords = [[0.513004, 0.513004, 1.000000],
                   [0.017616, 0.017616, 0.000000],
                   [0.649993, 0.874790, 0.775203],
@@ -157,7 +157,8 @@ class MiscFunctionTest(PymatgenTest):
         struct = Structure(latt, elts, coords)
         self.assertEqual(oxide_type(struct, 1.1), "ozonide")
 
-        latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
+        latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884,
+                                       89.999674, 60.000510)
         el_li = Element("Li")
         el_o = Element("O")
         elts = [el_li, el_li, el_li, el_li, el_o, el_o, el_o, el_o]
@@ -175,7 +176,8 @@ class MiscFunctionTest(PymatgenTest):
         el_li = Element("Li")
         el_o = Element("O")
         el_h = Element("H")
-        latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
+        latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000,
+                                       90.000000, 90.000000)
         elts = [el_h, el_h, el_li, el_li, el_o, el_o]
         coords = [[0.000000, 0.500000, 0.413969],
                   [0.500000, 0.000000, 0.586031],
@@ -189,7 +191,8 @@ class MiscFunctionTest(PymatgenTest):
         el_li = Element("Li")
         el_n = Element("N")
         el_h = Element("H")
-        latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
+        latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000,
+                                       90.000000, 90.000000)
         elts = [el_h, el_h, el_li, el_li, el_n, el_n]
         coords = [[0.000000, 0.500000, 0.413969],
                   [0.500000, 0.000000, 0.586031],
@@ -201,7 +204,8 @@ class MiscFunctionTest(PymatgenTest):
         self.assertEqual(oxide_type(struct, 1.1), "None")
 
         el_o = Element("O")
-        latt = Lattice.from_parameters(4.389828, 5.369789, 5.369789, 70.786622, 69.244828, 69.244828)
+        latt = Lattice.from_parameters(4.389828, 5.369789, 5.369789, 70.786622,
+                                       69.244828, 69.244828)
         elts = [el_o, el_o, el_o, el_o, el_o, el_o, el_o, el_o]
         coords = [[0.844609, 0.273459, 0.786089],
                   [0.155391, 0.213911, 0.726541],
@@ -215,54 +219,49 @@ class MiscFunctionTest(PymatgenTest):
         self.assertEqual(oxide_type(struct, 1.1), "None")
 
 
-
 class OrderParametersTest(PymatgenTest):
-
     def setUp(self):
         self.cubic = Structure(
-                Lattice.from_lengths_and_angles(
-                        [1.0, 1.0, 1.0], [90.0, 90.0, 90.0]),
-                ["H"], [[0.0, 0.0, 0.0]], validate_proximity=False,
-                to_unit_cell=False, coords_are_cartesian=False,
-                site_properties=None)
+            Lattice.from_lengths_and_angles(
+                [1.0, 1.0, 1.0], [90.0, 90.0, 90.0]),
+            ["H"], [[0.0, 0.0, 0.0]], validate_proximity=False,
+            to_unit_cell=False, coords_are_cartesian=False,
+            site_properties=None)
         self.bcc = Structure(
-                Lattice.from_lengths_and_angles(
-                        [1.0, 1.0, 1.0], [90.0, 90.0, 90.0]),
-                ["H", "H"], [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
-                validate_proximity=False, to_unit_cell=False,
-                coords_are_cartesian=False, site_properties=None)
+            Lattice.from_lengths_and_angles(
+                [1.0, 1.0, 1.0], [90.0, 90.0, 90.0]),
+            ["H", "H"], [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=False, site_properties=None)
         self.fcc = Structure(
-                Lattice.from_lengths_and_angles(
-                        [1.0, 1.0, 1.0], [90.0, 90.0, 90.0]),
-                ["H", "H", "H", "H"], [[0.0, 0.0, 0.0], [0.0, 0.5, 0.5],
-                        [0.5, 0.0, 0.5], [0.5, 0.5, 0.0]],
-                validate_proximity=False, to_unit_cell=False,
-                coords_are_cartesian=False, site_properties=None)
+            Lattice.from_lengths_and_angles(
+                [1.0, 1.0, 1.0], [90.0, 90.0, 90.0]),
+            ["H", "H", "H", "H"], [[0.0, 0.0, 0.0], [0.0, 0.5, 0.5],
+                                   [0.5, 0.0, 0.5], [0.5, 0.5, 0.0]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=False, site_properties=None)
         self.hcp = Structure(
-                Lattice.from_lengths_and_angles(
-                        [1.0, 1.0, 1.633], [90.0, 90.0, 120.0]),
-                ["H", "H"],
-                [[0.3333, 0.6667, 0.25], [0.6667, 0.3333, 0.75]],
-                validate_proximity=False, to_unit_cell=False,
-                coords_are_cartesian=False, site_properties=None)
+            Lattice.from_lengths_and_angles(
+                [1.0, 1.0, 1.633], [90.0, 90.0, 120.0]),
+            ["H", "H"],
+            [[0.3333, 0.6667, 0.25], [0.6667, 0.3333, 0.75]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=False, site_properties=None)
         self.diamond = Structure(
-                Lattice.from_lengths_and_angles(
-                        [1.0, 1.0, 1.0], [90.0, 90.0, 90.0]),
-                ["H", "H", "H", "H", "H", "H", "H", "H"],
-                [[0.0, 0.0, 0.5], [0.75, 0.75, 0.75],
-                        [0.0, 0.5, 0.0], [0.75, 0.25, 0.25],
-                        [0.5, 0.0, 0.0], [0.25, 0.75, 0.25],
-                        [0.5, 0.5, 0.5], [0.25, 0.25, 0.75]],
-                validate_proximity=False, to_unit_cell=False,
-                coords_are_cartesian=False, site_properties=None)
-
+            Lattice.from_lengths_and_angles(
+                [1.0, 1.0, 1.0], [90.0, 90.0, 90.0]),
+            ["H", "H", "H", "H", "H", "H", "H", "H"],
+            [[0.0, 0.0, 0.5], [0.75, 0.75, 0.75],
+             [0.0, 0.5, 0.0], [0.75, 0.25, 0.25],
+             [0.5, 0.0, 0.0], [0.25, 0.75, 0.25],
+             [0.5, 0.5, 0.5], [0.25, 0.25, 0.75]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=False, site_properties=None)
 
     def test_init(self):
         self.assertIsNotNone(OrderParameters(["cn"], [[]], 0.99))
 
-
     def test_get_order_parameters(self):
-
         # Set up everything.
         op_types = ["cn", "tet", "oct", "bcc", "q2", "q4", "q6"]
         op_paras = [[], [], [], [], [], [], []]
@@ -284,52 +283,61 @@ class OrderParametersTest(PymatgenTest):
         self.assertIsNone(op_vals[6])
         op_vals = ops_101.get_order_parameters(self.cubic, 0)
         self.assertAlmostEqual(op_vals[0], 6.0)
-        self.assertAlmostEqual(int(op_vals[1]*1000), -72)
-        self.assertAlmostEqual(int(op_vals[2]*1000), 1000)
-        self.assertAlmostEqual(int(op_vals[3]*1000), 125)
-        self.assertAlmostEqual(int(op_vals[4]*1000), 0)
-        self.assertAlmostEqual(int(op_vals[5]*1000), 763)
-        self.assertAlmostEqual(int(op_vals[6]*1000), 353)
+        self.assertAlmostEqual(int(op_vals[1] * 1000), -72)
+        self.assertAlmostEqual(int(op_vals[2] * 1000), 1000)
+        self.assertAlmostEqual(int(op_vals[3] * 1000), 125)
+        self.assertAlmostEqual(int(op_vals[4] * 1000), 0)
+        self.assertAlmostEqual(int(op_vals[5] * 1000), 763)
+        self.assertAlmostEqual(int(op_vals[6] * 1000), 353)
 
         # Bcc structure.
         op_vals = ops_087.get_order_parameters(self.bcc, 0)
         self.assertAlmostEqual(op_vals[0], 8.0)
-        self.assertAlmostEqual(int(op_vals[1]*1000), 1968) # 1.9688949183589557
-        self.assertAlmostEqual(int(op_vals[2]*1000), 125) # 0.12540815310925768
-        self.assertAlmostEqual(int(op_vals[3]*1000), 975) # 0.9753713330608598
-        self.assertAlmostEqual(int(op_vals[4]*1000), 0)
-        self.assertAlmostEqual(int(op_vals[5]*1000), 509) # 0.5091750772173156
-        self.assertAlmostEqual(int(op_vals[6]*1000), 628) # 0.6285393610547088
+        self.assertAlmostEqual(int(op_vals[1] * 1000),
+                               1968)  # 1.9688949183589557
+        self.assertAlmostEqual(int(op_vals[2] * 1000),
+                               125)  # 0.12540815310925768
+        self.assertAlmostEqual(int(op_vals[3] * 1000),
+                               975)  # 0.9753713330608598
+        self.assertAlmostEqual(int(op_vals[4] * 1000), 0)
+        self.assertAlmostEqual(int(op_vals[5] * 1000),
+                               509)  # 0.5091750772173156
+        self.assertAlmostEqual(int(op_vals[6] * 1000),
+                               628)  # 0.6285393610547088
 
         # Fcc structure.
         op_vals = ops_071.get_order_parameters(self.fcc, 0)
         self.assertAlmostEqual(op_vals[0], 12.0)
-        self.assertAlmostEqual(int(op_vals[1]*1000), -998) # -0.9989621462333275
-        self.assertAlmostEqual(int(op_vals[2]*1000), -1012)  # -1.0125484381377454
-        self.assertAlmostEqual(int(op_vals[3]*1000), 0)     # -0.0007417813723164877
-        self.assertAlmostEqual(int(op_vals[4]*1000), 0)
-        self.assertAlmostEqual(int(op_vals[5]*1000), 190)  # 0.1909406539564932
-        self.assertAlmostEqual(int(op_vals[6]*1000), 574)  # 0.57452425971407
+        self.assertAlmostEqual(int(op_vals[1] * 1000),
+                               -998)  # -0.9989621462333275
+        self.assertAlmostEqual(int(op_vals[2] * 1000),
+                               -1012)  # -1.0125484381377454
+        self.assertAlmostEqual(int(op_vals[3] * 1000),
+                               0)  # -0.0007417813723164877
+        self.assertAlmostEqual(int(op_vals[4] * 1000), 0)
+        self.assertAlmostEqual(int(op_vals[5] * 1000),
+                               190)  # 0.1909406539564932
+        self.assertAlmostEqual(int(op_vals[6] * 1000), 574)  # 0.57452425971407
 
         # Hcp structure.
         op_vals = ops_101.get_order_parameters(self.hcp, 0)
         self.assertAlmostEqual(op_vals[0], 12.0)
-        self.assertAlmostEqual(int(op_vals[1]*1000), -455)
-        self.assertAlmostEqual(int(op_vals[2]*1000), -735)
-        self.assertAlmostEqual(int(op_vals[3]*1000), -155)
-        self.assertAlmostEqual(int(op_vals[4]*1000), 0)
-        self.assertAlmostEqual(int(op_vals[5]*1000), 97)
-        self.assertAlmostEqual(int(op_vals[6]*1000), 484)
+        self.assertAlmostEqual(int(op_vals[1] * 1000), -455)
+        self.assertAlmostEqual(int(op_vals[2] * 1000), -735)
+        self.assertAlmostEqual(int(op_vals[3] * 1000), -155)
+        self.assertAlmostEqual(int(op_vals[4] * 1000), 0)
+        self.assertAlmostEqual(int(op_vals[5] * 1000), 97)
+        self.assertAlmostEqual(int(op_vals[6] * 1000), 484)
 
         # Diamond structure.
         op_vals = ops_044.get_order_parameters(self.diamond, 0)
         self.assertAlmostEqual(op_vals[0], 4.0)
-        self.assertAlmostEqual(int(op_vals[1]*1000), 1000)
-        self.assertAlmostEqual(int(op_vals[2]*1000), -8)
-        self.assertAlmostEqual(int(op_vals[3]*1000), 80)
-        self.assertAlmostEqual(int(op_vals[4]*1000), 0)
-        self.assertAlmostEqual(int(op_vals[5]*1000), 509)
-        self.assertAlmostEqual(int(op_vals[6]*1000), 628)
+        self.assertAlmostEqual(int(op_vals[1] * 1000), 1000)
+        self.assertAlmostEqual(int(op_vals[2] * 1000), -8)
+        self.assertAlmostEqual(int(op_vals[3] * 1000), 80)
+        self.assertAlmostEqual(int(op_vals[4] * 1000), 0)
+        self.assertAlmostEqual(int(op_vals[5] * 1000), 509)
+        self.assertAlmostEqual(int(op_vals[6] * 1000), 628)
 
         # Test providing explicit neighbor lists.
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[1])
@@ -337,7 +345,6 @@ class OrderParametersTest(PymatgenTest):
         self.assertIsNone(op_vals[1])
         with self.assertRaises(ValueError):
             ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[2])
-
 
     def tearDown(self):
         del self.cubic
