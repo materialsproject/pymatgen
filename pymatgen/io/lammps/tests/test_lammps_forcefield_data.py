@@ -29,7 +29,7 @@ class TestLammpsForceFieldData(unittest.TestCase):
                              ((u'hw', u'hw'), [553.0, 1.513])])
         angles = OrderedDict([((u'hw', u'ow', u'hw'), [0.0, 104.52])])
         vdws = OrderedDict([(u'hw', [0.0, 0.0]), (u'ow', [1.7683, 0.1520])])
-        forcefield = ForceField(atoms, bonds, angles, vdws=vdws)
+        forcefield = ForceField(atoms, bonds, angles, pairs=vdws)
         h2o_coords = [[9.626, 6.787, 12.673],
                       [9.626, 8.420, 12.673],
                       [10.203, 7.604, 12.673]]

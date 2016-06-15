@@ -159,7 +159,7 @@ class PotcarCorrection(Correction):
         return 0
 
     def __str__(self):
-        return "{} Potcar Correction".format(self.input_set.name)
+        return "{} Potcar Correction".format(self.input_set.__name__)
 
 
 @cached_class

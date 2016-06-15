@@ -14,6 +14,8 @@ import itertools
 from pymatgen.core.bonds import CovalentBond
 
 __author__ = 'Kiran Mathew'
+__email__ = 'kmathew@lbl.gov'
+__credits__ = 'Brandon Wood'
 
 
 class Topology(object):
@@ -21,27 +23,26 @@ class Topology(object):
     Args:
         atoms (list): map atom names to force field(ff) atom name,
             [['c', 'c1'],...]
-        charges (list): List of charges, [0.4, 0.7, ... ]
         bonds (list): List of bonds,
             [[i,j, bond_type], ... ] where i, j are integer(starts from 1)
             atom ids in the molecules and bond_type = (ff atomname_i, ff atomname_j)
         angles (list): List of angles,
             [[i,j,k, angle_type], ... ],
             angle_type = (ff atomname_i, ff atomname_j, ff atomname_k)
+        charges (list): List of charges, [0.4, 0.7, ... ]
         dihedrals (list): List of dihedrals,
             [[i,j,k,l, dihedral_type], ... ]
             dihedral_type = (ff atomname_i, ff atomname_j, ff atomname_k, ff atomname_l)
         imdihedrals (list): List of improper dihedrals,
             [['i,j,k,l, dihedral_type], ... ]
-
     """
 
     def __init__(self, atoms, bonds, angles, charges=None, dihedrals=None,
                  imdihedrals=None):
         self.atoms = atoms
-        self.charges = dict() if charges is None else charges
         self.bonds = bonds
         self.angles = angles
+        self.charges = [] if charges is None else charges
         self.dihedrals = dihedrals
         self.imdihedrals = imdihedrals
 
@@ -82,7 +83,7 @@ class Topology(object):
             else:
                 for site1, site2 in itertools.product(bond1_sites,
                                                       bond2_sites):
-                    if CovalentBond.is_bonded(site1, site2):
+                    if CovalentBond.is_bonded(site1, site2, tol=tol):
                         bond1_sites.remove(site1)
                         bond2_sites.remove(site2)
                         dihedral = bond1_sites + [site1,
@@ -99,6 +100,8 @@ class Topology(object):
                         break
         atoms = [[str(site.specie), str(site.specie)] for site in molecule]
         bonds = [[molecule.index(b.site1), molecule.index(b.site2),
-                  (str(b.site1.specie), str(b.site2.specie))] for b in
-                 bonds]
-        return Topology(atoms, bonds, angles, dihedrals=dihedrals)
+                  (str(b.site1.specie), str(b.site2.specie))] for b in bonds]
+        charges = None
+        if hasattr(molecule[0], "charge"):
+            charges = [site.charge for site in molecule]
+        return Topology(atoms, bonds, angles, charges=charges, dihedrals=dihedrals)
