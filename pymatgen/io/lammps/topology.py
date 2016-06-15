@@ -50,7 +50,7 @@ class Topology(object):
     def from_molecule(molecule, tol=0.1, ff_map="ff_map"):
         """
         Return Topology object from molecule. Charges are also set if the
-        'charge' site property in the molecule.
+        molecule has 'charge' site property.
 
         Args:
             molecule (Molecule)
