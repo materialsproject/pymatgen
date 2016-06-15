@@ -25,10 +25,13 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core import Element, Molecule, Composition
 from monty.io import zopen
 from pymatgen.util.coord_utils import get_angle
-import pymatgen.core.physical_constants as cst
+import scipy.constants as cst
+
 from pymatgen.electronic_structure.core import Spin
 
 float_patt = re.compile("\s*([+-]?\d+\.\d+)")
+
+HARTREE_TO_ELECTRON_VOLT = 1/cst.physical_constants["electron volt-hartree relationship"][0]
 
 def read_route_line(route):
     """
@@ -1076,7 +1079,7 @@ class GaussianOutput(object):
         plt.ylabel("Energy   /   eV")
 
         e_min = min(d["energies"])
-        y = [(e - e_min) * cst.HARTREE_TO_ELECTRON_VOLT for e in d["energies"]]
+        y = [(e - e_min) * HARTREE_TO_ELECTRON_VOLT for e in d["energies"]]
 
         plt.plot(x, y, "ro--")
         return plt
