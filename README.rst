@@ -1,6 +1,5 @@
 **Official docs:** http://www.pymatgen.org
 
-.. image:: https://circleci.com/gh/materialsproject/pymatgen.png?circle-token=:circle-token
 .. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
