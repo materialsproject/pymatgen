@@ -3109,6 +3109,31 @@ class ScfTask(GsTask):
         return results
 
 
+class CollinearThenNonCollinearScfTask(ScfTask):
+    """
+    A specialized ScfTaks that performs an initial SCF run with nsppol = 2.
+    The spin polarized WFK file is then used to start a non-collinear SCF run (nspinor == 2)
+    initialized from the previous WFK file.
+    """
+    def __init__(self, input, workdir=None, manager=None, deps=None):
+        super(CollinearThenNonCollinearScfTask, self).__init__(input, workdir=workdir, manager=manager, deps=deps)
+        # Enforce nspinor = 1, nsppol = 2 and prtwf = 1.
+        self._input = self.input.deepcopy()
+        self.input.set_spin_mode("polarized")
+        self.input.set_vars(prtwf=1)
+        self.collinear_done = False
+
+    def _on_ok(self):
+        results = super(CollinearThenNonCollinearScfTask, self)._on_ok()
+        if not self.collinear_done:
+            self.input.set_spin_mode("spinor")
+            self.collinear_done = True
+            self.finalized = False
+            self.restart()
+
+        return results
+
+
 class NscfTask(GsTask):
     """
     Non-Self-consistent GS calculation. Provide in-place restart via WFK files

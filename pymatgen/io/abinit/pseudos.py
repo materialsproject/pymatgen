@@ -287,14 +287,14 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         """True if the pseudo has an associated `DOJO_REPORT` section."""
         return hasattr(self, "dojo_report") and bool(self.dojo_report)
 
-    @lazy_property
+    @property
     def djrepo_path(self):
         """The path of the djrepo file. None if file does not exist."""
-        # FIXME: Remove
         root, ext = os.path.splitext(self.filepath)
         path = root + ".djrepo"
-        if os.path.exists(path): return path
-        return None
+        return path
+        #if os.path.exists(path): return path
+        #return None
 
     def hint_for_accuracy(self, accuracy="normal"):
         """
