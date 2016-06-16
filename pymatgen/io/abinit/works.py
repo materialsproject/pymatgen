@@ -27,7 +27,7 @@ from . import wrappers
 from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
 from .tasks import (Task, AbinitTask, ScfTask, NscfTask, DfptTask, PhononTask, DdkTask,
                     BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask,
-                    EphTask)
+                    EphTask, CollinearThenNonCollinearScfTask)
 
 from .utils import Directory
 from .netcdf import ETSF_Reader, NetcdfReader
@@ -275,6 +275,11 @@ class NodeContainer(six.with_metaclass(abc.ABCMeta)):
     def register_scf_task(self, *args, **kwargs):
         """Register a Scf task."""
         kwargs["task_class"] = ScfTask
+        return self.register_task(*args, **kwargs)
+
+    def register_collinear_then_noncollinear_scf_task(self, *args, **kwargs):
+        """Register a Scf task that perform a SCF run first with nsppol = 2 and then nspinor = 2"""
+        kwargs["task_class"] = CollinearThenNonCollinearScfTask
         return self.register_task(*args, **kwargs)
 
     def register_nscf_task(self, *args, **kwargs):
@@ -939,9 +944,9 @@ class G0W0Work(Work):
                  workdir=None, manager=None):
         """
         Args:
-            scf_inputs: Input for the SCF run, if it is a list add all but only link 
+            scf_inputs: Input for the SCF run, if it is a list add all but only link
                 to the last input (used for convergence studies on the KS band gap)
-            nscf_inputs: Input for the NSCF run, if it is a list add all but only 
+            nscf_inputs: Input for the NSCF run, if it is a list add all but only
                 link to the last (i.e. addditiona DOS and BANDS)
             scr_inputs: Input for the screening run
             sigma_inputs: List of :class:AbinitInput`for the self-energy run.
