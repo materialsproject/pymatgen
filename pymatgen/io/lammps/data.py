@@ -13,6 +13,8 @@ from io import open
 import re
 from collections import OrderedDict
 
+import numpy as np
+
 from monty.json import MSONable, MontyDecoder
 
 from pymatgen.core.structure import Molecule, Structure
@@ -58,23 +60,33 @@ class LammpsData(MSONable):
         return '\n'.join(lines)
 
     @staticmethod
-    def check_box_size(input_structure, box_size):
+    def check_box_size(molecule, box_size):
         """
-        Return a boxed molecule.
+        Check the box size and if necessary translate the molecule so that
+        all the sites are contained within the bounding box.
 
         Args:
-            input_structure(Molecule/Structure): either Molecule of Structure object
+            molecule(Molecule)
             box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
-
-        Returns:
-            Structure
         """
+        x_min, y_min, z_min = np.min(molecule.cart_coords[:, 0]), \
+                              np.min(molecule.cart_coords[:, 1]), \
+                              np.min(molecule.cart_coords[:, 2])
+        x_max, y_max, z_max = np.max(molecule.cart_coords[:, 0]), \
+                              np.max(molecule.cart_coords[:, 1]), \
+                              np.max(molecule.cart_coords[:, 2])
+        box_lengths_req = [x_max - x_min,  y_max - y_min, z_max - z_min]
         box_lengths = [min_max[1] - min_max[0] for min_max in box_size]
-        com = input_structure.center_of_mass
-        if len(input_structure.get_sites_in_sphere(com,
-                                                   min(box_lengths))) != len(
-                input_structure):
-            raise ValueError("box size not big enough to contain the molecule")
+        try:
+            np.testing.assert_almost_equal(box_lengths, box_lengths_req)
+        except AssertionError:
+            print("Required box length {} larger than the provided box lengths{}. "
+                  "Resetting the box size".format(box_lengths_req, box_lengths))
+            box_size = [[0.0, i*1.1] for i in box_lengths_req]
+        com = molecule.center_of_mass
+        new_com = [(side[1] + side[0]) / 2 for side in box_size]
+        translate_by = np.array(new_com) - np.array(com)
+        molecule.translate_sites(range(len(molecule)), translate_by)
 
     def write_data_file(self, filename):
         """
