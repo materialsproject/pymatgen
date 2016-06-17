@@ -57,6 +57,25 @@ class LammpsData(MSONable):
         self.set_lines_from_list(lines, "Atoms", self.atoms_data)
         return '\n'.join(lines)
 
+    @staticmethod
+    def check_box_size(input_structure, box_size):
+        """
+        Return a boxed molecule.
+
+        Args:
+            input_structure(Molecule/Structure): either Molecule of Structure object
+            box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
+
+        Returns:
+            Structure
+        """
+        box_lengths = [min_max[1] - min_max[0] for min_max in box_size]
+        com = input_structure.center_of_mass
+        if len(input_structure.get_sites_in_sphere(com,
+                                                   min(box_lengths))) != len(
+                input_structure):
+            raise ValueError("box size not big enough to contain the molecule")
+
     def write_data_file(self, filename):
         """
         write lammps data input file from the string representation
@@ -71,7 +90,7 @@ class LammpsData(MSONable):
     @staticmethod
     def get_basic_system_info(structure):
         """
-        Return basic system info from the given structure
+        Return basic system info from the given structure.
 
         Args:
             structure (Structure)
@@ -82,15 +101,11 @@ class LammpsData(MSONable):
         """
         natoms = len(structure)
         natom_types = len(structure.symbol_set)
-        box_size = [[0.0, structure.lattice.a],
-                    [0.0, structure.lattice.b],
-                    [0.0, structure.lattice.c]]
         elements = structure.composition.elements
         elements = sorted(elements, key=lambda el: el.atomic_mass)
         atomic_masses_dict = OrderedDict(
-            [(el.symbol, [i + 1, el.data["Atomic mass"]])
-             for i, el in enumerate(elements)])
-        return natoms, natom_types, box_size, atomic_masses_dict
+            [(el.symbol, [i + 1, el.data["Atomic mass"]]) for i, el in enumerate(elements)])
+        return natoms, natom_types, atomic_masses_dict
 
     @staticmethod
     def get_atoms_data(structure, atomic_masses_dict, set_charge=True):
@@ -108,8 +123,7 @@ class LammpsData(MSONable):
             set_charge (bool): whether or not to set the charge field in Atoms
 
         Returns:
-            [[atom_id, molecule tag, atom_type, charge(if present), x, y, z],
-            ... ]
+            [[atom_id, molecule tag, atom_type, charge(if present), x, y, z], ... ]
         """
         atoms_data = []
         for i, site in enumerate(structure):
@@ -162,10 +176,12 @@ class LammpsData(MSONable):
         Returns:
             LammpsData
         """
-        boxed_molecule = get_boxed_molecule(input_structure, box_size)
-        natoms, natom_types, box_size, atomic_masses_dict = \
-            LammpsData.get_basic_system_info(boxed_molecule)
-        atoms_data = LammpsData.get_atoms_data(boxed_molecule,
+        if isinstance(input_structure, Structure):
+            input_structure = Molecule.from_sites(input_structure.sites)
+        LammpsData.check_box_size(input_structure, box_size)
+        natoms, natom_types, atomic_masses_dict = \
+            LammpsData.get_basic_system_info(input_structure.copy())
+        atoms_data = LammpsData.get_atoms_data(input_structure,
                                                atomic_masses_dict,
                                                set_charge=set_charge)
         return LammpsData(box_size, atomic_masses_dict.values(), atoms_data)
@@ -404,9 +420,8 @@ class LammpsForceFieldData(LammpsData):
                     atom_to_mol[atom_id] = [mol_type, mol_atom_id]
                     tmp.append(atom_id)
                 molid_to_atomid.append(tmp)
-        # set atoms data from the final molecule assembly(the packed molecule
-        # obtained from packmol using the molecules from mols list and the
-        # molecule numbers from mol_number list).
+        # set atoms data from the molecule assembly consisting of
+        # molecules from mols list with their count from mol_number list.
         # atom id, mol id, atom type, charge from topology, x, y, z
         for i, site in enumerate(molecule):
             atom_type = atomic_masses_dict[site.specie.symbol][0]
@@ -529,9 +544,9 @@ class LammpsForceFieldData(LammpsData):
         improper_coeffs, imdihedral_map = LammpsForceFieldData.get_param_coeff(
             forcefield, "imdihedrals")
         # atoms data, topology used for setting charge if present
-        molecule = get_boxed_molecule(molecule, box_size)
-        natoms, natom_types, box_size, atomic_masses_dict = LammpsData.get_basic_system_info(
-            molecule)
+        LammpsForceFieldData.check_box_size(molecule, box_size)
+        natoms, natom_types, atomic_masses_dict = \
+            LammpsData.get_basic_system_info(molecule.copy())
         atoms_data, molid_to_atomid = LammpsForceFieldData.get_atoms_data(
             mols, mols_number, molecule, atomic_masses_dict, topologies)
         # set the other data from the molecular topologies
@@ -687,33 +702,3 @@ class LammpsForceFieldData(LammpsData):
                                     dihedral_coeffs, improper_coeffs,
                                     atoms_data, bonds_data, angles_data,
                                     dihedral_data, imdihedral_data)
-
-
-def get_boxed_molecule(input_structure, box_size):
-    """
-    Return a boxed molecule.
-
-    Args:
-        input_structure(Molecule/Structure): either Molecule of Structure object
-        box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
-
-    Returns:
-        Structure
-    """
-    box_lengths = [min_max[1] - min_max[0] for min_max in box_size]
-    # be defensive about the box size
-    if isinstance(input_structure, Molecule):
-        boxed_molecule = input_structure.get_boxed_structure(*box_lengths)
-    elif isinstance(input_structure, Structure):
-        max_length = max(input_structure.lattice.abc)
-        max_box_size = max(box_lengths)
-        boxed_molecule = Molecule.from_sites(input_structure.sites)
-        if max_length < max_box_size:
-            boxed_molecule = boxed_molecule.get_boxed_structure(*box_lengths)
-        else:
-            boxed_molecule = boxed_molecule.get_boxed_structure(
-                max_length, max_length, max_length)
-    else:
-        raise ValueError("molecule must be an object of Molecule or "
-                         "Structure ")
-    return boxed_molecule
