@@ -371,8 +371,7 @@ class LammpsForceFieldData(LammpsData):
             raise AttributeError
 
     @staticmethod
-    def get_atoms_data(mols, mols_number, molecule, atomic_masses_dict,
-                       topologies):
+    def get_atoms_data(mols, mols_number, molecule, atomic_masses_dict, topologies):
         """
         Return the atoms data.
 
@@ -401,8 +400,7 @@ class LammpsForceFieldData(LammpsData):
             for num_mol_id in range(mols_number[mol_type]):
                 tmp = []
                 for mol_atom_id in range(natoms):
-                    atom_id = num_mol_id * natoms + mol_atom_id + shift[
-                        mol_type]
+                    atom_id = num_mol_id * natoms + mol_atom_id + shift[mol_type]
                     atom_to_mol[atom_id] = [mol_type, mol_atom_id]
                     tmp.append(atom_id)
                 molid_to_atomid.append(tmp)
@@ -446,11 +444,9 @@ class LammpsForceFieldData(LammpsData):
         Returns:
             [ [parameter id, parameter type, global atom id1, global atom id2, ...], ... ]
         """
-        if hasattr(topologies[0], param_name) and getattr(topologies[0],
-                                                          param_name):
+        if hasattr(topologies[0], param_name) and getattr(topologies[0], param_name):
             nmols = len(mols)
-            shift = [0] + [len(mols[i]) * mols_number[i] for i in
-                           range(nmols - 1)]
+            shift = [0] + [len(mols[i]) * mols_number[i] for i in range(nmols - 1)]
             mol_id = 0
             # set the map param_to_mol:
             # {global param_id :[global mol id, mol_type, local param id in the param], ... }
@@ -461,10 +457,8 @@ class LammpsForceFieldData(LammpsData):
                 for num_mol_id in range(mols_number[mol_type]):
                     mol_id += 1
                     for mol_param_id in range(nparams):
-                        param_id = num_mol_id * nparams + mol_param_id + shift[
-                            mol_type]
-                        param_to_mol[param_id] = [mol_id - 1, mol_type,
-                                                  mol_param_id]
+                        param_id = num_mol_id * nparams + mol_param_id + shift[mol_type]
+                        param_to_mol[param_id] = [mol_id - 1, mol_type, mol_param_id]
             # set the parameter data using the topology info
             # example: loop over all bonds in the system
             param_data = []
@@ -484,7 +478,7 @@ class LammpsForceFieldData(LammpsData):
                 # example: single bond = [i,j,bond_label]
                 for atomid in param[:-1]:
                     # local atom id to global atom id
-                    global_atom_id = molid_to_atomid[mol_id][atomid - 1]
+                    global_atom_id = molid_to_atomid[mol_id][atomid]
                     param_atomids.append(global_atom_id + 1)
                 param_type = param[-1]
                 param_type_reversed = tuple(reversed(param_type))
@@ -497,8 +491,7 @@ class LammpsForceFieldData(LammpsData):
                     key = None
                 if key:
                     param_type_id = param_map[key]
-                    param_data.append([param_id + 1 - skip, param_type_id +
-                                       1] + param_atomids)
+                    param_data.append([param_id + 1 - skip, param_type_id + 1] + param_atomids)
                 else:
                     skip += 1
                     print("{} or {} Not available".format(param_type, param_type_reversed))
@@ -508,8 +501,7 @@ class LammpsForceFieldData(LammpsData):
 
     @staticmethod
     def from_forcefield_and_topology(mols, mols_number, box_size, molecule,
-                                     forcefield,
-                                     topologies):
+                                     forcefield, topologies):
         """
         Return LammpsForceFieldData object from force field and topology info.
 
