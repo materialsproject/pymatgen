@@ -87,6 +87,7 @@ class LammpsData(MSONable):
         new_com = [(side[1] + side[0]) / 2 for side in box_size]
         translate_by = np.array(new_com) - np.array(com)
         molecule.translate_sites(range(len(molecule)), translate_by)
+        return box_size
 
     def write_data_file(self, filename):
         """
@@ -190,7 +191,7 @@ class LammpsData(MSONable):
         """
         if isinstance(input_structure, Structure):
             input_structure = Molecule.from_sites(input_structure.sites)
-        LammpsData.check_box_size(input_structure, box_size)
+        box_size = LammpsData.check_box_size(input_structure, box_size)
         natoms, natom_types, atomic_masses_dict = \
             LammpsData.get_basic_system_info(input_structure.copy())
         atoms_data = LammpsData.get_atoms_data(input_structure,
@@ -556,7 +557,7 @@ class LammpsForceFieldData(LammpsData):
         improper_coeffs, imdihedral_map = LammpsForceFieldData.get_param_coeff(
             forcefield, "imdihedrals")
         # atoms data, topology used for setting charge if present
-        LammpsForceFieldData.check_box_size(molecule, box_size)
+        box_size = LammpsForceFieldData.check_box_size(molecule, box_size)
         natoms, natom_types, atomic_masses_dict = \
             LammpsData.get_basic_system_info(molecule.copy())
         atoms_data, molid_to_atomid = LammpsForceFieldData.get_atoms_data(
