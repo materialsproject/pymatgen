@@ -25,7 +25,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation, PartialRemoveSpecieTransformation, \
     SupercellTransformation
-from pymatgen.io.vasp.sets import MPVaspInputSet
+from pymatgen.io.vasp.sets import MPRelaxSet
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.matproj.snl import StructureNL
@@ -96,10 +96,13 @@ class TransformedStructureTest(unittest.TestCase):
         self.trans.append_filter(f3)
 
     def test_get_vasp_input(self):
-        vaspis = MPVaspInputSet()
+        if "VASP_PSP_DIR" not in os.environ:
+            os.environ["VASP_PSP_DIR"] = os.path.abspath(
+                os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                             "test_files"))
+        potcar = self.trans.get_vasp_input(MPRelaxSet)['POTCAR']
         self.assertEqual("Na_pv\nFe_pv\nP\nO",
-                         self.trans.get_vasp_input(vaspis,
-                                                   False)['POTCAR.spec'])
+                         "\n".join([p.symbol for p in potcar]))
         self.assertEqual(len(self.trans.structures), 2)
 
     def test_final_structure(self):
