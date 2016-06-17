@@ -2,8 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, unicode_literals, absolute_import
 
 """
 This module implements classes for generating/parsing Lammps data files.
@@ -29,8 +28,7 @@ class LammpsData(MSONable):
     Args:
         box_size (list): [[x_min, x_max], [y_min,y_max], [z_min,z_max]]
         atomic_masses (list): [[atom type, mass],...]
-        atoms_data (list):
-            [[atom id, mol id, atom type, charge, x, y, z ...], ... ]
+        atoms_data (list): [[atom id, mol id, atom type, charge, x, y, z ...], ... ]
     """
 
     def __init__(self, box_size, atomic_masses, atoms_data):
@@ -124,8 +122,8 @@ class LammpsData(MSONable):
                     atoms_data.append([i + 1, 1, atom_type, 0.0,
                                        site.x, site.y, site.z])
             else:
-                atoms_data.append(
-                    [i + 1, 1, atom_type, site.x, site.y, site.z])
+                atoms_data.append([i + 1, 1, atom_type,
+                                   site.x, site.y, site.z])
         return atoms_data
 
     @staticmethod
@@ -136,14 +134,14 @@ class LammpsData(MSONable):
 
         Args:
             lines (list)
-            block_name (string): name of the data block, e.g. 'Atoms',
-                'Bonds' etc
+            block_name (string): name of the data block,
+                e.g. 'Atoms', 'Bonds' etc
             input_list (list): list of values
         """
         if input_list:
             lines.append("\n" + block_name + " \n")
-            _ = [lines.append(" ".join([str(x) for x in ad])) for ad in
-                 input_list]
+            for ad in input_list:
+                lines.append(" ".join([str(x) for x in ad]))
 
     @staticmethod
     def from_structure(input_structure, box_size, set_charge=True):
@@ -446,6 +444,7 @@ class LammpsForceFieldData(LammpsData):
         Returns:
             [ [parameter id, parameter type, global atom id1, global atom id2, ...], ... ]
         """
+        param_data = []
         if hasattr(topologies[0], param_name) and getattr(topologies[0], param_name):
             nmols = len(mols)
             shift = [0] + [len(mols[i]) * mols_number[i] for i in range(nmols - 1)]
@@ -463,7 +462,6 @@ class LammpsForceFieldData(LammpsData):
                         param_to_mol[param_id] = [mol_id - 1, mol_type, mol_param_id]
             # set the parameter data using the topology info
             # example: loop over all bonds in the system
-            param_data = []
             skip = 0
             for param_id, pinfo in param_to_mol.items():
                 mol_id = pinfo[0]  # global molecule id
@@ -497,9 +495,7 @@ class LammpsForceFieldData(LammpsData):
                 else:
                     skip += 1
                     print("{} or {} Not available".format(param_type, param_type_reversed))
-            return param_data
-        else:
-            return []
+        return param_data
 
     @staticmethod
     def from_forcefield_and_topology(mols, mols_number, box_size, molecule,
@@ -526,8 +522,8 @@ class LammpsForceFieldData(LammpsData):
             forcefield, "bonds")
         angle_coeffs, angle_map = LammpsForceFieldData.get_param_coeff(
             forcefield, "angles")
-        pair_coeffs, _ = LammpsForceFieldData.get_param_coeff(forcefield,
-                                                              "pairs")
+        pair_coeffs, _ = LammpsForceFieldData.get_param_coeff(
+            forcefield, "pairs")
         dihedral_coeffs, dihedral_map = LammpsForceFieldData.get_param_coeff(
             forcefield, "dihedrals")
         improper_coeffs, imdihedral_map = LammpsForceFieldData.get_param_coeff(
@@ -536,32 +532,17 @@ class LammpsForceFieldData(LammpsData):
         molecule = get_boxed_molecule(molecule, box_size)
         natoms, natom_types, box_size, atomic_masses_dict = LammpsData.get_basic_system_info(
             molecule)
-        atoms_data, molid_to_atomid = LammpsForceFieldData.get_atoms_data(mols,
-                                                                          mols_number,
-                                                                          molecule,
-                                                                          atomic_masses_dict,
-                                                                          topologies)
+        atoms_data, molid_to_atomid = LammpsForceFieldData.get_atoms_data(
+            mols, mols_number, molecule, atomic_masses_dict, topologies)
         # set the other data from the molecular topologies
-        bonds_data = LammpsForceFieldData.get_param_data("bonds", bond_map,
-                                                         mols, mols_number,
-                                                         topologies,
-                                                         molid_to_atomid)
-        angles_data = LammpsForceFieldData.get_param_data("angles", angle_map,
-                                                          mols, mols_number,
-                                                          topologies,
-                                                          molid_to_atomid)
-        dihedrals_data = LammpsForceFieldData.get_param_data("dihedrals",
-                                                             dihedral_map,
-                                                             mols,
-                                                             mols_number,
-                                                             topologies,
-                                                             molid_to_atomid)
-        imdihedrals_data = LammpsForceFieldData.get_param_data("imdihedrals",
-                                                               imdihedral_map,
-                                                               mols,
-                                                               mols_number,
-                                                               topologies,
-                                                               molid_to_atomid)
+        bonds_data = LammpsForceFieldData.get_param_data(
+            "bonds", bond_map, mols, mols_number, topologies, molid_to_atomid)
+        angles_data = LammpsForceFieldData.get_param_data(
+            "angles", angle_map, mols, mols_number, topologies, molid_to_atomid)
+        dihedrals_data = LammpsForceFieldData.get_param_data(
+            "dihedrals", dihedral_map, mols, mols_number, topologies, molid_to_atomid)
+        imdihedrals_data = LammpsForceFieldData.get_param_data(
+            "imdihedrals", imdihedral_map, mols, mols_number, topologies, molid_to_atomid)
         return LammpsForceFieldData(box_size, atomic_masses_dict.values(),
                                     pair_coeffs, bond_coeffs,
                                     angle_coeffs, dihedral_coeffs,
@@ -572,7 +553,11 @@ class LammpsForceFieldData(LammpsData):
     @staticmethod
     def from_file(data_file):
         """
-        Return LammpsForceFieldData object from the data file
+        Return LammpsForceFieldData object from the data file. It is assumed
+        that the forcefield paramter sections for pairs, bonds, angles,
+        dihedrals and improper dihedrals are named as follows(not case sensitive):
+        "Pair Coeffs", "Bond Coeffs", "Angle Coeffs", "Dihedral Coeffs" and
+        "Improper Coeffs"
 
         Args:
             data_file (string): the data file name
@@ -636,60 +621,51 @@ class LammpsForceFieldData(LammpsData):
                 if box_pattern.search(line):
                     m = box_pattern.search(line)
                     box_size.append([float(m.group(1)), float(m.group(2))])
-                if "Pair Coeffs" in line:
+                if "Pair Coeffs".lower() in line.lower():
                     read_pair_coeffs = True
                     continue
                 if read_pair_coeffs:
                     m = general_coeff_pattern.search(line)
                     if m:
-                        pair_coeffs.append([int(m.group(1)), float(m.group(2)),
-                                            float(m.group(3))])
+                        pair_coeffs.append(
+                            [int(m.group(1)), float(m.group(2)), float(m.group(3))])
                         read_pair_coeffs = False if len(
                             pair_coeffs) >= natom_types else True
-                if "Bond Coeffs" in line:
+                if "Bond Coeffs".lower() in line.lower():
                     read_bond_coeffs = True
                     continue
                 if read_bond_coeffs:
                     m = general_coeff_pattern.search(line)
                     if m:
-                        bond_coeffs.append([int(m.group(1)), float(m.group(2)),
-                                            float(m.group(3))])
-                        read_bond_coeffs = False if len(
-                            bond_coeffs) >= nbond_types else True
-                if "Angle Coeffs" in line:
+                        bond_coeffs.append(
+                            [int(m.group(1)), float(m.group(2)), float(m.group(3))])
+                        read_bond_coeffs = False if len(bond_coeffs) >= nbond_types else True
+                if "Angle Coeffs".lower() in line.lower():
                     read_angle_coeffs = True
                     continue
                 if read_angle_coeffs:
                     m = general_coeff_pattern.search(line)
                     if m:
                         angle_coeffs.append(
-                            [int(m.group(1)), float(m.group(2)),
-                             float(m.group(3))])
-                        read_angle_coeffs = False if len(
-                            angle_coeffs) >= nangle_types else True
-                if "Dihedral Coeffs" in line:
+                            [int(m.group(1)), float(m.group(2)), float(m.group(3))])
+                        read_angle_coeffs = False if len(angle_coeffs) >= nangle_types else True
+                if "Dihedral Coeffs".lower() in line.lower():
                     read_dihedral_coeffs = True
                     continue
                 if read_dihedral_coeffs:
                     m = general_coeff_pattern.search(line)
                     if m:
-                        dihedral_coeffs.append(
-                            [int(m.group(1))] + [float(i) for i in
-                                                 m.groups()[1:]])
-                        read_dihedral_coeffs = False if len(
-                            dihedral_coeffs) >= ndihedral_types \
-                            else True
-                if "Improper Coeffs" in line:
+                        dihedral_coeffs.append([int(m.group(1))] + [float(i) for i in m.groups()[1:]])
+                        read_dihedral_coeffs = False if len(dihedral_coeffs) >= ndihedral_types else True
+                if "Improper Coeffs".lower() in line.lower():
                     read_improper_coeffs = True
                     continue
                 if read_improper_coeffs:
                     m = general_coeff_pattern.search(line)
                     if m:
                         improper_coeffs.append(
-                            [int(m.group(1))] + [float(i) for i in
-                                                 m.groups()[1:]])
-                        read_improper_coeffs = False if len(
-                            improper_coeffs) > nimproper_types else True
+                            [int(m.group(1))] + [float(i) for i in m.groups()[1:]])
+                        read_improper_coeffs = False if len(improper_coeffs) > nimproper_types else True
                 if atoms_pattern.search(line):
                     m = atoms_pattern.search(line)
                     # atom id, mol id, atom type
@@ -733,12 +709,10 @@ def get_boxed_molecule(input_structure, box_size):
         max_box_size = max(box_lengths)
         boxed_molecule = Molecule.from_sites(input_structure.sites)
         if max_length < max_box_size:
-            boxed_molecule = \
-                boxed_molecule.get_boxed_structure(*box_lengths)
+            boxed_molecule = boxed_molecule.get_boxed_structure(*box_lengths)
         else:
-            boxed_molecule = \
-                boxed_molecule.get_boxed_structure(max_length,
-                                                   max_length, max_length)
+            boxed_molecule = boxed_molecule.get_boxed_structure(
+                max_length, max_length, max_length)
     else:
         raise ValueError("molecule must be an object of Molecule or "
                          "Structure ")
