@@ -519,9 +519,9 @@ class Lattice(MSONable):
                                                   max(lengths) * (1 + ltol),
                                                   zip_results=False)
         cart = self.get_cartesian_coords(frac)
-
         # this can't be broadcast because they're different lengths
-        inds = [np.abs(dist - l) / l <= ltol for l in lengths]
+        inds = [np.logical_and(dist / l < 1 + ltol,
+                               dist / l > 1 / (1 + ltol)) for l in lengths]
         c_a, c_b, c_c = (cart[i] for i in inds)
         f_a, f_b, f_c = (frac[i] for i in inds)
         l_a, l_b, l_c = (np.sum(c ** 2, axis=-1) ** 0.5 for c in (c_a, c_b, c_c))
