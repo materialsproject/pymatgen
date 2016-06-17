@@ -360,13 +360,15 @@ class LammpsForceFieldData(LammpsData):
         """
         if hasattr(forcefield, param_name):
             param = getattr(forcefield, param_name)
+            param_coeffs = []
+            param_map = {}
             if param:
-                param_coeffs = [[i + 1] + list(v) for i, v in
-                                enumerate(param.values())]
-                param_map = dict([(k, i) for i, k in enumerate(param.keys())])
-                return param_coeffs, param_map
-            else:
-                return [], {}
+                for i, item in enumerate(param.items()):
+                    param_coeffs.append([i + 1] + list(item[1]))
+                    param_map[item[0]] = i+1
+                param_coeffs = [[i + 1] + list(v) for i, v in enumerate(param.values())]
+                param_map = dict([(k, i+1) for i, k in enumerate(param.keys())])
+            return param_coeffs, param_map
         else:
             raise AttributeError
 
@@ -491,7 +493,7 @@ class LammpsForceFieldData(LammpsData):
                     key = None
                 if key:
                     param_type_id = param_map[key]
-                    param_data.append([param_id + 1 - skip, param_type_id + 1] + param_atomids)
+                    param_data.append([param_id + 1 - skip, param_type_id] + param_atomids)
                 else:
                     skip += 1
                     print("{} or {} Not available".format(param_type, param_type_reversed))

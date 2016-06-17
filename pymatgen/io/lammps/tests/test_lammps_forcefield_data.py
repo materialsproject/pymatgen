@@ -36,8 +36,8 @@ class TestLammpsForceFieldData(unittest.TestCase):
         h2o = Molecule(["H", "H", "O"], h2o_coords)
         # h2o, h-o, h-o, h=1, h=2, o=3
         top_atoms = [['h', 'hw'], ['o', 'ow']]
-        top_bonds = [[1, 3, ('hw', 'ow')], [2, 3, ('hw', 'ow')]]
-        top_angles = [[1, 3, 2, ('hw', 'ow', 'hw')]]
+        top_bonds = [[0, 2, ('hw', 'ow')], [1, 2, ('hw', 'ow')]]
+        top_angles = [[0, 2, 1, ('hw', 'ow', 'hw')]]
         topology = Topology(top_atoms, top_bonds, top_angles)
         mols = [h2o]
         mols_number = [1]
@@ -45,10 +45,7 @@ class TestLammpsForceFieldData(unittest.TestCase):
         molecule = h2o
         topologies = [topology]
         cls.lammps_ff_data = LammpsForceFieldData.from_forcefield_and_topology(
-            mols, mols_number,
-            box_size, molecule,
-            forcefield,
-            topologies)
+            mols, mols_number, box_size, molecule, forcefield, topologies)
 
     def test_system_info(self):
         atomic_masses = [[1, 1.00794], [2, 15.9994]]
