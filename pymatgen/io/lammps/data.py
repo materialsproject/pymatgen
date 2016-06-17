@@ -78,9 +78,9 @@ class LammpsData(MSONable):
         box_lengths_req = [x_max - x_min,  y_max - y_min, z_max - z_min]
         box_lengths = [min_max[1] - min_max[0] for min_max in box_size]
         try:
-            np.testing.assert_almost_equal(box_lengths, box_lengths_req)
+            np.testing.assert_array_less(box_lengths_req, box_lengths)
         except AssertionError:
-            print("Required box length {} larger than the provided box lengths{}. "
+            print("Required box lengths {} larger than the provided box lengths{}. "
                   "Resetting the box size".format(box_lengths_req, box_lengths))
             box_size = [[0.0, i*1.1] for i in box_lengths_req]
         com = molecule.center_of_mass
@@ -421,18 +421,19 @@ class LammpsForceFieldData(LammpsData):
         molid_to_atomid = []
         atoms_data = []
         nmols = len(mols)
-        shift = [0] + [len(mols[i]) * mols_number[i] for i in range(nmols - 1)]
         # set up map atom_id --> [mol_type, local atom id in the mol] in mols
         # set up map gobal molecule id --> [[atom_id,...],...]
+        shift_ = 0
         for mol_type in range(nmols):
             natoms = len(mols[mol_type])
             for num_mol_id in range(mols_number[mol_type]):
                 tmp = []
                 for mol_atom_id in range(natoms):
-                    atom_id = num_mol_id * natoms + mol_atom_id + shift[mol_type]
+                    atom_id = num_mol_id * natoms + mol_atom_id + shift_
                     atom_to_mol[atom_id] = [mol_type, mol_atom_id]
                     tmp.append(atom_id)
                 molid_to_atomid.append(tmp)
+            shift_ += len(mols[mol_type]) * mols_number[mol_type]
         # set atoms data from the molecule assembly consisting of
         # molecules from mols list with their count from mol_number list.
         # atom id, mol id, atom type, charge from topology, x, y, z
@@ -475,19 +476,20 @@ class LammpsForceFieldData(LammpsData):
         param_data = []
         if hasattr(topologies[0], param_name) and getattr(topologies[0], param_name):
             nmols = len(mols)
-            shift = [0] + [len(mols[i]) * mols_number[i] for i in range(nmols - 1)]
             mol_id = 0
             # set the map param_to_mol:
             # {global param_id :[global mol id, mol_type, local param id in the param], ... }
             param_to_mol = {}
+            shift_ = 0
             for mol_type in range(nmols):
                 param_obj = getattr(topologies[mol_type], param_name)
                 nparams = len(param_obj)
                 for num_mol_id in range(mols_number[mol_type]):
                     mol_id += 1
                     for mol_param_id in range(nparams):
-                        param_id = num_mol_id * nparams + mol_param_id + shift[mol_type]
+                        param_id = num_mol_id * nparams + mol_param_id + shift_
                         param_to_mol[param_id] = [mol_id - 1, mol_type, mol_param_id]
+                shift_ += nparams * mols_number[mol_type]
             # set the parameter data using the topology info
             # example: loop over all bonds in the system
             skip = 0
