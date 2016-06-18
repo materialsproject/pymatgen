@@ -268,6 +268,15 @@ class LatticeTestCase(PymatgenTest):
         for l, _, _ in latt.find_all_mappings(latt, ltol=0.05, atol=11):
             self.assertTrue(isinstance(l, Lattice))
 
+    def test_mapping_symmetry(self):
+        l = Lattice.cubic(1)
+        l2 = Lattice.orthorhombic(1.1001, 1, 1)
+        self.assertEqual(l.find_mapping(l2, ltol=0.1), None)
+        self.assertEqual(l2.find_mapping(l, ltol=0.1), None)
+        l2 = Lattice.orthorhombic(1.0999, 1, 1)
+        self.assertNotEqual(l2.find_mapping(l, ltol=0.1), None)
+        self.assertNotEqual(l.find_mapping(l2, ltol=0.1), None)
+
     def test_to_from_dict(self):
         d = self.tetragonal.as_dict()
         t = Lattice.from_dict(d)
