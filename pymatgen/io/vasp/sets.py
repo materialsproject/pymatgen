@@ -1190,7 +1190,7 @@ class MITNEBSet(MITRelaxSet):
                 os.makedirs(d)
             p.write_file(os.path.join(d, 'POSCAR'))
             if write_cif:
-                p.to(filename=os.path.join(d, '{}.cif'.format(i)))
+                p.structure.to(filename=os.path.join(d, '{}.cif'.format(i)))
         if write_endpoint_inputs:
             end_point_param = MITRelaxSet(
                 self.structures[0],
