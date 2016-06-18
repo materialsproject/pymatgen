@@ -69,20 +69,15 @@ class LammpsData(MSONable):
             molecule(Molecule)
             box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
         """
-        x_min, y_min, z_min = np.min(molecule.cart_coords[:, 0]), \
-                              np.min(molecule.cart_coords[:, 1]), \
-                              np.min(molecule.cart_coords[:, 2])
-        x_max, y_max, z_max = np.max(molecule.cart_coords[:, 0]), \
-                              np.max(molecule.cart_coords[:, 1]), \
-                              np.max(molecule.cart_coords[:, 2])
-        box_lengths_req = [x_max - x_min,  y_max - y_min, z_max - z_min]
+        box_lengths_req = [np.max(molecule.cart_coords[:, i])-np.min(molecule.cart_coords[:, i])
+                           for i in range(3)]
         box_lengths = [min_max[1] - min_max[0] for min_max in box_size]
         try:
             np.testing.assert_array_less(box_lengths_req, box_lengths)
         except AssertionError:
             print("Required box lengths {} larger than the provided box lengths{}. "
                   "Resetting the box size".format(box_lengths_req, box_lengths))
-            box_size = [[0.0, i*1.1] for i in box_lengths_req]
+            box_size = [[0.0, np.ceil(i*1.1)] for i in box_lengths_req]
         com = molecule.center_of_mass
         new_com = [(side[1] + side[0]) / 2 for side in box_size]
         translate_by = np.array(new_com) - np.array(com)
