@@ -11,6 +11,7 @@ This module implements classes for generating/parsing Lammps data files.
 from six.moves import range
 from io import open
 import re
+from math import factorial
 from collections import OrderedDict
 
 import numpy as np
@@ -75,9 +76,10 @@ class LammpsData(MSONable):
         try:
             np.testing.assert_array_less(box_lengths_req, box_lengths)
         except AssertionError:
-            print("Required box lengths {} larger than the provided box lengths{}. "
-                  "Resetting the box size".format(box_lengths_req, box_lengths))
             box_size = [[0.0, np.ceil(i*1.1)] for i in box_lengths_req]
+            print("Minimum required box lengths {} larger than the provided box lengths{}. "
+                  "Resetting the box size to {}".format(
+                box_lengths_req, box_lengths, box_size))
         com = molecule.center_of_mass
         new_com = [(side[1] + side[0]) / 2 for side in box_size]
         translate_by = np.array(new_com) - np.array(com)
@@ -388,8 +390,6 @@ class LammpsForceFieldData(LammpsData):
                 for i, item in enumerate(param.items()):
                     param_coeffs.append([i + 1] + list(item[1]))
                     param_map[item[0]] = i+1
-                param_coeffs = [[i + 1] + list(v) for i, v in enumerate(param.values())]
-                param_map = dict([(k, i+1) for i, k in enumerate(param.keys())])
             return param_coeffs, param_map
         else:
             raise AttributeError
@@ -582,7 +582,8 @@ class LammpsForceFieldData(LammpsData):
         that the forcefield paramter sections for pairs, bonds, angles,
         dihedrals and improper dihedrals are named as follows(not case sensitive):
         "Pair Coeffs", "Bond Coeffs", "Angle Coeffs", "Dihedral Coeffs" and
-        "Improper Coeffs"
+        "Improper Coeffs". For "Pair Coeffs", values for factorial(n_atom_types)
+        pairs must be specified.
 
         Args:
             data_file (string): the data file name
@@ -611,8 +612,7 @@ class LammpsForceFieldData(LammpsData):
         box_pattern = re.compile(
             "^\s*([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+[xyz]lo\s+[xyz]hi")
         # id, value1, value2
-        general_coeff_pattern = re.compile(
-            "^\s*(\d+)\s+([0-9\.]+)\s+([0-9\.]+)$")
+        general_coeff_pattern = re.compile("^\s*(\d+)\s+([0-9\.]+)\s+([0-9\.]+)$")
         # id, type, atom_id1, atom_id2
         bond_data_pattern = re.compile("^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$")
         # id, type, atom_id1, atom_id2, atom_id3
@@ -632,6 +632,7 @@ class LammpsForceFieldData(LammpsData):
                     m = types_pattern.search(line)
                     if m.group(2) == "atom":
                         natom_types = int(m.group(1))
+                        npair_types = factorial(natom_types)
                     if m.group(2) == "bond":
                         nbond_types = int(m.group(1))
                     if m.group(2) == "angle":
@@ -650,12 +651,10 @@ class LammpsForceFieldData(LammpsData):
                     read_pair_coeffs = True
                     continue
                 if read_pair_coeffs:
-                    m = general_coeff_pattern.search(line)
-                    if m:
-                        pair_coeffs.append(
-                            [int(m.group(1)), float(m.group(2)), float(m.group(3))])
-                        read_pair_coeffs = False if len(
-                            pair_coeffs) >= natom_types else True
+                    tokens = line.split()
+                    if tokens:
+                        pair_coeffs.append([int(tokens[0])] + [float(i) for i in tokens[1:]])
+                        read_pair_coeffs = False if len(pair_coeffs) >= npair_types else True
                 if "Bond Coeffs".lower() in line.lower():
                     read_bond_coeffs = True
                     continue
@@ -678,19 +677,20 @@ class LammpsForceFieldData(LammpsData):
                     read_dihedral_coeffs = True
                     continue
                 if read_dihedral_coeffs:
-                    m = general_coeff_pattern.search(line)
-                    if m:
-                        dihedral_coeffs.append([int(m.group(1))] + [float(i) for i in m.groups()[1:]])
+                    tokens = line.split()
+                    if tokens:
+                        dihedral_coeffs.append(
+                            [int(tokens[0])] + [float(i) for i in tokens[1:]])
                         read_dihedral_coeffs = False if len(dihedral_coeffs) >= ndihedral_types else True
                 if "Improper Coeffs".lower() in line.lower():
                     read_improper_coeffs = True
                     continue
                 if read_improper_coeffs:
-                    m = general_coeff_pattern.search(line)
-                    if m:
+                    tokens = line.split()
+                    if tokens:
                         improper_coeffs.append(
-                            [int(m.group(1))] + [float(i) for i in m.groups()[1:]])
-                        read_improper_coeffs = False if len(improper_coeffs) > nimproper_types else True
+                            [int(tokens[0])] + [float(i) for i in tokens[1:]])
+                        read_improper_coeffs = False if len(improper_coeffs) >= nimproper_types else True
                 if atoms_pattern.search(line):
                     m = atoms_pattern.search(line)
                     # atom id, mol id, atom type
@@ -698,13 +698,13 @@ class LammpsForceFieldData(LammpsData):
                     # charge, x, y, z, vx, vy, vz ...
                     line_data.extend([float(i) for i in m.groups()[3:]])
                     atoms_data.append(line_data)
-                if bond_data_pattern.search(line):
+                if bond_data_pattern.search(line) and atoms_data:
                     m = bond_data_pattern.search(line)
                     bonds_data.append([int(i) for i in m.groups()])
-                if angle_data_pattern.search(line):
+                if angle_data_pattern.search(line) and atoms_data:
                     m = angle_data_pattern.search(line)
                     angles_data.append([int(i) for i in m.groups()])
-                if dihedral_data_pattern.search(line):
+                if dihedral_data_pattern.search(line) and atoms_data:
                     m = dihedral_data_pattern.search(line)
                     dihedral_data.append([int(i) for i in m.groups()])
         return LammpsForceFieldData(box_size, atomic_masses, pair_coeffs,
