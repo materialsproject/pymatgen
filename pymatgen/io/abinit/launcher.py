@@ -600,8 +600,7 @@ class PyFlowScheduler(object):
         # Many sections of this code should be rewritten.
         #if self.max_ncores_used is not None and flow.ncores_used > self.max_ncores_used:
         if self.max_ncores_used is not None and flow.ncores_allocated > self.max_ncores_used:
-            print("Cannot exceed max_ncores_used %s" % self.max_ncores_used)
-            logger.info("Cannot exceed max_ncores_used %s" % self.max_ncores_used)
+            print("Cannot exceed max_ncores_use:d %s" % self.max_ncores_used)
             return
 
         # Try to restart the unconverged tasks

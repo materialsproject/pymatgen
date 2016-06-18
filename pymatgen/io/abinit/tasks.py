@@ -1870,22 +1870,27 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             return self.set_status(self.S_ABICRITICAL, msg="Found ABINIT abort file")
 
         # Analyze the stderr file for Fortran runtime errors.
+        # getsize is 0 if the file is empty or it does not exist.
         err_msg = None
-        if self.stderr_file.exists:
+        if self.stderr_file.getsize() != 0:
+        #if self.stderr_file.exists:
             err_msg = self.stderr_file.read()
 
         # Analyze the stderr file of the resource manager runtime errors.
         # TODO: Why are we looking for errors in queue.qerr?
         qerr_info = None
-        if self.qerr_file.exists:
+        if self.qerr_file.getsize() != 0:
+        #if self.qerr_file.exists:
             qerr_info = self.qerr_file.read()
 
         # Analyze the stdout file of the resource manager (needed for PBS !)
         qout_info = None
-        if self.qout_file.exists:
+        if self.qout_file.getsize():
+        #if self.qout_file.exists:
             qout_info = self.qout_file.read()
 
         # Start to check ABINIT status if the output file has been created.
+        #if self.output_file.getsize() != 0:
         if self.output_file.exists:
             try:
                 report = self.get_event_report()
@@ -3799,6 +3804,7 @@ class BseTask(ManyBodyTask):
             results.register_gridfs_files(MDF=mdf.filepath)
 
         return results
+
 
 class OpticTask(Task):
     """

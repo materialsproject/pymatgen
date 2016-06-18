@@ -97,16 +97,15 @@ class AbinitEvent(yaml.YAMLObject):
         """
         #print("src_file", src_file, "src_line", src_line)
         self.message = message
-
-        #self._src_file = src_file
-        #self._src_line = src_line
         self.src_file = src_file
         self.src_line = src_line
 
-
     @pmg_serialize
     def as_dict(self):
-        return dict(message=self.message, src_file=self.src_file, src_line=self.src_line, yaml_tag=self.yaml_tag)
+        # This is needed because the events printed in the main output file do not define scr_file and src_line
+        src_file = getattr(self, "src_file", "Unknown")
+        src_line = getattr(self, "src_line", 0)
+        return dict(message=self.message, src_file=src_file, src_line=src_line, yaml_tag=self.yaml_tag)
 
     @classmethod
     def from_dict(cls, d):
@@ -115,7 +114,11 @@ class AbinitEvent(yaml.YAMLObject):
 
     @property
     def header(self):
-        return "<%s at %s:%s>" % (self.name, self.src_file, self.src_line)
+        try:
+            return "<%s at %s:%s>" % (self.name, self.src_file, self.src_line)
+        except AttributeError:
+            # This is needed because the events printed in the main output file do not define scr_file and src_line
+            return "<%s at %s:%s>" % (self.name, "Unknown", 0)
 
     def __repr__(self):
         return self.header
@@ -129,22 +132,6 @@ class AbinitEvent(yaml.YAMLObject):
 
     def __ne__(self, other):
         return not self.__eq__(other)
-
-    #@property
-    #def src_file(self):
-    #    """String with the name of the Fortran file where the event is raised."""
-    #    try:
-    #        return self._src_file
-    #    except AttributeError:
-    #        return "Unknown"
-
-    #@property
-    #def src_line(self):
-    #    """Integer giving the line number in src_file."""
-    #    try:
-    #        return self._src_line
-    #    except AttributeError:
-    #        return "Unknown"
 
     @property
     def name(self):
