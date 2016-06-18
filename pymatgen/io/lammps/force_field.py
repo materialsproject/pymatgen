@@ -2,8 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, unicode_literals, absolute_import
 
 """
 This module defines classes that set the force field parameters for the bonds,
@@ -26,19 +25,16 @@ class ForceField(MSONable):
 
     Args:
         atoms (Dict): store atomic mass for each atom name.
-            { "atom name": atom mass, ... }
-        bonds (Dict): store the bond distance (A) and spring constant (
-            Kcal/molA2) for each bond.
+            { "custom atom name": atom name, ... }
+        bonds (Dict): store the bond distance and spring constant for each bond.
             { ("atom name1", "atom name2"): [spring const, distance], ... }
-        angles (Dict): store the bond angle and spring constant
-            (Kcal/mol*radian2).
+        angles (Dict): store the bond angle and spring constant.
             { ("atom name1", "atom name2", "atom name3"): [spring const, angle], ... }
-        dihedrals (Dict): store the magnitude of torsion (Kcal/mol).
-            { ("atom name1", "atom name2", "atom name3", "atom name4"): [
-            function type, value, angle], ... }
-        imdihedrals (Dict): store improper dihedral information.
-            similar to dihedrals but the gaff atom name1 and gaff atom name2
-            are marked 'X'
+        dihedrals (Dict): store dihedral paramters.
+            { ("atom name1", "atom name2", "atom name3", "atom name4"):
+            [val1, val2, ...], ... }
+        imdihedrals (Dict): store improper dihedral information. Similar to
+            dihedrals.
         pairs (Dict): store pair coefficient info.
             { ("atom name1", "atom name2"): [val1, val2, ..], ... }
     """
