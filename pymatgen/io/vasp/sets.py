@@ -207,7 +207,6 @@ class DictSet(VaspInputSet):
 
     Args:
         structure (Structure): The Structure to create inputs for.
-        name (str): A name fo the input set.
         config_dict (dict): The config dictionary to use.
         files_to_transfer (dict): A dictionary of {filename: filepath}. This
             allows the transfer of files from a previous calculation.
@@ -291,7 +290,7 @@ class DictSet(VaspInputSet):
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
                     elif most_electroneg in v.keys():
                         incar[k] = [v[most_electroneg].get(sym, 0)
-                                      for sym in poscar.site_symbols]
+                                    for sym in poscar.site_symbols]
                     else:
                         incar[k] = [0] * len(poscar.site_symbols)
             elif k.startswith("EDIFF") and k != "EDIFFG":
@@ -374,8 +373,8 @@ class DictSet(VaspInputSet):
             raise ValueError(
                 "Invalid KPoint Generation algo : Supported Keys are "
                 "grid_density: for Kpoints.automatic_density generation, "
-                "reciprocal_density: for KPoints.automatic_density_by_vol generation, "
-                "and length  : for Kpoints.automatic generation")
+                "reciprocal_density: for KPoints.automatic_density_by_vol "
+                "generation, and length  : for Kpoints.automatic generation")
 
     def __str__(self):
         return self.__class__.__name__
@@ -547,8 +546,9 @@ class MPStaticSet(MPRelaxSet):
                     convention (vs Curtarolo) for monoclinic. Defaults True.
             reciprocal_density (int): density of k-mesh by reciprocal
                                     volume (defaults to 100)
-            small_gap_multiply ([float, float]) - if the gap is less than 1st index,
-                                multiply the default reciprocal_density by the 2nd index
+            small_gap_multiply ([float, float]): If the gap is less than
+                1st index, multiply the default reciprocal_density by the 2nd
+                index.
             \*\*kwargs: All kwargs supported by MPStaticSet,
                 other than prev_incar and prev_structure and prev_kpoints which
                 are determined from the prev_calc_dir.
@@ -614,7 +614,7 @@ class MPHSEBSSet(MPHSERelaxSet):
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
         self.reciprocal_density = reciprocal_density or \
-                                  self.kpoints_settings['reciprocal_density']
+            self.kpoints_settings['reciprocal_density']
         self.kpoints_line_density = kpoints_line_density
 
     @property
@@ -862,7 +862,7 @@ class MPNonSCFSet(MPRelaxSet):
             if gap <= small_gap_multiply[0]:
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
                 kpoints_line_density = kpoints_line_density * \
-                                       small_gap_multiply[1]
+                    small_gap_multiply[1]
 
         return MPNonSCFSet(structure=structure, prev_incar=incar,
                            reciprocal_density=reciprocal_density,
@@ -1040,8 +1040,8 @@ class MVLSlabSet(MPRelaxSet):
     @property
     def kpoints(self):
         """
-        k_product, default to 50, is kpoint number * length for a & b directions,
-            also for c direction in bulk calculations
+        k_product, default to 50, is kpoint number * length for a & b
+            directions, also for c direction in bulk calculations
         Automatic mesh & Gamma is the default setting.
         """
 
@@ -1091,20 +1091,19 @@ class MVLSlabSet(MPRelaxSet):
             if "NPAR" in incar:
                 del incar["NPAR"]
 
-
         # To get input sets, the input structure has to has the same number
         # of required parameters as a Structure object (ie. 4). Slab
         # attributes aren't going to affect the VASP inputs anyways so
         # converting the slab into a structure should not matter
 
         abc = self.structure.lattice.abc
-        kpt_calc = [int(self.k_product/abc[0]+0.5),
-                    int(self.k_product/abc[1]+0.5),
-                    int(self.k_product/abc[1]+0.5)]
+        kpt_calc = [int(self.k_product / abc[0] + 0.5),
+                    int(self.k_product / abc[1] + 0.5),
+                    int(self.k_product / abc[1] + 0.5)]
 
         kpts = kpt_calc
 
-        if kpts[0]<5 and kpts[1]<5:
+        if kpts[0] < 5 and kpts[1] < 5:
             if (not self.bulk) or kpts[2] < 5:
                 incar["ISMEAR"] = 0
 
@@ -1176,6 +1175,9 @@ class MITNEBSet(MITRelaxSet):
                 directory (and the whole path) to be created if it is not
                 present.
             write_cif (bool): If true, writes a cif along with each POSCAR.
+            write_path_cif (bool): If true, writes a cif for each image.
+            write_endpoint_inputs (bool): If true, writes input files for
+                running endpoint calculations.
         """
 
         if make_dir_if_not_present and not os.path.exists(output_dir):
@@ -1224,8 +1226,7 @@ class MITMDSet(MITRelaxSet):
             The ISPIN parameter. Defaults to False.
         sort_structure (bool): Whether to sort structure. Defaults to False
             (different behavior from standard input sets).
-        **kwargs:
-            Other kwargs supported by :class:`DictVaspInputSet`.
+        \*\*kwargs: Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2,
@@ -1286,14 +1287,14 @@ def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
     Process structure from previous run.
 
     Args:
-        vasp_run (Vasprun): Vasprun that contains the final structure
+        vasprun (Vasprun): Vasprun that contains the final structure
             from previous run.
         outcar (Outcar): Outcar that contains the magnetization info from
             previous run.
         sym_prec (float): Tolerance for symmetry finding for standardization. If
             no standardization is desired, set to 0 or a False.
         international_monoclinic (bool): Whether to use international
-                    convention (vs Curtarolo) for monoclinic. Defaults True.
+            convention (vs Curtarolo) for monoclinic. Defaults True.
 
     Returns:
         Returns the magmom-decorated structure that can be passed to get
@@ -1386,7 +1387,5 @@ def batch_write_input(structures, vasp_input_set=MPRelaxSet, output_dir=".",
         if sanitize:
             s = s.copy(sanitize=True)
         v = vasp_input_set(s, **kwargs)
-        v.write_input(
-            dirname, make_dir_if_not_present=make_dir_if_not_present,
-            include_cif=include_cif
-        )
+        v.write_input(dirname, make_dir_if_not_present=make_dir_if_not_present,
+                      include_cif=include_cif)
