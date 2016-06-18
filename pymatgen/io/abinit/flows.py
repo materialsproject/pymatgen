@@ -1590,6 +1590,7 @@ class Flow(Node, NodeContainer, MSONable):
         for i, e in enumerate(errors):
             errlines.append("[%d] %s" % (i, e))
         raise ValueError("\n".join(errlines))
+        return self.pickle_dump()
 
     @check_spectator
     def pickle_dump(self):
@@ -1771,7 +1772,9 @@ class Flow(Node, NodeContainer, MSONable):
         convergence is achieved.
         """
         if not self.allocated:
-            raise RuntimeError("You must call flow.allocate before invoking flow.use_smartio")
+            self.allocate()
+            #raise RuntimeError("You must call flow.allocate before invoking flow.use_smartio")
+            return
 
         for task in self.iflat_tasks():
             children = task.get_children()

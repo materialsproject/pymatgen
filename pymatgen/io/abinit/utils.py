@@ -146,6 +146,14 @@ class File(object):
         """Results from os.stat"""
         return os.stat(self.path)
 
+    def getsize(self):
+        """
+        Return the size, in bytes, of path.
+        Return 0 if the file is empty or it does not exist.
+        """
+        if not self.exists: return 0
+        return os.path.getsize(self.path)
+
 
 class Directory(object):
     """
