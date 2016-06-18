@@ -171,13 +171,12 @@ class LammpsData(MSONable):
     def from_structure(input_structure, box_size, set_charge=True):
         """
         Set LammpsData from the given structure. If the input structure is
-        a Molecule, the box_size will be used to created a boxed molecule
-        else the sites within the structure will be set in a box with
-        dimension set from either box_size or the lattice of the structure,
-        whichever is bigger.
+        a Structure, it is converted to a molecule. TIf the molecule doesnt fit
+        in the input box, the box size is updated based on the max and min site
+        coordinates of the molecules.
 
         Args:
-            input_structure (Structure)
+            input_structure (Molecule/Structure)
             box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
             set_charge (bool): whether or not to set the charge field in
             Atoms. If true, the charge will be non-zero only if the

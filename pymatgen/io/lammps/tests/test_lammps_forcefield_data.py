@@ -88,8 +88,10 @@ class TestLammpsForceFieldData(unittest.TestCase):
                                   for mol_number in self.mols_number]))
 
     def test_to_and_from_file(self):
-        self.lammps_ff_data_1.write_data_file("lammps_ff_data.dat")
-        lammps_ff_data_2 = LammpsForceFieldData.from_file("lammps_ff_data.dat")
+        self.lammps_ff_data_1.write_data_file(
+            os.path.join(test_dir,"lammps_ff_data.dat"))
+        lammps_ff_data_2 = LammpsForceFieldData.from_file(
+            os.path.join(test_dir,"lammps_ff_data.dat"))
         np.testing.assert_almost_equal(self.lammps_ff_data_1.bond_coeffs,
                          lammps_ff_data_2.bond_coeffs)
         np.testing.assert_almost_equal(self.lammps_ff_data_1.pair_coeffs,
