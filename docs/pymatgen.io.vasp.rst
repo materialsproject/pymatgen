@@ -42,6 +42,14 @@ pymatgen.io.vasp.sets module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.io.vasp.sets_deprecated module
+---------------------------------------
+
+.. automodule:: pymatgen.io.vasp.sets_deprecated
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

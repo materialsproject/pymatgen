@@ -224,7 +224,6 @@ class MITMPRelaxSetTest(unittest.TestCase):
     def test_write_input(self):
         with ScratchDir(".") as d:
             self.mitset.write_input(d, make_dir_if_not_present=True)
-            print(self.mitset.structure.formula)
             for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
                 self.assertTrue(os.path.exists(f))
             self.assertFalse(os.path.exists("Fe4P4O16.cif"))
@@ -406,7 +405,9 @@ class MITNEBSetTest(unittest.TestCase):
 
     def test_write_input(self):
         with ScratchDir(".") as d:
-            self.vis.write_input(d)
+            self.vis.write_input(d, write_cif=True,
+                                 write_endpoint_inputs=True,
+                                 write_path_cif=True)
             self.assertTrue(os.path.exists("INCAR"))
             self.assertTrue(os.path.exists("KPOINTS"))
             self.assertTrue(os.path.exists("POTCAR"))
@@ -415,6 +416,9 @@ class MITNEBSetTest(unittest.TestCase):
             self.assertTrue(os.path.exists("02/POSCAR"))
             self.assertTrue(os.path.exists("03/POSCAR"))
             self.assertFalse(os.path.exists("04/POSCAR"))
+            self.assertTrue(os.path.exists("00/INCAR"))
+            self.assertTrue(os.path.exists("path.cif"))
+
 
 class MPSOCSetTest(PymatgenTest):
 
