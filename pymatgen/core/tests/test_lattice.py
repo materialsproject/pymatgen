@@ -29,6 +29,17 @@ class LatticeTestCase(PymatgenTest):
         for name in family_names:
             self.families[name] = getattr(self, name)
 
+    def test_format(self):
+        self.assertEqual("[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]",
+                         format(self.lattice, ".3fl"))
+        self.assertEqual(
+            """10.000 0.000 0.000
+0.000 10.000 0.000
+0.000 0.000 10.000""",
+            format(self.lattice, ".3f"))
+        self.assertEqual("{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}",
+                         format(self.lattice, ".1fp"))
+
     def test_init(self):
         a = 9.026
         lattice = Lattice.cubic(a)
@@ -256,6 +267,15 @@ class LatticeTestCase(PymatgenTest):
         latt = Lattice.from_lengths_and_angles([1,1,1], [10,10,10])
         for l, _, _ in latt.find_all_mappings(latt, ltol=0.05, atol=11):
             self.assertTrue(isinstance(l, Lattice))
+
+    def test_mapping_symmetry(self):
+        l = Lattice.cubic(1)
+        l2 = Lattice.orthorhombic(1.1001, 1, 1)
+        self.assertEqual(l.find_mapping(l2, ltol=0.1), None)
+        self.assertEqual(l2.find_mapping(l, ltol=0.1), None)
+        l2 = Lattice.orthorhombic(1.0999, 1, 1)
+        self.assertNotEqual(l2.find_mapping(l, ltol=0.1), None)
+        self.assertNotEqual(l.find_mapping(l2, ltol=0.1), None)
 
     def test_to_from_dict(self):
         d = self.tetragonal.as_dict()
