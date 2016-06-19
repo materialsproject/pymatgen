@@ -2,8 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, unicode_literals, absolute_import
 
 """
 This module defines classes that set the molecular topology i.e atoms, bonds,
@@ -47,9 +46,10 @@ class Topology(object):
         self.imdihedrals = imdihedrals
 
     @staticmethod
-    def from_molecule(molecule, tol=0.1):
+    def from_molecule(molecule, tol=0.1, ff_map="ff_map"):
         """
-        Return Topology object from molecule.
+        Return Topology object from molecule. Charges are also set if the
+        molecule has 'charge' site property.
 
         Args:
             molecule (Molecule)
@@ -57,11 +57,16 @@ class Topology(object):
                 in the molecule. Basically, the code checks if the distance
                 between the sites is less than (1 + tol) * typical bond
                 distances. Defaults to 0.1, i.e., 10% longer.
+            ff_map (string): Ensure this site property is set for each site if
+                atoms need to be mapped to its forcefield name. eg: Carbon atom, 'C',
+                on different sites can be mapped to either 'Ce' or 'Cm'
+                depending on how the forcefield parameters are set.
 
         Returns:
             Topology object
 
         """
+        type_attrib = ff_map if hasattr(molecule[0], ff_map) else "specie"
         bonds = molecule.get_covalent_bonds(tol=tol)
         angles = []
         dihedrals = []
@@ -77,8 +82,9 @@ class Topology(object):
                 site3 = (s_bond2 - s_bond1).pop()
                 angle = [molecule.index(site1), molecule.index(site2),
                          molecule.index(site3),
-                         (str(site1.specie), str(site2.specie),
-                          str(site3.specie))]
+                         (str(getattr(site1, type_attrib)),
+                          str(getattr(site2, type_attrib)),
+                          str(getattr(site3, type_attrib)))]
                 angles.append(angle)
             else:
                 for site1, site2 in itertools.product(bond1_sites,
@@ -92,15 +98,16 @@ class Topology(object):
                                     molecule.index(dihedral[1]),
                                     molecule.index(dihedral[2]),
                                     molecule.index(dihedral[3]),
-                                    (str(dihedral[0].specie),
-                                     str(dihedral[1].specie),
-                                     str(dihedral[2].specie),
-                                     str(dihedral[3].specie))]
+                                    (str(getattr(dihedral[0], type_attrib)),
+                                     str(getattr(dihedral[1], type_attrib)),
+                                     str(getattr(dihedral[2], type_attrib)),
+                                     str(getattr(dihedral[3], type_attrib)))]
                         dihedrals.append(dihedral)
                         break
-        atoms = [[str(site.specie), str(site.specie)] for site in molecule]
+        atoms = [[str(site.specie), str(getattr(site, type_attrib))] for site in molecule]
         bonds = [[molecule.index(b.site1), molecule.index(b.site2),
-                  (str(b.site1.specie), str(b.site2.specie))] for b in bonds]
+                  (str(getattr(b.site1, type_attrib)),
+                   str(getattr(b.site2, type_attrib)))] for b in bonds]
         charges = None
         if hasattr(molecule[0], "charge"):
             charges = [site.charge for site in molecule]
