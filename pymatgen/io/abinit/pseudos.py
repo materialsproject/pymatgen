@@ -129,7 +129,11 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return "<%s at %s>" % (self.__class__.__name__, self.filepath)
+        try:
+            return "<%s at %s>" % (self.__class__.__name__, os.path.relpath(self.filepath))
+        except:
+            # relpath can fail if the code is executed in demon mode.
+            return "<%s at %s>" % (self.__class__.__name__, self.filepath)
 
     def __str__(self):
         """String representation."""
@@ -298,23 +302,28 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
     def hint_for_accuracy(self, accuracy="normal"):
         """
-        Returns an hint object with parameters such as ecut [Ha] and
-        aug_ratio for given accuracy. Returns None if no hint is available.
+        Returns a :class:`Hint` object with the suggensted value of ecut [Ha] and
+        pawecutdg [Ha] for the given accuracy.
+        ecut and pawecutdg are set to zero if no hint is available.
 
         Args:
             accuracy: ["low", "normal", "high"]
         """
-        if self.has_dojo_report:
-            try:
-                return Hint.from_dict(self.dojo_report["hints"][accuracy])
-            except (KeyError, TypeError):
-                return None
-        else:
-            return None
+        if not self.has_dojo_report:
+            return Hint(ecut=0., pawecutdg=0.)
+
+        # Get hints from dojoreport. Try first in hints then in ppgen_hints.
+        if "hints" in self.dojo_report:
+            return Hint.from_dict(self.dojo_report["hints"][accuracy])
+        elif "ppgen_hints" in self.dojo_report:
+            return Hint.from_dict(self.dojo_report["ppgen_hints"][accuracy])
+        return Hint(ecut=0., pawecutdg=0.)
 
     @property
     def has_hints(self):
-        """True if self provides hints on the cutoff energy."""
+        """
+        True if self provides hints on the cutoff energy.
+        """
         for acc in ["low", "normal", "high"]:
             try:
                 if self.hint_for_accuracy(acc) is None:
@@ -522,11 +531,10 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
         return True
 
 
-#class Hint(namedtuple("Hint", "ecut aug_ratio")):
 class Hint(object):
     """
     Suggested value for the cutoff energy [Hartree units]
-    and the cutoff energy for the dense grid (only for PAW pseudos)
+    and the cutoff energy for the dense grid (only for PAW pseudos).
     """
     def __init__(self, ecut, pawecutdg=None):
         self.ecut = ecut
