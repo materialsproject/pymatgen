@@ -575,7 +575,7 @@ class Vasprun(MSONable):
         us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
         js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
         if len(us) == len(symbols):
-            return {symbols[i]: us[i] - js[i] for i in range(len(symbols))}
+            return {symbols[i]: us[i] - js.get(i, 0) for i in range(len(symbols))}
         elif sum(us) == 0 and sum(js) == 0:
             return {}
         else:
