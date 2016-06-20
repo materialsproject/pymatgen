@@ -173,7 +173,7 @@ class PackmolRunner(object):
     molecules into a one single unit.
     """
 
-    @requires(which(b'packmol'),
+    @requires(which('packmol'),
               "PackmolRunner requires the executable 'packmol' to be in "
               "the path. Please download packmol from "
               "https://github.com/leandromartinez98/packmol "
