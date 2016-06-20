@@ -5,9 +5,9 @@
 from __future__ import division, print_function, unicode_literals, absolute_import
 
 """
-This module implements classes for generating Lammps input files.
+This module implements classes for generating Lammps input.
 
-For the ease of management we divide LAMPS input into 2 files:
+For the ease of management we divide LAMMPS input into 2 files:
 
     1.Data file: All structure related settings such as the atomic positions,
             bonds, angles, dihedrals, corresponding parametrizations etc are
@@ -19,7 +19,7 @@ For the ease of management we divide LAMPS input into 2 files:
             the ensemble type(NVT, NPT etc), max number of iterations etc.
 """
 
-import json
+import json   
 import os
 from functools import partial
 from collections import OrderedDict
