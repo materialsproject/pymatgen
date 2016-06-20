@@ -35,8 +35,8 @@ __email__ = 'kmathew@lbl.gov'
 
 class Polymer(object):
     """
-    Generate polymer molecule via Random walk. At each poisition there are
-    a total of 5 possible moves(exclusing the previous directions).
+    Generate polymer chain via Random walk. At each position there are
+    a total of 5 possible moves(excluding the previous direction).
     """
     def __init__(self, start_monomer, s_head, s_tail,
                  monomer, head, tail,
