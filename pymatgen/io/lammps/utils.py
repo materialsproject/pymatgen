@@ -71,8 +71,12 @@ class Polymer(object):
         end_monomer.translate_sites(range(len(end_monomer)),
                                     - monomer.cart_coords[e_head])
         self.mon_vector = monomer.cart_coords[tail] - monomer.cart_coords[head]
-        self.moves = {1: [1, 0, 0], 2: [0, 1, 0], 3: [0, 0, 1], 4: [-1, 0, 0],
-                      5: [0, -1, 0], 6: [0, 0, -1]}
+        self.moves = {1: [1, 0, 0],
+                      2: [0, 1, 0],
+                      3: [0, 0, 1],
+                      4: [-1, 0, 0],
+                      5: [0, -1, 0],
+                      6: [0, 0, -1]}
         self.prev_move = 1
         # places the start monomer at the beginning of the chain
         self.molecule = start_monomer.copy()
@@ -96,8 +100,7 @@ class Polymer(object):
         """
         while self.length != (self.n_units-1):
             if self.linear_chain:
-                move_direction = np.array(mon_vector) / np.linalg.norm(
-                    mon_vector)
+                move_direction = np.array(mon_vector) / np.linalg.norm(mon_vector)
             else:
                 move_direction = self._next_move_direction()
             self._add_monomer(monomer.copy(), mon_vector, move_direction)
@@ -106,11 +109,11 @@ class Polymer(object):
         """
         pick a move at random from the list of moves
         """
-        move = np.random.randint(1, 7)
-        while self.prev_move == (move + 3) % 6:
-            move = np.random.randint(1, 7)
+        nmoves = len(self.moves)
+        move = np.random.randint(1, nmoves+1)
+        while self.prev_move == (move + 3) % nmoves:
+            move = np.random.randint(1, nmoves+1)
         self.prev_move = move
-        #print "move", move
         return np.array(self.moves[move])
 
     def _align_monomer(self, monomer, mon_vector, move_direction):
@@ -127,7 +130,6 @@ class Polymer(object):
         axis = np.cross(mon_vector, move_direction)
         origin = monomer[self.start].coords
         angle = get_angle(mon_vector, move_direction)
-        #print "axis, origin, angle", axis, origin, angle
         op = SymmOp.from_origin_axis_angle(origin, axis, angle)
         monomer.apply_operation(op)
 
@@ -141,8 +143,8 @@ class Polymer(object):
             move_direction (numpy.array): direction along which the monomer
                 will be positioned
         """
-        translate_by = self.molecule.cart_coords[
-                           self.end] + self.link_distance * move_direction
+        translate_by = self.molecule.cart_coords[self.end] + \
+                       self.link_distance * move_direction
         monomer.translate_sites(range(len(monomer)), translate_by)
         if not self.linear_chain:
             self._align_monomer(monomer, mon_vector, move_direction)
@@ -180,8 +182,6 @@ class PackmolRunner(object):
                  control_params={"maxit": 20, "nloop": 600},
                  auto_box=True, output_file="packed.xyz"):
         """
-        Create PackMolRunner
-
         Args:
               mols:
                    list of Molecules to pack
@@ -212,9 +212,8 @@ class PackmolRunner(object):
         if not self.control_params.get("filetype"):
             self.control_params["filetype"] = filetype
         if not self.control_params.get("output"):
-            self.control_params["output"] = \
-                "{}.{}".format(output_file.split(".")[0],
-                               self.control_params["filetype"])
+            self.control_params["output"] = "{}.{}".format(
+                output_file.split(".")[0], self.control_params["filetype"])
         if self.boxit:
             self._set_box()
 
