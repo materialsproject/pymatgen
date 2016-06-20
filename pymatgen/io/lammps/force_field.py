@@ -9,7 +9,7 @@ This module defines classes that set the force field parameters for the bonds,
 angles and dihedrals.
 """
 
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 import yaml
 
 from monty.json import MSONable
