@@ -28,6 +28,7 @@ import numpy as np
 import itertools
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.lattice import Lattice
 from numpy.linalg import norm
 
 class TensorBase(np.ndarray):
@@ -179,26 +180,17 @@ class TensorBase(np.ndarray):
             """ Gets a unit vector parallel to input vector"""
             return vec / np.linalg.norm(vec)
 
-        vecs = structure.lattice.matrix
-        lengths = np.array(structure.lattice.abc)
-        angles = np.array(structure.lattice.angles)
-
         # Check conventional setting:
         sga = SpacegroupAnalyzer(structure)
+        dataset = sga.get_symmetry_dataset()
+        trans_mat = dataset['transformation_matrix']
+        conv_latt = Lattice(np.transpose(np.dot(np.transpose(
+            structure.lattice.matrix), np.linalg.inv(trans_mat))))
         xtal_sys = sga.get_crystal_system()
-        conv_struct = sga.get_refined_structure()
-        conv_lengths = np.array(conv_struct.lattice.abc)
-        conv_angles = np.array(conv_struct.lattice.angles)
-        rhombohedral = xtal_sys == "trigonal" and \
-                (angles - angles[0] < atol).all()
-        if ((np.sort(lengths) - np.sort(conv_lengths) > ltol).any() \
-           or (np.sort(angles) - np.sort(conv_angles) > atol).any() \
-           or len(structure.sites) != len(conv_struct.sites)) \
-           and not rhombohedral:
-            raise ValueError("{} structure not in conventional cell, IEEE "\
-                             "conversion from non-conventional settings "\
-                             "is not yet supported.".format(xtal_sys))
-
+        
+        vecs = conv_latt.matrix
+        lengths = np.array(conv_latt.abc)
+        angles = np.array(conv_latt.angles)
         a = b = c = None
         rotation = np.zeros((3,3))
 
@@ -207,7 +199,7 @@ class TensorBase(np.ndarray):
             rotation = [vecs[i]/lengths[i] for i in range(3)]
 
         # IEEE rules: a=b in length; c,a || x3, x1
-        elif xtal_sys == "tetragonal":            
+        elif xtal_sys == "tetragonal":
             rotation = np.array([vec/mag for (mag, vec) in 
                                  sorted(zip(lengths, vecs))])
             if abs(lengths[2] - lengths[1]) < ltol:
@@ -220,20 +212,14 @@ class TensorBase(np.ndarray):
             rotation = np.roll(rotation, 2, axis = 0)
 
         # IEEE rules: c,a || x3,x1, c is threefold axis
+        # Note this also includes rhombohedral crystal systems
         elif xtal_sys in ("trigonal", "hexagonal"):
-            # Rhombohedral lattice
-            if rhombohedral:
-                rotation[0] = get_uvec(vecs[2] - vecs[0])
-                rotation[2] = get_uvec(np.sum(vecs, axis=0))
-                rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
-            # Standard hexagonal lattice
-            else:
-                # find threefold axis:
-                tf_mask = np.where(abs(angles-120.0) < atol)
-                non_tf_mask = np.logical_not(tf_mask)
-                rotation[2] = get_uvec(vecs[tf_mask])
-                rotation[0] = get_uvec(vecs[non_tf_mask][0])
-                rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
+            # find threefold axis:
+            tf_mask = abs(angles-120.0) < atol
+            non_tf_mask = np.logical_not(tf_mask)
+            rotation[2] = get_uvec(vecs[tf_mask][0])
+            rotation[0] = get_uvec(vecs[non_tf_mask][0])
+            rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
 
         # IEEE rules: b,c || x2,x3; alpha=beta=90, c<a
         elif xtal_sys == "monoclinic":
