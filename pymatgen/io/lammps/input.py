@@ -5,12 +5,21 @@
 from __future__ import division, print_function, unicode_literals, absolute_import
 
 """
-This module implements classes for generating Lammps input files.
-The input files consist of the main input file with the control parameters and
-the data file.
+This module implements classes for generating Lammps input.
+
+For the ease of management we divide LAMMPS input into 2 files:
+
+    1.Data file: All structure related settings such as the atomic positions,
+            bonds, angles, dihedrals, corresponding parametrizations etc are
+            set in the data file.
+
+    2. Control file: This the main input file that should be fed to the
+            lammps binary. The main input file consists of the path to the
+            afore-mentioned data file and the job control parameters such as
+            the ensemble type(NVT, NPT etc), max number of iterations etc.
 """
 
-import json
+import json   
 import os
 from functools import partial
 from collections import OrderedDict
@@ -20,8 +29,8 @@ from monty.json import MSONable, MontyDecoder
 from pymatgen.io.lammps.data import LammpsData, LammpsForceFieldData
 
 __author__ = "Kiran Mathew"
-__credits__ = "Navnidhi Rajput"
 __email__ = "kmathew@lbl.gov"
+__credits__ = "Navnidhi Rajput"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
