@@ -29,7 +29,8 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.sites import PeriodicSite
 
 # This mass import is for deprecation stub purposes.
-from pymatgen.io.vasp.sets_deprecated import MPVaspInputSet, MPGGAVaspInputSet,\
+from pymatgen.io.vasp.sets_deprecated import DictVaspInputSet, MPVaspInputSet, \
+    MPGGAVaspInputSet,\
     MITHSEVaspInputSet, MITVaspInputSet, MITGGAVaspInputSet, \
     MPStaticVaspInputSet, MITMDVaspInputSet, \
     MVLElasticInputSet, MITNEBVaspInputSet, MPNonSCFVaspInputSet, \
