@@ -27,7 +27,7 @@ from collections import defaultdict
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 
-from pymatgen.io.vasp.sets import MITVaspInputSet, MPVaspInputSet
+from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_analyzer import oxide_type
 
@@ -113,21 +113,22 @@ class PotcarCorrection(Correction):
     """
 
     def __init__(self, input_set, check_hash=False):
-
-        if isinstance(list(input_set.potcar_settings.values())[-1], dict):
+        potcar_settings = input_set.CONFIG["POTCAR"]
+        if isinstance(list(potcar_settings.values())[-1],
+                      dict):
             if check_hash:
                 self.valid_potcars = {k: d["hash"] for k, d in
-                                      input_set.potcar_settings.items()}
+                                      potcar_settings.items()}
             else:
                 self.valid_potcars = {k: d["symbol"] for k, d in
-                                      input_set.potcar_settings.items()}
+                                      potcar_settings.items()}
         else:
             if check_hash:
                 raise ValueError('Cannot check hashes of potcars,'
                                  ' hashes are not set')
             else:
                 self.valid_potcars = {k: d for k, d in
-                                      input_set.potcar_settings.items()}
+                                      potcar_settings.items()}
 
         self.input_set = input_set
         self.check_hash = check_hash
@@ -158,7 +159,7 @@ class PotcarCorrection(Correction):
         return 0
 
     def __str__(self):
-        return "{} Potcar Correction".format(self.input_set.name)
+        return "{} Potcar Correction".format(self.input_set.__name__)
 
 
 @cached_class
@@ -334,7 +335,7 @@ class UCorrection(Correction):
 
         self.input_set = input_set
         if compat_type == 'Advanced':
-            self.u_settings = self.input_set.incar_settings["LDAUU"]
+            self.u_settings = self.input_set.CONFIG["INCAR"]["LDAUU"]
             self.u_corrections = c["Advanced"]["UCorrections"]
         else:
             self.u_settings = {}
@@ -523,12 +524,11 @@ class MaterialsProjectCompatibility(Compatibility):
                  check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MPCompatibility.yaml")
-        i_s = MPVaspInputSet()
         super(MaterialsProjectCompatibility, self).__init__(
-            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
+            [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
              AnionCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, i_s, compat_type)])
+             UCorrection(fp, MPRelaxSet, compat_type)])
 
 
 class MITCompatibility(Compatibility):
@@ -555,12 +555,11 @@ class MITCompatibility(Compatibility):
                 check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MITCompatibility.yaml")
-        i_s = MITVaspInputSet()
         super(MITCompatibility, self).__init__(
-            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
+            [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
              AnionCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, i_s, compat_type)])
+             UCorrection(fp, MITRelaxSet, compat_type)])
 
 
 class MITAqueousCompatibility(Compatibility):
@@ -587,12 +586,11 @@ class MITAqueousCompatibility(Compatibility):
                 check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MITCompatibility.yaml")
-        i_s = MITVaspInputSet()
         super(MITAqueousCompatibility, self).__init__(
-            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
+            [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
              AnionCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
+             UCorrection(fp, MITRelaxSet, compat_type), AqueousCorrection(fp)])
 
 
 class MaterialsProjectAqueousCompatibility(Compatibility):
@@ -620,9 +618,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MPCompatibility.yaml")
-        i_s = MPVaspInputSet()
         super(MaterialsProjectAqueousCompatibility, self).__init__(
-            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
+            [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
              AnionCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
+             UCorrection(fp, MPRelaxSet, compat_type), AqueousCorrection(fp)])
