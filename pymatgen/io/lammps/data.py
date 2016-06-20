@@ -631,7 +631,7 @@ class LammpsForceFieldData(LammpsData):
                     m = types_pattern.search(line)
                     if m.group(2) == "atom":
                         natom_types = int(m.group(1))
-                        npair_types = factorial(natom_types)
+                        npair_types = natom_types #factorial(natom_types)
                     if m.group(2) == "bond":
                         nbond_types = int(m.group(1))
                     if m.group(2) == "angle":
