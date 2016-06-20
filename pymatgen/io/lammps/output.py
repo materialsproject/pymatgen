@@ -2,8 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, unicode_literals, absolute_import
 
 """
 This module implements classes for processing Lammps output files:
@@ -87,8 +86,7 @@ class LammpsRun(object):
                     fields = fields.split()
                     # example:- id type x y z vx vy vz mol ...
                     traj_pattern_string = "\s*(\d+)\s+(\d+)" + "".join(
-                        ["\s+([0-9eE\.+-]+)"
-                         for _ in range(len(fields))])
+                        ["\s+([0-9eE\.+-]+)" for _ in range(len(fields))])
                     traj_pattern = re.compile(traj_pattern_string)
                 if traj_pattern.search(line):
                     # first 2 fields must be id and type, the rest of them
@@ -98,13 +96,11 @@ class LammpsRun(object):
                     line_data.append(int(m.group(1)) - 1)
                     line_data.append(int(m.group(2)))
                     line_data.extend(
-                        [float(x) for i, x in enumerate(m.groups()) if
-                         i + 1 > 2])
+                        [float(x) for i, x in enumerate(m.groups()) if i + 1 > 2])
                     trajectory.append(tuple(line_data))
         traj_dtype = np.dtype([(str('Atoms_id'), np.int64),
                                (str('atom_type'), np.int64)] +
-                              [(str(fld), np.float64)
-                               for fld in fields])
+                              [(str(fld), np.float64) for fld in fields])
         self.trajectory = np.array(trajectory, dtype=traj_dtype)
         self.timesteps = np.array(traj_timesteps, dtype=np.float64)
         for step in range(self.timesteps.size):
@@ -150,9 +146,8 @@ class LammpsRun(object):
             1D numpy array(3 x 1) of weighted averages in x, y, z directions
         """
         mol_masses = self.mol_masses[mol_id]
-        return np.array([np.dot(mol_vector[:, dim],
-                                mol_masses) / np.sum(mol_masses) for dim in
-                         range(3)])
+        return np.array([np.dot(mol_vector[:, dim], mol_masses) / np.sum(mol_masses)
+                         for dim in range(3)])
 
     def _get_mol_vector(self, step, mol_id, param=["x", "y", "z"]):
         """
@@ -198,9 +193,8 @@ class LammpsRun(object):
             mol_vector = mol_vector_structured.view(np.float64).reshape(
                 new_shape)
             coords = mol_vector.copy()
-            species = [
-                mass_to_symbol[round(unique_atomic_masses[atype - 1], 1)]
-                for atype in self.trajectory[begin:end][:]["atom_type"]]
+            species = [mass_to_symbol[round(unique_atomic_masses[atype - 1], 1)]
+                       for atype in self.trajectory[begin:end][:]["atom_type"]]
             mol = Molecule(species, coords)
             try:
                 boxed_mol = mol.get_boxed_structure(*self.box_lengths)
@@ -241,8 +235,8 @@ class LammpsRun(object):
                     for atype in self.trajectory[begin:end][:]["atom_type"]]
                 mol = Molecule(species, coords)
                 structure = mol.get_boxed_structure(*self.box_lengths)
-            step_frac_coords = [lattice.get_fractional_coords(crd) for crd in
-                                coords]
+            step_frac_coords = [lattice.get_fractional_coords(crd)
+                                for crd in coords]
             frac_coords.append(np.array(step_frac_coords)[:, None])
         frac_coords = np.concatenate(frac_coords, axis=1)
         dp = frac_coords[:, 1:] - frac_coords[:, :-1]
@@ -252,8 +246,7 @@ class LammpsRun(object):
         return structure, disp
 
     def get_diffusion_analyzer(self, specie, temperature, time_step, step_skip,
-                               smoothed=None,
-                               min_obs=30, avg_nsteps=1000):
+                               smoothed=None, min_obs=30, avg_nsteps=1000):
         """
         Args:
             specie (Element/Specie): Specie to calculate diffusivity for as a
@@ -273,10 +266,8 @@ class LammpsRun(object):
         # structures = self.get_structures_from_trajectory()
         structure, disp = self.get_displacements()
         return DiffusionAnalyzer(structure, disp, specie, temperature,
-                                 time_step,
-                                 step_skip=step_skip, smoothed=smoothed,
-                                 min_obs=min_obs,
-                                 avg_nsteps=avg_nsteps)
+                                 time_step, step_skip=step_skip, smoothed=smoothed,
+                                 min_obs=min_obs, avg_nsteps=avg_nsteps)
 
     @property
     def natoms(self):
@@ -375,17 +366,14 @@ class LammpsLog(object):
                 if format and not thermo_data:
                     fields = format.group().split()[2:]
                     thermo_pattern_string = "\s*([0-9eE\.+-]+)" + "".join(
-                        ["\s+([0-9eE\.+-]+)"
-                         for _ in
-                         range(len(fields) - 1)])
+                        ["\s+([0-9eE\.+-]+)" for _ in range(len(fields) - 1)])
                     thermo_pattern = re.compile(thermo_pattern_string)
                 if thermo_pattern:
                     if thermo_pattern.search(line):
                         m = thermo_pattern.search(line)
-                        thermo_data.append(tuple(
-                            [float(x) for i, x in enumerate(m.groups())]))
-        thermo_data_dtype = np.dtype([(str(fld), np.float64)
-                                      for fld in fields])
+                        thermo_data.append(
+                            tuple([float(x) for i, x in enumerate(m.groups())]))
+        thermo_data_dtype = np.dtype([(str(fld), np.float64) for fld in fields])
         self.thermo_data = np.array(thermo_data, dtype=thermo_data_dtype)
 
 
