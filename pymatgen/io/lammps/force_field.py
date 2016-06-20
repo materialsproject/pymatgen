@@ -9,7 +9,7 @@ This module defines classes that set the force field parameters for the bonds,
 angles and dihedrals.
 """
 
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 import yaml
 
 from monty.json import MSONable
@@ -72,9 +72,15 @@ class ForceField(MSONable):
                 tokens = k.split("-")
                 key = tuple(tokens) if len(tokens) > 1 else k
                 ff_data[coeff_key][key] = v
+        pairs = ff_data.get("Pair Coeffs", None)
+        if pairs:
+            if len(ff_data["Atoms"]) != len(pairs):
+                raise ValueError("Number of pairs coefficient parmaters > "
+                                 "the number of atome types. Parameters i != j "
+                                 "pairs cannot be set in the data file")
         return ForceField(ff_data["Atoms"],
                           ff_data["Bond Coeffs"],
                           ff_data["Angle Coeffs"],
                           dihedrals=ff_data.get("Dihedral Coeffs", None),
                           imdihedrals=ff_data.get("Improper Coeffs", None),
-                          pairs=ff_data.get("Pair Coeffs", None))
+                          pairs=pairs)

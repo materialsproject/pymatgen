@@ -58,9 +58,10 @@ class Topology(object):
                 between the sites is less than (1 + tol) * typical bond
                 distances. Defaults to 0.1, i.e., 10% longer.
             ff_map (string): Ensure this site property is set for each site if
-                atoms need to be mapped to its forcefield name. eg: Carbon atom, 'C',
-                on different sites can be mapped to either 'Ce' or 'Cm'
-                depending on how the forcefield parameters are set.
+                atoms need to be mapped to its forcefield name.
+                eg: Carbon atom, 'C', on different sites can be mapped to
+                either 'Ce' or 'Cm' depending on how the forcefield parameters
+                are set.
 
         Returns:
             Topology object
@@ -104,11 +105,13 @@ class Topology(object):
                                      str(getattr(dihedral[3], type_attrib)))]
                         dihedrals.append(dihedral)
                         break
-        atoms = [[str(site.specie), str(getattr(site, type_attrib))] for site in molecule]
+        atoms = [[str(site.specie), str(getattr(site, type_attrib))]
+                 for site in molecule]
         bonds = [[molecule.index(b.site1), molecule.index(b.site2),
                   (str(getattr(b.site1, type_attrib)),
                    str(getattr(b.site2, type_attrib)))] for b in bonds]
         charges = None
         if hasattr(molecule[0], "charge"):
             charges = [site.charge for site in molecule]
-        return Topology(atoms, bonds, angles, charges=charges, dihedrals=dihedrals)
+        return Topology(atoms, bonds, angles,
+                        charges=charges, dihedrals=dihedrals)
