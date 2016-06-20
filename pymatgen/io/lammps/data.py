@@ -11,7 +11,6 @@ This module implements classes for generating/parsing Lammps data files.
 from six.moves import range
 from io import open
 import re
-from math import factorial
 from collections import OrderedDict
 
 import numpy as np
@@ -22,6 +21,7 @@ from pymatgen.core.structure import Molecule, Structure
 
 __author__ = 'Kiran Mathew'
 __email__ = "kmathew@lbl.gov"
+__credits__ = 'Brandon Wood'
 
 
 class LammpsData(MSONable):
@@ -114,7 +114,8 @@ class LammpsData(MSONable):
         elements = structure.composition.elements
         elements = sorted(elements, key=lambda el: el.atomic_mass)
         atomic_masses_dict = OrderedDict(
-            [(el.symbol, [i + 1, el.data["Atomic mass"]]) for i, el in enumerate(elements)])
+            [(el.symbol, [i + 1, el.data["Atomic mass"]])
+             for i, el in enumerate(elements)])
         return natoms, natom_types, atomic_masses_dict
 
     @staticmethod
@@ -631,7 +632,7 @@ class LammpsForceFieldData(LammpsData):
                     m = types_pattern.search(line)
                     if m.group(2) == "atom":
                         natom_types = int(m.group(1))
-                        npair_types = natom_types #factorial(natom_types)
+                        npair_types = natom_types # i != j skipped
                     if m.group(2) == "bond":
                         nbond_types = int(m.group(1))
                     if m.group(2) == "angle":
