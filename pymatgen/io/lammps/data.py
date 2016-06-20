@@ -260,7 +260,9 @@ class LammpsData(MSONable):
 
 class LammpsForceFieldData(LammpsData):
     """
-    Sets Lammps data input file from force field parameters.
+    Sets Lammps data input file from force field parameters. It is recommended
+    that the the convenience method from_forcefield_and_topology be used to
+    create the object.
 
     Args:
         box_size (list): [[x_min,x_max], [y_min,y_max], [z_min,z_max]]
@@ -526,7 +528,9 @@ class LammpsForceFieldData(LammpsData):
     def from_forcefield_and_topology(mols, mols_number, box_size, molecule,
                                      forcefield, topologies):
         """
-        Return LammpsForceFieldData object from force field and topology info.
+        Return LammpsForceFieldData object from force field and topology info
+        for the 'molecule' assembled from the constituent molecules specified
+        in the 'mols' list with their count specified in the 'mols_number' list.
 
         Args:
             mols (list): List of Molecule objects
