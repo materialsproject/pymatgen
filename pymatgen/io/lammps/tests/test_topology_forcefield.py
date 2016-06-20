@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, print_function, unicode_literals, \
     absolute_import
@@ -86,8 +88,6 @@ class TestLammpsTopology(unittest.TestCase):
                      (u'H', u'C', u'C', u'H'): [0.0, 0.0, 0.28, 0.0],
                      (u'O', u'C', u'C', u'O'): [0.41, -2.1, -0.6, -0.82]}
         pairs = {(u'C', u'C'): [14976.0, 0.3236, 637.6],
-                 (u'C', u'H'): [4320.0, 0.2928, 137.6],
-                 (u'C', u'O'): [33702.4, 0.2796, 503.0],
                  (u'H', u'H'): [2649.6, 0.2674, 27.22],
                  (u'O', u'O'): [75844.8, 0.2461, 396.9]}
         self.assertEqual(self.forcefield.atoms, atoms)
