@@ -18,13 +18,10 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 class TestLammpsInput(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.lammps_input = DictLammpsInput.from_file("NVT",
-                                                     os.path.join(test_dir,
-                                                                  "NVT.json"),
-                                                     data_file=os.path.join(
-                                                         test_dir,
-                                                         "nvt.data"),
-                                                     is_forcefield=True)
+        cls.lammps_input = DictLammpsInput.from_file(
+            "NVT", os.path.join(test_dir, "NVT.json"),
+            data_filename=os.path.join(test_dir, "nvt.data"),
+            is_forcefield=True)
 
     def test_string_rep(self):
         self.lammps_input.config_dict["read_data"] = "nvt.data"
