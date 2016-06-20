@@ -1,8 +1,9 @@
 Change log
 ==========
 
-v3.6.1
+v3.7.0
 ------
-* Massive cleanup to Boltztrap interface (Anubhav Jain)
-* Refactor of piezoelectric analysis to use tensor base class (Joey)
-* More robust CIF parsing.
+* Last version before pymatgen 4.0, where deprecated modules will be removed!
+* Massive update to LAMMPS (Kiran Matthews).
+* New input sets with a different interface that replaces old input sets.
+* Massive update to elastic properties.
