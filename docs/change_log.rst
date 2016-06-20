@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v3.7.1
+------
+* Fix deprecation bug.
+
 v3.7.0
 ------
 * Last version before pymatgen 4.0, where deprecated modules will be removed!
