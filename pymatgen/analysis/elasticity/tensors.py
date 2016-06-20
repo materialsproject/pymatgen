@@ -27,7 +27,6 @@ from scipy.linalg import polar
 import numpy as np
 import itertools
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from numpy.linalg import norm
@@ -192,17 +191,6 @@ class TensorBase(np.ndarray):
         vecs = conv_latt.matrix
         lengths = np.array(conv_latt.abc)
         angles = np.array(conv_latt.angles)
-        rhombohedral = xtal_sys == "trigonal" and \
-                (structure.lattice.angles - structure.lattice.angles[0] < atol).all()
-        """
-        if ((np.sort(lengths) - np.sort(conv_lengths) > ltol).any() \
-           or (np.sort(angles) - np.sort(conv_angles) > atol).any() \
-           or len(structure.sites) != len(conv_struct.sites)) \
-           and not rhombohedral:
-            raise ValueError("{} structure not in conventional cell, IEEE "\
-                             "conversion from non-conventional settings "\
-                             "is not yet supported.".format(xtal_sys))
-        """
         a = b = c = None
         rotation = np.zeros((3,3))
 
