@@ -237,49 +237,68 @@ class PackmolRunner(object):
         """
         Set the box size for the molecular assembly
         """
-        volume = 0.0
+        net_volume = 0.0
         for idx, mol in enumerate(self.mols):
             length = max([np.max(mol.cart_coords[:, i])-np.min(mol.cart_coords[:, i])
                            for i in range(3)]) + 2.0
-            volume += (length**3.0) * float(self.param_list[idx]['number'])
-        length = volume**(1.0/3.0)
+            net_volume += (length**3.0) * float(self.param_list[idx]['number'])
+        length = net_volume**(1.0/3.0)
         for idx, mol in enumerate(self.mols):
             self.param_list[idx]['inside box'] = '0.0 0.0 0.0 {} {} {}'.format(
                 length, length, length)
 
-    def run(self):
+    def _write_input(self, input_dir="."):
         """
-        Runs packmol
+        Write the packmol input file to the input directory.
+
+        Args:
+            input_dir (string): path to the input directory
+        """
+        with open(os.path.join(input_dir, self.input_file), 'wt', encoding="utf-8") as inp:
+            for k, v in six.iteritems(self.control_params):
+                inp.write('{} {}\n'.format(k, self._format_param_val(v)))
+            # write the structures of the constituent molecules to file and set
+            # the molecule id and the corresponding filename in the packmol
+            # input file.
+            for idx, mol in enumerate(self.mols):
+                a = BabelMolAdaptor(mol)
+                pm = pb.Molecule(a.openbabel_mol)
+                filename = os.path.join(
+                    input_dir, '{}.{}'.format(
+                        idx, self.control_params["filetype"])).encode("ascii")
+                pm.write(self.control_params["filetype"], filename=filename,
+                         overwrite=True)
+                inp.write("\n")
+                inp.write(
+                    "structure {}.{}\n".format(
+                        os.path.join(input_dir, str(idx)),
+                        self.control_params["filetype"]))
+                for k, v in six.iteritems(self.param_list[idx]):
+                    inp.write('  {} {}\n'.format(k, self._format_param_val(v)))
+                inp.write('end structure\n')
+
+    def run(self, copy_to_current_on_exit=False):
+        """
+        Write the input file to the scratch directory, run packmol and return
+        the packed molecule.
+
+        Args:
+            copy_to_current_on_exit (bool): Whether or not to copy the packmol
+                input/output files from the scratch directory to the current
+                directory.
 
         Returns:
                 Molecule object
         """
         scratch = tempfile.gettempdir()
-        with ScratchDir(scratch, copy_to_current_on_exit=True) as d:
-            with open(os.path.join(d, self.input_file), 'wt',
-                      encoding="utf-8") as inp:
-                for k, v in six.iteritems(self.control_params):
-                    inp.write('{} {}\n'.format(k, self._format_param_val(v)))
-                for idx, mol in enumerate(self.mols):
-                    a = BabelMolAdaptor(mol)
-                    pm = pb.Molecule(a.openbabel_mol)
-                    pm.write(self.control_params["filetype"],
-                             filename=os.path.join(d, '{}.{}'.format(idx,
-                                 self.control_params["filetype"])).encode("ascii"),
-                             overwrite=True)
-                    inp.write("\n")
-                    inp.write(
-                        "structure {}.{}\n".format(os.path.join(d, str(idx)),
-                                                   self.control_params["filetype"]))
-                    for k, v in six.iteritems(self.param_list[idx]):
-                        inp.write(
-                            '  {} {}\n'.format(k, self._format_param_val(v)))
-                    inp.write('end structure\n')
-            proc = Popen(['packmol'],
-                         stdin=open(os.path.join(d, self.input_file), 'r'),
-                         stdout=PIPE)
-            (stdout, stderr) = proc.communicate()
-            output_file = os.path.join(d, self.control_params["output"])
+        with ScratchDir(scratch, copy_to_current_on_exit=copy_to_current_on_exit) as scratch_dir:
+            self._write_input(input_dir=scratch_dir)
+            packmol_bin = ['packmol']
+            packmol_input = open(os.path.join(scratch_dir, self.input_file), 'r')
+            p = Popen(packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE)
+            p.wait()
+            (stdout, stderr) = p.communicate()
+            output_file = os.path.join(scratch_dir, self.control_params["output"])
             if os.path.isfile(output_file):
                 packed_mol = BabelMolAdaptor.from_file(output_file)
                 print("packed molecule written to {}".format(
