@@ -18,6 +18,7 @@ import six
 
 from collections import OrderedDict, defaultdict, namedtuple
 from monty.collections import AttrDict, Namespace
+from tabulate import tabulate
 from monty.dev import deprecated
 from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
@@ -146,6 +147,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         app("  angular momentum for local part: %s" % l2str(self.l_local))
         app("  XC correlation: %s" % self.xc)
         app("  supports spin-orbit: %s" % self.supports_soc)
+
         if self.isnc:
             app("  radius for non-linear core correction: %s" % self.nlcc_radius)
 
@@ -1630,14 +1632,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
         return "<%s at %s>" % (self.__class__.__name__, id(self))
 
     def __str__(self):
-        lines = []
-        app = lines.append
-        app("<%s, len=%d>" % (self.__class__.__name__, len(self)))
-
-        for pseudo in self:
-            app(str(pseudo))
-
-        return "\n".join(lines)
+        return self.to_table()
 
     @property
     def allnc(self):
@@ -1653,6 +1648,12 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
     def zlist(self):
         """Ordered list with the atomic numbers available in the table."""
         return sorted(list(self._pseudos_with_z.keys()))
+
+    #def max_ecut_pawecutdg(self, accuracy):
+    #"""Return the maximum value of ecut and pawecutdg based on the hints available in the pseudos."""
+    #    ecut = max(p.hint_for_accuracy(accuracy=accuracy).ecut for p in self)
+    #    pawecutdg = max(p.hint_for_accuracy(accuracy=accuracy).pawecutdg for p in self)
+    #    return ecut, pawecutdg
 
     def as_dict(self, **kwargs):
         d = {}
@@ -1787,24 +1788,27 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
         """
         return self.pseudos_with_symbols(structure.symbol_set)
 
-    #def print_table(self, stream=sys.stdout, filter_function=None):
-    #    """
-    #    A pretty ASCII printer for the periodic table, based on some filter_function.
-    #    Args:
-    #        filter_function:
-    #            A filtering function that take a Pseudo as input and returns a boolean.
-    #            For example, setting filter_function = lambda el: el.Z_val > 2 will print
-    #            a periodic table containing only pseudos with Z_val > 2.
-    #    """
-    #    for row in range(1, 10):
-    #        rowstr = []
-    #        for group in range(1, 19):
-    #            el = Element.from_row_and_group(row, group)
-    #            if el and ((not filter_function) or filter_function(el)):
-    #                rowstr.append("{:3s}".format(el.symbol))
-    #            else:
-    #                rowstr.append("   ")
-    #        print(" ".join(rowstr))
+    def print_table(self, stream=sys.stdout, filter_function=None):
+        """
+        A pretty ASCII printer for the periodic table, based on some filter_function.
+
+        Args:
+            stream: file-like object
+            filter_function:
+                A filtering function that take a Pseudo as input and returns a boolean.
+                For example, setting filter_function = lambda p: p.Z_val > 2 will print
+                a periodic table containing only pseudos with Z_val > 2.
+        """
+        print(self.to_table(filter_function=filter_function), file=stream)
+
+    def to_table(self, filter_function=None):
+        """Return string with data in tabular form."""
+        table = []
+        for p in self:
+            if filter_function is not None and filter_function(p): continue
+            table.append([p.basename, p.symbol, p.Z_val, p.l_max, p.l_local, p.xc, p.type])
+        return tabulate(table, headers= ["basename", "symbol", "Z_val", "l_max", "l_local", "XC", "type"],
+                        tablefmt="grid")
 
     def sorted(self, attrname, reverse=False):
         """

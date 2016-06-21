@@ -973,11 +973,11 @@ class Flow(Node, NodeContainer, MSONable):
             # Print table and write colorized line with the total number of errors.
             print(tabulate(table, headers=headers, tablefmt="grid"), file=stream)
             if tot_num_errors:
-                cprint("Total number of errors: %d" % tot_num_errors, red, file=stream)
+                cprint("Total number of errors: %d" % tot_num_errors, "red", file=stream)
             print("", file=stream)
 
         if self.all_ok:
-            print("\nall_ok reached\n", file=stream)
+            cprint("\nall_ok reached\n", "green", file=stream)
 
     def show_events(self, status=None, nids=None):
 	"""
@@ -993,8 +993,8 @@ class Flow(Node, NodeContainer, MSONable):
             report = task.get_event_report()
             if report:
                 print(make_banner(str(task), width=ncols, mark="="))
-                #report = report.filter_types()
                 print(report)
+                #report = report.filter_types()
 
     def show_corrections(self, status=None, nids=None):
 	"""
