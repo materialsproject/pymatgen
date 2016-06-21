@@ -11,7 +11,3 @@ and standalone.
 
 __author__ = "Shyue"
 __date__ = "Mar 28 2013"
-
-from .maker import PhaseDiagram, GrandPotentialPhaseDiagram, CompoundPhaseDiagram
-from .analyzer import PDAnalyzer
-from .plotter import PDPlotter
