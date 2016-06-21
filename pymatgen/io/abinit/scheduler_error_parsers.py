@@ -43,9 +43,8 @@ class CorrectorProtocolScheduler(object):
 
             nodes: list of node numbers that were found to cause problems
 
-        returns True is the memory could be increased False otherwise
+        returns True if the memory could be increased False otherwise
         """
-        return bool
 
     @abstractmethod
     def increase_mem(self):
@@ -53,9 +52,8 @@ class CorrectorProtocolScheduler(object):
         Method to increase then memory in the calculation. It is called when a calculation seemed to have been crashed
         due to a insufficient memory.
 
-        returns True is the memory could be increased False otherwise
+        returns True if the memory could be increased False otherwise
         """
-        return bool
 
     @abstractmethod
     def increase_time(self):
@@ -63,9 +61,8 @@ class CorrectorProtocolScheduler(object):
         Method to increase te time for the calculation. It is called when a calculation seemed to
         have been crashed due to a time limit.
 
-        returns True is the memory could be increased False otherwise
+        returns True if the memory could be increased False otherwise
         """
-        return bool
 
     @abstractmethod
     def increase_cpus(self):
@@ -73,9 +70,8 @@ class CorrectorProtocolScheduler(object):
         Method to increse the number of cpus being used in the calculation. It is called when a calculation seemed to
         have been crashed due to time or memory limits being broken.
 
-        returns True is the memory could be increased False otherwise
+        returns True if the memory could be increased False otherwise
         """
-        return bool
 
 
 @six.add_metaclass(ABCMeta)
@@ -95,18 +91,16 @@ class CorrectorProtocolApplication(object):
         Method to increase then memory in the calculation. It is called when a calculation seemed to have been crashed
         due to a insufficient memory.
 
-        returns True is the memory could be increased False otherwise
+        returns True if the memory could be increased False otherwise
         """
-        return bool
 
     @abstractmethod
     def speed_up(self):
         """
         Method to speed_up the calculation. It is called when a calculation seemed to time limits being broken.
 
-        returns True is the memory could be increased False otherwise
+        returns True if the memory could be increased False otherwise
         """
-        return bool
 
 
 @six.add_metaclass(ABCMeta)
@@ -286,7 +280,7 @@ class AbstractErrorParser(object):
         metadata = None
         for k in errmsg.keys():
             if self.files[k] is not None:
-                print('parsing ', self.files[k], ' for ', errmsg[k]['string'])
+                #print('parsing ', self.files[k], ' for ', errmsg[k]['string'])
                 try:
                     with open(self.files[k], mode='r') as f:
                         lines = f.read().split('\n')

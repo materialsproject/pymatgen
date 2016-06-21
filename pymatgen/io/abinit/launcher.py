@@ -16,6 +16,7 @@ from monty.io import get_open_fds
 from monty.string import boxed, is_string
 from monty.os.path import which
 from monty.collections import AttrDict, dict2namedtuple
+from monty.termcolor import cprint
 from .utils import as_bool, File, Directory
 from . import qutils as qu
 from pymatgen.util.io_utils import ask_yesno
@@ -747,13 +748,14 @@ class PyFlowScheduler(object):
         if err_lines:
             # Cancel all jobs.
             if self.killjobs_if_errors:
+                cprint("killjobs_if_errors set to 'yes' in scheduler file. Will kill jobs before exiting.", "yellow")
                 try:
                     num_cancelled = 0
                     for task in self.flow.iflat_tasks():
                         num_cancelled += task.cancel()
-                    print("Killed %d tasks" % num_cancelled)
+                    cprint("Killed %d tasks" % num_cancelled, "yellow")
                 except Exception as exc:
-                    print("Exception while trying to kill jobs:\n%s" % str(exc))
+                    cprint("Exception while trying to kill jobs:\n%s" % str(exc), "red")
 
             self.shutdown("\n".join(err_lines))
 
@@ -774,8 +776,8 @@ class PyFlowScheduler(object):
         try:
             self.cleanup()
 
-            self.history.append("Completed on %s" % time.asctime())
-            self.history.append("Elapsed time %s" % self.get_delta_etime())
+            self.history.append("Completed on: %s" % time.asctime())
+            self.history.append("Elapsed time: %s" % self.get_delta_etime())
 
             if self.debug:
                 print(">>>>> shutdown: Number of open file descriptors: %s" % get_open_fds())
@@ -793,15 +795,15 @@ class PyFlowScheduler(object):
 
             lines = []
             app = lines.append
-            app("Submitted on %s" % time.ctime(self.start_time))
-            app("Completed on %s" % time.asctime())
-            app("Elapsed time %s" % str(self.get_delta_etime()))
+            app("Submitted on: %s" % time.ctime(self.start_time))
+            app("Completed on: %s" % time.asctime())
+            app("Elapsed time: %s" % str(self.get_delta_etime()))
 
             if self.flow.all_ok:
                 app("Flow completed successfully")
             else:
                 app("Flow %s didn't complete successfully" % repr(self.flow.workdir))
-                app("You may want to use `abirun.py FLOWDIR debug` to analyze the problem")
+                app("use `abirun.py FLOWDIR debug` to analyze the problem.")
                 app("Shutdown message:\n%s" % msg)
 
             print("")
@@ -811,7 +813,7 @@ class PyFlowScheduler(object):
             self._do_customer_service()
 
             if self.flow.all_ok:
-                print("Calling flow.finalize()")
+                print("Calling flow.finalize()...")
                 self.flow.finalize()
                 if self.rmflow:
                     app("Flow directory will be removed...")
@@ -822,7 +824,7 @@ class PyFlowScheduler(object):
 
         finally:
             # Shutdown the scheduler thus allowing the process to exit.
-            logger.debug('this should be the shutdown of the scheduler')
+            logger.debug('This should be the shutdown of the scheduler')
 
             # Unschedule all the jobs before calling shutdown
             #self.sched.print_jobs()
@@ -853,9 +855,9 @@ class PyFlowScheduler(object):
         header = msg.splitlines()
         app = header.append
 
-        app("Submitted on %s" % time.ctime(self.start_time))
-        app("Completed on %s" % time.asctime())
-        app("Elapsed time %s" % str(self.get_delta_etime()))
+        app("Submitted on: %s" % time.ctime(self.start_time))
+        app("Completed on: %s" % time.asctime())
+        app("Elapsed time: %s" % str(self.get_delta_etime()))
         app("Number of errored tasks: %d" % self.flow.num_errored_tasks)
         app("Number of unconverged tasks: %d" % self.flow.num_unconverged_tasks)
 
@@ -936,7 +938,7 @@ class BatchLauncher(object):
     This object automates the execution of multiple flow. It generates a job script
     that uses abirun.py to run each flow stored in self with a scheduler.
     The execution of the flows is done in sequential but each scheduler will start
-    to submit the tasks of the flow in autparal mode.
+    to submit the tasks of the flow in autoparal mode.
 
     The `BatchLauncher` is pickleable, hence one can reload it, check if all flows are completed
     and rerun only those that are not completed due to the timelimit.
