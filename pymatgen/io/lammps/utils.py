@@ -323,19 +323,18 @@ class LammpsRunner(object):
             bin (string): command to run, excluding the input file name
         """
         self.lammps_bin = bin.split()
-        condition = which(self.lammps_bin[-1])
-        message = "LammpsRunner requires the executable {} to be in the " \
-                  "path. Please download and install LAMMPS from " \
-                  "http://lammps.sandia.gov. Don't forget to add the binary " \
-                  "to your path".format(self.lammps_bin[-1])
-        if not condition:
-            raise RuntimeError(message)
+        if not which(self.lammps_bin[-1]):
+            raise RuntimeError(
+                "LammpsRunner requires the executable {} to be in the path. "
+                "Please download and install LAMMPS from " \
+                "http://lammps.sandia.gov. "
+                "Don't forget to add the binary to your path".format(self.lammps_bin[-1]))
         self.dict_input = dict_input
         self.input_filename = input_filename
 
     def run(self):
         """
-        Write the input files and run LAMMPS.
+        Write the input/data files and run LAMMPS.
         """
         self.dict_input.write_input(self.input_filename)
         print("Input file: {}".format(self.input_filename))
