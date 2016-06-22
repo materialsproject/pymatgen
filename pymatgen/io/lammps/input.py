@@ -98,7 +98,7 @@ class DictLammpsInput(MSONable):
             f.write(self.__str__())
         # write the data file if present
         if self.lammps_data:
-            print("Writing the data to {}".format(self.data_filename))
+            print("Data file: {}".format(self.data_filename))
             self.lammps_data.write_data_file(filename=self.data_filename)
 
     @staticmethod
