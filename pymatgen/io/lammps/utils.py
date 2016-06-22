@@ -315,23 +315,28 @@ class PackmolRunner(object):
 class LammpsRunner(object):
     def __init__(self, dict_input, input_filename="lammps.in", bin="lammps"):
         """
-            Wrapper to run lammps
+        LAMMPS wrapper
 
-            Args:
-                bin (string): command to run
-                input (string): path to the input file
+        Args:
+            dict_input (DictLammpsInput): lammps input object
+            input_filename (string): input file name
+            bin (string): command to run, excluding the input file name
         """
         self.lammps_bin = bin.split()
         condition = which(self.lammps_bin[-1])
-        message = "LammpsRunner requires the executable {} to be in the path. " \
-                  "Please download and install LAMMPS from http://lammps.sandia.gov. " \
-                  "Don't forget to add the binary to your path".format(self.lammps_bin[-1])
+        message = "LammpsRunner requires the executable {} to be in the " \
+                  "path. Please download and install LAMMPS from " \
+                  "http://lammps.sandia.gov. Don't forget to add the binary " \
+                  "to your path".format(self.lammps_bin[-1])
         if not condition:
             raise RuntimeError(message)
         self.dict_input = dict_input
         self.input_filename = input_filename
 
     def run(self):
+        """
+        Write the input files and run LAMMPS.
+        """
         self.dict_input.write_input(self.input_filename)
         print("Input file: {}".format(self.input_filename))
         lammps_cmd = self.lammps_bin + ['-in', self.input_filename]
