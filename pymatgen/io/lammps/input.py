@@ -126,7 +126,7 @@ class DictLammpsInput(MSONable):
         with open(filename) as f:
             config_dict = json.load(f, object_pairs_hook=OrderedDict)
         lammps_data = lammps_data
-        if isinstance(lammps_data, str):
+        if isinstance(lammps_data, basestring):
             if is_forcefield:
                 lammps_data = LammpsForceFieldData.from_file(lammps_data)
             else:
