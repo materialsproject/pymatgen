@@ -711,6 +711,14 @@ class StructureTest(PymatgenTest):
         s = Structure.from_sites(self.structure, to_unit_cell=True)
         self.assertEqual(s.site_properties["hello"][1], 2)
 
+    def test_magic(self):
+        s = Structure.from_sites(self.structure)
+        self.assertEqual(s, self.structure)
+        self.assertNotEqual(s, None)
+        s.apply_strain(0.5)
+        self.assertNotEqual(s, self.structure)
+        self.assertNotEqual(self.structure * 2, self.structure)
+
 
 class IMoleculeTest(PymatgenTest):
 
