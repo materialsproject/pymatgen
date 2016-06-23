@@ -703,12 +703,12 @@ class StructureTest(PymatgenTest):
         self.structure.add_oxidation_state_by_element({"Si": 4, "C": 2})
         self.assertEqual(self.structure.charge, 62)
 
-    def test_init(self):
+    def test_init_error(self):
         self.assertRaises(StructureError, Structure, Lattice.cubic(3), ["Si"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
     def test_from_sites(self):
         self.structure.add_site_property("hello", [1, 2])
-        s = Structure.from_sites(self.structure)
+        s = Structure.from_sites(self.structure, to_unit_cell=True)
         self.assertEqual(s.site_properties["hello"][1], 2)
 
 
