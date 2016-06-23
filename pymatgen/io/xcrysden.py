@@ -23,7 +23,7 @@ class XSF(object):
         app("CRYSTAL")
         app("# Primitive lattice vectors in Angstrom")
         app("PRIMVEC")
-        cell = self.structure.lattice_vectors(space="r")
+        cell = self.structure.lattice.matrix
         for i in range(3):
             app(' %.14f %.14f %.14f' % tuple(cell[i]))
 

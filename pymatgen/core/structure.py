@@ -570,27 +570,6 @@ class IStructure(SiteCollection, MSONable):
         return self._lattice
 
     @property
-    def reciprocal_lattice(self):
-        """
-        Reciprocal lattice of the structure.
-        """
-        return self._lattice.reciprocal_lattice
-
-    def lattice_vectors(self, space="r"):
-        """
-        Returns the vectors of the unit cell in Angstrom.
-
-        Args:
-            space: "r" for real space vectors, "g" for reciprocal space basis
-                vectors.
-        """
-        if space.lower() == "r":
-            return self.lattice.matrix
-        if space.lower() == "g":
-            return self.lattice.reciprocal_lattice.matrix
-        raise ValueError("Wrong value for space: %s " % space)
-
-    @property
     def density(self):
         """
         Returns the density in units of g/cc
