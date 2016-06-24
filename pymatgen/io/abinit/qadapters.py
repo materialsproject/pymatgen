@@ -379,8 +379,8 @@ job:
     shell_runner:     # Used for running small sequential jobs on the front-end. Set it to None
                       # if mpirun or mpiexec are not available on the fron-end. If not
                       # given, small sequential jobs are executed with `mpi_runner`.
-    pre_run:          # List of commands (strings) executed before the run (DEFAULT:: empty)
-    post_run:         # List of commands (strings) executed after the run (DEFAULT:: empty)
+    pre_run:          # List of commands (strings) executed before the run (DEFAULT: empty)
+    post_run:         # List of commands (strings) executed after the run (DEFAULT: empty)
 
 # dictionary with the name of the queue and optional parameters
 # used to build/customize the header of the submission script.

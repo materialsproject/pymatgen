@@ -873,7 +873,7 @@ batch_adapter:
         return copy.deepcopy(self)
 
     def set_mpi_procs(self, mpi_procs):
-        """Set the number of MPI nodes to use."""
+        """Set the number of MPI processes to use."""
         self.qadapter.set_mpi_procs(mpi_procs)
 
     def set_omp_threads(self, omp_threads):
@@ -1382,14 +1382,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def set_manager(self, manager):
         """Set the :class:`TaskManager` used to launch the Task."""
         self.manager = manager.deepcopy()
-
-    #@property
-    #def manager(self):
-    #    """:class:`TaskManager` use to launch the Task. None if not set"""
-    #    try:
-    #        return self._manager
-    #    except AttributeError:
-    #        return None
 
     @property
     def work(self):
