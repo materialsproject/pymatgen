@@ -1585,12 +1585,11 @@ class Flow(Node, NodeContainer, MSONable):
 
         # Validation with Abinit.
         isok, errors = self.abivalidate_inputs()
-        if isok: return 0
+        if isok: return self.pickle_dump()
         errlines = []
         for i, e in enumerate(errors):
             errlines.append("[%d] %s" % (i, e))
         raise ValueError("\n".join(errlines))
-        return self.pickle_dump()
 
     @check_spectator
     def pickle_dump(self):
