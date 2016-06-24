@@ -18,10 +18,8 @@ from pymatgen.io.xr import Xr
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.structure import Structure
 
-# xxx before merging, uncomment the below 2 lines and delete the line thereafter
-#test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-#                        'test_files')
-test_dir = os.path.join('/Users/nisse/code/pymatgen/version_for_pushing_order_parameters/pymatgen/test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 class XrTest(unittest.TestCase):
 
