@@ -626,7 +626,7 @@ def sulfide_type(structure):
     s = Element("S")
     comp = structure.composition
     if comp.is_element or s not in comp:
-        return None
+        return "None"
 
     finder = SpacegroupAnalyzer(structure, symprec=0.1)
     symm_structure = finder.get_symmetrized_structure()
@@ -649,7 +649,7 @@ def sulfide_type(structure):
 
     types = set([process_site(site) for site in s_sites])
     if "sulfATe" in types:
-        return None
+        return "None"
     elif "polysulfide" in types:
         return "polysulfide"
     else:
