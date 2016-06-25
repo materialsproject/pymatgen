@@ -10,7 +10,8 @@ import os
 
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
-    oxide_type, OrderParameters, average_coordination_number, VoronoiAnalyzer
+    oxide_type, sulfide_type, OrderParameters, average_coordination_number, \
+    VoronoiAnalyzer
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen import Element, Structure, Lattice
@@ -217,6 +218,50 @@ class MiscFunctionTest(PymatgenTest):
                   [0.867359, 0.851778, 0.851778]]
         struct = Structure(latt, elts, coords)
         self.assertEqual(oxide_type(struct, 1.1), "None")
+
+    def test_sulfide_type(self):
+        # NaS2 -> polysulfide
+        latt = Lattice.tetragonal(9.59650, 11.78850)
+        species = ["Na"] * 2 + ["S"] * 2
+        coords = [[0.00000, 0.00000, 0.17000],
+                  [0.27600, 0.25000, 0.12500],
+                  [0.03400, 0.25000, 0.29600],
+                  [0.14700, 0.11600, 0.40000]]
+        struct = Structure.from_spacegroup(122, latt, species, coords)
+        self.assertEqual(sulfide_type(struct), "polysulfide")
+
+        # NaCl type NaS -> sulfide
+        latt = Lattice.cubic(5.75)
+        species = ["Na", "S"]
+        coords = [[0.00000, 0.00000, 0.00000],
+                  [0.50000, 0.50000, 0.50000]]
+        struct = Structure.from_spacegroup(225, latt, species, coords)
+        self.assertEqual(sulfide_type(struct), "sulfide")
+
+        # Na2S2O3 -> None (sulfate)
+        latt = Lattice.monoclinic(6.40100, 8.10000, 8.47400, 96.8800)
+        species = ["Na"] * 2 + ["S"] * 2 + ["O"] * 3
+        coords = [[0.29706, 0.62396, 0.08575],
+                  [0.37673, 0.30411, 0.45416],
+                  [0.52324, 0.10651, 0.21126],
+                  [0.29660, -0.04671, 0.26607],
+                  [0.17577, 0.03720, 0.38049],
+                  [0.38604, -0.20144, 0.33624],
+                  [0.16248, -0.08546, 0.11608]]
+        struct = Structure.from_spacegroup(14, latt, species, coords)
+        self.assertEqual(sulfide_type(struct), "None")
+
+        # Na3PS3O -> sulfide
+        latt = Lattice.orthorhombic(9.51050, 11.54630, 5.93230)
+        species = ["Na"] * 2 + ["S"] * 2 + ["P", "O"]
+        coords = [[0.19920, 0.11580, 0.24950],
+                  [0.00000, 0.36840, 0.29380],
+                  [0.32210, 0.36730, 0.22530],
+                  [0.50000, 0.11910, 0.27210],
+                  [0.50000, 0.29400, 0.35500],
+                  [0.50000, 0.30300, 0.61140]]
+        struct = Structure.from_spacegroup(36, latt, species, coords)
+        self.assertEqual(sulfide_type(struct), "sulfide")
 
 
 class OrderParametersTest(PymatgenTest):
