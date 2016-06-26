@@ -35,7 +35,7 @@ Matgenie & Examples
 ===================
 
 The `Materials Virtual Lab`_ has developed a
-`matgenie web app <http://www.materialsvirtuallab.org/matgenie>`_ which
+`matgenie web app <http://matgenie.materialsvirtuallab.org>`_ which
 demonstrates some of the basic functionality of pymatgen.
 
 Another good way to explore the functionality of pymatgen is to look at the
