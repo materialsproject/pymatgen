@@ -959,6 +959,8 @@ class Vasprun(MSONable):
             except ValueError as e:
                 if symbol == "X":
                     return "Xe"
+                elif symbol == "r":
+                    return "Zr"
                 raise e
 
         elem.clear()
