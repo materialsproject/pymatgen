@@ -19,6 +19,7 @@ For the ease of management we divide LAMMPS input into 2 files:
             the ensemble type(NVT, NPT etc), max number of iterations etc.
 """
 
+import six
 import json   
 import os
 from functools import partial
@@ -126,7 +127,7 @@ class DictLammpsInput(MSONable):
         with open(filename) as f:
             config_dict = json.load(f, object_pairs_hook=OrderedDict)
         lammps_data = lammps_data
-        if isinstance(lammps_data, basestring):
+        if isinstance(lammps_data, six.string_types):
             if is_forcefield:
                 lammps_data = LammpsForceFieldData.from_file(lammps_data)
             else:
