@@ -249,7 +249,7 @@ class MiscFunctionTest(PymatgenTest):
                   [0.38604, -0.20144, 0.33624],
                   [0.16248, -0.08546, 0.11608]]
         struct = Structure.from_spacegroup(14, latt, species, coords)
-        self.assertEqual(sulfide_type(struct), "None")
+        self.assertEqual(sulfide_type(struct), None)
 
         # Na3PS3O -> sulfide
         latt = Lattice.orthorhombic(9.51050, 11.54630, 5.93230)

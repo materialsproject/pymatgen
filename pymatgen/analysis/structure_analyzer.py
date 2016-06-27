@@ -619,19 +619,18 @@ def sulfide_type(structure):
         structure (Structure): Input structure.
 
     Returns:
-        (str) sulfide/polysulfide/None.
+        (str) sulfide/polysulfide/sulfate
     """
-
+    structure = structure.copy()
     structure.remove_oxidation_states()
     s = Element("S")
     comp = structure.composition
     if comp.is_element or s not in comp:
-        return "None"
+        return None
 
     finder = SpacegroupAnalyzer(structure, symprec=0.1)
     symm_structure = finder.get_symmetrized_structure()
-    distinct_sites = [sites[0] for sites in symm_structure.equivalent_sites]
-    s_sites = [site for site in distinct_sites if site.specie == s]
+    s_sites = [sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == s]
 
     def process_site(site):
         neighbors = structure.get_neighbors(site, 4)
@@ -641,15 +640,15 @@ def sulfide_type(structure):
                           if d < dist + 0.4][:4]
         avg_electroneg = np.mean([e.X for e in coord_elements])
         if avg_electroneg > s.X:
-            return "sulfATe"
+            return "sulfate"
         elif avg_electroneg == s.X and s in coord_elements:
             return "polysulfide"
         else:
             return "sulfide"
 
     types = set([process_site(site) for site in s_sites])
-    if "sulfATe" in types:
-        return "None"
+    if "sulfate" in types:
+        return None
     elif "polysulfide" in types:
         return "polysulfide"
     else:
