@@ -126,7 +126,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             (int): International spacegroup number for structure.
         """
-        return self._spacegroup_data["number"]
+        return int(self._spacegroup_data["number"])
 
     def get_hall(self):
         """
