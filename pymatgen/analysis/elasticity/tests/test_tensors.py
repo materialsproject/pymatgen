@@ -2,12 +2,18 @@ from __future__ import absolute_import
 
 import unittest2 as unittest
 import math
+import json
+import os
 
 import numpy as np
 
 from pymatgen.analysis.elasticity.tensors import TensorBase, SquareTensor
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.testing import PymatgenTest
+from pymatgen import Structure
+
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        'test_files')
 
 class TensorBaseTest(PymatgenTest):
     def setUp(self):
@@ -132,6 +138,9 @@ class TensorBaseTest(PymatgenTest):
                                     [0., 0., 207.57]]]])
 
         self.structure = self.get_structure('BaNiO3')
+        ieee_file_path = os.path.join(test_dir, "ieee_conversion_data.json")
+        with open(ieee_file_path) as f:
+            self.ieee_data = json.load(f)
 
     def test_new(self):
         bad_2 = np.zeros((4, 4))
@@ -213,6 +222,16 @@ class TensorBaseTest(PymatgenTest):
         self.assertTrue(self.fit_r3.is_fit_to_structure(self.structure))
         self.assertTrue(self.fit_r4.is_fit_to_structure(self.structure))
 
+    def test_convert_to_ieee(self):
+        for xtal in self.ieee_data.keys():
+            orig = TensorBase(self.ieee_data[xtal]['original_tensor'])
+            ieee = TensorBase(self.ieee_data[xtal]['ieee_tensor'])
+            struct = Structure.from_dict(self.ieee_data[xtal]['structure'])
+            diff = np.max(abs(ieee - orig.convert_to_ieee(struct)))
+            err_msg = "{} IEEE conversion failed with max diff {}".format(
+                xtal, diff)
+            self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct),
+                                        err_msg = err_msg, decimal=3)
 
 class SquareTensorTest(PymatgenTest):
     def setUp(self):
