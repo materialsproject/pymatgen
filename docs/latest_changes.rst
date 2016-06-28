@@ -1,8 +1,6 @@
 Change log
 ==========
 
-v3.6.1
+v3.7.1
 ------
-* Massive cleanup to Boltztrap interface (Anubhav Jain)
-* Refactor of piezoelectric analysis to use tensor base class (Joey)
-* More robust CIF parsing.
+* Fix deprecation bug.

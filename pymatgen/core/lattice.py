@@ -72,6 +72,33 @@ class Lattice(MSONable):
         self._inv_matrix = None
         self._metric_tensor = None
 
+    def __format__(self, fmt_spec=''):
+        """
+        Support format printing. Supported formats are:
+
+        1. "l" for a list format that can be easily copied and pasted, e.g.,
+           ".3fl" prints something like
+           "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]"
+        2. "p" for lattice parameters ".1fp" prints something like
+           "{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}"
+        3. Default will simply print a 3x3 matrix form. E.g.,
+           10.000 0.000 0.000
+           0.000 10.000 0.000
+           0.000 0.000 10.000
+        """
+        m = self.matrix.tolist()
+        if fmt_spec.endswith("l"):
+            fmt = "[[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]]"
+            fmt_spec = fmt_spec[:-1]
+        elif fmt_spec.endswith("p"):
+            fmt = "{{{}, {}, {}, {}, {}, {}}}"
+            fmt_spec = fmt_spec[:-1]
+            m = self.lengths_and_angles
+        else:
+            fmt = "{} {} {}\n{} {} {}\n{} {} {}"
+        return fmt.format(*[format(c, fmt_spec) for row in m
+                            for c in row])
+
     @classmethod
     @deprecated(message="from_abivars has been merged with the from_dict "
                 "method. Use from_dict(fmt=\"abivars\"). from_abivars "
@@ -492,9 +519,9 @@ class Lattice(MSONable):
                                                   max(lengths) * (1 + ltol),
                                                   zip_results=False)
         cart = self.get_cartesian_coords(frac)
-
         # this can't be broadcast because they're different lengths
-        inds = [np.abs(dist - l) / l <= ltol for l in lengths]
+        inds = [np.logical_and(dist / l < 1 + ltol,
+                               dist / l > 1 / (1 + ltol)) for l in lengths]
         c_a, c_b, c_c = (cart[i] for i in inds)
         f_a, f_b, f_c = (frac[i] for i in inds)
         l_a, l_b, l_c = (np.sum(c ** 2, axis=-1) ** 0.5 for c in (c_a, c_b, c_c))
@@ -928,15 +955,21 @@ class Lattice(MSONable):
 
         shifted_coords = fcoords[:, None, None, None, :] + \
             images[None, :, :, :, :]
-        coords = self.get_cartesian_coords(shifted_coords)
-        dists = np.sqrt(np.sum((coords - center[None, None, None, None, :]) ** 2,
-                               axis=4))
-        within_r = np.where(dists <= r)
+
+        cart_coords = self.get_cartesian_coords(fcoords)
+        cart_images = self.get_cartesian_coords(images)
+        coords = cart_coords[:, None, None, None, :] + \
+            cart_images[None, :, :, :, :]
+        coords -= center[None, None, None, None, :]
+        coords **= 2
+        d_2 = np.sum(coords, axis=4)
+
+        within_r = np.where(d_2 <= r ** 2)
         if zip_results:
-            return list(zip(shifted_coords[within_r], dists[within_r],
+            return list(zip(shifted_coords[within_r], np.sqrt(d_2[within_r]),
                             indices[within_r[0]]))
         else:
-            return shifted_coords[within_r], dists[within_r], \
+            return shifted_coords[within_r], np.sqrt(d_2[within_r]), \
                 indices[within_r[0]]
 
     def get_all_distances(self, fcoords1, fcoords2):
