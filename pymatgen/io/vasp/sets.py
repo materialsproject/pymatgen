@@ -28,7 +28,6 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.sites import PeriodicSite
 
-
 """
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters developed and tested by the core team
