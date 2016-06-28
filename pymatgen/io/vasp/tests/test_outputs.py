@@ -379,7 +379,8 @@ class VasprunTest(unittest.TestCase):
                                                {"titel": "PAW_PBE O 08Apr2002", "hash": None}])
 
     def test_parsing_chemical_shift_calculations(self):
-        filepath = os.path.join(test_dir, "chemical_shift", 'vasprun.xml.chemical_shift.scstep')
+        filepath = os.path.join(test_dir, "nmr", "cs", "basic",
+                                'vasprun.xml.chemical_shift.scstep')
         vasprun = Vasprun(filepath)
         nestep = len(vasprun.ionic_steps[-1]['electronic_steps'])
         self.assertEqual(nestep, 10)
@@ -505,7 +506,8 @@ class OutcarTest(unittest.TestCase):
         self.assertIsNotNone(outcar.as_dict())
 
     def test_chemical_shifts(self):
-        filename = os.path.join(test_dir, "nmr_chemical_shift", "hydromagnesite", "OUTCAR")
+        filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
+                                "hydromagnesite", "OUTCAR")
         outcar = Outcar(filename)
         outcar.read_chemical_shifts()
         expected_chemical_shifts = [[191.9974, 69.5232, 0.6342],
@@ -525,7 +527,8 @@ class OutcarTest(unittest.TestCase):
                 self.assertAlmostEqual(x1, x2, places=5)
 
     def test_chemical_shifts_with_different_core_contribution(self):
-        filename = os.path.join(test_dir, "nmr_chemical_shift", "core.diff.chemical.shifts.OUTCAR")
+        filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
+                                "core.diff.chemical.shifts.OUTCAR")
         outcar = Outcar(filename)
         outcar.read_chemical_shifts()
         c_vo = outcar.data["chemical_shifts"]["valence_only"][7].maryland_values
@@ -538,7 +541,7 @@ class OutcarTest(unittest.TestCase):
             self.assertAlmostEqual(x1, x2)
 
     def test_nmr_efg(self):
-        filename = os.path.join(test_dir, "nmr_efg", "AlPO4", "OUTCAR")
+        filename = os.path.join(test_dir, "nmr", "efg", "AlPO4", "OUTCAR")
         outcar = Outcar(filename)
         outcar.read_nmr_efg()
         expected_efg = [{'eta': 0.465, 'nuclear_quadrupole_moment': 146.6, 'cq': -5.573},
