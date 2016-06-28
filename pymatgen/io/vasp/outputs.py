@@ -420,7 +420,10 @@ class Vasprun(MSONable):
                                             p in self.potcar_symbols]
                 if tag == "calculation":
                     parsed_header = True
-                    ionic_steps.append(self._parse_calculation(elem))
+                    if not self.parameters.get("LCHIMAG", False):
+                        ionic_steps.append(self._parse_calculation(elem))
+                    else:
+                        ionic_steps.extend(self._parse_chemical_shift_calculation(elem))
                 elif parse_dos and tag == "dos":
                     try:
                         self.tdos, self.idos, self.pdos = self._parse_dos(elem)
@@ -1013,6 +1016,40 @@ class Vasprun(MSONable):
         return [e[0] for e in imag], \
                [e[1:] for e in real], [e[1:] for e in imag]
 
+
+    def _parse_chemical_shift_calculation(self, elem):
+        calculation = []
+        istep = {}
+        try:
+            s = self._parse_structure(elem.find("structure"))
+        except AttributeError:  # not all calculations have a structure
+            s = None
+            pass
+        for va in elem.findall("varray"):
+            istep[va.attrib["name"]] = _parse_varray(va)
+        istep["structure"] = s
+        istep["electronic_steps"] = []
+        calculation.append(istep)
+        for scstep in elem.findall("scstep"):
+            try:
+                d = {i.attrib["name"]: _vasprun_float(i.text)
+                     for i in scstep.find("energy").findall("i")}
+                cur_ene = d['e_fr_energy']
+                min_steps = 1 if len(calculation) >= 1 else self.parameters.get("NELMIN", 5)
+                if len(calculation[-1]["electronic_steps"]) <= min_steps:
+                    calculation[-1]["electronic_steps"].append(d)
+                else:
+                    last_ene = calculation[-1]["electronic_steps"][-1]["e_fr_energy"]
+                    if abs(cur_ene - last_ene) < 1.0:
+                        calculation[-1]["electronic_steps"].append(d)
+                    else:
+                        calculation.append({"electronic_steps": [d]})
+            except AttributeError:  # not all calculations have an energy
+                pass
+        calculation[-1].update(calculation[-1]["electronic_steps"][-1])
+        return calculation
+
+
     def _parse_calculation(self, elem):
         try:
             istep = {i.attrib["name"]: float(i.text)
@@ -1526,16 +1563,26 @@ class Outcar(MSONable):
                          r"\s+EXCLUDING G=0 CONTRIBUTION\s+INCLUDING G=0 CONTRIBUTION\s+" \
                          r"\s+-{20,}\s+-{20,}\s+" \
                          r"\s+ATOM\s+ISO_SHIFT\s+SPAN\s+SKEW\s+ISO_SHIFT\s+SPAN\s+SKEW\s+" \
-                         r".+?\(absolute, valence and core\)\s+$"
+                         "-{50,}\s*$"
+        first_part_pattern = r"\s+\(absolute, valence only\)\s+$"
+        swallon_valence_body_pattern = r".+?\(absolute, valence and core\)\s+$"
         row_pattern = r"\d+(?:\s+[-]?\d+\.\d+){3}\s+" + r'\s+'.join([r"([-]?\d+\.\d+)"] * 3)
         footer_pattern = "-{50,}\s*$"
-        cs_table = self.read_table_pattern(header_pattern, row_pattern, footer_pattern,
-                                           postprocess=float, last_one_only=True)
-        cs = []
-        for sigma_iso, omega, kappa in cs_table:
-            tensor = NMRChemicalShiftNotation.from_maryland_notation(sigma_iso, omega, kappa)
-            cs.append(tensor)
-        self.data["chemical_shifts"] = tuple(cs)
+        h1 = header_pattern + first_part_pattern
+        cs_valence_only = self.read_table_pattern(h1, row_pattern, footer_pattern,
+                                                  postprocess=float, last_one_only=True)
+        h2 = header_pattern + swallon_valence_body_pattern
+        cs_valence_and_core = self.read_table_pattern(h2, row_pattern, footer_pattern,
+                                                      postprocess=float, last_one_only=True)
+        all_cs = {}
+        for name, cs_table in [["valence_only", cs_valence_only],
+                               ["valence_and_core", cs_valence_and_core]]:
+            cs = []
+            for sigma_iso, omega, kappa in cs_table:
+                tensor = NMRChemicalShiftNotation.from_maryland_notation(sigma_iso, omega, kappa)
+                cs.append(tensor)
+            all_cs[name] = tuple(cs)
+        self.data["chemical_shifts"] = all_cs
 
     def read_nmr_efg(self):
         """
