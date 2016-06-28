@@ -384,7 +384,6 @@ class VasprunTest(unittest.TestCase):
         nestep = len(vasprun.ionic_steps[-1]['electronic_steps'])
         self.assertEqual(nestep, 10)
         self.assertTrue(vasprun.converged)
-        print(vasprun.final_energy)
 
 
 class OutcarTest(unittest.TestCase):
