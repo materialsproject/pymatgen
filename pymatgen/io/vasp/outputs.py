@@ -1365,8 +1365,8 @@ class Outcar(MSONable):
 
         time_patt = re.compile("\((sec|kb)\)")
         efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
-        nelect_patt = re.compile("number of electron\s+(\S+)\s+"
-                                 "magnetization\s+(\S+)")
+        nelect_patt = re.compile("number of electron\s+(\S+)\s+magnetization")
+        mag_patt = re.compile("number of electron\s+\S+\s+magnetization\s+(\S+)")
         etensor_patt = re.compile("[X-Z][X-Z]+\s+-?\d+")
         toten_pattern = re.compile("free  energy   TOTEN\s+=\s+([\d\-\.]+)")
 
@@ -1395,7 +1395,9 @@ class Outcar(MSONable):
                 m = nelect_patt.search(clean)
                 if m:
                     nelect = float(m.group(1))
-                    total_mag = float(m.group(2))
+                m = mag_patt.search(clean)
+                if m:
+                    total_mag = float(m.group(1))
                 if total_energy is None:
                     m = toten_pattern.search(clean)
                     if m:
