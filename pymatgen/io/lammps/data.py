@@ -474,54 +474,52 @@ class LammpsForceFieldData(LammpsData):
         if hasattr(topologies[0], param_name) and getattr(topologies[0], param_name):
             nmols = len(mols)
             mol_id = 0
-            # set the map param_to_mol:
-            # {global param_id :[global mol id, mol_type, local param id in the param], ... }
-            param_to_mol = {}
+            skip = 0
             shift_ = 0
+            # set the parameter data using the topology info
+            # example: loop over all bonds in the system
+            # mol_id --> global molecule id
+            # mol_type --> type of molecule
+            # mol_param_id --> local parameter id in that molecule
             for mol_type in range(nmols):
                 param_obj = getattr(topologies[mol_type], param_name)
                 nparams = len(param_obj)
                 for num_mol_id in range(mols_number[mol_type]):
-                    mol_id += 1
                     for mol_param_id in range(nparams):
                         param_id = num_mol_id * nparams + mol_param_id + shift_
-                        param_to_mol[param_id] = [mol_id - 1, mol_type, mol_param_id]
+                        # example: get the bonds list for mol_type molecule
+                        param_obj = getattr(topologies[mol_type], param_name)
+                        # connectivity info(local atom ids and type) for the
+                        # parameter with the local id 'mol_param_id'.
+                        # example: single bond = [i, j, bond_type]
+                        param = param_obj[mol_param_id]
+                        param_atomids = []
+                        # loop over local atom ids that constitute the parameter
+                        # for the molecule type, mol_type
+                        # example: single bond = [i,j,bond_label]
+                        for atomid in param[:-1]:
+                            # local atom id to global atom id
+                            global_atom_id = molid_to_atomid[mol_id][atomid]
+                            param_atomids.append(global_atom_id + 1)
+                        param_type = param[-1]
+                        param_type_reversed = tuple(reversed(param_type))
+                        # example: get the unique number id for the bond_type
+                        if param_type in param_map:
+                            key = param_type
+                        elif param_type_reversed in param_map:
+                            key = param_type_reversed
+                        else:
+                            key = None
+                        if key:
+                            param_type_id = param_map[key]
+                            param_data.append(
+                                [param_id + 1 - skip, param_type_id] + param_atomids)
+                        else:
+                            skip += 1
+                            print("{} or {} Not available".format(param_type,
+                                                                  param_type_reversed))
+                    mol_id += 1
                 shift_ += nparams * mols_number[mol_type]
-            # set the parameter data using the topology info
-            # example: loop over all bonds in the system
-            skip = 0
-            for param_id, pinfo in param_to_mol.items():
-                mol_id = pinfo[0]  # global molecule id
-                mol_type = pinfo[1]  # type of molecule
-                mol_param_id = pinfo[2]  # local parameter id in that molecule
-                # example: get the bonds list for mol_type molecule
-                param_obj = getattr(topologies[mol_type], param_name)
-                # connectivity info(local atom ids and type) for the parameter with the local id
-                # 'mol_param_id'. example: single bond = [i, j, bond_type]
-                param = param_obj[mol_param_id]
-                param_atomids = []
-                # loop over local atom ids that constitute the parameter
-                # for the molecule type, mol_type
-                # example: single bond = [i,j,bond_label]
-                for atomid in param[:-1]:
-                    # local atom id to global atom id
-                    global_atom_id = molid_to_atomid[mol_id][atomid]
-                    param_atomids.append(global_atom_id + 1)
-                param_type = param[-1]
-                param_type_reversed = tuple(reversed(param_type))
-                # example: get the unique number id for the bond_type
-                if param_type in param_map:
-                    key = param_type
-                elif param_type_reversed in param_map:
-                    key = param_type_reversed
-                else:
-                    key = None
-                if key:
-                    param_type_id = param_map[key]
-                    param_data.append([param_id + 1 - skip, param_type_id] + param_atomids)
-                else:
-                    skip += 1
-                    print("{} or {} Not available".format(param_type, param_type_reversed))
         return param_data
 
     @staticmethod
