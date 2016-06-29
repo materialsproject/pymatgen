@@ -312,6 +312,41 @@ class PackmolRunner(object):
                 return None
 
 
+class LammpsRunner(object):
+    def __init__(self, dict_input, input_filename="lammps.in", bin="lammps"):
+        """
+        LAMMPS wrapper
+
+        Args:
+            dict_input (DictLammpsInput): lammps input object
+            input_filename (string): input file name
+            bin (string): command to run, excluding the input file name
+        """
+        self.lammps_bin = bin.split()
+        if not which(self.lammps_bin[-1]):
+            raise RuntimeError(
+                "LammpsRunner requires the executable {} to be in the path. "
+                "Please download and install LAMMPS from " \
+                "http://lammps.sandia.gov. "
+                "Don't forget to add the binary to your path".format(self.lammps_bin[-1]))
+        self.dict_input = dict_input
+        self.input_filename = input_filename
+
+    def run(self):
+        """
+        Write the input/data files and run LAMMPS.
+        """
+        self.dict_input.write_input(self.input_filename)
+        print("Input file: {}".format(self.input_filename))
+        lammps_cmd = self.lammps_bin + ['-in', self.input_filename]
+        print("Running: {}".format(" ".join(lammps_cmd)))
+        p = Popen(lammps_cmd, stdout=PIPE, stderr=PIPE)
+        p.wait()
+        (stdout, stderr) = p.communicate()
+        print("Done")
+        print(stdout, stderr)
+
+
 if __name__ == '__main__':
     ethanol_coords = [[0.00720, -0.56870, 0.00000],
                       [-1.28540, 0.24990, 0.00000],

@@ -19,6 +19,7 @@ For the ease of management we divide LAMMPS input into 2 files:
             the ensemble type(NVT, NPT etc), max number of iterations etc.
 """
 
+import six
 import json   
 import os
 from functools import partial
@@ -98,36 +99,42 @@ class DictLammpsInput(MSONable):
             f.write(self.__str__())
         # write the data file if present
         if self.lammps_data:
-            print("Writing the data to {}".format(self.data_filename))
+            print("Data file: {}".format(self.data_filename))
             self.lammps_data.write_data_file(filename=self.data_filename)
 
     @staticmethod
-    def from_file(name, filename, data_filename=None, is_forcefield=False):
+    def from_file(name, filename, lammps_data=None, data_filename="in.data",
+                  user_lammps_settings={}, is_forcefield=False):
         """
-        Read in the input settings from json file as ordereddict. Also
-        reads in the datafile if provided.
+        Read in the input settings from json file as ordereddict.
         Note: with monty.serialization.loadfn the order of paramters in the
         json file is not preserved
 
         Args:
             filename (string): name of the file with the lamps control
                 paramters
-            data_filename (string): path to the data file
+            lammps_data (string/LammpsData/LammpsForceFieldData): path to the
+                data file or an appropriate object
+            data_filename (string): name of the the lammps data file
+            user_lammps_settings (dict): User lammps settings
             is_forcefield (bool): whether the data file has forcefield and
-                topology info in it.
+                topology info in it. This is required only if lammps_data is
+                a path to the data file instead of a data object
 
         Returns:
             DictLammpsInput
         """
         with open(filename) as f:
             config_dict = json.load(f, object_pairs_hook=OrderedDict)
-        lammps_data = None
-        if data_filename:
+        lammps_data = lammps_data
+        if isinstance(lammps_data, six.string_types):
             if is_forcefield:
-                lammps_data = LammpsForceFieldData.from_file(data_filename)
+                lammps_data = LammpsForceFieldData.from_file(lammps_data)
             else:
-                lammps_data = LammpsData.from_file(data_filename)
-        return DictLammpsInput(name, config_dict, lammps_data)
+                lammps_data = LammpsData.from_file(lammps_data)
+        return DictLammpsInput(name, config_dict, lammps_data=lammps_data,
+                               data_filename=data_filename,
+                               user_lammps_settings=user_lammps_settings)
 
     def as_dict(self):
         d = MSONable.as_dict(self)
