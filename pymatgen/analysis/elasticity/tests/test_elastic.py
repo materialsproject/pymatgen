@@ -93,6 +93,9 @@ class ElasticTensorTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.elastic_tensor_1.voigt,
                                     self.voigt_1)
 
+        # homogenous youngs
+        self.assertAlmostEqual(self.elastic_tensor_1.homogeneous_youngs,54.087787667160576)
+
     def test_new(self):
         self.assertArrayAlmostEqual(self.elastic_tensor_1,
                                     ElasticTensor(self.ft))
