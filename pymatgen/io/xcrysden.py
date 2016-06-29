@@ -1,12 +1,17 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+from __future__ import division, unicode_literals, print_function
 
+__author__ = "Matteo Giantomassi"
+__copyright__ = "Copyright 2013, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Matteo Giantomassi"
 
-from pymatgen.core.structure import Structure
 
 class XSF(object):
     """
     Class for parsing XCrysden files.
-
-    TODO: Unittests. Write XCrysden output.
     """
 
     def __init__(self, structure):
@@ -39,10 +44,15 @@ class XSF(object):
         return "\n".join(lines)
 
     @classmethod
-    def from_string(self, input_string):
+    def from_string(self, input_string, cls=None):
         """
         Initialize a `Structure` object from a string with data in XSF format.
-        See http://www.xcrysden.org/doc/XSF.html
+
+        Args:
+            input_string: String with the structure in XSF format.
+                See http://www.xcrysden.org/doc/XSF.html
+            cls: Structure class to be created. default: pymatgen structure
+
         """
         # CRYSTAL                                        see (1)
         # these are primitive lattice vectors (in Angstroms)
@@ -82,5 +92,9 @@ class XSF(object):
         else:
             raise ValueError("Invalid XSF data")
 
-        s = Structure(lattice, species, coords, coords_are_cartesian=True)
+        if cls is None:
+            from pymatgen.core.structure import Structure
+            cls = Structure
+
+        s = cls(lattice, species, coords, coords_are_cartesian=True)
         return XSF(s)
