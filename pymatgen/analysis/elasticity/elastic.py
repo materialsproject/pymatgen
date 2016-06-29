@@ -190,7 +190,7 @@ class ElasticTensor(TensorBase):
         """
         returns the homogenous youngs modulus in GPa
         """
-        return 9e9 * self.k_vrh * self.g_vrh / (3. * self.k_vrh * self.g_vrh)
+        return 9 * self.k_vrh * self.g_vrh / (3. * self.k_vrh + self.g_vrh)
 
     def energy_density(self, strain):
         """
