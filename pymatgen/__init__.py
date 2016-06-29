@@ -12,8 +12,6 @@ __version__ = "3.7.1"
 # Allows from pymatgen import <class> for quick usage.
 
 from .core import *
-from .serializers.json_coders import pmg_dump, pmg_load
 from .electronic_structure.core import Spin, Orbital
-from .io.smart import read_structure, write_structure, read_mol, write_mol
 from .matproj.rest import MPRester
 from monty.json import MontyEncoder, MontyDecoder, MSONable

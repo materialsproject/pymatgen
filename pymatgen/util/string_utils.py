@@ -8,13 +8,6 @@ from __future__ import unicode_literals
 import re
 
 
-from six.moves import zip
-
-from tabulate import tabulate
-
-from monty.dev import deprecated
-
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
@@ -22,38 +15,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "$Sep 23, 2011M$"
-
-
-@deprecated(tabulate, "In-house method has been deprecated in favor of using "
-                      "the tabulate package. Please switch all usages. Will "
-                      "be removed in pymagen v4.0.")
-def generate_latex_table(results, header=None, caption=None, label=None):
-    """
-    Generates a string latex table from a sequence of sequence.
-
-    Args:
-        result: 2d sequence of arbitrary types.
-        header: optional header
-
-    Returns:
-        String representation of Latex table with data.
-    """
-    body = []
-    if header is not None:
-        body.append(" & ".join(header) + "\\\\")
-        body.append("\\hline")
-    maxlength = 0
-    for result in results:
-        maxlength = max(maxlength, len(result))
-        body.append(" & ".join([str(m) for m in result]) + "\\\\")
-    colstr = "c" * maxlength
-    output = ["\\begin{table}[H]",
-              "\\caption{{{}}}".format(caption if caption else
-              "Caption"), "\\label{{{}}}".format(label if label else "Label"),
-              "\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}" +
-              colstr + "}", "\\hline", "\n".join(body), "\\hline",
-              "\\end{tabular*}", "\\end{table}"]
-    return "\n".join(output)
 
 
 def str_delimited(results, header=None, delimiter="\t"):
@@ -76,44 +37,6 @@ def str_delimited(results, header=None, delimiter="\t"):
     if header is not None:
         returnstr += delimiter.join(header) + "\n"
     return returnstr + "\n".join([delimiter.join([str(m) for m in result])
-                                  for result in results])
-
-
-@deprecated(tabulate, "In-house method has been deprecated in favor of using "
-                      "the tabulate package. Please switch all usages. Will "
-                      "be removed in pymagen v4.0.")
-def str_aligned(results, header=None):
-    """
-    Given a tuple, generate a nicely aligned string form.
-    >>> results = [["a","b","cz"],["d","ez","f"],[1,2,3]]
-    >>> print(str_aligned(results))
-    a    b   cz
-    d   ez    f
-    1    2    3
-
-    Args:
-        result: 2d sequence of arbitrary types.
-        header: optional header
-
-    Returns:
-        Aligned string output in a table-like format.
-    """
-    k = list(zip(*results))
-    stringlengths = list()
-    count = 0
-    for i in k:
-        col_max_len = max([len(str(m)) for m in i])
-        if header is not None:
-            col_max_len = max([len(str(header[count])), col_max_len])
-        stringlengths.append(col_max_len)
-        count += 1
-    format_string = "   ".join(["%" + str(d) + "s" for d in stringlengths])
-    returnstr = ""
-    if header is not None:
-        header_str = format_string % tuple(header)
-        returnstr += header_str + "\n"
-        returnstr += "-" * len(header_str) + "\n"
-    return returnstr + "\n".join([format_string % tuple(result)
                                   for result in results])
 
 

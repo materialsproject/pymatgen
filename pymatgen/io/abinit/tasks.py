@@ -3201,7 +3201,7 @@ class RelaxTask(GsTask, ProduceHist):
         .. note::
 
             The problem in the present approach is that some parameters in the input
-            are computed from the initial structure and may not be consisten with
+            are computed from the initial structure and may not be consistent with
             the modification of the structure done during the structure relaxation.
         """
         restart_file = None
