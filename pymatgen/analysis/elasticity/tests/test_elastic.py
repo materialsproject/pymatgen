@@ -1,16 +1,17 @@
-from __future__ import absolute_import
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
-import unittest2 as unittest
+import json
 import os
+import warnings
 
 import numpy as np
+import unittest2 as unittest
+
 from pymatgen.analysis.elasticity.elastic import ElasticTensor
-from pymatgen.analysis.elasticity.strain import Strain, IndependentStrain, Deformation
+from pymatgen.analysis.elasticity.strain import (Deformation,
+                                                 IndependentStrain, Strain)
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
-import warnings
-import json
 from six.moves import zip
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -18,6 +19,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 
 class ElasticTensorTest(PymatgenTest):
+
     def setUp(self):
         self.voigt_1 = [[59.33, 28.08, 28.08, 0, 0, 0],
                         [28.08, 59.31, 28.07, 0, 0, 0],
@@ -91,7 +93,6 @@ class ElasticTensorTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.elastic_tensor_1.voigt,
                                     self.voigt_1)
 
-
     def test_new(self):
         self.assertArrayAlmostEqual(self.elastic_tensor_1,
                                     ElasticTensor(self.ft))
@@ -117,8 +118,8 @@ class ElasticTensorTest(PymatgenTest):
                        for def_matrix in self.def_stress_dict['deformations']]
         stress_list = [stress for stress in self.def_stress_dict['stresses']]
         with warnings.catch_warnings(record=True):
-            et_fl = -0.1*ElasticTensor.from_strain_stress_list(strain_list, 
-                                                               stress_list).voigt
+            et_fl = -0.1 * ElasticTensor.from_strain_stress_list(strain_list,
+                                                                 stress_list).voigt
             self.assertArrayAlmostEqual(et_fl.round(2),
                                         [[59.29, 24.36, 22.46, 0, 0, 0],
                                          [28.06, 56.91, 22.46, 0, 0, 0],
@@ -129,10 +130,10 @@ class ElasticTensorTest(PymatgenTest):
 
     def test_from_stress_dict(self):
         stress_dict = dict(list(zip([IndependentStrain(def_matrix) for def_matrix
-                                in self.def_stress_dict['deformations']],
-                                [Stress(stress_matrix) for stress_matrix
-                                in self.def_stress_dict['stresses']])))
-        with warnings.catch_warnings(record = True):
+                                     in self.def_stress_dict['deformations']],
+                                    [Stress(stress_matrix) for stress_matrix
+                                     in self.def_stress_dict['stresses']])))
+        with warnings.catch_warnings(record=True):
             et_from_sd = ElasticTensor.from_stress_dict(stress_dict)
         self.assertArrayAlmostEqual(et_from_sd.voigt_symmetrized.round(2),
                                     self.elastic_tensor_1)
@@ -147,12 +148,37 @@ class ElasticTensorTest(PymatgenTest):
             [0.,      0.,      0.,      0.,    150.73,    0.],
             [0.,      0.,      0.,      0.,      0.,    238.74]])
 
-        dfm = Deformation([[ -9.86004855e-01,2.27539582e-01,-4.64426035e-17],
-                           [ -2.47802121e-01,-9.91208483e-01,-7.58675185e-17],
-                           [ -6.12323400e-17,-6.12323400e-17,1.00000000e+00]])
+        dfm = Deformation([[-9.86004855e-01, 2.27539582e-01, -4.64426035e-17],
+                           [-2.47802121e-01, -9.91208483e-01, -7.58675185e-17],
+                           [-6.12323400e-17, -6.12323400e-17, 1.00000000e+00]])
 
         self.assertAlmostEqual(film_elac.energy_density(dfm.green_lagrange_strain),
-            0.000125664672793)
+                               0.000125664672793)
 
+    def test_christoffel_tensor(self):
+        self.assertArrayAlmostEqual(self.elastic_tensor_1.ChristoffelTensor([1, 0, 0]),
+                                    [[59.33,  0.,     0.],
+                                     [0.,    26.35,   0.],
+                                     [0.,     0.,    26.35]])
+        self.assertArrayAlmostEqual(self.elastic_tensor_1.ChristoffelTensor([1, 0, 1]),
+                                    [[42.84,   0.,  27.215],
+                                     [0.,  26.35,   0.],
+                                     [27.215,   0.,  42.835]])
+
+        self.assertArrayAlmostEqual(self.elastic_tensor_1.WaveVelocities([1, 0, 0]),
+                                    [7.702597,  5.1332251,  5.1332251])
+        self.assertArrayAlmostEqual(self.elastic_tensor_1.WaveVelocities([1, 0, 1]),
+                                    [8.3697372,  3.9525308,  5.1332251])
+
+    def test_stability(self):
+        self.assertTrue(self.elastic_tensor_1.elasticically_stable)
+        elac = ElasticTensor.from_voigt([[-86.,  25.,  18.,   0.,   0.,   0.],
+                              [25.,  73.,  24.,   0.,   0.,   0.],
+                              [18.,  24., -86.,   0.,   0.,   0.],
+                              [0.,   0.,   0.,  24.,   0.,   0.],
+                              [0.,   0.,   0.,   0.,  18.,   0.],
+                              [0.,   0.,   0.,   0.,   0.,  25.]])
+
+        self.assertFalse(elac.elasticically_stable)
 if __name__ == '__main__':
     unittest.main()

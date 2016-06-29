@@ -2,8 +2,19 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals
-from __future__ import absolute_import
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+import itertools
+import warnings
+
+import numpy as np
+
+from pymatgen.analysis.elasticity import reverse_voigt_map, voigt_map
+from pymatgen.analysis.elasticity.strain import Strain
+from pymatgen.analysis.elasticity.stress import Stress
+from pymatgen.analysis.elasticity.tensors import TensorBase
+from six.moves import range
 
 """
 This module provides a class used to describe the elastic tensor,
@@ -11,14 +22,6 @@ including methods used to fit the elastic tensor from linear response
 stress-strain data
 """
 
-from pymatgen.analysis.elasticity import voigt_map, reverse_voigt_map
-from pymatgen.analysis.elasticity.tensors import TensorBase
-from pymatgen.analysis.elasticity.stress import Stress
-from pymatgen.analysis.elasticity.strain import Strain
-import numpy as np
-import warnings
-import itertools
-from six.moves import range
 
 __author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -66,7 +69,7 @@ class ElasticTensor(TensorBase):
                              "input to be the true 3x3x3x3 representation. "
                              "To construct from an elastic tensor from "
                              "6x6 Voigt array, use ElasticTensor.from_voigt")
-        return obj 
+        return obj
 
     @classmethod
     def from_voigt(cls, voigt_matrix, tol=1e-2):
@@ -83,8 +86,8 @@ class ElasticTensor(TensorBase):
                              "the elastic tensor in voigt notation as input.")
 
         c = np.zeros((3, 3, 3, 3))
-        for ind in itertools.product(*[range(3)]*4):
-            v_ind = (reverse_voigt_map[ind[:2]], 
+        for ind in itertools.product(*[range(3)] * 4):
+            v_ind = (reverse_voigt_map[ind[:2]],
                      reverse_voigt_map[ind[2:]])
             c[ind] = voigt_matrix[v_ind]
         return cls(c)
@@ -123,7 +126,7 @@ class ElasticTensor(TensorBase):
         """
         returns the G_v shear modulus
         """
-        return (2. * self.voigt[:3, :3].trace() - 
+        return (2. * self.voigt[:3, :3].trace() -
                 np.triu(self.voigt[:3, :3]).sum() +
                 3 * self.voigt[3:, 3:].trace()) / 15.
 
@@ -188,10 +191,10 @@ class ElasticTensor(TensorBase):
         """
         # Conversion factor for GPa to eV/Angstrom^3
         GPA_EV = 0.000624151
-        
+
         with warnings.catch_warnings(record=True):
             e_density = np.dot(np.transpose(Strain(strain).voigt),
-                np.dot(self.voigt, Strain(strain).voigt))/2 * GPA_EV
+                               np.dot(self.voigt, Strain(strain).voigt)) / 2 * GPA_EV
 
         return e_density
 
@@ -255,3 +258,37 @@ class ElasticTensor(TensorBase):
         v = self.voigt
         new_v = 0.5 * (np.transpose(v) + v)
         return ElasticTensor.from_voigt(new_v)
+
+    def ChristoffelTensor(self, prop_direction):
+        """
+        Construct the Christoffel Tensor which represents the wave vectors and frequencies for
+        plane waves (p,s1,s2) in a given propogation direction
+
+        Args:
+            prop_direction (3x1): vector of the propogation direction
+        """
+        prop_direction = prop_direction / np.linalg.norm(prop_direction)
+        return TensorBase(np.einsum('ijkl,j,l->ik', self, prop_direction, prop_direction))
+
+    def WaveVelocities(self, prop_direction, density=1):
+        """
+        Calculate the wave propogation velocities from the Christoffel Tensor in a given
+        propogation direction
+
+        Args:
+            prop_direction (3x1): vector of the propogation direction
+            density (float): material density
+        """
+        prop_direction = prop_direction / np.linalg.norm(prop_direction)
+        CT = self.ChristoffelTensor(prop_direction)
+        V, D = np.linalg.eig(CT)
+        V = np.sqrt(V / density)
+        return V
+
+    @property
+    def elasticically_stable(self):
+        """
+        Calculates if the elastic tensor represents an elastically stable system as defined by
+        the Born criterion
+        """
+        return np.all(np.linalg.eigvals(self.voigt) > 0)
