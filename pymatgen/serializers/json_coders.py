@@ -19,9 +19,6 @@ __date__ = "Apr 30, 2012"
 import json
 import functools
 
-from monty.serialization import loadfn, dumpfn
-from monty.dev import deprecated
-
 
 def pmg_serialize(method):
     """
@@ -48,36 +45,3 @@ def json_pretty_dump(obj, filename):
     with open(filename, "w") as fh:
         json.dump(obj, fh, indent=4, sort_keys=4)
 
-
-@deprecated(loadfn, "Will be removed in pmg 4.0.")
-def pmg_load(filename, **kwargs):
-    """
-    Loads a json file and deserialize it with MontyDecoder.
-
-    Args:
-        filename (str): Filename of file to open. Can be gzipped or bzipped.
-        \*\*kwargs: Any of the keyword arguments supported by the json.load
-            method.
-
-    Returns:
-        Deserialized pymatgen object. Note that these objects can be lists,
-        dicts or otherwise nested pymatgen objects that support the as_dict()
-        and from_dict MSONable protocol.
-    """
-    return loadfn(filename, **kwargs)
-
-
-@deprecated(dumpfn, "Will be removed in pmg 4.0.")
-def pmg_dump(obj, filename, **kwargs):
-    """
-    Dump an object to a json file using MontyEncoder. Note that these
-    objects can be lists, dicts or otherwise nested pymatgen objects that
-    support the as_dict() and from_dict MSONable protocol.
-
-    Args:
-        obj (object): Object to dump.
-        filename (str): Filename of file to open. Can be gzipped or bzipped.
-        \*\*kwargs: Any of the keyword arguments supported by the json.dump
-            method.
-    """
-    return dumpfn(obj, filename, **kwargs)
