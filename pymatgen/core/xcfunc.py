@@ -33,7 +33,7 @@ class XcFunc(MSONable):
 
         - from_abinit_ixc
 
-    Ax XcFunct instance is hashable and can therefore be used as key in dictionaries.
+    Ax XcFunc instance is hashable and can therefore be used as key in dictionaries.
 
     The implementation is based on the libxc conventions
     and is inspired to the XML specification for atomic PAW datasets documented at:
@@ -132,9 +132,9 @@ class XcFunc(MSONable):
             #ixc = str(ixc)
             #assert len(ixc[1:]) == 6
             #first, last = ixc[1:4], ixc[4:]
-	    ixc = abs(ixc)
-	    first = ixc // 1000
-	    last = ixc - first * 1000
+            ixc = abs(ixc)
+            first = ixc // 1000
+            last = ixc - first * 1000
             x, c = LibxcFunc(int(first)), LibxcFunc(int(last))
             if not x.is_x_kind: x, c = c, x  # Swap
             assert x.is_x_kind and c.is_c_kind

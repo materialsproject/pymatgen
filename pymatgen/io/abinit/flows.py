@@ -980,12 +980,12 @@ class Flow(Node, NodeContainer, MSONable):
             cprint("\nall_ok reached\n", "green", file=stream)
 
     def show_events(self, status=None, nids=None):
-	"""
-	Print the Abinit events (ERRORS, WARNIING, COMMENTS) to stdout
+        """
+        Print the Abinit events (ERRORS, WARNIING, COMMENTS) to stdout
 
-	Args:
-	    status: if not None, only the tasks with this status are select
-	    nids: optional list of node identifiers used to filter the tasks.
+        Args:
+            status: if not None, only the tasks with this status are select
+            nids: optional list of node identifiers used to filter the tasks.
 	"""
         nrows, ncols = get_terminal_size()
 
@@ -997,15 +997,15 @@ class Flow(Node, NodeContainer, MSONable):
                 #report = report.filter_types()
 
     def show_corrections(self, status=None, nids=None):
-	"""
-	Show the corrections applied to the flow at run-time.
+        """
+        Show the corrections applied to the flow at run-time.
 
-	Args:
-	    status: if not None, only the tasks with this status are select.
-	    nids: optional list of node identifiers used to filter the tasks.
+        Args:
+            status: if not None, only the tasks with this status are select.
+            nids: optional list of node identifiers used to filter the tasks.
 
-	Return: The number of corrections found.
-	"""
+        Return: The number of corrections found.
+        """
         nrows, ncols = get_terminal_size()
         count = 0
         for task in self.iflat_tasks(status=status, nids=nids):
@@ -1016,19 +1016,18 @@ class Flow(Node, NodeContainer, MSONable):
                 pprint(corr)
 
         if not count: print("No correction found.")
-
-	return count
+        return count
 
     def show_history(self, status=None, nids=None, full_history=False, metadata=False):
-	"""
-	Print the history of the flow to stdout.
+        """
+        Print the history of the flow to stdout.
 
-	Args:
-	    status: if not None, only the tasks with this status are select
-	    full_history: Print full info set, including nodes with an empty history.
+        Args:
+            status: if not None, only the tasks with this status are select
+            full_history: Print full info set, including nodes with an empty history.
             nids: optional list of node identifiers used to filter the tasks.
-	    metadata: print history metadata (experimental)
-	"""
+            metadata: print history metadata (experimental)
+        """
         nrows, ncols = get_terminal_size()
 
         works_done = []
