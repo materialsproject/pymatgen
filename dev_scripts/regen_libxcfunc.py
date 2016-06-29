@@ -2,8 +2,8 @@
 """
 This script regenerates the enum values in pymatgen.core.libxc_func.py.
 It requires in input the path of the `libxc_docs.txt` file contained in libxc/src
-The script parses this file, creates a new json file inside pymatgen.core 
-and updatse the enum values declared in LibxcFunc.
+The script parses this file, creates a new json file inside pymatgen.core
+and update the enum values declared in LibxcFunc.
 The script must be executed inside pymatgen/dev_scripts.
 """
 from __future__ import print_function, division, unicode_literals

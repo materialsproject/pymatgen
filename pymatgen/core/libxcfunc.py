@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
+Enumerator with the libxc identifiers.
+This is a low level object, client code should not interact with LibxcFunc directly
+but use the API provided by the Xcfunc object defined in core.xcfunc.py.
 Part of this module is automatically generated so be careful when refactoring stuff.
 Use the script ~pymatgen/dev_scripts/regen_libxcfunc.py to regenerate the enum values.
 """
@@ -15,7 +18,7 @@ from enum import Enum, unique
 from monty.json import MontyEncoder
 
 # The libxc version used to generate this file!
-libxc_version = "3.0.0"  
+libxc_version = "3.0.0"
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -504,5 +507,5 @@ class LibxcFunc(Enum):
 
 
 if __name__ == "__main__":
-    for xc in LibxcFunc: 
+    for xc in LibxcFunc:
         print(xc)

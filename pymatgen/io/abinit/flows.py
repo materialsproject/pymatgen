@@ -265,7 +265,7 @@ class Flow(Node, NodeContainer, MSONable):
     def reload(self):
         """
         Reload the flow from the pickle file. Used when we are monitoring the flow
-        executed by the scheduler. In this case, indeed, the flow might have benn changed
+        executed by the scheduler. In this case, indeed, the flow might have been changed
         by the scheduler and we have to reload the new flow in memory.
         """
         new = self.__class__.pickle_load(self.workdir)

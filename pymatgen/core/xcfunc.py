@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
-This module provides 
+This module provides
 """
 from __future__ import unicode_literals, division, print_function
 
@@ -23,23 +23,34 @@ __date__ = "May 16, 2016"
 
 class XcFunc(MSONable):
     """
-    This object stores information about the XC correlation functional 
-    used to generate the pseudo. The implementation is based on the libxc conventions 
+    This object stores information about the XC correlation functional.
+    Client code usually creates the object by calling the class methods:
+
+        - from_name
+        - from_type_name
+
+    or code-specific methods such as:
+
+        - from_abinit_ixc
+
+    Ax XcFunct instance is hashable and can therefore be used as key in dictionaries.
+
+    The implementation is based on the libxc conventions
     and is inspired to the XML specification for atomic PAW datasets documented at:
 
         https://wiki.fysik.dtu.dk/gpaw/setups/pawxml.html
 
     For convenience, part of the pawxml documentation is reported here.
 
-    The xc_functional element defines the exchange-correlation functional used for 
+    The xc_functional element defines the exchange-correlation functional used for
     generating the dataset. It has the two attributes type and name.
 
     The type attribute can be LDA, GGA, MGGA or HYB.
-    The name attribute designates the exchange-correlation functional 
+    The name attribute designates the exchange-correlation functional
     and can be specified in the following ways:
 
-    [1] Taking the names from the LibXC library. The correlation and exchange names 
-        are stripped from their XC_ part and combined with a + sign. 
+    [1] Taking the names from the LibXC library. The correlation and exchange names
+        are stripped from their XC_ part and combined with a + sign.
         Here is an example for an LDA functional:
 
         <xc_functional type="LDA", name="LDA_X+LDA_C_PW"/>
@@ -63,7 +74,7 @@ class XcFunc(MSONable):
     type_name = namedtuple("type_name", "type, name")
 
     xcf = LibxcFunc
-    defined_aliases = OrderedDict([  # (x, c) --> type_name 
+    defined_aliases = OrderedDict([  # (x, c) --> type_name
 	# LDAs
         ((xcf.LDA_X, xcf.LDA_C_PW), type_name("LDA", "PW")),             # ixc 7
         ((xcf.LDA_X, xcf.LDA_C_PW_MOD), type_name("LDA", "PW_MOD")),
@@ -91,7 +102,7 @@ class XcFunc(MSONable):
         1: dict(xc=xcf.LDA_XC_TETER93),
         2: dict(x=xcf.LDA_X, c=xcf.LDA_C_PZ),          # PZ  001009
         4: dict(x=xcf.LDA_X, c=xcf.LDA_C_WIGNER),      # W
-        5: dict(x=xcf.LDA_X, c=xcf.LDA_C_HL),          # HL  
+        5: dict(x=xcf.LDA_X, c=xcf.LDA_C_HL),          # HL
         7: dict(x=xcf.LDA_X, c=xcf.LDA_C_PW),          # PW 001012
         11: dict(x=xcf.GGA_X_PBE, c=xcf.GGA_C_PBE),    # PBE
         14: dict(x=xcf.GGA_X_PBE_R, c=xcf.GGA_C_PBE),  # revPBE
@@ -147,7 +158,7 @@ class XcFunc(MSONable):
 
         # At this point, we should have something in the form
         # name="GGA_X_PBE+GGA_C_PBE" or  name=""LDA_XC_TETER93"
-        if "+" in name: 
+        if "+" in name:
             assert typ is None
             x, c = (s.strip() for s in name.split("+"))
             x, c = LibxcFunc[x], LibxcFunc[c]
@@ -226,9 +237,6 @@ class XcFunc(MSONable):
         if self.xc is not None: return self.xc.name
         return "+".join([self.x.name, self.c.name])
 
-    # def __repr__(self):
-    # return "<%s: %s at %s>" % (self.name, self.__class__.__name__, id(self))
-    # def __str__(self):
     def __repr__(self):
         return "%s" % self.name
 
