@@ -185,6 +185,13 @@ class ElasticTensor(TensorBase):
         return (1. - 2. / 3. * self.g_vrh / self.k_vrh) / \
                (2. + 2. / 3. * self.g_vrh / self.k_vrh)
 
+    @property
+    def homogeneous_youngs(self):
+        """
+        returns the homogenous youngs modulus in GPa
+        """
+        return 9e9 * self.k_vrh * self.g_vrh / (3. * self.k_vrh * self.g_vrh)
+
     def energy_density(self, strain):
         """
         Calculates the elastic energy density due to a strain
