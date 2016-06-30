@@ -201,7 +201,8 @@ class TensorBase(np.ndarray):
         # IEEE rules: a=b in length; c,a || x3, x1
         elif xtal_sys == "tetragonal":
             rotation = np.array([vec/mag for (mag, vec) in 
-                                 sorted(zip(lengths, vecs))])
+                                 sorted(zip(lengths, vecs),
+                                        key = lambda x: x[0])])
             if abs(lengths[2] - lengths[1]) < ltol:
                 rotation[0], rotation[2] = rotation[2], rotation[0].copy()
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
