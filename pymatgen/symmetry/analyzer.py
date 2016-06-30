@@ -40,7 +40,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "May 14, 2016"
 
-
 import spglib
 
 logger = logging.getLogger(__name__)

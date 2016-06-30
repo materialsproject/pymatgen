@@ -1,7 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 from __future__ import unicode_literals, division, print_function
 
 import os
@@ -18,7 +17,7 @@ from pymatgen.io.abinit.works import *
 from pymatgen.io.abinit.tasks import *
 from pymatgen.io.abinit.pseudos import Pseudo
 
-_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
+_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                          'test_files', "abinit")
 
 
@@ -41,6 +40,11 @@ class FakeAbinitInput(object):
                           [1.9200989668, 3.3257101909, 0.00],
                           [0.00, -2.2171384943, 3.1355090603]])
         return Structure(lattice, ["Si", "Si"], coords)
+
+    def get(self, key, default=None):
+        """The real AbinitInput is a dict-like object."""
+        if default is not None: return default
+        return key
 
 
 class FlowUnitTest(PymatgenTest):
@@ -75,12 +79,12 @@ qadapters:
             LD_LIBRARY_PATH: /home/user/NAPS/intel13/lib:$LD_LIBRARY_PATH
         mpi_runner: mpirun
 
-# Connection to the MongoDb database (optional) 
+# Connection to the MongoDb database (optional)
 db_connector:
     database: abinit
     collection: test
-    #host: 0.0.0.0 
-    #port: 8080 
+    #host: 0.0.0.0
+    #port: 8080
     #user: gmatteo
     #password: helloworld
 
@@ -117,9 +121,9 @@ class FlowTest(FlowUnitTest):
         task0_w0 = work[0]
         atrue(task0_w0.is_task)
         print(task0_w0.status.colored)
-        atrue(len(flow) == 1) 
+        atrue(len(flow) == 1)
         aequal(flow.num_tasks, 1)
-        atrue(flow.has_db) 
+        atrue(flow.has_db)
 
         #print(task0_w0.input_structure)
         print(task0_w0.make_input)
@@ -129,7 +133,7 @@ class FlowTest(FlowUnitTest):
         task0_w0.history.info("Hello %s", "world")
         assert len(task0_w0.history) == 1
         print(task0_w0.history)
-        record = task0_w0.history.pop() 
+        record = task0_w0.history.pop()
         print(record, repr(record))
         assert record.get_message(asctime=False) == "Hello world"
         assert len(task0_w0.history) == 0
@@ -200,6 +204,8 @@ class FlowTest(FlowUnitTest):
 
         flow.show_info()
         flow.show_summary()
+        flow.show_inputs()
+        flow.show_inputs(varnames="znucl")
 
         # Test show_status
         flow.show_status()
