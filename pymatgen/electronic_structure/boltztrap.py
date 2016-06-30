@@ -1268,10 +1268,10 @@ class BoltztrapAnalyzer(object):
                 raise ValueError("Invalid input to is_isotropic!")
 
             st = sorted(x)
-            return all([st[0],st[1],st[2]]) and \
+            return bool(all([st[0],st[1],st[2]]) and \
                    (abs((st[1]-st[0])/st[1]) <= isotropy_tolerance) and \
                    (abs((st[2]-st[0]))/st[2] <= isotropy_tolerance) and \
-                   (abs((st[2]-st[1])/st[2]) <= isotropy_tolerance)
+                   (abs((st[2]-st[1])/st[2]) <= isotropy_tolerance))
 
         if target_prop.lower() == "seebeck":
             d = self.get_seebeck(output="eigs", doping_levels=True)

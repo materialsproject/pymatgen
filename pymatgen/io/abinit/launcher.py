@@ -16,15 +16,17 @@ from monty.io import get_open_fds
 from monty.string import boxed, is_string
 from monty.os.path import which
 from monty.collections import AttrDict, dict2namedtuple
+from monty.termcolor import cprint
 from .utils import as_bool, File, Directory
 from . import qutils as qu
 from pymatgen.util.io_utils import ask_yesno
 
 try:
     import apscheduler
+    has_apscheduler = True
     has_sched_v3 = apscheduler.version >= "3.0.0"
 except ImportError:
-    pass
+    has_apscheduler = False
 
 import logging
 logger = logging.getLogger(__name__)
@@ -40,6 +42,7 @@ def straceback():
     """Returns a string with the traceback."""
     import traceback
     return traceback.format_exc()
+
 
 class ScriptEditor(object):
     """Simple editor that simplifies the writing of shell scripts"""
@@ -107,7 +110,7 @@ class ScriptEditor(object):
             self.load_module(module)
 
     def load_module(self, module):
-        self._add('module load ' + module)
+        self._add('module load ' + module + " 2>> mods.err")
 
     def add_line(self, line):
         self._add(line)
@@ -203,7 +206,7 @@ class PyLauncher(object):
 
             # I don't know why but we receive duplicated tasks.
             if any(task in launched for task in tasks):
-                logger.critical("numtasks %d already in launched list:\n%s" % (len(task), launched))
+                logger.critical("numtasks %d already in launched list:\n%s" % (len(tasks), launched))
 
             # Preventive test.
             tasks = [t for t in tasks if t not in launched]
@@ -246,26 +249,26 @@ class PyFlowSchedulerError(Exception):
 
 class PyFlowScheduler(object):
     """
-    This object schedules the submission of the tasks in an :class:`Flow`.
+    This object schedules the submission of the tasks in a :class:`Flow`.
     There are two types of errors that might occur during the execution of the jobs:
 
         #. Python exceptions
-        #. Abinit Errors.
+        #. Errors in the ab-initio code
 
-    Python exceptions are easy to detect and are usually due to a bug in abinitio or random errors such as IOError.
-    The set of Abinit Errors is much much broader. It includes wrong input data, segmentation
-    faults, problems with the resource manager, etc. Abinitio tries to handle the most common cases
+    Python exceptions are easy to detect and are usually due to a bug in the python code or random errors such as IOError.
+    The set of errors in the ab-initio is much much broader. It includes wrong input data, segmentation
+    faults, problems with the resource manager, etc. The flow tries to handle the most common cases
     but there's still a lot of room for improvement.
-    Note, in particular, that `PyFlowScheduler` will shutdown automatically if
+    Note, in particular, that `PyFlowScheduler` will shutdown automatically in the following cases:
 
-        #. The number of python exceptions is > MAX_NUM_PYEXC
+        #. The number of python exceptions is > max_num_pyexcs
 
-        #. The number of Abinit Errors (i.e. the number of tasks whose status is S_ERROR) is > MAX_NUM_ERRORS
+        #. The number of task errors (i.e. the number of tasks whose status is S_ERROR) is > max_num_abierrs
 
         #. The number of jobs launched becomes greater than (`safety_ratio` * total_number_of_tasks).
 
         #. The scheduler will send an email to the user (specified by `mailto`) every `remindme_s` seconds.
-           If the mail cannot be sent, it will shutdown automatically.
+           If the mail cannot be sent, the scheduler will shutdown automatically.
            This check prevents the scheduler from being trapped in an infinite loop.
     """
     # Configuration file.
@@ -274,22 +277,41 @@ class PyFlowScheduler(object):
 
     Error = PyFlowSchedulerError
 
+    @classmethod
+    def autodoc(cls):
+        i = cls.__init__.__doc__.index("Args:")
+        return cls.__init__.__doc__[i+5:]
+
     def __init__(self, **kwargs):
         """
         Args:
-            weeks: number of weeks to wait
-            days: number of days to wait
-            hours: number of hours to wait
-            minutes: number of minutes to wait
-            seconds: number of seconds to wait
-            verbose: (int) verbosity level
-            max_njobs_inque: Limit on the number of jobs that can be present in the queue
-            use_dynamic_manager: True if the :class:`TaskManager` must be re-initialized from
-                file before launching the jobs. Default: False
-            max_nlaunches: Maximum number of tasks launched by radpifire (default -1 i.e. no limit)
-            fix_qcritical: True if the launcher should try to fix QCritical Errors (default: True)
-            rmflow: If set to True, the scheduler will remove the flow directory if the calculation
-                completed successfully. Default: False
+            weeks: number of weeks to wait (DEFAULT: 0).
+            days: number of days to wait (DEFAULT: 0).
+            hours: number of hours to wait (DEFAULT: 0).
+            minutes: number of minutes to wait (DEFAULT: 0).
+            seconds: number of seconds to wait (DEFAULT: 0).
+            mailto: The scheduler will send an email to `mailto` every `remindme_s` seconds.
+                (DEFAULT: None i.e. not used).
+            verbose: (int) verbosity level. (DEFAULT: 0)
+            use_dynamic_manager: "yes" if the :class:`TaskManager` must be re-initialized from
+                file before launching the jobs. (DEFAULT: "no")
+            max_njobs_inqueue: Limit on the number of jobs that can be present in the queue. (DEFAULT: 200)
+            remindme_s: The scheduler will send an email to the user specified by `mailto` every `remindme_s` seconds.
+                (int, DEFAULT: 1 day).
+            max_num_pyexcs: The scheduler will exit if the number of python exceptions is > max_num_pyexcs
+                (int, DEFAULT: 0)
+            max_num_abierrs: The scheduler will exit if the number of errored tasks is > max_num_abierrs
+                (int, DEFAULT: 0)
+            safety_ratio: The scheduler will exits if the number of jobs launched becomes greater than
+               `safety_ratio` * total_number_of_tasks_in_flow. (int, DEFAULT: 5)
+            max_nlaunches: Maximum number of tasks launched in a single iteration of the scheduler.
+                (DEFAULT: -1 i.e. no limit)
+            debug: Debug level. Use 0 for production (int, DEFAULT: 0)
+            fix_qcritical: "yes" if the launcher should try to fix QCritical Errors (DEFAULT: "yes")
+            rmflow: If "yes", the scheduler will remove the flow directory if the calculation
+                completed successfully. (DEFAULT: "no")
+            killjobs_if_errors: "yes" if the scheduler should try to kill all the runnnig jobs
+                before exiting due to an error. (DEFAULT: "yes")
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
@@ -300,26 +322,26 @@ class PyFlowScheduler(object):
             seconds=kwargs.pop("seconds", 0),
             #start_date=kwargs.pop("start_date", None),
         )
-
         if all(not v for v in self.sched_options.values()):
             raise self.Error("Wrong set of options passed to the scheduler.")
 
         self.mailto = kwargs.pop("mailto", None)
         self.verbose = int(kwargs.pop("verbose", 0))
-        self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", False)
+        self.use_dynamic_manager = as_bool(kwargs.pop("use_dynamic_manager", False))
         self.max_njobs_inqueue = kwargs.pop("max_njobs_inqueue", 200)
         self.max_ncores_used = kwargs.pop("max_ncores_used", None)
         self.contact_resource_manager = as_bool(kwargs.pop("contact_resource_manager", False))
 
-        self.remindme_s = float(kwargs.pop("remindme_s", 4 * 24 * 3600))
+        self.remindme_s = float(kwargs.pop("remindme_s", 1 * 24 * 3600))
         self.max_num_pyexcs = int(kwargs.pop("max_num_pyexcs", 0))
         self.max_num_abierrs = int(kwargs.pop("max_num_abierrs", 0))
         self.safety_ratio = int(kwargs.pop("safety_ratio", 5))
         #self.max_etime_s = kwargs.pop("max_etime_s", )
         self.max_nlaunches = kwargs.pop("max_nlaunches", -1)
         self.debug = kwargs.pop("debug", 0)
-        self.fix_qcritical = kwargs.pop("fix_qcritical", True)
-        self.rmflow = kwargs.pop("rmflow", False)
+        self.fix_qcritical = as_bool(kwargs.pop("fix_qcritical", True))
+        self.rmflow = as_bool(kwargs.pop("rmflow", False))
+        self.killjobs_if_errors = as_bool(kwargs.pop("killjobs_if_errors", True))
 
         self.customer_service_dir = kwargs.pop("customer_service_dir", None)
         if self.customer_service_dir is not None:
@@ -328,6 +350,9 @@ class PyFlowScheduler(object):
 
         if kwargs:
             raise self.Error("Unknown arguments %s" % kwargs)
+
+        if not has_apscheduler:
+            raise RuntimeError("Install apscheduler with pip")
 
         if has_sched_v3:
             logger.warning("Using scheduler v>=3.0.0")
@@ -386,10 +411,11 @@ class PyFlowScheduler(object):
         """String representation."""
         lines = [self.__class__.__name__ + ", Pid: %d" % self.pid]
         app = lines.append
-
         app("Scheduler options: %s" % str(self.sched_options))
-        app(80 * "=")
-        app(str(self.flow))
+
+        if self.flow is not None:
+            app(80 * "=")
+            app(str(self.flow))
 
         return "\n".join(lines)
 
@@ -413,7 +439,10 @@ class PyFlowScheduler(object):
     @property
     def flow(self):
         """`Flow`."""
-        return self._flow
+        try:
+            return self._flow
+        except AttributeError:
+            return None
 
     @property
     def num_excs(self):
@@ -425,14 +454,16 @@ class PyFlowScheduler(object):
         return timedelta(seconds=(time.time() - self.start_time))
 
     def add_flow(self, flow):
-        """Add an :class:`Flow` flow to the scheduler."""
+        """
+        Add an :class:`Flow` flow to the scheduler.
+        """
         if hasattr(self, "_flow"):
             raise self.Error("Only one flow can be added to the scheduler.")
 
         # Check if we are already using a scheduler to run this flow
         flow.check_pid_file()
         flow.set_spectator_mode(False)
-                                                 
+
         # Build dirs and files (if not yet done)
         flow.build()
 
@@ -461,18 +492,18 @@ class PyFlowScheduler(object):
         """
         This method is called before the shutdown of the scheduler.
         If customer_service is on and the flow didn't completed successfully,
-        a lightweight tarball file with inputs and the most important output files 
+        a lightweight tarball file with inputs and the most important output files
         is created in customer_servide_dir.
         """
         if self.customer_service_dir is None: return
         doit = self.exceptions or not self.flow.all_ok
         doit = True
         if not doit: return
-        
+
         prefix = os.path.basename(self.flow.workdir) + "_"
 
         import tempfile, datetime
-        suffix = str(datetime.datetime.now()).replace(" ", "-") 
+        suffix = str(datetime.datetime.now()).replace(" ", "-")
         # Remove milliseconds
         i = suffix.index(".")
         if i != -1: suffix = suffix[:i]
@@ -495,6 +526,9 @@ class PyFlowScheduler(object):
         """
         self.history.append("Started on %s" % time.asctime())
         self.start_time = time.time()
+
+        if not has_apscheduler:
+            raise RuntimeError("Install apscheduler with pip")
 
         if has_sched_v3:
             self.sched.add_job(self.callback, "interval", **self.sched_options)
@@ -520,7 +554,7 @@ class PyFlowScheduler(object):
 
         except KeyboardInterrupt:
             self.shutdown(msg="KeyboardInterrupt from user")
-            if ask_yesno("Do you want to cancel all the jobs in the queue? [Y/n]"): 
+            if ask_yesno("Do you want to cancel all the jobs in the queue? [Y/n]"):
                 print("Number of jobs cancelled:", self.flow.cancel())
 
             self.flow.pickle_dump()
@@ -563,12 +597,11 @@ class PyFlowScheduler(object):
         flow.check_status(show=False)
 
         # This check is not perfect, we should make a list of tasks to sumbit
-        # and select only the subset so that we don't exceeed mac_ncores_used 
+        # and select only the subset so that we don't exceeed mac_ncores_used
         # Many sections of this code should be rewritten.
         #if self.max_ncores_used is not None and flow.ncores_used > self.max_ncores_used:
         if self.max_ncores_used is not None and flow.ncores_allocated > self.max_ncores_used:
-            print("Cannot exceed max_ncores_used %s" % self.max_ncores_used)
-            logger.info("Cannot exceed max_ncores_used %s" % self.max_ncores_used)
+            print("Cannot exceed max_ncores_use:d %s" % self.max_ncores_used)
             return
 
         # Try to restart the unconverged tasks
@@ -577,7 +610,7 @@ class PyFlowScheduler(object):
             try:
                 logger.info("Flow will try restart task %s" % task)
                 fired = task.restart()
-                if fired: 
+                if fired:
                     self.nlaunch += 1
                     max_nlaunch -= 1
                     if max_nlaunch == 0:
@@ -614,7 +647,6 @@ class PyFlowScheduler(object):
             excs.append(straceback())
 
         # check status.
-        #flow.check_status(show=True)
         flow.show_status()
 
         if excs:
@@ -630,7 +662,7 @@ class PyFlowScheduler(object):
             s = straceback()
             self.exceptions.append(s)
 
-            # This is useful when debugging 
+            # This is useful when debugging
             #try:
             #    print("Exception in callback, will cancel all tasks")
             #    for task in self.flow.iflat_tasks():
@@ -681,7 +713,7 @@ class PyFlowScheduler(object):
             err_lines.append(boxed(msg))
 
         # Paranoid check: disable the scheduler if we have submitted
-        # too many jobs (it might be due to some bug or other external reasons 
+        # too many jobs (it might be due to some bug or other external reasons
         # such as race conditions between difference callbacks!)
         if self.nlaunch > self.safety_ratio * self.flow.num_tasks:
             msg = "Too many jobs launched %d. Total number of tasks = %s, Will shutdown the scheduler and exit" % (
@@ -695,10 +727,9 @@ class PyFlowScheduler(object):
             err_lines.append(boxed(msg))
 
         # Test on the presence of deadlocks.
-        #"""
         g = self.flow.find_deadlocks()
-        if g.deadlocked: 
-            # Check the flow again so that status are updated. 
+        if g.deadlocked:
+            # Check the flow again so that status are updated.
             self.flow.check_status()
 
             g = self.flow.find_deadlocks()
@@ -707,15 +738,25 @@ class PyFlowScheduler(object):
                 err_lines.append("No runnable job with deadlocked tasks:\n%s." % str(g.deadlocked))
 
         if not g.runnables and not g.running:
-            # Check the flow again to that status are updated. 
+            # Check the flow again so that status are updated.
             self.flow.check_status()
             g = self.flow.find_deadlocks()
             if not g.runnables and not g.running:
                 err_lines.append("No task is running and cannot find other tasks to submit.")
-        #"""
 
+        # Something wrong. Quit
         if err_lines:
-            # Something wrong. Quit
+            # Cancel all jobs.
+            if self.killjobs_if_errors:
+                cprint("killjobs_if_errors set to 'yes' in scheduler file. Will kill jobs before exiting.", "yellow")
+                try:
+                    num_cancelled = 0
+                    for task in self.flow.iflat_tasks():
+                        num_cancelled += task.cancel()
+                    cprint("Killed %d tasks" % num_cancelled, "yellow")
+                except Exception as exc:
+                    cprint("Exception while trying to kill jobs:\n%s" % str(exc), "red")
+
             self.shutdown("\n".join(err_lines))
 
         return len(self.exceptions)
@@ -735,8 +776,8 @@ class PyFlowScheduler(object):
         try:
             self.cleanup()
 
-            self.history.append("Completed on %s" % time.asctime())
-            self.history.append("Elapsed time %s" % self.get_delta_etime())
+            self.history.append("Completed on: %s" % time.asctime())
+            self.history.append("Elapsed time: %s" % self.get_delta_etime())
 
             if self.debug:
                 print(">>>>> shutdown: Number of open file descriptors: %s" % get_open_fds())
@@ -752,23 +793,17 @@ class PyFlowScheduler(object):
                     fh.writelines(self.exceptions)
                     fh.write("Shutdown message:\n%s" % msg)
 
-                # Cancel all jobs.
-                #try:
-                #   for task in self.flow.iflat_tasks()
-                #       task.cancel()
-                #except:
-                #   pass
-
             lines = []
             app = lines.append
-            app("Submitted on %s" % time.ctime(self.start_time))
-            app("Completed on %s" % time.asctime())
-            app("Elapsed time %s" % str(self.get_delta_etime()))
+            app("Submitted on: %s" % time.ctime(self.start_time))
+            app("Completed on: %s" % time.asctime())
+            app("Elapsed time: %s" % str(self.get_delta_etime()))
 
             if self.flow.all_ok:
                 app("Flow completed successfully")
             else:
                 app("Flow %s didn't complete successfully" % repr(self.flow.workdir))
+                app("use `abirun.py FLOWDIR debug` to analyze the problem.")
                 app("Shutdown message:\n%s" % msg)
 
             print("")
@@ -778,7 +813,7 @@ class PyFlowScheduler(object):
             self._do_customer_service()
 
             if self.flow.all_ok:
-                print("Calling flow.finalize()")
+                print("Calling flow.finalize()...")
                 self.flow.finalize()
                 if self.rmflow:
                     app("Flow directory will be removed...")
@@ -789,7 +824,7 @@ class PyFlowScheduler(object):
 
         finally:
             # Shutdown the scheduler thus allowing the process to exit.
-            logger.debug('this should be the shutdown of the scheduler')
+            logger.debug('This should be the shutdown of the scheduler')
 
             # Unschedule all the jobs before calling shutdown
             #self.sched.print_jobs()
@@ -797,7 +832,7 @@ class PyFlowScheduler(object):
                 for job in self.sched.get_jobs():
                     self.sched.unschedule_job(job)
             #self.sched.print_jobs()
-                
+
             self.sched.shutdown()
             # Uncomment the line below if shutdown does not work!
             #os.system("kill -9 %d" % os.getpid())
@@ -820,9 +855,9 @@ class PyFlowScheduler(object):
         header = msg.splitlines()
         app = header.append
 
-        app("Submitted on %s" % time.ctime(self.start_time))
-        app("Completed on %s" % time.asctime())
-        app("Elapsed time %s" % str(self.get_delta_etime()))
+        app("Submitted on: %s" % time.ctime(self.start_time))
+        app("Completed on: %s" % time.asctime())
+        app("Elapsed time: %s" % str(self.get_delta_etime()))
         app("Number of errored tasks: %d" % self.flow.num_errored_tasks)
         app("Number of unconverged tasks: %d" % self.flow.num_unconverged_tasks)
 
@@ -869,7 +904,6 @@ def sendmail(subject, text, mailto, sender=None):
     if is_string(mailto): mailto = [mailto]
 
     from email.mime.text import MIMEText
-
     mail = MIMEText(text)
     mail["Subject"] = subject
     mail["From"] = sender
@@ -904,10 +938,10 @@ class BatchLauncher(object):
     This object automates the execution of multiple flow. It generates a job script
     that uses abirun.py to run each flow stored in self with a scheduler.
     The execution of the flows is done in sequential but each scheduler will start
-    to submit the tasks of the flow in autparal mode.
+    to submit the tasks of the flow in autoparal mode.
 
     The `BatchLauncher` is pickleable, hence one can reload it, check if all flows are completed
-    and rerun only those that are not completed due to the timelimit. 
+    and rerun only those that are not completed due to the timelimit.
     """
     PICKLE_FNAME = "__BatchLauncher__.pickle"
 
@@ -1001,7 +1035,7 @@ class BatchLauncher(object):
         """
         Return state is pickled as the contents for the instance.
 
-        Here we replace the flow objects with their workdir because we are observing 
+        Here we replace the flow objects with their workdir because we are observing
         the flows and we want to have the updated version when we reload the `BatchLauncher` from pickle.
         """
         d = {k: v for k, v in self.__dict__.items() if k not in ["flows"]}
@@ -1017,7 +1051,7 @@ class BatchLauncher(object):
             manager: :class:`TaskManager` object responsible for the submission of the jobs.
                      If manager is None, the object is initialized from the yaml file
                      located either in the working directory or in the user configuration dir.
-            timelimit: Time limit (int with seconds or string with time given with 
+            timelimit: Time limit (int with seconds or string with time given with
                 the slurm convention: "days-hours:minutes:seconds".
                 If timelimit is None, the default value specified in the `batch_adapter` is taken.
         """
@@ -1047,11 +1081,11 @@ class BatchLauncher(object):
 
         if qad is None:
             raise RuntimeError("Your manager.yml file does not define an entry for the batch_adapter")
-           
-        # Set mpi_procs to 1 just to be on the safe side 
+
+        # Set mpi_procs to 1 just to be on the safe side
         # Then allow the user to change the timelimit via __init__
         qad.set_mpi_procs(1)
-        if timelimit is not None: 
+        if timelimit is not None:
             self.set_timelimit(timelimit)
             # FIXME: Remove me!
             self.set_timelimit(36000)
@@ -1128,7 +1162,7 @@ class BatchLauncher(object):
                 retcode: Return code as returned by the submission script.
                 qjob: :class:`QueueJob` object.
                 num_flows_inbatch: Number of flows executed by the batch script
-                
+
             Return code of the job script submission.
         """
         verbose, dry_run = kwargs.pop("verbose", 0), kwargs.pop("dry_run", False)
@@ -1142,7 +1176,7 @@ class BatchLauncher(object):
             # and we have already submitted to batch script to the queue.
             # At this point we need to understand if the previous batch job
             # is still running before trying to submit it again. There are three cases:
-            # 
+            #
             # 1) The batch script has completed withing timelimit and therefore
             #    the pid_file has been removed by the script. In this case, we
             #    should not try to submit it again.
@@ -1244,7 +1278,7 @@ class BatchLauncher(object):
         ])
 
         return self.qadapter.get_script_str(
-            job_name=self.name, 
+            job_name=self.name,
             launch_dir=self.workdir,
             executable=executable,
             qout_path=self.qout_file.path,
