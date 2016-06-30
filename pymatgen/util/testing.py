@@ -137,7 +137,11 @@ class PymatgenTest(unittest.TestCase):
             # Test for equality
             if test_eq:
                 for old_obj, new_obj in zip(objects, new_objects):
-                    self.assert_equal(old_obj, new_obj)
+                    #print("old_obj:", type(old_obj))
+                    #print(old_obj)
+                    #print("new_obj:", type(new_obj))
+                    #print(new_obj)
+                    self.assertEqual(old_obj, new_obj)
 
             # Save the deserialized objects and test for equality.
             objects_by_protocol.append(new_objects)
@@ -162,10 +166,14 @@ class PymatgenTest(unittest.TestCase):
 
         return tmpfile
 
-    def assertMSONable(self, obj):
+    def assertMSONable(self, obj, test_if_subclass=True):
         """
         Tests if obj is MSONable and tries to verify whether the contract is fullfilled.
+
+        By default, the method tests whether obj is an instance of MSONable. 
+        This check can be deactivated by setting test_if_subclass to False.
         """
-        self.assertIsInstance(obj, MSONable)
+        if test_if_subclass:
+            self.assertIsInstance(obj, MSONable)
         self.assertDictEqual(obj.as_dict(), obj.__class__.from_dict(obj.as_dict()).as_dict())
         json.loads(obj.to_json(), cls=MontyDecoder)
