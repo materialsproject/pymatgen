@@ -5,7 +5,13 @@
 from __future__ import division, print_function, unicode_literals, absolute_import
 
 """
-This module implements classes for generating/parsing Lammps data files.
+This module implements classes for generating/parsing Lammps data file i.e
+the file that defines the system configuration(atomic positions, bonds,
+angles and dihedrals).
+
+Assumptions: The ATOMS section in the data file that defines the atomic positions
+    is assumed to be in the following format:
+        atom_id, molecule_id, atom_type, charge(optional), x, y, z
 """
 
 from six.moves import range
@@ -397,7 +403,8 @@ class LammpsForceFieldData(LammpsData):
             raise AttributeError
 
     @staticmethod
-    def get_atoms_data(mols, mols_number, molecule, atomic_masses_dict, topologies):
+    def get_atoms_data(mols, mols_number, molecule, atomic_masses_dict,
+                       topologies, atom_to_mol=None):
         """
         Return the atoms data.
 
@@ -408,29 +415,38 @@ class LammpsForceFieldData(LammpsData):
                 in the mols list.
             topologies (list): list of Topology objects, one for each molecule
                 type in mols list
+            atom_to_mol (dict):  maps atom_id --> [mol_type, mol_id,
+                local atom id in the mol with id mol_id]
 
         Returns:
             atoms_data: [[atom id, mol type, atom type, charge, x, y, z], ... ]
             molid_to_atomid: [ [global atom id 1, id 2, ..], ...], the
                 index will be the global mol id
         """
-        atom_to_mol = {}
-        molid_to_atomid = []
         atoms_data = []
         nmols = len(mols)
-        # set up map atom_id --> [mol_type, local atom id in the mol] in mols
-        # set up map gobal molecule id --> [[atom_id,...],...]
-        shift_ = 0
-        for mol_type in range(nmols):
-            natoms = len(mols[mol_type])
-            for num_mol_id in range(mols_number[mol_type]):
-                tmp = []
-                for mol_atom_id in range(natoms):
-                    atom_id = num_mol_id * natoms + mol_atom_id + shift_
-                    atom_to_mol[atom_id] = [mol_type, mol_atom_id]
-                    tmp.append(atom_id)
-                molid_to_atomid.append(tmp)
-            shift_ += len(mols[mol_type]) * mols_number[mol_type]
+        # set up map atom_to_mol:
+        #   atom_id --> [mol_type, mol_id, local atom id in the mol with id mol id]
+        # set up map molid_to_atomid:
+        #   gobal molecule id --> [[atom_id1, atom_id2,...], ...]
+        # This assumes that the atomic order in the assembled molecule can be
+        # obtained from the atomic order in the constituent molecules.
+        if not atom_to_mol:
+            atom_to_mol = {}
+            molid_to_atomid = []
+            shift_ = 0
+            mol_id = 0
+            for mol_type in range(nmols):
+                natoms = len(mols[mol_type])
+                for num_mol_id in range(mols_number[mol_type]):
+                    tmp = []
+                    for mol_atom_id in range(natoms):
+                        atom_id = num_mol_id * natoms + mol_atom_id + shift_
+                        atom_to_mol[atom_id] = [mol_type, mol_id, mol_atom_id]
+                        tmp.append(atom_id)
+                    mol_id += 1
+                    molid_to_atomid.append(tmp)
+                shift_ += len(mols[mol_type]) * mols_number[mol_type]
         # set atoms data from the molecule assembly consisting of
         # molecules from mols list with their count from mol_number list.
         # atom id, mol id, atom type, charge from topology, x, y, z
@@ -439,12 +455,13 @@ class LammpsForceFieldData(LammpsData):
             # atom_type = molecule.symbol_set.index(site.species_string) + 1
             atom_id = i + 1
             mol_type = atom_to_mol[i][0] + 1
-            mol_atom_id = atom_to_mol[i][1] + 1
+            mol_id = atom_to_mol[i][1] + 1
+            mol_atom_id = atom_to_mol[i][2] + 1
             charge = 0.0
             if hasattr(topologies[0], "charges"):
                 if topologies[mol_type - 1].charges:
                     charge = topologies[mol_type - 1].charges[mol_atom_id - 1]
-            atoms_data.append([atom_id, mol_type, atom_type, charge,
+            atoms_data.append([atom_id, mol_id, atom_type, charge,
                                site.x, site.y, site.z])
         return atoms_data, molid_to_atomid
 
