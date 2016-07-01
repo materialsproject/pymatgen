@@ -1,7 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 from __future__ import unicode_literals, division, print_function
 
 import os
@@ -18,7 +17,7 @@ except ImportError:
     netCDF4 = None
 
 
-_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
+_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                          'test_files', "abinit")
 
 def ref_file(filename):
@@ -53,24 +52,22 @@ class ETSF_Reader_TestCase(PymatgenTest):
         }
 
         with ETSF_Reader(path) as data:
-
             self.assertEqual(data.ngroups, 1)
-
             print(data.read_varnames())
 
             # Test dimensions.
-            for (dimname, int_ref) in ref_dims.items():
+            for dimname, int_ref in ref_dims.items():
                 value = data.read_dimvalue(dimname)
                 self.assert_equal(value, int_ref)
 
             # Test int variables
-            for (varname, int_ref) in ref_int_values.items():
+            for varname, int_ref in ref_int_values.items():
                 value = data.read_value(varname)
                 print(varname, value)
                 self.assert_equal(value, int_ref)
 
             # Test float variables
-            for (varname, float_ref) in ref_float_values.items():
+            for varname, float_ref in ref_float_values.items():
                 value = data.read_value(varname)
                 print(varname, value)
                 self.assert_almost_equal(value, float_ref)
@@ -95,6 +92,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
             structure = data.read_structure()
             self.assertTrue(isinstance(structure, Structure))
 
-
-if __name__ == "__main__":
-    unittest.main()
+            # Read ixc.
+            # TODO: Upgrade GSR file.
+            #xc = data.read_abinit_xcfunc()
+            #assert xc == "LDA"

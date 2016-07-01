@@ -20,8 +20,6 @@ __date__ = "Sep 23, 2011"
 
 from enum import Enum, unique
 
-from monty.dev import deprecated
-
 
 @unique
 class Spin(Enum):
@@ -36,24 +34,6 @@ class Spin(Enum):
 
     def __str__(self):
         return str(self.value)
-
-    @staticmethod
-    @deprecated(message="from_int has been deprecated. Please use the Enum's "
-                        "default API of calling Spin(1). Will be removed in "
-                        "pymatgen 4.0.")
-    def from_int(i):
-        """
-        Provides the spin from an int. +1 == Spin.up, -1 == Spin.down.
-
-        Args:
-            i (1/-1): integer representing direction of spin.
-        """
-        if i == 1:
-            return Spin.up
-        elif i == -1:
-            return Spin.down
-        else:
-            raise ValueError("Spin integers must be 1 or -1")
 
 
 @unique
@@ -108,14 +88,3 @@ class Orbital(Enum):
         Returns OrbitalType of an orbital.
         """
         return OrbitalType[self.name[0]]
-
-    @staticmethod
-    @deprecated(message="from_vasp_index has been deprecated. Please use the "
-                        "Enum's default API of calling Orbital(<vasp_index>). "
-                        "Will be removed in pymatgen 4.0.")
-    def from_vasp_index(i):
-        """
-        Returns an orbital based on the index of the orbital in VASP runs.
-        """
-        return Orbital(i)
-

@@ -138,7 +138,7 @@ class DBConnector(object):
 
     def get_collection(self, **kwargs):
         """
-        Establish a connection with the database. 
+        Establish a connection with the database.
 
         Returns MongoDb collection
         """

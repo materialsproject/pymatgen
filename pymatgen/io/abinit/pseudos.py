@@ -13,24 +13,24 @@ import json
 import logging
 import os
 import sys
-from collections import OrderedDict, defaultdict, namedtuple
-from warnings import warn
-
 import numpy as np
 import six
+
+from collections import OrderedDict, defaultdict, namedtuple
 from monty.collections import AttrDict, Namespace
+from tabulate import tabulate
 from monty.dev import deprecated
 from monty.functools import lazy_property
-from monty.io import FileLock
 from monty.itertools import iterator_from_slice
 from monty.json import MSONable, MontyDecoder
 from monty.os.path import find_exts
 from monty.string import list_strings, is_string
-
 from pymatgen.analysis.eos import EOS
 from pymatgen.core.periodic_table import Element
+from pymatgen.core.xcfunc import XcFunc
 from pymatgen.serializers.json_coders import pmg_serialize
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
+
 logger = logging.getLogger(__name__)
 
 
@@ -45,10 +45,8 @@ __maintainer__ = "Matteo Giantomassi"
 
 # Tools and helper functions.
 
-
 def straceback():
     """Returns a string with the traceback."""
-    import sys
     import traceback
     return "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
 
@@ -64,7 +62,7 @@ def _read_nlines(filename, nlines):
 
     lines = []
     with open(filename, 'r') as fh:
-        for (lineno, line) in enumerate(fh):
+        for lineno, line in enumerate(fh):
             if lineno == nlines: break
             lines.append(line)
         return lines
@@ -98,7 +96,7 @@ def str2l(s):
 class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
     """
     Abstract base class defining the methods that must be
-    implemented by the concrete pseudopotential classes.
+    implemented by the concrete pseudopotential sub-classes.
     """
 
     @classmethod
@@ -114,17 +112,14 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
     @staticmethod
     def from_file(filename):
         """
-        Return a :class:`Pseudo` object from filename.
-        Note: the parser knows the concrete class that should be instanciated
+        Build an instance of a concrete Pseudo subclass from filename.
+        Note: the parser knows the concrete class that should be instantiated
+        Client code should rely on the abstract interface provided by Pseudo.
         """
         return PseudoParser().parse(filename)
 
     def __eq__(self, other):
         if other is None: return False
-        # TODO
-        # For the time being we check the filepath
-        # A more robust algorithm would use md5
-        #return self.filepath == other.filepath
         return (self.md5 == other.md5 and
                 self.__class__ == other.__class__ and
                 self.Z == other.Z and
@@ -135,7 +130,11 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return "<%s at %s>" % (self.__class__.__name__, self.filepath)
+        try:
+            return "<%s at %s>" % (self.__class__.__name__, os.path.relpath(self.filepath))
+        except:
+            # relpath can fail if the code is executed in demon mode.
+            return "<%s at %s>" % (self.__class__.__name__, self.filepath)
 
     def __str__(self):
         """String representation."""
@@ -144,13 +143,13 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         app("<%s: %s>" % (self.__class__.__name__, self.basename))
         app("  summary: " + self.summary.strip())
         app("  number of valence electrons: %s" % self.Z_val)
-        #FIXME: rewrite the treatment of xc, use XML specs as starting point
-        #app("  XC correlation (ixc): %s" % self._pspxc)  #FIXME
         app("  maximum angular momentum: %s" % l2str(self.l_max))
         app("  angular momentum for local part: %s" % l2str(self.l_local))
+        app("  XC correlation: %s" % self.xc)
+        app("  supports spin-orbit: %s" % self.supports_soc)
+
         if self.isnc:
             app("  radius for non-linear core correction: %s" % self.nlcc_radius)
-        app("")
 
         if self.has_hints:
             hint_normal = self.hint_for_accuracy()
@@ -180,7 +179,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
     @abc.abstractproperty
     def Z_val(self):
-        """Valence charge"""
+        """Valence charge."""
 
     @property
     def type(self):
@@ -220,74 +219,23 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
     @lazy_property
     def md5(self):
         """MD5 hash value."""
-        if self.has_dojo_report:
-            if "md5" in self.dojo_report:
-                return self.dojo_report["md5"]
-            else:
-                warn("Dojo report without md5 entry")
-
+        #if self.has_dojo_report and "md5" in self.dojo_report: return self.dojo_report["md5"]
         return self.compute_md5()
 
     def compute_md5(self):
-        """Compute MD5 hash value."""
+        """Compute and erturn MD5 hash value."""
         import hashlib
+        with open(self.path, "rt") as fh:
+            text = fh.read()
+            m = hashlib.md5(text.encode("utf-8"))
+            return m.hexdigest()
 
-        if self.path.endswith(".xml"):
-            # TODO: XML + DOJO_REPORT
-            #raise NotImplementedError("md5 for XML files!")
-            with open(self.path, "rt") as fh:
-                text = fh.read()
-
-        else:
-            # If we have a pseudo with a dojo_report at the end.
-            # we compute the hash from the data before DOJO_REPORT.
-            # else all the lines are taken.
-            with open(self.path, "rt") as fh:
-                lines = fh.readlines()
-                try:
-                    start = lines.index("<DOJO_REPORT>\n")
-                except ValueError:
-                    start = len(lines)
-                text = "".join(lines[:start])
-
-        m = hashlib.md5(text.encode("utf-8"))
-        return m.hexdigest()
-
-    def check_and_fix_dojo_md5(self):
-        report = self.read_dojo_report()
-
-        if "md5" in report:
-            if report["md5"] != self.md5:
-                raise ValueError("md5 found in dojo_report does not agree\n"
-                    "with the computed value\nFound %s\nComputed %s"  % (report["md5"], hash))
-        else:
-            report["md5"] = self.compute_md5()
-            self.write_dojo_report(report=report)
-
-    #@abc.abstractproperty
-    #def xc_type(self):
-    #    """XC family e.g LDA, GGA, MGGA."""
-
-    #@abc.abstractproperty
-    #def xc_flavor(self):
-    #    """XC flavor e.g PW, PW91, PBE."""
-
-    #@property
-    #def xc_functional(self):
-    #    """XC identifier e.g LDA-PW91, GGA-PBE, GGA-revPBE."""
-    #    return "-".join([self.xc_type, self.xc_flavor])
-
-    #@abc.abstractproperty
-    #def has_soc(self):
-    #    """True if pseudo contains spin-orbit coupling."""
-
-    #@abc.abstractmethod
-    #def num_of_projectors(self, l='s'):
-    #    """Number of projectors for the angular channel l"""
-
-    #@abc.abstractmethod
-    #def generation_mode
-    #    """scalar scalar-relativistic, relativistic."""
+    @abc.abstractproperty
+    def supports_soc(self):
+        """
+        True if the pseudo can be used in a calculation with spin-orbit coupling.
+        Base classes should provide a concrete implementation that computes this value.
+        """
 
     @pmg_serialize
     def as_dict(self, **kwargs):
@@ -299,7 +247,8 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             Z_val=self.Z_val,
             l_max=self.l_max,
             md5=self.md5,
-            filepath=self.filepath
+            filepath=self.filepath,
+            #xc=self.xc.as_dict(),
         )
 
     @classmethod
@@ -313,119 +262,70 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
         return new
 
-    def as_tmpfile(self):
+    def as_tmpfile(self, tmpdir=None):
         """
         Copy the pseudopotential to a temporary a file and returns a new pseudopotential object.
+        Useful for unit tests in which we have to change the content of the file.
+
+        Args:
+            tmpdir: If None, a new temporary directory is created and files are copied here
+                else tmpdir is used.
         """
         import tempfile, shutil
-        _, dst = tempfile.mkstemp(suffix=self.basename, text=True)
-        shutil.copy(self.path, dst)
-        return self.__class__.from_file(dst)
+        tmpdir = tempfile.mkdtemp() if tmpdir is None else tmpdir
+        new_path = os.path.join(tmpdir, self.basename)
+        shutil.copy(self.filepath, new_path)
+
+        # Copy dojoreport file if present.
+        root, ext = os.path.splitext(self.filepath)
+        djrepo = root + ".djrepo"
+        if os.path.exists(djrepo):
+            shutil.copy(djrepo, os.path.join(tmpdir, os.path.basename(djrepo)))
+
+        # Build new object and copy dojo_report if present.
+        new = self.__class__.from_file(new_path)
+        if self.has_dojo_report: new.dojo_report = self.dojo_report.deepcopy()
+
+        return new
 
     @property
     def has_dojo_report(self):
-        """True if self contains the `DOJO_REPORT` section."""
-        return bool(self.dojo_report)
+        """True if the pseudo has an associated `DOJO_REPORT` section."""
+        return hasattr(self, "dojo_report") and bool(self.dojo_report)
 
-    def delta_factor(self, accuracy="normal"):
-        """
-        Returns the deltafactor [meV/natom] computed with the given accuracy.
-        None if the `Pseudo` does not have info on the deltafactor.
-        """
-        if not self.has_dojo_report:
-            return None
-        try:
-            return self.dojo_report["delta_factor"][accuracy]["dfact"]
-        except KeyError:
-            return None
-
-    def read_dojo_report(self):
-        """
-        Read the `DOJO_REPORT` section and set the `dojo_report` attribute.
-        returns {} if section is not present.
-        """
-        self.dojo_report = DojoReport.from_file(self.path)
-        return self.dojo_report
-
-    def write_dojo_report(self, report=None):
-        """Write a new `DOJO_REPORT` section to the pseudopotential file."""
-        if report is None:
-            report = self.dojo_report
-
-        report["symbol"] = self.symbol
-
-        if "md5" not in report:
-            report["md5"] = self.md5
-
-        if report["md5"] != self.md5:
-            raise ValueError("md5 found in dojo_report does not agree\n"
-               "with the computed value\nreport: %s\npseudo %s" % (report["md5"], self.md5))
-
-        # Create JSON string from report.
-        jstring = json.dumps(report, indent=4, sort_keys=True) + "\n"
-
-        # Read lines from file and insert jstring between the tags.
-        with open(self.path, "r") as fh:
-            lines = fh.readlines()
-            try:
-                start = lines.index("<DOJO_REPORT>\n")
-            except ValueError:
-                start = -1
-
-            if start == -1:
-                # DOJO_REPORT was not present.
-                lines += ["<DOJO_REPORT>\n", jstring , "</DOJO_REPORT>\n",]
-            else:
-                stop = lines.index("</DOJO_REPORT>\n")
-                lines.insert(stop, jstring)
-                del lines[start+1:stop]
-
-        #  Write new file.
-        with FileLock(self.path):
-            with open(self.path, "w") as fh:
-                fh.writelines(lines)
-
-    def remove_dojo_report(self):
-        """Remove the `DOJO_REPORT` section from the pseudopotential file."""
-        # Read lines from file and insert jstring between the tags.
-        with open(self.path, "r") as fh:
-            lines = fh.readlines()
-            try:
-                start = lines.index("<DOJO_REPORT>\n")
-            except ValueError:
-                start = -1
-
-            if start == -1: return
-
-            stop = lines.index("</DOJO_REPORT>\n")
-            if stop == -1: return
-
-            del lines[start+1:stop]
-
-        # Write new file.
-        with FileLock(self.path):
-            with open(self.path, "w") as fh:
-                fh.writelines(lines)
+    @property
+    def djrepo_path(self):
+        """The path of the djrepo file. None if file does not exist."""
+        root, ext = os.path.splitext(self.filepath)
+        path = root + ".djrepo"
+        return path
+        #if os.path.exists(path): return path
+        #return None
 
     def hint_for_accuracy(self, accuracy="normal"):
         """
-        Returns an hint object with parameters such as ecut [Ha] and
-        aug_ratio for given accuracy. Returns None if no hint is available.
+        Returns a :class:`Hint` object with the suggensted value of ecut [Ha] and
+        pawecutdg [Ha] for the given accuracy.
+        ecut and pawecutdg are set to zero if no hint is available.
 
         Args:
             accuracy: ["low", "normal", "high"]
         """
-        if self.has_dojo_report:
-            try:
-                return Hint.from_dict(self.dojo_report["hints"][accuracy])
-            except KeyError:
-                return None
-        else:
-            return None
+        if not self.has_dojo_report:
+            return Hint(ecut=0., pawecutdg=0.)
+
+        # Get hints from dojoreport. Try first in hints then in ppgen_hints.
+        if "hints" in self.dojo_report:
+            return Hint.from_dict(self.dojo_report["hints"][accuracy])
+        elif "ppgen_hints" in self.dojo_report:
+            return Hint.from_dict(self.dojo_report["ppgen_hints"][accuracy])
+        return Hint(ecut=0., pawecutdg=0.)
 
     @property
     def has_hints(self):
-        """True if self provides hints on the cutoff energy."""
+        """
+        True if self provides hints on the cutoff energy.
+        """
         for acc in ["low", "normal", "high"]:
             try:
                 if self.hint_for_accuracy(acc) is None:
@@ -453,15 +353,15 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         lattice = 10 * np.eye(3)
         structure = Structure(lattice, [self.element], coords=[[0, 0, 0]])
 
-        if self.ispaw and pawecutdg is None: pawecudg = ecut * 4
+        if self.ispaw and pawecutdg is None: pawecutdg = ecut * 4
         inp = gs_input(structure, pseudos=[self], ecut=ecut, pawecutdg=pawecutdg,
                        spin_mode="unpolarized", kppa=1)
         # Add prtpsps = -1 to make Abinit print the PSPS.nc file and stop.
         inp["prtpsps"] = -1
 
-        # Build temporary task and run it.
+        # Build temporary task and run it (ignore retcode because we don't exit cleanly)
         task = AbinitTask.temp_shell_task(inp)
-        retcode = task.start_and_wait()
+        task.start_and_wait()
 
         filepath = task.outdir.has_abiext("_PSPS.nc")
         if not filepath:
@@ -543,14 +443,11 @@ class AbinitPseudo(Pseudo):
             header: :class:`AbinitHeader` instance.
         """
         self.path = path
+        self.header = header
         self._summary = header.summary
 
-        if hasattr(header, "dojo_report"):
-            self.dojo_report = header.dojo_report
-        else:
-            self.dojo_report = {}
-
-        #self.pspcod  = header.pspcod
+        # Build xc from header.
+        self.xc = XcFunc.from_abinit_ixc(header["pspxc"])
 
         for attr_name, desc in header.items():
             value = header.get(attr_name, None)
@@ -578,6 +475,20 @@ class AbinitPseudo(Pseudo):
     @property
     def l_local(self):
         return self._lloc
+
+    @property
+    def supports_soc(self):
+        # Treate ONCVPSP pseudos
+        if self._pspcod == 8:
+            switch = self.header["extension_switch"]
+            if switch in (0, 1): return False
+            if switch in (2, 3): return True
+            raise ValueError("Don't know how to handle extension_switch: %s" % switch)
+
+        # TODO Treat HGH HGHK pseudos
+
+        # As far as I know, other Abinit pseudos do not support SOC.
+        return False
 
 
 class NcAbinitPseudo(NcPseudo, AbinitPseudo):
@@ -617,12 +528,15 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
 
     #def orbitals(self):
 
+    @property
+    def supports_soc(self):
+        return True
 
-#class Hint(namedtuple("Hint", "ecut aug_ratio")):
+
 class Hint(object):
     """
     Suggested value for the cutoff energy [Hartree units]
-    and the cutoff energy for the dense grid (only for PAW pseudos)
+    and the cutoff energy for the dense grid (only for PAW pseudos).
     """
     def __init__(self, ecut, pawecutdg=None):
         self.ecut = ecut
@@ -671,7 +585,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
 
         tokens = [t.strip() for t in line.split()]
         values, keys = tokens[:nk], "".join(tokens[nk:])
-        # Sanitize keys: In some case we might string in for  foo[,bar]
+        # Sanitize keys: In some case we might get strings in the form: foo[,bar]
         keys.replace("[", "").replace("]", "")
         keys = keys.split(",")
 
@@ -718,9 +632,8 @@ def _int_from_str(string):
     else:
         # Needed to handle pseudos with fractional charge
         int_num = np.rint(float_num)
-        warn("Converting float %s to int %s" % (float_num, int_num))
+        logger.warning("Converting float %s to int %s" % (float_num, int_num))
         return int_num
-        #raise TypeError("Cannot convert string %s to int" % string)
 
 
 class NcAbinitHeader(AbinitHeader):
@@ -729,34 +642,33 @@ class NcAbinitHeader(AbinitHeader):
 
     _VARS = {
         # Mandatory
-        "zatom"        : _attr_desc(None, _int_from_str),
-        "zion"         : _attr_desc(None, float),
-        "pspdat"       : _attr_desc(None, float),
-        "pspcod"       : _attr_desc(None, int),
-        "pspxc"        : _attr_desc(None, int),
-        "lmax"         : _attr_desc(None, int),
-        "lloc"         : _attr_desc(None, int),
-        "r2well"       : _attr_desc(None, float),
-        "mmax"         : _attr_desc(None, float),
+        "zatom": _attr_desc(None, _int_from_str),
+        "zion": _attr_desc(None, float),
+        "pspdat": _attr_desc(None, float),
+        "pspcod": _attr_desc(None, int),
+        "pspxc": _attr_desc(None, int),
+        "lmax": _attr_desc(None, int),
+        "lloc": _attr_desc(None, int),
+        "r2well": _attr_desc(None, float),
+        "mmax": _attr_desc(None, float),
         # Optional variables for non linear-core correction. HGH does not have it.
-        "rchrg"        : _attr_desc(0.0,  float),  # radius at which the core charge vanish (i.e. cut-off in a.u.)
-        "fchrg"        : _attr_desc(0.0,  float),
-        "qchrg"        : _attr_desc(0.0,  float),
+        "rchrg": _attr_desc(0.0,  float),  # radius at which the core charge vanish (i.e. cut-off in a.u.)
+        "fchrg": _attr_desc(0.0,  float),
+        "qchrg": _attr_desc(0.0,  float),
     }
     del _attr_desc
 
     def __init__(self, summary, **kwargs):
         super(NcAbinitHeader, self).__init__()
 
-        # APE uses llocal instead of lloc.
+        # pseudos generated by APE use llocal instead of lloc.
         if "llocal" in kwargs:
             kwargs["lloc"] = kwargs.pop("llocal")
 
         self.summary = summary.strip()
 
-        for (key, desc) in NcAbinitHeader._VARS.items():
+        for key, desc in NcAbinitHeader._VARS.items():
             default, astype = desc.default, desc.astype
-
             value = kwargs.pop(key, None)
 
             if value is None:
@@ -771,21 +683,21 @@ class NcAbinitHeader(AbinitHeader):
 
             self[key] = value
 
-        # Add dojo_report
-        self["dojo_report"] = kwargs.pop("dojo_report", {})
-
-        #if kwargs:
-        #    raise RuntimeError("kwargs should be empty but got %s" % str(kwargs))
+        # Add remaining arguments, e.g. extension_switch
+        if kwargs:
+            self.update(kwargs)
 
     @staticmethod
     def fhi_header(filename, ppdesc):
-        """Parse the FHI abinit header."""
-        # Example:
-        # Troullier-Martins psp for element  Sc        Thu Oct 27 17:33:22 EDT 1994
-        #  21.00000   3.00000    940714                zatom, zion, pspdat
-        #    1    1    2    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
-        # 1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg
-        lines = _read_nlines(filename, -1)
+        """
+        Parse the FHI abinit header. Example:
+
+        Troullier-Martins psp for element  Sc        Thu Oct 27 17:33:22 EDT 1994
+         21.00000   3.00000    940714                zatom, zion, pspdat
+           1    1    2    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
+        1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg
+        """
+        lines = _read_nlines(filename, 4)
 
         try:
             header = _dict_from_lines(lines[:4], [0, 3, 6, 3])
@@ -795,94 +707,95 @@ class NcAbinitHeader(AbinitHeader):
 
         summary = lines[0]
 
-        header["dojo_report"] = DojoReport.from_file(filename)
-
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
     def hgh_header(filename, ppdesc):
-        """Parse the HGH abinit header."""
-        # Example:
-        #Hartwigsen-Goedecker-Hutter psp for Ne,  from PRB58, 3641 (1998)
-        #   10   8  010605 zatom,zion,pspdat
-        # 3 1   1 0 2001 0  pspcod,pspxc,lmax,lloc,mmax,r2well
-        lines = _read_nlines(filename, -1)
+        """
+        Parse the HGH abinit header. Example:
+
+        Hartwigsen-Goedecker-Hutter psp for Ne,  from PRB58, 3641 (1998)
+           10   8  010605 zatom,zion,pspdat
+         3 1   1 0 2001 0  pspcod,pspxc,lmax,lloc,mmax,r2well
+        """
+        lines = _read_nlines(filename, 3)
 
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
-
-        header["dojo_report"] = DojoReport.from_file(filename)
 
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
     def gth_header(filename, ppdesc):
-        """Parse the GTH abinit header."""
-        # Example:
-        #Goedecker-Teter-Hutter  Wed May  8 14:27:44 EDT 1996
-        #1   1   960508                     zatom,zion,pspdat
-        #2   1   0    0    2001    0.       pspcod,pspxc,lmax,lloc,mmax,r2well
-        #0.2000000 -4.0663326  0.6778322 0 0     rloc, c1, c2, c3, c4
-        #0 0 0                              rs, h1s, h2s
-        #0 0                                rp, h1p
-        #  1.36 .2   0.6                    rcutoff, rloc
-        lines = _read_nlines(filename, -1)
+        """
+        Parse the GTH abinit header. Example:
+
+        Goedecker-Teter-Hutter  Wed May  8 14:27:44 EDT 1996
+        1   1   960508                     zatom,zion,pspdat
+        2   1   0    0    2001    0.       pspcod,pspxc,lmax,lloc,mmax,r2well
+        0.2000000 -4.0663326  0.6778322 0 0     rloc, c1, c2, c3, c4
+        0 0 0                              rs, h1s, h2s
+        0 0                                rp, h1p
+          1.36 .2   0.6                    rcutoff, rloc
+        """
+        lines = _read_nlines(filename, 7)
 
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
-
-        header["dojo_report"] = DojoReport.from_file(filename)
 
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
     def oncvpsp_header(filename, ppdesc):
-        """Parse the ONCVPSP abinit header."""
-        # Example
-        #Li    ONCVPSP  r_core=  2.01  3.02
-        #      3.0000      3.0000      140504    zatom,zion,pspd
-        #     8     2     1     4   600     0    pspcod,pspxc,lmax,lloc,mmax,r2well
-        #  5.99000000  0.00000000  0.00000000    rchrg fchrg qchrg
-        #     2     2     0     0     0    nproj
-        #     0                 extension_switch
-        #   0                        -2.5000025868368D+00 -1.2006906995331D+00
-        #     1  0.0000000000000D+00  0.0000000000000D+00  0.0000000000000D+00
-        #     2  1.0000000000000D-02  4.4140499497377D-02  1.9909081701712D-02
-        lines = _read_nlines(filename, -1)
+        """
+        Parse the ONCVPSP abinit header. Example:
+
+        Li    ONCVPSP  r_core=  2.01  3.02
+              3.0000      3.0000      140504    zatom,zion,pspd
+             8     2     1     4   600     0    pspcod,pspxc,lmax,lloc,mmax,r2well
+          5.99000000  0.00000000  0.00000000    rchrg fchrg qchrg
+             2     2     0     0     0    nproj
+             0                 extension_switch
+           0                        -2.5000025868368D+00 -1.2006906995331D+00
+             1  0.0000000000000D+00  0.0000000000000D+00  0.0000000000000D+00
+             2  1.0000000000000D-02  4.4140499497377D-02  1.9909081701712D-02
+        """
+        lines = _read_nlines(filename, 6)
 
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
 
+        # Replace pspd with pspdata
         header.update({'pspdat': header['pspd']})
         header.pop('pspd')
-        try:
-            header["dojo_report"] = DojoReport.from_file(filename)
-        except DojoReport.Error:
-            logger.warning('failed to read the dojo report for %s' % filename)
-            header["dojo_report"] = None
+
+        # Read extension switch
+        header["extension_switch"] = int(lines[5].split()[0])
 
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
     def tm_header(filename, ppdesc):
-        """Parse the TM abinit header."""
-        # Example:
-        #Troullier-Martins psp for element Fm         Thu Oct 27 17:28:39 EDT 1994
-        #100.00000  14.00000    940714                zatom, zion, pspdat
-        #   1    1    3    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
-        #   0   4.085   6.246    0   2.8786493        l,e99.0,e99.9,nproj,rcpsp
-        #   .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
-        #   1   3.116   4.632    1   3.4291849        l,e99.0,e99.9,nproj,rcpsp
-        #   .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
-        #   2   4.557   6.308    1   2.1865358        l,e99.0,e99.9,nproj,rcpsp
-        #   .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
-        #   3  23.251  29.387    1   2.4776730        l,e99.0,e99.9,nproj,rcpsp
-        #   .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
-        #   3.62474762267880     .07409391739104    3.07937699839200   rchrg,fchrg,qchrg
+        """
+        Parse the TM abinit header. Example:
+
+        Troullier-Martins psp for element Fm         Thu Oct 27 17:28:39 EDT 1994
+        100.00000  14.00000    940714                zatom, zion, pspdat
+           1    1    3    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
+           0   4.085   6.246    0   2.8786493        l,e99.0,e99.9,nproj,rcpsp
+           .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
+           1   3.116   4.632    1   3.4291849        l,e99.0,e99.9,nproj,rcpsp
+           .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
+           2   4.557   6.308    1   2.1865358        l,e99.0,e99.9,nproj,rcpsp
+           .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
+           3  23.251  29.387    1   2.4776730        l,e99.0,e99.9,nproj,rcpsp
+           .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
+           3.62474762267880     .07409391739104    3.07937699839200   rchrg,fchrg,qchrg
+        """
         lines = _read_nlines(filename, -1)
         header = []
 
-        for (lineno, line) in enumerate(lines):
+        for lineno, line in enumerate(lines):
             header.append(line)
             if lineno == 2:
                 # Read lmax.
@@ -914,8 +827,6 @@ class NcAbinitHeader(AbinitHeader):
 
         header = _dict_from_lines(header, [0,3,6,3])
 
-        header["dojo_report"] = DojoReport.from_file(filename)
-
         return NcAbinitHeader(summary, **header)
 
 
@@ -924,24 +835,24 @@ class PawAbinitHeader(AbinitHeader):
     _attr_desc = namedtuple("att", "default astype")
 
     _VARS = {
-        "zatom"           : _attr_desc(None, _int_from_str),
-        "zion"            : _attr_desc(None, float),
-        "pspdat"          : _attr_desc(None, float),
-        "pspcod"          : _attr_desc(None, int),
-        "pspxc"           : _attr_desc(None, int),
-        "lmax"            : _attr_desc(None, int),
-        "lloc"            : _attr_desc(None, int),
-        "mmax"            : _attr_desc(None, int),
-        "r2well"          : _attr_desc(None, float),
-        "pspfmt"          : _attr_desc(None, str),
-        "creatorID"       : _attr_desc(None, int),
-        "basis_size"      : _attr_desc(None, int),
-        "lmn_size"        : _attr_desc(None, int),
-        "orbitals"        : _attr_desc(None, list),
+        "zatom": _attr_desc(None, _int_from_str),
+        "zion": _attr_desc(None, float),
+        "pspdat": _attr_desc(None, float),
+        "pspcod": _attr_desc(None, int),
+        "pspxc": _attr_desc(None, int),
+        "lmax": _attr_desc(None, int),
+        "lloc": _attr_desc(None, int),
+        "mmax": _attr_desc(None, int),
+        "r2well": _attr_desc(None, float),
+        "pspfmt": _attr_desc(None, str),
+        "creatorID": _attr_desc(None, int),
+        "basis_size": _attr_desc(None, int),
+        "lmn_size": _attr_desc(None, int),
+        "orbitals": _attr_desc(None, list),
         "number_of_meshes": _attr_desc(None, int),
-        "r_cut"           : _attr_desc(None, float), # r_cut(PAW) in the header
-        "shape_type"      : _attr_desc(None, int),
-        "rshape"          : _attr_desc(None, float),
+        "r_cut": _attr_desc(None, float), # r_cut(PAW) in the header
+        "shape_type": _attr_desc(None, int),
+        "rshape": _attr_desc(None, float),
     }
     del _attr_desc
 
@@ -950,7 +861,7 @@ class PawAbinitHeader(AbinitHeader):
 
         self.summary = summary.strip()
 
-        for (key, desc) in self._VARS.items():
+        for key, desc in self._VARS.items():
             default, astype = desc.default, desc.astype
 
             value = kwargs.pop(key, None)
@@ -972,50 +883,56 @@ class PawAbinitHeader(AbinitHeader):
 
     @staticmethod
     def paw_header(filename, ppdesc):
-        """Parse the PAW abinit header."""
-        #Paw atomic data for element Ni - Generated by AtomPAW (N. Holzwarth) + AtomPAW2Abinit v3.0.5
-        #  28.000  18.000 20061204               : zatom,zion,pspdat
-        #  7  7  2 0   350 0.                    : pspcod,pspxc,lmax,lloc,mmax,r2well
-        # paw3 1305                              : pspfmt,creatorID
-        #  5 13                                  : basis_size,lmn_size
-        # 0 0 1 1 2                              : orbitals
-        # 3                                      : number_of_meshes
-        # 1 3  350 1.1803778368E-05 3.5000000000E-02 : mesh 1, type,size,rad_step[,log_step]
-        # 2 1  921 2.500000000000E-03                : mesh 2, type,size,rad_step[,log_step]
-        # 3 3  391 1.1803778368E-05 3.5000000000E-02 : mesh 3, type,size,rad_step[,log_step]
-        #  2.3000000000                          : r_cut(SPH)
-        # 2 0.
+        """
+        Parse the PAW abinit header. Examples:
 
-        # Example
-        #C  (US d-loc) - PAW data extracted from US-psp (D.Vanderbilt) - generated by USpp2Abinit v2.3.0
-        #   6.000   4.000 20090106               : zatom,zion,pspdat
-        #  7 11  1 0   560 0.                    : pspcod,pspxc,lmax,lloc,mmax,r2well
-        # paw4 2230                              : pspfmt,creatorID
-        #  4  8                                  : basis_size,lmn_size
-        # 0 0 1 1                                : orbitals
-        # 5                                      : number_of_meshes
-        # 1 2  560 1.5198032759E-04 1.6666666667E-02 : mesh 1, type,size,rad_step[,log_step]
-        # 2 2  556 1.5198032759E-04 1.6666666667E-02 : mesh 2, type,size,rad_step[,log_step]
-        # 3 2  576 1.5198032759E-04 1.6666666667E-02 : mesh 3, type,size,rad_step[,log_step]
-        # 4 2  666 1.5198032759E-04 1.6666666667E-02 : mesh 4, type,size,rad_step[,log_step]
-        # 5 2  673 1.5198032759E-04 1.6666666667E-02 : mesh 5, type,size,rad_step[,log_step]
-        #  1.5550009124                          : r_cut(PAW)
-        # 3 0.                                   : shape_type,rshape
+        Paw atomic data for element Ni - Generated by AtomPAW (N. Holzwarth) + AtomPAW2Abinit v3.0.5
+          28.000  18.000 20061204               : zatom,zion,pspdat
+          7  7  2 0   350 0.                    : pspcod,pspxc,lmax,lloc,mmax,r2well
+         paw3 1305                              : pspfmt,creatorID
+          5 13                                  : basis_size,lmn_size
+         0 0 1 1 2                              : orbitals
+         3                                      : number_of_meshes
+         1 3  350 1.1803778368E-05 3.5000000000E-02 : mesh 1, type,size,rad_step[,log_step]
+         2 1  921 2.500000000000E-03                : mesh 2, type,size,rad_step[,log_step]
+         3 3  391 1.1803778368E-05 3.5000000000E-02 : mesh 3, type,size,rad_step[,log_step]
+          2.3000000000                          : r_cut(SPH)
+         2 0.
 
-        #Paw atomic data for element Si - Generated by atompaw v3.0.1.3 & AtomPAW2Abinit v3.3.1
-        #  14.000   4.000 20120814               : zatom,zion,pspdat
-        #  7      11  1 0   663 0.               : pspcod,pspxc,lmax,lloc,mmax,r2well
-        # paw5 1331                              : pspfmt,creatorID
-        #  4  8                                  : basis_size,lmn_size
-        # 0 0 1 1                                : orbitals
-        # 5                                      : number_of_meshes
-        # 1 2  663 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 1, type,size,rad_step[,log_step]
-        # 2 2  658 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 2, type,size,rad_step[,log_step]
-        # 3 2  740 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 3, type,size,rad_step[,log_step]
-        # 4 2  819 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 4, type,size,rad_step[,log_step]
-        # 5 2  870 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 5, type,size,rad_step[,log_step]
-        #  1.5669671236                          : r_cut(PAW)
-        # 2 0.                                   : shape_type,rshape
+        Another format:
+
+        C  (US d-loc) - PAW data extracted from US-psp (D.Vanderbilt) - generated by USpp2Abinit v2.3.0
+           6.000   4.000 20090106               : zatom,zion,pspdat
+          7 11  1 0   560 0.                    : pspcod,pspxc,lmax,lloc,mmax,r2well
+         paw4 2230                              : pspfmt,creatorID
+          4  8                                  : basis_size,lmn_size
+         0 0 1 1                                : orbitals
+         5                                      : number_of_meshes
+         1 2  560 1.5198032759E-04 1.6666666667E-02 : mesh 1, type,size,rad_step[,log_step]
+         2 2  556 1.5198032759E-04 1.6666666667E-02 : mesh 2, type,size,rad_step[,log_step]
+         3 2  576 1.5198032759E-04 1.6666666667E-02 : mesh 3, type,size,rad_step[,log_step]
+         4 2  666 1.5198032759E-04 1.6666666667E-02 : mesh 4, type,size,rad_step[,log_step]
+         5 2  673 1.5198032759E-04 1.6666666667E-02 : mesh 5, type,size,rad_step[,log_step]
+          1.5550009124                          : r_cut(PAW)
+         3 0.                                   : shape_type,rshape
+
+        Yet nnother one:
+
+        Paw atomic data for element Si - Generated by atompaw v3.0.1.3 & AtomPAW2Abinit v3.3.1
+          14.000   4.000 20120814               : zatom,zion,pspdat
+          7      11  1 0   663 0.               : pspcod,pspxc,lmax,lloc,mmax,r2well
+         paw5 1331                              : pspfmt,creatorID
+          4  8                                  : basis_size,lmn_size
+         0 0 1 1                                : orbitals
+         5                                      : number_of_meshes
+         1 2  663 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 1, type,size,rad_step[,log_step]
+         2 2  658 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 2, type,size,rad_step[,log_step]
+         3 2  740 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 3, type,size,rad_step[,log_step]
+         4 2  819 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 4, type,size,rad_step[,log_step]
+         5 2  870 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 5, type,size,rad_step[,log_step]
+          1.5669671236                          : r_cut(PAW)
+         2 0.                                   : shape_type,rshape
+        """
         supported_formats = ["paw3", "paw4", "paw5"]
         if ppdesc.format not in supported_formats:
             raise NotImplementedError("format %s not in %s" % (ppdesc.format, supported_formats))
@@ -1042,10 +959,6 @@ class PawAbinitHeader(AbinitHeader):
         #print lines[1]
         header.update(_dict_from_lines(lines[1], [2], sep=":"))
 
-        report = DojoReport.from_file(filename)
-        if report:
-            header["dojo_report"] = report
-
         #print("PAW header\n", header)
         return PawAbinitHeader(summary, **header)
 
@@ -1069,10 +982,10 @@ class PseudoParser(object):
 
     # TODO Recheck
     _PSPCODES = OrderedDict( {
-        1: ppdesc(1, "TM",  "NC", None),
-        2: ppdesc(2, "GTH",  "NC", None),
+        1: ppdesc(1, "TM", "NC", None),
+        2: ppdesc(2, "GTH", "NC", None),
         3: ppdesc(3, "HGH", "NC", None),
-        #4: ppdesc(4, "NC",     , None),
+        4: ppdesc(4, "Teter", "NC", None),
         #5: ppdesc(5, "NC",     , None),
         6: ppdesc(6, "FHI", "NC", None),
         7: ppdesc(6, "PAW_abinit_text", "PAW", None),
@@ -1081,10 +994,10 @@ class PseudoParser(object):
     })
     del ppdesc
     # renumber functionals from oncvpsp todo confrim that 3 is 2
-    _FUNCTIONALS = {1: {'n': 4, 'name': 'Wigner'},
-                    2: {'n': 5, 'name': 'HL'},
-                    3: {'n': 2, 'name': 'PWCA'},
-                    4: {'n': 11, 'name': 'PBE'}}
+    #_FUNCTIONALS = {1: {'n': 4, 'name': 'Wigner'},
+    #                2: {'n': 5, 'name': 'HL'},
+    #                3: {'n': 2, 'name': 'PWCA'},
+    #                4: {'n': 11, 'name': 'PBE'}}
 
     def __init__(self):
         # List of files that have been parsed succesfully.
@@ -1105,7 +1018,7 @@ class PseudoParser(object):
         Returns:
             List of pseudopotential objects.
         """
-        for (i, ext) in enumerate(exclude_exts):
+        for i, ext in enumerate(exclude_exts):
             if not ext.strip().startswith("."):
                 exclude_exts[i] =  "." + ext.strip()
 
@@ -1151,7 +1064,7 @@ class PseudoParser(object):
             # Assume file with the abinit header.
             lines = _read_nlines(filename, 80)
 
-            for (lineno, line) in enumerate(lines):
+            for lineno, line in enumerate(lines):
 
                 if lineno == 2:
                     try:
@@ -1159,7 +1072,7 @@ class PseudoParser(object):
                         pspcod, pspxc = map(int, tokens[:2])
                     except:
                         msg = "%s: Cannot parse pspcod, pspxc in line\n %s" % (filename, line)
-                        sys.stderr.write(msg)
+                        logger.critical(msg)
                         return None
 
                     #if tokens[-1].strip().replace(" ","") not in ["pspcod,pspxc,lmax,lloc,mmax,r2well",
@@ -1202,26 +1115,26 @@ class PseudoParser(object):
         ppdesc = self.read_ppdesc(path)
 
         if ppdesc is None:
+            logger.critical("Cannot find ppdesc in %s" % path)
             return None
 
         psp_type = ppdesc.psp_type
 
         parsers = {
-            "FHI"            : NcAbinitHeader.fhi_header,
-            "GTH"            : NcAbinitHeader.gth_header,
-            "TM"             : NcAbinitHeader.tm_header,
-            "HGH"            : NcAbinitHeader.hgh_header,
-            "HGHK"           : NcAbinitHeader.hgh_header,
-            "ONCVPSP"        : NcAbinitHeader.oncvpsp_header,
+            "FHI": NcAbinitHeader.fhi_header,
+            "GTH": NcAbinitHeader.gth_header,
+            "TM": NcAbinitHeader.tm_header,
+            "Teter": NcAbinitHeader.tm_header,
+            "HGH": NcAbinitHeader.hgh_header,
+            "HGHK": NcAbinitHeader.hgh_header,
+            "ONCVPSP": NcAbinitHeader.oncvpsp_header,
             "PAW_abinit_text": PawAbinitHeader.paw_header,
         }
 
         try:
             header = parsers[ppdesc.name](path, ppdesc)
-        except Exception as exc:
+        except Exception:
             raise self.Error(path + ":\n" + straceback())
-
-        root, ext = os.path.splitext(path)
 
         if psp_type == "NC":
             pseudo = NcAbinitPseudo(path, header)
@@ -1240,8 +1153,6 @@ class RadialFunction(namedtuple("RadialFunction", "mesh values")):
 
 class PawXmlSetup(Pseudo, PawPseudo):
     def __init__(self, filepath):
-        # FIXME
-        self.dojo_report = {}
         self.path = os.path.abspath(filepath)
 
         # Get the XML root (this trick is used to that the object is pickleable).
@@ -1257,14 +1168,15 @@ class PawXmlSetup(Pseudo, PawPseudo):
         self._zatom = int(float(atom_attrib["Z"]))
         self.core, self.valence = map(float, [atom_attrib["core"], atom_attrib["valence"]])
 
-        #xc_info = root.find("atom").attrib
-        #self.xc_type, self.xc_name  = xc_info["type"], xc_info["name"]
-        #self.ae_energy = {k: float(v) for k,v in root.find("ae_energy").attrib.items()}
+        # Build xc from header.
+        xc_info = root.find("xc_functional").attrib
+        self.xc = XcFunc.from_type_name(xc_info["type"], xc_info["name"])
 
         # Old XML files do not define this field!
         # In this case we set the PAW radius to None.
         #self._paw_radius = float(root.find("PAW_radius").attrib["rpaw"])
 
+        #self.ae_energy = {k: float(v) for k,v in root.find("ae_energy").attrib.items()}
         pawr_element = root.find("PAW_radius")
         self._paw_radius = None
         if pawr_element is not None:
@@ -1299,7 +1211,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
             gid = grid_params["id"]
             assert gid not in self.rad_grids
 
-            self.rad_grids[id] = self._eval_grid(grid_params)
+            self.rad_grids[gid] = self._eval_grid(grid_params)
 
     def __getstate__(self):
         """
@@ -1347,6 +1259,13 @@ class PawXmlSetup(Pseudo, PawPseudo):
     @property
     def paw_radius(self):
         return self._paw_radius
+
+    @property
+    def supports_soc(self):
+        """
+        Here I assume that the ab-initio code can treat the SOC within the on-site approximation
+        """
+        return True
 
     @staticmethod
     def _eval_grid(grid_params):
@@ -1429,11 +1348,10 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         except AttributeError:
             self._ae_partial_waves = {}
-            for (mesh, values, attrib) in self._parse_all_radfuncs("ae_partial_wave"):
+            for mesh, values, attrib in self._parse_all_radfuncs("ae_partial_wave"):
                 state = attrib["state"]
-                val_state = self.valence_states[state]
+                #val_state = self.valence_states[state]
                 self._ae_partial_waves[state] = RadialFunction(mesh, values)
-                #print("val_state", val_state)
 
             return self._ae_partial_waves
 
@@ -1447,7 +1365,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
             self._pseudo_partial_waves = {}
             for (mesh, values, attrib) in self._parse_all_radfuncs("pseudo_partial_wave"):
                 state = attrib["state"]
-                val_state = self.valence_states[state]
+                #val_state = self.valence_states[state]
                 self._pseudo_partial_waves[state] = RadialFunction(mesh, values)
 
             return self._pseudo_partial_waves
@@ -1462,7 +1380,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
             self._projector_functions = {}
             for (mesh, values, attrib) in self._parse_all_radfuncs("projector_function"):
                 state = attrib["state"]
-                val_state = self.valence_states[state]
+                #val_state = self.valence_states[state]
                 self._projector_functions[state] = RadialFunction(mesh, values)
 
             return self._projector_functions
@@ -1674,11 +1592,10 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
         self._pseudos_with_z = defaultdict(list)
 
         for pseudo in pseudos:
-            p = pseudo
             if not isinstance(pseudo, Pseudo):
-                p = Pseudo.from_file(pseudo)
-
-            self._pseudos_with_z[p.Z].append(p)
+                pseudo = Pseudo.from_file(pseudo)
+            if pseudo is not None:
+                self._pseudos_with_z[pseudo.Z].append(pseudo)
 
         for z in self.zlist:
             pseudo_list = self._pseudos_with_z[z]
@@ -1715,14 +1632,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
         return "<%s at %s>" % (self.__class__.__name__, id(self))
 
     def __str__(self):
-        lines = []
-        app = lines.append
-        app("<%s, len=%d>" % (self.__class__.__name__, len(self)))
-
-        for pseudo in self:
-            app(str(pseudo))
-
-        return "\n".join(lines)
+        return self.to_table()
 
     @property
     def allnc(self):
@@ -1738,6 +1648,12 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
     def zlist(self):
         """Ordered list with the atomic numbers available in the table."""
         return sorted(list(self._pseudos_with_z.keys()))
+
+    #def max_ecut_pawecutdg(self, accuracy):
+    #"""Return the maximum value of ecut and pawecutdg based on the hints available in the pseudos."""
+    #    ecut = max(p.hint_for_accuracy(accuracy=accuracy).ecut for p in self)
+    #    pawecutdg = max(p.hint_for_accuracy(accuracy=accuracy).pawecutdg for p in self)
+    #    return ecut, pawecutdg
 
     def as_dict(self, **kwargs):
         d = {}
@@ -1784,8 +1700,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
             d[symbol] = self.select_symbols(symbol, ret_list=True)
 
         from itertools import product
-        all = product(*d.values())
-        return list(all)
+        return list(product(*d.values()))
 
     def pseudo_with_symbol(self, symbol, allow_multi=False):
         """
@@ -1844,7 +1759,6 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
             if not all(s.startswith("-") for s in symbols):
                 raise ValueError("When excluding symbols, all strings must start with `-`")
             symbols = [s[1:] for s in symbols]
-            #print(symbols)
 
         symbols = set(symbols)
         pseudos = []
@@ -1872,71 +1786,29 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
             `ValueError` if one of the chemical symbols is not found or
             multiple occurences are present in the table.
         """
-        symbols = structure.symbol_set
-        return self.pseudos_with_symbols(symbols)
+        return self.pseudos_with_symbols(structure.symbol_set)
 
-    #def list_properties(self, *props, **kw):
-    #    """
-    #    Print a list of elements with the given set of properties.
+    def print_table(self, stream=sys.stdout, filter_function=None):
+        """
+        A pretty ASCII printer for the periodic table, based on some filter_function.
 
-    #    Args:
-    #        *prop1*, *prop2*, ... : string
-    #            Name of the properties to print
-    #        *format*: string
-    #            Template for displaying the element properties, with one
-    #            % for each property.
+        Args:
+            stream: file-like object
+            filter_function:
+                A filtering function that take a Pseudo as input and returns a boolean.
+                For example, setting filter_function = lambda p: p.Z_val > 2 will print
+                a periodic table containing only pseudos with Z_val > 2.
+        """
+        print(self.to_table(filter_function=filter_function), file=stream)
 
-    #    For example, print a table of mass and density.
-
-    #    from periodictable import elements
-    #    elements.list_properties('symbol','mass','density', format="%-2s: %6.2f u %5.2f g/cm^3")
-    #    H :   1.01 u   0.07 g/cm^3
-    #    He:   4.00 u   0.12 g/cm^3
-    #    Li:   6.94 u   0.53 g/cm^3
-    #    ...
-    #    Bk: 247.00 u  14.00 g/cm^3
-    #    """
-    #    format = kw.pop('format', None)
-    #    assert len(kw) == 0
-
-    #    for pseudo in self:
-    #        try:
-    #            values = tuple(getattr(pseudo, p) for p in props)
-    #        except AttributeError:
-    #            # Skip elements which don't define all the attributes
-    #            continue
-
-    #        # Skip elements with a value of None
-    #        if any(v is None for v in values):
-    #            continue
-
-    #        if format is None:
-    #            print(" ".join(str(p) for p in values))
-    #        else:
-    #            try:
-    #                print(format % values)
-    #            except:
-    #                print("format",format,"args",values)
-    #                raise
-
-    #def print_table(self, stream=sys.stdout, filter_function=None):
-    #    """
-    #    A pretty ASCII printer for the periodic table, based on some filter_function.
-    #    Args:
-    #        filter_function:
-    #            A filtering function that take a Pseudo as input and returns a boolean.
-    #            For example, setting filter_function = lambda el: el.Z_val > 2 will print
-    #            a periodic table containing only pseudos with Z_val > 2.
-    #    """
-    #    for row in range(1, 10):
-    #        rowstr = []
-    #        for group in range(1, 19):
-    #            el = Element.from_row_and_group(row, group)
-    #            if el and ((not filter_function) or filter_function(el)):
-    #                rowstr.append("{:3s}".format(el.symbol))
-    #            else:
-    #                rowstr.append("   ")
-    #        print(" ".join(rowstr))
+    def to_table(self, filter_function=None):
+        """Return string with data in tabular form."""
+        table = []
+        for p in self:
+            if filter_function is not None and filter_function(p): continue
+            table.append([p.basename, p.symbol, p.Z_val, p.l_max, p.l_local, p.xc, p.type])
+        return tabulate(table, headers= ["basename", "symbol", "Z_val", "l_max", "l_local", "XC", "type"],
+                        tablefmt="grid")
 
     def sorted(self, attrname, reverse=False):
         """
@@ -1975,94 +1847,6 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
         """Select pseudos containing the DOJO_REPORT section. Return new class:`PseudoTable` object."""
         return self.select(condition=lambda p: p.has_dojo_report)
 
-    def get_dojo_dataframe(self, **kwargs):
-        """
-        Buid a pandas :class:`DataFrame` with the most important parameters extracted from the
-        `DOJO_REPORT` section of each pseudo in the table.
-
-        Returns:
-            frame, errors
-
-            where frame is the pandas :class:`DataFrame` and errors is a list of errors
-            encountered while trying to read the `DOJO_REPORT` from the pseudopotential file.
-        """
-        accuracies = ["low", "normal", "high"]
-
-        trial2keys = {
-            "deltafactor": ["dfact_meV", "dfactprime_meV"] + ["v0", "b0_GPa", "b1"],
-            "gbrv_bcc": ["a0_rel_err"],
-            "gbrv_fcc": ["a0_rel_err"],
-            "phonon": "all",
-            #"phwoa": "all"
-        }
-
-        rows, names, errors = [], [], []
-
-        for p in self:
-            report = p.dojo_report
-            #assert "version"  in report
-            if "version" not in report:
-                print("ignoring old report in ", p.basename)
-                continue
-
-            d = {"symbol": p.symbol, "Z": p.Z}
-            names.append(p.basename)
-
-            #read hints
-            for acc in accuracies:
-                try:
-                    d.update({acc + "_ecut_hint": report['hints'][acc]['ecut']})
-                except KeyError:
-                    d.update({acc + "_ecut_hint": -1.0 })
-
-            # FIXME
-            try:
-                ecut_acc = dict(
-                    low=report.ecuts[2],
-                    normal=report.ecuts[int(len(report.ecuts)/2)],
-                    high=report.ecuts[-2],
-                )
-            except IndexError:
-                ecut_acc = dict(
-                    low=report.ecuts[0],
-                    normal=report.ecuts[-1],
-                    high=report.ecuts[-1],
-                )
-
-            for acc in accuracies:
-                d[acc + "_ecut"] = ecut_acc[acc]
-
-            try:
-                for trial, keys in trial2keys.items():
-                    data = report.get(trial, None)
-                    if data is None: continue
-                    # if the current trial has an entry for this ecut notting changes, else we take the ecut closes
-                    ecut_acc = dict(
-                        low=sorted(data.keys())[0],
-                        normal=sorted(data.keys())[int(len(data.keys())/2)],
-                        high=sorted(data.keys())[-1],
-                    )
-                    for acc in accuracies:
-                        ecut = ecut_acc[acc]
-                        if keys is 'all':
-                            ecuts = data
-                            d.update({acc + "_" + trial: data[ecut]})
-                        else:
-                            if trial.startswith("gbrv"):
-                                d.update({acc + "_" + trial + "_" + k: float(data[ecut][k]) for k in keys})
-                            else:
-                                d.update({acc + "_" + k: float(data[ecut][k]) for k in keys})
-
-            except Exception as exc:
-                logger.warning("%s raised %s" % (p.basename, exc))
-                errors.append((p.basename, str(exc)))
-
-            #print(d)
-            rows.append(d)
-
-        # Build sub-class of pandas.DataFrame
-        return DojoDataFrame(rows, index=names), errors
-
     def select_rows(self, rows):
         """
         Return new class:`PseudoTable` object with pseudos in the given rows of the periodic table.
@@ -2074,813 +1858,3 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
     def select_family(self, family):
         # e.g element.is_alkaline
         return self.__class__([p for p in self if getattr(p.element, "is_" + family)])
-
-    def dojo_compare(self, what="all", **kwargs):
-        """Compare ecut convergence and Deltafactor, GBRV results"""
-        import matplotlib.pyplot as plt
-        show = kwargs.pop("show", True)
-        what = list_strings(what)
-        figs = []
-
-        if all(p.dojo_report.has_trial("deltafactor") for p in self) and \
-               any(k in what for k in ("all", "ecut")):
-
-            fig_etotal, ax_list = plt.subplots(nrows=len(self), ncols=1, sharex=True, squeeze=True)
-            #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(self), ncols=1, sharex=True, squeeze=True)
-            figs.append(fig_etotal)
-
-            for ax, pseudo in zip(ax_list, self):
-                pseudo.dojo_report.plot_etotal_vs_ecut(ax=ax, show=False, label=pseudo.basename)
-            if show: plt.show()
-
-        if all(p.dojo_report.has_trial("deltafactor") for p in self) and \
-               any(k in what for k in ("all", "df", "deltafactor")):
-
-            fig_deltafactor, ax_grid = plt.subplots(nrows=5, ncols=len(self), sharex=True, sharey="row", squeeze=False)
-            #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=5, ncols=len(self), sharex=True, sharey="row", squeeze=False))
-            figs.append(fig_deltafactor)
-
-            for ax_list, pseudo in zip(ax_grid.T, self):
-                pseudo.dojo_report.plot_deltafactor_convergence(ax_list=ax_list, show=False)
-
-            fig_deltafactor.suptitle(" vs ".join(p.basename for p in self))
-            if show: plt.show()
-
-        # Compare GBRV results
-        if all(p.dojo_report.has_trial("gbrv_bcc") for p in self) and \
-           any(k in what for k in ("all", "gbrv")):
-
-            fig_gbrv, ax_grid = plt.subplots(nrows=2, ncols=len(self), sharex=True, sharey="row", squeeze=False)
-            figs.append(fig_gbrv)
-            #ax_list, fig, plt = get_axarray_fig_plt(ax_list, ncols=len(self), sharex=True, sharey="row", squeeze=False))
-
-            for ax_list, pseudo in zip(ax_grid.T, self):
-                pseudo.dojo_report.plot_gbrv_convergence(ax_list=ax_list, show=False)
-
-            fig_gbrv.suptitle(" vs ".join(p.basename for p in self))
-            if show: plt.show()
-
-        return figs
-
-    @classmethod
-    @deprecated(replacement=from_dir)
-    def from_directory(cls, path):
-        pseudos = []
-        for f in [os.path.join(path, fn) for fn in os.listdir(path)]:
-            if os.path.isfile(f):
-                try:
-                    p = Pseudo.from_file(f)
-                    if p:
-                        pseudos.append(p)
-                    else:
-                        logger.info('Skipping file %s' % f)
-                except:
-                    logger.info('Skipping file %s' % f)
-        if not pseudos:
-            logger.warning('No pseudopotentials parsed from folder %s' % path)
-            return None
-        logger.info('Creating PseudoTable with %i pseudopotentials' % len(pseudos))
-        return cls(pseudos)
-
-try:
-    from pandas import DataFrame
-except ImportError:
-    DataFrame = object
-
-
-class DojoDataFrame(DataFrame):
-    """Extends pandas DataFrame adding helper functions."""
-    ALL_ACCURACIES = ("low", "normal", "high")
-
-    ALL_TRIALS = (
-        "ecut",
-        "deltafactor",
-        "gbrv_bcc",
-        "gbrv_fcc",
-        "phonon",
-        #"phwoa"
-    )
-
-    _TRIALS2KEY = {
-        "ecut": "ecut",
-        "deltafactor": "dfact_meV",
-        "gbrv_bcc": "gbrv_bcc_a0_rel_err",
-        "gbrv_fcc": "gbrv_fcc_a0_rel_err",
-        "phonon": "all",
-        #"phwoa": "all"
-    }
-
-    _TRIALS2YLABEL = {
-        "ecut": "Ecut [Ha]",
-        "deltafactor": "$\Delta$-factor [meV]",
-        "gbrv_bcc": "BCC $\Delta a_0$ (%)",
-        "gbrv_fcc": "FCC $\Delta a_0$ (%)",
-        "phonon": "Phonons with ASR",
-        #"phwoa": "Phonons without ASR"
-    }
-
-    ACC2PLTOPTS = dict(
-        low=dict(color="red"),
-        normal=dict(color="blue"),
-        high=dict(color="green"),
-    )
-
-    for v in ACC2PLTOPTS.values():
-        v.update(linewidth=2, linestyle='dashed', marker='o', markersize=8)
-
-    def tabulate(self, columns=None, stream=sys.stdout):
-        from tabulate import tabulate
-        if columns is None:
-            accuracies = self.ALL_ACCURACIES
-            columns = [acc + "_dfact_meV" for acc in accuracies]
-            columns += [acc + "_ecut" for acc in accuracies]
-            columns += [acc + "_gbrv_fcc_a0_rel_err" for acc in accuracies]
-            columns += [acc + "_gbrv_bcc_a0_rel_err" for acc in accuracies]
-
-        #return self[columns].to_html()
-        tablefmt = "grid"
-        floatfmt=".2f"
-        stream.write(tabulate(self[columns], headers="keys", tablefmt=tablefmt, floatfmt=floatfmt))
-
-    def get_accuracy(self, accuracy):
-        columns = [c for c in self if c.startswith(accuracy)]
-        return self.__class__(data=self[columns])
-
-    def get_trials(self, accuracies="all"):
-        accuracies = self.ALL_ACCURACIES if accuracies == "all" else list_strings(accuracies)
-
-        columns = [acc + "_dfact_meV" for acc in accuracies]
-        columns += [acc + "_ecut" for acc in accuracies]
-        columns += [acc + "_gbrv_fcc_a0_rel_err" for acc in accuracies]
-        columns += [acc + "_gbrv_bcc_a0_rel_err" for acc in accuracies]
-        return self.__class__(data=self[columns])
-
-    def select_rows(self, rows):
-        if not isinstance(rows, (list, tuple)): rows = [rows]
-
-        data = []
-        for index, entry in self.iterrows():
-            element = Element.from_Z(entry.Z)
-            if element.row in rows:
-                data.append(entry)
-
-        return self.__class__(data=data)
-
-    def select_family(self, family):
-        data = []
-        for index, entry in self.iterrows():
-            element = Element.from_Z(entry.Z)
-            # e.g element.is_alkaline
-            if getattr(element, "is_" + family):
-                data.append(entry)
-        return self.__class__(data=data)
-
-    @add_fig_kwargs
-    def plot_hist(self, what="dfact_meV", bins=400, **kwargs):
-        import matplotlib.pyplot as plt
-        fig, ax_list = plt.subplots(nrows=len(self.ALL_ACCURACIES), ncols=1, sharex=True, sharey=False, squeeze=True)
-        #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(self.ALL_ACCURACIES), ncols=1, sharex=True, sharey=False, squeeze=True)
-
-        for acc, ax in zip(self.ALL_ACCURACIES, ax_list):
-            col = acc + "_" + what
-            #print(col)
-            #self[col].hist(ax=ax, bins=bins, label=col)
-            self[col].plot(ax=ax, kind="bar", label=col)
-
-        return fig
-
-    @add_fig_kwargs
-    def plot_trials(self, trials="all", accuracies="all", **kwargs):
-        import matplotlib.pyplot as plt
-        trials = self.ALL_TRIALS if trials == "all" else list_strings(trials)
-        accuracies = self.ALL_ACCURACIES if accuracies == "all" else list_strings(accuracies)
-
-        fig, ax_list = plt.subplots(nrows=len(trials), ncols=1, sharex=True, sharey=False, squeeze=True)
-        #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(trials), ncols=1, sharex=True, sharey=False, squeeze=True)
-
-        # See also http://matplotlib.org/examples/pylab_examples/barchart_demo.html
-        for i, (trial, ax) in enumerate(zip(trials, ax_list)):
-            what = self._TRIALS2KEY[trial]
-            ax.set_ylabel(self._TRIALS2YLABEL[trial])
-            minval, maxval = np.inf, -np.inf
-            for acc in accuracies:
-                col = acc + "_" + what
-                legend = i == 0
-                data = self[col]
-                minval, maxval = min(minval, data.min()), max(maxval, data.max())
-                data.plot(ax=ax, legend=legend, use_index=True, label=acc, **self.ACC2PLTOPTS[acc])
-                #data.plot(ax=ax, kind="bar")
-
-                if i == 0:
-                    ax.legend(loc='best', shadow=True, frameon=True) #fancybox=True)
-
-            ax.set_xticks(range(len(data.index)))
-            ax.set_xticklabels(data.index)
-            #ax.set_xticklabels([root for root, ext in map(os.path.splitext, data.index)])
-
-            # Set ylimits
-            #stepsize = None
-            #if "gbrv" in trial:
-            #    ax.hlines(0.0, 0, len(data.index))
-            #    #start, end = -0.6, +0.6
-            #    start, end = max(-0.6, minval), min(+0.6, maxval)
-            #    if end - start < 0.05: end = start + 0.1
-            #    ax.set_ylim(start, end)
-            #    ax.yaxis.set_ticks(np.arange(start, end, 0.05))
-
-            if trial == "deltafactor":
-                #start, end = 0.0, 15
-                start, end  = 0.0, min(15, maxval)
-                ax.set_ylim(start, end)
-                #ax.yaxis.set_ticks(np.arange(start, end, 0.1))
-
-            #if stepsize is not None:
-            #    start, end = ax.get_ylim()
-            #    ax.yaxis.set_ticks(np.arange(start, end, stepsize))
-
-            plt.setp(ax.xaxis.get_majorticklabels(), rotation=25)
-
-        return fig
-
-
-class DojoReportError(Exception):
-    """Exception raised by DoJoReport."""
-
-
-class DojoReport(dict):
-    """Dict-like object with the dojo report."""
-
-    _TRIALS2KEY = {
-        "deltafactor": "dfact_meV",
-        "gbrv_bcc": "a0_rel_err",
-        "gbrv_fcc": "a0_rel_err",
-        #"phwoa": "all",
-        "phonon": "all"
-    }
-
-    ALL_ACCURACIES = ("low", "normal", "high")
-
-    # List of dojo_trials
-    # Remember to update the list if you add a new test to the DOJO_REPORT
-    ALL_TRIALS = (
-        "deltafactor",
-        "gbrv_bcc",
-        "gbrv_fcc",
-        "phonon",
-        #"phwoa"
-    )
-
-    # Tolerances on the deltafactor prime (in eV) used for the hints.
-    #ATOLS = (1.0, 0.2, 0.04)
-    ATOLS = (0.5, 0.1, 0.02)
-
-    Error = DojoReportError
-
-    @classmethod
-    def from_file(cls, filepath):
-        """Read the DojoReport from file."""
-        with open(filepath, "rt") as fh:
-            lines = fh.readlines()
-            try:
-                start = lines.index("<DOJO_REPORT>\n")
-            except ValueError:
-                return {}
-
-            stop = lines.index("</DOJO_REPORT>\n")
-            #print("start, stop" ,start, stop)
-            #print("".join(lines[start+1:stop]))
-
-            d = json.loads("".join(lines[start+1:stop]))
-            return cls(**d)
-
-    @classmethod
-    def from_hints(cls, ppgen_ecut, symbol):
-        """Initialize the DojoReport from an initial value of ecut in Hartree."""
-        dense_right = np.arange(ppgen_ecut, ppgen_ecut + 6*2, step=2)
-        dense_left = np.arange(max(ppgen_ecut-6, 2), ppgen_ecut, step=2)
-        coarse_high = np.arange(ppgen_ecut + 15, ppgen_ecut + 35, step=5)
-
-        ecut_list = list(dense_left) + list(dense_right) + list(coarse_high)
-        return cls(ecut_list=ecut_list, symbol=symbol) #, **{k: {}: for k in self.ALL_TRIALS})
-
-    def __init__(self, *args, **kwargs):
-        super(DojoReport, self).__init__(*args, **kwargs)
-
-        try:
-            for trial in self.ALL_TRIALS:
-                # Convert ecut to float and build an OrderedDict (results are indexed by ecut in ascending order)
-                try:
-                    d = self[trial]
-                except KeyError:
-                    continue
-                ecuts_keys = sorted([(float(k), k) for k in d], key=lambda t:t[0])
-                ord = OrderedDict([(t[0], d[t[1]]) for t in ecuts_keys])
-                self[trial] = ord
-
-        except ValueError:
-            raise self.Error('Error while initializing the dojo report')
-
-    #def __str__(self):
-    #    stream = six.moves.StringIO()
-    #    pprint.pprint(self, stream=stream, indent=2, width=80)
-    #    return stream.getvalue()
-
-    @property
-    def symbol(self):
-        """Chemical symbol."""
-        return self["symbol"]
-
-    @property
-    def element(self):
-        """Element object."""
-        return Element(self.symbol)
-
-    @property
-    def has_hints(self):
-        """True if hints on cutoff energy are present."""
-        return "hints" in self
-
-    @property
-    def ecuts(self):
-        """Numpy array with the list of ecuts that should be present in the dojo_trial sub-dicts"""
-        return self["ecuts"]
-
-    @property
-    def trials(self):
-        """Set of strings with the trials present in the report."""
-        return set(list(self.keys())).intersection(self.ALL_TRIALS)
-
-    def has_trial(self, dojo_trial, ecut=None):
-        """
-        True if the dojo_report contains dojo_trial with the given ecut.
-        If ecut is not, we test if dojo_trial is present.
-        """
-        if dojo_trial not in self.ALL_TRIALS:
-            raise self.Error("dojo_trial `%s` is not a registered DOJO TRIAL" % dojo_trial)
-
-        if ecut is None:
-            return dojo_trial in self
-        else:
-            #key = self._ecut2key(ecut)
-            key = ecut
-            try:
-                self[dojo_trial][key]
-                return True
-            except KeyError:
-                return False
-
-    def add_ecuts(self, new_ecuts):
-        """Add a list of new ecut values."""
-        # Be careful with the format here! it should be %.1f
-        # Select the list of ecuts reported in the DOJO section.
-        prev_ecuts = self["ecuts"]
-
-        for i in range(len(prev_ecuts)-1):
-            if prev_ecuts[i] >= prev_ecuts[i+1]:
-                raise self.Error("Ecut list is not ordered:\n %s" % prev_ecuts)
-
-        from monty.bisect import find_le
-        for e in new_ecuts:
-            # Find rightmost value less than or equal to x.
-            if e < prev_ecuts[0]:
-                i = 0
-            elif e > prev_ecuts[-1]:
-                i = len(prev_ecuts)
-            else:
-                i = find_le(prev_ecuts, e)
-                assert prev_ecuts[i] != e
-                i += 1
-
-            prev_ecuts.insert(i, e)
-
-    def add_hints(self, hints):
-        hints_dict = {
-           "low": {'ecut': hints[0]},
-           "normal" : {'ecut': hints[1]},
-           "high" : {'ecut': hints[2]}
-                     }
-        self["hints"] = hints_dict
-
-    #def validate(self, hints):
-    #    Add md5 hash value
-    #    self["validated"] = True
-
-    @staticmethod
-    def _ecut2key(ecut):
-        """Convert ecut to a valid key. ecut can be either a string or a float."""
-        if is_string(ecut):
-            # Validate string
-            i = ecut.index(".")
-            if len(ecut[i+1:]) != 1:
-                raise ValueError("string %s must have one digit")
-            return ecut
-
-        else:
-            # Assume float
-            return "%.1f" % ecut
-
-    def add_entry(self, dojo_trial, ecut, d, overwrite=False):
-        """
-        Add an entry computed with the given ecut to the sub-dictionary associated to dojo_trial.
-
-        Args:
-            dojo_trial:
-            ecut:
-            d:
-            overwrite:
-        """
-        if dojo_trial not in self.ALL_TRIALS:
-            raise ValueError("%s is not a registered trial")
-        section = self.get(dojo_trial, {})
-
-        key = self._ecut2key(ecut)
-        if key in section and not overwrite:
-            raise self.Error("Cannot overwrite key %s in dojo_trial %s" % (key, dojo_trial))
-
-        section[key] = d
-
-    def find_missing_entries(self):
-        """
-        check the DojoReport.
-        This function tests if each trial contains an ecut entry.
-        Return a dictionary {trial_name: [list_of_missing_ecuts]}
-        mapping the name of the Dojo trials to the list of ecut values that are missing
-        """
-        d = {}
-
-        for trial in self.ALL_TRIALS:
-            data = self.get(trial, None)
-            if data is None:
-                # Gbrv results do not contain noble gases so ignore the error
-                if "gbrv" in trial and self.element.is_noble_gas:
-                    assert data is None
-                    continue
-                d[trial] = self.ecuts
-
-            else:
-                computed_ecuts = self[trial].keys()
-                for e in self.ecuts:
-                    if e not in computed_ecuts:
-                        if trial not in d: d[trial] = []
-                        d[trial].append(e)
-
-        if not d:
-            assert len(computed_ecuts) == len(self.ecuts)
-
-        return d
-
-    def print_table(self, stream=sys.stdout):
-        from monty.pprint import pprint_table
-        pprint_table(self.get_dataframe(), out=stream)
-
-    @add_fig_kwargs
-    def plot_etotal_vs_ecut(self, ax=None, inv_ecut=False, **kwargs):
-        """
-        plot the convergence of the total energy as function of the energy cutoff ecut
-
-        Args:
-            ax: matplotlib Axes, if ax is None a new figure is created.
-
-        Returns:
-            `matplotlib` figure.
-        """
-        # Extract the total energy of the AE relaxed structure (4).
-        d = OrderedDict([(ecut, data["etotals"][4]) for ecut, data in self["deltafactor"].items()])
-
-        # Ecut mesh in Ha
-        ecuts = np.array(list(d.keys()))
-        ecut_min, ecut_max = np.min(ecuts), np.max(ecuts)
-
-        # Energies per atom in meV and difference wrt 'converged' value
-        num_sites = [v["num_sites"] for v in self["deltafactor"].values()][0]
-        etotals_mev = np.array([d[e] for e in ecuts]) * 1000  / num_sites
-        ediffs = etotals_mev - etotals_mev[-1]
-
-        ax, fig, plt = get_ax_fig_plt(ax)
-        #ax.yaxis.set_view_interval(-5, 5)
-
-        lines, legends = [], []
-
-        xs = 1/ecuts if inv_ecut else ecuts
-        ys = etotals_mev if inv_ecut else ediffs
-
-        line, = ax.plot(xs, ys, "-o", color="blue") #, linewidth=3.0, markersize=15)
-        lines.append(line)
-
-        label = kwargs.pop("label", None)
-        if label is not None: ax.legend(lines, [label], loc='best', shadow=True)
-
-        high_hint = self["ppgen_hints"]["high"]["ecut"]
-        #ax.vlines(high_hint, min(ediffs), max(ediffs))
-        #ax.vlines(high_hint, 0.5, 1.5)
-        #ax.scatter([high_hint], [1.0], s=20) #, c='b', marker='o', cmap=None, norm=None)
-        #ax.arrow(high_hint, 1, 0, 0.2, head_width=0.05, head_length=0.1, fc='k', ec='k',head_starts_at_zero=False)
-
-        #ax.hlines(5, ecut_min, ecut_max, label="5.0")
-        #ax.hlines(1, ecut_min, ecut_max, label="1.0")
-        #ax.hlines(0.5, ecut_min, ecut_max, label="0.2")
-
-        # Set xticks and labels.
-        ax.grid(True)
-        ax.set_xlabel("Ecut [Ha]")
-        ax.set_xticks(xs)
-        ax.set_ylabel("Delta Etotal/natom [meV]")
-        #ax.set_xlim(0, max(xs))
-
-        # Use logscale if possible.
-        if all(ediffs[:-1] > 0):
-            ax.set_yscale("log")
-            ax.set_xlim(xs[0]-1, xs[-2]+1)
-
-        return fig
-
-    @add_fig_kwargs
-    def plot_deltafactor_eos(self, ax=None, **kwargs):
-        """
-        plot the EOS computed with the deltafactor setup.
-
-        Args:
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
-
-        ================  ==============================================================
-        kwargs            Meaning
-        ================  ==============================================================
-        cmap              Color map. default `jet`
-        ================  ==============================================================
-
-        Returns:
-            `matplotlib` figure.
-        """
-        ax, fig, plt = get_ax_fig_plt(ax)
-
-        trial = "deltafactor"
-        ecuts = self[trial].keys()
-        num_ecuts = len(ecuts)
-
-        cmap = kwargs.pop("cmap", None)
-        if cmap is None: cmap = plt.get_cmap("jet")
-
-        for i, ecut in enumerate(ecuts):
-            d = self[trial][ecut]
-            num_sites, volumes, etotals = d["num_sites"], np.array(d["volumes"]), np.array(d["etotals"])
-
-            # Use same fit as the one employed for the deltafactor.
-            eos_fit = EOS.DeltaFactor().fit(volumes/num_sites, etotals/num_sites)
-
-            label = "ecut %.1f" % ecut if i % 2 == 0 else ""
-            label = "ecut %.1f" % ecut
-            eos_fit.plot(ax=ax, text=False, label=label, color=cmap(i/num_ecuts, alpha=1), show=False)
-
-        return fig
-
-    def get_ecut_dfactprime(self):
-        data = self["deltafactor"]
-        ecuts, values= data.keys(), []
-        values = np.array([data[e]["dfactprime_meV"] for e in ecuts])
-        return np.array(ecuts), values
-
-    def compute_hints(self):
-        ecuts, dfacts = self.get_ecut_dfactprime()
-        abs_diffs = np.abs((dfacts - dfacts[-1]))
-        #print(list(zip(ecuts, dfacts)))
-        #print(abs_diffs)
-
-        hints = 3 * [None]
-        for ecut, adiff in zip(ecuts, abs_diffs):
-            for i in range(3):
-                if adiff <= self.ATOLS[i] and hints[i] is None:
-                    hints[i] = ecut
-                if adiff > self.ATOLS[i]:
-                    hints[i] = None
-        return hints
-
-    def check(self):
-        """
-        Check the dojo report for inconsistencies.
-        Return a string with the errors found in the DOJO_REPORT.
-        """
-        errors = []
-        app = errors.append
-
-        if "version" not in self:
-            app("version is missing")
-
-        if "ppgen_hints" not in self:
-            app("version is missing")
-
-        if "md5" not in self:
-            app("md5 checksum is missing!")
-
-        # Check if we have computed each trial for the full set of ecuts in global_ecuts
-        global_ecuts = self.ecuts
-
-        missing = defaultdict(list)
-        for trial in self.ALL_TRIALS:
-            for ecut in global_ecuts:
-                if not self.has_trial(trial, ecut=ecut):
-                    missing[trial].append(ecut)
-
-        if missing:
-            app("The following list of ecut energies is missing:")
-            for trial, ecuts in missing.items():
-                app("%s: %s" % (trial, ecuts))
-
-        return "\n".join(errors)
-
-    @add_fig_kwargs
-    def plot_deltafactor_convergence(self, code="WIEN2k", what=None, ax_list=None, **kwargs):
-        """
-        plot the convergence of the deltafactor parameters wrt ecut.
-
-        Args:
-            code: Reference code
-            ax_list: List of matplotlib Axes, if ax_list is None a new figure is created
-
-        Returns:
-            `matplotlib` figure.
-        """
-        all = ["dfact_meV", "dfactprime_meV", "v0", "b0_GPa", "b1"]
-        if what is None:
-            keys = all
-        else:
-            what = list_strings(what)
-            if what[0].startswith("-"):
-                # Exclude keys
-                #print([type(w) for w in what])
-                what = [w[1:] for w in what]
-                keys = [k for k in all if k not in what]
-            else:
-                keys = what
-
-        # get reference entry
-        from pseudo_dojo.refdata.deltafactor import df_database
-        reference = df_database().get_entry(symbol=self.symbol, code=code)
-
-        d = self["deltafactor"]
-        ecuts = list(d.keys())
-
-        import matplotlib.pyplot as plt
-        if ax_list is None:
-            fig, ax_list = plt.subplots(nrows=len(keys), ncols=1, sharex=True, squeeze=False)
-            ax_list = ax_list.ravel()
-        else:
-            fig = plt.gcf()
-
-        #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(keys), ncols=1, sharex=True, squeeze=False)
-
-        if len(keys) != len(ax_list):
-            raise ValueError("len(keys)=%s != len(ax_list)=%s" %  (len(keys), len(ax_list)))
-
-        for i, (ax, key) in enumerate(zip(ax_list, keys)):
-            values = np.array([float(d[ecut][key]) for ecut in ecuts])
-            #try:
-            refval = getattr(reference, key)
-            #except AttributeError:
-            #    refval = 0.0
-
-            # Plot difference pseudo - ref.
-            ax.plot(ecuts, values - refval, "o-")
-
-            ax.grid(True)
-            ax.set_ylabel("$\Delta$" + key)
-            if i == len(keys) - 1: ax.set_xlabel("Ecut [Ha]")
-
-            if key == "dfactprime_meV":
-                # Add horizontal lines (used to find hints for ecut).
-                last = values[-1]
-                xmin, xmax = min(ecuts), max(ecuts)
-                for pad, color in zip(self.ATOLS, ("blue", "red", "violet")):
-                    ax.hlines(y=last + pad, xmin=xmin, xmax=xmax, colors=color, linewidth=1, linestyles='dashed')
-                    ax.hlines(y=last - pad, xmin=xmin, xmax=xmax, colors=color, linewidth=1, linestyles='dashed')
-
-                # Set proper limits so that we focus on the relevant region.
-                ax.set_ylim(last - 1.1*self.ATOLS[0], last + 1.1*self.ATOLS[0])
-
-        return fig
-
-    @add_fig_kwargs
-    def plot_gbrv_eos(self, struct_type, ax=None, **kwargs):
-        """
-        Uses Matplotlib to plot the EOS computed with the GBRV setup
-
-        Args:
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
-
-        ================  ==============================================================
-        kwargs            Meaning
-        ================  ==============================================================
-        cmap              Color map. default `jet`
-        ================  ==============================================================
-
-        Returns:
-            `matplotlib` figure or None if the GBRV test is not present
-        """
-        ax, fig, plt = get_ax_fig_plt(ax)
-
-        trial = "gbrv_" + struct_type
-        # Handle missing entries: noble gases, Hg ...
-        if trial not in self: return None
-        ecuts = self[trial].keys()
-        num_ecuts = len(ecuts)
-
-        cmap = kwargs.pop("cmap", None)
-        if cmap is None: cmap = plt.get_cmap("jet")
-
-        for i, ecut in enumerate(ecuts):
-            d = self[trial][ecut]
-            volumes, etotals = np.array(d["volumes"]), np.array(d["etotals"])
-
-            eos_fit = EOS.Quadratic().fit(volumes, etotals)
-            label = "ecut %.1f" % ecut if i % 2 == 0 else ""
-            label = "ecut %.1f" % ecut
-            eos_fit.plot(ax=ax, text=False, label=label, color=cmap(i/num_ecuts, alpha=1), show=False)
-
-        return fig
-
-    @add_fig_kwargs
-    def plot_gbrv_convergence(self, ax_list=None, **kwargs):
-        """
-        Uses Matplotlib to plot the convergence of the GBRV parameters wrt ecut.
-
-        Args:
-            ax_list: List of matplotlib Axes, if ax_list is None a new figure is created
-
-        Returns:
-            `matplotlib` figure.
-        """
-        import matplotlib.pyplot as plt
-        stypes = ("fcc", "bcc")
-        if ax_list is None:
-            fig, ax_list = plt.subplots(nrows=len(stypes), ncols=1, sharex=True, squeeze=False)
-            ax_list = ax_list.ravel()
-        else:
-            fig = plt.gcf()
-
-        #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(stypes), ncols=1, sharex=True, squeeze=False)
-
-        if len(stypes) != len(ax_list):
-            raise ValueError("len(stypes)=%s != len(ax_list)=%s" %  (len(stypes), len(ax_list)))
-
-        for i, (ax, stype) in enumerate(zip(ax_list, stypes)):
-            trial = "gbrv_" + stype
-            d = self[trial]
-            ecuts = list(d.keys())
-            values = np.array([float(d[ecut]["a0_rel_err"]) for ecut in ecuts])
-
-            ax.grid(True)
-            ax.set_ylabel("$\Delta$" + trial + "a0_rel_err")
-
-            # Plot difference pseudo - ref.
-            ax.plot(ecuts, values, "bo-")
-            #ax.hlines(y=0.0, xmin=min(ecuts), xmax=max(ecuts), color="red")
-            if i == len(ax_list) - 1: ax.set_xlabel("Ecut [Ha]")
-
-        return fig
-
-    @add_fig_kwargs
-    def plot_phonon_convergence(self, ax_list=None, **kwargs):
-        """
-        Plot the convergence of the phonon modes wrt ecut.
-
-        Args:
-            ax_list: List of matplotlib Axes, if ax_list is None a new figure is created
-
-        Returns:
-            `matplotlib` figure.
-        """
-        d = self["phonon"]
-        ecuts = list(d.keys())
-
-        l = [(ecut, float(ecut)) for ecut in ecuts]
-        s = sorted(l, key=lambda t: t[1])
-        max_ecut = s[-1][0]
-        s_ecuts = [ecut[0] for ecut in s]
-
-        import matplotlib.pyplot as plt
-        fig, ax = plt.subplots(nrows=2, sharex=True)
-        #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(keys), ncols=1, sharex=True, squeeze=False)
-
-        fmin, fmax = np.inf, -np.inf
-        for i, v in enumerate(d[ecuts[0]]):
-            values1 = np.array([float(d[ecut][i]) for ecut in s_ecuts])
-            fmin = min(fmin, values1.min())
-            fmax = max(fmax, values1.max())
-
-            ax[0].plot(s_ecuts, values1, "o-")
-            ax[0].grid(True)
-            ax[0].set_ylabel("phonon modes [meV] (asr==2)")
-            ax[0].set_xlabel("Ecut [Ha]")
-
-            values2 = np.array([float(d[ecut][i]) - float(d[max_ecut][i]) for ecut in s_ecuts])
-
-            ax[1].plot(s_ecuts, values2, "o-")
-            ax[1].grid(True)
-            ax[1].set_ylabel("w - w(ecut_max) [meV]")
-            ax[1].set_xlabel("Ecut [Ha]")
-
-        # Adjust limits.
-        fmin -= 10
-        fmax += 10
-        ax[0].set_ylim(fmin, fmax)
-
-        return fig

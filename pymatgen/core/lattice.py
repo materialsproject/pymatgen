@@ -72,13 +72,32 @@ class Lattice(MSONable):
         self._inv_matrix = None
         self._metric_tensor = None
 
-    @classmethod
-    @deprecated(message="from_abivars has been merged with the from_dict "
-                "method. Use from_dict(fmt=\"abivars\"). from_abivars "
-                "will be removed in pymatgen 4.0.")
-    def from_abivars(cls, d, **kwargs):
+    def __format__(self, fmt_spec=''):
+        """
+        Support format printing. Supported formats are:
 
-        return Lattice.from_dict(d, fmt="abivars", **kwargs)
+        1. "l" for a list format that can be easily copied and pasted, e.g.,
+           ".3fl" prints something like
+           "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]"
+        2. "p" for lattice parameters ".1fp" prints something like
+           "{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}"
+        3. Default will simply print a 3x3 matrix form. E.g.,
+           10.000 0.000 0.000
+           0.000 10.000 0.000
+           0.000 0.000 10.000
+        """
+        m = self.matrix.tolist()
+        if fmt_spec.endswith("l"):
+            fmt = "[[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]]"
+            fmt_spec = fmt_spec[:-1]
+        elif fmt_spec.endswith("p"):
+            fmt = "{{{}, {}, {}, {}, {}, {}}}"
+            fmt_spec = fmt_spec[:-1]
+            m = self.lengths_and_angles
+        else:
+            fmt = "{} {} {}\n{} {} {}\n{} {} {}"
+        return fmt.format(*[format(c, fmt_spec) for row in m
+                            for c in row])
 
     def copy(self):
         """Deep copy of self."""
@@ -270,35 +289,20 @@ class Lattice(MSONable):
     def from_dict(cls, d, fmt=None, **kwargs):
         """
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
-        and gamma parameters.
+        and gamma parameters if fmt is None.
+        
+        If fmt == "abivars", the function build a `Lattice` object from a dictionary
+        with the Abinit variables `acell` and `rprim` in Bohr. 
+        If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr
 
+        Example:
+
+            Lattice.from_dict(fmt="abivars", acell=3*[10], rprim=np.eye(3))
         """
         if fmt == "abivars":
+            from pymatgen.io.abinit.abiobjects import lattice_from_abivars
             kwargs.update(d)
-            d = kwargs
-            rprim = d.get("rprim", None)
-            angdeg = d.get("angdeg", None)
-            acell = d["acell"]
-
-            # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
-            if rprim is not None:
-                assert angdeg is None
-                rprim = np.reshape(rprim, (3,3))
-                rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
-                return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
-
-            elif angdeg is not None:
-                # angdeg(0) is the angle between the 2nd and 3rd vectors,
-                # angdeg(1) is the angle between the 1st and 3rd vectors,
-                # angdeg(2) is the angle between the 1st and 2nd vectors,
-                raise NotImplementedError("angdeg convention should be tested")
-                angles = angdeg
-                angles[1] = -angles[1]
-                l = ArrayWithUnit(acell, "bohr").to("ang")
-                return cls.from_lengths_and_angles(l, angdeg)
-
-            else:
-                raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
+            return lattice_from_abivars(cls=cls, **kwargs)
 
         if "matrix" in d:
             return cls(d["matrix"])
@@ -492,9 +496,9 @@ class Lattice(MSONable):
                                                   max(lengths) * (1 + ltol),
                                                   zip_results=False)
         cart = self.get_cartesian_coords(frac)
-
         # this can't be broadcast because they're different lengths
-        inds = [np.abs(dist - l) / l <= ltol for l in lengths]
+        inds = [np.logical_and(dist / l < 1 + ltol,
+                               dist / l > 1 / (1 + ltol)) for l in lengths]
         c_a, c_b, c_c = (cart[i] for i in inds)
         f_a, f_b, f_c = (frac[i] for i in inds)
         l_a, l_b, l_c = (np.sum(c ** 2, axis=-1) ** 0.5 for c in (c_a, c_b, c_c))
@@ -928,15 +932,21 @@ class Lattice(MSONable):
 
         shifted_coords = fcoords[:, None, None, None, :] + \
             images[None, :, :, :, :]
-        coords = self.get_cartesian_coords(shifted_coords)
-        dists = np.sqrt(np.sum((coords - center[None, None, None, None, :]) ** 2,
-                               axis=4))
-        within_r = np.where(dists <= r)
+
+        cart_coords = self.get_cartesian_coords(fcoords)
+        cart_images = self.get_cartesian_coords(images)
+        coords = cart_coords[:, None, None, None, :] + \
+            cart_images[None, :, :, :, :]
+        coords -= center[None, None, None, None, :]
+        coords **= 2
+        d_2 = np.sum(coords, axis=4)
+
+        within_r = np.where(d_2 <= r ** 2)
         if zip_results:
-            return list(zip(shifted_coords[within_r], dists[within_r],
+            return list(zip(shifted_coords[within_r], np.sqrt(d_2[within_r]),
                             indices[within_r[0]]))
         else:
-            return shifted_coords[within_r], dists[within_r], \
+            return shifted_coords[within_r], np.sqrt(d_2[within_r]), \
                 indices[within_r[0]]
 
     def get_all_distances(self, fcoords1, fcoords2):

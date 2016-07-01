@@ -22,6 +22,7 @@ test:
     #    timeout: 720
     - nosetests --config=nose.cfg --cover-html --cover-html-dir=$CIRCLE_ARTIFACTS:
         timeout: 720
+    - coveralls
     # Some rudimentary command line tests for pmg
     - pmg convert test_files/Li2O.cif POSCAR.pmg
     - pmg convert POSCAR.pmg pmg.cif
