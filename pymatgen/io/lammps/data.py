@@ -7,11 +7,16 @@ from __future__ import division, print_function, unicode_literals, absolute_impo
 """
 This module implements classes for generating/parsing Lammps data file i.e
 the file that defines the system configuration(atomic positions, bonds,
-angles and dihedrals).
+angles and dihedrals) + values of various fit paramters.
 
-Assumptions: The ATOMS section in the data file that defines the atomic positions
-    is assumed to be in the following format:
-        atom_id, molecule_id, atom_type, charge(optional), x, y, z
+Restrictions:
+    The ATOMS section in the data file that defines the atomic positions
+    is assumed to be in the following format(atom style = full, this is the
+    superset of several other atom styles such as angle, bond, atomic, charge
+    and molecular):
+    atom_id, molecule_id, atom_type, charge(optional), x, y, z
+
+    For more info, please refer to: http://lammps.sandia.gov/doc/read_data.html
 """
 
 from six.moves import range
