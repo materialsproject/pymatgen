@@ -34,8 +34,6 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import get_lowe
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rectangle_surface_intersection
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 
-from scipy.integrate import quad
-
 
 def from_bson_voronoi_list(bson_nb_voro_list, structure):
     """
@@ -58,6 +56,28 @@ def from_bson_voronoi_list(bson_nb_voro_list, structure):
             voronoi_list[isite].append((periodic_site, dd))
     return voronoi_list
 
+def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
+    """
+    Returns the voronoi_list needed for the VoronoiContainer object from a bson-encoded voronoi_list (composed of
+    vlist and bson_nb_voro_list).
+    :param vlist: List of voronoi objects
+    :param bson_nb_voro_list: List of periodic sites involved in the Voronoi
+    :return: The voronoi_list needed for the VoronoiContainer (with PeriodicSites as keys of the dictionary - not
+    allowed in the BSON format)
+    """
+    voronoi_list = [None] * len(bson_nb_voro_list2)
+    for isite, voro in enumerate(bson_nb_voro_list2):
+        if voro is None or voro == 'None':
+            continue
+        voronoi_list[isite] = []
+        for psd, dd in voro:
+            struct_site = structure[dd['index']]
+            periodic_site = PeriodicSite(struct_site._species, struct_site.frac_coords + psd[1],
+                                         struct_site._lattice, properties=struct_site._properties)
+            dd['site'] = periodic_site
+            voronoi_list[isite].append(dd)
+    return voronoi_list
+
 
 class DetailedVoronoiContainer(MSONable):
     """
@@ -66,7 +86,7 @@ class DetailedVoronoiContainer(MSONable):
     AC = AdditionalConditions()
     default_voronoi_cutoff = 10.0
 
-    def __init__(self, structure=None, voronoi_list=None,
+    def __init__(self, structure=None, voronoi_list=None, voronoi_list2=None,
                  neighbors_lists=None,
                  voronoi_cutoff=default_voronoi_cutoff, isites=None,
                  weighted_distance_tolerance=1e-5, weighted_angle_tolerance=1e-3,
@@ -99,6 +119,10 @@ class DetailedVoronoiContainer(MSONable):
         logging.info('Setting Voronoi list')
         if voronoi_list is not None:
             self.voronoi_list = voronoi_list
+            if voronoi_list2 is not None:
+                self.voronoi_list2 = voronoi_list2
+            # else:
+            #     self.setup_voronoi_list(indices=range(len(structure)), voronoi_cutoff=voronoi_cutoff)
         else:
             self.setup_voronoi_list(indices=indices, voronoi_cutoff=voronoi_cutoff)
         logging.info('Setting neighbors distances and angles')
@@ -106,15 +130,16 @@ class DetailedVoronoiContainer(MSONable):
         self.setup_neighbors_distances_and_angles(indices=indices)
         t2 = time.clock()
         logging.info('Neighbors distances and angles set up in {:.2f} seconds'.format(t2-t1))
-        if neighbors_lists is None:
-            self.setup_neighbors(additional_conditions=self.additional_conditions, valences=self.valences)
-        else:
-            self.neighbors_lists = neighbors_lists
-        logging.info('Setting unique coordinations')
-        t1 = time.clock()
-        self.setup_unique_coordinations()
-        t2 = time.clock()
-        logging.info('Unique coordinations set up in {:.2f} seconds'.format(t2-t1))
+        self.neighbors_lists = [None] * len(self.voronoi_list)
+        # if neighbors_lists is None:
+        #     self.setup_neighbors(additional_conditions=self.additional_conditions, valences=self.valences)
+        # else:
+        #     self.neighbors_lists = neighbors_lists
+        # logging.info('Setting unique coordinations')
+        # t1 = time.clock()
+        # self.setup_unique_coordinations()
+        # t2 = time.clock()
+        # logging.info('Unique coordinations set up in {:.2f} seconds'.format(t2-t1))
 
     def setup_voronoi_list(self, indices, voronoi_cutoff):
         """
@@ -124,6 +149,7 @@ class DetailedVoronoiContainer(MSONable):
         :raise RuntimeError: If an infinite vertex is found in the voronoi construction
         """
         self.voronoi_list = [None] * len(self.structure)
+        self.voronoi_list2 = [None] * len(self.structure)
         logging.info('Getting all neighbors in structure')
         struct_neighbors = self.structure.get_all_neighbors(voronoi_cutoff, include_index=True)
         t1 = time.clock()
@@ -141,6 +167,7 @@ class DetailedVoronoiContainer(MSONable):
             all_vertices = voro.vertices
 
             results = []
+            results2 = []
             maxangle = 0.0
             mindist = 10000.0
             for nn, vind in list(voro.ridges.items()):
@@ -165,12 +192,85 @@ class DetailedVoronoiContainer(MSONable):
                                     {'angle': sa,
                                      'distance': distances[nn[1]],
                                      'index': myindex}))
+                    results2.append({'site': neighbors[nn[1]],
+                                     'angle': sa,
+                                     'distance': distances[nn[1]],
+                                     'index': myindex})
             for (nn, dd) in results:
                 dd['weighted_angle'] = dd['angle'] / maxangle
                 dd['weighted_distance'] = dd['distance'] / mindist
+            for dd in results2:
+                dd['weighted_angle'] = dd['angle'] / maxangle
+                dd['weighted_distance'] = dd['distance'] / mindist
             self.voronoi_list[isite] = results
+            self.voronoi_list2[isite] = results2
         t2 = time.clock()
         logging.info('Voronoi list set up in {:.2f} seconds'.format(t2-t1))
+
+    # def setup_neighbors_distances_and_angles(self, indices):
+    #     """
+    #     Initializes the angle and distance separations
+    #     :param indices: indices of the sites for which the Voronoi is needed
+    #     """
+    #     self.neighbors_distances = [None] * len(self.structure)
+    #     self.neighbors_weighted_distances = [None] * len(self.structure)
+    #     self.neighbors_angles = [None] * len(self.structure)
+    #     self.neighbors_weighted_angles = [None] * len(self.structure)
+    #     for isite in indices:
+    #         # results = self.voronoi_list[isite]
+    #         results = self.voronoi_list2[isite]
+    #         if results is None:
+    #             continue
+    #         #Initializes neighbors distances and weighted distances groups
+    #         self.neighbors_distances[isite] = []
+    #         self.neighbors_weighted_distances[isite] = []
+    #         weighted_distances = [nb_dict['weighted_distance'] for nb_dict in results]
+    #         isorted_distances = np.argsort(weighted_distances)
+    #         #self.neighbors_weighted_distances[isite].append(weighted_distances[isorted_distances[0]])
+    #         self.neighbors_weighted_distances[isite].append({'min': weighted_distances[isorted_distances[0]],
+    #                                                          'max': weighted_distances[isorted_distances[0]]})
+    #         self.neighbors_distances[isite].append({'min': results[isorted_distances[0]]['distance'],
+    #                                                 'max': results[isorted_distances[0]]['distance']})
+    #         icurrent = 0
+    #         for idist in iter(isorted_distances):
+    #             if self.maximum_distance_factor is not None:
+    #                 if weighted_distances[idist] > self.maximum_distance_factor:
+    #                     self.neighbors_weighted_distances[isite][icurrent]['max'] = weighted_distances[idist]
+    #                     self.neighbors_distances[isite][icurrent]['max'] = results[idist]['distance']
+    #                     break
+    #             if not np.isclose(weighted_distances[idist], self.neighbors_weighted_distances[isite][-1]['max'],
+    #                               rtol=0.0, atol=self.weighted_distance_tolerance):
+    #                 self.neighbors_weighted_distances[isite].append({'min': weighted_distances[idist],
+    #                                                                  'max': weighted_distances[idist]})
+    #                 self.neighbors_distances[isite].append({'min': results[idist]['distance'],
+    #                                                         'max': results[idist]['distance']})
+    #             else:
+    #                 self.neighbors_weighted_distances[isite][-1]['max'] = weighted_distances[idist]
+    #                 self.neighbors_distances[isite][-1]['max'] = results[idist]['distance']
+    #         #Initializes neighbors angles and weighted angles groups
+    #         self.neighbors_angles[isite] = []
+    #         self.neighbors_weighted_angles[isite] = []
+    #         weighted_angles = [nb_dict['weighted_angle'] for nb_dict in results]
+    #         isorted_angles = np.argsort(weighted_angles)
+    #         self.neighbors_weighted_angles[isite].append({'max': weighted_angles[isorted_angles[0]],
+    #                                                       'min': weighted_angles[isorted_angles[0]]})
+    #         self.neighbors_angles[isite].append({'max': results[isorted_angles[0]]['angle'],
+    #                                              'min': results[isorted_angles[0]]['angle']})
+    #         for iang in iter(isorted_angles[1:]):
+    #             if self.minimum_angle_factor is not None:
+    #                 if weighted_angles[iang] < self.minimum_angle_factor:
+    #                     self.neighbors_weighted_angles[isite][-1]['min'] = weighted_angles[iang]
+    #                     self.neighbors_angles[isite][-1]['min'] = results[iang]['angle']
+    #                     break
+    #             if not np.isclose(weighted_angles[iang], self.neighbors_weighted_angles[isite][-1]['min'],
+    #                               rtol=0.0, atol=self.weighted_angle_tolerance):
+    #                 self.neighbors_weighted_angles[isite].append({'max': weighted_angles[iang],
+    #                                                               'min': weighted_angles[iang]})
+    #                 self.neighbors_angles[isite].append({'max': results[iang]['angle'],
+    #                                                      'min': results[iang]['angle']})
+    #             else:
+    #                 self.neighbors_weighted_angles[isite][-1]['min'] = weighted_angles[iang]
+    #                 self.neighbors_angles[isite][-1]['min'] = results[iang]['angle']
 
     def setup_neighbors_distances_and_angles(self, indices):
         """
@@ -182,58 +282,95 @@ class DetailedVoronoiContainer(MSONable):
         self.neighbors_angles = [None] * len(self.structure)
         self.neighbors_weighted_angles = [None] * len(self.structure)
         for isite in indices:
-            results = self.voronoi_list[isite]
+            results = self.voronoi_list2[isite]
             if results is None:
                 continue
             #Initializes neighbors distances and weighted distances groups
             self.neighbors_distances[isite] = []
             self.neighbors_weighted_distances[isite] = []
-            weighted_distances = [dd['weighted_distance'] for (nn, dd) in results]
+            weighted_distances = [nb_dict['weighted_distance'] for nb_dict in results]
             isorted_distances = np.argsort(weighted_distances)
-            #self.neighbors_weighted_distances[isite].append(weighted_distances[isorted_distances[0]])
             self.neighbors_weighted_distances[isite].append({'min': weighted_distances[isorted_distances[0]],
                                                              'max': weighted_distances[isorted_distances[0]]})
-            self.neighbors_distances[isite].append({'min': results[isorted_distances[0]][1]['distance'],
-                                                    'max': results[isorted_distances[0]][1]['distance']})
+            self.neighbors_distances[isite].append({'min': results[isorted_distances[0]]['distance'],
+                                                    'max': results[isorted_distances[0]]['distance']})
+            icurrent = 0
+            nb_indices = {isorted_distances[0]}
+            dnb_indices = {isorted_distances[0]}
             for idist in iter(isorted_distances):
+                wd = weighted_distances[idist]
                 if self.maximum_distance_factor is not None:
-                    if weighted_distances[idist] > self.maximum_distance_factor:
-                        self.neighbors_weighted_distances[isite][-1]['max'] = weighted_distances[idist]
-                        self.neighbors_distances[isite][-1]['max'] = results[idist][1]['distance']
+                    if wd > self.maximum_distance_factor:
+                        self.neighbors_weighted_distances[isite][icurrent]['nb_indices'] = list(nb_indices)
+                        self.neighbors_distances[isite][icurrent]['nb_indices'] = list(nb_indices)
+                        self.neighbors_weighted_distances[isite][icurrent]['dnb_indices'] = list(dnb_indices)
+                        self.neighbors_distances[isite][icurrent]['dnb_indices'] = list(dnb_indices)
                         break
-                if not np.isclose(weighted_distances[idist], self.neighbors_weighted_distances[isite][-1]['max'],
-                                  rtol=0.0, atol=self.weighted_distance_tolerance):
-                    self.neighbors_weighted_distances[isite].append({'min': weighted_distances[idist],
-                                                                     'max': weighted_distances[idist]})
-                    self.neighbors_distances[isite].append({'min': results[idist][1]['distance'],
-                                                            'max': results[idist][1]['distance']})
+                if np.isclose(wd, self.neighbors_weighted_distances[isite][icurrent]['max'],
+                                          rtol=0.0, atol=self.weighted_distance_tolerance):
+                    self.neighbors_weighted_distances[isite][icurrent]['max'] = wd
+                    self.neighbors_distances[isite][icurrent]['max'] = results[idist]['distance']
+                    dnb_indices.add(idist)
                 else:
-                    self.neighbors_weighted_distances[isite][-1]['max'] = weighted_distances[idist]
-                    self.neighbors_distances[isite][-1]['max'] = results[idist][1]['distance']
+                    self.neighbors_weighted_distances[isite][icurrent]['nb_indices'] = list(nb_indices)
+                    self.neighbors_distances[isite][icurrent]['nb_indices'] = list(nb_indices)
+                    self.neighbors_weighted_distances[isite][icurrent]['dnb_indices'] = list(dnb_indices)
+                    self.neighbors_distances[isite][icurrent]['dnb_indices'] = list(dnb_indices)
+                    dnb_indices = {idist}
+                    self.neighbors_weighted_distances[isite].append({'min': wd,
+                                                                     'max': wd})
+                    self.neighbors_distances[isite].append({'min': results[idist]['distance'],
+                                                            'max': results[idist]['distance']})
+                    icurrent += 1
+                nb_indices.add(idist)
+            else:
+                self.neighbors_weighted_distances[isite][icurrent]['nb_indices'] = list(nb_indices)
+                self.neighbors_distances[isite][icurrent]['nb_indices'] = list(nb_indices)
+                self.neighbors_weighted_distances[isite][icurrent]['dnb_indices'] = list(dnb_indices)
+                self.neighbors_distances[isite][icurrent]['dnb_indices'] = list(dnb_indices)
             #Initializes neighbors angles and weighted angles groups
             self.neighbors_angles[isite] = []
             self.neighbors_weighted_angles[isite] = []
-            weighted_angles = [dd['weighted_angle'] for (nn, dd) in results]
-            isorted_angles = np.argsort(weighted_angles)
+            weighted_angles = [nb_dict['weighted_angle'] for nb_dict in results]
+            isorted_angles = np.argsort(weighted_angles)[::-1]
             self.neighbors_weighted_angles[isite].append({'max': weighted_angles[isorted_angles[0]],
                                                           'min': weighted_angles[isorted_angles[0]]})
-            self.neighbors_angles[isite].append({'max': results[isorted_angles[0]][1]['angle'],
-                                                 'min': results[isorted_angles[0]][1]['angle']})
-            for iang in iter(isorted_angles[1:]):
+            self.neighbors_angles[isite].append({'max': results[isorted_angles[0]]['angle'],
+                                                 'min': results[isorted_angles[0]]['angle']})
+            icurrent = 0
+            nb_indices = {isorted_angles[0]}
+            dnb_indices = {isorted_angles[0]}
+            for iang in iter(isorted_angles):
+                wa = weighted_angles[iang]
                 if self.minimum_angle_factor is not None:
-                    if weighted_angles[iang] < self.minimum_angle_factor:
-                        self.neighbors_weighted_angles[isite][-1]['min'] = weighted_angles[iang]
-                        self.neighbors_angles[isite][-1]['min'] = results[iang][1]['angle']
+                    if wa < self.minimum_angle_factor:
+                        self.neighbors_weighted_angles[isite][icurrent]['nb_indices'] = list(nb_indices)
+                        self.neighbors_angles[isite][icurrent]['nb_indices'] = list(nb_indices)
+                        self.neighbors_weighted_angles[isite][icurrent]['dnb_indices'] = list(dnb_indices)
+                        self.neighbors_angles[isite][icurrent]['dnb_indices'] = list(dnb_indices)
                         break
-                if not np.isclose(weighted_angles[iang], self.neighbors_weighted_angles[isite][-1]['min'],
-                                  rtol=0.0, atol=self.weighted_angle_tolerance):
-                    self.neighbors_weighted_angles[isite].append({'max': weighted_angles[iang],
-                                                                  'min': weighted_angles[iang]})
-                    self.neighbors_angles[isite].append({'max': results[iang][1]['angle'],
-                                                         'min': results[iang][1]['angle']})
+                if np.isclose(wa, self.neighbors_weighted_angles[isite][icurrent]['min'],
+                                          rtol=0.0, atol=self.weighted_angle_tolerance):
+                    self.neighbors_weighted_angles[isite][icurrent]['min'] = wa
+                    self.neighbors_angles[isite][icurrent]['min'] = results[iang]['angle']
+                    dnb_indices.add(iang)
                 else:
-                    self.neighbors_weighted_angles[isite][-1]['min'] = weighted_angles[iang]
-                    self.neighbors_angles[isite][-1]['min'] = results[iang][1]['angle']
+                    self.neighbors_weighted_angles[isite][icurrent]['nb_indices'] = list(nb_indices)
+                    self.neighbors_angles[isite][icurrent]['nb_indices'] = list(nb_indices)
+                    self.neighbors_weighted_angles[isite][icurrent]['dnb_indices'] = list(dnb_indices)
+                    self.neighbors_angles[isite][icurrent]['dnb_indices'] = list(dnb_indices)
+                    dnb_indices = {iang}
+                    self.neighbors_weighted_angles[isite].append({'max': wa,
+                                                                  'min': wa})
+                    self.neighbors_angles[isite].append({'max': results[iang]['angle'],
+                                                         'min': results[iang]['angle']})
+                    icurrent += 1
+                nb_indices.add(iang)
+            else:
+                self.neighbors_weighted_angles[isite][icurrent]['nb_indices'] = list(nb_indices)
+                self.neighbors_angles[isite][icurrent]['nb_indices'] = list(nb_indices)
+                self.neighbors_weighted_angles[isite][icurrent]['dnb_indices'] = list(dnb_indices)
+                self.neighbors_angles[isite][icurrent]['dnb_indices'] = list(dnb_indices)
 
     def setup_neighbors(self, additional_conditions=None, valences=None):
         """
@@ -869,6 +1006,30 @@ class DetailedVoronoiContainer(MSONable):
             bson_nb_voro_list[ivoro] = site_voro
         return bson_nb_voro_list
 
+    def to_bson_voronoi_list2(self):
+        """
+        Transforms the voronoi_list into a vlist + bson_nb_voro_list, that are BSON-encodable.
+        :return: [vlist, bson_nb_voro_list], to be used in the as_dict method
+        """
+        bson_nb_voro_list2 = [None] * len(self.voronoi_list2)
+        for ivoro, voro in enumerate(self.voronoi_list2):
+            if voro is None or voro == 'None':
+                continue
+            site_voro = []
+            # {'site': neighbors[nn[1]],
+            #  'angle': sa,
+            #  'distance': distances[nn[1]],
+            #  'index': myindex}
+            for nb_dict in voro:
+                site = nb_dict['site']
+                site_dict = {key: val for key, val in nb_dict.items() if key not in ['site']}
+                #site_voro.append([ps.as_dict(), dd]) [float(c) for c in self._fcoords]
+                diff = site._fcoords - self.structure[nb_dict['index']]._fcoords
+                site_voro.append([[nb_dict['index'], [float(c) for c in diff]],
+                                  site_dict])
+            bson_nb_voro_list2[ivoro] = site_voro
+        return bson_nb_voro_list2
+
     def as_dict(self):
         """
         Bson-serializable dict representation of the VoronoiContainer.
@@ -897,10 +1058,11 @@ class DetailedVoronoiContainer(MSONable):
         """
         structure = Structure.from_dict(d['structure'])
         voronoi_list = from_bson_voronoi_list(d['bson_nb_voro_list'], structure)
+        voronoi_list2 = from_bson_voronoi_list2(d['bson_nb_voro_list'], structure)
         neighbors_lists = d['neighbors_lists'] if 'neighbors_lists' in d else None
         maximum_distance_factor = d['maximum_distance_factor'] if 'maximum_distance_factor' in d else None
         minimum_angle_factor = d['minimum_angle_factor'] if 'minimum_angle_factor' in d else None
-        return cls(structure=structure, voronoi_list=voronoi_list,
+        return cls(structure=structure, voronoi_list=voronoi_list, voronoi_list2=voronoi_list2,
                    neighbors_lists=neighbors_lists,
                    weighted_angle_tolerance=d['weighted_angle_tolerance'],
                    weighted_distance_tolerance=d['weighted_distance_tolerance'],
