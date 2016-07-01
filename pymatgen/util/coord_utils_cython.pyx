@@ -219,6 +219,59 @@ def is_coord_subset_pbc(subset, superset, atol, mask):
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
+def coord_list_mapping_pbc(subset, superset, atol=1e-8):
+    """
+    Gives the index mapping from a subset to a superset.
+    Superset cannot contain duplicate matching rows
+
+    Args:
+        subset, superset: List of frac_coords
+
+    Returns:
+        list of indices such that superset[indices] = subset
+    """
+    inds = np.zeros(len(subset), dtype=np.long) - 1
+    subset = np.atleast_2d(subset)
+    superset = np.atleast_2d(superset)
+
+    cdef np.float_t[:, :] fc1 = subset
+    cdef np.float_t[:, :] fc2 = superset
+    cdef np.float_t[:] t = atol
+    cdef np.long_t[:] c_inds = inds
+    cdef np.float_t d
+    cdef bint ok_inner, ok_outer
+
+    I = fc1.shape[0]
+    J = fc2.shape[0]
+
+    for i in range(I):
+        ok_outer = False
+        for j in range(J):
+            ok_inner = True
+            for k in range(3):
+                d = fc1[i, k] - fc2[j, k]
+                if fabs(d - round(d)) > t[k]:
+                    ok_inner = False
+                    break
+            if ok_inner:
+                if c_inds[i] >= 0:
+                    raise ValueError("Something wrong with the inputs, likely duplicates "
+                             "in superset")
+                c_inds[i] = j
+                ok_outer = True
+                # we don't break here so we can check for duplicates in superset
+        if not ok_outer:
+            break
+
+    if not ok_outer:
+        raise ValueError("subset is not a subset of superset")
+
+    return inds
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.initializedcheck(False)
 def det3x3(matrix):
     cdef np.float_t[:, :] m_f
     cdef np.long_t[:, :] m_l

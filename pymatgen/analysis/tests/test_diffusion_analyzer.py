@@ -21,13 +21,14 @@ import os
 import json
 import random
 import numpy as np
-
+import csv
 import scipy.constants as const
 
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer,\
     get_conversion_factor, fit_arrhenius
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
+from monty.tempfile import ScratchDir
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -161,6 +162,16 @@ class DiffusionAnalyzerTest(PymatgenTest):
                 d.step_skip, d.smoothed, avg_nsteps=100)
             self.assertAlmostEqual(d.conductivity, 47.404056230438741, 4)
             self.assertAlmostEqual(d.diffusivity, 7.4226016496716148e-07, 7)
+            with ScratchDir("."):
+                d.export_msdt("test.csv")
+                with open("test.csv") as f:
+                    data = []
+                    for row in csv.reader(f):
+                        data.append(row)
+                data.pop(0)
+                data = np.array(data, dtype=np.float64)
+                self.assertArrayAlmostEqual(data[:, 1], d.msd)
+
 
 if __name__ == '__main__':
     unittest.main()

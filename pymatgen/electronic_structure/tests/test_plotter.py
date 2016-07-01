@@ -93,7 +93,7 @@ class PlotBZTest(unittest.TestCase):
         if not have_matplotlib:
             raise unittest.SkipTest("matplotlib not available")
 
-        self.rec_latt = Structure.from_file(os.path.join(test_dir, "Si.cssr")).reciprocal_lattice
+        self.rec_latt = Structure.from_file(os.path.join(test_dir, "Si.cssr")).lattice.reciprocal_lattice
         self.kpath = [[[0., 0., 0.], [0.5, 0., 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]]
         self.labels = {'\\Gamma': [0., 0., 0.], 'K': [0.375, 0.375, 0.75], u'L': [0.5, 0.5, 0.5],
                        'U': [0.625, 0.25, 0.625], 'W': [0.5, 0.25, 0.75], 'X': [0.5, 0., 0.5]}
