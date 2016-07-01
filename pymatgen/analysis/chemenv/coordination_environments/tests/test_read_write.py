@@ -64,7 +64,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
         self.assertEqual(light_se._strategy, light_se2._strategy)
         self.assertEqual(light_se._structure, light_se2._structure)
-        self.assertEqual(light_se._bva_valences, light_se2._bva_valences)
+        self.assertEqual(light_se._valences, light_se2._valences)
         self.assertEqual(light_se._coordination_environments, light_se2._coordination_environments)
         self.assertEqual(light_se._neighbors, light_se2._neighbors)
         self.assertEqual(light_se, light_se2)

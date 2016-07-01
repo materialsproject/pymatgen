@@ -245,7 +245,7 @@ def symmetry_measure(points_distorted, points_perfect):
     """
     # When there is only one point, the symmetry measure is 0.0 by definition
     if len(points_distorted) == 1:
-        return 0.0
+        return {'symmetry_measure': 0.0, 'scaling_factor': None, 'rotation_matrix': None}
     # Find the rotation matrix that aligns the distorted points to the perfect points in a least-square sense.
     rot = find_rotation(points_distorted=points_distorted,
                         points_perfect=points_perfect)
@@ -262,7 +262,7 @@ def symmetry_measure(points_distorted, points_perfect):
         diff = (pp - rotated_coords[ip])
         num += np.sum(diff * diff)
         denom += np.sum(pp * pp)
-    return num / denom * 100.0
+    return {'symmetry_measure': num / denom * 100.0, 'scaling_factor': scaling_factor, 'rotation_matrix': rot}
 
 
 def find_rotation(points_distorted, points_perfect):
@@ -322,7 +322,6 @@ class LocalGeometryFinder(object):
     def __init__(self, permutations_safe_override=False,
                  plane_ordering_override=True, debug_level=None,
                  plane_safe_permutations=False,
-                 logfile='chemenv_local_geometry_finder.log',
                  only_symbols=None):
         """
         Constructor for the LocalGeometryFinder, initializes the list of coordination geometries
@@ -330,7 +329,7 @@ class LocalGeometryFinder(object):
         coordination numbers!)
         :param plane_ordering_override: If set to False, the ordering of the points in the plane is disabled
         """
-        self.cg = AllCoordinationGeometries(
+        self.allcg = AllCoordinationGeometries(
             permutations_safe_override=permutations_safe_override,
             only_symbols=only_symbols)
         self.permutations_safe_override = permutations_safe_override
@@ -438,6 +437,213 @@ class LocalGeometryFinder(object):
         """
         self.setup_structure(
             Structure(lattice, species, coords, coords_are_cartesian))
+
+    def compute_structure_environments(self,
+                                       excluded_atoms=None,
+                                       only_atoms=None,
+                                       only_cations=True,
+                                       only_indices=None,
+                                       maximum_distance_factor=None,
+                                       minimum_angle_factor=None,
+                                       max_cn=None,
+                                       min_cn=None,
+                                       valences='undefined',
+                                       additional_conditions=None,
+                                       info=None):
+        """
+        Computes and returns the StructureEnvironments object containing all the information about the coordination
+        environments in the structure
+        :param excluded_atoms: Atoms for which the coordination geometries does not have to be identified
+        :param only_atoms: If not set to None, atoms for which the coordination geometries have to be identified
+        :return: The StructureEnvironments object containing all the information about the coordination
+        environments in the structure
+        """
+
+        if info is None:
+            info = {}
+        info.update({'local_geometry_finder':
+                         {'parameters':
+                              {'centering_type': self.centering_type,
+                               'include_central_site_in_centroid': self.include_central_site_in_centroid,
+                               'structure_refinement': self.structure_refinement,
+                               'spg_analyzer_options': self.spg_analyzer_options
+                               }
+                          }
+                     })
+
+        self.valences = valences
+
+        # Get a list of indices of unequivalent sites from the initial structure
+        self.equivalent_sites = [[site] for site in self.structure]
+        self.struct_sites_to_irreducible_site_list_map = list(
+                range(len(self.structure)))
+        self.sites_map = list(range(len(self.structure)))
+        indices = list(range(len(self.structure)))
+
+        # Get list of unequivalent sites with valence >= 0
+        if only_cations and self.valences != 'undefined':
+            sites_indices = [isite for isite in indices if
+                             self.valences[isite] >= 0]
+        else:
+            sites_indices = [isite for isite in indices]
+
+        # Include atoms that are in the list of "only_atoms" if it is provided
+        if only_atoms is not None:
+            sites_indices = [isite for isite in sites_indices
+                             if any([at in [sp.symbol for sp in self.structure[
+                    isite].species_and_occu]
+                                     for at in only_atoms])]
+
+        # Exclude atoms that are in the list of excluded atoms
+        if excluded_atoms:
+            sites_indices = [isite for isite in sites_indices
+                             if not any([at in [sp.symbol for sp in
+                                                self.structure[
+                                                    isite].species_and_occu]
+                                         for at in excluded_atoms])]
+
+        if only_indices is not None:
+            sites_indices = [isite for isite in indices if
+                             isite in only_indices]
+
+        # Get the VoronoiContainer for the sites defined by their indices (sites_indices)
+        logging.info('Getting DetailedVoronoiContainer')
+        self.detailed_voronoi = DetailedVoronoiContainer(self.structure,
+                                                         isites=sites_indices,
+                                                         valences=self.valences,
+                                                         maximum_distance_factor=maximum_distance_factor,
+                                                         minimum_angle_factor=minimum_angle_factor,
+                                                         additional_conditions=additional_conditions)
+        logging.info('DetailedVoronoiContainer has been set up')
+
+        se = StructureEnvironments(voronoi=self.detailed_voronoi, valences=self.valences,
+                                   sites_map=self.sites_map, equivalent_sites=self.equivalent_sites,
+                                   ce_list=[None]*len(self.structure), structure=self.structure)
+
+        for isite in range(len(self.structure)):
+            if isite not in sites_indices:
+                logging.info(' ... in site #{:d} ({}) : skipped'.format(isite,
+                                                                        self.structure[
+                                                                            isite].species_string))
+                continue
+            logging.info(' ... in site #{:d} ({})'.format(isite, self.structure[
+                isite].species_string))
+            t1 = time.clock()
+            se.init_neighbors_sets(isite=isite, additional_conditions=additional_conditions, valences=valences)
+
+            to_add_from_hints = []
+
+            for cn, nb_sets in se.neighbors_sets[isite].items():
+                if max_cn is not None and cn > max_cn:
+                    continue
+                if min_cn is not None and cn < min_cn:
+                    continue
+                for inb_set, nb_set in enumerate(nb_sets):
+                    logging.debug('    ... getting environments for nb_set ({:d}, {:d})'.format(cn, inb_set))
+                    ce = self.update_nb_set_environments(se=se, isite=isite, cn=cn, inb_set=inb_set, nb_set=nb_set)
+                    for cg_symbol, cg_dict in ce:
+                        cg = self.allcg[cg_symbol]
+                        # Get possibly missing neighbors sets
+                        if cg.neighbors_sets_hints is not None:
+                            logging.debug('       ... getting hints from cg with mp_symbol "{}" ...'.format(cg_symbol))
+                            hints_info = {'csm': cg_dict['symmetry_measure'],
+                                          'nb_set': nb_set,
+                                          'permutation': cg_dict['permutation']}
+                            for nb_sets_hints in cg.neighbors_sets_hints:
+                                suggested_nb_set_voronoi_indices = nb_sets_hints.hints(hints_info)
+                                for inew, new_nb_set_voronoi_indices in enumerate(suggested_nb_set_voronoi_indices):
+                                    logging.debug('           hint # {:d}'.format(inew))
+                                    new_nb_set = se.NeighborsSet(structure=se.structure, isite=isite,
+                                                                 detailed_voronoi=se.voronoi,
+                                                                 site_voronoi_indices=new_nb_set_voronoi_indices,
+                                                                 sources={'origin': 'nb_set_hints',
+                                                                          'hints_type': nb_sets_hints.hints_type,
+                                                                          'suggestion_index': inew,
+                                                                          'cn_map_source': [cn, inb_set],
+                                                                          'cg_source_symbol': cg_symbol})
+                                    cn_new_nb_set = len(new_nb_set)
+                                    if new_nb_set in [ta['new_nb_set'] for ta in to_add_from_hints]:
+                                        has_nb_set = True
+                                    elif not cn_new_nb_set in se.neighbors_sets[isite]:
+                                        has_nb_set = False
+                                    else:
+                                        has_nb_set = new_nb_set in se.neighbors_sets[isite][cn_new_nb_set]
+                                    if not has_nb_set:
+                                        to_add_from_hints.append({'isite': isite,
+                                                                  'new_nb_set': new_nb_set,
+                                                                  'cn_new_nb_set': cn_new_nb_set})
+                                        logging.debug('              => to be computed'.format(inew))
+                                    else:
+                                        logging.debug('              => already present'.format(inew))
+            logging.debug('    ... getting environments for nb_sets added from hints')
+            for missing_nb_set_to_add in to_add_from_hints:
+                se.add_neighbors_set(isite=isite, nb_set=missing_nb_set_to_add['new_nb_set'])
+            for missing_nb_set_to_add in to_add_from_hints:
+                isite_new_nb_set = missing_nb_set_to_add['isite']
+                cn_new_nb_set = missing_nb_set_to_add['cn_new_nb_set']
+                new_nb_set = missing_nb_set_to_add['new_nb_set']
+                inew_nb_set = se.neighbors_sets[isite_new_nb_set][cn_new_nb_set].index(new_nb_set)
+                logging.debug('    ... getting environments for nb_set ({:d}, {:d}) - '
+                              'from hints'.format(cn_new_nb_set, inew_nb_set))
+                self.update_nb_set_environments(se=se,
+                                                isite=isite_new_nb_set,
+                                                cn=cn_new_nb_set,
+                                                inb_set=inew_nb_set,
+                                                nb_set=new_nb_set)
+            t2 = time.clock()
+            logging.info('    ... computed in {:.2f} seconds'.format(t2 - t1))
+        return se
+
+    def update_nb_set_environments(self, se, isite, cn, inb_set, nb_set, recompute=False):
+        ce = se.get_coordination_environments(isite=isite, cn=cn, nb_set=nb_set)
+        if ce is not None and not recompute:
+            return ce
+        ce = ChemicalEnvironments()
+        neighb_coords = nb_set.neighb_coords
+        self.setup_local_geometry(isite, coords=neighb_coords)
+        cncgsm = self.get_coordination_symmetry_measures()
+        for cg in cncgsm:
+            other_csms = {
+                'csm_wocs_ctwocc': cncgsm[cg]['csm_wocs_ctwocc'],
+                'csm_wocs_ctwcc': cncgsm[cg]['csm_wocs_ctwcc'],
+                'csm_wocs_csc': cncgsm[cg]['csm_wocs_csc'],
+                'csm_wcs_ctwocc': cncgsm[cg]['csm_wcs_ctwocc'],
+                'csm_wcs_ctwcc': cncgsm[cg]['csm_wcs_ctwcc'],
+                'csm_wcs_csc': cncgsm[cg]['csm_wcs_csc'],
+                'rotation_matrix_wocs_ctwocc': cncgsm[cg]['rotation_matrix_wocs_ctwocc'],
+                'rotation_matrix_wocs_ctwcc': cncgsm[cg]['rotation_matrix_wocs_ctwcc'],
+                'rotation_matrix_wocs_csc': cncgsm[cg]['rotation_matrix_wocs_csc'],
+                'rotation_matrix_wcs_ctwocc': cncgsm[cg]['rotation_matrix_wcs_ctwocc'],
+                'rotation_matrix_wcs_ctwcc': cncgsm[cg]['rotation_matrix_wcs_ctwcc'],
+                'rotation_matrix_wcs_csc': cncgsm[cg]['rotation_matrix_wcs_csc'],
+                'scaling_factor_wocs_ctwocc': cncgsm[cg]['scaling_factor_wocs_ctwocc'],
+                'scaling_factor_wocs_ctwcc': cncgsm[cg]['scaling_factor_wocs_ctwcc'],
+                'scaling_factor_wocs_csc': cncgsm[cg]['scaling_factor_wocs_csc'],
+                'scaling_factor_wcs_ctwocc': cncgsm[cg]['scaling_factor_wcs_ctwocc'],
+                'scaling_factor_wcs_ctwcc': cncgsm[cg]['scaling_factor_wcs_ctwcc'],
+                'scaling_factor_wcs_csc': cncgsm[cg]['scaling_factor_wcs_csc'],
+                'translation_vector_wocs_ctwocc': cncgsm[cg]['translation_vector_wocs_ctwocc'],
+                'translation_vector_wocs_ctwcc': cncgsm[cg]['translation_vector_wocs_ctwcc'],
+                'translation_vector_wocs_csc': cncgsm[cg]['translation_vector_wocs_csc'],
+                'translation_vector_wcs_ctwocc': cncgsm[cg]['translation_vector_wcs_ctwocc'],
+                'translation_vector_wcs_ctwcc': cncgsm[cg]['translation_vector_wcs_ctwcc'],
+                'translation_vector_wcs_csc': cncgsm[cg]['translation_vector_wcs_csc']
+            }
+            ce.add_coord_geom(cg, cncgsm[cg]['csm'],
+                              algo=cncgsm[cg]['algo'],
+                              permutation=cncgsm[cg]['indices'],
+                              local2perfect_map=cncgsm[cg][
+                                  'local2perfect_map'],
+                              perfect2local_map=cncgsm[cg][
+                                  'perfect2local_map'],
+                              detailed_voronoi_index={'cn': cn,
+                                                      'index': inb_set},
+                              other_symmetry_measures=other_csms,
+                              rotation_matrix=cncgsm[cg]['rotation_matrix'],
+                              scaling_factor=cncgsm[cg]['scaling_factor']
+                              )
+        se.update_coordination_environments(isite=isite, cn=cn, nb_set=nb_set, ce=ce)
+        return ce
 
     def compute_structure_environments_detailed_voronoi(self,
                                                         excluded_atoms=None,
@@ -600,7 +806,7 @@ class LocalGeometryFinder(object):
                             'csm_wocs_csc': cncgsm[cg]['csm_wocs_csc'],
                             'csm_wcs_ctwocc': cncgsm[cg]['csm_wcs_ctwocc'],
                             'csm_wcs_ctwcc': cncgsm[cg]['csm_wcs_ctwcc'],
-                            'csm_wcs_csc': cncgsm[cg]['csm_wcs_csc'],}
+                            'csm_wcs_csc': cncgsm[cg]['csm_wcs_csc']}
                         ce.add_coord_geom(cg, cncgsm[cg]['csm'],
                                           algo=cncgsm[cg]['algo'],
                                           permutation=cncgsm[cg]['indices'],
@@ -640,11 +846,11 @@ class LocalGeometryFinder(object):
                                        max_random_dist=0.1,
                                        symbol_type='mp_symbol',
                                        indices='RANDOM',
-                                       random_translation=False,
-                                       random_rotation=False,
-                                       random_scale=False):
+                                       random_translation='NONE',
+                                       random_rotation='NONE',
+                                       random_scale='NONE'):
         if symbol_type == 'IUPAC':
-            cg = self.cg.get_geometry_from_IUPAC_symbol(symbol)
+            cg = self.allcg.get_geometry_from_IUPAC_symbol(symbol)
         elif symbol_type == 'MP' or symbol_type == 'mp_symbol':
             cg = self.cg.get_geometry_from_mp_symbol(symbol)
         else:
@@ -792,7 +998,18 @@ class LocalGeometryFinder(object):
         Returns the continuous symmetry measures of the current local geometry in a dictionary.
         :return: the continuous symmetry measures of the current local geometry in a dictionary.
         """
-        test_geometries = self.cg.get_implemented_geometries(
+        if len(self.local_geometry.coords) == 1:
+            result_dict = {'S:1': {'csm': 0.0, 'indices': [0], 'algo': 'EXPLICIT',
+                                   'local2perfect_map': {0: 0}, 'perfect2local_map': {0: 0},
+                                   'scaling_factor': None, 'rotation_matrix': None, 'translation_vector': None}}
+            if all_csms:
+                for csmtype in ['wocs_ctwocc', 'wocs_ctwcc', 'wocs_csc', 'wcs_ctwocc', 'wcs_ctwcc', 'wcs_csc']:
+                    result_dict['S:1']['csm_{}'.format(csmtype)] = 0.0
+                    result_dict['S:1']['scaling_factor_{}'.format(csmtype)] = None
+                    result_dict['S:1']['rotation_matrix_{}'.format(csmtype)] = None
+                    result_dict['S:1']['translation_vector_{}'.format(csmtype)] = None
+            return result_dict
+        test_geometries = self.allcg.get_implemented_geometries(
             len(self.local_geometry.coords))
         result_dict = {}
         for geometry in test_geometries:
@@ -800,18 +1017,19 @@ class LocalGeometryFinder(object):
                                                              centering_type=self.centering_type,
                                                              include_central_site_in_centroid=
                                                              self.include_central_site_in_centroid)
-            points_perfect = self.perfect_geometry.points_wocs_ctwocc()
+            #points_perfect = self.perfect_geometry.points_wocs_ctwocc()
+            points_perfect = self.perfect_geometry.points_wcs_ctwcc()
             cgsm = self.coordination_geometry_symmetry_measures(geometry,
                                                                 points_perfect=points_perfect)
             result, permutations, algos, local2perfect_maps, perfect2local_maps = cgsm
             if only_minimum:
                 if len(result) > 0:
-                    imin = np.argmin(result)
+                    imin = np.argmin([rr['symmetry_measure'] for rr in result])
                     if geometry.algorithms is not None:
                         algo = algos[imin]
                     else:
                         algo = algos
-                    result_dict[geometry.mp_symbol] = {'csm': result[imin],
+                    result_dict[geometry.mp_symbol] = {'csm': result[imin]['symmetry_measure'],
                                                        'indices': permutations[
                                                            imin],
                                                        'algo': algo,
@@ -820,50 +1038,87 @@ class LocalGeometryFinder(object):
                                                                imin],
                                                        'perfect2local_map':
                                                            perfect2local_maps[
-                                                               imin]}
+                                                               imin],
+                                                       'scaling_factor': 1.0 / result[imin]['scaling_factor'],
+                                                       'rotation_matrix':
+                                                           np.linalg.inv(result[imin]['rotation_matrix']),
+                                                       'translation_vector': result[imin]['translation_vector']}
                     if all_csms:
                         permutation = permutations[imin]
                         # Without central site, centered on the centroid (centroid does not include the central site)
-                        result_dict[geometry.mp_symbol]['csm_wocs_ctwocc'] = \
-                        result[imin]
+                        # result_dict[geometry.mp_symbol]['csm_wocs_ctwocc'] = \
+                        # result[imin]
+                        pdist = self.local_geometry.points_wocs_ctwocc(
+                            permutation=permutation)
+                        pperf = self.perfect_geometry.points_wocs_ctwocc()
+                        sm_info = symmetry_measure(points_distorted=pdist,
+                                                   points_perfect=pperf)
+                        result_dict[geometry.mp_symbol]['csm_wocs_ctwocc'] = sm_info['symmetry_measure']
+                        result_dict[geometry.mp_symbol]['rotation_matrix_wocs_ctwocc'] = \
+                            np.linalg.inv(sm_info['rotation_matrix'])
+                        result_dict[geometry.mp_symbol]['scaling_factor_wocs_ctwocc'] = 1.0 / sm_info['scaling_factor']
+                        result_dict[geometry.mp_symbol]['translation_vector_wocs_ctwocc'] = \
+                            self.local_geometry.centroid_without_centre
                         # Without central site, centered on the centroid (centroid includes the central site)
                         pdist = self.local_geometry.points_wocs_ctwcc(
                             permutation=permutation)
                         pperf = self.perfect_geometry.points_wocs_ctwcc()
-                        csm = symmetry_measure(points_distorted=pdist,
-                                               points_perfect=pperf)
-                        result_dict[geometry.mp_symbol]['csm_wocs_ctwcc'] = csm
+                        sm_info = symmetry_measure(points_distorted=pdist,
+                                                   points_perfect=pperf)
+                        result_dict[geometry.mp_symbol]['csm_wocs_ctwcc'] = sm_info['symmetry_measure']
+                        result_dict[geometry.mp_symbol]['rotation_matrix_wocs_ctwcc'] = \
+                            np.linalg.inv(sm_info['rotation_matrix'])
+                        result_dict[geometry.mp_symbol]['scaling_factor_wocs_ctwcc'] = 1.0 / sm_info['scaling_factor']
+                        result_dict[geometry.mp_symbol]['translation_vector_wocs_ctwcc'] = \
+                            self.local_geometry.centroid_with_centre
                         # Without central site, centered on the central site
                         pdist = self.local_geometry.points_wocs_csc(
                             permutation=permutation)
                         pperf = self.perfect_geometry.points_wocs_csc()
-                        csm = symmetry_measure(points_distorted=pdist,
-                                               points_perfect=pperf)
-                        result_dict[geometry.mp_symbol]['csm_wocs_csc'] = csm
+                        sm_info = symmetry_measure(points_distorted=pdist,
+                                                   points_perfect=pperf)
+                        result_dict[geometry.mp_symbol]['csm_wocs_csc'] = sm_info['symmetry_measure']
+                        result_dict[geometry.mp_symbol]['rotation_matrix_wocs_csc'] = \
+                            np.linalg.inv(sm_info['rotation_matrix'])
+                        result_dict[geometry.mp_symbol]['scaling_factor_wocs_csc'] = 1.0 / sm_info['scaling_factor']
+                        result_dict[geometry.mp_symbol]['translation_vector_wocs_csc'] = \
+                            self.local_geometry.bare_centre
                         # With central site, centered on the centroid (centroid does not include the central site)
                         pdist = self.local_geometry.points_wcs_ctwocc(
                             permutation=permutation)
                         pperf = self.perfect_geometry.points_wcs_ctwocc()
-                        csm = symmetry_measure(points_distorted=pdist,
-                                               points_perfect=pperf)
-                        result_dict[geometry.mp_symbol]['csm_wcs_ctwocc'] = csm
+                        sm_info = symmetry_measure(points_distorted=pdist,
+                                                   points_perfect=pperf)
+                        result_dict[geometry.mp_symbol]['csm_wcs_ctwocc'] = sm_info['symmetry_measure']
+                        result_dict[geometry.mp_symbol]['rotation_matrix_wcs_ctwocc'] = \
+                            np.linalg.inv(sm_info['rotation_matrix'])
+                        result_dict[geometry.mp_symbol]['scaling_factor_wcs_ctwocc'] = 1.0 / sm_info['scaling_factor']
+                        result_dict[geometry.mp_symbol]['translation_vector_wcs_ctwocc'] = \
+                            self.local_geometry.centroid_without_centre
                         # With central site, centered on the centroid (centroid includes the central site)
                         pdist = self.local_geometry.points_wcs_ctwcc(
                             permutation=permutation)
                         pperf = self.perfect_geometry.points_wcs_ctwcc()
-                        csm = symmetry_measure(points_distorted=pdist,
-                                               points_perfect=pperf)
-                        result_dict[geometry.mp_symbol]['csm_wcs_ctwcc'] = csm
+                        sm_info = symmetry_measure(points_distorted=pdist,
+                                                   points_perfect=pperf)
+                        result_dict[geometry.mp_symbol]['csm_wcs_ctwcc'] = sm_info['symmetry_measure']
+                        result_dict[geometry.mp_symbol]['rotation_matrix_wcs_ctwcc'] = \
+                            np.linalg.inv(sm_info['rotation_matrix'])
+                        result_dict[geometry.mp_symbol]['scaling_factor_wcs_ctwcc'] = 1.0 / sm_info['scaling_factor']
+                        result_dict[geometry.mp_symbol]['translation_vector_wcs_ctwcc'] = \
+                            self.local_geometry.centroid_with_centre
                         # With central site, centered on the central site
-
                         pdist = self.local_geometry.points_wcs_csc(
                             permutation=permutation)
                         pperf = self.perfect_geometry.points_wcs_csc()
-
-                        csm = symmetry_measure(points_distorted=pdist,
-                                               points_perfect=pperf)
-                        result_dict[geometry.mp_symbol]['csm_wcs_csc'] = csm
-
+                        sm_info = symmetry_measure(points_distorted=pdist,
+                                                   points_perfect=pperf)
+                        result_dict[geometry.mp_symbol]['csm_wcs_csc'] = sm_info['symmetry_measure']
+                        result_dict[geometry.mp_symbol]['rotation_matrix_wcs_csc'] = \
+                            np.linalg.inv(sm_info['rotation_matrix'])
+                        result_dict[geometry.mp_symbol]['scaling_factor_wcs_csc'] = 1.0 / sm_info['scaling_factor']
+                        result_dict[geometry.mp_symbol]['translation_vector_wcs_csc'] = \
+                            self.local_geometry.bare_centre
             else:
                 result_dict[geometry.mp_symbol] = {'csm': result,
                                                    'indices': permutations,
@@ -957,8 +1212,9 @@ class LocalGeometryFinder(object):
         :param coordination_geometry: The coordination geometry to be investigated
         :return: The symmetry measures for the given coordination geometry for each permutation investigated
         """
-        permutations_symmetry_measures = np.zeros(len(algo.permutations),
-                                                  np.float)
+        # permutations_symmetry_measures = np.zeros(len(algo.permutations),
+        #                                           np.float)
+        permutations_symmetry_measures = [None] * len(algo.permutations)
         permutations = list()
         algos = list()
         local2perfect_maps = list()
@@ -974,13 +1230,18 @@ class LocalGeometryFinder(object):
             local2perfect_maps.append(local2perfect_map)
             perfect2local_maps.append(perfect2local_map)
 
-            points_distorted = self.local_geometry.points_wocs_ctwocc(
+            # points_distorted = self.local_geometry.points_wocs_ctwocc(
+            #     permutation=perm)
+            points_distorted = self.local_geometry.points_wcs_ctwcc(
                 permutation=perm)
 
-            csm = symmetry_measure(points_distorted=points_distorted,
-                                   points_perfect=points_perfect)
+            sm_info = symmetry_measure(points_distorted=points_distorted,
+                                       points_perfect=points_perfect)
+            sm_info['translation_vector'] = self.local_geometry.centroid_with_centre
+            # csm = sm_info['symmetry_measure']
 
-            permutations_symmetry_measures[iperm] = csm
+            # permutations_symmetry_measures[iperm] = csm
+            permutations_symmetry_measures[iperm] = sm_info
             algos.append(str(algo))
         return permutations_symmetry_measures, permutations, algos, local2perfect_maps, perfect2local_maps
 
@@ -1064,11 +1325,14 @@ class LocalGeometryFinder(object):
             return self.coordination_geometry_symmetry_measures_fallback_random(
                 coordination_geometry,
                 points_perfect=points_perfect)
+        # if testing:
+        #     return np.array(permutations_symmetry_measures,
+        #                     np.float), permutations, separation_permutations
+        # return np.array(permutations_symmetry_measures,
+        #                 np.float), permutations, algos, local2perfect_maps, perfect2local_maps
         if testing:
-            return np.array(permutations_symmetry_measures,
-                            np.float), permutations, separation_permutations
-        return np.array(permutations_symmetry_measures,
-                        np.float), permutations, algos, local2perfect_maps, perfect2local_maps
+            return permutations_symmetry_measures, permutations, separation_permutations
+        return permutations_symmetry_measures, permutations, algos, local2perfect_maps, perfect2local_maps
 
     def _cg_csm_separation_plane(self, coordination_geometry, sepplane,
                                  local_plane,
@@ -1161,13 +1425,18 @@ class LocalGeometryFinder(object):
                 if testing:
                     separation_permutations.append(sep_perm)
 
-                points_distorted = self.local_geometry.points_wocs_ctwocc(
+                # points_distorted = self.local_geometry.points_wocs_ctwocc(
+                #     permutation=pp)
+                points_distorted = self.local_geometry.points_wcs_ctwcc(
                     permutation=pp)
 
-                csm = symmetry_measure(points_distorted=points_distorted,
-                                       points_perfect=points_perfect)
+                sm_info = symmetry_measure(points_distorted=points_distorted,
+                                           points_perfect=points_perfect)
+                sm_info['translation_vector'] = self.local_geometry.centroid_with_centre
+                # csm = sm_info['symmetry_measure']
 
-                permutations_symmetry_measures.append(csm)
+                # permutations_symmetry_measures.append(csm)
+                permutations_symmetry_measures.append(sm_info)
             if plane_found:
                 break
         if len(permutations_symmetry_measures) > 0:
@@ -1184,7 +1453,7 @@ class LocalGeometryFinder(object):
 
     def coordination_geometry_symmetry_measures_fallback_random(self,
                                                                 coordination_geometry,
-                                                                NRANDOM=200,
+                                                                NRANDOM=10,
                                                                 points_perfect=None):
         """
         Returns the symmetry measures for a random set of permutations for the coordination geometry
@@ -1195,7 +1464,8 @@ class LocalGeometryFinder(object):
         :param NRANDOM: Number of random permutations to be tested
         :return: The symmetry measures for the given coordination geometry for each permutation investigated
         """
-        permutations_symmetry_measures = np.zeros(NRANDOM, np.float)
+        # permutations_symmetry_measures = np.zeros(NRANDOM, np.float)
+        permutations_symmetry_measures = [None] * NRANDOM
         permutations = list()
         algos = list()
         perfect2local_maps = list()
@@ -1212,10 +1482,16 @@ class LocalGeometryFinder(object):
             perfect2local_maps.append(p2l)
             local2perfect_maps.append(l2p)
 
-            points_distorted = self.local_geometry.points_wocs_ctwocc(
+            # points_distorted = self.local_geometry.points_wocs_ctwocc(
+            #     permutation=perm)
+            points_distorted = self.local_geometry.points_wcs_ctwcc(
                 permutation=perm)
-            csm = symmetry_measure(points_distorted=points_distorted,
-                                   points_perfect=points_perfect)
-            permutations_symmetry_measures[iperm] = csm
+            sm_info = symmetry_measure(points_distorted=points_distorted,
+                                       points_perfect=points_perfect)
+            sm_info['translation_vector'] = self.local_geometry.centroid_with_centre
+            # csm = sm_info['symmetry_measure']
+
+            # permutations_symmetry_measures[iperm] = csm
+            permutations_symmetry_measures[iperm] = sm_info
             algos.append('APPROXIMATE_FALLBACK')
         return permutations_symmetry_measures, permutations, algos, local2perfect_maps, perfect2local_maps
