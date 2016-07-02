@@ -15,6 +15,7 @@ import collections
 import warnings
 import shutil
 import copy
+import tempfile
 import numpy as np
 
 from pprint import pprint
@@ -24,12 +25,13 @@ from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict
 from monty.collections import as_set, dict2namedtuple
-from monty.string import list_strings, is_string
+from monty.string import list_strings, is_string, make_banner
 from monty.operator import operator_from_str
 from monty.io import FileLock
 from monty.pprint import draw_tree
-from monty.termcolor import cprint, colored, cprint_map
+from monty.termcolor import cprint, colored, cprint_map, get_terminal_size
 from monty.inspect import find_top_pyfile
+from monty.dev import deprecated
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump
 from monty.json import MSONable
 from pymatgen.serializers.json_coders import pmg_serialize
@@ -40,6 +42,7 @@ from .tasks import ScfTask, DdkTask, DdeTask, TaskManager, FixQueueCriticalError
 from .utils import File, Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .works import NodeContainer, Work, BandStructureWork, PhononWork, BecWork, G0W0Work, QptdmWork
+from .events import EventsParser # autodoc_event_handlers
 
 
 import logging
@@ -130,7 +133,7 @@ class Flow(Node, NodeContainer, MSONable):
             manager: :class:`TaskManager` object responsible for the submission of the jobs.
                 If manager is None, the object is initialized from the yaml file
                 located either in the working directory or in the user configuration dir.
-            pickle_procol: Pickle protocol version used for saving the status of the object.
+            pickle_protocol: Pickle protocol version used for saving the status of the object.
                 -1 denotes the latest version supported by the python interpreter.
             task_class: The class of the :class:`Task`.
             work_class: The class of the :class:`Work`.
@@ -156,7 +159,7 @@ class Flow(Node, NodeContainer, MSONable):
         else:
             raise TypeError("Don't know how to convert type %s into a Flow" % type(obj))
 
-    def __init__(self, workdir, manager=None, pickle_protocol=-1):
+    def __init__(self, workdir, manager=None, pickle_protocol=-1, remove=False):
         """
         Args:
             workdir: String specifying the directory where the works will be produced.
@@ -165,12 +168,14 @@ class Flow(Node, NodeContainer, MSONable):
             manager: :class:`TaskManager` object responsible for the submission of the jobs.
                      If manager is None, the object is initialized from the yaml file
                      located either in the working directory or in the user configuration dir.
-            pickle_procol: Pickle protocol version used for saving the status of the object.
+            pickle_protocol: Pickle protocol version used for saving the status of the object.
                           -1 denotes the latest version supported by the python interpreter.
+            remove: attempt to remove working directory `workdir` if directory already exists.
         """
         super(Flow, self).__init__()
 
         if workdir is not None:
+            if remove and os.path.exists(workdir): shutil.rmtree(workdir)
             self.set_workdir(workdir)
 
         self.creation_date = time.asctime()
@@ -239,6 +244,11 @@ class Flow(Node, NodeContainer, MSONable):
         """Reconstruct the flow from the pickle file."""
         return cls.pickle_load(d["workdir"], **kwargs)
 
+    @classmethod
+    def temporary_flow(cls, manager=None):
+        """Return a Flow in a temporary directory. Useful for unit tests."""
+        return cls(workdir=tempfile.mkdtemp(), manager=manager)
+
     def set_workdir(self, workdir, chroot=False):
         """
         Set the working directory. Cannot be set more than once unless chroot is True
@@ -251,6 +261,15 @@ class Flow(Node, NodeContainer, MSONable):
         self.indir = Directory(os.path.join(self.workdir, "indata"))
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
+
+    def reload(self):
+        """
+        Reload the flow from the pickle file. Used when we are monitoring the flow
+        executed by the scheduler. In this case, indeed, the flow might have been changed
+        by the scheduler and we have to reload the new flow in memory.
+        """
+        new = self.__class__.pickle_load(self.workdir)
+        self = new
 
     @classmethod
     def pickle_load(cls, filepath, spectator_mode=True, remove_lock=False):
@@ -332,7 +351,7 @@ class Flow(Node, NodeContainer, MSONable):
 
             flow.set_pyfile(__file__)
         """
-        # TODO: Could use a frame hack to get the caller outside abinitio
+        # TODO: Could use a frame hack to get the caller outside abinit
         # so that pyfile is automatically set when we __init__ it!
         self._pyfile = os.path.abspath(pyfile)
 
@@ -666,6 +685,7 @@ class Flow(Node, NodeContainer, MSONable):
                         else:
                             yield task
 
+    @deprecated(message="show_inpvars will be removed in pymatgen 4.0. Use show_inputs")
     def show_inpvars(self, *varnames):
         from abipy.htc.variable import InputVariable
         lines = []
@@ -809,7 +829,7 @@ class Flow(Node, NodeContainer, MSONable):
         for task in self.iflat_tasks(status=self.S_QCRITICAL):
             logger.info("Will try to fix task %s" % str(task))
             try:
-                task.fix_queue_critical()
+                print(task.fix_queue_critical())
                 count += 1
             except FixQueueCriticalError:
                 logger.info("Not able to fix task %s" % task)
@@ -817,7 +837,18 @@ class Flow(Node, NodeContainer, MSONable):
         return count
 
     def show_info(self, **kwargs):
-        """Print info on the flow i.e. total number of tasks, works, tasks grouped by class."""
+        """
+        Print info on the flow i.e. total number of tasks, works, tasks grouped by class.
+
+        Example:
+
+            Task Class      Number
+            ------------  --------
+            ScfTask              1
+            NscfTask             1
+            ScrTask              2
+            SigmaTask            6
+        """
         stream = kwargs.pop("stream", sys.stdout)
 
         lines = [str(self)]
@@ -839,15 +870,23 @@ class Flow(Node, NodeContainer, MSONable):
 
         Args:
             stream: File-like object, Default: sys.stdout
+
+        Example:
+
+            Status       Count
+            ---------  -------
+            Completed       10
+
+            <Flow, node_id=27163, workdir=flow_gwconv_ecuteps>, num_tasks=10, all_ok=True
         """
         stream = kwargs.pop("stream", sys.stdout)
-
-        lines = ["%s, num_tasks=%s, all_ok=%s" % (str(self), self.num_tasks, self.all_ok)]
-        for k, v in self.status_counter.items():
-            lines.append("    %s: %s" % (k, v))
-        lines.append("")
-
-        stream.write("\n".join(lines))
+        stream.write("\n")
+        table = list(self.status_counter.items())
+        s = tabulate(table, headers=["Status", "Count"])
+        stream.write(s + "\n")
+        stream.write("\n")
+        stream.write("%s, num_tasks=%s, all_ok=%s\n" % (str(self), self.num_tasks, self.all_ok))
+        stream.write("\n")
 
     def show_status(self, **kwargs):
         """
@@ -862,17 +901,18 @@ class Flow(Node, NodeContainer, MSONable):
         stream = kwargs.pop("stream", sys.stdout)
         nids = as_set(kwargs.pop("nids", None))
         wslice = kwargs.pop("wslice", None)
+        verbose = kwargs.pop("verbose", 0)
         wlist = None
         if wslice is not None:
             # Convert range to list of work indices.
             wlist = list(range(wslice.start, wslice.step, wslice.stop))
-        verbose = kwargs.pop("verbose", 0)
 
         #has_colours = stream_has_colours(stream)
         has_colours = True
         red = "red" if has_colours else None
 
         for i, work in enumerate(self):
+            if nids and work.node_id not in nids: continue
             print("", file=stream)
             cprint_map("Work #%d: %s, Finalized=%s" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
             if wlist is not None and i in wlist: continue
@@ -881,7 +921,7 @@ class Flow(Node, NodeContainer, MSONable):
                 continue
 
             headers = ["Task", "Status", "Queue", "MPI|Omp|Gb",
-                       "Err|Warn|Com", "Class", "Rest|Sub|Corr", "Time",
+                       "Warn|Com", "Class", "Sub|Rest|Corr", "Time",
                        "Node_ID"]
             table = []
             tot_num_errors = 0
@@ -904,16 +944,16 @@ class Flow(Node, NodeContainer, MSONable):
                     if timedelta is not None:
                         stime = str(timedelta) + "Q"
 
-                events = "|".join(3*["NA"])
+                events = "|".join(2*["NA"])
                 if report is not None:
-                    #events = "%03.d"|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
-                    events = '{:>3}|{:>4}|{:>3}'.format(*map(str, (report.num_errors, report.num_warnings, report.num_comments)))
+                    events = '{:>4}|{:>3}'.format(*map(str, (
+                       report.num_warnings, report.num_comments)))
 
-                #para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
-                para_info = '{:>4}|{:>3}|{:>3}'.format(*map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
+                para_info = '{:>4}|{:>3}|{:>3}'.format(*map(str, (
+                   task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
 
                 task_info = list(map(str, [task.__class__.__name__,
-                                 (task.num_restarts, task.num_launches, task.num_corrections), stime, task.node_id]))
+                                 (task.num_launches, task.num_restarts, task.num_corrections), stime, task.node_id]))
 
                 qinfo = "None"
                 if task.queue_id is not None:
@@ -931,38 +971,138 @@ class Flow(Node, NodeContainer, MSONable):
                                   para_info] + task_info)
 
             # Print table and write colorized line with the total number of errors.
-            print(tabulate(table, headers=headers), file=stream)
+            print(tabulate(table, headers=headers, tablefmt="grid"), file=stream)
             if tot_num_errors:
-                cprint("Total number of errors: %d" % tot_num_errors, red, file=stream)
+                cprint("Total number of errors: %d" % tot_num_errors, "red", file=stream)
             print("", file=stream)
 
         if self.all_ok:
-            print("\nall_ok reached\n", file=stream)
+            cprint("\nall_ok reached\n", "green", file=stream)
 
-    def show_inputs(self, nids=None, wslice=None, stream=sys.stdout):
+    def show_events(self, status=None, nids=None):
+        """
+        Print the Abinit events (ERRORS, WARNIING, COMMENTS) to stdout
+
+        Args:
+            status: if not None, only the tasks with this status are select
+            nids: optional list of node identifiers used to filter the tasks.
+	"""
+        nrows, ncols = get_terminal_size()
+
+        for task in self.iflat_tasks(status=status, nids=nids):
+            report = task.get_event_report()
+            if report:
+                print(make_banner(str(task), width=ncols, mark="="))
+                print(report)
+                #report = report.filter_types()
+
+    def show_corrections(self, status=None, nids=None):
+        """
+        Show the corrections applied to the flow at run-time.
+
+        Args:
+            status: if not None, only the tasks with this status are select.
+            nids: optional list of node identifiers used to filter the tasks.
+
+        Return: The number of corrections found.
+        """
+        nrows, ncols = get_terminal_size()
+        count = 0
+        for task in self.iflat_tasks(status=status, nids=nids):
+            if task.num_corrections == 0: continue
+            count += 1
+            print(make_banner(str(task), width=ncols, mark="="))
+            for corr in task.corrections:
+                pprint(corr)
+
+        if not count: print("No correction found.")
+        return count
+
+    def show_history(self, status=None, nids=None, full_history=False, metadata=False):
+        """
+        Print the history of the flow to stdout.
+
+        Args:
+            status: if not None, only the tasks with this status are select
+            full_history: Print full info set, including nodes with an empty history.
+            nids: optional list of node identifiers used to filter the tasks.
+            metadata: print history metadata (experimental)
+        """
+        nrows, ncols = get_terminal_size()
+
+        works_done = []
+        # Loop on the tasks and show the history of the work is not in works_done
+        for task in self.iflat_tasks(status=status, nids=nids):
+            work = task.work
+
+            if work not in works_done:
+                works_done.append(work)
+                if work.history or full_history:
+                    cprint(make_banner(str(work), width=ncols, mark="="), **work.status.color_opts)
+                    print(work.history.to_string(metadata=metadata))
+
+            if task.history or full_history:
+                cprint(make_banner(str(task), width=ncols, mark="="), **task.status.color_opts)
+                print(task.history.to_string(metadata=metadata))
+
+        # Print the history of the flow.
+        if self.history or full_history:
+            cprint(make_banner(str(self), width=ncols, mark="="), **self.status.color_opts)
+            print(self.history.to_string(metadata=metadata))
+
+    def show_inputs(self, varnames=None, nids=None, wslice=None, stream=sys.stdout):
         """
         Print the input of the tasks to the given stream.
 
         Args:
-            stream:
-                File-like object, Default: sys.stdout
+            varnames:
+                List of Abinit variables. If not None, only the variable in varnames
+                are selected and printed.
             nids:
                 List of node identifiers. By defaults all nodes are shown
-            wslice: Slice object used to select works.
+            wslice:
+                Slice object used to select works.
+            stream:
+                File-like object, Default: sys.stdout
         """
-        lines = []
-        for task in self.select_tasks(nids=nids, wslice=wslice):
-            s = task.make_input(with_header=True)
+        if varnames is not None:
+            # Build dictionary varname --> [(task1, value), (task2, value), ...]
+            varnames = [s.strip() for s in list_strings(varnames)]
+            dlist = collections.defaultdict(list)
+            for task in self.select_tasks(nids=nids, wslice=wslice):
+                dstruct = task.input.structure.as_dict(fmt="abivars")
 
-            # Add info on dependencies.
-            if task.deps:
-                s += "\n\nDependencies:\n" + "\n".join(str(dep) for dep in task.deps)
-            else:
-                s += "\n\nDependencies: None"
+                for vname in varnames:
+                    value = task.input.get(vname, None)
+                    if value is None: # maybe in structure?
+                        value = dstruct.get(vname, None)
+                    if value is not None:
+                        dlist[vname].append((task, value))
 
-            lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
+            for vname in varnames:
+                tv_list = dlist[vname]
+                if not tv_list:
+                    stream.write("[%s]: Found 0 tasks with this variable\n" % vname)
+                else:
+                    stream.write("[%s]: Found %s tasks with this variable\n" % (vname, len(tv_list)))
+                    for i, (task, value) in enumerate(tv_list):
+                        stream.write("   %s --> %s\n" % (str(value), task))
+                stream.write("\n")
 
-        stream.writelines(lines)
+        else:
+            lines = []
+            for task in self.select_tasks(nids=nids, wslice=wslice):
+                s = task.make_input(with_header=True)
+
+                # Add info on dependencies.
+                if task.deps:
+                    s += "\n\nDependencies:\n" + "\n".join(str(dep) for dep in task.deps)
+                else:
+                    s += "\n\nDependencies: None"
+
+                lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
+
+            stream.writelines(lines)
 
     def listext(self, ext, stream=sys.stdout):
         """
@@ -1178,9 +1318,10 @@ class Flow(Node, NodeContainer, MSONable):
 
         return Editor(editor=editor).edit_files(files)
 
-    def get_abitimer(self, nids=None):
+    def parse_timing(self, nids=None):
         """
         Parse the timer data in the main output file(s) of Abinit.
+        Requires timopt /= 0 in the input file (usually timopt = -1)
 
         Args:
             nids: optional list of node identifiers used to filter the tasks.
@@ -1227,7 +1368,6 @@ class Flow(Node, NodeContainer, MSONable):
             else:
                 app("get_envent_report returned None!")
 
-
             app("=" * len(header) + 2*"\n")
 
         return stream.writelines(lines)
@@ -1255,6 +1395,95 @@ class Flow(Node, NodeContainer, MSONable):
 
         return stream.writelines(lines)
 
+    def debug(self, status=None, nids=None):
+        """
+        This method is usually used when the flow didn't completed succesfully
+        It analyzes the files produced the tasks to facilitate debugging.
+        Info are printed to stdout.
+
+        Args:
+            status: If not None, only the tasks with this status are selected
+            nids: optional list of node identifiers used to filter the tasks.
+        """
+        nrows, ncols = get_terminal_size()
+
+        # Test for scheduler exceptions first.
+        sched_excfile = os.path.join(self.workdir, "_exceptions")
+        if os.path.exists(sched_excfile):
+            with open(sched_excfile, "r") as fh:
+                cprint("Found exceptions  raised by the scheduler", "red")
+                cprint(fh.read(), color="red")
+                return
+
+        if status is not None:
+            tasks = list(self.iflat_tasks(status=status, nids=nids))
+        else:
+            errors = list(self.iflat_tasks(status=self.S_ERROR, nids=nids))
+            qcriticals = list(self.iflat_tasks(status=self.S_QCRITICAL, nids=nids))
+            abicriticals = list(self.iflat_tasks(status=self.S_ABICRITICAL, nids=nids))
+            tasks = errors + qcriticals + abicriticals
+
+        # For each task selected:
+        #     1) Check the error files of the task. If not empty, print the content to stdout and we are done.
+        #     2) If error files are empty, look at the master log file for possible errors
+        #     3) If also this check failes, scan all the process log files.
+        #        TODO: This check is not needed if we introduce a new __abinit_error__ file
+        #        that is created by the first MPI process that invokes MPI abort!
+        #
+        ntasks = 0
+        for task in tasks:
+            print(make_banner(str(task), width=ncols, mark="="))
+            ntasks += 1
+
+            #  Start with error files.
+            for efname in ["qerr_file", "stderr_file",]:
+                err_file = getattr(task, efname)
+                if err_file.exists:
+                    s = err_file.read()
+                    if not s: continue
+                    print(make_banner(str(err_file), width=ncols, mark="="))
+                    cprint(s, color="red")
+                    #count += 1
+
+            # Check main log file.
+            try:
+                report = task.get_event_report()
+                if report and report.num_errors:
+                    print(make_banner(os.path.basename(report.filename), width=ncols, mark="="))
+                    s = "\n".join(str(e) for e in report.errors)
+                else:
+                    s = None
+            except Exception as exc:
+                s = str(exc)
+
+            count = 0 # count > 0 means we found some useful info that could explain the failures.
+            if s is not None:
+                cprint(s, color="red")
+                count += 1
+
+            if not count:
+                # Inspect all log files produced by the other nodes.
+                log_files = task.tmpdir.list_filepaths(wildcard="*LOG_*")
+                if not log_files:
+                    cprint("No *LOG_* file in tmpdir. This usually happens if you are running with many CPUs", color="magenta")
+
+                for log_file in log_files:
+                    try:
+                        report = EventsParser().parse(log_file)
+                        if report.errors:
+                            print(report)
+                            count += 1
+                            break
+                    except Exception as exc:
+                        cprint(str(exc), color="red")
+                        count += 1
+                        break
+
+            if not count:
+                cprint("Houston, we could not find any error message that can explain the problem", color="magenta")
+
+        print("Number of tasks analyzed: %d" % ntasks)
+
     def cancel(self, nids=None):
         """
         Cancel all the tasks that are in the queue.
@@ -1270,8 +1499,8 @@ class Flow(Node, NodeContainer, MSONable):
 
         # If we are running with the scheduler, we must send a SIGKILL signal.
         if os.path.exists(self.pid_file):
-            print("Found scheduler attached to this flow.")
-            print("Will send SIGKILL to the scheduler before cancelling the tasks!")
+            cprint("Found scheduler attached to this flow.", "yellow")
+            cprint("Sending SIGKILL to the scheduler before cancelling the tasks!", "yellow")
 
             with open(self.pid_file, "r") as fh:
                 pid = int(fh.readline())
@@ -1340,13 +1569,26 @@ class Flow(Node, NodeContainer, MSONable):
         for work in self:
             work.build(*args, **kwargs)
 
-    def build_and_pickle_dump(self):
+    def build_and_pickle_dump(self, abivalidate=False):
         """
         Build dirs and file of the `Flow` and save the object in pickle format.
         Returns 0 if success
+
+
+        Args:
+            abivalidate: If True, all the input files are validate by calling
+                the abinit parser. If the validation fails, ValueError is raise.
         """
         self.build()
-        return self.pickle_dump()
+        if not abivalidate: return self.pickle_dump()
+
+        # Validation with Abinit.
+        isok, errors = self.abivalidate_inputs()
+        if isok: return self.pickle_dump()
+        errlines = []
+        for i, e in enumerate(errors):
+            errlines.append("[%d] %s" % (i, e))
+        raise ValueError("\n".join(errlines))
 
     @check_spectator
     def pickle_dump(self):
@@ -1528,7 +1770,9 @@ class Flow(Node, NodeContainer, MSONable):
         convergence is achieved.
         """
         if not self.allocated:
-            raise RuntimeError("You must call flow.allocate before invoking flow.use_smartio")
+            self.allocate()
+            #raise RuntimeError("You must call flow.allocate before invoking flow.use_smartio")
+            return
 
         for task in self.iflat_tasks():
             children = task.get_children()
@@ -1536,7 +1780,7 @@ class Flow(Node, NodeContainer, MSONable):
                 # Change the input so that output files are produced
                 # only if the calculation is not converged.
                 task.history.info("Will disable IO for task")
-                task._set_inpvars(prtwf=-1, prtden=0) # TODO: prt1wf=-1,
+                task.set_vars(prtwf=-1, prtden=0) # TODO: prt1wf=-1,
             else:
                 must_produce_abiexts = []
                 for child in children:
@@ -1556,7 +1800,7 @@ class Flow(Node, NodeContainer, MSONable):
                 for varname, abiext in smart_prtvars.items():
                     if abiext not in must_produce_abiexts:
                         print("%s: setting %s to -1" % (task, varname))
-                        task._set_inpvars({varname: -1})
+                        task.set_vars({varname: -1})
 
     #def new_from_input_decorators(self, new_workdir, decorators)
     #    """
@@ -1905,8 +2149,7 @@ class Flow(Node, NodeContainer, MSONable):
     #    return abirobot(flow=self, ext=ext, nids=nids):
 
     def plot_networkx(self, mode="network", with_edge_labels=False,
-                      node_size="num_cores", node_label="name_class", layout_type="spring",
-                     **kwargs):
+                      node_size="num_cores", node_label="name_class", layout_type="spring", **kwargs):
         """
         Use networkx to draw the flow with the connections among the nodes and
         the status of the tasks.
@@ -1935,27 +2178,21 @@ class Flow(Node, NodeContainer, MSONable):
         pos = getattr(nx, layout_type + "_layout")(g)
 
         # Select function used to compute the size of the node
-        make_node_size = dict(
-            num_cores=lambda task: 300 * task.manager.num_cores
-        )[node_size]
+        make_node_size = dict(num_cores=lambda task: 300 * task.manager.num_cores)[node_size]
 
         # Select function used to build the label
-        make_node_label = dict(
-            name_class=lambda task: task.pos_str + "\n" + task.__class__.__name__,
-        )[node_label]
+        make_node_label = dict(name_class=lambda task: task.pos_str + "\n" + task.__class__.__name__,)[node_label]
 
-        labels = {task: make_node_label(task) for task in tasks}
+        labels = {task: make_node_label(task) for task in g.nodes()}
 
         import matplotlib.pyplot as plt
 
         # Select plot type.
         if mode == "network":
             nx.draw_networkx(g, pos, labels=labels,
-                             #node_color='#A0CBE2',
-                             # FIXME: This does not work as expected. Likely bug in networkx!
-                             node_color=[task.color_rgb for task in tasks],
-                             node_size=[make_node_size(task) for task in tasks],
-                             width=2, style="dotted", with_labels=True)
+                             node_color=[task.color_rgb for task in g.nodes()],
+                             node_size=[make_node_size(task) for task in g.nodes()],
+                             width=1, style="dotted", with_labels=True)
 
             # Draw edge labels
             if with_edge_labels:
@@ -2358,8 +2595,6 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
 
         # Run abinit on the front-end to get the list of irreducible pertubations.
         tmp_dir = os.path.join(workdir, "__ph_run" + str(i) + "__")
-        #import tempfile
-        #tmp_dir = tempfile.mkdtemp()
         w = PhononWork(workdir=tmp_dir, manager=shell_manager)
         fake_task = w.register(fake_input)
 
@@ -2370,7 +2605,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
             rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
         )
 
-        fake_task._set_inpvars(abivars)
+        fake_task.set_vars(abivars)
         w.allocate()
         w.start(wait=True)
 

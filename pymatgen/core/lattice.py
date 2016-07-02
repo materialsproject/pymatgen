@@ -99,14 +99,6 @@ class Lattice(MSONable):
         return fmt.format(*[format(c, fmt_spec) for row in m
                             for c in row])
 
-    @classmethod
-    @deprecated(message="from_abivars has been merged with the from_dict "
-                "method. Use from_dict(fmt=\"abivars\"). from_abivars "
-                "will be removed in pymatgen 4.0.")
-    def from_abivars(cls, d, **kwargs):
-
-        return Lattice.from_dict(d, fmt="abivars", **kwargs)
-
     def copy(self):
         """Deep copy of self."""
         return self.__class__(self.matrix.copy())
@@ -297,35 +289,20 @@ class Lattice(MSONable):
     def from_dict(cls, d, fmt=None, **kwargs):
         """
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
-        and gamma parameters.
+        and gamma parameters if fmt is None.
+        
+        If fmt == "abivars", the function build a `Lattice` object from a dictionary
+        with the Abinit variables `acell` and `rprim` in Bohr. 
+        If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr
 
+        Example:
+
+            Lattice.from_dict(fmt="abivars", acell=3*[10], rprim=np.eye(3))
         """
         if fmt == "abivars":
+            from pymatgen.io.abinit.abiobjects import lattice_from_abivars
             kwargs.update(d)
-            d = kwargs
-            rprim = d.get("rprim", None)
-            angdeg = d.get("angdeg", None)
-            acell = d["acell"]
-
-            # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
-            if rprim is not None:
-                assert angdeg is None
-                rprim = np.reshape(rprim, (3,3))
-                rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
-                return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
-
-            elif angdeg is not None:
-                # angdeg(0) is the angle between the 2nd and 3rd vectors,
-                # angdeg(1) is the angle between the 1st and 3rd vectors,
-                # angdeg(2) is the angle between the 1st and 2nd vectors,
-                raise NotImplementedError("angdeg convention should be tested")
-                angles = angdeg
-                angles[1] = -angles[1]
-                l = ArrayWithUnit(acell, "bohr").to("ang")
-                return cls.from_lengths_and_angles(l, angdeg)
-
-            else:
-                raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
+            return lattice_from_abivars(cls=cls, **kwargs)
 
         if "matrix" in d:
             return cls(d["matrix"])

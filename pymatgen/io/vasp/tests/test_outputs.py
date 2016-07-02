@@ -378,6 +378,14 @@ class VasprunTest(unittest.TestCase):
                                                {"titel": "PAW_PBE P 17Jan2003", "hash": None},
                                                {"titel": "PAW_PBE O 08Apr2002", "hash": None}])
 
+    def test_parsing_chemical_shift_calculations(self):
+        filepath = os.path.join(test_dir, "nmr", "cs", "basic",
+                                'vasprun.xml.chemical_shift.scstep')
+        vasprun = Vasprun(filepath)
+        nestep = len(vasprun.ionic_steps[-1]['electronic_steps'])
+        self.assertEqual(nestep, 10)
+        self.assertTrue(vasprun.converged)
+
 
 class OutcarTest(unittest.TestCase):
 
@@ -498,7 +506,8 @@ class OutcarTest(unittest.TestCase):
         self.assertIsNotNone(outcar.as_dict())
 
     def test_chemical_shifts(self):
-        filename = os.path.join(test_dir, "nmr_chemical_shift", "hydromagnesite", "OUTCAR")
+        filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
+                                "hydromagnesite", "OUTCAR")
         outcar = Outcar(filename)
         outcar.read_chemical_shifts()
         expected_chemical_shifts = [[191.9974, 69.5232, 0.6342],
@@ -510,15 +519,29 @@ class OutcarTest(unittest.TestCase):
                                     [192.0237, 69.565, 0.6333],
                                     [195.0788, 68.1733, 0.8337]]
 
-        self.assertAlmostEqual(len(outcar.data["chemical_shifts"][20: 28]),
+        self.assertAlmostEqual(len(outcar.data["chemical_shifts"]["valence_only"][20: 28]),
                                len(expected_chemical_shifts))
-        for c1, c2 in zip(outcar.data["chemical_shifts"][20: 28],
+        for c1, c2 in zip(outcar.data["chemical_shifts"]["valence_only"][20: 28],
                           expected_chemical_shifts):
             for x1, x2 in zip(list(c1.maryland_values), c2):
                 self.assertAlmostEqual(x1, x2, places=5)
 
+    def test_chemical_shifts_with_different_core_contribution(self):
+        filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
+                                "core.diff.chemical.shifts.OUTCAR")
+        outcar = Outcar(filename)
+        outcar.read_chemical_shifts()
+        c_vo = outcar.data["chemical_shifts"]["valence_only"][7].maryland_values
+        for x1, x2 in zip(list(c_vo),
+                          [198.7009, 73.7484, 1.0000]):
+            self.assertAlmostEqual(x1, x2)
+        c_vc = outcar.data["chemical_shifts"]["valence_and_core"][7].maryland_values
+        for x1, x2 in zip(list(c_vc),
+                          [-1.9406, 73.7484, 1.0000]):
+            self.assertAlmostEqual(x1, x2)
+
     def test_nmr_efg(self):
-        filename = os.path.join(test_dir, "nmr_efg", "AlPO4", "OUTCAR")
+        filename = os.path.join(test_dir, "nmr", "efg", "AlPO4", "OUTCAR")
         outcar = Outcar(filename)
         outcar.read_nmr_efg()
         expected_efg = [{'eta': 0.465, 'nuclear_quadrupole_moment': 146.6, 'cq': -5.573},
