@@ -125,11 +125,11 @@ class TensorBase(np.ndarray):
         initialsg = SpacegroupAnalyzer(initial_struct)
         finalsg = SpacegroupAnalyzer(final_struct)
 
-        rotationintial = latticeobj.get_symmetry_dataset()['transformation_matrix']
-        rotationfinal = conventionalsg.get_symmetry_dataset()['transformation_matrix']
+        rotationinitial = initialsg.get_symmetry_dataset()['transformation_matrix']
+        rotationfinal = finalsg.get_symmetry_dataset()['transformation_matrix']
 
-        transmatrix = np.dot(rotationprim, np.linalg.inv(rotationconv)).T
-
+        transmatrix = np.dot(rotationinitial, np.linalg.inv(rotationfinal)).T
+        import scipy
         U = scipy.linalg.sqrtm(np.dot(transmatrix.T, transmatrix))
         R = np.dot(transmatrix, np.linalg.inv(U))
 
