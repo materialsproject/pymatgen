@@ -17,9 +17,166 @@ from monty.design_patterns import singleton
 from monty.collections import AttrDict
 from enum import Enum
 from monty.json import MSONable
+from pymatgen.core.units import ArrayWithUnit
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.serializers.json_coders import pmg_serialize
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from monty.json import MontyEncoder, MontyDecoder
+
+
+def lattice_from_abivars(cls=None, *args, **kwargs):
+    """
+    Returns a `Lattice` object from a dictionary
+    with the Abinit variables `acell` and `rprim` in Bohr.
+    If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr
+
+    Args:
+        cls: Lattice class to be instantiated. pymatgen.core.lattice.Lattice if cls is None
+
+    Example:
+
+    lattice_from_abivars(acell=3*[10], rprim=np.eye(3))
+    """
+    cls = Lattice if cls is None else cls
+    kwargs.update(dict(*args))
+    d = kwargs
+
+    rprim = d.get("rprim", None)
+    angdeg = d.get("angdeg", None)
+    acell = d["acell"]
+
+    # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
+    if rprim is not None:
+        assert angdeg is None
+        rprim = np.reshape(rprim, (3,3))
+        rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
+        return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
+
+    elif angdeg is not None:
+        # angdeg(0) is the angle between the 2nd and 3rd vectors,
+        # angdeg(1) is the angle between the 1st and 3rd vectors,
+        # angdeg(2) is the angle between the 1st and 2nd vectors,
+        raise NotImplementedError("angdeg convention should be tested")
+        angles = angdeg
+        angles[1] = -angles[1]
+        l = ArrayWithUnit(acell, "bohr").to("ang")
+        return cls.from_lengths_and_angles(l, angdeg)
+    else:
+        raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
+
+
+def structure_from_abivars(cls=None, *args, **kwargs):
+    """
+    Build a :class:`Structure` object from a dictionary with ABINIT variables.
+
+    Args:
+        cls: Structure class to be instantiated. pymatgen.core.structure.Structure if cls is None
+
+    example:
+
+        al_structure = structure_from_abivars(
+            acell=3*[7.5],
+            rprim=[0.0, 0.5, 0.5,
+                   0.5, 0.0, 0.5,
+                   0.5, 0.5, 0.0],
+            typat=1,
+            xred=[0.0, 0.0, 0.0],
+            ntypat=1,
+            znucl=13,
+        )
+
+    `xred` can be replaced with `xcart` or `xangst`.
+    """
+    kwargs.update(dict(*args))
+    d = kwargs
+
+    cls = Structure if cls is None else cls
+
+    lattice = Lattice.from_dict(d, fmt="abivars")
+    coords, coords_are_cartesian = d.get("xred", None), False
+
+    if coords is None:
+        coords = d.get("xcart", None)
+        if coords is not None:
+            if "xangst" in d:
+                raise ValueError("xangst and xcart are mutually exclusive")
+            coords = ArrayWithUnit(coords, "bohr").to("ang")
+        else:
+            coords = d.get("xangst", None)
+        coords_are_cartesian = True
+
+    if coords is None:
+        raise ValueError("Cannot extract coordinates from:\n %s" % str(d))
+
+    coords = np.reshape(coords, (-1,3))
+
+    znucl_type, typat = d["znucl"], d["typat"]
+
+    if not isinstance(znucl_type, collections.Iterable):
+        znucl_type = [znucl_type]
+
+    if not isinstance(typat, collections.Iterable):
+        typat = [typat]
+
+    assert len(typat) == len(coords)
+
+    # Note Fortran --> C indexing
+    #znucl_type = np.rint(znucl_type)
+    species = [znucl_type[typ-1] for typ in typat]
+
+    return cls(lattice, species, coords, validate_proximity=False,
+               to_unit_cell=False, coords_are_cartesian=coords_are_cartesian)
+
+
+def structure_to_abivars(structure, **kwargs):
+    """Returns a dictionary with the ABINIT variables."""
+    types_of_specie = structure.types_of_specie
+    natom = structure.num_sites
+
+    znucl_type = [specie.number for specie in types_of_specie]
+
+    znucl_atoms = structure.atomic_numbers
+
+    typat = np.zeros(natom, np.int)
+    for atm_idx, site in enumerate(structure):
+        typat[atm_idx] = types_of_specie.index(site.specie) + 1
+
+    rprim = ArrayWithUnit(structure.lattice.matrix, "ang").to("bohr")
+    xred = np.reshape([site.frac_coords for site in structure], (-1,3))
+
+    # Set small values to zero. This usually happens when the CIF file
+    # does not give structure parameters with enough digits.
+    rprim = np.where(np.abs(rprim) > 1e-8, rprim, 0.0)
+    xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
+
+    # Info on atoms.
+    d = dict(
+        natom=natom,
+        ntypat=len(types_of_specie),
+        typat=typat,
+        znucl=znucl_type,
+        xred=xred,
+    )
+
+    # Add info on the lattice.
+    # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
+    geomode = kwargs.pop("geomode", "rprim")
+    #latt_dict = structure.lattice.to_abivars(geomode=geomode)
+
+    if geomode == "rprim":
+        d.update(dict(
+            acell=3 * [1.0],
+            rprim=rprim))
+
+    elif geomode == "angdeg":
+        d.update(dict(
+            acell=3 * [1.0],
+            angdeg=angdeg))
+    else:
+        raise ValueError("Wrong value for geomode: %s" % geomode)
+
+    return d
 
 
 def contract(s):
@@ -624,7 +781,7 @@ class KSampling(AbivarAble, MSONable):
         #    num_div = [i + i % 2 for i in num_div]
         #    style = KSamplingModes.monkhorst
 
-        comment = "abinitio generated KPOINTS with grid density = " + "{} / atom".format(kppa)
+        comment = "pymatge.io.abinit generated KPOINTS with grid density = " + "{} / atom".format(kppa)
 
         shifts = np.reshape(shifts, (-1, 3))
 
@@ -970,8 +1127,7 @@ class Screening(AbivarAble):
             raise NotImplementedError("Hilber transform not coded yet")
             self.hilbert = hilbert
 
-        # Default values
-        # TODO Change abinit defaults
+        # Default values (equivalent to those used in Abinit8)
         self.gwpara=2
         self.awtr  =1
         self.symchi=1
@@ -1156,14 +1312,14 @@ class ExcHamiltonian(AbivarAble):
         "model_df"
         ]
 
-    def __init__(self, bs_loband, nband, soenergy, coulomb_mode, ecuteps, spin_mode="polarized", mdf_epsinf=None,
+    def __init__(self, bs_loband, nband, mbpt_sciss, coulomb_mode, ecuteps, spin_mode="polarized", mdf_epsinf=None,
                  exc_type="TDA", algo="haydock", with_lf=True, bs_freq_mesh=None, zcut=None, **kwargs):
         """
         Args:
-            bs_loband: Lowest band index (Fortran convention) used in the e-h  basis set. 
-                Can be scalar or array of shape (nsppol,). Must be >= 1 and <= nband 
+            bs_loband: Lowest band index (Fortran convention) used in the e-h  basis set.
+                Can be scalar or array of shape (nsppol,). Must be >= 1 and <= nband
             nband: Max band index used in the e-h  basis set.
-            soenergy: Scissors energy in Hartree.
+            mbpt_sciss: Scissors energy in Hartree.
             coulomb_mode: Treatment of the Coulomb term.
             ecuteps: Cutoff energy for W in Hartree.
             mdf_epsinf: Macroscopic dielectric function :math:`\epsilon_\inf` used in
@@ -1185,7 +1341,7 @@ class ExcHamiltonian(AbivarAble):
 
         self.bs_loband = bs_loband
         self.nband  = nband
-        self.soenergy = soenergy
+        self.mbpt_sciss = mbpt_sciss
         self.coulomb_mode = coulomb_mode
         assert coulomb_mode in self._COULOMB_MODES
         self.ecuteps = ecuteps
@@ -1208,9 +1364,9 @@ class ExcHamiltonian(AbivarAble):
         #    self.kwargs["chksymbreak"] = 0
 
         # Consistency check
-        if any(bs_loband < 0): 
+        if any(bs_loband < 0):
             raise ValueError("bs_loband <= 0 while it is %s" % bs_loband)
-        if any(bs_loband >= nband): 
+        if any(bs_loband >= nband):
             raise ValueError("bs_loband (%s) >= nband (%s)" % (bs_loband, nband))
 
     @property
@@ -1239,9 +1395,9 @@ class ExcHamiltonian(AbivarAble):
             bs_calctype=1,
             bs_loband=self.bs_loband,
             #nband=self.nband,
-            soenergy=self.soenergy,
+            mbpt_sciss=self.mbpt_sciss,
             ecuteps=self.ecuteps,
-            bs_algorithm = self._ALGO2VAR[self.algo],
+            bs_algorithm=self._ALGO2VAR[self.algo],
             bs_coulomb_term=21,
             mdf_epsinf=self.mdf_epsinf,
             bs_exchange_term=1 if self.with_lf else 0,

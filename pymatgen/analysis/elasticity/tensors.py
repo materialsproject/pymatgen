@@ -24,6 +24,7 @@ __date__ = "March 22, 2012"
 
 
 from scipy.linalg import polar
+from scipy.linalg import sqrtm
 import numpy as np
 import itertools
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -114,7 +115,6 @@ class TensorBase(np.ndarray):
         sop = SymmOp.from_rotation_and_translation(matrix,
                                                    [0., 0., 0.])
         return self.transform(sop)
-
 
     @property
     def symmetrized(self):

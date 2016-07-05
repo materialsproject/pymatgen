@@ -140,7 +140,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             sp = get_el_sp(item)
             return self._data.get(sp, 0)
         except ValueError as ex:
-            raise TypeError("Invalid key type for Composition")
+            raise TypeError("Invalid key {}, {} for Composition\n"
+                            "ValueError exception:\n{}".format(item, type(item), ex))
 
     def __len__(self):
         return len(self._data)
@@ -153,7 +154,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             sp = get_el_sp(item)
             return sp in self._data
         except ValueError:
-            raise TypeError("Invalid key type for Composition")
+            raise TypeError("Invalid key {}, {} for Composition\n"
+                            "ValueError exception:\n{}".format(item, type(item), ex))
 
     def __eq__(self, other):
         #  elements with amounts < Composition.amount_tolerance don't show up

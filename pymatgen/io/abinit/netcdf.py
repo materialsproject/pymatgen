@@ -10,6 +10,7 @@ from monty.dev import requires, deprecated
 from monty.collections import AttrDict
 from monty.functools import lazy_property
 from pymatgen.core.units import ArrayWithUnit
+from pymatgen.core.xcfunc import XcFunc
 from pymatgen.core.structure import Structure
 
 import logging
@@ -256,6 +257,13 @@ class ETSF_Reader(NetcdfReader):
             raise NotImplementedError("In file %s: ngroups != 1" % self.path)
 
         return structure_from_ncdata(self, cls=cls)
+
+    def read_abinit_xcfunc(self):
+        """
+        Read ixc from an Abinit file. Return :class:`XcFunc` object.
+        """
+        ixc = self.read_variable("ixc")
+        return XcFunc.from_abinit_ixc(ixc)
 
 
 def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):

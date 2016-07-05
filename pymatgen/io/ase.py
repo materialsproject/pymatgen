@@ -50,12 +50,13 @@ class AseAtomsAdaptor(object):
         return Atoms(symbols=symbols, positions=positions, pbc=True, cell=cell)
 
     @staticmethod
-    def get_structure(atoms):
+    def get_structure(atoms, cls=None):
         """
         Returns pymatgen structure from ASE Atoms.
 
         Args:
             atoms: ASE Atoms object
+            cls: The Structure class to instantiate (defaults to pymatgen structure)
 
         Returns:
             Equivalent pymatgen.core.structure.Structure
@@ -63,5 +64,7 @@ class AseAtomsAdaptor(object):
         symbols = atoms.get_chemical_symbols()
         positions = atoms.get_positions()
         lattice = atoms.get_cell()
-        return Structure(lattice, symbols, positions,
-                         coords_are_cartesian=True)
+
+        cls = Structure if cls is None else cls
+        return cls(lattice, symbols, positions,
+                   coords_are_cartesian=True)
