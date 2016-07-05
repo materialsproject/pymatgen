@@ -674,6 +674,11 @@ class StructureMatcherTest(PymatgenTest):
                      Element('O'): Element('O'),})
         self.assertEqual(len(sm.get_all_anonymous_mappings(s1, s2)), 2)
 
+        # test include_dist
+        dists = {Element('N'): 0, Element('P'): 0.0010725064}
+        for mapping, d in sm.get_all_anonymous_mappings(s1, s2, include_dist=True):
+            self.assertAlmostEqual(dists[mapping[Element('As')]], d)
+
     def test_rms_vs_minimax(self):
         # This tests that structures with adjusted RMS less than stol, but minimax
         # greater than stol are treated properly
