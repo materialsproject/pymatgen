@@ -1,5 +1,5 @@
 PyDispatcher==2.0.5
-numpy==1.11.0
+numpy==1.11.1
 pybtex==0.20.1
 requests==2.10.0
 monty==0.8.5

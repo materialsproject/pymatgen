@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
-This module provides objects for extracting timing data from the ABINIT output files 
+This module provides objects for extracting timing data from the ABINIT output files
 It also provides tools to analye and to visualize the parallel efficiency.
 """
 from __future__ import unicode_literals, division
@@ -54,8 +54,7 @@ class AbinitTimerParser(collections.Iterable):
         self._filenames = []
 
         # timers[filename][mpi_rank]
-        # contains the timer extracted from the file filename 
-        # associated to the MPI rank mpi_rank.
+        # contains the timer extracted from the file filename associated to the MPI rank mpi_rank.
         self._timers = collections.OrderedDict()
 
     def __iter__(self):
@@ -176,7 +175,7 @@ class AbinitTimerParser(collections.Iterable):
         section_names = [] # Avoid UnboundLocalError
 
         # FIXME this is not trivial
-        for (idx, timer) in enumerate(self.timers()):
+        for idx, timer in enumerate(self.timers()):
             if idx == 0:
                 section_names = [s.name for s in timer.order_sections(ordkey)]
                 #check = section_names
@@ -212,7 +211,7 @@ class AbinitTimerParser(collections.Iterable):
         Analyze the parallel efficiency.
         """
         timers = self.timers()
-        #
+
         # Number of CPUs employed in each calculation.
         ncpus = [timer.ncpus for timer in timers]
 
@@ -255,6 +254,26 @@ class AbinitTimerParser(collections.Iterable):
             peff[sect_name]["wall_fract"] = [s.wall_fract for s in sects]
 
         return ParallelEfficiency(self._filenames, min_idx, peff)
+
+    def summarize(self, **kwargs):
+        """
+        Return pandas DataFrame
+        """
+        import pandas as pd
+        colnames = ["fname", "wall_time", "cpu_time", "mpi_nprocs", "omp_nthreads", "mpi_rank"]
+
+        frame = pd.DataFrame(columns=colnames)
+        for i, timer in enumerate(self.timers()):
+            frame = frame.append({k: getattr(timer, k) for k in colnames}, ignore_index=True)
+        frame["tot_ncpus"] = frame["mpi_nprocs"] * frame["omp_nthreads"]
+
+        # Compute parallel efficiency (use the run with min number of cpus to normalize).
+        i = frame["tot_ncpus"].idxmin()
+        ref_wtime = frame.ix[i]["wall_time"]
+        ref_ncpus = frame.ix[i]["tot_ncpus"]
+        frame["peff"] = (ref_ncpus * ref_wtime) / (frame["wall_time"] * frame["tot_ncpus"])
+
+        return frame
 
     @add_fig_kwargs
     def plot_efficiency(self, key="wall_time", what="gb", nmax=5, ax=None, **kwargs):
@@ -392,6 +411,13 @@ class AbinitTimerParser(collections.Iterable):
 
         return fig
 
+    def plot_all(self, **kwargs):
+        figs = []; app = figs.append
+        app(self.plot_efficiency())
+        app(self.plot_pie())
+        app(self.plot_stacked_hist())
+        return figs
+
 
 class ParallelEfficiency(dict):
 
@@ -412,7 +438,6 @@ class ParallelEfficiency(dict):
 
         data = []
         for (sect_name, peff) in self.items():
-            #
             # Ignore values where we had a division by zero.
             if all([v != -1 for v in peff[key]]):
                 values = peff[key][:]
@@ -457,10 +482,10 @@ class AbinitTimerSection(object):
     ]
 
     NUMERIC_FIELDS = [
-        "cpu_time",
-        "cpu_fract",
         "wall_time",
         "wall_fract",
+        "cpu_time",
+        "cpu_fract",
         "ncalls",
         "gflops",
     ]
@@ -483,6 +508,9 @@ class AbinitTimerSection(object):
     def to_tuple(self):
         return tuple([self.__dict__[at] for at in AbinitTimerSection.FIELDS])
 
+    def to_dict(self):
+        return {at: self.__dict__[at] for at in AbinitTimerSection.FIELDS}
+
     def to_csvline(self, with_header=False):
         """Return a string with data in CSV format"""
         string = ""
@@ -500,16 +528,17 @@ class AbinitTimerSection(object):
 
 
 class AbinitTimer(object):
-    """Container class used to store the timing results."""
+    """Container class storing the timing results."""
 
     def __init__(self, sections, info, cpu_time, wall_time):
 
+        # Store sections and names
         self.sections = tuple(sections)
         self.section_names = tuple([s.name for s in self.sections])
+
         self.info = info
         self.cpu_time = float(cpu_time)
         self.wall_time = float(wall_time)
-
         self.mpi_nprocs = int(info["mpi_nprocs"])
         self.omp_nthreads = int(info["omp_nthreads"])
         self.mpi_rank = info["mpi_rank"].strip()
@@ -552,7 +581,7 @@ class AbinitTimer(object):
         if openclose:
             fileobj.close()
 
-    def totable(self, sort_key="wall_time", stop=None):
+    def to_table(self, sort_key="wall_time", stop=None):
         """Return a table (list of lists) with timer data"""
         table = [list(AbinitTimerSection.FIELDS), ]
         ord_sections = self.order_sections(sort_key)
@@ -565,6 +594,30 @@ class AbinitTimer(object):
             table.append(row)
 
         return table
+
+    # Maintain old API
+    totable = to_table
+
+    def get_dataframe(self, sort_key="wall_time", **kwargs):
+        """
+        Return pandas DataFrame
+        """
+        import pandas as pd
+        frame = pd.DataFrame(columns=AbinitTimerSection.FIELDS)
+
+        for osect in self.order_sections(sort_key):
+            frame = frame.append(osect.to_dict(), ignore_index=True)
+
+        # Monkey patch
+        frame.info =  self.info
+        frame.cpu_time =  self.cpu_time
+        frame.wall_time =  self.wall_time
+        frame.mpi_nprocs =  self.mpi_nprocs
+        frame.omp_nthreads =  self.omp_nthreads
+        frame.mpi_rank =  self.mpi_rank
+        frame.fname =  self.fname
+
+        return frame
 
     def get_values(self, keys):
         """Return a list of values associated to a particular list of keys"""
@@ -590,7 +643,7 @@ class AbinitTimer(object):
         if minval is not None:
             assert minfract is None
 
-            for (n, v) in zip(names, values):
+            for n, v in zip(names, values):
                 if v >= minval:
                     new_names.append(n)
                     new_values.append(v)
@@ -605,7 +658,7 @@ class AbinitTimer(object):
 
             total = self.sum_sections(key)
 
-            for (n, v) in zip(names, values):
+            for n, v in zip(names, values):
                 if v / total >= minfract:
                     new_names.append(n)
                     new_values.append(v)
@@ -617,7 +670,7 @@ class AbinitTimer(object):
 
         else:
             # all values
-            (new_names, new_values) = (names, values)
+            new_names, new_values = names, values
 
         if sorted:
             # Sort new_values and rearrange new_names.
@@ -669,25 +722,19 @@ class AbinitTimer(object):
         return fig
 
     #def hist2(self, key1="wall_time", key2="cpu_time"):
-
     #    labels = self.get_values("name")
     #    vals1, vals2 = self.get_values([key1, key2])
-
     #    N = len(vals1)
     #    assert N == len(vals2)
-
     #    plt.figure(1)
     #    plt.subplot(2, 1, 1) # 2 rows, 1 column, figure 1
-
     #    n1, bins1, patches1 = plt.hist(vals1, N, facecolor="m")
     #    plt.xlabel(labels)
     #    plt.ylabel(key1)
-
     #    plt.subplot(2, 1, 2)
     #    n2, bins2, patches2 = plt.hist(vals2, N, facecolor="y")
     #    plt.xlabel(labels)
     #    plt.ylabel(key2)
-
     #    plt.show()
 
     def pie(self, key="wall_time", minfract=0.05, title=None):

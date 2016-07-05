@@ -1,6 +1,9 @@
 Change log
 ==========
 
-v3.7.1
+v4.0.0
 ------
-* Fix deprecation bug.
+* Massive update with many deprecated methods removed. Note that this
+  may break backwards incompatibility!
+* Support for ABINIT 8.
+* Improved sulfide compatibility.
