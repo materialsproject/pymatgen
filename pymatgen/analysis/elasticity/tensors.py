@@ -116,26 +116,6 @@ class TensorBase(np.ndarray):
                                                    [0., 0., 0.])
         return self.transform(sop)
 
-    def rotate_tensor(self, initial_struct, final_struct):
-        """ 
-        Applies a transformation on tensor and returns the tensor in the final
-        basis set given a initial and final structure files
-        """
-
-        initialsg = SpacegroupAnalyzer(initial_struct)
-        finalsg = SpacegroupAnalyzer(final_struct)
-
-        rotationintial = latticeobj.get_symmetry_dataset()['transformation_matrix']
-        rotationfinal = conventionalsg.get_symmetry_dataset()['transformation_matrix']
-
-        transmatrix = np.dot(rotationprim, np.linalg.inv(rotationconv)).T
-
-        U = scipy.linalg.sqrtm(np.dot(transmatrix.T, transmatrix))
-        R = np.dot(transmatrix, np.linalg.inv(U))
-
-        return self.rotate(R)
-
-
     @property
     def symmetrized(self):
         """
