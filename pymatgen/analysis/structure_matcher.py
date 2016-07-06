@@ -873,7 +873,8 @@ class StructureMatcher(MSONable):
                     best = m[0]
             return best
 
-    def get_all_anonymous_mappings(self, struct1, struct2, niggli=True):
+    def get_all_anonymous_mappings(self, struct1, struct2, niggli=True,
+                                   include_dist=False):
         """
         Performs an anonymous fitting, which allows distinct species in one
         structure to map to another. Returns a dictionary of species
@@ -882,6 +883,8 @@ class StructureMatcher(MSONable):
         Args:
             struct1 (Structure): 1st structure
             struct2 (Structure): 2nd structure
+            niggli (bool): Find niggli cell in preprocessing
+            include_dist (bool): Return the maximin distance with each mapping
 
         Returns:
             list of species mappings that map struct1 to struct2.
@@ -891,10 +894,12 @@ class StructureMatcher(MSONable):
                                                               niggli)
 
         matches = self._anonymous_match(struct1, struct2, fu, s1_supercell,
-                                        break_on_match=True)
-
+                                        break_on_match=not include_dist)
         if matches:
-            return [m[0] for m in matches]
+            if include_dist:
+                return [(m[0], m[1][0]) for m in matches]
+            else:
+                return [m[0] for m in matches]
 
     def fit_anonymous(self, struct1, struct2, niggli=True):
         """

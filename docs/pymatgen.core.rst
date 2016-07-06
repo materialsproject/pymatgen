@@ -42,6 +42,14 @@ pymatgen.core.lattice module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.core.libxcfunc module
+------------------------------
+
+.. automodule:: pymatgen.core.libxcfunc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.core.operations module
 -------------------------------
 
@@ -94,6 +102,14 @@ pymatgen.core.units module
 --------------------------
 
 .. automodule:: pymatgen.core.units
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.core.xcfunc module
+---------------------------
+
+.. automodule:: pymatgen.core.xcfunc
     :members:
     :undoc-members:
     :show-inheritance:
