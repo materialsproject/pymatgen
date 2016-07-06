@@ -116,6 +116,10 @@ class CSMFiniteRatioFunction(RatioFunction):
                 return None
             return np.sum(np.array(fractions) * np.array(data))
 
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(function=dd['function'], options_dict=dd['options'])
+
     ratios = fractions
 
 
@@ -160,6 +164,10 @@ class CSMInfiniteRatioFunction(RatioFunction):
                 return None
             return np.sum(np.array(fractions) * np.array(data))
 
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(function=dd['function'], options_dict=dd['options'])
+
     ratios = fractions
 
 
@@ -169,3 +177,7 @@ class DeltaCSMRatioFunction(RatioFunction):
 
     def smootherstep(self, vals):
         return smootherstep(vals, edges=[self.__dict__['delta_csm_min'], self.__dict__['delta_csm_max']])
+
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(function=dd['function'], options_dict=dd['options'])

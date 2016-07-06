@@ -28,6 +28,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.sites import PeriodicSite
 import numpy as np
+from scipy.stats import gmean
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import UNCLEAR_ENVIRONMENT_SYMBOL
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import get_lower_and_upper_f
 from pymatgen.analysis.chemenv.utils.func_utils import CSMFiniteRatioFunction
@@ -521,16 +522,16 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
                                           return_map=False):
         if isite is None:
             [isite, dequivsite, dthissite, mysym] = self.equivalent_site_index_and_transform(site)
-        neighbors_weighted_distances = self.structure_environments.voronoi.neighbors_weighted_distances[isite]
-        neighbors_weighted_angles = self.structure_environments.voronoi.neighbors_weighted_angles[isite]
+        neighbors_normalized_distances = self.structure_environments.voronoi.neighbors_normalized_distances[isite]
+        neighbors_normalized_angles = self.structure_environments.voronoi.neighbors_normalized_angles[isite]
         idist = None
-        for iwd, wd in enumerate(neighbors_weighted_distances):
+        for iwd, wd in enumerate(neighbors_normalized_distances):
             if self.distance_cutoff >= wd['min']:
                 idist = iwd
             else:
                 break
         iang = None
-        for iwa, wa in enumerate(neighbors_weighted_angles):
+        for iwa, wa in enumerate(neighbors_normalized_angles):
             if self.angle_cutoff <= wa['max']:
                 iang = iwa
             else:
@@ -1596,3 +1597,430 @@ class MultipleAbundanceChemenvStrategy(AbstractChemenvStrategy):
                    ce_estimator=d["ce_estimator"],
                    max_csm=d["max_csm"]
                    )
+
+
+class NbSetWeight(with_metaclass(abc.ABCMeta, MSONable)):
+
+    @abc.abstractmethod
+    def as_dict(self):
+        """
+        A JSON serializable dict representation of this neighbors set weight.
+        """
+        pass
+
+    @abc.abstractmethod
+    def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
+        pass
+
+
+class AngleNbSetWeight(NbSetWeight):
+
+    def __init__(self, aa=1.0):
+        self.aa = aa
+        if self.aa == 1.0:
+            self.aw = self.angle_sum
+        else:
+            self.aw = self.angle_sumn
+
+    def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
+        return self.aw(nb_set=nb_set)
+
+    def angle_sum(self, nb_set):
+        return np.sum(nb_set.angles) / (4.0 * np.pi)
+
+    def angle_sumn(self, nb_set):
+        return np.power(self.angle_sum(nb_set=nb_set), self.aa)
+
+    def as_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "aa": self.aa
+                }
+
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(aa=dd['aa'])
+
+
+class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
+
+    def __init__(self, average_type, aa, bb):
+        self.average_type = average_type
+        if self.average_type == 'geometric':
+            self.eval = self.gweight
+        elif self.average_type == 'arithmetic':
+            self.eval = self.aweight
+        else:
+            raise ValueError('Average type is "{}" while it should be '
+                             '"geometric" or "arithmetic"'.format(average_type))
+        self.aa = aa
+        self.bb = bb
+        if self.aa == 0:
+            if self.bb == 1:
+                self.fda = self.invdist
+            elif self.bb == 0:
+                raise ValueError('Both exponents are 0.')
+            else:
+                self.fda = self.invndist
+        elif self.bb == 0:
+            if self.aa == 1:
+                self.fda = self.ang
+            else:
+                self.fda = self.angn
+        else:
+            if self.aa == 1:
+                if self.bb == 1:
+                    self.fda = self.anginvdist
+                else:
+                    self.fda = self.anginvndist
+            else:
+                if self.bb == 1:
+                    self.fda = self.angninvdist
+                else:
+                    self.fda = self.angninvndist
+
+    def as_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "average_type": self.average_type,
+                "aa": self.aa,
+                "bb": self.bb
+                }
+
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(average_type=dd['average_type'], aa=dd['aa'], bb=dd['bb'])
+
+    def invdist(self, nb_set):
+        return [1.0 / dist for dist in nb_set.normalized_distances]
+
+    def invndist(self, nb_set):
+        return [1.0 / dist**self.bb for dist in nb_set.normalized_distances]
+
+    def ang(self, nb_set):
+        return nb_set.normalized_angles
+
+    def angn(self, nb_set):
+        return [ang**self.aa for ang in nb_set.normalized_angles]
+
+    def anginvdist(self, nb_set):
+        nangles = nb_set.normalized_angles
+        return [nangles[ii] / dist for ii, dist in enumerate(nb_set.normalized_distances)]
+
+    def anginvndist(self, nb_set):
+        nangles = nb_set.normalized_angles
+        return [nangles[ii] / dist**self.bb for ii, dist in enumerate(nb_set.normalized_distances)]
+
+    def angninvdist(self, nb_set):
+        nangles = nb_set.normalized_angles
+        return [nangles[ii]**self.aa / dist for ii, dist in enumerate(nb_set.normalized_distances)]
+
+    def angninvndist(self, nb_set):
+        nangles = nb_set.normalized_angles
+        return [nangles[ii]**self.aa / dist**self.bb for ii, dist in enumerate(nb_set.normalized_distances)]
+
+    def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
+        fda_list = self.fda(nb_set=nb_set)
+        return self.eval(fda_list=fda_list)
+
+    def gweight(self, fda_list):
+        return gmean(fda_list)
+
+    def aweight(self, fda_list):
+        return np.mean(fda_list)
+
+
+def get_effective_csm(nb_set, cn_map, structure_environments, additional_info,
+                      symmetry_measure_type, max_effective_csm, effective_csm_estimator_ratio_function):
+    try:
+        effective_csm = additional_info['effective_csms'][nb_set.isite][cn_map]
+    except KeyError:
+        site_ce_list = structure_environments.ce_list[nb_set.isite]
+        site_chemenv = site_ce_list[cn_map[0]][cn_map[1]]
+        mingeoms = site_chemenv.minimum_geometries(symmetry_measure_type=symmetry_measure_type,
+                                                   max_csm=max_effective_csm)
+        if len(mingeoms) == 0:
+            effective_csm = 100.0
+        else:
+            csms = [ce_dict['other_symmetry_measures'][symmetry_measure_type] for mp_symbol, ce_dict in mingeoms
+                    if ce_dict['other_symmetry_measures'][symmetry_measure_type] <= max_effective_csm]
+            effective_csm = effective_csm_estimator_ratio_function.mean_estimator(csms)
+        set_info(additional_info=additional_info, field='effective_csms',
+                 isite=nb_set.isite, cn_map=cn_map, value=effective_csm)
+    return effective_csm
+
+
+def set_info(additional_info, field, isite, cn_map, value):
+    try:
+        additional_info[field][isite][cn_map] = value
+    except KeyError:
+        try:
+            additional_info[field][isite] = {cn_map: value}
+        except KeyError:
+            additional_info[field] = {isite: {cn_map: value}}
+
+
+class SelfCSMNbSetWeight(NbSetWeight):
+
+    DEFAULT_WEIGHT_ESTIMATOR = {'function': 'power2_decreasing_exp',
+                                'options': {'max_csm': 8.0,
+                                            'alpha': 1.0}}
+    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = {'function': 'power2_inverse_decreasing',
+                                       'options': {'max_csm': 8.0}}
+    DEFAULT_SYMMETRY_MEASURE_TYPE = 'csm_wcs_ctwcc'
+
+    def __init__(self, effective_csm_estimator=DEFAULT_EFFECTIVE_CSM_ESTIMATOR,
+                 weight_estimator=DEFAULT_WEIGHT_ESTIMATOR,
+                 symmetry_measure_type=DEFAULT_SYMMETRY_MEASURE_TYPE):
+        self.effective_csm_estimator = effective_csm_estimator
+        self.effective_csm_estimator_rf = CSMInfiniteRatioFunction.from_dict(effective_csm_estimator)
+        self.weight_estimator = weight_estimator
+        self.weight_estimator_rf =  CSMFiniteRatioFunction.from_dict(weight_estimator)
+        self.symmetry_measure_type = symmetry_measure_type
+        self.max_effective_csm = self.effective_csm_estimator['options']['max_csm']
+
+    def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
+        effective_csm = get_effective_csm(nb_set=nb_set, cn_map=cn_map,
+                                          structure_environments=structure_environments,
+                                          additional_info=additional_info,
+                                          symmetry_measure_type=self.symmetry_measure_type,
+                                          max_effective_csm=self.max_effective_csm,
+                                          effective_csm_estimator_ratio_function=self.effective_csm_estimator_rf)
+        return self.weight_estimator_rf.evaluate(effective_csm)
+
+    def as_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "effective_csm_estimator": self.effective_csm_estimator,
+                "weight_estimator": self.weight_estimator,
+                "symmetry_measure_type": self.symmetry_measure_type
+                }
+
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(effective_csm_estimator=dd['effective_csm_estimator'],
+                   weight_estimator=dd['weight_estimator'],
+                   symmetry_measure_type=dd['symmetry_measure_type'])
+
+
+class DeltaCSMNbSetWeight(NbSetWeight):
+
+    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = {'function': 'power2_inverse_decreasing',
+                                       'options': {'max_csm': 8.0}}
+    DEFAULT_SYMMETRY_MEASURE_TYPE = 'csm_wcs_ctwcc'
+    DEFAULT_WEIGHT_ESTIMATOR = {'function': 'smootherstep',
+                                'options': {'delta_csm_min': 0.5,
+                                            'delta_csm_max': 3.0}}
+
+    def __init__(self, effective_csm_estimator=DEFAULT_EFFECTIVE_CSM_ESTIMATOR,
+                 weight_estimator=DEFAULT_WEIGHT_ESTIMATOR,
+                 symmetry_measure_type=DEFAULT_SYMMETRY_MEASURE_TYPE):
+        self.effective_csm_estimator = effective_csm_estimator
+        self.effective_csm_estimator_rf = CSMInfiniteRatioFunction.from_dict(effective_csm_estimator)
+        self.weight_estimator = weight_estimator
+        self.weight_estimator_rf = DeltaCSMRatioFunction.from_dict(weight_estimator)
+        self.symmetry_measure_type = symmetry_measure_type
+        self.max_effective_csm = self.effective_csm_estimator['options']['max_csm']
+
+    def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
+        effcsm = get_effective_csm(nb_set=nb_set, cn_map=cn_map,
+                                   structure_environments=structure_environments,
+                                   additional_info=additional_info,
+                                   symmetry_measure_type=self.symmetry_measure_type,
+                                   max_effective_csm=self.max_effective_csm,
+                                   effective_csm_estimator_ratio_function=self.effective_csm_estimator_rf)
+        cn = cn_map[0]
+        inb_set = cn_map[1]
+        isite = nb_set.isite
+        delta_csm = None
+        delta_csm_cn_map2 = None
+        nb_set_weight = 1.0
+        for cn2, nb_sets in structure_environments.neighbors_sets[isite].items():
+            if cn2 < cn:
+                continue
+            for inb_set2, nb_set2 in enumerate(nb_sets):
+                if cn == cn2 and inb_set == inb_set:
+                    continue
+                effcsm2 = get_effective_csm(nb_set=nb_set2, cn_map=(cn2, inb_set2),
+                                            structure_environments=structure_environments,
+                                            additional_info=additional_info,
+                                            symmetry_measure_type=self.symmetry_measure_type,
+                                            max_effective_csm=self.max_effective_csm,
+                                            effective_csm_estimator_ratio_function=self.effective_csm_estimator_rf)
+                if cn2 == cn:
+                    this_delta_csm = effcsm2 - effcsm
+                    if this_delta_csm < 0.0:
+                        set_info(additional_info=additional_info, field='delta_csms', isite=isite,
+                                 cn_map=cn_map, value=this_delta_csm)
+                        set_info(additional_info=additional_info, field='delta_csms_weights', isite=isite,
+                                 cn_map=cn_map, value=0.0)
+                        set_info(additional_info=additional_info, field='delta_csms_cn_map2', isite=isite,
+                                 cn_map=cn_map, value=(cn2, inb_set2))
+                        return 0.0
+                else:
+                    this_delta_csm = effcsm2 - effcsm
+                    # this_delta_csm_weight = self.weight_estimator_rf.evaluate(this_delta_csm)
+                    if this_delta_csm < delta_csm:
+                    # if this_delta_csm_weight < nb_set_weight:
+                        this_delta_csm_weight = self.weight_estimator_rf.evaluate(this_delta_csm)
+                        delta_csm = this_delta_csm
+                        delta_csm_cn_map2 = (cn2, inb_set2)
+                        nb_set_weight = this_delta_csm_weight
+        set_info(additional_info=additional_info, field='delta_csms', isite=isite,
+                 cn_map=cn_map, value=delta_csm)
+        set_info(additional_info=additional_info, field='delta_csms_weights', isite=isite,
+                 cn_map=cn_map, value=nb_set_weight)
+        set_info(additional_info=additional_info, field='delta_csms_cn_map2', isite=isite,
+                 cn_map=cn_map, value=delta_csm_cn_map2)
+        return nb_set_weight
+
+    def as_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "effective_csm_estimator": self.effective_csm_estimator,
+                "weight_estimator": self.weight_estimator,
+                "symmetry_measure_type": self.symmetry_measure_type
+                }
+
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(effective_csm_estimator=dd['effective_csm_estimator'],
+                   weight_estimator=dd['weight_estimator'],
+                   symmetry_measure_type=dd['symmetry_measure_type'])
+
+
+class CNBiasNbSetWeight(NbSetWeight):
+
+    def __init__(self, cn_weights, initialization_options):
+        self.cn_weights = cn_weights
+        self.initialization_options = initialization_options
+
+    def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
+        return self.cn_weights[len(nb_set)]
+
+    def as_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "cn_weights": self.cn_weights,
+                "initialization_options": self.initialization_options,
+                }
+
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(cn_weights=dd['cn_weights'],
+                   initialization_options=dd['initialization_options'])
+
+    @classmethod
+    def linearly_equidistant(cls, weight_cn1, weight_cn13):
+        initialization_options = {'type': 'linearly_equidistant',
+                                  'weight_cn1': weight_cn1,
+                                  'weight_cn13': weight_cn13
+                                  }
+        dw = (weight_cn13 - weight_cn1) / 12.0
+        cn_weights = {cn: weight_cn1 + (cn - 1) * dw for cn in range(1, 14)}
+        return cls(cn_weights=cn_weights, initialization_options=initialization_options)
+
+    @classmethod
+    def geometrically_equidistant(cls, weight_cn1, weight_cn13):
+        initialization_options = {'type': 'geometrically_equidistant',
+                                  'weight_cn1': weight_cn1,
+                                  'weight_cn13': weight_cn13
+                                  }
+        factor = np.power(float(weight_cn13) / weight_cn1, 1.0 / 12.0)
+        cn_weights = {cn: weight_cn1 * np.power(factor, cn - 1)  for cn in range(1, 14)}
+        return cls(cn_weights=cn_weights, initialization_options=initialization_options)
+
+    @classmethod
+    def explicit(cls, cn_weights):
+        initialization_options = {'type': 'explicit'}
+        return cls(cn_weights=cn_weights, initialization_options=initialization_options)
+
+
+class DistanceAngleAreaNbSetWeight(NbSetWeight):
+
+    def __init__(self):
+        pass
+
+    def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
+        return None
+
+    def as_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
+
+    @classmethod
+    def from_dict(cls, dd):
+        return cls()
+
+
+class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
+    """
+    MultiWeightsChemenvStrategy
+    """
+    STRATEGY_DESCRIPTION = '    Multi Weights ChemenvStrategy'
+    # STRATEGY_INFO_FIELDS = ['cn_map_surface_fraction', 'cn_map_surface_weight',
+    #                         'cn_map_mean_csm', 'cn_map_csm_weight',
+    #                         'cn_map_delta_csm', 'cn_map_delta_csms_cn_map2', 'cn_map_delta_csm_weight',
+    #                         'cn_map_cn_weight',
+    #                         'cn_map_fraction', 'cn_map_ce_fraction', 'ce_fraction']
+
+    def __init__(self, structure_environments=None,
+                 additional_condition=AbstractChemenvStrategy.AC.ONLY_ACB,
+                 symmetry_measure_type=AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE):
+        """
+        Constructor for the MultiWeightsChemenvStrategy.
+        :param structure_environments: StructureEnvironments object containing all the information on the
+        coordination of the sites in a structure
+        """
+        AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
+        self._additional_condition = additional_condition
+
+    @property
+    def uniquely_determines_coordination_environments(self):
+        return False
+
+    def get_site_coordination_environments_fractions(self, site, isite=None, dequivsite=None, dthissite=None,
+                                                     mysym=None, ordered=True, min_fraction=0.0, return_maps=True,
+                                                     return_strategy_dict_info=False):
+        if isite is None or dequivsite is None or dthissite is None or mysym is None:
+            [isite, dequivsite, dthissite, mysym] = self.equivalent_site_index_and_transform(site)
+        return None
+
+    def get_site_coordination_environment(self, site):
+        pass
+
+    def get_site_neighbors(self, site):
+        pass
+
+    def get_site_coordination_environments(self, site, isite=None, dequivsite=None, dthissite=None, mysym=None,
+                                           return_maps=False):
+        if isite is None or dequivsite is None or dthissite is None or mysym is None:
+            [isite, dequivsite, dthissite, mysym] = self.equivalent_site_index_and_transform(site)
+        return [self.get_site_coordination_environment(site=site, isite=isite, dequivsite=dequivsite,
+                                                       dthissite=dthissite, mysym=mysym, return_map=return_maps)]
+
+    def __eq__(self, other):
+        return (self.__class__.__name__ == other.__class__.__name__ and
+                self._additional_condition == other.additional_condition,
+                self._symmetry_measure_type == other._symmetry_measure_type)
+
+    def as_dict(self):
+        """
+        Bson-serializable dict representation of the MultiWeightsChemenvStrategy object.
+        :return: Bson-serializable dict representation of the MultiWeightsChemenvStrategy object.
+        """
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "additional_condition": self._additional_condition,
+                "symmetry_measure_type": self._symmetry_measure_type}
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Reconstructs the MultiWeightsChemenvStrategy object from a dict representation of the
+        MultipleAbundanceChemenvStrategy object created using the as_dict method.
+        :param d: dict representation of the MultiWeightsChemenvStrategy object
+        :return: MultiWeightsChemenvStrategy object
+        """
+        return cls(additional_condition=d["additional_condition"],
+                   symmetry_measure_type=d["symmetry_measure_type"])
