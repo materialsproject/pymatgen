@@ -78,7 +78,18 @@ def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None,
                 trans = csm_info['other_symmetry_measures']['translation_vector_{}'.format(csm_suffix)]
                 rot = csm_info['other_symmetry_measures']['rotation_matrix_{}'.format(csm_suffix)]
                 scale = csm_info['other_symmetry_measures']['scaling_factor_{}'.format(csm_suffix)]
-                # vis.add_partial_sphere(coords=None, radius=0.1, color=[0.0, 0.0, 0.0], start=0, end=360, opacity=1)
+                points = perfect_geometry.points_wcs_ctwcc()
+                rotated_points = rotateCoords(points, rot)
+                points = [scale * pp + trans for pp in rotated_points]
+                if 'wcs' in csm_suffix:
+                    ef_points = points[1:]
+                else:
+                    ef_points = points
+                edges = cg.edges(ef_points, input='coords')
+                vis.add_edges(edges, color=[1.0, 0.0, 0.0])
+                for point in points:
+                    vis.add_partial_sphere(coords=point, radius=perf_radius, color=[0.0, 0.0, 0.0],
+                                           start=0, end=360, opacity=1)
     else:
         if show_distorted:
             if perm is not None:

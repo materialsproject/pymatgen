@@ -75,12 +75,12 @@ class StructureEnvironments(MSONable):
             return coords
 
         @property
-        def weighted_distances(self):
-            return [self.voronoi[inb]['weighted_distance'] for inb in self.site_voronoi_indices]
+        def normalized_distances(self):
+            return [self.voronoi[inb]['normalized_distance'] for inb in self.site_voronoi_indices]
 
         @property
-        def weighted_angles(self):
-            return [self.voronoi[inb]['weighted_angle'] for inb in self.site_voronoi_indices]
+        def normalized_angles(self):
+            return [self.voronoi[inb]['normalized_angle'] for inb in self.site_voronoi_indices]
 
         @property
         def distances(self):
@@ -92,21 +92,21 @@ class StructureEnvironments(MSONable):
 
         @property
         def info(self):
-            was = self.weighted_angles
-            wds = self.weighted_distances
+            was = self.normalized_angles
+            wds = self.normalized_distances
             angles = self.angles
             distances = self.distances
-            return {'weighted_angles': was,
-                    'weighted_distances': wds,
-                    'weighted_angles_sum': np.sum(was),
-                    'weighted_angles_mean': np.mean(was),
-                    'weighted_angles_std': np.std(was),
-                    'weighted_angles_min': np.min(was),
-                    'weighted_angles_max': np.max(was),
-                    'weighted_distances_mean': np.mean(wds),
-                    'weighted_distances_std': np.std(wds),
-                    'weighted_distances_min': np.min(wds),
-                    'weighted_distances_max': np.max(wds),
+            return {'normalized_angles': was,
+                    'normalized_distances': wds,
+                    'normalized_angles_sum': np.sum(was),
+                    'normalized_angles_mean': np.mean(was),
+                    'normalized_angles_std': np.std(was),
+                    'normalized_angles_min': np.min(was),
+                    'normalized_angles_max': np.max(was),
+                    'normalized_distances_mean': np.mean(wds),
+                    'normalized_distances_std': np.std(wds),
+                    'normalized_distances_min': np.min(wds),
+                    'normalized_distances_max': np.max(wds),
                     'angles': angles,
                     'distances': distances,
                     'angles_sum': np.sum(angles),
@@ -115,7 +115,7 @@ class StructureEnvironments(MSONable):
                     'angles_min': np.min(angles),
                     'angles_max': np.max(angles),
                     'distances_mean': np.mean(distances),
-                    'istances_std': np.std(distances),
+                    'distances_std': np.std(distances),
                     'distances_min': np.min(distances),
                     'distances_max': np.max(distances)
                     }
@@ -138,6 +138,9 @@ class StructureEnvironments(MSONable):
 
         def __eq__(self, other):
             return self.isite == other.isite and self.site_voronoi_indices == other.site_voronoi_indices
+
+        def __ne__(self, other):
+            return not self == other
 
         def as_dict(self):
             return {'isite': self.isite,
@@ -188,8 +191,8 @@ class StructureEnvironments(MSONable):
                 self.AC.ONLY_ACB_AND_NO_E2SEB) and valences is None:
             raise ChemenvError('StructureEnvironments', 'init_neighbors_sets',
                                'Valences are not given while only_anion_cation_bonds are allowed. Cannot continue')
-        site_distance_parameters = self.voronoi.neighbors_weighted_distances[isite]
-        site_angle_parameters = self.voronoi.neighbors_weighted_angles[isite]
+        site_distance_parameters = self.voronoi.neighbors_normalized_distances[isite]
+        site_angle_parameters = self.voronoi.neighbors_normalized_angles[isite]
         # Precompute distance conditions
         distance_conditions = []
         for idp, dp_dict in enumerate(site_distance_parameters):
@@ -492,10 +495,10 @@ class StructureEnvironments(MSONable):
                 mingeoms = ce.minimum_geometries(max_csm=max_csm)
                 if len(mingeoms) == 0:
                     continue
-                wds = nb_set.weighted_distances
+                wds = nb_set.normalized_distances
                 max_wd = max(max_wd, max(wds))
                 all_wds.append(wds)
-                all_was.append(nb_set.weighted_angles)
+                all_was.append(nb_set.normalized_angles)
                 for mp_symbol, cg_dict in mingeoms:
                     csm = cg_dict['other_symmetry_measures'][symmetry_measure_type]
                     subplot.plot(ix, csm, 'ob')
@@ -604,9 +607,9 @@ class StructureEnvironments(MSONable):
                 for ineighb, neighb in enumerate(coordnbs[0]):
                     mydict = {'neighbour': neighb.as_dict(),
                               'distance': coordnbs[2][ineighb]['distance'],
-                              'normalized_distance': coordnbs[2][ineighb]['weighted_distance'],
+                              'normalized_distance': coordnbs[2][ineighb]['normalized_distance'],
                               'angle': coordnbs[2][ineighb]['angle'],
-                              'normalized_angle': coordnbs[2][ineighb]['weighted_angle']}
+                              'normalized_angle': coordnbs[2][ineighb]['normalized_angle']}
                     neighbours.append(mydict)
                 ce = self.ce_list[isite][cn][i_coordnbs]
                 mingeoms = ce.minimum_geometries()
@@ -626,21 +629,29 @@ class StructureEnvironments(MSONable):
     def __eq__(self, other):
         if len(self.ce_list) != len(other.ce_list):
             return False
-        for ii in range(len(self.ce_list)):
-            if self.ce_list[ii] is not None:
-                if other.ce_list[ii] is None:
-                    return False
-                if set(self.ce_list[ii].keys()) != set(other.ce_list[ii].keys()):
-                    return False
-                for cn, ces in list(self.ce_list[ii].items()):
-                    if ces != other.ce_list[ii][cn]:
-                        return False
-            else:
-                if other.ce_list[ii] is not None:
-                    return False
-        return (self.voronoi == other.voronoi and self.valences == other.valences and
-                self.sites_map == other.sites_map and self.equivalent_sites == other.equivalent_sites and
-                self.ce_list == other.ce_list and self.structure == other.structure)
+        if self.voronoi != other.voronoi:
+            return False
+        if len(self.valences) != len(other.valences):
+            return False
+        if self.sites_map != other.sites_map:
+            return False
+        if self.equivalent_sites != other.equivalent_sites:
+            return False
+        if self.structure != other.structure:
+            return False
+        if self.info != other.info:
+            return False
+        for isite, site_ces in enumerate(self.ce_list):
+            site_nb_sets_self = self.neighbors_sets[isite]
+            site_nb_sets_other = other.neighbors_sets[isite]
+            if site_nb_sets_self != site_nb_sets_other:
+                return False
+            if site_ces != other.ce_list[isite]:
+                return False
+        return True
+
+    def __ne__(self, other):
+        return not self == other
 
     def as_dict(self):
         """
@@ -649,7 +660,7 @@ class StructureEnvironments(MSONable):
         """
         ce_list_dict = [{str(cn): [ce.as_dict() if ce is not None else None for ce in ce_dict[cn]]
                          for cn in ce_dict} if ce_dict is not None else None for ce_dict in self.ce_list]
-        nbs_sets_dict = [{cn: [nb_set.as_dict() for nb_set in nb_sets]
+        nbs_sets_dict = [{str(cn): [nb_set.as_dict() for nb_set in nb_sets]
                           for cn, nb_sets in site_nbs_sets.items()}
                          if site_nbs_sets is not None else None
                          for site_nbs_sets in self.neighbors_sets]
@@ -678,7 +689,7 @@ class StructureEnvironments(MSONable):
             for cn in ce_dict} for ce_dict in d['ce_list']]
         voronoi = DetailedVoronoiContainer.from_dict(d['voronoi'])
         structure = Structure.from_dict(d['structure'])
-        neighbors_sets = [{cn: [cls.NeighborsSet.from_dict(dd=nb_set_dict,
+        neighbors_sets = [{int(cn): [cls.NeighborsSet.from_dict(dd=nb_set_dict,
                                                            structure=structure,
                                                            detailed_voronoi=voronoi)
                                 for nb_set_dict in nb_sets]
@@ -1448,7 +1459,37 @@ class ChemicalEnvironments(MSONable):
         :param other: ChemicalEnvironments object to compare with
         :return: True if both objects are equal, False otherwise
         """
-        return self.coord_geoms == other.coord_geoms
+        if set(self.coord_geoms.keys()) != set(other.coord_geoms.keys()):
+            return False
+        for mp_symbol, cg_dict_self in self.coord_geoms.items():
+            cg_dict_other = other.coord_geoms[mp_symbol]
+            if cg_dict_self['symmetry_measure'] != cg_dict_other['symmetry_measure']:
+                return False
+            if cg_dict_self['algo'] != cg_dict_other['algo']:
+                return False
+            if cg_dict_self['permutation'] != cg_dict_other['permutation']:
+                return False
+            if cg_dict_self['detailed_voronoi_index'] != cg_dict_other['detailed_voronoi_index']:
+                return False
+            other_csms_self = cg_dict_self['other_symmetry_measures']
+            other_csms_other = cg_dict_other['other_symmetry_measures']
+            for csmtype in ['csm_wcs_ctwcc', 'csm_wcs_ctwocc', 'csm_wcs_csc',
+                            'csm_wocs_ctwcc', 'csm_wocs_ctwocc', 'csm_wocs_csc']:
+                if other_csms_self[csmtype] != other_csms_other[csmtype]:
+                    return False
+        return True
+
+    def __ne__(self, other):
+        return not self == other
+
+    # {'symmetry_measure': float(symmetry_measure), 'algo': algo,
+    #  'permutation': [int(i) for i in permutation],
+    #  'local2perfect_map': local2perfect_map,
+    #  'perfect2local_map': perfect2local_map,
+    #  'detailed_voronoi_index': detailed_voronoi_index,
+    #  'other_symmetry_measures': other_symmetry_measures,
+    #  'rotation_matrix': rotation_matrix,
+    #  'scaling_factor': scaling_factor}
 
     def as_dict(self):
         """

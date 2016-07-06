@@ -549,6 +549,11 @@ class CoordinationGeometry(object):
         # self.setup_permutations()
 
     @property
+    def distfactor_max(self):
+        dists = [np.linalg.norm(pp - self.central_site) for pp in self.points]
+        return np.max(dists) / np.min(dists)
+
+    @property
     def coordination_number(self):
         """
         Returns the coordination number of this coordination geometry.
@@ -801,8 +806,9 @@ class AllCoordinationGeometries(dict):
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
         else:
             for symbol in only_symbols:
+                fsymbol = symbol.replace(':', '#')
                 cg_file = '{}/coordination_geometries_files/{}.json'.format(
-                    module_dir, symbol)
+                    module_dir, fsymbol)
                 f = open(cg_file, 'r')
                 dd = json.load(f)
                 f.close()
