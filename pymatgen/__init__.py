@@ -8,6 +8,12 @@ __date__ = "Jul 8 2016"
 __version__ = "4.0.2"
 
 
+# Order of imports is important on some systems to avoid 
+# failures when loading shared libraries.
+import spglib
+from . import optimization, util
+del(spglib, optimization, util)
+
 # Useful aliases for commonly used objects and modules.
 # Allows from pymatgen import <class> for quick usage.
 
