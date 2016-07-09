@@ -22,7 +22,10 @@ __date__ = "Nov 27, 2011"
 import itertools
 import numpy as np
 import math
-import pymatgen.util.coord_utils_cython as cuc
+try:
+    import pymatgen.util.coord_utils_cython as cuc
+except ImportError:
+    import pymatgen.util.coord_utils_python as cuc
 
 #array size threshold for looping instead of broadcasting
 LOOP_THRESHOLD = 1e6

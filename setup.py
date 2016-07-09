@@ -16,7 +16,7 @@ except ImportError:
           "first before install pymatgen...")
     sys.exit(-1)
 
-SETUP_PTH = os.path.dirname(os.path.abspath(__file__))
+SETUP_PTH = os.path.dirname(__file__)
 
 
 with open(os.path.join(SETUP_PTH, "README.rst")) as f:
