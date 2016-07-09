@@ -23,9 +23,9 @@ import itertools
 import numpy as np
 import math
 try:
-    import pymatgen.utils.coord_utils_cython as cuc
+    from pymatgen.util import coord_utils_cython as cuc
 except ImportError:
-    import pymatgen.utils.coord_utils_python as cuc
+    from pymatgen.util import coord_utils_python as cuc
 
 # array size threshold for looping instead of broadcasting
 LOOP_THRESHOLD = 1e6
