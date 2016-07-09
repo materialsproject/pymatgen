@@ -233,25 +233,7 @@ class TensorBaseTest(PymatgenTest):
             self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct),
                                         err_msg = err_msg, decimal=3)
 
-    def test_rotate_tensor(self):
-     for xtal in self.ieee_data.keys():
-            orig = TensorBase(self.ieee_data[xtal]['original_tensor'])
-            ieee = TensorBase(self.ieee_data[xtal]['ieee_tensor'])
-            struct = Structure.from_dict(self.ieee_data[xtal]['structure'])
 
-            sga = SpacegroupAnalyzer(struct)
-            dataset = sga.get_symmetry_dataset()
-            trans_mat = dataset['transformation_matrix']
-            conv_struct = np.transpose(np.dot(np.transpose(
-            struct.lattice.matrix), np.linalg.inv(trans_mat)))
-
-            conv_struct = Structure(conv_struct, struct.species, struct.frac_coords)
-
-            diff = np.max(abs(ieee - orig.rotate_tensor(struct, conv_struct)))
-            err_msg = "{} IEEE conversion failed with max diff {}".format(
-                xtal, diff)
-            self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct),
-                                        err_msg = err_msg, decimal=3)
 class SquareTensorTest(PymatgenTest):
     def setUp(self):
         self.rand_sqtensor = SquareTensor(np.random.randn(3, 3))
