@@ -6,6 +6,7 @@ import glob
 import os
 from io import open
 import sys
+import platform
 
 from setuptools import setup, find_packages, Extension
 
@@ -19,11 +20,15 @@ except ImportError:
 SETUP_PTH = os.path.dirname(__file__)
 
 
+
+extra_link_args = []
+if sys.platform.startswith('win') and platform.machine().endswith('64'):
+    extra_link_args.append('-Wl,--allow-multiple-definition')
+
 with open(os.path.join(SETUP_PTH, "README.rst")) as f:
     long_desc = f.read()
     ind = long_desc.find("\n")
     long_desc = long_desc[ind + 1:]
-
 
 setup(
     name="pymatgen",
@@ -86,9 +91,11 @@ setup(
     ],
     ext_modules=[Extension("pymatgen.optimization.linear_assignment",
                            ["pymatgen/optimization/linear_assignment.c"],
-                           include_dirs=get_numpy_include_dirs()),
+                           include_dirs=get_numpy_include_dirs(),
+                           extra_link_args=extra_link_args),
                  Extension("pymatgen.util.coord_utils_cython",
                            ["pymatgen/util/coord_utils_cython.c"],
-                           include_dirs=get_numpy_include_dirs())],
+                           include_dirs=get_numpy_include_dirs(),
+                           extra_link_args=extra_link_args)],
     scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
 )
