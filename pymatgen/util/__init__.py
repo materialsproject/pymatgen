@@ -13,6 +13,6 @@ __author__ = "Shyue"
 __date__ = "$Jun 6, 2011 7:30:05 AM$"
 
 try:
-  import coord_util_cython
+  import coord_utils_cython
 except ImportError:
-  import coord_util_python as coord_util_cython  # use pure-python fallback
+  import coord_utils_python as coord_utils_cython  # use pure-python fallback
