@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v4.0.1
+v4.0.2
 ------
-* Minor bug fix release.
+* Fix kpoint reciprocal density.
