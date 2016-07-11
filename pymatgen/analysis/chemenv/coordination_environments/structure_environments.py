@@ -142,6 +142,13 @@ class StructureEnvironments(MSONable):
         def __ne__(self, other):
             return not self == other
 
+        def __str__(self):
+            out = 'Neighbors Set for site #{:d} :\n'.format(self.isite)
+            out += ' - Coordination number : {:d}\n'.format(len(self))
+            out += ' - Voronoi indices : {}\n'.format(', '.join(['{:d}'.format(site_voronoi_index)
+                                                                 for site_voronoi_index in self.site_voronoi_indices]))
+            return out
+
         def as_dict(self):
             return {'isite': self.isite,
                     'site_voronoi_indices': self.site_voronoi_indices,

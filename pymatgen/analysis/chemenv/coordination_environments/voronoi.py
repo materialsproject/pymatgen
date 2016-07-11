@@ -265,6 +265,19 @@ class DetailedVoronoiContainer(MSONable):
                 self.neighbors_distances[isite][icurrent]['nb_indices'] = list(nb_indices)
                 self.neighbors_normalized_distances[isite][icurrent]['dnb_indices'] = list(dnb_indices)
                 self.neighbors_distances[isite][icurrent]['dnb_indices'] = list(dnb_indices)
+            for idist in range(len(self.neighbors_distances[isite]) - 1):
+                dist_dict = self.neighbors_distances[isite][idist]
+                dist_dict_next = self.neighbors_distances[isite][idist+1]
+                dist_dict['next'] = dist_dict_next['min']
+                ndist_dict = self.neighbors_normalized_distances[isite][idist]
+                ndist_dict_next = self.neighbors_normalized_distances[isite][idist + 1]
+                ndist_dict['next'] = ndist_dict_next['min']
+            if self.maximum_distance_factor is not None:
+                dfact = self.maximum_distance_factor
+            else:
+                dfact = self.default_voronoi_cutoff / self.neighbors_distances[isite][0]['min']
+            self.neighbors_normalized_distances[isite][-1]['next'] = dfact
+            self.neighbors_distances[isite][-1]['next'] = dfact * self.neighbors_distances[isite][0]['min']
             #Initializes neighbors angles and normalized angles groups
             self.neighbors_angles[isite] = []
             self.neighbors_normalized_angles[isite] = []
@@ -308,6 +321,19 @@ class DetailedVoronoiContainer(MSONable):
                 self.neighbors_angles[isite][icurrent]['nb_indices'] = list(nb_indices)
                 self.neighbors_normalized_angles[isite][icurrent]['dnb_indices'] = list(dnb_indices)
                 self.neighbors_angles[isite][icurrent]['dnb_indices'] = list(dnb_indices)
+            for iang in range(len(self.neighbors_angles[isite]) - 1):
+                ang_dict = self.neighbors_angles[isite][iang]
+                ang_dict_next = self.neighbors_angles[isite][iang + 1]
+                ang_dict['next'] = ang_dict_next['max']
+                nang_dict = self.neighbors_normalized_angles[isite][iang]
+                nang_dict_next = self.neighbors_normalized_angles[isite][iang + 1]
+                nang_dict['next'] = nang_dict_next['max']
+            if self.minimum_angle_factor is not None:
+                afact = self.minimum_angle_factor
+            else:
+                afact = 0.0
+            self.neighbors_normalized_angles[isite][-1]['next'] = afact
+            self.neighbors_angles[isite][-1]['next'] = afact * self.neighbors_angles[isite][0]['max']
 
     # def setup_neighbors(self, additional_conditions=None, valences=None):
     #     """
