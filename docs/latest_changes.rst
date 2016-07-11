@@ -1,9 +1,6 @@
 Change log
 ==========
 
-v4.0.0
+v4.0.2
 ------
-* Massive update with many deprecated methods removed. Note that this
-  may break backwards incompatibility!
-* Support for ABINIT 8.
-* Improved sulfide compatibility.
+* Fix kpoint reciprocal density.
