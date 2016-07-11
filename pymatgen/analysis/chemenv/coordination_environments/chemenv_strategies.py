@@ -1786,7 +1786,10 @@ class SelfCSMNbSetWeight(NbSetWeight):
                                           symmetry_measure_type=self.symmetry_measure_type,
                                           max_effective_csm=self.max_effective_csm,
                                           effective_csm_estimator_ratio_function=self.effective_csm_estimator_rf)
-        return self.weight_estimator_rf.evaluate(effective_csm)
+        weight = self.weight_estimator_rf.evaluate(effective_csm)
+        set_info(additional_info=additional_info, field='self_csms_weights', isite=nb_set.isite,
+                 cn_map=cn_map, value=weight)
+        return weight
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
@@ -1860,7 +1863,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
                 else:
                     this_delta_csm = effcsm2 - effcsm
                     # this_delta_csm_weight = self.weight_estimator_rf.evaluate(this_delta_csm)
-                    if this_delta_csm < delta_csm:
+                    if delta_csm is None or this_delta_csm < delta_csm:
                     # if this_delta_csm_weight < nb_set_weight:
                         this_delta_csm_weight = self.weight_estimator_rf.evaluate(this_delta_csm)
                         delta_csm = this_delta_csm
@@ -1933,16 +1936,125 @@ class CNBiasNbSetWeight(NbSetWeight):
     @classmethod
     def explicit(cls, cn_weights):
         initialization_options = {'type': 'explicit'}
+        if set(cn_weights.keys()) != set(range(1, 14)):
+            raise ValueError('Weights should be provided for CN 1 to 13')
         return cls(cn_weights=cn_weights, initialization_options=initialization_options)
 
 
 class DistanceAngleAreaNbSetWeight(NbSetWeight):
+    AC = AdditionalConditions()
+    DEFAULT_SURFACE_DEFINITION = {'type': 'standard_elliptic',
+                                   'distance_bounds': {'lower': 1.2, 'upper': 1.8},
+                                   'angle_bounds': {'lower': 0.1, 'upper': 0.8}}
 
-    def __init__(self):
-        pass
+    def __init__(self, weight_type='has_intersection', surface_definition=DEFAULT_SURFACE_DEFINITION,
+                 nb_sets_from_hints='fallback_to_source', other_nb_sets='0_weight',
+                 additional_condition=AC.ONLY_ACB):
+        self.weight_type = weight_type
+        if weight_type == 'has_intersection':
+            self.area_weight = self.w_area_has_intersection
+        else:
+            raise ValueError('Weight type is "{}" while it should be "has_intersection"'.format(weight_type))
+        self.surface_definition = surface_definition
+        self.nb_sets_from_hints = nb_sets_from_hints
+        self.other_nb_sets = other_nb_sets
+        self.additional_condition = additional_condition
+        if self.nb_sets_from_hints == 'fallback_to_source':
+            if self.other_nb_sets == '0_weight':
+                self.w_area_intersection_specific = self.w_area_intersection_nbsfh_fbs_onb0
+            else:
+                raise ValueError('Other nb_sets should be "0_weight"')
+        else:
+            raise ValueError('Nb_sets from hints should fallback to source')
+        lower_and_upper_functions = get_lower_and_upper_f(surface_calculation_options=surface_definition)
+        self.dmin = surface_definition['distance_bounds']['lower']
+        self.dmax = surface_definition['distance_bounds']['upper']
+        self.amin = surface_definition['angle_bounds']['lower']
+        self.amax = surface_definition['angle_bounds']['upper']
+        self.f_lower = lower_and_upper_functions['lower']
+        self.f_upper = lower_and_upper_functions['upper']
 
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
-        return None
+        return self.area_weight(nb_set=nb_set, structure_environments=structure_environments,
+                                cn_map=cn_map, additional_info=additional_info)
+
+    def w_area_has_intersection(self, nb_set, structure_environments,
+                                cn_map, additional_info):
+        return self.w_area_intersection_specific(nb_set=nb_set, structure_environments=structure_environments,
+                                                 cn_map=cn_map, additional_info=additional_info)
+
+    def w_area_intersection_nbsfh_fbs_onb0(self, nb_set, structure_environments,
+                                           cn_map, additional_info):
+        dist_ang_sources = [src for src in nb_set.sources
+                            if src['origin'] == 'dist_ang_ac_voronoi' and src['ac'] == self.additional_condition]
+        if len(dist_ang_sources) > 0:
+            for src in dist_ang_sources:
+                d1 = src['dp_dict']['min']
+                d2 = src['dp_dict']['next']
+                a1 = src['ap_dict']['next']
+                a2 = src['ap_dict']['max']
+                if self.rectangle_crosses_area(d1=d1, d2=d2, a1=a1, a2=a2):
+                    return 1.0
+            return 0.0
+        else:
+            from_hints_sources = [src for src in nb_set.sources if src['origin'] == 'nb_set_hints']
+            if len(from_hints_sources) == 0:
+                return 0.0
+            elif len(from_hints_sources) != 1:
+                raise ValueError('Found multiple hints sources for nb_set')
+            else:
+                cn_map_src = from_hints_sources[0]['cn_map_source']
+                nb_set_src = structure_environments.neighbors_sets[nb_set.isite][cn_map_src[0]][cn_map_src[1]]
+                dist_ang_sources = [src for src in nb_set_src.sources
+                                    if src['origin'] == 'dist_ang_ac_voronoi' and
+                                    src['ac'] == self.additional_condition]
+                if len(dist_ang_sources) == 0:
+                    return 0.0
+                for src in dist_ang_sources:
+                    d1 = src['dp_dict']['min']
+                    d2 = src['dp_dict']['next']
+                    a1 = src['ap_dict']['next']
+                    a2 = src['ap_dict']['max']
+                    if self.rectangle_crosses_area(d1=d1, d2=d2, a1=a1, a2=a2):
+                        return 1.0
+                return 0.0
+
+    def rectangle_crosses_area(self, d1, d2, a1, a2):
+        # Case 1
+        if d1 <= self.dmin and d2 <= self.dmin:
+            return False
+        # Case 6
+        if d1 >= self.dmax and d2 >= self.dmax:
+            return False
+        # Case 2
+        if d1 <= self.dmin and d2 <= self.dmax:
+            ld2 = self.f_lower(d2)
+            if a2 <= ld2 or a1 >= self.amax:
+                return False
+            return True
+        # Case 3
+        if d1 <= self.dmin and d2 >= self.dmax:
+            if a2 <= self.amin or a1 >= self.amax:
+                return False
+            return True
+        # Case 4
+        if self.dmin <= d1 <= self.dmax and self.dmin <= d2 <= self.dmax:
+            ld1 = self.f_lower(d1)
+            ld2 = self.f_lower(d2)
+            if a2 <= ld1 and a2 <= ld2:
+                return False
+            ud1 = self.f_upper(d1)
+            ud2 = self.f_upper(d2)
+            if a1 >= ud1 and a1 >= ud2:
+                return False
+            return True
+        # Case 5
+        if self.dmin <= d1 <= self.dmax and d2 >= self.dmax:
+            ud1 = self.f_upper(d1)
+            if a1 >= ud1 or a2 <= self.amin:
+                return False
+            return True
+        raise ValueError('Should not reach this point!')
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
@@ -1963,10 +2075,20 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
     #                         'cn_map_delta_csm', 'cn_map_delta_csms_cn_map2', 'cn_map_delta_csm_weight',
     #                         'cn_map_cn_weight',
     #                         'cn_map_fraction', 'cn_map_ce_fraction', 'ce_fraction']
+    DEFAULT_CE_ESTIMATOR = {'function': 'power2_inverse_power2_decreasing',
+                            'options': {'max_csm': 8.0}}
 
     def __init__(self, structure_environments=None,
                  additional_condition=AbstractChemenvStrategy.AC.ONLY_ACB,
-                 symmetry_measure_type=AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE):
+                 symmetry_measure_type=AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE,
+                 dist_ang_area_weight=None,
+                 self_csm_weight=None,
+                 delta_csm_weight=None,
+                 cn_bias_weight=None,
+                 angle_weight=None,
+                 normalized_angle_distance_weight=None,
+                 ce_estimator=DEFAULT_CE_ESTIMATOR
+                 ):
         """
         Constructor for the MultiWeightsChemenvStrategy.
         :param structure_environments: StructureEnvironments object containing all the information on the
@@ -1974,6 +2096,28 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
         """
         AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
         self._additional_condition = additional_condition
+        self.dist_ang_area_weight = dist_ang_area_weight
+        self.angle_weight = angle_weight
+        self.normalized_angle_distance_weight = normalized_angle_distance_weight
+        self.self_csm_weight = self_csm_weight
+        self.delta_csm_weight = delta_csm_weight
+        self.cn_bias_weight = cn_bias_weight
+        self.ordered_weights = []
+        if dist_ang_area_weight is not None:
+            self.ordered_weights.append({'weight': dist_ang_area_weight, 'name': 'DistAngArea'})
+        if self_csm_weight is not None:
+            self.ordered_weights.append({'weight': self_csm_weight, 'name': 'SelfCSM'})
+        if delta_csm_weight is not None:
+            self.ordered_weights.append({'weight': delta_csm_weight, 'name': 'DeltaCSM'})
+        if cn_bias_weight is not None:
+            self.ordered_weights.append({'weight': cn_bias_weight, 'name': 'CNBias'})
+        if angle_weight is not None:
+            self.ordered_weights.append({'weight': angle_weight, 'name': 'Angle'})
+        if normalized_angle_distance_weight is not None:
+            self.ordered_weights.append({'weight': normalized_angle_distance_weight, 'name': 'NormalizedAngDist'})
+        self.ce_estimator = ce_estimator
+        self.ce_estimator_ratio_function = CSMInfiniteRatioFunction.from_dict(self.ce_estimator)
+        self.ce_estimator_fractions = self.ce_estimator_ratio_function.fractions
 
     @property
     def uniquely_determines_coordination_environments(self):
@@ -1984,7 +2128,82 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
                                                      return_strategy_dict_info=False):
         if isite is None or dequivsite is None or dthissite is None or mysym is None:
             [isite, dequivsite, dthissite, mysym] = self.equivalent_site_index_and_transform(site)
-        return None
+        site_nb_sets = self.structure_environments.neighbors_sets[isite]
+        if site_nb_sets is None:
+            return None
+        cn_maps = []
+        for cn, nb_sets in site_nb_sets.items():
+            for inb_set, nb_set in enumerate(nb_sets):
+                cn_maps.append((cn, inb_set))
+        weights_additional_info = {'weights': {isite: {}}}
+        for wdict in self.ordered_weights:
+            cn_maps_new = []
+            weight = wdict['weight']
+            weight_name = wdict['name']
+            for cn_map in cn_maps:
+                nb_set = site_nb_sets[cn_map[0]][cn_map[1]]
+                w_nb_set = weight.weight(nb_set=nb_set, structure_environments=self.structure_environments,
+                                             cn_map=cn_map, additional_info=weights_additional_info)
+                if cn_map not in weights_additional_info['weights'][isite]:
+                    weights_additional_info['weights'][isite][cn_map] = {}
+                weights_additional_info['weights'][isite][cn_map][weight_name] = w_nb_set
+                if w_nb_set > 0.0:
+                    cn_maps_new.append(cn_map)
+            cn_maps = cn_maps_new
+        for cn_map, weights in weights_additional_info['weights'][isite].items():
+            weights_additional_info['weights'][isite][cn_map]['Product'] = np.product(weights.values())
+
+        w_nb_sets = {cn_map: weights['Product']
+                     for cn_map, weights in weights_additional_info['weights'][isite].items()}
+        w_nb_sets_total = np.sum(w_nb_sets.values())
+        nb_sets_fractions = {cn_map: w_nb_set / w_nb_sets_total for cn_map, w_nb_set in w_nb_sets.items()}
+        ce_symbols = []
+        ce_dicts = []
+        ce_fractions = []
+        ce_dict_fractions = []
+        ce_maps = []
+        site_ce_list = self.structure_environments.ce_list[isite]
+        for cn_map, nb_set_fraction in nb_sets_fractions.items():
+            if nb_set_fraction > 0.0:
+                cn = cn_map[0]
+                inb_set = cn_map[1]
+                mingeoms = site_ce_list[cn][inb_set].minimum_geometries(symmetry_measure_type=self._symmetry_measure_type)
+                csms = [ce_dict['other_symmetry_measures'][self._symmetry_measure_type]
+                        for ce_symbol, ce_dict in mingeoms]
+                fractions = self.ce_estimator_fractions(csms)
+                for ifraction, fraction in enumerate(fractions):
+                    if fraction > 0.0:
+                        ce_symbols.append(mingeoms[ifraction][0])
+                        ce_dicts.append(mingeoms[ifraction][1])
+                        ce_fractions.append(nb_set_fraction * fraction)
+                        dict_fractions = {}
+                        ce_dict_fractions.append(dict_fractions)
+                        ce_maps.append(cn_map)
+        if ordered:
+            indices = np.argsort(ce_fractions)[::-1]
+        else:
+            indices = list(range(len(ce_fractions)))
+
+        fractions_info_list = [
+            {'ce_symbol': ce_symbols[ii], 'ce_dict': ce_dicts[ii], 'ce_fraction': ce_fractions[ii]}
+            for ii in indices if ce_fractions[ii] > min_fraction]
+
+        if return_maps:
+            for ifinfo, ii in enumerate(indices):
+                if ce_fractions[ii] > min_fraction:
+                    fractions_info_list[ifinfo]['ce_map'] = ce_maps[ii]
+        if return_strategy_dict_info:
+            for ifinfo, ii in enumerate(indices):
+                if ce_fractions[ii] > min_fraction:
+                    fractions_info_list[ifinfo]['strategy_info'] = ce_dict_fractions[ii]
+        return fractions_info_list
+
+        # if return_maps:
+        #     return [(ce_symbols[ii], ce_dicts[ii], ce_fractions[ii], ce_maps[ii])
+        #             for ii in indices if ce_fractions[ii] > min_fraction]
+        # else:
+        #     return [(ce_symbols[ii], ce_dicts[ii], ce_fractions[ii])
+        #             for ii in indices if ce_fractions[ii] > min_fraction]
 
     def get_site_coordination_environment(self, site):
         pass
