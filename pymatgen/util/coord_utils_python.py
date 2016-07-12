@@ -17,9 +17,10 @@ __email__ = "wmdrichards@gmail.com"
 __date__ = "Nov 27, 2011"
 
 import numpy as np
+from math import fabs
 
 
-#create images, 2d array of all length 3 combinations of [-1,0,1]
+# create images, 2d array of all length 3 combinations of [-1,0,1]
 r = np.arange(-1, 2, dtype=np.float_)
 arange = r[:, None] * np.array([1, 0, 0])[None, :]
 brange = r[:, None] * np.array([0, 1, 0])[None, :]
@@ -87,9 +88,9 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     fc1 = fcoords1
     fc2 = fcoords2
 
-    cart_f1 = np.empty((I, 3), dtype=np.float_t)
-    cart_f2 = np.empty((J, 3), dtype=np.float_t)
-    cart_im = np.empty((27, 3), dtype=np.float_t)
+    cart_f1 = np.empty((I, 3), dtype=np.float_)
+    cart_f2 = np.empty((J, 3), dtype=np.float_)
+    cart_im = np.empty((27, 3), dtype=np.float_)
 
     has_mask = mask is not None
     m = np.array
