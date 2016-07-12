@@ -509,7 +509,7 @@ class wulff_3d(object):
         fig.set_size_inches(aspect_ratio[0],
                             aspect_ratio[1])
         azim, elev = self.get_azimuth_elev(direction)
-        print azim, elev
+        print (azim, elev)
         wulff_pt_list = self.wulff_pt_list
         plane_wulff_info = self.plane_wulff_info
         # [normal, e_surf, [pts], [simpx],
@@ -609,9 +609,9 @@ class wulff_3d(object):
         v = [cart[0], cart[1], 0]
         elev = get_angle(cart, v)
         if miller_index == (0,0,1) or miller_index == (0,0,0,1):
-            return 0, 90
+            return (0, 90)
         else:
-            return azim, elev
+            return (azim, elev)
 
     @property
     def wulff_volume(self):
