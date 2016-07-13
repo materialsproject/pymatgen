@@ -305,7 +305,7 @@ class CifParser(object):
             for op in self.symmetry_operations:
                 coord = op.operate(tmp_coord)
                 coord = np.array([i - math.floor(i) for i in coord])
-                if not in_coord_list_pbc(coords, coord, atol=1e-3):
+                if not in_coord_list_pbc(coords, coord, atol=self._site_tolerance):
                     coords.append(coord)
         return coords
 
