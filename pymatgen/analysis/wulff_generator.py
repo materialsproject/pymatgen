@@ -293,8 +293,7 @@ class wulff_3d(object):
         self.e_surf_on_wulff = color_info[4]
 
         miller_area = []
-        for m in xrange(len(self.input_miller_fig)):
-            #print m
+        for m in range(len(self.input_miller_fig)):
             miller_area.append(self.input_miller_fig[m] + ' : ' + str(round(self.color_area[m], 4)))
         self.miller_area = miller_area
 
@@ -329,7 +328,7 @@ class wulff_3d(object):
         color = copy.copy(color_ind)
         miller_ind_orig = [x[0] for x in all_hkl_ind]
 
-        for i in xrange(len(all_hkl)):
+        for i in range(len(all_hkl)):
             for op in symmops:
                 miller = list(op.operate(all_hkl[i]))
                 miller = [int(x) for x in miller]
@@ -341,7 +340,7 @@ class wulff_3d(object):
                     miller_ind_orig.append(i)
                     color.append(color_ind[divmod(i, len(color_ind))[1]])
 
-        for i in xrange(len(all_hkl)):
+        for i in range(len(all_hkl)):
             miller = all_hkl[i]
             # get normal (length=1)
             normal = recp.get_cartesian_coords(miller)
