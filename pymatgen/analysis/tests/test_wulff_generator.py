@@ -13,7 +13,7 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.wulff_generator import wulff_3d
+from pymatgen.analysis.wulff_shape_generator import WulffShape
 
 import json
 import os
@@ -48,20 +48,20 @@ class TestWulff(PymatgenTest):
         self.ucell_Nb = Structure(latt_Nb, ["Nb", "Nb", "Nb", "Nb"],
                                   [[0, 0, 0], [0, 0.5, 0.5],
                                    [0.5, 0, 0.5], [0.5, 0.5, 0]])
-        self.wulff_Nb = wulff_3d(latt_Nb, miller_indices["mp-8636"],
-                                 surface_energies["mp-8636"])
+        self.wulff_Nb = WulffShape(latt_Nb, miller_indices["mp-8636"],
+                                   surface_energies["mp-8636"])
 
         self.ucell_Ir = Structure(latt_Nb, ["Ir", "Ir", "Ir", "Ir"],
                                   [[0, 0, 0], [0, 0.5, 0.5],
                                    [0.5, 0, 0.5], [0.5, 0.5, 0]])
-        self.wulff_Ir = wulff_3d(latt_Ir, miller_indices["mp-101"],
-                                 surface_energies["mp-101"])
+        self.wulff_Ir = WulffShape(latt_Ir, miller_indices["mp-101"],
+                                   surface_energies["mp-101"])
 
         self.ucell_Ti = Structure(latt_Ti, ["Ti", "Ti", "Ti"],
                                   [[0, 0, 0], [0.333333, 0.666667, 0.5],
                                    [0.666667, 0.333333, 0.5]])
-        self.wulff_Ti = wulff_3d(latt_Ti, miller_indices["mp-72"],
-                                 surface_energies["mp-72"])
+        self.wulff_Ti = WulffShape(latt_Ti, miller_indices["mp-72"],
+                                   surface_energies["mp-72"])
 
         self.surface_properties = surface_properties
 
@@ -138,6 +138,8 @@ class TestWulff(PymatgenTest):
         self.assertTrue(check_symmetry_Ti)
 
     def test_get_azimuth_elev(self):
+
+        # Test out the viewing of the Wulff shape from Miller indices.
         azim, elev = self.wulff_Ir.get_azimuth_elev((0,0,1))
         self.assertEqual(azim, 0)
         self.assertEqual(elev, 90)
@@ -145,6 +147,9 @@ class TestWulff(PymatgenTest):
         self.assertAlmostEqual(azim, 45)
 
     def test_properties(self):
+
+        # Simple test to check if the values of some
+        # properties are consistent with what we already have
 
         wulff_shapes = {"mp-8636": self.wulff_Nb, "mp-72": self.wulff_Ti,
                         "mp-101": self.wulff_Ir}
