@@ -117,7 +117,7 @@ class TestWulff(PymatgenTest):
                 self.assertEqual(Nb_area_fraction_dict[hkl], 0)
 
         self.assertEqual(self.wulff_Nb.miller_energy_dict[(3,1,0)],
-                         self.wulff_Be.weighted_surface_energy)
+                         self.wulff_Nb.weighted_surface_energy)
 
 
     def symmetry_test(self):
