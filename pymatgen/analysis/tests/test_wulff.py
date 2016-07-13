@@ -13,7 +13,7 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.wulff_shape_generator import WulffShape
+from pymatgen.analysis.wulff import WulffShape
 
 import json
 import os
