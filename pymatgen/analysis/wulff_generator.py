@@ -693,11 +693,15 @@ class wulff_3d(object):
         return np.sqrt(square_diff_energy)/weighted_energy
 
     @property
-    def Ballufi_shape_factor(self):
+    def shape_factor(self):
+        """
+        This is useful for determining the critical nucleus size.
+        A large shape factor indicates great anisotropy.
+        See Ballufi, R. W., Allen, S. M. & Carter, W. C. Kinetics
+            of Materials. (John Wiley & Sons, 2005), p.461
+
+        :return:
+            variation from weighted surface energy
+            The ideal sphere is 0.
+        """
         return self.total_surface_area/(self.wulff_volume**(2/3))
-
-    @property
-    def Qi_shape_factor(self):
-        r = ((3*self.wulff_volume)/(4*np.pi))**(1/3)
-        return abs(self.total_surface_area-4*np.pi*r**2)/self.total_surface_area
-
