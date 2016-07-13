@@ -30,7 +30,7 @@ class TestWulff(PymatgenTest):
         for mpid in surface_properties.keys():
             e_surf_list, miller_list = [], []
             for surface in surface_properties[mpid]["surfaces"]:
-                e_surf_list.appen(surface["surface_energy"])
+                e_surf_list.append(surface["surface_energy"])
                 miller_list.append(surface["miller_index"])
             surface_energies[mpid] = e_surf_list
             miller_indices[mpid] = miller_list
