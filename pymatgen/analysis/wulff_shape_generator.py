@@ -30,13 +30,13 @@ import mpl_toolkits.mplot3d as a3
 
 
 """
-This module defines a WulffShape class to generate the Wulff shape from
+This module define a wulff_3d class to generate the wulff shape from
 a lattice, a list of indices and their corresponding surface energies,
-and the total area and volume of the Wulff shape,the weighted surface energy,
-the anisotropy, shape factor can also be calculated.
+and the total area and volume of the wulff shape,the weighted surface energy,
+the anisotropy, Ballufi_shape_factor and Qi_shape_factor can also be calculated.
 In support of plotting from a given view in terms of miller index.
 
-The lattice is from the conventional unit cell, and (hkil) for hexagonal lattices.
+The lattice is from the conventional unit cell, and (hkil) for hcp lattices.
 
 
 
@@ -95,7 +95,7 @@ def get_tri_area(pts):
 
 
 
-class WulffShape(object):
+class wulff_3d(object):
     """
     Generate Wulff Shape from list of miller index and surface energies,
     with given conventional unit cell.
@@ -292,13 +292,8 @@ class WulffShape(object):
         self.e_surf_on_wulff = color_info[4]
 
         miller_area = []
-<<<<<<< HEAD:pymatgen/analysis/wulff_shape_generator.py
-        for i, m in enumerate(self.input_miller_fig):
-            miller_area.append(m + ' : ' + str(round(self.color_area[i], 4)))
-=======
         for m in range(len(self.input_miller_fig)):
             miller_area.append(self.input_miller_fig[m] + ' : ' + str(round(self.color_area[m], 4)))
->>>>>>> 2907af71541ab4c4a84451a1e8b42d16ab2066c5:pymatgen/analysis/wulff_generator.py
         self.miller_area = miller_area
 
     def symmop_cartesian(self, symmprec):
@@ -332,13 +327,9 @@ class WulffShape(object):
         color = copy.copy(color_ind)
         miller_ind_orig = [x[0] for x in all_hkl_ind]
 
-<<<<<<< HEAD:pymatgen/analysis/wulff_shape_generator.py
-        for i, hkl in enumerate(all_hkl):
-=======
         for i in range(len(all_hkl)):
->>>>>>> 2907af71541ab4c4a84451a1e8b42d16ab2066c5:pymatgen/analysis/wulff_generator.py
             for op in symmops:
-                miller = list(op.operate(hkl))
+                miller = list(op.operate(all_hkl[i]))
                 miller = [int(x) for x in miller]
                 if miller in all_hkl:
                     continue
@@ -348,14 +339,10 @@ class WulffShape(object):
                     miller_ind_orig.append(i)
                     color.append(color_ind[divmod(i, len(color_ind))[1]])
 
-<<<<<<< HEAD:pymatgen/analysis/wulff_shape_generator.py
-        for i, hkl in enumerate(all_hkl):
-=======
         for i in range(len(all_hkl)):
             miller = all_hkl[i]
->>>>>>> 2907af71541ab4c4a84451a1e8b42d16ab2066c5:pymatgen/analysis/wulff_generator.py
             # get normal (length=1)
-            normal = recp.get_cartesian_coords(hkl)
+            normal = recp.get_cartesian_coords(miller)
             normal /= scp.linalg.norm(normal)
             e_surf = e_surf_list[i]
             normal_pt = [x*e_surf for x in normal]
@@ -364,7 +351,7 @@ class WulffShape(object):
             color_plane = color[i]
             m_ind_orig = miller_ind_orig[i]
             normal_e_m.append([normal, e_surf, normal_pt, dual_pt,
-                               color_plane, m_ind_orig,  hkl])
+                               color_plane, m_ind_orig,  miller])
 
         # sorted by e_surf
         normal_e_m.sort(key= lambda x: x[1])
@@ -520,6 +507,7 @@ class WulffShape(object):
         fig.set_size_inches(aspect_ratio[0],
                             aspect_ratio[1])
         azim, elev = self.get_azimuth_elev(direction)
+        print (azim, elev)
         wulff_pt_list = self.wulff_pt_list
         plane_wulff_info = self.plane_wulff_info
         # [normal, e_surf, [pts], [simpx],
