@@ -220,7 +220,7 @@ class WulffShape(object):
         self.debug = debug
         self.alpha = alpha
         self.color_set = color_set
-        self.color_ind = range(len(miller_list))
+        self.color_ind = list(range(len(miller_list)))
         self.grid_off = grid_off
         self.axis_off = axis_off
         self.show_area = show_area
@@ -292,8 +292,13 @@ class WulffShape(object):
         self.e_surf_on_wulff = color_info[4]
 
         miller_area = []
+<<<<<<< HEAD:pymatgen/analysis/wulff_shape_generator.py
         for i, m in enumerate(self.input_miller_fig):
             miller_area.append(m + ' : ' + str(round(self.color_area[i], 4)))
+=======
+        for m in range(len(self.input_miller_fig)):
+            miller_area.append(self.input_miller_fig[m] + ' : ' + str(round(self.color_area[m], 4)))
+>>>>>>> 2907af71541ab4c4a84451a1e8b42d16ab2066c5:pymatgen/analysis/wulff_generator.py
         self.miller_area = miller_area
 
     def symmop_cartesian(self, symmprec):
@@ -327,7 +332,11 @@ class WulffShape(object):
         color = copy.copy(color_ind)
         miller_ind_orig = [x[0] for x in all_hkl_ind]
 
+<<<<<<< HEAD:pymatgen/analysis/wulff_shape_generator.py
         for i, hkl in enumerate(all_hkl):
+=======
+        for i in range(len(all_hkl)):
+>>>>>>> 2907af71541ab4c4a84451a1e8b42d16ab2066c5:pymatgen/analysis/wulff_generator.py
             for op in symmops:
                 miller = list(op.operate(hkl))
                 miller = [int(x) for x in miller]
@@ -339,7 +348,12 @@ class WulffShape(object):
                     miller_ind_orig.append(i)
                     color.append(color_ind[divmod(i, len(color_ind))[1]])
 
+<<<<<<< HEAD:pymatgen/analysis/wulff_shape_generator.py
         for i, hkl in enumerate(all_hkl):
+=======
+        for i in range(len(all_hkl)):
+            miller = all_hkl[i]
+>>>>>>> 2907af71541ab4c4a84451a1e8b42d16ab2066c5:pymatgen/analysis/wulff_generator.py
             # get normal (length=1)
             normal = recp.get_cartesian_coords(hkl)
             normal /= scp.linalg.norm(normal)
