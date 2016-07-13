@@ -30,17 +30,15 @@ import mpl_toolkits.mplot3d as a3
 
 
 """
-This module define a wulff_3d class to generate the wulff shape from
+This module define a WulffShape class to generate the Wulff shape from
 a lattice, a list of indices and their corresponding surface energies,
 and the total area and volume of the wulff shape,the weighted surface energy,
-the anisotropy, Ballufi_shape_factor and Qi_shape_factor can also be calculated.
+the anisotropy and shape_factor can also be calculated.
 In support of plotting from a given view in terms of miller index.
 
-The lattice is from the conventional unit cell, and (hkil) for hcp lattices.
-
-
-
+The lattice is from the conventional unit cell, and (hkil) for hexagonal lattices.
 """
+
 
 def get_recp_symmetry_operation(structure, symprec=0.001):
     """
@@ -64,6 +62,7 @@ def get_recp_symmetry_operation(structure, symprec=0.001):
 
     return recp_symmops
 
+
 def hkl_tuple_to_str(hkl):
     """
     Prepare for display on plots
@@ -80,6 +79,7 @@ def hkl_tuple_to_str(hkl):
     str_format += '$)'
     return str_format
 
+
 def get_tri_area(pts):
     """
     Given a list of coords for 3 points,
@@ -94,8 +94,7 @@ def get_tri_area(pts):
     return area_tri
 
 
-
-class wulff_3d(object):
+class WulffShape(object):
     """
     Generate Wulff Shape from list of miller index and surface energies,
     with given conventional unit cell.
@@ -292,8 +291,8 @@ class wulff_3d(object):
         self.e_surf_on_wulff = color_info[4]
 
         miller_area = []
-        for m in range(len(self.input_miller_fig)):
-            miller_area.append(self.input_miller_fig[m] + ' : ' + str(round(self.color_area[m], 4)))
+        for m, in_mill_fig in enumerate(self.input_miller_fig):
+            miller_area.append(in_mill_fig + ' : ' + str(round(self.color_area[m], 4)))
         self.miller_area = miller_area
 
     def symmop_cartesian(self, symmprec):
@@ -327,9 +326,9 @@ class wulff_3d(object):
         color = copy.copy(color_ind)
         miller_ind_orig = [x[0] for x in all_hkl_ind]
 
-        for i in range(len(all_hkl)):
+        for i, hkl in enumerate(all_hkl):
             for op in symmops:
-                miller = list(op.operate(all_hkl[i]))
+                miller = list(op.operate(hkl))
                 miller = [int(x) for x in miller]
                 if miller in all_hkl:
                     continue
@@ -339,10 +338,9 @@ class wulff_3d(object):
                     miller_ind_orig.append(i)
                     color.append(color_ind[divmod(i, len(color_ind))[1]])
 
-        for i in range(len(all_hkl)):
-            miller = all_hkl[i]
+        for i, hkl in enumerate(all_hkl):
             # get normal (length=1)
-            normal = recp.get_cartesian_coords(miller)
+            normal = recp.get_cartesian_coords(hkl)
             normal /= scp.linalg.norm(normal)
             e_surf = e_surf_list[i]
             normal_pt = [x*e_surf for x in normal]
@@ -351,7 +349,7 @@ class wulff_3d(object):
             color_plane = color[i]
             m_ind_orig = miller_ind_orig[i]
             normal_e_m.append([normal, e_surf, normal_pt, dual_pt,
-                               color_plane, m_ind_orig,  miller])
+                               color_plane, m_ind_orig,  hkl])
 
         # sorted by e_surf
         normal_e_m.sort(key= lambda x: x[1])
@@ -507,7 +505,7 @@ class wulff_3d(object):
         fig.set_size_inches(aspect_ratio[0],
                             aspect_ratio[1])
         azim, elev = self.get_azimuth_elev(direction)
-        print (azim, elev)
+
         wulff_pt_list = self.wulff_pt_list
         plane_wulff_info = self.plane_wulff_info
         # [normal, e_surf, [pts], [simpx],
@@ -558,7 +556,7 @@ class wulff_3d(object):
         # add legend
         if legend_on:
             color_proxy = self.color_proxy
-            if self.show_area == True:
+            if self.show_area:
                 ax.legend(color_proxy, self.miller_area, loc='upper left',
                           bbox_to_anchor=(0, 1), fancybox=True, shadow=False)
             else:
