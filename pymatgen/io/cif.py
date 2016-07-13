@@ -268,10 +268,10 @@ class CifParser(object):
             and occupancy_tolerance, the occupancies will be scaled down to 1.
         site_tolerance (float): This tolerance is used to determine if two
             sites are sitting in the same position, in which case they will be
-            combined to a single disordered site. Defaults to 1e-5.
+            combined to a single disordered site. Defaults to 1e-4.
     """
 
-    def __init__(self, filename, occupancy_tolerance=1., site_tolerance=1e-5):
+    def __init__(self, filename, occupancy_tolerance=1., site_tolerance=1e-4):
         self._occupancy_tolerance = occupancy_tolerance
         self._site_tolerance = site_tolerance
         if isinstance(filename, six.string_types):
