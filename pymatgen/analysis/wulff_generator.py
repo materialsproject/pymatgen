@@ -221,7 +221,7 @@ class wulff_3d(object):
         self.debug = debug
         self.alpha = alpha
         self.color_set = color_set
-        self.color_ind = range(len(miller_list))
+        self.color_ind = list(range(len(miller_list)))
         self.grid_off = grid_off
         self.axis_off = axis_off
         self.show_area = show_area
