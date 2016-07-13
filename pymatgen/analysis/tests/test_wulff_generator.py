@@ -28,9 +28,12 @@ class TestWulff(PymatgenTest):
 
         surface_energies, miller_indices = {}, {}
         for mpid in surface_properties.keys():
+            e_surf_list, miller_list = [], []
             for surface in surface_properties[mpid]["surfaces"]:
-                surface_energies[mpid] = surface["surface_energy"]
-                miller_indices[mpid] = surface["miller_index"]
+                e_surf_list.appen(surface["surface_energy"])
+                miller_list.append(surface["miller_index"])
+            surface_energies[mpid] = e_surf_list
+            miller_indices[mpid] = miller_list
 
         # In the case of a high anisotropy material
         # Nb: mp-8636
