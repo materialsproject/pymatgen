@@ -3,6 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 try:
-  import linear_assignment
+  from . import linear_assignment
 except ImportError:
   from . import linear_assignment_python as linear_assignment  # use pure-python fallback
