@@ -22,7 +22,7 @@ class TestWulff(PymatgenTest):
 
     def setUp(self):
 
-        with open(os.path.join("surface_samples.json")) as data_file:
+        with open(os.path.join(os.cwd(), "surface_samples.json")) as data_file:
             surface_properties = json.load(data_file)
 
         surface_energies, miller_indices = {}, {}
