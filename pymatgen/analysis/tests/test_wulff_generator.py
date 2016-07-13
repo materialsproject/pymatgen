@@ -153,8 +153,8 @@ class TestWulff(PymatgenTest):
             properties = self.surface_properties[mpid]
             wulff = wulff_shapes[mpid]
             self.assertEqual(round(wulff.weighted_surface_energy, 3),
-                             round(properties[mpid]["weighted_surface_energy"], 3))
+                             round(properties["weighted_surface_energy"], 3))
             self.assertEqual(round(wulff.shape_factor, 3),
-                             round(properties[mpid]["shape_factor"], 3))
+                             round(properties["shape_factor"], 3))
             self.assertEqual(round(wulff.anisotropy, 3),
-                             round(properties[mpid]["surface_anisotropy"], 3))
+                             round(properties["surface_anisotropy"], 3))
