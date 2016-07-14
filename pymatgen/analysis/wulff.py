@@ -9,7 +9,13 @@ and the total area and volume of the wulff shape,the weighted surface energy,
 the anisotropy and shape_factor can also be calculated.
 In support of plotting from a given view in terms of miller index.
 
-The lattice is from the conventional unit cell, and (hkil) for hexagonal lattices.
+The lattice is from the conventional unit cell, and (hkil) for hexagonal
+lattices.
+
+If you use this code extensively, consider citing the following:
+
+Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
+(2016). Surface energies of elemental crystals. Scientific Data.
 """
 
 from __future__ import division, unicode_literals
@@ -18,7 +24,7 @@ from pymatgen.core.surface import get_recp_symmetry_operation
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord_utils import get_angle
 import numpy as np
-import scipy as scp
+import scipy as sp
 from scipy.spatial import ConvexHull
 import copy
 import logging
@@ -60,13 +66,14 @@ def get_tri_area(pts):
     """
     Given a list of coords for 3 points,
     Compute the area of this triangle.
+
     Args:
         pts: [a, b, c] three points
     """
     a, b, c = pts[0], pts[1], pts[2]
     v1 = np.array(b) - np.array(a)
     v2 = np.array(c) - np.array(a)
-    area_tri = abs(scp.linalg.norm(scp.cross(v1, v2)) / 2)
+    area_tri = abs(sp.linalg.norm(sp.cross(v1, v2)) / 2)
     return area_tri
 
 
@@ -177,15 +184,15 @@ class WulffShape(object):
         """
         Args:
             lattice: Lattice object of the conventional unit cell
-            miller_list: list of hkl or hkil for hcp
-            e_surf_list: list of corresponding surface energies
+            miller_list ([(hkl), ...]: list of hkl or hkil for hcp
+            e_surf_list ([float]): list of corresponding surface energies
             color_set: default is 'PuBu'
-            grid_off(bool): default is True
-            axis_off(bool): default is Ture
-            show_area(bool): default is False
-            alpha: chosen from 0 to 1 (float), default is 1
+            grid_off (bool): default is True
+            axis_off (bool): default is Ture
+            show_area (bool): default is False
+            alpha (float): chosen from 0 to 1 (float), default is 1
             off_color: color_legend for off_wulff planes on show_area legend
-            symprec: for recp_operation, default is 0.01
+            symprec (float): for recp_operation, default is 0.01
         """
         latt = lattice.scale(1)
         structure = Structure(latt, ["H"], [[0, 0, 0]])
@@ -202,13 +209,14 @@ class WulffShape(object):
         # store input data
         self.structure = structure
         self.input_miller = [list(x) for x in miller_list]
-        self.input_hkl = copy.copy([[x[0], x[1], x[-1]] for x in miller_list])
-        self.input_e_surf = copy.copy(e_surf_list)
+        self.input_hkl = [[x[0], x[1], x[-1]] for x in miller_list]
+        self.input_e_surf = list(e_surf_list)
         self.latt = latt
         self.recp = structure.lattice.reciprocal_lattice_crystallographic
-        self.operation = get_recp_symmetry_operation
-        self.recp_symmops = self.operation(structure, symprec)
-        self.cart_symmops = self.symmop_cartesian(symprec)
+        self.recp_symmops = get_recp_symmetry_operation(structure, symprec)
+
+        sga = SpacegroupAnalyzer(structure, symprec)
+        self.cart_symmops = sga.get_point_group_operations(cartesian=True)
 
         # 2. get all the data for wulff construction
         # get all the surface normal from get_all_miller_e()
@@ -238,6 +246,7 @@ class WulffShape(object):
         self.dual_cv_simp = dual_cv_simp
         self.wulff_pt_list = wulff_pt_list
         self.wulff_cv_simp = wulff_cv_simp
+        self.wulff_convex = wulff_convex
 
         # 4. get wulff info
         # return (simpx_info, plane_wulff_info, on_wulff, surface_area)
@@ -265,13 +274,6 @@ class WulffShape(object):
             miller_area.append(
                 in_mill_fig + ' : ' + str(round(self.color_area[m], 4)))
         self.miller_area = miller_area
-
-    def symmop_cartesian(self, symmprec):
-        structure = self.structure
-        space_group_analyzer = SpacegroupAnalyzer(structure, symmprec)
-        symm_ops = space_group_analyzer.get_point_group_operations(
-            cartesian=True)
-        return symm_ops
 
     def get_all_miller_e(self):
         """
@@ -312,7 +314,7 @@ class WulffShape(object):
         for i, hkl in enumerate(all_hkl):
             # get normal (length=1)
             normal = recp.get_cartesian_coords(hkl)
-            normal /= scp.linalg.norm(normal)
+            normal /= sp.linalg.norm(normal)
             e_surf = e_surf_list[i]
             normal_pt = [x * e_surf for x in normal]
             dual_pt = [x / e_surf for x in normal]
@@ -343,7 +345,7 @@ class WulffShape(object):
         normal_e_m = self.normal_e_m
         matrix_surfs = [normal_e_m[i][0], normal_e_m[j][0], normal_e_m[k][0]]
         matrix_e = [normal_e_m[i][1], normal_e_m[j][1], normal_e_m[k][1]]
-        cross_pt = scp.dot(scp.linalg.inv(matrix_surfs), matrix_e)
+        cross_pt = sp.dot(sp.linalg.inv(matrix_surfs), matrix_e)
         return cross_pt
 
     def get_simpx_plane(self):
@@ -590,7 +592,7 @@ class WulffShape(object):
         :return:
             the volume of the wulff shape
         """
-        return ConvexHull(self.wulff_pt_list).volume
+        return self.wulff_convex.volume
 
     @property
     def miller_area_dict(self):
@@ -609,21 +611,15 @@ class WulffShape(object):
         :return:
             (dict): {hkl: surface energy_hkl}
         """
-        miller_energy_dict = {}
-        for i, hkl in enumerate(self.input_miller):
-            miller_energy_dict[tuple(hkl)] = self.input_e_surf[i]
-        return miller_energy_dict
+        return {tuple(hkl): self.input_e_surf[i]
+                for i, hkl in enumerate(self.input_miller)}
 
     @property
     def total_surface_area(self):
         """
-        :return:
-            total area on wulff
+        Total surface area of Wulff shape.
         """
-        tot_area = 0
-        for hkl in self.miller_area_dict.keys():
-            tot_area += self.miller_area_dict[hkl]
-        return tot_area
+        return sum(self.miller_area_dict.values())
 
     @property
     def weighted_surface_energy(self):
@@ -662,9 +658,8 @@ class WulffShape(object):
         miller_energy_dict = self.miller_energy_dict
 
         for hkl in miller_energy_dict.keys():
-            square_diff_energy += ((miller_energy_dict[
-                                        hkl] - weighted_energy) ** 2) * \
-                                  area_frac_dict[hkl]
+            square_diff_energy += ((miller_energy_dict[hkl] -
+                                    weighted_energy) ** 2) * area_frac_dict[hkl]
         return np.sqrt(square_diff_energy) / weighted_energy
 
     @property

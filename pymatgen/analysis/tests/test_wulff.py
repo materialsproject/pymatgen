@@ -45,7 +45,6 @@ class TestWulff(PymatgenTest):
         # In the case of a hcp material
         # Ti: mp-72
         latt_Ti = Lattice.hexagonal(4.6000, 2.8200)
-
         self.ucell_Nb = Structure(latt_Nb, ["Nb", "Nb", "Nb", "Nb"],
                                   [[0, 0, 0], [0, 0.5, 0.5],
                                    [0.5, 0, 0.5], [0.5, 0.5, 0]])
