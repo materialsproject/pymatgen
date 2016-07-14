@@ -140,7 +140,7 @@ class DictLammpsInput(MSONable):
         d = MSONable.as_dict(self)
         if hasattr(self, "kwargs"):
             d.update(**self.kwargs)
-        d["config_dict"] = self.config_dict.items()
+        d["config_dict"] = list(self.config_dict.items())
         return d
 
     @classmethod
