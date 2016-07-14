@@ -137,6 +137,14 @@ pymatgen.analysis.transition_state module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.analysis.wulff module
+------------------------------
+
+.. automodule:: pymatgen.analysis.wulff
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

@@ -274,6 +274,9 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(leps_vis.incar["IBRION"], 8)
         self.assertNotIn("NPAR", leps_vis.incar)
         self.assertNotIn("NSW", leps_vis.incar)
+        self.assertEqual(non_prev_vis.kpoints.kpts, [[13, 11, 11]])
+        non_prev_vis = MPStaticSet(vis.structure, reciprocal_density=200)
+        self.assertEqual(non_prev_vis.kpoints.kpts, [[15, 13, 13]])
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
