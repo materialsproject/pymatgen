@@ -21,6 +21,7 @@ from libc.math cimport fabs
 cimport numpy as np
 cimport cython
 
+
 class LinearAssignment(object):
     """
     This class finds the solution to the Linear Assignment Problem.
@@ -72,6 +73,7 @@ class LinearAssignment(object):
 
         self.min_cost = compute(self.n, self.c, self._x, self._y, self.epsilon)
         self.solution = self._x[:self.nx]
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
