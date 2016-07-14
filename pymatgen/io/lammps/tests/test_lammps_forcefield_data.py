@@ -69,6 +69,11 @@ class TestLammpsForceFieldData(unittest.TestCase):
             forcefield, cls.topologies)
 
     def test_system_info(self):
+        # check te molecule ids
+        mol_ids = np.array(self.lammps_ff_data_1.atoms_data)[:, 1]
+        mol_ids_ans = [i + 1 for i in range(sum(self.mols_number))]
+        self.assertEqual(set(mol_ids.tolist()), set(mol_ids_ans))
+        # check the size consistency of the polymer matrix
         self.assertEqual(len(self.polymer_matrix),
                          sum([len(mol) * self.mols_number[i]
                               for i, mol in enumerate(self.molecules)]))

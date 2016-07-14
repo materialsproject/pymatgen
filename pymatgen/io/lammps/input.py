@@ -13,7 +13,7 @@ For the ease of management we divide LAMMPS input into 2 files:
             bonds, angles, dihedrals, corresponding parametrizations etc are
             set in the data file.
 
-    2. Control file: This the main input file that should be fed to the
+    2. Control file: This is the main input file that should be fed to the
             lammps binary. The main input file consists of the path to the
             afore-mentioned data file and the job control parameters such as
             the ensemble type(NVT, NPT etc), max number of iterations etc.
@@ -140,7 +140,7 @@ class DictLammpsInput(MSONable):
         d = MSONable.as_dict(self)
         if hasattr(self, "kwargs"):
             d.update(**self.kwargs)
-        d["config_dict"] = self.config_dict.items()
+        d["config_dict"] = list(self.config_dict.items())
         return d
 
     @classmethod
