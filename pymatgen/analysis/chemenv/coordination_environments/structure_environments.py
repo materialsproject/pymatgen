@@ -633,6 +633,28 @@ class StructureEnvironments(MSONable):
     def unique_coordinated_neighbors(self, isite=None, cn_map=None):
         return self.voronoi.unique_coordinated_neighbors(isite=isite, cn_map=cn_map)
 
+    def differences_wrt(self, other):
+        # TODO: implement the differences for everything (neighbors sets, ce_list, ...)
+        differences = []
+        if self.structure != other.structure:
+            differences.append({'difference': 'structure',
+                                'comparison': '__eq__',
+                                'self': self.structure,
+                                'other': other.structure})
+            return differences
+        if self.voronoi != other.voronoi:
+            if self.voronoi.is_close_to(other.voronoi):
+                differences.append({'difference': 'voronoi',
+                                    'comparison': '__eq__',
+                                    'self': self.voronoi,
+                                    'other': other.voronoi})
+            else:
+                differences.append({'difference': 'voronoi',
+                                    'comparison': 'is_close_to',
+                                    'self': self.voronoi,
+                                    'other': other.voronoi})
+        return differences
+
     def __eq__(self, other):
         if len(self.ce_list) != len(other.ce_list):
             return False
