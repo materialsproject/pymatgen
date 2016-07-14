@@ -1,9 +1,7 @@
 Change log
 ==========
 
-v4.0.0
+v4.1.0
 ------
-* Massive update with many deprecated methods removed. Note that this
-  may break backwards incompatibility!
-* Support for ABINIT 8.
-* Improved sulfide compatibility.
+* Wulff shape generator and analysis.
+* Minor bug fixes.
