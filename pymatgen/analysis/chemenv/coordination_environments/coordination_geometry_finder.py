@@ -198,38 +198,38 @@ class AbstractGeometry(object):
 
     def points_wcs_csc(self, permutation=None):
         if permutation is None:
-            return self._points_wcs_csc
+            return list(self._points_wcs_csc)
         perm = [0]
         perm.extend([pp + 1 for pp in permutation])
         return [self._points_wcs_csc[ii] for ii in perm]
 
     def points_wocs_csc(self, permutation=None):
         if permutation is None:
-            return self._points_wocs_csc
+            return list(self._points_wocs_csc)
         return [self._points_wocs_csc[ii] for ii in permutation]
 
     def points_wcs_ctwcc(self, permutation=None):
         if permutation is None:
-            return self._points_wcs_ctwcc
+            return list(self._points_wcs_ctwcc)
         perm = [0]
         perm.extend([pp + 1 for pp in permutation])
         return [self._points_wcs_ctwcc[ii] for ii in perm]
 
     def points_wocs_ctwcc(self, permutation=None):
         if permutation is None:
-            return self._points_wocs_ctwcc
+            return list(self._points_wocs_ctwcc)
         return [self._points_wocs_ctwcc[ii] for ii in permutation]
 
     def points_wcs_ctwocc(self, permutation=None):
         if permutation is None:
-            return self._points_wcs_ctwocc
+            return list(self._points_wcs_ctwocc)
         perm = [0]
         perm.extend([pp + 1 for pp in permutation])
         return [self._points_wcs_ctwocc[ii] for ii in perm]
 
     def points_wocs_ctwocc(self, permutation=None):
         if permutation is None:
-            return self._points_wocs_ctwocc
+            return list(self._points_wocs_ctwocc)
         return [self._points_wocs_ctwocc[ii] for ii in permutation]
 
 
@@ -451,7 +451,9 @@ class LocalGeometryFinder(object):
                                        valences='undefined',
                                        additional_conditions=None,
                                        info=None,
-                                       timelimit=None):
+                                       timelimit=None,
+                                       initial_structure_environments=None,
+                                       recompute=None):
         """
         Computes and returns the StructureEnvironments object containing all the information about the coordination
         environments in the structure
@@ -522,12 +524,32 @@ class LocalGeometryFinder(object):
                                                          additional_conditions=additional_conditions)
         logging.info('DetailedVoronoiContainer has been set up')
 
-        se = StructureEnvironments(voronoi=self.detailed_voronoi, valences=self.valences,
-                                   sites_map=self.sites_map, equivalent_sites=self.equivalent_sites,
-                                   ce_list=[None]*len(self.structure), structure=self.structure)
+        if initial_structure_environments is not None:
+            se = initial_structure_environments
+        else:
+            se = StructureEnvironments(voronoi=self.detailed_voronoi, valences=self.valences,
+                                       sites_map=self.sites_map, equivalent_sites=self.equivalent_sites,
+                                       ce_list=[None]*len(self.structure), structure=self.structure)
 
+        # Set up the coordination numbers that have to be computed based on min_cn, max_cn and possibly the settings
+        # for an update (argument "recompute") of an existing StructureEnvironments
+        if min_cn is None:
+            min_cn = 1
+        if max_cn is None:
+            max_cn = 13
+        all_cns = range(min_cn, max_cn+1)
+        do_recompute = False
+        if recompute is not None:
+            if 'cns' in recompute:
+                cns_to_recompute = recompute['cns']
+                all_cns = list(set(all_cns).intersection(cns_to_recompute))
+            do_recompute = True
+
+        # Variables used for checking timelimit
         max_time_one_site = 0.0
         breakit = False
+
+        # Loop on all the sites
         for isite in range(len(self.structure)):
             if isite not in sites_indices:
                 logging.info(' ... in site #{:d}/{:d} ({}) : '
@@ -547,13 +569,12 @@ class LocalGeometryFinder(object):
             to_add_from_hints = []
 
             for cn, nb_sets in se.neighbors_sets[isite].items():
-                if max_cn is not None and cn > max_cn:
-                    continue
-                if min_cn is not None and cn < min_cn:
+                if cn not in all_cns:
                     continue
                 for inb_set, nb_set in enumerate(nb_sets):
                     logging.debug('    ... getting environments for nb_set ({:d}, {:d})'.format(cn, inb_set))
-                    ce = self.update_nb_set_environments(se=se, isite=isite, cn=cn, inb_set=inb_set, nb_set=nb_set)
+                    ce = self.update_nb_set_environments(se=se, isite=isite, cn=cn, inb_set=inb_set, nb_set=nb_set,
+                                                         recompute=do_recompute)
                     for cg_symbol, cg_dict in ce:
                         cg = self.allcg[cg_symbol]
                         # Get possibly missing neighbors sets
@@ -1022,6 +1043,10 @@ class LocalGeometryFinder(object):
         :return: the continuous symmetry measures of the current local geometry in a dictionary.
         """
         if len(self.local_geometry.coords) == 1:
+            test_geometries = self.allcg.get_implemented_geometries(
+                len(self.local_geometry.coords))
+            if len(test_geometries) == 0:
+                return {}
             result_dict = {'S:1': {'csm': 0.0, 'indices': [0], 'algo': 'EXPLICIT',
                                    'local2perfect_map': {0: 0}, 'perfect2local_map': {0: 0},
                                    'scaling_factor': None, 'rotation_matrix': None, 'translation_vector': None}}
