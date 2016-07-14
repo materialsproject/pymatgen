@@ -74,6 +74,7 @@ class LinearAssignment(object):
         self.min_cost = compute(self.n, self.c, self._x, self._y, self.epsilon)
         self.solution = self._x[:self.nx]
 
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef np.float_t compute(int size, np.float_t[:, :] c, np.int_t[:] x, np.int_t[:] y, np.float_t eps) nogil:
