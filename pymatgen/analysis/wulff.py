@@ -18,7 +18,7 @@ from pymatgen.core.surface import get_recp_symmetry_operation
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord_utils import get_angle
 import numpy as np
-import scipy as scp
+import scipy as sp
 from scipy.spatial import ConvexHull
 import copy
 import logging
@@ -75,7 +75,7 @@ def get_tri_area(pts):
     a, b, c = pts[0], pts[1], pts[2]
     v1 = np.array(b) - np.array(a)
     v2 = np.array(c) - np.array(a)
-    area_tri = abs(scp.linalg.norm(scp.cross(v1, v2)) / 2)
+    area_tri = abs(sp.linalg.norm(sp.cross(v1, v2)) / 2)
     return area_tri
 
 
@@ -321,7 +321,7 @@ class WulffShape(object):
         for i, hkl in enumerate(all_hkl):
             # get normal (length=1)
             normal = recp.get_cartesian_coords(hkl)
-            normal /= scp.linalg.norm(normal)
+            normal /= sp.linalg.norm(normal)
             e_surf = e_surf_list[i]
             normal_pt = [x * e_surf for x in normal]
             dual_pt = [x / e_surf for x in normal]
@@ -352,7 +352,7 @@ class WulffShape(object):
         normal_e_m = self.normal_e_m
         matrix_surfs = [normal_e_m[i][0], normal_e_m[j][0], normal_e_m[k][0]]
         matrix_e = [normal_e_m[i][1], normal_e_m[j][1], normal_e_m[k][1]]
-        cross_pt = scp.dot(scp.linalg.inv(matrix_surfs), matrix_e)
+        cross_pt = sp.dot(sp.linalg.inv(matrix_surfs), matrix_e)
         return cross_pt
 
     def get_simpx_plane(self):
@@ -388,7 +388,8 @@ class WulffShape(object):
                     plane_ind = plane[4]  # the ind of input_miller
                     on_wulff[plane_ind] = True
                     surface_area[plane_ind] += get_tri_area(pts)
-                    simp_inf = [plane[0], plane[1], pts, simpx, plane[4], plane[5], plane[6]]
+                    simp_inf = [plane[0], plane[1], pts, simpx, plane[4],
+                                plane[5], plane[6]]
                     # build a list in the same order of simpx
                     # with related plane information
                     simpx_info.append(simp_inf)
