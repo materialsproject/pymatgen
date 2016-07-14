@@ -1,5 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 """
 This module define a WulffShape class to generate the Wulff shape from
@@ -8,8 +9,7 @@ and the total area and volume of the wulff shape,the weighted surface energy,
 the anisotropy and shape_factor can also be calculated.
 In support of plotting from a given view in terms of miller index.
 
-The lattice is from the conventional unit cell, and (hkil) for hexagonal
-lattices.
+The lattice is from the conventional unit cell, and (hkil) for hexagonal lattices.
 """
 
 from __future__ import division, unicode_literals
@@ -18,7 +18,7 @@ from pymatgen.core.surface import get_recp_symmetry_operation
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord_utils import get_angle
 import numpy as np
-import scipy as sp
+import scipy as scp
 from scipy.spatial import ConvexHull
 import copy
 import logging
@@ -29,13 +29,12 @@ import matplotlib.colorbar as colorbar
 import matplotlib.cm as cm
 import mpl_toolkits.mplot3d as a3
 
-__author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
+__author__ = 'Zihan Xu, Richard Tran'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
 __version__ = '0.1'
 __maintainer__ = 'Zihan Xu'
 __email__ = 'zix009@eng.ucsd.edu'
 __date__ = 'May 5 2016'
-
 
 logger = logging.getLogger(__name__)
 
@@ -44,12 +43,8 @@ def hkl_tuple_to_str(hkl):
     """
     Prepare for display on plots
     "(hkl)" for surfaces
-
-    Args:
+    Agrs:
         hkl: in the form of [h, k, l] or (h, k, l)
-
-    Returns:
-        TeX string.
     """
     str_format = '($'
     for x in hkl:
@@ -65,17 +60,13 @@ def get_tri_area(pts):
     """
     Given a list of coords for 3 points,
     Compute the area of this triangle.
-
     Args:
         pts: [a, b, c] three points
-
-    Returns:
-        (float) Area
     """
     a, b, c = pts[0], pts[1], pts[2]
     v1 = np.array(b) - np.array(a)
     v2 = np.array(c) - np.array(a)
-    area_tri = abs(sp.linalg.norm(sp.cross(v1, v2)) / 2)
+    area_tri = abs(scp.linalg.norm(scp.cross(v1, v2)) / 2)
     return area_tri
 
 
@@ -233,7 +224,6 @@ class WulffShape(object):
         # simplices	(ndarray of ints, shape (nfacet, ndim))
         # list of [i, j, k] , ndim = 3
         # i, j, k: ind for normal_e_m
-        logger.debug(dual_cv_simp, np.shape(dual_cv_simp))
         # recalculate the dual of dual, get the wulff shape.
         # conner <-> surface
         # get cross point from the simplices of the dual convex hull
@@ -242,7 +232,7 @@ class WulffShape(object):
 
         wulff_convex = ConvexHull(wulff_pt_list)
         wulff_cv_simp = wulff_convex.simplices
-        logger.debug([len(x) for x in wulff_cv_simp])
+        logger.debug(", ".join([str(len(x)) for x in wulff_cv_simp]))
 
         # store simplices and convex
         self.dual_cv_simp = dual_cv_simp
@@ -262,7 +252,7 @@ class WulffShape(object):
 
         # 5. assign color for on_wulff plane
         # return (color_list, color_proxy, color_proxy_on_wulff,
-        #  miller_on_wulff, e_surf_on_wulff_list)
+        # miller_on_wulff, e_surf_on_wulff_list)
         color_info = self.get_colors()
         self.color_list = color_info[0]
         self.color_proxy = color_info[1]
@@ -272,14 +262,15 @@ class WulffShape(object):
 
         miller_area = []
         for m, in_mill_fig in enumerate(self.input_miller_fig):
-            miller_area.append(in_mill_fig + ' : ' +
-                               str(round(self.color_area[m], 4)))
+            miller_area.append(
+                in_mill_fig + ' : ' + str(round(self.color_area[m], 4)))
         self.miller_area = miller_area
 
     def symmop_cartesian(self, symmprec):
         structure = self.structure
-        sga = SpacegroupAnalyzer(structure, symmprec)
-        symm_ops = sga.get_point_group_operations(cartesian=True)
+        space_group_analyzer = SpacegroupAnalyzer(structure, symmprec)
+        symm_ops = space_group_analyzer.get_point_group_operations(
+            cartesian=True)
         return symm_ops
 
     def get_all_miller_e(self):
@@ -321,7 +312,7 @@ class WulffShape(object):
         for i, hkl in enumerate(all_hkl):
             # get normal (length=1)
             normal = recp.get_cartesian_coords(hkl)
-            normal /= sp.linalg.norm(normal)
+            normal /= scp.linalg.norm(normal)
             e_surf = e_surf_list[i]
             normal_pt = [x * e_surf for x in normal]
             dual_pt = [x / e_surf for x in normal]
@@ -352,7 +343,7 @@ class WulffShape(object):
         normal_e_m = self.normal_e_m
         matrix_surfs = [normal_e_m[i][0], normal_e_m[j][0], normal_e_m[k][0]]
         matrix_e = [normal_e_m[i][1], normal_e_m[j][1], normal_e_m[k][1]]
-        cross_pt = sp.dot(sp.linalg.inv(matrix_surfs), matrix_e)
+        cross_pt = scp.dot(scp.linalg.inv(matrix_surfs), matrix_e)
         return cross_pt
 
     def get_simpx_plane(self):
@@ -371,13 +362,14 @@ class WulffShape(object):
         simpx_info = []
         on_wulff = [False] * len(self.input_miller)
         surface_area = [0.0] * len(self.input_miller)
-        plane_wulff_info = [[x[0], x[1], [], [], x[4], x[5], x[6]]
-                            for x in normal_e_m]
+        plane_wulff_info = [[x[0], x[1], [], [], x[4], x[5], x[6]] for x in
+                            normal_e_m]
         # each simpx (i,j,k) from self.wulff_cv_simp
         #  forms a triangle on the wulff shape.
         # check which surface it belongs to
         for simpx in wulff_simpx:
-            pts = [wulff_pt_list[simpx[i]] for i in range(2)]
+            pts = [wulff_pt_list[simpx[0]], wulff_pt_list[simpx[1]],
+                   wulff_pt_list[simpx[2]]]
             center = np.sum(pts, 0) / 3.0
             # check whether the center of the simplices is on one plane
             for i, plane in enumerate(normal_e_m):
@@ -460,8 +452,8 @@ class WulffShape(object):
         color_proxy = [plt.Rectangle((2, 2), 1, 1, fc=x, alpha=alpha)
                        for x in color_list]
 
-        return (color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
-                e_surf_on_wulff_list)
+        return color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, \
+            e_surf_on_wulff_list
 
     def plot_wf_simpx(self, direction=None, bar_pos=(0.75, 0.15, 0.05, 0.65),
                       bar_on=False, legend_on=True, aspect_ratio=(8, 8)):
@@ -543,8 +535,9 @@ class WulffShape(object):
                           bbox_to_anchor=(0, 1), fancybox=True, shadow=False)
             else:
                 ax.legend(self.color_proxy_on_wulff, self.miller_on_wulff,
-                          loc='upper center', bbox_to_anchor=(0.5, 1), ncol=3,
-                          fancybox=True, shadow=False)
+                          loc='upper center',
+                          bbox_to_anchor=(0.5, 1), ncol=3, fancybox=True,
+                          shadow=False)
         ax.set_xlabel('x')
         ax.set_ylabel('y')
         ax.set_zlabel('z')
@@ -638,10 +631,10 @@ class WulffShape(object):
         :return:
             sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)
         """
-        tot_area_energy = sum([
-            self.miller_energy_dict[hkl] * self.miller_area_dict[hkl]
-            for hkl in self.miller_energy_dict.keys()
-        ])
+        tot_area_energy = 0
+        for hkl in self.miller_energy_dict.keys():
+            tot_area_energy += self.miller_energy_dict[hkl] * \
+                               self.miller_area_dict[hkl]
         return tot_area_energy / self.total_surface_area
 
     @property
@@ -650,9 +643,11 @@ class WulffShape(object):
         :return:
             (dict): {hkl: area_hkl/total area on wulff}
         """
-        return {
-            hkl: self.miller_area_dict[hkl] / self.total_surface_area
-            for hkl in self.miller_area_dict.keys()}
+        area_fraction_dict = {}
+        for hkl in self.miller_area_dict.keys():
+            area_fraction_dict[hkl] = self.miller_area_dict[hkl] / \
+                                      self.total_surface_area
+        return area_fraction_dict
 
     @property
     def anisotropy(self):
@@ -667,7 +662,9 @@ class WulffShape(object):
         miller_energy_dict = self.miller_energy_dict
 
         for hkl in miller_energy_dict.keys():
-            square_diff_energy += ((miller_energy_dict[hkl] - weighted_energy) ** 2) * area_frac_dict[hkl]
+            square_diff_energy += ((miller_energy_dict[
+                                        hkl] - weighted_energy) ** 2) * \
+                                  area_frac_dict[hkl]
         return np.sqrt(square_diff_energy) / weighted_energy
 
     @property

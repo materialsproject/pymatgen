@@ -1,6 +1,7 @@
 Change log
 ==========
 
-v4.0.2
+v4.1.0
 ------
-* Fix kpoint reciprocal density.
+* Wulff shape generator and analysis.
+* Minor bug fixes.
