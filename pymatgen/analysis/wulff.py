@@ -1,16 +1,18 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-# !/usr/bin/env python
+
+"""
+This module define a WulffShape class to generate the Wulff shape from
+a lattice, a list of indices and their corresponding surface energies,
+and the total area and volume of the wulff shape,the weighted surface energy,
+the anisotropy and shape_factor can also be calculated.
+In support of plotting from a given view in terms of miller index.
+
+The lattice is from the conventional unit cell, and (hkil) for hexagonal
+lattices.
+"""
+
 from __future__ import division, unicode_literals
-
-__author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
-__copyright__ = 'Copyright 2013, The Materials Virtual Lab'
-__version__ = '0.1'
-__maintainer__ = 'Zihan Xu'
-__email__ = 'zix009@eng.ucsd.edu'
-__date__ = 'May 5 2016'
-
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_recp_symmetry_operation
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -27,15 +29,13 @@ import matplotlib.colorbar as colorbar
 import matplotlib.cm as cm
 import mpl_toolkits.mplot3d as a3
 
-"""
-This module define a WulffShape class to generate the Wulff shape from
-a lattice, a list of indices and their corresponding surface energies,
-and the total area and volume of the wulff shape,the weighted surface energy,
-the anisotropy and shape_factor can also be calculated.
-In support of plotting from a given view in terms of miller index.
+__author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
+__copyright__ = 'Copyright 2013, The Materials Virtual Lab'
+__version__ = '0.1'
+__maintainer__ = 'Zihan Xu'
+__email__ = 'zix009@eng.ucsd.edu'
+__date__ = 'May 5 2016'
 
-The lattice is from the conventional unit cell, and (hkil) for hexagonal lattices.
-"""
 
 logger = logging.getLogger(__name__)
 
@@ -272,8 +272,8 @@ class WulffShape(object):
 
         miller_area = []
         for m, in_mill_fig in enumerate(self.input_miller_fig):
-            miller_area.append(in_mill_fig + ' : '
-                               + str(round(self.color_area[m], 4)))
+            miller_area.append(in_mill_fig + ' : ' +
+                               str(round(self.color_area[m], 4)))
         self.miller_area = miller_area
 
     def symmop_cartesian(self, symmprec):
@@ -377,7 +377,7 @@ class WulffShape(object):
         #  forms a triangle on the wulff shape.
         # check which surface it belongs to
         for simpx in wulff_simpx:
-            pts = [wulff_pt_list[simpx[0]], wulff_pt_list[simpx[1]], wulff_pt_list[simpx[2]]]
+            pts = [wulff_pt_list[simpx[i]] for i in range(2)]
             center = np.sum(pts, 0) / 3.0
             # check whether the center of the simplices is on one plane
             for i, plane in enumerate(normal_e_m):
@@ -411,7 +411,7 @@ class WulffShape(object):
                 plane[3] = outer_lines
         # plan_wulff_info: [normal, e_surf, pts, simpx,
         #     color_plane, m_ind_orig, miller]
-        return (simpx_info, plane_wulff_info, on_wulff, surface_area)
+        return simpx_info, plane_wulff_info, on_wulff, surface_area
 
     def get_colors(self):
         """
@@ -462,7 +462,7 @@ class WulffShape(object):
         return (color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
                 e_surf_on_wulff_list)
 
-    def plot_wf_simpx(self, direction=None, bar_pos=[0.75, 0.15, 0.05, 0.65],
+    def plot_wf_simpx(self, direction=None, bar_pos=(0.75, 0.15, 0.05, 0.65),
                       bar_on=False, legend_on=True, aspect_ratio=(8, 8)):
         """
         plot the wulff shape from self.wulff_pt_list, self.plane_wulff_info
@@ -567,10 +567,10 @@ class WulffShape(object):
                                          orientation='vertical'
                                          )
             cbar.set_label('Surface Energies ($J/m^2$)', fontsize=100)
-        # # [normal, e_surf, normal_pt, dual_pt, color_plane, m_ind_orig, miller]
-        if self.grid_off == True:
+        # [normal, e_surf, normal_pt, dual_pt, color_plane, m_ind_orig, miller]
+        if self.grid_off:
             ax.grid('off')
-        if self.axis_off == True:
+        if self.axis_off:
             ax.axis('off')
         plt.draw()
         return plt
@@ -586,9 +586,9 @@ class WulffShape(object):
         v = [cart[0], cart[1], 0]
         elev = get_angle(cart, v)
         if miller_index == (0, 0, 1) or miller_index == (0, 0, 0, 1):
-            return (0, 90)
+            return 0, 90
         else:
-            return (azim, elev)
+            return azim, elev
 
     @property
     def wulff_volume(self):
@@ -652,7 +652,7 @@ class WulffShape(object):
         return {
             hkl: self.miller_area_dict[hkl] / self.total_surface_area
             for hkl in self.miller_area_dict.keys()}
-        
+
     @property
     def anisotropy(self):
         """
