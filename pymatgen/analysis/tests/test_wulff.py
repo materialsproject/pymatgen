@@ -8,6 +8,7 @@ __maintainer__ = 'Zihan Xu'
 __email__ = 'zix009@eng.ucsd.edu'
 __date__ = 'May 05 2016'
 
+import unittest
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.util.coord_utils import in_coord_list
@@ -163,3 +164,7 @@ class TestWulff(PymatgenTest):
                              round(properties["shape_factor"], 3))
             self.assertEqual(round(wulff.anisotropy, 3),
                              round(properties["surface_anisotropy"], 3))
+
+
+if __name__ == "__main__":
+    unittest.main()
