@@ -674,7 +674,6 @@ class StructureEnvironments(MSONable):
                 differences.append({'difference': 'PREVIOUS DIFFERENCE IS DISMISSIVE',
                                     'comparison': 'differences_wrt'})
                 return differences
-        # TODO: make it possible to have different nb_sets
         for isite, self_site_nb_sets in enumerate(self.neighbors_sets):
             other_site_nb_sets = other.neighbors_sets[isite]
             self_site_cns = set(self_site_nb_sets.keys())
@@ -684,27 +683,23 @@ class StructureEnvironments(MSONable):
                                     'comparison': 'coordination_numbers',
                                     'self': self_site_cns,
                                     'other': other_site_cns})
-                continue
-            for cn, self_site_cn_nb_sets in self_site_nb_sets.items():
+            common_cns = self_site_cns.intersection(other_site_cns)
+            # for cn, self_site_cn_nb_sets in self_site_nb_sets.items():
+            for cn in common_cns:
                 other_site_cn_nb_sets = other_site_nb_sets[cn]
-                if len(self_site_cn_nb_sets) != len(other_site_cn_nb_sets):
+                self_site_cn_nb_sets = self_site_nb_sets[cn]
+                set_self_site_cn_nb_sets = set(self_site_cn_nb_sets)
+                set_other_site_cn_nb_sets = set(other_site_cn_nb_sets)
+                if set_self_site_cn_nb_sets != set_other_site_cn_nb_sets:
                     differences.append({'difference': 'neighbors_sets[isite={:d}][cn={:d}]'.format(isite, cn),
-                                        'comparison': 'number_of_neighbors_sets',
-                                        'self': len(self_site_cn_nb_sets),
-                                        'other': len(other_site_cn_nb_sets)})
-                    continue
-                for inb_set_self, nb_set_self in enumerate(self_site_cn_nb_sets):
-                    try:
-                        inb_set_other = other_site_cn_nb_sets.index(nb_set_self)
-                    except ValueError:
-                        differences.append({'difference': 'neighbors_sets[isite={:d}][cn={:d}]'
-                                                          '[inb_set={:d}]'.format(isite, cn, inb_set_self),
-                                            'comparison': 'neighbors_set in other',
-                                            'self': nb_set_self,
-                                            'other': None})
-                        differences.append({'difference': 'PREVIOUS DIFFERENCE IS DISMISSIVE',
-                                            'comparison': 'differences_wrt'})
-                        return differences
+                                        'comparison': 'neighbors_sets',
+                                        'self': self_site_cn_nb_sets,
+                                        'other': other_site_cn_nb_sets})
+                common_nb_sets = set_self_site_cn_nb_sets.intersection(set_other_site_cn_nb_sets)
+                for nb_set in common_nb_sets:
+                # for inb_set_self, nb_set_self in enumerate(self_site_cn_nb_sets):
+                    inb_set_self = self_site_cn_nb_sets.index(nb_set)
+                    inb_set_other = other_site_cn_nb_sets.index(nb_set)
                     self_ce = self.ce_list[isite][cn][inb_set_self]
                     other_ce = other.ce_list[isite][cn][inb_set_other]
                     if self_ce != other_ce:
