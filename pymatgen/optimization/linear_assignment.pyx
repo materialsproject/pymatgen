@@ -21,6 +21,7 @@ from libc.math cimport fabs
 cimport numpy as np
 cimport cython
 
+
 class LinearAssignment(object):
     """
     This class finds the solution to the Linear Assignment Problem.
