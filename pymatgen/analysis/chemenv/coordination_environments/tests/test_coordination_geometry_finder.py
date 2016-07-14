@@ -9,9 +9,9 @@ import json
 import numpy as np
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy
-from pymatgen.core.structure import Structure
+# from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
+# from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy
+# from pymatgen.core.structure import Structure
 
 
 json_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
@@ -24,8 +24,8 @@ class CoordinationGeometryFinderTest(unittest2.TestCase):
         self.lgf = LocalGeometryFinder()
         self.lgf.setup_parameters(centering_type='standard',
                                   structure_refinement=self.lgf.STRUCTURE_REFINEMENT_NONE)
-        self.strategies = [SimplestChemenvStrategy(), SimpleAbundanceChemenvStrategy()]
-
+    #     self.strategies = [SimplestChemenvStrategy(), SimpleAbundanceChemenvStrategy()]
+    #
     # def _strategy_test(self, strategy):
     #     files = []
     #     for (dirpath, dirnames, filenames) in os.walk(json_files_dir):

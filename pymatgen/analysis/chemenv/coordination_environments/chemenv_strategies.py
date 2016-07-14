@@ -1762,11 +1762,11 @@ def set_info(additional_info, field, isite, cn_map, value):
 
 class SelfCSMNbSetWeight(NbSetWeight):
 
+    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = {'function': 'power2_inverse_decreasing',
+                                       'options': {'max_csm': 8.0}}
     DEFAULT_WEIGHT_ESTIMATOR = {'function': 'power2_decreasing_exp',
                                 'options': {'max_csm': 8.0,
                                             'alpha': 1.0}}
-    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = {'function': 'power2_inverse_decreasing',
-                                       'options': {'max_csm': 8.0}}
     DEFAULT_SYMMETRY_MEASURE_TYPE = 'csm_wcs_ctwcc'
 
     def __init__(self, effective_csm_estimator=DEFAULT_EFFECTIVE_CSM_ESTIMATOR,
@@ -2077,6 +2077,7 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
     #                         'cn_map_fraction', 'cn_map_ce_fraction', 'ce_fraction']
     DEFAULT_CE_ESTIMATOR = {'function': 'power2_inverse_power2_decreasing',
                             'options': {'max_csm': 8.0}}
+    DEFAULT_DIST_ANG_AREA_WEIGHT = {}
 
     def __init__(self, structure_environments=None,
                  additional_condition=AbstractChemenvStrategy.AC.ONLY_ACB,
@@ -2125,7 +2126,7 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
 
     def get_site_coordination_environments_fractions(self, site, isite=None, dequivsite=None, dthissite=None,
                                                      mysym=None, ordered=True, min_fraction=0.0, return_maps=True,
-                                                     return_strategy_dict_info=False):
+                                                     return_strategy_dict_info=False, return_all=False):
         if isite is None or dequivsite is None or dthissite is None or mysym is None:
             [isite, dequivsite, dthissite, mysym] = self.equivalent_site_index_and_transform(site)
         site_nb_sets = self.structure_environments.neighbors_sets[isite]
@@ -2157,28 +2158,76 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
                      for cn_map, weights in weights_additional_info['weights'][isite].items()}
         w_nb_sets_total = np.sum(w_nb_sets.values())
         nb_sets_fractions = {cn_map: w_nb_set / w_nb_sets_total for cn_map, w_nb_set in w_nb_sets.items()}
+        for cn_map in weights_additional_info['weights'][isite]:
+            weights_additional_info['weights'][isite][cn_map]['NbSetFraction'] = nb_sets_fractions[cn_map]
         ce_symbols = []
         ce_dicts = []
         ce_fractions = []
         ce_dict_fractions = []
         ce_maps = []
         site_ce_list = self.structure_environments.ce_list[isite]
-        for cn_map, nb_set_fraction in nb_sets_fractions.items():
-            if nb_set_fraction > 0.0:
+        if return_all:
+            for cn_map, nb_set_fraction in nb_sets_fractions.items():
                 cn = cn_map[0]
                 inb_set = cn_map[1]
-                mingeoms = site_ce_list[cn][inb_set].minimum_geometries(symmetry_measure_type=self._symmetry_measure_type)
-                csms = [ce_dict['other_symmetry_measures'][self._symmetry_measure_type]
-                        for ce_symbol, ce_dict in mingeoms]
-                fractions = self.ce_estimator_fractions(csms)
-                for ifraction, fraction in enumerate(fractions):
-                    if fraction > 0.0:
-                        ce_symbols.append(mingeoms[ifraction][0])
-                        ce_dicts.append(mingeoms[ifraction][1])
-                        ce_fractions.append(nb_set_fraction * fraction)
-                        dict_fractions = {}
+                site_ce_nb_set = site_ce_list[cn][inb_set]
+                mingeoms = site_ce_nb_set.minimum_geometries(symmetry_measure_type=self._symmetry_measure_type)
+                if len(mingeoms) > 0:
+                    csms = [ce_dict['other_symmetry_measures'][self._symmetry_measure_type]
+                            for ce_symbol, ce_dict in mingeoms]
+                    fractions = self.ce_estimator_fractions(csms)
+                    if fractions is None:
+                        ce_symbols.append('UNCLEAR:{:d}'.format(cn))
+                        ce_dicts.append(None)
+                        ce_fractions.append(nb_set_fraction)
+                        all_weights = weights_additional_info['weights'][isite][cn_map]
+                        dict_fractions = {wname: wvalue for wname, wvalue in all_weights.items()}
+                        dict_fractions['CEFraction'] = None
+                        dict_fractions['Fraction'] = nb_set_fraction
                         ce_dict_fractions.append(dict_fractions)
                         ce_maps.append(cn_map)
+                    else:
+                        for ifraction, fraction in enumerate(fractions):
+                            ce_symbols.append(mingeoms[ifraction][0])
+                            ce_dicts.append(mingeoms[ifraction][1])
+                            ce_fractions.append(nb_set_fraction * fraction)
+                            all_weights = weights_additional_info['weights'][isite][cn_map]
+                            dict_fractions = {wname: wvalue for wname, wvalue in all_weights.items()}
+                            dict_fractions['CEFraction'] = fraction
+                            dict_fractions['Fraction'] = nb_set_fraction * fraction
+                            ce_dict_fractions.append(dict_fractions)
+                            ce_maps.append(cn_map)
+                else:
+                    ce_symbols.append('UNCLEAR:{:d}'.format(cn))
+                    ce_dicts.append(None)
+                    ce_fractions.append(nb_set_fraction)
+                    all_weights = weights_additional_info['weights'][isite][cn_map]
+                    dict_fractions = {wname: wvalue for wname, wvalue in all_weights.items()}
+                    dict_fractions['CEFraction'] = None
+                    dict_fractions['Fraction'] = nb_set_fraction
+                    ce_dict_fractions.append(dict_fractions)
+                    ce_maps.append(cn_map)
+        else:
+            for cn_map, nb_set_fraction in nb_sets_fractions.items():
+                if nb_set_fraction > 0.0:
+                    cn = cn_map[0]
+                    inb_set = cn_map[1]
+                    site_ce_nb_set = site_ce_list[cn][inb_set]
+                    mingeoms = site_ce_nb_set.minimum_geometries(symmetry_measure_type=self._symmetry_measure_type)
+                    csms = [ce_dict['other_symmetry_measures'][self._symmetry_measure_type]
+                            for ce_symbol, ce_dict in mingeoms]
+                    fractions = self.ce_estimator_fractions(csms)
+                    for ifraction, fraction in enumerate(fractions):
+                        if fraction > 0.0:
+                            ce_symbols.append(mingeoms[ifraction][0])
+                            ce_dicts.append(mingeoms[ifraction][1])
+                            ce_fractions.append(nb_set_fraction * fraction)
+                            all_weights = weights_additional_info['weights'][isite][cn_map]
+                            dict_fractions = {wname: wvalue for wname, wvalue in all_weights.items()}
+                            dict_fractions['CEFraction'] = fraction
+                            dict_fractions['Fraction'] = nb_set_fraction * fraction
+                            ce_dict_fractions.append(dict_fractions)
+                            ce_maps.append(cn_map)
         if ordered:
             indices = np.argsort(ce_fractions)[::-1]
         else:
@@ -2186,24 +2235,17 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
 
         fractions_info_list = [
             {'ce_symbol': ce_symbols[ii], 'ce_dict': ce_dicts[ii], 'ce_fraction': ce_fractions[ii]}
-            for ii in indices if ce_fractions[ii] > min_fraction]
+            for ii in indices if ce_fractions[ii] >= min_fraction]
 
         if return_maps:
             for ifinfo, ii in enumerate(indices):
-                if ce_fractions[ii] > min_fraction:
+                if ce_fractions[ii] >= min_fraction:
                     fractions_info_list[ifinfo]['ce_map'] = ce_maps[ii]
         if return_strategy_dict_info:
             for ifinfo, ii in enumerate(indices):
-                if ce_fractions[ii] > min_fraction:
+                if ce_fractions[ii] >= min_fraction:
                     fractions_info_list[ifinfo]['strategy_info'] = ce_dict_fractions[ii]
         return fractions_info_list
-
-        # if return_maps:
-        #     return [(ce_symbols[ii], ce_dicts[ii], ce_fractions[ii], ce_maps[ii])
-        #             for ii in indices if ce_fractions[ii] > min_fraction]
-        # else:
-        #     return [(ce_symbols[ii], ce_dicts[ii], ce_fractions[ii])
-        #             for ii in indices if ce_fractions[ii] > min_fraction]
 
     def get_site_coordination_environment(self, site):
         pass
