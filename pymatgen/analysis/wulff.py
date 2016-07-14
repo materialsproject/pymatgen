@@ -14,6 +14,7 @@ __email__ = 'zix009@eng.ucsd.edu'
 __date__ = 'May 5 2016'
 
 from pymatgen.core.structure import Structure
+from pymatgen.core.surface import get_recp_symmetry_operation
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord_utils import get_angle
 import numpy as np
@@ -28,7 +29,6 @@ import matplotlib.cm as cm
 import mpl_toolkits.mplot3d as a3
 
 
-
 """
 This module define a WulffShape class to generate the Wulff shape from
 a lattice, a list of indices and their corresponding surface energies,
@@ -38,29 +38,6 @@ In support of plotting from a given view in terms of miller index.
 
 The lattice is from the conventional unit cell, and (hkil) for hexagonal lattices.
 """
-
-
-def get_recp_symmetry_operation(structure, symprec=0.001):
-    """
-    Find the symmettric operations of the reciprocal lattice,
-    to be used for hkl transformations
-    Args:
-        structure (Structure): conventional unit cell
-        symprec: default is 0.001
-
-    """
-    recp_lattice = structure.lattice.reciprocal_lattice_crystallographic
-    # get symmetry operations from input conventional unit cell
-    # Need to make sure recp lattice is big enough, otherwise symmetry
-    # determination will fail. We set the overall volume to 1.
-    recp_lattice = recp_lattice.scale(1)
-    recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])
-    # Creates a function that uses the symmetry operations in the
-    # structure to find Miller indices that might give repetitive slabs
-    analyzer = SpacegroupAnalyzer(recp, symprec=symprec)
-    recp_symmops = analyzer.get_symmetry_operations()
-
-    return recp_symmops
 
 
 def hkl_tuple_to_str(hkl):

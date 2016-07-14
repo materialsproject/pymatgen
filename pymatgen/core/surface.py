@@ -752,6 +752,29 @@ class SlabGenerator(object):
         return slab
 
 
+def get_recp_symmetry_operation(structure, symprec=0.001):
+    """
+    Find the symmetric operations of the reciprocal lattice,
+    to be used for hkl transformations
+    Args:
+        structure (Structure): conventional unit cell
+        symprec: default is 0.001
+
+    """
+    recp_lattice = structure.lattice.reciprocal_lattice_crystallographic
+    # get symmetry operations from input conventional unit cell
+    # Need to make sure recp lattice is big enough, otherwise symmetry
+    # determination will fail. We set the overall volume to 1.
+    recp_lattice = recp_lattice.scale(1)
+    recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])
+    # Creates a function that uses the symmetry operations in the
+    # structure to find Miller indices that might give repetitive slabs
+    analyzer = SpacegroupAnalyzer(recp, symprec=symprec)
+    recp_symmops = analyzer.get_symmetry_operations()
+
+    return recp_symmops
+
+
 def get_symmetrically_distinct_miller_indices(structure, max_index):
     """
     Returns all symmetrically distinct indices below a certain max-index for
@@ -764,16 +787,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
             structure. All other indices are equivalent to one of these.
     """
 
-    recp_lattice = structure.lattice.reciprocal_lattice_crystallographic
-    # Need to make sure recp lattice is big enough, otherwise symmetry
-    # determination will fail. We set the overall volume to 1.
-    recp_lattice = recp_lattice.scale(1)
-    recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])
-
-    # Creates a function that uses the symmetry operations in the
-    # structure to find Miller indices that might give repetitive slabs
-    analyzer = SpacegroupAnalyzer(recp, symprec=0.001)
-    symm_ops = analyzer.get_symmetry_operations()
+    symm_ops = get_recp_symmetry_operation(structure)
     unique_millers = []
 
     def is_already_analyzed(miller_index):
