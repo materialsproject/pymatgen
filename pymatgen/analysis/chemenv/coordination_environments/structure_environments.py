@@ -641,18 +641,85 @@ class StructureEnvironments(MSONable):
                                 'comparison': '__eq__',
                                 'self': self.structure,
                                 'other': other.structure})
+            differences.append({'difference': 'PREVIOUS DIFFERENCE IS DISMISSIVE',
+                                'comparison': 'differences_wrt'})
             return differences
+        if self.valences != other.valences:
+            differences.append({'difference': 'valences',
+                                'comparison': '__eq__',
+                                'self': self.valences,
+                                'other': other.valences})
+        if self.info != other.info:
+            differences.append({'difference': 'info',
+                                'comparison': '__eq__',
+                                'self': self.info,
+                                'other': other.info})
+        # self_to_other_voronoi_map = None
         if self.voronoi != other.voronoi:
             if self.voronoi.is_close_to(other.voronoi):
                 differences.append({'difference': 'voronoi',
                                     'comparison': '__eq__',
                                     'self': self.voronoi,
                                     'other': other.voronoi})
+                # TODO: make it possible to have "close" voronoi's
+                # self_to_other_voronoi_map = []
+                differences.append({'difference': 'PREVIOUS DIFFERENCE IS DISMISSIVE',
+                                    'comparison': 'differences_wrt'})
+                return differences
             else:
                 differences.append({'difference': 'voronoi',
                                     'comparison': 'is_close_to',
                                     'self': self.voronoi,
                                     'other': other.voronoi})
+                differences.append({'difference': 'PREVIOUS DIFFERENCE IS DISMISSIVE',
+                                    'comparison': 'differences_wrt'})
+                return differences
+        # TODO: make it possible to have different nb_sets
+        for isite, self_site_nb_sets in enumerate(self.neighbors_sets):
+            other_site_nb_sets = other.neighbors_sets[isite]
+            self_site_cns = set(self_site_nb_sets.keys())
+            other_site_cns = set(other_site_nb_sets.keys())
+            if self_site_cns != other_site_cns:
+                differences.append({'difference': 'neighbors_sets[isite={:d}]'.format(isite),
+                                    'comparison': 'coordination_numbers',
+                                    'self': self_site_cns,
+                                    'other': other_site_cns})
+                continue
+            for cn, self_site_cn_nb_sets in self_site_nb_sets.items():
+                other_site_cn_nb_sets = other_site_nb_sets[cn]
+                if len(self_site_cn_nb_sets) != len(other_site_cn_nb_sets):
+                    differences.append({'difference': 'neighbors_sets[isite={:d}][cn={:d}]'.format(isite, cn),
+                                        'comparison': 'number_of_neighbors_sets',
+                                        'self': len(self_site_cn_nb_sets),
+                                        'other': len(other_site_cn_nb_sets)})
+                    continue
+                for inb_set_self, nb_set_self in enumerate(self_site_cn_nb_sets):
+                    try:
+                        inb_set_other = other_site_cn_nb_sets.index(nb_set_self)
+                    except ValueError:
+                        differences.append({'difference': 'neighbors_sets[isite={:d}][cn={:d}]'
+                                                          '[inb_set={:d}]'.format(isite, cn, inb_set_self),
+                                            'comparison': 'neighbors_set in other',
+                                            'self': nb_set_self,
+                                            'other': None})
+                        differences.append({'difference': 'PREVIOUS DIFFERENCE IS DISMISSIVE',
+                                            'comparison': 'differences_wrt'})
+                        return differences
+                    self_ce = self.ce_list[isite][cn][inb_set_self]
+                    other_ce = other.ce_list[isite][cn][inb_set_other]
+                    if self_ce != other_ce:
+                        if self_ce.is_close_to(other_ce):
+                            differences.append({'difference': 'ce_list[isite={:d}][cn={:d}]'
+                                                              '[inb_set={:d}]'.format(isite, cn, inb_set_self),
+                                                'comparison': '__eq__',
+                                                'self': self_ce,
+                                                'other': other_ce})
+                        else:
+                            differences.append({'difference': 'ce_list[isite={:d}][cn={:d}]'
+                                                              '[inb_set={:d}]'.format(isite, cn, inb_set_self),
+                                                'comparison': 'is_close_to',
+                                                'self': self_ce,
+                                                'other': other_ce})
         return differences
 
     def __eq__(self, other):
@@ -1480,6 +1547,19 @@ class ChemicalEnvironments(MSONable):
             out += '       local2perfect : {}\n'.format(str(self.coord_geoms[mp_symbol]['local2perfect_map']))
             out += '       perfect2local : {}\n'.format(str(self.coord_geoms[mp_symbol]['perfect2local_map']))
         return out
+
+    def is_close_to(self, other, rtol=0.0, atol=1e-8):
+        if set(self.coord_geoms.keys()) != set(other.coord_geoms.keys()):
+            return False
+        for mp_symbol, cg_dict_self in self.coord_geoms.items():
+            cg_dict_other = other[mp_symbol]
+            other_csms_self = cg_dict_self['other_symmetry_measures']
+            other_csms_other = cg_dict_other['other_symmetry_measures']
+            for csmtype in ['csm_wcs_ctwcc', 'csm_wcs_ctwocc', 'csm_wcs_csc',
+                            'csm_wocs_ctwcc', 'csm_wocs_ctwocc', 'csm_wocs_csc']:
+                if not np.isclose(other_csms_self[csmtype], other_csms_other[csmtype], rtol=rtol, atol=atol):
+                    return False
+        return True
 
     def __eq__(self, other):
         """
