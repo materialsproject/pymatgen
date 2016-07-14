@@ -224,7 +224,6 @@ class WulffShape(object):
         # simplices	(ndarray of ints, shape (nfacet, ndim))
         # list of [i, j, k] , ndim = 3
         # i, j, k: ind for normal_e_m
-        logger.debug("%s %s", (dual_cv_simp, np.shape(dual_cv_simp)))
         # recalculate the dual of dual, get the wulff shape.
         # conner <-> surface
         # get cross point from the simplices of the dual convex hull
@@ -233,7 +232,7 @@ class WulffShape(object):
 
         wulff_convex = ConvexHull(wulff_pt_list)
         wulff_cv_simp = wulff_convex.simplices
-        logger.debug("%s" % ([len(x) for x in wulff_cv_simp]))
+        logger.debug(", ".join([str(len(x)) for x in wulff_cv_simp]))
 
         # store simplices and convex
         self.dual_cv_simp = dual_cv_simp
