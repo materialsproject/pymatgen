@@ -524,12 +524,22 @@ class LocalGeometryFinder(object):
                                                          additional_conditions=additional_conditions)
         logging.info('DetailedVoronoiContainer has been set up')
 
+        # Initialize the StructureEnvironments object (either from initial_structure_environments or from scratch)
         if initial_structure_environments is not None:
             se = initial_structure_environments
+            if se.structure != self.structure:
+                raise ValueError('Structure is not the same in initial_structure_environments')
+            if se.voronoi != self.detailed_voronoi:
+                if self.detailed_voronoi.is_close_to(se.voronoi):
+                    self.detailed_voronoi = se.voronoi
+                else:
+                    raise ValueError('Detailed Voronoi is not the same in initial_structure_environments')
+            se.info = info
         else:
             se = StructureEnvironments(voronoi=self.detailed_voronoi, valences=self.valences,
                                        sites_map=self.sites_map, equivalent_sites=self.equivalent_sites,
-                                       ce_list=[None]*len(self.structure), structure=self.structure)
+                                       ce_list=[None]*len(self.structure), structure=self.structure,
+                                       info=info)
 
         # Set up the coordination numbers that have to be computed based on min_cn, max_cn and possibly the settings
         # for an update (argument "recompute") of an existing StructureEnvironments
@@ -636,6 +646,8 @@ class LocalGeometryFinder(object):
                     breakit = True
             max_time_one_site = max(max_time_one_site, t2 - t1)
             logging.info('    ... computed in {:.2f} seconds'.format(t2 - t1))
+        time_end = time.clock()
+        logging.info('    ... compute_structure_environments ended in {:.2f} seconds'.format(time_end-time_init))
         return se
 
     def update_nb_set_environments(self, se, isite, cn, inb_set, nb_set, recompute=False):
