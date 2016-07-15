@@ -231,6 +231,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
                                     include_cif=True)
             self.assertTrue(os.path.exists("Fe4P4O16.cif"))
 
+
 class MPStaticSetTest(PymatgenTest):
 
     def setUp(self):
@@ -273,6 +274,9 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(leps_vis.incar["IBRION"], 8)
         self.assertNotIn("NPAR", leps_vis.incar)
         self.assertNotIn("NSW", leps_vis.incar)
+        self.assertEqual(non_prev_vis.kpoints.kpts, [[13, 11, 11]])
+        non_prev_vis = MPStaticSet(vis.structure, reciprocal_density=200)
+        self.assertEqual(non_prev_vis.kpoints.kpts, [[15, 13, 13]])
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
@@ -306,28 +310,6 @@ class MPNonSCFSetTest(PymatgenTest):
                                          mode="Line", copy_chgcar=True)
         vis.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
-
-        # Code below is just to make sure that the parameters are the same
-        # between the old MPStaticVaspInputSet and the new MPStaticSet.
-        # TODO: Delete code below in future.
-        MPNonSCFVaspInputSet.from_previous_vasp_run(
-            previous_vasp_dir=prev_run, output_dir=self.tmp, mode="Line")
-
-        incar = Incar.from_file(os.path.join(self.tmp, "INCAR"))
-
-        for k, v1 in vis.incar.items():
-            v2 = incar.get(k)
-            try:
-                v1 = v1.upper()
-                v2 = v2.upper()
-            except:
-                # Convert strings to upper case for comparison. Ignore other
-                # types.
-                pass
-            self.assertEqual(v1, v2, str(v1)+str(v2))
-        kpoints = Kpoints.from_file(os.path.join(self.tmp, "KPOINTS"))
-        self.assertEqual(kpoints.style, vis.kpoints.style)
-        self.assertArrayAlmostEqual(kpoints.kpts, vis.kpoints.kpts)
 
     def test_optics(self):
         prev_run = os.path.join(test_dir, "relaxation")

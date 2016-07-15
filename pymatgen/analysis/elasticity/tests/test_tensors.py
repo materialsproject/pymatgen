@@ -6,9 +6,9 @@ import json
 import os
 
 import numpy as np
-
 from pymatgen.analysis.elasticity.tensors import TensorBase, SquareTensor
 from pymatgen.core.operations import SymmOp
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 from pymatgen import Structure
 
@@ -227,7 +227,12 @@ class TensorBaseTest(PymatgenTest):
             orig = TensorBase(self.ieee_data[xtal]['original_tensor'])
             ieee = TensorBase(self.ieee_data[xtal]['ieee_tensor'])
             struct = Structure.from_dict(self.ieee_data[xtal]['structure'])
-            self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct))
+            diff = np.max(abs(ieee - orig.convert_to_ieee(struct)))
+            err_msg = "{} IEEE conversion failed with max diff {}".format(
+                xtal, diff) 
+            self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct),
+                                        err_msg = err_msg, decimal=3)
+
 
 class SquareTensorTest(PymatgenTest):
     def setUp(self):

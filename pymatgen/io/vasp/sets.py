@@ -28,13 +28,6 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.sites import PeriodicSite
 
-# This mass import is for deprecation stub purposes.
-from pymatgen.io.vasp.sets_deprecated import MPVaspInputSet, MPGGAVaspInputSet,\
-    MITHSEVaspInputSet, MITVaspInputSet, MITGGAVaspInputSet, \
-    MPStaticVaspInputSet, MITMDVaspInputSet, \
-    MVLElasticInputSet, MITNEBVaspInputSet, MPNonSCFVaspInputSet, \
-    MPOpticsNonSCFVaspInputSet, MPHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet
-
 """
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters developed and tested by the core team
@@ -513,8 +506,8 @@ class MPStaticSet(MPRelaxSet):
 
     @property
     def kpoints(self):
+        self.config_dict["KPOINTS"]["reciprocal_density"] = self.reciprocal_density
         kpoints = super(MPStaticSet, self).kpoints
-
         # Prefer to use k-point scheme from previous run
         if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
             if self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst:
