@@ -439,12 +439,12 @@ class WulffShape(object):
                 color_set, alpha, off_color)
 
         if not direction:
-            area_dict = self.area_fraction_dict
             miller_indices, areas = [], []
-            for hkl in area_dict.keys():
+            for hkl, a in self.area_fraction_dict.items():
                 miller_indices.append(hkl)
-                areas.append(area_dict[hkl])
+                areas.append(a)
             direction = miller_indices[areas.index(max(areas))]
+
         fig = plt.figure()
         fig.set_size_inches(aspect_ratio[0],
                             aspect_ratio[1])
@@ -453,8 +453,7 @@ class WulffShape(object):
 
         wulff_pt_list = self.wulff_pt_list
         plane_wulff_info = self.plane_wulff_info
-        # [normal, e_surf, [pts], [simpx],
-        #     color_plane, m_ind_orig, miller]
+        
         ax = a3.Axes3D(fig, azim=azim, elev=elev)
 
         for plane in plane_wulff_info:
@@ -528,7 +527,7 @@ class WulffShape(object):
                 extend='both', ticks=bounds[:-1], spacing='proportional',
                 orientation='vertical')
             cbar.set_label('Surface Energies ($J/m^2$)', fontsize=100)
-        # [normal, e_surf, normal_pt, dual_pt, color_plane, m_ind_orig, miller]
+
         if grid_off:
             ax.grid('off')
         if axis_off:
@@ -614,8 +613,8 @@ class WulffShape(object):
         miller_energy_dict = self.miller_energy_dict
 
         for hkl in miller_energy_dict.keys():
-            square_diff_energy += ((miller_energy_dict[hkl] -
-                                    weighted_energy) ** 2) * area_frac_dict[hkl]
+            square_diff_energy += (miller_energy_dict[hkl] - weighted_energy)\
+                                  ** 2 * area_frac_dict[hkl]
         return np.sqrt(square_diff_energy) / weighted_energy
 
     @property
