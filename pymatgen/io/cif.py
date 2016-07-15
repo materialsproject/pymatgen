@@ -248,6 +248,12 @@ class CifFile(object):
         d = OrderedDict()
         for x in re.split("^\s*data_", "x\n"+string,
                           flags=re.MULTILINE | re.DOTALL)[1:]:
+
+            # Skip over Cif block that contains powder diffraction data.
+            # Some elements in this block were missing from CIF files in Springer materials/Pauling file DBs.
+            # This block anyway does not contain any structure information, and CifParser was also not parsing it.
+            if 'powder_pattern' in re.split("\n", x, 1)[0]:
+                continue
             c = CifBlock.from_string("data_"+x)
             d[c.header] = c
         return cls(d, string)
@@ -487,6 +493,7 @@ class CifParser(object):
             idxs_to_remove = []
 
             for idx, el_row in enumerate(data["_atom_site_label"]):
+
                 # CIF files from the Springer Materials/Pauling File have switched the label and symbol. Thus, in the
                 # above shown example row, '0.8Nb + 0.2Zr' is the symbol. Below, we split the strings on ' + ' to
                 # check if the length (or number of elements) in the label and symbol are equal.
