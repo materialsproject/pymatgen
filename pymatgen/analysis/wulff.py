@@ -551,7 +551,7 @@ class WulffShape(object):
             return azim, elev
 
     @property
-    def wulff_volume(self):
+    def volume(self):
         """
         Volume of the Wulff shape
         """
@@ -574,7 +574,7 @@ class WulffShape(object):
                 for i, hkl in enumerate(self.input_miller)}
 
     @property
-    def total_surface_area(self):
+    def surface_area(self):
         """
         Total surface area of Wulff shape.
         """
@@ -590,7 +590,7 @@ class WulffShape(object):
         for hkl in self.miller_energy_dict.keys():
             tot_area_energy += self.miller_energy_dict[hkl] * \
                                self.miller_area_dict[hkl]
-        return tot_area_energy / self.total_surface_area
+        return tot_area_energy / self.surface_area
 
     @property
     def area_fraction_dict(self):
@@ -598,7 +598,7 @@ class WulffShape(object):
         :return:
             (dict): {hkl: area_hkl/total area on wulff}
         """
-        return {hkl: self.miller_area_dict[hkl] / self.total_surface_area
+        return {hkl: self.miller_area_dict[hkl] / self.surface_area
                 for hkl in self.miller_area_dict.keys()}
 
     @property
@@ -630,4 +630,4 @@ class WulffShape(object):
             variation from weighted surface energy
             The ideal sphere is 0.
         """
-        return self.total_surface_area / (self.wulff_volume ** (2 / 3))
+        return self.surface_area / (self.volume ** (2 / 3))
