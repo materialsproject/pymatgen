@@ -35,7 +35,7 @@ import matplotlib.colorbar as colorbar
 import matplotlib.cm as cm
 import mpl_toolkits.mplot3d as a3
 
-__author__ = 'Zihan Xu, Richard Tran'
+__author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
 __version__ = '0.1'
 __maintainer__ = 'Zihan Xu'
@@ -194,8 +194,7 @@ class WulffShape(object):
             off_color: color_legend for off_wulff planes on show_area legend
             symprec (float): for recp_operation, default is 0.01
         """
-        latt = lattice.scale(1)
-        structure = Structure(latt, ["H"], [[0, 0, 0]])
+        structure = Structure(lattice, ["H"], [[0, 0, 0]])
         # 1. store input args:
         # store plot settings:
         self.alpha = alpha
@@ -211,7 +210,7 @@ class WulffShape(object):
         self.input_miller = [list(x) for x in miller_list]
         self.input_hkl = [[x[0], x[1], x[-1]] for x in miller_list]
         self.input_e_surf = list(e_surf_list)
-        self.latt = latt
+        self.lattice = lattice
         self.recp = structure.lattice.reciprocal_lattice_crystallographic
         self.recp_symmops = get_recp_symmetry_operation(structure, symprec)
 
@@ -289,40 +288,23 @@ class WulffShape(object):
             normal_e_m, item: [normal, e_surf, normal_pt, dual_pt,
             color_plane, m_ind_orig, miller]
         """
-        all_hkl = copy.copy(self.input_hkl)
-        all_hkl_ind = list(enumerate(all_hkl))
-        e_surf_list = copy.copy(self.input_e_surf)
-        symmops = self.recp_symmops
-        recp = self.recp
+        all_hkl = []
         color_ind = self.color_ind
         normal_e_m = []
-        color = copy.copy(color_ind)
-        miller_ind_orig = [x[0] for x in all_hkl_ind]
 
-        for i, hkl in enumerate(all_hkl):
-            for op in symmops:
-                miller = list(op.operate(hkl))
-                miller = [int(x) for x in miller]
-                if miller in all_hkl:
-                    continue
-                else:
+        for i, (hkl, energy) in enumerate(zip(self.input_hkl,
+                                              self.input_e_surf)):
+            for op in self.recp_symmops:
+                miller = tuple([int(x) for x in op.operate(hkl)])
+                if miller not in all_hkl:
                     all_hkl.append(miller)
-                    e_surf_list.append(e_surf_list[i])
-                    miller_ind_orig.append(i)
-                    color.append(color_ind[divmod(i, len(color_ind))[1]])
-
-        for i, hkl in enumerate(all_hkl):
-            # get normal (length=1)
-            normal = recp.get_cartesian_coords(hkl)
-            normal /= sp.linalg.norm(normal)
-            e_surf = e_surf_list[i]
-            normal_pt = [x * e_surf for x in normal]
-            dual_pt = [x / e_surf for x in normal]
-            # the index for color and plane
-            color_plane = color[i]
-            m_ind_orig = miller_ind_orig[i]
-            normal_e_m.append([normal, e_surf, normal_pt, dual_pt,
-                               color_plane, m_ind_orig, hkl])
+                    normal = self.recp.get_cartesian_coords(miller)
+                    normal /= sp.linalg.norm(normal)
+                    normal_pt = [x * energy for x in normal]
+                    dual_pt = [x / energy for x in normal]
+                    color_plane = color_ind[divmod(i, len(color_ind))[1]]
+                    normal_e_m.append([normal, energy, normal_pt, dual_pt,
+                                       color_plane, i, hkl])
 
         # sorted by e_surf
         normal_e_m.sort(key=lambda x: x[1])
@@ -577,7 +559,7 @@ class WulffShape(object):
         :return: azim, elev for plotting
         """
 
-        cart = self.latt.get_cartesian_coords(miller_index)
+        cart = self.lattice.get_cartesian_coords(miller_index)
         azim = get_angle([cart[0], cart[1], 0], (1, 0, 0))
         v = [cart[0], cart[1], 0]
         elev = get_angle(cart, v)
