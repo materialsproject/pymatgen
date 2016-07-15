@@ -352,8 +352,7 @@ class WulffShape(object):
         #  forms a triangle on the wulff shape.
         # check which surface it belongs to
         for simpx in wulff_simpx:
-            pts = [wulff_pt_list[simpx[0]], wulff_pt_list[simpx[1]],
-                   wulff_pt_list[simpx[2]]]
+            pts = [wulff_pt_list[simpx[i]] for i in range(3)]
             center = np.sum(pts, 0) / 3.0
             # check whether the center of the simplices is on one plane
             for i, plane in enumerate(normal_e_m):
@@ -571,27 +570,22 @@ class WulffShape(object):
     @property
     def wulff_volume(self):
         """
-        :return:
-            the volume of the wulff shape
+        Volume of the Wulff shape
         """
         return self.wulff_convex.volume
 
     @property
     def miller_area_dict(self):
         """
-        :return:
-            (dict): {hkl: area_hkl on wulff}
+        Returns {hkl: area_hkl on wulff}
         """
-        miller_area_dict = {}
-        for i, hkl in enumerate(self.input_miller):
-            miller_area_dict[tuple(hkl)] = self.color_area[i]
-        return miller_area_dict
+        return {tuple(hkl): self.color_area[i]
+                for i, hkl in enumerate(self.input_miller)}
 
     @property
     def miller_energy_dict(self):
         """
-        :return:
-            (dict): {hkl: surface energy_hkl}
+        Returns {hkl: surface energy_hkl}
         """
         return {tuple(hkl): self.input_e_surf[i]
                 for i, hkl in enumerate(self.input_miller)}
@@ -621,11 +615,8 @@ class WulffShape(object):
         :return:
             (dict): {hkl: area_hkl/total area on wulff}
         """
-        area_fraction_dict = {}
-        for hkl in self.miller_area_dict.keys():
-            area_fraction_dict[hkl] = self.miller_area_dict[hkl] / \
-                                      self.total_surface_area
-        return area_fraction_dict
+        return {hkl: self.miller_area_dict[hkl] / self.total_surface_area
+                for hkl in self.miller_area_dict.keys()}
 
     @property
     def anisotropy(self):
