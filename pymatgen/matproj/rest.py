@@ -504,37 +504,6 @@ class MPRester(object):
         return ExpEntry(Composition(formula),
                         self.get_exp_thermo_data(formula))
 
-    def get_vasp_input_set(self, date_string=None):
-        """
-        Returns the VaspInputSet used by the Materials Project at a
-        particular date.
-
-        Args:
-            date_string (str): A date string in the format of "YYYY-MM-DD".
-                Defaults to None, which means the VaspInputSet today.
-
-        Returns:
-            DictVaspInputSet
-        """
-        url = "{}/parameters/vasp".format(self.preamble)
-        payload = {"date": date_string} if date_string else {}
-        try:
-            response = self.session.get(url, data=payload)
-            if response.status_code in [200, 400]:
-                data = json.loads(response.text, cls=MPDecoder)
-                if data["valid_response"]:
-                    if data.get("warning"):
-                        warnings.warn(data["warning"])
-                    from pymatgen.io.vasp.sets_deprecated import DictVaspInputSet
-                    return DictVaspInputSet("MPVaspInputSet", data["response"])
-                else:
-                    raise MPRestError(data["error"])
-
-            raise MPRestError("REST query returned with error status code {}"
-                              .format(response.status_code))
-        except Exception as ex:
-            raise MPRestError(str(ex))
-
     def query(self, criteria, properties, mp_decode=True):
         """
         Performs an advanced query, which is a Mongo-like syntax for directly

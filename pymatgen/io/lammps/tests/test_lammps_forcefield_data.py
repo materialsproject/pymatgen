@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, print_function, unicode_literals, \
     absolute_import
@@ -43,11 +45,8 @@ class TestLammpsForceFieldData(unittest.TestCase):
                              ((u'C', u'H'), [1000, 1.1041]),
                              ((u'C', u'C'), [1000, 1.5075])])
         pairs = OrderedDict([((u'O', u'O'), [75844.8, 0.2461, 396.9]),
-                             ((u'C', u'O'), [33702.4, 0.2796, 503.0]),
                              ((u'H', u'H'), [2649.6, 0.2674, 27.22]),
-                             ((u'C', u'H'), [4320.0, 0.2928, 137.6]),
-                             ((u'C', u'C'), [14976.0, 0.3236, 637.6]),
-                             ((u'O', u'H'), [0, 0, 0])]) # the last item(O-H) is fake
+                             ((u'C', u'C'), [14976.0, 0.3236, 637.6])])
         angles = OrderedDict([((u'C', u'C', u'H'), [42.9, 110.1]),
                               ((u'H', u'C', u'H'), [38.5, 109.47]),
                               ((u'H', u'C', u'O'), [56.0, 109.48]),
@@ -70,6 +69,11 @@ class TestLammpsForceFieldData(unittest.TestCase):
             forcefield, cls.topologies)
 
     def test_system_info(self):
+        # check te molecule ids
+        mol_ids = np.array(self.lammps_ff_data_1.atoms_data)[:, 1]
+        mol_ids_ans = [i + 1 for i in range(sum(self.mols_number))]
+        self.assertEqual(set(mol_ids.tolist()), set(mol_ids_ans))
+        # check the size consistency of the polymer matrix
         self.assertEqual(len(self.polymer_matrix),
                          sum([len(mol) * self.mols_number[i]
                               for i, mol in enumerate(self.molecules)]))

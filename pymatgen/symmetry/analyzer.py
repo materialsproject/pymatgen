@@ -40,7 +40,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "May 14, 2016"
 
-
 import spglib
 
 logger = logging.getLogger(__name__)
@@ -126,7 +125,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             (int): International spacegroup number for structure.
         """
-        return self._spacegroup_data["number"]
+        return int(self._spacegroup_data["number"])
 
     def get_hall(self):
         """
