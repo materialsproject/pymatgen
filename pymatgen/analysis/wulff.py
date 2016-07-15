@@ -453,7 +453,7 @@ class WulffShape(object):
 
         wulff_pt_list = self.wulff_pt_list
         plane_wulff_info = self.plane_wulff_info
-        
+
         ax = a3.Axes3D(fig, azim=azim, elev=elev)
 
         for plane in plane_wulff_info:
