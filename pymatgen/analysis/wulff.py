@@ -178,32 +178,17 @@ class WulffShape(object):
 
     """
 
-    def __init__(self, lattice, miller_list, e_surf_list, color_set='PuBu',
-                 grid_off=True, axis_off=True, show_area=False, alpha=1,
-                 off_color='red', symprec=0.00001):
+    def __init__(self, lattice, miller_list, e_surf_list, symprec=0.00001):
         """
         Args:
             lattice: Lattice object of the conventional unit cell
             miller_list ([(hkl), ...]: list of hkl or hkil for hcp
             e_surf_list ([float]): list of corresponding surface energies
-            color_set: default is 'PuBu'
-            grid_off (bool): default is True
-            axis_off (bool): default is Ture
-            show_area (bool): default is False
-            alpha (float): chosen from 0 to 1 (float), default is 1
-            off_color: color_legend for off_wulff planes on show_area legend
             symprec (float): for recp_operation, default is 0.01
         """
         structure = Structure(lattice, ["H"], [[0, 0, 0]])
-        # 1. store input args:
-        # store plot settings:
-        self.alpha = alpha
-        self.color_set = color_set
         self.color_ind = list(range(len(miller_list)))
-        self.grid_off = grid_off
-        self.axis_off = axis_off
-        self.show_area = show_area
-        self.off_color = off_color
+
         self.input_miller_fig = [hkl_tuple_to_str(x) for x in miller_list]
         # store input data
         self.structure = structure
@@ -219,7 +204,7 @@ class WulffShape(object):
 
         # 2. get all the data for wulff construction
         # get all the surface normal from get_all_miller_e()
-        normal_e_m = self.get_all_miller_e()
+        normal_e_m = self._get_all_miller_e()
         # [normal, e_surf, normal_pt, dual_pt, color_plane, m_ind_orig, miller]
         logger.debug(len(normal_e_m))
         self.normal_e_m = normal_e_m
@@ -247,26 +232,8 @@ class WulffShape(object):
         self.wulff_cv_simp = wulff_cv_simp
         self.wulff_convex = wulff_convex
 
-        # 4. get wulff info
-        # return (simpx_info, plane_wulff_info, on_wulff, surface_area)
-        wulff_info = self.get_simpx_plane()
-        self.simpx_info = wulff_info[0]
-        # need to update the color
-        # plan_wulff_info: [normal, e_surf, pts, simpx,
-        #   color_plane, m_ind_orig, miller]
-        self.plane_wulff_info = wulff_info[1]
-        self.on_wulff = wulff_info[2]
-        self.color_area = wulff_info[3]
-
-        # 5. assign color for on_wulff plane
-        # return (color_list, color_proxy, color_proxy_on_wulff,
-        # miller_on_wulff, e_surf_on_wulff_list)
-        color_info = self.get_colors()
-        self.color_list = color_info[0]
-        self.color_proxy = color_info[1]
-        self.color_proxy_on_wulff = color_info[2]
-        self.miller_on_wulff = color_info[3]
-        self.e_surf_on_wulff = color_info[4]
+        self.simpx_info, self.plane_wulff_info, self.on_wulff, self.color_area \
+            = self._get_simpx_plane()
 
         miller_area = []
         for m, in_mill_fig in enumerate(self.input_miller_fig):
@@ -274,7 +241,7 @@ class WulffShape(object):
                 in_mill_fig + ' : ' + str(round(self.color_area[m], 4)))
         self.miller_area = miller_area
 
-    def get_all_miller_e(self):
+    def _get_all_miller_e(self):
         """
         from self:
             get miller_list(unique_miller), e_surf_list and symmetry
@@ -330,7 +297,7 @@ class WulffShape(object):
         cross_pt = sp.dot(sp.linalg.inv(matrix_surfs), matrix_e)
         return cross_pt
 
-    def get_simpx_plane(self):
+    def _get_simpx_plane(self):
         """
         local the plane for simpx of on wulff_cv,
         by comparing the center of the simpx triangle
@@ -346,8 +313,8 @@ class WulffShape(object):
         simpx_info = []
         on_wulff = [False] * len(self.input_miller)
         surface_area = [0.0] * len(self.input_miller)
-        plane_wulff_info = [[x[0], x[1], [], [], x[4], x[5], x[6]] for x in
-                            normal_e_m]
+        plane_wulff_info = [[x[0], x[1], [], [], x[4], x[5], x[6]]
+                            for x in normal_e_m]
         # each simpx (i,j,k) from self.wulff_cv_simp
         #  forms a triangle on the wulff shape.
         # check which surface it belongs to
@@ -381,15 +348,12 @@ class WulffShape(object):
                 plane[3].sort()
                 outer_lines = []
                 for line in plane[3]:
-                    if plane[3].count(line) == 2:
-                        continue
-                    outer_lines.append(line)
+                    if plane[3].count(line) != 2:
+                        outer_lines.append(line)
                 plane[3] = outer_lines
-        # plan_wulff_info: [normal, e_surf, pts, simpx,
-        #     color_plane, m_ind_orig, miller]
         return simpx_info, plane_wulff_info, on_wulff, surface_area
 
-    def get_colors(self):
+    def _get_colors(self, color_set, alpha, off_color):
         """
         assign colors according to the surface energies of on_wulff planes.
 
@@ -401,9 +365,7 @@ class WulffShape(object):
         input_hkl = self.input_hkl
         input_e_surf = copy.copy(self.input_e_surf)
         input_miller_fig = self.input_miller_fig
-        color_set = self.color_set
-        alpha = self.alpha
-        color_list = [self.off_color] * len(input_hkl)
+        color_list = [off_color] * len(input_hkl)
         color_proxy_on_wulff = []
         miller_on_wulff = []
         e_surf_on_wulff = []
@@ -438,19 +400,43 @@ class WulffShape(object):
         return color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, \
             e_surf_on_wulff_list
 
-    def plot_wf_simpx(self, direction=None, bar_pos=(0.75, 0.15, 0.05, 0.65),
-                      bar_on=False, legend_on=True, aspect_ratio=(8, 8)):
+    def show(self, *args, **kwargs):
         """
-        plot the wulff shape from self.wulff_pt_list, self.plane_wulff_info
+        Show the Wulff plot.
 
         Args:
+            \*args: Passed to get_plot.
+            \*\*kwargs: Passed to get_plot.
+        """
+        self.get_plot(*args, **kwargs).show()
+
+    def get_plot(self, color_set='PuBu', grid_off=True, axis_off=True,
+                 show_area=False, alpha=1, off_color='red', direction=None,
+                 bar_pos=(0.75, 0.15, 0.05, 0.65), bar_on=False,
+                 legend_on=True, aspect_ratio=(8, 8)):
+        """
+        Get the Wulff shape plot.
+
+        Args:
+            color_set: default is 'PuBu'
+            grid_off (bool): default is True
+            axis_off (bool): default is Ture
+            show_area (bool): default is False
+            alpha (float): chosen from 0 to 1 (float), default is 1
+            off_color: color_legend for off_wulff planes on show_area legend
             direction: default is (1, 1, 1)
             bar_pos: default is [0.75, 0.15, 0.05, 0.65]
             bar_on (bool): default is False
             legend_on (bool): default is True
             aspect_ratio: default is (8, 8)
 
+        Return:
+            (matplotlib.pyplot)
         """
+
+        color_list, color_proxy, color_proxy_on_wulff, \
+            miller_on_wulff, e_surf_on_wulff = self._get_colors(
+                color_set, alpha, off_color)
 
         if not direction:
             area_dict = self.area_fraction_dict
@@ -462,7 +448,8 @@ class WulffShape(object):
         fig = plt.figure()
         fig.set_size_inches(aspect_ratio[0],
                             aspect_ratio[1])
-        azim, elev = self.get_azimuth_elev(direction)
+        azim, elev = self.get_azimuth_elev([direction[0], direction[1],
+                                            direction[-1]])
 
         wulff_pt_list = self.wulff_pt_list
         plane_wulff_info = self.plane_wulff_info
@@ -477,7 +464,7 @@ class WulffShape(object):
                 continue
             # assign the color for on_wulff planes according to its
             # color_plane index and the color_list for on_wulff
-            plane_color = self.color_list[plane[4]]
+            plane_color = color_list[plane[4]]
             # plane[3]: [simpx]
             lines = list(plane[3])
             pt = []
@@ -512,12 +499,12 @@ class WulffShape(object):
         ax.set_zlim([-r_range * 1.1, r_range * 1.1])
         # add legend
         if legend_on:
-            color_proxy = self.color_proxy
-            if self.show_area:
+            color_proxy = color_proxy
+            if show_area:
                 ax.legend(color_proxy, self.miller_area, loc='upper left',
                           bbox_to_anchor=(0, 1), fancybox=True, shadow=False)
             else:
-                ax.legend(self.color_proxy_on_wulff, self.miller_on_wulff,
+                ax.legend(color_proxy_on_wulff, miller_on_wulff,
                           loc='upper center',
                           bbox_to_anchor=(0.5, 1), ncol=3, fancybox=True,
                           shadow=False)
@@ -527,29 +514,25 @@ class WulffShape(object):
         # add colorbar
         # cbar = fig.colorbar(self.scalarcm, alpha=self.alpha)
         # Add an axes at position rect [left, bottom, width, height]
-        cmap = plt.get_cmap(self.color_set)
+        cmap = plt.get_cmap(color_set)
         cmap.set_over('0.25')
         cmap.set_under('0.75')
-        bounds = [round(e, 2) for e in self.e_surf_on_wulff]
+        bounds = [round(e, 2) for e in e_surf_on_wulff]
         bounds.append(1.2 * bounds[-1])
         norm = colors.BoundaryNorm(bounds, cmap.N)
         if bar_on:
             # display surface energies
             ax1 = fig.add_axes(bar_pos)
-            cbar = colorbar.ColorbarBase(ax1, cmap=cmap, norm=norm,
-                                         boundaries=[0] + bounds + [10],
-                                         extend='both',
-                                         ticks=bounds[:-1],  # optional
-                                         spacing='proportional',
-                                         orientation='vertical'
-                                         )
+            cbar = colorbar.ColorbarBase(
+                ax1, cmap=cmap, norm=norm, boundaries=[0] + bounds + [10],
+                extend='both', ticks=bounds[:-1], spacing='proportional',
+                orientation='vertical')
             cbar.set_label('Surface Energies ($J/m^2$)', fontsize=100)
         # [normal, e_surf, normal_pt, dual_pt, color_plane, m_ind_orig, miller]
-        if self.grid_off:
+        if grid_off:
             ax.grid('off')
-        if self.axis_off:
+        if axis_off:
             ax.axis('off')
-        plt.draw()
         return plt
 
     def get_azimuth_elev(self, miller_index):
