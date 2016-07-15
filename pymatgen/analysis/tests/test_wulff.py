@@ -19,7 +19,8 @@ from pymatgen.analysis.wulff import WulffShape
 import json
 import os
 
-class TestWulff(PymatgenTest):
+
+class WulffShapeTest(PymatgenTest):
 
     def setUp(self):
 
@@ -64,6 +65,12 @@ class TestWulff(PymatgenTest):
                                    surface_energies["mp-72"])
 
         self.surface_properties = surface_properties
+
+    def test_get_plot(self):
+        # Basic test, not really a unittest.
+        self.wulff_Ti.get_plot()
+        self.wulff_Nb.get_plot()
+        self.wulff_Ir.get_plot()
 
     def symm_check(self, ucell, wulff_vertices):
         """
