@@ -361,18 +361,12 @@ class WulffShape(object):
             (color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
             e_surf_on_wulff_list)
         """
-        on_wulff = self.on_wulff
-        input_hkl = self.input_hkl
-        input_e_surf = copy.copy(self.input_e_surf)
-        input_miller_fig = self.input_miller_fig
-        color_list = [off_color] * len(input_hkl)
+        color_list = [off_color] * len(self.input_hkl)
         color_proxy_on_wulff = []
         miller_on_wulff = []
-        e_surf_on_wulff = []
-        # get list of on_wulff surface energies (with ind)
-        for i, e_surf in enumerate(input_e_surf):
-            if on_wulff[i]:
-                e_surf_on_wulff.append((i, e_surf))
+        e_surf_on_wulff = [(i, e_surf)
+                           for i, e_surf in enumerate(self.input_e_surf)
+                           if self.on_wulff[i]]
 
         c_map = plt.get_cmap(color_set)
         e_surf_on_wulff.sort(key=lambda x: x[1], reverse=False)
@@ -385,14 +379,13 @@ class WulffShape(object):
             cnorm = colors.Normalize(vmin=min(e_surf_on_wulff_list) - 0.1,
                                      vmax=max(e_surf_on_wulff_list) + 0.1)
         scalar_map = cm.ScalarMappable(norm=cnorm, cmap=c_map)
-        logger.debug(e_surf_on_wulff)
-        # prepare for
+
         for i, e_surf in e_surf_on_wulff:
             plane_color = scalar_map.to_rgba(e_surf, alpha=alpha)
             color_list[i] = plane_color
             color_proxy_on_wulff.append(
                 plt.Rectangle((2, 2), 1, 1, fc=plane_color, alpha=alpha))
-            miller_on_wulff.append(input_miller_fig[i])
+            miller_on_wulff.append(self.input_miller_fig[i])
         scalar_map.set_array([x[1] for x in e_surf_on_wulff])
         color_proxy = [plt.Rectangle((2, 2), 1, 1, fc=x, alpha=alpha)
                        for x in color_list]
@@ -439,15 +432,13 @@ class WulffShape(object):
                 color_set, alpha, off_color)
 
         if not direction:
-            miller_indices, areas = [], []
-            for hkl, a in self.area_fraction_dict.items():
-                miller_indices.append(hkl)
-                areas.append(a)
-            direction = miller_indices[areas.index(max(areas))]
+            # If direction is not specified, use the miller indices of
+            # maximum area.
+            direction = max(self.area_fraction_dict.items(),
+                            key=lambda x: x[1])[0]
 
         fig = plt.figure()
-        fig.set_size_inches(aspect_ratio[0],
-                            aspect_ratio[1])
+        fig.set_size_inches(aspect_ratio[0], aspect_ratio[1])
         azim, elev = self.get_azimuth_elev([direction[0], direction[1],
                                             direction[-1]])
 
@@ -486,9 +477,9 @@ class WulffShape(object):
             # plot from the sorted pts from [simpx]
             tri = a3.art3d.Poly3DCollection([pt])
             tri.set_color(plane_color)
-            # "#808080" is the default edge color.
             tri.set_edgecolor("#808080")
             ax.add_collection3d(tri)
+
         # set ranges of x, y, z
         # find the largest distance between on_wulff pts and the origin,
         # to ensure complete and consistent display for all directions
@@ -510,16 +501,15 @@ class WulffShape(object):
         ax.set_xlabel('x')
         ax.set_ylabel('y')
         ax.set_zlabel('z')
-        # add colorbar
-        # cbar = fig.colorbar(self.scalarcm, alpha=self.alpha)
-        # Add an axes at position rect [left, bottom, width, height]
-        cmap = plt.get_cmap(color_set)
-        cmap.set_over('0.25')
-        cmap.set_under('0.75')
-        bounds = [round(e, 2) for e in e_surf_on_wulff]
-        bounds.append(1.2 * bounds[-1])
-        norm = colors.BoundaryNorm(bounds, cmap.N)
+
+        # Add colorbar
         if bar_on:
+            cmap = plt.get_cmap(color_set)
+            cmap.set_over('0.25')
+            cmap.set_under('0.75')
+            bounds = [round(e, 2) for e in e_surf_on_wulff]
+            bounds.append(1.2 * bounds[-1])
+            norm = colors.BoundaryNorm(bounds, cmap.N)
             # display surface energies
             ax1 = fig.add_axes(bar_pos)
             cbar = colorbar.ColorbarBase(
