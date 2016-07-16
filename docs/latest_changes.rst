@@ -1,7 +1,6 @@
 Change log
 ==========
 
-v4.1.0
+v4.1.1
 ------
-* Wulff shape generator and analysis.
-* Minor bug fixes.
+* Major refactoring of WulffShape and lammps support.
