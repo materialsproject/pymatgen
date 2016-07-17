@@ -153,7 +153,7 @@ class WulffShape(object):
         list of symmetric operations for input structure (cartesian)
 
     .. attribute:: normal_e_m: item:
-        [normal, e_surf, normal_pt, dual_pt, color_plane, m_ind_orig, miller]
+        [WulffPlane]
         for all planes considering symm
 
     .. attribute:: dual_cv_simp
@@ -163,11 +163,6 @@ class WulffShape(object):
 
     .. attribute:: wulff_cv_simp
         simplices from the convex hull of wulff_pt_list
-
-    .. attribute:: simpx_info
-
-    .. attribute:: plane_wulff_info: item:
-        [normal, e_surf, pts, simpx, color_plane, m_ind_orig, miller]
 
     .. attribute:: on_wulff
         list for all input_miller, True is on wulff.
@@ -203,31 +198,24 @@ class WulffShape(object):
             e_surf_list ([float]): list of corresponding surface energies
             symprec (float): for recp_operation, default is 0.01
         """
-        structure = Structure(lattice, ["H"], [[0, 0, 0]])
         self.color_ind = list(range(len(miller_list)))
 
         self.input_miller_fig = [hkl_tuple_to_str(x) for x in miller_list]
         # store input data
-        self.structure = structure
+        self.structure = Structure(lattice, ["H"], [[0, 0, 0]])
         self.input_miller = [list(x) for x in miller_list]
         self.input_hkl = [[x[0], x[1], x[-1]] for x in miller_list]
         self.input_e_surf = list(e_surf_list)
         self.lattice = lattice
-        self.recp = structure.lattice.reciprocal_lattice_crystallographic
-        self.recp_symmops = get_recp_symmetry_operation(structure, symprec)
-
-        sga = SpacegroupAnalyzer(structure, symprec)
-        self.cart_symmops = sga.get_point_group_operations(cartesian=True)
+        self.symprec = symprec
 
         # 2. get all the data for wulff construction
         # get all the surface normal from get_all_miller_e()
-        normal_e_m = self._get_all_miller_e()
-        # [normal, e_surf, normal_pt, dual_pt, color_plane, m_ind_orig, miller]
-        logger.debug(len(normal_e_m))
-        self.normal_e_m = normal_e_m
+        self.normal_e_m = self._get_all_miller_e()
+        logger.debug(len(self.normal_e_m))
 
         # 3. consider the dual condition
-        dual_pts = [x.dual_pt for x in normal_e_m]
+        dual_pts = [x.dual_pt for x in self.normal_e_m]
         dual_convex = ConvexHull(dual_pts)
         dual_cv_simp = dual_convex.simplices
         # simplices	(ndarray of ints, shape (nfacet, ndim))
@@ -268,20 +256,21 @@ class WulffShape(object):
             normal[0]x + normal[1]y + normal[2]z = e_surf
 
         return:
-            normal_e_m, item: [normal, e_surf, normal_pt, dual_pt,
-            color_plane, m_ind_orig, miller]
+            [WulffPlane]
         """
         all_hkl = []
         color_ind = self.color_ind
         normal_e_m = []
+        recp = self.structure.lattice.reciprocal_lattice_crystallographic
+        recp_symmops = get_recp_symmetry_operation(self.structure, self.symprec)
 
         for i, (hkl, energy) in enumerate(zip(self.input_hkl,
                                               self.input_e_surf)):
-            for op in self.recp_symmops:
+            for op in recp_symmops:
                 miller = tuple([int(x) for x in op.operate(hkl)])
                 if miller not in all_hkl:
                     all_hkl.append(miller)
-                    normal = self.recp.get_cartesian_coords(miller)
+                    normal = recp.get_cartesian_coords(miller)
                     normal /= sp.linalg.norm(normal)
                     normal_pt = [x * energy for x in normal]
                     dual_pt = [x / energy for x in normal]
