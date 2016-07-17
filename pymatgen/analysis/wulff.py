@@ -26,7 +26,6 @@ from pymatgen.util.coord_utils import get_angle
 import numpy as np
 import scipy as sp
 from scipy.spatial import ConvexHull
-import copy
 import logging
 
 import matplotlib.pyplot as plt
@@ -75,6 +74,24 @@ def get_tri_area(pts):
     v2 = np.array(c) - np.array(a)
     area_tri = abs(sp.linalg.norm(sp.cross(v1, v2)) / 2)
     return area_tri
+
+
+class WulffPlane(object):
+    """
+    Helper container for each Wulff plane.
+    """
+
+    def __init__(self, normal, e_surf, normal_pt, dual_pt, index, m_ind_orig,
+                 miller):
+        self.normal = normal
+        self.e_surf = e_surf
+        self.normal_pt = normal_pt
+        self.dual_pt = dual_pt
+        self.index = index
+        self.m_ind_orig = m_ind_orig
+        self.miller = miller
+        self.points = []
+        self.outer_lines = []
 
 
 class WulffShape(object):
@@ -210,7 +227,7 @@ class WulffShape(object):
         self.normal_e_m = normal_e_m
 
         # 3. consider the dual condition
-        dual_pts = [x[3] for x in normal_e_m]
+        dual_pts = [x.dual_pt for x in normal_e_m]
         dual_convex = ConvexHull(dual_pts)
         dual_cv_simp = dual_convex.simplices
         # simplices	(ndarray of ints, shape (nfacet, ndim))
@@ -219,7 +236,7 @@ class WulffShape(object):
         # recalculate the dual of dual, get the wulff shape.
         # conner <-> surface
         # get cross point from the simplices of the dual convex hull
-        wulff_pt_list = [self.get_cross_pt_dual_simp(dual_simp)
+        wulff_pt_list = [self._get_cross_pt_dual_simp(dual_simp)
                          for dual_simp in dual_cv_simp]
 
         wulff_convex = ConvexHull(wulff_pt_list)
@@ -232,8 +249,7 @@ class WulffShape(object):
         self.wulff_cv_simp = wulff_cv_simp
         self.wulff_convex = wulff_convex
 
-        self.simpx_info, self.plane_wulff_info, self.on_wulff, self.color_area \
-            = self._get_simpx_plane()
+        self.on_wulff, self.color_area = self._get_simpx_plane()
 
         miller_area = []
         for m, in_mill_fig in enumerate(self.input_miller_fig):
@@ -270,14 +286,14 @@ class WulffShape(object):
                     normal_pt = [x * energy for x in normal]
                     dual_pt = [x / energy for x in normal]
                     color_plane = color_ind[divmod(i, len(color_ind))[1]]
-                    normal_e_m.append([normal, energy, normal_pt, dual_pt,
-                                       color_plane, i, hkl])
+                    normal_e_m.append(WulffPlane(normal, energy, normal_pt,
+                                                 dual_pt, color_plane, i, hkl))
 
         # sorted by e_surf
-        normal_e_m.sort(key=lambda x: x[1])
+        normal_e_m.sort(key=lambda x: x.e_surf)
         return normal_e_m
 
-    def get_cross_pt_dual_simp(self, dual_simp):
+    def _get_cross_pt_dual_simp(self, dual_simp):
         """
         |normal| = 1, e_surf is plane's distance to (0, 0, 0),
         plane function:
@@ -290,10 +306,8 @@ class WulffShape(object):
             dual_simp: (i, j, k) simplices from the dual convex hull
                 i, j, k: plane index(same order in normal_e_m)
         """
-        i, j, k = dual_simp[0], dual_simp[1], dual_simp[2]
-        normal_e_m = self.normal_e_m
-        matrix_surfs = [normal_e_m[i][0], normal_e_m[j][0], normal_e_m[k][0]]
-        matrix_e = [normal_e_m[i][1], normal_e_m[j][1], normal_e_m[k][1]]
+        matrix_surfs = [self.normal_e_m[dual_simp[i]].normal for i in range(3)]
+        matrix_e = [self.normal_e_m[dual_simp[i]].e_surf for i in range(3)]
         cross_pt = sp.dot(sp.linalg.inv(matrix_surfs), matrix_e)
         return cross_pt
 
@@ -306,52 +320,33 @@ class WulffShape(object):
         based on: wulff_cv_simp, normal_e_m, wulff_pt_list
         """
         wulff_simpx = self.wulff_cv_simp
-        # normal_e_m, item: [normal, e_surf, normal_pt, dual_pt,
-        #     color_plane, m_ind_orig, miller]
         normal_e_m = self.normal_e_m
         wulff_pt_list = self.wulff_pt_list
-        simpx_info = []
         on_wulff = [False] * len(self.input_miller)
         surface_area = [0.0] * len(self.input_miller)
-        plane_wulff_info = [[x[0], x[1], [], [], x[4], x[5], x[6]]
-                            for x in normal_e_m]
-        # each simpx (i,j,k) from self.wulff_cv_simp
-        #  forms a triangle on the wulff shape.
-        # check which surface it belongs to
         for simpx in wulff_simpx:
             pts = [wulff_pt_list[simpx[i]] for i in range(3)]
             center = np.sum(pts, 0) / 3.0
             # check whether the center of the simplices is on one plane
-            for i, plane in enumerate(normal_e_m):
-                normal, e_surf = plane[0], plane[1]
+            for plane in normal_e_m:
+                normal, e_surf = plane.normal, plane.e_surf
                 abs_diff = abs(np.dot(normal, center) - e_surf)
-                if abs_diff < 10e-6:
-                    # assign values only if the simplices is on the plane.
-                    plane_ind = plane[4]  # the ind of input_miller
-                    on_wulff[plane_ind] = True
-                    surface_area[plane_ind] += get_tri_area(pts)
-                    simp_inf = [plane[0], plane[1], pts, simpx, plane[4],
-                                plane[5], plane[6]]
-                    # build a list in the same order of simpx
-                    # with related plane information
-                    simpx_info.append(simp_inf)
+                if abs_diff < 1e-5:
+                    on_wulff[plane.index] = True
+                    surface_area[plane.index] += get_tri_area(pts)
 
-                    plane_wulff_info[i][2].append(pts)
-                    # outer_lines
-                    plane_wulff_info[i][3].append([simpx[0], simpx[1]])
-                    plane_wulff_info[i][3].append([simpx[1], simpx[2]])
-                    plane_wulff_info[i][3].append([simpx[0], simpx[2]])
+                    plane.points.append(pts)
+                    plane.outer_lines.append([simpx[0], simpx[1]])
+                    plane.outer_lines.append([simpx[1], simpx[2]])
+                    plane.outer_lines.append([simpx[0], simpx[2]])
                     # already find the plane, move to the next simplices
                     break
-        for plane in plane_wulff_info:
-            if len(plane[3]):
-                plane[3].sort()
-                outer_lines = []
-                for line in plane[3]:
-                    if plane[3].count(line) != 2:
-                        outer_lines.append(line)
-                plane[3] = outer_lines
-        return simpx_info, plane_wulff_info, on_wulff, surface_area
+        for plane in normal_e_m:
+            if len(plane.outer_lines):
+                plane.outer_lines.sort()
+                plane.outer_lines = [line for line in plane.outer_lines
+                                     if plane.outer_lines.count(line) != 2]
+        return on_wulff, surface_area
 
     def _get_colors(self, color_set, alpha, off_color):
         """
@@ -443,20 +438,18 @@ class WulffShape(object):
                                             direction[-1]])
 
         wulff_pt_list = self.wulff_pt_list
-        plane_wulff_info = self.plane_wulff_info
 
         ax = a3.Axes3D(fig, azim=azim, elev=elev)
 
-        for plane in plane_wulff_info:
+        for plane in self.normal_e_m:
             # check whether [pts] is empty
-            if len(plane[2]) < 1:
+            if len(plane.points) < 1:
                 # empty, plane is not on_wulff.
                 continue
             # assign the color for on_wulff planes according to its
-            # color_plane index and the color_list for on_wulff
-            plane_color = color_list[plane[4]]
-            # plane[3]: [simpx]
-            lines = list(plane[3])
+            # index and the color_list for on_wulff
+            plane_color = color_list[plane.index]
+            lines = list(plane.outer_lines)
             pt = []
             prev = None
             while len(lines) > 0:
