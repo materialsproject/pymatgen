@@ -527,9 +527,9 @@ class CifParser(object):
                     for et in els_occu:
                         match = get_matching_coord(coord)
                         if not match:
-                            coord_to_species[coord] = Composition({et: els_occu[et]})
+                            coord_to_species[coord] = Composition({parse_symbol(et): els_occu[parse_symbol(et)]})
                         else:
-                            coord_to_species[match] += {et: els_occu[et]}
+                            coord_to_species[match] += {parse_symbol(et): els_occu[parse_symbol(et)]}
                     idxs_to_remove.append(idx)
 
             # Remove the original row by iterating over all keys in the CIF data looking for lists, which indicates
