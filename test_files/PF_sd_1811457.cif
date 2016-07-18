@@ -1,0 +1,185 @@
+##CIF_1.1
+
+data_sm_global
+#Used dictionaries
+loop_
+_audit_conform_dict_name
+_audit_conform_dict_version
+_audit_conform_dict_location
+cif_core.dic 	2.4.2 	.
+cif_pd.dic 		1.0.1 	.
+cif_sm.dic 		0.1 	'redaktion.landolt-boernstein(at)springer.com'
+
+#About this content and reference
+_sm_credits_copyright
+;PAULING FILE Multinaries Edition - 2012. SpringerMaterials Release 2014.
+http://www.paulingfile.com
+Unique LPF ID Number SD1811457
+Project Coordinator: Shuichi Iwata
+Section-Editors: Karin Cenzual (Crystal Structures), Hiroaki Okamoto (Phase
+Diagrams), Fritz Hulliger (Physical Properties)
+(c) Springer & Material Phases Data System (MPDS), Switzerland & National
+Institute for Materials Science (NIMS), Japan 2014.
+(Data generated pre-2002: (c) Springer & MPDS & NIMS;
+post-2001: (c) Springer & MPDS)
+All Rights Reserved. Version 2014.06.
+;
+
+_audit_creation_method
+;This data have been compiled from the crystallographic datasheet for
+"1-x(BaMg1/3Ta2/3O3)-x(BaZrO3), x= 0.1 (BaMg0.3Zr0.1Ta0.6O3) Crystal Structure"
+taken from SpringerMaterials (sm_isp_sd_1811457).
+;
+
+_publ_section_references
+;Chai L., Akbas M.A., Davies P.K., Parise J.B.: <i>Cation ordering transformations in Ba(Mg<sub>1/3</sub>Ta<sub>2/3</sub>)O<sub>3</sub>-BaZrO<sub>3</sub> perovskite solid solutions</i>. Materials Research Bulletin <b>32</b> (1997) 1261-1269.
+;
+
+#Phase classification
+_sm_phase_labels				'BaMg0.3Zr0.1Ta0.6O3'
+_chemical_name_mineral			''
+_sm_chemical_compound_class		'oxide'
+_sm_phase_prototype				'BaBiO3 '
+_sm_pearson_symbol				'cF40'
+_symmetry_Int_Tables_number		225
+_sm_sample_details
+;sample prepared from BaCO<sub>3</sub>, MgO, Ta<sub>2</sub>O<sub>5</sub>, ZrO<sub>2</sub>,
+powder (determination of cell and structural parameters)
+;
+_sm_measurement_details
+;automatic diffractometer (determination of cell parameters),
+automatic diffractometer; U.S.A. New York, Brookhaven, Brookhaven National Laboratory, HFBR reactor, H1A (determination of structural parameters),
+neutrons (determination of cell parameters),
+neutrons; &#x03bb; = 0.18857 nm (determination of structural parameters),
+<i>T</i> = 293 K (determination of cell and structural parameters)
+;
+_sm_interpretation_details
+;complete structure determined; composition dependence studied,
+Rietveld refinement,
+<i>R</i><sub>P</sub> = 0.061; <i>wR</i><sub>P</sub> = 0.082
+;
+
+data_sm_isp_SD1811457-standardized_unitcell
+#Cell Parameters
+_cell_length_a					8.2023
+_cell_length_b					8.2023
+_cell_length_c					8.2023
+_cell_angle_alpha				90
+_cell_angle_beta				90
+_cell_angle_gamma				90
+_sm_length_ratio_ab				1.000
+_sm_length_ratio_bc				1.000
+_sm_length_ratio_ca				1.000
+_cell_volume 					551.8
+_symmetry_space_group_name_H-M	'Fm-3m'
+_symmetry_Int_Tables_number		225
+_cell_formula_units_Z			8
+_sm_cell_transformation
+;origin shift 1/2 1/2 1/2
+;
+
+#Atom Coordinates
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_Wyckoff_symbol
+_sm_site_symmetry
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_sm_coordination_number
+_sm_atomic_environment_type
+O 'O' .24e .4m.m 0.246 0 0 1 2 'collinear, TaMg'
+Ba 'Ba' .8c .-43m 0.25 0.25 0.25 1 12 'cuboctahedron, O<sub>12</sub>'
+M1 '0.56(4)Mg + 0.29(3)Ta + 0.15(5)Zr' .4b .m-3m 0.5 0.5 0.5 1 6 'octahedron, O<sub>6</sub>'
+M2 '0.91(3)Ta + 0.05(5)Zr + 0.04(4)Mg' .4a .m-3m 0 0 0 1 6 'octahedron, O<sub>6</sub>'
+
+_sm_atom_site_transformation
+;origin shift 1/2 1/2 1/2
+;
+
+#Isotropic Displacement Parameters
+loop_
+_atom_site_label_1
+_atom_site_B_iso_or_equiv
+_sm_atom_site_isotropic_displacement_parameter_type
+_atom_site_B_equiv_geom_mean
+Ba 0.0058(20) 'Biso' ?
+M1 0.0032(69) 'Biso' ?
+M2 0.0047(62) 'Biso' ?
+O 0.0072(16) 'Biso' ?
+
+data_sm_isp_SD1811457-published_cell
+#Cell Parameters
+_cell_length_a					8.2023(1)
+_cell_length_b					8.2023(1)
+_cell_length_c					8.2023(1)
+_cell_angle_alpha				90
+_cell_angle_beta				90
+_cell_angle_gamma				90
+_sm_length_ratio_ab				1.000
+_sm_length_ratio_bc				1.000
+_sm_length_ratio_ca				1.000
+_cell_volume 					551.83
+_symmetry_space_group_name_H-M	'Fm-3m'
+_symmetry_Int_Tables_number		225
+_cell_formula_units_Z			8
+
+#Atom Coordinates
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_Wyckoff_symbol
+_sm_site_symmetry
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_sm_coordination_number
+_sm_atomic_environment_type
+Ba 'Ba' .8c .-43m 0.25 0.25 0.25 1 ? '?'
+M1 '0.56(4)Mg + 0.29(3)Ta + 0.15(5)Zr' .4a .m-3m 0 0 0 1 ? '?'
+M2 '0.91(3)Ta + 0.05(5)Zr + 0.04(4)Mg' .4b .m-3m 0.5 0.5 0.5 1 ? '?'
+O 'O' .24e .4m.m 0.254(1) 0 0 1 ? '?'
+
+#Isotropic Displacement Parameters
+loop_
+_atom_site_label_1
+_atom_site_B_iso_or_equiv
+_sm_atom_site_isotropic_displacement_parameter_type
+_atom_site_B_equiv_geom_mean
+Ba 0.0058(20) 'Biso' ?
+M1 0.0032(69) 'Biso' ?
+M2 0.0047(62) 'Biso' ?
+O 0.0072(16) 'Biso' ?
+
+data_sm_isp_SD1811457-niggli_reduced_cell
+#Cell Parameters
+_cell_length_a					5.7999
+_cell_length_b					5.7999
+_cell_length_c					5.7999
+_cell_angle_alpha				60
+_cell_angle_beta				60
+_cell_angle_gamma				60
+_sm_length_ratio_ab				1.000
+_sm_length_ratio_bc				1.000
+_sm_length_ratio_ca				1.000
+_cell_volume 					137.96
+_symmetry_space_group_name_H-M	''
+_symmetry_Int_Tables_number		?
+_cell_formula_units_Z			8
+
+#Atom Coordinates
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_Wyckoff_symbol
+_sm_site_symmetry
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_sm_coordination_number
+_sm_atomic_environment_type
+? ? ? ? ? ? ? ? ? ?

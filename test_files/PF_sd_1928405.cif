@@ -1,0 +1,165 @@
+##CIF_1.1
+
+data_sm_global
+#Used dictionaries
+loop_
+_audit_conform_dict_name
+_audit_conform_dict_version
+_audit_conform_dict_location
+cif_core.dic 	2.4.2 	.
+cif_pd.dic 		1.0.1 	.
+cif_sm.dic 		0.1 	'redaktion.landolt-boernstein(at)springer.com'
+
+#About this content and reference
+_sm_credits_copyright
+;PAULING FILE Multinaries Edition - 2012. SpringerMaterials Release 2014.
+http://www.paulingfile.com
+Unique LPF ID Number SD1928405
+Project Coordinator: Shuichi Iwata
+Section-Editors: Karin Cenzual (Crystal Structures), Hiroaki Okamoto (Phase
+Diagrams), Fritz Hulliger (Physical Properties)
+(c) Springer & Material Phases Data System (MPDS), Switzerland & National
+Institute for Materials Science (NIMS), Japan 2014.
+(Data generated pre-2002: (c) Springer & MPDS & NIMS;
+post-2001: (c) Springer & MPDS)
+All Rights Reserved. Version 2014.06.
+;
+
+_audit_creation_method
+;This data have been compiled from the crystallographic datasheet for
+"ErMn6&#x2212;xFexSn6, x= 2 (ErMn3Fe3Sn6, <i>T</i> = 300 K) Crystal Structure"
+taken from SpringerMaterials (sm_isp_sd_1928405).
+;
+
+_publ_section_references
+;Bourgeois J., Venturini G., Malaman B.: <i>A neutron diffraction study of the hexagonal pseudo-ternary compounds ErMn<sub>6&#x2212;x</sub>Fe<sub>x</sub>Sn<sub>6</sub> (x= 0.2, 0.4, 0.6, 0.8, 1.0, 2.0, 3.0, 4.0)</i>. Journal of Alloys and Compounds <b>480</b> (2009) 171-183.
+;
+
+#Phase classification
+_sm_phase_labels				'ErMn3Fe3Sn6'
+_chemical_name_mineral			''
+_sm_chemical_compound_class		'intermetallic'
+_sm_phase_prototype				'MgFe6 Ge6 '
+_sm_pearson_symbol				'hP13'
+_symmetry_Int_Tables_number		191
+_sm_sample_details
+;sample prepared from Er, Mn, Fe, Sn,
+amounts of Sn and TSn<sub>2</sub> phases,
+powder (determination of cell and structural parameters)
+;
+_sm_measurement_details
+;automatic diffractometer (determination of cell parameters),
+automatic diffractometer; France, Grenoble, Institute Laue-Langevin ILL, D1B (determination of structural parameters),
+neutrons; &#x03bb; = 0.2520 nm (determination of cell and structural parameters),
+<i>T</i> = 300 K (determination of cell and structural parameters)
+;
+_sm_interpretation_details
+;complete structure determined; composition dependence studied; magnetic structure determined; temperature dependence studied,
+Rietveld refinement, multiphase,
+<i>wR</i><sub>P</sub> = 0.103; <i>R</i><sub>B</sub> = 0.0502
+;
+
+data_sm_isp_SD1928405-standardized_unitcell
+#Cell Parameters
+_cell_length_a					5.469
+_cell_length_b					5.469
+_cell_length_c					8.968
+_cell_angle_alpha				90
+_cell_angle_beta				90
+_cell_angle_gamma				120
+_sm_length_ratio_ab				1.000
+_sm_length_ratio_bc				0.610
+_sm_length_ratio_ca				1.640
+_cell_volume 					232.3
+_symmetry_space_group_name_H-M	'P6/mmm'
+_symmetry_Int_Tables_number		191
+_cell_formula_units_Z			1
+_sm_cell_transformation
+;No transformation from published to standardized cell parameters necessary.
+;
+
+#Atom Coordinates
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_Wyckoff_symbol
+_sm_site_symmetry
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_sm_coordination_number
+_sm_atomic_environment_type
+T '0.648(4)Mn + 0.352(4)Fe' .6i .2mm 0.5 0 0.246 1 12 'icosahedron, Sn<sub>6</sub>Mn<sub>4</sub>Er<sub>2</sub>'
+Sn3 'Sn' .2e .6mm 0 0 0.338 1 14 '14-vertex Frank-Kasper, Mn<sub>6</sub>Sn<sub>7</sub>Er'
+Sn2 'Sn' .2d .-6m2 0.333333333333333 0.666666666666667 0.5 1 15 '15-vertex Frank-Kasper, Mn<sub>6</sub>Sn<sub>9</sub>'
+Sn1 'Sn' .2c .-6m2 0.333333333333333 0.666666666666667 0 1 12 'icosahedron, Mn<sub>6</sub>Er<sub>3</sub>Sn<sub>3</sub>'
+Er 'Er' .1a .6/mmm 0 0 0 1 20 'pseudo Frank-Kasper (20), Sn<sub>8</sub>Mn<sub>12</sub>'
+
+_sm_atom_site_transformation
+;No transformation from published to standardized cell parameters necessary.
+;
+
+data_sm_isp_SD1928405-published_cell
+#Cell Parameters
+_cell_length_a					5.469(1)
+_cell_length_b					5.469(1)
+_cell_length_c					8.968(2)
+_cell_angle_alpha				90
+_cell_angle_beta				90
+_cell_angle_gamma				120
+_sm_length_ratio_ab				1.000
+_sm_length_ratio_bc				0.610
+_sm_length_ratio_ca				1.640
+_cell_volume 					232.3
+_symmetry_space_group_name_H-M	'P6/mmm'
+_symmetry_Int_Tables_number		191
+_cell_formula_units_Z			1
+
+#Atom Coordinates
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_Wyckoff_symbol
+_sm_site_symmetry
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_sm_coordination_number
+_sm_atomic_environment_type
+Er 'Er' .1a .6/mmm 0 0 0 1 ? '?'
+T '0.648(4)Mn + 0.352(4)Fe' .6i .2mm 0.5 0 0.246 1 ? '?'
+Sn1 'Sn' .2c .-6m2 0.333333333333333 0.666666666666667 0 1 ? '?'
+Sn2 'Sn' .2d .-6m2 0.333333333333333 0.666666666666667 0.5 1 ? '?'
+Sn3 'Sn' .2e .6mm 0 0 0.338(1) 1 ? '?'
+
+data_sm_isp_SD1928405-niggli_reduced_cell
+#Cell Parameters
+_cell_length_a					5.469
+_cell_length_b					5.469
+_cell_length_c					8.968
+_cell_angle_alpha				90
+_cell_angle_beta				90
+_cell_angle_gamma				120
+_sm_length_ratio_ab				1.000
+_sm_length_ratio_bc				0.610
+_sm_length_ratio_ca				1.640
+_cell_volume 					232.3
+_symmetry_space_group_name_H-M	''
+_symmetry_Int_Tables_number		?
+_cell_formula_units_Z			1
+
+#Atom Coordinates
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_Wyckoff_symbol
+_sm_site_symmetry
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_sm_coordination_number
+_sm_atomic_environment_type
+? ? ? ? ? ? ? ? ? ?
