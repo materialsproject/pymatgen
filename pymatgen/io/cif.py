@@ -461,6 +461,9 @@ class CifParser(object):
 
             if substitution_dictionary:
                 return substitution_dictionary.get(sym)
+            elif sym in ['OH', 'OH2']:
+                warnings.warn("Symbol '{}' not recognized".format(sym))
+                return ""
             else:
                 m = re.findall(r"w?[A-Z][a-z]*", sym)
                 if m and m != "?":
