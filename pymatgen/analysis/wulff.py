@@ -383,8 +383,8 @@ class WulffShape(object):
 
         fig = plt.figure()
         fig.set_size_inches(aspect_ratio[0], aspect_ratio[1])
-        azim, elev = self.get_azimuth_elev([direction[0], direction[1],
-                                            direction[-1]])
+        azim, elev = self._get_azimuth_elev([direction[0], direction[1],
+                                             direction[-1]])
 
         wulff_pt_list = self.wulff_pt_list
 
@@ -466,19 +466,21 @@ class WulffShape(object):
             ax.axis('off')
         return plt
 
-    def get_azimuth_elev(self, miller_index):
+    def _get_azimuth_elev(self, miller_index):
         """
-        :param miller_index: viewing direction
-        :return: azim, elev for plotting
-        """
+        Args:
+            miller_index: viewing direction
 
-        cart = self.lattice.get_cartesian_coords(miller_index)
-        azim = get_angle([cart[0], cart[1], 0], (1, 0, 0))
-        v = [cart[0], cart[1], 0]
-        elev = get_angle(cart, v)
+        Returns:
+            azim, elev for plotting
+        """
         if miller_index == (0, 0, 1) or miller_index == (0, 0, 0, 1):
             return 0, 90
         else:
+            cart = self.lattice.get_cartesian_coords(miller_index)
+            azim = get_angle([cart[0], cart[1], 0], (1, 0, 0))
+            v = [cart[0], cart[1], 0]
+            elev = get_angle(cart, v)
             return azim, elev
 
     @property
