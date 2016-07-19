@@ -147,10 +147,10 @@ class WulffShapeTest(PymatgenTest):
     def test_get_azimuth_elev(self):
 
         # Test out the viewing of the Wulff shape from Miller indices.
-        azim, elev = self.wulff_Ir.get_azimuth_elev((0, 0, 1))
+        azim, elev = self.wulff_Ir._get_azimuth_elev((0, 0, 1))
         self.assertEqual(azim, 0)
         self.assertEqual(elev, 90)
-        azim, elev = self.wulff_Ir.get_azimuth_elev((1, 1, 1))
+        azim, elev = self.wulff_Ir._get_azimuth_elev((1, 1, 1))
         self.assertAlmostEqual(azim, 45)
 
     def test_properties(self):
