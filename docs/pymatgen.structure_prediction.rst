@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.structure_prediction.tests
 
 Submodules
 ----------

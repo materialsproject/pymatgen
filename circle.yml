@@ -1,3 +1,7 @@
+general:
+  branches:
+    ignore:
+      - gh-pages # list of branches to ignore
 machine:
   timezone:
     America/Los_Angeles

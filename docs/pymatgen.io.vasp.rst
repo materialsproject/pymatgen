@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.io.vasp.tests
 
 Submodules
 ----------

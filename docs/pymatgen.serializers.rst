@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.serializers.tests
 
 Submodules
 ----------
