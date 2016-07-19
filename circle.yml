@@ -3,10 +3,8 @@ general:
     ignore:
       - gh-pages # list of branches to ignore
 machine:
-  timezone:
-    America/Los_Angeles
   python:
-    version: 2.7.11
+    version: 5.3.5
   environment:
       PATH: $PATH:/home/ubuntu/pymatgen/cmd_line/enum/Linux_64bit:/home/ubuntu/pymatgen/cmd_line/bader/Linux_64bit:/home/ubuntu/pymatgen/cmd_line/gulp/Linux_64bit:/home/ubuntu/pymatgen/cmd_line/aconvasp/Linux_64bit
       GULP_LIB: /home/ubuntu/pymatgen/cmd_line/gulp/Libraries
