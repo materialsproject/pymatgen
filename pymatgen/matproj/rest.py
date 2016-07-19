@@ -831,6 +831,21 @@ class MPRester(object):
                                   payload={"reactants[]": reactants,
                                            "products[]": products})
 
+    def get_substrates(self, material_id, orient=[], number=50):
+        """
+        Get a substrate list for a material id
+
+        Args:
+            material_id (str): Materials Project material_id, e.g. 'mp-123'.
+            orient (list) : substrate orientation to look for
+            number
+        Returns:
+            list of dicts with substrate matches
+        """
+        req = "/materials/{}/substrates?orient={}&n={}"
+        req = req.format(material_id," ".join(map(str,orient)),number)
+        return self._make_request(req)
+
     @staticmethod
     def parse_criteria(criteria_string):
         """
