@@ -514,7 +514,7 @@ class WulffShape(object):
     @property
     def weighted_surface_energy(self):
         """
-        :return:
+        Returns:
             sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)
         """
         tot_area_energy = 0
@@ -526,7 +526,7 @@ class WulffShape(object):
     @property
     def area_fraction_dict(self):
         """
-        :return:
+        Returns:
             (dict): {hkl: area_hkl/total area on wulff}
         """
         return {hkl: self.miller_area_dict[hkl] / self.surface_area
@@ -535,8 +535,8 @@ class WulffShape(object):
     @property
     def anisotropy(self):
         """
-        :return:
-            variation from weighted surface energy
+        Returns:
+            (float) Coefficient of Variation from weighted surface energy
             The ideal sphere is 0.
         """
         square_diff_energy = 0
@@ -557,8 +557,7 @@ class WulffShape(object):
         See Ballufi, R. W., Allen, S. M. & Carter, W. C. Kinetics
             of Materials. (John Wiley & Sons, 2005), p.461
 
-        :return:
-            variation from weighted surface energy
-            The ideal sphere is 0.
+        Returns:
+            (float) Shape factor.
         """
         return self.surface_area / (self.volume ** (2 / 3))
