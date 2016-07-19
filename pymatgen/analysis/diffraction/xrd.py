@@ -70,7 +70,7 @@ class XRDCalculator(object):
     the Debye-Waller (temperature) factor (for which data is typically not
     available). Note that the multiplicity correction is not needed since
     this code simply goes through all reciprocal points within the limiting
-    sphere, which includes all symmetrically equivalent planes. The algorithm
+    sphere, which includes all symmetrically equivalent facets. The algorithm
     is as follows
 
     1. Calculate reciprocal lattice of structure. Find all reciprocal points
@@ -172,7 +172,7 @@ class XRDCalculator(object):
             Two_theta is in degrees. Intensity is in arbitrary units and if
             scaled (the default), has a maximum value of 100 for the highest
             peak. {(h, k, l): mult} is a dict of Miller indices for all
-            diffracted lattice planes contributing to that intensity and
+            diffracted lattice facets contributing to that intensity and
             their multiplicities. d_hkl is the interplanar spacing.
         """
         if self.symprec:

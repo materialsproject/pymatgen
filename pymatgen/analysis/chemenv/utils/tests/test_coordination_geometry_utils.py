@@ -159,7 +159,7 @@ class PlanesUtilsTest(PymatgenTest):
         self.assertEqual(len(sep[0]), 0)
         self.assertEqual(len(sep[1]), 8)
         self.assertEqual(len(sep[2]), 0)
-        #Test with 2 coeff planes (Normal vector = [1, 0, 0] or [0, 1, 0] or [0, 0, 1])
+        #Test with 2 coeff facets (Normal vector = [1, 0, 0] or [0, 1, 0] or [0, 0, 1])
         #Plane x-2=0 (perpendicular to x)
         plane = Plane.from_coefficients(-4, 0, 0, 8)
         sep = plane.indices_separate(plist, 0.00001)
@@ -190,7 +190,7 @@ class PlanesUtilsTest(PymatgenTest):
         self.assertEqual(sep[0], [5])
         self.assertEqual(sep[1], [0, 1, 2, 3, 4, 7])
         self.assertEqual(sep[2], [6])
-        #Test with 3 coeff planes (Normal vector = [0, a, b] or [a, 0, b] or [a, b, 0])
+        #Test with 3 coeff facets (Normal vector = [0, a, b] or [a, 0, b] or [a, b, 0])
         #Plane 2y-z+4=0
         plane = Plane.from_coefficients(0, 2, -1, 0)
         sep = plane.indices_separate(plist, 0.00001)

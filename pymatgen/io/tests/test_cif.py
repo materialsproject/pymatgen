@@ -277,6 +277,63 @@ loop_
         parser = CifParser(os.path.join(test_dir, "Fe.cif"))
         self.assertEqual(len(parser.get_structures(primitive=False)[0]), 2)
 
+        # Below are 10 tests for CIFs from the Springer Materials/Pauling file DBs.
+
+        # Partial occupancy on sites, incorrect label, previously unparsable
+        parser = CifParser(os.path.join(test_dir, 'PF_sd_1928405.cif'))
+        for s in parser.get_structures(True):
+            self.assertEqual(s.formula, "Er1 Mn3.888 Fe2.112 Sn6")
+
+        # Partial occupancy on sites, previously parsed as an ordered structure
+        parser = CifParser(os.path.join(test_dir, 'PF_sd_1011081.cif'))
+        for s in parser.get_structures(True):
+            self.assertEqual(s.formula, "Zr0.2 Nb0.8")
+
+        # Partial occupancy on sites, incorrect label, previously unparsable
+        parser = CifParser(os.path.join(test_dir, 'PF_sd_1615854.cif'))
+        for s in parser.get_structures(True):
+            self.assertEqual(s.formula, "Na2 Al2 Si6 O16")
+
+        # Partial occupancy on sites, incorrect label, previously unparsable
+        parser = CifParser(os.path.join(test_dir, 'PF_sd_1622133.cif'))
+        for s in parser.get_structures(True):
+            self.assertEqual(s.formula, "Ca0.184 Mg13.016 Fe2.8 Si16 O48")
+
+        # Partial occupancy on sites, previously parsed as an ordered structure
+        parser = CifParser(os.path.join(test_dir, 'PF_sd_1908491.cif'))
+        for s in parser.get_structures(True):
+            self.assertEqual(s.formula, "Mn0.48 Zn0.52 Ga2 Se4")
+
+        # Partial occupancy on sites, incorrect label, previously unparsable
+        parser = CifParser(os.path.join(test_dir, 'PF_sd_1811457.cif'))
+        for s in parser.get_structures(True):
+            self.assertEqual(s.formula, "Ba2 Mg0.6 Zr0.2 Ta1.2 O6")
+
+        # Incomplete powder diffraction data, previously unparsable
+        # This CIF file contains the molecular species "NH3" which is
+        # parsed as "N" because the label is "N{x}" (x = 1,2,..) and the
+        # corresponding symbol is "NH3". Since, the label and symbol are switched
+        # in CIFs from Springer Materials/Pauling file DBs, CifParser parses the
+        # element as "N".
+        parser = CifParser(os.path.join(test_dir, 'PF_sd_1002871.cif'))
+        self.assertEqual(parser.get_structures(True)[0].formula, "Cu1 Br2 N6")
+        self.assertEqual(parser.get_structures(True)[1].formula, "Cu1 Br4 N6")
+
+        # Incomplete powder diffraction data, previously unparsable
+        parser = CifParser(os.path.join(test_dir, 'PF_sd_1704003.cif'))
+        for s in parser.get_structures():
+            self.assertEqual(s.formula, "Rb4 Mn2 F12")
+
+        # Unparsable species 'OH/OH2', previously parsed as "O"
+        parser = CifParser(os.path.join(test_dir, 'PF_sd_1500382.cif'))
+        for s in parser.get_structures():
+            self.assertEqual(s.formula, "Mg6 B2 O6 F1.764")
+
+        # Unparsable species 'OH/OH2', previously parsed as "O"
+        parser = CifParser(os.path.join(test_dir, 'PF_sd_1601634.cif'))
+        for s in parser.get_structures():
+            self.assertEqual(s.formula, "Zn1.29 Fe0.69 As2 Pb1.02 O8")
+
     def test_CifWriter(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
