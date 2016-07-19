@@ -1,0 +1,166 @@
+##CIF_1.1
+
+data_sm_global
+#Used dictionaries
+loop_
+_audit_conform_dict_name
+_audit_conform_dict_version
+_audit_conform_dict_location
+cif_core.dic 	2.4.2 	.
+cif_pd.dic 		1.0.1 	.
+cif_sm.dic 		0.1 	'redaktion.landolt-boernstein(at)springer.com'
+
+#About this content and reference
+_sm_credits_copyright
+;PAULING FILE Multinaries Edition - 2012. SpringerMaterials Release 2014.
+http://www.paulingfile.com
+Unique LPF ID Number SD1601634
+Project Coordinator: Shuichi Iwata
+Section-Editors: Karin Cenzual (Crystal Structures), Hiroaki Okamoto (Phase
+Diagrams), Fritz Hulliger (Physical Properties)
+(c) Springer & Material Phases Data System (MPDS), Switzerland & National
+Institute for Materials Science (NIMS), Japan 2014.
+(Data generated pre-2002: (c) Springer & MPDS & NIMS;
+post-2001: (c) Springer & MPDS)
+All Rights Reserved. Version 2014.06.
+;
+
+_audit_creation_method
+;This data have been compiled from the crystallographic datasheet for
+"tsumcorite (ZnFePb[AsO4]2[OH][H2O]) Crystal Structure"
+taken from SpringerMaterials (sm_isp_sd_1601634).
+;
+
+_publ_section_references
+;Krause W., Belendorff K., Bernhardt H.J., McCammon C.A., Effenberger H.S., Mikenda W.: <i>Crystal chemistry of the tsumcorite-group minerals. New data on ferrilotharmeyerite, tsumcorite, thometzekite, mounanaite, helmutwinklerite, and a redefinition of gartrellite</i>. European Journal of Mineralogy <b>10</b> (1998) 179-206.
+;
+
+#Phase classification
+_sm_phase_labels				'ZnFePb[AsO4]2[OH][H2O]'
+_chemical_name_mineral			'tsumcorite'
+_sm_chemical_compound_class		'arsenate, hydroxide, hydrate'
+_sm_phase_prototype				'NaCu2 [SO4 ]2 [OH][H2 O]'
+_sm_pearson_symbol				'mS30'
+_symmetry_Int_Tables_number		12
+_sm_sample_details
+;tsumcorite sample from Namibia, Tsumeb, Tsumeb mine,
+sample prepared from tsumcorite,
+electron microprobe analysis; Pb<sub>1.02</sub>Fe<sup>3+</sup><sub>0.69</sub>Zn<sub>1.30</sub>[AsO<sub>4</sub>]<sub>1.99</sub>[OH]<sub>0.74</sub>[H<sub>2</sub>O]<sub>1.29</sub>,
+powder (determination of cell parameters)
+;
+_sm_measurement_details
+;automatic diffractometer (determination of cell parameters),
+X-rays, Cu K&#x03b1; (determination of cell parameters)
+;
+_sm_interpretation_details
+;cell parameters determined and structure type assigned
+;
+
+data_sm_isp_SD1601634-standardized_unitcell
+#Cell Parameters
+_cell_length_a					9.143
+_cell_length_b					6.335
+_cell_length_c					7.598
+_cell_angle_alpha				90
+_cell_angle_beta				115.07
+_cell_angle_gamma				90
+_sm_length_ratio_ab				1.443
+_sm_length_ratio_bc				0.834
+_sm_length_ratio_ca				0.831
+_cell_volume 					398.6
+_symmetry_space_group_name_H-M	'C12/m1'
+_symmetry_Int_Tables_number		12
+_cell_formula_units_Z			2
+_sm_cell_transformation
+;No transformation from published to standardized cell parameters necessary.
+;
+
+#Atom Coordinates
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_Wyckoff_symbol
+_sm_site_symmetry
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_sm_coordination_number
+_sm_atomic_environment_type
+O1 'O' .8j .1 0.0201 0.3033 0.256 1 ? '?'
+#M1 '0.655OH2 + 0.345OH' .4i .m 0.1576 0 0.5754 1 ? '?'
+OH2 'OH2' .4i .m 0.1576 0 0.5754 0.655 ? '?'
+OH 'OH' .4i .m 0.1576 0 0.5754 0.345 ? '?'
+O2 'O' .4i .m 0.3069 0 0.3081 1 ? '?'
+As1 'As' .4i .m 0.4091 0 0.1987 1 ? '?'
+O3 'O' .4i .m 0.7091 0 0.0177 1 ? '?'
+#M2 '0.645Zn + 0.345Fe + 0.010Pb' .4f .-1 0.25 0.25 0.5 1 ? '?'
+Zn 'Zn' .4f .-1 0.25 0.25 0.5 0.645 ? '?'
+Fe 'Fe' .4f .-1 0.25 0.25 0.5 0.345 ? '?'
+Pb 'Pb' .4f .-1 0.25 0.25 0.5 0.010 ? '?'
+Pb1 'Pb' .2a .2/m 0 0 0 1 ? '?'
+
+_sm_atom_site_transformation
+;No transformation from published to standardized cell parameters necessary.
+Atom coordinates assigned by editor.
+;
+
+data_sm_isp_SD1601634-published_cell
+#Cell Parameters
+_cell_length_a					9.143(2)
+_cell_length_b					6.335(1)
+_cell_length_c					7.598(2)
+_cell_angle_alpha				90
+_cell_angle_beta				115.07(2)
+_cell_angle_gamma				90
+_sm_length_ratio_ab				1.443
+_sm_length_ratio_bc				0.834
+_sm_length_ratio_ca				0.831
+_cell_volume 					398.62
+_symmetry_space_group_name_H-M	'C12/m1'
+_symmetry_Int_Tables_number		12
+_cell_formula_units_Z			2
+
+#Atom Coordinates
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_Wyckoff_symbol
+_sm_site_symmetry
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_sm_coordination_number
+_sm_atomic_environment_type
+? ? ? ? ? ? ? ? ? ?
+
+data_sm_isp_SD1601634-niggli_reduced_cell
+#Cell Parameters
+_cell_length_a					5.5616
+_cell_length_b					5.5616
+_cell_length_c					7.598
+_cell_angle_alpha				69.617
+_cell_angle_beta				69.617
+_cell_angle_gamma				69.435
+_sm_length_ratio_ab				1.000
+_sm_length_ratio_bc				0.732
+_sm_length_ratio_ca				1.366
+_cell_volume 					199.31
+_symmetry_space_group_name_H-M	''
+_symmetry_Int_Tables_number		?
+_cell_formula_units_Z			2
+
+#Atom Coordinates
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_Wyckoff_symbol
+_sm_site_symmetry
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_sm_coordination_number
+_sm_atomic_environment_type
+? ? ? ? ? ? ? ? ? ?
