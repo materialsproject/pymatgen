@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.optimization.tests
 
 Submodules
 ----------
