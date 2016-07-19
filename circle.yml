@@ -30,7 +30,7 @@ test:
     - pmg convert POSCAR.pmg pmg.cif
     - pmg analyze -d test_files
 deployment:
-  py3:
+  py27:
     branch: master
     commands:
       - git config --global user.name "Py27 merger"
