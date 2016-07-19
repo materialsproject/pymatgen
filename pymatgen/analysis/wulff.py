@@ -75,7 +75,7 @@ def get_tri_area(pts):
     return area_tri
 
 
-class WulffPlane(object):
+class WulffFacet(object):
     """
     Helper container for each Wulff plane.
     """
@@ -122,7 +122,7 @@ class WulffShape(object):
     .. attribute:: show_area
 
     .. attribute:: off_color
-        color of planes off wulff
+        color of facets off wulff
 
     .. attribute:: structure
         Structure object, input conventional unit cell (with H ) from lattice
@@ -139,8 +139,8 @@ class WulffShape(object):
     .. attribute:: lattice
         Lattice object, the input lattice for the conventional unit cell
 
-    .. attribute:: planes
-        [WulffPlane] for all planes considering symm
+    .. attribute:: facets
+        [WulffFacet] for all facets considering symm
 
     .. attribute:: dual_cv_simp
         simplices from the dual convex hull (dual_pt)
@@ -182,11 +182,11 @@ class WulffShape(object):
 
         # 2. get all the data for wulff construction
         # get all the surface normal from get_all_miller_e()
-        self.planes = self._get_all_miller_e()
-        logger.debug(len(self.planes))
+        self.facets = self._get_all_miller_e()
+        logger.debug(len(self.facets))
 
         # 3. consider the dual condition
-        dual_pts = [x.dual_pt for x in self.planes]
+        dual_pts = [x.dual_pt for x in self.facets]
         dual_convex = ConvexHull(dual_pts)
         dual_cv_simp = dual_convex.simplices
         # simplices	(ndarray of ints, shape (nfacet, ndim))
@@ -222,12 +222,12 @@ class WulffShape(object):
             get miller_list(unique_miller), e_surf_list and symmetry
             operations(symmops) according to lattice
         apply symmops to get all the miller index, then get normal,
-        get all the planes functions for wulff shape calculation:
+        get all the facets functions for wulff shape calculation:
             |normal| = 1, e_surf is plane's distance to (0, 0, 0),
             normal[0]x + normal[1]y + normal[2]z = e_surf
 
         return:
-            [WulffPlane]
+            [WulffFacet]
         """
         all_hkl = []
         color_ind = self.color_ind
@@ -246,7 +246,7 @@ class WulffShape(object):
                     normal_pt = [x * energy for x in normal]
                     dual_pt = [x / energy for x in normal]
                     color_plane = color_ind[divmod(i, len(color_ind))[1]]
-                    planes.append(WulffPlane(normal, energy, normal_pt,
+                    planes.append(WulffFacet(normal, energy, normal_pt,
                                              dual_pt, color_plane, i, hkl))
 
         # sort by e_surf
@@ -264,8 +264,8 @@ class WulffShape(object):
             dual_simp: (i, j, k) simplices from the dual convex hull
                 i, j, k: plane index(same order in normal_e_m)
         """
-        matrix_surfs = [self.planes[dual_simp[i]].normal for i in range(3)]
-        matrix_e = [self.planes[dual_simp[i]].e_surf for i in range(3)]
+        matrix_surfs = [self.facets[dual_simp[i]].normal for i in range(3)]
+        matrix_e = [self.facets[dual_simp[i]].e_surf for i in range(3)]
         cross_pt = sp.dot(sp.linalg.inv(matrix_surfs), matrix_e)
         return cross_pt
 
@@ -278,7 +278,7 @@ class WulffShape(object):
         based on: wulff_cv_simp, normal_e_m, wulff_pt_list
         """
         wulff_simpx = self.wulff_cv_simp
-        normal_e_m = self.planes
+        normal_e_m = self.facets
         wulff_pt_list = self.wulff_pt_list
         on_wulff = [False] * len(self.miller_list)
         surface_area = [0.0] * len(self.miller_list)
@@ -308,7 +308,7 @@ class WulffShape(object):
 
     def _get_colors(self, color_set, alpha, off_color):
         """
-        assign colors according to the surface energies of on_wulff planes.
+        assign colors according to the surface energies of on_wulff facets.
 
         return:
             (color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
@@ -369,7 +369,7 @@ class WulffShape(object):
             axis_off (bool): default is Ture
             show_area (bool): default is False
             alpha (float): chosen from 0 to 1 (float), default is 1
-            off_color: color_legend for off_wulff planes on show_area legend
+            off_color: color_legend for off_wulff facets on show_area legend
             direction: default is (1, 1, 1)
             bar_pos: default is [0.75, 0.15, 0.05, 0.65]
             bar_on (bool): default is False
@@ -399,12 +399,12 @@ class WulffShape(object):
 
         ax = a3.Axes3D(fig, azim=azim, elev=elev)
 
-        for plane in self.planes:
+        for plane in self.facets:
             # check whether [pts] is empty
             if len(plane.points) < 1:
                 # empty, plane is not on_wulff.
                 continue
-            # assign the color for on_wulff planes according to its
+            # assign the color for on_wulff facets according to its
             # index and the color_list for on_wulff
             plane_color = color_list[plane.index]
             lines = list(plane.outer_lines)
