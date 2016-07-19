@@ -213,7 +213,7 @@ class eos_thermal_functions:
 
 
 
-    def cvdebfit(self, Cv, tdmin, tdmax, nkb, temp, npoints, logstr):
+    def cvdebfit(self, Cv, tdmin, tdmax, nkb, temp, npoints, maxloops, logstr):
         """
         cvdebfit: determines which value of the Debye temperature produces
         best fit to heat capacity data
@@ -226,6 +226,7 @@ class eos_thermal_functions:
 
         c_V = 9 n k_B (T / Theta_D)^3 \int_0^{Theta_D / T} (x^4 e^x) / (e^x - 1)^2 dx
         """
+        # print("Cv = ", Cv)
         itmin = int(tdmin)
         itmax = int(tdmax)
         rmsmin = 1e30
@@ -236,14 +237,20 @@ class eos_thermal_functions:
             j = 1
             while j < npoints:
                 y = tdtrial / temp[j]
-                deb, logstr = self.debint(y, logstr)
+                deb, logstr = self.debint(y, maxloops, logstr)
                 cvt = 9.0 * nkb * deb
                 smsq = smsq + (cvt - Cv[j])**2
+                # print("cvt = ", cvt)
+                # print("Cv[j] = ", Cv[j])
                 j = j + 1
             rms = math.sqrt(smsq)
             if rms < rmsmin:
                 rmsmin = rms
                 tdbest = tdtrial
+	    # print("tdtrial = ", tdtrial)
+            # print("rms = ", rms)
+            # print("rmsmin = ", rmsmin)
+            # print("tdbest = ", tdbest)
             i = i + 1
         return tdbest, logstr
 
@@ -256,7 +263,7 @@ class eos_thermal_functions:
         return integz
 
 
-    def debint(self, y, logstr):
+    def debint(self, y, maxloops, logstr):
         """
         debint: Evaluation of the Debye integral:
 
@@ -289,7 +296,7 @@ class eos_thermal_functions:
                 xabscissa, weight, logstr = self.gauss_legendre(cero, y, xabscissa, weight, nl, maxloops, logstr)
                 total = 0.0 
                 for i in xrange(nl):
-                    total = total + w[i] * (self.fdebye(x[i]))
+                    total = total + weight[i] * (self.fdebyeint(xabscissa[i]))
                 debye = total/y/y/y
                 xabs = math.fabs(debye-debye0)
                 debye0 = debye

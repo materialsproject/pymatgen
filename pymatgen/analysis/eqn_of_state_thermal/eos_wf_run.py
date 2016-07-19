@@ -52,6 +52,19 @@ __maintainer__ = "Cormac Toher"
 __email__ = "cormac.toher@duke.edu"
 __date__ = "January 14, 2015"
 
+#class eos_thermal_results:
+#    def _init_(self):
+#        self.temperature = []
+#        self.pressure = []
+#        self.kappaT = []
+#        self.debye_temp_0P = []
+#        self.gruneisen_0P = []
+#        self.heat_capacity_cv = []
+#        self.heat_capacity_cp = []       
+#        self.volume_0P = []
+#        self.bulk_modulus_0P = []
+#        self.bmcoeffs_static = []
+
 class eos_thermal_properties:
     def _init_(self):
         self.vol_inp = []
@@ -61,6 +74,8 @@ class eos_thermal_properties:
         self.temperature = []
         self.xconfigvector = []
         self.datatofit = []
+        self.bmcoeffs_static = []
+        self.bmcoeffs_dynamic = []
         self.mfit = 500
         self.mpar = 20
         self.maxloops = 250
@@ -79,7 +94,7 @@ class eos_thermal_properties:
         self.kj2unit = 0.1202707236
 
 #    def eos_thermal_run(inpfilename, evfilename, nstructs=28, stepsize=0.01, ieos = 0, idebye = 0, poisson = 0.25, npres = 11, spres = 2.0, ntemp = 201, stemp = 10.0, energy_inf=0.0):
-    def eos_thermal_run(self, initstruct, volume_values, energy_values, ieos = 0, idebye = 0, poissonratio = 0.25, npres = 11, spres = 2.0, ntemp = 201, stemp = 10.0, energy_inf=0.0, fit_type = 0):
+    def eos_thermal_run(self, initstruct, volume_values, energy_values, ieos = 0, idebye = 0, poissonratio = 0.25, npres = 11, spres = 2.0, ntemp = 201, stemp = 10.0, energy_inf = 0.0, fit_type = 0):
 #    def eos_thermal_run(initstruct, volume_values, energy_values, ieos = 0, idebye = 0, poissonratio = 0.25, npres = 11, spres = 2.0, ntemp = 201, stemp = 10.0, energy_inf=0.0):
         nstructs = len(volume_values)
         self.vol_inp = volume_values
@@ -93,8 +108,11 @@ class eos_thermal_properties:
 #            print("Error: wrong number of energies")
             return
         for i in xrange(nstructs):
-            print("Volume = ", self.vol_inp[i], "Energy = ", self.energ_inp[i])
+#            self.vol_inp[i] = self.vol_inp[i] * ang32bohr3
+#            self.energ_inp[i] = self.energ_inp[i] * self.ev2hartree
+            print("Volume (in Ang^3) = ", self.vol_inp[i], "Energy (in eV) = ", self.energ_inp[i])
         self.energ_inf = energy_inf
+        self.tdebye = []
 #        print(self.energ_inf)
         self.natoms = len(initstruct.sites)
         self.title = ""
@@ -115,11 +133,16 @@ class eos_thermal_properties:
         self.au2gpa = 29421.4  
         self.pckbau = 3.166830e-6 
         self.pi = 3.14159265358979323846
-        self.kj2unit = 0.1202707236        
-	self.npressure = npres
+        self.kj2unit = 0.1202707236
+        self.pcamu = 1.6605402e-24
+        self.pcme = 9.1093897e-28
+        self.amu2au = self.pcamu/self.pcme
+        self.amu2kg = 1.660538921e-27
+        self.ang32bohr3 = 6.74833303710415
+        self.npressure = npres
         self.ntemperature = ntemp
-        self.fittype = fit_type        
-	self.pressure = []	
+        self.fittype = fit_type
+        self.pressure = []
         self.temperature = []
         for i in xrange(npres):
             idoub = i
@@ -135,13 +158,22 @@ class eos_thermal_properties:
         self.poissonratio = float(poissonratio)
         self.ninp = int(nstructs)
         self.ndata = self.ninp
-        eos_ev_check_class = eos_ev_check()
-        minpos = eos_ev_check_class.checkminpos(self.energ_inp, self.vol_inp, self.ninp)
-        concav = eos_ev_check_class.checkevconcav(self.energ_inp, self.vol_inp, self.ninp)
+        self.outstr = ""
+        self.outstr_thermal = ""
+        for i in xrange(nstructs):
+            self.vol_inp[i] = self.vol_inp[i] * self.ang32bohr3
+            self.energ_inp[i] = self.energ_inp[i] * self.ev2hartree
+            print("Volume (in Bohr^3) = ", self.vol_inp[i], "Energy (in Hartree) = ", self.energ_inp[i])
+        self.cellmassamu, self.cellmassval = self.cellmass(initstruct)
+        eos_ev_check_inst = eos_ev_check()
+        minpos = eos_ev_check_inst.checkminpos(self.vol_inp, self.energ_inp, self.ninp)
+        concav = eos_ev_check_inst.checkevconcav(self.vol_inp, self.energ_inp, self.ninp)
         if (minpos != 0):
             print("Error: minimum is not contained in calculated (E, V) data")
+            return
         if (concav != 0):
             print("Error: (E, V) data is not concave")
+            return
 # Write input file for original Fortran version of GIBBS algorithm (useful for debugging and testing)
 #        Gibbs_input_write(self, amu2au)
 # Run GIBBS algorithm to calculate thermal properties
@@ -168,8 +200,11 @@ class eos_thermal_properties:
                 tdmin = self.tdeb0p[j]
                 jtdmin = j
             j = j + 1
+        print("tdmin = ", tdmin)
+        print("tdmax = ", tdmax)
         nkb = 1.0 * self.natoms
-        tdbestfit = eos_thermal_functions.cvdebfit(self.cvu0p, tdmin, tdmax, nkb, self.temperature, self.ntemperature, self.logstr)
+        eos_thermal_functions_inst = eos_thermal_functions()
+        tdbestfit, self.logstr = eos_thermal_functions_inst.cvdebfit(self.cvu0p, tdmin, tdmax, nkb, self.temperature, self.ntemperature, self.maxloops, self.logstr)
         print("Best fit Debye temperature = ", tdbestfit)
         difftdmin = math.fabs(tdbestfit - self.tdeb0p[0])
         jtdbest = 0
@@ -179,7 +214,7 @@ class eos_thermal_properties:
             if (difftd < difftdmin):
                 jtdbest = j
                 difftdmin = difftd
-                j = j + 1
+            j = j + 1
         jt300 = 0
         j = 1
         difft300min = math.fabs(self.temperature[j] - 300.0) 
@@ -192,21 +227,36 @@ class eos_thermal_properties:
 #        kappaT =[]
         print("jtdbest = ", jtdbest)
         print("jt300 = ", jt300)
-        ang32bohr3 = 6.74833303710415
-        voleqD = (self.volminsav[jtdbest][0] / ang32bohr3) * 1e-30
-        avmasskg = (cellmass * amu2kg) / self.natoms
+#        ang32bohr3 = 6.74833303710415
+        voleqD = (self.volminsav[jtdbest][0] / self.ang32bohr3) * 1e-30
+        avmasskg = (self.cellmassamu * self.amu2kg) / self.natoms
         thetaa = tdbestfit * (self.natoms**(-self.third))
-        kappaD, kappaT = eos_thermal_functions.thermalconductivity(thetaa, self.temperature, self.ntemperature, self.ga0p[jtdbest], voleqD, avmasskg)
+        print("thetaa = ", thetaa)
+        print("gamma = ", self.ga0p[jtdbest])
+        kappaD, kappaT = eos_thermal_functions_inst.thermalconductivity(thetaa, self.temperature, self.ntemperature, self.ga0p[jtdbest], voleqD, avmasskg)
         print("Thermal conductivity at Debye temperature = ", kappaD)
         print("Thermal conductivity at ", self.temperature[jt300], "K = ", kappaT[jt300])
         print("eos_thermal_run complete")
-        return
+        eos_results_dict = {}
+        eos_results_dict["temperature"] = self.temperature
+        eos_results_dict["pressure"] = self.pressure
+        eos_results_dict["thermal_conductivity"] = kappaT
+        eos_results_dict["Best_fit_temperature"] = jtdbest
+        eos_results_dict["300K_point"] = jt300
+        eos_results_dict["Debye_temperature"] = self.tdeb0p
+        eos_results_dict["Gruneisen_parameter"] = self.ga0p
+        eos_results_dict["Heat_capacity_Cv"] = self.cvu0p
+        eos_results_dict["Heat_capacity_Cp"] = self.cp0p
+        eos_results_dict["Volume"] = self.vol0p
+        eos_results_dict["Bulk_modulus"] = self.b0p
+        eos_results_dict["BM_coeffs"] = self.bmcoeffs_static
+        return eos_results_dict
 
     def cellmass(self, initstruct):
         cellmassamu = 0.0
         for i in xrange(self.natoms):
-            cellmassamu = cellmass + initstruct.species[i].atomic_mass
-        return cellmassamu * amu2au
+            cellmassamu = cellmassamu + initstruct.species[i].atomic_mass
+        return cellmassamu, cellmassamu * self.amu2au
 
 
 #
@@ -335,7 +385,7 @@ class eos_thermal_properties:
             self.logstr = self.logstr + "MP Eqn of State Thermal: total number of structures = " + str(self.ndata) + " \n"
             self.grerr = 2
             return
-        #
+        # 
         # .....Obtain the polynomial fit of E(static) vs. x
         #     x = V^(1/3)
         #     epol contains coefficients of fitted polynomial
@@ -344,9 +394,9 @@ class eos_thermal_properties:
         self.datatofit = []
         for i in xrange(self.ndata):
             self.datatofit.append(self.energ_inp[i])
-            epol = []
-            eerr = []
-            self.fterr, nepol, epol, eerr = eos_polynomial_inst.polynomial_fit(imin, self.xconfigvector, self.datatofit, self.ndata, self.mpar, self.mfit)
+        epol = []
+        eerr = []
+        self.fterr, nepol, epol, eerr = eos_polynomial_inst.polynomial_fit(imin, self.xconfigvector, self.datatofit, self.ndata, self.mpar, self.mfit)
         if self.fterr != 0:
             if self.fterr == 2:
                 self.logstr = self.logstr + "MP Eqn of State Thermal: Problem inverting matrix to fit polynomial \n"
@@ -362,7 +412,7 @@ class eos_thermal_properties:
         # Find minimum of polynomial epol to find minimum of (E, V) curve
         # First bracket minimum of (E, V) data
         itry = imin
-        self.ierr, itry, self.logstr = eos_polynomial_inst.minbrack(itry, self.data_to_fit, self.ndata, self.logstr)
+        self.ierr, itry, self.logstr = eos_polynomial_inst.minbrack(itry, self.datatofit, self.ndata, self.logstr)
         if self.ierr != 0:
             self.logstr = self.logstr + "MP Eqn of State Thermal: Cannot find minimum of (E, V) data \n"
 #            if self.ierr == 1:
@@ -430,8 +480,8 @@ class eos_thermal_properties:
         self.logstr = self.logstr + "MP Eqn of State Thermal: Minimum of (E, V) data is Emin = " + str(Emin * self.hy2kjmol) + " kJ/mol \n"
         self.logstr = self.logstr + "MP Eqn of State Thermal: Minimum of (E, V) data is Emin = " + str(Emin * self.hart2ev) + " eV/cell \n"
         #
-    #.....Minimize G(static) - V; G = Gibbs free energy
-    #
+        # .....Minimize G(static) - V; G = Gibbs free energy
+        #
         gpol = []
         for i in xrange(nepol+1):
             gpol.append(epol[i])
@@ -443,15 +493,15 @@ class eos_thermal_properties:
         rerr = []
         for k in xrange(self.npressure):
             #
-        #.....bracket the minimum with the numerical function
-        #
+            # .....bracket the minimum with the numerical function
+            #
             for i in xrange(self.ndata):
                 self.datatofit[i] = self.energ_inp[i] + self.vol_inp[i]*self.pressure[k]/self.au2gpa
-            itry = eos_polynomial_inst.minbrack(itry, self)
+            self.ierr, itry, self.logstr = eos_polynomial_inst.minbrack(itry, self.datatofit, self.ndata, self.logstr)
             #
-        #.....obtain the minimum of the fitted function
-        #
-        # Adds pV term onto coefficient of x^3; x^3 ~ V
+            # .....obtain the minimum of the fitted function
+            #
+            # Adds pV term onto coefficient of x^3; x^3 ~ V
             gpol[3] = epol[3] + self.pressure[k]/self.au2gpa * volref
             self.pmerr, xmin, self.logstr = eos_polynomial_inst.polmin(self.xconfigvector[itry], self.xconfigvector[max(itry-2, 0)], self.xconfigvector[min(itry+2, self.ndata-1)], ngpol, gpol, self.pmerr, self.logstr)
             # Evaluates polynomial for (G, V) at minimum to get equilibrium values for V, G, and B
@@ -465,9 +515,9 @@ class eos_thermal_properties:
             plnv = eos_polynomial_inst.polin0(xmin, twonepol, eerr)
             aerr = math.sqrt(math.fabs(plnv - eact*eact))
             rerr.append(aerr / max(math.fabs(eact), math.fabs(eact)+aerr/2.0))
-            #
-    #.....Write static EOS results to stringstream
-    #
+        #
+        # .....Write static EOS results to stringstream
+        #
         vol0pres = self.voleqmin[0]
         gfe0pres = g[0]
         binp_bcnt = self.bulkmod[0]
@@ -490,8 +540,8 @@ class eos_thermal_properties:
             for k in xrange(self.npressure):
                 self.outstr = self.outstr + '  ' + str(self.pressure[k]).rjust(6) + '\t' + 'static'.rjust(10)[:10] + '\t' + str(self.voleqmin[k]).rjust(10)[:10] + '\t' + str(g[k]).rjust(10)[:10] + '\t     ' + str(self.bulkmod[k]).rjust(10)[:10] + '\n'
         #
-    #.....Arrays to save EOS variables
-    #
+        # .....Arrays to save EOS variables
+        #
         self.uder = []
         self.ust = []
         F = [0.0 for i in range(self.ndata)]
@@ -608,7 +658,7 @@ class eos_thermal_properties:
         #.....Write Poisson coefficient and poisson ratio function
         #
         if self.ieos >= 0 and (self.idebye == 0 or self.idebye >= 2):
-            self.outstr = self.outstr + 'Poisson coefficient: ' + str(self.poisson) + ', Poisson ratio function: ' + str(self.poratio) + '\n'
+            self.outstr = self.outstr + 'Poisson coefficient: ' + str(self.poissonratio) + ', Poisson ratio function: ' + str(self.poissonratiofunction) + '\n'
             self.outstr = self.outstr + '\n'
         #
         #.....Calculate Debye temperatures at each volume
@@ -630,7 +680,7 @@ class eos_thermal_properties:
                     self.grerr = 2
                 return
         elif self.idebye == 3:
-            tdebyemin = ((6*self.pi*self.pi*self.natoms*self.vol_inp[imin]*self.vol_inp[imin])**self.third) / self.pckbau * self.poratio * math.sqrt(math.fabs(self.uder[imin])/self.cellmass)
+            tdebyemin = ((6*self.pi*self.pi*self.natoms*self.vol_inp[imin]*self.vol_inp[imin])**self.third) / self.pckbau * self.poissonratiofunction * math.sqrt(math.fabs(self.uder[imin])/self.cellmassval)
         else:
             if self.ieos >= 0:
                 self.outstr = self.outstr + "   V(bohr^3) \t  TDebye(K) \n"
@@ -652,7 +702,7 @@ class eos_thermal_properties:
                     self.logstr = self.logstr + "MP Eqn of State Thermal: Recommend increasing the number of k-points and rerunning MP Eqn of State Thermal \n"
             else:
                 # tmp is the Debye temperature for the structure with volume self.vol_inp[ij]
-                tmp = ((6*self.pi*self.pi*self.natoms*self.vol_inp[ij]*self.vol_inp[ij])**self.third) / self.pckbau * self.poratio * math.sqrt(math.fabs(self.uder[ij])/self.cellmass)
+                tmp = ((6*self.pi*self.pi*self.natoms*self.vol_inp[ij]*self.vol_inp[ij])**self.third) / self.pckbau * self.poissonratiofunction * math.sqrt(math.fabs(self.uder[ij])/self.cellmassval)
                 if self.idebye == 3:
                     self.tdebye.append(tdebyemin)
                     if self.ieos >= 0:
@@ -700,6 +750,7 @@ class eos_thermal_properties:
         #.....Loop over temperatures
         #
         j = 0
+        eos_thermal_functions_inst = eos_thermal_functions()
         while j < self.ntemperature:
             self.logstr = self.logstr + "MP Eqn of State Thermal: Temperature = " + str(self.temperature[j]) + "K \n"
             #
@@ -767,10 +818,10 @@ class eos_thermal_properties:
             self.thermal_energ = 0.0
             self.thermal_cv = 0.0
             for i in xrange(self.ndata):
-                self.thermal_energ, self.thermal_entropy, self.thermal_helmholtz, self.thermal_cv, D, Derr = eos_thermal_functions.thermal(self.tdebye[i], self.temperature[j], self.natoms, self.pckbau, self.maxloops, self.logstr)
+                self.thermal_energ, self.thermal_entropy, self.thermal_helmholtz, self.thermal_cv, D, Derr = eos_thermal_functions_inst.thermal(self.tdebye[i], self.temperature[j], self.natoms, self.pckbau, self.maxloops, self.logstr)
                 self.datatofit[i] = self.energ_inp[i] + self.thermal_helmholtz
                 F[i] = self.thermal_helmholtz
-            imin = eos_polynomial_inst.minbrack(imin, self.datatofit, self.ndata, self.logstr)
+            self.ierr, imin, self.logstr = eos_polynomial_inst.minbrack(imin, self.datatofit, self.ndata, self.logstr)
             # If minbrack returns an error for zero temperature, MP Eqn of State Thermal exits giving an error
             # If minbrack returns an error for T > zero, MP Eqn of State Thermal resets the maximum temperature to the previous value and skips the rest of the temperature loop
             # It then continues to complete the remainder of the MP Eqn of State Thermal algorithm
@@ -835,7 +886,7 @@ class eos_thermal_properties:
                 #
                 for i in xrange(self.ndata):
                     self.datatofit[i] = self.energ_inp[i] + F[i] + self.vol_inp[i]*self.pressure[k]/self.au2gpa
-                imin = minbrack(itry, self)
+                self.ierr, imin, self.logstr = eos_polynomial_inst.minbrack(itry, self.datatofit, self.ndata, self.logstr)
                 # If minbrack returns an error for zero pressure and zero temperature, MP Eqn of State Thermal exits giving an error
                 # If minbrack returns an error for p = 0, T > 0, MP Eqn of State Thermal resets the maximum temperature to the previous value and skips the rest of the loop
                 # If minbrack returns an error for p > zero, MP Eqn of State Thermal resets the maximum pressure to the previous value and skips the rest of the pressure loop
@@ -870,7 +921,7 @@ class eos_thermal_properties:
                 #     For a given temperature and pressure, the equilibrium system is the one which minimizes the Gibbs free energy
                 #
                 gpol[3] = fpol[3] + self.pressure[k]/self.au2gpa * volref
-                xmin = eos_polynomial_inst.polmin(self.xconfigvector[itry], self.xconfigvector[max(itry-2, 0)], self.xconfigvector[min(itry+2, self.ndata-1)], ngpol, gpol, self)
+                self.pmerr, xmin, self.logstr = eos_polynomial_inst.polmin(self.xconfigvector[itry], self.xconfigvector[max(itry-2, 0)], self.xconfigvector[min(itry+2, self.ndata-1)], ngpol, gpol, self.pmerr, self.logstr)
                 # If polmin returns an error, then MP Eqn of State Thermal tries shifting the trial point to try to correct the error
                 if self.pmerr != 0:
                     self.logstr = self.logstr + "MP Eqn of State Thermal: itry = " + str(itry) + " \n"
@@ -879,12 +930,12 @@ class eos_thermal_properties:
                         while (self.pmerr == 1) and ((itry + 2) < self.ndata):
                             itry = itry + 1
                             self.logstr = self.logstr + "MP Eqn of State Thermal: Resetting itry to itry = " + str(itry) + " \n"
-                            xmin = eos_polynomial_inst.polmin(self.xconfigvector[itry], self.xconfigvector[max(itry-2, 0)], self.xconfigvector[min(itry+2, self.ndata-1)], ngpol, gpol, self)
+                            self.pmerr, xmin, self.logstr = eos_polynomial_inst.polmin(self.xconfigvector[itry], self.xconfigvector[max(itry-2, 0)], self.xconfigvector[min(itry+2, self.ndata-1)], ngpol, gpol, self.pmerr, self.logstr)
                             self.logstr = self.logstr + "MP Eqn of State Thermal: pmerr = " + str(self.pmerr) + " \n"
                         # If error indicator has changed from 1 to 2, then the bracket has shifted from one side of the minimum to the other
                         # Need to expand the size of the bracket to incorporate the minimum
                         if self.pmerr == 2:
-                            xmin = eos_polynomial_inst.polmin(self.xconfigvector[itry], self.xconfigvector[max(itry-4, 0)], self.xconfigvector[min(itry+4, self.ndata-1)], ngpol, gpol, self)
+                            self.pmerr, xmin, self.logstr = eos_polynomial_inst.polmin(self.xconfigvector[itry], self.xconfigvector[max(itry-4, 0)], self.xconfigvector[min(itry+4, self.ndata-1)], ngpol, gpol, self.pmerr, self.logstr)
                         # If polynomial minimum has still not been found successfully, writes polynomial and its first derivative to a file to aid debugging
                         if self.pmerr != 0:
                             self.logstr = self.logstr + "MP Eqn of State Thermal: List of polynomial values \n"
@@ -899,12 +950,12 @@ class eos_thermal_properties:
                         while (self.pmerr == 2) and ((itry - 2) >= 0):
                             itry = itry - 1
                             self.logstr = self.logstr + "MP Eqn of State Thermal: Resetting itry to itry = " + str(itry) + " \n"
-                            xmin = eos_polynomial_inst.polmin(self.xconfigvector[itry], self.xconfigvector[max(itry-2, 0)], self.xconfigvector[min(itry+2, self.ndata-1)], ngpol, gpol, self)
+                            self.pmerr, xmin, self.logstr = eos_polynomial_inst.polmin(self.xconfigvector[itry], self.xconfigvector[max(itry-2, 0)], self.xconfigvector[min(itry+2, self.ndata-1)], ngpol, gpol, self.pmerr, self.logstr)
                             self.logstr = self.logstr + "MP Eqn of State Thermal: pmerr = " + str(self.pmerr) + " \n"
                         # If error indicator has changed from 2 to 1, then the bracket has shifted from one side of the minimum to the other
                         # Need to expand the size of the bracket to incorporate the minimum
                         if self.pmerr == 1:
-                            xmin = eos_polynomial_inst.polmin(self.xconfigvector[itry], self.xconfigvector[max(itry-4, 0)], self.xconfigvector[min(itry+4, self.ndata-1)], ngpol, gpol, self)
+                            self.pmerr, xmin, self.logstr = eos_polynomial_inst.polmin(self.xconfigvector[itry], self.xconfigvector[max(itry-4, 0)], self.xconfigvector[min(itry+4, self.ndata-1)], ngpol, gpol, self.pmerr, self.logstr)
                         # If polynomial minimum has still not been found successfully, writes polynomial and its first derivative to a file to aid debugging
                         if self.pmerr != 0:
                             self.logstr = self.logstr + "MP Eqn of State Thermal: List of polynomial values \n"
@@ -941,7 +992,7 @@ class eos_thermal_properties:
                             break
                     else:
                         self.logstr = self.logstr + "MP Eqn of State Thermal: Minimum of (E, V) data is at point imin = " + str(itry) + " \n"
-                        xmin = eos_polynomial_inst.polmin(self.xconfigvector[itry], self.xconfigvector[max(itry-2, 0)], self.xconfigvector[min(itry+2, self.ndata-1)], ngpol, gpol, self)
+                        self.pmerr, xmin, self.logstr = eos_polynomial_inst.polmin(self.xconfigvector[itry], self.xconfigvector[max(itry-2, 0)], self.xconfigvector[min(itry+2, self.ndata-1)], ngpol, gpol, self.pmerr, self.logstr)
                 # If polmin still returns an error for zero temperature and pressure after shifting the trial point, MP Eqn of State Thermal exits giving an error
                 # If polmin returns an error for T > zero, MP Eqn of State Thermal resets the maximum temperature or pressure to the previous value and skips the rest of that loop
                 # It then continues to complete the remainder of the MP Eqn of State Thermal algorithm
@@ -1082,7 +1133,7 @@ class eos_thermal_properties:
                     theta[k] = math.exp(plnv)
                     plnv = eos_polynomial_inst.polin1(tmp, ntpol, tpol)
                     self.gamma_G[k] = - plnv
-                    self.thermal_energ, self.thermal_entropy, self.thermal_helmholtz, self.thermal_cv, D, Derr = eos_thermal_functions.thermal(theta[k], self.temperature[j], self.natoms, self.pckbau, self.maxloops, self.logstr)
+                    self.thermal_energ, self.thermal_entropy, self.thermal_helmholtz, self.thermal_cv, D, Derr = eos_thermal_functions_inst.thermal(theta[k], self.temperature[j], self.natoms, self.pckbau, self.maxloops, self.logstr)
                     Uvib = self.thermal_energ
                     Cv[k] = self.thermal_cv
                     helm = self.thermal_helmholtz
@@ -1133,8 +1184,8 @@ class eos_thermal_properties:
                     #
                     #.....isotropic Debye model properties
                     #
-                    theta[k] = ((6*self.pi*self.pi*self.natoms*self.voleqmin[k]*self.voleqmin[k])**self.third) / self.pckbau * self.poratio * math.sqrt(self.udyn[k]/self.cellmass)
-                    self.thermal_energ, self.thermal_entropy, self.thermal_helmholtz, self.thermal_cv, D, Derr = eos_thermal_functions.thermal(theta[k], self.temperature[j], self.natoms, self.pckbau, self.maxloops, self.logstr)
+                    theta[k] = ((6*self.pi*self.pi*self.natoms*self.voleqmin[k]*self.voleqmin[k])**self.third) / self.pckbau * self.poissonratiofunction * math.sqrt(self.udyn[k]/self.cellmassval)
+                    self.thermal_energ, self.thermal_entropy, self.thermal_helmholtz, self.thermal_cv, D, Derr = eos_thermal_functions_inst.thermal(theta[k], self.temperature[j], self.natoms, self.pckbau, self.maxloops, self.logstr)
                     Uvib = self.thermal_energ
                     Cv[k] = self.thermal_cv
                     helm = self.thermal_helmholtz
@@ -1148,7 +1199,7 @@ class eos_thermal_properties:
                     vibent = ent*self.hy2kjmol*1000
                     vibentmev = ent*self.hart2ev*1000
                     vibentu = vibent*self.kj2unit
-                    polin0(xmin, nepol, epol)
+                    eos_polynomial_inst.polin0(xmin, nepol, epol)
                     vibg = plnv + helm + ((self.pressure[k]/self.au2gpa) * (xmin**3))
                     vibgev = vibg * self.hart2ev
                     vibg = vibg * self.hy2kjmol
@@ -1278,7 +1329,7 @@ class eos_thermal_properties:
             self.outstr = self.outstr + '================================== \n'
             self.outstr = self.outstr + "  P(GPa) \t V(bohr^3) \t    V/V0 \t Pfit(GPa) \t    B(GPa) \t    B' \t  B''(GPa-1) \n"
             self.outstr = self.outstr + ' ------------------------------------------------------------------------------------------------------ \n'
-        eos_polynomial_inst = eos_polnomial()
+        eos_polynomial_inst = eos_polynomial()
         for k in xrange(self.npressure):
             xeqmin = (self.voleqmin[k]/volref)**self.third
             f1 = eos_polynomial_inst.polin1(xeqmin, nfpol, fpol)
@@ -1664,6 +1715,7 @@ class eos_thermal_properties:
             self.outstr = self.outstr + " -------------------------------------------------- \n"
             for i in xrange(self.ndata):
                 self.outstr = self.outstr + '  ' +  str(self.vol_inp[i]).rjust(10)[:10] + "\t " + str(self.energ_inp[i]).rjust(14)[:14] + "\t    " + str(self.ust[i]).rjust(14)[:14] + "\n"
+            self.bmcoeffs_static = acoef
             return
         else:
             #
@@ -1689,6 +1741,7 @@ class eos_thermal_properties:
                 tmp2 = s2*tmp * (7.0*pol0 + (2.0+11.0*st)*pol1 + st*s2*pol2)
                 v3 = self.voleqmin[k] / (3.0*self.v00k)
                 self.gamma_G[k] = -2.0*self.third + 0.5*s2*math.sqrt(s2)*v3*(8.0+tmp2)
+            self.bmcoeffs_dynamic.append(acoef)
         #
         # .....end
         #
@@ -2135,6 +2188,7 @@ class eos_thermal_properties:
         # .....static pressures?
         #
         eos_polynomial_inst = eos_polynomial()
+        eos_thermal_functions_inst = eos_thermal_functions()
         if firsttime:
             for i in xrange(self.ndata):
                 plnv = eos_polynomial_inst.polin1(self.xconfigvector[i], npol, pol)
@@ -2149,9 +2203,9 @@ class eos_thermal_properties:
         while ((not converged) or (iloops < mloops)) and (iloops < self.maxloops):
             iloops = iloops + 1
             for i in xrange(self.ndata):
-                self.thermal_energ, self.thermal_entropy, self.thermal_helmholtz, self.thermal_cv, D, Derr = eos_thermal_functions.thermal(self.tdebye[i], T, self.natoms, self.pckbau, self.maxloops, self.logstr)
+                self.thermal_energ, self.thermal_entropy, self.thermal_helmholtz, self.thermal_cv, D, Derr = eos_thermal_functions_inst.thermal(self.tdebye[i], T, self.natoms, self.pckbau, self.maxloops, self.logstr)
                 self.datatofit[i] = self.energ_inp[i] + self.thermal_helmholtz
-            imin = minbrack(imin, self)
+            self.ierr, imin, self.logstr = eos_polynomial_inst.minbrack(imin, self.datatofit, self.ndata, self.logstr)
             if self.ierr != 0:
                 self.logstr = self.logstr + "MP Eqn of State Thermal scdebye: T = "  + str(T) + ", minimum point = " + str(imin) + ", trial point = " + str(itry) + ", total points = " + str(self.ndata) + " \n"
                 self.logstr = self.logstr + "MP Eqn of State Thermal scdebye: func = " + str(self.datatofit) + " \n"
@@ -2169,7 +2223,7 @@ class eos_thermal_properties:
             converged = True
             theta0 = self.tdebye[0]
             for i in xrange(self.ndata):
-                self.thermal_energ, self.thermal_entropy, self.thermal_helmholtz, self.thermal_cv, D, Derr = eos_thermal_functions.thermal(self.tdebye[i], T, self.natoms, self.pckbau, self.maxloops, self.logstr)
+                self.thermal_energ, self.thermal_entropy, self.thermal_helmholtz, self.thermal_cv, D, Derr = eos_thermal_functions_inst.thermal(self.tdebye[i], T, self.natoms, self.pckbau, self.maxloops, self.logstr)
                 U = self.thermal_energ
                 Cvt = self.thermal_cv
                 f1 = polin1(self.xconfigvector[i], npol, pol)
@@ -2186,7 +2240,7 @@ class eos_thermal_properties:
                         theta = self.tdebye[i]/theta0 * self.tdebye[i-1]
                     dt = 0.0
                 else:
-                    theta = ((6.0*pi*pi*self.natoms/self.vol_inp[i])**self.third) / self.pckbau * self.poratio * math.sqrt(bsv/self.cellmass)
+                    theta = ((6.0*pi*pi*self.natoms/self.vol_inp[i])**self.third) / self.pckbau * self.poissonratiofunction * math.sqrt(bsv/self.cellmassval)
                     dt = theta - self.tdebye[i]
                     if i > 0:
                         if theta > self.tdebye[i-1]:
@@ -2211,6 +2265,23 @@ class eos_thermal_properties:
         return scerr
 
 
+class eos_thermal_results:
+    def _init_(self):
+        self.pressure = []
+        self.temperature = []
+        self.thermal_conductivity = []
+        self.debye_temperature = []
+        self.debye_temperature_acoustic = []
+        self.gruneisen = []
+        self.thermal_expansion = []
+        self.volume_equilibrium = []
+        self.bulk_modulus_static = []
+        self.bulk_modulus_isothermal = []
+        self.specific_heat_Cv = []
+        self.specific_heat_Cp = []
+        self.gibbs_energy = []
+        self.entropy_vibrational = []
+        self.birch_murnaghan_coeffs = []
 
 
 

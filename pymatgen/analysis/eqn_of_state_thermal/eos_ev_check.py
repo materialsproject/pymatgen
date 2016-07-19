@@ -90,7 +90,7 @@ class eos_ev_check:
             i = i + 1
         if (icheck == 0):
             #        eos_thermal_data.logstr = eos_thermal_data.logstr + "MP Eqn of State Thermal: (E, V) data already in correct order \n"
-            return
+            return vol_inp, energ_inp
         else:
             arrEV = np.zeros(ninp, dtype = {'names':['volume', 'energy'], 'formats':[float, float]})
         for i in xrange(ninp):
@@ -112,7 +112,7 @@ class eos_ev_check:
             i = i + 1
         if (icheck == 0):
         #        eos_thermal_data.logstr = eos_thermal_data.logstr + "MP Eqn of State Thermal: (E, V) data already in correct order \n"
-            return
+            return vol_inp, energ_inp, tdebye
         else:
             arrEV = np.zeros(ninp, dtype = {'names':['volume', 'energy', 'debyetemp'], 'formats':[float, float, float]})
             for i in xrange(ninp):

@@ -77,7 +77,8 @@ class eos_polynomial:
         ndatamin = max(ndata-2*ndel, npolycoeffsmin+1)
         ndataact = ndata
         rmsmin = 1.0e33
-        #.....Loop eliminating pairs of outermost elements ndel times:
+        npolycoeffs = npolycoeffsmin        
+	#.....Loop eliminating pairs of outermost elements ndel times:
         while (ndataact >= ndatamin) and ((iinf < imin) and (isup > imin)):
         #.....Loop increasing the number of parameters until limit is reached:
             npolycoeffsmax = min(ndataact-limit-1, mpar)
@@ -115,7 +116,7 @@ class eos_polynomial:
         while i <= npolynomialcoeffs:
             polynomialcoeffs.append(0.0)
             i = i + 1
-            i = 0
+        i = 0
         while i <= 2*npolynomialcoeffs:
             polynomialerrors.append(0.0)
             i = i + 1
@@ -123,9 +124,9 @@ class eos_polynomial:
         while ifit <= nfit:
             ndataact = ndatafit[ifit]
             npolycoeffs = npolycoeffsfit[ifit]
-            iinf = int(1 + ((eos_thermal_data.ndata-ndataact) / 2) - 1)
-            isup = eos_thermal_data.ndata - iinf - 1
-            rms, polycoeffswork = self.polfit(iinf, isup, eos_thermal_data.xconfigvector, eos_thermal_data.datatofit, weight, npolycoeffs)
+            iinf = int(1 + ((ndata-ndataact) / 2) - 1)
+            isup = ndata - iinf - 1
+            rms, polycoeffswork = self.polfit(iinf, isup, xconfigvector, datatofit, weight, npolycoeffs)
             wtmp = rms*(npolycoeffs+1)/(rmsmin*(ndataact+1))
             wtmp = math.exp(-wtmp*wtmp)
             i = 0
@@ -198,7 +199,7 @@ class eos_polynomial:
         for i in xrange(mfit+1):
             npolycoeffsfit.append(0.0)
             ndatafit.append(0.0)
-            xdata_tofit = []
+        xdata_tofit = []
         ydata_tofit = []
         weight_tofit = []
         #
@@ -239,18 +240,18 @@ class eos_polynomial:
                 if nfit > mfit:
                     nfit = mfit
                     logstr = logstr + "MP Eqn of State Thermal debfitt: Warning! maximum number of fits exceeded \n"
-            #
-            #.....save fit parameters
-            #
-            else:
-                npolynomialcoeffs = max(npolynomialcoeffs, npolycoeffs)
-                npolycoeffsfit[nfit] = npolycoeffs
-                ndatafit[nfit] = ndataact
-                rmsmin = min(rmsmin, rms*npolycoeffs/ndataact)
-            npolycoeffs = npolycoeffs + 1
-        iinf = iinf + 1
-        isup = isup - 1
-        ndataact = ndataact - 2
+                #
+                # .....save fit parameters
+                #
+                else:
+                    npolynomialcoeffs = max(npolynomialcoeffs, npolycoeffs)
+                    npolycoeffsfit[nfit] = npolycoeffs
+                    ndatafit[nfit] = ndataact
+                    rmsmin = min(rmsmin, rms*npolycoeffs/ndataact)
+                npolycoeffs = npolycoeffs + 1
+            iinf = iinf + 1
+            isup = isup - 1
+            ndataact = ndataact - 2
         #
         # .....number of fits control
         #
@@ -307,7 +308,7 @@ class eos_polynomial:
     # Adapted from original Fortran version written by M. A. Blanco et al.
     # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
     #
-    def minbrack(self, imin, data_to_fit, ndata, logstr):
+    def minbrack(self, imin, datatofit, ndata, logstr):
         ierr = 0
         tol = 1e-12
         #
@@ -370,7 +371,7 @@ class eos_polynomial:
     def polminbrack(self, imin, npol, ndata, x, polynomialcoeffs):
         y = []
         for istep in xrange(ndata):
-            plnv = polin0(x[istep], npol, polynomialcoeffs)
+            plnv = self.polin0(x[istep], npol, polynomialcoeffs)
             y.append(plnv)
         imin = 0
         funcmin = y[imin]
@@ -405,9 +406,9 @@ class eos_polynomial:
         x = xinitial
         a = xmin
         b = xmax
-        f_x = polin1(x, npolycoeffs, polycoeffswork)
-        f_a = polin1(a, npolycoeffs, polycoeffswork)
-        f_b = polin1(b, npolycoeffs, polycoeffswork)
+        f_x = self.polin1(x, npolycoeffs, polycoeffswork)
+        f_a = self.polin1(a, npolycoeffs, polycoeffswork)
+        f_b = self.polin1(b, npolycoeffs, polycoeffswork)
         dx = b - a
         tol = dx*1e-6
         pmerr = 0
@@ -443,16 +444,16 @@ class eos_polynomial:
             if a > b:
                 logstr = logstr + "MP Eqn of State Thermal polmin: a > b \n"
                 pmerr = 5
-                return pmerr, x, logstr
+            return pmerr, x, logstr
         while (math.fabs(b - a) > tol) and (math.fabs(dx) > tol):
             if self.isbrack(f_a, f_x):
                 b = x
-                f_b = fx
+                f_b = f_x
             else:
                 a = x
                 f_a = f_x
-                dx = polin2(x, npolycoeffs, polycoeffswork)
-                f_x = polin1(x, npolycoeffs, polycoeffswork)
+            dx = self.polin2(x, npolycoeffs, polycoeffswork)
+            f_x = self.polin1(x, npolycoeffs, polycoeffswork)
             x_0 = x
             if not self.isbr(dx * (x_0 - a) - f_x, dx * (x_0 - b) - f_x):
                 x = 0.5 * (b + a)
@@ -495,7 +496,7 @@ class eos_polynomial:
         while k <= isup:
             wnorm = wnorm + w[k]
             k = k + 1
-            wnorm = 1.0 / wnorm
+        wnorm = 1.0 / wnorm
         for i in xrange(npolycoeffs+1):
             c.append([])
             for j in xrange(npolycoeffs+2):
@@ -524,7 +525,7 @@ class eos_polynomial:
                     while k <= isup:
                         c[i][j] = c[i][j] + w[k] * (x[k]**ij)
                         k = k + 1
-                        c[i][j] = wnorm * c[i][j]
+                    c[i][j] = wnorm * c[i][j]
                 else:
                     c[i][j] = 1.0
                 c[j][i] = c[i][j]
@@ -550,7 +551,7 @@ class eos_polynomial:
         s2 = 0.0
         k = iinf
         while k <= isup:
-            s2 = s2 + w[k] * ((y[k] - polin0(x[k], npolycoeffs, polycoeffswork))**2)
+            s2 = s2 + w[k] * ((y[k] - self.polin0(x[k], npolycoeffs, polycoeffswork))**2)
             k = k + 1
         rms = math.sqrt(s2 * wnorm)
         return rms, polycoeffswork
