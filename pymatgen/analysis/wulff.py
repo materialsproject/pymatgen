@@ -27,11 +27,10 @@ import scipy as sp
 from scipy.spatial import ConvexHull
 import logging
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
-import matplotlib.colors as colors
-import matplotlib.colorbar as colorbar
-import matplotlib.cm as cm
-import mpl_toolkits.mplot3d as a3
+import mpl_toolkits.mplot3d as mpl3
+
 
 __author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
@@ -271,24 +270,17 @@ class WulffShape(object):
 
     def _get_simpx_plane(self):
         """
-        local the plane for simpx of on wulff_cv,
-        by comparing the center of the simpx triangle
-        with the plane functions.
-
-        based on: wulff_cv_simp, normal_e_m, wulff_pt_list
+        Locate the plane for simpx of on wulff_cv, by comparing the center of
+        the simpx triangle with the plane functions.
         """
-        wulff_simpx = self.wulff_cv_simp
-        normal_e_m = self.facets
-        wulff_pt_list = self.wulff_pt_list
         on_wulff = [False] * len(self.miller_list)
         surface_area = [0.0] * len(self.miller_list)
-        for simpx in wulff_simpx:
-            pts = [wulff_pt_list[simpx[i]] for i in range(3)]
+        for simpx in self.wulff_cv_simp:
+            pts = [self.wulff_pt_list[simpx[i]] for i in range(3)]
             center = np.sum(pts, 0) / 3.0
             # check whether the center of the simplices is on one plane
-            for plane in normal_e_m:
-                normal, e_surf = plane.normal, plane.e_surf
-                abs_diff = abs(np.dot(normal, center) - e_surf)
+            for plane in self.facets:
+                abs_diff = abs(np.dot(plane.normal, center) - plane.e_surf)
                 if abs_diff < 1e-5:
                     on_wulff[plane.index] = True
                     surface_area[plane.index] += get_tri_area(pts)
@@ -299,11 +291,10 @@ class WulffShape(object):
                     plane.outer_lines.append([simpx[0], simpx[2]])
                     # already find the plane, move to the next simplices
                     break
-        for plane in normal_e_m:
-            if len(plane.outer_lines):
-                plane.outer_lines.sort()
-                plane.outer_lines = [line for line in plane.outer_lines
-                                     if plane.outer_lines.count(line) != 2]
+        for plane in self.facets:
+            plane.outer_lines.sort()
+            plane.outer_lines = [line for line in plane.outer_lines
+                                 if plane.outer_lines.count(line) != 2]
         return on_wulff, surface_area
 
     def _get_colors(self, color_set, alpha, off_color):
@@ -325,13 +316,13 @@ class WulffShape(object):
         e_surf_on_wulff.sort(key=lambda x: x[1], reverse=False)
         e_surf_on_wulff_list = [x[1] for x in e_surf_on_wulff]
         if len(e_surf_on_wulff) > 1:
-            cnorm = colors.Normalize(vmin=min(e_surf_on_wulff_list),
-                                     vmax=max(e_surf_on_wulff_list))
+            cnorm = mpl.colors.Normalize(vmin=min(e_surf_on_wulff_list),
+                                         vmax=max(e_surf_on_wulff_list))
         else:
             # if there is only one hkl on wulff, choose the color of the median
-            cnorm = colors.Normalize(vmin=min(e_surf_on_wulff_list) - 0.1,
-                                     vmax=max(e_surf_on_wulff_list) + 0.1)
-        scalar_map = cm.ScalarMappable(norm=cnorm, cmap=c_map)
+            cnorm = mpl.colors.Normalize(vmin=min(e_surf_on_wulff_list) - 0.1,
+                                         vmax=max(e_surf_on_wulff_list) + 0.1)
+        scalar_map = mpl.cm.ScalarMappable(norm=cnorm, cmap=c_map)
 
         for i, e_surf in e_surf_on_wulff:
             plane_color = scalar_map.to_rgba(e_surf, alpha=alpha)
@@ -397,7 +388,7 @@ class WulffShape(object):
 
         wulff_pt_list = self.wulff_pt_list
 
-        ax = a3.Axes3D(fig, azim=azim, elev=elev)
+        ax = mpl3.Axes3D(fig, azim=azim, elev=elev)
 
         for plane in self.facets:
             # check whether [pts] is empty
@@ -426,7 +417,7 @@ class WulffShape(object):
                 pt.append(self.wulff_pt_list[l[1]].tolist())
                 prev = l[1]
             # plot from the sorted pts from [simpx]
-            tri = a3.art3d.Poly3DCollection([pt])
+            tri = mpl3.art3d.Poly3DCollection([pt])
             tri.set_color(plane_color)
             tri.set_edgecolor("#808080")
             ax.add_collection3d(tri)
@@ -460,10 +451,10 @@ class WulffShape(object):
             cmap.set_under('0.75')
             bounds = [round(e, 2) for e in e_surf_on_wulff]
             bounds.append(1.2 * bounds[-1])
-            norm = colors.BoundaryNorm(bounds, cmap.N)
+            norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
             # display surface energies
             ax1 = fig.add_axes(bar_pos)
-            cbar = colorbar.ColorbarBase(
+            cbar = mpl.colorbar.ColorbarBase(
                 ax1, cmap=cmap, norm=norm, boundaries=[0] + bounds + [10],
                 extend='both', ticks=bounds[:-1], spacing='proportional',
                 orientation='vertical')
