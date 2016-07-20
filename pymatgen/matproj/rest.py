@@ -20,8 +20,8 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-from pymatgen.entries.computed_entries import (ComputedEntry,
-                                               ComputedStructureEntry)
+from pymatgen.entries.computed_entries import ComputedEntry, \
+    ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.matproj.snl import StructureNL
 
