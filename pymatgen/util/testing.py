@@ -22,9 +22,8 @@ import json
 
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
-
-
 from monty.json import MSONable
+
 
 class PymatgenTest(unittest.TestCase):
     """

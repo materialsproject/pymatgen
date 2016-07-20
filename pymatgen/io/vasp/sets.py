@@ -1309,10 +1309,11 @@ def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
             vals = vasprun.incar[k]
             m = {}
             l = []
-            m[structure[0].specie.symbol] = vals.pop(0)
+            s = 0
             for site in structure:
                 if site.specie.symbol not in m:
-                    m[site.specie.symbol] = vals.pop(0)
+                    m[site.specie.symbol] = vals[s]
+                    s += 1
                 l.append(m[site.specie.symbol])
             if len(l) == len(structure):
                 site_properties.update({k.lower(): l})
