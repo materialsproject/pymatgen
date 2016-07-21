@@ -851,7 +851,7 @@ class MPRester(object):
         """
         req = "/materials/{}/substrates?n={}".format(material_id, number)
         if orient:
-            req = req + "&orient={}".format(" ".join(map(str, orient)))
+            req += "&orient={}".format(" ".join(map(str, orient)))
         return self._make_request(req)
 
     def get_all_substrates(self):
