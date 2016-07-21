@@ -417,7 +417,7 @@ class LatticeTestCase(PymatgenTest):
 
             pmg_result = lattice.get_distance_and_image(f1, f2)
             self.assertAlmostEqual(min_image_dist[0], pmg_result[0])
-            self.assertEqual(min_image_dist[1], pmg_result[1])
+            self.assertArrayAlmostEqual(min_image_dist[1], pmg_result[1])
 
 
 if __name__ == '__main__':
