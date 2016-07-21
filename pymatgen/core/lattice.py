@@ -36,6 +36,8 @@ __date__ = "Sep 23, 2011"
 # wise. It is also not 100% accurate, though probability of error is very small.
 # We will need to fix the algorithm in a more intelligent way later.
 MIC_RANGE = list(range(-3, 4))
+MIC_ORTHO_IMAGES = np.array(list(itertools.product([-1, 0, 1], [-1, 0, 1],
+                                                   [-1, 0, 1])))
 MIC_IMAGES = np.array(list(itertools.product(MIC_RANGE, MIC_RANGE, MIC_RANGE)))
 
 
@@ -981,7 +983,8 @@ class Lattice(MSONable):
         fcoords2 = np.mod(fcoords2, 1)
 
         # create images of f2
-        shifted_f2 = fcoords2[:, None, :] + MIC_IMAGES[None, :, :]
+        images = MIC_ORTHO_IMAGES if self.is_orthogonal() else MIC_IMAGES
+        shifted_f2 = fcoords2[:, None, :] + images[None, :, :]
 
         cart_f1 = self.get_cartesian_coords(fcoords1)
         cart_f2 = self.get_cartesian_coords(shifted_f2)
@@ -1000,6 +1003,9 @@ class Lattice(MSONable):
                 d_2 = np.sum(vectors ** 2, axis=2)
                 distances.append(np.min(d_2, axis=1) ** 0.5)
             return np.array(distances)
+
+    def is_orthogonal(self, angle_tol=1e-5):
+        return all([abs(a - 90) < angle_tol for a in self._angles])
 
     def is_hexagonal(self, hex_angle_tol=5, hex_length_tol=0.01):
         lengths, angles = self.lengths_and_angles
@@ -1035,15 +1041,14 @@ class Lattice(MSONable):
         coord1 = frac_coords1 - adj1
         coord2 = frac_coords2 - adj2
         # Generate set of images required for testing.
-        # This is a cheat to create an 8x3 array of all length 3
-        # combinations of 0,1
+        images = MIC_ORTHO_IMAGES if self.is_orthogonal() else MIC_IMAGES
 
         # Create tiled cartesian coords for computing distances.
-        vec = np.tile(coord2 - coord1, (len(MIC_IMAGES), 1)) + MIC_IMAGES
+        vec = np.tile(coord2 - coord1, (len(images), 1)) + images
         vec = self.get_cartesian_coords(vec)
         # Compute distances manually.
         dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
-        return list(zip(dist, adj1 - adj2 + MIC_IMAGES))
+        return list(zip(dist, adj1 - adj2 + images))
 
     def get_distance_and_image(self, frac_coords1, frac_coords2, jimage=None):
         """
