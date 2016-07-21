@@ -35,11 +35,8 @@ __date__ = "Sep 23, 2011"
 # Note that this is an extremely inefficient both computationally and memory
 # wise. It is also not 100% accurate, though probability of error is very small.
 # We will need to fix the algorithm in a more intelligent way later.
-NIMAGE = 3
-PBC_IMAGES = np.array([image for image in
-                       itertools.product(range(-NIMAGE, NIMAGE+1),
-                                         range(-NIMAGE, NIMAGE+1),
-                                         range(-NIMAGE, NIMAGE+1))])
+MIC_RANGE = list(range(-3, 4))
+MIC_IMAGES = np.array(list(itertools.product(MIC_RANGE, MIC_RANGE, MIC_RANGE)))
 
 
 class Lattice(MSONable):
@@ -976,36 +973,27 @@ class Lattice(MSONable):
             2d array of cartesian distances. E.g the distance between
             fcoords1[i] and fcoords2[j] is distances[i,j]
         """
-        #ensure correct shape
+        # ensure correct shape
         fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
 
-        #ensure that all points are in the unit cell
+        # ensure that all points are in the unit cell
         fcoords1 = np.mod(fcoords1, 1)
         fcoords2 = np.mod(fcoords2, 1)
 
-        #create images, 2d array of all length 3 combinations of [-1,0,1]
-        r = np.arange(-1, 2)
-        arange = r[:, None] * np.array([1, 0, 0])[None, :]
-        brange = r[:, None] * np.array([0, 1, 0])[None, :]
-        crange = r[:, None] * np.array([0, 0, 1])[None, :]
-        images = arange[:, None, None] + brange[None, :, None] +\
-            crange[None, None, :]
-        images = images.reshape((27, 3))
-
-        #create images of f2
-        shifted_f2 = fcoords2[:, None, :] + images[None, :, :]
+        # create images of f2
+        shifted_f2 = fcoords2[:, None, :] + MIC_IMAGES[None, :, :]
 
         cart_f1 = self.get_cartesian_coords(fcoords1)
         cart_f2 = self.get_cartesian_coords(shifted_f2)
 
         if cart_f1.size * cart_f2.size < 1e5:
-            #all vectors from f1 to f2
+            # all vectors from f1 to f2
             vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
             d_2 = np.sum(vectors ** 2, axis=3)
             distances = np.min(d_2, axis=2) ** 0.5
             return distances
         else:
-            #memory will overflow, so do a loop
+            # memory will overflow, so do a loop
             distances = []
             for c1 in cart_f1:
                 vectors = cart_f2[:, :, :] - c1[None, None, :]
@@ -1051,11 +1039,11 @@ class Lattice(MSONable):
         # combinations of 0,1
 
         # Create tiled cartesian coords for computing distances.
-        vec = np.tile(coord2 - coord1, (len(PBC_IMAGES), 1)) + PBC_IMAGES
+        vec = np.tile(coord2 - coord1, (len(MIC_IMAGES), 1)) + MIC_IMAGES
         vec = self.get_cartesian_coords(vec)
         # Compute distances manually.
         dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
-        return list(zip(dist, adj1 - adj2 + PBC_IMAGES))
+        return list(zip(dist, adj1 - adj2 + MIC_IMAGES))
 
     def get_distance_and_image(self, frac_coords1, frac_coords2, jimage=None):
         """
