@@ -396,6 +396,29 @@ class LatticeTestCase(PymatgenTest):
         self.assertAlmostEqual(dist, 16.24807680927192)
         self.assertArrayAlmostEqual(image, [1, 1, 0])
 
+    def test_get_distance_and_image_strict(self):
+        for count in range(100):
+            lengths = [np.random.randint(1, 100) for i in range(3)]
+            lattice = [np.random.rand(3) * lengths[i]
+                               for i in range(3)]
+            lattice = Lattice(np.array(lattice))
+
+
+            f1 = np.random.rand(3)
+            f2 = np.random.rand(3)
+
+            scope = list(range(-3, 4))
+            min_image_dist = (float("inf"), None)
+            for image in itertools.product(scope, scope, scope):
+                cart = lattice.get_cartesian_coords(f1 - (f2 + image))
+                dist = np.dot(cart, cart) ** 0.5
+                if dist < min_image_dist[0]:
+                    min_image_dist = (dist, image)
+
+            pmg_result = lattice.get_distance_and_image(f1, f2)
+            self.assertAlmostEqual(min_image_dist[0], pmg_result[0])
+            self.assertEqual(min_image_dist[1], pmg_result[1])
+
 
 if __name__ == '__main__':
     import unittest2 as unittest

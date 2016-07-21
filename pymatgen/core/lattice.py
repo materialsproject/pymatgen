@@ -3,6 +3,18 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import math
+import itertools
+
+from six.moves import map, zip
+
+import numpy as np
+from numpy.linalg import inv
+from numpy import pi, dot, transpose, radians
+from scipy.spatial import Voronoi
+
+from monty.json import MSONable
+from pymatgen.util.num_utils import abs_cap
 
 """
 This module defines the classes relating to 3D lattices.
@@ -17,20 +29,17 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-import math
-import itertools
 
-from six.moves import map, zip
-
-import numpy as np
-from numpy.linalg import inv
-from numpy import pi, dot, transpose, radians
-from scipy.spatial import Voronoi
-
-from monty.json import MSONable
-from monty.dev import deprecated
-from pymatgen.util.num_utils import abs_cap
-from pymatgen.core.units import ArrayWithUnit
+# TODO: Improve efficiency of minimum image convention algorithm
+# Construct images ahead of time.
+# Note that this is an extremely inefficient both computationally and memory
+# wise. It is also not 100% accurate, though probability of error is very small.
+# We will need to fix the algorithm in a more intelligent way later.
+NIMAGE = 3
+PBC_IMAGES = [image for image in
+              itertools.product(range(-NIMAGE, NIMAGE+1),
+                                range(-NIMAGE, NIMAGE+1),
+                                range(-NIMAGE, NIMAGE+1))]
 
 
 class Lattice(MSONable):
@@ -1030,25 +1039,23 @@ class Lattice(MSONable):
             This means that the distance between frac_coords1 and (jimage +
             frac_coords2) is equal to distance.
         """
-        #The following code is heavily vectorized to maximize speed.
-        #Get the image adjustment necessary to bring coords to unit_cell.
+        # The following code is heavily vectorized to maximize speed.
+        # Get the image adjustment necessary to bring coords to unit_cell.
         adj1 = np.floor(frac_coords1)
         adj2 = np.floor(frac_coords2)
-        #Shift coords to unitcell
+        # Shift coords to unitcell
         coord1 = frac_coords1 - adj1
         coord2 = frac_coords2 - adj2
         # Generate set of images required for testing.
         # This is a cheat to create an 8x3 array of all length 3
         # combinations of 0,1
-        test_set = np.unpackbits(np.array([5, 57, 119],
-                                          dtype=np.uint8)).reshape(8, 3)
-        images = np.copysign(test_set, coord1 - coord2)
+
         # Create tiled cartesian coords for computing distances.
-        vec = np.tile(coord2 - coord1, (8, 1)) + images
+        vec = np.tile(coord2 - coord1, (len(PBC_IMAGES), 1)) + PBC_IMAGES
         vec = self.get_cartesian_coords(vec)
         # Compute distances manually.
         dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
-        return list(zip(dist, adj1 - adj2 + images))
+        return list(zip(dist, adj1 - adj2 + PBC_IMAGES))
 
     def get_distance_and_image(self, frac_coords1, frac_coords2, jimage=None):
         """
