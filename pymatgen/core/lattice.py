@@ -3,6 +3,18 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import math
+import itertools
+
+from six.moves import map, zip
+
+import numpy as np
+from numpy.linalg import inv
+from numpy import pi, dot, transpose, radians
+from scipy.spatial import Voronoi
+
+from monty.json import MSONable
+from pymatgen.util.num_utils import abs_cap
 
 """
 This module defines the classes relating to 3D lattices.
@@ -17,20 +29,14 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-import math
-import itertools
 
-from six.moves import map, zip
-
-import numpy as np
-from numpy.linalg import inv
-from numpy import pi, dot, transpose, radians
-from scipy.spatial import Voronoi
-
-from monty.json import MSONable
-from monty.dev import deprecated
-from pymatgen.util.num_utils import abs_cap
-from pymatgen.core.units import ArrayWithUnit
+# TODO: Improve efficiency of minimum image convention algorithm
+# Construct images ahead of time.
+# Note that this is an extremely inefficient both computationally and memory
+# wise. It is also not 100% accurate, though probability of error is very small.
+# We will need to fix the algorithm in a more intelligent way later.
+MIC_RANGE = list(range(-3, 4))
+MIC_IMAGES = np.array(list(itertools.product(MIC_RANGE, MIC_RANGE, MIC_RANGE)))
 
 
 class Lattice(MSONable):
@@ -967,36 +973,27 @@ class Lattice(MSONable):
             2d array of cartesian distances. E.g the distance between
             fcoords1[i] and fcoords2[j] is distances[i,j]
         """
-        #ensure correct shape
+        # ensure correct shape
         fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
 
-        #ensure that all points are in the unit cell
+        # ensure that all points are in the unit cell
         fcoords1 = np.mod(fcoords1, 1)
         fcoords2 = np.mod(fcoords2, 1)
 
-        #create images, 2d array of all length 3 combinations of [-1,0,1]
-        r = np.arange(-1, 2)
-        arange = r[:, None] * np.array([1, 0, 0])[None, :]
-        brange = r[:, None] * np.array([0, 1, 0])[None, :]
-        crange = r[:, None] * np.array([0, 0, 1])[None, :]
-        images = arange[:, None, None] + brange[None, :, None] +\
-            crange[None, None, :]
-        images = images.reshape((27, 3))
-
-        #create images of f2
-        shifted_f2 = fcoords2[:, None, :] + images[None, :, :]
+        # create images of f2
+        shifted_f2 = fcoords2[:, None, :] + MIC_IMAGES[None, :, :]
 
         cart_f1 = self.get_cartesian_coords(fcoords1)
         cart_f2 = self.get_cartesian_coords(shifted_f2)
 
         if cart_f1.size * cart_f2.size < 1e5:
-            #all vectors from f1 to f2
+            # all vectors from f1 to f2
             vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
             d_2 = np.sum(vectors ** 2, axis=3)
             distances = np.min(d_2, axis=2) ** 0.5
             return distances
         else:
-            #memory will overflow, so do a loop
+            # memory will overflow, so do a loop
             distances = []
             for c1 in cart_f1:
                 vectors = cart_f2[:, :, :] - c1[None, None, :]
@@ -1030,25 +1027,23 @@ class Lattice(MSONable):
             This means that the distance between frac_coords1 and (jimage +
             frac_coords2) is equal to distance.
         """
-        #The following code is heavily vectorized to maximize speed.
-        #Get the image adjustment necessary to bring coords to unit_cell.
+        # The following code is heavily vectorized to maximize speed.
+        # Get the image adjustment necessary to bring coords to unit_cell.
         adj1 = np.floor(frac_coords1)
         adj2 = np.floor(frac_coords2)
-        #Shift coords to unitcell
+        # Shift coords to unitcell
         coord1 = frac_coords1 - adj1
         coord2 = frac_coords2 - adj2
         # Generate set of images required for testing.
         # This is a cheat to create an 8x3 array of all length 3
         # combinations of 0,1
-        test_set = np.unpackbits(np.array([5, 57, 119],
-                                          dtype=np.uint8)).reshape(8, 3)
-        images = np.copysign(test_set, coord1 - coord2)
+
         # Create tiled cartesian coords for computing distances.
-        vec = np.tile(coord2 - coord1, (8, 1)) + images
+        vec = np.tile(coord2 - coord1, (len(MIC_IMAGES), 1)) + MIC_IMAGES
         vec = self.get_cartesian_coords(vec)
         # Compute distances manually.
         dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
-        return list(zip(dist, adj1 - adj2 + images))
+        return list(zip(dist, adj1 - adj2 + MIC_IMAGES))
 
     def get_distance_and_image(self, frac_coords1, frac_coords2, jimage=None):
         """

@@ -989,7 +989,7 @@ class LocalGeometryFinder(object):
 
         """
         Returns the symmetry measures of the given coordination geometry "coordination_geometry" using separation
-        planes to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other ...
+        facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other ...
         :param coordination_geometry: The coordination geometry to be investigated
         :return: The symmetry measures for the given coordination geometry for each plane and permutation investigated
         """
@@ -1082,7 +1082,7 @@ class LocalGeometryFinder(object):
             algo = 'NOT_FOUND'
             separation = local_plane.indices_separate(
                 self.local_geometry._coords, dist_tolerance)
-            # Do not consider planes leading to the same separation indices
+            # Do not consider facets leading to the same separation indices
             separation = sort_separation(separation)
 
             if separation_in_list(separation, plane_separations):

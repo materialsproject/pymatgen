@@ -21,19 +21,16 @@ Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
 from __future__ import division, unicode_literals
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_recp_symmetry_operation
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord_utils import get_angle
 import numpy as np
 import scipy as sp
 from scipy.spatial import ConvexHull
-import copy
 import logging
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
-import matplotlib.colors as colors
-import matplotlib.colorbar as colorbar
-import matplotlib.cm as cm
-import mpl_toolkits.mplot3d as a3
+import mpl_toolkits.mplot3d as mpl3
+
 
 __author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
@@ -77,6 +74,24 @@ def get_tri_area(pts):
     return area_tri
 
 
+class WulffFacet(object):
+    """
+    Helper container for each Wulff plane.
+    """
+
+    def __init__(self, normal, e_surf, normal_pt, dual_pt, index, m_ind_orig,
+                 miller):
+        self.normal = normal
+        self.e_surf = e_surf
+        self.normal_pt = normal_pt
+        self.dual_pt = dual_pt
+        self.index = index
+        self.m_ind_orig = m_ind_orig
+        self.miller = miller
+        self.points = []
+        self.outer_lines = []
+
+
 class WulffShape(object):
     """
     Generate Wulff Shape from list of miller index and surface energies,
@@ -106,38 +121,25 @@ class WulffShape(object):
     .. attribute:: show_area
 
     .. attribute:: off_color
-        color of planes off wulff
-
-    .. attribute:: input_miller_fig
-        ($input_miller$) for legend on figures
+        color of facets off wulff
 
     .. attribute:: structure
         Structure object, input conventional unit cell (with H ) from lattice
 
-    .. attribute:: input_miller
+    .. attribute:: miller_list
         list of input miller index, for hcp in the form of hkil
 
-    .. attribute:: input_hkl
+    .. attribute:: hkl_list
         modify hkill to hkl, in the same order with input_miller
 
-    .. attribute:: input_e_surf
+    .. attribute:: e_surf_list
         list of input surface energies, in the same order with input_miller
 
-    .. attribute:: latt
+    .. attribute:: lattice
         Lattice object, the input lattice for the conventional unit cell
 
-    .. attribute:: recp
-        reciprocal_lattice_crystallographic of the input structure
-
-    .. attribute:: recp_symmops
-        list of symmetric operations for recp
-
-    .. attribute:: cart_symmops
-        list of symmetric operations for input structure (cartesian)
-
-    .. attribute:: normal_e_m: item:
-        [normal, e_surf, normal_pt, dual_pt, color_plane, m_ind_orig, miller]
-        for all planes considering symm
+    .. attribute:: facets
+        [WulffFacet] for all facets considering symm
 
     .. attribute:: dual_cv_simp
         simplices from the dual convex hull (dual_pt)
@@ -147,70 +149,43 @@ class WulffShape(object):
     .. attribute:: wulff_cv_simp
         simplices from the convex hull of wulff_pt_list
 
-    .. attribute:: simpx_info
-
-    .. attribute:: plane_wulff_info: item:
-        [normal, e_surf, pts, simpx, color_plane, m_ind_orig, miller]
-
     .. attribute:: on_wulff
         list for all input_miller, True is on wulff.
 
     .. attribute:: color_area
         list for all input_miller, total area on wulff, off_wulff = 0.
 
-    .. attribute:: color_list
-        color all input_miller, on_wulff ones according to e_surf
-
-    .. attribute:: color_proxy
-        color_proxy for all input_miller
-
-    .. attribute:: color_proxy_on_wulff
-        color_proxy for on wulff input_miller only
-
-    .. attribute:: miller_on_wulff
-        input_miller_fig for on wulff input_miller only
-
-    .. attribute:: e_surf_on_wulff
-        e_surf for on wulff input_miller only
-
     .. attribute:: miller_area
         ($hkl$): area for all input_miller
 
     """
 
-    def __init__(self, lattice, miller_list, e_surf_list, symprec=0.00001):
+    def __init__(self, lattice, miller_list, e_surf_list, symprec=1e-5):
         """
         Args:
             lattice: Lattice object of the conventional unit cell
             miller_list ([(hkl), ...]: list of hkl or hkil for hcp
             e_surf_list ([float]): list of corresponding surface energies
-            symprec (float): for recp_operation, default is 0.01
+            symprec (float): for recp_operation, default is 1e-5.
         """
-        structure = Structure(lattice, ["H"], [[0, 0, 0]])
         self.color_ind = list(range(len(miller_list)))
 
         self.input_miller_fig = [hkl_tuple_to_str(x) for x in miller_list]
         # store input data
-        self.structure = structure
-        self.input_miller = [list(x) for x in miller_list]
-        self.input_hkl = [[x[0], x[1], x[-1]] for x in miller_list]
-        self.input_e_surf = list(e_surf_list)
+        self.structure = Structure(lattice, ["H"], [[0, 0, 0]])
+        self.miller_list = tuple([tuple(x) for x in miller_list])
+        self.hkl_list = tuple([(x[0], x[1], x[-1]) for x in miller_list])
+        self.e_surf_list = tuple(e_surf_list)
         self.lattice = lattice
-        self.recp = structure.lattice.reciprocal_lattice_crystallographic
-        self.recp_symmops = get_recp_symmetry_operation(structure, symprec)
-
-        sga = SpacegroupAnalyzer(structure, symprec)
-        self.cart_symmops = sga.get_point_group_operations(cartesian=True)
+        self.symprec = symprec
 
         # 2. get all the data for wulff construction
         # get all the surface normal from get_all_miller_e()
-        normal_e_m = self._get_all_miller_e()
-        # [normal, e_surf, normal_pt, dual_pt, color_plane, m_ind_orig, miller]
-        logger.debug(len(normal_e_m))
-        self.normal_e_m = normal_e_m
+        self.facets = self._get_all_miller_e()
+        logger.debug(len(self.facets))
 
         # 3. consider the dual condition
-        dual_pts = [x[3] for x in normal_e_m]
+        dual_pts = [x.dual_pt for x in self.facets]
         dual_convex = ConvexHull(dual_pts)
         dual_cv_simp = dual_convex.simplices
         # simplices	(ndarray of ints, shape (nfacet, ndim))
@@ -219,7 +194,7 @@ class WulffShape(object):
         # recalculate the dual of dual, get the wulff shape.
         # conner <-> surface
         # get cross point from the simplices of the dual convex hull
-        wulff_pt_list = [self.get_cross_pt_dual_simp(dual_simp)
+        wulff_pt_list = [self._get_cross_pt_dual_simp(dual_simp)
                          for dual_simp in dual_cv_simp]
 
         wulff_convex = ConvexHull(wulff_pt_list)
@@ -232,8 +207,7 @@ class WulffShape(object):
         self.wulff_cv_simp = wulff_cv_simp
         self.wulff_convex = wulff_convex
 
-        self.simpx_info, self.plane_wulff_info, self.on_wulff, self.color_area \
-            = self._get_simpx_plane()
+        self.on_wulff, self.color_area = self._get_simpx_plane()
 
         miller_area = []
         for m, in_mill_fig in enumerate(self.input_miller_fig):
@@ -247,138 +221,108 @@ class WulffShape(object):
             get miller_list(unique_miller), e_surf_list and symmetry
             operations(symmops) according to lattice
         apply symmops to get all the miller index, then get normal,
-        get all the planes functions for wulff shape calculation:
+        get all the facets functions for wulff shape calculation:
             |normal| = 1, e_surf is plane's distance to (0, 0, 0),
             normal[0]x + normal[1]y + normal[2]z = e_surf
 
         return:
-            normal_e_m, item: [normal, e_surf, normal_pt, dual_pt,
-            color_plane, m_ind_orig, miller]
+            [WulffFacet]
         """
         all_hkl = []
         color_ind = self.color_ind
-        normal_e_m = []
+        planes = []
+        recp = self.structure.lattice.reciprocal_lattice_crystallographic
+        recp_symmops = get_recp_symmetry_operation(self.structure, self.symprec)
 
-        for i, (hkl, energy) in enumerate(zip(self.input_hkl,
-                                              self.input_e_surf)):
-            for op in self.recp_symmops:
+        for i, (hkl, energy) in enumerate(zip(self.hkl_list,
+                                              self.e_surf_list)):
+            for op in recp_symmops:
                 miller = tuple([int(x) for x in op.operate(hkl)])
                 if miller not in all_hkl:
                     all_hkl.append(miller)
-                    normal = self.recp.get_cartesian_coords(miller)
+                    normal = recp.get_cartesian_coords(miller)
                     normal /= sp.linalg.norm(normal)
                     normal_pt = [x * energy for x in normal]
                     dual_pt = [x / energy for x in normal]
                     color_plane = color_ind[divmod(i, len(color_ind))[1]]
-                    normal_e_m.append([normal, energy, normal_pt, dual_pt,
-                                       color_plane, i, hkl])
+                    planes.append(WulffFacet(normal, energy, normal_pt,
+                                             dual_pt, color_plane, i, hkl))
 
-        # sorted by e_surf
-        normal_e_m.sort(key=lambda x: x[1])
-        return normal_e_m
+        # sort by e_surf
+        planes.sort(key=lambda x: x.e_surf)
+        return planes
 
-    def get_cross_pt_dual_simp(self, dual_simp):
+    def _get_cross_pt_dual_simp(self, dual_simp):
         """
         |normal| = 1, e_surf is plane's distance to (0, 0, 0),
         plane function:
             normal[0]x + normal[1]y + normal[2]z = e_surf
-        normal_e_m, item: [normal, e_surf, normal_pt, dual_pt,
-            color_plane, m_ind_orig, miller]
 
         from self:
             normal_e_m to get the plane functions
             dual_simp: (i, j, k) simplices from the dual convex hull
                 i, j, k: plane index(same order in normal_e_m)
         """
-        i, j, k = dual_simp[0], dual_simp[1], dual_simp[2]
-        normal_e_m = self.normal_e_m
-        matrix_surfs = [normal_e_m[i][0], normal_e_m[j][0], normal_e_m[k][0]]
-        matrix_e = [normal_e_m[i][1], normal_e_m[j][1], normal_e_m[k][1]]
+        matrix_surfs = [self.facets[dual_simp[i]].normal for i in range(3)]
+        matrix_e = [self.facets[dual_simp[i]].e_surf for i in range(3)]
         cross_pt = sp.dot(sp.linalg.inv(matrix_surfs), matrix_e)
         return cross_pt
 
     def _get_simpx_plane(self):
         """
-        local the plane for simpx of on wulff_cv,
-        by comparing the center of the simpx triangle
-        with the plane functions.
-
-        based on: wulff_cv_simp, normal_e_m, wulff_pt_list
+        Locate the plane for simpx of on wulff_cv, by comparing the center of
+        the simpx triangle with the plane functions.
         """
-        wulff_simpx = self.wulff_cv_simp
-        # normal_e_m, item: [normal, e_surf, normal_pt, dual_pt,
-        #     color_plane, m_ind_orig, miller]
-        normal_e_m = self.normal_e_m
-        wulff_pt_list = self.wulff_pt_list
-        simpx_info = []
-        on_wulff = [False] * len(self.input_miller)
-        surface_area = [0.0] * len(self.input_miller)
-        plane_wulff_info = [[x[0], x[1], [], [], x[4], x[5], x[6]]
-                            for x in normal_e_m]
-        # each simpx (i,j,k) from self.wulff_cv_simp
-        #  forms a triangle on the wulff shape.
-        # check which surface it belongs to
-        for simpx in wulff_simpx:
-            pts = [wulff_pt_list[simpx[i]] for i in range(3)]
+        on_wulff = [False] * len(self.miller_list)
+        surface_area = [0.0] * len(self.miller_list)
+        for simpx in self.wulff_cv_simp:
+            pts = [self.wulff_pt_list[simpx[i]] for i in range(3)]
             center = np.sum(pts, 0) / 3.0
             # check whether the center of the simplices is on one plane
-            for i, plane in enumerate(normal_e_m):
-                normal, e_surf = plane[0], plane[1]
-                abs_diff = abs(np.dot(normal, center) - e_surf)
-                if abs_diff < 10e-6:
-                    # assign values only if the simplices is on the plane.
-                    plane_ind = plane[4]  # the ind of input_miller
-                    on_wulff[plane_ind] = True
-                    surface_area[plane_ind] += get_tri_area(pts)
-                    simp_inf = [plane[0], plane[1], pts, simpx, plane[4],
-                                plane[5], plane[6]]
-                    # build a list in the same order of simpx
-                    # with related plane information
-                    simpx_info.append(simp_inf)
+            for plane in self.facets:
+                abs_diff = abs(np.dot(plane.normal, center) - plane.e_surf)
+                if abs_diff < 1e-5:
+                    on_wulff[plane.index] = True
+                    surface_area[plane.index] += get_tri_area(pts)
 
-                    plane_wulff_info[i][2].append(pts)
-                    # outer_lines
-                    plane_wulff_info[i][3].append([simpx[0], simpx[1]])
-                    plane_wulff_info[i][3].append([simpx[1], simpx[2]])
-                    plane_wulff_info[i][3].append([simpx[0], simpx[2]])
+                    plane.points.append(pts)
+                    plane.outer_lines.append([simpx[0], simpx[1]])
+                    plane.outer_lines.append([simpx[1], simpx[2]])
+                    plane.outer_lines.append([simpx[0], simpx[2]])
                     # already find the plane, move to the next simplices
                     break
-        for plane in plane_wulff_info:
-            if len(plane[3]):
-                plane[3].sort()
-                outer_lines = []
-                for line in plane[3]:
-                    if plane[3].count(line) != 2:
-                        outer_lines.append(line)
-                plane[3] = outer_lines
-        return simpx_info, plane_wulff_info, on_wulff, surface_area
+        for plane in self.facets:
+            plane.outer_lines.sort()
+            plane.outer_lines = [line for line in plane.outer_lines
+                                 if plane.outer_lines.count(line) != 2]
+        return on_wulff, surface_area
 
     def _get_colors(self, color_set, alpha, off_color):
         """
-        assign colors according to the surface energies of on_wulff planes.
+        assign colors according to the surface energies of on_wulff facets.
 
         return:
             (color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
             e_surf_on_wulff_list)
         """
-        color_list = [off_color] * len(self.input_hkl)
+        color_list = [off_color] * len(self.hkl_list)
         color_proxy_on_wulff = []
         miller_on_wulff = []
         e_surf_on_wulff = [(i, e_surf)
-                           for i, e_surf in enumerate(self.input_e_surf)
+                           for i, e_surf in enumerate(self.e_surf_list)
                            if self.on_wulff[i]]
 
         c_map = plt.get_cmap(color_set)
         e_surf_on_wulff.sort(key=lambda x: x[1], reverse=False)
         e_surf_on_wulff_list = [x[1] for x in e_surf_on_wulff]
         if len(e_surf_on_wulff) > 1:
-            cnorm = colors.Normalize(vmin=min(e_surf_on_wulff_list),
-                                     vmax=max(e_surf_on_wulff_list))
+            cnorm = mpl.colors.Normalize(vmin=min(e_surf_on_wulff_list),
+                                         vmax=max(e_surf_on_wulff_list))
         else:
             # if there is only one hkl on wulff, choose the color of the median
-            cnorm = colors.Normalize(vmin=min(e_surf_on_wulff_list) - 0.1,
-                                     vmax=max(e_surf_on_wulff_list) + 0.1)
-        scalar_map = cm.ScalarMappable(norm=cnorm, cmap=c_map)
+            cnorm = mpl.colors.Normalize(vmin=min(e_surf_on_wulff_list) - 0.1,
+                                         vmax=max(e_surf_on_wulff_list) + 0.1)
+        scalar_map = mpl.cm.ScalarMappable(norm=cnorm, cmap=c_map)
 
         for i, e_surf in e_surf_on_wulff:
             plane_color = scalar_map.to_rgba(e_surf, alpha=alpha)
@@ -416,7 +360,7 @@ class WulffShape(object):
             axis_off (bool): default is Ture
             show_area (bool): default is False
             alpha (float): chosen from 0 to 1 (float), default is 1
-            off_color: color_legend for off_wulff planes on show_area legend
+            off_color: color_legend for off_wulff facets on show_area legend
             direction: default is (1, 1, 1)
             bar_pos: default is [0.75, 0.15, 0.05, 0.65]
             bar_on (bool): default is False
@@ -439,24 +383,22 @@ class WulffShape(object):
 
         fig = plt.figure()
         fig.set_size_inches(aspect_ratio[0], aspect_ratio[1])
-        azim, elev = self.get_azimuth_elev([direction[0], direction[1],
-                                            direction[-1]])
+        azim, elev = self._get_azimuth_elev([direction[0], direction[1],
+                                             direction[-1]])
 
         wulff_pt_list = self.wulff_pt_list
-        plane_wulff_info = self.plane_wulff_info
 
-        ax = a3.Axes3D(fig, azim=azim, elev=elev)
+        ax = mpl3.Axes3D(fig, azim=azim, elev=elev)
 
-        for plane in plane_wulff_info:
+        for plane in self.facets:
             # check whether [pts] is empty
-            if len(plane[2]) < 1:
+            if len(plane.points) < 1:
                 # empty, plane is not on_wulff.
                 continue
-            # assign the color for on_wulff planes according to its
-            # color_plane index and the color_list for on_wulff
-            plane_color = color_list[plane[4]]
-            # plane[3]: [simpx]
-            lines = list(plane[3])
+            # assign the color for on_wulff facets according to its
+            # index and the color_list for on_wulff
+            plane_color = color_list[plane.index]
+            lines = list(plane.outer_lines)
             pt = []
             prev = None
             while len(lines) > 0:
@@ -475,7 +417,7 @@ class WulffShape(object):
                 pt.append(self.wulff_pt_list[l[1]].tolist())
                 prev = l[1]
             # plot from the sorted pts from [simpx]
-            tri = a3.art3d.Poly3DCollection([pt])
+            tri = mpl3.art3d.Poly3DCollection([pt])
             tri.set_color(plane_color)
             tri.set_edgecolor("#808080")
             ax.add_collection3d(tri)
@@ -509,10 +451,10 @@ class WulffShape(object):
             cmap.set_under('0.75')
             bounds = [round(e, 2) for e in e_surf_on_wulff]
             bounds.append(1.2 * bounds[-1])
-            norm = colors.BoundaryNorm(bounds, cmap.N)
+            norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
             # display surface energies
             ax1 = fig.add_axes(bar_pos)
-            cbar = colorbar.ColorbarBase(
+            cbar = mpl.colorbar.ColorbarBase(
                 ax1, cmap=cmap, norm=norm, boundaries=[0] + bounds + [10],
                 extend='both', ticks=bounds[:-1], spacing='proportional',
                 orientation='vertical')
@@ -524,19 +466,21 @@ class WulffShape(object):
             ax.axis('off')
         return plt
 
-    def get_azimuth_elev(self, miller_index):
+    def _get_azimuth_elev(self, miller_index):
         """
-        :param miller_index: viewing direction
-        :return: azim, elev for plotting
-        """
+        Args:
+            miller_index: viewing direction
 
-        cart = self.lattice.get_cartesian_coords(miller_index)
-        azim = get_angle([cart[0], cart[1], 0], (1, 0, 0))
-        v = [cart[0], cart[1], 0]
-        elev = get_angle(cart, v)
+        Returns:
+            azim, elev for plotting
+        """
         if miller_index == (0, 0, 1) or miller_index == (0, 0, 0, 1):
             return 0, 90
         else:
+            cart = self.lattice.get_cartesian_coords(miller_index)
+            azim = get_angle([cart[0], cart[1], 0], (1, 0, 0))
+            v = [cart[0], cart[1], 0]
+            elev = get_angle(cart, v)
             return azim, elev
 
     @property
@@ -551,16 +495,14 @@ class WulffShape(object):
         """
         Returns {hkl: area_hkl on wulff}
         """
-        return {tuple(hkl): self.color_area[i]
-                for i, hkl in enumerate(self.input_miller)}
+        return dict(zip(self.miller_list, self.color_area))
 
     @property
     def miller_energy_dict(self):
         """
         Returns {hkl: surface energy_hkl}
         """
-        return {tuple(hkl): self.input_e_surf[i]
-                for i, hkl in enumerate(self.input_miller)}
+        return dict(zip(self.miller_list, self.e_surf_list))
 
     @property
     def surface_area(self):
@@ -572,7 +514,7 @@ class WulffShape(object):
     @property
     def weighted_surface_energy(self):
         """
-        :return:
+        Returns:
             sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)
         """
         tot_area_energy = 0
@@ -584,7 +526,7 @@ class WulffShape(object):
     @property
     def area_fraction_dict(self):
         """
-        :return:
+        Returns:
             (dict): {hkl: area_hkl/total area on wulff}
         """
         return {hkl: self.miller_area_dict[hkl] / self.surface_area
@@ -593,8 +535,8 @@ class WulffShape(object):
     @property
     def anisotropy(self):
         """
-        :return:
-            variation from weighted surface energy
+        Returns:
+            (float) Coefficient of Variation from weighted surface energy
             The ideal sphere is 0.
         """
         square_diff_energy = 0
@@ -615,8 +557,7 @@ class WulffShape(object):
         See Ballufi, R. W., Allen, S. M. & Carter, W. C. Kinetics
             of Materials. (John Wiley & Sons, 2005), p.461
 
-        :return:
-            variation from weighted surface energy
-            The ideal sphere is 0.
+        Returns:
+            (float) Shape factor.
         """
         return self.surface_area / (self.volume ** (2 / 3))

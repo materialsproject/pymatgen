@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.core.tests
 
 Submodules
 ----------

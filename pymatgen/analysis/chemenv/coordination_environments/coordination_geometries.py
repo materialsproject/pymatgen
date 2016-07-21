@@ -334,11 +334,11 @@ class CoordinationGeometry(object):
         :param coordination: The coordination number of this coordination geometry (number of neighboring atoms).
         :param central_site: The coordinates of the central site of this coordination geometry.
         :param points: The list of the coordinates of all the points of this coordination geometry.
-        :param separation_planes: List of separation planes to help set up the permutations
+        :param separation_planes: List of separation facets to help set up the permutations
         :param permutation_safe_override: Computes all the permutations if set to True (overrides the plane separation
         algorithms or any other algorithm, for testing purposes)
         :param plane_ordering_override: Computes all the permutations of the plane separation algorithm if set to False
-        otherwise, uses the anticlockwise ordering of the separation planes (for testing purposes)
+        otherwise, uses the anticlockwise ordering of the separation facets (for testing purposes)
         :param deactivate: deactivates this coordination geometry in the search
         :param faces : list of the faces with their vertices given in a clockwise or anticlockwise order, for drawing
         purposes

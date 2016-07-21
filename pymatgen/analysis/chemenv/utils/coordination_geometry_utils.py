@@ -331,7 +331,7 @@ class Plane(object):
         """
         Checks whether the plane is identical to another Plane "plane"
         :param plane: Plane to be compared to
-        :return: True if the two planes are identical, False otherwise
+        :return: True if the two facets are identical, False otherwise
         """
         return np.allclose(self._coefficients, plane.coefficients)
 
