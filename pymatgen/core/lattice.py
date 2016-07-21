@@ -36,10 +36,10 @@ __date__ = "Sep 23, 2011"
 # wise. It is also not 100% accurate, though probability of error is very small.
 # We will need to fix the algorithm in a more intelligent way later.
 NIMAGE = 3
-PBC_IMAGES = [image for image in
-              itertools.product(range(-NIMAGE, NIMAGE+1),
-                                range(-NIMAGE, NIMAGE+1),
-                                range(-NIMAGE, NIMAGE+1))]
+PBC_IMAGES = np.array([image for image in
+                       itertools.product(range(-NIMAGE, NIMAGE+1),
+                                         range(-NIMAGE, NIMAGE+1),
+                                         range(-NIMAGE, NIMAGE+1))])
 
 
 class Lattice(MSONable):
