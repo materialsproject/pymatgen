@@ -231,7 +231,7 @@ class MPResterTest(unittest.TestCase):
         self.assertIn("Li2O", rxn["Experimental_references"])
 
     def test_get_substrates(self):
-        substrate_data = self.rester.get_substrates('mp-123', [1,0,0],5)
+        substrate_data = self.rester.get_substrates('mp-123', 5, [1, 0, 0])
         substrates = [sub_dict['sub_id'] for sub_dict in substrate_data]
         self.assertIn("mp-2534", substrates)
 

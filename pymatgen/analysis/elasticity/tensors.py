@@ -164,7 +164,7 @@ class TensorBase(np.ndarray):
         """
         return (self - self.fit_to_structure(structure) < tol).all()
 
-    def convert_to_ieee(self, structure, atol = 0.1, ltol = 0.05):
+    def convert_to_ieee(self, structure):
         """
         Given a structure associated with a tensor, attempts a
         calculation of the tensor in IEEE format according to
@@ -173,8 +173,6 @@ class TensorBase(np.ndarray):
         Args:
             structure (Structure): a structure associated with the
                 tensor to be converted to the IEEE standard
-            atol (float): angle tolerance for conversion routines
-            ltol (float): length tolerance for conversion routines
         """
         def get_uvec(vec):
             """ Gets a unit vector parallel to input vector"""
@@ -201,8 +199,9 @@ class TensorBase(np.ndarray):
         # IEEE rules: a=b in length; c,a || x3, x1
         elif xtal_sys == "tetragonal":
             rotation = np.array([vec/mag for (mag, vec) in 
-                                 sorted(zip(lengths, vecs))])
-            if abs(lengths[2] - lengths[1]) < ltol:
+                                 sorted(zip(lengths, vecs),
+                                        key = lambda x: x[0])])
+            if abs(lengths[2] - lengths[1]) < abs(lengths[1] - lengths[0]):
                 rotation[0], rotation[2] = rotation[2], rotation[0].copy()
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
 
@@ -215,18 +214,18 @@ class TensorBase(np.ndarray):
         # Note this also includes rhombohedral crystal systems
         elif xtal_sys in ("trigonal", "hexagonal"):
             # find threefold axis:
-            tf_mask = abs(angles-120.0) < atol
-            non_tf_mask = np.logical_not(tf_mask)
-            rotation[2] = get_uvec(vecs[tf_mask][0])
+            tf_index = np.argmin(abs(angles - 120.))
+            non_tf_mask = np.logical_not(angles == angles[tf_index])
+            rotation[2] = get_uvec(vecs[tf_index])
             rotation[0] = get_uvec(vecs[non_tf_mask][0])
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
 
         # IEEE rules: b,c || x2,x3; alpha=beta=90, c<a
         elif xtal_sys == "monoclinic":
             # Find unique axis
-            umask = abs(angles - 90.0) > atol
-            n_umask = np.logical_not(umask)
-            rotation[1] = get_uvec(vecs[umask])
+            u_index = np.argmax(abs(angles - 90.))
+            n_umask = np.logical_not(angles == angles[u_index])
+            rotation[1] = get_uvec(vecs[u_index])
             # Shorter of remaining lattice vectors for c axis
             c = [vec/mag for (mag, vec) in 
                  sorted(zip(lengths[n_umask], vecs[n_umask]))][0]
