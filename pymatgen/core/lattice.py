@@ -30,12 +30,12 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
-# TODO: Improve efficiency of minimum image convention algorithm
 # Construct images ahead of time.
-# Note that this is an extremely inefficient both computationally and memory
-# wise. It is also not 100% accurate, though probability of error is very small.
-# We will need to fix the algorithm in a more intelligent way later.
-MIC_RANGE = list(range(-3, 4))
+# Note that this is an extremely inefficient memory-wise, but is likely to be
+# the most efficient computational approach. Other approaches to narrow down
+# the number of images to test costs more computationally than a brute force
+# via numpy.
+MIC_RANGE = (-3, -2, -1, 0, 1, 2, 3)
 MIC_ORTHO_IMAGES = np.array(list(itertools.product([-1, 0, 1], [-1, 0, 1],
                                                    [-1, 0, 1])))
 MIC_IMAGES = np.array(list(itertools.product(MIC_RANGE, MIC_RANGE, MIC_RANGE)))
