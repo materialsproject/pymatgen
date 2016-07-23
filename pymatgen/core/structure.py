@@ -972,9 +972,9 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError("Structures have different lengths!")
 
         if interpolate_lattices:
-            # interpolate lattices
-            lstart = np.array(self.lattice.lengths_and_angles)
-            lend = np.array(end_structure.lattice.lengths_and_angles)
+            # interpolate lattice matricies
+            lstart = self.lattice.matrix
+            lend = end_structure.lattice.matrix
             lvec = lend - lstart
 
         # Check that both structures have the same lattice
@@ -1033,7 +1033,7 @@ class IStructure(SiteCollection, MSONable):
         for x in range(nimages + 1):
             if interpolate_lattices:
                 l_a = lstart + x / nimages * lvec
-                l = Lattice.from_lengths_and_angles(*l_a)
+                l = Lattice(l_a)
             else:
                 l = self.lattice
             fcoords = start_coords + x / nimages * vec
