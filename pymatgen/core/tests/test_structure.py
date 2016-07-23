@@ -267,10 +267,14 @@ class IStructureTest(PymatgenTest):
                                     int_s[2].lattice.abc)
         self.assertArrayAlmostEqual(struct2.lattice.angles,
                                     int_s[2].lattice.angles)
-        int_angles = [(a + struct2.lattice.angles[i]) / 2
-                      for i, a in enumerate(struct.lattice.angles)]
+        int_angles = [110.7734367, 94.1864814, 65.4423028]
         self.assertArrayAlmostEqual(int_angles,
                                     int_s[1].lattice.angles)
+
+        # Assert that volume is monotonic
+        self.assertTrue(struct2.lattice.volume >=
+                        int_s[1].lattice.volume >=
+                        struct.lattice.volume)
 
     def test_get_primitive_structure(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
