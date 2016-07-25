@@ -1042,6 +1042,7 @@ class Lattice(MSONable):
         cutoff = min(d_len, max(diags) / 2)
         n = np.array(np.ceil(cutoff * np.prod(self._lengths) /
                      (self.volume * self._lengths)), dtype=int)
+        n = [min(10, i) for i in n]
         ranges = [list(range(-i, i+1)) for i in n]
         print(self._lengths)
         print(self._angles)
