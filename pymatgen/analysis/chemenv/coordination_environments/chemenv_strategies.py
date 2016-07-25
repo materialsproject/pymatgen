@@ -175,8 +175,11 @@ class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
         self.prepare_symmetries()
 
     def prepare_symmetries(self):
-        self.spg_analyzer = SpacegroupAnalyzer(self.structure_environments.structure)
-        self.symops = self.spg_analyzer.get_symmetry_operations()
+        try:
+            self.spg_analyzer = SpacegroupAnalyzer(self.structure_environments.structure)
+            self.symops = self.spg_analyzer.get_symmetry_operations()
+        except:
+            self.symops = []
 
     def equivalent_site_index(self, psite):
         return self.equivalent_site_index_and_transform(psite)[0]
@@ -407,27 +410,27 @@ class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
     #             ce_and_neighbors['ce'].append(geom_dict)
     #     return ce_and_neighbors
 
-    def structure_has_environment(self, mp_symbol, unequivocal=True):
-        """
-        Checks whether the structure contains the environment symbolized by mp_symbol. For strategies allowing
-        mixed environments, the unequivocal argument specifies whether the check should be on the most probable
-        environment or on all of the possible environments.
-        :param mp_symbol:
-        :param unequivocal:
-        :return:
-        """
-        symmetrized_structure = self.spg_analyzer.get_symmetrized_structure()
-        for sites_group in symmetrized_structure.equivalent_sites:
-            site = sites_group[0]
-            if self.uniquely_determines_coordination_environments or unequivocal:
-                ce, ce_dict = self.get_site_coordination_environment(site)
-                if ce == mp_symbol:
-                    return True
-            else:
-                allce = self.get_site_coordination_environments(site)
-                if mp_symbol in [ce for ce, ce_dict in allce]:
-                    return True
-        return False
+    # def structure_has_environment(self, mp_symbol, unequivocal=True):
+    #     """
+    #     Checks whether the structure contains the environment symbolized by mp_symbol. For strategies allowing
+    #     mixed environments, the unequivocal argument specifies whether the check should be on the most probable
+    #     environment or on all of the possible environments.
+    #     :param mp_symbol:
+    #     :param unequivocal:
+    #     :return:
+    #     """
+    #     symmetrized_structure = self.spg_analyzer.get_symmetrized_structure()
+    #     for sites_group in symmetrized_structure.equivalent_sites:
+    #         site = sites_group[0]
+    #         if self.uniquely_determines_coordination_environments or unequivocal:
+    #             ce, ce_dict = self.get_site_coordination_environment(site)
+    #             if ce == mp_symbol:
+    #                 return True
+    #         else:
+    #             allce = self.get_site_coordination_environments(site)
+    #             if mp_symbol in [ce for ce, ce_dict in allce]:
+    #                 return True
+    #     return False
 
     def set_option(self, option_name, option_value):
         self.__setattr__(option_name, option_value)
