@@ -39,8 +39,8 @@ class LightStructureEnvironmentsTest(unittest.TestCase):
 
         struct = Structure.from_dict(dd['structure'])
         self.lgf.setup_structure(struct)
-        se = self.lgf.compute_structure_environments_detailed_voronoi(only_indices=atom_indices,
-                                                                      maximum_distance_factor=2.25)
+        se = self.lgf.compute_structure_environments(only_indices=atom_indices,
+                                                     maximum_distance_factor=2.25)
 
         f = open('tmp_dir/se.json', 'w')
         json.dump(se.as_dict(), f)

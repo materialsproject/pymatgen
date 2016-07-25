@@ -69,6 +69,11 @@ class StructureEnvironments(MSONable):
             return [self.voronoi[inb]['site'] for inb in self.site_voronoi_indices]
 
         @property
+        def neighb_sites_and_indices(self):
+            return [{'site': self.voronoi[inb]['site'],
+                     'index': self.voronoi[inb]['index']} for inb in self.site_voronoi_indices]
+
+        @property
         def coords(self):
             coords = [self.structure[self.isite].coords]
             coords.extend(self.neighb_coords)
@@ -312,138 +317,138 @@ class StructureEnvironments(MSONable):
         else:
             return [envs[mp_symbol] for envs in self.ce_list[isite][cn]]
 
-    def get_environments_figure(self, isite, plot_type=None, title='Coordination numbers', max_dist=2.0,
-                                additional_condition=AC.ONLY_ACB, colormap=None, figsize=None,
-                                strategy=None):
-        """
-        Plotting of the coordination environments of a given site for all the distfactor/angfactor regions. The
-        chemical environments with the lowest continuous symmetry measure is shown for each distfactor/angfactor
-        region as the value for the color of that distfactor/angfactor region (using a colormap).
-        :param isite: Index of the site for which the plot has to be done
-        :param plot_type: How to plot the coordinations
-        :param title: Title for the figure
-        :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to 'initial_normalized'
-                         or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case,
-                         the closest atom lies at a "normalized" distance of 1.0 so that 2.0 means refers to this
-                         normalized distance while in the second case, the real distance is used)
-        :param figsize: Size of the figure to be plotted
-        :return: The figure object to be plotted or saved to file
-        """
-        try:
-            import matplotlib.pyplot as mpl
-            from matplotlib import cm
-            from matplotlib.colors import Normalize, LinearSegmentedColormap, ListedColormap
-            from matplotlib.patches import Rectangle, Polygon
-        except ImportError:
-            print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
-            return
-
-        #Initializes the figure
-        if figsize is None:
-            fig = mpl.figure()
-        else:
-            fig = mpl.figure(figsize=figsize)
-        subplot = fig.add_subplot(111)
-
-        #Initializes the distance and angle parameters
-        if plot_type is None:
-            # plot_type = {'distance_parameter': ('initial_inverse_opposite', None),
-            #              'angle_parameter': ('initial_opposite', None)}
-            plot_type = {'distance_parameter': ('initial_normalized', None),
-                         'angle_parameter': ('initial_normalized', None)}
-        bounds_and_limits = self.voronoi.voronoi_parameters_bounds_and_limits(isite, plot_type, max_dist)
-        # distance_bounds = bounds_and_limits['distance_bounds']
-        # angle_bounds = bounds_and_limits['angle_bounds']
-        # dist_limits = bounds_and_limits['distance_limits']
-        # ang_limits = bounds_and_limits['angle_limits']
-        # iac = self.voronoi.additional_conditions.index(additional_condition)
-        if colormap is None:
-            mycm = cm.jet
-        else:
-            mycm = colormap
-        mymin = 0.0
-        mymax = 10.0
-        norm = Normalize(vmin=mymin, vmax=mymax)
-        scalarmap = cm.ScalarMappable(norm=norm, cmap=mycm)
-
-        #Plot the rectangles and coordinations
-        maps_and_vertices = self.voronoi.maps_and_surface_vertices(isite,
-                                                                   additional_condition=additional_condition,
-                                                                   plot_type=plot_type, max_dist=max_dist)
-        if maps_and_vertices is None:
-            return None
-        cn_maps = maps_and_vertices['cn_maps']
-        bounds_and_limits = maps_and_vertices['bounds_and_limits']
-        dist_limits = bounds_and_limits['distance_limits']
-        ang_limits = bounds_and_limits['angle_limits']
-        vertices_dist_ang = maps_and_vertices['vertices_dist_ang']
-        text_info_dist_ang = maps_and_vertices['text_info_dist_ang']
-        for i_cn_map, cn_map in enumerate(cn_maps):
-            ce = self.ce_list[isite][cn_map[0]][cn_map[1]]
-            mingeom = ce.minimum_geometry()
-            if mingeom is not None:
-                mp_symbol = mingeom[0]
-                csm = mingeom[1]['symmetry_measure']
-                mycolor = scalarmap.to_rgba(csm)
-                myinvcolor = [1.0 - mycolor[0], 1.0 - mycolor[1], 1.0 - mycolor[2], 1.0]
-                mytext = '{}'.format(mp_symbol)
-            else:
-                cn = cn_map[0]
-                mycolor = 'w'
-                myinvcolor = 'k'
-                mytext = '{:d}'.format(cn)
-            polygon = Polygon(vertices_dist_ang[i_cn_map], closed=True, edgecolor='k', facecolor=mycolor)
-            subplot.add_patch(polygon)
-            subplot.annotate(mytext,
-                             xy=text_info_dist_ang[i_cn_map],
-                             ha='center', va='center', color=myinvcolor, fontsize='x-small')
-
-        title += '\nDist: {}, Ang: {}'.format(plot_type['distance_parameter'][0], plot_type['angle_parameter'][0])
-        subplot.set_title(title)
-        subplot.set_xlabel('Distance factor')
-        subplot.set_ylabel('Angle factor')
-        subplot.set_xlim(dist_limits)
-        subplot.set_ylim(ang_limits)
-        if strategy is not None:
-            try:
-                strategy.add_strategy_visualization_to_subplot(subplot=subplot)
-            except:
-                pass
-        if plot_type['angle_parameter'][0] == 'initial_normalized':
-            subplot.axes.invert_yaxis()
-        # ax2 = subplot.twin()  # ax2 is responsible for "top" axis and "right" axis
-        # ax2.set_xticks([0., .5*np.pi, np.pi, 1.5*np.pi, 2*np.pi])
-        # ax2.set_xticklabels(["$0$", r"$\frac{1}{2}\pi$",
-        #                      r"$\pi$", r"$\frac{3}{2}\pi$", r"$2\pi$"])
-        #
-        # ax2.axis["right"].major_ticklabels.set_visible(False)
-        scalarmap.set_array([mymin, mymax])
-        cb = fig.colorbar(scalarmap, ax=subplot, extend='max')
-        cb.set_label('Continuous symmetry measure')
-        return fig
-
-    def plot_environments(self,  isite, plot_type=None, title='Coordination numbers', max_dist=2.0,
-                          additional_condition=AC.ONLY_ACB, figsize=None, strategy=None):
-        """
-        Plotting of the coordination numbers of a given site for all the distfactor/angfactor parameters. If the
-        chemical environments are given, a color map is added to the plot, with the lowest continuous symmetry measure
-        as the value for the color of that distfactor/angfactor set.
-        :param isite: Index of the site for which the plot has to be done
-        :param plot_type: How to plot the coordinations
-        :param title: Title for the figure
-        :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to 'initial_normalized'
-                         or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case,
-                         the closest atom lies at a "normalized" distance of 1.0 so that 2.0 means refers to this
-                         normalized distance while in the second case, the real distance is used)
-        :param figsize: Size of the figure to be plotted
-        :return: Nothing returned, just plot the figure
-        """
-        fig = self.get_environments_figure(isite=isite, plot_type=plot_type, title=title, max_dist=max_dist,
-                                           additional_condition=additional_condition, figsize=figsize,
-                                           strategy=strategy)
-        if fig is None:
-            return
-        fig.show()
+    # def get_environments_figure(self, isite, plot_type=None, title='Coordination numbers', max_dist=2.0,
+    #                             additional_condition=AC.ONLY_ACB, colormap=None, figsize=None,
+    #                             strategy=None):
+    #     """
+    #     Plotting of the coordination environments of a given site for all the distfactor/angfactor regions. The
+    #     chemical environments with the lowest continuous symmetry measure is shown for each distfactor/angfactor
+    #     region as the value for the color of that distfactor/angfactor region (using a colormap).
+    #     :param isite: Index of the site for which the plot has to be done
+    #     :param plot_type: How to plot the coordinations
+    #     :param title: Title for the figure
+    #     :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to 'initial_normalized'
+    #                      or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case,
+    #                      the closest atom lies at a "normalized" distance of 1.0 so that 2.0 means refers to this
+    #                      normalized distance while in the second case, the real distance is used)
+    #     :param figsize: Size of the figure to be plotted
+    #     :return: The figure object to be plotted or saved to file
+    #     """
+    #     try:
+    #         import matplotlib.pyplot as mpl
+    #         from matplotlib import cm
+    #         from matplotlib.colors import Normalize, LinearSegmentedColormap, ListedColormap
+    #         from matplotlib.patches import Rectangle, Polygon
+    #     except ImportError:
+    #         print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
+    #         return
+    #
+    #     #Initializes the figure
+    #     if figsize is None:
+    #         fig = mpl.figure()
+    #     else:
+    #         fig = mpl.figure(figsize=figsize)
+    #     subplot = fig.add_subplot(111)
+    #
+    #     #Initializes the distance and angle parameters
+    #     if plot_type is None:
+    #         # plot_type = {'distance_parameter': ('initial_inverse_opposite', None),
+    #         #              'angle_parameter': ('initial_opposite', None)}
+    #         plot_type = {'distance_parameter': ('initial_normalized', None),
+    #                      'angle_parameter': ('initial_normalized', None)}
+    #     bounds_and_limits = self.voronoi.voronoi_parameters_bounds_and_limits(isite, plot_type, max_dist)
+    #     # distance_bounds = bounds_and_limits['distance_bounds']
+    #     # angle_bounds = bounds_and_limits['angle_bounds']
+    #     # dist_limits = bounds_and_limits['distance_limits']
+    #     # ang_limits = bounds_and_limits['angle_limits']
+    #     # iac = self.voronoi.additional_conditions.index(additional_condition)
+    #     if colormap is None:
+    #         mycm = cm.jet
+    #     else:
+    #         mycm = colormap
+    #     mymin = 0.0
+    #     mymax = 10.0
+    #     norm = Normalize(vmin=mymin, vmax=mymax)
+    #     scalarmap = cm.ScalarMappable(norm=norm, cmap=mycm)
+    #
+    #     #Plot the rectangles and coordinations
+    #     maps_and_vertices = self.voronoi.maps_and_surface_vertices(isite,
+    #                                                                additional_condition=additional_condition,
+    #                                                                plot_type=plot_type, max_dist=max_dist)
+    #     if maps_and_vertices is None:
+    #         return None
+    #     cn_maps = maps_and_vertices['cn_maps']
+    #     bounds_and_limits = maps_and_vertices['bounds_and_limits']
+    #     dist_limits = bounds_and_limits['distance_limits']
+    #     ang_limits = bounds_and_limits['angle_limits']
+    #     vertices_dist_ang = maps_and_vertices['vertices_dist_ang']
+    #     text_info_dist_ang = maps_and_vertices['text_info_dist_ang']
+    #     for i_cn_map, cn_map in enumerate(cn_maps):
+    #         ce = self.ce_list[isite][cn_map[0]][cn_map[1]]
+    #         mingeom = ce.minimum_geometry()
+    #         if mingeom is not None:
+    #             mp_symbol = mingeom[0]
+    #             csm = mingeom[1]['symmetry_measure']
+    #             mycolor = scalarmap.to_rgba(csm)
+    #             myinvcolor = [1.0 - mycolor[0], 1.0 - mycolor[1], 1.0 - mycolor[2], 1.0]
+    #             mytext = '{}'.format(mp_symbol)
+    #         else:
+    #             cn = cn_map[0]
+    #             mycolor = 'w'
+    #             myinvcolor = 'k'
+    #             mytext = '{:d}'.format(cn)
+    #         polygon = Polygon(vertices_dist_ang[i_cn_map], closed=True, edgecolor='k', facecolor=mycolor)
+    #         subplot.add_patch(polygon)
+    #         subplot.annotate(mytext,
+    #                          xy=text_info_dist_ang[i_cn_map],
+    #                          ha='center', va='center', color=myinvcolor, fontsize='x-small')
+    #
+    #     title += '\nDist: {}, Ang: {}'.format(plot_type['distance_parameter'][0], plot_type['angle_parameter'][0])
+    #     subplot.set_title(title)
+    #     subplot.set_xlabel('Distance factor')
+    #     subplot.set_ylabel('Angle factor')
+    #     subplot.set_xlim(dist_limits)
+    #     subplot.set_ylim(ang_limits)
+    #     if strategy is not None:
+    #         try:
+    #             strategy.add_strategy_visualization_to_subplot(subplot=subplot)
+    #         except:
+    #             pass
+    #     if plot_type['angle_parameter'][0] == 'initial_normalized':
+    #         subplot.axes.invert_yaxis()
+    #     # ax2 = subplot.twin()  # ax2 is responsible for "top" axis and "right" axis
+    #     # ax2.set_xticks([0., .5*np.pi, np.pi, 1.5*np.pi, 2*np.pi])
+    #     # ax2.set_xticklabels(["$0$", r"$\frac{1}{2}\pi$",
+    #     #                      r"$\pi$", r"$\frac{3}{2}\pi$", r"$2\pi$"])
+    #     #
+    #     # ax2.axis["right"].major_ticklabels.set_visible(False)
+    #     scalarmap.set_array([mymin, mymax])
+    #     cb = fig.colorbar(scalarmap, ax=subplot, extend='max')
+    #     cb.set_label('Continuous symmetry measure')
+    #     return fig
+    #
+    # def plot_environments(self,  isite, plot_type=None, title='Coordination numbers', max_dist=2.0,
+    #                       additional_condition=AC.ONLY_ACB, figsize=None, strategy=None):
+    #     """
+    #     Plotting of the coordination numbers of a given site for all the distfactor/angfactor parameters. If the
+    #     chemical environments are given, a color map is added to the plot, with the lowest continuous symmetry measure
+    #     as the value for the color of that distfactor/angfactor set.
+    #     :param isite: Index of the site for which the plot has to be done
+    #     :param plot_type: How to plot the coordinations
+    #     :param title: Title for the figure
+    #     :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to 'initial_normalized'
+    #                      or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case,
+    #                      the closest atom lies at a "normalized" distance of 1.0 so that 2.0 means refers to this
+    #                      normalized distance while in the second case, the real distance is used)
+    #     :param figsize: Size of the figure to be plotted
+    #     :return: Nothing returned, just plot the figure
+    #     """
+    #     fig = self.get_environments_figure(isite=isite, plot_type=plot_type, title=title, max_dist=max_dist,
+    #                                        additional_condition=additional_condition, figsize=figsize,
+    #                                        strategy=strategy)
+    #     if fig is None:
+    #         return
+    #     fig.show()
 
     def plot_csm_and_maps(self, isite, max_csm=8.0):
         """
@@ -598,13 +603,13 @@ class StructureEnvironments(MSONable):
         subplot_distang.set_xlim([-0.5, len(cn_maps)-0.5])
         subplot.set_xticklabels([str(cn_map) for cn_map in cn_maps])
 
-    def save_environments_figure(self,  isite, imagename='image.png', plot_type=None, title='Coordination numbers',
-                                 max_dist=2.0, additional_condition=AC.ONLY_ACB, figsize=None):
-        fig = self.get_environments_figure(isite=isite, plot_type=plot_type, title=title, max_dist=max_dist,
-                                           additional_condition=additional_condition, figsize=figsize)
-        if fig is None:
-            return
-        fig.savefig(imagename)
+    # def save_environments_figure(self,  isite, imagename='image.png', plot_type=None, title='Coordination numbers',
+    #                              max_dist=2.0, additional_condition=AC.ONLY_ACB, figsize=None):
+    #     fig = self.get_environments_figure(isite=isite, plot_type=plot_type, title=title, max_dist=max_dist,
+    #                                        additional_condition=additional_condition, figsize=figsize)
+    #     if fig is None:
+    #         return
+    #     fig.savefig(imagename)
 
     def to_bv_dict(self, isite):
         out = {"neighbours_lists": [], "continuous_symmetry_measures": []}
@@ -630,11 +635,10 @@ class StructureEnvironments(MSONable):
       # - "normalized_distance": the normalized distance to the site X
       # - "normalized_angle": the normalized angle from the site X
 
-    def unique_coordinated_neighbors(self, isite=None, cn_map=None):
-        return self.voronoi.unique_coordinated_neighbors(isite=isite, cn_map=cn_map)
+    # def unique_coordinated_neighbors(self, isite=None, cn_map=None):
+    #     return self.voronoi.unique_coordinated_neighbors(isite=isite, cn_map=cn_map)
 
     def differences_wrt(self, other):
-        # TODO: implement the differences for everything (neighbors sets, ce_list, ...)
         differences = []
         if self.structure != other.structure:
             differences.append({'difference': 'structure',
@@ -654,15 +658,12 @@ class StructureEnvironments(MSONable):
                                 'comparison': '__eq__',
                                 'self': self.info,
                                 'other': other.info})
-        # self_to_other_voronoi_map = None
         if self.voronoi != other.voronoi:
             if self.voronoi.is_close_to(other.voronoi):
                 differences.append({'difference': 'voronoi',
                                     'comparison': '__eq__',
                                     'self': self.voronoi,
                                     'other': other.voronoi})
-                # TODO: make it possible to have "close" voronoi's
-                # self_to_other_voronoi_map = []
                 differences.append({'difference': 'PREVIOUS DIFFERENCE IS DISMISSIVE',
                                     'comparison': 'differences_wrt'})
                 return differences
@@ -671,6 +672,7 @@ class StructureEnvironments(MSONable):
                                     'comparison': 'is_close_to',
                                     'self': self.voronoi,
                                     'other': other.voronoi})
+                # TODO: make it possible to have "close" voronoi's
                 differences.append({'difference': 'PREVIOUS DIFFERENCE IS DISMISSIVE',
                                     'comparison': 'differences_wrt'})
                 return differences
@@ -684,7 +686,6 @@ class StructureEnvironments(MSONable):
                                     'self': self_site_cns,
                                     'other': other_site_cns})
             common_cns = self_site_cns.intersection(other_site_cns)
-            # for cn, self_site_cn_nb_sets in self_site_nb_sets.items():
             for cn in common_cns:
                 other_site_cn_nb_sets = other_site_nb_sets[cn]
                 self_site_cn_nb_sets = self_site_nb_sets[cn]
@@ -697,7 +698,6 @@ class StructureEnvironments(MSONable):
                                         'other': other_site_cn_nb_sets})
                 common_nb_sets = set_self_site_cn_nb_sets.intersection(set_other_site_cn_nb_sets)
                 for nb_set in common_nb_sets:
-                # for inb_set_self, nb_set_self in enumerate(self_site_cn_nb_sets):
                     inb_set_self = self_site_cn_nb_sets.index(nb_set)
                     inb_set_other = other_site_cn_nb_sets.index(nb_set)
                     self_ce = self.ce_list[isite][cn][inb_set_self]
@@ -795,6 +795,612 @@ class StructureEnvironments(MSONable):
                    info=d['info'])
 
 
+# class LightStructureEnvironmentsOld(MSONable):
+#     """
+#     Class used to store the chemical environments of a given structure obtained from a given ChemenvStrategy. Currently,
+#     only strategies leading to the determination of a unique environment for each site is allowed
+#     This class does not store all the information contained in the StructureEnvironments object, only the coordination
+#     environment found
+#     """
+#     DELTA_MAX_OXIDATION_STATE = 0.1
+#     DEFAULT_STATISTICS_FIELDS = ['anion_list', 'anion_atom_list', 'cation_list', 'cation_atom_list',
+#                                  'neutral_list', 'neutral_atom_list',
+#                                  'atom_coordination_environments_present',
+#                                  'bva_ion_coordination_environments_present',
+#                                  'structure_ion_coordination_environments_present',
+#                                  'ion_coordination_environments_present',
+#                                  'fraction_atom_coordination_environments_present',
+#                                  'fraction_bva_ion_coordination_environments_present',
+#                                  'fraction_structure_ion_coordination_environments_present',
+#                                  'fraction_ion_coordination_environments_present',
+#                                  'coordination_environments_atom_present',
+#                                  'coordination_environments_ion_present']
+#
+#     def __init__(self, strategy, structure_environments=None, valences=None,
+#                  coordination_environments=None, neighbors=None, structure=None, setup_neighbors_by_indices=False,
+#                  neighbors_by_indices=None):
+#         """
+#         Constructor for the LightStructureEnvironments object.
+#         """
+#         self._strategy = strategy
+#         self.statistics_dict = None
+#         self._neighbors_by_indices = None
+#
+#         if coordination_environments is not None:
+#             self._coordination_environments = coordination_environments
+#             self._neighbors = neighbors
+#             self._valences = valences
+#             self._structure = structure
+#             if neighbors_by_indices is not None:
+#                 self._neighbors_by_indices = neighbors_by_indices
+#             if setup_neighbors_by_indices:
+#                 self._setup_neighbors_by_indices()
+#             return
+#         self._coordination_environments = []
+#         self._neighbors = []
+#
+#         if structure_environments is None:
+#             raise RuntimeError("coordination_environments and structure_environments are both None")
+#         self._strategy.set_structure_environments(structure_environments)
+#         self._structure = structure_environments.structure
+#         self._valences = structure_environments.valences if valences is None else valences
+#         for isite, site in enumerate(structure_environments.structure):
+#             if structure_environments.ce_list[isite] is None:
+#                 self._coordination_environments.append([])
+#                 self._neighbors.append({})
+#                 continue
+#             site_ce_list = self._strategy.get_site_ce_fractions_and_neighbors(site, strategy_info=True)
+#             if site_ce_list is None:
+#                 self._coordination_environments.append([])
+#                 self._neighbors.append({})
+#                 continue
+#             #This contains a dictionary with keys "ce" and "neighbors".
+#             #  In site_ce_list["ce"], a list of dictionaries with each possible environment determined by the strategy
+#             #    In each dictionary, the following keys exist : mp_symbol, fraction, cn_map and csm
+#             #  In site_ce_list["neighbors"], a dictionary with the corresponding neighbors (as a list of pymatgen's
+#             #    Site objects) for each cn_map is stored
+#             ce_piece_dict_list = []
+#             neighbors_list = {}
+#             for ce_piece in site_ce_list['ce']:
+#                 if ce_piece['cn_map'] not in neighbors_list:
+#                     neighbors_list[ce_piece['cn_map']] = site_ce_list['neighbors'][ce_piece['cn_map']]
+#                 ce_piece_dict = {'ce_symbol': ce_piece['mp_symbol'], 'fraction': ce_piece['fraction'],
+#                                  'csm': ce_piece['csm'], 'cn_map': ce_piece['cn_map']}
+#                 if 'strategy_info' in ce_piece:
+#                     ce_piece_dict['strategy_info'] = ce_piece['strategy_info']
+#                 ce_piece_dict_list.append(ce_piece_dict)
+#             self._coordination_environments.append(ce_piece_dict_list)
+#             self._neighbors.append(neighbors_list)
+#         if setup_neighbors_by_indices:
+#             self._setup_neighbors_by_indices()
+#
+#     def _setup_neighbors_by_indices(self):
+#         self._neighbors_by_indices = []
+#         if self._strategy.uniquely_determines_coordination_environments:
+#             for isite_this_site, this_site_neighbors_all_cn_maps in enumerate(self._neighbors):
+#                 if len(self._coordination_environments[isite_this_site]) == 0:
+#                     self._neighbors_by_indices.append(None)
+#                     continue
+#                 cn_map = self._coordination_environments[isite_this_site][0]['cn_map']
+#                 this_site_neighbors = this_site_neighbors_all_cn_maps[tuple(cn_map)]
+#                 if this_site_neighbors is None:
+#                     self._neighbors_by_indices.append(None)
+#                 else:
+#                     this_site_neighbors_indices = []
+#                     for neighbor in this_site_neighbors:
+#                         ineighbor = None
+#                         for isite, site in enumerate(self.structure):
+#                             found = False
+#                             for tolerance in [1e-8, 1e-6, 1e-4, 1e-3]:
+#                                 if site.is_periodic_image(neighbor, check_lattice=False, tolerance=tolerance):
+#                                     ineighbor = isite
+#                                     diff = neighbor.frac_coords - site.frac_coords
+#                                     image_cell = np.array(np.round(diff), np.int)
+#                                     #if np.allclose(image_cell, np.zeros(3, np.int)):
+#                                     #    image_cell = 0
+#                                     found = True
+#                                     break
+#                             if found:
+#                                 break
+#                         if not found:
+#                             raise ChemenvError('LightStructureEnvironments', '__init__', 'Site indices not found')
+#                         this_site_neighbors_indices.append((ineighbor, image_cell))
+#                     self._neighbors_by_indices.append(this_site_neighbors_indices)
+#
+#     def setup_statistic_lists(self):
+#         self.statistics_dict = {'anion_list': {},                                                    # OK
+#                                 'anion_number': None,                                                # OK
+#                                 'anion_atom_list': {},                                               # OK
+#                                 'anion_atom_number': None,                                           # OK
+#                                 'cation_list': {},                                                   # OK
+#                                 'cation_number': None,                                               # OK
+#                                 'cation_atom_list': {},                                              # OK
+#                                 'cation_atom_number': None,                                          # OK
+#                                 'structure_anion_list': {},                                          # OK
+#                                 'structure_anion_number': None,                                      # OK
+#                                 'structure_anion_undefined_oxidation_list': [],                      # OK
+#                                 'structure_anion_undefined_oxidation_occupation': [],                # OK
+#                                 'structure_anion_atom_list': {},                                     # OK
+#                                 'structure_anion_atom_number': None,                                 # OK
+#                                 'structure_cation_list': {},                                         # OK
+#                                 'structure_cation_number': None,                                     # OK
+#                                 'structure_cation_undefined_oxidation_list': [],                     # OK
+#                                 'structure_cation_undefined_oxidation_occupation': [],               # OK
+#                                 'structure_cation_atom_list': {},                                    # OK
+#                                 'structure_cation_atom_number': None,                                # OK
+#                                 'bva_anion_list': {},                                                # OK
+#                                 'bva_anion_number': None,                                            # OK
+#                                 'bva_anion_atom_list': {},                                           # OK
+#                                 'bva_anion_atom_number': None,                                       # OK
+#                                 'bva_cation_list': {},                                               # OK
+#                                 'bva_cation_number': None,                                           # OK
+#                                 'bva_cation_atom_list': {},                                          # OK
+#                                 'bva_cation_atom_number': None,                                      # OK
+#                                 'neutral_list': {},                                                  # OK
+#                                 'neutral_number': None,                                              # OK
+#                                 'neutral_atom_list': {},                                             # OK
+#                                 'neutral_atom_number': None,                                         # OK
+#                                 'structure_neutral_list': {},                                        # OK
+#                                 'structure_neutral_number': None,                                    # OK
+#                                 'structure_neutral_atom_list': {},                                   # OK
+#                                 'structure_neutral_atom_number': None,                               # OK
+#                                 'bva_neutral_list': {},                                              # OK
+#                                 'bva_neutral_number': None,                                          # OK
+#                                 'bva_neutral_atom_list': {},                                         # OK
+#                                 'bva_neutral_atom_number': None,                                     # OK
+#                                 'atom_coordination_environments_present': {},                        # OK
+#                                 'structure_ion_coordination_environments_present': {},               # OK
+#                                 'bva_ion_coordination_environments_present': {},                     # OK
+#                                 'ion_coordination_environments_present': {},                         # OK
+#                                 'coordination_environments_structure_ion_present': {},               # OK
+#                                 'coordination_environments_ion_present': {},                         # OK
+#                                 'coordination_environments_bva_ion_present': {},                     # OK
+#                                 'coordination_environments_atom_present': {},                        # OK
+#                                 'fraction_bva_ion_coordination_environments_present': {},            # OK
+#                                 'fraction_structure_ion_coordination_environments_present': {},      # OK
+#                                 'fraction_ion_coordination_environments_present': {},                # OK
+#                                 'fraction_atom_coordination_environments_present': {},               # OK
+#                                 'fraction_coordination_environments_bva_ion_present': {},            # OK
+#                                 'fraction_coordination_environments_structure_ion_present': {},      # OK
+#                                 'fraction_coordination_environments_ion_present': {},                # OK
+#                                 'fraction_coordination_environments_atom_present': {},               # OK
+#                                 'count_bva_ion_present': {},                                         # OK
+#                                 'count_structure_ion_present': {},                                   # OK
+#                                 'count_ion_present': {},                                             # OK
+#                                 'count_atom_present': {},                                            # OK
+#                                 'count_coordination_environments_present': {}}
+#         structure_has_species = isinstance(self._structure[0].species_and_occu.elements[0], Specie)
+#         atom_stat = self.statistics_dict['atom_coordination_environments_present']
+#         ce_atom_stat = self.statistics_dict['coordination_environments_atom_present']
+#         fraction_atom_stat = self.statistics_dict['fraction_atom_coordination_environments_present']
+#         fraction_ce_atom_stat = self.statistics_dict['fraction_coordination_environments_atom_present']
+#         count_atoms = self.statistics_dict['count_atom_present']
+#         count_ce = self.statistics_dict['count_coordination_environments_present']
+#         for isite, site in enumerate(self._structure):
+#             #Building anion and cation list
+#             site_species = {'bva_oxistates': [],
+#                             'structure_oxistates': []}
+#             if self._valences != 'undefined':
+#                 for sp, occ in site.species_and_occu.items():
+#                     valence = self._valences[isite]
+#                     if valence < 0:
+#                         specielist = self.statistics_dict['bva_anion_list']
+#                         atomlist = self.statistics_dict['bva_anion_atom_list']
+#                     elif valence > 0:
+#                         specielist = self.statistics_dict['bva_cation_list']
+#                         atomlist = self.statistics_dict['bva_cation_atom_list']
+#                     else:
+#                         specielist = self.statistics_dict['bva_neutral_list']
+#                         atomlist = self.statistics_dict['bva_neutral_atom_list']
+#                     strspecie = str(Specie(sp.symbol, valence))
+#                     if strspecie not in specielist:
+#                         specielist[strspecie] = occ
+#                     else:
+#                         specielist[strspecie] += occ
+#                     if sp.symbol not in atomlist:
+#                         atomlist[sp.symbol] = occ
+#                     else:
+#                         atomlist[sp.symbol] += occ
+#                     site_species['bva_oxistates'].append((sp.symbol, valence, occ))
+#                 self.statistics_dict['bva_anion_number'] = len(self.statistics_dict['bva_anion_list'])
+#                 self.statistics_dict['bva_anion_atom_number'] = len(self.statistics_dict['bva_anion_atom_list'])
+#                 self.statistics_dict['bva_cation_number'] = len(self.statistics_dict['bva_cation_list'])
+#                 self.statistics_dict['bva_cation_atom_number'] = len(self.statistics_dict['bva_cation_atom_list'])
+#             if structure_has_species:
+#                 for sp, occ in site.species_and_occu.items():
+#                     oxi_state_rounded = round(sp.oxi_state)
+#                     if np.isclose(sp.oxi_state, oxi_state_rounded, rtol=0.0, atol=self.DELTA_MAX_OXIDATION_STATE):
+#                         valence = int(oxi_state_rounded)
+#                         if valence < 0:
+#                             specielist = self.statistics_dict['structure_anion_list']
+#                             atomlist = self.statistics_dict['structure_anion_atom_list']
+#                         elif valence > 0:
+#                             specielist = self.statistics_dict['structure_cation_list']
+#                             atomlist = self.statistics_dict['structure_cation_atom_list']
+#                         else:
+#                             specielist = self.statistics_dict['structure_neutral_list']
+#                             atomlist = self.statistics_dict['structure_neutral_atom_list']
+#                         strspecie = str(Specie(sp.symbol, valence))
+#                         if strspecie not in specielist:
+#                             specielist[strspecie] = occ
+#                         else:
+#                             specielist[strspecie] += occ
+#                         if sp.symbol not in atomlist:
+#                             atomlist[sp.symbol] = occ
+#                         else:
+#                             atomlist[sp.symbol] += occ
+#                         site_species['structure_oxistates'].append((sp.symbol, valence, occ))
+#                     else:
+#                         valence = sp.oxi_state
+#                         if valence < 0:
+#                             specielist = self.statistics_dict['structure_anion_undefined_oxidation_list']
+#                             specieocc = self.statistics_dict['structure_anion_undefined_oxidation_occupation']
+#                             atomlist = self.statistics_dict['structure_anion_atom_list']
+#                         elif valence > 0:
+#                             specielist = self.statistics_dict['structure_cation_undefined_oxidation_list']
+#                             specieocc = self.statistics_dict['structure_cation_undefined_oxidation_occupation']
+#                             atomlist = self.statistics_dict['structure_cation_atom_list']
+#                         else:
+#                             raise RuntimeError('Should not be here ...')
+#                         strspecie = str(Specie(sp.symbol, valence))
+#                         if strspecie not in specielist:
+#                             specielist.append(strspecie)
+#                             specieocc.append(occ)
+#                         else:
+#                             specie_index = specielist.index(strspecie)
+#                             specieocc[specie_index] += occ
+#                         if sp.symbol not in atomlist:
+#                             atomlist[sp.symbol] = occ
+#                         else:
+#                             atomlist[sp.symbol] += occ
+#                 self.statistics_dict['structure_anion_number'] = len(self.statistics_dict['structure_anion_list']) + len(self.statistics_dict['structure_anion_undefined_oxidation_list'])
+#                 self.statistics_dict['structure_anion_atom_number'] = len(self.statistics_dict['structure_anion_atom_list'])
+#                 self.statistics_dict['structure_cation_number'] = len(self.statistics_dict['structure_cation_list']) + len(self.statistics_dict['structure_cation_undefined_oxidation_list'])
+#                 self.statistics_dict['structure_cation_atom_number'] = len(self.statistics_dict['structure_cation_atom_list'])
+#
+#             #Building environments lists
+#             if self._coordination_environments[isite] is not None:
+#                 site_envs = [(ce_piece_dict['ce_symbol'], ce_piece_dict['fraction'])
+#                              for ce_piece_dict in self._coordination_environments[isite]]
+#                 for ce_symbol, fraction in site_envs:
+#                     if fraction is None:
+#                         continue
+#                     if ce_symbol not in count_ce:
+#                         count_ce[ce_symbol] = 0.0
+#                     count_ce[ce_symbol] += fraction
+#                 for sp, occ in site.species_and_occu.items():
+#                     elmt = sp.symbol
+#                     if elmt not in atom_stat:
+#                         atom_stat[elmt] = {}
+#                         count_atoms[elmt] = 0.0
+#                     count_atoms[elmt] += occ
+#                     for ce_symbol, fraction in site_envs:
+#                         if fraction is None:
+#                             continue
+#                         if ce_symbol not in atom_stat[elmt]:
+#                             atom_stat[elmt][ce_symbol] = 0.0
+#
+#                         atom_stat[elmt][ce_symbol] += occ * fraction
+#                         if ce_symbol not in ce_atom_stat:
+#                             ce_atom_stat[ce_symbol] = {}
+#                         if elmt not in ce_atom_stat[ce_symbol]:
+#                             ce_atom_stat[ce_symbol][elmt] = 0.0
+#                         ce_atom_stat[ce_symbol][elmt] += occ * fraction
+#
+#                 if self._valences != 'undefined':
+#                     ion_stat = self.statistics_dict['bva_ion_coordination_environments_present']
+#                     ce_ion_stat = self.statistics_dict['coordination_environments_bva_ion_present']
+#                     count_ions = self.statistics_dict['count_bva_ion_present']
+#                     for elmt, oxi_state, occ in site_species['bva_oxistates']:
+#                         if elmt not in ion_stat:
+#                             ion_stat[elmt] = {}
+#                             count_ions[elmt] = {}
+#                         if oxi_state not in ion_stat[elmt]:
+#                             ion_stat[elmt][oxi_state] = {}
+#                             count_ions[elmt][oxi_state] = 0.0
+#                         count_ions[elmt][oxi_state] += occ
+#                         for ce_symbol, fraction in site_envs:
+#                             if fraction is None:
+#                                 continue
+#                             if ce_symbol not in ion_stat[elmt][oxi_state]:
+#                                 ion_stat[elmt][oxi_state][ce_symbol] = 0.0
+#                             ion_stat[elmt][oxi_state][ce_symbol] += occ * fraction
+#                             if ce_symbol not in ce_ion_stat:
+#                                 ce_ion_stat[ce_symbol] = {}
+#                             if elmt not in ce_ion_stat[ce_symbol]:
+#                                 ce_ion_stat[ce_symbol][elmt] = {}
+#                             if oxi_state not in ce_ion_stat[ce_symbol][elmt]:
+#                                 ce_ion_stat[ce_symbol][elmt][oxi_state] = 0.0
+#                             ce_ion_stat[ce_symbol][elmt][oxi_state] += occ * fraction
+#                 if structure_has_species:
+#                     ion_stat = self.statistics_dict['structure_ion_coordination_environments_present']
+#                     ce_ion_stat = self.statistics_dict['coordination_environments_structure_ion_present']
+#                     count_ions = self.statistics_dict['count_structure_ion_present']
+#                     for elmt, oxi_state, occ in site_species['structure_oxistates']:
+#                         if elmt not in ion_stat:
+#                             ion_stat[elmt] = {}
+#                             count_ions[elmt] = {}
+#                         oxi_state_rounded = round(oxi_state)
+#                         if np.isclose(oxi_state, oxi_state_rounded, rtol=0.0, atol=self.DELTA_MAX_OXIDATION_STATE):
+#                             my_oxi_state = int(oxi_state_rounded)
+#                             if my_oxi_state not in ion_stat[elmt]:
+#                                 ion_stat[elmt][my_oxi_state] = {}
+#                                 count_ions[elmt][my_oxi_state] = 0.0
+#                             count_ions[elmt][my_oxi_state] += occ
+#                             for ce_symbol, fraction in site_envs:
+#                                 if fraction is None:
+#                                     continue
+#                                 if ce_symbol not in ion_stat[elmt][my_oxi_state]:
+#                                     ion_stat[elmt][my_oxi_state][ce_symbol] = 0.0
+#                                 ion_stat[elmt][my_oxi_state][ce_symbol] += occ * fraction
+#                                 if ce_symbol not in ce_ion_stat:
+#                                     ce_ion_stat[ce_symbol] = {}
+#                                 if elmt not in ce_ion_stat[ce_symbol]:
+#                                     ce_ion_stat[ce_symbol][elmt] = {}
+#                                 if my_oxi_state not in ce_ion_stat[ce_symbol][elmt]:
+#                                     ce_ion_stat[ce_symbol][elmt][my_oxi_state] = 0.0
+#                                 ce_ion_stat[ce_symbol][elmt][my_oxi_state] += occ * fraction
+#                         else:
+#                             #TODO: make something slightly better here ... like put the fractional oxidation states
+#                             #somewhere ...
+#                             continue
+#         for elmt, envs in atom_stat.items():
+#             sumelement = count_atoms[elmt]
+#             fraction_atom_stat[elmt] = {env: fraction / sumelement for env, fraction in envs.items()}
+#         for ce_symbol, atoms in ce_atom_stat.items():
+#             sumsymbol = count_ce[ce_symbol]
+#             fraction_ce_atom_stat[ce_symbol] = {atom: fraction / sumsymbol for atom, fraction in atoms.items()}
+#         for prefix in ['structure_', 'bva_']:
+#             ion_stat = self.statistics_dict['{}ion_coordination_environments_present'.format(prefix)]
+#             fraction_ion_stat = self.statistics_dict['fraction_{}ion_coordination_environments_present'.format(prefix)]
+#             ce_ion_stat = self.statistics_dict['coordination_environments_{}ion_present'.format(prefix)]
+#             fraction_ce_ion_stat = self.statistics_dict['fraction_coordination_environments_{}ion_present'.format(prefix)]
+#             count_ions = self.statistics_dict['count_{}ion_present'.format(prefix)]
+#             if prefix == 'bva_' and self._valences == 'undefined':
+#                 continue
+#             elif prefix == 'structure_' and not structure_has_species:
+#                 continue
+#             for elmt, oxi_states_envs in ion_stat.items():
+#                 fraction_ion_stat[elmt] = {}
+#                 for oxi_state, envs in oxi_states_envs.items():
+#                     sumspecie = count_ions[elmt][oxi_state]
+#                     fraction_ion_stat[elmt][oxi_state] = {env: fraction / sumspecie
+#                                                           for env, fraction in envs.items()}
+#             for ce_symbol, ions in ce_ion_stat.items():
+#                 fraction_ce_ion_stat[ce_symbol] = {}
+#                 sum_ce = np.sum([np.sum(list(oxistates.values())) for elmt, oxistates in ions.items()])
+#                 for elmt, oxistates in ions.items():
+#                     fraction_ce_ion_stat[ce_symbol][elmt] = {oxistate: fraction / sum_ce
+#                                                              for oxistate, fraction in oxistates.items()}
+#         ceip = 'coordination_environments_ion_present'
+#         icep = 'ion_coordination_environments_present'
+#         fceip = 'fraction_coordination_environments_ion_present'
+#         ficep = 'fraction_ion_coordination_environments_present'
+#         if self._valences != 'undefined':
+#             cebip = 'coordination_environments_bva_ion_present'
+#             bicep = 'bva_ion_coordination_environments_present'
+#             fcebip = 'fraction_coordination_environments_bva_ion_present'
+#             fbicep = 'fraction_bva_ion_coordination_environments_present'
+#             self.statistics_dict['anion_list'].update(self.statistics_dict['bva_anion_list'])
+#             self.statistics_dict['anion_atom_list'].update(self.statistics_dict['bva_anion_atom_list'])
+#             self.statistics_dict['cation_list'].update(self.statistics_dict['bva_cation_list'])
+#             self.statistics_dict['cation_atom_list'].update(self.statistics_dict['bva_cation_atom_list'])
+#             self.statistics_dict['anion_number'] = self.statistics_dict['bva_anion_number']
+#             self.statistics_dict['anion_atom_number'] = self.statistics_dict['bva_anion_atom_number']
+#             self.statistics_dict['cation_number'] = self.statistics_dict['bva_cation_number']
+#             self.statistics_dict['cation_atom_number'] = self.statistics_dict['bva_cation_atom_number']
+#             self.statistics_dict[ceip].update(self.statistics_dict[cebip])
+#             self.statistics_dict[icep].update(self.statistics_dict[bicep])
+#             self.statistics_dict[fceip].update(self.statistics_dict[fcebip])
+#             self.statistics_dict[ficep].update(self.statistics_dict[fbicep])
+#         else:
+#             cesip = 'coordination_environments_structure_ion_present'
+#             sicep = 'structure_ion_coordination_environments_present'
+#             fcesip = 'fraction_coordination_environments_structure_ion_present'
+#             fsicep = 'fraction_structure_ion_coordination_environments_present'
+#             self.statistics_dict['anion_list'].update(self.statistics_dict['structure_anion_list'])
+#             self.statistics_dict['anion_atom_list'].update(self.statistics_dict['structure_anion_atom_list'])
+#             self.statistics_dict['cation_list'].update(self.statistics_dict['structure_cation_list'])
+#             self.statistics_dict['cation_atom_list'].update(self.statistics_dict['structure_cation_atom_list'])
+#             self.statistics_dict['anion_number'] = self.statistics_dict['structure_anion_number']
+#             self.statistics_dict['anion_atom_number'] = self.statistics_dict['structure_anion_atom_number']
+#             self.statistics_dict['cation_number'] = self.statistics_dict['structure_cation_number']
+#             self.statistics_dict['cation_atom_number'] = self.statistics_dict['structure_cation_atom_number']
+#             self.statistics_dict[ceip].update(self.statistics_dict[cesip])
+#             self.statistics_dict[icep].update(self.statistics_dict[sicep])
+#             self.statistics_dict[fceip].update(self.statistics_dict[fcesip])
+#             self.statistics_dict[ficep].update(self.statistics_dict[fsicep])
+#
+#     def site_has_clear_environment(self, isite, min_fraction=0.95):
+#         if len(self._coordination_environments[isite]) == 0:
+#             return True
+#         fractions = [ce_dict['fraction'] for ce_dict in self._coordination_environments[isite]]
+#         maxfraction = max(fractions)
+#         return maxfraction > min_fraction
+#
+#     def structure_has_clear_environments_for_element(self, element, min_fraction=0.95):
+#         for isite, site_ces in enumerate(self._coordination_environments):
+#             if site_ces is None:
+#                 continue
+#             if element in [sp.symbol for sp in self._structure[isite].species_and_occu]:
+#                 if not self.site_has_clear_environment(isite=isite, min_fraction=min_fraction):
+#                     return False
+#         return True
+#
+#     def structure_has_clear_environments(self, min_fraction=0.95):
+#         for isite, site_ces in enumerate(self._coordination_environments):
+#             if site_ces is None:
+#                 continue
+#             if not self.site_has_clear_environment(isite=isite, min_fraction=min_fraction):
+#                 return False
+#         return True
+#
+#     def get_site_info_for_specie_ce(self, specie, ce_symbol, min_fraction=0.0):
+#         element = specie.symbol
+#         oxi_state = specie.oxi_state
+#         isites = []
+#         csms = []
+#         fractions = []
+#         for isite, site in enumerate(self._structure):
+#             if element in [sp.symbol for sp in site.species_and_occu]:
+#                 if oxi_state == self._valences[isite]:
+#                     for ce_dict in self._coordination_environments[isite]:
+#                         if ce_symbol == ce_dict['ce_symbol']:
+#                             isites.append(isite)
+#                             csms.append(ce_dict['ce_symbol'])
+#                             fractions.append(ce_dict['fraction'])
+#
+#     def get_site_info_for_specie_allces(self, specie, min_fraction=0.0):
+#         allces = {}
+#         element = specie.symbol
+#         oxi_state = specie.oxi_state
+#         for isite, site in enumerate(self._structure):
+#             if element in [sp.symbol for sp in site.species_and_occu]:
+#                 if oxi_state == self._valences[isite]:
+#                     for ce_dict in self._coordination_environments[isite]:
+#                         if ce_dict['fraction'] < min_fraction:
+#                             continue
+#                         if ce_dict['ce_symbol'] not in allces:
+#                             allces[ce_dict['ce_symbol']] = {'isites': [], 'fractions': [], 'csms': []}
+#                         allces[ce_dict['ce_symbol']]['isites'].append(isite)
+#                         allces[ce_dict['ce_symbol']]['fractions'].append(ce_dict['fraction'])
+#                         allces[ce_dict['ce_symbol']]['csms'].append(ce_dict['csm'])
+#         return allces
+#
+#     def get_statistics(self, statistics_fields=DEFAULT_STATISTICS_FIELDS, bson_compatible=False):
+#         if self.statistics_dict is None:
+#             self.setup_statistic_lists()
+#         if statistics_fields == 'ALL':
+#             statistics_fields = [key for key in self.statistics_dict]
+#         if bson_compatible:
+#             dd = jsanitize({field: self.statistics_dict[field] for field in statistics_fields})
+#         else:
+#             dd = {field: self.statistics_dict[field] for field in statistics_fields}
+#         return dd
+#
+#     def contains_only_one_anion_atom(self, anion_atom):
+#         return (len(self.statistics_dict['anion_atom_list']) == 1 and
+#                 anion_atom in self.statistics_dict['anion_atom_list'])
+#
+#     def contains_only_one_anion(self, anion):
+#         return len(self.statistics_dict['anion_list']) == 1 and anion in self.statistics_dict['anion_list']
+#
+#     def site_contains_environment(self, isite, ce_symbol):
+#         return ce_symbol in [ce_dict['ce_symbol'] for ce_dict in self._coordination_environments[isite]]
+#
+#     def structure_contains_atom_environment(self, atom_symbol, ce_symbol):
+#         """
+#         Checks whether the structure contains a given atom in a given environment
+#         :param atom_symbol: Symbol of the atom
+#         :param ce_symbol: Symbol of the coordination environment
+#         :return: True if the coordination environment is found, False otherwise
+#         """
+#         for isite, site in enumerate(self._structure):
+#             if (Element(atom_symbol) in site.species_and_occu.
+#                     element_composition and self.site_contains_environment(isite, ce_symbol)):
+#                 return True
+#         return False
+#
+#     @property
+#     def coordination_environments(self):
+#         """
+#         Coordination environments determined by the strategy
+#         """
+#         return self._coordination_environments
+#
+#     @property
+#     def uniquely_determined_coordination_environments(self):
+#         """
+#         True if the coordination environments are uniquely determined.
+#         """
+#         return self._strategy.uniquely_determined_coordination_environments
+#
+#     @property
+#     def neighbors(self):
+#         """
+#         Neighbors determined by the strategy
+#         """
+#         return self._neighbors
+#
+#     @property
+#     def neighbors_by_indices(self):
+#         """
+#         Neighbors by indices and image cell determined by the strategy
+#         """
+#         if self._neighbors_by_indices is None:
+#             self._setup_neighbors_by_indices()
+#         return self._neighbors_by_indices
+#
+#     @property
+#     def structure(self):
+#         """
+#         Structure
+#         :return: Structure
+#         """
+#         return self._structure
+#
+#     def __eq__(self, other):
+#         """
+#         Equality method that checks if the LightStructureEnvironments object is equal to another
+#         LightStructureEnvironments object. Two LightStructureEnvironments objects are equal if the strategy used
+#         is the same, if the structure is the same, if the valences used in the strategies are the same, if the
+#         coordination environments and the neighbours determined by the strategy are the same
+#         :param other: LightStructureEnvironments object to compare with
+#         :return: True if both objects are equal, False otherwise
+#         """
+#         return (self._strategy == other._strategy and self._structure == other._structure and
+#                 self._valences == other._valences and
+#                 self._coordination_environments == other._coordination_environments and
+#                 self._neighbors == other._neighbors)
+#
+#     def as_dict(self):
+#         """
+#         Bson-serializable dict representation of the LightStructureEnvironments object.
+#         :return: Bson-serializable dict representation of the LightStructureEnvironments object.
+#         """
+#         return {"@module": self.__class__.__module__,
+#                 "@class": self.__class__.__name__,
+#                 "strategy": self._strategy.as_dict(),
+#                 "structure": self._structure.as_dict(),
+#                 "valences": self._valences,
+#                 "coordination_environments": self._coordination_environments,
+#                 "neighbors": [{'{:d}_{:d}'.format(cn_map[0], cn_map[1]): [ps.as_dict() for ps in neighbors]
+#                                for cn_map, neighbors in self._neighbors[isite].items()}
+#                               for isite in range(len(self._structure))],
+#                 "neighbors_by_indices": jsanitize([None if item is None else list(item)
+#                                                    for item in self.neighbors_by_indices])}
+#
+#     @classmethod
+#     def from_dict(cls, d):
+#         """
+#         Reconstructs the LightStructureEnvironments object from a dict representation of the
+#         LightStructureEnvironments created using the as_dict method.
+#         :param d: dict representation of the LightStructureEnvironments object
+#         :return: LightStructureEnvironments object
+#         """
+#         dec = MontyDecoder()
+#         neighbors = [{(int(cnmap.split('_')[0]), int(cnmap.split('_')[1])): dec.process_decoded(cnmap_neighbours)
+#                       for cnmap, cnmap_neighbours in neighbs_site.items()} for neighbs_site in d['neighbors']]
+#         coordination_environments = [[{key: val if key != 'cn_map' else tuple(val) for key, val in item.items()}
+#                                       for item in ces_site] for ces_site in d['coordination_environments']]
+#         if 'neighbors_by_indices' in d:
+#             neighbors_by_indices = []
+#             for item in d['neighbors_by_indices']:
+#                 if item is None:
+#                     neighbors_by_indices.append(None)
+#                 else:
+#                     neighbors_by_indices.append([(nb[0], np.array(nb[1], np.int)) for nb in item])
+#             # neighbors_by_indices = [None if item is None else (item[0], np.array(item[1], np.int))
+#             #                         for item in d['neighbors_by_indices']]
+#         else:
+#             neighbors_by_indices = None
+#         return cls(dec.process_decoded(d['strategy']), structure_environments=None,
+#                    structure=dec.process_decoded(d['structure']),
+#                    bva_valences=d['bva_valences'],
+#                    coordination_environments=coordination_environments,
+#                    neighbors=neighbors,
+#                    neighbors_by_indices=neighbors_by_indices)
+
 class LightStructureEnvironments(MSONable):
     """
     Class used to store the chemical environments of a given structure obtained from a given ChemenvStrategy. Currently,
@@ -816,100 +1422,135 @@ class LightStructureEnvironments(MSONable):
                                  'coordination_environments_atom_present',
                                  'coordination_environments_ion_present']
 
-    def __init__(self, strategy, structure_environments=None, valences=None,
-                 coordination_environments=None, neighbors=None, structure=None, setup_neighbors_by_indices=False,
-                 neighbors_by_indices=None):
+    class NeighborsSet():
+        def __init__(self, structure, isite, all_nbs_sites, all_nbs_sites_indices):
+            self.structure = structure
+            self.isite = isite
+            self.all_nbs_sites = all_nbs_sites
+            myset = set(all_nbs_sites_indices)
+            if len(myset) != len(all_nbs_sites_indices):
+                raise ValueError('Set of neighbors contains duplicates !')
+            self.all_nbs_sites_indices = sorted(myset)
+
+        @property
+        def neighb_coords(self):
+            return [self.all_nbs_sites[inb]['site'].coords for inb in self.all_nbs_sites_indices]
+
+        @property
+        def neighb_sites(self):
+            return [self.all_nbs_sites[inb]['site'] for inb in self.all_nbs_sites_indices]
+
+        @property
+        def neighb_sites_and_indices(self):
+            return [{'site': self.all_nbs_sites[inb]['site'],
+                     'index': self.all_nbs_sites[inb]['index']} for inb in self.all_nbs_sites_indices]
+
+        def __len__(self):
+            return len(self.all_nbs_sites_indices)
+
+        def __hash__(self):
+            return len(self.all_nbs_sites_indices)
+
+        def __eq__(self, other):
+            return self.isite == other.isite and self.all_nbs_sites_indices == other.all_nbs_sites_indices
+
+        def __ne__(self, other):
+            return not self == other
+
+        def __str__(self):
+            out = 'Neighbors Set for site #{:d} :\n'.format(self.isite)
+            out += ' - Coordination number : {:d}\n'.format(len(self))
+            out += ' - Neighbors sites indices : {}' \
+                   '\n'.format(', '.join(['{:d}'.format(nb_list_index)
+                                          for nb_list_index in self.all_nbs_sites_indices]))
+            return out
+
+        def as_dict(self):
+            return {'isite': self.isite,
+                    'all_nbs_sites_indices': self.all_nbs_sites_indices}
+
+        @classmethod
+        def from_dict(cls, dd, structure, all_nbs_sites):
+            return cls(structure=structure,
+                       isite=dd['isite'],
+                       all_nbs_sites=all_nbs_sites,
+                       all_nbs_sites_indices=dd['all_nbs_sites_indices'])
+
+    def __init__(self, strategy,
+                 coordination_environments=None, all_nbs_sites=None, neighbors_sets=None,
+                 structure=None, valences=None, valences_origin=None):
         """
         Constructor for the LightStructureEnvironments object.
         """
-        self._strategy = strategy
-        self._uniquely_determined_coordination_environments = strategy.uniquely_determines_coordination_environments
+        self.strategy = strategy
         self.statistics_dict = None
-        self._neighbors_by_indices = None
+        self.coordination_environments = coordination_environments
+        self._all_nbs_sites = all_nbs_sites
+        self.neighbors_sets = neighbors_sets
+        self.structure = structure
+        self.valences = valences
+        self.valences_origin = valences_origin
 
-        if coordination_environments is not None:
-            self._coordination_environments = coordination_environments
-            self._neighbors = neighbors
-            self._valences = valences
-            self._structure = structure
-            if neighbors_by_indices is not None:
-                self._neighbors_by_indices = neighbors_by_indices
-            if setup_neighbors_by_indices:
-                self._setup_neighbors_by_indices()
-            return
-        self._coordination_environments = []
-        self._neighbors = []
+    @classmethod
+    def from_structure_environments(cls, strategy, structure_environments, valences=None, valences_origin=None):
+        structure = structure_environments.structure
+        strategy.set_structure_environments(structure_environments=structure_environments)
+        coordination_environments = [None] * len(structure)
+        neighbors_sets = [None] * len(structure)
+        _all_nbs_sites = []
+        my_all_nbs_sites = []
+        if valences is None:
+            valences = structure_environments.valences
+            if valences_origin is None:
+                valences_origin = 'from_structure_environments'
+        else:
+            if valences_origin is None:
+                valences_origin = 'user-specified'
 
-        if structure_environments is None:
-            raise RuntimeError("coordination_environments and structure_environments are both None")
-        self._strategy.set_structure_environments(structure_environments)
-        self._structure = structure_environments.structure
-        self._valences = structure_environments.valences if valences is None else valences
-        for isite, site in enumerate(structure_environments.structure):
-            if structure_environments.ce_list[isite] is None:
-                self._coordination_environments.append([])
-                self._neighbors.append({})
+        for isite, site in enumerate(structure):
+            site_ces_and_nbs_list = strategy.get_site_ce_fractions_and_neighbors(site, strategy_info=True)
+            if site_ces_and_nbs_list is None:
                 continue
-            site_ce_list = self._strategy.get_site_ce_fractions_and_neighbors(site, strategy_info=True)
-            if site_ce_list is None:
-                self._coordination_environments.append([])
-                self._neighbors.append({})
-                continue
-            #This contains a dictionary with keys "ce" and "neighbors".
-            #  In site_ce_list["ce"], a list of dictionaries with each possible environment determined by the strategy
-            #    In each dictionary, the following keys exist : mp_symbol, fraction, cn_map and csm
-            #  In site_ce_list["neighbors"], a dictionary with the corresponding neighbors (as a list of pymatgen's
-            #    Site objects) for each cn_map is stored
-            ce_piece_dict_list = []
-            neighbors_list = {}
-            for ce_piece in site_ce_list['ce']:
-                if ce_piece['cn_map'] not in neighbors_list:
-                    neighbors_list[ce_piece['cn_map']] = site_ce_list['neighbors'][ce_piece['cn_map']]
-                ce_piece_dict = {'ce_symbol': ce_piece['mp_symbol'], 'fraction': ce_piece['fraction'],
-                                 'csm': ce_piece['csm'], 'cn_map': ce_piece['cn_map']}
-                if 'strategy_info' in ce_piece:
-                    ce_piece_dict['strategy_info'] = ce_piece['strategy_info']
-                ce_piece_dict_list.append(ce_piece_dict)
-            self._coordination_environments.append(ce_piece_dict_list)
-            self._neighbors.append(neighbors_list)
-        if setup_neighbors_by_indices:
-            self._setup_neighbors_by_indices()
+            coordination_environments[isite] = []
+            neighbors_sets[isite] = []
+            site_ces = []
+            site_nbs_sets = []
+            for ce_and_neighbors in site_ces_and_nbs_list:
+                _all_nbs_sites_indices = []
+                # Coordination environment
+                ce_dict = {'ce_symbol': ce_and_neighbors['ce_symbol'],
+                           'ce_fraction': ce_and_neighbors['ce_fraction'],
+                           'csm': ce_and_neighbors['ce_dict']['other_symmetry_measures'][strategy.symmetry_measure_type]}
+                site_ces.append(ce_dict)
+                # Neighbors
+                neighbors = ce_and_neighbors['neighbors']
+                for nb_site_and_index in neighbors:
+                    nb_site = nb_site_and_index['site']
+                    nb_index_unitcell = nb_site_and_index['index']
+                    try:
+                        nb_allnbs_sites_index = my_all_nbs_sites.index(nb_site)
+                    except ValueError:
+                        nb_allnbs_sites_index = len(_all_nbs_sites)
+                        _all_nbs_sites.append({'site': nb_site, 'index': nb_index_unitcell})
+                        my_all_nbs_sites.append(nb_site)
+                    _all_nbs_sites_indices.append(nb_allnbs_sites_index)
 
-    def _setup_neighbors_by_indices(self):
-        self._neighbors_by_indices = []
-        if self._strategy.uniquely_determines_coordination_environments:
-            for isite_this_site, this_site_neighbors_all_cn_maps in enumerate(self._neighbors):
-                if len(self._coordination_environments[isite_this_site]) == 0:
-                    self._neighbors_by_indices.append(None)
-                    continue
-                cn_map = self._coordination_environments[isite_this_site][0]['cn_map']
-                this_site_neighbors = this_site_neighbors_all_cn_maps[tuple(cn_map)]
-                if this_site_neighbors is None:
-                    self._neighbors_by_indices.append(None)
-                else:
-                    this_site_neighbors_indices = []
-                    for neighbor in this_site_neighbors:
-                        ineighbor = None
-                        for isite, site in enumerate(self.structure):
-                            found = False
-                            for tolerance in [1e-8, 1e-6, 1e-4, 1e-3]:
-                                if site.is_periodic_image(neighbor, check_lattice=False, tolerance=tolerance):
-                                    ineighbor = isite
-                                    diff = neighbor.frac_coords - site.frac_coords
-                                    image_cell = np.array(np.round(diff), np.int)
-                                    #if np.allclose(image_cell, np.zeros(3, np.int)):
-                                    #    image_cell = 0
-                                    found = True
-                                    break
-                            if found:
-                                break
-                        if not found:
-                            raise ChemenvError('LightStructureEnvironments', '__init__', 'Site indices not found')
-                        this_site_neighbors_indices.append((ineighbor, image_cell))
-                    self._neighbors_by_indices.append(this_site_neighbors_indices)
+                nb_set = cls.NeighborsSet(structure=structure, isite=isite,
+                                          all_nbs_sites=_all_nbs_sites,
+                                          all_nbs_sites_indices=_all_nbs_sites_indices)
+                site_nbs_sets.append(nb_set)
+            coordination_environments[isite] = site_ces
+            neighbors_sets[isite] = site_nbs_sets
+        return cls(strategy=strategy,
+                   coordination_environments=coordination_environments,
+                   all_nbs_sites=_all_nbs_sites,
+                   neighbors_sets=neighbors_sets,
+                   structure=structure, valences=valences,
+                   valences_origin=valences_origin)
 
     def setup_statistic_lists(self):
-        self.statistics_dict = {'anion_list': {},                                                    # OK
+        self.statistics_dict = {'valences_origin': self.valences_origin,
+                                'anion_list': {},                                                    # OK
                                 'anion_number': None,                                                # OK
                                 'anion_atom_list': {},                                               # OK
                                 'anion_atom_number': None,                                           # OK
@@ -917,83 +1558,81 @@ class LightStructureEnvironments(MSONable):
                                 'cation_number': None,                                               # OK
                                 'cation_atom_list': {},                                              # OK
                                 'cation_atom_number': None,                                          # OK
-                                'structure_anion_list': {},                                          # OK
-                                'structure_anion_number': None,                                      # OK
-                                'structure_anion_undefined_oxidation_list': [],                      # OK
-                                'structure_anion_undefined_oxidation_occupation': [],                # OK
-                                'structure_anion_atom_list': {},                                     # OK
-                                'structure_anion_atom_number': None,                                 # OK
-                                'structure_cation_list': {},                                         # OK
-                                'structure_cation_number': None,                                     # OK
-                                'structure_cation_undefined_oxidation_list': [],                     # OK
-                                'structure_cation_undefined_oxidation_occupation': [],               # OK
-                                'structure_cation_atom_list': {},                                    # OK
-                                'structure_cation_atom_number': None,                                # OK
-                                'bva_anion_list': {},                                                # OK
-                                'bva_anion_number': None,                                            # OK
-                                'bva_anion_atom_list': {},                                           # OK
-                                'bva_anion_atom_number': None,                                       # OK
-                                'bva_cation_list': {},                                               # OK
-                                'bva_cation_number': None,                                           # OK
-                                'bva_cation_atom_list': {},                                          # OK
-                                'bva_cation_atom_number': None,                                      # OK
+                                # 'structure_anion_list': {},                                          # OK
+                                # 'structure_anion_number': None,                                      # OK
+                                # 'structure_anion_undefined_oxidation_list': [],                      # OK
+                                # 'structure_anion_undefined_oxidation_occupation': [],                # OK
+                                # 'structure_anion_atom_list': {},                                     # OK
+                                # 'structure_anion_atom_number': None,                                 # OK
+                                # 'structure_cation_list': {},                                         # OK
+                                # 'structure_cation_number': None,                                     # OK
+                                # 'structure_cation_undefined_oxidation_list': [],                     # OK
+                                # 'structure_cation_undefined_oxidation_occupation': [],               # OK
+                                # 'structure_cation_atom_list': {},                                    # OK
+                                # 'structure_cation_atom_number': None,                                # OK
+                                # 'bva_anion_list': {},                                                # OK
+                                # 'bva_anion_number': None,                                            # OK
+                                # 'bva_anion_atom_list': {},                                           # OK
+                                # 'bva_anion_atom_number': None,                                       # OK
+                                # 'bva_cation_list': {},                                               # OK
+                                # 'bva_cation_number': None,                                           # OK
+                                # 'bva_cation_atom_list': {},                                          # OK
+                                # 'bva_cation_atom_number': None,                                      # OK
                                 'neutral_list': {},                                                  # OK
                                 'neutral_number': None,                                              # OK
                                 'neutral_atom_list': {},                                             # OK
                                 'neutral_atom_number': None,                                         # OK
-                                'structure_neutral_list': {},                                        # OK
-                                'structure_neutral_number': None,                                    # OK
-                                'structure_neutral_atom_list': {},                                   # OK
-                                'structure_neutral_atom_number': None,                               # OK
-                                'bva_neutral_list': {},                                              # OK
-                                'bva_neutral_number': None,                                          # OK
-                                'bva_neutral_atom_list': {},                                         # OK
-                                'bva_neutral_atom_number': None,                                     # OK
+                                # 'structure_neutral_list': {},                                        # OK
+                                # 'structure_neutral_number': None,                                    # OK
+                                # 'structure_neutral_atom_list': {},                                   # OK
+                                # 'structure_neutral_atom_number': None,                               # OK
+                                # 'bva_neutral_list': {},                                              # OK
+                                # 'bva_neutral_number': None,                                          # OK
+                                # 'bva_neutral_atom_list': {},                                         # OK
+                                # 'bva_neutral_atom_number': None,                                     # OK
                                 'atom_coordination_environments_present': {},                        # OK
-                                'structure_ion_coordination_environments_present': {},               # OK
-                                'bva_ion_coordination_environments_present': {},                     # OK
+                                # 'structure_ion_coordination_environments_present': {},               # OK
+                                # 'bva_ion_coordination_environments_present': {},                     # OK
                                 'ion_coordination_environments_present': {},                         # OK
-                                'coordination_environments_structure_ion_present': {},               # OK
+                                # 'coordination_environments_structure_ion_present': {},               # OK
                                 'coordination_environments_ion_present': {},                         # OK
-                                'coordination_environments_bva_ion_present': {},                     # OK
+                                # 'coordination_environments_bva_ion_present': {},                     # OK
                                 'coordination_environments_atom_present': {},                        # OK
-                                'fraction_bva_ion_coordination_environments_present': {},            # OK
-                                'fraction_structure_ion_coordination_environments_present': {},      # OK
+                                # 'fraction_bva_ion_coordination_environments_present': {},            # OK
+                                # 'fraction_structure_ion_coordination_environments_present': {},      # OK
                                 'fraction_ion_coordination_environments_present': {},                # OK
                                 'fraction_atom_coordination_environments_present': {},               # OK
-                                'fraction_coordination_environments_bva_ion_present': {},            # OK
-                                'fraction_coordination_environments_structure_ion_present': {},      # OK
+                                # 'fraction_coordination_environments_bva_ion_present': {},            # OK
+                                # 'fraction_coordination_environments_structure_ion_present': {},      # OK
                                 'fraction_coordination_environments_ion_present': {},                # OK
                                 'fraction_coordination_environments_atom_present': {},               # OK
-                                'count_bva_ion_present': {},                                         # OK
-                                'count_structure_ion_present': {},                                   # OK
+                                # 'count_bva_ion_present': {},                                         # OK
+                                # 'count_structure_ion_present': {},                                   # OK
                                 'count_ion_present': {},                                             # OK
                                 'count_atom_present': {},                                            # OK
                                 'count_coordination_environments_present': {}}
-        structure_has_species = isinstance(self._structure[0].species_and_occu.elements[0], Specie)
         atom_stat = self.statistics_dict['atom_coordination_environments_present']
         ce_atom_stat = self.statistics_dict['coordination_environments_atom_present']
         fraction_atom_stat = self.statistics_dict['fraction_atom_coordination_environments_present']
         fraction_ce_atom_stat = self.statistics_dict['fraction_coordination_environments_atom_present']
         count_atoms = self.statistics_dict['count_atom_present']
         count_ce = self.statistics_dict['count_coordination_environments_present']
-        for isite, site in enumerate(self._structure):
-            #Building anion and cation list
-            site_species = {'bva_oxistates': [],
-                            'structure_oxistates': []}
-            if self._valences != 'undefined':
+        for isite, site in enumerate(self.structure):
+            # Building anion and cation list
+            site_species = []
+            if self.valences != 'undefined':
                 for sp, occ in site.species_and_occu.items():
-                    valence = self._valences[isite]
-                    if valence < 0:
-                        specielist = self.statistics_dict['bva_anion_list']
-                        atomlist = self.statistics_dict['bva_anion_atom_list']
-                    elif valence > 0:
-                        specielist = self.statistics_dict['bva_cation_list']
-                        atomlist = self.statistics_dict['bva_cation_atom_list']
-                    else:
-                        specielist = self.statistics_dict['bva_neutral_list']
-                        atomlist = self.statistics_dict['bva_neutral_atom_list']
+                    valence = self.valences[isite]
                     strspecie = str(Specie(sp.symbol, valence))
+                    if valence < 0:
+                        specielist = self.statistics_dict['anion_list']
+                        atomlist = self.statistics_dict['anion_atom_list']
+                    elif valence > 0:
+                        specielist = self.statistics_dict['cation_list']
+                        atomlist = self.statistics_dict['cation_atom_list']
+                    else:
+                        specielist = self.statistics_dict['neutral_list']
+                        atomlist = self.statistics_dict['neutral_atom_list']
                     if strspecie not in specielist:
                         specielist[strspecie] = occ
                     else:
@@ -1002,67 +1641,11 @@ class LightStructureEnvironments(MSONable):
                         atomlist[sp.symbol] = occ
                     else:
                         atomlist[sp.symbol] += occ
-                    site_species['bva_oxistates'].append((sp.symbol, valence, occ))
-                self.statistics_dict['bva_anion_number'] = len(self.statistics_dict['bva_anion_list'])
-                self.statistics_dict['bva_anion_atom_number'] = len(self.statistics_dict['bva_anion_atom_list'])
-                self.statistics_dict['bva_cation_number'] = len(self.statistics_dict['bva_cation_list'])
-                self.statistics_dict['bva_cation_atom_number'] = len(self.statistics_dict['bva_cation_atom_list'])
-            if structure_has_species:
-                for sp, occ in site.species_and_occu.items():
-                    oxi_state_rounded = round(sp.oxi_state)
-                    if np.isclose(sp.oxi_state, oxi_state_rounded, rtol=0.0, atol=self.DELTA_MAX_OXIDATION_STATE):
-                        valence = int(oxi_state_rounded)
-                        if valence < 0:
-                            specielist = self.statistics_dict['structure_anion_list']
-                            atomlist = self.statistics_dict['structure_anion_atom_list']
-                        elif valence > 0:
-                            specielist = self.statistics_dict['structure_cation_list']
-                            atomlist = self.statistics_dict['structure_cation_atom_list']
-                        else:
-                            specielist = self.statistics_dict['structure_neutral_list']
-                            atomlist = self.statistics_dict['structure_neutral_atom_list']
-                        strspecie = str(Specie(sp.symbol, valence))
-                        if strspecie not in specielist:
-                            specielist[strspecie] = occ
-                        else:
-                            specielist[strspecie] += occ
-                        if sp.symbol not in atomlist:
-                            atomlist[sp.symbol] = occ
-                        else:
-                            atomlist[sp.symbol] += occ
-                        site_species['structure_oxistates'].append((sp.symbol, valence, occ))
-                    else:
-                        valence = sp.oxi_state
-                        if valence < 0:
-                            specielist = self.statistics_dict['structure_anion_undefined_oxidation_list']
-                            specieocc = self.statistics_dict['structure_anion_undefined_oxidation_occupation']
-                            atomlist = self.statistics_dict['structure_anion_atom_list']
-                        elif valence > 0:
-                            specielist = self.statistics_dict['structure_cation_undefined_oxidation_list']
-                            specieocc = self.statistics_dict['structure_cation_undefined_oxidation_occupation']
-                            atomlist = self.statistics_dict['structure_cation_atom_list']
-                        else:
-                            raise RuntimeError('Should not be here ...')
-                        strspecie = str(Specie(sp.symbol, valence))
-                        if strspecie not in specielist:
-                            specielist.append(strspecie)
-                            specieocc.append(occ)
-                        else:
-                            specie_index = specielist.index(strspecie)
-                            specieocc[specie_index] += occ
-                        if sp.symbol not in atomlist:
-                            atomlist[sp.symbol] = occ
-                        else:
-                            atomlist[sp.symbol] += occ
-                self.statistics_dict['structure_anion_number'] = len(self.statistics_dict['structure_anion_list']) + len(self.statistics_dict['structure_anion_undefined_oxidation_list'])
-                self.statistics_dict['structure_anion_atom_number'] = len(self.statistics_dict['structure_anion_atom_list'])
-                self.statistics_dict['structure_cation_number'] = len(self.statistics_dict['structure_cation_list']) + len(self.statistics_dict['structure_cation_undefined_oxidation_list'])
-                self.statistics_dict['structure_cation_atom_number'] = len(self.statistics_dict['structure_cation_atom_list'])
-
-            #Building environments lists
-            if self._coordination_environments[isite] is not None:
-                site_envs = [(ce_piece_dict['ce_symbol'], ce_piece_dict['fraction'])
-                             for ce_piece_dict in self._coordination_environments[isite]]
+                    site_species.append((sp.symbol, valence, occ))
+            # Building environments lists
+            if self.coordination_environments[isite] is not None:
+                site_envs = [(ce_piece_dict['ce_symbol'], ce_piece_dict['ce_fraction'])
+                             for ce_piece_dict in self.coordination_environments[isite]]
                 for ce_symbol, fraction in site_envs:
                     if fraction is None:
                         continue
@@ -1088,11 +1671,11 @@ class LightStructureEnvironments(MSONable):
                             ce_atom_stat[ce_symbol][elmt] = 0.0
                         ce_atom_stat[ce_symbol][elmt] += occ * fraction
 
-                if self._valences != 'undefined':
-                    ion_stat = self.statistics_dict['bva_ion_coordination_environments_present']
-                    ce_ion_stat = self.statistics_dict['coordination_environments_bva_ion_present']
-                    count_ions = self.statistics_dict['count_bva_ion_present']
-                    for elmt, oxi_state, occ in site_species['bva_oxistates']:
+                if self.valences != 'undefined':
+                    ion_stat = self.statistics_dict['ion_coordination_environments_present']
+                    ce_ion_stat = self.statistics_dict['coordination_environments_ion_present']
+                    count_ions = self.statistics_dict['count_ion_present']
+                    for elmt, oxi_state, occ in site_species:
                         if elmt not in ion_stat:
                             ion_stat[elmt] = {}
                             count_ions[elmt] = {}
@@ -1113,128 +1696,272 @@ class LightStructureEnvironments(MSONable):
                             if oxi_state not in ce_ion_stat[ce_symbol][elmt]:
                                 ce_ion_stat[ce_symbol][elmt][oxi_state] = 0.0
                             ce_ion_stat[ce_symbol][elmt][oxi_state] += occ * fraction
-                if structure_has_species:
-                    ion_stat = self.statistics_dict['structure_ion_coordination_environments_present']
-                    ce_ion_stat = self.statistics_dict['coordination_environments_structure_ion_present']
-                    count_ions = self.statistics_dict['count_structure_ion_present']
-                    for elmt, oxi_state, occ in site_species['structure_oxistates']:
-                        if elmt not in ion_stat:
-                            ion_stat[elmt] = {}
-                            count_ions[elmt] = {}
-                        oxi_state_rounded = round(oxi_state)
-                        if np.isclose(oxi_state, oxi_state_rounded, rtol=0.0, atol=self.DELTA_MAX_OXIDATION_STATE):
-                            my_oxi_state = int(oxi_state_rounded)
-                            if my_oxi_state not in ion_stat[elmt]:
-                                ion_stat[elmt][my_oxi_state] = {}
-                                count_ions[elmt][my_oxi_state] = 0.0
-                            count_ions[elmt][my_oxi_state] += occ
-                            for ce_symbol, fraction in site_envs:
-                                if fraction is None:
-                                    continue
-                                if ce_symbol not in ion_stat[elmt][my_oxi_state]:
-                                    ion_stat[elmt][my_oxi_state][ce_symbol] = 0.0
-                                ion_stat[elmt][my_oxi_state][ce_symbol] += occ * fraction
-                                if ce_symbol not in ce_ion_stat:
-                                    ce_ion_stat[ce_symbol] = {}
-                                if elmt not in ce_ion_stat[ce_symbol]:
-                                    ce_ion_stat[ce_symbol][elmt] = {}
-                                if my_oxi_state not in ce_ion_stat[ce_symbol][elmt]:
-                                    ce_ion_stat[ce_symbol][elmt][my_oxi_state] = 0.0
-                                ce_ion_stat[ce_symbol][elmt][my_oxi_state] += occ * fraction
-                        else:
-                            #TODO: make something slightly better here ... like put the fractional oxidation states
-                            #somewhere ...
-                            continue
+        self.statistics_dict['anion_number'] = len(self.statistics_dict['anion_list'])
+        self.statistics_dict['anion_atom_number'] = len(self.statistics_dict['anion_atom_list'])
+        self.statistics_dict['cation_number'] = len(self.statistics_dict['cation_list'])
+        self.statistics_dict['cation_atom_number'] = len(self.statistics_dict['cation_atom_list'])
+        self.statistics_dict['neutral_number'] = len(self.statistics_dict['neutral_list'])
+        self.statistics_dict['neutral_atom_number'] = len(self.statistics_dict['neutral_atom_list'])
+
         for elmt, envs in atom_stat.items():
             sumelement = count_atoms[elmt]
             fraction_atom_stat[elmt] = {env: fraction / sumelement for env, fraction in envs.items()}
         for ce_symbol, atoms in ce_atom_stat.items():
             sumsymbol = count_ce[ce_symbol]
             fraction_ce_atom_stat[ce_symbol] = {atom: fraction / sumsymbol for atom, fraction in atoms.items()}
-        for prefix in ['structure_', 'bva_']:
-            ion_stat = self.statistics_dict['{}ion_coordination_environments_present'.format(prefix)]
-            fraction_ion_stat = self.statistics_dict['fraction_{}ion_coordination_environments_present'.format(prefix)]
-            ce_ion_stat = self.statistics_dict['coordination_environments_{}ion_present'.format(prefix)]
-            fraction_ce_ion_stat = self.statistics_dict['fraction_coordination_environments_{}ion_present'.format(prefix)]
-            count_ions = self.statistics_dict['count_{}ion_present'.format(prefix)]
-            if prefix == 'bva_' and self._valences == 'undefined':
-                continue
-            elif prefix == 'structure_' and not structure_has_species:
-                continue
-            for elmt, oxi_states_envs in ion_stat.items():
-                fraction_ion_stat[elmt] = {}
-                for oxi_state, envs in oxi_states_envs.items():
-                    sumspecie = count_ions[elmt][oxi_state]
-                    fraction_ion_stat[elmt][oxi_state] = {env: fraction / sumspecie
-                                                          for env, fraction in envs.items()}
-            for ce_symbol, ions in ce_ion_stat.items():
-                fraction_ce_ion_stat[ce_symbol] = {}
-                sum_ce = np.sum([np.sum(list(oxistates.values())) for elmt, oxistates in ions.items()])
-                for elmt, oxistates in ions.items():
-                    fraction_ce_ion_stat[ce_symbol][elmt] = {oxistate: fraction / sum_ce
-                                                             for oxistate, fraction in oxistates.items()}
-        ceip = 'coordination_environments_ion_present'
-        icep = 'ion_coordination_environments_present'
-        fceip = 'fraction_coordination_environments_ion_present'
-        ficep = 'fraction_ion_coordination_environments_present'
-        if self._valences != 'undefined':
-            cebip = 'coordination_environments_bva_ion_present'
-            bicep = 'bva_ion_coordination_environments_present'
-            fcebip = 'fraction_coordination_environments_bva_ion_present'
-            fbicep = 'fraction_bva_ion_coordination_environments_present'
-            self.statistics_dict['anion_list'].update(self.statistics_dict['bva_anion_list'])
-            self.statistics_dict['anion_atom_list'].update(self.statistics_dict['bva_anion_atom_list'])
-            self.statistics_dict['cation_list'].update(self.statistics_dict['bva_cation_list'])
-            self.statistics_dict['cation_atom_list'].update(self.statistics_dict['bva_cation_atom_list'])
-            self.statistics_dict['anion_number'] = self.statistics_dict['bva_anion_number']
-            self.statistics_dict['anion_atom_number'] = self.statistics_dict['bva_anion_atom_number']
-            self.statistics_dict['cation_number'] = self.statistics_dict['bva_cation_number']
-            self.statistics_dict['cation_atom_number'] = self.statistics_dict['bva_cation_atom_number']
-            self.statistics_dict[ceip].update(self.statistics_dict[cebip])
-            self.statistics_dict[icep].update(self.statistics_dict[bicep])
-            self.statistics_dict[fceip].update(self.statistics_dict[fcebip])
-            self.statistics_dict[ficep].update(self.statistics_dict[fbicep])
-        else:
-            cesip = 'coordination_environments_structure_ion_present'
-            sicep = 'structure_ion_coordination_environments_present'
-            fcesip = 'fraction_coordination_environments_structure_ion_present'
-            fsicep = 'fraction_structure_ion_coordination_environments_present'
-            self.statistics_dict['anion_list'].update(self.statistics_dict['structure_anion_list'])
-            self.statistics_dict['anion_atom_list'].update(self.statistics_dict['structure_anion_atom_list'])
-            self.statistics_dict['cation_list'].update(self.statistics_dict['structure_cation_list'])
-            self.statistics_dict['cation_atom_list'].update(self.statistics_dict['structure_cation_atom_list'])
-            self.statistics_dict['anion_number'] = self.statistics_dict['structure_anion_number']
-            self.statistics_dict['anion_atom_number'] = self.statistics_dict['structure_anion_atom_number']
-            self.statistics_dict['cation_number'] = self.statistics_dict['structure_cation_number']
-            self.statistics_dict['cation_atom_number'] = self.statistics_dict['structure_cation_atom_number']
-            self.statistics_dict[ceip].update(self.statistics_dict[cesip])
-            self.statistics_dict[icep].update(self.statistics_dict[sicep])
-            self.statistics_dict[fceip].update(self.statistics_dict[fcesip])
-            self.statistics_dict[ficep].update(self.statistics_dict[fsicep])
+        ion_stat = self.statistics_dict['ion_coordination_environments_present']
+        fraction_ion_stat = self.statistics_dict['fraction_ion_coordination_environments_present']
+        ce_ion_stat = self.statistics_dict['coordination_environments_ion_present']
+        fraction_ce_ion_stat = self.statistics_dict['fraction_coordination_environments_ion_present']
+        count_ions = self.statistics_dict['count_ion_present']
+        for elmt, oxi_states_envs in ion_stat.items():
+            fraction_ion_stat[elmt] = {}
+            for oxi_state, envs in oxi_states_envs.items():
+                sumspecie = count_ions[elmt][oxi_state]
+                fraction_ion_stat[elmt][oxi_state] = {env: fraction / sumspecie
+                                                      for env, fraction in envs.items()}
+        for ce_symbol, ions in ce_ion_stat.items():
+            fraction_ce_ion_stat[ce_symbol] = {}
+            sum_ce = np.sum([np.sum(list(oxistates.values())) for elmt, oxistates in ions.items()])
+            for elmt, oxistates in ions.items():
+                fraction_ce_ion_stat[ce_symbol][elmt] = {oxistate: fraction / sum_ce
+                                                         for oxistate, fraction in oxistates.items()}
 
-    def site_has_clear_environment(self, isite, min_fraction=0.95):
-        if len(self._coordination_environments[isite]) == 0:
-            return True
-        fractions = [ce_dict['fraction'] for ce_dict in self._coordination_environments[isite]]
-        maxfraction = max(fractions)
-        return maxfraction > min_fraction
 
-    def structure_has_clear_environments_for_element(self, element, min_fraction=0.95):
-        for isite, site_ces in enumerate(self._coordination_environments):
-            if site_ces is None:
-                continue
-            if element in [sp.symbol for sp in self._structure[isite].species_and_occu]:
-                if not self.site_has_clear_environment(isite=isite, min_fraction=min_fraction):
-                    return False
-        return True
-
-    def structure_has_clear_environments(self, min_fraction=0.95):
-        for isite, site_ces in enumerate(self._coordination_environments):
-            if site_ces is None:
-                continue
-            if not self.site_has_clear_environment(isite=isite, min_fraction=min_fraction):
-                return False
-        return True
+        # for isite, site in enumerate(self.structure):
+        #     #Building anion and cation list
+        #     site_species = {'bva_oxistates': [],
+        #                     'structure_oxistates': []}
+        #     if self.valences != 'undefined':
+        #         for sp, occ in site.species_and_occu.items():
+        #             valence = self.valences[isite]
+        #             if valence < 0:
+        #                 specielist = self.statistics_dict['bva_anion_list']
+        #                 atomlist = self.statistics_dict['bva_anion_atom_list']
+        #             elif valence > 0:
+        #                 specielist = self.statistics_dict['bva_cation_list']
+        #                 atomlist = self.statistics_dict['bva_cation_atom_list']
+        #             else:
+        #                 specielist = self.statistics_dict['bva_neutral_list']
+        #                 atomlist = self.statistics_dict['bva_neutral_atom_list']
+        #             strspecie = str(Specie(sp.symbol, valence))
+        #             if strspecie not in specielist:
+        #                 specielist[strspecie] = occ
+        #             else:
+        #                 specielist[strspecie] += occ
+        #             if sp.symbol not in atomlist:
+        #                 atomlist[sp.symbol] = occ
+        #             else:
+        #                 atomlist[sp.symbol] += occ
+        #             site_species['bva_oxistates'].append((sp.symbol, valence, occ))
+        #         self.statistics_dict['bva_anion_number'] = len(self.statistics_dict['bva_anion_list'])
+        #         self.statistics_dict['bva_anion_atom_number'] = len(self.statistics_dict['bva_anion_atom_list'])
+        #         self.statistics_dict['bva_cation_number'] = len(self.statistics_dict['bva_cation_list'])
+        #         self.statistics_dict['bva_cation_atom_number'] = len(self.statistics_dict['bva_cation_atom_list'])
+        #     if structure_has_species:
+        #         for sp, occ in site.species_and_occu.items():
+        #             oxi_state_rounded = round(sp.oxi_state)
+        #             if np.isclose(sp.oxi_state, oxi_state_rounded, rtol=0.0, atol=self.DELTA_MAX_OXIDATION_STATE):
+        #                 valence = int(oxi_state_rounded)
+        #                 if valence < 0:
+        #                     specielist = self.statistics_dict['structure_anion_list']
+        #                     atomlist = self.statistics_dict['structure_anion_atom_list']
+        #                 elif valence > 0:
+        #                     specielist = self.statistics_dict['structure_cation_list']
+        #                     atomlist = self.statistics_dict['structure_cation_atom_list']
+        #                 else:
+        #                     specielist = self.statistics_dict['structure_neutral_list']
+        #                     atomlist = self.statistics_dict['structure_neutral_atom_list']
+        #                 strspecie = str(Specie(sp.symbol, valence))
+        #                 if strspecie not in specielist:
+        #                     specielist[strspecie] = occ
+        #                 else:
+        #                     specielist[strspecie] += occ
+        #                 if sp.symbol not in atomlist:
+        #                     atomlist[sp.symbol] = occ
+        #                 else:
+        #                     atomlist[sp.symbol] += occ
+        #                 site_species['structure_oxistates'].append((sp.symbol, valence, occ))
+        #             else:
+        #                 valence = sp.oxi_state
+        #                 if valence < 0:
+        #                     specielist = self.statistics_dict['structure_anion_undefined_oxidation_list']
+        #                     specieocc = self.statistics_dict['structure_anion_undefined_oxidation_occupation']
+        #                     atomlist = self.statistics_dict['structure_anion_atom_list']
+        #                 elif valence > 0:
+        #                     specielist = self.statistics_dict['structure_cation_undefined_oxidation_list']
+        #                     specieocc = self.statistics_dict['structure_cation_undefined_oxidation_occupation']
+        #                     atomlist = self.statistics_dict['structure_cation_atom_list']
+        #                 else:
+        #                     raise RuntimeError('Should not be here ...')
+        #                 strspecie = str(Specie(sp.symbol, valence))
+        #                 if strspecie not in specielist:
+        #                     specielist.append(strspecie)
+        #                     specieocc.append(occ)
+        #                 else:
+        #                     specie_index = specielist.index(strspecie)
+        #                     specieocc[specie_index] += occ
+        #                 if sp.symbol not in atomlist:
+        #                     atomlist[sp.symbol] = occ
+        #                 else:
+        #                     atomlist[sp.symbol] += occ
+        #         self.statistics_dict['structure_anion_number'] = len(self.statistics_dict['structure_anion_list']) + len(self.statistics_dict['structure_anion_undefined_oxidation_list'])
+        #         self.statistics_dict['structure_anion_atom_number'] = len(self.statistics_dict['structure_anion_atom_list'])
+        #         self.statistics_dict['structure_cation_number'] = len(self.statistics_dict['structure_cation_list']) + len(self.statistics_dict['structure_cation_undefined_oxidation_list'])
+        #         self.statistics_dict['structure_cation_atom_number'] = len(self.statistics_dict['structure_cation_atom_list'])
+        #
+        #     #Building environments lists
+        #     if self.coordination_environments[isite] is not None:
+        #         site_envs = [(ce_piece_dict['ce_symbol'], ce_piece_dict['ce_fraction'])
+        #                      for ce_piece_dict in self.coordination_environments[isite]]
+        #         for ce_symbol, fraction in site_envs:
+        #             if fraction is None:
+        #                 continue
+        #             if ce_symbol not in count_ce:
+        #                 count_ce[ce_symbol] = 0.0
+        #             count_ce[ce_symbol] += fraction
+        #         for sp, occ in site.species_and_occu.items():
+        #             elmt = sp.symbol
+        #             if elmt not in atom_stat:
+        #                 atom_stat[elmt] = {}
+        #                 count_atoms[elmt] = 0.0
+        #             count_atoms[elmt] += occ
+        #             for ce_symbol, fraction in site_envs:
+        #                 if fraction is None:
+        #                     continue
+        #                 if ce_symbol not in atom_stat[elmt]:
+        #                     atom_stat[elmt][ce_symbol] = 0.0
+        #
+        #                 atom_stat[elmt][ce_symbol] += occ * fraction
+        #                 if ce_symbol not in ce_atom_stat:
+        #                     ce_atom_stat[ce_symbol] = {}
+        #                 if elmt not in ce_atom_stat[ce_symbol]:
+        #                     ce_atom_stat[ce_symbol][elmt] = 0.0
+        #                 ce_atom_stat[ce_symbol][elmt] += occ * fraction
+        #
+        #         if self.valences != 'undefined':
+        #             ion_stat = self.statistics_dict['bva_ion_coordination_environments_present']
+        #             ce_ion_stat = self.statistics_dict['coordination_environments_bva_ion_present']
+        #             count_ions = self.statistics_dict['count_bva_ion_present']
+        #             for elmt, oxi_state, occ in site_species['bva_oxistates']:
+        #                 if elmt not in ion_stat:
+        #                     ion_stat[elmt] = {}
+        #                     count_ions[elmt] = {}
+        #                 if oxi_state not in ion_stat[elmt]:
+        #                     ion_stat[elmt][oxi_state] = {}
+        #                     count_ions[elmt][oxi_state] = 0.0
+        #                 count_ions[elmt][oxi_state] += occ
+        #                 for ce_symbol, fraction in site_envs:
+        #                     if fraction is None:
+        #                         continue
+        #                     if ce_symbol not in ion_stat[elmt][oxi_state]:
+        #                         ion_stat[elmt][oxi_state][ce_symbol] = 0.0
+        #                     ion_stat[elmt][oxi_state][ce_symbol] += occ * fraction
+        #                     if ce_symbol not in ce_ion_stat:
+        #                         ce_ion_stat[ce_symbol] = {}
+        #                     if elmt not in ce_ion_stat[ce_symbol]:
+        #                         ce_ion_stat[ce_symbol][elmt] = {}
+        #                     if oxi_state not in ce_ion_stat[ce_symbol][elmt]:
+        #                         ce_ion_stat[ce_symbol][elmt][oxi_state] = 0.0
+        #                     ce_ion_stat[ce_symbol][elmt][oxi_state] += occ * fraction
+        #         if structure_has_species:
+        #             ion_stat = self.statistics_dict['structure_ion_coordination_environments_present']
+        #             ce_ion_stat = self.statistics_dict['coordination_environments_structure_ion_present']
+        #             count_ions = self.statistics_dict['count_structure_ion_present']
+        #             for elmt, oxi_state, occ in site_species['structure_oxistates']:
+        #                 if elmt not in ion_stat:
+        #                     ion_stat[elmt] = {}
+        #                     count_ions[elmt] = {}
+        #                 oxi_state_rounded = round(oxi_state)
+        #                 if np.isclose(oxi_state, oxi_state_rounded, rtol=0.0, atol=self.DELTA_MAX_OXIDATION_STATE):
+        #                     my_oxi_state = int(oxi_state_rounded)
+        #                     if my_oxi_state not in ion_stat[elmt]:
+        #                         ion_stat[elmt][my_oxi_state] = {}
+        #                         count_ions[elmt][my_oxi_state] = 0.0
+        #                     count_ions[elmt][my_oxi_state] += occ
+        #                     for ce_symbol, fraction in site_envs:
+        #                         if fraction is None:
+        #                             continue
+        #                         if ce_symbol not in ion_stat[elmt][my_oxi_state]:
+        #                             ion_stat[elmt][my_oxi_state][ce_symbol] = 0.0
+        #                         ion_stat[elmt][my_oxi_state][ce_symbol] += occ * fraction
+        #                         if ce_symbol not in ce_ion_stat:
+        #                             ce_ion_stat[ce_symbol] = {}
+        #                         if elmt not in ce_ion_stat[ce_symbol]:
+        #                             ce_ion_stat[ce_symbol][elmt] = {}
+        #                         if my_oxi_state not in ce_ion_stat[ce_symbol][elmt]:
+        #                             ce_ion_stat[ce_symbol][elmt][my_oxi_state] = 0.0
+        #                         ce_ion_stat[ce_symbol][elmt][my_oxi_state] += occ * fraction
+        #                 else:
+        #                     #TODO: make something slightly better here ... like put the fractional oxidation states
+        #                     #somewhere ...
+        #                     continue
+        # for elmt, envs in atom_stat.items():
+        #     sumelement = count_atoms[elmt]
+        #     fraction_atom_stat[elmt] = {env: fraction / sumelement for env, fraction in envs.items()}
+        # for ce_symbol, atoms in ce_atom_stat.items():
+        #     sumsymbol = count_ce[ce_symbol]
+        #     fraction_ce_atom_stat[ce_symbol] = {atom: fraction / sumsymbol for atom, fraction in atoms.items()}
+        # for prefix in ['structure_', 'bva_']:
+        #     ion_stat = self.statistics_dict['{}ion_coordination_environments_present'.format(prefix)]
+        #     fraction_ion_stat = self.statistics_dict['fraction_{}ion_coordination_environments_present'.format(prefix)]
+        #     ce_ion_stat = self.statistics_dict['coordination_environments_{}ion_present'.format(prefix)]
+        #     fraction_ce_ion_stat = self.statistics_dict['fraction_coordination_environments_{}ion_present'.format(prefix)]
+        #     count_ions = self.statistics_dict['count_{}ion_present'.format(prefix)]
+        #     if prefix == 'bva_' and self.valences == 'undefined':
+        #         continue
+        #     elif prefix == 'structure_' and not structure_has_species:
+        #         continue
+        #     for elmt, oxi_states_envs in ion_stat.items():
+        #         fraction_ion_stat[elmt] = {}
+        #         for oxi_state, envs in oxi_states_envs.items():
+        #             sumspecie = count_ions[elmt][oxi_state]
+        #             fraction_ion_stat[elmt][oxi_state] = {env: fraction / sumspecie
+        #                                                   for env, fraction in envs.items()}
+        #     for ce_symbol, ions in ce_ion_stat.items():
+        #         fraction_ce_ion_stat[ce_symbol] = {}
+        #         sum_ce = np.sum([np.sum(list(oxistates.values())) for elmt, oxistates in ions.items()])
+        #         for elmt, oxistates in ions.items():
+        #             fraction_ce_ion_stat[ce_symbol][elmt] = {oxistate: fraction / sum_ce
+        #                                                      for oxistate, fraction in oxistates.items()}
+        # ceip = 'coordination_environments_ion_present'
+        # icep = 'ion_coordination_environments_present'
+        # fceip = 'fraction_coordination_environments_ion_present'
+        # ficep = 'fraction_ion_coordination_environments_present'
+        # if self.valences != 'undefined':
+        #     cebip = 'coordination_environments_bva_ion_present'
+        #     bicep = 'bva_ion_coordination_environments_present'
+        #     fcebip = 'fraction_coordination_environments_bva_ion_present'
+        #     fbicep = 'fraction_bva_ion_coordination_environments_present'
+        #     self.statistics_dict['anion_list'].update(self.statistics_dict['bva_anion_list'])
+        #     self.statistics_dict['anion_atom_list'].update(self.statistics_dict['bva_anion_atom_list'])
+        #     self.statistics_dict['cation_list'].update(self.statistics_dict['bva_cation_list'])
+        #     self.statistics_dict['cation_atom_list'].update(self.statistics_dict['bva_cation_atom_list'])
+        #     self.statistics_dict['anion_number'] = self.statistics_dict['bva_anion_number']
+        #     self.statistics_dict['anion_atom_number'] = self.statistics_dict['bva_anion_atom_number']
+        #     self.statistics_dict['cation_number'] = self.statistics_dict['bva_cation_number']
+        #     self.statistics_dict['cation_atom_number'] = self.statistics_dict['bva_cation_atom_number']
+        #     self.statistics_dict[ceip].update(self.statistics_dict[cebip])
+        #     self.statistics_dict[icep].update(self.statistics_dict[bicep])
+        #     self.statistics_dict[fceip].update(self.statistics_dict[fcebip])
+        #     self.statistics_dict[ficep].update(self.statistics_dict[fbicep])
+        # else:
+        #     cesip = 'coordination_environments_structure_ion_present'
+        #     sicep = 'structure_ion_coordination_environments_present'
+        #     fcesip = 'fraction_coordination_environments_structure_ion_present'
+        #     fsicep = 'fraction_structure_ion_coordination_environments_present'
+        #     self.statistics_dict['anion_list'].update(self.statistics_dict['structure_anion_list'])
+        #     self.statistics_dict['anion_atom_list'].update(self.statistics_dict['structure_anion_atom_list'])
+        #     self.statistics_dict['cation_list'].update(self.statistics_dict['structure_cation_list'])
+        #     self.statistics_dict['cation_atom_list'].update(self.statistics_dict['structure_cation_atom_list'])
+        #     self.statistics_dict['anion_number'] = self.statistics_dict['structure_anion_number']
+        #     self.statistics_dict['anion_atom_number'] = self.statistics_dict['structure_anion_atom_number']
+        #     self.statistics_dict['cation_number'] = self.statistics_dict['structure_cation_number']
+        #     self.statistics_dict['cation_atom_number'] = self.statistics_dict['structure_cation_atom_number']
+        #     self.statistics_dict[ceip].update(self.statistics_dict[cesip])
+        #     self.statistics_dict[icep].update(self.statistics_dict[sicep])
+        #     self.statistics_dict[fceip].update(self.statistics_dict[fcesip])
+        #     self.statistics_dict[ficep].update(self.statistics_dict[fsicep])
 
     def get_site_info_for_specie_ce(self, specie, ce_symbol, min_fraction=0.0):
         element = specie.symbol
@@ -1242,29 +1969,29 @@ class LightStructureEnvironments(MSONable):
         isites = []
         csms = []
         fractions = []
-        for isite, site in enumerate(self._structure):
+        for isite, site in enumerate(self.structure):
             if element in [sp.symbol for sp in site.species_and_occu]:
-                if oxi_state == self._valences[isite]:
-                    for ce_dict in self._coordination_environments[isite]:
+                if oxi_state == self.valences[isite]:
+                    for ce_dict in self.coordination_environments[isite]:
                         if ce_symbol == ce_dict['ce_symbol']:
                             isites.append(isite)
                             csms.append(ce_dict['ce_symbol'])
-                            fractions.append(ce_dict['fraction'])
+                            fractions.append(ce_dict['ce_fraction'])
 
     def get_site_info_for_specie_allces(self, specie, min_fraction=0.0):
         allces = {}
         element = specie.symbol
         oxi_state = specie.oxi_state
-        for isite, site in enumerate(self._structure):
+        for isite, site in enumerate(self.structure):
             if element in [sp.symbol for sp in site.species_and_occu]:
-                if oxi_state == self._valences[isite]:
-                    for ce_dict in self._coordination_environments[isite]:
-                        if ce_dict['fraction'] < min_fraction:
+                if oxi_state == self.valences[isite]:
+                    for ce_dict in self.coordination_environments[isite]:
+                        if ce_dict['ce_fraction'] < min_fraction:
                             continue
                         if ce_dict['ce_symbol'] not in allces:
                             allces[ce_dict['ce_symbol']] = {'isites': [], 'fractions': [], 'csms': []}
                         allces[ce_dict['ce_symbol']]['isites'].append(isite)
-                        allces[ce_dict['ce_symbol']]['fractions'].append(ce_dict['fraction'])
+                        allces[ce_dict['ce_symbol']]['fractions'].append(ce_dict['ce_fraction'])
                         allces[ce_dict['ce_symbol']]['csms'].append(ce_dict['csm'])
         return allces
 
@@ -1287,7 +2014,7 @@ class LightStructureEnvironments(MSONable):
         return len(self.statistics_dict['anion_list']) == 1 and anion in self.statistics_dict['anion_list']
 
     def site_contains_environment(self, isite, ce_symbol):
-        return ce_symbol in [ce_dict['ce_symbol'] for ce_dict in self._coordination_environments[isite]]
+        return ce_symbol in [ce_dict['ce_symbol'] for ce_dict in self.coordination_environments[isite]]
 
     def structure_contains_atom_environment(self, atom_symbol, ce_symbol):
         """
@@ -1296,49 +2023,18 @@ class LightStructureEnvironments(MSONable):
         :param ce_symbol: Symbol of the coordination environment
         :return: True if the coordination environment is found, False otherwise
         """
-        for isite, site in enumerate(self._structure):
+        for isite, site in enumerate(self.structure):
             if (Element(atom_symbol) in site.species_and_occu.
                     element_composition and self.site_contains_environment(isite, ce_symbol)):
                 return True
         return False
 
     @property
-    def coordination_environments(self):
-        """
-        Coordination environments determined by the strategy
-        """
-        return self._coordination_environments
-
-    @property
     def uniquely_determined_coordination_environments(self):
         """
         True if the coordination environments are uniquely determined.
         """
-        return self._uniquely_determined_coordination_environments
-
-    @property
-    def neighbors(self):
-        """
-        Neighbors determined by the strategy
-        """
-        return self._neighbors
-
-    @property
-    def neighbors_by_indices(self):
-        """
-        Neighbors by indices and image cell determined by the strategy
-        """
-        if self._neighbors_by_indices is None:
-            self._setup_neighbors_by_indices()
-        return self._neighbors_by_indices
-
-    @property
-    def structure(self):
-        """
-        Structure
-        :return: Structure
-        """
-        return self._structure
+        return self.strategy.uniquely_determined_coordination_environments
 
     def __eq__(self, other):
         """
@@ -1349,10 +2045,27 @@ class LightStructureEnvironments(MSONable):
         :param other: LightStructureEnvironments object to compare with
         :return: True if both objects are equal, False otherwise
         """
-        return (self._strategy == other._strategy and self._structure == other._structure and
-                self._valences == other._valences and
-                self._coordination_environments == other._coordination_environments and
-                self._neighbors == other._neighbors)
+        return (self.strategy == other.strategy and
+                self.structure == other.structure and
+                self.coordination_environments == other.coordination_environments and
+                self.valences == other.valences and
+                self.neighbors_sets == other.neighbors_sets and
+                self._all_nbs_sites == other._all_nbs_sites)
+
+    def __ne__(self, other):
+        return not self == other
+
+    # self.strategy = strategy
+    # self.statistics_dict = None
+    # self.coordination_environments = coordination_environments
+    # self._all_nbs_sites = all_nbs_sites
+    # self._all_nbs_sites_indices = all_nbs_sites_indices
+    # self.neighbors_sets = neighbors_sets
+    # self.structure = structure
+    # self.valences = valences
+    # def __init__(self, strategy,
+    #              coordination_environments=None, all_nbs_sites=None, all_nbs_sites_indices=None, neighbors_sets=None,
+    #              structure=None, valences=None):
 
     def as_dict(self):
         """
@@ -1361,15 +2074,14 @@ class LightStructureEnvironments(MSONable):
         """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "strategy": self._strategy.as_dict(),
-                "structure": self._structure.as_dict(),
-                "valences": self._valences,
-                "coordination_environments": self._coordination_environments,
-                "neighbors": [{'{:d}_{:d}'.format(cn_map[0], cn_map[1]): [ps.as_dict() for ps in neighbors]
-                               for cn_map, neighbors in self._neighbors[isite].items()}
-                              for isite in range(len(self._structure))],
-                "neighbors_by_indices": jsanitize([None if item is None else list(item)
-                                                   for item in self.neighbors_by_indices])}
+                "strategy": self.strategy.as_dict(),
+                "structure": self.structure.as_dict(),
+                "coordination_environments": self.coordination_environments,
+                "all_nbs_sites": [{'site': nb_site['site'].as_dict(),
+                                   'index': nb_site['index']} for nb_site in self._all_nbs_sites],
+                "neighbors_sets": [[nb_set.as_dict() for nb_set in site_nb_sets] if site_nb_sets is not None else None
+                                   for site_nb_sets in self.neighbors_sets],
+                "valences": self.valences}
 
     @classmethod
     def from_dict(cls, d):
@@ -1379,28 +2091,23 @@ class LightStructureEnvironments(MSONable):
         :param d: dict representation of the LightStructureEnvironments object
         :return: LightStructureEnvironments object
         """
+        # from_dict(cls, dd, structure, all_nbs_sites):
         dec = MontyDecoder()
-        neighbors = [{(int(cnmap.split('_')[0]), int(cnmap.split('_')[1])): dec.process_decoded(cnmap_neighbours)
-                      for cnmap, cnmap_neighbours in neighbs_site.items()} for neighbs_site in d['neighbors']]
-        coordination_environments = [[{key: val if key != 'cn_map' else tuple(val) for key, val in item.items()}
-                                      for item in ces_site] for ces_site in d['coordination_environments']]
-        if 'neighbors_by_indices' in d:
-            neighbors_by_indices = []
-            for item in d['neighbors_by_indices']:
-                if item is None:
-                    neighbors_by_indices.append(None)
-                else:
-                    neighbors_by_indices.append([(nb[0], np.array(nb[1], np.int)) for nb in item])
-            # neighbors_by_indices = [None if item is None else (item[0], np.array(item[1], np.int))
-            #                         for item in d['neighbors_by_indices']]
-        else:
-            neighbors_by_indices = None
-        return cls(dec.process_decoded(d['strategy']), structure_environments=None,
-                   structure=dec.process_decoded(d['structure']),
-                   bva_valences=d['bva_valences'],
-                   coordination_environments=coordination_environments,
-                   neighbors=neighbors,
-                   neighbors_by_indices=neighbors_by_indices)
+        # coordination_environments = [[{key: val if key != 'cn_map' else tuple(val) for key, val in item.items()}
+        #                               for item in ces_site] for ces_site in d['coordination_environments']]
+        all_nbs_sites = [{'site': dec.process_decoded(nb_site['site']),
+                          'index': nb_site['index']} for nb_site in d['all_nbs_sites']]
+        structure = dec.process_decoded(d['structure'])
+        neighbors_sets = [[cls.NeighborsSet.from_dict(dd=nb_set, structure=structure,
+                                                      all_nbs_sites=all_nbs_sites)
+                           for nb_set in site_nb_sets] if site_nb_sets is not None else None
+                          for site_nb_sets in d['neighbors_sets']]
+        return cls(strategy=dec.process_decoded(d['strategy']),
+                   coordination_environments=d['coordination_environments'],
+                   all_nbs_sites=all_nbs_sites,
+                   neighbors_sets=neighbors_sets,
+                   structure=structure,
+                   valences=d['valences'])
 
 class ChemicalEnvironments(MSONable):
     """

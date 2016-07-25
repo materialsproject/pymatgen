@@ -9,8 +9,7 @@ import json
 import shutil
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import StructureEnvironments
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
+from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.core.structure import Structure
 
 json_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
@@ -25,7 +24,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         cls.lgf.setup_parameters(centering_type='standard')
         os.makedirs('tmp_dir')
 
-    def test_read_structure_environments(self):
+    def test_read_write_structure_environments(self):
         f = open("{}/{}".format(json_files_dir, 'test_T--4_FePO4_icsd_4266.json'), 'r')
         dd = json.load(f)
         f.close()
@@ -49,25 +48,28 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
         self.assertEqual(se, se2)
 
-        _strategy = SimplestChemenvStrategy()
-        light_se = LightStructureEnvironments(_strategy, se)
-
-        f = open('tmp_dir/light_se.json', 'w')
-        json.dump(light_se.as_dict(), f)
-        f.close()
-
-        f = open('tmp_dir/light_se.json', 'r')
+    def test_read_write_voronoi(self):
+        f = open("{}/{}".format(json_files_dir, 'test_T--4_FePO4_icsd_4266.json'), 'r')
         dd = json.load(f)
         f.close()
 
-        light_se2 = LightStructureEnvironments.from_dict(dd)
+        struct = Structure.from_dict(dd['structure'])
 
-        self.assertEqual(light_se._strategy, light_se2._strategy)
-        self.assertEqual(light_se._structure, light_se2._structure)
-        self.assertEqual(light_se._valences, light_se2._valences)
-        self.assertEqual(light_se._coordination_environments, light_se2._coordination_environments)
-        self.assertEqual(light_se._neighbors, light_se2._neighbors)
-        self.assertEqual(light_se, light_se2)
+        valences = [site.specie.oxi_state for site in struct]
+
+        detailed_voronoi_container = DetailedVoronoiContainer(structure=struct, valences=valences)
+
+        f = open('tmp_dir/se.json', 'w')
+        json.dump(detailed_voronoi_container.as_dict(), f)
+        f.close()
+
+        f = open('tmp_dir/se.json', 'r')
+        dd = json.load(f)
+        f.close()
+
+        detailed_voronoi_container2 = DetailedVoronoiContainer.from_dict(dd)
+
+        self.assertEqual(detailed_voronoi_container, detailed_voronoi_container2)
 
     @classmethod
     def tearDownClass(cls):
