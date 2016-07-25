@@ -628,7 +628,10 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         ce, ce_map = self.get_site_coordination_environment(site=site, isite=isite, dequivsite=dequivsite,
                                                             dthissite=dthissite, mysym=mysym,
                                                             return_map=True)
-        ce_dict = {'ce_symbol': ce[0], 'ce_dict': ce[1], 'ce_fraction': 1.0}
+        if ce is None:
+            ce_dict = {'ce_symbol': 'UNKNOWN:{:d}'.format(ce_map[0]), 'ce_dict': None, 'ce_fraction': 1.0}
+        else:
+            ce_dict = {'ce_symbol': ce[0], 'ce_dict': ce[1], 'ce_fraction': 1.0}
         if return_maps:
             ce_dict['ce_map'] = ce_map
         if return_strategy_dict_info:
