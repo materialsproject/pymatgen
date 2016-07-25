@@ -1412,12 +1412,8 @@ class LightStructureEnvironments(MSONable):
     DEFAULT_STATISTICS_FIELDS = ['anion_list', 'anion_atom_list', 'cation_list', 'cation_atom_list',
                                  'neutral_list', 'neutral_atom_list',
                                  'atom_coordination_environments_present',
-                                 'bva_ion_coordination_environments_present',
-                                 'structure_ion_coordination_environments_present',
                                  'ion_coordination_environments_present',
                                  'fraction_atom_coordination_environments_present',
-                                 'fraction_bva_ion_coordination_environments_present',
-                                 'fraction_structure_ion_coordination_environments_present',
                                  'fraction_ion_coordination_environments_present',
                                  'coordination_environments_atom_present',
                                  'coordination_environments_ion_present']
