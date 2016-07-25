@@ -30,17 +30,6 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
-# Construct images ahead of time.
-# Note that this is an extremely inefficient memory-wise, but is likely to be
-# the most efficient computational approach. Other approaches to narrow down
-# the number of images to test costs more computationally than a brute force
-# via numpy.
-MIC_RANGE = (-3, -2, -1, 0, 1, 2, 3)
-MIC_ORTHO_IMAGES = np.array(list(itertools.product([-1, 0, 1], [-1, 0, 1],
-                                                   [-1, 0, 1])))
-MIC_IMAGES = np.array(list(itertools.product(MIC_RANGE, MIC_RANGE, MIC_RANGE)))
-
-
 class Lattice(MSONable):
     """
     A lattice object.  Essentially a matrix with conversion matrices. In
@@ -1040,8 +1029,26 @@ class Lattice(MSONable):
         # Shift coords to unitcell
         coord1 = frac_coords1 - adj1
         coord2 = frac_coords2 - adj2
+
+        diags = np.sqrt((np.dot([[1, 1, 1],
+                                 [-1, 1, 1],
+                                 [1, -1, 1],
+                                 [-1, -1, 1],
+                                 ], self._matrix) ** 2).sum(1))
+        d = coord1 - coord2
+        d = self.get_cartesian_coords(d - np.round(d))
+        d_len = np.sqrt((d ** 2).sum())
+
+        cutoff = min(d_len, max(diags) / 2)
+        n = np.array(np.ceil(cutoff * np.prod(self._lengths) /
+                     (self.volume * self._lengths)), dtype=int)
+        ranges = [list(range(-i, i+1)) for i in n]
+        print(self._lengths)
+        print(self._angles)
+        print(diags)
+        print(ranges)
         # Generate set of images required for testing.
-        images = MIC_ORTHO_IMAGES if self.is_orthogonal() else MIC_IMAGES
+        images = np.array(list(itertools.product(*ranges)))
 
         # Create tiled cartesian coords for computing distances.
         vec = np.tile(coord2 - coord1, (len(images), 1)) + images
