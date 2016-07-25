@@ -30,6 +30,17 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
+# Construct images ahead of time.
+# Note that this is an extremely inefficient memory-wise, but is likely to be
+# the most efficient computational approach. Other approaches to narrow down
+# the number of images to test costs more computationally than a brute force
+# via numpy.
+MIC_RANGE = (-3, -2, -1, 0, 1, 2, 3)
+MIC_ORTHO_IMAGES = np.array(list(itertools.product([-1, 0, 1], [-1, 0, 1],
+                                                   [-1, 0, 1])))
+MIC_IMAGES = np.array(list(itertools.product(MIC_RANGE, MIC_RANGE, MIC_RANGE)))
+
+
 class Lattice(MSONable):
     """
     A lattice object.  Essentially a matrix with conversion matrices. In
