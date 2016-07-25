@@ -1515,8 +1515,12 @@ class LightStructureEnvironments(MSONable):
                 _all_nbs_sites_indices = []
                 # Coordination environment
                 ce_dict = {'ce_symbol': ce_and_neighbors['ce_symbol'],
-                           'ce_fraction': ce_and_neighbors['ce_fraction'],
-                           'csm': ce_and_neighbors['ce_dict']['other_symmetry_measures'][strategy.symmetry_measure_type]}
+                           'ce_fraction': ce_and_neighbors['ce_fraction']}
+                if ce_and_neighbors['ce_dict'] is not None:
+                    csm = ce_and_neighbors['ce_dict']['other_symmetry_measures'][strategy.symmetry_measure_type]
+                else:
+                    csm = None
+                ce_dict['csm'] = csm
                 site_ces.append(ce_dict)
                 # Neighbors
                 neighbors = ce_and_neighbors['neighbors']
