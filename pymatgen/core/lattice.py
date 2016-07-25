@@ -665,7 +665,8 @@ class Lattice(MSONable):
         Returns:
             Niggli-reduced lattice.
         """
-        matrix = self._matrix.copy()
+        # lll reduction is more stable for skewed cells
+        matrix = self.get_lll_reduced_lattice().matrix
         a = matrix[0]
         b = matrix[1]
         c = matrix[2]
