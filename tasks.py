@@ -145,7 +145,7 @@ def release_github(ctx):
 def update_changelog(ctx):
     output = subprocess.check_output(["git", "log", "--pretty=format:%s",
                                       "v%s..HEAD" % ver])
-    lines = ["* " + l for l in output.strip().split("\n")]
+    lines = ["* " + l for l in output.decode("utf-8").strip().split("\n")]
     with open("CHANGES.rst") as f:
         contents = f.read()
     l = "=========="
@@ -164,9 +164,9 @@ def log_ver(ctx):
 
 
 @task
-def release(ctx, skip_test=False):
+def release(ctx, notest=False):
     setver(ctx)
-    if not skip_test:
+    if not notest:
         ctx.run("nosetests")
     publish(ctx)
     log_ver(ctx)

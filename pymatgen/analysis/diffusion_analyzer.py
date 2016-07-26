@@ -3,6 +3,16 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import numpy as np
+import scipy.constants as const
+
+from monty.json import MSONable
+
+from pymatgen.analysis.structure_matcher import StructureMatcher, \
+     OrderDisorderElementComparator
+from pymatgen.core import Structure, get_el_sp
+from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.util.coord_utils import pbc_diff
 
 """
 A module to perform diffusion analyses (e.g. calculating diffusivity from
@@ -20,24 +30,12 @@ citing the following papers::
     24(1), 15-17. doi:10.1021/cm203303y
 """
 
-
 __author__ = "Will Richards, Shyue Ping Ong"
 __version__ = "0.2"
 __maintainer__ = "Will Richards"
 __email__ = "wrichard@mit.edu"
 __status__ = "Beta"
 __date__ = "5/2/13"
-
-
-import numpy as np
-import scipy.constants as const
-
-from monty.json import MSONable
-
-from pymatgen.analysis.structure_matcher import StructureMatcher, OrderDisorderElementComparator
-from pymatgen.core import Structure, get_el_sp
-from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.util.coord_utils import pbc_diff
 
 
 class DiffusionAnalyzer(MSONable):
@@ -615,7 +613,7 @@ class DiffusionAnalyzer(MSONable):
                     temperature = vr.parameters['TEEND']
                     time_step = vr.parameters['POTIM']
                     yield step_skip, temperature, time_step
-                #check that the runs are continuous
+                # check that the runs are continuous
                 fdist = pbc_diff(vr.initial_structure.frac_coords,
                                  final_structure.frac_coords)
                 if np.any(fdist > 0.001):
