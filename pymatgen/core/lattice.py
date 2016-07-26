@@ -1097,9 +1097,10 @@ class Lattice(MSONable):
                              (self.volume * self._lengths)), dtype=int)
         if any(n > 50):
             warnings.warn("Cell is highly skewed and requires a search "
-                          "through image range %s. For efficiency, "
+                          "through image range of +- %s. For efficiency, "
                           "we will limit the search to +-50 images in each "
-                          "direction. Recommend you do a proper niggli or LLL "
-                          "reduction of the cell before computing distances" % n)
+                          "direction. Recommend you do a niggli or LLL "
+                          "reduction of the cell before computing distances"
+                          % n)
             n = np.minimum(n, 50)
         return n
