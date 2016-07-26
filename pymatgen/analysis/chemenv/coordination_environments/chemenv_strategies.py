@@ -1247,6 +1247,15 @@ class CNBiasNbSetWeight(NbSetWeight):
             raise ValueError('Weights should be provided for CN 1 to 13')
         return cls(cn_weights=cn_weights, initialization_options=initialization_options)
 
+    @classmethod
+    def from_description(cls, dd):
+        if dd['type'] == 'linearly_equidistant':
+            return cls.linearly_equidistant(weight_cn1=dd['weight_cn1'], weight_cn13=dd['weight_cn13'])
+        elif dd['type'] == 'geometrically_equidistant':
+            return cls.geometrically_equidistant(weight_cn1=dd['weight_cn1'], weight_cn13=dd['weight_cn13'])
+        elif dd['type'] == 'explicit':
+            return cls.explicit(cn_weights=dd['cn_weights'])
+
 
 class DistanceAngleAreaNbSetWeight(NbSetWeight):
     AC = AdditionalConditions()
@@ -1365,11 +1374,18 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+                "@class": self.__class__.__name__,
+                "weight_type": self.weight_type,
+                "surface_definition": self.surface_definition,
+                "nb_sets_from_hints": self.nb_sets_from_hints,
+                "other_nb_sets": self.other_nb_sets,
+                "additional_condition": self.additional_condition}
 
     @classmethod
     def from_dict(cls, dd):
-        return cls()
+        return cls(weight_type=dd['weight_type'], surface_definition=dd['surface_definition'],
+                   nb_sets_from_hints=dd['nb_sets_from_hints'], other_nb_sets=dd['other_nb_sets'],
+                   additional_condition=dd['additional_condition'])
 
 
 class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
@@ -1592,12 +1608,18 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
                 "@class": self.__class__.__name__,
                 "additional_condition": self._additional_condition,
                 "symmetry_measure_type": self.symmetry_measure_type,
-                "dist_ang_area_weight": self.dist_ang_area_weight,
-                "self_csm_weight": self.self_csm_weight,
-                "delta_csm_weight": self.delta_csm_weight,
-                "cn_bias_weight": self.cn_bias_weight,
-                "angle_weight": self.angle_weight,
-                "normalized_angle_distance_weight": self.normalized_angle_distance_weight,
+                "dist_ang_area_weight": self.dist_ang_area_weight.as_dict()
+                if self.dist_ang_area_weight is not None else None,
+                "self_csm_weight": self.self_csm_weight.as_dict()
+                if self.self_csm_weight is not None else None,
+                "delta_csm_weight": self.delta_csm_weight.as_dict()
+                if self.delta_csm_weight is not None else None,
+                "cn_bias_weight": self.cn_bias_weight.as_dict()
+                if self.cn_bias_weight is not None else None,
+                "angle_weight": self.angle_weight.as_dict()
+                if self.angle_weight is not None else None,
+                "normalized_angle_distance_weight": self.normalized_angle_distance_weight.as_dict()
+                if self.normalized_angle_distance_weight is not None else None,
                 "ce_estimator": self.ce_estimator,
                 }
 
@@ -1609,12 +1631,21 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
         :param d: dict representation of the MultiWeightsChemenvStrategy object
         :return: MultiWeightsChemenvStrategy object
         """
+        if d["normalized_angle_distance_weight"] is not None:
+            nad_w = NormalizedAngleDistanceNbSetWeight.from_dict(d["normalized_angle_distance_weight"])
+        else:
+            nad_w = None
         return cls(additional_condition=d["additional_condition"],
                    symmetry_measure_type=d["symmetry_measure_type"],
-                   dist_ang_area_weight=d["dist_ang_area_weight"],
-                   self_csm_weight=d["self_csm_weight"],
-                   delta_csm_weight=d["delta_csm_weight"],
-                   cn_bias_weight=d["cn_bias_weight"],
-                   angle_weight=d["angle_weight"],
-                   normalized_angle_distance_weight=d["normalized_angle_distance_weight"],
+                   dist_ang_area_weight=DistanceAngleAreaNbSetWeight.from_dict(d["dist_ang_area_weight"])
+                   if d["dist_ang_area_weight"] is not None else None,
+                   self_csm_weight=SelfCSMNbSetWeight.from_dict(d["self_csm_weight"])
+                   if d["self_csm_weight"] is not None else None,
+                   delta_csm_weight=DeltaCSMNbSetWeight.from_dict(d["delta_csm_weight"])
+                   if d["delta_csm_weight"] is not None else None,
+                   cn_bias_weight=CNBiasNbSetWeight.from_dict(d["cn_bias_weight"])
+                   if d["cn_bias_weight"] is not None else None,
+                   angle_weight=AngleNbSetWeight.from_dict(d["angle_weight"])
+                   if d["angle_weight"] is not None else None,
+                   normalized_angle_distance_weight=nad_w,
                    ce_estimator=d["ce_estimator"])
