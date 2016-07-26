@@ -971,16 +971,7 @@ class IStructure(SiteCollection, MSONable):
         if len(self) != len(end_structure):
             raise ValueError("Structures have different lengths!")
 
-        if interpolate_lattices:
-            # interpolate lattice matricies
-            la_start = self.lattice.lengths_and_angles
-            lstart = Lattice.from_lengths_and_angles(*la_start).matrix
-            la_end = end_structure.lattice.lengths_and_angles
-            lend = Lattice.from_lengths_and_angles(*la_end).matrix
-            lvec = lend - lstart
-
-        # Check that both structures have the same lattice
-        elif not self.lattice == end_structure.lattice:
+        if not (interpolate_lattices or self.lattice == end_structure.lattice):
             raise ValueError("Structures with different lattices!")
 
         # Check that both structures have the same species
@@ -1032,9 +1023,19 @@ class IStructure(SiteCollection, MSONable):
             vec -= np.round(vec)
         sp = self.species_and_occu
         structs = []
+
+        if interpolate_lattices:
+            # interpolate lattice matrices using polar decomposition
+            from scipy.linalg import polar
+            # u is unitary (rotation), p is stretch
+            u, p = polar(np.dot(end_structure.lattice.matrix.T,
+                                np.linalg.inv(self.lattice.matrix.T)))
+            lvec = p - np.identity(3)
+            lstart = self.lattice.matrix.T
+
         for x in range(nimages + 1):
             if interpolate_lattices:
-                l_a = lstart + x / nimages * lvec
+                l_a = np.dot(np.identity(3) + x / nimages * lvec, lstart).T
                 l = Lattice(l_a)
             else:
                 l = self.lattice
