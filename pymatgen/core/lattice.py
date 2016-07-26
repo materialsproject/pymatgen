@@ -1098,12 +1098,13 @@ class Lattice(MSONable):
         cutoff = min(d, max(self._diags) / 2)
         n = np.array(np.ceil(cutoff * np.prod(self._lengths) /
                              (self.volume * self._lengths)), dtype=int)
-        if any(n > 50):
+        nimages = np.prod(n) # Total number of images / 8, approximately.
+        if nimages > 200000:
+            n_new = np.ceil(200000 / nimages * n)
             warnings.warn("Cell is highly skewed and requires a search "
                           "through image range of +- %s. For efficiency, "
-                          "we will limit the search to +-50 images in each "
-                          "direction. Recommend you do a niggli or LLL "
-                          "reduction of the cell before computing distances"
-                          % n)
-            n = np.minimum(n, 50)
+                          "we will limit the search to %s images. Recommend "
+                          "you do a niggli or LLL reduction of the cell "
+                          "before computing distances" % (n, n_new))
+            n = n_new.astype(dtype=np.int)
         return n
