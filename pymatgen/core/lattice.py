@@ -5,6 +5,7 @@
 from __future__ import division, unicode_literals
 import math
 import itertools
+import warnings
 
 from six.moves import map, zip
 
@@ -14,6 +15,7 @@ from numpy import pi, dot, transpose, radians
 from scipy.spatial import Voronoi
 
 from monty.json import MSONable
+from pymatgen.util.coord_utils import pbc_diff
 from pymatgen.util.num_utils import abs_cap
 
 """
@@ -29,16 +31,6 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-
-# Construct images ahead of time.
-# Note that this is an extremely inefficient memory-wise, but is likely to be
-# the most efficient computational approach. Other approaches to narrow down
-# the number of images to test costs more computationally than a brute force
-# via numpy.
-MIC_RANGE = (-3, -2, -1, 0, 1, 2, 3)
-MIC_ORTHO_IMAGES = np.array(list(itertools.product([-1, 0, 1], [-1, 0, 1],
-                                                   [-1, 0, 1])))
-MIC_IMAGES = np.array(list(itertools.product(MIC_RANGE, MIC_RANGE, MIC_RANGE)))
 
 
 class Lattice(MSONable):
@@ -79,6 +71,7 @@ class Lattice(MSONable):
         # The inverse matrix is lazily generated for efficiency.
         self._inv_matrix = None
         self._metric_tensor = None
+        self._diags = None
 
     def __format__(self, fmt_spec=''):
         """
@@ -984,7 +977,12 @@ class Lattice(MSONable):
         fcoords2 = np.mod(fcoords2, 1)
 
         # create images of f2
-        images = MIC_ORTHO_IMAGES if self.is_orthogonal() else MIC_IMAGES
+        n = []
+        for f1, f2 in itertools.product(fcoords1, fcoords2):
+            n.append(self._get_mic_range(f1, f2))
+        n = np.max(np.array(n), axis=0)
+        ranges = [list(range(-i, i + 1)) for i in n]
+        images = np.array(list(itertools.product(*ranges)))
         shifted_f2 = fcoords2[:, None, :] + images[None, :, :]
 
         cart_f1 = self.get_cartesian_coords(fcoords1)
@@ -1041,8 +1039,10 @@ class Lattice(MSONable):
         # Shift coords to unitcell
         coord1 = frac_coords1 - adj1
         coord2 = frac_coords2 - adj2
-        # Generate set of images required for testing.
-        images = MIC_ORTHO_IMAGES if self.is_orthogonal() else MIC_IMAGES
+
+        n = self._get_mic_range(coord1, coord2)
+        ranges = [list(range(-i, i + 1)) for i in n]
+        images = np.array(list(itertools.product(*ranges)))
 
         # Create tiled cartesian coords for computing distances.
         vec = np.tile(coord2 - coord1, (len(images), 1)) + images
@@ -1082,3 +1082,24 @@ class Lattice(MSONable):
         mapped_vec = self.get_cartesian_coords(jimage + frac_coords2
                                                - frac_coords1)
         return np.linalg.norm(mapped_vec), jimage
+
+    def _get_mic_range(self, fcoords1, fcoords2):
+        if self._diags is None:
+            self._diags = np.sqrt((np.dot([[1, 1, 1], [-1, 1, 1], [1, -1, 1],
+                                     [-1, -1, 1],
+                                     ], self._matrix) ** 2).sum(1))
+        d = pbc_diff(fcoords1, fcoords2)
+        d = dot(d, self._matrix)
+        d = np.sqrt((d ** 2).sum())
+
+        cutoff = min(d, max(self._diags) / 2)
+        n = np.array(np.ceil(cutoff * np.prod(self._lengths) /
+                             (self.volume * self._lengths)), dtype=int)
+        if any(n > 50):
+            warnings.warn("Cell is highly skewed and requires a search "
+                          "through image range %s. For efficiency, "
+                          "we will limit the search to +-50 images in each "
+                          "direction. Recommend you do a proper niggli or LLL"
+                          "reduction of the cell before computing distances" % n)
+            n = np.minimum(n, 50)
+        return n
