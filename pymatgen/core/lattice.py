@@ -68,6 +68,8 @@ class Lattice(MSONable):
         self._angles = np.arccos(angles) * 180. / pi
         self._lengths = lengths
         self._matrix = m
+
+        self.is_orthogonal = all([abs(a - 90) < 1e-5 for a in self._angles])
         # The inverse matrix is lazily generated for efficiency.
         self._inv_matrix = None
         self._metric_tensor = None
@@ -999,9 +1001,6 @@ class Lattice(MSONable):
                 distances.append(np.min(d_2, axis=1) ** 0.5)
             return np.array(distances)
 
-    def is_orthogonal(self, angle_tol=1e-5):
-        return all([abs(a - 90) < angle_tol for a in self._angles])
-
     def is_hexagonal(self, hex_angle_tol=5, hex_length_tol=0.01):
         lengths, angles = self.lengths_and_angles
         right_angles = [i for i in range(3)
@@ -1081,7 +1080,7 @@ class Lattice(MSONable):
 
     def _get_mic_range(self, fcoords1, fcoords2):
 
-        if self.is_orthogonal():
+        if self.is_orthogonal:
             return 1, 1, 1
 
         if self._diags is None:
