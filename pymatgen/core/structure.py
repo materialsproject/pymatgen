@@ -973,8 +973,10 @@ class IStructure(SiteCollection, MSONable):
 
         if interpolate_lattices:
             # interpolate lattice matricies
-            lstart = self.lattice.matrix
-            lend = end_structure.lattice.matrix
+            la_start = self.lattice.lengths_and_angles
+            lstart = Lattice.from_lengths_and_angles(*la_start).matrix
+            la_end = end_structure.lattice.lengths_and_angles
+            lend = Lattice.from_lengths_and_angles(*la_end).matrix
             lvec = lend - lstart
 
         # Check that both structures have the same lattice
