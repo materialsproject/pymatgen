@@ -33,10 +33,14 @@ def slurm_parse_timestr(s):
         `ValueError` if string is not valid.
     """
     days, hours, minutes, seconds = 0, 0, 0, 0
+
+    if type(s) == type(1):
+        return Time(s, "s")
+
     if '-' in s:
         # "days-hours",
-        # "days-hours:minutes",                                        
-        # "days-hours:minutes:seconds".                                
+        # "days-hours:minutes",
+        # "days-hours:minutes:seconds".
         days, s = s.split("-")
         days = int(days)
 
@@ -88,7 +92,7 @@ def time2pbspro(timeval, unit="s"):
     Convert a number representing a time value in the given unit (Default: seconds)
     to a string following the PbsPro convention: "hours:minutes:seconds".
 
-    >>> assert time2pbspro(2, unit="d") == '48:0:0' 
+    >>> assert time2pbspro(2, unit="d") == '48:0:0'
     """
     h, m, s = 3600, 60, 1
 
@@ -97,6 +101,22 @@ def time2pbspro(timeval, unit="s"):
     minutes, secs = divmod(minutes, m)
 
     return "%d:%d:%d" % (hours, minutes, secs)
+
+
+def time2loadlever(timeval, unit="s"):
+    """
+    Convert a number representing a time value in the given unit (Default: seconds)
+    to a string following the LoadLever convention. format hh:mm:ss (hours:minutes:seconds)
+
+    >>> assert time2loadlever(2, unit="d") == '48:00:00'
+    """
+    h, m, s = 3600, 60, 1
+
+    timeval = Time(timeval, unit).to("s")
+    hours, minutes = divmod(timeval, h)
+    minutes, secs = divmod(minutes, m)
+
+    return "%d:%02d:%02d" % (hours, minutes, secs)
 
 
 def timelimit_parser(s):

@@ -40,7 +40,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "May 14, 2016"
 
-
 import spglib
 
 logger = logging.getLogger(__name__)
@@ -126,7 +125,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             (int): International spacegroup number for structure.
         """
-        return self._spacegroup_data["number"]
+        return int(self._spacegroup_data["number"])
 
     def get_hall(self):
         """
@@ -993,8 +992,11 @@ class PointGroupAnalyzer(object):
         groups.
         """
         self._find_spherical_axes()
+        if len(self.rot_sym) == 0:
+            logger.debug("Accidental speherical top!")
+            self._proc_sym_top()
         main_axis, rot = max(self.rot_sym, key=lambda v: v[1])
-        if len(self.rot_sym) == 0 or rot < 3:
+        if rot < 3:
             logger.debug("Accidental speherical top!")
             self._proc_sym_top()
         elif rot == 3:

@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.analysis.cost.tests
 
 Submodules
 ----------

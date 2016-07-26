@@ -17,6 +17,7 @@ from six.moves import filter
 from monty.collections import dict2namedtuple
 from monty.string import list_strings
 from monty.fnmatch import WildCard
+from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 
 import logging
 logger = logging.getLogger(__name__)
@@ -31,9 +32,9 @@ def as_bool(s):
     if s in (False, True): return s
     # Assume string
     s = s.lower()
-    if s in ("yes", "true"): 
+    if s in ("yes", "true"):
         return True
-    elif s in ("no", "false"): 
+    elif s in ("no", "false"):
         return False
     else:
         raise ValueError("Don't know how to convert type %s: %s into a boolean" % (type(s), s))
@@ -55,7 +56,7 @@ class File(object):
 
     def __eq__(self, other):
         return False if other is None else self.path == other.path
-                                       
+
     def __ne__(self, other):
         return not self.__eq__(other)
 
@@ -144,6 +145,14 @@ class File(object):
     def get_stat(self):
         """Results from os.stat"""
         return os.stat(self.path)
+
+    def getsize(self):
+        """
+        Return the size, in bytes, of path.
+        Return 0 if the file is empty or it does not exist.
+        """
+        if not self.exists: return 0
+        return os.path.getsize(self.path)
 
 
 class Directory(object):
@@ -242,18 +251,19 @@ class Directory(object):
         """
         Returns the absolute path of the ABINIT file with extension ext.
         Support both Fortran files and netcdf files. In the later case,
-        we check whether a file with extension ext + ".nc" is present 
+        we check whether a file with extension ext + ".nc" is present
         in the directory. Returns empty string is file is not present.
 
         Raises:
             `ValueError` if multiple files with the given ext are found.
             This implies that this method is not compatible with multiple datasets.
         """
-
-        ext = ext if ext.startswith('_') else '_'+ext
+        ext = ext if ext.startswith('_') else '_' + ext
 
         files = []
         for f in self.list_filepaths():
+            # For the time being, we ignore DDB files in nc format.
+            if ext == "_DDB" and f.endswith(".nc"): continue
             if f.endswith(ext) or f.endswith(ext + ".nc"):
                 files.append(f)
 
@@ -266,13 +276,26 @@ class Directory(object):
 
         if len(files) > 1:
             # ABINIT users must learn that multiple datasets are bad!
-            err_msg = "Found multiple files with the same extensions:\n %s\nPlease avoid the use of mutiple datasets!" % files
-            raise ValueError(err_msg)
+            raise ValueError("Found multiple files with the same extensions:\n %s\n" % files +
+                             "Please avoid mutiple datasets!")
 
         return files[0]
 
     def symlink_abiext(self, inext, outext):
-        """Create a simbolic link"""
+        """
+        Create a simbolic link (outext --> inext). The file names are implicitly
+        given by the ABINIT file extension.
+
+        Example:
+
+            outdir.symlink_abiext('1WF', 'DDK')
+
+        creates the link out_DDK that points to out_1WF
+
+        Return: 0 if success.
+
+        Raise: RuntimeError
+        """
         infile = self.has_abiext(inext)
         if not infile:
             raise RuntimeError('no file with extension %s in %s' % (inext, self))
@@ -284,6 +307,17 @@ class Directory(object):
             raise RuntimeError('Extension %s could not be detected in file %s' % (inext, infile))
 
         outfile = infile[:i] + '_' + outext
+
+        if os.path.exists(outfile):
+            if os.path.islink(outfile):
+                if os.path.realpath(outfile) == infile:
+                    logger.debug("link %s already exists but it's ok because it points to the correct file" % outfile)
+                    return 0
+                else:
+                    raise RuntimeError("Expecting link at %s already exists but it does not point to %s" % (outfile, infile))
+            else:
+                raise RuntimeError('Expecting link at %s but found file.' % outfile)
+
         os.symlink(infile, outfile)
         return 0
 
@@ -358,18 +392,18 @@ class Directory(object):
             match = regex.match(name)
             step, ncext = match.groups()
             stepfile_list.append((int(step), path))
-                                                                                        
+
         # DSU sort.
         last = sorted(stepfile_list, key=lambda t: t[0])[-1]
         return dict2namedtuple(step=last[0], path=last[1])
 
     def find_1wf_files(self):
         """
-        Abinit adds the idir-ipert index at the end of the 1WF file and this breaks the extension 
+        Abinit adds the idir-ipert index at the end of the 1WF file and this breaks the extension
         e.g. out_1WF4. This method scans the files in the directories and returns a list of namedtuple
         Each named tuple gives the `path` of the 1FK file and the `pertcase` index.
         """
-        regex = re.compile("out_1WF(\d+)(.nc)?$")
+        regex = re.compile("out_1WF(\d+)(\.nc)?$")
 
         wf_paths = [f for f in self.list_filepaths() if regex.match(os.path.basename(f))]
         if not wf_paths: return None
@@ -381,18 +415,18 @@ class Directory(object):
             match = regex.match(name)
             pertcase, ncext = match.groups()
             pertfile_list.append((int(pertcase), path))
-                                                                                        
+
         # DSU sort.
         pertfile_list = sorted(pertfile_list, key=lambda t: t[0])
         return [dict2namedtuple(pertcase=item[0], path=item[1]) for item in pertfile_list]
 
     def find_1den_files(self):
         """
-        Abinit adds the idir-ipert index at the end of the 1DEN file and this breaks the extension 
+        Abinit adds the idir-ipert index at the end of the 1DEN file and this breaks the extension
         e.g. out_DEN1. This method scans the files in the directories and returns a list of namedtuple
         Each named tuple gives the `path` of the 1DEN file and the `pertcase` index.
         """
-        regex = re.compile("out_DEN(\d+)(.nc)?$")
+        regex = re.compile("out_DEN(\d+)(\.nc)?$")
         den_paths = [f for f in self.list_filepaths() if regex.match(os.path.basename(f))]
         if not den_paths: return None
 
@@ -403,7 +437,7 @@ class Directory(object):
             match = regex.match(name)
             pertcase, ncext = match.groups()
             pertfile_list.append((int(pertcase), path))
-                                                                                        
+
         # DSU sort.
         pertfile_list = sorted(pertfile_list, key=lambda t: t[0])
         return [dict2namedtuple(pertcase=item[0], path=item[1]) for item in pertfile_list]
@@ -427,6 +461,7 @@ _EXT2VARS = {
     "HAYDR_SAVE": {"irdhaydock": 1},
     "DDK": {"irdddk": 1},
     "DDB": {},
+    "DVDB": {},
     "GKK": {},
     "DKK": {},
 }
@@ -434,7 +469,7 @@ _EXT2VARS = {
 
 def irdvars_for_ext(ext):
     """
-    Returns a dictionary with the ABINIT variables 
+    Returns a dictionary with the ABINIT variables
     that must be used to read the file with extension ext.
     """
     return _EXT2VARS[ext].copy()
@@ -450,8 +485,8 @@ def abi_splitext(filename):
     Split the ABINIT extension from a filename.
     "Extension" are found by searching in an internal database.
 
-    Returns "(root, ext)" where ext is the registered ABINIT extension 
-    The final ".nc" is included (if any) 
+    Returns "(root, ext)" where ext is the registered ABINIT extension
+    The final ".nc" is included (if any)
 
     >>> assert abi_splitext("foo_WFK") == ('foo_', 'WFK')
     >>> assert abi_splitext("/home/guido/foo_bar_WFK.nc") == ('foo_bar_', 'WFK.nc')
@@ -464,7 +499,7 @@ def abi_splitext(filename):
 
     known_extensions = abi_extensions()
 
-    # This algorith fails if we have two files 
+    # This algorith fails if we have two files
     # e.g. HAYDR_SAVE, ANOTHER_HAYDR_SAVE
     for i in range(len(filename)-1, -1, -1):
         ext = filename[i:]
@@ -475,7 +510,7 @@ def abi_splitext(filename):
         raise ValueError("Cannot find a registered extension in %s" % filename)
 
     root = filename[:i]
-    if is_ncfile: 
+    if is_ncfile:
         ext += ".nc"
 
     return root, ext
@@ -486,20 +521,20 @@ class FilepathFixer(object):
     This object modifies the names of particular output files
     produced by ABINIT so that the file extension is preserved.
     Having a one-to-one mapping between file extension and data format
-    is indeed fundamental for the correct behaviour of abinitio since:
+    is indeed fundamental for the correct behaviour of abinit since:
 
         - We locate the output file by just inspecting the extension
 
         - We select the variables that must be added to the input file
-          on the basis of the extension specified by the user during 
+          on the basis of the extension specified by the user during
           the initialization of the `AbinitFlow`.
 
-    Unfortunately, ABINIT developers like to append extra stuff 
-    to the initial extension and therefore we have to call 
+    Unfortunately, ABINIT developers like to append extra stuff
+    to the initial extension and therefore we have to call
     `FilepathFixer` to fix the output files produced by the run.
 
     Example:
-    
+
     >>> fixer = FilepathFixer()
     >>> assert fixer.fix_paths('/foo/out_1WF17') == {'/foo/out_1WF17': '/foo/out_1WF'}
     >>> assert fixer.fix_paths('/foo/out_1WF5.nc') == {'/foo/out_1WF5.nc': '/foo/out_1WF.nc'}
@@ -507,12 +542,12 @@ class FilepathFixer(object):
     def __init__(self):
         # dictionary mapping the *official* file extension to
         # the regular expression used to tokenize the basename of the file
-        # To add a new fix it's sufficient to add a new regexp and 
+        # To add a new file it's sufficient to add a new regexp and
         # a static method _fix_EXTNAME
         self.regs = regs = {}
         import re
-        regs["1WF"] = re.compile("(\w+_)1WF(\d+)(.nc)?$")
-        regs["1DEN"] = re.compile("(\w+_)1DEN(\d+)(.nc)?$")
+        regs["1WF"] = re.compile("(\w+_)1WF(\d+)(\.nc)?$")
+        regs["1DEN"] = re.compile("(\w+_)1DEN(\d+)(\.nc)?$")
 
     @staticmethod
     def _fix_1WF(match):
@@ -612,10 +647,10 @@ def map2rpn(map, obj):
     """
     Convert a Mongodb-like dictionary to a RPN list of operands and operators.
 
-    Reverse Polish notation (RPN) is a mathematical notation in which every 
+    Reverse Polish notation (RPN) is a mathematical notation in which every
     operator follows all of its operands, e.g.
 
-    3 - 4 + 5 -->   3 4 - 5 + 
+    3 - 4 + 5 -->   3 4 - 5 +
 
     >>> d = {2.0: {'$eq': 1.0}}
     >>> assert map2rpn(d, None) == [2.0, 1.0, '$eq']
@@ -640,7 +675,7 @@ def map2rpn(map, obj):
 
                 rpn.append(k)
 
-            else: 
+            else:
                 # Examples
                 # 1) "$eq"": "attribute_name"
                 # 2) "$eq"": 1.0
@@ -662,9 +697,9 @@ def map2rpn(map, obj):
                 # "one": {"$eq": 1.0}}
                 values = map2rpn(v, obj)
                 rpn.append(k)
-                rpn.extend(values) 
+                rpn.extend(values)
             else:
-                #"one": 1.0 
+                #"one": 1.0
                 rpn.extend([k, v, "$eq"])
 
     return rpn
@@ -678,33 +713,33 @@ def evaluate_rpn(rpn):
         bool
     """
     vals_stack = []
-                                                                              
+
     for item in rpn:
-                                                                              
+
         if item in _ALL_OPS:
             # Apply the operator and push to the task.
             v2 = vals_stack.pop()
-                                                                              
+
             if item in _UNARY_OPS:
                 res = _UNARY_OPS[item](v2)
-                                                                              
+
             elif item in _BIN_OPS:
                 v1 = vals_stack.pop()
                 res = _BIN_OPS[item](v1, v2)
             else:
                 raise ValueError("%s not in unary_ops or bin_ops" % str(item))
-                                                                              
+
             vals_stack.append(res)
-                                                                              
+
         else:
             # Push the operand
             vals_stack.append(item)
-                                                                              
+
         #print(vals_stack)
-                                                                              
+
     assert len(vals_stack) == 1
     assert isinstance(vals_stack[0], bool)
-                                                                              
+
     return vals_stack[0]
 
 
@@ -719,8 +754,8 @@ class Condition(object):
 
     $gt selects those documents where the value of the field is greater than (i.e. >) the specified value.
 
-    $and performs a logical AND operation on an array of two or more expressions (e.g. <expression1>, <expression2>, etc.) 
-    and selects the documents that satisfy all the expressions in the array. 
+    $and performs a logical AND operation on an array of two or more expressions (e.g. <expression1>, <expression2>, etc.)
+    and selects the documents that satisfy all the expressions in the array.
 
     { $and: [ { <expression1> }, { <expression2> } , ... , { <expressionN> } ] }
 
@@ -763,7 +798,7 @@ class Condition(object):
 
 class Editor(object):
     """
-    Wrapper class that calls the editor specified by the user 
+    Wrapper class that calls the editor specified by the user
     or the one specified in the $EDITOR env variable.
     """
     def __init__(self, editor=None):
@@ -786,7 +821,7 @@ class Editor(object):
             import warnings
             warnings.warn("Error while trying to edit file: %s" % fname)
 
-        return retcode 
+        return retcode
 
     @staticmethod
     def user_wants_to_exit():
@@ -834,11 +869,10 @@ class SparseHistogram(object):
         self.values = [hist[pos] for pos in self.binvals]
         self.start, self.stop, self.num = start, stop, num
 
-    from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
     @add_fig_kwargs
     def plot(self, ax=None, **kwargs):
         """
-        Plot the histogram with matplotlib, returns `matplotlib figure
+        Plot the histogram with matplotlib, returns `matplotlib` figure.
         """
         ax, fig, plt = get_ax_fig_plt(ax)
 

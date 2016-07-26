@@ -248,6 +248,12 @@ class CifFile(object):
         d = OrderedDict()
         for x in re.split("^\s*data_", "x\n"+string,
                           flags=re.MULTILINE | re.DOTALL)[1:]:
+
+            # Skip over Cif block that contains powder diffraction data.
+            # Some elements in this block were missing from CIF files in Springer materials/Pauling file DBs.
+            # This block anyway does not contain any structure information, and CifParser was also not parsing it.
+            if 'powder_pattern' in re.split("\n", x, 1)[0]:
+                continue
             c = CifBlock.from_string("data_"+x)
             d[c.header] = c
         return cls(d, string)
@@ -268,10 +274,10 @@ class CifParser(object):
             and occupancy_tolerance, the occupancies will be scaled down to 1.
         site_tolerance (float): This tolerance is used to determine if two
             sites are sitting in the same position, in which case they will be
-            combined to a single disordered site. Defaults to 1e-5.
+            combined to a single disordered site. Defaults to 1e-4.
     """
 
-    def __init__(self, filename, occupancy_tolerance=1., site_tolerance=1e-5):
+    def __init__(self, filename, occupancy_tolerance=1., site_tolerance=1e-4):
         self._occupancy_tolerance = occupancy_tolerance
         self._site_tolerance = site_tolerance
         if isinstance(filename, six.string_types):
@@ -305,7 +311,7 @@ class CifParser(object):
             for op in self.symmetry_operations:
                 coord = op.operate(tmp_coord)
                 coord = np.array([i - math.floor(i) for i in coord])
-                if not in_coord_list_pbc(coords, coord, atol=1e-3):
+                if not in_coord_list_pbc(coords, coord, atol=self._site_tolerance):
                     coords.append(coord)
         return coords
 
@@ -455,6 +461,9 @@ class CifParser(object):
 
             if substitution_dictionary:
                 return substitution_dictionary.get(sym)
+            elif sym in ['OH', 'OH2']:
+                warnings.warn("Symbol '{}' not recognized".format(sym))
+                return ""
             else:
                 m = re.findall(r"w?[A-Z][a-z]*", sym)
                 if m and m != "?":
@@ -469,6 +478,69 @@ class CifParser(object):
                                    atol=self._site_tolerance):
                         return tuple(k)
             return False
+
+        ############################################################
+        """
+        This part of the code deals with handling formats of data as found in CIF files extracted from the
+        Springer Materials/Pauling File databases, and that are different from standard ICSD formats.
+        """
+
+        # Check to see if "_atom_site_type_symbol" exists, as some test CIFs do not contain this key.
+        if "_atom_site_type_symbol" in data.data.keys():
+
+            # Keep a track of which data row needs to be removed.
+            # Example of a row: Nb,Zr '0.8Nb + 0.2Zr' .2a .m-3m 0 0 0 1 14 'rhombic dodecahedron, Nb<sub>14</sub>'
+            # Without this code, the above row in a structure would be parsed as an ordered site with only Nb (since
+            # CifParser would try to parse the first two characters of the label "Nb,Zr") and occupancy=1.
+            # However, this site is meant to be a disordered site with 0.8 of Nb and 0.2 of Zr.
+            idxs_to_remove = []
+
+            for idx, el_row in enumerate(data["_atom_site_label"]):
+
+                # CIF files from the Springer Materials/Pauling File have switched the label and symbol. Thus, in the
+                # above shown example row, '0.8Nb + 0.2Zr' is the symbol. Below, we split the strings on ' + ' to
+                # check if the length (or number of elements) in the label and symbol are equal.
+                if len(data["_atom_site_type_symbol"][idx].split(' + ')) > \
+                        len(data["_atom_site_label"][idx].split(' + ')):
+
+                    # Dictionary to hold extracted elements and occupancies
+                    els_occu = {}
+
+                    # parse symbol to get element names and occupancy and store in "els_occu"
+                    symbol_str = data["_atom_site_type_symbol"][idx]
+                    symbol_str_lst = symbol_str.split(' + ')
+                    for elocc_idx in range(len(symbol_str_lst)):
+                        # Remove any bracketed items in the string
+                        symbol_str_lst[elocc_idx] = re.sub('\([0-9]*\)', '', symbol_str_lst[elocc_idx].strip())
+
+                        # Extract element name and its occupancy from the string, and store it as a
+                        # key-value pair in "els_occ".
+                        els_occu[str(re.findall('\D+', symbol_str_lst[elocc_idx].strip())[1]).replace('<sup>', '')] = \
+                            float('0' + re.findall('\.?\d+', symbol_str_lst[elocc_idx].strip())[1])
+
+                    x = str2float(data["_atom_site_fract_x"][idx])
+                    y = str2float(data["_atom_site_fract_y"][idx])
+                    z = str2float(data["_atom_site_fract_z"][idx])
+
+                    coord = (x, y, z)
+                    # Add each partially occupied element on the site coordinate
+                    for et in els_occu:
+                        match = get_matching_coord(coord)
+                        if not match:
+                            coord_to_species[coord] = Composition({parse_symbol(et): els_occu[parse_symbol(et)]})
+                        else:
+                            coord_to_species[match] += {parse_symbol(et): els_occu[parse_symbol(et)]}
+                    idxs_to_remove.append(idx)
+
+            # Remove the original row by iterating over all keys in the CIF data looking for lists, which indicates
+            # multiple data items, one for each row, and remove items from the list that corresponds to the removed row,
+            # so that it's not processed by the rest of this function (which would result in an error).
+            for cif_key in data.data:
+                if type(data.data[cif_key]) == list:
+                    for id in sorted(idxs_to_remove, reverse=True):
+                        del data.data[cif_key][id]
+
+        ############################################################
 
         for i in range(len(data["_atom_site_label"])):
             symbol = parse_symbol(data["_atom_site_label"][i])

@@ -2,8 +2,6 @@ language: python
 python:
   - "2.7"
   - "3.5"
-git:
-  depth: 1
 env:
   global:
     - secure: "hXNhTinvLDlfiIWxNgnxDFtL1zOnPd1TMyUkLLjqTRBbcuVinlMLISRgYV9g\nIIvLPG5S424ybNtU1X7X9MlypDmvis3/+G8gBo2q+7IRTAKw1C2J9/6RhIaG\nnD4aV9YZKmyz8pH1DZj6AMFIqY+2+W4Wte3oyL8IqbFRMfhdmzE="
