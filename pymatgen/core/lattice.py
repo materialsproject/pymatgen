@@ -1099,7 +1099,7 @@ class Lattice(MSONable):
             warnings.warn("Cell is highly skewed and requires a search "
                           "through image range %s. For efficiency, "
                           "we will limit the search to +-50 images in each "
-                          "direction. Recommend you do a proper niggli or LLL"
+                          "direction. Recommend you do a proper niggli or LLL "
                           "reduction of the cell before computing distances" % n)
             n = np.minimum(n, 50)
         return n
