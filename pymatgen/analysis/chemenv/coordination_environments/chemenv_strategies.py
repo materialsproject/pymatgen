@@ -1211,13 +1211,13 @@ class CNBiasNbSetWeight(NbSetWeight):
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "cn_weights": self.cn_weights,
+                "cn_weights": {str(cn): cnw for cn, cnw in self.cn_weights.items()},
                 "initialization_options": self.initialization_options,
                 }
 
     @classmethod
     def from_dict(cls, dd):
-        return cls(cn_weights=dd['cn_weights'],
+        return cls(cn_weights={int(cn): cnw for cn, cnw in dd['cn_weights'].items()},
                    initialization_options=dd['initialization_options'])
 
     @classmethod
