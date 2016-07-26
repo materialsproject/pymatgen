@@ -380,8 +380,8 @@ class LatticeTestCase(PymatgenTest):
         self.assertTrue(self.hexagonal.is_hexagonal())
 
     def test_get_distance_and_image(self):
-        dist, image = self.cubic.get_distance_and_image([0, 0, 0.1], [0, 0.,
-                                                                     0.9])
+        dist, image = self.cubic.get_distance_and_image([0, 0, 0.1],
+                                                        [0, 0., 0.9])
         self.assertAlmostEqual(dist, 2)
         self.assertArrayAlmostEqual(image, [0, 0, -1])
 
