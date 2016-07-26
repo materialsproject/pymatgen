@@ -1080,6 +1080,10 @@ class Lattice(MSONable):
         return np.linalg.norm(mapped_vec), jimage
 
     def _get_mic_range(self, fcoords1, fcoords2):
+
+        if self.is_orthogonal():
+            return 1, 1, 1
+
         if self._diags is None:
             self._diags = np.sqrt((np.dot([[1, 1, 1], [-1, 1, 1], [1, -1, 1],
                                      [-1, -1, 1],
