@@ -13,6 +13,7 @@ Subpackages
     pymatgen.analysis.elasticity
     pymatgen.analysis.hhi
     pymatgen.analysis.pourbaix
+    pymatgen.analysis.tests
 
 Submodules
 ----------
@@ -133,6 +134,14 @@ pymatgen.analysis.transition_state module
 -----------------------------------------
 
 .. automodule:: pymatgen.analysis.transition_state
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.analysis.wulff module
+------------------------------
+
+.. automodule:: pymatgen.analysis.wulff
     :members:
     :undoc-members:
     :show-inheritance:

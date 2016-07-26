@@ -3,6 +3,18 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import math
+import itertools
+
+from six.moves import map, zip
+
+import numpy as np
+from numpy.linalg import inv
+from numpy import pi, dot, transpose, radians
+from scipy.spatial import Voronoi
+
+from monty.json import MSONable
+from pymatgen.util.num_utils import abs_cap
 
 """
 This module defines the classes relating to 3D lattices.
@@ -17,20 +29,16 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-import math
-import itertools
 
-from six.moves import map, zip
-
-import numpy as np
-from numpy.linalg import inv
-from numpy import pi, dot, transpose, radians
-from scipy.spatial import Voronoi
-
-from monty.json import MSONable
-from monty.dev import deprecated
-from pymatgen.util.num_utils import abs_cap
-from pymatgen.core.units import ArrayWithUnit
+# Construct images ahead of time.
+# Note that this is an extremely inefficient memory-wise, but is likely to be
+# the most efficient computational approach. Other approaches to narrow down
+# the number of images to test costs more computationally than a brute force
+# via numpy.
+MIC_RANGE = (-3, -2, -1, 0, 1, 2, 3)
+MIC_ORTHO_IMAGES = np.array(list(itertools.product([-1, 0, 1], [-1, 0, 1],
+                                                   [-1, 0, 1])))
+MIC_IMAGES = np.array(list(itertools.product(MIC_RANGE, MIC_RANGE, MIC_RANGE)))
 
 
 class Lattice(MSONable):
@@ -72,13 +80,32 @@ class Lattice(MSONable):
         self._inv_matrix = None
         self._metric_tensor = None
 
-    @classmethod
-    @deprecated(message="from_abivars has been merged with the from_dict "
-                "method. Use from_dict(fmt=\"abivars\"). from_abivars "
-                "will be removed in pymatgen 4.0.")
-    def from_abivars(cls, d, **kwargs):
+    def __format__(self, fmt_spec=''):
+        """
+        Support format printing. Supported formats are:
 
-        return Lattice.from_dict(d, fmt="abivars", **kwargs)
+        1. "l" for a list format that can be easily copied and pasted, e.g.,
+           ".3fl" prints something like
+           "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]"
+        2. "p" for lattice parameters ".1fp" prints something like
+           "{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}"
+        3. Default will simply print a 3x3 matrix form. E.g.,
+           10.000 0.000 0.000
+           0.000 10.000 0.000
+           0.000 0.000 10.000
+        """
+        m = self.matrix.tolist()
+        if fmt_spec.endswith("l"):
+            fmt = "[[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]]"
+            fmt_spec = fmt_spec[:-1]
+        elif fmt_spec.endswith("p"):
+            fmt = "{{{}, {}, {}, {}, {}, {}}}"
+            fmt_spec = fmt_spec[:-1]
+            m = self.lengths_and_angles
+        else:
+            fmt = "{} {} {}\n{} {} {}\n{} {} {}"
+        return fmt.format(*[format(c, fmt_spec) for row in m
+                            for c in row])
 
     def copy(self):
         """Deep copy of self."""
@@ -270,35 +297,20 @@ class Lattice(MSONable):
     def from_dict(cls, d, fmt=None, **kwargs):
         """
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
-        and gamma parameters.
+        and gamma parameters if fmt is None.
+        
+        If fmt == "abivars", the function build a `Lattice` object from a dictionary
+        with the Abinit variables `acell` and `rprim` in Bohr. 
+        If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr
 
+        Example:
+
+            Lattice.from_dict(fmt="abivars", acell=3*[10], rprim=np.eye(3))
         """
         if fmt == "abivars":
+            from pymatgen.io.abinit.abiobjects import lattice_from_abivars
             kwargs.update(d)
-            d = kwargs
-            rprim = d.get("rprim", None)
-            angdeg = d.get("angdeg", None)
-            acell = d["acell"]
-
-            # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
-            if rprim is not None:
-                assert angdeg is None
-                rprim = np.reshape(rprim, (3,3))
-                rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
-                return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
-
-            elif angdeg is not None:
-                # angdeg(0) is the angle between the 2nd and 3rd vectors,
-                # angdeg(1) is the angle between the 1st and 3rd vectors,
-                # angdeg(2) is the angle between the 1st and 2nd vectors,
-                raise NotImplementedError("angdeg convention should be tested")
-                angles = angdeg
-                angles[1] = -angles[1]
-                l = ArrayWithUnit(acell, "bohr").to("ang")
-                return cls.from_lengths_and_angles(l, angdeg)
-
-            else:
-                raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
+            return lattice_from_abivars(cls=cls, **kwargs)
 
         if "matrix" in d:
             return cls(d["matrix"])
@@ -492,9 +504,9 @@ class Lattice(MSONable):
                                                   max(lengths) * (1 + ltol),
                                                   zip_results=False)
         cart = self.get_cartesian_coords(frac)
-
         # this can't be broadcast because they're different lengths
-        inds = [np.abs(dist - l) / l <= ltol for l in lengths]
+        inds = [np.logical_and(dist / l < 1 + ltol,
+                               dist / l > 1 / (1 + ltol)) for l in lengths]
         c_a, c_b, c_c = (cart[i] for i in inds)
         f_a, f_b, f_c = (frac[i] for i in inds)
         l_a, l_b, l_c = (np.sum(c ** 2, axis=-1) ** 0.5 for c in (c_a, c_b, c_c))
@@ -653,7 +665,8 @@ class Lattice(MSONable):
         Returns:
             Niggli-reduced lattice.
         """
-        matrix = self._matrix.copy()
+        # lll reduction is more stable for skewed cells
+        matrix = self.get_lll_reduced_lattice().matrix
         a = matrix[0]
         b = matrix[1]
         c = matrix[2]
@@ -905,7 +918,7 @@ class Lattice(MSONable):
             else:
                 fcoords, dists, inds
         """
-        recp_len = np.array(self.reciprocal_lattice_crystallographic.abc)
+        recp_len = np.array(self.reciprocal_lattice.abc) / (2 * pi)
         nmax = float(r) * recp_len + 0.01
 
         pcoords = self.get_fractional_coords(center)
@@ -928,15 +941,21 @@ class Lattice(MSONable):
 
         shifted_coords = fcoords[:, None, None, None, :] + \
             images[None, :, :, :, :]
-        coords = self.get_cartesian_coords(shifted_coords)
-        dists = np.sqrt(np.sum((coords - center[None, None, None, None, :]) ** 2,
-                               axis=4))
-        within_r = np.where(dists <= r)
+
+        cart_coords = self.get_cartesian_coords(fcoords)
+        cart_images = self.get_cartesian_coords(images)
+        coords = cart_coords[:, None, None, None, :] + \
+            cart_images[None, :, :, :, :]
+        coords -= center[None, None, None, None, :]
+        coords **= 2
+        d_2 = np.sum(coords, axis=4)
+
+        within_r = np.where(d_2 <= r ** 2)
         if zip_results:
-            return list(zip(shifted_coords[within_r], dists[within_r],
+            return list(zip(shifted_coords[within_r], np.sqrt(d_2[within_r]),
                             indices[within_r[0]]))
         else:
-            return shifted_coords[within_r], dists[within_r], \
+            return shifted_coords[within_r], np.sqrt(d_2[within_r]), \
                 indices[within_r[0]]
 
     def get_all_distances(self, fcoords1, fcoords2):
@@ -957,42 +976,37 @@ class Lattice(MSONable):
             2d array of cartesian distances. E.g the distance between
             fcoords1[i] and fcoords2[j] is distances[i,j]
         """
-        #ensure correct shape
+        # ensure correct shape
         fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
 
-        #ensure that all points are in the unit cell
+        # ensure that all points are in the unit cell
         fcoords1 = np.mod(fcoords1, 1)
         fcoords2 = np.mod(fcoords2, 1)
 
-        #create images, 2d array of all length 3 combinations of [-1,0,1]
-        r = np.arange(-1, 2)
-        arange = r[:, None] * np.array([1, 0, 0])[None, :]
-        brange = r[:, None] * np.array([0, 1, 0])[None, :]
-        crange = r[:, None] * np.array([0, 0, 1])[None, :]
-        images = arange[:, None, None] + brange[None, :, None] +\
-            crange[None, None, :]
-        images = images.reshape((27, 3))
-
-        #create images of f2
+        # create images of f2
+        images = MIC_ORTHO_IMAGES if self.is_orthogonal() else MIC_IMAGES
         shifted_f2 = fcoords2[:, None, :] + images[None, :, :]
 
         cart_f1 = self.get_cartesian_coords(fcoords1)
         cart_f2 = self.get_cartesian_coords(shifted_f2)
 
         if cart_f1.size * cart_f2.size < 1e5:
-            #all vectors from f1 to f2
+            # all vectors from f1 to f2
             vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
             d_2 = np.sum(vectors ** 2, axis=3)
             distances = np.min(d_2, axis=2) ** 0.5
             return distances
         else:
-            #memory will overflow, so do a loop
+            # memory will overflow, so do a loop
             distances = []
             for c1 in cart_f1:
                 vectors = cart_f2[:, :, :] - c1[None, None, :]
                 d_2 = np.sum(vectors ** 2, axis=2)
                 distances.append(np.min(d_2, axis=1) ** 0.5)
             return np.array(distances)
+
+    def is_orthogonal(self, angle_tol=1e-5):
+        return all([abs(a - 90) < angle_tol for a in self._angles])
 
     def is_hexagonal(self, hex_angle_tol=5, hex_length_tol=0.01):
         lengths, angles = self.lengths_and_angles
@@ -1020,21 +1034,18 @@ class Lattice(MSONable):
             This means that the distance between frac_coords1 and (jimage +
             frac_coords2) is equal to distance.
         """
-        #The following code is heavily vectorized to maximize speed.
-        #Get the image adjustment necessary to bring coords to unit_cell.
+        # The following code is heavily vectorized to maximize speed.
+        # Get the image adjustment necessary to bring coords to unit_cell.
         adj1 = np.floor(frac_coords1)
         adj2 = np.floor(frac_coords2)
-        #Shift coords to unitcell
+        # Shift coords to unitcell
         coord1 = frac_coords1 - adj1
         coord2 = frac_coords2 - adj2
         # Generate set of images required for testing.
-        # This is a cheat to create an 8x3 array of all length 3
-        # combinations of 0,1
-        test_set = np.unpackbits(np.array([5, 57, 119],
-                                          dtype=np.uint8)).reshape(8, 3)
-        images = np.copysign(test_set, coord1 - coord2)
+        images = MIC_ORTHO_IMAGES if self.is_orthogonal() else MIC_IMAGES
+
         # Create tiled cartesian coords for computing distances.
-        vec = np.tile(coord2 - coord1, (8, 1)) + images
+        vec = np.tile(coord2 - coord1, (len(images), 1)) + images
         vec = self.get_cartesian_coords(vec)
         # Compute distances manually.
         dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()

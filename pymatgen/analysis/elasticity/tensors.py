@@ -24,10 +24,13 @@ __date__ = "March 22, 2012"
 
 
 from scipy.linalg import polar
+from scipy.linalg import sqrtm
 import numpy as np
 import itertools
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.lattice import Lattice
+from numpy.linalg import norm
 
 class TensorBase(np.ndarray):
     """
@@ -93,19 +96,25 @@ class TensorBase(np.ndarray):
         Applies a transformation (via a symmetry operation) to a tensor. 
 
         Args:
-            symm_op (3x3 array-like): a symmetry operation to apply to the tensor
+            symm_op (SymmOp): a symmetry operation to apply to the tensor
         """
+        return self.__class__(symm_op.transform_tensor(self))
 
-        return symm_op.transform_tensor(self)
+    def rotate(self, matrix, tol=1e-3):
+        """
+        Applies a rotation directly, and tests input matrix to ensure a valid
+        rotation.
 
-    def rotate(self, matrix, tol=1e-5):
+        Args:
+            matrix (3x3 array-like): rotation matrix to be applied to tensor
+            tol (float): tolerance for testing rotation matrix validity
+        """
         matrix = SquareTensor(matrix)
         if not matrix.is_rotation(tol):
             raise ValueError("Rotation matrix is not valid.")
         sop = SymmOp.from_rotation_and_translation(matrix,
                                                    [0., 0., 0.])
         return self.transform(sop)
-
 
     @property
     def symmetrized(self):
@@ -153,8 +162,84 @@ class TensorBase(np.ndarray):
         Args:
             tol (float): tolerance for symmetry testing
         """
-
         return (self - self.fit_to_structure(structure) < tol).all()
+
+    def convert_to_ieee(self, structure):
+        """
+        Given a structure associated with a tensor, attempts a
+        calculation of the tensor in IEEE format according to
+        the 1987 IEEE standards.
+
+        Args:
+            structure (Structure): a structure associated with the
+                tensor to be converted to the IEEE standard
+        """
+        def get_uvec(vec):
+            """ Gets a unit vector parallel to input vector"""
+            return vec / np.linalg.norm(vec)
+
+        # Check conventional setting:
+        sga = SpacegroupAnalyzer(structure)
+        dataset = sga.get_symmetry_dataset()
+        trans_mat = dataset['transformation_matrix']
+        conv_latt = Lattice(np.transpose(np.dot(np.transpose(
+            structure.lattice.matrix), np.linalg.inv(trans_mat))))
+        xtal_sys = sga.get_crystal_system()
+        
+        vecs = conv_latt.matrix
+        lengths = np.array(conv_latt.abc)
+        angles = np.array(conv_latt.angles)
+        a = b = c = None
+        rotation = np.zeros((3,3))
+
+        # IEEE rules: a,b,c || x1,x2,x3
+        if xtal_sys == "cubic":
+            rotation = [vecs[i]/lengths[i] for i in range(3)]
+
+        # IEEE rules: a=b in length; c,a || x3, x1
+        elif xtal_sys == "tetragonal":
+            rotation = np.array([vec/mag for (mag, vec) in 
+                                 sorted(zip(lengths, vecs),
+                                        key = lambda x: x[0])])
+            if abs(lengths[2] - lengths[1]) < abs(lengths[1] - lengths[0]):
+                rotation[0], rotation[2] = rotation[2], rotation[0].copy()
+            rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
+
+        # IEEE rules: c<a<b; c,a || x3,x1
+        elif xtal_sys == "orthorhombic":
+            rotation = [vec/mag for (mag, vec) in sorted(zip(lengths, vecs))]
+            rotation = np.roll(rotation, 2, axis = 0)
+
+        # IEEE rules: c,a || x3,x1, c is threefold axis
+        # Note this also includes rhombohedral crystal systems
+        elif xtal_sys in ("trigonal", "hexagonal"):
+            # find threefold axis:
+            tf_index = np.argmin(abs(angles - 120.))
+            non_tf_mask = np.logical_not(angles == angles[tf_index])
+            rotation[2] = get_uvec(vecs[tf_index])
+            rotation[0] = get_uvec(vecs[non_tf_mask][0])
+            rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
+
+        # IEEE rules: b,c || x2,x3; alpha=beta=90, c<a
+        elif xtal_sys == "monoclinic":
+            # Find unique axis
+            u_index = np.argmax(abs(angles - 90.))
+            n_umask = np.logical_not(angles == angles[u_index])
+            rotation[1] = get_uvec(vecs[u_index])
+            # Shorter of remaining lattice vectors for c axis
+            c = [vec/mag for (mag, vec) in 
+                 sorted(zip(lengths[n_umask], vecs[n_umask]))][0]
+            rotation[2] = np.array(c)
+            rotation[0] = np.cross(rotation[1], rotation[2])
+        
+        # IEEE rules: c || x3
+        elif xtal_sys == "triclinic":
+            rotation = [vec/mag for (mag, vec) in sorted(zip(lengths, vecs))]
+            rotation = np.roll(rotation, 2, axis = 0)
+            rotation[1] = get_uvec(np.cross(rotation[2], rotation[1]))
+            rotation[0] = np.cross(rotation[1], rotation[2])
+        
+        return self.rotate(rotation)
 
 
 class SquareTensor(TensorBase):
@@ -204,7 +289,7 @@ class SquareTensor(TensorBase):
         """
         return np.linalg.det(self)
 
-    def is_rotation(self, tol=1e-5):
+    def is_rotation(self, tol=1e-3):
         """
         Test to see if tensor is a valid rotation matrix, performs a
         test to check whether the inverse is equal to the transpose

@@ -172,7 +172,7 @@ queue:
     qname: localhost
     qtype: shell
 job:
-    mpi_runner: /home/my_mpirun
+    mpi_runner: /home/local/bin/mpirun
     pre_run:
         - "source ~/env1.sh"
 limits:
@@ -201,14 +201,14 @@ hardware:
                                stdin="stdin", stdout="stdout", stderr="stderr")
         self.assertMultiLineEqual(s, """\
 #!/bin/bash
+cd /launch_dir
 # OpenMp Environment
 export OMP_NUM_THREADS=1
 
-cd /launch_dir
 # Commands before execution
 source ~/env1.sh
 
-/home/my_mpirun -n 1 executable < stdin > stdout 2> stderr
+/home/local/bin/mpirun -n 1 executable < stdin > stdout 2> stderr
 """)
 
 
@@ -274,19 +274,21 @@ hardware:
 #SBATCH --mail-user=user@mail.com
 #SBATCH --output=qout_path
 #SBATCH --error=qerr_path
+cd /launch_dir
 # Setup section
 echo ${SLURM_JOB_NODELIST}
 ulimit -s unlimited
 
 # Load Modules
 module purge
-module load intel/compilerpro/13.0.1.117
-module load fftw3/intel/3.3
+module load intel/compilerpro/13.0.1.117 2>> mods.err
+module load fftw3/intel/3.3 2>> mods.err
 
+# OpenMp Environment
+export OMP_NUM_THREADS=1
 # Shell Environment
 export PATH=/home/user/bin:$PATH
 
-cd /launch_dir
 mpirun -n 4 executable < stdin > stdout 2> stderr
 """)
         #assert 0
@@ -386,6 +388,8 @@ hardware:
 #PBS -o qout_path
 #PBS -e qerr_path
 cd /launch_dir
+# OpenMp Environment
+export OMP_NUM_THREADS=1
 mpirun -n 3 executable < stdin > stdout 2> stderr
 """)
         mem = 1024

@@ -3,7 +3,27 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+
+import itertools
+import json
+import os
+import re
+import warnings
+
+import requests
+from monty.json import MontyDecoder, MontyEncoder
 from six import string_types
+
+from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
+from pymatgen.apps.borg.queen import BorgQueen
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+from pymatgen.entries.computed_entries import ComputedEntry, \
+    ComputedStructureEntry
+from pymatgen.entries.exp_entries import ExpEntry
+from pymatgen.matproj.snl import StructureNL
 
 """
 This module provides classes to interface with the Materials Project REST
@@ -23,26 +43,8 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Feb 22, 2013"
 
-import os
-import requests
-import json
-import warnings
-import re
-import itertools
 
-from monty.json import MontyEncoder, MontyDecoder
 
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.composition import Composition
-from pymatgen.entries.computed_entries import ComputedEntry, \
-    ComputedStructureEntry
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-from pymatgen.entries.exp_entries import ExpEntry
-from pymatgen.io.vasp.sets import DictVaspInputSet
-from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
-from pymatgen.apps.borg.queen import BorgQueen
-from pymatgen.matproj.snl import StructureNL
-from pymatgen.core.structure import Structure
 
 
 class MPRester(object):
@@ -406,8 +408,8 @@ class MPRester(object):
         Returns:
             ComputedEntry or ComputedStructureEntry object.
         """
-        data = self.get_entries(material_id, compatible_only=compatible_only,\
-               inc_structure=inc_structure, property_data=property_data)
+        data = self.get_entries(material_id, compatible_only=compatible_only,
+                                inc_structure=inc_structure, property_data=property_data)
         return data[0]
 
     def get_dos_by_material_id(self, material_id):
@@ -504,36 +506,6 @@ class MPRester(object):
 
         return ExpEntry(Composition(formula),
                         self.get_exp_thermo_data(formula))
-
-    def get_vasp_input_set(self, date_string=None):
-        """
-        Returns the VaspInputSet used by the Materials Project at a
-        particular date.
-
-        Args:
-            date_string (str): A date string in the format of "YYYY-MM-DD".
-                Defaults to None, which means the VaspInputSet today.
-
-        Returns:
-            DictVaspInputSet
-        """
-        url = "{}/parameters/vasp".format(self.preamble)
-        payload = {"date": date_string} if date_string else {}
-        try:
-            response = self.session.get(url, data=payload)
-            if response.status_code in [200, 400]:
-                data = json.loads(response.text, cls=MPDecoder)
-                if data["valid_response"]:
-                    if data.get("warning"):
-                        warnings.warn(data["warning"])
-                    return DictVaspInputSet("MPVaspInputSet", data["response"])
-                else:
-                    raise MPRestError(data["error"])
-
-            raise MPRestError("REST query returned with error status code {}"
-                              .format(response.status_code))
-        except Exception as ex:
-            raise MPRestError(str(ex))
 
     def query(self, criteria, properties, mp_decode=True):
         """
@@ -862,6 +834,37 @@ class MPRester(object):
                                   payload={"reactants[]": reactants,
                                            "products[]": products})
 
+    def get_substrates(self, material_id, number=50, orient=None):
+        """
+        Get a substrate list for a material id. The list is in order of
+        increasing elastic energy if a elastic tensor is available for
+        the material_id. Otherwise the list is in order of increasing
+        matching area.
+
+        Args:
+            material_id (str): Materials Project material_id, e.g. 'mp-123'.
+            orient (list) : substrate orientation to look for
+            number (int) : number of substrates to return;
+                n=0 returns all available matches
+        Returns:
+            list of dicts with substrate matches
+        """
+        req = "/materials/{}/substrates?n={}".format(material_id, number)
+        if orient:
+            req += "&orient={}".format(" ".join(map(str, orient)))
+        return self._make_request(req)
+
+    def get_all_substrates(self):
+        """
+        Gets the list of all possible substrates considered in the
+        Materials Project substrate database
+
+        Returns:
+            list of material_ids corresponding to possible substrates
+        """
+
+        return self._make_request("/materials/all_substrate_ids")
+
     @staticmethod
     def parse_criteria(criteria_string):
         """
@@ -927,7 +930,7 @@ class MPRester(object):
                 for f in itertools.product(*parts):
                     c = Composition("".join(f))
                     if len(c) == nelements:
-                        #Check for valid Elements in keys.
+                        # Check for valid Elements in keys.
                         for e in c.keys():
                             Element(e.symbol)
                         all_formulas.add(c.reduced_formula)

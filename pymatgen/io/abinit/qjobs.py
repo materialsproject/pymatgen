@@ -1,7 +1,7 @@
 # coding: utf-8
 """
-Objects and methods to contact the resource manager to get info on the status of the job and useful statistics. 
-Note that this is not a wrapper for the C API but a collection of simple wrappers around the shell commands 
+Objects and methods to contact the resource manager to get info on the status of the job and useful statistics.
+Note that this is not a wrapper for the C API but a collection of simple wrappers around the shell commands
 provided by the resource manager  (qsub, qdel and qstat for PBS, sinfo, squeue... for Slurm).
 The main goal indeed is providing a simplified common interface for different resource managers without
 having to rely on external libraries.
@@ -138,7 +138,7 @@ class QueueJob(object):
 
     __nonzero__ = __bool__
 
-    
+
     #In many cases, we only need to know if job is terminated or not
     #def is_terminated()
 
@@ -199,7 +199,6 @@ class QueueJob(object):
         SUSv2 and POSIX.1-2001.
 
         Signal       Value     Action   Comment
-        ────────────────────────────────────────────────────────────────────
         SIGBUS      10,7,10     Core    Bus error (bad memory access)
         SIGPOLL                 Term    Pollable event (Sys V).
                                         Synonym for SIGIO
@@ -220,7 +219,7 @@ class QueueJob(object):
         # Get the numeric value from signal and compare it with self.signal
         import signal
         try:
-            return self.signal == getattr(signal, sig_name) 
+            return self.signal == getattr(signal, sig_name)
         except AttributeError:
             # invalid sig_name or sig_name not available on this OS.
             return False
@@ -256,7 +255,7 @@ class SlurmJob(QueueJob):
         process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
         out, err = process.communicate()
 
-        if process.returncode != 0: 
+        if process.returncode != 0:
             logger.critical(err)
             return None
 
@@ -280,9 +279,9 @@ class SlurmJob(QueueJob):
         #Without this option only the most recent jobs will be displayed.
 
         #state Displays the job status, or state.
-        #Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT, 
-        #PREEMPTED or NODE_FAIL. If more information is available on the job state than will fit 
-        #into the current field width (for example, the uid that CANCELLED a job) the state will be followed by a "+". 
+        #Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT,
+        #PREEMPTED or NODE_FAIL. If more information is available on the job state than will fit
+        #into the current field width (for example, the uid that CANCELLED a job) the state will be followed by a "+".
 
         #gmatteo@master2:~
         #sacct --job 112367 --format=jobid,exitcode,state --allocations --parsable2
@@ -331,7 +330,7 @@ class SlurmJob(QueueJob):
         process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
         out, err = process.communicate()
 
-        if process.returncode != 0: 
+        if process.returncode != 0:
             logger.critical(err)
             return {}
 
@@ -374,7 +373,7 @@ class PbsProJob(QueueJob):
     ])
 
     def estimated_start_time(self):
-        # qstat -T - Shows the estimated start time for all jobs in the queue. 
+        # qstat -T - Shows the estimated start time for all jobs in the queue.
         #                                                                           Est
         #                                                            Req'd  Req'd   Start
         #Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
@@ -384,13 +383,13 @@ class PbsProJob(QueueJob):
         process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
         out, err = process.communicate()
 
-        if process.returncode != 0: 
+        if process.returncode != 0:
             logger.critical(err)
             return None
 
         line = out.splitlines()[-1]
         sdate = line.split()[-1]
-        if sdate in ("--", "?"): 
+        if sdate in ("--", "?"):
             return None
 
         # TODO One should convert to datetime
@@ -398,7 +397,7 @@ class PbsProJob(QueueJob):
 
     def get_info(self, **kwargs):
 
-        # See also qstat -f 
+        # See also qstat -f
         #http://sc.tamu.edu/help/origins/batch.shtml#qstat
 
         #$> qstat 5666289
@@ -426,7 +425,7 @@ class PbsProJob(QueueJob):
         # Here I don't know what's happeing but I get an output that differs from the one obtained in the terminal.
         # Job id            Name             User              Time Use S Queue
         # ----------------  ---------------- ----------------  -------- - -----
-        # 5905011.frontal1  t0               gmatteo           01:37:08 F main_wes  
+        # 5905011.frontal1  t0               gmatteo           01:37:08 F main_wes
         #print(out)
 
         line = out.splitlines()[-1]
@@ -456,3 +455,8 @@ class SgeJob(QueueJob):
 class MoabJob(QueueJob):
     """Not supported"""
     QTYPE = "moab"
+
+
+class BlueGeneJob(QueueJob):
+    """Not supported"""
+    QTYPE = "bluegene"

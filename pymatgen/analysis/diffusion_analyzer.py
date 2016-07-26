@@ -3,6 +3,16 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import numpy as np
+import scipy.constants as const
+
+from monty.json import MSONable
+
+from pymatgen.analysis.structure_matcher import StructureMatcher, \
+     OrderDisorderElementComparator
+from pymatgen.core import Structure, get_el_sp
+from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.util.coord_utils import pbc_diff
 
 """
 A module to perform diffusion analyses (e.g. calculating diffusivity from
@@ -20,24 +30,12 @@ citing the following papers::
     24(1), 15-17. doi:10.1021/cm203303y
 """
 
-
 __author__ = "Will Richards, Shyue Ping Ong"
 __version__ = "0.2"
 __maintainer__ = "Will Richards"
 __email__ = "wrichard@mit.edu"
 __status__ = "Beta"
 __date__ = "5/2/13"
-
-
-import numpy as np
-import scipy.constants as const
-
-from monty.json import MSONable
-
-from pymatgen.analysis.structure_matcher import StructureMatcher, OrderDisorderElementComparator
-from pymatgen.core import Structure, get_el_sp
-from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.util.coord_utils import pbc_diff
 
 
 class DiffusionAnalyzer(MSONable):
@@ -211,7 +209,7 @@ class DiffusionAnalyzer(MSONable):
 
             dt = timesteps * self.time_step * self.step_skip
 
-            #calculate the smoothed msd values
+            # calculate the smoothed msd values
             msd = np.zeros_like(dt, dtype=np.double)
             sq_disp_ions = np.zeros((len(dc), len(dt)), dtype=np.double)
             msd_components = np.zeros(dt.shape + (3,))
@@ -453,6 +451,29 @@ class DiffusionAnalyzer(MSONable):
         """
         self.get_msd_plot(mode=mode).show()
 
+    def export_msdt(self, filename):
+        """
+        Writes MSD data to a csv file that can be easily plotted in other
+        software.
+
+        Args:
+            filename (str): Filename. Supported formats are csv and dat. If
+                the extension is csv, a csv file is written. Otherwise,
+                a dat format is assumed.
+        """
+        fmt = "csv" if filename.lower().endswith(".csv") else "dat"
+        delimiter = ", " if fmt == "csv" else " "
+        with open(filename, "wt") as f:
+            if fmt == "dat":
+                f.write("# ")
+            f.write(delimiter.join(["t", "MSD", "MSD_a", "MSD_b", "MSD_c"]))
+            f.write("\n")
+
+            for dt, msd, msdc in zip(self.dt, self.msd, self.msd_components):
+                f.write(delimiter.join(["%s" % v for v in [dt, msd] + list(
+                    msdc)]))
+                f.write("\n")
+
     @classmethod
     def from_structures(cls, structures, specie, temperature,
                         time_step, step_skip, smoothed="max", min_obs=30,
@@ -592,7 +613,7 @@ class DiffusionAnalyzer(MSONable):
                     temperature = vr.parameters['TEEND']
                     time_step = vr.parameters['POTIM']
                     yield step_skip, temperature, time_step
-                #check that the runs are continuous
+                # check that the runs are continuous
                 fdist = pbc_diff(vr.initial_structure.frac_coords,
                                  final_structure.frac_coords)
                 if np.any(fdist > 0.001):

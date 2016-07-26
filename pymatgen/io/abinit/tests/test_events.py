@@ -5,7 +5,7 @@ import os
 import datetime
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinit import events 
+from pymatgen.io.abinit import events
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files', "abinit")
@@ -50,7 +50,7 @@ class EventsParserTest(PymatgenTest):
             #self.assertMSONable(warning, check_inst=False)
 
         report = parser.report_exception(ref_file("mgb2_scf.log"), "exception")
-        assert len(report.errors) == 1 
+        assert len(report.errors) == 1
 
     def test_parse_bad_yaml_doc(self):
         """Parsing Abinit log file with wrong YAML document."""
@@ -63,7 +63,6 @@ class EventsParserTest(PymatgenTest):
         # The event parser should have registered a AbinitYamlWarning and an AbinitYamlError
         assert len(report.get_events_of_type(events.AbinitYamlWarning)) == 1
         assert len(report.get_events_of_type(events.AbinitYamlError)) == 1
-
         #assert 0
 
 

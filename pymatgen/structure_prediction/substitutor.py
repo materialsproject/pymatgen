@@ -79,7 +79,7 @@ class Substitutor(MSONable):
 
         Notes:
         If the default probability model is used, input structures must
-        be oxidation state decorated.
+        be oxidation state decorated. See AutoOxiStateDecorationTransformation
 
         This method does not change the number of species in a structure. i.e
         if the number of target species is 3, only input structures containing
@@ -110,7 +110,7 @@ class Substitutor(MSONable):
         transmuter = StandardTransmuter([])
         if len(list(set(target_species) & set(self.get_allowed_species()))) \
                 != len(target_species):
-            raise ValueError("the species in target_species are not allowed"
+            raise ValueError("the species in target_species are not allowed "
                               + "for the probability model you are using")
 
         for permut in itertools.permutations(target_species):

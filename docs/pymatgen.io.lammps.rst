@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.io.lammps.tests
 
 Submodules
 ----------
@@ -46,6 +47,14 @@ pymatgen.io.lammps.topology module
 ----------------------------------
 
 .. automodule:: pymatgen.io.lammps.topology
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.io.lammps.utils module
+-------------------------------
+
+.. automodule:: pymatgen.io.lammps.utils
     :members:
     :undoc-members:
     :show-inheritance:

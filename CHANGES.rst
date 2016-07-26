@@ -1,6 +1,47 @@
 Change log
 ==========
 
+v4.2.0
+------
+* Fix important bug in minimum image distance computation for very skewed cells.
+* Major refactoring of WulffShape code.
+* Misc bug fixes for elastic tensor and other codes.
+
+v4.1.1
+------
+* Major refactoring of WulffShape and lammps support.
+
+v4.1.0
+------
+* Wulff shape generator and analysis.
+* Minor bug fixes.
+
+v4.0.2
+--------
+* Fix kpoint reciprocal density.
+
+v4.0.1
+------
+* Minor bug fix release.
+
+v4.0.0
+------
+* Massive update with many deprecated methods removed. Note that this
+  may break backwards incompatibility!
+* Support for ABINIT 8.
+* Improved sulfide compatibility.
+
+v3.7.1
+------
+* Fix deprecation bug.
+
+v3.7.0
+------
+* Last version before pymatgen 4.0, where deprecated modules will be removed!
+* Massive update to LAMMPS (Kiran Matthews).
+* New input sets with a different interface that replaces old input sets.
+* Massive update to elastic properties.
+
 v3.6.1
 ------
 * Massive cleanup to Boltztrap interface (Anubhav Jain)

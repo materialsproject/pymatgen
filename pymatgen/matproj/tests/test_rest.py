@@ -230,6 +230,11 @@ class MPResterTest(unittest.TestCase):
         rxn = self.rester.get_reaction(["Li", "O"], ["Li2O"])
         self.assertIn("Li2O", rxn["Experimental_references"])
 
+    def test_get_substrates(self):
+        substrate_data = self.rester.get_substrates('mp-123', 5, [1, 0, 0])
+        substrates = [sub_dict['sub_id'] for sub_dict in substrate_data]
+        self.assertIn("mp-2534", substrates)
+
     def test_parse_criteria(self):
         crit = MPRester.parse_criteria("mp-1234 Li-*")
         self.assertIn("Li-O", crit["$or"][1]["chemsys"]["$in"])

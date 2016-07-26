@@ -29,6 +29,17 @@ class LatticeTestCase(PymatgenTest):
         for name in family_names:
             self.families[name] = getattr(self, name)
 
+    def test_format(self):
+        self.assertEqual("[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]",
+                         format(self.lattice, ".3fl"))
+        self.assertEqual(
+            """10.000 0.000 0.000
+0.000 10.000 0.000
+0.000 0.000 10.000""",
+            format(self.lattice, ".3f"))
+        self.assertEqual("{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}",
+                         format(self.lattice, ".1fp"))
+
     def test_init(self):
         a = 9.026
         lattice = Lattice.cubic(a)
@@ -257,6 +268,15 @@ class LatticeTestCase(PymatgenTest):
         for l, _, _ in latt.find_all_mappings(latt, ltol=0.05, atol=11):
             self.assertTrue(isinstance(l, Lattice))
 
+    def test_mapping_symmetry(self):
+        l = Lattice.cubic(1)
+        l2 = Lattice.orthorhombic(1.1001, 1, 1)
+        self.assertEqual(l.find_mapping(l2, ltol=0.1), None)
+        self.assertEqual(l2.find_mapping(l, ltol=0.1), None)
+        l2 = Lattice.orthorhombic(1.0999, 1, 1)
+        self.assertNotEqual(l2.find_mapping(l, ltol=0.1), None)
+        self.assertNotEqual(l.find_mapping(l2, ltol=0.1), None)
+
     def test_to_from_dict(self):
         d = self.tetragonal.as_dict()
         t = Lattice.from_dict(d)
@@ -368,13 +388,35 @@ class LatticeTestCase(PymatgenTest):
     def test_get_all_distance_and_image(self):
         r = self.cubic.get_all_distance_and_image([0, 0, 0.1],
                                                   [0, 0., 0.9])
-        self.assertEqual(len(r), 8)
+        self.assertEqual(len(r), 27)
         dist, image = min(r, key=lambda x: x[0])
         self.assertAlmostEqual(dist, 2)
         self.assertArrayAlmostEqual(image, [0, 0, -1])
         dist, image = max(r, key=lambda x: x[0])
-        self.assertAlmostEqual(dist, 16.24807680927192)
-        self.assertArrayAlmostEqual(image, [1, 1, 0])
+        self.assertAlmostEqual(dist, 22.891046284519195)
+        self.assertArrayAlmostEqual(image, [-1, -1, 1])
+
+    def test_get_distance_and_image_strict(self):
+        for count in range(100):
+            lengths = [np.random.randint(1, 100) for i in range(3)]
+            lattice = [np.random.rand(3) * lengths[i]
+                               for i in range(3)]
+            lattice = Lattice(np.array(lattice))
+
+            f1 = np.random.rand(3)
+            f2 = np.random.rand(3)
+
+            scope = list(range(-3, 4))
+            min_image_dist = (float("inf"), None)
+            for image in itertools.product(scope, scope, scope):
+                cart = lattice.get_cartesian_coords(f1 - (f2 + image))
+                dist = np.dot(cart, cart) ** 0.5
+                if dist < min_image_dist[0]:
+                    min_image_dist = (dist, image)
+
+            pmg_result = lattice.get_distance_and_image(f1, f2)
+            self.assertAlmostEqual(min_image_dist[0], pmg_result[0])
+            self.assertArrayAlmostEqual(min_image_dist[1], pmg_result[1])
 
 
 if __name__ == '__main__':
