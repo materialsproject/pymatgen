@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.analysis.diffraction.tests
 
 Submodules
 ----------

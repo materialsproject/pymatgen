@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.electronic_structure.tests
 
 Submodules
 ----------

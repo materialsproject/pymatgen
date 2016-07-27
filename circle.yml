@@ -1,8 +1,10 @@
+general:
+  branches:
+    ignore:
+      - gh-pages # list of branches to ignore
 machine:
-  timezone:
-    America/Los_Angeles
   python:
-    version: 2.7.11
+    version: 3.5.2
   environment:
       PATH: $PATH:/home/ubuntu/pymatgen/cmd_line/enum/Linux_64bit:/home/ubuntu/pymatgen/cmd_line/bader/Linux_64bit:/home/ubuntu/pymatgen/cmd_line/gulp/Linux_64bit:/home/ubuntu/pymatgen/cmd_line/aconvasp/Linux_64bit
       GULP_LIB: /home/ubuntu/pymatgen/cmd_line/gulp/Libraries
@@ -28,13 +30,13 @@ test:
     - pmg convert POSCAR.pmg pmg.cif
     - pmg analyze -d test_files
 deployment:
-  py3:
+  py27:
     branch: master
     commands:
-      - git config --global user.name "Py3k merger"
+      - git config --global user.name "Py27 merger"
       - git config --global user.email ongsp@ucsd.edu
       - git config --global push.default matching
-      - git checkout stable_py3
+      - git checkout stable_py27
       - git pull
-      - git merge master -m "Automatic Py3k merge for testing"
-      - git push origin stable_py3
+      - git merge master -m "Automatic Py27 merge for testing"
+      - git push origin stable_py27

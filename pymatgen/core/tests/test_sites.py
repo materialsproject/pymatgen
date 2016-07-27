@@ -150,8 +150,8 @@ class PeriodicSiteTest(PymatgenTest):
         site = PeriodicSite("Fe", [0.1, 0.1, 0.1], latt)
         site2 = PeriodicSite("Fe", [0.99, 0.99, 0.99], latt)
         (dist, img) = site.distance_and_image(site2)
-        self.assertAlmostEqual(dist, 1.1304420998572722)
-        self.assertEqual(list(img), [0, -1, -1])
+        self.assertAlmostEqual(dist, 0.09521508951076442)
+        self.assertEqual(list(img), [-45, 10, 8])
 
     def test_is_periodic_image(self):
         other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.45]), self.lattice)
