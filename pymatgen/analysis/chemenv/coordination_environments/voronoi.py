@@ -341,24 +341,6 @@ class DetailedVoronoiContainer(MSONable):
                                                         rtol=0.0, atol=self.normalized_angle_tolerance/2.0))
         return angle_conditions
 
-    # def unique_coordinated_neighbors(self, isite=None, cn_map=None):
-    #     if isite is None:
-    #         return self._unique_coordinated_neighbors
-    #     else:
-    #         if cn_map is None:
-    #             return self._unique_coordinated_neighbors[isite]
-    #         else:
-    #             return self._unique_coordinated_neighbors[isite][cn_map[0]][cn_map[1]]
-
-    # @property
-    # def parameters_to_unique_coordinated_neighbors_map(self):
-    #     return self._parameters_to_unique_coordinated_neighbors_map
-
-    # def satisfy_condition(self, isite, cn, i_coordn_neighb, additional_condition):
-    #     parameters_indices = self._unique_coordinated_neighbors_parameters_indices[isite][cn][i_coordn_neighb]
-    #     additional_conditions = [pp[2] for pp in parameters_indices]
-    #     return additional_condition in additional_conditions
-
     def neighbors_map(self, isite, distfactor, angfactor, additional_condition):
         if self.neighbors_normalized_distances[isite] is None:
             return None
@@ -374,56 +356,6 @@ class DetailedVoronoiContainer(MSONable):
             return None
         i_additional_condition = self.additional_conditions.index(additional_condition)
         return {'i_distfactor': idist, 'i_angfactor': iang, 'i_additional_condition': i_additional_condition}
-
-    # def dist_ang_corners_maps(self, isite, additional_condition,
-    #                           mindistfactor=1.01, maxdistfactor=2.0,
-    #                           minangfactor=0.0, maxangfactor=0.99):
-    #     if self.neighbors_normalized_distances[isite] is None or self.neighbors_normalized_angles[isite] is None:
-    #         return None
-    #     dist_ang_corners = []
-    #     dist_maps = []
-    #     for wd in self.neighbors_normalized_distances[isite]:
-    #         if wd['max'] < mindistfactor or wd['max'] > maxdistfactor:
-    #             continue
-    #         nbmap = self.neighbors_map(isite=isite, distfactor=wd['max'],
-    #                                    angfactor=minangfactor, additional_condition=additional_condition)
-    #         idp = nbmap['i_distfactor']
-    #         iap = nbmap['i_angfactor']
-    #         iac = nbmap['i_additional_condition']
-    #         nbmap['cn_map'] = tuple(self.parameters_to_unique_coordinated_neighbors_map[isite][idp][iap][iac])
-    #         dist_maps.append(nbmap)
-    #     ang_maps = []
-    #     for wa in self.neighbors_normalized_angles[isite]:
-    #         if wa['min'] < minangfactor or wa['min'] > maxangfactor:
-    #             continue
-    #         nbmap = self.neighbors_map(isite=isite, distfactor=maxdistfactor,
-    #                                    angfactor=wa['min'], additional_condition=additional_condition)
-    #         idp = nbmap['i_distfactor']
-    #         iap = nbmap['i_angfactor']
-    #         iac = nbmap['i_additional_condition']
-    #         nbmap['cn_map'] = tuple(self.parameters_to_unique_coordinated_neighbors_map[isite][idp][iap][iac])
-    #         ang_maps.append(nbmap)
-    #
-    #     ang_cn_maps = [ang_map['cn_map'] for ang_map in ang_maps]
-    #     for dist_map in dist_maps:
-    #         cn_map = dist_map['cn_map']
-    #         cnt = ang_cn_maps.count(cn_map)
-    #         if cnt == 0:
-    #             continue
-    #         elif cnt == 1:
-    #             ang_map_index = ang_cn_maps.index(cn_map)
-    #             ang_map = ang_maps[ang_map_index]
-    #             idp = dist_map['i_distfactor']
-    #             iap = ang_map['i_angfactor']
-    #             iac = dist_map['i_additional_condition']
-    #             dist_ang_corners.append({'i_distfactor': idp,
-    #                                      'i_angfactor': iap,
-    #                                      'i_additional_condition': iac,
-    #                                      'distfactor': self.neighbors_normalized_distances[isite][idp]['max'],
-    #                                      'angfactor': self.neighbors_normalized_angles[isite][iap]['min'],
-    #                                      'cn_map': cn_map})
-    #     return dist_ang_corners
-
 
     def neighbors_surfaces(self, isite, surface_calculation_type=None, max_dist=2.0):
         if self.voronoi_list2[isite] is None:
@@ -464,13 +396,7 @@ class DetailedVoronoiContainer(MSONable):
         maxdist = surface_calculation_options['distance_bounds']['upper']
         minang = surface_calculation_options['angle_bounds']['lower']
         maxang = surface_calculation_options['angle_bounds']['upper']
-        # if surface_calculation_options['type'] == 'standard_elliptic':
-        #     lower_and_upper_functions = quarter_ellipsis_functions(xx=(mindist, maxang), yy=(maxdist, minang))
-        # elif surface_calculation_options['type'] == 'standard_diamond':
-        #     deltadist = surface_calculation_options['distance_bounds']['delta']
-        #     deltaang = surface_calculation_options['angle_bounds']['delta']
-        #     lower_and_upper_functions = diamond_functions(xx=(mindist, maxang), yy=(maxdist, minang),
-        #                                                   x_y0=deltadist, y_x0=deltaang)
+
         f_lower = lower_and_upper_functions['lower']
         f_upper = lower_and_upper_functions['upper']
         surfaces = np.zeros((len(distance_bounds), len(angle_bounds)), np.float)
@@ -504,77 +430,6 @@ class DetailedVoronoiContainer(MSONable):
                                                                         check=False)
                 surfaces[idp][iap] = intersection
         return surfaces
-
-    # def maps_with_condition(self, isite, additional_condition, return_parameter_indices=False):
-    #     cn_maps = []
-    #     ucnpi_isite = self._unique_coordinated_neighbors_parameters_indices[isite]
-    #     if ucnpi_isite is None:
-    #         return None
-    #     for cn, coordnbs_list in ucnpi_isite.items():
-    #         for i_coordnbs, coordnbs in enumerate(coordnbs_list):
-    #             if self.satisfy_condition(isite, cn, i_coordnbs, additional_condition):
-    #                 cn_maps.append((cn, i_coordnbs))
-    #     result = {'cn_maps': cn_maps}
-    #     if return_parameter_indices:
-    #         parameter_indices = []
-    #         for (cn, i_coordnbs) in cn_maps:
-    #             cn_map_parameter_indices = []
-    #             for params in self._unique_coordinated_neighbors_parameters_indices[isite][cn][i_coordnbs]:
-    #                 if params[2] == additional_condition:
-    #                     cn_map_parameter_indices.append(params)
-    #             parameter_indices.append(cn_map_parameter_indices)
-    #         result['parameter_indices'] = parameter_indices
-    #     return result
-
-    # def maps_and_surface_vertices(self, isite, additional_condition=AC.ONLY_ACB, plot_type=None, max_dist=2.0):
-    #     cn_maps_parameter_indices = self.maps_with_condition(isite=isite, additional_condition=additional_condition,
-    #                                                          return_parameter_indices=True)
-    #     if cn_maps_parameter_indices is None:
-    #         return None
-    #     bounds_and_limits = self.voronoi_parameters_bounds_and_limits(isite, plot_type, max_dist)
-    #     vertices_dist_ang_indices_list = []
-    #     vertices_dist_ang_list = []
-    #     text_info_dist_ang_list = []
-    #     for i_cn_map, cn_map in enumerate(cn_maps_parameter_indices['cn_maps']):
-    #         parameter_indices_list = cn_maps_parameter_indices['parameter_indices'][i_cn_map]
-    #         vertices_dist_ang_indices = self._get_vertices_dist_ang_indices(parameter_indices_list)
-    #         vertices_dist_ang = []
-    #         idist, iang = vertices_dist_ang_indices[0]
-    #         dist = bounds_and_limits['distance_bounds'][idist]
-    #         ang = bounds_and_limits['angle_bounds'][iang]
-    #         vertices_dist_ang.append([dist, ang])
-    #         idist, iang = vertices_dist_ang_indices[1]
-    #         dist = bounds_and_limits['distance_bounds'][idist+1]
-    #         ang = bounds_and_limits['angle_bounds'][iang]
-    #         vertices_dist_ang.append([dist, ang])
-    #         idist, iang = vertices_dist_ang_indices[2]
-    #         dist = bounds_and_limits['distance_bounds'][idist+1]
-    #         ang = bounds_and_limits['angle_bounds'][iang]
-    #         vertices_dist_ang.append([dist, ang])
-    #         idist, iang = vertices_dist_ang_indices[3]
-    #         dist = bounds_and_limits['distance_bounds'][idist+1]
-    #         ang = bounds_and_limits['angle_bounds'][iang]
-    #         vertices_dist_ang.append([dist, ang])
-    #         idist, iang = vertices_dist_ang_indices[4]
-    #         dist = bounds_and_limits['distance_bounds'][idist+1]
-    #         ang = bounds_and_limits['angle_bounds'][iang+1]
-    #         vertices_dist_ang.append([dist, ang])
-    #         idist, iang = vertices_dist_ang_indices[5]
-    #         dist = bounds_and_limits['distance_bounds'][idist]
-    #         ang = bounds_and_limits['angle_bounds'][iang+1]
-    #         vertices_dist_ang.append([dist, ang])
-    #         vertices_dist_ang_indices_list.append(vertices_dist_ang_indices)
-    #         vertices_dist_ang_list.append(vertices_dist_ang)
-    #         text_info_dist_ang = ((vertices_dist_ang[2][0] + vertices_dist_ang[5][0]) / 2.0,
-    #                               (vertices_dist_ang[2][1] + vertices_dist_ang[5][1]) / 2.0)
-    #         text_info_dist_ang_list.append(text_info_dist_ang)
-    #     result = {'cn_maps': cn_maps_parameter_indices['cn_maps'],
-    #               'bounds_and_limits': bounds_and_limits,
-    #               'vertices_dist_ang_indices': vertices_dist_ang_indices_list,
-    #               'vertices_dist_ang': vertices_dist_ang_list,
-    #               'text_info_dist_ang': text_info_dist_ang_list
-    #               }
-    #     return result
 
     @staticmethod
     def _get_vertices_dist_ang_indices(parameter_indices_list):
@@ -635,23 +490,6 @@ class DetailedVoronoiContainer(MSONable):
                                           'parameters_indices': list_parameters_indices})
         return maps_and_surfaces
 
-    # def get_neighbors(self, isite, neighbors_map):
-    #     """
-    #     Returns the list of neighbours of a given site given the neighbors_map indices (index of the distance and
-    #     angle factors as well as index of the only_anion_cation_bonds). This will usually not be used outside Voronoi.
-    #     :param isite: Index of the site for which the neighbors have to be given.
-    #     :param neighbors_map: Mapping of the distance/angle/additional_condition as a dict with keys "i_distfactor",
-    #                           "i_angfactor" and "i_additional_condition" and corresponding values.
-    #     :return: Neighbors for this neighbors_map
-    #     """
-    #     this_site_this_map_neighbors_list = (self.neighbors_lists
-    #                                          [isite]
-    #                                          [neighbors_map['i_distfactor']]
-    #                                          [neighbors_map['i_angfactor']]
-    #                                          [neighbors_map['i_additional_condition']])
-    #     neighbors = [self.voronoi_list2[isite][nlist[0]][0] for nlist in this_site_this_map_neighbors_list]
-    #     return neighbors
-    #
     def neighbors(self, isite, distfactor, angfactor, additional_condition=None):
         idist = None
         dfact = None
@@ -674,80 +512,6 @@ class DetailedVoronoiContainer(MSONable):
 
         return [nb for nb in self.voronoi_list2[isite] if
                 nb['normalized_distance'] <= dfact and nb['normalized_angle'] >= afact]
-
-        # iac = self.additional_conditions.index(additional_condition)
-        #
-        # neighbors = [self.voronoi_list2[isite][nlist[0]][0] for nlist in this_site_this_map_neighbors_list]
-        # return neighbors
-
-    # def neighbors(self, isite, distfactor, angfactor, additional_condition):
-    #     neighbors_map = self.neighbors_map(isite=isite, distfactor=distfactor, angfactor=angfactor,
-    #                                        additional_condition=additional_condition)
-    #     if neighbors_map is None:
-    #         return []
-    #     return self.get_neighbors(isite=isite, neighbors_map=neighbors_map)
-
-    # def get_coordination_numbers_figure(self, isite, plot_type=None, title='Coordination numbers', max_dist=2.0,
-    #                                     figsize=None):
-    #     """
-    #     Plotting of the coordination numbers of a given site for all the distfactor/angfactor parameters. If the
-    #     chemical environments are given, a color map is added to the plot, with the lowest continuous symmetry measure
-    #     as the value for the color of that distfactor/angfactor set.
-    #     :param isite: Index of the site for which the plot has to be done
-    #     :param plot_type: How to plot the coordinations
-    #     :param title: Title for the figure
-    #     :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to 'initial_normalized'
-    #                      or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case,
-    #                      the closest atom lies at a "normalized" distance of 1.0 so that 2.0 means refers to this
-    #                      normalized distance while in the second case, the real distance is used)
-    #     :param figsize: Size of the figure to be plotted
-    #     :return: The figure object to be plotted or saved to file
-    #     """
-    #     try:
-    #         import matplotlib.pyplot as mpl
-    #         from matplotlib import cm
-    #         from matplotlib.colors import Normalize, LinearSegmentedColormap, ListedColormap
-    #         from matplotlib.patches import Rectangle, Polygon
-    #     except ImportError:
-    #         print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
-    #         return
-    #
-    #     #Initializes the figure
-    #     if figsize is None:
-    #         fig = mpl.figure()
-    #     else:
-    #         fig = mpl.figure(figsize=figsize)
-    #     subplot = fig.add_subplot(111)
-    #
-    #     #Initializes the distance and angle parameters
-    #     bounds_and_limits = self.voronoi_parameters_bounds_and_limits(isite, plot_type, max_dist)
-    #     if bounds_and_limits is None:
-    #         return None
-    #     distance_bounds = bounds_and_limits['distance_bounds']
-    #     angle_bounds = bounds_and_limits['angle_bounds']
-    #     dist_limits = bounds_and_limits['distance_limits']
-    #     ang_limits = bounds_and_limits['angle_limits']
-    #
-    #     #Plot the rectangles and coordinations
-    #     for idp in range(len(distance_bounds) - 1):
-    #         this_dist_plateau = distance_bounds[idp + 1] - distance_bounds[idp]
-    #         for iap in range(len(angle_bounds) - 1):
-    #             this_ang_plateau = angle_bounds[iap + 1] - angle_bounds[iap]
-    #             r = Rectangle((distance_bounds[idp], angle_bounds[iap]),
-    #                           this_dist_plateau,
-    #                           this_ang_plateau, edgecolor='k', facecolor='b')
-    #             subplot.annotate('{:d}'.format(len(self.neighbors_lists[isite][idp][iap][0])),
-    #                              xy=(distance_bounds[idp] + this_dist_plateau / 2.0,
-    #                                  angle_bounds[iap] + this_ang_plateau / 2.0),
-    #                              ha='center', va='center', color='y', fontsize='x-small')
-    #             subplot.add_patch(r)
-    #     title += '\nDist: {}, Ang: {}'.format(plot_type['distance_parameter'][0], plot_type['angle_parameter'][0])
-    #     subplot.set_title(title)
-    #     subplot.set_xlabel('Distance factor')
-    #     subplot.set_ylabel('Angle factor')
-    #     subplot.set_xlim(dist_limits)
-    #     subplot.set_ylim(ang_limits)
-    #     return fig
 
     def voronoi_parameters_bounds_and_limits(self, isite, plot_type, max_dist):
         #Initializes the distance and angle parameters
@@ -790,49 +554,6 @@ class DetailedVoronoiContainer(MSONable):
         ang_limits = [0.0, 1.0]
         return {'distance_bounds': distance_bounds, 'distance_limits': dist_limits,
                 'angle_bounds': angle_bounds, 'angle_limits': ang_limits}
-
-    def save_coordination_numbers_figure(self, isite, imagename='image.png', plot_type=None,
-                                         title='Coordination numbers', max_dist=2.0,
-                                         figsize=None):
-        fig = self.get_coordination_numbers_figure(isite=isite, plot_type=plot_type, title=title, max_dist=max_dist,
-                                                   figsize=figsize)
-        if fig is None:
-            return
-        fig.savefig(imagename)
-
-    def plot_coordination_numbers(self, isite, plot_type=None, title='Coordination numbers', max_dist=2.0,
-                                  figsize=None):
-        """
-        Plotting of the coordination numbers of a given site for all the distfactor/angfactor parameters. If the
-        chemical environments are given, a color map is added to the plot, with the lowest continuous symmetry measure
-        as the value for the color of that distfactor/angfactor set.
-        :param isite: Index of the site for which the plot has to be done
-        :param plot_type: How to plot the coordinations
-        :param title: Title for the figure
-        :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to 'initial_normalized'
-                         or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case,
-                         the closest atom lies at a "normalized" distance of 1.0 so that 2.0 means refers to this
-                         normalized distance while in the second case, the real distance is used)
-        :param figsize: Size of the figure to be plotted
-        :return: Nothing returned, just plot the figure
-        """
-        fig = self.get_coordination_numbers_figure(isite=isite, plot_type=plot_type, title=title, max_dist=max_dist,
-                                                   figsize=figsize)
-        if fig is None:
-            return
-        fig.show()
-
-    # def unique_coordinations(self, isite):
-    #     """
-    #     Returns all the unique coordinations of a given site (two different sets of distfactor/angfactor parameters
-    #     can lead to the same coordination).
-    #     :param isite: Site for which the unique coordinations are needed
-    #     :return: unique coordinations for this site.
-    #     """
-    #     return self._unique_coordinated_neighbors[isite]
-    #
-    # def unique_coordinated_neighbors_parameters_indices(self, isite):
-    #     return self._unique_coordinated_neighbors_parameters_indices[isite]
 
     def is_close_to(self, other, rtol=0.0, atol=1e-8):
         isclose = (np.isclose(self.normalized_angle_tolerance, other.normalized_angle_tolerance,
@@ -891,24 +612,6 @@ class DetailedVoronoiContainer(MSONable):
     def __ne__(self, other):
         return not self == other
 
-    # def to_bson_voronoi_list(self):
-    #     """
-    #     Transforms the voronoi_list into a vlist + bson_nb_voro_list, that are BSON-encodable.
-    #     :return: [vlist, bson_nb_voro_list], to be used in the as_dict method
-    #     """
-    #     bson_nb_voro_list = [None] * len(self.voronoi_list)
-    #     for ivoro, voro in enumerate(self.voronoi_list):
-    #         if voro is None or voro == 'None':
-    #             continue
-    #         site_voro = []
-    #         for (ps, dd) in voro:
-    #             #site_voro.append([ps.as_dict(), dd]) [float(c) for c in self._fcoords]
-    #             diff = ps._fcoords - self.structure[dd['index']]._fcoords
-    #             site_voro.append([[dd['index'], [float(c) for c in diff]],
-    #                               dd])
-    #         bson_nb_voro_list[ivoro] = site_voro
-    #     return bson_nb_voro_list
-
     def to_bson_voronoi_list2(self):
         """
         Transforms the voronoi_list into a vlist + bson_nb_voro_list, that are BSON-encodable.
@@ -938,7 +641,6 @@ class DetailedVoronoiContainer(MSONable):
         Bson-serializable dict representation of the VoronoiContainer.
         :return: dictionary that is BSON-encodable
         """
-        # bson_nb_voro_list = self.to_bson_voronoi_list()
         bson_nb_voro_list2 = self.to_bson_voronoi_list2()
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
@@ -961,9 +663,7 @@ class DetailedVoronoiContainer(MSONable):
         :return: VoronoiContainer object
         """
         structure = Structure.from_dict(d['structure'])
-        # voronoi_list = from_bson_voronoi_list(d['bson_nb_voro_list'], structure)
         voronoi_list2 = from_bson_voronoi_list2(d['bson_nb_voro_list2'], structure)
-        # neighbors_lists = d['neighbors_lists'] if 'neighbors_lists' in d else None
         maximum_distance_factor = d['maximum_distance_factor'] if 'maximum_distance_factor' in d else None
         minimum_angle_factor = d['minimum_angle_factor'] if 'minimum_angle_factor' in d else None
         return cls(structure=structure, voronoi_list2=voronoi_list2,
