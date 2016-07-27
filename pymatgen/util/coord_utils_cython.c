@@ -1722,7 +1722,7 @@ static char __pyx_k_six_moves[] = "six.moves";
 static char __pyx_k_IndexError[] = "IndexError";
 static char __pyx_k_ValueError[] = "ValueError";
 static char __pyx_k_atleast_2d[] = "atleast_2d";
-static char __pyx_k_lll_matrix[] = "_lll_matrix";
+static char __pyx_k_lll_matrix[] = "lll_matrix";
 static char __pyx_k_maintainer[] = "__maintainer__";
 static char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static char __pyx_k_MemoryError[] = "MemoryError";
@@ -2684,7 +2684,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vect
  *     fcoords1 = lattice._lll_frac_coords(fcoords1)
  *     fcoords2 = lattice._lll_frac_coords(fcoords2)             # <<<<<<<<<<<<<<
  * 
- *     cdef np.float_t[:, ::1] lat = np.array(lattice._lll_matrix, dtype=np.float_, copy=False, order='C')
+ *     cdef np.float_t[:, ::1] lat = np.array(lattice.lll_matrix, dtype=np.float_, copy=False, order='C')
  */
   __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_lattice, __pyx_n_s_lll_frac_coords); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 97; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_5);
@@ -2719,7 +2719,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vect
   /* "pymatgen/util/coord_utils_cython.pyx":99
  *     fcoords2 = lattice._lll_frac_coords(fcoords2)
  * 
- *     cdef np.float_t[:, ::1] lat = np.array(lattice._lll_matrix, dtype=np.float_, copy=False, order='C')             # <<<<<<<<<<<<<<
+ *     cdef np.float_t[:, ::1] lat = np.array(lattice.lll_matrix, dtype=np.float_, copy=False, order='C')             # <<<<<<<<<<<<<<
  * 
  *     cdef int i, j, k, l, I, J, bestK
  */
