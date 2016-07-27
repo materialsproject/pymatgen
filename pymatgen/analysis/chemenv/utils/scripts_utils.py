@@ -38,6 +38,8 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import UNCLEAR_ENVIRONMENT_SYMBOL
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.utils.chemenv_errors import NeighborsNotComputedChemenvError
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCoords
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import TargettedPenaltiedAbundanceChemenvStrategy
@@ -53,28 +55,73 @@ strategies_class_lookup['SimpleAbundanceChemenvStrategy'] = SimpleAbundanceCheme
 strategies_class_lookup['TargettedPenaltiedAbundanceChemenvStrategy'] = TargettedPenaltiedAbundanceChemenvStrategy
 
 
-def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None):
+def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None,
+            show_perfect=False, csm_info=None, symmetry_measure_type='csm_wcs_ctwcc', perfect_radius=0.1,
+            show_distorted=True):
+    if show_perfect:
+        if csm_info is None:
+            raise ValueError('Not possible to show perfect environment without csm_info')
+        csm_suffix = symmetry_measure_type[4:]
+        perf_radius = (perfect_radius - 0.2) / 0.002
     if perm is not None and perfect2local_map is not None:
         raise ValueError('Only "perm" or "perfect2local_map" should be provided in draw_cg, not both')
-    vis.add_bonds(neighbors, site)
-    for n in neighbors:
-        vis.add_site(n)
+    if show_distorted:
+        vis.add_bonds(neighbors, site)
+        for n in neighbors:
+            vis.add_site(n)
     if len(neighbors) < 3:
-        vis.add_bonds(neighbors, site, color=[0.0, 1.0, 0.0], opacity=0.4, radius=0.175)
+        if show_distorted:
+            vis.add_bonds(neighbors, site, color=[0.0, 1.0, 0.0], opacity=0.4, radius=0.175)
+        if show_perfect:
+            if len(neighbors) == 2:
+                perfect_geometry = AbstractGeometry.from_cg(cg)
+                trans = csm_info['other_symmetry_measures']['translation_vector_{}'.format(csm_suffix)]
+                rot = csm_info['other_symmetry_measures']['rotation_matrix_{}'.format(csm_suffix)]
+                scale = csm_info['other_symmetry_measures']['scaling_factor_{}'.format(csm_suffix)]
+                points = perfect_geometry.points_wcs_ctwcc()
+                rotated_points = rotateCoords(points, rot)
+                points = [scale * pp + trans for pp in rotated_points]
+                if 'wcs' in csm_suffix:
+                    ef_points = points[1:]
+                else:
+                    ef_points = points
+                edges = cg.edges(ef_points, input='coords')
+                vis.add_edges(edges, color=[1.0, 0.0, 0.0])
+                for point in points:
+                    vis.add_partial_sphere(coords=point, radius=perf_radius, color=[0.0, 0.0, 0.0],
+                                           start=0, end=360, opacity=1)
     else:
-        if perm is not None:
-            faces = cg.faces(neighbors, permutation=perm)
-            edges = cg.edges(neighbors, permutation=perm)
-        elif perfect2local_map is not None:
-            faces = cg.faces(neighbors, perfect2local_map=perfect2local_map)
-            edges = cg.edges(neighbors, perfect2local_map=perfect2local_map)
-        else:
-            faces = cg.faces(neighbors)
-            edges = cg.edges(neighbors)
-        symbol = list(site.species_and_occu.keys())[0].symbol
-        mycolor = [float(i) / 255 for i in vis.el_color_mapping[symbol]]
-        vis.add_faces(faces, mycolor, opacity=0.4)
-        vis.add_edges(edges)
+        if show_distorted:
+            if perm is not None:
+                faces = cg.faces(neighbors, permutation=perm)
+                edges = cg.edges(neighbors, permutation=perm)
+            elif perfect2local_map is not None:
+                faces = cg.faces(neighbors, perfect2local_map=perfect2local_map)
+                edges = cg.edges(neighbors, perfect2local_map=perfect2local_map)
+            else:
+                faces = cg.faces(neighbors)
+                edges = cg.edges(neighbors)
+            symbol = list(site.species_and_occu.keys())[0].symbol
+            mycolor = [float(i) / 255 for i in vis.el_color_mapping[symbol]]
+            vis.add_faces(faces, mycolor, opacity=0.4)
+            vis.add_edges(edges)
+        if show_perfect:
+            perfect_geometry = AbstractGeometry.from_cg(cg)
+            trans = csm_info['other_symmetry_measures']['translation_vector_{}'.format(csm_suffix)]
+            rot = csm_info['other_symmetry_measures']['rotation_matrix_{}'.format(csm_suffix)]
+            scale = csm_info['other_symmetry_measures']['scaling_factor_{}'.format(csm_suffix)]
+            points = perfect_geometry.points_wcs_ctwcc()
+            rotated_points = rotateCoords(points, rot)
+            points = [scale*pp + trans for pp in rotated_points]
+            if 'wcs' in csm_suffix:
+                ef_points = points[1:]
+            else:
+                ef_points = points
+            edges = cg.edges(ef_points, input='coords')
+            vis.add_edges(edges, color=[1.0, 0.0, 0.0])
+            for point in points:
+                vis.add_partial_sphere(coords=point, radius=perf_radius, color=[0.0, 0.0, 0.0],
+                                       start=0, end=360, opacity=1)
 
 
 
@@ -161,7 +208,7 @@ def compute_environments(chemenv_configuration):
             structure = a.get_structure_by_material_id(input_source)
         lgf.setup_structure(structure)
         print('Computing environments for {} ... '.format(structure.composition.reduced_formula))
-        se = lgf.compute_structure_environments_detailed_voronoi(maximum_distance_factor=max_dist_factor)
+        se = lgf.compute_structure_environments(maximum_distance_factor=max_dist_factor)
         print('Computing environments finished')
         while True:
             test = input('See list of environments determined for each (unequivalent) site ? '
@@ -256,7 +303,7 @@ def compute_environments(chemenv_configuration):
                                                  properties=site._properties)
                             vis.add_site(psite)
                             neighbors = strategy.get_site_neighbors(psite)
-                            draw_cg(vis, psite, neighbors, cg=lgf.cg.get_geometry_from_mp_symbol(ce[0]),
+                            draw_cg(vis, psite, neighbors, cg=lgf.allcg.get_geometry_from_mp_symbol(ce[0]),
                                     perm=ce[1]['permutation'])
                 vis.show()
             test = input('Go to next structure ? ("y" to do so) : ')
