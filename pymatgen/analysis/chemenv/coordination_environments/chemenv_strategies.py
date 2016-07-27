@@ -835,6 +835,12 @@ class AngleNbSetWeight(NbSetWeight):
     def angle_sumn(self, nb_set):
         return np.power(self.angle_sum(nb_set=nb_set), self.aa)
 
+    def __eq__(self, other):
+        return self.aa == other.aa
+
+    def __ne__(self, other):
+        return not self == other
+
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
@@ -882,6 +888,12 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
                     self.fda = self.angninvdist
                 else:
                     self.fda = self.angninvndist
+
+    def __eq__(self, other):
+        return self.average_type == other.average_type and self.aa == other.aa and self.bb == other.bb
+
+    def __ne__(self, other):
+        return not self == other
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
@@ -995,6 +1007,14 @@ class SelfCSMNbSetWeight(NbSetWeight):
                  cn_map=cn_map, value=weight)
         return weight
 
+    def __eq__(self, other):
+        return (self.effective_csm_estimator == other.effective_csm_estimator and
+                self.weight_estimator == other.weight_estimator and
+                self.symmetry_measure_type == other.symmetry_measure_type)
+
+    def __ne__(self, other):
+        return not self == other
+
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
@@ -1081,6 +1101,14 @@ class DeltaCSMNbSetWeight(NbSetWeight):
                  cn_map=cn_map, value=delta_csm_cn_map2)
         return nb_set_weight
 
+    def __eq__(self, other):
+        return (self.effective_csm_estimator == other.effective_csm_estimator and
+                self.weight_estimator == other.weight_estimator and
+                self.symmetry_measure_type == other.symmetry_measure_type)
+
+    def __ne__(self, other):
+        return not self == other
+
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
@@ -1104,6 +1132,13 @@ class CNBiasNbSetWeight(NbSetWeight):
 
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
         return self.cn_weights[len(nb_set)]
+
+    def __eq__(self, other):
+        return (self.cn_weights == other.cn_weights and
+                self.initialization_options == other.initialization_options)
+
+    def __ne__(self, other):
+        return not self == other
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
@@ -1268,6 +1303,17 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
                 return False
             return True
         raise ValueError('Should not reach this point!')
+
+    def __eq__(self, other):
+        return (self.weight_type == other.weight_type and
+                self.surface_definition == other.surface_definition and
+                self.nb_sets_from_hints == other.nb_sets_from_hints and
+                self.other_nb_sets == other.other_nb_sets and
+                self.additional_condition == other.additional_condition
+                )
+
+    def __ne__(self, other):
+        return not self == other
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
