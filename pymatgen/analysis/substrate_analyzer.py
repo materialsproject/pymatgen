@@ -353,9 +353,9 @@ class SubstrateAnalyzer:
             substrate(Structure): conventional standard structure for the
                 substrate
             elasticity_tensor(ElasticTensor): elasticity tensor for the film
-            film_millers(array): film planes to consider in search as defined by
+            film_millers(array): film facets to consider in search as defined by
                 miller indicies
-            substrate_millers(array): substrate planes to consider in search as
+            substrate_millers(array): substrate facets to consider in search as
                 defined by miller indicies
             ground_state_energy(float): ground state energy for the film
             lowest(bool): only consider lowest matching area for each surface

@@ -9,6 +9,7 @@ Subpackages
     pymatgen.io.abinit
     pymatgen.io.feff
     pymatgen.io.lammps
+    pymatgen.io.tests
     pymatgen.io.vasp
 
 Submodules

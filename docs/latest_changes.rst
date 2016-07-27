@@ -1,7 +1,8 @@
 Change log
 ==========
 
-v4.1.0
+v4.2.0
 ------
-* Wulff shape generator and analysis.
-* Minor bug fixes.
+* Fix important bug in minimum image distance computation for very skewed cells.
+* Major refactoring of WulffShape code.
+* Misc bug fixes for elastic tensor and other codes.

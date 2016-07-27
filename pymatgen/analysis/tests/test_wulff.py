@@ -1,12 +1,4 @@
 # coding: utf-8
-# !/usr/bin/env python
-
-__author__ = 'Zihan Xu, Richard Tran, Balachandran Radhakrishnan'
-__copyright__ = 'Copyright 2013, The Materials Virtual Lab'
-__version__ = '0.1'
-__maintainer__ = 'Zihan Xu'
-__email__ = 'zix009@eng.ucsd.edu'
-__date__ = 'May 05 2016'
 
 import unittest
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -19,12 +11,20 @@ from pymatgen.analysis.wulff import WulffShape
 import json
 import os
 
-class TestWulff(PymatgenTest):
+__author__ = 'Zihan Xu, Richard Tran, Balachandran Radhakrishnan'
+__copyright__ = 'Copyright 2013, The Materials Virtual Lab'
+__version__ = '0.1'
+__maintainer__ = 'Zihan Xu'
+__email__ = 'zix009@eng.ucsd.edu'
+__date__ = 'May 05 2016'
 
+
+class WulffShapeTest(PymatgenTest):
     def setUp(self):
 
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "surface_samples.json")) as data_file:
+        with open(
+                os.path.join(module_dir, "surface_samples.json")) as data_file:
             surface_properties = json.load(data_file)
 
         surface_energies, miller_indices = {}, {}
@@ -45,7 +45,6 @@ class TestWulff(PymatgenTest):
         # In the case of a hcp material
         # Ti: mp-72
         latt_Ti = Lattice.hexagonal(4.6000, 2.8200)
-
         self.ucell_Nb = Structure(latt_Nb, ["Nb", "Nb", "Nb", "Nb"],
                                   [[0, 0, 0], [0, 0.5, 0.5],
                                    [0.5, 0, 0.5], [0.5, 0.5, 0]])
@@ -66,6 +65,12 @@ class TestWulff(PymatgenTest):
 
         self.surface_properties = surface_properties
 
+    def test_get_plot(self):
+        # Basic test, not really a unittest.
+        self.wulff_Ti.get_plot()
+        self.wulff_Nb.get_plot()
+        self.wulff_Ir.get_plot()
+
     def symm_check(self, ucell, wulff_vertices):
         """
         # Checks if the point group of the Wulff shape matches
@@ -81,7 +86,8 @@ class TestWulff(PymatgenTest):
         """
 
         space_group_analyzer = SpacegroupAnalyzer(ucell)
-        symm_ops = space_group_analyzer.get_point_group_operations(cartesian=True)
+        symm_ops = space_group_analyzer.get_point_group_operations(
+            cartesian=True)
         for point in wulff_vertices:
             for op in symm_ops:
                 symm_point = op.operate(point)
@@ -103,7 +109,8 @@ class TestWulff(PymatgenTest):
         fractional_areas = self.wulff_Ir.area_fraction_dict
         miller_list = [hkl for hkl in fractional_areas.keys()]
         area_list = [fractional_areas[hkl] for hkl in fractional_areas.keys()]
-        self.assertEqual(miller_list[area_list.index(max(area_list))], (1,1,1))
+        self.assertEqual(miller_list[area_list.index(max(area_list))],
+                         (1, 1, 1))
 
         # Overall weighted surface energy of fcc Nb should be
         # equal to the energy of the (310) surface, ie. fcc Nb
@@ -112,14 +119,13 @@ class TestWulff(PymatgenTest):
 
         Nb_area_fraction_dict = self.wulff_Nb.area_fraction_dict
         for hkl in Nb_area_fraction_dict.keys():
-            if hkl == (3,1,0):
+            if hkl == (3, 1, 0):
                 self.assertEqual(Nb_area_fraction_dict[hkl], 1)
             else:
                 self.assertEqual(Nb_area_fraction_dict[hkl], 0)
 
-        self.assertEqual(self.wulff_Nb.miller_energy_dict[(3,1,0)],
+        self.assertEqual(self.wulff_Nb.miller_energy_dict[(3, 1, 0)],
                          self.wulff_Nb.weighted_surface_energy)
-
 
     def symmetry_test(self):
 
@@ -129,7 +135,7 @@ class TestWulff(PymatgenTest):
         # updates of the surface_properties collection
 
         check_symmetry_Nb = self.symm_check(self.ucell_Nb,
-                                         self.wulff_Nb.wulff_pt_list)
+                                            self.wulff_Nb.wulff_pt_list)
         check_symmetry_Ir = self.symm_check(self.ucell_Ir,
                                             self.wulff_Ir.wulff_pt_list)
         check_symmetry_Ti = self.symm_check(self.ucell_Ti,
@@ -141,10 +147,10 @@ class TestWulff(PymatgenTest):
     def test_get_azimuth_elev(self):
 
         # Test out the viewing of the Wulff shape from Miller indices.
-        azim, elev = self.wulff_Ir.get_azimuth_elev((0,0,1))
+        azim, elev = self.wulff_Ir._get_azimuth_elev((0, 0, 1))
         self.assertEqual(azim, 0)
         self.assertEqual(elev, 90)
-        azim, elev = self.wulff_Ir.get_azimuth_elev((1,1,1))
+        azim, elev = self.wulff_Ir._get_azimuth_elev((1, 1, 1))
         self.assertAlmostEqual(azim, 45)
 
     def test_properties(self):
@@ -155,7 +161,6 @@ class TestWulff(PymatgenTest):
         wulff_shapes = {"mp-8636": self.wulff_Nb, "mp-72": self.wulff_Ti,
                         "mp-101": self.wulff_Ir}
         for mpid in wulff_shapes.keys():
-
             properties = self.surface_properties[mpid]
             wulff = wulff_shapes[mpid]
             self.assertEqual(round(wulff.weighted_surface_energy, 3),

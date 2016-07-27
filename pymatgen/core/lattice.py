@@ -3,6 +3,20 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import math
+import itertools
+import warnings
+
+from six.moves import map, zip
+
+import numpy as np
+from numpy.linalg import inv
+from numpy import pi, dot, transpose, radians
+from scipy.spatial import Voronoi
+
+from monty.json import MSONable
+from pymatgen.util.coord_utils import pbc_diff
+from pymatgen.util.num_utils import abs_cap
 
 """
 This module defines the classes relating to 3D lattices.
@@ -17,20 +31,6 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-import math
-import itertools
-
-from six.moves import map, zip
-
-import numpy as np
-from numpy.linalg import inv
-from numpy import pi, dot, transpose, radians
-from scipy.spatial import Voronoi
-
-from monty.json import MSONable
-from monty.dev import deprecated
-from pymatgen.util.num_utils import abs_cap
-from pymatgen.core.units import ArrayWithUnit
 
 
 class Lattice(MSONable):
@@ -68,9 +68,12 @@ class Lattice(MSONable):
         self._angles = np.arccos(angles) * 180. / pi
         self._lengths = lengths
         self._matrix = m
+
+        self.is_orthogonal = all([abs(a - 90) < 1e-5 for a in self._angles])
         # The inverse matrix is lazily generated for efficiency.
         self._inv_matrix = None
         self._metric_tensor = None
+        self._diags = None
 
     def __format__(self, fmt_spec=''):
         """
@@ -657,7 +660,8 @@ class Lattice(MSONable):
         Returns:
             Niggli-reduced lattice.
         """
-        matrix = self._matrix.copy()
+        # lll reduction is more stable for skewed cells
+        matrix = self.get_lll_reduced_lattice().matrix
         a = matrix[0]
         b = matrix[1]
         c = matrix[2]
@@ -909,7 +913,7 @@ class Lattice(MSONable):
             else:
                 fcoords, dists, inds
         """
-        recp_len = np.array(self.reciprocal_lattice_crystallographic.abc)
+        recp_len = np.array(self.reciprocal_lattice.abc) / (2 * pi)
         nmax = float(r) * recp_len + 0.01
 
         pcoords = self.get_fractional_coords(center)
@@ -967,36 +971,29 @@ class Lattice(MSONable):
             2d array of cartesian distances. E.g the distance between
             fcoords1[i] and fcoords2[j] is distances[i,j]
         """
-        #ensure correct shape
+        # ensure correct shape
         fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
 
-        #ensure that all points are in the unit cell
+        # ensure that all points are in the unit cell
         fcoords1 = np.mod(fcoords1, 1)
         fcoords2 = np.mod(fcoords2, 1)
 
-        #create images, 2d array of all length 3 combinations of [-1,0,1]
-        r = np.arange(-1, 2)
-        arange = r[:, None] * np.array([1, 0, 0])[None, :]
-        brange = r[:, None] * np.array([0, 1, 0])[None, :]
-        crange = r[:, None] * np.array([0, 0, 1])[None, :]
-        images = arange[:, None, None] + brange[None, :, None] +\
-            crange[None, None, :]
-        images = images.reshape((27, 3))
-
-        #create images of f2
+        n = self._get_mic_range(fcoords1, fcoords2)
+        ranges = [list(range(-i, i + 1)) for i in n]
+        images = np.array(list(itertools.product(*ranges)))
         shifted_f2 = fcoords2[:, None, :] + images[None, :, :]
 
         cart_f1 = self.get_cartesian_coords(fcoords1)
         cart_f2 = self.get_cartesian_coords(shifted_f2)
 
         if cart_f1.size * cart_f2.size < 1e5:
-            #all vectors from f1 to f2
+            # all vectors from f1 to f2
             vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
             d_2 = np.sum(vectors ** 2, axis=3)
             distances = np.min(d_2, axis=2) ** 0.5
             return distances
         else:
-            #memory will overflow, so do a loop
+            # memory will overflow, so do a loop
             distances = []
             for c1 in cart_f1:
                 vectors = cart_f2[:, :, :] - c1[None, None, :]
@@ -1030,21 +1027,20 @@ class Lattice(MSONable):
             This means that the distance between frac_coords1 and (jimage +
             frac_coords2) is equal to distance.
         """
-        #The following code is heavily vectorized to maximize speed.
-        #Get the image adjustment necessary to bring coords to unit_cell.
+        # The following code is heavily vectorized to maximize speed.
+        # Get the image adjustment necessary to bring coords to unit_cell.
         adj1 = np.floor(frac_coords1)
         adj2 = np.floor(frac_coords2)
-        #Shift coords to unitcell
+        # Shift coords to unitcell
         coord1 = frac_coords1 - adj1
         coord2 = frac_coords2 - adj2
-        # Generate set of images required for testing.
-        # This is a cheat to create an 8x3 array of all length 3
-        # combinations of 0,1
-        test_set = np.unpackbits(np.array([5, 57, 119],
-                                          dtype=np.uint8)).reshape(8, 3)
-        images = np.copysign(test_set, coord1 - coord2)
+
+        n = self._get_mic_range(coord1, coord2)
+        ranges = [list(range(-i, i + 1)) for i in n]
+        images = np.array(list(itertools.product(*ranges)))
+
         # Create tiled cartesian coords for computing distances.
-        vec = np.tile(coord2 - coord1, (8, 1)) + images
+        vec = np.tile(coord2 - coord1, (len(images), 1)) + images
         vec = self.get_cartesian_coords(vec)
         # Compute distances manually.
         dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
@@ -1081,3 +1077,34 @@ class Lattice(MSONable):
         mapped_vec = self.get_cartesian_coords(jimage + frac_coords2
                                                - frac_coords1)
         return np.linalg.norm(mapped_vec), jimage
+
+    def _get_mic_range(self, fcoords1, fcoords2):
+
+        if self.is_orthogonal:
+            return 1, 1, 1
+
+        if self._diags is None:
+            self._diags = np.sqrt((np.dot([[1, 1, 1], [-1, 1, 1], [1, -1, 1],
+                                     [-1, -1, 1],
+                                     ], self._matrix) ** 2).sum(1))
+
+        vecs = np.vstack(fcoords1[:, None] - fcoords2[None, :])
+        vecs = vecs - np.round(vecs)
+
+        d = dot(vecs, self._matrix)
+        d = np.sqrt(np.sum(d ** 2, axis=1))
+        d = np.max(d)
+
+        cutoff = min(d, max(self._diags) / 2)
+        n = np.array(np.ceil(cutoff * np.prod(self._lengths) /
+                             (self.volume * self._lengths)))
+
+        if any(n > 50):
+            n_new = np.minimum(n, 50)
+            warnings.warn("Cell is highly skewed and requires a search "
+                          "through image range of +- %s. For efficiency, "
+                          "we will limit the search to %s images. Recommend "
+                          "you do a niggli or LLL reduction of the cell "
+                          "before computing distances" % (n, n_new))
+            n = n_new.astype(dtype=np.int)
+        return n.astype(dtype=int)

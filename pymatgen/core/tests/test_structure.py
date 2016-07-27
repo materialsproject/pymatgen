@@ -267,10 +267,25 @@ class IStructureTest(PymatgenTest):
                                     int_s[2].lattice.abc)
         self.assertArrayAlmostEqual(struct2.lattice.angles,
                                     int_s[2].lattice.angles)
-        int_angles = [(a + struct2.lattice.angles[i]) / 2
-                      for i, a in enumerate(struct.lattice.angles)]
+        int_angles = [110.3976469, 94.5359731, 64.5165856]
         self.assertArrayAlmostEqual(int_angles,
                                     int_s[1].lattice.angles)
+
+        # Assert that volume is monotonic
+        self.assertTrue(struct2.lattice.volume >= int_s[1].lattice.volume)
+        self.assertTrue(int_s[1].lattice.volume >= struct.lattice.volume)
+
+    def test_interpolate_lattice_rotation(self):
+        l1 = Lattice([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        l2 = Lattice([[-1.01, 0, 0], [0, -1.01, 0], [0, 0, 1]])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
+        struct1 = IStructure(l1, ["Si"] * 2, coords)
+        struct2 = IStructure(l2, ["Si"] * 2, coords)
+        int_s = struct1.interpolate(struct2, 2, interpolate_lattices=True)
+
+        # Assert that volume is monotonic
+        self.assertTrue(struct2.lattice.volume >= int_s[1].lattice.volume)
+        self.assertTrue(int_s[1].lattice.volume >= struct1.lattice.volume)
 
     def test_get_primitive_structure(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
