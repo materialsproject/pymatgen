@@ -206,8 +206,8 @@ class DetailedVoronoiContainer(MSONable):
             self.neighbors_distances[isite].append({'min': results[isorted_distances[0]]['distance'],
                                                     'max': results[isorted_distances[0]]['distance']})
             icurrent = 0
-            nb_indices = {isorted_distances[0]}
-            dnb_indices = {isorted_distances[0]}
+            nb_indices = {int(isorted_distances[0])}
+            dnb_indices = {int(isorted_distances[0])}
             for idist in iter(isorted_distances):
                 wd = normalized_distances[idist]
                 if self.maximum_distance_factor is not None:
@@ -221,19 +221,19 @@ class DetailedVoronoiContainer(MSONable):
                               rtol=0.0, atol=self.normalized_distance_tolerance):
                     self.neighbors_normalized_distances[isite][icurrent]['max'] = wd
                     self.neighbors_distances[isite][icurrent]['max'] = results[idist]['distance']
-                    dnb_indices.add(idist)
+                    dnb_indices.add(int(idist))
                 else:
                     self.neighbors_normalized_distances[isite][icurrent]['nb_indices'] = list(nb_indices)
                     self.neighbors_distances[isite][icurrent]['nb_indices'] = list(nb_indices)
                     self.neighbors_normalized_distances[isite][icurrent]['dnb_indices'] = list(dnb_indices)
                     self.neighbors_distances[isite][icurrent]['dnb_indices'] = list(dnb_indices)
-                    dnb_indices = {idist}
+                    dnb_indices = {int(idist)}
                     self.neighbors_normalized_distances[isite].append({'min': wd,
                                                                        'max': wd})
                     self.neighbors_distances[isite].append({'min': results[idist]['distance'],
                                                             'max': results[idist]['distance']})
                     icurrent += 1
-                nb_indices.add(idist)
+                nb_indices.add(int(idist))
             else:
                 self.neighbors_normalized_distances[isite][icurrent]['nb_indices'] = list(nb_indices)
                 self.neighbors_distances[isite][icurrent]['nb_indices'] = list(nb_indices)
@@ -262,8 +262,8 @@ class DetailedVoronoiContainer(MSONable):
             self.neighbors_angles[isite].append({'max': results[isorted_angles[0]]['angle'],
                                                  'min': results[isorted_angles[0]]['angle']})
             icurrent = 0
-            nb_indices = {isorted_angles[0]}
-            dnb_indices = {isorted_angles[0]}
+            nb_indices = {int(isorted_angles[0])}
+            dnb_indices = {int(isorted_angles[0])}
             for iang in iter(isorted_angles):
                 wa = normalized_angles[iang]
                 if self.minimum_angle_factor is not None:
@@ -277,19 +277,19 @@ class DetailedVoronoiContainer(MSONable):
                               rtol=0.0, atol=self.normalized_angle_tolerance):
                     self.neighbors_normalized_angles[isite][icurrent]['min'] = wa
                     self.neighbors_angles[isite][icurrent]['min'] = results[iang]['angle']
-                    dnb_indices.add(iang)
+                    dnb_indices.add(int(iang))
                 else:
                     self.neighbors_normalized_angles[isite][icurrent]['nb_indices'] = list(nb_indices)
                     self.neighbors_angles[isite][icurrent]['nb_indices'] = list(nb_indices)
                     self.neighbors_normalized_angles[isite][icurrent]['dnb_indices'] = list(dnb_indices)
                     self.neighbors_angles[isite][icurrent]['dnb_indices'] = list(dnb_indices)
-                    dnb_indices = {iang}
+                    dnb_indices = {int(iang)}
                     self.neighbors_normalized_angles[isite].append({'max': wa,
                                                                     'min': wa})
                     self.neighbors_angles[isite].append({'max': results[iang]['angle'],
                                                          'min': results[iang]['angle']})
                     icurrent += 1
-                nb_indices.add(iang)
+                nb_indices.add(int(iang))
             else:
                 self.neighbors_normalized_angles[isite][icurrent]['nb_indices'] = list(nb_indices)
                 self.neighbors_angles[isite][icurrent]['nb_indices'] = list(nb_indices)

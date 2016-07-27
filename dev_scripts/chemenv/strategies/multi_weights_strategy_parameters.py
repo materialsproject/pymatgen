@@ -293,4 +293,16 @@ if __name__ == '__main__':
     print(np.mean(allselfmaxcsms))
     print(np.mean(alldeltacsmmins))
 
+    fig3 = plt.figure(3, figsize=(24, 12))
+    subplot3 = fig3.add_subplot(111)
+
+    for ipair, cn_pair in enumerate(all_cn_pairs):
+        if len(delta_csm_mins[cn_pair]) == 0:
+            continue
+        subplot3.plot(ipair*np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], 'b+')
+
+    subplot3.set_xticks(range(len(all_cn_pairs)))
+    subplot3.set_xticklabels(all_cn_pairs, rotation='vertical')
+    fig3.savefig('delta_params_per_cn_pair.pdf')
+
     plt.show()

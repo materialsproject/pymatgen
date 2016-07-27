@@ -11,9 +11,6 @@ import os
 import shutil
 import random
 import numpy as np
-import matplotlib
-matplotlib.use("pdf")
-import matplotlib.image as mpimg
 from pymatgen.util.testing import PymatgenTest
 
 json_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",

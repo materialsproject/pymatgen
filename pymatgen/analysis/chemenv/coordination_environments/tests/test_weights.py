@@ -98,15 +98,11 @@ class StrategyWeightsTest(PymatgenTest):
         nadw8 = NormalizedAngleDistanceNbSetWeight(average_type='arithmetic', aa=2, bb=0)
         nadw9 = NormalizedAngleDistanceNbSetWeight(average_type='arithmetic', aa=0, bb=2)
         nadw10 = NormalizedAngleDistanceNbSetWeight(average_type='arithmetic', aa=2, bb=2)
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaisesRegexp(ValueError, 'Both exponents are 0.'):
             NormalizedAngleDistanceNbSetWeight(average_type='arithmetic', aa=0, bb=0)
-        the_exception = cm.exception
-        self.assertEqual(the_exception.message, 'Both exponents are 0.')
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaisesRegexp(ValueError, 'Average type is "arithmetix" '
+                                                 'while it should be "geometric" or "arithmetic"'):
             NormalizedAngleDistanceNbSetWeight(average_type='arithmetix', aa=1, bb=1)
-        the_exception = cm.exception
-        self.assertEqual(the_exception.message, 'Average type is "arithmetix" '
-                                                'while it should be "geometric" or "arithmetic"')
 
         fake_nb_set.normalized_distances = [1.2632574171572457, 1.1231971151388764, 1.0,
                                             1.1887986376446249, 1.188805134890625]
@@ -142,10 +138,8 @@ class StrategyWeightsTest(PymatgenTest):
                                                               5: 4.1, 6: 4.2, 7: 4.3, 8: 4.4,
                                                               9: 4.5, 10: 4.6, 11: 4.6, 12: 4.7,
                                                               13: 4.8})
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaisesRegexp(ValueError, 'Weights should be provided for CN 1 to 13'):
             CNBiasNbSetWeight.explicit(cn_weights={1: 1.0, 13: 2.0})
-        the_exception = cm.exception
-        self.assertEqual(the_exception.message, 'Weights should be provided for CN 1 to 13')
 
         fake_nb_set.cn = 1
         w1 = bias_weight1.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
