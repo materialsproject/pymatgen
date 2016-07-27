@@ -440,8 +440,8 @@ class LatticeTestCase(PymatgenTest):
 
         lll_fcoords = l2._lll_frac_coords(l2_fcoords)
 
-        self.assertArrayAlmostEqual(lll_fcoords - np.floor(lll_fcoords),
-                                    l1_fcoords - np.floor(l1_fcoords))
+        self.assertArrayAlmostEqual(lll_fcoords,
+                                    l1_fcoords)
         self.assertArrayAlmostEqual(l1.get_cartesian_coords(lll_fcoords),
                                     np.dot(lll_fcoords, l2.lll_matrix))
 
