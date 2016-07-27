@@ -80,7 +80,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
         mask (int_ array): Mask of matches that are not allowed.
             i.e. if mask[1,2] == True, then subset[1] cannot be matched
             to superset[2]
-        frac_tol (float_ array of length 3): Fractional tolerance (per lattice vector) over which
+        frac_tol (float_ array of length 3): Fractional tolerance (per LLL lattice vector) over which
             the calculation of minimum vectors will be skipped.
             Can speed up calculation considerably for large structures.
 
@@ -92,7 +92,11 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     #ensure correct shape
     fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
 
-    cdef np.float_t[:, ::1] lat = np.array(lattice._matrix, dtype=np.float_, copy=False, order='C')
+
+    fcoords1 = lattice._lll_frac_coords(fcoords1)
+    fcoords2 = lattice._lll_frac_coords(fcoords2)
+
+    cdef np.float_t[:, ::1] lat = np.array(lattice._lll_matrix, dtype=np.float_, copy=False, order='C')
 
     cdef int i, j, k, l, I, J, bestK
 

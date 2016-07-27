@@ -674,6 +674,7 @@ class StructureMatcher(MSONable):
                 self._get_supercells(struct1, struct2, fu, s1_supercell):
             # compute fractional tolerance
             normalization = (len(s1fc) / avg_l.volume) ** (1/3)
+            # average lattice is close to lll already
             inv_abc = np.array(avg_l.reciprocal_lattice.abc)
             frac_tol = inv_abc * self.stol / (np.pi * normalization)
             # loop over all translations
