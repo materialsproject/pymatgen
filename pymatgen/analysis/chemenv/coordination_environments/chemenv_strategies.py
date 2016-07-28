@@ -1041,11 +1041,18 @@ class DeltaCSMNbSetWeight(NbSetWeight):
 
     def __init__(self, effective_csm_estimator=DEFAULT_EFFECTIVE_CSM_ESTIMATOR,
                  weight_estimator=DEFAULT_WEIGHT_ESTIMATOR,
+                 delta_cn_weight_estimators=None,
                  symmetry_measure_type=DEFAULT_SYMMETRY_MEASURE_TYPE):
         self.effective_csm_estimator = effective_csm_estimator
         self.effective_csm_estimator_rf = CSMInfiniteRatioFunction.from_dict(effective_csm_estimator)
         self.weight_estimator = weight_estimator
-        self.weight_estimator_rf = DeltaCSMRatioFunction.from_dict(weight_estimator)
+        if self.weight_estimator is not None:
+            self.weight_estimator_rf = DeltaCSMRatioFunction.from_dict(weight_estimator)
+        self.delta_cn_weight_estimators = delta_cn_weight_estimators
+        self.delta_cn_weight_estimators_rfs = {}
+        if delta_cn_weight_estimators is not None:
+            for delta_cn, dcn_w_estimator in delta_cn_weight_estimators.items():
+                self.delta_cn_weight_estimators_rfs[delta_cn] = DeltaCSMRatioFunction.from_dict(dcn_w_estimator)
         self.symmetry_measure_type = symmetry_measure_type
         self.max_effective_csm = self.effective_csm_estimator['options']['max_csm']
 
@@ -1074,8 +1081,8 @@ class DeltaCSMNbSetWeight(NbSetWeight):
                                             symmetry_measure_type=self.symmetry_measure_type,
                                             max_effective_csm=self.max_effective_csm,
                                             effective_csm_estimator_ratio_function=self.effective_csm_estimator_rf)
+                this_delta_csm = effcsm2 - effcsm
                 if cn2 == cn:
-                    this_delta_csm = effcsm2 - effcsm
                     if this_delta_csm < 0.0:
                         set_info(additional_info=additional_info, field='delta_csms', isite=isite,
                                  cn_map=cn_map, value=this_delta_csm)
@@ -1085,11 +1092,12 @@ class DeltaCSMNbSetWeight(NbSetWeight):
                                  cn_map=cn_map, value=(cn2, inb_set2))
                         return 0.0
                 else:
-                    this_delta_csm = effcsm2 - effcsm
-                    # this_delta_csm_weight = self.weight_estimator_rf.evaluate(this_delta_csm)
-                    if delta_csm is None or this_delta_csm < delta_csm:
-                    # if this_delta_csm_weight < nb_set_weight:
+                    dcn = cn2 - cn
+                    if dcn in self.delta_cn_weight_estimators_rfs:
+                        this_delta_csm_weight = self.delta_cn_weight_estimators_rfs[dcn].evaluate(this_delta_csm)
+                    else:
                         this_delta_csm_weight = self.weight_estimator_rf.evaluate(this_delta_csm)
+                    if this_delta_csm_weight < nb_set_weight:
                         delta_csm = this_delta_csm
                         delta_csm_cn_map2 = (cn2, inb_set2)
                         nb_set_weight = this_delta_csm_weight
@@ -1104,16 +1112,36 @@ class DeltaCSMNbSetWeight(NbSetWeight):
     def __eq__(self, other):
         return (self.effective_csm_estimator == other.effective_csm_estimator and
                 self.weight_estimator == other.weight_estimator and
+                self.delta_cn_weight_estimators == other.delta_cn_weight_estimators and
                 self.symmetry_measure_type == other.symmetry_measure_type)
 
     def __ne__(self, other):
         return not self == other
+
+    @classmethod
+    def delta_cn_specifics(cls, delta_csm_mins=None, delta_csm_maxs=None, function='smootherstep',
+                           symmetry_measure_type='csm_wcs_ctwcc',
+                           effective_csm_estimator=DEFAULT_EFFECTIVE_CSM_ESTIMATOR):
+        if delta_csm_mins is None or delta_csm_maxs is None:
+            delta_cn_weight_estimators = {dcn: {'function': function,
+                                                'options': {'delta_csm_min': 0.25+dcn*0.25,
+                                                            'delta_csm_max': 5.0+dcn*0.25}} for dcn in range(1, 13)}
+        else:
+            delta_cn_weight_estimators = {dcn: {'function': function,
+                                                'options': {'delta_csm_min': delta_csm_mins[dcn-1],
+                                                            'delta_csm_max': delta_csm_maxs[dcn-1]}}
+                                          for dcn in range(1, 13)}
+        return cls(effective_csm_estimator=effective_csm_estimator,
+                   weight_estimator=None,
+                   delta_cn_weight_estimators=delta_cn_weight_estimators,
+                   symmetry_measure_type=symmetry_measure_type)
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "effective_csm_estimator": self.effective_csm_estimator,
                 "weight_estimator": self.weight_estimator,
+                "delta_cn_weight_estimators": self.delta_cn_weight_estimators,
                 "symmetry_measure_type": self.symmetry_measure_type
                 }
 
@@ -1121,6 +1149,8 @@ class DeltaCSMNbSetWeight(NbSetWeight):
     def from_dict(cls, dd):
         return cls(effective_csm_estimator=dd['effective_csm_estimator'],
                    weight_estimator=dd['weight_estimator'],
+                   delta_cn_weight_estimators=dd['delta_cn_weight_estimators']
+                   if 'delta_cn_weight_estimators' in dd else None,
                    symmetry_measure_type=dd['symmetry_measure_type'])
 
 
