@@ -1706,7 +1706,6 @@ static char __pyx_k_version[] = "__version__";
 static char __pyx_k_Ellipsis[] = "Ellipsis";
 static char __pyx_k_fcoords1[] = "fcoords1";
 static char __pyx_k_fcoords2[] = "fcoords2";
-static char __pyx_k_frac_tol[] = "frac_tol";
 static char __pyx_k_has_ftol[] = "has_ftol";
 static char __pyx_k_has_mask[] = "has_mask";
 static char __pyx_k_images_t[] = "images_t";
@@ -1729,6 +1728,7 @@ static char __pyx_k_MemoryError[] = "MemoryError";
 static char __pyx_k_Nov_27_2011[] = "Nov 27, 2011";
 static char __pyx_k_within_frac[] = "within_frac";
 static char __pyx_k_RuntimeError[] = "RuntimeError";
+static char __pyx_k_lll_frac_tol[] = "lll_frac_tol";
 static char __pyx_k_Will_Richards[] = "Will Richards";
 static char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
 static char __pyx_k_allocate_buffer[] = "allocate_buffer";
@@ -1862,7 +1862,6 @@ static PyObject *__pyx_n_s_float;
 static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_fortran;
 static PyObject *__pyx_n_u_fortran;
-static PyObject *__pyx_n_s_frac_tol;
 static PyObject *__pyx_n_s_ftol;
 static PyObject *__pyx_kp_s_got_differing_extents_in_dimensi;
 static PyObject *__pyx_n_s_has_ftol;
@@ -1885,6 +1884,7 @@ static PyObject *__pyx_n_s_l;
 static PyObject *__pyx_n_s_lat;
 static PyObject *__pyx_n_s_lattice;
 static PyObject *__pyx_n_s_lll_frac_coords;
+static PyObject *__pyx_n_s_lll_frac_tol;
 static PyObject *__pyx_n_s_lll_matrix;
 static PyObject *__pyx_n_s_long;
 static PyObject *__pyx_n_s_m;
@@ -1947,7 +1947,7 @@ static PyObject *__pyx_n_s_within_frac;
 static PyObject *__pyx_kp_s_wmdrichards_gmail_com;
 static PyObject *__pyx_n_s_zeros;
 static PyObject *__pyx_n_s_zip;
-static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vectors(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_lattice, PyObject *__pyx_v_fcoords1, PyObject *__pyx_v_fcoords2, PyObject *__pyx_v_mask, PyObject *__pyx_v_return_d2, PyObject *__pyx_v_frac_tol); /* proto */
+static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vectors(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_lattice, PyObject *__pyx_v_fcoords1, PyObject *__pyx_v_fcoords2, PyObject *__pyx_v_mask, PyObject *__pyx_v_return_d2, PyObject *__pyx_v_lll_frac_tol); /* proto */
 static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2is_coord_subset_pbc(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_subset, PyObject *__pyx_v_superset, PyObject *__pyx_v_atol, PyObject *__pyx_v_mask); /* proto */
 static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mapping_pbc(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_subset, PyObject *__pyx_v_superset, PyObject *__pyx_v_atol); /* proto */
 static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_6det3x3(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_matrix); /* proto */
@@ -2339,14 +2339,14 @@ static void __pyx_f_8pymatgen_4util_18coord_utils_cython_dot_2d_mod(__Pyx_memvie
 /* "pymatgen/util/coord_utils_cython.pyx":70
  * @cython.wraparound(False)
  * @cython.initializedcheck(False)
- * def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False, frac_tol=None):             # <<<<<<<<<<<<<<
+ * def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False, lll_frac_tol=None):             # <<<<<<<<<<<<<<
  *     """
  *     Returns the shortest vectors between two lists of coordinates taking into
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_8pymatgen_4util_18coord_utils_cython_1pbc_shortest_vectors(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vectors[] = "\n    Returns the shortest vectors between two lists of coordinates taking into\n    account periodic boundary conditions and the lattice.\n\n    Args:\n        lattice: lattice to use\n        fcoords1: First set of fractional coordinates. e.g., [0.5, 0.6, 0.7]\n            or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. Must be np.float_\n        fcoords2: Second set of fractional coordinates.\n        mask (int_ array): Mask of matches that are not allowed.\n            i.e. if mask[1,2] == True, then subset[1] cannot be matched\n            to superset[2]\n        frac_tol (float_ array of length 3): Fractional tolerance (per LLL lattice vector) over which\n            the calculation of minimum vectors will be skipped.\n            Can speed up calculation considerably for large structures.\n\n    Returns:\n        array of displacement vectors from fcoords1 to fcoords2\n        first index is fcoords1 index, second is fcoords2 index\n    ";
+static char __pyx_doc_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vectors[] = "\n    Returns the shortest vectors between two lists of coordinates taking into\n    account periodic boundary conditions and the lattice.\n\n    Args:\n        lattice: lattice to use\n        fcoords1: First set of fractional coordinates. e.g., [0.5, 0.6, 0.7]\n            or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. Must be np.float_\n        fcoords2: Second set of fractional coordinates.\n        mask (int_ array): Mask of matches that are not allowed.\n            i.e. if mask[1,2] == True, then subset[1] cannot be matched\n            to superset[2]\n        lll_frac_tol (float_ array of length 3): Fractional tolerance (per LLL lattice vector) over which\n            the calculation of minimum vectors will be skipped.\n            Can speed up calculation considerably for large structures.\n\n    Returns:\n        array of displacement vectors from fcoords1 to fcoords2\n        first index is fcoords1 index, second is fcoords2 index\n    ";
 static PyMethodDef __pyx_mdef_8pymatgen_4util_18coord_utils_cython_1pbc_shortest_vectors = {"pbc_shortest_vectors", (PyCFunction)__pyx_pw_8pymatgen_4util_18coord_utils_cython_1pbc_shortest_vectors, METH_VARARGS|METH_KEYWORDS, __pyx_doc_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vectors};
 static PyObject *__pyx_pw_8pymatgen_4util_18coord_utils_cython_1pbc_shortest_vectors(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_lattice = 0;
@@ -2354,7 +2354,7 @@ static PyObject *__pyx_pw_8pymatgen_4util_18coord_utils_cython_1pbc_shortest_vec
   PyObject *__pyx_v_fcoords2 = 0;
   PyObject *__pyx_v_mask = 0;
   PyObject *__pyx_v_return_d2 = 0;
-  PyObject *__pyx_v_frac_tol = 0;
+  PyObject *__pyx_v_lll_frac_tol = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -2362,7 +2362,7 @@ static PyObject *__pyx_pw_8pymatgen_4util_18coord_utils_cython_1pbc_shortest_vec
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("pbc_shortest_vectors (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_lattice,&__pyx_n_s_fcoords1,&__pyx_n_s_fcoords2,&__pyx_n_s_mask,&__pyx_n_s_return_d2,&__pyx_n_s_frac_tol,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_lattice,&__pyx_n_s_fcoords1,&__pyx_n_s_fcoords2,&__pyx_n_s_mask,&__pyx_n_s_return_d2,&__pyx_n_s_lll_frac_tol,0};
     PyObject* values[6] = {0,0,0,0,0,0};
     values[3] = ((PyObject *)Py_None);
     values[4] = ((PyObject *)Py_False);
@@ -2407,7 +2407,7 @@ static PyObject *__pyx_pw_8pymatgen_4util_18coord_utils_cython_1pbc_shortest_vec
         }
         case  5:
         if (kw_args > 0) {
-          PyObject* value = PyDict_GetItem(__pyx_kwds, __pyx_n_s_frac_tol);
+          PyObject* value = PyDict_GetItem(__pyx_kwds, __pyx_n_s_lll_frac_tol);
           if (value) { values[5] = value; kw_args--; }
         }
       }
@@ -2431,7 +2431,7 @@ static PyObject *__pyx_pw_8pymatgen_4util_18coord_utils_cython_1pbc_shortest_vec
     __pyx_v_fcoords2 = values[2];
     __pyx_v_mask = values[3];
     __pyx_v_return_d2 = values[4];
-    __pyx_v_frac_tol = values[5];
+    __pyx_v_lll_frac_tol = values[5];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
@@ -2441,14 +2441,14 @@ static PyObject *__pyx_pw_8pymatgen_4util_18coord_utils_cython_1pbc_shortest_vec
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vectors(__pyx_self, __pyx_v_lattice, __pyx_v_fcoords1, __pyx_v_fcoords2, __pyx_v_mask, __pyx_v_return_d2, __pyx_v_frac_tol);
+  __pyx_r = __pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vectors(__pyx_self, __pyx_v_lattice, __pyx_v_fcoords1, __pyx_v_fcoords2, __pyx_v_mask, __pyx_v_return_d2, __pyx_v_lll_frac_tol);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vectors(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_lattice, PyObject *__pyx_v_fcoords1, PyObject *__pyx_v_fcoords2, PyObject *__pyx_v_mask, PyObject *__pyx_v_return_d2, PyObject *__pyx_v_frac_tol) {
+static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vectors(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_lattice, PyObject *__pyx_v_fcoords1, PyObject *__pyx_v_fcoords2, PyObject *__pyx_v_mask, PyObject *__pyx_v_return_d2, PyObject *__pyx_v_lll_frac_tol) {
   __Pyx_memviewslice __pyx_v_lat = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_v_i;
   int __pyx_v_j;
@@ -2916,7 +2916,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vect
  *     if has_mask:
  *         m = np.array(mask, dtype=np.int_, copy=False, order='C')             # <<<<<<<<<<<<<<
  * 
- *     cdef bint has_ftol = (frac_tol is not None)
+ *     cdef bint has_ftol = (lll_frac_tol is not None)
  */
     __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 116; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
@@ -2963,40 +2963,27 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vect
   /* "pymatgen/util/coord_utils_cython.pyx":118
  *         m = np.array(mask, dtype=np.int_, copy=False, order='C')
  * 
- *     cdef bint has_ftol = (frac_tol is not None)             # <<<<<<<<<<<<<<
- *     cdef np.float_t[:] ftol = frac_tol
+ *     cdef bint has_ftol = (lll_frac_tol is not None)             # <<<<<<<<<<<<<<
+ *     cdef np.float_t[:] ftol
  *     if has_ftol:
  */
-  __pyx_t_11 = (__pyx_v_frac_tol != Py_None);
+  __pyx_t_11 = (__pyx_v_lll_frac_tol != Py_None);
   __pyx_v_has_ftol = __pyx_t_11;
 
-  /* "pymatgen/util/coord_utils_cython.pyx":119
- * 
- *     cdef bint has_ftol = (frac_tol is not None)
- *     cdef np.float_t[:] ftol = frac_tol             # <<<<<<<<<<<<<<
- *     if has_ftol:
- *         ftol = np.array(frac_tol, dtype=np.float_, order='C', copy=False)
- */
-  __pyx_t_13 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(__pyx_v_frac_tol);
-  if (unlikely(!__pyx_t_13.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 119; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_v_ftol = __pyx_t_13;
-  __pyx_t_13.memview = NULL;
-  __pyx_t_13.data = NULL;
-
   /* "pymatgen/util/coord_utils_cython.pyx":120
- *     cdef bint has_ftol = (frac_tol is not None)
- *     cdef np.float_t[:] ftol = frac_tol
+ *     cdef bint has_ftol = (lll_frac_tol is not None)
+ *     cdef np.float_t[:] ftol
  *     if has_ftol:             # <<<<<<<<<<<<<<
- *         ftol = np.array(frac_tol, dtype=np.float_, order='C', copy=False)
+ *         ftol = np.array(lll_frac_tol, dtype=np.float_, order='C', copy=False)
  * 
  */
   __pyx_t_11 = (__pyx_v_has_ftol != 0);
   if (__pyx_t_11) {
 
     /* "pymatgen/util/coord_utils_cython.pyx":121
- *     cdef np.float_t[:] ftol = frac_tol
+ *     cdef np.float_t[:] ftol
  *     if has_ftol:
- *         ftol = np.array(frac_tol, dtype=np.float_, order='C', copy=False)             # <<<<<<<<<<<<<<
+ *         ftol = np.array(lll_frac_tol, dtype=np.float_, order='C', copy=False)             # <<<<<<<<<<<<<<
  * 
  * 
  */
@@ -3007,9 +2994,9 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vect
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 121; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_INCREF(__pyx_v_frac_tol);
-    __Pyx_GIVEREF(__pyx_v_frac_tol);
-    PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_frac_tol);
+    __Pyx_INCREF(__pyx_v_lll_frac_tol);
+    __Pyx_GIVEREF(__pyx_v_lll_frac_tol);
+    PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_lll_frac_tol);
     __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 121; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 121; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -3029,16 +3016,15 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vect
     __pyx_t_13 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(__pyx_t_5);
     if (unlikely(!__pyx_t_13.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 121; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __PYX_XDEC_MEMVIEW(&__pyx_v_ftol, 1);
     __pyx_v_ftol = __pyx_t_13;
     __pyx_t_13.memview = NULL;
     __pyx_t_13.data = NULL;
 
     /* "pymatgen/util/coord_utils_cython.pyx":120
- *     cdef bint has_ftol = (frac_tol is not None)
- *     cdef np.float_t[:] ftol = frac_tol
+ *     cdef bint has_ftol = (lll_frac_tol is not None)
+ *     cdef np.float_t[:] ftol
  *     if has_ftol:             # <<<<<<<<<<<<<<
- *         ftol = np.array(frac_tol, dtype=np.float_, order='C', copy=False)
+ *         ftol = np.array(lll_frac_tol, dtype=np.float_, order='C', copy=False)
  * 
  */
   }
@@ -3731,7 +3717,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vect
   /* "pymatgen/util/coord_utils_cython.pyx":70
  * @cython.wraparound(False)
  * @cython.initializedcheck(False)
- * def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False, frac_tol=None):             # <<<<<<<<<<<<<<
+ * def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False, lll_frac_tol=None):             # <<<<<<<<<<<<<<
  *     """
  *     Returns the shortest vectors between two lists of coordinates taking into
  */
@@ -19993,7 +19979,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
   {&__pyx_n_s_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 0, 1, 1},
   {&__pyx_n_u_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 1, 0, 1},
-  {&__pyx_n_s_frac_tol, __pyx_k_frac_tol, sizeof(__pyx_k_frac_tol), 0, 0, 1, 1},
   {&__pyx_n_s_ftol, __pyx_k_ftol, sizeof(__pyx_k_ftol), 0, 0, 1, 1},
   {&__pyx_kp_s_got_differing_extents_in_dimensi, __pyx_k_got_differing_extents_in_dimensi, sizeof(__pyx_k_got_differing_extents_in_dimensi), 0, 0, 1, 0},
   {&__pyx_n_s_has_ftol, __pyx_k_has_ftol, sizeof(__pyx_k_has_ftol), 0, 0, 1, 1},
@@ -20016,6 +20001,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_lat, __pyx_k_lat, sizeof(__pyx_k_lat), 0, 0, 1, 1},
   {&__pyx_n_s_lattice, __pyx_k_lattice, sizeof(__pyx_k_lattice), 0, 0, 1, 1},
   {&__pyx_n_s_lll_frac_coords, __pyx_k_lll_frac_coords, sizeof(__pyx_k_lll_frac_coords), 0, 0, 1, 1},
+  {&__pyx_n_s_lll_frac_tol, __pyx_k_lll_frac_tol, sizeof(__pyx_k_lll_frac_tol), 0, 0, 1, 1},
   {&__pyx_n_s_lll_matrix, __pyx_k_lll_matrix, sizeof(__pyx_k_lll_matrix), 0, 0, 1, 1},
   {&__pyx_n_s_long, __pyx_k_long, sizeof(__pyx_k_long), 0, 0, 1, 1},
   {&__pyx_n_s_m, __pyx_k_m, sizeof(__pyx_k_m), 0, 0, 1, 1},
@@ -20455,11 +20441,11 @@ static int __Pyx_InitCachedConstants(void) {
   /* "pymatgen/util/coord_utils_cython.pyx":70
  * @cython.wraparound(False)
  * @cython.initializedcheck(False)
- * def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False, frac_tol=None):             # <<<<<<<<<<<<<<
+ * def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False, lll_frac_tol=None):             # <<<<<<<<<<<<<<
  *     """
  *     Returns the shortest vectors between two lists of coordinates taking into
  */
-  __pyx_tuple__48 = PyTuple_Pack(37, __pyx_n_s_lattice, __pyx_n_s_fcoords1, __pyx_n_s_fcoords2, __pyx_n_s_mask, __pyx_n_s_return_d2, __pyx_n_s_frac_tol, __pyx_n_s_lat, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_k, __pyx_n_s_l, __pyx_n_s_I, __pyx_n_s_J, __pyx_n_s_bestK, __pyx_n_s_fc1, __pyx_n_s_fc2, __pyx_n_s_cart_f1, __pyx_n_s_cart_f2, __pyx_n_s_cart_im, __pyx_n_s_has_mask, __pyx_n_s_m, __pyx_n_s_has_ftol, __pyx_n_s_ftol, __pyx_n_s_vectors, __pyx_n_s_d2, __pyx_n_s_vs, __pyx_n_s_ds, __pyx_n_s_best, __pyx_n_s_d, __pyx_n_s_inc_d, __pyx_n_s_da, __pyx_n_s_db, __pyx_n_s_dc, __pyx_n_s_fdist, __pyx_n_s_within_frac, __pyx_n_s_pre_im, __pyx_n_s_bestk); if (unlikely(!__pyx_tuple__48)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 70; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__48 = PyTuple_Pack(37, __pyx_n_s_lattice, __pyx_n_s_fcoords1, __pyx_n_s_fcoords2, __pyx_n_s_mask, __pyx_n_s_return_d2, __pyx_n_s_lll_frac_tol, __pyx_n_s_lat, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_k, __pyx_n_s_l, __pyx_n_s_I, __pyx_n_s_J, __pyx_n_s_bestK, __pyx_n_s_fc1, __pyx_n_s_fc2, __pyx_n_s_cart_f1, __pyx_n_s_cart_f2, __pyx_n_s_cart_im, __pyx_n_s_has_mask, __pyx_n_s_m, __pyx_n_s_has_ftol, __pyx_n_s_ftol, __pyx_n_s_vectors, __pyx_n_s_d2, __pyx_n_s_vs, __pyx_n_s_ds, __pyx_n_s_best, __pyx_n_s_d, __pyx_n_s_inc_d, __pyx_n_s_da, __pyx_n_s_db, __pyx_n_s_dc, __pyx_n_s_fdist, __pyx_n_s_within_frac, __pyx_n_s_pre_im, __pyx_n_s_bestk); if (unlikely(!__pyx_tuple__48)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 70; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__48);
   __Pyx_GIVEREF(__pyx_tuple__48);
   __pyx_codeobj__49 = (PyObject*)__Pyx_PyCode_New(6, 0, 37, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__48, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_wrichard_repos_pymatgen_p, __pyx_n_s_pbc_shortest_vectors, 70, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__49)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 70; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -21113,7 +21099,7 @@ PyMODINIT_FUNC PyInit_coord_utils_cython(void)
   /* "pymatgen/util/coord_utils_cython.pyx":70
  * @cython.wraparound(False)
  * @cython.initializedcheck(False)
- * def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False, frac_tol=None):             # <<<<<<<<<<<<<<
+ * def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False, lll_frac_tol=None):             # <<<<<<<<<<<<<<
  *     """
  *     Returns the shortest vectors between two lists of coordinates taking into
  */
