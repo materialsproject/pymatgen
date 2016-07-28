@@ -1153,7 +1153,8 @@ class DeltaCSMNbSetWeight(NbSetWeight):
     def from_dict(cls, dd):
         return cls(effective_csm_estimator=dd['effective_csm_estimator'],
                    weight_estimator=dd['weight_estimator'],
-                   delta_cn_weight_estimators=dd['delta_cn_weight_estimators']
+                   delta_cn_weight_estimators={int(dcn): dcn_estimator
+                                               for dcn, dcn_estimator in dd['delta_cn_weight_estimators'].items()}
                    if 'delta_cn_weight_estimators' in dd else None,
                    symmetry_measure_type=dd['symmetry_measure_type'])
 
