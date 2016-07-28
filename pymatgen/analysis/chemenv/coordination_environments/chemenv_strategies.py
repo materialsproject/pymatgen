@@ -1132,7 +1132,11 @@ class DeltaCSMNbSetWeight(NbSetWeight):
                                                             'delta_csm_max': delta_csm_maxs[dcn-1]}}
                                           for dcn in range(1, 13)}
         return cls(effective_csm_estimator=effective_csm_estimator,
-                   weight_estimator=None,
+                   weight_estimator={'function': function,
+                                     'options': {'delta_csm_min': delta_cn_weight_estimators[12]
+                                                 ['options']['delta_csm_min'],
+                                                 'delta_csm_max': delta_cn_weight_estimators[12]
+                                                 ['options']['delta_csm_max']}},
                    delta_cn_weight_estimators=delta_cn_weight_estimators,
                    symmetry_measure_type=symmetry_measure_type)
 
