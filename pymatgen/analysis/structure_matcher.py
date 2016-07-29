@@ -453,7 +453,7 @@ class StructureMatcher(MSONable):
 
         return is_coord_subset_pbc(s2, s1, frac_tol, mask)
 
-    def _cart_dists(self, s1, s2, avg_lattice, mask, normalization, frac_tol=None):
+    def _cart_dists(self, s1, s2, avg_lattice, mask, normalization, lll_frac_tol=None):
         """
         Finds a matching in cartesian space. Finds an additional
         fractional translation vector to minimize RMS distance
@@ -476,7 +476,8 @@ class StructureMatcher(MSONable):
             raise ValueError("mask has incorrect shape")
 
         #vectors are from s2 to s1
-        vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask, return_d2=True, frac_tol=frac_tol)
+        vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask, return_d2=True,
+                                         lll_frac_tol=lll_frac_tol)
         lin = LinearAssignment(d_2)
         s = lin.solution
         short_vecs = vecs[np.arange(len(s)), s]
@@ -681,8 +682,10 @@ class StructureMatcher(MSONable):
                 t = s1fc[s1i] - s2fc[s2_t_ind]
                 t_s2fc = s2fc + t
                 if self._cmp_fstruct(s1fc, t_s2fc, frac_tol, mask):
+                    inv_lll_abc = np.array(avg_l.get_lll_reduced_lattice().reciprocal_lattice.abc)
+                    lll_frac_tol = inv_lll_abc * self.stol / (np.pi * normalization)
                     dist, t_adj, mapping = self._cart_dists(
-                        s1fc, t_s2fc, avg_l, mask, normalization, frac_tol)
+                        s1fc, t_s2fc, avg_l, mask, normalization, lll_frac_tol)
                     if use_rms:
                         val = np.linalg.norm(dist) / len(dist) ** 0.5
                     else:
