@@ -416,7 +416,36 @@ class LatticeTestCase(PymatgenTest):
 
             pmg_result = lattice.get_distance_and_image(f1, f2)
             self.assertGreaterEqual(min_image_dist[0] + 1e-7, pmg_result[0])
-            #self.assertArrayAlmostEqual(min_image_dist[1], pmg_result[1])
+            if abs(min_image_dist[0] - pmg_result[0]) < 1e-12:
+                self.assertArrayAlmostEqual(min_image_dist[1], pmg_result[1])
+
+    def test_lll_basis(self):
+        a = np.array([1., 0.1, 0.,])
+        b = np.array([0., 2., 0.,])
+        c = np.array([0., 0., 3.,])
+
+        l1 = Lattice([a, b, c])
+        l2 = Lattice([a + b, b + c, c])
+
+        ccoords = np.array([[1, 1, 2], [2, 2, 1.5]])
+        l1_fcoords = l1.get_fractional_coords(ccoords)
+        l2_fcoords = l2.get_fractional_coords(ccoords)
+
+        self.assertArrayAlmostEqual(l1.matrix, l2.lll_matrix)
+        self.assertArrayAlmostEqual(np.dot(l2.lll_mapping, l2.matrix),
+                                    l1.matrix)
+
+        self.assertArrayAlmostEqual(np.dot(l2_fcoords, l2.matrix),
+                                    np.dot(l1_fcoords, l1.matrix))
+
+        lll_fcoords = l2._lll_frac_coords(l2_fcoords)
+
+        self.assertArrayAlmostEqual(lll_fcoords, l1_fcoords)
+        self.assertArrayAlmostEqual(l1.get_cartesian_coords(lll_fcoords),
+                                    np.dot(lll_fcoords, l2.lll_matrix))
+
+        self.assertArrayAlmostEqual(l2._frac_coords_from_lll(lll_fcoords),
+                                    l2_fcoords)
 
 
 if __name__ == '__main__':
