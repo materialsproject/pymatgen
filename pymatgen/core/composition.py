@@ -369,7 +369,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)
         """
         el_amt = self.get_el_amt_dict()
-        g = gcd_float(el_amt.values(), 1 / max_denominator)
+        g = gcd_float(list(el_amt.values()), 1 / max_denominator)
 
         d = {k: round(v / g) for k, v in el_amt.items()}
         (formula, factor) = reduce_formula(d)
