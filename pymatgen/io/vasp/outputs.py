@@ -896,6 +896,7 @@ class Vasprun(MSONable):
             eigen = defaultdict(dict)
             for (spin, index), values in self.eigenvalues.items():
                 eigen[index][str(spin)] = values
+                neigen = len(values)
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
             vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
@@ -905,12 +906,12 @@ class Vasprun(MSONable):
                 peigen = []
                 for i in range(len(eigen)):
                     peigen.append({})
-                    for spin in eigen[i].keys():
-                        peigen[i][spin] = []
-                        for j in range(len(eigen[i][spin])):
-                            peigen[i][spin].append({})
                 for (spin, kpoint_index, band_index, ion_index, orbital), \
                         value in self.projected_eigenvalues.items():
+                    if str(spin) not in peigen[kpoint_index]:
+                        peigen[kpoint_index][str(spin)] = []
+                        for i in range(neigen):
+                            peigen[kpoint_index][str(spin)].append({})
                     beigen = peigen[kpoint_index][str(spin)][band_index]
                     if orbital not in beigen:
                         beigen[orbital] = [0.0] * nsites
@@ -1260,6 +1261,7 @@ class BSVasprun(Vasprun):
             eigen = defaultdict(dict)
             for (spin, index), values in self.eigenvalues.items():
                 eigen[index][str(spin)] = values
+                neigen = len(values)
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
             vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
@@ -1269,17 +1271,18 @@ class BSVasprun(Vasprun):
                 peigen = []
                 for i in range(len(eigen)):
                     peigen.append({})
-                    for spin in eigen[i].keys():
-                        peigen[i][spin] = []
-                        for j in range(len(eigen[i][spin])):
-                            peigen[i][spin].append({})
                 for (spin, kpoint_index, band_index, ion_index, orbital), \
                         value in self.projected_eigenvalues.items():
+                    if str(spin) not in peigen[kpoint_index]:
+                        peigen[kpoint_index][str(spin)] = []
+                        for i in range(neigen):
+                            peigen[kpoint_index][str(spin)].append({})
                     beigen = peigen[kpoint_index][str(spin)][band_index]
                     if orbital not in beigen:
                         beigen[orbital] = [0.0] * nsites
                     beigen[orbital][ion_index] = value
                 vout['projected_eigenvalues'] = peigen
+
         d['output'] = vout
         return jsanitize(d, strict=True)
 
