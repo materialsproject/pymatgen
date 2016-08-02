@@ -108,6 +108,12 @@ if __name__ == '__main__':
                                             testing=True,
                                             points_perfect=points_perfect)
 
+        print(cgsm)
+        if cgsm[0] is None:
+            print('IS NONE !')
+            raw_input()
+            continue
+
         csms, perms, algos, sep_perms = cgsm[0], cgsm[1], cgsm[2], cgsm[3]
 
         print('Continuous symmetry measures')
@@ -117,7 +123,7 @@ if __name__ == '__main__':
         for icsm, csm in enumerate(csms):
             found = False
             for csm2 in csms_with_recorded_permutation:
-                if np.isclose(csm, csm2):
+                if np.isclose(csm, csm2, rtol=0.0, atol=1.0e-6):
                     found = True
                     break
             if not found:
