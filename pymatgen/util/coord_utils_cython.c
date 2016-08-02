@@ -1894,8 +1894,8 @@ static const char __pyx_k_Will_Richards[] = "Will Richards";
 static const char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
 static const char __pyx_k_allocate_buffer[] = "allocate_buffer";
 static const char __pyx_k_dtype_is_object[] = "dtype_is_object";
-static const char __pyx_k_lll_frac_coords[] = "_lll_frac_coords";
 static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
+static const char __pyx_k_get_lll_frac_coords[] = "get_lll_frac_coords";
 static const char __pyx_k_is_coord_subset_pbc[] = "is_coord_subset_pbc";
 static const char __pyx_k_pbc_shortest_vectors[] = "pbc_shortest_vectors";
 static const char __pyx_k_strided_and_indirect[] = "<strided and indirect>";
@@ -2017,6 +2017,7 @@ static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_fortran;
 static PyObject *__pyx_n_u_fortran;
 static PyObject *__pyx_n_s_ftol;
+static PyObject *__pyx_n_s_get_lll_frac_coords;
 static PyObject *__pyx_kp_s_got_differing_extents_in_dimensi;
 static PyObject *__pyx_n_s_has_ftol;
 static PyObject *__pyx_n_s_has_mask;
@@ -2037,7 +2038,6 @@ static PyObject *__pyx_n_s_k;
 static PyObject *__pyx_n_s_l;
 static PyObject *__pyx_n_s_lat;
 static PyObject *__pyx_n_s_lattice;
-static PyObject *__pyx_n_s_lll_frac_coords;
 static PyObject *__pyx_n_s_lll_frac_tol;
 static PyObject *__pyx_n_s_lll_matrix;
 static PyObject *__pyx_n_s_long;
@@ -2785,11 +2785,11 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vect
   /* "pymatgen/util/coord_utils_cython.pyx":96
  * 
  * 
- *     fcoords1 = lattice._lll_frac_coords(fcoords1)             # <<<<<<<<<<<<<<
- *     fcoords2 = lattice._lll_frac_coords(fcoords2)
+ *     fcoords1 = lattice.get_lll_frac_coords(fcoords1)             # <<<<<<<<<<<<<<
+ *     fcoords2 = lattice.get_lll_frac_coords(fcoords2)
  * 
  */
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_lattice, __pyx_n_s_lll_frac_coords); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 96, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_lattice, __pyx_n_s_get_lll_frac_coords); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 96, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_t_3 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_5))) {
@@ -2821,12 +2821,12 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vect
 
   /* "pymatgen/util/coord_utils_cython.pyx":97
  * 
- *     fcoords1 = lattice._lll_frac_coords(fcoords1)
- *     fcoords2 = lattice._lll_frac_coords(fcoords2)             # <<<<<<<<<<<<<<
+ *     fcoords1 = lattice.get_lll_frac_coords(fcoords1)
+ *     fcoords2 = lattice.get_lll_frac_coords(fcoords2)             # <<<<<<<<<<<<<<
  * 
  *     cdef np.float_t[:, ::1] lat = np.array(lattice.lll_matrix, dtype=np.float_, copy=False, order='C')
  */
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_lattice, __pyx_n_s_lll_frac_coords); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 97, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_lattice, __pyx_n_s_get_lll_frac_coords); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 97, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_t_2 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_5))) {
@@ -2857,7 +2857,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vect
   __pyx_t_1 = 0;
 
   /* "pymatgen/util/coord_utils_cython.pyx":99
- *     fcoords2 = lattice._lll_frac_coords(fcoords2)
+ *     fcoords2 = lattice.get_lll_frac_coords(fcoords2)
  * 
  *     cdef np.float_t[:, ::1] lat = np.array(lattice.lll_matrix, dtype=np.float_, copy=False, order='C')             # <<<<<<<<<<<<<<
  * 
@@ -19764,6 +19764,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 0, 1, 1},
   {&__pyx_n_u_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 1, 0, 1},
   {&__pyx_n_s_ftol, __pyx_k_ftol, sizeof(__pyx_k_ftol), 0, 0, 1, 1},
+  {&__pyx_n_s_get_lll_frac_coords, __pyx_k_get_lll_frac_coords, sizeof(__pyx_k_get_lll_frac_coords), 0, 0, 1, 1},
   {&__pyx_kp_s_got_differing_extents_in_dimensi, __pyx_k_got_differing_extents_in_dimensi, sizeof(__pyx_k_got_differing_extents_in_dimensi), 0, 0, 1, 0},
   {&__pyx_n_s_has_ftol, __pyx_k_has_ftol, sizeof(__pyx_k_has_ftol), 0, 0, 1, 1},
   {&__pyx_n_s_has_mask, __pyx_k_has_mask, sizeof(__pyx_k_has_mask), 0, 0, 1, 1},
@@ -19784,7 +19785,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_l, __pyx_k_l, sizeof(__pyx_k_l), 0, 0, 1, 1},
   {&__pyx_n_s_lat, __pyx_k_lat, sizeof(__pyx_k_lat), 0, 0, 1, 1},
   {&__pyx_n_s_lattice, __pyx_k_lattice, sizeof(__pyx_k_lattice), 0, 0, 1, 1},
-  {&__pyx_n_s_lll_frac_coords, __pyx_k_lll_frac_coords, sizeof(__pyx_k_lll_frac_coords), 0, 0, 1, 1},
   {&__pyx_n_s_lll_frac_tol, __pyx_k_lll_frac_tol, sizeof(__pyx_k_lll_frac_tol), 0, 0, 1, 1},
   {&__pyx_n_s_lll_matrix, __pyx_k_lll_matrix, sizeof(__pyx_k_lll_matrix), 0, 0, 1, 1},
   {&__pyx_n_s_long, __pyx_k_long, sizeof(__pyx_k_long), 0, 0, 1, 1},
