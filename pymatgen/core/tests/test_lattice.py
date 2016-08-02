@@ -438,13 +438,13 @@ class LatticeTestCase(PymatgenTest):
         self.assertArrayAlmostEqual(np.dot(l2_fcoords, l2.matrix),
                                     np.dot(l1_fcoords, l1.matrix))
 
-        lll_fcoords = l2._lll_frac_coords(l2_fcoords)
+        lll_fcoords = l2.get_lll_frac_coords(l2_fcoords)
 
         self.assertArrayAlmostEqual(lll_fcoords, l1_fcoords)
         self.assertArrayAlmostEqual(l1.get_cartesian_coords(lll_fcoords),
                                     np.dot(lll_fcoords, l2.lll_matrix))
 
-        self.assertArrayAlmostEqual(l2._frac_coords_from_lll(lll_fcoords),
+        self.assertArrayAlmostEqual(l2.get_frac_coords_from_lll(lll_fcoords),
                                     l2_fcoords)
 
 

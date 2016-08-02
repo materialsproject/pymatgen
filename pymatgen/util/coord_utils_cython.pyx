@@ -93,8 +93,8 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
 
 
-    fcoords1 = lattice._lll_frac_coords(fcoords1)
-    fcoords2 = lattice._lll_frac_coords(fcoords2)
+    fcoords1 = lattice.get_lll_frac_coords(fcoords1)
+    fcoords2 = lattice.get_lll_frac_coords(fcoords2)
 
     cdef np.float_t[:, ::1] lat = np.array(lattice.lll_matrix, dtype=np.float_, copy=False, order='C')
 

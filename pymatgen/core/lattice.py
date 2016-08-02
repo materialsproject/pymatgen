@@ -682,14 +682,14 @@ class Lattice(MSONable):
 
         return a.T, mapping.T
 
-    def _lll_frac_coords(self, frac_coords):
+    def get_lll_frac_coords(self, frac_coords):
         """
         Given fractional coordinates in the lattice basis, returns corresponding
         fractional coordinates in the lll basis.
         """
         return np.dot(frac_coords, self.lll_inverse)
 
-    def _frac_coords_from_lll(self, lll_frac_coords):
+    def get_frac_coords_from_lll(self, lll_frac_coords):
         """
         Given fractional coordinates in the lll basis, returns corresponding
         fractional coordinates in the lattice basis.
