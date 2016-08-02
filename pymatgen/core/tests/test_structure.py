@@ -267,7 +267,7 @@ class IStructureTest(PymatgenTest):
                                     int_s[2].lattice.abc)
         self.assertArrayAlmostEqual(struct2.lattice.angles,
                                     int_s[2].lattice.angles)
-        int_angles = [110.7734367, 94.1864814, 65.4423028]
+        int_angles = [110.3976469, 94.5359731, 64.5165856]
         self.assertArrayAlmostEqual(int_angles,
                                     int_s[1].lattice.angles)
 

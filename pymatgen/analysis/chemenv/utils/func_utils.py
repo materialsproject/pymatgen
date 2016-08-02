@@ -82,10 +82,19 @@ class RatioFunction(object):
 
 class CSMFiniteRatioFunction(RatioFunction):
 
-    ALLOWED_FUNCTIONS = {'power2_decreasing_exp': ['max_csm', 'alpha']}
+    ALLOWED_FUNCTIONS = {'power2_decreasing_exp': ['max_csm', 'alpha'],
+                         'smoothstep': ['lower_csm', 'upper_csm'],
+                         'smootherstep': ['lower_csm', 'upper_csm']
+                         }
 
     def power2_decreasing_exp(self, vals):
         return power2_decreasing_exp(vals, edges=[0.0, self.__dict__['max_csm']], alpha=self.__dict__['alpha'])
+
+    def smootherstep(self, vals):
+        return smootherstep(vals, edges=[self.__dict__['lower_csm'], self.__dict__['upper_csm']], inverse=True)
+
+    def smoothstep(self, vals):
+        return smootherstep(vals, edges=[self.__dict__['lower_csm'], self.__dict__['upper_csm']], inverse=True)
 
     def fractions(self, data):
         if len(data) == 0:
@@ -106,6 +115,10 @@ class CSMFiniteRatioFunction(RatioFunction):
             if fractions is None:
                 return None
             return np.sum(np.array(fractions) * np.array(data))
+
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(function=dd['function'], options_dict=dd['options'])
 
     ratios = fractions
 
@@ -151,6 +164,10 @@ class CSMInfiniteRatioFunction(RatioFunction):
                 return None
             return np.sum(np.array(fractions) * np.array(data))
 
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(function=dd['function'], options_dict=dd['options'])
+
     ratios = fractions
 
 
@@ -160,3 +177,7 @@ class DeltaCSMRatioFunction(RatioFunction):
 
     def smootherstep(self, vals):
         return smootherstep(vals, edges=[self.__dict__['delta_csm_min'], self.__dict__['delta_csm_max']])
+
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(function=dd['function'], options_dict=dd['options'])

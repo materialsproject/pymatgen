@@ -102,7 +102,7 @@ if __name__ == '__main__':
     allcg = AllCoordinationGeometries()
 
     sepplane_cgs = []
-    for coordination in range(1, 13):
+    for coordination in range(1, 14):
         symbol_name_mapping = allcg.get_symbol_name_mapping(coordination=coordination)
         for symbol, name in symbol_name_mapping.items():
             cg = allcg[symbol]
