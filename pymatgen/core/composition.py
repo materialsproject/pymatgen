@@ -28,7 +28,7 @@ from six.moves import filter, map, zip
 from fractions import Fraction
 from functools import total_ordering
 
-from monty.fractions import gcd, lcm
+from monty.fractions import gcd, lcm, gcd_float
 from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.util.string_utils import formula_double_format
 from monty.json import MSONable
@@ -368,17 +368,15 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             A pretty normalized formula and a multiplicative factor, i.e.,
             Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)
         """
-        vals = [Fraction(v).limit_denominator(max_denominator)
-                for v in self.values()]
-        denom = lcm(*(f.denominator for f in vals))
+        el_amt = self.get_el_amt_dict()
+        g = gcd_float(list(el_amt.values()), 1 / max_denominator)
 
-        mul = gcd(*[int(v * denom) for v in vals])
-        d = {k: round(v / mul * denom) for k, v in self.get_el_amt_dict().items()}
+        d = {k: round(v / g) for k, v in el_amt.items()}
         (formula, factor) = reduce_formula(d)
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
             factor /= 2
-        return formula, factor * mul / denom
+        return formula, factor * g
 
     @property
     def reduced_formula(self):
