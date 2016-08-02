@@ -42,12 +42,7 @@ class Lattice(MSONable):
     """
 
     # Properties lazily generated for efficiency.
-    _inv_matrix = None
-    _metric_tensor = None
-    _diags = None
-    _lll_matrix = None
-    _lll_mapping = None
-    _lll_inverse = None
+
 
     def __init__(self, matrix):
         """
@@ -77,7 +72,11 @@ class Lattice(MSONable):
         self._angles = np.arccos(angles) * 180. / pi
         self._lengths = lengths
         self._matrix = m
-
+        self._inv_matrix = None
+        self._metric_tensor = None
+        self._diags = None
+        self._lll_matrix_mappings = {}
+        self._lll_inverse = None
         self.is_orthogonal = all([abs(a - 90) < 1e-5 for a in self._angles])
 
     def __format__(self, fmt_spec=''):
@@ -415,19 +414,15 @@ class Lattice(MSONable):
 
     @property
     def lll_matrix(self):
-        if self._lll_matrix is not None:
-            return self._lll_matrix
-        else:
-            self._lll_matrix, self._lll_mapping = self._calculate_lll()
-            return self._lll_matrix
+        if 0.75 not in self._lll_matrix_mappings:
+            self._lll_matrix_mappings[0.75] = self._calculate_lll()
+        return self._lll_matrix_mappings[0.75][0]
 
     @property
     def lll_mapping(self):
-        if self._lll_mapping is not None:
-            return self._lll_mapping
-        else:
-            self._lll_matrix, self._lll_mapping = self._calculate_lll()
-            return self._lll_mapping
+        if 0.75 not in self._lll_matrix_mappings:
+            self._lll_matrix_mappings[0.75] = self._calculate_lll()
+        return self._lll_matrix_mappings[0.75][1]
 
     @property
     def lll_inverse(self):
@@ -601,10 +596,9 @@ class Lattice(MSONable):
             return x
 
     def get_lll_reduced_lattice(self, delta=0.75):
-        if delta != 0.75:
-            matrix, mapping = self._calculate_lll(delta)
-            return Lattice(matrix)
-        return Lattice(self.lll_matrix)
+        if delta not in self._lll_matrix_mappings:
+            self._lll_matrix_mappings[delta] = self._calculate_lll()
+        return Lattice(self._lll_matrix_mappings[delta][0])
 
     def _calculate_lll(self, delta=0.75):
         """
