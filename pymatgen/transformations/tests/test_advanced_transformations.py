@@ -22,14 +22,15 @@ import json
 
 import numpy as np
 
-from pymatgen import Lattice, Structure
+from pymatgen import Lattice, Structure, Specie
 from pymatgen.transformations.standard_transformations import \
     OxidationStateDecorationTransformation, SubstitutionTransformation, \
     OrderDisorderedStructureTransformation
 from pymatgen.transformations.advanced_transformations import \
     SuperTransformation, EnumerateStructureTransformation, \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
-    SubstitutionPredictorTransformation, MagOrderingTransformation
+    SubstitutionPredictorTransformation, MagOrderingTransformation, \
+    DopingTransformation, _find_codopant
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -246,7 +247,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         alls = trans.apply_transformation(s, 10)
         self.assertEqual(len(alls), 2)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5}, 0.75)
         d = trans.as_dict()
         #Check json encodability
@@ -267,6 +268,53 @@ class MagOrderingTransformationTest(PymatgenTest):
         self.assertTrue('spin' in alls.sites[0].specie._properties)
 
 
+class DopingTransformationTest(PymatgenTest):
+
+    def setUp(self):
+        self.structure = PymatgenTest.get_structure("LiFePO4")
+
+    def test_apply_transformation(self):
+        t = DopingTransformation("Ca2+", min_length=10)
+        ss = t.apply_transformation(self.structure, 100)
+        self.assertEqual(len(ss), 1)
+
+        t = DopingTransformation("Al3+", min_length=15, ionic_radius_tol=0.1)
+        ss = t.apply_transformation(self.structure, 100)
+        self.assertEqual(len(ss), 0)
+
+        # Aliovalent doping with vacancies
+        for dopant, nstructures in [("Al3+", 3), ("N3-", 420), ("Cl-", 16)]:
+            t = DopingTransformation(dopant, min_length=5, alio_tol=1,
+                                     max_structures_per_enum=1000)
+            ss = t.apply_transformation(self.structure, 1000)
+            self.assertEqual(len(ss), nstructures)
+            for d in ss:
+                self.assertEqual(d["structure"].charge, 0)
+
+        # Aliovalent doping with codopant
+        for dopant, nstructures in [("Al3+", 3), ("N3-", 60), ("Cl-", 60)]:
+            t = DopingTransformation(dopant, min_length=5, alio_tol=1,
+                                     codopant=True,
+                                     max_structures_per_enum=1000)
+            ss = t.apply_transformation(self.structure, 1000)
+            self.assertEqual(len(ss), nstructures)
+            for d in ss:
+                self.assertEqual(d["structure"].charge, 0)
+
+    def test_as_from_dict(self):
+        trans = DopingTransformation("Al3+", min_length=5, alio_tol=1,
+                                     codopant=False, max_structures_per_enum=1)
+        d = trans.as_dict()
+        # Check json encodability
+        s = json.dumps(d)
+        trans = DopingTransformation.from_dict(d)
+        self.assertEqual(str(trans.dopant), "Al3+")
+        self.assertEqual(trans.max_structures_per_enum, 1)
+
+    def test_find_codopant(self):
+        self.assertEqual(_find_codopant(Specie("Fe", 2), 1), Specie("Cu", 1))
+        self.assertEqual(_find_codopant(Specie("Fe", 2), 3), Specie("In", 3))
+
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
