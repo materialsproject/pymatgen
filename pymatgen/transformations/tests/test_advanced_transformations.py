@@ -30,7 +30,7 @@ from pymatgen.transformations.advanced_transformations import \
     SuperTransformation, EnumerateStructureTransformation, \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
     SubstitutionPredictorTransformation, MagOrderingTransformation, \
-    DopingTransformation, _find_codopant
+    DopingTransformation, _find_codopant, _get_ionic_radius
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -315,6 +315,8 @@ class DopingTransformationTest(PymatgenTest):
         self.assertEqual(_find_codopant(Specie("Fe", 2), 1), Specie("Cu", 1))
         self.assertEqual(_find_codopant(Specie("Fe", 2), 3), Specie("In", 3))
 
+    def test_get_ionic_radius(self):
+        print(_get_ionic_radius(Specie("Mn", 4)))
 
 if __name__ == "__main__":
     unittest.main()
