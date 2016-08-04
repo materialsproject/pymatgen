@@ -4,27 +4,19 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This module implements more advanced transformations.
-"""
-
-
-__author__ = "Shyue Ping Ong, Stephen Dacek"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jul 24, 2012"
-
 import numpy as np
 from fractions import gcd, Fraction
 from itertools import groupby
 from warnings import warn
+import logging
+import math
 
 import six
+from monty.json import MontyDecoder
+from monty.fractions import lcm
 
-from pymatgen.core.structure import Specie, Composition
-from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core.structure import Composition
+from pymatgen.core.periodic_table import Element, Specie, get_el_sp
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation, OrderDisorderedStructureTransformation
@@ -37,7 +29,22 @@ from pymatgen.structure_prediction.substitution_probability import \
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     SpinComparator
 from pymatgen.analysis.energy_models import SymmetryModel
-from monty.json import MontyDecoder
+from pymatgen.analysis.bond_valence import BVAnalyzer
+
+
+"""
+This module implements more advanced transformations.
+"""
+
+__author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "Jul 24, 2012"
+
+
+logger = logging.getLogger(__name__)
 
 
 class ChargeBalanceTransformation(AbstractTransformation):
@@ -62,8 +69,8 @@ class ChargeBalanceTransformation(AbstractTransformation):
             raise ValueError("addition of specie not yet supported by "
                              "ChargeBalanceTransformation")
         trans = SubstitutionTransformation(
-            {self._charge_balance_sp: {self._charge_balance_sp:
-                1 - removal_fraction}})
+            {self._charge_balance_sp: {
+                self._charge_balance_sp: 1 - removal_fraction}})
         return trans.apply_transformation(structure)
 
     def __str__(self):
@@ -439,7 +446,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
             output = {'structure': st.apply_transformation(structure),
                       'probability': pred['probability'],
                       'threshold': self._threshold, 'substitutions': {}}
-            #dictionary keys have to be converted to strings for JSON
+            # dictionary keys have to be converted to strings for JSON
             for key, value in pred['substitutions'].items():
                 output['substitutions'][str(key)] = str(value)
             outputs.append(output)
@@ -523,7 +530,7 @@ class MagOrderingTransformation(AbstractTransformation):
         return lcm(n_gcd, denom) / n_gcd
 
     def apply_transformation(self, structure, return_ranked_list=False):
-        #Make a mutable structure first
+        # Make a mutable structure first
         mods = Structure.from_sites(structure)
         for sp, spin in self.mag_species_spin.items():
             sp = get_el_sp(sp)
@@ -617,3 +624,210 @@ class MagOrderingTransformation(AbstractTransformation):
             energy_model=MontyDecoder().process_decoded(
                 init["energy_model"]),
             **init["enum_kwargs"])
+
+
+def _find_codopant(target, oxidation_state, allowed_elements=None):
+    """
+    Finds the element from "allowed elements" that (i) possesses the desired
+    "oxidation state" and (ii) is closest in ionic radius to the target specie
+
+    Args:
+        target: (Specie) provides target ionic radius.
+        oxidation_state: (float) codopant oxidation state.
+        allowed_elements: ([str]) List of allowed elements. If None,
+            all elements are tried.
+
+    Returns:
+        (Specie) with oxidation_state that has ionic radius closest to
+        target.
+    """
+    ref_radius = target.ionic_radius
+    candidates = []
+    symbols = allowed_elements or [el.symbol for el in Element]
+    for sym in symbols:
+        try:
+            sp = Specie(sym, oxidation_state)
+            r = sp.ionic_radius
+            if r is not None:
+                candidates.append((r, sp))
+        except:
+            pass
+    return min(candidates, key=lambda l: abs(l[0]/ref_radius - 1))[1]
+
+
+class DopingTransformation(AbstractTransformation):
+    """
+    A transformation that performs doping of a structure.
+    """
+
+    def __init__(self, dopant, ionic_radius_tol=float("inf"), min_length=10,
+                 alio_tol=0, codopant=False, max_structures_per_enum=100,
+                 **kwargs):
+        """
+        Args:
+            dopant (Specie-like): E.g., Al3+. Must have oxidation state.
+            ionic_radius_tol (float): E.g., Fractional allowable ionic radii
+                mismatch for dopant to fit into a site. Default of inf means
+                that any dopant with the right oxidation state is allowed.
+            min_Length (float): Min. lattice parameter between periodic
+                images of dopant. Defaults to 10A for now.
+            alio_tol (int): If this is not 0, attempt will be made to dope
+                sites with oxidation_states +- alio_tol of the dopant. E.g.,
+                1 means that the ions like Ca2+ and Ti4+ are considered as
+                potential doping sites for Al3+.
+            codopant (bool): If True, doping will be carried out with a
+                codopant to maintain charge neutrality. Otherwise, vacancies
+                will be used.
+            max_structures_per_enum (float): Maximum number of structures to
+                return per enumeration. Note that there can be more than one
+                candidate doping site, and each site enumeration will return at
+                max max_structures_per_enum structures. Defaults to 100.
+            \*\*kwargs:
+                Same keyword args as :class:`EnumerateStructureTransformation`,
+                i.e., min_cell_size, etc.
+        """
+        self.dopant = get_el_sp(dopant)
+        self.ionic_radius_tol = ionic_radius_tol
+        self.min_length = min_length
+        self.alio_tol = alio_tol
+        self.codopant = codopant
+        self.max_structures_per_enum = max_structures_per_enum
+        self.kwargs = kwargs
+
+    def apply_transformation(self, structure, return_ranked_list=False):
+        """
+        Args:
+            structure (Structure): Input structure to dope
+
+        Returns:
+            [{"structure": Structure, "energy": float}]
+        """
+        comp = structure.composition
+        logger.info("Composition: %s" % comp)
+
+        for sp in comp:
+            try:
+                sp.oxi_state
+            except AttributeError:
+                analyzer = BVAnalyzer()
+                structure = analyzer.get_oxi_state_decorated_structure(
+                    structure)
+                comp = structure.composition
+                break
+
+        ox = self.dopant.oxi_state
+        radius = self.dopant.ionic_radius
+
+        compatible_species = [
+            sp for sp in comp if sp.oxi_state == ox and
+            abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol]
+
+        if (not compatible_species) and self.alio_tol:
+            # We only consider aliovalent doping if there are no compatible
+            # isovalent species.
+            compatible_species = [
+                sp for sp in comp
+                if abs(sp.oxi_state - ox) <= self.alio_tol and
+                abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol and
+                sp.oxi_state * ox >= 0]
+
+        logger.info("Compatible species: %s" % compatible_species)
+
+        lengths = structure.lattice.abc
+        scaling = [max(1, math.floor(self.min_length/x)) for x in lengths]
+        logger.info("Lengths are %s" % str(lengths))
+        logger.info("Scaling = %s" % str(scaling))
+
+        all_structures = []
+        t = EnumerateStructureTransformation(**self.kwargs)
+
+        for sp in compatible_species:
+            supercell = structure * scaling
+            nsp = supercell.composition[sp]
+            if sp.oxi_state == ox:
+                supercell.replace_species({sp: {sp: (nsp - 1)/nsp,
+                                                self.dopant: 1/nsp}})
+                logger.info("Doping %s for %s at level %.3f" % (
+                    sp, self.dopant, 1 / nsp))
+            elif self.codopant:
+                codopant = _find_codopant(sp, 2 * sp.oxi_state - ox)
+                supercell.replace_species({sp: {sp: (nsp - 2) / nsp,
+                                                self.dopant: 1 / nsp,
+                                                codopant: 1 / nsp}})
+                logger.info("Doping %s for %s + %s at level %.3f" % (
+                    sp, self.dopant, codopant, 1 / nsp))
+            elif abs(sp.oxi_state) < abs(ox):
+                # Strategy: replace the target species with a
+                # combination of dopant and vacancy
+                common_charge = lcm(int(abs(sp.oxi_state)), int(abs(ox)))
+                ndopant = common_charge / abs(ox)
+                nsp_to_remove = common_charge / abs(sp.oxi_state)
+                logger.info("Doping %d %s with %d %s." %
+                            (nsp_to_remove, sp, ndopant, self.dopant))
+                supercell.replace_species({sp: {sp: (nsp - nsp_to_remove) / nsp,
+                                                self.dopant: ndopant / nsp}})
+            elif abs(sp.oxi_state) > abs(ox):
+                # Strategy: replace the target species with dopant and also
+                # remove some opposite charged species for charge neutrality
+                if ox > 0:
+                    sp_to_remove = max(supercell.composition.keys(),
+                                       key=lambda el: el.X)
+                else:
+                    sp_to_remove = min(supercell.composition.keys(),
+                                       key=lambda el: el.X)
+                # Confirm species are of opposite oxidation states.
+                assert sp_to_remove.oxi_state * sp.oxi_state < 0
+
+                ox_diff = int(abs(round(sp.oxi_state - ox)))
+                anion_ox = int(abs(sp_to_remove.oxi_state))
+                nx = supercell.composition[sp_to_remove]
+                common_charge = lcm(anion_ox, ox_diff)
+                ndopant = common_charge / ox_diff
+                nx_to_remove = common_charge / anion_ox
+                logger.info("Doping %d %s with %s and removing %d %s." %
+                            (ndopant, sp, self.dopant,
+                             nx_to_remove, sp_to_remove))
+                supercell.replace_species(
+                    {sp: {sp: (nsp - ndopant) / nsp,
+                          self.dopant: ndopant / nsp},
+                     sp_to_remove: {sp_to_remove: (nx - nx_to_remove)/nx}})
+
+            ss = t.apply_transformation(
+                supercell, return_ranked_list=self.max_structures_per_enum)
+            logger.info("%s distinct structures" % len(ss))
+            all_structures.extend(ss)
+
+        logger.info("Total %s doped structures" % len(all_structures))
+        if return_ranked_list:
+            return all_structures[:return_ranked_list]
+
+        return all_structures[0]["structure"]
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+    def as_dict(self):
+        return {
+            "name": self.__class__.__name__, "version": __version__,
+            "init_args": {"dopant": str(self.dopant),
+                          "ionic_radius_tol": self.ionic_radius_tol,
+                          "min_length": self.min_length,
+                          "alio_tol": self.alio_tol,
+                          "codopant": self.codopant,
+                          "max_structures_per_enum":
+                              self.max_structures_per_enum,
+                          "kwargs": self.kwargs},
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__}
+
+    @classmethod
+    def from_dict(cls, d):
+        init = d["init_args"].copy()
+        kwargs = init.pop("kwargs")
+        init.update(kwargs)
+        return DopingTransformation(**init)
