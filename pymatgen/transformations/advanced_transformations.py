@@ -760,7 +760,8 @@ class DopingTransformation(AbstractTransformation):
         logger.info("Compatible species: %s" % compatible_species)
 
         lengths = structure.lattice.abc
-        scaling = [max(1, math.ceil(self.min_length/x)) for x in lengths]
+        scaling = [max(1, int(round(math.ceil(self.min_length/x))))
+                   for x in lengths]
         logger.info("Lengths are %s" % str(lengths))
         logger.info("Scaling = %s" % str(scaling))
 

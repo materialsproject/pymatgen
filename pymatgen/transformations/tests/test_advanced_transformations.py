@@ -310,8 +310,6 @@ class DopingTransformationTest(PymatgenTest):
         for d in ss:
             self.assertEqual(d["structure"].formula, "Sr7 Ti6 Nb2 O24")
 
-
-
     def test_as_from_dict(self):
         trans = DopingTransformation("Al3+", min_length=5, alio_tol=1,
                                      codopant=False, max_structures_per_enum=1)
