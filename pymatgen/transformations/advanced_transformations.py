@@ -678,7 +678,7 @@ class DopingTransformation(AbstractTransformation):
 
     def __init__(self, dopant, ionic_radius_tol=float("inf"), min_length=10,
                  alio_tol=0, codopant=False, max_structures_per_enum=100,
-                 **kwargs):
+                 allowed_doping_species=None, **kwargs):
         """
         Args:
             dopant (Specie-like): E.g., Al3+. Must have oxidation state.
@@ -698,6 +698,9 @@ class DopingTransformation(AbstractTransformation):
                 return per enumeration. Note that there can be more than one
                 candidate doping site, and each site enumeration will return at
                 max max_structures_per_enum structures. Defaults to 100.
+            allowed_doping_species (list): Species that are allowed to be
+                doping sites. This is an inclusionary list. If specified,
+                any sites which are not
             \*\*kwargs:
                 Same keyword args as :class:`EnumerateStructureTransformation`,
                 i.e., min_cell_size, etc.
@@ -708,6 +711,7 @@ class DopingTransformation(AbstractTransformation):
         self.alio_tol = alio_tol
         self.codopant = codopant
         self.max_structures_per_enum = max_structures_per_enum
+        self.allowed_doping_species = allowed_doping_species
         self.kwargs = kwargs
 
     def apply_transformation(self, structure, return_ranked_list=False):
@@ -744,13 +748,19 @@ class DopingTransformation(AbstractTransformation):
             compatible_species = [
                 sp for sp in comp
                 if abs(sp.oxi_state - ox) <= self.alio_tol and
-                abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol and
+                abs(_get_ionic_radius(sp) / radius - 1) < self.ionic_radius_tol and
                 sp.oxi_state * ox >= 0]
+
+        if self.allowed_doping_species is not None:
+            # Only keep allowed doping species.
+            compatible_species = [
+                sp for sp in compatible_species
+                if sp in [get_el_sp(sp) for sp in self.allowed_doping_species]]
 
         logger.info("Compatible species: %s" % compatible_species)
 
         lengths = structure.lattice.abc
-        scaling = [max(1, math.floor(self.min_length/x)) for x in lengths]
+        scaling = [max(1, math.ceil(self.min_length/x)) for x in lengths]
         logger.info("Lengths are %s" % str(lengths))
         logger.info("Scaling = %s" % str(scaling))
 
@@ -774,14 +784,37 @@ class DopingTransformation(AbstractTransformation):
                     sp, self.dopant, codopant, 1 / nsp))
             elif abs(sp.oxi_state) < abs(ox):
                 # Strategy: replace the target species with a
-                # combination of dopant and vacancy
-                common_charge = lcm(int(abs(sp.oxi_state)), int(abs(ox)))
-                ndopant = common_charge / abs(ox)
-                nsp_to_remove = common_charge / abs(sp.oxi_state)
-                logger.info("Doping %d %s with %d %s." %
-                            (nsp_to_remove, sp, ndopant, self.dopant))
-                supercell.replace_species({sp: {sp: (nsp - nsp_to_remove) / nsp,
-                                                self.dopant: ndopant / nsp}})
+                # combination of dopant and vacancy.
+
+                # We will choose the lowest oxidation state species as a
+                # vacancy compensation species as it is likely to be lower in
+                # energy
+                sp_to_remove = min([sp for sp in comp if sp.oxi_state * ox > 0],
+                                    key=lambda s: abs(s.oxi_state))
+
+                if sp_to_remove == sp:
+                    common_charge = lcm(int(abs(sp.oxi_state)), int(abs(ox)))
+                    ndopant = common_charge / abs(ox)
+                    nsp_to_remove = common_charge / abs(sp.oxi_state)
+                    logger.info("Doping %d %s with %d %s." %
+                                (nsp_to_remove, sp, ndopant, self.dopant))
+                    supercell.replace_species({sp: {sp: (nsp - nsp_to_remove) / nsp,
+                                                    self.dopant: ndopant / nsp}})
+                else:
+                    ox_diff = int(abs(round(sp.oxi_state - ox)))
+                    vac_ox = int(abs(sp_to_remove.oxi_state))
+                    common_charge = lcm(vac_ox, ox_diff)
+                    ndopant = common_charge / ox_diff
+                    nx_to_remove = common_charge / vac_ox
+                    nx = supercell.composition[sp_to_remove]
+                    logger.info("Doping %d %s with %s and removing %d %s." %
+                                (ndopant, sp, self.dopant,
+                                 nx_to_remove, sp_to_remove))
+                    supercell.replace_species(
+                        {sp: {sp: (nsp - ndopant) / nsp,
+                              self.dopant: ndopant / nsp},
+                         sp_to_remove: {
+                             sp_to_remove: (nx - nx_to_remove) / nx}})
             elif abs(sp.oxi_state) > abs(ox):
                 # Strategy: replace the target species with dopant and also
                 # remove some opposite charged species for charge neutrality

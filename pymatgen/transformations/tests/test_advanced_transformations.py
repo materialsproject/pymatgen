@@ -270,36 +270,47 @@ class MagOrderingTransformationTest(PymatgenTest):
 
 class DopingTransformationTest(PymatgenTest):
 
-    def setUp(self):
-        self.structure = PymatgenTest.get_structure("LiFePO4")
-
     def test_apply_transformation(self):
+        structure = PymatgenTest.get_structure("LiFePO4")
         t = DopingTransformation("Ca2+", min_length=10)
-        ss = t.apply_transformation(self.structure, 100)
+        ss = t.apply_transformation(structure, 100)
         self.assertEqual(len(ss), 1)
 
         t = DopingTransformation("Al3+", min_length=15, ionic_radius_tol=0.1)
-        ss = t.apply_transformation(self.structure, 100)
+        ss = t.apply_transformation(structure, 100)
         self.assertEqual(len(ss), 0)
 
         # Aliovalent doping with vacancies
-        for dopant, nstructures in [("Al3+", 3), ("N3-", 420), ("Cl-", 16)]:
-            t = DopingTransformation(dopant, min_length=5, alio_tol=1,
+        for dopant, nstructures in [("Al3+", 4), ("N3-", 420), ("Cl-", 16)]:
+            t = DopingTransformation(dopant, min_length=4, alio_tol=1,
                                      max_structures_per_enum=1000)
-            ss = t.apply_transformation(self.structure, 1000)
+            ss = t.apply_transformation(structure, 1000)
             self.assertEqual(len(ss), nstructures)
             for d in ss:
                 self.assertEqual(d["structure"].charge, 0)
 
         # Aliovalent doping with codopant
         for dopant, nstructures in [("Al3+", 3), ("N3-", 60), ("Cl-", 60)]:
-            t = DopingTransformation(dopant, min_length=5, alio_tol=1,
+            t = DopingTransformation(dopant, min_length=4, alio_tol=1,
                                      codopant=True,
                                      max_structures_per_enum=1000)
-            ss = t.apply_transformation(self.structure, 1000)
+            ss = t.apply_transformation(structure, 1000)
             self.assertEqual(len(ss), nstructures)
-            for d in ss:
-                self.assertEqual(d["structure"].charge, 0)
+            if __name__ == '__main__':
+                for d in ss:
+                    self.assertEqual(d["structure"].charge, 0)
+
+        # Make sure compensation is done with lowest oxi state
+        structure = PymatgenTest.get_structure("SrTiO3")
+        t = DopingTransformation("Nb5+", min_length=5, alio_tol=1,
+                                 max_structures_per_enum=1000,
+                                 allowed_doping_species=["Ti4+"])
+        ss = t.apply_transformation(structure, 1000)
+        self.assertEqual(len(ss), 3)
+        for d in ss:
+            self.assertEqual(d["structure"].formula, "Sr7 Ti6 Nb2 O24")
+
+
 
     def test_as_from_dict(self):
         trans = DopingTransformation("Al3+", min_length=5, alio_tol=1,
@@ -316,7 +327,7 @@ class DopingTransformationTest(PymatgenTest):
         self.assertEqual(_find_codopant(Specie("Fe", 2), 3), Specie("In", 3))
 
     def test_get_ionic_radius(self):
-        print(_get_ionic_radius(Specie("Mn", 4)))
+        self.assertAlmostEqual(_get_ionic_radius(Specie("Mn", 4)), 0.67)
 
 if __name__ == "__main__":
     unittest.main()
