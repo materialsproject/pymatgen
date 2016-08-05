@@ -89,7 +89,8 @@ class PDEntry(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        return cls(Composition(d["composition"]), d["energy"], d["name"],
+        return cls(Composition(d["composition"]), d["energy"],
+                   d["name"] if "name" in d else None,
                    d["attribute"] if "attribute" in d else None)
 
 
