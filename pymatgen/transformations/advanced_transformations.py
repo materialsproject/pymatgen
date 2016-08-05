@@ -655,22 +655,6 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
     return min(candidates, key=lambda l: abs(l[0]/ref_radius - 1))[1]
 
 
-def _get_ionic_radius(specie):
-    if specie.ionic_radius is not None:
-        return specie.ionic_radius
-    el = Element(specie.symbol)
-    d = el.data
-    oxstr = str(int(specie.oxi_state))
-    if oxstr in d.get("Ionic radii hs", {}):
-        warn("No default ionic radius for %s. Using hs data." % specie)
-        return d["Ionic radii hs"][oxstr]
-    elif oxstr in d.get("Ionic radii ls", {}):
-        warn("No default ionic radius for %s. Using ls data." % specie)
-        return d["Ionic radii ls"][oxstr]
-    warn("No ionic radius for %s!")
-    return None
-
-
 class DopingTransformation(AbstractTransformation):
     """
     A transformation that performs doping of a structure.
@@ -736,11 +720,11 @@ class DopingTransformation(AbstractTransformation):
                 break
 
         ox = self.dopant.oxi_state
-        radius = _get_ionic_radius(self.dopant)
+        radius = self.dopant.ionic_radius
 
         compatible_species = [
             sp for sp in comp if sp.oxi_state == ox and
-            abs(_get_ionic_radius(sp) / radius - 1) < self.ionic_radius_tol]
+            abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol]
 
         if (not compatible_species) and self.alio_tol:
             # We only consider aliovalent doping if there are no compatible
@@ -748,8 +732,8 @@ class DopingTransformation(AbstractTransformation):
             compatible_species = [
                 sp for sp in comp
                 if abs(sp.oxi_state - ox) <= self.alio_tol and
-                abs(_get_ionic_radius(sp) / radius - 1) < self.ionic_radius_tol
-                and sp.oxi_state * ox >= 0]
+                abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol and
+                sp.oxi_state * ox >= 0]
 
         if self.allowed_doping_species is not None:
             # Only keep allowed doping species.
