@@ -4,8 +4,8 @@ __author__ = "Pymatgen Development Team"
 __email__ ="pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ ="shyuep@gmail.com"
-__date__ = "Jul 21 2016"
-__version__ = "4.2.0"
+__date__ = "Aug 5 2016"
+__version__ = "4.2.1"
 
 
 # Order of imports is important on some systems to avoid 
