@@ -23,7 +23,7 @@ from pymatgen.core.composition import Composition
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
-from pymatgen.util.coord_utils_cython import pbc_shortest_vectors, is_coord_subset_pbc, det3x3
+from pymatgen.util.coord_utils_cython import pbc_shortest_vectors, is_coord_subset_pbc
 from pymatgen.util.coord_utils import lattice_points_in_supercell
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
@@ -400,7 +400,7 @@ class StructureMatcher(MSONable):
             target_lattice, ltol=self.ltol, atol=self.angle_tol,
             skip_rotation_matrix=True)
         for l, _, scale_m in lattices:
-            if abs(abs(det3x3(scale_m)) - supercell_size) < 0.5:
+            if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
                 yield l, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
@@ -453,7 +453,7 @@ class StructureMatcher(MSONable):
 
         return is_coord_subset_pbc(s2, s1, frac_tol, mask)
 
-    def _cart_dists(self, s1, s2, avg_lattice, mask, normalization, frac_tol=None):
+    def _cart_dists(self, s1, s2, avg_lattice, mask, normalization, lll_frac_tol=None):
         """
         Finds a matching in cartesian space. Finds an additional
         fractional translation vector to minimize RMS distance
@@ -476,7 +476,8 @@ class StructureMatcher(MSONable):
             raise ValueError("mask has incorrect shape")
 
         #vectors are from s2 to s1
-        vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask, return_d2=True, frac_tol=frac_tol)
+        vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask, return_d2=True,
+                                         lll_frac_tol=lll_frac_tol)
         lin = LinearAssignment(d_2)
         s = lin.solution
         short_vecs = vecs[np.arange(len(s)), s]
@@ -681,8 +682,10 @@ class StructureMatcher(MSONable):
                 t = s1fc[s1i] - s2fc[s2_t_ind]
                 t_s2fc = s2fc + t
                 if self._cmp_fstruct(s1fc, t_s2fc, frac_tol, mask):
+                    inv_lll_abc = np.array(avg_l.get_lll_reduced_lattice().reciprocal_lattice.abc)
+                    lll_frac_tol = inv_lll_abc * self.stol / (np.pi * normalization)
                     dist, t_adj, mapping = self._cart_dists(
-                        s1fc, t_s2fc, avg_l, mask, normalization, frac_tol)
+                        s1fc, t_s2fc, avg_l, mask, normalization, lll_frac_tol)
                     if use_rms:
                         val = np.linalg.norm(dist) / len(dist) ** 0.5
                     else:

@@ -1,8 +1,8 @@
 Change log
 ==========
 
-v4.2.0
+v4.2.1
 ------
-* Fix important bug in minimum image distance computation for very skewed cells.
-* Major refactoring of WulffShape code.
-* Misc bug fixes for elastic tensor and other codes.
+* New DopingTransformation that implements an automated doping strategy.
+* Updated MIC algorithm that is a lot more robust (Will Richards).
+* Major update to chemenv package (David Waroquiers)
