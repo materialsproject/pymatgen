@@ -748,8 +748,8 @@ class DopingTransformation(AbstractTransformation):
             compatible_species = [
                 sp for sp in comp
                 if abs(sp.oxi_state - ox) <= self.alio_tol and
-                abs(_get_ionic_radius(sp) / radius - 1) < self.ionic_radius_tol and
-                sp.oxi_state * ox >= 0]
+                abs(_get_ionic_radius(sp) / radius - 1) < self.ionic_radius_tol
+                and sp.oxi_state * ox >= 0]
 
         if self.allowed_doping_species is not None:
             # Only keep allowed doping species.
@@ -798,8 +798,9 @@ class DopingTransformation(AbstractTransformation):
                     nsp_to_remove = common_charge / abs(sp.oxi_state)
                     logger.info("Doping %d %s with %d %s." %
                                 (nsp_to_remove, sp, ndopant, self.dopant))
-                    supercell.replace_species({sp: {sp: (nsp - nsp_to_remove) / nsp,
-                                                    self.dopant: ndopant / nsp}})
+                    supercell.replace_species(
+                        {sp: {sp: (nsp - nsp_to_remove) / nsp,
+                              self.dopant: ndopant / nsp}})
                 else:
                     ox_diff = int(abs(round(sp.oxi_state - ox)))
                     vac_ox = int(abs(sp_to_remove.oxi_state))
