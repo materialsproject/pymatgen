@@ -755,7 +755,7 @@ class DopingTransformation(AbstractTransformation):
             # Only keep allowed doping species.
             compatible_species = [
                 sp for sp in compatible_species
-                if sp in [get_el_sp(sp) for sp in self.allowed_doping_species]]
+                if sp in [get_el_sp(s) for s in self.allowed_doping_species]]
 
         logger.info("Compatible species: %s" % compatible_species)
 
@@ -786,12 +786,11 @@ class DopingTransformation(AbstractTransformation):
             elif abs(sp.oxi_state) < abs(ox):
                 # Strategy: replace the target species with a
                 # combination of dopant and vacancy.
-
                 # We will choose the lowest oxidation state species as a
                 # vacancy compensation species as it is likely to be lower in
                 # energy
-                sp_to_remove = min([sp for sp in comp if sp.oxi_state * ox > 0],
-                                    key=lambda s: abs(s.oxi_state))
+                sp_to_remove = min([s for s in comp if s.oxi_state * ox > 0],
+                                    key=lambda ss: abs(ss.oxi_state))
 
                 if sp_to_remove == sp:
                     common_charge = lcm(int(abs(sp.oxi_state)), int(abs(ox)))
@@ -871,6 +870,7 @@ class DopingTransformation(AbstractTransformation):
                           "codopant": self.codopant,
                           "max_structures_per_enum":
                               self.max_structures_per_enum,
+                          "allowed_doping_species": self.allowed_doping_species,
                           "kwargs": self.kwargs},
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__}

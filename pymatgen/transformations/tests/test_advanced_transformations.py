@@ -328,4 +328,6 @@ class DopingTransformationTest(PymatgenTest):
         self.assertAlmostEqual(_get_ionic_radius(Specie("Mn", 4)), 0.67)
 
 if __name__ == "__main__":
+    import logging
+    logging.basicConfig(level=logging.INFO)
     unittest.main()
