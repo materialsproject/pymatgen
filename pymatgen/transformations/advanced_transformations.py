@@ -57,11 +57,11 @@ class ChargeBalanceTransformation(AbstractTransformation):
             is supported
     """
     def __init__(self, charge_balance_sp):
-        self._charge_balance_sp = str(charge_balance_sp)
+        self.charge_balance_sp = str(charge_balance_sp)
 
     def apply_transformation(self, structure):
         charge = structure.charge
-        specie = get_el_sp(self._charge_balance_sp)
+        specie = get_el_sp(self.charge_balance_sp)
         num_to_remove = charge / specie.oxi_state
         num_in_structure = structure.composition[specie]
         removal_fraction = num_to_remove / num_in_structure
@@ -69,13 +69,13 @@ class ChargeBalanceTransformation(AbstractTransformation):
             raise ValueError("addition of specie not yet supported by "
                              "ChargeBalanceTransformation")
         trans = SubstitutionTransformation(
-            {self._charge_balance_sp: {
-                self._charge_balance_sp: 1 - removal_fraction}})
+            {self.charge_balance_sp: {
+                self.charge_balance_sp: 1 - removal_fraction}})
         return trans.apply_transformation(structure)
 
     def __str__(self):
         return "Charge Balance Transformation : " + \
-               "Species to remove = {}".format(str(self._charge_balance_sp))
+               "Species to remove = {}".format(str(self.charge_balance_sp))
 
     def __repr__(self):
         return self.__str__()
@@ -87,12 +87,6 @@ class ChargeBalanceTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return False
-
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"charge_balance_sp": self._charge_balance_sp},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
 
 
 class SuperTransformation(AbstractTransformation):
@@ -148,14 +142,6 @@ class SuperTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {
-                    "transformations": self._transformations,
-                    "nstructures_per_trans": self.nstructures_per_trans},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
-
 
 class MultipleSubstitutionTransformation(object):
     """
@@ -190,11 +176,11 @@ class MultipleSubstitutionTransformation(object):
             charge_balance_species: If specified, will balance the charge on
                 the structure using that specie.
         """
-        self._sp_to_replace = sp_to_replace
-        self._r_fraction = r_fraction
-        self._substitution_dict = substitution_dict
-        self._charge_balance_species = charge_balance_species
-        self._order = order
+        self.sp_to_replace = sp_to_replace
+        self.r_fraction = r_fraction
+        self.substitution_dict = substitution_dict
+        self.charge_balance_species = charge_balance_species
+        self.order = order
 
     def apply_transformation(self, structure, return_ranked_list=False):
         if not return_ranked_list:
@@ -202,22 +188,22 @@ class MultipleSubstitutionTransformation(object):
                              " best structure output. Must use"
                              " return_ranked_list.")
         outputs = []
-        for charge, el_list in self._substitution_dict.items():
+        for charge, el_list in self.substitution_dict.items():
             mapping = {}
             if charge > 0:
                 sign = "+"
             else:
                 sign = "-"
             dummy_sp = "X{}{}".format(str(charge), sign)
-            mapping[self._sp_to_replace] = {
-                self._sp_to_replace: 1 - self._r_fraction,
-                dummy_sp: self._r_fraction}
+            mapping[self.sp_to_replace] = {
+                self.sp_to_replace: 1 - self.r_fraction,
+                dummy_sp: self.r_fraction}
             trans = SubstitutionTransformation(mapping)
             dummy_structure = trans.apply_transformation(structure)
-            if self._charge_balance_species is not None:
-                cbt = ChargeBalanceTransformation(self._charge_balance_species)
+            if self.charge_balance_species is not None:
+                cbt = ChargeBalanceTransformation(self.charge_balance_species)
                 dummy_structure = cbt.apply_transformation(dummy_structure)
-            if self._order:
+            if self.order:
                 trans = OrderDisorderedStructureTransformation()
                 dummy_structure = trans.apply_transformation(dummy_structure)
 
@@ -235,7 +221,7 @@ class MultipleSubstitutionTransformation(object):
 
     def __str__(self):
         return "Multiple Substitution Transformation : Substitution on " + \
-               "{}".format(self._sp_to_replace)
+               "{}".format(self.sp_to_replace)
 
     def __repr__(self):
         return self.__str__()
@@ -247,16 +233,6 @@ class MultipleSubstitutionTransformation(object):
     @property
     def is_one_to_many(self):
         return True
-
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {
-                    "sp_to_replace": self._sp_to_replace,
-                    "r_fraction": self._r_fraction,
-                    "substitution_dict": self._substitution_dict,
-                    "charge_balance_species": self._charge_balance_species},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
 
 
 class EnumerateStructureTransformation(AbstractTransformation):
@@ -402,17 +378,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {
-                    "symm_prec": self.symm_prec,
-                    "min_cell_size": self.min_cell_size,
-                    "max_cell_size": self.max_cell_size,
-                    "refine_structure": self.refine_structure,
-                    "enum_precision_parameter": self.enum_precision_parameter,
-                    "check_ordered_symmetry": self.check_ordered_symmetry},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
 
 
 class SubstitutionPredictorTransformation(AbstractTransformation):
@@ -426,8 +391,8 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
     """
 
     def __init__(self, threshold=1e-2, **kwargs):
-        self._kwargs = kwargs
-        self._threshold = threshold
+        self.kwargs = kwargs
+        self.threshold = threshold
         self._substitutor = SubstitutionPredictor(threshold=threshold,
                                                   **kwargs)
 
@@ -445,7 +410,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
             st = SubstitutionTransformation(pred['substitutions'])
             output = {'structure': st.apply_transformation(structure),
                       'probability': pred['probability'],
-                      'threshold': self._threshold, 'substitutions': {}}
+                      'threshold': self.threshold, 'substitutions': {}}
             # dictionary keys have to be converted to strings for JSON
             for key, value in pred['substitutions'].items():
                 output['substitutions'][str(key)] = str(value)
@@ -465,13 +430,6 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return True
-
-    def as_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__,
-             "init_args": self._kwargs, "@module": self.__class__.__module__,
-             "@class": self.__class__.__name__}
-        d["init_args"]["threshold"] = self._threshold
-        return d
 
 
 class MagOrderingTransformation(AbstractTransformation):
@@ -501,8 +459,8 @@ class MagOrderingTransformation(AbstractTransformation):
             raise ValueError('Order Parameter must lie between 0 and 1')
         else:
             self.order_parameter = order_parameter
-        self.emodel = energy_model
-        self.enum_kwargs = kwargs
+        self.energy_model = energy_model
+        self.kwargs = kwargs
 
     @classmethod
     def determine_min_cell(cls, structure, mag_species_spin, order_parameter):
@@ -548,7 +506,7 @@ class MagOrderingTransformation(AbstractTransformation):
         if mods.is_ordered:
             return [mods] if return_ranked_list > 1 else mods
 
-        enum_args = self.enum_kwargs
+        enum_args = self.kwargs
 
         enum_args["min_cell_size"] = max(int(
             MagOrderingTransformation.determine_min_cell(
@@ -556,7 +514,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 self.order_parameter)),
             enum_args.get("min_cell_size", 1))
 
-        max_cell = self.enum_kwargs.get('max_cell_size')
+        max_cell = enum_args.get('max_cell_size')
         if max_cell:
             if enum_args["min_cell_size"] > max_cell:
                 raise ValueError('Specified max cell size is smaller'
@@ -585,7 +543,7 @@ class MagOrderingTransformation(AbstractTransformation):
             g = list(g)
             grouped = m.group_structures(g)
             out.extend([{"structure": g[0],
-                         "energy": self.emodel.get_energy(g[0])}
+                         "energy": self.energy_model.get_energy(g[0])}
                         for g in grouped])
 
         self._all_structures = sorted(out, key=lambda d: d["energy"])
@@ -605,25 +563,6 @@ class MagOrderingTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return True
-
-    def as_dict(self):
-        return {
-            "name": self.__class__.__name__, "version": __version__,
-            "init_args": {"mag_species_spin": self.mag_species_spin,
-                          "order_parameter": self.order_parameter,
-                          "energy_model": self.emodel.as_dict(),
-                          "enum_kwargs": self.enum_kwargs},
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__}
-
-    @classmethod
-    def from_dict(cls, d):
-        init = d["init_args"]
-        return MagOrderingTransformation(
-            init["mag_species_spin"], init["order_parameter"],
-            energy_model=MontyDecoder().process_decoded(
-                init["energy_model"]),
-            **init["enum_kwargs"])
 
 
 def _find_codopant(target, oxidation_state, allowed_elements=None):
@@ -844,25 +783,3 @@ class DopingTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return True
-
-    def as_dict(self):
-        return {
-            "name": self.__class__.__name__, "version": __version__,
-            "init_args": {"dopant": str(self.dopant),
-                          "ionic_radius_tol": self.ionic_radius_tol,
-                          "min_length": self.min_length,
-                          "alio_tol": self.alio_tol,
-                          "codopant": self.codopant,
-                          "max_structures_per_enum":
-                              self.max_structures_per_enum,
-                          "allowed_doping_species": self.allowed_doping_species,
-                          "kwargs": self.kwargs},
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__}
-
-    @classmethod
-    def from_dict(cls, d):
-        init = d["init_args"].copy()
-        kwargs = init.pop("kwargs")
-        init.update(kwargs)
-        return DopingTransformation(**init)

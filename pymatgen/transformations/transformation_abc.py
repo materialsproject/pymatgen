@@ -3,6 +3,10 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
+import abc
+
+from monty.json import MSONable, MontyDecoder
+import six
 
 """
 Defines an abstract base class contract for Transformation object.
@@ -15,10 +19,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Sep 23, 2011"
 
-import abc
-
-from monty.json import MSONable
-import six
 
 
 class AbstractTransformation(six.with_metaclass(abc.ABCMeta, MSONable)):
@@ -83,6 +83,14 @@ class AbstractTransformation(six.with_metaclass(abc.ABCMeta, MSONable)):
         """
         return False
 
+    def as_dict(self, verbosity=2):
+        d = MSONable.as_dict(self)
+        if hasattr(self, "kwargs"):
+            d.update(**self.kwargs)
+        return d
+
     @classmethod
     def from_dict(cls, d):
-        return cls(**d["init_args"])
+        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items()
+                   if not k.startswith("@")}
+        return cls(**decoded)

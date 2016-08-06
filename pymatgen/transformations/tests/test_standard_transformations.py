@@ -50,8 +50,6 @@ class TransformationsTest(unittest.TestCase):
     def test_to_from_dict(self):
         t = IdentityTransformation()
         d = t.as_dict()
-        self.assertIn("version", t.as_dict())
-        self.assertIn("init_args", t.as_dict())
         self.assertEqual(type(IdentityTransformation.from_dict(d)),
                          IdentityTransformation)
 
