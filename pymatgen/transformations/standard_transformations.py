@@ -198,7 +198,7 @@ class SupercellTransformation(AbstractTransformation):
     """
 
     def __init__(self, scaling_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1))):
-        self._matrix = scaling_matrix
+        self.scaling_matrix = scaling_matrix
 
     @staticmethod
     def from_scaling_factors(scale_a=1, scale_b=1, scale_c=1):
@@ -220,11 +220,11 @@ class SupercellTransformation(AbstractTransformation):
                                         [0, 0, scale_c]])
 
     def apply_transformation(self, structure):
-        return structure * self._matrix
+        return structure * self.scaling_matrix
 
     def __str__(self):
         return "Supercell Transformation with scaling matrix " + \
-            "{}".format(self._matrix)
+            "{}".format(self.scaling_matrix)
 
     def __repr__(self):
         return self.__str__()
