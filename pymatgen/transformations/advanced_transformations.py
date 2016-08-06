@@ -379,7 +379,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
         return True
 
 
-
 class SubstitutionPredictorTransformation(AbstractTransformation):
     """
     This transformation takes a structure and uses the structure
