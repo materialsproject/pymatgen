@@ -412,9 +412,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     USE WITH CARE.
 
     Args:
-        num_structures: Maximum number of structures to return
-        mev_cutoff (float): maximum mev per atom above the minimum energy
-            ordering for a structure to be returned
+        algo (int): Algorithm to use.
         symmetrized_structures (bool): Whether the input structures are
             instances of SymmetrizedStructure, and that their symmetry
             should be used for the grouping of sites.
@@ -464,9 +462,9 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         equivalent_sites = []
         exemplars = []
-        #generate list of equivalent sites to order
-        #equivalency is determined by sp_and_occu and symmetry
-        #if symmetrized structure is true
+        # generate list of equivalent sites to order
+        # equivalency is determined by sp_and_occu and symmetry
+        # if symmetrized structure is true
         for i, site in enumerate(structure):
             if site.is_ordered:
                 continue
@@ -488,32 +486,32 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 equivalent_sites.append([i])
                 exemplars.append(site)
 
-        #generate the list of manipulations and input structure
+        # generate the list of manipulations and input structure
         s = Structure.from_sites(structure)
         m_list = []
         for g in equivalent_sites:
             total_occupancy = sum([structure[i].species_and_occu for i in g],
                                   Composition())
             total_occupancy = dict(total_occupancy.items())
-            #round total occupancy to possible values
+            # round total occupancy to possible values
             for k, v in total_occupancy.items():
                 if abs(v - round(v)) > 0.25:
                     raise ValueError("Occupancy fractions not consistent "
                                      "with size of unit cell")
                 total_occupancy[k] = int(round(v))
-            #start with an ordered structure
+            # start with an ordered structure
             initial_sp = max(total_occupancy.keys(),
                              key=lambda x: abs(x.oxi_state))
             for i in g:
                 s[i] = initial_sp
-            #determine the manipulations
+            # determine the manipulations
             for k, v in total_occupancy.items():
                 if k == initial_sp:
                     continue
                 m = [k.oxi_state / initial_sp.oxi_state if initial_sp.oxi_state
                      else 0, v, list(g), k]
                 m_list.append(m)
-            #determine the number of empty sites
+            # determine the number of empty sites
             empty = len(g) - sum(total_occupancy.values())
             if empty > 0.5:
                 m_list.append([0, empty, list(g), None])
