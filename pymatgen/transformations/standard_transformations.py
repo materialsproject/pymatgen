@@ -41,6 +41,9 @@ class IdentityTransformation(AbstractTransformation):
     This is a demo transformation which does nothing, i.e. just returns a copy
     of the same structure.
     """
+    def __init__(self):
+        pass
+
     def apply_transformation(self, structure):
         return Structure(structure.lattice, structure.species_and_occu,
                          structure.frac_coords)
