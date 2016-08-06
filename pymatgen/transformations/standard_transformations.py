@@ -3,6 +3,18 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import logging
+
+from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
+from pymatgen.analysis.elasticity.strain import Deformation
+from pymatgen.core.composition import Composition
+from pymatgen.core.operations import SymmOp
+from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core.structure import Structure
+from pymatgen.transformations.site_transformations import \
+    PartialRemoveSitesTransformation
+from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 """
 This module defines standard transformations which transforms a structure into
@@ -19,19 +31,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Sep 23, 2011"
 
-
-import logging
-
-from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
-from pymatgen.analysis.elasticity.strain import Deformation
-from pymatgen.core.composition import Composition
-from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
-from pymatgen.transformations.site_transformations import \
-    PartialRemoveSitesTransformation
-from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 logger = logging.getLogger(__name__)
 
