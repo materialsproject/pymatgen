@@ -4,19 +4,6 @@
 
 from __future__ import division, unicode_literals
 from functools import reduce
-
-"""
-This module implements representations of slabs and surfaces, as well as
-algorithms for generating them.
-"""
-
-__author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
-__copyright__ = "Copyright 2014, The Materials Virtual Lab"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "6/10/14"
-
 try:
     # New Py>=3.5 import
     from math import gcd
@@ -40,10 +27,20 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.analysis.structure_matcher import StructureMatcher
 
+"""
+This module implements representations of slabs and surfaces, as well as
+algorithms for generating them.
+"""
+
+__author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
+__copyright__ = "Copyright 2014, The Materials Virtual Lab"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "ongsp@ucsd.edu"
+__date__ = "6/10/14"
 
 
 logger = logging.getLogger(__name__)

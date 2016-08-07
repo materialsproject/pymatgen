@@ -82,15 +82,3 @@ class AbstractTransformation(six.with_metaclass(abc.ABCMeta, MSONable)):
         transformations that the transmuter can parallelize.
         """
         return False
-
-    def as_dict(self, verbosity=2):
-        d = MSONable.as_dict(self)
-        if hasattr(self, "kwargs"):
-            d.update(**self.kwargs)
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items()
-                   if not k.startswith("@")}
-        return cls(**decoded)
