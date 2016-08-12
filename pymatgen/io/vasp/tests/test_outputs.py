@@ -480,6 +480,9 @@ class OutcarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, "OUTCAR.CL")
         cl = Outcar(filepath).read_core_state_eigen()
         self.assertAlmostEqual(cl[6]["2s"][-1], -174.4779)
+        filepath = os.path.join(test_dir, "OUTCAR.icorelevel")
+        cl = Outcar(filepath).read_core_state_eigen()
+        self.assertAlmostEqual(cl[4]["3d"][-1], -31.4522)
 
     def test_single_atom(self):
         filepath = os.path.join(test_dir, "OUTCAR.Al")
