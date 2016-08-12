@@ -2061,13 +2061,25 @@ class Outcar(MSONable):
             line = foutcar.readline()
             while line != "":
                 line = foutcar.readline()
-                if "NIONS =" in line:
+                if "NIONS =" in line:   
                     natom = int(line.split("NIONS =")[1])
                     cl = [defaultdict(list) for i in range(natom)]
                 if "the core state eigen" in line:
-                    for iat in range(natom):
+                    iat = -1
+                    while line != "":
                         line = foutcar.readline()
-                        data = line.split()[1:]
+                        # don't know number of lines to parse without knowing
+                        # specific species, so stop parsing when we reach
+                        # "E-fermi" instead
+                        if "E-fermi" in line:
+                            break
+                        data = line.split()
+                        # data will contain odd number of elements if it is
+                        # the start of a new entry, or even number of elements
+                        # if it continues the previous entry
+                        if len(data) % 2 == 1:
+                            iat += 1 # started parsing a new ion
+                            data = data[1:] # remove element with ion number
                         for i in range(0, len(data), 2):
                             cl[iat][data[i]].append(float(data[i + 1]))
         return cl
