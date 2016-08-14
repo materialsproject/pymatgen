@@ -19,8 +19,6 @@ except ImportError:
 
 SETUP_PTH = os.path.dirname(__file__)
 
-
-
 extra_link_args = []
 if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
@@ -95,5 +93,10 @@ setup(
                            ["pymatgen/util/coord_utils_cython.c"],
                            include_dirs=get_numpy_include_dirs(),
                            extra_link_args=extra_link_args)],
+    entry_points={
+          'console_scripts': [
+              'pmg = pymatgen.__main__:main'
+          ]
+      },
     scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
 )
