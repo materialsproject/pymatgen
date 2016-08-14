@@ -97,6 +97,6 @@ setup(
           'console_scripts': [
               'pmg = pymatgen.__main__:main'
           ]
-      },
+    },
     scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
 )
