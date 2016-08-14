@@ -4,18 +4,6 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-
-"""
-A master convenience script with many tools for vasp and structure analysis.
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "3.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "Sep 9, 2014"
-
 import argparse
 import os
 import re
@@ -46,6 +34,18 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 
+"""
+A master convenience script with many tools for vasp and structure analysis.
+"""
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "4.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "ongsp@ucsd.edu"
+__date__ = "Aug 13 2016"
+
+
 SAVE_FILE = "vasp_data.gz"
 
 
@@ -54,8 +54,8 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
     Doc string.
     """
     if verbose:
-        FORMAT = "%(relativeCreated)d msecs : %(message)s"
-        logging.basicConfig(level=logging.INFO, format=FORMAT)
+        logformat = "%(relativeCreated)d msecs : %(message)s"
+        logging.basicConfig(level=logging.INFO, format=logformat)
 
     if not detailed:
         drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
@@ -376,7 +376,7 @@ def setup_potcar(args):
 
     print("Generating pymatgen resources directory...")
 
-    NAME_MAPPINGS = {
+    name_mappings = {
         "potpaw_PBE": "POT_GGA_PAW_PBE",
         "potpaw_PBE_52": "POT_GGA_PAW_PBE_52",
         "potpaw_PBE_54": "POT_GGA_PAW_PBE_54",
@@ -394,7 +394,7 @@ def setup_potcar(args):
 
     for (parent, subdirs, files) in os.walk(pspdir):
         basename = os.path.basename(parent)
-        basename = NAME_MAPPINGS.get(basename, basename)
+        basename = name_mappings.get(basename, basename)
         for subdir in subdirs:
             filenames = glob.glob(os.path.join(parent, subdir, "POTCAR*"))
             if len(filenames) > 0:
@@ -446,7 +446,6 @@ def setup_potcar(args):
                     f.write(contents)
     print("Start a new terminal to ensure that your environment variables "
           "are properly set.")
-
 
 
 def main():
@@ -651,7 +650,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        a = getattr(args, "func")
+        getattr(args, "func")
     except AttributeError:
         parser.print_help()
         sys.exit(0)
