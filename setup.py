@@ -95,7 +95,15 @@ setup(
                            extra_link_args=extra_link_args)],
     entry_points={
           'console_scripts': [
-              'pmg = pymatgen.__main__:main'
+              'pmg = pymatgen.cli.pmg:main',
+              'diff_incar = pymatgen.cli.diff_incar:main',
+              'feff_input_generation = pymatgen.cli.feff_input_generation:main',
+              'feff_plot_cross_section = pymatgen.cli.feff_plot_cross_section:main',
+              'feff_plot_dos = pymatgen.cli.feff_plot_dos:main',
+              'gaussian_analyzer = pymatgen.cli.gaussian_analyzer:main',
+              'gen_potcar = pymatgen.cli.gen_potcar:main',
+              'get_environment = pymatgen.cli.get_environment:main',
+              'pydii = pymatgen.cli.pydii:main',
           ]
     },
     scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
