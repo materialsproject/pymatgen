@@ -167,15 +167,7 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         d = MSONable.as_dict(self)
         if verbosity == 1:
             d.pop("structure", None)
-        if hasattr(self, "kwargs"):
-            d.update(**self.kwargs)
         return d
-
-    @classmethod
-    def from_dict(cls, d):
-        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items()
-                   if not k.startswith("@")}
-        return cls(**decoded)
 
 
 class DictSet(VaspInputSet):
