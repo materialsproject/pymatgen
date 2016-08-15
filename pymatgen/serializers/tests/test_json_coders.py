@@ -20,8 +20,6 @@ import unittest2 as unittest
 
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.transformations.standard_transformations import \
-    IdentityTransformation
 import json
 
 from monty.json import MontyEncoder, MontyDecoder
@@ -75,12 +73,6 @@ class MontyTest(unittest.TestCase):
         for i in d:
             self.assertEqual(type(i), ComputedEntry)
         self.assertEqual(len(d), 3)
-
-    def test_transformations(self):
-        trans = IdentityTransformation()
-        jsonstr = json.dumps(trans, cls=MontyEncoder)
-        d = json.loads(jsonstr, cls=MontyDecoder)
-        self.assertEqual(type(d), IdentityTransformation)
 
     def test_datetime(self):
         dt = datetime.datetime.now()

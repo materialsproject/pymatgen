@@ -10,7 +10,7 @@ import logging
 __author__ = 'waroquiers'
 
 
-def run_script():
+def main():
     m_description = 'Welcome to the Chemical Environment Package.'
     parser = ArgumentParser(description=m_description)
     setup_help = 'Used to setup the configuration of the package '
@@ -33,4 +33,4 @@ def run_script():
 
 
 if __name__ == '__main__':
-    run_script()
+    main()
