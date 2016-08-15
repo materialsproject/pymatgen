@@ -344,10 +344,11 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             A pretty normalized formula and a multiplicative factor, i.e.,
             Li4Fe4P4O16 returns (LiFePO4, 4).
         """
-        all_int = all(x == int(x) for x in self.values())
+        all_int = all(abs(x - round(x)) < Composition.amount_tolerance
+                      for x in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
-        d = self.get_el_amt_dict()
+        d = {k: int(round(v)) for k, v in self.get_el_amt_dict().items()}
         (formula, factor) = reduce_formula(d)
 
         if formula in Composition.special_formulas:
