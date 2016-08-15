@@ -255,7 +255,7 @@ class BSPlotter(object):
         self._bs = bs
         # TODO: come with an intelligent way to cut the highest unconverged
         # bands
-        self._nb_bands = self._bs._nb_bands
+        self._nb_bands = self._bs.nb_bands
 
     def _maketicks(self, plt):
         """
@@ -345,25 +345,25 @@ class BSPlotter(object):
         if not zero_to_efermi:
             zero_energy = 0.0
 
-        for b in self._bs._branches:
+        for b in self._bs.branches:
 
             if self._bs.is_spin_polarized:
                 energy.append({str(Spin.up): [], str(Spin.down): []})
             else:
                 energy.append({str(Spin.up): []})
-            distance.append([self._bs._distance[j]
+            distance.append([self._bs.distance[j]
                              for j in range(b['start_index'],
                                             b['end_index'] + 1)])
             ticks = self.get_ticks()
 
             for i in range(self._nb_bands):
                 energy[-1][str(Spin.up)].append(
-                    [self._bs._bands[Spin.up][i][j] - zero_energy
+                    [self._bs.bands[Spin.up][i][j] - zero_energy
                      for j in range(b['start_index'], b['end_index'] + 1)])
             if self._bs.is_spin_polarized:
                 for i in range(self._nb_bands):
                     energy[-1][str(Spin.down)].append(
-                        [self._bs._bands[Spin.down][i][j] - zero_energy
+                        [self._bs.bands[Spin.down][i][j] - zero_energy
                          for j in range(b['start_index'], b['end_index'] + 1)])
 
         vbm = self._bs.get_vbm()
@@ -373,12 +373,12 @@ class BSPlotter(object):
         cbm_plot = []
 
         for index in cbm['kpoint_index']:
-            cbm_plot.append((self._bs._distance[index],
+            cbm_plot.append((self._bs.distance[index],
                              cbm['energy'] - zero_energy if zero_to_efermi
                              else cbm['energy']))
 
         for index in vbm['kpoint_index']:
-            vbm_plot.append((self._bs._distance[index],
+            vbm_plot.append((self._bs.distance[index],
                              vbm['energy'] - zero_energy if zero_to_efermi
                              else vbm['energy']))
 
@@ -389,7 +389,7 @@ class BSPlotter(object):
 
         return {'ticks': ticks, 'distances': distance, 'energy': energy,
                 'vbm': vbm_plot, 'cbm': cbm_plot,
-                'lattice': self._bs._lattice_rec.as_dict(),
+                'lattice': self._bs.lattice_rec.as_dict(),
                 'zero_energy': zero_energy, 'is_metal': self._bs.is_metal(),
                 'band_gap': "{} {} bandgap = {}".format(direct,
                                                         bg['transition'],
@@ -542,7 +542,7 @@ class BSPlotter(object):
                 if zero_to_efermi:
                     plt.ylim(e_min, e_max)
                 else:
-                    plt.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
+                    plt.ylim(self._bs.efermi + e_min, self._bs.efermi + e_max)
             else:
                 if vbm_cbm_marker:
                     for cbm in data['cbm']:
@@ -603,13 +603,13 @@ class BSPlotter(object):
         """
         tick_distance = []
         tick_labels = []
-        previous_label = self._bs._kpoints[0].label
-        previous_branch = self._bs._branches[0]['name']
-        for i, c in enumerate(self._bs._kpoints):
+        previous_label = self._bs.kpoints[0].label
+        previous_branch = self._bs.branches[0]['name']
+        for i, c in enumerate(self._bs.kpoints):
             if c.label is not None:
-                tick_distance.append(self._bs._distance[i])
+                tick_distance.append(self._bs.distance[i])
                 this_branch = None
-                for b in self._bs._branches:
+                for b in self._bs.branches:
                     if b['start_index'] <= i <= b['end_index']:
                         this_branch = b['name']
                         break
@@ -675,7 +675,7 @@ class BSPlotter(object):
                 labels[k.label] = k.frac_coords
 
         lines = []
-        for b in self._bs._branches:
+        for b in self._bs.branches:
             lines.append([self._bs.kpoints[b['start_index']].frac_coords, self._bs.kpoints[b['end_index']].frac_coords])
 
         plot_brillouin_zone(self._bs.lattice, lines=lines, labels=labels)
@@ -699,12 +699,7 @@ class BSPlotterProjected(BSPlotter):
     def _get_projections_by_branches(self, dictio):
         proj = self._bs.get_projections_on_elts_and_orbitals(dictio)
         proj_br = []
-        print(len(proj[Spin.up]))
-        print(len(proj[Spin.up][0]))
-        for c in proj[Spin.up][0]:
-            print(c)
-        for b in self._bs._branches:
-            print(b)
+        for b in self._bs.branches:
             if self._bs.is_spin_polarized:
                 proj_br.append(
                     {str(Spin.up): [[] for l in range(self._nb_bands)],
@@ -712,7 +707,6 @@ class BSPlotterProjected(BSPlotter):
             else:
                 proj_br.append(
                     {str(Spin.up): [[] for l in range(self._nb_bands)]})
-            print((len(proj_br[-1][str(Spin.up)]), self._nb_bands))
 
             for i in range(self._nb_bands):
                 for j in range(b['start_index'], b['end_index'] + 1):
@@ -721,7 +715,7 @@ class BSPlotterProjected(BSPlotter):
                              for o in proj[Spin.up][i][j][e]}
                          for e in proj[Spin.up][i][j]})
             if self._bs.is_spin_polarized:
-                for b in self._bs._branches:
+                for b in self._bs.branches:
                     for i in range(self._nb_bands):
                         for j in range(b['start_index'], b['end_index'] + 1):
                             proj_br[-1][str(Spin.down)][i].append(
@@ -798,7 +792,7 @@ class BSPlotterProjected(BSPlotter):
                         if zero_to_efermi:
                             plt.ylim(e_min, e_max)
                         else:
-                            plt.ylim(self._bs.efermi + e_min, self._bs._efermi
+                            plt.ylim(self._bs.efermi + e_min, self._bs.efermi
                                      + e_max)
                     else:
                         if vbm_cbm_marker:
@@ -834,7 +828,7 @@ class BSPlotterProjected(BSPlotter):
         band_linewidth = 1.0
         proj = self._get_projections_by_branches({e.symbol: ['s', 'p', 'd']
                                                   for e in
-                                                  self._bs._structure.composition.elements})
+                                                  self._bs.structure.composition.elements})
         data = self.bs_plot_data(zero_to_efermi)
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
@@ -844,7 +838,7 @@ class BSPlotterProjected(BSPlotter):
             e_min = -10
             e_max = 10
         count = 1
-        for el in self._bs._structure.composition.elements:
+        for el in self._bs.structure.composition.elements:
             plt.subplot(220 + count)
             self._maketicks(plt)
             for b in range(len(data['distances'])):
@@ -879,7 +873,7 @@ class BSPlotterProjected(BSPlotter):
                     if zero_to_efermi:
                         plt.ylim(e_min, e_max)
                     else:
-                        plt.ylim(self._bs.efermi + e_min, self._bs._efermi
+                        plt.ylim(self._bs.efermi + e_min, self._bs.efermi
                                  + e_max)
                 else:
                     if vbm_cbm_marker:
@@ -920,13 +914,13 @@ class BSPlotterProjected(BSPlotter):
 
         """
         band_linewidth = 3.0
-        if len(self._bs._structure.composition.elements) > 3:
+        if len(self._bs.structure.composition.elements) > 3:
             raise ValueError
         if elt_ordered is None:
-            elt_ordered = self._bs._structure.composition.elements
+            elt_ordered = self._bs.structure.composition.elements
         proj = self._get_projections_by_branches(
             {e.symbol: ['s', 'p', 'd']
-             for e in self._bs._structure.composition.elements})
+             for e in self._bs.structure.composition.elements})
         data = self.bs_plot_data(zero_to_efermi)
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
