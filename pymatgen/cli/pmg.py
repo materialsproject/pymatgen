@@ -15,13 +15,14 @@ from collections import OrderedDict
 import glob
 import shutil
 import subprocess
+import itertools
 
 from six.moves import input
 
 from tabulate import tabulate, tabulate_formats
 
 from pymatgen import Structure
-from pymatgen.io.vasp import Outcar, Vasprun, Chgcar
+from pymatgen.io.vasp import Outcar, Vasprun, Chgcar, Incar
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
     VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
@@ -449,6 +450,32 @@ def setup_potcar(args):
           "are properly set.")
 
 
+def diff_incar(args):
+    filepath1 = args.filenames[0]
+    filepath2 = args.filenames[1]
+    incar1 = Incar.from_file(filepath1)
+    incar2 = Incar.from_file(filepath2)
+
+    def format_lists(v):
+        if isinstance(v, (tuple, list)):
+            return " ".join(["%d*%.2f" % (len(tuple(group)), i)
+                             for (i, group) in itertools.groupby(v)])
+        return v
+
+    d = incar1.diff(incar2)
+    output = [['SAME PARAMS', '', '']]
+    output.append(['---------------', '', ''])
+    output.extend([(k, format_lists(d['Same'][k]), format_lists(d['Same'][k]))
+                   for k in sorted(d['Same'].keys()) if k != "SYSTEM"])
+    output.append(['', '', ''])
+    output.append(['DIFFERENT PARAMS', '', ''])
+    output.append(['----------------', '', ''])
+    output.extend([(k, format_lists(d['Different'][k]['INCAR1']),
+                    format_lists(d['Different'][k]['INCAR2']))
+                   for k in sorted(d['Different'].keys()) if k != "SYSTEM"])
+    print(tabulate(output, headers=['', filepath1, filepath2]))
+
+
 def main():
     parser = argparse.ArgumentParser(description="""
     pmg is a convenient script that uses pymatgen to perform many
@@ -609,6 +636,11 @@ def main():
                                  "different species for the purposes of "
                                  "matching.")
     parser_cmp.set_defaults(func=compare_structures)
+
+    parser_diffincar = subparsers.add_parser("diff_incar", help="Helpful diffing tool for INCARs")
+    parser_diffincar.add_argument("filenames", metavar="filenames", type=str,
+                            nargs=2, help="List of INCARs to compare.")
+    parser_diffincar.set_defaults(func=diff_incar)
 
     parser_generate = subparsers.add_parser("generate",
                                             help="Generate input files")

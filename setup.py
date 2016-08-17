@@ -95,7 +95,6 @@ setup(
     entry_points={
           'console_scripts': [
               'pmg = pymatgen.cli.pmg:main',
-              'diff_incar = pymatgen.cli.diff_incar:main',
               'feff_input_generation = pymatgen.cli.feff_input_generation:main',
               'feff_plot_cross_section = pymatgen.cli.feff_plot_cross_section:main',
               'feff_plot_dos = pymatgen.cli.feff_plot_dos:main',
