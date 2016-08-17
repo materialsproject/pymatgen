@@ -223,8 +223,7 @@ def convert_fmt(args):
     out_filename = args.output_filename[0]
 
     try:
-        if iformat == "smart":
-            structure = Structure.from_file(filename)
+
         if iformat == "POSCAR":
             p = Poscar.from_file(filename)
             structure = p.structure
@@ -236,6 +235,8 @@ def convert_fmt(args):
             structure = r.get_structures(primitive=False)[0]
         elif iformat == "CSSR":
             structure = Cssr.from_file(filename).structure
+        else:
+            structure = Structure.from_file(filename)
 
         if oformat == "smart":
             structure.to(filename=out_filename)
