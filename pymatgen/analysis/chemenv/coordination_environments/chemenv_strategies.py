@@ -1227,21 +1227,26 @@ class CNBiasNbSetWeight(NbSetWeight):
 class DistanceAngleAreaNbSetWeight(NbSetWeight):
     AC = AdditionalConditions()
     DEFAULT_SURFACE_DEFINITION = {'type': 'standard_elliptic',
-                                   'distance_bounds': {'lower': 1.2, 'upper': 1.8},
-                                   'angle_bounds': {'lower': 0.1, 'upper': 0.8}}
+                                  'distance_bounds': {'lower': 1.2, 'upper': 1.8},
+                                  'angle_bounds': {'lower': 0.1, 'upper': 0.8}}
 
     def __init__(self, weight_type='has_intersection', surface_definition=DEFAULT_SURFACE_DEFINITION,
                  nb_sets_from_hints='fallback_to_source', other_nb_sets='0_weight',
-                 additional_condition=AC.ONLY_ACB):
+                 additional_condition=AC.ONLY_ACB, smoothstep_distance=None, smoothstep_angle=None):
         self.weight_type = weight_type
         if weight_type == 'has_intersection':
             self.area_weight = self.w_area_has_intersection
+        elif weight_type == 'has_intersection_smoothstep':
+            raise NotImplementedError()
+            # self.area_weight = self.w_area_has_intersection_smoothstep
         else:
             raise ValueError('Weight type is "{}" while it should be "has_intersection"'.format(weight_type))
         self.surface_definition = surface_definition
         self.nb_sets_from_hints = nb_sets_from_hints
         self.other_nb_sets = other_nb_sets
         self.additional_condition = additional_condition
+        self.smoothstep_distance = smoothstep_distance
+        self.smoothstep_angle = smoothstep_angle
         if self.nb_sets_from_hints == 'fallback_to_source':
             if self.other_nb_sets == '0_weight':
                 self.w_area_intersection_specific = self.w_area_intersection_nbsfh_fbs_onb0
@@ -1260,6 +1265,17 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
         return self.area_weight(nb_set=nb_set, structure_environments=structure_environments,
                                 cn_map=cn_map, additional_info=additional_info)
+
+    def w_area_has_intersection_smoothstep(self, nb_set, structure_environments,
+                                           cn_map, additional_info):
+        w_area =  self.w_area_intersection_specific(nb_set=nb_set, structure_environments=structure_environments,
+                                                    cn_map=cn_map, additional_info=additional_info)
+        if w_area > 0.0:
+            if self.smoothstep_distance is not None:
+                w_area = w_area
+            if self.smoothstep_angle is not None:
+                w_area = w_area
+        return w_area
 
     def w_area_has_intersection(self, nb_set, structure_environments,
                                 cn_map, additional_info):
@@ -1436,6 +1452,7 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
         cn_maps = []
         for cn, nb_sets in site_nb_sets.items():
             for inb_set, nb_set in enumerate(nb_sets):
+                #CHECK THE ADDITIONAL CONDITION HERE ?
                 cn_maps.append((cn, inb_set))
         weights_additional_info = {'weights': {isite: {}}}
         for wdict in self.ordered_weights:
@@ -1445,7 +1462,7 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
             for cn_map in cn_maps:
                 nb_set = site_nb_sets[cn_map[0]][cn_map[1]]
                 w_nb_set = weight.weight(nb_set=nb_set, structure_environments=self.structure_environments,
-                                             cn_map=cn_map, additional_info=weights_additional_info)
+                                         cn_map=cn_map, additional_info=weights_additional_info)
                 if cn_map not in weights_additional_info['weights'][isite]:
                     weights_additional_info['weights'][isite][cn_map] = {}
                 weights_additional_info['weights'][isite][cn_map][weight_name] = w_nb_set
