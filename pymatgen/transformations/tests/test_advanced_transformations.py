@@ -22,14 +22,15 @@ import json
 
 import numpy as np
 
-from pymatgen import Lattice, Structure
+from pymatgen import Lattice, Structure, Specie
 from pymatgen.transformations.standard_transformations import \
     OxidationStateDecorationTransformation, SubstitutionTransformation, \
     OrderDisorderedStructureTransformation
 from pymatgen.transformations.advanced_transformations import \
     SuperTransformation, EnumerateStructureTransformation, \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
-    SubstitutionPredictorTransformation, MagOrderingTransformation
+    SubstitutionPredictorTransformation, MagOrderingTransformation, \
+    DopingTransformation, _find_codopant
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -204,7 +205,7 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
                                                 lambda_table=get_table())
         d = t.as_dict()
         t = SubstitutionPredictorTransformation.from_dict(d)
-        self.assertEqual(t._threshold, 2,
+        self.assertEqual(t.threshold, 2,
                          'incorrect threshold passed through dict')
         self.assertEqual(t._substitutor.p.alpha, -2,
                          'incorrect alpha passed through dict')
@@ -246,7 +247,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         alls = trans.apply_transformation(s, 10)
         self.assertEqual(len(alls), 2)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5}, 0.75)
         d = trans.as_dict()
         #Check json encodability
@@ -254,7 +255,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         trans = MagOrderingTransformation.from_dict(d)
         self.assertEqual(trans.mag_species_spin, {"Fe": 5})
         from pymatgen.analysis.energy_models import SymmetryModel
-        self.assertIsInstance(trans.emodel, SymmetryModel)
+        self.assertIsInstance(trans.energy_model, SymmetryModel)
 
     def test_zero_spin_case(self):
         #ensure that zero spin case maintains sites and formula
@@ -267,6 +268,63 @@ class MagOrderingTransformationTest(PymatgenTest):
         self.assertTrue('spin' in alls.sites[0].specie._properties)
 
 
+class DopingTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+        structure = PymatgenTest.get_structure("LiFePO4")
+        t = DopingTransformation("Ca2+", min_length=10)
+        ss = t.apply_transformation(structure, 100)
+        self.assertEqual(len(ss), 1)
+
+        t = DopingTransformation("Al3+", min_length=15, ionic_radius_tol=0.1)
+        ss = t.apply_transformation(structure, 100)
+        self.assertEqual(len(ss), 0)
+
+        # Aliovalent doping with vacancies
+        for dopant, nstructures in [("Al3+", 4), ("N3-", 420), ("Cl-", 16)]:
+            t = DopingTransformation(dopant, min_length=4, alio_tol=1,
+                                     max_structures_per_enum=1000)
+            ss = t.apply_transformation(structure, 1000)
+            self.assertEqual(len(ss), nstructures)
+            for d in ss:
+                self.assertEqual(d["structure"].charge, 0)
+
+        # Aliovalent doping with codopant
+        for dopant, nstructures in [("Al3+", 3), ("N3-", 60), ("Cl-", 60)]:
+            t = DopingTransformation(dopant, min_length=4, alio_tol=1,
+                                     codopant=True,
+                                     max_structures_per_enum=1000)
+            ss = t.apply_transformation(structure, 1000)
+            self.assertEqual(len(ss), nstructures)
+            if __name__ == '__main__':
+                for d in ss:
+                    self.assertEqual(d["structure"].charge, 0)
+
+        # Make sure compensation is done with lowest oxi state
+        structure = PymatgenTest.get_structure("SrTiO3")
+        t = DopingTransformation("Nb5+", min_length=5, alio_tol=1,
+                                 max_structures_per_enum=1000,
+                                 allowed_doping_species=["Ti4+"])
+        ss = t.apply_transformation(structure, 1000)
+        self.assertEqual(len(ss), 3)
+        for d in ss:
+            self.assertEqual(d["structure"].formula, "Sr7 Ti6 Nb2 O24")
+
+    def test_as_from_dict(self):
+        trans = DopingTransformation("Al3+", min_length=5, alio_tol=1,
+                                     codopant=False, max_structures_per_enum=1)
+        d = trans.as_dict()
+        # Check json encodability
+        s = json.dumps(d)
+        trans = DopingTransformation.from_dict(d)
+        self.assertEqual(str(trans.dopant), "Al3+")
+        self.assertEqual(trans.max_structures_per_enum, 1)
+
+    def test_find_codopant(self):
+        self.assertEqual(_find_codopant(Specie("Fe", 2), 1), Specie("Cu", 1))
+        self.assertEqual(_find_codopant(Specie("Fe", 2), 3), Specie("In", 3))
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
+    import logging
+    logging.basicConfig(level=logging.INFO)
     unittest.main()

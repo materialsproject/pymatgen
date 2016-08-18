@@ -1323,7 +1323,7 @@ class IStructure(SiteCollection, MSONable):
 
         if fmt == "cif" or fnmatch(fname, "*.cif*"):
             writer = CifWriter(self)
-        elif fmt == "poscar" or fnmatch(fname, "POSCAR*"):
+        elif fmt == "poscar" or fnmatch(fname, "*POSCAR*"):
             writer = Poscar(self)
         elif fmt == "cssr" or fnmatch(fname.lower(), "*.cssr*"):
             writer = Cssr(self)
@@ -1443,7 +1443,7 @@ class IStructure(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="cif",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
-        elif fnmatch(fname, "POSCAR*") or fnmatch(fname, "CONTCAR*"):
+        elif fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*"):
             s = cls.from_str(contents, fmt="poscar",
                              primitive=primitive, sort=sort,
                              merge_tol=merge_tol)
