@@ -301,7 +301,7 @@ class Vasprun(MSONable):
 
     .. attribute:: normalmode_eigenvecs
 
-        Normal mode eigen vectoes.
+        Normal mode eigen vectors.
         3D numpy array of shape (3*natoms, natoms, 3).
 
     **Vasp inputs**
