@@ -701,7 +701,9 @@ class SpacegroupAnalyzer(object):
         Calculate the weights for a list of kpoints.
 
         Args:
-            kpoints (Sequence): Sequence of kpoints. np.arrays is fine.
+            kpoints (Sequence): Sequence of kpoints. np.arrays is fine. Note
+                that the code does not check that the list of kpoints
+                provided does not contain duplicates.
             atol (float): Tolerance for fractional coordinates comparisons.
 
         Returns:
