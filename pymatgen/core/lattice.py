@@ -15,7 +15,8 @@ from numpy import pi, dot, transpose, radians
 from scipy.spatial import Voronoi
 
 from monty.json import MSONable
-from pymatgen.util.coord_utils import pbc_diff
+from monty.dev import deprecated
+from pymatgen.util.coord_utils import pbc_diff, pbc_shortest_vectors
 from pymatgen.util.num_utils import abs_cap
 
 """
@@ -39,6 +40,9 @@ class Lattice(MSONable):
     general, it is assumed that length units are in Angstroms and angles are in
     degrees unless otherwise stated.
     """
+
+    # Properties lazily generated for efficiency.
+
 
     def __init__(self, matrix):
         """
@@ -68,12 +72,12 @@ class Lattice(MSONable):
         self._angles = np.arccos(angles) * 180. / pi
         self._lengths = lengths
         self._matrix = m
-
-        self.is_orthogonal = all([abs(a - 90) < 1e-5 for a in self._angles])
-        # The inverse matrix is lazily generated for efficiency.
         self._inv_matrix = None
         self._metric_tensor = None
         self._diags = None
+        self._lll_matrix_mappings = {}
+        self._lll_inverse = None
+        self.is_orthogonal = all([abs(a - 90) < 1e-5 for a in self._angles])
 
     def __format__(self, fmt_spec=''):
         """
@@ -278,7 +282,7 @@ class Lattice(MSONable):
         gamma_r = radians(gamma)
         val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
             / (np.sin(alpha_r) * np.sin(beta_r))
-        #Sometimes rounding errors result in values slightly > 1.
+        # Sometimes rounding errors result in values slightly > 1.
         val = abs_cap(val)
         gamma_star = np.arccos(val)
         vector_a = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
@@ -294,8 +298,8 @@ class Lattice(MSONable):
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
         and gamma parameters if fmt is None.
         
-        If fmt == "abivars", the function build a `Lattice` object from a dictionary
-        with the Abinit variables `acell` and `rprim` in Bohr. 
+        If fmt == "abivars", the function build a `Lattice` object from a
+        dictionary with the Abinit variables `acell` and `rprim` in Bohr.
         If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr
 
         Example:
@@ -407,6 +411,26 @@ class Lattice(MSONable):
         2 * pi.
         """
         return Lattice(self.reciprocal_lattice.matrix / (2 * np.pi))
+
+    @property
+    def lll_matrix(self):
+        if 0.75 not in self._lll_matrix_mappings:
+            self._lll_matrix_mappings[0.75] = self._calculate_lll()
+        return self._lll_matrix_mappings[0.75][0]
+
+    @property
+    def lll_mapping(self):
+        if 0.75 not in self._lll_matrix_mappings:
+            self._lll_matrix_mappings[0.75] = self._calculate_lll()
+        return self._lll_matrix_mappings[0.75][1]
+
+    @property
+    def lll_inverse(self):
+        if self._lll_inverse is not None:
+            return self._lll_inverse
+        else:
+            self._lll_inverse = np.linalg.inv(self.lll_mapping)
+            return self._lll_inverse
 
     def __repr__(self):
         outs = ["Lattice", "    abc : " + " ".join(map(repr, self._lengths)),
@@ -572,17 +596,24 @@ class Lattice(MSONable):
             return x
 
     def get_lll_reduced_lattice(self, delta=0.75):
+        if delta not in self._lll_matrix_mappings:
+            self._lll_matrix_mappings[delta] = self._calculate_lll()
+        return Lattice(self._lll_matrix_mappings[delta][0])
+
+    def _calculate_lll(self, delta=0.75):
         """
         Performs a Lenstra-Lenstra-Lovasz lattice basis reduction to obtain a
         c-reduced basis. This method returns a basis which is as "good" as
         possible, with "good" defined by orthongonality of the lattice vectors.
+
+        This basis is used for all the periodic boundary condition calculations.
 
         Args:
             delta (float): Reduction parameter. Default of 0.75 is usually
                 fine.
 
         Returns:
-            Reduced lattice.
+            Reduced lattice matrix, mapping to get to that lattice.
         """
         # Transpose the lattice matrix first so that basis vectors are columns.
         # Makes life easier.
@@ -601,6 +632,7 @@ class Lattice(MSONable):
 
         k = 2
 
+        mapping = np.identity(3, dtype=np.double)
         while k <= 3:
             # Size reduction.
             for i in range(k - 1, 0, -1):
@@ -608,6 +640,8 @@ class Lattice(MSONable):
                 if q != 0:
                     # Reduce the k-th basis vector.
                     a[:, k - 1] = a[:, k - 1] - q * a[:, i - 1]
+                    mapping[:, k - 1] = mapping[:, k - 1] - q * \
+                        mapping[:, i - 1]
                     uu = list(u[i - 1, 0:(i - 1)])
                     uu.append(1)
                     # Update the GS coefficients.
@@ -620,12 +654,17 @@ class Lattice(MSONable):
                 # Increment k if the Lovasz condition holds.
                 k += 1
             else:
-                #If the Lovasz condition fails,
-                #swap the k-th and (k-1)-th basis vector
+                # If the Lovasz condition fails,
+                # swap the k-th and (k-1)-th basis vector
                 v = a[:, k - 1].copy()
                 a[:, k - 1] = a[:, k - 2].copy()
                 a[:, k - 2] = v
-                #Update the Gram-Schmidt coefficients
+
+                v_m = mapping[:, k - 1].copy()
+                mapping[:, k - 1] = mapping[:, k - 2].copy()
+                mapping[:, k - 2] = v_m
+
+                # Update the Gram-Schmidt coefficients
                 for s in range(k - 1, k + 1):
                     u[s - 1, 0:(s - 1)] = dot(a[:, s - 1].T,
                                               b[:, 0:(s - 1)]) / m[0:(s - 1)]
@@ -642,9 +681,21 @@ class Lattice(MSONable):
                     result = np.linalg.lstsq(q.T, p.T)[0].T
                     u[k:3, (k - 2):k] = result
 
-        lll = Lattice(a.T)
+        return a.T, mapping.T
 
-        return lll
+    def get_lll_frac_coords(self, frac_coords):
+        """
+        Given fractional coordinates in the lattice basis, returns corresponding
+        fractional coordinates in the lll basis.
+        """
+        return np.dot(frac_coords, self.lll_inverse)
+
+    def get_frac_coords_from_lll(self, lll_frac_coords):
+        """
+        Given fractional coordinates in the lll basis, returns corresponding
+        fractional coordinates in the lattice basis.
+        """
+        return np.dot(lll_frac_coords, self.lll_mapping)
 
     def get_niggli_reduced_lattice(self, tol=1e-5):
         """
@@ -661,31 +712,31 @@ class Lattice(MSONable):
             Niggli-reduced lattice.
         """
         # lll reduction is more stable for skewed cells
-        matrix = self.get_lll_reduced_lattice().matrix
+        matrix = self.lll_matrix
         a = matrix[0]
         b = matrix[1]
         c = matrix[2]
         e = tol * self.volume ** (1 / 3)
 
-        #Define metric tensor
+        # Define metric tensor
         G = [[dot(a, a), dot(a, b), dot(a, c)],
              [dot(a, b), dot(b, b), dot(b, c)],
              [dot(a, c), dot(b, c), dot(c, c)]]
         G = np.array(G)
 
-        #This sets an upper limit on the number of iterations.
+        # This sets an upper limit on the number of iterations.
         for count in range(100):
-            #The steps are labelled as Ax as per the labelling scheme in the
-            #paper.
+            # The steps are labelled as Ax as per the labelling scheme in the
+            # paper.
             (A, B, C, E, N, Y) = (G[0, 0], G[1, 1], G[2, 2],
                                   2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1])
 
             if A > B + e or (abs(A - B) < e and abs(E) > abs(N) + e):
-                #A1
+                # A1
                 M = [[0, -1, 0], [-1, 0, 0], [0, 0, -1]]
                 G = dot(transpose(M), dot(G, M))
             if (B > C + e) or (abs(B - C) < e and abs(N) > abs(Y) + e):
-                #A2
+                # A2
                 M = [[-1, 0, 0], [0, 0, -1], [0, -1, 0]]
                 G = dot(transpose(M), dot(G, M))
                 continue
@@ -719,28 +770,28 @@ class Lattice(MSONable):
             (A, B, C, E, N, Y) = (G[0, 0], G[1, 1], G[2, 2],
                                   2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1])
 
-            #A5
+            # A5
             if abs(E) > B + e or (abs(E - B) < e and 2 * N < Y - e) or\
                     (abs(E + B) < e and Y < -e):
                 M = [[1, 0, 0], [0, 1, -E / abs(E)], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
-            #A6
+            # A6
             if abs(N) > A + e or (abs(A - N) < e and 2 * E < Y - e) or\
                     (abs(A + N) < e and Y < -e):
                 M = [[1, 0, -N / abs(N)], [0, 1, 0], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
-            #A7
+            # A7
             if abs(Y) > A + e or (abs(A - Y) < e and 2 * E < N - e) or\
                     (abs(A + Y) < e and N < -e):
                 M = [[1, -Y / abs(Y), 0], [0, 1, 0], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
-            #A8
+            # A8
             if E + N + Y + A + B < -e or\
                     (abs(E + N + Y + A + B) < e < Y + (A + N) * 2):
                 M = [[1, 0, 1], [0, 1, 1], [0, 0, 1]]
@@ -792,7 +843,7 @@ class Lattice(MSONable):
 
         ratios = self.abc / self.c
 
-        new_c = (new_volume / ( geo_factor * np.prod(ratios))) ** (1/3.)
+        new_c = (new_volume / (geo_factor * np.prod(ratios))) ** (1/3.)
 
         return Lattice(versors * (new_c * ratios))
 
@@ -846,8 +897,8 @@ class Lattice(MSONable):
         Returns:
             one-dimensional `numpy` array.
         """
-        coords_a, coords_b = np.reshape(coords_a, (-1,3)), \
-                             np.reshape(coords_b, (-1,3))
+        coords_a, coords_b = np.reshape(coords_a, (-1, 3)), \
+            np.reshape(coords_b, (-1, 3))
 
         if len(coords_a) != len(coords_b):
             raise ValueError("")
@@ -859,11 +910,11 @@ class Lattice(MSONable):
             cart_a, cart_b = coords_a, coords_b
         else:
             cart_a = np.reshape([self.get_cartesian_coords(vec)
-                                 for vec in coords_a], (-1,3))
+                                 for vec in coords_a], (-1, 3))
             cart_b = np.reshape([self.get_cartesian_coords(vec)
-                                 for vec in coords_b], (-1,3))
+                                 for vec in coords_b], (-1, 3))
 
-        return np.array([np.dot(a,b) for a,b in zip(cart_a, cart_b)])
+        return np.array([np.dot(a, b) for a, b in zip(cart_a, cart_b)])
 
     def norm(self, coords, frac_coords=True):
         """
@@ -913,6 +964,7 @@ class Lattice(MSONable):
             else:
                 fcoords, dists, inds
         """
+        # TODO: refactor to use lll matrix (nmax will be smaller)
         recp_len = np.array(self.reciprocal_lattice.abc) / (2 * pi)
         nmax = float(r) * recp_len + 0.01
 
@@ -971,35 +1023,8 @@ class Lattice(MSONable):
             2d array of cartesian distances. E.g the distance between
             fcoords1[i] and fcoords2[j] is distances[i,j]
         """
-        # ensure correct shape
-        fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
-
-        # ensure that all points are in the unit cell
-        fcoords1 = np.mod(fcoords1, 1)
-        fcoords2 = np.mod(fcoords2, 1)
-
-        n = self._get_mic_range(fcoords1, fcoords2)
-        ranges = [list(range(-i, i + 1)) for i in n]
-        images = np.array(list(itertools.product(*ranges)))
-        shifted_f2 = fcoords2[:, None, :] + images[None, :, :]
-
-        cart_f1 = self.get_cartesian_coords(fcoords1)
-        cart_f2 = self.get_cartesian_coords(shifted_f2)
-
-        if cart_f1.size * cart_f2.size < 1e5:
-            # all vectors from f1 to f2
-            vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
-            d_2 = np.sum(vectors ** 2, axis=3)
-            distances = np.min(d_2, axis=2) ** 0.5
-            return distances
-        else:
-            # memory will overflow, so do a loop
-            distances = []
-            for c1 in cart_f1:
-                vectors = cart_f2[:, :, :] - c1[None, None, :]
-                d_2 = np.sum(vectors ** 2, axis=2)
-                distances.append(np.min(d_2, axis=1) ** 0.5)
-            return np.array(distances)
+        v, d2 = pbc_shortest_vectors(self, fcoords1, fcoords2, return_d2=True)
+        return np.sqrt(d2)
 
     def is_hexagonal(self, hex_angle_tol=5, hex_length_tol=0.01):
         lengths, angles = self.lengths_and_angles
@@ -1007,19 +1032,20 @@ class Lattice(MSONable):
                         if abs(angles[i] - 90) < hex_angle_tol]
         hex_angles = [i for i in range(3)
                       if abs(angles[i] - 60) < hex_angle_tol or
-                         abs(angles[i] - 120) < hex_angle_tol]
+                      abs(angles[i] - 120) < hex_angle_tol]
 
         return (len(right_angles) == 2 and len(hex_angles) == 1
                 and abs(lengths[right_angles[0]] -
                         lengths[right_angles[1]]) < hex_length_tol)
 
+    @deprecated(get_points_in_sphere)
     def get_all_distance_and_image(self, frac_coords1, frac_coords2):
         """
         Gets distance between two frac_coords and nearest periodic images.
 
         Args:
-            fcoords1 (3x1 array): Reference fcoords to get distance from.
-            fcoords2 (3x1 array): fcoords to get distance from.
+            frac_coords1 (3x1 array): Reference fcoords to get distance from.
+            frac_coords2 (3x1 array): fcoords to get distance from.
 
         Returns:
             [(distance, jimage)] List of distance and periodic lattice
@@ -1071,13 +1097,18 @@ class Lattice(MSONable):
             equal to distance.
         """
         if jimage is None:
-            r = self.get_all_distance_and_image(frac_coords1, frac_coords2)
-            return min(r, key=lambda x: x[0])
+            v, d2 = pbc_shortest_vectors(self, frac_coords1, frac_coords2,
+                                         return_d2=True)
+            fc = self.get_fractional_coords(v[0][0]) + frac_coords1 - \
+                 frac_coords2
+            fc = np.array(np.round(fc), dtype=np.int)
+            return (np.sqrt(d2[0, 0]), fc)
 
         mapped_vec = self.get_cartesian_coords(jimage + frac_coords2
                                                - frac_coords1)
         return np.linalg.norm(mapped_vec), jimage
 
+    @deprecated(get_points_in_sphere)
     def _get_mic_range(self, fcoords1, fcoords2):
 
         if self.is_orthogonal:

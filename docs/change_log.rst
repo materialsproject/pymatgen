@@ -1,6 +1,12 @@
 Change log
 ==========
 
+v4.2.1
+------
+* New DopingTransformation that implements an automated doping strategy.
+* Updated MIC algorithm that is a lot more robust (Will Richards).
+* Major update to chemenv package (David Waroquiers)
+
 v4.2.0
 ------
 * Fix important bug in minimum image distance computation for very skewed cells.
