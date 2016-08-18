@@ -12,6 +12,10 @@ import itertools
 import logging
 import time
 
+from monty.json import MSONable
+
+import numpy as np
+
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
@@ -152,7 +156,10 @@ class TranslateSitesTransformation(AbstractTransformation):
 
     Args:
         indices_to_move: The indices of the sites to move
-        translation_vector: Vector to move the sites.
+        translation_vector: Vector to move the sites. If a list of list or numpy
+            array of shape, (len(indices_to_move), 3), is provided then each
+            translation vector is applied to the corresponding site in the
+            indices_to_move.
         vector_in_frac_coords: Set to True if the translation vector is in
             fractional coordinates, and False if it is in cartesian
             coordinations. Defaults to True.
@@ -160,13 +167,18 @@ class TranslateSitesTransformation(AbstractTransformation):
     def __init__(self, indices_to_move, translation_vector,
                  vector_in_frac_coords=True):
         self.indices_to_move = indices_to_move
-        self.translation_vector = translation_vector
+        self.translation_vector = np.array(translation_vector)
         self.vector_in_frac_coords = vector_in_frac_coords
 
     def apply_transformation(self, structure):
         s = structure.copy()
-        s.translate_sites(self.indices_to_move, self.translation_vector,
-                          self.vector_in_frac_coords)
+        if self.translation_vector.shape == (len(self.indices_to_move), 3):
+            for i, idx in enumerate(self.indices_to_move):
+                s.translate_sites(idx, self.translation_vector[i],
+                                  self.vector_in_frac_coords)
+        else:
+            s.translate_sites(self.indices_to_move, self.translation_vector,
+                              self.vector_in_frac_coords)
         return s
 
     def __str__(self):
@@ -181,12 +193,20 @@ class TranslateSitesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         return TranslateSitesTransformation(
-            self.indices_to_move, [-c for c in self.translation_vector],
+            self.indices_to_move, -self.translation_vector,
             self.vector_in_frac_coords)
 
     @property
     def is_one_to_many(self):
         return False
+
+    def as_dict(self):
+        """
+        Json-serializable dict representation.
+        """
+        d = MSONable.as_dict(self)
+        d["translation_vector"] = self.translation_vector.tolist()
+        return d
 
 
 class PartialRemoveSitesTransformation(AbstractTransformation):
