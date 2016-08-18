@@ -953,14 +953,17 @@ def get_effective_csm(nb_set, cn_map, structure_environments, additional_info,
     except KeyError:
         site_ce_list = structure_environments.ce_list[nb_set.isite]
         site_chemenv = site_ce_list[cn_map[0]][cn_map[1]]
-        mingeoms = site_chemenv.minimum_geometries(symmetry_measure_type=symmetry_measure_type,
-                                                   max_csm=max_effective_csm)
-        if len(mingeoms) == 0:
+        if site_chemenv is None:
             effective_csm = 100.0
         else:
-            csms = [ce_dict['other_symmetry_measures'][symmetry_measure_type] for mp_symbol, ce_dict in mingeoms
-                    if ce_dict['other_symmetry_measures'][symmetry_measure_type] <= max_effective_csm]
-            effective_csm = effective_csm_estimator_ratio_function.mean_estimator(csms)
+            mingeoms = site_chemenv.minimum_geometries(symmetry_measure_type=symmetry_measure_type,
+                                                   max_csm=max_effective_csm)
+            if len(mingeoms) == 0:
+                effective_csm = 100.0
+            else:
+                csms = [ce_dict['other_symmetry_measures'][symmetry_measure_type] for mp_symbol, ce_dict in mingeoms
+                        if ce_dict['other_symmetry_measures'][symmetry_measure_type] <= max_effective_csm]
+                effective_csm = effective_csm_estimator_ratio_function.mean_estimator(csms)
         set_info(additional_info=additional_info, field='effective_csms',
                  isite=nb_set.isite, cn_map=cn_map, value=effective_csm)
     return effective_csm
