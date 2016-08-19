@@ -14,13 +14,16 @@ from math import sin
 import numpy as np
 
 from six.moves import filter, map, zip
+import spglib
+
+
 
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
-from pymatgen.util.coord_utils import find_in_coord_list
+from pymatgen.util.coord_utils import find_in_coord_list, in_coord_list_pbc
 
 """
 An interface to the excellent spglib library by Atsushi Togo
@@ -40,7 +43,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "May 14, 2016"
 
-import spglib
 
 logger = logging.getLogger(__name__)
 
@@ -449,8 +451,8 @@ class SpacegroupAnalyzer(object):
                             key=lambda k: k['length'])
 
         if latt_type in ("orthorhombic", "cubic"):
-            #you want to keep the c axis where it is
-            #to keep the C- settings
+            # you want to keep the c axis where it is
+            # to keep the C- settings
             transf = np.zeros(shape=(3, 3))
             if self.get_spacegroup_symbol().startswith("C"):
                 transf[2] = [0, 0, 1]
@@ -469,8 +471,8 @@ class SpacegroupAnalyzer(object):
             latt = Lattice.orthorhombic(a, b, c)
 
         elif latt_type == "tetragonal":
-            #find the "a" vectors
-            #it is basically the vector repeated two times
+            # find the "a" vectors
+            # it is basically the vector repeated two times
             transf = np.zeros(shape=(3, 3))
             a, b, c = sorted_lengths
             for d in range(len(sorted_dic)):
@@ -481,12 +483,12 @@ class SpacegroupAnalyzer(object):
                 transf = np.dot([[0, 0, 1], [0, 1, 0], [1, 0, 0]], transf)
             latt = Lattice.tetragonal(a, c)
         elif latt_type in ("hexagonal", "rhombohedral"):
-            #for the conventional cell representation,
-            #we allways show the rhombohedral lattices as hexagonal
+            # for the conventional cell representation,
+            # we allways show the rhombohedral lattices as hexagonal
 
-            #check first if we have the refined structure shows a rhombohedral
-            #cell
-            #if so, make a supercell
+            # check first if we have the refined structure shows a rhombohedral
+            # cell
+            # if so, make a supercell
             a, b, c = latt.abc
             if np.all(np.abs([a - b, c - b, a - c]) < 0.001):
                 struct.make_supercell(((1, -1, 0), (0, 1, -1), (1, 1, 1)))
@@ -520,8 +522,8 @@ class SpacegroupAnalyzer(object):
                     landang = Lattice(
                         [m[t[0]], m[t[1]], m[2]]).lengths_and_angles
                     if landang[1][0] > 90:
-                        #if the angle is > 90 we invert a and b to get
-                        #an angle < 90
+                        # if the angle is > 90 we invert a and b to get
+                        # an angle < 90
                         landang = Lattice(
                             [-m[t[0]], -m[t[1]], m[2]]).lengths_and_angles
                         transf = np.zeros(shape=(3, 3))
@@ -547,8 +549,8 @@ class SpacegroupAnalyzer(object):
                                       [0, c * cos(alpha), c * sin(alpha)]]
 
                 if new_matrix is None:
-                    #this if is to treat the case
-                    #where alpha==90 (but we still have a monoclinic sg
+                    # this if is to treat the case
+                    # where alpha==90 (but we still have a monoclinic sg
                     new_matrix = [[a, 0, 0],
                                   [0, b, 0],
                                   [0, 0, c]]
@@ -557,9 +559,9 @@ class SpacegroupAnalyzer(object):
                         transf[c][sorted_dic[c]['orig_index']] = 1
             #if not C-setting
             else:
-                #try all permutations of the axis
-                #keep the ones with the non-90 angle=alpha
-                #and b<c
+                # try all permutations of the axis
+                # keep the ones with the non-90 angle=alpha
+                # and b<c
                 new_matrix = None
                 for t in itertools.permutations(list(range(3)), 3):
                     m = latt.matrix
@@ -589,8 +591,8 @@ class SpacegroupAnalyzer(object):
                                       [0, b, 0],
                                       [0, c * cos(alpha), c * sin(alpha)]]
                 if new_matrix is None:
-                    #this if is to treat the case
-                    #where alpha==90 (but we still have a monoclinic sg
+                    # this if is to treat the case
+                    # where alpha==90 (but we still have a monoclinic sg
                     new_matrix = [[sorted_lengths[0], 0, 0],
                                   [0, sorted_lengths[1], 0],
                                   [0, 0, sorted_lengths[2]]]
@@ -693,6 +695,33 @@ class SpacegroupAnalyzer(object):
                                site_properties=struct.site_properties,
                                to_unit_cell=True)
         return new_struct.get_sorted_structure()
+
+    def get_kpoint_weights(self, kpoints, atol=1e-8):
+        """
+        Calculate the weights for a list of kpoints.
+
+        Args:
+            kpoints (Sequence): Sequence of kpoints. np.arrays is fine. Note
+                that the code does not check that the list of kpoints
+                provided does not contain duplicates.
+            atol (float): Tolerance for fractional coordinates comparisons.
+
+        Returns:
+            List of weights, in the SAME order as kpoints.
+        """
+        latt = self._structure.lattice.reciprocal_lattice
+        grid = Structure(latt, ["H"], [[0, 0, 0]])
+        a = SpacegroupAnalyzer(grid)
+        recp_ops = a.get_symmetry_operations()
+        weights = []
+        for k in kpoints:
+            all_k = []
+            for o in recp_ops:
+                k2 = o.operate(k)
+                if not in_coord_list_pbc(all_k, k2, atol=atol):
+                    all_k.append(k2)
+            weights.append(len(all_k))
+        return weights
 
 
 class PointGroupAnalyzer(object):
