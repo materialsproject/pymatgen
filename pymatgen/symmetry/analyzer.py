@@ -707,7 +707,7 @@ class SpacegroupAnalyzer(object):
             atol (float): Tolerance for fractional coordinates comparisons.
 
         Returns:
-            List of weights, in the SAME order as kpoits.
+            List of weights, in the SAME order as kpoints.
         """
         latt = self._structure.lattice.reciprocal_lattice
         grid = Structure(latt, ["H"], [[0, 0, 0]])
