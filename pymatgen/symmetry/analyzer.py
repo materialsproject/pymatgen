@@ -332,7 +332,7 @@ class SpacegroupAnalyzer(object):
             mesh (3x1 array): The number of kpoint for the mesh needed in
                 each direction
             shift (3x1 array): A shift of the kpoint grid. For instance,
-                Monkhorst-Pack is [0.5,0.5,0.5]
+                Monkhorst-Pack is [0.5, 0.5, 0.5]
             is_time_reversal (bool): Set to True to impose time reversal
                 symmetry.
 
@@ -696,7 +696,7 @@ class SpacegroupAnalyzer(object):
                                to_unit_cell=True)
         return new_struct.get_sorted_structure()
 
-    def get_kpoint_weights(self, kpoints, atol=1e-8):
+    def get_kpoint_weights(self, kpoints, atol=1e-3):
         """
         Calculate the weights for a list of kpoints.
 
@@ -712,14 +712,18 @@ class SpacegroupAnalyzer(object):
         latt = self._structure.lattice.reciprocal_lattice
         grid = Structure(latt, ["H"], [[0, 0, 0]])
         a = SpacegroupAnalyzer(grid)
-        recp_ops = a.get_symmetry_operations()
+        recp_ops = a.get_point_group_operations()
         weights = []
         for k in kpoints:
             all_k = []
             for o in recp_ops:
                 k2 = o.operate(k)
-                if not in_coord_list_pbc(all_k, k2, atol=atol):
+                if (not in_coord_list_pbc(all_k, k2, atol=atol)):
+                # if (not in_coord_list_pbc(all_k, k2, atol=atol)) and (
+                #         not in_coord_list_pbc(kpoints, k2, atol=atol)):
                     all_k.append(k2)
+            #print(all_k)
+
             weights.append(len(all_k))
         return weights
 
