@@ -695,7 +695,7 @@ class SpacegroupAnalyzer(object):
                                to_unit_cell=True)
         return new_struct.get_sorted_structure()
 
-    def get_kpoint_weights(self, kpoints, atol=1e-3):
+    def get_kpoint_weights(self, kpoints, atol=1e-5):
         """
         Calculate the weights for a list of kpoints.
 
@@ -709,16 +709,22 @@ class SpacegroupAnalyzer(object):
             List of weights, in the SAME order as kpoits.
         """
         kpts = np.array(kpoints)
-        mesh = [gcd_float(kpts[:, i]) or 1 for i in range(3)]
-        mesh = [int(round(1/i)) for i in mesh]
+        mesh = []
+        for i in range(3):
+            nonzero = [i for i in kpts[:, i] if abs(i) > 1e-5]
+            if not nonzero:
+                mesh.append(1)
+            else:
+                m = np.abs(np.round(1/np.array(nonzero)))
+                mesh.append(int(max(m)))
         mapping, grid = spglib.get_ir_reciprocal_mesh(
             np.array(mesh), self._cell, is_shift=np.array([0, 0, 0]))
         mapping = list(mapping)
         grid = np.array(grid) / mesh
         weights = []
-        for k in kpts:
+        for k in kpoints:
             for i, g in enumerate(grid):
-                if np.allclose(k, g):
+                if np.allclose(k, g, atol=atol):
                     weights.append(mapping.count(mapping[i]))
                     break
         return [w/sum(weights) for w in weights]

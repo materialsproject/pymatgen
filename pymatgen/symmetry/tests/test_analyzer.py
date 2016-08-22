@@ -23,6 +23,7 @@ import numpy as np
 
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
     PointGroupAnalyzer, cluster_sites
 from pymatgen.io.cif import CifParser
@@ -503,6 +504,12 @@ class PointGroupAnalyzerTest(PymatgenTest):
             for i, w in zip(weights, a.get_kpoint_weights([i[0] for i in
                                                            ir_mesh])):
                 self.assertAlmostEqual(i, w)
+
+        v = Vasprun(os.path.join(test_dir, "vasprun.xml"))
+        a = SpacegroupAnalyzer(v.final_structure)
+        wts = a.get_kpoint_weights(v.actual_kpoints)
+        for w1, w2 in zip(v.actual_kpoints_weights, wts):
+            self.assertAlmostEqual(w1, w2)
 
 
 class FuncTest(unittest.TestCase):
