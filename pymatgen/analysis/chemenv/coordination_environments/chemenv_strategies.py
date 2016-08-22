@@ -504,6 +504,8 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
 
         cn_map = (my_cn, my_inb_set)
         ce = self.structure_environments.ce_list[self.structure_environments.sites_map[isite]][cn_map[0]][cn_map[1]]
+        if ce is None:
+            return None
         coord_geoms = ce.coord_geoms
         if return_map:
             if coord_geoms is None:
