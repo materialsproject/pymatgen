@@ -964,6 +964,8 @@ class LightStructureEnvironments(MSONable):
         for isite, site in enumerate(self.structure):
             if element in [sp.symbol for sp in site.species_and_occu]:
                 if oxi_state == self.valences[isite]:
+                    if self.coordination_environments[isite] is None:
+                        continue
                     for ce_dict in self.coordination_environments[isite]:
                         if ce_dict['ce_fraction'] < min_fraction:
                             continue
