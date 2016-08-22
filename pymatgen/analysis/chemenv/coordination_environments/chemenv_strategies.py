@@ -524,9 +524,12 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         site_nb_sets = self.structure_environments.neighbors_sets[isite]
         if site_nb_sets is None:
             return None
-        ce, ce_map = self.get_site_coordination_environment(site=site, isite=isite, dequivsite=dequivsite,
+        ce_and_map = self.get_site_coordination_environment(site=site, isite=isite, dequivsite=dequivsite,
                                                             dthissite=dthissite, mysym=mysym,
                                                             return_map=True)
+        if ce_and_map is None:
+            return None
+        ce, ce_map = ce_and_map
         if ce is None:
             ce_dict = {'ce_symbol': 'UNKNOWN:{:d}'.format(ce_map[0]), 'ce_dict': None, 'ce_fraction': 1.0}
         else:
