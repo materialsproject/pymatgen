@@ -483,24 +483,13 @@ class PointGroupAnalyzerTest(PymatgenTest):
         sa.get_hall()
 
     def test_get_kpoint_weights(self):
-        # s = PymatgenTest.get_structure("SrTiO3")
-        # a = SpacegroupAnalyzer(s)
-        # ir_mesh = a.get_ir_reciprocal_mesh()
-        # for i, w in zip(ir_mesh, a.get_kpoint_weights([i[0] for i in
-        #                                                 ir_mesh])):
-        #     self.assertEqual(i[1], w)
-
-        s = PymatgenTest.get_structure("LiFePO4")
-        a = SpacegroupAnalyzer(s)
-        ir_mesh = a.get_ir_reciprocal_mesh()
-        print(a.get_kpoint_weights([i[0] for i in ir_mesh]))
-        #print(ir_mesh)
-        for i in ir_mesh:
-            print(i[0])
-        for i, w in zip(ir_mesh, a.get_kpoint_weights([i[0] for i in
-                                                       ir_mesh])):
-            #print(i[0])
-            self.assertEqual(i[1], w)
+        for name in ["SrTiO3", "LiFePO4", "Graphite"]:
+            s = PymatgenTest.get_structure(name)
+            a = SpacegroupAnalyzer(s)
+            ir_mesh = a.get_ir_reciprocal_mesh()
+            for i, w in zip(ir_mesh, a.get_kpoint_weights([i[0] for i in
+                                                           ir_mesh])):
+                self.assertEqual(i[1], w)
 
 
 class FuncTest(unittest.TestCase):

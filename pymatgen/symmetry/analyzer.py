@@ -10,13 +10,12 @@ from collections import defaultdict
 import math
 from math import cos
 from math import sin
+from monty.fractions import gcd_float
 
 import numpy as np
 
 from six.moves import filter, map, zip
 import spglib
-
-
 
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.structure import SymmetrizedStructure
@@ -709,22 +708,18 @@ class SpacegroupAnalyzer(object):
         Returns:
             List of weights, in the SAME order as kpoits.
         """
-        latt = self._structure.lattice.reciprocal_lattice
-        grid = Structure(latt, ["H"], [[0, 0, 0]])
-        a = SpacegroupAnalyzer(grid)
-        recp_ops = a.get_point_group_operations()
+        kpts = np.array(kpoints)
+        mesh = [int(round(1/gcd_float(kpts[:, i]))) for i in range(3)]
+        mapping, grid = spglib.get_ir_reciprocal_mesh(
+            np.array(mesh), self._cell, is_shift=np.array([0, 0, 0]))
+        mapping = list(mapping)
+        grid = np.array(grid) / mesh
         weights = []
-        for k in kpoints:
-            all_k = []
-            for o in recp_ops:
-                k2 = o.operate(k)
-                if (not in_coord_list_pbc(all_k, k2, atol=atol)):
-                # if (not in_coord_list_pbc(all_k, k2, atol=atol)) and (
-                #         not in_coord_list_pbc(kpoints, k2, atol=atol)):
-                    all_k.append(k2)
-            #print(all_k)
-
-            weights.append(len(all_k))
+        for k in kpts:
+            for i, g in enumerate(grid):
+                if np.allclose(k, g):
+                    weights.append(mapping.count(mapping[i]))
+                    break
         return weights
 
 
