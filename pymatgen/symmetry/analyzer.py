@@ -709,7 +709,8 @@ class SpacegroupAnalyzer(object):
             List of weights, in the SAME order as kpoits.
         """
         kpts = np.array(kpoints)
-        mesh = [int(round(1/gcd_float(kpts[:, i]))) for i in range(3)]
+        mesh = [gcd_float(kpts[:, i]) or 1 for i in range(3)]
+        mesh = [int(round(1/i)) for i in mesh]
         mapping, grid = spglib.get_ir_reciprocal_mesh(
             np.array(mesh), self._cell, is_shift=np.array([0, 0, 0]))
         mapping = list(mapping)
@@ -720,7 +721,7 @@ class SpacegroupAnalyzer(object):
                 if np.allclose(k, g):
                     weights.append(mapping.count(mapping[i]))
                     break
-        return weights
+        return [w/sum(weights) for w in weights]
 
 
 class PointGroupAnalyzer(object):

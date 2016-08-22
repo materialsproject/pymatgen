@@ -486,10 +486,23 @@ class PointGroupAnalyzerTest(PymatgenTest):
         for name in ["SrTiO3", "LiFePO4", "Graphite"]:
             s = PymatgenTest.get_structure(name)
             a = SpacegroupAnalyzer(s)
-            ir_mesh = a.get_ir_reciprocal_mesh()
-            for i, w in zip(ir_mesh, a.get_kpoint_weights([i[0] for i in
+            ir_mesh = a.get_ir_reciprocal_mesh((4, 4, 4))
+
+            weights = [i[1] for i in ir_mesh]
+            weights = np.array(weights) / sum(weights)
+            for i, w in zip(weights, a.get_kpoint_weights([i[0] for i in
                                                            ir_mesh])):
-                self.assertEqual(i[1], w)
+                self.assertAlmostEqual(i, w)
+
+        for name in ["SrTiO3", "LiFePO4", "Graphite"]:
+            s = PymatgenTest.get_structure(name)
+            a = SpacegroupAnalyzer(s)
+            ir_mesh = a.get_ir_reciprocal_mesh((1, 2, 3))
+            weights = [i[1] for i in ir_mesh]
+            weights = np.array(weights) / sum(weights)
+            for i, w in zip(weights, a.get_kpoint_weights([i[0] for i in
+                                                           ir_mesh])):
+                self.assertAlmostEqual(i, w)
 
 
 class FuncTest(unittest.TestCase):
