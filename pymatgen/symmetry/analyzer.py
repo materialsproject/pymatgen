@@ -717,6 +717,10 @@ class SpacegroupAnalyzer(object):
             else:
                 m = np.abs(np.round(1/np.array(nonzero)))
                 mesh.append(int(max(m)))
+
+        normalized = kpts * np.array(mesh)[None, :]
+        if not np.allclose(normalized, np.round(normalized)):
+            raise ValueError("Grid does not seem to be uniform!")
         mapping, grid = spglib.get_ir_reciprocal_mesh(
             np.array(mesh), self._cell, is_shift=np.array([0, 0, 0]))
         mapping = list(mapping)

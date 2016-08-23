@@ -511,6 +511,9 @@ class PointGroupAnalyzerTest(PymatgenTest):
         for w1, w2 in zip(v.actual_kpoints_weights, wts):
             self.assertAlmostEqual(w1, w2)
 
+        kpts = [[0, 0, 0], [0.15, 0.15, 0.15], [0.2, 0.2, 0.2]]
+        self.assertRaises(ValueError, a.get_kpoint_weights, kpts)
+
 
 class FuncTest(unittest.TestCase):
 
