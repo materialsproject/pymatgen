@@ -10,13 +10,12 @@ from collections import defaultdict
 import math
 from math import cos
 from math import sin
+from monty.fractions import gcd_float
 
 import numpy as np
 
 from six.moves import filter, map, zip
 import spglib
-
-
 
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.structure import SymmetrizedStructure
@@ -332,7 +331,7 @@ class SpacegroupAnalyzer(object):
             mesh (3x1 array): The number of kpoint for the mesh needed in
                 each direction
             shift (3x1 array): A shift of the kpoint grid. For instance,
-                Monkhorst-Pack is [0.5,0.5,0.5]
+                Monkhorst-Pack is [0.5, 0.5, 0.5]
             is_time_reversal (bool): Set to True to impose time reversal
                 symmetry.
 
@@ -696,7 +695,7 @@ class SpacegroupAnalyzer(object):
                                to_unit_cell=True)
         return new_struct.get_sorted_structure()
 
-    def get_kpoint_weights(self, kpoints, atol=1e-8):
+    def get_kpoint_weights(self, kpoints, atol=1e-5):
         """
         Calculate the weights for a list of kpoints.
 
@@ -709,19 +708,26 @@ class SpacegroupAnalyzer(object):
         Returns:
             List of weights, in the SAME order as kpoints.
         """
-        latt = self._structure.lattice.reciprocal_lattice
-        grid = Structure(latt, ["H"], [[0, 0, 0]])
-        a = SpacegroupAnalyzer(grid)
-        recp_ops = a.get_symmetry_operations()
+        kpts = np.array(kpoints)
+        mesh = []
+        for i in range(3):
+            nonzero = [i for i in kpts[:, i] if abs(i) > 1e-5]
+            if not nonzero:
+                mesh.append(1)
+            else:
+                m = np.abs(np.round(1/np.array(nonzero)))
+                mesh.append(int(max(m)))
+        mapping, grid = spglib.get_ir_reciprocal_mesh(
+            np.array(mesh), self._cell, is_shift=np.array([0, 0, 0]))
+        mapping = list(mapping)
+        grid = np.array(grid) / mesh
         weights = []
         for k in kpoints:
-            all_k = []
-            for o in recp_ops:
-                k2 = o.operate(k)
-                if not in_coord_list_pbc(all_k, k2, atol=atol):
-                    all_k.append(k2)
-            weights.append(len(all_k))
-        return weights
+            for i, g in enumerate(grid):
+                if np.allclose(k, g, atol=atol):
+                    weights.append(mapping.count(mapping[i]))
+                    break
+        return [w/sum(weights) for w in weights]
 
 
 class PointGroupAnalyzer(object):
