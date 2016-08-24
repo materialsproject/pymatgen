@@ -250,6 +250,12 @@ class Strain(SquareTensor):
         dfm = Deformation(deformation)
         return cls(0.5 * (np.dot(dfm.trans, dfm) - np.eye(3)), dfm)
 
+    def get_def(self):
+        eigs, eigvecs = np.linalg.eig(self)
+        rotated = self.rotate(np.transpose(eigvecs))
+        defo = Deformation(np.sqrt(2*rotated + np.eye(3)))
+        return defo.rotate(eigvecs)
+
     @property
     def deformation_matrix(self):
         """
@@ -275,8 +281,20 @@ class Strain(SquareTensor):
         """
         translates a strain tensor into a voigt notation vector
         """
-        return [self[0, 0], self[1, 1], self[2, 2],
-                2. * self[1, 2], 2. * self[0, 2], 2. * self[0, 1]]
+        new = np.array([self[v] for v in voigt_map])
+        new[3:] *= 2
+        return new
+
+    @classmethod
+    def from_voigt(cls, voigt_vec):
+        voigt_vec = np.array(voigt_vec)
+        voigt_vec[3:] *= 0.5
+        c = np.zeros((3, 3))
+        for ind in itertools.product(*[range(3)]*2):
+            v_ind = reverse_voigt_map[ind]
+            c[ind] = voigt_vec[v_ind]
+        return cls(c)
+
 
 
 class IndependentStrain(Strain):
