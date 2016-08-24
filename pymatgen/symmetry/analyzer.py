@@ -10,7 +10,7 @@ from collections import defaultdict
 import math
 from math import cos
 from math import sin
-from monty.fractions import gcd_float
+from fractions import Fraction
 
 import numpy as np
 
@@ -225,7 +225,13 @@ class SpacegroupAnalyzer(object):
         """
         d = spglib.get_symmetry(self._cell, symprec=self._symprec,
                                 angle_tolerance=self._angle_tol)
-        return d["rotations"], d["translations"]
+        # Sometimes spglib returns small translation vectors, e.g. [1e-4, 2e-4, 1e-4]
+        # (these are in fractional coordinates, so should be small denominator fractions)
+        trans = []
+        for t in d["translations"]:
+            trans.append([float(Fraction.from_float(c).limit_denominator(1000)) for c in t])
+        trans = np.array(trans)
+        return d["rotations"], trans
 
     def get_symmetry_operations(self, cartesian=False):
         """
