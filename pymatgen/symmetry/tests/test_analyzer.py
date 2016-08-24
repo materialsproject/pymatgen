@@ -114,6 +114,10 @@ class SpacegroupAnalyzerTest(PymatgenTest):
             symmops = sg.get_symmetry_operations(True)
             latt = structure.lattice
             for fop, op, pgop in zip(fracsymmops, symmops, pgops):
+                # translation vector values should all be 0 or 0.5
+                t = fop.translation_vector * 2
+                self.assertArrayAlmostEqual(t - np.round(t), 0)
+
                 self.assertArrayAlmostEqual(fop.rotation_matrix,
                                             pgop.rotation_matrix)
                 for site in structure:
