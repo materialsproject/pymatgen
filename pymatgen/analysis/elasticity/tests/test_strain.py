@@ -124,7 +124,10 @@ class StrainTest(PymatgenTest):
         # voigt
         self.assertArrayAlmostEqual(self.non_ind_str.voigt,
                                     [0, 0.0002, 0.0002, 0.0004, 0.02, 0.02])
-
+    def test_get_def(self):
+        defo = Deformation.from_index_amount((1,2), 0.01)
+        import pdb; pdb.set_trace()
+        defo.green_lagrange_strain.get_def()
 
 class DeformedStructureSetTest(PymatgenTest):
     def setUp(self):

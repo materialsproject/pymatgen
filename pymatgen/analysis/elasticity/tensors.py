@@ -164,6 +164,17 @@ class TensorBase(np.ndarray):
         """
         return (self - self.fit_to_structure(structure) < tol).all()
 
+    def voigt(self, scaling_matrix):
+        """
+        Args:
+            scaling matrix (n x n array_like)
+        """
+        new = np.zeros(
+
+    def from_voigt(self, scaling_matrix):
+
+
+
     def convert_to_ieee(self, structure):
         """
         Given a structure associated with a tensor, attempts a
