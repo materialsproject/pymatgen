@@ -251,10 +251,16 @@ class Strain(SquareTensor):
         return cls(0.5 * (np.dot(dfm.trans, dfm) - np.eye(3)), dfm)
 
     def get_def(self):
-        eigs, eigvecs = np.linalg.eig(self)
-        rotated = self.rotate(np.transpose(eigvecs))
-        defo = Deformation(np.sqrt(2*rotated + np.eye(3)))
-        return defo.rotate(eigvecs)
+        ftdotf = 2*self + np.eye(3)
+        eigs, eigvecs = np.linalg.eig(ftdotf)
+        rotated = ftdotf.rotate(np.transpose(eigvecs))
+        rotated = rotated.round(14)
+        defo = Deformation(np.sqrt(rotated))
+        result = defo.rotate(eigvecs)
+        if (result.green_lagrange_strain - self > 1e-6).any():
+            raise ValueError("Generated deformation does not "
+                             "correspond to input strain!")
+        return result
 
     @property
     def deformation_matrix(self):
@@ -287,6 +293,8 @@ class Strain(SquareTensor):
 
     @classmethod
     def from_voigt(cls, voigt_vec):
+        import itertools
+        from . import reverse_voigt_map
         voigt_vec = np.array(voigt_vec)
         voigt_vec[3:] *= 0.5
         c = np.zeros((3, 3))
@@ -337,3 +345,7 @@ class IndependentStrain(Strain):
     @property
     def j(self):
         return self._j
+
+
+if __name__ == "__main__":
+    strain = Strain([[1.
