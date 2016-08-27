@@ -31,6 +31,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from numpy.linalg import norm
+from pymatgen.analysis.elasticity import reverse_voigt_map
 
 class TensorBase(np.ndarray):
     """
@@ -38,7 +39,7 @@ class TensorBase(np.ndarray):
     without restrictions on the type (stress, elastic, strain, piezo, etc.)
     """
 
-    def __new__(cls, input_array):
+    def __new__(cls, input_array, vscale = None):
         """
         Create a TensorBase object.  Note that the constructor uses __new__
         rather than __init__ according to the standard method of
@@ -47,18 +48,30 @@ class TensorBase(np.ndarray):
         Args:
             input_array: (3xN array-like): the 3xN array-like representing
                 a tensor quantity
+            vscale: (N x M array-like): a matrix corresponding
+                to the coefficients of the voigt-notation tensor
         """
         obj = np.asarray(input_array).view(cls)
         obj.rank = len(obj.shape)
+
+        # Construct voigt notation map and scaling
+        def_vscale = np.ones([3]*(self.rank % 2) + [6]*(self.rank // 2))
+        obj._vscale = vscale or def_vscale
+        
+        if obj._vscale.shape != def_vscale.shape:
+            raise ValueError("Voigt scaling matrix must be the shape of the "
+                             "voigt notation matrix.")
         if not all([i == 3 for i in obj.shape]):
             raise ValueError("Pymatgen only supports 3-dimensional tensors")
-        
         return obj
 
     def __array_finalize__(self, obj):
         if obj is None:
             return
         self.rank = getattr(obj, 'rank', None)
+        self._vscale = getattr(obj, '_vscale', None)
+        self._vdict = getattr(obj, '_vdict', None)
+
 
     def __array_wrap__(self, obj):
         """
@@ -164,16 +177,45 @@ class TensorBase(np.ndarray):
         """
         return (self - self.fit_to_structure(structure) < tol).all()
 
-    def voigt(self, scaling_matrix):
+    @property
+    def voigt(self):
         """
-        Args:
-            scaling matrix (n x n array_like)
+        Returns the tensor in Voigt notation
         """
-        new = np.zeros(
+        if self.rank > 4:
+            raise ValueError("Voigt notation not standardized "
+                             "for tensor ranks higher than 4.")
+        v_matrix = np.zeros(self._vscale.shape)
+        voigt_map = get_voigt_dict(self.rank)
+        for ind in voigt_map:
+            v_matrix[voigt_map[ind]] = self[ind]
+        return v_matrix
 
-    def from_voigt(self, scaling_matrix):
+    @classmethod
+    def from_voigt(cls, voigt_matrix):
+        voigt_matrix = np.array(voigt_matrix)
+        if voigt_matrix.shape not in [(6,6), (3,6), (6,)]:
+            raise ValueError("Invalid shape for voigt matrix")
+        rank = sum(vm.shape) / 3
+        t = np.zeros([3]*rank)
+        voigt_map = get_voigt_dict(rank)
+        for ind in voigt_map:
+            t[ind] = voigt_matrix[voigt_map[ind]]
+        return cls(t)
 
+    @staticmethod
+    def get_voigt_dict(rank):
+        """
 
+        """
+        vdict = {}
+        for ind in itertools.product(*[range(3)]*self.rank):
+            v_ind = ind[:self.rank % 2]
+            for j in range(self.rank // 2):
+                pos = self.rank % 2 + 2*j
+                v_ind += (reverse_voigt_map[ind[pos:pos+2]],)
+            vdict[ind] = v_ind
+        return vdict
 
     def convert_to_ieee(self, structure):
         """
@@ -340,3 +382,9 @@ class SquareTensor(TensorBase):
         calculates matrices for polar decomposition
         """
         return polar(self, side=side)
+
+
+if __name__ == "__main__":
+    tb4 = TensorBase(np.zeros((3, 3, 3, 3)))
+    tb3 = TensorBase(np.zeros((3, 3, 3)))
+    tb2 = TensorBase(np.zeros((3, 3)))
