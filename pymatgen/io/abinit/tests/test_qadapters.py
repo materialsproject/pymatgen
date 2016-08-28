@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 from __future__ import unicode_literals, division, print_function
 
-import yaml
+import ruamel.yaml as yaml
 import unittest2 as unittest
 
 from collections import OrderedDict

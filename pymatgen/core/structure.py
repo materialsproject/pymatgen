@@ -27,12 +27,12 @@ from tabulate import tabulate
 
 import numpy as np
 
-import yaml
+import ruamel.yaml as yaml
 
 try:
-    from yaml import CSafeDumper as Dumper, CLoader as Loader
+    from ruamel.yaml import CSafeDumper as Dumper, CLoader as Loader
 except ImportError:
-    from yaml import SafeDumper as Dumper, Loader
+    from ruamel.yaml import SafeDumper as Dumper, Loader
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
