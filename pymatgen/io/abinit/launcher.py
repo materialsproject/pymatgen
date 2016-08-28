@@ -6,7 +6,7 @@ from __future__ import unicode_literals, division, print_function
 
 import os
 import time
-import yaml
+import ruamel.yaml as yaml
 import pickle
 
 from collections import deque
