@@ -10,7 +10,7 @@ angles and dihedrals.
 """
 
 from collections import defaultdict
-import ruamel.yaml as yaml
+import yaml
 
 from monty.json import MSONable
 

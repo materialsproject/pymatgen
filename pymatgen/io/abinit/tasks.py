@@ -11,7 +11,7 @@ import shutil
 import collections
 import abc
 import copy
-import ruamel.yaml as yaml
+import yaml
 import six
 import numpy as np
 
