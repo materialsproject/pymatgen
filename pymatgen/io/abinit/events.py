@@ -11,7 +11,7 @@ import sys
 import os.path
 import datetime
 import collections
-import ruamel.yaml as yaml
+import yaml
 import six
 import abc
 import logging
