@@ -139,13 +139,9 @@ Stable version
        possible and do "export CC=gcc" prior to installation.
     2. Numpy's distutils is needed to compile the spglib and pyhull
        dependencies. This should be the first thing you install.
-    3. Although PyYaml can be installed directly through pip without
-       additional preparation, it is highly recommended that you install
-       pyyaml with the C bindings for speed. To do so, install LibYaml first,
-       and then install pyyaml with the command below (see the `pyyaml
-       doc <http://pyyaml.org/wiki/PyYAML>`_ for more information)::
-
-           python setup.py --with-libyaml install
+    3. One of the best things you can do is to use conda to manage all this.
+       The instructions for `Shared cluster installation`_ pretty much
+       applies to any machine as well.
 
 The version at the Python Package Index (PyPI) is always the latest stable
 release that is relatively bug-free. The easiest way to install pymatgen on
@@ -188,27 +184,27 @@ developmental version, make sure you have nose installed and then just type::
 
 in the pymatgen root directory.
 
-Note on Shared Compute Cluster Installation
--------------------------------------------
+Shared cluster installation
+---------------------------
 
 If you are installing pymatgen on shared computing clusters, e.g., the XSEDE
-or NERSC resources in the US, there are several things you need to take note of:
+or NERSC resources in the US, the best way is to use conda to perform a local
+install. This guarantees the right version of python and all dependencies::
 
-1. Some older clusters have Python 2.6 or older by default. Pymatgen requires
-   Python 2.7 or newer. Sometimes, the cluster may have Python 2.7 that you
-   can load, e.g., using "module load python/2.7". Otherwise, you are out of
-   luck and you need to contact the cluster admin to install python 2.7 or
-   you can try to install it in your home directory.
-2. Unless you are the sys admin, you will not have write access to the default
-   locations that python installs packages. What you need to do is to install
-   pymatgen (and other dependencies) using the "--user" option::
+    # Here, Python 3.5+ is assumed.
+    # You can change the following to Miniconda2 if you prefer Python 2.7
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    bash Miniconda3-latest-Linux-x86_64.sh
 
-    pip install pymatgen --user
-    # or python setup.py develop --user if you are installing the dev version.
+    # Reload bash profile.
+    source $HOME/.bashrc
+    source $HOME/.bash_profile
 
-   This will install pymatgen in your $HOME/.local/lib/python2.7/site-packages.
-   You may need to add this to your PYTHONPATH variable, e.g., in your
-   .bash_profile if it is not automatically set.
+    # Install numpy and other pydata stack packages via conda.
+    conda install --yes numpy scipy matplotlib jupyter
+
+    # Install pymatgen using pip.
+    pip install pymatgen
 
 "Sample" Docker version
 -----------------------
