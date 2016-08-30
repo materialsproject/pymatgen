@@ -22,10 +22,314 @@ import math
 import numpy as np
 from numpy.linalg import norm
 from scipy.spatial import ConvexHull
+from scipy.integrate import quad
+from scipy.interpolate import UnivariateSpline
 
 from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
 
 
+def get_lower_and_upper_f(surface_calculation_options):
+    mindist = surface_calculation_options['distance_bounds']['lower']
+    maxdist = surface_calculation_options['distance_bounds']['upper']
+    minang = surface_calculation_options['angle_bounds']['lower']
+    maxang = surface_calculation_options['angle_bounds']['upper']
+    if surface_calculation_options['type'] == 'standard_elliptic':
+        lower_and_upper_functions = quarter_ellipsis_functions(xx=(mindist, maxang), yy=(maxdist, minang))
+    elif surface_calculation_options['type'] == 'standard_diamond':
+        deltadist = surface_calculation_options['distance_bounds']['delta']
+        deltaang = surface_calculation_options['angle_bounds']['delta']
+        lower_and_upper_functions = diamond_functions(xx=(mindist, maxang), yy=(maxdist, minang),
+                                                      x_y0=deltadist, y_x0=deltaang)
+    elif surface_calculation_options['type'] == 'standard_spline':
+        lower_points = surface_calculation_options['lower_points']
+        upper_points = surface_calculation_options['upper_points']
+        degree = surface_calculation_options['degree']
+        lower_and_upper_functions = spline_functions(lower_points=lower_points,
+                                                     upper_points=upper_points,
+                                                     degree=degree)
+    else:
+        raise ValueError('Surface calculation of type "{}" '
+                         'is not implemented'.format(surface_calculation_options['type']))
+    return lower_and_upper_functions
+
+
+def function_comparison(f1, f2, x1, x2, numpoints_check=500):
+    """
+        Method that compares two functions
+
+        Args:
+            f1: First function to compare
+            f2: Second function to compare
+            x1: Lower bound of the interval to compare
+            x2: Upper bound of the interval to compare
+            numpoints_check: Number of points used to compare the functions
+
+        Returns:
+            Whether the function are equal ("="), f1 is always lower than f2 ("<"), f1 is always larger than f2 (">"),
+             f1 is always lower than or equal to f2 ("<"), f1 is always larger than or equal to f2 (">") on the
+             interval [x1, x2]. If the two functions cross, a RuntimeError is thrown (i.e. we expect to compare
+             functions that do not cross...)
+        """
+    xx = np.linspace(x1, x2, num=numpoints_check)
+    y1 = f1(xx)
+    y2 = f2(xx)
+    if np.all(y1 < y2):
+        return '<'
+    elif np.all(y1 > y2):
+        return '>'
+    elif np.all(y1 == y2):
+        return '='
+    elif np.all(y1 <= y2):
+        return '<='
+    elif np.all(y1 >= y2):
+        return '>='
+    else:
+        raise RuntimeError('Error in comparing functions f1 and f2 ...')
+
+
+def quarter_ellipsis_functions(xx, yy):
+    """
+    Method that creates two quarter-ellipse functions based on points xx and yy. The ellipsis is supposed to
+    be aligned with the axes. The two ellipsis pass through the two points xx and yy.
+
+    Args:
+        xx:
+            First point
+        yy:
+            Second point
+
+    Returns:
+        A dictionary with the lower and upper quarter ellipsis functions.
+    """
+    npxx = np.array(xx)
+    npyy = np.array(yy)
+    if np.any(npxx == npyy):
+        raise RuntimeError('Invalid points for quarter_ellipsis_functions')
+    if np.all(npxx < npyy) or np.all(npxx > npyy):
+        if npxx[0] < npyy[0]:
+            p1 = npxx
+            p2 = npyy
+        else:
+            p1 = npyy
+            p2 = npxx
+        c_lower = np.array([p1[0], p2[1]])
+        c_upper = np.array([p2[0], p1[1]])
+        b2 = (p2[1] - p1[1]) ** 2
+    else:
+        if npxx[0] < npyy[0]:
+            p1 = npxx
+            p2 = npyy
+        else:
+            p1 = npyy
+            p2 = npxx
+        c_lower = np.array([p2[0], p1[1]])
+        c_upper = np.array([p1[0], p2[1]])
+        b2 = (p1[1] - p2[1]) ** 2
+    b2overa2 = b2 / (p2[0] - p1[0]) ** 2
+
+    def lower(x):
+        return c_lower[1] - np.sqrt(b2 - b2overa2 * (x - c_lower[0]) ** 2)
+
+    def upper(x):
+        return c_upper[1] + np.sqrt(b2 - b2overa2 * (x - c_upper[0]) ** 2)
+
+    return {'lower': lower, 'upper': upper}
+
+
+def spline_functions(lower_points, upper_points, degree=3):
+    """
+    Method that creates two (upper and lower) spline functions based on points lower_points and upper_points.
+
+    Args:
+        lower_points:
+            Points defining the lower function.
+        upper_points:
+            Points defining the upper function.
+        degree:
+            Degree for the spline function
+
+    Returns:
+        A dictionary with the lower and upper spline functions.
+    """
+    lower_xx = np.array([pp[0] for pp in lower_points])
+    lower_yy = np.array([pp[1] for pp in lower_points])
+    upper_xx = np.array([pp[0] for pp in upper_points])
+    upper_yy = np.array([pp[1] for pp in upper_points])
+
+    lower_spline = UnivariateSpline(lower_xx, lower_yy, k=degree, s=0)
+    upper_spline = UnivariateSpline(upper_xx, upper_yy, k=degree, s=0)
+
+    def lower(x):
+        return lower_spline(x)
+
+    def upper(x):
+        return upper_spline(x)
+
+    return {'lower': lower, 'upper': upper}
+
+def diamond_functions(xx, yy, y_x0, x_y0):
+    """
+    Method that creates two upper and lower functions based on points xx and yy as well as intercepts defined by
+     y_x0 and x_y0. The resulting functions form kind of a distorted diamond-like structure aligned from
+     point xx to point yy.
+
+    Schematically :
+
+    xx is symbolized by x, yy is symbolized by y, y_x0 is equal to the distance from x to a, x_y0 is equal to the
+     distance from x to b, the lines a-p and b-q are parallel to the line x-y such that points p and q are
+     obtained automatically.
+    In case of an increasing diamond the lower function is x-b-q and the upper function is a-p-y while in case of a
+     decreasing diamond, the lower function is a-p-y and the upper function is x-b-q.
+
+           Increasing diamond      |     Decreasing diamond
+                     p--y                    x----b
+                    /  /|                    |\    \
+                   /  / |                    | \    q
+                  /  /  |                    a  \   |
+                 a  /   |                     \  \  |
+                 | /    q                      \  \ |
+                 |/    /                        \  \|
+                 x----b                          p--y
+
+    Args:
+        xx:
+            First point
+        yy:
+            Second point
+
+    Returns:
+        A dictionary with the lower and upper diamond functions.
+    """
+    npxx = np.array(xx)
+    npyy = np.array(yy)
+    if np.any(npxx == npyy):
+        raise RuntimeError('Invalid points for diamond_functions')
+    if np.all(npxx < npyy) or np.all(npxx > npyy):
+        if npxx[0] < npyy[0]:
+            p1 = npxx
+            p2 = npyy
+        else:
+            p1 = npyy
+            p2 = npxx
+    else:
+        if npxx[0] < npyy[0]:
+            p1 = npxx
+            p2 = npyy
+        else:
+            p1 = npyy
+            p2 = npxx
+    slope = (p2[1]-p1[1]) / (p2[0]- p1[0])
+    if slope > 0.0:
+        x_bpoint = p1[0] + x_y0
+        myy = p1[1]
+        bq_intercept = myy - slope*x_bpoint
+        myx = p1[0]
+        myy = p1[1] + y_x0
+        ap_intercept = myy - slope*myx
+        x_ppoint = (p2[1] - ap_intercept) / slope
+        def lower(x):
+            return np.where(x <= x_bpoint, p1[1] * np.ones_like(x), slope * x + bq_intercept)
+
+        def upper(x):
+            return np.where(x >= x_ppoint, p2[1] * np.ones_like(x), slope * x + ap_intercept)
+    else:
+        x_bpoint = p1[0] + x_y0
+        myy = p1[1]
+        bq_intercept = myy - slope * x_bpoint
+        myx = p1[0]
+        myy = p1[1] - y_x0
+        ap_intercept = myy - slope * myx
+        x_ppoint = (p2[1] - ap_intercept) / slope
+        def lower(x):
+            return np.where(x >= x_ppoint, p2[1] * np.ones_like(x), slope * x + ap_intercept)
+
+        def upper(x):
+            return np.where(x <= x_bpoint, p1[1] * np.ones_like(x), slope * x + bq_intercept)
+
+    return {'lower': lower, 'upper': upper}
+
+
+def rectangle_surface_intersection(rectangle, f_lower, f_upper,
+                                   bounds_lower=None, bounds_upper=None,
+                                   check=True, numpoints_check=500):
+    """
+    Method to calculate the surface of the intersection of a rectangle (aligned with axes) and another surface
+    defined by two functions f_lower and f_upper.
+
+    Args:
+        rectangle:
+            Rectangle defined as : ((x1, x2), (y1, y2)).
+        f_lower:
+            Function defining the lower bound of the surface.
+        f_upper:
+            Function defining the upper bound of the surface.
+        bounds_lower:
+            Interval in which the f_lower function is defined.
+        bounds_upper:
+            Interval in which the f_upper function is defined.
+        check:
+            Whether to check if f_lower is always lower than f_upper.
+        numpoints_check:
+            Number of points used to check whether f_lower is always lower than f_upper
+
+    Returns:
+        The surface of the intersection of the rectangle and the surface defined by f_lower and f_upper.
+    """
+    x1 = np.min(rectangle[0])
+    x2 = np.max(rectangle[0])
+    y1 = np.min(rectangle[1])
+    y2 = np.max(rectangle[1])
+    # Check that f_lower is allways lower than f_upper between x1 and x2 if no bounds are given or between the bounds
+    #  of the f_lower and f_upper functions if they are given.
+    if check:
+        if bounds_lower is not None:
+            if bounds_upper is not None:
+                if not all(np.array(bounds_lower) == np.array(bounds_upper)):
+                    raise ValueError('Bounds should be identical for both f_lower and f_upper')
+                if not '<' in function_comparison(f1=f_lower, f2=f_upper,
+                                                  x1=bounds_lower[0], x2=bounds_lower[1],
+                                                  numpoints_check=numpoints_check):
+                    raise RuntimeError('Function f_lower is not allways lower or equal to function f_upper within '
+                                       'the domain defined by the functions bounds.')
+            else:
+                raise ValueError('Bounds are given for f_lower but not for f_upper')
+        elif bounds_upper is not None:
+            if bounds_lower is None:
+                raise ValueError('Bounds are given for f_upper but not for f_lower')
+            else:
+                if not '<' in function_comparison(f1=f_lower, f2=f_upper,
+                                                  x1=bounds_lower[0], x2=bounds_lower[1],
+                                                  numpoints_check=numpoints_check):
+                    raise RuntimeError('Function f_lower is not allways lower or equal to function f_upper within '
+                                       'the domain defined by the functions bounds.')
+        else:
+            if not '<' in function_comparison(f1=f_lower, f2=f_upper,
+                                              x1=x1, x2=x2, numpoints_check=numpoints_check):
+                raise RuntimeError('Function f_lower is not allways lower or equal to function f_upper within '
+                                   'the domain defined by x1 and x2.')
+    if bounds_lower is None:
+        raise NotImplementedError('Bounds should be given right now ...')
+    else:
+        if x2 < bounds_lower[0] or x1 > bounds_lower[1]:
+            return (0.0, 0.0)
+        if x1 < bounds_lower[0]:
+            xmin = bounds_lower[0]
+        else:
+            xmin = x1
+        if x2 > bounds_lower[1]:
+            xmax = bounds_lower[1]
+        else:
+            xmax = x2
+        def diff(x):
+            flwx = f_lower(x)
+            fupx = f_upper(x)
+            minup = np.min([fupx, y2 * np.ones_like(fupx)], axis=0)
+            maxlw = np.max([flwx, y1 * np.ones_like(flwx)], axis=0)
+            zeros = np.zeros_like(fupx)
+            upper = np.where(y2 >= flwx, np.where(y1 <= fupx, minup, zeros), zeros)
+            lower = np.where(y1 <= fupx, np.where(y2 >= flwx, maxlw, zeros), zeros)
+            return upper-lower
+        return quad(diff, xmin, xmax)
 
 def my_solid_angle(center, coords):
     """
@@ -331,7 +635,7 @@ class Plane(object):
         """
         Checks whether the plane is identical to another Plane "plane"
         :param plane: Plane to be compared to
-        :return: True if the two planes are identical, False otherwise
+        :return: True if the two facets are identical, False otherwise
         """
         return np.allclose(self._coefficients, plane.coefficients)
 

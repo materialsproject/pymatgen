@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.analysis.defects.tests
 
 Submodules
 ----------

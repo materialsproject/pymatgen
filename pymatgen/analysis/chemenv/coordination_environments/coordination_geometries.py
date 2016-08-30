@@ -315,6 +315,88 @@ class CoordinationGeometry(object):
     Class used to store the ideal representation of a chemical environment or "coordination geometry"
     """
 
+    class NeighborsSetsHints(object):
+        ALLOWED_HINTS_TYPES = ['single_cap', 'double_cap', 'triple_cap']
+        def __init__(self, hints_type, options):
+            if hints_type not in self.ALLOWED_HINTS_TYPES:
+                raise ValueError('Type "{}" for NeighborsSetsHints is not allowed'.format(type))
+            self.hints_type = hints_type
+            self.options = options
+
+        def hints(self, hints_info):
+            if hints_info['csm'] > self.options['csm_max']:
+                return []
+            return object.__getattribute__(self, '{}_hints'.format(self.hints_type))(hints_info)
+
+        def single_cap_hints(self, hints_info):
+            cap_index_perfect = self.options['cap_index']
+            nb_set = hints_info['nb_set']
+            permutation = hints_info['permutation']
+            nb_set_voronoi_indices_perfect_aligned = nb_set.get_neighb_voronoi_indices(permutation=permutation)
+            cap_voronoi_index = nb_set_voronoi_indices_perfect_aligned[cap_index_perfect]
+            new_site_voronoi_indices = list(nb_set.site_voronoi_indices)
+            new_site_voronoi_indices.remove(cap_voronoi_index)
+            return [new_site_voronoi_indices]
+
+        def double_cap_hints(self, hints_info):
+            first_cap_index_perfect = self.options['first_cap_index']
+            second_cap_index_perfect = self.options['second_cap_index']
+            nb_set = hints_info['nb_set']
+            permutation = hints_info['permutation']
+            nb_set_voronoi_indices_perfect_aligned = nb_set.get_neighb_voronoi_indices(permutation=permutation)
+            first_cap_voronoi_index = nb_set_voronoi_indices_perfect_aligned[first_cap_index_perfect]
+            second_cap_voronoi_index = nb_set_voronoi_indices_perfect_aligned[second_cap_index_perfect]
+            new_site_voronoi_indices1 = list(nb_set.site_voronoi_indices)
+            new_site_voronoi_indices2 = list(nb_set.site_voronoi_indices)
+            new_site_voronoi_indices3 = list(nb_set.site_voronoi_indices)
+            new_site_voronoi_indices1.remove(first_cap_voronoi_index)
+            new_site_voronoi_indices2.remove(second_cap_voronoi_index)
+            new_site_voronoi_indices3.remove(first_cap_voronoi_index)
+            new_site_voronoi_indices3.remove(second_cap_voronoi_index)
+            return [new_site_voronoi_indices1, new_site_voronoi_indices2, new_site_voronoi_indices3]
+
+        def triple_cap_hints(self, hints_info):
+            first_cap_index_perfect = self.options['first_cap_index']
+            second_cap_index_perfect = self.options['second_cap_index']
+            third_cap_index_perfect = self.options['third_cap_index']
+            nb_set = hints_info['nb_set']
+            permutation = hints_info['permutation']
+            nb_set_voronoi_indices_perfect_aligned = nb_set.get_neighb_voronoi_indices(permutation=permutation)
+            first_cap_voronoi_index = nb_set_voronoi_indices_perfect_aligned[first_cap_index_perfect]
+            second_cap_voronoi_index = nb_set_voronoi_indices_perfect_aligned[second_cap_index_perfect]
+            third_cap_voronoi_index = nb_set_voronoi_indices_perfect_aligned[third_cap_index_perfect]
+            new_site_voronoi_indices1 = list(nb_set.site_voronoi_indices)
+            new_site_voronoi_indices2 = list(nb_set.site_voronoi_indices)
+            new_site_voronoi_indices3 = list(nb_set.site_voronoi_indices)
+            new_site_voronoi_indices4 = list(nb_set.site_voronoi_indices)
+            new_site_voronoi_indices5 = list(nb_set.site_voronoi_indices)
+            new_site_voronoi_indices6 = list(nb_set.site_voronoi_indices)
+            new_site_voronoi_indices7 = list(nb_set.site_voronoi_indices)
+            new_site_voronoi_indices1.remove(first_cap_voronoi_index)
+            new_site_voronoi_indices2.remove(second_cap_voronoi_index)
+            new_site_voronoi_indices3.remove(third_cap_voronoi_index)
+            new_site_voronoi_indices4.remove(second_cap_voronoi_index)
+            new_site_voronoi_indices4.remove(third_cap_voronoi_index)
+            new_site_voronoi_indices5.remove(first_cap_voronoi_index)
+            new_site_voronoi_indices5.remove(third_cap_voronoi_index)
+            new_site_voronoi_indices6.remove(first_cap_voronoi_index)
+            new_site_voronoi_indices6.remove(second_cap_voronoi_index)
+            new_site_voronoi_indices7.remove(first_cap_voronoi_index)
+            new_site_voronoi_indices7.remove(second_cap_voronoi_index)
+            new_site_voronoi_indices7.remove(third_cap_voronoi_index)
+            return [new_site_voronoi_indices1, new_site_voronoi_indices2, new_site_voronoi_indices3,
+                    new_site_voronoi_indices4, new_site_voronoi_indices5, new_site_voronoi_indices6,
+                    new_site_voronoi_indices7]
+
+        def as_dict(self):
+            return {'hints_type': self.hints_type,
+                    'options': self.options}
+
+        @classmethod
+        def from_dict(cls, dd):
+            return cls(hints_type=dd['hints_type'],
+                       options=dd['options'])
+
     def __init__(self, mp_symbol, name, alternative_names=None,
                  IUPAC_symbol=None, IUCr_symbol=None, coordination=None,
                  central_site=np.zeros(3), points=None, solid_angles=None,
@@ -322,7 +404,8 @@ class CoordinationGeometry(object):
                  plane_ordering_override=True, deactivate=False, faces=None,
                  edges=None,
                  plane_safe_permutations=False, algorithms=None,
-                 equivalent_indices=None):
+                 equivalent_indices=None,
+                 neighbors_sets_hints=None):
         """
         Initializes one "coordination geometry" according to [Pure Appl. Chem., Vol. 79, No. 10, pp. 1779--1799, 2007]
         and [Acta Cryst. A, Vol. 46, No. 1, pp. 1--11, 1990].
@@ -334,11 +417,11 @@ class CoordinationGeometry(object):
         :param coordination: The coordination number of this coordination geometry (number of neighboring atoms).
         :param central_site: The coordinates of the central site of this coordination geometry.
         :param points: The list of the coordinates of all the points of this coordination geometry.
-        :param separation_planes: List of separation planes to help set up the permutations
+        :param separation_planes: List of separation facets to help set up the permutations
         :param permutation_safe_override: Computes all the permutations if set to True (overrides the plane separation
         algorithms or any other algorithm, for testing purposes)
         :param plane_ordering_override: Computes all the permutations of the plane separation algorithm if set to False
-        otherwise, uses the anticlockwise ordering of the separation planes (for testing purposes)
+        otherwise, uses the anticlockwise ordering of the separation facets (for testing purposes)
         :param deactivate: deactivates this coordination geometry in the search
         :param faces : list of the faces with their vertices given in a clockwise or anticlockwise order, for drawing
         purposes
@@ -366,6 +449,7 @@ class CoordinationGeometry(object):
         else:
             self.centroid = None
         self.equivalent_indices = equivalent_indices
+        self.neighbors_sets_hints = neighbors_sets_hints
 
     def as_dict(self):
         return {'mp_symbol': self._mp_symbol,
@@ -384,7 +468,9 @@ class CoordinationGeometry(object):
                 '_edges': self._edges,
                 '_algorithms': [algo.as_dict for algo in
                                 self._algorithms] if self._algorithms is not None else None,
-                'equivalent_indices': self.equivalent_indices}
+                'equivalent_indices': self.equivalent_indices,
+                'neighbors_sets_hints': [nbsh.as_dict() for nbsh in self.neighbors_sets_hints]
+                if self.neighbors_sets_hints is not None else None}
 
     @classmethod
     def from_dict(cls, dd):
@@ -407,7 +493,10 @@ class CoordinationGeometry(object):
                                for algo_d in dd['_algorithms']] if dd[
                                                                        '_algorithms'] is not None else None,
                    equivalent_indices=dd[
-                       'equivalent_indices'] if 'equivalent_indices' in dd else None)
+                       'equivalent_indices'] if 'equivalent_indices' in dd else None,
+                   neighbors_sets_hints=[cls.NeighborsSetsHints.from_dict(nbshd)
+                                         for nbshd in dd['neighbors_sets_hints']]
+                   if 'neighbors_sets_hints' in dd else None)
 
     def __str__(self):
         symbol = ''
@@ -458,6 +547,11 @@ class CoordinationGeometry(object):
     def set_permutations_safe_override(self, permutations_safe_override):
         self.permutations_safe_override = permutations_safe_override
         # self.setup_permutations()
+
+    @property
+    def distfactor_max(self):
+        dists = [np.linalg.norm(pp - self.central_site) for pp in self.points]
+        return np.max(dists) / np.min(dists)
 
     @property
     def coordination_number(self):
@@ -561,15 +655,21 @@ class CoordinationGeometry(object):
             coords = [sites[ii].coords for ii in permutation]
         return [[coords[ii] for ii in f] for f in self._faces]
 
-    def edges(self, sites, permutation=None):
+    def edges(self, sites, permutation=None, input='sites'):
         """
         Returns the list of edges of this coordination geometry. Each edge is given as a
         list of its end vertices coordinates.
         """
-        if permutation is None:
+        if input == 'sites':
             coords = [site.coords for site in sites]
-        else:
-            coords = [sites[ii].coords for ii in permutation]
+        elif input == 'coords':
+            coords = sites
+        # if permutation is None:
+        #     coords = [site.coords for site in sites]
+        # else:
+        #     coords = [sites[ii].coords for ii in permutation]
+        if permutation is not None:
+            coords = [coords[ii] for ii in permutation]
         return [[coords[ii] for ii in e] for e in self._edges]
 
     def solid_angles(self, permutation=None):
@@ -706,8 +806,9 @@ class AllCoordinationGeometries(dict):
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
         else:
             for symbol in only_symbols:
+                fsymbol = symbol.replace(':', '#')
                 cg_file = '{}/coordination_geometries_files/{}.json'.format(
-                    module_dir, symbol)
+                    module_dir, fsymbol)
                 f = open(cg_file, 'r')
                 dd = json.load(f)
                 f.close()
@@ -949,7 +1050,7 @@ class AllCoordinationGeometries(dict):
                 return True
         raise Exception('Should not be here !')
 
-    def pretty_print(self, type='implemented_geometries', maxcn=8):
+    def pretty_print(self, type='implemented_geometries', maxcn=8, additional_info=None):
         if type == 'all_geometries_latex_images':
             mystring = ''
             for cn in range(1, maxcn + 1):
@@ -1004,8 +1105,19 @@ class AllCoordinationGeometries(dict):
                 mystring += '==>> CN = {cn} <<==\n'.format(cn=cn)
                 if type == 'implemented_geometries':
                     for cg in self.get_implemented_geometries(coordination=cn):
-                        mystring += ' - {mp} : {name}\n'.format(mp=cg.mp_symbol,
-                                                                name=cg.get_name())
+                        if additional_info is not None:
+                            if 'nb_hints' in additional_info:
+                                if cg.neighbors_sets_hints is not None:
+                                    addinfo = ' *'
+                                else:
+                                    addinfo = ''
+                            else:
+                                addinfo = ''
+                        else:
+                            addinfo = ''
+                        mystring += ' - {mp} : {name}{addinfo}\n'.format(mp=cg.mp_symbol,
+                                                                  name=cg.get_name(),
+                                                                  addinfo=addinfo)
                 elif type == 'all_geometries':
                     for cg in self.get_geometries(coordination=cn):
                         mystring += ' - {mp} : {name}\n'.format(mp=cg.mp_symbol,

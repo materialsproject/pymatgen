@@ -164,7 +164,7 @@ class TransformedStructureTest(unittest.TestCase):
             self.assertEqual(len(w), 1, 'Warning not raised on type conversion '
                              'with other_parameters')
         ts = TransformedStructure.from_snl(snl)
-        self.assertEqual(ts.history[-1]['name'], 'SubstitutionTransformation')
+        self.assertEqual(ts.history[-1]['@class'], 'SubstitutionTransformation')
         
         h = ('testname', 'testURL', {'test' : 'testing'})
         snl = StructureNL(ts.final_structure,[('will', 'will@test.com')], 

@@ -12,7 +12,7 @@ tests in a single location, so that test scripts can just import it and work
 right away.
 """
 
-import unittest2 as unittest
+import unittest
 import tempfile
 import numpy.testing.utils as nptu
 from six.moves import zip
@@ -22,9 +22,8 @@ import json
 
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
-
-
 from monty.json import MSONable
+
 
 class PymatgenTest(unittest.TestCase):
     """

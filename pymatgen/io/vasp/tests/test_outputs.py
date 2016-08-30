@@ -152,10 +152,8 @@ class VasprunTest(unittest.TestCase):
 
         self.assertTrue(vasprun_ggau.is_hubbard)
         self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
-        self.assertAlmostEqual(vasprun_ggau.projected_eigenvalues[(Spin.up, 0,
-                                                                   0, 96,
-                                                                   Orbital.s)],
-                               0.0032)
+        self.assertAlmostEqual(vasprun_ggau.projected_eigenvalues[
+                                   (1, 0, 0, 96, Orbital.s)], 0.0032)
         d = vasprun_ggau.as_dict()
         self.assertEqual(d["elements"], ["Fe", "Li", "O", "P"])
         self.assertEqual(d["nelements"], 4)
@@ -482,6 +480,9 @@ class OutcarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, "OUTCAR.CL")
         cl = Outcar(filepath).read_core_state_eigen()
         self.assertAlmostEqual(cl[6]["2s"][-1], -174.4779)
+        filepath = os.path.join(test_dir, "OUTCAR.icorelevel")
+        cl = Outcar(filepath).read_core_state_eigen()
+        self.assertAlmostEqual(cl[4]["3d"][-1], -31.4522)
 
     def test_single_atom(self):
         filepath = os.path.join(test_dir, "OUTCAR.Al")
