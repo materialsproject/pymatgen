@@ -75,11 +75,11 @@ class eos_thermal_properties:
         self.xconfigvector = []
         self.datatofit = []
         self.bmcoeffs_static = []
-        self.bmcoeffs_dynamic = []
+#        self.bmcoeffs_dynamic = []
         self.mfit = 500
         self.mpar = 20
         self.maxloops = 250
-        self.maiG = 2
+        self.birchfitorder_iG = 2
         self.opt_g = False
         self.iopt_g = 0
         self.fittype = 0
@@ -94,7 +94,8 @@ class eos_thermal_properties:
         self.kj2unit = 0.1202707236
 
 #    def eos_thermal_run(inpfilename, evfilename, nstructs=28, stepsize=0.01, ieos = 0, idebye = 0, poisson = 0.25, npres = 11, spres = 2.0, ntemp = 201, stemp = 10.0, energy_inf=0.0):
-    def eos_thermal_run(self, initstruct, volume_values, energy_values, ieos = 0, idebye = 0, poissonratio = 0.25, npres = 11, spres = 2.0, ntemp = 201, stemp = 10.0, energy_inf = 0.0, fit_type = 0):
+    def eos_thermal_run(self, initstruct, volume_values, energy_values, poissonratio = 0.25, ieos = 0, idebye = 0, npres = 11, spres = 2.0, ntemp = 201, stemp = 10.0, energy_inf = 0.0, fit_type = 0):
+#    def eos_thermal_run(self, initstruct, volume_values, energy_values, poissonratio = 0.25, ieos = 0, idebye = 0, npres = 11, spres = 2.0, ntemp = 201, stemp = 10.0, energy_inf = 0.0, fit_type = 0):
 #    def eos_thermal_run(initstruct, volume_values, energy_values, ieos = 0, idebye = 0, poissonratio = 0.25, npres = 11, spres = 2.0, ntemp = 201, stemp = 10.0, energy_inf=0.0):
         nstructs = len(volume_values)
         self.vol_inp = volume_values
@@ -121,7 +122,7 @@ class eos_thermal_properties:
         self.mfit = 500
         self.mpar = 20
         self.maxloops = 250
-        self.maiG = 2
+        self.birchfitorder_iG = 2
         self.opt_g = False
         self.iopt_g = 0
         self.fittype = 0
@@ -160,6 +161,8 @@ class eos_thermal_properties:
         self.ndata = self.ninp
         self.outstr = ""
         self.outstr_thermal = ""
+        self.bmcoeffs_static = []
+#        self.bmcoeffs_dynamic = []
         for i in xrange(nstructs):
             self.vol_inp[i] = self.vol_inp[i] * self.ang32bohr3
             self.energ_inp[i] = self.energ_inp[i] * self.ev2hartree
@@ -542,26 +545,26 @@ class eos_thermal_properties:
         #
         # .....Arrays to save EOS variables
         #
-        self.uder = []
+        self.d2EnergydVolume2_static = []
         self.ust = []
         F = [0.0 for i in range(self.ndata)]
-        self.udyn = [0.0 for k in range(self.npressure)]
+        self.d2EnergydVolume2_dynamic = [0.0 for k in range(self.npressure)]
         self.pstatic = [0.0 for k in range(self.npressure)]
         self.gamma_G = [0.0 for k in range(self.npressure)]
         self.pfit = [0.0 for k in range(self.npressure)]
         self.alpha = [0.0 for k in range(self.npressure)]
         theta = [0.0 for k in range(self.npressure)]
         Cv = [0.0 for k in range(self.npressure)]
-        self.astatic = []
+        self.astatic = [0.0 for i in range(self.birchfitorder_iG+1)]
         pst = []
         fpol = []
         ferr = []
         self.gfepev = [[0.0 for k in range(self.npressure)] for j in range(self.ntemperature)]
         self.xminsav = [[0.0 for k in range(self.npressure)] for j in range(self.ntemperature)]
         self.volminsav = [[0.0 for k in range(self.npressure)] for j in range(self.ntemperature)]
-        vol0p = []
+        self.vol0p = []
         g0p = []
-        b0p = []
+        self.b0p = []
         bp0p = []
         bpp0p = []
         self.gfe0p = []
@@ -603,6 +606,12 @@ class eos_thermal_properties:
         #.....Debye temperature: numerical evaluation of thermal properties
         #
         if self.ieos == 0:
+            iG = 2
+            # Get static Birch-Murnaghan coefficients
+            self.birch(vol0pres, gfe0pres/self.hy2kjmol, iG, True)
+            # Reinitialize d2E/dV2 
+            self.d2EnergydVolume2_static = []
+            # Call numerical equation of state fitting
             self.numer(volref, nepol, epol, nepol, epol, True)
             self.outstr = self.outstr + '\n'
             self.outstr = self.outstr + 'Debye temperature - numerical derivatives \n'
@@ -663,7 +672,7 @@ class eos_thermal_properties:
         #
         #.....Calculate Debye temperatures at each volume
         #
-        if self.bu1 < 0:
+        if self.dbulkmoddp0pres < 0:
             self.outstr = self.outstr + 'gibbs: Warning! B''<0, will use idebye=3 \n'
             self.idebye = 3
         if self.idebye == 1:
@@ -680,7 +689,7 @@ class eos_thermal_properties:
                     self.grerr = 2
                 return
         elif self.idebye == 3:
-            tdebyemin = ((6*self.pi*self.pi*self.natoms*self.vol_inp[imin]*self.vol_inp[imin])**self.third) / self.pckbau * self.poissonratiofunction * math.sqrt(math.fabs(self.uder[imin])/self.cellmassval)
+            tdebyemin = ((6*self.pi*self.pi*self.natoms*self.vol_inp[imin]*self.vol_inp[imin])**self.third) / self.pckbau * self.poissonratiofunction * math.sqrt(math.fabs(self.d2EnergydVolume2_static[imin])/self.cellmassval)
         else:
             if self.ieos >= 0:
                 self.outstr = self.outstr + "   V(bohr^3) \t  TDebye(K) \n"
@@ -689,20 +698,20 @@ class eos_thermal_properties:
         # Checks second derivative is positive at all points
         # If not, the function is convex at that point and that point is skipped
         for i in xrange(self.ndata):
-            if self.idebye != 1 and self.uder[i] <= 0.0:
+            if self.idebye != 1 and self.d2EnergydVolume2_static[i] <= 0.0:
                 if i > itry:
                     self.ndata = i-1
                     self.logstr = self.logstr + "MP Eqn of State Thermal: Warning! convex function at i = " + str(i) + " \n"
-                    self.logstr = self.logstr + "MP Eqn of State Thermal: Warning! uder = " + str(self.uder[i]) + " \n"
+                    self.logstr = self.logstr + "MP Eqn of State Thermal: Warning! d2EnergydVolume2_static = " + str(self.d2EnergydVolume2_static[i]) + " \n"
                     self.logstr = self.logstr + "MP Eqn of State Thermal: The points following this one will be discarded \n"
                 else:
                     self.logstr = self.logstr + "MP Eqn of State Thermal: Warning! convex function at i = " + str(i) + " \n"
-                    self.logstr = self.logstr + "MP Eqn of State Thermal: Warning! uder = " + str(self.uder[i]) + " \n"
+                    self.logstr = self.logstr + "MP Eqn of State Thermal: Warning! d2EnergydVolume2_static = " + str(self.d2EnergydVolume2_static[i]) + " \n"
                     self.logstr = self.logstr + "MP Eqn of State Thermal: This point will be skipped and the next concave one taken as the next point \n"
                     self.logstr = self.logstr + "MP Eqn of State Thermal: Recommend increasing the number of k-points and rerunning MP Eqn of State Thermal \n"
             else:
                 # tmp is the Debye temperature for the structure with volume self.vol_inp[ij]
-                tmp = ((6*self.pi*self.pi*self.natoms*self.vol_inp[ij]*self.vol_inp[ij])**self.third) / self.pckbau * self.poissonratiofunction * math.sqrt(math.fabs(self.uder[ij])/self.cellmassval)
+                tmp = ((6*self.pi*self.pi*self.natoms*self.vol_inp[ij]*self.vol_inp[ij])**self.third) / self.pckbau * self.poissonratiofunction * math.sqrt(math.fabs(self.d2EnergydVolume2_static[ij])/self.cellmassval)
                 if self.idebye == 3:
                     self.tdebye.append(tdebyemin)
                     if self.ieos >= 0:
@@ -729,6 +738,7 @@ class eos_thermal_properties:
         #     Debye temperature is calculated self-consistently if IDEBYE = 2
         #
         elif self.idebye == 2:
+            dzero = 0.0
             scerr = self.scdebye(dzero, epol, eerr, nepol, imin, true, pst)
             if scerr:
                 self.logstr = self.logstr + "MP Eqn of State Thermal: Problem in self-consistent Debye! \n"
@@ -1107,11 +1117,11 @@ class eos_thermal_properties:
             #
             #.....Save properties at P=0 for all of the temperatures.
             #
-            vol0p.append(self.voleqmin[0])
+            self.vol0p.append(self.voleqmin[0])
             g0p.append(g[0])
-            b0p.append(self.bu0)
-            bp0p.append(self.bu1)
-            bpp0p.append(self.bu2)
+            self.b0p.append(self.bulkmod0pres)
+            bp0p.append(self.dbulkmoddp0pres)
+            bpp0p.append(self.d2bulkmoddp20pres)
             self.gfe0p.append(g[0])
             g0pev = (g[0] / self.hy2kjmol) * self.hart2ev
             self.gfe0pev.append(g0pev)
@@ -1159,11 +1169,11 @@ class eos_thermal_properties:
                         plnv = eos_polynomial_inst.polin1(tmp, ntpol, tpol)
                         self.gamma_poly.append(-plnv)
                     #
-                    #.....if udyn is not consistent, make a Gruneisen interpolation
+                    #.....if d2EnergydVolume2_dynamic is not consistent, make a Gruneisen interpolation
                     #
-                    if self.udyn[k] <= 0.0:
+                    if self.d2EnergydVolume2_dynamic[k] <= 0.0:
                         self.logstr = self.logstr + "MP Eqn of State Thermal: inconsistent derivative, v[k] = " + str(self.voleqmin[k]) + ", p[k] = " + str(self.pressure[k]) + " \n"
-                        self.logstr = self.logstr + "MP Eqn of State Thermal: k = ", k, ", T = " + str(self.temperature[j]) + ", udyn[k] = " + str(self.udyn[k]) + " \n"
+                        self.logstr = self.logstr + "MP Eqn of State Thermal: k = ", k, ", T = " + str(self.temperature[j]) + ", d2EnergydVolume2_dynamic[k] = " + str(self.d2EnergydVolume2_dynamic[k]) + " \n"
                         self.logstr = self.logstr + "MP Eqn of State Thermal: making a Gruneisen interpolation \n"
                         ilow = 0
                         while self.voleqmin[k] >= self.vol_inp[ilow] and ilow < (self.ndata-1):
@@ -1180,11 +1190,11 @@ class eos_thermal_properties:
                                 self.npressure = k
                                 break
                         ilow = ilow - 1
-                        self.udyn[k] = self.uder[ilow] * ((self.voleqmin[k]/self.vol_inp[ilow])**((math.log(self.uder[ilow+1]/self.uder[ilow])) / (math.log(self.vol_inp[ilow+1]/self.vol_inp[ilow]))))
+                        self.d2EnergydVolume2_dynamic[k] = self.d2EnergydVolume2_static[ilow] * ((self.voleqmin[k]/self.vol_inp[ilow])**((math.log(self.d2EnergydVolume2_static[ilow+1]/self.d2EnergydVolume2_static[ilow])) / (math.log(self.vol_inp[ilow+1]/self.vol_inp[ilow]))))
                     #
                     #.....isotropic Debye model properties
                     #
-                    theta[k] = ((6*self.pi*self.pi*self.natoms*self.voleqmin[k]*self.voleqmin[k])**self.third) / self.pckbau * self.poissonratiofunction * math.sqrt(self.udyn[k]/self.cellmassval)
+                    theta[k] = ((6*self.pi*self.pi*self.natoms*self.voleqmin[k]*self.voleqmin[k])**self.third) / self.pckbau * self.poissonratiofunction * math.sqrt(self.d2EnergydVolume2_dynamic[k]/self.cellmassval)
                     self.thermal_energ, self.thermal_entropy, self.thermal_helmholtz, self.thermal_cv, D, Derr = eos_thermal_functions_inst.thermal(theta[k], self.temperature[j], self.natoms, self.pckbau, self.maxloops, self.logstr)
                     Uvib = self.thermal_energ
                     Cv[k] = self.thermal_cv
@@ -1269,7 +1279,7 @@ class eos_thermal_properties:
             self.outstr = self.outstr +  "    T(K) \t V(bohr^3) \t G(kJ/mol) \t U(kJ/mol) \t S(J/mol K) \t Cv(J/mol K) \n"
             self.outstr = self.outstr +  " -------------------------------------------------------------------------------------------- \n"
             for j in xrange(self.ntemperature):
-                self.outstr = self.outstr + '  ' + str(self.temperature[j]).rjust(6) + "\t" + str(vol0p[j]).rjust(10)[:10] + "\t" + str(g0p[j]).rjust(10)[:10] + "\t" + str(self.uvib0p[j]).rjust(10)[:10] + "\t " + str(self.ent0p[j]).rjust(10)[:10] + "\t  " + str(self.cv0p[j]).rjust(10)[:10] + "\n"
+                self.outstr = self.outstr + '  ' + str(self.temperature[j]).rjust(6) + "\t" + str(self.vol0p[j]).rjust(10)[:10] + "\t" + str(g0p[j]).rjust(10)[:10] + "\t" + str(self.uvib0p[j]).rjust(10)[:10] + "\t " + str(self.ent0p[j]).rjust(10)[:10] + "\t  " + str(self.cv0p[j]).rjust(10)[:10] + "\n"
             self.outstr = self.outstr + "\n"
             self.outstr = self.outstr + "OTHER THERMODYNAMIC PROPERTIES AT P=0 \n"
             self.outstr = self.outstr + "===================================== \n"
@@ -1277,7 +1287,7 @@ class eos_thermal_properties:
             self.outstr = self.outstr + "    T(K) \t B0(GPa) \t     B0' \t B0''(GPa-1) \t   Bs(GPa) \t alpha(10^5/K) \n"
             self.outstr = self.outstr + " -------------------------------------------------------------------------------------------------- \n"
             for j in xrange(self.ntemperature):
-                self.outstr = self.outstr + '  ' + str(self.temperature[j]).rjust(6) + "\t" + str(b0p[j]).rjust(8)[:8] + "\t" + str(bp0p[j]).rjust(8)[:8] + "\t  " + str(bpp0p[j]).rjust(10)[:10] + "\t" + str(self.bs0p[j]).rjust(10)[:10] + "\t  " + str(self.a0p[j]*100000.0).rjust(12)[:12] + "\n"
+                self.outstr = self.outstr + '  ' + str(self.temperature[j]).rjust(6) + "\t" + str(self.b0p[j]).rjust(8)[:8] + "\t" + str(bp0p[j]).rjust(8)[:8] + "\t  " + str(bpp0p[j]).rjust(10)[:10] + "\t" + str(self.bs0p[j]).rjust(10)[:10] + "\t  " + str(self.a0p[j]*100000.0).rjust(12)[:12] + "\n"
             if self.ieos == 5 or self.ieos == 6:
                 self.outstr = self.outstr + "\n"
                 self.outstr = self.outstr + "SPINODAL PROPERTIES \n"
@@ -1343,9 +1353,9 @@ class eos_thermal_properties:
             b1 = self.third * (2.0 - xeqmin * tmp2)
             b2 = -self.voleqmin[k] * (tmp2*(1.0-xeqmin*tmp2) - xeqmin*xeqmin*f4/tmp) / (self.au2gpa*tmp)
             if k == 0:
-                self.bu0 = self.bulkmod[k]
-                self.bu1 = b1
-                self.bu2 = b2
+                self.bulkmod0pres = self.bulkmod[k]
+                self.dbulkmoddp0pres = b1
+                self.d2bulkmoddp20pres = b2
             if self.ieos >= 0:
                 self.outstr = self.outstr + '  ' + str(self.pressure[k]).rjust(6) + '\t' + str(self.voleqmin[k]).rjust(10)[:10] + '\t' + str(self.voleqmin[k]/self.voleqmin[0]).rjust(8)[:8] + '\t' + str(pt).rjust(10)[:10] + '\t' + str(self.bulkmod[k]).rjust(10)[:10] + '\t' + str(b1).rjust(6)[:6] + '\t     ' + str(b2).rjust(7)[:7] + '\n'
         #
@@ -1365,7 +1375,7 @@ class eos_thermal_properties:
                 f2 = eos_polynomial_inst.polin2(self.xconfigvector[i], nepol, epol)
                 tmp = self.xconfigvector[i] * f2 - 2.0 * f1
                 v3 = 3.0 * self.vol_inp[i]
-                self.uder.append(tmp * self.xconfigvector[i] / (v3*v3))
+                self.d2EnergydVolume2_static.append(tmp * self.xconfigvector[i] / (v3*v3))
                 if self.ieos >= 0:
                     self.outstr = self.outstr + '  ' + str(self.vol_inp[i]).rjust(10)[:10] + '\t ' + str(self.energ_inp[i]).rjust(14)[:14] + '\t    ' + str(f0).rjust(14)[:14] + '\n'
             #
@@ -1381,7 +1391,7 @@ class eos_thermal_properties:
                 v3 = 3.0 * self.voleqmin[k]
                 self.pstatic[k] = -f1*self.au2gpa * xeqmin / v3
                 tmp = xeqmin * f2 - 2.0 * f1
-                self.udyn[k] = tmp * xeqmin / (v3*v3)
+                self.d2EnergydVolume2_dynamic[k] = tmp * xeqmin / (v3*v3)
                 tmp2 = f2 - xeqmin * f3
                 self.gamma_G[k] = (1.0 + xeqmin * tmp2 / tmp)/6.0
         return
@@ -1409,8 +1419,8 @@ class eos_thermal_properties:
         #
         logh = [0.0 for k in range(self.npressure)]
         x = [0.0 for k in range(self.npressure)]
-        db = []
-        d2b = []
+        dbdp = []
+        d2bdp2 = []
         sumz = 0.0
         sumy = 0.0
         sumzy = 0.0
@@ -1439,23 +1449,23 @@ class eos_thermal_properties:
         #
         #.....obtain B0, B0', B0''
         #
-        self.bu0 = math.exp(lnb0)
-        self.bu1 = 2.0*A*self.third+1.0
-        self.bu2 = -(2.0+A*(A+6.0))/(9.0*self.bu0)
+        self.bulkmod0pres = math.exp(lnb0)
+        self.dbulkmoddp0pres = 2.0*A*self.third+1.0
+        self.d2bulkmoddp20pres = -(2.0+A*(A+6.0))/(9.0*self.bulkmod0pres)
         #
         #.....save static values
         #
         if statcalc:
             self.g00k = gfe0pres
             self.v00k = vol0pres
-            self.b00k = self.bu0/self.au2gpa
+            self.b00k = self.bulkmod0pres/self.au2gpa
             self.A00k = A
         #
         #.....Compute Pfit(P), B(P), B'(P), and B''(P)
         #
-        self.bulkmod[0] = self.bu0
-        db.append(self.bu1)
-        d2b.append(self.bu2)
+        self.bulkmod[0] = self.bulkmod0pres
+        dbdp.append(self.dbulkmoddp0pres)
+        d2bdp2.append(self.d2bulkmoddp20pres)
         self.pfit[0] = 0.0
         i = 1
         while i < self.npressure:
@@ -1468,10 +1478,10 @@ class eos_thermal_properties:
             f2f0 = f2x / f0x
             fnw = 1.0 - x[i] * f1f0
             x2inv = 1.0 / (x[i]*x[i])
-            b0exp = self.bu0 * math.exp(a1x)
+            b0exp = self.bulkmod0pres * math.exp(a1x)
             self.bulkmod[i] = -b0exp * f0x * x2inv
-            db.append(self.third * (ax1+fnw))
-            d2b.append(x[i]/(9.0*self.bulkmod[i]) * (x[i]*f2f0 - A + f1f0*fnw))
+            dbdp.append(self.third * (ax1+fnw))
+            d2bdp2.append(x[i]/(9.0*self.bulkmod[i]) * (x[i]*f2f0 - A + f1f0*fnw))
             self.pfit[i] = 3.0 * (1.0-x[i]) * x2inv * b0exp
             i = i + 1
         #
@@ -1484,9 +1494,9 @@ class eos_thermal_properties:
         self.outstr = self.outstr + "  1-V/V0 \t Vinet-Func \t P(GPa) \t Pfit(GPa) \t    B(GPa) \t        B' \t  B''(GPa-1) \n"
         self.outstr = self.outstr + " ------------------------------------------------------------------------------------------------------------ \n"
         for i in xrange(self.npressure):
-            self.outstr = self.outstr + '  ' + str(1.0-x[i]).rjust(6)[:6] + "\t " + str(logh[i]).rjust(10)[:10] + "\t " + str(self.pressure[i]).rjust(6)[:6] + "\t        " + str(self.pfit[i]).rjust(10)[:10] + "\t" + str(self.bulkmod[i]).rjust(10)[:10] + "\t" + str(db[i]).rjust(10)[:10] + "\t  " + str(d2b[i]).rjust(10)[:10] + "\n"
+            self.outstr = self.outstr + '  ' + str(1.0-x[i]).rjust(6)[:6] + "\t " + str(logh[i]).rjust(10)[:10] + "\t " + str(self.pressure[i]).rjust(6)[:6] + "\t        " + str(self.pfit[i]).rjust(10)[:10] + "\t" + str(self.bulkmod[i]).rjust(10)[:10] + "\t" + str(dbdp[i]).rjust(10)[:10] + "\t  " + str(d2bdp2[i]).rjust(10)[:10] + "\n"
             self.outstr = self.outstr + "\n"
-            self.outstr = self.outstr + "B0 = " + str(self.bu0) + ", B0' = " + str(self.bu1) + ", B0'' = " + str(self.bu2)  + " reg.coef = " + str(rfit) + "\n"
+            self.outstr = self.outstr + "B0 = " + str(self.bulkmod0pres) + ", B0' = " + str(self.dbulkmoddp0pres) + ", B0'' = " + str(self.d2bulkmoddp20pres)  + " reg.coef = " + str(rfit) + "\n"
             self.outstr = self.outstr + "\n"
 
         #
@@ -1499,7 +1509,7 @@ class eos_thermal_properties:
                 f0x = x00k * (1.0-a1x) - 2.0
                 b0exp = self.b00k * math.exp(a1x)
                 self.ust.append(self.g00k + 9.0*self.v00k/(self.A00k*self.A00k) * (b0exp*(a1x-1.0)+self.b00k))
-                self.uder.append(-f0x / (x00k*x00k*self.vol_inp[i]) * b0exp)
+                self.d2EnergydVolume2_static.append(-f0x / (x00k*x00k*self.vol_inp[i]) * b0exp)
             #
             #.......Print input and fitted values of the lattice energy.
             #
@@ -1528,7 +1538,7 @@ class eos_thermal_properties:
                 x2inv = 1.0 / (x00k*x00k)
                 b0exp = self.b00k * math.exp(a1x)
                 self.pstatic[i] = 3.0 * (1.0-x00k) * x2inv * b0exp * self.au2gpa
-                self.udyn[i] = -f0x * x2inv * x2inv / (x00k*self.v00k) * b0exp
+                self.d2EnergydVolume2_dynamic[i] = -f0x * x2inv * x2inv / (x00k*self.v00k) * b0exp
                 self.gamma_G[i] = (ax1 + fnw - 1.0)/6.0
         return
 
@@ -1556,17 +1566,17 @@ class eos_thermal_properties:
     #  vinp()  : Initial values of the volume (bohr^3/mol). common /input/.
     #  statcalc: Logical variable that determines if the calculation is
     #            static or dynamic. In the first case the second derivative
-    #            of the static energy (uder) is computed for all the input
+    #            of the static energy (d2EnergydVolume2_static) is computed for all the input
     #            values of the volume. In the second case the second
-    #            derivative of the static energy (udyn) is computed for
+    #            derivative of the static energy (d2EnergydVolume2_dynamic) is computed for
     #            the equilibrium volumes at the different pressures.
     #
     # -----OUTPUT
     #  pstatic() : Static pressures in GPa (only on dynamic calculations).
-    #  uder()  : Second derivative of ust(k) for each vinp(). Hy/bohr^6
-    #  udyn()  : Second derivative of ust(k) for each V(). Hy/bohr^6
+    #  d2EnergydVolume2_static()  : Second derivative of ust(k) for each vinp(). Hy/bohr^6
+    #  d2EnergydVolume2_dynamic()  : Second derivative of ust(k) for each V(). Hy/bohr^6
     #  rms     : Root mean square deviation.
-    #  bu0,bu1,bu2 : Bulk modulus and their derivatives at P=0.
+    #  bulkmod0pres,dbulkmoddp0pres,d2bulkmoddp20pres : Bulk modulus and their derivatives at P=0.
     #
     # .....The output is stored in common /eos/
     #
@@ -1577,7 +1587,7 @@ class eos_thermal_properties:
         tol = 1e-12
         npresm2 = self.npressure - 2
         izero = 0
-        if iG > self.maiG:
+        if iG > self.birchfitorder_iG:
             self.logstr = self.logstr + "MP Eqn of State Thermal birch : Too high fitting order \n"
             self.brerr = 1
             return
@@ -1585,62 +1595,62 @@ class eos_thermal_properties:
             self.logstr = self.logstr + "MP Eqn of State Thermal birch : P(0) must be 0.0 \n"
             self.brerr = 1
             return
-        acoef = [0.0 for i in range(self.maiG+1)]
-        fstr = []
-        ybir = []
+        birchcoef = [0.0 for i in range(self.birchfitorder_iG+1)]
+        fbirch = []
+        ybirch = []
         weight = []
-        db = []
-        d2b = []
+        dbdp = [0.0 for i in range(self.npressure)]
+        d2bdp2 = [0.0 for i in range(self.npressure)]
         #
         # .....Compute the Birch function F and strain variable f.
         #
         weight.append(0.0)
         i = 1
         while i < self.npressure:
-            rr0 = (self.voleqmin[i]/vol0pres)**self.third
-            fstr.append((rr0**(-2)-1)/2.0)
-            ybir.append(self.pressure[i]/self.au2gpa/(3*fstr[i-1]*((1+2*fstr[i-1]**2.5))))
+            x0birch = (self.voleqmin[i]/vol0pres)**self.third
+            fbirch.append((x0birch**(-2)-1)/2.0)
+            ybirch.append(self.pressure[i]/self.au2gpa/(3*fbirch[i-1]*((1+2*fbirch[i-1]**2.5))))
             weight.append(1.0)
             i = i + 1
         #
         # .....Fitting to a polynomial of order iG.
         #
         eos_polynomial_inst = eos_polynomial()
-        rms, acoef = eos_polynomial_inst.polfit(izero, npresm2, fstr, ybir, weight, iG)
+        rms, birchcoef = eos_polynomial_inst.polfit(izero, npresm2, fbirch, ybirch, weight, iG)
         #
         # .....Compute B0,B0',B0''.
         #
-        self.bu0 = acoef[0]*self.au2gpa
+        self.bulkmod0pres = birchcoef[0]*self.au2gpa
         if iG == 0:
-            self.bu1 = 4.0
-            self.bu2 = -35.0/(9.0*self.bu0)
+            self.dbulkmoddp0pres = 4.0
+            self.d2bulkmoddp20pres = -35.0/(9.0*self.bulkmod0pres)
         elif iG == 1:
-            self.bu1 = 4.0+2.0*acoef[1]*self.au2gpa/(3.0*self.bu0)
-            self.bu2 = (-self.bu1*(self.bu1-7.0)-143.0/9.0)/self.bu0
+            self.dbulkmoddp0pres = 4.0+2.0*birchcoef[1]*self.au2gpa/(3.0*self.bulkmod0pres)
+            self.d2bulkmoddp20pres = (-self.dbulkmoddp0pres*(self.dbulkmoddp0pres-7.0)-143.0/9.0)/self.bulkmod0pres
         elif iG >= 2:
-            self.bu1 = 4.0+2.0*acoef[1]*self.au2gpa/(3.0*self.bu0)
-            self.bu2 = (2.0*acoef[2]/(self.bu0*3.0)-self.bu1*(self.bu1-7.0)-143.0/9.0)/self.bu0
+            self.dbulkmoddp0pres = 4.0+2.0*birchcoef[1]*self.au2gpa/(3.0*self.bulkmod0pres)
+            self.d2bulkmoddp20pres = (2.0*birchcoef[2]/(self.bulkmod0pres*3.0)-self.dbulkmoddp0pres*(self.dbulkmoddp0pres-7.0)-143.0/9.0)/self.bulkmod0pres
         #
-        # .....Compute B(P), B'(P), and B''(P). (b(), db(), and d2b().
+        # .....Compute B(P), B'(P), and B''(P). (b(), dbdp(), and d2bdp2().
         #
         for i in xrange(self.npressure):
             if i == 0:
                 self.pfit[i] = 0.0
-                self.bulkmod[i] = self.bu0
-                db.append(self.bu1)
-                d2b.append(self.bu2)
+                self.bulkmod[i] = self.bulkmod0pres
+                dbdp[i] = self.dbulkmoddp0pres
+                d2bdp2[i] = self.d2bulkmoddp20pres
             else:
-                st = fstr[i-1]
+                st = fbirch[i-1]
                 stsq = math.sqrt(1.0+2.0*st)
                 s2 = stsq*stsq
                 st32 = stsq*s2
                 st52 = st32*s2
-                pol0 = eos_polynomial_inst.polin0(st, iG, acoef)
-                pol1 = eos_polynomial_inst.polin1(st, iG, acoef)
-                pol2 = eos_polynomial_inst.polin2(st, iG, acoef)
+                pol0 = eos_polynomial_inst.polin0(st, iG, birchcoef)
+                pol1 = eos_polynomial_inst.polin1(st, iG, birchcoef)
+                pol2 = eos_polynomial_inst.polin2(st, iG, birchcoef)
                 pol3 = 0.0
                 if iG > 2:
-                    pol3 = eos_polynomial_inst.polin3(st, iG, acoef)
+                    pol3 = eos_polynomial_inst.polin3(st, iG, birchcoef)
                 #
                 # .........Fitted pressure and B(P).
                 #
@@ -1652,7 +1662,7 @@ class eos_thermal_properties:
                 #
                 # .........B'(P).
                 #
-                db.append((5*sum1+sum2)/den)
+                dbdp[i] = (5*sum1+sum2)/den
                 d2bdf2 = 25*stsq*(st*s2*pol1+(1.0+7.0*st)*pol0)
                 d2bdf2 = d2bdf2+10.0*st32*((2.0+11.0*st)*pol1+7*pol0+st*s2*pol2)
                 d2bdf2 = d2bdf2+st52*((3.0+15.0*st)*pol2+18*pol1+st*s2*pol3)
@@ -1662,9 +1672,9 @@ class eos_thermal_properties:
                 #
                 # .........B''(P).
                 #
-                d2b.append((den*d2bdf2-(5*sum1+sum2)*d2pdf2)/(den**3))
+                d2bdp2[i] = (den*d2bdf2-(5*sum1+sum2)*d2pdf2)/(den**3)
                 self.bulkmod[i] = self.bulkmod[i]*self.au2gpa
-                d2b[i] = d2b[i]/self.au2gpa
+                d2bdp2[i] = d2bdp2[i]/self.au2gpa
         #
         # .....Output.
         #
@@ -1676,11 +1686,11 @@ class eos_thermal_properties:
         self.outstr = self.outstr + " ----------------------------------------------------------------------------------------------------------- \n"
         for i in xrange(self.npressure):
             if i == 0:
-                self.outstr = self.outstr + '  ' + str(0.0).rjust(6)[:6] + "\t " + str(self.bu0/self.au2gpa).rjust(10)[:10] + "\t " + str(self.pressure[i]).rjust(6)[:6] + "\t    " + str(self.pfit[i]).rjust(14)[:14] + "\t" + str(self.bulkmod[i]).rjust(10)[:10] + "\t" + str(db[i]).rjust(10)[:10] + "\t " + str(d2b[i]).rjust(10)[:10] + "\n"
+                self.outstr = self.outstr + '  ' + str(0.0).rjust(6)[:6] + "\t " + str(self.bulkmod0pres/self.au2gpa).rjust(10)[:10] + "\t " + str(self.pressure[i]).rjust(6)[:6] + "\t    " + str(self.pfit[i]).rjust(14)[:14] + "\t" + str(self.bulkmod[i]).rjust(10)[:10] + "\t" + str(dbdp[i]).rjust(10)[:10] + "\t " + str(d2bdp2[i]).rjust(10)[:10] + "\n"
             else:
-                self.outstr = self.outstr + '  ' + str(fstr[i-1]).rjust(6)[:6] + "\t " + str(ybir[i-1]).rjust(10)[:10] + "\t " + str(self.pressure[i]).rjust(6)[:6] + "\t    " + str(self.pfit[i]).rjust(14)[:14] + "\t" + str(self.bulkmod[i]).rjust(10)[:10] + "\t" +  str(db[i]).rjust(10)[:10] + "\t " +  str(d2b[i]).rjust(10)[:10] + "\n"
+                self.outstr = self.outstr + '  ' + str(fbirch[i-1]).rjust(6)[:6] + "\t " + str(ybirch[i-1]).rjust(10)[:10] + "\t " + str(self.pressure[i]).rjust(6)[:6] + "\t    " + str(self.pfit[i]).rjust(14)[:14] + "\t" + str(self.bulkmod[i]).rjust(10)[:10] + "\t" +  str(dbdp[i]).rjust(10)[:10] + "\t " +  str(d2bdp2[i]).rjust(10)[:10] + "\n"
         self.outstr = self.outstr + "\n"
-        self.outstr = self.outstr + "B0 = " + str(self.bu0) + ", B0' = " + str(self.bu1) + ", B0'' = " + str(self.bu2) + ", reg.coef = " + str(rms) + "\n"
+        self.outstr = self.outstr + "B0 = " + str(self.bulkmod0pres) + ", B0' = " + str(self.dbulkmoddp0pres) + ", B0'' = " + str(self.d2bulkmoddp20pres) + ", reg.coef = " + str(rms) + "\n"
         self.outstr = self.outstr + "\n"
         if statcalc:
             #
@@ -1691,10 +1701,10 @@ class eos_thermal_properties:
             self.v00k = vol0pres
             self.g00k = gfe0pres
             for k in xrange(iG + 1):
-                self.astatic.append(acoef[k])
+                self.astatic[k] = birchcoef[k]
             for k in xrange(self.ndata):
                 self.ust.append(self.g00k)
-                self.uder.append(0.0)
+                self.d2EnergydVolume2_static.append(0.0)
                 st = (self.vol_inp[k]/self.v00k)**self.third
                 st = ((st**(-2))-1)/2.0
                 s2 = (1.0+2.0*st)
@@ -1703,7 +1713,7 @@ class eos_thermal_properties:
                 v9 = 9.0*self.v00k
                 for j in xrange(iG + 1):
                     self.ust[k] = self.ust[k]+v9*self.astatic[j]/(j+2)*(st**(j+2))
-                self.uder[k] = s2*s2*s2*s2/self.v00k*(st*s2*pol1+(1.0+7.0*st)*pol0)
+                self.d2EnergydVolume2_static[k] = s2*s2*s2*s2/self.v00k*(st*s2*pol1+(1.0+7.0*st)*pol0)
             #
             # .......Print input and fitted values of the lattice energy.
             #
@@ -1715,7 +1725,7 @@ class eos_thermal_properties:
             self.outstr = self.outstr + " -------------------------------------------------- \n"
             for i in xrange(self.ndata):
                 self.outstr = self.outstr + '  ' +  str(self.vol_inp[i]).rjust(10)[:10] + "\t " + str(self.energ_inp[i]).rjust(14)[:14] + "\t    " + str(self.ust[i]).rjust(14)[:14] + "\n"
-            self.bmcoeffs_static = acoef
+            self.bmcoeffs_static = birchcoef
             return
         else:
             #
@@ -1736,12 +1746,12 @@ class eos_thermal_properties:
                     pol3 = polin3(st, iG, self.astatic)
                 self.pstatic[k] = self.au2gpa*3.0*st*(s2**2.5)*pol0
                 tmp = (1.0+7.0*st)*pol0 + st*s2*pol1
-                self.udyn[k] = s22*s22 / self.v00k * tmp
+                self.d2EnergydVolume2_dynamic[k] = s22*s22 / self.v00k * tmp
                 tmp = 1.0 / tmp
                 tmp2 = s2*tmp * (7.0*pol0 + (2.0+11.0*st)*pol1 + st*s2*pol2)
                 v3 = self.voleqmin[k] / (3.0*self.v00k)
                 self.gamma_G[k] = -2.0*self.third + 0.5*s2*math.sqrt(s2)*v3*(8.0+tmp2)
-            self.bmcoeffs_dynamic.append(acoef)
+#            self.bmcoeffs_dynamic.append(birchcoef)
         #
         # .....end
         #
@@ -1787,8 +1797,8 @@ class eos_thermal_properties:
         maxnl = 100
         tol = 1e-12
         self.volp0 = vol0pres
-        db = []
-        d2b = []
+        dbdp = []
+        d2bdp2 = []
         xg = [0.0 for i in range(maxnl)]
         wg = [0.0 for i in range(maxnl)]
         #
@@ -1812,10 +1822,10 @@ class eos_thermal_properties:
         #
         xx = math.exp((self.gbao-1)*math.log(x_Psp))
         self.xmopt = self.xkopt/xx/(1.0-self.gbao)
-        self.bu0 = xx * x_Psp / self.xkopt
-        self.bu1 = self.gbao * self.bu0 / x_Psp
-        self.bu2 = self.gbao * (self.gbao - 1.0) * self.bu0 / x_Psp / x_Psp
-        vsp = vol0pres * math.exp(self.gbao/(1-self.gbao)/self.bu1)
+        self.bulkmod0pres = xx * x_Psp / self.xkopt
+        self.dbulkmoddp0pres = self.gbao * self.bulkmod0pres / x_Psp
+        self.d2bulkmoddp20pres = self.gbao * (self.gbao - 1.0) * self.bulkmod0pres / x_Psp / x_Psp
+        vsp = vol0pres * math.exp(self.gbao/(1-self.gbao)/self.dbulkmoddp0pres)
         self.pspin = x_Psp
         self.xsupa = self.xkopt
         self.vspin = vsp
@@ -1825,7 +1835,7 @@ class eos_thermal_properties:
         #
         if statcalc:
             self.g00k = gfe0pres
-            self.b00k = self.bu0/self.au2gpa
+            self.b00k = self.bulkmod0pres/self.au2gpa
             self.v00k = vol0pres
             self.vsp0k = vsp
             self.xkopt0 = self.xkopt
@@ -1841,8 +1851,8 @@ class eos_thermal_properties:
             self.pfit[i] = x_Psp * (math.exp(ug*math.log(xxx)) - 1.0)
             xdu = math.exp((self.gbao-1)*math.log(self.pressure[i]+x_Psp))
             self.bulkmod[i] = xdu * (self.pressure[i]+x_Psp) / self.xkopt
-            db.append(self.gbao * xdu / self.xkopt)
-            d2b.append(self.gbao * (self.gbao - 1) * xdu / self.xkopt / (self.pressure[i]+x_Psp))
+            dbdp.append(self.gbao * xdu / self.xkopt)
+            d2bdp2.append(self.gbao * (self.gbao - 1) * xdu / self.xkopt / (self.pressure[i]+x_Psp))
         #
         # .....output
         #
@@ -1853,12 +1863,12 @@ class eos_thermal_properties:
         self.outstr = self.outstr + "  P(GPa) \t Pfit(GPa) \t    B(GPa) \t      B' \t B''(GPa-1) \n"
         self.outstr = self.outstr + " --------------------------------------------------------------------------- \n"
         for i in xrange(self.npressure):
-            self.outstr = self.outstr + '  ' + str(self.pressure[i]).rjust(6)[:6] + "\t" + str(self.pfit[i]).rjust(10)[:10] + "\t" + str(self.bulkmod[i]).rjust(10)[:10] +  "\t" + str(db[i]).rjust(8)[:8] + "\t " + str(d2b[i]).rjust(10)[:10] + "\n"
+            self.outstr = self.outstr + '  ' + str(self.pressure[i]).rjust(6)[:6] + "\t" + str(self.pfit[i]).rjust(10)[:10] + "\t" + str(self.bulkmod[i]).rjust(10)[:10] +  "\t" + str(dbdp[i]).rjust(8)[:8] + "\t " + str(d2bdp2[i]).rjust(10)[:10] + "\n"
         self.outstr = self.outstr + "\n"
         if self.opt_g:
-            self.outstr = self.outstr + "B0 = " + str(self.bu0) + ", B0' = " + str(db[0]) + ", B0'' = " + str(d2b[0]) + ", reg.coef = " + str(desv) + ", Vsp = " + str(vsp) + ", -Psp = " + str(x_Psp) + ", K* = " + str(self.xkopt) + ", gamma = " + str(self.gbao) + "\n"
+            self.outstr = self.outstr + "B0 = " + str(self.bulkmod0pres) + ", B0' = " + str(dbdp[0]) + ", B0'' = " + str(d2bdp2[0]) + ", reg.coef = " + str(desv) + ", Vsp = " + str(vsp) + ", -Psp = " + str(x_Psp) + ", K* = " + str(self.xkopt) + ", gamma = " + str(self.gbao) + "\n"
         else:
-            self.outstr = self.outstr + "B0 = " + str(self.bulkmod[0]) + ", B0' = " + str(db[0]) + ", B0'' = " + str(d2b[0]) + ", reg.coef = " + str(desv) + ", Vsp = " + str(vsp) + ", -Psp = " + str(x_Psp) + ", K* = " + str(self.xkopt) + ", gamma = " + str(self.gbao) + "\n"
+            self.outstr = self.outstr + "B0 = " + str(self.bulkmod[0]) + ", B0' = " + str(dbdp[0]) + ", B0'' = " + str(d2bdp2[0]) + ", reg.coef = " + str(desv) + ", Vsp = " + str(vsp) + ", -Psp = " + str(x_Psp) + ", K* = " + str(self.xkopt) + ", gamma = " + str(self.gbao) + "\n"
         #
         # .....Static calculation: get static energy and its second derivative.
         #
@@ -1895,7 +1905,7 @@ class eos_thermal_properties:
                     sum0 = sum
                     nl = nl + 5
                 self.ust.append(self.g00k + sum / self.au2gpa)
-                self.uder.append(self.x_Psp0 / (self.xmopt0 * self.vol_inp[i] * (1.0 - self.gbao0)) * math.exp(auxg2*math.log(x)) / self.au2gpa)
+                self.d2EnergydVolume2_static.append(self.x_Psp0 / (self.xmopt0 * self.vol_inp[i] * (1.0 - self.gbao0)) * math.exp(auxg2*math.log(x)) / self.au2gpa)
             #
             # .......Print input and fitted values of the lattice energy.
             #
@@ -1917,7 +1927,7 @@ class eos_thermal_properties:
                 ug = 1.0/(1.0-self.gbao0)
                 auxg2 = self.gbao0/(1.0-self.gbao0)
                 self.pstatic[i] = self.x_Psp0 * (math.exp(ug*math.log(xxx)) - 1.0)
-                self.udyn[i] = self.x_Psp0 / (self.xmopt0 * self.v00k * (1.0 - self.gbao0)) * math.exp(-self.xmopt0*(1.0-xxx)) * math.exp(auxg2*math.log(xxx)) / self.au2gpa
+                self.d2EnergydVolume2_dynamic[i] = self.x_Psp0 / (self.xmopt0 * self.v00k * (1.0 - self.gbao0)) * math.exp(-self.xmopt0*(1.0-xxx)) * math.exp(auxg2*math.log(xxx)) / self.au2gpa
                 self.gamma_G[i] = -1.0/6.0 + self.gbao0 * ug / 2.0/ self.xmopt0 / xxx
         #
         # .....end
