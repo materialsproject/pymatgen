@@ -21,14 +21,13 @@ import glob
 from monty.serialization import loadfn, dumpfn
 from monty.json import MontyEncoder, MontyDecoder
 from pymatgen.analysis.defects.point_defects import Vacancy
-from pymatgen.io.vasp.sets import MPGGAVaspInputSet
+from pymatgen.io.vasp.sets import MPRelaxSet
 from pymatgen.io.vasp import Kpoints
 from pymatgen.io.vasp import Vasprun
 from pymatgen.matproj.rest import MPRester
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.defects.dilute_solution_model import \
             compute_defect_density, solute_defect_density
-
 
 
 def get_sc_scale(inp_struct, final_site_no):
@@ -62,7 +61,7 @@ def vac_antisite_def_struct_gen(args):
     conv_prim_rat = int(conv_struct_sites/prim_struct_sites)
     sc_scale = get_sc_scale(struct,cellmax)
 
-    mpvis = MPGGAVaspInputSet()
+    mpvis = MPRelaxSet(struct, user_incar_settings={"LDAU": False})
 
     # Begin defaults: All default settings.
     blk_vasp_incar_param = {'IBRION':-1,'EDIFF':1e-4,'EDIFFG':0.001,'NSW':0,}
@@ -73,7 +72,7 @@ def vac_antisite_def_struct_gen(args):
     
     ptcr_flag = True
     try:
-        potcar = mpvis.get_potcar(struct)
+        potcar = mpvis.potcar
     except:
         print ("VASP POTCAR folder not detected.\n" \
               "Only INCAR, POSCAR, KPOINTS are generated.\n" \
@@ -93,11 +92,12 @@ def vac_antisite_def_struct_gen(args):
 
     for i in range(len(scs)):
         sc = scs[i]
-        poscar = mpvis.get_poscar(sc)
+        mpvis = MPRelaxSet(sc, user_incar_settings={"LDAU": False})
+        poscar = mpvis.poscar
         kpoints = Kpoints.automatic_density(sc,kpoint_den)
-        incar = mpvis.get_incar(sc)
+        incar = mpvis.incar
         if ptcr_flag:
-            potcar = mpvis.get_potcar(sc)
+            potcar = mpvis.potcar
 
         interdir = mpid
         if not i:
@@ -141,8 +141,9 @@ def vac_antisite_def_struct_gen(args):
                 subspecie_symbol = specie.symbol
                 anti_struct = sc.copy()
                 anti_struct.append(specie, vac_site.frac_coords)
-                poscar = mpvis.get_poscar(anti_struct)
-                incar = mpvis.get_incar(anti_struct)
+                mpvis = MPRelaxSet(anti_struct, user_incar_settings={"LDAU": False})
+                poscar = mpvis.poscar
+                incar = mpvis.incar
                 incar.update(def_vasp_incar_param)
                 as_dir ='antisite_{}_mult-{}_sitespecie-{}_subspecie-{}'.format(
                         str(i), site_mult, vac_symbol, subspecie_symbol)
@@ -154,7 +155,7 @@ def vac_antisite_def_struct_gen(args):
                 poscar.write_file(os.path.join(fin_dir,'POSCAR'))
                 incar.write_file(os.path.join(fin_dir,'INCAR'))
                 if ptcr_flag:
-                        potcar.write_file(os.path.join(fin_dir,'POTCAR'))
+                    potcar.write_file(os.path.join(fin_dir,'POTCAR'))
                 kpoints.write_file(os.path.join(fin_dir,'KPOINTS'))
 
 
@@ -182,7 +183,7 @@ def substitute_def_struct_gen(args):
     conv_struct_sites = len(struct.sites)
     conv_prim_rat = int(conv_struct_sites/prim_struct_sites)
 
-    mpvis = MPGGAVaspInputSet()
+    mpvis = MPRelaxSet(struct, user_incar_settings={"LDAU": False})
 
     # Begin defaults: All default settings.
     blk_vasp_incar_param = {'IBRION':-1,'EDIFF':1e-4,'EDIFFG':0.001,'NSW':0,}
@@ -194,7 +195,7 @@ def substitute_def_struct_gen(args):
     # Check if POTCAR file can be geneated
     ptcr_flag = True
     try:
-        potcar = mpvis.get_potcar(struct)
+        potcar = mpvis.potcar
     except:
         print ("VASP POTCAR folder not detected.\n" \
               "Only INCAR, POSCAR, KPOINTS are generated.\n" \
@@ -228,12 +229,14 @@ def substitute_def_struct_gen(args):
         solute_struct = sc.copy()
         solute_struct.append(solute, vac_site.frac_coords)
 
-        incar = mpvis.get_incar(solute_struct)
+        mpvis = MPRelaxSet(solute_struct, user_incar_settings={"LDAU": False})
+
+        incar = mpvis.incar
         incar.update(def_vasp_incar_param)
-        poscar = mpvis.get_poscar(solute_struct)
+        poscar = mpvis.poscar
         kpoints = Kpoints.automatic_density(solute_struct,kpoint_den)
         if ptcr_flag:
-            potcar = mpvis.get_potcar(solute_struct)
+            potcar = mpvis.potcar
 
         sub_def_dir ='solute_{}_mult-{}_sitespecie-{}_subspecie-{}'.format(
                 str(i), site_mult, vac_specie, solute)
@@ -311,10 +314,10 @@ def solute_def_parse_energy(args):
                 })
     else:
         if not solutes:
-            print "Solute folders do not exist"
+            print("Solute folders do not exist")
             return {}
 
-        print ("Solute {} calculations successful for {}".format(solute,mpid))
+        print("Solute {} calculations successful for {}".format(solute,mpid))
         for solute in solutes:
             solute_flip_energy = solute['energy']-bulk_energy
             solute['energy'] = solute_flip_energy
@@ -329,7 +332,7 @@ def vac_antisite_def_parse_energy(args):
     mapi_key = args.mapi_key 
 
     if not mpid:
-        print ("============\nERROR: Provide an mpid\n============")
+        print("============\nERROR: Provide an mpid\n============")
         return 
 
     if not mapi_key:
@@ -391,7 +394,7 @@ def vac_antisite_def_parse_energy(args):
                 'site_multiplicity':site_multiplicity
                 })
     else:
-        print "All calculations successful for ", mpid
+        print("All calculations successful for ", mpid)
         e0 = bulk_energy/bulk_sites*structure.num_sites
         for vac in vacancies:
             vac_flip_energy = vac['energy']-bulk_energy
@@ -401,7 +404,7 @@ def vac_antisite_def_parse_energy(args):
             as_flip_energy = antisite['energy']-bulk_energy
             antisite['energy'] = as_flip_energy
         antisites.sort(key=lambda entry: entry['site_index'])
-        energy_dict[unicode(mpid)] = {u"structure":structure,
+        energy_dict[str(mpid)] = {u"structure":structure,
                 'e0':e0,'vacancies':vacancies,'antisites':antisites}
 
         fl_nm = args.mpid+'_raw_defect_energy.json'
@@ -429,11 +432,11 @@ def get_def_profile(args):
     antisites.sort(key=lambda entry: entry['site_index'])
     for vac_def in vacs:
         if not vac_def:
-            print 'All vacancy defect energies not present'
+            print('All vacancy defect energies not present')
             continue
     for antisite_def in antisites:
         if not antisite_def:
-            print 'All antisite defect energies not preset'
+            print('All antisite defect energies not preset')
             continue
 
     try:
@@ -482,15 +485,15 @@ def get_solute_def_profile(args):
 
     for vac_def in vacs:
         if not vac_def:
-            print 'All vacancy defect energies not present'
+            print('All vacancy defect energies not present')
             continue
     for antisite_def in antisites:
         if not antisite_def:
-            print 'All antisite defect energies not preset'
+            print('All antisite defect energies not preset')
             continue
     for solute_def in solutes:
         if not solute_def:
-            print 'All solute defect energies not preset'
+            print('All solute defect energies not preset')
             continue
 
     try:

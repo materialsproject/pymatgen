@@ -23,7 +23,7 @@ from pymatgen.core.composition import Composition
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
-from pymatgen.util.coord_utils_cython import pbc_shortest_vectors, is_coord_subset_pbc, det3x3
+from pymatgen.util.coord_utils_cython import pbc_shortest_vectors, is_coord_subset_pbc
 from pymatgen.util.coord_utils import lattice_points_in_supercell
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
@@ -400,7 +400,7 @@ class StructureMatcher(MSONable):
             target_lattice, ltol=self.ltol, atol=self.angle_tol,
             skip_rotation_matrix=True)
         for l, _, scale_m in lattices:
-            if abs(abs(det3x3(scale_m)) - supercell_size) < 0.5:
+            if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
                 yield l, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):

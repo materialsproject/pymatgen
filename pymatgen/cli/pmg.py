@@ -4,18 +4,6 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-
-"""
-A master convenience script with many tools for vasp and structure analysis.
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "3.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "Sep 9, 2014"
-
 import argparse
 import os
 import re
@@ -27,13 +15,14 @@ from collections import OrderedDict
 import glob
 import shutil
 import subprocess
+import itertools
 
 from six.moves import input
 
 from tabulate import tabulate, tabulate_formats
 
 from pymatgen import Structure
-from pymatgen.io.vasp import Outcar, Vasprun, Chgcar
+from pymatgen.io.vasp import Outcar, Vasprun, Chgcar, Incar
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
     VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
@@ -46,6 +35,18 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 
+"""
+A master convenience script with many tools for vasp and structure analysis.
+"""
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "4.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "ongsp@ucsd.edu"
+__date__ = "Aug 13 2016"
+
+
 SAVE_FILE = "vasp_data.gz"
 
 
@@ -54,8 +55,8 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
     Doc string.
     """
     if verbose:
-        FORMAT = "%(relativeCreated)d msecs : %(message)s"
-        logging.basicConfig(level=logging.INFO, format=FORMAT)
+        logformat = "%(relativeCreated)d msecs : %(message)s"
+        logging.basicConfig(level=logging.INFO, format=logformat)
 
     if not detailed:
         drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
@@ -223,8 +224,7 @@ def convert_fmt(args):
     out_filename = args.output_filename[0]
 
     try:
-        if iformat == "smart":
-            structure = Structure.from_file(filename)
+
         if iformat == "POSCAR":
             p = Poscar.from_file(filename)
             structure = p.structure
@@ -236,6 +236,8 @@ def convert_fmt(args):
             structure = r.get_structures(primitive=False)[0]
         elif iformat == "CSSR":
             structure = Cssr.from_file(filename).structure
+        else:
+            structure = Structure.from_file(filename)
 
         if oformat == "smart":
             structure.to(filename=out_filename)
@@ -376,7 +378,7 @@ def setup_potcar(args):
 
     print("Generating pymatgen resources directory...")
 
-    NAME_MAPPINGS = {
+    name_mappings = {
         "potpaw_PBE": "POT_GGA_PAW_PBE",
         "potpaw_PBE_52": "POT_GGA_PAW_PBE_52",
         "potpaw_PBE_54": "POT_GGA_PAW_PBE_54",
@@ -394,7 +396,7 @@ def setup_potcar(args):
 
     for (parent, subdirs, files) in os.walk(pspdir):
         basename = os.path.basename(parent)
-        basename = NAME_MAPPINGS.get(basename, basename)
+        basename = name_mappings.get(basename, basename)
         for subdir in subdirs:
             filenames = glob.glob(os.path.join(parent, subdir, "POTCAR*"))
             if len(filenames) > 0:
@@ -447,6 +449,31 @@ def setup_potcar(args):
     print("Start a new terminal to ensure that your environment variables "
           "are properly set.")
 
+
+def diff_incar(args):
+    filepath1 = args.filenames[0]
+    filepath2 = args.filenames[1]
+    incar1 = Incar.from_file(filepath1)
+    incar2 = Incar.from_file(filepath2)
+
+    def format_lists(v):
+        if isinstance(v, (tuple, list)):
+            return " ".join(["%d*%.2f" % (len(tuple(group)), i)
+                             for (i, group) in itertools.groupby(v)])
+        return v
+
+    d = incar1.diff(incar2)
+    output = [['SAME PARAMS', '', '']]
+    output.append(['---------------', '', ''])
+    output.extend([(k, format_lists(d['Same'][k]), format_lists(d['Same'][k]))
+                   for k in sorted(d['Same'].keys()) if k != "SYSTEM"])
+    output.append(['', '', ''])
+    output.append(['DIFFERENT PARAMS', '', ''])
+    output.append(['----------------', '', ''])
+    output.extend([(k, format_lists(d['Different'][k]['INCAR1']),
+                    format_lists(d['Different'][k]['INCAR2']))
+                   for k in sorted(d['Different'].keys()) if k != "SYSTEM"])
+    print(tabulate(output, headers=['', filepath1, filepath2]))
 
 
 def main():
@@ -610,6 +637,11 @@ def main():
                                  "matching.")
     parser_cmp.set_defaults(func=compare_structures)
 
+    parser_diffincar = subparsers.add_parser("diff_incar", help="Helpful diffing tool for INCARs")
+    parser_diffincar.add_argument("filenames", metavar="filenames", type=str,
+                            nargs=2, help="List of INCARs to compare.")
+    parser_diffincar.set_defaults(func=diff_incar)
+
     parser_generate = subparsers.add_parser("generate",
                                             help="Generate input files")
     parser_generate.add_argument("-f", "--functional", dest="functional",
@@ -651,7 +683,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        a = getattr(args, "func")
+        getattr(args, "func")
     except AttributeError:
         parser.print_help()
         sys.exit(0)

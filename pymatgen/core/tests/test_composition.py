@@ -159,6 +159,10 @@ class CompositionTest(PymatgenTest):
         all_formulas = [c.reduced_formula for c in self.comp]
         self.assertEqual(all_formulas, correct_reduced_formulas)
 
+        # test rounding
+        c = Composition({'Na': 2 - Composition.amount_tolerance / 2, 'Cl': 2})
+        self.assertEqual('NaCl', c.reduced_formula)
+
     def test_integer_formula(self):
         correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4',
                                     'Li2O2', 'Li3Fe2(MoO4)3',

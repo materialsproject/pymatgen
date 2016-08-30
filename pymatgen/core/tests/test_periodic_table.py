@@ -23,7 +23,7 @@ class ElementTestCase(PymatgenTest):
         for sym in fictional_symbols:
             self.assertRaises(ValueError, Element, sym)
 
-        #Test caching
+        # Test caching
         self.assertEqual(id(Element("Fe")), id(Element("Fe")))
 
     def test_dict(self):
@@ -161,6 +161,7 @@ class SpecieTestCase(PymatgenTest):
     def test_ionic_radius(self):
         self.assertEqual(self.specie2.ionic_radius, 78.5 / 100)
         self.assertEqual(self.specie3.ionic_radius, 92 / 100)
+        self.assertAlmostEqual(Specie("Mn", 4).ionic_radius, 0.67)
 
     def test_eq(self):
         self.assertEqual(self.specie1, self.specie3,

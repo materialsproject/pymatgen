@@ -93,8 +93,8 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
 
 
-    fcoords1 = lattice._lll_frac_coords(fcoords1)
-    fcoords2 = lattice._lll_frac_coords(fcoords2)
+    fcoords1 = lattice.get_lll_frac_coords(fcoords1)
+    fcoords2 = lattice.get_lll_frac_coords(fcoords2)
 
     cdef np.float_t[:, ::1] lat = np.array(lattice.lll_matrix, dtype=np.float_, copy=False, order='C')
 
@@ -271,24 +271,3 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8):
         raise ValueError("subset is not a subset of superset")
 
     return inds
-
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.initializedcheck(False)
-def det3x3(matrix):
-    cdef np.float_t[:, :] m_f
-    cdef np.long_t[:, :] m_l
-    cdef np.float_t o_64 = 0
-    cdef np.long_t o_l = 0
-
-    if matrix.dtype == np.float_:
-        m_f = matrix
-        o_64 = m_f[0, 0] * m_f[1, 1] * m_f[2, 2] + m_f[1, 0] * m_f[2, 1] * m_f[0, 2] + m_f[2, 0] * m_f[0, 1] * m_f[1, 2] \
-            - m_f[0, 2] * m_f[1, 1] * m_f[2, 0] - m_f[1, 2] * m_f[2, 1] * m_f[0, 0] - m_f[2, 2] * m_f[0, 1] * m_f[1, 0]
-        return o_64
-    if matrix.dtype == np.long:
-        m_l = matrix
-        o_l = m_l[0, 0] * m_l[1, 1] * m_l[2, 2] + m_l[1, 0] * m_l[2, 1] * m_l[0, 2] + m_l[2, 0] * m_l[0, 1] * m_l[1, 2] \
-            - m_l[0, 2] * m_l[1, 1] * m_l[2, 0] - m_l[1, 2] * m_l[2, 1] * m_l[0, 0] - m_l[2, 2] * m_l[0, 1] * m_l[1, 0]
-        return o_l
