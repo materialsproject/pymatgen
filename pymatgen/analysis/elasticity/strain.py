@@ -14,6 +14,7 @@ generating deformed structure sets for further calculations.
 from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.elasticity.tensors import SquareTensor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.elasticity import voigt_map
 import warnings
 import numpy as np
 from six.moves import zip
@@ -215,28 +216,36 @@ class Strain(SquareTensor):
             strain_matrix (3x3 array-like): the 3x3 array-like
                 representing the Green-Lagrange strain
         """
+        vscale = np.ones((6,))
+        vscale[3:] *= 2
+        obj = super(Strain, cls).__new__(cls, strain_matrix, vscale=vscale)
+        if dfm is None:
+            warnings.warn("Constructing a strain object without a deformation"
+                          " matrix may result in a non-independent "
+                          "deformation  Use Strain.from_deformation to "
+                          "construct a Strain from a deformation gradient.")
 
-        obj = SquareTensor(strain_matrix).view(cls)
-        obj._dfm = dfm
+            obj._dfm = convert_strain_to_deformation(obj)
+        else:
+            dfm = Deformation(dfm)
+            gls_test = 0.5 * (np.dot(dfm.trans, dfm) - np.eye(3))
+            if (gls_test - obj > 1e-10).any():
+                raise ValueError("Strain and deformation gradients "
+                                 "do not match!")
+            obj._dfm = Deformation(dfm)
+
         if not obj.is_symmetric():
             raise ValueError("Strain objects must be initialized "
-                             "with a symmetric array-like.")
-
-        if dfm is None:
-            warnings.warn("Constructing a strain object without a deformation "
-                          "matrix makes many methods unusable.  Use "
-                          "Strain.from_deformation to construct a Strain object"
-                          " from a deformation gradient.")
-        elif (np.array(dfm) - obj < 1e-5).all():
-            warnings.warn("Warning: deformation matrix does not correspond "
-                          "to input strain_matrix value")
-        return obj
+                             "with a symmetric array or a voigt-notation "
+                             "vector with six entries.")
+        return obj.view(cls)
 
     def __array_finalize__(self, obj):
         if obj is None:
             return
         self.rank = getattr(obj, "rank", None)
         self._dfm = getattr(obj, "_dfm", None)
+        self._vscale = getattr(obj, "_vscale", None)
 
     @classmethod
     def from_deformation(cls, deformation):
@@ -249,19 +258,7 @@ class Strain(SquareTensor):
         """
         dfm = Deformation(deformation)
         return cls(0.5 * (np.dot(dfm.trans, dfm) - np.eye(3)), dfm)
-
-    def get_def(self):
-        ftdotf = 2*self + np.eye(3)
-        eigs, eigvecs = np.linalg.eig(ftdotf)
-        rotated = ftdotf.rotate(np.transpose(eigvecs))
-        rotated = rotated.round(14)
-        defo = Deformation(np.sqrt(rotated))
-        result = defo.rotate(eigvecs)
-        if (result.green_lagrange_strain - self > 1e-6).any():
-            raise ValueError("Generated deformation does not "
-                             "correspond to input strain!")
-        return result
-
+    
     @property
     def deformation_matrix(self):
         """
@@ -277,32 +274,7 @@ class Strain(SquareTensor):
         Returns the index of the deformation gradient corresponding
         to the independent deformation
         """
-        if self._dfm is None:
-            raise ValueError("No deformation matrix supplied "
-                             "for this strain tensor.")
         return self._dfm.check_independent()
-
-    @property
-    def voigt(self):
-        """
-        translates a strain tensor into a voigt notation vector
-        """
-        new = np.array([self[v] for v in voigt_map])
-        new[3:] *= 2
-        return new
-
-    @classmethod
-    def from_voigt(cls, voigt_vec):
-        import itertools
-        from . import reverse_voigt_map
-        voigt_vec = np.array(voigt_vec)
-        voigt_vec[3:] *= 0.5
-        c = np.zeros((3, 3))
-        for ind in itertools.product(*[range(3)]*2):
-            v_ind = reverse_voigt_map[ind]
-            c[ind] = voigt_vec[v_ind]
-        return cls(c)
-
 
 
 class IndependentStrain(Strain):
@@ -346,6 +318,21 @@ class IndependentStrain(Strain):
     def j(self):
         return self._j
 
+def convert_strain_to_deformation(strain):
+    strain = SquareTensor(strain)
+    ftdotf = 2*strain + np.eye(3)
+    eigs, eigvecs = np.linalg.eig(ftdotf)
+    rotated = ftdotf.rotate(np.transpose(eigvecs))
+    rotated = rotated.round(14)
+    defo = Deformation(np.sqrt(rotated))
+    result = defo.rotate(eigvecs)
+    return result
 
 if __name__ == "__main__":
-    strain = Strain([[1.
+    from pymatgen.util.testing import PymatgenTest as pt
+    si = pt.get_structure("Si")
+    dss = DeformedStructureSet(si)
+    for defo in dss.deformations:
+        s = Strain.from_deformation(defo)
+        assert (defo - s.deformation_matrix < 1e-10).all()
+        

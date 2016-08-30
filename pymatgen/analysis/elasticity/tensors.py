@@ -27,6 +27,7 @@ from scipy.linalg import polar
 from scipy.linalg import sqrtm
 import numpy as np
 import itertools
+import warnings
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
@@ -54,13 +55,13 @@ class TensorBase(np.ndarray):
         obj = np.asarray(input_array).view(cls)
         obj.rank = len(obj.shape)
 
-        # Construct voigt notation map and scaling
-        def_vscale = np.ones([3]*(self.rank % 2) + [6]*(self.rank // 2))
-        obj._vscale = vscale or def_vscale
-        
-        if obj._vscale.shape != def_vscale.shape:
+        vshape = tuple([3]*(obj.rank % 2) + [6]*(obj.rank // 2))
+        obj._vscale = np.ones(vshape)
+        if vscale is not None:
+            obj._vscale = vscale
+        if obj._vscale.shape != vshape:
             raise ValueError("Voigt scaling matrix must be the shape of the "
-                             "voigt notation matrix.")
+                             "voigt notation matrix or vector.")
         if not all([i == 3 for i in obj.shape]):
             raise ValueError("Pymatgen only supports 3-dimensional tensors")
         return obj
@@ -189,33 +190,51 @@ class TensorBase(np.ndarray):
         voigt_map = get_voigt_dict(self.rank)
         for ind in voigt_map:
             v_matrix[voigt_map[ind]] = self[ind]
-        return v_matrix
+        if not self.is_voigt_symmetric():
+            warnings.warn("Tensor is not symmetric, so some information may "
+                          "be lost in voigt conversion.")
+        return v_matrix*self._vscale
 
-    @classmethod
-    def from_voigt(cls, voigt_matrix):
-        voigt_matrix = np.array(voigt_matrix)
-        if voigt_matrix.shape not in [(6,6), (3,6), (6,)]:
-            raise ValueError("Invalid shape for voigt matrix")
-        rank = sum(vm.shape) / 3
-        t = np.zeros([3]*rank)
-        voigt_map = get_voigt_dict(rank)
-        for ind in voigt_map:
-            t[ind] = voigt_matrix[voigt_map[ind]]
-        return cls(t)
+    @property
+    def is_voigt_symmetric(self):
+        """
+        """
+        transpose_pieces = [0 for i in range(self.rank % 2)]
+        transpose_pieces += [[range(j, j + 2)] for j in 
+                             range(len(transpose_pieces), self.rank, 2)]
+        for n, piece in enumerate(transpose_pieces):
+            if len(piece[0]) == 2:
+                transpose_pieces[n] += [piece[0][::-1]]
+        import pdb; pdb.set_trace()
 
     @staticmethod
     def get_voigt_dict(rank):
         """
-
         """
         vdict = {}
-        for ind in itertools.product(*[range(3)]*self.rank):
-            v_ind = ind[:self.rank % 2]
-            for j in range(self.rank // 2):
-                pos = self.rank % 2 + 2*j
+        for ind in itertools.product(*[range(3)]*rank):
+            v_ind = ind[:rank % 2]
+            for j in range(rank // 2):
+                pos = rank % 2 + 2*j
                 v_ind += (reverse_voigt_map[ind[pos:pos+2]],)
             vdict[ind] = v_ind
         return vdict
+        
+    @classmethod
+    def from_voigt(cls, voigt_matrix):
+        """
+        Constructor based on the voigt notation tensor.
+        """
+        voigt_matrix = np.array(voigt_matrix)
+        if voigt_matrix.shape not in [(6,6), (3,6), (6,)]:
+            raise ValueError("Invalid shape for voigt matrix")
+        rank = sum(voigt_matrix.shape) // 3
+        t = cls(np.zeros([3]*rank))
+        voigt_matrix /= t._vscale
+        voigt_map = t.get_voigt_dict(rank)
+        for ind in voigt_map:
+            t[ind] = voigt_matrix[voigt_map[ind]]
+        return t
 
     def convert_to_ieee(self, structure):
         """
@@ -301,7 +320,7 @@ class SquareTensor(TensorBase):
     (stress, strain etc.).
     """
 
-    def __new__(cls, input_array):
+    def __new__(cls, input_array, vscale=None):
         """
         Create a SquareTensor object.  Note that the constructor uses __new__
         rather than __init__ according to the standard method of
@@ -309,15 +328,17 @@ class SquareTensor(TensorBase):
         initialized with non-square matrix.
 
         Args:
-            stress_matrix (3x3 array-like): the 3x3 array-like
-                representing the Green-Lagrange strain
+            input_array (3x3 array-like): the 3x3 array-like
+                representing the content of the tensor
+            vscale (6x1 array-like): 6x1 array-like scaling the
+                voigt-notation vector with the tensor entries
         """
 
-        obj = TensorBase(input_array).view(cls)
+        obj = super(SquareTensor, cls).__new__(cls, input_array, vscale=vscale)
         if not (len(obj.shape) == 2):
             raise ValueError("SquareTensor only takes 2-D "
                              "tensors as input")
-        return obj
+        return obj.view(cls)
         
     @property
     def trans(self):
@@ -388,3 +409,4 @@ if __name__ == "__main__":
     tb4 = TensorBase(np.zeros((3, 3, 3, 3)))
     tb3 = TensorBase(np.zeros((3, 3, 3)))
     tb2 = TensorBase(np.zeros((3, 3)))
+    tb4.is_voigt_symmetric

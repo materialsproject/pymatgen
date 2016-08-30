@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import unittest2 as unittest
 
 import numpy as np
+import warnings
 
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Deformation
@@ -54,8 +55,9 @@ class StressTest(PymatgenTest):
         # voigt
         self.assertArrayEqual(self.symm_stress.voigt,
                               [0.51, 5.14, 5.33, 5.07, 2.42, 2.29])
-        with self.assertRaises(ValueError):
+        with warnings.catch_warnings(record=True) as w:
             self.non_symm.voigt
+            self.assertEqual(len(w), 1)
 
 
 if __name__ == '__main__':
