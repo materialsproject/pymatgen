@@ -96,22 +96,6 @@ class ElasticTensorTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.elastic_tensor_1,
                                     ElasticTensor(self.ft))
 
-    def test_from_voigt(self):
-        with self.assertRaises(ValueError):
-            ElasticTensor.from_voigt([[59.33, 28.08, 28.08, 0],
-                                      [28.08, 59.31, 28.07, 0],
-                                      [28.08, 28.07, 59.32, 0, 0],
-                                      [0, 0, 0, 26.35, 0],
-                                      [0, 0, 0, 0, 26.35]])
-        with warnings.catch_warnings(record=True) as w:
-            ElasticTensor.from_voigt([[59.33, 28.08, 28.08, 0, 0, 0],
-                                      [0.0, 59.31, 28.07, 0, 0, 0],
-                                      [28.08, 28.07, 59.32, 0, 0, 0],
-                                      [0, 0, 0, 26.35, 0, 0],
-                                      [0, 0, 0, 0, 26.35, 0],
-                                      [0, 0, 0, 0, 0, 26.35]])
-            self.assertEqual(len(w), 1)
-
     def test_from_strain_stress_list(self):
         strain_list = [Strain.from_deformation(def_matrix)
                        for def_matrix in self.def_stress_dict['deformations']]
