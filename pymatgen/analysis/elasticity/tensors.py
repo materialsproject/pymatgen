@@ -187,10 +187,10 @@ class TensorBase(np.ndarray):
             raise ValueError("Voigt notation not standardized "
                              "for tensor ranks higher than 4.")
         v_matrix = np.zeros(self._vscale.shape)
-        voigt_map = get_voigt_dict(self.rank)
+        voigt_map = self.get_voigt_dict(self.rank)
         for ind in voigt_map:
             v_matrix[voigt_map[ind]] = self[ind]
-        if not self.is_voigt_symmetric():
+        if not self.is_voigt_symmetric:
             warnings.warn("Tensor is not symmetric, so some information may "
                           "be lost in voigt conversion.")
         return v_matrix*self._vscale
@@ -198,18 +198,30 @@ class TensorBase(np.ndarray):
     @property
     def is_voigt_symmetric(self):
         """
+        Tests symmetry of tensor to that necessary for voigt-conversion
+        by grouping indices into pairs and constructing a sequence of
+        possible permutations to be used in a tensor transpose
         """
-        transpose_pieces = [0 for i in range(self.rank % 2)]
+        transpose_pieces = [[[0 for i in range(self.rank % 2)]]]
         transpose_pieces += [[range(j, j + 2)] for j in 
-                             range(len(transpose_pieces), self.rank, 2)]
-        for n, piece in enumerate(transpose_pieces):
-            if len(piece[0]) == 2:
-                transpose_pieces[n] += [piece[0][::-1]]
-        import pdb; pdb.set_trace()
+                             range(self.rank % 2, self.rank, 2)]
+        for n in range(self.rank % 2, len(transpose_pieces)):
+            if len(transpose_pieces[n][0]) == 2:
+                transpose_pieces[n] += [transpose_pieces[n][0][::-1]]
+        for trans_seq in itertools.product(*transpose_pieces):
+            trans_seq = list(itertools.chain(*trans_seq))
+            if (self - self.transpose(trans_seq) > 1e-10).any():
+                return False
+        return True
 
     @staticmethod
     def get_voigt_dict(rank):
         """
+        Returns a dictionary that maps indices in the tensor to those
+        in a voigt representation based on input rank
+
+        Args:
+            Rank (int): Tensor rank to generate the voigt map
         """
         vdict = {}
         for ind in itertools.product(*[range(3)]*rank):
@@ -221,19 +233,21 @@ class TensorBase(np.ndarray):
         return vdict
         
     @classmethod
-    def from_voigt(cls, voigt_matrix):
+    def from_voigt(cls, voigt_input):
         """
-        Constructor based on the voigt notation tensor.
+        Constructor based on the voigt notation vector or matrix.
+
+        Args: 
         """
-        voigt_matrix = np.array(voigt_matrix)
-        if voigt_matrix.shape not in [(6,6), (3,6), (6,)]:
-            raise ValueError("Invalid shape for voigt matrix")
-        rank = sum(voigt_matrix.shape) // 3
+        voigt_input = np.array(voigt_input)
+        rank = sum(voigt_input.shape) // 3
         t = cls(np.zeros([3]*rank))
-        voigt_matrix /= t._vscale
+        if voigt_input.shape != t._vscale.shape:
+            raise ValueError("Invalid shape for voigt matrix")
+        voigt_input /= t._vscale
         voigt_map = t.get_voigt_dict(rank)
         for ind in voigt_map:
-            t[ind] = voigt_matrix[voigt_map[ind]]
+            t[ind] = voigt_input[voigt_map[ind]]
         return t
 
     def convert_to_ieee(self, structure):
@@ -409,4 +423,4 @@ if __name__ == "__main__":
     tb4 = TensorBase(np.zeros((3, 3, 3, 3)))
     tb3 = TensorBase(np.zeros((3, 3, 3)))
     tb2 = TensorBase(np.zeros((3, 3)))
-    tb4.is_voigt_symmetric
+    tb3.is_voigt_symmetric
