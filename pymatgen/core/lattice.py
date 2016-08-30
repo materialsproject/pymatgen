@@ -42,12 +42,7 @@ class Lattice(MSONable):
     """
 
     # Properties lazily generated for efficiency.
-    _inv_matrix = None
-    _metric_tensor = None
-    _diags = None
-    _lll_matrix = None
-    _lll_mapping = None
-    _lll_inverse = None
+
 
     def __init__(self, matrix):
         """
@@ -77,7 +72,11 @@ class Lattice(MSONable):
         self._angles = np.arccos(angles) * 180. / pi
         self._lengths = lengths
         self._matrix = m
-
+        self._inv_matrix = None
+        self._metric_tensor = None
+        self._diags = None
+        self._lll_matrix_mappings = {}
+        self._lll_inverse = None
         self.is_orthogonal = all([abs(a - 90) < 1e-5 for a in self._angles])
 
     def __format__(self, fmt_spec=''):
@@ -283,7 +282,7 @@ class Lattice(MSONable):
         gamma_r = radians(gamma)
         val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
             / (np.sin(alpha_r) * np.sin(beta_r))
-        #Sometimes rounding errors result in values slightly > 1.
+        # Sometimes rounding errors result in values slightly > 1.
         val = abs_cap(val)
         gamma_star = np.arccos(val)
         vector_a = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
@@ -299,8 +298,8 @@ class Lattice(MSONable):
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
         and gamma parameters if fmt is None.
         
-        If fmt == "abivars", the function build a `Lattice` object from a dictionary
-        with the Abinit variables `acell` and `rprim` in Bohr. 
+        If fmt == "abivars", the function build a `Lattice` object from a
+        dictionary with the Abinit variables `acell` and `rprim` in Bohr.
         If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr
 
         Example:
@@ -415,19 +414,15 @@ class Lattice(MSONable):
 
     @property
     def lll_matrix(self):
-        if self._lll_matrix is not None:
-            return self._lll_matrix
-        else:
-            self._lll_matrix, self._lll_mapping = self._calculate_lll()
-            return self._lll_matrix
+        if 0.75 not in self._lll_matrix_mappings:
+            self._lll_matrix_mappings[0.75] = self._calculate_lll()
+        return self._lll_matrix_mappings[0.75][0]
 
     @property
     def lll_mapping(self):
-        if self._lll_mapping is not None:
-            return self._lll_mapping
-        else:
-            self._lll_matrix, self._lll_mapping = self._calculate_lll()
-            return self._lll_mapping
+        if 0.75 not in self._lll_matrix_mappings:
+            self._lll_matrix_mappings[0.75] = self._calculate_lll()
+        return self._lll_matrix_mappings[0.75][1]
 
     @property
     def lll_inverse(self):
@@ -601,10 +596,9 @@ class Lattice(MSONable):
             return x
 
     def get_lll_reduced_lattice(self, delta=0.75):
-        if delta != 0.75:
-            matrix, mapping = self._calculate_lll(delta)
-            return Lattice(matrix)
-        return Lattice(self.lll_matrix)
+        if delta not in self._lll_matrix_mappings:
+            self._lll_matrix_mappings[delta] = self._calculate_lll()
+        return Lattice(self._lll_matrix_mappings[delta][0])
 
     def _calculate_lll(self, delta=0.75):
         """
@@ -646,7 +640,8 @@ class Lattice(MSONable):
                 if q != 0:
                     # Reduce the k-th basis vector.
                     a[:, k - 1] = a[:, k - 1] - q * a[:, i - 1]
-                    mapping[:, k - 1] = mapping[:, k - 1] - q * mapping[:, i - 1]
+                    mapping[:, k - 1] = mapping[:, k - 1] - q * \
+                        mapping[:, i - 1]
                     uu = list(u[i - 1, 0:(i - 1)])
                     uu.append(1)
                     # Update the GS coefficients.
@@ -659,8 +654,8 @@ class Lattice(MSONable):
                 # Increment k if the Lovasz condition holds.
                 k += 1
             else:
-                #If the Lovasz condition fails,
-                #swap the k-th and (k-1)-th basis vector
+                # If the Lovasz condition fails,
+                # swap the k-th and (k-1)-th basis vector
                 v = a[:, k - 1].copy()
                 a[:, k - 1] = a[:, k - 2].copy()
                 a[:, k - 2] = v
@@ -669,7 +664,7 @@ class Lattice(MSONable):
                 mapping[:, k - 1] = mapping[:, k - 2].copy()
                 mapping[:, k - 2] = v_m
 
-                #Update the Gram-Schmidt coefficients
+                # Update the Gram-Schmidt coefficients
                 for s in range(k - 1, k + 1):
                     u[s - 1, 0:(s - 1)] = dot(a[:, s - 1].T,
                                               b[:, 0:(s - 1)]) / m[0:(s - 1)]
@@ -688,14 +683,14 @@ class Lattice(MSONable):
 
         return a.T, mapping.T
 
-    def _lll_frac_coords(self, frac_coords):
+    def get_lll_frac_coords(self, frac_coords):
         """
         Given fractional coordinates in the lattice basis, returns corresponding
         fractional coordinates in the lll basis.
         """
         return np.dot(frac_coords, self.lll_inverse)
 
-    def _frac_coords_from_lll(self, lll_frac_coords):
+    def get_frac_coords_from_lll(self, lll_frac_coords):
         """
         Given fractional coordinates in the lll basis, returns corresponding
         fractional coordinates in the lattice basis.
@@ -723,25 +718,25 @@ class Lattice(MSONable):
         c = matrix[2]
         e = tol * self.volume ** (1 / 3)
 
-        #Define metric tensor
+        # Define metric tensor
         G = [[dot(a, a), dot(a, b), dot(a, c)],
              [dot(a, b), dot(b, b), dot(b, c)],
              [dot(a, c), dot(b, c), dot(c, c)]]
         G = np.array(G)
 
-        #This sets an upper limit on the number of iterations.
+        # This sets an upper limit on the number of iterations.
         for count in range(100):
-            #The steps are labelled as Ax as per the labelling scheme in the
-            #paper.
+            # The steps are labelled as Ax as per the labelling scheme in the
+            # paper.
             (A, B, C, E, N, Y) = (G[0, 0], G[1, 1], G[2, 2],
                                   2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1])
 
             if A > B + e or (abs(A - B) < e and abs(E) > abs(N) + e):
-                #A1
+                # A1
                 M = [[0, -1, 0], [-1, 0, 0], [0, 0, -1]]
                 G = dot(transpose(M), dot(G, M))
             if (B > C + e) or (abs(B - C) < e and abs(N) > abs(Y) + e):
-                #A2
+                # A2
                 M = [[-1, 0, 0], [0, 0, -1], [0, -1, 0]]
                 G = dot(transpose(M), dot(G, M))
                 continue
@@ -775,28 +770,28 @@ class Lattice(MSONable):
             (A, B, C, E, N, Y) = (G[0, 0], G[1, 1], G[2, 2],
                                   2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1])
 
-            #A5
+            # A5
             if abs(E) > B + e or (abs(E - B) < e and 2 * N < Y - e) or\
                     (abs(E + B) < e and Y < -e):
                 M = [[1, 0, 0], [0, 1, -E / abs(E)], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
-            #A6
+            # A6
             if abs(N) > A + e or (abs(A - N) < e and 2 * E < Y - e) or\
                     (abs(A + N) < e and Y < -e):
                 M = [[1, 0, -N / abs(N)], [0, 1, 0], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
-            #A7
+            # A7
             if abs(Y) > A + e or (abs(A - Y) < e and 2 * E < N - e) or\
                     (abs(A + Y) < e and N < -e):
                 M = [[1, -Y / abs(Y), 0], [0, 1, 0], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
-            #A8
+            # A8
             if E + N + Y + A + B < -e or\
                     (abs(E + N + Y + A + B) < e < Y + (A + N) * 2):
                 M = [[1, 0, 1], [0, 1, 1], [0, 0, 1]]
@@ -848,7 +843,7 @@ class Lattice(MSONable):
 
         ratios = self.abc / self.c
 
-        new_c = (new_volume / ( geo_factor * np.prod(ratios))) ** (1/3.)
+        new_c = (new_volume / (geo_factor * np.prod(ratios))) ** (1/3.)
 
         return Lattice(versors * (new_c * ratios))
 
@@ -902,8 +897,8 @@ class Lattice(MSONable):
         Returns:
             one-dimensional `numpy` array.
         """
-        coords_a, coords_b = np.reshape(coords_a, (-1,3)), \
-                             np.reshape(coords_b, (-1,3))
+        coords_a, coords_b = np.reshape(coords_a, (-1, 3)), \
+            np.reshape(coords_b, (-1, 3))
 
         if len(coords_a) != len(coords_b):
             raise ValueError("")
@@ -915,11 +910,11 @@ class Lattice(MSONable):
             cart_a, cart_b = coords_a, coords_b
         else:
             cart_a = np.reshape([self.get_cartesian_coords(vec)
-                                 for vec in coords_a], (-1,3))
+                                 for vec in coords_a], (-1, 3))
             cart_b = np.reshape([self.get_cartesian_coords(vec)
-                                 for vec in coords_b], (-1,3))
+                                 for vec in coords_b], (-1, 3))
 
-        return np.array([np.dot(a,b) for a,b in zip(cart_a, cart_b)])
+        return np.array([np.dot(a, b) for a, b in zip(cart_a, cart_b)])
 
     def norm(self, coords, frac_coords=True):
         """
@@ -969,7 +964,7 @@ class Lattice(MSONable):
             else:
                 fcoords, dists, inds
         """
-        #TODO: refactor to use lll matrix (nmax will be smaller)
+        # TODO: refactor to use lll matrix (nmax will be smaller)
         recp_len = np.array(self.reciprocal_lattice.abc) / (2 * pi)
         nmax = float(r) * recp_len + 0.01
 
@@ -1037,7 +1032,7 @@ class Lattice(MSONable):
                         if abs(angles[i] - 90) < hex_angle_tol]
         hex_angles = [i for i in range(3)
                       if abs(angles[i] - 60) < hex_angle_tol or
-                         abs(angles[i] - 120) < hex_angle_tol]
+                      abs(angles[i] - 120) < hex_angle_tol]
 
         return (len(right_angles) == 2 and len(hex_angles) == 1
                 and abs(lengths[right_angles[0]] -
@@ -1049,8 +1044,8 @@ class Lattice(MSONable):
         Gets distance between two frac_coords and nearest periodic images.
 
         Args:
-            fcoords1 (3x1 array): Reference fcoords to get distance from.
-            fcoords2 (3x1 array): fcoords to get distance from.
+            frac_coords1 (3x1 array): Reference fcoords to get distance from.
+            frac_coords2 (3x1 array): fcoords to get distance from.
 
         Returns:
             [(distance, jimage)] List of distance and periodic lattice
@@ -1102,8 +1097,10 @@ class Lattice(MSONable):
             equal to distance.
         """
         if jimage is None:
-            v, d2 = pbc_shortest_vectors(self, frac_coords1, frac_coords2, return_d2=True)
-            fc = self.get_fractional_coords(v[0][0]) + frac_coords1 - frac_coords2
+            v, d2 = pbc_shortest_vectors(self, frac_coords1, frac_coords2,
+                                         return_d2=True)
+            fc = self.get_fractional_coords(v[0][0]) + frac_coords1 - \
+                 frac_coords2
             fc = np.array(np.round(fc), dtype=np.int)
             return (np.sqrt(d2[0, 0]), fc)
 

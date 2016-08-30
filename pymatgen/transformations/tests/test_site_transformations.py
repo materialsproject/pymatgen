@@ -52,20 +52,41 @@ class TranslateSitesTransformationTest(unittest.TestCase):
                                           "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation(self):
-        t = TranslateSitesTransformation([0], [0.1, 0.2, 0.3])
+        t = TranslateSitesTransformation([0, 1], [0.1, 0.2, 0.3])
         s = t.apply_transformation(self.struct)
         self.assertTrue(np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3]))
+        self.assertTrue(np.allclose(s[1].frac_coords, [0.475, 0.575, 0.675]))
         inv_t = t.inverse
         s = inv_t.apply_transformation(s)
         self.assertTrue(np.allclose(s[0].frac_coords, [0, 0, 0]))
+        self.assertTrue(np.allclose(s[1].frac_coords, [0.375, 0.375, 0.375]))
+        str(t)
+
+    def test_apply_transformation_site_by_site(self):
+        t = TranslateSitesTransformation([0, 1], [[0.1, 0.2, 0.3],
+                                                  [-0.075, -0.075, -0.075]])
+        s = t.apply_transformation(self.struct)
+        self.assertTrue(np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3]))
+        self.assertTrue(np.allclose(s[1].frac_coords, [0.3, 0.3, 0.3]))
+        inv_t = t.inverse
+        s = inv_t.apply_transformation(s)
+        self.assertTrue(np.allclose(s[0].frac_coords, [0, 0, 0]))
+        self.assertTrue(np.allclose(s[1].frac_coords, [0.375, 0.375, 0.375]))
         str(t)
 
     def test_to_from_dict(self):
-        d = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).as_dict()
-        t = TranslateSitesTransformation.from_dict(d)
-        s = t.apply_transformation(self.struct)
-        self.assertTrue(np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3]))
-        str(t)
+        d1 = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).as_dict()
+        d2 = TranslateSitesTransformation([0, 1], [[0.1, 0.2, 0.3],
+                                                  [-0.075, -0.075, -0.075]]).as_dict()
+        t1 = TranslateSitesTransformation.from_dict(d1)
+        t2 = TranslateSitesTransformation.from_dict(d2)
+        s1 = t1.apply_transformation(self.struct)
+        s2 = t2.apply_transformation(self.struct)
+        self.assertTrue(np.allclose(s1[0].frac_coords, [0.1, 0.2, 0.3]))
+        self.assertTrue(np.allclose(s2[0].frac_coords, [0.1, 0.2, 0.3]))
+        self.assertTrue(np.allclose(s2[1].frac_coords, [0.3, 0.3, 0.3]))
+        str(t1)
+        str(t2)
 
 
 class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
