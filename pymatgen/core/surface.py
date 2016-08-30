@@ -4,19 +4,6 @@
 
 from __future__ import division, unicode_literals
 from functools import reduce
-
-"""
-This module implements representations of slabs and surfaces, as well as
-algorithms for generating them.
-"""
-
-__author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
-__copyright__ = "Copyright 2014, The Materials Virtual Lab"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "6/10/14"
-
 try:
     # New Py>=3.5 import
     from math import gcd
@@ -40,10 +27,20 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.analysis.structure_matcher import StructureMatcher
 
+"""
+This module implements representations of slabs and surfaces, as well as
+algorithms for generating them.
+"""
+
+__author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
+__copyright__ = "Copyright 2014, The Materials Virtual Lab"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "ongsp@ucsd.edu"
+__date__ = "6/10/14"
 
 
 logger = logging.getLogger(__name__)
@@ -410,8 +407,7 @@ class SlabGenerator(object):
                 usually sufficient.
         """
         latt = initial_structure.lattice
-        d = abs(reduce(gcd, miller_index))
-        miller_index = tuple([int(i / d) for i in miller_index])
+        miller_index = reduce_vector(miller_index)
         #Calculate the surface normal using the reciprocal lattice vector.
         recp = latt.reciprocal_lattice_crystallographic
         normal = recp.get_cartesian_coords(miller_index)
@@ -474,6 +470,12 @@ class SlabGenerator(object):
         # Let's make sure we have a left-handed crystallographic system
         if np.linalg.det(slab_scale_factor) < 0:
             slab_scale_factor *= -1
+
+        # Make sure the slab_scale_factor is reduced to avoid
+        # unnecessarily large slabs
+
+        reduced_scale_factor = [reduce_vector(v) for v in slab_scale_factor]
+        slab_scale_factor = np.array(reduced_scale_factor)
 
         single = initial_structure.copy()
         single.make_supercell(slab_scale_factor)
@@ -747,6 +749,29 @@ class SlabGenerator(object):
         return slab
 
 
+def get_recp_symmetry_operation(structure, symprec=0.001):
+    """
+    Find the symmetric operations of the reciprocal lattice,
+    to be used for hkl transformations
+    Args:
+        structure (Structure): conventional unit cell
+        symprec: default is 0.001
+
+    """
+    recp_lattice = structure.lattice.reciprocal_lattice_crystallographic
+    # get symmetry operations from input conventional unit cell
+    # Need to make sure recp lattice is big enough, otherwise symmetry
+    # determination will fail. We set the overall volume to 1.
+    recp_lattice = recp_lattice.scale(1)
+    recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])
+    # Creates a function that uses the symmetry operations in the
+    # structure to find Miller indices that might give repetitive slabs
+    analyzer = SpacegroupAnalyzer(recp, symprec=symprec)
+    recp_symmops = analyzer.get_symmetry_operations()
+
+    return recp_symmops
+
+
 def get_symmetrically_distinct_miller_indices(structure, max_index):
     """
     Returns all symmetrically distinct indices below a certain max-index for
@@ -759,16 +784,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
             structure. All other indices are equivalent to one of these.
     """
 
-    recp_lattice = structure.lattice.reciprocal_lattice_crystallographic
-    # Need to make sure recp lattice is big enough, otherwise symmetry
-    # determination will fail. We set the overall volume to 1.
-    recp_lattice = recp_lattice.scale(1)
-    recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])
-
-    # Creates a function that uses the symmetry operations in the
-    # structure to find Miller indices that might give repetitive slabs
-    analyzer = SpacegroupAnalyzer(recp, symprec=0.001)
-    symm_ops = analyzer.get_symmetry_operations()
+    symm_ops = get_recp_symmetry_operation(structure)
     unique_millers = []
 
     def is_already_analyzed(miller_index):
@@ -857,3 +873,12 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
 
     return all_slabs
 
+
+def reduce_vector(vector):
+
+    # small function to reduce vectors
+
+    d = abs(reduce(gcd, vector))
+    vector = tuple([int(i / d) for i in vector])
+
+    return vector

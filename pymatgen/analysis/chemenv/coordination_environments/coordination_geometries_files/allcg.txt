@@ -62,4 +62,5 @@ coordination_geometries_files/SC#12.json
 coordination_geometries_files/S#12.json
 coordination_geometries_files/HP#12.json
 coordination_geometries_files/HA#12.json
+coordination_geometries_files/SH#13.json
 coordination_geometries_files/DD#20.json

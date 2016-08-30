@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.apps.borg.tests
 
 Submodules
 ----------

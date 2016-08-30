@@ -120,14 +120,15 @@ class PDPlotter(object):
 
         return plt
 
-    def show(self, label_stable=True, label_unstable=True, ordering=None,
-             energy_colormap=None, process_attributes=False):
+    def show(self, *args, **kwargs):
         """
         Draws the phase diagram using Matplotlib and show it.
+
+        Args:
+            \*args: Passed to get_plot.
+            \*\*kwargs: Passed to get_plot.
         """
-        self.get_plot(label_stable=label_stable, label_unstable=label_unstable,
-                      ordering=ordering, energy_colormap=energy_colormap,
-                      process_attributes=process_attributes).show()
+        self.get_plot(*args, **kwargs).show()
 
     def _get_2d_plot(self, label_stable=True, label_unstable=True,
                      ordering=None, energy_colormap=None, vmin_mev=-60.0,

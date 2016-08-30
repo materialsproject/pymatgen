@@ -1,9 +1,8 @@
 Change log
 ==========
 
-v4.0.0
+v4.2.1
 ------
-* Massive update with many deprecated methods removed. Note that this
-  may break backwards incompatibility!
-* Support for ABINIT 8.
-* Improved sulfide compatibility.
+* New DopingTransformation that implements an automated doping strategy.
+* Updated MIC algorithm that is a lot more robust (Will Richards).
+* Major update to chemenv package (David Waroquiers)

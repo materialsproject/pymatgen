@@ -971,14 +971,7 @@ class IStructure(SiteCollection, MSONable):
         if len(self) != len(end_structure):
             raise ValueError("Structures have different lengths!")
 
-        if interpolate_lattices:
-            # interpolate lattices
-            lstart = np.array(self.lattice.lengths_and_angles)
-            lend = np.array(end_structure.lattice.lengths_and_angles)
-            lvec = lend - lstart
-
-        # Check that both structures have the same lattice
-        elif not self.lattice == end_structure.lattice:
+        if not (interpolate_lattices or self.lattice == end_structure.lattice):
             raise ValueError("Structures with different lattices!")
 
         # Check that both structures have the same species
@@ -1030,10 +1023,20 @@ class IStructure(SiteCollection, MSONable):
             vec -= np.round(vec)
         sp = self.species_and_occu
         structs = []
+
+        if interpolate_lattices:
+            # interpolate lattice matrices using polar decomposition
+            from scipy.linalg import polar
+            # u is unitary (rotation), p is stretch
+            u, p = polar(np.dot(end_structure.lattice.matrix.T,
+                                np.linalg.inv(self.lattice.matrix.T)))
+            lvec = p - np.identity(3)
+            lstart = self.lattice.matrix.T
+
         for x in range(nimages + 1):
             if interpolate_lattices:
-                l_a = lstart + x / nimages * lvec
-                l = Lattice.from_lengths_and_angles(*l_a)
+                l_a = np.dot(np.identity(3) + x / nimages * lvec, lstart).T
+                l = Lattice(l_a)
             else:
                 l = self.lattice
             fcoords = start_coords + x / nimages * vec
@@ -1320,7 +1323,7 @@ class IStructure(SiteCollection, MSONable):
 
         if fmt == "cif" or fnmatch(fname, "*.cif*"):
             writer = CifWriter(self)
-        elif fmt == "poscar" or fnmatch(fname, "POSCAR*"):
+        elif fmt == "poscar" or fnmatch(fname, "*POSCAR*"):
             writer = Poscar(self)
         elif fmt == "cssr" or fnmatch(fname.lower(), "*.cssr*"):
             writer = Cssr(self)
@@ -1440,7 +1443,7 @@ class IStructure(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="cif",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
-        elif fnmatch(fname, "POSCAR*") or fnmatch(fname, "CONTCAR*"):
+        elif fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*"):
             s = cls.from_str(contents, fmt="poscar",
                              primitive=primitive, sort=sort,
                              merge_tol=merge_tol)

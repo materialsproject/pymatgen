@@ -45,8 +45,8 @@ class BandStructureSymmLine_test(unittest.TestCase):
                   "r", encoding='utf-8') as f:
             d = json.load(f)
             self.bs = BandStructureSymmLine.from_dict(d)
-            self.assertListEqual(self.bs._projections[Spin.up][10][12][Orbital.s], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "wrong projections")
-            self.assertListEqual(self.bs._projections[Spin.up][25][0][Orbital.dyz], [0.0, 0.0, 0.0011, 0.0219, 0.0219, 0.069], "wrong projections")
+            self.assertListEqual(self.bs.projections[Spin.up][10][12][Orbital.s], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "wrong projections")
+            self.assertListEqual(self.bs.projections[Spin.up][25][0][Orbital.dyz], [0.0, 0.0, 0.0011, 0.0219, 0.0219, 0.069], "wrong projections")
             self.assertAlmostEqual(self.bs.get_projection_on_elements()[Spin.up][25][10]['O'], 0.0328)
             self.assertAlmostEqual(self.bs.get_projection_on_elements()[Spin.up][22][25]['Cu'], 0.8327)
             self.assertAlmostEqual(self.bs.get_projections_on_elts_and_orbitals({'Cu':['s','d']})[Spin.up][25][0]['Cu']['s'], 0.0027)
@@ -61,22 +61,22 @@ class BandStructureSymmLine_test(unittest.TestCase):
             #this doesn't really test as_dict() -> from_dict very well
             #self.assertEqual(self.bs.as_dict().keys(), d.keys())
             self.one_kpoint = self.bs.kpoints[31]
-            self.assertEqual(self.bs._nb_bands, 16)
-            self.assertAlmostEqual(self.bs._bands[Spin.up][5][10], 0.5608)
-            self.assertAlmostEqual(self.bs._bands[Spin.up][5][10], 0.5608)
-            self.assertEqual(self.bs._branches[5]['name'], "L-U")
-            self.assertEqual(self.bs._branches[5]['start_index'], 80)
-            self.assertEqual(self.bs._branches[5]['end_index'], 95)
-            self.assertAlmostEqual(self.bs._distance[70], 4.2335127528765737)
+            self.assertEqual(self.bs.nb_bands, 16)
+            self.assertAlmostEqual(self.bs.bands[Spin.up][5][10], 0.5608)
+            self.assertAlmostEqual(self.bs.bands[Spin.up][5][10], 0.5608)
+            self.assertEqual(self.bs.branches[5]['name'], "L-U")
+            self.assertEqual(self.bs.branches[5]['start_index'], 80)
+            self.assertEqual(self.bs.branches[5]['end_index'], 95)
+            self.assertAlmostEqual(self.bs.distance[70], 4.2335127528765737)
         with open(os.path.join(test_dir, "NiO_19009_bandstructure.json"),
                   "r", encoding='utf-8') as f:
             d = json.load(f)
             self.bs_spin = BandStructureSymmLine.from_dict(d)
             #this doesn't really test as_dict() -> from_dict very well
             #self.assertEqual(self.bs_spin.as_dict().keys(), d.keys())
-            self.assertEqual(self.bs_spin._nb_bands, 27)
-            self.assertAlmostEqual(self.bs_spin._bands[Spin.up][5][10], 0.262)
-            self.assertAlmostEqual(self.bs_spin._bands[Spin.down][5][10],
+            self.assertEqual(self.bs_spin.nb_bands, 27)
+            self.assertAlmostEqual(self.bs_spin.bands[Spin.up][5][10], 0.262)
+            self.assertAlmostEqual(self.bs_spin.bands[Spin.down][5][10],
                                    1.6156)
 
     def test_properties(self):

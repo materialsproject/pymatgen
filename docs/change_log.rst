@@ -1,6 +1,35 @@
 Change log
 ==========
 
+v4.2.1
+------
+* New DopingTransformation that implements an automated doping strategy.
+* Updated MIC algorithm that is a lot more robust (Will Richards).
+* Major update to chemenv package (David Waroquiers)
+
+v4.2.0
+------
+* Fix important bug in minimum image distance computation for very skewed cells.
+* Major refactoring of WulffShape code.
+* Misc bug fixes for elastic tensor and other codes.
+
+v4.1.1
+------
+* Major refactoring of WulffShape and lammps support.
+
+v4.1.0
+------
+* Wulff shape generator and analysis.
+* Minor bug fixes.
+
+v4.0.2
+--------
+* Fix kpoint reciprocal density.
+
+v4.0.1
+------
+* Minor bug fix release.
+
 v4.0.0
 ------
 * Massive update with many deprecated methods removed. Note that this

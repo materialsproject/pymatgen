@@ -75,8 +75,8 @@ class TestChemicalShiftNotation(unittest.TestCase):
         d1 = cs1.as_dict()
         cs7 = NMRChemicalShiftNotation.from_dict(d1)
         hae7 = cs7.haeberlen_values
-        self.assertAlmostEquals(hae1, hae7, places=5)
+        self.assertAlmostEqual(hae1, hae7, places=5)
         j1 = cs1.to_json()
         cs8 = json.loads(j1, cls=MontyDecoder)
         hae8 = cs8.haeberlen_values
-        self.assertAlmostEquals(hae1, hae8, places=5)
+        self.assertAlmostEqual(hae1, hae8, places=5)
