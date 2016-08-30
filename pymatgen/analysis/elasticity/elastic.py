@@ -68,41 +68,6 @@ class ElasticTensor(TensorBase):
                              "6x6 Voigt array, use ElasticTensor.from_voigt")
         return obj 
 
-    @classmethod
-    def from_voigt(cls, voigt_matrix, tol=1e-2):
-        """
-        Constructor based on the voigt notation tensor
-
-        Args:
-            voigt_matrix: (6x6 array-like): the Voigt notation 6x6 array-like
-                representing the elastic tensor
-        """
-        voigt_matrix = np.array(voigt_matrix)
-        if voigt_matrix.shape != (6, 6):
-            raise ValueError("From_voigt takes a 6x6 array corresponding to "
-                             "the elastic tensor in voigt notation as input.")
-
-        c = np.zeros((3, 3, 3, 3))
-        for ind in itertools.product(*[range(3)]*4):
-            v_ind = (reverse_voigt_map[ind[:2]], 
-                     reverse_voigt_map[ind[2:]])
-            c[ind] = voigt_matrix[v_ind]
-        return cls(c)
-
-    @property
-    def voigt(self):
-        """
-        Returns the voigt notation 6x6 array corresponding to the
-        elastic tensor
-        """
-        c_pq = np.zeros((6, 6))
-        for p in range(6):
-            for q in range(6):
-                i, j = voigt_map[p]
-                k, l = voigt_map[q]
-                c_pq[p, q] = self[i, j, k, l]
-        return c_pq
-
     @property
     def compliance_tensor(self):
         """
