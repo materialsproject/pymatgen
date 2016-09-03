@@ -10,20 +10,24 @@ __version__ = "4.2.1"
 import os
 import warnings
 
-SETTINGS_FILE = os.path.join(os.environ["HOME"], ".pmgrc.yaml")
+SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
 def _load_pmg_settings():
     if os.path.exists(SETTINGS_FILE):
-        from monty.serialization import loadfn
-        return loadfn(SETTINGS_FILE)
-    else:
-        d = {}
-        for k in ["VASP_PSP_DIR", "MAPI_KEY"]:
-            if k in os.environ:
-                warnings.warn("You have %s set in the env. From pmg 5, all "
-                              "settings should be in the .pmgrc.yaml file." % k)
-            d[k] = os.environ.get(k)
-        return d
+        try:
+            from monty.serialization import loadfn
+            return loadfn(SETTINGS_FILE)
+        except:
+            # If there are any errors, default to using environment variables
+            # if present.
+            pass
+    d = {}
+    for k in ["VASP_PSP_DIR", "MAPI_KEY"]:
+        if k in os.environ:
+            warnings.warn("You have %s set in the env. From pmg 5, all "
+                          "settings should be in the .pmgrc.yaml file." % k)
+        d[k] = os.environ.get(k)
+    return d
 
 SETTINGS = _load_pmg_settings()
 
