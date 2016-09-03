@@ -19,8 +19,6 @@ except ImportError:
 
 SETUP_PTH = os.path.dirname(__file__)
 
-
-
 extra_link_args = []
 if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
@@ -33,9 +31,9 @@ with open(os.path.join(SETUP_PTH, "README.rst")) as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="4.2.1",
+    version="4.2.2",
     install_requires=["numpy>=1.9", "six", "atomicfile", "requests",
-                      "pybtex", "pyyaml", "monty>=0.7.0", "scipy>=0.14",
+                      "pybtex", "pyyaml", "monty>=0.9.0", "scipy>=0.14",
                       "tabulate", "enum34", "spglib"],
     extras_require={"plotting": ["matplotlib>=1.1", "prettyplotlib"],
                     "pourbaix diagrams, bandstructure": ["pyhull>=1.5.3"],
@@ -45,8 +43,7 @@ setup(
                     "chemenv": ["unittest2"]},
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["*.yaml", "*.csv"],
-                  "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt",
-                                                                                                        "*.json"],
+                  "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
                   "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
                   "pymatgen.io.vasp": ["*.yaml"],
                   "pymatgen.io.feff": ["*.yaml"],
@@ -95,5 +92,17 @@ setup(
                            ["pymatgen/util/coord_utils_cython.c"],
                            include_dirs=get_numpy_include_dirs(),
                            extra_link_args=extra_link_args)],
+    entry_points={
+          'console_scripts': [
+              'pmg = pymatgen.cli.pmg:main',
+              'feff_input_generation = pymatgen.cli.feff_input_generation:main',
+              'feff_plot_cross_section = pymatgen.cli.feff_plot_cross_section:main',
+              'feff_plot_dos = pymatgen.cli.feff_plot_dos:main',
+              'gaussian_analyzer = pymatgen.cli.gaussian_analyzer:main',
+              'gen_potcar = pymatgen.cli.gen_potcar:main',
+              'get_environment = pymatgen.cli.get_environment:main',
+              'pydii = pymatgen.cli.pydii:main',
+          ]
+    },
     scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
 )

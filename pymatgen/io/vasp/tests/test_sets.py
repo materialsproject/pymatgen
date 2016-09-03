@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 import unittest2 as unittest
 import tempfile
 from monty.tempfile import ScratchDir
+from monty.json import MontyDecoder
 
 from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Incar, Kpoints

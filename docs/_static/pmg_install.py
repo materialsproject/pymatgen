@@ -140,17 +140,6 @@ except ImportError:
     subprocess.call(["pip", "install", "-q", "numpy>=1.8.0"])
     from numpy.distutils.misc_util import get_numpy_include_dirs
 
-for pk in ["pyhull>=1.3.6", "pyyaml", "PyCifRW>=3.3", "requests>=1.0",
-           "pybtex>=0.16"]:
-    print("Installing {}".format(pk))
-    ret = subprocess.call(["pip", "install", "-q", pk])
-    if ret != 0:
-        ret = subprocess.call(["easy_install", pk])
-        if ret != 0:
-            print("Error installing required dependency {}".format(pk))
-            sys.exit(-1)
-    print("")
-
 if subprocess.call(["pip", "install", "pymatgen"]) != 0:
     print("Error installing pymatgen")
     sys.exit(-1)
@@ -160,16 +149,9 @@ enum = False
 bader = False
 
 if "-f" in sys.argv:
-    for pk in ["matplotlib>1.1"]:
+    for pk in ["matplotlib>1.5"]:
         if subprocess.call(["pip", "install", pk]) != 0:
             print("Unable to install {}. Skipping...".format(pk))
-
-    if subprocess.call([
-            "pip", "install", "-Ivq",
-            "https://wiki.fysik.dtu.dk/ase-files/python-ase-3.6.0.2515.tar.gz"]
-    ) != 0:
-        print("Unable to install ASE. Skipping...")
-    print("")
 
     fortran_command = None
     try:

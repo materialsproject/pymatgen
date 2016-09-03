@@ -205,7 +205,7 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
                                                 lambda_table=get_table())
         d = t.as_dict()
         t = SubstitutionPredictorTransformation.from_dict(d)
-        self.assertEqual(t._threshold, 2,
+        self.assertEqual(t.threshold, 2,
                          'incorrect threshold passed through dict')
         self.assertEqual(t._substitutor.p.alpha, -2,
                          'incorrect alpha passed through dict')
@@ -255,7 +255,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         trans = MagOrderingTransformation.from_dict(d)
         self.assertEqual(trans.mag_species_spin, {"Fe": 5})
         from pymatgen.analysis.energy_models import SymmetryModel
-        self.assertIsInstance(trans.emodel, SymmetryModel)
+        self.assertIsInstance(trans.energy_model, SymmetryModel)
 
     def test_zero_spin_case(self):
         #ensure that zero spin case maintains sites and formula
