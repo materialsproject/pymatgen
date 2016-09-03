@@ -152,7 +152,7 @@ if "-f" in sys.argv:
     for pk in ["matplotlib>1.5"]:
         if subprocess.call(["pip", "install", pk]) != 0:
             print("Unable to install {}. Skipping...".format(pk))
-            
+
     fortran_command = None
     try:
         if subprocess.call(["ifort", "--version"]) == 0:
