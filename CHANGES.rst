@@ -1,6 +1,16 @@
 Change log
 ==========
 
+v4.2.2
+------
+* Global configuration variables such as VASP_PSP_DIR and MAPI_KEY are now
+  stored in "~/.pmgrc.yaml". If you are setting these as environmental
+  variables right now, you can easily transition to the new system using
+  "pmg config --add VASP_PSP_DIR $VASP_PSP_DIR MAPI_KEY $MAPI_KEY". This new
+  scheme will provide greater flexibility for user-defined behavior in pymatgen.
+* Beta of k-point weight calculator.
+* Use default MSONable as and from_dict for all transformations.
+
 v4.2.1
 ------
 * New DopingTransformation that implements an automated doping strategy.
