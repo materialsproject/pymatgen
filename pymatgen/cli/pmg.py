@@ -436,30 +436,8 @@ def setup_potcar(args):
                           "continue... " % str(ex))
 
     print("")
-    print("PSP resources directory generated. It is recommended that you add "
-          "the following to your environment or .bash_profile if you are on "
-          "Unix-based systems.")
-    print("export VASP_PSP_DIR=\"%s\"" % os.path.abspath(targetdir))
-    if os.name == "posix":
-        r = input("Do you want us to try to automatically do this? (y/n)")
-        if r == "y":
-            bash_file = os.path.join(os.environ["HOME"], ".bash_profile")
-            if os.path.exists(bash_file):
-                with open(bash_file) as f:
-                    contents = f.read()
-                contents += "\n#Added by pymatgen\n"
-                contents += "export VASP_PSP_DIR=\"%s\"\n" % os.path.abspath(
-                    targetdir)
-                r = input("We can also add your Materials Project API key to "
-                          "the MAPI_KEY environment variable. This makes it "
-                          "easier to use MPRester without having to enter "
-                          "your API key each time. Enter an API key (from "
-                          "https://www.materialsproject.org/dashboard) to do "
-                          "this: ")
-                if r:
-                    contents += "export MAPI_KEY=\"%s\"\n" % r
-                with open(bash_file, "w") as f:
-                    f.write(contents)
+    print("PSP resources directory generated. It is recommended that you "
+          "run 'pmg config --add VASP_PSP_DIR %s'" % os.path.abspath(targetdir))
     print("Start a new terminal to ensure that your environment variables "
           "are properly set.")
 

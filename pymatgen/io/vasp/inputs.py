@@ -1714,8 +1714,8 @@ class Potcar(list, MSONable):
                     sym_potcar_map=None):
         """
         Initialize the POTCAR from a set of symbols. Currently, the POTCARs can
-        be fetched from a location specified in the environment variable
-        VASP_PSP_DIR or in a pymatgen.cfg or specified explicitly in a map.
+        be fetched from a location specified in .pmgrc.yaml. Use pmg config
+        to add this setting.
 
         Args:
             symbols ([str]): A list of element symbols
