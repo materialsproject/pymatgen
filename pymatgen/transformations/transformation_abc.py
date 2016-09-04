@@ -3,6 +3,10 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
+import abc
+
+from monty.json import MSONable, MontyDecoder
+import six
 
 """
 Defines an abstract base class contract for Transformation object.
@@ -15,10 +19,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Sep 23, 2011"
 
-import abc
-
-from monty.json import MSONable
-import six
 
 
 class AbstractTransformation(six.with_metaclass(abc.ABCMeta, MSONable)):
@@ -82,7 +82,3 @@ class AbstractTransformation(six.with_metaclass(abc.ABCMeta, MSONable)):
         transformations that the transmuter can parallelize.
         """
         return False
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(**d["init_args"])

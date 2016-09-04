@@ -14,6 +14,7 @@ import requests
 from monty.json import MontyDecoder, MontyEncoder
 from six import string_types
 
+from pymatgen import SETTINGS
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.core.composition import Composition
@@ -102,7 +103,7 @@ class MPRester(object):
         if api_key is not None:
             self.api_key = api_key
         else:
-            self.api_key = os.environ.get("MAPI_KEY", "")
+            self.api_key = SETTINGS.get("MAPI_KEY", "")
         self.preamble = endpoint
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
