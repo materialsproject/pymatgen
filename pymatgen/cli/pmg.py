@@ -4,18 +4,6 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-
-"""
-A master convenience script with many tools for vasp and structure analysis.
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "3.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "Sep 9, 2014"
-
 import argparse
 import os
 import re
@@ -27,13 +15,15 @@ from collections import OrderedDict
 import glob
 import shutil
 import subprocess
+import itertools
 
 from six.moves import input
 
 from tabulate import tabulate, tabulate_formats
 
-from pymatgen import Structure
-from pymatgen.io.vasp import Outcar, Vasprun, Chgcar
+from monty.serialization import loadfn, dumpfn
+from pymatgen import Structure, SETTINGS_FILE
+from pymatgen.io.vasp import Outcar, Vasprun, Chgcar, Incar
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
     VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
@@ -46,7 +36,32 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 
+"""
+A master convenience script with many tools for vasp and structure analysis.
+"""
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "4.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "ongsp@ucsd.edu"
+__date__ = "Aug 13 2016"
+
+
 SAVE_FILE = "vasp_data.gz"
+
+
+def configure(args):
+    d = {}
+    if os.path.exists(args.output_file):
+        d = loadfn(args.output_file)
+    toks = args.var_spec
+    if len(toks) % 2 != 0:
+        print("Bad variable specification!")
+        sys.exit(-1)
+    for i in range(int(len(toks) / 2)):
+        d[toks[2 * i]] = toks[2 * i + 1]
+    dumpfn(d, args.output_file, default_flow_style=False)
 
 
 def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
@@ -54,8 +69,8 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
     Doc string.
     """
     if verbose:
-        FORMAT = "%(relativeCreated)d msecs : %(message)s"
-        logging.basicConfig(level=logging.INFO, format=FORMAT)
+        logformat = "%(relativeCreated)d msecs : %(message)s"
+        logging.basicConfig(level=logging.INFO, format=logformat)
 
     if not detailed:
         drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
@@ -223,8 +238,7 @@ def convert_fmt(args):
     out_filename = args.output_filename[0]
 
     try:
-        if iformat == "smart":
-            structure = Structure.from_file(filename)
+
         if iformat == "POSCAR":
             p = Poscar.from_file(filename)
             structure = p.structure
@@ -236,6 +250,8 @@ def convert_fmt(args):
             structure = r.get_structures(primitive=False)[0]
         elif iformat == "CSSR":
             structure = Cssr.from_file(filename).structure
+        else:
+            structure = Structure.from_file(filename)
 
         if oformat == "smart":
             structure.to(filename=out_filename)
@@ -376,7 +392,7 @@ def setup_potcar(args):
 
     print("Generating pymatgen resources directory...")
 
-    NAME_MAPPINGS = {
+    name_mappings = {
         "potpaw_PBE": "POT_GGA_PAW_PBE",
         "potpaw_PBE_52": "POT_GGA_PAW_PBE_52",
         "potpaw_PBE_54": "POT_GGA_PAW_PBE_54",
@@ -394,7 +410,7 @@ def setup_potcar(args):
 
     for (parent, subdirs, files) in os.walk(pspdir):
         basename = os.path.basename(parent)
-        basename = NAME_MAPPINGS.get(basename, basename)
+        basename = name_mappings.get(basename, basename)
         for subdir in subdirs:
             filenames = glob.glob(os.path.join(parent, subdir, "POTCAR*"))
             if len(filenames) > 0:
@@ -420,33 +436,36 @@ def setup_potcar(args):
                           "continue... " % str(ex))
 
     print("")
-    print("PSP resources directory generated. It is recommended that you add "
-          "the following to your environment or .bash_profile if you are on "
-          "Unix-based systems.")
-    print("export VASP_PSP_DIR=\"%s\"" % os.path.abspath(targetdir))
-    if os.name == "posix":
-        r = input("Do you want us to try to automatically do this? (y/n)")
-        if r == "y":
-            bash_file = os.path.join(os.environ["HOME"], ".bash_profile")
-            if os.path.exists(bash_file):
-                with open(bash_file) as f:
-                    contents = f.read()
-                contents += "\n#Added by pymatgen\n"
-                contents += "export VASP_PSP_DIR=\"%s\"\n" % os.path.abspath(
-                    targetdir)
-                r = input("We can also add your Materials Project API key to "
-                          "the MAPI_KEY environment variable. This makes it "
-                          "easier to use MPRester without having to enter "
-                          "your API key each time. Enter an API key (from "
-                          "https://www.materialsproject.org/dashboard) to do "
-                          "this: ")
-                if r:
-                    contents += "export MAPI_KEY=\"%s\"\n" % r
-                with open(bash_file, "w") as f:
-                    f.write(contents)
+    print("PSP resources directory generated. It is recommended that you "
+          "run 'pmg config --add VASP_PSP_DIR %s'" % os.path.abspath(targetdir))
     print("Start a new terminal to ensure that your environment variables "
           "are properly set.")
 
+
+def diff_incar(args):
+    filepath1 = args.filenames[0]
+    filepath2 = args.filenames[1]
+    incar1 = Incar.from_file(filepath1)
+    incar2 = Incar.from_file(filepath2)
+
+    def format_lists(v):
+        if isinstance(v, (tuple, list)):
+            return " ".join(["%d*%.2f" % (len(tuple(group)), i)
+                             for (i, group) in itertools.groupby(v)])
+        return v
+
+    d = incar1.diff(incar2)
+    output = [['SAME PARAMS', '', '']]
+    output.append(['---------------', '', ''])
+    output.extend([(k, format_lists(d['Same'][k]), format_lists(d['Same'][k]))
+                   for k in sorted(d['Same'].keys()) if k != "SYSTEM"])
+    output.append(['', '', ''])
+    output.append(['DIFFERENT PARAMS', '', ''])
+    output.append(['----------------', '', ''])
+    output.extend([(k, format_lists(d['Different'][k]['INCAR1']),
+                    format_lists(d['Different'][k]['INCAR2']))
+                   for k in sorted(d['Different'].keys()) if k != "SYSTEM"])
+    print(tabulate(output, headers=['', filepath1, filepath2]))
 
 
 def main():
@@ -475,6 +494,24 @@ def main():
                               help="Output directory where the "
                                    "reorganized POTCARs will be stored.")
     parser_setup.set_defaults(func=setup_potcar)
+
+    parser_config = subparsers.add_parser("config", help="Tools for "
+                                                        "configuration file "
+                                                        ".pmgrc.yaml")
+    parser_config.add_argument("-a", "--add",
+                               dest="var_spec", type=str,
+                               required=True, nargs="+",
+                               help="Variables to add in the form of space "
+                                    "separated key value pairs. E.g., "
+                                    "VASP_PSP_DIR ~/psps")
+    parser_config.add_argument("-o", "--output_file",
+                               dest="output_file", type=str,
+                               default=SETTINGS_FILE,
+                               help="Output file to write the config to. "
+                                    "Defaults to standard config file "
+                                    "location in ~/.pmgrc.yaml. Use this if "
+                                    "you just want to see the file first.")
+    parser_config.set_defaults(func=configure)
 
     parser_vasp = subparsers.add_parser("analyze", help="Vasp run analysis.")
     parser_vasp.add_argument("directories", metavar="dir", default=".",
@@ -610,6 +647,11 @@ def main():
                                  "matching.")
     parser_cmp.set_defaults(func=compare_structures)
 
+    parser_diffincar = subparsers.add_parser("diff_incar", help="Helpful diffing tool for INCARs")
+    parser_diffincar.add_argument("filenames", metavar="filenames", type=str,
+                            nargs=2, help="List of INCARs to compare.")
+    parser_diffincar.set_defaults(func=diff_incar)
+
     parser_generate = subparsers.add_parser("generate",
                                             help="Generate input files")
     parser_generate.add_argument("-f", "--functional", dest="functional",
@@ -651,7 +693,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        a = getattr(args, "func")
+        getattr(args, "func")
     except AttributeError:
         parser.print_help()
         sys.exit(0)

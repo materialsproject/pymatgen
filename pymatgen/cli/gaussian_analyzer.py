@@ -63,14 +63,14 @@ def get_energies(rootdir, reanalyze, verbose, pretty):
     print(msg)
 
 
-desc = '''
-Convenient Gaussian run analyzer which can recursively go into a directory
-to search results.
-Author: Shyue Ping Ong
-Version: 1.0
-Last updated: Jul 6 2012'''
+def main():
+    desc = '''
+    Convenient Gaussian run analyzer which can recursively go into a directory
+    to search results.
+    Author: Shyue Ping Ong
+    Version: 1.0
+    Last updated: Jul 6 2012'''
 
-if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('directories', metavar='dir', default='.', type=str,
                         nargs='*', help='directory to process')
@@ -88,3 +88,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     for d in args.directories:
         get_energies(d, args.reanalyze, args.verbose, args.pretty)
+
+
+if __name__ == "__main__":
+    main()

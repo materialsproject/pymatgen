@@ -7,6 +7,7 @@ from __future__ import division, unicode_literals, print_function
 import os
 import re
 import json
+import warnings
 from io import open
 from enum import Enum
 
@@ -898,7 +899,21 @@ class Specie(MSONable):
         """
         Ionic radius of specie. Returns None if data is not present.
         """
-        return self.ionic_radii.get(self._oxi_state, None)
+
+        if self._oxi_state in self.ionic_radii:
+            return self.ionic_radii[self._oxi_state]
+        d = self._el.data
+        oxstr = str(int(self._oxi_state))
+        if oxstr in d.get("Ionic radii hs", {}):
+            warnings.warn("No default ionic radius for %s. Using hs data." %
+                          self)
+            return d["Ionic radii hs"][oxstr]
+        elif oxstr in d.get("Ionic radii ls", {}):
+            warnings.warn("No default ionic radius for %s. Using ls data." %
+                          self)
+            return d["Ionic radii ls"][oxstr]
+        warnings.warn("No ionic radius for %s!")
+        return None
 
     @property
     def oxi_state(self):

@@ -1665,7 +1665,7 @@ Mn:
   Density of solid: 7470 kg m<sup>-3</sup>
   Electrical resistivity: 144 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>5</sup>.4s<sup>2</sup>'
-  Ionic radii: {2: 0.97, 3: 0.785}
+  Ionic radii: {2: 0.97, 3: 0.785, 4: 0.67, 5: 0.47, 6: 0.395, 7: 0.6}
   Ionic radii hs: {2: 0.97, 3: 0.785}
   Ionic radii ls: {2: 0.81, 3: 0.72, 4: 0.67, 5: 0.47, 6: 0.395, 7: 0.6}
   Liquid range: 815 K

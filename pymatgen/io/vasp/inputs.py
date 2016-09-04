@@ -39,6 +39,7 @@ from tabulate import tabulate
 
 import scipy.constants as const
 
+from pymatgen import SETTINGS
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element, get_el_sp
@@ -1316,12 +1317,6 @@ class Kpoints(MSONable):
                    tet_connections=d.get("tet_connections"))
 
 
-def get_potcar_dir():
-    if "VASP_PSP_DIR" in os.environ:
-        return os.environ["VASP_PSP_DIR"]
-    return None
-
-
 def parse_string(s):
     return "{}".format(s.strip())
 
@@ -1526,7 +1521,7 @@ class PotcarSingle(object):
     @staticmethod
     def from_symbol_and_functional(symbol, functional="PBE"):
         funcdir = PotcarSingle.functional_dir[functional]
-        d = get_potcar_dir()
+        d = SETTINGS.get("VASP_PSP_DIR")
         if d is None:
             raise ValueError("No POTCAR directory found. Please set "
                              "the VASP_PSP_DIR environment variable")
@@ -1719,8 +1714,8 @@ class Potcar(list, MSONable):
                     sym_potcar_map=None):
         """
         Initialize the POTCAR from a set of symbols. Currently, the POTCARs can
-        be fetched from a location specified in the environment variable
-        VASP_PSP_DIR or in a pymatgen.cfg or specified explicitly in a map.
+        be fetched from a location specified in .pmgrc.yaml. Use pmg config
+        to add this setting.
 
         Args:
             symbols ([str]): A list of element symbols
