@@ -2552,35 +2552,23 @@ class Structure(IStructure, collections.MutableSequence):
 
         self._sites = sites
 
-    def get_duplicate_indices(self, tol=1e-5):
-        """
-        Get indices of sites that are within tol of each other and have identical composition and specie.
-
-        Args:
-            tol (float): tolerance for determining whether two sites are duplicate
-        """
-        dups = []
-        l = len(self)
-        for i in range(l):
-            for j in range(i + 1, l):
-                d = self.get_distance(i, j)
-                if self[i].species_and_occu == self[j].species_and_occu and d <= tol:
-                    dups.append((i, j))
-        return dups
-
-    def remove_duplicates(self, tol=1e-5):
+    def remove_duplicates(self, tol=0.01):
         """
         Remove sites that are within tol of each other with identical composition and specie.
 
         Args:
             tol (float): tolerance for determining whether two sites are duplicate
         """
-        dups = self.get_duplicate_indices(tol=tol)
-        sites,groups = group_indices(dups)
+
+        import scipy.cluster as spcluster
+
+        dist = self.distance_matrix
+        groups = spcluster.hierarchy.fclusterdata(dist, tol, criterion="distance")
         remove = []
 
-        for g in groups:
-            remove += groups[g][1:]
+        for i,j in enumerate(groups):
+            if j in groups[:i]:
+                remove.append(i)
 
         self.remove_sites(remove)
 
@@ -2974,33 +2962,6 @@ class StructureError(Exception):
     Raised when the structure has problems, e.g., atoms that are too close.
     """
     pass
-
-def group_indices(tups):
-    """
-    Groups integers that are associated with each other via tuples.
-
-    For example, given the following list of tuples:
-    [(1,2),(1,3),(2,3),(4,5)]
-    this function will return
-    {1:0,2:0,3:0,4:1,5:1}, {0: [1,2,3], 1:[4,5]}
-
-
-    :param tups: tuples of integer pairs
-    :return: groups of integers that are associated with each other
-    """
-    t = sorted(tups)
-    groups = {}
-    sites = {}
-    group_id = 0
-    for (i,j) in tups:
-        if j not in sites.keys():
-            if i not in sites.keys():
-                sites.update({i:group_id})
-                groups.update({group_id:[i]})
-                group_id += 1
-            sites.update({j:sites[i]})
-            groups[sites[i]].append(j)
-    return sites,groups
 
 with open(os.path.join(os.path.dirname(__file__),
                        "func_groups.json"), "rt") as f:

@@ -734,6 +734,24 @@ class StructureTest(PymatgenTest):
         self.assertNotEqual(s, self.structure)
         self.assertNotEqual(self.structure * 2, self.structure)
 
+    def test_remove_duplicates(self):
+        # Test for TaS2 with spacegroup 166 in 160 setting.
+        l = Lattice.from_lengths_and_angles([3.374351, 3.374351, 20.308941], [90.000000, 90.000000, 120.000000])
+        species = ["Ta", "S", "S"]
+        coords = [[0.000000, 0.000000, 0.944333], [0.333333, 0.666667, 0.353424], [0.666667, 0.333333, 0.535243]]
+        tas2 = Structure.from_spacegroup(160,l,species,coords)
+        assert len(tas2) == 13
+        tas2.remove_duplicates()
+        assert len(tas2) == 9
+
+        l = Lattice.from_lengths_and_angles([3.587776, 3.587776, 19.622793], [90.000000, 90.000000, 120.000000])
+        species = ["Na", "V", "S", "S"]
+        coords = [[0.333333, 0.666667, 0.165000], [0.000000, 0.000000, 0.998333],
+                  [0.333333, 0.666667, 0.399394], [0.666667, 0.333333, 0.597273]]
+        navs2 = Structure.from_spacegroup(160, l, species, coords)
+        assert len(navs2) == 18
+        navs2.remove_duplicates()
+        assert len(navs2) == 12
 
 class IMoleculeTest(PymatgenTest):
 
