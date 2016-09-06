@@ -2552,6 +2552,25 @@ class Structure(IStructure, collections.MutableSequence):
 
         self._sites = sites
 
+    def remove_duplicates(self, tol=0.01):
+        """
+        Remove sites that are within tol of each other with identical composition and specie.
+
+        Args:
+            tol (float): tolerance for determining whether two sites are duplicate
+        """
+
+        import scipy.cluster as spcluster
+
+        dist = self.distance_matrix
+        groups = spcluster.hierarchy.fclusterdata(dist, tol, criterion="distance")
+        remove = []
+
+        for i,j in enumerate(groups):
+            if j in groups[:i]:
+                remove.append(i)
+
+        self.remove_sites(remove)
 
 class Molecule(IMolecule, collections.MutableSequence):
     """
@@ -2943,7 +2962,6 @@ class StructureError(Exception):
     Raised when the structure has problems, e.g., atoms that are too close.
     """
     pass
-
 
 with open(os.path.join(os.path.dirname(__file__),
                        "func_groups.json"), "rt") as f:
