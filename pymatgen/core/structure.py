@@ -2526,11 +2526,19 @@ class Structure(IStructure, collections.MutableSequence):
         """
         self.modify_lattice(self._lattice.scale(volume))
 
-    def merge_sites(self, tol=0.01):
+    def merge_sites(self, tol=0.01, mode="sum"):
         """
         Merges sites (adding occupancies) within tol of each other.
-        Removes site properties
+        Removes site properties.
+
+        Args:
+            tol (float): Tolerance for distance to merge sites.
+            mode (str): Two modes supported. "delete" means duplicate sites are
+                deleted. "sum" means the occupancies are summed for the sites.
+                Only first letter is considered.
+
         """
+        mode = mode.lower()[0]
         from scipy.spatial.distance import squareform
         from scipy.cluster.hierarchy import fcluster, linkage
 
@@ -2544,7 +2552,9 @@ class Structure(IStructure, collections.MutableSequence):
             species = self[inds[0]].species_and_occu
             coords = self[inds[0]].frac_coords
             for n, i in enumerate(inds[1:]):
-                species += self[i].species_and_occu
+                sp = self[i].species_and_occu
+                if mode == "s":
+                    species += sp
                 offset = self[i].frac_coords - coords
                 coords += ((offset - np.round(offset)) / (n + 2)).astype(
                     coords.dtype)
@@ -2552,25 +2562,6 @@ class Structure(IStructure, collections.MutableSequence):
 
         self._sites = sites
 
-    def remove_duplicates(self, tol=0.01):
-        """
-        Remove sites that are within tol of each other with identical composition and specie.
-
-        Args:
-            tol (float): tolerance for determining whether two sites are duplicate
-        """
-
-        import scipy.cluster as spcluster
-
-        dist = self.distance_matrix
-        groups = spcluster.hierarchy.fclusterdata(dist, tol, criterion="distance")
-        remove = []
-
-        for i,j in enumerate(groups):
-            if j in groups[:i]:
-                remove.append(i)
-
-        self.remove_sites(remove)
 
 class Molecule(IMolecule, collections.MutableSequence):
     """
