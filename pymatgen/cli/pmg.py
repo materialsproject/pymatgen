@@ -21,7 +21,8 @@ from six.moves import input
 
 from tabulate import tabulate, tabulate_formats
 
-from pymatgen import Structure
+from monty.serialization import loadfn, dumpfn
+from pymatgen import Structure, SETTINGS_FILE
 from pymatgen.io.vasp import Outcar, Vasprun, Chgcar, Incar
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
     VaspToComputedEntryDrone
@@ -48,6 +49,19 @@ __date__ = "Aug 13 2016"
 
 
 SAVE_FILE = "vasp_data.gz"
+
+
+def configure(args):
+    d = {}
+    if os.path.exists(args.output_file):
+        d = loadfn(args.output_file)
+    toks = args.var_spec
+    if len(toks) % 2 != 0:
+        print("Bad variable specification!")
+        sys.exit(-1)
+    for i in range(int(len(toks) / 2)):
+        d[toks[2 * i]] = toks[2 * i + 1]
+    dumpfn(d, args.output_file, default_flow_style=False)
 
 
 def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
@@ -422,30 +436,8 @@ def setup_potcar(args):
                           "continue... " % str(ex))
 
     print("")
-    print("PSP resources directory generated. It is recommended that you add "
-          "the following to your environment or .bash_profile if you are on "
-          "Unix-based systems.")
-    print("export VASP_PSP_DIR=\"%s\"" % os.path.abspath(targetdir))
-    if os.name == "posix":
-        r = input("Do you want us to try to automatically do this? (y/n)")
-        if r == "y":
-            bash_file = os.path.join(os.environ["HOME"], ".bash_profile")
-            if os.path.exists(bash_file):
-                with open(bash_file) as f:
-                    contents = f.read()
-                contents += "\n#Added by pymatgen\n"
-                contents += "export VASP_PSP_DIR=\"%s\"\n" % os.path.abspath(
-                    targetdir)
-                r = input("We can also add your Materials Project API key to "
-                          "the MAPI_KEY environment variable. This makes it "
-                          "easier to use MPRester without having to enter "
-                          "your API key each time. Enter an API key (from "
-                          "https://www.materialsproject.org/dashboard) to do "
-                          "this: ")
-                if r:
-                    contents += "export MAPI_KEY=\"%s\"\n" % r
-                with open(bash_file, "w") as f:
-                    f.write(contents)
+    print("PSP resources directory generated. It is recommended that you "
+          "run 'pmg config --add VASP_PSP_DIR %s'" % os.path.abspath(targetdir))
     print("Start a new terminal to ensure that your environment variables "
           "are properly set.")
 
@@ -502,6 +494,24 @@ def main():
                               help="Output directory where the "
                                    "reorganized POTCARs will be stored.")
     parser_setup.set_defaults(func=setup_potcar)
+
+    parser_config = subparsers.add_parser("config", help="Tools for "
+                                                        "configuration file "
+                                                        ".pmgrc.yaml")
+    parser_config.add_argument("-a", "--add",
+                               dest="var_spec", type=str,
+                               required=True, nargs="+",
+                               help="Variables to add in the form of space "
+                                    "separated key value pairs. E.g., "
+                                    "VASP_PSP_DIR ~/psps")
+    parser_config.add_argument("-o", "--output_file",
+                               dest="output_file", type=str,
+                               default=SETTINGS_FILE,
+                               help="Output file to write the config to. "
+                                    "Defaults to standard config file "
+                                    "location in ~/.pmgrc.yaml. Use this if "
+                                    "you just want to see the file first.")
+    parser_config.set_defaults(func=configure)
 
     parser_vasp = subparsers.add_parser("analyze", help="Vasp run analysis.")
     parser_vasp.add_argument("directories", metavar="dir", default=".",

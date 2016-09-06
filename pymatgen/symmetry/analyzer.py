@@ -10,13 +10,12 @@ from collections import defaultdict
 import math
 from math import cos
 from math import sin
+from fractions import Fraction
 
 import numpy as np
 
 from six.moves import filter, map, zip
 import spglib
-
-
 
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.structure import SymmetrizedStructure
@@ -226,7 +225,13 @@ class SpacegroupAnalyzer(object):
         """
         d = spglib.get_symmetry(self._cell, symprec=self._symprec,
                                 angle_tolerance=self._angle_tol)
-        return d["rotations"], d["translations"]
+        # Sometimes spglib returns small translation vectors, e.g. [1e-4, 2e-4, 1e-4]
+        # (these are in fractional coordinates, so should be small denominator fractions)
+        trans = []
+        for t in d["translations"]:
+            trans.append([float(Fraction.from_float(c).limit_denominator(1000)) for c in t])
+        trans = np.array(trans)
+        return d["rotations"], trans
 
     def get_symmetry_operations(self, cartesian=False):
         """
@@ -322,7 +327,7 @@ class SpacegroupAnalyzer(object):
         return Structure(lattice, species, scaled_positions,
                          to_unit_cell=True).get_reduced_structure()
 
-    def get_ir_reciprocal_mesh(self, mesh=(10, 10, 10), shift=(0, 0, 0)):
+    def get_ir_reciprocal_mesh(self, mesh=(10, 10, 10), is_shift=(0, 0, 0)):
         """
         k-point mesh of the Brillouin zone generated taken into account
         symmetry.The method returns the irreducible kpoints of the mesh
@@ -331,23 +336,23 @@ class SpacegroupAnalyzer(object):
         Args:
             mesh (3x1 array): The number of kpoint for the mesh needed in
                 each direction
-            shift (3x1 array): A shift of the kpoint grid. For instance,
-                Monkhorst-Pack is [0.5,0.5,0.5]
-            is_time_reversal (bool): Set to True to impose time reversal
-                symmetry.
+            is_shift (3x1 array): Whether to shift the kpoint grid. (1, 1,
+            1) means all points are shifted by 0.5, 0.5, 0.5.
 
         Returns:
             A list of irreducible kpoints and their weights as a list of
             tuples [(ir_kpoint, weight)], with ir_kpoint given
             in fractional coordinates
         """
+        shift = np.array([1 if i else 0 for i in is_shift])
         mapping, grid = spglib.get_ir_reciprocal_mesh(
-            np.array(mesh), self._cell, is_shift=np.array(shift))
+            np.array(mesh), self._cell, is_shift=shift)
 
         results = []
         tmp_map = list(mapping)
         for i in np.unique(mapping):
-            results.append((grid[i] / mesh, tmp_map.count(i)))
+            results.append(((grid[i] + shift * (0.5, 0.5, 0.5)) / mesh,
+                            tmp_map.count(i)))
         return results
 
     def get_primitive_standard_structure(self, international_monoclinic=True):
@@ -696,7 +701,7 @@ class SpacegroupAnalyzer(object):
                                to_unit_cell=True)
         return new_struct.get_sorted_structure()
 
-    def get_kpoint_weights(self, kpoints, atol=1e-8):
+    def get_kpoint_weights(self, kpoints, atol=1e-5):
         """
         Calculate the weights for a list of kpoints.
 
@@ -709,19 +714,41 @@ class SpacegroupAnalyzer(object):
         Returns:
             List of weights, in the SAME order as kpoints.
         """
-        latt = self._structure.lattice.reciprocal_lattice
-        grid = Structure(latt, ["H"], [[0, 0, 0]])
-        a = SpacegroupAnalyzer(grid)
-        recp_ops = a.get_symmetry_operations()
+        kpts = np.array(kpoints)
+
+        mesh = []
+        for i in range(3):
+            nonzero = [i for i in kpts[:, i] if abs(i) > 1e-5]
+            if not nonzero:
+                mesh.append(1)
+            else:
+                m = np.abs(np.round(1/np.array(nonzero)))
+                mesh.append(int(max(m)))
+
+        normalized = kpts * np.array(mesh)[None, :]
+        if not np.allclose(normalized, np.round(normalized)):
+            raise ValueError("Grid does not seem to be uniform!")
+
+        shift = (0, 0, 0) if in_coord_list_pbc(kpoints, (0, 0, 0)) else (1,
+                                                                         1, 1)
+
+        mapping, grid = spglib.get_ir_reciprocal_mesh(
+            np.array(mesh), self._cell, is_shift=shift)
+        mapping = list(mapping)
+        grid = (np.array(grid) + np.array(shift) * (0.5, 0.5, 0.5)) / mesh
         weights = []
+        mapped = defaultdict(int)
         for k in kpoints:
-            all_k = []
-            for o in recp_ops:
-                k2 = o.operate(k)
-                if not in_coord_list_pbc(all_k, k2, atol=atol):
-                    all_k.append(k2)
-            weights.append(len(all_k))
-        return weights
+            for i, g in enumerate(grid):
+                if np.allclose(k, g, atol=atol):
+                    mapped[tuple(g)] += 1
+                    weights.append(mapping.count(mapping[i]))
+                    break
+        if (len(mapped) != len(set(mapping))) or (
+                not all([v == 1 for v in mapped.values()])):
+            raise ValueError("Unable to find 1:1 corresponding between input "
+                             "kpoints and irreducible grid!")
+        return [w/sum(weights) for w in weights]
 
 
 class PointGroupAnalyzer(object):

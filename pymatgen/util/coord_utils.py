@@ -82,7 +82,7 @@ def is_coord_subset(subset, superset, atol=1e-8):
     return np.all(any_close)
 
 
-def coord_list_mapping(subset, superset):
+def coord_list_mapping(subset, superset, atol=1e-8):
     """
     Gives the index mapping from a subset to a superset.
     Subset and superset cannot contain duplicate rows
@@ -95,10 +95,10 @@ def coord_list_mapping(subset, superset):
     """
     c1 = np.array(subset)
     c2 = np.array(superset)
-    inds = np.where(np.all(np.isclose(c1[:, None, :], c2[None, :, :]),
+    inds = np.where(np.all(np.isclose(c1[:, None, :], c2[None, :, :], atol=atol),
                            axis=2))[1]
     result = c2[inds]
-    if not np.allclose(c1, result):
+    if not np.allclose(c1, result, atol=atol):
         if not is_coord_subset(subset, superset):
             raise ValueError("subset is not a subset of superset")
     if not result.shape == c1.shape:
