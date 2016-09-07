@@ -16,7 +16,10 @@ import glob
 import shutil
 import subprocess
 import itertools
-
+try:
+    from urllib.request import urlretrieve
+except ImportError:
+    from urllib import urlretrieve
 from six.moves import input
 
 from tabulate import tabulate, tabulate_formats
@@ -378,10 +381,7 @@ def generate_diffraction_plot(args):
         c.show_xrd_plot(s)
 
 
-def setup_potcar(args):
-    pspdir = os.path.abspath(args.input_potcar_dir)
-    targetdir = os.path.abspath(args.output_potcar_dir)
-
+def setup_potcars(pspdir, targetdir):
     try:
         os.makedirs(targetdir)
     except OSError:
@@ -442,6 +442,93 @@ def setup_potcar(args):
           "are properly set.")
 
 
+def build_enum(fortran_command="gfortran"):
+    currdir = os.getcwd()
+    state = True
+    try:
+        subprocess.call(["git", "clone",
+                         "https://github.com/msg-byu/enumlib.git"])
+        subprocess.call(["git", "clone",
+                         "https://github.com/msg-byu/symlib.git"])
+        os.chdir(os.path.join(currdir, "symlib", "src"))
+        os.environ["F90"] = fortran_command
+        subprocess.call(["make"])
+        enumpath = os.path.join(currdir, "enumlib", "src")
+        os.chdir(enumpath)
+        subprocess.call(["make"])
+        for f in ["enum.x", "makestr.x"]:
+            subprocess.call(["make", f])
+            shutil.copy(f, os.path.join("..", ".."))
+    except Exception as ex:
+        print(str(ex))
+        state = False
+    finally:
+        os.chdir(currdir)
+        shutil.rmtree("enumlib")
+        shutil.rmtree("symlib")
+    return state
+
+
+def build_bader(fortran_command="gfortran"):
+    bader_url = "http://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz"
+    currdir = os.getcwd()
+    state = True
+    try:
+        urlretrieve(bader_url, "bader.tar.gz")
+        subprocess.call(["tar", "-zxf", "bader.tar.gz"])
+        os.chdir("bader")
+        subprocess.call(
+            ["cp", "makefile.osx_" + fortran_command, "makefile"])
+        subprocess.call(["make"])
+        shutil.copy("bader", os.path.join("..", "bader_exe"))
+        os.chdir("..")
+        shutil.rmtree("bader")
+        os.remove("bader.tar.gz")
+        shutil.move("bader_exe", "bader")
+    except Exception as ex:
+        print(str(ex))
+        state = False
+    finally:
+        os.chdir(currdir)
+    return state
+
+
+def setup_pmg(args):
+    if args.potcar_dirs:
+        pspdir, targetdir = [os.path.abspath(d) for d in args.potcar_dirs]
+        setup_potcars(pspdir, targetdir)
+    elif args.install:
+        try:
+            subprocess.call(["ifort", "--version"])
+            print("Found ifort")
+            fortran_command = "ifort"
+        except:
+            try:
+                subprocess.call(["gfortran", "--version"])
+                print("Found gfortran")
+                fortran_command = "gfortran"
+            except Exception as ex:
+                print(str(ex))
+                print("No fortran compiler found.")
+                sys.exit(-1)
+
+        enum = None
+        bader = None
+        if args.install == "enum":
+            print("Building enumlib")
+            enum = build_enum(fortran_command)
+            print("")
+        elif args.install == "bader":
+            print("Building bader")
+            bader = build_bader(fortran_command)
+            print("")
+        if bader or enum:
+            print("Please add {} to your PATH or move the executables multinum.x, "
+                  "makestr.x and/or bader to a location in your PATH."
+                  .format(os.path.abspath(".")))
+            print("")
+
+
 def diff_incar(args):
     filepath1 = args.filenames[0]
     filepath2 = args.filenames[1]
@@ -482,18 +569,22 @@ def main():
     subparsers = parser.add_subparsers()
 
     parser_setup = subparsers.add_parser("setup", help="Setup pymatgen.")
-    parser_setup.add_argument("-i", "--input_potcar_dir",
-                              dest="input_potcar_dir", type=str, required=True,
+    parser_setup.add_argument("-p", "--potcar",
+                              dest="potcar_dirs", type=str, nargs=2,
                               help="Initial directory where downloaded VASP "
-                                   "POTCARs are extracted to. This should be "
+                                   "POTCARs are extracted to, and the "
+                                   "output directory where the reorganized "
+                                   "potcars will be stored. The input "
+                                   "directory should be "
                                    "the parent directory that contains the "
                                    "POT_GGA_PAW_PBE or potpaw_PBE type "
                                    "subdirectories.")
-    parser_setup.add_argument("-o", "--output_potcar_dir",
-                              dest="output_potcar_dir", type=str, required=True,
-                              help="Output directory where the "
-                                   "reorganized POTCARs will be stored.")
-    parser_setup.set_defaults(func=setup_potcar)
+    parser_setup.add_argument("-i", "--install",
+                              dest="install", type=str,
+                              choices=["enum", "bader"],
+                              help="Install various optional command line "
+                                   "tools needed for full functionality.")
+    parser_setup.set_defaults(func=setup_pmg)
 
     parser_config = subparsers.add_parser("config", help="Tools for "
                                                         "configuration file "

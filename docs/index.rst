@@ -121,6 +121,14 @@ any system is to use pip::
 
     pip install pymatgen
 
+If you would like to use the enumeration capabilities powered by Gus Hart's
+enumlib or perform Bader charge analysis powered by the Bader analysis code
+of the Henkelmann group, you can install it using the pmg command line tool
+as follows::
+
+   pmg setup --install enum
+   pmg setup --install bader
+
 Detailed installation instructions for various platforms (Mac and Windows)
 are given on this :doc:`page </installation>`, including how to setup your
 machine for POTCAR generation, Materials Project REST interface usage, etc.
