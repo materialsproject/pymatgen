@@ -24,7 +24,7 @@ from io import open
 
 try:
     import matplotlib
-    matplotlib.use("Agg") # Use non-graphical display backend during test.
+    matplotlib.use("pdf") # Use non-graphical display backend during test.
     have_matplotlib = "DISPLAY" in os.environ
 except ImportError:
     have_matplotlib = False
