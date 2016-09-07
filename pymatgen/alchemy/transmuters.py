@@ -29,6 +29,7 @@ import warnings
 
 from multiprocessing import Pool
 from pymatgen.alchemy.materials import TransformedStructure
+from pymatgen.io.vasp.sets import MPRelaxSet
 
 
 class StandardTransmuter(object):
@@ -179,9 +180,7 @@ class StandardTransmuter(object):
         for ts in self.transformed_structures:
             ts.append_filter(structure_filter)
 
-    def write_vasp_input(self, vasp_input_set, output_dir,
-                         create_directory=True, subfolder=None,
-                         include_cif=False):
+    def write_vasp_input(self, **kwargs):
         """
         Batch write vasp input for a sequence of transformed structures to
         output_dir, following the format output_dir/{formula}_{number}.
@@ -198,9 +197,7 @@ class StandardTransmuter(object):
             include_cif (bool): Whether to output a CIF as well. CIF files
                 are generally better supported in visualization programs.
         """
-        batch_write_vasp_input(self.transformed_structures, vasp_input_set,
-                               output_dir, create_directory, subfolder,
-                               include_cif)
+        batch_write_vasp_input(self.transformed_structures, **kwargs)
 
     def set_parameter(self, key, value):
         """
@@ -374,9 +371,10 @@ class PoscarTransmuter(StandardTransmuter):
                                   extend_collection=extend_collection)
 
 
-def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir,
-                           create_directory=True, subfolder=None,
-                           include_cif=False):
+def batch_write_vasp_input(transformed_structures, vasp_input_set=MPRelaxSet,
+                           output_dir=".", create_directory=True,
+                           subfolder=None,
+                           include_cif=False, **kwargs):
     """
     Batch write vasp input for a sequence of transformed structures to
     output_dir, following the format output_dir/{group}/{formula}_{number}.
@@ -405,7 +403,7 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir,
         else:
             dirname = os.path.join(output_dir, "{}_{}".format(formula, i))
         s.write_vasp_input(vasp_input_set, dirname,
-                           create_directory=create_directory)
+                           create_directory=create_directory, **kwargs)
         if include_cif:
             from pymatgen.io.cif import CifWriter
 

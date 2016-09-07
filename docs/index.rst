@@ -99,59 +99,35 @@ compatible. Our approach is to have a single codebase support Python 2.7 and
 Getting pymatgen
 ================
 
-Guided install
---------------
-
-For users who intend to use pymatgen purely as an analysis library (without
-developing on it), a user-friendly script has been written to guide users
-through the installation process for 64-bit Linux and Mac users. This
-installation script requires only basic *Python 2.7+, setuptools,
-and a working version of gcc* as prerequisites. Click to download the
-`pmg_install.py <_static/pmg_install.py>`_ script. Move the script to an
-empty directory and then run::
-
-    python pmg_install.py
-
-Unless you are working in a virtual environment, you will probably need to
-run the above command with admin privileges (e.g., sudo). This will install
-pymatgen with all *basic dependencies*.
-
-To include more optional dependencies, build the enumlib and bader
-executables as well as a step-by-step initial setup for POTCARs and Materials
-API usage, run::
-
-    python pmg_install.py -f
-
-The full installation requires a Fortran compiler (ifort or gfortran) to be in
-the PATH, as well as X11 (`XQuartz <http://xquartz.macosforge.org/>`_ on Mac)
-to be installed for matplotlib.
-
-Stable version
---------------
-
 .. note:: Preparation
 
     Before installing pymatgen, you may need to first install a few critical
     dependencies manually.
 
-    1. Installation has been tested to be most successful with gcc,
-       and several dependencies have issues with icc. Use gcc where
-       possible and do "export CC=gcc" prior to installation.
-    2. Numpy's distutils is needed to compile the spglib and pyhull
+    1. It is highly recommended that you use Python>=2.7.9 or >=3.5+. In
+       fact, unless you are very sure you have dependencies that require Python
+       2, it is highly recommended that you use Python >=3.5+.
+    2. Installation has been tested to be most successful with gcc. Use gcc
+       where possible and do "export CC=gcc" prior to installation.
+    3. Numpy's distutils is needed to compile the spglib and pyhull
        dependencies. This should be the first thing you install.
-    3. One of the best things you can do is to use conda to manage all this.
+    4. One of the best things you can do is to use conda to manage all this.
        The instructions for `Shared cluster installation`_ pretty much
        applies to any machine as well.
 
 The version at the Python Package Index (PyPI) is always the latest stable
 release that is relatively bug-free. The easiest way to install pymatgen on
-any system is to use easy_install or pip, as follows::
-
-    easy_install pymatgen
-
-or::
+any system is to use pip::
 
     pip install pymatgen
+
+If you would like to use the enumeration capabilities powered by Gus Hart's
+enumlib or perform Bader charge analysis powered by the Bader analysis code
+of the Henkelmann group, you can install it using the pmg command line tool
+as follows::
+
+   pmg setup --install enum
+   pmg setup --install bader
 
 Detailed installation instructions for various platforms (Mac and Windows)
 are given on this :doc:`page </installation>`, including how to setup your
@@ -169,13 +145,13 @@ The bleeding edge developmental version is at the pymatgen's `Github repo
 <https://github.com/materialsproject/pymatgen>`_. The developmental
 version is likely to be more buggy, but may contain new features. The
 Github version include test files as well for complete unit testing. After
-cloning the source, you can type::
+cloning the source, you can type in the root of the repo::
 
-    python setup.py install
+    pip install .
 
 or to install the package in developmental mode::
 
-    python setup.py develop
+    pip install -e .
 
 To run the very comprehensive suite of unittests included with the
 developmental version, make sure you have nose installed and then just type::
@@ -194,7 +170,7 @@ install. This guarantees the right version of python and all dependencies::
     # Here, Python 3.5+ is assumed.
     # You can change the following to Miniconda2 if you prefer Python 2.7
     wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-    bash Miniconda3-latest-Linux-x86_64.sh
+    bash Miniconda3-latest-Linux-x86_64.sh -b
 
     # Reload bash profile.
     source $HOME/.bashrc
@@ -205,27 +181,6 @@ install. This guarantees the right version of python and all dependencies::
 
     # Install pymatgen using pip.
     pip install pymatgen
-
-"Sample" Docker version
------------------------
-
-If you would like to try out pymatgen's capabilities before committing to an
-install, one way is to use `Docker <http://www.docker.com/>`_. The
-`Materials Virtual Lab`_ has created an Docker image for the latest version of
-pymatgen. After installing Docker for your platform, you may pull and run the
-pymatgen Docker image as follows::
-
-    docker pull materialsvirtuallab/pymatgen
-    docker run -t -i materialsvirtuallab/pymatgen
-
-This will run ipython shell where you can import pymatgen and run most of the
-examples. If you want to use your own files to run some examples, you may
-mount a directory in your host computer containing the files you wish to work
-in the docker container using the -v option. For example, let's say you have
-your files in the /Users/myname/research directory. You may then run docker
-as follows::
-
-    docker run -t -i -v /Users/myname/research:/opt/research materialsvirtuallab/pymatgen
 
 Using pymatgen
 ==============
