@@ -72,10 +72,6 @@ on any system is to use pip (or easy_install), as follows::
 
     pip install pymatgen
 
-or::
-
-    easy_install pymatgen
-
 Some extra functionality (e.g., generation of POTCARs) do require additional
 setup (please see the `pymatgen page`_).
 
@@ -85,6 +81,7 @@ equivalent environment with the necessary compilers.
 
 Change Log
 ==========
+
 The latest change log is available `here <http://pymatgen.org/change_log>`_.
 
 Using pymatgen
