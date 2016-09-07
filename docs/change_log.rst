@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v4.2.3
+------
+* Minor cleanup.
+* Simplified installation. enumlib and bader can now be installed using pmg setup --install.
+
 v4.2.2
 ------
 * Global configuration variables such as VASP\_PSP\_DIR and MAPI\_KEY are now
