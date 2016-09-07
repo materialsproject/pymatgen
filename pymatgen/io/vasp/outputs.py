@@ -747,7 +747,7 @@ class Vasprun(MSONable):
                     if self.actual_kpoints_weights[i] == 0.0:
                         start_bs_index = i
                         break
-                for i in range(len(kpoint_file.kpts)):
+                for i in range(start_bs_index, len(kpoint_file.kpts)):
                     if kpoint_file.labels[i] is not None:
                         labels_dict[kpoint_file.labels[i]] = \
                             kpoint_file.kpts[i]

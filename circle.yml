@@ -14,7 +14,7 @@ dependencies:
     - pip install -q numpy
     - pip install -r requirements.txt
     - pip install -r requirements-optional.txt
-    - sudo apt-get install python-openbabel python-vtk
+    - sudo apt-get install python-openbabel python-vtk python3-tk
     - python setup.py develop
 test:
   override:

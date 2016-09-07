@@ -99,7 +99,7 @@ pymatgen usage.
 
     b. Gfortran 4.6.2+ - Get an installer at
        http://gcc.gnu.org/wiki/GFortranBinaries#MacOS.
-2. It is recommended that you install the latest copy of Python 2.7+ (not 3+),
+2. It is recommended that you install the latest copy of Python 3.5+ (not 2.7+),
    even though your Mac should already have a compatible version. This makes it
    easier for future upgrades and minimizes issues. Get it from the `Python
    home page <http://www.python.org>`_ and install.
@@ -108,25 +108,16 @@ pymatgen usage.
     which python
 
    You should see something like
-   “/Library/Frameworks/Python.framework/Versions/2.7/bin/python”. If you don’t
+   “/Library/Frameworks/Python.framework/Versions/3.5/bin/python”. If you don’t
    get this (e.g., if you get /usr/bin/python), you may need to change your
    PATH.
 
-4. Python setuptools make it easier to install subsequent programs via
-   “easy_install”. If you want to, you can install pip as well using “sudo
-   easy_install pip”. Pip has several advantages over easy_install. In a
-   terminal, run::
-
-    curl -o setuptools-0.6c11-py2.7.egg http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11-py2.7.egg
-    sudo sh setuptools-0.6c11-py2.7.egg
-    sudo easy_install pip #optional
-
-5. Install numpy and a few other dependencies::
+4. Install numpy and a few other dependencies::
 
     sudo pip install numpy
     sudo pip install pyyaml
 
-6. Install pymatgen, either in development mode or via pip.
+5. Install pymatgen, either in development mode or via pip.
 
 Windows (tested on Win7 64-bit)
 -------------------------------
@@ -204,7 +195,7 @@ setup functionality.
 
 After installation, do::
 
-    pmg setup --input_potcar_dir <EXTRACTED_VASP_POTCAR> --output_potcar_dir <MY_PSP>
+    pmg setup -p <EXTRACTED_VASP_POTCAR> <MY_PSP>
 
 In the above, `<EXTRACTED_VASP_POTCAR>` is the location of the directory that
 you extracted the downloaded VASP pseudopotential files. Typically, it has
@@ -236,10 +227,11 @@ resources directory with the following directory structure::
 	|- POT_GGA_PAW_PW91
 	...
 
-After generating the resources directory, you should add a VASP_PSP_DIR
-environment variable pointing to the generated directory and you should then be
-able to generate POTCARs. The setup also provides options to do this
-automatically and setup for Materials API usage as well.
+After generating the resources directory, you should add a VASP_PSP_DIR config
+variable pointing to the generated directory and you should then be
+able to generate POTCARs::
+
+    pmg config --add VASP_PSP_DIR <MY_PSP>
 
 Setup for Developers (using GitHub)
 ===================================
@@ -249,7 +241,7 @@ Setup for Developers (using GitHub)
 2. In your root pymatgen repo directory, type (you may need to do this with root
    privileges)::
 
-      python setup.py develop
+      pip install -e .
 
 3. Install any missing python libraries that are necessary.
 
