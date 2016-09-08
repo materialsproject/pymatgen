@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v4.2.4
+v4.2.5
 ------
-* Bug fix for kpoint weight calculation for Monkhorst meshes.
+* Bug fix for BSPlotter.
