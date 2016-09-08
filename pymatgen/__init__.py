@@ -5,7 +5,7 @@ __email__ ="pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ ="shyuep@gmail.com"
 __date__ = "Sep 7 2016"
-__version__ = "4.2.3"
+__version__ = "4.2.4"
 
 import os
 import warnings
