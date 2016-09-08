@@ -1,7 +1,6 @@
 Change log
 ==========
 
-v4.2.3
+v4.2.4
 ------
-* Minor cleanup.
-* Simplified installation. enumlib and bader can now be installed using pmg setup --install.
+* Bug fix for kpoint weight calculation for Monkhorst meshes.
