@@ -691,7 +691,7 @@ class BSPlotterProjected(BSPlotter):
     """
 
     def __init__(self, bs):
-        if len(bs._projections) == 0:
+        if len(bs.projections) == 0:
             raise ValueError("try to plot projections"
                              " on a band structure without any")
         super(BSPlotterProjected, self).__init__(bs)
