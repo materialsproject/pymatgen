@@ -719,20 +719,19 @@ class SpacegroupAnalyzer(object):
         mesh = []
         for i in range(3):
             nonzero = [i for i in kpts[:, i] if abs(i) > 1e-5]
-            if not nonzero:
-                mesh.append(1)
-                shift.append(0)
-            else:
-                if len(nonzero) != len(kpts):
-                    # gamma centered
+            if len(nonzero) != len(kpts):
+                # gamma centered
+                if not nonzero:
+                    mesh.append(1)
+                else:
                     m = np.abs(np.round(1/np.array(nonzero)))
                     mesh.append(int(max(m)))
-                    shift.append(0)
-                else:
-                    # Monk
-                    m = np.abs(np.round(0.5/np.array(nonzero)))
-                    mesh.append(int(max(m)))
-                    shift.append(1)
+                shift.append(0)
+            else:
+                # Monk
+                m = np.abs(np.round(0.5/np.array(nonzero)))
+                mesh.append(int(max(m)))
+                shift.append(1)
 
         mapping, grid = spglib.get_ir_reciprocal_mesh(
             np.array(mesh), self._cell, is_shift=shift)
