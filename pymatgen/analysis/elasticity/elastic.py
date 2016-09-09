@@ -176,6 +176,26 @@ class ElasticTensor(TensorBase):
                     (3. * self.k_vrh * self.g_vrh)
 
     @property
+    def trans_v(self, structure):
+        """
+        Calculates transverse sound velocity (in SI units) using the Voigt-Reuss-Hill average bulk modulus
+            and
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: transverse sound velocity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        natoms = structure.composition.num_atoms
+        weight = structure.composition.weight
+        mass_density = 1.6605e3 * nsites * volume * weight / \
+                           (natoms * volume)
+        return 1e9 * self.k_vrh / mass_density**0.5
+
+    @property
     def universal_anisotropy(self):
         """
         returns the universal anisotropy value
