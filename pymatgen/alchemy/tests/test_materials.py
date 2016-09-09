@@ -21,6 +21,8 @@ import os
 import json
 import warnings
 
+from pymatgen import SETTINGS
+
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation, PartialRemoveSpecieTransformation, \
@@ -96,8 +98,7 @@ class TransformedStructureTest(unittest.TestCase):
         self.trans.append_filter(f3)
 
     def test_get_vasp_input(self):
-        if "VASP_PSP_DIR" not in os.environ:
-            os.environ["VASP_PSP_DIR"] = os.path.abspath(
+        SETTINGS["VASP_PSP_DIR"] = os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "..", "..", "..",
                              "test_files"))
         potcar = self.trans.get_vasp_input(MPRelaxSet)['POTCAR']

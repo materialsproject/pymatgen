@@ -22,7 +22,7 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
-from pymatgen.util.coord_utils import find_in_coord_list, in_coord_list_pbc
+from pymatgen.util.coord_utils import find_in_coord_list, in_coord_list_pbc, pbc_diff
 
 """
 An interface to the excellent spglib library by Atsushi Togo
@@ -715,22 +715,23 @@ class SpacegroupAnalyzer(object):
             List of weights, in the SAME order as kpoints.
         """
         kpts = np.array(kpoints)
-
+        shift = []
         mesh = []
         for i in range(3):
             nonzero = [i for i in kpts[:, i] if abs(i) > 1e-5]
-            if not nonzero:
-                mesh.append(1)
+            if len(nonzero) != len(kpts):
+                # gamma centered
+                if not nonzero:
+                    mesh.append(1)
+                else:
+                    m = np.abs(np.round(1/np.array(nonzero)))
+                    mesh.append(int(max(m)))
+                shift.append(0)
             else:
-                m = np.abs(np.round(1/np.array(nonzero)))
+                # Monk
+                m = np.abs(np.round(0.5/np.array(nonzero)))
                 mesh.append(int(max(m)))
-
-        normalized = kpts * np.array(mesh)[None, :]
-        if not np.allclose(normalized, np.round(normalized)):
-            raise ValueError("Grid does not seem to be uniform!")
-
-        shift = (0, 0, 0) if in_coord_list_pbc(kpoints, (0, 0, 0)) else (1,
-                                                                         1, 1)
+                shift.append(1)
 
         mapping, grid = spglib.get_ir_reciprocal_mesh(
             np.array(mesh), self._cell, is_shift=shift)
@@ -740,7 +741,7 @@ class SpacegroupAnalyzer(object):
         mapped = defaultdict(int)
         for k in kpoints:
             for i, g in enumerate(grid):
-                if np.allclose(k, g, atol=atol):
+                if np.allclose(pbc_diff(k, g), (0, 0, 0), atol=atol):
                     mapped[tuple(g)] += 1
                     weights.append(mapping.count(mapping[i]))
                     break
@@ -1294,3 +1295,20 @@ class PointGroupOperations(list):
 
     def __repr__(self):
         return self.__str__()
+
+
+if __name__ == "__main__":
+    from pymatgen.io.vasp import Vasprun
+    v = Vasprun("../../test_files/vasprun.xml")
+    a = SpacegroupAnalyzer(v.final_structure)
+    print(v.actual_kpoints)
+    import spglib
+
+    shift = (1, 1, 1)
+    mapping, grid = spglib.get_ir_reciprocal_mesh(
+        np.array([1, 1, 3]), a._cell, is_shift=shift)
+    mapping = list(mapping)
+    grid = (np.array(grid) + np.array(shift) * (0.5, 0.5, 0.5)) / [1, 1, 3]
+    print(grid)
+    wts = a.get_kpoint_weights(v.actual_kpoints)
+
