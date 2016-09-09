@@ -236,6 +236,24 @@ class ElasticTensor(TensorBase):
                         (300. * num_density**(-2./3.) * nsites**(1./3.))
 
     @property
+    def snyder_opt(self, structure):
+        """
+        Calculates Snyder's optical sound velocity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Snyder's optical sound velocity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        num_density = 1e30 * nsites / volume
+        return 1.66914e-23 * (self.long_v + 2./3.*self.trans_v) / \
+                         num_density**(-2./3.) * \
+                         (1 - nsites**(-1./3.))
+
+    @property
     def universal_anisotropy(self):
         """
         returns the universal anisotropy value
