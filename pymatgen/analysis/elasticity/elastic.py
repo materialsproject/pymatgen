@@ -179,7 +179,6 @@ class ElasticTensor(TensorBase):
     def trans_v(self, structure):
         """
         Calculates transverse sound velocity (in SI units) using the Voigt-Reuss-Hill average bulk modulus
-            and
 
         Args:
             structure: pymatgen structure object
@@ -199,7 +198,6 @@ class ElasticTensor(TensorBase):
     def long_v(self, structure):
         """
         Calculates longitudinal sound velocity (in SI units) using the Voigt-Reuss-Hill average bulk modulus
-            and
 
         Args:
             structure: pymatgen structure object
