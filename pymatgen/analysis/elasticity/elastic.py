@@ -217,6 +217,27 @@ class ElasticTensor(TensorBase):
                      4./3. * self.g_vrh / mass_density**0.5
 
     @property
+    def snyder_ac(self, structure):
+        """
+        Calculates Snyder's acoustic sound velocity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Snyder's acoustic sound velocity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        natoms = structure.composition.num_atoms
+        num_density = 1e30 * nsites / volume
+        tot_mass = sum([e.atomic_mass for e in structure.species])
+        avg_mass = 1.6605e-27 * tot_mass / natoms
+        return 0.38483 * avg_mass * \
+                        (self.long_v + 2./3.*self.trans_v)**3. / \
+                        (300. * num_density**(-2./3.) * nsites**(1./3.))
+
+    @property
     def universal_anisotropy(self):
         """
         returns the universal anisotropy value
