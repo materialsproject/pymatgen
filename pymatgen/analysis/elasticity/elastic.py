@@ -162,8 +162,7 @@ class ElasticTensor(TensorBase):
         returns a list of Voigt, Reuss, and Voigt-Reuss-Hill averages of bulk
         and shear moduli similar to legacy behavior
         """
-        return [self.k_voigt, self.g_voigt, self.k_reuss, self.g_reuss,
-                self.k_vrh, self.g_vrh]
+        return [self.k_voigt, self.g_voigt, self.k_reuss, self.g_reuss, self.k_vrh, self.g_vrh]
 
     @property
     def y_mod(self):
@@ -171,8 +170,7 @@ class ElasticTensor(TensorBase):
         Calculates Young's modulus (in SI units) using the Voigt-Reuss-Hill averages of bulk
             and shear moduli
         """
-        return 9e9 * self.k_vrh * self.g_vrh / \
-               (3. * self.k_vrh * self.g_vrh)
+        return 9e9 * self.k_vrh * self.g_vrh / (3. * self.k_vrh * self.g_vrh)
 
     @property
     def trans_v(self, structure):
@@ -189,8 +187,7 @@ class ElasticTensor(TensorBase):
         volume = structure.volume
         natoms = structure.composition.num_atoms
         weight = structure.composition.weight
-        mass_density = 1.6605e3 * nsites * volume * weight / \
-                       (natoms * volume)
+        mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
         return 1e9 * self.k_vrh / mass_density ** 0.5
 
     @property
@@ -208,8 +205,7 @@ class ElasticTensor(TensorBase):
         volume = structure.volume
         natoms = structure.composition.num_atoms
         weight = structure.composition.weight
-        mass_density = 1.6605e3 * nsites * volume * weight / \
-                       (natoms * volume)
+        mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
         return 1e9 * self.k_vrh + 4. / 3. * self.g_vrh / mass_density ** 0.5
 
     @property
@@ -279,8 +275,7 @@ class ElasticTensor(TensorBase):
         natoms = structure.composition.num_atoms
         weight = structure.composition.weight
         avg_mass = 1.6605e-27 * tot_mass / natoms
-        mass_density = 1.6605e3 * nsites * volume * weight / \
-                           (natoms * volume)
+        mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
         return 0.87 * 1.3806e-23 * avg_mass**(-2./3.) * mass_density**(1./6.) * self.y_mod**0.5
 
     @property
