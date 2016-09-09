@@ -196,6 +196,27 @@ class ElasticTensor(TensorBase):
         return 1e9 * self.k_vrh / mass_density**0.5
 
     @property
+    def long_v(self, structure):
+        """
+        Calculates longitudinal sound velocity (in SI units) using the Voigt-Reuss-Hill average bulk modulus
+            and
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: longitudinal sound velocity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        natoms = structure.composition.num_atoms
+        weight = structure.composition.weight
+        mass_density = 1.6605e3 * nsites * volume * weight / \
+                           (natoms * volume)
+        return 1e9 * self.k_vrh + \
+                     4./3. * self.g_vrh / mass_density**0.5
+
+    @property
     def universal_anisotropy(self):
         """
         returns the universal anisotropy value
