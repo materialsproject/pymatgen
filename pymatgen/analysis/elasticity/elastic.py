@@ -265,12 +265,12 @@ class ElasticTensor(TensorBase):
     @property
     def clarke_thermalcond(self, structure):
         """
-        Calculates Snyder's optical sound velocity (in SI units)
+        Calculates Clarke's thermal conductivity (in SI units)
 
         Args:
             structure: pymatgen structure object
 
-        Returns: Snyder's optical sound velocity (in SI units)
+        Returns: Clarke's thermal conductivity (in SI units)
 
         """
         nsites = structure.num_sites
@@ -286,12 +286,12 @@ class ElasticTensor(TensorBase):
     @property
     def cahill_thermalcond(self, structure):
         """
-        Calculates Snyder's optical sound velocity (in SI units)
+        Calculates Cahill's thermal conductivity (in SI units)
 
         Args:
             structure: pymatgen structure object
 
-        Returns: Snyder's optical sound velocity (in SI units)
+        Returns: Cahill's thermal conductivity (in SI units)
 
         """
         nsites = structure.num_sites
