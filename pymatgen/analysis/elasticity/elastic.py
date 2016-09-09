@@ -284,6 +284,22 @@ class ElasticTensor(TensorBase):
         return 0.87 * 1.3806e-23 * avg_mass**(-2./3.) * mass_density**(1./6.) * self.y_mod**0.5
 
     @property
+    def cahill_thermalcond(self, structure):
+        """
+        Calculates Snyder's optical sound velocity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Snyder's optical sound velocity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        num_density = 1e30 * nsites / volume
+        return 1.3806e-23 / 2.48 * num_density**(2./3.) * self.long_v + 2 * self.trans_v
+
+    @property
     def universal_anisotropy(self):
         """
         returns the universal anisotropy value
