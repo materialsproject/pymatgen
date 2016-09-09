@@ -263,6 +263,27 @@ class ElasticTensor(TensorBase):
         return self.snyder_ac + self.snyder_opt
 
     @property
+    def clarke_thermalcond(self, structure):
+        """
+        Calculates Snyder's optical sound velocity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Snyder's optical sound velocity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        tot_mass = sum([e.atomic_mass for e in structure.species])
+        natoms = structure.composition.num_atoms
+        weight = structure.composition.weight
+        avg_mass = 1.6605e-27 * tot_mass / natoms
+        mass_density = 1.6605e3 * nsites * volume * weight / \
+                           (natoms * volume)
+        return 0.87 * 1.3806e-23 * avg_mass**(-2./3.) * mass_density**(1./6.) * self.y_mod**0.5
+
+    @property
     def universal_anisotropy(self):
         """
         returns the universal anisotropy value
