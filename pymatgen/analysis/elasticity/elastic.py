@@ -300,6 +300,26 @@ class ElasticTensor(TensorBase):
         return 1.3806e-23 / 2.48 * num_density**(2./3.) * self.long_v + 2 * self.trans_v
 
     @property
+    def debye_thermalcond(self, structure):
+        """
+        Calculates Debye's thermal conductivity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Debye's thermal conductivity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        tot_mass = sum([e.atomic_mass for e in structure.species])
+        natoms = structure.composition.num_atoms
+        weight = structure.composition.weight
+        avg_mass = 1.6605e-27 * tot_mass / natoms
+        mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
+        return 2.489e-11 * avg_mass**(-1./3.) * mass_density**(-1./6.) * self.y_mod**0.5
+
+    @property
     def universal_anisotropy(self):
         """
         returns the universal anisotropy value
