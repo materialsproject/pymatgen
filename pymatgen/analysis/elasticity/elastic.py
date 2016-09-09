@@ -66,7 +66,7 @@ class ElasticTensor(TensorBase):
                              "input to be the true 3x3x3x3 representation. "
                              "To construct from an elastic tensor from "
                              "6x6 Voigt array, use ElasticTensor.from_voigt")
-        return obj 
+        return obj
 
     @classmethod
     def from_voigt(cls, voigt_matrix, tol=1e-2):
@@ -165,6 +165,15 @@ class ElasticTensor(TensorBase):
         """
         return [self.k_voigt, self.g_voigt, self.k_reuss, self.g_reuss,
                 self.k_vrh, self.g_vrh]
+
+    @property
+    def y_mod(self):
+        """
+        Calculates Young's modulus (in SI units) using the Voigt-Reuss-Hill averages of bulk
+            and shear moduli
+        """
+        return 9e9 * self.k_vrh * self.g_vrh / \
+                    (3. * self.k_vrh * self.g_vrh)
 
     @property
     def universal_anisotropy(self):
