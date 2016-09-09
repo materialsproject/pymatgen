@@ -54,10 +54,9 @@ class ElasticTensor(TensorBase):
 
         obj = TensorBase(input_array).view(cls)
         if not ((obj - np.transpose(obj, (1, 0, 2, 3)) < tol).all() and
-                (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all() and
-                (obj - np.transpose(obj, (1, 0, 3, 2)) < tol).all() and
-                (obj - np.transpose(obj, (3, 2, 0, 1)) < tol).all()):
-
+                    (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all() and
+                    (obj - np.transpose(obj, (1, 0, 3, 2)) < tol).all() and
+                    (obj - np.transpose(obj, (3, 2, 0, 1)) < tol).all()):
             warnings.warn("Input elasticity tensor does "
                           "not satisfy standard symmetries")
 
@@ -83,8 +82,8 @@ class ElasticTensor(TensorBase):
                              "the elastic tensor in voigt notation as input.")
 
         c = np.zeros((3, 3, 3, 3))
-        for ind in itertools.product(*[range(3)]*4):
-            v_ind = (reverse_voigt_map[ind[:2]], 
+        for ind in itertools.product(*[range(3)] * 4):
+            v_ind = (reverse_voigt_map[ind[:2]],
                      reverse_voigt_map[ind[2:]])
             c[ind] = voigt_matrix[v_ind]
         return cls(c)
@@ -123,7 +122,7 @@ class ElasticTensor(TensorBase):
         """
         returns the G_v shear modulus
         """
-        return (2. * self.voigt[:3, :3].trace() - 
+        return (2. * self.voigt[:3, :3].trace() -
                 np.triu(self.voigt[:3, :3]).sum() +
                 3 * self.voigt[3:, 3:].trace()) / 15.
 
@@ -173,7 +172,7 @@ class ElasticTensor(TensorBase):
             and shear moduli
         """
         return 9e9 * self.k_vrh * self.g_vrh / \
-                    (3. * self.k_vrh * self.g_vrh)
+               (3. * self.k_vrh * self.g_vrh)
 
     @property
     def trans_v(self, structure):
@@ -191,8 +190,8 @@ class ElasticTensor(TensorBase):
         natoms = structure.composition.num_atoms
         weight = structure.composition.weight
         mass_density = 1.6605e3 * nsites * volume * weight / \
-                           (natoms * volume)
-        return 1e9 * self.k_vrh / mass_density**0.5
+                       (natoms * volume)
+        return 1e9 * self.k_vrh / mass_density ** 0.5
 
     @property
     def long_v(self, structure):
@@ -210,9 +209,8 @@ class ElasticTensor(TensorBase):
         natoms = structure.composition.num_atoms
         weight = structure.composition.weight
         mass_density = 1.6605e3 * nsites * volume * weight / \
-                           (natoms * volume)
-        return 1e9 * self.k_vrh + \
-                     4./3. * self.g_vrh / mass_density**0.5
+                       (natoms * volume)
+        return 1e9 * self.k_vrh + 4. / 3. * self.g_vrh / mass_density ** 0.5
 
     @property
     def snyder_ac(self, structure):
@@ -231,9 +229,8 @@ class ElasticTensor(TensorBase):
         num_density = 1e30 * nsites / volume
         tot_mass = sum([e.atomic_mass for e in structure.species])
         avg_mass = 1.6605e-27 * tot_mass / natoms
-        return 0.38483 * avg_mass * \
-                        (self.long_v + 2./3.*self.trans_v)**3. / \
-                        (300. * num_density**(-2./3.) * nsites**(1./3.))
+        return 0.38483 * avg_mass * (self.long_v + 2. / 3. * self.trans_v) ** 3. / \
+               (300. * num_density ** (-2. / 3.) * nsites ** (1. / 3.))
 
     @property
     def snyder_opt(self, structure):
@@ -249,9 +246,21 @@ class ElasticTensor(TensorBase):
         nsites = structure.num_sites
         volume = structure.volume
         num_density = 1e30 * nsites / volume
-        return 1.66914e-23 * (self.long_v + 2./3.*self.trans_v) / \
-                         num_density**(-2./3.) * \
-                         (1 - nsites**(-1./3.))
+        return 1.66914e-23 * (self.long_v + 2. / 3. * self.trans_v) / num_density ** (-2. / 3.) * \
+               (1 - nsites ** (-1. / 3.))
+
+    @property
+    def snyder_total(self):
+        """
+        Calculates Snyder's total sound velocity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Snyder's total sound velocity (in SI units)
+
+        """
+        return self.snyder_ac + self.snyder_opt
 
     @property
     def universal_anisotropy(self):
@@ -259,7 +268,7 @@ class ElasticTensor(TensorBase):
         returns the universal anisotropy value
         """
         return 5. * self.g_voigt / self.g_reuss + \
-            self.k_voigt / self.k_reuss - 6.
+               self.k_voigt / self.k_reuss - 6.
 
     @property
     def homogeneous_poisson(self):
@@ -275,10 +284,10 @@ class ElasticTensor(TensorBase):
         """
         # Conversion factor for GPa to eV/Angstrom^3
         GPA_EV = 0.000624151
-        
+
         with warnings.catch_warnings(record=True):
             e_density = np.dot(np.transpose(Strain(strain).voigt),
-                np.dot(self.voigt, Strain(strain).voigt))/2 * GPA_EV
+                               np.dot(self.voigt, Strain(strain).voigt)) / 2 * GPA_EV
 
         return e_density
 
