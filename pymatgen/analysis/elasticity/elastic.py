@@ -54,10 +54,9 @@ class ElasticTensor(TensorBase):
 
         obj = TensorBase(input_array).view(cls)
         if not ((obj - np.transpose(obj, (1, 0, 2, 3)) < tol).all() and
-                (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all() and
-                (obj - np.transpose(obj, (1, 0, 3, 2)) < tol).all() and
-                (obj - np.transpose(obj, (3, 2, 0, 1)) < tol).all()):
-
+                    (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all() and
+                    (obj - np.transpose(obj, (1, 0, 3, 2)) < tol).all() and
+                    (obj - np.transpose(obj, (3, 2, 0, 1)) < tol).all()):
             warnings.warn("Input elasticity tensor does "
                           "not satisfy standard symmetries")
 
@@ -66,7 +65,8 @@ class ElasticTensor(TensorBase):
                              "input to be the true 3x3x3x3 representation. "
                              "To construct from an elastic tensor from "
                              "6x6 Voigt array, use ElasticTensor.from_voigt")
-        return obj 
+        return obj
+
 
     @property
     def compliance_tensor(self):
@@ -88,7 +88,7 @@ class ElasticTensor(TensorBase):
         """
         returns the G_v shear modulus
         """
-        return (2. * self.voigt[:3, :3].trace() - 
+        return (2. * self.voigt[:3, :3].trace() -
                 np.triu(self.voigt[:3, :3]).sum() +
                 3 * self.voigt[3:, 3:].trace()) / 15.
 
@@ -128,8 +128,157 @@ class ElasticTensor(TensorBase):
         returns a list of Voigt, Reuss, and Voigt-Reuss-Hill averages of bulk
         and shear moduli similar to legacy behavior
         """
-        return [self.k_voigt, self.g_voigt, self.k_reuss, self.g_reuss,
-                self.k_vrh, self.g_vrh]
+        return [self.k_voigt, self.g_voigt, self.k_reuss, self.g_reuss, self.k_vrh, self.g_vrh]
+
+    @property
+    def y_mod(self):
+        """
+        Calculates Young's modulus (in SI units) using the Voigt-Reuss-Hill averages of bulk
+            and shear moduli
+        """
+        return 9e9 * self.k_vrh * self.g_vrh / (3. * self.k_vrh * self.g_vrh)
+
+    @property
+    def trans_v(self, structure):
+        """
+        Calculates transverse sound velocity (in SI units) using the Voigt-Reuss-Hill average bulk modulus
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: transverse sound velocity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        natoms = structure.composition.num_atoms
+        weight = structure.composition.weight
+        mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
+        return 1e9 * self.k_vrh / mass_density ** 0.5
+
+    @property
+    def long_v(self, structure):
+        """
+        Calculates longitudinal sound velocity (in SI units) using the Voigt-Reuss-Hill average bulk modulus
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: longitudinal sound velocity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        natoms = structure.composition.num_atoms
+        weight = structure.composition.weight
+        mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
+        return 1e9 * self.k_vrh + 4. / 3. * self.g_vrh / mass_density ** 0.5
+
+    @property
+    def snyder_ac(self, structure):
+        """
+        Calculates Snyder's acoustic sound velocity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Snyder's acoustic sound velocity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        natoms = structure.composition.num_atoms
+        num_density = 1e30 * nsites / volume
+        tot_mass = sum([e.atomic_mass for e in structure.species])
+        avg_mass = 1.6605e-27 * tot_mass / natoms
+        return 0.38483 * avg_mass * (self.long_v + 2. / 3. * self.trans_v) ** 3. / \
+               (300. * num_density ** (-2. / 3.) * nsites ** (1. / 3.))
+
+    @property
+    def snyder_opt(self, structure):
+        """
+        Calculates Snyder's optical sound velocity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Snyder's optical sound velocity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        num_density = 1e30 * nsites / volume
+        return 1.66914e-23 * (self.long_v + 2. / 3. * self.trans_v) / num_density ** (-2. / 3.) * \
+               (1 - nsites ** (-1. / 3.))
+
+    @property
+    def snyder_total(self):
+        """
+        Calculates Snyder's total sound velocity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Snyder's total sound velocity (in SI units)
+
+        """
+        return self.snyder_ac + self.snyder_opt
+
+    @property
+    def clarke_thermalcond(self, structure):
+        """
+        Calculates Clarke's thermal conductivity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Clarke's thermal conductivity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        tot_mass = sum([e.atomic_mass for e in structure.species])
+        natoms = structure.composition.num_atoms
+        weight = structure.composition.weight
+        avg_mass = 1.6605e-27 * tot_mass / natoms
+        mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
+        return 0.87 * 1.3806e-23 * avg_mass**(-2./3.) * mass_density**(1./6.) * self.y_mod**0.5
+
+    @property
+    def cahill_thermalcond(self, structure):
+        """
+        Calculates Cahill's thermal conductivity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Cahill's thermal conductivity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        num_density = 1e30 * nsites / volume
+        return 1.3806e-23 / 2.48 * num_density**(2./3.) * self.long_v + 2 * self.trans_v
+
+    @property
+    def debye_thermalcond(self, structure):
+        """
+        Calculates Debye's thermal conductivity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Debye's thermal conductivity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        tot_mass = sum([e.atomic_mass for e in structure.species])
+        natoms = structure.composition.num_atoms
+        weight = structure.composition.weight
+        avg_mass = 1.6605e-27 * tot_mass / natoms
+        mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
+        return 2.489e-11 * avg_mass**(-1./3.) * mass_density**(-1./6.) * self.y_mod**0.5
 
     @property
     def universal_anisotropy(self):
@@ -137,7 +286,7 @@ class ElasticTensor(TensorBase):
         returns the universal anisotropy value
         """
         return 5. * self.g_voigt / self.g_reuss + \
-            self.k_voigt / self.k_reuss - 6.
+               self.k_voigt / self.k_reuss - 6.
 
     @property
     def homogeneous_poisson(self):
@@ -153,10 +302,10 @@ class ElasticTensor(TensorBase):
         """
         # Conversion factor for GPa to eV/Angstrom^3
         GPA_EV = 0.000624151
-        
+
         with warnings.catch_warnings(record=True):
             e_density = np.dot(np.transpose(Strain(strain).voigt),
-                np.dot(self.voigt, Strain(strain).voigt))/2 * GPA_EV
+                               np.dot(self.voigt, Strain(strain).voigt)) / 2 * GPA_EV
 
         return e_density
 
