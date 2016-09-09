@@ -21,6 +21,7 @@ import os
 import pickle
 import numpy as np
 import warnings
+from pymatgen import SETTINGS
 
 import scipy.constants as const
 
@@ -616,11 +617,10 @@ class PotcarSingleTest(unittest.TestCase):
         self.assertEqual(self.psingle.get_potcar_hash(), "fa52f891f234d49bb4cb5ea96aae8f98")
 
     def test_from_functional_and_symbols(self):
-        if "VASP_PSP_DIR" not in os.environ:
-            test_potcar_dir = os.path.abspath(
-                os.path.join(os.path.dirname(__file__),
-                             "..", "..", "..", "..", "test_files"))
-            os.environ["VASP_PSP_DIR"] = test_potcar_dir
+        test_potcar_dir = os.path.abspath(
+            os.path.join(os.path.dirname(__file__),
+                         "..", "..", "..", "..", "test_files"))
+        SETTINGS["VASP_PSP_DIR"] = test_potcar_dir
         p = PotcarSingle.from_symbol_and_functional("Li_sv", "PBE")
         self.assertEqual(p.enmax, 271.649)
 
