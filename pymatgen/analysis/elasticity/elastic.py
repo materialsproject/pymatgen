@@ -48,7 +48,6 @@ class ElasticTensor(TensorBase):
         Args:
             input_array (3x3x3x3 array-like): the 3x3x3x3 array-like
                 representing the elastic tensor
-            structure (Structure): structure associated with the elastic tensor
 
             tol (float): tolerance for initial symmetry test of tensor
         """
@@ -130,7 +129,7 @@ class ElasticTensor(TensorBase):
         returns a list of Voigt, Reuss, and Voigt-Reuss-Hill averages of bulk
         and shear moduli similar to legacy behavior
         """
-        return [self.k_voigt, self.g_voigt, self.k_reuss, self.g_reuss, 
+        return [self.k_voigt, self.g_voigt, self.k_reuss, self.g_reuss,
                 self.k_vrh, self.g_vrh]
 
     @property
@@ -288,7 +287,7 @@ class ElasticTensor(TensorBase):
         returns the universal anisotropy value
         """
         return 5. * self.g_voigt / self.g_reuss + \
-               self.k_voigt / self.k_reuss - 6.
+                self.k_voigt / self.k_reuss - 6.
 
     @property
     def homogeneous_poisson(self):
