@@ -143,6 +143,7 @@ class DeformedStructureSetTest(PymatgenTest):
     def test_init(self):
         with self.assertRaises(ValueError):
             DeformedStructureSet(self.structure, num_norm=5)
+        with self.assertRaises(ValueError):
             DeformedStructureSet(self.structure, num_shear=5)
         self.assertEqual(self.structure, self.default_dss.undeformed_structure)
 

@@ -417,10 +417,3 @@ class SquareTensor(TensorBase):
         calculates matrices for polar decomposition
         """
         return polar(self, side=side)
-
-
-if __name__ == "__main__":
-    tb4 = TensorBase(np.zeros((3, 3, 3, 3)))
-    tb3 = TensorBase(np.zeros((3, 3, 3)))
-    tb2 = TensorBase(np.zeros((3, 3)))
-    tb3.is_voigt_symmetric

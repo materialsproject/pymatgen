@@ -54,6 +54,12 @@ class ElasticTensor(TensorBase):
         """
 
         obj = TensorBase(input_array).view(cls)
+        if obj.shape != (3, 3, 3, 3):
+            raise ValueError("Default elastic tensor constructor requires "
+                             "input to be the true 3x3x3x3 representation. "
+                             "To construct from an elastic tensor from "
+                             "6x6 Voigt array, use ElasticTensor.from_voigt")
+
         if not ((obj - np.transpose(obj, (1, 0, 2, 3)) < tol).all() and
                     (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all() and
                     (obj - np.transpose(obj, (1, 0, 3, 2)) < tol).all() and
@@ -61,11 +67,6 @@ class ElasticTensor(TensorBase):
             warnings.warn("Input elasticity tensor does "
                           "not satisfy standard symmetries")
 
-        if obj.shape != (3, 3, 3, 3):
-            raise ValueError("Default elastic tensor constructor requires "
-                             "input to be the true 3x3x3x3 representation. "
-                             "To construct from an elastic tensor from "
-                             "6x6 Voigt array, use ElasticTensor.from_voigt")
         return obj
 
 
@@ -138,7 +139,7 @@ class ElasticTensor(TensorBase):
         Calculates Young's modulus (in SI units) using the Voigt-Reuss-Hill
         averages of bulk and shear moduli
         """
-        return 9e9 * self.k_vrh * self.g_vrh / (3. * self.k_vrh * self.g_vrh)
+        return 9.e9 * self.k_vrh * self.g_vrh / (3. * self.k_vrh + self.g_vrh)
 
     def trans_v(self, structure):
         """
@@ -155,8 +156,8 @@ class ElasticTensor(TensorBase):
         volume = structure.volume
         natoms = structure.composition.num_atoms
         weight = structure.composition.weight
-        mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
-        return 1e9 * self.k_vrh / mass_density ** 0.5
+        mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
+        return (1e9 * self.g_vrh / mass_density) ** 0.5
 
     def long_v(self, structure):
         """
@@ -173,8 +174,8 @@ class ElasticTensor(TensorBase):
         volume = structure.volume
         natoms = structure.composition.num_atoms
         weight = structure.composition.weight
-        mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
-        return 1e9 * self.k_vrh + 4./3. * self.g_vrh / mass_density ** 0.5
+        mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
+        return (1e9 * (self.k_vrh + 4./3. * self.g_vrh) / mass_density) ** 0.5
 
     def snyder_ac(self, structure):
         """
@@ -192,8 +193,9 @@ class ElasticTensor(TensorBase):
         num_density = 1e30 * nsites / volume
         tot_mass = sum([e.atomic_mass for e in structure.species])
         avg_mass = 1.6605e-27 * tot_mass / natoms
-        return 0.38483 * avg_mass * (self.long_v + 2./3. * self.trans_v) ** 3.\
-                / (300. * num_density ** (-2./3.) * nsites ** (1./3.))
+        return 0.38483*avg_mass * \
+                ((self.long_v(structure) + 2.*self.trans_v(structure))/3.) ** 3.\
+                / (300.*num_density ** (-2./3.) * nsites ** (1./3.))
 
     def snyder_opt(self, structure):
         """
@@ -208,8 +210,9 @@ class ElasticTensor(TensorBase):
         nsites = structure.num_sites
         volume = structure.volume
         num_density = 1e30 * nsites / volume
-        return 1.66914e-23 * (self.long_v + 2./3. * self.trans_v) \
-                / num_density ** (-2./3.) * (1 - nsites ** (-1. / 3.))
+        return 1.66914e-23 * \
+                (self.long_v(structure) + 2.*self.trans_v(structure))/3. \
+                / num_density ** (-2./3.) * (1 - nsites ** (-1./3.))
 
     def snyder_total(self, structure):
         """
@@ -239,7 +242,7 @@ class ElasticTensor(TensorBase):
         natoms = structure.composition.num_atoms
         weight = structure.composition.weight
         avg_mass = 1.6605e-27 * tot_mass / natoms
-        mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
+        mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
         return 0.87 * 1.3806e-23 * avg_mass**(-2./3.) \
                 * mass_density**(1./6.) * self.y_mod**0.5
 
@@ -257,7 +260,7 @@ class ElasticTensor(TensorBase):
         volume = structure.volume
         num_density = 1e30 * nsites / volume
         return 1.3806e-23 / 2.48 * num_density**(2./3.) \
-                * self.long_v + 2 * self.trans_v
+                * (self.long_v(structure) + 2 * self.trans_v(structure))
 
     def debye_thermalcond(self, structure):
         """
@@ -275,8 +278,8 @@ class ElasticTensor(TensorBase):
         natoms = structure.composition.num_atoms
         weight = structure.composition.weight
         avg_mass = 1.6605e-27 * tot_mass / natoms
-        mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
-        return 2.489e-11 * avg_mass**(-1./3.) * mass_density**(-1./6.) \
+        mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
+        return 2.589e-11 * avg_mass**(-1./3.) * mass_density**(-1./6.) \
                 * self.y_mod**0.5
 
     @property
