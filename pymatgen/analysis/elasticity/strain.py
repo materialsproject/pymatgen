@@ -254,7 +254,7 @@ class Strain(SquareTensor):
         """
         dfm = Deformation(deformation)
         return cls(0.5 * (np.dot(dfm.trans, dfm) - np.eye(3)), dfm)
-    
+
     @property
     def deformation_matrix(self):
         """
