@@ -227,7 +227,7 @@ class DictSet(VaspInputSet):
                  files_to_transfer=None, user_incar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
                  potcar_functional="PBE", force_gamma=False,
-                 reduce_structure=None):
+                 reduce_structure=None, kpoints_override=None):
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
         if sort_structure:
@@ -241,6 +241,9 @@ class DictSet(VaspInputSet):
         self.force_gamma = force_gamma
         self.reduce_structure = reduce_structure
         self.user_incar_settings = user_incar_settings or {}
+        self.kpoints_override = kpoints_override
+        if kpoints_override:
+            self.config_dict["KPOINTS"] = kpoints_override
 
     @property
     def incar(self):

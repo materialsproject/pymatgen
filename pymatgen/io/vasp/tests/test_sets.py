@@ -176,6 +176,11 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(kpoints.kpts, [[2, 4, 6]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
 
+        kpoints = MPRelaxSet(self.structure, kpoints_override={
+            "reciprocal_density": 1000}).kpoints
+        self.assertEqual(kpoints.kpts, [[6, 11, 13]])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+
         kpoints = self.mitset.kpoints
         self.assertEqual(kpoints.kpts, [[2, 4, 6]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
