@@ -19,7 +19,7 @@ from monty.json import MSONable
 
 from pymatgen import Orbital, Spin
 from pymatgen.electronic_structure.dos import Dos, CompleteDos
-from pymatgen.io.feff import Header, FeffPot, FeffTags
+from pymatgen.io.feff import Header, Potential, Tags
 
 __author__ = "Alan Dozier"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"
@@ -31,7 +31,7 @@ __status__ = "Beta"
 __date__ = "April 7, 2013"
 
 
-class FeffLdos(MSONable):
+class LDos(MSONable):
     """
     Parser for ldos files ldos01, ldos02, .....
 
@@ -47,7 +47,7 @@ class FeffLdos(MSONable):
     @staticmethod
     def from_file(filename1='feff.inp', filename2='ldos'):
         """"
-        Creates FeffLdos object from raw Feff ldos files by
+        Creates LDos object from raw Feff ldos files by
         by assuming they are numbered consecutively, i.e. ldos01.dat
         ldos02.dat...
 
@@ -60,8 +60,8 @@ class FeffLdos(MSONable):
         header = Header.from_string(header_str)
         structure = header.struct
         nsites = structure.num_sites
-        pot_string = FeffPot.pot_string_from_file(filename1)
-        dicts = FeffPot.pot_dict_from_string(pot_string)
+        pot_string = Potential.pot_string_from_file(filename1)
+        dicts = Potential.pot_dict_from_string(pot_string)
         pot_dict = dicts[0]
 
         with zopen(ldos_filename + "00.dat", "r") as fobject:
@@ -119,9 +119,9 @@ class FeffLdos(MSONable):
 
         dos = Dos(efermi, dos_energies, tdos)
         complete_dos = CompleteDos(structure, dos, pdoss)
-        charge_transfer = FeffLdos.charge_transfer_from_file(filename1,
-                                                             filename2)
-        return FeffLdos(complete_dos, charge_transfer)
+        charge_transfer = LDos.charge_transfer_from_file(filename1,
+                                                         filename2)
+        return LDos(complete_dos, charge_transfer)
 
     @property
     def complete_dos(self):
@@ -145,14 +145,14 @@ class FeffLdos(MSONable):
     @staticmethod
     def from_dict(d):
         """
-        Returns FeffLdos object from dict representation
+        Returns LDos object from dict representation
 
         Args:
-            d (dict): dict representation of FeffLdos
+            d (dict): dict representation of LDos
         """
         complete_dos = CompleteDos.from_dict(d['complete_dos'])
         charge_transfer = d['charge_transfer']
-        return FeffLdos(complete_dos, charge_transfer)
+        return LDos(complete_dos, charge_transfer)
 
     @staticmethod
     def charge_transfer_from_file(filename1, filename2):
@@ -169,8 +169,8 @@ class FeffLdos(MSONable):
             ({"p": 0.154, "s": 0.078, "d": 0.0, "tot": 0.232}, ...)
         """
         cht = OrderedDict()
-        pot_string = FeffPot.pot_string_from_file(filename1)
-        dicts = FeffPot.pot_dict_from_string(pot_string)
+        pot_string = Potential.pot_string_from_file(filename1)
+        dicts = Potential.pot_dict_from_string(pot_string)
         pot_dict = dicts[1]
 
         for i in range(0, len(dicts[0]) + 1):
@@ -224,8 +224,8 @@ class Xmu(MSONable):
 
     Args:
         header: Header object
-        parameters: FeffTags object
-        pots: FeffPot string
+        parameters: Tags object
+        pots: Potential string
         data: numpy data array of cross_sections
 
     Default attributes:
@@ -269,8 +269,8 @@ class Xmu(MSONable):
         """
         data = np.loadtxt(filename)
         header = Header.from_file(input_filename)
-        parameters = FeffTags.from_file(input_filename)
-        pots = FeffPot.pot_string_from_file(input_filename)
+        parameters = Tags.from_file(input_filename)
+        pots = Potential.pot_string_from_file(input_filename)
         central_atom = pots.splitlines()[1].split()[2]
         return Xmu(header, parameters, central_atom, data)
 

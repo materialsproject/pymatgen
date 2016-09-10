@@ -352,7 +352,7 @@ class Header(MSONable):
             f.write(str(self) + "\n")
 
 
-class FeffAtoms(MSONable):
+class Atoms(MSONable):
     """
     Object for representing atomic positions, placed in feff.inp file
     These are ordered as expanding shells.
@@ -449,8 +449,8 @@ class FeffAtoms(MSONable):
         """
         Returns feffAtoms object from dictionary
         """
-        return FeffAtoms(Structure.from_dict(d['structure']),
-                         d['central_atom'])
+        return Atoms(Structure.from_dict(d['structure']),
+                     d['central_atom'])
 
     def as_dict(self):
         """
@@ -551,7 +551,7 @@ class FeffAtoms(MSONable):
             f.write(str(self) + "\n")
 
 
-class FeffTags(dict):
+class Tags(dict):
     """
     feff_tag object for reading and writing PARAMETER files
     """
@@ -563,7 +563,7 @@ class FeffTags(dict):
         Args:
             params: A set of input parameters as a dictionary.
         """
-        super(FeffTags, self).__init__()
+        super(Tags, self).__init__()
         if params:
             self.update(params)
 
@@ -579,9 +579,9 @@ class FeffTags(dict):
         """
         if key.strip().upper() not in VALID_FEFF_TAGS:
             warnings.warn(key.strip() + " not in VALID_FEFF_TAGS list")
-        super(FeffTags, self).__setitem__(key.strip(),
-                                          FeffTags.proc_val(key.strip(),
-                                                            val.strip())
+        super(Tags, self).__setitem__(key.strip(),
+                                      Tags.proc_val(key.strip(),
+                                                    val.strip())
                                           if isinstance(val, string_types)
                                           else val)
 
@@ -600,15 +600,15 @@ class FeffTags(dict):
     @staticmethod
     def from_dict(d):
         """
-        Creates FeffTags object from a dictionary.
+        Creates Tags object from a dictionary.
 
         Args:
             d: Dict of feff parameters and values.
 
         Returns:
-            FeffTags object
+            Tags object
         """
-        i = FeffTags()
+        i = Tags()
         for k, v in d.items():
             if k not in ("@module", "@class"):
                 i[k] = v
@@ -626,7 +626,7 @@ class FeffTags(dict):
             pretty: Set to True for pretty aligned output, False for no.
 
         Returns:
-            String representation of FeffTags.
+            String representation of Tags.
         """
         keys = self.keys()
         if sort_keys:
@@ -648,7 +648,7 @@ class FeffTags(dict):
 
     def write_file(self, filename='PARAMETERS'):
         """
-        Write FeffTags to a Feff parameter tag file.
+        Write Tags to a Feff parameter tag file.
 
         Args:
             filename: filename and path to write to.
@@ -675,10 +675,10 @@ class FeffTags(dict):
             if m:
                 key = m.group(1).strip()
                 val = m.group(2).strip()
-                val = FeffTags.proc_val(key, val)
+                val = Tags.proc_val(key, val)
                 if key not in ("ATOMS", "POTENTIALS", "END", "TITLE"):
                     params[key] = val
-        return FeffTags(params)
+        return Tags(params)
 
     @staticmethod
     def proc_val(key, val):
@@ -769,19 +769,19 @@ class FeffTags(dict):
 
     def __add__(self, other):
         """
-        Add all the values of another FeffTags object to this object
-        Facilitates the use of "standard" FeffTags
+        Add all the values of another Tags object to this object
+        Facilitates the use of "standard" Tags
         """
         params = {k: v for k, v in self.items()}
         for k, v in other.items():
             if k in self and v != self[k]:
-                raise ValueError("FeffTags have conflicting values!")
+                raise ValueError("Tags have conflicting values!")
             else:
                 params[k] = v
-        return FeffTags(params)
+        return Tags(params)
 
 
-class FeffPot(MSONable):
+class Potential(MSONable):
     """
     Object for representing Atomic Potentials, placed in feff.inp file
     """
@@ -841,7 +841,7 @@ class FeffPot(MSONable):
 
     def as_dict(self):
         """
-        Return Dictionary representation of FeffPot oject
+        Return Dictionary representation of Potential oject
         """
         return {'@module': self.__class__.__module__,
                 '@class': self.__class__.__name__,
@@ -851,13 +851,13 @@ class FeffPot(MSONable):
     @staticmethod
     def from_dict(d):
         """
-        Returns FeffPot object from dictionary
+        Returns Potential object from dictionary
 
         Args:
-            d: dictionary of FeffPot input parameters
+            d: dictionary of Potential input parameters
         """
-        return FeffPot(Structure.from_dict(d['structure']),
-                       d['central_atom'])
+        return Potential(Structure.from_dict(d['structure']),
+                         d['central_atom'])
 
     @staticmethod
     def pot_string_from_file(filename='feff.inp'):
