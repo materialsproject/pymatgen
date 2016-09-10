@@ -346,7 +346,7 @@ class Header(MSONable):
 class FeffAtoms(MSONable):
     """
     Object for representing atomic positions, placed in feff.inp file
-    These are oredered as expanding shells.
+    These are ordered as expanding shells.
     """
 
     def __init__(self, struct, central_atom):
@@ -549,7 +549,7 @@ VALID_FEFF_TAGS = ("CONTROL", "PRINT", "ATOMS", "POTENTIALS", "RECIPROCAL",
                    "LDOS", "ELLIPTICITY", "MULTIPOLE", "POLARIZATION",
                    "RHOZZP", "DANES", "FPRIME", "NRIXS", "XES", "XNCD",
                    "XMCD", "XNCDCONTROL", "END", "KMESH", "PRINT", "EGRID",
-                   "DIMS", "AFLOP", "EDGE", "COMPTON", "DANES",
+                   "DIMS", "AFOLP", "EDGE", "COMPTON", "DANES",
                    "FPRIME" "MDFF", "HOLE", "COREHOLE", "S02", "CHBROAD",
                    "EXCHANGE", "FOLP", "NOHOLE", "RGRID", "SCF",
                    "UNFREEZEF", "CHSHIFT", "DEBYE",
@@ -795,14 +795,14 @@ class FeffTags(dict):
 
 class FeffPot(MSONable):
     """
-    Object for representing Atomic Potenitals, placed in feff.inp file
+    Object for representing Atomic Potentials, placed in feff.inp file
     """
 
     def __init__(self, struct, central_atom):
         """
         Args:
-            struct: Structure object. See pymatgen.core.structure.Structure.
-            central_atom: Absorbing atom symbol
+            struct (Structure): Structure object.
+            central_atom (str): Absorbing atom symbol
         """
         self._central_atom = central_atom
         if struct.is_ordered:
@@ -1003,9 +1003,8 @@ class FeffLdos(MSONable):
     Parser for ldos files ldos01, ldos02, .....
 
     Args:
-        complete_dos: complete_dos dictionary as defined in pymatgen.dos
-            .CompleteDos
-        charge_transfer: computed charge transfer between atoms dictionary
+        complete_dos (CompleteDos): complete dos object
+        charge_transfer (dict): computed charge transfer between atoms dictionary
     """
     def __init__(self, complete_dos, charge_transfer):
 
@@ -1016,7 +1015,7 @@ class FeffLdos(MSONable):
     def from_file(filename1='feff.inp', filename2='ldos'):
         """"
         Creates FeffLdos object from raw Feff ldos files by
-        by assuming they are numbered consequetively, i.e. ldos01.dat
+        by assuming they are numbered consecutively, i.e. ldos01.dat
         ldos02.dat...
 
         Args:
@@ -1105,7 +1104,6 @@ class FeffLdos(MSONable):
         """
         returns Json-serializable dict representation of ompletedos
         """
-
         return {'@module': self.__class__.__module__,
                 '@class': self.__class__.__name__,
                 'complete_dos': self._complete_dos.as_dict(),
@@ -1117,9 +1115,8 @@ class FeffLdos(MSONable):
         Returns FeffLdos object from dict representation
 
         Args:
-            complete_dos: dict representation of complete_dos
+            d (dict): dict representation of FeffLdos
         """
-
         complete_dos = CompleteDos.from_dict(d['complete_dos'])
         charge_transfer = d['charge_transfer']
         return FeffLdos(complete_dos, charge_transfer)
@@ -1260,7 +1257,7 @@ class Xmu(MSONable):
 
     @property
     def across_section(self):
-        """Returns absobtion cross-section of absorbing atom in solid"""
+        """Returns absorption cross-section of absorbing atom in solid"""
         across = []
         for i in range(len(self._data)):
             a = self._data[i][3]
@@ -1269,7 +1266,7 @@ class Xmu(MSONable):
 
     @property
     def scross_section(self):
-        """Returns aborption cross-section for absorbing atom"""
+        """Returns absorption cross-section for absorbing atom"""
         scross = []
         for i in range(len(self._data)):
             s = self._data[i][4]
@@ -1281,7 +1278,6 @@ class Xmu(MSONable):
         """
         Returns source identification from Header file
         """
-
         return self._header.source
 
     @property
@@ -1298,7 +1294,6 @@ class Xmu(MSONable):
     @property
     def material_formula(self):
         """Returns chemical formula of material from feff.inp file"""
-
         try:
             form = self._header.formula
         except IndexError:
@@ -1316,9 +1311,10 @@ class Xmu(MSONable):
         return self._parameters["EDGE"]
 
     def as_dict(self):
-        """Returns Dictionary of attributes and to
-           reproduce object using from dictionary staticmethod"""
-
+        """
+        Returns Dictionary of attributes and to reproduce object
+        using from dictionary staticmethod.
+        """
         data_list = self._data.tolist()
 
         return {'@module': self.__class__.__module__,
@@ -1345,7 +1341,6 @@ class FeffParserError(Exception):
     Exception class for Structure.
     Raised when the structure has problems, e.g., atoms that are too close.
     """
-
     def __init__(self, msg):
         self.msg = msg
 
