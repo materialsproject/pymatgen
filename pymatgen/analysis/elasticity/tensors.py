@@ -191,7 +191,7 @@ class TensorBase(np.ndarray):
         for ind in voigt_map:
             v_matrix[voigt_map[ind]] = self[ind]
         if not self.is_voigt_symmetric:
-            warnings.warn("Tensor is not symmetric, so some information may "
+            warnings.warn("Tensor is not symmetric, information may "
                           "be lost in voigt conversion.")
         return v_matrix*self._vscale
 

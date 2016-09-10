@@ -44,9 +44,9 @@ class Deformation(SquareTensor):
             deformation_gradient (3x3 array-like): the 3x3 array-like
                 representing the deformation gradient
         """
+        obj = super(Deformation, cls).__new__(cls, deformation_gradient)
 
-        obj = SquareTensor(deformation_gradient).view(cls)
-        return obj
+        return obj.view(cls)
 
     def __array_finalize__(self, obj):
         if obj is None:
