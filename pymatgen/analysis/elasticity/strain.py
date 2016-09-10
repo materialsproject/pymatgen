@@ -48,10 +48,6 @@ class Deformation(SquareTensor):
 
         return obj.view(cls)
 
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
-
     def check_independent(self):
         """
         checks to determine whether the deformation matrix represents an
@@ -327,12 +323,3 @@ def convert_strain_to_deformation(strain):
     defo = Deformation(np.sqrt(rotated))
     result = defo.rotate(eigvecs)
     return result
-
-if __name__ == "__main__":
-    from pymatgen.util.testing import PymatgenTest as pt
-    si = pt.get_structure("Si")
-    dss = DeformedStructureSet(si)
-    for defo in dss.deformations:
-        s = Strain.from_deformation(defo)
-        assert (defo - s.deformation_matrix < 1e-10).all()
-        
