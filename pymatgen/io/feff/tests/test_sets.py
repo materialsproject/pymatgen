@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import unittest2 as unittest
+
 import os
 
 from pymatgen.io.feff.sets import FeffInputSet
