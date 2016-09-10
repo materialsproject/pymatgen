@@ -46,24 +46,24 @@ def main():
 
     r = CifParser(cif_file)
     structure = r.get_structures()[0]
-    x = FeffInputSet("MaterialsProject")
+    x = MPXANESSet("MaterialsProject")
 
     source = os.path.basename(cif_file)
     comment = 'From cif file'
 
-    header = FeffInputSet.get_header(x, structure, source, comment)
+    header = MPXANESSet.get_header(x, structure, source, comment)
     print("\n\nHEADER\n")
     print(header)
 
-    tags = FeffInputSet.get_feff_tags(x, calc_type)
+    tags = MPXANESSet.get_feff_tags(x, calc_type)
     print("\n\nPARAMETERS\n")
     print(tags)
 
-    POT = FeffInputSet.get_feff_pot(x, structure, central_atom)
+    POT = MPXANESSet.get_feff_pot(x, structure, central_atom)
     print("\n\nPOTENTIALS\n")
     print(POT)
 
-    ATOMS = FeffInputSet.get_feff_atoms(x, structure, central_atom)
+    ATOMS = MPXANESSet.get_feff_atoms(x, structure, central_atom)
     print("\n\nATOMS\n")
     print(ATOMS)
 
