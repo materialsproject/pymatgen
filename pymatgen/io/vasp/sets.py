@@ -203,6 +203,9 @@ class DictSet(VaspInputSet):
             scales with # of atoms, the latter does not. If both are
             present, EDIFF is preferred. To force such settings, just supply
             user_incar_settings={"EDIFF": 1e-5, "LDAU": False} for example.
+        user_kpoints_settings (dict): Allow user to override kpoints setting by
+            supplying a dict. E.g., {"reciprocal_density": 1000}. Default is
+            None.
         constrain_total_magmom (bool): Whether to constrain the total magmom
             (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
             species. Defaults to False.
@@ -221,16 +224,14 @@ class DictSet(VaspInputSet):
         reduce_structure (None/str): Before generating the input files,
             generate the reduced structure. Default (None), does not
             alter the structure. Valid values: None, "niggli", "LLL".
-        kpoints_override (dict): Allow user to override kpoints setting by
-            supplying a dict. E.g., {"reciprocal_density": 1000}. Default is
-            None.
     """
 
     def __init__(self, structure, config_dict,
                  files_to_transfer=None, user_incar_settings=None,
+                 user_kpoints_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
                  potcar_functional="PBE", force_gamma=False,
-                 reduce_structure=None, kpoints_override=None):
+                 reduce_structure=None):
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
         if sort_structure:
@@ -244,9 +245,7 @@ class DictSet(VaspInputSet):
         self.force_gamma = force_gamma
         self.reduce_structure = reduce_structure
         self.user_incar_settings = user_incar_settings or {}
-        self.kpoints_override = kpoints_override
-        if kpoints_override:
-            self.config_dict["KPOINTS"] = kpoints_override
+        self.user_kpoints_settings = user_kpoints_settings
 
     @property
     def incar(self):
@@ -340,7 +339,8 @@ class DictSet(VaspInputSet):
             Uses a simple approach scaling the number of divisions along each
             reciprocal lattice vector proportional to its length.
         """
-        settings = self.config_dict["KPOINTS"]
+        settings = self.user_kpoints_settings or self.config_dict["KPOINTS"]
+
         # If grid_density is in the kpoints_settings use
         # Kpoints.automatic_density
         if settings.get('grid_density'):
