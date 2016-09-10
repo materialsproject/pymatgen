@@ -5,13 +5,15 @@
 from __future__ import unicode_literals
 
 import unittest2 as unittest
+
 import os
 
-from pymatgen.io.feff import Header, FeffTags, FeffLdos, FeffPot, Xmu, \
-    FeffAtoms
+from pymatgen.io.feff.inputs import FeffAtoms, Header, FeffTags, FeffPot
+from pymatgen.io.feff.outputs import FeffLdos, Xmu
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
+
 
 class  HeaderTest(unittest.TestCase):
 
@@ -60,6 +62,7 @@ TITLE sites: 4
         self.assertEqual(str(header), str(header2),
                          "Header failed to and from dict test")
 
+
 class FeffAtomsTest(unittest.TestCase):
 
     def test_init(self):
@@ -86,6 +89,7 @@ class FeffAtomsTest(unittest.TestCase):
         atoms2 = FeffAtoms.from_dict(d)
         self.assertEqual(str(atoms), str(atoms2),
                          "FeffAtoms failed to and from dict test")
+
 
 class  FeffTagsTest(unittest.TestCase):
 
@@ -144,6 +148,7 @@ class  FeffPotTest(unittest.TestCase):
         self.assertEqual(str(pot), str(pot2),
                          "FeffPot to and from dict does not match")
 
+
 class FeffLdosTest(unittest.TestCase):
 
     filepath1 = os.path.join(test_dir, 'feff.inp')
@@ -165,8 +170,8 @@ class FeffLdosTest(unittest.TestCase):
         l2 = FeffLdosTest.l.charge_transfer_to_string()
         d = FeffLdosTest.l.as_dict()
         l3 = FeffLdos.from_dict(d).charge_transfer_to_string()
-        self.assertEqual(l2, l3,
-                         "Feffldos to and from dict does not match")
+        self.assertEqual(l2, l3, "Feffldos to and from dict does not match")
+
 
 class XmuTest(unittest.TestCase):
 
@@ -185,8 +190,7 @@ class XmuTest(unittest.TestCase):
         d=x.as_dict()
         x2 = Xmu.from_dict(d)
         data2= x2.data.tolist()
-        self.assertEqual(data, data2,
-                         "Xmu to and from dict does not match")
+        self.assertEqual(data, data2, "Xmu to and from dict does not match")
 
 if __name__ == '__main__':
     unittest.main()
