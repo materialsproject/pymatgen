@@ -100,10 +100,10 @@ class SpacegroupAnalyzer(object):
 
     def get_spacegroup(self):
         """
-        Get the Spacegroup for the Structure.
+        Get the SpacegroupOperations for the Structure.
 
         Returns:
-            Spacgroup object.
+            SpacgroupOperations object.
         """
         # Atomic positions have to be specified by scaled positions for spglib.
         return SpacegroupOperations(self.get_spacegroup_symbol(),
