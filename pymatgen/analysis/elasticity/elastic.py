@@ -262,14 +262,14 @@ class ElasticTensor(TensorBase):
         return 1.3806e-23 / 2.48 * num_density**(2./3.) \
                 * (self.long_v(structure) + 2 * self.trans_v(structure))
 
-    def debye_thermalcond(self, structure):
+    def debye_temperature(self, structure):
         """
-        Calculates Debye's thermal conductivity (in SI units)
+        Calculates the debye temperature (in SI units)
 
         Args:
             structure: pymatgen structure object
 
-        Returns: Debye's thermal conductivity (in SI units)
+        Returns: debye temperature (in SI units)
 
         """
         nsites = structure.num_sites
