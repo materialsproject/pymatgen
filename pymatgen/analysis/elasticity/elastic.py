@@ -48,6 +48,7 @@ class ElasticTensor(TensorBase):
         Args:
             input_array (3x3x3x3 array-like): the 3x3x3x3 array-like
                 representing the elastic tensor
+            structure (Structure): structure associated with the elastic tensor
 
             tol (float): tolerance for initial symmetry test of tensor
         """
@@ -128,20 +129,21 @@ class ElasticTensor(TensorBase):
         returns a list of Voigt, Reuss, and Voigt-Reuss-Hill averages of bulk
         and shear moduli similar to legacy behavior
         """
-        return [self.k_voigt, self.g_voigt, self.k_reuss, self.g_reuss, self.k_vrh, self.g_vrh]
+        return [self.k_voigt, self.g_voigt, self.k_reuss, self.g_reuss, 
+                self.k_vrh, self.g_vrh]
 
     @property
     def y_mod(self):
         """
-        Calculates Young's modulus (in SI units) using the Voigt-Reuss-Hill averages of bulk
-            and shear moduli
+        Calculates Young's modulus (in SI units) using the Voigt-Reuss-Hill
+        averages of bulk and shear moduli
         """
         return 9e9 * self.k_vrh * self.g_vrh / (3. * self.k_vrh * self.g_vrh)
 
-    @property
     def trans_v(self, structure):
         """
-        Calculates transverse sound velocity (in SI units) using the Voigt-Reuss-Hill average bulk modulus
+        Calculates transverse sound velocity (in SI units) using the 
+        Voigt-Reuss-Hill average bulk modulus
 
         Args:
             structure: pymatgen structure object
@@ -156,10 +158,10 @@ class ElasticTensor(TensorBase):
         mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
         return 1e9 * self.k_vrh / mass_density ** 0.5
 
-    @property
     def long_v(self, structure):
         """
-        Calculates longitudinal sound velocity (in SI units) using the Voigt-Reuss-Hill average bulk modulus
+        Calculates longitudinal sound velocity (in SI units)
+        using the Voigt-Reuss-Hill average bulk modulus
 
         Args:
             structure: pymatgen structure object
@@ -172,9 +174,8 @@ class ElasticTensor(TensorBase):
         natoms = structure.composition.num_atoms
         weight = structure.composition.weight
         mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
-        return 1e9 * self.k_vrh + 4. / 3. * self.g_vrh / mass_density ** 0.5
+        return 1e9 * self.k_vrh + 4./3. * self.g_vrh / mass_density ** 0.5
 
-    @property
     def snyder_ac(self, structure):
         """
         Calculates Snyder's acoustic sound velocity (in SI units)
@@ -191,10 +192,9 @@ class ElasticTensor(TensorBase):
         num_density = 1e30 * nsites / volume
         tot_mass = sum([e.atomic_mass for e in structure.species])
         avg_mass = 1.6605e-27 * tot_mass / natoms
-        return 0.38483 * avg_mass * (self.long_v + 2. / 3. * self.trans_v) ** 3. / \
-               (300. * num_density ** (-2. / 3.) * nsites ** (1. / 3.))
+        return 0.38483 * avg_mass * (self.long_v + 2./3. * self.trans_v) ** 3.\
+                / (300. * num_density ** (-2./3.) * nsites ** (1./3.))
 
-    @property
     def snyder_opt(self, structure):
         """
         Calculates Snyder's optical sound velocity (in SI units)
@@ -208,11 +208,10 @@ class ElasticTensor(TensorBase):
         nsites = structure.num_sites
         volume = structure.volume
         num_density = 1e30 * nsites / volume
-        return 1.66914e-23 * (self.long_v + 2. / 3. * self.trans_v) / num_density ** (-2. / 3.) * \
-               (1 - nsites ** (-1. / 3.))
+        return 1.66914e-23 * (self.long_v + 2./3. * self.trans_v) \
+                / num_density ** (-2./3.) * (1 - nsites ** (-1. / 3.))
 
-    @property
-    def snyder_total(self):
+    def snyder_total(self, structure):
         """
         Calculates Snyder's total sound velocity (in SI units)
 
@@ -222,9 +221,8 @@ class ElasticTensor(TensorBase):
         Returns: Snyder's total sound velocity (in SI units)
 
         """
-        return self.snyder_ac + self.snyder_opt
+        return self.snyder_ac(structure) + self.snyder_opt(structure)
 
-    @property
     def clarke_thermalcond(self, structure):
         """
         Calculates Clarke's thermal conductivity (in SI units)
@@ -242,9 +240,9 @@ class ElasticTensor(TensorBase):
         weight = structure.composition.weight
         avg_mass = 1.6605e-27 * tot_mass / natoms
         mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
-        return 0.87 * 1.3806e-23 * avg_mass**(-2./3.) * mass_density**(1./6.) * self.y_mod**0.5
+        return 0.87 * 1.3806e-23 * avg_mass**(-2./3.) \
+                * mass_density**(1./6.) * self.y_mod**0.5
 
-    @property
     def cahill_thermalcond(self, structure):
         """
         Calculates Cahill's thermal conductivity (in SI units)
@@ -258,9 +256,9 @@ class ElasticTensor(TensorBase):
         nsites = structure.num_sites
         volume = structure.volume
         num_density = 1e30 * nsites / volume
-        return 1.3806e-23 / 2.48 * num_density**(2./3.) * self.long_v + 2 * self.trans_v
+        return 1.3806e-23 / 2.48 * num_density**(2./3.) \
+                * self.long_v + 2 * self.trans_v
 
-    @property
     def debye_thermalcond(self, structure):
         """
         Calculates Debye's thermal conductivity (in SI units)
@@ -278,7 +276,8 @@ class ElasticTensor(TensorBase):
         weight = structure.composition.weight
         avg_mass = 1.6605e-27 * tot_mass / natoms
         mass_density = 1.6605e3 * nsites * volume * weight / (natoms * volume)
-        return 2.489e-11 * avg_mass**(-1./3.) * mass_density**(-1./6.) * self.y_mod**0.5
+        return 2.489e-11 * avg_mass**(-1./3.) * mass_density**(-1./6.) \
+                * self.y_mod**0.5
 
     @property
     def universal_anisotropy(self):
@@ -312,9 +311,10 @@ class ElasticTensor(TensorBase):
     @classmethod
     def from_strain_stress_list(cls, strains, stresses):
         """
-        Class method to fit an elastic tensor from stress/strain data.  Method
-        uses Moore-Penrose pseudoinverse to invert the s = C*e equation with
-        elastic tensor, stress, and strain in voigt notation
+        Class method to fit an elastic tensor from stress/strain 
+        data.  Method uses Moore-Penrose pseudoinverse to invert 
+        the s = C*e equation with elastic tensor, stress, and 
+        strain in voigt notation
 
         Args:
             stresses (Nx3x3 array-like): list or array of stresses
