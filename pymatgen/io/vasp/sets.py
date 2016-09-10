@@ -54,10 +54,11 @@ Read the following carefully before implementing new input sets:
 The above are recommendations. The following are UNBREAKABLE rules:
 1. All input sets must take in a structure or list of structures as the first
    argument.
-2. user_incar_settings is absolute. Any new sets you implement must obey
-   this. If a user wants to override your settings, you assume he knows what he
-   is doing. Do not magically override user supplied settings. You can of course
-   issue a warning if you think the user is wrong.
+2. user_incar_settings and user_kpoints_settings are absolute. Any new sets you
+   implement must obey this. If a user wants to override your settings,
+   you assume he knows what he is doing. Do not magically override user
+   supplied settings. You can of course issue a warning if you think the user
+   is wrong.
 3. All input sets must save all supplied args and kwargs as instance variables.
    E.g., self.my_arg = myarg and self.kwargs = kwargs in the __init__. This
    ensures the as_dict and from_dict work correctly.
@@ -445,8 +446,10 @@ class MPStaticSet(MPRelaxSet):
             prev_incar (Incar): Incar file from previous run.
             prev_kpoints (Kpoints): Kpoints from previous run.
             lepsilon (bool): Whether to add static dielectric calculation
-            reciprocal_density (int): density of k-mesh by reciprocal
-                volume (defaults to 100).
+            reciprocal_density (int): For static calculations,
+                we usually set the reciprocal density by voluyme. This is a
+                convenience arg to change that, rather than using
+                user_kpoints_settings. Defaults to 100.
             \*\*kwargs: kwargs supported by MPRelaxSet.
         """
         super(MPStaticSet, self).__init__(structure, **kwargs)
@@ -504,7 +507,8 @@ class MPStaticSet(MPRelaxSet):
 
     @property
     def kpoints(self):
-        self.config_dict["KPOINTS"]["reciprocal_density"] = self.reciprocal_density
+        self.config_dict["KPOINTS"]["reciprocal_density"] = \
+            self.reciprocal_density
         kpoints = super(MPStaticSet, self).kpoints
         # Prefer to use k-point scheme from previous run
         if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
