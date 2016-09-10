@@ -220,7 +220,10 @@ class DictSet(VaspInputSet):
             cells, and Monkhorst-Pack otherwise.
         reduce_structure (None/str): Before generating the input files,
             generate the reduced structure. Default (None), does not
-            alter the structure. Valid values: None, "niggli", "LLL"
+            alter the structure. Valid values: None, "niggli", "LLL".
+        kpoints_override (dict): Allow user to override kpoints setting by
+            supplying a dict. E.g., {"reciprocal_density": 1000}. Default is
+            None.
     """
 
     def __init__(self, structure, config_dict,
