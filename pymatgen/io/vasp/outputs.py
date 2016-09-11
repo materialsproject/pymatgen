@@ -184,8 +184,8 @@ class Vasprun(MSONable):
             eigenvalues. Defaults to False. Set to True to obtain projected
             eigenvalues. **Note that this can take an extreme amount of time
             and memory.** So use this wisely.
-        parse_potcar_file (bool/str): Whether to parse the potcar file to read the
-            potcar hashes for the potcar_spec attribute. Defaults to True,
+        parse_potcar_file (bool/str): Whether to parse the potcar file to read
+            the potcar hashes for the potcar_spec attribute. Defaults to True,
             where no hashes will be determined and the potcar_spec dictionaries
             will read {"symbol": ElSymbol, "hash": None}. By Default, looks in
             the same directory as the vasprun.xml, with same extensions as
@@ -275,13 +275,13 @@ class Vasprun(MSONable):
 
     .. attribute:: epsilon_static_wolfe
 
-        The static part of the dielectric constant without any local field effects.
-        Present when it's a DFPT run (LEPSILON=TRUE)
+        The static part of the dielectric constant without any local field
+        effects. Present when it's a DFPT run (LEPSILON=TRUE)
 
     .. attribute:: epsilon_ionic
 
-        The ionic part of the static dielectric constant. Present when it's a DFPT run
-        (LEPSILON=TRUE) and IBRION=5, 6, 7 or 8
+        The ionic part of the static dielectric constant. Present when it's a
+        DFPT run (LEPSILON=TRUE) and IBRION=5, 6, 7 or 8
 
     .. attribute:: nionic_steps
 
