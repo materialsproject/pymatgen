@@ -280,6 +280,28 @@ class ElasticTensor(TensorBase):
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
         return 2.589e-11 * avg_mass**(-1./3.) * mass_density**(-1./6.) \
                 * self.y_mod**0.5
+    
+    def debye_temperature_gibbs(self, structure):
+        """
+        Calculates the debye temperature accordings to the GIBBS
+        formulation (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: debye temperature (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        tot_mass = sum([e.atomic_mass for e in structure.species])
+        natoms = structure.composition.num_atoms
+        avg_mass = 1.6605e-27 * tot_mass / natoms
+        t = self.homogeneous_poisson
+        f = (3.*(2.*(2./3.*(1. + t)/(1. - 2.*t))**(1.5) + \
+                 (1./3.*(1. + t)/(1. - t))**(1.5))**-1) ** (1./3.)
+        return 2.9772e-11 * avg_mass**(-1./2.) * (volume / natoms) ** (-1./6.) \
+                * f * self.k_vrh**(0.5)
 
     @property
     def universal_anisotropy(self):
