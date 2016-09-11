@@ -234,6 +234,22 @@ class TensorBaseTest(PymatgenTest):
             self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct),
                                         err_msg = err_msg, decimal=3)
 
+    def test_from_voigt(self):
+        with self.assertRaises(ValueError):
+            TensorBase.from_voigt([[59.33, 28.08, 28.08, 0],
+                                   [28.08, 59.31, 28.07, 0],
+                                   [28.08, 28.07, 59.32, 0, 0],
+                                   [0, 0, 0, 26.35, 0],
+                                   [0, 0, 0, 0, 26.35]])
+        # Rank 4
+        TensorBase.from_voigt([[59.33, 28.08, 28.08, 0, 0, 0],
+                               [28.08, 59.31, 28.07, 0, 0, 0],
+                               [28.08, 28.07, 59.32, 0, 0, 0],
+                               [0, 0, 0, 26.35, 0, 0],
+                               [0, 0, 0, 0, 26.35, 0],
+                               [0, 0, 0, 0, 0, 26.35]])
+        # Rank 3
+        #TensorBase.from_voigt([[]])
 
 class SquareTensorTest(PymatgenTest):
     def setUp(self):
