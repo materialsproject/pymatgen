@@ -27,7 +27,7 @@ class PathFinderTest(unittest.TestCase):
                                      "path_finder")
         start_s = Poscar.from_file(os.path.join(test_file_dir, 'LFP_POSCAR_s')).structure
         end_s = Poscar.from_file(os.path.join(test_file_dir, 'LFP_POSCAR_e')).structure
-        chg = Chgcar.from_file(os.path.join(test_file_dir, 'LFP_CHGCAR'))
+        chg = Chgcar.from_file(os.path.join(test_file_dir, 'LFP_CHGCAR.gz'))
         moving_cation_specie = Element('Li')
         relax_sites = []
         for site_i, site in enumerate(start_s.sites):
@@ -39,8 +39,8 @@ class PathFinderTest(unittest.TestCase):
         for i, image in enumerate(pf.images):
             if i % 3 == 0:
                 images.append(image)
-
         self.assertEqual(len(images), 9)
 
-if __file__ == '__main__':
+
+if __name__ == '__main__':
     unittest.main()
