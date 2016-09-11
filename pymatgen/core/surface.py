@@ -728,7 +728,7 @@ class SlabGenerator(object):
                 "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"]
 
         sg = SpacegroupAnalyzer(slab, symprec=tol)
-        pg = sg.get_point_group()
+        pg = sg.get_point_group_symbol()
 
         if str(pg) in laue:
             return slab
@@ -748,7 +748,7 @@ class SlabGenerator(object):
                 # Check if the altered surface is symmetric
 
                 sg = SpacegroupAnalyzer(slab, symprec=tol)
-                pg = sg.get_point_group()
+                pg = sg.get_point_group_symbol()
 
                 if str(pg) in laue:
                     asym = False

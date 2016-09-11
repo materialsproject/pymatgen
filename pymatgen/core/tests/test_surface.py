@@ -140,7 +140,7 @@ class SlabTest(PymatgenTest):
 
             for i, slab in enumerate(slabs):
                 sg = SpacegroupAnalyzer(slab)
-                pg = sg.get_point_group()
+                pg = sg.get_point_group_symbol()
 
                 # Check if a slab is symmetric
                 if str(pg) not in self.laue_groups:
