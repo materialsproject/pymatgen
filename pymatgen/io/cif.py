@@ -678,8 +678,8 @@ class CifWriter(object):
         spacegroup = ("P 1", 1)
         if symprec is not None:
             sf = SpacegroupAnalyzer(struct, symprec)
-            spacegroup = (sf.get_spacegroup_symbol(),
-                          sf.get_spacegroup_number())
+            spacegroup = (sf.get_space_group_symbol(),
+                          sf.get_space_group_number())
             # Needs the refined struture when using symprec. This converts
             # primitive to conventional structures, the standard for CIF.
             struct = sf.get_refined_structure()

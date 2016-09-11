@@ -222,7 +222,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         alls = trans.apply_transformation(s, 10)
         self.assertEqual(len(alls), 3)
         f = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
-        self.assertEqual(f.get_spacegroup_number(), 31)
+        self.assertEqual(f.get_space_group_number(), 31)
 
         model = IsingModel(5, 5)
         trans = MagOrderingTransformation({"Fe": 5},
