@@ -22,7 +22,9 @@ class PathFinderTest(unittest.TestCase):
     Uses Li migration in LiFePO4
     """
     def setUp(self):
-        test_file_dir = "../../../test_files/path_finder"
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        test_file_dir = os.path.join(module_dir, "..", "..", "..", "test_files",
+                                     "path_finder")
         self.start_s = Poscar.from_file(os.path.join(test_file_dir, 'LFP_POSCAR_s')).structure
         self.end_s = Poscar.from_file(os.path.join(test_file_dir, 'LFP_POSCAR_e')).structure
         self.chg = Chgcar.from_file(os.path.join(test_file_dir, 'LFP_CHGCAR'))
