@@ -113,19 +113,21 @@ class FEFFDictSet(AbstractFeffInputSet):
     implementations.
     """
 
-    def __init__(self, absorbing_atom, structure, config_dict, name="MPFEFF",
-                 user_tag_settings=None):
+    def __init__(self, absorbing_atom, structure, radius, config_dict,
+                 name="MPFEFF", user_tag_settings=None):
         """
 
         Args:
             absorbing_atom (str): absorbing atom symbol
             structure (Structure): input structure
+            radius (float): cluster radius
             config_dict (dict): control tag settings dict
             name (str)
             user_tag_settings (dict): override default tag settings
         """
         self.absorbing_atom = absorbing_atom
         self.structure = structure
+        self.radius = radius
         self.name = name
         self.config_dict = deepcopy(config_dict)
         self.user_tag_settings = user_tag_settings or {}
@@ -176,7 +178,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         Returns:
             Atoms
         """
-        return Atoms(self.structure, self.absorbing_atom)
+        return Atoms(self.structure, self.absorbing_atom, self.radius)
 
     def __str__(self):
         d = self.config_dict
@@ -193,8 +195,9 @@ class MPXANESSet(FEFFDictSet):
 
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPXANESSet.yaml"))
 
-    def __init__(self, absorbing_atom, structure, name="MPXANES", **kwargs):
-        super(MPXANESSet, self).__init__(absorbing_atom, structure,
+    def __init__(self, absorbing_atom, structure, radius=10., name="MPXANES",
+                 **kwargs):
+        super(MPXANESSet, self).__init__(absorbing_atom, structure, radius,
                                          MPXANESSet.CONFIG, name, **kwargs)
         self.kwargs = kwargs
 
@@ -206,7 +209,8 @@ class MPEXAFSSet(FEFFDictSet):
 
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXAFSSet.yaml"))
 
-    def __init__(self, absorbing_atom, structure, name="MPEXAFS", **kwargs):
-        super(MPEXAFSSet, self).__init__(absorbing_atom, structure,
+    def __init__(self, absorbing_atom, structure, radius=10., name="MPEXAFS",
+                 **kwargs):
+        super(MPEXAFSSet, self).__init__(absorbing_atom, structure, radius,
                                          MPEXAFSSet.CONFIG, name, **kwargs)
         self.kwargs = kwargs
