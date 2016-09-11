@@ -40,9 +40,8 @@ class LDos(MSONable):
         charge_transfer (dict): computed charge transfer between atoms dictionary
     """
     def __init__(self, complete_dos, charge_transfer):
-
-        self._complete_dos = complete_dos
-        self._cht = charge_transfer
+        self.complete_dos = complete_dos
+        self.charge_transfer = charge_transfer
 
     @staticmethod
     def from_file(filename1='feff.inp', filename2='ldos'):
@@ -123,37 +122,6 @@ class LDos(MSONable):
                                                          filename2)
         return LDos(complete_dos, charge_transfer)
 
-    @property
-    def complete_dos(self):
-        """returns Complete Dos"""
-        return self._complete_dos
-
-    @property
-    def charge_transfer(self):
-        """returns charge transfer between atoms dictionary"""
-        return self._cht
-
-    def as_dict(self):
-        """
-        returns Json-serializable dict representation of ompletedos
-        """
-        return {'@module': self.__class__.__module__,
-                '@class': self.__class__.__name__,
-                'complete_dos': self._complete_dos.as_dict(),
-                'charge_transfer': self.charge_transfer}
-
-    @staticmethod
-    def from_dict(d):
-        """
-        Returns LDos object from dict representation
-
-        Args:
-            d (dict): dict representation of LDos
-        """
-        complete_dos = CompleteDos.from_dict(d['complete_dos'])
-        charge_transfer = d['charge_transfer']
-        return LDos(complete_dos, charge_transfer)
-
     @staticmethod
     def charge_transfer_from_file(filename1, filename2):
         """
@@ -175,7 +143,7 @@ class LDos(MSONable):
 
         for i in range(0, len(dicts[0]) + 1):
             if len(str(i)) == 1:
-                with zopen("{}0{}.dat".format(filename2, i), "r") \
+                with zopen("{}0{}.dat".format(filename2, i), "rt") \
                         as fobject:
                     f = fobject.readlines()
                     s = float(f[3].split()[2])
@@ -187,7 +155,7 @@ class LDos(MSONable):
                                                  'f': f1,
                                    'tot': tot}}
             else:
-                with zopen(filename2 + str(i) + ".dat", "r") as fid:
+                with zopen(filename2 + str(i) + ".dat", "rt") as fid:
                     f = fid.readlines()
                     s = float(f[3].split()[2])
                     p = float(f[4].split()[2])
@@ -250,10 +218,10 @@ class Xmu(MSONable):
     """
 
     def __init__(self, header, parameters, central_atom, data):
-        self._header = header
-        self._parameters = parameters
-        self._central_atom = central_atom
-        self._data = data
+        self.header = header
+        self.parameters = parameters
+        self.central_atom = central_atom
+        self.data = data
 
     @staticmethod
     def from_file(filename="xmu.dat", input_filename="feff.inp"):
@@ -275,16 +243,11 @@ class Xmu(MSONable):
         return Xmu(header, parameters, central_atom, data)
 
     @property
-    def data(self):
-        "returns numpy data array"""
-        return self._data
-
-    @property
     def energies(self):
         """Returns energies for cross-section plots"""
         energies = []
-        for i in range(len(self._data)):
-            energy = self._data[i][0]
+        for i in range(len(self.data)):
+            energy = self.data[i][0]
             energies[len(energies):] = [energy]
         return energies
 
@@ -292,8 +255,8 @@ class Xmu(MSONable):
     def across_section(self):
         """Returns absorption cross-section of absorbing atom in solid"""
         across = []
-        for i in range(len(self._data)):
-            a = self._data[i][3]
+        for i in range(len(self.data)):
+            a = self.data[i][3]
             across[len(across):] = [a]
         return across
 
@@ -301,8 +264,8 @@ class Xmu(MSONable):
     def scross_section(self):
         """Returns absorption cross-section for absorbing atom"""
         scross = []
-        for i in range(len(self._data)):
-            s = self._data[i][4]
+        for d in self.data:
+            s = d[4]
             scross[len(scross):] = [s]
         return scross
 
@@ -311,24 +274,20 @@ class Xmu(MSONable):
         """
         Returns source identification from Header file
         """
-        return self._header.source
+        return self.header.source
 
     @property
     def calc(self):
         """
         Returns type of Feff calculation, XANES or EXAFS from feff.inp file
         """
-        if "XANES" in self._parameters:
-            calc = "XANES"
-        else:
-            calc = "EXAFS"
-        return calc
+        return "XANES" if "XANES" in self.parameters else "EXAFS"
 
     @property
     def material_formula(self):
         """Returns chemical formula of material from feff.inp file"""
         try:
-            form = self._header.formula
+            form = self.header.formula
         except IndexError:
             form = 'No formula provided'
         return "".join(map(str, form))
@@ -336,19 +295,19 @@ class Xmu(MSONable):
     @property
     def absorbing_atom(self):
         """Returns absorbing atom symbol from feff.inp file"""
-        return self._central_atom
+        return self.central_atom
 
     @property
     def edge(self):
         """Returns excitation edge from feff.inp file"""
-        return self._parameters["EDGE"]
+        return self.parameters["EDGE"]
 
     def as_dict(self):
         """
         Returns Dictionary of attributes and to reproduce object
         using from dictionary staticmethod.
         """
-        data_list = self._data.tolist()
+        data_list = self.data.tolist()
 
         return {'@module': self.__class__.__module__,
                 '@class': self.__class__.__name__,
@@ -356,8 +315,8 @@ class Xmu(MSONable):
                 'scross': self.scross_section, 'atom': self.absorbing_atom,
                 'edge': self.edge, 'source': self.source, 'calc': self.calc,
                 'formula': self.material_formula,
-                'HEADER': self._header.as_dict(), 'TAGS': self._parameters,
-                'c_atom': self._central_atom, 'xmu': data_list}
+                'HEADER': self.header.as_dict(), 'TAGS': self.parameters,
+                'c_atom': self.central_atom, 'xmu': data_list}
 
     @staticmethod
     def from_dict(xdict):
