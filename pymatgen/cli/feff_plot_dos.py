@@ -22,7 +22,7 @@ __date__ = "April 7, 2012"
 import argparse
 from collections import OrderedDict
 
-from pymatgen.io.feff import FeffLdos
+from pymatgen.io.feff.outputs import LDos
 from pymatgen.electronic_structure.plotter import DosPlotter
 
 
@@ -44,7 +44,7 @@ def main():
                         const=True, help='plot orbital projected DOS')
 
     args = parser.parse_args()
-    f = FeffLdos.from_file(args.filename1[0], args.filename[0])
+    f = LDos.from_file(args.filename1[0], args.filename[0])
     dos = f.complete_dos
 
     all_dos = OrderedDict()
@@ -53,8 +53,7 @@ def main():
     structure = f.complete_dos.structure
 
     if args.site:
-        for i in xrange(len(structure)):
-            site = structure[i]
+        for i, site in enumerate(structure):
             all_dos['Site ' + str(i) + " " + site.specie.symbol] = \
                 dos.get_site_dos(site)
     if args.element:
