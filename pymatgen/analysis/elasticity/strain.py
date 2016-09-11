@@ -14,6 +14,7 @@ generating deformed structure sets for further calculations.
 from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.elasticity.tensors import SquareTensor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.elasticity import voigt_map
 import warnings
 import numpy as np
 from six.moves import zip
@@ -43,13 +44,9 @@ class Deformation(SquareTensor):
             deformation_gradient (3x3 array-like): the 3x3 array-like
                 representing the deformation gradient
         """
+        obj = super(Deformation, cls).__new__(cls, deformation_gradient)
 
-        obj = SquareTensor(deformation_gradient).view(cls)
-        return obj
-
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
+        return obj.view(cls)
 
     def check_independent(self):
         """
@@ -215,28 +212,36 @@ class Strain(SquareTensor):
             strain_matrix (3x3 array-like): the 3x3 array-like
                 representing the Green-Lagrange strain
         """
+        vscale = np.ones((6,))
+        vscale[3:] *= 2
+        obj = super(Strain, cls).__new__(cls, strain_matrix, vscale=vscale)
+        if dfm is None:
+            warnings.warn("Constructing a strain object without a deformation"
+                          " matrix may result in a non-independent "
+                          "deformation  Use Strain.from_deformation to "
+                          "construct a Strain from a deformation gradient.")
 
-        obj = SquareTensor(strain_matrix).view(cls)
-        obj._dfm = dfm
+            obj._dfm = convert_strain_to_deformation(obj)
+        else:
+            dfm = Deformation(dfm)
+            gls_test = 0.5 * (np.dot(dfm.trans, dfm) - np.eye(3))
+            if (gls_test - obj > 1e-10).any():
+                raise ValueError("Strain and deformation gradients "
+                                 "do not match!")
+            obj._dfm = Deformation(dfm)
+
         if not obj.is_symmetric():
             raise ValueError("Strain objects must be initialized "
-                             "with a symmetric array-like.")
-
-        if dfm is None:
-            warnings.warn("Constructing a strain object without a deformation "
-                          "matrix makes many methods unusable.  Use "
-                          "Strain.from_deformation to construct a Strain object"
-                          " from a deformation gradient.")
-        elif (np.array(dfm) - obj < 1e-5).all():
-            warnings.warn("Warning: deformation matrix does not correspond "
-                          "to input strain_matrix value")
-        return obj
+                             "with a symmetric array or a voigt-notation "
+                             "vector with six entries.")
+        return obj.view(cls)
 
     def __array_finalize__(self, obj):
         if obj is None:
             return
         self.rank = getattr(obj, "rank", None)
         self._dfm = getattr(obj, "_dfm", None)
+        self._vscale = getattr(obj, "_vscale", None)
 
     @classmethod
     def from_deformation(cls, deformation):
@@ -265,18 +270,7 @@ class Strain(SquareTensor):
         Returns the index of the deformation gradient corresponding
         to the independent deformation
         """
-        if self._dfm is None:
-            raise ValueError("No deformation matrix supplied "
-                             "for this strain tensor.")
         return self._dfm.check_independent()
-
-    @property
-    def voigt(self):
-        """
-        translates a strain tensor into a voigt notation vector
-        """
-        return [self[0, 0], self[1, 1], self[2, 2],
-                2. * self[1, 2], 2. * self[0, 2], 2. * self[0, 1]]
 
 
 class IndependentStrain(Strain):
@@ -319,3 +313,13 @@ class IndependentStrain(Strain):
     @property
     def j(self):
         return self._j
+
+def convert_strain_to_deformation(strain):
+    strain = SquareTensor(strain)
+    ftdotf = 2*strain + np.eye(3)
+    eigs, eigvecs = np.linalg.eig(ftdotf)
+    rotated = ftdotf.rotate(np.transpose(eigvecs))
+    rotated = rotated.round(14)
+    defo = Deformation(np.sqrt(rotated))
+    result = defo.rotate(eigvecs)
+    return result
