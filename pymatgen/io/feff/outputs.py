@@ -318,11 +318,11 @@ class Xmu(MSONable):
                 'HEADER': self.header.as_dict(), 'TAGS': self.parameters,
                 'c_atom': self.central_atom, 'xmu': data_list}
 
-    @staticmethod
-    def from_dict(xdict):
+    @classmethod
+    def from_dict(cls, xdict):
         """
         Returns Xmu object from dictionary
         """
         header = Header.from_dict(xdict['HEADER'])
-        return Xmu(header, xdict['TAGS'], xdict['c_atom'],
+        return cls(header, xdict['TAGS'], xdict['c_atom'],
                    np.array(xdict['xmu']))
