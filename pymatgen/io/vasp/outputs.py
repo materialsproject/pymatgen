@@ -2231,7 +2231,7 @@ class VolumetricData(object):
         ngrid_pts = 0
         data_count = 0
         poscar = None
-        with zopen(filename) as f:
+        with zopen(filename, "rt") as f:
             for line in f:
                 line = line.strip()
                 if read_dataset:
