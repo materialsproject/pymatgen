@@ -61,7 +61,7 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
     @abc.abstractproperty
     def tags(self):
         """
-        Returns standard calculation paramters.
+        Returns standard calculation parameters.
         """
         return
 
