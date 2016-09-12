@@ -267,12 +267,12 @@ class Header(MSONable):
                   "TITLE Reduced formula:  {}"
                   .format(self.struct.composition.reduced_formula),
                   "TITLE space group: ({}), space number:  ({})"
-                  .format(self.space_group, self.space_number), "TITLE abc:{}"
-                  .format(" ".join([to_s(i).rjust(10)
-                                    for i in self.struct.lattice.abc])),
-                  "TITLE angles:{}"
-                  .format(" ".join([to_s(i).rjust(10)
-                                    for i in self.struct.lattice.angles])),
+                  .format(self.space_group, self.space_number),
+                  "TITLE abc: {}".format(" ".join(
+                      [to_s(i).rjust(10) for i in self.struct.lattice.abc])),
+                  "TITLE angles: {}"
+                  .format(" ".join(
+                      [to_s(i).rjust(10) for i in self.struct.lattice.angles])),
                   "TITLE sites: {}".format(self.struct.num_sites)]
         for i, site in enumerate(self.struct):
             output.append(" ".join(["*", str(i + 1), site.species_string,
