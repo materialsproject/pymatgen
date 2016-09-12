@@ -80,15 +80,6 @@ def make_doc(ctx):
 @task
 def publish(ctx):
     ctx.run("python setup.py release")
-    try:
-        # Try to do py27 wheel.
-        ctx.run("source activate py27")
-        ctx.run("python setup.py bdist_wheel upload")
-        ctx.run("source deactivate")
-    except:
-        # Nevermind if it fails.
-        pass
-
 
 @task
 def setver(ctx):
