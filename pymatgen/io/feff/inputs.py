@@ -296,7 +296,7 @@ class Atoms(MSONable):
     Atomic cluster centered around the absorbing atom.
     """
 
-    def __init__(self, struct, central_atom, radius=10.):
+    def __init__(self, struct, central_atom, radius):
         """
         Args:
             struct (Structure): input structure
@@ -465,7 +465,7 @@ class Tags(dict):
         Args:
             sort_keys: Set to True to sort the Feff parameters alphabetically.
                 Defaults to False.
-            pretty: Set to True for pretty aligned output, False for no.
+            pretty: Set to True for pretty aligned output. Defaults to False.
 
         Returns:
             String representation of Tags.
