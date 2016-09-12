@@ -77,9 +77,9 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         Returns all input files as a dict of {filename: feffio object}
         """
         return {"HEADER": self.header(),
-                "PARAMETERS": self.tags(),
-                "POTENTIALS": self.potential(),
-                "ATOMS": self.atoms()}
+                "PARAMETERS": self.tags,
+                "POTENTIALS": self.potential,
+                "ATOMS": self.atoms}
 
     def write_input(self, output_dir=".", make_dir_if_not_present=True):
         """
@@ -114,7 +114,7 @@ class FEFFDictSet(AbstractFeffInputSet):
     """
 
     def __init__(self, absorbing_atom, structure, radius, config_dict,
-                 name="MPFEFF", user_tag_settings=None):
+                 name="MPFEFF", spectrum="EXAFS", user_tag_settings=None):
         """
 
         Args:
@@ -130,6 +130,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         self.radius = radius
         self.name = name
         self.config_dict = deepcopy(config_dict)
+        self.spectrum = spectrum
         self.user_tag_settings = user_tag_settings or {}
 
     def header(self, source='', comment=''):
@@ -182,7 +183,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
     def __str__(self):
         d = self.config_dict
-        output = [self.name]
+        output = [self.spectrum]
         output.extend(["%s = %s" % (k, str(v)) for k, v in six.iteritems(d)])
         output.append("")
         return "\n".join(output)
@@ -196,9 +197,10 @@ class MPXANESSet(FEFFDictSet):
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPXANESSet.yaml"))
 
     def __init__(self, absorbing_atom, structure, radius=10., name="MPXANES",
-                 **kwargs):
+                 spectrum="XANES", **kwargs):
         super(MPXANESSet, self).__init__(absorbing_atom, structure, radius,
-                                         MPXANESSet.CONFIG, name, **kwargs)
+                                         MPXANESSet.CONFIG, name, spectrum,
+                                         **kwargs)
         self.kwargs = kwargs
 
 
@@ -210,7 +212,8 @@ class MPEXAFSSet(FEFFDictSet):
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXAFSSet.yaml"))
 
     def __init__(self, absorbing_atom, structure, radius=10., name="MPEXAFS",
-                 **kwargs):
+                 spectrum="EXAFS", **kwargs):
         super(MPEXAFSSet, self).__init__(absorbing_atom, structure, radius,
-                                         MPEXAFSSet.CONFIG, name, **kwargs)
+                                         MPEXAFSSet.CONFIG, name, spectrum,
+                                         **kwargs)
         self.kwargs = kwargs
