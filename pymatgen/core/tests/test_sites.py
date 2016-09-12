@@ -83,8 +83,8 @@ class PeriodicSiteTest(PymatgenTest):
                                  self.lattice)
         self.site2 = PeriodicSite({"Si": 0.5}, [0, 0, 0], self.lattice)
         self.assertEqual(self.site2.species_and_occu,
-                          Composition({Element('Si'): 0.5}),
-                          "Inconsistent site created!")
+                         Composition({Element('Si'): 0.5}),
+                         "Inconsistent site created!")
         self.propertied_site = PeriodicSite(Specie("Fe", 2),
                                             [0.25, 0.35, 0.45],
                                             self.lattice,
@@ -146,12 +146,12 @@ class PeriodicSiteTest(PymatgenTest):
         self.assertFalse((abs(dist_old - dist_new) < 1e-8) ^
                          (jimage_old == jimage_new).all(),
                          "If old dist == new dist, images must be the same!")
-        latt = Lattice.from_parameters(3.0, 4.0, 10.0, 3.0, 1.0, 2.0)
+        latt = Lattice.from_parameters(3.0, 3.1, 10.0, 2.96, 2.0, 1.0)
         site = PeriodicSite("Fe", [0.1, 0.1, 0.1], latt)
         site2 = PeriodicSite("Fe", [0.99, 0.99, 0.99], latt)
         (dist, img) = site.distance_and_image(site2)
-        self.assertAlmostEqual(dist, 1.1304420998572722)
-        self.assertEqual(list(img), [0, -1, -1])
+        self.assertAlmostEqual(dist, 0.15495358379511573)
+        self.assertEqual(list(img), [-11, 6, 0])
 
     def test_is_periodic_image(self):
         other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.45]), self.lattice)
@@ -178,9 +178,6 @@ class PeriodicSiteTest(PymatgenTest):
         self.assertEqual(site, self.site2)
         self.assertNotEqual(site, self.site)
         d = self.propertied_site.as_dict()
-        site = Site.from_dict(d)
-        self.assertEqual(site.magmom, 5.1)
-        self.assertEqual(site.charge, 4.2)
         site3 = PeriodicSite({"Si": 0.5, "Fe": 0.5}, [0, 0, 0], self.lattice)
         d = site3.as_dict()
         site = PeriodicSite.from_dict(d)
@@ -238,5 +235,5 @@ def get_distance_and_image_old(site1, site2, jimage=None):
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
-    import unittest
+    import unittest2 as unittest
     unittest.main()

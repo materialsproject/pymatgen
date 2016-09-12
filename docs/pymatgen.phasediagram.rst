@@ -6,9 +6,18 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.phasediagram.tests
 
 Submodules
 ----------
+
+pymatgen.phasediagram.analyzer module
+-------------------------------------
+
+.. automodule:: pymatgen.phasediagram.analyzer
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 pymatgen.phasediagram.entries module
 ------------------------------------
@@ -18,18 +27,10 @@ pymatgen.phasediagram.entries module
     :undoc-members:
     :show-inheritance:
 
-pymatgen.phasediagram.pdanalyzer module
----------------------------------------
+pymatgen.phasediagram.maker module
+----------------------------------
 
-.. automodule:: pymatgen.phasediagram.pdanalyzer
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.phasediagram.pdmaker module
-------------------------------------
-
-.. automodule:: pymatgen.phasediagram.pdmaker
+.. automodule:: pymatgen.phasediagram.maker
     :members:
     :undoc-members:
     :show-inheritance:

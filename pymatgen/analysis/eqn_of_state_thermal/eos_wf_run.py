@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-This module is a wrapper for the GIBBS module.
+This module is a wrapper for the MP-Eqn of State thermal properties module.
 """
 
 from __future__ import division
@@ -10,34 +10,11 @@ import sys
 import subprocess
 import unittest
 import pymatgen
-#from pymatgen.io.vaspio import Poscar
-#from pymatgen.io.vaspio import Vasprun
-#from pymatgen.io.cifio import CifWriter
-#from pymatgen.io.cifio import CifParser
-from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.io.cif import CifWriter
-from pymatgen.io.cif import CifParser
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-#from pymatgen.io.vaspio_set import MITVaspInputSet
-#from pymatgen.io.vaspio_set import AbstractVaspInputSet
-from pymatgen.io.vasp.sets import MITVaspInputSet
-from pymatgen.io.vasp.sets import AbstractVaspInputSet
-#from pymatgen.analysis.eqn_of_state_thermal.eos_gibbs import gibbs
-#from pymatgen.analysis.eqn_of_state_thermal.eos_vasp_output_read import Vasp_output_read
-#from pymatgen.analysis.eqn_of_state_thermal.eos_ev_results_read import EV_results_read
-#from pymatgen.analysis.eqn_of_state_thermal.eos_ev_check import checkminpos
-#from pymatgen.analysis.eqn_of_state_thermal.eos_ev_check import checkevconcav
-#from pymatgen.analysis.eqn_of_state_thermal.eos_ev_check import evsort
-#from pymatgen.analysis.eqn_of_state_thermal.eos_ev_check import evtsort
 from pymatgen.analysis.eqn_of_state_thermal.eos_ev_check import eos_ev_check
 from pymatgen.analysis.eqn_of_state_thermal.eos_polynomial import eos_polynomial
-#from pymatgen.analysis.eqn_of_state_thermal.eos_eqn_state import eos_eqn_state
 from pymatgen.analysis.eqn_of_state_thermal.eos_thermal_functions import eos_thermal_functions
-#from pymatgen.analysis.eqn_of_state_thermal.eos_input_write import Gibbs_input_write
-#from pymatgen.analysis.eqn_of_state_thermal.eos_cv_debye_fit import cvdebfit
-#from pymatgen.analysis.eqn_of_state_thermal.eos_thermal_conductivity import thermalconductivity
 import numpy as np
 import os
 import warnings
@@ -52,18 +29,6 @@ __maintainer__ = "Cormac Toher"
 __email__ = "cormac.toher@duke.edu"
 __date__ = "January 14, 2015"
 
-#class eos_thermal_results:
-#    def _init_(self):
-#        self.temperature = []
-#        self.pressure = []
-#        self.kappaT = []
-#        self.debye_temp_0P = []
-#        self.gruneisen_0P = []
-#        self.heat_capacity_cv = []
-#        self.heat_capacity_cp = []       
-#        self.volume_0P = []
-#        self.bulk_modulus_0P = []
-#        self.bmcoeffs_static = []
 
 class eos_thermal_properties:
     def _init_(self):
@@ -75,7 +40,6 @@ class eos_thermal_properties:
         self.xconfigvector = []
         self.datatofit = []
         self.bmcoeffs_static = []
-#        self.bmcoeffs_dynamic = []
         self.mfit = 500
         self.mpar = 20
         self.maxloops = 250
@@ -93,28 +57,20 @@ class eos_thermal_properties:
         self.pi = 3.14159265358979323846
         self.kj2unit = 0.1202707236
 
-#    def eos_thermal_run(inpfilename, evfilename, nstructs=28, stepsize=0.01, ieos = 0, idebye = 0, poisson = 0.25, npres = 11, spres = 2.0, ntemp = 201, stemp = 10.0, energy_inf=0.0):
     def eos_thermal_run(self, initstruct, volume_values, energy_values, poissonratio = 0.25, ieos = 0, idebye = 0, npres = 11, spres = 2.0, ntemp = 201, stemp = 10.0, energy_inf = 0.0, fit_type = 0):
-#    def eos_thermal_run(self, initstruct, volume_values, energy_values, poissonratio = 0.25, ieos = 0, idebye = 0, npres = 11, spres = 2.0, ntemp = 201, stemp = 10.0, energy_inf = 0.0, fit_type = 0):
-#    def eos_thermal_run(initstruct, volume_values, energy_values, ieos = 0, idebye = 0, poissonratio = 0.25, npres = 11, spres = 2.0, ntemp = 201, stemp = 10.0, energy_inf=0.0):
         nstructs = len(volume_values)
         self.vol_inp = volume_values
         self.energ_inp = energy_values
         if len(self.vol_inp) != nstructs:
-            warnings.warn("Error: wrong number of volumes")
-#            print("Error: wrong number of volumes")
+            raise ValueError("Wrong number of volumes")
             return
         if len(self.energ_inp) != nstructs:
-            warnings.warn("Error: wrong number of energies")
-#            print("Error: wrong number of energies")
+            raise ValueError("Wrong number of energies")
             return
         for i in xrange(nstructs):
-#            self.vol_inp[i] = self.vol_inp[i] * ang32bohr3
-#            self.energ_inp[i] = self.energ_inp[i] * self.ev2hartree
             print("Volume (in Ang^3) = ", self.vol_inp[i], "Energy (in eV) = ", self.energ_inp[i])
         self.energ_inf = energy_inf
         self.tdebye = []
-#        print(self.energ_inf)
         self.natoms = len(initstruct.sites)
         self.title = ""
         for i in xrange(self.natoms):
@@ -162,7 +118,6 @@ class eos_thermal_properties:
         self.outstr = ""
         self.outstr_thermal = ""
         self.bmcoeffs_static = []
-#        self.bmcoeffs_dynamic = []
         for i in xrange(nstructs):
             self.vol_inp[i] = self.vol_inp[i] * self.ang32bohr3
             self.energ_inp[i] = self.energ_inp[i] * self.ev2hartree
@@ -172,13 +127,11 @@ class eos_thermal_properties:
         minpos = eos_ev_check_inst.checkminpos(self.vol_inp, self.energ_inp, self.ninp)
         concav = eos_ev_check_inst.checkevconcav(self.vol_inp, self.energ_inp, self.ninp)
         if (minpos != 0):
-            print("Error: minimum is not contained in calculated (E, V) data")
+            raise ValueError("Minimum is not contained in calculated (E, V) data")
             return
         if (concav != 0):
-            print("Error: (E, V) data is not concave")
+            raise ValueError("E(V) data is not concave")
             return
-# Write input file for original Fortran version of GIBBS algorithm (useful for debugging and testing)
-#        Gibbs_input_write(self, amu2au)
 # Run GIBBS algorithm to calculate thermal properties
         self.gibbs()
         print(self.logstr)
@@ -227,10 +180,8 @@ class eos_thermal_properties:
                 jt300 = j
                 difft300min = difft300
             j = j + 1    
-#        kappaT =[]
         print("jtdbest = ", jtdbest)
         print("jt300 = ", jt300)
-#        ang32bohr3 = 6.74833303710415
         voleqD = (self.volminsav[jtdbest][0] / self.ang32bohr3) * 1e-30
         avmasskg = (self.cellmassamu * self.amu2kg) / self.natoms
         thetaa = tdbestfit * (self.natoms**(-self.third))
@@ -272,6 +223,15 @@ class eos_thermal_properties:
 # This automated version described in Phys. Rev. B 90, 174107 (2014)
 #
     def gibbs(self):
+        """
+        .....gibbs - Debye-Grunseisen model for thermal properties
+
+        Adapted from original Fortran version written by M. A. Blanco et al.
+        See Computer Physics Communications 158, 57-72 (2004) and
+        Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
+
+        This automated version described in Phys. Rev. B 90, 174107 (2014)
+        """
         #
         # .....Compute the scaling factor function f(poisson) in the Debye model.
         # (See for example CMS 98, 34 (2015), Poirier - Intro. to the
@@ -333,7 +293,8 @@ class eos_thermal_properties:
         # If only the last three points are concave, then MP Eqn of State Thermal will not be able to use them to fit a polynomial
         # MP Eqn of State Thermal exits giving an error message
         if j == self.ndata-2:
-            self.logstr = self.logstr + "MP Eqn of State Thermal: All points show convex patterns \n"
+            raise ValueError("MP Eqn of State Thermal: All points show convex patterns")
+#            self.logstr = self.logstr + "MP Eqn of State Thermal: All points show convex patterns \n"
             self.grerr = 2
             return
         self.energ_inp[0] = self.energ_inp[j-1]
@@ -387,6 +348,7 @@ class eos_thermal_properties:
             self.logstr = self.logstr + "MP Eqn of State Thermal: energy of this structure = " + str(eref) + " \n"
             self.logstr = self.logstr + "MP Eqn of State Thermal: total number of structures = " + str(self.ndata) + " \n"
             self.grerr = 2
+            raise ValueError("MP Eqn of State Thermal: static minimum outside input data")
             return
         # 
         # .....Obtain the polynomial fit of E(static) vs. x
@@ -402,11 +364,13 @@ class eos_thermal_properties:
         self.fterr, nepol, epol, eerr = eos_polynomial_inst.polynomial_fit(imin, self.xconfigvector, self.datatofit, self.ndata, self.mpar, self.mfit)
         if self.fterr != 0:
             if self.fterr == 2:
-                self.logstr = self.logstr + "MP Eqn of State Thermal: Problem inverting matrix to fit polynomial \n"
+#                self.logstr = self.logstr + "MP Eqn of State Thermal: Problem inverting matrix to fit polynomial \n"
                 self.grerr = 4
+                raise ValueError("MP Eqn of State Thermal: Problem inverting matrix to fit polynomial")
             else:
-                self.logstr = self.logstr + "MP Eqn of State Thermal: No polynomial fit found with a minimum within bounds of input data \n"
+#                self.logstr = self.logstr + "MP Eqn of State Thermal: No polynomial fit found with a minimum within bounds of input data \n"
                 self.grerr = 2
+                raise ValueError("MP Eqn of State Thermal: No polynomial fit found with a minimum within bounds of input data")
             return
         if nepol == 2:
             nepol = nepol + 1
@@ -417,20 +381,9 @@ class eos_thermal_properties:
         itry = imin
         self.ierr, itry, self.logstr = eos_polynomial_inst.minbrack(itry, self.datatofit, self.ndata, self.logstr)
         if self.ierr != 0:
-            self.logstr = self.logstr + "MP Eqn of State Thermal: Cannot find minimum of (E, V) data \n"
-#            if self.ierr == 1:
-#                eos_thermal_data.logstr = eos_thermal_data.logstr + "MP Eqn of State Thermal minbrack: trial point outside limits \n"
-#                eos_thermal_data.logstr = eos_thermal_data.logstr + "MP Eqn of State Thermal minbrack: imin = " + str(imin) + " \n"
-#            elif self.ierr == 2:
-#                eos_thermal_data.logstr = eos_thermal_data.logstr + "MP Eqn of State Thermal minbrack: flat function, impossible to search \n"
-#            elif self.ierr == 3:
-#                eos_thermal_data.logstr = eos_thermal_data.logstr + "MP Eqn of State Thermal minbrack: trial point is a maximum \n"
-#                eos_thermal_data.logstr = eos_thermal_data.logstr + "MP Eqn of State Thermal minbrack: func[imin - 1] = " + str(eos_thermal_data.datatofit[imin-1]) + " \n"
-#                eos_thermal_data.logstr = eos_thermal_data.logstr + "MP Eqn of State Thermal minbrack: func[imin] = " + str(eos_thermal_data.datatofit[imin]) + " \n"
-#                eos_thermal_data.logstr = eos_thermal_data.logstr + "MP Eqn of State Thermal minbrack: func[imin + 1] = " + str(eos_thermal_data.datatofit[imin+1]) + " \n"
-#            elif self.ierr == 4:
-#                eos_thermal_data.logstr = eos_thermal_data.logstr + "MP Eqn of State Thermal minbrack: monotonic function, there's no minimum \n"
+#            self.logstr = self.logstr + "MP Eqn of State Thermal: Cannot find minimum of (E, V) data \n"
             self.grerr = 2
+            raise ValueError("MP Eqn of State Thermal: Cannot find minimum of (E, V) data")
             return
         else:
             self.logstr = self.logstr + "MP Eqn of State Thermal: Minimum of (E, V) data is at point imin = " + str(itry) + " \n"
@@ -468,12 +421,14 @@ class eos_thermal_properties:
                 if pmerr == 0:
                     self.logstr = self.logstr + "MP Eqn of State Thermal: Minimum of (E, V) data is at point xmin = " + str(xmin) + " Bohr \n"
                 else:
-                    self.logstr = self.logstr + "MP Eqn of State Thermal: Cannot find minimum of (E, V) data \n"
+#                    self.logstr = self.logstr + "MP Eqn of State Thermal: Cannot find minimum of (E, V) data \n"
                     self.grerr = 2
+                    raise ValueError("MP Eqn of State Thermal: Cannot find minimum of (E, V) data")
                     return
             else:
-                self.logstr = self.logstr + "MP Eqn of State Thermal: Cannot find minimum of (E, V) data \n"
+#                self.logstr = self.logstr + "MP Eqn of State Thermal: Cannot find minimum of (E, V) data \n"
                 self.grerr = 2
+                raise ValueError("MP Eqn of State Thermal: Cannot find minimum of (E, V) data")
                 return
         Vmin = xmin**3
         # Evaluate polynomial at minimum point xmin to get Emin
@@ -682,11 +637,13 @@ class eos_thermal_properties:
             ntpol, tpol, logstr, fterr = eos_polynomial_inst.debfitt(self.vol_inp, self.tdebye, self.ndata, self.mpar, self.mfit, self.logstr)
             if self.fterr != 0:
                 if self.fterr == 2:
-                    self.logstr = self.logstr + "MP Eqn of State Thermal: Problem inverting matrix to fit polynomial \n"
+#                    self.logstr = self.logstr + "MP Eqn of State Thermal: Problem inverting matrix to fit polynomial \n"
                     self.grerr = 4
+                    raise ValueError("MP Eqn of State Thermal: Problem inverting matrix to fit polynomial")
                 else:
-                    self.logstr = self.logstr + "MP Eqn of State Thermal: No polynomial fit found with a minimum within bounds of input data \n"
+#                    self.logstr = self.logstr + "MP Eqn of State Thermal: No polynomial fit found with a minimum within bounds of input data \n"
                     self.grerr = 2
+                    raise ValueError("MP Eqn of State Thermal: No polynomial fit found with a minimum within bounds of input data")
                 return
         elif self.idebye == 3:
             tdebyemin = ((6*self.pi*self.pi*self.natoms*self.vol_inp[imin]*self.vol_inp[imin])**self.third) / self.pckbau * self.poissonratiofunction * math.sqrt(math.fabs(self.d2EnergydVolume2_static[imin])/self.cellmassval)
@@ -741,9 +698,10 @@ class eos_thermal_properties:
             dzero = 0.0
             scerr = self.scdebye(dzero, epol, eerr, nepol, imin, true, pst)
             if scerr:
-                self.logstr = self.logstr + "MP Eqn of State Thermal: Problem in self-consistent Debye! \n"
+#                self.logstr = self.logstr + "MP Eqn of State Thermal: Problem in self-consistent Debye! \n"
                 scerr = False
                 self.grerr = 3
+                raise ValueError("MP Eqn of State Thermal: Problem in self-consistent Debye!")
                 return
         #
         #.....If iopt_g = 2 the variable opt_g is changed to false
@@ -841,6 +799,7 @@ class eos_thermal_properties:
                     self.logstr = self.logstr + "MP Eqn of State Thermal: self.datatofit = " + str(self.datatofit) + " \n"
                     self.logstr = self.logstr + "MP Eqn of State Thermal: Cannot find minimum for temperature = " + str(self.temperature[j]) + " \n"
                     self.grerr = 2
+                    raise ValueError("MP Eqn of State Thermal: Cannot find minimum of Gibbs free energy")
                     return
                 else:
                     self.logstr = self.logstr + "MP Eqn of State Thermal: ffitt,  T = " + str(self.temperature[j]) + ", itry = " + str(itry) + ", imin = " + str(imin) + ", self.ndata = " + str(self.ndata) + " \n"
@@ -862,10 +821,12 @@ class eos_thermal_properties:
                     self.logstr = self.logstr + "MP Eqn of State Thermal: ffitt,  T = " + str(self.temperature[j]) + ", itry = " + str(itry) + ", imin = " + str(imin) + ", self.ndata = " + str(self.ndata) + " \n"
                     self.logstr = self.logstr + "MP Eqn of State Thermal: Cannot find minimum for temperature = " + str(self.temperature[j]) + " \n"
                     if self.fterr == 2:
-                        self.logstr = self.logstr + "MP Eqn of State Thermal: Problem inverting matrix to fit polynomial \n"
+#                        self.logstr = self.logstr + "MP Eqn of State Thermal: Problem inverting matrix to fit polynomial \n"
                         self.grerr = 4
+                        raise ValueError("MP Eqn of State Thermal: Problem inverting matrix to fit polynomial")
                     else:
                         self.grerr = 2
+                        raise ValueError("MP Eqn of State Thermal: Cannot find minimum of Gibbs free energy")
                     return
                 else:
                     self.logstr = self.logstr + "MP Eqn of State Thermal: No polynomial fit found with a minimum within bounds of input data \n"
@@ -987,6 +948,7 @@ class eos_thermal_properties:
                             if j == 0:
                                 self.logstr = self.logstr + "MP Eqn of State Thermal: Cannot find minimum of E + A + pV for p = " + str(self.pressure[k]) + ", T = " + str(self.temperature[j]) + " \n"
                                 self.grerr = 2
+                                raise ValueError("MP Eqn of State Thermal: Cannot find minimum of Gibbs free energy")
                                 return
                             else:
                                 self.logstr = self.logstr + "MP Eqn of State Thermal: Cannot find minimum of E + A + pV for p = " + str(self.pressure[k]) + ", T = " + str(self.temperature[j]) + " \n"
@@ -1011,6 +973,7 @@ class eos_thermal_properties:
                         if j == 0:
                             self.logstr = self.logstr + "MP Eqn of State Thermal: Cannot find minimum of polynomial fit for E + pV + A for p = " + str(self.pressure[k]) + " and T = " + str(self.temperature[j]) + " \n"
                             self.grerr = 2
+                            raise ValueError("MP Eqn of State Thermal: Cannot find minimum of Gibbs free energy")
                             return
                         else:
                             self.logstr = self.logstr + "MP Eqn of State Thermal: Cannot find minimum of polynomial fit for E + pV + A at T = " + str(self.temperature[j]) + ", p = " + str(self.pressure[k]) + " \n"
@@ -1182,6 +1145,7 @@ class eos_thermal_properties:
                             if k == 0:
                                 self.logstr = self.logstr + "MP Eqn of State Thermal: inconsistent volume, v[k] = " + str(self.voleqmin[k]) + ", p[k] = " + str(self.pressure[k]) + " \n"
                                 self.grerr = 3
+                                raise ValueError("MP Eqn of State Thermal: Inconsistent volume")
                                 return
                             else:
                                 self.logstr = self.logstr + "MP Eqn of State Thermal: Inconsistent volume, v[k] = " + str(self.voleqmin[k]) + ", p[k] = " + str(self.pressure[k]) + ", k = " + str(k) + " \n"
@@ -1330,6 +1294,16 @@ class eos_thermal_properties:
     # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
     #
     def numer(self, volref, nepol, epol, nfpol, fpol, statcalc):
+        """
+        .....numer - numerical EOS calculation.
+        
+        .....Numer computes the derivatives of the Helmholtz function and the
+        static energy needed to obtain Debye's temperature, the static
+        pressure, and succesive derivatives of the bulk modulus.
+        
+        Adapted from original Fortran version written by M. A. Blanco et al.
+        See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
+        """
         #
         #.....Compute Pfit(P), B(P), B'(P), and B''(P)
         #
@@ -1414,6 +1388,19 @@ class eos_thermal_properties:
     # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
     #...................................................................
     def vinet(self, vol0pres, gfe0pres, statcalc):
+        """
+        .....vinet - computes Vinet EOS from (P,V) data.
+        
+        .....VINET computes the EOS from the (P,V) data. The EOS has the
+        following expresion:
+        log H = A + B(1-x)
+        being H = Px**2/(3(1-x))
+        A = log Bo
+        B = 3/2((Bo)'-1)
+        X = (V/Vo)**(1/3)
+        Adapted from original Fortran version written by M. A. Blanco et al.
+        See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
+        """
         #
         #.....fit Log H vs. (1-x)
         #
@@ -1576,24 +1563,60 @@ class eos_thermal_properties:
     #  d2EnergydVolume2_static()  : Second derivative of ust(k) for each vinp(). Hy/bohr^6
     #  d2EnergydVolume2_dynamic()  : Second derivative of ust(k) for each V(). Hy/bohr^6
     #  rms     : Root mean square deviation.
-    #  bulkmod0pres,dbulkmoddp0pres,d2bulkmoddp20pres : Bulk modulus and their derivatives at P=0.
-    #
-    # .....The output is stored in common /eos/
+    #  bulkmod0pres,dbulkmoddp0pres,d2bulkmoddp20pres : Bulk modulus and their derivatives at P=0
     #
     # Adapted from original Fortran version written by M. A. Blanco et al.
     # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
     # -----------------------------------------------------------------------
     def birch(self, vol0pres, gfe0pres, iG, statcalc):
+        """
+        .....birch - computes the Birch-Murnaghan EOS of order iG from the
+        (P,V) data.
+        
+        The EOS has the following expression:
+        
+        F = Sum (i=0,iG) a(i)*f^i
+         
+        being : F = P/[3f(1+2f)^(5/2)]
+        f = [x^(-2)-1]/2
+        x = [V(i)/V(1)]^(1/3)
+    
+        -----INPUT
+        vol0pres      : Molecular volume (bohr^3/mol) at P=0.
+        gfe0pres      : Gibbs energy (or 0k static energy) at v0 (hartree).
+        iG      : order of the fitting.
+        press() : Pressure values (GPa). common /eos/.
+        vinp()  : Initial values of the volume (bohr^3/mol). common /input/.
+        statcalc: Logical variable that determines if the calculation is
+                static or dynamic. In the first case the second derivative
+                of the static energy (d2EnergydVolume2_static) is computed for all the input
+                values of the volume. In the second case the second
+                derivative of the static energy (d2EnergydVolume2_dynamic) is computed for
+                the equilibrium volumes at the different pressures.
+    
+        -----OUTPUT
+        pstatic() : Static pressures in GPa (only on dynamic calculations).
+        d2EnergydVolume2_static()  : Second derivative of ust(k) for each vinp(). Hy/bohr^6
+        d2EnergydVolume2_dynamic()  : Second derivative of ust(k) for each V(). Hy/bohr^6
+        rms     : Root mean square deviation.
+        bulkmod0pres,dbulkmoddp0pres,d2bulkmoddp20pres : Bulk modulus and their derivatives at P=0.
+        
+        
+        Adapted from original Fortran version written by M. A. Blanco et al.
+        See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
+        """
         tol = 1e-12
         npresm2 = self.npressure - 2
         izero = 0
         if iG > self.birchfitorder_iG:
-            self.logstr = self.logstr + "MP Eqn of State Thermal birch : Too high fitting order \n"
+#            self.logstr = self.logstr + "MP Eqn of State Thermal birch : Too high fitting order \n"
             self.brerr = 1
+            raise ValueError("MP Eqn of State Thermal: Fitting order for Birch-Murnaghan EoS is too high")
             return
         if math.fabs(self.pressure[0]) > tol:
-            self.logstr = self.logstr + "MP Eqn of State Thermal birch : P(0) must be 0.0 \n"
+#            self.logstr = self.logstr + "MP Eqn of State Thermal birch : P(0) must be 0.0 \n"
             self.brerr = 1
+            raise ValueError("MP Eqn of State Thermal: First pressure value must be 0.0")
             return
         birchcoef = [0.0 for i in range(self.birchfitorder_iG+1)]
         fbirch = []
@@ -1793,6 +1816,37 @@ class eos_thermal_properties:
     # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
     # ...................................................................
     def bcnt(vol0pres, gfe0pres, b0, statcalc):
+        """
+        .....bcnt - compute the Spinodal (BCNT) EOS from (B,p) data.
+        
+        The EOS has the following expresion:
+        
+                           g
+         B(p) = ( p - Psp ) / K
+         
+         where//c
+         g = 0.85  (If opt_g = .true. ===> g is optimized)
+         (-Psp) and K are the parameter to optimize.
+         
+         These parameters bear the following relation with Bo and Bo'.
+                     g  -1
+         Bo  = (-Psp)  K
+     
+                          -1
+         Bo' = g Bo (-Psp)
+     
+         -----Input parameters:
+         lg     : Logical unit for results output.
+         vol0pres     : Zero pressure volume, either static or dynamic.
+         gfe0pres     : Zero pressure Gibbs function.
+         B0     : Bulk modulus used to compute the initial value of
+                   -Psp (GPa).
+         opt_g  : if .true.  ==> g is optimized.
+         static : if .true.  ==> static calculation.
+     
+         Adapted from original Fortran version written by M. A. Blanco et al.
+         See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
+         """
         eps = 1e-10
         maxnl = 100
         tol = 1e-12
@@ -1956,6 +2010,19 @@ class eos_thermal_properties:
     # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
     #
     def mnbrak(self, ax, bx, cx):
+        """
+        .....mnbrak - brackets a minimum of the function f.
+        
+        Given a function, and two distinct initial points ax and bx,
+        this routine searches in the downhill direction (defined by the
+        function as evaluated at the initial points) and returns new
+        points ax, bx, and cx which bracket a minimum of the function.
+        Also returned are the function values at the three points: fa, fb,
+        and fc.
+        
+        Adapted from original Fortran version written by M. A. Blanco et al.
+        See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
+        """
         gold = 1.618034
         glimit = 100.0
         tiny = 1e-20
@@ -2030,6 +2097,19 @@ class eos_thermal_properties:
     # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
     #
     def brent(self, ax, bx, cx, tol, xmin):
+        """
+        .....brent - unidimensional minimization of f in the range [ax,cx].
+        
+        Given a function, and a bracketing triplet of abscissas this
+        routine isolates the minimum to a fractional precission of tol
+        using Brent's method. The bracketing triplet must be such that bx
+        is between ax and cx, and that f(bx) is less than both f(ax) and
+        f(cx). The abscissa of the minimum is returned as xmin, and the
+        minimum function value as BRENT.
+        
+        Adapted from original Fortran version written by M. A. Blanco et al.
+        See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
+        """
         itmax = 100
         cgold = 0.3819660
         zeps = 1.0e-10
@@ -2127,6 +2207,12 @@ class eos_thermal_properties:
     # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
     #
     def optm(self, x_Psp):
+        """
+        .....optm - optimization of exponent parameter "g" (aka "beta") required for BCNT EOS.
+        
+        Adapted from original Fortran version written by M. A. Blanco et al.
+        See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
+        """
         xfunc = [0.0 for k in range(self.npressure)]
         yfunc = [0.0 for k in range(self.npressure)]
         if x_Psp < 0.0:
@@ -2191,6 +2277,15 @@ class eos_thermal_properties:
     # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
     #
     def scdebye(self, T, pol, err, npol, imin, firsttime, pst):
+        """
+        .....scdebye - calculates the table of self consistent Debye
+        temperatures at T for all the input volumes.
+        
+        If firsttime is true, only calculates the static pressures table
+        
+        Adapted from original Fortran version written by M. A. Blanco et al.
+        See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
+        """
         eps = 5.0
         mloops = 25
         scerr = False
@@ -2275,27 +2370,3 @@ class eos_thermal_properties:
         return scerr
 
 
-class eos_thermal_results:
-    def _init_(self):
-        self.pressure = []
-        self.temperature = []
-        self.thermal_conductivity = []
-        self.debye_temperature = []
-        self.debye_temperature_acoustic = []
-        self.gruneisen = []
-        self.thermal_expansion = []
-        self.volume_equilibrium = []
-        self.bulk_modulus_static = []
-        self.bulk_modulus_isothermal = []
-        self.specific_heat_Cv = []
-        self.specific_heat_Cp = []
-        self.gibbs_energy = []
-        self.entropy_vibrational = []
-        self.birch_murnaghan_coeffs = []
-
-
-
-
-if __name__ == "__main__":
-    import sys
-    rungibbs()

@@ -22,7 +22,6 @@ from pymatgen.core.structure import Molecule
 from pymatgen.core.units import Energy, FloatWithUnit
 from monty.json import MSONable
 from pymatgen.util.coord_utils import get_angle
-from six.moves import map, zip
 
 __author__ = "Xiaohui Qu"
 __copyright__ = "Copyright 2013, The Electrolyte Genome Project"
@@ -570,7 +569,7 @@ class QcTask(MSONable):
         self.params["rem"]["solvent_method"] = "cosmo"
         self.params["rem"]["solvent_dielectric"] = dielectric_constant
 
-    def use_pcm(self, pcm_params=None, solvent_params=None,
+    def use_pcm(self, pcm_params=None, solvent_key="solvent", solvent_params=None,
                 radii_force_field=None):
         """
         Set the solvent model to PCM. Default parameters are trying to comply to
@@ -578,12 +577,13 @@ class QcTask(MSONable):
 
         Args:
             pcm_params (dict): The parameters of "$pcm" section.
-            solvent_params (dict): The parameters of "pcm_solvent" section
+            solvent_key (str): for versions < 4.2 the section name is "pcm_solvent"
+            solvent_params (dict): The parameters of solvent_key section
             radii_force_field (str): The force fied used to set the solute
                 radii. Default to UFF.
         """
         self.params["pcm"] = dict()
-        self.params["pcm_solvent"] = dict()
+        self.params[solvent_key] = dict()
         default_pcm_params = {"Theory": "SSVPE",
                               "vdwScale": 1.1,
                               "Radii": "UFF"}
@@ -599,7 +599,7 @@ class QcTask(MSONable):
                 self.params["pcm"][k.lower()] = v.lower() \
                     if isinstance(v, six.string_types) else v
         for k, v in solvent_params.items():
-            self.params["pcm_solvent"][k.lower()] = v.lower() \
+            self.params[solvent_key][k.lower()] = v.lower() \
                 if isinstance(v, six.string_types) else copy.deepcopy(v)
         self.params["rem"]["solvent_method"] = "pcm"
         if radii_force_field:
@@ -1337,11 +1337,24 @@ class QcOutput(object):
 
     def __init__(self, filename):
         self.filename = filename
-        with zopen(filename, "rt") as f:
-            data = f.read()
-        chunks = re.split("\n\nRunning Job \d+ of \d+ \S+", data)
-        # noinspection PyTypeChecker
-        self.data = list(map(self._parse_job, chunks))
+        split_pattern = "\n\nRunning Job \d+ of \d+ \S+|" \
+                        "[*]{61}\nJob \d+ of \d+ \n[*]{61}|" \
+                        "\n.*time.*\nRunning Job \d+ of \d+ \S+"
+        try:
+            with zopen(filename, "rt") as f:
+                data = f.read()
+        except UnicodeDecodeError:
+            with zopen(filename, "rb") as f:
+                data = f.read().decode("latin-1")
+        try:
+            chunks = re.split(split_pattern, data)
+            # noinspection PyTypeChecker
+            self.data = list(map(self._parse_job, chunks))
+        except UnicodeDecodeError:
+            data = data.decode("latin-1")
+            chunks = re.split(split_pattern, data)
+            # noinspection PyTypeChecker
+            self.data = list(map(self._parse_job, chunks))
 
     @property
     def final_energy(self):
@@ -1636,8 +1649,14 @@ class QcOutput(object):
             elif parse_beta_lumo:
                 current_beta_lumo = float(line.split()[0])
                 parse_beta_lumo = False
-                current_homo = max([current_alpha_homo, current_beta_homo])
-                current_lumo = min([current_alpha_lumo, current_beta_lumo])
+                if isinstance(current_alpha_homo, float) and isinstance(current_beta_homo, float):
+                    current_homo = max([current_alpha_homo, current_beta_homo])
+                else:
+                    current_homo = 0.0
+                if isinstance(current_alpha_lumo, float) and isinstance(current_beta_lumo, float):
+                    current_lumo = min([current_alpha_lumo, current_beta_lumo])
+                else:
+                    current_lumo = 0.0
                 homo_lumo.append([Energy(current_homo, "Ha").to("eV"),
                                   Energy(current_lumo, "Ha").to("eV")])
                 current_alpha_homo = None

@@ -100,7 +100,6 @@ div.sphinxsidebarwrapper{
     padding: 20px 0;
     position: fixed;
     width: 300px;
-    overflow-y: scroll;
     top: 54px;
     bottom: 0;
 }

@@ -29,6 +29,17 @@ class LatticeTestCase(PymatgenTest):
         for name in family_names:
             self.families[name] = getattr(self, name)
 
+    def test_format(self):
+        self.assertEqual("[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]",
+                         format(self.lattice, ".3fl"))
+        self.assertEqual(
+            """10.000 0.000 0.000
+0.000 10.000 0.000
+0.000 0.000 10.000""",
+            format(self.lattice, ".3f"))
+        self.assertEqual("{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}",
+                         format(self.lattice, ".1fp"))
+
     def test_init(self):
         a = 9.026
         lattice = Lattice.cubic(a)
@@ -257,6 +268,15 @@ class LatticeTestCase(PymatgenTest):
         for l, _, _ in latt.find_all_mappings(latt, ltol=0.05, atol=11):
             self.assertTrue(isinstance(l, Lattice))
 
+    def test_mapping_symmetry(self):
+        l = Lattice.cubic(1)
+        l2 = Lattice.orthorhombic(1.1001, 1, 1)
+        self.assertEqual(l.find_mapping(l2, ltol=0.1), None)
+        self.assertEqual(l2.find_mapping(l, ltol=0.1), None)
+        l2 = Lattice.orthorhombic(1.0999, 1, 1)
+        self.assertNotEqual(l2.find_mapping(l, ltol=0.1), None)
+        self.assertNotEqual(l.find_mapping(l2, ltol=0.1), None)
+
     def test_to_from_dict(self):
         d = self.tetragonal.as_dict()
         t = Lattice.from_dict(d)
@@ -264,6 +284,7 @@ class LatticeTestCase(PymatgenTest):
             self.assertEqual(t.abc[i], self.tetragonal.abc[i])
             self.assertEqual(t.angles[i], self.tetragonal.angles[i])
         #Make sure old style dicts work.
+        d = self.tetragonal.as_dict(verbosity=1)
         del d["matrix"]
         t = Lattice.from_dict(d)
         for i in range(3):
@@ -310,15 +331,16 @@ class LatticeTestCase(PymatgenTest):
             lattice.dot(np.zeros(3), np.zeros(6))
 
     def test_get_points_in_sphere(self):
-        latt = Lattice.cubic(1)
-        pts = []
-        for a, b, c in itertools.product(range(10), range(10), range(10)):
-            pts.append([a / 10, b / 10, c / 10])
+        # This is a non-niggli representation of a cubic lattice
+        latt = Lattice([[1,5,0],[0,1,0],[5,0,1]])
+        # evenly spaced points array between 0 and 1
+        pts = np.array(list(itertools.product(range(5), repeat=3))) / 5
+        pts = latt.get_fractional_coords(pts)
 
         self.assertEqual(len(latt.get_points_in_sphere(
-            pts, [0, 0, 0], 0.1)), 7)
+            pts, [0, 0, 0], 0.20001)), 7)
         self.assertEqual(len(latt.get_points_in_sphere(
-            pts, [0.5, 0.5, 0.5], 0.5)), 515)
+            pts, [0.5, 0.5, 0.5], 1.0001)), 552)
 
     def test_get_all_distances(self):
         fcoords = np.array([[0.3, 0.3, 0.5],
@@ -358,23 +380,74 @@ class LatticeTestCase(PymatgenTest):
         self.assertTrue(self.hexagonal.is_hexagonal())
 
     def test_get_distance_and_image(self):
-        dist, image = self.cubic.get_distance_and_image([0, 0, 0.1], [0, 0.,
-                                                                     0.9])
+        dist, image = self.cubic.get_distance_and_image([0, 0, 0.1],
+                                                        [0, 0., 0.9])
         self.assertAlmostEqual(dist, 2)
         self.assertArrayAlmostEqual(image, [0, 0, -1])
 
     def test_get_all_distance_and_image(self):
         r = self.cubic.get_all_distance_and_image([0, 0, 0.1],
                                                   [0, 0., 0.9])
-        self.assertEqual(len(r), 8)
+        self.assertEqual(len(r), 27)
         dist, image = min(r, key=lambda x: x[0])
         self.assertAlmostEqual(dist, 2)
         self.assertArrayAlmostEqual(image, [0, 0, -1])
         dist, image = max(r, key=lambda x: x[0])
-        self.assertAlmostEqual(dist, 16.24807680927192)
-        self.assertArrayAlmostEqual(image, [1, 1, 0])
+        self.assertAlmostEqual(dist, 22.891046284519195)
+        self.assertArrayAlmostEqual(image, [-1, -1, 1])
+
+    def test_get_distance_and_image_strict(self):
+        for count in range(10):
+            lengths = [np.random.randint(1, 100) for i in range(3)]
+            lattice = [np.random.rand(3) * lengths[i]
+                               for i in range(3)]
+            lattice = Lattice(np.array(lattice))
+
+            f1 = np.random.rand(3)
+            f2 = np.random.rand(3)
+
+            scope = list(range(-3, 4))
+            min_image_dist = (float("inf"), None)
+            for image in itertools.product(scope, scope, scope):
+                cart = lattice.get_cartesian_coords(f1 - (f2 + image))
+                dist = np.dot(cart, cart) ** 0.5
+                if dist < min_image_dist[0]:
+                    min_image_dist = (dist, image)
+
+            pmg_result = lattice.get_distance_and_image(f1, f2)
+            self.assertGreaterEqual(min_image_dist[0] + 1e-7, pmg_result[0])
+            if abs(min_image_dist[0] - pmg_result[0]) < 1e-12:
+                self.assertArrayAlmostEqual(min_image_dist[1], pmg_result[1])
+
+    def test_lll_basis(self):
+        a = np.array([1., 0.1, 0.,])
+        b = np.array([0., 2., 0.,])
+        c = np.array([0., 0., 3.,])
+
+        l1 = Lattice([a, b, c])
+        l2 = Lattice([a + b, b + c, c])
+
+        ccoords = np.array([[1, 1, 2], [2, 2, 1.5]])
+        l1_fcoords = l1.get_fractional_coords(ccoords)
+        l2_fcoords = l2.get_fractional_coords(ccoords)
+
+        self.assertArrayAlmostEqual(l1.matrix, l2.lll_matrix)
+        self.assertArrayAlmostEqual(np.dot(l2.lll_mapping, l2.matrix),
+                                    l1.matrix)
+
+        self.assertArrayAlmostEqual(np.dot(l2_fcoords, l2.matrix),
+                                    np.dot(l1_fcoords, l1.matrix))
+
+        lll_fcoords = l2.get_lll_frac_coords(l2_fcoords)
+
+        self.assertArrayAlmostEqual(lll_fcoords, l1_fcoords)
+        self.assertArrayAlmostEqual(l1.get_cartesian_coords(lll_fcoords),
+                                    np.dot(lll_fcoords, l2.lll_matrix))
+
+        self.assertArrayAlmostEqual(l2.get_frac_coords_from_lll(lll_fcoords),
+                                    l2_fcoords)
 
 
 if __name__ == '__main__':
-    import unittest
+    import unittest2 as unittest
     unittest.main()

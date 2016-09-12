@@ -3,6 +3,18 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import logging
+
+from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
+from pymatgen.analysis.elasticity.strain import Deformation
+from pymatgen.core.composition import Composition
+from pymatgen.core.operations import SymmOp
+from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core.structure import Structure
+from pymatgen.transformations.site_transformations import \
+    PartialRemoveSitesTransformation
+from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 """
 This module defines standard transformations which transforms a structure into
@@ -20,48 +32,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Sep 23, 2011"
 
 
-import logging
-
-from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
-from pymatgen.core.composition import Composition
-from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
-from pymatgen.transformations.site_transformations import \
-    PartialRemoveSitesTransformation
-from pymatgen.transformations.transformation_abc import AbstractTransformation
-
 logger = logging.getLogger(__name__)
-
-
-class IdentityTransformation(AbstractTransformation):
-    """
-    This is a demo transformation which does nothing, i.e. just returns a copy
-    of the same structure.
-    """
-    def apply_transformation(self, structure):
-        return Structure(structure.lattice, structure.species_and_occu,
-                         structure.frac_coords)
-
-    def __str__(self):
-        return "Identity Transformation"
-
-    def __repr__(self):
-        return self.__str__()
-
-    @property
-    def inverse(self):
-        return self
-
-    @property
-    def is_one_to_many(self):
-        return False
-
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "init_args": {},
-                "version": __version__, "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
 
 
 class RotationTransformation(AbstractTransformation):
@@ -79,41 +50,34 @@ class RotationTransformation(AbstractTransformation):
         """
 
         """
-        self._axis = axis
-        self._angle = angle
-        self._angle_in_radians = angle_in_radians
+        self.axis = axis
+        self.angle = angle
+        self.angle_in_radians = angle_in_radians
         self._symmop = SymmOp.from_axis_angle_and_translation(
-            self._axis, self._angle, self._angle_in_radians)
+            self.axis, self.angle, self.angle_in_radians)
 
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure.sites)
+        s = structure.copy()
         s.apply_operation(self._symmop)
         return s
 
     def __str__(self):
         return "Rotation Transformation about axis " + \
                "{} with angle = {:.4f} {}".format(
-                   self._axis, self._angle,
-                   "radians" if self._angle_in_radians else "degrees")
+                   self.axis, self.angle,
+                   "radians" if self.angle_in_radians else "degrees")
 
     def __repr__(self):
         return self.__str__()
 
     @property
     def inverse(self):
-        return RotationTransformation(self._axis, -self._angle,
-                                      self._angle_in_radians)
+        return RotationTransformation(self.axis, -self.angle,
+                                      self.angle_in_radians)
 
     @property
     def is_one_to_many(self):
         return False
-
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"axis": self._axis, "angle": self._angle,
-                              "angle_in_radians": self._angle_in_radians},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
 
 
 class OxidationStateDecorationTransformation(AbstractTransformation):
@@ -126,11 +90,11 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
     """
 
     def __init__(self, oxidation_states):
-        self.oxi_states = oxidation_states
+        self.oxidation_states = oxidation_states
 
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure.sites)
-        s.add_oxidation_state_by_element(self.oxi_states)
+        s = structure.copy()
+        s.add_oxidation_state_by_element(self.oxidation_states)
         return s
 
     @property
@@ -140,12 +104,6 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return False
-
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"oxidation_states": self.oxi_states},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
 
 
 class AutoOxiStateDecorationTransformation(AbstractTransformation):
@@ -169,6 +127,10 @@ class AutoOxiStateDecorationTransformation(AbstractTransformation):
 
     def __init__(self, symm_tol=0.1, max_radius=4, max_permutations=100000,
                  distance_scale_factor=1.015):
+        self.symm_tol = symm_tol
+        self.max_radius = max_radius
+        self.max_permutations = max_permutations
+        self.distance_scale_factor = distance_scale_factor
         self.analyzer = BVAnalyzer(symm_tol, max_radius, max_permutations,
                                    distance_scale_factor)
 
@@ -183,24 +145,16 @@ class AutoOxiStateDecorationTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"symm_tol": self.analyzer.symm_tol,
-                              "max_radius": self.analyzer.max_radius,
-                              "max_permutations": self.analyzer
-                              .max_permutations,
-                              "distance_scale_factor":
-                              self.analyzer.dist_scale_factor},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
-
 
 class OxidationStateRemovalTransformation(AbstractTransformation):
     """
     This transformation removes oxidation states from a structure.
     """
+    def __init__(self):
+        pass
+
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure.sites)
+        s = structure.copy()
         s.remove_oxidation_states()
         return s
 
@@ -211,11 +165,6 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return False
-
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {}, "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
 
 
 class SupercellTransformation(AbstractTransformation):
@@ -231,7 +180,7 @@ class SupercellTransformation(AbstractTransformation):
     """
 
     def __init__(self, scaling_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1))):
-        self._matrix = scaling_matrix
+        self.scaling_matrix = scaling_matrix
 
     @staticmethod
     def from_scaling_factors(scale_a=1, scale_b=1, scale_c=1):
@@ -253,13 +202,11 @@ class SupercellTransformation(AbstractTransformation):
                                         [0, 0, scale_c]])
 
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure)
-        s.make_supercell(self._matrix)
-        return s
+        return structure * self.scaling_matrix
 
     def __str__(self):
         return "Supercell Transformation with scaling matrix " + \
-            "{}".format(self._matrix)
+            "{}".format(self.scaling_matrix)
 
     def __repr__(self):
         return self.__str__()
@@ -271,12 +218,6 @@ class SupercellTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return False
-
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"scaling_matrix": self._matrix},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
 
 
 class SubstitutionTransformation(AbstractTransformation):
@@ -292,6 +233,7 @@ class SubstitutionTransformation(AbstractTransformation):
             generate a disordered structure.
     """
     def __init__(self, species_map):
+        self.species_map = species_map
         self._species_map = dict(species_map)
         for k, v in self._species_map.items():
             if isinstance(v, (tuple, list)):
@@ -305,7 +247,7 @@ class SubstitutionTransformation(AbstractTransformation):
             else:
                 value = get_el_sp(v)
             species_map[get_el_sp(k)] = value
-        s = Structure.from_sites(structure.sites)
+        s = structure.copy()
         s.replace_species(species_map)
         return s
 
@@ -326,21 +268,6 @@ class SubstitutionTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    def as_dict(self):
-        #convert sp_map to tuple representation to work with Mongo
-        #which doesn't allow '.' in key names
-        sp_map = []
-        for k, v in self._species_map.items():
-            if isinstance(v, dict):
-                v = [(str(k2), v2) for k2, v2 in v.items()]
-                sp_map.append((str(k), v))
-            else:
-                sp_map.append((str(k), str(v)))
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"species_map": sp_map},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
-
 
 class RemoveSpeciesTransformation(AbstractTransformation):
     """
@@ -350,16 +277,17 @@ class RemoveSpeciesTransformation(AbstractTransformation):
         species_to_remove: List of species to remove. E.g., ["Li", "Mn"]
     """
     def __init__(self, species_to_remove):
-        self._species = species_to_remove
+        self.species_to_remove = species_to_remove
 
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure.sites)
-        for sp in self._species:
+        s = structure.copy()
+        for sp in self.species_to_remove:
             s.remove_species([get_el_sp(sp)])
         return s
 
     def __str__(self):
-        return "Remove Species Transformation :" + ", ".join(self._species)
+        return "Remove Species Transformation :" + \
+            ", ".join(self.species_to_remove)
 
     def __repr__(self):
         return self.__str__()
@@ -371,12 +299,6 @@ class RemoveSpeciesTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return False
-
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"species_to_remove": self._species},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
 
 
 class PartialRemoveSpecieTransformation(AbstractTransformation):
@@ -409,9 +331,9 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         """
 
         """
-        self._specie = specie_to_remove
-        self._frac = fraction_to_remove
-        self._algo = algo
+        self.specie_to_remove = specie_to_remove
+        self.fraction_to_remove = fraction_to_remove
+        self.algo = algo
 
     def apply_transformation(self, structure, return_ranked_list=False):
         """
@@ -434,12 +356,13 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
             be stored in the transformation_parameters dictionary in the
             transmuted structure class.
         """
-        sp = get_el_sp(self._specie)
+        sp = get_el_sp(self.specie_to_remove)
         specie_indices = [i for i in range(len(structure))
                           if structure[i].species_and_occu ==
                           Composition({sp: 1})]
         trans = PartialRemoveSitesTransformation([specie_indices],
-                                                 [self._frac], algo=self._algo)
+                                                 [self.fraction_to_remove],
+                                                 algo=self.algo)
         return trans.apply_transformation(structure, return_ranked_list)
 
     @property
@@ -447,9 +370,9 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         return True
 
     def __str__(self):
-        spec_str = ["Species = {}".format(self._specie),
-                    "Fraction to remove = {}".format(self._frac),
-                    "ALGO = {}".format(self._algo)]
+        spec_str = ["Species = {}".format(self.specie_to_remove),
+                    "Fraction to remove = {}".format(self.fraction_to_remove),
+                    "ALGO = {}".format(self.algo)]
         return "PartialRemoveSpecieTransformation : " + ", ".join(spec_str)
 
     def __repr__(self):
@@ -458,14 +381,6 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
     @property
     def inverse(self):
         return None
-
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"specie_to_remove": self._specie,
-                              "fraction_to_remove": self._frac,
-                              "algo": self._algo},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
 
 
 class OrderDisorderedStructureTransformation(AbstractTransformation):
@@ -497,9 +412,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     USE WITH CARE.
 
     Args:
-        num_structures: Maximum number of structures to return
-        mev_cutoff (float): maximum mev per atom above the minimum energy
-            ordering for a structure to be returned
+        algo (int): Algorithm to use.
         symmetrized_structures (bool): Whether the input structures are
             instances of SymmetrizedStructure, and that their symmetry
             should be used for the grouping of sites.
@@ -510,9 +423,9 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     ALGO_BEST_FIRST = 2
 
     def __init__(self, algo=ALGO_FAST, symmetrized_structures=False):
-        self._algo = algo
+        self.algo = algo
         self._all_structures = []
-        self._symmetrized = symmetrized_structures
+        self.symmetrized_structures = symmetrized_structures
 
     def apply_transformation(self, structure, return_ranked_list=False):
         """
@@ -549,9 +462,9 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         equivalent_sites = []
         exemplars = []
-        #generate list of equivalent sites to order
-        #equivalency is determined by sp_and_occu and symmetry
-        #if symmetrized structure is true
+        # generate list of equivalent sites to order
+        # equivalency is determined by sp_and_occu and symmetry
+        # if symmetrized structure is true
         for i, site in enumerate(structure):
             if site.is_ordered:
                 continue
@@ -560,7 +473,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 sp = ex.species_and_occu
                 if not site.species_and_occu.almost_equals(sp):
                     continue
-                if self._symmetrized:
+                if self.symmetrized_structures:
                     sym_equiv = structure.find_equivalent_sites(ex)
                     sym_test = site in sym_equiv
                 else:
@@ -573,38 +486,38 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 equivalent_sites.append([i])
                 exemplars.append(site)
 
-        #generate the list of manipulations and input structure
+        # generate the list of manipulations and input structure
         s = Structure.from_sites(structure)
         m_list = []
         for g in equivalent_sites:
             total_occupancy = sum([structure[i].species_and_occu for i in g],
                                   Composition())
             total_occupancy = dict(total_occupancy.items())
-            #round total occupancy to possible values
+            # round total occupancy to possible values
             for k, v in total_occupancy.items():
                 if abs(v - round(v)) > 0.25:
                     raise ValueError("Occupancy fractions not consistent "
                                      "with size of unit cell")
                 total_occupancy[k] = int(round(v))
-            #start with an ordered structure
+            # start with an ordered structure
             initial_sp = max(total_occupancy.keys(),
                              key=lambda x: abs(x.oxi_state))
             for i in g:
                 s[i] = initial_sp
-            #determine the manipulations
+            # determine the manipulations
             for k, v in total_occupancy.items():
                 if k == initial_sp:
                     continue
                 m = [k.oxi_state / initial_sp.oxi_state if initial_sp.oxi_state
                      else 0, v, list(g), k]
                 m_list.append(m)
-            #determine the number of empty sites
+            # determine the number of empty sites
             empty = len(g) - sum(total_occupancy.values())
             if empty > 0.5:
                 m_list.append([0, empty, list(g), None])
 
         matrix = EwaldSummation(s).total_energy_matrix
-        ewald_m = EwaldMinimizer(matrix, m_list, num_to_return, self._algo)
+        ewald_m = EwaldMinimizer(matrix, m_list, num_to_return, self.algo)
 
         self._all_structures = []
 
@@ -647,12 +560,6 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"algo": self._algo},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
-
     @property
     def lowest_energy_structure(self):
         return self._all_structures[0]["structure"]
@@ -672,7 +579,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
     """
     def __init__(self, tolerance=0.5):
-        self._tolerance = tolerance
+        self.tolerance = tolerance
 
     def apply_transformation(self, structure):
         """
@@ -685,7 +592,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
             The most primitive structure found. The returned structure is
             guaranteed to have len(new structure) <= len(structure).
         """
-        return structure.get_primitive_structure(tolerance=self._tolerance)
+        return structure.get_primitive_structure(tolerance=self.tolerance)
 
     def __str__(self):
         return "Primitive cell transformation"
@@ -701,12 +608,6 @@ class PrimitiveCellTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"tolerance": self._tolerance},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
-
 
 class PerturbStructureTransformation(AbstractTransformation):
     """
@@ -720,15 +621,81 @@ class PerturbStructureTransformation(AbstractTransformation):
 
     def __init__(self, amplitude=0.01):
 
-        self._amp = amplitude
+        self.amplitude = amplitude
 
     def apply_transformation(self, structure):
-        s = Structure.from_sites(structure.sites)
-        s.perturb(self._amp)
+        s = structure.copy()
+        s.perturb(self.amplitude)
         return s
 
     def __str__(self):
         return "PerturbStructureTransformation : " + \
+            "Amplitude = {}".format(self.amplitude)
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+
+class DeformStructureTransformation(AbstractTransformation):
+    """
+    This transformation deforms a structure by a deformation gradient matrix
+
+    Args:
+        deformation (array): deformation gradient for the transformation
+    """
+
+    def __init__(self, deformation):
+        self.deformation = Deformation(deformation)
+
+    def apply_transformation(self, structure):
+        return self.deformation.apply_to_structure(structure)
+
+    def __str__(self):
+        return "DeformStructureTransformation : " + \
+            "Deformation = {}".format(str(self.deformation.tolist()))
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return DeformStructureTransformation(self.deformation.inv())
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+
+class StrainStructureTransformation(AbstractTransformation):
+    """
+    This transformation applies an isotropic strain to the lattice.
+    Author: Cormac Toher
+    """
+
+    def __init__(self, amplitude=0.01):
+        """
+        Args:
+            amplitude:
+                Amplitude of strain as a fraction of unit cell dimension. 
+               The lengths of all lattice vectors will be changed by this amount.
+        """
+        self._amp = amplitude
+
+    def apply_transformation(self, structure):
+        s = Structure.from_sites(structure.sites)
+        s.apply_strain(self._amp)
+        return s
+
+    def __str__(self):
+        return "StrainStructureTransformation : " + \
             "Amplitude = {}".format(self._amp)
 
     def __repr__(self):
@@ -742,6 +709,7 @@ class PerturbStructureTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
+    @property
     def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"amplitude": self._amp},

@@ -20,8 +20,10 @@ __date__ = "4/4/14"
 import os
 from itertools import product
 from fractions import Fraction
+from abc import ABCMeta, abstractproperty
+from collections import Sequence
 import numpy as np
-
+import warnings
 from monty.serialization import loadfn
 
 from pymatgen.core.operations import SymmOp
@@ -37,15 +39,57 @@ ABBREV_SPACE_GROUP_MAPPING = SYMM_DATA["abbreviated_spacegroup_symbols"]
 TRANSLATIONS = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
 FULL_SPACE_GROUP_MAPPING = {
     v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
+MAXIMAL_SUBGROUPS = {int(k): v
+                     for k, v in SYMM_DATA["maximal_subgroups"].items()}
 
 
-class SymmetryGroup(object):
+class SymmetryGroup(Sequence):
+    __metaclass__ = ABCMeta
 
-    def is_subgroup(self, group):
-        return set(self.symmetry_ops).issubset(group.symmetry_ops)
+    @abstractproperty
+    def symmetry_ops(self):
+        pass
 
-    def is_supergroup(self, group):
-        return set(self.symmetry_ops).issuperset(group.symmetry_ops)
+    def __contains__(self, item):
+        for i in self.symmetry_ops:
+            if np.allclose(i.affine_matrix, item.affine_matrix):
+                return True
+        return False
+
+    def __hash__(self):
+        return self.__len__()
+
+    def __getitem__(self, item):
+        return self.symmetry_ops[item]
+
+    def __len__(self):
+        return len(self.symmetry_ops)
+
+    def is_subgroup(self, supergroup):
+        """
+        True if this group is a subgroup of the supplied group.
+
+        Args:
+            supergroup (SymmetryGroup): Supergroup to test.
+
+        Returns:
+            True if this group is a subgroup of the supplied group.
+        """
+        warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
+        return set(self.symmetry_ops).issubset(supergroup.symmetry_ops)
+
+    def is_supergroup(self, subgroup):
+        """
+        True if this group is a supergroup of the supplied group.
+
+        Args:
+            subgroup (SymmetryGroup): Subgroup to test.
+
+        Returns:
+            True if this group is a supergroup of the supplied group.
+        """
+        warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
+        return set(subgroup.symmetry_ops).issubset(self.symmetry_ops)
 
 
 @cached_class
@@ -77,9 +121,13 @@ class PointGroup(SymmetryGroup):
         self.symbol = int_symbol
         self.generators = [GENERATOR_MATRICES[c]
                            for c in POINT_GROUP_ENC[int_symbol]]
-        self.symmetry_ops = set([SymmOp.from_rotation_and_translation(m)
-                                 for m in self._generate_full_symmetry_ops()])
-        self.order = len(self.symmetry_ops)
+        self._symmetry_ops = set([SymmOp.from_rotation_and_translation(m)
+                                  for m in self._generate_full_symmetry_ops()])
+        self.order = len(self._symmetry_ops)
+
+    @property
+    def symmetry_ops(self):
+        return self._symmetry_ops
 
     def _generate_full_symmetry_ops(self):
         symm_ops = list(self.generators)
@@ -299,6 +347,48 @@ class SpaceGroup(SymmetryGroup):
             return "hexagonal"
         else:
             return "cubic"
+
+    def is_subgroup(self, supergroup):
+        """
+        True if this space group is a subgroup of the supplied group.
+
+        Args:
+            group (Spacegroup): Supergroup to test.
+
+        Returns:
+            True if this space group is a subgroup of the supplied group.
+        """
+        if len(supergroup.symmetry_ops) < len(self.symmetry_ops):
+            return False
+
+        groups = [[supergroup.int_number]]
+        all_groups = [supergroup.int_number]
+        count = 0
+        while True:
+            new_sub_groups = set()
+            for i in groups[-1]:
+                new_sub_groups.update([j for j in MAXIMAL_SUBGROUPS[i] if j
+                                       not in all_groups])
+            if self.int_number in new_sub_groups:
+                return True
+            elif len(new_sub_groups) == 0:
+                break
+            else:
+                groups.append(new_sub_groups)
+                all_groups.extend(new_sub_groups)
+        return False
+
+    def is_supergroup(self, subgroup):
+        """
+        True if this space group is a supergroup of the supplied group.
+
+        Args:
+            subgroup (Spacegroup): Subgroup to test.
+
+        Returns:
+            True if this space group is a supergroup of the supplied group.
+        """
+        return subgroup.is_subgroup(self)
 
     @classmethod
     def from_int_number(cls, int_number, hexagonal=True):

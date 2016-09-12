@@ -14,7 +14,8 @@ _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 try:
     import matplotlib
-    have_matplotlib = True
+    matplotlib.use("pdf") # Use non-graphical display backend during test.
+    have_matplotlib = "DISPLAY" in os.environ
 except ImportError:
     have_matplotlib = False
 
@@ -138,5 +139,5 @@ class AbinitInpectTest(PymatgenTest):
 
 
 if __name__ == '__main__':
-    import unittest
+    import unittest2 as unittest
     unittest.main()

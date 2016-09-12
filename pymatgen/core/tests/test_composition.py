@@ -1,14 +1,14 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-from __future__ import division, unicode_literals
-
 """
 Created on Nov 10, 2012
 
 @author: shyue
 """
+from __future__ import division, unicode_literals
+
+from pymatgen.util.testing import PymatgenTest
 
 
 __author__ = "Shyue Ping Ong"
@@ -19,8 +19,7 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Nov 10, 2012"
 
-import unittest
-
+import unittest2 as unittest
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition, CompositionError, \
@@ -28,7 +27,7 @@ from pymatgen.core.composition import Composition, CompositionError, \
 import random
 
 
-class CompositionTest(unittest.TestCase):
+class CompositionTest(PymatgenTest):
 
     def setUp(self):
         self.comp = list()
@@ -70,12 +69,32 @@ class CompositionTest(unittest.TestCase):
         self.indeterminate_comp.append(
             Composition.ranked_compositions_from_indeterminate_formula("Fee3"))
 
+    def test_immutable(self):
+        try:
+            self.comp[0]["Fe"] = 1
+        except Exception as ex:
+            self.assertIsInstance(ex, TypeError)
+
+        try:
+            del self.comp[0]["Fe"]
+        except Exception as ex:
+            self.assertIsInstance(ex, TypeError)
+
+    def test_in(self):
+        self.assertIn("Fe", self.comp[0])
+        self.assertNotIn("Fe", self.comp[2])
+        self.assertIn(Element("Fe"), self.comp[0])
+        self.assertEqual(self.comp[0]["Fe"], 2)
+        self.assertEqual(self.comp[0]["Mn"], 0)
+        self.assertRaises(TypeError, self.comp[0].__getitem__, "Hello")
+        self.assertRaises(TypeError, self.comp[0].__getitem__, "Vac")
+
     def test_init_(self):
         self.assertRaises(CompositionError, Composition, {"H": -0.1})
         f = {'Fe': 4, 'Li': 4, 'O': 16, 'P': 4}
         self.assertEqual("Li4 Fe4 P4 O16", Composition(f).formula)
         f = {None: 4, 'Li': 4, 'O': 16, 'P': 4}
-        self.assertRaises(ValueError, Composition, f)
+        self.assertRaises(TypeError, Composition, f)
         f = {1: 2, 8: 1}
         self.assertEqual("H2 O1", Composition(f).formula)
         self.assertEqual("Na2 O1", Composition(Na=2, O=1).formula)
@@ -139,6 +158,10 @@ class CompositionTest(unittest.TestCase):
                                     'Li3Fe2P6(C5O27)2', 'Li1.5Si0.5', 'ZnHO']
         all_formulas = [c.reduced_formula for c in self.comp]
         self.assertEqual(all_formulas, correct_reduced_formulas)
+
+        # test rounding
+        c = Composition({'Na': 2 - Composition.amount_tolerance / 2, 'Cl': 2})
+        self.assertEqual('NaCl', c.reduced_formula)
 
     def test_integer_formula(self):
         correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4',
@@ -210,6 +233,10 @@ class CompositionTest(unittest.TestCase):
         d = c.to_reduced_dict
         self.assertEqual(d['Fe'], correct_dict['Fe'])
         self.assertEqual(d['O'], correct_dict['O'])
+
+    def test_pickle(self):
+        for c in self.comp:
+            self.serialize_with_pickle(c, test_eq=True)
 
     def test_add(self):
         self.assertEqual((self.comp[0] + self.comp[2]).formula,

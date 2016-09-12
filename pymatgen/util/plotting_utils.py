@@ -20,15 +20,19 @@ import math
 import numpy as np
 
 
-def get_publication_quality_plot(width=8, height=None, plt=None):
+def get_publication_quality_plot(width=8, height=None, plt=None, dpi=None,
+                                 color_cycle=("qualitative", "Set1_9")):
     """
     Provides a publication quality plot, with nice defaults for font sizes etc.
 
     Args:
-        width: Width of plot in inches. Defaults to 8in.
-        height. Height of plot in inches. Defaults to width * golden ratio.
-        plt: If plt is supplied, changes will be made to an existing plot.
-            Otherwise, a new plot will be created.
+        width (float): Width of plot in inches. Defaults to 8in.
+        height (float): Height of plot in inches. Defaults to width * golden
+            ratio.
+        plt (matplotlib.pyplot): If plt is supplied, changes will be made to an
+            existing plot. Otherwise, a new plot will be created.
+        color_cycle (tuple): Set the color cycle for new plots to one of the
+            color sets in palettable. Defaults to a qualitative Set1_9.
 
     Returns:
         Matplotlib plot object with properly sized fonts.
@@ -42,20 +46,28 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
 
     if plt is None:
         import matplotlib.pyplot as plt
-        plt.figure(figsize=(width, height), facecolor="w")
+        import importlib
+        mod = importlib.import_module("palettable.colorbrewer.%s" %
+                                      color_cycle[0])
+        colors = getattr(mod, color_cycle[1]).mpl_colors
+        from cycler import cycler
+
+        plt.figure(figsize=(width, height), facecolor="w", dpi=dpi)
+        ax = plt.gca()
+        ax.set_prop_cycle(cycler('color', colors))
     else:
         fig = plt.gcf()
         fig.set_size_inches(width, height)
     plt.xticks(fontsize=ticksize)
     plt.yticks(fontsize=ticksize)
 
-    axes = plt.gca()
-    axes.set_title(axes.get_title(), size=width * 4)
+    ax = plt.gca()
+    ax.set_title(ax.get_title(), size=width * 4)
 
     labelsize = int(width * 3)
 
-    axes.set_xlabel(axes.get_xlabel(), size=labelsize)
-    axes.set_ylabel(axes.get_ylabel(), size=labelsize)
+    ax.set_xlabel(ax.get_xlabel(), size=labelsize)
+    ax.set_ylabel(ax.get_ylabel(), size=labelsize)
 
     return plt
 
@@ -75,6 +87,28 @@ def get_ax_fig_plt(ax=None):
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
+    else:
+        fig = plt.gcf()
+
+    return ax, fig, plt
+
+
+def get_ax3d_fig_plt(ax=None):
+    """
+    Helper function used in plot functions supporting an optional Axes3D argument.
+    If ax is None, we build the `matplotlib` figure and create the Axes3D else
+    we return the current active figure.
+
+    Returns:
+        ax: :class:`Axes` object
+        figure: matplotlib figure
+        plt: matplotlib pyplot module.
+    """
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import axes3d
+    if ax is None:
+        fig = plt.figure()
+        ax = axes3d.Axes3D(fig)
     else:
         fig = plt.gcf()
 
@@ -113,7 +147,10 @@ def get_axarray_fig_plt(ax_array, nrows=1, ncols=1, sharex=False, sharey=False,
 
 def add_fig_kwargs(func):
     """
-    Decorator that adds keyword arguments for functions returning matplotlib figure.
+    Decorator that adds keyword arguments for functions returning matplotlib figures.
+
+    The function should return either a matplotlib figure or None to signal
+    some sort of error/unexpected event.
     See doc string below for the list of supported options.
     """
     from functools import wraps
@@ -126,8 +163,9 @@ def add_fig_kwargs(func):
         savefig = kwargs.pop("savefig", None)
         tight_layout = kwargs.pop("tight_layout", False)
 
-        # Call func
+        # Call func and return immediately if None is returned.
         fig = func(*args, **kwargs)
+        if fig is None: return fig
 
         # Operate on matplotlib figure.
         if title is not None: fig.suptitle(title)

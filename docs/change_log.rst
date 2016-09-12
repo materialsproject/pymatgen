@@ -1,6 +1,211 @@
 Change log
 ==========
 
+v4.2.4
+------
+* Bug fix for kpoint weight calculation for Monkhorst meshes.
+
+v4.2.3
+------
+* Minor cleanup.
+* Simplified installation. enumlib and bader can now be installed using pmg setup --install.
+
+v4.2.2
+------
+* Global configuration variables such as VASP\_PSP\_DIR and MAPI\_KEY are now
+  stored in "~/.pmgrc.yaml". If you are setting these as environmental
+  variables right now, you can easily transition to the new system using::
+
+      pmg config --add VASP_PSP_DIR $VASP_PSP_DIR MAPI_KEY $MAPI_KEY
+
+  This new scheme will provide greater flexibility for user-defined
+  global behavior in pymatgen, e.g., tolerances, default input sets for
+  transmuters, etc., in future.
+* Beta of k-point weight calculator.
+* Use default MSONable as and from_dict for all transformations.
+
+v4.2.1
+------
+* New DopingTransformation that implements an automated doping strategy.
+* Updated MIC algorithm that is a lot more robust (Will Richards).
+* Major update to chemenv package (David Waroquiers)
+
+v4.2.0
+------
+* Fix important bug in minimum image distance computation for very skewed cells.
+* Major refactoring of WulffShape code.
+* Misc bug fixes for elastic tensor and other codes.
+
+v4.1.1
+------
+* Major refactoring of WulffShape and lammps support.
+
+v4.1.0
+------
+* Wulff shape generator and analysis.
+* Minor bug fixes.
+
+v4.0.2
+--------
+* Fix kpoint reciprocal density.
+
+v4.0.1
+------
+* Minor bug fix release.
+
+v4.0.0
+------
+* Massive update with many deprecated methods removed. Note that this
+  may break backwards incompatibility!
+* Support for ABINIT 8.
+* Improved sulfide compatibility.
+
+v3.7.1
+------
+* Fix deprecation bug.
+
+v3.7.0
+------
+* Last version before pymatgen 4.0, where deprecated modules will be removed!
+* Massive update to LAMMPS (Kiran Matthews).
+* New input sets with a different interface that replaces old input sets.
+* Massive update to elastic properties.
+
+v3.6.1
+------
+* Massive cleanup to Boltztrap interface (Anubhav Jain)
+* Refactor of piezoelectric analysis to use tensor base class (Joey)
+* More robust CIF parsing.
+
+v3.6.0
+------
+* Pymatgen now uses spglib directly from Togo's website. Spglib is no longer
+  bundled as a dependency.
+* Improved support for velocities in Poscar (Germaine Vallverdu)
+* Backwards incompatible change in Born charge format in Outcar.
+* Fixes for Lammps input serialization
+
+v3.5.3
+------
+* Misc refactorings and bug fixes, especially for Outcar and Boltztrap classes.
+
+v3.5.2
+------
+* Minor update to DerivedInputSet interface.
+
+v3.5.1
+------
+* New derived input sets for generating inputs that depende on previuos
+  calculations. Old input sets deprecated.
+
+v3.5.0
+------
+* Chemical environment analysis package (David Waroquiers).
+* Piezoelectric property analysis (Shayam).
+* Cythonize certain expensive core functions. 5-10x speedup in large structure matching (Will Richards).
+* New NMR parsing functionality for Outcar (Xiaohui Qu).
+* Improved io.lammps (Kiran Mathews).
+* Update to spglib 1.9.2.
+* Element properties now return unitized float where possible.
+* Bug fix for get_primitive_standard affecting rhombohedral cells (important for band structures).
+* Vasprun.final_energy now returns corrected energy with warning if it is different from final electronic step.
+
+v3.4.0
+------
+* 10-100x speed up to Structure copying and Site init, which means many
+  functionality has seen signifcant speed improvement (e.g., structure
+  matching).
+* Convenience method Structure.matches now perform similarity matching
+  for Structures.
+* Bugfix for band gap determination.
+
+v3.3.6
+------
+* Update to use enum.x instead of multienum.x.
+* Minor robustness fixes to VaspInputSet serialization.
+* Add a reciprocal density parameter to vasp sets.
+* Minor bug fixes to Vasprun parsing. 
+
+v3.3.5
+------
+* StructureMatcher can now work with ignored species.
+* Added interpolation failure warnings and smooth tolerance for
+  scipy.interpolate.splrep in bandstructures (Tess).
+* Added DiffusionAnalyzer.get_framework_rms_plot.
+* Complete rewrite of Procar class to use ND array access and zero-based
+  indexing.
+* OrderParameters class for analysis of local structural features
+  (Nils Zimmermann).
+* Bug fixes for Procar, MPRester and SpaceGroup 64.
+* Added Github templates for contributing to pymatgen.
+
+v3.3.4
+------
+* Procar now supports parsing of phase factors.
+* Miscellaneous bug fixes.
+
+v3.3.3
+------
+* Bug fixes for Poscar.
+* Fix Kpoints pickling.
+
+v3.3.2
+------
+* Bug fixes for pymatgen.io.abinit
+* Other minor big fixes.
+
+v3.3.1
+------
+* Minor bug fix release for pickle and elastic constants.
+
+v3.3.0
+------
+* Updated and checked for Python 3.5.* compatibility.
+* Element, Spin, Orbital and various other Enum-like classes are now actually
+  implemented using Enum (with enum34 dependency for Python < 3.4).
+* Speed up Site creation by 20% for ordered sites, with cost in terms of
+  slightly slower non-ordered Sites. Since ordered Sites is the far more common
+  case, this gives significant boost for large scale manipulations of
+  structures.
+* Alternative, more pythonic syntax for creating supercells via simply
+  Structure * 3 or Structure * (3, 1, 1).
+* zeo++ fixes.
+* More stable incar settings for MITMDVaspInputSet.
+
+v3.2.10
+-------
+* Fix missing scripts
+* Improvements to units module.
+* Speed up EwaldSummation.
+
+v3.2.9
+------
+* Major PD stability improvements, especially for very high dim hulls with lots
+  of entries.
+* Improvements to Ewald summation to be close to GULP implementation.
+* Deprecate physical constants module in favor of scipy's version.
+* Remove many pyhull references to use scipy's ConvexHull implementation.
+* Bug fix for sulfide correction.
+
+v3.2.8
+------
+
+* Make pyhull optional.
+* Sulfur correction added to MaterialsProjectCompatibility for more accurate
+  sulfide formation energies.
+* ADF io support. (Xin Chen)
+* Bug fixes for spacegroup subgroup testing.
+
+v3.2.7
+------
+* Add warning for limited subgroup testing functionality in Spacegroup.
+
+v3.2.6
+------
+* Extensive support for elasticity tensor analysis (Joseph Montoya).
+* Misc bug fixes and performance improvements.
+* Add support for QChem4.3 new format of Batch jobs
+
 v3.2.5
 ------
 * Improved potcar setup via "pmg setup", with MAPI setup.

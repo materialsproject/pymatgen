@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.util.tests
 
 Submodules
 ----------
@@ -22,6 +23,14 @@ pymatgen.util.coord_utils module
 --------------------------------
 
 .. automodule:: pymatgen.util.coord_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.util.coord_utils_cython module
+---------------------------------------
+
+.. automodule:: pymatgen.util.coord_utils_cython
     :members:
     :undoc-members:
     :show-inheritance:

@@ -4,14 +4,14 @@
 
 from __future__ import unicode_literals
 
-import unittest
+import unittest2 as unittest
 import os
 
 from pymatgen import Element, Composition
 from pymatgen.phasediagram.entries import PDEntryIO, PDEntry
-from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
+from pymatgen.phasediagram.maker import PhaseDiagram, \
     GrandPotentialPhaseDiagram, CompoundPhaseDiagram, PhaseDiagramError
-from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
+from pymatgen.phasediagram.analyzer import PDAnalyzer
 from pymatgen.phasediagram.plotter import PDPlotter
 
 

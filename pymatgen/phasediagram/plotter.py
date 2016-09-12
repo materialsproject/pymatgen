@@ -22,7 +22,7 @@ import math
 import numpy as np
 import itertools
 
-from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
+from pymatgen.phasediagram.analyzer import PDAnalyzer
 from pymatgen.util.string_utils import latexify
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 from pymatgen.util.coord_utils import in_coord_list
@@ -34,11 +34,12 @@ class PDPlotter(object):
 
     Args:
         phasediagram: PhaseDiagram object.
-        show_unstable: Whether unstable phases will be plotted as well as
-            red crosses. Defaults to False.
+        show_unstable (float): Whether unstable phases will be plotted as
+            well as red crosses. If a number > 0 is entered, all phases with
+            ehull < show_unstable will be shown.
     """
 
-    def __init__(self, phasediagram, show_unstable=False):
+    def __init__(self, phasediagram, show_unstable=0):
         self._pd = phasediagram
         self._dim = len(self._pd.elements)
         if self._dim > 4:
@@ -119,14 +120,15 @@ class PDPlotter(object):
 
         return plt
 
-    def show(self, label_stable=True, label_unstable=True, ordering=None,
-             energy_colormap=None, process_attributes=False):
+    def show(self, *args, **kwargs):
         """
         Draws the phase diagram using Matplotlib and show it.
+
+        Args:
+            \*args: Passed to get_plot.
+            \*\*kwargs: Passed to get_plot.
         """
-        self.get_plot(label_stable=label_stable, label_unstable=label_unstable,
-                      ordering=ordering, energy_colormap=energy_colormap,
-                      process_attributes=process_attributes).show()
+        self.get_plot(*args, **kwargs).show()
 
     def _get_2d_plot(self, label_stable=True, label_unstable=True,
                      ordering=None, energy_colormap=None, vmin_mev=-60.0,
@@ -272,26 +274,28 @@ class PDPlotter(object):
                 vals_unstable = _map.to_rgba(energies_unstable)
             ii = 0
             for entry, coords in unstable.items():
-                vec = (np.array(coords) - center)
-                vec = vec / np.linalg.norm(vec) * 10 \
-                    if np.linalg.norm(vec) != 0 else vec
-                label = entry.name
-                if energy_colormap is None:
-                    plt.plot(coords[0], coords[1], "ks", linewidth=3,
-                             markeredgecolor="k", markerfacecolor="r",
-                             markersize=8)
-                else:
-                    plt.plot(coords[0], coords[1], "s", linewidth=3,
-                             markeredgecolor="k",
-                             markerfacecolor=vals_unstable[ii],
-                             markersize=8)
-                if label_unstable:
-                    plt.annotate(latexify(label), coords, xytext=vec,
-                                 textcoords="offset points",
-                                 horizontalalignment=halign, color="b",
-                                 verticalalignment=valign,
-                                 fontproperties=font)
-                ii += 1
+                ehull = pda.get_e_above_hull(entry)
+                if ehull < self.show_unstable:
+                    vec = (np.array(coords) - center)
+                    vec = vec / np.linalg.norm(vec) * 10 \
+                        if np.linalg.norm(vec) != 0 else vec
+                    label = entry.name
+                    if energy_colormap is None:
+                        plt.plot(coords[0], coords[1], "ks", linewidth=3,
+                                 markeredgecolor="k", markerfacecolor="r",
+                                 markersize=8)
+                    else:
+                        plt.plot(coords[0], coords[1], "s", linewidth=3,
+                                 markeredgecolor="k",
+                                 markerfacecolor=vals_unstable[ii],
+                                 markersize=8)
+                    if label_unstable:
+                        plt.annotate(latexify(label), coords, xytext=vec,
+                                     textcoords="offset points",
+                                     horizontalalignment=halign, color="b",
+                                     verticalalignment=valign,
+                                     fontproperties=font)
+                    ii += 1
         if energy_colormap is not None and show_colorbar:
             _map.set_array(energies)
             cbar = plt.colorbar(_map)
@@ -300,8 +304,8 @@ class PDPlotter(object):
                 'meV/at] above hull (in green)',
                 rotation=-90, ha='left', va='center')
             ticks = cbar.ax.get_yticklabels()
-            cbar.ax.set_yticklabels(['${v}$'.format(
-                v=float(t.get_text().strip('$'))*1000.0) for t in ticks])
+            # cbar.ax.set_yticklabels(['${v}$'.format(
+            #     v=float(t.get_text().strip('$'))*1000.0) for t in ticks])
         f = plt.gcf()
         f.set_size_inches((8, 6))
         plt.subplots_adjust(left=0.09, right=0.98, top=0.98, bottom=0.07)

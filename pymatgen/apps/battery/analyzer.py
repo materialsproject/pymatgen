@@ -4,7 +4,12 @@
 
 from __future__ import division, unicode_literals
 from collections import defaultdict
-from pymatgen.core.physical_constants import ELECTRON_VOLT, AVOGADROS_CONST
+import math
+
+import scipy.constants as const
+
+from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.structure import Composition
 
 __author__ = "Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -14,13 +19,8 @@ __maintainer__ = "Anubhav Jain"
 __email__ = "ajain@lbl.gov"
 __date__ = "Sep 20, 2011"
 
-import math
 
-from pymatgen.core.periodic_table import Element, Specie
-from pymatgen.core.structure import Composition
-
-
-EV_PER_ATOM_TO_J_PER_MOL = ELECTRON_VOLT * AVOGADROS_CONST
+EV_PER_ATOM_TO_J_PER_MOL = const.e * const.N_A
 ELECTRON_TO_AMPERE_HOURS = EV_PER_ATOM_TO_J_PER_MOL / 3600
 
 
@@ -137,7 +137,7 @@ class BatteryAnalyzer():
         """
 
         vol = volume if volume else self.struc_oxid.volume
-        return self._get_max_cap_ah(remove, insert) * 1000 * 1E24 / (vol * AVOGADROS_CONST)
+        return self._get_max_cap_ah(remove, insert) * 1000 * 1E24 / (vol * const.N_A)
 
     def get_removals_int_oxid(self):
         """

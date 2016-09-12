@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-This module sorts and checks the (E, V) data for use in the MP-AGL module.
+This module sorts and checks the (E, V) data for use in the MP-Eqn of State Thermal properties module.
 """
 
 from __future__ import division
@@ -35,6 +35,10 @@ class eos_ev_check:
         
 
     def checkminpos(self, vol_inp, energ_inp, ninp):
+        """
+        Checks position of minimum of E(V) data
+        Ensures that minimum point is not at endpoint
+        """
         minpos = 0
         vol_inp, energ_inp = self.evsort(vol_inp, energ_inp, ninp)
         imin = 0
@@ -51,6 +55,9 @@ class eos_ev_check:
 
 
     def checkevconcav(self, vol_inp, energ_inp, ninp):
+        """
+        Checks concavity of E(V) data
+        """
         concav = 0
         vol_inp, energ_inp = self.evsort(vol_inp, energ_inp, ninp)
         energmin = energ_inp[0]
@@ -81,6 +88,9 @@ class eos_ev_check:
 
 
     def evsort(self, vol_inp, energ_inp, ninp):
+        """
+        Sorts E(V) data in order of increasing volume
+        """
         # First check if data is already in correct order
         i = 0
         icheck = 0
@@ -89,7 +99,6 @@ class eos_ev_check:
                 icheck = 1
             i = i + 1
         if (icheck == 0):
-            #        eos_thermal_data.logstr = eos_thermal_data.logstr + "MP Eqn of State Thermal: (E, V) data already in correct order \n"
             return vol_inp, energ_inp
         else:
             arrEV = np.zeros(ninp, dtype = {'names':['volume', 'energy'], 'formats':[float, float]})
@@ -103,6 +112,11 @@ class eos_ev_check:
 
 
     def evtsort(self, vol_inp, energ_inp, tdebye, ninp):
+        """
+        Sorts E(V) data in order of increasing volume
+        Used if Debye temperatures are also given as input
+        Debye temperatures are also sorted in order of increasing volume
+        """
         # First check if data is already in correct order
         i = 0
         icheck = 0
@@ -111,7 +125,6 @@ class eos_ev_check:
                 icheck = 1
             i = i + 1
         if (icheck == 0):
-        #        eos_thermal_data.logstr = eos_thermal_data.logstr + "MP Eqn of State Thermal: (E, V) data already in correct order \n"
             return vol_inp, energ_inp, tdebye
         else:
             arrEV = np.zeros(ninp, dtype = {'names':['volume', 'energy', 'debyetemp'], 'formats':[float, float, float]})

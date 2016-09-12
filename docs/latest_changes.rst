@@ -1,10 +1,6 @@
 Change log
 ==========
 
-v3.2.5
+v4.2.4
 ------
-* Improved potcar setup via "pmg setup", with MAPI setup.
-* Support for new POTCARs issued by VASP.
-* Improvements to ABINIT support.
-* Improvement to Boltztrap support, e.g., scissor band gap, etc.
-* Vasprun now issues warning when unconverged run is detected.
+* Bug fix for kpoint weight calculation for Monkhorst meshes.

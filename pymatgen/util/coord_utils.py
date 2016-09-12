@@ -19,10 +19,13 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Nov 27, 2011"
 
+import itertools
 import numpy as np
 import math
+from . import coord_utils_cython as cuc
 
-#array size threshold for looping instead of broadcasting
+
+# array size threshold for looping instead of broadcasting
 LOOP_THRESHOLD = 1e6
 
 
@@ -79,7 +82,7 @@ def is_coord_subset(subset, superset, atol=1e-8):
     return np.all(any_close)
 
 
-def coord_list_mapping(subset, superset):
+def coord_list_mapping(subset, superset, atol=1e-8):
     """
     Gives the index mapping from a subset to a superset.
     Subset and superset cannot contain duplicate rows
@@ -92,10 +95,10 @@ def coord_list_mapping(subset, superset):
     """
     c1 = np.array(subset)
     c2 = np.array(superset)
-    inds = np.where(np.all(np.isclose(c1[:, None, :], c2[None, :, :]),
+    inds = np.where(np.all(np.isclose(c1[:, None, :], c2[None, :, :], atol=atol),
                            axis=2))[1]
     result = c2[inds]
-    if not np.allclose(c1, result):
+    if not np.allclose(c1, result, atol=atol):
         if not is_coord_subset(subset, superset):
             raise ValueError("subset is not a subset of superset")
     if not result.shape == c1.shape:
@@ -107,7 +110,7 @@ def coord_list_mapping(subset, superset):
 def coord_list_mapping_pbc(subset, superset, atol=1e-8):
     """
     Gives the index mapping from a subset to a superset.
-    Subset and superset cannot contain duplicate rows
+    Superset cannot contain duplicate matching rows
 
     Args:
         subset, superset: List of frac_coords
@@ -115,24 +118,8 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8):
     Returns:
         list of indices such that superset[indices] = subset
     """
-    c1 = np.array(subset)
-    c2 = np.array(superset)
-
-    diff = c1[:, None, :] - c2[None, :, :]
-    diff -= np.round(diff)
-    inds = np.where(np.all(np.abs(diff) < atol, axis = 2))[1]
-
-    #verify result (its easier to check validity of the result than
-    #the validity of inputs)
-    test = c2[inds] - c1
-    test -= np.round(test)
-    if not np.allclose(test, 0):
-        if not is_coord_subset_pbc(subset, superset):
-            raise ValueError("subset is not a subset of superset")
-    if not test.shape == c1.shape:
-        raise ValueError("Something wrong with the inputs, likely duplicates "
-                         "in superset")
-    return inds
+    atol = np.array([1., 1. ,1.]) * atol
+    return cuc.coord_list_mapping_pbc(subset, superset, atol)
 
 
 def get_linear_interpolated_value(x_values, y_values, x):
@@ -201,16 +188,7 @@ def pbc_diff(fcoords1, fcoords2):
     fdist = np.subtract(fcoords1, fcoords2)
     return fdist - np.round(fdist)
 
-#create images, 2d array of all length 3 combinations of [-1,0,1]
-r = np.arange(-1, 2)
-arange = r[:, None] * np.array([1, 0, 0])[None, :]
-brange = r[:, None] * np.array([0, 1, 0])[None, :]
-crange = r[:, None] * np.array([0, 0, 1])[None, :]
-images = arange[:, None, None] + brange[None, :, None] + \
-    crange[None, None, :]
-images = images.reshape((27, 3))
-
-def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
+def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False):
     """
     Returns the shortest vectors between two lists of coordinates taking into
     account periodic boundary conditions and the lattice.
@@ -221,38 +199,16 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
             or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
             coord or any array of coords.
         fcoords2: Second set of fractional coordinates.
+        mask (boolean array): Mask of matches that are not allowed.
+            i.e. if mask[1,2] == True, then subset[1] cannot be matched
+            to superset[2]
+        return_d2 (boolean): whether to also return the squared distances
 
     Returns:
         array of displacement vectors from fcoords1 to fcoords2
         first index is fcoords1 index, second is fcoords2 index
     """
-    #ensure correct shape
-    fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
-
-    #ensure that all points are in the unit cell
-    fcoords1 = np.mod(fcoords1, 1)
-    fcoords2 = np.mod(fcoords2, 1)
-
-    #create images of f2
-    shifted_f2 = fcoords2[:, None, :] + images[None, :, :]
-
-    cart_f1 = lattice.get_cartesian_coords(fcoords1)
-    cart_f2 = lattice.get_cartesian_coords(shifted_f2)
-
-    if cart_f1.size * cart_f2.size < LOOP_THRESHOLD:
-        #all vectors from f1 to f2
-        vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
-        d_2 = np.sum(vectors ** 2, axis=-1)
-        a, b = np.indices(vectors.shape[:2])
-        return vectors[a, b, np.argmin(d_2, axis=-1)]
-    else:
-        shortest = np.zeros((len(cart_f1), len(cart_f2), 3))
-        for i, c1 in enumerate(cart_f1):
-            vectors = cart_f2[:, :, :] - c1[None, None, :]
-            d_2 = np.sum(vectors ** 2, axis=-1)
-            shortest[i] = vectors[np.arange(len(vectors)),
-                                  np.argmin(d_2, axis=-1)]
-        return shortest
+    return cuc.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask, return_d2)
 
 
 def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
@@ -306,15 +262,14 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None):
     Returns:
         True if all of subset is in superset.
     """
-    c1 = np.array(subset)
-    c2 = np.array(superset)
-    dist = c1[:, None, :] - c2[None, :, :]
-    dist -= np.round(dist)
+    c1 = np.array(subset, dtype=np.float64)
+    c2 = np.array(superset, dtype=np.float64)
     if mask is not None:
-        dist[np.array(mask)] = np.inf
-    is_close = np.all(np.abs(dist) < atol, axis=-1)
-    any_close = np.any(is_close, axis=-1)
-    return np.all(any_close)
+        m = np.array(mask, dtype=np.int)
+    else:
+        m = np.zeros((len(subset), len(superset)), dtype=np.int)
+    atol = np.zeros(3, dtype=np.float64) + atol
+    return cuc.is_coord_subset_pbc(c1, c2, atol, m)
 
 
 def lattice_points_in_supercell(supercell_matrix):
@@ -399,3 +354,92 @@ def get_angle(v1, v2, units="degrees"):
         return angle
     else:
         raise ValueError("Invalid units {}".format(units))
+
+
+class Simplex(object):
+    """
+    A generalized simplex object. See http://en.wikipedia.org/wiki/Simplex.
+
+    .. attribute: space_dim
+
+        Dimension of the space. Usually, this is 1 more than the simplex_dim.
+
+    .. attribute: simplex_dim
+
+        Dimension of the simplex coordinate space.
+    """
+
+    def __init__(self, coords):
+        """
+        Initializes a Simplex from vertex coordinates.
+
+        Args:
+            coords ([[float]]): Coords of the vertices of the simplex. E.g.,
+                [[1, 2, 3], [2, 4, 5], [6, 7, 8], [8, 9, 10].
+        """
+        self._coords = np.array(coords)
+        self.space_dim, self.simplex_dim = self._coords.shape
+        self.origin = self._coords[-1]
+        if self.space_dim == self.simplex_dim + 1:
+            # precompute attributes for calculating bary_coords
+            self.T = self._coords[:-1] - self.origin
+            self.T_inv = np.linalg.inv(self.T)
+
+    @property
+    def volume(self):
+        """
+        Volume of the simplex.
+        """
+        return abs(np.linalg.det(self.T)) / math.factorial(self.simplex_dim)
+
+    def bary_coords(self, point):
+        try:
+            c = np.dot((point - self.origin), self.T_inv)
+            return np.concatenate([c, [1 - np.sum(c)]])
+        except AttributeError:
+            raise ValueError('Simplex is not full-dimensional')
+
+    def in_simplex(self, point, tolerance=1e-8):
+        """
+        Checks if a point is in the simplex using the standard barycentric
+        coordinate system algorithm.
+
+        Taking an arbitrary vertex as an origin, we compute the basis for the
+        simplex from this origin by subtracting all other vertices from the
+        origin. We then project the point into this coordinate system and
+        determine the linear decomposition coefficients in this coordinate
+        system.  If the coeffs satisfy that all coeffs >= 0, the composition
+        is in the facet.
+
+        Args:
+            point ([float]): Point to test
+            tolerance (float): Tolerance to test if point is in simplex.
+        """
+        return (self.bary_coords(point) >= -tolerance).all()
+
+    def __eq__(self, other):
+        for p in itertools.permutations(self._coords):
+            if np.allclose(p, other.coords):
+                return True
+        return False
+
+    def __hash__(self):
+        return len(self._coords)
+
+    def __repr__(self):
+        output = ["{}-simplex in {}D space".format(self.simplex_dim,
+                                                   self.space_dim),
+                  "Vertices:"]
+        for coord in self._coords:
+            output.append("\t({})".format(", ".join(map(str, coord))))
+        return "\n".join(output)
+
+    def __str__(self):
+        return self.__repr__()
+
+    @property
+    def coords(self):
+        """
+        Returns a copy of the vertex coordinates in the simplex.
+        """
+        return self._coords.copy()

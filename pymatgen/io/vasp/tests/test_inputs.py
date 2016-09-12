@@ -16,13 +16,16 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 16, 2012"
 
-import unittest
+import unittest2 as unittest
 import os
+import pickle
 import numpy as np
 import warnings
+from pymatgen import SETTINGS
+
+import scipy.constants as const
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.io.vasp.inputs import Incar, Poscar, Kpoints, Potcar, \
     PotcarSingle, VaspInput
 from pymatgen import Composition, Structure
@@ -179,12 +182,32 @@ direct
         self.assertEqual(str(poscar), expected)
 
     def test_from_md_run(self):
-        #Parsing from an MD type run with velocities
+        # Parsing from an MD type run with velocities and predictor corrector data
         p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"),
                              check_for_POTCAR=False)
         self.assertAlmostEqual(np.sum(np.array(p.velocities)), 0.0065417961324)
-        self.assertEqual(p.predictor_corrector[0][0], 1)
-        self.assertEqual(p.predictor_corrector[1][0], 2)
+        self.assertEqual(p.predictor_corrector[0][0][0], 0.33387820E+00)
+        self.assertEqual(p.predictor_corrector[0][1][1], -0.10583589E-02)
+
+    def test_write_MD_poscar(self):
+        # Parsing from an MD type run with velocities and predictor corrector data
+        # And writing a new POSCAR from the new structure
+        p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"),
+                             check_for_POTCAR=False)
+
+        tempfname = "POSCAR.testing"
+        p.write_file(tempfname)
+        p3 = Poscar.from_file(tempfname)
+
+        self.assertArrayAlmostEqual(p.structure.lattice.abc,
+                                    p3.structure.lattice.abc, 5)
+        self.assertArrayAlmostEqual(p.velocities,
+                                    p3.velocities, 5)
+        self.assertArrayAlmostEqual(p.predictor_corrector,
+                                    p3.predictor_corrector, 5)
+        self.assertEqual(p.predictor_corrector_preamble,
+                                    p3.predictor_corrector_preamble)
+        os.remove(tempfname)
 
     def test_setattr(self):
         filepath = os.path.join(test_dir, 'POSCAR')
@@ -192,6 +215,41 @@ direct
         self.assertRaises(ValueError, setattr, poscar, 'velocities',
                           [[0, 0, 0]])
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
+        ans = """
+        LiFePO4
+1.0
+10.411767 0.000000 0.000000
+0.000000 6.067172 0.000000
+0.000000 0.000000 4.759490
+Fe P O
+4 4 16
+Selective dynamics
+direct
+0.218728 0.750000 0.474867 T F F Fe
+0.281272 0.250000 0.974867 T F F Fe
+0.718728 0.750000 0.025133 T F F Fe
+0.781272 0.250000 0.525133 T F F Fe
+0.094613 0.250000 0.418243 T F F P
+0.405387 0.750000 0.918243 T F F P
+0.594613 0.250000 0.081757 T F F P
+0.905387 0.750000 0.581757 T F F P
+0.043372 0.750000 0.707138 T F F O
+0.096642 0.250000 0.741320 T F F O
+0.165710 0.046072 0.285384 T F F O
+0.165710 0.453928 0.285384 T F F O
+0.334290 0.546072 0.785384 T F F O
+0.334290 0.953928 0.785384 T F F O
+0.403358 0.750000 0.241320 T F F O
+0.456628 0.250000 0.207138 T F F O
+0.543372 0.750000 0.792862 T F F O
+0.596642 0.250000 0.758680 T F F O
+0.665710 0.046072 0.214616 T F F O
+0.665710 0.453928 0.214616 T F F O
+0.834290 0.546072 0.714616 T F F O
+0.834290 0.953928 0.714616 T F F O
+0.903358 0.750000 0.258680 T F F O
+0.956628 0.250000 0.292862 T F F O"""
+        self.assertEqual(str(poscar).strip(), ans.strip())
 
     def test_velocities(self):
         si = 14
@@ -210,11 +268,10 @@ direct
         v = np.array(poscar.velocities)
 
         for x in np.sum(v, axis=0):
-            self.assertAlmostEqual(
-                x, 0, 7, 'Velocities initialized with a net momentum')
+            self.assertAlmostEqual(x, 0, 7)
 
         temperature = struct[0].specie.atomic_mass.to("kg") * \
-            np.sum(v ** 2) / (3 * BOLTZMANN_CONST) * 1e10
+            np.sum(v ** 2) / (3 * const.k) * 1e10
         self.assertAlmostEqual(temperature, 900, 4,
                                'Temperature instantiated incorrectly')
 
@@ -225,7 +282,7 @@ direct
                 x, 0, 7, 'Velocities initialized with a net momentum')
 
         temperature = struct[0].specie.atomic_mass.to("kg") * \
-            np.sum(v ** 2) / (3 * BOLTZMANN_CONST) * 1e10
+            np.sum(v ** 2) / (3 * const.k) * 1e10
         self.assertAlmostEqual(temperature, 700, 4,
                                'Temperature instantiated incorrectly')
 
@@ -376,6 +433,37 @@ SYSTEM     =  Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p 
 TIME       =  0.4"""
         self.assertEqual(s, ans)
 
+    def test_lsorbit_magmom(self):
+        magmom1 = [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]]
+        magmom2 = [-1,-1,-1, 0, 0, 0, 0 ,0 ]
+
+        ans_string1 = "LSORBIT = True\nMAGMOM = 0.0 0.0 3.0 0 1 0 2 1 2\n"
+        ans_string2 = "LSORBIT = True\nMAGMOM = 3*3*-1 3*5*0\n"
+        ans_string3 = "LSORBIT = False\nMAGMOM = 2*-1 2*9\n"
+
+        incar = Incar({})
+        incar["MAGMOM"] = magmom1
+        incar["LSORBIT"] = "T"
+        self.assertEqual(ans_string1, str(incar))
+
+        incar["MAGMOM"] = magmom2
+        incar["LSORBIT"] = "T"
+        self.assertEqual(ans_string2, str(incar))
+
+        incar = Incar.from_string(ans_string1)
+        self.assertEqual(incar["MAGMOM"], [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]])
+
+        incar = Incar.from_string(ans_string2)
+        self.assertEqual(incar["MAGMOM"], [[-1, -1, -1], [-1, -1, -1],
+                                           [-1, -1, -1], [0, 0, 0],
+                                           [0, 0, 0], [0, 0, 0],
+                                           [0, 0, 0], [0, 0, 0]])
+
+        incar = Incar.from_string(ans_string3)
+        self.assertFalse(incar["LSORBIT"])
+        self.assertEqual(incar["MAGMOM"], [-1, -1, 9, 9])
+
+
 class KpointsTest(unittest.TestCase):
 
     def test_init(self):
@@ -392,12 +480,13 @@ class KpointsTest(unittest.TestCase):
 
         filepath = os.path.join(test_dir, 'KPOINTS')
         kpoints = Kpoints.from_file(filepath)
+        self.kpoints = kpoints
         self.assertEqual(kpoints.kpts, [[2, 4, 6]])
 
         filepath = os.path.join(test_dir, 'KPOINTS.band')
         kpoints = Kpoints.from_file(filepath)
         self.assertIsNotNone(kpoints.labels)
-        self.assertEqual(kpoints.style, "Line_mode")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Line_mode)
         kpoints_str = str(kpoints)
         self.assertEqual(kpoints_str.split("\n")[3], "Reciprocal")
 
@@ -416,32 +505,39 @@ Cartesian
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.tet_connections, [(6, [1, 2, 3, 4])])
 
+    def test_style_setter(self):
+        filepath = os.path.join(test_dir, 'KPOINTS')
+        kpoints = Kpoints.from_file(filepath)
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
+        kpoints.style = "G"
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+
     def test_static_constructors(self):
         kpoints = Kpoints.gamma_automatic([3, 3, 3], [0, 0, 0])
-        self.assertEqual(kpoints.style, "Gamma")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
         self.assertEqual(kpoints.kpts, [[3, 3, 3]])
         kpoints = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
-        self.assertEqual(kpoints.style, "Monkhorst")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
         self.assertEqual(kpoints.kpts, [[2, 2, 2]])
         kpoints = Kpoints.automatic(100)
-        self.assertEqual(kpoints.style, "Automatic")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Automatic)
         self.assertEqual(kpoints.kpts, [[100]])
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         kpoints = Kpoints.automatic_density(poscar.structure, 500)
         self.assertEqual(kpoints.kpts, [[2, 4, 4]])
-        self.assertEqual(kpoints.style, "Monkhorst")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
         kpoints = Kpoints.automatic_density(poscar.structure, 500, True)
-        self.assertEqual(kpoints.style, "Gamma")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
         kpoints = Kpoints.automatic_density_by_vol(poscar.structure, 1000)
         self.assertEqual(kpoints.kpts, [[6, 11, 13]])
-        self.assertEqual(kpoints.style, "Gamma")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
         s = poscar.structure
         s.make_supercell(3)
         kpoints = Kpoints.automatic_density(s, 500)
         self.assertEqual(kpoints.kpts, [[1, 1, 1]])
-        self.assertEqual(kpoints.style, "Gamma")
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
     def test_as_dict_from_dict(self):
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
@@ -464,14 +560,16 @@ Cartesian
         self.assertEqual(k.kpts_shift, k2.kpts_shift)
         self.assertEqual(k.num_kpts, k2.num_kpts)
 
+    def test_pickle(self):
+        k = Kpoints.gamma_automatic()
+        pickle.dumps(k)
+
 
 class PotcarSingleTest(unittest.TestCase):
 
     def setUp(self):
-        #with zopen(os.path.join(test_dir, "POT_GGA_PAW_PBE",
-        #                        "POTCAR.Mn_pv.gz"), 'rb') as f:
-        self.psingle = PotcarSingle.from_file(os.path.join(test_dir, "POT_GGA_PAW_PBE",
-                                "POTCAR.Mn_pv.gz"))
+        self.psingle = PotcarSingle.from_file(
+            os.path.join(test_dir, "POT_GGA_PAW_PBE", "POTCAR.Mn_pv.gz"))
 
     def test_keywords(self):
         data = {'VRHFIN': 'Mn: 3p4s3d', 'LPAW': True, 'DEXC': -.003,
@@ -519,11 +617,10 @@ class PotcarSingleTest(unittest.TestCase):
         self.assertEqual(self.psingle.get_potcar_hash(), "fa52f891f234d49bb4cb5ea96aae8f98")
 
     def test_from_functional_and_symbols(self):
-        if "VASP_PSP_DIR" not in os.environ:
-            test_potcar_dir = os.path.abspath(
-                os.path.join(os.path.dirname(__file__),
-                             "..", "..", "..", "..", "test_files"))
-            os.environ["VASP_PSP_DIR"] = test_potcar_dir
+        test_potcar_dir = os.path.abspath(
+            os.path.join(os.path.dirname(__file__),
+                         "..", "..", "..", "..", "test_files"))
+        SETTINGS["VASP_PSP_DIR"] = test_potcar_dir
         p = PotcarSingle.from_symbol_and_functional("Li_sv", "PBE")
         self.assertEqual(p.enmax, 271.649)
 

@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals
 
-import unittest
+import unittest2 as unittest
 import os
 
 from pymatgen.phasediagram.entries import PDEntryIO, PDEntry, \
@@ -58,6 +58,13 @@ class PDEntryTest(unittest.TestCase):
         gpentry = GrandPotPDEntry.from_dict(gpd)
         self.assertEqual(gpentry.name, 'LiFeO2', "Wrong name!")
         self.assertEqual(gpentry.energy_per_atom, 50.0 / 2)
+
+        d_anon = d.copy()
+        del d_anon['name']
+        try:
+            entry = PDEntry.from_dict(d_anon)
+        except KeyError:
+            self.fail("Should not need to supply name!")
 
     def test_str(self):
         self.assertIsNotNone(str(self.entry))

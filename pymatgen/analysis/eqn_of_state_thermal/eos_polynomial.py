@@ -43,6 +43,15 @@ class eos_polynomial:
     # Adapted from original Fortran version written by M. A. Blanco et al.
     # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
     def polynomial_fit(self, imin, xconfigvector, datatofit, ndata, mpar, mfit):
+        """
+        .....polynomial_fit - fits polynomials to (variable, function) data and averages
+        them, weighted by its chi-square test probabilities. It returns
+        the averaged polynomial coefficients in polynomialcoeffs, and the
+        coefficients of its square in polynomialerrors.
+        
+        Adapted from original Fortran version written by M. A. Blanco et al.
+        See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
+        """
         # Data containers
         polycoeffswork = []
         weight = []
@@ -164,6 +173,15 @@ class eos_polynomial:
     # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
     #
     def debfitt(self, volinp, tdebye, ndata, mpar, mfit, logstr):
+        """
+        .....debfitt - fitts Ln theta - Ln V data to polynomials, and
+        averages them.
+        
+        It returns the averaged polynomial coefficients in polynomialcoeffs.
+        
+        Adapted from original Fortran version written by V. Luana and M. A. Blanco, Departamento de Quimica Fisica y Analitica, Universidad de Oviedo, 33006-Oviedo, Spain.
+        See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
+        """
         polycoeffswork = []
         weight = []
         x = []
@@ -309,6 +327,14 @@ class eos_polynomial:
     # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
     #
     def minbrack(self, imin, datatofit, ndata, logstr):
+        """
+        .....minbrack - given a table of values, and an initial index imin,
+        the routine searches for the minimum on the list by a downhill
+        algorithm, assuming the index as an abscissa.
+        
+        Adapted from original Fortran version written by M. A. Blanco et al.
+        See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
+        """
         ierr = 0
         tol = 1e-12
         #
@@ -328,6 +354,7 @@ class eos_polynomial:
         elif math.fabs(datatofit[imin] - datatofit[imin+1]) < tol and math.fabs(datatofit[imin] - datatofit[imin-1]) < tol:
             logstr = logstr + "MP Eqn of State Thermal minbrack: flat function, impossible to search \n"
             ierr = 2
+            raise ValueError("MP Eqn of State Thermal minbrack: flat function, impossible to search")
             return ierr, imin, logstr
         elif datatofit[imin] >= datatofit[imin+1] and datatofit[imin] <= datatofit[imin-1]:
             istep = 1
@@ -340,6 +367,7 @@ class eos_polynomial:
             logstr = logstr + "MP Eqn of State Thermal minbrack: func[imin - 1] = " + str(datatofit[imin-1]) + " \n"
             logstr = logstr + "MP Eqn of State Thermal minbrack: func[imin] = " + str(datatofit[imin]) + " \n"
             logstr = logstr + "MP Eqn of State Thermal minbrack: func[imin + 1] = " + str(datatofit[imin+1]) + " \n"
+            raise ValueError("MP Eqn of State Thermal minbrack: trial point is a maximum")
             return ierr, imin, logstr
         imin = imin + istep
         #
@@ -358,6 +386,7 @@ class eos_polynomial:
         #
         logstr = logstr + "MP Eqn of State Thermal minbrack: monotonic function, there's no minimum \n"
         ierr = 4
+        raise ValueError("MP Eqn of State Thermal minbrack: monotonic function, there's no minimum")
         return ierr, imin, logstr
 
 
@@ -369,6 +398,11 @@ class eos_polynomial:
     #     all points on the list
     #
     def polminbrack(self, imin, npol, ndata, x, polynomialcoeffs):
+        """
+        .....polminbrack - given a polynomial and a set of x values, evaluates the polynomial at each x-point,
+        then searches for the global minimum of the polynomial by checking all of the calculated values
+        all points on the list
+        """
         y = []
         for istep in xrange(ndata):
             plnv = self.polin0(x[istep], npol, polynomialcoeffs)
@@ -403,6 +437,17 @@ class eos_polynomial:
     # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
     #
     def polmin(self, xinitial, xmin, xmax, npolycoeffs, polycoeffswork, pmerr, logstr):
+        """
+        .....polmin - gets the minimum of a polymomial, using Newton-Raphson
+        method to zero its first derivative.
+        
+        The minimum must be in the interval [xmin,xmax], and whenever
+        Newton's method doesn't converge, a bisection step will be given
+        for this interval
+    
+        Adapted from original Fortran version written by M. A. Blanco et al.
+        See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
+        """
         x = xinitial
         a = xmin
         b = xmax
@@ -489,6 +534,14 @@ class eos_polynomial:
     #      Calculates RMS deviation for the fit between the polynomial and the input data
     #
     def polfit(self, iinf, isup, x, y, w, npolycoeffs):
+        """
+        ..... polfit - fit data by a polynomial of order npolycoeffs
+        
+        Calculates the coefficients of a polynomial of order npolycoeffs to fit a x-y data set
+        Generates linear matrix system c from data set to be fitted
+        Calls Gaussian elimination function to solve this system and obtain coefficients
+        Calculates RMS deviation for the fit between the polynomial and the input data
+        """
         c = []
         # .....Calculate the norm of the weights
         wnorm = 0.0
@@ -572,6 +625,15 @@ class eos_polynomial:
     #     It is assumed that npolycoeffs>=0.
     #
     def polin0(self, x, npolycoeffs, polycoeffswork):
+        """
+        .....polin0 - Horner's evaluation of a polynomial.
+    
+        The polynomial is given by:
+        
+        y(x) = SUM(i=0,npolycoeffs) polycoeffswork(i) * x**i
+        
+        It is assumed that npolycoeffs>=0.
+        """
         y = polycoeffswork[npolycoeffs]
         i = npolycoeffs
         while i > 0:
@@ -586,6 +648,12 @@ class eos_polynomial:
     #     It is assumed that npolycoeffs>=1.
     #
     def polin1(self, x, npolycoeffs, polycoeffswork):
+        """
+        .....polin1 - Horner's evaluation of the first derivative of a
+        polynomial.
+        
+        It is assumed that npolycoeffs>=1.
+        """
         y = polycoeffswork[npolycoeffs] * (npolycoeffs)
         i = npolycoeffs
         while i > 1:
@@ -601,6 +669,12 @@ class eos_polynomial:
     #     It is assumed that npolycoeffs>=2.
     #
     def polin2(self, x, npolycoeffs, polycoeffswork):
+        """
+        .....polin2 - Horner's evaluation of the second derivative of a
+        polynomial.
+        
+        It is assumed that npolycoeffs>=2.
+        """
         y = polycoeffswork[npolycoeffs] * (npolycoeffs) * (npolycoeffs-1)
         i = npolycoeffs
         while i > 2:
@@ -616,6 +690,12 @@ class eos_polynomial:
     #     It is assumed that npolycoeffs>=3.
     #
     def polin3(self, x, npolycoeffs, polycoeffswork):
+        """
+        .....polin1 - Horner's evaluation of the third derivative of a
+        polynomial.
+        
+        It is assumed that npolycoeffs>=3.
+        """
         if npolycoeffs < 3:
             return 0.0
         y = polycoeffswork[npolycoeffs] * (npolycoeffs) * (npolycoeffs-1) * (npolycoeffs-2)
@@ -633,6 +713,12 @@ class eos_polynomial:
     #     It is assumed that npolycoeffs>=4.
     #
     def polin4(self, x, npolycoeffs, polycoeffswork):
+        """
+        .....polin4 - Horner's evaluation of the fourth derivative of a
+        polynomial.
+        
+        It is assumed that npolycoeffs>=4.
+        """
         if npolycoeffs < 4:
             return 0.0
         y = polycoeffswork[npolycoeffs] * (npolycoeffs) * (npolycoeffs-1) * (npolycoeffs-2) * (npolycoeffs-3)

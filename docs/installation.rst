@@ -8,34 +8,41 @@ be available on `PyPI <http://pypi.python.org>`_.
 1. Python 2.7-3.x supported. All critical dependencies of pymatgen already
    have Python 3.x support. Only a few optional dependencies (VTK and ASE) do
    not. If you do not need those features, you can choose to work with Python 3.
-2. numpy: For array, matrix and other numerical manipulations. Used extensively
-   by all core modules.
-3. pyhull 1.5.2+: For generation of phase diagrams.
-4. requests 2.0+: For the high-level interface to the Materials API.
-5. monty 0.4.2+: For some common complementary functions,
-   design patterns (e.g., singleton) and decorators to the Python
-   standard library.
+2. numpy>=1.9
+3. scipy>0.14
+4. monty>=0.7.0
+5. requests 2.0+
+6. pybtex
+7. pyyaml
+8. tabulate
+9. six
+
+Most of these are fairly easy to install. The well-established numpy and scipy
+should have ready-made installation packages for all platforms. The rest are
+pure/semi-pure Python packages that installs without any issues with pip and
+easy_install.
 
 Optional dependencies
 ---------------------
 
-Optional libraries that are required if you need certain features:
+Optional libraries that are required if you need certain features.
 
-1. scipy 0.10+ (highly recommended): For use in Gaussian smearing and faster
-   Phase Diagrams.
+1. pyhull 1.5.2+ (highly recommended): For electronic structure, generation of
+   Pourbaix diagrams.
 2. matplotlib 1.1+ (highly recommended): For plotting (e.g., Phase Diagrams).
-3. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
+3. sympy (highly recommended): For defect generation and analysis.
+4. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
    crystal structures using the pymatgen.vis package. Note that the VTK
    package is incompatible with Python 3.x at the moment.
-4. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
+5. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
    Note that the ASE package is incompatible with Python 3.x at the moment.
-5. OpenBabel with Python bindings (http://openbabel.org): Required for the
+6. OpenBabel with Python bindings (http://openbabel.org): Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
-6. nose - For unittesting. Not optional for developers.
+7. nose - For unittesting. Not optional for developers.
 
 Optional non-Python programs
 ----------------------------
@@ -92,7 +99,7 @@ pymatgen usage.
 
     b. Gfortran 4.6.2+ - Get an installer at
        http://gcc.gnu.org/wiki/GFortranBinaries#MacOS.
-2. It is recommended that you install the latest copy of Python 2.7+ (not 3+),
+2. It is recommended that you install the latest copy of Python 3.5+ (not 2.7+),
    even though your Mac should already have a compatible version. This makes it
    easier for future upgrades and minimizes issues. Get it from the `Python
    home page <http://www.python.org>`_ and install.
@@ -101,25 +108,16 @@ pymatgen usage.
     which python
 
    You should see something like
-   “/Library/Frameworks/Python.framework/Versions/2.7/bin/python”. If you don’t
+   “/Library/Frameworks/Python.framework/Versions/3.5/bin/python”. If you don’t
    get this (e.g., if you get /usr/bin/python), you may need to change your
    PATH.
 
-4. Python setuptools make it easier to install subsequent programs via
-   “easy_install”. If you want to, you can install pip as well using “sudo
-   easy_install pip”. Pip has several advantages over easy_install. In a
-   terminal, run::
-
-    curl -o setuptools-0.6c11-py2.7.egg http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11-py2.7.egg
-    sudo sh setuptools-0.6c11-py2.7.egg
-    sudo easy_install pip #optional
-
-5. Install numpy and a few other dependencies::
+4. Install numpy and a few other dependencies::
 
     sudo pip install numpy
     sudo pip install pyyaml
 
-6. Install pymatgen, either in development mode or via pip.
+5. Install pymatgen, either in development mode or via pip.
 
 Windows (tested on Win7 64-bit)
 -------------------------------
@@ -197,7 +195,7 @@ setup functionality.
 
 After installation, do::
 
-    pmg setup --input_potcar_dir <EXTRACTED_VASP_POTCAR> --output_potcar_dir <MY_PSP>
+    pmg setup -p <EXTRACTED_VASP_POTCAR> <MY_PSP>
 
 In the above, `<EXTRACTED_VASP_POTCAR>` is the location of the directory that
 you extracted the downloaded VASP pseudopotential files. Typically, it has
@@ -229,10 +227,11 @@ resources directory with the following directory structure::
 	|- POT_GGA_PAW_PW91
 	...
 
-After generating the resources directory, you should add a VASP_PSP_DIR
-environment variable pointing to the generated directory and you should then be
-able to generate POTCARs. The setup also provides options to do this
-automatically and setup for Materials API usage as well.
+After generating the resources directory, you should add a VASP_PSP_DIR config
+variable pointing to the generated directory and you should then be
+able to generate POTCARs::
+
+    pmg config --add VASP_PSP_DIR <MY_PSP>
 
 Setup for Developers (using GitHub)
 ===================================
@@ -242,7 +241,7 @@ Setup for Developers (using GitHub)
 2. In your root pymatgen repo directory, type (you may need to do this with root
    privileges)::
 
-      python setup.py develop
+      pip install -e .
 
 3. Install any missing python libraries that are necessary.
 
@@ -406,34 +405,64 @@ Here are the steps that I took to make it work:
 
         export PYTHONPATH=/usr/local/lib:$PYTHONPATH
 
-Enumlib (tested as of version of Jul 2012)
+Enumlib (updated Mar 2016)
 ------------------------------------------
 
-Mac OS X 10.7 - 10.9
-~~~~~~~~~~~~~~~~~~~~
+The author now has his own Github repo with the relevant instructions to
+compile a newer version of enumlib. Follow the instructions given at the
+`enumlib repo <https://github.com/msg-byu/enumlib>`_.
 
-There does not seem to be any issues with installation as per the instructions
-given by the author. For convenience, the steps are reproduced here:
+Zeo++
+-----
 
-::
+If you use the defects analysis package, you will need to installZeo++/Voro++.
+Here are the steps you need to follow (thanks to Bharat)
 
-   tar -zxvf enum.tar.gz
+Download and install Voro++::
 
-   #Compile the symmetry library. Go to the celib/trunk directory:
-   cd celib/trunk
+    mkdir Voro++
+    mkdir Voro++/voro
+    cd Voro++/voro
+    svn checkout --username anonsvn https://code.lbl.gov/svn/voro/trunk  # password is 'anonsvn'
+    cd trunk
 
-   #Set an environment variable to identify your fortran compiler
-   export F90=gfortran
+Add -fPIC to the CFLAGS variable in config.mk, and then::
 
-   make
+    make
 
-   Next, make the enumeration library
-   cd ../../enumlib/trunk
-   make
+Download and install Zeo++::
 
-   # Make the necessary standalone executables
-   make multienum.x
-   make makestr.x
+    mkdir Zeo++
+    mkdir Zeo++/zeo
+    cd Zeo++/zeo
+    svn checkout --username anonsvn https://code.lbl.gov/svn/zeo/trunk  # password is 'anonsvn'
+    cd trunk
+    make dylib
 
-After doing the above, make sure that the multienum.x and makestr.x executables
-are available in your path.
+Create python bindings with Cython::
+
+    pip install cython
+    cd cython_wrapper
+    python setup_alt.py develop
+
+To test that the installation worked, here is an example series of things you
+can do using pymatgen::
+
+    In [1]: from pymatgen.analysis.defects.point_defects import Interstitial
+
+    In [2]: from pymatgen.core.structure import Structure
+
+    In [3]: structure = Structure.from_file('/path/to/file')
+
+    In [4]: radii, valences = {}, {}
+
+    In [5]: for element in structure.composition.elements:
+       ...:     radii[element.symbol] = element.atomic_radius
+       ...:     valence = element.group  # Just a first guess..
+       ...:     if element.group > 12:
+       ...:         valence -= 10
+       ...:     valences[element.symbol] = valence
+
+    In [6]: interstitial = Interstitial(structure, radii=radii, valences=valences)
+
+    In [7]: interstitial._defect_sites

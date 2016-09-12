@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jun 27, 2012"
 
-import unittest
+import unittest2 as unittest
 import os
 import json
 
@@ -30,8 +30,8 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 class ExpEntryTest(unittest.TestCase):
 
     def setUp(self):
-        thermodata = json.load(open(os.path.join(test_dir, "Fe2O3_exp.json"),
-                                    "r"), cls=MontyDecoder)
+        with open(os.path.join(test_dir, "Fe2O3_exp.json"), "r") as f:
+            thermodata = json.load(f, cls=MontyDecoder)
         self.entry = ExpEntry("Fe2O3", thermodata)
 
     def test_energy(self):
@@ -46,5 +46,4 @@ class ExpEntryTest(unittest.TestCase):
         self.assertIsNotNone(str(self.entry))
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

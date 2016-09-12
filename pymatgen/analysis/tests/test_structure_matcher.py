@@ -4,7 +4,7 @@
 
 from __future__ import division, unicode_literals
 
-import unittest
+import unittest2 as unittest
 import os
 import json
 import numpy as np
@@ -31,6 +31,27 @@ class StructureMatcherTest(PymatgenTest):
                             Structure.from_file(os.path.join(
                                 test_dir, "POSCAR.Li2O"))]
 
+    def test_ignore_species(self):
+        s1 = Structure.from_file(os.path.join(test_dir, "LiFePO4.cif"))
+        s2 = Structure.from_file(os.path.join(test_dir, "POSCAR"))
+        m = StructureMatcher(ignored_species=["Li"], primitive_cell=False,
+                             attempt_supercell=True)
+        self.assertTrue(m.fit(s1, s2))
+        self.assertTrue(m.fit_anonymous(s1, s2))
+        groups = m.group_structures([s1, s2])
+        self.assertEqual(len(groups), 1)
+        s2.make_supercell((2, 1, 1))
+        ss1 = m.get_s2_like_s1(s2, s1, include_ignored_species=True)
+        self.assertAlmostEqual(ss1.lattice.a, 20.820740000000001)
+        self.assertEqual(ss1.composition.reduced_formula, "LiFePO4")
+
+        self.assertEqual({
+            k.symbol: v.symbol for k, v in
+            m.get_best_electronegativity_anonymous_mapping(s1, s2).items()},
+                         {"Fe": "Fe", "P": "P", "O": "O"})
+
+
+
     def test_get_supercell_size(self):
         l = Lattice.cubic(1)
         l2 = Lattice.cubic(0.9)
@@ -38,22 +59,25 @@ class StructureMatcherTest(PymatgenTest):
         s2 = Structure(l2, ['Cu', 'Cu', 'Ag'], [[0]*3]*3)
 
         sm = StructureMatcher(supercell_size='volume')
-        result = sm._get_supercell_size(s1, s2)
-        self.assertEqual(result[0], 1)
-        self.assertEqual(result[1], True)
-
-        result = sm._get_supercell_size(s2, s1)
-        self.assertEqual(result[0], 1)
-        self.assertEqual(result[1], True)
+        self.assertEqual(sm._get_supercell_size(s1, s2),
+                         (1, True))
+        self.assertEqual(sm._get_supercell_size(s2, s1),
+                         (1, True))
 
         sm = StructureMatcher(supercell_size='num_sites')
-        result = sm._get_supercell_size(s1, s2)
-        self.assertEqual(result[0], 2)
-        self.assertEqual(result[1], False)
+        self.assertEqual(sm._get_supercell_size(s1, s2),
+                         (2, False))
+        self.assertEqual(sm._get_supercell_size(s2, s1),
+                         (2, True))
 
-        result = sm._get_supercell_size(s2, s1)
-        self.assertEqual(result[0], 2)
-        self.assertEqual(result[1], True)
+        sm = StructureMatcher(supercell_size='Ag')
+        self.assertEqual(sm._get_supercell_size(s1, s2),
+                         (2, False))
+        self.assertEqual(sm._get_supercell_size(s2, s1),
+                         (2, True))
+
+        sm = StructureMatcher(supercell_size='wfieoh')
+        self.assertRaises(ValueError, sm._get_supercell_size, s1, s2)
 
     def test_cmp_fstruct(self):
         sm = StructureMatcher()
@@ -650,16 +674,21 @@ class StructureMatcherTest(PymatgenTest):
                      Element('O'): Element('O'),})
         self.assertEqual(len(sm.get_all_anonymous_mappings(s1, s2)), 2)
 
+        # test include_dist
+        dists = {Element('N'): 0, Element('P'): 0.0010725064}
+        for mapping, d in sm.get_all_anonymous_mappings(s1, s2, include_dist=True):
+            self.assertAlmostEqual(dists[mapping[Element('As')]], d)
+
     def test_rms_vs_minimax(self):
         # This tests that structures with adjusted RMS less than stol, but minimax
         # greater than stol are treated properly
-        sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=False)
+        # stol=0.3 gives exactly an ftol of 0.1 on the c axis
+        sm = StructureMatcher(ltol=0.2, stol=0.301, angle_tol=1, primitive_cell=False)
         l = Lattice.orthorhombic(1, 2, 12)
 
         sp = ["Si", "Si", "Al"]
         s1 = Structure(l, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.5]])
         s2 = Structure(l, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.6]])
-
         self.assertArrayAlmostEqual(sm.get_rms_dist(s1, s2),
                                     (0.32 ** 0.5 / 2, 0.4))
 

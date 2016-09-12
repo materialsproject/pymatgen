@@ -6,6 +6,7 @@ import glob
 import os
 from io import open
 import sys
+import platform
 
 from setuptools import setup, find_packages, Extension
 
@@ -16,51 +17,34 @@ except ImportError:
           "first before install pymatgen...")
     sys.exit(-1)
 
-SETUP_PTH = os.path.dirname(os.path.abspath(__file__))
+SETUP_PTH = os.path.dirname(__file__)
 
+extra_link_args = []
+if sys.platform.startswith('win') and platform.machine().endswith('64'):
+    extra_link_args.append('-Wl,--allow-multiple-definition')
 
-def get_spglib_ext():
-    """
-    Set up spglib extension.
-    """
-    spglibs = glob.glob(os.path.join(SETUP_PTH, "dependencies", "spglib*"))
-    if len(spglibs) != 1:
-        raise ValueError("Incorrect number of spglib found in dependencies. "
-                         "Expected 1, got %d" % len(spglibs))
-    spglibdir = spglibs[0]
-
-    # set rest of spglib
-    spgsrcdir = os.path.join(spglibdir, "src")
-    include_dirs = [spgsrcdir]
-    sources = glob.glob(os.path.join(spgsrcdir, "*.c"))
-    c_opt = [] if sys.version_info.major < 3 else [
-        "-Wno-error=declaration-after-statement"]
-    return Extension(
-        "pymatgen._spglib",
-        include_dirs=include_dirs + get_numpy_include_dirs(),
-        sources=[os.path.join(spglibdir, "_spglib.c")] + sources,
-        extra_compile_args=c_opt)
-
-
-with open("README.rst") as f:
+with open(os.path.join(SETUP_PTH, "README.rst")) as f:
     long_desc = f.read()
     ind = long_desc.find("\n")
     long_desc = long_desc[ind + 1:]
 
-
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="3.2.5",
-    install_requires=["numpy>=1.8", "pyhull>=1.5.3", "six", "atomicfile",
-                      "requests", "pybtex", "pyyaml", "monty>=0.7.0",
-                      "scipy>=0.10", "tabulate"],
+    version="4.2.4",
+    install_requires=["numpy>=1.9", "six", "atomicfile", "requests",
+                      "pybtex", "pyyaml", "monty>=0.9.0", "scipy>=0.14",
+                      "tabulate", "enum34", "spglib"],
     extras_require={"plotting": ["matplotlib>=1.1", "prettyplotlib"],
+                    "pourbaix diagrams, bandstructure": ["pyhull>=1.5.3"],
                     "ase_adaptor": ["ase>=3.3"],
                     "vis": ["vtk>=6.0.0"],
-                    "abinit": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
+                    "abinit": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"],
+                    "chemenv": ["unittest2"]},
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["*.yaml", "*.csv"],
+                  "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
+                  "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
                   "pymatgen.io.vasp": ["*.yaml"],
                   "pymatgen.io.feff": ["*.yaml"],
                   "pymatgen.symmetry": ["*.yaml"],
@@ -90,8 +74,7 @@ setup(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
@@ -101,6 +84,25 @@ setup(
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
-    ext_modules=[get_spglib_ext()],
+    ext_modules=[Extension("pymatgen.optimization.linear_assignment",
+                           ["pymatgen/optimization/linear_assignment.c"],
+                           include_dirs=get_numpy_include_dirs(),
+                           extra_link_args=extra_link_args),
+                 Extension("pymatgen.util.coord_utils_cython",
+                           ["pymatgen/util/coord_utils_cython.c"],
+                           include_dirs=get_numpy_include_dirs(),
+                           extra_link_args=extra_link_args)],
+    entry_points={
+          'console_scripts': [
+              'pmg = pymatgen.cli.pmg:main',
+              'feff_input_generation = pymatgen.cli.feff_input_generation:main',
+              'feff_plot_cross_section = pymatgen.cli.feff_plot_cross_section:main',
+              'feff_plot_dos = pymatgen.cli.feff_plot_dos:main',
+              'gaussian_analyzer = pymatgen.cli.gaussian_analyzer:main',
+              'gen_potcar = pymatgen.cli.gen_potcar:main',
+              'get_environment = pymatgen.cli.get_environment:main',
+              'pydii = pymatgen.cli.pydii:main',
+          ]
+    },
     scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
 )

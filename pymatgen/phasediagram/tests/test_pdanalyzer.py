@@ -4,15 +4,15 @@
 
 from __future__ import unicode_literals
 
-import unittest
+import unittest2 as unittest
 import os
 
 from numbers import Number
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
-from pymatgen.phasediagram.pdmaker import PhaseDiagram
-from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
+from pymatgen.phasediagram.maker import PhaseDiagram
+from pymatgen.phasediagram.analyzer import PDAnalyzer
 from pymatgen.phasediagram.entries import PDEntryIO, PDEntry
 
 

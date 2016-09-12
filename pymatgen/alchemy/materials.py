@@ -31,6 +31,7 @@ from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
 from monty.json import MSONable
 from pymatgen.matproj.snl import StructureNL
+from pymatgen.io.vasp.sets import MPRelaxSet
 
 from warnings import warn
 
@@ -190,24 +191,20 @@ class TransformedStructure(MSONable):
             self.append_transformation(t,
                     return_alternatives=return_alternatives)
 
-    def get_vasp_input(self, vasp_input_set, generate_potcar=True):
+    def get_vasp_input(self, vasp_input_set=MPRelaxSet, **kwargs):
         """
         Returns VASP input as a dict of vasp objects.
 
         Args:
             vasp_input_set (pymatgen.io.vaspio_set.VaspInputSet): input set
                 to create vasp input files from structures
-            generate_potcar (bool): Set to False to generate a POTCAR.spec
-                file instead of a POTCAR, which contains the POTCAR labels
-                but not the actual POTCAR. Defaults to True.
         """
-        d = vasp_input_set.get_all_vasp_input(self.final_structure,
-                                              generate_potcar)
+        d = vasp_input_set(self.final_structure, **kwargs).all_input
         d["transformations.json"] = json.dumps(self.as_dict())
         return d
 
-    def write_vasp_input(self, vasp_input_set, output_dir,
-                         create_directory=True):
+    def write_vasp_input(self, vasp_input_set=MPRelaxSet, output_dir=".",
+                         create_directory=True, **kwargs):
         """
         Writes VASP input to an output_dir.
 
@@ -215,13 +212,12 @@ class TransformedStructure(MSONable):
             vasp_input_set:
                 pymatgen.io.vaspio_set.VaspInputSet like object that creates
                 vasp input files from structures
-            output_dir:
-                Directory to output files
-            create_directory:
-                Create the directory if not present. Defaults to True.
+            output_dir: Directory to output files
+            create_directory: Create the directory if not present. Defaults to True.
+            \*\*kwargs: All keyword args supported by the VASP input set.
         """
-        vasp_input_set.write_input(self.final_structure, output_dir,
-                                   make_dir_if_not_present=create_directory)
+        vasp_input_set(self.final_structure, **kwargs).write_input(
+            output_dir, make_dir_if_not_present=create_directory)
         with open(os.path.join(output_dir, "transformations.json"), "w") as fp:
             json.dump(self.as_dict(), fp)
 

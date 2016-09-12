@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 18, 2012"
 
-import unittest
+import unittest2 as unittest
 import os
 
 from pymatgen.io.vasp.outputs import Vasprun
@@ -62,6 +62,12 @@ class ComputedEntryTest(unittest.TestCase):
     def test_str(self):
         self.assertIsNotNone(str(self.entry))
 
+    def test_sulfide_energy(self):
+        self.entry = ComputedEntry("BaS", -10.21249155)
+        self.assertAlmostEqual(self.entry.energy, -10.21249155)
+        self.assertAlmostEqual(self.entry.energy_per_atom, -10.21249155 / 2)
+        self.entry.correction = 1.0
+        self.assertAlmostEqual(self.entry.energy, -9.21249155)
 
 class ComputedStructureEntryTest(unittest.TestCase):
 

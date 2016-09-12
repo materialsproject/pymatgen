@@ -23,9 +23,16 @@ import math
 import subprocess
 
 import numpy as np
-import vtk
+try:
+    import vtk
+    from vtk import vtkInteractorStyleTrackballCamera
+except ImportError:
+    # VTK not present. The Camera is to set object to avoid errors in unittest.
+    vtk = None
+    vtkInteractorStyleTrackballCamera = object
 
 from monty.serialization import loadfn
+from monty.dev import requires
 
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.core.periodic_table import Specie
@@ -41,6 +48,8 @@ class StructureVis(object):
     Provides Structure object visualization using VTK.
     """
 
+    @requires(vtk, "Visualization requires the installation of VTK with "
+                   "Python bindings.")
     def __init__(self, element_color_mapping=None, show_unit_cell=True,
                  show_bonds=False, show_polyhedron=True,
                  poly_radii_tol_factor=0.5, excluded_bonding_elements=None):
@@ -275,7 +284,7 @@ class StructureVis(object):
                 if not exclude:
                     max_radius = (1 + self.poly_radii_tol_factor) * \
                         (max_radius + anion_radius)
-                    nn = structure.get_neighbors(site, max_radius)
+                    nn = structure.get_neighbors(site, float(max_radius))
                     nn_sites = []
                     for nnsite, dist in nn:
                         if contains_anion(nnsite):
@@ -567,7 +576,11 @@ class StructureVis(object):
                 trianglePolyData.SetPoints(points)
                 trianglePolyData.SetPolys(triangles)
                 mapper = vtk.vtkPolyDataMapper()
-                mapper.SetInput(trianglePolyData)
+                if vtk.VTK_MAJOR_VERSION <= 5:
+                    mapper.SetInputConnection(trianglePolyData.GetProducerPort())
+                else:
+                    mapper.SetInputData(trianglePolyData)
+                # mapper.SetInput(trianglePolyData)
                 ac = vtk.vtkActor()
                 ac.SetMapper(mapper)
                 ac.GetProperty().SetOpacity(opacity)
@@ -620,7 +633,11 @@ class StructureVis(object):
                     trianglePolyData.SetPoints(points)
                     trianglePolyData.SetPolys(triangles)
                     mapper = vtk.vtkPolyDataMapper()
-                    mapper.SetInput(trianglePolyData)
+                    if vtk.VTK_MAJOR_VERSION <= 5:
+                        mapper.SetInputConnection(trianglePolyData.GetProducerPort())
+                    else:
+                        mapper.SetInputData(trianglePolyData)
+                    # mapper.SetInput(trianglePolyData)
                     ac = vtk.vtkActor()
                     ac.SetMapper(mapper)
                     ac.GetProperty().SetOpacity(opacity)
@@ -642,7 +659,11 @@ class StructureVis(object):
         polydata.SetPoints(points)
         polydata.SetLines(lines)
         mapper = vtk.vtkPolyDataMapper()
-        mapper.SetInput(polydata)
+        if vtk.VTK_MAJOR_VERSION <= 5:
+            mapper.SetInputConnection(polydata.GetProducerPort())
+        else:
+            mapper.SetInputData(polydata)
+        # mapper.SetInput(polydata)
         ac = vtk.vtkActor()
         ac.SetMapper(mapper)
         ac.GetProperty().SetColor(color)
@@ -757,7 +778,7 @@ class StructureVis(object):
         self.iren.SetPicker(picker)
 
 
-class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
+class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
     """
     A custom interactor style for visualizing structures.
     """

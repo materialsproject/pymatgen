@@ -17,8 +17,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.structure import IStructure
 from pymatgen.transformations.standard_transformations import StrainStructureTransformation
-from pymatgen.io.vasp.sets import MPStaticVaspInputSet
-from pymatgen.io.vasp.sets import AbstractVaspInputSet
+from pymatgen.io.vasp.sets import MPStaticSet
+from pymatgen.io.vasp.sets import VaspInputSet
 import numpy as np
 import os
 import subprocess

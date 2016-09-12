@@ -4,17 +4,16 @@
 
 from __future__ import division, unicode_literals
 
-import unittest
+import unittest2 as unittest
 import pickle
-import collections
 
-from pymatgen.core.periodic_table import Element, Specie, DummySpecie, \
-    PeriodicTable, get_el_sp
+from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.periodic_table import Element, Specie, DummySpecie, get_el_sp
 from pymatgen.core.composition import Composition
 from copy import deepcopy
 
 
-class ElementTestCase(unittest.TestCase):
+class ElementTestCase(PymatgenTest):
 
     def test_init(self):
         self.assertEqual("Fe", Element("Fe").symbol, "Fe test failed")
@@ -22,18 +21,19 @@ class ElementTestCase(unittest.TestCase):
         fictional_symbols = ["D", "T", "Zebra"]
 
         for sym in fictional_symbols:
-            self.assertRaises(KeyError, Element, sym)
+            self.assertRaises(ValueError, Element, sym)
 
-        #Test caching
+        # Test caching
         self.assertEqual(id(Element("Fe")), id(Element("Fe")))
 
     def test_dict(self):
-        fe = Element("Fe")
+        fe = Element.Fe
         d = fe.as_dict()
         self.assertEqual(fe, Element.from_dict(d))
 
     def test_block(self):
-        testsets = {"O": "p", "Fe": "d", "Li": "s", "U": "f"}
+        testsets = {"O": "p", "Fe": "d", "Li": "s", "U": "f", "Er": "f",
+                    "Lu": "d", "Lr": "d"}
         for k, v in testsets.items():
             self.assertEqual(Element(k).block, v)
 
@@ -80,7 +80,7 @@ class ElementTestCase(unittest.TestCase):
                 "common_oxidation_states", "average_ionic_radius",
                 "ionic_radii"]
 
-        #Test all elements up to Uranium
+        # Test all elements up to Uranium
         for i in range(1, 93):
             el = Element.from_Z(i)
             d = el.data
@@ -95,38 +95,55 @@ class ElementTestCase(unittest.TestCase):
                 self.assertEqual(min(el.oxidation_states),
                                  el.min_oxidation_state)
 
+        self.assertRaises(ValueError, Element.from_Z, 1000)
+
+
     def test_oxidation_states(self):
-        el = Element("Fe")
+        el = Element.Fe
         self.assertEqual(el.oxidation_states, (-2, -1, 1, 2, 3, 4, 5, 6))
         self.assertEqual(el.common_oxidation_states, (2, 3))
 
     def test_deepcopy(self):
-        el1 = Element("Fe")
-        el2 = Element("Na")
+        el1 = Element.Fe
+        el2 = Element.Na
         ellist = [el1, el2]
         self.assertEqual(ellist, deepcopy(ellist),
                          "Deepcopy operation doesn't produce exact copy")
 
     def test_radii(self):
-        el = Element("Pd")
+        el = Element.Pd
         self.assertEqual(el.atomic_radius, 1.40)
         self.assertEqual(el.atomic_radius_calculated, 1.69)
         self.assertEqual(el.van_der_waals_radius, 1.63)
 
     def test_data(self):
-        self.assertEqual(Element("Pd").data["Atomic radius"], 1.4)
+        self.assertEqual(Element.Pd.data["Atomic radius"], 1.4)
+        al = Element.Al
+        val = al.thermal_conductivity
+        self.assertEqual(val, 235)
+        self.assertEqual(str(val.unit), "W K^-1 m^-1")
+        val = al.electrical_resistivity
+        self.assertEqual(val, 2.7e-08)
+        self.assertEqual(str(val.unit), "m ohm")
 
     def test_sort(self):
-        els = [Element("Se"), Element("C")]
-        self.assertEqual(sorted(els), [Element("C"), Element("Se")])
+        els = [Element.Se, Element.C]
+        self.assertEqual(sorted(els), [Element.C, Element.Se])
 
     def test_pickle(self):
-        el1 = Element("Fe")
+        el1 = Element.Fe
         o = pickle.dumps(el1)
         self.assertEqual(el1, pickle.loads(o))
 
+        #Test all elements up to Uranium
+        for i in range(1, 93):
+            self.serialize_with_pickle(Element.from_Z(i), test_eq=True)
 
-class SpecieTestCase(unittest.TestCase):
+    def test_print_periodic_table(self):
+        Element.print_periodic_table()
+
+
+class SpecieTestCase(PymatgenTest):
 
     def setUp(self):
         self.specie1 = Specie.from_string("Fe2+")
@@ -144,6 +161,7 @@ class SpecieTestCase(unittest.TestCase):
     def test_ionic_radius(self):
         self.assertEqual(self.specie2.ionic_radius, 78.5 / 100)
         self.assertEqual(self.specie3.ionic_radius, 92 / 100)
+        self.assertAlmostEqual(Specie("Mn", 4).ionic_radius, 0.67)
 
     def test_eq(self):
         self.assertEqual(self.specie1, self.specie3,
@@ -172,6 +190,8 @@ class SpecieTestCase(unittest.TestCase):
 
     def test_pickle(self):
         self.assertEqual(self.specie1, pickle.loads(pickle.dumps(self.specie1)))
+        for i in range(1, 5):
+            self.serialize_with_pickle(getattr(self, "specie%d" % i) , test_eq=True)
 
     def test_get_crystal_field_spin(self):
         self.assertEqual(Specie("Fe", 2).get_crystal_field_spin(), 4)
@@ -196,6 +216,9 @@ class SpecieTestCase(unittest.TestCase):
                           Specie("Fe", 10).get_crystal_field_spin)
         self.assertRaises(ValueError, Specie("Fe", 2).get_crystal_field_spin,
                           "hex")
+
+        s = Specie("Co", 3).get_crystal_field_spin("tet", spin_config="low")
+        self.assertEqual(s, 2)
 
     def test_sort(self):
         els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
@@ -223,6 +246,11 @@ class DummySpecieTestCase(unittest.TestCase):
         self.specie2 = DummySpecie("X", 2, {"spin": 3})
         self.assertEqual(self.specie2.spin, 3)
 
+    def test_cached(self):
+        sp1 = DummySpecie("X", 2)
+        sp2 = DummySpecie("X", 2)
+        self.assertEqual(id(sp1), id(sp2))
+
     def test_eq(self):
         self.assertFalse(DummySpecie("Xg") == DummySpecie("Xh"))
         self.assertFalse(DummySpecie("Xg") == DummySpecie("Xg", 3))
@@ -243,8 +271,9 @@ class DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(el1, pickle.loads(o))
 
     def test_sort(self):
-        r = sorted([Element('Fe'), DummySpecie("X")])
-        self.assertEqual(r, [DummySpecie("X"), Element('Fe')])
+        r = sorted([Element.Fe, DummySpecie("X")])
+        self.assertEqual(r, [DummySpecie("X"), Element.Fe])
+        self.assertTrue(DummySpecie("X", 3) < DummySpecie("X", 4))
 
     def test_safe_from_composition(self):
         c = Composition({'Xa': 1, 'Fe': 1})
@@ -252,62 +281,13 @@ class DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(DummySpecie.safe_from_composition(c, 1).symbol, 'Xb')
 
 
-class PeriodicTableTestCase(unittest.TestCase):
-
-    def test_element(self):
-        symbols = list()
-        for i in range(1, 102):
-            el = Element.from_Z(i)
-            self.assertGreater(el.atomic_mass, 0,
-                               "Atomic mass cannot be negative!")
-            self.assertNotIn(el.symbol, symbols,
-                             "Duplicate symbol for " + el.symbol)
-            symbols.append(""" + el.symbol + """)
-            self.assertIsNotNone(el.group,
-                                 "Group cannot be none for Z=" + str(i))
-            self.assertIsNotNone(el.row, "Row cannot be none for Z=" + str(i))
-
-            #Test all properties
-            all_attr = ["Z", "symbol", "X", "name", "atomic_mass",
-                        "atomic_radius", "max_oxidation_state",
-                        "min_oxidation_state", "mendeleev_no",
-                        "electrical_resistivity", "velocity_of_sound",
-                        "reflectivity", "refractive_index", "poissons_ratio",
-                        "molar_volume", "electronic_structure",
-                        "thermal_conductivity", "boiling_point",
-                        "melting_point", "critical_temperature",
-                        "superconduction_temperature", "liquid_range",
-                        "bulk_modulus", "youngs_modulus", "brinell_hardness",
-                        "rigidity_modulus", "mineral_hardness",
-                        "vickers_hardness", "density_of_solid",
-                        "coefficient_of_linear_thermal_expansion"]
-
-            for a in all_attr:
-                self.assertIsNotNone(el, a)
-
-    def test_print_periodic_table(self):
-        PeriodicTable().print_periodic_table()
-
-    def test_iterable(self):
-        """Test whether PeriodicTable supports the iteration protocol"""
-        table = PeriodicTable()
-
-        self.assertTrue(isinstance(table, collections.Iterable))
-
-        self.assertEqual(table[14].Z, 14)
-        self.assertEqual([e.Z for e in table[1:4:2]], [1, 3])
-
-        for (idx, element) in enumerate(table):
-            self.assertEqual(idx+1, element.Z)
-
-
 class FuncTest(unittest.TestCase):
 
     def test_get_el_sp(self):
         self.assertEqual(get_el_sp("Fe2+"), Specie("Fe", 2))
-        self.assertEqual(get_el_sp("3"), Element("Li"))
-        self.assertEqual(get_el_sp("3.0"), Element("Li"))
-        self.assertEqual(get_el_sp("U"), Element("U"))
+        self.assertEqual(get_el_sp("3"), Element.Li)
+        self.assertEqual(get_el_sp("3.0"), Element.Li)
+        self.assertEqual(get_el_sp("U"), Element.U)
         self.assertEqual(get_el_sp("X2+"), DummySpecie("X", 2))
         self.assertEqual(get_el_sp("Mn3+"), Specie("Mn", 3))
 

@@ -3,6 +3,16 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import numpy as np
+import scipy.constants as const
+
+from monty.json import MSONable
+
+from pymatgen.analysis.structure_matcher import StructureMatcher, \
+     OrderDisorderElementComparator
+from pymatgen.core import Structure, get_el_sp
+from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.util.coord_utils import pbc_diff
 
 """
 A module to perform diffusion analyses (e.g. calculating diffusivity from
@@ -20,22 +30,12 @@ citing the following papers::
     24(1), 15-17. doi:10.1021/cm203303y
 """
 
-
 __author__ = "Will Richards, Shyue Ping Ong"
 __version__ = "0.2"
 __maintainer__ = "Will Richards"
 __email__ = "wrichard@mit.edu"
 __status__ = "Beta"
 __date__ = "5/2/13"
-
-
-import numpy as np
-
-from pymatgen.core import Structure, get_el_sp
-import pymatgen.core.physical_constants as phyc
-from monty.json import MSONable
-from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.util.coord_utils import pbc_diff
 
 
 class DiffusionAnalyzer(MSONable):
@@ -209,7 +209,7 @@ class DiffusionAnalyzer(MSONable):
 
             dt = timesteps * self.time_step * self.step_skip
 
-            #calculate the smoothed msd values
+            # calculate the smoothed msd values
             msd = np.zeros_like(dt, dtype=np.double)
             sq_disp_ions = np.zeros((len(dc), len(dt)), dtype=np.double)
             msd_components = np.zeros(dt.shape + (3,))
@@ -296,20 +296,26 @@ class DiffusionAnalyzer(MSONable):
             self.indices = indices
             self.framework_indices = framework_indices
 
-    def get_drift_corrected_structures(self):
+    def get_drift_corrected_structures(self, start=None, stop=None, step=None):
         """
         Returns an iterator for the drift-corrected structures. Use of
         iterator is to reduce memory usage as # of structures in MD can be
         huge. You don't often need all the structures all at once.
+
+        Args:
+            start, stop, step (int): applies a start/stop/step to the iterator.
+                Faster than applying it after generation, as it reduces the
+                number of structures created.
         """
         coords = np.array(self.structure.cart_coords)
         species = self.structure.species_and_occu
         latt = self.structure.lattice
         nsites, nsteps, dim = self.corrected_displacements.shape
-        for i in range(nsteps):
-            yield Structure(latt, species, coords
-                            + self.corrected_displacements[:, i, :],
-                            coords_are_cartesian=True)
+        for i in range(start or 0, stop or nsteps, step or 1):
+            yield Structure(
+                    latt, species,
+                    coords + self.corrected_displacements[:, i, :],
+                    coords_are_cartesian=True)
 
     def get_summary_dict(self, include_msd_t=False):
         """
@@ -343,6 +349,51 @@ class DiffusionAnalyzer(MSONable):
             d["dt"] = self.dt.tolist()
         return d
 
+    def get_framework_rms_plot(self, plt=None, granularity=200, matching_s=None):
+        """
+        Get the plot of rms framework displacement vs time. Useful for checking
+        for melting, especially if framework atoms can move via paddle-wheel
+        or similar mechanism (which would show up in max framework displacement
+        but doesn't constitute melting).
+
+        Args:
+            granularity (int): Number of structures to match
+            matching_s (Structure): Optionally match to a disordered structure
+                instead of the first structure in the analyzer. Required when
+                a secondary mobile ion is present.
+        """
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        plt = get_publication_quality_plot(12, 8, plt=plt)
+        step = (self.corrected_displacements.shape[1] - 1) // (granularity - 1)
+        f = (matching_s or self.structure).copy()
+        f.remove_species([self.specie])
+        sm = StructureMatcher(primitive_cell=False, stol=0.6,
+                              comparator=OrderDisorderElementComparator(),
+                              allow_subset=True)
+        rms = []
+        for s in self.get_drift_corrected_structures(step=step):
+            s.remove_species([self.specie])
+            d = sm.get_rms_dist(f, s)
+            if d:
+                rms.append(d)
+            else:
+                rms.append((1, 1))
+        max_dt = (len(rms) - 1) * step * self.step_skip * self.time_step
+        if max_dt > 100000:
+            plot_dt = np.linspace(0, max_dt/1000, len(rms))
+            unit = 'ps'
+        else:
+            plot_dt = np.linspace(0, max_dt, len(rms))
+            unit = 'fs'
+        rms = np.array(rms)
+        plt.plot(plot_dt, rms[:, 0], label='RMS')
+        plt.plot(plot_dt, rms[:, 1], label='max')
+        plt.legend(loc='best')
+        plt.xlabel("Timestep ({})".format(unit))
+        plt.ylabel("normalized distance")
+        plt.tight_layout()
+        return plt
+
     def get_msd_plot(self, plt=None, mode="specie"):
         """
         Get the plot of the smoothed msd vs time graph. Useful for
@@ -351,30 +402,39 @@ class DiffusionAnalyzer(MSONable):
         Args:
             plt: A plot object. Defaults to None, which means one will be
                 generated.
+            mode (str): Determines type of msd plot. By "species", "sites",
+                or direction (default).
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8, plt=plt)
+        if np.max(self.dt) > 100000:
+            plot_dt = self.dt / 1000
+            unit = 'ps'
+        else:
+            plot_dt = self.dt
+            unit = 'fs'
 
         if mode == "species":
             for sp in sorted(self.structure.composition.keys()):
                 indices = [i for i, site in enumerate(self.structure) if
                            site.specie == sp]
                 sd = np.average(self.sq_disp_ions[indices, :], axis=0)
-                plt.plot(self.dt, sd, label=sp.__str__())
+                plt.plot(plot_dt, sd, label=sp.__str__())
             plt.legend(loc=2, prop={"size": 20})
-        elif mode == "ions":
+        elif mode == "sites":
             for i, site in enumerate(self.structure):
                 sd = self.sq_disp_ions[i, :]
-                plt.plot(self.dt, sd, label="%s - %d" % (
+                plt.plot(plot_dt, sd, label="%s - %d" % (
                     site.specie.__str__(), i))
             plt.legend(loc=2, prop={"size": 20})
-        else: #Handle default / invalid mode case
-            plt.plot(self.dt, self.msd, 'k')
-            plt.plot(self.dt, self.msd_components[:, 0], 'r')
-            plt.plot(self.dt, self.msd_components[:, 1], 'g')
-            plt.plot(self.dt, self.msd_components[:, 2], 'b')
+        else:
+            # Handle default / invalid mode case
+            plt.plot(plot_dt, self.msd, 'k')
+            plt.plot(plot_dt, self.msd_components[:, 0], 'r')
+            plt.plot(plot_dt, self.msd_components[:, 1], 'g')
+            plt.plot(plot_dt, self.msd_components[:, 2], 'b')
             plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
-        plt.xlabel("Timestep (fs)")
+        plt.xlabel("Timestep ({})".format(unit))
         plt.ylabel("MSD ($\AA^2$)")
         plt.tight_layout()
         return plt
@@ -390,6 +450,29 @@ class DiffusionAnalyzer(MSONable):
                 displacement by specie).
         """
         self.get_msd_plot(mode=mode).show()
+
+    def export_msdt(self, filename):
+        """
+        Writes MSD data to a csv file that can be easily plotted in other
+        software.
+
+        Args:
+            filename (str): Filename. Supported formats are csv and dat. If
+                the extension is csv, a csv file is written. Otherwise,
+                a dat format is assumed.
+        """
+        fmt = "csv" if filename.lower().endswith(".csv") else "dat"
+        delimiter = ", " if fmt == "csv" else " "
+        with open(filename, "wt") as f:
+            if fmt == "dat":
+                f.write("# ")
+            f.write(delimiter.join(["t", "MSD", "MSD_a", "MSD_b", "MSD_c"]))
+            f.write("\n")
+
+            for dt, msd, msdc in zip(self.dt, self.msd, self.msd_components):
+                f.write(delimiter.join(["%s" % v for v in [dt, msd] + list(
+                    msdc)]))
+                f.write("\n")
 
     @classmethod
     def from_structures(cls, structures, specie, temperature,
@@ -530,7 +613,7 @@ class DiffusionAnalyzer(MSONable):
                     temperature = vr.parameters['TEEND']
                     time_step = vr.parameters['POTIM']
                     yield step_skip, temperature, time_step
-                #check that the runs are continuous
+                # check that the runs are continuous
                 fdist = pbc_diff(vr.initial_structure.frac_coords,
                                  final_structure.frac_coords)
                 if np.any(fdist > 0.001):
@@ -622,15 +705,15 @@ class DiffusionAnalyzer(MSONable):
             p.join()
             return analyzer
         else:
-            vaspruns = []
-            offset = 0
-            for p in filepaths:
-                v = Vasprun(p, ionic_step_offset=offset,
-                            ionic_step_skip=step_skip)
-                vaspruns.append(v)
-                # Recompute offset.
-                offset = (- (v.nionic_steps - offset)) % step_skip
-            return cls.from_vaspruns(vaspruns, min_obs=min_obs,
+            def vr(filepaths):
+                offset = 0
+                for p in filepaths:
+                    v = Vasprun(p, ionic_step_offset=offset,
+                                ionic_step_skip=step_skip)
+                    yield v
+                    # Recompute offset.
+                    offset = (-(v.nionic_steps - offset)) % step_skip
+            return cls.from_vaspruns(vr(filepaths), min_obs=min_obs,
                 smoothed=smoothed, specie=specie, initial_disp=initial_disp,
                 initial_structure=initial_structure, avg_nsteps=avg_nsteps)
 
@@ -685,8 +768,8 @@ def get_conversion_factor(structure, species, temperature):
     n = structure.composition[species]
 
     vol = structure.volume * 1e-24  # units cm^3
-    return 1000 * n / (vol * phyc.N_a) * z ** 2 * phyc.F ** 2\
-        / (phyc.R * temperature)
+    return 1000 * n / (vol * const.N_A) * z ** 2 * (const.N_A * const.e) ** 2\
+        / (const.R * temperature)
 
 
 def _get_vasprun(args):
@@ -699,7 +782,7 @@ def _get_vasprun(args):
 
 def fit_arrhenius(temps, diffusivities):
     """
-    Returns Ea and c from the Arrhenius fit:
+    Returns Ea, c, standard error of Ea from the Arrhenius fit:
         D = c * exp(-Ea/kT)
 
     Args:
@@ -709,10 +792,16 @@ def fit_arrhenius(temps, diffusivities):
     """
     t_1 = 1 / np.array(temps)
     logd = np.log(diffusivities)
-    #Do a least squares regression of log(D) vs 1/T
+    # Do a least squares regression of log(D) vs 1/T
     a = np.array([t_1, np.ones(len(temps))]).T
-    w = np.array(np.linalg.lstsq(a, logd)[0])
-    return -w[0] * phyc.k_b / phyc.e, np.exp(w[1])
+    w, res, _, _ = np.linalg.lstsq(a, logd)
+    w = np.array(w)
+    n = len(temps)
+    if n > 2:
+        std_Ea = (res[0] / (n - 2) / (n * np.var(t_1))) ** 0.5 * const.k / const.e
+    else:
+        std_Ea = None
+    return -w[0] * const.k / const.e, np.exp(w[1]), std_Ea
 
 
 def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
@@ -728,8 +817,8 @@ def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
     Returns:
         (float) Diffusivity at extrapolated temp in mS/cm.
     """
-    Ea, c = fit_arrhenius(temps, diffusivities)
-    return c * np.exp(-Ea / (phyc.k_b / phyc.e * new_temp))
+    Ea, c, _ = fit_arrhenius(temps, diffusivities)
+    return c * np.exp(-Ea / (const.k / const.e * new_temp))
 
 
 def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
@@ -769,14 +858,13 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
     Returns:
         A matplotlib.pyplot object. Do plt.show() to show the plot.
     """
-    Ea, c = fit_arrhenius(temps, diffusivities)
+    Ea, c, _ = fit_arrhenius(temps, diffusivities)
 
     from pymatgen.util.plotting_utils import get_publication_quality_plot
     plt = get_publication_quality_plot(12, 8)
 
-    #log10 of the arrhenius fit
-    arr = c * np.exp(-Ea / (phyc.k_b / phyc.e *
-                                               np.array(temps)))
+    # log10 of the arrhenius fit
+    arr = c * np.exp(-Ea / (const.k / const.e * np.array(temps)))
 
     t_1 = 1000 / np.array(temps)
 

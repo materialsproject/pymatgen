@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals
 
-import unittest
+import unittest2 as unittest
 import os
 
 from pymatgen.io.feff import Header, FeffTags, FeffLdos, FeffPot, Xmu, \
@@ -157,7 +157,7 @@ class FeffLdosTest(unittest.TestCase):
 
     def test_complete_dos(self):
         complete_dos = FeffLdosTest.l.complete_dos
-        self.assertEqual(complete_dos.as_dict()['spd_dos']['S']['efermi'],
+        self.assertEqual(complete_dos.as_dict()['spd_dos']["s"]['efermi'],
                          - 11.430,
                          "Failed to construct complete_dos dict properly")
 

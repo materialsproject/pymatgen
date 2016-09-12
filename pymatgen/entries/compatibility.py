@@ -27,9 +27,9 @@ from collections import defaultdict
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 
-from pymatgen.io.vasp.sets import MITVaspInputSet, MPVaspInputSet
+from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
 from pymatgen.core.periodic_table import Element
-from pymatgen.analysis.structure_analyzer import oxide_type
+from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
 
 import abc
 
@@ -113,21 +113,22 @@ class PotcarCorrection(Correction):
     """
 
     def __init__(self, input_set, check_hash=False):
-
-        if isinstance(list(input_set.potcar_settings.values())[-1], dict):
+        potcar_settings = input_set.CONFIG["POTCAR"]
+        if isinstance(list(potcar_settings.values())[-1],
+                      dict):
             if check_hash:
                 self.valid_potcars = {k: d["hash"] for k, d in
-                                      input_set.potcar_settings.items()}
+                                      potcar_settings.items()}
             else:
                 self.valid_potcars = {k: d["symbol"] for k, d in
-                                      input_set.potcar_settings.items()}
+                                      potcar_settings.items()}
         else:
             if check_hash:
                 raise ValueError('Cannot check hashes of potcars,'
                                  ' hashes are not set')
             else:
                 self.valid_potcars = {k: d for k, d in
-                                      input_set.potcar_settings.items()}
+                                      potcar_settings.items()}
 
         self.input_set = input_set
         self.check_hash = check_hash
@@ -158,11 +159,41 @@ class PotcarCorrection(Correction):
         return 0
 
     def __str__(self):
-        return "{} Potcar Correction".format(self.input_set.name)
+        return "{} Potcar Correction".format(self.input_set.__name__)
 
 
 @cached_class
 class GasCorrection(Correction):
+    """
+    Correct anion energies to obtain the right formation energies. Note that
+    this depends on calculations being run within the same input set.
+
+    Args:
+        config_file: Path to the selected compatibility.yaml config file.
+        correct_peroxide: Specify whether peroxide/superoxide/ozonide
+            corrections are to be applied or not.
+    """
+    def __init__(self, config_file):
+        c = loadfn(config_file)
+        self.name = c['Name']
+        self.cpd_energies = c['Advanced']['CompoundEnergies']
+
+    def get_correction(self, entry):
+        comp = entry.composition
+
+        rform = entry.composition.reduced_formula
+        if rform in self.cpd_energies:
+            return self.cpd_energies[rform] * comp.num_atoms \
+                - entry.uncorrected_energy
+
+        return 0
+
+    def __str__(self):
+        return "{} Gas Correction".format(self.name)
+
+
+@cached_class
+class AnionCorrection(Correction):
     """
     Correct gas energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
@@ -174,23 +205,31 @@ class GasCorrection(Correction):
     """
     def __init__(self, config_file, correct_peroxide=True):
         c = loadfn(config_file)
-        self.cpd_energies = c['Advanced']['CompoundEnergies']
         self.oxide_correction = c['OxideCorrections']
+        self.sulfide_correction = c.get('SulfideCorrections', defaultdict(
+            float))
         self.name = c['Name']
         self.correct_peroxide = correct_peroxide
 
     def get_correction(self, entry):
         comp = entry.composition
-
-        rform = entry.composition.reduced_formula
-        if rform in self.cpd_energies:
-            return self.cpd_energies[rform] * comp.num_atoms \
-                - entry.uncorrected_energy
+        if len(comp) == 1:  # Skip element entry
+            return 0
 
         correction = 0
-        #Check for oxide, peroxide, superoxide, and ozonide corrections.
-        if self.correct_peroxide:
-            if len(comp) >= 2 and Element("O") in comp:
+        # Check for sulfide corrections
+        if Element("S") in comp:
+            sf_type = "sulfide"
+            if entry.data.get("sulfide_type"):
+                sf_type = entry.data["sulfide_type"]
+            elif hasattr(entry, "structure"):
+                sf_type = sulfide_type(entry.structure)
+            if sf_type in self.sulfide_correction:
+                correction += self.sulfide_correction[sf_type] * comp["S"]
+
+        # Check for oxide, peroxide, superoxide, and ozonide corrections.
+        if Element("O") in comp:
+            if self.correct_peroxide:
                 if entry.data.get("oxide_type"):
                     if entry.data["oxide_type"] in self.oxide_correction:
                         ox_corr = self.oxide_correction[
@@ -207,8 +246,10 @@ class GasCorrection(Correction):
                         correction += self.oxide_correction[ox_type] * \
                             nbonds
                     elif ox_type == "hydroxide":
-                        correction += self.oxide_correction["oxide"] * comp["O"]
+                        correction += self.oxide_correction["oxide"] * \
+                                      comp["O"]
                 else:
+                    rform = entry.composition.reduced_formula
                     if rform in UCorrection.common_peroxides:
                         correction += self.oxide_correction["peroxide"] * \
                             comp["O"]
@@ -220,14 +261,15 @@ class GasCorrection(Correction):
                             comp["O"]
                     elif Element("O") in comp.elements and len(comp.elements)\
                             > 1:
-                        correction += self.oxide_correction['oxide'] * comp["O"]
-        else:
-            correction += self.oxide_correction['oxide'] * comp["O"]
+                        correction += self.oxide_correction['oxide'] * \
+                                      comp["O"]
+            else:
+                correction += self.oxide_correction['oxide'] * comp["O"]
 
         return correction
 
     def __str__(self):
-        return "{} Gas Correction".format(self.name)
+        return "{} Anion Correction".format(self.name)
 
 
 @cached_class
@@ -303,7 +345,7 @@ class UCorrection(Correction):
 
         self.input_set = input_set
         if compat_type == 'Advanced':
-            self.u_settings = self.input_set.incar_settings["LDAUU"]
+            self.u_settings = self.input_set.CONFIG["INCAR"]["LDAUU"]
             self.u_corrections = c["Advanced"]["UCorrections"]
         else:
             self.u_settings = {}
@@ -492,11 +534,11 @@ class MaterialsProjectCompatibility(Compatibility):
                  check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MPCompatibility.yaml")
-        i_s = MPVaspInputSet()
         super(MaterialsProjectCompatibility, self).__init__(
-            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
-             GasCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, i_s, compat_type)])
+            [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
+             GasCorrection(fp),
+             AnionCorrection(fp, correct_peroxide=correct_peroxide),
+             UCorrection(fp, MPRelaxSet, compat_type)])
 
 
 class MITCompatibility(Compatibility):
@@ -523,11 +565,11 @@ class MITCompatibility(Compatibility):
                 check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MITCompatibility.yaml")
-        i_s = MITVaspInputSet()
         super(MITCompatibility, self).__init__(
-            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
-             GasCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, i_s, compat_type)])
+            [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
+             GasCorrection(fp),
+             AnionCorrection(fp, correct_peroxide=correct_peroxide),
+             UCorrection(fp, MITRelaxSet, compat_type)])
 
 
 class MITAqueousCompatibility(Compatibility):
@@ -554,11 +596,11 @@ class MITAqueousCompatibility(Compatibility):
                 check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MITCompatibility.yaml")
-        i_s = MITVaspInputSet()
         super(MITAqueousCompatibility, self).__init__(
-            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
-             GasCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
+            [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
+             GasCorrection(fp),
+             AnionCorrection(fp, correct_peroxide=correct_peroxide),
+             UCorrection(fp, MITRelaxSet, compat_type), AqueousCorrection(fp)])
 
 
 class MaterialsProjectAqueousCompatibility(Compatibility):
@@ -586,8 +628,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MPCompatibility.yaml")
-        i_s = MPVaspInputSet()
         super(MaterialsProjectAqueousCompatibility, self).__init__(
-            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
-             GasCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
+            [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
+             GasCorrection(fp),
+             AnionCorrection(fp, correct_peroxide=correct_peroxide),
+             UCorrection(fp, MPRelaxSet, compat_type), AqueousCorrection(fp)])

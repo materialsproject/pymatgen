@@ -138,7 +138,7 @@ class DBConnector(object):
 
     def get_collection(self, **kwargs):
         """
-        Establish a connection with the database. 
+        Establish a connection with the database.
 
         Returns MongoDb collection
         """
@@ -164,5 +164,5 @@ if __name__ == "__main__":
     print(connector)
     print(connector.get_collection())
 
-    #import unittest
+    #import unittest2 as unittest
     #unittest.main()

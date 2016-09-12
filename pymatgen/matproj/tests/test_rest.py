@@ -4,6 +4,20 @@
 
 from __future__ import division, unicode_literals
 
+import unittest2 as unittest
+import os
+
+from pymatgen.matproj.rest import MPRester, MPRestError
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure, Composition
+from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.electronic_structure.dos import CompleteDos
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+from pymatgen.phasediagram.maker import PhaseDiagram
+from pymatgen.phasediagram.analyzer import PDAnalyzer
+from pymatgen.io.cif import CifParser
+
 """
 Created on Jun 9, 2012
 """
@@ -15,20 +29,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jun 9, 2012"
-
-import unittest
-import os
-
-from pymatgen.matproj.rest import MPRester, MPRestError
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure, Composition
-from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-from pymatgen.phasediagram.pdmaker import PhaseDiagram
-from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
-from pymatgen.io.cif import CifParser
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -103,15 +103,13 @@ class MPResterTest(unittest.TestCase):
 
     def test_get_materials_id_references(self):
         # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_get_materials_id_references
-        # self.rester points to rest/v2 by default which doesn't have the refs endpoint
-        m = MPRester(endpoint="https://www.materialsproject.org/rest")
+        m = MPRester()
         data = m.get_materials_id_references('mp-123')
         self.assertTrue(len(data) > 1000)
 
     def test_find_structure(self):
         # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_find_structure
-        # self.rester points to rest/v2 by default which doesn't have the find_structure endpoint
-        m = MPRester(endpoint="https://www.materialsproject.org/rest")
+        m = MPRester()
         ciffile = os.path.join(test_dir, 'Fe3O4.cif')
         data = m.find_structure(ciffile)
         self.assertTrue(len(data) > 1)
@@ -230,6 +228,11 @@ class MPResterTest(unittest.TestCase):
         rxn = self.rester.get_reaction(["Li", "O"], ["Li2O"])
         self.assertIn("Li2O", rxn["Experimental_references"])
 
+    def test_get_substrates(self):
+        substrate_data = self.rester.get_substrates('mp-123', 5, [1, 0, 0])
+        substrates = [sub_dict['sub_id'] for sub_dict in substrate_data]
+        self.assertIn("mp-2534", substrates)
+
     def test_parse_criteria(self):
         crit = MPRester.parse_criteria("mp-1234 Li-*")
         self.assertIn("Li-O", crit["$or"][1]["chemsys"]["$in"])
@@ -255,8 +258,8 @@ class MPResterTest(unittest.TestCase):
 
         #Let's test some invalid symbols
 
-        self.assertRaises(KeyError, MPRester.parse_criteria, "li-fe")
-        self.assertRaises(KeyError, MPRester.parse_criteria, "LO2")
+        self.assertRaises(ValueError, MPRester.parse_criteria, "li-fe")
+        self.assertRaises(ValueError, MPRester.parse_criteria, "LO2")
 
         crit = MPRester.parse_criteria("POPO2")
         self.assertIn("P2O3", crit["pretty_formula"]["$in"])

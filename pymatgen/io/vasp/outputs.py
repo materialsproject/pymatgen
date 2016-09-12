@@ -4,10 +4,43 @@
 
 from __future__ import division, unicode_literals, print_function
 
+import glob
+import itertools
+import logging
+import math
+import os
+import re
+import warnings
+import xml.etree.cElementTree as ET
+from collections import defaultdict
+from io import StringIO
+
+import numpy as np
+from monty.io import zopen, reverse_readfile
+from monty.json import MSONable
+from monty.json import jsanitize
+from monty.re import regrep
+from six import string_types
+from six.moves import map, zip
+
+from pymatgen.analysis.nmr import NMRChemicalShiftNotation
+from pymatgen.core.composition import Composition
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
+from pymatgen.core.units import unitized
+from pymatgen.electronic_structure.bandstructure import BandStructure, \
+    BandStructureSymmLine, get_reconstructed_band_structure
+from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
+from pymatgen.electronic_structure.dos import CompleteDos, Dos
+from pymatgen.entries.computed_entries import \
+    ComputedEntry, ComputedStructureEntry
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
+from pymatgen.util.io_utils import clean_lines, micro_pyawk
+
 """
 Classes for reading/manipulating/writing VASP ouput files.
 """
-
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
     "Vincent L Chevrier, Ioannis Petousis, Stephen Dacek"
@@ -18,41 +51,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Nov 30, 2012"
-
-import os
-import glob
-import re
-import math
-import itertools
-from io import StringIO
-import logging
-from collections import defaultdict
-from xml.etree.cElementTree import iterparse
-import warnings
-
-from six.moves import map, zip
-from six import string_types
-
-import numpy as np
-
-from monty.io import zopen, reverse_readfile
-from monty.re import regrep
-from monty.json import jsanitize
-
-from pymatgen.util.io_utils import clean_lines, micro_pyawk
-from pymatgen.core.structure import Structure
-from pymatgen.core.units import unitized
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
-from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.electronic_structure.dos import CompleteDos, Dos
-from pymatgen.electronic_structure.bandstructure import BandStructure, \
-    BandStructureSymmLine, get_reconstructed_band_structure
-from pymatgen.core.lattice import Lattice
-from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
-from pymatgen.entries.computed_entries import \
-    ComputedEntry, ComputedStructureEntry
-from monty.json import MSONable
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +117,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
 
 
 def _parse_varray(elem):
-    return [[float(i) for i in v.text.split()] for v in elem]
+    return [[_vasprun_float(i) for i in v.text.split()] for v in elem]
 
 
 def _parse_from_incar(filename, key):
@@ -191,7 +189,15 @@ class Vasprun(MSONable):
             where no hashes will be determined and the potcar_spec dictionaries
             will read {"symbol": ElSymbol, "hash": None}. By Default, looks in
             the same directory as the vasprun.xml, with same extensions as
-             Vasprun.xml. If a string is provided, looks at that filepath
+             Vasprun.xml. If a string is provided, looks at that filepath.
+        occu_tol (float): Sets the minimum tol for the determination of the
+            vbm and cbm. Usually the default of 1e-8 works well enough,
+            but there may be pathological cases.
+        exception_on_bad_xml (bool): Whether to throw a ParseException if a
+            malformed XML is detected. Default to True, which ensures only
+            proper vasprun.xml are parsed. You can set to False if you want
+            partial results (e.g., if you are monitoring a calculation during a
+            run), but use the results with care. A warning is issued.
 
     **Vasp results**
 
@@ -283,6 +289,21 @@ class Vasprun(MSONable):
         to the total number of steps in the actual run even if
         ionic_step_skip is used.
 
+    .. attribute:: force_constants
+
+        Force constants computed in phonon DFPT run(IBRION = 8).
+        The data is a 4D numpy array of shape (natoms, natoms, 3, 3).
+
+    .. attribute:: normalmode_eigenvals
+
+        Normal mode frequencies.
+        1D numpy array of size 3*natoms.
+
+    .. attribute:: normalmode_eigenvecs
+
+        Normal mode eigen vectors.
+        3D numpy array of shape (3*natoms, natoms, 3).
+
     **Vasp inputs**
 
     .. attribute:: incar
@@ -324,21 +345,24 @@ class Vasprun(MSONable):
     def __init__(self, filename, ionic_step_skip=None,
                  ionic_step_offset=0, parse_dos=True,
                  parse_eigen=True, parse_projected_eigen=False,
-                 parse_potcar_file=True):
+                 parse_potcar_file=True, occu_tol=1e-8,
+                 exception_on_bad_xml=True):
         self.filename = filename
         self.ionic_step_skip = ionic_step_skip
         self.ionic_step_offset = ionic_step_offset
+        self.occu_tol = occu_tol
+        self.exception_on_bad_xml = exception_on_bad_xml
 
         with zopen(filename, "rt") as f:
             if ionic_step_skip or ionic_step_offset:
                 # remove parts of the xml file and parse the string
                 run = f.read()
                 steps = run.split("<calculation>")
-                #The text before the first <calculation> is the preamble!
+                # The text before the first <calculation> is the preamble!
                 preamble = steps.pop(0)
                 self.nionic_steps = len(steps)
                 new_steps = steps[ionic_step_offset::int(ionic_step_skip)]
-                #add the tailing informat in the last step from the run
+                # add the tailing informat in the last step from the run
                 to_parse = "<calculation>".join(new_steps)
                 if steps[-1] != new_steps[-1]:
                     to_parse = "{}<calculation>{}{}".format(
@@ -371,50 +395,77 @@ class Vasprun(MSONable):
         self.other_dielectric = {}
         ionic_steps = []
         parsed_header = False
-        for event, elem in iterparse(stream):
-            tag = elem.tag
-            if not parsed_header:
-                if tag == "generator":
-                    self.generator = self._parse_params(elem)
-                elif tag == "incar":
-                    self.incar = self._parse_params(elem)
-                elif tag == "kpoints":
-                    self.kpoints, self.actual_kpoints, \
-                        self.actual_kpoints_weights = self._parse_kpoints(elem)
-                elif tag == "parameters":
-                    self.parameters = self._parse_params(elem)
+        try:
+            for event, elem in ET.iterparse(stream):
+                tag = elem.tag
+                if not parsed_header:
+                    if tag == "generator":
+                        self.generator = self._parse_params(elem)
+                    elif tag == "incar":
+                        self.incar = self._parse_params(elem)
+                    elif tag == "kpoints":
+                        self.kpoints, self.actual_kpoints, \
+                            self.actual_kpoints_weights = self._parse_kpoints(
+                                elem)
+                    elif tag == "parameters":
+                        self.parameters = self._parse_params(elem)
+                    elif tag == "structure" and elem.attrib.get("name") == \
+                            "initialpos":
+                        self.initial_structure = self._parse_structure(elem)
+                    elif tag == "atominfo":
+                        self.atomic_symbols, self.potcar_symbols = \
+                            self._parse_atominfo(elem)
+                        self.potcar_spec = [{"titel": p,
+                                             "hash": None} for
+                                            p in self.potcar_symbols]
+                if tag == "calculation":
+                    parsed_header = True
+                    if not self.parameters.get("LCHIMAG", False):
+                        ionic_steps.append(self._parse_calculation(elem))
+                    else:
+                        ionic_steps.extend(self._parse_chemical_shift_calculation(elem))
+                elif parse_dos and tag == "dos":
+                    try:
+                        self.tdos, self.idos, self.pdos = self._parse_dos(elem)
+                        self.efermi = self.tdos.efermi
+                        self.dos_has_errors = False
+                    except Exception as ex:
+                        self.dos_has_errors = True
+                elif parse_eigen and tag == "eigenvalues":
+                    self.eigenvalues = self._parse_eigen(elem)
+                elif parse_projected_eigen and tag == "projected":
+                    self.projected_eigenvalues = self._parse_projected_eigen(
+                        elem)
+                elif tag == "dielectricfunction":
+                    if ("comment" not in elem.attrib) or \
+                       elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
+                        self.dielectric = self._parse_diel(elem)
+                    else:
+                        self.other_dielectric[elem.attrib[
+                            "comment"]] = self._parse_diel(elem)
                 elif tag == "structure" and elem.attrib.get("name") == \
-                        "initialpos":
-                    self.initial_structure = self._parse_structure(elem)
-                elif tag == "atominfo":
-                    self.atomic_symbols, self.potcar_symbols = \
-                        self._parse_atominfo(elem)
-                    self.potcar_spec = [{"titel": p,
-                                         "hash": None} for
-                                        p in self.potcar_symbols]
-            if tag == "calculation":
-                parsed_header = True
-                ionic_steps.append(self._parse_calculation(elem))
-            elif parse_dos and tag == "dos":
-                try:
-                    self.tdos, self.idos, self.pdos = self._parse_dos(elem)
-                    self.efermi = self.tdos.efermi
-                    self.dos_has_errors = False
-                except Exception as ex:
-                    self.dos_has_errors = True
-            elif parse_eigen and tag == "eigenvalues":
-                self.eigenvalues = self._parse_eigen(elem)
-            elif parse_projected_eigen and tag == "projected":
-                self.projected_eigenvalues = self._parse_projected_eigen(elem)
-            elif tag == "dielectricfunction":
-                if ("comment" not in elem.attrib) or \
-                   elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
-                    self.dielectric = self._parse_diel(elem)
-                else:
-                    self.other_dielectric[elem.attrib["comment"]] = self._parse_diel(elem)
-            elif tag == "structure" and elem.attrib.get("name") == \
-                    "finalpos":
-                self.final_structure = self._parse_structure(elem)
+                        "finalpos":
+                    self.final_structure = self._parse_structure(elem)
+                elif tag == "dynmat":
+                    hessian, eigenvalues, eigenvectors = self._parse_dynmat(elem)
+                    natoms = len(self.atomic_symbols)
+                    hessian = np.array(hessian)
+                    self.force_constants = np.zeros((natoms, natoms, 3, 3), dtype='double')
+                    for i in range(natoms):
+                        for j in range(natoms):
+                            self.force_constants[i, j] = hessian[i*3:(i+1)*3,j*3:(j+1)*3]
+                    phonon_eigenvectors = []
+                    for ev in eigenvectors:
+                        phonon_eigenvectors.append(np.array(ev).reshape(natoms, 3))
+                    self.normalmode_eigenvals = np.array(eigenvalues)
+                    self.normalmode_eigenvecs = np.array(phonon_eigenvectors)
+        except ET.ParseError as ex:
+            if self.exception_on_bad_xml:
+                raise ex
+            else:
+                warnings.warn(
+                    "XML is malformed. Parsing has stopped but partial data"
+                    "is available.", UserWarning)
         self.ionic_steps = ionic_steps
         self.vasp_version = self.generator["version"]
 
@@ -489,10 +540,21 @@ class Vasprun(MSONable):
         Final energy from the vasp run.
         """
         try:
-            return self.ionic_steps[-1]["electronic_steps"][-1]["e_0_energy"]
+            final_istep = self.ionic_steps[-1]
+            if final_istep["e_wo_entrp"] != final_istep[
+                'electronic_steps'][-1]["e_0_energy"]:
+                warnings.warn("Final e_wo_entrp differs from the final "
+                              "electronic step. VASP may have included some "
+                              "corrections, e.g., vdw. Vasprun will return "
+                              "the final e_wo_entrp, i.e., including "
+                              "corrections in such instances.")
+                return final_istep["e_wo_entrp"]
+            return final_istep['electronic_steps'][-1]["e_0_energy"]
         except (IndexError, KeyError):
-            # not all calculations have a total energy, i.e. GW
-            return np.inf
+            warnings.warn("Calculation does not have a total energy. "
+                          "Possibly a GW or similar kind of run. A value of "
+                          "infinity is returned.")
+            return float('inf')
 
     @property
     def complete_dos(self):
@@ -515,6 +577,8 @@ class Vasprun(MSONable):
             return {}
         us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
         js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
+        if len(js) != len(us):
+            js = [0] * len(us)
         if len(us) == len(symbols):
             return {symbols[i]: us[i] - js[i] for i in range(len(symbols))}
         elif sum(us) == 0 and sum(js) == 0:
@@ -640,47 +704,39 @@ class Vasprun(MSONable):
         if 'projected_eigenvalues' in self.as_dict()['output']:
             dict_p_eigen = self.as_dict()['output']['projected_eigenvalues']
 
-        p_eigenvals = {}
-        if "1" in dict_eigen["0"] and "-1" in dict_eigen["0"] \
-                and self.incar['ISPIN'] == 2:
-            eigenvals = {Spin.up: [], Spin.down: []}
-            if len(dict_p_eigen) != 0:
-                p_eigenvals = {Spin.up: [], Spin.down: []}
-        else:
-            eigenvals = {Spin.up: []}
-            if len(dict_p_eigen) != 0:
-                p_eigenvals = {Spin.up: []}
+        p_eigenvals = defaultdict(list)
+        eigenvals = defaultdict(list)
 
         neigenvalues = [len(v['1']) for v in dict_eigen.values()]
         min_eigenvalues = min(neigenvalues)
-        get_orb = Orbital.from_string
         for i in range(min_eigenvalues):
             eigenvals[Spin.up].append([dict_eigen[str(j)]['1'][i][0]
                                        for j in range(len(kpoints))])
             if len(dict_p_eigen) != 0:
                 p_eigenvals[Spin.up].append(
-                    [{get_orb(orb): dict_p_eigen[j]['1'][i][orb]
+                    [{Orbital[orb]: dict_p_eigen[j]['1'][i][orb]
                       for orb in dict_p_eigen[j]['1'][i]}
                      for j in range(len(kpoints))])
-        if Spin.down in eigenvals:
+        if "1" in dict_eigen["0"] and "-1" in dict_eigen["0"] \
+                and self.incar['ISPIN'] == 2:
             for i in range(min_eigenvalues):
                 eigenvals[Spin.down].append([dict_eigen[str(j)]['-1'][i][0]
                                              for j in range(len(kpoints))])
                 if len(dict_p_eigen) != 0:
                     p_eigenvals[Spin.down].append(
-                        [{get_orb(orb): dict_p_eigen[j]['-1'][i][orb]
+                        [{Orbital[orb]: dict_p_eigen[j]['-1'][i][orb]
                           for orb in dict_p_eigen[j]['-1'][i]}
                          for j in range(len(kpoints))]
                     )
 
         # check if we have an hybrid band structure computation
-        #for this we look at the presence of the LHFCALC tag
+        # for this we look at the presence of the LHFCALC tag
         hybrid_band = False
         if self.parameters.get('LHFCALC', False):
             hybrid_band = True
 
         if kpoint_file is not None:
-            if kpoint_file.style == "Line_mode":
+            if kpoint_file.style == Kpoints.supported_modes.Line_mode:
                 line_mode = True
 
         if line_mode:
@@ -691,12 +747,12 @@ class Vasprun(MSONable):
                     if self.actual_kpoints_weights[i] == 0.0:
                         start_bs_index = i
                         break
-                for i in range(len(kpoint_file.kpts)):
+                for i in range(start_bs_index, len(kpoint_file.kpts)):
                     if kpoint_file.labels[i] is not None:
                         labels_dict[kpoint_file.labels[i]] = \
                             kpoint_file.kpts[i]
-                #remake the data only considering line band structure k-points
-                #(weight = 0.0 kpoints)
+                # remake the data only considering line band structure k-points
+                # (weight = 0.0 kpoints)
                 kpoints = kpoints[start_bs_index:len(kpoints)]
                 up_eigen = [eigenvals[Spin.up][i][
                             start_bs_index:len(eigenvals[Spin.up][i])]
@@ -704,7 +760,7 @@ class Vasprun(MSONable):
                 if self.is_spin:
                     down_eigen = [eigenvals[Spin.down][i]
                                   [start_bs_index:
-                                  len(eigenvals[Spin.down][i])]
+                                   len(eigenvals[Spin.down][i])]
                                   for i in range(len(eigenvals[Spin.down]))]
                     eigenvals = {Spin.up: up_eigen,
                                  Spin.down: down_eigen}
@@ -736,14 +792,14 @@ class Vasprun(MSONable):
         vbm_kpoint = None
         cbm = float("inf")
         cbm_kpoint = None
-        for k, val in self.eigenvalues.items():
+        for (spin, k), val in self.eigenvalues.items():
             for (eigenval, occu) in val:
-                if occu > 1e-8 and eigenval > vbm:
+                if occu > self.occu_tol and eigenval > vbm:
                     vbm = eigenval
-                    vbm_kpoint = k[0]
-                elif occu <= 1e-8 and eigenval < cbm:
+                    vbm_kpoint = k
+                elif occu <= self.occu_tol and eigenval < cbm:
                     cbm = eigenval
-                    cbm_kpoint = k[0]
+                    cbm_kpoint = k
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
     def update_potcar_spec(self, path):
@@ -840,6 +896,7 @@ class Vasprun(MSONable):
             eigen = defaultdict(dict)
             for (spin, index), values in self.eigenvalues.items():
                 eigen[index][str(spin)] = values
+                neigen = len(values)
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
             vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
@@ -849,12 +906,12 @@ class Vasprun(MSONable):
                 peigen = []
                 for i in range(len(eigen)):
                     peigen.append({})
-                    for spin in eigen[i].keys():
-                        peigen[i][spin] = []
-                        for j in range(len(eigen[i][spin])):
-                            peigen[i][spin].append({})
                 for (spin, kpoint_index, band_index, ion_index, orbital), \
                         value in self.projected_eigenvalues.items():
+                    if str(spin) not in peigen[kpoint_index]:
+                        peigen[kpoint_index][str(spin)] = []
+                        for i in range(neigen):
+                            peigen[kpoint_index][str(spin)].append({})
                     beigen = peigen[kpoint_index][str(spin)][band_index]
                     if orbital not in beigen:
                         beigen[orbital] = [0.0] * nsites
@@ -903,9 +960,11 @@ class Vasprun(MSONable):
             try:
                 return str(Element(symbol))
             # vasprun.xml uses X instead of Xe for xenon
-            except KeyError as e:
+            except ValueError as e:
                 if symbol == "X":
                     return "Xe"
+                elif symbol == "r":
+                    return "Zr"
                 raise e
 
         elem.clear()
@@ -917,7 +976,8 @@ class Vasprun(MSONable):
         if elem.find("generation"):
             e = elem.find("generation")
         k = Kpoints("Kpoints from vasprun.xml")
-        k.style = e.attrib["param"] if "param" in e.attrib else "Reciprocal"
+        k.style = Kpoints.supported_modes.from_string(
+            e.attrib["param"] if "param" in e.attrib else "Reciprocal")
         for v in e.findall("v"):
             name = v.attrib.get("name")
             toks = v.text.split()
@@ -934,10 +994,11 @@ class Vasprun(MSONable):
             elif name == "weights":
                 weights = [i[0] for i in _parse_varray(va)]
         elem.clear()
-        if k.style == "Reciprocal":
+        if k.style == Kpoints.supported_modes.Reciprocal:
             k = Kpoints(comment="Kpoints from vasprun.xml",
-                    style="Reciprocal", num_kpts=len(k.kpts),
-                    kpts=actual_kpoints, kpts_weights=weights)
+                        style=Kpoints.supported_modes.Reciprocal,
+                        num_kpts=len(k.kpts),
+                        kpts=actual_kpoints, kpts_weights=weights)
         return k, actual_kpoints, weights
 
     def _parse_structure(self, elem):
@@ -948,13 +1009,47 @@ class Vasprun(MSONable):
     def _parse_diel(self, elem):
         imag = [[float(l) for l in r.text.split()]
                 for r in elem.find("imag").find("array")
-                    .find("set").findall("r")]
+                .find("set").findall("r")]
         real = [[float(l) for l in r.text.split()]
                 for r in elem.find("real")
-                    .find("array").find("set").findall("r")]
+                .find("array").find("set").findall("r")]
         elem.clear()
         return [e[0] for e in imag], \
                [e[1:] for e in real], [e[1:] for e in imag]
+
+
+    def _parse_chemical_shift_calculation(self, elem):
+        calculation = []
+        istep = {}
+        try:
+            s = self._parse_structure(elem.find("structure"))
+        except AttributeError:  # not all calculations have a structure
+            s = None
+            pass
+        for va in elem.findall("varray"):
+            istep[va.attrib["name"]] = _parse_varray(va)
+        istep["structure"] = s
+        istep["electronic_steps"] = []
+        calculation.append(istep)
+        for scstep in elem.findall("scstep"):
+            try:
+                d = {i.attrib["name"]: _vasprun_float(i.text)
+                     for i in scstep.find("energy").findall("i")}
+                cur_ene = d['e_fr_energy']
+                min_steps = 1 if len(calculation) >= 1 else self.parameters.get("NELMIN", 5)
+                if len(calculation[-1]["electronic_steps"]) <= min_steps:
+                    calculation[-1]["electronic_steps"].append(d)
+                else:
+                    last_ene = calculation[-1]["electronic_steps"][-1]["e_fr_energy"]
+                    if abs(cur_ene - last_ene) < 1.0:
+                        calculation[-1]["electronic_steps"].append(d)
+                    else:
+                        calculation.append({"electronic_steps": [d]})
+            except AttributeError:  # not all calculations have an energy
+                pass
+        calculation[-1].update(calculation[-1]["electronic_steps"][-1])
+        return calculation
+
 
     def _parse_calculation(self, elem):
         try:
@@ -1012,20 +1107,19 @@ class Vasprun(MSONable):
                     nrow, ncol = data.shape
                     for j in range(1, ncol):
                         if lm:
-                            orb = Orbital.from_vasp_index(j - 1)
+                            orb = Orbital(j - 1)
                         else:
-                            orb = orbs[j - 1].strip().upper()
+                            orb = OrbitalType(j - 1)
                         pdos[orb][spin] = data[:, j]
                 pdoss.append(pdos)
         elem.clear()
         return Dos(efermi, energies, tdensities), \
-               Dos(efermi, energies, idensities), pdoss
+            Dos(efermi, energies, idensities), pdoss
 
     def _parse_eigen(self, elem):
         eigenvalues = {}
         for s in elem.find("array").find("set").findall("set"):
-            spin = Spin.up if s.attrib["comment"] == "spin 1" else \
-                Spin.down
+            spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
             for i, ss in enumerate(s.findall("set")):
                 eigenvalues[(spin, i)] = _parse_varray(ss)
         elem.clear()
@@ -1035,16 +1129,31 @@ class Vasprun(MSONable):
         root = elem.find("array").find("set")
         proj_eigen = {}
         for s in root.findall("set"):
-            spin = Spin.up if s.attrib["comment"] == "spin1" else \
-                Spin.down
+            spin = int(re.match("spin(\d+)", s.attrib["comment"]).group(1))
             for kpt, ss in enumerate(s.findall("set")):
                 for band, sss in enumerate(ss.findall("set")):
                     for atom, data in enumerate(_parse_varray(sss)):
                         for i, v in enumerate(data):
-                            orb = Orbital.from_vasp_index(i)
+                            orb = Orbital(i)
                             proj_eigen[(spin, kpt, band, atom, orb)] = v
         elem.clear()
         return proj_eigen
+
+    def _parse_dynmat(self, elem):
+        hessian = []
+        eigenvalues = []
+        eigenvectors = []
+        for v in elem.findall("v"):
+            if v.attrib["name"] == "eigenvalues":
+                eigenvalues = [float(i) for i in v.text.split()]
+        for va in elem.findall("varray"):
+            if va.attrib["name"] == "hessian":
+                for v in va.findall("v"):
+                    hessian.append([float(i) for i in v.text.split()])
+            elif va.attrib["name"] == "eigenvectors":
+                for v in va.findall("v"):
+                    eigenvectors.append([float(i) for i in v.text.split()])
+        return hessian, eigenvalues, eigenvectors
 
 
 class BSVasprun(Vasprun):
@@ -1055,15 +1164,16 @@ class BSVasprun(Vasprun):
     """
 
     def __init__(self, filename, parse_projected_eigen=False,
-                 parse_potcar_file=False):
+                 parse_potcar_file=False, occu_tol=1e-8):
         self.filename = filename
+        self.occu_tol = occu_tol
 
         with zopen(filename, "rt") as f:
             self.efermi = None
             parsed_header = False
             self.eigenvalues = None
             self.projected_eigenvalues = None
-            for event, elem in iterparse(f):
+            for event, elem in ET.iterparse(f):
                 tag = elem.tag
                 if not parsed_header:
                     if tag == "generator":
@@ -1072,7 +1182,8 @@ class BSVasprun(Vasprun):
                         self.incar = self._parse_params(elem)
                     elif tag == "kpoints":
                         self.kpoints, self.actual_kpoints, \
-                            self.actual_kpoints_weights = self._parse_kpoints(elem)
+                            self.actual_kpoints_weights = self._parse_kpoints(
+                                elem)
                     elif tag == "parameters":
                         self.parameters = self._parse_params(elem)
                     elif tag == "atominfo":
@@ -1087,7 +1198,8 @@ class BSVasprun(Vasprun):
                 elif tag == "eigenvalues":
                     self.eigenvalues = self._parse_eigen(elem)
                 elif parse_projected_eigen and tag == "projected":
-                    self.projected_eigenvalues = self._parse_projected_eigen(elem)
+                    self.projected_eigenvalues = self._parse_projected_eigen(
+                        elem)
                 elif tag == "structure" and elem.attrib.get("name") == \
                         "finalpos":
                     self.final_structure = self._parse_structure(elem)
@@ -1149,6 +1261,7 @@ class BSVasprun(Vasprun):
             eigen = defaultdict(dict)
             for (spin, index), values in self.eigenvalues.items():
                 eigen[index][str(spin)] = values
+                neigen = len(values)
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
             vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
@@ -1158,17 +1271,18 @@ class BSVasprun(Vasprun):
                 peigen = []
                 for i in range(len(eigen)):
                     peigen.append({})
-                    for spin in eigen[i].keys():
-                        peigen[i][spin] = []
-                        for j in range(len(eigen[i][spin])):
-                            peigen[i][spin].append({})
                 for (spin, kpoint_index, band_index, ion_index, orbital), \
                         value in self.projected_eigenvalues.items():
+                    if str(spin) not in peigen[kpoint_index]:
+                        peigen[kpoint_index][str(spin)] = []
+                        for i in range(neigen):
+                            peigen[kpoint_index][str(spin)].append({})
                     beigen = peigen[kpoint_index][str(spin)][band_index]
                     if orbital not in beigen:
                         beigen[orbital] = [0.0] * nsites
                     beigen[orbital][ion_index] = value
                 vout['projected_eigenvalues'] = peigen
+
         d['output'] = vout
         return jsanitize(d, strict=True)
 
@@ -1193,6 +1307,18 @@ class Outcar(MSONable):
         ({"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005}, ... )
         Note that this data is not always present.  LORBIT must be set to some
         other value than the default.
+
+    .. attribute:: chemical_shifts
+
+        Chemical Shift on each ion as a tuple of ChemicalShiftNotation, e.g.,
+        (cs1, cs2, ...)
+
+    .. attribute:: efg
+
+        Electric Field Gradient (EFG) tensor on each ion as a tuple of dict, e.g.,
+        ({"cq": 0.1, "eta", 0.2, "nuclear_quadrupole_moment": 0.3},
+         {"cq": 0.7, "eta", 0.8, "nuclear_quadrupole_moment": 0.9},
+         ...)
 
     .. attribute:: charge
 
@@ -1223,6 +1349,7 @@ class Outcar(MSONable):
 
     Authors: Rickard Armiento, Shyue Ping Ong
     """
+
     def __init__(self, filename):
         self.filename = filename
         self.is_stopped = False
@@ -1235,13 +1362,14 @@ class Outcar(MSONable):
         total_mag = None
         nelect = None
         efermi = None
-        elastic_tensor = None
+        total_energy = None
 
         time_patt = re.compile("\((sec|kb)\)")
         efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
-        nelect_patt = re.compile("number of electron\s+(\S+)\s+"
-                                 "magnetization\s+(\S+)")
+        nelect_patt = re.compile("number of electron\s+(\S+)\s+magnetization")
+        mag_patt = re.compile("number of electron\s+\S+\s+magnetization\s+(\S+)")
         etensor_patt = re.compile("[X-Z][X-Z]+\s+-?\d+")
+        toten_pattern = re.compile("free  energy   TOTEN\s+=\s+([\d\-\.]+)")
 
         all_lines = []
         for line in reverse_readfile(self.filename):
@@ -1257,9 +1385,9 @@ class Outcar(MSONable):
                 m = efermi_patt.search(clean)
                 if m:
                     try:
-                        #try-catch because VASP sometimes prints
+                        # try-catch because VASP sometimes prints
                         #'E-fermi: ********     XC(G=0):  -6.1327
-                        #alpha+bet : -1.8238'
+                        # alpha+bet : -1.8238'
                         efermi = float(m.group(1))
                         continue
                     except ValueError:
@@ -1268,7 +1396,13 @@ class Outcar(MSONable):
                 m = nelect_patt.search(clean)
                 if m:
                     nelect = float(m.group(1))
-                    total_mag = float(m.group(2))
+                m = mag_patt.search(clean)
+                if m:
+                    total_mag = float(m.group(1))
+                if total_energy is None:
+                    m = toten_pattern.search(clean)
+                    if m:
+                        total_energy = float(m.group(1))
             if all([nelect, total_mag is not None, efermi is not None,
                     run_stats]):
                 break
@@ -1286,7 +1420,8 @@ class Outcar(MSONable):
                 else:
                     m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
                     if m:
-                        toks = [float(i) for i in re.findall("[\d\.\-]+", clean)]
+                        toks = [float(i)
+                                for i in re.findall("[\d\.\-]+", clean)]
                         toks.pop(0)
                         if read_charge:
                             charge.append(dict(zip(header, toks)))
@@ -1312,29 +1447,22 @@ class Outcar(MSONable):
                     run_stats['cores'] = line.split()[2]
                     break
 
-        # 6x6 tensor matrix for TOTAL ELASTIC MODULI
-        tensor_matrix = []
-        tag = "TOTAL ELASTIC MODULI (kBar)"
-        if tag in all_lines:
-            for clean in all_lines:
-                if etensor_patt.search(clean):
-                    tok = clean.strip().split()
-                    tok.pop(0)
-                    tok = [float(i) for i in tok]
-                    tensor_matrix.append(tok)
-            total_elm = [tensor_matrix[i] for i in range(18, 24)]
-            elastic_tensor = np.asarray(total_elm).reshape(6, 6)
-        else:
-            pass
-
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
         self.charge = tuple(charge)
         self.efermi = efermi
         self.nelect = nelect
         self.total_mag = total_mag
-        self.elastic_tensor = elastic_tensor
+        self.final_energy = total_energy
         self.data = {}
+
+        # Check to see if LEPSILON is true and read piezo data if so
+        self.lepsilon = False
+        self.read_pattern({'epsilon': 'LEPSILON=     T'})
+        if self.data.get('epsilon',[]):
+            self.lepsilon = True
+            self.read_lepsilon()
+            self.read_lepsilon_ionic()
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
@@ -1366,6 +1494,158 @@ class Outcar(MSONable):
         for k in patterns.keys():
             self.data[k] = [i[0] for i in matches.get(k, [])]
 
+    def read_table_pattern(self, header_pattern, row_pattern, footer_pattern,
+                           postprocess=str, attribute_name=None, last_one_only=True):
+        """
+        Parse table-like data. A table composes of three parts: header, main body, footer.
+        All the data matches "row pattern" in the main body will be returned.
+
+        Args:
+            header_pattern (str): The regular expression pattern matches the table header.
+                This pattern should match all the text immediately before the main body of
+                the table. For multiple sections table match the text until the section of
+                interest. MULTILINE and DOTALL options are enforced, as a result, the "."
+                meta-character will also match "\n" in this section.
+            row_pattern (str): The regular expression matches a single line in the table.
+                Capture interested field using regular expression groups
+            footer_pattern (str): The regular expression matches the end of the table.
+                E.g. a long dash line.
+            postprocess (callable): A post processing function to convert all
+                matches. Defaults to str, i.e., no change.
+            attribute_name (str): Name of this table. If presense the parsed data will be
+                attached to "data. e.g. self.data["efg"] = [...]
+            last_one_only (bool): All the tables will be parsed, if this option is set to
+                True, only the last table will be returned. The enclosing list will be removed.
+                i.e. Only a single table wil be returned. Default to be True.
+
+        Returns:
+            List of tables. 1) A table is a list of rows. 2) A row if either a list of
+            attribute values in case the the capturing group is defined without name in
+            row_pattern, or a dict in case that named capturing groups are defined by
+            row_pattern.
+        """
+        with zopen(self.filename, 'rt') as f:
+            text = f.read()
+        table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + \
+                             row_pattern + r")+)\s+" + footer_pattern
+        table_pattern = re.compile(table_pattern_text, re.MULTILINE | re.DOTALL)
+        rp = re.compile(row_pattern)
+        tables = []
+        for mt in table_pattern.finditer(text):
+            table_body_text = mt.group("table_body")
+            table_contents = []
+            for line in table_body_text.split("\n"):
+                ml = rp.search(line)
+                d = ml.groupdict()
+                if len(d) > 0:
+                    processed_line = {k: postprocess(v) for k, v in d.items()}
+                else:
+                    processed_line = [postprocess(v) for v in ml.groups()]
+                table_contents.append(processed_line)
+            tables.append(table_contents)
+        if last_one_only:
+            retained_data = tables[-1]
+        else:
+            retained_data = tables
+        if attribute_name is not None:
+            self.data[attribute_name] = retained_data
+        return retained_data
+
+
+    def read_chemical_shifts(self):
+        """
+        Parse the NMR chemical shifts data. Only the second part "absolute, valence and core"
+        will be parsed. And only the three right most field (ISO_SHIFT, SPAN, SKEW) will be retrieved.
+
+        Returns:
+            List of chemical shifts in the order of atoms from the OUTCAR. Maryland notation is adopted.
+        """
+        header_pattern = r"\s+CSA tensor \(J\. Mason, Solid State Nucl\. Magn\. Reson\. 2, " \
+                         r"285 \(1993\)\)\s+" \
+                         r"\s+-{50,}\s+" \
+                         r"\s+EXCLUDING G=0 CONTRIBUTION\s+INCLUDING G=0 CONTRIBUTION\s+" \
+                         r"\s+-{20,}\s+-{20,}\s+" \
+                         r"\s+ATOM\s+ISO_SHIFT\s+SPAN\s+SKEW\s+ISO_SHIFT\s+SPAN\s+SKEW\s+" \
+                         "-{50,}\s*$"
+        first_part_pattern = r"\s+\(absolute, valence only\)\s+$"
+        swallon_valence_body_pattern = r".+?\(absolute, valence and core\)\s+$"
+        row_pattern = r"\d+(?:\s+[-]?\d+\.\d+){3}\s+" + r'\s+'.join([r"([-]?\d+\.\d+)"] * 3)
+        footer_pattern = "-{50,}\s*$"
+        h1 = header_pattern + first_part_pattern
+        cs_valence_only = self.read_table_pattern(h1, row_pattern, footer_pattern,
+                                                  postprocess=float, last_one_only=True)
+        h2 = header_pattern + swallon_valence_body_pattern
+        cs_valence_and_core = self.read_table_pattern(h2, row_pattern, footer_pattern,
+                                                      postprocess=float, last_one_only=True)
+        all_cs = {}
+        for name, cs_table in [["valence_only", cs_valence_only],
+                               ["valence_and_core", cs_valence_and_core]]:
+            cs = []
+            for sigma_iso, omega, kappa in cs_table:
+                tensor = NMRChemicalShiftNotation.from_maryland_notation(sigma_iso, omega, kappa)
+                cs.append(tensor)
+            all_cs[name] = tuple(cs)
+        self.data["chemical_shifts"] = all_cs
+
+    def read_nmr_efg(self):
+        """
+        Parse the NMR Electric Field Gradient tensors.
+
+        Returns:
+            Electric Field Gradient tensors as a list of dict in the order of atoms from OUTCAR.
+            Each dict key/value pair corresponds to a component of the tensors.
+        """
+        header_pattern = r"^\s+NMR quadrupolar parameters\s+$\n" \
+                         r"^\s+Cq : quadrupolar parameter\s+Cq=e[*]Q[*]V_zz/h$\n" \
+                         r"^\s+eta: asymmetry parameters\s+\(V_yy - V_xx\)/ V_zz$\n" \
+                         r"^\s+Q  : nuclear electric quadrupole moment in mb \(millibarn\)$\n" \
+                         r"^-{50,}$\n" \
+                         r"^\s+ion\s+Cq\(MHz\)\s+eta\s+Q \(mb\)\s+$\n" \
+                         r"^-{50,}\s*$\n"
+        row_pattern = r"\d+\s+(?P<cq>[-]?\d+\.\d+)\s+(?P<eta>[-]?\d+\.\d+)\s+" \
+                      r"(?P<nuclear_quadrupole_moment>[-]?\d+\.\d+)"
+        footer_pattern = "-{50,}\s*$"
+        self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float,
+                                last_one_only=True, attribute_name="efg")
+
+    def read_elastic_tensor(self):
+        """
+        Parse the elastic tensor data.
+
+        Returns:
+            6x6 array corresponding to the elastic tensor from the OUTCAR.
+        """
+        header_pattern = "TOTAL ELASTIC MODULI \(kBar\)\s+"\
+                         "Direction\s+([X-Z][X-Z]\s+)+"\
+                         "\-+"
+        row_pattern = "[X-Z][X-Z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
+        footer_pattern = "\-+"
+        et_table = self.read_table_pattern(header_pattern, row_pattern, 
+                                           footer_pattern, postprocess=float)
+        self.data["elastic_tensor"] = et_table
+
+    def read_piezo_tensor(self):
+        """
+        Parse the piezo tensor data
+        """
+        header_pattern = "PIEZOELECTRIC TENSOR  for field in x, y, z\s+\(C/m\^2\)\s+" \
+                         "([X-Z][X-Z]\s+)+" \
+                         "\-+"
+        row_pattern = "[x-z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
+        footer_pattern = "BORN EFFECTIVE"
+        pt_table = self.read_table_pattern(header_pattern, row_pattern,
+                                           footer_pattern, postprocess=float)
+        self.data["piezo_tensor"] = pt_table
+
+    def read_corrections(self, reverse=True, terminate_on_match=True):
+        patterns = {
+            "dipol_quadrupol_correction": "dipol\+quadrupol energy correction\s+([\d\-\.]+)"
+        }
+        self.read_pattern(patterns, reverse=reverse,
+                          terminate_on_match=terminate_on_match,
+                          postprocess=float)
+        self.data["dipol_quadrupol_correction"] = self.data["dipol_quadrupol_correction"][0][0]
+
     def read_neb(self, reverse=True, terminate_on_match=True):
         """
         Reads NEB data. This only works with OUTCARs from both normal
@@ -1388,16 +1668,17 @@ class Outcar(MSONable):
         """
         patterns = {
             "energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)",
-            "tangent_force": "(NEB: projections on to tangent \(" \
-                "spring, REAL\)\s+\S+|tangential force \(eV/A\))\s+(["
-                                   "\d\-\.]+)"
+            "tangent_force": "(NEB: projections on to tangent \("
+            "spring, REAL\)\s+\S+|tangential force \(eV/A\))\s+(["
+            "\d\-\.]+)"
         }
         self.read_pattern(patterns, reverse=reverse,
                           terminate_on_match=terminate_on_match,
                           postprocess=str)
         self.data["energy"] = float(self.data["energy"][0][0])
         if self.data.get("tangent_force"):
-            self.data["tangent_force"] = float(self.data["tangent_force"][0][1])
+            self.data["tangent_force"] = float(
+                self.data["tangent_force"][0][1])
 
     def read_igpar(self):
         """
@@ -1532,8 +1813,8 @@ class Outcar(MSONable):
 
             search.append(
                 ["-------------------------------------",
-                lambda results, line: results.dielectric_index == -1,
-                dielectric_section_start2])
+                 lambda results, line: results.dielectric_index == -1,
+                 dielectric_section_start2])
 
             def dielectric_data(results, match):
                 results.dielectric_tensor[results.dielectric_index, :] = \
@@ -1542,20 +1823,20 @@ class Outcar(MSONable):
 
             search.append(
                 ["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
-                lambda results, line: results.dielectric_index >= 0
-                                      if results.dielectric_index is not None
-                                      else None,
-                dielectric_data])
+                 lambda results, line: results.dielectric_index >= 0
+                 if results.dielectric_index is not None
+                 else None,
+                 dielectric_data])
 
             def dielectric_section_stop(results, match):
                 results.dielectric_index = None
 
             search.append(
                 ["-------------------------------------",
-                lambda results, line: results.dielectric_index >= 1
-                                      if results.dielectric_index is not None
-                                      else None,
-                dielectric_section_stop])
+                 lambda results, line: results.dielectric_index >= 1
+                 if results.dielectric_index is not None
+                 else None,
+                 dielectric_section_stop])
 
             self.dielectric_index = None
             self.dielectric_tensor = np.zeros((3, 3))
@@ -1577,8 +1858,8 @@ class Outcar(MSONable):
                  " +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
                  " +([-0-9.Ee+]+)*$",
                  lambda results, line: results.piezo_index >= 0
-                                       if results.piezo_index is not None
-                                       else None,
+                 if results.piezo_index is not None
+                 else None,
                  piezo_data])
 
             def piezo_section_stop(results, match):
@@ -1586,10 +1867,10 @@ class Outcar(MSONable):
 
             search.append(
                 ["-------------------------------------",
-                lambda results, line: results.piezo_index >= 1
-                                      if results.piezo_index is not None
-                                      else None,
-                piezo_section_stop])
+                 lambda results, line: results.piezo_index >= 1
+                 if results.piezo_index is not None
+                 else None,
+                 piezo_section_stop])
 
             self.piezo_index = None
             self.piezo_tensor = np.zeros((3, 6))
@@ -1603,7 +1884,7 @@ class Outcar(MSONable):
 
             def born_ion(results, match):
                 results.born_ion = int(match.group(1)) - 1
-                results.born[results.born_ion] = np.zeros((3, 3))
+                results.born.append(np.zeros((3, 3)))
 
             search.append(["ion +([0-9]+)", lambda results,
                            line: results.born_ion is not None, born_ion])
@@ -1614,25 +1895,27 @@ class Outcar(MSONable):
 
             search.append(
                 ["^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)$",
-                lambda results, line: results.born_ion >= 0
-                                      if results.born_ion is not None
-                                      else results.born_ion,
-                born_data])
+                 lambda results, line: results.born_ion >= 0
+                 if results.born_ion is not None
+                 else results.born_ion,
+                 born_data])
 
             def born_section_stop(results, match):
                 results.born_index = None
 
             search.append(
                 ["-------------------------------------",
-                lambda results, line: results.born_ion >= 1
-                                      if results.born_ion is not None
-                                      else results.born_ion,
-                born_section_stop])
+                 lambda results, line: results.born_ion >= 1
+                 if results.born_ion is not None
+                 else results.born_ion,
+                 born_section_stop])
 
             self.born_ion = None
-            self.born = {}
+            self.born = []
 
             micro_pyawk(self.filename, search, self)
+
+            self.born = np.array(self.born)
 
             self.dielectric_tensor = self.dielectric_tensor.tolist()
             self.piezo_tensor = self.piezo_tensor.tolist()
@@ -1656,10 +1939,10 @@ class Outcar(MSONable):
 
             search.append(
                 ["-------------------------------------",
-                lambda results, line: results.dielectric_ionic_index == -1
-                                      if results.dielectric_ionic_index is not None
-                                      else results.dielectric_ionic_index,
-                dielectric_section_start2])
+                 lambda results, line: results.dielectric_ionic_index == -1
+                 if results.dielectric_ionic_index is not None
+                 else results.dielectric_ionic_index,
+                 dielectric_section_start2])
 
             def dielectric_data(results, match):
                 results.dielectric_ionic_tensor[results.dielectric_ionic_index, :] = \
@@ -1668,20 +1951,20 @@ class Outcar(MSONable):
 
             search.append(
                 ["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
-                lambda results, line: results.dielectric_ionic_index >= 0
-                                      if results.dielectric_ionic_index is not None
-                                      else results.dielectric_ionic_index,
-                dielectric_data])
+                 lambda results, line: results.dielectric_ionic_index >= 0
+                 if results.dielectric_ionic_index is not None
+                 else results.dielectric_ionic_index,
+                 dielectric_data])
 
             def dielectric_section_stop(results, match):
                 results.dielectric_ionic_index = None
 
             search.append(
                 ["-------------------------------------",
-                lambda results, line: results.dielectric_ionic_index >= 1
-                                      if results.dielectric_ionic_index is not None
-                                      else results.dielectric_ionic_index,
-                dielectric_section_stop])
+                 lambda results, line: results.dielectric_ionic_index >= 1
+                 if results.dielectric_ionic_index is not None
+                 else results.dielectric_ionic_index,
+                 dielectric_section_stop])
 
             self.dielectric_ionic_index = None
             self.dielectric_ionic_tensor = np.zeros((3, 3))
@@ -1702,8 +1985,8 @@ class Outcar(MSONable):
                  " +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
                  " +([-0-9.Ee+]+)*$",
                  lambda results, line: results.piezo_ionic_index >= 0
-                                       if results.piezo_ionic_index is not None
-                                       else results.piezo_ionic_index,
+                 if results.piezo_ionic_index is not None
+                 else results.piezo_ionic_index,
                  piezo_data])
 
             def piezo_section_stop(results, match):
@@ -1712,8 +1995,8 @@ class Outcar(MSONable):
             search.append(
                 ["-------------------------------------",
                  lambda results, line: results.piezo_ionic_index >= 1
-                                       if results.piezo_ionic_index is not None
-                                       else results.piezo_ionic_index,
+                 if results.piezo_ionic_index is not None
+                 else results.piezo_ionic_index,
                  piezo_section_stop])
 
             self.piezo_ionic_index = None
@@ -1725,7 +2008,8 @@ class Outcar(MSONable):
             self.piezo_ionic_tensor = self.piezo_ionic_tensor.tolist()
 
         except:
-            raise Exception("ionic part of LEPSILON OUTCAR could not be parsed.")
+            raise Exception(
+                "ionic part of LEPSILON OUTCAR could not be parsed.")
 
     def read_lcalcpol(self):
         # variables to be filled
@@ -1777,15 +2061,27 @@ class Outcar(MSONable):
             line = foutcar.readline()
             while line != "":
                 line = foutcar.readline()
-                if "NIONS =" in line:
+                if "NIONS =" in line:   
                     natom = int(line.split("NIONS =")[1])
                     cl = [defaultdict(list) for i in range(natom)]
                 if "the core state eigen" in line:
-                    for iat in range(natom):
+                    iat = -1
+                    while line != "":
                         line = foutcar.readline()
-                        data = line.split()[1:]
+                        # don't know number of lines to parse without knowing
+                        # specific species, so stop parsing when we reach
+                        # "E-fermi" instead
+                        if "E-fermi" in line:
+                            break
+                        data = line.split()
+                        # data will contain odd number of elements if it is
+                        # the start of a new entry, or even number of elements
+                        # if it continues the previous entry
+                        if len(data) % 2 == 1:
+                            iat += 1 # started parsing a new ion
+                            data = data[1:] # remove element with ion number
                         for i in range(0, len(data), 2):
-                            cl[iat][data[i]].append(float(data[i+1]))
+                            cl[iat][data[i]].append(float(data[i + 1]))
         return cl
 
     def as_dict(self):
@@ -1794,6 +2090,14 @@ class Outcar(MSONable):
              "run_stats": self.run_stats, "magnetization": self.magnetization,
              "charge": self.charge, "total_magnetization": self.total_mag,
              "nelect": self.nelect, "is_stopped": self.is_stopped}
+
+        if self.lepsilon:
+            d.update({'piezo_tensor': self.piezo_tensor,
+                      'piezo_ionic_tensor': self.piezo_ionic_tensor,
+                      'dielectric_tensor': self.dielectric_tensor,
+                      'dielectric_ionic_tensor': self.dielectric_ionic_tensor,
+                      'born_ion': self.born_ion,
+                      'born': self.born})
         return d
 
 
@@ -1824,6 +2128,7 @@ class VolumetricData(object):
 
         Total number of grid points in volumetric data.
     """
+
     def __init__(self, structure, data, distance_matrix=None):
         """
         Typically, this constructor is not used directly and the static
@@ -1842,7 +2147,7 @@ class VolumetricData(object):
         self.dim = data["total"].shape
         self.data = data
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
-        #lazy init the spin data since this is not always needed.
+        # lazy init the spin data since this is not always needed.
         self._spin_data = {}
         self._distance_matrix = {} if not distance_matrix else distance_matrix
 
@@ -1898,7 +2203,7 @@ class VolumetricData(object):
             raise ValueError("Adding or subtraction operations can only be "
                              "performed for volumetric data with the exact "
                              "same structure.")
-        #To add checks
+        # To add checks
         data = {}
         for k in self.data.keys():
             data[k] = self.data[k] + scale_factor * other.data[k]
@@ -1933,9 +2238,9 @@ class VolumetricData(object):
                     toks = line.split()
                     for tok in toks:
                         if data_count < ngrid_pts:
-                            #This complicated procedure is necessary because
-                            #vasp outputs x as the fastest index, followed by y
-                            #then z.
+                            # This complicated procedure is necessary because
+                            # vasp outputs x as the fastest index, followed by y
+                            # then z.
                             x = data_count % dim[0]
                             y = int(math.floor(data_count / dim[0])) % dim[1]
                             z = int(math.floor(data_count / dim[0] / dim[1]))
@@ -1981,9 +2286,9 @@ class VolumetricData(object):
             lines = p.comment + "\n"
             lines += "   1.00000000000000\n"
             latt = self.structure.lattice.matrix
-            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[0,:])
-            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[1,:])
-            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[2,:])
+            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[0, :])
+            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[1, :])
+            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[2, :])
             if not vasp4_compatible:
                 lines += "".join(["%5s" % s for s in p.site_symbols]) + "\n"
             lines += "".join(["%6d" % x for x in p.natoms]) + "\n"
@@ -2033,7 +2338,7 @@ class VolumetricData(object):
             ...]. Format is for ease of plotting. E.g., plt.plot(data[:,0],
             data[:,1])
         """
-        #For non-spin-polarized runs, this is zero by definition.
+        # For non-spin-polarized runs, this is zero by definition.
         if not self.is_spin_polarized:
             radii = [radius / nbins * (i + 1) for i in range(nbins)]
             data = np.zeros((nbins, 2))
@@ -2054,7 +2359,7 @@ class VolumetricData(object):
 
         data = self._distance_matrix[ind]["data"]
 
-        #Use boolean indexing to find all charges within the desired distance.
+        # Use boolean indexing to find all charges within the desired distance.
         inds = data[:, 1] <= radius
         dists = data[inds, 1]
         data_inds = np.rint(np.mod(list(data[inds, 0]), 1) *
@@ -2142,86 +2447,116 @@ class Procar(object):
 
     .. attribute:: data
 
-        A nested dict containing the PROCAR data of the form below. It should
-        be noted that VASP uses 1-based indexing for atoms, but this is
-        converted to zero-based indexing in this parser to be consistent with
-        representation of structures in pymatgen::
+        The PROCAR data of the form below. It should VASP uses 1-based indexing,
+        but all indices are converted to 0-based here.::
 
             {
-                atom_index: {
-                    kpoint_index: {
-                        "bands": {
-                            band_index: {
-                                "p": 0.002,
-                                "s": 0.025,
-                                "d": 0.0
-                            },
-                            ...
-                        },
-                        "weight": 0.03125
-                    },
-                    ...
+                spin: nd.array accessed with (k-point index, band index, ion index, orbital index)
             }
+
+    .. attribute:: weights
+
+        The weights associated with each k-point as an nd.array of lenght
+        nkpoints.
+
+    ..attribute:: phase_factors
+
+        Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
+        {
+            spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index)
+        }
+
+    ..attribute:: nbands
+
+        Number of bands
+
+    ..attribute:: nkpoints
+
+        Number of k-points
+
+    ..attribute:: nions
+
+        Number of ions
     """
+
     def __init__(self, filename):
-        data = defaultdict(dict)
         headers = None
+
         with zopen(filename, "rt") as f:
-            lines = list(clean_lines(f.readlines()))
-            self.name = lines[0]
-            kpointexpr = re.compile("^\s*k-point\s+(\d+).*weight = ([0-9\.]+)")
-            bandexpr = re.compile("^\s*band\s+(\d+)")
+            preambleexpr = re.compile(
+                "# of k-points:\s+(\d+)\s+# of bands:\s+(\d+)\s+# of ions:\s+(\d+)")
+            kpointexpr = re.compile("^k-point\s+(\d+).*weight = ([0-9\.]+)")
+            bandexpr = re.compile("^band\s+(\d+)")
             ionexpr = re.compile("^ion.*")
-            expr = re.compile("^\s*([0-9]+)\s+")
-            dataexpr = re.compile("[\.0-9]+")
-            weight = 0
+            expr = re.compile("^([0-9]+)\s+")
             current_kpoint = 0
             current_band = 0
-            for l in lines:
+            done = False
+            spin = Spin.down
+
+            for l in f:
+                l = l.strip()
                 if bandexpr.match(l):
                     m = bandexpr.match(l)
-                    current_band = int(m.group(1))
+                    current_band = int(m.group(1)) - 1
+                    done = False
                 elif kpointexpr.match(l):
                     m = kpointexpr.match(l)
-                    current_kpoint = int(m.group(1))
-                    weight = float(m.group(2))
+                    current_kpoint = int(m.group(1)) - 1
+                    weights[current_kpoint] = float(m.group(2))
+                    if current_kpoint == 0:
+                        spin = Spin.up if spin == Spin.down else Spin.down
+                    done = False
                 elif headers is None and ionexpr.match(l):
                     headers = l.split()
                     headers.pop(0)
                     headers.pop(-1)
+
+                    def f():
+                        return np.zeros((nkpoints, nbands, nions, len(headers)))
+
+                    data = defaultdict(f)
+
+                    def f2():
+                        return np.full((nkpoints, nbands, nions, len(headers)),
+                                       np.NaN, dtype=np.complex128)
+                    phase_factors = defaultdict(f2)
                 elif expr.match(l):
-                    linedata = dataexpr.findall(l)
-                    num_data = [float(i) for i in linedata]
-                    #Convert to zero-based indexing for atoms.
-                    index = int(num_data.pop(0)) - 1
-                    num_data.pop(-1)
-                    if current_kpoint not in data[index]:
-                        data[index][current_kpoint] = {"weight": weight,
-                                                       "bands": {}}
-                    data[index][current_kpoint]["bands"][current_band] = \
-                        dict(zip(headers, num_data))
+                    toks = l.split()
+                    index = int(toks.pop(0)) - 1
+                    num_data = np.array([float(t)
+                                         for t in toks[:len(headers)]])
+                    if not done:
+                        data[spin][current_kpoint, current_band,
+                                   index, :] = num_data
+                    else:
+                        if np.isnan(phase_factors[spin][
+                                current_kpoint, current_band, index, 0]):
+                            phase_factors[spin][current_kpoint, current_band,
+                                                index, :] = num_data
+                        else:
+                            phase_factors[spin][current_kpoint, current_band,
+                                                index, :] += 1j * num_data
+                elif l.startswith("tot"):
+                    done = True
+                elif preambleexpr.match(l):
+                    m = preambleexpr.match(l)
+                    nkpoints = int(m.group(1))
+                    nbands = int(m.group(2))
+                    nions = int(m.group(3))
+                    weights = np.zeros(nkpoints)
+
+            self.nkpoints = nkpoints
+            self.nbands = nbands
+            self.nions = nions
+            self.weights = weights
+            self.orbitals = headers
             self.data = data
-            self._nb_kpoints = len(data[0].keys())
-            self._nb_bands = len(data[0][1]["bands"].keys())
-
-    @property
-    def nb_bands(self):
-        """
-        returns the number of bands in the band structure
-        """
-        return self._nb_bands
-
-    @property
-    def nb_kpoints(self):
-        """
-        Returns the number of k-points in the band structure calculation
-        """
-        return self._nb_kpoints
+            self.phase_factors = phase_factors
 
     def get_projection_on_elements(self, structure):
         """
         Method returning a dictionary of projections on elements.
-        Spin polarized calculation are not supported.
 
         Args:
             structure (Structure): Input structure.
@@ -2229,17 +2564,18 @@ class Procar(object):
         Returns:
             a dictionary in the {Spin.up:[k index][b index][{Element:values}]]
         """
-        dico = {Spin.up: []}
-        dico[Spin.up] = [[defaultdict(float)
-                          for i in range(self._nb_kpoints)]
-                         for j in range(self.nb_bands)]
+        dico = {}
+        for spin in self.data.keys():
+            dico[spin] = [[defaultdict(float)
+                           for i in range(self.nkpoints)]
+                          for j in range(self.nbands)]
 
-        for iat in self.data:
+        for iat in range(self.nions):
             name = structure.species[iat].symbol
-            for k in self.data[iat]:
-                for b in self.data[iat][k]["bands"]:
-                    dico[Spin.up][b-1][k-1][name] = \
-                        sum(self.data[iat][k]["bands"][b].values())
+            for spin, d in self.data.items():
+                for k, b in itertools.product(range(self.nkpoints),
+                                              range(self.nbands)):
+                    dico[spin][b][k][name] = np.sum(d[k, b, iat, :])
 
         return dico
 
@@ -2261,18 +2597,10 @@ class Procar(object):
         Returns:
             Sum occupation of orbital of atom.
         """
-        total = 0
-        found = False
-        for kpoint, d in self.data[atom_index].items():
-            wt = d["weight"]
-            for band, dd in d["bands"].items():
-                for orb, v in dd.items():
-                    if orb.startswith(orbital):
-                        found = True
-                        total += v * wt
-        if not found:
-            raise ValueError("Invalid orbital {}".format(orbital))
-        return total
+
+        orbital_index = self.orbitals.index(orbital)
+        return {spin: np.sum(d[:, :, atom_index, orbital_index] * self.weights[:, None])
+                for spin, d in self.data.items()}
 
 
 class Oszicar(object):
@@ -2424,15 +2752,15 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
     Returns:
         A BandStructure Object
     """
-    #ToDo: Add better error handling!!!
+    # TODO: Add better error handling!!!
     if os.path.exists(os.path.join(dir_name, "branch_0")):
-        #get all branch dir names
+        # get all branch dir names
         branch_dir_names = [os.path.abspath(d)
                             for d in glob.glob("{i}/branch_*"
                                                .format(i=dir_name))
                             if os.path.isdir(d)]
 
-        #sort by the directory name (e.g, branch_10)
+        # sort by the directory name (e.g, branch_10)
         sort_by = lambda x: int(x.split("_")[-1])
         sorted_branch_dir_names = sorted(branch_dir_names, key=sort_by)
 
@@ -2451,7 +2779,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
         return get_reconstructed_band_structure(branches, efermi)
     else:
         xml_file = os.path.join(dir_name, "vasprun.xml")
-        #Better handling of Errors
+        # Better handling of Errors
         if os.path.exists(xml_file):
             return Vasprun(xml_file, parse_projected_eigen=projections)\
                 .get_band_structure(kpoints_filename=None, efermi=efermi)
@@ -2508,6 +2836,7 @@ class Xdatcar(object):
             structures.append(p.structure)
         self.structures = structures
 
+
 class Dynmat(object):
     """
     Object for reading a DYNMAT file.
@@ -2525,19 +2854,23 @@ class Dynmat(object):
 
     Authors: Patrick Huck
     """
+
     def __init__(self, filename):
         with zopen(filename, "rt") as f:
             lines = list(clean_lines(f.readlines()))
-            self._nspecs, self._natoms, self._ndisps = map(int, lines[0].split())
+            self._nspecs, self._natoms, self._ndisps = map(int, lines[
+                                                           0].split())
             self._masses = map(float, lines[1].split())
             self.data = defaultdict(dict)
             atom, disp = None, None
-            for i,l in enumerate(lines[2:]):
+            for i, l in enumerate(lines[2:]):
                 v = list(map(float, l.split()))
-                if not i % (self._natoms+1):
+                if not i % (self._natoms + 1):
                     atom, disp = map(int, v[:2])
-                    if atom not in self.data: self.data[atom] = {}
-                    if disp not in self.data[atom]: self.data[atom][disp] = {}
+                    if atom not in self.data:
+                        self.data[atom] = {}
+                    if disp not in self.data[atom]:
+                        self.data[atom][disp] = {}
                     self.data[atom][disp]['dispvec'] = v[2:]
                 else:
                     if 'dynmat' not in self.data[atom][disp]:
@@ -2549,10 +2882,11 @@ class Dynmat(object):
         # TODO: the following is most likely not correct or suboptimal
         # hence for demonstration purposes only
         frequencies = []
-        for k,v0 in self.data.iteritems():
+        for k, v0 in self.data.iteritems():
             for v1 in v0.itervalues():
-                vec = map(abs, v1['dynmat'][k-1])
-                frequency = math.sqrt(sum(vec)) * 2.*math.pi*15.633302 # THz
+                vec = map(abs, v1['dynmat'][k - 1])
+                frequency = math.sqrt(sum(vec)) * 2. * \
+                    math.pi * 15.633302  # THz
                 frequencies.append(frequency)
         return frequencies
 
@@ -2576,6 +2910,7 @@ class Dynmat(object):
         """returns the list of atomic masses"""
         return list(self._masses)
 
+
 def get_adjusted_fermi_level(efermi, cbm, band_structure):
     """
     When running a band structure computations the fermi level needs to be
@@ -2597,7 +2932,7 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
     Returns:
         a new adjusted fermi level
     """
-    #make a working copy of band_structure
+    # make a working copy of band_structure
     bs_working = BandStructureSymmLine.from_dict(band_structure.as_dict())
     if bs_working.is_metal():
         e = efermi
@@ -2608,14 +2943,14 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
                 return e
     return efermi
 
+
 class Wavederf(object):
     """
     Object for reading a WAVEDERF file.
 
-    Note: This file is only produced when LOPTICS is true AND vasp has been recompiled
-    after uncommenting the line that calls WRT_CDER_BETWEEN_STATES_FORMATTED in
-    linear_optics.F
-
+    Note: This file is only produced when LOPTICS is true AND vasp has been
+    recompiled after uncommenting the line that calls
+    WRT_CDER_BETWEEN_STATES_FORMATTED in linear_optics.F
 
     Args:
         filename: Name of file containing WAVEDERF.
@@ -2626,7 +2961,8 @@ class Wavederf(object):
         be noted that VASP uses 1-based indexing for bands, but this is
         converted to 0-based numpy array indexing.
 
-        For each kpoint (in the same order as in IBZKPT), and for each pair of bands:
+        For each kpoint (in the same order as in IBZKPT), and for each pair of
+        bands:
 
             [ #kpoint index
              [ #band 1 index
@@ -2636,26 +2972,32 @@ class Wavederf(object):
              ]
             ]
 
-        This structure follows the file format. Numpy array methods can be used to fetch data
-        in a more useful way (e.g., get matrix elements between wo specific bands at each kpoint,
-        fetch x/y/z components, real/imaginary parts, abs/phase, etc. )
+        This structure follows the file format. Numpy array methods can be used
+        to fetch data in a more useful way (e.g., get matrix elements between
+        wo specific bands at each kpoint, fetch x/y/z components,
+        real/imaginary parts, abs/phase, etc. )
 
     Author: Miguel Dias Costa
     """
+
     def __init__(self, filename):
         with zopen(filename, "rt") as f:
             header = f.readline().split()
             ispin = int(header[0])
             nb_kpoints = int(header[1])
             nb_bands = int(header[2])
-            data = np.zeros((nb_kpoints,nb_bands,nb_bands,6))
+            data = np.zeros((nb_kpoints, nb_bands, nb_bands, 6))
             for ik in range(nb_kpoints):
                 for ib1 in range(nb_bands):
                     for ib2 in range(nb_bands):
-                        # each line in the file includes besides the band indexes, which are redundant,
-                        # each band's energy and occupation, which are already available elsewhere,
-                        # so we store only the 6 matrix elements after this 6 redundant values
-                        data[ik][ib1][ib2] = [ float(element) for element in f.readline().split()[6:] ]
+                        # each line in the file includes besides the band
+                        # indexes, which are redundant, each band's energy
+                        # and occupation, which are already available elsewhere,
+                        # so we store only the 6 matrix elements after this 6
+                        # redundant values
+                        data[ik][ib1][ib2] = [
+                            float(element)
+                            for element in f.readline().split()[6:]]
 
             self.data = data
             self._nb_kpoints = nb_kpoints
@@ -2693,7 +3035,7 @@ class Wavederf(object):
         if band_i < 1 or band_i > self.nb_bands or band_j < 1 or band_j > self.nb_bands:
             raise ValueError("Band index out of bounds")
 
-        return self.data[:,band_i-1,band_j-1,:] # using numpy array multidimensional slicing
+        return self.data[:, band_i - 1, band_j - 1, :]
 
 
 class UnconvergedVASPWarning(Warning):

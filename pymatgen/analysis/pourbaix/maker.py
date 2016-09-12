@@ -54,6 +54,9 @@ class PourbaixDiagram(object):
             else:
                 raise Exception("Incorrect Phase type - needs to be \
                 Pourbaix entry of phase type Ion/Solid")
+        if len(self._ion_entries) == 0:
+            raise Exception("No ion phase. Equilibrium between ion/solid "
+                            "is required to make a Pourbaix Diagram")
         self._unprocessed_entries = self._solid_entries + self._ion_entries
         self._elt_comp = comp_dict
         if comp_dict:
