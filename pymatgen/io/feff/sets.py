@@ -114,7 +114,7 @@ class FEFFDictSet(AbstractFeffInputSet):
     """
 
     def __init__(self, absorbing_atom, structure, radius, config_dict,
-                 name="MPFEFF", spectrum="EXAFS", user_tag_settings=None):
+                  spectrum="EXAFS", name="MPFEFF", user_tag_settings=None):
         """
 
         Args:
@@ -122,6 +122,9 @@ class FEFFDictSet(AbstractFeffInputSet):
             structure (Structure): input structure
             radius (float): cluster radius
             config_dict (dict): control tag settings dict
+            spectrum (str): type of spectrum to calculate, available options :
+                EXAFS, XANES, DANES, XMCD, ELNES, EXELFS, FPRIME, NRIXS, XES.
+                The default is EXAFS.
             name (str)
             user_tag_settings (dict): override default tag settings
         """
@@ -191,29 +194,45 @@ class FEFFDictSet(AbstractFeffInputSet):
 
 class MPXANESSet(FEFFDictSet):
     """
-    FeffDictSet for XANES
+    FeffDictSet for XANES spectroscopy.
     """
 
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPXANESSet.yaml"))
 
     def __init__(self, absorbing_atom, structure, radius=10., name="MPXANES",
-                 spectrum="XANES", **kwargs):
+                 **kwargs):
+        """
+        Args:
+            absorbing_atom (str): absorbing atom symbol
+            structure (Structure): input structure
+            radius (float): cluster radius in Angstroms.
+            name (str)
+            **kwargs
+        """
         super(MPXANESSet, self).__init__(absorbing_atom, structure, radius,
-                                         MPXANESSet.CONFIG, name, spectrum,
-                                         **kwargs)
+                                         MPXANESSet.CONFIG, spectrum="EXAFS",
+                                         name=name, **kwargs)
         self.kwargs = kwargs
 
 
 class MPEXAFSSet(FEFFDictSet):
     """
-    FeffDictSet for EXAFS.
+    FeffDictSet for EXAFS spectroscopy.
     """
 
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXAFSSet.yaml"))
 
     def __init__(self, absorbing_atom, structure, radius=10., name="MPEXAFS",
-                 spectrum="EXAFS", **kwargs):
+                 **kwargs):
+        """
+        Args:
+            absorbing_atom (str): absorbing atom symbol
+            structure (Structure): input structure
+            radius (float): cluster radius in Angstroms.
+            name (str)
+            **kwargs
+        """
         super(MPEXAFSSet, self).__init__(absorbing_atom, structure, radius,
-                                         MPEXAFSSet.CONFIG, name, spectrum,
-                                         **kwargs)
+                                         MPEXAFSSet.CONFIG, spectrum="XANES",
+                                         name=name, **kwargs)
         self.kwargs = kwargs
