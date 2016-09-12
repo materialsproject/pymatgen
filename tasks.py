@@ -81,7 +81,6 @@ def make_doc(ctx):
 def publish(ctx):
     ctx.run("python setup.py release")
 
-
 @task
 def setver(ctx):
     ctx.run("sed s/version=.*,/version=\\\"{}\\\",/ setup.py > newsetup"

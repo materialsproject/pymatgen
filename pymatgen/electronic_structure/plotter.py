@@ -32,6 +32,7 @@ from monty.json import jsanitize
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax3d_fig_plt
+from pymatgen.util.plotting_utils import get_publication_quality_plot
 
 logger = logging.getLogger('BSPlotter')
 
@@ -127,7 +128,7 @@ class DosPlotter(object):
         """
         import prettyplotlib as ppl
         from prettyplotlib import brewer2mpl
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
+
         ncolors = max(3, len(self._doses))
         ncolors = min(9, ncolors)
         colors = brewer2mpl.get_map('Set1', 'qualitative', ncolors).mpl_colors
@@ -413,7 +414,6 @@ class BSPlotter(object):
             smooth_tol (float) : tolerance for fitting spline to band data.
                 Default is None such that no tolerance will be used.
         """
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
         from matplotlib import rc
         import scipy.interpolate as scint
@@ -691,7 +691,7 @@ class BSPlotterProjected(BSPlotter):
     """
 
     def __init__(self, bs):
-        if len(bs._projections) == 0:
+        if len(bs.projections) == 0:
             raise ValueError("try to plot projections"
                              " on a band structure without any")
         super(BSPlotterProjected, self).__init__(bs)
@@ -742,7 +742,6 @@ class BSPlotterProjected(BSPlotter):
             The bigger the red or blue dot in the band structure the higher
             character for the corresponding element and orbital.
         """
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
         band_linewidth = 1.0
         fig_number = sum([len(v) for v in dictio.values()])
         proj = self._get_projections_by_branches(dictio)
@@ -830,7 +829,6 @@ class BSPlotterProjected(BSPlotter):
                                                   for e in
                                                   self._bs.structure.composition.elements})
         data = self.bs_plot_data(zero_to_efermi)
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
         e_min = -4
         e_max = 4
@@ -922,7 +920,6 @@ class BSPlotterProjected(BSPlotter):
             {e.symbol: ['s', 'p', 'd']
              for e in self._bs.structure.composition.elements})
         data = self.bs_plot_data(zero_to_efermi)
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
 
         spins = [Spin.up]

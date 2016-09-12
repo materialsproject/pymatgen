@@ -83,8 +83,8 @@ class IStructureTest(PymatgenTest):
                           for site in s.get_sorted_structure()],
                          ["C", "C", "Se", "Se"])
 
-    def test_get_spacegroup_data(self):
-        self.assertEqual(self.struct.get_spacegroup_info(), ('Fd-3m', 227))
+    def test_get_space_group_data(self):
+        self.assertEqual(self.struct.get_space_group_info(), ('Fd-3m', 227))
 
     def test_fractional_occupations(self):
         coords = list()

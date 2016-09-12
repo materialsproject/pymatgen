@@ -317,8 +317,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         symprec = 0.2
         s = SpacegroupAnalyzer(structure, symprec=symprec)
         self.logger.debug("Symmetry of structure is determined to be {}."
-                          .format(s.get_spacegroup_symbol()))
-        sg = s.get_spacegroup()
+                          .format(s.get_space_group_symbol()))
+        sg = s.get_space_group_operations()
         tested_sites = []
         starttime = time.time()
         self.logger.debug("Performing initial ewald sum...")
