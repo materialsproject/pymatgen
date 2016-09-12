@@ -198,9 +198,12 @@ class Xmu(MSONable):
 
     Default attributes:
         xmu: Photon absorption cross section of absorbing atom in material
-        mu: Photon absorption cross section of the absorbing atom in the solid.
-        mu0: Photon absorption cross section of single absorbing atom.
         Energies: Energies of data point
+        relative_energies: E - E_fermi
+        wavenumber: k=\sqrt(E −E_fermi)
+        mu: The total absorption cross-section.
+        mu0: The embedded atomic background absorption.
+        chi: fine structure.
         Edge: Aborption Edge
         Absorbing atom: Species of absorbing atom
         Material: Formula of material
@@ -235,22 +238,48 @@ class Xmu(MSONable):
 
     @property
     def energies(self):
-        """Returns energies for cross-section plots"""
+        """
+        Returns energies for cross-section plots
+        """
         return self.data[:, 0]
+
+    @property
+    def relative_energies(self):
+        """
+        Returns energy with respect to the fermi level.
+        E - E_f
+        """
+        return self.data[:, 1]
+
+    @property
+    def wavenumber(self):
+        """
+        Returns The wave number in units of \AA^-1. k=\sqrt(E −E_f) where E is
+        the energy and E_f is the Fermi level computed from electron gas theory
+        at the average interstitial charge density.
+        """
+        return self.data[:, 2]
 
     @property
     def mu(self):
         """
-        Returns absorption cross-section of absorbing atom in solid.
+        Returns the total absorption cross-section.
         """
         return self.data[:, 3]
 
     @property
     def mu0(self):
         """
-        Returns absorption cross-section for the isolated absorbing atom.
+        Returns the embedded atomic background absorption.
         """
         return self.data[:, 4]
+
+    @property
+    def chi(self):
+        """
+        Returns the normalized fine structure.
+        """
+        return self.data[:, 5]
 
     @property
     def source(self):
