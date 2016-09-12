@@ -362,16 +362,16 @@ class Atoms(MSONable):
         """
         center_index = self.struct.indices_from_symbol(self.central_atom)[0]
         center = self.struct[center_index].coords
-        sphere = Structure.get_sites_in_sphere(self.struct, center, self.radius)
+        sphere = self.struct.get_neighbors(self.struct[center_index], self.radius)
 
-        row = []
+        row = [[str(0), str(0), str(0),  str(0), self.central_atom, str(0), str(0)]]
         for i, site_dist in enumerate(sphere):
             site_symbol = re.sub(r"[^aA-zZ]+", "", site_dist[0].species_string)
             ipot = self.pot_dict[site_symbol]
             coords = site_dist[0].coords - center
             row.append(["{:f}".format(coords[0]), "{:f}".format(coords[1]),
                         "{:f}".format(coords[2]), ipot, site_symbol,
-                        "{:f}".format(site_dist[1]), i])
+                        "{:f}".format(site_dist[1]), i+1])
 
         row_sorted = str(tabulate(sorted(row, key=itemgetter(5)),
                                   headers=["*       x", "y", "z", "ipot",
