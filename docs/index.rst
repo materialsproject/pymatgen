@@ -99,6 +99,17 @@ compatible. Our approach is to have a single codebase support Python 2.7 and
 Getting pymatgen
 ================
 
+For absolute newbies
+--------------------
+
+If you are absolutely new to Python and/or are using Windows, the easiest
+installation process is using conda. Please go to the
+:doc:`page </installation>` for step-by-step installation instructions for
+all platforms.
+
+Stable version
+--------------
+
 .. note:: Preparation
 
     Before installing pymatgen, you may need to first install a few critical
@@ -121,17 +132,12 @@ any system is to use pip::
 
     pip install pymatgen
 
-If you would like to use the enumeration capabilities powered by Gus Hart's
-enumlib or perform Bader charge analysis powered by the Bader analysis code
-of the Henkelmann group, you can install it using the pmg command line tool
-as follows::
-
-   pmg setup --install enum
-   pmg setup --install bader
+Wheels for Mac and Windows have been built for convenience.
 
 Detailed installation instructions for various platforms (Mac and Windows)
-are given on this :doc:`page </installation>`, including how to setup your
-machine for POTCAR generation, Materials Project REST interface usage, etc.
+are given on this :doc:`page </installation>`, including installation of
+option dependencies, set up for POTCAR generation, Materials Project REST
+interface usage, etc.
 
 .. toctree::
    :maxdepth: 2
