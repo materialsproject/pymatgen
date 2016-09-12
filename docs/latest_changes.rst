@@ -1,6 +1,8 @@
 Change log
 ==========
 
-v4.2.5
+v4.3.0
 ------
-* Bug fix for BSPlotter.
+* Massive update to elastic module. (Joey Montaya)
+* Pathfinder algorithm for NEB calculations. (Ziqing Rong)
+* Wheels for Windows and Mac Py27 and Py35.

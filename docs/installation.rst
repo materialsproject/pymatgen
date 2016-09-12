@@ -5,9 +5,8 @@ All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on `PyPI <http://pypi.python.org>`_.
 
-1. Python 2.7-3.x supported. All critical dependencies of pymatgen already
-   have Python 3.x support. Only a few optional dependencies (VTK and ASE) do
-   not. If you do not need those features, you can choose to work with Python 3.
+1. Python 2.7-3.x supported. It is highly recommended that you use Python 3.5
+   unless you know you need other dependencies that works with Python 2.x only.
 2. numpy>=1.9
 3. scipy>0.14
 4. monty>=0.7.0
@@ -29,7 +28,7 @@ Optional libraries that are required if you need certain features.
 
 1. pyhull 1.5.2+ (highly recommended): For electronic structure, generation of
    Pourbaix diagrams.
-2. matplotlib 1.1+ (highly recommended): For plotting (e.g., Phase Diagrams).
+2. matplotlib 1.5+ (highly recommended): For plotting (e.g., Phase Diagrams).
 3. sympy (highly recommended): For defect generation and analysis.
 4. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
    crystal structures using the pymatgen.vis package. Note that the VTK
@@ -59,7 +58,7 @@ the moment) required only for certain features:
    used to completely enumerate all symmetrically distinct ordered structures
    of disordered structures via EnumerateStructureTransformation. Many other
    advanced transformations (e.g., MagOrderingTransformation) use
-   EnumerateStructureTransformation. The multienum.x and makestr.x
+   EnumerateStructureTransformation. The enum.x and makestr.x
    executables must be in the path. Get it at http://enum.sourceforge.net and
    follow the instructions to compile multienum.x and makestr.x.
 3. bader: For use with :class:`pymatgen.command_line.bader.BaderAnalysis`.
@@ -74,116 +73,78 @@ the moment) required only for certain features:
    generation. This is required in addition to installing the zeo Python
    package.
 
-Detailed installation instructions
-==================================
 
-Mac OSX (tested on 10.6-10.9)
+Step-by-step installation instructions
+======================================
+
+Step 1: Preparing your system
 -----------------------------
 
-For Macs, the initial installation steps can be a bit complicated because
-pymatgen does require a number of extensions to be built. Here are some
-recommended step-by-step instructions for a minimal setup necessary for
-pymatgen usage.
+Windows
+~~~~~~~
 
-1. Download and install the basic compilers needed:
-    a. Xcode - This provides the gcc compiler. Get it from the App Store.
-        i.  *OSX < 10.9*. After installation, start XCode,
-            go to Preferences->Downloads and install the Command Line Tools.
-            You may need to quit Xcode and reopen if the Command Line Tools
-            option does not appear.
-        ii. *OSX 10.9*. The command line tools for OSX Mavericks is no longer
-            provided as an option under Xcode downloads. To install command
-            line tools, type the following in a terminal::
+1. Download Microsoft Visual Studio 2015 (the free Community Edition) is fine.
+2. Install Visual Studio 2015, but *make sure that you select More Options ->
+   Programming Languages -> Visual C++ during the installation process*.
 
-               xcode-select --install
+Mac OSX
+~~~~~~~
 
-    b. Gfortran 4.6.2+ - Get an installer at
-       http://gcc.gnu.org/wiki/GFortranBinaries#MacOS.
-2. It is recommended that you install the latest copy of Python 3.5+ (not 2.7+),
-   even though your Mac should already have a compatible version. This makes it
-   easier for future upgrades and minimizes issues. Get it from the `Python
-   home page <http://www.python.org>`_ and install.
-3. Ensure that your terminal is running the correct version by typing::
+1. Download and install Xcode. Afterwards, install the XCode command line
+   tools by typing the following in a terminal::
 
-    which python
+        xcode-select --install
 
-   You should see something like
-   “/Library/Frameworks/Python.framework/Versions/3.5/bin/python”. If you don’t
-   get this (e.g., if you get /usr/bin/python), you may need to change your
-   PATH.
-
-4. Install numpy and a few other dependencies::
-
-    sudo pip install numpy
-    sudo pip install pyyaml
-
-5. Install pymatgen, either in development mode or via pip.
-
-Windows (tested on Win7 64-bit)
--------------------------------
-
-The installation of pymatgen on Windows machines is particularly tricky,
-especially for the non-developer, because many of the tools that come bundled
-with Unix-based systems (such as gcc and python itself!) are not part of a
-standard Windows installation.
-
-The instructions below is a tested installation procedure for getting python
-and pymatgen working on a Windows system via `Cygwin
-<http://www.cygwin.com>`_, which is the easiest procedure I know. If anyone
-has a step-by-step guide for a native installation without cygwin,
-please send me the details.
-
-1. Download and install `Cygwin`_. When you get to the part that asks for the
-   packages to install, make sure that the following are selected:
-
-    a. Devel - gcc4 (not gcc, which is gcc 3.*), git
-    b. Libs - libmpfr4
-    c. Python - python, python-numpy, python-setuptools
-    d. Net - openssh
-
-   In all cases, make sure that both binary and src is selected.
-2. Start the Cygwin terminal.
-3. easy_install pip (this makes it much easier to manage packages)::
-
-    easy_install pip
-
-4. Install some required packages which seem to have issues when installed as
-   part of the pymatgen setup.py process::
-
-    pip install pyyaml
-
-5. Install pymatgen either using pip or the Github developer procedures
-   below.
-6. Test your installation by entering the python interactive prompt and doing
-   a "import pymatgen as mg".
+2. (Optional) Install gfortran.  Get an installer at
+   http://gcc.gnu.org/wiki/GFortranBinaries#MacOS.
 
 Linux
------
+~~~~~
 
-If you are using a Linux system, it is generally assumed that you will have
-python, numpy and the standard compilers already on your system. Standard
-easy_install or pip install should work automatically. Even if there are some
-minor compilation error messages, I generally assume Linux users are usually
-able to diagnose and solve those. For users of Ubuntu, most of the dependencies
-(including the optional ones) are most easily installed using apt-get.
+1. Usually no preparation is needed as most of the standard compilers should
+   already be available.
 
-Using pymatgen on public HPC resources
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Step 2: Install conda
+---------------------
 
-If you wish to use pymatgen on HPC resources (e.g., NERSC or XSEDE resources)
-where you do not have administrator priveleges, there are two options.
+Download and install the version of conda for your operating system from
+http://conda.pydata.org/miniconda.html. For Windows, simply double-click the
+exe file. For Linux or Mac, run `bash Miniconda3-latest-MacOSX-x86_64.sh` or
+`bash Miniconda3-latest-Linux-x86_64.sh`.
 
-1. Use the ``"--user"`` option. Pip, easy_install, python setup.py install all
-   support the ``--user`` option. You can add ``--user`` to all your commands
-   and it will be installed in $HOME/.local/lib/python2.7/site-packages/. You
-   may need to modify your PYTHONPATH accordingly.
-2. Use virtualenv. You may still need to install virtualenv using the
-   ``--user`` option if the HPC resource does not have it. Afterwards,
-   you can create a virtualenv to install everything else. This allows you
-   to properly isolate dependencies.
+Step 2b: (Optional) Create a conda environment
+----------------------------------------------
 
-For most users, option 1 is simpler. Option 2 is useful if you foresee
-potential conflicts with many different python packages.
+If you are working with many python packages, it is generally recommended you
+create a separate environment for each of your packages. For example::
+
+    conda create --name my_pymatgen python
+    source activate my_pymatgen
+
+Step 3: Install the critical dependencies using conda
+-----------------------------------------------------
+
+Use conda to install some critical dependencies as follows::
+
+    conda install --yes numpy scipy matplotlib
+
+Step 4: Install pymatgen via pip
+--------------------------------
+
+If all goes well, standard pip install of pymatgen should work::
+
+    pip install pymatgen
+
+Step 5: (Optional) Install enumlib and bader
+--------------------------------------------
+
+These have been tested only on Mac and Linux. If you would like to use the
+enumeration capabilities powered by Gus Hart's enumlib or perform Bader
+charge analysis powered by the Bader analysis code of the Henkelmann group,
+you can install it using the pmg command line tool as follows::
+
+   pmg setup --install enum
+   pmg setup --install bader
 
 POTCAR Setup
 ============
