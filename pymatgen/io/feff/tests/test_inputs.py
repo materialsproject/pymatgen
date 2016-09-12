@@ -75,7 +75,7 @@ class FeffAtomsTest(unittest.TestCase):
         header = Header.from_string(header_string)
         struc = header.struct
         central_atom = 'O'
-        a = Atoms(struc, central_atom)
+        a = Atoms(struc, central_atom, radius=10.)
         atoms = a.get_string()
         self.assertEqual(atoms.splitlines()[3].split()[4], central_atom,
                          "failed to create ATOMS string")
@@ -84,7 +84,7 @@ class FeffAtomsTest(unittest.TestCase):
         file_name = os.path.join(test_dir, 'HEADER')
         header = Header.from_file(file_name)
         struct = header.struct
-        atoms = Atoms(struct, 'O')
+        atoms = Atoms(struct, 'O', radius=10.)
         d = atoms.as_dict()
         atoms2 = Atoms.from_dict(d)
         self.assertEqual(str(atoms), str(atoms2),
