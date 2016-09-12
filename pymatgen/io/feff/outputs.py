@@ -171,7 +171,7 @@ class LDos(MSONable):
     def charge_transfer_to_string(self):
         """returns shrage transfer as string"""
         ch = self.charge_transfer
-        chts = ['\nCharge Transfer\n\nCentral atom']
+        chts = ['\nCharge Transfer\n\nabsorbing atom']
         for i in range(len(ch)):
             for atom, v2 in ch[str(i)].items():
                 a = ['\n', atom, '\n', 's   ', str(v2['s']), '\n',
@@ -185,42 +185,36 @@ class LDos(MSONable):
 
 class Xmu(MSONable):
     """
-    Parser for data in xmu.dat
-    Reads in data from xmu Feff file for plotting
-    This file contains the absorption cross-sections
-    for the single absorber and absorber in solid.
+    Parser for data in 'xmu.dat' file.
+    The file 'xmu.dat' contains XANES, EXAFS or NRIXS data depending on the
+    situation; \mu, \mu_0, and \chi = \chi * \mu_0/ \mu_0/(edge+50eV) as
+    functions of absolute energy E, relative energy E − E_f and wave number k.
 
     Args:
         header: Header object
         parameters: Tags object
-        pots: Potential string
-        data: numpy data array of cross_sections
+        absorbing_atom (str): absorbing atom symbol
+        data (numpy.ndarray, Nx6): cross_sections
 
     Default attributes:
-        xmu:
-            Photon absorption cross section of absorber atom in material
-        mu:
-            Photon absorption cross section of single absorber atom
-        Energies:
-            Energies of data point
-        Edge:
-            Aborption Edge
-        Absorbing atom:
-           Species of absorbing atom
-        Material:
-            Formula of material
-        Source:
-            Source of structure
-        Calculation:
-            Type of Feff calculation performed
-
-        as_dict:  creates a dictionary representation of attributes and data
+        xmu: Photon absorption cross section of absorbing atom in material
+        Energies: Energies of data point
+        relative_energies: E - E_fermi
+        wavenumber: k=\sqrt(E −E_fermi)
+        mu: The total absorption cross-section.
+        mu0: The embedded atomic background absorption.
+        chi: fine structure.
+        Edge: Aborption Edge
+        Absorbing atom: Species of absorbing atom
+        Material: Formula of material
+        Source: Source of structure
+        Calculation: Type of Feff calculation performed
     """
 
-    def __init__(self, header, parameters, central_atom, data):
+    def __init__(self, header, parameters, absorbing_atom, data):
         self.header = header
         self.parameters = parameters
-        self.central_atom = central_atom
+        self.absorbing_atom = absorbing_atom
         self.data = data
 
     @staticmethod
@@ -239,35 +233,53 @@ class Xmu(MSONable):
         header = Header.from_file(input_filename)
         parameters = Tags.from_file(input_filename)
         pots = Potential.pot_string_from_file(input_filename)
-        central_atom = pots.splitlines()[1].split()[2]
-        return Xmu(header, parameters, central_atom, data)
+        absorbing_atom = pots.splitlines()[1].split()[2]
+        return Xmu(header, parameters, absorbing_atom, data)
 
     @property
     def energies(self):
-        """Returns energies for cross-section plots"""
-        energies = []
-        for i in range(len(self.data)):
-            energy = self.data[i][0]
-            energies[len(energies):] = [energy]
-        return energies
+        """
+        Returns energies for cross-section plots
+        """
+        return self.data[:, 0]
 
     @property
-    def across_section(self):
-        """Returns absorption cross-section of absorbing atom in solid"""
-        across = []
-        for i in range(len(self.data)):
-            a = self.data[i][3]
-            across[len(across):] = [a]
-        return across
+    def relative_energies(self):
+        """
+        Returns energy with respect to the fermi level.
+        E - E_f
+        """
+        return self.data[:, 1]
 
     @property
-    def scross_section(self):
-        """Returns absorption cross-section for absorbing atom"""
-        scross = []
-        for d in self.data:
-            s = d[4]
-            scross[len(scross):] = [s]
-        return scross
+    def wavenumber(self):
+        """
+        Returns The wave number in units of \AA^-1. k=\sqrt(E −E_f) where E is
+        the energy and E_f is the Fermi level computed from electron gas theory
+        at the average interstitial charge density.
+        """
+        return self.data[:, 2]
+
+    @property
+    def mu(self):
+        """
+        Returns the total absorption cross-section.
+        """
+        return self.data[:, 3]
+
+    @property
+    def mu0(self):
+        """
+        Returns the embedded atomic background absorption.
+        """
+        return self.data[:, 4]
+
+    @property
+    def chi(self):
+        """
+        Returns the normalized fine structure.
+        """
+        return self.data[:, 5]
 
     @property
     def source(self):
@@ -279,13 +291,15 @@ class Xmu(MSONable):
     @property
     def calc(self):
         """
-        Returns type of Feff calculation, XANES or EXAFS from feff.inp file
+        Returns type of Feff calculation, XANES or EXAFS
         """
         return "XANES" if "XANES" in self.parameters else "EXAFS"
 
     @property
     def material_formula(self):
-        """Returns chemical formula of material from feff.inp file"""
+        """
+        Returns chemical formula of material from feff.inp file
+        """
         try:
             form = self.header.formula
         except IndexError:
@@ -293,13 +307,10 @@ class Xmu(MSONable):
         return "".join(map(str, form))
 
     @property
-    def absorbing_atom(self):
-        """Returns absorbing atom symbol from feff.inp file"""
-        return self.central_atom
-
-    @property
     def edge(self):
-        """Returns excitation edge from feff.inp file"""
+        """
+        Returns excitation edge.
+        """
         return self.parameters["EDGE"]
 
     def as_dict(self):
@@ -307,16 +318,21 @@ class Xmu(MSONable):
         Returns Dictionary of attributes and to reproduce object
         using from dictionary staticmethod.
         """
-        data_list = self.data.tolist()
-
         return {'@module': self.__class__.__module__,
                 '@class': self.__class__.__name__,
-                'energies': self.energies, 'across': self.across_section,
-                'scross': self.scross_section, 'atom': self.absorbing_atom,
-                'edge': self.edge, 'source': self.source, 'calc': self.calc,
+                'energies': self.energies,
+                'mu': self.mu.tolist(),
+                'mu0': self.mu0.tolist(),
+                "chi": self.chi.tolist(),
+                'atom': self.absorbing_atom,
+                'edge': self.edge,
+                'source': self.source,
+                'calc': self.calc,
                 'formula': self.material_formula,
-                'HEADER': self.header.as_dict(), 'TAGS': self.parameters,
-                'c_atom': self.central_atom, 'xmu': data_list}
+                'HEADER': self.header.as_dict(),
+                'TAGS': self.parameters,
+                'c_atom': self.absorbing_atom,
+                'xmu': self.data.tolist()}
 
     @classmethod
     def from_dict(cls, xdict):

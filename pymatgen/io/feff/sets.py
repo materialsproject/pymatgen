@@ -61,7 +61,7 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
     @abc.abstractproperty
     def tags(self):
         """
-        Returns standard calculation paramters.
+        Returns standard calculation parameters.
         """
         return
 
@@ -77,9 +77,9 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         Returns all input files as a dict of {filename: feffio object}
         """
         return {"HEADER": self.header(),
-                "PARAMETERS": self.tags(),
-                "POTENTIALS": self.potential(),
-                "ATOMS": self.atoms()}
+                "PARAMETERS": self.tags,
+                "POTENTIALS": self.potential,
+                "ATOMS": self.atoms}
 
     def write_input(self, output_dir=".", make_dir_if_not_present=True):
         """
@@ -114,7 +114,7 @@ class FEFFDictSet(AbstractFeffInputSet):
     """
 
     def __init__(self, absorbing_atom, structure, radius, config_dict,
-                 name="MPFEFF", user_tag_settings=None):
+                  spectrum="EXAFS", user_tag_settings=None):
         """
 
         Args:
@@ -122,15 +122,18 @@ class FEFFDictSet(AbstractFeffInputSet):
             structure (Structure): input structure
             radius (float): cluster radius
             config_dict (dict): control tag settings dict
-            name (str)
+            spectrum (str): type of spectrum to calculate, available options :
+                EXAFS, XANES, DANES, XMCD, ELNES, EXELFS, FPRIME, NRIXS, XES.
+                The default is EXAFS.
             user_tag_settings (dict): override default tag settings
         """
         self.absorbing_atom = absorbing_atom
         self.structure = structure
         self.radius = radius
-        self.name = name
         self.config_dict = deepcopy(config_dict)
+        self.spectrum = spectrum
         self.user_tag_settings = user_tag_settings or {}
+        self.config_dict.update(self.user_tag_settings)
 
     def header(self, source='', comment=''):
         """
@@ -155,10 +158,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         Returns:
             Tags
         """
-        settings = dict(self.config_dict)
-        settings.update(self.user_tag_settings)
-
-        return Tags(settings)
+        return Tags(self.config_dict)
 
     @property
     def potential(self):
@@ -181,36 +181,50 @@ class FEFFDictSet(AbstractFeffInputSet):
         return Atoms(self.structure, self.absorbing_atom, self.radius)
 
     def __str__(self):
-        d = self.config_dict
-        output = [self.name]
-        output.extend(["%s = %s" % (k, str(v)) for k, v in six.iteritems(d)])
+        output = [self.spectrum]
+        output.extend(["%s = %s" % (k, str(v))
+                       for k, v in six.iteritems(self.config_dict)])
         output.append("")
         return "\n".join(output)
 
 
 class MPXANESSet(FEFFDictSet):
     """
-    FeffDictSet for XANES
+    FeffDictSet for XANES spectroscopy.
     """
 
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPXANESSet.yaml"))
 
-    def __init__(self, absorbing_atom, structure, radius=10., name="MPXANES",
-                 **kwargs):
+    def __init__(self, absorbing_atom, structure, radius=10., **kwargs):
+        """
+        Args:
+            absorbing_atom (str): absorbing atom symbol
+            structure (Structure): input structure
+            radius (float): cluster radius in Angstroms.
+            **kwargs
+        """
         super(MPXANESSet, self).__init__(absorbing_atom, structure, radius,
-                                         MPXANESSet.CONFIG, name, **kwargs)
+                                         MPXANESSet.CONFIG, spectrum="XANES",
+                                         **kwargs)
         self.kwargs = kwargs
 
 
 class MPEXAFSSet(FEFFDictSet):
     """
-    FeffDictSet for EXAFS.
+    FeffDictSet for EXAFS spectroscopy.
     """
 
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXAFSSet.yaml"))
 
-    def __init__(self, absorbing_atom, structure, radius=10., name="MPEXAFS",
-                 **kwargs):
+    def __init__(self, absorbing_atom, structure, radius=10., **kwargs):
+        """
+        Args:
+            absorbing_atom (str): absorbing atom symbol
+            structure (Structure): input structure
+            radius (float): cluster radius in Angstroms.
+            **kwargs
+        """
         super(MPEXAFSSet, self).__init__(absorbing_atom, structure, radius,
-                                         MPEXAFSSet.CONFIG, name, **kwargs)
+                                         MPEXAFSSet.CONFIG, spectrum="EXAFS",
+                                         **kwargs)
         self.kwargs = kwargs
