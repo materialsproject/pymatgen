@@ -104,7 +104,7 @@ For absolute newbies
 
 If you are absolutely new to Python and/or are using Windows, the easiest
 installation process is using conda. Please go to the
-:doc:`page </installation>` for step-by-step installation instructions for
+:doc:`installation page </installation>` for step-by-step instructions for
 all platforms.
 
 Stable version

@@ -77,6 +77,12 @@ the moment) required only for certain features:
 Step-by-step installation instructions
 ======================================
 
+For these instructions, we will assume the 64-bit versions of all OSes and
+using Python 3.5. If you are not using these, please modify the instructions
+accordingly. However, note that Python 2.7 on Windows require a different
+Visual Studio version. It is therefore highly recommended that you use Python
+3.5.
+
 Step 1: Preparing your system
 -----------------------------
 
@@ -85,7 +91,8 @@ Windows
 
 1. Download Microsoft Visual Studio 2015 (the free Community Edition) is fine.
 2. Install Visual Studio 2015, but *make sure that you select More Options ->
-   Programming Languages -> Visual C++ during the installation process*.
+   Programming Languages -> Visual C++ during the installation process*. By
+   default, Visual Studio does not install Visual C++, which is needed.
 
 Mac OSX
 ~~~~~~~
@@ -109,8 +116,16 @@ Step 2: Install conda
 
 Download and install the version of conda for your operating system from
 http://conda.pydata.org/miniconda.html. For Windows, simply double-click the
-exe file. For Linux or Mac, run `bash Miniconda3-latest-MacOSX-x86_64.sh` or
-`bash Miniconda3-latest-Linux-x86_64.sh`.
+exe file. For Linux or Mac, run::
+
+    # If Mac
+    bash Miniconda3-latest-MacOSX-x86_64.sh
+
+    # If Linux
+    bash Miniconda3-latest-Linux-x86_64.sh
+
+Note that you may need to create a new terminal after this step in order for
+the environmental variables added by conda to be loaded.
 
 Step 2b: (Optional) Create a conda environment
 ----------------------------------------------
@@ -138,13 +153,19 @@ If all goes well, standard pip install of pymatgen should work::
 Step 5: (Optional) Install enumlib and bader
 --------------------------------------------
 
-These have been tested only on Mac and Linux. If you would like to use the
-enumeration capabilities powered by Gus Hart's enumlib or perform Bader
-charge analysis powered by the Bader analysis code of the Henkelmann group,
-you can install it using the pmg command line tool as follows::
+For Windows, use conda to install fortran and some requirements first::
+
+    conda install --yes git m2w64-gcc-fortran make
+
+If you would like to use the enumeration capabilities powered by Gus Hart's
+enumlib or perform Bader charge analysis powered by the Bader analysis code
+of the Henkelmann group, you can install it using the pmg command line tool
+as follows::
 
    pmg setup --install enum
    pmg setup --install bader
+
+Then put these in your PATH somewhere.
 
 POTCAR Setup
 ============
