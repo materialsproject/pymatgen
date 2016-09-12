@@ -11,6 +11,22 @@ Subpackages
 Submodules
 ----------
 
+pymatgen.io.feff.inputs module
+------------------------------
+
+.. automodule:: pymatgen.io.feff.inputs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.io.feff.outputs module
+-------------------------------
+
+.. automodule:: pymatgen.io.feff.outputs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.io.feff.sets module
 ----------------------------
 

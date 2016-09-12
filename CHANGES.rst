@@ -1,6 +1,25 @@
 Change log
 ==========
 
+v4.3.0
+------
+* Massive update to elastic module. (Joey Montaya)
+* Pathfinder algorithm for NEB calculations. (Ziqing Rong)
+* Wheels for Windows and Mac Py27 and Py35.
+
+v4.2.5
+------
+* Bug fix for BSPlotter.
+
+v4.2.4
+------
+* Bug fix for kpoint weight calculation for Monkhorst meshes.
+
+v4.2.3
+------
+* Minor cleanup.
+* Simplified installation. enumlib and bader can now be installed using pmg setup --install.
+
 v4.2.2
 ------
 * Global configuration variables such as VASP\_PSP\_DIR and MAPI\_KEY are now

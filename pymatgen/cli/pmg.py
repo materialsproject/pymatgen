@@ -542,13 +542,11 @@ def diff_incar(args):
         return v
 
     d = incar1.diff(incar2)
-    output = [['SAME PARAMS', '', '']]
-    output.append(['---------------', '', ''])
+    output = [['SAME PARAMS', '', ''], ['---------------', '', ''],
+              ['', '', ''], ['DIFFERENT PARAMS', '', ''],
+              ['----------------', '', '']]
     output.extend([(k, format_lists(d['Same'][k]), format_lists(d['Same'][k]))
                    for k in sorted(d['Same'].keys()) if k != "SYSTEM"])
-    output.append(['', '', ''])
-    output.append(['DIFFERENT PARAMS', '', ''])
-    output.append(['----------------', '', ''])
     output.extend([(k, format_lists(d['Different'][k]['INCAR1']),
                     format_lists(d['Different'][k]['INCAR2']))
                    for k in sorted(d['Different'].keys()) if k != "SYSTEM"])
@@ -738,7 +736,8 @@ def main():
                                  "matching.")
     parser_cmp.set_defaults(func=compare_structures)
 
-    parser_diffincar = subparsers.add_parser("diff_incar", help="Helpful diffing tool for INCARs")
+    parser_diffincar = subparsers.add_parser(
+        "diff_incar", help="Helpful diffing tool for INCARs")
     parser_diffincar.add_argument("filenames", metavar="filenames", type=str,
                             nargs=2, help="List of INCARs to compare.")
     parser_diffincar.set_defaults(func=diff_incar)

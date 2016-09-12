@@ -41,8 +41,8 @@ class Stress(SquareTensor):
             stress_matrix (3x3 array-like): the 3x3 array-like
                 representing the stress
         """
-        obj = SquareTensor(stress_matrix).view(cls)
-        return obj
+        obj = super(Stress, cls).__new__(cls, stress_matrix)
+        return obj.view(cls)
 
     @property
     def dev_principal_invariants(self):
@@ -108,13 +108,3 @@ class Stress(SquareTensor):
                              PK stress is based on a symmetric stress tensor.")
         return def_grad.det*np.dot(np.dot(def_grad.inv, self),
                                    def_grad.inv.trans)
-
-    @property
-    def voigt(self):
-        """
-        returns the vector representing to the stress tensor in voigt notation
-        """
-        if not self.is_symmetric(1e-2):
-            raise ValueError("Conversion to voigt notation requires a "
-                             "symmetric stress.")
-        return [self[ind] for ind in voigt_map]

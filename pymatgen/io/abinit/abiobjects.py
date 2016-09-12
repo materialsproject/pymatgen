@@ -680,7 +680,7 @@ class KSampling(AbivarAble, MSONable):
         """
         sg = SpacegroupAnalyzer(structure)
         #sg.get_crystal_system()
-        #sg.get_point_group()
+        #sg.get_point_group_symbol()
         # TODO
         nshiftk = 1
         #shiftk = 3*(0.5,) # this is the default

@@ -4,8 +4,8 @@ __author__ = "Pymatgen Development Team"
 __email__ ="pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ ="shyuep@gmail.com"
-__date__ = "Sep 2 2016"
-__version__ = "4.2.2"
+__date__ = "Sep 12 2016"
+__version__ = "4.3.0"
 
 import os
 import warnings
