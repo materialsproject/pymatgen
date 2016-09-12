@@ -2,8 +2,17 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals
-from __future__ import absolute_import
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+import warnings
+
+import numpy as np
+
+from pymatgen.analysis.elasticity.tensors import SquareTensor
+from pymatgen.core.lattice import Lattice
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from six.moves import zip
 
 """
 This module provides classes and methods used to describe deformations and
@@ -11,12 +20,6 @@ strains, including applying those deformations to structure objects and
 generating deformed structure sets for further calculations.
 """
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.analysis.elasticity.tensors import SquareTensor
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-import warnings
-import numpy as np
-from six.moves import zip
 
 __author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -155,20 +158,20 @@ class DeformedStructureSet(object):
 
         # Perform symmetry reduction if specified
         if symmetry:
-            sga = SpacegroupAnalyzer(self.undeformed_structure, tol = 0.1)
+            sga = SpacegroupAnalyzer(self.undeformed_structure, tol=0.1)
             symm_ops = sga.get_symmetry_operations(cartesian=True)
             self.deformations = symm_reduce(symm_ops, self.deformations)
 
-        self.def_structs = [defo.apply_to_structure(rlxd_str) 
+        self.def_structs = [defo.apply_to_structure(rlxd_str)
                             for defo in self.deformations]
 
-    def symm_reduce(self, symm_ops, deformation_list, tolerance = 1e-2):
+    def symm_reduce(self, symm_ops, deformation_list, tolerance=1e-2):
         """
         Checks list of deformation gradient tensors for symmetrical
         equivalents and returns a new list with reduntant ones removed
 
-        Args: 
-            symm_ops (list of SymmOps): list of SymmOps objects with which 
+        Args:
+            symm_ops (list of SymmOps): list of SymmOps objects with which
                 to check the list of deformation tensors for duplicates
             deformation_list (list of Deformations): list of deformation
                 gradient objects to check for duplicates
@@ -258,6 +261,15 @@ class Strain(SquareTensor):
         return self._dfm
 
     @property
+    def von_mises_strain(self):
+        """
+         Equivalent strain to Von Mises Stress
+        """
+        eps = self - 1/3*np.trace(self)*np.identity(3)
+
+        return np.sqrt(np.dot(eps.voigt,eps.voigt)*2/3)
+
+    @property
     def independent_deformation(self):
         """
         determines whether the deformation matrix represents an
@@ -277,6 +289,19 @@ class Strain(SquareTensor):
         """
         return [self[0, 0], self[1, 1], self[2, 2],
                 2. * self[1, 2], 2. * self[0, 2], 2. * self[0, 1]]
+
+    @classmethod
+    def from_voigt(cls, voigt):
+        """
+        Factory method that returns a Strain object from a voigt
+
+        Args:
+            voigt (6x1 array-like):
+        """
+
+        return cls([[voigt[0], voigt[5] / 2, voigt[4] / 2],
+                    [voigt[5] / 2, voigt[1], voigt[3] / 2],
+                    [voigt[4] / 2, voigt[3] / 2, voigt[2]]])
 
 
 class IndependentStrain(Strain):
@@ -301,17 +326,17 @@ class IndependentStrain(Strain):
                 representing the deformation gradient
         """
 
-        obj = Strain.from_deformation(deformation_gradient).view(cls)
-        (obj._i, obj._j) = obj.independent_deformation
+        obj=Strain.from_deformation(deformation_gradient).view(cls)
+        (obj._i, obj._j)=obj.independent_deformation
         return obj
 
     def __array_finalize__(self, obj):
         if obj is None:
             return
-        self._dfm = getattr(obj, "_dfm", None)
-        self._i = getattr(obj, "_i", None)
-        self._j = getattr(obj, "_j", None)
- 
+        self._dfm=getattr(obj, "_dfm", None)
+        self._i=getattr(obj, "_i", None)
+        self._j=getattr(obj, "_j", None)
+
     @property
     def i(self):
         return self._i
