@@ -215,7 +215,7 @@ class Xmu(MSONable):
         self.header = header
         self.parameters = parameters
         self.absorbing_atom = absorbing_atom
-        self.data = data
+        self.data = np.array(data)
 
     @staticmethod
     def from_file(filename="xmu.dat", input_filename="feff.inp"):
@@ -315,30 +315,9 @@ class Xmu(MSONable):
 
     def as_dict(self):
         """
-        Returns Dictionary of attributes and to reproduce object
-        using from dictionary staticmethod.
+        Returns dict representations of Xmu object
         """
-        return {'@module': self.__class__.__module__,
-                '@class': self.__class__.__name__,
-                'energies': self.energies,
-                'mu': self.mu.tolist(),
-                'mu0': self.mu0.tolist(),
-                "chi": self.chi.tolist(),
-                'atom': self.absorbing_atom,
-                'edge': self.edge,
-                'source': self.source,
-                'calc': self.calc,
-                'formula': self.material_formula,
-                'HEADER': self.header.as_dict(),
-                'TAGS': self.parameters,
-                'c_atom': self.absorbing_atom,
-                'xmu': self.data.tolist()}
+        d = MSONable.as_dict(self)
+        d["data"] = self.data.tolist()
+        return d
 
-    @classmethod
-    def from_dict(cls, xdict):
-        """
-        Returns Xmu object from dictionary
-        """
-        header = Header.from_dict(xdict['HEADER'])
-        return cls(header, xdict['TAGS'], xdict['c_atom'],
-                   np.array(xdict['xmu']))
