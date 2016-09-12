@@ -152,7 +152,7 @@ class GulpIO(object):
 
         if symm_flg:
             gin += "space\n"
-            gin += str(SpacegroupAnalyzer(structure).get_spacegroup_number()) + "\n"
+            gin += str(SpacegroupAnalyzer(structure).get_space_group_number()) + "\n"
         return gin
 
     def specie_potential_lines(self, structure, potential, **kwargs):

@@ -54,10 +54,11 @@ Read the following carefully before implementing new input sets:
 The above are recommendations. The following are UNBREAKABLE rules:
 1. All input sets must take in a structure or list of structures as the first
    argument.
-2. user_incar_settings is absolute. Any new sets you implement must obey
-   this. If a user wants to override your settings, you assume he knows what he
-   is doing. Do not magically override user supplied settings. You can of course
-   issue a warning if you think the user is wrong.
+2. user_incar_settings and user_kpoints_settings are absolute. Any new sets you
+   implement must obey this. If a user wants to override your settings,
+   you assume he knows what he is doing. Do not magically override user
+   supplied settings. You can of course issue a warning if you think the user
+   is wrong.
 3. All input sets must save all supplied args and kwargs as instance variables.
    E.g., self.my_arg = myarg and self.kwargs = kwargs in the __init__. This
    ensures the as_dict and from_dict work correctly.
@@ -203,6 +204,9 @@ class DictSet(VaspInputSet):
             scales with # of atoms, the latter does not. If both are
             present, EDIFF is preferred. To force such settings, just supply
             user_incar_settings={"EDIFF": 1e-5, "LDAU": False} for example.
+        user_kpoints_settings (dict): Allow user to override kpoints setting by
+            supplying a dict. E.g., {"reciprocal_density": 1000}. Default is
+            None.
         constrain_total_magmom (bool): Whether to constrain the total magmom
             (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
             species. Defaults to False.
@@ -220,11 +224,12 @@ class DictSet(VaspInputSet):
             cells, and Monkhorst-Pack otherwise.
         reduce_structure (None/str): Before generating the input files,
             generate the reduced structure. Default (None), does not
-            alter the structure. Valid values: None, "niggli", "LLL"
+            alter the structure. Valid values: None, "niggli", "LLL".
     """
 
     def __init__(self, structure, config_dict,
                  files_to_transfer=None, user_incar_settings=None,
+                 user_kpoints_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
                  potcar_functional="PBE", force_gamma=False,
                  reduce_structure=None):
@@ -241,6 +246,7 @@ class DictSet(VaspInputSet):
         self.force_gamma = force_gamma
         self.reduce_structure = reduce_structure
         self.user_incar_settings = user_incar_settings or {}
+        self.user_kpoints_settings = user_kpoints_settings
 
     @property
     def incar(self):
@@ -334,7 +340,8 @@ class DictSet(VaspInputSet):
             Uses a simple approach scaling the number of divisions along each
             reciprocal lattice vector proportional to its length.
         """
-        settings = self.config_dict["KPOINTS"]
+        settings = self.user_kpoints_settings or self.config_dict["KPOINTS"]
+
         # If grid_density is in the kpoints_settings use
         # Kpoints.automatic_density
         if settings.get('grid_density'):
@@ -439,8 +446,10 @@ class MPStaticSet(MPRelaxSet):
             prev_incar (Incar): Incar file from previous run.
             prev_kpoints (Kpoints): Kpoints from previous run.
             lepsilon (bool): Whether to add static dielectric calculation
-            reciprocal_density (int): density of k-mesh by reciprocal
-                volume (defaults to 100).
+            reciprocal_density (int): For static calculations,
+                we usually set the reciprocal density by voluyme. This is a
+                convenience arg to change that, rather than using
+                user_kpoints_settings. Defaults to 100.
             \*\*kwargs: kwargs supported by MPRelaxSet.
         """
         super(MPStaticSet, self).__init__(structure, **kwargs)
@@ -498,7 +507,8 @@ class MPStaticSet(MPRelaxSet):
 
     @property
     def kpoints(self):
-        self.config_dict["KPOINTS"]["reciprocal_density"] = self.reciprocal_density
+        self.config_dict["KPOINTS"]["reciprocal_density"] = \
+            self.reciprocal_density
         kpoints = super(MPStaticSet, self).kpoints
         # Prefer to use k-point scheme from previous run
         if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:

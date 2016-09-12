@@ -5,8 +5,22 @@ Some of pymatgen's functionality is based on scientific advances / principles
 developed by various scientists. If you use some of these functionality in
 your research, you may wish to consider citing the following works:
 
-pymatgen.io.vaspio_set
-----------------------
+pymatgen.core.surface
+---------------------
+
+The surface generation code is written by the Materials Virtual Lab:
+
+    R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
+    S. P. Ong, Surface Energies of Elemental Crystals, Scientific Data, 2016,
+    3:160080 doi: 10.1038/sdata.2016.80.
+
+and contains elements from the following publication:
+
+    Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,
+    Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.
+
+pymatgen.io.vasp.sets
+---------------------
 
 The MIT parameter sets, which are optimized for high-throughput computing, are
 outlined the following work:

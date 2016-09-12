@@ -60,6 +60,7 @@ class ElasticTensorTest(PymatgenTest):
         filepath = os.path.join(test_dir, 'Sn_def_stress.json')
         with open(filepath) as f:
             self.def_stress_dict = json.load(f)
+        self.structure = self.get_structure("Sn")
 
         warnings.simplefilter("always")
 
@@ -87,30 +88,53 @@ class ElasticTensorTest(PymatgenTest):
         # homogeneous poisson
         self.assertAlmostEqual(0.26579965576472,
                                self.elastic_tensor_1.homogeneous_poisson)
-        # full tensor
+        # voigt notation tensor
         self.assertArrayAlmostEqual(self.elastic_tensor_1.voigt,
                                     self.voigt_1)
 
+        # young's modulus
+        self.assertAlmostEqual(54087787667.160583,
+                               self.elastic_tensor_1.y_mod)
+
+    def test_structure_based_methods(self):
+        # trans_velocity
+        self.assertAlmostEqual(1996.35019877,
+                               self.elastic_tensor_1.trans_v(self.structure))
+
+        # long_velocity
+        self.assertAlmostEqual(3534.68123832,
+                               self.elastic_tensor_1.long_v(self.structure))
+        # Snyder properties
+        self.assertAlmostEqual(18.06127074,
+                               self.elastic_tensor_1.snyder_ac(self.structure))
+        self.assertAlmostEqual(0.18937465,
+                               self.elastic_tensor_1.snyder_opt(self.structure))
+        self.assertAlmostEqual(18.25064540,
+                               self.elastic_tensor_1.snyder_total(self.structure))
+        # Clarke
+        self.assertAlmostEqual(0.3450307,
+                               self.elastic_tensor_1.clarke_thermalcond(self.structure))
+        # Cahill
+        self.assertAlmostEqual(0.37896275,
+                               self.elastic_tensor_1.cahill_thermalcond(self.structure))
+        # Debye
+        self.assertAlmostEqual(247.3058931,
+                               self.elastic_tensor_1.debye_temperature(self.structure))
+        self.assertAlmostEqual(189.05670205,
+                               self.elastic_tensor_1.debye_temperature_gibbs(self.structure))
 
     def test_new(self):
         self.assertArrayAlmostEqual(self.elastic_tensor_1,
                                     ElasticTensor(self.ft))
-
-    def test_from_voigt(self):
-        with self.assertRaises(ValueError):
-            ElasticTensor.from_voigt([[59.33, 28.08, 28.08, 0],
-                                      [28.08, 59.31, 28.07, 0],
-                                      [28.08, 28.07, 59.32, 0, 0],
-                                      [0, 0, 0, 26.35, 0],
-                                      [0, 0, 0, 0, 26.35]])
+        nonsymm = self.ft
+        nonsymm[0, 1, 2, 2] += 1.0
         with warnings.catch_warnings(record=True) as w:
-            ElasticTensor.from_voigt([[59.33, 28.08, 28.08, 0, 0, 0],
-                                      [0.0, 59.31, 28.07, 0, 0, 0],
-                                      [28.08, 28.07, 59.32, 0, 0, 0],
-                                      [0, 0, 0, 26.35, 0, 0],
-                                      [0, 0, 0, 0, 26.35, 0],
-                                      [0, 0, 0, 0, 0, 26.35]])
+            ElasticTensor(nonsymm)
             self.assertEqual(len(w), 1)
+        badtensor1 = np.zeros((3, 3, 3))
+        badtensor2 = np.zeros((3, 3, 3, 2))
+        self.assertRaises(ValueError, ElasticTensor, badtensor1)
+        self.assertRaises(ValueError, ElasticTensor, badtensor2)
 
     def test_from_strain_stress_list(self):
         strain_list = [Strain.from_deformation(def_matrix)
