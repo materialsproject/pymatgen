@@ -456,7 +456,7 @@ class Tags(dict):
                 i[k] = v
         return i
 
-    def get_string(self, sort_keys=True, pretty=True):
+    def get_string(self, sort_keys=False, pretty=False):
         """
         Returns a string representation of the Tags.  The reason why this
         method is different from the __str__ method is to provide options
@@ -486,7 +486,7 @@ class Tags(dict):
             return str_delimited(lines, None, "  ")
 
     def __str__(self):
-        return self.get_string(sort_keys=False, pretty=True)
+        return self.get_string()
 
     def write_file(self, filename='PARAMETERS'):
         """
