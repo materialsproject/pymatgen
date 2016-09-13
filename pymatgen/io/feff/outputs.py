@@ -239,7 +239,7 @@ class Xmu(MSONable):
     @property
     def energies(self):
         """
-        Returns energies for cross-section plots
+        Returns the absolute energies in eV.
         """
         return self.data[:, 0]
 
@@ -280,6 +280,13 @@ class Xmu(MSONable):
         Returns the normalized fine structure.
         """
         return self.data[:, 5]
+
+    @property
+    def e_fermi(self):
+        """
+        Returns the fermi level in eV.
+        """
+        return (self.energies[0] - self.relative_energies[0])
 
     @property
     def source(self):
