@@ -244,11 +244,8 @@ Please feel free to send in suggestions to update the instructions based on
 your experiences. In all the instructions, it is assumed that you have standard
 gcc and other compilers (e.g., Xcode on Macs) already installed.
 
-VTK (tested on v7.0)
---------------------
-
-Mac OS X
-~~~~~~~~
+VTK on Mac OS X (tested on v7.0)
+--------------------------------
 
 The easiest is to install cmake from
 http://cmake.org/cmake/resources/software.html.
@@ -288,11 +285,8 @@ installed. You can test this by going into a python terminal and trying::
 
     import vtk
 
-OpenBabel (tested on v2.3.2)
-----------------------------
-
-Mac OS X 10.7 - 10.9
-~~~~~~~~~~~~~~~~~~~~
+OpenBabel Mac OS X (tested on v2.3.2)
+-------------------------------------
 
 Openbabel must be compiled with python bindings for integration with pymatgen.
 Here are the steps that I took to make it work:
@@ -373,7 +367,7 @@ Here are the steps that I took to make it work:
         export PYTHONPATH=/usr/local/lib:$PYTHONPATH
 
 Enumlib (updated Mar 2016)
-------------------------------------------
+--------------------------
 
 The author now has his own Github repo with the relevant instructions to
 compile a newer version of enumlib. Follow the instructions given at the
