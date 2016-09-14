@@ -328,13 +328,13 @@ class Atoms(MSONable):
                     find_atoms = line.find("ATOMS")
                     if find_atoms >= 0:
                         coords = 1
-                if coords == 1:
+                if coords == 1 and not ("END" in line):
                     atoms_str.append(line.replace("\r", ""))
 
         return ''.join(atoms_str)
 
     @staticmethod
-    def molecule_from_file(filename):
+    def cluster_from_file(filename):
         """
         Parse the feff input file and return the atomic cluster as a Molecule
         object.
@@ -344,15 +344,16 @@ class Atoms(MSONable):
 
         Returns:
             Molecule: the atomic cluster as Molecule object. The absorbing atom
-                is the one at the center of the molecule.
+                is the one at the origin.
         """
         atoms_string = Atoms.atoms_string_from_file(filename)
-        line_list = [l.split() for l in atoms_string.splitlines()[3:-1]]
+        line_list = [l.split() for l in atoms_string.splitlines()[3:]]
         coords = []
         symbols = []
         for l in line_list:
-            coords.append([float(i) for i in l[:3]])
-            symbols.append(l[4])
+            if l:
+                coords.append([float(i) for i in l[:3]])
+                symbols.append(l[4])
         return Molecule(symbols, coords)
 
     def get_string(self):
