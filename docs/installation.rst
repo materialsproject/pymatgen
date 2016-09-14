@@ -244,11 +244,11 @@ Please feel free to send in suggestions to update the instructions based on
 your experiences. In all the instructions, it is assumed that you have standard
 gcc and other compilers (e.g., Xcode on Macs) already installed.
 
-VTK (tested on v5.10.0 - 6.1.0)
--------------------------------
+VTK (tested on v7.0)
+--------------------
 
-Mac OS X 10.7 - 10.9
-~~~~~~~~~~~~~~~~~~~~
+Mac OS X
+~~~~~~~~
 
 The easiest is to install cmake from
 http://cmake.org/cmake/resources/software.html.
@@ -262,46 +262,31 @@ Type the following::
 
 Press "t" to toggle advanced mode. Then press "c" to do an initial
 configuration. After the list of parameters come out, ensure that the
-PYTHON_VERSION is set to 2, the VTK_WRAP_PYTHON is set to ON, and
+PYTHON_VERSION is set to 3, the VTK_WRAP_PYTHON is set to ON, and
 BUILD_SHARED_LIBS is set to ON. You may also need to modify the python
 paths and library paths if they are in non-standard locations. For example, if
 you have installed the official version of Python instead of using the
 Mac-provided version, you will probably need to edit the CMakeCache Python
-links. Example configuration for Python 2.7 is given below (only variables that
-need to be modified are shown):
+links. Example configuration for Python 3.5 installed using conda is given
+below (only variables that need to be modified/checked are shown)::
 
-::
-
-   //Path to a program.
-   PYTHON_EXECUTABLE:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/bin/python
-
-   //Path to a file.
-   PYTHON_INCLUDE_DIR:PATH=/Library/Frameworks/Python.framework/Versions/2.7/Headers
-
-   //Path to a library.
-   PYTHON_LIBRARY:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib
-
-   //Also delete the prefix settings for python, which typically links to the Mac python.
-
-    VTK_INSTALL_PYTHON_MODULE_DIR:PATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages
-
-.. note:: Garbage collection on new Xcode
-
-    If you are using a very new XCode (e.g. 5.1), please note that Cocoa garbage
-    collection has been removed and during compile, you may get an "error:
-    garbage collection is no longer supported" message. VTK does not require
-    Cocoa garbage collection, but was configured to built with support for it on.
-    You can simply remove the -fobjc-gc flag from VTK_REQUIRED_OBJCXX_FLAGS.
+    PYTHON_EXECUTABLE:FILEPATH=/Users/<username>/miniconda3/bin/python3
+    PYTHON_INCLUDE_DIR:PATH=/Users/<username>/miniconda3/include/python3.5m
+    PYTHON_LIBRARY:FILEPATH=/Users/<username>/miniconda3/lib/libpython3.5m.dylib
+    VTK_INSTALL_PYTHON_MODULE_DIR:PATH=/Users/<username>/miniconda3/lib/python3.5/site-packages
+    VTK_PYTHON_VERSION:STRING=3
+    VTK_WRAP_PYTHON:BOOL=ON
 
 Then press "c" again to configure and finally "g" to generate the required
-make files After the CMakeCache.txt file is generated, type:
-
-::
+make files After the CMakeCache.txt file is generated, type::
 
 	make -j 4
 	sudo make install
 
-With any luck, you should have vtk with the necessary python wrappers installed.
+With any luck, you should have vtk with the necessary python wrappers
+installed. You can test this by going into a python terminal and trying::
+
+    import vtk
 
 OpenBabel (tested on v2.3.2)
 ----------------------------
