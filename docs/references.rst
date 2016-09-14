@@ -8,13 +8,13 @@ your research, you may wish to consider citing the following works:
 pymatgen.core.surface
 ---------------------
 
-The surface generation code is written by the Materials Virtual Lab:
+The surface generation code is written by the Materials Virtual Lab::
 
     R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
     S. P. Ong, Surface Energies of Elemental Crystals, Scientific Data, 2016,
     3:160080 doi: 10.1038/sdata.2016.80.
 
-and contains elements from the following publication:
+and contains elements from the following publication::
 
     Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,
     Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.
@@ -23,7 +23,7 @@ pymatgen.io.vasp.sets
 ---------------------
 
 The MIT parameter sets, which are optimized for high-throughput computing, are
-outlined the following work:
+outlined the following work::
 
     A. Jain, G. Hautier, C. Moore, S. P. Ong, C. C. Fischer, T. Mueller,
     K. A. Persson, and G. Ceder. *A high-throughput infrastructure for density
@@ -35,7 +35,7 @@ pymatgen.phasediagram
 ---------------------
 
 The phase diagram code, in particular the grand canonical phase diagram
-analysis, is based on the work of Ong et al. and are used in following works:
+analysis, is based on the work of Ong et al. and are used in following works::
 
     S. P. Ong, L. Wang, B. Kang, and G. Ceder. *Li-Fe-P-O2 Phase Diagram from
     First Principles Calculations.* Chemistry of Materials, 2008, 20(5),
@@ -52,7 +52,7 @@ pymatgen.entries.compatibility
 
 The compatibility processing, which allows mixing of GGA and GGA+U runs that
 have been calculated using the MaterialsProjectVaspInputSet or MITVaspInputSet,
-is based on the following work:
+is based on the following work::
 
     A. Jain, G. Hautier, S. P. Ong, C. Moore, C. C. Fischer, K. A. Persson, and
     G. Ceder. *Formation enthalpies by mixing GGA and GGA + U calculations.*
@@ -64,7 +64,7 @@ pymatgen.matproj
 
 The matproj package contains an interface to the `Materials Project REST API
 <http://www.materialsproject.org/open>`_ (Materials API). If you use data
-from the Materials Project, please cite the following works:
+from the Materials Project, please cite the following works::
 
     A. Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,
     K. Persson, G. Ceder. *A high-throughput infrastructure for density
@@ -88,23 +88,23 @@ pymatgen.command_line.bader_caller
 
 This module implements an interface to the Henkelmann et al.'s excellent
 Fortran code for calculating a Bader charge analysis. Please cite the
-following:
+following::
 
     G. Henkelman, A. Arnaldsson, and H. Jonsson, "A fast and robust algorithm
     for Bader decomposition of charge density", Comput. Mater. Sci. 36,
     254-360 (2006).
 
-pymatgen.io.feffio
-------------------
+pymatgen.io.feff
+----------------
 
 This module implements an io interface for FEFF calculations. Please
 acknowledge the contribution of Alan Dozier, UKY.
 
-pymatgen.io.zeoio
------------------
+pymatgen.io.zeo
+---------------
 
 This implements an interface to the excellent Zeo++ code base. Please
-consider citing the following publications:
+consider citing the following publications::
 
     T.F. Willems, C.H. Rycroft, M. Kazi, J.C. Meza, and M. Haranczyk,
     Algorithms and tools for high-throughput geometry- based analysis of
