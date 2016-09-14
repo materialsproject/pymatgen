@@ -9,6 +9,7 @@ import unittest2 as unittest
 import os
 
 from pymatgen.io.feff.inputs import Atoms, Header, Tags, Potential
+from pymatgen.io.cif import CifParser
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -89,6 +90,17 @@ class FeffAtomsTest(unittest.TestCase):
         atoms2 = Atoms.from_dict(d)
         self.assertEqual(str(atoms), str(atoms2),
                          "Atoms failed to and from dict test")
+
+    def test_cluster_from_file(self):
+        r = CifParser(os.path.join(test_dir, "CoO19128.cif"))
+        structure = r.get_structures()[0]
+        atoms = Atoms(structure, "O", 10.0)
+        atoms.write_file("ATOMS_test")
+        mol_1 = Atoms.cluster_from_file("ATOMS_test")
+        mol_2 = Atoms.cluster_from_file(os.path.join(test_dir, "ATOMS"))
+        self.assertEqual(mol_1.formula, mol_2.formula)
+        self.assertEqual(len(mol_1), len(mol_2))
+        os.remove("ATOMS_test")
 
 
 class FeffTagsTest(unittest.TestCase):
