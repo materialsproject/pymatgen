@@ -147,10 +147,10 @@ interface usage, etc.
 Developmental version
 ---------------------
 
-The bleeding edge developmental version is at the pymatgen's `Github repo
+The bleeding edge developmental version is at the pymatgen `Github repo
 <https://github.com/materialsproject/pymatgen>`_. The developmental
 version is likely to be more buggy, but may contain new features. The
-Github version include test files as well for complete unit testing. After
+Github version include complete test files. After
 cloning the source, you can type in the root of the repo::
 
     pip install .

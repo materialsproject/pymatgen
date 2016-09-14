@@ -3,7 +3,18 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals, print_function
+import logging
+import math
+import itertools
+from collections import OrderedDict
 
+import numpy as np
+
+from monty.json import jsanitize
+from pymatgen.electronic_structure.core import Spin
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax3d_fig_plt
+from pymatgen.util.plotting_utils import get_publication_quality_plot
 from matplotlib import pyplot as plt
 
 from pymatgen import Energy
@@ -21,20 +32,8 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "May 1, 2012"
 
-import logging
-import math
-import itertools
-from collections import OrderedDict
 
-import numpy as np
-
-from monty.json import jsanitize
-from pymatgen.electronic_structure.core import Spin
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax3d_fig_plt
-from pymatgen.util.plotting_utils import get_publication_quality_plot
-
-logger = logging.getLogger('BSPlotter')
+logger = logging.getLogger(__name__)
 
 
 class DosPlotter(object):

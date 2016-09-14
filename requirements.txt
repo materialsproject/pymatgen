@@ -9,6 +9,6 @@ scipy==0.18.0
 tabulate==0.7.5
 enum34==1.1.6
 Cython==0.24.1
-matplotlib==1.5.3
+matplotlib==1.5.1
 palettable==2.1.1
 spglib==1.9.4.4
