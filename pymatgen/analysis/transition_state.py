@@ -75,11 +75,13 @@ class NEBAnalysis(object):
             else:
                 forces.append(o.data["tangent_force"])
         energies = np.array(energies)
+        print(energies)
         energies -= energies[0]
         forces = np.array(forces)
         self.r = np.array(r)
         self.energies = energies
         self.forces = forces
+        self.structures = structures
 
         # We do a piecewise interpolation between the points. Each spline (
         # cubic by default) is constrained by the boundary conditions of the
