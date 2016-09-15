@@ -125,7 +125,9 @@ class FEFFDictSet(AbstractFeffInputSet):
             spectrum (str): type of spectrum to calculate, available options :
                 EXAFS, XANES, DANES, XMCD, ELNES, EXELFS, FPRIME, NRIXS, XES.
                 The default is EXAFS.
-            user_tag_settings (dict): override default tag settings
+            user_tag_settings (dict): override default tag settings. To delete
+                tags, set the key '_del' in the user_tag_settings.
+                eg: user_tag_settings={"_del": ["COREHOLE", "EXCHANGE"]}
         """
         self.absorbing_atom = absorbing_atom
         self.structure = structure
@@ -134,6 +136,11 @@ class FEFFDictSet(AbstractFeffInputSet):
         self.spectrum = spectrum
         self.user_tag_settings = user_tag_settings or {}
         self.config_dict.update(self.user_tag_settings)
+        if "_del" in self.user_tag_settings:
+            for tag in self.user_tag_settings["_del"]:
+                if tag in self.config_dict:
+                    del self.config_dict[tag]
+            del self.config_dict["_del"]
 
     def header(self, source='', comment=''):
         """
