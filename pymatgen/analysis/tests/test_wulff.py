@@ -1,7 +1,7 @@
 # coding: utf-8
 import matplotlib
 
-matplotlib.use("Agg")
+matplotlib.use("pdf")
 import unittest
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest

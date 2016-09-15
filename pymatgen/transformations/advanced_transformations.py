@@ -535,7 +535,7 @@ class MagOrderingTransformation(AbstractTransformation):
             return alls[0]["structure"] if num_to_return else alls
 
         m = StructureMatcher(comparator=SpinComparator())
-        key = lambda x: SpacegroupAnalyzer(x, 0.1).get_spacegroup_number()
+        key = lambda x: SpacegroupAnalyzer(x, 0.1).get_space_group_number()
         out = []
         for _, g in groupby(sorted([d["structure"] for d in alls],
                                    key=key), key):

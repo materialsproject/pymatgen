@@ -271,7 +271,7 @@ class BoltztrapRunner(object):
 
         with open(output_file, 'w') as f:
             f.write("{} {}\n".format(self._bs.structure.composition.formula,
-                    sym.get_spacegroup_symbol()))
+                    sym.get_space_group_symbol()))
 
             f.write("{}\n".format("\n".join(
                 [" ".join(["%.5f" % Length(i, "ang").to("bohr") for i in row])

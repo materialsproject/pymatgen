@@ -39,7 +39,7 @@ from monty.dev import requires
 from monty.tempfile import ScratchDir
 
 
-@requires(which("bader"),
+@requires(which("bader") or which("bader.exe"),
           "BaderAnalysis requires the executable bader to be in the path."
           " Please download the library at http://theory.cm.utexas"
           ".edu/vasp/bader/ and compile the executable.")
