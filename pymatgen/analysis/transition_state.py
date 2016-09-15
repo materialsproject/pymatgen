@@ -23,10 +23,12 @@ import os
 import glob
 
 import numpy as np
+scipy_old_piecewisepolynomial = True
 try:
     from scipy.interpolate import PiecewisePolynomial
 except ImportError:
-    from scipy.interpolate import PPoly as PiecewisePolynomial
+    from scipy.interpolate import splmake, PPoly
+    scipy_old_piecewisepolynomial = False
 
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 from pymatgen.io.vasp import Poscar, Outcar
@@ -90,9 +92,14 @@ class NEBAnalysis(object):
         # cubic by default) is constrained by the boundary conditions of the
         # energies and the tangent force, i.e., the derivative of
         # the energy at each pair of points.
-        self.spline = PiecewisePolynomial(
-            self.r, np.array([self.energies, -self.forces]).T,
-            orders=interpolation_order)
+        if scipy_old_piecewisepolynomial:
+            self.spline = PiecewisePolynomial(
+                self.r, np.array([self.energies, -self.forces]).T,
+                orders=interpolation_order)
+        else:
+            # New scipy implementation for scipy > 0.18.0
+            xk, coefs, order = splmake(self.r, np.array([self.energies, -self.forces]).T, order=interpolation_order)
+            self.spline = PPoly(c=coefs, x=xk)
 
     def get_extrema(self, normalize_rxn_coordinate=True):
         """
