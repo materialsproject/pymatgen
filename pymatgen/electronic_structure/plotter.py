@@ -13,9 +13,8 @@ import numpy as np
 from monty.json import jsanitize
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax3d_fig_plt
-from pymatgen.util.plotting_utils import get_publication_quality_plot
-from matplotlib import pyplot as plt
+from pymatgen.util.plotting_utils import get_publication_quality_plot, \
+    add_fig_kwargs, get_ax3d_fig_plt
 
 from pymatgen import Energy
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
@@ -971,6 +970,7 @@ class BoltztrapPlotter(object):
         self._bz = bz
 
     def _plot_doping(self, temp):
+        import matplotlib.pyplot as plt
         if len(self._bz.doping) != 0:
             limit = 2.21e15
             plt.axvline(self._bz.mu_doping['n'][temp][0], linewidth=3.0,
@@ -1001,6 +1001,7 @@ class BoltztrapPlotter(object):
                      color='b')
 
     def _plot_bg_limits(self):
+        import matplotlib.pyplot as plt
         plt.axvline(0.0, color='k', linewidth=3.0)
         plt.axvline(self._bz.gap, color='k', linewidth=3.0)
 
@@ -1016,6 +1017,7 @@ class BoltztrapPlotter(object):
         Returns:
             a matplotlib object
         """
+        import matplotlib.pyplot as plt
         seebeck = self._bz.get_seebeck(output=output, doping_levels=False)[
             temp]
         plt.plot(self._bz.mu_steps, seebeck,
@@ -1049,6 +1051,7 @@ class BoltztrapPlotter(object):
         Returns:
             a matplotlib object
         """
+        import matplotlib.pyplot as plt
         cond = self._bz.get_conductivity(relaxation_time=relaxation_time,
                                          output=output, doping_levels=False)[
             temp]
@@ -1083,6 +1086,7 @@ class BoltztrapPlotter(object):
         Returns:
             a matplotlib object
         """
+        import matplotlib.pyplot as plt
         pf = self._bz.get_power_factor(relaxation_time=relaxation_time,
                                        output=output, doping_levels=False)[
             temp]
@@ -1116,6 +1120,7 @@ class BoltztrapPlotter(object):
         Returns:
             a matplotlib object
         """
+        import matplotlib.pyplot as plt
         zt = self._bz.get_zt(relaxation_time=relaxation_time, output=output,
                              doping_levels=False)[temp]
         plt.plot(self._bz.mu_steps, zt, linewidth=3.0)
@@ -1157,6 +1162,7 @@ class BoltztrapPlotter(object):
         Returns:
             a matplotlib object
         """
+        import matplotlib.pyplot as plt
         plt.semilogy(self._bz.mu_steps,
                      abs(self._bz.carrier_conc[temp] / (self._bz.vol * 1e-24)),
                      linewidth=3.0, color='r')
@@ -1180,6 +1186,7 @@ class BoltztrapPlotter(object):
         Returns:
             a matplotlib object
         """
+        import matplotlib.pyplot as plt
         hall_carriers = [abs(i) for i in
                          self._bz.get_hall_carrier_concentration()[temp]]
         plt.semilogy(self._bz.mu_steps,
@@ -1208,6 +1215,7 @@ class BoltztrapPlotter(object):
 
         Note: Experimental
         """
+        import matplotlib.pyplot as plt
         from mpl_toolkits.mplot3d import Axes3D
         from pymatgen.electronic_structure.plotter import plot_brillouin_zone
         try:
