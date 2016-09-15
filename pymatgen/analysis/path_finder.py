@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+
 """
 This module finds diffusion paths through a structure based on a given potential field.
 If you use PathFinder algorithm for your research, please consider citing the following work:
