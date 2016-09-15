@@ -23,7 +23,10 @@ import os
 import glob
 
 import numpy as np
-from scipy.interpolate import PiecewisePolynomial
+try:
+    from scipy.interpolate import PiecewisePolynomial
+except ImportError:
+    from scipy.interpolate import PPoly as PiecewisePolynomial
 
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 from pymatgen.io.vasp import Poscar, Outcar
