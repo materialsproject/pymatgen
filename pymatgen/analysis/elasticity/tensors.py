@@ -27,10 +27,12 @@ from scipy.linalg import polar
 from scipy.linalg import sqrtm
 import numpy as np
 import itertools
+import warnings
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from numpy.linalg import norm
+from pymatgen.analysis.elasticity import reverse_voigt_map
 
 class TensorBase(np.ndarray):
     """
@@ -38,7 +40,7 @@ class TensorBase(np.ndarray):
     without restrictions on the type (stress, elastic, strain, piezo, etc.)
     """
 
-    def __new__(cls, input_array):
+    def __new__(cls, input_array, vscale = None):
         """
         Create a TensorBase object.  Note that the constructor uses __new__
         rather than __init__ according to the standard method of
@@ -47,18 +49,30 @@ class TensorBase(np.ndarray):
         Args:
             input_array: (3xN array-like): the 3xN array-like representing
                 a tensor quantity
+            vscale: (N x M array-like): a matrix corresponding
+                to the coefficients of the voigt-notation tensor
         """
         obj = np.asarray(input_array).view(cls)
         obj.rank = len(obj.shape)
+
+        vshape = tuple([3]*(obj.rank % 2) + [6]*(obj.rank // 2))
+        obj._vscale = np.ones(vshape)
+        if vscale is not None:
+            obj._vscale = vscale
+        if obj._vscale.shape != vshape:
+            raise ValueError("Voigt scaling matrix must be the shape of the "
+                             "voigt notation matrix or vector.")
         if not all([i == 3 for i in obj.shape]):
             raise ValueError("Pymatgen only supports 3-dimensional tensors")
-        
         return obj
 
     def __array_finalize__(self, obj):
         if obj is None:
             return
         self.rank = getattr(obj, 'rank', None)
+        self._vscale = getattr(obj, '_vscale', None)
+        self._vdict = getattr(obj, '_vdict', None)
+
 
     def __array_wrap__(self, obj):
         """
@@ -164,6 +178,78 @@ class TensorBase(np.ndarray):
         """
         return (self - self.fit_to_structure(structure) < tol).all()
 
+    @property
+    def voigt(self):
+        """
+        Returns the tensor in Voigt notation
+        """
+        if self.rank > 4:
+            raise ValueError("Voigt notation not standardized "
+                             "for tensor ranks higher than 4.")
+        v_matrix = np.zeros(self._vscale.shape)
+        voigt_map = self.get_voigt_dict(self.rank)
+        for ind in voigt_map:
+            v_matrix[voigt_map[ind]] = self[ind]
+        if not self.is_voigt_symmetric:
+            warnings.warn("Tensor is not symmetric, information may "
+                          "be lost in voigt conversion.")
+        return v_matrix*self._vscale
+
+    @property
+    def is_voigt_symmetric(self):
+        """
+        Tests symmetry of tensor to that necessary for voigt-conversion
+        by grouping indices into pairs and constructing a sequence of
+        possible permutations to be used in a tensor transpose
+        """
+        transpose_pieces = [[[0 for i in range(self.rank % 2)]]]
+        transpose_pieces += [[range(j, j + 2)] for j in 
+                             range(self.rank % 2, self.rank, 2)]
+        for n in range(self.rank % 2, len(transpose_pieces)):
+            if len(transpose_pieces[n][0]) == 2:
+                transpose_pieces[n] += [transpose_pieces[n][0][::-1]]
+        for trans_seq in itertools.product(*transpose_pieces):
+            trans_seq = list(itertools.chain(*trans_seq))
+            if (self - self.transpose(trans_seq) > 1e-10).any():
+                return False
+        return True
+
+    @staticmethod
+    def get_voigt_dict(rank):
+        """
+        Returns a dictionary that maps indices in the tensor to those
+        in a voigt representation based on input rank
+
+        Args:
+            Rank (int): Tensor rank to generate the voigt map
+        """
+        vdict = {}
+        for ind in itertools.product(*[range(3)]*rank):
+            v_ind = ind[:rank % 2]
+            for j in range(rank // 2):
+                pos = rank % 2 + 2*j
+                v_ind += (reverse_voigt_map[ind[pos:pos+2]],)
+            vdict[ind] = v_ind
+        return vdict
+        
+    @classmethod
+    def from_voigt(cls, voigt_input):
+        """
+        Constructor based on the voigt notation vector or matrix.
+
+        Args: 
+        """
+        voigt_input = np.array(voigt_input)
+        rank = sum(voigt_input.shape) // 3
+        t = cls(np.zeros([3]*rank))
+        if voigt_input.shape != t._vscale.shape:
+            raise ValueError("Invalid shape for voigt matrix")
+        voigt_input /= t._vscale
+        voigt_map = t.get_voigt_dict(rank)
+        for ind in voigt_map:
+            t[ind] = voigt_input[voigt_map[ind]]
+        return t
+
     def convert_to_ieee(self, structure):
         """
         Given a structure associated with a tensor, attempts a
@@ -248,7 +334,7 @@ class SquareTensor(TensorBase):
     (stress, strain etc.).
     """
 
-    def __new__(cls, input_array):
+    def __new__(cls, input_array, vscale=None):
         """
         Create a SquareTensor object.  Note that the constructor uses __new__
         rather than __init__ according to the standard method of
@@ -256,15 +342,17 @@ class SquareTensor(TensorBase):
         initialized with non-square matrix.
 
         Args:
-            stress_matrix (3x3 array-like): the 3x3 array-like
-                representing the Green-Lagrange strain
+            input_array (3x3 array-like): the 3x3 array-like
+                representing the content of the tensor
+            vscale (6x1 array-like): 6x1 array-like scaling the
+                voigt-notation vector with the tensor entries
         """
 
-        obj = TensorBase(input_array).view(cls)
+        obj = super(SquareTensor, cls).__new__(cls, input_array, vscale=vscale)
         if not (len(obj.shape) == 2):
             raise ValueError("SquareTensor only takes 2-D "
                              "tensors as input")
-        return obj
+        return obj.view(cls)
         
     @property
     def trans(self):

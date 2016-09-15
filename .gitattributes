@@ -1,0 +1,1 @@
+test_files/path_finder/LFP_CHGCAR filter=lfs diff=lfs merge=lfs -text

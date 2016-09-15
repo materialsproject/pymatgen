@@ -2,8 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals
-from __future__ import absolute_import
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 """
 This module provides classes and methods used to describe deformations and
@@ -14,6 +14,7 @@ generating deformed structure sets for further calculations.
 from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.elasticity.tensors import SquareTensor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.elasticity import voigt_map
 import warnings
 import numpy as np
 from six.moves import zip
@@ -43,13 +44,9 @@ class Deformation(SquareTensor):
             deformation_gradient (3x3 array-like): the 3x3 array-like
                 representing the deformation gradient
         """
+        obj = super(Deformation, cls).__new__(cls, deformation_gradient)
 
-        obj = SquareTensor(deformation_gradient).view(cls)
-        return obj
-
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
+        return obj.view(cls)
 
     def check_independent(self):
         """
@@ -155,20 +152,20 @@ class DeformedStructureSet(object):
 
         # Perform symmetry reduction if specified
         if symmetry:
-            sga = SpacegroupAnalyzer(self.undeformed_structure, tol = 0.1)
+            sga = SpacegroupAnalyzer(self.undeformed_structure, tol=0.1)
             symm_ops = sga.get_symmetry_operations(cartesian=True)
             self.deformations = symm_reduce(symm_ops, self.deformations)
 
-        self.def_structs = [defo.apply_to_structure(rlxd_str) 
+        self.def_structs = [defo.apply_to_structure(rlxd_str)
                             for defo in self.deformations]
 
-    def symm_reduce(self, symm_ops, deformation_list, tolerance = 1e-2):
+    def symm_reduce(self, symm_ops, deformation_list, tolerance=1e-2):
         """
         Checks list of deformation gradient tensors for symmetrical
         equivalents and returns a new list with reduntant ones removed
 
-        Args: 
-            symm_ops (list of SymmOps): list of SymmOps objects with which 
+        Args:
+            symm_ops (list of SymmOps): list of SymmOps objects with which
                 to check the list of deformation tensors for duplicates
             deformation_list (list of Deformations): list of deformation
                 gradient objects to check for duplicates
@@ -215,28 +212,36 @@ class Strain(SquareTensor):
             strain_matrix (3x3 array-like): the 3x3 array-like
                 representing the Green-Lagrange strain
         """
+        vscale = np.ones((6,))
+        vscale[3:] *= 2
+        obj = super(Strain, cls).__new__(cls, strain_matrix, vscale=vscale)
+        if dfm is None:
+            warnings.warn("Constructing a strain object without a deformation"
+                          " matrix may result in a non-independent "
+                          "deformation  Use Strain.from_deformation to "
+                          "construct a Strain from a deformation gradient.")
 
-        obj = SquareTensor(strain_matrix).view(cls)
-        obj._dfm = dfm
+            obj._dfm = convert_strain_to_deformation(obj)
+        else:
+            dfm = Deformation(dfm)
+            gls_test = 0.5 * (np.dot(dfm.trans, dfm) - np.eye(3))
+            if (gls_test - obj > 1e-10).any():
+                raise ValueError("Strain and deformation gradients "
+                                 "do not match!")
+            obj._dfm = Deformation(dfm)
+
         if not obj.is_symmetric():
             raise ValueError("Strain objects must be initialized "
-                             "with a symmetric array-like.")
-
-        if dfm is None:
-            warnings.warn("Constructing a strain object without a deformation "
-                          "matrix makes many methods unusable.  Use "
-                          "Strain.from_deformation to construct a Strain object"
-                          " from a deformation gradient.")
-        elif (np.array(dfm) - obj < 1e-5).all():
-            warnings.warn("Warning: deformation matrix does not correspond "
-                          "to input strain_matrix value")
-        return obj
+                             "with a symmetric array or a voigt-notation "
+                             "vector with six entries.")
+        return obj.view(cls)
 
     def __array_finalize__(self, obj):
         if obj is None:
             return
         self.rank = getattr(obj, "rank", None)
         self._dfm = getattr(obj, "_dfm", None)
+        self._vscale = getattr(obj, "_vscale", None)
 
     @classmethod
     def from_deformation(cls, deformation):
@@ -258,6 +263,15 @@ class Strain(SquareTensor):
         return self._dfm
 
     @property
+    def von_mises_strain(self):
+        """
+         Equivalent strain to Von Mises Stress
+        """
+        eps = self - 1/3*np.trace(self)*np.identity(3)
+
+        return np.sqrt(np.dot(eps.voigt,eps.voigt)*2/3)
+
+    @property
     def independent_deformation(self):
         """
         determines whether the deformation matrix represents an
@@ -265,18 +279,7 @@ class Strain(SquareTensor):
         Returns the index of the deformation gradient corresponding
         to the independent deformation
         """
-        if self._dfm is None:
-            raise ValueError("No deformation matrix supplied "
-                             "for this strain tensor.")
         return self._dfm.check_independent()
-
-    @property
-    def voigt(self):
-        """
-        translates a strain tensor into a voigt notation vector
-        """
-        return [self[0, 0], self[1, 1], self[2, 2],
-                2. * self[1, 2], 2. * self[0, 2], 2. * self[0, 1]]
 
 
 class IndependentStrain(Strain):
@@ -301,17 +304,17 @@ class IndependentStrain(Strain):
                 representing the deformation gradient
         """
 
-        obj = Strain.from_deformation(deformation_gradient).view(cls)
-        (obj._i, obj._j) = obj.independent_deformation
+        obj=Strain.from_deformation(deformation_gradient).view(cls)
+        (obj._i, obj._j)=obj.independent_deformation
         return obj
 
     def __array_finalize__(self, obj):
         if obj is None:
             return
-        self._dfm = getattr(obj, "_dfm", None)
-        self._i = getattr(obj, "_i", None)
-        self._j = getattr(obj, "_j", None)
- 
+        self._dfm=getattr(obj, "_dfm", None)
+        self._i=getattr(obj, "_i", None)
+        self._j=getattr(obj, "_j", None)
+
     @property
     def i(self):
         return self._i
@@ -319,3 +322,13 @@ class IndependentStrain(Strain):
     @property
     def j(self):
         return self._j
+
+def convert_strain_to_deformation(strain):
+    strain = SquareTensor(strain)
+    ftdotf = 2*strain + np.eye(3)
+    eigs, eigvecs = np.linalg.eig(ftdotf)
+    rotated = ftdotf.rotate(np.transpose(eigvecs))
+    rotated = rotated.round(14)
+    defo = Deformation(np.sqrt(rotated))
+    result = defo.rotate(eigvecs)
+    return result

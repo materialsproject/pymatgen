@@ -53,55 +53,21 @@ class ElasticTensor(TensorBase):
         """
 
         obj = TensorBase(input_array).view(cls)
-        if not ((obj - np.transpose(obj, (1, 0, 2, 3)) < tol).all() and
-                (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all() and
-                (obj - np.transpose(obj, (1, 0, 3, 2)) < tol).all() and
-                (obj - np.transpose(obj, (3, 2, 0, 1)) < tol).all()):
-
-            warnings.warn("Input elasticity tensor does "
-                          "not satisfy standard symmetries")
-
         if obj.shape != (3, 3, 3, 3):
             raise ValueError("Default elastic tensor constructor requires "
                              "input to be the true 3x3x3x3 representation. "
                              "To construct from an elastic tensor from "
                              "6x6 Voigt array, use ElasticTensor.from_voigt")
-        return obj 
 
-    @classmethod
-    def from_voigt(cls, voigt_matrix, tol=1e-2):
-        """
-        Constructor based on the voigt notation tensor
+        if not ((obj - np.transpose(obj, (1, 0, 2, 3)) < tol).all() and
+                    (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all() and
+                    (obj - np.transpose(obj, (1, 0, 3, 2)) < tol).all() and
+                    (obj - np.transpose(obj, (3, 2, 0, 1)) < tol).all()):
+            warnings.warn("Input elasticity tensor does "
+                          "not satisfy standard symmetries")
 
-        Args:
-            voigt_matrix: (6x6 array-like): the Voigt notation 6x6 array-like
-                representing the elastic tensor
-        """
-        voigt_matrix = np.array(voigt_matrix)
-        if voigt_matrix.shape != (6, 6):
-            raise ValueError("From_voigt takes a 6x6 array corresponding to "
-                             "the elastic tensor in voigt notation as input.")
+        return obj
 
-        c = np.zeros((3, 3, 3, 3))
-        for ind in itertools.product(*[range(3)]*4):
-            v_ind = (reverse_voigt_map[ind[:2]], 
-                     reverse_voigt_map[ind[2:]])
-            c[ind] = voigt_matrix[v_ind]
-        return cls(c)
-
-    @property
-    def voigt(self):
-        """
-        Returns the voigt notation 6x6 array corresponding to the
-        elastic tensor
-        """
-        c_pq = np.zeros((6, 6))
-        for p in range(6):
-            for q in range(6):
-                i, j = voigt_map[p]
-                k, l = voigt_map[q]
-                c_pq[p, q] = self[i, j, k, l]
-        return c_pq
 
     @property
     def compliance_tensor(self):
@@ -123,7 +89,7 @@ class ElasticTensor(TensorBase):
         """
         returns the G_v shear modulus
         """
-        return (2. * self.voigt[:3, :3].trace() - 
+        return (2. * self.voigt[:3, :3].trace() -
                 np.triu(self.voigt[:3, :3]).sum() +
                 3 * self.voigt[3:, 3:].trace()) / 15.
 
@@ -167,12 +133,183 @@ class ElasticTensor(TensorBase):
                 self.k_vrh, self.g_vrh]
 
     @property
+    def y_mod(self):
+        """
+        Calculates Young's modulus (in SI units) using the Voigt-Reuss-Hill
+        averages of bulk and shear moduli
+        """
+        return 9.e9 * self.k_vrh * self.g_vrh / (3. * self.k_vrh + self.g_vrh)
+
+    def trans_v(self, structure):
+        """
+        Calculates transverse sound velocity (in SI units) using the 
+        Voigt-Reuss-Hill average bulk modulus
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: transverse sound velocity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        natoms = structure.composition.num_atoms
+        weight = structure.composition.weight
+        mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
+        return (1e9 * self.g_vrh / mass_density) ** 0.5
+
+    def long_v(self, structure):
+        """
+        Calculates longitudinal sound velocity (in SI units)
+        using the Voigt-Reuss-Hill average bulk modulus
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: longitudinal sound velocity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        natoms = structure.composition.num_atoms
+        weight = structure.composition.weight
+        mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
+        return (1e9 * (self.k_vrh + 4./3. * self.g_vrh) / mass_density) ** 0.5
+
+    def snyder_ac(self, structure):
+        """
+        Calculates Snyder's acoustic sound velocity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Snyder's acoustic sound velocity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        natoms = structure.composition.num_atoms
+        num_density = 1e30 * nsites / volume
+        tot_mass = sum([e.atomic_mass for e in structure.species])
+        avg_mass = 1.6605e-27 * tot_mass / natoms
+        return 0.38483*avg_mass * \
+                ((self.long_v(structure) + 2.*self.trans_v(structure))/3.) ** 3.\
+                / (300.*num_density ** (-2./3.) * nsites ** (1./3.))
+
+    def snyder_opt(self, structure):
+        """
+        Calculates Snyder's optical sound velocity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Snyder's optical sound velocity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        num_density = 1e30 * nsites / volume
+        return 1.66914e-23 * \
+                (self.long_v(structure) + 2.*self.trans_v(structure))/3. \
+                / num_density ** (-2./3.) * (1 - nsites ** (-1./3.))
+
+    def snyder_total(self, structure):
+        """
+        Calculates Snyder's total sound velocity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Snyder's total sound velocity (in SI units)
+
+        """
+        return self.snyder_ac(structure) + self.snyder_opt(structure)
+
+    def clarke_thermalcond(self, structure):
+        """
+        Calculates Clarke's thermal conductivity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Clarke's thermal conductivity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        tot_mass = sum([e.atomic_mass for e in structure.species])
+        natoms = structure.composition.num_atoms
+        weight = structure.composition.weight
+        avg_mass = 1.6605e-27 * tot_mass / natoms
+        mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
+        return 0.87 * 1.3806e-23 * avg_mass**(-2./3.) \
+                * mass_density**(1./6.) * self.y_mod**0.5
+
+    def cahill_thermalcond(self, structure):
+        """
+        Calculates Cahill's thermal conductivity (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: Cahill's thermal conductivity (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        num_density = 1e30 * nsites / volume
+        return 1.3806e-23 / 2.48 * num_density**(2./3.) \
+                * (self.long_v(structure) + 2 * self.trans_v(structure))
+
+    def debye_temperature(self, structure):
+        """
+        Calculates the debye temperature (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: debye temperature (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        tot_mass = sum([e.atomic_mass for e in structure.species])
+        natoms = structure.composition.num_atoms
+        weight = structure.composition.weight
+        avg_mass = 1.6605e-27 * tot_mass / natoms
+        mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
+        return 2.589e-11 * avg_mass**(-1./3.) * mass_density**(-1./6.) \
+                * self.y_mod**0.5
+    
+    def debye_temperature_gibbs(self, structure):
+        """
+        Calculates the debye temperature accordings to the GIBBS
+        formulation (in SI units)
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns: debye temperature (in SI units)
+
+        """
+        nsites = structure.num_sites
+        volume = structure.volume
+        tot_mass = sum([e.atomic_mass for e in structure.species])
+        natoms = structure.composition.num_atoms
+        avg_mass = 1.6605e-27 * tot_mass / natoms
+        t = self.homogeneous_poisson
+        f = (3.*(2.*(2./3.*(1. + t)/(1. - 2.*t))**(1.5) + \
+                 (1./3.*(1. + t)/(1. - t))**(1.5))**-1) ** (1./3.)
+        return 2.9772e-11 * avg_mass**(-1./2.) * (volume / natoms) ** (-1./6.) \
+                * f * self.k_vrh**(0.5)
+
+    @property
     def universal_anisotropy(self):
         """
         returns the universal anisotropy value
         """
         return 5. * self.g_voigt / self.g_reuss + \
-            self.k_voigt / self.k_reuss - 6.
+                self.k_voigt / self.k_reuss - 6.
 
     @property
     def homogeneous_poisson(self):
@@ -188,19 +325,20 @@ class ElasticTensor(TensorBase):
         """
         # Conversion factor for GPa to eV/Angstrom^3
         GPA_EV = 0.000624151
-        
+
         with warnings.catch_warnings(record=True):
             e_density = np.dot(np.transpose(Strain(strain).voigt),
-                np.dot(self.voigt, Strain(strain).voigt))/2 * GPA_EV
+                               np.dot(self.voigt, Strain(strain).voigt)) / 2 * GPA_EV
 
         return e_density
 
     @classmethod
     def from_strain_stress_list(cls, strains, stresses):
         """
-        Class method to fit an elastic tensor from stress/strain data.  Method
-        uses Moore-Penrose pseudoinverse to invert the s = C*e equation with
-        elastic tensor, stress, and strain in voigt notation
+        Class method to fit an elastic tensor from stress/strain 
+        data.  Method uses Moore-Penrose pseudoinverse to invert 
+        the s = C*e equation with elastic tensor, stress, and 
+        strain in voigt notation
 
         Args:
             stresses (Nx3x3 array-like): list or array of stresses

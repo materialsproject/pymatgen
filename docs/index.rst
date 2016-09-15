@@ -99,90 +99,62 @@ compatible. Our approach is to have a single codebase support Python 2.7 and
 Getting pymatgen
 ================
 
-Guided install
---------------
+For absolute newbies
+--------------------
 
-For users who intend to use pymatgen purely as an analysis library (without
-developing on it), a user-friendly script has been written to guide users
-through the installation process for 64-bit Linux and Mac users. This
-installation script requires only basic *Python 2.7+, setuptools,
-and a working version of gcc* as prerequisites. Click to download the
-`pmg_install.py <_static/pmg_install.py>`_ script. Move the script to an
-empty directory and then run::
+If you are absolutely new to Python and/or are using Windows, the easiest
+installation process is using conda. Please go to the
+:doc:`installation page </installation>` for step-by-step instructions for
+all platforms.
 
-    python pmg_install.py
-
-Unless you are working in a virtual environment, you will probably need to
-run the above command with admin privileges (e.g., sudo). This will install
-pymatgen with all *basic dependencies*.
-
-To include more optional dependencies, build the enumlib and bader
-executables as well as a step-by-step initial setup for POTCARs and Materials
-API usage, run::
-
-    python pmg_install.py -f
-
-The full installation requires a Fortran compiler (ifort or gfortran) to be in
-the PATH, as well as X11 (`XQuartz <http://xquartz.macosforge.org/>`_ on Mac)
-to be installed for matplotlib.
-
-Stable version
---------------
+Standard install
+----------------
 
 .. note:: Preparation
 
     Before installing pymatgen, you may need to first install a few critical
     dependencies manually.
 
-    1. Installation has been tested to be most successful with gcc,
-       and several dependencies have issues with icc. Use gcc where
-       possible and do "export CC=gcc" prior to installation.
-    2. Numpy's distutils is needed to compile the spglib and pyhull
+    1. It is highly recommended that you use Python>=2.7.9 or >=3.5+. In
+       fact, unless you are very sure you have dependencies that require Python
+       2, it is highly recommended that you use Python >=3.5+.
+    2. Installation has been tested to be most successful with gcc. Use gcc
+       where possible and do "export CC=gcc" prior to installation.
+    3. Numpy's distutils is needed to compile the spglib and pyhull
        dependencies. This should be the first thing you install.
-    3. One of the best things you can do is to use conda to manage all this.
+    4. One of the best things you can do is to use conda to manage all this.
        The instructions for `Shared cluster installation`_ pretty much
        applies to any machine as well.
 
 The version at the Python Package Index (PyPI) is always the latest stable
 release that is relatively bug-free. The easiest way to install pymatgen on
-any system is to use easy_install or pip, as follows::
-
-    easy_install pymatgen
-
-or::
+any system is to use pip::
 
     pip install pymatgen
 
+Wheels for Mac and Windows have been built for convenience.
+
+The bleeding edge developmental version is at the pymatgen `Github repo
+<https://github.com/materialsproject/pymatgen>`_. The developmental
+version is likely to be more buggy, but may contain new features. The
+Github version include complete test files. After
+cloning the source, you can type in the root of the repo::
+
+    pip install .
+
+or to install the package in developmental mode::
+
+    pip install -e .
+
 Detailed installation instructions for various platforms (Mac and Windows)
-are given on this :doc:`page </installation>`, including how to setup your
-machine for POTCAR generation, Materials Project REST interface usage, etc.
+are given on this :doc:`page </installation>`, including installation of
+option dependencies, set up for POTCAR generation, Materials Project REST
+interface usage, setup for developers, etc.
 
 .. toctree::
    :maxdepth: 2
 
    installation
-
-Developmental version
----------------------
-
-The bleeding edge developmental version is at the pymatgen's `Github repo
-<https://github.com/materialsproject/pymatgen>`_. The developmental
-version is likely to be more buggy, but may contain new features. The
-Github version include test files as well for complete unit testing. After
-cloning the source, you can type::
-
-    python setup.py install
-
-or to install the package in developmental mode::
-
-    python setup.py develop
-
-To run the very comprehensive suite of unittests included with the
-developmental version, make sure you have nose installed and then just type::
-
-    nosetests
-
-in the pymatgen root directory.
 
 Shared cluster installation
 ---------------------------
@@ -194,7 +166,7 @@ install. This guarantees the right version of python and all dependencies::
     # Here, Python 3.5+ is assumed.
     # You can change the following to Miniconda2 if you prefer Python 2.7
     wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-    bash Miniconda3-latest-Linux-x86_64.sh
+    bash Miniconda3-latest-Linux-x86_64.sh -b
 
     # Reload bash profile.
     source $HOME/.bashrc
@@ -205,27 +177,6 @@ install. This guarantees the right version of python and all dependencies::
 
     # Install pymatgen using pip.
     pip install pymatgen
-
-"Sample" Docker version
------------------------
-
-If you would like to try out pymatgen's capabilities before committing to an
-install, one way is to use `Docker <http://www.docker.com/>`_. The
-`Materials Virtual Lab`_ has created an Docker image for the latest version of
-pymatgen. After installing Docker for your platform, you may pull and run the
-pymatgen Docker image as follows::
-
-    docker pull materialsvirtuallab/pymatgen
-    docker run -t -i materialsvirtuallab/pymatgen
-
-This will run ipython shell where you can import pymatgen and run most of the
-examples. If you want to use your own files to run some examples, you may
-mount a directory in your host computer containing the files you wish to work
-in the docker container using the -v option. For example, let's say you have
-your files in the /Users/myname/research directory. You may then run docker
-as follows::
-
-    docker run -t -i -v /Users/myname/research:/opt/research materialsvirtuallab/pymatgen
 
 Using pymatgen
 ==============
@@ -384,7 +335,7 @@ typical installation routes.
 Here, we will discuss the most versatile of these scripts, known as
 pmg. The typical usage of pmg is::
 
-    pmg {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
+    pmg {setup, config, analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
 
 At any time, you can use ``"pmg --help"`` or ``"pmg subcommand
 --help"`` to bring up a useful help message on how to use these subcommands.
