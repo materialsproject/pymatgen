@@ -4,12 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This module defines classes for parsing the FEFF output files.
-
-Currently supports the xmu.dat, ldos.dat output files are for non-spin case.
-"""
-
 from collections import defaultdict, OrderedDict
 
 import numpy as np
@@ -30,6 +24,12 @@ __email__ = "adozier@uky.edu"
 __status__ = "Beta"
 __date__ = "April 7, 2013"
 
+"""
+This module defines classes for parsing the FEFF output files.
+
+Currently supports the xmu.dat, ldos.dat output files are for non-spin case.
+"""
+
 
 class LDos(MSONable):
     """
@@ -37,14 +37,15 @@ class LDos(MSONable):
 
     Args:
         complete_dos (CompleteDos): complete dos object
-        charge_transfer (dict): computed charge transfer between atoms dictionary
+        charge_transfer (dict): computed charge transfer between atoms
+            dictionary
     """
     def __init__(self, complete_dos, charge_transfer):
         self.complete_dos = complete_dos
         self.charge_transfer = charge_transfer
 
     @staticmethod
-    def from_file(filename1='feff.inp', filename2='ldos'):
+    def from_file(feff_inp_file='feff.inp', ldos_file='ldos'):
         """"
         Creates LDos object from raw Feff ldos files by
         by assuming they are numbered consecutively, i.e. ldos01.dat
@@ -54,16 +55,15 @@ class LDos(MSONable):
             filename1: input file of run to obtain structure
             filename2: output ldos file of run to obtain dos info, etc.
         """
-        ldos_filename = filename2
-        header_str = Header.header_string_from_file(filename1)
+        header_str = Header.header_string_from_file(feff_inp_file)
         header = Header.from_string(header_str)
         structure = header.struct
         nsites = structure.num_sites
-        pot_string = Potential.pot_string_from_file(filename1)
+        pot_string = Potential.pot_string_from_file(feff_inp_file)
         dicts = Potential.pot_dict_from_string(pot_string)
         pot_dict = dicts[0]
 
-        with zopen(ldos_filename + "00.dat", "r") as fobject:
+        with zopen(ldos_file + "00.dat", "r") as fobject:
             f = fobject.readlines()
         efermi = float(f[0].split()[4])
 
@@ -72,9 +72,9 @@ class LDos(MSONable):
 
         for i in range(1, len(pot_dict) + 1):
             if len(str(i)) == 1:
-                ldos[i] = np.loadtxt("{}0{}.dat".format(ldos_filename, i))
+                ldos[i] = np.loadtxt("{}0{}.dat".format(ldos_file, i))
             else:
-                ldos[i] = np.loadtxt("{}{}.dat".format(ldos_filename, i))
+                ldos[i] = np.loadtxt("{}{}.dat".format(ldos_file, i))
 
         for i in range(0, len(ldos[1])):
             dos_energies.append(ldos[1][i][0])
@@ -118,12 +118,12 @@ class LDos(MSONable):
 
         dos = Dos(efermi, dos_energies, tdos)
         complete_dos = CompleteDos(structure, dos, pdoss)
-        charge_transfer = LDos.charge_transfer_from_file(filename1,
-                                                         filename2)
+        charge_transfer = LDos.charge_transfer_from_file(feff_inp_file,
+                                                         ldos_file)
         return LDos(complete_dos, charge_transfer)
 
     @staticmethod
-    def charge_transfer_from_file(filename1, filename2):
+    def charge_transfer_from_file(feff_inp_file, ldos_file):
         """
         Get charge transfer from file.
 
@@ -137,13 +137,13 @@ class LDos(MSONable):
             ({"p": 0.154, "s": 0.078, "d": 0.0, "tot": 0.232}, ...)
         """
         cht = OrderedDict()
-        pot_string = Potential.pot_string_from_file(filename1)
+        pot_string = Potential.pot_string_from_file(feff_inp_file)
         dicts = Potential.pot_dict_from_string(pot_string)
         pot_dict = dicts[1]
 
         for i in range(0, len(dicts[0]) + 1):
             if len(str(i)) == 1:
-                with zopen("{}0{}.dat".format(filename2, i), "rt") \
+                with zopen("{}0{}.dat".format(ldos_file, i), "rt") \
                         as fobject:
                     f = fobject.readlines()
                     s = float(f[3].split()[2])
@@ -155,7 +155,7 @@ class LDos(MSONable):
                                                  'f': f1,
                                    'tot': tot}}
             else:
-                with zopen(filename2 + str(i) + ".dat", "rt") as fid:
+                with zopen(ldos_file + str(i) + ".dat", "rt") as fid:
                     f = fid.readlines()
                     s = float(f[3].split()[2])
                     p = float(f[4].split()[2])
