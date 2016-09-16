@@ -132,8 +132,8 @@ class MPRester(object):
             if response.status_code in [200, 400]:
                 if mp_decode:
                     try:
-                        data = json.loads(response.text, cls=MPDecoder)
-                    except:
+                        data = json.loads(response.text, cls=MontyDecoder)
+                    except Exception as ex:
                         data = json.loads(response.text)
                 else:
                     data = json.loads(response.text)
@@ -268,7 +268,7 @@ class MPRester(object):
                 '{}/find_structure'.format(self.preamble), data=payload
             )
             if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MPDecoder)
+                resp = json.loads(response.text, cls=MontyDecoder)
                 if resp['valid_response']:
                     return resp['response']
                 else:
@@ -642,7 +642,7 @@ class MPRester(object):
             response = self.session.post("{}/snl/submit".format(self.preamble),
                                          data=payload)
             if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MPDecoder)
+                resp = json.loads(response.text, cls=MontyDecoder)
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
@@ -678,7 +678,7 @@ class MPRester(object):
                 "{}/snl/delete".format(self.preamble), data=payload)
 
             if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MPDecoder)
+                resp = json.loads(response.text, cls=MontyDecoder)
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
@@ -808,7 +808,7 @@ class MPRester(object):
             response = self.session.post("{}/phase_diagram/calculate_stability"
                                          .format(self.preamble), data=payload)
             if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MPDecoder)
+                resp = json.loads(response.text, cls=MontyDecoder)
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
@@ -950,36 +950,3 @@ class MPRestError(Exception):
     """
     pass
 
-
-class MPDecoder(MontyDecoder):
-    """
-    A Json Decoder which supports the MSONable API. By default, the
-    decoder attempts to find a module and name associated with a dict. If
-    found, the decoder will generate a Pymatgen as a priority.  If that fails,
-    the original decoded dictionary from the string is returned. Note that
-    nested lists and dicts containing pymatgen object will be decoded correctly
-    as well.
-
-    Usage:
-        Add it as a *cls* keyword when using json.load
-        json.loads(json_string, cls=MPDecoder)
-    """
-
-    def process_decoded(self, d):
-        """
-        Recursive method to support decoding dicts and lists containing
-        pymatgen objects.
-        """
-        if isinstance(d, dict) and "module" in d and "class" in d:
-            modname = d["module"]
-            classname = d["class"]
-            mod = __import__(modname, globals(), locals(), [classname], 0)
-            if hasattr(mod, classname):
-                cls_ = getattr(mod, classname)
-                data = {k: v for k, v in d.items()
-                        if k not in ["module", "class"]}
-                if hasattr(cls_, "from_dict"):
-                    return cls_.from_dict(data)
-            return {self.process_decoded(k): self.process_decoded(v)
-                    for k, v in d.items()}
-        return MontyDecoder.process_decoded(self, d)
