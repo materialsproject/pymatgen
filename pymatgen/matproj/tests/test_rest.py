@@ -7,6 +7,7 @@ from __future__ import division, unicode_literals
 import unittest2 as unittest
 import os
 
+from pymatgen import SETTINGS
 from pymatgen.matproj.rest import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
@@ -35,7 +36,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
-@unittest.skipIf("MAPI_KEY" not in os.environ,
+@unittest.skipIf("MAPI_KEY" not in SETTINGS,
                  "MAPI_KEY environment variable not set.")
 class MPResterTest(unittest.TestCase):
 
