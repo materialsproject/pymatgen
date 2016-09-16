@@ -52,8 +52,8 @@ class LDos(MSONable):
         ldos02.dat...
 
         Args:
-            filename1: input file of run to obtain structure
-            filename2: output ldos file of run to obtain dos info, etc.
+            feff_inp_file (str): input file of run to obtain structure
+            ldos_file (str): output ldos file of run to obtain dos info, etc.
         """
         header_str = Header.header_string_from_file(feff_inp_file)
         header = Header.from_string(header_str)
@@ -128,9 +128,9 @@ class LDos(MSONable):
         Get charge transfer from file.
 
         Args:
-            filename1: name of feff.inp file for run
-            filename2: ldos filename for run, assume consequetive order, .i.e.,
-                ldos01.dat, ldos02.dat....
+            feff_inp_file (str): name of feff.inp file for run
+            ldos_file (str): ldos filename for run, assume consequetive order,
+                i.e., ldos01.dat, ldos02.dat....
 
         Returns:
             dictionary of dictionaries in order of potential sites
@@ -218,21 +218,21 @@ class Xmu(MSONable):
         self.data = data
 
     @staticmethod
-    def from_file(filename="xmu.dat", input_filename="feff.inp"):
+    def from_file(xmu_dat_file="xmu.dat", feff_inp_file="feff.inp"):
         """
         Get Xmu from file.
 
         Args:
-            filename: filename and path for xmu.dat
-            input_filename: filename and path of feff.inp input file
+            xmu_dat_file (str): filename and path for xmu.dat
+            feff_inp_file (str): filename and path of feff.inp input file
 
         Returns:
              Xmu object
         """
-        data = np.loadtxt(filename)
-        header = Header.from_file(input_filename)
-        parameters = Tags.from_file(input_filename)
-        pots = Potential.pot_string_from_file(input_filename)
+        data = np.loadtxt(xmu_dat_file)
+        header = Header.from_file(feff_inp_file)
+        parameters = Tags.from_file(feff_inp_file)
+        pots = Potential.pot_string_from_file(feff_inp_file)
         absorbing_atom = pots.splitlines()[1].split()[2]
         return Xmu(header, parameters, absorbing_atom, data)
 
