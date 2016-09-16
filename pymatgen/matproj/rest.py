@@ -131,10 +131,7 @@ class MPRester(object):
                 response = self.session.get(url, params=payload, verify=True)
             if response.status_code in [200, 400]:
                 if mp_decode:
-                    try:
-                        data = json.loads(response.text, cls=MontyDecoder)
-                    except Exception as ex:
-                        data = json.loads(response.text)
+                    data = json.loads(response.text, cls=MontyDecoder)
                 else:
                     data = json.loads(response.text)
                 if data["valid_response"]:
@@ -833,7 +830,7 @@ class MPRester(object):
         """
         return self._make_request("/reaction",
                                   payload={"reactants[]": reactants,
-                                           "products[]": products})
+                                           "products[]": products}, mp_decode=False)
 
     def get_substrates(self, material_id, number=50, orient=None):
         """
