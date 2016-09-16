@@ -13,7 +13,7 @@ from tabulate import tabulate
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen import Structure, Lattice, Element
+from pymatgen import Structure, Lattice, Element, Molecule
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.io_utils import clean_lines
@@ -327,19 +327,33 @@ class Atoms(MSONable):
                     find_atoms = line.find("ATOMS")
                     if find_atoms >= 0:
                         coords = 1
-                if coords == 1:
+                if coords == 1 and not ("END" in line):
                     atoms_str.append(line.replace("\r", ""))
 
         return ''.join(atoms_str)
 
     @staticmethod
-    def from_string(data):
+    def cluster_from_file(filename):
         """
-        At the moment does nothing.
+        Parse the feff input file and return the atomic cluster as a Molecule
+        object.
 
-        From atoms string data generates atoms object
+        Args:
+            filename (str): path the feff input file
+
+        Returns:
+            Molecule: the atomic cluster as Molecule object. The absorbing atom
+                is the one at the origin.
         """
-        return data
+        atoms_string = Atoms.atoms_string_from_file(filename)
+        line_list = [l.split() for l in atoms_string.splitlines()[3:]]
+        coords = []
+        symbols = []
+        for l in line_list:
+            if l:
+                coords.append([float(i) for i in l[:3]])
+                symbols.append(l[4])
+        return Molecule(symbols, coords)
 
     def get_string(self):
         """
