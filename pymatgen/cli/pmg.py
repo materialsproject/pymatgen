@@ -473,7 +473,7 @@ def main():
                                       "functional. Defaults to PBE.")
     parser_generate.add_argument("-s", "--spec", dest="spec",
                                  type=str, nargs="+",
-                                 help="POTCAR.spec file to generate from.")
+                                 help="Dirname to find and generate from POTCAR.spec.")
     parser_generate.set_defaults(func=generate_potcar)
 
     parser_structure = subparsers.add_parser(
