@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v4.3.1
+------
+* Upgrade monty and spglib requirements for bug fixes.
+* Updates to feff support (Kiran).
+
 v4.3.0
 ------
 * Massive update to elastic module. (Joey Montaya)
