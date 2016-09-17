@@ -12,6 +12,7 @@ dependencies:
   override:
     - easy_install -U setuptools
     - pip install -q numpy
+    - pip install pymongo
     - pip install -r requirements.txt --upgrade
     - pip install -r requirements-optional.txt
     - sudo apt-get install python-openbabel python-vtk python3-tk
