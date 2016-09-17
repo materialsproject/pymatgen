@@ -1,8 +1,7 @@
 Change log
 ==========
 
-v4.3.0
+v4.3.1
 ------
-* Massive update to elastic module. (Joey Montaya)
-* Pathfinder algorithm for NEB calculations. (Ziqing Rong)
-* Wheels for Windows and Mac Py27 and Py35.
+* Upgrade monty and spglib requirements for bug fixes.
+* Updates to feff support (Kiran).

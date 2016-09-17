@@ -95,8 +95,8 @@ def deltafactor_polyfit(volumes, energies):
     b0 = derivV2 / x**(3./2.)
     b1 = -1 - x**(-3./2.) * derivV3 / derivV2
 
-    # e0=None, b0, b1, v0, eos_params
-    return None, b0, b1, v0, fitdata[0]
+    # e0, b0, b1, v0, eos_params
+    return np.poly1d(fitdata[0])(v0**(-2./3.)), b0, b1, v0, fitdata[0]
 
 
 class EOS(object):
