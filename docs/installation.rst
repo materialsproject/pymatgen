@@ -77,6 +77,12 @@ the moment) required only for certain features:
 Step-by-step installation instructions
 ======================================
 
+For these instructions, we will assume the 64-bit versions of all OSes and
+using Python 3.5. If you are not using these, please modify the instructions
+accordingly. However, note that Python 2.7 on Windows require a different
+Visual Studio version. It is therefore highly recommended that you use Python
+3.5.
+
 Step 1: Preparing your system
 -----------------------------
 
@@ -85,7 +91,8 @@ Windows
 
 1. Download Microsoft Visual Studio 2015 (the free Community Edition) is fine.
 2. Install Visual Studio 2015, but *make sure that you select More Options ->
-   Programming Languages -> Visual C++ during the installation process*.
+   Programming Languages -> Visual C++ during the installation process*. By
+   default, Visual Studio does not install Visual C++, which is needed.
 
 Mac OSX
 ~~~~~~~
@@ -109,8 +116,16 @@ Step 2: Install conda
 
 Download and install the version of conda for your operating system from
 http://conda.pydata.org/miniconda.html. For Windows, simply double-click the
-exe file. For Linux or Mac, run `bash Miniconda3-latest-MacOSX-x86_64.sh` or
-`bash Miniconda3-latest-Linux-x86_64.sh`.
+exe file. For Linux or Mac, run::
+
+    # If Mac
+    bash Miniconda3-latest-MacOSX-x86_64.sh
+
+    # If Linux
+    bash Miniconda3-latest-Linux-x86_64.sh
+
+Note that you may need to create a new terminal after this step in order for
+the environmental variables added by conda to be loaded.
 
 Step 2b: (Optional) Create a conda environment
 ----------------------------------------------
@@ -138,13 +153,19 @@ If all goes well, standard pip install of pymatgen should work::
 Step 5: (Optional) Install enumlib and bader
 --------------------------------------------
 
-These have been tested only on Mac and Linux. If you would like to use the
-enumeration capabilities powered by Gus Hart's enumlib or perform Bader
-charge analysis powered by the Bader analysis code of the Henkelmann group,
-you can install it using the pmg command line tool as follows::
+For Windows, use conda to install fortran and some requirements first::
+
+    conda install --yes git m2w64-gcc-fortran make
+
+If you would like to use the enumeration capabilities powered by Gus Hart's
+enumlib or perform Bader charge analysis powered by the Bader analysis code
+of the Henkelmann group, you can install it using the pmg command line tool
+as follows::
 
    pmg setup --install enum
    pmg setup --install bader
+
+Then put these in your PATH somewhere.
 
 POTCAR Setup
 ============
@@ -223,11 +244,8 @@ Please feel free to send in suggestions to update the instructions based on
 your experiences. In all the instructions, it is assumed that you have standard
 gcc and other compilers (e.g., Xcode on Macs) already installed.
 
-VTK (tested on v5.10.0 - 6.1.0)
--------------------------------
-
-Mac OS X 10.7 - 10.9
-~~~~~~~~~~~~~~~~~~~~
+VTK on Mac OS X (tested on v7.0)
+--------------------------------
 
 The easiest is to install cmake from
 http://cmake.org/cmake/resources/software.html.
@@ -241,52 +259,34 @@ Type the following::
 
 Press "t" to toggle advanced mode. Then press "c" to do an initial
 configuration. After the list of parameters come out, ensure that the
-PYTHON_VERSION is set to 2, the VTK_WRAP_PYTHON is set to ON, and
+PYTHON_VERSION is set to 3, the VTK_WRAP_PYTHON is set to ON, and
 BUILD_SHARED_LIBS is set to ON. You may also need to modify the python
 paths and library paths if they are in non-standard locations. For example, if
 you have installed the official version of Python instead of using the
 Mac-provided version, you will probably need to edit the CMakeCache Python
-links. Example configuration for Python 2.7 is given below (only variables that
-need to be modified are shown):
+links. Example configuration for Python 3.5 installed using conda is given
+below (only variables that need to be modified/checked are shown)::
 
-::
-
-   //Path to a program.
-   PYTHON_EXECUTABLE:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/bin/python
-
-   //Path to a file.
-   PYTHON_INCLUDE_DIR:PATH=/Library/Frameworks/Python.framework/Versions/2.7/Headers
-
-   //Path to a library.
-   PYTHON_LIBRARY:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib
-
-   //Also delete the prefix settings for python, which typically links to the Mac python.
-
-    VTK_INSTALL_PYTHON_MODULE_DIR:PATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages
-
-.. note:: Garbage collection on new Xcode
-
-    If you are using a very new XCode (e.g. 5.1), please note that Cocoa garbage
-    collection has been removed and during compile, you may get an "error:
-    garbage collection is no longer supported" message. VTK does not require
-    Cocoa garbage collection, but was configured to built with support for it on.
-    You can simply remove the -fobjc-gc flag from VTK_REQUIRED_OBJCXX_FLAGS.
+    PYTHON_EXECUTABLE:FILEPATH=/Users/<username>/miniconda3/bin/python3
+    PYTHON_INCLUDE_DIR:PATH=/Users/<username>/miniconda3/include/python3.5m
+    PYTHON_LIBRARY:FILEPATH=/Users/<username>/miniconda3/lib/libpython3.5m.dylib
+    VTK_INSTALL_PYTHON_MODULE_DIR:PATH=/Users/<username>/miniconda3/lib/python3.5/site-packages
+    VTK_PYTHON_VERSION:STRING=3
+    VTK_WRAP_PYTHON:BOOL=ON
 
 Then press "c" again to configure and finally "g" to generate the required
-make files After the CMakeCache.txt file is generated, type:
-
-::
+make files After the CMakeCache.txt file is generated, type::
 
 	make -j 4
 	sudo make install
 
-With any luck, you should have vtk with the necessary python wrappers installed.
+With any luck, you should have vtk with the necessary python wrappers
+installed. You can test this by going into a python terminal and trying::
 
-OpenBabel (tested on v2.3.2)
-----------------------------
+    import vtk
 
-Mac OS X 10.7 - 10.9
-~~~~~~~~~~~~~~~~~~~~
+OpenBabel Mac OS X (tested on v2.3.2)
+-------------------------------------
 
 Openbabel must be compiled with python bindings for integration with pymatgen.
 Here are the steps that I took to make it work:
@@ -367,7 +367,7 @@ Here are the steps that I took to make it work:
         export PYTHONPATH=/usr/local/lib:$PYTHONPATH
 
 Enumlib (updated Mar 2016)
-------------------------------------------
+--------------------------
 
 The author now has his own Github repo with the relevant instructions to
 compile a newer version of enumlib. Follow the instructions given at the
