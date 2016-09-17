@@ -458,23 +458,23 @@ def main():
                             nargs=2, help="List of INCARs to compare.")
     parser_diffincar.set_defaults(func=diff_incar)
 
-    parser_generate = subparsers.add_parser("generate",
+    parser_potcar = subparsers.add_parser("potcar",
                                             help="Generate POTCARs")
-    parser_generate.add_argument("-f", "--functional", dest="functional",
+    parser_potcar.add_argument("-f", "--functional", dest="functional",
                                  type=str,
                                  choices=["LDA", "PBE", "PW91", "LDA_US"],
                                  default="PBE",
                                  help="Functional to use. Unless otherwise "
                                       "stated (e.g., US), "
                                       "refers to PAW psuedopotential.")
-    parser_generate.add_argument("-p", "--potcar", dest="symbols",
+    parser_potcar.add_argument("-s", "--symbols", dest="symbols",
                                  type=str, nargs="+",
                                  help="List of POTCAR symbols. Use -f to set "
                                       "functional. Defaults to PBE.")
-    parser_generate.add_argument("-s", "--spec", dest="spec",
+    parser_potcar.add_argument("-r", "--recursive", dest="recursive",
                                  type=str, nargs="+",
                                  help="Dirname to find and generate from POTCAR.spec.")
-    parser_generate.set_defaults(func=generate_potcar)
+    parser_potcar.set_defaults(func=generate_potcar)
 
     parser_structure = subparsers.add_parser(
         "structure",
