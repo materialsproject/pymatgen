@@ -33,7 +33,7 @@ setup(
     packages=find_packages(),
     version="4.3.0",
     install_requires=["numpy>=1.9", "six", "atomicfile", "requests",
-                      "pybtex", "pyyaml", "monty>=0.9.3", "scipy>=0.14",
+                      "pybtex", "pyyaml", "monty>=0.9.4", "scipy>=0.14",
                       "tabulate", "enum34", "spglib"],
     extras_require={"plotting": ["matplotlib>=1.1", "prettyplotlib"],
                     "pourbaix diagrams, bandstructure": ["pyhull>=1.5.3"],
