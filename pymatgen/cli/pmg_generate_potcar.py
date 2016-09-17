@@ -26,7 +26,7 @@ def gen_potcar(dirname, filename):
 
 
 def generate_potcar(args):
-    if args.spec:
+    if args.recursive:
         proc_dir(args.spec, gen_potcar)
 
     if args.symbols:
