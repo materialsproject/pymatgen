@@ -12,18 +12,17 @@ except ImportError:
 from tabulate import tabulate_formats
 
 from monty.serialization import loadfn, dumpfn
-from pymatgen import Structure, SETTINGS_FILE
-from pymatgen.electronic_structure.plotter import DosPlotter
+from pymatgen import SETTINGS_FILE
 from pymatgen.io.vasp import Poscar
 from pymatgen.io.cif import CifParser, CifWriter
 from pymatgen.io.vasp.sets import MPRelaxSet, MITRelaxSet
 from pymatgen.io.cssr import Cssr
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.alchemy.materials import TransformedStructure
-from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.cli.pmg_analyze import *
 from pymatgen.cli.pmg_setup import *
 from pymatgen.cli.pmg_generate_potcar import *
+from pymatgen.cli.pmg_plot import *
 
 
 """
@@ -52,63 +51,6 @@ def configure(args):
     for i in range(int(len(toks) / 2)):
         d[toks[2 * i]] = toks[2 * i + 1]
     dumpfn(d, args.output_file, default_flow_style=False)
-
-
-def plot_dos(args):
-    v = Vasprun(args.filename[0])
-    dos = v.complete_dos
-
-    all_dos = OrderedDict()
-    all_dos["Total"] = dos
-
-    structure = v.final_structure
-
-    if args.site:
-        for i in range(len(structure)):
-            site = structure[i]
-            all_dos["Site " + str(i) + " " + site.specie.symbol] = \
-                dos.get_site_dos(site)
-
-    if args.element:
-        syms = [tok.strip() for tok in args.element[0].split(",")]
-        all_dos = {}
-        for el, dos in dos.get_element_dos().items():
-            if el.symbol in syms:
-                all_dos[el] = dos
-    if args.orbital:
-        all_dos = dos.get_spd_dos()
-
-    plotter = DosPlotter()
-    plotter.add_dos_dict(all_dos)
-    if args.file:
-        plotter.get_plot().savefig(args.file[0])
-    else:
-        plotter.show()
-
-
-def plot_chgint(args):
-    chgcar = Chgcar.from_file(args.filename[0])
-    s = chgcar.structure
-
-    if args.inds:
-        atom_ind = [int(i) for i in args.inds[0].split(",")]
-    else:
-        finder = SpacegroupAnalyzer(s, symprec=0.1)
-        sites = [sites[0] for sites in
-                 finder.get_symmetrized_structure().equivalent_sites]
-        atom_ind = [s.sites.index(site) for site in sites]
-
-    from pymatgen.util.plotting_utils import get_publication_quality_plot
-    plt = get_publication_quality_plot(12, 8)
-    for i in atom_ind:
-        d = chgcar.get_integrated_diff(i, args.radius, 30)
-        plt.plot(d[:, 0], d[:, 1],
-                 label="Atom {} - {}".format(i, s[i].species_string))
-    plt.legend(loc="upper left")
-    plt.xlabel("Radius (A)")
-    plt.ylabel("Integrated charge (e)")
-    plt.tight_layout()
-    plt.show()
 
 
 def convert_fmt(args):
@@ -236,15 +178,6 @@ def compare_structures(args):
         print()
 
 
-def generate_diffraction_plot(args):
-    s = Structure.from_file(args.filenames[0])
-    c = XRDCalculator()
-    if args.outfile:
-        c.get_xrd_plot(s).savefig(args.outfile[0])
-    else:
-        c.show_xrd_plot(s)
-
-
 def diff_incar(args):
     filepath1 = args.filenames[0]
     filepath2 = args.filenames[1]
@@ -351,9 +284,17 @@ def main():
                              help="Sort criteria. Defaults to energy / atom.")
     parser_vasp.set_defaults(func=parse_vasp)
 
-    parser_plot = subparsers.add_parser("plotdos", help="Plotting for dos.")
-    parser_plot.add_argument("filename", metavar="filename", type=str, nargs=1,
-                             help="vasprun.xml file to plot")
+    parser_plot = subparsers.add_parser("plot", help="Plotting tool for "
+                                                     "DOS, CHGCAR, XRD, etc.")
+    group = parser_plot.add_mutually_exclusive_group()
+    group.add_argument('-d', '--dos', dest="dos_file",
+                       help="Plot DOS from a vasprun.xml")
+    group.add_argument('-c', '--chgint', dest="chgcar_file",
+                       help="Generate charge integration plots from any "
+                            "CHGCAR")
+    group.add_argument('-x', '--xrd', dest="xrd_structure_file",
+                       help="Generate XRD plots from any structure file")
+
     parser_plot.add_argument("-s", "--site", dest="site", action="store_const",
                              const=True, help="Plot site projected DOS")
     parser_plot.add_argument("-e", "--element", dest="element", type=str,
@@ -363,25 +304,22 @@ def main():
     parser_plot.add_argument("-o", "--orbital", dest="orbital",
                              action="store_const", const=True,
                              help="Plot orbital projected DOS")
-    parser_plot.add_argument("-f", "--file", dest="file", type=str, nargs=1,
-                             help="Save to file.")
-    parser_plot.set_defaults(func=plot_dos)
 
-    parser_plotchg = subparsers.add_parser("plotchgint",
-                                           help="Plotting for the charge "
-                                                "integration.")
-    parser_plotchg.add_argument("filename", metavar="filename", type=str,
-                                nargs=1, help="CHGCAR file to plot")
-    parser_plotchg.add_argument("-i", "--indices", dest="inds", type=str,
-                                nargs=1,
-                                help="Comma-separated list of indices to plot"
-                                     ", e.g., 1,2,3,4. If not provided, "
-                                     "the code will plot the chgint for all "
-                                     "symmetrically distinct atoms detected.")
-    parser_plotchg.add_argument("-r", "--radius", dest="radius", type=float,
-                                default=3,
-                                help="Radius of integration.")
-    parser_plotchg.set_defaults(func=plot_chgint)
+    parser_plot.add_argument("-i", "--indices", dest="inds", type=str,
+                             nargs=1,
+                             help="Comma-separated list of indices to plot "
+                                  "charge integration, e.g., 1,2,3,4. If not "
+                                  "provided, the code will plot the chgint "
+                                  "for all symmetrically distinct atoms "
+                                  "detected.")
+    parser_plot.add_argument("-r", "--radius", dest="radius", type=float,
+                             default=3,
+                             help="Radius of integration for charge "
+                                  "integration plot.")
+    parser_plot.add_argument("--out_file", dest="out_file", type=str,
+                             help="Save plot to file instead of displaying.")
+    parser_plot.set_defaults(func=plot)
+
 
     parser_convert = subparsers.add_parser(
         "convert", help="File format conversion tools.")
@@ -487,17 +425,6 @@ def main():
         help="Local environment analysis. Provide bonds in the format of"
              "Center Species-Ligand Species=max_dist, e.g., H-O=0.5.")
     parser_structure.set_defaults(func=analyze_structure)
-
-    parser_diffraction = subparsers.add_parser(
-        "diffraction",
-        help="Generate diffraction plots. Current supports XRD only.")
-    parser_diffraction.add_argument(
-        "filenames", metavar="filenames", type=str, nargs=1,
-        help="List of input structure files to generate diffraction plot.")
-    parser_diffraction.add_argument(
-        "-o", "--output_filename", dest="outfile", type=str, nargs=1,
-        help="Save to file given by filename.")
-    parser_diffraction.set_defaults(func=generate_diffraction_plot)
 
     args = parser.parse_args()
 

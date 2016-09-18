@@ -124,12 +124,14 @@ class DosPlotter(object):
                 determination.
             ylim: Specifies the y-axis limits.
         """
-        import prettyplotlib as ppl
-        from prettyplotlib import brewer2mpl
+
 
         ncolors = max(3, len(self._doses))
         ncolors = min(9, ncolors)
-        colors = brewer2mpl.get_map('Set1', 'qualitative', ncolors).mpl_colors
+
+        import palettable
+
+        colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
         y = None
         alldensities = []
@@ -177,11 +179,11 @@ class DosPlotter(object):
                 plt.fill(x, y, color=colors[i % ncolors],
                          label=str(key))
             else:
-                ppl.plot(x, y, color=colors[i % ncolors],
+                plt.plot(x, y, color=colors[i % ncolors],
                          label=str(key), linewidth=3)
             if not self.zero_at_efermi:
                 ylim = plt.ylim()
-                ppl.plot([self._doses[key]['efermi'],
+                plt.plot([self._doses[key]['efermi'],
                           self._doses[key]['efermi']], ylim,
                          color=colors[i % ncolors],
                          linestyle='--', linewidth=2)
