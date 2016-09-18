@@ -11,8 +11,10 @@ __date__ = "Sep 17 2016"
 __version__ = "4.3.1"
 
 
+SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
+
+
 def _load_pmg_settings():
-    SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
     if os.path.exists(SETTINGS_FILE):
         try:
             from monty.serialization import loadfn
