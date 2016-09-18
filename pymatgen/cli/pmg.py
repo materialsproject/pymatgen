@@ -4,32 +4,15 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-import argparse
-import os
-import re
-import logging
-import multiprocessing
-import sys
-import datetime
-from collections import OrderedDict
-import glob
-import shutil
-import subprocess
-import itertools
 try:
     from urllib.request import urlretrieve
 except ImportError:
     from urllib import urlretrieve
-from six.moves import input
 
-from tabulate import tabulate, tabulate_formats
+from tabulate import tabulate_formats
 
 from monty.serialization import loadfn, dumpfn
 from pymatgen import Structure, SETTINGS_FILE
-from pymatgen.io.vasp import Outcar, Vasprun, Chgcar, Incar
-from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
-    VaspToComputedEntryDrone
-from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.io.vasp import Poscar
 from pymatgen.io.cif import CifParser, CifWriter
@@ -38,6 +21,10 @@ from pymatgen.io.cssr import Cssr
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
+from pymatgen.cli.pmg_analyze import *
+from pymatgen.cli.pmg_setup import *
+from pymatgen.cli.pmg_generate_potcar import *
+
 
 """
 A master convenience script with many tools for vasp and structure analysis.
@@ -65,98 +52,6 @@ def configure(args):
     for i in range(int(len(toks) / 2)):
         d[toks[2 * i]] = toks[2 * i + 1]
     dumpfn(d, args.output_file, default_flow_style=False)
-
-
-def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
-    """
-    Doc string.
-    """
-    if verbose:
-        logformat = "%(relativeCreated)d msecs : %(message)s"
-        logging.basicConfig(level=logging.INFO, format=logformat)
-
-    if not detailed:
-        drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
-    else:
-        drone = VaspToComputedEntryDrone(inc_structure=True,
-                                         data=["filename",
-                                               "initial_structure"])
-
-    ncpus = multiprocessing.cpu_count()
-    logging.info("Detected {} cpus".format(ncpus))
-    queen = BorgQueen(drone, number_of_drones=ncpus)
-    if os.path.exists(SAVE_FILE) and not reanalyze:
-        msg = "Using previously assimilated data from {}.".format(SAVE_FILE) \
-            + " Use -r to force re-analysis."
-        queen.load_data(SAVE_FILE)
-    else:
-        if ncpus > 1:
-            queen.parallel_assimilate(rootdir)
-        else:
-            queen.serial_assimilate(rootdir)
-        msg = "Analysis results saved to {} for faster ".format(SAVE_FILE) + \
-              "subsequent loading."
-        queen.save_data(SAVE_FILE)
-
-    entries = queen.get_data()
-    if sort == "energy_per_atom":
-        entries = sorted(entries, key=lambda x: x.energy_per_atom)
-    elif sort == "filename":
-        entries = sorted(entries, key=lambda x: x.data["filename"])
-
-    all_data = []
-    for e in entries:
-        if not detailed:
-            delta_vol = "{:.2f}".format(e.data["delta_volume"] * 100)
-        else:
-            delta_vol = e.structure.volume / \
-                e.data["initial_structure"].volume - 1
-            delta_vol = "{:.2f}".format(delta_vol * 100)
-        all_data.append((e.data["filename"].replace("./", ""),
-                         re.sub("\s+", "", e.composition.formula),
-                         "{:.5f}".format(e.energy),
-                         "{:.5f}".format(e.energy_per_atom),
-                         delta_vol))
-    if len(all_data) > 0:
-        headers = ("Directory", "Formula", "Energy", "E/Atom", "% vol chg")
-        print(tabulate(all_data, headers=headers, tablefmt=fmt))
-        print("")
-        print(msg)
-    else:
-        print("No valid vasp run found.")
-
-
-def get_magnetizations(mydir, ion_list):
-    data = []
-    max_row = 0
-    for (parent, subdirs, files) in os.walk(mydir):
-        for f in files:
-            if re.match("OUTCAR*", f):
-                try:
-                    row = []
-                    fullpath = os.path.join(parent, f)
-                    outcar = Outcar(fullpath)
-                    mags = outcar.magnetization
-                    mags = [m["tot"] for m in mags]
-                    all_ions = list(range(len(mags)))
-                    row.append(fullpath.lstrip("./"))
-                    if ion_list:
-                        all_ions = ion_list
-                    for ion in all_ions:
-                        row.append(str(mags[ion]))
-                    data.append(row)
-                    if len(all_ions) > max_row:
-                        max_row = len(all_ions)
-                except:
-                    pass
-
-    for d in data:
-        if len(d) < max_row + 1:
-            d.extend([""] * (max_row + 1 - len(d)))
-    headers = ["Filename"]
-    for i in range(max_row):
-        headers.append(str(i))
-    print(tabulate(data, headers))
 
 
 def plot_dos(args):
@@ -214,24 +109,6 @@ def plot_chgint(args):
     plt.ylabel("Integrated charge (e)")
     plt.tight_layout()
     plt.show()
-
-
-def parse_vasp(args):
-
-    default_energies = not (args.get_energies or args.ion_list)
-
-    if args.get_energies or default_energies:
-        for d in args.directories:
-            get_energies(d, args.reanalyze, args.verbose,
-                         args.detailed, args.sort[0], args.format)
-    if args.ion_list:
-        if args.ion_list[0] == "All":
-            ion_list = None
-        else:
-            (start, end) = [int(i) for i in re.split("-", args.ion_list[0])]
-            ion_list = list(range(start, end + 1))
-        for d in args.directories:
-            get_magnetizations(d, ion_list)
 
 
 def convert_fmt(args):
@@ -359,19 +236,6 @@ def compare_structures(args):
         print()
 
 
-def generate_files(args):
-    from pymatgen.io.vasp.inputs import Potcar
-    if args.symbols:
-        try:
-            p = Potcar(args.symbols, functional=args.functional)
-            p.write_file("POTCAR")
-        except Exception as ex:
-            print("An error has occurred: {}".format(str(ex)))
-
-    else:
-        print("No valid options selected.")
-
-
 def generate_diffraction_plot(args):
     s = Structure.from_file(args.filenames[0])
     c = XRDCalculator()
@@ -379,154 +243,6 @@ def generate_diffraction_plot(args):
         c.get_xrd_plot(s).savefig(args.outfile[0])
     else:
         c.show_xrd_plot(s)
-
-
-def setup_potcars(pspdir, targetdir):
-    try:
-        os.makedirs(targetdir)
-    except OSError:
-        r = input("Destination directory exists. Continue (y/n)? ")
-        if r != "y":
-            print("Exiting ...")
-            sys.exit(0)
-
-    print("Generating pymatgen resources directory...")
-
-    name_mappings = {
-        "potpaw_PBE": "POT_GGA_PAW_PBE",
-        "potpaw_PBE_52": "POT_GGA_PAW_PBE_52",
-        "potpaw_PBE_54": "POT_GGA_PAW_PBE_54",
-        "potpaw_PBE.52": "POT_GGA_PAW_PBE_52",
-        "potpaw_PBE.54": "POT_GGA_PAW_PBE_54",
-        "potpaw_LDA": "POT_LDA_PAW",
-        "potpaw_LDA.52": "POT_LDA_PAW_52",
-        "potpaw_LDA.54": "POT_LDA_PAW_54",
-        "potpaw_LDA_52": "POT_LDA_PAW_52",
-        "potpaw_LDA_54": "POT_LDA_PAW_54",
-        "potUSPP_LDA": "POT_LDA_US",
-        "potpaw_GGA": "POT_GGA_PAW_PW91",
-        "potUSPP_GGA": "POT_GGA_US_PW91"
-    }
-
-    for (parent, subdirs, files) in os.walk(pspdir):
-        basename = os.path.basename(parent)
-        basename = name_mappings.get(basename, basename)
-        for subdir in subdirs:
-            filenames = glob.glob(os.path.join(parent, subdir, "POTCAR*"))
-            if len(filenames) > 0:
-                try:
-                    basedir = os.path.join(targetdir, basename)
-                    if not os.path.exists(basedir):
-                        os.makedirs(basedir)
-                    fname = filenames[0]
-                    dest = os.path.join(basedir, os.path.basename(fname))
-                    shutil.copy(fname, dest)
-                    ext = fname.split(".")[-1]
-                    if ext.upper() in ["Z", "GZ"]:
-                        subprocess.Popen(["gunzip", dest]).communicate()
-                    elif ext.upper() in ["BZ2"]:
-                        subprocess.Popen(["bunzip2", dest]).communicate()
-                    if subdir == "Osmium":
-                        subdir = "Os"
-                    dest = os.path.join(basedir, "POTCAR.{}".format(subdir))
-                    shutil.move(os.path.join(basedir, "POTCAR"), dest)
-                    subprocess.Popen(["gzip", "-f", dest]).communicate()
-                except Exception as ex:
-                    print("An error has occured. Message is %s. Trying to "
-                          "continue... " % str(ex))
-
-    print("")
-    print("PSP resources directory generated. It is recommended that you "
-          "run 'pmg config --add VASP_PSP_DIR %s'" % os.path.abspath(targetdir))
-    print("Start a new terminal to ensure that your environment variables "
-          "are properly set.")
-
-
-def build_enum(fortran_command="gfortran"):
-    currdir = os.getcwd()
-    state = True
-    try:
-        subprocess.call(["git", "clone",
-                         "https://github.com/msg-byu/enumlib.git"])
-        subprocess.call(["git", "clone",
-                         "https://github.com/msg-byu/symlib.git"])
-        os.chdir(os.path.join(currdir, "symlib", "src"))
-        os.environ["F90"] = fortran_command
-        subprocess.call(["make"])
-        enumpath = os.path.join(currdir, "enumlib", "src")
-        os.chdir(enumpath)
-        subprocess.call(["make"])
-        for f in ["enum.x", "makestr.x"]:
-            subprocess.call(["make", f])
-            shutil.copy(f, os.path.join("..", ".."))
-    except Exception as ex:
-        print(str(ex))
-        state = False
-    finally:
-        os.chdir(currdir)
-        shutil.rmtree("enumlib")
-        shutil.rmtree("symlib")
-    return state
-
-
-def build_bader(fortran_command="gfortran"):
-    bader_url = "http://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz"
-    currdir = os.getcwd()
-    state = True
-    try:
-        urlretrieve(bader_url, "bader.tar.gz")
-        subprocess.call(["tar", "-zxf", "bader.tar.gz"])
-        os.chdir("bader")
-        subprocess.call(
-            ["cp", "makefile.osx_" + fortran_command, "makefile"])
-        subprocess.call(["make"])
-        shutil.copy("bader", os.path.join("..", "bader_exe"))
-        os.chdir("..")
-        shutil.rmtree("bader")
-        os.remove("bader.tar.gz")
-        shutil.move("bader_exe", "bader")
-    except Exception as ex:
-        print(str(ex))
-        state = False
-    finally:
-        os.chdir(currdir)
-    return state
-
-
-def setup_pmg(args):
-    if args.potcar_dirs:
-        pspdir, targetdir = [os.path.abspath(d) for d in args.potcar_dirs]
-        setup_potcars(pspdir, targetdir)
-    elif args.install:
-        try:
-            subprocess.call(["ifort", "--version"])
-            print("Found ifort")
-            fortran_command = "ifort"
-        except:
-            try:
-                subprocess.call(["gfortran", "--version"])
-                print("Found gfortran")
-                fortran_command = "gfortran"
-            except Exception as ex:
-                print(str(ex))
-                print("No fortran compiler found.")
-                sys.exit(-1)
-
-        enum = None
-        bader = None
-        if args.install == "enum":
-            print("Building enumlib")
-            enum = build_enum(fortran_command)
-            print("")
-        elif args.install == "bader":
-            print("Building bader")
-            bader = build_bader(fortran_command)
-            print("")
-        if bader or enum:
-            print("Please add {} to your PATH or move the executables multinum.x, "
-                  "makestr.x and/or bader to a location in your PATH."
-                  .format(os.path.abspath(".")))
-            print("")
 
 
 def diff_incar(args):
@@ -742,20 +458,23 @@ def main():
                             nargs=2, help="List of INCARs to compare.")
     parser_diffincar.set_defaults(func=diff_incar)
 
-    parser_generate = subparsers.add_parser("generate",
-                                            help="Generate input files")
-    parser_generate.add_argument("-f", "--functional", dest="functional",
+    parser_potcar = subparsers.add_parser("potcar",
+                                            help="Generate POTCARs")
+    parser_potcar.add_argument("-f", "--functional", dest="functional",
                                  type=str,
                                  choices=["LDA", "PBE", "PW91", "LDA_US"],
                                  default="PBE",
                                  help="Functional to use. Unless otherwise "
                                       "stated (e.g., US), "
                                       "refers to PAW psuedopotential.")
-    parser_generate.add_argument("-p", "--potcar", dest="symbols",
-                                 type=str, nargs="+", required=True,
+    parser_potcar.add_argument("-s", "--symbols", dest="symbols",
+                                 type=str, nargs="+",
                                  help="List of POTCAR symbols. Use -f to set "
                                       "functional. Defaults to PBE.")
-    parser_generate.set_defaults(func=generate_files)
+    parser_potcar.add_argument("-r", "--recursive", dest="recursive",
+                                 type=str, nargs="+",
+                                 help="Dirname to find and generate from POTCAR.spec.")
+    parser_potcar.set_defaults(func=generate_potcar)
 
     parser_structure = subparsers.add_parser(
         "structure",
