@@ -4,25 +4,24 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+
+import argparse
+import sys
+
 try:
     from urllib.request import urlretrieve
 except ImportError:
     from urllib import urlretrieve
 
 from tabulate import tabulate_formats
+from pymatgen import Structure
+from pymatgen.io.vasp import Incar
 
-from monty.serialization import loadfn, dumpfn
-from pymatgen import SETTINGS_FILE
-from pymatgen.io.vasp import Poscar
-from pymatgen.io.cif import CifParser, CifWriter
-from pymatgen.io.vasp.sets import MPRelaxSet, MITRelaxSet
-from pymatgen.io.cssr import Cssr
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.alchemy.materials import TransformedStructure
-from pymatgen.cli.pmg_analyze import *
-from pymatgen.cli.pmg_setup import *
-from pymatgen.cli.pmg_generate_potcar import *
-from pymatgen.cli.pmg_plot import *
+from pymatgen.cli.pmg_analyze import parse_vasp
+from pymatgen.cli.pmg_config import configure_pmg
+from pymatgen.cli.pmg_generate_potcar import generate_potcar
+from pymatgen.cli.pmg_plot import plot
+from pymatgen.cli.pmg_structure import analyze_structures
 
 
 """
@@ -40,110 +39,6 @@ __date__ = "Aug 13 2016"
 SAVE_FILE = "vasp_data.gz"
 
 
-def configure(args):
-    d = {}
-    if os.path.exists(args.output_file):
-        d = loadfn(args.output_file)
-    toks = args.var_spec
-    if len(toks) % 2 != 0:
-        print("Bad variable specification!")
-        sys.exit(-1)
-    for i in range(int(len(toks) / 2)):
-        d[toks[2 * i]] = toks[2 * i + 1]
-    dumpfn(d, args.output_file, default_flow_style=False)
-
-
-def convert_fmt(args):
-    iformat = args.input_format[0]
-    oformat = args.output_format[0]
-    filename = args.input_filename[0]
-    out_filename = args.output_filename[0]
-
-    try:
-
-        if iformat == "POSCAR":
-            p = Poscar.from_file(filename)
-            structure = p.structure
-        elif iformat == "CIF":
-            r = CifParser(filename)
-            structure = r.get_structures()[0]
-        elif iformat == "CONVENTIONAL_CIF":
-            r = CifParser(filename)
-            structure = r.get_structures(primitive=False)[0]
-        elif iformat == "CSSR":
-            structure = Cssr.from_file(filename).structure
-        else:
-            structure = Structure.from_file(filename)
-
-        if oformat == "smart":
-            structure.to(filename=out_filename)
-        elif oformat == "POSCAR":
-            p = Poscar(structure)
-            p.write_file(out_filename)
-        elif oformat == "CIF":
-            w = CifWriter(structure)
-            w.write_file(out_filename)
-        elif oformat == "CSSR":
-            c = Cssr(structure)
-            c.write_file(out_filename)
-        elif oformat == "VASP":
-            ts = TransformedStructure(
-                structure, [],
-                history=[{"source": "file",
-                          "datetime": str(datetime.datetime.now()),
-                          "original_file": open(filename).read()}])
-            ts.write_vasp_input(MPRelaxSet, output_dir=out_filename)
-        elif oformat == "MITVASP":
-            ts = TransformedStructure(
-                structure, [],
-                history=[{"source": "file",
-                          "datetime": str(datetime.datetime.now()),
-                          "original_file": open(filename).read()}])
-            ts.write_vasp_input(MITRelaxSet, output_dir=out_filename)
-
-    except Exception as ex:
-        print("Error converting file. Are they in the right format?")
-        print(str(ex))
-
-
-def parse_symmetry(args):
-
-    tolerance = float(args.tolerance[0])
-
-    for filename in args.filenames:
-        s = Structure.from_file(filename)
-        if args.spacegroup:
-            finder = SpacegroupAnalyzer(s, tolerance)
-            dataset = finder.get_symmetry_dataset()
-            print(filename)
-            print("Spacegroup  : {}".format(dataset["international"]))
-            print("Int number  : {}".format(dataset["number"]))
-            print("Hall symbol : {}".format(dataset["hall"]))
-            print("")
-
-
-def analyze_structure(args):
-    bonds = {}
-    for bond in args.localenv:
-        toks = bond.split("=")
-        species = toks[0].split("-")
-        bonds[(species[0], species[1])] = float(toks[1])
-    for filename in args.filenames:
-        print("Analyzing %s..." % filename)
-        data = []
-        s = Structure.from_file(filename)
-        for i, site in enumerate(s):
-            for species, dist in bonds.items():
-                if species[0] in [sp.symbol
-                                  for sp in site.species_and_occu.keys()]:
-                    dists = [d for nn, d in s.get_neighbors(site, dist)
-                             if species[1] in
-                             [sp.symbol for sp in nn.species_and_occu.keys()]]
-                    dists = ", ".join(["%.3f" % d for d in sorted(dists)])
-                    data.append([i, species[0], species[1], dists])
-        print(tabulate(data, headers=["#", "Center", "Ligand", "Dists"]))
-
-
 def parse_view(args):
     from pymatgen.vis.structure_vtk import StructureVis
     excluded_bonding_elements = args.exclude_bonding[0].split(",") \
@@ -152,30 +47,6 @@ def parse_view(args):
     vis = StructureVis(excluded_bonding_elements=excluded_bonding_elements)
     vis.set_structure(s)
     vis.show()
-
-
-def compare_structures(args):
-    filenames = args.filenames
-    if len(filenames) < 2:
-        print("You need more than one structure to compare!")
-        sys.exit(-1)
-    try:
-        structures = [Structure.from_file(fn) for fn in filenames]
-    except Exception as ex:
-        print("Error converting file. Are they in the right format?")
-        print(str(ex))
-        sys.exit(-1)
-
-    from pymatgen.analysis.structure_matcher import StructureMatcher, \
-        ElementComparator
-    m = StructureMatcher() if args.oxi \
-        else StructureMatcher(comparator=ElementComparator())
-    for i, grp in enumerate(m.group_structures(structures)):
-        print("Group {}: ".format(i))
-        for s in grp:
-            print("- {} ({})".format(filenames[structures.index(s)],
-                                     s.formula))
-        print()
 
 
 def diff_incar(args):
@@ -215,41 +86,33 @@ def main():
 
     subparsers = parser.add_subparsers()
 
-    parser_setup = subparsers.add_parser("setup", help="Setup pymatgen.")
-    parser_setup.add_argument("-p", "--potcar",
-                              dest="potcar_dirs", type=str, nargs=2,
-                              help="Initial directory where downloaded VASP "
-                                   "POTCARs are extracted to, and the "
-                                   "output directory where the reorganized "
-                                   "potcars will be stored. The input "
-                                   "directory should be "
-                                   "the parent directory that contains the "
-                                   "POT_GGA_PAW_PBE or potpaw_PBE type "
-                                   "subdirectories.")
-    parser_setup.add_argument("-i", "--install",
-                              dest="install", type=str,
-                              choices=["enum", "bader"],
-                              help="Install various optional command line "
-                                   "tools needed for full functionality.")
-    parser_setup.set_defaults(func=setup_pmg)
+    parser_config = subparsers.add_parser(
+        "config", help="Tools for configuring pymatgen, e.g., "
+                       "potcar setup, modifying .pmgrc.yaml "
+                       "configuration file.")
+    groups = parser_config.add_mutually_exclusive_group(required=True)
+    groups.add_argument("-p", "--potcar", dest="potcar_dirs",
+                        metavar="dir_name",
+                        nargs=2,
+                        help="Initial directory where downloaded VASP "
+                             "POTCARs are extracted to, and the "
+                             "output directory where the reorganized "
+                             "potcars will be stored. The input "
+                             "directory should be "
+                             "the parent directory that contains the "
+                             "POT_GGA_PAW_PBE or potpaw_PBE type "
+                             "subdirectories.")
+    groups.add_argument("-i", "--install", dest="install",
+                        metavar="package_name",
+                        choices=["enum", "bader"],
+                        help="Install various optional command line "
+                             "tools needed for full functionality.")
 
-    parser_config = subparsers.add_parser("config", help="Tools for "
-                                                        "configuration file "
-                                                        ".pmgrc.yaml")
-    parser_config.add_argument("-a", "--add",
-                               dest="var_spec", type=str,
-                               required=True, nargs="+",
-                               help="Variables to add in the form of space "
-                                    "separated key value pairs. E.g., "
-                                    "VASP_PSP_DIR ~/psps")
-    parser_config.add_argument("-o", "--output_file",
-                               dest="output_file", type=str,
-                               default=SETTINGS_FILE,
-                               help="Output file to write the config to. "
-                                    "Defaults to standard config file "
-                                    "location in ~/.pmgrc.yaml. Use this if "
-                                    "you just want to see the file first.")
-    parser_config.set_defaults(func=configure)
+    groups.add_argument("-a", "--add", dest="var_spec", nargs="+",
+                        help="Variables to add in the form of space "
+                             "separated key value pairs. E.g., "
+                             "VASP_PSP_DIR ~/psps")
+    parser_config.set_defaults(func=configure_pmg)
 
     parser_vasp = subparsers.add_parser("analyze", help="Vasp run analysis.")
     parser_vasp.add_argument("directories", metavar="dir", default=".",
@@ -286,14 +149,16 @@ def main():
 
     parser_plot = subparsers.add_parser("plot", help="Plotting tool for "
                                                      "DOS, CHGCAR, XRD, etc.")
-    group = parser_plot.add_mutually_exclusive_group()
-    group.add_argument('-d', '--dos', dest="dos_file",
+    group = parser_plot.add_mutually_exclusive_group(required=True)
+    group.add_argument('-d', '--dos', dest="dos_file", metavar="vasprun.xml",
                        help="Plot DOS from a vasprun.xml")
-    group.add_argument('-c', '--chgint', dest="chgcar_file",
+    group.add_argument('-c', '--chgint', dest="chgcar_file", metavar="CHGCAR",
                        help="Generate charge integration plots from any "
                             "CHGCAR")
     group.add_argument('-x', '--xrd', dest="xrd_structure_file",
-                       help="Generate XRD plots from any structure file")
+                       metavar="structure_file",
+                       help="Generate XRD plots from any supported structure "
+                            "file, e.g., CIF, POSCAR, vasprun.xml, etc.")
 
     parser_plot.add_argument("-s", "--site", dest="site", action="store_const",
                              const=True, help="Plot site projected DOS")
@@ -320,54 +185,40 @@ def main():
                              help="Save plot to file instead of displaying.")
     parser_plot.set_defaults(func=plot)
 
+    parser_structure = subparsers.add_parser(
+        "structure",
+        help="Structure conversion and analysis tools.")
 
-    parser_convert = subparsers.add_parser(
-        "convert", help="File format conversion tools.")
-    parser_convert.add_argument("input_filename", metavar="input_filename",
-                                type=str, nargs=1, help="Input filename.")
-    parser_convert.add_argument("output_filename", metavar="output_filename",
-                                type=str, nargs=1,
-                                help="Output filename (for POSCAR/CIF/CSSR "
-                                "output) / dirname (VASP output)")
-    parser_convert.add_argument("-i", "--input", dest="input_format",
-                                type=str.upper,
-                                nargs=1,
-                                choices=["POSCAR", "CIF", "CSSR", "smart",
-                                         "CONVENTIONAL_CIF"],
-                                default=["smart"],
-                                help="Input file format. By default, smart is "
-                                "selected, which guesses the format from the "
-                                "filename. Other formats can be enforced as "
-                                "needed. If CONVENTIONAL_CIF is chosen instead "
-                                "of CIF, no primitive cell reduction is done.")
+    parser_structure.add_argument(
+        "-f", "--filenames", dest="filenames",
+        metavar="filenames", nargs="+",
+        help="List of structure files.")
 
-    parser_convert.add_argument("-o", "--output", dest="output_format",
-                                type=str.upper, nargs=1,
-                                choices=["POSCAR", "CIF", "CSSR", "VASP",
-                                         "MITVASP",
-                                         "smart"],
-                                default=["smart"],
-                                help="Output file format. By default, smart is"
-                                " selected, which guesses the format from the "
-                                "filename. Other formats can be enforced as "
-                                "needed. VASP is a special output form, which "
-                                "outputs a set of VASP input files to a "
-                                "directory. MITVASP uses the MIT input set "
-                                "instead of the default Materials project "
-                                "input set.")
-    parser_convert.set_defaults(func=convert_fmt)
+    groups = parser_structure.add_mutually_exclusive_group(required=True)
+    groups.add_argument("-c", "--convert", dest="convert", action="store_true",
+                        help="Convert from structure file 1 to structure "
+                             "file 2. Format determined from filename. "
+                             "Supported formats include POSCAR/CONTCAR, "
+                             "CIF, CSSR, etc.")
+    groups.add_argument("-s", "--symmetry", dest="symmetry",
+                        metavar="tolerance", type=float,
+                        help="Determine the spacegroup using the "
+                             "specified tolerance. 0.1 is usually a good "
+                             "value for DFT calculations.")
+    groups.add_argument("-g", "--group", dest="group",
+                        choices=["element", "species"],
+                        metavar="mode",
+                        help="Compare a set of structures for similarity. "
+                             "Element mode does not compare oxidation states. "
+                             "Species mode will take into account oxidations "
+                             "states.")
+    groups.add_argument(
+        "-l", "--localenv", dest="localenv", nargs="+",
+        help="Local environment analysis. Provide bonds in the format of"
+             "Center Species-Ligand Species=max_dist, e.g., H-O=0.5.")
 
-    parser_symm = subparsers.add_parser("symm", help="Symmetry tools.")
-    parser_symm.add_argument("filenames", metavar="filenames", type=str,
-                             nargs="+",
-                             help="Filenames to determine symmetry.")
-    parser_symm.add_argument("-t", "--tolerance", dest="tolerance", type=float,
-                             nargs=1, default=[0.1],
-                             help="Tolerance for symmetry determination")
-    parser_symm.add_argument("-s", "--spacegroup", dest="spacegroup",
-                             action="store_true",
-                             help="Determine symmetry")
-    parser_symm.set_defaults(func=parse_symmetry)
+    parser_structure.set_defaults(func=analyze_structures)
+
 
     parser_view = subparsers.add_parser("view", help="Visualize structures")
     parser_view.add_argument("filename", metavar="filename", type=str,
@@ -378,17 +229,6 @@ def main():
                              "analysis. E.g., Li,Na")
     parser_view.set_defaults(func=parse_view)
 
-    parser_cmp = subparsers.add_parser("compare", help="Compare structures")
-    parser_cmp.add_argument("filenames", metavar="filenames", type=str,
-                            nargs="*", help="List of filenames to compare.")
-    parser_cmp.add_argument("-o", "--oxi", dest="oxi",
-                            action="store_true",
-                            help="Oxi mode means that different oxidation "
-                                 "states will not match to each other, i.e.,"
-                                 " Fe2+ amd Fe3+ will be treated as "
-                                 "different species for the purposes of "
-                                 "matching.")
-    parser_cmp.set_defaults(func=compare_structures)
 
     parser_diffincar = subparsers.add_parser(
         "diff_incar", help="Helpful diffing tool for INCARs")
@@ -413,18 +253,6 @@ def main():
                                  type=str, nargs="+",
                                  help="Dirname to find and generate from POTCAR.spec.")
     parser_potcar.set_defaults(func=generate_potcar)
-
-    parser_structure = subparsers.add_parser(
-        "structure",
-        help="Structure analysis tools.")
-    parser_structure.add_argument(
-        "filenames", metavar="filenames", type=str, nargs="+",
-        help="List of input structure files to analyze.")
-    parser_structure.add_argument(
-        "-l", "--localenv", dest="localenv", type=str, nargs="+",
-        help="Local environment analysis. Provide bonds in the format of"
-             "Center Species-Ligand Species=max_dist, e.g., H-O=0.5.")
-    parser_structure.set_defaults(func=analyze_structure)
 
     args = parser.parse_args()
 
