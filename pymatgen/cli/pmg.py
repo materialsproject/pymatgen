@@ -7,13 +7,15 @@ from __future__ import division, unicode_literals
 
 import argparse
 import sys
+import itertools
+
 
 try:
     from urllib.request import urlretrieve
 except ImportError:
     from urllib import urlretrieve
 
-from tabulate import tabulate_formats
+from tabulate import tabulate, tabulate_formats
 from pymatgen import Structure
 from pymatgen.io.vasp import Incar
 
@@ -35,8 +37,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "Aug 13 2016"
 
-
-SAVE_FILE = "vasp_data.gz"
 
 
 def parse_view(args):
