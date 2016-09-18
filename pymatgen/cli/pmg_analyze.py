@@ -4,18 +4,11 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-import argparse
+
 import os
 import re
 import logging
 import multiprocessing
-import sys
-import datetime
-from collections import OrderedDict
-import glob
-import shutil
-import subprocess
-import itertools
 try:
     from urllib.request import urlretrieve
 except ImportError:
@@ -23,7 +16,7 @@ except ImportError:
 
 from tabulate import tabulate
 
-from pymatgen.io.vasp import Outcar, Vasprun, Chgcar, Incar
+from pymatgen.io.vasp import Outcar
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
     VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen

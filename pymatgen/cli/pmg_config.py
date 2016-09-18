@@ -4,18 +4,14 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-import argparse
 import os
-import re
-import logging
-import multiprocessing
 import sys
-import datetime
-from collections import OrderedDict
 import glob
 import shutil
 import subprocess
-import itertools
+from monty.serialization import loadfn, dumpfn
+
+from pymatgen import SETTINGS_FILE
 try:
     from urllib.request import urlretrieve
 except ImportError:
@@ -38,7 +34,8 @@ __date__ = "Aug 13 2016"
 SAVE_FILE = "vasp_data.gz"
 
 
-def setup_potcars(pspdir, targetdir):
+def setup_potcars(args):
+    pspdir, targetdir = [os.path.abspath(d) for d in args.potcar_dirs]
     try:
         os.makedirs(targetdir)
     except OSError:
@@ -150,37 +147,59 @@ def build_bader(fortran_command="gfortran"):
     return state
 
 
-def setup_pmg(args):
-    if args.potcar_dirs:
-        pspdir, targetdir = [os.path.abspath(d) for d in args.potcar_dirs]
-        setup_potcars(pspdir, targetdir)
-    elif args.install:
+def install_software(args):
+    try:
+        subprocess.call(["ifort", "--version"])
+        print("Found ifort")
+        fortran_command = "ifort"
+    except:
         try:
-            subprocess.call(["ifort", "--version"])
-            print("Found ifort")
-            fortran_command = "ifort"
-        except:
-            try:
-                subprocess.call(["gfortran", "--version"])
-                print("Found gfortran")
-                fortran_command = "gfortran"
-            except Exception as ex:
-                print(str(ex))
-                print("No fortran compiler found.")
-                sys.exit(-1)
+            subprocess.call(["gfortran", "--version"])
+            print("Found gfortran")
+            fortran_command = "gfortran"
+        except Exception as ex:
+            print(str(ex))
+            print("No fortran compiler found.")
+            sys.exit(-1)
 
-        enum = None
-        bader = None
-        if args.install == "enum":
-            print("Building enumlib")
-            enum = build_enum(fortran_command)
-            print("")
-        elif args.install == "bader":
-            print("Building bader")
-            bader = build_bader(fortran_command)
-            print("")
-        if bader or enum:
-            print("Please add {} to your PATH or move the executables multinum.x, "
-                  "makestr.x and/or bader to a location in your PATH."
-                  .format(os.path.abspath(".")))
-            print("")
+    enum = None
+    bader = None
+    if args.install == "enum":
+        print("Building enumlib")
+        enum = build_enum(fortran_command)
+        print("")
+    elif args.install == "bader":
+        print("Building bader")
+        bader = build_bader(fortran_command)
+        print("")
+    if bader or enum:
+        print("Please add {} to your PATH or move the executables multinum.x, "
+              "makestr.x and/or bader to a location in your PATH."
+              .format(os.path.abspath(".")))
+        print("")
+
+
+def add_config_var(args):
+    d = {}
+    if os.path.exists(SETTINGS_FILE):
+        shutil.copy(SETTINGS_FILE, SETTINGS_FILE + ".bak")
+        print("Existing %s backed up to %s"
+              % (SETTINGS_FILE, SETTINGS_FILE + ".bak"))
+        d = loadfn(SETTINGS_FILE)
+    toks = args.var_spec
+    if len(toks) % 2 != 0:
+        print("Bad variable specification!")
+        sys.exit(-1)
+    for i in range(int(len(toks) / 2)):
+        d[toks[2 * i]] = toks[2 * i + 1]
+    dumpfn(d, SETTINGS_FILE, default_flow_style=False)
+    print("New %s written!" % (SETTINGS_FILE))
+
+
+def configure_pmg(args):
+    if args.potcar_dirs:
+        setup_potcars(args)
+    elif args.install:
+        install_software(args)
+    elif args.var_spec:
+        add_config_var(args)
