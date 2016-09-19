@@ -153,7 +153,7 @@ def main():
         "-s", "--structure", dest="structure", metavar="format",
         choices=["poscar", "cif", "cssr"], type=str.lower,
         help="Get structures from Materials Project and write them to a "
-             "specified format")
+             "specified format.")
     group.add_argument(
         "-e", "--entries", dest="entries", metavar="filename",
         help="Get entries from Materials Project and write them to "
@@ -218,7 +218,9 @@ def main():
                         help="Convert from structure file 1 to structure "
                              "file 2. Format determined from filename. "
                              "Supported formats include POSCAR/CONTCAR, "
-                             "CIF, CSSR, etc.")
+                             "CIF, CSSR, etc. If the keyword'prim' is within "
+                             "the filename, the code will automatically attempt "
+                             "to find a primitive cell.")
     groups.add_argument("-s", "--symmetry", dest="symmetry",
                         metavar="tolerance", type=float,
                         help="Determine the spacegroup using the "
