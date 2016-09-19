@@ -11,11 +11,6 @@ from tabulate import tabulate
 
 from pymatgen import Structure
 
-try:
-    from urllib.request import urlretrieve
-except ImportError:
-    from urllib import urlretrieve
-
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
         ElementComparator

@@ -4,10 +4,6 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-try:
-    from urllib.request import urlretrieve
-except ImportError:
-    from urllib import urlretrieve
 
 from collections import OrderedDict
 from pymatgen import Structure
