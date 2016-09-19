@@ -45,9 +45,6 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Feb 22, 2013"
 
 
-
-
-
 class MPRester(object):
     """
     A class to conveniently interface with the Materials Project REST

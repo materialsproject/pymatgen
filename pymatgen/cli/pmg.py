@@ -24,6 +24,7 @@ from pymatgen.cli.pmg_config import configure_pmg
 from pymatgen.cli.pmg_generate_potcar import generate_potcar
 from pymatgen.cli.pmg_plot import plot
 from pymatgen.cli.pmg_structure import analyze_structures
+from pymatgen.cli.pmg_query import do_query
 
 
 """
@@ -146,6 +147,32 @@ def main():
                              default=["energy_per_atom"],
                              help="Sort criteria. Defaults to energy / atom.")
     parser_vasp.set_defaults(func=parse_vasp)
+
+
+    parser_query = subparsers.add_parser(
+        "query",
+        help="Search for structures and data from the Materials Project.")
+    parser_query.add_argument(
+        "criteria", metavar="criteria",
+        help="Search criteria. Supported formats in formulas, chemical "
+             "systems, Materials Project ids, etc.")
+    group = parser_query.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        "-s", "--structure", dest="structure", metavar="format",
+        choices=["poscar", "cif", "cssr"], type=str.lower,
+        help="Get structures from Materials Project and write them to a "
+             "specified format")
+    group.add_argument(
+        "-e", "--entries", dest="entries", metavar="filename",
+        help="Get entries from Materials Project and write them to "
+             "serialization file. JSON and YAML supported.")
+    group.add_argument(
+        "-d", "--data", dest="data", metavar="fields", nargs="*",
+        help="Print a summary of entries in the Materials Project satisfying "
+             "the criteria. Supply field names to include additional data. "
+             "By default, the Materials Project id, formula, spacegroup, "
+             "energy per atom, energy above hull are shown.")
+    parser_query.set_defaults(func=do_query)
 
     parser_plot = subparsers.add_parser("plot", help="Plotting tool for "
                                                      "DOS, CHGCAR, XRD, etc.")
