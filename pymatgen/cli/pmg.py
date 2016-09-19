@@ -9,23 +9,16 @@ import argparse
 import sys
 import itertools
 
-
-try:
-    from urllib.request import urlretrieve
-except ImportError:
-    from urllib import urlretrieve
-
 from tabulate import tabulate, tabulate_formats
 from pymatgen import Structure
 from pymatgen.io.vasp import Incar
 
-from pymatgen.cli.pmg_analyze import parse_vasp
+from pymatgen.cli.pmg_analyze import analyze
 from pymatgen.cli.pmg_config import configure_pmg
 from pymatgen.cli.pmg_potcar import generate_potcar
 from pymatgen.cli.pmg_plot import plot
 from pymatgen.cli.pmg_structure import analyze_structures
 from pymatgen.cli.pmg_query import do_query
-
 
 """
 A master convenience script with many tools for vasp and structure analysis.
@@ -33,11 +26,10 @@ A master convenience script with many tools for vasp and structure analysis.
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "4.0"
+__version__ = "5.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
-__date__ = "Aug 13 2016"
-
+__date__ = "Sep 19 2016"
 
 
 def parse_view(args):
@@ -51,8 +43,8 @@ def parse_view(args):
 
 
 def diff_incar(args):
-    filepath1 = args.filenames[0]
-    filepath2 = args.filenames[1]
+    filepath1 = args.incars[0]
+    filepath2 = args.incars[1]
     incar1 = Incar.from_file(filepath1)
     incar2 = Incar.from_file(filepath2)
 
@@ -115,39 +107,39 @@ def main():
                              "VASP_PSP_DIR ~/psps")
     parser_config.set_defaults(func=configure_pmg)
 
-    parser_vasp = subparsers.add_parser("analyze", help="Vasp run analysis.")
-    parser_vasp.add_argument("directories", metavar="dir", default=".",
-                             type=str, nargs="*",
-                             help="directory to process (default to .)")
-    parser_vasp.add_argument("-e", "--energies", dest="get_energies",
-                             action="store_true", help="Print energies")
-    parser_vasp.add_argument("-m", "--mag", dest="ion_list", type=str, nargs=1,
-                             help="Print magmoms. ION LIST can be a range "
-                             "(e.g., 1-2) or the string 'All' for all ions.")
-    parser_vasp.add_argument("-r", "--reanalyze", dest="reanalyze",
-                             action="store_true",
-                             help="Force reanalysis. Typically, vasp_analyzer"
-                             " will just reuse a vasp_analyzer_data.gz if "
-                             "present. This forces the analyzer to reanalyze "
-                             "the data.")
-    parser_vasp.add_argument("-f", "--format", dest="format",
-                             choices=tabulate_formats, default="simple",
-                             type=str,
-                             help="Format for table. Supports all options in "
-                                  "tabulate package.")
-    parser_vasp.add_argument("-v", "--verbose", dest="verbose",
-                             action="store_true",
-                             help="verbose mode. Provides detailed output on "
-                             "progress.")
-    parser_vasp.add_argument("-d", "--detailed", dest="detailed",
-                             action="store_true",
-                             help="Detailed mode. Parses vasprun.xml instead "
-                             "of separate vasp input. Slower.")
-    parser_vasp.add_argument("-s", "--sort", dest="sort", type=str, nargs=1,
-                             default=["energy_per_atom"],
-                             help="Sort criteria. Defaults to energy / atom.")
-    parser_vasp.set_defaults(func=parse_vasp)
-
+    parser_analyze = subparsers.add_parser("analyze", help="Vasp run analysis.")
+    parser_analyze.add_argument("directories", metavar="dir", default=".",
+                                type=str, nargs="*",
+                                help="directory to process (default to .)")
+    parser_analyze.add_argument("-e", "--energies", dest="get_energies",
+                                action="store_true", help="Print energies")
+    parser_analyze.add_argument("-m", "--mag", dest="ion_list", type=str,
+                                nargs=1,
+                                help="Print magmoms. ION LIST can be a range "
+                                     "(e.g., 1-2) or the string 'All' for all ions.")
+    parser_analyze.add_argument("-r", "--reanalyze", dest="reanalyze",
+                                action="store_true",
+                                help="Force reanalysis. Typically, vasp_analyzer"
+                                     " will just reuse a vasp_analyzer_data.gz if "
+                                     "present. This forces the analyzer to reanalyze "
+                                     "the data.")
+    parser_analyze.add_argument("-f", "--format", dest="format",
+                                choices=tabulate_formats, default="simple",
+                                type=str,
+                                help="Format for table. Supports all options in "
+                                     "tabulate package.")
+    parser_analyze.add_argument("-v", "--verbose", dest="verbose",
+                                action="store_true",
+                                help="verbose mode. Provides detailed output on "
+                                     "progress.")
+    parser_analyze.add_argument("-d", "--detailed", dest="detailed",
+                                action="store_true",
+                                help="Detailed mode. Parses vasprun.xml instead "
+                                     "of separate vasp input. Slower.")
+    parser_analyze.add_argument("-s", "--sort", dest="sort", type=str, nargs=1,
+                                default=["energy_per_atom"],
+                                help="Sort criteria. Defaults to energy / atom.")
+    parser_analyze.set_defaults(func=analyze)
 
     parser_query = subparsers.add_parser(
         "query",
@@ -192,7 +184,7 @@ def main():
     parser_plot.add_argument("-e", "--element", dest="element", type=str,
                              nargs=1,
                              help="List of elements to plot as comma-separated"
-                             " values e.g., Fe,Mn")
+                                  " values e.g., Fe,Mn")
     parser_plot.add_argument("-o", "--orbital", dest="orbital",
                              action="store_const", const=True,
                              help="Plot orbital projected DOS")
@@ -246,39 +238,40 @@ def main():
 
     parser_structure.set_defaults(func=analyze_structures)
 
-
     parser_view = subparsers.add_parser("view", help="Visualize structures")
     parser_view.add_argument("filename", metavar="filename", type=str,
                              nargs=1, help="Filename")
     parser_view.add_argument("-e", "--exclude_bonding", dest="exclude_bonding",
                              type=str, nargs=1,
                              help="List of elements to exclude from bonding "
-                             "analysis. E.g., Li,Na")
+                                  "analysis. E.g., Li,Na")
     parser_view.set_defaults(func=parse_view)
 
-
-    parser_diffincar = subparsers.add_parser(
-        "diff_incar", help="Helpful diffing tool for INCARs")
-    parser_diffincar.add_argument("filenames", metavar="filenames", type=str,
-                            nargs=2, help="List of INCARs to compare.")
-    parser_diffincar.set_defaults(func=diff_incar)
+    parser_diff = subparsers.add_parser(
+        "diff", help="Diffing tool. For now, only INCAR supported.")
+    parser_diff.add_argument("-i", "--incar", dest="incars",
+                             metavar="INCAR", required=True,
+                             nargs=2, help="List of INCARs to compare.")
+    parser_diff.set_defaults(func=diff_incar)
 
     parser_potcar = subparsers.add_parser("potcar",
-                                            help="Generate POTCARs")
+                                          help="Generate POTCARs")
     parser_potcar.add_argument("-f", "--functional", dest="functional",
-                                 type=str,
-                                 choices=["LDA", "PBE", "PW91", "LDA_US"],
-                                 default="PBE",
-                                 help="Functional to use. Unless otherwise "
-                                      "stated (e.g., US), "
-                                      "refers to PAW psuedopotential.")
-    parser_potcar.add_argument("-s", "--symbols", dest="symbols",
-                                 type=str, nargs="+",
-                                 help="List of POTCAR symbols. Use -f to set "
-                                      "functional. Defaults to PBE.")
-    parser_potcar.add_argument("-r", "--recursive", dest="recursive",
-                                 type=str, nargs="+",
-                                 help="Dirname to find and generate from POTCAR.spec.")
+                               type=str,
+                               choices=["LDA", "PBE", "PW91", "LDA_US"],
+                               default="PBE",
+                               help="Functional to use. Unless otherwise "
+                                    "stated (e.g., US), "
+                                    "refers to PAW psuedopotential.")
+    group = parser_potcar.add_mutually_exclusive_group(required=True)
+
+    group.add_argument("-s", "--symbols", dest="symbols",
+                       type=str, nargs="+",
+                       help="List of POTCAR symbols. Use -f to set "
+                            "functional. Defaults to PBE.")
+    group.add_argument("-r", "--recursive", dest="recursive",
+                       type=str, nargs="+",
+                       help="Dirname to find and generate from POTCAR.spec.")
     parser_potcar.set_defaults(func=generate_potcar)
 
     args = parser.parse_args()
