@@ -33,41 +33,7 @@ class eos_thermal_functions:
     #  This set of functions compute the Debye model vibrational properties
     # **************************************************************************************
 
-    # -----------------------------------------------------------------------
-    #
-    # .....thermal - compute Debye model vibrational properties.
-    #
-    #     This routine obtains the molar vibrational properties of a given
-    #     crystal by means of the Debye model: internal energy (U), heat
-    #     capacity at constant volume (Cv), Helmholtz's free energy (F),
-    #     and vibrational entropy (S).
-    #
-    #     To evaluate this properties, the following integral is needed:
-    #
-    #                                      |    x^3     |
-    #     Debye (y) = 3*y^(-3) * INT (0,y) | ---------- | dx
-    #                                      | exp(x) - 1 |
-    #
-    #    where y=ThetaD/T, being ThetaD Debye's temperature (K) and T the
-    #     absolute (thermodynamic) temperature. The integral is evaluated
-    #     using a Gauss-Legendre quadrature.
-    #
-    # -----INPUT-------------------------------------------------------------
-    #       ThetaD : Debye's temperature (K).
-    #            T : Absolute temperature (K).
-    #       natoms : Number of atoms in the unit cell.
-    # -----OUTPUT-------------------------------------------------------------
-    #        energ : Vibrational internal energy, U (hartree/molecule).
-    #           cv : Constant V heat capacity, Cv (hartree/K molecule).
-    #    helmholtz : Helmholtz's free energy (hartree/molecule).
-    #      entropy : Entropy (hartree/K molecule).
-    #        Debye : Debye's integral.
-    #         xabs : Maximum error in Debye's integral evaluation.
-    # ----------------------------------------------------------------------------
-    #
-    # Adapted from original Fortran version written by M. A. Blanco et al.
-    # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
-    #
+
     def thermal(self, ThetaD, T, natoms, pckbau, maxloops, logstr):
         """.....thermal - compute Debye model vibrational properties.
     
@@ -169,19 +135,6 @@ class eos_thermal_functions:
 
 
 
-    #
-    # .....gauss_legendre - Gauss-Legendre quadrature coefficients.
-    #
-    # .....Given the lower and upper limits of integration xupper and xlower,
-    #     and given n, this routine returns arrays xabscissa and weight of length n,
-    #     containing the abscissas and weights of the Gauss-Legendre
-    #     n-point quadrature formula.
-    # -----------------------------------------------------------------------
-    # .....High precision is a good idea for this routine
-    #
-    # Adapted from original Fortran version written by M. A. Blanco et al., which was based on the Numerical Recipes routine
-    # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
-    #
     def gauss_legendre(self, xlower, xupper, xabscissa, weight, n, maxloops, logstr):
         """.....gauss_legendre - Gauss-Legendre quadrature coefficients.
         

@@ -133,7 +133,7 @@ class eos_thermal_properties:
             raise ValueError("E(V) data is not concave")
             return
 # Run GIBBS algorithm to calculate thermal properties
-        self.gibbs()
+        self.eos_thermal_gibbs()
         print(self.logstr)
         print(self.outfname)
         fo=open(self.outfname, "w")  
@@ -213,16 +213,7 @@ class eos_thermal_properties:
         return cellmassamu, cellmassamu * self.amu2au
 
 
-#
-#.....gibbs - Debye-Grunseisen model for thermal properties
-#
-# Adapted from original Fortran version written by M. A. Blanco et al.
-# See Computer Physics Communications 158, 57-72 (2004) and
-# Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
-#
-# This automated version described in Phys. Rev. B 90, 174107 (2014)
-#
-    def gibbs(self):
+    def eos_thermal_gibbs(self):
         """
         .....gibbs - Debye-Grunseisen model for thermal properties
 
@@ -563,18 +554,18 @@ class eos_thermal_properties:
         if self.ieos == 0:
             iG = 2
             # Get static Birch-Murnaghan coefficients
-            self.birch(vol0pres, gfe0pres/self.hy2kjmol, iG, True)
+            self.birch_murnaghan_eos(vol0pres, gfe0pres/self.hy2kjmol, iG, True)
             # Reinitialize d2E/dV2 
             self.d2EnergydVolume2_static = []
             # Call numerical equation of state fitting
-            self.numer(volref, nepol, epol, nepol, epol, True)
+            self.numerical_eos(volref, nepol, epol, nepol, epol, True)
             self.outstr = self.outstr + '\n'
             self.outstr = self.outstr + 'Debye temperature - numerical derivatives \n'
         #
         #.....Vinet equation of state.
         #
         elif self.ieos == 1:
-            self.vinet(vol0pres, gfe0pres/self.hy2kjmol, True)
+            self.vinet_eos(vol0pres, gfe0pres/self.hy2kjmol, True)
             self.outstr = self.outstr + '\n'
             self.outstr = self.outstr + 'Debye temperature - Vinet EOS derivatives \n'
         #
@@ -582,15 +573,15 @@ class eos_thermal_properties:
         #
         elif self.ieos == 2:
             iG = 2
-            self.birch(vol0pres, gfe0pres/self.hy2kjmol, iG, True)
+            self.birch_murnaghan_eos(vol0pres, gfe0pres/self.hy2kjmol, iG, True)
             self.outstr = self.outstr + '\n'
             self.outstr = self.outstr + 'Debye temperature - Birch-Murnaghan EOS derivatives \n'
         #
         #.....Vinet equation of state with numerical calculation to obtain all properties.
         #
         elif self.ieos == 3:
-            self.vinet(vol0pres, gfe0pres/self.hy2kjmol, True)
-            self.numer(volref, nepol, epol, nepol, epol, True)
+            self.vinet_eos(vol0pres, gfe0pres/self.hy2kjmol, True)
+            self.numerical_eos(volref, nepol, epol, nepol, epol, True)
             self.outstr = self.outstr + '\n'
             self.outstr = self.outstr + 'Debye temperature - numerical derivatives \n'
         #
@@ -598,15 +589,15 @@ class eos_thermal_properties:
         #
         elif self.ieos == 4:
             iG = 2
-            self.birch(vol0pres, gfe0pres/self.hy2kjmol, iG, True)
-            self.numer(volref, nepol, epol, nepol, epol, True)
+            self.birch_murnaghan_eos(vol0pres, gfe0pres/self.hy2kjmol, iG, True)
+            self.numerical_eos(volref, nepol, epol, nepol, epol, True)
             self.outstr = self.outstr + '\n'
             self.outstr = self.outstr + 'Debye temperature - numerical derivatives \n'
         #
         #.....Equation of state of Baonza-Caceres-Nunez-Taravillo.
         #
         elif self.ieos == 5:
-            self.bcnt(vol0pres, gfe0pres/self.hy2kjmol, binp_bcnt, True)
+            self.bcn_eos(vol0pres, gfe0pres/self.hy2kjmol, binp_bcnt, True)
             self.outstr = self.outstr + '\n'
             self.outstr = self.outstr + 'Debye temperature - BCNT EOS derivatives \n'
         #
@@ -614,8 +605,8 @@ class eos_thermal_properties:
         #     but numerical calculation to obtain all properties.
         #
         elif self.ieos == 6:
-            self.bcnt(vol0pres, gfe0pres/self.hy2kjmol, binp_bcnt, True)
-            self.numer(volref, nepol, epol, nepol, epol, True)
+            self.bcn_eos(vol0pres, gfe0pres/self.hy2kjmol, binp_bcnt, True)
+            self.numerical_eos(volref, nepol, epol, nepol, epol, True)
             self.outstr = self.outstr + '\n'
             self.outstr = self.outstr + 'Debye temperature - numerical EOS derivatives \n'
         #
@@ -1032,36 +1023,36 @@ class eos_thermal_properties:
             #.....Finite temperature numerical dynamic results.
             #
             if self.ieos == 0:
-                self.numer(volref, nepol, epol, nfpol, fpol, False)
+                self.numerical_eos(volref, nepol, epol, nfpol, fpol, False)
             #
             #.....Vinet equation of state.
             #
             elif self.ieos == 1:
-                self.vinet(vol0pres, gfe0pres, False)
+                self.vinet_eos(vol0pres, gfe0pres, False)
             #
             #.....Birch-Murnaghan equation of state.
             #
             elif self.ieos == 2:
                 iG = 2
-                self.birch(vol0pres, gfe0pres, iG, False)
+                self.birch_murnaghan_eos(vol0pres, gfe0pres, iG, False)
             #
             #.....Vinet equation of state with numerical calculation of properties.
             #
             elif self.ieos == 3:
-                self.vinet(vol0pres, gfe0pres/self.hy2kjmol, False)
-                self.numer(volref, nepol, epol, nepol, epol, False)
+                self.vinet_eos(vol0pres, gfe0pres/self.hy2kjmol, False)
+                self.numerical_eos(volref, nepol, epol, nepol, epol, False)
             #
             #.....Birch-Murnaghan equation of state with numerical calculation of properties.
             #
             elif self.ieos == 4:
                 iG = 2
-                self.birch(vol0pres, gfe0pres/self.hy2kjmol, iG, False)
-                self.numer(volref, nepol, epol, nepol, epol, False)
+                self.birch_murnaghan_eos(vol0pres, gfe0pres/self.hy2kjmol, iG, False)
+                self.numerical_eos(volref, nepol, epol, nepol, epol, False)
             #
             #.....Equation of state of Baonza-Caceres-Nunez-Taravillo.
             #
             elif self.ieos == 5:
-                self.bcnt(vol0pres, gfe0pres/self.hy2kjmol, binp_bcnt, False)
+                self.bcn_eos(vol0pres, gfe0pres/self.hy2kjmol, binp_bcnt, False)
                 bcnt_xk_sp.append(self.xsupa)
                 bcnt_xp_sp.append(self.pspin)
                 bcnt_xv_sp.append(self.vspin)
@@ -1071,8 +1062,8 @@ class eos_thermal_properties:
             #     but numerical calculation to obtain all properties.
             #
             elif self.ieos == 6:
-                self.bcnt(vol0pres, gfe0pres/self.hy2kjmol, binp_bcnt, False)
-                self.numer(volref, nepol, epol, nepol, epol, False)
+                self.bcn_eos(vol0pres, gfe0pres/self.hy2kjmol, binp_bcnt, False)
+                self.numerical_eos(volref, nepol, epol, nepol, epol, False)
                 bcnt_xk_sp.append(self.xsupa)
                 bcnt_xp_sp.append(self.pspin)
                 bcnt_xv_sp.append(self.vspin)
@@ -1283,21 +1274,12 @@ class eos_thermal_properties:
     #  These functions calculate the thermal properties using different equations of state
     # **************************************************************************************
 
-    #
-    #.....numer - numerical EOS calculation.
-    #
-    #.....Numer computes the derivatives of the Helmholtz function and the
-    #     static energy needed to obtain Debye's temperature, the static
-    #     pressure, and succesive derivatives of the bulk modulus.
-    #
-    # Adapted from original Fortran version written by M. A. Blanco et al.
-    # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
-    #
-    def numer(self, volref, nepol, epol, nfpol, fpol, statcalc):
+
+    def numerical_eos(self, volref, nepol, epol, nfpol, fpol, statcalc):
         """
-        .....numer - numerical EOS calculation.
+        .....numerical_eos - numerical EOS calculation.
         
-        .....Numer computes the derivatives of the Helmholtz function and the
+        .....Numerical_Eos computes the derivatives of the Helmholtz function and the
         static energy needed to obtain Debye's temperature, the static
         pressure, and succesive derivatives of the bulk modulus.
         
@@ -1316,16 +1298,16 @@ class eos_thermal_properties:
         eos_polynomial_inst = eos_polynomial()
         for k in xrange(self.npressure):
             xeqmin = (self.voleqmin[k]/volref)**self.third
-            f1 = eos_polynomial_inst.polin1(xeqmin, nfpol, fpol)
-            f2 = eos_polynomial_inst.polin2(xeqmin, nfpol, fpol)
-            f3 = eos_polynomial_inst.polin3(xeqmin, nfpol, fpol)
-            f4 = eos_polynomial_inst.polin4(xeqmin, nfpol, fpol)
-            pt = -xeqmin * f1 / (3.0*self.voleqmin[k]) * self.au2gpa
-            tmp = 2.0 * f1 - xeqmin * f2
+            dFdx = eos_polynomial_inst.polin1(xeqmin, nfpol, fpol)
+            d2Fdx2 = eos_polynomial_inst.polin2(xeqmin, nfpol, fpol)
+            d3Fdx3 = eos_polynomial_inst.polin3(xeqmin, nfpol, fpol)
+            d4Fdx4 = eos_polynomial_inst.polin4(xeqmin, nfpol, fpol)
+            pt = -xeqmin * dFdx / (3.0*self.voleqmin[k]) * self.au2gpa
+            tmp = 2.0 * dFdx - xeqmin * d2Fdx2
             self.bulkmod[k] = -xeqmin / (9.0*self.voleqmin[k]) * tmp * self.au2gpa
-            tmp2 = (f2 - xeqmin * f3) / tmp
+            tmp2 = (d2Fdx2 - xeqmin * d3Fdx3) / tmp
             b1 = self.third * (2.0 - xeqmin * tmp2)
-            b2 = -self.voleqmin[k] * (tmp2*(1.0-xeqmin*tmp2) - xeqmin*xeqmin*f4/tmp) / (self.au2gpa*tmp)
+            b2 = -self.voleqmin[k] * (tmp2*(1.0-xeqmin*tmp2) - xeqmin*xeqmin*d4Fdx4/tmp) / (self.au2gpa*tmp)
             if k == 0:
                 self.bulkmod0pres = self.bulkmod[k]
                 self.dbulkmoddp0pres = b1
@@ -1345,11 +1327,11 @@ class eos_thermal_properties:
                 self.outstr = self.outstr + ' --------------------------------------------------\n'
             for i in xrange(self.ndata):
                 f0 = eos_polynomial_inst.polin0(self.xconfigvector[i], nepol, epol)
-                f1 = eos_polynomial_inst.polin1(self.xconfigvector[i], nepol, epol)
-                f2 = eos_polynomial_inst.polin2(self.xconfigvector[i], nepol, epol)
-                tmp = self.xconfigvector[i] * f2 - 2.0 * f1
-                v3 = 3.0 * self.vol_inp[i]
-                self.d2EnergydVolume2_static.append(tmp * self.xconfigvector[i] / (v3*v3))
+                dEdx = eos_polynomial_inst.polin1(self.xconfigvector[i], nepol, epol)
+                d2Edx2 = eos_polynomial_inst.polin2(self.xconfigvector[i], nepol, epol)
+                tmp = self.xconfigvector[i] * d2Edx2 - 2.0 * dEdx
+                volumex3 = 3.0 * self.vol_inp[i]
+                self.d2EnergydVolume2_static.append(tmp * self.xconfigvector[i] / (volumex3*volumex3))
                 if self.ieos >= 0:
                     self.outstr = self.outstr + '  ' + str(self.vol_inp[i]).rjust(10)[:10] + '\t ' + str(self.energ_inp[i]).rjust(14)[:14] + '\t    ' + str(f0).rjust(14)[:14] + '\n'
             #
@@ -1358,40 +1340,27 @@ class eos_thermal_properties:
         else:
             for k in xrange(self.npressure):
                 xeqmin = (self.voleqmin[k]/volref)**self.third
-                f1 = eos_polynomial_inst.polin1(xeqmin, nepol, epol)
-                f2 = eos_polynomial_inst.polin2(xeqmin, nepol, epol)
-                f3 = eos_polynomial_inst.polin3(xeqmin, nepol, epol)
-                f4 = eos_polynomial_inst.polin4(xeqmin, nepol, epol)
-                v3 = 3.0 * self.voleqmin[k]
-                self.pstatic[k] = -f1*self.au2gpa * xeqmin / v3
-                tmp = xeqmin * f2 - 2.0 * f1
-                self.d2EnergydVolume2_dynamic[k] = tmp * xeqmin / (v3*v3)
-                tmp2 = f2 - xeqmin * f3
+                dEdx = eos_polynomial_inst.polin1(xeqmin, nepol, epol)
+                d2Edx2 = eos_polynomial_inst.polin2(xeqmin, nepol, epol)
+                d3Edx3 = eos_polynomial_inst.polin3(xeqmin, nepol, epol)
+                d4Edx4 = eos_polynomial_inst.polin4(xeqmin, nepol, epol)
+                volumex3 = 3.0 * self.voleqmin[k]
+                self.pstatic[k] = -dEdx*self.au2gpa * xeqmin / volumex3
+                tmp = xeqmin * d2Edx2 - 2.0 * dEdx
+                self.d2EnergydVolume2_dynamic[k] = tmp * xeqmin / (volumex3*volumex3)
+                tmp2 = d2Edx2 - xeqmin * d3Edx3
                 self.gamma_G[k] = (1.0 + xeqmin * tmp2 / tmp)/6.0
         return
 
 
 
     
-    #...................................................................
-    #.....vinet - computes Vinet EOS from (P,V) data.
-    #
-    #.....VINET computes the EOS from the (P,V) data. The EOS has the
-    #     following expresion:
-    #     log H = A + B(1-x)
-    #     being H = Px**2/(3(1-x))
-    #           A = log Bo
-    #           B = 3/2((Bo)'-1)
-    #           X = (V/Vo)**(1/3)
-    #
-    # Adapted from original Fortran version written by M. A. Blanco et al.
-    # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
-    #...................................................................
-    def vinet(self, vol0pres, gfe0pres, statcalc):
+
+    def vinet_eos(self, vol0pres, gfe0pres, statcalc):
         """
-        .....vinet - computes Vinet EOS from (P,V) data.
+        .....vinet_eos - computes Vinet EOS from (P,V) data.
         
-        .....VINET computes the EOS from the (P,V) data. The EOS has the
+        .....VINET_EOS computes the EOS from the (P,V) data. The EOS has the
         following expresion:
         log H = A + B(1-x)
         being H = Px**2/(3(1-x))
@@ -1444,7 +1413,7 @@ class eos_thermal_properties:
         #
         if statcalc:
             self.g00k = gfe0pres
-            self.v00k = vol0pres
+            self.volstatcalc0p = vol0pres
             self.b00k = self.bulkmod0pres/self.au2gpa
             self.A00k = A
         #
@@ -1459,10 +1428,10 @@ class eos_thermal_properties:
             a1x = A * (1.0 - x[i])
             ax1 = A * x[i] + 1.0
             f0x = x[i] * (1.0-a1x) - 2.0
-            f1x = ax1 - a1x
-            f2x = 2.0 * A
-            f1f0 = f1x / f0x
-            f2f0 = f2x / f0x
+            d1fdx1 = ax1 - a1x
+            d2fdx2 = 2.0 * A
+            f1f0 = d1fdx1 / f0x
+            f2f0 = d2fdx2 / f0x
             fnw = 1.0 - x[i] * f1f0
             x2inv = 1.0 / (x[i]*x[i])
             b0exp = self.bulkmod0pres * math.exp(a1x)
@@ -1491,12 +1460,12 @@ class eos_thermal_properties:
         #
         if statcalc:
             for i in xrange(self.ndata):
-                x00k = (self.vol_inp[i]/self.v00k)**self.third
-                a1x = self.A00k * (1.0 - x00k)
-                f0x = x00k * (1.0-a1x) - 2.0
+                xstatcalc = (self.vol_inp[i]/self.volstatcalc0p)**self.third
+                a1x = self.A00k * (1.0 - xstatcalc)
+                f0x = xstatcalc * (1.0-a1x) - 2.0
                 b0exp = self.b00k * math.exp(a1x)
-                self.ust.append(self.g00k + 9.0*self.v00k/(self.A00k*self.A00k) * (b0exp*(a1x-1.0)+self.b00k))
-                self.d2EnergydVolume2_static.append(-f0x / (x00k*x00k*self.vol_inp[i]) * b0exp)
+                self.ust.append(self.g00k + 9.0*self.volstatcalc0p/(self.A00k*self.A00k) * (b0exp*(a1x-1.0)+self.b00k))
+                self.d2EnergydVolume2_static.append(-f0x / (xstatcalc*xstatcalc*self.vol_inp[i]) * b0exp)
             #
             #.......Print input and fitted values of the lattice energy.
             #
@@ -1514,63 +1483,25 @@ class eos_thermal_properties:
         #
         else:
             for i in xrange(self.npressure):
-                x00k = (self.voleqmin[i]/self.v00k)**self.third
-                a1x = self.A00k * (1.0 - x00k)
-                ax1 = self.A00k * x00k + 1.0
-                f0x = x00k * (1.0-a1x) - 2.0
+                xstatcalc = (self.voleqmin[i]/self.volstatcalc0p)**self.third
+                a1x = self.A00k * (1.0 - xstatcalc)
+                ax1 = self.A00k * xstatcalc + 1.0
+                f0x = xstatcalc * (1.0-a1x) - 2.0
                 f1x = ax1 - a1x
                 f2x = 2.0 * self.A00k
                 f1f0 = f1x / f0x
-                fnw = 1.0 - x00k * f1f0
-                x2inv = 1.0 / (x00k*x00k)
+                fnw = 1.0 - xstatcalc * f1f0
+                x2inv = 1.0 / (xstatcalc*xstatcalc)
                 b0exp = self.b00k * math.exp(a1x)
-                self.pstatic[i] = 3.0 * (1.0-x00k) * x2inv * b0exp * self.au2gpa
-                self.d2EnergydVolume2_dynamic[i] = -f0x * x2inv * x2inv / (x00k*self.v00k) * b0exp
+                self.pstatic[i] = 3.0 * (1.0-xstatcalc) * x2inv * b0exp * self.au2gpa
+                self.d2EnergydVolume2_dynamic[i] = -f0x * x2inv * x2inv / (xstatcalc*self.volstatcalc0p) * b0exp
                 self.gamma_G[i] = (ax1 + fnw - 1.0)/6.0
         return
 
 
-
-
-    
-    # -----------------------------------------------------------------------------
-    # .....birch - computes the Birch-Murnaghan EOS of order iG from the
-    #     (P,V) data.
-    #
-    #     The EOS has the following expression:
-    #
-    #     F = Sum (i=0,iG) a(i)*f^i
-    #
-    #     being : F = P/[3f(1+2f)^(5/2)]
-    #             f = [x^(-2)-1]/2
-    #             x = [V(i)/V(1)]^(1/3)
-    #
-    # -----INPUT
-    #  vol0pres      : Molecular volume (bohr^3/mol) at P=0.
-    #  gfe0pres      : Gibbs energy (or 0k static energy) at v0 (hartree).
-    #  iG      : order of the fitting.
-    #  press() : Pressure values (GPa). common /eos/.
-    #  vinp()  : Initial values of the volume (bohr^3/mol). common /input/.
-    #  statcalc: Logical variable that determines if the calculation is
-    #            static or dynamic. In the first case the second derivative
-    #            of the static energy (d2EnergydVolume2_static) is computed for all the input
-    #            values of the volume. In the second case the second
-    #            derivative of the static energy (d2EnergydVolume2_dynamic) is computed for
-    #            the equilibrium volumes at the different pressures.
-    #
-    # -----OUTPUT
-    #  pstatic() : Static pressures in GPa (only on dynamic calculations).
-    #  d2EnergydVolume2_static()  : Second derivative of ust(k) for each vinp(). Hy/bohr^6
-    #  d2EnergydVolume2_dynamic()  : Second derivative of ust(k) for each V(). Hy/bohr^6
-    #  rms     : Root mean square deviation.
-    #  bulkmod0pres,dbulkmoddp0pres,d2bulkmoddp20pres : Bulk modulus and their derivatives at P=0
-    #
-    # Adapted from original Fortran version written by M. A. Blanco et al.
-    # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
-    # -----------------------------------------------------------------------
-    def birch(self, vol0pres, gfe0pres, iG, statcalc):
+    def birch_murnaghan_eos(self, vol0pres, gfe0pres, iG, statcalc):
         """
-        .....birch - computes the Birch-Murnaghan EOS of order iG from the
+        .....birch_murnaghan_eos - computes the Birch-Murnaghan EOS of order iG from the
         (P,V) data.
         
         The EOS has the following expression:
@@ -1609,12 +1540,12 @@ class eos_thermal_properties:
         npresm2 = self.npressure - 2
         izero = 0
         if iG > self.birchfitorder_iG:
-#            self.logstr = self.logstr + "MP Eqn of State Thermal birch : Too high fitting order \n"
+#            self.logstr = self.logstr + "MP Eqn of State Thermal birch_murnaghan_eos : Too high fitting order \n"
             self.brerr = 1
             raise ValueError("MP Eqn of State Thermal: Fitting order for Birch-Murnaghan EoS is too high")
             return
         if math.fabs(self.pressure[0]) > tol:
-#            self.logstr = self.logstr + "MP Eqn of State Thermal birch : P(0) must be 0.0 \n"
+#            self.logstr = self.logstr + "MP Eqn of State Thermal birch_murnaghan_eos : P(0) must be 0.0 \n"
             self.brerr = 1
             raise ValueError("MP Eqn of State Thermal: First pressure value must be 0.0")
             return
@@ -1721,22 +1652,22 @@ class eos_thermal_properties:
             #       derivative U''(V) with respect to V for all the input
             #       values of the volume.
             #
-            self.v00k = vol0pres
+            self.volstatcalc0p = vol0pres
             self.g00k = gfe0pres
             for k in xrange(iG + 1):
                 self.astatic[k] = birchcoef[k]
             for k in xrange(self.ndata):
                 self.ust.append(self.g00k)
                 self.d2EnergydVolume2_static.append(0.0)
-                st = (self.vol_inp[k]/self.v00k)**self.third
+                st = (self.vol_inp[k]/self.volstatcalc0p)**self.third
                 st = ((st**(-2))-1)/2.0
                 s2 = (1.0+2.0*st)
                 pol0 = eos_polynomial_inst.polin0(st, iG, self.astatic)
                 pol1 = eos_polynomial_inst.polin1(st, iG, self.astatic)
-                v9 = 9.0*self.v00k
+                v9 = 9.0*self.volstatcalc0p
                 for j in xrange(iG + 1):
                     self.ust[k] = self.ust[k]+v9*self.astatic[j]/(j+2)*(st**(j+2))
-                self.d2EnergydVolume2_static[k] = s2*s2*s2*s2/self.v00k*(st*s2*pol1+(1.0+7.0*st)*pol0)
+                self.d2EnergydVolume2_static[k] = s2*s2*s2*s2/self.volstatcalc0p*(st*s2*pol1+(1.0+7.0*st)*pol0)
             #
             # .......Print input and fitted values of the lattice energy.
             #
@@ -1757,7 +1688,7 @@ class eos_thermal_properties:
             #       different pressures.
             #
             for k in xrange(self.npressure):
-                st = (self.voleqmin[k]/self.v00k)**self.third
+                st = (self.voleqmin[k]/self.volstatcalc0p)**self.third
                 st = ((st)**(-2)-1)/2.0
                 s2 = (1.0+2.0*st)
                 s22 = s2*s2
@@ -1769,11 +1700,11 @@ class eos_thermal_properties:
                     pol3 = polin3(st, iG, self.astatic)
                 self.pstatic[k] = self.au2gpa*3.0*st*(s2**2.5)*pol0
                 tmp = (1.0+7.0*st)*pol0 + st*s2*pol1
-                self.d2EnergydVolume2_dynamic[k] = s22*s22 / self.v00k * tmp
+                self.d2EnergydVolume2_dynamic[k] = s22*s22 / self.volstatcalc0p * tmp
                 tmp = 1.0 / tmp
                 tmp2 = s2*tmp * (7.0*pol0 + (2.0+11.0*st)*pol1 + st*s2*pol2)
-                v3 = self.voleqmin[k] / (3.0*self.v00k)
-                self.gamma_G[k] = -2.0*self.third + 0.5*s2*math.sqrt(s2)*v3*(8.0+tmp2)
+                volumex3 = self.voleqmin[k] / (3.0*self.volstatcalc0p)
+                self.gamma_G[k] = -2.0*self.third + 0.5*s2*math.sqrt(s2)*volumex3*(8.0+tmp2)
 #            self.bmcoeffs_dynamic.append(birchcoef)
         #
         # .....end
@@ -1782,42 +1713,9 @@ class eos_thermal_properties:
 
 
 
-
-    # ...................................................................
-    #
-    # .....bcnt - compute the Spinodal (BCNT) EOS from (B,p) data.
-    #
-    #     The EOS has the following expresion:
-    #
-    #                       g
-    #     B(p) = ( p - Psp ) / K
-    #
-    #     where//c
-    #     g = 0.85  (If opt_g = .true. ===> g is optimized)
-    #     (-Psp) and K are the parameter to optimize.
-    #
-    #     These parameters bear the following relation with Bo and Bo'.
-    #                 g  -1
-    #     Bo  = (-Psp)  K
-    #
-    #                      -1
-    #     Bo' = g Bo (-Psp)
-    #
-    # -----Input parameters:
-    #     lg     : Logical unit for results output.
-    #     vol0pres     : Zero pressure volume, either static or dynamic.
-    #     gfe0pres     : Zero pressure Gibbs function.
-    #     B0     : Bulk modulus used to compute the initial value of
-    #              -Psp (GPa).
-    #     opt_g  : if .true.  ==> g is optimized.
-    #     static : if .true.  ==> static calculation.
-    #
-    # Adapted from original Fortran version written by M. A. Blanco et al.
-    # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
-    # ...................................................................
-    def bcnt(vol0pres, gfe0pres, b0, statcalc):
+    def bcn_eos(vol0pres, gfe0pres, b0, statcalc):
         """
-        .....bcnt - compute the Spinodal (BCNT) EOS from (B,p) data.
+        .....bcn_eos - compute the Spinodal (BCN) EOS from (B,p) data.
         
         The EOS has the following expresion:
         
@@ -1890,7 +1788,7 @@ class eos_thermal_properties:
         if statcalc:
             self.g00k = gfe0pres
             self.b00k = self.bulkmod0pres/self.au2gpa
-            self.v00k = vol0pres
+            self.volstatcalc0p = vol0pres
             self.vsp0k = vsp
             self.xkopt0 = self.xkopt
             self.xmopt0 = self.xmopt
@@ -1928,7 +1826,7 @@ class eos_thermal_properties:
         #
         if statcalc:
             for i in xrange(self.ndata):
-                x = (self.xmopt0+math.log(self.v00k/self.vol_inp[i]))/self.xmopt0
+                x = (self.xmopt0+math.log(self.volstatcalc0p/self.vol_inp[i]))/self.xmopt0
                 auxg = 1.0/(1.0-self.gbao0)
                 auxg2 = self.gbao0/(1.0-self.gbao0)
                 #
@@ -1954,7 +1852,7 @@ class eos_thermal_properties:
                     sum = 0.0
                     for ii in xrange(nl):
                         term = math.exp(self.xmopt0*(1.0-xg[ii])) * (math.exp(auxg*math.log(xg[ii])) - 1.0)
-                        sum = sum + wg[ii] * factor * term * self.xmopt0 * self.v00k * self.x_Psp0
+                        sum = sum + wg[ii] * factor * term * self.xmopt0 * self.volstatcalc0p * self.x_Psp0
                     xabs = math.fabs(sum-sum0)
                     sum0 = sum
                     nl = nl + 5
@@ -1977,11 +1875,11 @@ class eos_thermal_properties:
         #
         else:
             for i in xrange(self.npressure):
-                xxx = (self.xmopt0 + math.log(self.v00k/self.voleqmin[i]))/self.xmopt0
+                xxx = (self.xmopt0 + math.log(self.volstatcalc0p/self.voleqmin[i]))/self.xmopt0
                 ug = 1.0/(1.0-self.gbao0)
                 auxg2 = self.gbao0/(1.0-self.gbao0)
                 self.pstatic[i] = self.x_Psp0 * (math.exp(ug*math.log(xxx)) - 1.0)
-                self.d2EnergydVolume2_dynamic[i] = self.x_Psp0 / (self.xmopt0 * self.v00k * (1.0 - self.gbao0)) * math.exp(-self.xmopt0*(1.0-xxx)) * math.exp(auxg2*math.log(xxx)) / self.au2gpa
+                self.d2EnergydVolume2_dynamic[i] = self.x_Psp0 / (self.xmopt0 * self.volstatcalc0p * (1.0 - self.gbao0)) * math.exp(-self.xmopt0*(1.0-xxx)) * math.exp(auxg2*math.log(xxx)) / self.au2gpa
                 self.gamma_G[i] = -1.0/6.0 + self.gbao0 * ug / 2.0/ self.xmopt0 / xxx
         #
         # .....end
@@ -1996,19 +1894,6 @@ class eos_thermal_properties:
     #  This set of functions implement routines required for the BCNT EOS
     # **************************************************************************************
 
-    #
-    # .....mnbrak - brackets a minimum of the function f.
-    #
-    #     Given a function, and two distinct initial points ax and bx,
-    #     this routine searches in the downhill direction (defined by the
-    #     function as evaluated at the initial points) and returns new
-    #     points ax, bx, and cx which bracket a minimum of the function.
-    #     Also returned are the function values at the three points: fa, fb,
-    #     and fc.
-    #
-    # Adapted from original Fortran version written by M. A. Blanco et al.
-    # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
-    #
     def mnbrak(self, ax, bx, cx):
         """
         .....mnbrak - brackets a minimum of the function f.
@@ -2083,19 +1968,6 @@ class eos_thermal_properties:
         return ax, bx, cx, fa, fb, fc
 
 
-    #
-    # .....brent - unidimensional minimization of f in the range [ax,cx].
-    #
-    #    Given a function, and a bracketing triplet of abscissas this
-    #    routine isolates the minimum to a fractional precission of tol
-    #    using Brent's method. The bracketing triplet must be such that bx
-    #    is between ax and cx, and that f(bx) is less than both f(ax) and
-    #    f(cx). The abscissa of the minimum is returned as xmin, and the
-    #    minimum function value as BRENT.
-    #
-    # Adapted from original Fortran version written by M. A. Blanco et al.
-    # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
-    #
     def brent(self, ax, bx, cx, tol, xmin):
         """
         .....brent - unidimensional minimization of f in the range [ax,cx].
@@ -2200,12 +2072,6 @@ class eos_thermal_properties:
 
 
 
-    #
-    # .....optm - optimization of exponent parameter "g" (aka "beta") required for BCNT EOS.
-    #
-    # Adapted from original Fortran version written by M. A. Blanco et al.
-    # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
-    #
     def optm(self, x_Psp):
         """
         .....optm - optimization of exponent parameter "g" (aka "beta") required for BCNT EOS.
@@ -2267,15 +2133,7 @@ class eos_thermal_properties:
     #  This set of functions determine the Debye temperature self-consistently
     # **************************************************************************************
 
-    #
-    # .....scdebye - calculates the table of self consistent Debye
-    #     temperatures at T for all the input volumes.
-    #
-    #     If firsttime is true, only calculates the static pressures table
-    #
-    # Adapted from original Fortran version written by M. A. Blanco et al.
-    # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
-    #
+
     def scdebye(self, T, pol, err, npol, imin, firsttime, pst):
         """
         .....scdebye - calculates the table of self consistent Debye
