@@ -35,7 +35,8 @@ __date__ = "Aug 13 2016"
 def convert_fmt(args):
     if len(args.filenames) != 2:
         print("File format conversion takes in only two filenames.")
-    s = Structure.from_file(args.filenames[0], primitive=False)
+    s = Structure.from_file(args.filenames[0],
+                            primitive="prim" in args.filenames[1].lower())
     s.to(filename=args.filenames[1])
 
 
