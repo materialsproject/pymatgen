@@ -928,5 +928,12 @@ loop_
         s = p.get_structures()[0]
         self.assertAlmostEqual(s[0].species_and_occu["Al3+"], 0.5)
 
+    def test_one_line_symm(self):
+        f = os.path.join(test_dir, "OneLineSymmP1.cif")
+        p = CifParser(f)
+        s = p.get_structures()[0]
+        self.assertEqual(s.formula, "Ga4 Pb2 O8")
+
+
 if __name__ == '__main__':
     unittest.main()
