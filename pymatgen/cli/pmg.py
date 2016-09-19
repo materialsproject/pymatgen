@@ -107,38 +107,38 @@ def main():
                              "VASP_PSP_DIR ~/psps")
     parser_config.set_defaults(func=configure_pmg)
 
-    parser_analyze = subparsers.add_parser("analyze", help="Vasp run analysis.")
+    parser_analyze = subparsers.add_parser(
+        "analyze", help="Vasp calculation analysis tools.")
     parser_analyze.add_argument("directories", metavar="dir", default=".",
                                 type=str, nargs="*",
                                 help="directory to process (default to .)")
     parser_analyze.add_argument("-e", "--energies", dest="get_energies",
                                 action="store_true", help="Print energies")
-    parser_analyze.add_argument("-m", "--mag", dest="ion_list", type=str,
-                                nargs=1,
-                                help="Print magmoms. ION LIST can be a range "
-                                     "(e.g., 1-2) or the string 'All' for all ions.")
-    parser_analyze.add_argument("-r", "--reanalyze", dest="reanalyze",
-                                action="store_true",
-                                help="Force reanalysis. Typically, vasp_analyzer"
-                                     " will just reuse a vasp_analyzer_data.gz if "
-                                     "present. This forces the analyzer to reanalyze "
-                                     "the data.")
-    parser_analyze.add_argument("-f", "--format", dest="format",
-                                choices=tabulate_formats, default="simple",
-                                type=str,
-                                help="Format for table. Supports all options in "
-                                     "tabulate package.")
-    parser_analyze.add_argument("-v", "--verbose", dest="verbose",
-                                action="store_true",
-                                help="verbose mode. Provides detailed output on "
-                                     "progress.")
-    parser_analyze.add_argument("-d", "--detailed", dest="detailed",
-                                action="store_true",
-                                help="Detailed mode. Parses vasprun.xml instead "
-                                     "of separate vasp input. Slower.")
-    parser_analyze.add_argument("-s", "--sort", dest="sort", type=str, nargs=1,
-                                default=["energy_per_atom"],
-                                help="Sort criteria. Defaults to energy / atom.")
+    parser_analyze.add_argument(
+        "-m", "--mag", dest="ion_list", type=str, nargs=1,
+        help="Print magmoms. ION LIST can be a range "
+             "(e.g., 1-2) or the string 'All' for all ions.")
+    parser_analyze.add_argument(
+        "-r", "--reanalyze", dest="reanalyze", action="store_true",
+        help="Force reanalysis. Typically, vasp_analyzer"
+             " will just reuse a vasp_analyzer_data.gz if "
+             "present. This forces the analyzer to reanalyze "
+             "the data.")
+    parser_analyze.add_argument(
+        "-f", "--format", dest="format", choices=tabulate_formats,
+        default="simple",
+        help="Format for table. Supports all options in tabulate package.")
+    parser_analyze.add_argument(
+        "-v", "--verbose", dest="verbose", action="store_true",
+        help="Verbose mode. Provides detailed output on progress.")
+    parser_analyze.add_argument(
+        "-d", "--detailed", dest="detailed", action="store_true",
+        help="Detailed, but slower mode. Parses vasprun.xml instead of "
+             "separate vasp outputs.")
+    parser_analyze.add_argument(
+        "-s", "--sort", dest="sort", choices=["energy_per_atom", "filename"],
+        default="energy_per_atom",
+        help="Sort criteria. Defaults to energy / atom.")
     parser_analyze.set_defaults(func=analyze)
 
     parser_query = subparsers.add_parser(
@@ -210,7 +210,7 @@ def main():
 
     parser_structure.add_argument(
         "-f", "--filenames", dest="filenames",
-        metavar="filenames", nargs="+",
+        metavar="filename", nargs="+",
         help="List of structure files.")
 
     groups = parser_structure.add_mutually_exclusive_group(required=True)
