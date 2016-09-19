@@ -28,8 +28,7 @@ def gen_potcar(dirname, filename):
 def generate_potcar(args):
     if args.recursive:
         proc_dir(args.spec, gen_potcar)
-
-    if args.symbols:
+    elif args.symbols:
         try:
             p = Potcar(args.symbols, functional=args.functional)
             p.write_file("POTCAR")

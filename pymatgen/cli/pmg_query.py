@@ -43,6 +43,8 @@ def do_query(args):
         props += args.data
         entries = m.get_entries(criteria, property_data=props)
         t = []
+        headers = ["mp-id", "Formula", "Spacegroup", "E/atom (eV)",
+                   "E above hull (eV)"] + args.data
         for e in entries:
             row = [e.entry_id, e.composition.reduced_formula,
                    e.data["spacegroup"]["symbol"],
@@ -51,12 +53,7 @@ def do_query(args):
 
             t.append(row)
 
-        t = sorted(t, key=lambda x: x[3])
-        print(tabulate(t, headers=["mp-id", "Formula", "Spacegroup",
-                                   "E/atom (eV)",
-                                   "E above hull (eV)"] +
-                                  args.data,
-                       tablefmt="pipe",
-                       floatfmt=".3f"))
+        t = sorted(t, key=lambda x: x[headers.index("E above hull (eV)")])
+        print(tabulate(t, headers=headers, tablefmt="pipe", floatfmt=".3f"))
 
 
