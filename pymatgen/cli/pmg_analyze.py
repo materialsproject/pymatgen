@@ -88,6 +88,7 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
         print(msg)
     else:
         print("No valid vasp run found.")
+        os.unlink(SAVE_FILE)
 
 
 def get_magnetizations(mydir, ion_list):
@@ -130,7 +131,7 @@ def analyze(args):
     if args.get_energies or default_energies:
         for d in args.directories:
             get_energies(d, args.reanalyze, args.verbose,
-                         args.detailed, args.sort[0], args.format)
+                         args.detailed, args.sort, args.format)
     if args.ion_list:
         if args.ion_list[0] == "All":
             ion_list = None
