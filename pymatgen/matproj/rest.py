@@ -886,13 +886,48 @@ class MPRester(object):
         """
         toks = criteria_string.split()
 
+        def crit_to_el_list(crit):
+            """Return a list of Elements given a criteria dict.
+
+            A criteria dict is a filter on
+            pymatgen.core.periodic_table.Element attributes using a
+            subset of MongoDB filter syntax.
+            """
+            elt_list = [e for e in Element]
+            for field, val in crit.items():
+                if isinstance(val, dict):
+                    if '$in' in val:
+                        elt_list = [e for e in elt_list
+                                    if getattr(e, field) in val['$in']]
+                    if '$gt' in val:
+                        elt_list = [e for e in elt_list
+                                    if getattr(e, field) > val['$gt']]
+                    if '$lt' in val:
+                        elt_list = [e for e in elt_list
+                                    if getattr(e, field) < val['$lt']]
+                elif field == '$or':
+                    elt_set = set()
+                    for subcrit in val:
+                        elt_set.update(crit_to_el_list(subcrit))
+                    elt_list = [e for e in elt_list if e in elt_set]
+                else:
+                    elt_list = [e for e in elt_list if getattr(e, field) == val]
+
+            return elt_list
+
         def parse_sym(sym):
+            all_el_syms = [el.symbol for el in Element]
             if sym == "*":
-                return [el.symbol for el in Element]
+                return all_el_syms
             else:
                 m = re.match("\{(.*)\}", sym)
                 if m:
-                    return [s.strip() for s in m.group(1).split(",")]
+                    maybe_el_syms = [s.strip() for s in m.group(1).split(",")]
+                    if all((sym in all_el_syms) for sym in maybe_el_syms):
+                        return maybe_el_syms
+                    else:
+                        el_list = crit_to_el_list(json.loads(m.group(0)))
+                        return [el.symbol for el in el_list]
                 else:
                     return [sym]
 
@@ -943,4 +978,3 @@ class MPRestError(Exception):
     Raised when the query has problems, e.g., bad query format.
     """
     pass
-

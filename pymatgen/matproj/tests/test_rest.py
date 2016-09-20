@@ -258,6 +258,19 @@ class MPResterTest(unittest.TestCase):
         comps = MPRester.parse_criteria("{Fe,Mn,Co}O")["pretty_formula"]["$in"]
         self.assertEqual(len(comps), 3, comps)
 
+        el_crit = {
+            'bin_g12': '{"group":1}-{"group":2}',
+            'zintl': ('{"$or":[{"is_alkali":true},{"is_alkaline":true}]}-'
+                      '{"group":{"$in":[13,14,15,16]}}'),
+            'lt_gt': '{"X":{"$lt":1,"$gt":0.9}}'
+        }
+        chemsys = MPRester.parse_criteria(el_crit['bin_g12'])["chemsys"]["$in"]
+        self.assertIn("K-Mg", chemsys)
+        chemsys = MPRester.parse_criteria(el_crit['zintl'])["chemsys"]["$in"]
+        self.assertIn("O-Sr", chemsys)
+        comps = MPRester.parse_criteria(el_crit['lt_gt'])["pretty_formula"]["$in"]
+        self.assertEqual(len(comps), 3)
+
         #Let's test some invalid symbols
 
         self.assertRaises(ValueError, MPRester.parse_criteria, "li-fe")
