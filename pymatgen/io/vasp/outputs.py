@@ -705,25 +705,24 @@ class Vasprun(MSONable):
         eigenvals = defaultdict(list)
 
         nkpts = len(kpoints)
-        nsites = len(self.final_structure)
 
         neigenvalues = [len(v) for v in self.eigenvalues[Spin.up]]
         min_eigenvalues = min(neigenvalues)
 
         for spin, v in self.eigenvalues.items():
+            v = np.swapaxes(v, 0, 1)
+            eigenvals[spin] = v[:, :, 0]
 
-            for b in range(min_eigenvalues):
-                eigenvals[spin].append([v[k][b][0]
-                                        for k in range(nkpts)])
-                if self.projected_eigenvalues:
-                    peigen = self.projected_eigenvalues[spin]
-                    d = []
-                    for k in range(nkpts):
-                        dd = defaultdict(list)
-                        for orb in range(len(peigen[0][b][0])):
-                            for i in range(nsites):
-                                dd[Orbital(orb)].append(peigen[k][b][i][orb])
-                        d.append(dd)
+            if self.projected_eigenvalues:
+                peigen = self.projected_eigenvalues[spin]
+                # Original axes for self.projected_eigenvalues are kpoints,
+                # band, ion, orb.
+                # For BS input, we need band, kpoints, orb, ion.
+                peigen = np.swapaxes(peigen, 0, 1)  # Swap kpoint and band axes
+                peigen = np.swapaxes(peigen, 2, 3)  # Swap ion and orb axes
+                for b in range(min_eigenvalues):
+                    d = [{Orbital(orb): v for orb, v in enumerate(peigen[b, k])}
+                         for k in range(nkpts)]
                     p_eigenvals[spin].append(d)
 
         # check if we have an hybrid band structure computation
@@ -895,7 +894,6 @@ class Vasprun(MSONable):
             for spin, values in self.eigenvalues.items():
                 for i, v in enumerate(values):
                     eigen[i][str(spin)] = v
-                neigen = len(v)
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
             vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
@@ -1113,6 +1111,7 @@ class Vasprun(MSONable):
             spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
             for ss in s.findall("set"):
                 eigenvalues[spin].append(_parse_varray(ss))
+        eigenvalues = {spin: np.array(v) for spin, v in eigenvalues.items()}
         elem.clear()
         return eigenvalues
 
@@ -1130,7 +1129,7 @@ class Vasprun(MSONable):
                     db = _parse_varray(sss)
                     dk.append(db)
                 proj_eigen[spin].append(dk)
-
+        proj_eigen = {spin: np.array(v) for spin, v in proj_eigen.items()}
         elem.clear()
         return proj_eigen
 
@@ -1247,8 +1246,6 @@ class BSVasprun(Vasprun):
         vin["lattice_rec"] = self.lattice_rec.as_dict()
         d["input"] = vin
 
-        nsites = len(self.final_structure)
-
         vout = {"crystal": self.final_structure.as_dict(),
                 "efermi": self.efermi}
 
@@ -1257,7 +1254,6 @@ class BSVasprun(Vasprun):
             for spin, values in self.eigenvalues.items():
                 for i, v in enumerate(values):
                     eigen[i][str(spin)] = v
-                neigen = len(v)
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
             vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
