@@ -707,26 +707,29 @@ class Vasprun(MSONable):
         p_eigenvals = defaultdict(list)
         eigenvals = defaultdict(list)
 
+        nkpts = len(kpoints)
+        has_peigen = len(dict_p_eigen) > 0
+
         neigenvalues = [len(v['1']) for v in dict_eigen.values()]
         min_eigenvalues = min(neigenvalues)
         for i in range(min_eigenvalues):
             eigenvals[Spin.up].append([dict_eigen[str(j)]['1'][i][0]
-                                       for j in range(len(kpoints))])
-            if len(dict_p_eigen) != 0:
+                                       for j in range(nkpts)])
+            if has_peigen:
                 p_eigenvals[Spin.up].append(
                     [{Orbital[orb]: dict_p_eigen[j]['1'][i][orb]
                       for orb in dict_p_eigen[j]['1'][i]}
-                     for j in range(len(kpoints))])
+                     for j in range(nkpts)])
         if "1" in dict_eigen["0"] and "-1" in dict_eigen["0"] \
                 and self.incar['ISPIN'] == 2:
             for i in range(min_eigenvalues):
                 eigenvals[Spin.down].append([dict_eigen[str(j)]['-1'][i][0]
-                                             for j in range(len(kpoints))])
-                if len(dict_p_eigen) != 0:
+                                             for j in range(nkpts)])
+                if has_peigen:
                     p_eigenvals[Spin.down].append(
                         [{Orbital[orb]: dict_p_eigen[j]['-1'][i][orb]
                           for orb in dict_p_eigen[j]['-1'][i]}
-                         for j in range(len(kpoints))]
+                         for j in range(nkpts)]
                     )
 
         # check if we have an hybrid band structure computation
