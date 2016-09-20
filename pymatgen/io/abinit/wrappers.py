@@ -303,3 +303,40 @@ class Mrgdvdb(ExecWrapper):
                     pass
 
         return out_dvdb
+
+
+class Cut3D(ExecWrapper):
+    _name = "cut3d"
+
+    def cut3d(self, cut3d_input, workdir):
+        """
+        Runs cut3d with a Cut3DInput
+
+        Args:
+            cut3d_input: a Cut3DInput object.
+            workdir: directory where cut3d is executed.
+
+        Returns:
+            (string) absolute path to the standard output of the cut3d execution.
+            (string) absolute path to the output filepath. None if output is required.
+        """
+        self.stdin_fname, self.stdout_fname, self.stderr_fname = \
+            map(os.path.join, 3 * [os.path.abspath(workdir)], ["cut3d.stdin", "cut3d.stdout", "cut3d.stderr"])
+
+        cut3d_input.write(self.stdin_fname)
+
+        retcode = self._execute(workdir, with_mpirun=False)
+
+        if retcode != 0:
+            raise RuntimeError("Error while running cut3d.")
+
+        output_filepath = cut3d_input.output_filepath
+
+        if output_filepath is not None:
+            if not os.path.isabs(output_filepath):
+                output_filepath = os.path.abspath(os.path.join(workdir, output_filepath))
+
+            if not os.path.isfile(output_filepath):
+                raise RuntimeError("The file was not converted correctly.")
+
+        return self.stdout_fname, output_filepath
