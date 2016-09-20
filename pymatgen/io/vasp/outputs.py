@@ -699,10 +699,9 @@ class Vasprun(MSONable):
 
         kpoints = [np.array(self.actual_kpoints[i])
                    for i in range(len(self.actual_kpoints))]
-        dict_eigen = self.as_dict()['output']['eigenvalues']
-        dict_p_eigen = {}
-        if 'projected_eigenvalues' in self.as_dict()['output']:
-            dict_p_eigen = self.as_dict()['output']['projected_eigenvalues']
+        dout = self.as_dict()["output"]
+        dict_eigen = dout['eigenvalues']
+        dict_p_eigen = dout.get('projected_eigenvalues', {})
 
         p_eigenvals = defaultdict(list)
         eigenvals = defaultdict(list)
