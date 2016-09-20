@@ -1130,6 +1130,9 @@ class Vasprun(MSONable):
         proj_eigen = {}
         for s in root.findall("set"):
             spin = int(re.match("spin(\d+)", s.attrib["comment"]).group(1))
+
+            # Force spin to be +1 or -1
+            spin = 1 if spin == 1 else -1
             for kpt, ss in enumerate(s.findall("set")):
                 for band, sss in enumerate(ss.findall("set")):
                     for atom, data in enumerate(_parse_varray(sss)):
