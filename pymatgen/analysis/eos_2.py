@@ -6,6 +6,8 @@ from __future__ import unicode_literals, division, print_function
 
 """
 Tools to compute equations of states with different models.
+
+Adapted from ASE and deltafactor.
 """
 
 import logging
