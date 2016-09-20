@@ -467,7 +467,7 @@ class EventsParser(object):
         return EventReport(filename, events=[event])
 
 
-class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
+class EventHandler(six.with_metaclass(abc.ABCMeta, MSONable, object)):
     """
     Abstract base class defining the interface for an EventHandler.
 
@@ -513,7 +513,6 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
     def __init__(self):
         """Simple init for compatibility with introspection in as_dict/from_dict"""
         return super(EventHandler,self).__init__()
-
 
     @classmethod
     def cls2str(cls):

@@ -75,6 +75,7 @@ class EventHandlersTest(PymatgenTest):
             # Test pickle
             handler = cls()
             self.serialize_with_pickle(handler, test_eq=False)
+            self.assertMSONable(handler)
 
         assert events.as_event_class(events.AbinitWarning) == events.AbinitWarning
         assert events.as_event_class('!WARNING') == events.AbinitWarning
