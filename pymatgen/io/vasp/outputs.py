@@ -890,24 +890,17 @@ class Vasprun(MSONable):
                     "efermi": self.efermi}
 
         if self.eigenvalues:
-            eigen = defaultdict(dict)
-            for spin, values in self.eigenvalues.items():
-                for i, v in enumerate(values):
-                    eigen[i][str(spin)] = v
+            eigen = {str(spin): v.tolist()
+                     for spin, v in self.eigenvalues.items()}
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
             vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
                              is_gap_direct=is_direct))
 
             if self.projected_eigenvalues:
-                peigen = []
-                for i in range(len(eigen)):
-                    peigen.append({})
-                for spin, v in self.projected_eigenvalues.items():
-                    for kpoint_index, vv in enumerate(v):
-                        if str(spin) not in peigen[kpoint_index]:
-                            peigen[kpoint_index][str(spin)] = vv
-                vout['projected_eigenvalues'] = peigen
+                vout['projected_eigenvalues'] = {
+                    str(spin): v.tolist()
+                    for spin, v in self.projected_eigenvalues.items()}
 
         vout['epsilon_static'] = self.epsilon_static
         vout['epsilon_static_wolfe'] = self.epsilon_static_wolfe
