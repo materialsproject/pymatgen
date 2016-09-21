@@ -1445,6 +1445,32 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
         self.ce_estimator_ratio_function = CSMInfiniteRatioFunction.from_dict(self.ce_estimator)
         self.ce_estimator_fractions = self.ce_estimator_ratio_function.fractions
 
+    @classmethod
+    def stats_article_weights_parameters(cls):
+        self_csm_weight = SelfCSMNbSetWeight(weight_estimator={'function': 'power2_decreasing_exp',
+                                                               'options': {'max_csm': 8.0,
+                                                                           'alpha': 1.0}})
+        surface_definition = {'type': 'standard_elliptic',
+                              'distance_bounds': {'lower': 1.15, 'upper': 2.0},
+                              'angle_bounds': {'lower': 0.05, 'upper': 0.75}}
+        da_area_weight = DistanceAngleAreaNbSetWeight(weight_type='has_intersection',
+                                                      surface_definition=surface_definition,
+                                                      nb_sets_from_hints='fallback_to_source',
+                                                      other_nb_sets='0_weight',
+                                                      additional_condition=DistanceAngleAreaNbSetWeight.AC.ONLY_ACB)
+        symmetry_measure_type = 'csm_wcs_ctwcc'
+        delta_weight = DeltaCSMNbSetWeight.delta_cn_specifics()
+        bias_weight = None
+        angle_weight = None
+        nad_weight = None
+        return cls(dist_ang_area_weight=da_area_weight,
+                   self_csm_weight=self_csm_weight,
+                   delta_csm_weight=delta_weight,
+                   cn_bias_weight=bias_weight,
+                   angle_weight=angle_weight,
+                   normalized_angle_distance_weight=nad_weight,
+                   symmetry_measure_type=symmetry_measure_type)
+
     @property
     def uniquely_determines_coordination_environments(self):
         return False
