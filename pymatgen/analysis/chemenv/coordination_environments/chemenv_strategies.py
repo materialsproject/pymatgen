@@ -504,6 +504,8 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
 
         cn_map = (my_cn, my_inb_set)
         ce = self.structure_environments.ce_list[self.structure_environments.sites_map[isite]][cn_map[0]][cn_map[1]]
+        if ce is None:
+            return None
         coord_geoms = ce.coord_geoms
         if return_map:
             if coord_geoms is None:
@@ -522,9 +524,12 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         site_nb_sets = self.structure_environments.neighbors_sets[isite]
         if site_nb_sets is None:
             return None
-        ce, ce_map = self.get_site_coordination_environment(site=site, isite=isite, dequivsite=dequivsite,
+        ce_and_map = self.get_site_coordination_environment(site=site, isite=isite, dequivsite=dequivsite,
                                                             dthissite=dthissite, mysym=mysym,
                                                             return_map=True)
+        if ce_and_map is None:
+            return None
+        ce, ce_map = ce_and_map
         if ce is None:
             ce_dict = {'ce_symbol': 'UNKNOWN:{:d}'.format(ce_map[0]), 'ce_dict': None, 'ce_fraction': 1.0}
         else:
@@ -953,14 +958,17 @@ def get_effective_csm(nb_set, cn_map, structure_environments, additional_info,
     except KeyError:
         site_ce_list = structure_environments.ce_list[nb_set.isite]
         site_chemenv = site_ce_list[cn_map[0]][cn_map[1]]
-        mingeoms = site_chemenv.minimum_geometries(symmetry_measure_type=symmetry_measure_type,
-                                                   max_csm=max_effective_csm)
-        if len(mingeoms) == 0:
+        if site_chemenv is None:
             effective_csm = 100.0
         else:
-            csms = [ce_dict['other_symmetry_measures'][symmetry_measure_type] for mp_symbol, ce_dict in mingeoms
-                    if ce_dict['other_symmetry_measures'][symmetry_measure_type] <= max_effective_csm]
-            effective_csm = effective_csm_estimator_ratio_function.mean_estimator(csms)
+            mingeoms = site_chemenv.minimum_geometries(symmetry_measure_type=symmetry_measure_type,
+                                                   max_csm=max_effective_csm)
+            if len(mingeoms) == 0:
+                effective_csm = 100.0
+            else:
+                csms = [ce_dict['other_symmetry_measures'][symmetry_measure_type] for mp_symbol, ce_dict in mingeoms
+                        if ce_dict['other_symmetry_measures'][symmetry_measure_type] <= max_effective_csm]
+                effective_csm = effective_csm_estimator_ratio_function.mean_estimator(csms)
         set_info(additional_info=additional_info, field='effective_csms',
                  isite=nb_set.isite, cn_map=cn_map, value=effective_csm)
     return effective_csm
@@ -1041,11 +1049,18 @@ class DeltaCSMNbSetWeight(NbSetWeight):
 
     def __init__(self, effective_csm_estimator=DEFAULT_EFFECTIVE_CSM_ESTIMATOR,
                  weight_estimator=DEFAULT_WEIGHT_ESTIMATOR,
+                 delta_cn_weight_estimators=None,
                  symmetry_measure_type=DEFAULT_SYMMETRY_MEASURE_TYPE):
         self.effective_csm_estimator = effective_csm_estimator
         self.effective_csm_estimator_rf = CSMInfiniteRatioFunction.from_dict(effective_csm_estimator)
         self.weight_estimator = weight_estimator
-        self.weight_estimator_rf = DeltaCSMRatioFunction.from_dict(weight_estimator)
+        if self.weight_estimator is not None:
+            self.weight_estimator_rf = DeltaCSMRatioFunction.from_dict(weight_estimator)
+        self.delta_cn_weight_estimators = delta_cn_weight_estimators
+        self.delta_cn_weight_estimators_rfs = {}
+        if delta_cn_weight_estimators is not None:
+            for delta_cn, dcn_w_estimator in delta_cn_weight_estimators.items():
+                self.delta_cn_weight_estimators_rfs[delta_cn] = DeltaCSMRatioFunction.from_dict(dcn_w_estimator)
         self.symmetry_measure_type = symmetry_measure_type
         self.max_effective_csm = self.effective_csm_estimator['options']['max_csm']
 
@@ -1074,8 +1089,8 @@ class DeltaCSMNbSetWeight(NbSetWeight):
                                             symmetry_measure_type=self.symmetry_measure_type,
                                             max_effective_csm=self.max_effective_csm,
                                             effective_csm_estimator_ratio_function=self.effective_csm_estimator_rf)
+                this_delta_csm = effcsm2 - effcsm
                 if cn2 == cn:
-                    this_delta_csm = effcsm2 - effcsm
                     if this_delta_csm < 0.0:
                         set_info(additional_info=additional_info, field='delta_csms', isite=isite,
                                  cn_map=cn_map, value=this_delta_csm)
@@ -1085,11 +1100,12 @@ class DeltaCSMNbSetWeight(NbSetWeight):
                                  cn_map=cn_map, value=(cn2, inb_set2))
                         return 0.0
                 else:
-                    this_delta_csm = effcsm2 - effcsm
-                    # this_delta_csm_weight = self.weight_estimator_rf.evaluate(this_delta_csm)
-                    if delta_csm is None or this_delta_csm < delta_csm:
-                    # if this_delta_csm_weight < nb_set_weight:
+                    dcn = cn2 - cn
+                    if dcn in self.delta_cn_weight_estimators_rfs:
+                        this_delta_csm_weight = self.delta_cn_weight_estimators_rfs[dcn].evaluate(this_delta_csm)
+                    else:
                         this_delta_csm_weight = self.weight_estimator_rf.evaluate(this_delta_csm)
+                    if this_delta_csm_weight < nb_set_weight:
                         delta_csm = this_delta_csm
                         delta_csm_cn_map2 = (cn2, inb_set2)
                         nb_set_weight = this_delta_csm_weight
@@ -1104,16 +1120,40 @@ class DeltaCSMNbSetWeight(NbSetWeight):
     def __eq__(self, other):
         return (self.effective_csm_estimator == other.effective_csm_estimator and
                 self.weight_estimator == other.weight_estimator and
+                self.delta_cn_weight_estimators == other.delta_cn_weight_estimators and
                 self.symmetry_measure_type == other.symmetry_measure_type)
 
     def __ne__(self, other):
         return not self == other
+
+    @classmethod
+    def delta_cn_specifics(cls, delta_csm_mins=None, delta_csm_maxs=None, function='smootherstep',
+                           symmetry_measure_type='csm_wcs_ctwcc',
+                           effective_csm_estimator=DEFAULT_EFFECTIVE_CSM_ESTIMATOR):
+        if delta_csm_mins is None or delta_csm_maxs is None:
+            delta_cn_weight_estimators = {dcn: {'function': function,
+                                                'options': {'delta_csm_min': 0.25+dcn*0.25,
+                                                            'delta_csm_max': 5.0+dcn*0.25}} for dcn in range(1, 13)}
+        else:
+            delta_cn_weight_estimators = {dcn: {'function': function,
+                                                'options': {'delta_csm_min': delta_csm_mins[dcn-1],
+                                                            'delta_csm_max': delta_csm_maxs[dcn-1]}}
+                                          for dcn in range(1, 13)}
+        return cls(effective_csm_estimator=effective_csm_estimator,
+                   weight_estimator={'function': function,
+                                     'options': {'delta_csm_min': delta_cn_weight_estimators[12]
+                                                 ['options']['delta_csm_min'],
+                                                 'delta_csm_max': delta_cn_weight_estimators[12]
+                                                 ['options']['delta_csm_max']}},
+                   delta_cn_weight_estimators=delta_cn_weight_estimators,
+                   symmetry_measure_type=symmetry_measure_type)
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "effective_csm_estimator": self.effective_csm_estimator,
                 "weight_estimator": self.weight_estimator,
+                "delta_cn_weight_estimators": self.delta_cn_weight_estimators,
                 "symmetry_measure_type": self.symmetry_measure_type
                 }
 
@@ -1121,6 +1161,9 @@ class DeltaCSMNbSetWeight(NbSetWeight):
     def from_dict(cls, dd):
         return cls(effective_csm_estimator=dd['effective_csm_estimator'],
                    weight_estimator=dd['weight_estimator'],
+                   delta_cn_weight_estimators={int(dcn): dcn_estimator
+                                               for dcn, dcn_estimator in dd['delta_cn_weight_estimators'].items()}
+                   if ('delta_cn_weight_estimators' in dd and dd['delta_cn_weight_estimators'] is not None) else None,
                    symmetry_measure_type=dd['symmetry_measure_type'])
 
 
@@ -1192,21 +1235,26 @@ class CNBiasNbSetWeight(NbSetWeight):
 class DistanceAngleAreaNbSetWeight(NbSetWeight):
     AC = AdditionalConditions()
     DEFAULT_SURFACE_DEFINITION = {'type': 'standard_elliptic',
-                                   'distance_bounds': {'lower': 1.2, 'upper': 1.8},
-                                   'angle_bounds': {'lower': 0.1, 'upper': 0.8}}
+                                  'distance_bounds': {'lower': 1.2, 'upper': 1.8},
+                                  'angle_bounds': {'lower': 0.1, 'upper': 0.8}}
 
     def __init__(self, weight_type='has_intersection', surface_definition=DEFAULT_SURFACE_DEFINITION,
                  nb_sets_from_hints='fallback_to_source', other_nb_sets='0_weight',
-                 additional_condition=AC.ONLY_ACB):
+                 additional_condition=AC.ONLY_ACB, smoothstep_distance=None, smoothstep_angle=None):
         self.weight_type = weight_type
         if weight_type == 'has_intersection':
             self.area_weight = self.w_area_has_intersection
+        elif weight_type == 'has_intersection_smoothstep':
+            raise NotImplementedError()
+            # self.area_weight = self.w_area_has_intersection_smoothstep
         else:
             raise ValueError('Weight type is "{}" while it should be "has_intersection"'.format(weight_type))
         self.surface_definition = surface_definition
         self.nb_sets_from_hints = nb_sets_from_hints
         self.other_nb_sets = other_nb_sets
         self.additional_condition = additional_condition
+        self.smoothstep_distance = smoothstep_distance
+        self.smoothstep_angle = smoothstep_angle
         if self.nb_sets_from_hints == 'fallback_to_source':
             if self.other_nb_sets == '0_weight':
                 self.w_area_intersection_specific = self.w_area_intersection_nbsfh_fbs_onb0
@@ -1225,6 +1273,17 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
         return self.area_weight(nb_set=nb_set, structure_environments=structure_environments,
                                 cn_map=cn_map, additional_info=additional_info)
+
+    def w_area_has_intersection_smoothstep(self, nb_set, structure_environments,
+                                           cn_map, additional_info):
+        w_area =  self.w_area_intersection_specific(nb_set=nb_set, structure_environments=structure_environments,
+                                                    cn_map=cn_map, additional_info=additional_info)
+        if w_area > 0.0:
+            if self.smoothstep_distance is not None:
+                w_area = w_area
+            if self.smoothstep_angle is not None:
+                w_area = w_area
+        return w_area
 
     def w_area_has_intersection(self, nb_set, structure_environments,
                                 cn_map, additional_info):
@@ -1386,6 +1445,32 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
         self.ce_estimator_ratio_function = CSMInfiniteRatioFunction.from_dict(self.ce_estimator)
         self.ce_estimator_fractions = self.ce_estimator_ratio_function.fractions
 
+    @classmethod
+    def stats_article_weights_parameters(cls):
+        self_csm_weight = SelfCSMNbSetWeight(weight_estimator={'function': 'power2_decreasing_exp',
+                                                               'options': {'max_csm': 8.0,
+                                                                           'alpha': 1.0}})
+        surface_definition = {'type': 'standard_elliptic',
+                              'distance_bounds': {'lower': 1.15, 'upper': 2.0},
+                              'angle_bounds': {'lower': 0.05, 'upper': 0.75}}
+        da_area_weight = DistanceAngleAreaNbSetWeight(weight_type='has_intersection',
+                                                      surface_definition=surface_definition,
+                                                      nb_sets_from_hints='fallback_to_source',
+                                                      other_nb_sets='0_weight',
+                                                      additional_condition=DistanceAngleAreaNbSetWeight.AC.ONLY_ACB)
+        symmetry_measure_type = 'csm_wcs_ctwcc'
+        delta_weight = DeltaCSMNbSetWeight.delta_cn_specifics()
+        bias_weight = None
+        angle_weight = None
+        nad_weight = None
+        return cls(dist_ang_area_weight=da_area_weight,
+                   self_csm_weight=self_csm_weight,
+                   delta_csm_weight=delta_weight,
+                   cn_bias_weight=bias_weight,
+                   angle_weight=angle_weight,
+                   normalized_angle_distance_weight=nad_weight,
+                   symmetry_measure_type=symmetry_measure_type)
+
     @property
     def uniquely_determines_coordination_environments(self):
         return False
@@ -1401,6 +1486,7 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
         cn_maps = []
         for cn, nb_sets in site_nb_sets.items():
             for inb_set, nb_set in enumerate(nb_sets):
+                #CHECK THE ADDITIONAL CONDITION HERE ?
                 cn_maps.append((cn, inb_set))
         weights_additional_info = {'weights': {isite: {}}}
         for wdict in self.ordered_weights:
@@ -1410,7 +1496,7 @@ class MultiWeightsChemenvStrategy(AbstractChemenvStrategy):
             for cn_map in cn_maps:
                 nb_set = site_nb_sets[cn_map[0]][cn_map[1]]
                 w_nb_set = weight.weight(nb_set=nb_set, structure_environments=self.structure_environments,
-                                             cn_map=cn_map, additional_info=weights_additional_info)
+                                         cn_map=cn_map, additional_info=weights_additional_info)
                 if cn_map not in weights_additional_info['weights'][isite]:
                     weights_additional_info['weights'][isite][cn_map] = {}
                 weights_additional_info['weights'][isite][cn_map][weight_name] = w_nb_set

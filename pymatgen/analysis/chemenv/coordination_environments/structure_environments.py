@@ -633,9 +633,9 @@ class StructureEnvironments(MSONable):
         voronoi = DetailedVoronoiContainer.from_dict(d['voronoi'])
         structure = Structure.from_dict(d['structure'])
         neighbors_sets = [{int(cn): [cls.NeighborsSet.from_dict(dd=nb_set_dict,
-                                                           structure=structure,
-                                                           detailed_voronoi=voronoi)
-                                for nb_set_dict in nb_sets]
+                                                                structure=structure,
+                                                                detailed_voronoi=voronoi)
+                                     for nb_set_dict in nb_sets]
                            for cn, nb_sets in site_nbs_sets_dict.items()}
                           if site_nbs_sets_dict is not None else None
                           for site_nbs_sets_dict in d['neighbors_sets']]
@@ -677,19 +677,20 @@ class LightStructureEnvironments(MSONable):
             if len(myset) != len(all_nbs_sites_indices):
                 raise ValueError('Set of neighbors contains duplicates !')
             self.all_nbs_sites_indices = sorted(myset)
+            self.all_nbs_sites_indices_unsorted = all_nbs_sites_indices
 
         @property
         def neighb_coords(self):
-            return [self.all_nbs_sites[inb]['site'].coords for inb in self.all_nbs_sites_indices]
+            return [self.all_nbs_sites[inb]['site'].coords for inb in self.all_nbs_sites_indices_unsorted]
 
         @property
         def neighb_sites(self):
-            return [self.all_nbs_sites[inb]['site'] for inb in self.all_nbs_sites_indices]
+            return [self.all_nbs_sites[inb]['site'] for inb in self.all_nbs_sites_indices_unsorted]
 
         @property
         def neighb_sites_and_indices(self):
             return [{'site': self.all_nbs_sites[inb]['site'],
-                     'index': self.all_nbs_sites[inb]['index']} for inb in self.all_nbs_sites_indices]
+                     'index': self.all_nbs_sites[inb]['index']} for inb in self.all_nbs_sites_indices_unsorted]
 
         def __len__(self):
             return len(self.all_nbs_sites_indices)
@@ -713,7 +714,8 @@ class LightStructureEnvironments(MSONable):
 
         def as_dict(self):
             return {'isite': self.isite,
-                    'all_nbs_sites_indices': self.all_nbs_sites_indices}
+                    'all_nbs_sites_indices': self.all_nbs_sites_indices_unsorted}
+                    # 'all_nbs_sites_indices_unsorted': self.all_nbs_sites_indices_unsorted}
 
         @classmethod
         def from_dict(cls, dd, structure, all_nbs_sites):
@@ -771,6 +773,7 @@ class LightStructureEnvironments(MSONable):
                 else:
                     csm = None
                 ce_dict['csm'] = csm
+                ce_dict['permutation'] = ce_and_neighbors['ce_dict']['permutation']
                 site_ces.append(ce_dict)
                 # Neighbors
                 neighbors = ce_and_neighbors['neighbors']
@@ -961,6 +964,8 @@ class LightStructureEnvironments(MSONable):
         for isite, site in enumerate(self.structure):
             if element in [sp.symbol for sp in site.species_and_occu]:
                 if oxi_state == self.valences[isite]:
+                    if self.coordination_environments[isite] is None:
+                        continue
                     for ce_dict in self.coordination_environments[isite]:
                         if ce_dict['ce_fraction'] < min_fraction:
                             continue
