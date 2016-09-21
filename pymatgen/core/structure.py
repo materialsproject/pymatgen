@@ -517,6 +517,12 @@ class IStructure(SiteCollection, MSONable):
                                              sgp.symbol)
             )
 
+        if len(species) != len(coords):
+            raise ValueError(
+                "Supplied species and coords lengths (%d vs %d) are "
+                "different!" % (len(species), len(coords))
+            )
+
         frac_coords = coords if not coords_are_cartesian else \
             lattice.get_fractional_coords(coords)
 
