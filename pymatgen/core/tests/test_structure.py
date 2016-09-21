@@ -697,6 +697,10 @@ class StructureTest(PymatgenTest):
                           "Pm-3m", Lattice.tetragonal(1, 3), ["Cs", "Cl"],
                           [[0, 0, 0], [0.5, 0.5, 0.5]])
 
+        self.assertRaises(ValueError, Structure.from_spacegroup,
+                          "Pm-3m", Lattice.cubic(3), ["Cs"],
+                          [[0, 0, 0], [0.5, 0.5, 0.5]])
+
     def test_merge_sites(self):
         species = [{'Ag': 0.5}, {'Cl': 0.25}, {'Cl': 0.1},
                    {'Ag': 0.5}, {'F': 0.15}, {'F': 0.1}]

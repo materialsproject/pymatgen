@@ -238,8 +238,9 @@ class Vasprun(MSONable):
 
     .. attribute:: projected_eigenvalues
 
-        Final projected eigenvalues as a dict of
-        {(atom index, band index, kpoint index, Orbital, Spin):float}
+        Final projected eigenvalues as a dict of {spin: nd-array}. To access
+        a particular value, you need to do
+        Vasprun.projected_eigenvalues[spin][kpoint index][band index][atom index][orbital_index]
         This representation is based on actual ordering in VASP and is meant as
         an intermediate representation to be converted into proper objects. The
         kpoint, band and atom indices are 0-based (unlike the 1-based indexing
@@ -699,35 +700,30 @@ class Vasprun(MSONable):
 
         kpoints = [np.array(self.actual_kpoints[i])
                    for i in range(len(self.actual_kpoints))]
-        dict_eigen = self.as_dict()['output']['eigenvalues']
-        dict_p_eigen = {}
-        if 'projected_eigenvalues' in self.as_dict()['output']:
-            dict_p_eigen = self.as_dict()['output']['projected_eigenvalues']
 
         p_eigenvals = defaultdict(list)
         eigenvals = defaultdict(list)
 
-        neigenvalues = [len(v['1']) for v in dict_eigen.values()]
+        nkpts = len(kpoints)
+
+        neigenvalues = [len(v) for v in self.eigenvalues[Spin.up]]
         min_eigenvalues = min(neigenvalues)
-        for i in range(min_eigenvalues):
-            eigenvals[Spin.up].append([dict_eigen[str(j)]['1'][i][0]
-                                       for j in range(len(kpoints))])
-            if len(dict_p_eigen) != 0:
-                p_eigenvals[Spin.up].append(
-                    [{Orbital[orb]: dict_p_eigen[j]['1'][i][orb]
-                      for orb in dict_p_eigen[j]['1'][i]}
-                     for j in range(len(kpoints))])
-        if "1" in dict_eigen["0"] and "-1" in dict_eigen["0"] \
-                and self.incar['ISPIN'] == 2:
-            for i in range(min_eigenvalues):
-                eigenvals[Spin.down].append([dict_eigen[str(j)]['-1'][i][0]
-                                             for j in range(len(kpoints))])
-                if len(dict_p_eigen) != 0:
-                    p_eigenvals[Spin.down].append(
-                        [{Orbital[orb]: dict_p_eigen[j]['-1'][i][orb]
-                          for orb in dict_p_eigen[j]['-1'][i]}
-                         for j in range(len(kpoints))]
-                    )
+
+        for spin, v in self.eigenvalues.items():
+            v = np.swapaxes(v, 0, 1)
+            eigenvals[spin] = v[:, :, 0]
+
+            if self.projected_eigenvalues:
+                peigen = self.projected_eigenvalues[spin]
+                # Original axes for self.projected_eigenvalues are kpoints,
+                # band, ion, orb.
+                # For BS input, we need band, kpoints, orb, ion.
+                peigen = np.swapaxes(peigen, 0, 1)  # Swap kpoint and band axes
+                peigen = np.swapaxes(peigen, 2, 3)  # Swap ion and orb axes
+                for b in range(min_eigenvalues):
+                    p_eigenvals[spin].append(
+                        [{Orbital(orb): v for orb, v in enumerate(peigen[b, k])}
+                         for k in range(nkpts)])
 
         # check if we have an hybrid band structure computation
         # for this we look at the presence of the LHFCALC tag
@@ -792,14 +788,15 @@ class Vasprun(MSONable):
         vbm_kpoint = None
         cbm = float("inf")
         cbm_kpoint = None
-        for (spin, k), val in self.eigenvalues.items():
-            for (eigenval, occu) in val:
-                if occu > self.occu_tol and eigenval > vbm:
-                    vbm = eigenval
-                    vbm_kpoint = k
-                elif occu <= self.occu_tol and eigenval < cbm:
-                    cbm = eigenval
-                    cbm_kpoint = k
+        for spin, d in self.eigenvalues.items():
+            for k, val in enumerate(d):
+                for (eigenval, occu) in val:
+                    if occu > self.occu_tol and eigenval > vbm:
+                        vbm = eigenval
+                        vbm_kpoint = k
+                    elif occu <= self.occu_tol and eigenval < cbm:
+                        cbm = eigenval
+                        cbm_kpoint = k
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
     def update_potcar_spec(self, path):
@@ -893,30 +890,17 @@ class Vasprun(MSONable):
                     "efermi": self.efermi}
 
         if self.eigenvalues:
-            eigen = defaultdict(dict)
-            for (spin, index), values in self.eigenvalues.items():
-                eigen[index][str(spin)] = values
-                neigen = len(values)
+            eigen = {str(spin): v.tolist()
+                     for spin, v in self.eigenvalues.items()}
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
             vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
                              is_gap_direct=is_direct))
 
             if self.projected_eigenvalues:
-                peigen = []
-                for i in range(len(eigen)):
-                    peigen.append({})
-                for (spin, kpoint_index, band_index, ion_index, orbital), \
-                        value in self.projected_eigenvalues.items():
-                    if str(spin) not in peigen[kpoint_index]:
-                        peigen[kpoint_index][str(spin)] = []
-                        for i in range(neigen):
-                            peigen[kpoint_index][str(spin)].append({})
-                    beigen = peigen[kpoint_index][str(spin)][band_index]
-                    if orbital not in beigen:
-                        beigen[orbital] = [0.0] * nsites
-                    beigen[orbital][ion_index] = value
-                vout['projected_eigenvalues'] = peigen
+                vout['projected_eigenvalues'] = {
+                    str(spin): v.tolist()
+                    for spin, v in self.projected_eigenvalues.items()}
 
         vout['epsilon_static'] = self.epsilon_static
         vout['epsilon_static_wolfe'] = self.epsilon_static_wolfe
@@ -1017,7 +1001,6 @@ class Vasprun(MSONable):
         return [e[0] for e in imag], \
                [e[1:] for e in real], [e[1:] for e in imag]
 
-
     def _parse_chemical_shift_calculation(self, elem):
         calculation = []
         istep = {}
@@ -1049,7 +1032,6 @@ class Vasprun(MSONable):
                 pass
         calculation[-1].update(calculation[-1]["electronic_steps"][-1])
         return calculation
-
 
     def _parse_calculation(self, elem):
         try:
@@ -1117,25 +1099,30 @@ class Vasprun(MSONable):
             Dos(efermi, energies, idensities), pdoss
 
     def _parse_eigen(self, elem):
-        eigenvalues = {}
+        eigenvalues = defaultdict(list)
         for s in elem.find("array").find("set").findall("set"):
             spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
-            for i, ss in enumerate(s.findall("set")):
-                eigenvalues[(spin, i)] = _parse_varray(ss)
+            for ss in s.findall("set"):
+                eigenvalues[spin].append(_parse_varray(ss))
+        eigenvalues = {spin: np.array(v) for spin, v in eigenvalues.items()}
         elem.clear()
         return eigenvalues
 
     def _parse_projected_eigen(self, elem):
         root = elem.find("array").find("set")
-        proj_eigen = {}
+        proj_eigen = defaultdict(list)
         for s in root.findall("set"):
             spin = int(re.match("spin(\d+)", s.attrib["comment"]).group(1))
+
+            # Force spin to be +1 or -1
+            spin = Spin.up if spin == 1 else Spin.down
             for kpt, ss in enumerate(s.findall("set")):
+                dk = []
                 for band, sss in enumerate(ss.findall("set")):
-                    for atom, data in enumerate(_parse_varray(sss)):
-                        for i, v in enumerate(data):
-                            orb = Orbital(i)
-                            proj_eigen[(spin, kpt, band, atom, orb)] = v
+                    db = _parse_varray(sss)
+                    dk.append(db)
+                proj_eigen[spin].append(dk)
+        proj_eigen = {spin: np.array(v) for spin, v in proj_eigen.items()}
         elem.clear()
         return proj_eigen
 
@@ -1252,16 +1239,14 @@ class BSVasprun(Vasprun):
         vin["lattice_rec"] = self.lattice_rec.as_dict()
         d["input"] = vin
 
-        nsites = len(self.final_structure)
-
         vout = {"crystal": self.final_structure.as_dict(),
                 "efermi": self.efermi}
 
         if self.eigenvalues:
             eigen = defaultdict(dict)
-            for (spin, index), values in self.eigenvalues.items():
-                eigen[index][str(spin)] = values
-                neigen = len(values)
+            for spin, values in self.eigenvalues.items():
+                for i, v in enumerate(values):
+                    eigen[i][str(spin)] = v
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
             vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
@@ -1271,16 +1256,10 @@ class BSVasprun(Vasprun):
                 peigen = []
                 for i in range(len(eigen)):
                     peigen.append({})
-                for (spin, kpoint_index, band_index, ion_index, orbital), \
-                        value in self.projected_eigenvalues.items():
-                    if str(spin) not in peigen[kpoint_index]:
-                        peigen[kpoint_index][str(spin)] = []
-                        for i in range(neigen):
-                            peigen[kpoint_index][str(spin)].append({})
-                    beigen = peigen[kpoint_index][str(spin)][band_index]
-                    if orbital not in beigen:
-                        beigen[orbital] = [0.0] * nsites
-                    beigen[orbital][ion_index] = value
+                for spin, v in self.projected_eigenvalues.items():
+                    for kpoint_index, vv in enumerate(v):
+                        if str(spin) not in peigen[kpoint_index]:
+                            peigen[kpoint_index][str(spin)] = vv
                 vout['projected_eigenvalues'] = peigen
 
         d['output'] = vout

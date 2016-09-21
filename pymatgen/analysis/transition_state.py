@@ -4,6 +4,20 @@
 
 from __future__ import division, unicode_literals
 
+import os
+import glob
+
+import numpy as np
+scipy_old_piecewisepolynomial = True
+try:
+    from scipy.interpolate import PiecewisePolynomial
+except ImportError:
+    from scipy.interpolate import splmake, PPoly
+    scipy_old_piecewisepolynomial = False
+
+from pymatgen.util.plotting_utils import get_publication_quality_plot
+from pymatgen.io.vasp import Poscar, Outcar
+
 """
 Some reimplementation of Henkelman's Transition State Analysis utilities,
 which are originally in Perl. Additional features beyond those offered by
@@ -18,15 +32,6 @@ __version__ = '0.1'
 __maintainer__ = 'Shyue Ping Ong'
 __email__ = 'ongsp@ucsd.edu'
 __date__ = '6/1/15'
-
-import os
-import glob
-
-import numpy as np
-from scipy.interpolate import PiecewisePolynomial
-
-from pymatgen.util.plotting_utils import get_publication_quality_plot
-from pymatgen.io.vasp import Poscar, Outcar
 
 
 class NEBAnalysis(object):
@@ -80,14 +85,22 @@ class NEBAnalysis(object):
         self.r = np.array(r)
         self.energies = energies
         self.forces = forces
+        self.structures = structures
 
         # We do a piecewise interpolation between the points. Each spline (
         # cubic by default) is constrained by the boundary conditions of the
         # energies and the tangent force, i.e., the derivative of
         # the energy at each pair of points.
-        self.spline = PiecewisePolynomial(
-            self.r, np.array([self.energies, -self.forces]).T,
-            orders=interpolation_order)
+        if scipy_old_piecewisepolynomial:
+            self.spline = PiecewisePolynomial(
+                self.r, np.array([self.energies, -self.forces]).T,
+                orders=interpolation_order)
+        else:
+            # New scipy implementation for scipy > 0.18.0
+            xk, coefs, order = splmake(
+                self.r, np.array([self.energies, -self.forces]).T,
+                order=interpolation_order)
+            self.spline = PPoly(c=coefs, x=xk)
 
     def get_extrema(self, normalize_rxn_coordinate=True):
         """

@@ -36,14 +36,6 @@ pymatgen.cli.gaussian_analyzer module
     :undoc-members:
     :show-inheritance:
 
-pymatgen.cli.gen_potcar module
-------------------------------
-
-.. automodule:: pymatgen.cli.gen_potcar
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pymatgen.cli.get_environment module
 -----------------------------------
 
@@ -56,6 +48,54 @@ pymatgen.cli.pmg module
 -----------------------
 
 .. automodule:: pymatgen.cli.pmg
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.cli.pmg_analyze module
+-------------------------------
+
+.. automodule:: pymatgen.cli.pmg_analyze
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.cli.pmg_config module
+------------------------------
+
+.. automodule:: pymatgen.cli.pmg_config
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.cli.pmg_plot module
+----------------------------
+
+.. automodule:: pymatgen.cli.pmg_plot
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.cli.pmg_potcar module
+------------------------------
+
+.. automodule:: pymatgen.cli.pmg_potcar
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.cli.pmg_query module
+-----------------------------
+
+.. automodule:: pymatgen.cli.pmg_query
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.cli.pmg_structure module
+---------------------------------
+
+.. automodule:: pymatgen.cli.pmg_structure
     :members:
     :undoc-members:
     :show-inheritance:

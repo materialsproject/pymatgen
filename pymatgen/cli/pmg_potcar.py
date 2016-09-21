@@ -25,5 +25,19 @@ def gen_potcar(dirname, filename):
         potcar.write_file(os.path.join(dirname, "POTCAR"))
 
 
+def generate_potcar(args):
+    if args.recursive:
+        proc_dir(args.spec, gen_potcar)
+    elif args.symbols:
+        try:
+            p = Potcar(args.symbols, functional=args.functional)
+            p.write_file("POTCAR")
+        except Exception as ex:
+            print("An error has occurred: {}".format(str(ex)))
+
+    else:
+        print("No valid options selected.")
+
+
 if __name__ == "__main__":
     proc_dir(os.getcwd(), gen_potcar)
