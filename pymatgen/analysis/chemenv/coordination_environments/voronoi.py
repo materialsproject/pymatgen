@@ -22,11 +22,11 @@ from operator import attrgetter
 import logging
 import numpy as np
 import time
-from pyhull.voronoi import VoronoiTess
 from pymatgen.core.structure import Structure
 from pymatgen.core.sites import PeriodicSite
 from monty.json import MSONable
 from pymatgen.analysis.structure_analyzer import solid_angle
+from scipy.spatial import Voronoi
 
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import my_solid_angle
@@ -127,13 +127,14 @@ class DetailedVoronoiContainer(MSONable):
         t2 = time.clock()
         logging.info('Neighbors distances and angles set up in {:.2f} seconds'.format(t2-t1))
 
-    def setup_voronoi_list(self, indices, voronoi_cutoff):
+    def setup_voronoi_list_old_pyhull_implementation(self, indices, voronoi_cutoff):
         """
         Set up of the voronoi list of neighbours by calling qhull
         :param indices: indices of the sites for which the Voronoi is needed
         :param voronoi_cutoff: Voronoi cutoff for the search of neighbours
         :raise RuntimeError: If an infinite vertex is found in the voronoi construction
         """
+        from pyhull.voronoi import VoronoiTess
         self.voronoi_list2 = [None] * len(self.structure)
         logging.info('Getting all neighbors in structure')
         struct_neighbors = self.structure.get_all_neighbors(voronoi_cutoff, include_index=True)
@@ -175,6 +176,65 @@ class DetailedVoronoiContainer(MSONable):
                     results2.append({'site': neighbors[nn[1]],
                                      'angle': sa,
                                      'distance': distances[nn[1]],
+                                     'index': myindex})
+            for dd in results2:
+                dd['normalized_angle'] = dd['angle'] / maxangle
+                dd['normalized_distance'] = dd['distance'] / mindist
+            self.voronoi_list2[isite] = results2
+        t2 = time.clock()
+        logging.info('Voronoi list set up in {:.2f} seconds'.format(t2-t1))
+
+    def setup_voronoi_list(self, indices, voronoi_cutoff):
+        """
+        Set up of the voronoi list of neighbours by calling qhull
+        :param indices: indices of the sites for which the Voronoi is needed
+        :param voronoi_cutoff: Voronoi cutoff for the search of neighbours
+        :raise RuntimeError: If an infinite vertex is found in the voronoi construction
+        """
+        self.voronoi_list2 = [None] * len(self.structure)
+        logging.info('Getting all neighbors in structure')
+        struct_neighbors = self.structure.get_all_neighbors(voronoi_cutoff, include_index=True)
+        t1 = time.clock()
+        logging.info('Setting up Voronoi list :')
+
+        for jj, isite in enumerate(indices):
+            logging.info('  - Voronoi analysis for site #{:d} ({:d}/{:d})'.format(isite, jj+1, len(indices)))
+            site = self.structure[isite]
+            neighbors1 = [(site, 0.0, isite)]
+            neighbors1.extend(struct_neighbors[isite])
+            distances = [i[1] for i in sorted(neighbors1, key=lambda s: s[1])]
+            neighbors = [i[0] for i in sorted(neighbors1, key=lambda s: s[1])]
+            qvoronoi_input = [s.coords for s in neighbors]
+            voro = Voronoi(points=qvoronoi_input, qhull_options="o Fv")
+            all_vertices = voro.vertices
+
+            results2 = []
+            maxangle = 0.0
+            mindist = 10000.0
+            for iridge, ridge_points in enumerate(voro.ridge_points):
+                if 0 in ridge_points:
+                    ridge_vertices_indices = voro.ridge_vertices[iridge]
+                    if -1 in ridge_vertices_indices:
+                        raise RuntimeError("This structure is pathological,"
+                                           " infinite vertex in the voronoi "
+                                           "construction")
+
+                    ridge_point2 = max(ridge_points)
+                    facets = [all_vertices[i] for i in ridge_vertices_indices]
+                    try:
+                        sa = solid_angle(site.coords, facets)
+                    except ValueError:
+                        sa = my_solid_angle(site.coords, facets)
+                    maxangle = max([sa, maxangle])
+
+                    mindist = min([mindist, distances[ridge_point2]])
+                    for iii, sss in enumerate(self.structure):
+                        if neighbors[ridge_point2].is_periodic_image(sss):
+                            myindex = iii
+                            break
+                    results2.append({'site': neighbors[ridge_point2],
+                                     'angle': sa,
+                                     'distance': distances[ridge_point2],
                                      'index': myindex})
             for dd in results2:
                 dd['normalized_angle'] = dd['angle'] / maxangle

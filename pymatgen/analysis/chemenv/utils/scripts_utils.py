@@ -127,7 +127,7 @@ def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None,
 
 
 # Visualizing a coordination geometry
-def visualize(cg, zoom=None, vis=None, myfactor=1.0):
+def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True):
     if vis is None:
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
     myspecies = ["O"] * (cg.coordination_number+1)
@@ -141,8 +141,9 @@ def visualize(cg, zoom=None, vis=None, myfactor=1.0):
     vis.set_structure(structure=structure, reset_camera=True)
     # neighbors_list = coords[1:]
     draw_cg(vis, site=structure[0], neighbors=structure[1:], cg=cg)
-    for ineighbor, neighbor in enumerate(structure[1:]):
-        vis.add_text(neighbor.coords, '{}'.format(ineighbor), color=(0, 0, 0))
+    if view_index:
+        for ineighbor, neighbor in enumerate(structure[1:]):
+            vis.add_text(neighbor.coords, '{}'.format(ineighbor), color=(0, 0, 0))
     if zoom is not None:
         vis.zoom(zoom)
     return vis
