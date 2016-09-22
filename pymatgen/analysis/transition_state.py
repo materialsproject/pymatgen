@@ -12,7 +12,7 @@ scipy_old_piecewisepolynomial = True
 try:
     from scipy.interpolate import PiecewisePolynomial
 except ImportError:
-    from scipy.interpolate import splmake, PPoly
+    from scipy.interpolate import CubicSpline
     scipy_old_piecewisepolynomial = False
 
 from pymatgen.util.plotting_utils import get_publication_quality_plot
@@ -97,10 +97,7 @@ class NEBAnalysis(object):
                 orders=interpolation_order)
         else:
             # New scipy implementation for scipy > 0.18.0
-            xk, coefs, order = splmake(
-                self.r, np.array([self.energies, -self.forces]).T,
-                order=interpolation_order)
-            self.spline = PPoly(c=coefs, x=xk)
+            self.spline = CubicSpline(x=self.r, y=self.energies, bc_type=((1, 0.0), (1, 0.0)))
 
     def get_extrema(self, normalize_rxn_coordinate=True):
         """
