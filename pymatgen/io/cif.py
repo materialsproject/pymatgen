@@ -712,19 +712,9 @@ class CifWriter(object):
         else:
             sf = SpacegroupAnalyzer(struct, symprec)
 
-            def round_symm_trans(i):
-
-                for t in TRANSLATIONS.values():
-                    if abs(i - t) < symprec:
-                        return t
-                if abs(i - round(i)) < symprec:
-                    return 0
-                raise ValueError("Invalid translation!")
-
             symmops = []
             for op in sf.get_symmetry_operations():
                 v = op.translation_vector
-                v = [round_symm_trans(i) for i in v]
                 symmops.append(SymmOp.from_rotation_and_translation(
                     op.rotation_matrix, v))
 
