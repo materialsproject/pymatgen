@@ -567,6 +567,13 @@ class CoordinationGeometry(object):
         """
         return self._mp_symbol
 
+    @property
+    def ce_symbol(self):
+        """
+        Returns the symbol of this coordination geometry.
+        """
+        return self._mp_symbol
+
     def get_coordination_number(self):
         """
         Returns the coordination number of this coordination geometry.
