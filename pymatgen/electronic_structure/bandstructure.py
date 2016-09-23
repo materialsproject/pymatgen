@@ -226,12 +226,9 @@ class BandStructure(object):
             self.kpoints.append(
                 Kpoint(k, lattice, label=label,
                        coords_are_cartesian=coords_are_cartesian))
-        self.bands = eigenvals
+        self.bands = {spin: np.array(v) for spin, v in eigenvals.items()}
         self.nb_bands = len(eigenvals[Spin.up])
-
-        self.is_spin_polarized = False
-        if len(self.bands) == 2:
-            self.is_spin_polarized = True
+        self.is_spin_polarized = len(self.bands) == 2
 
     def get_projection_on_elements(self):
         """
@@ -300,25 +297,10 @@ class BandStructure(object):
         Returns:
             True if a metal, False if not
         """
-        for i in range(self.nb_bands):
-            below = False
-            above = False
-            for j in range(len(self.kpoints)):
-                if self.bands[Spin.up][i][j] < self.efermi:
-                    below = True
-                if self.bands[Spin.up][i][j] > self.efermi:
-                    above = True
-            if above and below:
-                return True
-            if self.is_spin_polarized:
-                below = False
-                above = False
-                for j in range(len(self.kpoints)):
-                    if self.bands[Spin.down][i][j] < self.efermi:
-                        below = True
-                    if self.bands[Spin.down][i][j] > self.efermi:
-                        above = True
-                if above and below:
+        for spin, values in self.bands.items():
+            for i in range(self.nb_bands):
+                if np.any(values[i, :] < self.efermi) and \
+                        np.any(values[i, :] > self.efermi):
                     return True
         return False
 
@@ -350,12 +332,12 @@ class BandStructure(object):
         max_tmp = -float("inf")
         index = None
         kpointvbm = None
-        for i in range(self.nb_bands):
-            for j in range(len(self.kpoints)):
-                for spin in self.bands:
-                    if self.bands[spin][i][j] < self.efermi:
-                        if self.bands[spin][i][j] > max_tmp:
-                            max_tmp = self.bands[spin][i][j]
+        for spin, v in self.bands.items():
+            for i in range(self.nb_bands):
+                for j in range(len(self.kpoints)):
+                    if v[i, j] < self.efermi:
+                        if v[i][j] > max_tmp:
+                            max_tmp = v[i, j]
                             index = j
                             kpointvbm = self.kpoints[j]
 
@@ -367,21 +349,16 @@ class BandStructure(object):
         else:
             list_ind_kpts.append(index)
         # get all other bands sharing the vbm
-        list_ind_band = {Spin.up: []}
-        if self.is_spin_polarized:
-            list_ind_band = {Spin.up: [], Spin.down: []}
+        list_ind_band = collections.defaultdict(list)
         for spin in self.bands:
             for i in range(self.nb_bands):
                 if math.fabs(self.bands[spin][i][index] - max_tmp) < 0.001:
                     list_ind_band[spin].append(i)
         proj = {}
-        if len(self.projections) != 0:
-            for spin in list_ind_band:
-                if len(list_ind_band[spin]) == 0:
-                    continue
-                proj[spin] =\
-                    self.projections[spin][list_ind_band[spin][0]][
-                        list_ind_kpts[0]]
+        for spin, v in self.projections.items():
+            if len(list_ind_band[spin]) == 0:
+                continue
+            proj[spin] = v[list_ind_band[spin][0]][list_ind_kpts[0]]
         return {'band_index': list_ind_band,
                 'kpoint_index': list_ind_kpts,
                 'kpoint': kpointvbm, 'energy': max_tmp,
@@ -431,22 +408,18 @@ class BandStructure(object):
                     list_index_kpoints.append(i)
         else:
             list_index_kpoints.append(index)
-        #get all other bands sharing the vbm
-        list_index_band = {Spin.up: []}
-        if self.is_spin_polarized:
-            list_index_band = {Spin.up: [], Spin.down: []}
+
+        # get all other bands sharing the cbm
+        list_index_band = collections.defaultdict(list)
         for spin in self.bands:
             for i in range(self.nb_bands):
                 if math.fabs(self.bands[spin][i][index] - max_tmp) < 0.001:
                     list_index_band[spin].append(i)
-
         proj = {}
-        if len(self.projections) != 0:
-            for spin in list_index_band:
-                if len(list_index_band[spin]) == 0:
-                    continue
-                proj[spin] = self.projections[spin][list_index_band[spin][0]][
-                    list_index_kpoints[0]]
+        for spin, v in self.projections.items():
+            if len(list_index_band[spin]) == 0:
+                continue
+            proj[spin] = v[list_index_band[spin][0]][list_index_kpoints[0]]
 
         return {'band_index': list_index_band,
                 'kpoint_index': list_index_kpoints,
