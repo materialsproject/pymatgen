@@ -206,7 +206,7 @@ class BandStructure(object):
         self.kpoints = []
         self.labels_dict = {}
         self.structure = structure
-        self.projections = projections if projections else {}
+        self.projections = projections or {}
         if labels_dict is None:
             labels_dict = {}
 
@@ -243,23 +243,18 @@ class BandStructure(object):
             if there is no projections in the band structure
             returns an empty dict
         """
-        if len(self.projections) == 0:
-            return {}
-        if self.is_spin_polarized:
-            result = {Spin.up: [], Spin.down: []}
-        else:
-            result = {Spin.up: []}
+        result = {}
         structure = self.structure
-        for spin in result:
+        for spin, v in self.projections.items():
             result[spin] = [[collections.defaultdict(float)
                              for i in range(len(self.kpoints))]
                             for j in range(self.nb_bands)]
             for i, j, k in itertools.product(list(range(self.nb_bands)),
                                              list(range(len(self.kpoints))),
                                              list(range(structure.num_sites))):
-                for orb in self.projections[Spin.up][i][j]:
+                for orb in v[i][j]:
                     result[spin][i][j][str(structure[k].specie)] += \
-                        self.projections[spin][i][j][orb][k]
+                        v[i][j][orb][k]
         return result
 
     def get_projections_on_elts_and_orbitals(self, dictio):
@@ -279,14 +274,9 @@ class BandStructure(object):
             if there is no projections in the band structure returns an empty
             dict.
         """
-        if len(self.projections) == 0:
-            return {}
-        if self.is_spin_polarized:
-            result = {Spin.up: [], Spin.down: []}
-        else:
-            result = {Spin.up: []}
+        result = {}
         structure = self.structure
-        for spin in result:
+        for spin, v in self.projections.items():
             result[spin] = [[{str(e): collections.defaultdict(float)
                             for e in dictio}
                             for i in range(len(self.kpoints))]
@@ -295,12 +285,11 @@ class BandStructure(object):
             for i, j, k in itertools.product(
                     list(range(self.nb_bands)), list(range(len(self.kpoints))),
                     list(range(structure.num_sites))):
-                for orb in self.projections[Spin.up][i][j]:
+                for orb in v[i][j]:
                     if str(structure[k].specie) in dictio:
                         if str(orb)[0] in dictio[str(structure[k].specie)]:
                             result[spin][i][j][str(structure[k].specie)]\
-                                [str(orb)[0]] += \
-                                self.projections[spin][i][j][orb][k]
+                                [str(orb)[0]] += v[i][j][orb][k]
         return result
 
     def is_metal(self):
