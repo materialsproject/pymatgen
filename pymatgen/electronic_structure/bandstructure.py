@@ -333,13 +333,11 @@ class BandStructure(object):
         index = None
         kpointvbm = None
         for spin, v in self.bands.items():
-            for i in range(self.nb_bands):
-                for j in range(len(self.kpoints)):
-                    if v[i, j] < self.efermi:
-                        if v[i][j] > max_tmp:
-                            max_tmp = v[i, j]
-                            index = j
-                            kpointvbm = self.kpoints[j]
+            for i, j in zip(*np.where(v < self.efermi)):
+                if v[i, j] > max_tmp:
+                    max_tmp = v[i, j]
+                    index = j
+                    kpointvbm = self.kpoints[j]
 
         list_ind_kpts = []
         if kpointvbm.label is not None:
@@ -393,14 +391,13 @@ class BandStructure(object):
 
         index = None
         kpointcbm = None
-        for spin in self.bands:
-            for i in range(self.nb_bands):
-                for j in range(len(self.kpoints)):
-                    if self.bands[spin][i][j] > self.efermi:
-                        if self.bands[spin][i][j] < max_tmp:
-                            max_tmp = self.bands[spin][i][j]
-                            index = j
-                            kpointcbm = self.kpoints[j]
+        for spin, v in self.bands.items():
+            for i, j in zip(*np.where(v > self.efermi)):
+                if v[i, j] < max_tmp:
+                    max_tmp = v[i, j]
+                    index = j
+                    kpointcbm = self.kpoints[j]
+
         list_index_kpoints = []
         if kpointcbm.label is not None:
             for i in range(len(self.kpoints)):
