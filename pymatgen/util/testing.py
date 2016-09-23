@@ -23,6 +23,9 @@ import json
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
 from monty.json import MSONable
+from monty.dev import requires
+
+from pymatgen import SETTINGS, MPRester
 
 
 class PymatgenTest(unittest.TestCase):
@@ -44,6 +47,12 @@ class PymatgenTest(unittest.TestCase):
     @classmethod
     def get_structure(cls, name):
         return cls.TEST_STRUCTURES[name].copy()
+
+    @classmethod
+    @requires(SETTINGS.get("MAPI_KEY"), "MAPI_KEY needs to be set.")
+    def get_mp_structure(cls, mpid):
+        m = MPRester()
+        return m.get_structure_by_material_id(mpid)
 
     @staticmethod
     def assert_almost_equal(actual, desired, decimal=7, err_msg='',
