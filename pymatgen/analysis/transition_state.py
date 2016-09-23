@@ -8,6 +8,8 @@ import os
 import glob
 
 import numpy as np
+from monty.json import jsanitize
+from monty.json import MSONable
 scipy_old_piecewisepolynomial = True
 try:
     from scipy.interpolate import PiecewisePolynomial
@@ -15,6 +17,7 @@ except ImportError:
     from scipy.interpolate import CubicSpline
     scipy_old_piecewisepolynomial = False
 
+from pymatgen.core.structure import Structure
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 from pymatgen.io.vasp import Poscar, Outcar
 
@@ -34,12 +37,47 @@ __email__ = 'ongsp@ucsd.edu'
 __date__ = '6/1/15'
 
 
-class NEBAnalysis(object):
+class NEBAnalysis(MSONable):
     """
     An NEBAnalysis class.
     """
 
-    def __init__(self, outcars, structures, interpolation_order=3):
+    def __init__(self, r, energies, forces, structures, interpolation_order=3):
+        """
+        Initializes an NEBAnalysis from the cumulative root mean squared distances
+        between structures, the energies, the forces, the structures and the
+        interpolation_order for the analysis.
+
+        Args:
+            r: Root mean square distances between structures
+            energies: Energies of each structure along reaction coordinate
+            forces: Tangent forces along the reaction coordinate.
+            structures ([Structure]): List of Structures along reaction
+                coordinate.
+            interpolation_order (int): Order of polynomial to use to
+                interpolate between images. Same format as order parameter in
+                scipy.interplotate.PiecewisePolynomial.
+        """
+        self.r = np.array(r)
+        self.energies = np.array(energies)
+        self.forces = np.array(forces)
+        self.structures = structures
+        self.interpolation_order = interpolation_order
+
+        # We do a piecewise interpolation between the points. Each spline (
+        # cubic by default) is constrained by the boundary conditions of the
+        # energies and the tangent force, i.e., the derivative of
+        # the energy at each pair of points.
+        if scipy_old_piecewisepolynomial:
+            self.spline = PiecewisePolynomial(
+                self.r, np.array([self.energies, -self.forces]).T,
+                orders=interpolation_order)
+        else:
+            # New scipy implementation for scipy > 0.18.0
+            self.spline = CubicSpline(x=self.r, y=self.energies, bc_type=((1, 0.0), (1, 0.0)))
+
+    @classmethod
+    def from_outcars(cls, outcars, structures, interpolation_order=3):
         """
         Initializes an NEBAnalysis from Outcar and Structure objects. Use
         the static constructors, e.g., :class:`from_dir` instead if you
@@ -82,22 +120,9 @@ class NEBAnalysis(object):
         energies = np.array(energies)
         energies -= energies[0]
         forces = np.array(forces)
-        self.r = np.array(r)
-        self.energies = energies
-        self.forces = forces
-        self.structures = structures
-
-        # We do a piecewise interpolation between the points. Each spline (
-        # cubic by default) is constrained by the boundary conditions of the
-        # energies and the tangent force, i.e., the derivative of
-        # the energy at each pair of points.
-        if scipy_old_piecewisepolynomial:
-            self.spline = PiecewisePolynomial(
-                self.r, np.array([self.energies, -self.forces]).T,
-                orders=interpolation_order)
-        else:
-            # New scipy implementation for scipy > 0.18.0
-            self.spline = CubicSpline(x=self.r, y=self.energies, bc_type=((1, 0.0), (1, 0.0)))
+        r = np.array(r)
+        return cls(r=r, energies=energies, forces=forces, structures=structures,
+                   interpolation_order=interpolation_order)
 
     def get_extrema(self, normalize_rxn_coordinate=True):
         """
@@ -239,4 +264,35 @@ class NEBAnalysis(object):
             else:
                 outcars.append(Outcar(outcar[0]))
                 structures.append(Poscar.from_file(contcar[0]).structure)
-        return NEBAnalysis(outcars, structures)
+        return NEBAnalysis.from_outcars(outcars, structures)
+
+    def as_dict(self):
+        """
+        Dict representation of NEBAnalysis.
+
+        Returns:
+            JSON serializable dict representation.
+        """
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                'r': jsanitize(self.r),
+                'energies': jsanitize(self.energies),
+                'forces': jsanitize(self.forces),
+                'structures': [s.as_dict() for s in self.structures],
+                'interpolation_order': self.interpolation_order}
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Reconstitute a NEBAnalysis object from a dict representation of NEBAnalysis
+        created using as_dict().
+
+        Args:
+            d (dict): Dict representation of NEBAnalysis.
+
+        Returns:
+            NEBAnalysis object
+        """
+        return cls(r=d["r"], energies=d["energies"], forces=d["forces"],
+                   structures=[Structure.from_dict(s) for s in d["structures"]],
+                   interpolation_order=d["interpolation_order"])

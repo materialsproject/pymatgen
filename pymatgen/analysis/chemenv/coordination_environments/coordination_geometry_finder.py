@@ -25,7 +25,6 @@ from numpy.linalg import norm
 from numpy import transpose
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Specie
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.bond_valence import BVAnalyzer
 import numpy as np
@@ -50,8 +49,12 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
     ChemicalEnvironments
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import \
     StructureEnvironments
+from pymatgen.analysis.chemenv.coordination_environments.structure_environments import \
+    LightStructureEnvironments
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import \
     DetailedVoronoiContainer
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import \
+    MultiWeightsChemenvStrategy
 
 debug = False
 DIST_TOLERANCES = [0.02, 0.05, 0.1, 0.2, 0.3]
@@ -319,6 +322,8 @@ class LocalGeometryFinder(object):
     STRUCTURE_REFINEMENT_REFINED = 'refined'
     STRUCTURE_REFINEMENT_SYMMETRIZED = 'symmetrized'
 
+    DEFAULT_STRATEGY = MultiWeightsChemenvStrategy.stats_article_weights_parameters()
+
     def __init__(self, permutations_safe_override=False,
                  plane_ordering_override=True, debug_level=None,
                  plane_safe_permutations=False,
@@ -437,6 +442,28 @@ class LocalGeometryFinder(object):
         """
         self.setup_structure(
             Structure(lattice, species, coords, coords_are_cartesian))
+
+    def compute_coordination_environments(self, structure, indices=None, only_cations=True, strategy=DEFAULT_STRATEGY,
+                                          valences='bond-valence-analysis', initial_structure_environments=None):
+        self.setup_structure(structure=structure)
+        if valences == 'bond-valence-analysis':
+            bva = BVAnalyzer()
+            try:
+                vals = bva.get_valences(structure=structure)
+            except ValueError:
+                vals = 'undefined'
+        else:
+            if valences == 'undefined':
+                vals = valences
+            else:
+                if len(valences) != len(structure):
+                    raise ValueError('Valences do not match the number of sites in the structure')
+                vals = valences
+        # TODO: add something to compute only the neighbors sets needed for the strategy.
+        se = self.compute_structure_environments(only_cations=only_cations, only_indices=indices, valences=vals,
+                                                 initial_structure_environments=initial_structure_environments)
+        lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
+        return lse.coordination_environments
 
     def compute_structure_environments(self,
                                        excluded_atoms=None,
@@ -700,190 +727,6 @@ class LocalGeometryFinder(object):
                               )
         se.update_coordination_environments(isite=isite, cn=cn, nb_set=nb_set, ce=ce)
         return ce
-
-    # def compute_structure_environments_detailed_voronoi(self,
-    #                                                     excluded_atoms=None,
-    #                                                     only_atoms=None,
-    #                                                     only_cations=True,
-    #                                                     only_indices=None,
-    #                                                     source_structure_valence_fallback=False,
-    #                                                     no_valence_exclude_atoms_fallback=None,
-    #                                                     maximum_distance_factor=None,
-    #                                                     minimum_angle_factor=None,
-    #                                                     max_cn=None,
-    #                                                     valences=None):
-    #     """
-    #     Computes and returns the StructureEnvironments object containing all the information about the coordination
-    #     environments in the structure
-    #     :param excluded_atoms: Atoms for which the coordination geometries does not have to be identified
-    #     :param only_atoms: If not set to None, atoms for which the coordination geometries have to be identified
-    #     :return: The StructureEnvironments object containing all the information about the coordination
-    #     environments in the structure
-    #     """
-    #
-    #     # Bond valence analysis to get approximated valences
-    #     if valences is None:
-    #         logging.info('Getting valences using BVAnalyzer')
-    #         bva = BVAnalyzer(distance_scale_factor=self.bva_distance_scale_factor)
-    #         self.info = {}
-    #         try:
-    #             self.bva_valences = bva.get_valences(self.structure)
-    #             self.info['valences'] = 'bva'
-    #         except:
-    #             self.bva_valences = 'undefined'
-    #             self.info['valences'] = 'undefined'
-    #         self.valences = self.bva_valences
-    #     else:
-    #         self.valences = valences
-    #
-    #     # Get a list of indices of unequivalent sites from the initial structure
-    #     if (
-    #             self.structure_refinement == self.STRUCTURE_REFINEMENT_SYMMETRIZED and
-    #             len(self.symmetrized_structure.equivalent_sites) > 0):
-    #         logging.info('Symmetrizing and refining structure')
-    #         indices = []
-    #         ind_eqsites_found = []
-    #         self.equivalent_sites = self.symmetrized_structure.equivalent_sites
-    #         self.struct_sites_to_irreducible_site_list_map = [-1] * len(
-    #             self.structure)
-    #         self.sites_map = [-1] * len(self.structure)
-    #         eqsite_found = [-1] * len(
-    #             self.symmetrized_structure.equivalent_sites)
-    #         for isite, site in enumerate(self.structure):
-    #             for ieqsites, eqsites in enumerate(
-    #                     self.symmetrized_structure.equivalent_sites):
-    #                 if site in eqsites:
-    #                     self.struct_sites_to_irreducible_site_list_map[
-    #                         isite] = ieqsites
-    #                     if ieqsites not in ind_eqsites_found:
-    #                         indices.append(isite)
-    #                         ind_eqsites_found.append(ieqsites)
-    #                         myieqsite = isite
-    #                         eqsite_found[ieqsites] = myieqsite
-    #                     else:
-    #                         myieqsite = eqsite_found[ieqsites]
-    #             self.sites_map[isite] = myieqsite
-    #     else:
-    #         self.equivalent_sites = [[site] for site in self.structure]
-    #         self.struct_sites_to_irreducible_site_list_map = list(
-    #             range(len(self.structure)))
-    #         self.sites_map = list(range(len(self.structure)))
-    #         indices = list(range(len(self.structure)))
-    #
-    #     if source_structure_valence_fallback and self.valences == 'undefined':
-    #         dummyspoccu = self.structure[0].species_and_occu
-    #         ok = False
-    #         if isinstance(dummyspoccu.keys()[0], Specie):
-    #             self.valences = []
-    #             for isite, site in enumerate(self.structure):
-    #                 oxi_state = sum([frac * sp.oxi_state for sp, frac in
-    #                                  site.species_and_occu.items()])
-    #                 self.valences.append(oxi_state)
-    #             if any([val != 0 for val in self.valences]):
-    #                 ok = True
-    #             else:
-    #                 self.valences = 'undefined'
-    #         if not ok:
-    #             if no_valence_exclude_atoms_fallback is not None:
-    #                 if excluded_atoms is None:
-    #                     excluded_atoms = no_valence_exclude_atoms_fallback
-    #                 else:
-    #                     for atom in no_valence_exclude_atoms_fallback:
-    #                         if atom not in excluded_atoms:
-    #                             excluded_atoms.append(atom)
-    #
-    #     # Get list of unequivalent sites with valence >= 0
-    #     if only_cations and self.valences != 'undefined':
-    #         sites_indices = [isite for isite in indices if
-    #                          self.valences[isite] >= 0]
-    #     else:
-    #         sites_indices = [isite for isite in indices]
-    #
-    #     # Include atoms that are in the list of "only_atoms" if it is provided
-    #     if only_atoms is not None:
-    #         sites_indices = [isite for isite in sites_indices
-    #                          if any([at in [sp.symbol for sp in self.structure[
-    #                 isite].species_and_occu]
-    #                                  for at in only_atoms])]
-    #
-    #     # Exclude atoms that are in the list of excluded atoms
-    #     if excluded_atoms:
-    #         sites_indices = [isite for isite in sites_indices
-    #                          if not any([at in [sp.symbol for sp in
-    #                                             self.structure[
-    #                                                 isite].species_and_occu]
-    #                                      for at in excluded_atoms])]
-    #
-    #     if only_indices is not None:
-    #         sites_indices = [isite for isite in indices if
-    #                          isite in only_indices]
-    #
-    #     # Get the VoronoiContainer for this list of unequivalent sites with valence >= 0
-    #     logging.info('Getting DetailedVoronoiContainer')
-    #     self.detailed_voronoi = DetailedVoronoiContainer(self.structure,
-    #                                                      isites=sites_indices,
-    #                                                      valences=self.valences,
-    #                                                      maximum_distance_factor=maximum_distance_factor,
-    #                                                      minimum_angle_factor=minimum_angle_factor)
-    #     logging.info('DetailedVoronoiContainer has been set up')
-    #
-    #     ce_list = []
-    #     skipped = []
-    #     logging.info('Computing structure environments')
-    #     tse1 = time.clock()
-    #     for isite in range(len(self.structure)):
-    #         if isite not in sites_indices:
-    #             logging.info(' ... in site #{:d} ({}) : skipped'.format(isite,
-    #                                                                     self.structure[
-    #                                                                         isite].species_string))
-    #             skipped.append(isite)
-    #             ce_list.append(None)
-    #             continue
-    #         logging.info(' ... in site #{:d} ({})'.format(isite, self.structure[
-    #             isite].species_string))
-    #         t1 = time.clock()
-    #         coords = self.detailed_voronoi.unique_coordinations(isite)
-    #
-    #         ce_dict = {}
-    #         for cn in coords:
-    #             if max_cn is not None and cn > max_cn:
-    #                 continue
-    #             ce_dict[cn] = []
-    #             for i_nlist, nlist_tuple in enumerate(coords[cn]):
-    #                 neighb_list = nlist_tuple[0]
-    #                 ce = ChemicalEnvironments()
-    #                 mycoords = [st.coords for st in neighb_list]
-    #                 self.setup_local_geometry(isite, coords=mycoords)
-    #                 cncgsm = self.get_coordination_symmetry_measures()
-    #                 for cg in cncgsm:
-    #                     other_csms = {
-    #                         'csm_wocs_ctwocc': cncgsm[cg]['csm_wocs_ctwocc'],
-    #                         'csm_wocs_ctwcc': cncgsm[cg]['csm_wocs_ctwcc'],
-    #                         'csm_wocs_csc': cncgsm[cg]['csm_wocs_csc'],
-    #                         'csm_wcs_ctwocc': cncgsm[cg]['csm_wcs_ctwocc'],
-    #                         'csm_wcs_ctwcc': cncgsm[cg]['csm_wcs_ctwcc'],
-    #                         'csm_wcs_csc': cncgsm[cg]['csm_wcs_csc']}
-    #                     ce.add_coord_geom(cg, cncgsm[cg]['csm'],
-    #                                       algo=cncgsm[cg]['algo'],
-    #                                       permutation=cncgsm[cg]['indices'],
-    #                                       local2perfect_map=cncgsm[cg][
-    #                                           'local2perfect_map'],
-    #                                       perfect2local_map=cncgsm[cg][
-    #                                           'perfect2local_map'],
-    #                                       detailed_voronoi_index={'cn': cn,
-    #                                                               'index': i_nlist},
-    #                                       other_symmetry_measures=other_csms
-    #                                       )
-    #                 ce_dict[cn].append(ce)
-    #         t2 = time.clock()
-    #         logging.info('    ... computed in {:.2f} seconds'.format(t2 - t1))
-    #         ce_list.append(ce_dict)
-    #     tse2 = time.clock()
-    #     logging.info('Structure environments computed in {:.2f} seconds'.format(
-    #         tse2 - tse1))
-    #     return StructureEnvironments(self.detailed_voronoi, self.valences,
-    #                                  self.sites_map, self.equivalent_sites,
-    #                                  ce_list, self.structure)
 
     def setup_local_geometry(self, isite, coords):
         """
