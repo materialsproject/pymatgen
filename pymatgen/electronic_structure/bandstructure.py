@@ -246,9 +246,9 @@ class BandStructure(object):
             result[spin] = [[collections.defaultdict(float)
                              for i in range(len(self.kpoints))]
                             for j in range(self.nb_bands)]
-            for i, j, k in itertools.product(list(range(self.nb_bands)),
-                                             list(range(len(self.kpoints))),
-                                             list(range(structure.num_sites))):
+            for i, j, k in itertools.product(range(self.nb_bands),
+                                             range(len(self.kpoints)),
+                                             range(structure.num_sites)):
                 for orb in v[i][j]:
                     result[spin][i][j][str(structure[k].specie)] += \
                         v[i][j][orb][k]
