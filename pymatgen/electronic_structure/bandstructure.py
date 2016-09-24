@@ -464,34 +464,20 @@ class BandStructure(object):
         """
         if self.is_metal():
             return 0.0
-        lowest_conduction_band = []
-        highest_valence_band = []
-        for j in range(len(self.bands[Spin.up])):
-            for i in range(len(self.kpoints)):
-                if self.bands[Spin.up][j][i] > self.efermi:
-                    lowest_conduction_band.append(self.bands[Spin.up][j][i])
-                    highest_valence_band.append(self.bands[Spin.up][j - 1][i])
-        if self.is_spin_polarized:
-            lowest_conduction_band_d = []
-            highest_valence_band_d = []
-            for j in range(len(self.bands[Spin.down])):
-                for i in range(len(self.kpoints)):
-                    if self.bands[Spin.down][j][i] > self.efermi:
-                        lowest_conduction_band_d.append(
-                            self.bands[Spin.down][j][i])
-                        highest_valence_band_d.append(
-                            self.bands[Spin.down][j - 1][i])
-            diff = []
-            for i in range(len(self.kpoints)):
-                diff.append(min(
-                    [lowest_conduction_band[i], lowest_conduction_band_d[i]])
-                            - max(
-                    [highest_valence_band[i], highest_valence_band_d[i]]))
-            return min(diff)
-
+        cb = collections.defaultdict(list)
+        vb = collections.defaultdict(list)
+        for spin, v in self.bands.items():
+            for i in range(len(v)):
+                for j in range(len(self.kpoints)):
+                    if self.bands[Spin.up][i][j] > self.efermi:
+                        cb[spin].append(v[i][j])
+                        vb[spin].append(v[i - 1][j])
         diff = []
         for i in range(len(self.kpoints)):
-            diff.append(lowest_conduction_band[i] - highest_valence_band[i])
+            diff.append(min(
+                [cb[Spin.up][i], cb.get(Spin.down, cb[Spin.up])[i]])
+                        - max(
+                [vb[Spin.up][i], vb.get(Spin.down, vb[Spin.up])[i]]))
         return min(diff)
 
     def as_dict(self):

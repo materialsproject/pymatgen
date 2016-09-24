@@ -93,6 +93,9 @@ class BandStructureSymmLine_test(unittest.TestCase):
     def test_get_branch(self):
         self.assertAlmostEqual(self.bs.get_branch(110)[0]['name'], "U-W")
 
+    def test_get_direct_band_gap(self):
+        self.assertAlmostEqual(self.bs.get_direct_band_gap(), 4.0125999999999999)
+
     def test_is_metal(self):
         self.assertFalse(self.bs.is_metal(), "wrong metal assignment")
         self.assertFalse(self.bs_spin.is_metal(), "wrong metal assignment")
