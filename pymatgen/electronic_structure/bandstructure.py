@@ -280,8 +280,8 @@ class BandStructure(object):
                             for j in range(self.nb_bands)]
 
             for i, j, k in itertools.product(
-                    list(range(self.nb_bands)), list(range(len(self.kpoints))),
-                    list(range(structure.num_sites))):
+                    range(self.nb_bands), range(len(self.kpoints)),
+                    range(structure.num_sites)):
                 for orb in v[i][j]:
                     if str(structure[k].specie) in dictio:
                         if str(orb)[0] in dictio[str(structure[k].specie)]:

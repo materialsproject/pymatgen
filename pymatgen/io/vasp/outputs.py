@@ -720,6 +720,7 @@ class Vasprun(MSONable):
                 # For BS input, we need band, kpoints, orb, ion.
                 peigen = np.swapaxes(peigen, 0, 1)  # Swap kpoint and band axes
                 peigen = np.swapaxes(peigen, 2, 3)  # Swap ion and orb axes
+
                 for b in range(min_eigenvalues):
                     p_eigenvals[spin].append(
                         [{Orbital(orb): v for orb, v in enumerate(peigen[b, k])}
