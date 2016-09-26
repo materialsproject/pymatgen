@@ -149,12 +149,10 @@ class BandStructure(object):
 
     .. attribute:: bands
 
-        returns the eigenvalues for each kpoints as a dictionary
-        {Spin.up:[][],Spin.down:[][]}, the first index of the array
-        [][] refers to the band and the second to the index of the
-        kpoint. The kpoints are ordered according to the order of the
-        self.kpoints. If the band structure is not spin polarized, we
-        only store one data set under Spin.up
+        The energy eigenvalues as a {spin: ndarray}. Note that the use of an
+        ndarray is necessary for computational as well as memory efficiency
+        due to the large amount of numerical data. The indices of the ndarray
+        are [band_index, kpoint_index].
 
     .. attribute:: nb_bands
 
@@ -166,7 +164,10 @@ class BandStructure(object):
 
     .. attribute:: projections
 
-        returns the raw projections dict
+        The projections as a {spin: ndarray}. Note that the use of an
+        ndarray is necessary for computational as well as memory efficiency
+        due to the large amount of numerical data. The indices of the ndarray
+        are [band_index, kpoint_index, orbital_index, ion_index].
 
     Args:
         kpoints: list of kpoint as numpy arrays, in frac_coords of the
