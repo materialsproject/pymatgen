@@ -653,6 +653,7 @@ class Vasprun(MSONable):
                                  self.final_energy, parameters=params,
                                  data=data)
 
+    #@profile
     def get_band_structure(self, kpoints_filename=None, efermi=None,
                            line_mode=False):
         """
@@ -721,10 +722,11 @@ class Vasprun(MSONable):
                 peigen = np.swapaxes(peigen, 0, 1)  # Swap kpoint and band axes
                 peigen = np.swapaxes(peigen, 2, 3)  # Swap ion and orb axes
 
-                for b in range(min_eigenvalues):
-                    p_eigenvals[spin].append(
-                        [{Orbital(orb): v for orb, v in enumerate(peigen[b, k])}
-                         for k in range(nkpts)])
+                p_eigenvals[spin] = peigen
+                # for b in range(min_eigenvalues):
+                #     p_eigenvals[spin].append(
+                #         [{Orbital(orb): v for orb, v in enumerate(peigen[b, k])}
+                #          for k in range(nkpts)])
 
         # check if we have an hybrid band structure computation
         # for this we look at the presence of the LHFCALC tag

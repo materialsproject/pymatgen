@@ -9,6 +9,7 @@ import math
 import itertools
 import collections
 
+from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
@@ -207,6 +208,7 @@ class BandStructure(object):
         self.labels_dict = {}
         self.structure = structure
         self.projections = projections or {}
+
         if labels_dict is None:
             labels_dict = {}
 
@@ -249,18 +251,17 @@ class BandStructure(object):
             for i, j, k in itertools.product(range(self.nb_bands),
                                              range(len(self.kpoints)),
                                              range(structure.num_sites)):
-                for orb in v[i][j]:
-                    result[spin][i][j][str(structure[k].specie)] += \
-                        v[i][j][orb][k]
+                result[spin][i][j][str(structure[k].specie)] += np.sum(
+                    v[i, j, :, k])
         return result
 
-    def get_projections_on_elts_and_orbitals(self, dictio):
+    def get_projections_on_elements_and_orbitals(self, el_orb_spec):
         """
         Method returning a dictionary of projections on elements and specific
         orbitals
 
         Args:
-            dictio: A dictionary of Elements and Orbitals for which we want
+            el_orb_spec: A dictionary of Elements and Orbitals for which we want
                 to have projections on. It is given as: {Element:[orbitals]},
                 e.g., {'Cu':['d','s']}
 
@@ -273,20 +274,23 @@ class BandStructure(object):
         """
         result = {}
         structure = self.structure
+        el_orb_spec = {get_el_sp(el): orbs for el, orbs in el_orb_spec.items()}
         for spin, v in self.projections.items():
             result[spin] = [[{str(e): collections.defaultdict(float)
-                              for e in dictio}
+                              for e in el_orb_spec}
                              for i in range(len(self.kpoints))]
                             for j in range(self.nb_bands)]
 
             for i, j, k in itertools.product(
                     range(self.nb_bands), range(len(self.kpoints)),
                     range(structure.num_sites)):
-                for orb in v[i][j]:
-                    if str(structure[k].specie) in dictio:
-                        if str(orb)[0] in dictio[str(structure[k].specie)]:
-                            result[spin][i][j][str(structure[k].specie)] \
-                                [str(orb)[0]] += v[i][j][orb][k]
+                sp = structure[k].specie
+                for orb_i in range(len(v[i][j])):
+                    o = Orbital(orb_i).name[0]
+                    if sp in el_orb_spec:
+                        if o in el_orb_spec[sp]:
+                            result[spin][i][j][str(sp)][o] += v[i][j][
+                                orb_i][k]
         return result
 
     def is_metal(self):
@@ -525,15 +529,8 @@ class BandStructure(object):
         d['projections'] = {}
         if len(self.projections) != 0:
             d['structure'] = self.structure.as_dict()
-            d['projections'] = {
-                str(int(spin)): [
-                    [{str(orb): [
-                        self.projections[spin][i][j][orb][k]
-                        for k in range(len(self.projections[spin][i][j][orb]))]
-                      for orb in self.projections[spin][i][j]}
-                     for j in range(len(self.projections[spin][i]))]
-                    for i in range(len(self.projections[spin]))]
-                for spin in self.projections}
+            d['projections'] = {str(int(spin)): v.tolist()
+                                for spin, v in self.projections.items()}
         return d
 
     @classmethod
@@ -552,16 +549,9 @@ class BandStructure(object):
         structure = None
         if 'structure' in d:
             structure = Structure.from_dict(d['structure'])
-        if 'projections' in d and len(d['projections']) != 0:
-            projections = {
-                Spin(int(spin)): [
-                    [{Orbital[orb]: [
-                        d['projections'][spin][i][j][orb][k]
-                        for k in range(len(d['projections'][spin][i][j][orb]))]
-                      for orb in d['projections'][spin][i][j]}
-                     for j in range(len(d['projections'][spin][i]))]
-                    for i in range(len(d['projections'][spin]))]
-                for spin in d['projections']}
+        if d.get('projections'):
+            projections = {Spin(int(spin)): np.array(v)
+                           for spin, v in d["projections"].items()}
 
         return BandStructure(
             d['kpoints'], {Spin(int(k)): d['bands'][k]
@@ -782,31 +772,23 @@ class BandStructureSymmLine(BandStructure, MSONable):
         for k in self.kpoints:
             d["kpoints"].append(k.as_dict()["fcoords"])
         d["branches"] = self.branches
-        d["bands"] = {str(int(spin)): self.bands[spin]
+        d["bands"] = {str(int(spin)): self.bands[spin].tolist()
                       for spin in self.bands}
         d["is_metal"] = self.is_metal()
         vbm = self.get_vbm()
-        d["vbm"] = {"energy": vbm["energy"],
+        d["vbm"] = {"energy": vbm["energy"].tolist(),
                     "kpoint_index": vbm["kpoint_index"],
                     "band_index": {str(int(spin)): vbm["band_index"][spin]
                                    for spin in vbm["band_index"]},
-                    'projections': {str(spin): {str(orb):
-                                                    vbm['projections'][spin][
-                                                        orb]
-                                                for orb in
-                                                vbm['projections'][spin]}
-                                    for spin in vbm['projections']}}
+                    'projections': {str(spin): v.tolist() for spin, v in vbm[
+                        'projections'].items()}}
         cbm = self.get_cbm()
-        d['cbm'] = {'energy': cbm['energy'],
+        d['cbm'] = {'energy': cbm['energy'].tolist(),
                     'kpoint_index': cbm['kpoint_index'],
                     'band_index': {str(int(spin)): cbm['band_index'][spin]
                                    for spin in cbm['band_index']},
-                    'projections': {str(spin): {str(orb):
-                                                    cbm['projections'][spin][
-                                                        orb]
-                                                for orb in
-                                                cbm['projections'][spin]}
-                                    for spin in cbm['projections']}}
+                    'projections': {str(spin): v.tolist() for spin, v in cbm[
+                        'projections'].items()}}
         d['band_gap'] = self.get_band_gap()
         d['labels_dict'] = {}
         d['is_spin_polarized'] = self.is_spin_polarized
@@ -815,18 +797,10 @@ class BandStructureSymmLine(BandStructure, MSONable):
             mongo_key = c if not c.startswith("$") else " " + c
             d['labels_dict'][mongo_key] = self.labels_dict[c].as_dict()[
                 'fcoords']
-        d['projections'] = {}
         if len(self.projections) != 0:
             d['structure'] = self.structure.as_dict()
-            d['projections'] = {
-                str(int(spin)): [
-                    [{str(orb): [
-                        self.projections[spin][i][j][orb][k]
-                        for k in range(len(self.projections[spin][i][j][orb]))]
-                      for orb in self.projections[spin][i][j]}
-                     for j in range(len(self.projections[spin][i]))]
-                    for i in range(len(self.projections[spin]))]
-                for spin in self.projections}
+            d['projections'] = {str(int(spin)): v.tolist()
+                                for spin, v in self.projections.items()}
         return d
 
     @classmethod
@@ -843,23 +817,17 @@ class BandStructureSymmLine(BandStructure, MSONable):
         labels_dict = {k.strip(): v for k, v in d['labels_dict'].items()}
         projections = {}
         structure = None
-        if 'projections' in d and len(d['projections']) != 0:
+        if d.get('projections'):
             structure = Structure.from_dict(d['structure'])
-            projections = {
-                Spin(int(spin)): [
-                    [{Orbital[orb]: [
-                        d['projections'][spin][i][j][orb][k]
-                        for k in range(len(d['projections'][spin][i][j][orb]))]
-                      for orb in d['projections'][spin][i][j]}
-                     for j in range(len(d['projections'][spin][i]))]
-                    for i in range(len(d['projections'][spin]))]
-                for spin in d['projections']}
+            projections = {Spin(int(spin)): np.array(v)
+                           for spin, v in d["projections"].items()}
 
         return BandStructureSymmLine(
             d['kpoints'], {Spin(int(k)): d['bands'][k]
                            for k in d['bands']},
             Lattice(d['lattice_rec']['matrix']), d['efermi'],
             labels_dict, structure=structure, projections=projections)
+
 
 
 def get_reconstructed_band_structure(list_bs, efermi=None):

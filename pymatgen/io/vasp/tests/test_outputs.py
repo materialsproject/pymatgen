@@ -302,6 +302,8 @@ class VasprunTest(unittest.TestCase):
 
         projected = bs.get_projection_on_elements()
         self.assertAlmostEqual(projected[Spin.up][0][0]["Si"], 0.4238)
+        projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
+        self.assertAlmostEqual(projected[Spin.up][0][0]["Si"]["s"], 0.4238)
 
     def test_sc_step_overflow(self):
         filepath = os.path.join(test_dir, 'vasprun.xml.sc_overflow')
