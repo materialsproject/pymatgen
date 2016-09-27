@@ -178,7 +178,7 @@ class NEBAnalysis(MSONable):
         return plt
 
     @classmethod
-    def from_dir(cls, root_dir, relaxation_dirs=None):
+    def from_dir(cls, root_dir, relaxation_dirs=None, **kwargs):
         """
         Initializes a NEBAnalysis object from a directory of a NEB run.
         Note that OUTCARs must be present in all image directories. For the
@@ -258,7 +258,7 @@ class NEBAnalysis(MSONable):
             else:
                 outcars.append(Outcar(outcar[0]))
                 structures.append(Poscar.from_file(contcar[0]).structure)
-        return NEBAnalysis.from_outcars(outcars, structures)
+        return NEBAnalysis.from_outcars(outcars, structures, **kwargs)
 
     def as_dict(self):
         """
