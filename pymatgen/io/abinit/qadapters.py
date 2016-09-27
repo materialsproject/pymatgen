@@ -1386,7 +1386,7 @@ $${qverbatim}
     def optimize_params(self):
         return {"select": self.get_select()}
 
-    def get_select(self, ret_dict=False):
+    def get_select(self, ret_dict=False, qnodes=None):
         """
         Select is not the most intuitive command. For more info see:
 
@@ -1462,17 +1462,29 @@ $${qverbatim}
         else:
             raise RuntimeError("You should not be here")
         """
-        if self.qnodes == "standard":
+        if qnodes is None:
+            qnodes = self.qnodes
+        else:
+            if qnodes not in ["standard", "shared", "exclusive"]:
+                raise ValueError("Nodes must be either in standard, shared or exclusive mode "
+                                 "while qnodes parameter was {}".format(self.qnodes))
+        if qnodes == "standard":
             return self._get_select_standard(ret_dict=ret_dict)
         else:
-            return self._get_select_with_master_mem_overhead(ret_dict=ret_dict)
+            return self._get_select_with_master_mem_overhead(ret_dict=ret_dict, qnodes=qnodes)
 
-    def _get_select_with_master_mem_overhead(self, ret_dict=False):
+    def _get_select_with_master_mem_overhead(self, ret_dict=False, qnodes=None):
         if self.has_omp:
             raise NotImplementedError("select with master mem overhead not yet implemented with has_omp")
-        if self.qnodes == "exclusive":
+        if qnodes is None:
+            qnodes = self.qnodes
+        else:
+            if qnodes not in ["standard", "shared", "exclusive"]:
+                raise ValueError("Nodes must be either in standard, shared or exclusive mode "
+                                 "while qnodes parameter was {}".format(self.qnodes))
+        if qnodes == "exclusive":
             return self._get_select_with_master_mem_overhead_exclusive(ret_dict=ret_dict)
-        elif self.qnodes == "shared":
+        elif qnodes == "shared":
             return self._get_select_with_master_mem_overhead_shared(ret_dict=ret_dict)
         else:
             raise ValueError("Wrong value of qnodes parameter : {}".format(self.qnodes))
