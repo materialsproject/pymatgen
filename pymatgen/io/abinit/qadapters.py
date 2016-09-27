@@ -910,7 +910,7 @@ limits:
             raise self.Error("Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
                             (mpi_procs, omp_threads, mem_per_proc))
 
-    def optimize_params(self):
+    def optimize_params(self, qnodes=None):
         """
         This method is called in get_subs_dict. Return a dict with parameters to be added to qparams
         Subclasses may provide a specialized version.
@@ -918,14 +918,14 @@ limits:
         logger.debug("optimize_params of baseclass --> no optimization available!!!")
         return {}
 
-    def get_subs_dict(self):
+    def get_subs_dict(self, qnodes=None):
         """
         Return substitution dict for replacements into the template
         Subclasses may want to customize this method.
         """
         #d = self.qparams.copy()
         d = self.qparams
-        d.update(self.optimize_params())
+        d.update(self.optimize_params(qnodes=qnodes))
         # clean null values
         subs_dict = {k: v for k, v in d.items() if v is not None}
         #print("subs_dict:", subs_dict)
@@ -1261,7 +1261,7 @@ $${qverbatim}
     def cancel(self, job_id):
         return os.system("scancel %d" % job_id)
 
-    def optimize_params(self):
+    def optimize_params(self, qnodes=None):
         params = {}
         if self.allocation == "nodes":
             # run on the smallest number of nodes compatible with the configuration
@@ -1383,8 +1383,8 @@ $${qverbatim}
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
 
-    def optimize_params(self):
-        return {"select": self.get_select()}
+    def optimize_params(self, qnodes=None):
+        return {"select": self.get_select(qnodes=qnodes)}
 
     def get_select(self, ret_dict=False, qnodes=None):
         """
@@ -1928,7 +1928,7 @@ $${qverbatim}
 
 	    return bg_size, ranks_per_node
 
-    def optimize_params(self):
+    def optimize_params(self, qnodes=None):
         params = {}
         bg_size, rpn = self.bgsize_rankspernode()
         print("in optimize params")
