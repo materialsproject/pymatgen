@@ -2100,11 +2100,14 @@ class Structure(IStructure, collections.MutableSequence):
         Modify a site in the structure.
 
         Args:
-            i (int): Index
+            i (int, [int], Specie-like): Indices to change. You can specify
+                these as an int, a list of int, or a species-like string.
             site (PeriodicSite/Specie/Sequence): Three options exist. You
                 can provide a PeriodicSite directly (lattice will be
                 checked). Or more conveniently, you can provide a
-                specie-like object or a tuple of up to length 3. Examples:
+                specie-like object or a tuple of up to length 3.
+
+            Examples:
                 s[0] = "Fe"
                 s[0] = Element("Fe")
                 both replaces the species only.
@@ -2113,27 +2116,46 @@ class Structure(IStructure, collections.MutableSequence):
                 are inherited from current site.
                 s[0] = "Fe", [0.5, 0.5, 0.5], {"spin": 2}
                 Replaces site and *fractional* coordinates and properties.
+                s["Mn"] = "Fe"
+                Replaces all sites with Mn in the structure with Fe. This is
+                a short form for the more complex replace_species.
         """
-        if isinstance(site, PeriodicSite):
-            if site.lattice != self._lattice:
-                raise ValueError("PeriodicSite added must have same lattice "
-                                 "as Structure!")
-            self._sites[i] = site
-        else:
-            if isinstance(site, six.string_types) or (
-                    not isinstance(site, collections.Sequence)):
-                sp = site
-                frac_coords = self._sites[i].frac_coords
-                properties = self._sites[i].properties
-            else:
-                sp = site[0]
-                frac_coords = site[1] if len(site) > 1 else self._sites[i] \
-                    .frac_coords
-                properties = site[2] if len(site) > 2 else self._sites[i] \
-                    .properties
 
-            self._sites[i] = PeriodicSite(sp, frac_coords, self._lattice,
-                                          properties=properties)
+        if isinstance(i, int):
+            indices = [i]
+        elif isinstance(i, six.string_types):
+            indices = []
+            sp = get_el_sp(i)
+            for j, s in enumerate(self):
+                if sp in s.species_and_occu:
+                    indices.append(j)
+        else:
+            indices = list(i)
+
+        for ii in indices:
+            if isinstance(site, PeriodicSite):
+                if site.lattice != self._lattice:
+                    raise ValueError("PeriodicSite added must have same lattice "
+                                     "as Structure!")
+                elif len(indices) != 1:
+                    raise ValueError("Site assignments makes sense only for "
+                                     "single int indices!")
+                self._sites[ii] = site
+            else:
+                if isinstance(site, six.string_types) or (
+                        not isinstance(site, collections.Sequence)):
+                    sp = site
+                    frac_coords = self._sites[ii].frac_coords
+                    properties = self._sites[ii].properties
+                else:
+                    sp = site[0]
+                    frac_coords = site[1] if len(site) > 1 else \
+                        self._sites[ii].frac_coords
+                    properties = site[2] if len(site) > 2 else \
+                        self._sites[ii].properties
+
+                self._sites[ii] = PeriodicSite(sp, frac_coords, self._lattice,
+                                               properties=properties)
 
     def __delitem__(self, i):
         """

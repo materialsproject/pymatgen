@@ -743,6 +743,17 @@ class StructureTest(PymatgenTest):
         self.structure.add_oxidation_state_by_element({"Si": 4, "C": 2})
         self.assertEqual(self.structure.charge, 62)
 
+    def test_set_item(self):
+        s = self.structure.copy()
+        s[0] = "C"
+        self.assertEqual(s.formula, "Si1 C1")
+        s[(0,1)] = "Ge"
+        self.assertEqual(s.formula, "Ge2")
+
+        s = self.structure.copy()
+        s["Si"] = "C"
+        self.assertEqual(s.formula, "C2")
+
     def test_init_error(self):
         self.assertRaises(StructureError, Structure, Lattice.cubic(3), ["Si"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
