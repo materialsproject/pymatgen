@@ -2650,7 +2650,9 @@ class Molecule(IMolecule, collections.MutableSequence):
         Modify a site in the molecule.
 
         Args:
-            i (int): Index
+            i (int, [int], slice, Specie-like): Indices to change. You can
+                specify these as an int, a list of int, or a species-like
+                string.
             site (PeriodicSite/Specie/Sequence): Three options exist. You can
                 provide a Site directly, or for convenience, you can provide
                 simply a Specie-like string/object, or finally a (Specie,
