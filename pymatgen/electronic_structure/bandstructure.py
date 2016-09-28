@@ -8,6 +8,7 @@ import numpy as np
 import math
 import itertools
 import collections
+import warnings
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
@@ -814,20 +815,27 @@ class BandStructureSymmLine(BandStructure, MSONable):
         Returns:
             A BandStructureSymmLine object
         """
-        # Strip the label to recover initial string (see trick used in as_dict to handle $ chars)
-        labels_dict = {k.strip(): v for k, v in d['labels_dict'].items()}
-        projections = {}
-        structure = None
-        if d.get('projections'):
-            structure = Structure.from_dict(d['structure'])
-            projections = {Spin(int(spin)): np.array(v)
-                           for spin, v in d["projections"].items()}
+        try:
+            # Strip the label to recover initial string (see trick used in as_dict to handle $ chars)
+            labels_dict = {k.strip(): v for k, v in d['labels_dict'].items()}
+            projections = {}
+            structure = None
+            if d.get('projections'):
+                structure = Structure.from_dict(d['structure'])
+                projections = {Spin(int(spin)): np.array(v)
+                               for spin, v in d["projections"].items()}
 
-        return BandStructureSymmLine(
-            d['kpoints'], {Spin(int(k)): d['bands'][k]
-                           for k in d['bands']},
-            Lattice(d['lattice_rec']['matrix']), d['efermi'],
-            labels_dict, structure=structure, projections=projections)
+            return BandStructureSymmLine(
+                d['kpoints'], {Spin(int(k)): d['bands'][k]
+                               for k in d['bands']},
+                Lattice(d['lattice_rec']['matrix']), d['efermi'],
+                labels_dict, structure=structure, projections=projections)
+        except:
+            warnings.warn("Trying from_dict failed. Now we are trying the old "
+                          "format. Please convert your BS dicts to the new "
+                          "format. The old format will be retired in pymatgen "
+                          "5.0.")
+            return BandStructureSymmLine.from_old_dict(d)
 
     @classmethod
     def from_old_dict(cls, d):
