@@ -4,17 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-Created on Jul 16, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong, Stephen Dacek"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
-__date__ = "Jul 16, 2012"
 
 import unittest2 as unittest
 import os
@@ -31,6 +20,19 @@ from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+
+"""
+Created on Jul 16, 2012
+"""
+
+
+__author__ = "Shyue Ping Ong, Stephen Dacek"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyue@mit.edu"
+__date__ = "Jul 16, 2012"
+
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -188,13 +190,11 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(entry.uncorrected_energy + entry.correction,
                                entry.energy)
 
-
         filepath = os.path.join(test_dir, 'vasprun.xml.dfpt.ionic')
         vasprun_dfpt_ionic = Vasprun(filepath, parse_potcar_file=False)
         self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[0][0], 515.73485838)
         self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[0][1], -0.00263523)
         self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[2][2], 19.02110169)
-
 
         filepath = os.path.join(test_dir, 'vasprun.xml.dfpt.unconverged')
         vasprun_dfpt_unconv = Vasprun(filepath, parse_potcar_file=False)
@@ -206,7 +206,6 @@ class VasprunTest(unittest.TestCase):
                                   parse_potcar_file=False)
         self.assertEqual(vasprun_uniform.kpoints.style,
                          Kpoints.supported_modes.Reciprocal)
-
 
         vasprun_no_pdos = Vasprun(os.path.join(test_dir, "Li_no_projected.xml"),
                                   parse_potcar_file=False)
@@ -282,7 +281,8 @@ class VasprunTest(unittest.TestCase):
 
     def test_get_band_structure(self):
         filepath = os.path.join(test_dir, 'vasprun_Si_bands.xml')
-        vasprun = Vasprun(filepath, parse_potcar_file=False)
+        vasprun = Vasprun(filepath,
+                          parse_projected_eigen=True, parse_potcar_file=False)
         bs = vasprun.get_band_structure(kpoints_filename=
                                         os.path.join(test_dir,
                                                      'KPOINTS_Si_bands'))
@@ -299,6 +299,11 @@ class VasprunTest(unittest.TestCase):
                          "wrong vbm bands")
         self.assertEqual(vbm['kpoint'].label, "\Gamma", "wrong vbm label")
         self.assertEqual(cbm['kpoint'].label, None, "wrong cbm label")
+
+        projected = bs.get_projection_on_elements()
+        self.assertAlmostEqual(projected[Spin.up][0][0]["Si"], 0.4238)
+        projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
+        self.assertAlmostEqual(projected[Spin.up][0][0]["Si"]["s"], 0.4238)
 
     def test_sc_step_overflow(self):
         filepath = os.path.join(test_dir, 'vasprun.xml.sc_overflow')

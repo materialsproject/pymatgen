@@ -16,7 +16,6 @@ from tabulate import tabulate
 
 
 def do_query(args):
-    print(args)
     m = MPRester()
     try:
         criteria = json.loads(args.criteria)
@@ -33,7 +32,7 @@ def do_query(args):
                 fname = "%s-%s.%s" % (d["task_id"], formula, args.structure)
             s.to(filename=fname)
             count += 1
-        print("%d structures written!")
+        print("%d structures written!" % count)
     elif args.entries:
         entries = m.get_entries(criteria)
         dumpfn(entries, args.entries)

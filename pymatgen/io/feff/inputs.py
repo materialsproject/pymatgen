@@ -299,6 +299,35 @@ class Atoms(MSONable):
         else:
             raise ValueError("Structure with partial occupancies cannot be "
                              "converted into atomic coordinates!")
+        self._cluster = self._set_cluster()
+
+    def _set_cluster(self):
+        """
+        Compute and set the cluster of atoms as a Molecule object. The site
+        coordinates are translated such that the absorbing atom(aka central
+        atom) is at the origin.
+
+        Returns:
+            Molecule
+        """
+        center_index = self.struct.indices_from_symbol(self.central_atom)[0]
+        center = self.struct[center_index].coords
+        sphere = self.struct.get_neighbors(self.struct[center_index], self.radius)
+
+        symbols = [self.central_atom]
+        coords = [[0, 0, 0]]
+        for i, site_dist in enumerate(sphere):
+            site_symbol = re.sub(r"[^aA-zZ]+", "", site_dist[0].species_string)
+            symbols.append(site_symbol)
+            coords.append(site_dist[0].coords - center)
+        return Molecule(symbols, coords)
+
+    @property
+    def cluster(self):
+        """
+        Returns the atomic cluster as a Molecule object.
+        """
+        return self._cluster
 
     @staticmethod
     def atoms_string_from_file(filename):
@@ -362,18 +391,13 @@ class Atoms(MSONable):
         Returns:
             String representation of Atomic Coordinate Shells.
         """
-        center_index = self.struct.indices_from_symbol(self.central_atom)[0]
-        center = self.struct[center_index].coords
-        sphere = self.struct.get_neighbors(self.struct[center_index], self.radius)
-
-        row = [[str(0), str(0), str(0),  str(0), self.central_atom, str(0), str(0)]]
-        for i, site_dist in enumerate(sphere):
-            site_symbol = re.sub(r"[^aA-zZ]+", "", site_dist[0].species_string)
+        row = []
+        for i, site in enumerate(self._cluster):
+            site_symbol = re.sub(r"[^aA-zZ]+", "", site.species_string)
             ipot = self.pot_dict[site_symbol]
-            coords = site_dist[0].coords - center
-            row.append(["{:f}".format(coords[0]), "{:f}".format(coords[1]),
-                        "{:f}".format(coords[2]), ipot, site_symbol,
-                        "{:f}".format(site_dist[1]), i+1])
+            row.append(["{:f}".format(site.x), "{:f}".   format(site.y),
+                        "{:f}".format(site.z), ipot, site_symbol,
+                        "{:f}".format(self._cluster.get_distance(0, i)), i])
 
         row_sorted = str(tabulate(sorted(row, key=itemgetter(5)),
                                   headers=["*       x", "y", "z", "ipot",

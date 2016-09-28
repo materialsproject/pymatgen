@@ -273,6 +273,7 @@ class SpacegroupAnalyzer(object):
         for t in d["translations"]:
             trans.append([float(Fraction.from_float(c).limit_denominator(1000)) for c in t])
         trans = np.array(trans)
+        trans[np.abs(trans) == 1] = 0  # fractional translations of 1 are more simply 0
         return d["rotations"], trans
 
     def get_symmetry_operations(self, cartesian=False):
