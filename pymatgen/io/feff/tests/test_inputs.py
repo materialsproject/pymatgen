@@ -8,6 +8,8 @@ import unittest2 as unittest
 
 import os
 
+import numpy as np
+
 from pymatgen.io.feff.inputs import Atoms, Header, Tags, Potential
 from pymatgen.io.cif import CifParser
 
@@ -66,7 +68,38 @@ class HeaderTest(unittest.TestCase):
 
 class FeffAtomsTest(unittest.TestCase):
 
-    def test_init(self):
+    @classmethod
+    def setUpClass(cls):
+        r = CifParser(os.path.join(test_dir, "CoO19128.cif"))
+        structure = r.get_structures()[0]
+        cls.atoms = Atoms(structure, "O", 10.0)
+
+    def test_absorber_line(self):
+        atoms_lines = self.atoms.get_lines()
+        # x
+        self.assertAlmostEqual(float(atoms_lines[0][0]), 0.0)
+        # y
+        self.assertAlmostEqual(float(atoms_lines[0][1]), 0.0)
+        # z
+        self.assertAlmostEqual(float(atoms_lines[0][2]), 0.0)
+        # ipot
+        self.assertEqual(int(atoms_lines[0][3]), 0)
+        # atom symbol
+        self.assertEqual(atoms_lines[0][4], 'O')
+        # distance
+        self.assertAlmostEqual(float(atoms_lines[0][5]), 0.0)
+        # id
+        self.assertEqual(int(atoms_lines[0][6]), 0)
+
+    def test_distances(self):
+        atoms_1 = self.atoms.get_lines()
+        distances_1 = [float(a[5]) for a in atoms_1]
+        atoms_2 = Atoms.atoms_string_from_file(os.path.join(test_dir, "ATOMS"))
+        atoms_2 = atoms_2.splitlines()[3:]
+        distances_2 = [float(a.split()[5]) for a in atoms_2]
+        np.testing.assert_allclose(distances_1, distances_2)
+
+    def test_atoms_from_file(self):
         filepath = os.path.join(test_dir, 'ATOMS')
         atoms = Atoms.atoms_string_from_file(filepath)
         self.assertEqual(atoms.splitlines()[3].split()[4], 'O',
@@ -77,7 +110,7 @@ class FeffAtomsTest(unittest.TestCase):
         struc = header.struct
         central_atom = 'O'
         a = Atoms(struc, central_atom, radius=10.)
-        atoms = a.get_string()
+        atoms = str(a)
         self.assertEqual(atoms.splitlines()[3].split()[4], central_atom,
                          "failed to create ATOMS string")
 
@@ -92,10 +125,7 @@ class FeffAtomsTest(unittest.TestCase):
                          "Atoms failed to and from dict test")
 
     def test_cluster_from_file(self):
-        r = CifParser(os.path.join(test_dir, "CoO19128.cif"))
-        structure = r.get_structures()[0]
-        atoms = Atoms(structure, "O", 10.0)
-        atoms.write_file("ATOMS_test")
+        self.atoms.write_file("ATOMS_test")
         mol_1 = Atoms.cluster_from_file("ATOMS_test")
         mol_2 = Atoms.cluster_from_file(os.path.join(test_dir, "ATOMS"))
         self.assertEqual(mol_1.formula, mol_2.formula)
