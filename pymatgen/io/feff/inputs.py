@@ -384,33 +384,39 @@ class Atoms(MSONable):
                 symbols.append(l[4])
         return Molecule(symbols, coords)
 
-    def get_string(self):
+    def get_lines(self):
         """
-        Returns a string representation of atomic shell coordinates.
+        Returns a list of string representations of the atomic configuration
+        information(x, y, z, ipot, atom_symbol, distance, id).
 
         Returns:
-            String representation of Atomic Coordinate Shells.
+            list: list of strings, sorted by the distance from the absorbing
+                atom.
         """
-        row = []
-        for i, site in enumerate(self._cluster):
+        lines = [["{:f}".format(self._cluster[0].x),
+                "{:f}".format(self._cluster[0].y),
+                "{:f}".format(self._cluster[0].z),
+                0, self.central_atom, "0.0", 0]]
+        for i, site in enumerate(self._cluster[1:]):
             site_symbol = re.sub(r"[^aA-zZ]+", "", site.species_string)
             ipot = self.pot_dict[site_symbol]
-            row.append(["{:f}".format(site.x), "{:f}".   format(site.y),
+            lines.append(["{:f}".format(site.x), "{:f}".format(site.y),
                         "{:f}".format(site.z), ipot, site_symbol,
-                        "{:f}".format(self._cluster.get_distance(0, i)), i])
+                        "{:f}".format(self._cluster.get_distance(0, i+1)), i+1])
 
-        row_sorted = str(tabulate(sorted(row, key=itemgetter(5)),
-                                  headers=["*       x", "y", "z", "ipot",
-                                           "Atom", "Distance", "Number"]))
-        atom_list = row_sorted.replace("--", "**")
-
-        return ''.join(["ATOMS\n", atom_list, "\nEND\n"])
+        return sorted(lines, key=itemgetter(5))
 
     def __str__(self):
         """
         String representation of Atoms file.
         """
-        return self.get_string()
+        lines_sorted = self.get_lines()
+        # TODO: remove the formatting and update the unittests
+        lines_formatted = str(tabulate(lines_sorted,
+                                       headers=["*       x", "y", "z", "ipot",
+                                                "Atom", "Distance", "Number"]))
+        atom_list = lines_formatted.replace("--", "**")
+        return ''.join(["ATOMS\n", atom_list, "\nEND\n"])
 
     def write_file(self, filename='ATOMS'):
         """
