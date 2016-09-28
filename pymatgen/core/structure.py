@@ -2100,11 +2100,15 @@ class Structure(IStructure, collections.MutableSequence):
         Modify a site in the structure.
 
         Args:
-            i (int): Index
+            i (int, [int], slice, Specie-like): Indices to change. You can
+                specify these as an int, a list of int, or a species-like
+                string.
             site (PeriodicSite/Specie/Sequence): Three options exist. You
                 can provide a PeriodicSite directly (lattice will be
                 checked). Or more conveniently, you can provide a
-                specie-like object or a tuple of up to length 3. Examples:
+                specie-like object or a tuple of up to length 3.
+
+            Examples:
                 s[0] = "Fe"
                 s[0] = Element("Fe")
                 both replaces the species only.
@@ -2113,27 +2117,58 @@ class Structure(IStructure, collections.MutableSequence):
                 are inherited from current site.
                 s[0] = "Fe", [0.5, 0.5, 0.5], {"spin": 2}
                 Replaces site and *fractional* coordinates and properties.
-        """
-        if isinstance(site, PeriodicSite):
-            if site.lattice != self._lattice:
-                raise ValueError("PeriodicSite added must have same lattice "
-                                 "as Structure!")
-            self._sites[i] = site
-        else:
-            if isinstance(site, six.string_types) or (
-                    not isinstance(site, collections.Sequence)):
-                sp = site
-                frac_coords = self._sites[i].frac_coords
-                properties = self._sites[i].properties
-            else:
-                sp = site[0]
-                frac_coords = site[1] if len(site) > 1 else self._sites[i] \
-                    .frac_coords
-                properties = site[2] if len(site) > 2 else self._sites[i] \
-                    .properties
 
-            self._sites[i] = PeriodicSite(sp, frac_coords, self._lattice,
-                                          properties=properties)
+                s[(0, 2, 3)] = "Fe"
+                Replaces sites 0, 2 and 3 with Fe.
+
+                s[0::2] = "Fe"
+                Replaces all even index sites with Fe.
+
+                s["Mn"] = "Fe"
+                Replaces all Mn in the structure with Fe. This is
+                a short form for the more complex replace_species.
+
+                s["Mn"] = "Fe0.5Co0.5"
+                Replaces all Mn in the structure with Fe: 0.5, Co: 0.5, i.e.,
+                creates a disordered structure!
+        """
+
+        if isinstance(i, int):
+            indices = [i]
+        elif isinstance(i, six.string_types + (Element, Specie)):
+            self.replace_species({i: site})
+            return
+        elif isinstance(i, slice):
+            to_mod = self[i]
+            indices = [ii for ii, s in enumerate(self._sites)
+                       if s in to_mod]
+        else:
+            indices = list(i)
+
+        for ii in indices:
+            if isinstance(site, PeriodicSite):
+                if site.lattice != self._lattice:
+                    raise ValueError("PeriodicSite added must have same lattice "
+                                     "as Structure!")
+                elif len(indices) != 1:
+                    raise ValueError("Site assignments makes sense only for "
+                                     "single int indices!")
+                self._sites[ii] = site
+            else:
+                if isinstance(site, six.string_types) or (
+                        not isinstance(site, collections.Sequence)):
+                    sp = site
+                    frac_coords = self._sites[ii].frac_coords
+                    properties = self._sites[ii].properties
+                else:
+                    sp = site[0]
+                    frac_coords = site[1] if len(site) > 1 else \
+                        self._sites[ii].frac_coords
+                    properties = site[2] if len(site) > 2 else \
+                        self._sites[ii].properties
+
+                self._sites[ii] = PeriodicSite(sp, frac_coords, self._lattice,
+                                               properties=properties)
 
     def __delitem__(self, i):
         """
@@ -2228,7 +2263,11 @@ class Structure(IStructure, collections.MutableSequence):
                 a Li for Na substitution. The second species can be a
                 sp_and_occu dict. For example, a site with 0.5 Si that is
                 passed the mapping {Element('Si): {Element('Ge'):0.75,
-                Element('C'):0.25} } will have .375 Ge and .125 C.
+                Element('C'):0.25} } will have .375 Ge and .125 C. You can
+                also supply strings that represent elements or species and
+                the code will try to figure out the meaning. E.g.,
+                {"C": "C0.5Si0.5"} will replace all C with 0.5 C and 0.5 Si,
+                i.e., a disordered site.
         """
         latt = self._lattice
         species_mapping = {get_el_sp(k): v
@@ -2238,9 +2277,9 @@ class Structure(IStructure, collections.MutableSequence):
             c = Composition()
             for sp, amt in site.species_and_occu.items():
                 new_sp = species_mapping.get(sp, sp)
-                if isinstance(new_sp, collections.Mapping):
+                try:
                     c += Composition(new_sp) * amt
-                else:
+                except TypeError:
                     c += {new_sp: amt}
             return PeriodicSite(c, site.frac_coords, latt,
                                 properties=site.properties)
@@ -2611,27 +2650,44 @@ class Molecule(IMolecule, collections.MutableSequence):
         Modify a site in the molecule.
 
         Args:
-            i (int): Index
+            i (int, [int], slice, Specie-like): Indices to change. You can
+                specify these as an int, a list of int, or a species-like
+                string.
             site (PeriodicSite/Specie/Sequence): Three options exist. You can
                 provide a Site directly, or for convenience, you can provide
                 simply a Specie-like string/object, or finally a (Specie,
                 coords) sequence, e.g., ("Fe", [0.5, 0.5, 0.5]).
         """
-        if isinstance(site, Site):
-            self._sites[i] = site
-        else:
-            if isinstance(site, six.string_types) or (
-                    not isinstance(site, collections.Sequence)):
-                sp = site
-                coords = self._sites[i].coords
-                properties = self._sites[i].properties
-            else:
-                sp = site[0]
-                coords = site[1] if len(site) > 1 else self._sites[i].coords
-                properties = site[2] if len(site) > 2 else self._sites[i] \
-                    .properties
 
-            self._sites[i] = Site(sp, coords, properties=properties)
+        if isinstance(i, int):
+            indices = [i]
+        elif isinstance(i, six.string_types + (Element, Specie)):
+            self.replace_species({i: site})
+            return
+        elif isinstance(i, slice):
+            to_mod = self[i]
+            indices = [ii for ii, s in enumerate(self._sites)
+                       if s in to_mod]
+        else:
+            indices = list(i)
+
+        for ii in indices:
+            if isinstance(site, Site):
+                self._sites[ii] = site
+            else:
+                if isinstance(site, six.string_types) or (
+                        not isinstance(site, collections.Sequence)):
+                    sp = site
+                    coords = self._sites[ii].coords
+                    properties = self._sites[ii].properties
+                else:
+                    sp = site[0]
+                    coords = site[1] if len(site) > 1 else self._sites[
+                        ii].coords
+                    properties = site[2] if len(site) > 2 else self._sites[ii] \
+                        .properties
+
+                self._sites[ii] = Site(sp, coords, properties=properties)
 
     def __delitem__(self, i):
         """
@@ -2746,26 +2802,14 @@ class Molecule(IMolecule, collections.MutableSequence):
                            for k, v in species_mapping.items()}
 
         def mod_site(site):
-            new_atom_occu = dict()
+            c = Composition()
             for sp, amt in site.species_and_occu.items():
-                if sp in species_mapping:
-                    if isinstance(species_mapping[sp], (Element, Specie)):
-                        if species_mapping[sp] in new_atom_occu:
-                            new_atom_occu[species_mapping[sp]] += amt
-                        else:
-                            new_atom_occu[species_mapping[sp]] = amt
-                    elif isinstance(species_mapping[sp], collections.Mapping):
-                        for new_sp, new_amt in species_mapping[sp].items():
-                            if new_sp in new_atom_occu:
-                                new_atom_occu[new_sp] += amt * new_amt
-                            else:
-                                new_atom_occu[new_sp] = amt * new_amt
-                else:
-                    if sp in new_atom_occu:
-                        new_atom_occu[sp] += amt
-                    else:
-                        new_atom_occu[sp] = amt
-            return Site(new_atom_occu, site.coords, properties=site.properties)
+                new_sp = species_mapping.get(sp, sp)
+                try:
+                    c += Composition(new_sp) * amt
+                except TypeError:
+                    c += {new_sp: amt}
+            return Site(c, site.coords, properties=site.properties)
 
         self._sites = [mod_site(site) for site in self._sites]
 

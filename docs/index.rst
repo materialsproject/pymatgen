@@ -283,6 +283,31 @@ some quick examples of the core capabilities and objects:
     1 Cs     0.000000     0.000000     0.000000
     2 Cl     0.510000     0.510000     0.510000
     >>>
+    >>> # Replaces all Cs in the structure with K
+    >>> structure["Cs"] = "K"
+    >>> print(structure)
+    Structure Summary (K1 Cl1)
+    Reduced Formula: KCl
+    abc   :   4.200000   4.200000   4.200000
+    angles:  90.000000  90.000000  90.000000
+    Sites (2)
+    1 K     0.000000     0.000000     0.000000
+    2 Cl     0.510000     0.510000     0.510000
+    >>>
+    >>> # Replaces all K in the structure with K: 0.5, Na: 0.5, i.e.,
+    >>> # a disordered structure is created.
+    >>> structure["K"] = "K0.5Na0.5"
+    >>> print(structure)
+    Full Formula (K0.5 Na0.5 Cl1)
+    Reduced Formula: K0.5Na0.5Cl1
+    abc   :   4.209000   4.209000   4.209000
+    angles:  90.000000  90.000000  90.000000
+    Sites (2)
+      #  SP                   a    b    c
+    ---  -----------------  ---  ---  ---
+      0  K:0.500, Na:0.500  0    0    0
+      1  Cl                 0.5  0.5  0.5
+    >>>
     >>> # Because structure is like a list, it supports most list-like methods
     >>> # such as sort, reverse, etc.
     >>> structure.reverse()

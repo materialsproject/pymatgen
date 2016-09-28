@@ -33,5 +33,5 @@ Materials and Calculations Analysis
 
 * `Calculating XRD patterns <_static/Calculating%20XRD%20patterns.html>`_
 * `Ordering disorderd structures <_static/Ordering%20Disordered%20Structures.html>`_
-* `Analyzing and plotting bandstructures
-  <_static/Analyze%20and%20plot%20band%20structures.html>`_
+* `Analyzing and plotting bandstructures <_static/Analyze%20and%20plot%20band%20structures.html>`_
+* `Analyzing chemical environments <_static/ChemEnv%20-%20How%20to%20automatically%20identify%20coordination%20environments%20in%20a%20structure.html>`_
