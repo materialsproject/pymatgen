@@ -2127,6 +2127,10 @@ class Structure(IStructure, collections.MutableSequence):
                 s["Mn"] = "Fe"
                 Replaces all Mn in the structure with Fe. This is
                 a short form for the more complex replace_species.
+
+                s["Mn"] = "Fe0.5Co0.5"
+                Replaces all Mn in the structure with Fe: 0.5, Co: 0.5, i.e.,
+                creates a disordered structure!
         """
 
         if isinstance(i, int):
