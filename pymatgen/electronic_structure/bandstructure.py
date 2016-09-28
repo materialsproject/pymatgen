@@ -829,6 +829,45 @@ class BandStructureSymmLine(BandStructure, MSONable):
             Lattice(d['lattice_rec']['matrix']), d['efermi'],
             labels_dict, structure=structure, projections=projections)
 
+    @classmethod
+    def from_old_dict(cls, d):
+        """
+        Args:
+            d (dict): A dict with all data for a band structure symm line
+                object.
+        Returns:
+            A BandStructureSymmLine object
+        """
+        # Strip the label to recover initial string (see trick used in as_dict to handle $ chars)
+        labels_dict = {k.strip(): v for k, v in d['labels_dict'].items()}
+        projections = {}
+        structure = None
+        if 'projections' in d and len(d['projections']) != 0:
+            structure = Structure.from_dict(d['structure'])
+            projections = {}
+            for spin in d['projections']:
+                dd = []
+                for i in range(len(d['projections'][spin])):
+                    ddd = []
+                    for j in range(len(d['projections'][spin][i])):
+                        dddd = []
+                        for k in range(len(d['projections'][spin][i][j])):
+                            ddddd = []
+                            orb = Orbital(k).name
+                            for l in range(len(d['projections'][spin][i][j][
+                                                   orb])):
+                                ddddd.append(d['projections'][spin][i][j][
+                                                orb][l])
+                            dddd.append(ddddd)
+                        ddd.append(dddd)
+                    dd.append(ddd)
+                projections[spin] = dd
+
+        return BandStructureSymmLine(
+            d['kpoints'], {Spin(int(k)): d['bands'][k]
+                           for k in d['bands']},
+            Lattice(d['lattice_rec']['matrix']), d['efermi'],
+            labels_dict, structure=structure, projections=projections)
 
 
 def get_reconstructed_band_structure(list_bs, efermi=None):
