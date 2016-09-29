@@ -4,6 +4,12 @@
 
 from __future__ import division, unicode_literals
 
+import os
+import unittest2 as unittest
+from pymatgen.util.testing import PymatgenTest
+from pymatgen.analysis.transition_state import NEBAnalysis
+import json
+
 """
 TODO: Modify unittest doc.
 """
@@ -15,16 +21,10 @@ __maintainer__ = "Shyam Dwaraknath"
 __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
 
-import os
-import unittest2 as unittest
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.analysis.transition_state import NEBAnalysis
-import pymongo
-import bson
-from bson import InvalidDocument
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', 'neb_analysis')
+
 
 class NEBAnalysisTest(PymatgenTest):
     def runTest(self):
@@ -32,12 +32,9 @@ class NEBAnalysisTest(PymatgenTest):
                                             relaxation_dirs=(os.path.join(test_dir, 'start'),
                                                              os.path.join(test_dir, 'end')))
         neb_analysis2 = NEBAnalysis.from_dict(neb_analysis.as_dict())
-        try:
-            bson_data = bson.BSON.encode(neb_analysis.as_dict())
-        except InvalidDocument:
-            self.fail(msg='Cannot encode neb_analysis to BSON using the as_dict()')
+        json_data = json.dumps(neb_analysis.as_dict())
 
-        neb_dict = bson.BSON.decode(bson_data)
+        neb_dict = json.loads(json_data)
         neb_analysis3 = NEBAnalysis.from_dict(neb_dict)
 
         self.assertArrayAlmostEqual(neb_analysis.r, neb_analysis2.r)
