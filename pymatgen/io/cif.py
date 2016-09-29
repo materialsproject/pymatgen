@@ -57,10 +57,10 @@ def _get_cod_data():
     if _COD_DATA is None:
         import pymatgen
         with open(os.path.join(pymatgen.symmetry.__path__[0],
-                               "symm_ops.yaml")) \
+                               "symm_ops.json")) \
                 as f:
-            import yaml
-            _COD_DATA = yaml.load(f)
+            import json
+            _COD_DATA = json.load(f)
 
     return _COD_DATA
 
