@@ -743,6 +743,23 @@ class StructureTest(PymatgenTest):
         self.structure.add_oxidation_state_by_element({"Si": 4, "C": 2})
         self.assertEqual(self.structure.charge, 62)
 
+    def test_set_item(self):
+        s = self.structure.copy()
+        s[0] = "C"
+        self.assertEqual(s.formula, "Si1 C1")
+        s[(0, 1)] = "Ge"
+        self.assertEqual(s.formula, "Ge2")
+        s[0:2] = "Sn"
+        self.assertEqual(s.formula, "Sn2")
+
+        s = self.structure.copy()
+        s["Si"] = "C"
+        self.assertEqual(s.formula, "C2")
+        s["C"] = "C0.25Si0.5"
+        self.assertEqual(s.formula, "Si1 C0.5")
+        s["C"] = "C0.25Si0.5"
+        self.assertEqual(s.formula, "Si1.25 C0.125")
+
     def test_init_error(self):
         self.assertRaises(StructureError, Structure, Lattice.cubic(3), ["Si"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
@@ -770,6 +787,23 @@ class IMoleculeTest(PymatgenTest):
                   [-0.513360, 0.889165, -0.363000]]
         self.coords = coords
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
+
+    def test_set_item(self):
+        s = self.mol.copy()
+        s[0] = "Si"
+        self.assertEqual(s.formula, "Si1 H4")
+        s[(0, 1)] = "Ge"
+        self.assertEqual(s.formula, "Ge2 H3")
+        s[0:2] = "Sn"
+        self.assertEqual(s.formula, "Sn2 H3")
+
+        s = self.mol.copy()
+        s["H"] = "F"
+        self.assertEqual(s.formula, "C1 F4")
+        s["C"] = "C0.25Si0.5"
+        self.assertEqual(s.formula, "Si0.5 C0.25 F4")
+        s["C"] = "C0.25Si0.5"
+        self.assertEqual(s.formula, "Si0.625 C0.0625 F4")
 
     def test_bad_molecule(self):
         coords = [[0.000000, 0.000000, 0.000000],
