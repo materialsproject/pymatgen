@@ -6,6 +6,7 @@ from __future__ import division, unicode_literals, print_function
 
 import math
 import re
+import os
 import textwrap
 import warnings
 from collections import OrderedDict, deque
@@ -47,6 +48,21 @@ space_groups = {sub_spgrp(k): k
 
 space_groups.update({sub_spgrp(k): k
                      for k in SYMM_DATA['space_group_encoding'].keys()})
+
+_COD_DATA = None
+
+
+def _get_cod_data():
+    global _COD_DATA
+    if _COD_DATA is None:
+        import pymatgen
+        with open(os.path.join(pymatgen.symmetry.__path__[0],
+                               "symm_ops.yaml")) \
+                as f:
+            import yaml
+            _COD_DATA = yaml.load(f)
+
+    return _COD_DATA
 
 
 class CifBlock(object):
@@ -392,16 +408,38 @@ class CifParser(object):
                                    "_symmetry_space_group_name_hall_",
                                    "_symmetry_space_group_name_h-m",
                                    "_symmetry_space_group_name_h-m_"]:
+                sg = data.data.get(symmetry_label)
 
-                if data.data.get(symmetry_label):
+                if sg:
+                    sg = sub_spgrp(sg)
                     try:
-                        spg = space_groups.get(sub_spgrp(
-                            data.data.get(symmetry_label)))
+                        spg = space_groups.get(sg)
                         if spg:
                             symops = SpaceGroup(spg).symmetry_ops
+                            warnings.warn(
+                                "No _symmetry_equiv_pos_as_xyz type key found. "
+                                "Spacegroup from %s used." % symmetry_label)
                             break
                     except ValueError:
+                        # Ignore any errors
+                        pass
+
+                    try:
+                        for d in _get_cod_data():
+                            if sg == re.sub("\s+", "",
+                                            d["hermann_mauguin"]) :
+                                xyz = d["symops"]
+                                symops = [SymmOp.from_xyz_string(s)
+                                          for s in xyz]
+                                warnings.warn(
+                                    "No _symmetry_equiv_pos_as_xyz type key found. "
+                                    "Spacegroup from %s used." % symmetry_label)
+                                break
+                    except Exception as ex:
                         continue
+
+                    if symops:
+                        break
         if not symops:
             # Try to parse International number
             for symmetry_label in ["_space_group_IT_number",
