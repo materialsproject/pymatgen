@@ -74,7 +74,6 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.assertAlmostEqual(
             proj[Spin.up][25][0]['Cu']['d'], 0.8495999999999999)
 
-
         self.assertEqual(self.bs2.nb_bands, 16)
         self.assertAlmostEqual(self.bs2.bands[Spin.up][5][10], 0.5608)
         self.assertAlmostEqual(self.bs2.bands[Spin.up][5][10], 0.5608)
@@ -160,6 +159,14 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.assertAlmostEqual(bg_spin['energy'], 2.3148, "wrong gap energy")
         self.assertEqual(bg_spin['transition'], "L-\\Gamma", "wrong kpoint transition")
         self.assertFalse(bg_spin['direct'], "wrong nature of the gap")
+
+    def test_as_dict(self):
+        s = json.dumps(self.bs.as_dict())
+        self.assertIsNotNone(s)
+        s = json.dumps(self.bs2.as_dict())
+        self.assertIsNotNone(s)
+        s = json.dumps(self.bs_spin.as_dict())
+        self.assertIsNotNone(s)
 
 if __name__ == '__main__':
     unittest.main()
