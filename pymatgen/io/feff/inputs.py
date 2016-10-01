@@ -507,15 +507,36 @@ class Tags(dict):
             keys = sorted(keys)
         lines = []
         for k in keys:
-            if isinstance(self[k], list):
-                lines.append([k, " ".join([str(i) for i in self[k]])])
+            if isinstance(self[k], dict):
+                if k in ["ELNES", "EXELFS"]:
+                    lines.append([k, self._stringify_val(self[k]["ENERGY"])])
+                    beam_energy = self._stringify_val(self[k]["BEAM_ENERGY"])
+                    beam_energy_list = beam_energy.split()
+                    if int(beam_energy_list[1]) == 0:  # aver=0, specific beam direction
+                        lines.append([beam_energy])
+                        lines.append([self._stringify_val(self[k]["BEAM_DIRECTION"])])
+                    else:
+                        # no cross terms for orientation averaged spectrum
+                        beam_energy_list[2] = str(0)
+                        lines.append(self._stringify_val(beam_energy_list))
+                    lines.append([self._stringify_val(self[k]["ANGLES"])])
+                    lines.append([self._stringify_val(self[k]["MESH"])])
+                    lines.append([self._stringify_val(self[k]["POSITION"])])
             else:
-                lines.append([k, self[k]])
-
+                lines.append([k, self._stringify_val(self[k])])
         if pretty:
             return tabulate(lines)
         else:
             return str_delimited(lines, None, "  ")
+
+    def _stringify_val(self, val):
+        """
+        Convert the given value to string.
+        """
+        if isinstance(val, list):
+            return " ".join([str(i) for i in val])
+        else:
+            return str(val)
 
     def __str__(self):
         return self.get_string()
