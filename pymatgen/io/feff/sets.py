@@ -235,3 +235,45 @@ class MPEXAFSSet(FEFFDictSet):
                                          MPEXAFSSet.CONFIG, spectrum="EXAFS",
                                          **kwargs)
         self.kwargs = kwargs
+
+
+class MPELNESSet(FEFFDictSet):
+    """
+    FeffDictSet for ELNES spectroscopy.
+    """
+
+    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPELNESSet.yaml"))
+
+    def __init__(self, absorbing_atom, structure, radius=10., **kwargs):
+        """
+        Args:
+            absorbing_atom (str): absorbing atom symbol
+            structure (Structure): input structure
+            radius (float): cluster radius in Angstroms.
+            **kwargs
+        """
+        super(MPELNESSet, self).__init__(absorbing_atom, structure, radius,
+                                         MPELNESSet.CONFIG, spectrum="ELNES",
+                                         **kwargs)
+        self.kwargs = kwargs
+
+
+class MPEXELFSSet(FEFFDictSet):
+    """
+    FeffDictSet for EXELFS spectroscopy.
+    """
+
+    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXELFSSet.yaml"))
+
+    def __init__(self, absorbing_atom, structure, radius=10., **kwargs):
+        """
+        Args:
+            absorbing_atom (str): absorbing atom symbol
+            structure (Structure): input structure
+            radius (float): cluster radius in Angstroms.
+            **kwargs
+        """
+        super(MPEXELFSSet, self).__init__(absorbing_atom, structure, radius,
+                                          MPEXELFSSet.CONFIG, spectrum="EXELFS",
+                                          **kwargs)
+        self.kwargs = kwargs
