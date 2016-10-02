@@ -118,6 +118,13 @@ class CompositionTest(PymatgenTest):
         self.assertRaises(CompositionError, Composition,
                           "(co2)(po4)2")
 
+        self.assertEqual(Composition("K Na 2").reduced_formula, "KNa2")
+
+        self.assertEqual(Composition("K3 Na 2").reduced_formula, "K3Na2")
+
+        self.assertEqual(Composition("Na 3 Zr (PO 4) 3").reduced_formula,
+                         "Na3Zr(PO4)3")
+
     def test_mixed_valence(self):
         comp = Composition({"Fe2+": 2, "Fe3+": 4, "Li+": 8})
         self.assertEqual(comp.reduced_formula, "Li4Fe3")
