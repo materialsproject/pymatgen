@@ -172,6 +172,28 @@ class FeffTagsTest(unittest.TestCase):
         self.assertEqual(tags, tags2,
                          "Parameters do not match to and from dict")
 
+    def test_eels_tags(self):
+        ans_1 = {'CONTROL': [1, 1, 1, 1, 1, 1],
+                 'COREHOLE': 'Fsr',
+                 'EDGE': 'K',
+                 'ELNES': {'ANGLES': '7.6 6.4',
+                           'BEAM_ENERGY': '200 1 0 1',
+                           'ENERGY': '4.0 .04 0.1',
+                           'MESH': '50 1',
+                           'POSITION': '0 0'},
+                 'EXCHANGE': [0, 0.0, 0.0, 2],
+                 'FMS': [7.5],
+                 'PRINT': [1, 0, 0, 0, 0, 0],
+                 'RPATH': [-1],
+                 'S02': [0.0],
+                 'SCF': [6, 0, 30, 0.2, 5]}
+        tags_1 = Tags.from_file(os.path.join(test_dir, 'feff_eels_powder.inp'))
+        self.assertEqual(dict(tags_1), ans_1)
+        ans_1["ELNES"]["BEAM_ENERGY"] = '200 0 1 1'
+        ans_1["ELNES"]["BEAM_DIRECTION"] = '1 0 0'
+        tags_2 = Tags.from_file(os.path.join(test_dir, 'feff_eels_x.inp'))
+        self.assertEqual(dict(tags_2), ans_1)
+
 
 class FeffPotTest(unittest.TestCase):
 

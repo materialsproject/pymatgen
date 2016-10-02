@@ -518,7 +518,7 @@ class Tags(dict):
                     else:
                         # no cross terms for orientation averaged spectrum
                         beam_energy_list[2] = str(0)
-                        lines.append(self._stringify_val(beam_energy_list))
+                        lines.append([self._stringify_val(beam_energy_list)])
                     lines.append([self._stringify_val(self[k]["ANGLES"])])
                     lines.append([self._stringify_val(self[k]["MESH"])])
                     lines.append([self._stringify_val(self[k]["POSITION"])])
@@ -527,9 +527,10 @@ class Tags(dict):
         if pretty:
             return tabulate(lines)
         else:
-            return str_delimited(lines, None, "  ")
+            return  str_delimited(lines, None, " ")
 
-    def _stringify_val(self, val):
+    @staticmethod
+    def _stringify_val(val):
         """
         Convert the given value to string.
         """
@@ -592,7 +593,7 @@ class Tags(dict):
                 eels_keys = ['BEAM_ENERGY', 'BEAM_DIRECTION', 'ANGLES', 'MESH', 'POSITION']
             else:
                 eels_keys = ['BEAM_ENERGY', 'ANGLES', 'MESH', 'POSITION']
-            eels_dict = {"ENERGY": eels_params[0].split()[1:]}
+            eels_dict = {"ENERGY": Tags._stringify_val(eels_params[0].split()[1:])}
             for k, v in zip(eels_keys, eels_params[1:]):
                 eels_dict[k] = str(v)
             params[str(eels_params[0].split()[0])] = eels_dict
@@ -609,11 +610,12 @@ class Tags(dict):
             key: Feff parameter key
             val: Actual value of Feff parameter.
         """
-        list_type_keys = VALID_FEFF_TAGS
+
+        list_type_keys = list(VALID_FEFF_TAGS)
+        del list_type_keys[list_type_keys.index("ELNES")]
+        del list_type_keys[list_type_keys.index("EXELFS")]
         boolean_type_keys = ()
-        float_type_keys = ("SCF", "EXCHANGE", "S02", "FMS", "XANES", "EXAFS",
-                           "RPATH", "LDOS")
-        int_type_keys = ("PRINT", "CONTROL")
+        float_type_keys = ("S02", "EXAFS", "RPATH")
 
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
@@ -645,9 +647,6 @@ class Tags(dict):
 
             if key in float_type_keys:
                 return float(val)
-
-            if key in int_type_keys:
-                return int(val)
 
         except ValueError:
             return val.capitalize()
