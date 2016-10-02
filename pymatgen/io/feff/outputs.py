@@ -328,3 +328,47 @@ class Xmu(MSONable):
         d["data"] = self.data.tolist()
         return d
 
+
+class Eels(MSONable):
+    """
+    Parse'eels.dat' file.
+    """
+
+    def __init__(self, data):
+        self.data = np.array(data)
+
+    @property
+    def energies(self):
+        """
+        Returns the energies in eV.
+        """
+        return self.data[:, 0]
+
+    @property
+    def total_spectrum(self):
+        """
+        Returns the total eels spectrum.
+        """
+        return self.data[:, 1]
+
+    @staticmethod
+    def from_file(eels_dat_file="eels.dat"):
+        """
+        Parse eels spectrum.
+
+        Args:
+            eels_dat_file (str): filename and path for eels.dat
+
+        Returns:
+             Eels object
+        """
+        data = np.loadtxt(eels_dat_file)
+        return Eels(data)
+
+    def as_dict(self):
+        """
+        Returns dict representations of Xmu object
+        """
+        d = MSONable.as_dict(self)
+        d["data"] = self.data.tolist()
+        return d

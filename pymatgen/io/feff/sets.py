@@ -113,7 +113,7 @@ class FEFFDictSet(AbstractFeffInputSet):
     implementations.
     """
 
-    def __init__(self, absorbing_atom, structure, radius, config_dict,
+    def __init__(self, absorbing_atom, structure, radius, config_dict, edge="K",
                   spectrum="EXAFS", user_tag_settings=None):
         """
 
@@ -122,6 +122,7 @@ class FEFFDictSet(AbstractFeffInputSet):
             structure (Structure): input structure
             radius (float): cluster radius
             config_dict (dict): control tag settings dict
+            edge (str): absorption edge
             spectrum (str): type of spectrum to calculate, available options :
                 EXAFS, XANES, DANES, XMCD, ELNES, EXELFS, FPRIME, NRIXS, XES.
                 The default is EXAFS.
@@ -135,6 +136,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         self.config_dict = deepcopy(config_dict)
         self.spectrum = spectrum
         self.user_tag_settings = user_tag_settings or {}
+        self.config_dict["EDGE"] = edge
         self.config_dict.update(self.user_tag_settings)
         if "_del" in self.user_tag_settings:
             for tag in self.user_tag_settings["_del"]:
@@ -202,7 +204,7 @@ class MPXANESSet(FEFFDictSet):
 
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPXANESSet.yaml"))
 
-    def __init__(self, absorbing_atom, structure, radius=10., **kwargs):
+    def __init__(self, absorbing_atom, structure, edge="K", radius=10., **kwargs):
         """
         Args:
             absorbing_atom (str): absorbing atom symbol
@@ -211,8 +213,8 @@ class MPXANESSet(FEFFDictSet):
             **kwargs
         """
         super(MPXANESSet, self).__init__(absorbing_atom, structure, radius,
-                                         MPXANESSet.CONFIG, spectrum="XANES",
-                                         **kwargs)
+                                         MPXANESSet.CONFIG, edge=edge,
+                                         spectrum="XANES", **kwargs)
         self.kwargs = kwargs
 
 
@@ -223,7 +225,7 @@ class MPEXAFSSet(FEFFDictSet):
 
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXAFSSet.yaml"))
 
-    def __init__(self, absorbing_atom, structure, radius=10., **kwargs):
+    def __init__(self, absorbing_atom, structure, edge="K", radius=10., **kwargs):
         """
         Args:
             absorbing_atom (str): absorbing atom symbol
@@ -232,8 +234,8 @@ class MPEXAFSSet(FEFFDictSet):
             **kwargs
         """
         super(MPEXAFSSet, self).__init__(absorbing_atom, structure, radius,
-                                         MPEXAFSSet.CONFIG, spectrum="EXAFS",
-                                         **kwargs)
+                                         MPEXAFSSet.CONFIG, edge=edge,
+                                         spectrum="EXAFS", **kwargs)
         self.kwargs = kwargs
 
 
@@ -242,18 +244,39 @@ class MPELNESSet(FEFFDictSet):
     FeffDictSet for ELNES spectroscopy.
     """
 
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPELNESSet.yaml"))
-
-    def __init__(self, absorbing_atom, structure, radius=10., **kwargs):
+    def __init__(self, absorbing_atom, structure, edge="K", radius=10.,
+                 beam_energy=100, beam_direction=None, collection_angle=1,
+                 convergence_angle=1, user_eels_settings=None, **kwargs):
         """
         Args:
             absorbing_atom (str): absorbing atom symbol
             structure (Structure): input structure
             radius (float): cluster radius in Angstroms.
+            beam_energy (float): Incident beam energy in keV
+            beam_direction (list): Incident beam direction. If None, the
+                cross section will be averaged.
+            collection_angle (float): Detector collection angle in mrad.
+            convergence_angle (float): Beam convergence angle in mrad.
+            user_eels_settings (dict): override default EELS config.
+                See MPELNESSet.yaml for supported keys.
             **kwargs
         """
+        CONFIG = loadfn(os.path.join(MODULE_DIR, "MPELNESSet.yaml"))
+
+        if beam_direction:
+            beam_energy_list = [beam_energy, 0, 1, 1]
+            CONFIG["ELNES"]["BEAM_DIRECTION"] = beam_direction
+        else:
+            beam_energy_list = [beam_energy, 1, 0, 1]
+            del CONFIG["ELNES"]["BEAM_DIRECTION"]
+        CONFIG["ELNES"]["BEAM_ENERGY"] = beam_energy_list
+        CONFIG["ELNES"]["ANGLES"] = [collection_angle, convergence_angle]
+
+        if user_eels_settings:
+            CONFIG["ELNES"].update(user_eels_settings)
+
         super(MPELNESSet, self).__init__(absorbing_atom, structure, radius,
-                                         MPELNESSet.CONFIG, spectrum="ELNES",
+                                         CONFIG, edge=edge, spectrum="ELNES",
                                          **kwargs)
         self.kwargs = kwargs
 
@@ -263,17 +286,37 @@ class MPEXELFSSet(FEFFDictSet):
     FeffDictSet for EXELFS spectroscopy.
     """
 
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXELFSSet.yaml"))
-
-    def __init__(self, absorbing_atom, structure, radius=10., **kwargs):
+    def __init__(self, absorbing_atom, structure, edge="K", radius=10.,
+                 beam_energy=100, beam_direction=None, collection_angle=1,
+                 convergence_angle=1, user_eels_settings=None, **kwargs):
         """
         Args:
             absorbing_atom (str): absorbing atom symbol
             structure (Structure): input structure
             radius (float): cluster radius in Angstroms.
+            beam_energy (float): Incident beam energy in keV
+            beam_direction (list): Incident beam direction. If None, the
+                cross section will be averaged.
+            collection_angle (float): Detector collection angle in mrad.
+            convergence_angle (float): Beam convergence angle in mrad.
+            user_eels_settings (dict): override default EELS config.
+                See MPEXELFSSet.yaml for supported keys.
             **kwargs
         """
+        CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXELFSSet.yaml"))
+
+        if beam_direction:
+            beam_energy_list = [beam_energy, 0, 1, 1]
+            CONFIG["EXELFS"]["BEAM_DIRECTION"] = beam_direction
+        else:
+            beam_energy_list = [beam_energy, 1, 0, 1]
+            del CONFIG["EXELFS"]["BEAM_DIRECTION"]
+        CONFIG["EXELFS"]["BEAM_ENERGY"] = beam_energy_list
+        CONFIG["EXELFS"]["ANGLES"] = [collection_angle, convergence_angle]
+
+        if user_eels_settings:
+            CONFIG["EXELFS"].update(user_eels_settings)
         super(MPEXELFSSet, self).__init__(absorbing_atom, structure, radius,
-                                          MPEXELFSSet.CONFIG, spectrum="EXELFS",
+                                          CONFIG, edge=edge, spectrum="EXELFS",
                                           **kwargs)
         self.kwargs = kwargs
