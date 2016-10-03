@@ -12,8 +12,8 @@ structure without further user intervention. This ensures comparability across
 runs.
 """
 
-__author__ = "Alan Dozier, Kiran Mathew"
-__credits__ = "Anubhav Jain, Shyue Ping Ong"
+__author__ = "Kiran Mathew"
+__credits__ = "Alan Dozier, Anubhav Jain, Shyue Ping Ong"
 __version__ = "1.1"
 __maintainer__ = "Kiran Mathew"
 __email__ = "kmathew@lbl.gov"

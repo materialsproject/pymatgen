@@ -27,7 +27,7 @@ control tags.
 XANES and EXAFS input files, are available, for non-spin case at this time.
 """
 
-__author__ = "Alan Dozier"
+__author__ = "Alan Dozier, Kiran Mathew"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0.3"

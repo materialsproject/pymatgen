@@ -15,7 +15,7 @@ from pymatgen import Orbital, Spin
 from pymatgen.electronic_structure.dos import Dos, CompleteDos
 from pymatgen.io.feff import Header, Potential, Tags
 
-__author__ = "Alan Dozier"
+__author__ = "Alan Dozier, Kiran Mathew"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0.3"
