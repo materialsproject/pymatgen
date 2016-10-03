@@ -351,6 +351,14 @@ class Eels(MSONable):
         """
         return self.data[:, 1]
 
+    @property
+    def atomic_background(self):
+        return self.data[:, 2]
+
+    @property
+    def fine_structure(self):
+        return self.data[:, 3]
+
     @staticmethod
     def from_file(eels_dat_file="eels.dat"):
         """
