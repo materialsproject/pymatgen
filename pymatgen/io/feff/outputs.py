@@ -15,7 +15,7 @@ from pymatgen import Orbital, Spin
 from pymatgen.electronic_structure.dos import Dos, CompleteDos
 from pymatgen.io.feff import Header, Potential, Tags
 
-__author__ = "Alan Dozier"
+__author__ = "Alan Dozier, Kiran Mathew"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0.3"
@@ -328,3 +328,55 @@ class Xmu(MSONable):
         d["data"] = self.data.tolist()
         return d
 
+
+class Eels(MSONable):
+    """
+    Parse'eels.dat' file.
+    """
+
+    def __init__(self, data):
+        self.data = np.array(data)
+
+    @property
+    def energies(self):
+        """
+        Returns the energies in eV.
+        """
+        return self.data[:, 0]
+
+    @property
+    def total_spectrum(self):
+        """
+        Returns the total eels spectrum.
+        """
+        return self.data[:, 1]
+
+    @property
+    def atomic_background(self):
+        return self.data[:, 2]
+
+    @property
+    def fine_structure(self):
+        return self.data[:, 3]
+
+    @staticmethod
+    def from_file(eels_dat_file="eels.dat"):
+        """
+        Parse eels spectrum.
+
+        Args:
+            eels_dat_file (str): filename and path for eels.dat
+
+        Returns:
+             Eels object
+        """
+        data = np.loadtxt(eels_dat_file)
+        return Eels(data)
+
+    def as_dict(self):
+        """
+        Returns dict representations of Xmu object
+        """
+        d = MSONable.as_dict(self)
+        d["data"] = self.data.tolist()
+        return d

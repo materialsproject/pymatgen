@@ -1,0 +1,21 @@
+CONTROL: 1 1 1 1 1 1
+PRINT:   1 0 0 0 0 0
+EDGE: K
+COREHOLE: FSR
+S02: 0.0
+EXCHANGE: 0 0.0 0.0 2
+SCF: 5.0 0 30 0.2 1
+RPATH: 10
+EXELFS:
+  # xkmax,
+  ENERGY: 20
+  # energy, aver, cross, relat
+  BEAM_ENERGY: 100 0 1 1
+  # kx, ky, kz
+  BEAM_DIRECTION: 0 1 0
+  # collection(beta), convergence(alpha)
+  ANGLES: 1 1
+  # nr, na
+  MESH: 50 1
+  # dx, dy
+  POSITION: 0.0 0.0
