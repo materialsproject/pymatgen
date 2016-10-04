@@ -27,7 +27,7 @@ control tags.
 XANES and EXAFS input files, are available, for non-spin case at this time.
 """
 
-__author__ = "Alan Dozier"
+__author__ = "Alan Dozier, Kiran Mathew"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0.3"
@@ -507,15 +507,37 @@ class Tags(dict):
             keys = sorted(keys)
         lines = []
         for k in keys:
-            if isinstance(self[k], list):
-                lines.append([k, " ".join([str(i) for i in self[k]])])
+            if isinstance(self[k], dict):
+                if k in ["ELNES", "EXELFS"]:
+                    lines.append([k, self._stringify_val(self[k]["ENERGY"])])
+                    beam_energy = self._stringify_val(self[k]["BEAM_ENERGY"])
+                    beam_energy_list = beam_energy.split()
+                    if int(beam_energy_list[1]) == 0:  # aver=0, specific beam direction
+                        lines.append([beam_energy])
+                        lines.append([self._stringify_val(self[k]["BEAM_DIRECTION"])])
+                    else:
+                        # no cross terms for orientation averaged spectrum
+                        beam_energy_list[2] = str(0)
+                        lines.append([self._stringify_val(beam_energy_list)])
+                    lines.append([self._stringify_val(self[k]["ANGLES"])])
+                    lines.append([self._stringify_val(self[k]["MESH"])])
+                    lines.append([self._stringify_val(self[k]["POSITION"])])
             else:
-                lines.append([k, self[k]])
-
+                lines.append([k, self._stringify_val(self[k])])
         if pretty:
             return tabulate(lines)
         else:
-            return str_delimited(lines, None, "  ")
+            return  str_delimited(lines, None, " ")
+
+    @staticmethod
+    def _stringify_val(val):
+        """
+        Convert the given value to string.
+        """
+        if isinstance(val, list):
+            return " ".join([str(i) for i in val])
+        else:
+            return str(val)
 
     def __str__(self):
         return self.get_string()
@@ -544,14 +566,38 @@ class Tags(dict):
         with zopen(filename, "rt") as f:
             lines = list(clean_lines(f.readlines()))
         params = {}
-        for line in lines:
+        eels_params = []
+        ieels = -1
+        ieels_max = -1
+        for i, line in enumerate(lines):
             m = re.match("([A-Z]+\d*\d*)\s*(.*)", line)
             if m:
                 key = m.group(1).strip()
                 val = m.group(2).strip()
                 val = Tags.proc_val(key, val)
                 if key not in ("ATOMS", "POTENTIALS", "END", "TITLE"):
-                    params[key] = val
+                    if key in ["ELNES", "EXELFS"]:
+                        ieels = i
+                        ieels_max = ieels + 5
+                    else:
+                        params[key] = val
+            if ieels >= 0:
+                if i >= ieels and i <= ieels_max:
+                    if i == ieels+1:
+                        if int(line.split()[1]) == 1:
+                            ieels_max -= 1
+                    eels_params.append(line)
+
+        if eels_params:
+            if len(eels_params) == 6:
+                eels_keys = ['BEAM_ENERGY', 'BEAM_DIRECTION', 'ANGLES', 'MESH', 'POSITION']
+            else:
+                eels_keys = ['BEAM_ENERGY', 'ANGLES', 'MESH', 'POSITION']
+            eels_dict = {"ENERGY": Tags._stringify_val(eels_params[0].split()[1:])}
+            for k, v in zip(eels_keys, eels_params[1:]):
+                eels_dict[k] = str(v)
+            params[str(eels_params[0].split()[0])] = eels_dict
+
         return Tags(params)
 
     @staticmethod
@@ -564,11 +610,12 @@ class Tags(dict):
             key: Feff parameter key
             val: Actual value of Feff parameter.
         """
-        list_type_keys = VALID_FEFF_TAGS
+
+        list_type_keys = list(VALID_FEFF_TAGS)
+        del list_type_keys[list_type_keys.index("ELNES")]
+        del list_type_keys[list_type_keys.index("EXELFS")]
         boolean_type_keys = ()
-        float_type_keys = ("SCF", "EXCHANGE", "S02", "FMS", "XANES", "EXAFS",
-                           "RPATH", "LDOS")
-        int_type_keys = ("PRINT", "CONTROL")
+        float_type_keys = ("S02", "EXAFS", "RPATH")
 
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
@@ -600,9 +647,6 @@ class Tags(dict):
 
             if key in float_type_keys:
                 return float(val)
-
-            if key in int_type_keys:
-                return int(val)
 
         except ValueError:
             return val.capitalize()

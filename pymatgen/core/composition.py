@@ -450,7 +450,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         """
         def get_sym_dict(f, factor):
             sym_dict = collections.defaultdict(float)
-            for m in re.finditer(r"([A-Z][a-z]*)([-*\.\d]*)", f):
+            for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.\d]*)", f):
                 el = m.group(1)
                 amt = 1
                 if m.group(2).strip() != "":
@@ -461,7 +461,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 raise CompositionError("{} is an invalid formula!".format(f))
             return sym_dict
 
-        m = re.search(r"\(([^\(\)]+)\)([\.\d]*)", formula)
+        m = re.search(r"\(([^\(\)]+)\)\s*([\.\d]*)", formula)
         if m:
             factor = 1
             if m.group(2) != "":
