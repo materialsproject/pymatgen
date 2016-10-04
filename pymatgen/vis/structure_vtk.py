@@ -37,6 +37,7 @@ from monty.dev import requires
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.core.periodic_table import Specie
 from pymatgen.core.structure import Structure
+from pymatgen.core.sites import PeriodicSite
 
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -213,7 +214,7 @@ class StructureVis(object):
         self.helptxt_actor.SetPosition(10, 10)
         self.helptxt_actor.VisibilityOn()
 
-    def set_structure(self, structure, reset_camera=True):
+    def set_structure(self, structure, reset_camera=True, to_unit_cell=True):
         """
         Add a structure to the visualizer.
 
@@ -221,14 +222,15 @@ class StructureVis(object):
             structure: structure to visualize
             reset_camera: Set to True to reset the camera to a default
                 determined based on the structure.
+            to_unit_cell: Whether or not to fall back sites into the unit cell.
         """
         self.ren.RemoveAllViewProps()
 
         has_lattice = hasattr(structure, "lattice")
 
         if has_lattice:
-            s = Structure.from_sites(structure, to_unit_cell=True)
-            s.make_supercell(self.supercell)
+            s = Structure.from_sites(structure, to_unit_cell=to_unit_cell)
+            s.make_supercell(self.supercell, to_unit_cell=to_unit_cell)
         else:
             s = structure
 
@@ -363,26 +365,28 @@ class StructureVis(object):
                               else specie.average_ionic_radius)
             total_occu += occu
 
+        vis_radius = 0.2 + 0.002 * radius
+
         for specie, occu in site.species_and_occu.items():
             if not specie:
                 color = (1, 1, 1)
             elif specie.symbol in self.el_color_mapping:
                 color = [i / 255 for i in self.el_color_mapping[specie.symbol]]
-            mapper = self.add_partial_sphere(site.coords, radius, color,
+            mapper = self.add_partial_sphere(site.coords, vis_radius, color,
                 start_angle, start_angle + 360 * occu)
             self.mapper_map[mapper] = [site]
             start_angle += 360 * occu
 
         if total_occu < 1:
-            mapper = self.add_partial_sphere(site.coords, radius, (1,1,1),
+            mapper = self.add_partial_sphere(site.coords, vis_radius, (1,1,1),
                 start_angle, start_angle + 360 * (1 - total_occu))
             self.mapper_map[mapper] = [site]
 
     def add_partial_sphere(self, coords, radius, color, start=0, end=360,
-                           opacity=1):
+                           opacity=1.0):
         sphere = vtk.vtkSphereSource()
         sphere.SetCenter(coords)
-        sphere.SetRadius(0.2 + 0.002 * radius)
+        sphere.SetRadius(radius)
         sphere.SetThetaResolution(18)
         sphere.SetPhiResolution(18)
         sphere.SetStartTheta(start)
@@ -912,11 +916,86 @@ class MultiStructuresVis(StructureVis):
         self.istruct = 0
         self.current_structure = None
 
-    def set_structures(self, structures, tagging=None):
+    def set_structures(self, structures, tags=None):
         self.structures = structures
         self.istruct = 0
         self.current_structure = self.structures[self.istruct]
-        self.set_structure(self.current_structure, reset_camera=True)
+        self.tags = tags if tags is not None else [{}]
+        self.all_radii = []
+        self.all_vis_radii = []
+        for struct in self.structures:
+            struct_radii = []
+            struct_vis_radii = []
+            for site in struct:
+                radius = 0
+                for specie, occu in site.species_and_occu.items():
+                    radius += occu * (specie.ionic_radius
+                                      if isinstance(specie, Specie)
+                                         and specie.ionic_radius
+                                      else specie.average_ionic_radius)
+                    vis_radius = 0.2 + 0.002 * radius
+                struct_radii.append(radius)
+                struct_vis_radii.append(vis_radius)
+            self.all_radii.append(struct_radii)
+            self.all_vis_radii.append(struct_vis_radii)
+        self.set_structure(self.current_structure, reset_camera=True, to_unit_cell=False)
+
+    def set_structure(self, structure, reset_camera=True, to_unit_cell=False):
+        super(MultiStructuresVis, self).set_structure(structure=structure, reset_camera=reset_camera,
+                                                      to_unit_cell=to_unit_cell)
+        self.current_structure = structure
+        self.apply_tags()
+
+    def apply_tags(self):
+        tags = {}
+        for tag in self.tags:
+            istruct = tag.get('istruct', 'all')
+            site_index = tag['site_index']
+            color = tag.get('color', [0.5, 0.5, 0.5])
+            opacity = tag.get('opacity', 0.5)
+            if site_index == 'unit_cell_all':
+                struct_radii = self.all_vis_radii[self.istruct]
+                for isite, site in enumerate(self.current_structure):
+                    vis_radius = 1.5 * tag.get('radius', struct_radii[isite])
+                    if istruct == 'all':
+                        tags[(isite, (0, 0, 0))] = {'radius': vis_radius,
+                                                    'color': color,
+                                                    'opacity': opacity}
+                    else:
+                        if istruct == self.istruct:
+                            tags[(isite, (0, 0, 0))] = {'radius': vis_radius,
+                                                        'color': color,
+                                                        'opacity': opacity}
+                continue
+            cell_index = tag['cell_index']
+            if 'radius' in tag:
+                vis_radius = tag['radius']
+            elif 'radius_factor' in tag:
+                vis_radius = tag['radius_factor'] * self.all_vis_radii[self.istruct][site_index]
+            else:
+                vis_radius = 1.5 * self.all_vis_radii[self.istruct][site_index]
+            tags[(site_index, cell_index)] = {'radius': vis_radius,
+                                              'color': color,
+                                              'opacity': opacity}
+        for site_and_cell_index, tag_style in tags.items():
+            isite, cell_index = site_and_cell_index
+            site = self.current_structure[isite]
+            if cell_index == (0, 0, 0):
+                coords = site.coords
+            else:
+                fcoords = site.frac_coords + np.array(cell_index)
+                site_image = PeriodicSite(site.species_and_occu, fcoords,
+                                          self.current_structure.lattice, to_unit_cell=False,
+                                          coords_are_cartesian=False,
+                                          properties=site.properties)
+                self.add_site(site_image)
+                coords = site_image.coords
+            vis_radius = tag_style['radius']
+            color = tag_style['color']
+            opacity = tag_style['opacity']
+            self.add_partial_sphere(coords=coords, radius=vis_radius,
+                                    color=color, start=0, end=360,
+                                    opacity=opacity)
 
     def display_warning(self, warning):
         self.warningtxt_mapper = vtk.vtkTextMapper()
@@ -955,7 +1034,7 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
             else:
                 parent.istruct += 1
                 self.current_structure = parent.structures[parent.istruct]
-                parent.set_structure(self.current_structure, reset_camera=False)
+                parent.set_structure(self.current_structure, reset_camera=False, to_unit_cell=False)
                 parent.erase_warning()
                 parent.ren_win.Render()
         elif sym == "p":
@@ -966,7 +1045,7 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
 
                 parent.istruct -= 1
                 self.current_structure = parent.structures[parent.istruct]
-                parent.set_structure(self.current_structure, reset_camera=False)
+                parent.set_structure(self.current_structure, reset_camera=False, to_unit_cell=False)
                 parent.erase_warning()
                 parent.ren_win.Render()
 
