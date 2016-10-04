@@ -994,6 +994,27 @@ class MultiStructuresVis(StructureVis):
                                     color=color, start=0, end=360,
                                     opacity=opacity)
 
+    def display_help(self):
+        """
+        Display the help for various keyboard shortcuts.
+        """
+        helptxt = ["h : Toggle help",
+                   "A/a, B/b or C/c : Increase/decrease cell by one a,"
+                   " b or c unit vector", "# : Toggle showing of polyhedrons",
+                   "-: Toggle showing of bonds", "r : Reset camera direction",
+                   "[/]: Decrease or increase poly_radii_tol_factor "
+                   "by 0.05. Value = " + str(self.poly_radii_tol_factor),
+                   "Up/Down: Rotate view along Up direction by 90 "
+                   "clockwise/anticlockwise",
+                   "Left/right: Rotate view along camera direction by "
+                   "90 clockwise/anticlockwise", "s: Save view to image.png",
+                   "o: Orthogonalize structure",
+                   "n: Move to next structure",
+                   "p: Move to previous structure"]
+        self.helptxt_mapper.SetInput("\n".join(helptxt))
+        self.helptxt_actor.SetPosition(10, 10)
+        self.helptxt_actor.VisibilityOn()
+
     def display_warning(self, warning):
         self.warningtxt_mapper = vtk.vtkTextMapper()
         tprops = self.warningtxt_mapper.GetTextProperty()
