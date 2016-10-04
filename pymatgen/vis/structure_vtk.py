@@ -280,12 +280,12 @@ class StructureVis(object):
                         break
                     max_radius = max(max_radius, sp.average_ionic_radius)
                     color = color + \
-                        occu * np.array(self.el_color_mapping.get(sp.symbol,
-                                                                  [0, 0, 0]))
+                            occu * np.array(self.el_color_mapping.get(sp.symbol,
+                                                                      [0, 0, 0]))
 
                 if not exclude:
                     max_radius = (1 + self.poly_radii_tol_factor) * \
-                        (max_radius + anion_radius)
+                                 (max_radius + anion_radius)
                     nn = structure.get_neighbors(site, float(max_radius))
                     nn_sites = []
                     for nnsite, dist in nn:
@@ -312,7 +312,7 @@ class StructureVis(object):
                 #Adjust the camera for best viewing
                 lengths = s.lattice.abc
                 pos = (matrix[1] + matrix[2]) * 0.5 + \
-                    matrix[0] * max(lengths) / lengths[0] * 3.5
+                      matrix[0] * max(lengths) / lengths[0] * 3.5
                 camera.SetPosition(pos)
                 camera.SetViewUp(matrix[2])
                 camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)
@@ -361,7 +361,7 @@ class StructureVis(object):
         for specie, occu in site.species_and_occu.items():
             radius += occu * (specie.ionic_radius
                               if isinstance(specie, Specie)
-                              and specie.ionic_radius
+                                 and specie.ionic_radius
                               else specie.average_ionic_radius)
             total_occu += occu
 
@@ -373,13 +373,13 @@ class StructureVis(object):
             elif specie.symbol in self.el_color_mapping:
                 color = [i / 255 for i in self.el_color_mapping[specie.symbol]]
             mapper = self.add_partial_sphere(site.coords, vis_radius, color,
-                start_angle, start_angle + 360 * occu)
+                                             start_angle, start_angle + 360 * occu)
             self.mapper_map[mapper] = [site]
             start_angle += 360 * occu
 
         if total_occu < 1:
             mapper = self.add_partial_sphere(site.coords, vis_radius, (1,1,1),
-                start_angle, start_angle + 360 * (1 - total_occu))
+                                             start_angle, start_angle + 360 * (1 - total_occu))
             self.mapper_map[mapper] = [site]
 
     def add_partial_sphere(self, coords, radius, color, start=0, end=360,
@@ -771,9 +771,9 @@ class StructureVis(object):
                 if mapper in self.mapper_map:
                     site = self.mapper_map[mapper]
                     output = [site.species_string, "Frac. coords: " +
-                                                   " ".join(["{:.4f}".format(c)
-                                                             for c in
-                                                             site.frac_coords])]
+                              " ".join(["{:.4f}".format(c)
+                                        for c in
+                                        site.frac_coords])]
                     source.SetText("\n".join(output))
                     follower.SetPosition(pick_pos)
                     follower.VisibilityOn()
@@ -950,6 +950,9 @@ class MultiStructuresVis(StructureVis):
         tags = {}
         for tag in self.tags:
             istruct = tag.get('istruct', 'all')
+            if istruct != 'all':
+                if istruct != self.istruct:
+                    continue
             site_index = tag['site_index']
             color = tag.get('color', [0.5, 0.5, 0.5])
             opacity = tag.get('opacity', 0.5)
@@ -957,15 +960,9 @@ class MultiStructuresVis(StructureVis):
                 struct_radii = self.all_vis_radii[self.istruct]
                 for isite, site in enumerate(self.current_structure):
                     vis_radius = 1.5 * tag.get('radius', struct_radii[isite])
-                    if istruct == 'all':
-                        tags[(isite, (0, 0, 0))] = {'radius': vis_radius,
-                                                    'color': color,
-                                                    'opacity': opacity}
-                    else:
-                        if istruct == self.istruct:
-                            tags[(isite, (0, 0, 0))] = {'radius': vis_radius,
-                                                        'color': color,
-                                                        'opacity': opacity}
+                    tags[(isite, (0, 0, 0))] = {'radius': vis_radius,
+                                                'color': color,
+                                                'opacity': opacity}
                 continue
             cell_index = tag['cell_index']
             if 'radius' in tag:
