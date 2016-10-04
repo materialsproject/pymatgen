@@ -893,3 +893,81 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
             "-q:v", str(quality), "-r", str(fps), "-b:v", str(bitrate),
             output_filename]
     subprocess.Popen(args)
+
+
+class MultiStructuresVis(StructureVis):
+
+    def __init__(self, element_color_mapping=None, show_unit_cell=True,
+                 show_bonds=False, show_polyhedron=False,
+                 poly_radii_tol_factor=0.5, excluded_bonding_elements=None):
+        super(MultiStructuresVis, self).__init__(element_color_mapping=element_color_mapping,
+                                                 show_unit_cell=show_unit_cell,
+                                                 show_bonds=show_bonds, show_polyhedron=show_polyhedron,
+                                                 poly_radii_tol_factor=poly_radii_tol_factor,
+                                                 excluded_bonding_elements=excluded_bonding_elements)
+        self.warningtxt_actor = vtk.vtkActor2D()
+        self.structures = None
+        style = MultiStructuresInteractorStyle(self)
+        self.iren.SetInteractorStyle(style)
+        self.istruct = 0
+        self.current_structure = None
+
+    def set_structures(self, structures, tagging=None):
+        self.structures = structures
+        self.istruct = 0
+        self.current_structure = self.structures[self.istruct]
+        self.set_structure(self.current_structure, reset_camera=True)
+
+    def display_warning(self, warning):
+        self.warningtxt_mapper = vtk.vtkTextMapper()
+        tprops = self.warningtxt_mapper.GetTextProperty()
+        tprops.SetFontSize(14)
+        tprops.SetFontFamilyToTimes()
+        tprops.SetColor(1, 0, 0)
+        tprops.BoldOn()
+        tprops.SetJustificationToRight()
+        self.warningtxt = "WARNING : {}".format(warning)
+        self.warningtxt_actor = vtk.vtkActor2D()
+        self.warningtxt_actor.VisibilityOn()
+        self.warningtxt_actor.SetMapper(self.warningtxt_mapper)
+        self.ren.AddActor(self.warningtxt_actor)
+        self.warningtxt_mapper.SetInput(self.warningtxt)
+        winsize = self.ren_win.GetSize()
+        self.warningtxt_actor.SetPosition(winsize[0]-10, 10)
+        self.warningtxt_actor.VisibilityOn()
+
+    def erase_warning(self):
+        self.warningtxt_actor.VisibilityOff()
+
+
+class MultiStructuresInteractorStyle(StructureInteractorStyle):
+    def __init__(self, parent):
+        StructureInteractorStyle.__init__(self, parent=parent)
+
+    def keyPressEvent(self, obj, event):
+        parent = obj.GetCurrentRenderer().parent
+        sym = parent.iren.GetKeySym()
+
+        if sym == "n":
+            if parent.istruct == len(parent.structures) - 1:
+                parent.display_warning('LAST STRUCTURE')
+                parent.ren_win.Render()
+            else:
+                parent.istruct += 1
+                self.current_structure = parent.structures[parent.istruct]
+                parent.set_structure(self.current_structure, reset_camera=False)
+                parent.erase_warning()
+                parent.ren_win.Render()
+        elif sym == "p":
+            if parent.istruct == 0:
+                parent.display_warning('FIRST STRUCTURE')
+                parent.ren_win.Render()
+            else:
+
+                parent.istruct -= 1
+                self.current_structure = parent.structures[parent.istruct]
+                parent.set_structure(self.current_structure, reset_camera=False)
+                parent.erase_warning()
+                parent.ren_win.Render()
+
+        StructureInteractorStyle.keyPressEvent(self, obj, event)
