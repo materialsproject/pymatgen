@@ -2,7 +2,7 @@ PyDispatcher==2.0.5
 numpy==1.11.1
 pybtex==0.20.1
 requests==2.11.1
-monty==0.9.5
+monty==0.9.6
 pyyaml==3.11
 six==1.10.0
 scipy==0.18.1
