@@ -14,6 +14,7 @@ from pymatgen.core.lattice import Lattice
 import random
 import warnings
 import os
+import numpy as np
 
 
 class IStructureTest(PymatgenTest):
@@ -876,6 +877,14 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(len(s2), 24 * 5)
         self.assertEqual(s2.lattice.abc, (10, 15, 20))
 
+        # Test offset option
+        s3 = self.mol.get_boxed_structure(9, 9, 9, offset=[0.5,0.5,0.5])
+        self.assertArrayAlmostEqual(s3[4].coords,
+                                    [5,5,5])
+        # Test no_cross option
+        self.assertRaises(ValueError, self.mol.get_boxed_structure,
+                          5, 5, 5, offset=[10,10,10],no_cross = True)
+
     def test_get_distance(self):
         self.assertAlmostEqual(self.mol.get_distance(0, 1), 1.089)
 
@@ -1012,6 +1021,11 @@ class MoleculeTest(PymatgenTest):
         self.mol.translate_sites([0, 1], [0.5, 0.5, 0.5])
         self.assertArrayEqual(self.mol.cart_coords[0],
                               [0.5, 0.5, 0.5])
+
+    def test_rotate_sites(self):
+        self.mol.rotate_sites(theta=np.radians(30))
+        self.assertArrayAlmostEqual(self.mol.cart_coords[2],
+                              [  0.889164737,   0.513359500,  -0.363000000])
 
     def test_replace(self):
         self.mol[0] = "Ge"
