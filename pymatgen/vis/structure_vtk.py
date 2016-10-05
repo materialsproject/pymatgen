@@ -21,6 +21,7 @@ import os
 import itertools
 import math
 import subprocess
+import time
 
 import numpy as np
 try:
@@ -901,20 +902,28 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
 
 class MultiStructuresVis(StructureVis):
 
+    DEFAULT_ANIMATED_MOVIE_OPTIONS = {'time_between_frames': 0.1,
+                                      'looping_type': 'restart',
+                                      'number_of_loops': 1,
+                                      'time_between_loops': 1.0}
+
     def __init__(self, element_color_mapping=None, show_unit_cell=True,
                  show_bonds=False, show_polyhedron=False,
-                 poly_radii_tol_factor=0.5, excluded_bonding_elements=None):
+                 poly_radii_tol_factor=0.5, excluded_bonding_elements=None,
+                 animated_movie_options=DEFAULT_ANIMATED_MOVIE_OPTIONS):
         super(MultiStructuresVis, self).__init__(element_color_mapping=element_color_mapping,
                                                  show_unit_cell=show_unit_cell,
                                                  show_bonds=show_bonds, show_polyhedron=show_polyhedron,
                                                  poly_radii_tol_factor=poly_radii_tol_factor,
                                                  excluded_bonding_elements=excluded_bonding_elements)
         self.warningtxt_actor = vtk.vtkActor2D()
+        self.infotxt_actor = vtk.vtkActor2D()
         self.structures = None
         style = MultiStructuresInteractorStyle(self)
         self.iren.SetInteractorStyle(style)
         self.istruct = 0
         self.current_structure = None
+        self.set_animated_movie_options(animated_movie_options=animated_movie_options)
 
     def set_structures(self, structures, tags=None):
         self.structures = structures
@@ -943,7 +952,6 @@ class MultiStructuresVis(StructureVis):
     def set_structure(self, structure, reset_camera=True, to_unit_cell=False):
         super(MultiStructuresVis, self).set_structure(structure=structure, reset_camera=reset_camera,
                                                       to_unit_cell=to_unit_cell)
-        self.current_structure = structure
         self.apply_tags()
 
     def apply_tags(self):
@@ -994,6 +1002,16 @@ class MultiStructuresVis(StructureVis):
                                     color=color, start=0, end=360,
                                     opacity=opacity)
 
+    def set_animated_movie_options(self, animated_movie_options=None):
+        if animated_movie_options is None:
+            self.animated_movie_options = self.DEFAULT_ANIMATED_MOVIE_OPTIONS.copy()
+        else:
+            self.animated_movie_options = self.DEFAULT_ANIMATED_MOVIE_OPTIONS.copy()
+            for key in animated_movie_options:
+                if key not in self.DEFAULT_ANIMATED_MOVIE_OPTIONS.keys():
+                    raise ValueError('Wrong option for animated movie')
+            self.animated_movie_options.update(animated_movie_options)
+
     def display_help(self):
         """
         Display the help for various keyboard shortcuts.
@@ -1010,7 +1028,8 @@ class MultiStructuresVis(StructureVis):
                    "90 clockwise/anticlockwise", "s: Save view to image.png",
                    "o: Orthogonalize structure",
                    "n: Move to next structure",
-                   "p: Move to previous structure"]
+                   "p: Move to previous structure",
+                   "m: Animated movie of the structures"]
         self.helptxt_mapper.SetInput("\n".join(helptxt))
         self.helptxt_actor.SetPosition(10, 10)
         self.helptxt_actor.VisibilityOn()
@@ -1036,6 +1055,27 @@ class MultiStructuresVis(StructureVis):
     def erase_warning(self):
         self.warningtxt_actor.VisibilityOff()
 
+    def display_info(self, info):
+        self.infotxt_mapper = vtk.vtkTextMapper()
+        tprops = self.infotxt_mapper.GetTextProperty()
+        tprops.SetFontSize(14)
+        tprops.SetFontFamilyToTimes()
+        tprops.SetColor(0, 0, 1)
+        tprops.BoldOn()
+        tprops.SetVerticalJustificationToTop()
+        self.infotxt = "INFO : {}".format(info)
+        self.infotxt_actor = vtk.vtkActor2D()
+        self.infotxt_actor.VisibilityOn()
+        self.infotxt_actor.SetMapper(self.infotxt_mapper)
+        self.ren.AddActor(self.infotxt_actor)
+        self.infotxt_mapper.SetInput(self.infotxt)
+        winsize = self.ren_win.GetSize()
+        self.infotxt_actor.SetPosition(10, winsize[1]-10)
+        self.infotxt_actor.VisibilityOn()
+
+    def erase_info(self):
+        self.infotxt_actor.VisibilityOff()
+
 
 class MultiStructuresInteractorStyle(StructureInteractorStyle):
     def __init__(self, parent):
@@ -1051,8 +1091,8 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
                 parent.ren_win.Render()
             else:
                 parent.istruct += 1
-                self.current_structure = parent.structures[parent.istruct]
-                parent.set_structure(self.current_structure, reset_camera=False, to_unit_cell=False)
+                parent.current_structure = parent.structures[parent.istruct]
+                parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
                 parent.erase_warning()
                 parent.ren_win.Render()
         elif sym == "p":
@@ -1062,9 +1102,38 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
             else:
 
                 parent.istruct -= 1
-                self.current_structure = parent.structures[parent.istruct]
-                parent.set_structure(self.current_structure, reset_camera=False, to_unit_cell=False)
+                parent.current_structure = parent.structures[parent.istruct]
+                parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
                 parent.erase_warning()
                 parent.ren_win.Render()
+        elif sym == "m":
+            parent.istruct = 0
+            parent.current_structure = parent.structures[parent.istruct]
+            parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
+            parent.erase_warning()
+            parent.ren_win.Render()
+            nloops = parent.animated_movie_options['number_of_loops']
+            tstep = parent.animated_movie_options['time_between_frames']
+            tloops = parent.animated_movie_options['time_between_loops']
+            if parent.animated_movie_options['looping_type'] == 'restart':
+                loop_istructs = range(len(parent.structures))
+            elif parent.animated_movie_options['looping_type'] == 'palindrome':
+                loop_istructs = range(len(parent.structures))+range(len(parent.structures)-2, -1, -1)
+            else:
+                raise ValueError('"looping_type" should be "restart" or "palindrome"')
+            for iloop in range(nloops):
+                for istruct in loop_istructs:
+                    time.sleep(tstep)
+                    parent.istruct = istruct
+                    parent.current_structure = parent.structures[parent.istruct]
+                    parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
+                    parent.display_info('Animated movie : structure {:d}/{:d} '
+                                           '(loop {:d}/{:d})'.format(istruct+1, len(parent.structures),
+                                                                     iloop+1, nloops))
+                    parent.ren_win.Render()
+                time.sleep(tloops)
+            parent.erase_info()
+            parent.display_info('Ended animated movie ...')
+            parent.ren_win.Render()
 
         StructureInteractorStyle.keyPressEvent(self, obj, event)
