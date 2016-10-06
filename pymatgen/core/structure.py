@@ -630,34 +630,6 @@ class IStructure(SiteCollection, MSONable):
 
     def __mul__(self, scaling_matrix):
         """
-        Makes a supercell.
-
-        Args:
-            scaling_matrix: A scaling matrix for transforming the lattice
-                vectors. Has to be all integers. Several options are possible:
-
-                a. A full 3x3 scaling matrix defining the linear combination
-                   the old lattice vectors. E.g., [[2,1,0],[0,3,0],[0,0,
-                   1]] generates a new structure with lattice vectors a' =
-                   2a + b, b' = 3b, c' = c where a, b, and c are the lattice
-                   vectors of the original structure.
-                b. An sequence of three scaling factors. E.g., [2, 1, 1]
-                   specifies that the supercell should have dimensions 2a x b x
-                   c.
-                c. A number, which simply scales all lattice vectors by the
-                   same factor.
-
-        Returns:
-            Supercell structure. Note that a Structure is always returned,
-            even if the input structure is a subclass of Structure. This is
-            to avoid different arguments signatures from causing problems. If
-            you prefer a subclass to return its own type, you need to override
-            this method in the subclass.
-        """
-        return self.mymul(scaling_matrix=scaling_matrix, to_unit_cell=True)
-
-    def mymul(self, scaling_matrix, to_unit_cell=True):
-        """
         Makes a supercell. Allowing to have sites outside the unit cell
 
         Args:
@@ -674,7 +646,6 @@ class IStructure(SiteCollection, MSONable):
                    c.
                 c. A number, which simply scales all lattice vectors by the
                    same factor.
-            to_unit_cell: Whether or not to fall back sites into the unit cell
 
         Returns:
             Supercell structure. Note that a Structure is always returned,
@@ -696,7 +667,7 @@ class IStructure(SiteCollection, MSONable):
             for v in c_lat:
                 s = PeriodicSite(site.species_and_occu, site.coords + v,
                                  new_lattice, properties=site.properties,
-                                 coords_are_cartesian=True, to_unit_cell=to_unit_cell)
+                                 coords_are_cartesian=True, to_unit_cell=False)
                 new_sites.append(s)
 
         return Structure.from_sites(new_sites)
@@ -2587,7 +2558,10 @@ class Structure(IStructure, collections.MutableSequence):
                    same factor.
             to_unit_cell: Whether or not to fall back sites into the unit cell
         """
-        s = self.mymul(scaling_matrix=scaling_matrix, to_unit_cell=to_unit_cell)
+        s = self*scaling_matrix
+        if to_unit_cell:
+            for isite, site in enumerate(s):
+                s[isite] = site.to_unit_cell
         self._sites = s.sites
         self._lattice = s.lattice
 
