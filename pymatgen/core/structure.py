@@ -631,7 +631,7 @@ class IStructure(SiteCollection, MSONable):
 
     def __mul__(self, scaling_matrix):
         """
-        Makes a supercell.
+        Makes a supercell. Allowing to have sites outside the unit cell
 
         Args:
             scaling_matrix: A scaling matrix for transforming the lattice
@@ -668,7 +668,7 @@ class IStructure(SiteCollection, MSONable):
             for v in c_lat:
                 s = PeriodicSite(site.species_and_occu, site.coords + v,
                                  new_lattice, properties=site.properties,
-                                 coords_are_cartesian=True, to_unit_cell=True)
+                                 coords_are_cartesian=True, to_unit_cell=False)
                 new_sites.append(s)
 
         return Structure.from_sites(new_sites)
@@ -2559,7 +2559,7 @@ class Structure(IStructure, collections.MutableSequence):
                                     properties=site.properties)
             self._sites[i] = new_site
 
-    def make_supercell(self, scaling_matrix):
+    def make_supercell(self, scaling_matrix, to_unit_cell=True):
         """
         Create a supercell.
 
@@ -2577,8 +2577,12 @@ class Structure(IStructure, collections.MutableSequence):
                    c.
                 c. A number, which simply scales all lattice vectors by the
                    same factor.
+            to_unit_cell: Whether or not to fall back sites into the unit cell
         """
-        s = self * scaling_matrix
+        s = self*scaling_matrix
+        if to_unit_cell:
+            for isite, site in enumerate(s):
+                s[isite] = site.to_unit_cell
         self._sites = s.sites
         self._lattice = s.lattice
 
