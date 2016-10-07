@@ -76,10 +76,12 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         """
         Returns all input files as a dict of {filename: feffio object}
         """
-        return {"HEADER": self.header(),
-                "PARAMETERS": self.tags,
-                "POTENTIALS": self.potential,
-                "ATOMS": self.atoms}
+        d = {"HEADER": self.header(), "PARAMETERS": self.tags}
+
+        if "RECIPROCAL" not in self.tags:
+            d.update({"POTENTIALS": self.potential, "ATOMS": self.atoms})
+
+        return d
 
     def write_input(self, output_dir=".", make_dir_if_not_present=True):
         """
@@ -95,8 +97,9 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
 
         feff = self.all_input()
 
-        feff_input = "\n\n".join(str(feff[f]) for f in ["HEADER", "PARAMETERS",
-                                 "POTENTIALS", "ATOMS"])
+        feff_input = "\n\n".join(str(feff[k]) for k in
+                                 ["HEADER", "PARAMETERS", "POTENTIALS", "ATOMS"]
+                                 if k in feff)
 
         for k, v in six.iteritems(feff):
             with open(os.path.join(output_dir, k), "w") as f:
@@ -104,7 +107,12 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
 
         with open(os.path.join(output_dir, "feff.inp"), "w") as f:
             f.write(feff_input)
-        f.close()
+
+        # write the structure to cif file
+        if "ATOMS" not in feff:
+            self.atoms.struct.to(fmt="cif",
+                                 filename=os.path.join(
+                                     output_dir, feff["PARAMETERS"]["CIF"]))
 
 
 class FEFFDictSet(AbstractFeffInputSet):
@@ -114,7 +122,7 @@ class FEFFDictSet(AbstractFeffInputSet):
     """
 
     def __init__(self, absorbing_atom, structure, radius, config_dict,
-                 edge="K", spectrum="EXAFS", user_tag_settings=None):
+                 edge="K", spectrum="EXAFS", nkpts=1000, user_tag_settings=None):
         """
 
         Args:
@@ -126,6 +134,8 @@ class FEFFDictSet(AbstractFeffInputSet):
             spectrum (str): type of spectrum to calculate, available options :
                 EXAFS, XANES, DANES, XMCD, ELNES, EXELFS, FPRIME, NRIXS, XES.
                 The default is EXAFS.
+            nkpts (int): Total number of kpoints in the brillouin zone. Used
+                only when feff is run in the reciprocal space mode.
             user_tag_settings (dict): override default tag settings. To delete
                 tags, set the key '_del' in the user_tag_settings.
                 eg: user_tag_settings={"_del": ["COREHOLE", "EXCHANGE"]}
@@ -136,6 +146,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         self.config_dict = deepcopy(config_dict)
         self.edge = edge
         self.spectrum = spectrum
+        self.nkpts = nkpts
         self.user_tag_settings = user_tag_settings or {}
         self.config_dict["EDGE"] = self.edge
         self.config_dict.update(self.user_tag_settings)
@@ -168,6 +179,15 @@ class FEFFDictSet(AbstractFeffInputSet):
         Returns:
             Tags
         """
+        if "RECIPROCAL" in self.config_dict:
+            self.config_dict["CIF"] = "{}.cif".format(
+                self.structure.formula.replace(" ", ""))
+            self.config_dict["TARGET"] = self.atoms.center_index + 1
+            self.config_dict["COREHOLE"] = "RPA"
+            if not self.config_dict.get("KMESH", None):
+                abc = self.structure.lattice.abc
+                mult = (self.nkpts * abc[0] * abc[1] * abc[2]) ** (1 / 3)
+                self.config_dict["KMESH"] = [int(round(mult / l)) for l in abc]
         return Tags(self.config_dict)
 
     @property
@@ -205,18 +225,21 @@ class MPXANESSet(FEFFDictSet):
 
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPXANESSet.yaml"))
 
-    def __init__(self, absorbing_atom, structure, edge="K", radius=10., **kwargs):
+    def __init__(self, absorbing_atom, structure, edge="K", radius=10.,
+                 nkpts=1000, **kwargs):
         """
         Args:
             absorbing_atom (str): absorbing atom symbol
             structure (Structure): input
             edge (str): absorption edge
             radius (float): cluster radius in Angstroms.
+            nkpts (int): Total number of kpoints in the brillouin zone. Used
+                only when feff is run in the reciprocal space mode.
             **kwargs
         """
         super(MPXANESSet, self).__init__(absorbing_atom, structure, radius,
                                          MPXANESSet.CONFIG, edge=edge,
-                                         spectrum="XANES", **kwargs)
+                                         spectrum="XANES", nkpts=nkpts, **kwargs)
         self.kwargs = kwargs
 
 
@@ -227,18 +250,21 @@ class MPEXAFSSet(FEFFDictSet):
 
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXAFSSet.yaml"))
 
-    def __init__(self, absorbing_atom, structure, edge="K", radius=10., **kwargs):
+    def __init__(self, absorbing_atom, structure, edge="K", radius=10.,
+                 nkpts=1000, **kwargs):
         """
         Args:
             absorbing_atom (str): absorbing atom symbol
             structure (Structure): input structure
             edge (str): absorption edge
             radius (float): cluster radius in Angstroms.
+            nkpts (int): Total number of kpoints in the brillouin zone. Used
+                only when feff is run in the reciprocal space mode.
             **kwargs
         """
         super(MPEXAFSSet, self).__init__(absorbing_atom, structure, radius,
                                          MPEXAFSSet.CONFIG, edge=edge,
-                                         spectrum="EXAFS", **kwargs)
+                                         spectrum="EXAFS", nkpts=nkpts, **kwargs)
         self.kwargs = kwargs
 
 
@@ -250,7 +276,7 @@ class MPEELSDictSet(FEFFDictSet):
     def __init__(self, absorbing_atom, structure, edge, spectrum, radius,
                  beam_energy, beam_direction, collection_angle,
                  convergence_angle, config_dict, user_eels_settings=None,
-                 **kwargs):
+                 nkpts=1000, **kwargs):
         """
         Args:
             absorbing_atom (str): absorbing atom symbol
@@ -265,6 +291,8 @@ class MPEELSDictSet(FEFFDictSet):
             convergence_angle (float): Beam convergence angle in mrad.
             user_eels_settings (dict): override default EELS config.
                 See MPELNESSet.yaml for supported keys.
+            nkpts (int): Total number of kpoints in the brillouin zone. Used
+                only when feff is run in the reciprocal space mode.
             **kwargs
         """
         self.beam_energy = beam_energy
@@ -289,7 +317,8 @@ class MPEELSDictSet(FEFFDictSet):
 
         super(MPEELSDictSet, self).__init__(absorbing_atom, structure, radius,
                                             eels_config_dict, edge=edge,
-                                            spectrum=spectrum, **kwargs)
+                                            spectrum=spectrum, nkpts=nkpts,
+                                            **kwargs)
         self.kwargs = kwargs
 
 
@@ -302,7 +331,8 @@ class MPELNESSet(MPEELSDictSet):
 
     def __init__(self, absorbing_atom, structure, edge="K", radius=10.,
                  beam_energy=100, beam_direction=None, collection_angle=1,
-                 convergence_angle=1, user_eels_settings=None, **kwargs):
+                 convergence_angle=1, user_eels_settings=None, nkpts=1000,
+                 **kwargs):
         """
         Args:
             absorbing_atom (str): absorbing atom symbol
@@ -316,6 +346,8 @@ class MPELNESSet(MPEELSDictSet):
             convergence_angle (float): Beam convergence angle in mrad.
             user_eels_settings (dict): override default EELS config.
                 See MPELNESSet.yaml for supported keys.
+            nkpts (int): Total number of kpoints in the brillouin zone. Used
+                only when feff is run in the reciprocal space mode.
             **kwargs
         """
 
@@ -324,7 +356,7 @@ class MPELNESSet(MPEELSDictSet):
                                          beam_direction, collection_angle,
                                          convergence_angle, MPELNESSet.CONFIG,
                                          user_eels_settings=user_eels_settings,
-                                         **kwargs)
+                                         nkpts=nkpts, **kwargs)
         self.kwargs = kwargs
 
 
@@ -337,7 +369,8 @@ class MPEXELFSSet(MPEELSDictSet):
 
     def __init__(self, absorbing_atom, structure, edge="K", radius=10.,
                  beam_energy=100, beam_direction=None, collection_angle=1,
-                 convergence_angle=1, user_eels_settings=None, **kwargs):
+                 convergence_angle=1, user_eels_settings=None, nkpts=1000,
+                 **kwargs):
         """
         Args:
             absorbing_atom (str): absorbing atom symbol
@@ -351,6 +384,8 @@ class MPEXELFSSet(MPEELSDictSet):
             convergence_angle (float): Beam convergence angle in mrad.
             user_eels_settings (dict): override default EELS config.
                 See MPEXELFSSet.yaml for supported keys.
+            nkpts (int): Total number of kpoints in the brillouin zone. Used
+                only when feff is run in the reciprocal space mode.
             **kwargs
         """
 
@@ -359,5 +394,5 @@ class MPEXELFSSet(MPEELSDictSet):
                                           beam_direction, collection_angle,
                                           convergence_angle, MPEXELFSSet.CONFIG,
                                           user_eels_settings=user_eels_settings,
-                                          **kwargs)
+                                          nkpts=nkpts, **kwargs)
         self.kwargs = kwargs
