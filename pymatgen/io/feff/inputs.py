@@ -56,7 +56,7 @@ VALID_FEFF_TAGS = ("CONTROL", "PRINT", "ATOMS", "POTENTIALS", "RECIPROCAL",
                    "STRFACTORS", "BANDSTRUCTURE", "RPATH", "NLEG", "PCRITERIA",
                    "SYMMETRY", "SS", "CRITERIA", "IORDER", "NSTAR", "ABSOLUTE",
                    "CORRECTIONS", "SIG2", "SIG3", "MBCONV", "SFCONV", "RCONV",
-                   "SELF", "SFSE", "MAGIC")
+                   "SELF", "SFSE", "MAGIC", "TARGET", "STRFAC")
 
 
 class Header(MSONable):
@@ -299,6 +299,7 @@ class Atoms(MSONable):
         else:
             raise ValueError("Structure with partial occupancies cannot be "
                              "converted into atomic coordinates!")
+        self.center_index = self.struct.indices_from_symbol(self.central_atom)[0]
         self._cluster = self._set_cluster()
 
     def _set_cluster(self):
@@ -310,9 +311,8 @@ class Atoms(MSONable):
         Returns:
             Molecule
         """
-        center_index = self.struct.indices_from_symbol(self.central_atom)[0]
-        center = self.struct[center_index].coords
-        sphere = self.struct.get_neighbors(self.struct[center_index], self.radius)
+        center = self.struct[self.center_index].coords
+        sphere = self.struct.get_neighbors(self.struct[self.center_index], self.radius)
 
         symbols = [self.central_atom]
         coords = [[0, 0, 0]]

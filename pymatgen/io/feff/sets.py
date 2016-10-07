@@ -76,10 +76,12 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         """
         Returns all input files as a dict of {filename: feffio object}
         """
-        return {"HEADER": self.header(),
-                "PARAMETERS": self.tags,
-                "POTENTIALS": self.potential,
-                "ATOMS": self.atoms}
+        d = {"HEADER": self.header(), "PARAMETERS": self.tags}
+
+        if "RECIPROCAL" not in self.tags:
+            d.update({"POTENTIALS": self.potential, "ATOMS": self.atoms})
+
+        return d
 
     def write_input(self, output_dir=".", make_dir_if_not_present=True):
         """
@@ -95,8 +97,9 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
 
         feff = self.all_input()
 
-        feff_input = "\n\n".join(str(feff[f]) for f in ["HEADER", "PARAMETERS",
-                                 "POTENTIALS", "ATOMS"])
+        feff_input = "\n\n".join(str(feff[k]) for k in
+                                 ["HEADER", "PARAMETERS", "POTENTIALS", "ATOMS"]
+                                 if k in feff)
 
         for k, v in six.iteritems(feff):
             with open(os.path.join(output_dir, k), "w") as f:
@@ -104,7 +107,12 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
 
         with open(os.path.join(output_dir, "feff.inp"), "w") as f:
             f.write(feff_input)
-        f.close()
+
+        # write the structure to cif file
+        if "ATOMS" not in feff:
+            self.atoms.struct.to(fmt="cif",
+                                 filename=os.path.join(
+                                     output_dir, feff["PARAMETERS"]["CIF"]))
 
 
 class FEFFDictSet(AbstractFeffInputSet):
@@ -168,6 +176,13 @@ class FEFFDictSet(AbstractFeffInputSet):
         Returns:
             Tags
         """
+        if "RECIPROCAL" in self.config_dict:
+            self.config_dict["CIF"] = "{}.cif".format(
+                self.structure.formula.replace(" ", ""))
+            self.config_dict["TARGET"] = self.atoms.center_index + 1
+            self.config_dict["COREHOLE"] = "RPA"
+            if not self.config_dict.get("KMESH", None):
+                raise ValueError("KMESH not set")
         return Tags(self.config_dict)
 
     @property
