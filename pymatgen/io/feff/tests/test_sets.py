@@ -130,6 +130,12 @@ TITLE sites: 4
         os.remove("feff.inp")
         os.remove("Co2O2.cif")
 
+    def test_number_of_kpoints(self):
+        user_tag_settings = {"RECIPROCAL": ""}
+        elnes = MPELNESSet(self.absorbing_atom, self.structure, nkpts=1000,
+                           user_tag_settings=user_tag_settings)
+        self.assertEqual(elnes.tags["KMESH"], [12, 12, 7])
+
 
 if __name__ == '__main__':
     unittest.main()
