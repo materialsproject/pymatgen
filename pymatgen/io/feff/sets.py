@@ -12,17 +12,12 @@ structure without further user intervention. This ensures comparability across
 runs.
 """
 
-__author__ = "Kiran Mathew"
-__credits__ = "Alan Dozier, Anubhav Jain, Shyue Ping Ong"
-__version__ = "1.1"
-__maintainer__ = "Kiran Mathew"
-__email__ = "kmathew@lbl.gov"
-__date__ = "Sept 10, 2016"
-
+import sys
 import os
 import abc
 import six
 from copy import deepcopy
+import logging
 
 from monty.serialization import loadfn
 from monty.json import MSONable
@@ -30,7 +25,22 @@ from monty.json import MSONable
 from pymatgen.io.feff.inputs import Atoms, Tags, Potential, Header
 
 
+__author__ = "Kiran Mathew"
+__credits__ = "Alan Dozier, Anubhav Jain, Shyue Ping Ong"
+__version__ = "1.1"
+__maintainer__ = "Kiran Mathew"
+__email__ = "kmathew@lbl.gov"
+__date__ = "Sept 10, 2016"
+
+
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s: %(levelname)s: %(name)s: %(message)s')
+sh = logging.StreamHandler(stream=sys.stdout)
+sh.setFormatter(formatter)
+logger.addHandler(sh)
 
 
 class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
@@ -155,6 +165,9 @@ class FEFFDictSet(AbstractFeffInputSet):
                 if tag in self.config_dict:
                     del self.config_dict[tag]
             del self.config_dict["_del"]
+        # k-space feff only for small systems. The hardcoded system size in
+        # feff is around 14 atoms.
+        self.small_system = True if len(self.structure) < 14 else False
 
     def header(self, source='', comment=''):
         """
@@ -180,14 +193,24 @@ class FEFFDictSet(AbstractFeffInputSet):
             Tags
         """
         if "RECIPROCAL" in self.config_dict:
-            self.config_dict["CIF"] = "{}.cif".format(
-                self.structure.formula.replace(" ", ""))
-            self.config_dict["TARGET"] = self.atoms.center_index + 1
-            self.config_dict["COREHOLE"] = "RPA"
-            if not self.config_dict.get("KMESH", None):
-                abc = self.structure.lattice.abc
-                mult = (self.nkpts * abc[0] * abc[1] * abc[2]) ** (1 / 3)
-                self.config_dict["KMESH"] = [int(round(mult / l)) for l in abc]
+            if self.small_system:
+                self.config_dict["CIF"] = "{}.cif".format(
+                    self.structure.formula.replace(" ", ""))
+                self.config_dict["TARGET"] = self.atoms.center_index + 1
+                self.config_dict["COREHOLE"] = "RPA"
+                logger.warn("Setting COREHOLE = RPA for K-space calculation")
+                if not self.config_dict.get("KMESH", None):
+                    abc = self.structure.lattice.abc
+                    mult = (self.nkpts * abc[0] * abc[1] * abc[2]) ** (1 / 3)
+                    self.config_dict["KMESH"] = [int(round(mult / l)) for l in abc]
+            else:
+                logger.warn("Large system(>=14 atoms), removing K-space settings")
+                del self.config_dict["RECIPROCAL"]
+                self.config_dict.pop("CIF", None)
+                self.config_dict.pop("TARGET", None)
+                self.config_dict.pop("KMESH", None)
+                self.config_dict.pop("STRFAC", None)
+
         return Tags(self.config_dict)
 
     @property

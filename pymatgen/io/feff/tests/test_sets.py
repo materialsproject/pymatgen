@@ -136,6 +136,15 @@ TITLE sites: 4
                            user_tag_settings=user_tag_settings)
         self.assertEqual(elnes.tags["KMESH"], [12, 12, 7])
 
+    def test_large_systems(self):
+        struct = Structure.from_file(os.path.join(test_dir, "La4Fe4O12.cif"))
+        user_tag_settings = {"RECIPROCAL": "", "KMESH": "1000"}
+        elnes = MPELNESSet("Fe", struct, user_tag_settings=user_tag_settings)
+        self.assertNotIn("RECIPROCAL", elnes.tags)
+        self.assertNotIn("KMESH", elnes.tags)
+        self.assertNotIn("CIF", elnes.tags)
+        self.assertNotIn("TARGET", elnes.tags)
+
 
 if __name__ == '__main__':
     unittest.main()
