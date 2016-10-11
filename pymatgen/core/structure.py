@@ -14,6 +14,7 @@ import random
 import warnings
 from fnmatch import fnmatch
 import re
+import numpy as np
 
 try:
     # New Py>=3.5 import
@@ -1836,7 +1837,7 @@ class IMolecule(SiteCollection, MSONable):
         return [(site, dist) for (site, dist) in outer if dist > inner]
 
     def get_boxed_structure(self, a, b, c, images=(1, 1, 1),
-                            random_rotation=False, min_dist=1, cls=None):
+                            random_rotation=False, min_dist=1, cls=None, offset=None, no_cross=False):
         """
         Creates a Structure from a Molecule by putting the Molecule in the
         center of a orthorhombic box. Useful for creating Structure for
@@ -1858,14 +1859,21 @@ class IMolecule(SiteCollection, MSONable):
                 are less than min_dist from each other.
             cls: The Structure class to instantiate (defaults to pymatgen
                 structure)
+            offset: Translation to offset molecule from center of mass coords
+            no_cross: Whether to forbid molecule coords from extending beyond
+                boundary of box.
 
         Returns:
             Structure containing molecule in a box.
         """
+        if offset == None:
+            offset = np.array([0,0,0])
+
         coords = np.array(self.cart_coords)
         x_range = max(coords[:, 0]) - min(coords[:, 0])
         y_range = max(coords[:, 1]) - min(coords[:, 1])
         z_range = max(coords[:, 2]) - min(coords[:, 2])
+
         if a <= x_range or b <= y_range or c <= z_range:
             raise ValueError("Box is not big enough to contain Molecule.")
         lattice = Lattice.from_parameters(a * images[0], b * images[1],
@@ -1874,7 +1882,8 @@ class IMolecule(SiteCollection, MSONable):
         nimages = images[0] * images[1] * images[2]
         coords = []
 
-        centered_coords = self.cart_coords - self.center_of_mass
+        centered_coords = self.cart_coords - self.center_of_mass + offset
+
         for i, j, k in itertools.product(list(range(images[0])),
                                          list(range(images[1])),
                                          list(range(images[2]))):
@@ -1886,6 +1895,12 @@ class IMolecule(SiteCollection, MSONable):
                         angle=random.uniform(-180, 180))
                     m = op.rotation_matrix
                     new_coords = np.dot(m, centered_coords.T).T + box_center
+                    if no_cross == True:
+                        x_max, x_min = max(new_coords[:, 0]), min(new_coords[:, 0])
+                        y_max, y_min = max(new_coords[:, 1]), min(new_coords[:, 1])
+                        z_max, z_min = max(new_coords[:, 2]), min(new_coords[:, 2])
+                        if x_max > a or x_min < 0 or y_max > b or y_min < 0 or z_max > c or z_min < 0:
+                            raise ValueError("Molecule crosses boundary of box.")
                     if len(coords) == 0:
                         break
                     distances = lattice.get_all_distances(
@@ -1895,6 +1910,12 @@ class IMolecule(SiteCollection, MSONable):
                         break
             else:
                 new_coords = centered_coords + box_center
+                if no_cross == True:
+                    x_max, x_min = max(new_coords[:, 0]), min(new_coords[:, 0])
+                    y_max, y_min = max(new_coords[:, 1]), min(new_coords[:, 1])
+                    z_max, z_min = max(new_coords[:, 2]), min(new_coords[:, 2])
+                    if x_max > a or x_min < 0 or y_max > b or y_min < 0 or z_max > c or z_min < 0:
+                        raise ValueError("Molecule crosses boundary of box.")
             coords.extend(new_coords)
         sprops = {k: v * nimages for k, v in self.site_properties.items()}
 
@@ -2844,7 +2865,7 @@ class Molecule(IMolecule, collections.MutableSequence):
         self._sites = [self._sites[i] for i in range(len(self._sites))
                        if i not in indices]
 
-    def translate_sites(self, indices, vector):
+    def translate_sites(self, indices=None, vector=None):
         """
         Translate specific sites by some vector, keeping the sites within the
         unit cell.
@@ -2854,10 +2875,52 @@ class Molecule(IMolecule, collections.MutableSequence):
                 translation.
             vector (3x1 array): Translation vector for sites.
         """
+        if indices == None:
+            indices = range(len(self))
+        if vector == None:
+            vector == [0,0,0]
         for i in indices:
             site = self._sites[i]
             new_site = Site(site.species_and_occu, site.coords + vector,
                             properties=site.properties)
+            self._sites[i] = new_site
+
+    def rotate_sites(self, indices=None, theta=0, axis=None, anchor=None):
+        """
+        Rotate specific sites by some angle around vector at anchor.
+
+        Args:
+            indices (list): List of site indices on which to perform the
+                translation.
+            angle (float): Angle in radians
+            axis (3x1 array): Rotation axis vector.
+            anchor (3x1 array): Point of rotation.
+        """
+
+        from numpy.linalg import norm, inv
+        from numpy import cross, eye
+        from scipy.linalg import expm3
+
+        if indices == None:
+            indices = range(len(self))
+
+        if axis == None:
+            axis = [0,0,1]
+
+        if anchor == None:
+            anchor = [0,0,0]
+
+        anchor = np.array(anchor)
+        axis = np.array(axis)
+
+        theta = theta % (2*np.pi)
+
+        R = expm3(cross(eye(3), axis / norm(axis)) * theta)
+
+        for i in indices:
+            site = self._sites[i]
+            s = (((R * np.matrix(site.coords - anchor).T).T) + anchor).A1
+            new_site = Site(site.species_and_occu, s, properties=site.properties)
             self._sites[i] = new_site
 
     def perturb(self, distance):
