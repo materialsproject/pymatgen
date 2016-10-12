@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v4.4.1
+------
+* Massive updates to FEFF support (Kiran Mathews).
+* Bug fixes in band structure plotting.
+
 v4.4.0
 ------
 * Much more Pythonic API for modifying Structure/Molecule species. Now,
