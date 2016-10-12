@@ -11761,14 +11761,14 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.matproj.rest</span> <span class="kn">import</span> <span class="n">MPRester</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="kn">import</span> <span class="n">ComputedEntry</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">FloatWithUnit</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.reaction_calculator</span> <span class="kn">import</span> <span class="n">ComputedReaction</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.matproj.rest</span> <span class="k">import</span> <span class="n">MPRester</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="k">import</span> <span class="n">ComputedEntry</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">FloatWithUnit</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.reaction_calculator</span> <span class="k">import</span> <span class="n">ComputedReaction</span>
 
-<span class="c1">#This initializes the REST adaptor. Put your own API key in.</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">MPRester</span><span class="p">(</span><span class="s2">&quot;YOUR_API_KEY&quot;</span><span class="p">)</span>
+<span class="c1">#This initializes the REST adaptor. Put your own API key in if necessary.</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">MPRester</span><span class="p">()</span>
 
 <span class="c1">#This gets all entries belonging to the Ca-C-O system.</span>
 <span class="n">all_entries</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_entries_in_chemsys</span><span class="p">([</span><span class="s1">&#39;Ca&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">])</span>
@@ -11786,10 +11786,10 @@ div#notebook {
 <span class="n">reaction</span> <span class="o">=</span> <span class="n">ComputedReaction</span><span class="p">([</span><span class="n">CaO</span><span class="p">,</span> <span class="n">CO2</span><span class="p">],</span> <span class="p">[</span><span class="n">CaCO3</span><span class="p">])</span>
 <span class="n">energy</span> <span class="o">=</span> <span class="n">FloatWithUnit</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">calculated_reaction_energy</span><span class="p">,</span> <span class="s2">&quot;eV atom^-1&quot;</span><span class="p">)</span>
 
-<span class="k">print</span> <span class="s2">&quot;Caculated&quot;</span>
-<span class="k">print</span> <span class="n">reaction</span>
-<span class="k">print</span> <span class="s2">&quot;Reaction energy = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">energy</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;kJ mol^-1&quot;</span><span class="p">))</span>
-<span class="k">print</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Caculated&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">reaction</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reaction energy = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">energy</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;kJ mol^-1&quot;</span><span class="p">)))</span>
+<span class="nb">print</span>
 
 <span class="c1"># The following portions demonstrate how to get the experimental values as well.</span>
 <span class="n">exp_CaO</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_exp_entry</span><span class="p">(</span><span class="s2">&quot;CaO&quot;</span><span class="p">)</span>
@@ -11801,9 +11801,9 @@ div#notebook {
 
 <span class="n">exp_reaction</span> <span class="o">=</span> <span class="n">ComputedReaction</span><span class="p">([</span><span class="n">exp_CaO</span><span class="p">,</span> <span class="n">exp_CO2</span><span class="p">],</span> <span class="p">[</span><span class="n">exp_CaCO3</span><span class="p">])</span>
 
-<span class="k">print</span> <span class="s2">&quot;Experimental&quot;</span>
-<span class="k">print</span> <span class="n">exp_reaction</span>
-<span class="k">print</span> <span class="s2">&quot;Reaction energy = {} kJ mol^-1&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">exp_reaction</span><span class="o">.</span><span class="n">calculated_reaction_energy</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Experimental&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">exp_reaction</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reaction energy = </span><span class="si">{}</span><span class="s2"> kJ mol^-1&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">exp_reaction</span><span class="o">.</span><span class="n">calculated_reaction_energy</span><span class="p">))</span>
 </pre></div>
 
 </div>
@@ -11818,11 +11818,10 @@ div#notebook {
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Caculated
 1.000 CaO + 1.000 CO2 -&gt; 1.000 CaCO3
-Reaction energy = -145.39165567849665 kJ mol^-1
-
+Reaction energy = -145.39165028828774 kJ mol^-1
 Experimental
 1.000 CaO + 1.000 CO2 -&gt; 1.000 CaCO3
-Reaction energy = -178.3 kJ mol^-1
+Reaction energy = -178.30000000000018 kJ mol^-1
 </pre>
 </div>
 </div>
