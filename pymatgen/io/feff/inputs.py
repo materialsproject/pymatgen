@@ -27,7 +27,7 @@ control tags.
 XANES and EXAFS input files, are available, for non-spin case at this time.
 """
 
-__author__ = "Alan Dozier"
+__author__ = "Alan Dozier, Kiran Mathew"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0.3"
@@ -56,7 +56,7 @@ VALID_FEFF_TAGS = ("CONTROL", "PRINT", "ATOMS", "POTENTIALS", "RECIPROCAL",
                    "STRFACTORS", "BANDSTRUCTURE", "RPATH", "NLEG", "PCRITERIA",
                    "SYMMETRY", "SS", "CRITERIA", "IORDER", "NSTAR", "ABSOLUTE",
                    "CORRECTIONS", "SIG2", "SIG3", "MBCONV", "SFCONV", "RCONV",
-                   "SELF", "SFSE", "MAGIC")
+                   "SELF", "SFSE", "MAGIC", "TARGET", "STRFAC")
 
 
 class Header(MSONable):
@@ -299,6 +299,7 @@ class Atoms(MSONable):
         else:
             raise ValueError("Structure with partial occupancies cannot be "
                              "converted into atomic coordinates!")
+        self.center_index = self.struct.indices_from_symbol(self.central_atom)[0]
         self._cluster = self._set_cluster()
 
     def _set_cluster(self):
@@ -310,9 +311,8 @@ class Atoms(MSONable):
         Returns:
             Molecule
         """
-        center_index = self.struct.indices_from_symbol(self.central_atom)[0]
-        center = self.struct[center_index].coords
-        sphere = self.struct.get_neighbors(self.struct[center_index], self.radius)
+        center = self.struct[self.center_index].coords
+        sphere = self.struct.get_neighbors(self.struct[self.center_index], self.radius)
 
         symbols = [self.central_atom]
         coords = [[0, 0, 0]]
@@ -384,33 +384,39 @@ class Atoms(MSONable):
                 symbols.append(l[4])
         return Molecule(symbols, coords)
 
-    def get_string(self):
+    def get_lines(self):
         """
-        Returns a string representation of atomic shell coordinates.
+        Returns a list of string representations of the atomic configuration
+        information(x, y, z, ipot, atom_symbol, distance, id).
 
         Returns:
-            String representation of Atomic Coordinate Shells.
+            list: list of strings, sorted by the distance from the absorbing
+                atom.
         """
-        row = []
-        for i, site in enumerate(self._cluster):
+        lines = [["{:f}".format(self._cluster[0].x),
+                "{:f}".format(self._cluster[0].y),
+                "{:f}".format(self._cluster[0].z),
+                0, self.central_atom, "0.0", 0]]
+        for i, site in enumerate(self._cluster[1:]):
             site_symbol = re.sub(r"[^aA-zZ]+", "", site.species_string)
             ipot = self.pot_dict[site_symbol]
-            row.append(["{:f}".format(site.x), "{:f}".   format(site.y),
+            lines.append(["{:f}".format(site.x), "{:f}".format(site.y),
                         "{:f}".format(site.z), ipot, site_symbol,
-                        "{:f}".format(self._cluster.get_distance(0, i)), i])
+                        "{:f}".format(self._cluster.get_distance(0, i+1)), i+1])
 
-        row_sorted = str(tabulate(sorted(row, key=itemgetter(5)),
-                                  headers=["*       x", "y", "z", "ipot",
-                                           "Atom", "Distance", "Number"]))
-        atom_list = row_sorted.replace("--", "**")
-
-        return ''.join(["ATOMS\n", atom_list, "\nEND\n"])
+        return sorted(lines, key=itemgetter(5))
 
     def __str__(self):
         """
         String representation of Atoms file.
         """
-        return self.get_string()
+        lines_sorted = self.get_lines()
+        # TODO: remove the formatting and update the unittests
+        lines_formatted = str(tabulate(lines_sorted,
+                                       headers=["*       x", "y", "z", "ipot",
+                                                "Atom", "Distance", "Number"]))
+        atom_list = lines_formatted.replace("--", "**")
+        return ''.join(["ATOMS\n", atom_list, "\nEND\n"])
 
     def write_file(self, filename='ATOMS'):
         """
@@ -501,15 +507,37 @@ class Tags(dict):
             keys = sorted(keys)
         lines = []
         for k in keys:
-            if isinstance(self[k], list):
-                lines.append([k, " ".join([str(i) for i in self[k]])])
+            if isinstance(self[k], dict):
+                if k in ["ELNES", "EXELFS"]:
+                    lines.append([k, self._stringify_val(self[k]["ENERGY"])])
+                    beam_energy = self._stringify_val(self[k]["BEAM_ENERGY"])
+                    beam_energy_list = beam_energy.split()
+                    if int(beam_energy_list[1]) == 0:  # aver=0, specific beam direction
+                        lines.append([beam_energy])
+                        lines.append([self._stringify_val(self[k]["BEAM_DIRECTION"])])
+                    else:
+                        # no cross terms for orientation averaged spectrum
+                        beam_energy_list[2] = str(0)
+                        lines.append([self._stringify_val(beam_energy_list)])
+                    lines.append([self._stringify_val(self[k]["ANGLES"])])
+                    lines.append([self._stringify_val(self[k]["MESH"])])
+                    lines.append([self._stringify_val(self[k]["POSITION"])])
             else:
-                lines.append([k, self[k]])
-
+                lines.append([k, self._stringify_val(self[k])])
         if pretty:
             return tabulate(lines)
         else:
-            return str_delimited(lines, None, "  ")
+            return  str_delimited(lines, None, " ")
+
+    @staticmethod
+    def _stringify_val(val):
+        """
+        Convert the given value to string.
+        """
+        if isinstance(val, list):
+            return " ".join([str(i) for i in val])
+        else:
+            return str(val)
 
     def __str__(self):
         return self.get_string()
@@ -538,14 +566,38 @@ class Tags(dict):
         with zopen(filename, "rt") as f:
             lines = list(clean_lines(f.readlines()))
         params = {}
-        for line in lines:
+        eels_params = []
+        ieels = -1
+        ieels_max = -1
+        for i, line in enumerate(lines):
             m = re.match("([A-Z]+\d*\d*)\s*(.*)", line)
             if m:
                 key = m.group(1).strip()
                 val = m.group(2).strip()
                 val = Tags.proc_val(key, val)
                 if key not in ("ATOMS", "POTENTIALS", "END", "TITLE"):
-                    params[key] = val
+                    if key in ["ELNES", "EXELFS"]:
+                        ieels = i
+                        ieels_max = ieels + 5
+                    else:
+                        params[key] = val
+            if ieels >= 0:
+                if i >= ieels and i <= ieels_max:
+                    if i == ieels+1:
+                        if int(line.split()[1]) == 1:
+                            ieels_max -= 1
+                    eels_params.append(line)
+
+        if eels_params:
+            if len(eels_params) == 6:
+                eels_keys = ['BEAM_ENERGY', 'BEAM_DIRECTION', 'ANGLES', 'MESH', 'POSITION']
+            else:
+                eels_keys = ['BEAM_ENERGY', 'ANGLES', 'MESH', 'POSITION']
+            eels_dict = {"ENERGY": Tags._stringify_val(eels_params[0].split()[1:])}
+            for k, v in zip(eels_keys, eels_params[1:]):
+                eels_dict[k] = str(v)
+            params[str(eels_params[0].split()[0])] = eels_dict
+
         return Tags(params)
 
     @staticmethod
@@ -558,11 +610,12 @@ class Tags(dict):
             key: Feff parameter key
             val: Actual value of Feff parameter.
         """
-        list_type_keys = VALID_FEFF_TAGS
+
+        list_type_keys = list(VALID_FEFF_TAGS)
+        del list_type_keys[list_type_keys.index("ELNES")]
+        del list_type_keys[list_type_keys.index("EXELFS")]
         boolean_type_keys = ()
-        float_type_keys = ("SCF", "EXCHANGE", "S02", "FMS", "XANES", "EXAFS",
-                           "RPATH", "LDOS")
-        int_type_keys = ("PRINT", "CONTROL")
+        float_type_keys = ("S02", "EXAFS", "RPATH")
 
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
@@ -594,9 +647,6 @@ class Tags(dict):
 
             if key in float_type_keys:
                 return float(val)
-
-            if key in int_type_keys:
-                return int(val)
 
         except ValueError:
             return val.capitalize()

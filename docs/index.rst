@@ -211,14 +211,14 @@ some quick examples of the core capabilities and objects:
     >>> si = mg.Element("Si")
     >>> si.atomic_mass
     28.0855
-    >>> si.melting_point
-    u'1687 K'
+    >>> print(si.melting_point)
+    1687.0 K
     >>>
     >>> comp = mg.Composition("Fe2O3")
     >>> comp.weight
     159.6882
-    >>> #Note that Composition conveniently allows strings to be treated just
-    >>> #like an Element object.
+    >>> # Note that Composition conveniently allows strings to be treated just
+    >>> # like an Element object.
     >>> comp["Fe"]
     2.0
     >>> comp.get_atomic_fraction("Fe")
@@ -236,7 +236,7 @@ some quick examples of the core capabilities and objects:
                                             ["Li", "O"],
                                             [[0.25, 0.25, 0.25], [0, 0, 0]])
     >>>
-    >>> #Integrated symmetry analysis tools from spglib.
+    >>> # Integrated symmetry analysis tools from spglib.
     >>> from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     >>> finder = SpacegroupAnalyzer(structure)
     >>> finder.get_spacegroup_symbol()
@@ -272,7 +272,7 @@ some quick examples of the core capabilities and objects:
     1 Cs     0.000000     0.000000     0.000000
     2 F     0.500000     0.500000     0.500000
     >>>
-    >>> #Changes species and coordinates (fractional assumed for structures)
+    >>> # Changes species and coordinates (fractional assumed for structures)
     >>> structure[1] = "Cl", [0.51, 0.51, 0.51]
     >>> print(structure)
     Structure Summary (Cs1 Cl1)

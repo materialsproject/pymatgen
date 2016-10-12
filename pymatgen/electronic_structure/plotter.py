@@ -678,7 +678,7 @@ class BSPlotter(object):
         for b in self._bs.branches:
             lines.append([self._bs.kpoints[b['start_index']].frac_coords, self._bs.kpoints[b['end_index']].frac_coords])
 
-        plot_brillouin_zone(self._bs.lattice, lines=lines, labels=labels)
+        plot_brillouin_zone(self._bs.lattice_rec, lines=lines, labels=labels)
 
 
 class BSPlotterProjected(BSPlotter):
@@ -959,6 +959,7 @@ class BSPlotterProjected(BSPlotter):
 
         plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 2.0)
         return plt
+
 
 class BoltztrapPlotter(object):
     """

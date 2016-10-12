@@ -341,7 +341,7 @@ class BandStructure(object):
         for spin, v in self.bands.items():
             for i, j in zip(*np.where(v < self.efermi)):
                 if v[i, j] > max_tmp:
-                    max_tmp = v[i, j]
+                    max_tmp = float(v[i, j])
                     index = j
                     kpointvbm = self.kpoints[j]
 
@@ -400,7 +400,7 @@ class BandStructure(object):
         for spin, v in self.bands.items():
             for i, j in zip(*np.where(v > self.efermi)):
                 if v[i, j] < max_tmp:
-                    max_tmp = v[i, j]
+                    max_tmp = float(v[i, j])
                     index = j
                     kpointcbm = self.kpoints[j]
 
@@ -778,14 +778,14 @@ class BandStructureSymmLine(BandStructure, MSONable):
                       for spin in self.bands}
         d["is_metal"] = self.is_metal()
         vbm = self.get_vbm()
-        d["vbm"] = {"energy": vbm["energy"].tolist(),
+        d["vbm"] = {"energy": vbm["energy"],
                     "kpoint_index": vbm["kpoint_index"],
                     "band_index": {str(int(spin)): vbm["band_index"][spin]
                                    for spin in vbm["band_index"]},
                     'projections': {str(spin): v.tolist() for spin, v in vbm[
                         'projections'].items()}}
         cbm = self.get_cbm()
-        d['cbm'] = {'energy': cbm['energy'].tolist(),
+        d['cbm'] = {'energy': cbm['energy'],
                     'kpoint_index': cbm['kpoint_index'],
                     'band_index': {str(int(spin)): cbm['band_index'][spin]
                                    for spin in cbm['band_index']},

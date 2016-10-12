@@ -92,8 +92,7 @@ if __name__ == '__main__':
             vis.add_faces([[p1, p2, p3, p4]], [1.0, 0.0, 0.0], opacity=0.5)
 
             target_radius = 0.25
-            radius = myfactor * (target_radius-0.2) / 0.002 # due to how the radius is obtained in add_partial_sphere
-                                                            # of pymatgen
+            radius = 1.5 * target_radius
 
             if algo.minimum_number_of_points == 2:
                 vis.add_partial_sphere(coords=cg_central_site, radius=radius,

@@ -4,22 +4,9 @@
 
 from __future__ import division, unicode_literals, print_function
 
-"""
-Wrapper classes for Cif input and output from Structures.
-"""
-
-
-__author__ = "Shyue Ping Ong, Will Richards"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "3.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
-
-
 import math
 import re
+import os
 import textwrap
 import warnings
 from collections import OrderedDict, deque
@@ -39,8 +26,20 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
-from pymatgen.symmetry.groups import SpaceGroup, SYMM_DATA, TRANSLATIONS
+from pymatgen.symmetry.groups import SpaceGroup, SYMM_DATA
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+"""
+Wrapper classes for Cif input and output from Structures.
+"""
+
+__author__ = "Shyue Ping Ong, Will Richards"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "3.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Production"
+__date__ = "Sep 23, 2011"
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
@@ -50,9 +49,23 @@ space_groups = {sub_spgrp(k): k
 space_groups.update({sub_spgrp(k): k
                      for k in SYMM_DATA['space_group_encoding'].keys()})
 
+_COD_DATA = None
+
+
+def _get_cod_data():
+    global _COD_DATA
+    if _COD_DATA is None:
+        import pymatgen
+        with open(os.path.join(pymatgen.symmetry.__path__[0],
+                               "symm_ops.json")) \
+                as f:
+            import json
+            _COD_DATA = json.load(f)
+
+    return _COD_DATA
+
 
 class CifBlock(object):
-
     maxlen = 70  # not quite 80 so we can deal with semicolons and things
 
     def __init__(self, data, loops, header):
@@ -79,8 +92,8 @@ class CifBlock(object):
 
     def __eq__(self, other):
         return self.loops == other.loops \
-            and self.data == other.data \
-            and self.header == other.header
+               and self.data == other.data \
+               and self.header == other.header
 
     def __getitem__(self, key):
         return self.data[key]
@@ -241,12 +254,12 @@ class CifFile(object):
 
     def __str__(self):
         s = ["%s" % v for v in self.data.values()]
-        return self.comment + "\n" + "\n".join(s)+"\n"
+        return self.comment + "\n" + "\n".join(s) + "\n"
 
     @classmethod
     def from_string(cls, string):
         d = OrderedDict()
-        for x in re.split("^\s*data_", "x\n"+string,
+        for x in re.split("^\s*data_", "x\n" + string,
                           flags=re.MULTILINE | re.DOTALL)[1:]:
 
             # Skip over Cif block that contains powder diffraction data.
@@ -254,7 +267,7 @@ class CifFile(object):
             # This block anyway does not contain any structure information, and CifParser was also not parsing it.
             if 'powder_pattern' in re.split("\n", x, 1)[0]:
                 continue
-            c = CifBlock.from_string("data_"+x)
+            c = CifBlock.from_string("data_" + x)
             d[c.header] = c
         return cls(d, string)
 
@@ -311,7 +324,8 @@ class CifParser(object):
             for op in self.symmetry_operations:
                 coord = op.operate(tmp_coord)
                 coord = np.array([i - math.floor(i) for i in coord])
-                if not in_coord_list_pbc(coords, coord, atol=self._site_tolerance):
+                if not in_coord_list_pbc(coords, coord,
+                                         atol=self._site_tolerance):
                     coords.append(coord)
         return coords
 
@@ -333,7 +347,7 @@ class CifParser(object):
                 return Lattice.from_lengths_and_angles(lengths, angles)
 
             else:
-                return getattr(Lattice, lattice_type)(*(lengths+angles))
+                return getattr(Lattice, lattice_type)(*(lengths + angles))
 
         except KeyError:
             # Missing Key search for cell setting
@@ -394,16 +408,38 @@ class CifParser(object):
                                    "_symmetry_space_group_name_hall_",
                                    "_symmetry_space_group_name_h-m",
                                    "_symmetry_space_group_name_h-m_"]:
+                sg = data.data.get(symmetry_label)
 
-                if data.data.get(symmetry_label):
+                if sg:
+                    sg = sub_spgrp(sg)
                     try:
-                        spg = space_groups.get(sub_spgrp(
-                                        data.data.get(symmetry_label)))
+                        spg = space_groups.get(sg)
                         if spg:
                             symops = SpaceGroup(spg).symmetry_ops
+                            warnings.warn(
+                                "No _symmetry_equiv_pos_as_xyz type key found. "
+                                "Spacegroup from %s used." % symmetry_label)
                             break
                     except ValueError:
+                        # Ignore any errors
+                        pass
+
+                    try:
+                        for d in _get_cod_data():
+                            if sg == re.sub("\s+", "",
+                                            d["hermann_mauguin"]) :
+                                xyz = d["symops"]
+                                symops = [SymmOp.from_xyz_string(s)
+                                          for s in xyz]
+                                warnings.warn(
+                                    "No _symmetry_equiv_pos_as_xyz type key found. "
+                                    "Spacegroup from %s used." % symmetry_label)
+                                break
+                    except Exception as ex:
                         continue
+
+                    if symops:
+                        break
         if not symops:
             # Try to parse International number
             for symmetry_label in ["_space_group_IT_number",
@@ -432,7 +468,7 @@ class CifParser(object):
         try:
             oxi_states = {
                 data["_atom_type_symbol"][i]:
-                str2float(data["_atom_type_oxidation_number"][i])
+                    str2float(data["_atom_type_oxidation_number"][i])
                 for i in range(len(data["_atom_type_symbol"]))}
             # attempt to strip oxidation state from _atom_type_symbol
             # in case the label does not contain an oxidation state
@@ -485,42 +521,56 @@ class CifParser(object):
 
         ############################################################
         """
-        This part of the code deals with handling formats of data as found in CIF files extracted from the
-        Springer Materials/Pauling File databases, and that are different from standard ICSD formats.
+        This part of the code deals with handling formats of data as found in
+        CIF files extracted from the Springer Materials/Pauling File
+        databases, and that are different from standard ICSD formats.
         """
 
-        # Check to see if "_atom_site_type_symbol" exists, as some test CIFs do not contain this key.
+        # Check to see if "_atom_site_type_symbol" exists, as some test CIFs do
+        # not contain this key.
         if "_atom_site_type_symbol" in data.data.keys():
 
             # Keep a track of which data row needs to be removed.
-            # Example of a row: Nb,Zr '0.8Nb + 0.2Zr' .2a .m-3m 0 0 0 1 14 'rhombic dodecahedron, Nb<sub>14</sub>'
-            # Without this code, the above row in a structure would be parsed as an ordered site with only Nb (since
-            # CifParser would try to parse the first two characters of the label "Nb,Zr") and occupancy=1.
-            # However, this site is meant to be a disordered site with 0.8 of Nb and 0.2 of Zr.
+            # Example of a row: Nb,Zr '0.8Nb + 0.2Zr' .2a .m-3m 0 0 0 1 14
+            # 'rhombic dodecahedron, Nb<sub>14</sub>'
+            # Without this code, the above row in a structure would be parsed
+            # as an ordered site with only Nb (since
+            # CifParser would try to parse the first two characters of the
+            # label "Nb,Zr") and occupancy=1.
+            # However, this site is meant to be a disordered site with 0.8 of
+            # Nb and 0.2 of Zr.
             idxs_to_remove = []
 
             for idx, el_row in enumerate(data["_atom_site_label"]):
 
-                # CIF files from the Springer Materials/Pauling File have switched the label and symbol. Thus, in the
-                # above shown example row, '0.8Nb + 0.2Zr' is the symbol. Below, we split the strings on ' + ' to
-                # check if the length (or number of elements) in the label and symbol are equal.
+                # CIF files from the Springer Materials/Pauling File have
+                # switched the label and symbol. Thus, in the
+                # above shown example row, '0.8Nb + 0.2Zr' is the symbol.
+                # Below, we split the strings on ' + ' to
+                # check if the length (or number of elements) in the label and
+                # symbol are equal.
                 if len(data["_atom_site_type_symbol"][idx].split(' + ')) > \
                         len(data["_atom_site_label"][idx].split(' + ')):
 
                     # Dictionary to hold extracted elements and occupancies
                     els_occu = {}
 
-                    # parse symbol to get element names and occupancy and store in "els_occu"
+                    # parse symbol to get element names and occupancy and store
+                    # in "els_occu"
                     symbol_str = data["_atom_site_type_symbol"][idx]
                     symbol_str_lst = symbol_str.split(' + ')
                     for elocc_idx in range(len(symbol_str_lst)):
                         # Remove any bracketed items in the string
-                        symbol_str_lst[elocc_idx] = re.sub('\([0-9]*\)', '', symbol_str_lst[elocc_idx].strip())
+                        symbol_str_lst[elocc_idx] = re.sub(
+                            '\([0-9]*\)', '', symbol_str_lst[elocc_idx].strip())
 
-                        # Extract element name and its occupancy from the string, and store it as a
+                        # Extract element name and its occupancy from the
+                        # string, and store it as a
                         # key-value pair in "els_occ".
-                        els_occu[str(re.findall('\D+', symbol_str_lst[elocc_idx].strip())[1]).replace('<sup>', '')] = \
-                            float('0' + re.findall('\.?\d+', symbol_str_lst[elocc_idx].strip())[1])
+                        els_occu[str(re.findall('\D+', symbol_str_lst[
+                            elocc_idx].strip())[1]).replace('<sup>', '')] = \
+                            float('0' + re.findall('\.?\d+', symbol_str_lst[
+                                elocc_idx].strip())[1])
 
                     x = str2float(data["_atom_site_fract_x"][idx])
                     y = str2float(data["_atom_site_fract_y"][idx])
@@ -531,9 +581,11 @@ class CifParser(object):
                     for et in els_occu:
                         match = get_matching_coord(coord)
                         if not match:
-                            coord_to_species[coord] = Composition({parse_symbol(et): els_occu[parse_symbol(et)]})
+                            coord_to_species[coord] = Composition(
+                                {parse_symbol(et): els_occu[parse_symbol(et)]})
                         else:
-                            coord_to_species[match] += {parse_symbol(et): els_occu[parse_symbol(et)]}
+                            coord_to_species[match] += {
+                                parse_symbol(et): els_occu[parse_symbol(et)]}
                     idxs_to_remove.append(idx)
 
             # Remove the original row by iterating over all keys in the CIF data looking for lists, which indicates
@@ -604,7 +656,6 @@ class CifParser(object):
             for species, group in groupby(
                     sorted(list(coord_to_species.items()), key=lambda x: x[1]),
                     key=lambda x: x[1]):
-
                 tmp_coords = [site[0] for site in group]
 
                 coords = self._unique_coords(tmp_coords)
@@ -729,8 +780,9 @@ class CifWriter(object):
         contains_oxidation = True
         try:
             symbol_to_oxinum = OrderedDict([
-                (el.__str__(), float(el.oxi_state))
-                for el in sorted(comp.elements)])
+                                               (el.__str__(),
+                                                float(el.oxi_state))
+                                               for el in sorted(comp.elements)])
         except AttributeError:
             symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in
                                             sorted(comp.elements)])
@@ -763,10 +815,10 @@ class CifWriter(object):
             # The following just presents a deterministic ordering.
             unique_sites = [
                 (sorted(sites, key=lambda s: tuple([abs(x) for x in
-                                                   s.frac_coords]))[0],
+                                                    s.frac_coords]))[0],
                  len(sites))
                 for sites in sf.get_symmetrized_structure().equivalent_sites
-            ]
+                ]
             for site, mult in sorted(
                     unique_sites,
                     key=lambda t: (t[0].species_and_occu.average_electroneg,

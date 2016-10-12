@@ -31,7 +31,7 @@ with open(os.path.join(SETUP_PTH, "README.rst")) as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="4.4.0",
+    version="4.4.1",
     install_requires=["numpy>=1.9", "six", "atomicfile", "requests",
                       "pybtex", "pyyaml", "monty>=0.9.5", "scipy>=0.14",
                       "tabulate", "enum34", "spglib"],
@@ -47,7 +47,7 @@ setup(
                   "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
                   "pymatgen.io.vasp": ["*.yaml"],
                   "pymatgen.io.feff": ["*.yaml"],
-                  "pymatgen.symmetry": ["*.yaml"],
+                  "pymatgen.symmetry": ["*.yaml", "*.json"],
                   "pymatgen.entries": ["*.yaml"],
                   "pymatgen.structure_prediction": ["data/*.json"],
                   "pymatgen.vis": ["ElementColorSchemes.yaml"],

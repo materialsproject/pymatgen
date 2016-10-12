@@ -8,7 +8,8 @@ import unittest2 as unittest
 
 import os
 
-from pymatgen.io.feff.sets import MPXANESSet
+from pymatgen import Structure
+from pymatgen.io.feff.sets import MPXANESSet, MPELNESSet
 from pymatgen.io.feff.inputs import Potential
 from pymatgen.io.cif import CifParser
 
@@ -68,7 +69,7 @@ TITLE sites: 4
 
     def test_to_and_from_dict(self):
         f1_dict = self.mp_xanes.as_dict()
-        f2 = self.mp_xanes.from_dict(f1_dict)
+        f2 = MPXANESSet.from_dict(f1_dict)
         self.assertEqual(f1_dict, f2.as_dict())
 
     def test_user_tag_settings(self):
@@ -79,7 +80,70 @@ TITLE sites: 4
         mp_xanes_2 = MPXANESSet(self.absorbing_atom, self.structure,
                                 user_tag_settings=user_tag_settings)
         self.assertEqual(mp_xanes_2.tags.as_dict(), tags_dict_ans)
-        print(mp_xanes_2.as_dict().keys())
+
+    def test_eels_to_from_dict(self):
+        elnes = MPELNESSet(self.absorbing_atom, self.structure, radius=5.0,
+                           beam_energy=100, beam_direction=[1, 0, 0],
+                           collection_angle=7, convergence_angle=6)
+        elnes_dict = elnes.as_dict()
+        elnes_2 = MPELNESSet.from_dict(elnes_dict)
+        self.assertEqual(elnes_dict, elnes_2.as_dict())
+
+    def test_eels_tags_set(self):
+        radius = 5.0
+        user_eels_settings = {
+            'ENERGY': '4 0.04 0.1',
+            'BEAM_ENERGY': '200 1 0 1',
+            'ANGLES': '2 3'}
+        elnes = MPELNESSet(self.absorbing_atom, self.structure, radius=radius,
+                           user_eels_settings=user_eels_settings)
+        elnes_2 = MPELNESSet(self.absorbing_atom, self.structure, radius=radius,
+                             beam_energy=100, beam_direction=[1, 0, 0],
+                             collection_angle=7, convergence_angle=6)
+        self.assertEqual(elnes.tags["ELNES"]["ENERGY"],
+                         user_eels_settings["ENERGY"])
+        self.assertEqual(elnes.tags["ELNES"]["BEAM_ENERGY"],
+                         user_eels_settings["BEAM_ENERGY"])
+        self.assertEqual(elnes.tags["ELNES"]["ANGLES"],
+                         user_eels_settings["ANGLES"])
+        self.assertEqual(elnes_2.tags["ELNES"]["BEAM_ENERGY"], [100, 0, 1, 1])
+        self.assertEqual(elnes_2.tags["ELNES"]["BEAM_DIRECTION"], [1, 0, 0])
+        self.assertEqual(elnes_2.tags["ELNES"]["ANGLES"], [7, 6])
+
+    def test_reciprocal_tags_and_input(self):
+        user_tag_settings = {"RECIPROCAL": "", "KMESH": "1000"}
+        elnes = MPELNESSet(self.absorbing_atom, self.structure,
+                           user_tag_settings=user_tag_settings)
+        self.assertTrue("RECIPROCAL" in elnes.tags)
+        self.assertEqual(elnes.tags["TARGET"], 3)
+        self.assertEqual(elnes.tags["KMESH"], "1000")
+        self.assertEqual(elnes.tags["CIF"], "Co2O2.cif")
+        self.assertEqual(elnes.tags["COREHOLE"], "RPA")
+        all_input = elnes.all_input()
+        self.assertNotIn("ATOMS", all_input)
+        self.assertNotIn("POTENTIALS", all_input)
+        elnes.write_input()
+        structure = Structure.from_file("Co2O2.cif")
+        self.assertTrue(self.structure.matches(structure))
+        os.remove("HEADER")
+        os.remove("PARAMETERS")
+        os.remove("feff.inp")
+        os.remove("Co2O2.cif")
+
+    def test_number_of_kpoints(self):
+        user_tag_settings = {"RECIPROCAL": ""}
+        elnes = MPELNESSet(self.absorbing_atom, self.structure, nkpts=1000,
+                           user_tag_settings=user_tag_settings)
+        self.assertEqual(elnes.tags["KMESH"], [12, 12, 7])
+
+    def test_large_systems(self):
+        struct = Structure.from_file(os.path.join(test_dir, "La4Fe4O12.cif"))
+        user_tag_settings = {"RECIPROCAL": "", "KMESH": "1000"}
+        elnes = MPELNESSet("Fe", struct, user_tag_settings=user_tag_settings)
+        self.assertNotIn("RECIPROCAL", elnes.tags)
+        self.assertNotIn("KMESH", elnes.tags)
+        self.assertNotIn("CIF", elnes.tags)
+        self.assertNotIn("TARGET", elnes.tags)
 
 
 if __name__ == '__main__':

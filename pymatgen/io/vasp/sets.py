@@ -1152,7 +1152,7 @@ class MITNEBSet(MITRelaxSet):
             prev = structures[-1]
             for i in range(len(s)):
                 t = np.round(prev[i].frac_coords - s[i].frac_coords)
-                if np.sum(t) > 0.5:
+                if np.any(np.abs(t)>0.5):
                     s.translate_sites([i], t, to_unit_cell=False)
             structures.append(s)
         return structures
