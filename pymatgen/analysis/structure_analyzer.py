@@ -78,6 +78,8 @@ class VoronoiCoordFinder(object):
         for nn, vind in voro.ridge_dict.items():
             if 0 in nn:
                 if -1 in vind:
+                    # TODO: This is not acceptable
+                    continue
                     raise RuntimeError("This structure is pathological,"
                                        " infinite vertex in the voronoi "
                                        "construction")
