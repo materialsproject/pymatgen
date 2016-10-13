@@ -1222,7 +1222,7 @@ def cluster_sites(mol, tol):
     return origin_site, clustered_sites
 
 
-def generate_full_symmops(symmops, tol):
+def generate_full_symmops(symmops, tol, max_recursion_depth=300):
     """
     Recursive algorithm to permute through all possible combinations of the
     initially supplied symmetry operations to arrive at a complete set of
@@ -1239,7 +1239,7 @@ def generate_full_symmops(symmops, tol):
 
     a = [o.affine_matrix for o in symmops]
 
-    if len(symmops) > 300:
+    if len(symmops) > max_recursion_depth:
         logger.debug("Generation of symmetry operations in infinite loop.  " +
                      "Possible error in initial operations or tolerance too "
                      "low.")
@@ -1248,7 +1248,8 @@ def generate_full_symmops(symmops, tol):
             m = np.dot(op1.affine_matrix, op2.affine_matrix)
             d = np.abs(a - m) < tol
             if not np.any(np.all(np.all(d, axis=2), axis=1)):
-                return generate_full_symmops(symmops + [SymmOp(m)], tol)
+                return generate_full_symmops(symmops + [SymmOp(m)], tol, 
+                                             max_recursion_depth)
 
     return symmops
 
