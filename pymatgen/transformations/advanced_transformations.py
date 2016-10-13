@@ -30,7 +30,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher, \
     SpinComparator
 from pymatgen.analysis.energy_models import SymmetryModel
 from pymatgen.analysis.bond_valence import BVAnalyzer
-
+from pymatgen.core.surface import SlabGenerator
 
 """
 This module implements more advanced transformations.
@@ -782,3 +782,46 @@ class DopingTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return True
+
+
+class SlabTransformation(AbstractTransformation):
+    """
+    Creates a slab from a structure.
+
+    Args:
+        miller_index
+        min_slab_size
+        min_vacuum_size
+        shift
+    """
+    def __init__(self, miller_index, min_slab_size, min_vacuum_size,
+                 lll_reduce=False, center_slab=False, primitive=True,
+                 max_normal_search=None, shift=0, tol=0.1, energy=None):
+        """
+        """
+        self.miller_index = miller_index
+        self.min_slab_size = min_slab_size
+        self.min_vacuum_size = min_vacuum_size
+        self.lll_reduce = lll_reduce
+        self.center_slab = center_slab
+        self.primitive = primitive
+        self.max_normal_search = max_normal_search
+        self.shift = shift
+        self.tol = 0.1
+        self.energy = energy
+
+    def apply_transformation(self, structure):
+        sg = SlabGenerator(structure, self.miller_index, self.min_slab_size,
+                           self.min_vacuum_size, self.lll_reduce, 
+                           self.center_slab, self.primitive,
+                           self.max_normal_search)
+        slab = sg.get_slab(self.shift, self.tol, self.energy)
+        return slab
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return None
