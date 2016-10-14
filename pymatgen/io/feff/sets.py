@@ -136,7 +136,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         """
 
         Args:
-            absorbing_atom (str): absorbing atom symbol
+            absorbing_atom (str/int): absorbing atom symbol or site index
             structure (Structure): input structure
             radius (float): cluster radius
             config_dict (dict): control tag settings dict
@@ -252,7 +252,7 @@ class MPXANESSet(FEFFDictSet):
                  nkpts=1000, **kwargs):
         """
         Args:
-            absorbing_atom (str): absorbing atom symbol
+            absorbing_atom (str/int): absorbing atom symbol or site index
             structure (Structure): input
             edge (str): absorption edge
             radius (float): cluster radius in Angstroms.
@@ -277,7 +277,7 @@ class MPEXAFSSet(FEFFDictSet):
                  nkpts=1000, **kwargs):
         """
         Args:
-            absorbing_atom (str): absorbing atom symbol
+            absorbing_atom (str/int): absorbing atom symbol or site index
             structure (Structure): input structure
             edge (str): absorption edge
             radius (float): cluster radius in Angstroms.
@@ -302,7 +302,7 @@ class MPEELSDictSet(FEFFDictSet):
                  nkpts=1000, **kwargs):
         """
         Args:
-            absorbing_atom (str): absorbing atom symbol
+            absorbing_atom (str/int): absorbing atom symbol or site index
             structure (Structure): input structure
             edge (str): absorption edge
             spectrum (str): ELNES or EXELFS
@@ -358,7 +358,7 @@ class MPELNESSet(MPEELSDictSet):
                  **kwargs):
         """
         Args:
-            absorbing_atom (str): absorbing atom symbol
+            absorbing_atom (str/int): absorbing atom symbol or site index
             structure (Structure): input structure
             edge (str): absorption edge
             radius (float): cluster radius in Angstroms.
@@ -396,7 +396,7 @@ class MPEXELFSSet(MPEELSDictSet):
                  **kwargs):
         """
         Args:
-            absorbing_atom (str): absorbing atom symbol
+            absorbing_atom (str/int): absorbing atom symbol or site index
             structure (Structure): input structure
             edge (str): absorption edge
             radius (float): cluster radius in Angstroms.

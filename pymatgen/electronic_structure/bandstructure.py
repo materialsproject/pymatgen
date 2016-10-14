@@ -506,23 +506,15 @@ class BandStructure(object):
                     "kpoint_index": vbm["kpoint_index"],
                     "band_index": {str(int(spin)): vbm["band_index"][spin]
                                    for spin in vbm["band_index"]},
-                    'projections': {str(spin): {str(orb):
-                                                    vbm['projections'][spin][
-                                                        orb]
-                                                for orb in
-                                                vbm['projections'][spin]}
-                                    for spin in vbm['projections']}}
+                    'projections': {str(spin): v.tolist() for spin, v in vbm[
+                        'projections'].items()}}
         cbm = self.get_cbm()
         d['cbm'] = {'energy': cbm['energy'],
                     'kpoint_index': cbm['kpoint_index'],
                     'band_index': {str(int(spin)): cbm['band_index'][spin]
                                    for spin in cbm['band_index']},
-                    'projections': {str(spin): {str(orb):
-                                                    cbm['projections'][spin][
-                                                        orb]
-                                                for orb in
-                                                cbm['projections'][spin]}
-                                    for spin in cbm['projections']}}
+                    'projections': {str(spin): v.tolist() for spin, v in cbm[
+                        'projections'].items()}}
         d['band_gap'] = self.get_band_gap()
         d['labels_dict'] = {}
         d['is_spin_polarized'] = self.is_spin_polarized
