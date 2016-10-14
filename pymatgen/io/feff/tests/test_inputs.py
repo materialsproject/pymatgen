@@ -71,8 +71,14 @@ class FeffAtomsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         r = CifParser(os.path.join(test_dir, "CoO19128.cif"))
-        structure = r.get_structures()[0]
-        cls.atoms = Atoms(structure, "O", 10.0)
+        cls.structure = r.get_structures()[0]
+        cls.atoms = Atoms(cls.structure, "O", 10.0)
+
+    def test_absorbing_atom(self):
+        atoms_1 = Atoms(self.structure, 0, 10.0)
+        atoms_2 = Atoms(self.structure, 2, 10.0)
+        self.assertEqual(atoms_1.absorbing_atom, "Co")
+        self.assertEqual(atoms_2.absorbing_atom, "O")
 
     def test_absorber_line(self):
         atoms_lines = self.atoms.get_lines()
