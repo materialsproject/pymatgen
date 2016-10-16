@@ -2300,7 +2300,7 @@ class Structure(IStructure, collections.MutableSequence):
                 new_sp = species_mapping.get(sp, sp)
                 try:
                     c += Composition(new_sp) * amt
-                except TypeError:
+                except Exception:
                     c += {new_sp: amt}
             return PeriodicSite(c, site.frac_coords, latt,
                                 properties=site.properties)
