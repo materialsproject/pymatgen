@@ -28,7 +28,6 @@ from . import qutils as qu
 
 from collections import namedtuple
 from subprocess import Popen, PIPE
-from atomicfile import AtomicFile
 from monty.string import is_string, list_strings
 from monty.collections import AttrDict
 from monty.functools import lazy_property
@@ -263,7 +262,7 @@ class _ExcludeNodesFile(object):
     def add_nodes(self, qname, nodes):
         nodes = (nodes,) if not isinstance(nodes, (tuple, list)) else nodes
         with FileLock(self.FILEPATH):
-            with AtomicFile(self.FILEPATH, mode="w+") as fh:
+            with open(self.FILEPATH, mode="w+") as fh:
                 d = json.load(fh)
                 if qname in d:
                     d["qname"].extend(nodes)

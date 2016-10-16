@@ -20,7 +20,6 @@ import numpy as np
 
 from pprint import pprint
 from six.moves import map, StringIO
-from atomicfile import AtomicFile
 from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict
@@ -1608,7 +1607,7 @@ class Flow(Node, NodeContainer, MSONable):
 
         # Atomic transaction with FileLock.
         with FileLock(self.pickle_file):
-            with AtomicFile(self.pickle_file, mode="wb") as fh:
+            with open(self.pickle_file, mode="wb") as fh:
                 pmg_pickle_dump(self, fh, protocol=protocol)
 
         return 0

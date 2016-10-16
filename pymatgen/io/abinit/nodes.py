@@ -13,7 +13,6 @@ import six
 import numpy as np
 
 from pprint import pprint
-from atomicfile import AtomicFile
 from pydispatch import dispatcher
 from monty.termcolor import colored
 from monty.serialization import loadfn
@@ -1132,7 +1131,7 @@ def save_lastnode_id():
     init_counter()
 
     with FileLock(_COUNTER_FILE):
-        with AtomicFile(_COUNTER_FILE, mode="w") as fh:
+        with open(_COUNTER_FILE, mode="w") as fh:
             fh.write("%d\n" % _COUNTER)
 
 
