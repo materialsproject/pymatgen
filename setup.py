@@ -14,7 +14,7 @@ try:
     from numpy.distutils.misc_util import get_numpy_include_dirs
 except ImportError:
     print("numpy.distutils.misc_util cannot be imported. Please install numpy"
-          "first before install pymatgen...")
+          "first before installing pymatgen...")
     sys.exit(-1)
 
 SETUP_PTH = os.path.dirname(__file__)
