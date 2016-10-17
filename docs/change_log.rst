@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v4.4.3
+------
+* Bug fix for Diffusion Analyzer.
+
 v4.4.2
 ------
 * Bug fix for BS serialization.
