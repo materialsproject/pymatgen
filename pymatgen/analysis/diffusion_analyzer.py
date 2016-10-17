@@ -10,7 +10,8 @@ from monty.json import MSONable
 
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
      OrderDisorderElementComparator
-from pymatgen.core import Structure, get_el_sp
+from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.coord_utils import pbc_diff
 
