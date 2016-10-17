@@ -31,7 +31,7 @@ with open(os.path.join(SETUP_PTH, "README.rst")) as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="4.4.3",
+    version="4.4.4",
     install_requires=["numpy>=1.9", "six", "requests",
                       "pybtex", "pyyaml>=3.11", "monty>=0.9.6", "scipy>=0.14",
                       "tabulate", "enum34", "spglib>=1.9.4.4",

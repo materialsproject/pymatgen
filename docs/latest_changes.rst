@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v4.4.3
+v4.4.4
 ------
-* Bug fix for Diffusion Analyzer.
+* Bug fix for electronic structure plotter.
