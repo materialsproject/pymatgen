@@ -4,24 +4,7 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This module implements a FloatWithUnit, which is a subclass of float. It
-also defines supported units for some commonly used units for energy, length,
-temperature, time and charge. FloatWithUnit also support conversion to one
-another, and additions and subtractions perform automatic conversion if
-units are detected. An ArrayWithUnit is also implemented, which is a subclass
-of numpy's ndarray with similar unit features.
-"""
-
 from six.moves import filter, zip
-
-__author__ = "Shyue Ping Ong, Matteo Giantomassi"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong, Matteo Giantomassi"
-__status__ = "Production"
-__date__ = "Aug 30, 2013"
-
 import numpy as np
 import six
 
@@ -33,6 +16,25 @@ from functools import partial
 import re
 
 import scipy.constants as const
+
+"""
+This module implements a FloatWithUnit, which is a subclass of float. It
+also defines supported units for some commonly used units for energy, length,
+temperature, time and charge. FloatWithUnit also support conversion to one
+another, and additions and subtractions perform automatic conversion if
+units are detected. An ArrayWithUnit is also implemented, which is a subclass
+of numpy's ndarray with similar unit features.
+"""
+
+
+
+__author__ = "Shyue Ping Ong, Matteo Giantomassi"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Shyue Ping Ong, Matteo Giantomassi"
+__status__ = "Production"
+__date__ = "Aug 30, 2013"
+
 
 """
 Some conversion factors

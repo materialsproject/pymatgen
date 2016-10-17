@@ -1,7 +1,7 @@
 Change log
 ==========
 
-v4.4.1
+v4.4.2
 ------
-* Massive updates to FEFF support (Kiran Mathews).
-* Bug fixes in band structure plotting.
+* Bug fix for BS serialization.
+* Cleanup dependencies.
