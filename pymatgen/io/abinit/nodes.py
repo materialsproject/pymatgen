@@ -13,7 +13,7 @@ import six
 import numpy as np
 
 from pprint import pprint
-from atomicfile import AtomicFile
+from pymatgen.util.io_utils import AtomicFile
 from pydispatch import dispatcher
 from monty.termcolor import colored
 from monty.serialization import loadfn

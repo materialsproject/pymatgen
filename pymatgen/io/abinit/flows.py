@@ -20,7 +20,7 @@ import numpy as np
 
 from pprint import pprint
 from six.moves import map, StringIO
-from atomicfile import AtomicFile
+from pymatgen.util.io_utils import AtomicFile
 from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict

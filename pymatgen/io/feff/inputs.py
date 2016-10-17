@@ -284,22 +284,23 @@ class Atoms(MSONable):
     Atomic cluster centered around the absorbing atom.
     """
 
-    def __init__(self, struct, central_atom, radius):
+    def __init__(self, struct, absorbing_atom, radius):
         """
         Args:
             struct (Structure): input structure
-            central_atom (str): Symbol for absorbing atom
+            absorbing_atom (str/int): Symbol for absorbing atom or site index
             radius (float): radius of the atom cluster in Angstroms.
         """
-        self.central_atom = central_atom
-        self.radius = radius
         if struct.is_ordered:
             self.struct = struct
             self.pot_dict = get_atom_map(struct)
         else:
             raise ValueError("Structure with partial occupancies cannot be "
                              "converted into atomic coordinates!")
-        self.center_index = self.struct.indices_from_symbol(self.central_atom)[0]
+
+        self.absorbing_atom, self.center_index = \
+            get_absorbing_atom_symbol_index(absorbing_atom, struct)
+        self.radius = radius
         self._cluster = self._set_cluster()
 
     def _set_cluster(self):
@@ -314,7 +315,7 @@ class Atoms(MSONable):
         center = self.struct[self.center_index].coords
         sphere = self.struct.get_neighbors(self.struct[self.center_index], self.radius)
 
-        symbols = [self.central_atom]
+        symbols = [self.absorbing_atom]
         coords = [[0, 0, 0]]
         for i, site_dist in enumerate(sphere):
             site_symbol = re.sub(r"[^aA-zZ]+", "", site_dist[0].species_string)
@@ -396,7 +397,7 @@ class Atoms(MSONable):
         lines = [["{:f}".format(self._cluster[0].x),
                 "{:f}".format(self._cluster[0].y),
                 "{:f}".format(self._cluster[0].z),
-                0, self.central_atom, "0.0", 0]]
+                  0, self.absorbing_atom, "0.0", 0]]
         for i, site in enumerate(self._cluster[1:]):
             site_symbol = re.sub(r"[^aA-zZ]+", "", site.species_string)
             ipot = self.pot_dict[site_symbol]
@@ -704,19 +705,21 @@ class Potential(MSONable):
     FEFF atomic potential.
     """
 
-    def __init__(self, struct, central_atom):
+    def __init__(self, struct, absorbing_atom):
         """
         Args:
             struct (Structure): Structure object.
-            central_atom (str): Absorbing atom symbol
+            absorbing_atom (str/int): Absorbing atom symbol or site index
         """
-        self.central_atom = central_atom
         if struct.is_ordered:
             self.struct = struct
             self.pot_dict = get_atom_map(struct)
         else:
             raise ValueError("Structure with partial occupancies cannot be "
                              "converted into atomic coordinates!")
+
+        self.absorbing_atom, _ = \
+            get_absorbing_atom_symbol_index(absorbing_atom, struct)
 
     @staticmethod
     def pot_string_from_file(filename='feff.inp'):
@@ -803,7 +806,7 @@ class Potential(MSONable):
         Returns:
             String representation of Atomic Coordinate Shells.
         """
-        central_element = Element(self.central_atom)
+        central_element = Element(self.absorbing_atom)
         ipotrow = [[0, central_element.Z, central_element.symbol, -1, -1, .0001, 0]]
         for el, amt in self.struct.composition.items():
             ipot = self.pot_dict[el.symbol]
@@ -859,3 +862,22 @@ def get_atom_map(structure):
     for i, atom in enumerate(unique_pot_atoms):
         atom_map[atom] = i + 1
     return atom_map
+
+
+def get_absorbing_atom_symbol_index(absorbing_atom, structure):
+    """
+    Return the absorbing atom symboll and site index in the given structure.
+
+    Args:
+        absorbing_atom (str/int): symbol or site index
+        structure (Structure)
+
+    Returns:
+        str, int: symbol and site index
+    """
+    if isinstance(absorbing_atom, string_types):
+        return absorbing_atom, structure.indices_from_symbol(absorbing_atom)[0]
+    elif isinstance(absorbing_atom, int):
+        return str(structure[absorbing_atom].specie), absorbing_atom
+    else:
+        raise ValueError("absorbing_atom must be either specie symbol or site index")
