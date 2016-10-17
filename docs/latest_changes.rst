@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v4.4.4
+v4.4.5
 ------
-* Bug fix for electronic structure plotter.
+* Bug fix for SubstitutionProb.
