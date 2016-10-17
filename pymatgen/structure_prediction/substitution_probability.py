@@ -20,8 +20,7 @@ __date__ = "Aug 31, 2012"
 
 from collections import defaultdict
 from operator import mul
-from pymatgen import get_el_sp
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Specie, get_el_sp
 from monty.design_patterns import cached_class
 
 import itertools
