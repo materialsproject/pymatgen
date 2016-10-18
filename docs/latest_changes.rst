@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v4.4.5
+v4.4.6
 ------
-* Bug fix for SubstitutionProb.
+* Update to spglib 1.9.6, which fixes some bugs and is Windows compatible.
