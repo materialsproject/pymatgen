@@ -9,13 +9,16 @@ import sys
 import platform
 
 from setuptools import setup, find_packages, Extension
+from setuptools.command.build_ext import build_ext as _build_ext
 
-try:
-    from numpy.distutils.misc_util import get_numpy_include_dirs
-except ImportError:
-    print("numpy.distutils.misc_util cannot be imported. Please install numpy"
-          "first before installing pymatgen...")
-    sys.exit(-1)
+
+class build_ext(_build_ext):
+    def finalize_options(self):
+        _build_ext.finalize_options(self)
+        # Prevent numpy from thinking it is still in its setup process:
+        __builtins__.__NUMPY_SETUP__ = False
+        import numpy
+        self.include_dirs.append(numpy.get_include())
 
 SETUP_PTH = os.path.dirname(__file__)
 
@@ -31,15 +34,21 @@ with open(os.path.join(SETUP_PTH, "README.rst")) as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="4.4.6",
+    version="4.4.7",
+    cmdclass={'build_ext': build_ext},
+    setup_requires=['numpy', 'setuptools>=18.0'],
     install_requires=["numpy>=1.9", "six", "requests",
                       "pybtex", "pyyaml>=3.11", "monty>=0.9.6", "scipy>=0.14",
-                      "tabulate", "enum34", "spglib>=1.9.4.4",
+                      "tabulate", "spglib>=1.9.7.1",
                       "matplotlib>=1.5", "palettable>=2.1.1"],
-    extras_require={"pourbaix diagrams, bandstructure": ["pyhull>=1.5.3"],
-                    "ase_adaptor": ["ase>=3.3"],
-                    "vis": ["vtk>=6.0.0"],
-                    "abinit": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
+    extras_require={
+        ':python_version == "2.7"': [
+            'enum34',
+        ],
+        "pourbaix diagrams, bandstructure": ["pyhull>=1.5.3"],
+        "ase_adaptor": ["ase>=3.3"],
+        "vis": ["vtk>=6.0.0"],
+        "abinit": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["*.yaml", "*.csv"],
                   "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
@@ -85,11 +94,9 @@ setup(
     ],
     ext_modules=[Extension("pymatgen.optimization.linear_assignment",
                            ["pymatgen/optimization/linear_assignment.c"],
-                           include_dirs=get_numpy_include_dirs(),
                            extra_link_args=extra_link_args),
                  Extension("pymatgen.util.coord_utils_cython",
                            ["pymatgen/util/coord_utils_cython.c"],
-                           include_dirs=get_numpy_include_dirs(),
                            extra_link_args=extra_link_args)],
     entry_points={
           'console_scripts': [
@@ -102,6 +109,5 @@ setup(
               'get_environment = pymatgen.cli.get_environment:main',
               'pydii = pymatgen.cli.pydii:main',
           ]
-    },
-    scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
+    }
 )
