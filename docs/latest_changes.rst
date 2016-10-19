@@ -1,7 +1,6 @@
 Change log
 ==========
 
-v4.4.7
+v4.4.8
 ------
-* Update to spglib 1.9.7.1
-* Proper use of dependency markers for enum34.
+* Cleanup of entry points and dependencies.

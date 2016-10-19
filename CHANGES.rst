@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v4.4.8
+------
+* Cleanup of entry points and dependencies.
+
 v4.4.7
 ------
 * Update to spglib 1.9.7.1
