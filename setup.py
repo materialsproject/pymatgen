@@ -9,15 +9,8 @@ import sys
 import platform
 
 from setuptools import setup, find_packages, Extension
-
-# try:
-#     from numpy.distutils.misc_util import get_numpy_include_dirs
-# except ImportError:
-#     print("numpy.distutils.misc_util cannot be imported. Please install numpy"
-#           "first before installing pymatgen...")
-#     sys.exit(-1)
-
 from setuptools.command.build_ext import build_ext as _build_ext
+
 
 class build_ext(_build_ext):
     def finalize_options(self):
