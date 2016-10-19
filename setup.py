@@ -43,7 +43,7 @@ setup(
     packages=find_packages(),
     version="4.4.6",
     cmdclass={'build_ext': build_ext},
-    setup_requires=['numpy', "cython", "setuptools>=18.0"],
+    setup_requires=['numpy'],
     install_requires=["numpy>=1.9", "six", "requests",
                       "pybtex", "pyyaml>=3.11", "monty>=0.9.6", "scipy>=0.14",
                       "tabulate", "enum34", "spglib>=1.9.4.4",
@@ -96,10 +96,10 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
     ext_modules=[Extension("pymatgen.optimization.linear_assignment",
-                           ["pymatgen/optimization/linear_assignment.pyx"],
+                           ["pymatgen/optimization/linear_assignment.c"],
                            extra_link_args=extra_link_args),
                  Extension("pymatgen.util.coord_utils_cython",
-                           ["pymatgen/util/coord_utils_cython.pyx"],
+                           ["pymatgen/util/coord_utils_cython.c"],
                            extra_link_args=extra_link_args)],
     entry_points={
           'console_scripts': [
