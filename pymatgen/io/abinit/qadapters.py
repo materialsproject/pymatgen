@@ -246,7 +246,7 @@ class _ExcludeNodesFile(object):
     This file contains the list of nodes to be excluded.
     Nodes are indexed by queue name.
     """
-    DIRPATH = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
+    DIRPATH = os.path.join(os.path.expanduser("~"), ".abinit", "abipy")
     FILEPATH = os.path.join(DIRPATH, "exclude_nodes.json")
 
     def __init__(self):
