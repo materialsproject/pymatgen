@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v4.4.7
+------
+* Update to spglib 1.9.7.1
+* Proper use of dependency markers for enum34.
+
 v4.4.6
 ------
 * Update to spglib 1.9.6, which fixes some bugs and is Windows compatible.

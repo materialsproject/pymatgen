@@ -36,7 +36,7 @@ setup(
     packages=find_packages(),
     version="4.4.6",
     cmdclass={'build_ext': build_ext},
-    setup_requires=['numpy'],
+    setup_requires=['numpy', 'setuptools>=18.0'],
     install_requires=["numpy>=1.9", "six", "requests",
                       "pybtex", "pyyaml>=3.11", "monty>=0.9.6", "scipy>=0.14",
                       "tabulate", "spglib>=1.9.7.1",
