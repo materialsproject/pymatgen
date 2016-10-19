@@ -37,7 +37,7 @@ setup(
     version="4.4.7",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy', 'setuptools>=18.0'],
-    install_requires=["numpy>=1.9", "six", "requests",
+    install_requires=["numpy>=1.9", "six", "requests", "pydispatcher>=2.0.5",
                       "pybtex", "pyyaml>=3.11", "monty>=0.9.6", "scipy>=0.14",
                       "tabulate", "spglib>=1.9.7.1",
                       "matplotlib>=1.5", "palettable>=2.1.1"],
@@ -105,7 +105,6 @@ setup(
               'feff_plot_cross_section = pymatgen.cli.feff_plot_cross_section:main',
               'feff_plot_dos = pymatgen.cli.feff_plot_dos:main',
               'gaussian_analyzer = pymatgen.cli.gaussian_analyzer:main',
-              'gen_potcar = pymatgen.cli.gen_potcar:main',
               'get_environment = pymatgen.cli.get_environment:main',
               'pydii = pymatgen.cli.pydii:main',
           ]
