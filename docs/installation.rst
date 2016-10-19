@@ -137,21 +137,14 @@ create a separate environment for each of your packages. For example::
     conda create --name my_pymatgen python
     source activate my_pymatgen
 
-Step 3: Install the critical dependencies using conda
------------------------------------------------------
+Step 3: Install pymatgen
+------------------------
 
 Use conda to install some critical dependencies as follows::
 
-    conda install --yes numpy scipy matplotlib
+    conda install --channel materials pymatgen
 
-Step 4: Install pymatgen via pip
---------------------------------
-
-If all goes well, standard pip install of pymatgen should work::
-
-    pip install pymatgen
-
-Step 5: (Optional) Install enumlib and bader
+Step 4: (Optional) Install enumlib and bader
 --------------------------------------------
 
 For Windows, use conda to install fortran and some requirements first::

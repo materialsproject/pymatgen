@@ -19,7 +19,11 @@ for pkg in latexcodec tabulate monty pybtex palettable spglib pydispatcher pymat
 do
     conda skeleton pypi --python-version 2.7 $pkg
     conda build --python 2.7 $pkg
-    anaconda upload --force $HOME/miniconda3/conda-bld/osx-64/$pkg-*py27*.tar.bz2
+    if [[ "$pkg" == "pymatgen" ]]; then
+    do
+
+    done
+    anaconda upload -c mavrl --force $HOME/miniconda3/conda-bld/osx-64/$pkg-*py27*.tar.bz2
 done
 cd ..
 rm -r tmpconda

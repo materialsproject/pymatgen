@@ -22,6 +22,7 @@ import subprocess
 from invoke import task
 
 from monty.os import cd
+from monty.tempfile import ScratchDir
 from pymatgen import __version__ as ver
 
 
@@ -160,6 +161,17 @@ def log_ver(ctx):
                             "pymatgen", ver)
     with open(filepath, "w") as f:
         f.write("Release")
+
+
+@task
+def build_conda(ctx):
+    with ScratchDir(".") as d:
+        for pkg in ["latexcodec", "tabulate", "monty", "pybtex", "palettable",
+                    "spglib", "pydispatcher", "pymatgen"]:
+            ctx.run("conda skeleton pypi %s" % pkg)
+            ctx.run("conda build %s" % pkg)
+            ctx.run("anaconda upload --label mavrl --force $HOME/miniconda3/conda-bld/osx-64/%s-*py35*.tar.bz2" %
+                    pkg)
 
 
 @task
