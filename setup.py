@@ -10,12 +10,22 @@ import platform
 
 from setuptools import setup, find_packages, Extension
 
-try:
-    from numpy.distutils.misc_util import get_numpy_include_dirs
-except ImportError:
-    print("numpy.distutils.misc_util cannot be imported. Please install numpy"
-          "first before installing pymatgen...")
-    sys.exit(-1)
+# try:
+#     from numpy.distutils.misc_util import get_numpy_include_dirs
+# except ImportError:
+#     print("numpy.distutils.misc_util cannot be imported. Please install numpy"
+#           "first before installing pymatgen...")
+#     sys.exit(-1)
+
+from setuptools.command.build_ext import build_ext as _build_ext
+
+class build_ext(_build_ext):
+    def finalize_options(self):
+        _build_ext.finalize_options(self)
+        # Prevent numpy from thinking it is still in its setup process:
+        __builtins__.__NUMPY_SETUP__ = False
+        import numpy
+        self.include_dirs.append(numpy.get_include())
 
 SETUP_PTH = os.path.dirname(__file__)
 
@@ -32,6 +42,8 @@ setup(
     name="pymatgen",
     packages=find_packages(),
     version="4.4.6",
+    cmdclass={'build_ext': build_ext},
+    setup_requires=['numpy', "cython", "setuptools>=18.0"],
     install_requires=["numpy>=1.9", "six", "requests",
                       "pybtex", "pyyaml>=3.11", "monty>=0.9.6", "scipy>=0.14",
                       "tabulate", "enum34", "spglib>=1.9.4.4",
@@ -84,12 +96,10 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
     ext_modules=[Extension("pymatgen.optimization.linear_assignment",
-                           ["pymatgen/optimization/linear_assignment.c"],
-                           include_dirs=get_numpy_include_dirs(),
+                           ["pymatgen/optimization/linear_assignment.pyx"],
                            extra_link_args=extra_link_args),
                  Extension("pymatgen.util.coord_utils_cython",
-                           ["pymatgen/util/coord_utils_cython.c"],
-                           include_dirs=get_numpy_include_dirs(),
+                           ["pymatgen/util/coord_utils_cython.pyx"],
                            extra_link_args=extra_link_args)],
     entry_points={
           'console_scripts': [
@@ -102,6 +112,5 @@ setup(
               'get_environment = pymatgen.cli.get_environment:main',
               'pydii = pymatgen.cli.pydii:main',
           ]
-    },
-    scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
+    }
 )
