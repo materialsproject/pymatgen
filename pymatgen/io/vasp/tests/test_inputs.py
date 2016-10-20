@@ -93,6 +93,18 @@ direct
                                                      [False, False, False]])
         self.selective_poscar = poscar
 
+    def test_from_file(self):
+        filepath = os.path.join(test_dir, 'POSCAR.symbols_natoms_multilines')
+        poscar = Poscar.from_file(filepath, check_for_POTCAR=False, read_velocities=False)
+        ordered_expected_elements = ['Fe', 'Cr', 'Fe', 'Fe', 'Cr', 'Cr', 'Cr', 'Cr',
+                                     'Fe', 'Fe', 'Cr', 'Fe', 'Cr', 'Fe', 'Fe', 'Cr',
+                                     'Fe', 'Cr', 'Fe', 'Fe', 'Fe', 'Fe', 'Cr', 'Fe',
+                                     'Ni', 'Fe', 'Fe', 'Fe', 'Fe', 'Fe', 'Cr', 'Cr',
+                                     'Cr', 'Fe', 'Fe', 'Fe', 'Fe', 'Fe', 'Fe', 'Cr',
+                                     'Fe', 'Fe', 'Ni', 'Fe', 'Fe', 'Fe', 'Cr', 'Cr',
+                                     'Fe', 'Fe', 'Fe', 'Fe', 'Fe']
+        self.assertEqual([site.specie.symbol for site in poscar.structure], ordered_expected_elements)
+
     def test_to_from_dict(self):
         poscar_string = """Test3
 1.0
