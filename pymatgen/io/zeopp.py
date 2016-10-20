@@ -4,20 +4,6 @@
 
 from __future__ import division, unicode_literals, print_function
 
-"""
-Module implementing classes and functions to use Zeo++.
-Zeo++ can be obtained from http://www.maciejharanczyk.info/Zeopp/
-"""
-
-from six.moves import map
-
-__author__ = "Bharat Medasani"
-__copyright = "Copyright 2013, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Bharat Medasani"
-__email__ = "bkmedasani@lbl.gov"
-__data__ = "Aug 2, 2013"
-
 import os
 import re
 
@@ -33,12 +19,25 @@ from pymatgen.io.xyz import XYZ
 try:
     from zeo.netstorage import AtomNetwork, VoronoiNetwork
     from zeo.area_volume import volume, surface_area
-    from zeo.cluster import get_nearest_largest_diameter_highaccuracy_vornode,\
-            generate_simplified_highaccuracy_voronoi_network, \
-            prune_voronoi_network_close_node
+    from zeo.cluster import get_nearest_largest_diameter_highaccuracy_vornode, \
+        generate_simplified_highaccuracy_voronoi_network, \
+        prune_voronoi_network_close_node
+
     zeo_found = True
 except ImportError:
     zeo_found = False
+
+"""
+Module implementing classes and functions to use Zeo++.
+Zeo++ can be obtained from http://www.maciejharanczyk.info/Zeopp/
+"""
+
+__author__ = "Bharat Medasani"
+__copyright = "Copyright 2013, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Bharat Medasani"
+__email__ = "bkmedasani@lbl.gov"
+__data__ = "Aug 2, 2013"
 
 
 class ZeoCssr(Cssr):
@@ -64,31 +63,31 @@ class ZeoCssr(Cssr):
         """
         output = [
             "{:.4f} {:.4f} {:.4f}"
-            #.format(*self.structure.lattice.abc),
-            .format(self.structure.lattice.c,
-                    self.structure.lattice.a,
-                    self.structure.lattice.b),
+                # .format(*self.structure.lattice.abc),
+                .format(self.structure.lattice.c,
+                        self.structure.lattice.a,
+                        self.structure.lattice.b),
             "{:.2f} {:.2f} {:.2f} SPGR =  1 P 1    OPT = 1"
-            #.format(*self.structure.lattice.angles),
-            .format(self.structure.lattice.gamma,
-                    self.structure.lattice.alpha,
-                    self.structure.lattice.beta),
+                # .format(*self.structure.lattice.angles),
+                .format(self.structure.lattice.gamma,
+                        self.structure.lattice.alpha,
+                        self.structure.lattice.beta),
             "{} 0".format(len(self.structure)),
             "0 {}".format(self.structure.formula)
         ]
         for i, site in enumerate(self.structure.sites):
-            #if not hasattr(site, 'charge'):
+            # if not hasattr(site, 'charge'):
             #    charge = 0
-            #else:
+            # else:
             #    charge = site.charge
             charge = site.charge if hasattr(site, 'charge') else 0
-            #specie = site.specie.symbol
+            # specie = site.specie.symbol
             specie = site.species_string
             output.append(
                 "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}"
-                .format(
-                    i+1, specie, site.c, site.a, site.b, charge
-                    #i+1, site.specie, site.a, site.b, site.c, site.charge
+                    .format(
+                    i + 1, specie, site.c, site.a, site.b, charge
+                    # i+1, site.specie, site.a, site.b, site.c, site.charge
                 )
             )
 
@@ -124,7 +123,7 @@ class ZeoCssr(Cssr):
                          "([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)", l.strip())
             if m:
                 sp.append(m.group(1))
-                #coords.append([float(m.group(i)) for i in xrange(2, 5)])
+                # coords.append([float(m.group(i)) for i in xrange(2, 5)])
                 # Zeo++ takes x-axis along a and pymatgen takes z-axis along c
                 coords.append([float(m.group(i)) for i in [3, 4, 2]])
                 chrg.append(m.group(5))
@@ -185,7 +184,7 @@ class ZeoVoronoiXYZ(XYZ):
             m = coord_patt.search(lines[i])
             if m:
                 sp.append(m.group(1))  # this is 1-indexed
-                #coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
+                # coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
                 coords.append([float(j)
                                for j in [m.group(i) for i in [3, 4, 2]]])
                 prop.append(float(m.group(5)))
@@ -215,14 +214,15 @@ class ZeoVoronoiXYZ(XYZ):
         for site in self._mol:
             output.append(fmtstr.format(
                 site.specie.symbol, site.z, site.x, site.y,
-                #site.specie, site.x, site.y, site.z,
+                # site.specie, site.x, site.y, site.z,
                 site.properties['voronoi_radius']
             ))
         return "\n".join(output)
 
+
 @requires(zeo_found,
-            "get_voronoi_nodes requires Zeo++ cython extension to be "
-            "installed. Please contact developers of Zeo++ to obtain it.")
+          "get_voronoi_nodes requires Zeo++ cython extension to be "
+          "installed. Please contact developers of Zeo++ to obtain it.")
 def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     """
     Analyze the void space in the input structure using voronoi decomposition
@@ -259,7 +259,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
                     fp.write("{} {}\n".format(el, rad_dict[el].real))
 
         atmnet = AtomNetwork.read_from_CSSR(
-                zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
+            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         vornet, vor_edge_centers, vor_face_centers = \
             atmnet.perform_voronoi_decomposition()
         vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
@@ -279,11 +279,10 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
         lattice, species, coords, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})
 
-
-    #PMG-Zeo c<->a transformation for voronoi face centers
-    rot_face_centers = [(center[1],center[2],center[0]) for center in
+    # PMG-Zeo c<->a transformation for voronoi face centers
+    rot_face_centers = [(center[1], center[2], center[0]) for center in
                         vor_face_centers]
-    rot_edge_centers = [(center[1],center[2],center[0]) for center in
+    rot_edge_centers = [(center[1], center[2], center[0]) for center in
                         vor_edge_centers]
 
     species = ["X"] * len(rot_face_centers)
@@ -299,6 +298,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
         to_unit_cell=True, site_properties={"voronoi_radius": prop})
 
     return vor_node_struct, vor_edgecenter_struct, vor_facecenter_struct
+
 
 def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
     """
@@ -333,13 +333,13 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
                 print("{} {}".format(el, rad_dict[el].real), file=fp)
 
         atmnet = AtomNetwork.read_from_CSSR(
-                zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
-        #vornet, vor_edge_centers, vor_face_centers = \
+            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
+        # vornet, vor_edge_centers, vor_face_centers = \
         #        atmnet.perform_voronoi_decomposition()
         red_ha_vornet = \
-                prune_voronoi_network_close_node(atmnet)
-                #generate_simplified_highaccuracy_voronoi_network(atmnet)
-                #get_nearest_largest_diameter_highaccuracy_vornode(atmnet)
+            prune_voronoi_network_close_node(atmnet)
+        # generate_simplified_highaccuracy_voronoi_network(atmnet)
+        # get_nearest_largest_diameter_highaccuracy_vornode(atmnet)
         red_ha_vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
         voro_out_filename = name + '_voro.xyz'
         voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
@@ -359,9 +359,10 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
 
     return vor_node_struct
 
+
 @requires(zeo_found,
-            "get_voronoi_nodes requires Zeo++ cython extension to be "
-            "installed. Please contact developers of Zeo++ to obtain it.")
+          "get_voronoi_nodes requires Zeo++ cython extension to be "
+          "installed. Please contact developers of Zeo++ to obtain it.")
 def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
     """
     Analyze the void space in the input structure using voronoi decomposition
@@ -398,20 +399,20 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
                     fp.write("{} {}\n".format(el, rad_dict[el].real))
 
         atmnet = AtomNetwork.read_from_CSSR(
-                zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
+            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         out_file = "temp.res"
         atmnet.calculate_free_sphere_parameters(out_file)
         if os.path.isfile(out_file) and os.path.getsize(out_file) > 0:
-            with open(out_file) as fp:
+            with open(out_file, "rt") as fp:
                 output = fp.readline()
         else:
-            output = "" 
-    fields =  [val.strip() for val in output.split()][1:4]
+            output = ""
+    fields = [val.strip() for val in output.split()][1:4]
     if len(fields) == 3:
         fields = [float(field) for field in fields]
-        free_sphere_params = {'inc_sph_max_dia':fields[0],
-                              'free_sph_max_dia':fields[1],
-                              'inc_sph_along_free_sph_path_max_dia':fields[2]}
+        free_sphere_params = {'inc_sph_max_dia': fields[0],
+                              'free_sph_max_dia': fields[1],
+                              'inc_sph_along_free_sph_path_max_dia': fields[2]}
     return free_sphere_params
 
 
@@ -463,7 +464,7 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3,
             if "Number_of_pockets" in line:
                 fields = line.split()
                 if float(fields[1]) > 1:
-                    #raise ValueError("Too many voids")
+                    # raise ValueError("Too many voids")
                     sa = -1.0
                     break
                 if float(fields[1]) == 0:

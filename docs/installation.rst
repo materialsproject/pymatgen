@@ -5,12 +5,14 @@ All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on `PyPI <http://pypi.python.org>`_.
 
-1. Python 2.7-3.x supported. It is highly recommended that you use Python 3.5
-   unless you know you need other dependencies that works with Python 2.x only.
+1. Python 2.7-3.x supported. **It is highly recommended that you use Python 3.5
+   unless you know you need other dependencies that works with Python 2.x
+   only.**
 2. numpy>=1.9
 3. scipy>0.14
-4. monty>=0.7.0
-5. requests 2.0+
+4. matplotlib>=1.5+
+4. monty>=0.9.6
+5. requests>=2.0+
 6. pybtex
 7. pyyaml
 8. tabulate
@@ -26,22 +28,20 @@ Optional dependencies
 
 Optional libraries that are required if you need certain features.
 
-1. pyhull 1.5.2+ (highly recommended): For electronic structure, generation of
-   Pourbaix diagrams.
-2. matplotlib 1.5+ (highly recommended): For plotting (e.g., Phase Diagrams).
-3. sympy (highly recommended): For defect generation and analysis.
-4. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
+1. pyhull 1.5.2+: For electronic structure, generation of Pourbaix diagrams.
+2. sympy: For defect generation and analysis.
+3. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
    crystal structures using the pymatgen.vis package. Note that the VTK
    package is incompatible with Python 3.x at the moment.
-5. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
+4. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
    Note that the ASE package is incompatible with Python 3.x at the moment.
-6. OpenBabel with Python bindings (http://openbabel.org): Required for the
+5. OpenBabel with Python bindings (http://openbabel.org): Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
-7. nose - For unittesting. Not optional for developers.
+6. nose - For unittesting. Not optional for developers.
 
 Optional non-Python programs
 ----------------------------
@@ -78,10 +78,10 @@ Step-by-step installation instructions
 ======================================
 
 For these instructions, we will assume the 64-bit versions of all OSes and
-using Python 3.5. If you are not using these, please modify the instructions
-accordingly. However, note that Python 2.7 on Windows require a different
-Visual Studio version. It is therefore highly recommended that you use Python
-3.5.
+using Python 3.5. For Windows, we only support Python 3.5, though using
+Python 2.7 should be possible if you install a different Visual Studio
+version. For Mac OS and Linux, all instructions can be trivially modified for
+Python 2.7.
 
 Step 1: Preparing your system
 -----------------------------
@@ -115,8 +115,9 @@ Step 2: Install conda
 ---------------------
 
 Download and install the version of conda for your operating system from
-http://conda.pydata.org/miniconda.html. For Windows, simply double-click the
-exe file. For Linux or Mac, run::
+http://conda.pydata.org/miniconda.html. For Windows, **make sure it is the
+Miniconda3 installer**, and simply double-click the exe file. For Linux or Mac,
+run::
 
     # If Mac
     bash Miniconda3-latest-MacOSX-x86_64.sh
@@ -136,21 +137,22 @@ create a separate environment for each of your packages. For example::
     conda create --name my_pymatgen python
     source activate my_pymatgen
 
-Step 3: Install the critical dependencies using conda
------------------------------------------------------
+Step 3: Install pymatgen
+------------------------
 
 Use conda to install some critical dependencies as follows::
 
     conda install --yes numpy scipy matplotlib
 
-Step 4: Install pymatgen via pip
---------------------------------
+If you are on OSX or Windows, you can install pymatgen via conda as well::
 
-If all goes well, standard pip install of pymatgen should work::
+    conda install --channel materials pymatgen
+
+If you are on Linux, pip install should work just fine::
 
     pip install pymatgen
 
-Step 5: (Optional) Install enumlib and bader
+Step 4: (Optional) Install enumlib and bader
 --------------------------------------------
 
 For Windows, use conda to install fortran and some requirements first::

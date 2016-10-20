@@ -16,7 +16,7 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.util.plotting_utils import get_publication_quality_plot, \
     add_fig_kwargs, get_ax3d_fig_plt
 
-from pymatgen import Energy
+from pymatgen.core.units import Energy
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
@@ -678,7 +678,7 @@ class BSPlotter(object):
         for b in self._bs.branches:
             lines.append([self._bs.kpoints[b['start_index']].frac_coords, self._bs.kpoints[b['end_index']].frac_coords])
 
-        plot_brillouin_zone(self._bs.lattice, lines=lines, labels=labels)
+        plot_brillouin_zone(self._bs.lattice_rec, lines=lines, labels=labels)
 
 
 class BSPlotterProjected(BSPlotter):
@@ -959,6 +959,7 @@ class BSPlotterProjected(BSPlotter):
 
         plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 2.0)
         return plt
+
 
 class BoltztrapPlotter(object):
     """

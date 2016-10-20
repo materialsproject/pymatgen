@@ -28,7 +28,7 @@ from . import qutils as qu
 
 from collections import namedtuple
 from subprocess import Popen, PIPE
-from atomicfile import AtomicFile
+from pymatgen.util.io_utils import AtomicFile
 from monty.string import is_string, list_strings
 from monty.collections import AttrDict
 from monty.functools import lazy_property
@@ -246,7 +246,7 @@ class _ExcludeNodesFile(object):
     This file contains the list of nodes to be excluded.
     Nodes are indexed by queue name.
     """
-    DIRPATH = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
+    DIRPATH = os.path.join(os.path.expanduser("~"), ".abinit", "abipy")
     FILEPATH = os.path.join(DIRPATH, "exclude_nodes.json")
 
     def __init__(self):
