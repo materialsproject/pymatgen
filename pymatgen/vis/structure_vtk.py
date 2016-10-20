@@ -929,7 +929,7 @@ class MultiStructuresVis(StructureVis):
         self.structures = structures
         self.istruct = 0
         self.current_structure = self.structures[self.istruct]
-        self.tags = tags if tags is not None else [{}]
+        self.tags = tags if tags is not None else []
         self.all_radii = []
         self.all_vis_radii = []
         for struct in self.structures:
