@@ -142,7 +142,15 @@ Step 3: Install pymatgen
 
 Use conda to install some critical dependencies as follows::
 
+    conda install --yes numpy scipy matplotlib
+
+If you are on OSX or Windows, you can install pymatgen via conda as well::
+
     conda install --channel materials pymatgen
+
+If you are on Linux, pip install should work just fine::
+
+    pip install pymatgen
 
 Step 4: (Optional) Install enumlib and bader
 --------------------------------------------
