@@ -316,36 +316,6 @@ def put_coord_inside(lattice, cart_coordinate):
     fc = cart_to_frac(lattice, cart_coordinate)
     return frac_to_cart(lattice, [c - np.floor(c) for c in fc])
 
-def get_alpha_shape(points, alpha_value = 100.):
-    """
-    Function to get an alpha shape from points using Clarkson
-    code
-    """
-    import os
-    # TODO: put into pyhull?
-    # Write points to temp
-    tmpfile = tempfile.NamedTemporaryFile(delete=False)
-    for point in points:
-        tmpfile.write(' '.join(["{0:.7}".format(coord) for coord in point]) + '\n')
-    tmpfile.close()
-
-    # Run hull
-    hull_path = 'hull'
-    command = "%s -A < %s" % (hull_path, tmpfile.name)
-    print("Running command {}".format(command), file = sys.stderr)
-    retcode = subprocess.call(command, shell=True)
-    if retcode != 0:
-        print("Warning: bad retcode returned by hull. " \
-              "Retcode value: {}".format(retcode))
-    os.remove(tmpfile.name)
-    results_file = open("hout-alf")
-    results_file.next()
-    results_indices = [[int(i) for i in line.rstrip().split()]
-                       for line in results_file]
-    results_file.close()
-    os.remove(results_file.name)
-    return [(points[i], points[j], points[k]) for i,j,k in results_indices]
-
 # TODO: for some reason this is buggy with primitive cells, 
 # might be a problem elsewhere
 def generate_decorated_slabs(structure, max_index=1, min_slab_size=5.0, 
