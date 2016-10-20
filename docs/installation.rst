@@ -144,9 +144,10 @@ Use conda to install some critical dependencies as follows::
 
     conda install --yes numpy scipy matplotlib
 
-If you are on OSX or Windows, you can install pymatgen via conda as well::
+If you are on OSX or Windows, you can install pymatgen via conda as well via
+the matsci channel maintained by the Materials Virtual Lab::
 
-    conda install --channel materials pymatgen
+    conda install --channel matsci pymatgen
 
 If you are on Linux, pip install should work just fine::
 
