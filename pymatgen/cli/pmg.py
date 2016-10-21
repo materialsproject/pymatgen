@@ -97,7 +97,7 @@ def main():
                              "subdirectories.")
     groups.add_argument("-i", "--install", dest="install",
                         metavar="package_name",
-                        choices=["enum", "bader"],
+                        choices=["enumlib", "bader"],
                         help="Install various optional command line "
                              "tools needed for full functionality.")
 

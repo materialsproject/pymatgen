@@ -164,7 +164,7 @@ def install_software(args):
 
     enum = None
     bader = None
-    if args.install == "enum":
+    if args.install == "enumlib":
         print("Building enumlib")
         enum = build_enum(fortran_command)
         print("")

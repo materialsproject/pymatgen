@@ -164,56 +164,6 @@ def log_ver(ctx):
 
 
 @task
-def build_conda_osx(ctx):
-    with ScratchDir(".") as d:
-        for pkg in ["latexcodec", "tabulate", "monty", "pybtex", "palettable",
-                    "spglib", "pydispatcher", "pymatgen"]:
-            ctx.run("conda skeleton pypi %s" % pkg)
-            ctx.run("conda build %s" % pkg)
-            ctx.run("anaconda upload --force $HOME/miniconda3/conda-bld/osx-64/%s-*py35*.tar.bz2" %
-                    pkg)
-
-    with ScratchDir(".") as d:
-        for pkg in ["latexcodec", "tabulate", "monty", "pybtex", "palettable",
-                    "spglib", "pydispatcher", "pymatgen"]:
-            ctx.run("conda skeleton pypi --python-version 2.7 %s" % pkg)
-            if pkg == "pymatgen":
-                with open("pymatgen/meta.yaml", "rt") as f:
-                    lines = []
-                    for l in f:
-                        l = l.rstrip()
-                        lines.append(l)
-                        if l.startswith("    - palettable"):
-                            lines.append("    - enum34")
-                with open("pymatgen/meta.yaml", "wt") as f:
-                    f.write("\n".join(lines))
-            ctx.run("conda build --python 2.7 %s" % pkg)
-            ctx.run("anaconda upload --force $HOME/miniconda3/conda-bld/osx-64/%s-*py27*.tar.bz2" %
-                pkg)
-
-
-@task
-def build_conda_linux64(ctx):
-    with ScratchDir(".") as d:
-        for pkg in ["latexcodec", "tabulate", "monty", "pybtex", "palettable",
-                    "spglib", "pydispatcher", "pymatgen"]:
-            ctx.run("conda skeleton pypi %s" % pkg)
-            ctx.run("conda build %s" % pkg)
-            ctx.run("anaconda upload --force "
-                    "$HOME/miniconda3/conda-bld/linux-64/%s-*py35*.tar.bz2" %
-                    pkg)
-
-    with ScratchDir(".") as d:
-        # for pkg in ["latexcodec", "tabulate", "monty", "pybtex", "palettable",
-        #             "spglib", "pydispatcher", "pymatgen"]:
-        for pkg in ["pymatgen"]:
-            ctx.run("conda skeleton pypi --python-version 2.7 %s" % pkg)
-            ctx.run("conda build --python 2.7 %s" % pkg)
-            ctx.run("anaconda upload --force $HOME/miniconda3/conda-bld/linux-64/%s-*py27*.tar.bz2" %
-                    pkg)
-
-
-@task
 def release(ctx, notest=False):
     setver(ctx)
     if not notest:

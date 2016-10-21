@@ -140,32 +140,42 @@ create a separate environment for each of your packages. For example::
 Step 3: Install pymatgen
 ------------------------
 
-Use conda to install some critical dependencies as follows::
-
-    conda install --yes numpy scipy matplotlib
-
-If you are on OSX or Windows, you can install pymatgen via conda as well via
-the matsci channel maintained by the Materials Virtual Lab::
+If you are using Python 3.5, you can install pymatgen via conda as well via
+the `matsci channel on Anaconda cloud <https://anaconda.org/matsci>`_ maintained
+by the Materials Virtual Lab::
 
     conda install --channel matsci pymatgen
 
-If you are on Linux, pip install should work just fine::
+Otherwise, if you are using Python 2.7, use conda to install some critical
+dependencies as follows::
+
+    conda install --yes numpy scipy matplotlib
+
+Then do pip install should work just fine::
 
     pip install pymatgen
 
 Step 4: (Optional) Install enumlib and bader
 --------------------------------------------
 
+If you would like to use the enumeration capabilities powered by Gus Hart's
+enumlib or perform Bader charge analysis powered by the Bader analysis code
+of the Henkelmann group, follow the following steps.
+
 For Windows, use conda to install fortran and some requirements first::
 
     conda install --yes git m2w64-gcc-fortran make
 
-If you would like to use the enumeration capabilities powered by Gus Hart's
-enumlib or perform Bader charge analysis powered by the Bader analysis code
-of the Henkelmann group, you can install it using the pmg command line tool
+The `matsci channel on Anaconda cloud <https://anaconda.org/matsci>`_ also
+has builds for enumlib and bader for OSX and Linux as well::
+
+    conda install bader
+    conda install enumlib
+
+If the above fails, you can try installing these using the pmg command line tool
 as follows::
 
-   pmg setup --install enum
+   pmg setup --install enumlib
    pmg setup --install bader
 
 Then put these in your PATH somewhere.
