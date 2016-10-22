@@ -77,11 +77,14 @@ the moment) required only for certain features:
 Step-by-step installation instructions
 ======================================
 
-For these instructions, we will assume the 64-bit versions of all OSes and
-using Python 3.5. For Windows, we only support Python 3.5, though using
-Python 2.7 should be possible if you install a different Visual Studio
-version. For Mac OS and Linux, all instructions can be trivially modified for
-Python 2.7.
+For these instructions, we will assume the **64-bit** versions of all OSes and
+using **Python 3.5**. If you are able to know the difference between 32-bit and
+64-bit and between Python 2.7 and 3.5, it is assumed you should be able to
+figure out how to modify the instructions to install a subset of dependencies
+and use pip install to do most of the installation. Note that you will not be
+able to use all functionality on Windows (unless you use Cygwin) because some
+of the external programs have to be compiled from Fortran source, but most of
+the common functionality should work just fine.
 
 Step 1: Preparing your system
 -----------------------------
@@ -135,7 +138,8 @@ If you are working with many python packages, it is generally recommended you
 create a separate environment for each of your packages. For example::
 
     conda create --name my_pymatgen python
-    source activate my_pymatgen
+    source activate my_pymatgen  # OSX or Linux
+    activate my_pymatgen  # Windows
 
 Step 3: Install pymatgen
 ------------------------
@@ -155,25 +159,20 @@ Then do pip install should work just fine::
 
     pip install pymatgen
 
-Step 4: (Optional) Install enumlib and bader
---------------------------------------------
+Step 4: (Optional) Install enumlib and bader (only tested in OSX and Linux)
+---------------------------------------------------------------------------
 
 If you would like to use the enumeration capabilities powered by Gus Hart's
 enumlib or perform Bader charge analysis powered by the Bader analysis code
-of the Henkelmann group, follow the following steps.
+of the Henkelmann group, the `matsci channel on Anaconda cloud
+<https://anaconda.org/matsci>`_ has builds for enumlib and bader for OSX and
+Linux::
 
-For Windows, use conda to install fortran and some requirements first::
+    conda install --channel matsci bader
+    conda install --channel matsci enumlib
 
-    conda install --yes git m2w64-gcc-fortran make
-
-The `matsci channel on Anaconda cloud <https://anaconda.org/matsci>`_ also
-has builds for enumlib and bader for OSX and Linux as well::
-
-    conda install bader
-    conda install enumlib
-
-If the above fails, you can try installing these using the pmg command line tool
-as follows::
+If the above fails, you can also try installing these from source using the pmg
+command line tool as follows::
 
    pmg setup --install enumlib
    pmg setup --install bader
