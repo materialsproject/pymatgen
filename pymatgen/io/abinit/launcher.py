@@ -273,7 +273,7 @@ class PyFlowScheduler(object):
     """
     # Configuration file.
     YAML_FILE = "scheduler.yml"
-    USER_CONFIG_DIR = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
+    USER_CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".abinit", "abipy")
 
     Error = PyFlowSchedulerError
 

@@ -1090,7 +1090,7 @@ class GarbageCollector(object):
 # without relying on the application making an explicit call into this module at termination.
 
 _COUNTER = None
-_COUNTER_FILE = os.path.join(os.getenv("HOME"), ".abinit", "abipy", "nodecounter")
+_COUNTER_FILE = os.path.join(os.path.expanduser("~"), ".abinit", "abipy", "nodecounter")
 
 
 def init_counter():

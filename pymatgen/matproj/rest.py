@@ -6,7 +6,6 @@ from __future__ import division, unicode_literals
 
 import itertools
 import json
-import os
 import re
 import warnings
 
@@ -24,7 +23,7 @@ from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
-from pymatgen.matproj.snl import StructureNL
+
 
 """
 This module provides classes to interface with the Materials Project REST
@@ -604,6 +603,7 @@ class MPRester(object):
         Returns:
             A list of inserted submission ids.
         """
+        from pymatgen.matproj.snl import StructureNL
         snl_list = StructureNL.from_structures(structures, authors, projects,
                                                references, remarks, data,
                                                histories, created_at)
