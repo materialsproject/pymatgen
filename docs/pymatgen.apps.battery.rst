@@ -6,7 +6,6 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.apps.battery.tests
 
 Submodules
 ----------

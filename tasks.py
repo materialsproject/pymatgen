@@ -47,8 +47,8 @@ def make_doc(ctx):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("sphinx-apidoc -d 6 -o . -f ../pymatgen")
         ctx.run("rm pymatgen.*.tests.rst")
-        for f in glob.glob("docs/*.rst"):
-            if f.startswith('docs/pymatgen') and f.endswith('rst'):
+        for f in glob.glob("*.rst"):
+            if f.startswith('pymatgen') and f.endswith('rst'):
                 newoutput = []
                 suboutput = []
                 subpackage = False
@@ -72,10 +72,21 @@ def make_doc(ctx):
         ctx.run("make html")
         ctx.run("cp _static/* _build/html/_static")
 
-        #This makes sure pymatgen.org works to redirect to the Gihub page
+        # This makes sure pymatgen.org works to redirect to the Gihub page
         ctx.run("echo \"pymatgen.org\" > _build/html/CNAME")
-        #Avoid ths use of jekyll so that _dir works as intended.
+        # Avoid ths use of jekyll so that _dir works as intended.
         ctx.run("touch _build/html/.nojekyll")
+
+
+@task
+def update_doc(ctx):
+    with cd("docs/_build/html/"):
+        ctx.run("git pull")
+    make_doc(ctx)
+    with cd("docs/_build/html/"):
+        ctx.run("git add .")
+        ctx.run("git commit -a -m \"Update dev docs\"")
+        ctx.run("git push origin gh-pages")
 
 
 @task
@@ -88,16 +99,6 @@ def setver(ctx):
           .format(ver))
     ctx.run("mv newsetup setup.py")
 
-
-@task
-def update_doc(ctx):
-    with cd("docs/_build/html/"):
-        ctx.run("git pull")
-    make_doc(ctx)
-    with cd("docs/_build/html/"):
-        ctx.run("git add .")
-        ctx.run("git commit -a -m \"Update dev docs\"")
-        ctx.run("git push origin gh-pages")
 
 @task
 def update_coverage(ctx):

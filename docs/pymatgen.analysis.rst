@@ -13,7 +13,6 @@ Subpackages
     pymatgen.analysis.elasticity
     pymatgen.analysis.hhi
     pymatgen.analysis.pourbaix
-    pymatgen.analysis.tests
 
 Submodules
 ----------

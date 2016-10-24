@@ -6,7 +6,6 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.analysis.hhi.tests
 
 Submodules
 ----------

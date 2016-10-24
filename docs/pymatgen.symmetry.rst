@@ -6,7 +6,6 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.symmetry.tests
 
 Submodules
 ----------
