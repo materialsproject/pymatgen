@@ -12,7 +12,7 @@ and to find adsorption sites on slabs
 
 import numpy as np
 from six.moves import range
-from pymatgen.core.structure import Structure
+from pymatgen import Structure, Lattice
 import tempfile
 import sys
 import subprocess
@@ -35,6 +35,10 @@ __email__ = "montoyjh@lbl.gov"
 __status__ = "Development"
 __date__ = "December 2, 2015"
 
+def mi_vec(mi_index):
+    mvec = np.array([1./n if n!=0 else 0 
+                     for n in mi_index])
+    return mvec / np.linalg.norm(mvec)
 
 class AdsorbateSiteFinder(object):
     """
@@ -42,7 +46,7 @@ class AdsorbateSiteFinder(object):
     adsorbate structures
     """
 
-    def __init__(self, slab, selective_dynamics = False, alpha = None):
+    def __init__(self, slab, selective_dynamics = False):
         """
         Create an AdsorbateSiteFinder object.
 
@@ -50,11 +54,14 @@ class AdsorbateSiteFinder(object):
             slab (Slab): slab object for which to find adsorbate
             sites
         """
-        slab = self.assign_site_properties(slab, alpha = alpha)
+        slab = self.assign_site_properties(slab)
         if selective_dynamics:
             slab = self.assign_selective_dynamics(slab)
 
-        self.slab = reorient_z(slab)
+        self.slab = slab#reorient_z(slab)
+        self.mi_string = ''.join([str(i) for i in self.slab.miller_index])
+        # get surface normal from miller index
+        self.mvec = mi_vec(self.slab.miller_index)
 
     def find_surface_sites_by_height(self, slab, window = 1.0):
         """
@@ -86,11 +93,9 @@ class AdsorbateSiteFinder(object):
         if 'bulk_coordination' not in slab.site_properties:
             raise ValueError("Input slabs must have bulk_coordination assigned."
                              "Use adsorption.generate_decorated_slabs to assign.")
-        
+        pass
 
-
-
-    def assign_site_properties(self, slab, alpha = None):
+    def assign_site_properties(self, slab):
         """
         Assigns site properties.
         """
@@ -145,6 +150,7 @@ class AdsorbateSiteFinder(object):
             surface_mesh += [site]
             surface_mesh += [s[0] for s in surf_str.get_neighbors(site,
                                                                   radius)]
+        #output_structure(surf_str, 'Ni_{}_surfsites.traj'.format(self.mi_string)) 
         return list(set(surface_mesh))
 
     @property
@@ -162,16 +168,12 @@ class AdsorbateSiteFinder(object):
         """
         # Find vector for distance normal to x-y plane
         # TODO: check redundancy since slabs are reoriented now
-        a, b, c = self.slab.lattice.matrix
-        dist_vec = np.cross(a, b)
-        dist_vec = distance * dist_vec / np.linalg.norm(dist_vec)
-        if np.dot(dist_vec, c) < 0:
-            dist_vec = -dist_vec
         # find on-top sites
         ads_sites = [s.coords for s in self.surface_sites]
         # Get bridge sites via DelaunayTri of extended surface mesh
         mesh = self.get_extended_surface_mesh()
-        dt = DelaunayTri([m.coords[:2] for m in mesh])
+        sop = get_rot(self.slab)
+        dt = DelaunayTri([sop.operate(m.coords)[:2] for m in mesh])
         for v in dt.vertices:
             # Add bridge sites at edges of delaunay
             if -1 not in v:
@@ -186,24 +188,39 @@ class AdsorbateSiteFinder(object):
         if near_reduce:
             ads_sites = self.near_reduce(ads_sites, 
                                          threshold=near_reduce_threshold)
+        
+        print("{}: has {} ads_sites".format(self.slab.miller_index, len(ads_sites)))
+        #import pdb; pdb.set_trace()
         if symm_reduce:
             ads_sites = self.symm_reduce(ads_sites)
-        ads_sites = [ads_site + dist_vec for ads_site in ads_sites]
+        ads_sites = [ads_site + distance*self.mvec for ads_site in ads_sites]
         return ads_sites
 
     def symm_reduce(self, coords_set, cartesian = True,
-                    threshold = 0.1, mrd = 200):
+                    threshold = 0.2, mrd = 200):
         """
         """
         surf_sg = SpacegroupAnalyzer(self.slab, 0.1)
+        # Create a fictional structure
+        """
+        flattice = self.slab.lattice.matrix
+        flattice[2] = self.mvec*self.slab.lattice.c
+        fstruct = Structure(Lattice(flattice), ['H']*self.slab.num_sites,
+                            [s.coords for s in self.slab.sites])
+        f_sg = SpacegroupAnalyzer(fstruct)
+        symm_ops = f_sg.get_symmetry_operations(cartesian=cartesian)
+        import pdb; pdb.set_trace()
+        """
         symm_ops = surf_sg.get_symmetry_operations(cartesian = cartesian)
+        print('{}: {} symmetry operations'.format(self.slab.miller_index, len(symm_ops)))
         full_symm_ops = generate_full_symmops(symm_ops, tol=0.1, max_recursion_depth=mrd)
         unique_coords = []
         # coords_set = [[coord[0], coord[1], 0] for coord in coords_set]
         for coords in coords_set:
             incoord = False
             for op in full_symm_ops:
-                if in_coord_list(unique_coords, op.operate(coords)):
+                if in_coord_list(unique_coords, op.operate(coords), 
+                                 atol = threshold):
                     incoord = True
                     break
             if not incoord:
@@ -274,12 +291,10 @@ class AdsorbateSiteFinder(object):
                                       repeat = repeat)]
         return structs
 
-def reorient_z(structure):
+def get_rot(structure):
     """
-    reorients a structure such that the z axis is concurrent with the 
-    normal to the A-B plane
+    Gets the transformation to rotate the z axis into the miller index
     """
-    struct = structure.copy()
     a, b, c = structure.lattice.matrix
     new_x = a / np.linalg.norm(a)
     new_y = (b - np.dot(new_x, b) * new_x) / \
@@ -287,12 +302,22 @@ def reorient_z(structure):
     new_z = np.cross(new_x, new_y)
     if np.dot(new_z, c) < 0.:
         new_z = -new_z
+    #import pdb; pdb.set_trace()
     x, y, z = np.eye(3)
     rot_matrix = np.array([np.dot(*el) for el in 
                            itertools.product([x, y, z], 
                                    [new_x, new_y, new_z])]).reshape(3,3)
     rot_matrix = np.transpose(rot_matrix)
     sop = SymmOp.from_rotation_and_translation(rot_matrix)
+    return sop
+
+def reorient_z(structure):
+    """
+    reorients a structure such that the z axis is concurrent with the 
+    normal to the A-B plane
+    """
+    struct = structure.copy()
+    sop = get_rot(struct)
     struct.apply_operation(sop)
     return struct
 
@@ -338,27 +363,39 @@ def generate_decorated_slabs(structure, max_index=1, min_slab_size=5.0,
     for slab in slabs:
         vcf_surface = VoronoiCoordFinder(slab)
         surf_props = []
+        this_mi_vec = mi_vec(slab.miller_index)
+        mi_mags = [np.dot(this_mi_vec, site.coords) for site in slab]
+        average_mi_mag = np.average(mi_mags)
         for n, site in enumerate(slab):
             bulk_coord = slab.site_properties['bulk_coordinations'][n]
             surf_coord = len(vcf_surface.get_coordinated_sites(n))
-            average_z = np.average(slab.frac_coords[:,-1])
-            if surf_coord != bulk_coord and site.frac_coords[-1] > average_z:
+            mi_mag = np.dot(this_mi_vec, site.coords)
+            if surf_coord != bulk_coord and mi_mags[n] > average_mi_mag:
                 surf_props += ['surface']
             else:
                 surf_props += ['subsurface']
         new_site_properties = {'surface_properties':surf_props}
         new_slabs += [slab.copy(site_properties=new_site_properties)]
+    #import pdb; pdb.set_trace()
     return new_slabs
+
+from ase.io import write
+from pymatgen.io.ase import AseAtomsAdaptor
+def output_structure(structure, fname="out.traj"):
+    aaa = AseAtomsAdaptor()
+    atomz = aaa.get_atoms(structure)
+    write(fname, atomz)
 
 if __name__ == "__main__":
     from pymatgen.matproj.rest import MPRester
+    from pymatgen import Molecule
     mpr = MPRester()
     struct = mpr.get_structures('mp-23')[0]
     sga = SpacegroupAnalyzer(struct)
     struct = sga.get_conventional_standard_structure()
     vcf = VoronoiCoordFinder(struct)
     slabs = generate_decorated_slabs(struct, 1, 7.0, 
-                                     12.0) #TODO make parameters
+                                     12.0, max_normal_search = None) #TODO make parameters
     '''
     asf = AdsorbateSiteFinder(slabs[1], selective_dynamics = True)
 
@@ -369,10 +406,26 @@ if __name__ == "__main__":
                                                     #repeat = [2, 2, 1])
     '''
     structs = []
+    ads_mol = Molecule("O", [[0., 0., 0.]])
+    ads_dict = {}
     for slab in slabs:
-        asf = AdsorbateSiteFinder(slab, selective_dynamics = True, alpha = True)
-        structs += asf.generate_adsorption_structures('O', [[0.0, 0.0, 0.0]])
+        asf = AdsorbateSiteFinder(slab, selective_dynamics = True)
+        new_structs = asf.generate_adsorption_structures(ads_mol)
+        print('{}: has {} structures'.format(slab.miller_index, len(new_structs)))
+        structs += new_structs
+        ads_dict[slab.miller_index] = new_structs
     print(len(structs))
+    from pymatgen.io.ase import AseAtomsAdaptor
+    aaa = AseAtomsAdaptor()
+    atoms_list = [aaa.get_atoms(struct) for struct in ads_dict[(1, 1, 1)]]
+    from ase.io import *
+    write('Ni_111.traj',atoms_list)
+    atoms_list = [aaa.get_atoms(struct) for struct in ads_dict[(1, 1, 0)]]
+    write('Ni_110.traj',atoms_list)
+    atoms_list = [aaa.get_atoms(struct) for struct in ads_dict[(1, 0, 0)]]
+    write('Ni_110.traj',atoms_list)
+
+
     '''
     from pymatgen.vis.structure_vtk import StructureVis
     sv = StructureVis()
@@ -381,3 +434,6 @@ if __name__ == "__main__":
     '''
     # from helper import pymatview
     # pymatview(structs)
+
+
+
