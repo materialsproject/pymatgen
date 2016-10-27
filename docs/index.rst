@@ -99,11 +99,14 @@ compatible. Our approach is to have a single codebase support Python 2.7 and
 Getting pymatgen
 ================
 
-For absolute newbies
---------------------
+Conda install (recommended)
+---------------------------
 
 If you are absolutely new to Python and/or are using Windows, the easiest
-installation process is using conda. Please go to the
+installation process is using conda. The `Materials Virtual Lab <https://www
+.materialsvirtuallab.org>`_ maintains the `matsci channel on
+Anaconda cloud <https://anaconda.org/matsci>`_, which has useful packages for
+materials science, including pymatgen. Please go to the
 :doc:`installation page </installation>` for step-by-step instructions for
 all platforms.
 
@@ -146,10 +149,10 @@ or to install the package in developmental mode::
 
     pip install -e .
 
-Detailed installation instructions for various platforms (Mac and Windows)
-are given on this :doc:`page </installation>`, including installation of
+Detailed installation instructions, including installation of
 option dependencies, set up for POTCAR generation, Materials Project REST
-interface usage, setup for developers, etc.
+interface usage, setup for developers, etc.are given on this
+:doc:`page </installation>`.
 
 .. toctree::
    :maxdepth: 2
@@ -173,10 +176,7 @@ install. This guarantees the right version of python and all dependencies::
     source $HOME/.bash_profile
 
     # Install numpy and other pydata stack packages via conda.
-    conda install --yes numpy scipy matplotlib jupyter
-
-    # Install pymatgen using pip.
-    pip install pymatgen
+    conda install --yes pymatgen
 
 Using pymatgen
 ==============

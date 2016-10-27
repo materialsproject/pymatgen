@@ -374,13 +374,6 @@ Here are the steps that I took to make it work:
 
         export PYTHONPATH=/usr/local/lib:$PYTHONPATH
 
-Enumlib (updated Mar 2016)
---------------------------
-
-The author now has his own Github repo with the relevant instructions to
-compile a newer version of enumlib. Follow the instructions given at the
-`enumlib repo <https://github.com/msg-byu/enumlib>`_.
-
 Zeo++
 -----
 
