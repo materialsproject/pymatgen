@@ -148,13 +148,10 @@ Virtual Lab::
 
     conda install --channel matsci pymatgen
 
-If the above fails or if you are using Python 2.7 on Windows, use conda to
-install some critical dependencies as follows::
+If the above fails, try using conda to install some critical dependencies and
+then do pip install::
 
     conda install --yes numpy scipy matplotlib
-
-Then try pip install::
-
     pip install pymatgen
 
 Step 4: (Optional) Install enumlib and bader (only tested in OSX and Linux)
@@ -164,7 +161,8 @@ If you would like to use the enumeration capabilities powered by Gus Hart's
 enumlib or perform Bader charge analysis powered by the Bader analysis code
 of the Henkelmann group, the `matsci channel on Anaconda cloud
 <https://anaconda.org/matsci>`_ has builds for enumlib and bader for OSX and
-Linux::
+Linux (sorry, Windows users, you are on your own as the develpers of these
+packages do not support Windows)::
 
     conda install --channel matsci bader
     conda install --channel matsci enumlib
