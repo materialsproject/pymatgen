@@ -543,15 +543,13 @@ http://bit.ly/materialsapi, which provides a comprehensive explanation of the
 document schema used in the Materials Project and how best to query for the
 relevant information you need.
 
-Setting the MAPI_KEY environment variable
------------------------------------------
+Setting the MAPI_KEY in the config file
+---------------------------------------
 
-MPRester supports an alternative method of setting the API key via the
-MAPI_KEY environment variable. Simply add::
+MPRester can also read the API key via the pymatgen config file. Simply run::
 
-    export MAPI_KEY="USER_API_KEY"
+    pmg config --add MAPI_KEY <USER_API_KEY>
 
-into your startup script (.bashrc or .bash_profile or .profile on Unix-based
-systems), and you can now call MPRester without any arguments. This makes it
-much easier for heavy users of the Materials API to use MPRester without
-having to constantly insert their API key in the scripts.
+to add this to the `.pmgrc.yaml`, and you can now call MPRester without any
+arguments. This makes it much easier for heavy users of the Materials API to
+use MPRester without having to constantly insert their API key in the scripts.

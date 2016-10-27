@@ -103,12 +103,11 @@ Conda install (recommended)
 ---------------------------
 
 If you are absolutely new to Python and/or are using Windows, the easiest
-installation process is using conda. The `Materials Virtual Lab <https://www
-.materialsvirtuallab.org>`_ maintains the `matsci channel on
-Anaconda cloud <https://anaconda.org/matsci>`_, which has useful packages for
-materials science, including pymatgen. Please go to the
-:doc:`installation page </installation>` for step-by-step instructions for
-all platforms.
+installation process is using conda. The `Materials Virtual Lab`_
+maintains the `matsci channel on Anaconda cloud <https://anaconda
+.org/matsci>`_, which has useful packages for materials science, including
+pymatgen. Please go to the :doc:`installation page </installation>` for
+step-by-step instructions for all platforms.
 
 Standard install
 ----------------
@@ -478,8 +477,8 @@ pymatgen project, including all subprojects.
 
 The full list of contributors are listed in the :doc:`team page </team>`.
 
-Our Copyright Policy
-====================
+Copyright Policy
+================
 
 Pymatgen uses a shared copyright model. Each contributor maintains copyright
 over their contributions to pymatgen. But, it is important to note that these
