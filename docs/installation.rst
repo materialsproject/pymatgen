@@ -77,12 +77,10 @@ the moment) required only for certain features:
 Step-by-step installation instructions
 ======================================
 
-For these instructions, we will assume the **64-bit** versions of all OSes and
-using **Python 3.5**. If you are able to know the difference between 32-bit and
-64-bit and between Python 2.7 and 3.5, it is assumed you should be able to
-figure out how to modify the instructions to install a subset of dependencies
-and use pip install to do most of the installation. Note that you will not be
-able to use all functionality on Windows (unless you use Cygwin) because some
+For these instructions, we will assume the **64-bit** versions of all OSes.
+For OSX and Linux, both Python 3.5 adn 2.7 are supported. For Windows, only
+Python 3.5 is supported. Note that you will not be able to use all
+functionality on Windows (unless you use Cygwin) because some
 of the external programs have to be compiled from Fortran source, but most of
 the common functionality should work just fine.
 
@@ -144,18 +142,18 @@ create a separate environment for each of your packages. For example::
 Step 3: Install pymatgen
 ------------------------
 
-If you are using Python 3.5, you can install pymatgen via conda as well via
-the `matsci channel on Anaconda cloud <https://anaconda.org/matsci>`_ maintained
-by the Materials Virtual Lab::
+You can install pymatgen via conda as well via the `matsci channel on
+Anaconda cloud <https://anaconda.org/matsci>`_ maintained by the Materials
+Virtual Lab::
 
     conda install --channel matsci pymatgen
 
-Otherwise, if you are using Python 2.7, use conda to install some critical
-dependencies as follows::
+If the above fails or if you are using Python 2.7 on Windows, use conda to
+install some critical dependencies as follows::
 
     conda install --yes numpy scipy matplotlib
 
-Then do pip install should work just fine::
+Then try pip install::
 
     pip install pymatgen
 
