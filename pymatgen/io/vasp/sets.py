@@ -1086,6 +1086,9 @@ class MVLSlabSet(MPRelaxSet):
             if "NPAR" in incar:
                 del incar["NPAR"]
 
+        if self.user_incar_settings:
+            incar.update(self.user_incar_settings)
+
         # To get input sets, the input structure has to has the same number
         # of required parameters as a Structure object (ie. 4). Slab
         # attributes aren't going to affect the VASP inputs anyways so
