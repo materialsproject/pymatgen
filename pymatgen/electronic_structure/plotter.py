@@ -697,7 +697,7 @@ class BSPlotterProjected(BSPlotter):
         super(BSPlotterProjected, self).__init__(bs)
 
     def _get_projections_by_branches(self, dictio):
-        proj = self._bs.get_projections_on_elts_and_orbitals(dictio)
+        proj = self._bs.get_projections_on_elements_and_orbitals(dictio)
         proj_br = []
         for b in self._bs.branches:
             if self._bs.is_spin_polarized:
