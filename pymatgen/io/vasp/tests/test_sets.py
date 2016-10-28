@@ -461,6 +461,12 @@ class MVLSlabSetTest(PymatgenTest):
         self.d_slab = vis.all_input
         self.d_bulk_gpu = vis_bulk_gpu.all_input
 
+    def test_user_incar_settings(self):
+        # Make sure user incar settings properly override AMIX.
+        si = self.get_structure('Si')
+        vis = MVLSlabSet(si, user_incar_settings={"AMIX": 0.1})
+        self.assertEqual(vis.incar["AMIX"], 0.1)
+
     def test_bulk(self):
 
         incar_bulk = self.d_bulk["INCAR"]
