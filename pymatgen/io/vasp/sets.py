@@ -1023,11 +1023,9 @@ class MVLSlabSet(MPRelaxSet):
         **kwargs:
             Other kwargs supported by :class:`DictSet`.
     """
-    def __init__(self, structure, gpu=False, k_product=50, bulk=False,
-                 **kwargs):
+    def __init__(self, structure, k_product=50, bulk=False, **kwargs):
         super(MVLSlabSet, self).__init__(structure, **kwargs)
         self.structure = structure
-        self.gpu = gpu
         self.k_product = k_product
         self.bulk = bulk
         self.kwargs = kwargs
@@ -1064,30 +1062,17 @@ class MVLSlabSet(MPRelaxSet):
 
     @property
     def incar(self):
-        incar = super(MVLSlabSet, self).incar
-
-        incar.update({"EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
-                      "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3})
-
+        settings = self.config_dict["INCAR"]
+        settings.update({"EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
+                         "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3})
         if not self.bulk:
-            incar["ISIF"] = 2
-            incar["AMIN"] = 0.01
-            incar["AMIX"] = 0.2
-            incar["BMIX"] = 0.001
-            incar["NELMIN"] = 8
+            settings["ISIF"] = 2
+            settings["AMIN"] = 0.01
+            settings["AMIX"] = 0.2
+            settings["BMIX"] = 0.001
+            settings["NELMIN"] = 8
 
-        if self.gpu:
-            # Sets KPAR to allow for the use of VASP-gpu
-            if "KPAR" not in incar:
-                # KPAR setting of 1 is the safest setting,
-                # but for optimal performance, we normally
-                # use the square root of the number of KPOINTS
-                incar["KPAR"] = 1
-            if "NPAR" in incar:
-                del incar["NPAR"]
-
-        if self.user_incar_settings:
-            incar.update(self.user_incar_settings)
+        incar = super(MVLSlabSet, self).incar
 
         # To get input sets, the input structure has to has the same number
         # of required parameters as a Structure object (ie. 4). Slab
