@@ -163,25 +163,39 @@ class AdsorbateSiteFinder(object):
 
     def find_adsorption_sites(self, distance = 2.0, put_inside = True,
                               symm_reduce = True, near_reduce = True,
-                              near_reduce_threshold = 1e-3):
+                              no_right_triangles = True, 
+                              positions = ['ontop', 'bridge', 'hollow'],
+                              near_reduce_threshold = 1e-2, mrd=200):
         """
         """
         # Find vector for distance normal to x-y plane
         # TODO: check redundancy since slabs are reoriented now
         # find on-top sites
-        ads_sites = [s.coords for s in self.surface_sites]
+        ads_sites = []
+        if 'ontop' in positions:
+            ads_sites += [s.coords for s in self.surface_sites]
         # Get bridge sites via DelaunayTri of extended surface mesh
         mesh = self.get_extended_surface_mesh()
         sop = get_rot(self.slab)
         dt = DelaunayTri([sop.operate(m.coords)[:2] for m in mesh])
         for v in dt.vertices:
             # Add bridge sites at edges of delaunay
+            # TODO: bridge/hollow needs cleanup
             if -1 not in v:
+                vecs = []
                 for data in itertools.combinations(v, 2):
-                    ads_sites += [self.ensemble_center(mesh, data, 
-                                                       cartesian = True)]
+                    if 'bridge' in positions:
+                        ads_sites += [self.ensemble_center(mesh, data, 
+                                                           cartesian = True)]
+                    vecs += [mesh[data[1]].coords - mesh[data[0]].coords]
+                if no_right_triangles:
+                    dots = np.array([np.dot(vec1, vec2) for vec1, vec2 
+                                     in itertools.combinations(vecs, 2)])
+                    if (np.abs(dots) < 1e-10).any():
+                        continue
             # Add hollow sites at centers of delaunay
-                ads_sites += [self.ensemble_center(mesh, v, cartesian = True)]
+                if 'hollow' in positions:
+                    ads_sites += [self.ensemble_center(mesh, v, cartesian = True)]
         if put_inside:
             ads_sites = [put_coord_inside(self.slab.lattice, coord) 
                          for coord in ads_sites]
@@ -192,7 +206,7 @@ class AdsorbateSiteFinder(object):
         print("{}: has {} ads_sites".format(self.slab.miller_index, len(ads_sites)))
         #import pdb; pdb.set_trace()
         if symm_reduce:
-            ads_sites = self.symm_reduce(ads_sites)
+            ads_sites = self.symm_reduce(ads_sites, mrd=mrd)
         ads_sites = [ads_site + distance*self.mvec for ads_site in ads_sites]
         return ads_sites
 
