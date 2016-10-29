@@ -13,11 +13,9 @@ dependencies:
     - pip install tox tox-pyenv
     - pyenv local 2.7.12 3.5.2
     - sudo apt-get install python-openbabel python-vtk python3-tk
-#    - python setup.py develop
 test:
   override:
     - find . -name "*.pyc" -exec rm '{}' \;
     - find . -name "test_*.py" -exec chmod -x '{}' \;
     - tox:
-        timeout: 1500
-    - coveralls
+        timeout: 3600
