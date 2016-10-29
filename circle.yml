@@ -11,8 +11,7 @@ machine:
 dependencies:
   override:
     - pip install tox tox-pyenv
-    - pyenv local 2.7.12 3.5.0
-    - easy_install -U setuptools
+    - pyenv local 2.7.12 3.5.2
     - pip install -q numpy
     - pip install -r requirements.txt --upgrade
     - pip install -r requirements-optional.txt
