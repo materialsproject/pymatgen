@@ -8,4 +8,4 @@ tabulate==0.7.5
 enum34==1.1.6; python_version < '3.5'
 matplotlib==1.5.3
 palettable==2.1.1
-spglib==1.9.5
+spglib==1.9.7.9
