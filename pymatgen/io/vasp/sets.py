@@ -1030,6 +1030,17 @@ class MVLSlabSet(MPRelaxSet):
         self.bulk = bulk
         self.kwargs = kwargs
 
+        slab_incar = {"EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
+                      "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
+        if not self.bulk:
+            slab_incar["ISIF"] = 2
+            slab_incar["AMIN"] = 0.01
+            slab_incar["AMIX"] = 0.2
+            slab_incar["BMIX"] = 0.001
+            slab_incar["NELMIN"] = 8
+
+        self.config_dict["INCAR"].update(slab_incar)
+
     @property
     def kpoints(self):
         """
@@ -1062,15 +1073,6 @@ class MVLSlabSet(MPRelaxSet):
 
     @property
     def incar(self):
-        settings = self.config_dict["INCAR"]
-        settings.update({"EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
-                         "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3})
-        if not self.bulk:
-            settings["ISIF"] = 2
-            settings["AMIN"] = 0.01
-            settings["AMIX"] = 0.2
-            settings["BMIX"] = 0.001
-            settings["NELMIN"] = 8
 
         incar = super(MVLSlabSet, self).incar
 
