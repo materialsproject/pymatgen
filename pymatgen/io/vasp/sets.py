@@ -1071,29 +1071,6 @@ class MVLSlabSet(MPRelaxSet):
 
         return kpt
 
-    @property
-    def incar(self):
-
-        incar = super(MVLSlabSet, self).incar
-
-        # To get input sets, the input structure has to has the same number
-        # of required parameters as a Structure object (ie. 4). Slab
-        # attributes aren't going to affect the VASP inputs anyways so
-        # converting the slab into a structure should not matter
-
-        abc = self.structure.lattice.abc
-        kpt_calc = [int(self.k_product / abc[0] + 0.5),
-                    int(self.k_product / abc[1] + 0.5),
-                    int(self.k_product / abc[1] + 0.5)]
-
-        kpts = kpt_calc
-
-        if kpts[0] < 5 and kpts[1] < 5:
-            if (not self.bulk) or kpts[2] < 5:
-                incar["ISMEAR"] = 0
-
-        return incar
-
 
 class MITNEBSet(MITRelaxSet):
     """
