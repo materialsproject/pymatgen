@@ -9,14 +9,6 @@ env:
     - GULP_LIB=`pwd`/cmd_line/gulp/Libraries
 # command to install dependencies
 sudo: false
-addons:
-  apt:
-    packages:
-    - python-scipy
-    - libblas-dev
-    - liblapack-dev
-    - gfortran
-    - python-pip
 install:
   - travis_wait pip install -q -r requirements.txt
   - travis_wait pip install -q -r requirements-optional.txt
@@ -26,10 +18,6 @@ before_script:
   - python setup.py develop
 # command to run tests, e.g. python setup.py test
 script: nosetests -v pymatgen
-branches:
-  only:
-    - master
-    - stable
 notifications:
   email:
     recipients:
