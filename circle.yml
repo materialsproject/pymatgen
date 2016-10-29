@@ -12,19 +12,12 @@ dependencies:
   override:
     - pip install tox tox-pyenv
     - pyenv local 2.7.12 3.5.2
-#    - pip install -q numpy
-#    - pip install -r requirements.txt --upgrade
-#    - pip install -r requirements-optional.txt
-#    - sudo apt-get install python-openbabel python-vtk python3-tk
+    - sudo apt-get install python-openbabel python-vtk python3-tk
 #    - python setup.py develop
 test:
   override:
     - find . -name "*.pyc" -exec rm '{}' \;
     - find . -name "test_*.py" -exec chmod -x '{}' \;
-    #- python run_circle.py:
-    #    timeout: 720
-#    - nosetests --config=nose.cfg --cover-html --cover-html-dir=$CIRCLE_ARTIFACTS:
-#        timeout: 720
     - tox:
         timeout: 1500
     - coveralls
@@ -32,14 +25,3 @@ test:
     - pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
     - pmg structure --convert --filenames POSCAR.pmg pmg.cif
     - pmg analyze -d test_files
-#deployment:
-#  py27:
-#    branch: master
-#    commands:
-#      - git config --global user.name "Py27 merger"
-#      - git config --global user.email ongsp@ucsd.edu
-#      - git config --global push.default matching
-#      - git checkout stable_py27
-#      - git pull
-#      - git merge master -m "Automatic Py27 merge for testing"
-#      - git push origin stable_py27
