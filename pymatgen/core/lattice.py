@@ -16,7 +16,7 @@ from scipy.spatial import Voronoi
 
 from monty.json import MSONable
 from monty.dev import deprecated
-from pymatgen.util.coord_utils import pbc_diff, pbc_shortest_vectors
+from pymatgen.util.coord_utils import pbc_shortest_vectors
 from pymatgen.util.num_utils import abs_cap
 
 """
