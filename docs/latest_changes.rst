@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v4.4.10
+v4.4.11
 -------
-* Minor fixes for proper gzipped structure file support and MVLSlabSet.
+* Update to new version of spglib.
