@@ -1352,7 +1352,7 @@ class IStructure(SiteCollection, MSONable):
                 return XSF(self).to_string()
         else:
             if filename:
-                with open(filename, "w") as f:
+                with zopen(filename, "wt") as f:
                     yaml.dump(self.as_dict(), f, Dumper=Dumper)
                 return
             else:
