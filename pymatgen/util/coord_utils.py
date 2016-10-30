@@ -4,13 +4,17 @@
 
 from __future__ import division, unicode_literals
 
+from six.moves import zip
+import itertools
+import numpy as np
+import math
+from . import coord_utils_cython as cuc
+
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise. Many of these are heavily vectorized in
 numpy for performance.
 """
-
-from six.moves import zip
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -18,11 +22,6 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Nov 27, 2011"
-
-import itertools
-import numpy as np
-import math
-from . import coord_utils_cython as cuc
 
 
 # array size threshold for looping instead of broadcasting

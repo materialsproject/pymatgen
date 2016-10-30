@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v4.4.10
+-------
+* Minor fixes for proper gzipped structure file support and MVLSlabSet.
+
 v4.4.9
 ------
 * Dependency cleanup. Now, basic pymatgen requires on much fewer

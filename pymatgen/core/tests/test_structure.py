@@ -12,7 +12,6 @@ from pymatgen.core.structure import IStructure, Structure, IMolecule, \
     StructureError, Molecule
 from pymatgen.core.lattice import Lattice
 import random
-import warnings
 import os
 import numpy as np
 
@@ -403,6 +402,11 @@ class IStructureTest(PymatgenTest):
         s = Structure.from_file("Si_testing.yaml")
         self.assertEqual(s, self.struct)
         os.remove("Si_testing.yaml")
+
+        self.struct.to(filename="POSCAR.testing.gz")
+        s = Structure.from_file("POSCAR.testing.gz")
+        self.assertEqual(s, self.struct)
+        os.remove("POSCAR.testing.gz")
 
 
 class StructureTest(PymatgenTest):

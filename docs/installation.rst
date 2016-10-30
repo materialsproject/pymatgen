@@ -77,12 +77,10 @@ the moment) required only for certain features:
 Step-by-step installation instructions
 ======================================
 
-For these instructions, we will assume the **64-bit** versions of all OSes and
-using **Python 3.5**. If you are able to know the difference between 32-bit and
-64-bit and between Python 2.7 and 3.5, it is assumed you should be able to
-figure out how to modify the instructions to install a subset of dependencies
-and use pip install to do most of the installation. Note that you will not be
-able to use all functionality on Windows (unless you use Cygwin) because some
+For these instructions, we will assume the **64-bit** versions of all OSes.
+For OSX and Linux, both Python 3.5 adn 2.7 are supported. For Windows, only
+Python 3.5 is supported. Note that you will not be able to use all
+functionality on Windows (unless you use Cygwin) because some
 of the external programs have to be compiled from Fortran source, but most of
 the common functionality should work just fine.
 
@@ -144,19 +142,16 @@ create a separate environment for each of your packages. For example::
 Step 3: Install pymatgen
 ------------------------
 
-If you are using Python 3.5, you can install pymatgen via conda as well via
-the `matsci channel on Anaconda cloud <https://anaconda.org/matsci>`_ maintained
-by the Materials Virtual Lab::
+You can install pymatgen via conda as well via the `matsci channel on
+Anaconda cloud <https://anaconda.org/matsci>`_ maintained by the Materials
+Virtual Lab::
 
     conda install --channel matsci pymatgen
 
-Otherwise, if you are using Python 2.7, use conda to install some critical
-dependencies as follows::
+If the above fails, try using conda to install some critical dependencies and
+then do pip install::
 
     conda install --yes numpy scipy matplotlib
-
-Then do pip install should work just fine::
-
     pip install pymatgen
 
 Step 4: (Optional) Install enumlib and bader (only tested in OSX and Linux)
@@ -166,7 +161,8 @@ If you would like to use the enumeration capabilities powered by Gus Hart's
 enumlib or perform Bader charge analysis powered by the Bader analysis code
 of the Henkelmann group, the `matsci channel on Anaconda cloud
 <https://anaconda.org/matsci>`_ has builds for enumlib and bader for OSX and
-Linux::
+Linux (sorry, Windows users, you are on your own as the develpers of these
+packages do not support Windows)::
 
     conda install --channel matsci bader
     conda install --channel matsci enumlib
@@ -377,13 +373,6 @@ Here are the steps that I took to make it work:
     you may need to add the following into your .bash_profile::
 
         export PYTHONPATH=/usr/local/lib:$PYTHONPATH
-
-Enumlib (updated Mar 2016)
---------------------------
-
-The author now has his own Github repo with the relevant instructions to
-compile a newer version of enumlib. Follow the instructions given at the
-`enumlib repo <https://github.com/msg-byu/enumlib>`_.
 
 Zeo++
 -----
