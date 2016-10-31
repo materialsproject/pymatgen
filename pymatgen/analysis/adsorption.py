@@ -36,6 +36,10 @@ __status__ = "Development"
 __date__ = "December 2, 2015"
 
 def mi_vec(mi_index):
+    """
+    Convenience function which returns the unit vector aligned 
+    with the miller index.
+    """
     mvec = np.array([1./n if n!=0 else 0 
                      for n in mi_index])
     return mvec / np.linalg.norm(mvec)
@@ -46,7 +50,7 @@ class AdsorbateSiteFinder(object):
     adsorbate structures
     """
 
-    def __init__(self, slab, selective_dynamics = False):
+    def __init__(self, slab, selective_dynamics=False, height_threshold=None):
         """
         Create an AdsorbateSiteFinder object.
 
@@ -54,16 +58,16 @@ class AdsorbateSiteFinder(object):
             slab (Slab): slab object for which to find adsorbate
             sites
         """
+        self.mi_string = ''.join([str(i) for i in slab.miller_index])
+        # get surface normal from miller index
+        self.mvec = mi_vec(slab.miller_index)
         slab = self.assign_site_properties(slab)
         if selective_dynamics:
             slab = self.assign_selective_dynamics(slab)
 
         self.slab = slab#reorient_z(slab)
-        self.mi_string = ''.join([str(i) for i in self.slab.miller_index])
-        # get surface normal from miller index
-        self.mvec = mi_vec(self.slab.miller_index)
-
-    def find_surface_sites_by_height(self, slab, window = 1.0):
+        
+    def find_surface_sites_by_height(self, slab, window = 0.3):
         """
         This method finds surface sites by determining which sites are within
         a threshold value in height from the topmost site in a list of sites
@@ -78,12 +82,12 @@ class AdsorbateSiteFinder(object):
             list of sites selected to be within a threshold of the highest
         """
 
-        # Determine the window threshold in fractional coordinates
-        c_window = window / np.linalg.norm(slab.lattice.matrix[-1])
-        highest_site_z = max([site.frac_coords[-1] for site in slab.sites])
-
-        return [site for site in slab.sites 
-                if site.frac_coords[-1] >= highest_site_z - c_window]
+        # Get projection of coordinates along the miller index
+        m_projs = np.array([np.dot(site.coords, self.mvec)
+                            for site in slab.sites])
+        # Mask based on window threshold along the miller index
+        mask = (m_projs - np.amax(m_projs)) >= -window
+        return [slab.sites[n] for n in np.where(mask)[0]]
 
     def find_surface_sites_by_coordination(self, slab):
         """
@@ -95,51 +99,17 @@ class AdsorbateSiteFinder(object):
                              "Use adsorption.generate_decorated_slabs to assign.")
         pass
 
-    def assign_site_properties(self, slab):
+    def assign_site_properties(self, slab, height=0.1):
         """
         Assigns site properties.
         """
         if 'surface_properties' in slab.site_properties.keys():
             return slab
-        elif alpha is None:
-            surf_sites = self.find_surface_sites_by_height(slab)
         else:
-            surf_sites = self.find_surface_sites_by_alpha(slab)
+            surf_sites = self.find_surface_sites_by_height(slab)
         return slab.copy(site_properties = {'surface_properties': ['surface' if site in surf_sites
                                                            else 'subsurface' for site in 
                                                            slab.sites]})
-
-    def find_surface_sites_by_alpha(self, slab, alpha = None):
-        """
-        This method finds surface sites by determining which sites are on the
-        top layer of an alpha shape corresponding to the slab repeated once
-        in each direction
-
-        Args:
-            site_list (list): list of sites from which to select surface sites
-            alpha (float): alpha value criteria for creating alpha shape 
-                for the slab object
-        """
-        # construct a mesh from slab repeated three times
-        frac_coords = np.array([site.frac_coords for site in slab.sites])
-        average_z = np.average(frac_coords[:,-1])
-        repeated = np.array([i + (0,) for i in 
-                             itertools.product([-1,0,1], repeat=2)])
-        mesh = [r + fc for r, fc in itertools.product(repeated,
-                                                      frac_coords)]
-        # convert mesh to input string for Clarkson hull
-        alpha_hull = get_alpha_shape(mesh)
-        alpha_coords = np.reshape(alpha_hull, (np.shape(alpha_hull)[0]*3, 3))
-        surf_sites = [site for site in slab.sites
-                      if site.frac_coords in alpha_coords
-                      and site.frac_coords[-1] > average_z]
-        return surf_sites
-
-        '''
-        mesh_string = '\n'.join([' '.join([str(j) for j in frac_coords]) 
-                                 for frac_coords in mesh])
-        ahull_string = subprocess.check_output(["hull", "-A"], stdin = mesh_string)
-        '''
 
     def get_extended_surface_mesh(self, radius = 6.0, window = 1.0):
         """
@@ -414,7 +384,6 @@ if __name__ == "__main__":
     asf = AdsorbateSiteFinder(slabs[1], selective_dynamics = True)
 
     #surf_sites_height = asf.find_surface_sites_by_height(slabs[0])
-    #surf_sites_alpha = asf.find_surface_sites_by_alpha(slabs[0])
     #sites = asf.find_adsorption_sites(near_reduce = False, put_inside = False)
     structs = asf.generate_adsorption_structures('O', [[0.0, 0.0, 0.0]])
                                                     #repeat = [2, 2, 1])
