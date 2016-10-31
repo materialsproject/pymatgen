@@ -1,14 +1,11 @@
-PyDispatcher==2.0.5
 numpy==1.11.2
-pybtex==0.20.1
 requests==2.11.1
 monty==0.9.6
 pyyaml==3.12
 six==1.10.0
 scipy==0.18.1
 tabulate==0.7.5
-enum34==1.1.6
-Cython==0.24.1
+enum34==1.1.6; python_version < '3.5'
 matplotlib==1.5.3
 palettable==2.1.1
-spglib==1.9.5
+spglib==1.9.7.17

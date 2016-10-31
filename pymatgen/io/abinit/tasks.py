@@ -531,7 +531,7 @@ class TaskManager(MSONable):
     Ideally, the TaskManager should be the **main entry point** used by the task to deal with job submission/optimization
     """
     YAML_FILE = "manager.yml"
-    USER_CONFIG_DIR = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
+    USER_CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".abinit", "abipy")
 
     ENTRIES = {"policy", "qadapters", "db_connector", "batch_adapter"}
 

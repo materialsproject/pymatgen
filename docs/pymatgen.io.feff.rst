@@ -6,7 +6,6 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.io.feff.tests
 
 Submodules
 ----------

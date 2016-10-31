@@ -455,24 +455,24 @@ class MVLSlabSetTest(PymatgenTest):
 
         vis_bulk = MVLSlabSet(self.bulk, bulk=True)
         vis = MVLSlabSet(self.slab)
-        vis_bulk_gpu = MVLSlabSet(self.bulk, bulk=True, gpu=True)
 
         self.d_bulk = vis_bulk.all_input
         self.d_slab = vis.all_input
-        self.d_bulk_gpu = vis_bulk_gpu.all_input
+
+    def test_user_incar_settings(self):
+        # Make sure user incar settings properly override AMIX.
+        si = self.get_structure('Si')
+        vis = MVLSlabSet(si, user_incar_settings={"AMIX": 0.1})
+        self.assertEqual(vis.incar["AMIX"], 0.1)
 
     def test_bulk(self):
 
         incar_bulk = self.d_bulk["INCAR"]
-        incar_bulk_gpu = self.d_bulk_gpu["INCAR"]
         poscar_bulk = self.d_bulk["POSCAR"]
 
         self.assertEqual(incar_bulk["ISIF"], 3)
         self.assertEqual(poscar_bulk.structure.formula,
                          self.bulk.formula)
-        # Test VASP-gpu compatibility
-        self.assertEqual(incar_bulk_gpu["KPAR"], 1)
-        self.assertTrue("NPAR" not in incar_bulk_gpu.keys())
 
     def test_slab(self):
 

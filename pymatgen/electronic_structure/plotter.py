@@ -16,7 +16,7 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.util.plotting_utils import get_publication_quality_plot, \
     add_fig_kwargs, get_ax3d_fig_plt
 
-from pymatgen import Energy
+from pymatgen.core.units import Energy
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
@@ -697,7 +697,7 @@ class BSPlotterProjected(BSPlotter):
         super(BSPlotterProjected, self).__init__(bs)
 
     def _get_projections_by_branches(self, dictio):
-        proj = self._bs.get_projections_on_elts_and_orbitals(dictio)
+        proj = self._bs.get_projections_on_elements_and_orbitals(dictio)
         proj_br = []
         for b in self._bs.branches:
             if self._bs.is_spin_polarized:

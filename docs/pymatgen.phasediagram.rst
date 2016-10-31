@@ -6,7 +6,6 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.phasediagram.tests
 
 Submodules
 ----------

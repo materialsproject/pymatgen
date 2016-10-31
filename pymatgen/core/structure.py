@@ -1357,7 +1357,7 @@ class IStructure(SiteCollection, MSONable):
                 return XSF(self).to_string()
         else:
             if filename:
-                with open(filename, "w") as f:
+                with zopen(filename, "wt") as f:
                     yaml.dump(self.as_dict(), f, Dumper=Dumper)
                 return
             else:
@@ -1449,7 +1449,7 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.vasp import Vasprun, Chgcar
         from monty.io import zopen
         fname = os.path.basename(filename)
-        with zopen(filename) as f:
+        with zopen(filename, "rt") as f:
             contents = f.read()
         if fnmatch(fname.lower(), "*.cif*"):
             return cls.from_str(contents, fmt="cif",
@@ -2305,7 +2305,7 @@ class Structure(IStructure, collections.MutableSequence):
                 new_sp = species_mapping.get(sp, sp)
                 try:
                     c += Composition(new_sp) * amt
-                except TypeError:
+                except Exception:
                     c += {new_sp: amt}
             return PeriodicSite(c, site.frac_coords, latt,
                                 properties=site.properties)

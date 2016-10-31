@@ -6,7 +6,6 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.command_line.tests
 
 Submodules
 ----------

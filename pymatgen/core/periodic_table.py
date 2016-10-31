@@ -912,7 +912,7 @@ class Specie(MSONable):
             warnings.warn("No default ionic radius for %s. Using ls data." %
                           self)
             return d["Ionic radii ls"][oxstr]
-        warnings.warn("No ionic radius for %s!")
+        warnings.warn("No ionic radius for {}!".format(self))
         return None
 
     @property

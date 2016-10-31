@@ -5,12 +5,14 @@ All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on `PyPI <http://pypi.python.org>`_.
 
-1. Python 2.7-3.x supported. It is highly recommended that you use Python 3.5
-   unless you know you need other dependencies that works with Python 2.x only.
+1. Python 2.7-3.x supported. **It is highly recommended that you use Python 3.5
+   unless you know you need other dependencies that works with Python 2.x
+   only.**
 2. numpy>=1.9
 3. scipy>0.14
-4. monty>=0.7.0
-5. requests 2.0+
+4. matplotlib>=1.5+
+4. monty>=0.9.6
+5. requests>=2.0+
 6. pybtex
 7. pyyaml
 8. tabulate
@@ -26,22 +28,20 @@ Optional dependencies
 
 Optional libraries that are required if you need certain features.
 
-1. pyhull 1.5.2+ (highly recommended): For electronic structure, generation of
-   Pourbaix diagrams.
-2. matplotlib 1.5+ (highly recommended): For plotting (e.g., Phase Diagrams).
-3. sympy (highly recommended): For defect generation and analysis.
-4. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
+1. pyhull 1.5.2+: For electronic structure, generation of Pourbaix diagrams.
+2. sympy: For defect generation and analysis.
+3. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
    crystal structures using the pymatgen.vis package. Note that the VTK
    package is incompatible with Python 3.x at the moment.
-5. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
+4. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
    Note that the ASE package is incompatible with Python 3.x at the moment.
-6. OpenBabel with Python bindings (http://openbabel.org): Required for the
+5. OpenBabel with Python bindings (http://openbabel.org): Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
-7. nose - For unittesting. Not optional for developers.
+6. nose - For unittesting. Not optional for developers.
 
 Optional non-Python programs
 ----------------------------
@@ -77,11 +77,12 @@ the moment) required only for certain features:
 Step-by-step installation instructions
 ======================================
 
-For these instructions, we will assume the 64-bit versions of all OSes and
-using Python 3.5. If you are not using these, please modify the instructions
-accordingly. However, note that Python 2.7 on Windows require a different
-Visual Studio version. It is therefore highly recommended that you use Python
-3.5.
+For these instructions, we will assume the **64-bit** versions of all OSes.
+For OSX and Linux, both Python 3.5 adn 2.7 are supported. For Windows, only
+Python 3.5 is supported. Note that you will not be able to use all
+functionality on Windows (unless you use Cygwin) because some
+of the external programs have to be compiled from Fortran source, but most of
+the common functionality should work just fine.
 
 Step 1: Preparing your system
 -----------------------------
@@ -115,8 +116,9 @@ Step 2: Install conda
 ---------------------
 
 Download and install the version of conda for your operating system from
-http://conda.pydata.org/miniconda.html. For Windows, simply double-click the
-exe file. For Linux or Mac, run::
+http://conda.pydata.org/miniconda.html. For Windows, **make sure it is the
+Miniconda3 installer**, and simply double-click the exe file. For Linux or Mac,
+run::
 
     # If Mac
     bash Miniconda3-latest-MacOSX-x86_64.sh
@@ -134,35 +136,41 @@ If you are working with many python packages, it is generally recommended you
 create a separate environment for each of your packages. For example::
 
     conda create --name my_pymatgen python
-    source activate my_pymatgen
+    source activate my_pymatgen  # OSX or Linux
+    activate my_pymatgen  # Windows
 
-Step 3: Install the critical dependencies using conda
------------------------------------------------------
+Step 3: Install pymatgen
+------------------------
 
-Use conda to install some critical dependencies as follows::
+You can install pymatgen via conda as well via the `matsci channel on
+Anaconda cloud <https://anaconda.org/matsci>`_ maintained by the Materials
+Virtual Lab::
+
+    conda install --channel matsci pymatgen
+
+If the above fails, try using conda to install some critical dependencies and
+then do pip install::
 
     conda install --yes numpy scipy matplotlib
-
-Step 4: Install pymatgen via pip
---------------------------------
-
-If all goes well, standard pip install of pymatgen should work::
-
     pip install pymatgen
 
-Step 5: (Optional) Install enumlib and bader
---------------------------------------------
-
-For Windows, use conda to install fortran and some requirements first::
-
-    conda install --yes git m2w64-gcc-fortran make
+Step 4: (Optional) Install enumlib and bader (only tested in OSX and Linux)
+---------------------------------------------------------------------------
 
 If you would like to use the enumeration capabilities powered by Gus Hart's
 enumlib or perform Bader charge analysis powered by the Bader analysis code
-of the Henkelmann group, you can install it using the pmg command line tool
-as follows::
+of the Henkelmann group, the `matsci channel on Anaconda cloud
+<https://anaconda.org/matsci>`_ has builds for enumlib and bader for OSX and
+Linux (sorry, Windows users, you are on your own as the develpers of these
+packages do not support Windows)::
 
-   pmg setup --install enum
+    conda install --channel matsci bader
+    conda install --channel matsci enumlib
+
+If the above fails, you can also try installing these from source using the pmg
+command line tool as follows::
+
+   pmg setup --install enumlib
    pmg setup --install bader
 
 Then put these in your PATH somewhere.
@@ -365,13 +373,6 @@ Here are the steps that I took to make it work:
     you may need to add the following into your .bash_profile::
 
         export PYTHONPATH=/usr/local/lib:$PYTHONPATH
-
-Enumlib (updated Mar 2016)
---------------------------
-
-The author now has his own Github repo with the relevant instructions to
-compile a newer version of enumlib. Follow the instructions given at the
-`enumlib repo <https://github.com/msg-byu/enumlib>`_.
 
 Zeo++
 -----

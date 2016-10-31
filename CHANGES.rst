@@ -1,6 +1,51 @@
 Change log
 ==========
 
+v4.4.11
+-------
+* Update to new version of spglib.
+
+v4.4.10
+-------
+* Minor fixes for proper gzipped structure file support and MVLSlabSet.
+
+v4.4.9
+------
+* Dependency cleanup. Now, basic pymatgen requires on much fewer
+  packages.
+* Fixed reading of POSCAR files when more than 20 types of atoms.
+* Misc bug fixes.
+
+v4.4.8
+------
+* Cleanup of entry points and dependencies.
+
+v4.4.7
+------
+* Update to spglib 1.9.7.1
+* Proper use of dependency markers for enum34.
+
+v4.4.6
+------
+* Update to spglib 1.9.6, which fixes some bugs and is Windows compatible.
+
+v4.4.5
+------
+* Bug fix for SubstitutionProb.
+
+v4.4.4
+------
+* Bug fix for electronic structure plotter.
+
+v4.4.3
+------
+* Bug fix for Diffusion Analyzer.
+
+v4.4.2
+------
+* Bug fix for BS serialization.
+* Cleanup dependencies.
+
 v4.4.1
 ------
 * Massive updates to FEFF support (Kiran Mathews).

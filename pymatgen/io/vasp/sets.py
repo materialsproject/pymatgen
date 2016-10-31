@@ -1023,14 +1023,23 @@ class MVLSlabSet(MPRelaxSet):
         **kwargs:
             Other kwargs supported by :class:`DictSet`.
     """
-    def __init__(self, structure, gpu=False, k_product=50, bulk=False,
-                 **kwargs):
+    def __init__(self, structure, k_product=50, bulk=False, **kwargs):
         super(MVLSlabSet, self).__init__(structure, **kwargs)
         self.structure = structure
-        self.gpu = gpu
         self.k_product = k_product
         self.bulk = bulk
         self.kwargs = kwargs
+
+        slab_incar = {"EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
+                      "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
+        if not self.bulk:
+            slab_incar["ISIF"] = 2
+            slab_incar["AMIN"] = 0.01
+            slab_incar["AMIX"] = 0.2
+            slab_incar["BMIX"] = 0.001
+            slab_incar["NELMIN"] = 8
+
+        self.config_dict["INCAR"].update(slab_incar)
 
     @property
     def kpoints(self):
@@ -1061,48 +1070,6 @@ class MVLSlabSet(MPRelaxSet):
         kpt.kpts[0] = kpt_calc
 
         return kpt
-
-    @property
-    def incar(self):
-        incar = super(MVLSlabSet, self).incar
-
-        incar.update({"EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
-                      "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3})
-
-        if not self.bulk:
-            incar["ISIF"] = 2
-            incar["AMIN"] = 0.01
-            incar["AMIX"] = 0.2
-            incar["BMIX"] = 0.001
-            incar["NELMIN"] = 8
-
-        if self.gpu:
-            # Sets KPAR to allow for the use of VASP-gpu
-            if "KPAR" not in incar:
-                # KPAR setting of 1 is the safest setting,
-                # but for optimal performance, we normally
-                # use the square root of the number of KPOINTS
-                incar["KPAR"] = 1
-            if "NPAR" in incar:
-                del incar["NPAR"]
-
-        # To get input sets, the input structure has to has the same number
-        # of required parameters as a Structure object (ie. 4). Slab
-        # attributes aren't going to affect the VASP inputs anyways so
-        # converting the slab into a structure should not matter
-
-        abc = self.structure.lattice.abc
-        kpt_calc = [int(self.k_product / abc[0] + 0.5),
-                    int(self.k_product / abc[1] + 0.5),
-                    int(self.k_product / abc[1] + 0.5)]
-
-        kpts = kpt_calc
-
-        if kpts[0] < 5 and kpts[1] < 5:
-            if (not self.bulk) or kpts[2] < 5:
-                incar["ISMEAR"] = 0
-
-        return incar
 
 
 class MITNEBSet(MITRelaxSet):
