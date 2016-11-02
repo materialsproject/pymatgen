@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v4.4.11
+v4.4.12
 -------
-* Update to new version of spglib.
+* Fix for dynamic numpy import.

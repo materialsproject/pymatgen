@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import glob
 import os
 from io import open
 import sys
@@ -16,8 +15,21 @@ class build_ext(_build_ext):
     def finalize_options(self):
         _build_ext.finalize_options(self)
         # Prevent numpy from thinking it is still in its setup process:
-        __builtins__.__NUMPY_SETUP__ = False
-        import numpy
+        if sys.version_info[0] >= 3:
+            import builtins
+            if hasattr(builtins, '__NUMPY_SETUP__'):
+                del builtins.__NUMPY_SETUP__
+            import importlib
+            import numpy
+            importlib.reload(numpy)
+        else:
+            import __builtin__
+            if hasattr(__builtin__, '__NUMPY_SETUP__'):
+                del __builtin__.__NUMPY_SETUP__
+            import imp
+            import numpy
+            imp.reload(numpy)
+
         self.include_dirs.append(numpy.get_include())
 
 SETUP_PTH = os.path.dirname(__file__)
@@ -34,12 +46,12 @@ with open(os.path.join(SETUP_PTH, "README.rst")) as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="4.4.11",
+    version="4.4.12",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy', 'setuptools>=18.0'],
     install_requires=["numpy>=1.9", "six", "requests", "pyyaml>=3.11",
                       "monty>=0.9.6", "scipy>=0.14",
-                      "tabulate", "spglib>=1.9.7.1",
+                      "tabulate", "spglib>=1.9.7.17",
                       "matplotlib>=1.5", "palettable>=2.1.1"],
     extras_require={
         ':python_version == "2.7"': [
