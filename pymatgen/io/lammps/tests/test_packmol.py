@@ -8,7 +8,7 @@ from __future__ import division, print_function, unicode_literals, \
 import os
 import unittest
 
-from pymatgen.core import Molecule
+from pymatgen import Molecule
 
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'

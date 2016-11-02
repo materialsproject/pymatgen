@@ -4,6 +4,19 @@
 
 from __future__ import division, unicode_literals
 
+import re
+from string import Template
+
+from six import string_types
+from six.moves import zip
+
+from monty.io import zopen
+
+from pymatgen.core.structure import Molecule, Structure
+from monty.json import MSONable
+from pymatgen.core.units import Energy
+from pymatgen.core.units import FloatWithUnit
+
 """
 This module implements input and output processing from Nwchem.
 
@@ -29,20 +42,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "6/5/13"
-
-
-import re
-from string import Template
-
-from six import string_types
-from six.moves import zip
-
-from monty.io import zopen
-
-from pymatgen.core import Molecule,Structure
-from monty.json import MSONable
-from pymatgen.core.units import Energy
-from pymatgen.core.units import FloatWithUnit
 
 
 class NwTask(MSONable):

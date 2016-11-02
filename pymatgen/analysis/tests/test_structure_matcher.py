@@ -13,7 +13,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher, \
     ElementComparator, FrameworkComparator, OrderDisorderElementComparator
 from monty.json import MontyDecoder
 from pymatgen.core.operations import SymmOp
-from pymatgen.core import Structure, Element, Lattice
+from pymatgen import Structure, Element, Lattice
 from pymatgen.util.coord_utils import find_in_coord_list_pbc
 from pymatgen.util.testing import PymatgenTest
 

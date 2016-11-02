@@ -43,13 +43,7 @@ SETTINGS = _load_pmg_settings()
 # Useful aliases for commonly used objects and modules.
 # Allows from pymatgen import <class> for quick usage.
 
-from .core.periodic_table import Element, Specie, DummySpecie
-from .core.composition import Composition
-from .core.structure import Structure, IStructure, Molecule, IMolecule
-from .core.lattice import Lattice
-from .core.sites import Site, PeriodicSite
-from .core.operations import SymmOp
-from .core.units import Unit, FloatWithUnit, ArrayWithUnit
+from pymatgen.core import *
 from .electronic_structure.core import Spin, Orbital
 from .matproj.rest import MPRester
 from monty.json import MontyEncoder, MontyDecoder, MSONable
