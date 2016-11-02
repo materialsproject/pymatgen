@@ -379,22 +379,21 @@ class Element(Enum):
         # Store key variables for quick access
         self.Z = d["Atomic no"]
         self.X = d.get("X", 0)
-
         self._data = d
 
     def __getattr__(self, item):
         if item in ["mendeleev_no", "electrical_resistivity",
                     "velocity_of_sound", "reflectivity",
                     "refractive_index", "poissons_ratio", "molar_volume",
-                  "electronic_structure", "thermal_conductivity",
-                  "boiling_point", "melting_point",
-                  "critical_temperature", "superconduction_temperature",
-                  "liquid_range", "bulk_modulus", "youngs_modulus",
-                  "brinell_hardness", "rigidity_modulus",
-                  "mineral_hardness", "vickers_hardness",
-                  "density_of_solid", "atomic_radius_calculated",
-                  "van_der_waals_radius",
-                  "coefficient_of_linear_thermal_expansion"]:
+                    "electronic_structure", "thermal_conductivity",
+                    "boiling_point", "melting_point",
+                    "critical_temperature", "superconduction_temperature",
+                    "liquid_range", "bulk_modulus", "youngs_modulus",
+                    "brinell_hardness", "rigidity_modulus",
+                    "mineral_hardness", "vickers_hardness",
+                    "density_of_solid", "atomic_radius_calculated",
+                    "van_der_waals_radius",
+                    "coefficient_of_linear_thermal_expansion"]:
             kstr = item.capitalize().replace("_", " ")
             val = self._data.get(kstr, None)
             if str(val).startswith("no data"):
