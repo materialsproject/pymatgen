@@ -50,7 +50,7 @@ setup(
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy', 'setuptools>=18.0'],
     install_requires=["numpy>=1.9", "six", "requests", "pyyaml>=3.11",
-                      "monty>=0.9.6", "scipy>=0.14",
+                      "monty>=0.9.6", "scipy>=0.14", "pydispatcher>=2.0.5",
                       "tabulate", "spglib>=1.9.7.17",
                       "matplotlib>=1.5", "palettable>=2.1.1"],
     extras_require={
