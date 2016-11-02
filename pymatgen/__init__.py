@@ -17,8 +17,9 @@ SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 def _load_pmg_settings():
     if os.path.exists(SETTINGS_FILE):
         try:
-            from monty.serialization import loadfn
-            return loadfn(SETTINGS_FILE)
+            import yaml
+            with open(SETTINGS_FILE, "rt") as f:
+                return yaml.load(f)
         except:
             # If there are any errors, default to using environment variables
             # if present.
@@ -35,9 +36,9 @@ SETTINGS = _load_pmg_settings()
 
 # Order of imports is important on some systems to avoid
 # failures when loading shared libraries.
-import spglib
-from . import optimization, util
-del(spglib, optimization, util)
+# import spglib
+# from . import optimization, util
+# del(spglib, optimization, util)
 
 # Useful aliases for commonly used objects and modules.
 # Allows from pymatgen import <class> for quick usage.
