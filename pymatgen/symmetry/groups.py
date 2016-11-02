@@ -3,6 +3,17 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import os
+from itertools import product
+from fractions import Fraction
+from abc import ABCMeta, abstractproperty
+from collections import Sequence
+import numpy as np
+import warnings
+from monty.serialization import loadfn
+
+from pymatgen.core.operations import SymmOp
+from monty.design_patterns import cached_class
 
 """
 Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.
@@ -17,30 +28,15 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "4/4/14"
 
-import os
-from itertools import product
-from fractions import Fraction
-from abc import ABCMeta, abstractproperty
-from collections import Sequence
-import numpy as np
-import warnings
-from monty.serialization import loadfn
 
-from pymatgen.core.operations import SymmOp
-from monty.design_patterns import cached_class
-
-SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.yaml"))
+SYMM_DATA = None
 
 
-GENERATOR_MATRICES = SYMM_DATA["generator_matrices"]
-POINT_GROUP_ENC = SYMM_DATA["point_group_encoding"]
-SPACE_GROUP_ENC = SYMM_DATA["space_group_encoding"]
-ABBREV_SPACE_GROUP_MAPPING = SYMM_DATA["abbreviated_spacegroup_symbols"]
-TRANSLATIONS = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
-FULL_SPACE_GROUP_MAPPING = {
-    v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
-MAXIMAL_SUBGROUPS = {int(k): v
-                     for k, v in SYMM_DATA["maximal_subgroups"].items()}
+def get_symm_data(name):
+    global SYMM_DATA
+    if SYMM_DATA is None:
+        SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.yaml"))
+    return SYMM_DATA[name]
 
 
 class SymmetryGroup(Sequence):
@@ -119,8 +115,8 @@ class PointGroup(SymmetryGroup):
             int_symbol (str): International or Hermann-Mauguin Symbol.
         """
         self.symbol = int_symbol
-        self.generators = [GENERATOR_MATRICES[c]
-                           for c in POINT_GROUP_ENC[int_symbol]]
+        self.generators = [get_symm_data("generator_matrices")[c]
+                           for c in get_symm_data("point_group_encoding")[int_symbol]]
         self._symmetry_ops = set([SymmOp.from_rotation_and_translation(m)
                                   for m in self._generate_full_symmetry_ops()])
         self.order = len(self._symmetry_ops)
@@ -187,7 +183,7 @@ class SpaceGroup(SymmetryGroup):
     """
 
     # Contains the entire list of supported Space Group symbols.
-    SG_SYMBOLS = tuple(SPACE_GROUP_ENC.keys())
+    SG_SYMBOLS = tuple(get_symm_data("space_group_encoding").keys())
 
     def __init__(self, int_symbol):
         """
@@ -202,16 +198,26 @@ class SpaceGroup(SymmetryGroup):
                 that for rhomohedral cells, the hexagonal setting can be
                 accessed by adding a "H", e.g., "R-3mH".
         """
-        if int_symbol not in SPACE_GROUP_ENC and int_symbol not in \
-                ABBREV_SPACE_GROUP_MAPPING and int_symbol not in \
-                FULL_SPACE_GROUP_MAPPING:
-            raise ValueError("Bad international symbol %s" % int_symbol)
-        elif int_symbol in ABBREV_SPACE_GROUP_MAPPING:
-            int_symbol = ABBREV_SPACE_GROUP_MAPPING[int_symbol]
-        elif int_symbol in FULL_SPACE_GROUP_MAPPING:
-            int_symbol = FULL_SPACE_GROUP_MAPPING[int_symbol]
+        gen_matrices = get_symm_data("generator_matrices")
+        # POINT_GROUP_ENC = SYMM_DATA["point_group_encoding"]
+        sgencoding = get_symm_data("space_group_encoding")
+        abbrev_sg_mapping = get_symm_data("abbreviated_spacegroup_symbols")
+        translations = {k: Fraction(v) for k, v in get_symm_data(
+            "translations").items()}
+        full_sg_mapping = {
+             v["full_symbol"]: k
+             for k, v in get_symm_data("space_group_encoding").items()}
 
-        data = SPACE_GROUP_ENC[int_symbol]
+        if int_symbol not in sgencoding and int_symbol not in \
+                abbrev_sg_mapping and int_symbol not in \
+                full_sg_mapping:
+            raise ValueError("Bad international symbol %s" % int_symbol)
+        elif int_symbol in abbrev_sg_mapping:
+            int_symbol = abbrev_sg_mapping[int_symbol]
+        elif int_symbol in full_sg_mapping:
+            int_symbol = full_sg_mapping[int_symbol]
+
+        data = sgencoding[int_symbol]
 
         self.symbol = int_symbol
         # TODO: Support different origin choices.
@@ -225,10 +231,10 @@ class SpaceGroup(SymmetryGroup):
                  [0, 0, 0, 1]]))
         for i in range(ngen):
             m = np.eye(4)
-            m[:3, :3] = GENERATOR_MATRICES[enc.pop(0)]
-            m[0, 3] = TRANSLATIONS[enc.pop(0)]
-            m[1, 3] = TRANSLATIONS[enc.pop(0)]
-            m[2, 3] = TRANSLATIONS[enc.pop(0)]
+            m[:3, :3] = gen_matrices[enc.pop(0)]
+            m[0, 3] = translations[enc.pop(0)]
+            m[1, 3] = translations[enc.pop(0)]
+            m[2, 3] = translations[enc.pop(0)]
             symm_ops.append(m)
         self.generators = symm_ops
         self.full_symbol = data["full_symbol"]
@@ -363,11 +369,12 @@ class SpaceGroup(SymmetryGroup):
 
         groups = [[supergroup.int_number]]
         all_groups = [supergroup.int_number]
-        count = 0
+        max_subgroups = {int(k): v
+                         for k, v in get_symm_data("maximal_subgroups").items()}
         while True:
             new_sub_groups = set()
             for i in groups[-1]:
-                new_sub_groups.update([j for j in MAXIMAL_SUBGROUPS[i] if j
+                new_sub_groups.update([j for j in max_subgroups[i] if j
                                        not in all_groups])
             if self.int_number in new_sub_groups:
                 return True
@@ -424,7 +431,7 @@ def sg_symbol_from_int_number(int_number, hexagonal=True):
         (str) Spacegroup symbol
     """
     syms = []
-    for n, v in SPACE_GROUP_ENC.items():
+    for n, v in get_symm_data("space_group_encoding").items():
         if v["int_number"] == int_number:
             syms.append(n)
     if len(syms) == 0:

@@ -28,13 +28,6 @@ from tabulate import tabulate
 
 import numpy as np
 
-import yaml
-
-try:
-    from yaml import CSafeDumper as Dumper, CLoader as Loader
-except ImportError:
-    from yaml import SafeDumper as Dumper, Loader
-
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp
@@ -1350,6 +1343,12 @@ class IStructure(SiteCollection, MSONable):
             else:
                 return XSF(self).to_string()
         else:
+            import yaml
+
+            try:
+                from yaml import CSafeDumper as Dumper
+            except ImportError:
+                from yaml import SafeDumper as Dumper
             if filename:
                 with zopen(filename, "wt") as f:
                     yaml.dump(self.as_dict(), f, Dumper=Dumper)
@@ -1399,6 +1398,7 @@ class IStructure(SiteCollection, MSONable):
             d = json.loads(input_string)
             s = Structure.from_dict(d)
         elif fmt == "yaml":
+            import yaml
             d = yaml.load(input_string)
             s = Structure.from_dict(d)
         elif fmt == "xsf":
@@ -1973,6 +1973,12 @@ class IMolecule(SiteCollection, MSONable):
             else:
                 return json.dumps(self.as_dict())
         elif fmt == "yaml" or fnmatch(fname, "*.yaml*"):
+            import yaml
+
+            try:
+                from yaml import CSafeDumper as Dumper
+            except ImportError:
+                from yaml import SafeDumper as Dumper
             if filename:
                 with zopen(fname, "wt", encoding='utf8') as f:
                     return yaml.dump(self.as_dict(), f, Dumper=Dumper)
@@ -2018,6 +2024,12 @@ class IMolecule(SiteCollection, MSONable):
             d = json.loads(input_string)
             return cls.from_dict(d)
         elif fmt == "yaml":
+            import yaml
+
+            try:
+                from yaml import CSafeDumper as Dumper, CLoader as Loader
+            except ImportError:
+                from yaml import SafeDumper as Dumper, Loader
             d = yaml.load(input_string, Loader=Loader)
             return cls.from_dict(d)
         else:
