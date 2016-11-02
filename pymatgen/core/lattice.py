@@ -12,7 +12,6 @@ from six.moves import map, zip
 import numpy as np
 from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
-from scipy.spatial import Voronoi
 
 from monty.json import MSONable
 from monty.dev import deprecated
@@ -864,6 +863,7 @@ class Lattice(MSONable):
         list_k_points = []
         for i, j, k in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
             list_k_points.append(i * vec1 + j * vec2 + k * vec3)
+        from scipy.spatial import Voronoi
         tess = Voronoi(list_k_points)
         to_return = []
         for r in tess.ridge_dict:

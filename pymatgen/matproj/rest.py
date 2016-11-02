@@ -18,7 +18,7 @@ from pymatgen import SETTINGS
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
@@ -340,6 +340,8 @@ class MPRester(object):
                         data=data,
                         entry_id=d["task_id"])
                 entries.append(e)
+            from pymatgen.entries.compatibility import \
+                MaterialsProjectCompatibility
             entries = MaterialsProjectCompatibility().process_entries(entries)
         else:
             entries = []

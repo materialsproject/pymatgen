@@ -38,7 +38,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_angle, all_distances, \
     lattice_points_in_supercell
 from pymatgen.core.units import Mass, Length
-from pymatgen.symmetry.groups import SpaceGroup
+
 from monty.io import zopen
 
 """
@@ -492,6 +492,7 @@ class IStructure(SiteCollection, MSONable):
             tol (float): A fractional tolerance to deal with numerical
                precision issues in determining if orbits are the same.
         """
+        from pymatgen.symmetry.groups import SpaceGroup
         try:
             i = int(sg)
             sgp = SpaceGroup.from_int_number(i)
