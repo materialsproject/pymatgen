@@ -44,10 +44,9 @@ from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_angle, all_distances, \
     lattice_points_in_supercell
-from pymatgen.core.units import Mass, Length, ArrayWithUnit
+from pymatgen.core.units import Mass, Length
 from pymatgen.symmetry.groups import SpaceGroup
 from monty.io import zopen
-from monty.dev import deprecated
 
 """
 This module provides classes used to define a non-periodic molecule and a
