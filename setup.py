@@ -46,12 +46,12 @@ with open(os.path.join(SETUP_PTH, "README.rst")) as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="4.4.12",
+    version="4.5.0",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy', 'setuptools>=18.0'],
     install_requires=["numpy>=1.9", "six", "requests", "pyyaml>=3.11",
-                      "monty>=0.9.6", "scipy>=0.14",
-                      "tabulate", "spglib>=1.9.7.17",
+                      "monty>=0.9.6", "scipy>=0.14", "pydispatcher>=2.0.5",
+                      "tabulate", "spglib>=1.9.8.7",
                       "matplotlib>=1.5", "palettable>=2.1.1"],
     extras_require={
         ':python_version == "2.7"': [

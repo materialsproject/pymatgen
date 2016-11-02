@@ -3,7 +3,18 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import re
 
+import numpy as np
+import warnings
+
+from pymatgen.core.operations import SymmOp
+from pymatgen import Element, Molecule, Composition
+from monty.io import zopen
+from pymatgen.util.coord_utils import get_angle
+import scipy.constants as cst
+
+from pymatgen.electronic_structure.core import Spin
 """
 This module implements input and output processing from Gaussian.
 """
@@ -16,18 +27,7 @@ __email__ = 'ongsp@ucsd.edu'
 __date__ = '8/1/15'
 
 
-import re
 
-import numpy as np
-import warnings
-
-from pymatgen.core.operations import SymmOp
-from pymatgen.core import Element, Molecule, Composition
-from monty.io import zopen
-from pymatgen.util.coord_utils import get_angle
-import scipy.constants as cst
-
-from pymatgen.electronic_structure.core import Spin
 
 float_patt = re.compile("\s*([+-]?\d+\.\d+)")
 

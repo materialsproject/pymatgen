@@ -1,5 +1,4 @@
 pybtex==0.20.1
-pydispatcher==2.0.5
 nose==1.3.7
 sympy==1.0
 pyhull==1.5.6

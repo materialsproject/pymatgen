@@ -23,7 +23,7 @@ from monty.fnmatch import WildCard
 from monty.termcolor import colored
 from monty.inspect import all_subclasses
 from monty.json import MontyDecoder
-from pymatgen.core import Structure
+from pymatgen.core.structure import Structure
 from monty.json import MSONable
 from pymatgen.serializers.json_coders import pmg_serialize
 from .abiinspect import YamlTokenizer

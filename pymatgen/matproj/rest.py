@@ -14,12 +14,11 @@ from monty.json import MontyDecoder, MontyEncoder
 from six import string_types
 
 from pymatgen import SETTINGS
-from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
-from pymatgen.apps.borg.queen import BorgQueen
+
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
@@ -341,6 +340,8 @@ class MPRester(object):
                         data=data,
                         entry_id=d["task_id"])
                 entries.append(e)
+            from pymatgen.entries.compatibility import \
+                MaterialsProjectCompatibility
             entries = MaterialsProjectCompatibility().process_entries(entries)
         else:
             entries = []
@@ -760,7 +761,9 @@ class MPRester(object):
             created_at (datetime): A datetime object
             ncpus (int): Number of cpus to use in using BorgQueen to
                 assimilate. Defaults to None, which means serial.
-       """
+        """
+        from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
+        from pymatgen.apps.borg.queen import BorgQueen
         drone = VaspToComputedEntryDrone(inc_structure=True,
                                          data=["filename",
                                                "initial_structure"])
