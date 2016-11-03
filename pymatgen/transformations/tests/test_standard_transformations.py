@@ -9,8 +9,7 @@ import unittest2 as unittest
 import json
 import six
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core import PeriodicSite
+from pymatgen import Lattice, PeriodicSite
 from monty.json import MontyDecoder
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.transformations.standard_transformations import *

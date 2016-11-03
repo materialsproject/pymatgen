@@ -4,22 +4,9 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This module implements Compatibility corrections for mixing runs of different
-functionals.
-"""
 
 import six
 from six.moves import filter, map
-
-__author__ = "Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 19, 2012"
-
-
 import os
 
 from collections import defaultdict
@@ -32,6 +19,19 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
 
 import abc
+
+"""
+This module implements Compatibility corrections for mixing runs of different
+functionals.
+"""
+
+
+__author__ = "Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "Mar 19, 2012"
 
 
 class CompatibilityError(Exception):

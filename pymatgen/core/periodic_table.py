@@ -379,20 +379,29 @@ class Element(Enum):
         # Store key variables for quick access
         self.Z = d["Atomic no"]
         self.X = d.get("X", 0)
-        for a in ["mendeleev_no", "electrical_resistivity",
-                  "velocity_of_sound", "reflectivity",
-                  "refractive_index", "poissons_ratio", "molar_volume",
-                  "electronic_structure", "thermal_conductivity",
-                  "boiling_point", "melting_point",
-                  "critical_temperature", "superconduction_temperature",
-                  "liquid_range", "bulk_modulus", "youngs_modulus",
-                  "brinell_hardness", "rigidity_modulus",
-                  "mineral_hardness", "vickers_hardness",
-                  "density_of_solid", "atomic_radius_calculated",
-                  "van_der_waals_radius",
-                  "coefficient_of_linear_thermal_expansion"]:
-            kstr = a.capitalize().replace("_", " ")
-            val = d.get(kstr, None)
+        at_r = d.get("Atomic radius", "no data")
+        if str(at_r).startswith("no data"):
+            self.atomic_radius = None
+        else:
+            self.atomic_radius = Length(at_r, "ang")
+        self.atomic_mass = Mass(d["Atomic mass"], "amu")
+        self._data = d
+
+    def __getattr__(self, item):
+        if item in ["mendeleev_no", "electrical_resistivity",
+                    "velocity_of_sound", "reflectivity",
+                    "refractive_index", "poissons_ratio", "molar_volume",
+                    "electronic_structure", "thermal_conductivity",
+                    "boiling_point", "melting_point",
+                    "critical_temperature", "superconduction_temperature",
+                    "liquid_range", "bulk_modulus", "youngs_modulus",
+                    "brinell_hardness", "rigidity_modulus",
+                    "mineral_hardness", "vickers_hardness",
+                    "density_of_solid", "atomic_radius_calculated",
+                    "van_der_waals_radius",
+                    "coefficient_of_linear_thermal_expansion"]:
+            kstr = item.capitalize().replace("_", " ")
+            val = self._data.get(kstr, None)
             if str(val).startswith("no data"):
                 val = None
             else:
@@ -407,9 +416,10 @@ class Element(Enum):
                                 base_power = re.findall(r'([+-]?\d+)', toks[1])
                                 factor = "e" + base_power[1]
                                 toks[0] += factor
-                                if a == "electrical_resistivity":
+                                if item == "electrical_resistivity":
                                     unit = "ohm m"
-                                elif a == "coefficient_of_linear_thermal_expansion":
+                                elif item == \
+                                        "coefficient_of_linear_thermal_expansion":
                                     unit = "K^-1"
                                 else:
                                     unit = toks[1]
@@ -424,13 +434,8 @@ class Element(Enum):
                         except ValueError as ex:
                             # Ignore error. val will just remain a string.
                             pass
-            setattr(self, a, val)
-        if str(d.get("Atomic radius", "no data")).startswith("no data"):
-            self.atomic_radius = None
-        else:
-            self.atomic_radius = Length(d["Atomic radius"], "ang")
-        self.atomic_mass = Mass(d["Atomic mass"], "amu")
-        self._data = d
+            return val
+        raise AttributeError
 
     @property
     def data(self):

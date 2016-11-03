@@ -8,7 +8,7 @@ from __future__ import division, print_function, unicode_literals, \
 import os
 import unittest
 
-from pymatgen.core import Molecule
+from pymatgen import Molecule
 from pymatgen.io.lammps.utils import Polymer
 from pymatgen.io.lammps.topology import Topology
 

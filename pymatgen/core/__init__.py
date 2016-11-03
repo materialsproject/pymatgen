@@ -5,9 +5,8 @@
 from __future__ import unicode_literals
 
 from .periodic_table import Element, Specie, DummySpecie
-from .composition import Composition, ChemicalPotential
+from .composition import Composition
 from .structure import Structure, IStructure, Molecule, IMolecule
-from .bonds import CovalentBond
 from .lattice import Lattice
 from .sites import Site, PeriodicSite
 from .operations import SymmOp
@@ -20,5 +19,4 @@ operations on them.
 
 __author__ = "Shyue Ping Ong"
 __date__ = "Dec 15, 2010 7:21:29 PM"
-
 

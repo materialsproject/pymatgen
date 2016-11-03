@@ -26,7 +26,8 @@ import itertools
 from itertools import chain
 from pyhull.convex_hull import ConvexHull
 from pymatgen.analysis.pourbaix.entry import MultiEntry, ion_or_solid_comp_object
-from pymatgen.core import Element, Composition
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.composition import Composition
 
 
 logger = logging.getLogger(__name__)

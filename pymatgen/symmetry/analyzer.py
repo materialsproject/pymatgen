@@ -840,6 +840,8 @@ class PointGroupAnalyzer(object):
         self.eig_tol = eigen_tolerance
         self.mat_tol = matrix_tol
         self._analyze()
+        if self.sch_symbol in ["C1v", "C1h"]:
+            self.sch_symbol = "Cs"
 
     def _analyze(self):
         if len(self.centered_mol) == 1:

@@ -1,6 +1,8 @@
 Change log
 ==========
 
-v4.4.11
--------
-* Update to new version of spglib.
+v4.5.0
+------
+* Major speed up of initial load.
+* Collection of misc changes.
+

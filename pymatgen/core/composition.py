@@ -4,6 +4,23 @@
 
 from __future__ import division, unicode_literals
 
+import collections
+import numbers
+import string
+
+import six
+import re
+from six.moves import filter, map, zip
+
+from functools import total_ordering
+
+from monty.fractions import gcd, gcd_float
+from pymatgen.core.periodic_table import get_el_sp, Element
+from pymatgen.util.string_utils import formula_double_format
+from monty.json import MSONable
+from pymatgen.core.units import unitized
+
+
 """
 This module implements a Composition class to represent compositions,
 and a ChemicalPotential class to represent potentials.
@@ -16,23 +33,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Nov 10, 2012"
-
-import collections
-import numbers
-import re
-import string
-
-import six
-from six.moves import filter, map, zip
-
-from fractions import Fraction
-from functools import total_ordering
-
-from monty.fractions import gcd, lcm, gcd_float
-from pymatgen.core.periodic_table import get_el_sp, Element
-from pymatgen.util.string_utils import formula_double_format
-from monty.json import MSONable
-from pymatgen.core.units import unitized
 
 
 @total_ordering
@@ -141,7 +141,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             return self._data.get(sp, 0)
         except ValueError as ex:
             raise TypeError("Invalid key {}, {} for Composition\n"
-                            "ValueError exception:\n{}".format(item, type(item), ex))
+                            "ValueError exception:\n{}".format(item,
+                                                               type(item), ex))
 
     def __len__(self):
         return len(self._data)
@@ -153,9 +154,10 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         try:
             sp = get_el_sp(item)
             return sp in self._data
-        except ValueError:
+        except ValueError as ex:
             raise TypeError("Invalid key {}, {} for Composition\n"
-                            "ValueError exception:\n{}".format(item, type(item), ex))
+                            "ValueError exception:\n{}".format(item,
+                                                               type(item), ex))
 
     def __eq__(self, other):
         #  elements with amounts < Composition.amount_tolerance don't show up
@@ -686,20 +688,20 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         fuzzy_formula = fuzzy_formula.strip()
 
         if len(fuzzy_formula) == 0:
-            #The entire formula has been parsed into m_dict. Return the
-            #corresponding Composition and number of points
+            # The entire formula has been parsed into m_dict. Return the
+            # corresponding Composition and number of points
             if m_dict:
                 yield (Composition.from_dict(m_dict), m_points)
         else:
-            #if there is a parenthesis, remove it and match the remaining stuff
-            #with the appropriate factor
+            # if there is a parenthesis, remove it and match the remaining stuff
+            # with the appropriate factor
             for mp in re.finditer(r"\(([^\(\)]+)\)([\.\d]*)", fuzzy_formula):
                 mp_points = m_points
                 mp_form = fuzzy_formula.replace(mp.group(), " ", 1)
                 mp_dict = dict(m_dict)
                 mp_factor = 1 if mp.group(2) == "" else float(mp.group(2))
-                #Match the stuff inside the parenthesis with the appropriate
-                #factor
+                # Match the stuff inside the parenthesis with the appropriate
+                # factor
                 for match in \
                     Composition._comps_from_fuzzy_formula(mp.group(1),
                                                           mp_dict,
@@ -716,13 +718,13 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                                                               factor=1):
                         only_me = False
                         yield (match[0] + match2[0], match[1] + match2[1])
-                    #if the stuff inside the parenthesis is nothing, then just
-                    #return the stuff inside the parentheses
+                    # if the stuff inside the parenthesis is nothing, then just
+                    # return the stuff inside the parentheses
                     if only_me:
                         yield match
                 return
 
-            #try to match the single-letter elements
+            # try to match the single-letter elements
             m1 = re.match(r"([A-z])([\.\d]*)", fuzzy_formula)
             if m1:
                 m_points1 = m_points
