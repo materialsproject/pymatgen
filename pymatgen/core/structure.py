@@ -14,7 +14,6 @@ import random
 import warnings
 from fnmatch import fnmatch
 import re
-import numpy as np
 
 try:
     # New Py>=3.5 import
@@ -24,7 +23,6 @@ except ImportError:
     from fractions import gcd
 
 import six
-from tabulate import tabulate
 
 import numpy as np
 
@@ -1232,6 +1230,7 @@ class IStructure(SiteCollection, MSONable):
             for k in keys:
                 row.append(props[k][i])
             data.append(row)
+        from tabulate import tabulate
         outs.append(tabulate(data, headers=["#", "SP", "a", "b", "c"] + keys,
                              ))
         return "\n".join(outs)
@@ -2925,13 +2924,13 @@ class Molecule(IMolecule, collections.MutableSequence):
         anchor = np.array(anchor)
         axis = np.array(axis)
 
-        theta = theta % (2*np.pi)
+        theta = theta % (2 * np.pi)
 
         R = expm3(cross(eye(3), axis / norm(axis)) * theta)
 
         for i in indices:
             site = self._sites[i]
-            s = (((R * np.matrix(site.coords - anchor).T).T) + anchor).A1
+            s = ((R * np.matrix(site.coords - anchor).T).T + anchor).A1
             new_site = Site(site.species_and_occu, s, properties=site.properties)
             self._sites[i] = new_site
 
