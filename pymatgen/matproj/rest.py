@@ -9,7 +9,6 @@ import json
 import re
 import warnings
 
-import requests
 from monty.json import MontyDecoder, MontyEncoder
 from six import string_types
 
@@ -100,6 +99,7 @@ class MPRester(object):
         else:
             self.api_key = SETTINGS.get("MAPI_KEY", "")
         self.preamble = endpoint
+        import requests
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
 
