@@ -195,23 +195,26 @@ class AdsorbateSiteFinder(object):
         symm_ops = f_sg.get_symmetry_operations(cartesian=cartesian)
         import pdb; pdb.set_trace()
         """
-        symm_ops = surf_sg.get_symmetry_operations(cartesian = cartesian)
+        symm_ops = surf_sg.get_symmetry_operations()
         print('{}: {} symmetry operations'.format(self.slab.miller_index, len(symm_ops)))
         full_symm_ops = generate_full_symmops(symm_ops, tol=0.1, max_recursion_depth=mrd)
         unique_coords = []
+        # Convert to fractional
+        coords_set = [cart_to_frac(self.slab.lattice, coords) for coords in coords_set]
         # coords_set = [[coord[0], coord[1], 0] for coord in coords_set]
         for coords in coords_set:
             incoord = False
             for op in full_symm_ops:
-                if in_coord_list(unique_coords, op.operate(coords), 
-                                 atol = threshold):
+                if in_coord_list_pbc(unique_coords, op.operate(coords), 
+                                     atol = 1e-6):
                     incoord = True
                     break
             if not incoord:
                 unique_coords += [coords]
-        return unique_coords
+        # convert back to cartesian
+        return [frac_to_cart(self.slab.lattice, coords) for coords in unique_coords]
 
-    def near_reduce(self, coords_set, threshold = 1e-2, pbc = True):
+    def near_reduce(self, coords_set, threshold = 1e-2, pbc=True):
         """
         Prunes coordinate set for coordinates that are within a certain threshold
         
@@ -220,10 +223,12 @@ class AdsorbateSiteFinder(object):
             threshold (float): threshold value for distance
         """
         unique_coords = []
-        for coord in coords_set:
-            if not in_coord_list(unique_coords, coord, threshold):
-                unique_coords += [coord]
-        return unique_coords
+        if pbc:
+            coords_set = [cart_to_frac(self.slab.lattice, coords) for coords in coords_set]
+            for coord in coords_set:
+                if not in_coord_list_pbc(unique_coords, coord, threshold):
+                    unique_coords += [coord]
+        return [frac_to_cart(self.slab.lattice, coords) for coords in unique_coords]
 
     def ensemble_center(self, site_list, indices, cartesian = True):
         """
