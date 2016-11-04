@@ -266,12 +266,13 @@ class AdsorbateSiteFinder(object):
             threshold (float): threshold value for distance
         """
         unique_coords = []
-        if pbc:
-            coords_set = [cart_to_frac(self.slab.lattice, coords) for coords in coords_set]
-            for coord in coords_set:
-                if not in_coord_list_pbc(unique_coords, coord, threshold):
-                    unique_coords += [coord]
-        return [frac_to_cart(self.slab.lattice, coords) for coords in unique_coords]
+        coords_set = [cart_to_frac(self.slab.lattice, coords) 
+                      for coords in coords_set]
+        for coord in coords_set:
+            if not in_coord_list_pbc(unique_coords, coord, threshold):
+                unique_coords += [coord]
+        return [frac_to_cart(self.slab.lattice, coords) 
+                for coords in unique_coords]
 
     def ensemble_center(self, site_list, indices, cartesian = True):
         """
@@ -291,7 +292,6 @@ class AdsorbateSiteFinder(object):
         struct = self.slab.copy()
         if repeat:
             struct.make_supercell(repeat)
-            # import pdb; pdb.set_trace()
         if 'surface_properties' in struct.site_properties.keys():
             molecule.add_site_property("surface_properties",
                                        ["adsorbate"] * molecule.num_sites)
@@ -343,7 +343,6 @@ def get_rot(structure):
     new_z = np.cross(new_x, new_y)
     if np.dot(new_z, c) < 0.:
         new_z = -new_z
-    #import pdb; pdb.set_trace()
     x, y, z = np.eye(3)
     rot_matrix = np.array([np.dot(*el) for el in 
                            itertools.product([x, y, z], 

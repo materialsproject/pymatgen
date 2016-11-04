@@ -19,12 +19,8 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 class AdsorbateSiteFinderTest(PymatgenTest):
     def setUp(self):
-        #self.bcc_struct = Structure.from_spacegroup("Im-3m", Lattice.cubic(2.8),
-        #                                            ["Fe"], [[0, 0, 0]])
         self.structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.5),
                                                 ["Ni"], [[0, 0, 0]])
-
-        #self.hcp_struct = Structure.from_spacegroup("")
         slabs = generate_all_slabs(self.structure, max_index=1,
                                    min_slab_size=6.0, min_vacuum_size=15.0,
                                    max_normal_search=1, center_slab=True)
@@ -37,7 +33,6 @@ class AdsorbateSiteFinderTest(PymatgenTest):
     def test_init(self):
         asf_100 = AdsorbateSiteFinder(self.slab_dict["100"])
         asf_111 = AdsorbateSiteFinder(self.slab_dict["111"])
-        pass
 
     def test_find_adsorption_sites(self):
         sites = self.asf_100.find_adsorption_sites()
@@ -48,7 +43,15 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         self.assertEquals(len(sites), 4)
 
     def test_functions(self):
-        pass
+        slab = self.slab_dict["111"]
+        rot = get_rot(slab)
+        reoriented = reorient_z(slab)
+        self.assertArrayAlmostEqual(slab.frac_coords[0],
+                                    cart_to_frac(slab.lattice, 
+                                                 slab.cart_coords[0]))
+        self.assertArrayAlmostEqual(slab.cart_coords[0],
+                                    frac_to_cart(slab.lattice,
+                                                 slab.frac_coords[0]))
 
 if __name__ == '__main__':
     unittest.main()
