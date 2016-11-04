@@ -28,21 +28,12 @@ from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
 from pymatgen.core.surface import generate_all_slabs
 
 __author__ = "Joseph Montoya"
-__copyright__ = "Copyright 2015, The Materials Project"
+__copyright__ = "Copyright 2016, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
 __status__ = "Development"
 __date__ = "December 2, 2015"
-
-def mi_vec(mi_index):
-    """
-    Convenience function which returns the unit vector aligned 
-    with the miller index.
-    """
-    mvec = np.array([1./n if n!=0 else 0 
-                     for n in mi_index])
-    return mvec / np.linalg.norm(mvec)
 
 class AdsorbateSiteFinder(object):
     """
@@ -50,7 +41,8 @@ class AdsorbateSiteFinder(object):
     adsorbate structures
     """
 
-    def __init__(self, slab, selective_dynamics=False, height_threshold=None):
+    def __init__(self, slab, selective_dynamics=False, 
+                 height_threshold=None):
         """
         Create an AdsorbateSiteFinder object.
 
@@ -64,9 +56,64 @@ class AdsorbateSiteFinder(object):
         slab = self.assign_site_properties(slab)
         if selective_dynamics:
             slab = self.assign_selective_dynamics(slab)
+        self.slab = slab
 
-        self.slab = slab#reorient_z(slab)
+    @classmethod
+    def from_bulk_and_miller(cls, structure, miller_index, min_slab_size=5.0,
+                             min_vacuum_size=10.0, max_normal_search=None, 
+                             center_slab = True, selective_dynamics=False):
+        """
+        This method constructs the adsorbate site finder 
+        from a bulk structure and a miller index, which
+        allows the surface sites to be determined from
+        the difference in bulk and slab coordination
         
+        Args:
+            structure (Structure): structure from which slab
+                input to the ASF is constructed
+            miller_index (3-tuple or list): index for slab
+            surf_sites_from_coord (bool): boolean flag
+                to indicate whether to find surface sites by
+                difference in bulk and surface coordination
+        """
+        # TODO: for some reason this is buggy with primitive cells, 
+        # might be a problem elsewhere
+        vcf_bulk = VoronoiCoordFinder(structure)
+        bulk_coords = [len(vcf_bulk.get_coordinated_sites(n))
+                       for n in range(len(structure))]
+        struct = structure.copy(site_properties = {'bulk_coordinations':bulk_coords})
+        # This should probably be a slab generation method
+        #   rather than selecting from generate_all_slabs
+        slabs = generate_all_slabs(struct, max_index=max(miller_index), 
+                                   min_slab_size=min_slab_size,
+                                   min_vacuum_size=min_vacuum_size,
+                                   max_normal_search = max_normal_search,
+                                   center_slab = center_slab)
+
+        slab_dict = {slab.miller_index:slab for slab in slabs}
+        
+        if miller_index not in slab_dict:
+            raise ValueError("Miller index not in slab dict")
+
+        this_slab = slab_dict[miller_index]
+
+        vcf_surface = VoronoiCoordFinder(this_slab)
+        surf_props = []
+        this_mi_vec = mi_vec(this_slab.miller_index)
+        mi_mags = [np.dot(this_mi_vec, site.coords) for site in this_slab]
+        average_mi_mag = np.average(mi_mags)
+        for n, site in enumerate(this_slab):
+            bulk_coord = this_slab.site_properties['bulk_coordinations'][n]
+            surf_coord = len(vcf_surface.get_coordinated_sites(n))
+            mi_mag = np.dot(this_mi_vec, site.coords)
+            if surf_coord != bulk_coord and mi_mags[n] > average_mi_mag:
+                surf_props += ['surface']
+            else:
+                surf_props += ['subsurface']
+        new_site_properties = {'surface_properties':surf_props}
+        new_slab = this_slab.copy(site_properties=new_site_properties)
+        return cls(new_slab, selective_dynamics)
+
     def find_surface_sites_by_height(self, slab, window = 0.3):
         """
         This method finds surface sites by determining which sites are within
@@ -107,9 +154,10 @@ class AdsorbateSiteFinder(object):
             return slab
         else:
             surf_sites = self.find_surface_sites_by_height(slab)
-        return slab.copy(site_properties = {'surface_properties': ['surface' if site in surf_sites
-                                                           else 'subsurface' for site in 
-                                                           slab.sites]})
+        surf_props = ['surface' if site in surf_sites
+                      else 'subsurface' for site in slab.sites]
+        return slab.copy(
+            site_properties = {'surface_properties': surf_props})
 
     def get_extended_surface_mesh(self, radius = 6.0, window = 1.0):
         """
@@ -120,7 +168,6 @@ class AdsorbateSiteFinder(object):
             surface_mesh += [site]
             surface_mesh += [s[0] for s in surf_str.get_neighbors(site,
                                                                   radius)]
-        #output_structure(surf_str, 'Ni_{}_surfsites.traj'.format(self.mi_string)) 
         return list(set(surface_mesh))
 
     @property
@@ -133,13 +180,11 @@ class AdsorbateSiteFinder(object):
 
     def find_adsorption_sites(self, distance = 2.0, put_inside = True,
                               symm_reduce = True, near_reduce = True,
-                              no_right_triangles = True, 
                               positions = ['ontop', 'bridge', 'hollow'],
-                              near_reduce_threshold = 1e-2, mrd=200):
+                              near_reduce_threshold = 1e-2, 
+                              no_right_triangles = True):
         """
         """
-        # Find vector for distance normal to x-y plane
-        # TODO: check redundancy since slabs are reoriented now
         # find on-top sites
         ads_sites = []
         if 'ontop' in positions:
@@ -149,23 +194,26 @@ class AdsorbateSiteFinder(object):
         sop = get_rot(self.slab)
         dt = DelaunayTri([sop.operate(m.coords)[:2] for m in mesh])
         for v in dt.vertices:
-            # Add bridge sites at edges of delaunay
-            # TODO: bridge/hollow needs cleanup
+            # TODO: bridge/hollow should be refactored at some point
+            #   to properly account for multi-coordinated sites
             if -1 not in v:
                 vecs = []
                 for data in itertools.combinations(v, 2):
+                    # Add bridge sites at midpoints of edges of D. Tri
                     if 'bridge' in positions:
                         ads_sites += [self.ensemble_center(mesh, data, 
                                                            cartesian = True)]
                     vecs += [mesh[data[1]].coords - mesh[data[0]].coords]
+                # Prevent addition of hollow sites in right triangles
                 if no_right_triangles:
                     dots = np.array([np.dot(vec1, vec2) for vec1, vec2 
                                      in itertools.combinations(vecs, 2)])
                     if (np.abs(dots) < 1e-10).any():
                         continue
-            # Add hollow sites at centers of delaunay
+                # Add hollow sites at centers of D. Tri faces
                 if 'hollow' in positions:
-                    ads_sites += [self.ensemble_center(mesh, v, cartesian = True)]
+                    ads_sites += [self.ensemble_center(mesh, v, 
+                                                       cartesian = True)]
         if put_inside:
             ads_sites = [put_coord_inside(self.slab.lattice, coord) 
                          for coord in ads_sites]
@@ -173,50 +221,45 @@ class AdsorbateSiteFinder(object):
             ads_sites = self.near_reduce(ads_sites, 
                                          threshold=near_reduce_threshold)
         
-        print("{}: has {} ads_sites".format(self.slab.miller_index, len(ads_sites)))
-        #import pdb; pdb.set_trace()
         if symm_reduce:
-            ads_sites = self.symm_reduce(ads_sites, mrd=mrd)
-        ads_sites = [ads_site + distance*self.mvec for ads_site in ads_sites]
+            ads_sites = self.symm_reduce(ads_sites)
+        ads_sites = [ads_site + distance*self.mvec 
+                     for ads_site in ads_sites]
         return ads_sites
 
-    def symm_reduce(self, coords_set, cartesian = True,
-                    threshold = 0.2, mrd = 200):
+    def symm_reduce(self, coords_set, threshold = 1e-6):
         """
+        Reduces the set of adsorbate sites by finding removing
+        symmetrically equivalent duplicates
+
+        Args:
+            coords_set: coordinate set in cartesian coordinates
+            threshold: tolerance for distance equivalence, used
+                as input to in_coord_list_pbc for dupl. checking
         """
         surf_sg = SpacegroupAnalyzer(self.slab, 0.1)
-        # Create a fictional structure
-        """
-        flattice = self.slab.lattice.matrix
-        flattice[2] = self.mvec*self.slab.lattice.c
-        fstruct = Structure(Lattice(flattice), ['H']*self.slab.num_sites,
-                            [s.coords for s in self.slab.sites])
-        f_sg = SpacegroupAnalyzer(fstruct)
-        symm_ops = f_sg.get_symmetry_operations(cartesian=cartesian)
-        import pdb; pdb.set_trace()
-        """
         symm_ops = surf_sg.get_symmetry_operations()
-        print('{}: {} symmetry operations'.format(self.slab.miller_index, len(symm_ops)))
-        full_symm_ops = generate_full_symmops(symm_ops, tol=0.1, max_recursion_depth=mrd)
         unique_coords = []
         # Convert to fractional
-        coords_set = [cart_to_frac(self.slab.lattice, coords) for coords in coords_set]
-        # coords_set = [[coord[0], coord[1], 0] for coord in coords_set]
+        coords_set = [cart_to_frac(self.slab.lattice, coords) 
+                      for coords in coords_set]
         for coords in coords_set:
             incoord = False
-            for op in full_symm_ops:
+            for op in symm_ops:
                 if in_coord_list_pbc(unique_coords, op.operate(coords), 
-                                     atol = 1e-6):
+                                     atol = threshold):
                     incoord = True
                     break
             if not incoord:
                 unique_coords += [coords]
         # convert back to cartesian
-        return [frac_to_cart(self.slab.lattice, coords) for coords in unique_coords]
+        return [frac_to_cart(self.slab.lattice, coords) 
+                for coords in unique_coords]
 
-    def near_reduce(self, coords_set, threshold = 1e-2, pbc=True):
+    def near_reduce(self, coords_set, threshold = 1e-4):
         """
-        Prunes coordinate set for coordinates that are within a certain threshold
+        Prunes coordinate set for coordinates that are within 
+        threshold
         
         Args:
             coords_set (Nx3 array-like): list or array of coordinates
@@ -280,6 +323,15 @@ class AdsorbateSiteFinder(object):
                                       repeat = repeat)]
         return structs
 
+def mi_vec(mi_index):
+    """
+    Convenience function which returns the unit vector aligned 
+    with the miller index.
+    """
+    mvec = np.array([1./n if n!=0 else 0 
+                     for n in mi_index])
+    return mvec / np.linalg.norm(mvec)
+
 def get_rot(structure):
     """
     Gets the transformation to rotate the z axis into the miller index
@@ -329,99 +381,3 @@ def put_coord_inside(lattice, cart_coordinate):
     """
     fc = cart_to_frac(lattice, cart_coordinate)
     return frac_to_cart(lattice, [c - np.floor(c) for c in fc])
-
-# TODO: for some reason this is buggy with primitive cells, 
-# might be a problem elsewhere
-def generate_decorated_slabs(structure, max_index=1, min_slab_size=5.0, 
-                             min_vacuum_size=10.0, max_normal_search=None,
-                             center_slab = True):
-    """
-    This is a modification of the slab generation method
-    that adds a few properties useful to adsorbate generation
-    """
-    vcf_bulk = VoronoiCoordFinder(structure)
-    bulk_coords = [len(vcf_bulk.get_coordinated_sites(n))
-                   for n in range(len(structure))]
-    struct = structure.copy(site_properties = {'bulk_coordinations':bulk_coords})
-    slabs = generate_all_slabs(struct, max_index=max_index, 
-                               min_slab_size=min_slab_size, 
-                               min_vacuum_size=min_vacuum_size,
-                               max_normal_search = max_normal_search,
-                               center_slab = center_slab)
-    new_slabs = []
-    for slab in slabs:
-        vcf_surface = VoronoiCoordFinder(slab)
-        surf_props = []
-        this_mi_vec = mi_vec(slab.miller_index)
-        mi_mags = [np.dot(this_mi_vec, site.coords) for site in slab]
-        average_mi_mag = np.average(mi_mags)
-        for n, site in enumerate(slab):
-            bulk_coord = slab.site_properties['bulk_coordinations'][n]
-            surf_coord = len(vcf_surface.get_coordinated_sites(n))
-            mi_mag = np.dot(this_mi_vec, site.coords)
-            if surf_coord != bulk_coord and mi_mags[n] > average_mi_mag:
-                surf_props += ['surface']
-            else:
-                surf_props += ['subsurface']
-        new_site_properties = {'surface_properties':surf_props}
-        new_slabs += [slab.copy(site_properties=new_site_properties)]
-    #import pdb; pdb.set_trace()
-    return new_slabs
-
-from ase.io import write
-from pymatgen.io.ase import AseAtomsAdaptor
-def output_structure(structure, fname="out.traj"):
-    aaa = AseAtomsAdaptor()
-    atomz = aaa.get_atoms(structure)
-    write(fname, atomz)
-
-if __name__ == "__main__":
-    from pymatgen.matproj.rest import MPRester
-    from pymatgen import Molecule
-    mpr = MPRester()
-    struct = mpr.get_structures('mp-23')[0]
-    sga = SpacegroupAnalyzer(struct)
-    struct = sga.get_conventional_standard_structure()
-    vcf = VoronoiCoordFinder(struct)
-    slabs = generate_decorated_slabs(struct, 1, 7.0, 
-                                     12.0, max_normal_search = None) #TODO make parameters
-    '''
-    asf = AdsorbateSiteFinder(slabs[1], selective_dynamics = True)
-
-    #surf_sites_height = asf.find_surface_sites_by_height(slabs[0])
-    #sites = asf.find_adsorption_sites(near_reduce = False, put_inside = False)
-    structs = asf.generate_adsorption_structures('O', [[0.0, 0.0, 0.0]])
-                                                    #repeat = [2, 2, 1])
-    '''
-    structs = []
-    ads_mol = Molecule("O", [[0., 0., 0.]])
-    ads_dict = {}
-    for slab in slabs:
-        asf = AdsorbateSiteFinder(slab, selective_dynamics = True)
-        new_structs = asf.generate_adsorption_structures(ads_mol)
-        print('{}: has {} structures'.format(slab.miller_index, len(new_structs)))
-        structs += new_structs
-        ads_dict[slab.miller_index] = new_structs
-    print(len(structs))
-    from pymatgen.io.ase import AseAtomsAdaptor
-    aaa = AseAtomsAdaptor()
-    atoms_list = [aaa.get_atoms(struct) for struct in ads_dict[(1, 1, 1)]]
-    from ase.io import *
-    write('Ni_111.traj',atoms_list)
-    atoms_list = [aaa.get_atoms(struct) for struct in ads_dict[(1, 1, 0)]]
-    write('Ni_110.traj',atoms_list)
-    atoms_list = [aaa.get_atoms(struct) for struct in ads_dict[(1, 0, 0)]]
-    write('Ni_110.traj',atoms_list)
-
-
-    '''
-    from pymatgen.vis.structure_vtk import StructureVis
-    sv = StructureVis()
-    sv.set_structure(structs[0])
-    sv.write_image()
-    '''
-    # from helper import pymatview
-    # pymatview(structs)
-
-
-
