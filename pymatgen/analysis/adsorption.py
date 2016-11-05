@@ -209,8 +209,8 @@ class AdsorbateSiteFinder(object):
                         continue
                 # Add hollow sites at centers of D. Tri faces
                 if 'hollow' in positions:
-                    ads_sites += [self.ensemble_center(mesh, v, 
-
+                    ads_sites += [self.ensemble_center(mesh, v,
+                                                       cartesian=True)]
         if near_reduce:
             ads_sites = self.near_reduce(ads_sites, 
                                          threshold=near_reduce_threshold)
