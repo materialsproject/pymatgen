@@ -72,9 +72,6 @@ class AdsorbateSiteFinder(object):
             structure (Structure): structure from which slab
                 input to the ASF is constructed
             miller_index (3-tuple or list): index for slab
-            surf_sites_from_coord (bool): boolean flag
-                to indicate whether to find surface sites by
-                difference in bulk and surface coordination
         """
         # TODO: for some reason this is buggy with primitive cells, 
         # might be a problem elsewhere
@@ -114,7 +111,7 @@ class AdsorbateSiteFinder(object):
         new_slab = this_slab.copy(site_properties=new_site_properties)
         return cls(new_slab, selective_dynamics)
 
-    def find_surface_sites_by_height(self, slab, window = 0.3):
+    def find_surface_sites_by_height(self, slab, window = 0.9):
         """
         This method finds surface sites by determining which sites are within
         a threshold value in height from the topmost site in a list of sites
@@ -276,6 +273,9 @@ class AdsorbateSiteFinder(object):
 
     def ensemble_center(self, site_list, indices, cartesian = True):
         """
+        Finds the center of an ensemble of sites selected from
+        a list of sites.  Helper method for the find_adsorption_sites
+        algorithm.
         """
         if cartesian:
             return np.average([site_list[i].coords for i in indices], 
@@ -284,8 +284,7 @@ class AdsorbateSiteFinder(object):
             return np.average([site_list[i].frac_coords for i in indices], 
                               axis = 0)
 
-    def add_adsorbate(self, molecule, ads_coord, 
-                      repeat = None):
+    def add_adsorbate(self, molecule, ads_coord, repeat = None):
         """
         Adds an adsorbate at a particular coordinate
         """

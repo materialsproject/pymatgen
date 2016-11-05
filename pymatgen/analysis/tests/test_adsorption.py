@@ -21,18 +21,24 @@ class AdsorbateSiteFinderTest(PymatgenTest):
     def setUp(self):
         self.structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.5),
                                                 ["Ni"], [[0, 0, 0]])
-        slabs = generate_all_slabs(self.structure, max_index=1,
+        slabs = generate_all_slabs(self.structure, max_index=2,
                                    min_slab_size=6.0, min_vacuum_size=15.0,
                                    max_normal_search=1, center_slab=True)
         self.slab_dict = {''.join([str(i) for i in slab.miller_index]):
                           slab for slab in slabs}
+        self.asf_211 = AdsorbateSiteFinder(self.slab_dict["211"])
         self.asf_100 = AdsorbateSiteFinder(self.slab_dict["100"])
         self.asf_111 = AdsorbateSiteFinder(self.slab_dict["111"])
         self.asf_110 = AdsorbateSiteFinder(self.slab_dict["110"])
-
+        
     def test_init(self):
         asf_100 = AdsorbateSiteFinder(self.slab_dict["100"])
         asf_111 = AdsorbateSiteFinder(self.slab_dict["111"])
+
+    def test_from_bulk_and_miller(self):
+        asf = AdsorbateSiteFinder.from_bulk_and_miller(self.structure, (1, 1, 1))
+        sites = asf.find_adsorption_sites()
+        self.assertEquals(len(sites), 4)
 
     def test_find_adsorption_sites(self):
         sites = self.asf_100.find_adsorption_sites()
@@ -41,6 +47,8 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         self.assertEquals(len(sites), 4)
         sites = self.asf_110.find_adsorption_sites()
         self.assertEquals(len(sites), 4)
+        sites = self.asf_211.find_adsorption_sites()
+        # TODO verification
 
     def test_functions(self):
         slab = self.slab_dict["111"]
