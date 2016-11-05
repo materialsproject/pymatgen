@@ -10,14 +10,9 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.analysis.diffraction.xrd module
-----------------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.analysis.diffraction.xrd
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.analysis.diffraction.xrd
 
 Module contents
 ---------------

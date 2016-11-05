@@ -10,22 +10,10 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.optimization.linear_assignment module
-----------------------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.optimization.linear_assignment
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.optimization.linear_assignment_numpy module
-----------------------------------------------------
-
-.. automodule:: pymatgen.optimization.linear_assignment_numpy
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.optimization.linear_assignment
+   pymatgen.optimization.linear_assignment_numpy
 
 Module contents
 ---------------

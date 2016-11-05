@@ -10,22 +10,10 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.matproj.rest module
-----------------------------
+.. toctree::
 
-.. automodule:: pymatgen.matproj.rest
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.matproj.snl module
----------------------------
-
-.. automodule:: pymatgen.matproj.snl
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.matproj.rest
+   pymatgen.matproj.snl
 
 Module contents
 ---------------

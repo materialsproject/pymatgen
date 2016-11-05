@@ -10,30 +10,11 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.analysis.defects.dilute_solution_model module
-------------------------------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.analysis.defects.dilute_solution_model
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.defects.point_defects module
-----------------------------------------------
-
-.. automodule:: pymatgen.analysis.defects.point_defects
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.defects.surf_error module
--------------------------------------------
-
-.. automodule:: pymatgen.analysis.defects.surf_error
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.analysis.defects.dilute_solution_model
+   pymatgen.analysis.defects.point_defects
+   pymatgen.analysis.defects.surf_error
 
 Module contents
 ---------------
