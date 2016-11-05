@@ -210,10 +210,7 @@ class AdsorbateSiteFinder(object):
                 # Add hollow sites at centers of D. Tri faces
                 if 'hollow' in positions:
                     ads_sites += [self.ensemble_center(mesh, v, 
-                                                       cartesian = True)]
-        if put_inside:
-            ads_sites = [put_coord_inside(self.slab.lattice, coord) 
-                         for coord in ads_sites]
+
         if near_reduce:
             ads_sites = self.near_reduce(ads_sites, 
                                          threshold=near_reduce_threshold)
@@ -371,11 +368,3 @@ def cart_to_frac(lattice, cart_coord):
     converts cartesian coordinates to fractional
     """
     return np.dot(np.linalg.inv(np.transpose(lattice.matrix)), cart_coord)
-
-def put_coord_inside(lattice, cart_coordinate):
-    """
-    converts a cartesian coordinate such that it is inside the unit cell.
-    This assists with the symmetry and near reduction algorithms.
-    """
-    fc = cart_to_frac(lattice, cart_coordinate)
-    return frac_to_cart(lattice, [c - np.floor(c) for c in fc])
