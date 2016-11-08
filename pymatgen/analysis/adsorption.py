@@ -207,7 +207,6 @@ class AdsorbateSiteFinder(object):
                 if 'hollow' in positions:
                     ads_sites += [self.ensemble_center(mesh, v,
                                                        cartesian=True)]
-
         if near_reduce:
             ads_sites = self.near_reduce(ads_sites, 
                                          threshold=near_reduce_threshold)
@@ -216,6 +215,9 @@ class AdsorbateSiteFinder(object):
             ads_sites = self.symm_reduce(ads_sites)
         ads_sites = [ads_site + distance*self.mvec
                      for ads_site in ads_sites]
+        if put_inside:
+            ads_sites = [put_coord_inside(self.slab.lattice, coord)
+                         for coord in ads_sites]
         return ads_sites
 
     def symm_reduce(self, coords_set, threshold = 1e-6):
@@ -340,6 +342,13 @@ def get_rot(slab):
     rot_matrix = np.transpose(rot_matrix)
     sop = SymmOp.from_rotation_and_translation(rot_matrix)
     return sop
+
+def put_coord_inside(lattice, cart_coordinate):
+    """
+    converts a cartesian coordinate such taht it is inside the unit cell.
+    """
+    fc = cart_to_frac(lattice, cart_coordinate)
+    return frac_to_cart(lattice, [c - np.floor(c) for c in fc])
 
 def reorient_z(structure):
     """
