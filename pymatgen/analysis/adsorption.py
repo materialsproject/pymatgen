@@ -162,7 +162,7 @@ class AdsorbateSiteFinder(object):
         """
         """
         surf_str = Structure.from_sites(self.surface_sites)
-        surf_str.make_supercell((3, 3, 1))
+        surf_str.make_supercell((5, 5, 1))
         return surf_str
 
     @property
@@ -182,8 +182,6 @@ class AdsorbateSiteFinder(object):
         """
         # find on-top sites
         ads_sites = []
-        if 'ontop' in positions:
-            ads_sites += [s.coords for s in self.surface_sites]
         # Get bridge sites via DelaunayTri of extended surface mesh
         mesh = self.get_extended_surface_mesh()
         sop = get_rot(self.slab)
@@ -209,6 +207,18 @@ class AdsorbateSiteFinder(object):
                 if 'hollow' in positions:
                     ads_sites += [self.ensemble_center(mesh, v,
                                                        cartesian=True)]
+        # Pare off outer edges
+        frac_coords = [cart_to_frac(self.slab.lattice, ads_site) 
+                       for ads_site in ads_sites]
+        #TODO: this is a monster.  Fix it.
+        #import pdb; pdb.set_trace()
+        frac_coords = [frac_coord for frac_coord in frac_coords 
+                       if (frac_coord[0]>1 and frac_coord[0]<4
+                       and frac_coord[1]>1 and frac_coord[1]<4)]
+        ads_sites = [frac_to_cart(self.slab.lattice, frac_coord) 
+                     for frac_coord in frac_coords]
+        if 'ontop' in positions:
+            ads_sites += [s.coords for s in self.surface_sites]
         if near_reduce:
             ads_sites = self.near_reduce(ads_sites, 
                                          threshold=near_reduce_threshold)
