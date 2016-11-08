@@ -207,13 +207,14 @@ class AdsorbateSiteFinder(object):
                 if 'hollow' in positions:
                     ads_sites += [self.ensemble_center(mesh, v,
                                                        cartesian=True)]
+
         if near_reduce:
             ads_sites = self.near_reduce(ads_sites, 
                                          threshold=near_reduce_threshold)
         
         if symm_reduce:
             ads_sites = self.symm_reduce(ads_sites)
-        ads_sites = [ads_site + distance*self.mvec 
+        ads_sites = [ads_site + distance*self.mvec
                      for ads_site in ads_sites]
         return ads_sites
 
@@ -326,15 +327,16 @@ def mi_vec(mi_index):
 
 def get_rot(structure):
     """
-    Gets the transformation to rotate the z axis into the miller index
+    Gets the transformation to rotate the z axis into the normal to the a-b
+    axis
     """
     a, b, c = structure.lattice.matrix
     new_x = a / np.linalg.norm(a)
     new_y = (b - np.dot(new_x, b) * new_x) / \
             np.linalg.norm(b - np.dot(new_x, b) * new_x)
     new_z = np.cross(new_x, new_y)
-    if np.dot(new_z, c) < 0.:
-        new_z = -new_z
+    #if np.dot(new_z, c) < 0.:
+        #    new_z = -new_z
     x, y, z = np.eye(3)
     rot_matrix = np.array([np.dot(*el) for el in 
                            itertools.product([x, y, z], 
