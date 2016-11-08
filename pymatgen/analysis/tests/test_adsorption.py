@@ -48,7 +48,6 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         sites = self.asf_110.find_adsorption_sites()
         self.assertEquals(len(sites), 4)
         sites = self.asf_211.find_adsorption_sites()
-        import pdb; pdb.set_trace()
         # TODO verification
 
     def test_functions(self):

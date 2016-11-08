@@ -160,12 +160,8 @@ class AdsorbateSiteFinder(object):
         """
         """
         surf_str = Structure.from_sites(self.surface_sites)
-        surface_mesh = []
-        for site in surf_str.sites:
-            surface_mesh += [site]
-            surface_mesh += [s[0] for s in surf_str.get_neighbors(site,
-                                                                  radius)]
-        return list(set(surface_mesh))
+        surf_str.make_supercell((3, 3, 1))
+        return surf_str
 
     @property
     def surface_sites(self):
