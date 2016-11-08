@@ -325,18 +325,14 @@ def mi_vec(mi_index):
                      for n in mi_index])
     return mvec / np.linalg.norm(mvec)
 
-def get_rot(structure):
+def get_rot(slab):
     """
-    Gets the transformation to rotate the z axis into the normal to the a-b
-    axis
+    Gets the transformation to rotate the z axis into the miller index
     """
-    a, b, c = structure.lattice.matrix
+    new_z = mi_vec(slab.miller_index)
+    a, b, c = slab.lattice.matrix
     new_x = a / np.linalg.norm(a)
-    new_y = (b - np.dot(new_x, b) * new_x) / \
-            np.linalg.norm(b - np.dot(new_x, b) * new_x)
-    new_z = np.cross(new_x, new_y)
-    #if np.dot(new_z, c) < 0.:
-        #    new_z = -new_z
+    new_y = np.cross(new_z, new_x)
     x, y, z = np.eye(3)
     rot_matrix = np.array([np.dot(*el) for el in 
                            itertools.product([x, y, z], 
