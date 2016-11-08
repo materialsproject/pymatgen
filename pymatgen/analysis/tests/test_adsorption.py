@@ -39,6 +39,9 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         asf = AdsorbateSiteFinder.from_bulk_and_miller(self.structure, (1, 1, 1))
         sites = asf.find_adsorption_sites()
         self.assertEquals(len(sites), 4)
+        asf = AdsorbateSiteFinder.from_bulk_and_miller(self.structure, (1, 1, 0),
+                                                       undercoord_threshold=0.1)
+        self.assertEquals(len(asf.surface_sites), 1)
 
     def test_find_adsorption_sites(self):
         sites = self.asf_100.find_adsorption_sites()

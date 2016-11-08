@@ -61,7 +61,8 @@ class AdsorbateSiteFinder(object):
     @classmethod
     def from_bulk_and_miller(cls, structure, miller_index, min_slab_size=5.0,
                              min_vacuum_size=10.0, max_normal_search=None, 
-                             center_slab = True, selective_dynamics=False):
+                             center_slab = True, selective_dynamics=False,
+                             undercoord_threshold = 0.1):
         """
         This method constructs the adsorbate site finder 
         from a bulk structure and a miller index, which
@@ -101,9 +102,10 @@ class AdsorbateSiteFinder(object):
         average_mi_mag = np.average(mi_mags)
         for n, site in enumerate(this_slab):
             bulk_coord = this_slab.site_properties['bulk_coordinations'][n]
-            surf_coord = len(vcf_surface.get_coordinated_sites(n))
+            slab_coord = len(vcf_surface.get_coordinated_sites(n))
             mi_mag = np.dot(this_mi_vec, site.coords)
-            if surf_coord != bulk_coord and mi_mags[n] > average_mi_mag:
+            undercoord = (bulk_coord - slab_coord)/bulk_coord
+            if undercoord > undercoord_threshold and mi_mag > average_mi_mag:
                 surf_props += ['surface']
             else:
                 surf_props += ['subsurface']
