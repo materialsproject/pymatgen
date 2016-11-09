@@ -42,7 +42,7 @@ class AdsorbateSiteFinder(object):
     """
 
     def __init__(self, slab, selective_dynamics=False, 
-                 height_threshold=None):
+                 height=0.9):
         """
         Create an AdsorbateSiteFinder object.
 
@@ -53,7 +53,7 @@ class AdsorbateSiteFinder(object):
         self.mi_string = ''.join([str(i) for i in slab.miller_index])
         # get surface normal from miller index
         self.mvec = mi_vec(slab.miller_index)
-        slab = self.assign_site_properties(slab)
+        slab = self.assign_site_properties(slab, height)
         if selective_dynamics:
             slab = self.assign_selective_dynamics(slab)
         self.slab = slab
@@ -113,14 +113,14 @@ class AdsorbateSiteFinder(object):
         new_slab = this_slab.copy(site_properties=new_site_properties)
         return cls(new_slab, selective_dynamics)
 
-    def find_surface_sites_by_height(self, slab, window = 0.9):
+    def find_surface_sites_by_height(self, slab, height=0.9):
         """
         This method finds surface sites by determining which sites are within
         a threshold value in height from the topmost site in a list of sites
 
         Args:
             site_list (list): list of sites from which to select surface sites
-            window (float): threshold in angstroms of distance from topmost
+            height (float): threshold in angstroms of distance from topmost
                 site in slab along the slab c-vector to include in surface 
                 site determination
 
@@ -132,7 +132,7 @@ class AdsorbateSiteFinder(object):
         m_projs = np.array([np.dot(site.coords, self.mvec)
                             for site in slab.sites])
         # Mask based on window threshold along the miller index
-        mask = (m_projs - np.amax(m_projs)) >= -window
+        mask = (m_projs - np.amax(m_projs)) >= -height
         return [slab.sites[n] for n in np.where(mask)[0]]
 
     def find_surface_sites_by_coordination(self, slab):
@@ -145,14 +145,14 @@ class AdsorbateSiteFinder(object):
                              "Use adsorption.generate_decorated_slabs to assign.")
         pass
 
-    def assign_site_properties(self, slab, height=0.1):
+    def assign_site_properties(self, slab, height=0.9):
         """
         Assigns site properties.
         """
         if 'surface_properties' in slab.site_properties.keys():
             return slab
         else:
-            surf_sites = self.find_surface_sites_by_height(slab)
+            surf_sites = self.find_surface_sites_by_height(slab, height)
         surf_props = ['surface' if site in surf_sites
                       else 'subsurface' for site in slab.sites]
         return slab.copy(
@@ -177,7 +177,7 @@ class AdsorbateSiteFinder(object):
                               symm_reduce = True, near_reduce = True,
                               positions = ['ontop', 'bridge', 'hollow'],
                               near_reduce_threshold = 1e-2, 
-                              no_right_triangles = True):
+                              no_obtuse_triangles = True):
         """
         """
         # find on-top sites
@@ -197,8 +197,8 @@ class AdsorbateSiteFinder(object):
                         ads_sites += [self.ensemble_center(mesh, data, 
                                                            cartesian = True)]
                     vecs += [mesh[data[1]].coords - mesh[data[0]].coords]
-                # Prevent addition of hollow sites in right triangles
-                if no_right_triangles:
+                # Prevent addition of hollow sites in obtuse triangles
+                if no_obtuse_triangles:
                     dots = np.array([np.dot(vec1, vec2) for vec1, vec2 
                                      in itertools.combinations(vecs, 2)])
                     if (np.abs(dots) < 1e-10).any():
