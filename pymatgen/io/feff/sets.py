@@ -249,7 +249,7 @@ class MPXANESSet(FEFFDictSet):
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPXANESSet.yaml"))
 
     def __init__(self, absorbing_atom, structure, edge="K", radius=10.,
-                 nkpts=1000, **kwargs):
+                 nkpts=1000, user_tag_settings=None):
         """
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
@@ -258,12 +258,12 @@ class MPXANESSet(FEFFDictSet):
             radius (float): cluster radius in Angstroms.
             nkpts (int): Total number of kpoints in the brillouin zone. Used
                 only when feff is run in the reciprocal space mode.
-            **kwargs
+            user_tag_settings (dict): override default tag settings
         """
         super(MPXANESSet, self).__init__(absorbing_atom, structure, radius,
                                          MPXANESSet.CONFIG, edge=edge,
-                                         spectrum="XANES", nkpts=nkpts, **kwargs)
-        self.kwargs = kwargs
+                                         spectrum="XANES", nkpts=nkpts,
+                                         user_tag_settings=user_tag_settings)
 
 
 class MPEXAFSSet(FEFFDictSet):
@@ -274,7 +274,7 @@ class MPEXAFSSet(FEFFDictSet):
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXAFSSet.yaml"))
 
     def __init__(self, absorbing_atom, structure, edge="K", radius=10.,
-                 nkpts=1000, **kwargs):
+                 nkpts=1000, user_tag_settings=None):
         """
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
@@ -283,12 +283,12 @@ class MPEXAFSSet(FEFFDictSet):
             radius (float): cluster radius in Angstroms.
             nkpts (int): Total number of kpoints in the brillouin zone. Used
                 only when feff is run in the reciprocal space mode.
-            **kwargs
+            user_tag_settings (dict): override default tag settings
         """
         super(MPEXAFSSet, self).__init__(absorbing_atom, structure, radius,
                                          MPEXAFSSet.CONFIG, edge=edge,
-                                         spectrum="EXAFS", nkpts=nkpts, **kwargs)
-        self.kwargs = kwargs
+                                         spectrum="EXAFS", nkpts=nkpts,
+                                         user_tag_settings=user_tag_settings)
 
 
 class MPEELSDictSet(FEFFDictSet):
@@ -299,7 +299,7 @@ class MPEELSDictSet(FEFFDictSet):
     def __init__(self, absorbing_atom, structure, edge, spectrum, radius,
                  beam_energy, beam_direction, collection_angle,
                  convergence_angle, config_dict, user_eels_settings=None,
-                 nkpts=1000, **kwargs):
+                 nkpts=1000, user_tag_settings=None):
         """
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
@@ -316,7 +316,7 @@ class MPEELSDictSet(FEFFDictSet):
                 See MPELNESSet.yaml for supported keys.
             nkpts (int): Total number of kpoints in the brillouin zone. Used
                 only when feff is run in the reciprocal space mode.
-            **kwargs
+            user_tag_settings (dict): override default tag settings
         """
         self.beam_energy = beam_energy
         self.beam_direction = beam_direction
@@ -341,8 +341,7 @@ class MPEELSDictSet(FEFFDictSet):
         super(MPEELSDictSet, self).__init__(absorbing_atom, structure, radius,
                                             eels_config_dict, edge=edge,
                                             spectrum=spectrum, nkpts=nkpts,
-                                            **kwargs)
-        self.kwargs = kwargs
+                                            user_tag_settings=user_tag_settings)
 
 
 class MPELNESSet(MPEELSDictSet):
@@ -355,7 +354,7 @@ class MPELNESSet(MPEELSDictSet):
     def __init__(self, absorbing_atom, structure, edge="K", radius=10.,
                  beam_energy=100, beam_direction=None, collection_angle=1,
                  convergence_angle=1, user_eels_settings=None, nkpts=1000,
-                 **kwargs):
+                 user_tag_settings=None):
         """
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
@@ -371,7 +370,7 @@ class MPELNESSet(MPEELSDictSet):
                 See MPELNESSet.yaml for supported keys.
             nkpts (int): Total number of kpoints in the brillouin zone. Used
                 only when feff is run in the reciprocal space mode.
-            **kwargs
+            user_tag_settings (dict): override default tag settings
         """
 
         super(MPELNESSet, self).__init__(absorbing_atom, structure, edge,
@@ -379,8 +378,7 @@ class MPELNESSet(MPEELSDictSet):
                                          beam_direction, collection_angle,
                                          convergence_angle, MPELNESSet.CONFIG,
                                          user_eels_settings=user_eels_settings,
-                                         nkpts=nkpts, **kwargs)
-        self.kwargs = kwargs
+                                         nkpts=nkpts, user_tag_settings=user_tag_settings)
 
 
 class MPEXELFSSet(MPEELSDictSet):
@@ -393,7 +391,7 @@ class MPEXELFSSet(MPEELSDictSet):
     def __init__(self, absorbing_atom, structure, edge="K", radius=10.,
                  beam_energy=100, beam_direction=None, collection_angle=1,
                  convergence_angle=1, user_eels_settings=None, nkpts=1000,
-                 **kwargs):
+                 user_tag_settings=None):
         """
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
@@ -409,7 +407,7 @@ class MPEXELFSSet(MPEELSDictSet):
                 See MPEXELFSSet.yaml for supported keys.
             nkpts (int): Total number of kpoints in the brillouin zone. Used
                 only when feff is run in the reciprocal space mode.
-            **kwargs
+            user_tag_settings (dict): override default tag settings
         """
 
         super(MPEXELFSSet, self).__init__(absorbing_atom, structure, edge,
@@ -417,5 +415,4 @@ class MPEXELFSSet(MPEELSDictSet):
                                           beam_direction, collection_angle,
                                           convergence_angle, MPEXELFSSet.CONFIG,
                                           user_eels_settings=user_eels_settings,
-                                          nkpts=nkpts, **kwargs)
-        self.kwargs = kwargs
+                                          nkpts=nkpts, user_tag_settings=user_tag_settings)
