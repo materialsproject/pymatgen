@@ -17,150 +17,26 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.analysis.bond_valence module
--------------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.analysis.bond_valence
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.diffusion_analyzer module
--------------------------------------------
-
-.. automodule:: pymatgen.analysis.diffusion_analyzer
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.energy_models module
---------------------------------------
-
-.. automodule:: pymatgen.analysis.energy_models
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.eos module
-----------------------------
-
-.. automodule:: pymatgen.analysis.eos
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.eos_2 module
-------------------------------
-
-.. automodule:: pymatgen.analysis.eos_2
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.ewald module
-------------------------------
-
-.. automodule:: pymatgen.analysis.ewald
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.molecule_matcher module
------------------------------------------
-
-.. automodule:: pymatgen.analysis.molecule_matcher
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.molecule_structure_comparator module
-------------------------------------------------------
-
-.. automodule:: pymatgen.analysis.molecule_structure_comparator
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.nmr module
-----------------------------
-
-.. automodule:: pymatgen.analysis.nmr
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.path_finder module
-------------------------------------
-
-.. automodule:: pymatgen.analysis.path_finder
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.piezo module
-------------------------------
-
-.. automodule:: pymatgen.analysis.piezo
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.reaction_calculator module
---------------------------------------------
-
-.. automodule:: pymatgen.analysis.reaction_calculator
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.structure_analyzer module
--------------------------------------------
-
-.. automodule:: pymatgen.analysis.structure_analyzer
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.structure_matcher module
-------------------------------------------
-
-.. automodule:: pymatgen.analysis.structure_matcher
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.substrate_analyzer module
--------------------------------------------
-
-.. automodule:: pymatgen.analysis.substrate_analyzer
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.thermochemistry module
-----------------------------------------
-
-.. automodule:: pymatgen.analysis.thermochemistry
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.transition_state module
------------------------------------------
-
-.. automodule:: pymatgen.analysis.transition_state
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.wulff module
-------------------------------
-
-.. automodule:: pymatgen.analysis.wulff
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.analysis.bond_valence
+   pymatgen.analysis.diffusion_analyzer
+   pymatgen.analysis.energy_models
+   pymatgen.analysis.eos
+   pymatgen.analysis.eos_2
+   pymatgen.analysis.ewald
+   pymatgen.analysis.molecule_matcher
+   pymatgen.analysis.molecule_structure_comparator
+   pymatgen.analysis.nmr
+   pymatgen.analysis.path_finder
+   pymatgen.analysis.piezo
+   pymatgen.analysis.reaction_calculator
+   pymatgen.analysis.structure_analyzer
+   pymatgen.analysis.structure_matcher
+   pymatgen.analysis.substrate_analyzer
+   pymatgen.analysis.thermochemistry
+   pymatgen.analysis.transition_state
+   pymatgen.analysis.wulff
 
 Module contents
 ---------------

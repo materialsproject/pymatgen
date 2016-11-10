@@ -10,22 +10,10 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.structure_prediction.substitution_probability module
--------------------------------------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.structure_prediction.substitution_probability
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.structure_prediction.substitutor module
-------------------------------------------------
-
-.. automodule:: pymatgen.structure_prediction.substitutor
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.structure_prediction.substitution_probability
+   pymatgen.structure_prediction.substitutor
 
 Module contents
 ---------------

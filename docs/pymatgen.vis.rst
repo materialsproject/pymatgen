@@ -10,14 +10,9 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.vis.structure_vtk module
----------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.vis.structure_vtk
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.vis.structure_vtk
 
 Module contents
 ---------------

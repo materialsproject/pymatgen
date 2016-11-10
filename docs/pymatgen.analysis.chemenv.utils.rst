@@ -10,62 +10,15 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.analysis.chemenv.utils.chemenv_config module
------------------------------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.analysis.chemenv.utils.chemenv_config
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.chemenv.utils.chemenv_errors module
------------------------------------------------------
-
-.. automodule:: pymatgen.analysis.chemenv.utils.chemenv_errors
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.chemenv.utils.coordination_geometry_utils module
-------------------------------------------------------------------
-
-.. automodule:: pymatgen.analysis.chemenv.utils.coordination_geometry_utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.chemenv.utils.defs_utils module
--------------------------------------------------
-
-.. automodule:: pymatgen.analysis.chemenv.utils.defs_utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.chemenv.utils.func_utils module
--------------------------------------------------
-
-.. automodule:: pymatgen.analysis.chemenv.utils.func_utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.chemenv.utils.math_utils module
--------------------------------------------------
-
-.. automodule:: pymatgen.analysis.chemenv.utils.math_utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.chemenv.utils.scripts_utils module
-----------------------------------------------------
-
-.. automodule:: pymatgen.analysis.chemenv.utils.scripts_utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.analysis.chemenv.utils.chemenv_config
+   pymatgen.analysis.chemenv.utils.chemenv_errors
+   pymatgen.analysis.chemenv.utils.coordination_geometry_utils
+   pymatgen.analysis.chemenv.utils.defs_utils
+   pymatgen.analysis.chemenv.utils.func_utils
+   pymatgen.analysis.chemenv.utils.math_utils
+   pymatgen.analysis.chemenv.utils.scripts_utils
 
 Module contents
 ---------------

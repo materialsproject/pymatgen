@@ -10,54 +10,14 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.io.lammps.data module
-------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.io.lammps.data
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.lammps.force_field module
--------------------------------------
-
-.. automodule:: pymatgen.io.lammps.force_field
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.lammps.input module
--------------------------------
-
-.. automodule:: pymatgen.io.lammps.input
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.lammps.output module
---------------------------------
-
-.. automodule:: pymatgen.io.lammps.output
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.lammps.topology module
-----------------------------------
-
-.. automodule:: pymatgen.io.lammps.topology
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.lammps.utils module
--------------------------------
-
-.. automodule:: pymatgen.io.lammps.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.io.lammps.data
+   pymatgen.io.lammps.force_field
+   pymatgen.io.lammps.input
+   pymatgen.io.lammps.output
+   pymatgen.io.lammps.topology
+   pymatgen.io.lammps.utils
 
 Module contents
 ---------------

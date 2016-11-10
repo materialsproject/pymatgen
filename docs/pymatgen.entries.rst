@@ -10,46 +10,13 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.entries.compatibility module
--------------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.entries.compatibility
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.entries.computed_entries module
-----------------------------------------
-
-.. automodule:: pymatgen.entries.computed_entries
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.entries.entry_tools module
------------------------------------
-
-.. automodule:: pymatgen.entries.entry_tools
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.entries.exp_entries module
------------------------------------
-
-.. automodule:: pymatgen.entries.exp_entries
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.entries.post_processors_abc module
--------------------------------------------
-
-.. automodule:: pymatgen.entries.post_processors_abc
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.entries.compatibility
+   pymatgen.entries.computed_entries
+   pymatgen.entries.entry_tools
+   pymatgen.entries.exp_entries
+   pymatgen.entries.post_processors_abc
 
 Module contents
 ---------------
