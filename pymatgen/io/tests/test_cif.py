@@ -940,5 +940,12 @@ loop_
         s = p.get_structures()[0]
         self.assertEqual(s.formula, "H96 C60 O8")
 
+    def test_dot_positions(self):
+        f = os.path.join(test_dir, "ICSD59959.cif")
+        p = CifParser(f)
+        s = p.get_structures()[0]
+        self.assertEqual(s.formula, "K1 Mn1 F3")
+
+
 if __name__ == '__main__':
     unittest.main()
