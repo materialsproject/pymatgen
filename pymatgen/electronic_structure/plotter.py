@@ -843,29 +843,30 @@ class BSPlotterProjected(BSPlotter):
                 for i in range(self._nb_bands):
                     plt.plot(data['distances'][b],
                              [data['energy'][b][str(Spin.up)][i][j]
-                              for j in range(len(data['distances'][b]))], 'b-',
+                              for j in range(len(data['distances'][b]))], '-', color=[192/255,192/255,192/255],
                              linewidth=band_linewidth)
                     if self._bs.is_spin_polarized:
                         plt.plot(data['distances'][b],
                                  [data['energy'][b][str(Spin.down)][i][j]
                                   for j in range(len(data['distances'][b]))],
-                                 'r--', linewidth=band_linewidth)
+                                 '--', color=[128/255,128/255,128/255], linewidth=band_linewidth)
                         for j in range(len(data['energy'][b][str(Spin.up)][i])):
+                            markerscale = sum([proj[b][str(Spin.down)][i][
+                                                  j][str(el)][o] for o in
+                                              proj[b]
+                                              [str(Spin.down)][i][j][
+                                                  str(el)]])
                             plt.plot(data['distances'][b][j],
-                                     data['energy'][b][str(Spin.down)][i][j],
-                                     'ro',
-                                     markersize=sum([proj[b][str(Spin.down)][i][
-                                                         j][str(el)][o] for o in
-                                                     proj[b]
-                                                     [str(Spin.down)][i][j][
-                                                         str(el)]]) * 15.0)
+                                     data['energy'][b][str(Spin.down)][i][j], 'bo',
+                                     markersize=markerscale*15.0,color=[markerscale,0.3*markerscale,0.4*markerscale])
                     for j in range(len(data['energy'][b][str(Spin.up)][i])):
+                        markerscale = sum(
+                            [proj[b][str(Spin.up)][i][j][str(el)][o]
+                             for o in proj[b]
+                             [str(Spin.up)][i][j][str(el)]])
                         plt.plot(data['distances'][b][j],
-                                 data['energy'][b][str(Spin.up)][i][j], 'bo',
-                                 markersize=sum(
-                                     [proj[b][str(Spin.up)][i][j][str(el)][o]
-                                      for o in proj[b]
-                                      [str(Spin.up)][i][j][str(el)]]) * 15.0)
+                                 data['energy'][b][str(Spin.up)][i][j], 'o',
+                                 markersize=markerscale*15.0, color=[markerscale, 0.3*markerscale, 0.4*markerscale])
             if ylim is None:
                 if self._bs.is_metal():
                     if zero_to_efermi:
