@@ -500,7 +500,10 @@ class GaussianOutput(object):
 
     .. attribute:: frequencies
 
-        The frequencies and normal modes.
+        A dict with {"frequency": freq in cm-1, "masse": Reduce mass,
+                     "frc": force constant, "intensity": IR Intensity,
+                     "mode": normal mode}
+        The normal mode is a 1D vector of dx, dy dz of each atom.
 
     .. attribute:: properly_terminated
 
@@ -593,7 +596,7 @@ class GaussianOutput(object):
         of molecular orbital coefficients (POP=Full) and in the molecular_orbital
         array dict.
 
-        atom_basis_labels[iatom] = [AO_k, AO_k, ...]
+        atom_basis_labels[iatom] = [AO_k, AO_k, ...]
 
     Methods:
 
@@ -664,6 +667,7 @@ class GaussianOutput(object):
         freq_on_patt = re.compile(
             "Harmonic\sfrequencies\s+\(cm\*\*-1\),\sIR\sintensities.*Raman.*")
         freq_patt = re.compile("Frequencies\s--\s+(.*)")
+
         normal_mode_patt = re.compile(
             "\s+(\d+)\s+(\d+)\s+([0-9\.-]{4,5})\s+([0-9\.-]{4,5}).*")
 
@@ -756,7 +760,7 @@ class GaussianOutput(object):
                             forces = []
                             parse_forces = False
 
-                    # read molecular orbital eigenvalues
+                    # read molecular orbital eigenvalues
                     if read_eigen:
                         m = orbital_patt.search(line)
                         if m:
@@ -803,7 +807,7 @@ class GaussianOutput(object):
                                     else:
                                         self.atom_basis_labels[iat].append(m.group(4))
 
-                                    # MO coefficients
+                                    # MO coefficients
                                     coeffs = [float(c) for c in float_patt.findall(line)]
                                     for j in range(len(coeffs)):
                                         mat_mo[spin][i, nMO + j] = coeffs[j]
@@ -838,18 +842,41 @@ class GaussianOutput(object):
 
 
                     elif parse_freq:
-                        m = freq_patt.search(line)
-                        if m:
-                            values = [float(_v) for _v in m.groups()[0].split()]
-                            for value in values:
-                                frequencies.append([value, []])
+                        if re.match(r"\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)$", line):
+                            ifreqs = [int(val) - 1 for val in line.split()]
+                            for ifreq in ifreqs:
+                                frequencies.append({"frequency": None,
+                                                    "r_mass": None,
+                                                    "f_constant": None,
+                                                    "IR_intensity": None,
+                                                    "symmetry": None,
+                                                    "mode": []})
+                        elif re.match(r"\s+(\S+)\s+(\S+)\s+(\S+)$", line):
+                        # elif re.match(r"\s+([a-zA-Z0-9]+)\s+([a-zA-Z0-9]+)\s+([a-zA-Z0-9]+)$", line):
+                            syms = line.split()[:3]
+                            for ifreq, sym in zip(ifreqs, syms):
+                                frequencies[ifreq]["symmetry"] = sym
+                        elif "Frequencies --" in line:
+                            freqs = map(float, float_patt.findall(line))
+                            for ifreq, freq in zip(ifreqs, freqs):
+                                frequencies[ifreq]["frequency"] = freq
+                        elif "Red. masses --" in line:
+                            r_masses = map(float, float_patt.findall(line))
+                            for ifreq, r_mass in zip(ifreqs, r_masses):
+                                frequencies[ifreq]["r_mass"] = r_mass
+                        elif "Frc consts  --" in line:
+                            f_consts = map(float, float_patt.findall(line))
+                            for ifreq, f in zip(ifreqs, f_consts):
+                                frequencies[ifreq]["f_constant"] = f
+                        elif "IR Inten    --" in line:
+                            IR_intens = map(float, float_patt.findall(line))
+                            for ifreq, intens in zip(ifreqs, IR_intens):
+                                frequencies[ifreq]["IR_intensity"] = intens
                         elif normal_mode_patt.search(line):
-                            values = [float(_v) for _v in line.split()[2:]]
-                            n = int(len(values) / 3)
-                            for i in range(0, len(values), 3):
-                                j = -n + int(i / 3)
-                                frequencies[j][1].extend(values[i:i+3])
-                        elif line.find("-------------------") != -1:
+                            values = list(map(float, float_patt.findall(line)))
+                            for i, ifreq in zip(range(0, len(values), 3), ifreqs):
+                                frequencies[ifreq]["mode"].extend(values[i:i+3])
+                        elif "-------------------" in line:
                             parse_freq = False
                             self.frequencies.append(frequencies)
                             frequencies = []
@@ -904,6 +931,7 @@ class GaussianOutput(object):
                         parse_forces = True
                     elif freq_on_patt.search(line):
                         parse_freq = True
+                        [f.readline() for i in range(3)]
                     elif mo_coeff_patt.search(line):
                         if "Alpha" in line:
                             self.is_spin = True
