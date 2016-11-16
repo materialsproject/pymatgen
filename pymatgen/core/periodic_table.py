@@ -379,6 +379,12 @@ class Element(Enum):
         # Store key variables for quick access
         self.Z = d["Atomic no"]
         self.X = d.get("X", 0)
+        at_r = d.get("Atomic radius", "no data")
+        if str(at_r).startswith("no data"):
+            self.atomic_radius = None
+        else:
+            self.atomic_radius = Length(at_r, "ang")
+        self.atomic_mass = Mass(d["Atomic mass"], "amu")
         self._data = d
 
     def __getattr__(self, item):
@@ -429,14 +435,6 @@ class Element(Enum):
                             # Ignore error. val will just remain a string.
                             pass
             return val
-        elif item == "atomic_radius":
-            at_r = self._data.get("Atomic radius", "no data")
-            if str(at_r).startswith("no data"):
-                return None
-            else:
-                return Length(at_r, "ang")
-        elif item == "atomic_mass":
-            return Mass(self._data["Atomic mass"], "amu")
         raise AttributeError
 
     @property

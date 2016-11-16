@@ -10,38 +10,12 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.io.vasp.GWvaspinputsets module
----------------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.io.vasp.GWvaspinputsets
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.vasp.inputs module
-------------------------------
-
-.. automodule:: pymatgen.io.vasp.inputs
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.vasp.outputs module
--------------------------------
-
-.. automodule:: pymatgen.io.vasp.outputs
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.vasp.sets module
-----------------------------
-
-.. automodule:: pymatgen.io.vasp.sets
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.io.vasp.GWvaspinputsets
+   pymatgen.io.vasp.inputs
+   pymatgen.io.vasp.outputs
+   pymatgen.io.vasp.sets
 
 Module contents
 ---------------

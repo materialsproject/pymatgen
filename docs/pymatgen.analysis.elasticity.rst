@@ -4,38 +4,12 @@ pymatgen.analysis.elasticity package
 Submodules
 ----------
 
-pymatgen.analysis.elasticity.elastic module
--------------------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.analysis.elasticity.elastic
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.elasticity.strain module
-------------------------------------------
-
-.. automodule:: pymatgen.analysis.elasticity.strain
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.elasticity.stress module
-------------------------------------------
-
-.. automodule:: pymatgen.analysis.elasticity.stress
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.analysis.elasticity.tensors module
--------------------------------------------
-
-.. automodule:: pymatgen.analysis.elasticity.tensors
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.analysis.elasticity.elastic
+   pymatgen.analysis.elasticity.strain
+   pymatgen.analysis.elasticity.stress
+   pymatgen.analysis.elasticity.tensors
 
 Module contents
 ---------------

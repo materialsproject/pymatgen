@@ -28,14 +28,9 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.dao module
--------------------
+.. toctree::
 
-.. automodule:: pymatgen.dao
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.dao
 
 Module contents
 ---------------

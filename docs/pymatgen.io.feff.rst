@@ -10,30 +10,11 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.io.feff.inputs module
-------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.io.feff.inputs
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.feff.outputs module
--------------------------------
-
-.. automodule:: pymatgen.io.feff.outputs
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.feff.sets module
-----------------------------
-
-.. automodule:: pymatgen.io.feff.sets
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.io.feff.inputs
+   pymatgen.io.feff.outputs
+   pymatgen.io.feff.sets
 
 Module contents
 ---------------

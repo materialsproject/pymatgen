@@ -10,198 +10,32 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.io.abinit.abiinspect module
-------------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.io.abinit.abiinspect
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.abiobjects module
-------------------------------------
-
-.. automodule:: pymatgen.io.abinit.abiobjects
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.abitimer module
-----------------------------------
-
-.. automodule:: pymatgen.io.abinit.abitimer
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.calculations module
---------------------------------------
-
-.. automodule:: pymatgen.io.abinit.calculations
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.db module
-----------------------------
-
-.. automodule:: pymatgen.io.abinit.db
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.eos module
------------------------------
-
-.. automodule:: pymatgen.io.abinit.eos
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.events module
---------------------------------
-
-.. automodule:: pymatgen.io.abinit.events
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.flows module
--------------------------------
-
-.. automodule:: pymatgen.io.abinit.flows
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.helpers module
----------------------------------
-
-.. automodule:: pymatgen.io.abinit.helpers
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.launcher module
-----------------------------------
-
-.. automodule:: pymatgen.io.abinit.launcher
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.mocks module
--------------------------------
-
-.. automodule:: pymatgen.io.abinit.mocks
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.netcdf module
---------------------------------
-
-.. automodule:: pymatgen.io.abinit.netcdf
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.nodes module
--------------------------------
-
-.. automodule:: pymatgen.io.abinit.nodes
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.pseudos module
----------------------------------
-
-.. automodule:: pymatgen.io.abinit.pseudos
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.qadapters module
------------------------------------
-
-.. automodule:: pymatgen.io.abinit.qadapters
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.qjobs module
--------------------------------
-
-.. automodule:: pymatgen.io.abinit.qjobs
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.qutils module
---------------------------------
-
-.. automodule:: pymatgen.io.abinit.qutils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.scheduler_error_handlers module
---------------------------------------------------
-
-.. automodule:: pymatgen.io.abinit.scheduler_error_handlers
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.scheduler_error_parsers module
--------------------------------------------------
-
-.. automodule:: pymatgen.io.abinit.scheduler_error_parsers
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.strategies module
-------------------------------------
-
-.. automodule:: pymatgen.io.abinit.strategies
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.tasks module
--------------------------------
-
-.. automodule:: pymatgen.io.abinit.tasks
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.utils module
--------------------------------
-
-.. automodule:: pymatgen.io.abinit.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.works module
--------------------------------
-
-.. automodule:: pymatgen.io.abinit.works
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.abinit.wrappers module
-----------------------------------
-
-.. automodule:: pymatgen.io.abinit.wrappers
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.io.abinit.abiinspect
+   pymatgen.io.abinit.abiobjects
+   pymatgen.io.abinit.abitimer
+   pymatgen.io.abinit.calculations
+   pymatgen.io.abinit.db
+   pymatgen.io.abinit.eos
+   pymatgen.io.abinit.events
+   pymatgen.io.abinit.flows
+   pymatgen.io.abinit.helpers
+   pymatgen.io.abinit.launcher
+   pymatgen.io.abinit.mocks
+   pymatgen.io.abinit.netcdf
+   pymatgen.io.abinit.nodes
+   pymatgen.io.abinit.pseudos
+   pymatgen.io.abinit.qadapters
+   pymatgen.io.abinit.qjobs
+   pymatgen.io.abinit.qutils
+   pymatgen.io.abinit.scheduler_error_handlers
+   pymatgen.io.abinit.scheduler_error_parsers
+   pymatgen.io.abinit.strategies
+   pymatgen.io.abinit.tasks
+   pymatgen.io.abinit.utils
+   pymatgen.io.abinit.works
+   pymatgen.io.abinit.wrappers
 
 Module contents
 ---------------

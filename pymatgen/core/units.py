@@ -13,8 +13,6 @@ from numbers import Number
 import numbers
 from functools import partial
 
-import re
-
 import scipy.constants as const
 
 """
@@ -25,8 +23,6 @@ another, and additions and subtractions perform automatic conversion if
 units are detected. An ArrayWithUnit is also implemented, which is a subclass
 of numpy's ndarray with similar unit features.
 """
-
-
 
 __author__ = "Shyue Ping Ong, Matteo Giantomassi"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -204,6 +200,7 @@ class Unit(collections.Mapping):
 
         if isinstance(unit_def, six.string_types):
             unit = collections.defaultdict(int)
+            import re
             for m in re.finditer("([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
                 p = m.group(2)
                 p = 1 if not p else int(p)
