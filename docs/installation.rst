@@ -223,6 +223,19 @@ able to generate POTCARs::
 
     pmg config --add VASP_PSP_DIR <MY_PSP>
 
+If you are using newer sets of pseudopotential files from VASP, the directory
+names may be different, e.g., POT_GGA_PAW_PBE_52. For such cases, please also
+add a default functional specification as follows::
+
+    pmg config --add DEFAULT_FUNCTIONAL PBE_52
+
+You can also use this to specify whatever functional you'd like to use by
+default in pymatgen. Type::
+
+    pmg potcar -h
+
+to see list of choices.
+
 Setup for Developers (using GitHub)
 ===================================
 

@@ -1547,7 +1547,8 @@ class PotcarSingle(object):
 
     @staticmethod
     def from_symbol_and_functional(symbol,
-                                   functional=SETTINGS.get("DEFAULT_FUNCTIONAL", "PBE")):
+                                   functional=SETTINGS.get("DEFAULT_FUNCTIONAL",
+                                                           "PBE")):
         funcdir = PotcarSingle.functional_dir[functional]
         d = SETTINGS.get("VASP_PSP_DIR")
         if d is None:
@@ -1555,7 +1556,8 @@ class PotcarSingle(object):
                              "Please set the VASP_PSP_DIR environment in "
                              ".pmgrc.yaml, or you may need to set "
                              "DEFAULT_FUNCTIONAL to PBE_52 or PBE_54 if you "
-                             "are using newer psps from VASP.")
+                             "are using newer psps from VASP." % (symbol,
+                                                                  functional))
         paths_to_try = [os.path.join(d, funcdir, "POTCAR.{}".format(symbol)),
                         os.path.join(d, funcdir, symbol, "POTCAR")]
         for p in paths_to_try:

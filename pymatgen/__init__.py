@@ -8,7 +8,7 @@ __email__ ="pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ ="shyuep@gmail.com"
 __date__ = "Nov 15 2016"
-__version__ = "4.5.1"
+__version__ = "4.5.2"
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
