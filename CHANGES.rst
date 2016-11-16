@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v4.5.2
+------
+* Minor bug fix for POTCAR settings.
+
 v4.5.1
 ------
 * You can now specify a different default functional choice for pymatgen by
