@@ -229,12 +229,19 @@ add a default functional specification as follows::
 
     pmg config --add DEFAULT_FUNCTIONAL PBE_52
 
-You can also use this to specify whatever functional you'd like to use by
-default in pymatgen. Type::
+You can also use this to specify whatever functional you would like to use by
+default in pymatgen, e.g., LDA_52, PW91, etc. Type::
 
     pmg potcar -h
 
-to see list of choices.
+to see full list of choices.
+
+.. note::
+
+    The Materials Project uses the 2012 versions of the VASP pseudopotentials.
+    As such, the pymatgen compatibility package assume this version. If you use
+    any functional other than PBE, note that you should not be combining results
+    from these other functionals with Materials Project data.
 
 Setup for Developers (using GitHub)
 ===================================
