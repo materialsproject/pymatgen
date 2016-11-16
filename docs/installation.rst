@@ -11,12 +11,12 @@ be available on `PyPI <http://pypi.python.org>`_.
 2. numpy>=1.9
 3. scipy>0.14
 4. matplotlib>=1.5+
-4. monty>=0.9.6
-5. requests>=2.0+
-6. pybtex
-7. pyyaml
-8. tabulate
-9. six
+5. monty>=0.9.6
+6. requests>=2.0+
+7. pybtex
+8. pyyaml
+9. tabulate
+10. six
 
 Most of these are fairly easy to install. The well-established numpy and scipy
 should have ready-made installation packages for all platforms. The rest are
