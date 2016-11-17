@@ -27,8 +27,6 @@ __email__ = 'ongsp@ucsd.edu'
 __date__ = '8/1/15'
 
 
-
-
 float_patt = re.compile("\s*([+-]?\d+\.\d+)")
 
 HARTREE_TO_ELECTRON_VOLT = 1/cst.physical_constants["electron volt-hartree relationship"][0]
@@ -505,6 +503,11 @@ class GaussianOutput(object):
                      "mode": normal mode}
         The normal mode is a 1D vector of dx, dy dz of each atom.
 
+    .. attribute:: hessian
+
+        Matrix of second derivatives of the energy with respect to cartesian
+        coordinates in the **input orientation** frame.
+
     .. attribute:: properly_terminated
 
         True if run has properly terminated
@@ -674,6 +677,8 @@ class GaussianOutput(object):
         mo_coeff_patt = re.compile("Molecular Orbital Coefficients:")
         mo_coeff_name_patt = re.compile("\d+\s((\d+|\s+)\s+([a-zA-Z]{1,2}|\s+))\s+(\d+\S+)")
 
+        hessian_patt = re.compile("Force constants in Cartesian coordinates:")
+
         self.properly_terminated = False
         self.is_pcm = False
         self.stationary_type = "Minimum"
@@ -688,6 +693,7 @@ class GaussianOutput(object):
         self.frequencies = []
         self.eigenvalues = []
         self.is_spin = False
+        self.hessian = None
 
         coord_txt = []
         read_coord = 0
@@ -702,6 +708,7 @@ class GaussianOutput(object):
         parse_freq = False
         frequencies = []
         read_mo = False
+        parse_hessian = False
 
         with zopen(filename) as f:
             for line in f:
@@ -866,8 +873,8 @@ class GaussianOutput(object):
                                 frequencies[ifreq]["r_mass"] = r_mass
                         elif "Frc consts  --" in line:
                             f_consts = map(float, float_patt.findall(line))
-                            for ifreq, f in zip(ifreqs, f_consts):
-                                frequencies[ifreq]["f_constant"] = f
+                            for ifreq, f_const in zip(ifreqs, f_consts):
+                                frequencies[ifreq]["f_constant"] = f_const
                         elif "IR Inten    --" in line:
                             IR_intens = map(float, float_patt.findall(line))
                             for ifreq, intens in zip(ifreqs, IR_intens):
@@ -880,6 +887,25 @@ class GaussianOutput(object):
                             parse_freq = False
                             self.frequencies.append(frequencies)
                             frequencies = []
+
+                    elif parse_hessian:
+                        parse_hessian = False
+                        ndf = 3 * len(self.structures[0])
+                        self.hessian = np.zeros((ndf, ndf))
+                        j_indices = range(5)
+                        jndf = 0
+                        while jndf < ndf:
+                            for i in range(jndf, ndf):
+                                line = f.readline()
+                                vals = re.findall("\s*([+-]?\d+\.\d+[eEdD]?[+-]\d+)", line)
+                                vals = [float(val.replace("D", "E")) for val in vals]
+                                for jval, val in enumerate(vals):
+                                    j = j_indices[jval]
+                                    self.hessian[i, j] = val
+                                    self.hessian[j, i] = val
+                            jndf += len(vals)
+                            line = f.readline()
+                            j_indices = [j + 5 for j in j_indices]
 
                     elif termination_patt.search(line):
                         m = termination_patt.search(line)
@@ -936,6 +962,8 @@ class GaussianOutput(object):
                         if "Alpha" in line:
                             self.is_spin = True
                         read_mo = True
+                    elif hessian_patt.search(line):
+                        parse_hessian = True
 
                     if read_mulliken:
                         if not end_mulliken_patt.search(line):
