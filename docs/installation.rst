@@ -170,8 +170,8 @@ packages do not support Windows)::
 If the above fails, you can also try installing these from source using the pmg
 command line tool as follows::
 
-   pmg setup --install enumlib
-   pmg setup --install bader
+   pmg config --install enumlib
+   pmg config --install bader
 
 Then put these in your PATH somewhere.
 
@@ -181,11 +181,11 @@ POTCAR Setup
 For the code to generate POTCAR files, it needs to know where the VASP
 pseudopotential files are.  We are not allowed to distribute these under the
 VASP license. The good news is that the `pmg` command line utility includes a
-setup functionality.
+config functionality.
 
 After installation, do::
 
-    pmg setup -p <EXTRACTED_VASP_POTCAR> <MY_PSP>
+    pmg config -p <EXTRACTED_VASP_POTCAR> <MY_PSP>
 
 In the above, `<EXTRACTED_VASP_POTCAR>` is the location of the directory that
 you extracted the downloaded VASP pseudopotential files. Typically, it has
