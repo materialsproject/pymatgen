@@ -498,15 +498,23 @@ class GaussianOutput(object):
 
     .. attribute:: frequencies
 
-        A dict with {"frequency": freq in cm-1, "masse": Reduce mass,
-                     "frc": force constant, "intensity": IR Intensity,
-                     "mode": normal mode}
+        A list for each freq calculation and for each mode of a dict with
+        {
+            "frequency": freq in cm-1,
+            "symmetry": symmetry tag
+            "r_mass": Reduce mass,
+            "f_constant": force constant,
+            "IR_intensity": IR Intensity,
+            "mode": normal mode
+         }
+
         The normal mode is a 1D vector of dx, dy dz of each atom.
 
     .. attribute:: hessian
 
         Matrix of second derivatives of the energy with respect to cartesian
-        coordinates in the **input orientation** frame.
+        coordinates in the **input orientation** frame. Need #P in the
+        route section in order to be in the output.
 
     .. attribute:: properly_terminated
 
