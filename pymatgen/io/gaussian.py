@@ -723,6 +723,7 @@ class GaussianOutput(object):
                         self.functional = params[0]
                         self.basis_set = params[1]
                         self.route = params[2]
+                        route_lower = {k.lower(): v for k, v in self.route.items()}
                         self.dieze_tag = params[3]
                         parse_stage = 1
                 elif parse_stage == 1:
@@ -736,7 +737,7 @@ class GaussianOutput(object):
                     if self.is_pcm:
                         self._check_pcm(line)
 
-                    if "FREQ" in self.route and thermo_patt.search(line):
+                    if "freq" in route_lower and thermo_patt.search(line):
                         m = thermo_patt.search(line)
                         if m.group(1) == "Zero-point":
                             self.corrections["Zero-point"] = float(m.group(3))
@@ -939,7 +940,7 @@ class GaussianOutput(object):
                     elif (not self.is_pcm) and pcm_patt.search(line):
                         self.is_pcm = True
                         self.pcm = {}
-                    elif "FREQ" in self.route and "OPT" in self.route and \
+                    elif "freq" in route_lower and "opt" in route_lower and \
                             stat_type_patt.search(line):
                         self.stationary_type = "Saddle"
                     elif mp2_patt.search(line):
