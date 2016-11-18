@@ -847,9 +847,8 @@ class GaussianOutput(object):
 
                         self.molecular_orbital = mo
 
-
                     elif parse_freq:
-                        if re.match(r"\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)$", line):
+                        while line.strip() != "": # blank line
                             ifreqs = [int(val) - 1 for val in line.split()]
                             for ifreq in ifreqs:
                                 frequencies.append({"frequency": None,
@@ -858,37 +857,46 @@ class GaussianOutput(object):
                                                     "IR_intensity": None,
                                                     "symmetry": None,
                                                     "mode": []})
-                        elif re.match(r"\s+(\S+)\s+(\S+)\s+(\S+)$", line):
-                        # elif re.match(r"\s+([a-zA-Z0-9]+)\s+([a-zA-Z0-9]+)\s+([a-zA-Z0-9]+)$", line):
-                            syms = line.split()[:3]
-                            for ifreq, sym in zip(ifreqs, syms):
-                                frequencies[ifreq]["symmetry"] = sym
-                        elif "Frequencies --" in line:
-                            freqs = map(float, float_patt.findall(line))
-                            for ifreq, freq in zip(ifreqs, freqs):
-                                frequencies[ifreq]["frequency"] = freq
-                        elif "Red. masses --" in line:
-                            r_masses = map(float, float_patt.findall(line))
-                            for ifreq, r_mass in zip(ifreqs, r_masses):
-                                frequencies[ifreq]["r_mass"] = r_mass
-                        elif "Frc consts  --" in line:
-                            f_consts = map(float, float_patt.findall(line))
-                            for ifreq, f_const in zip(ifreqs, f_consts):
-                                frequencies[ifreq]["f_constant"] = f_const
-                        elif "IR Inten    --" in line:
-                            IR_intens = map(float, float_patt.findall(line))
-                            for ifreq, intens in zip(ifreqs, IR_intens):
-                                frequencies[ifreq]["IR_intensity"] = intens
-                        elif normal_mode_patt.search(line):
-                            values = list(map(float, float_patt.findall(line)))
-                            for i, ifreq in zip(range(0, len(values), 3), ifreqs):
-                                frequencies[ifreq]["mode"].extend(values[i:i+3])
-                        elif "-------------------" in line:
-                            parse_freq = False
-                            self.frequencies.append(frequencies)
-                            frequencies = []
+                            # read freq, intensity, masses, symmetry ...
+                            while "Atom  AN" not in line:
+                                if "Frequencies --" in line:
+                                    freqs = map(float, float_patt.findall(line))
+                                    for ifreq, freq in zip(ifreqs, freqs):
+                                        frequencies[ifreq]["frequency"] = freq
+                                elif "Red. masses --" in line:
+                                    r_masses = map(float, float_patt.findall(line))
+                                    for ifreq, r_mass in zip(ifreqs, r_masses):
+                                        frequencies[ifreq]["r_mass"] = r_mass
+                                elif "Frc consts  --" in line:
+                                    f_consts = map(float, float_patt.findall(line))
+                                    for ifreq, f_const in zip(ifreqs, f_consts):
+                                        frequencies[ifreq]["f_constant"] = f_const
+                                elif "IR Inten    --" in line:
+                                    IR_intens = map(float, float_patt.findall(line))
+                                    for ifreq, intens in zip(ifreqs, IR_intens):
+                                        frequencies[ifreq]["IR_intensity"] = intens
+                                else:
+                                    syms = line.split()[:3]
+                                    for ifreq, sym in zip(ifreqs, syms):
+                                        frequencies[ifreq]["symmetry"] = sym
+                                line = f.readline()
+
+                            # read normal modes
+                            line = f.readline()
+                            while normal_mode_patt.search(line):
+                                values = list(map(float, float_patt.findall(line)))
+                                for i, ifreq in zip(range(0, len(values), 3), ifreqs):
+                                    frequencies[ifreq]["mode"].extend(values[i:i+3])
+                                line = f.readline()
+
+                        parse_freq = False
+                        self.frequencies.append(frequencies)
+                        frequencies = []
 
                     elif parse_hessian:
+                        # read Hessian matrix under "Force constants in Cartesian coordinates"
+                        # Hessian matrix is in the input orientation framework
+                        # WARNING : need #P in the route line
                         parse_hessian = False
                         ndf = 3 * len(self.structures[0])
                         self.hessian = np.zeros((ndf, ndf))

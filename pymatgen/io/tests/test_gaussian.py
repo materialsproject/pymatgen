@@ -202,7 +202,7 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual(d["input"]["functional"], "hf")
         self.assertAlmostEqual(d["output"]["final_energy"], -39.9768775602)
         self.assertEqual(len(gau.cart_forces), 3)
-        self.assertEqual(gau.cart_forces[0][ 5],  0.009791094)
+        self.assertEqual(gau.cart_forces[0][5],  0.009791094)
         self.assertEqual(gau.cart_forces[0][-1], -0.003263698)
         self.assertEqual(gau.cart_forces[2][-1], -0.000000032)
         self.assertEqual(gau.eigenvalues[Spin.up][-1], 1.95586)
@@ -211,14 +211,19 @@ class GaussianOutputTest(unittest.TestCase):
 
         ch2o_co2 = GaussianOutput(os.path.join(test_dir, "CH2O_CO2.log"))
         self.assertEqual(len(ch2o_co2.frequencies), 2)
-        self.assertEqual(ch2o_co2.frequencies[0][0][0], 1203.1940)
-        self.assertListEqual(ch2o_co2.frequencies[0][1][1], [ 0.15, 0.00, 0.00,
-                                                             -0.26, 0.65, 0.00,
-                                                             -0.26,-0.65, 0.00,
-                                                             -0.08, 0.00, 0.00])
-        self.assertListEqual(ch2o_co2.frequencies[1][3][1], [ 0.00, 0.00, 0.88,
-                                                              0.00, 0.00,-0.33,
-                                                              0.00, 0.00,-0.33])
+        self.assertEqual(len(ch2o_co2.frequencies[0]), 6)
+        self.assertEqual(len(ch2o_co2.frequencies[1]), 4)
+        self.assertEqual(ch2o_co2.frequencies[0][0]["frequency"], 1203.1940)
+        self.assertEqual(ch2o_co2.frequencies[0][3]["IR_intensity"], 60.9575)
+        self.assertEqual(ch2o_co2.frequencies[0][3]["r_mass"], 3.7543)
+        self.assertEqual(ch2o_co2.frequencies[0][4]["f_constant"], 5.4175)
+        self.assertListEqual(ch2o_co2.frequencies[0][1]["mode"], [0.15, 0.00, 0.00,
+                                                                  -0.26, 0.65, 0.00,
+                                                                  -0.26, -0.65, 0.00,
+                                                                  -0.08, 0.00, 0.00])
+        self.assertListEqual(ch2o_co2.frequencies[1][3]["mode"], [0.00, 0.00, 0.88,
+                                                                  0.00, 0.00, -0.33,
+                                                                  0.00, 0.00, -0.33])
         self.assertEqual(ch2o_co2.eigenvalues[Spin.up][3], -1.18394)
 
     def test_pop(self):
@@ -227,26 +232,26 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual(gau.electrons, (5, 5))
         self.assertEqual(gau.is_spin, True)
         self.assertListEqual(gau.eigenvalues[Spin.down], [-20.55343,  -1.35264,
-                                                           -0.72655,  -0.54824,
-                                                           -0.49831,   0.20705,
-                                                            0.30297,   1.10569,
-                                                            1.16144,   1.16717,
-                                                            1.20460,   1.38903,
-                                                            1.67608])
+                                                          -0.72655,  -0.54824,
+                                                          -0.49831,   0.20705,
+                                                          0.30297,   1.10569,
+                                                          1.16144,   1.16717,
+                                                          1.20460,   1.38903,
+                                                          1.67608])
         mo = gau.molecular_orbital
-        self.assertEqual(len(mo), 2) # la 6
+        self.assertEqual(len(mo), 2)  # la 6
         self.assertEqual(len(mo[Spin.down]), 13)
         self.assertEqual(len(mo[Spin.down][0]), 3)
         self.assertEqual(mo[Spin.down][5][0]["1S"], -0.08771)
         self.assertEqual(mo[Spin.down][5][0]["2PZ"], -0.21625)
         self.assertListEqual(gau.eigenvectors[Spin.up][:, 5].tolist(), [-0.08771,
-                                                                         0.10840,
-                                                                         0.00000,
-                                                                         0.00000,
+                                                                        0.10840,
+                                                                        0.00000,
+                                                                        0.00000,
                                                                         -0.21625,
-                                                                         1.21165,
-                                                                         0.00000,
-                                                                         0.00000,
+                                                                        1.21165,
+                                                                        0.00000,
+                                                                        0.00000,
                                                                         -0.44481,
                                                                         -0.06348,
                                                                         -1.00532,
