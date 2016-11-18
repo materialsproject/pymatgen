@@ -1,8 +1,6 @@
 Change log
 ==========
 
-v4.5.0
+v4.5.2
 ------
-* Major speed up of initial load.
-* Collection of misc changes.
-
+* Minor bug fix for POTCAR settings.

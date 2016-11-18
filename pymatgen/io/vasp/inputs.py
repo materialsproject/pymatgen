@@ -4,20 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-Classes for reading/manipulating/writing VASP input files. All major VASP input
-files.
-"""
-
-__author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
-             "Vincent L Chevrier, Stephen Dacek"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Jul 16, 2012"
-
 import os
 import re
 import itertools
@@ -47,6 +33,21 @@ from monty.design_patterns import cached_class
 from pymatgen.util.string_utils import str_delimited
 from pymatgen.util.io_utils import clean_lines
 from monty.json import MSONable
+
+"""
+Classes for reading/manipulating/writing VASP input files. All major VASP input
+files.
+"""
+
+__author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
+             "Vincent L Chevrier, Stephen Dacek"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Production"
+__date__ = "Jul 16, 2012"
+
 
 
 logger = logging.getLogger(__name__)
@@ -1545,12 +1546,18 @@ class PotcarSingle(object):
             return PotcarSingle(f.read())
 
     @staticmethod
-    def from_symbol_and_functional(symbol, functional="PBE"):
+    def from_symbol_and_functional(symbol,
+                                   functional=SETTINGS.get("DEFAULT_FUNCTIONAL",
+                                                           "PBE")):
         funcdir = PotcarSingle.functional_dir[functional]
         d = SETTINGS.get("VASP_PSP_DIR")
         if d is None:
-            raise ValueError("No POTCAR directory found. Please set "
-                             "the VASP_PSP_DIR environment variable")
+            raise ValueError("No POTCAR for %s with functional %s found. "
+                             "Please set the VASP_PSP_DIR environment in "
+                             ".pmgrc.yaml, or you may need to set "
+                             "DEFAULT_FUNCTIONAL to PBE_52 or PBE_54 if you "
+                             "are using newer psps from VASP." % (symbol,
+                                                                  functional))
         paths_to_try = [os.path.join(d, funcdir, "POTCAR.{}".format(symbol)),
                         os.path.join(d, funcdir, symbol, "POTCAR")]
         for p in paths_to_try:

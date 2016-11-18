@@ -10,8 +10,8 @@ import sys
 import itertools
 
 from tabulate import tabulate, tabulate_formats
-from pymatgen import Structure
-from pymatgen.io.vasp import Incar
+from pymatgen import Structure, SETTINGS
+from pymatgen.io.vasp import Incar, Potcar
 
 from pymatgen.cli.pmg_analyze import analyze
 from pymatgen.cli.pmg_config import configure_pmg
@@ -260,8 +260,9 @@ def main():
                                           help="Generate POTCARs")
     parser_potcar.add_argument("-f", "--functional", dest="functional",
                                type=str,
-                               choices=["LDA", "PBE", "PW91", "LDA_US"],
-                               default="PBE",
+                               choices=sorted(Potcar.FUNCTIONAL_CHOICES),
+                               default=SETTINGS.get("DEFAULT_FUNCTIONAL",
+                                                    "PBE"),
                                help="Functional to use. Unless otherwise "
                                     "stated (e.g., US), "
                                     "refers to PAW psuedopotential.")
