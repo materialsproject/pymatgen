@@ -214,6 +214,7 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual(len(ch2o_co2.frequencies[0]), 6)
         self.assertEqual(len(ch2o_co2.frequencies[1]), 4)
         self.assertEqual(ch2o_co2.frequencies[0][0]["frequency"], 1203.1940)
+        self.assertEqual(ch2o_co2.frequencies[0][0]["symmetry"], "A\"")
         self.assertEqual(ch2o_co2.frequencies[0][3]["IR_intensity"], 60.9575)
         self.assertEqual(ch2o_co2.frequencies[0][3]["r_mass"], 3.7543)
         self.assertEqual(ch2o_co2.frequencies[0][4]["f_constant"], 5.4175)
@@ -224,7 +225,20 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertListEqual(ch2o_co2.frequencies[1][3]["mode"], [0.00, 0.00, 0.88,
                                                                   0.00, 0.00, -0.33,
                                                                   0.00, 0.00, -0.33])
+        self.assertEqual(ch2o_co2.frequencies[1][3]["symmetry"], "SGU")
         self.assertEqual(ch2o_co2.eigenvalues[Spin.up][3], -1.18394)
+
+        h2o = GaussianOutput(os.path.join(test_dir, "H2O_gau_vib.out"))
+        self.assertEqual(len(h2o.frequencies[0]), 3)
+        self.assertEqual(h2o.frequencies[0][0]["frequency"], 1662.8033)
+        self.assertEqual(h2o.frequencies[0][1]["symmetry"], "A'")
+        self.assertEqual(h2o.hessian[0, 0], 0.356872)
+        self.assertEqual(h2o.hessian.shape, (9, 9))
+        self.assertEqual(h2o.hessian[8, :].tolist(), [-0.143692e-01,  0.780136e-01,
+                                                      -0.362637e-01, -0.176193e-01,
+                                                      0.277304e-01, -0.583237e-02,
+                                                      0.319885e-01, -0.105744e+00,
+                                                      0.420960e-01])
 
     def test_pop(self):
         gau = GaussianOutput(os.path.join(test_dir, "H2O_gau.out"))
