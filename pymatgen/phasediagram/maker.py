@@ -435,7 +435,7 @@ class PhaseDiagramError(Exception):
     pass
 
 
-def get_facets(qhull_data, joggle=False, force_use_pyhull=False):
+def get_facets(qhull_data, joggle=False):
     """
     Get the simplex facets for the Convex hull.
 
@@ -445,8 +445,6 @@ def get_facets(qhull_data, joggle=False, force_use_pyhull=False):
             dimension)
         joggle (boolean): Whether to joggle the input to avoid precision
             errors.
-        force_use_pyhull (boolean): Whether the pyhull algorithm is always
-            used, even when scipy is present.
 
     Returns:
         List of simplices of the Convex Hull.

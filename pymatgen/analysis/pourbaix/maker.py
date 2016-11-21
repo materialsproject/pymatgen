@@ -4,6 +4,16 @@
 
 from __future__ import division, unicode_literals
 
+import logging
+import numpy as np
+import itertools
+from itertools import chain
+from scipy.spatial import ConvexHull
+from pymatgen.analysis.pourbaix.entry import MultiEntry, \
+    ion_or_solid_comp_object
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.composition import Composition
+
 """
 Module containing analysis classes which compute a pourbaix diagram given a
 target compound/element.
@@ -18,16 +28,6 @@ __maintainer__ = "Sai Jayaraman"
 __email__ = "sjayaram@mit.edu"
 __status__ = "Development"
 __date__ = "Nov 1, 2012"
-
-
-import logging
-import numpy as np
-import itertools
-from itertools import chain
-from pyhull.convex_hull import ConvexHull
-from pymatgen.analysis.pourbaix.entry import MultiEntry, ion_or_solid_comp_object
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.composition import Composition
 
 
 logger = logging.getLogger(__name__)
@@ -204,8 +204,8 @@ class PourbaixDiagram(object):
         if len(self._qhull_data) == dim:
             self._facets = [list(range(dim))]
         else:
-            facets_pyhull = np.array(ConvexHull(self._qhull_data).vertices)
-            self._facets = np.sort(np.array(facets_pyhull))
+            facets_hull = np.array(ConvexHull(self._qhull_data).simplices)
+            self._facets = np.sort(np.array(facets_hull))
             logger.debug("Final facets are\n{}".format(self._facets))
 
             logger.debug("Removing vertical facets...")
