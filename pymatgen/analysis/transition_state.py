@@ -41,8 +41,7 @@ class NEBAnalysis(MSONable):
     An NEBAnalysis class.
     """
 
-    def __init__(self, r, energies, forces, structures, spline_options=None,
-                 **kwargs):
+    def __init__(self, r, energies, forces, structures, spline_options=None):
         """
         Initializes an NEBAnalysis from the cumulative root mean squared distances
         between structures, the energies, the forces, the structures and the
@@ -54,6 +53,9 @@ class NEBAnalysis(MSONable):
             forces: Tangent forces along the reaction coordinate.
             structures ([Structure]): List of Structures along reaction
                 coordinate.
+            spline_options (dict): Options for cubic spline. For example,
+                {"saddle_point": "zero_slope"} forces the slope at the saddle to
+                be zero.
         """
         self.r = np.array(r)
         self.energies = np.array(energies)
@@ -133,7 +135,8 @@ class NEBAnalysis(MSONable):
         energies -= energies[0]
         forces = np.array(forces)
         r = np.array(r)
-        return cls(r=r, energies=energies, forces=forces, structures=structures, **kwargs)
+        return cls(r=r, energies=energies, forces=forces,
+                   structures=structures, **kwargs)
 
     def get_extrema(self, normalize_rxn_coordinate=True):
         """
