@@ -63,13 +63,33 @@ class NEBAnalysis(MSONable):
         # cubic by default) is constrained by the boundary conditions of the
         # energies and the tangent force, i.e., the derivative of
         # the energy at each pair of points.
+        if 'spline_options' in kwargs:
+            spline_options = kwargs['spline_options']
+        else:
+            spline_options = None
+        self.setup_spline(spline_options=spline_options)
+
+    def setup_spline(self, spline_options=None):
         if scipy_old_piecewisepolynomial:
+            if spline_options:
+                raise RuntimeError('Option for saddle point not available with old scipy implementation')
             self.spline = PiecewisePolynomial(
                 self.r, np.array([self.energies, -self.forces]).T,
                 orders=3)
         else:
             # New scipy implementation for scipy > 0.18.0
-            self.spline = CubicSpline(x=self.r, y=self.energies, bc_type=((1, 0.0), (1, 0.0)))
+            if spline_options:
+                if 'saddle_point' in spline_options and spline_options['saddle_point'] == 'zero_slope':
+                    imax = np.argmax(self.energies)
+                    self.spline = CubicSpline(x=self.r[:imax + 1], y=self.energies[:imax + 1],
+                                              bc_type=((1, 0.0), (1, 0.0)))
+                    cspline2 = CubicSpline(x=self.r[imax:], y=self.energies[imax:],
+                                           bc_type=((1, 0.0), (1, 0.0)))
+                    self.spline.extend(c=cspline2.c, x=cspline2.x[1:])
+                else:
+                    self.spline = CubicSpline(x=self.r, y=self.energies, bc_type=((1, 0.0), (1, 0.0)))
+            else:
+                self.spline = CubicSpline(x=self.r, y=self.energies, bc_type=((1, 0.0), (1, 0.0)))
 
     @classmethod
     def from_outcars(cls, outcars, structures, **kwargs):
