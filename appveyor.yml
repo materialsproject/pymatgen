@@ -51,15 +51,14 @@ install:
   # compiled extensions and are not provided as pre-built wheel packages,
   # pip will build them from source using the MSVC compiler matching the
   # target Python version and architecture
-  - "%CMD_IN_ENV% cd pymatgen"
-  - "%CMD_IN_ENV% pip install -r requirements.txt"
-  - "%CMD_IN_ENV% pip install -r requirements-optional.txt"
+  - "pip install -r requirements.txt"
+  - "pip install -r requirements-optional.txt"
 
 build_script:
   # Build the compiled extension
-  - "%CMD_IN_ENV% python setup.py develop"
+  - "python setup.py develop"
 
 test_script:
   # Run the project tests
-  - "%CMD_IN_ENV% nosetests"
+  - "nosetests"
 
