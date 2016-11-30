@@ -17,9 +17,7 @@ install:
   # this installs the appropriate Miniconda (Py2/Py3, 32/64 bit),
   # as well as pip, conda-build, and the binstar CLI
   - powershell .\\ci\\appveyor\\install.ps1
-  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
-  - "ECHO %PATH%"
-  - "%CMD_IN_ENV% ls"
+  - "%CMD_IN_ENV% SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - "%CMD_IN_ENV% python --version"
   - "%CMD_IN_ENV% conda install --yes numpy scipy"
   - "%CMD_IN_ENV% pip install -r requirements.txt"
