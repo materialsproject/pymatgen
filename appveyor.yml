@@ -19,7 +19,8 @@ install:
   - powershell .\\ci\\appveyor\\install.ps1
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - "%CMD_IN_ENV% python --version"
-  - "%CMD_IN_ENV% conda install --yes numpy scipy"
+  - "%CMD_IN_ENV% conda install --yes numpy scipy matplotlib"
+  - "%CMD_IN_ENV% conda install --yes --channel matsci spglib"
   - "%CMD_IN_ENV% pip install -r requirements.txt"
   - "%CMD_IN_ENV% pip install pybtex nose sympy unittest2 coverage ase coveralls"
 
