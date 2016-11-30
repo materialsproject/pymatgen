@@ -35,6 +35,9 @@ from pymatgen.util.string_utils import str_delimited
 from pymatgen.util.io_utils import clean_lines
 from monty.json import MSONable
 
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.bandstructure import HighSymmKpath
+
 """
 Classes for reading/manipulating/writing exciting input files.
 """
@@ -166,3 +169,75 @@ class input(MSONable):
         with zopen(filename, 'rt') as f:
             data=f.read().replace('\n','')
         return input.from_string(data)
+
+
+    def write_etree(self, celltype, cartesian=False, bandstr=False):
+        root=ET.Element('input')
+        root.set('{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation',
+                 'http://xml.exciting-code.org/excitinginput.xsd')
+        title=ET.SubElement(root,'title')
+        #title.text=self.title
+
+        structure=ET.SubElement(root,'structure')
+        crystal=ET.SubElement(structure,'crystal')
+        # set scale such that lattice vector can be given in Angstrom
+        ang2bohr=const.value('Angstrom star')/const.value('Bohr radius')
+        crystal.set('scale',str(ang2bohr))
+        # determine which structure to use
+        finder=SpacegroupAnalyzer(self.structure)
+        if celltype=='primitive':
+            new_struct=finder.get_primitive_standard_structure(international_monoclinic=False)
+        elif celltype=='conventional':
+            new_struct=finder.get_conventional_standard_structure(international_monoclinic=False)
+        elif cellytpe=='unchanged':
+            new_struct=self.structure
+        else:
+            raise ValueError('Type of unit cell not recognized!')
+
+
+        # write lattice
+        basis=new_struct.lattice.matrix
+        for i in range(3):
+            basevect=ET.SubElement(crystal,'basevect')
+            basevect.text= "%16.8f %16.8f %16.8f" % (basis[i][0], basis[i][1],
+                                                     basis[i][2])
+        # write atomic positions for each species
+        for i in new_struct.types_of_specie:
+            species=ET.SubElement(structure,'species',speciesfile=i.symbol+
+                                                                  '.xml')
+            sites=new_struct.indices_from_symbol(i.symbol)
+            for j in sites:
+                coord="%16.8f %16.8f %16.8f" % (new_struct[j].frac_coords[0],
+                                                new_struct[j].frac_coords[1],
+                                                new_struct[j].frac_coords[2])
+                # obtain cartesian coords from fractional ones if needed
+                if cartesian:
+                    coord2=[]
+                    for k in range(3):
+                        inter=float(coord[0])*basis[0][i]+float(coord[1])*\
+                        basis[1][i]+float(coord[2])*basis[2][i]
+                        coord2.append(inter)
+                    coord=[str(coord2[0]),str(coord2[1]),str(coord2[2])]
+                # write atomic positions
+                atom=ET.SubElement(species,'atom',coord=coord)
+        # write bandstructure if needed
+        if bandstr and celltype=='primitive':
+            kpath=HighSymmKpath(new_struct)
+            prop=ET.SubElement(root,'properties')
+            bandstrct=ET.SubElement(prop,'bandstructure')
+            for i in range(len(kpath.kpath['path'])):
+                plot=ET.SubElement(bandstrct,'plot1d')
+                path=ET.SubElement(plot, 'path',steps='100')
+                for j in range(len(kpath.kpath['path'][i])):
+                    symbol=kpath.kpath['path'][i][j]
+                    coords=kpath.kpath['kpoints'][symbol]
+                    coord="%16.8f %16.8f %16.8f" % (coords[0],
+                                                    coords[1],
+                                                    coords[2])
+                    if symbol=='\\Gamma':
+                        symbol='GAMMA'
+                    pt=ET.SubElement(path,'point',coord=coord,label=symbol)
+        elif bandstr and celltype is not 'primitive':
+            raise ValueError("Bandstructure is only implemented for the \
+                              standard primitive unit cell!")
+        return root
