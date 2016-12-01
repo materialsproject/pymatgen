@@ -5,10 +5,10 @@ environment:
     # See: http://stackoverflow.com/a/13751649/163740
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\ci\\appveyor\\run_with_env.cmd"
   matrix:
-    - PYTHON: "C:\\Python35_64"
-      PYTHON_VERSION: "3.5"
+    - PYTHON: "C:\\Python34_64"
+      PYTHON_VERSION: "3.4"
       PYTHON_ARCH: "64"
-      CONDA_PY: "35"
+      CONDA_PY: "34"
       CONDA_NPY: "111"
 
 install:
