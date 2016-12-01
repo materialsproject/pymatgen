@@ -50,7 +50,7 @@ __email__ = "vorwerk@physik.hu-berlin.de"
 __status__ = "Development"
 __date__ = "Nov 28, 2016"
 
-class input(MSONable):
+class excitingInput(MSONable):
     """
         Object for representing the data stored in the structure part of the
         exciting input.
@@ -176,7 +176,7 @@ class input(MSONable):
         root.set('{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation',
                  'http://xml.exciting-code.org/excitinginput.xsd')
         title=ET.SubElement(root,'title')
-        #title.text=self.title
+        title.text=self.title
 
         structure=ET.SubElement(root,'structure')
         crystal=ET.SubElement(structure,'crystal')
@@ -189,7 +189,7 @@ class input(MSONable):
             new_struct=finder.get_primitive_standard_structure(international_monoclinic=False)
         elif celltype=='conventional':
             new_struct=finder.get_conventional_standard_structure(international_monoclinic=False)
-        elif cellytpe=='unchanged':
+        elif celltype=='unchanged':
             new_struct=self.structure
         else:
             raise ValueError('Type of unit cell not recognized!')
@@ -241,3 +241,28 @@ class input(MSONable):
             raise ValueError("Bandstructure is only implemented for the \
                               standard primitive unit cell!")
         return root
+    def write_string(self, celltype, cartesian=False, bandstr=False):
+        try:
+            root=self.write_etree(celltype, cartesian, bandstr)
+            self.indent(root)
+            # output should be a string not a bytes object
+            string=ET.tostring(root).decode('UTF-8')
+        except:
+            raise ValueError('Incorrect celltype!')
+        return string
+    # Missing PrerryPrint option in the current version of xml.etree.cElementTree
+    @staticmethod
+    def indent(elem,level=0):
+        i = "\n" + level*"  "
+        if len(elem):
+            if not elem.text or not elem.text.strip():
+                elem.text = i + "  "
+            if not elem.tail or not elem.tail.strip():
+                elem.tail = i
+            for elem in elem:
+                excitingInput.indent(elem, level+1)
+            if not elem.tail or not elem.tail.strip():
+                elem.tail = i
+        else:
+            if level and (not elem.tail or not elem.tail.strip()):
+                elem.tail = i
