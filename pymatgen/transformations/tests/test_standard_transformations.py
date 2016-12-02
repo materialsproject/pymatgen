@@ -9,6 +9,7 @@ import unittest2 as unittest
 import json
 import six
 
+from monty.os.path import which
 from pymatgen import Lattice, PeriodicSite
 from monty.json import MontyDecoder
 from pymatgen.io.vasp.inputs import Poscar
@@ -29,6 +30,8 @@ __date__ = "Sep 23, 2011"
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
+
+enumlib_present = which('enum.x') and which('makestr.x')
 
 
 class RotationTransformationsTest(unittest.TestCase):
@@ -224,21 +227,20 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         lattice = Lattice([[10, 0.00, 0.00], [0, 10, 0.00], [0.00, 0, 10]])
         struct = Structure(lattice, ["Li+"] * 6, coords)
         fast_opt_s = t.apply_transformation(struct)
-        t = PartialRemoveSpecieTransformation("Li+", 0.5,
-                                              PartialRemoveSpecieTransformation.ALGO_COMPLETE)
+        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         slow_opt_s = t.apply_transformation(struct)
         self.assertAlmostEqual(EwaldSummation(fast_opt_s).total_energy,
                                EwaldSummation(slow_opt_s).total_energy, 4)
         self.assertEqual(fast_opt_s, slow_opt_s)
 
+    @unittest.skipIf(not enumlib_present, "enum_lib not present.")
     def test_apply_transformations_complete_ranking(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
                              check_for_POTCAR=False)
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5,
                                                      "O": -2})
         s = t1.apply_transformation(p.structure)
-        t = PartialRemoveSpecieTransformation("Li+", 0.5,
-                                              PartialRemoveSpecieTransformation.ALGO_COMPLETE)
+        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         self.assertEqual(len(t.apply_transformation(s, 10)), 6)
 
     def test_apply_transformations_best_first(self):
@@ -248,7 +250,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
                                                      "O": -2})
         s = t1.apply_transformation(p.structure)
         t = PartialRemoveSpecieTransformation("Li+", 0.5,
-                                              PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
+            PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
         self.assertEqual(len(t.apply_transformation(s)), 26)
 
 
