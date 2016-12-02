@@ -6,18 +6,39 @@ environment:
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\ci\\appveyor\\run_with_env.cmd"
   matrix:
     - PYTHON: "C:\\Python35-x64"
+      PYTHON_VERSION: "3.5.0"
+      PYTHON_ARCH: "64"
 
 install:
-  - "%PYTHON%\\python.exe -m pip install wheel"
-  - "%PYTHON%\\python.exe -m pip install numpy"
-  - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
-  - "%PYTHON%\\python.exe -m pip install pybtex nose sympy unittest2 coverage ase coveralls"
-  - "build.cmd %PYTHON%\\python.exe setup.py develop"
+  - ECHO "Filesystem root:"
+  - ps: "ls \"C:/\""
+
+  - ECHO "Installed SDKs:"
+  - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
+
+  # Install Python (from the official .msi of http://python.org) and pip when
+  # not already installed.
+  - ps: if (-not(Test-Path($env:PYTHON))) { & appveyor\install.ps1 }
+
+  # Prepend newly installed Python to the PATH of this build (this cannot be
+  # done from inside the powershell script as it would require to restart
+  # the parent CMD process).
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+
+  # Upgrade to the latest version of pip to avoid it displaying warnings
+  # about it being out of date.
+  - "pip install --disable-pip-version-check --user --upgrade pip"
+  - "pip install numpy"
+
+  # Check that we have the expected version and architecture for Python
+  - "pip install -r requirements.txt"
+  - "pip install pybtex nose sympy unittest2 coverage ase coveralls"
+  - "%CMD_IN_ENV% python setup.py develop"
 
 build: false
 
 test_script:
-  - "%CMD_IN_ENV% nosetests"
+  - "%CMD_IN_ENV% python setup.py nosetests"
 
 notifications:
   - provider: Email
