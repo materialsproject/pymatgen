@@ -414,20 +414,22 @@ class MITNEBSetTest(unittest.TestCase):
         self.assertEqual(v.config_dict["INCAR"]["IMAGES"], 2)
 
     def test_write_input(self):
-        with ScratchDir(".") as d:
-            self.vis.write_input(d, write_cif=True,
-                                 write_endpoint_inputs=True,
-                                 write_path_cif=True)
-            self.assertTrue(os.path.exists("INCAR"))
-            self.assertTrue(os.path.exists("KPOINTS"))
-            self.assertTrue(os.path.exists("POTCAR"))
-            self.assertTrue(os.path.exists("00/POSCAR"))
-            self.assertTrue(os.path.exists("01/POSCAR"))
-            self.assertTrue(os.path.exists("02/POSCAR"))
-            self.assertTrue(os.path.exists("03/POSCAR"))
-            self.assertFalse(os.path.exists("04/POSCAR"))
-            self.assertTrue(os.path.exists("00/INCAR"))
-            self.assertTrue(os.path.exists("path.cif"))
+        self.vis.write_input(".", write_cif=True,
+                             write_endpoint_inputs=True,
+                             write_path_cif=True)
+        self.assertTrue(os.path.exists("INCAR"))
+        self.assertTrue(os.path.exists("KPOINTS"))
+        self.assertTrue(os.path.exists("POTCAR"))
+        self.assertTrue(os.path.exists("00/POSCAR"))
+        self.assertTrue(os.path.exists("01/POSCAR"))
+        self.assertTrue(os.path.exists("02/POSCAR"))
+        self.assertTrue(os.path.exists("03/POSCAR"))
+        self.assertFalse(os.path.exists("04/POSCAR"))
+        self.assertTrue(os.path.exists("00/INCAR"))
+        self.assertTrue(os.path.exists("path.cif"))
+        for f in ["INCAR", "KPOINTS", "POTCAR", "00", "01", "02", "03", "04",
+                  "path.cif"]:
+            shutil.rmtree(f)
 
 
 class MPSOCSetTest(PymatgenTest):

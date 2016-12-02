@@ -157,7 +157,7 @@ class StructureNLCase(unittest.TestCase):
         self.assertEqual(a, b, "__eq__() method is broken! false negative")
 
         # change the created at date, now they are no longer equal
-        created_at = datetime.datetime.now()
+        created_at = datetime.datetime.now() + datetime.timedelta(days=-1)
         c = StructureNL(self.s, self.hulk, ['test_project'], self.pmg,
                         ['remark1'], {"_my_data": self.s2},
                         [self.valid_node, self.valid_node2], created_at)
