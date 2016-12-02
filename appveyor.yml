@@ -16,7 +16,7 @@ environment:
 
 install:
   # Add the paths
-  - 'set PATH="C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\BIN\amd64\":%PYTHON%;%PYTHON%\Library\bin;%PYTHON%\Scripts;%PATH%'
+  - 'set PATH=%PYTHON%;%PYTHON%\Library\bin;%PYTHON%\Scripts;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\BIN\amd64\;%PATH%'
   - 'ECHO %PATH%'
   # Check that we have the expected version and architecture for Python
   - 'python --version'
