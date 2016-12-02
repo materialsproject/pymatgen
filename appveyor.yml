@@ -16,7 +16,7 @@ environment:
 
 install:
   # Add the paths
-  - 'set PATH=%PYTHON%;%PYTHON%\Library\bin;%PYTHON%\Scripts;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\BIN\amd64\;%PATH%'
+  - 'set PATH=%PYTHON%;%PYTHON%\Library\bin;%PYTHON%\Scripts;%PATH%'
   - 'ECHO %PATH%'
   # Check that we have the expected version and architecture for Python
   - 'python --version'
@@ -29,7 +29,7 @@ install:
   # Check that we have the expected version and architecture for Python
   - "pip install -r requirements.txt"
   - "pip install pybtex nose sympy unittest2 coverage ase coveralls"
-  - "%CMD_IN_ENV% python setup.py build"
+  - "python setup.py build"
 
 build: false
 
