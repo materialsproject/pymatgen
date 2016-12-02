@@ -5,10 +5,10 @@ environment:
     # See: http://stackoverflow.com/a/13751649/163740
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\ci\\appveyor\\run_with_env.cmd"
   matrix:
-    - PYTHON: "C:\\Miniconda35"
+    - PYTHON: "C:\\Miniconda35-x64"
       PYTHON_VERSION: "3.5"
-      PYTHON_ARCH: "32"
-      platform: x86
+      PYTHON_ARCH: "64"
+      platform: x64
       STANDALONE: "FALSE"
       CONDA_PY: "35"
       CONDA_BUILD: "TRUE"
@@ -16,8 +16,8 @@ environment:
 
 install:
   # Add the paths
-  - 'set PATH=%PYTHON%;%PYTHON%\Library\bin;%PYTHON%\Scripts;%PATH%'
-
+  - 'set PATH="C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\BIN\amd64\":%PYTHON%;%PYTHON%\Library\bin;%PYTHON%\Scripts;%PATH%'
+  - 'ECHO %PATH%'
   # Check that we have the expected version and architecture for Python
   - 'python --version'
   - 'python -c "import struct; print(struct.calcsize(''P'') * 8)"'
