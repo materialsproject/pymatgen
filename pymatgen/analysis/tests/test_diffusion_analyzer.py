@@ -4,18 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-TODO: Change the module doc.
-"""
-
-
-__author__ = "shyuepingong"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Beta"
-__date__ = "5/2/13"
-
 import unittest2 as unittest
 import os
 import json
@@ -29,6 +17,20 @@ from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer,\
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 from monty.tempfile import ScratchDir
+
+"""
+TODO: Change the module doc.
+"""
+
+
+__author__ = "shyuepingong"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Beta"
+__date__ = "5/2/13"
+
+
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
