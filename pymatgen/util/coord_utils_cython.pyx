@@ -241,7 +241,7 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8):
     cdef np.float_t[:, :] fc1 = subset
     cdef np.float_t[:, :] fc2 = superset
     cdef np.float_t[:] t = atol
-    cdef np.long_t[:] c_inds = inds
+    cdef np.long[:] c_inds = inds
     cdef np.float_t d
     cdef bint ok_inner, ok_outer
 
