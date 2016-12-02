@@ -273,7 +273,6 @@ class DiffusionAnalyzer(MSONable):
             # e.g., win). This is subsequently corrected where denom is used.
             denom = (n * np.sum((dt/1000) ** 2) - np.sum(dt/1000) ** 2) * (n
                                                                            - 2)
-            print(denom)
             self.diffusivity_std_dev = np.sqrt(n * res[0] / denom) / 60 / 1000
             self.conductivity = self.diffusivity * conv_factor
             self.conductivity_std_dev = self.diffusivity_std_dev * conv_factor
