@@ -1780,7 +1780,7 @@ static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc
 static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_5numpy_float_t(PyObject *);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_long_t(PyObject *);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_int_t(PyObject *);
 
 /* CheckBinaryVersion.proto */
 static int __Pyx_check_binary_version(void);
@@ -1900,7 +1900,6 @@ static void __pyx_memoryview__slice_assign_scalar(char *, Py_ssize_t *, Py_ssize
 static PyObject *__pyx_format_from_typeinfo(__Pyx_TypeInfo *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_float_t = { "float_t", NULL, sizeof(__pyx_t_5numpy_float_t), { 0 }, 0, 'R', 0, 0 };
 static __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_int_t = { "int_t", NULL, sizeof(__pyx_t_5numpy_int_t), { 0 }, 0, IS_UNSIGNED(__pyx_t_5numpy_int_t) ? 'U' : 'I', IS_UNSIGNED(__pyx_t_5numpy_int_t), 0 };
-static __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_long_t = { "long_t", NULL, sizeof(__pyx_t_5numpy_long_t), { 0 }, 0, IS_UNSIGNED(__pyx_t_5numpy_long_t) ? 'U' : 'I', IS_UNSIGNED(__pyx_t_5numpy_long_t), 0 };
 #define __Pyx_MODULE_NAME "pymatgen.util.coord_utils_cython"
 int __pyx_module_is_main_pymatgen__util__coord_utils_cython = 0;
 
@@ -1959,7 +1958,6 @@ static const char __pyx_k_date[] = "__date__";
 static const char __pyx_k_ftol[] = "ftol";
 static const char __pyx_k_inds[] = "inds";
 static const char __pyx_k_join[] = "join";
-static const char __pyx_k_long[] = "long";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_mask[] = "mask";
 static const char __pyx_k_mode[] = "mode";
@@ -1983,6 +1981,7 @@ static const char __pyx_k_fdist[] = "fdist";
 static const char __pyx_k_flags[] = "flags";
 static const char __pyx_k_float[] = "float_";
 static const char __pyx_k_inc_d[] = "inc_d";
+static const char __pyx_k_int_2[] = "int";
 static const char __pyx_k_numpy[] = "numpy";
 static const char __pyx_k_order[] = "order";
 static const char __pyx_k_range[] = "range";
@@ -2181,6 +2180,7 @@ static PyObject *__pyx_n_s_import;
 static PyObject *__pyx_n_s_inc_d;
 static PyObject *__pyx_n_s_inds;
 static PyObject *__pyx_n_s_int;
+static PyObject *__pyx_n_s_int_2;
 static PyObject *__pyx_n_s_is_coord_subset_pbc;
 static PyObject *__pyx_n_s_itemsize;
 static PyObject *__pyx_kp_s_itemsize_0_for_cython_array;
@@ -2192,7 +2192,6 @@ static PyObject *__pyx_n_s_lat;
 static PyObject *__pyx_n_s_lattice;
 static PyObject *__pyx_n_s_lll_frac_tol;
 static PyObject *__pyx_n_s_lll_matrix;
-static PyObject *__pyx_n_s_long;
 static PyObject *__pyx_n_s_m;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_maintainer;
@@ -4731,7 +4730,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
   /* "pymatgen/util/coord_utils_cython.pyx":237
  *         list of indices such that superset[indices] = subset
  *     """
- *     inds = np.zeros(len(subset), dtype=np.long) - 1             # <<<<<<<<<<<<<<
+ *     inds = np.zeros(len(subset), dtype=np.int) - 1             # <<<<<<<<<<<<<<
  *     subset = np.atleast_2d(subset)
  *     superset = np.atleast_2d(superset)
  */
@@ -4752,7 +4751,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_long); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 237, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_int_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 237, __pyx_L1_error)
@@ -4770,7 +4769,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
 
   /* "pymatgen/util/coord_utils_cython.pyx":238
  *     """
- *     inds = np.zeros(len(subset), dtype=np.long) - 1
+ *     inds = np.zeros(len(subset), dtype=np.int) - 1
  *     subset = np.atleast_2d(subset)             # <<<<<<<<<<<<<<
  *     superset = np.atleast_2d(superset)
  * 
@@ -4827,7 +4826,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
   __pyx_t_1 = 0;
 
   /* "pymatgen/util/coord_utils_cython.pyx":239
- *     inds = np.zeros(len(subset), dtype=np.long) - 1
+ *     inds = np.zeros(len(subset), dtype=np.int) - 1
  *     subset = np.atleast_2d(subset)
  *     superset = np.atleast_2d(superset)             # <<<<<<<<<<<<<<
  * 
@@ -4902,7 +4901,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
  *     cdef np.float_t[:, :] fc1 = subset
  *     cdef np.float_t[:, :] fc2 = superset             # <<<<<<<<<<<<<<
  *     cdef np.float_t[:] t = atol
- *     cdef np.long_t[:] c_inds = inds
+ *     cdef np.int_t[:] c_inds = inds
  */
   __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_5numpy_float_t(__pyx_v_superset);
   if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 242, __pyx_L1_error)
@@ -4914,7 +4913,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
  *     cdef np.float_t[:, :] fc1 = subset
  *     cdef np.float_t[:, :] fc2 = superset
  *     cdef np.float_t[:] t = atol             # <<<<<<<<<<<<<<
- *     cdef np.long_t[:] c_inds = inds
+ *     cdef np.int_t[:] c_inds = inds
  *     cdef np.float_t d
  */
   __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(__pyx_v_atol);
@@ -4926,11 +4925,11 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
   /* "pymatgen/util/coord_utils_cython.pyx":244
  *     cdef np.float_t[:, :] fc2 = superset
  *     cdef np.float_t[:] t = atol
- *     cdef np.long_t[:] c_inds = inds             # <<<<<<<<<<<<<<
+ *     cdef np.int_t[:] c_inds = inds             # <<<<<<<<<<<<<<
  *     cdef np.float_t d
  *     cdef bint ok_inner, ok_outer
  */
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_long_t(__pyx_v_inds);
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_int_t(__pyx_v_inds);
   if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 244, __pyx_L1_error)
   __pyx_v_c_inds = __pyx_t_9;
   __pyx_t_9.memview = NULL;
@@ -5075,7 +5074,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
  *                              "in superset")
  */
         __pyx_t_20 = __pyx_v_i;
-        __pyx_t_19 = (((*((__pyx_t_5numpy_long_t *) ( /* dim=0 */ (__pyx_v_c_inds.data + __pyx_t_20 * __pyx_v_c_inds.strides[0]) ))) >= 0) != 0);
+        __pyx_t_19 = (((*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_c_inds.data + __pyx_t_20 * __pyx_v_c_inds.strides[0]) ))) >= 0) != 0);
         if (__pyx_t_19) {
 
           /* "pymatgen/util/coord_utils_cython.pyx":262
@@ -5108,7 +5107,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
  *                 # we don't break here so we can check for duplicates in superset
  */
         __pyx_t_21 = __pyx_v_i;
-        *((__pyx_t_5numpy_long_t *) ( /* dim=0 */ (__pyx_v_c_inds.data + __pyx_t_21 * __pyx_v_c_inds.strides[0]) )) = __pyx_v_j;
+        *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_c_inds.data + __pyx_t_21 * __pyx_v_c_inds.strides[0]) )) = __pyx_v_j;
 
         /* "pymatgen/util/coord_utils_cython.pyx":265
  *                              "in superset")
@@ -20538,6 +20537,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_inc_d, __pyx_k_inc_d, sizeof(__pyx_k_inc_d), 0, 0, 1, 1},
   {&__pyx_n_s_inds, __pyx_k_inds, sizeof(__pyx_k_inds), 0, 0, 1, 1},
   {&__pyx_n_s_int, __pyx_k_int, sizeof(__pyx_k_int), 0, 0, 1, 1},
+  {&__pyx_n_s_int_2, __pyx_k_int_2, sizeof(__pyx_k_int_2), 0, 0, 1, 1},
   {&__pyx_n_s_is_coord_subset_pbc, __pyx_k_is_coord_subset_pbc, sizeof(__pyx_k_is_coord_subset_pbc), 0, 0, 1, 1},
   {&__pyx_n_s_itemsize, __pyx_k_itemsize, sizeof(__pyx_k_itemsize), 0, 0, 1, 1},
   {&__pyx_kp_s_itemsize_0_for_cython_array, __pyx_k_itemsize_0_for_cython_array, sizeof(__pyx_k_itemsize_0_for_cython_array), 0, 0, 1, 0},
@@ -20549,7 +20549,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_lattice, __pyx_k_lattice, sizeof(__pyx_k_lattice), 0, 0, 1, 1},
   {&__pyx_n_s_lll_frac_tol, __pyx_k_lll_frac_tol, sizeof(__pyx_k_lll_frac_tol), 0, 0, 1, 1},
   {&__pyx_n_s_lll_matrix, __pyx_k_lll_matrix, sizeof(__pyx_k_lll_matrix), 0, 0, 1, 1},
-  {&__pyx_n_s_long, __pyx_k_long, sizeof(__pyx_k_long), 0, 0, 1, 1},
   {&__pyx_n_s_m, __pyx_k_m, sizeof(__pyx_k_m), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_maintainer, __pyx_k_maintainer, sizeof(__pyx_k_maintainer), 0, 0, 1, 1},
@@ -25797,7 +25796,7 @@ __pyx_fail:
 }
 
 /* ObjectToMemviewSlice */
-          static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_long_t(PyObject *obj) {
+          static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_int_t(PyObject *obj) {
     __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
     __Pyx_BufFmt_StackElem stack[1];
     int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
@@ -25808,7 +25807,7 @@ __pyx_fail:
     }
     retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
                                                  PyBUF_RECORDS, 1,
-                                                 &__Pyx_TypeInfo_nn___pyx_t_5numpy_long_t, stack,
+                                                 &__Pyx_TypeInfo_nn___pyx_t_5numpy_int_t, stack,
                                                  &result, obj);
     if (unlikely(retcode == -1))
         goto __pyx_fail;
