@@ -538,9 +538,15 @@ class BandStructure(object):
         Returns:
             A BandStructure object
         """
+        eigenvals = {}
         labels_dict = d['labels_dict']
         projections = {}
         structure = None
+        if isinstance(d['bands'].values()[0], dict):
+            eigenvals = {Spin(int(k)): np.array(d['bands'][k]['data'])
+                         for k in d['bands']}
+        else:
+            eigenvals = {Spin(int(k)): d['bands'][k] for k in d['bands']}
         if 'structure' in d:
             structure = Structure.from_dict(d['structure'])
         if d.get('projections'):
@@ -548,8 +554,7 @@ class BandStructure(object):
                            for spin, v in d["projections"].items()}
 
         return BandStructure(
-            d['kpoints'], {Spin(int(k)): d['bands'][k]
-                           for k in d['bands']},
+            d['kpoints'], eigenvals,
             Lattice(d['lattice_rec']['matrix']), d['efermi'],
             labels_dict, structure=structure, projections=projections)
 

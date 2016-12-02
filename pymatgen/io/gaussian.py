@@ -27,8 +27,6 @@ __email__ = 'ongsp@ucsd.edu'
 __date__ = '8/1/15'
 
 
-
-
 float_patt = re.compile("\s*([+-]?\d+\.\d+)")
 
 HARTREE_TO_ELECTRON_VOLT = 1/cst.physical_constants["electron volt-hartree relationship"][0]
@@ -500,7 +498,23 @@ class GaussianOutput(object):
 
     .. attribute:: frequencies
 
-        The frequencies and normal modes.
+        A list for each freq calculation and for each mode of a dict with
+        {
+            "frequency": freq in cm-1,
+            "symmetry": symmetry tag
+            "r_mass": Reduce mass,
+            "f_constant": force constant,
+            "IR_intensity": IR Intensity,
+            "mode": normal mode
+         }
+
+        The normal mode is a 1D vector of dx, dy dz of each atom.
+
+    .. attribute:: hessian
+
+        Matrix of second derivatives of the energy with respect to cartesian
+        coordinates in the **input orientation** frame. Need #P in the
+        route section in order to be in the output.
 
     .. attribute:: properly_terminated
 
@@ -593,7 +607,7 @@ class GaussianOutput(object):
         of molecular orbital coefficients (POP=Full) and in the molecular_orbital
         array dict.
 
-        atom_basis_labels[iatom] = [AO_k, AO_k, ...]
+        atom_basis_labels[iatom] = [AO_k, AO_k, ...]
 
     Methods:
 
@@ -664,11 +678,14 @@ class GaussianOutput(object):
         freq_on_patt = re.compile(
             "Harmonic\sfrequencies\s+\(cm\*\*-1\),\sIR\sintensities.*Raman.*")
         freq_patt = re.compile("Frequencies\s--\s+(.*)")
+
         normal_mode_patt = re.compile(
             "\s+(\d+)\s+(\d+)\s+([0-9\.-]{4,5})\s+([0-9\.-]{4,5}).*")
 
         mo_coeff_patt = re.compile("Molecular Orbital Coefficients:")
         mo_coeff_name_patt = re.compile("\d+\s((\d+|\s+)\s+([a-zA-Z]{1,2}|\s+))\s+(\d+\S+)")
+
+        hessian_patt = re.compile("Force constants in Cartesian coordinates:")
 
         self.properly_terminated = False
         self.is_pcm = False
@@ -684,6 +701,7 @@ class GaussianOutput(object):
         self.frequencies = []
         self.eigenvalues = []
         self.is_spin = False
+        self.hessian = None
 
         coord_txt = []
         read_coord = 0
@@ -698,6 +716,7 @@ class GaussianOutput(object):
         parse_freq = False
         frequencies = []
         read_mo = False
+        parse_hessian = False
 
         with zopen(filename) as f:
             for line in f:
@@ -712,6 +731,7 @@ class GaussianOutput(object):
                         self.functional = params[0]
                         self.basis_set = params[1]
                         self.route = params[2]
+                        route_lower = {k.lower(): v for k, v in self.route.items()}
                         self.dieze_tag = params[3]
                         parse_stage = 1
                 elif parse_stage == 1:
@@ -725,7 +745,7 @@ class GaussianOutput(object):
                     if self.is_pcm:
                         self._check_pcm(line)
 
-                    if "FREQ" in self.route and thermo_patt.search(line):
+                    if "freq" in route_lower and thermo_patt.search(line):
                         m = thermo_patt.search(line)
                         if m.group(1) == "Zero-point":
                             self.corrections["Zero-point"] = float(m.group(3))
@@ -756,7 +776,7 @@ class GaussianOutput(object):
                             forces = []
                             parse_forces = False
 
-                    # read molecular orbital eigenvalues
+                    # read molecular orbital eigenvalues
                     if read_eigen:
                         m = orbital_patt.search(line)
                         if m:
@@ -803,7 +823,7 @@ class GaussianOutput(object):
                                     else:
                                         self.atom_basis_labels[iat].append(m.group(4))
 
-                                    # MO coefficients
+                                    # MO coefficients
                                     coeffs = [float(c) for c in float_patt.findall(line)]
                                     for j in range(len(coeffs)):
                                         mat_mo[spin][i, nMO + j] = coeffs[j]
@@ -836,23 +856,73 @@ class GaussianOutput(object):
 
                         self.molecular_orbital = mo
 
-
                     elif parse_freq:
-                        m = freq_patt.search(line)
-                        if m:
-                            values = [float(_v) for _v in m.groups()[0].split()]
-                            for value in values:
-                                frequencies.append([value, []])
-                        elif normal_mode_patt.search(line):
-                            values = [float(_v) for _v in line.split()[2:]]
-                            n = int(len(values) / 3)
-                            for i in range(0, len(values), 3):
-                                j = -n + int(i / 3)
-                                frequencies[j][1].extend(values[i:i+3])
-                        elif line.find("-------------------") != -1:
-                            parse_freq = False
-                            self.frequencies.append(frequencies)
-                            frequencies = []
+                        while line.strip() != "": # blank line
+                            ifreqs = [int(val) - 1 for val in line.split()]
+                            for ifreq in ifreqs:
+                                frequencies.append({"frequency": None,
+                                                    "r_mass": None,
+                                                    "f_constant": None,
+                                                    "IR_intensity": None,
+                                                    "symmetry": None,
+                                                    "mode": []})
+                            # read freq, intensity, masses, symmetry ...
+                            while "Atom  AN" not in line:
+                                if "Frequencies --" in line:
+                                    freqs = map(float, float_patt.findall(line))
+                                    for ifreq, freq in zip(ifreqs, freqs):
+                                        frequencies[ifreq]["frequency"] = freq
+                                elif "Red. masses --" in line:
+                                    r_masses = map(float, float_patt.findall(line))
+                                    for ifreq, r_mass in zip(ifreqs, r_masses):
+                                        frequencies[ifreq]["r_mass"] = r_mass
+                                elif "Frc consts  --" in line:
+                                    f_consts = map(float, float_patt.findall(line))
+                                    for ifreq, f_const in zip(ifreqs, f_consts):
+                                        frequencies[ifreq]["f_constant"] = f_const
+                                elif "IR Inten    --" in line:
+                                    IR_intens = map(float, float_patt.findall(line))
+                                    for ifreq, intens in zip(ifreqs, IR_intens):
+                                        frequencies[ifreq]["IR_intensity"] = intens
+                                else:
+                                    syms = line.split()[:3]
+                                    for ifreq, sym in zip(ifreqs, syms):
+                                        frequencies[ifreq]["symmetry"] = sym
+                                line = f.readline()
+
+                            # read normal modes
+                            line = f.readline()
+                            while normal_mode_patt.search(line):
+                                values = list(map(float, float_patt.findall(line)))
+                                for i, ifreq in zip(range(0, len(values), 3), ifreqs):
+                                    frequencies[ifreq]["mode"].extend(values[i:i+3])
+                                line = f.readline()
+
+                        parse_freq = False
+                        self.frequencies.append(frequencies)
+                        frequencies = []
+
+                    elif parse_hessian:
+                        # read Hessian matrix under "Force constants in Cartesian coordinates"
+                        # Hessian matrix is in the input orientation framework
+                        # WARNING : need #P in the route line
+                        parse_hessian = False
+                        ndf = 3 * len(self.structures[0])
+                        self.hessian = np.zeros((ndf, ndf))
+                        j_indices = range(5)
+                        jndf = 0
+                        while jndf < ndf:
+                            for i in range(jndf, ndf):
+                                line = f.readline()
+                                vals = re.findall("\s*([+-]?\d+\.\d+[eEdD]?[+-]\d+)", line)
+                                vals = [float(val.replace("D", "E")) for val in vals]
+                                for jval, val in enumerate(vals):
+                                    j = j_indices[jval]
+                                    self.hessian[i, j] = val
+                                    self.hessian[j, i] = val
+                            jndf += len(vals)
+                            line = f.readline()
+                            j_indices = [j + 5 for j in j_indices]
 
                     elif termination_patt.search(line):
                         m = termination_patt.search(line)
@@ -878,7 +948,7 @@ class GaussianOutput(object):
                     elif (not self.is_pcm) and pcm_patt.search(line):
                         self.is_pcm = True
                         self.pcm = {}
-                    elif "FREQ" in self.route and "OPT" in self.route and \
+                    elif "freq" in route_lower and "opt" in route_lower and \
                             stat_type_patt.search(line):
                         self.stationary_type = "Saddle"
                     elif mp2_patt.search(line):
@@ -904,10 +974,13 @@ class GaussianOutput(object):
                         parse_forces = True
                     elif freq_on_patt.search(line):
                         parse_freq = True
+                        [f.readline() for i in range(3)]
                     elif mo_coeff_patt.search(line):
                         if "Alpha" in line:
                             self.is_spin = True
                         read_mo = True
+                    elif hessian_patt.search(line):
+                        parse_hessian = True
 
                     if read_mulliken:
                         if not end_mulliken_patt.search(line):

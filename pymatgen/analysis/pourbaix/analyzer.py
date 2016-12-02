@@ -4,6 +4,14 @@
 
 from __future__ import unicode_literals
 
+import numpy as np
+
+from pymatgen.util.coord_utils import Simplex
+from functools import cmp_to_key
+from pyhull.halfspace import Halfspace, HalfspaceIntersection
+from pyhull.convex_hull import ConvexHull
+from six.moves import zip
+
 """
 Class for analyzing Pourbaix Diagrams. Similar to PDAnalyzer
 """
@@ -15,14 +23,6 @@ __maintainer__ = "Sai Jayaraman"
 __email__ = "sjayaram@mit.edu"
 __status__ = "Development"
 __date__ = "Nov 7, 2012"
-
-import numpy as np
-
-from pyhull.simplex import Simplex
-from functools import cmp_to_key
-from pyhull.halfspace import Halfspace, HalfspaceIntersection
-from pyhull.convex_hull import ConvexHull
-from six.moves import zip
 
 
 class PourbaixAnalyzer(object):

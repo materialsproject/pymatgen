@@ -298,8 +298,7 @@ class PDAnalyzer(object):
                                   'reaction': rxn, 'entries': decomp_entries})
         return evolution
 
-    def get_chempot_range_map(self, elements, referenced=True, joggle=True,
-                              force_use_pyhull=False):
+    def get_chempot_range_map(self, elements, referenced=True, joggle=True):
         """
         Returns a chemical potential range map for each stable entry.
 
@@ -312,8 +311,6 @@ class PDAnalyzer(object):
                 energy of the elemental phase. If False, gives absolute values.
             joggle (boolean): Whether to joggle the input to avoid precision
                 errors.
-            force_use_pyhull (boolean): Whether the pyhull algorithm is always
-                used, even when scipy is present.
 
         Returns:
             Returns a dict of the form {entry: [simplices]}. The list of
@@ -334,8 +331,7 @@ class PDAnalyzer(object):
         chempot_ranges = collections.defaultdict(list)
         vertices = [list(range(len(self._pd.elements)))]
         if len(all_chempots) > len(self._pd.elements):
-            vertices = get_facets(all_chempots, joggle=joggle,
-                                  force_use_pyhull=force_use_pyhull)
+            vertices = get_facets(all_chempots, joggle=joggle)
         for ufacet in vertices:
             for combi in itertools.combinations(ufacet, 2):
                 data1 = facets[combi[0]]

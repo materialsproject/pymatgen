@@ -11,12 +11,12 @@ be available on `PyPI <http://pypi.python.org>`_.
 2. numpy>=1.9
 3. scipy>0.14
 4. matplotlib>=1.5+
-4. monty>=0.9.6
-5. requests>=2.0+
-6. pybtex
-7. pyyaml
-8. tabulate
-9. six
+5. monty>=0.9.6
+6. requests>=2.0+
+7. pybtex
+8. pyyaml
+9. tabulate
+10. six
 
 Most of these are fairly easy to install. The well-established numpy and scipy
 should have ready-made installation packages for all platforms. The rest are
@@ -170,8 +170,8 @@ packages do not support Windows)::
 If the above fails, you can also try installing these from source using the pmg
 command line tool as follows::
 
-   pmg setup --install enumlib
-   pmg setup --install bader
+   pmg config --install enumlib
+   pmg config --install bader
 
 Then put these in your PATH somewhere.
 
@@ -181,11 +181,11 @@ POTCAR Setup
 For the code to generate POTCAR files, it needs to know where the VASP
 pseudopotential files are.  We are not allowed to distribute these under the
 VASP license. The good news is that the `pmg` command line utility includes a
-setup functionality.
+config functionality.
 
 After installation, do::
 
-    pmg setup -p <EXTRACTED_VASP_POTCAR> <MY_PSP>
+    pmg config -p <EXTRACTED_VASP_POTCAR> <MY_PSP>
 
 In the above, `<EXTRACTED_VASP_POTCAR>` is the location of the directory that
 you extracted the downloaded VASP pseudopotential files. Typically, it has
@@ -222,6 +222,26 @@ variable pointing to the generated directory and you should then be
 able to generate POTCARs::
 
     pmg config --add VASP_PSP_DIR <MY_PSP>
+
+If you are using newer sets of pseudopotential files from VASP, the directory
+names may be different, e.g., POT_GGA_PAW_PBE_52. For such cases, please also
+add a default functional specification as follows::
+
+    pmg config --add DEFAULT_FUNCTIONAL PBE_52
+
+You can also use this to specify whatever functional you would like to use by
+default in pymatgen, e.g., LDA_52, PW91, etc. Type::
+
+    pmg potcar -h
+
+to see full list of choices.
+
+.. note::
+
+    The Materials Project uses the 2012 versions of the VASP pseudopotentials.
+    As such, the pymatgen compatibility package assume this version. If you use
+    any functional other than PBE, note that you should not be combining results
+    from these other functionals with Materials Project data.
 
 Setup for Developers (using GitHub)
 ===================================

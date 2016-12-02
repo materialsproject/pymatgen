@@ -4,6 +4,20 @@
 
 from __future__ import division, unicode_literals
 
+import logging
+import numpy as np
+import time
+from pymatgen.core.structure import Structure
+from pymatgen.core.sites import PeriodicSite
+from monty.json import MSONable
+from pymatgen.analysis.structure_analyzer import solid_angle
+from scipy.spatial import Voronoi
+
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import my_solid_angle
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import get_lower_and_upper_f
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rectangle_surface_intersection
+from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
+
 """
 This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis
 """
@@ -15,24 +29,6 @@ __version__ = "2.0"
 __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
-
-
-from operator import attrgetter
-
-import logging
-import numpy as np
-import time
-from pymatgen.core.structure import Structure
-from pymatgen.core.sites import PeriodicSite
-from monty.json import MSONable
-from pymatgen.analysis.structure_analyzer import solid_angle
-from scipy.spatial import Voronoi
-
-from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import my_solid_angle
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import get_lower_and_upper_f
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rectangle_surface_intersection
-from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 
 
 def from_bson_voronoi_list(bson_nb_voro_list, structure):
@@ -126,63 +122,6 @@ class DetailedVoronoiContainer(MSONable):
         self.setup_neighbors_distances_and_angles(indices=indices)
         t2 = time.clock()
         logging.info('Neighbors distances and angles set up in {:.2f} seconds'.format(t2-t1))
-
-    def setup_voronoi_list_old_pyhull_implementation(self, indices, voronoi_cutoff):
-        """
-        Set up of the voronoi list of neighbours by calling qhull
-        :param indices: indices of the sites for which the Voronoi is needed
-        :param voronoi_cutoff: Voronoi cutoff for the search of neighbours
-        :raise RuntimeError: If an infinite vertex is found in the voronoi construction
-        """
-        from pyhull.voronoi import VoronoiTess
-        self.voronoi_list2 = [None] * len(self.structure)
-        logging.info('Getting all neighbors in structure')
-        struct_neighbors = self.structure.get_all_neighbors(voronoi_cutoff, include_index=True)
-        t1 = time.clock()
-        logging.info('Setting up Voronoi list :')
-
-        for jj, isite in enumerate(indices):
-            logging.info('  - Voronoi analysis for site #{:d} ({:d}/{:d})'.format(isite, jj+1, len(indices)))
-            site = self.structure[isite]
-            neighbors1 = [(site, 0.0, isite)]
-            neighbors1.extend(struct_neighbors[isite])
-            distances = [i[1] for i in sorted(neighbors1, key=lambda s: s[1])]
-            neighbors = [i[0] for i in sorted(neighbors1, key=lambda s: s[1])]
-            qvoronoi_input = [s.coords for s in neighbors]
-            voro = VoronoiTess(qvoronoi_input)
-            all_vertices = voro.vertices
-
-            results2 = []
-            maxangle = 0.0
-            mindist = 10000.0
-            for nn, vind in list(voro.ridges.items()):
-                if 0 in nn:
-                    if 0 in vind:
-                        raise RuntimeError("This structure is pathological,"
-                                           " infinite vertex in the voronoi "
-                                           "construction")
-
-                    facets = [all_vertices[i] for i in vind]
-                    try:
-                        sa = solid_angle(site.coords, facets)
-                    except ValueError:
-                        sa = my_solid_angle(site.coords, facets)
-                    maxangle = max([sa, maxangle])
-                    mindist = min([mindist, distances[nn[1]]])
-                    for iii, sss in enumerate(self.structure):
-                        if neighbors[nn[1]].is_periodic_image(sss):
-                            myindex = iii
-                            break
-                    results2.append({'site': neighbors[nn[1]],
-                                     'angle': sa,
-                                     'distance': distances[nn[1]],
-                                     'index': myindex})
-            for dd in results2:
-                dd['normalized_angle'] = dd['angle'] / maxangle
-                dd['normalized_distance'] = dd['distance'] / mindist
-            self.voronoi_list2[isite] = results2
-        t2 = time.clock()
-        logging.info('Voronoi list set up in {:.2f} seconds'.format(t2-t1))
 
     def setup_voronoi_list(self, indices, voronoi_cutoff):
         """
