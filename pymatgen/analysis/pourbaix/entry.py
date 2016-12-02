@@ -404,7 +404,7 @@ class PourbaixEntryIO(object):
                 if not header_read:
                     elements = row[1:(len(row) - 4)]
                     header_read = True
-                else:
+                elif row:
                     name = row[0]
                     energy = float(row[-4])
                     conc = float(row[-1])

@@ -427,9 +427,10 @@ class MITNEBSetTest(unittest.TestCase):
         self.assertFalse(os.path.exists("04/POSCAR"))
         self.assertTrue(os.path.exists("00/INCAR"))
         self.assertTrue(os.path.exists("path.cif"))
-        for f in ["INCAR", "KPOINTS", "POTCAR", "00", "01", "02", "03", "04",
-                  "path.cif"]:
-            shutil.rmtree(f)
+        for d in ["00", "01", "02", "03", "04"]:
+            shutil.rmtree(d)
+        for f in ["INCAR", "KPOINTS", "POTCAR", "path.cif"]:
+            os.remove(f)
 
 
 class MPSOCSetTest(PymatgenTest):
