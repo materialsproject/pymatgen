@@ -356,11 +356,10 @@ class PourbaixEntryIO(object):
                 Li_{2}O
         """
         elements = set()
-        #TODO: oh god please fix this next line
-        list(map(elements.update, [entry.entry.composition.elements
-                              for entry in entries]))
+        for entry in entries:
+            elements.update(entry.entry.composition.elements)
         elements = sorted(list(elements), key=lambda a: a.X)
-        with open(filename, "w") as f:
+        with open(filename, "wt") as f:
             writer = csv.writer(f, delimiter=unicode2str(","),
                                 quotechar=unicode2str("\""),
                                 quoting=csv.QUOTE_MINIMAL)
@@ -395,7 +394,7 @@ class PourbaixEntryIO(object):
         Returns:
             List of Entries
         """
-        with open(filename, "r") as f:
+        with open(filename, "rt") as f:
             reader = csv.reader(f, delimiter=unicode2str(","),
                                 quotechar=unicode2str("\""),
                                 quoting=csv.QUOTE_MINIMAL)

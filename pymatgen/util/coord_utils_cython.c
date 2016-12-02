@@ -1780,7 +1780,7 @@ static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc
 static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_5numpy_float_t(PyObject *);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_object(PyObject *);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_long_t(PyObject *);
 
 /* CheckBinaryVersion.proto */
 static int __Pyx_check_binary_version(void);
@@ -1900,7 +1900,7 @@ static void __pyx_memoryview__slice_assign_scalar(char *, Py_ssize_t *, Py_ssize
 static PyObject *__pyx_format_from_typeinfo(__Pyx_TypeInfo *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_float_t = { "float_t", NULL, sizeof(__pyx_t_5numpy_float_t), { 0 }, 0, 'R', 0, 0 };
 static __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_int_t = { "int_t", NULL, sizeof(__pyx_t_5numpy_int_t), { 0 }, 0, IS_UNSIGNED(__pyx_t_5numpy_int_t) ? 'U' : 'I', IS_UNSIGNED(__pyx_t_5numpy_int_t), 0 };
-static __Pyx_TypeInfo __Pyx_TypeInfo_object = { "long object", NULL, sizeof(PyObject *), { 0 }, 0, 'O', 0, 0 };
+static __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_long_t = { "long_t", NULL, sizeof(__pyx_t_5numpy_long_t), { 0 }, 0, IS_UNSIGNED(__pyx_t_5numpy_long_t) ? 'U' : 'I', IS_UNSIGNED(__pyx_t_5numpy_long_t), 0 };
 #define __Pyx_MODULE_NAME "pymatgen.util.coord_utils_cython"
 int __pyx_module_is_main_pymatgen__util__coord_utils_cython = 0;
 
@@ -4724,7 +4724,6 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
   int __pyx_t_19;
   Py_ssize_t __pyx_t_20;
   Py_ssize_t __pyx_t_21;
-  PyObject **__pyx_t_22;
   __Pyx_RefNannySetupContext("coord_list_mapping_pbc", 0);
   __Pyx_INCREF(__pyx_v_subset);
   __Pyx_INCREF(__pyx_v_superset);
@@ -4903,7 +4902,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
  *     cdef np.float_t[:, :] fc1 = subset
  *     cdef np.float_t[:, :] fc2 = superset             # <<<<<<<<<<<<<<
  *     cdef np.float_t[:] t = atol
- *     cdef np.long[:] c_inds = inds
+ *     cdef np.long_t[:] c_inds = inds
  */
   __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_5numpy_float_t(__pyx_v_superset);
   if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 242, __pyx_L1_error)
@@ -4915,7 +4914,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
  *     cdef np.float_t[:, :] fc1 = subset
  *     cdef np.float_t[:, :] fc2 = superset
  *     cdef np.float_t[:] t = atol             # <<<<<<<<<<<<<<
- *     cdef np.long[:] c_inds = inds
+ *     cdef np.long_t[:] c_inds = inds
  *     cdef np.float_t d
  */
   __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(__pyx_v_atol);
@@ -4927,11 +4926,11 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
   /* "pymatgen/util/coord_utils_cython.pyx":244
  *     cdef np.float_t[:, :] fc2 = superset
  *     cdef np.float_t[:] t = atol
- *     cdef np.long[:] c_inds = inds             # <<<<<<<<<<<<<<
+ *     cdef np.long_t[:] c_inds = inds             # <<<<<<<<<<<<<<
  *     cdef np.float_t d
  *     cdef bint ok_inner, ok_outer
  */
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_object(__pyx_v_inds);
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_long_t(__pyx_v_inds);
   if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 244, __pyx_L1_error)
   __pyx_v_c_inds = __pyx_t_9;
   __pyx_t_9.memview = NULL;
@@ -5076,12 +5075,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
  *                              "in superset")
  */
         __pyx_t_20 = __pyx_v_i;
-        __pyx_t_1 = (PyObject *) *((PyObject * *) ( /* dim=0 */ (__pyx_v_c_inds.data + __pyx_t_20 * __pyx_v_c_inds.strides[0]) ));
-        __Pyx_INCREF((PyObject*)__pyx_t_1);
-        __pyx_t_2 = PyObject_RichCompare(__pyx_t_1, __pyx_int_0, Py_GE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 261, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __pyx_t_19 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_19 < 0)) __PYX_ERR(0, 261, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __pyx_t_19 = (((*((__pyx_t_5numpy_long_t *) ( /* dim=0 */ (__pyx_v_c_inds.data + __pyx_t_20 * __pyx_v_c_inds.strides[0]) ))) >= 0) != 0);
         if (__pyx_t_19) {
 
           /* "pymatgen/util/coord_utils_cython.pyx":262
@@ -5091,10 +5085,10 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
  *                              "in superset")
  *                 c_inds[i] = j
  */
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 262, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_2);
-          __Pyx_Raise(__pyx_t_2, 0, 0, 0);
-          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+          __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 262, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_1);
+          __Pyx_Raise(__pyx_t_1, 0, 0, 0);
+          __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
           __PYX_ERR(0, 262, __pyx_L1_error)
 
           /* "pymatgen/util/coord_utils_cython.pyx":261
@@ -5113,16 +5107,8 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
  *                 ok_outer = True
  *                 # we don't break here so we can check for duplicates in superset
  */
-        __pyx_t_2 = PyInt_FromSsize_t(__pyx_v_j); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 264, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_2);
-        if (!(likely(PyLong_CheckExact(__pyx_t_2))||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "long", Py_TYPE(__pyx_t_2)->tp_name), 0))) __PYX_ERR(0, 264, __pyx_L1_error)
         __pyx_t_21 = __pyx_v_i;
-        __pyx_t_22 = ((PyObject * *) ( /* dim=0 */ (__pyx_v_c_inds.data + __pyx_t_21 * __pyx_v_c_inds.strides[0]) ));
-        __Pyx_GOTREF(*__pyx_t_22);
-        __Pyx_INCREF(__pyx_t_2); __Pyx_DECREF(*__pyx_t_22);
-        *__pyx_t_22 = __pyx_t_2;
-        __Pyx_GIVEREF(*__pyx_t_22);
-        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        *((__pyx_t_5numpy_long_t *) ( /* dim=0 */ (__pyx_v_c_inds.data + __pyx_t_21 * __pyx_v_c_inds.strides[0]) )) = __pyx_v_j;
 
         /* "pymatgen/util/coord_utils_cython.pyx":265
  *                              "in superset")
@@ -5190,10 +5176,10 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_4coord_list_mappi
  * 
  *     return inds
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 271, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_Raise(__pyx_t_2, 0, 0, 0);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 271, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_Raise(__pyx_t_1, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __PYX_ERR(0, 271, __pyx_L1_error)
 
     /* "pymatgen/util/coord_utils_cython.pyx":270
@@ -25811,7 +25797,7 @@ __pyx_fail:
 }
 
 /* ObjectToMemviewSlice */
-          static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_object(PyObject *obj) {
+          static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_long_t(PyObject *obj) {
     __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
     __Pyx_BufFmt_StackElem stack[1];
     int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
@@ -25822,7 +25808,7 @@ __pyx_fail:
     }
     retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
                                                  PyBUF_RECORDS, 1,
-                                                 &__Pyx_TypeInfo_object, stack,
+                                                 &__Pyx_TypeInfo_nn___pyx_t_5numpy_long_t, stack,
                                                  &result, obj);
     if (unlikely(retcode == -1))
         goto __pyx_fail;
