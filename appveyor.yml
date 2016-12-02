@@ -29,12 +29,12 @@ install:
   # Check that we have the expected version and architecture for Python
   - "pip install -r requirements.txt"
   - "pip install pybtex nose sympy unittest2 coverage ase coveralls"
-  - "python setup.py build"
+  - "python setup.py develop"
 
 build: false
 
 test_script:
-  - "%CMD_IN_ENV% python setup.py nosetests"
+  - "nosetests"
 
 notifications:
   - provider: Email
