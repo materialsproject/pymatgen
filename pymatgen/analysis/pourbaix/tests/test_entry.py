@@ -156,7 +156,8 @@ class TestPourbaixEntryIO(unittest.TestCase):
             ion_entry.append(PoE)
         entries = solid_entry + ion_entry
         PourbaixEntryIO.to_csv("pourbaix_test_entries.csv", entries)
-
+        import time
+        time.sleep(5)  # This is to ensure the write and read are serial.
         (elements, entries) = PourbaixEntryIO.from_csv(
             "pourbaix_test_entries.csv")
         self.assertEqual(elements,
