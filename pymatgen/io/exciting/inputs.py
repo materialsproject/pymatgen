@@ -202,10 +202,12 @@ class excitingInput(MSONable):
             basevect.text= "%16.8f %16.8f %16.8f" % (basis[i][0], basis[i][1],
                                                      basis[i][2])
         # write atomic positions for each species
+        index=0
         for i in new_struct.types_of_specie:
             species=ET.SubElement(structure,'species',speciesfile=i.symbol+
                                                                   '.xml')
             sites=new_struct.indices_from_symbol(i.symbol)
+
             for j in sites:
                 coord="%16.8f %16.8f %16.8f" % (new_struct[j].frac_coords[0],
                                                 new_struct[j].frac_coords[1],
@@ -214,11 +216,16 @@ class excitingInput(MSONable):
                 if cartesian:
                     coord2=[]
                     for k in range(3):
-                        inter=float(coord[0])*basis[0][i]+float(coord[1])*\
-                        basis[1][i]+float(coord[2])*basis[2][i]
+                        inter=ang2bohr*new_struct[j].frac_coords[k]*basis[0][index]+\
+                        new_struct[j].frac_coords[k]*basis[1][index]+\
+                        new_struct[j].frac_coords[k]*basis[2][index]
                         coord2.append(inter)
-                    coord=[str(coord2[0]),str(coord2[1]),str(coord2[2])]
+                    coord="%16.8f %16.8f %16.8f" % (coord2[0],
+                                                    coord2[1],
+                                                    coord2[2])
+
                 # write atomic positions
+                index=index+1
                 atom=ET.SubElement(species,'atom',coord=coord)
         # write bandstructure if needed
         if bandstr and celltype=='primitive':
