@@ -8,11 +8,12 @@ environment:
       CONDA_PY: "35"
       CONDA_BUILD: "TRUE"
       SPLIT_RUN: "FALSE"
+  MAPI_KEY:
+    secure: XIbk1W27nucVUHTVpIL2B+FodL9w2Efyw5PqTdnfbHg=
 
 install:
   # Add the paths
   - 'set PATH=%PYTHON%;%PYTHON%\Library\bin;%PYTHON%\Scripts;%PATH%'
-  - 'ECHO %PATH%'
   # Check that we have the expected version and architecture for Python
   - 'python --version'
   - 'python -c "import struct; print(struct.calcsize(''P'') * 8)"'

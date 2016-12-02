@@ -197,6 +197,7 @@ class OxidationStateRemovalTransformationTest(unittest.TestCase):
                          OxidationStateRemovalTransformation)
 
 
+@unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class PartialRemoveSpecieTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)
@@ -233,7 +234,6 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
                                EwaldSummation(slow_opt_s).total_energy, 4)
         self.assertEqual(fast_opt_s, slow_opt_s)
 
-    @unittest.skipIf(not enumlib_present, "enum_lib not present.")
     def test_apply_transformations_complete_ranking(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
                              check_for_POTCAR=False)
