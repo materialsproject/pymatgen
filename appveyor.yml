@@ -9,7 +9,7 @@ environment:
 
 install:
   - "%PYTHON%\\python.exe -m pip install wheel"
-  - "%PYTHON%\\python.exe -m pip install numpy scipy"
+  - "%PYTHON%\\python.exe -m pip install numpy"
   - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
   - "%PYTHON%\\python.exe -m pip install pybtex nose sympy unittest2 coverage ase coveralls"
   - "build.cmd %PYTHON%\\python.exe setup.py develop"
