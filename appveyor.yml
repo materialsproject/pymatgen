@@ -14,6 +14,8 @@ environment:
       SPLIT_RUN: "FALSE"
   MAPI_KEY:
     secure: XIbk1W27nucVUHTVpIL2B+FodL9w2Efyw5PqTdnfbHg=
+  PYPIPWD:
+    secure: QPpXonUAeLJ8p3f936jh7g==
 
 install:
   # Add the paths
@@ -43,3 +45,9 @@ notifications:
     on_build_success: false
     on_build_failure: true
     on_build_status_changed: true
+
+deploy_script:
+   - "echo [pypi] > %USERPROFILE%\\.pypirc"
+   - "echo username: Shyue.Ping.Ong >> %USERPROFILE%\\.pypirc"
+   - "echo password: %PYPIPWD% >> %PYPIPWD%\\.pypirc"
+   - IF "%APPVEYOR_REPO_BRANCH%" == "stable" (python setup.py sdist bdist_wheel upload)
