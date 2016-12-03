@@ -66,7 +66,9 @@ dependencies manually. Please refer to the official `pymatgen page`_ for
 installation details and requirements, including instructions for the
 bleeding edge developmental version. For people who are absolutely new to
 Python packages, it is highly recommended you do the installation using
-conda, which will make things a lot easier, especially on Windows.
+conda, which will make things a lot easier, especially on Windows. Visit
+`materials.sh <http://materials.sh>`_ for instructions on how to use the
+matsci channel to install pymatgen and other packages.
 
 The version at the Python Package Index (PyPI) is always the latest stable
 release that is relatively bug-free. The easiest way to install pymatgen on

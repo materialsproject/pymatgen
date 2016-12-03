@@ -1,12 +1,12 @@
 numpy==1.11.2
 pydispatcher==2.0.5
-requests==2.12.0
+requests==2.12.1
 monty==0.9.6
 pyyaml==3.12
 six==1.10.0
 scipy==0.18.1
 tabulate==0.7.7
-enum34==1.1.6; python_version < '3.5'
+enum34==1.1.6;  python_version < '3.5'
 matplotlib==1.5.3
 palettable==2.1.1
-spglib==1.9.8.15
+spglib==1.9.8.20

@@ -4,18 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-TODO: Change the module doc.
-"""
-
-
-__author__ = "shyuepingong"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Beta"
-__date__ = "5/2/13"
-
 import unittest2 as unittest
 import os
 import json
@@ -29,6 +17,20 @@ from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer,\
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 from monty.tempfile import ScratchDir
+
+"""
+TODO: Change the module doc.
+"""
+
+
+__author__ = "shyuepingong"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Beta"
+__date__ = "5/2/13"
+
+
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -162,15 +164,17 @@ class DiffusionAnalyzerTest(PymatgenTest):
                 d.step_skip, d.smoothed, avg_nsteps=100)
             self.assertAlmostEqual(d.conductivity, 47.404056230438741, 4)
             self.assertAlmostEqual(d.diffusivity, 7.4226016496716148e-07, 7)
-            with ScratchDir("."):
-                d.export_msdt("test.csv")
-                with open("test.csv") as f:
-                    data = []
-                    for row in csv.reader(f):
+
+            d.export_msdt("test.csv")
+            with open("test.csv") as f:
+                data = []
+                for row in csv.reader(f):
+                    if row:
                         data.append(row)
-                data.pop(0)
-                data = np.array(data, dtype=np.float64)
-                self.assertArrayAlmostEqual(data[:, 1], d.msd)
+            data.pop(0)
+            data = np.array(data, dtype=np.float64)
+            self.assertArrayAlmostEqual(data[:, 1], d.msd)
+            os.remove("test.csv")
 
 
 if __name__ == '__main__':

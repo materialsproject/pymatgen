@@ -267,16 +267,19 @@ class DiffusionAnalyzer(MSONable):
             # Variance in slope = n * Sum Squared Residuals / (n * Sxx - Sx
             # ** 2) / (n-2).
             n = len(dt)
-            # Pre-compute the denominator since we will use it later.
-            denom = (n * np.sum(dt ** 2) - np.sum(dt) ** 2) * (n - 2)
 
-            self.diffusivity_std_dev = np.sqrt(n * res[0] / denom) / 60
+            # Pre-compute the denominator since we will use it later.
+            # We divide dt by 1000 to avoid overflow errors in some systems (
+            # e.g., win). This is subsequently corrected where denom is used.
+            denom = (n * np.sum((dt/1000) ** 2) - np.sum(dt/1000) ** 2) * (n
+                                                                           - 2)
+            self.diffusivity_std_dev = np.sqrt(n * res[0] / denom) / 60 / 1000
             self.conductivity = self.diffusivity * conv_factor
             self.conductivity_std_dev = self.diffusivity_std_dev * conv_factor
 
             self.diffusivity_components = m_components / 20
             self.diffusivity_components_std_dev = np.sqrt(
-                n * m_components_res / denom) / 20
+                n * m_components_res / denom) / 20 / 1000
             self.conductivity_components = self.diffusivity_components * \
                 conv_factor
             self.conductivity_components_std_dev = \
