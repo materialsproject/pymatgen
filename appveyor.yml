@@ -36,7 +36,7 @@ install:
 build: false
 
 test_script:
-  - "nosetests"
+  - IF NOT "%APPVEYOR_REPO_BRANCH%" == "stable" (nosetests)
 
 notifications:
   - provider: Email
@@ -50,4 +50,4 @@ deploy_script:
    - "echo [pypi] > %USERPROFILE%\\.pypirc"
    - "echo username:Shyue.Ping.Ong >> %USERPROFILE%\\.pypirc"
    - "echo password:%PYPIPWD% >> %USERPROFILE%\\.pypirc"
-   - IF "%APPVEYOR_REPO_BRANCH%" == "stable" (python setup.py register sdist bdist_wheel upload)
+   - IF "%APPVEYOR_REPO_BRANCH%" == "stable" (python setup.py sdist bdist_wheel upload)
