@@ -22,13 +22,13 @@ install:
   - 'python --version'
   - 'python -c "import struct; print(struct.calcsize(''P'') * 8)"'
 
-  # Install the build dependencies of the project via conda
+  # Install the build dependencies of the project via conda and pip
   - 'conda install --yes --quiet numpy scipy matplotlib setuptools'
   - 'conda install --yes --quiet --channel matsci spglib'
-
-  # Check that we have the expected version and architecture for Python
   - "pip install -r requirements.txt"
-  - "pip install pybtex nose sympy unittest2 coverage ase coveralls"
+  - "pip install pybtex nose sympy unittest2 coverage ase coveralls"  # Note that pyhull is excluded because it does not work on Windows.
+
+  # Run develop to install in dev mode and build C extension.
   - "python setup.py develop"
 
 build: false
