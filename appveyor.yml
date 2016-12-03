@@ -47,7 +47,12 @@ notifications:
     on_build_status_changed: true
 
 deploy_script:
-   - "echo [pypi] > %USERPROFILE%\\.pypirc"
+   - "pip install twine"
+   - "echo [distutils] > %USERPROFILE%\\.pypirc"
+   - "echo index-servers = >> %USERPROFILE%\\.pypirc"
+   - "echo     pypi >> %USERPROFILE%\\.pypirc"
+   - "echo [pypi] >> %USERPROFILE%\\.pypirc"
    - "echo username:Shyue.Ping.Ong >> %USERPROFILE%\\.pypirc"
    - "echo password:%PYPIPWD% >> %USERPROFILE%\\.pypirc"
-   - IF "%APPVEYOR_REPO_BRANCH%" == "stable" (python setup.py sdist bdist_wheel upload)
+   - IF "%APPVEYOR_REPO_BRANCH%" == "stable" (python setup.py sdist bdist_wheel)
+   - IF "%APPVEYOR_REPO_BRANCH%" == "stable" (twine upload --username Shyue.Ping.Ong --password %PYPIPWD% dist/*.whl)
