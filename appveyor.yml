@@ -1,3 +1,7 @@
+branches:
+  except:
+    - gh-pages
+
 environment:
   matrix:
     - PYTHON: "C:\\Miniconda35-x64"
@@ -36,3 +40,6 @@ notifications:
   - provider: Email
     to:
       - shyuep@gmail.com
+    on_build_success: false
+    on_build_failure: true
+    on_build_status_changed: true
