@@ -30,7 +30,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         self.asf_100 = AdsorbateSiteFinder(self.slab_dict["100"])
         self.asf_111 = AdsorbateSiteFinder(self.slab_dict["111"])
         self.asf_110 = AdsorbateSiteFinder(self.slab_dict["110"])
-        
+
     def test_init(self):
         asf_100 = AdsorbateSiteFinder(self.slab_dict["100"])
         asf_111 = AdsorbateSiteFinder(self.slab_dict["111"])
@@ -42,7 +42,6 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         asf = AdsorbateSiteFinder.from_bulk_and_miller(self.structure, (1, 0, 0))
         sites = asf.find_adsorption_sites()
         self.assertEquals(len(sites), 3)
-        import pdb; pdb.set_trace()
         asf = AdsorbateSiteFinder.from_bulk_and_miller(self.structure, (1, 1, 0),
                                                        undercoord_threshold=0.1)
         self.assertEquals(len(asf.surface_sites), 1)
