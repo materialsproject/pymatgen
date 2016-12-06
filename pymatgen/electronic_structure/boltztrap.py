@@ -1787,14 +1787,14 @@ class BoltztrapAnalyzer(object):
                 path_dir, efermi, dos_spin=dos_spin, trim_dos=False)
 
             mu_steps, cond, seebeck, kappa, hall, pn_doping_levels, mu_doping,\
-            seebeck_doping, cond_doping, kappa_doping, hall_doping, \
+            seebeck_doping, cond_doping, kappa_doping, hall_doping,\
             carrier_conc = BoltztrapAnalyzer.\
                 parse_cond_and_hall(path_dir, doping_levels)
 
             return BoltztrapAnalyzer(
                 gap, mu_steps, cond, seebeck, kappa, hall, pn_doping_levels,
                 mu_doping, seebeck_doping, cond_doping, kappa_doping,
-                hall_doping, dos, pdos, carrier_conc, vol, warning)
+                hall_doping, intrans, dos, pdos, carrier_conc, vol, warning)
 
         elif run_type == "DOS":
             dos, pdos = BoltztrapAnalyzer.parse_transdos(
