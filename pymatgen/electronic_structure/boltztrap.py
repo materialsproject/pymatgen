@@ -673,7 +673,7 @@ class BoltztrapAnalyzer(object):
                  kappa=None, hall=None, doping=None,
                  mu_doping=None, seebeck_doping=None, cond_doping=None,
                  kappa_doping=None,
-                 hall_doping=None, dos=None, dos_partial=None,
+                 hall_doping=None, intrans = None, dos=None, dos_partial=None,
                  carrier_conc=None, vol=None, warning=None,
                  bz_bands=None, bz_kpoints=None, fermi_surface_data=None):
         """
@@ -742,6 +742,7 @@ class BoltztrapAnalyzer(object):
                 levels in doping and each Hall tensor is represented by a 27
                 coefficients list.
                 The units are m^3/C
+            intrans: a dictionary of inputs e.g. {"scissor": 0.0}
             carrier_conc: The concentration of carriers in electron (or hole)
                 per unit cell
             dos: The dos computed by Boltztrap given as a pymatgen Dos object
@@ -769,6 +770,7 @@ class BoltztrapAnalyzer(object):
         self._cond_doping = cond_doping
         self._kappa_doping = kappa_doping
         self._hall_doping = hall_doping
+        self.intrans = intrans
         self._carrier_conc = carrier_conc
         self.dos = dos
         self.vol = vol
@@ -1594,9 +1596,26 @@ class BoltztrapAnalyzer(object):
         return dos, dos_partial
 
     @staticmethod
+    def parse_intrans(path_dir):
+        """
+        Parses boltztrap.intrans mainly to extract the value of scissor applied to the bands or some other inputs
+        Args:
+            path_dir: (str) dir containing the boltztrap.intrans file
+        Returns:
+            intrans (dict): a dictionary containing various inputs that had been used in the Boltztrap run.
+        """
+        intrans = {}
+        with open(os.path.join(path_dir, "boltztrap.intrans"), 'r') as f:
+            for line in f:
+                if "iskip" in line:
+                    intrans["scissor"] = Energy(float(line.split(" ")[3]), "Ry").to("eV")
+                    break
+        return intrans
+
+    @staticmethod
     def parse_struct(path_dir):
         """
-        Parses Boltztrap .struct file (only the volume)
+        Parses boltztrap.struct file (only the volume)
         Args:
             path_dir: (str) dir containing the boltztrap.struct file
 
@@ -1761,6 +1780,8 @@ class BoltztrapAnalyzer(object):
 
         vol = BoltztrapAnalyzer.parse_struct(path_dir)
 
+        intrans = BoltztrapAnalyzer.parse_intrans(path_dir)
+
         if run_type == "BOLTZ":
             dos, pdos = BoltztrapAnalyzer.parse_transdos(
                 path_dir, efermi, dos_spin=dos_spin, trim_dos=False)
@@ -1814,6 +1835,7 @@ class BoltztrapAnalyzer(object):
 
         results = {'gap': self.gap,
                    'mu_steps': self.mu_steps,
+                   'scissor': self.intrans["scissor"],
                    'cond': self._cond,
                    'seebeck': self._seebeck,
                    'kappa': self._kappa,
