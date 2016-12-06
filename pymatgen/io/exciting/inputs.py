@@ -178,7 +178,7 @@ class excitingInput(MSONable):
         title=ET.SubElement(root,'title')
         title.text=self.title
 
-        structure=ET.SubElement(root,'structure')
+        structure=ET.SubElement(root,'structure',speciespath="./")
         crystal=ET.SubElement(structure,'crystal')
         # set scale such that lattice vector can be given in Angstrom
         ang2bohr=const.value('Angstrom star')/const.value('Bohr radius')
