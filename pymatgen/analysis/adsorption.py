@@ -66,7 +66,7 @@ class AdsorbateSiteFinder(object):
     def from_bulk_and_miller(cls, structure, miller_index, min_slab_size=5.0,
                              min_vacuum_size=10.0, max_normal_search=None, 
                              center_slab = True, selective_dynamics=False,
-                             undercoord_threshold = 0.1):
+                             undercoord_threshold = 0.09):
         """
         This method constructs the adsorbate site finder 
         from a bulk structure and a miller index, which
@@ -211,11 +211,9 @@ class AdsorbateSiteFinder(object):
         frac_coords = [cart_to_frac(self.slab.lattice, ads_site) 
                        for ads_site in ads_sites]
         #TODO: this is a monster.  Fix it.
-        #import pdb; pdb.set_trace()
         frac_coords = [frac_coord for frac_coord in frac_coords 
                        if (frac_coord[0]>1 and frac_coord[0]<4
                        and frac_coord[1]>1 and frac_coord[1]<4)]
-        import pdb; pdb.set_trace()
         ads_sites = [frac_to_cart(self.slab.lattice, frac_coord) 
                      for frac_coord in frac_coords]
         if 'ontop' in positions:
@@ -293,10 +291,14 @@ class AdsorbateSiteFinder(object):
             return np.average([site_list[i].frac_coords for i in indices], 
                               axis = 0)
 
-    def add_adsorbate(self, molecule, ads_coord, repeat = None):
+    def add_adsorbate(self, molecule, ads_coord, repeat=None, reorient=True):
         """
         Adds an adsorbate at a particular coordinate
         """
+        if reorient:
+            # Reorient the molecule along slab m_index
+            sop = get_rot(self.slab)
+            molecule.apply_operation(sop.inverse)
         struct = self.slab.copy()
         if repeat:
             struct.make_supercell(repeat)
@@ -325,15 +327,16 @@ class AdsorbateSiteFinder(object):
         return slab.copy(site_properties = new_sp)
 
     def generate_adsorption_structures(self, molecule, repeat = None, 
-                                       min_lw = 5.0):
+                                       min_lw = 5.0, reorient=True):
+
         if repeat is None:
             xrep = np.ceil(min_lw / np.linalg.norm(self.slab.lattice.matrix[0]))
             yrep = np.ceil(min_lw / np.linalg.norm(self.slab.lattice.matrix[1]))
             repeat = [xrep, yrep, 1]
         structs = []
         for coords in self.find_adsorption_sites():
-            structs += [self.add_adsorbate(molecule, coords,
-                                      repeat = repeat)]
+            structs.append(self.add_adsorbate(
+                molecule, coords, repeat=repeat, reorient=reorient))
         return structs
 
 def mi_vec(mi_index):
@@ -397,7 +400,7 @@ color_dict = {el:[j / 256. for j in colors["Jmol"][el]]
               for el in colors["Jmol"].keys()}
 
 def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
-              draw_unit_cell=True, decay = 0.15):
+              draw_unit_cell=True, decay = 0.2, adsorption_sites=True):
     """
     Function that helps visualize the slab in a 2-D plot, for
     convenient viewing of output of AdsorbateSiteFinder.
@@ -433,6 +436,15 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
         ax.add_patch(patches.Circle(coord[:2]-lattsum*(repeat//2), r,
                                     facecolor=color, alpha=alphas[n], 
                                     edgecolor='k', lw=0.3, zorder=2*n+1))
+    # Adsorption sites
+    if adsorption_sites:
+        asf = AdsorbateSiteFinder(orig_slab)
+        ads_sites = asf.find_adsorption_sites()
+        sop = get_rot(orig_slab)
+        ads_sites = [sop.operate(ads_site)[:2].tolist()
+                     for ads_site in ads_sites]
+        ax.plot(*zip(*ads_sites), color='k', marker='x',
+                markersize=10, mew=1, linestyle='', zorder=10000)
     # Draw unit cell
     if draw_unit_cell:
         verts = np.insert(verts, 1, lattsum, axis=0).tolist()
