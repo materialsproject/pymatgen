@@ -220,9 +220,6 @@ class Site(collections.Hashable, MSONable):
     def __contains__(self, el):
         return el in self._species
 
-    def __len__(self):
-        return len(self._species)
-
     def __repr__(self):
         return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(
             self.species_string, *self._coords)
