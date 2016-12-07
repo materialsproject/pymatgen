@@ -59,6 +59,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
                                    1]/1e-23, 3.2860613, 4)
         self.assertAlmostEqual(self.bz._carrier_conc[500][67], 38.22832002)
         self.assertAlmostEqual(self.bz.vol, 612.97557323964838, 4)
+        self.assertAlmostEqual(self.bz.intrans["scissor"], 0.0, 1)
         self.assertAlmostEqual(self.bz._hall_doping['n'][700][-1][2][2][2], 5.0136483e-26)
         self.assertAlmostEqual(self.bz.dos.efermi, -0.0300005507057)
         self.assertAlmostEqual(self.bz.dos.energies[0], -2.4497049391830448, 4)
