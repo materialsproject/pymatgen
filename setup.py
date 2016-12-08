@@ -56,6 +56,7 @@ setup(
     extras_require={
         ':python_version == "2.7"': [
             'enum34',
+            'pathlib2',
         ],
         "matproj.snl": ["pybtex"],
         "pourbaix diagrams, bandstructure": ["pyhull>=1.5.3"],

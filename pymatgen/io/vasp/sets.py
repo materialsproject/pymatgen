@@ -13,7 +13,7 @@ from glob import glob
 import warnings
 from itertools import chain
 from copy import deepcopy
-
+from pathlib import Path
 import six
 import numpy as np
 
@@ -49,7 +49,7 @@ Read the following carefully before implementing new input sets:
    from_dict for derivative sets unless you know what you are doing.
    Improper overriding the as_dict and from_dict protocols is the major
    cause of implementation headaches. If you need an example, look at how the
-   MPStaticSet or MPNonSCFSets from constructed.
+   MPStaticSet or MPNonSCFSets are constructed.
 
 The above are recommendations. The following are UNBREAKABLE rules:
 1. All input sets must take in a structure or list of structures as the first
@@ -57,10 +57,9 @@ The above are recommendations. The following are UNBREAKABLE rules:
 2. user_incar_settings and user_kpoints_settings are absolute. Any new sets you
    implement must obey this. If a user wants to override your settings,
    you assume he knows what he is doing. Do not magically override user
-   supplied settings. You can of course issue a warning if you think the user
-   is wrong.
+   supplied settings. You can issue a warning if you think the user is wrong.
 3. All input sets must save all supplied args and kwargs as instance variables.
-   E.g., self.my_arg = myarg and self.kwargs = kwargs in the __init__. This
+   E.g., self.my_arg = my_arg and self.kwargs = kwargs in the __init__. This
    ensures the as_dict and from_dict work correctly.
 """
 
@@ -72,7 +71,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "May 28 2016"
 
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = Path(__file__).parent
 
 
 class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
@@ -398,7 +397,7 @@ class MITRelaxSet(DictSet):
         functional theory calculations. Computational Materials Science,
         2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
     """
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MITRelaxSet.yaml"))
+    CONFIG = loadfn(str(MODULE_DIR / "MITRelaxSet.yaml"))
 
     def __init__(self, structure, **kwargs):
         super(MITRelaxSet, self).__init__(
@@ -414,7 +413,7 @@ class MPRelaxSet(DictSet):
     The LDAUU parameters are also different due to the different psps used,
     which result in different fitted values.
     """
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPRelaxSet.yaml"))
+    CONFIG = loadfn(str(MODULE_DIR / "MPRelaxSet.yaml"))
 
     def __init__(self, structure, **kwargs):
         super(MPRelaxSet, self).__init__(
@@ -426,7 +425,7 @@ class MPHSERelaxSet(DictSet):
     """
     Same as the MPRelaxSet, but with HSE parameters.
     """
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPHSERelaxSet.yaml"))
+    CONFIG = loadfn(str(MODULE_DIR / "MPHSERelaxSet.yaml"))
 
     def __init__(self, structure, **kwargs):
         super(MPHSERelaxSet, self).__init__(
