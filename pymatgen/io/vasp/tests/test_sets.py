@@ -7,11 +7,10 @@ from __future__ import unicode_literals
 import os
 import unittest2 as unittest
 import tempfile
-from monty.tempfile import ScratchDir
 from monty.json import MontyDecoder
 
 from pymatgen.io.vasp.sets import *
-from pymatgen.io.vasp.inputs import Poscar, Incar, Kpoints
+from pymatgen.io.vasp.inputs import Poscar, Kpoints
 from pymatgen import Specie, Lattice, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.util.testing import PymatgenTest
