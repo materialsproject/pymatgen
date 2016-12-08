@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 
+import os
 import unittest2 as unittest
 import tempfile
 from monty.tempfile import ScratchDir
