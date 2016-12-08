@@ -4,7 +4,6 @@
 
 from __future__ import division, unicode_literals, print_function
 
-import os
 import abc
 import re
 
@@ -1163,16 +1162,16 @@ class MITNEBSet(MITRelaxSet):
                 user_incar_settings=self.user_incar_settings)
 
             for image in ['00', str(len(self.structures) - 1).zfill(2)]:
-                end_point_param.incar.write_file(os.path.join(output_dir, image, 'INCAR'))
-                end_point_param.kpoints.write_file(os.path.join(output_dir, image, 'KPOINTS'))
-                end_point_param.potcar.write_file(os.path.join(output_dir, image, 'POTCAR'))
+                end_point_param.incar.write_file(str(path / image / 'INCAR'))
+                end_point_param.kpoints.write_file(str(path / image / 'KPOINTS'))
+                end_point_param.potcar.write_file(str(path / image / 'POTCAR'))
         if write_path_cif:
             sites = set()
             l = self.structures[0].lattice
             for site in chain(*(s.sites for s in self.structures)):
                 sites.add(PeriodicSite(site.species_and_occu, site.frac_coords, l))
-            path = Structure.from_sites(sorted(sites))
-            path.to(filename=os.path.join(output_dir, 'path.cif'))
+            nebpath = Structure.from_sites(sorted(sites))
+            nebpath.to(filename=str(path / 'path.cif'))
 
 
 class MITMDSet(MITRelaxSet):
