@@ -606,7 +606,7 @@ class MPHSEBSSet(MPHSERelaxSet):
         self.structure = structure
         self.user_incar_settings = user_incar_settings or {}
         self.config_dict["INCAR"].update(
-            {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 3, "LCHARG": False})
+            {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 3, "LCHARG": False, "NELMIN": 5})
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
         self.reciprocal_density = reciprocal_density or \
