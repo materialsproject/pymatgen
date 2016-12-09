@@ -606,7 +606,7 @@ class MPHSEBSSet(MPHSERelaxSet):
         self.structure = structure
         self.user_incar_settings = user_incar_settings or {}
         self.config_dict["INCAR"].update(
-            {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 3, "LCHARG": False})
+            {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 3, "LCHARG": False, "NELMIN": 5})
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
         self.reciprocal_density = reciprocal_density or \
@@ -682,11 +682,14 @@ class MPHSEBSSet(MPHSERelaxSet):
 
         added_kpoints = []
         bs = vasprun.get_band_structure()
-        vbm, cbm = bs.get_vbm()["kpoint"], bs.get_cbm()["kpoint"]
-        if vbm:
-            added_kpoints.append(vbm.frac_coords)
-        if cbm:
-            added_kpoints.append(cbm.frac_coords)
+        if mode == "Uniform":
+            vbm, cbm = bs.get_vbm()["kpoint"], bs.get_cbm()["kpoint"]
+            if vbm:
+                added_kpoints.append(vbm.frac_coords)
+            if cbm:
+                added_kpoints.append(cbm.frac_coords)
+        elif mode == "Line":
+            added_kpoints += bs.as_dict()["kpoints"]
 
         files_to_transfer = {}
         if copy_chgcar:
