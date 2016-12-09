@@ -958,7 +958,14 @@ class BSPlotterProjected(BSPlotter):
                                   data['energy'][b][str(s)][i][j + 1]], sign,
                                  color=color, linewidth=band_linewidth)
 
-        plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 2.0)
+        if self._bs.is_metal():
+            if zero_to_efermi:
+                e_min = -10
+                e_max = 10
+                plt.ylim(e_min, e_max)
+                plt.ylim(self._bs.efermi + e_min, self._bs.efermi + e_max)
+        else:
+            plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 2.0)
         return plt
 
 
