@@ -163,12 +163,12 @@ class excitingInput(MSONable):
         structure_in=Structure(lattice_in,elements,positions,
                                False,cartesian,False)
 
-        return input(structure_in, title_in, lockxyz)
+        return excitingInput(structure_in, title_in, lockxyz)
     @staticmethod
     def from_file(filename):
         with zopen(filename, 'rt') as f:
             data=f.read().replace('\n','')
-        return input.from_string(data)
+        return excitingInput.from_string(data)
 
 
     def write_etree(self, celltype, cartesian=False, bandstr=False):
@@ -178,7 +178,7 @@ class excitingInput(MSONable):
         title=ET.SubElement(root,'title')
         title.text=self.title
 
-        structure=ET.SubElement(root,'structure')
+        structure=ET.SubElement(root,'structure', cartesian=str(cartesian))
         crystal=ET.SubElement(structure,'crystal')
         # set scale such that lattice vector can be given in Angstrom
         ang2bohr=const.value('Angstrom star')/const.value('Bohr radius')
@@ -257,6 +257,15 @@ class excitingInput(MSONable):
         except:
             raise ValueError('Incorrect celltype!')
         return string
+    def write_file(self, celltype, filename, cartesian=False, bandstr=False):
+        try:
+            root=self.write_etree(celltype, cartesian, bandstr)
+            self.indent(root)
+            tree=ET.ElementTree(root)
+            tree.write(filename)
+        except:
+            raise ValueError('Incorrect celltype!')
+        return
     # Missing PrerryPrint option in the current version of xml.etree.cElementTree
     @staticmethod
     def indent(elem,level=0):
