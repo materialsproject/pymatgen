@@ -541,7 +541,7 @@ class MPHSEBSTest(PymatgenTest):
         self.assertEqual(vis.incar['HFSCREEN'], 0.2)
         self.assertEqual(vis.incar['NSW'], 0)
         self.assertEqual(vis.incar['ISYM'], 3)
-        self.assertEqual(len(vis.kpoints.kpts), 203)
+        self.assertEqual(len(vis.kpoints.kpts), 193)
 
 
 class FuncTest(PymatgenTest):
