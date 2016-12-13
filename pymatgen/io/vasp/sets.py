@@ -636,7 +636,7 @@ class MPHSEBSSet(MPHSERelaxSet):
             all_labels.append("user-defined")
 
         # for line mode only, add the symmetry lines w/zero weight
-        if self.mode == "Line":
+        if self.mode.lower() == "line":
             kpath = HighSymmKpath(self.structure)
             frac_k_points, labels = kpath.get_kpoints(
                 line_density=self.kpoints_line_density,
@@ -647,7 +647,7 @@ class MPHSEBSSet(MPHSERelaxSet):
                 weights.append(0.0)
                 all_labels.append(labels[k])
 
-        comment = "HSE run along symmetry lines" if self.mode == "Line" \
+        comment = "HSE run along symmetry lines" if self.mode.lower() == "line" \
             else "HSE run on uniform grid"
 
         return Kpoints(comment=comment,
@@ -656,17 +656,17 @@ class MPHSEBSSet(MPHSERelaxSet):
                        labels=all_labels)
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, mode="Uniform",
+    def from_prev_calc(cls, prev_calc_dir, mode="gap",
                        reciprocal_density=50, copy_chgcar=True, **kwargs):
         """
         Generate a set of Vasp input files for HSE calculations from a
-        directory of previous Vasp run. Explicitly adds VBM and CBM of prev.
-        run to the k-point list of this run.
+        directory of previous Vasp run. if mode=="gap", it explicitly adds VBM and CBM
+        of the prev. run to the k-point list of this run.
 
         Args:
             prev_calc_dir (str): Directory containing the outputs
                 (vasprun.xml and OUTCAR) of previous vasp run.
-            mode (str): Either "Uniform" or "Line"
+            mode (str): Either "uniform", "gap" or "line"
             reciprocal_density (int): density of k-mesh
             copy_chgcar (bool): whether to copy CHGCAR of previous run
             \*\*kwargs: All kwargs supported by MPHSEBSStaticSet,
@@ -682,14 +682,12 @@ class MPHSEBSSet(MPHSERelaxSet):
 
         added_kpoints = []
         bs = vasprun.get_band_structure()
-        if mode.lower() == "uniform":
+        if mode.lower() == "gap":
             vbm, cbm = bs.get_vbm()["kpoint"], bs.get_cbm()["kpoint"]
             if vbm:
                 added_kpoints.append(vbm.frac_coords)
             if cbm:
                 added_kpoints.append(cbm.frac_coords)
-        elif mode.lower() == "line":
-            added_kpoints += bs.as_dict()["kpoints"]
 
         files_to_transfer = {}
         if copy_chgcar:
