@@ -682,13 +682,13 @@ class MPHSEBSSet(MPHSERelaxSet):
 
         added_kpoints = []
         bs = vasprun.get_band_structure()
-        if mode == "Uniform":
+        if mode.lower() == "uniform":
             vbm, cbm = bs.get_vbm()["kpoint"], bs.get_cbm()["kpoint"]
             if vbm:
                 added_kpoints.append(vbm.frac_coords)
             if cbm:
                 added_kpoints.append(cbm.frac_coords)
-        elif mode == "Line":
+        elif mode.lower() == "line":
             added_kpoints += bs.as_dict()["kpoints"]
 
         files_to_transfer = {}
@@ -734,10 +734,10 @@ class MPNonSCFSet(MPRelaxSet):
         self.optics = optics
         self.mode = mode.lower()
 
-        if self.mode not in ["line", "uniform"]:
+        if self.mode.lower() not in ["line", "uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
-        if (self.mode != "uniform" or nedos < 2000) and optics:
+        if (self.mode.lower() != "uniform" or nedos < 2000) and optics:
             warnings.warn("It is recommended to use Uniform mode with a high "
                           "NEDOS for optics calculations.")
 
@@ -754,7 +754,7 @@ class MPNonSCFSet(MPRelaxSet):
                       "LCHARG": False, "LORBIT": 11, "LWAVE": False,
                       "NSW": 0, "ISYM": 0, "ICHARG": 11})
 
-        if self.mode == "uniform":
+        if self.mode.lower() == "uniform":
             # Set smaller steps for DOS output
             incar["NEDOS"] = self.nedos
 
