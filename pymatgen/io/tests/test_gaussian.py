@@ -186,6 +186,18 @@ class GaussianOutputTest(unittest.TestCase):
     def setUp(self):
         self.gauout = GaussianOutput(os.path.join(test_dir, "methane.log"))
 
+    def test_resume(self):
+        resume = self.gauout.resumes[0]
+        methane_resume = r"""1\1\GINC-SHYUE-LAPTOP\FOpt\RHF\3-21G\C1H4\SHYUE\27-Feb-2008\0\\#p hf/3
+        -21G opt\\Title Card Required\\0,1\C,0.,0.,0.\H,0.,0.,1.0829014152\H,1
+        .0209692454,0.,-0.3609671384\H,-0.5104846227,-0.884185303,-0.360967138
+        4\H,-0.5104846227,0.884185303,-0.3609671384\\Version=IA32L-G03RevD.01\
+        State=1-A1\HF=-39.9768776\RMSD=3.210e-09\RMSF=5.014e-08\Thermal=0.\Dip
+        ole=0.,0.,0.\PG=TD [O(C1),4C3(H1)]\\@"""
+        methane_resume = "".join([r.strip() for r in methane_resume.split("\n")])
+
+        self.assertEqual(resume, methane_resume)
+
     def test_props(self):
         gau = self.gauout
         self.assertEqual(len(gau.energies), 3)
