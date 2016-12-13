@@ -636,7 +636,7 @@ class MPHSEBSSet(MPHSERelaxSet):
             all_labels.append("user-defined")
 
         # for line mode only, add the symmetry lines w/zero weight
-        if self.mode == "Line":
+        if self.mode.lower() == "line":
             kpath = HighSymmKpath(self.structure)
             frac_k_points, labels = kpath.get_kpoints(
                 line_density=self.kpoints_line_density,
@@ -647,7 +647,7 @@ class MPHSEBSSet(MPHSERelaxSet):
                 weights.append(0.0)
                 all_labels.append(labels[k])
 
-        comment = "HSE run along symmetry lines" if self.mode == "Line" \
+        comment = "HSE run along symmetry lines" if self.mode.lower() == "line" \
             else "HSE run on uniform grid"
 
         return Kpoints(comment=comment,
