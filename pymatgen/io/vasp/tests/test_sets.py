@@ -528,11 +528,15 @@ class MPHSEBSTest(PymatgenTest):
 
     def test_init(self):
         prev_run = os.path.join(test_dir, "static_silicon")
-        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="Uniform")
+        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="uniform")
+        self.assertTrue(vis.incar["LHFCALC"])
+        self.assertEqual(len(vis.kpoints.kpts), 29)
+
+        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="gap")
         self.assertTrue(vis.incar["LHFCALC"])
         self.assertEqual(len(vis.kpoints.kpts), 31)
 
-        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="Line")
+        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="line")
         self.assertTrue(vis.incar["LHFCALC"])
         self.assertEqual(vis.incar['HFSCREEN'], 0.2)
         self.assertEqual(vis.incar['NSW'], 0)
