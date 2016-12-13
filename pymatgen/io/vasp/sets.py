@@ -656,12 +656,12 @@ class MPHSEBSSet(MPHSERelaxSet):
                        labels=all_labels)
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, mode="uniform",
+    def from_prev_calc(cls, prev_calc_dir, mode="gap",
                        reciprocal_density=50, copy_chgcar=True, **kwargs):
         """
         Generate a set of Vasp input files for HSE calculations from a
-        directory of previous Vasp run. if mode=="gap" it, explicitly adds VBM and CBM
-        of prev. run to the k-point list of this run.
+        directory of previous Vasp run. if mode=="gap", it explicitly adds VBM and CBM
+        of the prev. run to the k-point list of this run.
 
         Args:
             prev_calc_dir (str): Directory containing the outputs
@@ -688,8 +688,6 @@ class MPHSEBSSet(MPHSERelaxSet):
                 added_kpoints.append(vbm.frac_coords)
             if cbm:
                 added_kpoints.append(cbm.frac_coords)
-        elif mode.lower() == "line":
-            added_kpoints += bs.as_dict()["kpoints"]
 
         files_to_transfer = {}
         if copy_chgcar:
