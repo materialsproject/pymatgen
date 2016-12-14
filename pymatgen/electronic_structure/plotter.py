@@ -1019,7 +1019,7 @@ class BSDOSPlotter():
         Get a matplotlib plot object.
         Args:
             bs (BandStructure): the bandstructure to plot. Projection data must exist for projected plots.
-            dos (Dos): the bandstructure to plot. Projection data must exist (i.e., CompleteDos) for projected plots.
+            dos (Dos): the Dos to plot. Projection data must exist (i.e., CompleteDos) for projected plots.
 
         Returns:
             a matplotlib plt object on which you can call commands like show() and savefig()
