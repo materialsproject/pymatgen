@@ -690,7 +690,7 @@ class Interstitial(Defect):
         coord_chrg = 0
         for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
             if not site.specie.symbol == 'X':
-                coord_chrg += weight * self._valence_dict[site.species_string]
+                coord_chrg += weight * self._valence_dict.get(site.species_string, 0)
 
         return coord_no, coord_sites, coord_chrg
 
