@@ -76,7 +76,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     Regex. test and run are callable objects.
 
     This function goes through each line in filename, and if regex matches that
-    line *and* test(results,line)==True (or test == None) we execute
+    line *and* test(results,line)==True (or test is None) we execute
     run(results,match),where match is the match object from running
     Regex.match.
 

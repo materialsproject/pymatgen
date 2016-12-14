@@ -1865,7 +1865,7 @@ class IMolecule(SiteCollection, MSONable):
         Returns:
             Structure containing molecule in a box.
         """
-        if offset == None:
+        if offset is None:
             offset = np.array([0,0,0])
 
         coords = np.array(self.cart_coords)
@@ -2886,9 +2886,9 @@ class Molecule(IMolecule, collections.MutableSequence):
                 translation.
             vector (3x1 array): Translation vector for sites.
         """
-        if indices == None:
+        if indices is None:
             indices = range(len(self))
-        if vector == None:
+        if vector is None:
             vector == [0,0,0]
         for i in indices:
             site = self._sites[i]
@@ -2912,13 +2912,13 @@ class Molecule(IMolecule, collections.MutableSequence):
         from numpy import cross, eye
         from scipy.linalg import expm3
 
-        if indices == None:
+        if indices is None:
             indices = range(len(self))
 
-        if axis == None:
+        if axis is None:
             axis = [0,0,1]
 
-        if anchor == None:
+        if anchor is None:
             anchor = [0,0,0]
 
         anchor = np.array(anchor)

@@ -119,9 +119,9 @@ class ValenceIonicRadiusEvaluator(object):
                 radius = site.specie.atomic_radius
                 # Handle elements with no atomic_radius
                 # by using calculated values instead.
-                if radius == None:
+                if radius is None:
                     radius = site.specie.atomic_radius_calculated
-                if radius == None:
+                if radius is None:
                     raise ValueError(
                             "cannot assign radius to element {}".format(
                             site.specie))

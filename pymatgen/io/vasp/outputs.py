@@ -629,7 +629,7 @@ class Vasprun(MSONable):
                 ComputedEntries.
             parameters (list): Input parameters to include. It has to be one of
                 the properties supported by the Vasprun object. If
-                parameters == None, a default set of parameters that are
+                parameters is None, a default set of parameters that are
                 necessary for typical post-processing will be set.
             data (list): Output data to include. Has to be one of the properties
                 supported by the Vasprun object.
