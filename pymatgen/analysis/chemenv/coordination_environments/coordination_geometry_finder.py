@@ -23,6 +23,7 @@ import time
 from numpy.linalg import svd
 from numpy.linalg import norm
 from numpy import transpose
+from pymatgen.core.periodic_table import Specie
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -506,7 +507,18 @@ class LocalGeometryFinder(object):
                 permutations_safe_override=self.permutations_safe_override,
                 only_symbols=only_symbols)
 
-        self.valences = valences
+        if valences == 'undefined':
+            firstsite = self.structure[0]
+            try:
+                sp = firstsite.specie
+                if isinstance(sp, Specie):
+                    self.valences = [int(site.specie.oxi_state) for site in self.structure]
+                else:
+                    self.valences = valences
+            except:
+                self.valences = valences
+        else:
+            self.valences = valences
 
         # Get a list of indices of unequivalent sites from the initial structure
         self.equivalent_sites = [[site] for site in self.structure]
