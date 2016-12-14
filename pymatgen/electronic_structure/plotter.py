@@ -6,12 +6,19 @@ from __future__ import division, unicode_literals, print_function
 import logging
 import math
 import itertools
+import warnings
 from collections import OrderedDict
 
 import numpy as np
+from matplotlib.collections import LineCollection
+import matplotlib.lines as mlines
+from matplotlib.gridspec import GridSpec
+import matplotlib.pyplot as mplt
 
 from monty.json import jsanitize
-from pymatgen.electronic_structure.core import Spin
+
+from pymatgen import Element
+from pymatgen.electronic_structure.core import Spin, OrbitalType
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.util.plotting_utils import get_publication_quality_plot, \
     add_fig_kwargs, get_ax3d_fig_plt
@@ -968,6 +975,318 @@ class BSPlotterProjected(BSPlotter):
             plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 2.0)
         return plt
 
+
+class BSDOSPlotter():
+    """
+    A joint, aligned band structure and density of states plot. Contributions from Jan Pohls
+    as well as the online example from Germain Salvato-Vallverdu:
+    http://gvallver.perso.univ-pau.fr/?p=587
+    """
+
+    def __init__(self, bs_projection="elements", dos_projection="elements",
+                 vb_energy_range=4, cb_energy_range=4, egrid_interval=1,
+                 font="Times New Roman", axis_fontsize=20, legend_fontsize=13,
+                 bs_legend="best", dos_legend="best"):
+
+        """
+        Instantiate plotter settings.
+
+        Args:
+            bs_projection (str): "elements" or None
+            dos_projection (str): "elements", "orbitals", or None
+            vb_energy_range (float): energy in eV to show of valence bands
+            cb_energy_range (float): energy in eV to show of conduction bands
+            egrid_interval (float): interval for grid marks
+            font (str): font family
+            axis_fontsize (float): font size for axis
+            legend_fontsize (float): font size for legends
+            bs_legend (str): matplotlib string location for legend or None
+            dos_legend (str): matplotlib string location for legend or None
+        """
+        self.bs_projection = bs_projection
+        self.dos_projection = dos_projection
+        self.vb_energy_range = vb_energy_range
+        self.cb_energy_range = cb_energy_range
+        self.egrid_interval = egrid_interval
+        self.font = font
+        self.axis_fontsize = axis_fontsize
+        self.legend_fontsize = legend_fontsize
+        self.bs_legend = bs_legend
+        self.dos_legend = dos_legend
+
+    def get_plot(self, bs, dos):
+        """
+        Get a matplotlib plot object.
+        Args:
+            bs (BandStructure): the bandstructure to plot. Projection data must exist for projected plots.
+            dos (Dos): the bandstructure to plot. Projection data must exist (i.e., CompleteDos) for projected plots.
+
+        Returns:
+            a matplotlib plt object on which you can call commands like show() and savefig()
+
+        """
+
+        # make sure the user-specified band structure projection is valid
+        elements = [e.symbol for e in dos.structure.composition.elements]
+        bs_projection = self.bs_projection
+
+        if bs_projection and bs_projection.lower() == "elements" and \
+                (len(elements) not in [2, 3] or not bs.get_projection_on_elements()):
+            warnings.warn("Cannot get element projected data; either the projection data "
+                          "doesn't exist, or you don't have a compound with exactly 2 or 3"
+                          " unique elements.")
+            bs_projection = None
+
+        # specify energy range of plot
+        emin = -self.vb_energy_range
+        emax = bs.get_band_gap()["energy"] + self.cb_energy_range
+
+        # initialize all the k-point labels and k-point x-distances for bs plot
+        xlabels = []  # all symmetry point labels on x-axis
+        xlabel_distances = []  # positions of symmetry point x-labels
+        x_distances = []  # x positions of kpoint data
+        prev_right_klabel = None  # used to determine which branches require a midline separator
+
+        for idx, l in enumerate(bs.branches):
+            # get left and right kpoint labels of this branch
+            left_k, right_k = l["name"].split("-")
+
+            # add $ notation for LaTeX kpoint labels
+            if left_k[0] == "\\":
+                left_k = "$"+left_k+"$"
+            if right_k[0] == "\\":
+                right_k = "$"+right_k+"$"
+
+            # add left k label to list of labels
+            if prev_right_klabel is None:
+                xlabels.append(left_k)
+                xlabel_distances.append(0)
+            elif prev_right_klabel != left_k:  # used for pipe separator
+                xlabels[-1] = xlabels[-1]+ "$\\mid$ " + left_k
+
+            # add right k label to list of labels
+            xlabels.append(right_k)
+            prev_right_klabel = right_k
+
+            # add x-coordinates for labels
+            left_kpoint = bs.kpoints[l["start_index"]].cart_coords
+            right_kpoint = bs.kpoints[l["end_index"]].cart_coords
+            distance = np.linalg.norm(right_kpoint - left_kpoint)
+            xlabel_distances.append(xlabel_distances[-1] + distance)
+
+            # add x-coordinates for kpoint data
+            npts = l["end_index"] - l["start_index"]
+            distance_interval = distance/npts
+            x_distances.append(xlabel_distances[-2])
+            for i in range(npts):
+                x_distances.append(x_distances[-1] + distance_interval)
+
+        # set up bs and dos plot
+        gs = GridSpec(1, 2, width_ratios=[2, 1])
+        fig = mplt.figure(figsize=(11, 8.5))
+        fig.patch.set_facecolor('white')
+        bs_ax = mplt.subplot(gs[0])
+        dos_ax = mplt.subplot(gs[1])
+
+        # set basic axes limits for the plot
+        bs_ax.set_xlim(0, x_distances[-1])
+        bs_ax.set_ylim(emin, emax)
+        dos_ax.set_ylim(emin, emax)
+
+        # add BS xticks, labels, etc.
+        bs_ax.set_xticks(xlabel_distances)
+        bs_ax.set_xticklabels(xlabels)
+        bs_ax.set_xlabel('Wavevector $k$', fontsize=self.axis_fontsize, family=self.font)
+        bs_ax.set_ylabel('$E-E_F$ / eV', fontsize=self.axis_fontsize, family=self.font)
+
+        # add BS fermi level line at E=0 and gridlines
+        bs_ax.hlines(y=0, xmin=0, xmax=x_distances[-1], color="k", lw=2)
+        bs_ax.set_yticks(np.arange(emin, emax, self.egrid_interval))
+        dos_ax.set_yticks(np.arange(emin, emax, self.egrid_interval))
+        bs_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
+        dos_ax.set_yticklabels([])
+        dos_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
+
+        # renormalize the band energy to the Fermi level
+        band_energies = {}
+        for spin in (Spin.up, Spin.down):
+            if spin in bs.bands:
+                band_energies[spin] = []
+                for band in bs.bands[spin]:
+                    band_energies[spin].append([e - bs.efermi for e in band])
+
+        # renormalize the DOS energies to Fermi level
+        dos_energies = [e - dos.efermi for e in dos.energies]
+
+        # get the projection data to set colors for the band structure
+        colordata = self._get_colordata(bs, elements, bs_projection)
+
+        # plot the colored band structure lines
+        for spin in (Spin.up, Spin.down):
+            if spin in band_energies:
+                linestyles = "solid" if spin == Spin.up else "dotted"
+                for band_idx, band in enumerate(band_energies[spin]):
+                    self._rgbline(bs_ax, x_distances, band,
+                                  colordata[spin][band_idx, :, 0],
+                                  colordata[spin][band_idx, :, 1],
+                                  colordata[spin][band_idx, :, 2],
+                                  linestyles=linestyles)
+
+        # Plot the DOS and projected DOS
+        for spin in (Spin.up, Spin.down):
+            if spin in dos.densities:
+                # plot the total DOS
+                dos_densities = dos.densities[spin] * int(spin)
+                label = "total" if spin == Spin.up else None
+                dos_ax.plot(dos_densities, dos_energies, color=(0.6, 0.6, 0.6),
+                            label=label)
+                dos_ax.fill_between(dos_densities, 0, dos_energies,
+                                    color=(0.7, 0.7, 0.7),
+                                    facecolor=(0.7, 0.7, 0.7))
+
+                # plot the atom-projected DOS
+                if self.dos_projection.lower() == "elements":
+                    colors = ['b', 'r', 'g', 'm', 'y', 'c', 'k', 'w']
+                    el_dos = dos.get_element_dos()
+                    for idx, el in enumerate(elements):
+                        dos_densities = el_dos[Element(el)].densities[spin] *\
+                                        int(spin)
+                        label = el if spin == Spin.up else None
+                        dos_ax.plot(dos_densities, dos_energies,
+                                    color=colors[idx], label=label)
+
+                elif self.dos_projection.lower() == "orbitals":
+                    # plot each of the atomic projected DOS
+                    colors = ['b', 'r', 'g', 'm']
+                    spd_dos = dos.get_spd_dos()
+                    for idx, orb in enumerate([OrbitalType.s, OrbitalType.p,
+                                               OrbitalType.d, OrbitalType.f]):
+                        if orb in spd_dos:
+                            dos_densities = spd_dos[orb].densities[spin] *\
+                                            int(spin)
+                            label = orb if spin == Spin.up else None
+                            dos_ax.plot(dos_densities, dos_energies,
+                                        color=colors[idx], label=label)
+
+        # get index of lowest and highest energy being plotted, used to help auto-scale DOS x-axis
+        emin_idx = next(x[0] for x in enumerate(dos_energies) if x[1] >= emin)
+        emax_idx = len(dos_energies) - next(x[0] for x in
+                                            enumerate(reversed(dos_energies))
+                                            if x[1] <= emax)
+
+        # determine DOS x-axis range
+        dos_xmin = 0 if Spin.down not in dos.densities else -max(
+            dos.densities[Spin.down][emin_idx:emax_idx] * 1.05)
+        dos_xmax = max([max(dos.densities[Spin.up][emin_idx:emax_idx]) *
+                        1.05, abs(dos_xmin)])
+
+        # set up the DOS x-axis and add Fermi level line
+        dos_ax.set_xlim(dos_xmin, dos_xmax)
+        dos_ax.set_xticklabels([])
+        dos_ax.hlines(y=0, xmin=dos_xmin, xmax=dos_xmax, color="k", lw=2)
+        dos_ax.set_xlabel('DOS', fontsize=self.axis_fontsize, family=self.font)
+
+        # add legend for band structure
+        if self.bs_legend:
+            handles = []
+
+            if bs_projection is None:
+                handles = [mlines.Line2D([], [], linewidth=2,
+                                         color='k', label='spin up'),
+                           mlines.Line2D([], [], linewidth=2,
+                                         color='b', linestyle="dotted",
+                                         label='spin down')]
+
+            elif bs_projection.lower() == "elements":
+                colors = ['b', 'r', 'g']
+                for idx, el in enumerate(elements):
+                    handles.append(mlines.Line2D([], [],
+                                                 linewidth=2,
+                                                 color=colors[idx], label=el))
+
+            bs_ax.legend(handles=handles, fancybox=True,
+                         prop={'size': self.legend_fontsize,
+                               'family': self.font}, loc=self.bs_legend)
+
+        # add legend for DOS
+        if self.dos_legend:
+            dos_ax.legend(fancybox=True, prop={'size': self.legend_fontsize,
+                                               'family': self.font},
+                          loc=self.dos_legend)
+
+        mplt.subplots_adjust(wspace=0.1)
+        return mplt
+
+    @staticmethod
+    def _rgbline(ax, k, e, red, green, blue, alpha=1, linestyles="solid"):
+        """
+        An RGB colored line for plotting.
+        creation of segments based on:
+        http://nbviewer.ipython.org/urls/raw.github.com/dpsanders/matplotlib-examples/master/colorline.ipynb
+        Args:
+            ax: matplotlib axis
+            k: x-axis data (k-points)
+            e: y-axis data (energies)
+            red: red data
+            green: green data
+            blue: blue data
+            alpha: alpha values data
+            linestyles: linestyle for plot (e.g., "solid" or "dotted")
+        """
+        pts = np.array([k, e]).T.reshape(-1, 1, 2)
+        seg = np.concatenate([pts[:-1], pts[1:]], axis=1)
+
+        nseg = len(k) - 1
+        r = [0.5 * (red[i] + red[i + 1]) for i in range(nseg)]
+        g = [0.5 * (green[i] + green[i + 1]) for i in range(nseg)]
+        b = [0.5 * (blue[i] + blue[i + 1]) for i in range(nseg)]
+        a = np.ones(nseg, np.float) * alpha
+        lc = LineCollection(seg, colors=list(zip(r, g, b, a)),
+                            linewidth=2, linestyles=linestyles)
+        ax.add_collection(lc)
+
+    @staticmethod
+    def _get_colordata(bs, elements, bs_projection):
+        """
+        Get color data, including projected band structures
+        Args:
+            bs: Bandstructure object
+            elements: elements (in desired order) for setting to blue, red, green
+            bs_projection: None for no projection, "elements" for element projection
+
+        Returns:
+
+        """
+        contribs = {}
+        if bs_projection and bs_projection.lower() == "elements":
+            projections = bs.get_projection_on_elements()
+
+        for spin in (Spin.up, Spin.down):
+            if spin in bs.bands:
+                contribs[spin] = []
+                for band_idx in range(bs.nb_bands):
+                    colors = []
+                    for k_idx in range(len(bs.kpoints)):
+                        if bs_projection and bs_projection.lower() == "elements":
+                            c = [0, 0, 0]
+                            projs = projections[spin][band_idx][k_idx]
+                            total = sum(projs.values())
+                            if total > 0:
+                                for idx, e in enumerate(elements):
+                                    c[idx] = projs[e]/total  # min is to handle round errors
+
+                            c = [c[1], c[2], c[0]]  # prefer blue, then red, then green
+
+                        else:
+                            c = [0, 0, 0] if spin == Spin.up \
+                                else [0, 0, 1]  # black for spin up, blue for spin down
+
+                        colors.append(c)
+
+                    contribs[spin].append(colors)
+                contribs[spin] = np.array(contribs[spin])
+
+        return contribs
 
 class BoltztrapPlotter(object):
     """
