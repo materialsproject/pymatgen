@@ -10,10 +10,6 @@ import warnings
 from collections import OrderedDict
 
 import numpy as np
-from matplotlib.collections import LineCollection
-import matplotlib.lines as mlines
-from matplotlib.gridspec import GridSpec
-import matplotlib.pyplot as mplt
 
 from monty.json import jsanitize
 
@@ -1027,6 +1023,9 @@ class BSDOSPlotter():
             a matplotlib plt object on which you can call commands like show() and savefig()
 
         """
+        import matplotlib.lines as mlines
+        from matplotlib.gridspec import GridSpec
+        import matplotlib.pyplot as mplt
 
         # make sure the user-specified band structure projection is valid
         elements = [e.symbol for e in dos.structure.composition.elements]
@@ -1237,6 +1236,8 @@ class BSDOSPlotter():
             alpha: alpha values data
             linestyles: linestyle for plot (e.g., "solid" or "dotted")
         """
+        from matplotlib.collections import LineCollection
+
         pts = np.array([k, e]).T.reshape(-1, 1, 2)
         seg = np.concatenate([pts[:-1], pts[1:]], axis=1)
 
