@@ -1184,9 +1184,11 @@ class BSDOSPlotter():
 
         # determine DOS x-axis range
         dos_xmin = 0 if Spin.down not in dos.densities else -max(
-            dos.densities[Spin.down][emin_idx:emax_idx] * 1.05)
+            dos.densities[Spin.down][emin_idx:emax_idx+1] * 1.05)
         dos_xmax = max([max(dos.densities[Spin.up][emin_idx:emax_idx]) *
                         1.05, abs(dos_xmin)])
+
+        print(dos_xmin)
 
         # set up the DOS x-axis and add Fermi level line
         dos_ax.set_xlim(dos_xmin, dos_xmax)
