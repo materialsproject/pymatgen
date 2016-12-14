@@ -985,8 +985,8 @@ class BSDOSPlotter():
 
     def __init__(self, bs_projection="elements", dos_projection="elements",
                  vb_energy_range=4, cb_energy_range=4, egrid_interval=1,
-                 font="Times New Roman", axis_fontsize=20, legend_fontsize=13,
-                 bs_legend="best", dos_legend="best"):
+                 font="Times New Roman", axis_fontsize=20, tick_fontsize=15,
+                 legend_fontsize=14, bs_legend="best", dos_legend="best"):
 
         """
         Instantiate plotter settings.
@@ -999,6 +999,7 @@ class BSDOSPlotter():
             egrid_interval (float): interval for grid marks
             font (str): font family
             axis_fontsize (float): font size for axis
+            tick_fontsize (float): font size for axis tick labels
             legend_fontsize (float): font size for legends
             bs_legend (str): matplotlib string location for legend or None
             dos_legend (str): matplotlib string location for legend or None
@@ -1010,6 +1011,7 @@ class BSDOSPlotter():
         self.egrid_interval = egrid_interval
         self.font = font
         self.axis_fontsize = axis_fontsize
+        self.tick_fontsize = tick_fontsize
         self.legend_fontsize = legend_fontsize
         self.bs_legend = bs_legend
         self.dos_legend = dos_legend
@@ -1095,13 +1097,15 @@ class BSDOSPlotter():
 
         # add BS xticks, labels, etc.
         bs_ax.set_xticks(xlabel_distances)
-        bs_ax.set_xticklabels(xlabels)
+        bs_ax.set_xticklabels(xlabels, size=self.tick_fontsize)
         bs_ax.set_xlabel('Wavevector $k$', fontsize=self.axis_fontsize, family=self.font)
         bs_ax.set_ylabel('$E-E_F$ / eV', fontsize=self.axis_fontsize, family=self.font)
 
         # add BS fermi level line at E=0 and gridlines
         bs_ax.hlines(y=0, xmin=0, xmax=x_distances[-1], color="k", lw=2)
         bs_ax.set_yticks(np.arange(emin, emax, self.egrid_interval))
+        bs_ax.set_yticklabels(np.arange(emin, emax, self.egrid_interval),
+                              size=self.tick_fontsize)
         dos_ax.set_yticks(np.arange(emin, emax, self.egrid_interval))
         bs_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
         dos_ax.set_yticklabels([])
