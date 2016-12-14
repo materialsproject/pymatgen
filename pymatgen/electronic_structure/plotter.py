@@ -31,7 +31,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 This module implements plotter for DOS and band structure.
 """
 
-__author__ = "Shyue Ping Ong, Geoffroy Hautier"
+__author__ = "Shyue Ping Ong, Geoffroy Hautier, Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
