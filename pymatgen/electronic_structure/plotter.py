@@ -1054,9 +1054,9 @@ class BSDOSPlotter():
             left_k, right_k = l["name"].split("-")
 
             # add $ notation for LaTeX kpoint labels
-            if left_k[0] == "\\":
+            if left_k[0] == "\\" or "_" in left_k:
                 left_k = "$"+left_k+"$"
-            if right_k[0] == "\\":
+            if right_k[0] == "\\" or "_" in right_k:
                 right_k = "$"+right_k+"$"
 
             # add left k label to list of labels
