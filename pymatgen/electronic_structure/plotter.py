@@ -980,9 +980,10 @@ class BSDOSPlotter():
     """
 
     def __init__(self, bs_projection="elements", dos_projection="elements",
-                 vb_energy_range=4, cb_energy_range=4, egrid_interval=1,
-                 font="Times New Roman", axis_fontsize=20, tick_fontsize=15,
-                 legend_fontsize=14, bs_legend="best", dos_legend="best"):
+                 vb_energy_range=4, cb_energy_range=4, fixed_cb_energy=False,
+                 egrid_interval=1, font="Times New Roman", axis_fontsize=20,
+                 tick_fontsize=15, legend_fontsize=14, bs_legend="best",
+                 dos_legend="best"):
 
         """
         Instantiate plotter settings.
@@ -992,6 +993,8 @@ class BSDOSPlotter():
             dos_projection (str): "elements", "orbitals", or None
             vb_energy_range (float): energy in eV to show of valence bands
             cb_energy_range (float): energy in eV to show of conduction bands
+            fixed_cb_energy (bool): If true, the cb_energy_range will be interpreted
+                as constant (i.e., no gap correction for cb energy)
             egrid_interval (float): interval for grid marks
             font (str): font family
             axis_fontsize (float): font size for axis
@@ -1004,6 +1007,7 @@ class BSDOSPlotter():
         self.dos_projection = dos_projection
         self.vb_energy_range = vb_energy_range
         self.cb_energy_range = cb_energy_range
+        self.fixed_cb_energy = fixed_cb_energy
         self.egrid_interval = egrid_interval
         self.font = font
         self.axis_fontsize = axis_fontsize
@@ -1040,7 +1044,8 @@ class BSDOSPlotter():
 
         # specify energy range of plot
         emin = -self.vb_energy_range
-        emax = bs.get_band_gap()["energy"] + self.cb_energy_range
+        emax = self.cb_energy_range if self.fixed_cb_energy else \
+            self.cb_energy_range + bs.get_band_gap()["energy"]
 
         # initialize all the k-point labels and k-point x-distances for bs plot
         xlabels = []  # all symmetry point labels on x-axis
@@ -1102,10 +1107,10 @@ class BSDOSPlotter():
 
         # add BS fermi level line at E=0 and gridlines
         bs_ax.hlines(y=0, xmin=0, xmax=x_distances[-1], color="k", lw=2)
-        bs_ax.set_yticks(np.arange(emin, emax, self.egrid_interval))
-        bs_ax.set_yticklabels(np.arange(emin, emax, self.egrid_interval),
+        bs_ax.set_yticks(np.arange(emin, emax+1E-5, self.egrid_interval))
+        bs_ax.set_yticklabels(np.arange(emin, emax+1E-5, self.egrid_interval),
                               size=self.tick_fontsize)
-        dos_ax.set_yticks(np.arange(emin, emax, self.egrid_interval))
+        dos_ax.set_yticks(np.arange(emin, emax+1E-5, self.egrid_interval))
         bs_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
         dos_ax.set_yticklabels([])
         dos_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
