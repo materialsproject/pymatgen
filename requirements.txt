@@ -1,6 +1,6 @@
 numpy==1.11.2
 pydispatcher==2.0.5
-requests==2.12.1
+requests==2.12.4
 monty==0.9.6
 pyyaml==3.12
 six==1.10.0

@@ -1,24 +1,27 @@
 from __future__ import unicode_literals
 
 import os
-import warnings
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
 
 __author__ = "Pymatgen Development Team"
 __email__ ="pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ ="shyuep@gmail.com"
-__date__ = "Dec 2 2016"
-__version__ = "4.5.3"
+__date__ = "Dec 15 2016"
+__version__ = "4.5.4"
 
 
-SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
+SETTINGS_FILE = Path("~/.pmgrc.yaml")
 
 
 def _load_pmg_settings():
-    if os.path.exists(SETTINGS_FILE):
+    if SETTINGS_FILE.exists():
         try:
             import yaml
-            with open(SETTINGS_FILE, "rt") as f:
+            with SETTINGS.open("rt") as f:
                 return yaml.load(f)
         except:
             # If there are any errors, default to using environment variables
@@ -26,9 +29,6 @@ def _load_pmg_settings():
             pass
     d = {}
     for k in ["VASP_PSP_DIR", "MAPI_KEY"]:
-        if k in os.environ:
-            warnings.warn("You have %s set in the env. From pmg 5, all "
-                          "settings should be in the .pmgrc.yaml file." % k)
         d[k] = os.environ.get(k)
     return d
 

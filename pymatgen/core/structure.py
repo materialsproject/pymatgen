@@ -2908,30 +2908,31 @@ class Molecule(IMolecule, collections.MutableSequence):
             anchor (3x1 array): Point of rotation.
         """
 
-        from numpy.linalg import norm, inv
+        from numpy.linalg import norm
         from numpy import cross, eye
-        from scipy.linalg import expm3
+        from scipy.linalg import expm
 
         if indices is None:
             indices = range(len(self))
 
         if axis is None:
-            axis = [0,0,1]
+            axis = [0, 0, 1]
 
         if anchor is None:
-            anchor = [0,0,0]
+            anchor = [0, 0, 0]
 
         anchor = np.array(anchor)
         axis = np.array(axis)
 
-        theta = theta % (2 * np.pi)
+        theta %= 2 * np.pi
 
-        R = expm3(cross(eye(3), axis / norm(axis)) * theta)
+        rm = expm(cross(eye(3), axis / norm(axis)) * theta)
 
         for i in indices:
             site = self._sites[i]
-            s = ((R * np.matrix(site.coords - anchor).T).T + anchor).A1
-            new_site = Site(site.species_and_occu, s, properties=site.properties)
+            s = ((rm * np.matrix(site.coords - anchor).T).T + anchor).A1
+            new_site = Site(site.species_and_occu, s,
+                            properties=site.properties)
             self._sites[i] = new_site
 
     def perturb(self, distance):
