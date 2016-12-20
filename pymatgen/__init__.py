@@ -14,16 +14,17 @@ __date__ = "Dec 15 2016"
 __version__ = "4.5.4"
 
 
-SETTINGS_FILE = Path("~/.pmgrc.yaml")
+SETTINGS_FILE = Path("~/.pmgrc.yaml").expanduser()
 
 
 def _load_pmg_settings():
+    print(SETTINGS_FILE.exists())
     if SETTINGS_FILE.exists():
         try:
             import yaml
-            with SETTINGS.open("rt") as f:
+            with SETTINGS_FILE.open("rt") as f:
                 return yaml.load(f)
-        except:
+        except Exception as ex:
             # If there are any errors, default to using environment variables
             # if present.
             pass
