@@ -15,7 +15,7 @@ class SettingsTestCase(unittest.TestCase):
                     self.assertEqual(v, SETTINGS[k])
         else:
             for k, v in SETTINGS.items():
-                self.assertEqual(v, os.environ[k])
+                self.assertEqual(v, os.environ.get(k))
 
 
 if __name__ == '__main__':
