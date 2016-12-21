@@ -18,7 +18,6 @@ SETTINGS_FILE = Path("~/.pmgrc.yaml").expanduser()
 
 
 def _load_pmg_settings():
-    print(SETTINGS_FILE.exists())
     if SETTINGS_FILE.exists():
         try:
             import yaml
