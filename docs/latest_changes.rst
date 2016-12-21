@@ -1,8 +1,7 @@
 Change log
 ==========
 
-v4.5.5
+v4.5.6
 ------
-* Fix bad reading of pmgrc.
-* Gaussian opt section added allowing for torsion constraints
-* Update spglib.
+* Minor bug fix.
+* Fixed elastic energy density
