@@ -1,6 +1,6 @@
 numpy==1.11.2
 pydispatcher==2.0.5
-requests==2.12.1
+requests==2.12.4
 monty==0.9.6
 pyyaml==3.12
 six==1.10.0
@@ -10,4 +10,4 @@ enum34==1.1.6;  python_version < '3.5'
 pathlib2==2.1.0;  python_version < '3.4'
 matplotlib==1.5.3
 palettable==2.1.1
-spglib==1.9.8.20
+spglib==1.9.9.11

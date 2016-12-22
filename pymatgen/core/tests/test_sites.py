@@ -210,7 +210,7 @@ def get_distance_and_image_old(site1, site2, jimage=None):
         jimage:
             specific periodic image in terms of lattice translations,
             e.g., [1,0,0] implies to take periodic image that is one
-            a-lattice vector away. If jimage == None, the image that is
+            a-lattice vector away. If jimage is None, the image that is
             nearest to the site is found.
 
     Returns:

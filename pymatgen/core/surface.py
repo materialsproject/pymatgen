@@ -651,7 +651,7 @@ class SlabGenerator(object):
         shift values from the method, _calculate_possible_shifts(). Before the
         shifts are used to create the slabs however, if the user decides to take
         into account whether or not a termination will break any polyhedral
-        structure (bonds != None), this method will filter out any shift values
+        structure (bonds is not None), this method will filter out any shift values
         that do so.
 
         Args:

@@ -189,17 +189,10 @@ class BandStructure(object):
         structure: The crystal structure (as a pymatgen Structure object)
             associated with the band structure. This is needed if we
             provide projections to the band structure
-        projections: dict of orbital projections for spin up and spin down
-            {Spin.up:[][{Orbital:[]}],Spin.down:[][{Orbital:[]}]. The
-            format follows the one from eigenvals: The first index of the
-            array refers to the band and the second to the index of the
-            kpoint. The kpoints are ordered according to the order of the
-            kpoints array. For each band and kpoint, we associate a
-            dictionary indicating projections on orbitals and on different
-            sites the keys of the dictionary are Orbital objects and the
-            values are the projections on each site ordered as in the
-            structure object. If the band structure is not spin polarized,
-            we only store one data set under Spin.up.
+        projections: dict of orbital projections as {spin: ndarray}. The
+            indices of the ndarrayare [band_index, kpoint_index, orbital_index,
+            ion_index].If the band structure is not spin polarized, we only
+            store one data set under Spin.up.
     """
 
     def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict=None,
@@ -584,17 +577,10 @@ class BandStructureSymmLine(BandStructure, MSONable):
         structure: The crystal structure (as a pymatgen Structure object)
             associated with the band structure. This is needed if we
             provide projections to the band structure.
-        projections: dict of orbital projections for spin up and spin down
-            {Spin.up:[][{Orbital:[]}],Spin.down:[][{Orbital:[]}]. The
-            format follows the one from eigenvals: the first index of the
-            array refers to the band and the second to the index of the
-            kpoint. The kpoints are ordered according to the order of the
-            kpoints array. For each band and kpoint, we associate a
-            dictionary indicating projections on orbitals and on different
-            sites the keys of the dictionary are Orbital objects and the
-            values are the projections on each site ordered as in the
-            structure object. If the band structure is not spin polarized,
-            we only store one data set under Spin.up.
+        projections: dict of orbital projections as {spin: ndarray}. The
+            indices of the ndarrayare [band_index, kpoint_index, orbital_index,
+            ion_index].If the band structure is not spin polarized, we only
+            store one data set under Spin.up.
     """
 
     def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict,
@@ -818,6 +804,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
             projections = {}
             structure = None
             if d.get('projections'):
+                if isinstance(d["projections"]['1'][0][0], dict):
+                    raise ValueError("Old band structure dict format detected!")
                 structure = Structure.from_dict(d['structure'])
                 projections = {Spin(int(spin)): np.array(v)
                                for spin, v in d["projections"].items()}
@@ -863,10 +851,10 @@ class BandStructureSymmLine(BandStructure, MSONable):
                                                    orb])):
                                 ddddd.append(d['projections'][spin][i][j][
                                                 orb][l])
-                            dddd.append(ddddd)
-                        ddd.append(dddd)
-                    dd.append(ddd)
-                projections[spin] = dd
+                            dddd.append(np.array(ddddd))
+                        ddd.append(np.array(dddd))
+                    dd.append(np.array(ddd))
+                projections[Spin(int(spin))] = np.array(dd)
 
         return BandStructureSymmLine(
             d['kpoints'], {Spin(int(k)): d['bands'][k]

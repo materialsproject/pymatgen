@@ -142,7 +142,7 @@ class ElasticTensor(TensorBase):
 
     def trans_v(self, structure):
         """
-        Calculates transverse sound velocity (in SI units) using the 
+        Calculates transverse sound velocity (in SI units) using the
         Voigt-Reuss-Hill average bulk modulus
 
         Args:
@@ -280,7 +280,7 @@ class ElasticTensor(TensorBase):
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
         return 2.589e-11 * avg_mass**(-1./3.) * mass_density**(-1./6.) \
                 * self.y_mod**0.5
-    
+
     def debye_temperature_gibbs(self, structure):
         """
         Calculates the debye temperature accordings to the GIBBS
@@ -324,7 +324,7 @@ class ElasticTensor(TensorBase):
         Calculates the elastic energy density due to a strain
         """
         # Conversion factor for GPa to eV/Angstrom^3
-        GPA_EV = 0.000624151
+        GPA_EV = 1/160.217662
 
         with warnings.catch_warnings(record=True):
             e_density = np.dot(np.transpose(Strain(strain).voigt),
@@ -335,9 +335,9 @@ class ElasticTensor(TensorBase):
     @classmethod
     def from_strain_stress_list(cls, strains, stresses):
         """
-        Class method to fit an elastic tensor from stress/strain 
-        data.  Method uses Moore-Penrose pseudoinverse to invert 
-        the s = C*e equation with elastic tensor, stress, and 
+        Class method to fit an elastic tensor from stress/strain
+        data.  Method uses Moore-Penrose pseudoinverse to invert
+        the s = C*e equation with elastic tensor, stress, and
         strain in voigt notation
 
         Args:
@@ -371,7 +371,7 @@ class ElasticTensor(TensorBase):
         """
         c_ij = np.zeros((6, 6))
         for i, j in itertools.product(range(6), repeat=2):
-            strains = [s for s in stress_dict.keys() 
+            strains = [s for s in stress_dict.keys()
                        if (s.i, s.j) == vmap[i]]
             xy = [(s[vmap[i]], stress_dict[s][vmap[j]]) for s in strains]
             if len(xy) == 0:

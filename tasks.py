@@ -2,16 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-"""
-Deployment file to facilitate releases of pymatgen.
-Note that this file is meant to be run from the root directory of the pymatgen
-repo.
-"""
-
-__author__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "Sep 1, 2014"
-
 import glob
 import os
 import json
@@ -22,8 +12,18 @@ import subprocess
 from invoke import task
 
 from monty.os import cd
-from monty.tempfile import ScratchDir
 from pymatgen import __version__ as ver
+
+
+"""
+Deployment file to facilitate releases of pymatgen.
+Note that this file is meant to be run from the root directory of the pymatgen
+repo.
+"""
+
+__author__ = "Shyue Ping Ong"
+__email__ = "ongsp@ucsd.edu"
+__date__ = "Sep 1, 2014"
 
 
 @task
