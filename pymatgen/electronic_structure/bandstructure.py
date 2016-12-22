@@ -863,10 +863,10 @@ class BandStructureSymmLine(BandStructure, MSONable):
                                                    orb])):
                                 ddddd.append(d['projections'][spin][i][j][
                                                 orb][l])
-                            dddd.append(ddddd)
-                        ddd.append(dddd)
-                    dd.append(ddd)
-                projections[spin] = dd
+                            dddd.append(np.array(ddddd))
+                        ddd.append(np.array(dddd))
+                    dd.append(np.array(ddd))
+                projections[Spin(int(spin))] = np.array(dd)
 
         return BandStructureSymmLine(
             d['kpoints'], {Spin(int(k)): d['bands'][k]
