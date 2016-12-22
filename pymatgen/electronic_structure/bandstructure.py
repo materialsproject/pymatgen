@@ -804,6 +804,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
             projections = {}
             structure = None
             if d.get('projections'):
+                if isinstance(d["projections"]['1'][0][0], dict):
+                    raise ValueError("Old band structure dict format detected!")
                 structure = Structure.from_dict(d['structure'])
                 projections = {Spin(int(spin)): np.array(v)
                                for spin, v in d["projections"].items()}
