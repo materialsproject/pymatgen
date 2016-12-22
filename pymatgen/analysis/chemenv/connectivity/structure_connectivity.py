@@ -1,5 +1,6 @@
 import networkx as nx
 import numpy as np
+import collections
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import get_environment_node
 from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
@@ -62,6 +63,7 @@ class StructureConnectivity():
                                     exists = True
                                     break
                             elif data1['end'] == isite:
+                                print()
                                 if np.allclose(data1['delta'], -nb_image_cell):
                                     exists = True
                                     break
@@ -70,14 +72,18 @@ class StructureConnectivity():
             if not exists:
                 self._graph.add_edge(isite, nb_index_unitcell, start=isite, end=nb_index_unitcell, delta=nb_image_cell)
 
-    def setup_environment_subgraph(self, environment_symbol, only_atoms=None):
+    def setup_environment_subgraph(self, environments_symbols, only_atoms=None):
+        if not isinstance(environments_symbols, collections.Iterable):
+            environments_symbols = [environments_symbols]
         self._environment_subgraph = nx.MultiGraph()
         #Add the sites with the required environment
         for isite, ce_this_site_all in enumerate(self.light_structure_environments.coordination_environments):
+            if ce_this_site_all is None:
+                continue
             if len(ce_this_site_all) == 0:
                 continue
             ce_this_site = ce_this_site_all[0]['ce_symbol']
-            if ce_this_site == environment_symbol:
+            if ce_this_site in environments_symbols:
                 if only_atoms is None:
                     env_node = get_environment_node(self.light_structure_environments.structure[isite], isite,
                                                     ce_this_site)

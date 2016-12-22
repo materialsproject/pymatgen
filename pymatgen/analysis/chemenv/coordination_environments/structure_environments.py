@@ -1087,7 +1087,7 @@ class LightStructureEnvironments(MSONable):
         for nb_site in d['all_nbs_sites']:
             site = dec.process_decoded(nb_site['site'])
             if 'image_cell' in nb_site:
-                image_cell = nb_site['image_cell']
+                image_cell = np.array(nb_site['image_cell'], np.int)
             else:
                 diff = site.frac_coords - structure[nb_site['index']].frac_coords
                 rounddiff = np.round(diff)
@@ -1098,9 +1098,6 @@ class LightStructureEnvironments(MSONable):
             all_nbs_sites.append({'site': site,
                                   'index': nb_site['index'],
                                   'image_cell': image_cell})
-        # all_nbs_sites = [{'site': dec.process_decoded(nb_site['site']),
-        #                   'index': nb_site['index']}
-        #                  for nb_site in d['all_nbs_sites']]
         neighbors_sets = [[cls.NeighborsSet.from_dict(dd=nb_set, structure=structure,
                                                       all_nbs_sites=all_nbs_sites)
                            for nb_set in site_nb_sets] if site_nb_sets is not None else None
