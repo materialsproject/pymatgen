@@ -678,6 +678,7 @@ class LightStructureEnvironments(MSONable):
                 raise ValueError('Set of neighbors contains duplicates !')
             self.all_nbs_sites_indices = sorted(myset)
             self.all_nbs_sites_indices_unsorted = all_nbs_sites_indices
+            self.all_nbs_sites_indices_and_image = []
 
         @property
         def neighb_coords(self):
@@ -691,6 +692,12 @@ class LightStructureEnvironments(MSONable):
         def neighb_sites_and_indices(self):
             return [{'site': self.all_nbs_sites[inb]['site'],
                      'index': self.all_nbs_sites[inb]['index']} for inb in self.all_nbs_sites_indices_unsorted]
+
+        @property
+        def neighb_indices_and_images(self):
+            return [{'index': self.all_nbs_sites[inb]['index'],
+                     'image_cell': self.all_nbs_sites[inb]['image_cell']}
+                    for inb in self.all_nbs_sites_indices_unsorted]
 
         def __len__(self):
             return len(self.all_nbs_sites_indices)
@@ -779,12 +786,20 @@ class LightStructureEnvironments(MSONable):
                 neighbors = ce_and_neighbors['neighbors']
                 for nb_site_and_index in neighbors:
                     nb_site = nb_site_and_index['site']
-                    nb_index_unitcell = nb_site_and_index['index']
                     try:
                         nb_allnbs_sites_index = my_all_nbs_sites.index(nb_site)
                     except ValueError:
+                        nb_index_unitcell = nb_site_and_index['index']
+                        diff = nb_site.frac_coords - structure[nb_index_unitcell].frac_coords
+                        rounddiff = np.round(diff)
+                        if not np.allclose(diff, rounddiff):
+                            raise ValueError('Weird, differences between one site in a periodic image cell is not '
+                                             'integer ...')
+                        nb_image_cell = np.array(rounddiff, np.int)
                         nb_allnbs_sites_index = len(_all_nbs_sites)
-                        _all_nbs_sites.append({'site': nb_site, 'index': nb_index_unitcell})
+                        _all_nbs_sites.append({'site': nb_site,
+                                               'index': nb_index_unitcell,
+                                               'image_cell': nb_image_cell})
                         my_all_nbs_sites.append(nb_site)
                     _all_nbs_sites_indices.append(nb_allnbs_sites_index)
 
@@ -1026,12 +1041,16 @@ class LightStructureEnvironments(MSONable):
         :param other: LightStructureEnvironments object to compare with
         :return: True if both objects are equal, False otherwise
         """
-        return (self.strategy == other.strategy and
-                self.structure == other.structure and
-                self.coordination_environments == other.coordination_environments and
-                self.valences == other.valences and
-                self.neighbors_sets == other.neighbors_sets and
-                self._all_nbs_sites == other._all_nbs_sites)
+        is_equal = (self.strategy == other.strategy and
+                    self.structure == other.structure and
+                    self.coordination_environments == other.coordination_environments and
+                    self.valences == other.valences and
+                    self.neighbors_sets == other.neighbors_sets)
+        this_sites = [ss['site'] for ss in self._all_nbs_sites]
+        other_sites = [ss['site'] for ss in other._all_nbs_sites]
+        this_indices = [ss['index'] for ss in self._all_nbs_sites]
+        other_indices = [ss['index'] for ss in other._all_nbs_sites]
+        return (is_equal and this_sites == other_sites and this_indices == other_indices)
 
     def __ne__(self, other):
         return not self == other
@@ -1047,7 +1066,9 @@ class LightStructureEnvironments(MSONable):
                 "structure": self.structure.as_dict(),
                 "coordination_environments": self.coordination_environments,
                 "all_nbs_sites": [{'site': nb_site['site'].as_dict(),
-                                   'index': nb_site['index']} for nb_site in self._all_nbs_sites],
+                                   'index': nb_site['index'],
+                                   'image_cell': [int(ii) for ii in nb_site['image_cell']]}
+                                  for nb_site in self._all_nbs_sites],
                 "neighbors_sets": [[nb_set.as_dict() for nb_set in site_nb_sets] if site_nb_sets is not None else None
                                    for site_nb_sets in self.neighbors_sets],
                 "valences": self.valences}
@@ -1060,13 +1081,23 @@ class LightStructureEnvironments(MSONable):
         :param d: dict representation of the LightStructureEnvironments object
         :return: LightStructureEnvironments object
         """
-        # from_dict(cls, dd, structure, all_nbs_sites):
         dec = MontyDecoder()
-        # coordination_environments = [[{key: val if key != 'cn_map' else tuple(val) for key, val in item.items()}
-        #                               for item in ces_site] for ces_site in d['coordination_environments']]
-        all_nbs_sites = [{'site': dec.process_decoded(nb_site['site']),
-                          'index': nb_site['index']} for nb_site in d['all_nbs_sites']]
         structure = dec.process_decoded(d['structure'])
+        all_nbs_sites = []
+        for nb_site in d['all_nbs_sites']:
+            site = dec.process_decoded(nb_site['site'])
+            if 'image_cell' in nb_site:
+                image_cell = np.array(nb_site['image_cell'], np.int)
+            else:
+                diff = site.frac_coords - structure[nb_site['index']].frac_coords
+                rounddiff = np.round(diff)
+                if not np.allclose(diff, rounddiff):
+                    raise ValueError('Weird, differences between one site in a periodic image cell is not '
+                                     'integer ...')
+                image_cell = np.array(rounddiff, np.int)
+            all_nbs_sites.append({'site': site,
+                                  'index': nb_site['index'],
+                                  'image_cell': image_cell})
         neighbors_sets = [[cls.NeighborsSet.from_dict(dd=nb_set, structure=structure,
                                                       all_nbs_sites=all_nbs_sites)
                            for nb_set in site_nb_sets] if site_nb_sets is not None else None
