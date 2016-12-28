@@ -204,7 +204,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (13, 2)
         self_w = self_weight.weight(nb_set=nbsets[cn_map], structure_environments=se,
                                     cn_map=cn_map, additional_info=additional_info)
-        self.assertAlmostEqual(self_w, 0.12400374545715934, delta=1e-8)
+        self.assertAlmostEqual(self_w, 0.14204073172729198, delta=1e-8)
 
         # Get the StructureEnvironments for SiO2 (mp-7000)
         f = open(os.path.join(se_files_dir, 'se_mp-7000.json'), 'r')
@@ -303,7 +303,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (12, 3)
         delta_w = delta_weight.weight(nb_set=nbsets[cn_map], structure_environments=se,
                                       cn_map=cn_map, additional_info=additional_info)
-        self.assertAlmostEqual(delta_w, 0.081261535000593882, delta=1e-8)
+        self.assertAlmostEqual(delta_w, 0.040830741048481355, delta=1e-8)
         cn_map = (13, 2)
         delta_w = delta_weight.weight(nb_set=nbsets[cn_map], structure_environments=se,
                                       cn_map=cn_map, additional_info=additional_info)
