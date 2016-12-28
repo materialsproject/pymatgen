@@ -8,8 +8,8 @@ from pymatgen import SETTINGS_FILE, SETTINGS
 class SettingsTestCase(unittest.TestCase):
 
     def test_something(self):
-        if SETTINGS_FILE.exists():
-            with SETTINGS_FILE.open("rt") as f:
+        if os.path.exists(SETTINGS_FILE):
+            with open(SETTINGS_FILE, "rt") as f:
                 d = yaml.load(f)
                 for k, v in d.items():
                     self.assertEqual(v, SETTINGS[k])
