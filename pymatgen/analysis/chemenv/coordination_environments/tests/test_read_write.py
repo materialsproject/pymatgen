@@ -20,9 +20,12 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SelfCSMNbSetWeight
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.core.structure import Structure
+import numpy as np
 
 json_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
                               'test_files', "chemenv", "json_test_files")
+se_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
+                              'test_files', "chemenv", "structure_environments_files")
 
 
 class ReadWriteChemenvTest(unittest.TestCase):
@@ -72,6 +75,25 @@ class ReadWriteChemenvTest(unittest.TestCase):
         lse2 = LightStructureEnvironments.from_dict(dd)
 
         self.assertEqual(lse, lse2)
+
+    def test_structure_environments_neighbors_sets(self):
+        f = open("{}/{}".format(se_files_dir, 'se_mp-7000.json'), 'r')
+        dd = json.load(f)
+        f.close()
+
+        se = StructureEnvironments.from_dict(dd)
+
+        isite = 6
+        nb_set = se.neighbors_sets[isite][4][0]
+
+        nb_set_surface_points = np.array([[1.0017922780870239, 0.99301365328679292],
+                                          [1.0017922780870239, 0.0],
+                                          [2.2237615554448569, 0.0],
+                                          [2.2237615554448569, 0.016430233861405744],
+                                          [2.25, 0.016430233861405744],
+                                          [2.25, 0.99301365328679292]])
+
+        self.assertTrue(np.allclose(np.array(nb_set.voronoi_grid_surface_points()), nb_set_surface_points))
 
     def test_strategies(self):
         simplest_strategy_1 = SimplestChemenvStrategy()
