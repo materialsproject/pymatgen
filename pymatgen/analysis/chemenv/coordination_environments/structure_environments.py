@@ -128,6 +128,73 @@ class StructureEnvironments(MSONable):
                     'distances_max': np.max(distances)
                     }
 
+        def voronoi_grid_surface_points(self, additional_condition=1, other_origins='DO_NOTHING'):
+            """
+            Get the surface points in the Voronoi grid for this neighbor from the sources.
+            The general shape of the points looks like this :
+
+               ^
+            0.0|
+               |
+               |      B----C
+               |      |    |
+               |      |    |
+            a  |      k    l
+            n  |      |    |
+            g  |      |    |
+            l  |      |    |
+            e  |      j    D-------m----n---------E
+               |      |                           |
+               |      |                           |
+               |      A----g-------h----i---------F
+               |
+               |
+            1.0+------------------------------------------------->
+              1.0              distance              2.0   ->+Inf
+
+            :param additional_condition: Additional condition for the neighbors.
+            :param other_origins: What to do with sources that do not come from the Voronoi grid (e.g. "from hints")
+            """
+            mysrc = []
+            for src in self.sources:
+                if src['origin'] == 'dist_ang_ac_voronoi':
+                    if src['ac'] != additional_condition:
+                        continue
+                    mysrc.append(src)
+                else:
+                    if other_origins == 'DO_NOTHING':
+                        continue
+                    else:
+                        raise NotImplementedError('Nothing implemented for other sources ...')
+            if len(mysrc) == 0:
+                return None
+            dists = [src['dp_dict']['min'] for src in mysrc]
+            angs = [src['ap_dict']['max'] for src in mysrc]
+            next_dists = [src['dp_dict']['next'] for src in mysrc]
+            next_angs = [src['ap_dict']['next'] for src in mysrc]
+
+            pointA = (np.min(dists), np.max(angs))
+
+            ipts_distA = np.argwhere(np.isclose(dists, pointA[0])).flatten()
+            angs_distA = np.take(angs, ipts_distA)
+            iangmin_distA = np.argmin(angs_distA)
+
+            pointB = (pointA[0], np.take(next_angs, ipts_distA)[iangmin_distA])
+
+            pointC = (np.take(next_dists, ipts_distA)[iangmin_distA], pointB[1])
+
+            ipts_angA = np.argwhere(np.isclose(angs, pointA[1])).flatten()
+            dists_angA = np.take(dists, ipts_angA)
+            idistmax_angA = np.argmax(dists_angA)
+
+            pointF = (np.take(next_dists, ipts_angA)[idistmax_angA], pointA[1])
+
+            pointE = (pointF[0], np.take(next_angs, ipts_angA)[idistmax_angA])
+
+            pointD = (pointC[0], pointE[1])
+
+            return [pointA, pointB, pointC, pointD, pointE, pointF]
+
         @property
         def source(self):
             if len(self.sources) != 1:
@@ -471,6 +538,129 @@ class StructureEnvironments(MSONable):
         subplot_distang.set_xlim([-0.5, len(cn_maps)-0.5])
         subplot.set_xticklabels([str(cn_map) for cn_map in cn_maps])
 
+    def get_environments_figure(self, isite, plot_type=None, title='Coordination numbers', max_dist=2.0,
+                                additional_condition=AC.ONLY_ACB, colormap=None, figsize=None,
+                                strategy=None):
+        """
+        Plotting of the coordination environments of a given site for all the distfactor/angfactor regions. The
+        chemical environments with the lowest continuous symmetry measure is shown for each distfactor/angfactor
+        region as the value for the color of that distfactor/angfactor region (using a colormap).
+        :param isite: Index of the site for which the plot has to be done
+        :param plot_type: How to plot the coordinations
+        :param title: Title for the figure
+        :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to 'initial_normalized'
+                         or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case,
+                         the closest atom lies at a "normalized" distance of 1.0 so that 2.0 means refers to this
+                         normalized distance while in the second case, the real distance is used)
+        :param figsize: Size of the figure to be plotted
+        :return: The figure object to be plotted or saved to file
+        """
+        try:
+            import matplotlib.pyplot as mpl
+            from matplotlib import cm
+            from matplotlib.colors import Normalize, LinearSegmentedColormap, ListedColormap
+            from matplotlib.patches import Rectangle, Polygon
+        except ImportError:
+            print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
+            return
+
+        #Initializes the figure
+        if figsize is None:
+            fig = mpl.figure()
+        else:
+            fig = mpl.figure(figsize=figsize)
+        subplot = fig.add_subplot(111)
+
+        #Initializes the distance and angle parameters
+        if plot_type is None:
+            plot_type = {'distance_parameter': ('initial_normalized', None),
+                         'angle_parameter': ('initial_normalized_inverted', None)}
+        if colormap is None:
+            mycm = cm.jet
+        else:
+            mycm = colormap
+        mymin = 0.0
+        mymax = 10.0
+        norm = Normalize(vmin=mymin, vmax=mymax)
+        scalarmap = cm.ScalarMappable(norm=norm, cmap=mycm)
+        dist_limits = [1.0, self.voronoi.maximum_distance_factor]
+        ang_limits = [0.0, 1.0]
+
+        for cn, cn_nb_sets in self.neighbors_sets[isite].items():
+            for inb_set, nb_set in enumerate(cn_nb_sets):
+                nb_set_surface_pts = nb_set.voronoi_grid_surface_points()
+                if nb_set_surface_pts is None:
+                    continue
+                ce = self.ce_list[isite][cn][inb_set]
+                mingeom = ce.minimum_geometry()
+                if mingeom is not None:
+                    mp_symbol = mingeom[0]
+                    csm = mingeom[1]['symmetry_measure']
+                    mycolor = scalarmap.to_rgba(csm)
+                    myinvcolor = [1.0 - mycolor[0], 1.0 - mycolor[1], 1.0 - mycolor[2], 1.0]
+                    mytext = '{}'.format(mp_symbol)
+                else:
+                    mycolor = 'w'
+                    myinvcolor = 'k'
+                    mytext = '{:d}'.format(cn)
+                polygon = Polygon(nb_set_surface_pts, closed=True, edgecolor='k', facecolor=mycolor)
+                subplot.add_patch(polygon)
+                if (np.abs(nb_set_surface_pts[3][1] - nb_set_surface_pts[0][1]) > 0.1 and
+                            np.abs(nb_set_surface_pts[3][0] - nb_set_surface_pts[0][0]) > 0.125):
+                    xytext = ((nb_set_surface_pts[0][0]+nb_set_surface_pts[3][0])/2,
+                              (nb_set_surface_pts[0][1] + nb_set_surface_pts[3][1]) / 2)
+                    subplot.annotate(mytext, xy=xytext,
+                                     ha='center', va='center', color=myinvcolor, fontsize='x-small')
+
+        subplot.set_title(title)
+        subplot.set_xlabel('Distance parameter : $\\alpha$')
+        subplot.set_ylabel('Angle parameter : $\\gamma$')
+        subplot.set_xlim(dist_limits)
+        subplot.set_ylim(ang_limits)
+        if strategy is not None:
+            try:
+                strategy.add_strategy_visualization_to_subplot(subplot=subplot)
+            except:
+                pass
+        if plot_type['angle_parameter'][0] == 'initial_normalized_inverted':
+            subplot.axes.invert_yaxis()
+
+        scalarmap.set_array([mymin, mymax])
+        cb = fig.colorbar(scalarmap, ax=subplot, extend='max')
+        cb.set_label('Continuous symmetry measure')
+        return fig
+
+    def plot_environments(self,  isite, plot_type=None, title='Coordination numbers', max_dist=2.0,
+                          additional_condition=AC.ONLY_ACB, figsize=None, strategy=None):
+        """
+        Plotting of the coordination numbers of a given site for all the distfactor/angfactor parameters. If the
+        chemical environments are given, a color map is added to the plot, with the lowest continuous symmetry measure
+        as the value for the color of that distfactor/angfactor set.
+        :param isite: Index of the site for which the plot has to be done
+        :param plot_type: How to plot the coordinations
+        :param title: Title for the figure
+        :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to 'initial_normalized'
+                         or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case,
+                         the closest atom lies at a "normalized" distance of 1.0 so that 2.0 means refers to this
+                         normalized distance while in the second case, the real distance is used)
+        :param figsize: Size of the figure to be plotted
+        :return: Nothing returned, just plot the figure
+        """
+        fig = self.get_environments_figure(isite=isite, plot_type=plot_type, title=title, max_dist=max_dist,
+                                           additional_condition=additional_condition, figsize=figsize,
+                                           strategy=strategy)
+        if fig is None:
+            return
+        fig.show()
+
+    def save_environments_figure(self,  isite, imagename='image.png', plot_type=None, title='Coordination numbers',
+                                 max_dist=2.0, additional_condition=AC.ONLY_ACB, figsize=None):
+        fig = self.get_environments_figure(isite=isite, plot_type=plot_type, title=title, max_dist=max_dist,
+                                           additional_condition=additional_condition, figsize=figsize)
+        if fig is None:
+            return
+        fig.savefig(imagename)
+
     def to_bv_dict(self, isite):
         out = {"neighbours_lists": [], "continuous_symmetry_measures": []}
         for cn, coordnbs_list in self.voronoi._unique_coordinated_neighbors[isite].items():
@@ -678,6 +868,7 @@ class LightStructureEnvironments(MSONable):
                 raise ValueError('Set of neighbors contains duplicates !')
             self.all_nbs_sites_indices = sorted(myset)
             self.all_nbs_sites_indices_unsorted = all_nbs_sites_indices
+            self.all_nbs_sites_indices_and_image = []
 
         @property
         def neighb_coords(self):
@@ -691,6 +882,12 @@ class LightStructureEnvironments(MSONable):
         def neighb_sites_and_indices(self):
             return [{'site': self.all_nbs_sites[inb]['site'],
                      'index': self.all_nbs_sites[inb]['index']} for inb in self.all_nbs_sites_indices_unsorted]
+
+        @property
+        def neighb_indices_and_images(self):
+            return [{'index': self.all_nbs_sites[inb]['index'],
+                     'image_cell': self.all_nbs_sites[inb]['image_cell']}
+                    for inb in self.all_nbs_sites_indices_unsorted]
 
         def __len__(self):
             return len(self.all_nbs_sites_indices)
@@ -779,12 +976,20 @@ class LightStructureEnvironments(MSONable):
                 neighbors = ce_and_neighbors['neighbors']
                 for nb_site_and_index in neighbors:
                     nb_site = nb_site_and_index['site']
-                    nb_index_unitcell = nb_site_and_index['index']
                     try:
                         nb_allnbs_sites_index = my_all_nbs_sites.index(nb_site)
                     except ValueError:
+                        nb_index_unitcell = nb_site_and_index['index']
+                        diff = nb_site.frac_coords - structure[nb_index_unitcell].frac_coords
+                        rounddiff = np.round(diff)
+                        if not np.allclose(diff, rounddiff):
+                            raise ValueError('Weird, differences between one site in a periodic image cell is not '
+                                             'integer ...')
+                        nb_image_cell = np.array(rounddiff, np.int)
                         nb_allnbs_sites_index = len(_all_nbs_sites)
-                        _all_nbs_sites.append({'site': nb_site, 'index': nb_index_unitcell})
+                        _all_nbs_sites.append({'site': nb_site,
+                                               'index': nb_index_unitcell,
+                                               'image_cell': nb_image_cell})
                         my_all_nbs_sites.append(nb_site)
                     _all_nbs_sites_indices.append(nb_allnbs_sites_index)
 
@@ -1026,12 +1231,16 @@ class LightStructureEnvironments(MSONable):
         :param other: LightStructureEnvironments object to compare with
         :return: True if both objects are equal, False otherwise
         """
-        return (self.strategy == other.strategy and
-                self.structure == other.structure and
-                self.coordination_environments == other.coordination_environments and
-                self.valences == other.valences and
-                self.neighbors_sets == other.neighbors_sets and
-                self._all_nbs_sites == other._all_nbs_sites)
+        is_equal = (self.strategy == other.strategy and
+                    self.structure == other.structure and
+                    self.coordination_environments == other.coordination_environments and
+                    self.valences == other.valences and
+                    self.neighbors_sets == other.neighbors_sets)
+        this_sites = [ss['site'] for ss in self._all_nbs_sites]
+        other_sites = [ss['site'] for ss in other._all_nbs_sites]
+        this_indices = [ss['index'] for ss in self._all_nbs_sites]
+        other_indices = [ss['index'] for ss in other._all_nbs_sites]
+        return (is_equal and this_sites == other_sites and this_indices == other_indices)
 
     def __ne__(self, other):
         return not self == other
@@ -1047,7 +1256,9 @@ class LightStructureEnvironments(MSONable):
                 "structure": self.structure.as_dict(),
                 "coordination_environments": self.coordination_environments,
                 "all_nbs_sites": [{'site': nb_site['site'].as_dict(),
-                                   'index': nb_site['index']} for nb_site in self._all_nbs_sites],
+                                   'index': nb_site['index'],
+                                   'image_cell': [int(ii) for ii in nb_site['image_cell']]}
+                                  for nb_site in self._all_nbs_sites],
                 "neighbors_sets": [[nb_set.as_dict() for nb_set in site_nb_sets] if site_nb_sets is not None else None
                                    for site_nb_sets in self.neighbors_sets],
                 "valences": self.valences}
@@ -1060,13 +1271,23 @@ class LightStructureEnvironments(MSONable):
         :param d: dict representation of the LightStructureEnvironments object
         :return: LightStructureEnvironments object
         """
-        # from_dict(cls, dd, structure, all_nbs_sites):
         dec = MontyDecoder()
-        # coordination_environments = [[{key: val if key != 'cn_map' else tuple(val) for key, val in item.items()}
-        #                               for item in ces_site] for ces_site in d['coordination_environments']]
-        all_nbs_sites = [{'site': dec.process_decoded(nb_site['site']),
-                          'index': nb_site['index']} for nb_site in d['all_nbs_sites']]
         structure = dec.process_decoded(d['structure'])
+        all_nbs_sites = []
+        for nb_site in d['all_nbs_sites']:
+            site = dec.process_decoded(nb_site['site'])
+            if 'image_cell' in nb_site:
+                image_cell = np.array(nb_site['image_cell'], np.int)
+            else:
+                diff = site.frac_coords - structure[nb_site['index']].frac_coords
+                rounddiff = np.round(diff)
+                if not np.allclose(diff, rounddiff):
+                    raise ValueError('Weird, differences between one site in a periodic image cell is not '
+                                     'integer ...')
+                image_cell = np.array(rounddiff, np.int)
+            all_nbs_sites.append({'site': site,
+                                  'index': nb_site['index'],
+                                  'image_cell': image_cell})
         neighbors_sets = [[cls.NeighborsSet.from_dict(dd=nb_set, structure=structure,
                                                       all_nbs_sites=all_nbs_sites)
                            for nb_set in site_nb_sets] if site_nb_sets is not None else None
