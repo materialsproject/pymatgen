@@ -46,7 +46,7 @@ def make_doc(ctx):
     with cd("docs"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("sphinx-apidoc --separate -d 6 -o . -f ../pymatgen")
-        ctx.run("rm pymatgen.*.tests.*rst")
+        ctx.run("rm pymatgen*.tests.*rst")
         for f in glob.glob("*.rst"):
             if f.startswith('pymatgen') and f.endswith('rst'):
                 newoutput = []

@@ -1,10 +1,6 @@
 from __future__ import unicode_literals
 
 import os
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
 
 __author__ = "Pymatgen Development Team"
 __email__ ="pymatgen@googlegroups.com"
@@ -14,14 +10,14 @@ __date__ = "Dec 20 2016"
 __version__ = "4.5.6"
 
 
-SETTINGS_FILE = Path("~/.pmgrc.yaml").expanduser()
+SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
 
 def _load_pmg_settings():
-    if SETTINGS_FILE.exists():
+    if os.path.exists(SETTINGS_FILE):
         try:
             import yaml
-            with SETTINGS_FILE.open("rt") as f:
+            with open(SETTINGS_FILE, "rt") as f:
                 return yaml.load(f)
         except Exception as ex:
             # If there are any errors, default to using environment variables
