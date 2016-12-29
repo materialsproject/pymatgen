@@ -89,8 +89,8 @@ class ReadWriteChemenvTest(unittest.TestCase):
         nb_set_surface_points = np.array([[1.0017922780870239, 0.99301365328679292],
                                           [1.0017922780870239, 0.0],
                                           [2.2237615554448569, 0.0],
-                                          [2.2237615554448569, 0.016430233861405744],
-                                          [2.25, 0.016430233861405744],
+                                          [2.2237615554448569, 0.0060837],
+                                          [2.25, 0.0060837],
                                           [2.25, 0.99301365328679292]])
 
         self.assertTrue(np.allclose(np.array(nb_set.voronoi_grid_surface_points()), nb_set_surface_points))
