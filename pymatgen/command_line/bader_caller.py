@@ -109,6 +109,10 @@ class BaderAnalysis(object):
                                   stdout=subprocess.PIPE,
                                   stdin=subprocess.PIPE, close_fds=True)
             rs.communicate()
+            if rs.returncode != 0:
+                raise RuntimeError("bader exited with return code %d. "
+                                   "Pls check your bader installation."
+                                   % rs.returncode)
             data = []
             with open("ACF.dat") as f:
                 raw = f.readlines()
