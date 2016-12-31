@@ -3,6 +3,11 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import unittest2 as unittest
+import os
+
+from pymatgen.command_line.bader_caller import BaderAnalysis
+from monty.os.path import which
 
 """
 TODO: Change the module doc.
@@ -15,12 +20,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 22, 2012"
-
-import unittest2 as unittest
-import os
-
-from pymatgen.command_line.bader_caller import BaderAnalysis
-from monty.os.path import which
 
 
 @unittest.skipIf(not which('bader'), "bader executable not present.")

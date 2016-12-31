@@ -26,8 +26,8 @@ class MITMPRelaxSetTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        if "VASP_PSP_DIR" not in os.environ:
-            os.environ["VASP_PSP_DIR"] = test_dir
+        if "PMG_VASP_PSP_DIR" not in os.environ:
+            os.environ["PMG_VASP_PSP_DIR"] = test_dir
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         self.structure = poscar.structure
@@ -450,8 +450,8 @@ class MVLSlabSetTest(PymatgenTest):
 
     def setUp(self):
 
-        if "VASP_PSP_DIR" not in os.environ:
-            os.environ["VASP_PSP_DIR"] = test_dir
+        if "PMG_VASP_PSP_DIR" not in os.environ:
+            os.environ["PMG_VASP_PSP_DIR"] = test_dir
         s = PymatgenTest.get_structure("Li2O")
         gen = SlabGenerator(s, (1, 0, 0), 10, 10)
         self.slab = gen.get_slab()
