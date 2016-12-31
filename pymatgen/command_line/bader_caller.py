@@ -86,7 +86,6 @@ class BaderAnalysis(object):
         calculating charge transferred).
     """
 
-
     def __init__(self, chgcar_filename, potcar_filename=None):
         """
         Initializes the Bader caller.
