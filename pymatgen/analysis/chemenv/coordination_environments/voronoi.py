@@ -17,6 +17,7 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import my_solid
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import get_lower_and_upper_f
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rectangle_surface_intersection
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
+from pymatgen.analysis.chemenv.utils.math_utils import normal_cdf_step
 
 """
 This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis
@@ -599,6 +600,51 @@ class DetailedVoronoiContainer(MSONable):
                 if nb['site'] != nb_other['site']:
                     return False
         return True
+
+    def get_rdf_figure(self, isite, normalized=True, figsize=None,
+                       step_function=None):
+        import matplotlib.pyplot as plt
+
+        if step_function is None:
+            step_function = {'type': 'normal_cdf', 'scale': 0.04}
+
+        # Initializes the figure
+        if figsize is None:
+            fig = plt.figure()
+        else:
+            fig = plt.figure(figsize=figsize)
+        subplot = fig.add_subplot(111)
+        if normalized:
+            dists = self.neighbors_normalized_distances[isite]
+        else:
+            dists = self.neighbors_distances[isite]
+
+        if step_function['type'] == 'step_function':
+            isorted = np.argsort([dd['min'] for dd in dists])
+            sorted_dists = [dists[ii]['min'] for ii in isorted]
+            dnb_dists = [len(dists[ii]['dnb_indices']) for ii in isorted]
+            xx = [0.0]
+            yy = [0.0]
+            for idist, dist in enumerate(sorted_dists):
+                xx.append(dist)
+                xx.append(dist)
+                yy.append(yy[-1])
+                yy.append(yy[-1]+dnb_dists[idist])
+            xx.append(1.1*xx[-1])
+            yy.append(yy[-1])
+        elif step_function['type'] == 'normal_cdf':
+            scale = step_function['scale']
+            mydists = [dd['min'] for dd in dists]
+            mydcns = [len(dd['dnb_indices']) for dd in dists]
+            xx = np.linspace(0.0, 1.1*max(mydists), num=500)
+            yy = np.zeros_like(xx)
+            for idist, dist in enumerate(mydists):
+                yy += mydcns[idist] * normal_cdf_step(xx, mean=dist, scale=scale)
+        else:
+            raise ValueError('Step function of type "{}" is not allowed'.format(step_function['type']))
+        subplot.plot(xx, yy)
+
+        return fig
 
     def __eq__(self, other):
         return (self.normalized_angle_tolerance == other.normalized_angle_tolerance and
