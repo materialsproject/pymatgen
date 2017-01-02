@@ -669,24 +669,30 @@ class StructureEnvironments(MSONable):
                 if nb_set_surface_pts is None:
                     continue
                 ce = self.ce_list[isite][cn][inb_set]
-                mingeom = ce.minimum_geometry()
-                if mingeom is not None:
-                    mp_symbol = mingeom[0]
-                    csm = mingeom[1]['symmetry_measure']
-                    mycolor = scalarmap.to_rgba(csm)
-                    myinvcolor = [1.0 - mycolor[0], 1.0 - mycolor[1], 1.0 - mycolor[2], 1.0]
-                    mytext = '{}'.format(mp_symbol)
-                else:
+                if ce is None:
                     mycolor = 'w'
                     myinvcolor = 'k'
                     mytext = '{:d}'.format(cn)
+                else:
+                    mingeom = ce.minimum_geometry()
+                    if mingeom is not None:
+                        mp_symbol = mingeom[0]
+                        csm = mingeom[1]['symmetry_measure']
+                        mycolor = scalarmap.to_rgba(csm)
+                        myinvcolor = [1.0 - mycolor[0], 1.0 - mycolor[1], 1.0 - mycolor[2], 1.0]
+                        mytext = '{}'.format(mp_symbol)
+                    else:
+                        mycolor = 'w'
+                        myinvcolor = 'k'
+                        mytext = '{:d}'.format(cn)
                 nb_set_surface_pts = [(dp_func(pt[0]), ap_func(pt[1])) for pt in nb_set_surface_pts]
                 polygon = Polygon(nb_set_surface_pts, closed=True, edgecolor='k', facecolor=mycolor, linewidth=1.2)
                 subplot.add_patch(polygon)
-                if (np.abs(nb_set_surface_pts[3][1] - nb_set_surface_pts[0][1]) > 0.1 and
-                            np.abs(nb_set_surface_pts[3][0] - nb_set_surface_pts[0][0]) > 0.125):
-                    xytext = ((nb_set_surface_pts[0][0]+nb_set_surface_pts[3][0])/2,
-                              (nb_set_surface_pts[0][1] + nb_set_surface_pts[3][1]) / 2)
+                ipt = len(nb_set_surface_pts) / 2
+                if (np.abs(nb_set_surface_pts[ipt][1] - nb_set_surface_pts[0][1]) > 0.1 and
+                            np.abs(nb_set_surface_pts[ipt][0] - nb_set_surface_pts[0][0]) > 0.125):
+                    xytext = ((nb_set_surface_pts[0][0]+nb_set_surface_pts[ipt][0])/2,
+                              (nb_set_surface_pts[0][1] + nb_set_surface_pts[ipt][1]) / 2)
                     subplot.annotate(mytext, xy=xytext,
                                      ha='center', va='center', color=myinvcolor, fontsize='x-small')
 
