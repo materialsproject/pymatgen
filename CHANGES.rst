@@ -1,6 +1,13 @@
 Change log
 ==========
 
+v4.5.7
+------
+* PMG settings are now prefixed with PMG_ to ensure proper namespacing.
+* Improve error output in command line bader caller.
+* Add Py3.6 classifier.
+* Misc bug fixes.
+
 v4.5.6
 ------
 * Minor bug fix.
