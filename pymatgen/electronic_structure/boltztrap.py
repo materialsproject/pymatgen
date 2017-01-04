@@ -220,7 +220,7 @@ class BoltztrapRunner(object):
             f.write("{}\n".format(len(self._bs.kpoints)))
 
             if self.run_type == "FERMI":
-                sign = 1.0 if self.cond_band else -1.0
+                sign = -1.0 if self.cond_band else 1.0
                 for i in range(len(self._bs.kpoints)):
                     eigs = []
                     eigs.append(Energy(
@@ -317,11 +317,11 @@ class BoltztrapRunner(object):
     def write_proj(self, output_file_proj, output_file_def):
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def
-        for o in Orbital:
+        for oi,o in enumerate(Orbital):
             for site_nb in range(0, len(self._bs.structure.sites)):
-                if o in self._bs._projections[Spin.up][0][0]:
+                if oi < len(self._bs.projections[Spin.up][0][0]):
                     with open(output_file_proj + "_" + str(site_nb) + "_" + str(o),
-                              'w') as f:
+                                'w') as f:
                         f.write(self._bs.structure.composition.formula + "\n")
                         f.write(str(len(self._bs.kpoints)) + "\n")
                         for i in range(len(self._bs.kpoints)):
@@ -329,8 +329,8 @@ class BoltztrapRunner(object):
                             for j in range(
                                     int(math.floor(self._bs.nb_bands * 0.9))):
                                 tmp_proj.append(
-                                    self._bs._projections[Spin(self.spin)][j][
-                                        i][o][site_nb])
+                                    self._bs.projections[Spin(self.spin)][j][
+                                        i][oi][site_nb])
                             # TODO deal with the sorting going on at
                             # the energy level!!!
                             # tmp_proj.sort()
@@ -342,9 +342,9 @@ class BoltztrapRunner(object):
 
                             f.write("%12.8f %12.8f %12.8f %d\n"
                                     % (self._bs.kpoints[i].frac_coords[0],
-                                       self._bs.kpoints[i].frac_coords[1],
-                                       self._bs.kpoints[i].frac_coords[2],
-                                       len(tmp_proj)))
+                                        self._bs.kpoints[i].frac_coords[1],
+                                        self._bs.kpoints[i].frac_coords[2],
+                                        len(tmp_proj)))
                             for j in range(len(tmp_proj)):
                                 f.write("%18.8f\n" % float(tmp_proj[j]))
         with open(output_file_def, 'w') as f:
@@ -374,9 +374,9 @@ class BoltztrapRunner(object):
                     "30,'boltztrap_BZ.cube',           'unknown',    "
                     "'formatted',0\n")
             i = 1000
-            for o in Orbital:
+            for oi,o in enumerate(Orbital):
                 for site_nb in range(0, len(self._bs.structure.sites)):
-                    if o in self._bs._projections[Spin.up][0][0]:
+                    if oi < len(self._bs.projections[Spin.up][0][0]):
                         f.write(str(i) + ",\'" + "boltztrap.proj_" + str(
                             site_nb) + "_" + str(o.name) +
                                 "\' \'old\', \'formatted\',0\n")
@@ -601,7 +601,10 @@ class BoltztrapRunner(object):
                             if "WARNING" in l:
                                 warning = l
                                 break
-
+                            if "Error - Fermi level was not found" in l:
+                                warning = l
+                                break
+                            
                     if not warning and convergence:
                         # check convergence for warning
                         analyzer = BoltztrapAnalyzer.from_files(path_dir)
@@ -844,37 +847,69 @@ class BoltztrapAnalyzer(object):
                 "be run with run_type=BANDS")
 
     @staticmethod
-    def check_acc_bzt_bands(sbs_bz, sbs_ref):
+    def check_acc_bzt_bands(sbs_bz, sbs_ref, warn_thr=(0.03,0.03)):
         """
             Compare sbs_bz BandStructureSymmLine calculated with boltztrap with
             the sbs_ref BandStructureSymmLine as reference (from MP for
-            instance), using correlation.
-            See compare_sym_bands function doc
-            Return a list of correlation values of the eigth bands with index
-            that ranges from vbm_idx-3 to cbm_idx +3
-            Return also two list of sum of relative errors for each branch of
-            vbm and cbm and a boolean variable to signal the presence of not
-            accurate bands around the gap. warn_thr is a threshold to get a
-            warning in the accuracy of Boltztap interpolated bands.
+            instance), computing correlation and energy difference for eight bands
+            around the gap (semiconductors) or fermi level (metals).
+            warn_thr is a threshold to get a warning in the accuracy of Boltztap
+            interpolated bands.
+            Return a dictionary with these keys:
+            - "N": the index of the band compared; inside each there are:
+                - "Corr": correlation coefficient for the 8 compared bands
+                - "Dist": energy distance for the 8 compared bands
+                - "branch_name": energy distance for that branch
+            - "avg_corr": average of correlation coefficient over the 8 bands
+            - "avg_dist": average of energy distance over the 8 bands
+            - "nb_list": list of indexes of the 8 compared bands
+            - "acc_thr": list of two float corresponing to the two warning 
+                         thresholds in input
+            - "acc_err": list of two bools: 
+                         True if the avg_corr > warn_thr[0], and
+                         True if the avg_dist > warn_thr[1]
+            See also compare_sym_bands function doc
         """
-        if not sbs_ref.is_metal():
-            vbm_idx = sbs_ref.get_vbm()['band_index'][Spin.up][-1]
-            cbm_idx = sbs_ref.get_cbm()['band_index'][Spin.up][0]
-            corr, werr_vbm = compare_sym_bands(sbs_bz, sbs_ref, vbm_idx)
-            corr, werr_cbm = compare_sym_bands(sbs_bz, sbs_ref, cbm_idx)
-
-            acc_err = False
-            warn_thr = 0.01
-            if any(corr[vbm_idx - 3:vbm_idx + 1] > warn_thr) or any(
-                            corr[cbm_idx:cbm_idx + 4] > warn_thr):
-                print("Warning! some bands around gap are not accurate")
-                acc_err = True
-
-            return corr, werr_vbm, werr_cbm, acc_err
+        if not sbs_ref.is_metal() and not sbs_bz.is_metal():
+            vbm_idx = sbs_bz.get_vbm()['band_index'][Spin.up][-1]
+            cbm_idx = sbs_bz.get_cbm()['band_index'][Spin.up][0]
+            nb_list = range(vbm_idx-3,cbm_idx+4)
 
         else:
-            raise BoltztrapError(
-                "band check implemented only for bandstructure with gap")
+            bnd_around_efermi=[]
+            delta=0
+            spin=sbs_bz.bands.keys()[0]
+            while len(bnd_around_efermi)<8:
+                delta+=0.1
+                bnd_around_efermi=[]
+                for nb in range(len(sbs_bz.bands[spin])):
+                    for kp in range(len(sbs_bz.bands[spin][nb])):
+                        if abs(sbs_bz.bands[spin][nb][kp]-sbs_bz.efermi)<delta:
+                            bnd_around_efermi.append(nb)
+                            break
+            nb_list = bnd_around_efermi[:8]
+        
+        #print(nb_list)
+        bcheck = compare_sym_bands(sbs_bz, sbs_ref, nb_list)
+        #print(bcheck)
+        acc_err = [False,False]
+        avg_corr = sum([item[1]['Corr'] for item in bcheck.iteritems()])/8
+        avg_distance = sum([item[1]['Dist'] for item in bcheck.iteritems()])/8
+        
+        if avg_corr > warn_thr[0]: acc_err[0] = True
+        if avg_distance > warn_thr[0]: acc_err[1] = True
+        
+        bcheck['avg_corr'] = avg_corr
+        bcheck['avg_distance'] = avg_distance
+        bcheck['acc_err'] = acc_err
+        bcheck['acc_thr'] = warn_thr
+        bcheck['nb_list'] = nb_list
+        
+        if True in acc_err:
+            print("Warning! some bands around gap are not accurate")
+            
+        return bcheck
+
 
     def get_seebeck(self, output='eigs', doping_levels=True):
         """
@@ -1015,7 +1050,7 @@ class BoltztrapAnalyzer(object):
                                                    multi=1e6 * relaxation_time)
 
     def get_thermal_conductivity(self, output='eigs', doping_levels=True,
-                                 relaxation_time=1e-14):
+                                 k_el=True, relaxation_time=1e-14):
         """
         Gives the electronic part of the thermal conductivity in either a
         full 3x3 tensor form,
@@ -1032,6 +1067,7 @@ class BoltztrapAnalyzer(object):
             doping_levels (boolean): True for the results to be given at
             different doping levels, False for results
             at different electron chemical potentials
+            k_el (boolean): True for k_0-PF*T, False for k_0
             relaxation_time (float): constant relaxation time in secs
 
         Returns:
@@ -1057,24 +1093,26 @@ class BoltztrapAnalyzer(object):
             for doping in result_doping:
                 for t in result_doping[doping]:
                     for i in range(len(self.doping[doping])):
-                        pf_tensor = np.dot(self._cond_doping[doping][t][i],
-                                           np.dot(
-                                               self._seebeck_doping[doping][t][
-                                                   i],
-                                               self._seebeck_doping[doping][t][
-                                                   i]))
-                        result_doping[doping][t].append((self._kappa_doping[
-                                                                doping][t][
-                                                                i] -
-                                                         pf_tensor * t))
+                        if k_el:
+                            pf_tensor = np.dot(self._cond_doping[doping][t][i],
+                                        np.dot(self._seebeck_doping[doping][t][i],
+                                            self._seebeck_doping[doping][t][i]))
+                            result_doping[doping][t].append((
+                                self._kappa_doping[doping][t][i] - pf_tensor * t))
+                        else:
+                            result_doping[doping][t].append((
+                                self._kappa_doping[doping][t][i]))
         else:
             result = {t: [] for t in self._seebeck}
             for t in result:
                 for i in range(len(self.mu_steps)):
-                    pf_tensor = np.dot(self._cond[t][i],
+                    if k_el:
+                        pf_tensor = np.dot(self._cond[t][i],
                                        np.dot(self._seebeck[t][i],
                                               self._seebeck[t][i]))
-                    result[t].append((self._kappa[t][i] - pf_tensor * t))
+                        result[t].append((self._kappa[t][i] - pf_tensor * t))
+                    else:
+                        result[t].append((self._kappa[t][i]))
 
         return BoltztrapAnalyzer._format_to_output(result, result_doping,
                                                    output, doping_levels,
@@ -1964,18 +2002,38 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
         [distance.correlation(arr_bands[idx], arr_bands_ref[idx]) for idx in
          range(nbands)])
 
-    if type(nb) == int and nb < nbands:
+    if type(nb) == int: nb = [nb]
+    
+    bcheck={}
+    
+    if max(nb) < nbands:
         branches = [[s['start_index'], s['end_index'], s['name']] for s in
-                    bands_ref_obj._branches]
-        werr = {}
-        for start, end, name in branches:
-            # werr.append((sum((arr_bands_corr[nb][start:end+1] -
-            # arr_bands_ref_corr[nb][start:end+1])**2)/(end+1-start)*100,name))
-            werr[name] = np.sum(abs(
-                arr_bands[nb][start:end + 1] - arr_bands_ref[nb][
-                                               start:end + 1]) / abs(
-                arr_bands_ref[nb][start:end + 1])) / (end + 1 - start) * 100
+                    bands_ref_obj.branches]
+        
+        if not bands_obj.is_metal() and not bands_ref_obj.is_metal():
+            zero_ref = bands_ref_obj.get_vbm()['energy']
+            zero = bands_obj.get_vbm()['energy']
+            if not zero:
+                vbm = bands_ref_obj.get_vbm()['band_index'][Spin.up][-1]
+                zero = max(arr_bands[vbm])
+        else:
+            zero_ref = 0#bands_ref_obj.efermi
+            zero = 0#bands_obj.efermi
+            print(zero,zero_ref)
+            
+        for nbi in nb:
+            bcheck[nbi]={}
+            
+            bcheck[nbi]['Dist'] = np.mean(abs(arr_bands[nbi] - zero - arr_bands_ref[nbi] + zero_ref))
+            bcheck[nbi]['Corr'] = corr[nbi]
+            
+            for start, end, name in branches:
+                # werr.append((sum((arr_bands_corr[nb][start:end+1] -
+                # arr_bands_ref_corr[nb][start:end+1])**2)/(end+1-start)*100,name))
+                bcheck[nbi][name] = np.mean(abs(arr_bands[nbi][start:end + 1] - zero -
+                                        arr_bands_ref[nbi][start:end + 1] + zero_ref))
+    #                                abs(arr_bands_ref[nb][start:end + 1])) / (end + 1 - start) * 100
     else:
-        werr = "No nb given"
+        bcheck = "No nb given"
 
-    return corr, werr
+    return bcheck
