@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
-"""
-TODO: Modify unittest doc.
-"""
-
 from __future__ import division
+import unittest2 as unittest
+import numpy as np
+
+from pymatgen.core.lattice import Lattice
+from pymatgen.symmetry.groups import PointGroup, SpaceGroup
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Virtual Lab"
@@ -12,12 +13,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "4/10/14"
-
-import unittest2 as unittest
-import numpy as np
-
-from pymatgen.core.lattice import Lattice
-from pymatgen.symmetry.groups import PointGroup, SpaceGroup
 
 
 class PointGroupTest(unittest.TestCase):
@@ -63,7 +58,6 @@ class SpaceGroupTest(unittest.TestCase):
     def test_attr(self):
         sg = SpaceGroup("Fm-3m")
         self.assertEqual(sg.full_symbol, "F4/m-32/m")
-        self.assertEqual(sg.patterson_symmetry, "Fm-3m")
         self.assertEqual(sg.point_group, "m-3m")
 
     def test_full_symbols(self):
@@ -120,6 +114,13 @@ class SpaceGroupTest(unittest.TestCase):
         self.assertTrue(sg.is_compatible(ortho))
         self.assertTrue(sg.is_compatible(rhom))
         self.assertTrue(sg.is_compatible(hexagonal))
+
+    def test_other_settings(self):
+        sg = SpaceGroup("Pbnm")
+        self.assertEqual(sg.int_number, 62)
+        self.assertEqual(sg.order, 8)
+        self.assertRaises(ValueError, SpaceGroup, "hello")
+
 
     def test_subgroup_supergroup(self):
         self.assertTrue(SpaceGroup('Pma2').is_subgroup(SpaceGroup('Pccm')))
