@@ -76,6 +76,7 @@ class excitingInput(MSONable):
             booleans.
     """
     def __init__(self, structure, title=None, lockxyz=None):
+        
         if structure.is_ordered:
             site_properties = {}
             if lockxyz:
@@ -85,6 +86,9 @@ class excitingInput(MSONable):
         else:
             raise ValueError("Structure with partial occupancies cannot be "
                              "converted into exciting input!")
+    # define conversion factor between Bohr radius and Angstrom
+    bohr2ang=const.value('Bohr radius')/const.value('Angstrom star')
+ 
     @property
     def lockxyz(self):
         return self.structure.site_properties.get("selective_dynamics")
@@ -97,6 +101,7 @@ class excitingInput(MSONable):
         """
         Reads the exciting input from a string
         """
+       
         root=ET.fromstring(data)
         speciesnode=root.find('structure').iter('species')
         elements = []
@@ -135,17 +140,19 @@ class excitingInput(MSONable):
         if 'cartesian' in root.find('structure').attrib.keys():
           if root.find('structure').attrib['cartesian']:
             cartesian=True
+            for i in range(len(positions)):
+                for j in range(3):
+                    positions[i][j]=positions[i][j]*excitingInput.bohr2ang
+            print(positions)
         else:
           cartesian=False
         # get the scale attribute
         scale_in=root.find('structure').find('crystal').get('scale')
         if scale_in:
-            scale=float(scale_in)
+            scale=float(scale_in)*excitingInput.bohr2ang
         else:
-            scale=1.0
-        # define conversion factor between Bohr radius and Angstrom
-        bohr2ang=const.value('Bohr radius')/const.value('Angstrom star')
-        # get the stretch attribute
+            scale=excitingInput.bohr2ang
+       # get the stretch attribute
         stretch_in=root.find('structure').find('crystal').get('stretch')
         if stretch_in:
           stretch=np.array([float(a) for a in stretch_in])
@@ -155,36 +162,37 @@ class excitingInput(MSONable):
         basisnode=root.find('structure').find('crystal').iter('basevect')
         for vect in basisnode:
           x, y, z=vect.text.split()
-          vectors.append([float(x)*stretch[0],
-                          float(y)*stretch[1],
-                          float(z)*stretch[2]])
+          vectors.append([float(x)*stretch[0]*scale,
+                          float(y)*stretch[1]*scale,
+                          float(z)*stretch[2]*scale])
         # create lattice and structure object
         lattice_in=Lattice(vectors)
-        structure_in=Structure(lattice_in,elements,positions,
-                               False,cartesian,False)
+        structure_in=Structure(lattice_in,elements,positions,coords_are_cartesian=cartesian)
 
-        return input(structure_in, title_in, lockxyz)
+        return excitingInput(structure_in, title_in, lockxyz)
     @staticmethod
     def from_file(filename):
         with zopen(filename, 'rt') as f:
             data=f.read().replace('\n','')
-        return input.from_string(data)
+        return excitingInput.from_string(data)
 
 
-    def write_etree(self, celltype, cartesian=False, bandstr=False):
+    def write_etree(self, celltype, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5):
         root=ET.Element('input')
         root.set('{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation',
                  'http://xml.exciting-code.org/excitinginput.xsd')
         title=ET.SubElement(root,'title')
         title.text=self.title
-
-        structure=ET.SubElement(root,'structure',speciespath="./")
+        if cartesian:
+            structure=ET.SubElement(root,'structure',cartesian="true",speciespath="./")
+        else:
+            structure=ET.SubElement(root,'structure',speciespath="./")
         crystal=ET.SubElement(structure,'crystal')
         # set scale such that lattice vector can be given in Angstrom
         ang2bohr=const.value('Angstrom star')/const.value('Bohr radius')
         crystal.set('scale',str(ang2bohr))
         # determine which structure to use
-        finder=SpacegroupAnalyzer(self.structure)
+        finder=SpacegroupAnalyzer(self.structure,symprec=symprec, angle_tolerance=angle_tolerance)
         if celltype=='primitive':
             new_struct=finder.get_primitive_standard_structure(international_monoclinic=False)
         elif celltype=='conventional':
@@ -216,9 +224,9 @@ class excitingInput(MSONable):
                 if cartesian:
                     coord2=[]
                     for k in range(3):
-                        inter=ang2bohr*new_struct[j].frac_coords[k]*basis[0][index]+\
-                        new_struct[j].frac_coords[k]*basis[1][index]+\
-                        new_struct[j].frac_coords[k]*basis[2][index]
+                        inter=(new_struct[j].frac_coords[k]*basis[0][k]+\
+                        new_struct[j].frac_coords[k]*basis[1][k]+\
+                        new_struct[j].frac_coords[k]*basis[2][k])*ang2bohr
                         coord2.append(inter)
                     coord="%16.8f %16.8f %16.8f" % (coord2[0],
                                                     coord2[1],
@@ -229,7 +237,7 @@ class excitingInput(MSONable):
                 atom=ET.SubElement(species,'atom',coord=coord)
         # write bandstructure if needed
         if bandstr and celltype=='primitive':
-            kpath=HighSymmKpath(new_struct)
+            kpath=HighSymmKpath(new_struct, symprec=symprec, angle_tolerance=angle_tolerance)
             prop=ET.SubElement(root,'properties')
             bandstrct=ET.SubElement(prop,'bandstructure')
             for i in range(len(kpath.kpath['path'])):
