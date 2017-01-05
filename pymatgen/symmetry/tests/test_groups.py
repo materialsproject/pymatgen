@@ -5,6 +5,7 @@ import unittest2 as unittest
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.groups import PointGroup, SpaceGroup
 
 __author__ = "Shyue Ping Ong"
@@ -114,6 +115,12 @@ class SpaceGroupTest(unittest.TestCase):
         self.assertTrue(sg.is_compatible(ortho))
         self.assertTrue(sg.is_compatible(rhom))
         self.assertTrue(sg.is_compatible(hexagonal))
+
+    def test_symmops(self):
+        sg = SpaceGroup("Pnma")
+        op = SymmOp.from_rotation_and_translation([[1, 0, 0], [0, -1, 0],
+                                                   [0, 0, -1]], [0.5, 0.5, 0.5])
+        self.assertIn(op, sg.symmetry_ops)
 
     def test_other_settings(self):
         sg = SpaceGroup("Pbnm")
