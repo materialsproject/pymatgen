@@ -92,7 +92,7 @@ class SpaceGroupTest(unittest.TestCase):
         sg = SpaceGroup("R-3mH")
         self.assertFalse(sg.is_compatible(cubic))
         self.assertTrue(sg.is_compatible(hexagonal))
-        sg = SpaceGroup("R-3m")
+        sg = SpaceGroup("R-3mR")
         self.assertTrue(sg.is_compatible(cubic))
         self.assertTrue(sg.is_compatible(rhom))
         self.assertFalse(sg.is_compatible(hexagonal))
