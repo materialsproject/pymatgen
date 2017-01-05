@@ -1477,28 +1477,34 @@ class Outcar(MSONable):
             self.data[k] = [i[0] for i in matches.get(k, [])]
 
     def read_table_pattern(self, header_pattern, row_pattern, footer_pattern,
-                           postprocess=str, attribute_name=None, last_one_only=True):
+                           postprocess=str, attribute_name=None,
+                           last_one_only=True):
         """
-        Parse table-like data. A table composes of three parts: header, main body, footer.
-        All the data matches "row pattern" in the main body will be returned.
+        Parse table-like data. A table composes of three parts: header,
+        main body, footer. All the data matches "row pattern" in the main body
+        will be returned.
 
         Args:
-            header_pattern (str): The regular expression pattern matches the table header.
-                This pattern should match all the text immediately before the main body of
-                the table. For multiple sections table match the text until the section of
-                interest. MULTILINE and DOTALL options are enforced, as a result, the "."
-                meta-character will also match "\n" in this section.
-            row_pattern (str): The regular expression matches a single line in the table.
-                Capture interested field using regular expression groups
-            footer_pattern (str): The regular expression matches the end of the table.
-                E.g. a long dash line.
+            header_pattern (str): The regular expression pattern matches the
+                table header. This pattern should match all the text
+                immediately before the main body of the table. For multiple
+                sections table match the text until the section of
+                interest. MULTILINE and DOTALL options are enforced, as a
+                result, the "." meta-character will also match "\n" in this
+                section.
+            row_pattern (str): The regular expression matches a single line in
+                the table. Capture interested field using regular expression
+                groups.
+            footer_pattern (str): The regular expression matches the end of the
+                table. E.g. a long dash line.
             postprocess (callable): A post processing function to convert all
                 matches. Defaults to str, i.e., no change.
-            attribute_name (str): Name of this table. If presense the parsed data will be
-                attached to "data. e.g. self.data["efg"] = [...]
-            last_one_only (bool): All the tables will be parsed, if this option is set to
-                True, only the last table will be returned. The enclosing list will be removed.
-                i.e. Only a single table wil be returned. Default to be True.
+            attribute_name (str): Name of this table. If present the parsed data
+                will be attached to "data. e.g. self.data["efg"] = [...]
+            last_one_only (bool): All the tables will be parsed, if this option
+                is set to True, only the last table will be returned. The
+                enclosing list will be removed. i.e. Only a single table will
+                be returned. Default to be True.
 
         Returns:
             List of tables. 1) A table is a list of rows. 2) A row if either a list of
@@ -1515,6 +1521,7 @@ class Outcar(MSONable):
         tables = []
         for mt in table_pattern.finditer(text):
             table_body_text = mt.group("table_body")
+            print(table_body_text)
             table_contents = []
             for line in table_body_text.split("\n"):
                 ml = rp.search(line)
@@ -1533,6 +1540,43 @@ class Outcar(MSONable):
             self.data[attribute_name] = retained_data
         return retained_data
 
+    def read_freq_dielectric(self):
+        """
+        Parses the frequency dependent dielectric function. Frequencies (in eV)
+        are in self.frequencies, and dielectric tensor function is given as
+        self.dielectric_tensor_function.
+        """
+        # TODO: Unit test for this function.
+        header_pattern = r"\s+frequency dependent\s+IMAGINARY " \
+                         r"DIELECTRIC FUNCTION \(independent particle, " \
+                         r"no local field effects\)\s*"
+        row_pattern = r"\s+".join([r"([\.\-\d]+)"] * 7)
+        freq = []
+        data = {"REAL": [], "IMAGINARY": []}
+        with zopen(self.filename, 'rt') as f:
+            read = False
+            count = 0
+            component = "IMAGINARY"
+            for l in f:
+                if re.match(header_pattern, l):
+                    read = True
+                elif read:
+                    if re.match(row_pattern, l.strip()):
+                        toks = l.strip().split()
+                        freq.append(float(toks[0]))
+                        xx, yy, zz, xy, yz, xz = [float(t) for t in toks[1:]]
+                        matrix = [[xx, xy, yz], [xy, yy, yz], [xz, yz, zz]]
+                        data[component].append(matrix)
+                    elif re.match("\s*\-+\s*", l):
+                        count += 1
+
+                    if count == 2:
+                        component = "REAL"
+                    elif count == 3:
+                        read = False
+        self.frequencies = np.array(freq)
+        self.dielectric_tensor_function = np.array(data["REAL"]) + \
+            1j * np.array(data["IMAGINARY"])
 
     def read_chemical_shifts(self):
         """
@@ -1551,14 +1595,17 @@ class Outcar(MSONable):
                          "-{50,}\s*$"
         first_part_pattern = r"\s+\(absolute, valence only\)\s+$"
         swallon_valence_body_pattern = r".+?\(absolute, valence and core\)\s+$"
-        row_pattern = r"\d+(?:\s+[-]?\d+\.\d+){3}\s+" + r'\s+'.join([r"([-]?\d+\.\d+)"] * 3)
+        row_pattern = r"\d+(?:\s+[-]?\d+\.\d+){3}\s+" + r'\s+'.join(
+            [r"([-]?\d+\.\d+)"] * 3)
         footer_pattern = "-{50,}\s*$"
         h1 = header_pattern + first_part_pattern
-        cs_valence_only = self.read_table_pattern(h1, row_pattern, footer_pattern,
-                                                  postprocess=float, last_one_only=True)
+        cs_valence_only = self.read_table_pattern(
+            h1, row_pattern, footer_pattern, postprocess=float,
+            last_one_only=True)
         h2 = header_pattern + swallon_valence_body_pattern
-        cs_valence_and_core = self.read_table_pattern(h2, row_pattern, footer_pattern,
-                                                      postprocess=float, last_one_only=True)
+        cs_valence_and_core = self.read_table_pattern(
+            h2, row_pattern, footer_pattern, postprocess=float,
+            last_one_only=True)
         all_cs = {}
         for name, cs_table in [["valence_only", cs_valence_only],
                                ["valence_and_core", cs_valence_and_core]]:
