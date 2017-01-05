@@ -459,6 +459,8 @@ class BoltztrapRunner(object):
                                      0]]
                 self.kpt_line = np.array(
                     [kp.frac_coords for kp in self.kpt_line])
+            else:
+                 self.kpt_line = [kp.frac_coords for kp in self.kpt_line]
 
             with open(output_file, 'w') as fout:
                 fout.write("GENE          # use generic interface\n")
