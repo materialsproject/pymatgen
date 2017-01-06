@@ -804,9 +804,9 @@ class BoltztrapAnalyzer(object):
                             kpath.get_kpoints(coords_are_cartesian=False)[0]]
                 labels_dict = {l: k for k, l in zip(
                     *kpath.get_kpoints(coords_are_cartesian=False)) if l}
-                kpoints = [kp.frac_coords for kp in kpt_line]
-            else:
-                kpoints = [kp.frac_coords for kp in kpt_line]
+                kpt_line = [kp.frac_coords for kp in kpt_line]
+            elif type(kpt_line[0]) == Kpoint:
+                kpt_line = [kp.frac_coords for kp in kpt_line]
                 labels_dict = {k: labels_dict[k].frac_coords for k in
                                labels_dict}
 
@@ -817,7 +817,7 @@ class BoltztrapAnalyzer(object):
                 prec = 1e-05
                 while len(w) == 0:
                     w = np.where(np.all(
-                        np.abs(kp.frac_coords - self._bz_kpoints) < [prec] * 3,
+                        np.abs(kp - self._bz_kpoints) < [prec] * 3,
                         axis=1))[0]
                     prec *= 10
 
@@ -838,7 +838,7 @@ class BoltztrapAnalyzer(object):
                 "eV") + efermi).T[:, idx_list[:, 1]].tolist()}
             # bz_kpoints = bz_kpoints[idx_list[:,1]].tolist()
 
-            sbs = BandStructureSymmLine(kpoints, bands_dict,
+            sbs = BandStructureSymmLine(kpt_line, bands_dict,
                                         structure.lattice.reciprocal_lattice, efermi,
                                         labels_dict=labels_dict)
 
