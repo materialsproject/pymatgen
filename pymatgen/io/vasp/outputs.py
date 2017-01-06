@@ -1521,7 +1521,6 @@ class Outcar(MSONable):
         tables = []
         for mt in table_pattern.finditer(text):
             table_body_text = mt.group("table_body")
-            print(table_body_text)
             table_contents = []
             for line in table_body_text.split("\n"):
                 ml = rp.search(line)
@@ -1542,11 +1541,10 @@ class Outcar(MSONable):
 
     def read_freq_dielectric(self):
         """
-        Parses the frequency dependent dielectric function. Frequencies (in eV)
-        are in self.frequencies, and dielectric tensor function is given as
-        self.dielectric_tensor_function.
+        Parses the frequency dependent dielectric function (obtained with
+        LOPTICS). Frequencies (in eV) are in self.frequencies, and dielectric
+        tensor function is given as self.dielectric_tensor_function.
         """
-        # TODO: Unit test for this function.
         header_pattern = r"\s+frequency dependent\s+IMAGINARY " \
                          r"DIELECTRIC FUNCTION \(independent particle, " \
                          r"no local field effects\)\s*"
@@ -1567,7 +1565,7 @@ class Outcar(MSONable):
                         xx, yy, zz, xy, yz, xz = [float(t) for t in toks[1:]]
                         matrix = [[xx, xy, yz], [xy, yy, yz], [xz, yz, zz]]
                         data[component].append(matrix)
-                    elif re.match("\s*\-+\s*", l):
+                    elif re.match(r"\s*\-+\s*", l):
                         count += 1
 
                     if count == 2:

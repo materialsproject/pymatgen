@@ -462,6 +462,15 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(outcar.data["dipol_quadrupol_correction"], 0.03565)
         self.assertAlmostEqual(outcar.final_energy, -797.46760559)
 
+    def test_freq_dielectric(self):
+        filepath = os.path.join(test_dir, "OUTCAR.LOPTICS")
+        outcar = Outcar(filepath)
+        outcar.read_freq_dielectric()
+        self.assertAlmostEqual(outcar.frequencies[0], 0)
+        self.assertAlmostEqual(outcar.frequencies[-1], 39.826101)
+        self.assertAlmostEqual(outcar.dielectric_tensor_function[0][0, 0], 8.96938800)
+        self.assertAlmostEqual(outcar.dielectric_tensor_function[-1][0, 0], 7.36167000e-01 +1.53800000e-03j)
+
     def test_read_elastic_tensor(self):
         filepath = os.path.join(test_dir, "OUTCAR.total_tensor.Li2O.gz")
         outcar = Outcar(filepath)
