@@ -535,6 +535,8 @@ class BoltztrapRunner(object):
 
         if self.run_type in ("BANDS", "DOS", "FERMI"):
             convergence = False
+            if self.lpfac > max_lpfac:
+                max_lpfac = self.lpfac 
 
         if self.run_type == "BANDS" and self.bs.is_spin_polarized:
             print("Reminder: for run_type " + str(
