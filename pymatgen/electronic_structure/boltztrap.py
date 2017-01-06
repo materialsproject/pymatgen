@@ -122,9 +122,9 @@ class BoltztrapRunner(object):
                 shape. This is useful to correct the often underestimated band
                 gap in DFT. Default is 0.0 (no scissor)
             kpt_line:
-                list/array of kpoints in fractional coordinates for BANDS mode
-                calculation (standard path of high symmetry k-points is
-                automatically set as default)
+                list/array of kpoints in fractional coordinates or list of 
+                Kpoint objects for BANDS mode calculation (standard path of 
+                high symmetry k-points is automatically set as default)
             tmax:
                 Maximum temperature (K) for calculation (default=1300)
             tgrid:
@@ -457,10 +457,9 @@ class BoltztrapRunner(object):
                                  in
                                  kpath.get_kpoints(coords_are_cartesian=False)[
                                      0]]
-                self.kpt_line = np.array(
-                    [kp.frac_coords for kp in self.kpt_line])
-            else:
-                 self.kpt_line = [kp.frac_coords for kp in self.kpt_line]
+                self.kpt_line = [kp.frac_coords for kp in self.kpt_line]
+            elif type(self.kpt_line[0]) == Kpoint:
+                self.kpt_line = [kp.frac_coords for kp in self.kpt_line]
 
             with open(output_file, 'w') as fout:
                 fout.write("GENE          # use generic interface\n")
