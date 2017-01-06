@@ -257,18 +257,18 @@ class excitingInput(MSONable):
             raise ValueError("Bandstructure is only implemented for the \
                               standard primitive unit cell!")
         return root
-    def write_string(self, celltype, cartesian=False, bandstr=False):
+    def write_string(self, celltype, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5):
         try:
-            root=self.write_etree(celltype, cartesian, bandstr)
+            root=self.write_etree(celltype, cartesian, bandstr, symprec, angle_tolerance)
             self.indent(root)
             # output should be a string not a bytes object
             string=ET.tostring(root).decode('UTF-8')
         except:
             raise ValueError('Incorrect celltype!')
         return string
-    def write_file(self, celltype, filename, cartesian=False, bandstr=False):
+    def write_file(self, celltype, filename, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5):
         try:
-            root=self.write_etree(celltype, cartesian, bandstr)
+            root=self.write_etree(celltype, cartesian, bandstr, symprec, angle_tolerance)
             self.indent(root)
             tree=ET.ElementTree(root)
             tree.write(filename)
