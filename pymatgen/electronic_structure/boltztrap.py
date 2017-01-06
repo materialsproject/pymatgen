@@ -122,7 +122,7 @@ class BoltztrapRunner(object):
                 shape. This is useful to correct the often underestimated band
                 gap in DFT. Default is 0.0 (no scissor)
             kpt_line:
-                list/array of kpoints in fractional coordinates or list of 
+                list of fractional coordinates of kpoints as arrays or list of
                 Kpoint objects for BANDS mode calculation (standard path of 
                 high symmetry k-points is automatically set as default)
             tmax:
