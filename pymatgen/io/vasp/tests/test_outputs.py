@@ -470,6 +470,7 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(outcar.frequencies[-1], 39.826101)
         self.assertAlmostEqual(outcar.dielectric_tensor_function[0][0, 0], 8.96938800)
         self.assertAlmostEqual(outcar.dielectric_tensor_function[-1][0, 0], 7.36167000e-01 +1.53800000e-03j)
+        self.assertEqual(len(outcar.frequencies), len(outcar.dielectric_tensor_function))
 
     def test_read_elastic_tensor(self):
         filepath = os.path.join(test_dir, "OUTCAR.total_tensor.Li2O.gz")

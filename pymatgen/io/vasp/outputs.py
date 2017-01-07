@@ -1350,7 +1350,6 @@ class Outcar(MSONable):
         efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
         nelect_patt = re.compile("number of electron\s+(\S+)\s+magnetization")
         mag_patt = re.compile("number of electron\s+\S+\s+magnetization\s+(\S+)")
-        etensor_patt = re.compile("[X-Z][X-Z]+\s+-?\d+")
         toten_pattern = re.compile("free  energy   TOTEN\s+=\s+([\d\-\.]+)")
 
         all_lines = []
@@ -1368,7 +1367,7 @@ class Outcar(MSONable):
                 if m:
                     try:
                         # try-catch because VASP sometimes prints
-                        #'E-fermi: ********     XC(G=0):  -6.1327
+                        # 'E-fermi: ********     XC(G=0):  -6.1327
                         # alpha+bet : -1.8238'
                         efermi = float(m.group(1))
                         continue
@@ -1549,29 +1548,33 @@ class Outcar(MSONable):
                          r"DIELECTRIC FUNCTION \(independent particle, " \
                          r"no local field effects\)\s*"
         row_pattern = r"\s+".join([r"([\.\-\d]+)"] * 7)
+
+        lines = []
+        for l in reverse_readfile(self.filename):
+            lines.append(l)
+            if re.match(header_pattern, l):
+                break
+
         freq = []
         data = {"REAL": [], "IMAGINARY": []}
-        with zopen(self.filename, 'rt') as f:
-            read = False
-            count = 0
-            component = "IMAGINARY"
-            for l in f:
-                if re.match(header_pattern, l):
-                    read = True
-                elif read:
-                    if re.match(row_pattern, l.strip()):
-                        toks = l.strip().split()
-                        freq.append(float(toks[0]))
-                        xx, yy, zz, xy, yz, xz = [float(t) for t in toks[1:]]
-                        matrix = [[xx, xy, yz], [xy, yy, yz], [xz, yz, zz]]
-                        data[component].append(matrix)
-                    elif re.match(r"\s*\-+\s*", l):
-                        count += 1
+        lines.reverse()
+        count = 0
+        component = "IMAGINARY"
+        for l in lines[3:]:  # Skip the preamble.
+            if re.match(row_pattern, l.strip()):
+                toks = l.strip().split()
+                if component == "IMAGINARY":
+                    freq.append(float(toks[0]))
+                xx, yy, zz, xy, yz, xz = [float(t) for t in toks[1:]]
+                matrix = [[xx, xy, yz], [xy, yy, yz], [xz, yz, zz]]
+                data[component].append(matrix)
+            elif re.match(r"\s*\-+\s*", l):
+                count += 1
 
-                    if count == 2:
-                        component = "REAL"
-                    elif count == 3:
-                        read = False
+            if count == 1:
+                component = "REAL"
+            elif count == 2:
+                break
         self.frequencies = np.array(freq)
         self.dielectric_tensor_function = np.array(data["REAL"]) + \
             1j * np.array(data["IMAGINARY"])
