@@ -17,23 +17,15 @@ from monty.json import MSONable
 This module defines classes to represent the phonon density of states, etc.
 """
 
-class PhDos(MSONable):
+
+class PhononDos(MSONable):
     """
     Basic DOS object. All other DOS objects are extended versions of this
     object.
 
     Args:
-        frequencies: A sequences of frequencies
-        densities A list representing the density of states.
-
-    .. attribute: frequencies
-
-        The sequence of frequencies
-
-    .. attribute: densities
-
-        A list of phonon densities
-
+        frequencies: A sequences of frequencies in THz
+        densities: A list representing the density of states.
     """
 
     def __init__(self, frequencies, densities):
@@ -74,7 +66,7 @@ class PhDos(MSONable):
         if not all(np.equal(self.frequencies, other.frequencies)):
             raise ValueError("Frequencies of both DOS are not compatible!")
         densities = self.frequencies + other.frequencies
-        return Dos(self.frequencies, densities)
+        return PhononDos(self.frequencies, densities)
 
     def __radd__(self, other):
         """
@@ -112,21 +104,21 @@ class PhDos(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-        Returns PhDos object from dict representation of PhDos.
+        Returns PhononDos object from dict representation of PhononDos.
         """
-        return cls(d["freuqencies"],d["densities"])
+        return cls(d["frequencies"], d["densities"])
 
     def as_dict(self):
         """
-        Json-serializable dict representation of PhDos.
+        Json-serializable dict representation of PhononDos.
         """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "frequency": list(self.frequencies),
-                "densities": self.densities}
+                "frequencies": list(self.frequencies),
+                "densities": list(self.densities)}
 
 
-class CompletePhDos(PhDos):
+class CompletePhononDos(PhononDos):
     """
     This wrapper class defines a total dos, and also provides a list of PDos.
 
@@ -135,19 +127,27 @@ class CompletePhDos(PhDos):
         total_dos: total Dos for structure
         pdoss: The pdoss are supplied as an {Site: Densities}
 
-    .. attribute:: structure
-
-        Structure associated with the CompleteDos.
-
     .. attribute:: pdos
 
         Dict of partial densities of the form {Site:Densities}
     """
     def __init__(self, structure, total_dos, pdoss):
-        super(CompletePhDos, self).__init__(
+        super(CompletePhononDos, self).__init__(
             frequencies=total_dos.frequencies, densities=total_dos.densities)
         self.pdos = pdoss
         self.structure = structure
+
+    def get_site_dos(self, site):
+        """
+        Get the Dos for a site.
+
+        Args:
+            site: Site in Structure associated with CompletePhononDos.
+
+        Returns:
+            PhononDos containing summed orbital densities for site.
+        """
+        return PhononDos(self.frequencies, self.pdos[site])
 
     def get_element_dos(self):
         """
@@ -163,8 +163,8 @@ class CompletePhDos(PhDos):
             if el not in el_dos:
                 el_dos[el] = atom_dos
             else:
-                el_dos[el] += add_densities(el_dos[el], pdos)
-        return {el: PhDos(self.frequencies, densities)
+                el_dos[el] += atom_dos
+        return {el: PhononDos(self.frequencies, densities)
                 for el, densities in el_dos.items()}
 
     @classmethod
@@ -172,18 +172,17 @@ class CompletePhDos(PhDos):
         """
         Returns CompleteDos object from dict representation.
         """
-        tdos = Dos.from_dict(d)
+        tdos = PhononDos.from_dict(d)
         struct = Structure.from_dict(d["structure"])
         pdoss = {}
         for at, pdos in zip(struct, d["pdos"]):
-            pdoss[at] = pdoss
-            pdoss[at] = orb_dos
+            pdoss[at] = pdos
 
         return cls(struct, tdos, pdoss)
 
     def as_dict(self):
         """
-        Json-serializable dict representation of CompletePhDos.
+        Json-serializable dict representation of CompletePhononDos.
         """
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
@@ -192,11 +191,9 @@ class CompletePhDos(PhDos):
              "densities": list(self.densities),
              "pdos": []}
         if len(self.pdos) > 0:
-            l = []
             for at in self.structure:
-                l.append(self.pdos[at])
-            d["pdos"].append(l)
+                d["pdos"].append(list(self.pdos[at]))
         return d
 
     def __str__(self):
-        return "Complete DOS for " + str(self.structure)
+        return "Complete phonon DOS for " + str(self.structure)

@@ -12,7 +12,7 @@ import numpy as np
 
 from monty.json import jsanitize
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.phonon.bandstructure import PhBandStructureSymmLine
+from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.util.plotting_utils import get_publication_quality_plot, \
     add_fig_kwargs, get_ax3d_fig_plt
 
@@ -26,7 +26,7 @@ This module implements plotter for DOS and band structure.
 logger = logging.getLogger(__name__)
 
 
-class PhDosPlotter(object):
+class PhononDosPlotter(object):
     """
     Class for plotting phonon DOSs. Note that the interface is extremely flexible
     given that there are many different ways in which people want to view
@@ -34,13 +34,13 @@ class PhDosPlotter(object):
 
         # Initializes plotter with some optional args. Defaults are usually
         # fine,
-        plotter = PhDosPlotter()
+        plotter = PhononDosPlotter()
 
         # Adds a DOS with a label.
         plotter.add_dos("Total DOS", dos)
 
         # Alternatively, you can add a dict of DOSs. This is the typical
-        # form returned by CompletePhDos.get_element_dos().
+        # form returned by CompletePhononDos.get_element_dos().
 
     Args:
         stack: Whether to plot the DOS as a stacked area graph
@@ -63,7 +63,7 @@ class PhDosPlotter(object):
             label:
                 label for the DOS. Must be unique.
             dos:
-                PhDos object
+                PhononDos object
         """
 
         densities = dos.get_smeared_densities(self.sigma) if self.sigma \
@@ -198,7 +198,7 @@ class PhDosPlotter(object):
         plt.show()
 
 
-class PhBSPlotter(object):
+class PhononBSPlotter(object):
     """
     Class to plot or get data to facilitate the plot of band structure objects.
 
@@ -207,10 +207,10 @@ class PhBSPlotter(object):
     """
 
     def __init__(self, bs):
-        if not isinstance(bs, PhBandStructureSymmLine):
+        if not isinstance(bs, PhononBandStructureSymmLine):
             raise ValueError(
-                "PhBSPlotter only works with PhBandStructureSymmLine objects. "
-                "A PhBandStructure object (on a uniform grid for instance and "
+                "PhononBSPlotter only works with PhononBandStructureSymmLine objects. "
+                "A PhononBandStructure object (on a uniform grid for instance and "
                 "not along symmetry lines won't work)")
         self._bs = bs
         self._nb_bands = self._bs.nb_bands
@@ -270,10 +270,10 @@ class PhBSPlotter(object):
 
         Returns:
             A dict of the following format:
-            ticks: A dict with the 'distances' at which there is a kpoint (the
+            ticks: A dict with the 'distances' at which there is a qpoint (the
             x axis) and the labels (None if no label)
             frequencies: A list (one element for each branch) of frequencies for
-            each kpoint: [branch][kpoint][mode]. The data is
+            each qpoint: [branch][qpoint][mode]. The data is
             stored by branch to facilitate the plotting
             lattice: The reciprocal lattice.
         """
@@ -381,9 +381,9 @@ class PhBSPlotter(object):
         """
         tick_distance = []
         tick_labels = []
-        previous_label = self._bs.kpoints[0].label
+        previous_label = self._bs.qpoints[0].label
         previous_branch = self._bs.branches[0]['name']
-        for i, c in enumerate(self._bs.kpoints):
+        for i, c in enumerate(self._bs.qpoints):
             if c.label is not None:
                 tick_distance.append(self._bs.distance[i])
                 this_branch = None
@@ -445,14 +445,14 @@ class PhBSPlotter(object):
 
         # get labels and lines
         labels = {}
-        for k in self._bs.kpoints:
-            if k.label:
-                labels[k.label] = k.frac_coords
+        for q in self._bs.qpoints:
+            if q.label:
+                labels[q.label] = q.frac_coords
 
         lines = []
         for b in self._bs.branches:
-            lines.append([self._bs.kpoints[b['start_index']].frac_coords,
-                          self._bs.kpoints[b['end_index']].frac_coords])
+            lines.append([self._bs.qpoints[b['start_index']].frac_coords,
+                          self._bs.qpoints[b['end_index']].frac_coords])
 
         plot_brillouin_zone(self._bs.lattice_rec, lines=lines, labels=labels)
 
