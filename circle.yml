@@ -4,14 +4,14 @@ general:
       - gh-pages # list of branches to ignore
 machine:
   python:
-    version: 3.5.2
+    version: 3.6.0
   environment:
     PATH: $PATH:/home/ubuntu/pymatgen/cmd_line/enum/Linux_64bit:/home/ubuntu/pymatgen/cmd_line/bader/Linux_64bit:/home/ubuntu/pymatgen/cmd_line/gulp/Linux_64bit:/home/ubuntu/pymatgen/cmd_line/aconvasp/Linux_64bit
     GULP_LIB: /home/ubuntu/pymatgen/cmd_line/gulp/Libraries
 dependencies:
   override:
     - pip install tox tox-pyenv
-    - pyenv local 2.7.12 3.5.2
+    - pyenv local 2.7.12 3.6.0
     - sudo apt-get install python-openbabel python-vtk python3-tk
 test:
   override:
