@@ -887,48 +887,48 @@ def get_reconstructed_band_structure(list_bs, efermi=None):
 
     kpoints = []
     labels_dict = {}
-    rec_lattice = list_bs[0]._lattice_rec
-    nb_bands = min([list_bs[i]._nb_bands for i in range(len(list_bs))])
+    rec_lattice = list_bs[0].lattice_rec
+    nb_bands = min([list_bs[i].nb_bands for i in range(len(list_bs))])
 
     for bs in list_bs:
-        for k in bs._kpoints:
+        for k in bs.kpoints:
             kpoints.append(k.frac_coords)
-        for k, v in bs._labels_dict.items():
+        for k, v in bs.labels_dict.items():
             labels_dict[k] = v.frac_coords
-    eigenvals = {Spin.up: [list_bs[0]._bands[Spin.up][i]
+    eigenvals = {Spin.up: [list_bs[0].bands[Spin.up][i]
                            for i in range(nb_bands)]}
     for i in range(nb_bands):
         for bs in list_bs[1:]:
-            for e in bs._bands[Spin.up][i]:
+            for e in bs.bands[Spin.up][i]:
                 eigenvals[Spin.up][i].append(e)
     if list_bs[0].is_spin_polarized:
-        eigenvals[Spin.down] = [list_bs[0]._bands[Spin.down][i]
+        eigenvals[Spin.down] = [list_bs[0].bands[Spin.down][i]
                                 for i in range(nb_bands)]
         for i in range(nb_bands):
             for bs in list_bs[1:]:
-                for e in bs._bands[Spin.down][i]:
+                for e in bs.bands[Spin.down][i]:
                     eigenvals[Spin.down][i].append(e)
     projections = {}
-    if len(list_bs[0]._projections) != 0:
-        projections = {Spin.up: [list_bs[0]._projections[Spin.up][i]
+    if len(list_bs[0].projections) != 0:
+        projections = {Spin.up: [list_bs[0].projections[Spin.up][i]
                                  for i in range(nb_bands)]}
         for i in range(nb_bands):
             for bs in list_bs[1:]:
-                projections[Spin.up][i].extend(bs._projections[Spin.up][i])
+                projections[Spin.up][i].extend(bs.projections[Spin.up][i])
         if list_bs[0].is_spin_polarized:
-            projections[Spin.down] = [list_bs[0]._projections[Spin.down][i]
+            projections[Spin.down] = [list_bs[0].projections[Spin.down][i]
                                       for i in range(nb_bands)]
             for i in range(nb_bands):
                 for bs in list_bs[1:]:
                     projections[Spin.down][i].extend(
-                        bs._projections[Spin.down][i])
+                        bs.projections[Spin.down][i])
 
     if isinstance(list_bs[0], BandStructureSymmLine):
         return BandStructureSymmLine(kpoints, eigenvals, rec_lattice,
                                      efermi, labels_dict,
-                                     structure=list_bs[0]._structure,
+                                     structure=list_bs[0].structure,
                                      projections=projections)
     else:
         return BandStructure(kpoints, eigenvals, rec_lattice, efermi,
-                             labels_dict, structure=list_bs[0]._structure,
+                             labels_dict, structure=list_bs[0].structure,
                              projections=projections)
