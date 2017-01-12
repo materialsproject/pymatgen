@@ -3,6 +3,8 @@ general:
     ignore:
       - gh-pages # list of branches to ignore
 machine:
+  pre:
+    - cd /opt/circleci/.pyenv; git pull
   python:
     version: 3.6.0
   environment:
@@ -11,7 +13,6 @@ machine:
 dependencies:
   override:
     - pip install tox tox-pyenv
-    - pyenv install 3.6.0
     - pyenv local 2.7.12 3.6.0
     - sudo apt-get install python-openbabel python-vtk python3-tk
 test:
