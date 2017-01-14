@@ -1651,13 +1651,11 @@ class IMolecule(SiteCollection, MSONable):
         while len(sites) > 0:
             unmatched = []
             for site in sites:
-                found = False
                 for cluster in clusters:
                     if belongs_to_cluster(site, cluster):
                         cluster.append(site)
-                        found = True
                         break
-                if not found:
+                else:
                     unmatched.append(site)
 
             if len(unmatched) == len(sites):

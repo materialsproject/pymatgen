@@ -181,7 +181,6 @@ class ConversionElectrode(AbstractElectrode):
         composition.
         """
         for pair1 in conversion_electrode:
-            found = False
             rxn1 = pair1.rxn
             all_formulas1 = set([rxn1.all_comp[i].reduced_formula
                                  for i in range(len(rxn1.all_comp))
@@ -192,9 +191,8 @@ class ConversionElectrode(AbstractElectrode):
                                      for i in range(len(rxn2.all_comp))
                                      if abs(rxn2.coeffs[i]) > 1e-5])
                 if all_formulas1 == all_formulas2:
-                    found = True
                     break
-            if not found:
+            else:
                 return False
         return True
 
@@ -206,7 +204,6 @@ class ConversionElectrode(AbstractElectrode):
             return False
 
         for pair1 in conversion_electrode:
-            found = False
             rxn1 = pair1.rxn
             all_formulas1 = set([rxn1.all_comp[i].reduced_formula
                                  for i in range(len(rxn1.all_comp))
@@ -217,9 +214,8 @@ class ConversionElectrode(AbstractElectrode):
                                      for i in range(len(rxn2.all_comp))
                                      if abs(rxn2.coeffs[i]) > 1e-5])
                 if all_formulas1 == all_formulas2:
-                    found = True
                     break
-            if not found:
+            else:
                 return False
         return True
 

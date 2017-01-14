@@ -150,15 +150,13 @@ class SpinComparator(AbstractComparator):
         for s1 in sp1.keys():
             spin1 = getattr(s1, "spin", 0)
             oxi1 = getattr(s1, "oxi_state", 0)
-            found = False
             for s2 in sp2.keys():
                 spin2 = getattr(s2, "spin", 0)
                 oxi2 = getattr(s2, "oxi_state", 0)
                 if (s1.symbol == s2.symbol and oxi1 == oxi2 and
                         spin2 == -spin1):
-                    found = True
                     break
-            if not found:
+            else:
                 return False
         return True
 
