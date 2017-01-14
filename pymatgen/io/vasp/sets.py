@@ -1243,7 +1243,7 @@ def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
     vsfile = vsfile_fullpath if vsfile_fullpath in vruns else sorted(vruns)[-1]
     outcarfile = outcarfile_fullpath if outcarfile_fullpath in outcars else sorted(outcars)[-1]
     return Vasprun(str(vsfile), parse_dos=parse_dos, parse_eigen=parse_eigen), \
-           Outcar(str(outcarfile))
+        Outcar(str(outcarfile))
 
 
 def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
