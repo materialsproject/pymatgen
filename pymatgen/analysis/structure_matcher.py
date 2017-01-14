@@ -473,8 +473,9 @@ class StructureMatcher(MSONable):
         if mask.shape != (len(s2), len(s1)):
             raise ValueError("mask has incorrect shape")
 
-        #vectors are from s2 to s1
-        vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask, return_d2=True,
+        # vectors are from s2 to s1
+        vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask,
+                                         return_d2=True,
                                          lll_frac_tol=lll_frac_tol)
         lin = LinearAssignment(d_2)
         s = lin.solution
@@ -792,7 +793,7 @@ class StructureMatcher(MSONable):
         for perm in itertools.permutations(sp2):
             sp_mapping = dict(zip(sp1, perm))
 
-            #do quick check that compositions are compatible
+            # do quick check that compositions are compatible
             mapped_comp = Composition({sp_mapping[k]: v
                                        for k, v in s1_comp.items()})
             if (not self._subset) and self._comparator.get_hash(mapped_comp) != \
