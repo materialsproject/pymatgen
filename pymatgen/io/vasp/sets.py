@@ -743,14 +743,14 @@ class MPNonSCFSet(MPRelaxSet):
     def incar(self):
         incar = super(MPNonSCFSet, self).incar
         if self.prev_incar is not None:
-            incar.update({k: v for k, v in self.prev_incar.items()
-                         if k not in self.kwargs.get("user_incar_settings",
-                                                     {})})
+            incar.update({k: v for k, v in self.prev_incar.items()})
 
         # Overwrite necessary INCAR parameters from previous runs
         incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001,
                       "LCHARG": False, "LORBIT": 11, "LWAVE": False,
                       "NSW": 0, "ISYM": 0, "ICHARG": 11})
+
+        incar.update(self.kwargs.get("user_incar_settings", {}))
 
         if self.mode.lower() == "uniform":
             # Set smaller steps for DOS output
@@ -898,13 +898,12 @@ class MPSOCSet(MPStaticSet):
     def incar(self):
         incar = super(MPSOCSet, self).incar
         if self.prev_incar is not None:
-            incar.update({k: v for k, v in self.prev_incar.items()
-                         if k not in self.kwargs.get("user_incar_settings",
-                                                     {})})
+            incar.update({k: v for k, v in self.prev_incar.items()})
 
         # Overwrite necessary INCAR parameters from previous runs
         incar.update({"ISYM": -1, "LSORBIT": "T", "ICHARG": 11,
                       "SAXIS": list(self.saxis)})
+        incar.update(self.kwargs.get("user_incar_settings", {}))
 
         return incar
 
