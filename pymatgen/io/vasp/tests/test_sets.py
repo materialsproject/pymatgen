@@ -297,10 +297,13 @@ class MPNonSCFSetTest(PymatgenTest):
     def test_init(self):
         prev_run = os.path.join(test_dir, "relaxation")
         vis = MPNonSCFSet.from_prev_calc(
-            prev_calc_dir=prev_run, mode="Line", copy_chgcar=False)
+            prev_calc_dir=prev_run, mode="Line", copy_chgcar=False,
+            user_incar_settings={"SIGMA": 0.025})
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
         self.assertEqual(vis.incar["ENCUT"], 600)
+        # Check that the user_incar_settings works
+        self.assertEqual(vis.incar["SIGMA"], 0.025)
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
 
         # Check as from dict.
@@ -438,13 +441,14 @@ class MPSOCSetTest(PymatgenTest):
     def test_from_prev_calc(self):
         prev_run = os.path.join(test_dir, "fe_monomer")
         vis = MPSOCSet.from_prev_calc(prev_calc_dir=prev_run, magmom=[3],
-                                      saxis=(1, 0, 0))
+                                      saxis=(1, 0, 0),
+                                      user_incar_settings={"SIGMA": 0.025})
         self.assertEqual(vis.incar["ISYM"], -1)
         self.assertTrue(vis.incar["LSORBIT"])
         self.assertEqual(vis.incar["ICHARG"], 11)
         self.assertEqual(vis.incar["SAXIS"], [1, 0, 0])
         self.assertEqual(vis.incar["MAGMOM"], [[0, 0, 3]])
-
+        self.assertEqual(vis.incar['SIGMA'], 0.025)
 
 class MVLSlabSetTest(PymatgenTest):
 
