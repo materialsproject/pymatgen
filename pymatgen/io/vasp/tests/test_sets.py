@@ -450,6 +450,7 @@ class MPSOCSetTest(PymatgenTest):
         self.assertEqual(vis.incar["MAGMOM"], [[0, 0, 3]])
         self.assertEqual(vis.incar['SIGMA'], 0.025)
 
+
 class MVLSlabSetTest(PymatgenTest):
 
     def setUp(self):

@@ -750,8 +750,7 @@ class MPNonSCFSet(MPRelaxSet):
                       "LCHARG": False, "LORBIT": 11, "LWAVE": False,
                       "NSW": 0, "ISYM": 0, "ICHARG": 11})
 
-        if self.kwargs.get("user_incar_settings", {}) is not None:
-            incar.update(self.kwargs.get("user_incar_settings", {}))
+        incar.update(self.kwargs.get("user_incar_settings", {}))
 
         if self.mode.lower() == "uniform":
             # Set smaller steps for DOS output
@@ -904,9 +903,7 @@ class MPSOCSet(MPStaticSet):
         # Overwrite necessary INCAR parameters from previous runs
         incar.update({"ISYM": -1, "LSORBIT": "T", "ICHARG": 11,
                       "SAXIS": list(self.saxis)})
-
-        if self.kwargs.get("user_incar_settings", {}) is not None:
-            incar.update(self.kwargs.get("user_incar_settings", {}))
+        incar.update(self.kwargs.get("user_incar_settings", {}))
 
         return incar
 
