@@ -313,15 +313,16 @@ class eos_polynomial:
         ierr = 0
         tol = 1e-12
         #
-        #.....imin outside limits
+        # Check if imin is at or outside the limits of the provided data
         #
-        if imin <= 1 or imin >= ndata:
+#        if imin <= 1 or imin >= ndata:
+        if imin <= 0 or imin >= (ndata-1):
             logstr = logstr + "MP Eqn of State Thermal minbrack: trial point outside limits \n"
             logstr = logstr + "MP Eqn of State Thermal minbrack: imin = " + str(imin) + " \n"
             ierr = 1
             return ierr, imin, logstr
         #
-        #.....decide the direction of the search
+        # Decide which direction to start searching in
         #
         istep = 0
         if datatofit[imin] < datatofit[imin+1] and datatofit[imin] < datatofit[imin-1]:
@@ -348,7 +349,8 @@ class eos_polynomial:
         #
         #.....search for a minimum pattern
         #
-        while imin > 1 and imin < ndata:
+        #while imin > 1 and imin < ndata:
+        while imin > 0 and imin < (ndata-1):
             if datatofit[imin] > datatofit[imin+istep]:
                 imin = imin + istep
             #

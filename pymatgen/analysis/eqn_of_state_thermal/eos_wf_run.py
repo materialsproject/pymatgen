@@ -386,7 +386,7 @@ class eos_thermal_properties:
         # If this does not correct the error, then MP Eqn of State Thermal exits giving an error message
         if self.pmerr != 0:
             if self.pmerr == 1:
-                while (self.pmerr == 1) and ((itry + 2) < self.ndata):
+                while (self.pmerr == 1) and ((itry + 2) < (self.ndata-1)):
                     itry = itry + 1
                     self.logstr = self.logstr + "MP Eqn of State Thermal: Resetting itry to itry = " + str(itry) + " \n"
                     self.pmerr, xmin, self.logstr = eos_polynomial_inst.polmin(self.xconfigvector[itry], self.xconfigvector[max(itry-2, 0)], self.xconfigvector[min(itry+2, self.ndata-1)], nepol, epol, self.pmerr, self.logstr)
@@ -889,7 +889,7 @@ class eos_thermal_properties:
                     self.logstr = self.logstr + "MP Eqn of State Thermal: itry = " + str(itry) + " \n"
                     self.logstr = self.logstr + "MP Eqn of State Thermal: pmerr = " + str(self.pmerr) + " \n"
                     if self.pmerr == 1:
-                        while (self.pmerr == 1) and ((itry + 2) < self.ndata):
+                        while (self.pmerr == 1) and ((itry + 2) < (self.ndata-1)):
                             itry = itry + 1
                             self.logstr = self.logstr + "MP Eqn of State Thermal: Resetting itry to itry = " + str(itry) + " \n"
                             self.pmerr, xmin, self.logstr = eos_polynomial_inst.polmin(self.xconfigvector[itry], self.xconfigvector[max(itry-2, 0)], self.xconfigvector[min(itry+2, self.ndata-1)], ngpol, gpol, self.pmerr, self.logstr)
