@@ -12,9 +12,8 @@ generating deformed structure sets for further calculations.
 """
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.analysis.elasticity.tensors import SquareTensor
+from pymatgen.analysis.elasticity.tensors import SquareTensor, voigt_map
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.elasticity import voigt_map
 import warnings
 import numpy as np
 from six.moves import zip
@@ -323,7 +322,7 @@ class IndependentStrain(Strain):
     def j(self):
         return self._j
 
-def convert_strain_to_deformation(strain):
+def convert_strain_to_deformation(strain, tol=1e-5):
     strain = SquareTensor(strain)
     ftdotf = 2*strain + np.eye(3)
     eigs, eigvecs = np.linalg.eig(ftdotf)
@@ -331,4 +330,8 @@ def convert_strain_to_deformation(strain):
     rotated = rotated.round(14)
     defo = Deformation(np.sqrt(rotated))
     result = defo.rotate(eigvecs)
+    rd = np.abs(strain - 0.5*(np.dot(np.transpose(result),result) - np.eye(3)))
+    assert (rd < tol).all(), "Strain-generated deformation is not valid!"
     return result
+
+
