@@ -12,9 +12,8 @@ generating deformed structure sets for further calculations.
 """
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.analysis.elasticity.tensors import SquareTensor
+from pymatgen.analysis.elasticity.tensors import SquareTensor, voigt_map
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.elasticity import voigt_map
 import warnings
 import numpy as np
 from six.moves import zip
