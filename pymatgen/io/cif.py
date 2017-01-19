@@ -805,7 +805,7 @@ class CifWriter(object):
         count = 1
         if symprec is None:
             for site in struct:
-                for sp, occu in site.species_and_occu.items():
+                for sp, occu in sorted(site.species_and_occu.items()):
                     atom_site_type_symbol.append(sp.__str__())
                     atom_site_symmetry_multiplicity.append("1")
                     atom_site_fract_x.append("{0:f}".format(site.a))
