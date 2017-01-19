@@ -1916,7 +1916,9 @@ class IMolecule(SiteCollection, MSONable):
             coords.extend(new_coords)
         sprops = {k: v * nimages for k, v in self.site_properties.items()}
 
-        if cls is None: cls = Structure
+        if cls is None:
+            cls = Structure
+
         return cls(lattice, self.species * nimages, coords,
                    coords_are_cartesian=True,
                    site_properties=sprops).get_sorted_structure()
@@ -2887,7 +2889,7 @@ class Molecule(IMolecule, collections.MutableSequence):
         if indices is None:
             indices = range(len(self))
         if vector is None:
-            vector == [0,0,0]
+            vector == [0, 0, 0]
         for i in indices:
             site = self._sites[i]
             new_site = Site(site.species_and_occu, site.coords + vector,
