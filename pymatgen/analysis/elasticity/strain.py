@@ -322,7 +322,7 @@ class IndependentStrain(Strain):
     def j(self):
         return self._j
 
-def convert_strain_to_deformation(strain, tol=1e-5):
+def convert_strain_to_deformation(strain):
     strain = SquareTensor(strain)
     ftdotf = 2*strain + np.eye(3)
     eigs, eigvecs = np.linalg.eig(ftdotf)
@@ -330,8 +330,4 @@ def convert_strain_to_deformation(strain, tol=1e-5):
     rotated = rotated.round(10)
     defo = Deformation(np.sqrt(rotated))
     result = defo.rotate(eigvecs)
-    rd = np.abs(strain - 0.5*(np.dot(np.transpose(result),result) - np.eye(3)))
-    assert (rd < tol).all(), "Strain-generated deformation is not valid!"
     return result
-
-

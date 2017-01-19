@@ -33,7 +33,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from numpy.linalg import norm
 
-voigt_map = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
+voigt_map = [[0, 0], [1, 1], [2, 2], [1, 2], [2, 0], [0, 1]]
 reverse_voigt_map = np.array([[0, 5, 4],
                               [5, 1, 3],
                               [4, 3, 2]])
@@ -252,7 +252,7 @@ class TensorBase(np.ndarray):
         voigt_map = t.get_voigt_dict(rank)
         for ind in voigt_map:
             t[ind] = voigt_input[voigt_map[ind]]
-        return t
+        return cls(t)
 
     def convert_to_ieee(self, structure):
         """
@@ -381,7 +381,7 @@ class SquareTensor(TensorBase):
         """
         return np.linalg.det(self)
 
-    def is_rotation(self, tol=1e-5, include_improper=True):
+    def is_rotation(self, tol=1e-3):
         """
         Test to see if tensor is a valid rotation matrix, performs a
         test to check whether the inverse is equal to the transpose
@@ -393,11 +393,9 @@ class SquareTensor(TensorBase):
                 the determinant is one and the inverse is equal
                 to the transpose
         """
-        det = np.abs(np.linalg.det(self))
-        if include_improper:
-            det = np.abs(det)
+
         return (np.abs(self.inv - self.trans) < tol).all() \
-            and (np.abs(det - 1.) < tol)
+            and np.abs(np.abs(np.linalg.det(self)) - 1. < tol)
 
     def get_scaled(self, scale_factor):
         """
@@ -423,3 +421,9 @@ class SquareTensor(TensorBase):
         calculates matrices for polar decomposition
         """
         return polar(self, side=side)
+
+def generate_distinct_elements(rank, structure):
+    """
+    Function to generate distinct elements of a tensor
+    """
+    pass
