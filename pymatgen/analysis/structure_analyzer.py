@@ -28,7 +28,7 @@ from pymatgen import PeriodicSite
 from pymatgen import Element, Specie, Composition
 from pymatgen.util.num_utils import abs_cap
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
+from pymatgen.core.surface import Slab
 
 class VoronoiCoordFinder(object):
     """
@@ -78,8 +78,9 @@ class VoronoiCoordFinder(object):
         for nn, vind in voro.ridge_dict.items():
             if 0 in nn:
                 if -1 in vind:
-                    # TODO: This is not acceptable
-                    continue
+                    # Ignore infinite vertex if structure is a slab
+                    if isinstance(self._structure, Slab):
+                        continue
                     raise RuntimeError("This structure is pathological,"
                                        " infinite vertex in the voronoi "
                                        "construction")
