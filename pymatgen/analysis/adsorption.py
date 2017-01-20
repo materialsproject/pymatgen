@@ -29,7 +29,7 @@ from pymatgen.core.surface import generate_all_slabs
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2016, The Materials Project"
-__version__ = "1.0"
+__version__ = "0.1"
 __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
 __status__ = "Development"
@@ -38,17 +38,30 @@ __date__ = "December 2, 2015"
 class AdsorbateSiteFinder(object):
     """
     This class finds adsorbate sites on slabs and generates
-    adsorbate structures
+    adsorbate structures according to user-defined criteria.
+    The algorithm for finding sites is essentially as follows:
+        1. Determine "surface sites" by finding those within
+            a height threshold along the miller index of the 
+            highest site
+        2. Create a network of surface sites using the Delaunay
+            triangulation of the surface sites
+        3. Assign on-top, bridge, and hollow adsorption sites
+            at the nodes, edges, and face centers of the Del.
+            Triangulation
+        4. Generate structures from a molecule positioned at 
+            these sites
     """
 
     def __init__(self, slab, selective_dynamics=False, 
                  height=0.9):
         """
-        Create an AdsorbateSiteFinder object.
+        Create an AdsorbateSiteFinder object.  
 
         Args:
-            slab (Slab): slab object for which to find adsorbate
-            sites
+            slab (Slab): slab object for which to find adsorbate sites
+            selective_dynamics (bool): flag for whether to assign
+                non-surface sites as fixed for selective dynamics
+            height (float): height criteria for selection of surface sites
         """
         self.mi_string = ''.join([str(i) for i in slab.miller_index])
         # get surface normal from miller index
@@ -64,24 +77,31 @@ class AdsorbateSiteFinder(object):
                              center_slab = True, selective_dynamics=False,
                              undercoord_threshold = 0.1):
         """
-        This method constructs the adsorbate site finder 
-        from a bulk structure and a miller index, which
-        allows the surface sites to be determined from
-        the difference in bulk and slab coordination
+        This method constructs the adsorbate site finder from a bulk 
+        structure and a miller index, which allows the surface sites 
+        to be determined from the difference in bulk and slab coordination, 
+        as opposed to the height threshold.
         
         Args:
             structure (Structure): structure from which slab
                 input to the ASF is constructed
-            miller_index (3-tuple or list): index for slab
+            miller_index (3-tuple or list): miller index to be used
+            min_slab_size (float): min slab size for slab generation
+            min_vacuum_size (float): min vacuum size for slab generation
+            max_normal_search (int): max normal search for slab generation
+            center_slab (bool): whether to center slab in slab generation
+            selective dynamics (bool): whether to assign surface sites
+                to selective dynamics
+            undercoord_threshold (float): threshold of "undercoordation"
+                to use for the assignment of surface sites.  Default is
+                0.1, for which surface sites will be designated if they
+                are 10% less coordinated than their bulk counterpart
         """
-        # TODO: for some reason this is buggy with primitive cells, 
-        # might be a problem elsewhere
+        # TODO: for some reason this works poorly with primitive cells
         vcf_bulk = VoronoiCoordFinder(structure)
         bulk_coords = [len(vcf_bulk.get_coordinated_sites(n))
                        for n in range(len(structure))]
         struct = structure.copy(site_properties = {'bulk_coordinations':bulk_coords})
-        # This should probably be a slab generation method
-        #   rather than selecting from generate_all_slabs
         slabs = generate_all_slabs(struct, max_index=max(miller_index), 
                                    min_slab_size=min_slab_size,
                                    min_vacuum_size=min_vacuum_size,
@@ -135,16 +155,6 @@ class AdsorbateSiteFinder(object):
         mask = (m_projs - np.amax(m_projs)) >= -height
         return [slab.sites[n] for n in np.where(mask)[0]]
 
-    def find_surface_sites_by_coordination(self, slab):
-        """
-        This method finds surface sites by testing the coordination against the
-        bulk coordination
-        """
-        if 'bulk_coordination' not in slab.site_properties:
-            raise ValueError("Input slabs must have bulk_coordination assigned."
-                             "Use adsorption.generate_decorated_slabs to assign.")
-        pass
-
     def assign_site_properties(self, slab, height=0.9):
         """
         Assigns site properties.
@@ -158,11 +168,16 @@ class AdsorbateSiteFinder(object):
         return slab.copy(
             site_properties = {'surface_properties': surf_props})
 
-    def get_extended_surface_mesh(self, radius = 6.0, window = 1.0):
+    def get_extended_surface_mesh(self, repeat=(5, 5, 1)):
         """
+        Gets an extended surface mesh for to use for adsorption
+        site finding by constructing supercell of surface sites
+
+        Args:
+            repeat (3-tuple): repeat for getting extended surface mesh
         """
         surf_str = Structure.from_sites(self.surface_sites)
-        surf_str.make_supercell((5, 5, 1))
+        surf_str.make_supercell(repeat)
         return surf_str
 
     @property
@@ -174,11 +189,25 @@ class AdsorbateSiteFinder(object):
                 if site.properties['surface_properties']=='surface']
 
     def find_adsorption_sites(self, distance = 2.0, put_inside = True,
-                              symm_reduce = True, near_reduce = True,
+                              symm_reduce = 1e-2, near_reduce = 1e-2,
                               positions = ['ontop', 'bridge', 'hollow'],
-                              near_reduce_threshold = 1e-2, 
                               no_obtuse_triangles = True):
         """
+        Finds surface sites according to the above algorithm.  Returns
+        a list of corresponding cartesian coordinates.
+        
+        Args:
+            distance (float): distance from the coordinating ensemble
+                of atoms along the miller index for the site (i. e. 
+                the distance from the slab itself)
+            put_inside (bool): whether to put the site inside the cell
+            symm_reduce (float): symm reduction threshold
+            near_reduce (float): near reduction threshold
+            positions (list): which of "ontop", "bridge", and "hollow" to
+                include in the site finding
+            no_obtuse_triangles (bool): flag to indicate whether to include
+                obtuse_triangles in determination of hollow sites
+
         """
         # find on-top sites
         ads_sites = []
@@ -210,8 +239,6 @@ class AdsorbateSiteFinder(object):
         # Pare off outer edges
         frac_coords = [cart_to_frac(self.slab.lattice, ads_site) 
                        for ads_site in ads_sites]
-        #TODO: this is a monster.  Fix it.
-        #import pdb; pdb.set_trace()
         frac_coords = [frac_coord for frac_coord in frac_coords 
                        if (frac_coord[0]>1 and frac_coord[0]<4
                        and frac_coord[1]>1 and frac_coord[1]<4)]
@@ -221,10 +248,10 @@ class AdsorbateSiteFinder(object):
             ads_sites += [s.coords for s in self.surface_sites]
         if near_reduce:
             ads_sites = self.near_reduce(ads_sites, 
-                                         threshold=near_reduce_threshold)
+                                         threshold=near_reduce)
         
         if symm_reduce:
-            ads_sites = self.symm_reduce(ads_sites)
+            ads_sites = self.symm_reduce(ads_sites, threshold=symm_reduce)
         ads_sites = [ads_site + distance*self.mvec
                      for ads_site in ads_sites]
         if put_inside:
@@ -284,6 +311,13 @@ class AdsorbateSiteFinder(object):
         Finds the center of an ensemble of sites selected from
         a list of sites.  Helper method for the find_adsorption_sites
         algorithm.
+
+        Args:
+            site_list (list of sites): list of sites
+            indices (list of ints): list of ints from which to select
+                sites from site list
+            cartesian (bool): whether to get average fractional or
+                cartesian coordinate
         """
         if cartesian:
             return np.average([site_list[i].coords for i in indices], 
@@ -294,7 +328,15 @@ class AdsorbateSiteFinder(object):
 
     def add_adsorbate(self, molecule, ads_coord, repeat = None):
         """
-        Adds an adsorbate at a particular coordinate
+        Adds an adsorbate at a particular coordinate.  Adsorbate
+        represented by a Molecule object, and is positioned relative
+        to the input adsorbate coordinate.
+
+        Args:
+            molecule (Molecule): molecule object representing the adsorbate
+            ads_coord (array): coordinate of adsorbate position
+            repeat (3-tuple or list): input for making a supercell of slab
+                prior to placing the adsorbate
         """
         struct = self.slab.copy()
         if repeat:
@@ -311,6 +353,13 @@ class AdsorbateSiteFinder(object):
         return struct
         
     def assign_selective_dynamics(self, slab):
+        """
+        Helper function to assign selective dynamics site_properties
+        based on surface, subsurface site properties
+
+        Args:
+            slab (Slab): slab for which to assign selective dynamics
+        """
         sd_list = []
         sd_list = [[False, False, False]  if site.properties['surface_properties']=='subsurface' 
                    else [True, True, True] for site in slab.sites]
@@ -320,6 +369,17 @@ class AdsorbateSiteFinder(object):
 
     def generate_adsorption_structures(self, molecule, repeat = None, 
                                        min_lw = 5.0):
+        """
+        Function that generates all adsorption structures for a given
+        molecular adsorbate.  Can take repeat argument or minimum
+        length/width of precursor slab as an input
+
+        Args:
+            molecule (Molecule): molecule corresponding to adsorbate
+            repeat (3-tuple or list): repeat argument for supercell generation
+            min_lw (float): minimum length and width of the slab, only used
+                if repeat is None
+        """
         if repeat is None:
             xrep = np.ceil(min_lw / np.linalg.norm(self.slab.lattice.matrix[0]))
             yrep = np.ceil(min_lw / np.linalg.norm(self.slab.lattice.matrix[1]))
@@ -357,7 +417,7 @@ def get_rot(slab):
 
 def put_coord_inside(lattice, cart_coordinate):
     """
-    converts a cartesian coordinate such taht it is inside the unit cell.
+    converts a cartesian coordinate such that it is inside the unit cell.
     """
     fc = cart_to_frac(lattice, cart_coordinate)
     return frac_to_cart(lattice, [c - np.floor(c) for c in fc])
