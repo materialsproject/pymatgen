@@ -786,18 +786,25 @@ class DopingTransformation(AbstractTransformation):
 
 class SlabTransformation(AbstractTransformation):
     """
-    Creates a slab from a structure.
+    A transformation that creates a slab from a structure.
 
-    Args:
-        miller_index
-        min_slab_size
-        min_vacuum_size
-        shift
     """
     def __init__(self, miller_index, min_slab_size, min_vacuum_size,
                  lll_reduce=False, center_slab=False, primitive=True,
-                 max_normal_search=None, shift=0, tol=0.1, energy=None):
+                 max_normal_search=None, shift=0, tol=0.1):
         """
+        Args:
+            miller_index (3-tuple or list): miller index of slab
+            min_slab_size (float): minimum slab size in angstroms
+            min_vacuum_size (float): minimum size of vacuum
+            lll_reduce (bool): whether to apply LLL reduction
+            center_slab (bool): whether to center the slab
+            primitive (bool): whether to reduce slabs to most primitive cell
+            max_normal_search (int): maximum index to include in linear
+                combinations of indices to find c lattice vector orthogonal
+                to slab surface
+            shift (float): shift to get termination
+            tol (float): tolerance for primitive cell finding
         """
         self.miller_index = miller_index
         self.min_slab_size = min_slab_size
@@ -808,14 +815,13 @@ class SlabTransformation(AbstractTransformation):
         self.max_normal_search = max_normal_search
         self.shift = shift
         self.tol = 0.1
-        self.energy = energy
 
     def apply_transformation(self, structure):
         sg = SlabGenerator(structure, self.miller_index, self.min_slab_size,
                            self.min_vacuum_size, self.lll_reduce, 
                            self.center_slab, self.primitive,
                            self.max_normal_search)
-        slab = sg.get_slab(self.shift, self.tol, self.energy)
+        slab = sg.get_slab(self.shift, self.tol)
         return slab
 
     @property
