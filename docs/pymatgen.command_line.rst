@@ -10,38 +10,12 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.command_line.aconvasp_caller module
---------------------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.command_line.aconvasp_caller
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.command_line.bader_caller module
------------------------------------------
-
-.. automodule:: pymatgen.command_line.bader_caller
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.command_line.enumlib_caller module
--------------------------------------------
-
-.. automodule:: pymatgen.command_line.enumlib_caller
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.command_line.gulp_caller module
-----------------------------------------
-
-.. automodule:: pymatgen.command_line.gulp_caller
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.command_line.aconvasp_caller
+   pymatgen.command_line.bader_caller
+   pymatgen.command_line.enumlib_caller
+   pymatgen.command_line.gulp_caller
 
 Module contents
 ---------------

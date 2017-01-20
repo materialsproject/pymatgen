@@ -10,22 +10,10 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.serializers.json_coders module
----------------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.serializers.json_coders
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.serializers.pickle_coders module
------------------------------------------
-
-.. automodule:: pymatgen.serializers.pickle_coders
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.serializers.json_coders
+   pymatgen.serializers.pickle_coders
 
 Module contents
 ---------------

@@ -4,6 +4,23 @@
 
 from __future__ import unicode_literals
 
+import os
+import re
+import json
+import datetime
+from copy import deepcopy
+
+from monty.json import MontyDecoder
+
+from pymatgen.core.structure import Structure
+from pymatgen.io.cif import CifParser
+from pymatgen.io.vasp.inputs import Poscar
+from monty.json import MSONable
+
+from pymatgen.io.vasp.sets import MPRelaxSet
+
+from warnings import warn
+
 """
 This module provides various representations of transformed structures. A
 TransformedStructure is a structure that has been modified by undergoing a
@@ -18,22 +35,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 2, 2012"
 
-import os
-import re
-import json
-import datetime
-from copy import deepcopy
-
-from monty.json import MontyDecoder
-
-from pymatgen.core.structure import Structure
-from pymatgen.io.cif import CifParser
-from pymatgen.io.vasp.inputs import Poscar
-from monty.json import MSONable
-from pymatgen.matproj.snl import StructureNL
-from pymatgen.io.vasp.sets import MPRelaxSet
-
-from warnings import warn
 
 dec = MontyDecoder()
 
@@ -352,6 +353,7 @@ class TransformedStructure(MSONable):
                          'url' : snl_metadata.pop('url',
                                     'http://pypi.python.org/pypi/pymatgen'),
                          'description' : h})
+        from pymatgen.matproj.snl import StructureNL
         return StructureNL(self.final_structure, authors, projects, references,
                            remarks, data, hist, created_at)
 

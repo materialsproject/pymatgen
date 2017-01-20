@@ -10,14 +10,9 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.analysis.hhi.hhi module
---------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.analysis.hhi.hhi
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.analysis.hhi.hhi
 
 Module contents
 ---------------

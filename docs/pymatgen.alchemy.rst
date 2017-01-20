@@ -10,30 +10,11 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.alchemy.filters module
--------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.alchemy.filters
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.alchemy.materials module
----------------------------------
-
-.. automodule:: pymatgen.alchemy.materials
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.alchemy.transmuters module
------------------------------------
-
-.. automodule:: pymatgen.alchemy.transmuters
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.alchemy.filters
+   pymatgen.alchemy.materials
+   pymatgen.alchemy.transmuters
 
 Module contents
 ---------------

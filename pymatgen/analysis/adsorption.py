@@ -12,12 +12,16 @@ and to find adsorption sites on slabs
 
 import numpy as np
 from six.moves import range
-from pymatgen import Structure, Lattice
+from pymatgen import Structure, Lattice, vis
 import tempfile
 import sys
 import subprocess
 import itertools
+import os
+from monty.serialization import loadfn
 from pyhull.delaunay import DelaunayTri
+from matplotlib import patches
+from matplotlib.path import Path
 from pyhull.voronoi import VoronoiTess
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -75,7 +79,7 @@ class AdsorbateSiteFinder(object):
     def from_bulk_and_miller(cls, structure, miller_index, min_slab_size=5.0,
                              min_vacuum_size=10.0, max_normal_search=None, 
                              center_slab = True, selective_dynamics=False,
-                             undercoord_threshold = 0.1):
+                             undercoord_threshold = 0.09):
         """
         This method constructs the adsorbate site finder from a bulk 
         structure and a miller index, which allows the surface sites 
@@ -191,7 +195,7 @@ class AdsorbateSiteFinder(object):
     def find_adsorption_sites(self, distance = 2.0, put_inside = True,
                               symm_reduce = 1e-2, near_reduce = 1e-2,
                               positions = ['ontop', 'bridge', 'hollow'],
-                              no_obtuse_triangles = True):
+                              no_obtuse_hollow = True):
         """
         Finds surface sites according to the above algorithm.  Returns
         a list of corresponding cartesian coordinates.
@@ -205,35 +209,31 @@ class AdsorbateSiteFinder(object):
             near_reduce (float): near reduction threshold
             positions (list): which of "ontop", "bridge", and "hollow" to
                 include in the site finding
-            no_obtuse_triangles (bool): flag to indicate whether to include
-                obtuse_triangles in determination of hollow sites
+            no_obtuse_hollow (bool): flag to indicate whether to include
+                obtuse triangular ensembles in hollow sites
 
         """
-        # find on-top sites
         ads_sites = []
-        # Get bridge sites via DelaunayTri of extended surface mesh
         mesh = self.get_extended_surface_mesh()
         sop = get_rot(self.slab)
         dt = DelaunayTri([sop.operate(m.coords)[:2] for m in mesh])
+        # TODO: refactor below to properly account for >3-fold
         for v in dt.vertices:
-            # TODO: bridge/hollow should be refactored at some point
-            #   to properly account for multi-coordinated sites
             if -1 not in v:
-                vecs = []
-                for data in itertools.combinations(v, 2):
+                dots = []
+                for i_corner, i_opp in zip(range(3), ((1,2), (0,2), (0,1))):
+                    corner, opp = v[i_corner], [v[o] for o in i_opp]
+                    vecs = [mesh[d].coords - mesh[corner].coords for d in opp]
+                    vecs = [vec/np.linalg.norm(vec) for vec in vecs]
+                    dots.append(np.dot(*vecs))
                     # Add bridge sites at midpoints of edges of D. Tri
                     if 'bridge' in positions:
-                        ads_sites += [self.ensemble_center(mesh, data, 
+                        ads_sites += [self.ensemble_center(mesh, opp, 
                                                            cartesian = True)]
-                    vecs += [mesh[data[1]].coords - mesh[data[0]].coords]
                 # Prevent addition of hollow sites in obtuse triangles
-                if no_obtuse_triangles:
-                    dots = np.array([np.dot(vec1, vec2) for vec1, vec2 
-                                     in itertools.combinations(vecs, 2)])
-                    if (np.abs(dots) < 1e-10).any():
-                        continue
+                obtuse = no_obtuse_hollow and (np.array(dots) < 1e-5).any()
                 # Add hollow sites at centers of D. Tri faces
-                if 'hollow' in positions:
+                if 'hollow' in positions and not obtuse:
                     ads_sites += [self.ensemble_center(mesh, v,
                                                        cartesian=True)]
         # Pare off outer edges
@@ -326,7 +326,7 @@ class AdsorbateSiteFinder(object):
             return np.average([site_list[i].frac_coords for i in indices], 
                               axis = 0)
 
-    def add_adsorbate(self, molecule, ads_coord, repeat = None):
+    def add_adsorbate(self, molecule, ads_coord, repeat=None, reorient=True):
         """
         Adds an adsorbate at a particular coordinate.  Adsorbate
         represented by a Molecule object, and is positioned relative
@@ -338,6 +338,10 @@ class AdsorbateSiteFinder(object):
             repeat (3-tuple or list): input for making a supercell of slab
                 prior to placing the adsorbate
         """
+        if reorient:
+            # Reorient the molecule along slab m_index
+            sop = get_rot(self.slab)
+            molecule.apply_operation(sop.inverse)
         struct = self.slab.copy()
         if repeat:
             struct.make_supercell(repeat)
@@ -386,8 +390,8 @@ class AdsorbateSiteFinder(object):
             repeat = [xrep, yrep, 1]
         structs = []
         for coords in self.find_adsorption_sites():
-            structs += [self.add_adsorbate(molecule, coords,
-                                      repeat = repeat)]
+            structs.append(self.add_adsorbate(
+                molecule, coords, repeat=repeat, reorient=reorient))
         return structs
 
 def mi_vec(mi_index):
@@ -443,3 +447,78 @@ def cart_to_frac(lattice, cart_coord):
     converts cartesian coordinates to fractional
     """
     return np.dot(np.linalg.inv(np.transpose(lattice.matrix)), cart_coord)
+
+# Get color dictionary
+colors = loadfn(os.path.join(os.path.dirname(vis.__file__), 
+                             "ElementColorSchemes.yaml"))
+color_dict = {el:[j / 256. for j in colors["Jmol"][el]] 
+              for el in colors["Jmol"].keys()}
+
+def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
+              draw_unit_cell=True, decay = 0.2, adsorption_sites=True):
+    """
+    Function that helps visualize the slab in a 2-D plot, for
+    convenient viewing of output of AdsorbateSiteFinder.
+
+    Args:
+        slab (slab): Slab object to be visualized
+        ax (axes): matplotlib axes with which to visualize
+        scale (float): radius scaling for sites
+        repeat (int): number of repeating unit cells to visualize
+        window (float): window for setting the axes limits, is essentially
+            a fraction of the unit cell limits
+        draw_unit_cell (bool): flag indicating whether or not to draw cell
+        decay (float): how the alpha-value decays along the z-axis
+    """
+    orig_slab = slab.copy()
+    slab = reorient_z(slab)
+    orig_cell = slab.lattice.matrix.copy()
+    if repeat:
+        slab.make_supercell([repeat, repeat, 1])
+    coords = np.array(sorted(slab.cart_coords, key=lambda x: x[2]))
+    sites = sorted(slab.sites, key = lambda x: x.coords[2])
+    alphas = 1 - decay*(np.max(coords[:, 2]) - coords[:, 2])
+    corner = [0, 0, cart_to_frac(slab.lattice, coords[-1])[-1]]
+    corner = frac_to_cart(slab.lattice, corner)[:2]
+    verts =  orig_cell[:2, :2]
+    lattsum = verts[0]+verts[1]
+    # Draw circles at sites and stack them accordingly
+    for n, coord in enumerate(coords):
+        r = sites[n].specie.atomic_radius*scale
+        ax.add_patch(patches.Circle(coord[:2]-lattsum*(repeat//2), 
+                                    r, color='w', zorder=2*n))
+        color = color_dict[sites[n].species_string]
+        ax.add_patch(patches.Circle(coord[:2]-lattsum*(repeat//2), r,
+                                    facecolor=color, alpha=alphas[n], 
+                                    edgecolor='k', lw=0.3, zorder=2*n+1))
+    # Adsorption sites
+    if adsorption_sites:
+        asf = AdsorbateSiteFinder(orig_slab)
+        ads_sites = asf.find_adsorption_sites()
+        sop = get_rot(orig_slab)
+        ads_sites = [sop.operate(ads_site)[:2].tolist()
+                     for ads_site in ads_sites]
+        ax.plot(*zip(*ads_sites), color='k', marker='x',
+                markersize=10, mew=1, linestyle='', zorder=10000)
+    # Draw unit cell
+    if draw_unit_cell:
+        verts = np.insert(verts, 1, lattsum, axis=0).tolist()
+        verts += [[0., 0.]]
+        verts = [[0., 0.]] + verts
+        codes = [Path.MOVETO, Path.LINETO, Path.LINETO, 
+                 Path.LINETO, Path.CLOSEPOLY]
+        verts = [(np.array(vert) + corner).tolist() for vert in verts]
+        path = Path(verts, codes)
+        patch = patches.PathPatch(path, facecolor='none',lw=2,
+                alpha = 0.5, zorder=2*n+2)
+        ax.add_patch(patch)
+    ax.set_aspect("equal")
+    center = corner + lattsum / 2.
+    extent = np.max(lattsum)
+    lim = zip(center-extent*window, center+extent*window)
+    ax.set_xlim(lim[0])
+    ax.set_ylim(lim[1])
+    return ax
+
+if __name__=='__main__':
+    pass

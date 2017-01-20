@@ -41,7 +41,7 @@ class NEBAnalysis(MSONable):
     An NEBAnalysis class.
     """
 
-    def __init__(self, r, energies, forces, structures, **kwargs):
+    def __init__(self, r, energies, forces, structures, spline_options=None):
         """
         Initializes an NEBAnalysis from the cumulative root mean squared distances
         between structures, the energies, the forces, the structures and the
@@ -53,23 +53,54 @@ class NEBAnalysis(MSONable):
             forces: Tangent forces along the reaction coordinate.
             structures ([Structure]): List of Structures along reaction
                 coordinate.
+            spline_options (dict): Options for cubic spline. For example,
+                {"saddle_point": "zero_slope"} forces the slope at the saddle to
+                be zero.
         """
         self.r = np.array(r)
         self.energies = np.array(energies)
         self.forces = np.array(forces)
         self.structures = structures
+        self.spline_options = spline_options if spline_options is not None \
+            else {}
 
         # We do a piecewise interpolation between the points. Each spline (
         # cubic by default) is constrained by the boundary conditions of the
         # energies and the tangent force, i.e., the derivative of
         # the energy at each pair of points.
+
+        self.setup_spline(spline_options=self.spline_options)
+
+    def setup_spline(self, spline_options=None):
+        """
+        Setup of the options for the spline interpolation
+
+        Args:
+            spline_options (dict): Options for cubic spline. For example,
+                {"saddle_point": "zero_slope"} forces the slope at the saddle to
+                be zero.
+        """
+        self.spline_options = spline_options
         if scipy_old_piecewisepolynomial:
+            if self.spline_options:
+                raise RuntimeError('Option for saddle point not available with'
+                                   'old scipy implementation')
             self.spline = PiecewisePolynomial(
                 self.r, np.array([self.energies, -self.forces]).T,
                 orders=3)
         else:
             # New scipy implementation for scipy > 0.18.0
-            self.spline = CubicSpline(x=self.r, y=self.energies, bc_type=((1, 0.0), (1, 0.0)))
+            if self.spline_options.get('saddle_point', '') == 'zero_slope':
+                imax = np.argmax(self.energies)
+                self.spline = CubicSpline(x=self.r[:imax + 1],
+                                          y=self.energies[:imax + 1],
+                                          bc_type=((1, 0.0), (1, 0.0)))
+                cspline2 = CubicSpline(x=self.r[imax:], y=self.energies[imax:],
+                                       bc_type=((1, 0.0), (1, 0.0)))
+                self.spline.extend(c=cspline2.c, x=cspline2.x[1:])
+            else:
+                self.spline = CubicSpline(x=self.r, y=self.energies,
+                                          bc_type=((1, 0.0), (1, 0.0)))
 
     @classmethod
     def from_outcars(cls, outcars, structures, **kwargs):
@@ -116,7 +147,8 @@ class NEBAnalysis(MSONable):
         energies -= energies[0]
         forces = np.array(forces)
         r = np.array(r)
-        return cls(r=r, energies=energies, forces=forces, structures=structures, **kwargs)
+        return cls(r=r, energies=energies, forces=forces,
+                   structures=structures, **kwargs)
 
     def get_extrema(self, normalize_rxn_coordinate=True):
         """

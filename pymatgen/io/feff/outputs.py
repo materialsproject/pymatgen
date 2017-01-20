@@ -193,7 +193,7 @@ class Xmu(MSONable):
     Args:
         header: Header object
         parameters: Tags object
-        absorbing_atom (str): absorbing atom symbol
+        absorbing_atom (str/int): absorbing atom symbol or index
         data (numpy.ndarray, Nx6): cross_sections
 
     Default attributes:
@@ -233,7 +233,12 @@ class Xmu(MSONable):
         header = Header.from_file(feff_inp_file)
         parameters = Tags.from_file(feff_inp_file)
         pots = Potential.pot_string_from_file(feff_inp_file)
-        absorbing_atom = pots.splitlines()[1].split()[2]
+        # site index (Note: in feff it starts from 1)
+        if "RECIPROCAL" in parameters:
+            absorbing_atom = parameters["TARGET"]
+        # species symbol
+        else:
+            absorbing_atom = pots.splitlines()[1].split()[2]
         return Xmu(header, parameters, absorbing_atom, data)
 
     @property

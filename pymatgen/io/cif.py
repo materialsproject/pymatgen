@@ -588,9 +588,12 @@ class CifParser(object):
                                 parse_symbol(et): els_occu[parse_symbol(et)]}
                     idxs_to_remove.append(idx)
 
-            # Remove the original row by iterating over all keys in the CIF data looking for lists, which indicates
-            # multiple data items, one for each row, and remove items from the list that corresponds to the removed row,
-            # so that it's not processed by the rest of this function (which would result in an error).
+            # Remove the original row by iterating over all keys in the CIF
+            # data looking for lists, which indicates
+            # multiple data items, one for each row, and remove items from the
+            # list that corresponds to the removed row,
+            # so that it's not processed by the rest of this function (which
+            # would result in an error).
             for cif_key in data.data:
                 if type(data.data[cif_key]) == list:
                     for id in sorted(idxs_to_remove, reverse=True):
@@ -870,8 +873,13 @@ def str2float(text):
     """
     Remove uncertainty brackets from strings and return the float.
     """
+
     try:
         return float(re.sub("\(.+\)", "", text))
     except TypeError:
         if isinstance(text, list) and len(text) == 1:
             return float(re.sub("\(.+\)", "", text[0]))
+    except ValueError as ex:
+        if text.strip() == ".":
+            return 0
+        raise ex

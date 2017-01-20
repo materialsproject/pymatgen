@@ -6,6 +6,10 @@
 Introduction
 ============
 
+.. image:: https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&circle-token=:circle-token
+
+.. image:: https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true
+
 .. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
@@ -63,9 +67,10 @@ several advantages over other codes out there:
    and is the analysis code powering the `Materials Project`_. The analysis it
    produces survives rigorous scrutiny every single day. Bugs tend to be
    found and corrected quickly. Pymatgen also uses
-   `CircleCI <https://circleci.com>`_ for continuous integration, which ensures
-   that every commit passes a comprehensive suite of unittests. The coverage of
-   the unittests can be seen at `here <coverage/index.html>`_.
+   `CircleCI <https://circleci.com>`_ and `Appveyor <https://www.appveyor.com/>`_
+   for continuous integration on the Linux and Windows platforms,
+   respectively, which ensures that every commit passes a comprehensive suite
+   of unittests. The coverage of the unittests can be seen at `here <coverage/index.html>`_.
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly.
 3. **It is open.** You are free to use and contribute to pymatgen. It also means
@@ -103,11 +108,17 @@ Conda install (recommended)
 ---------------------------
 
 If you are absolutely new to Python and/or are using Windows, the easiest
-installation process is using conda. The `Materials Virtual Lab`_
-maintains the `matsci channel on Anaconda cloud <https://anaconda
-.org/matsci>`_, which has useful packages for materials science, including
-pymatgen. Please go to the :doc:`installation page </installation>` for
-step-by-step instructions for all platforms.
+installation process is using `conda <http://conda.pydata.org>`_. The
+`Materials Virtual Lab`_ has started `materials.sh <http://materials.sh>`_,
+a community initiative to build a comprehensive collection of materials science
+software, where pymatgen is available. If you already have conda installed,
+pymatgen can be installed from the `matsci channel on Anaconda cloud <https://anaconda
+.org/matsci>`_ using the following one line command::
+
+   conda install --channel matsci pymatgen
+
+Step-by-step instructions for all platforms are available at the
+:doc:`installation page </installation>`.
 
 Standard install
 ----------------
@@ -123,7 +134,7 @@ Standard install
     2. Installation has been tested to be most successful with gcc. Use gcc
        where possible and do "export CC=gcc" prior to installation.
     3. Numpy's distutils is needed to compile the spglib and pyhull
-       dependencies. This should be the first thing you install.
+       dependencies. Numpy should be the first thing you install.
     4. One of the best things you can do is to use conda to manage all this.
        The instructions for `Shared cluster installation`_ pretty much
        applies to any machine as well.

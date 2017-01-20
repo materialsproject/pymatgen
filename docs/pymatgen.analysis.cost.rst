@@ -10,14 +10,9 @@ Subpackages
 Submodules
 ----------
 
-pymatgen.analysis.cost.cost module
-----------------------------------
+.. toctree::
 
-.. automodule:: pymatgen.analysis.cost.cost
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pymatgen.analysis.cost.cost
 
 Module contents
 ---------------

@@ -296,7 +296,7 @@ class LatticeTestCase(PymatgenTest):
         for (family_name, lattice) in self.families.items():
             new_lattice = lattice.scale(new_volume)
             self.assertAlmostEqual(new_lattice.volume, new_volume)
-            self.assertEqual(new_lattice.angles, lattice.angles)
+            self.assertArrayAlmostEqual(new_lattice.angles, lattice.angles)
 
     def test_get_wigner_seitz_cell(self):
         ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]])\

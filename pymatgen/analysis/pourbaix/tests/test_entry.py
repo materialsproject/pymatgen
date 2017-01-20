@@ -156,7 +156,6 @@ class TestPourbaixEntryIO(unittest.TestCase):
             ion_entry.append(PoE)
         entries = solid_entry + ion_entry
         PourbaixEntryIO.to_csv("pourbaix_test_entries.csv", entries)
-
         (elements, entries) = PourbaixEntryIO.from_csv(
             "pourbaix_test_entries.csv")
         self.assertEqual(elements,

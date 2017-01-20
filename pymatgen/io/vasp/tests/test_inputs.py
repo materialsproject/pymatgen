@@ -207,7 +207,7 @@ direct
         p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"),
                              check_for_POTCAR=False)
 
-        tempfname = "POSCAR.testing"
+        tempfname = "POSCAR.testing.md"
         p.write_file(tempfname)
         p3 = Poscar.from_file(tempfname)
 
