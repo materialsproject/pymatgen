@@ -519,6 +519,3 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
     ax.set_xlim(lim[0])
     ax.set_ylim(lim[1])
     return ax
-
-if __name__=='__main__':
-    pass
