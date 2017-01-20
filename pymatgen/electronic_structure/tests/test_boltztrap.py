@@ -59,6 +59,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
                                    1]/1e-23, 3.2860613, 4)
         self.assertAlmostEqual(self.bz._carrier_conc[500][67], 38.22832002)
         self.assertAlmostEqual(self.bz.vol, 612.97557323964838, 4)
+        self.assertAlmostEqual(self.bz.intrans["scissor"], 0.0, 1)
         self.assertAlmostEqual(self.bz._hall_doping['n'][700][-1][2][2][2], 5.0136483e-26)
         self.assertAlmostEqual(self.bz.dos.efermi, -0.0300005507057)
         self.assertAlmostEqual(self.bz.dos.energies[0], -2.4497049391830448, 4)
@@ -113,6 +114,8 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
                                8.08066254813)
         self.assertAlmostEqual(self.bz.get_thermal_conductivity(output='average', doping_levels=False)[200][32],  # TODO: this was originally "eigs"
                                0.0738961845832)
+        self.assertAlmostEqual(self.bz.get_thermal_conductivity(k_el=False,output='average', doping_levels=False)[200][32], 
+                               0.19429052)
 
     def test_get_zt(self):
         ref = [0.097408810215, 0.29335112354, 0.614673998089]
@@ -156,10 +159,15 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
     
     def test_get_symm_bands(self):
         structure = loadfn(os.path.join(test_dir,'boltztrap/structure_mp-12103.json'))
-        sbs_bzt = self.bz_bands.get_symm_bands(structure,-5.25204548)
-        self.assertAlmostEqual(len(sbs_bzt.bands[Spin.up]),20)
-        self.assertAlmostEqual(len(sbs_bzt.bands[Spin.up][1]),143)
-
+        sbs = loadfn(os.path.join(test_dir,'boltztrap/dft_bs_sym_line.json'))
+        kpoints = [kp.frac_coords for kp in sbs.kpoints]
+        labels_dict = {k: sbs.labels_dict[k].frac_coords for k in sbs.labels_dict}
+        for kpt_line,labels_dict in zip([None,sbs.kpoints,kpoints],[None,sbs.labels_dict,labels_dict]):
+            print(kpt_line)
+            sbs_bzt = self.bz_bands.get_symm_bands(structure,-5.25204548,kpt_line=kpt_line,labels_dict=labels_dict)
+            self.assertAlmostEqual(len(sbs_bzt.bands[Spin.up]),20)
+            self.assertAlmostEqual(len(sbs_bzt.bands[Spin.up][1]),143)
+        
     # def test_check_acc_bzt_bands(self):
     #     structure = loadfn(os.path.join(test_dir,'boltztrap/structure_mp-12103.json'))
     #     sbs = loadfn(os.path.join(test_dir,'boltztrap/dft_bs_sym_line.json'))

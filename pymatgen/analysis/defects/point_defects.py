@@ -119,9 +119,9 @@ class ValenceIonicRadiusEvaluator(object):
                 radius = site.specie.atomic_radius
                 # Handle elements with no atomic_radius
                 # by using calculated values instead.
-                if radius == None:
+                if radius is None:
                     radius = site.specie.atomic_radius_calculated
-                if radius == None:
+                if radius is None:
                     raise ValueError(
                             "cannot assign radius to element {}".format(
                             site.specie))
@@ -688,9 +688,10 @@ class Interstitial(Defect):
         coord_sites = filter(no_inter, coord_sites)
 
         coord_chrg = 0
-        for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
-            if not site.specie.symbol == 'X':
-                coord_chrg += weight * self._valence_dict[site.species_string]
+        if self._valence_dict:
+            for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
+                if not site.specie.symbol == 'X':
+                    coord_chrg += weight * self._valence_dict[site.species_string]
 
         return coord_no, coord_sites, coord_chrg
 

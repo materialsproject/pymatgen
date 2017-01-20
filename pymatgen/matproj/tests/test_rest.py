@@ -36,8 +36,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
-@unittest.skipIf("MAPI_KEY" not in SETTINGS,
-                 "MAPI_KEY environment variable not set.")
+@unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set.")
 class MPResterTest(unittest.TestCase):
 
     def setUp(self):

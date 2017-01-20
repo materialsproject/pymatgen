@@ -4,13 +4,13 @@
 
 from __future__ import unicode_literals
 
+import os
 import unittest2 as unittest
 import tempfile
-from monty.tempfile import ScratchDir
 from monty.json import MontyDecoder
 
 from pymatgen.io.vasp.sets import *
-from pymatgen.io.vasp.inputs import Poscar, Incar, Kpoints
+from pymatgen.io.vasp.inputs import Poscar, Kpoints
 from pymatgen import Specie, Lattice, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.util.testing import PymatgenTest
@@ -26,8 +26,8 @@ class MITMPRelaxSetTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        if "VASP_PSP_DIR" not in os.environ:
-            os.environ["VASP_PSP_DIR"] = test_dir
+        if "PMG_VASP_PSP_DIR" not in os.environ:
+            os.environ["PMG_VASP_PSP_DIR"] = test_dir
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         self.structure = poscar.structure
@@ -297,10 +297,13 @@ class MPNonSCFSetTest(PymatgenTest):
     def test_init(self):
         prev_run = os.path.join(test_dir, "relaxation")
         vis = MPNonSCFSet.from_prev_calc(
-            prev_calc_dir=prev_run, mode="Line", copy_chgcar=False)
+            prev_calc_dir=prev_run, mode="Line", copy_chgcar=False,
+            user_incar_settings={"SIGMA": 0.025})
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
         self.assertEqual(vis.incar["ENCUT"], 600)
+        # Check that the user_incar_settings works
+        self.assertEqual(vis.incar["SIGMA"], 0.025)
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
 
         # Check as from dict.
@@ -438,20 +441,22 @@ class MPSOCSetTest(PymatgenTest):
     def test_from_prev_calc(self):
         prev_run = os.path.join(test_dir, "fe_monomer")
         vis = MPSOCSet.from_prev_calc(prev_calc_dir=prev_run, magmom=[3],
-                                      saxis=(1, 0, 0))
+                                      saxis=(1, 0, 0),
+                                      user_incar_settings={"SIGMA": 0.025})
         self.assertEqual(vis.incar["ISYM"], -1)
         self.assertTrue(vis.incar["LSORBIT"])
         self.assertEqual(vis.incar["ICHARG"], 11)
         self.assertEqual(vis.incar["SAXIS"], [1, 0, 0])
         self.assertEqual(vis.incar["MAGMOM"], [[0, 0, 3]])
+        self.assertEqual(vis.incar['SIGMA'], 0.025)
 
 
 class MVLSlabSetTest(PymatgenTest):
 
     def setUp(self):
 
-        if "VASP_PSP_DIR" not in os.environ:
-            os.environ["VASP_PSP_DIR"] = test_dir
+        if "PMG_VASP_PSP_DIR" not in os.environ:
+            os.environ["PMG_VASP_PSP_DIR"] = test_dir
         s = PymatgenTest.get_structure("Li2O")
         gen = SlabGenerator(s, (1, 0, 0), 10, 10)
         self.slab = gen.get_slab()
@@ -528,16 +533,20 @@ class MPHSEBSTest(PymatgenTest):
 
     def test_init(self):
         prev_run = os.path.join(test_dir, "static_silicon")
-        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="Uniform")
+        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="uniform")
+        self.assertTrue(vis.incar["LHFCALC"])
+        self.assertEqual(len(vis.kpoints.kpts), 29)
+
+        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="gap")
         self.assertTrue(vis.incar["LHFCALC"])
         self.assertEqual(len(vis.kpoints.kpts), 31)
 
-        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="Line")
+        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="line")
         self.assertTrue(vis.incar["LHFCALC"])
         self.assertEqual(vis.incar['HFSCREEN'], 0.2)
         self.assertEqual(vis.incar['NSW'], 0)
         self.assertEqual(vis.incar['ISYM'], 3)
-        self.assertEqual(len(vis.kpoints.kpts), 195)
+        self.assertEqual(len(vis.kpoints.kpts), 193)
 
 
 class FuncTest(PymatgenTest):

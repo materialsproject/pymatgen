@@ -6,6 +6,8 @@ from __future__ import unicode_literals
 
 import warnings
 
+import scipy.constants as constants
+
 """
 This module defines useful physical constants and conversion factors.
 All units are in SI units except for conversion factors.
@@ -52,11 +54,9 @@ warnings.warn("The pymatgen.core.physical_constants module is deprecated and "
               "will be removed in pymatgen 4.0. Pls use scipy.constants.",
               DeprecationWarning)
 
-import scipy.constants as constants
-
-#Constants. Note that some of these may replicate functionality in
-#scipy.constants. However, given the difficulty in installing scipy on many
-#systems, the replication of these constants minimizes scipy dependency.
+# Constants. Note that some of these may replicate functionality in
+# scipy.constants. However, given the difficulty in installing scipy on many
+# systems, the replication of these constants minimizes scipy dependency.
 
 ELECTRON_CHARGE = constants.e
 ELECTRON_MASS = constants.m_e
@@ -64,11 +64,12 @@ EPSILON_0 = constants.epsilon_0
 BOLTZMANN_CONST = constants.k
 ELECTRON_VOLT = constants.e
 AVOGADROS_CONST = constants.N_A
-HARTREE_TO_ELECTRON_VOLT = 1/constants.physical_constants["electron volt-hartree relationship"][0]
+HARTREE_TO_ELECTRON_VOLT = 1/constants.physical_constants[
+    "electron volt-hartree relationship"][0]
 SPEED_OF_LIGHT = constants.c
 PLANCK_CONSTANT = constants.h
 
-#Some useful aliases
+# Some useful aliases
 N_a = AVOGADROS_CONST
 k_b = BOLTZMANN_CONST
 e = ELECTRON_CHARGE

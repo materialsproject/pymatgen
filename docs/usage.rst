@@ -543,12 +543,12 @@ http://bit.ly/materialsapi, which provides a comprehensive explanation of the
 document schema used in the Materials Project and how best to query for the
 relevant information you need.
 
-Setting the MAPI_KEY in the config file
+Setting the PMG_MAPI_KEY in the config file
 ---------------------------------------
 
 MPRester can also read the API key via the pymatgen config file. Simply run::
 
-    pmg config --add MAPI_KEY <USER_API_KEY>
+    pmg config --add PMG_MAPI_KEY <USER_API_KEY>
 
 to add this to the `.pmgrc.yaml`, and you can now call MPRester without any
 arguments. This makes it much easier for heavy users of the Materials API to

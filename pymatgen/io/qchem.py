@@ -790,6 +790,24 @@ class QcTask(MSONable):
     def _format_solvent(self):
         return self._format_pcm_solvent(key="solvent")
 
+    def _format_opt(self):
+        # lines is a list of all opt keywords
+        lines = []
+        # only constraints added at this point
+        constraint_lines = ['CONSTRAINT']
+        for index in range(len(self.params['opt'])):
+            vals = self.params['opt'][index]
+            if vals[0] in ['outp', 'tors', 'linc', 'linp']:
+                constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]} {vals[5]}".format(vals=vals))
+            elif vals[0] == 'stre':
+                constraint_lines.append("{vals[0]} {vals[1]} {vals[2]}".format(vals=vals))
+            elif vals[0] == 'bend':
+                constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]}".format(vals=vals))
+        constraint_lines.append('ENDCONSTRAINT')
+        lines.extend(constraint_lines)
+        # another opt keyword can be added by extending lines
+        return lines
+
     def as_dict(self):
         if isinstance(self.mol, six.string_types):
             mol_dict = self.mol
@@ -1285,6 +1303,31 @@ class QcTask(MSONable):
     @classmethod
     def _parse_solvent(cls, contents):
         return cls._parse_pcm_solvent(contents)
+
+    @classmethod
+    def _parse_opt(cls, contents):
+        #only parses opt constraints
+        opt_list = []
+        constraints = False
+        int_pattern = re.compile('^[-+]?\d+$')
+        float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
+        for line in contents:
+            tokens = line.strip().split()
+            if re.match('ENDCONSTRAINT', line):
+                constraints = False
+            elif constraints:
+                vals = []
+                for val in tokens:
+                    if int_pattern.match(val):
+                        vals.append(int(val))
+                    elif float_pattern.match(val):
+                        vals.append(float(val))
+                    else:
+                        vals.append(val)
+                opt_list.append(vals)
+            elif re.match('CONSTRAINT', line):
+                constraints = True
+        return opt_list
 
 
 class QcInput(MSONable):

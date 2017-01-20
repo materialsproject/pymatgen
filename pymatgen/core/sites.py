@@ -220,9 +220,6 @@ class Site(collections.Hashable, MSONable):
     def __contains__(self, el):
         return el in self._species
 
-    def __len__(self):
-        return len(self._species)
-
     def __repr__(self):
         return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(
             self.species_string, *self._coords)
@@ -424,7 +421,7 @@ class PeriodicSite(Site, MSONable):
             fcoords (3x1 array): fcoords to get distance from.
             jimage (3x1 array): Specific periodic image in terms of
                 lattice translations, e.g., [1,0,0] implies to take periodic
-                image that is one a-lattice vector away. If jimage == None,
+                image that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
         Returns:
@@ -447,7 +444,7 @@ class PeriodicSite(Site, MSONable):
             other (PeriodicSite): Other site to get distance from.
             jimage (3x1 array): Specific periodic image in terms of lattice
                 translations, e.g., [1,0,0] implies to take periodic image
-                that is one a-lattice vector away. If jimage == None,
+                that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
         Returns:
@@ -464,7 +461,7 @@ class PeriodicSite(Site, MSONable):
             other (PeriodicSite): Other site to get distance from.
             jimage (3x1 array): Specific periodic image in terms of lattice
                 translations, e.g., [1,0,0] implies to take periodic image
-                that is one a-lattice vector away. If jimage == None,
+                that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
         Returns:

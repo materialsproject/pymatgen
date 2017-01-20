@@ -1656,13 +1656,11 @@ class IMolecule(SiteCollection, MSONable):
         while len(sites) > 0:
             unmatched = []
             for site in sites:
-                found = False
                 for cluster in clusters:
                     if belongs_to_cluster(site, cluster):
                         cluster.append(site)
-                        found = True
                         break
-                if not found:
+                else:
                     unmatched.append(site)
 
             if len(unmatched) == len(sites):
@@ -1870,7 +1868,7 @@ class IMolecule(SiteCollection, MSONable):
         Returns:
             Structure containing molecule in a box.
         """
-        if offset == None:
+        if offset is None:
             offset = np.array([0,0,0])
 
         coords = np.array(self.cart_coords)
@@ -1923,7 +1921,9 @@ class IMolecule(SiteCollection, MSONable):
             coords.extend(new_coords)
         sprops = {k: v * nimages for k, v in self.site_properties.items()}
 
-        if cls is None: cls = Structure
+        if cls is None:
+            cls = Structure
+
         return cls(lattice, self.species * nimages, coords,
                    coords_are_cartesian=True,
                    site_properties=sprops).get_sorted_structure()
@@ -2891,10 +2891,10 @@ class Molecule(IMolecule, collections.MutableSequence):
                 translation.
             vector (3x1 array): Translation vector for sites.
         """
-        if indices == None:
+        if indices is None:
             indices = range(len(self))
-        if vector == None:
-            vector == [0,0,0]
+        if vector is None:
+            vector == [0, 0, 0]
         for i in indices:
             site = self._sites[i]
             new_site = Site(site.species_and_occu, site.coords + vector,
@@ -2913,30 +2913,31 @@ class Molecule(IMolecule, collections.MutableSequence):
             anchor (3x1 array): Point of rotation.
         """
 
-        from numpy.linalg import norm, inv
+        from numpy.linalg import norm
         from numpy import cross, eye
-        from scipy.linalg import expm3
+        from scipy.linalg import expm
 
-        if indices == None:
+        if indices is None:
             indices = range(len(self))
 
-        if axis == None:
-            axis = [0,0,1]
+        if axis is None:
+            axis = [0, 0, 1]
 
-        if anchor == None:
-            anchor = [0,0,0]
+        if anchor is None:
+            anchor = [0, 0, 0]
 
         anchor = np.array(anchor)
         axis = np.array(axis)
 
-        theta = theta % (2 * np.pi)
+        theta %= 2 * np.pi
 
-        R = expm3(cross(eye(3), axis / norm(axis)) * theta)
+        rm = expm(cross(eye(3), axis / norm(axis)) * theta)
 
         for i in indices:
             site = self._sites[i]
-            s = ((R * np.matrix(site.coords - anchor).T).T + anchor).A1
-            new_site = Site(site.species_and_occu, s, properties=site.properties)
+            s = ((rm * np.matrix(site.coords - anchor).T).T + anchor).A1
+            new_site = Site(site.species_and_occu, s,
+                            properties=site.properties)
             self._sites[i] = new_site
 
     def perturb(self, distance):

@@ -8,8 +8,7 @@ import copy
 import glob
 import json
 import os
-from unittest import TestCase
-import unittest2 as unittest
+import unittest
 
 from pymatgen import Molecule
 from pymatgen.io.qchem import QcTask, QcInput, QcOutput
@@ -293,6 +292,63 @@ $end
                               ("H", "6-31g*"), ("cl", "6-31+g*")])
         self.assertEqual(str(qctask), ans_mixed)
         self.elementary_io_verify(ans_mixed, qctask)
+
+    def test_opt_constraint_str(self):
+        opt_coords = [[-1.8438708, 1.7639844, 0.0036111],
+                      [-0.3186117, 1.7258535, 0.0241264],
+                      [0.1990523, 0.2841796, -0.0277432],
+                      [1.7243049, 0.2460376, -0.0067397],
+                      [-2.1904881, 2.8181992, 0.0419217],
+                      [-2.2554858, 1.2221552, 0.8817436],
+                      [-2.2293542, 1.2964646, -0.9274861],
+                      [0.0400963, 2.2185950, 0.9541706],
+                      [0.0663274, 2.2929337, -0.8514870],
+                      [-0.1594453, -0.2084377, -0.9579392],
+                      [-0.1860888, -0.2830148, 0.8477023],
+                      [2.1362687, 0.7881530, -0.8845274],
+                      [2.0709344, -0.8081667, -0.0452220],
+                      [2.1094213, 0.7132527, 0.9246668]]
+        opt_mol = Molecule(["C", "C", "C", "C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"], opt_coords)
+        constraint_dict = {'opt': [['tors', 1, 2, 3, 4, 180.0]]}
+        ans = """$molecule
+ 0  1
+ C          -1.84387080        1.76398440        0.00361110
+ C          -0.31861170        1.72585350        0.02412640
+ C           0.19905230        0.28417960       -0.02774320
+ C           1.72430490        0.24603760       -0.00673970
+ H          -2.19048810        2.81819920        0.04192170
+ H          -2.25548580        1.22215520        0.88174360
+ H          -2.22935420        1.29646460       -0.92748610
+ H           0.04009630        2.21859500        0.95417060
+ H           0.06632740        2.29293370       -0.85148700
+ H          -0.15944530       -0.20843770       -0.95793920
+ H          -0.18608880       -0.28301480        0.84770230
+ H           2.13626870        0.78815300       -0.88452740
+ H           2.07093440       -0.80816670       -0.04522200
+ H           2.10942130        0.71325270        0.92466680
+$end
+
+
+$rem
+   jobtype = sp
+  exchange = b3lyp
+     basis = 6-31+g*
+$end
+
+
+$opt
+CONSTRAINT
+tors 1 2 3 4 180.0
+ENDCONSTRAINT
+$end
+
+"""
+        qctask = QcTask(opt_mol, exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-31+G*",
+                        optional_params=constraint_dict)
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_partial_hessian(self):
         qcinp1 = QcInput.from_file(os.path.join(test_dir, "partial_hessian.qcinp"))
@@ -2354,6 +2410,52 @@ Sites (12)
         qcout = QcOutput(filename)
         self.assertEqual(len(qcout.data), 2)
 
+    def test_opt(self):
+        filename = os.path.join(test_dir, "pt_dft_180.0.qcout")
+        qcout = QcOutput(filename)
+        qcin = qcout.data[-1]['input']
+        qcin_ans = '''$molecule
+ 0  1
+ S           1.82267924       -1.19997629        0.28714109
+ C           3.20006180       -0.17260711        0.06528466
+ C           2.82980603        1.10216298       -0.25610036
+ C           1.41909100        1.26345446       -0.34254814
+ C           0.71738150        0.10901545       -0.08456145
+ H           0.93627498        2.19419272       -0.61095402
+ C          -0.71741859       -0.10899254       -0.08455524
+ S          -1.82328469        1.20374179       -0.44105740
+ C          -1.41912820       -1.26343144        0.17343142
+ C          -3.19922829        0.16690023       -0.25767458
+ C          -2.82941826       -1.10493701        0.07562280
+ H          -3.53750269       -1.90709774        0.23645949
+ H           4.19429620       -0.57452886        0.18632814
+ H           3.53860725        1.89960515       -0.43610218
+ H          -4.19239866        0.56181917       -0.40716131
+ H          -0.93481970       -2.20399421        0.40193462
+$end
+
+
+$rem
+         jobtype = opt
+        exchange = b3lyp
+           basis = 6-31++g**
+  max_scf_cycles = 75
+      mem_static = 100
+       mem_total = 1500
+$end
+
+
+$opt
+CONSTRAINT
+tors 4 5 7 9 180.0
+ENDCONSTRAINT
+$end
+
+'''
+        self.assertEqual(str(qcin), qcin_ans)
+        constraint = qcin.params['opt']
+        constraint_ans = [['tors', 4, 5, 7, 9, 180.0]]
+        self.assertEqual(constraint, constraint_ans)
 
 if __name__ == "__main__":
     unittest.main()

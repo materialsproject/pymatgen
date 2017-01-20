@@ -1546,16 +1546,16 @@ class PotcarSingle(object):
             return PotcarSingle(f.read())
 
     @staticmethod
-    def from_symbol_and_functional(symbol,
-                                   functional=SETTINGS.get("DEFAULT_FUNCTIONAL",
-                                                           "PBE")):
+    def from_symbol_and_functional(symbol, functional=None):
+        if functional is None:
+            functional = SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
         funcdir = PotcarSingle.functional_dir[functional]
-        d = SETTINGS.get("VASP_PSP_DIR")
+        d = SETTINGS.get("PMG_VASP_PSP_DIR")
         if d is None:
             raise ValueError("No POTCAR for %s with functional %s found. "
-                             "Please set the VASP_PSP_DIR environment in "
+                             "Please set the PMG_VASP_PSP_DIR environment in "
                              ".pmgrc.yaml, or you may need to set "
-                             "DEFAULT_FUNCTIONAL to PBE_52 or PBE_54 if you "
+                             "PMG_DEFAULT_FUNCTIONAL to PBE_52 or PBE_54 if you "
                              "are using newer psps from VASP." % (symbol,
                                                                   functional))
         paths_to_try = [os.path.join(d, funcdir, "POTCAR.{}".format(symbol)),
@@ -1669,17 +1669,18 @@ class Potcar(list, MSONable):
             different versions of the same functional. By default, the old
             PBE functional is used. If you want the newer ones, use PBE_52 or
             PBE_54. Note that if you intend to compare your results with the
-            Materials Project, you should use the default setting.
+            Materials Project, you should use the default setting. You can also
+            override the default by setting PMG_DEFAULT_FUNCTIONAL in your
+            .pmgrc.yaml.
         sym_potcar_map (dict): Allows a user to specify a specific element
             symbol to raw POTCAR mapping.
     """
 
-    DEFAULT_FUNCTIONAL = "PBE"
-
     FUNCTIONAL_CHOICES = list(PotcarSingle.functional_dir.keys())
 
-    def __init__(self, symbols=None, functional=DEFAULT_FUNCTIONAL,
-                 sym_potcar_map=None):
+    def __init__(self, symbols=None, functional=None, sym_potcar_map=None):
+        if functional is None:
+            functional = SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
         super(Potcar, self).__init__()
         self.functional = functional
         if symbols is not None:
@@ -1743,7 +1744,7 @@ class Potcar(list, MSONable):
         """
         return [{"symbol": p.symbol, "hash": p.get_potcar_hash()} for p in self]
 
-    def set_symbols(self, symbols, functional=DEFAULT_FUNCTIONAL,
+    def set_symbols(self, symbols, functional=None,
                     sym_potcar_map=None):
         """
         Initialize the POTCAR from a set of symbols. Currently, the POTCARs can
@@ -1752,7 +1753,9 @@ class Potcar(list, MSONable):
 
         Args:
             symbols ([str]): A list of element symbols
-            functional (str): The functional to use from the config file
+            functional (str): The functional to use. If None, the setting
+                PMG_DEFAULT_FUNCTIONAL in .pmgrc.yaml is used, or if this is
+                not set, it will default to PBE.
             sym_potcar_map (dict): A map of symbol:raw POTCAR string. If
                 sym_potcar_map is specified, POTCARs will be generated from
                 the given map data rather than the config file location.

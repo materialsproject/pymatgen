@@ -49,7 +49,7 @@ class PymatgenTest(unittest.TestCase):
         return cls.TEST_STRUCTURES[name].copy()
 
     @classmethod
-    @requires(SETTINGS.get("MAPI_KEY"), "MAPI_KEY needs to be set.")
+    @requires(SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY needs to be set.")
     def get_mp_structure(cls, mpid):
         m = MPRester()
         return m.get_structure_by_material_id(mpid)

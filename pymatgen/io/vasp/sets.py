@@ -4,16 +4,17 @@
 
 from __future__ import division, unicode_literals, print_function
 
-import os
 import abc
 import re
 
 import shutil
-from glob import glob
 import warnings
 from itertools import chain
 from copy import deepcopy
-
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
 import six
 import numpy as np
 
@@ -49,7 +50,7 @@ Read the following carefully before implementing new input sets:
    from_dict for derivative sets unless you know what you are doing.
    Improper overriding the as_dict and from_dict protocols is the major
    cause of implementation headaches. If you need an example, look at how the
-   MPStaticSet or MPNonSCFSets from constructed.
+   MPStaticSet or MPNonSCFSets are constructed.
 
 The above are recommendations. The following are UNBREAKABLE rules:
 1. All input sets must take in a structure or list of structures as the first
@@ -57,10 +58,9 @@ The above are recommendations. The following are UNBREAKABLE rules:
 2. user_incar_settings and user_kpoints_settings are absolute. Any new sets you
    implement must obey this. If a user wants to override your settings,
    you assume he knows what he is doing. Do not magically override user
-   supplied settings. You can of course issue a warning if you think the user
-   is wrong.
+   supplied settings. You can issue a warning if you think the user is wrong.
 3. All input sets must save all supplied args and kwargs as instance variables.
-   E.g., self.my_arg = myarg and self.kwargs = kwargs in the __init__. This
+   E.g., self.my_arg = my_arg and self.kwargs = kwargs in the __init__. This
    ensures the as_dict and from_dict work correctly.
 """
 
@@ -72,7 +72,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "May 28 2016"
 
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = Path(__file__).parent
 
 
 class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
@@ -154,14 +154,14 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
             include_cif (bool): Whether to write a CIF file in the output
                 directory for easier opening by VESTA.
         """
-        if make_dir_if_not_present and not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+        p = Path(output_dir)
+        if make_dir_if_not_present and not p.exists():
+            p.mkdir(parents=True)
         for k, v in self.all_input.items():
-            v.write_file(os.path.join(output_dir, k))
+            v.write_file(str(p / k))
         if include_cif:
             s = self.all_input["POSCAR"].structure
-            fname = os.path.join(
-                output_dir, "%s.cif" % re.sub("\s", "", s.formula))
+            fname = str(p / ("%s.cif" % re.sub("\s", "", s.formula)))
             s.to(filename=fname)
 
     def as_dict(self, verbosity=2):
@@ -380,8 +380,9 @@ class DictSet(VaspInputSet):
             output_dir=output_dir,
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
+        p = Path(output_dir)
         for k, v in self.files_to_transfer.items():
-            shutil.copy(v, os.path.join(output_dir, k))
+            shutil.copy(v, str(p / k))
 
 
 class MITRelaxSet(DictSet):
@@ -398,7 +399,7 @@ class MITRelaxSet(DictSet):
         functional theory calculations. Computational Materials Science,
         2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
     """
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MITRelaxSet.yaml"))
+    CONFIG = loadfn(str(MODULE_DIR / "MITRelaxSet.yaml"))
 
     def __init__(self, structure, **kwargs):
         super(MITRelaxSet, self).__init__(
@@ -414,7 +415,7 @@ class MPRelaxSet(DictSet):
     The LDAUU parameters are also different due to the different psps used,
     which result in different fitted values.
     """
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPRelaxSet.yaml"))
+    CONFIG = loadfn(str(MODULE_DIR / "MPRelaxSet.yaml"))
 
     def __init__(self, structure, **kwargs):
         super(MPRelaxSet, self).__init__(
@@ -426,7 +427,7 @@ class MPHSERelaxSet(DictSet):
     """
     Same as the MPRelaxSet, but with HSE parameters.
     """
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPHSERelaxSet.yaml"))
+    CONFIG = loadfn(str(MODULE_DIR / "MPHSERelaxSet.yaml"))
 
     def __init__(self, structure, **kwargs):
         super(MPHSERelaxSet, self).__init__(
@@ -605,7 +606,7 @@ class MPHSEBSSet(MPHSERelaxSet):
         self.structure = structure
         self.user_incar_settings = user_incar_settings or {}
         self.config_dict["INCAR"].update(
-            {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 3, "LCHARG": False})
+            {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 3, "LCHARG": False, "NELMIN": 5})
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
         self.reciprocal_density = reciprocal_density or \
@@ -635,7 +636,7 @@ class MPHSEBSSet(MPHSERelaxSet):
             all_labels.append("user-defined")
 
         # for line mode only, add the symmetry lines w/zero weight
-        if self.mode == "Line":
+        if self.mode.lower() == "line":
             kpath = HighSymmKpath(self.structure)
             frac_k_points, labels = kpath.get_kpoints(
                 line_density=self.kpoints_line_density,
@@ -646,7 +647,7 @@ class MPHSEBSSet(MPHSERelaxSet):
                 weights.append(0.0)
                 all_labels.append(labels[k])
 
-        comment = "HSE run along symmetry lines" if self.mode == "Line" \
+        comment = "HSE run along symmetry lines" if self.mode.lower() == "line" \
             else "HSE run on uniform grid"
 
         return Kpoints(comment=comment,
@@ -655,17 +656,17 @@ class MPHSEBSSet(MPHSERelaxSet):
                        labels=all_labels)
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, mode="Uniform",
+    def from_prev_calc(cls, prev_calc_dir, mode="gap",
                        reciprocal_density=50, copy_chgcar=True, **kwargs):
         """
         Generate a set of Vasp input files for HSE calculations from a
-        directory of previous Vasp run. Explicitly adds VBM and CBM of prev.
-        run to the k-point list of this run.
+        directory of previous Vasp run. if mode=="gap", it explicitly adds VBM and CBM
+        of the prev. run to the k-point list of this run.
 
         Args:
             prev_calc_dir (str): Directory containing the outputs
                 (vasprun.xml and OUTCAR) of previous vasp run.
-            mode (str): Either "Uniform" or "Line"
+            mode (str): Either "uniform", "gap" or "line"
             reciprocal_density (int): density of k-mesh
             copy_chgcar (bool): whether to copy CHGCAR of previous run
             \*\*kwargs: All kwargs supported by MPHSEBSStaticSet,
@@ -681,17 +682,18 @@ class MPHSEBSSet(MPHSERelaxSet):
 
         added_kpoints = []
         bs = vasprun.get_band_structure()
-        vbm, cbm = bs.get_vbm()["kpoint"], bs.get_cbm()["kpoint"]
-        if vbm:
-            added_kpoints.append(vbm.frac_coords)
-        if cbm:
-            added_kpoints.append(cbm.frac_coords)
+        if mode.lower() == "gap":
+            vbm, cbm = bs.get_vbm()["kpoint"], bs.get_cbm()["kpoint"]
+            if vbm:
+                added_kpoints.append(vbm.frac_coords)
+            if cbm:
+                added_kpoints.append(cbm.frac_coords)
 
         files_to_transfer = {}
         if copy_chgcar:
-            chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
+            chgcars = sorted(Path(prev_calc_dir).glob("CHGCAR*"))
             if chgcars:
-                files_to_transfer["CHGCAR"] = sorted(chgcars)[-1]
+                files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
         return MPHSEBSSet(
             structure=prev_structure,
@@ -730,10 +732,10 @@ class MPNonSCFSet(MPRelaxSet):
         self.optics = optics
         self.mode = mode.lower()
 
-        if self.mode not in ["line", "uniform"]:
+        if self.mode.lower() not in ["line", "uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
-        if (self.mode != "uniform" or nedos < 2000) and optics:
+        if (self.mode.lower() != "uniform" or nedos < 2000) and optics:
             warnings.warn("It is recommended to use Uniform mode with a high "
                           "NEDOS for optics calculations.")
 
@@ -741,16 +743,16 @@ class MPNonSCFSet(MPRelaxSet):
     def incar(self):
         incar = super(MPNonSCFSet, self).incar
         if self.prev_incar is not None:
-            incar.update({k: v for k, v in self.prev_incar.items()
-                         if k not in self.kwargs.get("user_incar_settings",
-                                                     {})})
+            incar.update({k: v for k, v in self.prev_incar.items()})
 
         # Overwrite necessary INCAR parameters from previous runs
         incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001,
                       "LCHARG": False, "LORBIT": 11, "LWAVE": False,
                       "NSW": 0, "ISYM": 0, "ICHARG": 11})
 
-        if self.mode == "uniform":
+        incar.update(self.kwargs.get("user_incar_settings", {}))
+
+        if self.mode.lower() == "uniform":
             # Set smaller steps for DOS output
             incar["NEDOS"] = self.nedos
 
@@ -847,9 +849,9 @@ class MPNonSCFSet(MPRelaxSet):
 
         files_to_transfer = {}
         if copy_chgcar:
-            chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
+            chgcars = sorted(Path(prev_calc_dir).glob("CHGCAR*"))
             if chgcars:
-                files_to_transfer["CHGCAR"] = sorted(chgcars)[-1]
+                files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
         # multiply the reciprocal density if needed:
         if small_gap_multiply:
@@ -896,13 +898,12 @@ class MPSOCSet(MPStaticSet):
     def incar(self):
         incar = super(MPSOCSet, self).incar
         if self.prev_incar is not None:
-            incar.update({k: v for k, v in self.prev_incar.items()
-                         if k not in self.kwargs.get("user_incar_settings",
-                                                     {})})
+            incar.update({k: v for k, v in self.prev_incar.items()})
 
         # Overwrite necessary INCAR parameters from previous runs
         incar.update({"ISYM": -1, "LSORBIT": "T", "ICHARG": 11,
                       "SAXIS": list(self.saxis)})
+        incar.update(self.kwargs.get("user_incar_settings", {}))
 
         return incar
 
@@ -965,9 +966,9 @@ class MPSOCSet(MPStaticSet):
 
         files_to_transfer = {}
         if copy_chgcar:
-            chgcars = glob(os.path.join(prev_calc_dir, "CHGCAR*"))
+            chgcars = sorted(Path(prev_calc_dir).glob("CHGCAR*"))
             if chgcars:
-                files_to_transfer["CHGCAR"] = sorted(chgcars)[-1]
+                files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
         # multiply the reciprocal density if needed:
         if small_gap_multiply:
@@ -1141,36 +1142,36 @@ class MITNEBSet(MITRelaxSet):
             write_endpoint_inputs (bool): If true, writes input files for
                 running endpoint calculations.
         """
-
-        if make_dir_if_not_present and not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        self.incar.write_file(os.path.join(output_dir, 'INCAR'))
-        self.kpoints.write_file(os.path.join(output_dir, 'KPOINTS'))
-        self.potcar.write_file(os.path.join(output_dir, 'POTCAR'))
+        path = Path(output_dir)
+        if make_dir_if_not_present and not path.exists():
+            path.mkdir(parents=True)
+        self.incar.write_file(str(path / 'INCAR'))
+        self.kpoints.write_file(str(path / 'KPOINTS'))
+        self.potcar.write_file(str(path / 'POTCAR'))
 
         for i, p in enumerate(self.poscars):
-            d = os.path.join(output_dir, str(i).zfill(2))
-            if not os.path.exists(d):
-                os.makedirs(d)
-            p.write_file(os.path.join(d, 'POSCAR'))
+            d = path / str(i).zfill(2)
+            if not d.exists():
+                d.mkdir()
+            p.write_file(str(d / 'POSCAR'))
             if write_cif:
-                p.structure.to(filename=os.path.join(d, '{}.cif'.format(i)))
+                p.structure.to(filename=str(d / '{}.cif'.format(i)))
         if write_endpoint_inputs:
             end_point_param = MITRelaxSet(
                 self.structures[0],
                 user_incar_settings=self.user_incar_settings)
 
             for image in ['00', str(len(self.structures) - 1).zfill(2)]:
-                end_point_param.incar.write_file(os.path.join(output_dir, image, 'INCAR'))
-                end_point_param.kpoints.write_file(os.path.join(output_dir, image, 'KPOINTS'))
-                end_point_param.potcar.write_file(os.path.join(output_dir, image, 'POTCAR'))
+                end_point_param.incar.write_file(str(path / image / 'INCAR'))
+                end_point_param.kpoints.write_file(str(path / image / 'KPOINTS'))
+                end_point_param.potcar.write_file(str(path / image / 'POTCAR'))
         if write_path_cif:
             sites = set()
             l = self.structures[0].lattice
             for site in chain(*(s.sites for s in self.structures)):
                 sites.add(PeriodicSite(site.species_and_occu, site.frac_coords, l))
-            path = Structure.from_sites(sorted(sites))
-            path.to(filename=os.path.join(output_dir, 'path.cif'))
+            nebpath = Structure.from_sites(sorted(sites))
+            nebpath.to(filename=str(path / 'path.cif'))
 
 
 class MITMDSet(MITRelaxSet):
@@ -1228,19 +1229,20 @@ class MITMDSet(MITRelaxSet):
 
 
 def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
-    vruns = glob(os.path.join(path, "vasprun.xml*"))
-    outcars = glob(os.path.join(path, "OUTCAR*"))
+    p = Path(path)
+    vruns = list(p.glob("vasprun.xml*"))
+    outcars = list(p.glob("OUTCAR*"))
 
     if len(vruns) == 0 or len(outcars) == 0:
         raise ValueError(
             "Unable to get vasprun.xml/OUTCAR from prev calculation in %s" %
             path)
-    vsfile_fullpath = os.path.join(path, "vasprun.xml")
-    outcarfile_fullpath = os.path.join(path, "OUTCAR")
+    vsfile_fullpath = p / "vasprun.xml"
+    outcarfile_fullpath = p / "OUTCAR"
     vsfile = vsfile_fullpath if vsfile_fullpath in vruns else sorted(vruns)[-1]
     outcarfile = outcarfile_fullpath if outcarfile_fullpath in outcars else sorted(outcars)[-1]
-    return Vasprun(vsfile, parse_dos=parse_dos, parse_eigen=parse_eigen), \
-           Outcar(outcarfile)
+    return Vasprun(str(vsfile), parse_dos=parse_dos, parse_eigen=parse_eigen), \
+        Outcar(str(outcarfile))
 
 
 def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
@@ -1342,13 +1344,14 @@ def batch_write_input(structures, vasp_input_set=MPRelaxSet, output_dir=".",
     """
     for i, s in enumerate(structures):
         formula = re.sub("\s+", "", s.formula)
+        d = Path(output_dir)
         if subfolder is not None:
             subdir = subfolder(s)
-            dirname = os.path.join(output_dir, subdir)
+            d /= subdir
         else:
-            dirname = os.path.join(output_dir, '{}_{}'.format(formula, i))
+            d /= '{}_{}'.format(formula, i)
         if sanitize:
             s = s.copy(sanitize=True)
         v = vasp_input_set(s, **kwargs)
-        v.write_input(dirname, make_dir_if_not_present=make_dir_if_not_present,
+        v.write_input(str(d), make_dir_if_not_present=make_dir_if_not_present,
                       include_cif=include_cif)

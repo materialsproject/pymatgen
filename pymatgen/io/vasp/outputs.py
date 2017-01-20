@@ -629,7 +629,7 @@ class Vasprun(MSONable):
                 ComputedEntries.
             parameters (list): Input parameters to include. It has to be one of
                 the properties supported by the Vasprun object. If
-                parameters == None, a default set of parameters that are
+                parameters is None, a default set of parameters that are
                 necessary for typical post-processing will be set.
             data (list): Output data to include. Has to be one of the properties
                 supported by the Vasprun object.
@@ -1350,7 +1350,6 @@ class Outcar(MSONable):
         efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
         nelect_patt = re.compile("number of electron\s+(\S+)\s+magnetization")
         mag_patt = re.compile("number of electron\s+\S+\s+magnetization\s+(\S+)")
-        etensor_patt = re.compile("[X-Z][X-Z]+\s+-?\d+")
         toten_pattern = re.compile("free  energy   TOTEN\s+=\s+([\d\-\.]+)")
 
         all_lines = []
@@ -1368,7 +1367,7 @@ class Outcar(MSONable):
                 if m:
                     try:
                         # try-catch because VASP sometimes prints
-                        #'E-fermi: ********     XC(G=0):  -6.1327
+                        # 'E-fermi: ********     XC(G=0):  -6.1327
                         # alpha+bet : -1.8238'
                         efermi = float(m.group(1))
                         continue
@@ -1477,28 +1476,34 @@ class Outcar(MSONable):
             self.data[k] = [i[0] for i in matches.get(k, [])]
 
     def read_table_pattern(self, header_pattern, row_pattern, footer_pattern,
-                           postprocess=str, attribute_name=None, last_one_only=True):
+                           postprocess=str, attribute_name=None,
+                           last_one_only=True):
         """
-        Parse table-like data. A table composes of three parts: header, main body, footer.
-        All the data matches "row pattern" in the main body will be returned.
+        Parse table-like data. A table composes of three parts: header,
+        main body, footer. All the data matches "row pattern" in the main body
+        will be returned.
 
         Args:
-            header_pattern (str): The regular expression pattern matches the table header.
-                This pattern should match all the text immediately before the main body of
-                the table. For multiple sections table match the text until the section of
-                interest. MULTILINE and DOTALL options are enforced, as a result, the "."
-                meta-character will also match "\n" in this section.
-            row_pattern (str): The regular expression matches a single line in the table.
-                Capture interested field using regular expression groups
-            footer_pattern (str): The regular expression matches the end of the table.
-                E.g. a long dash line.
+            header_pattern (str): The regular expression pattern matches the
+                table header. This pattern should match all the text
+                immediately before the main body of the table. For multiple
+                sections table match the text until the section of
+                interest. MULTILINE and DOTALL options are enforced, as a
+                result, the "." meta-character will also match "\n" in this
+                section.
+            row_pattern (str): The regular expression matches a single line in
+                the table. Capture interested field using regular expression
+                groups.
+            footer_pattern (str): The regular expression matches the end of the
+                table. E.g. a long dash line.
             postprocess (callable): A post processing function to convert all
                 matches. Defaults to str, i.e., no change.
-            attribute_name (str): Name of this table. If presense the parsed data will be
-                attached to "data. e.g. self.data["efg"] = [...]
-            last_one_only (bool): All the tables will be parsed, if this option is set to
-                True, only the last table will be returned. The enclosing list will be removed.
-                i.e. Only a single table wil be returned. Default to be True.
+            attribute_name (str): Name of this table. If present the parsed data
+                will be attached to "data. e.g. self.data["efg"] = [...]
+            last_one_only (bool): All the tables will be parsed, if this option
+                is set to True, only the last table will be returned. The
+                enclosing list will be removed. i.e. Only a single table will
+                be returned. Default to be True.
 
         Returns:
             List of tables. 1) A table is a list of rows. 2) A row if either a list of
@@ -1533,6 +1538,46 @@ class Outcar(MSONable):
             self.data[attribute_name] = retained_data
         return retained_data
 
+    def read_freq_dielectric(self):
+        """
+        Parses the frequency dependent dielectric function (obtained with
+        LOPTICS). Frequencies (in eV) are in self.frequencies, and dielectric
+        tensor function is given as self.dielectric_tensor_function.
+        """
+        header_pattern = r"\s+frequency dependent\s+IMAGINARY " \
+                         r"DIELECTRIC FUNCTION \(independent particle, " \
+                         r"no local field effects\)\s*"
+        row_pattern = r"\s+".join([r"([\.\-\d]+)"] * 7)
+
+        lines = []
+        for l in reverse_readfile(self.filename):
+            lines.append(l)
+            if re.match(header_pattern, l):
+                break
+
+        freq = []
+        data = {"REAL": [], "IMAGINARY": []}
+        lines.reverse()
+        count = 0
+        component = "IMAGINARY"
+        for l in lines[3:]:  # Skip the preamble.
+            if re.match(row_pattern, l.strip()):
+                toks = l.strip().split()
+                if component == "IMAGINARY":
+                    freq.append(float(toks[0]))
+                xx, yy, zz, xy, yz, xz = [float(t) for t in toks[1:]]
+                matrix = [[xx, xy, yz], [xy, yy, yz], [xz, yz, zz]]
+                data[component].append(matrix)
+            elif re.match(r"\s*\-+\s*", l):
+                count += 1
+
+            if count == 1:
+                component = "REAL"
+            elif count == 2:
+                break
+        self.frequencies = np.array(freq)
+        self.dielectric_tensor_function = np.array(data["REAL"]) + \
+            1j * np.array(data["IMAGINARY"])
 
     def read_chemical_shifts(self):
         """
@@ -1551,14 +1596,17 @@ class Outcar(MSONable):
                          "-{50,}\s*$"
         first_part_pattern = r"\s+\(absolute, valence only\)\s+$"
         swallon_valence_body_pattern = r".+?\(absolute, valence and core\)\s+$"
-        row_pattern = r"\d+(?:\s+[-]?\d+\.\d+){3}\s+" + r'\s+'.join([r"([-]?\d+\.\d+)"] * 3)
+        row_pattern = r"\d+(?:\s+[-]?\d+\.\d+){3}\s+" + r'\s+'.join(
+            [r"([-]?\d+\.\d+)"] * 3)
         footer_pattern = "-{50,}\s*$"
         h1 = header_pattern + first_part_pattern
-        cs_valence_only = self.read_table_pattern(h1, row_pattern, footer_pattern,
-                                                  postprocess=float, last_one_only=True)
+        cs_valence_only = self.read_table_pattern(
+            h1, row_pattern, footer_pattern, postprocess=float,
+            last_one_only=True)
         h2 = header_pattern + swallon_valence_body_pattern
-        cs_valence_and_core = self.read_table_pattern(h2, row_pattern, footer_pattern,
-                                                      postprocess=float, last_one_only=True)
+        cs_valence_and_core = self.read_table_pattern(
+            h2, row_pattern, footer_pattern, postprocess=float,
+            last_one_only=True)
         all_cs = {}
         for name, cs_table in [["valence_only", cs_valence_only],
                                ["valence_and_core", cs_valence_and_core]]:
