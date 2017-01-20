@@ -517,14 +517,21 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
 class AddSitePropertyTransformation(AbstractTransformation):
     """
+    Simple transformation to add site properties to a given structure
     """
     def __init__(self, site_properties):
         """
+        Args:
+            site_properties (dict): site properties to be added to a structure
         """
         self.site_properties = site_properties
 
     def apply_transformation(self, structure):
         """
+        apply the transformation
+        
+        Args:
+            structure (Structure): structure to add site properties to
         """
         new_structure = structure.copy()
         for prop in self.site_properties.keys():
