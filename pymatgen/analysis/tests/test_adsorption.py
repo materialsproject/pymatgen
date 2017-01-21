@@ -38,25 +38,24 @@ class AdsorbateSiteFinderTest(PymatgenTest):
     def test_from_bulk_and_miller(self):
         asf = AdsorbateSiteFinder.from_bulk_and_miller(self.structure, (1, 1, 1))
         sites = asf.find_adsorption_sites()
-        self.assertEquals(len(sites), 4)
+        self.assertEqual(len(sites), 4)
         asf = AdsorbateSiteFinder.from_bulk_and_miller(self.structure, (1, 0, 0))
         sites = asf.find_adsorption_sites()
-        self.assertEquals(len(sites), 3)
+        self.assertEqual(len(sites), 3)
         asf = AdsorbateSiteFinder.from_bulk_and_miller(self.structure, (1, 1, 0),
                                                        undercoord_threshold=0.1)
-        self.assertEquals(len(asf.surface_sites), 1)
+        self.assertEqual(len(asf.surface_sites), 1)
 
     def test_find_adsorption_sites(self):
         sites = self.asf_100.find_adsorption_sites()
-        self.assertEquals(len(sites), 3)
+        self.assertEqual(len(sites), 3)
         sites = self.asf_100.find_adsorption_sites(positions="bridge")
-        self.assertEquals(len(sites), 2)
+        self.assertEqual(len(sites), 2)
         sites = self.asf_111.find_adsorption_sites()
-        self.assertEquals(len(sites), 4)
+        self.assertEqual(len(sites), 4)
         sites = self.asf_110.find_adsorption_sites()
-        self.assertEquals(len(sites), 4)
+        self.assertEqual(len(sites), 4)
         sites = self.asf_211.find_adsorption_sites()
-        # TODO verification
 
     def test_functions(self):
         slab = self.slab_dict["111"]
