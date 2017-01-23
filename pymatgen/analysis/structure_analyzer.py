@@ -41,11 +41,15 @@ class VoronoiCoordFinder(object):
             coordination for.
         cutoff (float): Radius in Angstrom cutoff to look for coordinating
             atoms. Defaults to 10.0.
+        allow_pathological (bool): whether to allow infinite vertices in
+            determination of Voronoi coordination
     """
 
-    def __init__(self, structure, target=None, cutoff=10.0):
+    def __init__(self, structure, target=None, cutoff=10.0,
+                 allow_pathological=False):
         self._structure = structure
         self.cutoff = cutoff
+        self.allow_pathological = allow_pathological
         if target is None:
             self._target = structure.composition.elements
         else:
@@ -78,8 +82,7 @@ class VoronoiCoordFinder(object):
         for nn, vind in voro.ridge_dict.items():
             if 0 in nn:
                 if -1 in vind:
-                    # Ignore infinite vertex if structure is a slab
-                    if isinstance(self._structure, Slab):
+                    if self.allow_pathological:
                         continue
                     raise RuntimeError("This structure is pathological,"
                                        " infinite vertex in the voronoi "
