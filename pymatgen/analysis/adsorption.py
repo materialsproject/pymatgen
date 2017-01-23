@@ -19,10 +19,8 @@ import subprocess
 import itertools
 import os
 from monty.serialization import loadfn
-from pyhull.delaunay import DelaunayTri
-from matplotlib import patches
-from matplotlib.path import Path
-from pyhull.voronoi import VoronoiTess
+from scipy.spatial import Delaunay
+
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.analyzer import generate_full_symmops
@@ -30,6 +28,9 @@ from pymatgen.util.coord_utils import in_coord_list, in_coord_list_pbc
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
 from pymatgen.core.surface import generate_all_slabs
+
+from matplotlib import patches
+from matplotlib.path import Path
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -57,7 +58,7 @@ class AdsorbateSiteFinder(object):
     """
 
     def __init__(self, slab, selective_dynamics=False, 
-                 height=0.9):
+                 height=0.9, mi_vec=None):
         """
         Create an AdsorbateSiteFinder object.  
 
@@ -66,10 +67,17 @@ class AdsorbateSiteFinder(object):
             selective_dynamics (bool): flag for whether to assign
                 non-surface sites as fixed for selective dynamics
             height (float): height criteria for selection of surface sites
+            mi_vec (3-D array-like): vector corresponding to the vector
+                concurrent with the miller index, this enables use with
+                slabs that have been reoriented, but the miller vector
+                must be supplied manually
         """
         self.mi_string = ''.join([str(i) for i in slab.miller_index])
         # get surface normal from miller index
-        self.mvec = mi_vec(slab.miller_index)
+        if mi_vec:
+            self.mvec = mi_vec
+        else:
+            self.mvec = mi_vec(slab.miller_index)
         slab = self.assign_site_properties(slab, height)
         if selective_dynamics:
             slab = self.assign_selective_dynamics(slab)
@@ -216,9 +224,9 @@ class AdsorbateSiteFinder(object):
         ads_sites = []
         mesh = self.get_extended_surface_mesh()
         sop = get_rot(self.slab)
-        dt = DelaunayTri([sop.operate(m.coords)[:2] for m in mesh])
+        dt = Delaunay([sop.operate(m.coords)[:2] for m in mesh])
         # TODO: refactor below to properly account for >3-fold
-        for v in dt.vertices:
+        for v in dt.simplices:
             if -1 not in v:
                 dots = []
                 for i_corner, i_opp in zip(range(3), ((1,2), (0,2), (0,1))):
