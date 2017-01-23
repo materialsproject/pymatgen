@@ -881,7 +881,8 @@ class IStructure(SiteCollection, MSONable):
         if reduced_latt != self.lattice:
             return self.__class__(reduced_latt, self.species_and_occu,
                                   self.cart_coords,
-                                  coords_are_cartesian=True, to_unit_cell=True)
+                                  coords_are_cartesian=True, to_unit_cell=True,
+                                  site_properties=self.site_properties)
         else:
             return self.copy()
 
@@ -1155,6 +1156,7 @@ class IStructure(SiteCollection, MSONable):
                 valid = True
                 new_coords = []
                 new_sp = []
+                new_props = collections.defaultdict(list)
                 for gsites, gfcoords, non_nbrs in zip(grouped_sites,
                                                       grouped_fcoords,
                                                       grouped_non_nbrs):
@@ -1192,12 +1194,15 @@ class IStructure(SiteCollection, MSONable):
                                 offset = new_fcoords[j] - coords
                                 coords += (offset - np.round(offset)) / (n + 2)
                             new_sp.append(gsites[inds[0]].species_and_occu)
+                            for k in gsites[inds[0]].properties:
+                                new_props[k].append(gsites[inds[0]].properties[k])
                             new_coords.append(coords)
 
                 if valid:
                     inv_m = np.linalg.inv(m)
                     new_l = Lattice(np.dot(inv_m, self.lattice.matrix))
                     s = Structure(new_l, new_sp, new_coords,
+                                  site_properties=new_props,
                                   coords_are_cartesian=False)
 
                     return s.get_primitive_structure(
