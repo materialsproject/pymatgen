@@ -77,7 +77,7 @@ class AdsorbateSiteFinder(object):
         if mi_vec:
             self.mvec = mi_vec
         else:
-            self.mvec = mi_vec(slab.miller_index)
+            self.mvec = get_mi_vec(slab.miller_index)
         slab = self.assign_site_properties(slab, height)
         if selective_dynamics:
             slab = self.assign_selective_dynamics(slab)
@@ -127,9 +127,9 @@ class AdsorbateSiteFinder(object):
 
         this_slab = slab_dict[miller_index]
 
-        vcf_surface = VoronoiCoordFinder(this_slab)
+        vcf_surface = VoronoiCoordFinder(this_slab, allow_pathological=True)
         surf_props = []
-        this_mi_vec = mi_vec(this_slab.miller_index)
+        this_mi_vec = get_mi_vec(this_slab.miller_index)
         mi_mags = [np.dot(this_mi_vec, site.coords) for site in this_slab]
         average_mi_mag = np.average(mi_mags)
         for n, site in enumerate(this_slab):
@@ -402,7 +402,7 @@ class AdsorbateSiteFinder(object):
                 molecule, coords, repeat=repeat, reorient=reorient))
         return structs
 
-def mi_vec(mi_index):
+def get_mi_vec(mi_index):
     """
     Convenience function which returns the unit vector aligned 
     with the miller index.
@@ -415,7 +415,7 @@ def get_rot(slab):
     """
     Gets the transformation to rotate the z axis into the miller index
     """
-    new_z = mi_vec(slab.miller_index)
+    new_z = get_mi_vec(slab.miller_index)
     a, b, c = slab.lattice.matrix
     new_x = a / np.linalg.norm(a)
     new_y = np.cross(new_z, new_x)
