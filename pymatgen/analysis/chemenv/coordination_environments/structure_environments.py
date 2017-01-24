@@ -49,6 +49,7 @@ class StructureEnvironments(MSONable):
         def __init__(self, structure, isite, detailed_voronoi, site_voronoi_indices, sources=None):
             self.structure = structure
             self.isite = isite
+            self.detailed_voronoi = detailed_voronoi
             self.voronoi = detailed_voronoi.voronoi_list2[isite]
             myset = set(site_voronoi_indices)
             if len(myset) != len(site_voronoi_indices):
@@ -100,6 +101,10 @@ class StructureEnvironments(MSONable):
             return [self.voronoi[inb]['angle'] for inb in self.site_voronoi_indices]
 
         @property
+        def sphere_fraction_angles(self):
+            return [0.25*self.voronoi[inb]['angle']/np.pi for inb in self.site_voronoi_indices]
+
+        @property
         def info(self):
             was = self.normalized_angles
             wds = self.normalized_distances
@@ -128,6 +133,43 @@ class StructureEnvironments(MSONable):
                     'distances_min': np.min(distances),
                     'distances_max': np.max(distances)
                     }
+
+        def distance_plateau(self):
+            all_nbs_normalized_distances_sorted = sorted([nb['normalized_distance'] for nb in self.voronoi],
+                                                         reverse=True)
+            maxdist = np.max(self.normalized_distances)
+            plateau = None
+            for idist, dist in enumerate(all_nbs_normalized_distances_sorted):
+                if np.isclose(dist, maxdist,
+                              rtol=0.0, atol=self.detailed_voronoi.normalized_distance_tolerance):
+                    if idist == 0:
+                        plateau = np.inf
+                    else:
+                        plateau = all_nbs_normalized_distances_sorted[idist-1] - maxdist
+                    break
+            if plateau is None:
+                raise ValueError('Plateau not found ...')
+            return plateau
+
+        def angle_plateau(self):
+            all_nbs_normalized_angles_sorted = sorted([nb['normalized_angle'] for nb in self.voronoi])
+            minang = np.min(self.normalized_angles)
+            print('minang', minang)
+            print('all_nbs_normalized_angles_sorted', all_nbs_normalized_angles_sorted)
+            for nb in self.voronoi:
+                print(nb)
+            plateau = None
+            for iang, ang in enumerate(all_nbs_normalized_angles_sorted):
+                if np.isclose(ang, minang,
+                              rtol=0.0, atol=self.detailed_voronoi.normalized_angle_tolerance):
+                    if iang == 0:
+                        plateau = minang
+                    else:
+                        plateau = minang - all_nbs_normalized_angles_sorted[iang-1]
+                    break
+            if plateau is None:
+                raise ValueError('Plateau not found ...')
+            return plateau
 
         def voronoi_grid_surface_points(self, additional_condition=1, other_origins='DO_NOTHING'):
             """
@@ -688,7 +730,10 @@ class StructureEnvironments(MSONable):
                 nb_set_surface_pts = [(dp_func(pt[0]), ap_func(pt[1])) for pt in nb_set_surface_pts]
                 polygon = Polygon(nb_set_surface_pts, closed=True, edgecolor='k', facecolor=mycolor, linewidth=1.2)
                 subplot.add_patch(polygon)
-                ipt = len(nb_set_surface_pts) / 2
+                myipt = len(nb_set_surface_pts) / 2
+                ipt = int(myipt)
+                if myipt != ipt:
+                    raise RuntimeError('Number of surface points not even')
                 if (np.abs(nb_set_surface_pts[ipt][1] - nb_set_surface_pts[0][1]) > 0.1 and
                             np.abs(nb_set_surface_pts[ipt][0] - nb_set_surface_pts[0][0]) > 0.125):
                     xytext = ((nb_set_surface_pts[0][0]+nb_set_surface_pts[ipt][0])/2,
