@@ -391,7 +391,7 @@ class BandStructure(object):
         index = None
         kpointcbm = None
         for spin, v in self.bands.items():
-            for i, j in zip(*np.where(v >= self.efermi)):
+            for i, j in zip(*np.where(v > self.efermi)):
                 if v[i, j] < max_tmp:
                     max_tmp = float(v[i, j])
                     index = j
