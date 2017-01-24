@@ -4,19 +4,13 @@
 
 from __future__ import division, unicode_literals, print_function
 import logging
-import math
-import itertools
 from collections import OrderedDict
 
 import numpy as np
 
 from monty.json import jsanitize
-from pymatgen.electronic_structure.core import Spin
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
-from pymatgen.util.plotting_utils import get_publication_quality_plot, \
-    add_fig_kwargs, get_ax3d_fig_plt
-
-from pymatgen.symmetry.bandstructure import HighSymmKpath
+from pymatgen.util.plotting_utils import get_publication_quality_plot
 from pymatgen.electronic_structure.plotter import plot_brillouin_zone
 
 """
@@ -280,13 +274,14 @@ class PhononBSPlotter(object):
         distance = []
         frequency = []
 
+        ticks = self.get_ticks()
+
         for b in self._bs.branches:
 
             frequency.append([])
             distance.append([self._bs.distance[j]
                              for j in range(b['start_index'],
                                             b['end_index'] + 1)])
-            ticks = self.get_ticks()
 
             for i in range(self._nb_bands):
                 frequency[-1].append(
@@ -331,7 +326,6 @@ class PhononBSPlotter(object):
 
         # Main X and Y Labels
         plt.xlabel(r'$\mathrm{Wave\ Vector}$', fontsize=30)
-        #TODO set units
         ylabel = r'$\mathrm{Frequency\ (THz)}$'
         plt.ylabel(ylabel, fontsize=30)
 
@@ -416,19 +410,23 @@ class PhononBSPlotter(object):
         plot two band structure for comparison. One is in red the other in blue.
         The two band structures need to be defined on the same symmetry lines!
         and the distance between symmetry lines is
-        the one of the band structure used to build the BSPlotter
+        the one of the band structure used to build the PhononBSPlotter
 
         Args:
-            another band structure object defined along the same symmetry lines
+            another PhononBSPlotter object defined along the same symmetry lines
 
         Returns:
             a matplotlib object with both band structures
 
         """
-        # TODO: add exception if the band structures are not compatible
-        plt = self.get_plot()
+
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
+
+        if len(data_orig['distances']) != len(data['distances']):
+            raise ValueError('The two objects are not compatible.')
+
+        plt = self.get_plot()
         band_linewidth = 1
         for i in range(other_plotter._nb_bands):
             for d in range(len(data_orig['distances'])):

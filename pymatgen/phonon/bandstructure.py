@@ -5,11 +5,6 @@
 from __future__ import unicode_literals
 
 import numpy as np
-import math
-import itertools
-import collections
-import json
-import six
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
@@ -28,6 +23,7 @@ class PhononBandStructure(MSONable):
     Additional information may be given for frequencies at Gamma, where
     non-analytical contribution may be taken into account.
     """
+
     def __init__(self, qpoints, frequencies, lattice, nac_frequencies=None, eigendisplacements=None,
                  nac_eigendisplacements=None, labels_dict=None, coords_are_cartesian=False,
                  structure=None):
@@ -396,4 +392,3 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         structure = Structure.from_dict(d['structure']) if 'structure' in d else None
         return cls(d['qpoints'], np.array(d['bands']), lattice_rec, d['has_nac'], eigendisplacements,
                    d['labels_dict'], structure=structure)
-

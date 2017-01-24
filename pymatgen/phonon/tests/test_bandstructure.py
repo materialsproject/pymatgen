@@ -5,7 +5,6 @@ import os
 import json
 from io import open
 
-from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen.phonon.bandstructure import PhononBandStructure, PhononBandStructureSymmLine
 from pymatgen.util.testing import PymatgenTest
 
@@ -60,7 +59,6 @@ class PhononBandStructureSymmLineTest(PymatgenTest):
         self.assertIsNone(self.bs2.get_nac_eigendisplacements_along_dir([1, 1, 0]))
 
     def test_branches(self):
-        print(self.bs.branches)
         self.assertEqual(self.bs.branches[0]['end_index'], 50)
         self.assertEqual(self.bs.branches[1]['start_index'], 51)
         self.assertEqual(self.bs.branches[2]['name'], 'Y-Gamma')

@@ -40,10 +40,14 @@ def get_structure_from_dict(d):
 
 def eigvec_to_eigdispl(v, q, frac_coords, mass):
     """
-    Converts the eigenvectors to eigendisplacements in the primitive cell.
+    Converts a single eigenvector to an eigendisplacement in the primitive cell
+    according to the formula:
+    \exp(2*pi*i*(frac_coords \dot q) / sqrt(mass) * v
+    Compared to the modulation option in phonopy, here all the additional
+    multiplicative and phase factors are set to 1.
     Args:
-        v: the vector that should be converted. A complex numpy array.
-        q: the q point
+        v: the vector that should be converted. A 3D complex numpy array.
+        q: the q point in fractional coordinates
         frac_coords: the fractional coordinates of the atom
         mass: the mass of the atom
     """
@@ -58,8 +62,9 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
     Creates a pymatgen PhononBandStructure object from the dictionary
     extracted by the band.yaml file produced by phonopy. The labels
     will be extracted from the dictionary, if present. If the 'eigenvector'
-    key is found the eigendisplacements will be calculated and added to
-    the object.
+    key is found the eigendisplacements will be calculated according to the formula:
+    \exp(2*pi*i*(frac_coords \dot q) / sqrt(mass) * v
+    and added to the object.
 
     Args:
         bands_dict: the dictionary extracted from the band.yaml file
@@ -118,7 +123,9 @@ def get_ph_bs_symm_line(bands_path, has_nac=False, labels_dict=None):
     Creates a pymatgen PhononBandStructure from a band.yaml file.
     The labels will be extracted from the dictionary, if present.
     If the 'eigenvector'  key is found the eigendisplacements will be
-    calculated and added to  the object.
+    calculated according to the formula:
+    \exp(2*pi*i*(frac_coords \dot q) / sqrt(mass) * v
+     and added to the object.
 
     Args:
         bands_path: path to the band.yaml file
