@@ -1474,7 +1474,7 @@ $${qverbatim}
             return self._get_select_with_master_mem_overhead(ret_dict=ret_dict, qnodes=qnodes,
                                                              memory_policy=memory_policy)
 
-    def _get_select_with_master_mem_overhead(self, ret_dict=False, qnodes=None, memory_policy='vmem'):
+    def _get_select_with_master_mem_overhead(self, ret_dict=False, qnodes=None, memory_policy='mem'):
         if self.has_omp:
             raise NotImplementedError("select with master mem overhead not yet implemented with has_omp")
         if qnodes is None:
@@ -1490,7 +1490,7 @@ $${qverbatim}
         else:
             raise ValueError("Wrong value of qnodes parameter : {}".format(self.qnodes))
 
-    def _get_select_with_master_mem_overhead_shared(self, ret_dict=False, memory_policy='vmem'):
+    def _get_select_with_master_mem_overhead_shared(self, ret_dict=False, memory_policy='mem'):
         chunk_master, ncpus_master, vmem_master, mpiprocs_master = 1, 1, self.mem_per_proc+self.master_mem_overhead, 1
         if self.mpi_procs > 1:
             chunks_slaves, ncpus_slaves, vmem_slaves, mpiprocs_slaves = self.mpi_procs - 1, 1, self.mem_per_proc, 1
@@ -1607,7 +1607,7 @@ $${qverbatim}
             return s, select_params
         return s
 
-    def _get_select_standard(self, ret_dict=False, memory_policy='vmem'):
+    def _get_select_standard(self, ret_dict=False, memory_policy='mem'):
         if not self.has_omp:
             chunks, ncpus, vmem, mpiprocs = self.mpi_procs, 1, self.mem_per_proc, 1
             select_params = AttrDict(chunks=chunks, ncpus=ncpus, mpiprocs=mpiprocs, vmem=int(vmem))
