@@ -307,7 +307,7 @@ class ConnectedComponent(MSONable):
         supergraph = make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
         return supergraph
 
-    def show_graph(self, graph=None, save_file=None):
+    def show_graph(self, graph=None, save_file=None, drawing_type='internal'):
         import matplotlib.pyplot as plt
 
         if graph is None:
@@ -316,16 +316,25 @@ class ConnectedComponent(MSONable):
             shown_graph = graph
 
         #pos = nx.spring_layout(shown_graph)
-        pos = nx.shell_layout(shown_graph)
-        ax = plt.gca()
-        draw_network(shown_graph, pos, ax, periodicity_vectors=self._periodicity_vectors)
-        ax.autoscale()
-        plt.axis('equal')
-        plt.axis('off')
-        if save_file is not None:
-            plt.savefig(save_file)
-        #nx.draw(self._connected_subgraph)
-        plt.show()
+        if drawing_type == 'internal':
+            pos = nx.shell_layout(shown_graph)
+            ax = plt.gca()
+            draw_network(shown_graph, pos, ax, periodicity_vectors=self._periodicity_vectors)
+            ax.autoscale()
+            plt.axis('equal')
+            plt.axis('off')
+            if save_file is not None:
+                plt.savefig(save_file)
+            #nx.draw(self._connected_subgraph)
+            plt.show()
+        elif drawing_type == 'draw_graphviz':
+            import networkx
+            networkx.nx_pydot.graphviz_layout(shown_graph)
+            plt.show()
+        elif drawing_type == 'draw_random':
+            import networkx
+            networkx.draw_random(shown_graph)
+            plt.show()
 
     @property
     def graph(self):
