@@ -4,6 +4,16 @@
 
 from __future__ import division, unicode_literals
 
+import logging
+import itertools
+import numpy as np
+import re
+
+from monty.json import MSONable
+from pymatgen.core.composition import Composition
+from pymatgen.entries.computed_entries import ComputedEntry
+from monty.json import MontyDecoder
+
 """
 This module provides classes that define a chemical reaction.
 """
@@ -17,15 +27,6 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Jul 11 2012"
 
-import logging
-import itertools
-import numpy as np
-import re
-
-from monty.json import MSONable
-from pymatgen.core.composition import Composition
-from pymatgen.entries.computed_entries import ComputedEntry
-from monty.json import MontyDecoder
 
 logger = logging.getLogger(__name__)
 
@@ -43,19 +44,19 @@ class BalancedReaction(MSONable):
         Reactants and products to be specified as dict of {Composition: coeff}.
 
         Args:
-            reactants ({Composition: float}): Reactants as dict of
+            reactants_coeffs ({Composition: float}): Reactants as dict of
                 {Composition: amt}.
-            products ({Composition: float}): Products as dict of
+            products_coeffs ({Composition: float}): Products as dict of
                 {Composition: amt}.
         """
-        #sum reactants and products
+        # sum reactants and products
         all_reactants = sum([k * v for k, v in reactants_coeffs.items()],
                             Composition({}))
         all_products = sum([k * v for k, v in products_coeffs.items()],
                            Composition({}))
 
         if not all_reactants.almost_equals(all_products,
-                                atol=BalancedReaction.TOLERANCE):
+                                           atol=BalancedReaction.TOLERANCE):
             raise ReactionError("Reaction is unbalanced!")
 
         self._els = all_reactants.elements
@@ -63,12 +64,12 @@ class BalancedReaction(MSONable):
         self.reactants_coeffs = reactants_coeffs
         self.products_coeffs = products_coeffs
 
-        #calculate net reaction coefficients
+        # calculate net reaction coefficients
         self._coeffs = []
         self._els = []
         self._all_comp = []
         for c in set(list(reactants_coeffs.keys()) +
-                list(products_coeffs.keys())):
+                     list(products_coeffs.keys())):
             coeff = products_coeffs.get(c, 0) - reactants_coeffs.get(c, 0)
 
             if abs(coeff) > BalancedReaction.TOLERANCE:
@@ -362,7 +363,7 @@ class Reaction(BalancedReaction):
                 count += 1
 
             if nconstraints > num_els:
-                #Try two schemes for making the comp matrix non-singular.
+                # Try two schemes for making the comp matrix non-singular.
                 for i in range(num_els, nconstraints):
                     for j in range(num_els):
                         comp_matrix[i][j] = 0
@@ -404,12 +405,14 @@ class Reaction(BalancedReaction):
                                 coeffs = -np.linalg.solve(submatrix, ansmatrix)
                                 coeffs = [c for c in coeffs]
                                 coeffs.insert(m, 1)
-                                #Check if final coeffs are valid
+                                # Check if final coeffs are valid
                                 overall_mat = np.dot(perm_matrix, coeffs)
                                 if np.allclose(overall_mat, 0,
                                                atol=BalancedReaction.TOLERANCE):
                                     ans_found = True
                                     break
+                        if ans_found:
+                            break
                     if not ans_found:
                         raise ReactionError("Reaction is ill-formed and cannot"
                                             " be balanced.")
@@ -421,7 +424,7 @@ class Reaction(BalancedReaction):
             if coeffs[i] != 0:
                 normfactor = coeffs[i]
                 break
-        #Invert negative solutions and scale to final product
+        # Invert negative solutions and scale to final product
         coeffs = [c / normfactor for c in coeffs]
         self._els = els
         self._all_comp = all_comp[0:nconstraints]

@@ -10,8 +10,7 @@ This module provides the Stress class used to create, manipulate, and
 calculate relevant properties of the stress tensor.
 """
 
-from pymatgen.analysis.elasticity import voigt_map
-from pymatgen.analysis.elasticity.tensors import SquareTensor
+from pymatgen.analysis.elasticity.tensors import SquareTensor, voigt_map
 import math
 import numpy as np
 import warnings

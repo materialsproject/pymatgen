@@ -192,13 +192,13 @@ After generating the resources directory, you should add a VASP_PSP_DIR config
 variable pointing to the generated directory and you should then be
 able to generate POTCARs::
 
-    pmg config --add VASP_PSP_DIR <MY_PSP>
+    pmg config --add PMG_VASP_PSP_DIR <MY_PSP>
 
 If you are using newer sets of pseudopotential files from VASP, the directory
 names may be different, e.g., POT_GGA_PAW_PBE_52. For such cases, please also
 add a default functional specification as follows::
 
-    pmg config --add DEFAULT_FUNCTIONAL PBE_52
+    pmg config --add PMG_DEFAULT_FUNCTIONAL PBE_52
 
 You can also use this to specify whatever functional you would like to use by
 default in pymatgen, e.g., LDA_52, PW91, etc. Type::

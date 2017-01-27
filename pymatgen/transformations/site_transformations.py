@@ -513,3 +513,35 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return True
+
+
+class AddSitePropertyTransformation(AbstractTransformation):
+    """
+    Simple transformation to add site properties to a given structure
+    """
+    def __init__(self, site_properties):
+        """
+        Args:
+            site_properties (dict): site properties to be added to a structure
+        """
+        self.site_properties = site_properties
+
+    def apply_transformation(self, structure):
+        """
+        apply the transformation
+        
+        Args:
+            structure (Structure): structure to add site properties to
+        """
+        new_structure = structure.copy()
+        for prop in self.site_properties.keys():
+            new_structure.add_site_property(prop, self.site_properties[prop])
+        return new_structure
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False

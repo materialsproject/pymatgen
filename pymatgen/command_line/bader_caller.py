@@ -86,7 +86,6 @@ class BaderAnalysis(object):
         calculating charge transferred).
     """
 
-
     def __init__(self, chgcar_filename, potcar_filename=None):
         """
         Initializes the Bader caller.
@@ -110,6 +109,10 @@ class BaderAnalysis(object):
                                   stdout=subprocess.PIPE,
                                   stdin=subprocess.PIPE, close_fds=True)
             rs.communicate()
+            if rs.returncode != 0:
+                raise RuntimeError("bader exited with return code %d. "
+                                   "Pls check your bader installation."
+                                   % rs.returncode)
             data = []
             with open("ACF.dat") as f:
                 raw = f.readlines()

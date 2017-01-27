@@ -12,7 +12,7 @@ environment:
       CONDA_PY: "35"
       CONDA_BUILD: "TRUE"
       SPLIT_RUN: "FALSE"
-  MAPI_KEY:
+  PMG_MAPI_KEY:
     secure: XIbk1W27nucVUHTVpIL2B+FodL9w2Efyw5PqTdnfbHg=
   PYPIPWD:
     secure: QPpXonUAeLJ8p3f936jh7g==

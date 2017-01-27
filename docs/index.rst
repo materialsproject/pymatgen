@@ -376,6 +376,14 @@ pmg. The typical usage of pmg is::
 
 At any time, you can use ``"pmg --help"`` or ``"pmg subcommand
 --help"`` to bring up a useful help message on how to use these subcommands.
+With effect from v4.6.0, ``pmg`` also supports bash completion using
+argcomplete, which is useful given the many options available in the cli tool.
+To enable argcomplete, ``pip install argcomplete`` and either follow
+argcomplete's instructions for enabling global completion, or add the following
+line to your ``.bash_profile`` (this method usually works more reliably)::
+
+   eval "$(register-python-argcomplete pmg)"
+
 Here are a few examples of typical usages::
 
     #Parses all vasp runs in a directory and display the basic energy

@@ -22,6 +22,7 @@ __date__ = "Feb 20, 2016"
 
 
 import numpy as np
+from collections import OrderedDict
 from pymatgen.core.sites import PeriodicSite
 from monty.json import MSONable, MontyDecoder
 from pymatgen.core.periodic_table import Element, Specie
@@ -48,6 +49,7 @@ class StructureEnvironments(MSONable):
         def __init__(self, structure, isite, detailed_voronoi, site_voronoi_indices, sources=None):
             self.structure = structure
             self.isite = isite
+            self.detailed_voronoi = detailed_voronoi
             self.voronoi = detailed_voronoi.voronoi_list2[isite]
             myset = set(site_voronoi_indices)
             if len(myset) != len(site_voronoi_indices):
@@ -99,6 +101,10 @@ class StructureEnvironments(MSONable):
             return [self.voronoi[inb]['angle'] for inb in self.site_voronoi_indices]
 
         @property
+        def sphere_fraction_angles(self):
+            return [0.25*self.voronoi[inb]['angle']/np.pi for inb in self.site_voronoi_indices]
+
+        @property
         def info(self):
             was = self.normalized_angles
             wds = self.normalized_distances
@@ -128,10 +134,47 @@ class StructureEnvironments(MSONable):
                     'distances_max': np.max(distances)
                     }
 
+        def distance_plateau(self):
+            all_nbs_normalized_distances_sorted = sorted([nb['normalized_distance'] for nb in self.voronoi],
+                                                         reverse=True)
+            maxdist = np.max(self.normalized_distances)
+            plateau = None
+            for idist, dist in enumerate(all_nbs_normalized_distances_sorted):
+                if np.isclose(dist, maxdist,
+                              rtol=0.0, atol=self.detailed_voronoi.normalized_distance_tolerance):
+                    if idist == 0:
+                        plateau = np.inf
+                    else:
+                        plateau = all_nbs_normalized_distances_sorted[idist-1] - maxdist
+                    break
+            if plateau is None:
+                raise ValueError('Plateau not found ...')
+            return plateau
+
+        def angle_plateau(self):
+            all_nbs_normalized_angles_sorted = sorted([nb['normalized_angle'] for nb in self.voronoi])
+            minang = np.min(self.normalized_angles)
+            print('minang', minang)
+            print('all_nbs_normalized_angles_sorted', all_nbs_normalized_angles_sorted)
+            for nb in self.voronoi:
+                print(nb)
+            plateau = None
+            for iang, ang in enumerate(all_nbs_normalized_angles_sorted):
+                if np.isclose(ang, minang,
+                              rtol=0.0, atol=self.detailed_voronoi.normalized_angle_tolerance):
+                    if iang == 0:
+                        plateau = minang
+                    else:
+                        plateau = minang - all_nbs_normalized_angles_sorted[iang-1]
+                    break
+            if plateau is None:
+                raise ValueError('Plateau not found ...')
+            return plateau
+
         def voronoi_grid_surface_points(self, additional_condition=1, other_origins='DO_NOTHING'):
             """
             Get the surface points in the Voronoi grid for this neighbor from the sources.
-            The general shape of the points looks like this :
+            The general shape of the points should look like a staircase such as in the following figure :
 
                ^
             0.0|
@@ -139,14 +182,14 @@ class StructureEnvironments(MSONable):
                |      B----C
                |      |    |
                |      |    |
-            a  |      k    l
-            n  |      |    |
-            g  |      |    |
-            l  |      |    |
-            e  |      j    D-------m----n---------E
+            a  |      k    D-------E
+            n  |      |            |
+            g  |      |            |
+            l  |      |            |
+            e  |      j            F----n---------G
                |      |                           |
                |      |                           |
-               |      A----g-------h----i---------F
+               |      A----g-------h----i---------H
                |
                |
             1.0+------------------------------------------------->
@@ -168,32 +211,79 @@ class StructureEnvironments(MSONable):
                         raise NotImplementedError('Nothing implemented for other sources ...')
             if len(mysrc) == 0:
                 return None
+
             dists = [src['dp_dict']['min'] for src in mysrc]
             angs = [src['ap_dict']['max'] for src in mysrc]
             next_dists = [src['dp_dict']['next'] for src in mysrc]
             next_angs = [src['ap_dict']['next'] for src in mysrc]
 
-            pointA = (np.min(dists), np.max(angs))
+            points_dict = OrderedDict()
 
-            ipts_distA = np.argwhere(np.isclose(dists, pointA[0])).flatten()
-            angs_distA = np.take(angs, ipts_distA)
-            iangmin_distA = np.argmin(angs_distA)
+            pdists = []
+            pangs = []
 
-            pointB = (pointA[0], np.take(next_angs, ipts_distA)[iangmin_distA])
+            for isrc in range(len(mysrc)):
+                if not any(np.isclose(pdists, dists[isrc])):
+                    pdists.append(dists[isrc])
+                if not any(np.isclose(pdists, next_dists[isrc])):
+                    pdists.append(next_dists[isrc])
+                if not any(np.isclose(pangs, angs[isrc])):
+                    pangs.append(angs[isrc])
+                if not any(np.isclose(pangs, next_angs[isrc])):
+                    pangs.append(next_angs[isrc])
+                d1_indices = np.argwhere(np.isclose(pdists, dists[isrc])).flatten()
+                if len(d1_indices) != 1:
+                    raise ValueError('Distance parameter not found ...')
+                d2_indices = np.argwhere(np.isclose(pdists, next_dists[isrc])).flatten()
+                if len(d2_indices) != 1:
+                    raise ValueError('Distance parameter not found ...')
+                a1_indices = np.argwhere(np.isclose(pangs, angs[isrc])).flatten()
+                if len(a1_indices) != 1:
+                    raise ValueError('Angle parameter not found ...')
+                a2_indices = np.argwhere(np.isclose(pangs, next_angs[isrc])).flatten()
+                if len(a2_indices) != 1:
+                    raise ValueError('Angle parameter not found ...')
+                id1 = d1_indices[0]
+                id2 = d2_indices[0]
+                ia1 = a1_indices[0]
+                ia2 = a2_indices[0]
+                for id_ia in [(id1, ia1), (id1, ia2), (id2, ia1), (id2, ia2)]:
+                    if id_ia not in points_dict:
+                        points_dict[id_ia] = 0
+                    points_dict[id_ia] += 1
 
-            pointC = (np.take(next_dists, ipts_distA)[iangmin_distA], pointB[1])
+            new_pts = []
+            for pt, pt_nb in points_dict.items():
+                if pt_nb % 2 == 1:
+                    new_pts.append(pt)
 
-            ipts_angA = np.argwhere(np.isclose(angs, pointA[1])).flatten()
-            dists_angA = np.take(dists, ipts_angA)
-            idistmax_angA = np.argmax(dists_angA)
+            sorted_points = [(0, 0)]
+            move_ap_index = True
+            while True:
+                last_pt = sorted_points[-1]
+                if move_ap_index: # "Move" the angle parameter
+                    idp = last_pt[0]
+                    iap = None
+                    for pt in new_pts:
+                        if pt[0] == idp and pt != last_pt:
+                            iap = pt[1]
+                            break
+                else:             # "Move" the distance parameter
+                    idp = None
+                    iap = last_pt[1]
+                    for pt in new_pts:
+                        if pt[1] == iap and pt != last_pt:
+                            idp = pt[0]
+                            break
+                if (idp, iap) == (0, 0):
+                    break
+                if (idp, iap) in sorted_points:
+                    raise ValueError('Error sorting points ...')
+                sorted_points.append((idp, iap))
+                move_ap_index = not move_ap_index
 
-            pointF = (np.take(next_dists, ipts_angA)[idistmax_angA], pointA[1])
-
-            pointE = (pointF[0], np.take(next_angs, ipts_angA)[idistmax_angA])
-
-            pointD = (pointC[0], pointE[1])
-
-            return [pointA, pointB, pointC, pointD, pointE, pointF]
+            points = [(pdists[idp], pangs[iap]) for (idp, iap) in sorted_points]
+            return points
 
         @property
         def source(self):
@@ -585,6 +675,35 @@ class StructureEnvironments(MSONable):
         scalarmap = cm.ScalarMappable(norm=norm, cmap=mycm)
         dist_limits = [1.0, self.voronoi.maximum_distance_factor]
         ang_limits = [0.0, 1.0]
+        if plot_type['distance_parameter'][0] == 'one_minus_inverse_alpha_power_n':
+            if plot_type['distance_parameter'][1] is None:
+                exponent = 3
+            else:
+                exponent = plot_type['distance_parameter'][1]['exponent']
+            xlabel = 'Distance parameter : $1.0-\\frac{{1.0}}{{\\alpha^{{{:d}}}}}$'.format(exponent)
+            def dp_func(dp):
+                return 1.0-1.0/np.power(dp, exponent)
+        elif plot_type['distance_parameter'][0] == 'initial_normalized':
+            xlabel = 'Distance parameter : $\\alpha$'
+            def dp_func(dp):
+                return dp
+        else:
+            raise ValueError('Wrong value for distance parameter plot type "{}"'.
+                             format(plot_type['distance_parameter'][0]))
+
+        if plot_type['angle_parameter'][0] == 'one_minus_gamma':
+            ylabel = 'Angle parameter : $1.0-\\gamma$'
+            def ap_func(ap):
+                return 1.0-ap
+        elif plot_type['angle_parameter'][0] in ['initial_normalized_inverted', 'initial_normalized']:
+            ylabel = 'Angle parameter : $\\gamma$'
+            def ap_func(ap):
+                return ap
+        else:
+            raise ValueError('Wrong value for angle parameter plot type "{}"'.
+                             format(plot_type['angle_parameter'][0]))
+        dist_limits = [dp_func(dp) for dp in dist_limits]
+        ang_limits = [ap_func(ap) for ap in ang_limits]
 
         for cn, cn_nb_sets in self.neighbors_sets[isite].items():
             for inb_set, nb_set in enumerate(cn_nb_sets):
@@ -592,29 +711,42 @@ class StructureEnvironments(MSONable):
                 if nb_set_surface_pts is None:
                     continue
                 ce = self.ce_list[isite][cn][inb_set]
-                mingeom = ce.minimum_geometry()
-                if mingeom is not None:
-                    mp_symbol = mingeom[0]
-                    csm = mingeom[1]['symmetry_measure']
-                    mycolor = scalarmap.to_rgba(csm)
-                    myinvcolor = [1.0 - mycolor[0], 1.0 - mycolor[1], 1.0 - mycolor[2], 1.0]
-                    mytext = '{}'.format(mp_symbol)
-                else:
+                if ce is None:
                     mycolor = 'w'
                     myinvcolor = 'k'
                     mytext = '{:d}'.format(cn)
-                polygon = Polygon(nb_set_surface_pts, closed=True, edgecolor='k', facecolor=mycolor)
+                else:
+                    mingeom = ce.minimum_geometry()
+                    if mingeom is not None:
+                        mp_symbol = mingeom[0]
+                        csm = mingeom[1]['symmetry_measure']
+                        mycolor = scalarmap.to_rgba(csm)
+                        myinvcolor = [1.0 - mycolor[0], 1.0 - mycolor[1], 1.0 - mycolor[2], 1.0]
+                        mytext = '{}'.format(mp_symbol)
+                    else:
+                        mycolor = 'w'
+                        myinvcolor = 'k'
+                        mytext = '{:d}'.format(cn)
+                nb_set_surface_pts = [(dp_func(pt[0]), ap_func(pt[1])) for pt in nb_set_surface_pts]
+                polygon = Polygon(nb_set_surface_pts, closed=True, edgecolor='k', facecolor=mycolor, linewidth=1.2)
                 subplot.add_patch(polygon)
-                if (np.abs(nb_set_surface_pts[3][1] - nb_set_surface_pts[0][1]) > 0.1 and
-                            np.abs(nb_set_surface_pts[3][0] - nb_set_surface_pts[0][0]) > 0.125):
-                    xytext = ((nb_set_surface_pts[0][0]+nb_set_surface_pts[3][0])/2,
-                              (nb_set_surface_pts[0][1] + nb_set_surface_pts[3][1]) / 2)
+                myipt = len(nb_set_surface_pts) / 2
+                ipt = int(myipt)
+                if myipt != ipt:
+                    raise RuntimeError('Number of surface points not even')
+                if (np.abs(nb_set_surface_pts[ipt][1] - nb_set_surface_pts[0][1]) > 0.1 and
+                            np.abs(nb_set_surface_pts[ipt][0] - nb_set_surface_pts[0][0]) > 0.125):
+                    xytext = ((nb_set_surface_pts[0][0]+nb_set_surface_pts[ipt][0])/2,
+                              (nb_set_surface_pts[0][1] + nb_set_surface_pts[ipt][1]) / 2)
                     subplot.annotate(mytext, xy=xytext,
                                      ha='center', va='center', color=myinvcolor, fontsize='x-small')
 
         subplot.set_title(title)
-        subplot.set_xlabel('Distance parameter : $\\alpha$')
-        subplot.set_ylabel('Angle parameter : $\\gamma$')
+        subplot.set_xlabel(xlabel)
+        subplot.set_ylabel(ylabel)
+
+        dist_limits.sort()
+        ang_limits.sort()
         subplot.set_xlim(dist_limits)
         subplot.set_ylim(ang_limits)
         if strategy is not None:
