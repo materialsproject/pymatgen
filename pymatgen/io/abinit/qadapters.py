@@ -499,6 +499,7 @@ limits:
                            'max_cores': self.max_cores,
                            'min_mem_per_proc': self.min_mem_per_proc,
                            'max_mem_per_proc': self.max_mem_per_proc,
+                           'memory_policy': self.memory_policy
                            },
                 'job': {},
                 'mpi_procs': self._mpi_procs,
@@ -559,6 +560,7 @@ limits:
         self.min_cores = int(d.pop("min_cores", 1))
         self.max_cores = int(d.pop("max_cores"))
         self.hint_cores = int(d.pop("hint_cores", self.max_cores))
+        self.memory_policy = d.pop("memory_policy", "mem")
         if self.min_cores > self.max_cores:
             raise ValueError("min_cores %s cannot be greater than max_cores %s" % (self.min_cores, self.max_cores))
 
@@ -1386,7 +1388,7 @@ $${qverbatim}
     def optimize_params(self, qnodes=None):
         return {"select": self.get_select(qnodes=qnodes)}
 
-    def get_select(self, ret_dict=False, qnodes=None, memory_policy='mem'):
+    def get_select(self, ret_dict=False, qnodes=None, memory_policy=None):
         """
         Select is not the most intuitive command. For more info see:
 
@@ -1462,6 +1464,8 @@ $${qverbatim}
         else:
             raise RuntimeError("You should not be here")
         """
+        if memory_policy is None:
+            memory_policy = self.memory_policy
         if qnodes is None:
             qnodes = self.qnodes
         else:
