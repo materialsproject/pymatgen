@@ -274,16 +274,14 @@ class NEBAnalysis(MSONable):
             poscar = glob.glob(os.path.join(d, "POSCAR*"))
             terminal = i == 0 or i == neb_dirs[-1][0]
             if terminal:
-                found = False
                 for ds in terminal_dirs:
                     od = ds[0] if i == 0 else ds[1]
                     outcar = glob.glob(os.path.join(od, "OUTCAR*"))
                     if outcar:
                         outcar = sorted(outcar)
                         outcars.append(Outcar(outcar[-1]))
-                        found = True
                         break
-                if not found:
+                else:
                     raise ValueError("OUTCAR cannot be found for terminal "
                                      "point %s" % d)
                 structures.append(Poscar.from_file(poscar[0]).structure)

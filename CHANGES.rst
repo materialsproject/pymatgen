@@ -1,6 +1,22 @@
 Change log
 ==========
 
+v4.6.0
+------
+* Improve support for alternative settings in SpaceGroup.
+* Fix respect for user_incar_settings in MPNonSCFSet and MPSOCSet
+* Support for argcomplete in pmg script.
+* Speed ups to Ewald summation.
+* Add functionality to parse frequency dependent dielectric function.
+* Improvements to Bolztrap support.
+
+v4.5.7
+------
+* PMG settings are now prefixed with PMG_ to ensure proper namespacing.
+* Improve error output in command line bader caller.
+* Add Py3.6 classifier.
+* Misc bug fixes.
+
 v4.5.6
 ------
 * Minor bug fix.
@@ -33,8 +49,8 @@ v4.5.2
 v4.5.1
 ------
 * You can now specify a different default functional choice for pymatgen by
-  setting DEFAULT_FUNCTIONAL in .pmgrc.yaml. For use with newer functional sets,
-  you need to specify PBE_52 or PBE_54 for example.
+  setting PMG_DEFAULT_FUNCTIONAL in .pmgrc.yaml. For use with newer
+  functional sets, you need to specify PBE_52 or PBE_54 for example.
 * Swtich to ISYM 3 by default for HSE.
 * Updates to FEFF>
 * Misc bug fixes and startup speed improvements.

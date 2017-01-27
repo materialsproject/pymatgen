@@ -64,8 +64,8 @@ class MPRester(object):
         api_key (str): A String API key for accessing the MaterialsProject
             REST interface. Please obtain your API key at
             https://www.materialsproject.org/dashboard. If this is None,
-            the code will check if there is a "MAPI_KEY" environment variable
-            set. If so, it will use that environment variable. This makes
+            the code will check if there is a "PMG_MAPI_KEY" setting.
+            If so, it will use that environment variable. This makes
             easier for heavy users to simply add this environment variable to
             their setups and MPRester can then be called without any arguments.
         endpoint (str): Url of endpoint to access the MaterialsProject REST
@@ -97,7 +97,7 @@ class MPRester(object):
         if api_key is not None:
             self.api_key = api_key
         else:
-            self.api_key = SETTINGS.get("MAPI_KEY", "")
+            self.api_key = SETTINGS.get("PMG_MAPI_KEY", "")
         self.preamble = endpoint
         import requests
         self.session = requests.Session()

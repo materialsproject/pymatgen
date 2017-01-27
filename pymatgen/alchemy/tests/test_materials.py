@@ -98,7 +98,7 @@ class TransformedStructureTest(unittest.TestCase):
         self.trans.append_filter(f3)
 
     def test_get_vasp_input(self):
-        SETTINGS["VASP_PSP_DIR"] = os.path.abspath(
+        SETTINGS["PMG_VASP_PSP_DIR"] = os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "..", "..", "..",
                              "test_files"))
         potcar = self.trans.get_vasp_input(MPRelaxSet)['POTCAR']

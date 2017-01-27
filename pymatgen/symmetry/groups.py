@@ -10,6 +10,7 @@ from abc import ABCMeta, abstractproperty
 from collections import Sequence
 import numpy as np
 import warnings
+import re
 from monty.serialization import loadfn
 
 from pymatgen.core.operations import SymmOp
@@ -35,7 +36,8 @@ SYMM_DATA = None
 def get_symm_data(name):
     global SYMM_DATA
     if SYMM_DATA is None:
-        SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.yaml"))
+        SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__),
+                                        "symm_data.yaml"))
     return SYMM_DATA[name]
 
 
@@ -84,7 +86,8 @@ class SymmetryGroup(Sequence):
         Returns:
             True if this group is a supergroup of the supplied group.
         """
-        warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
+        warnings.warn("This is not fully functional. Only trivial subsets are "
+                      "tested right now. ")
         return set(subgroup.symmetry_ops).issubset(self.symmetry_ops)
 
 
@@ -181,7 +184,8 @@ class SpaceGroup(SymmetryGroup):
 
         Order of Space Group
     """
-
+    SYMM_OPS = loadfn(os.path.join(os.path.dirname(__file__),
+                                   "symm_ops.yaml"))
     # Contains the entire list of supported Space Group symbols.
     SG_SYMBOLS = tuple(get_symm_data("space_group_encoding").keys())
 
@@ -208,41 +212,57 @@ class SpaceGroup(SymmetryGroup):
              v["full_symbol"]: k
              for k, v in get_symm_data("space_group_encoding").items()}
 
-        if int_symbol not in sgencoding and int_symbol not in \
-                abbrev_sg_mapping and int_symbol not in \
-                full_sg_mapping:
-            raise ValueError("Bad international symbol %s" % int_symbol)
-        elif int_symbol in abbrev_sg_mapping:
+        int_symbol = re.sub(" ", "", int_symbol)
+        if int_symbol in abbrev_sg_mapping:
             int_symbol = abbrev_sg_mapping[int_symbol]
         elif int_symbol in full_sg_mapping:
             int_symbol = full_sg_mapping[int_symbol]
 
-        data = sgencoding[int_symbol]
+        for spg in SpaceGroup.SYMM_OPS:
+            if re.sub(" ", "", spg["hermann_mauguin"]) == int_symbol or re.sub(":", "", re.sub(" ", "", spg["universal_h_m"])) == int_symbol:
+                ops = [SymmOp.from_xyz_string(s) for s in spg["symops"]]
+                self.symbol = re.sub(":", "",
+                                     re.sub(" ", "", spg["universal_h_m"]))
+                if int_symbol in sgencoding:
+                    self.full_symbol = sgencoding[int_symbol]["full_symbol"]
+                    self.point_group = sgencoding[int_symbol]["point_group"]
+                else:
+                    self.full_symbol = re.sub(" ", "",
+                                              spg["universal_h_m"])
+                    self.point_group = spg["schoenflies"]
+                self.int_number = spg["number"]
+                self.order = len(ops)
+                self._symmetry_ops = ops
+                break
+        else:
+            if int_symbol not in sgencoding:
+                raise ValueError("Bad international symbol %s" % int_symbol)
 
-        self.symbol = int_symbol
-        # TODO: Support different origin choices.
-        enc = list(data["enc"])
-        inversion = int(enc.pop(0))
-        ngen = int(enc.pop(0))
-        symm_ops = [np.eye(4)]
-        if inversion:
-            symm_ops.append(np.array(
-                [[-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0],
-                 [0, 0, 0, 1]]))
-        for i in range(ngen):
-            m = np.eye(4)
-            m[:3, :3] = gen_matrices[enc.pop(0)]
-            m[0, 3] = translations[enc.pop(0)]
-            m[1, 3] = translations[enc.pop(0)]
-            m[2, 3] = translations[enc.pop(0)]
-            symm_ops.append(m)
-        self.generators = symm_ops
-        self.full_symbol = data["full_symbol"]
-        self.int_number = data["int_number"]
-        self.order = data["order"]
-        self.patterson_symmetry = data["patterson_symmetry"]
-        self.point_group = data["point_group"]
-        self._symmetry_ops = None
+            data = sgencoding[int_symbol]
+
+            self.symbol = int_symbol
+            # TODO: Support different origin choices.
+            enc = list(data["enc"])
+            inversion = int(enc.pop(0))
+            ngen = int(enc.pop(0))
+            symm_ops = [np.eye(4)]
+            if inversion:
+                symm_ops.append(np.array(
+                    [[-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0],
+                     [0, 0, 0, 1]]))
+            for i in range(ngen):
+                m = np.eye(4)
+                m[:3, :3] = gen_matrices[enc.pop(0)]
+                m[0, 3] = translations[enc.pop(0)]
+                m[1, 3] = translations[enc.pop(0)]
+                m[2, 3] = translations[enc.pop(0)]
+                symm_ops.append(m)
+            self.generators = symm_ops
+            self.full_symbol = data["full_symbol"]
+            self.int_number = data["int_number"]
+            self.order = data["order"]
+
+            self._symmetry_ops = None
 
     def _generate_full_symmetry_ops(self):
         symm_ops = np.array(self.generators)

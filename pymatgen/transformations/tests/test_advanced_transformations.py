@@ -17,12 +17,13 @@ from pymatgen.transformations.advanced_transformations import \
     SuperTransformation, EnumerateStructureTransformation, \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
     SubstitutionPredictorTransformation, MagOrderingTransformation, \
-    DopingTransformation, _find_codopant
+    DopingTransformation, _find_codopant, SlabTransformation
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.energy_models import IsingModel
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.surface import SlabGenerator
 
 """
 Created on Jul 24, 2012
@@ -324,6 +325,32 @@ class DopingTransformationTest(PymatgenTest):
     def test_find_codopant(self):
         self.assertEqual(_find_codopant(Specie("Fe", 2), 1), Specie("Cu", 1))
         self.assertEqual(_find_codopant(Specie("Fe", 2), 3), Specie("In", 3))
+
+
+class SlabTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+        s = self.get_structure("LiFePO4")
+        trans = SlabTransformation([0, 0, 1], 10, 10, shift = 0.25)
+        gen = SlabGenerator(s, [0, 0, 1], 10, 10)
+        slab_from_gen = gen.get_slab(0.25)
+        slab_from_trans = trans.apply_transformation(s)
+        self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix, 
+                                    slab_from_trans.lattice.matrix)
+        self.assertArrayAlmostEqual(slab_from_gen.cart_coords, 
+                                    slab_from_trans.cart_coords)
+
+        fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"],
+                                        [[0, 0, 0]])
+        trans = SlabTransformation([1, 1, 1], 10, 10)
+        slab_from_trans = trans.apply_transformation(fcc)
+        gen = SlabGenerator(fcc, [1, 1, 1], 10, 10)
+        slab_from_gen = gen.get_slab()
+        self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix,
+                                    slab_from_trans.lattice.matrix)
+        self.assertArrayAlmostEqual(slab_from_gen.cart_coords, 
+                                    slab_from_trans.cart_coords)
+
 
 if __name__ == "__main__":
     import logging
