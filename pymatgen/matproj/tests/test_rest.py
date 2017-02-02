@@ -78,7 +78,6 @@ class MPResterTest(unittest.TestCase):
 
         props = ['structure', 'initial_structure', 'final_structure', 'entry']
         for prop in props:
-            print(prop)
             obj = self.rester.get_data("mp-19017", prop=prop)[0][prop]
             if prop.endswith("structure"):
                 self.assertIsInstance(obj, Structure)
