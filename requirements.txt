@@ -7,7 +7,6 @@ six==1.10.0
 scipy==0.18.1
 tabulate==0.7.7
 enum34==1.1.6; python_version < '3.5'
-pathlib2==2.2.0; python_version < '3.4'
 matplotlib==2.0.0
 palettable==2.1.1
 spglib==1.9.9.18
