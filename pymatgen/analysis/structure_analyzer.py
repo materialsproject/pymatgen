@@ -759,7 +759,7 @@ class OrderParameters(object):
                             ratio, x=h/d, should be factored into the OP
                             via a weithing function
                             f(x)=exp[-(x-xbar)**2/x0**2]*sqrt(x)/norm
-                            (false);
+                            (False);
                             xbar parameter (0.38);
                             x0 parameter (0.5);
                             norm parameter (0.67).
@@ -792,7 +792,8 @@ class OrderParameters(object):
             loc_parameters = [[] for t in types]
         self._types = tuple(types)
         tmpparas = []
-        self._computerijs = self._geomops = self._boops = False
+        self._computerijs = self._computerjks = self._geomops = False
+        self._geomops2 = self._boops = False
         self._max_trig_order = -1
         for i, t in enumerate(self._types):
             # add here any additional parameter checking and
@@ -893,14 +894,36 @@ class OrderParameters(object):
                                          " order parameter is zero!")
                     else:
                         tmpparas[i].append(1.0 / loc_parameters[i][1])
+            elif t == "sq_pyr":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i] = [1.0 / 0.0333, 1.0 / 0.0667, False, \
+                            0.38, 0.5, 0.67]
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for pyramid tip"
+                                " of square pyramid order parameter is zero!")
+                    if loc_parameters[i][1] == 0.0:
+                        raise ValueError("Gaussian width for pyramid basal" 
+                                " plane of square pyramid order parameter"
+                                " is zero!")
+                    tmpparas[i] = [1.0 / loc_parameters[i][0], \
+                            1.0 / loc_parameters[i][1], \
+                            loc_parameters[i][2], loc_parameters[i][3], \
+                            loc_parameters[i][4], loc_parameters[i][5]]
             # All following types should be well-defined/-implemented,
             # and they should not require parameters.
             elif t != "q2" and t != "q4" and t != "q6":
                 raise ValueError("unknown order-parameter type \"" + t + "\"")
 
             # Add here any additional flags to be used during calculation.
+            # self._computerijs: compute vectors from centeral atom i
+            #                    to any neighbor j.
+            # self._computerjks: compute vectors from non-centeral atom j
+            #                    to any non-central atom k.
             if t == "tet" or t == "oct" or t == "bcc":
                 self._computerijs = self._geomops = True
+            if t =="sq_pyr":
+                self._computerjks = self._geomops2 = True
             if t == "q2" or t == "q4" or t == "q6":
                 self._computerijs = self._boops = True
             if t == "q2" and self._max_trig_order < 2:
@@ -1487,6 +1510,7 @@ class OrderParameters(object):
 
         # Prepare angle calculations, if applicable.
         rij = []
+        rjk = []
         rijnorm = []
         dist = []
         centvec = centsite.coords
@@ -1495,6 +1519,10 @@ class OrderParameters(object):
                 rij.append((neigh.coords - centvec))
                 dist.append(np.linalg.norm(rij[j]))
                 rijnorm.append((rij[j] / dist[j]))
+        if self._computerjks:
+            for j, neigh in enumerate(neighsites):
+                for k in range(j+1, len(neighsites)):
+                    rjk.append(neigh.coords - neighsites[k].coords)
 
         # Initialize OP list and, then, calculate OPs.
         ops = [0.0 for t in self._types]
@@ -1660,5 +1688,14 @@ class OrderParameters(object):
                     # yielding a contribution to qbcc via thetak alone:
                     # ==> nneigh > 1.
                     ops[i] = ops[i] / 144.0 if nneigh > 1 else None
+
+        # Then, deal with the new-style OPs that are tailor-made
+        # to recognize more complex structural motifs such as
+        # square pyramidal.
+        if self._geomops2:
+            ipi = 1.0 / pi
+            piover2 = pi / 2.0
+            piover4 = pi / 4.0
+            optmp = [1.0 for t in self._type if t == "sq_pyr" or t == "sq_pyr"]
 
         return ops
