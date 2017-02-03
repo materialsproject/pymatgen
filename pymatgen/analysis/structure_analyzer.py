@@ -1512,7 +1512,9 @@ class OrderParameters(object):
         rij = []
         rjk = []
         rijnorm = []
+        rjknorm = []
         dist = []
+        distjk = []
         centvec = centsite.coords
         if self._computerijs:
             for j, neigh in enumerate(neighsites):
@@ -1520,10 +1522,13 @@ class OrderParameters(object):
                 dist.append(np.linalg.norm(rij[j]))
                 rijnorm.append((rij[j] / dist[j]))
         if self._computerjks:
+            i = 0
             for j, neigh in enumerate(neighsites):
                 for k in range(j+1, len(neighsites)):
                     rjk.append(neigh.coords - neighsites[k].coords)
-
+                    distjk.append(np.linalg.norm(rjk[i]))
+                    rjknorm.append((rjk[i] / distjk[i]))
+                    i = i + 1
         # Initialize OP list and, then, calculate OPs.
         ops = [0.0 for t in self._types]
 
@@ -1696,6 +1701,46 @@ class OrderParameters(object):
             ipi = 1.0 / pi
             piover2 = pi / 2.0
             piover4 = pi / 4.0
-            optmp = [1.0 for t in self._type if t == "sq_pyr" or t == "sq_pyr"]
+            for i, t in enumerate(self._type):
+                if t == "sq_pyr":
+                    op[i] = 1.0
+
+            # Contribution of alpha_ijs
+            # (all angles between central atom and neighbors).
+            alphaij = []
+            for ir, r in enumerate(rijnorm):
+                for jr in range(ir+1, len(rijnorm)):
+                    alphaij.append(math.acos(max(-1.0, min(np.inner(
+                            r, rijnorm[jr]), 1.0))))
+            av_alphaij = 0.0
+            if len(alphaij) > 0
+                av_alphaij = np.mean(alphaij)
+            for i, t in enumerate(self._type):
+                if t == "sq_pyr":
+                    for a in alphaij:
+                        op[i] = op[i] * exp(- 0.5* (
+                                (a - av_alphaij) * loc_parameters[i][0])**2)
+
+            # Contribution of beta_ijs
+            # (all angles between neighbors of central atom).
+            betaij = []
+            for ir, r in enumerate(rjknorm):
+                for jr in range(ir+1, len(rjknorm)):
+                    betaij.append(math.acos(max(-1.0, min(np.inner(
+                            r, rjknorm[jr]), 1.0))))
+            for i, t in enumerate(self._type):
+                if t == "sq_pyr":
+                    qspibetas = []
+                    # xxx: go on here
+                    op[i] = op[i] * max(qspibetas)
+
+            # Optional contribution of heigh to diagonal/2
+            # on the basal plane.
+            # xxx
+
+            # Check additional requirements of new-style OPs.
+            for i, t in enumerate(self._types):
+                if t == "sq_pyr" and nneigh < 3:
+                    ops[i] = None
 
         return ops
