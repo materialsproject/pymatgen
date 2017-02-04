@@ -923,7 +923,7 @@ class OrderParameters(object):
             if t == "tet" or t == "oct" or t == "bcc":
                 self._computerijs = self._geomops = True
             if t =="sq_pyr":
-                self._computerjks = self._geomops2 = True
+                self._computerijs = self._computerjks = self._geomops2 = True
             if t == "q2" or t == "q4" or t == "q6":
                 self._computerijs = self._boops = True
             if t == "q2" and self._max_trig_order < 2:
@@ -1522,13 +1522,17 @@ class OrderParameters(object):
                 dist.append(np.linalg.norm(rij[j]))
                 rijnorm.append((rij[j] / dist[j]))
         if self._computerjks:
-            i = 0
             for j, neigh in enumerate(neighsites):
-                for k in range(j+1, len(neighsites)):
-                    rjk.append(neigh.coords - neighsites[k].coords)
-                    distjk.append(np.linalg.norm(rjk[i]))
-                    rjknorm.append((rjk[i] / distjk[i]))
-                    i = i + 1
+                rjk.append([])
+                rjknorm.append([])
+                distjk.append([])
+                kk = 0
+                for k in range(len(neighsites)):
+                    if j != k:
+                        rjk[j].append(neighsites[k].coords - neigh.coords)
+                        distjk[j].append(np.linalg.norm(rjk[j][kk]))
+                        rjknorm[j].append((rjk[j][kk] / distjk[j][kk]))
+                        kk = kk + 1
         # Initialize OP list and, then, calculate OPs.
         ops = [0.0 for t in self._types]
 
@@ -1698,49 +1702,79 @@ class OrderParameters(object):
         # to recognize more complex structural motifs such as
         # square pyramidal.
         if self._geomops2:
-            ipi = 1.0 / pi
             piover2 = pi / 2.0
             piover4 = pi / 4.0
-            for i, t in enumerate(self._type):
+            for i, t in enumerate(self._types):
                 if t == "sq_pyr":
-                    op[i] = 1.0
+                    ops[i] = 1.0 if nneigh > 2 else None
 
             # Contribution of alpha_ijs
             # (all angles between central atom and neighbors).
             alphaij = []
-            for ir, r in enumerate(rijnorm):
-                for jr in range(ir+1, len(rijnorm)):
+            for i, r in enumerate(rijnorm):
+                for j in range(i+1, len(rijnorm)):
                     alphaij.append(math.acos(max(-1.0, min(np.inner(
-                            r, rijnorm[jr]), 1.0))))
+                            r, rijnorm[j]), 1.0))))
+                    print math.acos(max(-1.0, min(np.inner(r, rijnorm[j]), 1.0)))
+            # xxx: start changing to average here once you figured out alpha-(h/d) relationship.
             av_alphaij = 0.0
-            if len(alphaij) > 0
+            if len(alphaij) > 0:
                 av_alphaij = np.mean(alphaij)
-            for i, t in enumerate(self._type):
+            print av_alphaij
+            for i, t in enumerate(self._types):
                 if t == "sq_pyr":
                     for a in alphaij:
-                        op[i] = op[i] * exp(- 0.5* (
-                                (a - av_alphaij) * loc_parameters[i][0])**2)
+                        ops[i] = ops[i] * math.exp(-0.5 * (
+                                (a - av_alphaij) * self._paras[i][0])**2)
 
-            # Contribution of beta_ijs
+            # Contribution of beta_jks
             # (all angles between neighbors of central atom).
-            betaij = []
-            for ir, r in enumerate(rjknorm):
-                for jr in range(ir+1, len(rjknorm)):
-                    betaij.append(math.acos(max(-1.0, min(np.inner(
-                            r, rjknorm[jr]), 1.0))))
-            for i, t in enumerate(self._type):
-                if t == "sq_pyr":
-                    qspibetas = []
-                    # xxx: go on here
-                    op[i] = op[i] * max(qspibetas)
-
-            # Optional contribution of heigh to diagonal/2
-            # on the basal plane.
-            # xxx
-
-            # Check additional requirements of new-style OPs.
+            betajk = []
+            for ii in range(len(rjknorm)):
+                betajk.append([])
+                for j, rjk1 in enumerate(rjknorm[ii]):
+                    for k in range(j+1, len(rjknorm[ii])):
+                        betajk[ii].append(math.acos(max(-1.0, min(np.inner(
+                                rjk1, rjknorm[ii][k]), 1.0))))
             for i, t in enumerate(self._types):
-                if t == "sq_pyr" and nneigh < 3:
-                    ops[i] = None
+                if t == "sq_pyr":
+                    exp90 = []
+                    exp45 = []
+                    for ii in range(len(rjknorm)):
+                        exp90.append([])
+                        exp45.append([])
+                        l = 0
+                        for j, rjk1 in enumerate(rjknorm[ii]):
+                            for k in range(j+1, len(rjknorm[ii])):
+                                exp90[ii].append(math.exp(-0.5 * (
+                                        (betajk[ii][l] - piover2) * \
+                                        self._paras[i][0])**2))
+                                exp45[ii].append(math.exp(-((betajk[ii][l] - piover4) * \
+                                        self._paras[i][0])**2)) # 0.5 drops out b/c
+                                        # we use (1/self._paras[ii][0])/2
+                                l = l + 1
+                    # We could decouple this block from computing the
+                    # exp_xxx if this slows down everything when you
+                    # have multiple such OPs being computed.
+                    qbeta = 0.0
+                    iqbeta = 0
+                    for ii in range(len(betajk)):
+                        nbetajkii = len(betajk[ii])
+                        for k in range(nbetajkii):
+                            for l in range(nbetajkii):
+                                for m in range(nbetajkii):
+                                    if k != l and l != m and k != m:
+                                        qbeta = qbeta + \
+                                                exp90[ii][k] * exp90[ii][l] * \
+                                                exp45[ii][m]
+                                        iqbeta = iqbeta + 1
+                    #if iqbeta < 1:
+                    #    ops[i] = None
+                    #else:
+                    #    ops[i] = ops[i] * qbeta / float(iqbeta)
+
+            # Optional contribution of height-to-diagonal/2
+            # ratio; important for distinguishing octahedral from
+            # square pyramidal environment.
 
         return ops

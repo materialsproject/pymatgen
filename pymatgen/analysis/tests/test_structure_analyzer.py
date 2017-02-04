@@ -302,14 +302,22 @@ class OrderParametersTest(PymatgenTest):
              [0.5, 0.5, 0.5], [0.25, 0.25, 0.75]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=False, site_properties=None)
+        self.square_pyramid = Structure(
+            Lattice.from_lengths_and_angles(
+                [30.0, 30.0, 30.0], [90.0, 90.0, 90.0]),
+            ["H", "H", "H", "H", "H"],
+            [[15.0, 15.0, 15.707], [14.75, 14.75, 15.0], [14.75, 15.25, 15.0],
+             [15.25, 14.75, 15.0], [15.25, 15.25, 15.0]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
 
     def test_init(self):
         self.assertIsNotNone(OrderParameters(["cn"], [[]], 0.99))
 
     def test_get_order_parameters(self):
         # Set up everything.
-        op_types = ["cn", "tet", "oct", "bcc", "q2", "q4", "q6"]
-        op_paras = [[], [], [], [], [], [], []]
+        op_types = ["cn", "tet", "oct", "bcc", "q2", "q4", "q6", "sq_pyr"]
+        op_paras = [[], [], [], [], [], [], [], []]
         ops_044 = OrderParameters(op_types, op_paras, 0.44)
         ops_071 = OrderParameters(op_types, op_paras, 0.71)
         ops_087 = OrderParameters(op_types, op_paras, 0.87)
@@ -383,6 +391,11 @@ class OrderParametersTest(PymatgenTest):
         self.assertAlmostEqual(int(op_vals[4] * 1000), 0)
         self.assertAlmostEqual(int(op_vals[5] * 1000), 509)
         self.assertAlmostEqual(int(op_vals[6] * 1000), 628)
+
+        # Square pyramid motif.
+        op_vals = ops_101.get_order_parameters(self.square_pyramid, 0)
+        for i, op in enumerate(op_vals):
+            print op_types[i], op
 
         # Test providing explicit neighbor lists.
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[1])
