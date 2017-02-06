@@ -120,7 +120,7 @@ class PseudoTestCase(PymatgenTest):
         assert oxygen.xc.type == "GGA" and oxygen.xc.name == "PBE"
         assert oxygen.supports_soc
         assert oxygen.md5 is not None
-        self.assert_almost_equal(oxygen.paw_radius, 1.4146523028)
+        self.assertAlmostEqual(oxygen.paw_radius, 1.4146523028)
 
         # Test pickle
         new_objs = self.serialize_with_pickle(oxygen, test_eq=False)
@@ -137,7 +137,7 @@ class PseudoTestCase(PymatgenTest):
                             o.Z_val == 6,
                            )
 
-            self.assert_almost_equal(o.paw_radius, 1.4146523028)
+            self.assertAlmostEqual(o.paw_radius, 1.4146523028)
 
     def test_oncvpsp_pseudo_sr(self):
         """
