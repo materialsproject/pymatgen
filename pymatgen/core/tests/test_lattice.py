@@ -310,11 +310,11 @@ class LatticeTestCase(PymatgenTest):
 
         for family_name, lattice in self.families.items():
             #print(family_name)
-            self.assert_equal(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc)
-            self.assert_equal(lattice.norm(frac_basis), lattice.abc)
+            self.assertArrayEqual(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc)
+            self.assertArrayEqual(lattice.norm(frac_basis), lattice.abc)
             for (i, vec) in enumerate(frac_basis):
                 length = lattice.norm(vec)
-                self.assert_equal(length[0], lattice.abc[i])
+                self.assertArrayEqual(length[0], lattice.abc[i])
                 # We always get a ndarray.
                 self.assertTrue(hasattr(length, "shape"))
 

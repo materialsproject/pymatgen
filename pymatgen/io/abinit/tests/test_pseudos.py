@@ -6,7 +6,6 @@ from __future__ import unicode_literals, division, print_function
 
 import os.path
 import collections
-import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.pseudos import *
@@ -49,8 +48,6 @@ class PseudoTestCase(PymatgenTest):
         """Test norm-conserving pseudopotentials"""
         for symbol, pseudos in self.nc_pseudos.items():
             for pseudo in pseudos:
-                print(repr(pseudo))
-                print(pseudo)
                 self.assertTrue(pseudo.isnc)
                 self.assertFalse(pseudo.ispaw)
                 self.assertEqual(pseudo.Z, 14)
@@ -62,7 +59,6 @@ class PseudoTestCase(PymatgenTest):
                 self.serialize_with_pickle(pseudo, test_eq=False)
 
                 # Test MSONable
-                #print(pseudo.as_dict())
                 self.assertMSONable(pseudo)
 
         # HGH pseudos
@@ -91,8 +87,6 @@ class PseudoTestCase(PymatgenTest):
 
         # Test PseudoTable.
         table = PseudoTable(self.nc_pseudos["Si"])
-        print(repr(table))
-        print(table)
         self.assertTrue(table.allnc)
         self.assertTrue(not table.allpaw)
         self.assertFalse(not table.is_complete)
@@ -107,9 +101,6 @@ class PseudoTestCase(PymatgenTest):
     def test_pawxml_pseudos(self):
         """Test O.GGA_PBE-JTH-paw.xml."""
         oxygen = Pseudo.from_file(ref_file("O.GGA_PBE-JTH-paw.xml"))
-        print(repr(oxygen))
-        print(oxygen)
-        print(oxygen.as_dict())
 
         self.assertTrue(oxygen.ispaw)
         self.assertTrue(oxygen.symbol == "O" and
@@ -128,9 +119,6 @@ class PseudoTestCase(PymatgenTest):
         self.assertMSONable(oxygen)
 
         for o in new_objs:
-            print(repr(o))
-            print(o)
-
             self.assertTrue(o.ispaw)
             self.assertTrue(o.symbol == "O" and
                            (o.Z, o.core, o.valence) == (8, 2, 6),
@@ -144,19 +132,16 @@ class PseudoTestCase(PymatgenTest):
         Test the ONCVPSP Ge pseudo (scalar relativistic version).
         """
         ger = Pseudo.from_file(ref_file("ge.oncvpsp"))
-        print(repr(ger))
-        print(ger)
-        print(ger.as_dict())
         ger.as_tmpfile()
 
         self.assertTrue(ger.symbol == "Ge")
-        self.assert_equal(ger.Z, 32.0)
-        self.assert_equal(ger.Z_val, 4.0)
+        self.assertEqual(ger.Z, 32.0)
+        self.assertEqual(ger.Z_val, 4.0)
         self.assertTrue(ger.isnc)
         self.assertFalse(ger.ispaw)
-        self.assert_equal(ger.l_max, 2)
-        self.assert_equal(ger.l_local, 4)
-        self.assert_equal(ger.rcore, None)
+        self.assertEqual(ger.l_max, 2)
+        self.assertEqual(ger.l_local, 4)
+        self.assertEqual(ger.rcore, None)
         assert not ger.supports_soc
 
         # Data persistence
@@ -168,22 +153,18 @@ class PseudoTestCase(PymatgenTest):
         Test the ONCVPSP Pb pseudo (relativistic version with SO).
         """
         pb = Pseudo.from_file(ref_file("Pb-d-3_r.psp8"))
-        print(repr(pb))
-        print(pb)
-        #print(pb.as_dict())
-        #pb.as_tmpfile()
 
         # Data persistence
         self.serialize_with_pickle(pb, test_eq=False)
         self.assertMSONable(pb)
 
         self.assertTrue(pb.symbol == "Pb")
-        self.assert_equal(pb.Z, 82.0)
-        self.assert_equal(pb.Z_val, 14.0)
+        self.assertEqual(pb.Z, 82.0)
+        self.assertEqual(pb.Z_val, 14.0)
         self.assertTrue(pb.isnc)
         self.assertFalse(pb.ispaw)
-        self.assert_equal(pb.l_max, 2)
-        self.assert_equal(pb.l_local, 4)
+        self.assertEqual(pb.l_max, 2)
+        self.assertEqual(pb.l_local, 4)
         self.assertTrue(pb.supports_soc)
 
 
@@ -192,7 +173,6 @@ class PseudoTableTest(PymatgenTest):
     def test_methods(self):
         """Test PseudoTable methods"""
         table = PseudoTable(ref_files("14si.pspnc",  "14si.4.hgh", "14-Si.LDA.fhi"))
-        print(table)
         assert len(table) == 3
         for pseudo in table:
             assert pseudo.isnc
