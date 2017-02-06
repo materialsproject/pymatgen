@@ -17,7 +17,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import math
-from math import pi
+from math import pi, asin, atan, sqrt, exp
 import numpy as np
 import itertools
 import collections
@@ -683,7 +683,7 @@ class OrderParameters(object):
 
     __supported_types = (
             "cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", "q6",
-            "sq_pyr")
+            "sq", "sq_pyr")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -709,6 +709,7 @@ class OrderParameters(object):
                 "bcc" [Peters-style OP recognizing local
                       body-centered cubic environment (Peters,
                       J. Chem. Phys., 131, 244103, 2009)],
+                "sq" (OP recognizing square coordination),
                 "sq_pyr" (OP recognizing square pyramidal coordination),
                 "q2"  [Bond orientational order parameter (BOOP)
                       of weight l=2 (Steinhardt et al., Phys. Rev. B,
@@ -748,7 +749,7 @@ class OrderParameters(object):
                          given a single mutual threshold q_thresh;
                   "bcc": south-pole threshold angle as for "oct" (160.0);
                          south-pole Gaussian width as for "oct" (0.0667);
-                  "sq_pyr": Gaussian width for penalizing angles away from
+                  "sq": Gaussian width for penalizing angles away from
                             the average angle encountered between all two
                             pairs of center-neighbor configuration
                             (0.0333);
@@ -894,7 +895,7 @@ class OrderParameters(object):
                                          " order parameter is zero!")
                     else:
                         tmpparas[i].append(1.0 / loc_parameters[i][1])
-            elif t == "sq_pyr":
+            elif t == "sq":
                 if len(loc_parameters[i]) == 0:
                     tmpparas[i] = [1.0 / 0.0333, 1.0 / 0.0667, False, \
                             0.38, 0.5, 0.67]
@@ -922,7 +923,7 @@ class OrderParameters(object):
             #                    to any non-central atom k.
             if t == "tet" or t == "oct" or t == "bcc":
                 self._computerijs = self._geomops = True
-            if t =="sq_pyr":
+            if t =="sq":
                 self._computerijs = self._computerjks = self._geomops2 = True
             if t == "q2" or t == "q4" or t == "q6":
                 self._computerijs = self._boops = True
@@ -1514,6 +1515,7 @@ class OrderParameters(object):
         rijnorm = []
         rjknorm = []
         dist = []
+        distjk_unique = []
         distjk = []
         centvec = centsite.coords
         if self._computerijs:
@@ -1531,7 +1533,9 @@ class OrderParameters(object):
                     if j != k:
                         rjk[j].append(neighsites[k].coords - neigh.coords)
                         distjk[j].append(np.linalg.norm(rjk[j][kk]))
-                        rjknorm[j].append((rjk[j][kk] / distjk[j][kk]))
+                        if k > j:
+                            distjk_unique.append(distjk[j][kk])
+                        rjknorm[j].append(rjk[j][kk] / distjk[j][kk])
                         kk = kk + 1
         # Initialize OP list and, then, calculate OPs.
         ops = [0.0 for t in self._types]
@@ -1705,76 +1709,64 @@ class OrderParameters(object):
             piover2 = pi / 2.0
             piover4 = pi / 4.0
             for i, t in enumerate(self._types):
-                if t == "sq_pyr":
-                    ops[i] = 1.0 if nneigh > 2 else None
 
-            # Contribution of alpha_ijs
-            # (all angles between central atom and neighbors).
-            alphaij = []
-            for i, r in enumerate(rijnorm):
-                for j in range(i+1, len(rijnorm)):
-                    alphaij.append(math.acos(max(-1.0, min(np.inner(
-                            r, rijnorm[j]), 1.0))))
-                    print math.acos(max(-1.0, min(np.inner(r, rijnorm[j]), 1.0)))
-            # xxx: start changing to average here once you figured out alpha-(h/d) relationship.
-            av_alphaij = 0.0
-            if len(alphaij) > 0:
-                av_alphaij = np.mean(alphaij)
-            print av_alphaij
-            for i, t in enumerate(self._types):
-                if t == "sq_pyr":
-                    for a in alphaij:
-                        ops[i] = ops[i] * math.exp(-0.5 * (
-                                (a - av_alphaij) * self._paras[i][0])**2)
+                if t == "sq":
+                    if nneigh <= 3:
+                        ops[i] = None
+                    else:
+                        ops[i] = 1.0
+                        # Compute height, diagonal and target angle estimates.
+                        neighscent = np.array([0.0, 0.0, 0.0])
+                        for j, neigh in enumerate(neighsites):
+                            neighscent = neighscent + neigh.coords
+                        if nneigh > 0:
+                            neighscent = (neighscent / float(nneigh))
+                            #print neighscent
+                            h = np.linalg.norm(neighscent - centvec)
+                            b = min(distjk_unique)
+                            dhalf = max(distjk_unique) / 2.0
+                            alpha1 = 2.0 * asin(b / (2.0 * sqrt(h*h + dhalf*dhalf)))
+                            # alpha2 = 2.0 * atan(dhalf / h)
+                        else:
+                            h = b = dhalf = alpha1 = 0.0
+                        #print h, b, dhalf, alpha1
+                        #quit()
 
-            # Contribution of beta_jks
-            # (all angles between neighbors of central atom).
-            betajk = []
-            for ii in range(len(rjknorm)):
-                betajk.append([])
-                for j, rjk1 in enumerate(rjknorm[ii]):
-                    for k in range(j+1, len(rjknorm[ii])):
-                        betajk[ii].append(math.acos(max(-1.0, min(np.inner(
-                                rjk1, rjknorm[ii][k]), 1.0))))
-            for i, t in enumerate(self._types):
-                if t == "sq_pyr":
-                    exp90 = []
-                    exp45 = []
-                    for ii in range(len(rjknorm)):
-                        exp90.append([])
-                        exp45.append([])
-                        l = 0
-                        for j, rjk1 in enumerate(rjknorm[ii]):
-                            for k in range(j+1, len(rjknorm[ii])):
-                                exp90[ii].append(math.exp(-0.5 * (
-                                        (betajk[ii][l] - piover2) * \
-                                        self._paras[i][0])**2))
-                                exp45[ii].append(math.exp(-((betajk[ii][l] - piover4) * \
-                                        self._paras[i][0])**2)) # 0.5 drops out b/c
-                                        # we use (1/self._paras[ii][0])/2
-                                l = l + 1
-                    # We could decouple this block from computing the
-                    # exp_xxx if this slows down everything when you
-                    # have multiple such OPs being computed.
-                    qbeta = 0.0
-                    iqbeta = 0
-                    for ii in range(len(betajk)):
-                        nbetajkii = len(betajk[ii])
-                        for k in range(nbetajkii):
-                            for l in range(nbetajkii):
-                                for m in range(nbetajkii):
-                                    if k != l and l != m and k != m:
-                                        qbeta = qbeta + \
-                                                exp90[ii][k] * exp90[ii][l] * \
-                                                exp45[ii][m]
-                                        iqbeta = iqbeta + 1
-                    #if iqbeta < 1:
-                    #    ops[i] = None
-                    #else:
-                    #    ops[i] = ops[i] * qbeta / float(iqbeta)
+                        # Contribution of alpha_ijs
+                        # (all angles between central atom and neighbors).
+                        alphaij = []
+                        for ir, r in enumerate(rijnorm):
+                            for j in range(ir+1, len(rijnorm)):
+                                alphaij.append(math.acos(max(-1.0, min(np.inner(
+                                        r, rijnorm[j]), 1.0))))
+                                #print math.acos(max(-1.0, min(np.inner(r, rijnorm[j]), 1.0)))
+                        aijs = sorted(alphaij)
+                        #print len(aijs)
+                        for j in range(4):
+                            #print aijs[j]
+                            ops[i] = ops[i] * exp(-0.5 * ((
+                                    aijs[j] - alpha1) * self._paras[i][0])**2)
+                        #print ops[i]
 
-            # Optional contribution of height-to-diagonal/2
-            # ratio; important for distinguishing octahedral from
-            # square pyramidal environment.
+                        # Contribution of beta_jks
+                        # (all angles between neighbors of central atom).
+                        #betajk = []
+                        #maxbetajk = []
+                        #for ii in range(len(rjknorm)):
+                        #    betajk.append([])
+                        #    for j, rjk1 in enumerate(rjknorm[ii]):
+                        #        for k in range(j+1, len(rjknorm[ii])):
+                        #            betajk[ii].append(math.acos(max(-1.0, min(np.inner(
+                        #                    rjk1, rjknorm[ii][k]), 1.0))))
+                        #    maxbetajk.append(max(betajk[ii]))
+                        ##print maxbetajk
+                        #qbeta = 0.0
+                        #for mbjk in maxbetajk:
+                        #    qbeta = qbeta + \
+                        #            math.exp(-0.5 * ((mbjk - piover2) * self._paras[i][0])**2)
+                        #if len(maxbetajk) < 1:
+                        #    ops[i] = None
+                        #else:
+                        #    ops[i] = ops[i] * qbeta / float(len(maxbetajk))
 
         return ops
