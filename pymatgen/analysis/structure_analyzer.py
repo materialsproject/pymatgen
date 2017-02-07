@@ -755,7 +755,11 @@ class OrderParameters(object):
                         height-to-diagonal ratio of the pyramid in which
                         the central atom is located at the tip
                         (0.0333);
-                  "sq_pyr": xxx.
+                  "sq_pyr": Gaussian width in fractions of pi
+                            for penalizing angles away from 90 degrees
+                            (0.0333);
+                            Gaussian width in Angstrom for penalizing
+                            variations in neighbor distances (0.1).
             cutoff (float):
                 Cutoff radius to determine which nearest neighbors are
                 supposed to contribute to the order parameters.
@@ -892,9 +896,19 @@ class OrderParameters(object):
                     tmpparas[i] = [1.0 / 0.0333]
                 else:
                     if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for angles in"
+                                " pyramid tip of square order parameter"
+                                " is zero!")
+                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
+            elif t == "sq_pyr":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i] = [1.0 / 0.0333, 1.0 / 0.1]
+                else:
+                    if loc_parameters[i][0] == 0.0:
                         raise ValueError("Gaussian width for pyramid tip"
                                 " of square pyramid order parameter is zero!")
-                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
+                    tmpparas[i] = [1.0 / loc_parameters[i][0], \
+                            1.0 / loc_parameters[i][1]]
             # All following types should be well-defined/-implemented,
             # and they should not require parameters.
             elif t != "q2" and t != "q4" and t != "q6":
@@ -905,7 +919,7 @@ class OrderParameters(object):
             #                    to any neighbor j.
             # self._computerjks: compute vectors from non-centeral atom j
             #                    to any non-central atom k.
-            if t == "tet" or t == "oct" or t == "bcc":
+            if t == "tet" or t == "oct" or t == "bcc" or t == "sq_pyr":
                 self._computerijs = self._geomops = True
             if t =="sq":
                 self._computerijs = self._computerjks = self._geomops2 = True
@@ -1574,6 +1588,7 @@ class OrderParameters(object):
         #  Zimmermann et al., J. Am. Chem. Soc., under revision, 2015).
         if self._geomops:
             gaussthetak = [0.0 for t in self._types]  # not used by all OPs
+            qsptheta = [[] for t in self._types]  # not used by all OPs
             ipi = 1.0 / pi
             piover2 = pi / 2.0
             tetangoverpi = math.acos(-1.0 / 3.0) * ipi
@@ -1581,7 +1596,8 @@ class OrderParameters(object):
 
             for j in range(nneigh):  # Neighbor j is put to the North pole.
                 zaxis = rijnorm[j]
-
+                for i, t in enumerate(self._types):
+                    qsptheta[i].append(0.0)
                 for k in range(nneigh):  # From neighbor k, we construct
                     if j != k:  # the prime meridian.
                         tmp = max(
@@ -1620,6 +1636,9 @@ class OrderParameters(object):
                                     tmp = self._paras[i][1] * (
                                         thetak * ipi - 1.0)
                                     ops[i] += 6.0 * math.exp(-0.5 * tmp * tmp)
+                            elif t == "sq_pyr":
+                                tmp = self._paras[i][0] * (thetak * ipi - 0.5)
+                                qsptheta[i][j] = qsptheta[i][j] + exp(-0.5 * tmp * tmp)
 
                         for m in range(nneigh):
                             if (m != j) and (m != k) and (not flag_xaxis):
@@ -1696,10 +1715,19 @@ class OrderParameters(object):
                     # yielding a contribution to qbcc via thetak alone:
                     # ==> nneigh > 1.
                     ops[i] = ops[i] / 144.0 if nneigh > 1 else None
+                elif t == "sq_pyr":
+                    if nneigh > 1:
+                        dmean = np.mean(dist)
+                        acc = 0.0
+                        for d in dist:
+                            tmp = self._paras[i][1] * (d - dmean)
+                            acc = acc + exp(-0.5 * tmp * tmp)
+                        ops[i] = acc * max(qsptheta[i]) / 16.0
+                    else:
+                        ops[i] = None
 
-        # Then, deal with the new-style OPs that are tailor-made
-        # to recognize more complex structural motifs such as
-        # square pyramidal.
+        # Then, deal with the new-style OPs that require distances between
+        # the neighbors.
         if self._geomops2:
             piover2 = pi / 2.0
             piover4 = pi / 4.0
