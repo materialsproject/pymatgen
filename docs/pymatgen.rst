@@ -18,6 +18,7 @@ Subpackages
     pymatgen.matproj
     pymatgen.optimization
     pymatgen.phasediagram
+    pymatgen.phonon
     pymatgen.serializers
     pymatgen.structure_prediction
     pymatgen.symmetry

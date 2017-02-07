@@ -19,6 +19,7 @@ Submodules
 
 .. toctree::
 
+   pymatgen.analysis.adsorption
    pymatgen.analysis.bond_valence
    pymatgen.analysis.diffusion_analyzer
    pymatgen.analysis.energy_models

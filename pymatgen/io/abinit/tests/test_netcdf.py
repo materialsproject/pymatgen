@@ -70,7 +70,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
             for varname, float_ref in ref_float_values.items():
                 value = data.read_value(varname)
                 print(varname, value)
-                self.assert_almost_equal(value, float_ref)
+                self.assertArrayAlmostEqual(value, float_ref)
             #assert 0
 
             # Reading non-existent variables or dims should raise

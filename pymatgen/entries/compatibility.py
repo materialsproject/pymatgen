@@ -4,13 +4,10 @@
 
 from __future__ import division, unicode_literals
 
-
+import os
 import six
 from six.moves import filter, map
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
+
 from collections import defaultdict
 
 from monty.design_patterns import cached_class
@@ -26,6 +23,9 @@ import abc
 This module implements Compatibility corrections for mixing runs of different
 functionals.
 """
+
+
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 __author__ = "Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
@@ -534,7 +534,7 @@ class MaterialsProjectCompatibility(Compatibility):
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
                  check_potcar_hash=False):
-        fp = str(Path(__file__).parent / "MPCompatibility.yaml")
+        fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
         super(MaterialsProjectCompatibility, self).__init__(
             [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
@@ -564,7 +564,7 @@ class MITCompatibility(Compatibility):
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
                 check_potcar_hash=False):
-        fp = str(Path(__file__).parent / "MITCompatibility.yaml")
+        fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
         super(MITCompatibility, self).__init__(
             [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
@@ -594,7 +594,7 @@ class MITAqueousCompatibility(Compatibility):
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
                 check_potcar_hash=False):
-        fp = str(Path(__file__).parent / "MITCompatibility.yaml")
+        fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
         super(MITAqueousCompatibility, self).__init__(
             [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
@@ -625,7 +625,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
                 check_potcar_hash=False):
-        fp = str(Path(__file__).parent / "MPCompatibility.yaml")
+        fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
         super(MaterialsProjectAqueousCompatibility, self).__init__(
             [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),

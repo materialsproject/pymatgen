@@ -3,6 +3,8 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import math
+import numpy as np
 
 """
 Utilities for generating nicer plots.
@@ -16,9 +18,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 13, 2012"
 
-import math
-import numpy as np
-
 
 def get_publication_quality_plot(width=8, height=None, plt=None, dpi=None,
                                  color_cycle=("qualitative", "Set1_9")):
@@ -31,6 +30,7 @@ def get_publication_quality_plot(width=8, height=None, plt=None, dpi=None,
             ratio.
         plt (matplotlib.pyplot): If plt is supplied, changes will be made to an
             existing plot. Otherwise, a new plot will be created.
+        dpi (int): Sets dot per inch for figure.
         color_cycle (tuple): Set the color cycle for new plots to one of the
             color sets in palettable. Defaults to a qualitative Set1_9.
 
@@ -86,7 +86,7 @@ def get_ax_fig_plt(ax=None):
     import matplotlib.pyplot as plt
     if ax is None:
         fig = plt.figure()
-        ax = fig.add_subplot(1,1,1)
+        ax = fig.add_subplot(1, 1, 1)
     else:
         fig = plt.gcf()
 
@@ -95,9 +95,9 @@ def get_ax_fig_plt(ax=None):
 
 def get_ax3d_fig_plt(ax=None):
     """
-    Helper function used in plot functions supporting an optional Axes3D argument.
-    If ax is None, we build the `matplotlib` figure and create the Axes3D else
-    we return the current active figure.
+    Helper function used in plot functions supporting an optional Axes3D
+    argument. If ax is None, we build the `matplotlib` figure and create the
+    Axes3D else we return the current active figure.
 
     Returns:
         ax: :class:`Axes` object
@@ -116,7 +116,8 @@ def get_ax3d_fig_plt(ax=None):
 
 
 def get_axarray_fig_plt(ax_array, nrows=1, ncols=1, sharex=False, sharey=False,
-                        squeeze=True, subplot_kw=None, gridspec_kw=None, **fig_kw):
+                        squeeze=True, subplot_kw=None, gridspec_kw=None,
+                        **fig_kw):
     """
     Helper function used in plot functions that accept an optional array of Axes
     as argument. If ax_array is None, we build the `matplotlib` figure and
@@ -147,13 +148,15 @@ def get_axarray_fig_plt(ax_array, nrows=1, ncols=1, sharex=False, sharey=False,
 
 def add_fig_kwargs(func):
     """
-    Decorator that adds keyword arguments for functions returning matplotlib figures.
+    Decorator that adds keyword arguments for functions returning matplotlib
+    figures.
 
     The function should return either a matplotlib figure or None to signal
     some sort of error/unexpected event.
     See doc string below for the list of supported options.
     """
     from functools import wraps
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         # pop the kwds used by the decorator.
@@ -165,23 +168,26 @@ def add_fig_kwargs(func):
 
         # Call func and return immediately if None is returned.
         fig = func(*args, **kwargs)
-        if fig is None: return fig
+        if fig is None:
+            return fig
 
         # Operate on matplotlib figure.
-        if title is not None: fig.suptitle(title)
+        if title is not None:
+            fig.suptitle(title)
 
         if size_kwargs is not None:
             fig.set_size_inches(size_kwargs.pop("w"), size_kwargs.pop("h"),
                                 **size_kwargs)
 
-        if savefig: fig.savefig(savefig)
-        if tight_layout: fig.tight_layout()
+        if savefig:
+            fig.savefig(savefig)
+        if tight_layout:
+            fig.tight_layout()
         if show:
             import matplotlib.pyplot as plt
             plt.show()
 
         return fig
-
 
     # Add docstring to the decorated method.
     s = "\n" + """\
