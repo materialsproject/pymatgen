@@ -730,9 +730,10 @@ class OrderParameters(object):
                          reflecting the "speed of penalizing" deviations
                          away from 180 degrees of any individual
                          neighbor1-center-neighbor2 configuration (0.0667);
-                  "bent": target angle in fractions of pi (1);
+                  "bent": target angle in degrees (180);
                           Gaussian width for penalizing deviations away
-                          from perfect target angle (0.0667);
+                          from perfect target angle in fractions of pi
+                          (0.0667);
                   "tet": Gaussian width for penalizing deviations away
                          perfecttetrahedral angle (0.0667);
                   "oct": threshold angle in degrees distinguishing a second
@@ -824,7 +825,7 @@ class OrderParameters(object):
                                          " bent order"
                                          " parameter is zero!")
                     else:
-                        tmpparas[i] = [loc_parameters[i][0] * pi / 180.0, \
+                        tmpparas[i] = [loc_parameters[i][0] / 180.0, \
                                 1.0 / loc_parameters[i][1]]
             elif t == "tet":
                 if len(loc_parameters[i]) == 0:
@@ -1596,7 +1597,14 @@ class OrderParameters(object):
                         # Contributions of j-i-k angles, where i represents the central atom
                         # and j and k two of the neighbors.
                         for i, t in enumerate(self._types):
-                            if t == "tet":
+                            if t == "lin":
+                                tmp = self._paras[i][0] * (thetak * ipi - 1.0)
+                                ops[i] += exp(-0.5 * tmp * tmp)
+                            elif t == "bent":
+                                tmp = self._paras[i][1] * (
+                                    thetak * ipi - self._paras[i][0])
+                                ops[i] += exp(-0.5 * tmp * tmp)
+                            elif t == "tet":
                                 tmp = self._paras[i][0] * (
                                     thetak * ipi - tetangoverpi)
                                 gaussthetak[i] = math.exp(-0.5 * tmp * tmp)
@@ -1667,7 +1675,11 @@ class OrderParameters(object):
 
             # Normalize Peters-style OPs.
             for i, t in enumerate(self._types):
-                if t == "tet":
+                if t == "lin":
+                    ops[i] = ops[i] / 2.0 if nneigh > 0 else None
+                elif t == "bent":
+                    ops[i] = ops[i] / 2.0 if nneigh > 0 else None
+                elif t == "tet":
                     ops[i] = ops[i] / 24.0 if nneigh > 2 else None
 
                 elif t == "oct":
