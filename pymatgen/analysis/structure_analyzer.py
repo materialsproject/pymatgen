@@ -750,20 +750,11 @@ class OrderParameters(object):
                   "bcc": south-pole threshold angle as for "oct" (160.0);
                          south-pole Gaussian width as for "oct" (0.0667);
                   "sq": Gaussian width for penalizing angles away from
-                            the average angle encountered between all two
-                            pairs of center-neighbor configuration
-                            (0.0333);
-.                           Gaussian width for penalizing angles away from
-                            pi/2 and pi/4 encountered in the basal plane
-                            of the pyramid (0.0667);
-                            flag indicating whether the height-to-diagonal
-                            ratio, x=h/d, should be factored into the OP
-                            via a weithing function
-                            f(x)=exp[-(x-xbar)**2/x0**2]*sqrt(x)/norm
-                            (False);
-                            xbar parameter (0.38);
-                            x0 parameter (0.5);
-                            norm parameter (0.67).
+                        the expected angles, given the estimated
+                        height-to-diagonal ratio of the pyramid in which
+                        the central atom is located at the tip
+                        (0.0333);
+                  "sq_pyr": xxx.
             cutoff (float):
                 Cutoff radius to determine which nearest neighbors are
                 supposed to contribute to the order parameters.
@@ -897,20 +888,12 @@ class OrderParameters(object):
                         tmpparas[i].append(1.0 / loc_parameters[i][1])
             elif t == "sq":
                 if len(loc_parameters[i]) == 0:
-                    tmpparas[i] = [1.0 / 0.0333, 1.0 / 0.0667, False, \
-                            0.38, 0.5, 0.67]
+                    tmpparas[i] = [1.0 / 0.0333]
                 else:
                     if loc_parameters[i][0] == 0.0:
                         raise ValueError("Gaussian width for pyramid tip"
                                 " of square pyramid order parameter is zero!")
-                    if loc_parameters[i][1] == 0.0:
-                        raise ValueError("Gaussian width for pyramid basal" 
-                                " plane of square pyramid order parameter"
-                                " is zero!")
-                    tmpparas[i] = [1.0 / loc_parameters[i][0], \
-                            1.0 / loc_parameters[i][1], \
-                            loc_parameters[i][2], loc_parameters[i][3], \
-                            loc_parameters[i][4], loc_parameters[i][5]]
+                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
             # All following types should be well-defined/-implemented,
             # and they should not require parameters.
             elif t != "q2" and t != "q4" and t != "q6":
@@ -1711,7 +1694,7 @@ class OrderParameters(object):
             for i, t in enumerate(self._types):
 
                 if t == "sq":
-                    if nneigh <= 3:
+                    if nneigh < 2:
                         ops[i] = None
                     else:
                         ops[i] = 1.0
@@ -1719,16 +1702,13 @@ class OrderParameters(object):
                         neighscent = np.array([0.0, 0.0, 0.0])
                         for j, neigh in enumerate(neighsites):
                             neighscent = neighscent + neigh.coords
-                        if nneigh > 0:
-                            neighscent = (neighscent / float(nneigh))
-                            #print neighscent
-                            h = np.linalg.norm(neighscent - centvec)
-                            b = min(distjk_unique)
-                            dhalf = max(distjk_unique) / 2.0
-                            alpha1 = 2.0 * asin(b / (2.0 * sqrt(h*h + dhalf*dhalf)))
-                            # alpha2 = 2.0 * atan(dhalf / h)
-                        else:
-                            h = b = dhalf = alpha1 = 0.0
+                        neighscent = (neighscent / float(nneigh))
+                        #print neighscent
+                        h = np.linalg.norm(neighscent - centvec)
+                        b = min(distjk_unique)
+                        dhalf = max(distjk_unique) / 2.0
+                        alpha1 = 2.0 * asin(b / (2.0 * sqrt(h*h + dhalf*dhalf)))
+                        # alpha2 = 2.0 * atan(dhalf / h)
                         #print h, b, dhalf, alpha1
                         #quit()
 
@@ -1742,7 +1722,7 @@ class OrderParameters(object):
                                 #print math.acos(max(-1.0, min(np.inner(r, rijnorm[j]), 1.0)))
                         aijs = sorted(alphaij)
                         #print len(aijs)
-                        for j in range(4):
+                        for j in range(min([nneigh,4])):
                             #print aijs[j]
                             ops[i] = ops[i] * exp(-0.5 * ((
                                     aijs[j] - alpha1) * self._paras[i][0])**2)
