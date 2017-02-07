@@ -683,7 +683,7 @@ class OrderParameters(object):
 
     __supported_types = (
             "cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", "q6",
-            "sq", "sq_pyr")
+            "reg_tri", "sq", "sq_pyr")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -709,6 +709,7 @@ class OrderParameters(object):
                 "bcc" [Peters-style OP recognizing local
                       body-centered cubic environment (Peters,
                       J. Chem. Phys., 131, 244103, 2009)],
+                "reg_tri" (OP recognizing coordination with a regular triangle),
                 "sq" (OP recognizing square coordination),
                 "sq_pyr" (OP recognizing square pyramidal coordination),
                 "q2"  [Bond orientational order parameter (BOOP)
@@ -750,6 +751,11 @@ class OrderParameters(object):
                          given a single mutual threshold q_thresh;
                   "bcc": south-pole threshold angle as for "oct" (160.0);
                          south-pole Gaussian width as for "oct" (0.0667);
+                  "reg_tri": Gaussian width for penalizing angles away from
+                             the expected angles, given the estimated
+                             height-to-side ratio of the trigonal pyramid
+                             in which the central atom is located at the
+                             tip (0.0222);
                   "sq": Gaussian width for penalizing angles away from
                         the expected angles, given the estimated
                         height-to-diagonal ratio of the pyramid in which
@@ -891,6 +897,15 @@ class OrderParameters(object):
                                          " order parameter is zero!")
                     else:
                         tmpparas[i].append(1.0 / loc_parameters[i][1])
+            elif t == "reg_tri":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i] = [1.0 / 0.0222]
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for angles in"
+                                " trigonal pyramid tip of regular triangle"
+                                " order parameter is zero!")
+                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
             elif t == "sq":
                 if len(loc_parameters[i]) == 0:
                     tmpparas[i] = [1.0 / 0.0333]
@@ -905,8 +920,11 @@ class OrderParameters(object):
                     tmpparas[i] = [1.0 / 0.0333, 1.0 / 0.1]
                 else:
                     if loc_parameters[i][0] == 0.0:
-                        raise ValueError("Gaussian width for pyramid tip"
-                                " of square pyramid order parameter is zero!")
+                        raise ValueError("Gaussian width for angles in"
+                                " square pyramid order parameter is zero!")
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for lengths in"
+                                " square pyramid order parameter is zero!")
                     tmpparas[i] = [1.0 / loc_parameters[i][0], \
                             1.0 / loc_parameters[i][1]]
             # All following types should be well-defined/-implemented,
@@ -921,7 +939,7 @@ class OrderParameters(object):
             #                    to any non-central atom k.
             if t == "tet" or t == "oct" or t == "bcc" or t == "sq_pyr":
                 self._computerijs = self._geomops = True
-            if t =="sq":
+            if t == "reg_tri" or t =="sq":
                 self._computerijs = self._computerjks = self._geomops2 = True
             if t == "q2" or t == "q4" or t == "q6":
                 self._computerijs = self._boops = True
@@ -1722,71 +1740,45 @@ class OrderParameters(object):
                         for d in dist:
                             tmp = self._paras[i][1] * (d - dmean)
                             acc = acc + exp(-0.5 * tmp * tmp)
-                        ops[i] = acc * max(qsptheta[i]) / 16.0
+                        ops[i] = acc * max(qsptheta[i]) / 20.0
                     else:
                         ops[i] = None
 
-        # Then, deal with the new-style OPs that require distances between
-        # the neighbors.
+        # Then, deal with the new-style OPs that require vectors between
+        # neighbors.
         if self._geomops2:
-            piover2 = pi / 2.0
-            piover4 = pi / 4.0
-            for i, t in enumerate(self._types):
+            # Compute all (unique) angles and sort the resulting list.
+            aij = []
+            for ir, r in enumerate(rijnorm):
+                for j in range(ir+1, len(rijnorm)):
+                    aij.append(math.acos(max(-1.0, min(np.inner(
+                            r, rijnorm[j]), 1.0))))
+            aijs = sorted(aij)
 
-                if t == "sq":
+            # Compute height, side and diagonal length estimates.
+            neighscent = np.array([0.0, 0.0, 0.0])
+            for j, neigh in enumerate(neighsites):
+                neighscent = neighscent + neigh.coords
+            neighscent = (neighscent / float(nneigh))
+            h = np.linalg.norm(neighscent - centvec)
+            b = min(distjk_unique)
+            dhalf = max(distjk_unique) / 2.0
+
+            for i, t in enumerate(self._types):
+                if t == "reg_tri" or t == "sq":
                     if nneigh < 2:
                         ops[i] = None
                     else:
                         ops[i] = 1.0
-                        # Compute height, diagonal and target angle estimates.
-                        neighscent = np.array([0.0, 0.0, 0.0])
-                        for j, neigh in enumerate(neighsites):
-                            neighscent = neighscent + neigh.coords
-                        neighscent = (neighscent / float(nneigh))
-                        #print neighscent
-                        h = np.linalg.norm(neighscent - centvec)
-                        b = min(distjk_unique)
-                        dhalf = max(distjk_unique) / 2.0
-                        alpha1 = 2.0 * asin(b / (2.0 * sqrt(h*h + dhalf*dhalf)))
-                        # alpha2 = 2.0 * atan(dhalf / h)
-                        #print h, b, dhalf, alpha1
-                        #quit()
-
-                        # Contribution of alpha_ijs
-                        # (all angles between central atom and neighbors).
-                        alphaij = []
-                        for ir, r in enumerate(rijnorm):
-                            for j in range(ir+1, len(rijnorm)):
-                                alphaij.append(math.acos(max(-1.0, min(np.inner(
-                                        r, rijnorm[j]), 1.0))))
-                                #print math.acos(max(-1.0, min(np.inner(r, rijnorm[j]), 1.0)))
-                        aijs = sorted(alphaij)
-                        #print len(aijs)
-                        for j in range(min([nneigh,4])):
-                            #print aijs[j]
+                        if t == "reg_tri":
+                            a = 2.0 * asin(b / (2.0 * sqrt(h*h + (b / (
+                                    2.0 * cos(3.0 * pi / 18.0)))**2.0)))
+                            nmax = 3
+                        else:
+                            a = 2.0 * asin(b / (2.0 * sqrt(h*h + dhalf*dhalf)))
+                            nmax = 4
+                        for j in range(min([nneigh,nmax])):
                             ops[i] = ops[i] * exp(-0.5 * ((
-                                    aijs[j] - alpha1) * self._paras[i][0])**2)
-                        #print ops[i]
-
-                        # Contribution of beta_jks
-                        # (all angles between neighbors of central atom).
-                        #betajk = []
-                        #maxbetajk = []
-                        #for ii in range(len(rjknorm)):
-                        #    betajk.append([])
-                        #    for j, rjk1 in enumerate(rjknorm[ii]):
-                        #        for k in range(j+1, len(rjknorm[ii])):
-                        #            betajk[ii].append(math.acos(max(-1.0, min(np.inner(
-                        #                    rjk1, rjknorm[ii][k]), 1.0))))
-                        #    maxbetajk.append(max(betajk[ii]))
-                        ##print maxbetajk
-                        #qbeta = 0.0
-                        #for mbjk in maxbetajk:
-                        #    qbeta = qbeta + \
-                        #            math.exp(-0.5 * ((mbjk - piover2) * self._paras[i][0])**2)
-                        #if len(maxbetajk) < 1:
-                        #    ops[i] = None
-                        #else:
-                        #    ops[i] = ops[i] * qbeta / float(len(maxbetajk))
+                                    aijs[j] - a) * self._paras[i][0])**2)
 
         return ops
