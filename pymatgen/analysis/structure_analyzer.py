@@ -17,7 +17,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import math
-from math import pi, asin, atan, sqrt, exp
+from math import pi, asin, atan, sqrt, exp, cos
 import numpy as np
 import itertools
 import collections
@@ -1766,14 +1766,15 @@ class OrderParameters(object):
             neighscent = np.array([0.0, 0.0, 0.0])
             for j, neigh in enumerate(neighsites):
                 neighscent = neighscent + neigh.coords
-            neighscent = (neighscent / float(nneigh))
+            if nneigh > 0:
+                neighscent = (neighscent / float(nneigh))
             h = np.linalg.norm(neighscent - centvec)
-            b = min(distjk_unique)
-            dhalf = max(distjk_unique) / 2.0
+            b = min(distjk_unique) if len(distjk_unique) > 0 else 0
+            dhalf = max(distjk_unique) / 2.0 if len(distjk_unique) > 0 else 0
 
             for i, t in enumerate(self._types):
                 if t == "reg_tri" or t == "sq":
-                    if nneigh < 2:
+                    if nneigh < 3:
                         ops[i] = None
                     else:
                         ops[i] = 1.0
