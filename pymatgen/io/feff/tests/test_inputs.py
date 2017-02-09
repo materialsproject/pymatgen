@@ -10,7 +10,8 @@ import os
 
 import numpy as np
 
-from pymatgen.io.feff.inputs import Atoms, Header, Tags, Potential
+from pymatgen import Structure
+from pymatgen.io.feff.inputs import Atoms, Header, Tags, Potential, Paths
 from pymatgen.io.cif import CifParser
 
 
@@ -218,6 +219,90 @@ class FeffPotTest(unittest.TestCase):
         pot2 = Potential.from_dict(d)
         self.assertEqual(str(pot), str(pot2),
                          "Potential to and from dict does not match")
+
+
+class PathsTest(unittest.TestCase):
+
+    def setUp(self):
+        feo = Structure.from_dict(
+            {'lattice': {'a': 3.3960486211791285,
+                      'alpha': 91.45136142952781,
+                      'b': 3.410591877060444,
+                      'beta': 89.27127081348024,
+                      'c': 10.71766796897646,
+                      'gamma': 120.14175587658389,
+                      'matrix': [[3.39597035, -0.00828486, 0.02151698],
+                       [-1.70515997, 2.9534242, -0.04303398],
+                       [0.06812465, -0.11799566, 10.71680189]],
+                      'volume': 107.31813123502585},
+                     'sites': [{'abc': [0.33497754, 0.66579918, 0.97174225],
+                       'label': 'Fe',
+                       'properties': {'coordination_no': 4,
+                        'forces': [-0.01537896, -0.08731049, 0.04884326]},
+                       'species': [{'element': 'Fe', 'occu': 1}],
+                       'xyz': [0.06847928463257683, 1.8489508003914767, 10.392524897825345]},
+                      {'abc': [0.99661905, 0.00734083, 0.22366433],
+                       'label': 'Fe',
+                       'properties': {'coordination_no': 4,
+                        'forces': [-0.01685376, -0.01008504, 0.05451912]},
+                       'species': [{'element': 'Fe', 'occu': 1}],
+                       'xyz': [3.387208508781326, -0.0129676845693048, 2.4180946415046494]},
+                      {'abc': [0.00338095, 0.01072178, 0.72366433],
+                       'label': 'Fe',
+                       'properties': {'coordination_no': 4,
+                        'forces': [0.01716078, 0.00955327, 0.05451912]},
+                       'species': [{'element': 'Fe', 'occu': 1}],
+                       'xyz': [0.04249863509042039, -0.053751296415148794, 7.754978606437029]},
+                      {'abc': [0.66502246, 0.33082164, 0.47174225],
+                       'label': 'Fe',
+                       'properties': {'coordination_no': 4,
+                        'forces': [0.08330257, -0.03033668, 0.04884326]},
+                       'species': [{'element': 'Fe', 'occu': 1}],
+                       'xyz': [1.7264300141777726, 0.9158834813430974, 5.055640939524896]},
+                      {'abc': [0.33062914, 0.66733572, 0.77744897],
+                       'label': 'O',
+                       'properties': {'coordination_no': 4,
+                        'forces': [-0.07726687, -0.00523346, -0.05206924]},
+                       'species': [{'element': 'O', 'occu': 1}],
+                       'xyz': [0.03785603896498114, 1.8764506445041333, 8.310162619639584]},
+                      {'abc': [0.00312189, 0.99229908, 0.52714445],
+                       'label': 'O',
+                       'properties': {'coordination_no': 4,
+                        'forces': [-0.06744419, 0.00047044, -0.05129314]},
+                       'species': [{'element': 'O', 'occu': 1}],
+                       'xyz': [-1.6455152924521734, 2.8684534947950637, 5.606667232944964]},
+                      {'abc': [0.99687811, 0.98917618, 0.02714445],
+                       'label': 'O',
+                       'properties': {'coordination_no': 4,
+                        'forces': [0.03331469, 0.05864361, -0.05129314]},
+                       'species': [{'element': 'O', 'occu': 1}],
+                       'xyz': [1.7005140848662161, 2.9099949452040543, 0.2697833114717219]},
+                      {'abc': [0.66937086, 0.33670658, 0.27744897],
+                       'label': 'O',
+                       'properties': {'coordination_no': 4,
+                        'forces': [0.04316575, 0.06429835, -0.05206924]},
+                       'species': [{'element': 'O', 'occu': 1}],
+                       'xyz': [1.7179261258365088, 0.9561539434765862, 2.9732786612521678]}]})
+        atoms = Atoms(feo, 0, 10.0)
+        self.paths = Paths(atoms, [[22, 16, 0], [250, 282, 250, 0]])
+
+    def test_paths_string(self):
+        lines = [
+                   "PATH",
+                   "---------------",
+                   "9999 3 1" ,
+                   "x y z ipot label",
+                   "-0.014350 5.898564 -0.064551 1 Fe",
+                   "-1.705160 2.953424 -0.043034 1 Fe",
+                   "0.000000 0.000000 0.000000 0 Fe",
+                   "9998 4 1",
+                   "x y z ipot label",
+                   "-1.695811 0.951333 0.572543 2 O",
+                   "-3.383559 1.950917 3.233005 2 O",
+                   "-1.695811 0.951333 0.572543 2 O",
+                   "0.000000 0.000000 0.000000 0 Fe"]
+        ans = "\n".join(lines)
+        self.assertEqual(ans, str(self.paths))
 
 
 if __name__ == '__main__':
