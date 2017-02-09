@@ -836,16 +836,15 @@ class Potential(MSONable):
 
 class Paths(MSONable):
     """
-    FEFF paths.
+    Set FEFF scattering paths('paths.dat' file used by the 'genfmt' module).
     """
     def __init__(self, atoms, paths, degeneracies=None):
         """
         Args:
             atoms (Atoms): Atoms object
-            paths (list(list)): list of paths defined by list of list of atom indices in the atomic
+            paths (list(list)): list of paths. Each path is a list of atom indices in the atomic
                 cluster(the molecular cluster created by Atoms class).
                 e.g. [[0, 1, 2], [5, 9, 4, 1]] -> 2 paths: one with 3 legs and the other with 4 legs.
-
             degeneracies (list): list of degeneracies, one for each path. Set to 1 if not specified.
         """
         self.atoms = atoms
