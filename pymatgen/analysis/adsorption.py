@@ -77,14 +77,14 @@ class AdsorbateSiteFinder(object):
         if mi_vec:
             self.mvec = mi_vec
         else:
-            self.mvec = get_mi_vec(slab.miller_index)
+            self.mvec = get_mi_vec(slab)
         slab = self.assign_site_properties(slab, height)
         if selective_dynamics:
             slab = self.assign_selective_dynamics(slab)
         self.slab = slab
 
     @classmethod
-    def from_bulk_and_miller(cls, structure, miller_index, min_slab_size=5.0,
+    def from_bulk_and_miller(cls, structure, miller_index, min_slab_size=8.0,
                              min_vacuum_size=10.0, max_normal_search=None, 
                              center_slab = True, selective_dynamics=False,
                              undercoord_threshold = 0.09):
@@ -111,7 +111,7 @@ class AdsorbateSiteFinder(object):
         """
         # TODO: for some reason this works poorly with primitive cells
         vcf_bulk = VoronoiCoordFinder(structure)
-        bulk_coords = [len(vcf_bulk.get_coordinated_sites(n))
+        bulk_coords = [len(vcf_bulk.get_coordinated_sites(n, tol=0.05))
                        for n in range(len(structure))]
         struct = structure.copy(site_properties = {'bulk_coordinations':bulk_coords})
         slabs = generate_all_slabs(struct, max_index=max(miller_index), 
@@ -128,24 +128,28 @@ class AdsorbateSiteFinder(object):
         this_slab = slab_dict[miller_index]
 
         vcf_surface = VoronoiCoordFinder(this_slab, allow_pathological=True)
-        surf_props = []
-        this_mi_vec = get_mi_vec(this_slab.miller_index)
+
+        surf_props, undercoords = [], []
+        this_mi_vec = get_mi_vec(this_slab)
         mi_mags = [np.dot(this_mi_vec, site.coords) for site in this_slab]
         average_mi_mag = np.average(mi_mags)
         for n, site in enumerate(this_slab):
             bulk_coord = this_slab.site_properties['bulk_coordinations'][n]
-            slab_coord = len(vcf_surface.get_coordinated_sites(n))
+            slab_coord = len(vcf_surface.get_coordinated_sites(n, tol=0.05))
             mi_mag = np.dot(this_mi_vec, site.coords)
             undercoord = (bulk_coord - slab_coord)/bulk_coord
+            undercoords += [undercoord]
             if undercoord > undercoord_threshold and mi_mag > average_mi_mag:
                 surf_props += ['surface']
             else:
                 surf_props += ['subsurface']
-        new_site_properties = {'surface_properties':surf_props}
+        new_site_properties = {'surface_properties':surf_props,
+                               'undercoords':undercoords}
         new_slab = this_slab.copy(site_properties=new_site_properties)
+        #import pdb; pdb.set_trace()
         return cls(new_slab, selective_dynamics)
 
-    def find_surface_sites_by_height(self, slab, height=0.9):
+    def find_surface_sites_by_height(self, slab, height=0.9, xy_tol=0.01):
         """
         This method finds surface sites by determining which sites are within
         a threshold value in height from the topmost site in a list of sites
@@ -155,6 +159,8 @@ class AdsorbateSiteFinder(object):
             height (float): threshold in angstroms of distance from topmost
                 site in slab along the slab c-vector to include in surface 
                 site determination
+            xy_tol (float): if supplied, will remove any sites which are
+                within a certain distance in the miller plane.
 
         Returns:
             list of sites selected to be within a threshold of the highest
@@ -163,9 +169,27 @@ class AdsorbateSiteFinder(object):
         # Get projection of coordinates along the miller index
         m_projs = np.array([np.dot(site.coords, self.mvec)
                             for site in slab.sites])
+
         # Mask based on window threshold along the miller index
         mask = (m_projs - np.amax(m_projs)) >= -height
-        return [slab.sites[n] for n in np.where(mask)[0]]
+        surf_sites = [slab.sites[n] for n in np.where(mask)[0]] 
+        if xy_tol:
+            # sort surface sites by height
+            surf_sites = [s for (h, s) in zip(m_projs[mask], surf_sites)]
+            surf_sites.reverse()
+            #xy_pruned_sites = [surf_sites[0]]
+            unique_sites, unique_perp_fracs = [], []
+            for site in surf_sites:
+                this_perp = site.coords - np.dot(site.coords, self.mvec)
+                #import pdb; pdb.set_trace()
+                this_perp_frac = cart_to_frac(slab.lattice, this_perp)
+                if not in_coord_list_pbc(unique_perp_fracs, this_perp_frac):
+                    unique_sites.append(site)
+                    unique_perp_fracs.append(this_perp_frac)
+            #import pdb; pdb.set_trace()
+            surf_sites = unique_sites
+
+        return surf_sites
 
     def assign_site_properties(self, slab, height=0.9):
         """
@@ -345,6 +369,8 @@ class AdsorbateSiteFinder(object):
             ads_coord (array): coordinate of adsorbate position
             repeat (3-tuple or list): input for making a supercell of slab
                 prior to placing the adsorbate
+            reorient (bool): flag on whether to reorient the molecule to
+                have its z-axis concurrent with miller index
         """
         if reorient:
             # Reorient the molecule along slab m_index
@@ -380,7 +406,7 @@ class AdsorbateSiteFinder(object):
         return slab.copy(site_properties = new_sp)
 
     def generate_adsorption_structures(self, molecule, repeat = None, 
-                                       min_lw = 5.0):
+                                       min_lw = 5.0, reorient = True):
         """
         Function that generates all adsorption structures for a given
         molecular adsorbate.  Can take repeat argument or minimum
@@ -402,20 +428,19 @@ class AdsorbateSiteFinder(object):
                 molecule, coords, repeat=repeat, reorient=reorient))
         return structs
 
-def get_mi_vec(mi_index):
+def get_mi_vec(slab):
     """
     Convenience function which returns the unit vector aligned 
     with the miller index.
     """
-    mvec = np.array([1./n if n!=0 else 0 
-                     for n in mi_index])
+    mvec = np.cross(slab.lattice.matrix[0], slab.lattice.matrix[1])
     return mvec / np.linalg.norm(mvec)
 
 def get_rot(slab):
     """
     Gets the transformation to rotate the z axis into the miller index
     """
-    new_z = get_mi_vec(slab.miller_index)
+    new_z = get_mi_vec(slab)
     a, b, c = slab.lattice.matrix
     new_x = a / np.linalg.norm(a)
     new_y = np.cross(new_z, new_x)
@@ -459,7 +484,7 @@ def cart_to_frac(lattice, cart_coord):
 # Get color dictionary
 colors = loadfn(os.path.join(os.path.dirname(vis.__file__), 
                              "ElementColorSchemes.yaml"))
-color_dict = {el:[j / 256. for j in colors["Jmol"][el]] 
+color_dict = {el:[j / 256.001 for j in colors["Jmol"][el]] 
               for el in colors["Jmol"].keys()}
 
 def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
@@ -486,6 +511,7 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
     coords = np.array(sorted(slab.cart_coords, key=lambda x: x[2]))
     sites = sorted(slab.sites, key = lambda x: x.coords[2])
     alphas = 1 - decay*(np.max(coords[:, 2]) - coords[:, 2])
+    alphas = alphas.clip(min=0)
     corner = [0, 0, cart_to_frac(slab.lattice, coords[-1])[-1]]
     corner = frac_to_cart(slab.lattice, corner)[:2]
     verts =  orig_cell[:2, :2]
