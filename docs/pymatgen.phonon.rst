@@ -1,5 +1,5 @@
-pymatgen.vis package
-====================
+pymatgen.phonon package
+=======================
 
 Subpackages
 -----------
@@ -12,13 +12,14 @@ Submodules
 
 .. toctree::
 
-   pymatgen.vis.structure_chemview
-   pymatgen.vis.structure_vtk
+   pymatgen.phonon.bandstructure
+   pymatgen.phonon.dos
+   pymatgen.phonon.plotter
 
 Module contents
 ---------------
 
-.. automodule:: pymatgen.vis
+.. automodule:: pymatgen.phonon
     :members:
     :undoc-members:
     :show-inheritance:

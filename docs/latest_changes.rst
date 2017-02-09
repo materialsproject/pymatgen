@@ -1,11 +1,8 @@
 Change log
 ==========
 
-v4.6.0
+v4.6.1
 ------
-* Improve support for alternative settings in SpaceGroup.
-* Fix respect for user_incar_settings in MPNonSCFSet and MPSOCSet
-* Support for argcomplete in pmg script.
-* Speed ups to Ewald summation.
-* Add functionality to parse frequency dependent dielectric function.
-* Improvements to Bolztrap support.
+* Phonon bandstructure plotting and analysis. (Guido Petretto)
+* New capabilities for performing adsorption on slabs. (Joey Montoya)
+* Remove pathlib dependency.

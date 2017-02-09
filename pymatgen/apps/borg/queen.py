@@ -119,9 +119,7 @@ class BorgQueen(object):
                 or bz2 compression will be applied.
         """
         with zopen(filename, "wt") as f:
-            s = json.dumps(list(self._data), f, cls=MontyEncoder)
-            # This complicated for handles unicode in both Py2 and 3.
-            f.write("%s" % s)
+            json.dump(list(self._data), f, cls=MontyEncoder)
 
     def load_data(self, filename):
         """
