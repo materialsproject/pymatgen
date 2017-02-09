@@ -3,6 +3,9 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
+import re
+import six
+from monty.io import zopen
 
 """
 This module provides utility classes for io operations.
@@ -16,24 +19,10 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-import re
-from monty.io import zopen
-
-
-def prompt(question):
-    import six
-    # Fix python 2.x.
-    if six.PY2:
-        my_input = raw_input
-    else:
-        my_input = input
-    
-    return my_input(question)
-
 
 def ask_yesno(question, default=True):
     try:
-        answer = prompt(question)
+        answer = six.moves.input(question)
         return answer.lower().strip() in ["y", "yes"]
     except EOFError:
         return default
