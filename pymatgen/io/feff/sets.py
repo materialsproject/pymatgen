@@ -198,13 +198,13 @@ class FEFFDictSet(AbstractFeffInputSet):
                     self.structure.formula.replace(" ", ""))
                 self.config_dict["TARGET"] = self.atoms.center_index + 1
                 self.config_dict["COREHOLE"] = "RPA"
-                logger.warn("Setting COREHOLE = RPA for K-space calculation")
+                logger.warning("Setting COREHOLE = RPA for K-space calculation")
                 if not self.config_dict.get("KMESH", None):
                     abc = self.structure.lattice.abc
                     mult = (self.nkpts * abc[0] * abc[1] * abc[2]) ** (1 / 3)
                     self.config_dict["KMESH"] = [int(round(mult / l)) for l in abc]
             else:
-                logger.warn("Large system(>=14 atoms), removing K-space settings")
+                logger.warning("Large system(>=14 atoms), removing K-space settings")
                 del self.config_dict["RECIPROCAL"]
                 self.config_dict.pop("CIF", None)
                 self.config_dict.pop("TARGET", None)
