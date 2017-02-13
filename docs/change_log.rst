@@ -1,6 +1,12 @@
 Change log
 ==========
 
+v4.6.2
+--------
+* Improve Spacegroup class support for alternative settings. Add a get_settings class method.
+* Improvements to FEFF support.
+* Improvements to EOS class.
+
 v4.6.1
 ------
 * Phonon bandstructure plotting and analysis. (Guido Petretto)
