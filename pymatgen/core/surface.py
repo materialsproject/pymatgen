@@ -163,6 +163,78 @@ class Slab(Structure):
                     shift=self.shift, scale_factor=self.scale_factor,
                     coords_are_cartesian=True, energy=self.energy)
 
+    def get_tasker2_corrected_slabs(self, tol=0.01):
+        """
+        Get a list of slabs that have been corrected for Tasker 2.
+
+        Args:
+            tol (float): Tolerance to determine if atoms are within same plane.
+
+        Returns:
+            ([Slab]) List of tasker 2 corrected slabs.
+        """
+        sites = list(self.sites)
+        minzsite = sorted(sites, key=lambda site: site.c)[0]
+        tomove = []
+        fixed = []
+        for site in sites:
+            if abs(site.c - minzsite.c) < tol and site.species_and_occu == minzsite.species_and_occu:
+                tomove.append(site)
+            else:
+                fixed.append(site)
+        tomove = sorted(tomove, key=lambda s: site.specie)
+        grouped = [list(sites) for k, sites in itertools.groupby(
+            tomove, key=lambda s: site.specie)]
+        combinations = []
+        for sites in grouped:
+            n = len(sites)
+            if n % 2 != 0:
+                raise ValueError("Odd number of sites to divide! Try changing "
+                                 "the tolerance to ensure even division of "
+                                 "sites!")
+            combinations.append(
+                [c for c in itertools.combinations(sites, int(n / 2))])
+
+        slabs = []
+        for selection in itertools.product(*combinations):
+            sites = list(fixed)
+            species = [site.species_and_occu for site in fixed]
+            fcoords = [site.frac_coords for site in fixed]
+
+            for s in tomove:
+                species.append(s.species_and_occu)
+                for group in selection:
+                    if s in group:
+                        fcoords.append(s.frac_coords)
+                        break
+                else:
+                    # Move unselected atom to the opposite surface.
+                    fcoords.append(s.frac_coords + [0, 0, 0.5])
+
+            slab = Slab(self.lattice, species, fcoords, self.miller_index,
+                        self.oriented_unit_cell, self.shift, self.scale_factor,
+                        energy=self.energy)
+            slabs.append(slab)
+        s = StructureMatcher()
+        unique = [ss[0] for ss in s.group_structures(slabs)]
+        return unique
+
+    def is_symmetric(self, symprec=0.1):
+        """
+        Checks if slab is symmetric, i.e., contains inversion symmetry.
+
+        Args:
+            symprec (float): Symmetry precision used for SpaceGroup analyzer.
+
+        Returns:
+            (bool) Whether slab contains inversion symmetry.
+        """
+        laue = ["-1", "2/m", "mmm", "4/m", "4/mmm",
+                "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"]
+        sg = SpacegroupAnalyzer(self, symprec=symprec)
+        pg = sg.get_point_group_symbol()
+        return str(pg) in laue
+
     def get_sorted_structure(self, key=None, reverse=False):
         """
         Get a sorted copy of the structure. The parameters have the same
@@ -275,7 +347,7 @@ class Slab(Structure):
             distance (float): between centers of the adsorbed atom and the
                 given site in Angstroms.
         """
-        #Let's do the work in cartesian coords
+        # Let's do the work in cartesian coords
         center = np.sum([self[i].coords for i in indices], axis=0) / len(
             indices)
 
@@ -333,8 +405,8 @@ class Slab(Structure):
 class SlabGenerator(object):
 
     """
-    This class generates different slabs using shift values determined by where a
-    unique termination can be found along with other criterias such as where a
+    This class generates different slabs using shift values determined by where
+    a unique termination can be found along with other criterias such as where a
     termination doesn't break a polyhedral bond. The shift value then indicates
     where the slab layer will begin and terminate in the slab-vacuum system.
 
@@ -393,7 +465,7 @@ class SlabGenerator(object):
                 you need this to be based on the conventional cell,
                 you should supply the conventional structure.
             min_slab_size (float): In Angstroms
-            min_vac_size (float): In Angstroms
+            min_vacuum_size (float): In Angstroms
             lll_reduce (bool): Whether to perform an LLL reduction on the
                 eventual structure.
             center_slab (bool): Whether to center the slab in the cell with
@@ -418,7 +490,7 @@ class SlabGenerator(object):
         """
         latt = initial_structure.lattice
         miller_index = reduce_vector(miller_index)
-        #Calculate the surface normal using the reciprocal lattice vector.
+        # Calculate the surface normal using the reciprocal lattice vector.
         recp = latt.reciprocal_lattice_crystallographic
         normal = recp.get_cartesian_coords(miller_index)
         normal /= np.linalg.norm(normal)
@@ -433,7 +505,7 @@ class SlabGenerator(object):
                 # vector as one of the basis vectors.
                 slab_scale_factor.append(eye[i])
             else:
-                #Calculate projection of lattice vector onto surface normal.
+                # Calculate projection of lattice vector onto surface normal.
                 d = abs(np.dot(normal, latt.matrix[i])) / latt.abc[i]
                 non_orth_ind.append((i, d))
 
@@ -597,10 +669,10 @@ class SlabGenerator(object):
         z = linkage(condensed_m)
         clusters = fcluster(z, tol, criterion="distance")
 
-        #Generate dict of cluster# to c val - doesn't matter what the c is.
+        # Generate dict of cluster# to c val - doesn't matter what the c is.
         c_loc = {c: frac_coords[i][2] for i, c in enumerate(clusters)}
 
-        #Put all c into the unit cell.
+        # Put all c into the unit cell.
         possible_c = [c - math.floor(c) for c in sorted(c_loc.values())]
 
         # Calculate the shifts
@@ -645,7 +717,8 @@ class SlabGenerator(object):
                                 c_ranges.add(c_range)
         return c_ranges
 
-    def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0, symmetrize=False):
+    def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0,
+                  symmetrize=False):
         """
         This method returns a list of slabs that are generated using the list of
         shift values from the method, _calculate_possible_shifts(). Before the
@@ -699,8 +772,8 @@ class SlabGenerator(object):
             if symmetrize:
                 slab = self.symmetrize_slab(g[0])
                 if original_formula != str(slab.composition.reduced_formula):
-                    warnings.warn("WARNING: Stoichiometry is no longer the same "\
-                                  "due to symmetrization")
+                    warnings.warn("WARNING: Stoichiometry is no longer the "
+                                  "same due to symmetrization")
                 new_slabs.append(slab)
             else:
                 new_slabs.append(g[0])
@@ -754,7 +827,8 @@ class SlabGenerator(object):
                     asym = False
 
         if len(slab) < len(self.parent):
-            warnings.warn("Too many sites removed, please use a larger slab size.")
+            warnings.warn("Too many sites removed, please use a larger slab "
+                          "size.")
 
         return slab
 
@@ -832,7 +906,7 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                 unit cell structure.
         max_index (int): The maximum Miller index to go up to.
         min_slab_size (float): In Angstroms
-        min_vac_size (float): In Angstroms
+        min_vacuum_size (float): In Angstroms
         bonds ({(specie1, specie2): max_bond_dist}: bonds are
             specified as a dict of tuples: float of specie1, specie2
             and the max bonding distance. For example, PO4 groups may be
