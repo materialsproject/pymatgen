@@ -178,7 +178,7 @@ class Slab(Structure):
         tomove = []
         fixed = []
         for site in sites:
-            if abs(site.c - minzsite.c) < tol and site.species_and_occu == minzsite.species_and_occu:
+            if abs(site.c - minzsite.c) < tol: # and site.species_and_occu == minzsite.species_and_occu:
                 tomove.append(site)
             else:
                 fixed.append(site)
@@ -197,7 +197,6 @@ class Slab(Structure):
 
         slabs = []
         for selection in itertools.product(*combinations):
-            sites = list(fixed)
             species = [site.species_and_occu for site in fixed]
             fcoords = [site.frac_coords for site in fixed]
 
