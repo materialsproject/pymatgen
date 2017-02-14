@@ -1441,6 +1441,7 @@ class IStructure(SiteCollection, MSONable):
             return s
 
         from pymatgen.io.vasp import Vasprun, Chgcar
+        from pymatgen.io.exciting import excitingInput
         from monty.io import zopen
         fname = os.path.basename(filename)
         with zopen(filename, "rt") as f:
@@ -1474,6 +1475,8 @@ class IStructure(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="xsf",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
+        elif fnmatch(fname, "input.xml"):
+            return excitingInput.from_file(fname).structure
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
