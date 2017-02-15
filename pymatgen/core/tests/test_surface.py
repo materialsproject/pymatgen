@@ -26,20 +26,32 @@ def get_path(path_str):
 class SlabTest(PymatgenTest):
 
     def setUp(self):
+
         zno1 = Structure.from_file(get_path("ZnO-wz.cif"), primitive=False)
         zno55 = SlabGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False,
                               center_slab=False).get_slab()
 
-        Ti = Structure(Lattice.hexagonal(4.6, 2.82), ["Ti", "Ti", "Ti"],
+        Ti = Structure(Lattice.hexagonal(4.6, 2.82),
+                       ["Ti", "Ti", "Ti"],
                        [[0.000000, 0.000000, 0.000000],
                        [0.333333, 0.666667, 0.500000],
                        [0.666667, 0.333333, 0.500000]])
 
-        Ag_fcc = Structure(Lattice.cubic(4.06), ["Ag", "Ag", "Ag", "Ag"],
+        Ag_fcc = Structure(Lattice.cubic(4.06),
+                           ["Ag", "Ag", "Ag", "Ag"],
                            [[0.000000, 0.000000, 0.000000],
                            [0.000000, 0.500000, 0.500000],
                            [0.500000, 0.000000, 0.500000],
                            [0.500000, 0.500000, 0.000000]])
+
+        MgO = Structure(Lattice.cubic(4.24000),
+                        ["Mg", "Mg", "Mg", "Mg",
+                         "O", "O", "O", "O"],
+                        [[0, 0, 0], [0, 0.5, 0.5],
+                         [0.5, 0, 0.5], [0.5, 0.5, 0],
+                         [0.5, 0, 0], [0.5, 0.5, 0.5],
+                         [0, 0, 0.5], [0, 0.5, 0]])
+        MgO.add_oxidation_state_by_element({"O": -2, "Mg": 2})
 
         laue_groups = ["-1", "2/m", "mmm", "4/m",
                        "4/mmm", "-3", "-3m", "6/m",
@@ -49,13 +61,16 @@ class SlabTest(PymatgenTest):
         self.agfcc = Ag_fcc
         self.zno1 = zno1
         self.zno55 = zno55
+        self.MgO = MgO
         self.h = Structure(Lattice.cubic(3), ["H"],
                             [[0, 0, 0]])
         self.libcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"],
                                [[0, 0, 0], [0.5, 0.5, 0.5]])
         self.laue_groups = laue_groups
 
+
     def test_init(self):
+
         zno_slab = Slab(self.zno55.lattice, self.zno55.species,
                         self.zno55.frac_coords,
                         self.zno55.miller_index,
@@ -70,7 +85,23 @@ class SlabTest(PymatgenTest):
                          self.zno1.composition)
         self.assertEqual(len(zno_slab), 8)
 
+
+    def test_get_tasker2_corrected_slabs(self):
+
+        slabgen = SlabGenerator(self.MgO, (1,1,1), 10,
+                                10, max_normal_search=1)
+
+        for i, slab in enumerate(slabgen.get_slabs()):
+            if slab.is_polar():
+                slab.make_supercell([2,1,1])
+                slabs = slab.get_tasker2_corrected_slabs(tol=0.01)
+
+                for s in slabs:
+                    self.assertFalse(s.is_polar())
+
+
     def test_add_adsorbate_atom(self):
+
         zno_slab = Slab(self.zno55.lattice, self.zno55.species,
                         self.zno55.frac_coords,
                         self.zno55.miller_index,
@@ -94,15 +125,18 @@ class SlabTest(PymatgenTest):
         self.assertEqual(species, ["Zn2+"] * 4 + ["O2-"] * 4)
 
     def test_methods(self):
+
         #Test various structure methods
         self.zno55.get_primitive_structure()
 
     def test_as_from_dict(self):
+
         d = self.zno55.as_dict()
         obj = Slab.from_dict(d)
         self.assertEqual(obj.miller_index, (1, 0, 0))
 
     def test_dipole_and_is_polar(self):
+
         self.assertArrayAlmostEqual(self.zno55.dipole, [0, 0, 0])
         self.assertFalse(self.zno55.is_polar())
         cscl = self.get_structure("CsCl")
@@ -151,6 +185,7 @@ class SlabTest(PymatgenTest):
             # Check if slabs are all symmetric
             self.assertEqual(assymetric_count, 0)
             self.assertEqual(symmetric_count, len(slabs))
+
 
 class SlabGeneratorTest(PymatgenTest):
 
