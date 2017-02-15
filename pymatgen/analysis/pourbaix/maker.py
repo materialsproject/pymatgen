@@ -127,7 +127,7 @@ class PourbaixDiagram(object):
         """
         N = len(self._elt_comp)  # No. of elements
         entries = self._unprocessed_entries
-        el_list = self._elt_comp.keys()
+        el_list = sorted(self._elt_comp.keys())
         comp_list = [self._elt_comp[el] for el in el_list]
         list_of_entries = list()
         for j in range(1, N + 1):
@@ -179,7 +179,7 @@ class PourbaixDiagram(object):
             try:
                 weights = np.linalg.solve(np.array(A), np.array(b))
             except np.linalg.linalg.LinAlgError as err:
-                if 'Singular matrix' in err.message:
+                if 'Singular matrix' in str(err):
                     continue
                 else:
                     raise Exception("Unknown Error message!")
