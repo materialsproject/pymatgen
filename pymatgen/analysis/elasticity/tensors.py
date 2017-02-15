@@ -381,7 +381,7 @@ class SquareTensor(TensorBase):
         """
         return np.linalg.det(self)
 
-    def is_rotation(self, tol=1e-3):
+    def is_rotation(self, tol=1e-3, include_improper=True):
         """
         Test to see if tensor is a valid rotation matrix, performs a
         test to check whether the inverse is equal to the transpose
@@ -393,10 +393,12 @@ class SquareTensor(TensorBase):
                 the determinant is one and the inverse is equal
                 to the transpose
         """
-
+        det = np.abs(np.linalg.det(self))
+        if include_improper:
+            det = np.abs(det)
         return (np.abs(self.inv - self.trans) < tol).all() \
-            and np.abs(np.abs(np.linalg.det(self)) - 1. < tol)
-
+            and (np.abs(det - 1.) < tol)
+    
     def get_scaled(self, scale_factor):
         """
         Scales the tensor by a certain multiplicative scale factor
