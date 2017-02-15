@@ -194,6 +194,7 @@ class Slab(Structure):
 
         a = SpacegroupAnalyzer(self)
         symm_structure = a.get_symmetrized_structure()
+
         def equi_index(site):
             for i, equi_sites in enumerate(symm_structure.equivalent_sites):
                 if site in equi_sites:
@@ -640,7 +641,7 @@ class SlabGenerator(object):
         frac_coords = self.oriented_unit_cell.frac_coords
         frac_coords = np.array(frac_coords) +\
                       np.array([0, 0, -shift])[None, :]
-        frac_coords = frac_coords - np.floor(frac_coords)
+        frac_coords -= np.floor(frac_coords)
         a, b, c = self.oriented_unit_cell.lattice.matrix
         new_lattice = [a, b, nlayers * c]
         frac_coords[:, 2] = frac_coords[:, 2] / nlayers
@@ -760,8 +761,8 @@ class SlabGenerator(object):
         shift values from the method, _calculate_possible_shifts(). Before the
         shifts are used to create the slabs however, if the user decides to take
         into account whether or not a termination will break any polyhedral
-        structure (bonds is not None), this method will filter out any shift values
-        that do so.
+        structure (bonds is not None), this method will filter out any shift
+        values that do so.
 
         Args:
             bonds ({(specie1, specie2): max_bond_dist}: bonds are
@@ -820,15 +821,18 @@ class SlabGenerator(object):
 
         """
         This method checks whether or not the two surfaces of the slab are
-        equivalent. If the point group of the slab has an inversion symmetry (ie.
-        belong to one of the Laue groups), then it is assumed that the surfaces
-        should be equivalent. Otherwise, sites at the bottom of the slab will be
-        removed until the slab is symmetric. Note that this method should only be
-        limited to elemental structures as the removal of sites can destroy the
-        stoichiometry of the slab. For non-elemental structures, use is_polar().
+        equivalent. If the point group of the slab has an inversion symmetry (
+        ie. belong to one of the Laue groups), then it is assumed that the
+        surfaces should be equivalent. Otherwise, sites at the bottom of the
+        slab will be removed until the slab is symmetric. Note that this method
+        should only be limited to elemental structures as the removal of sites
+        can destroy the stoichiometry of the slab. For non-elemental
+        structures, use is_polar().
+
         Arg:
             slab (Structure): A single slab structure
             tol (float): Tolerance for SpaceGroupanalyzer.
+
         Returns:
             Slab (structure): A symmetrized Slab object.
         """
@@ -980,7 +984,8 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
     """
     all_slabs = []
 
-    for miller in get_symmetrically_distinct_miller_indices(structure, max_index):
+    for miller in get_symmetrically_distinct_miller_indices(structure,
+                                                            max_index):
         gen = SlabGenerator(structure, miller, min_slab_size,
                             min_vacuum_size, lll_reduce=lll_reduce,
                             center_slab=center_slab, primitive=primitive,
