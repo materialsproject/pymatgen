@@ -224,6 +224,13 @@ class AdsorbateSiteFinder(object):
         return [site for site in self.slab.sites 
                 if site.properties['surface_properties']=='surface']
 
+    def subsurface_sites(self):
+        """
+        convenience method to return list of subsurface sites
+        """
+        return [site for site in self.slab.sites
+                if site.properties['surface_properties']=='subsurface']
+
     def find_adsorption_sites(self, distance = 2.0, put_inside = True,
                               symm_reduce = 1e-2, near_reduce = 1e-2,
                               positions = ['ontop', 'bridge', 'hollow'],
@@ -239,58 +246,74 @@ class AdsorbateSiteFinder(object):
             put_inside (bool): whether to put the site inside the cell
             symm_reduce (float): symm reduction threshold
             near_reduce (float): near reduction threshold
-            positions (list): which of "ontop", "bridge", and "hollow" to
-                include in the site finding
+            positions (list): which positions to include in the site finding
+                "ontop": sites on top of surface sites
+                "bridge": sites at edges between surface sites in Delaunay
+                    triangulation of surface sites in the miller plane
+                "hollow": sites at centers of Delaunay triangulation faces
+                "from_subsurface": subsurface positions projected into miller plane
             no_obtuse_hollow (bool): flag to indicate whether to include
                 obtuse triangular ensembles in hollow sites
-
         """
-        ads_sites = []
-        mesh = self.get_extended_surface_mesh()
-        sop = get_rot(self.slab)
-        dt = Delaunay([sop.operate(m.coords)[:2] for m in mesh])
-        # TODO: refactor below to properly account for >3-fold
-        for v in dt.simplices:
-            if -1 not in v:
-                dots = []
-                for i_corner, i_opp in zip(range(3), ((1,2), (0,2), (0,1))):
-                    corner, opp = v[i_corner], [v[o] for o in i_opp]
-                    vecs = [mesh[d].coords - mesh[corner].coords for d in opp]
-                    vecs = [vec/np.linalg.norm(vec) for vec in vecs]
-                    dots.append(np.dot(*vecs))
-                    # Add bridge sites at midpoints of edges of D. Tri
-                    if 'bridge' in positions:
-                        ads_sites += [self.ensemble_center(mesh, opp, 
-                                                           cartesian = True)]
-                # Prevent addition of hollow sites in obtuse triangles
-                obtuse = no_obtuse_hollow and (np.array(dots) < 1e-5).any()
-                # Add hollow sites at centers of D. Tri faces
-                if 'hollow' in positions and not obtuse:
-                    ads_sites += [self.ensemble_center(mesh, v,
-                                                       cartesian=True)]
+        ads_sites = {k:[] for k in positions}
+        if 'ontop' in positions:
+            ads_sites['ontop'] = [s.coords for s in self.surface_sites]
+        if 'subsurface' in positions:
+            ads_sites['subsurface'] = self.get_subsurface_adsorption_sites()
+        if 'bridge' in positions or 'hollow' in positions:
+            mesh = self.get_extended_surface_mesh()
+            sop = get_rot(self.slab)
+            dt = Delaunay([sop.operate(m.coords)[:2] for m in mesh])
+            # TODO: refactor below to properly account for >3-fold
+            for v in dt.simplices:
+                if -1 not in v:
+                    dots = []
+                    for i_corner, i_opp in zip(range(3), ((1,2), (0,2), (0,1))):
+                        corner, opp = v[i_corner], [v[o] for o in i_opp]
+                        vecs = [mesh[d].coords - mesh[corner].coords for d in opp]
+                        vecs = [vec/np.linalg.norm(vec) for vec in vecs]
+                        dots.append(np.dot(*vecs))
+                        # Add bridge sites at midpoints of edges of D. Tri
+                        if 'bridge' in positions:
+                            ads_sites += [self.ensemble_center(mesh, opp, 
+                                                               cartesian = True)]
+                    # Prevent addition of hollow sites in obtuse triangles
+                    obtuse = no_obtuse_hollow and (np.array(dots) < 1e-5).any()
+                    # Add hollow sites at centers of D. Tri faces
+                    if 'hollow' in positions and not obtuse:
+                        ads_sites += [self.ensemble_center(mesh, v,
+                                                           cartesian=True)]
+        ads_sites['all'] = sum(ads_sites.values())
         # Pare off outer edges
+        """
         frac_coords = [cart_to_frac(self.slab.lattice, ads_site) 
-                       for ads_site in ads_sites]
+                       for ads_site in all_ads_sites]
         frac_coords = [frac_coord for frac_coord in frac_coords 
                        if (frac_coord[0]>1 and frac_coord[0]<4
                        and frac_coord[1]>1 and frac_coord[1]<4)]
         ads_sites = [frac_to_cart(self.slab.lattice, frac_coord) 
                      for frac_coord in frac_coords]
-        if 'ontop' in positions:
-            ads_sites += [s.coords for s in self.surface_sites]
-        if near_reduce:
-            ads_sites = self.near_reduce(ads_sites, 
-                                         threshold=near_reduce)
-        
-        if symm_reduce:
-            ads_sites = self.symm_reduce(ads_sites, threshold=symm_reduce)
-        ads_sites = [ads_site + distance*self.mvec
-                     for ads_site in ads_sites]
-        if put_inside:
-            ads_sites = [put_coord_inside(self.slab.lattice, coord)
-                         for coord in ads_sites]
+        """
+        for key in ads_sites:
+            if near_reduce:
+                ads_sites[key] = self.near_reduce(ads_sites[key], 
+                                             threshold=near_reduce)
+            if put_inside:
+                ads_sites[key] = [put_coord_inside(self.slab.lattice, coord)
+                             for coord in ads_sites[key]]
+            if symm_reduce:
+                ads_sites[key] = self.symm_reduce(ads_sites[key], threshold=symm_reduce)
+            ads_sites[key] = [ads_site + distance*self.mvec
+                         for ads_site in ads_sites[key]]
         return ads_sites
 
+    def get_from_subsurface_sites(self):
+        """
+        gets sites corresponding to fractional positions of subsurface
+        sites projected into the miller plane and placed at the average
+        c-position of the nearest surface sites
+        """
+        
     def symm_reduce(self, coords_set, threshold = 1e-6):
         """
         Reduces the set of adsorbate sites by finding removing
