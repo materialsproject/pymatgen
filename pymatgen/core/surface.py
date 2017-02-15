@@ -163,9 +163,9 @@ class Slab(Structure):
                     shift=self.shift, scale_factor=self.scale_factor,
                     coords_are_cartesian=True, energy=self.energy)
 
-    def get_tasker2_corrected_slabs(self, tol=0.01, same_species_only=False):
+    def get_tasker2_slabs(self, tol=0.01, same_species_only=True):
         """
-        Get a list of slabs that have been corrected for Tasker 2.
+        Get a list of slabs that have been Tasker 2 corrected.
 
         Args:
             tol (float): Tolerance to determine if atoms are within same plane.
@@ -173,7 +173,8 @@ class Slab(Structure):
             same_species_only (bool): If True, only that are of the exact same
                 species as the atom at the outermost surface are considered for
                 moving. Otherwise, all atoms regardless of species that is
-                within tol are considered for moving.
+                within tol are considered for moving. Default is True (usually
+                the desired behavior).
 
         Returns:
             ([Slab]) List of tasker 2 corrected slabs.
@@ -188,8 +189,7 @@ class Slab(Structure):
         nlayers_total = int(round(self.lattice.c /
                                   self.oriented_unit_cell.lattice.c))
         nlayers_slab = int(round((sortedcsites[-1].c - sortedcsites[0].c)
-                                 * self.lattice.c
-                                 / self.oriented_unit_cell.lattice.c))
+                                 * nlayers_total))
         slab_ratio = nlayers_slab / nlayers_total
 
         for surface_site, shift in [(sortedcsites[0], slab_ratio),
@@ -198,7 +198,8 @@ class Slab(Structure):
             fixed = []
             for site in sites:
                 if abs(site.c - surface_site.c) < tol and (
-                        (not same_species_only) or site.species_and_occu == surface_site.species_and_occu):
+                        (not same_species_only) or
+                        site.species_and_occu == surface_site.species_and_occu):
                     tomove.append(site)
                 else:
                     fixed.append(site)
@@ -210,7 +211,8 @@ class Slab(Structure):
             if len(tomove) == 0 or any([len(g) % 2 != 0 for g in grouped]):
                 warnings.warn("Odd number of sites to divide! Try changing "
                               "the tolerance to ensure even division of "
-                              "sites!")
+                              "sites or create supercells in a or b directions "
+                              "to allow for atoms to be moved!")
                 continue
             combinations = []
             for g in grouped:
