@@ -325,7 +325,7 @@ class IndependentStrain(Strain):
 def convert_strain_to_deformation(strain):
     strain = SquareTensor(strain)
     ftdotf = 2*strain + np.eye(3)
-    eigs, eigvecs = np.linalg.eig(ftdotf)
+    eigs, eigvecs = np.linalg.eigh(ftdotf)
     rotated = ftdotf.rotate(np.transpose(eigvecs))
     rotated = rotated.round(10)
     defo = Deformation(np.sqrt(rotated))
