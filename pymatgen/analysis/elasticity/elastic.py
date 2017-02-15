@@ -461,24 +461,38 @@ class ToecFitter(object):
         nf_eval += 1
 
 
-def new_fit(strains, stresses, structure = None, 
-            output=None, eq_stress = None, zero_crit=1e-10):
+def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
     """
-    Temporary home for I. Winter's TOEC fitting function.
+    A third-order elastic constant fitting function based on 
+    central-difference derivatives with respect to distinct
+    strain states.  The algorithm is summarized as follows:
+
+    1. Identify distinct strain states as sets of indices 
+       for which nonzero strain values exist, typically
+       [(0), (1), (2), (3), (4), (5), (0, 1) etc.]
+    2. For each strain state, find and sort strains and
+       stresses by strain value.
+    3. Find first and second derivatives of each stress
+       with respect to scalar variable corresponding to
+       the smallest perturbation in the strain.
+    4. Use the pseudoinverse of a matrix expression corresponding
+       to the 
 
     Args:
-        strains nx3x3 array-like: Array of 3x3 strains
+        strains (nx3x3 array-like): Array of 3x3 strains
             to use in fitting of TOEC and SOEC
-        stresses nx3x3 array-like: Array of 3x3 stresses
+        stresses (nx3x3 array-like): Array of 3x3 stresses
             to use in fitting of TOEC and SOEC.  These
             should be PK2 stresses.
-        structure: Structure
-        output: name for file output, if none doesn't output file
+        eq_stress (3x3 array-like): stress corresponding to
+            equilibrium strain (i. e. "0" strain state).
+            If not specified, function will try to find
+            the state in the list of provided stresses
+            and strains.  If not found, defaults to 0.
+        zero_crit (float): value for which strains below
+            are ignored in identifying strain states.
     """
 
-    # perturbed strain states
-    #M2I = np.genfromtxt("SM2I.csv", delimiter=",")
-    #M3I = np.genfromtxt("SM3I.csv", delimiter=",")
     if len(stresses) != len(strains):
         raise ValueError("Length of strains and stresses are not equivalent")
     vstresses = np.array([Stress(stress).voigt for stress in stresses])
@@ -503,15 +517,7 @@ def new_fit(strains, stresses, structure = None,
     # Collect independent strain states:
     independent = set([tuple(np.nonzero(vstrain)[0].tolist())
                        for vstrain in vstrains])
-    #jj = [0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 3, 3, 4, 1]
-    #kk = [0, 1, 2, 3, 4, 5, 1, 2, 3, 4, 4, 5, 5, 2]
-    #gamma = np.linspace(-0.05, 0.05, 7)
-    #gdiag = gamma.copy()
-
-    # h = np.diff(gamma)[0]
-    sig = np.zeros([6, 14, 7])
-    #coef1 = central_diff(1, 7)
-    #coef2 = central_diff(2, 7)
+    
     strain_states = []
     dsde = np.zeros((6, len(independent)))
     d2sde2 = np.zeros((6, len(independent)))
@@ -538,60 +544,26 @@ def new_fit(strains, stresses, structure = None,
         h = np.min(diff[np.nonzero(diff)])
         coef1 = central_diff(1, len(mstresses))
         coef2 = central_diff(2, len(mstresses))
-
-        # This is a bit nebulous, I've checked it using an assertion statement
-        # but should maybe refactor to be a bit clearer
-        #import pdb; pdb.set_trace()
-        # HACK
         if eq_stress is not None:
-            # eq_stress in standard notation
             mstresses[3] = veq_stress
-        sig[:, n, :] = np.transpose(mstresses)
-        #import pdb; pdb.set_trace()
-        #if n==5:
-            #import pdb; pdb.set_trace()
-        #assert (sig2[:, n, :] == sig[:, n, :]).all()
-        #import pdb; pdb.set_trace()
         dsde[:, n] = np.dot(np.transpose(mstresses), coef1) / h
         d2sde2[:, n] = np.dot(np.transpose(mstresses), coef2) / h**2
-        #import pdb; pdb.set_trace()
 
-    M2I, M3I = generate_pseudo(strain_states)
+    m2i, m3i = generate_pseudo(strain_states)
     s2vec = np.ravel(dsde.T)
-    c2vec = np.dot(M2I, s2vec)
-    C2 = np.zeros((6, 6))
-    C2[np.triu_indices(6)] = c2vec
-    C2 = C2 + C2.T - np.diag(np.diag(C2))
-    C3 = np.zeros((6, 6, 6))
+    c2vec = np.dot(m2i, s2vec)
+    c2 = np.zeros((6, 6))
+    c2[np.triu_indices(6)] = c2vec
+    c2 = c2 + c2.T - np.diag(np.diag(c2))
+    c3 = np.zeros((6, 6, 6))
     s3vec = np.ravel(d2sde2.T)
-    c3vec = np.dot(M3I, s3vec)
-    #import pdb; pdb.set_trace()
+    c3vec = np.dot(m3i, s3vec)
     list_indices = list(itertools.combinations_with_replacement(range(6), r=3))
     indices_ij = itertools.combinations_with_replacement(range(6), r=3)
 
     indices = list(itertools.combinations_with_replacement(range(6), r=3))
-    txt = ''
-    for n, (i, j, k) in enumerate(indices):
-        C3[i,j,k] = C3[i,k,j] = C3[j,i,k] = C3[j,k,i] = \
-                C3[k,i,j] = C3[k,j,i] = c3vec[n]
-        txt += '\nc_'+''.join(str(m+1) for m in [i, j, k])\
-                + ' = {}'.format(c3vec[n])
-    if output:
-        with open("C_ijk_{}".format(output), 'w') as f:
-            f.write(txt)
+    return TensorBase.from_voigt(c2), TensorBase.from_voigt(c3)
 
-    c3_tens = TensorBase.from_voigt(C3)
-    if structure:
-        C3_sym = c3_tens.fit_to_structure(structure).voigt
-        sym_txt = ''
-        for (i, j, k) in indices:
-            sym_txt += '\nc_'+''.join(str(m+1) for m in [i, j, k])\
-                + ' = {}'.format(c3vec[n])
-        with open("C_ijk_sym_{}".format(sys.argv[1].split('_')[0]), "w") as f:
-            f.write(sym_txt)
-
-    #import pdb; pdb.set_trace()
-    return C2, C3
 
 def central_diff(k, n):
     """
@@ -649,12 +621,7 @@ if __name__=="__main__":
     stresses = sdict["stresses"]
     pk_stresses = sdict["pk_stresses"]
     try:
-        C2, C3 = new_fit(strains, pk_stresses)
-        cijkl = TensorBase.from_voigt(C2)
-        cijklmn = TensorBase.from_voigt(C3)
-        model_strain = Strain(strains[0])
-        model_stress = 0.5 * np.einsum("ijklmn,kl,mn->ij", cijklmn, model_strain, model_strain) \
-                + np.einsum("ijkl,kl->ij", cijkl, model_strain)
+        c2, c3 = new_fit(strains, pk_stresses)
         resid = np.array(pk_stresses[0]) - model_stress
         #generate_pseudo()
     except:
