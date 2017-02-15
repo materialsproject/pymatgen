@@ -163,9 +163,9 @@ class Slab(Structure):
                     shift=self.shift, scale_factor=self.scale_factor,
                     coords_are_cartesian=True, energy=self.energy)
 
-    def get_tasker2_corrected_slabs(self, tol=0.01, same_species_only=False):
+    def get_tasker2_slabs(self, tol=0.01, same_species_only=True):
         """
-        Get a list of slabs that have been corrected for Tasker 2.
+        Get a list of slabs that have been Tasker 2 corrected.
 
         Args:
             tol (float): Tolerance to determine if atoms are within same plane.
@@ -173,7 +173,8 @@ class Slab(Structure):
             same_species_only (bool): If True, only that are of the exact same
                 species as the atom at the outermost surface are considered for
                 moving. Otherwise, all atoms regardless of species that is
-                within tol are considered for moving.
+                within tol are considered for moving. Default is True (usually
+                the desired behavior).
 
         Returns:
             ([Slab]) List of tasker 2 corrected slabs.
@@ -188,9 +189,17 @@ class Slab(Structure):
         nlayers_total = int(round(self.lattice.c /
                                   self.oriented_unit_cell.lattice.c))
         nlayers_slab = int(round((sortedcsites[-1].c - sortedcsites[0].c)
-                                 * self.lattice.c
-                                 / self.oriented_unit_cell.lattice.c))
+                                 * nlayers_total))
         slab_ratio = nlayers_slab / nlayers_total
+
+        a = SpacegroupAnalyzer(self)
+        symm_structure = a.get_symmetrized_structure()
+
+        def equi_index(site):
+            for i, equi_sites in enumerate(symm_structure.equivalent_sites):
+                if site in equi_sites:
+                    return i
+            raise ValueError("Cannot determine equi index!")
 
         for surface_site, shift in [(sortedcsites[0], slab_ratio),
                                     (sortedcsites[-1], -slab_ratio)]:
@@ -198,19 +207,23 @@ class Slab(Structure):
             fixed = []
             for site in sites:
                 if abs(site.c - surface_site.c) < tol and (
-                        (not same_species_only) or site.species_and_occu == surface_site.species_and_occu):
+                        (not same_species_only) or
+                        site.species_and_occu == surface_site.species_and_occu):
                     tomove.append(site)
                 else:
                     fixed.append(site)
-            tomove = sorted(tomove, key=lambda s: site.specie)
+
+            # Sort and group the sites by the species and symmetry equivalence
+            tomove = sorted(tomove, key=lambda s: equi_index(s))
 
             grouped = [list(sites) for k, sites in itertools.groupby(
-                tomove, key=lambda s: site.specie)]
+                tomove, key=lambda s: equi_index(s))]
 
             if len(tomove) == 0 or any([len(g) % 2 != 0 for g in grouped]):
                 warnings.warn("Odd number of sites to divide! Try changing "
                               "the tolerance to ensure even division of "
-                              "sites!")
+                              "sites or create supercells in a or b directions "
+                              "to allow for atoms to be moved!")
                 continue
             combinations = []
             for g in grouped:
@@ -628,7 +641,7 @@ class SlabGenerator(object):
         frac_coords = self.oriented_unit_cell.frac_coords
         frac_coords = np.array(frac_coords) +\
                       np.array([0, 0, -shift])[None, :]
-        frac_coords = frac_coords - np.floor(frac_coords)
+        frac_coords -= np.floor(frac_coords)
         a, b, c = self.oriented_unit_cell.lattice.matrix
         new_lattice = [a, b, nlayers * c]
         frac_coords[:, 2] = frac_coords[:, 2] / nlayers
@@ -748,8 +761,8 @@ class SlabGenerator(object):
         shift values from the method, _calculate_possible_shifts(). Before the
         shifts are used to create the slabs however, if the user decides to take
         into account whether or not a termination will break any polyhedral
-        structure (bonds is not None), this method will filter out any shift values
-        that do so.
+        structure (bonds is not None), this method will filter out any shift
+        values that do so.
 
         Args:
             bonds ({(specie1, specie2): max_bond_dist}: bonds are
@@ -808,15 +821,18 @@ class SlabGenerator(object):
 
         """
         This method checks whether or not the two surfaces of the slab are
-        equivalent. If the point group of the slab has an inversion symmetry (ie.
-        belong to one of the Laue groups), then it is assumed that the surfaces
-        should be equivalent. Otherwise, sites at the bottom of the slab will be
-        removed until the slab is symmetric. Note that this method should only be
-        limited to elemental structures as the removal of sites can destroy the
-        stoichiometry of the slab. For non-elemental structures, use is_polar().
+        equivalent. If the point group of the slab has an inversion symmetry (
+        ie. belong to one of the Laue groups), then it is assumed that the
+        surfaces should be equivalent. Otherwise, sites at the bottom of the
+        slab will be removed until the slab is symmetric. Note that this method
+        should only be limited to elemental structures as the removal of sites
+        can destroy the stoichiometry of the slab. For non-elemental
+        structures, use is_polar().
+
         Arg:
             slab (Structure): A single slab structure
             tol (float): Tolerance for SpaceGroupanalyzer.
+
         Returns:
             Slab (structure): A symmetrized Slab object.
         """
@@ -968,7 +984,8 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
     """
     all_slabs = []
 
-    for miller in get_symmetrically_distinct_miller_indices(structure, max_index):
+    for miller in get_symmetrically_distinct_miller_indices(structure,
+                                                            max_index):
         gen = SlabGenerator(structure, miller, min_slab_size,
                             min_vacuum_size, lll_reduce=lll_reduce,
                             center_slab=center_slab, primitive=primitive,
