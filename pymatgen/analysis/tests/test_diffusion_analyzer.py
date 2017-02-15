@@ -84,13 +84,13 @@ class DiffusionAnalyzerTest(PymatgenTest):
             self.assertAlmostEqual(d.diffusivity_std_dev, 9.1013023085561779e-09, 7)
             self.assertArrayAlmostEqual(
                 d.conductivity_components,
-                [45.9109703,   26.2856302,  150.5405727], 3)
+                [45.7903694,   26.1651956,  150.5406140], 3)
             self.assertArrayAlmostEqual(
                 d.diffusivity_components,
                 [7.49601236e-07, 4.90254273e-07, 2.24649255e-06])
             self.assertArrayAlmostEqual(
                 d.conductivity_components_std_dev,
-                [0.0063579,  0.0180862,  0.0217917]
+                [0.0063566,  0.0180854,  0.0217918]
             )
             self.assertArrayAlmostEqual(
                 d.diffusivity_components_std_dev,
