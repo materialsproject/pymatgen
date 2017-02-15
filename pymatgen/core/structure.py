@@ -1475,7 +1475,7 @@ class IStructure(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="xsf",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
-        elif fnmatch(fname, "input.xml"):
+        elif fnmatch(fname, "input*.xml"):
             return excitingInput.from_file(fname).structure
         else:
             raise ValueError("Unrecognized file extension!")
