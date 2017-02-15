@@ -192,6 +192,14 @@ class Slab(Structure):
                                  * nlayers_total))
         slab_ratio = nlayers_slab / nlayers_total
 
+        a = SpacegroupAnalyzer(self)
+        symm_structure = a.get_symmetrized_structure()
+        def equi_index(site):
+            for i, equi_sites in enumerate(symm_structure.equivalent_sites):
+                if site in equi_sites:
+                    return i
+            raise ValueError("Cannot determine equi index!")
+
         for surface_site, shift in [(sortedcsites[0], slab_ratio),
                                     (sortedcsites[-1], -slab_ratio)]:
             tomove = []
@@ -203,10 +211,12 @@ class Slab(Structure):
                     tomove.append(site)
                 else:
                     fixed.append(site)
-            tomove = sorted(tomove, key=lambda s: site.specie)
+
+            # Sort and group the sites by the species and symmetry equivalence
+            tomove = sorted(tomove, key=lambda s: equi_index(s))
 
             grouped = [list(sites) for k, sites in itertools.groupby(
-                tomove, key=lambda s: site.specie)]
+                tomove, key=lambda s: equi_index(s))]
 
             if len(tomove) == 0 or any([len(g) % 2 != 0 for g in grouped]):
                 warnings.warn("Odd number of sites to divide! Try changing "
