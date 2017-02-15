@@ -163,57 +163,82 @@ class Slab(Structure):
                     shift=self.shift, scale_factor=self.scale_factor,
                     coords_are_cartesian=True, energy=self.energy)
 
-    def get_tasker2_corrected_slabs(self, tol=0.01):
+    def get_tasker2_corrected_slabs(self, tol=0.01, same_species_only=False):
         """
         Get a list of slabs that have been corrected for Tasker 2.
 
         Args:
             tol (float): Tolerance to determine if atoms are within same plane.
+                This is a fractional tolerance, not an absolute one.
+            same_species_only (bool): If True, only that are of the exact same
+                species as the atom at the outermost surface are considered for
+                moving. Otherwise, all atoms regardless of species that is
+                within tol are considered for moving.
 
         Returns:
             ([Slab]) List of tasker 2 corrected slabs.
         """
         sites = list(self.sites)
-        minzsite = sorted(sites, key=lambda site: site.c)[0]
-        tomove = []
-        fixed = []
-        for site in sites:
-            if abs(site.c - minzsite.c) < tol: # and site.species_and_occu == minzsite.species_and_occu:
-                tomove.append(site)
-            else:
-                fixed.append(site)
-        tomove = sorted(tomove, key=lambda s: site.specie)
-        grouped = [list(sites) for k, sites in itertools.groupby(
-            tomove, key=lambda s: site.specie)]
-        combinations = []
-        for sites in grouped:
-            n = len(sites)
-            if n % 2 != 0:
-                raise ValueError("Odd number of sites to divide! Try changing "
-                                 "the tolerance to ensure even division of "
-                                 "sites!")
-            combinations.append(
-                [c for c in itertools.combinations(sites, int(n / 2))])
-
         slabs = []
-        for selection in itertools.product(*combinations):
-            species = [site.species_and_occu for site in fixed]
-            fcoords = [site.frac_coords for site in fixed]
 
-            for s in tomove:
-                species.append(s.species_and_occu)
-                for group in selection:
-                    if s in group:
-                        fcoords.append(s.frac_coords)
-                        break
+        sortedcsites = sorted(sites, key=lambda site: site.c)
+
+        # Determine what fraction the slab is of the total cell size in the
+        # c direction. Round to nearest rational number.
+        nlayers_total = int(round(self.lattice.c /
+                                  self.oriented_unit_cell.lattice.c))
+        nlayers_slab = int(round((sortedcsites[-1].c - sortedcsites[0].c)
+                                 * self.lattice.c
+                                 / self.oriented_unit_cell.lattice.c))
+        slab_ratio = nlayers_slab / nlayers_total
+
+        for surface_site, shift in [(sortedcsites[0], slab_ratio),
+                                    (sortedcsites[-1], -slab_ratio)]:
+            tomove = []
+            fixed = []
+            for site in sites:
+                if abs(site.c - surface_site.c) < tol and (
+                        (not same_species_only) or site.species_and_occu == surface_site.species_and_occu):
+                    tomove.append(site)
                 else:
-                    # Move unselected atom to the opposite surface.
-                    fcoords.append(s.frac_coords + [0, 0, 0.5])
+                    fixed.append(site)
+            tomove = sorted(tomove, key=lambda s: site.specie)
 
-            slab = Slab(self.lattice, species, fcoords, self.miller_index,
-                        self.oriented_unit_cell, self.shift, self.scale_factor,
-                        energy=self.energy)
-            slabs.append(slab)
+            grouped = [list(sites) for k, sites in itertools.groupby(
+                tomove, key=lambda s: site.specie)]
+
+            if len(tomove) == 0 or any([len(g) % 2 != 0 for g in grouped]):
+                warnings.warn("Odd number of sites to divide! Try changing "
+                              "the tolerance to ensure even division of "
+                              "sites!")
+                continue
+            combinations = []
+            for g in grouped:
+                combinations.append(
+                    [c for c in itertools.combinations(g, int(len(g) / 2))])
+
+            for selection in itertools.product(*combinations):
+                species = [site.species_and_occu for site in fixed]
+                fcoords = [site.frac_coords for site in fixed]
+
+                for s in tomove:
+                    species.append(s.species_and_occu)
+                    for group in selection:
+                        if s in group:
+                            fcoords.append(s.frac_coords)
+                            break
+                    else:
+                        # Move unselected atom to the opposite surface.
+                        fcoords.append(s.frac_coords + [0, 0, shift])
+
+                # sort by species to put all similar species together.
+                sp_fcoord = sorted(zip(species, fcoords), key=lambda x: x[0])
+                species = [x[0] for x in sp_fcoord]
+                fcoords = [x[1] for x in sp_fcoord]
+                slab = Slab(self.lattice, species, fcoords, self.miller_index,
+                            self.oriented_unit_cell, self.shift,
+                            self.scale_factor, energy=self.energy)
+                slabs.append(slab)
         s = StructureMatcher()
         unique = [ss[0] for ss in s.group_structures(slabs)]
         return unique
