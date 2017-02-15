@@ -461,7 +461,8 @@ class ToecFitter(object):
         nf_eval += 1
 
 
-def new_fit(strains, stresses, structure = None, output=None, eq_stress = None):
+def new_fit(strains, stresses, structure = None, 
+            output=None, eq_stress = None, zero_crit=1e-10):
     """
     Temporary home for I. Winter's TOEC fitting function.
 
@@ -478,29 +479,46 @@ def new_fit(strains, stresses, structure = None, output=None, eq_stress = None):
     # perturbed strain states
     #M2I = np.genfromtxt("SM2I.csv", delimiter=",")
     #M3I = np.genfromtxt("SM3I.csv", delimiter=",")
-    M2I, M3I = generate_pseudo()
-
-    assert len(stresses) == len(strains)
+    if len(stresses) != len(strains):
+        raise ValueError("Length of strains and stresses are not equivalent")
     vstresses = np.array([Stress(stress).voigt for stress in stresses])
     vstrains = np.array([Strain(strain).voigt for strain in strains])
-    # Note that this is PARTICULAR to the input formalism
-    # from ian
-    # TODO: abstract this
-    jj = [0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 3, 3, 4, 1]
-    kk = [0, 1, 2, 3, 4, 5, 1, 2, 3, 4, 4, 5, 5, 2]
-    gamma = np.linspace(-0.05, 0.05, 7)
-    gdiag = gamma.copy()
+    vstrains[np.abs(vstrains) < zero_crit] = 0
 
-    h = np.diff(gamma)[0]
+    # Try to find eq_stress if not specified
+    if eq_stress:
+        veq_stress = Stress(eq_stress).voigt
+    else:
+        veq_stress = vstresses[np.all(vstrains==0, axis=0)]
+        if veq_stress:
+            if np.shape(veq_stress) > 1 and not \
+               (abs(veq_stress - veq_stress[0]) < 1e-8).all():
+                raise ValueError("Multiple stresses found for equilibrium strain"
+                                 " state, please specify equilibrium stress or  "
+                                 " remove extraneous stresses.")
+            veq_stress = veq_stress[0]
+        else:
+            veq_stress = np.zeros(6)
+
+    # Collect independent strain states:
+    independent = set([tuple(np.nonzero(vstrain)[0].tolist())
+                       for vstrain in vstrains])
+    #jj = [0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 3, 3, 4, 1]
+    #kk = [0, 1, 2, 3, 4, 5, 1, 2, 3, 4, 4, 5, 5, 2]
+    #gamma = np.linspace(-0.05, 0.05, 7)
+    #gdiag = gamma.copy()
+
+    # h = np.diff(gamma)[0]
     sig = np.zeros([6, 14, 7])
-    coef1 = central_diff(1, 7)
-    coef2 = central_diff(2, 7)
-    dsde = np.zeros((6, 14))
-    d2sde2 = np.zeros((6, 14))
-    for n, (j, k) in enumerate(zip(jj, kk)):
+    #coef1 = central_diff(1, 7)
+    #coef2 = central_diff(2, 7)
+    strain_states = []
+    dsde = np.zeros((6, len(independent)))
+    d2sde2 = np.zeros((6, len(independent)))
+    for n, ind in enumerate(independent):
         # match strains with templates
         template = np.zeros(6, dtype=bool)
-        template[[j, k]] = True
+        np.put(template, ind, True)
         template = np.tile(template, [vstresses.shape[0], 1])
         mode = (template == (np.abs(vstrains) > 1e-10)).all(axis=1)
         mstresses = vstresses[mode]
@@ -509,23 +527,36 @@ def new_fit(strains, stresses, structure = None, output=None, eq_stress = None):
         mstrains = np.vstack([mstrains, np.zeros(6)])
         mstresses = np.vstack([mstresses, np.zeros(6)])
         # sort strains/stresses by strain values
-        mstresses = mstresses[mstrains[:, j].argsort()]
-        mstrains = mstrains[mstrains[:, j].argsort()]
+        mstresses = mstresses[mstrains[:, ind[0]].argsort()]
+        mstrains = mstrains[mstrains[:, ind[0]].argsort()]
+        strain_states.append(mstrains[-1] / \
+                             np.min(mstrains[-1][np.nonzero(mstrains[0])]))
+        diff = np.diff(mstrains, axis=0)
+        if not (abs(diff - diff[0]) < 1e-10).all():
+            raise ValueError("Stencil for strain state {} must be odd-sampling"
+                             " centered at 0.".format(ind))
+        h = np.min(diff[np.nonzero(diff)])
+        coef1 = central_diff(1, len(mstresses))
+        coef2 = central_diff(2, len(mstresses))
+
         # This is a bit nebulous, I've checked it using an assertion statement
         # but should maybe refactor to be a bit clearer
         #import pdb; pdb.set_trace()
         # HACK
         if eq_stress is not None:
             # eq_stress in standard notation
-            mstresses[3] = Stress(eq_stress).voigt
+            mstresses[3] = veq_stress
         sig[:, n, :] = np.transpose(mstresses)
         #import pdb; pdb.set_trace()
         #if n==5:
             #import pdb; pdb.set_trace()
         #assert (sig2[:, n, :] == sig[:, n, :]).all()
-        for i in range(6):
-            dsde[i, n] = np.dot(sig[i, n, :], coef1) / h
-            d2sde2[i, n] = np.dot(sig[i, n, :], coef2) / h**2
+        #import pdb; pdb.set_trace()
+        dsde[:, n] = np.dot(np.transpose(mstresses), coef1) / h
+        d2sde2[:, n] = np.dot(np.transpose(mstresses), coef2) / h**2
+        #import pdb; pdb.set_trace()
+
+    M2I, M3I = generate_pseudo(strain_states)
     s2vec = np.ravel(dsde.T)
     c2vec = np.dot(M2I, s2vec)
     C2 = np.zeros((6, 6))
@@ -563,56 +594,39 @@ def new_fit(strains, stresses, structure = None, output=None, eq_stress = None):
     return C2, C3
 
 def central_diff(k, n):
+    """
+    Generates central difference operator
+    """
     A = np.array([(np.linspace(-1, 1, n) * (n-1) / 2)**i \
                   / np.math.factorial(i) for i in range(n)])
     b = np.zeros(n)
     b[k] = 1
     return np.linalg.solve(A, b)
 
-def generate_pseudo():
+def generate_pseudo(strain_states):
     """
     Generates the pseudoinverse for a given set of strains
     """
-    # Will keep in particular input formalism for now,
-    # TODO: abstract this, it could probably just be
-    # an input set of indices
-    jj = [0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 3, 3, 4, 1]
-    kk = [0, 1, 2, 3, 4, 5, 1, 2, 3, 4, 4, 5, 5, 2]
     s = sp.Symbol('s')
-    ni = np.zeros((len(jj), 6))
-    # Create a vector list of symbols corresponding 
-    # to the strain states enumerated above
-    for n, (j, k) in enumerate(zip(jj, kk)):
-        if j==k:
-            ni[n, j] = 1
-        else:
-            ni[n, j] = ni[n, k] = 1
-    # Ensure voigt for shear components
-    ni[:, 3:] *= 2
-    ni = ni*s
+    nstates = len(strain_states)
+    ni = np.array(strain_states)*s
     c2vec, c2arr = get_symbol_list(6, 2)
     c3vec, c3arr = get_symbol_list(6, 3)
-    s2arr = np.zeros((len(jj), 6), dtype=object)
-    s3arr = np.zeros((len(jj), 6), dtype=object)
+    s2arr = np.zeros((nstates, 6), dtype=object)
+    s3arr = np.zeros((nstates, 6), dtype=object)
     v_diff = np.vectorize(sp.diff)
     for n, strain_v in enumerate(ni):
         s2arr[n] = v_diff(np.dot(c2arr, strain_v), s)
         s3arr[n] = v_diff(np.dot(np.dot(c3arr, strain_v), strain_v) / 2, s, 2)
     s2vec, s3vec = s2arr.ravel(), s3arr.ravel()
-    m2 = np.zeros((6*len(jj), len(c2vec)))
-    m3 = np.zeros((6*len(jj), len(c3vec)))
+    m2 = np.zeros((6*nstates, len(c2vec)))
+    m3 = np.zeros((6*nstates, len(c3vec)))
     for n, c in enumerate(c2vec):
         m2[:, n] = v_diff(s2vec, c)
     for n, c in enumerate(c3vec):
         m3[:, n] = v_diff(s3vec, c)
     m2i = np.linalg.pinv(m2)
     m3i = np.linalg.pinv(m3)
-    # perturbed strain states
-    #M2I = np.genfromtxt("SM2I.csv", delimiter=",")
-    #M3I = np.genfromtxt("SM3I.csv", delimiter=",")
-    #assert (m2i - M2I < 1e-14).all()
-    #assert (m3i - M3I < 1e-14).all()
-    #import pdb; pdb.set_trace()
     return m2i, m3i
 
 def get_symbol_list(dim, rank):
@@ -642,7 +656,7 @@ if __name__=="__main__":
         model_stress = 0.5 * np.einsum("ijklmn,kl,mn->ij", cijklmn, model_strain, model_strain) \
                 + np.einsum("ijkl,kl->ij", cijkl, model_strain)
         resid = np.array(pk_stresses[0]) - model_stress
-        generate_pseudo()
+        #generate_pseudo()
     except:
         type, value, tb = sys.exc_info()
         traceback.print_exc()
