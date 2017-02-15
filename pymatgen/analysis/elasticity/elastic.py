@@ -396,71 +396,6 @@ class ElasticTensor(TensorBase):
         return ElasticTensor.from_voigt(new_v)
 
 
-nf_eval = 1
-import scipy.optimize as opt
-class ToecFitter(object):
-    """
-    Optimizer class for third-order elastic constants
-    """
-    
-    def __init__(self, strains, stresses, structure=None):
-        self.strains = strains
-        self.stresses = stresses
-        self.structure = None
-        self.c3_indices = list(itertools.combinations_with_replacement(range(6), r=3))
-
-    # How much does enforcing symmetry save?  What are the appropriate symmetries?
-    def opt_func(self, super_vec, strains, stresses):
-        c3_vec = super_vec[:56]
-        c2_vec = super_vec[56:]
-        assert len(c2_vec) == 21
-        C3 = np.zeros((6, 6, 6))
-        C2 = np.zeros((6, 6))
-        
-        # Construct c_ijkl
-        C2[np.triu_indices(6)] = c2_vec
-        C2 = C2 + C2.T - np.diag(np.diag(C2))
-        c_ijkl = TensorBase.from_voigt(C2)
-
-        # Construct c_ijlkmn
-        for n, (i, j, k) in enumerate(self.c3_indices):
-            C3[i,j,k] = C3[i,k,j] = C3[j,i,k] = C3[j,k,i] = \
-                    C3[k,i,j] = C3[k,j,i] = c3_vec[n]
-        c_ijklmn = TensorBase.from_voigt(C3)
-        #total_resid = np.zeros((3, 3))
-        total_norm = 0
-        for stress, strain in zip(stresses, strains):
-            resid =  np.einsum("ijkl,kl->ij", c_ijkl, strain) \
-                    + 0.5*np.einsum("ijklmn,kl,mn->ij",c_ijklmn, strain, strain) \
-                    - stress
-            total_norm += np.linalg.norm(resid)
-        return total_norm
-
-    def get_coeff(self, strains, stresses, symm_init=False):
-        guess = self.gen_init()#symm=symm_init)
-        result = opt.minimize(self.opt_func, guess, args = (strains, stresses),
-                              callback=self.callback_f)
-        if result.success:
-            return result.x
-        else:
-            raise ValueError("Optimizer failed with message: {}".format(result.message))
-
-    def gen_init(self, symm=True):
-        t1 = 50*np.ones(56)
-        t2 = 50*np.ones(21)
-        """
-        if symm:
-            t1 = t1.fit_to_structure(self.structure)
-            t2 = t2.fit_to_structure(self.structure)
-        """
-        return np.concatenate((t1.ravel(), t2.ravel()))
-
-    def callback_f(self, resid):
-        global nf_eval
-        print("{}: {}".format(nf_eval, resid))
-        nf_eval += 1
-
-
 def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
     """
     A third-order elastic constant fitting function based on 
@@ -475,8 +410,13 @@ def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
     3. Find first and second derivatives of each stress
        with respect to scalar variable corresponding to
        the smallest perturbation in the strain.
-    4. Use the pseudoinverse of a matrix expression corresponding
-       to the 
+    4. Use the pseudoinverse of a matrix-vector expression 
+       corresponding to the parameterized stress-strain
+       relationship and multiply that matrix by the respective 
+       calculated first or second derivatives from the
+       previous step.
+    5. Place the calculated second and third-order elastic 
+       constants appropriately.
 
     Args:
         strains (nx3x3 array-like): Array of 3x3 strains
@@ -611,31 +551,3 @@ def get_symbol_list(dim, rank):
         for perm in itertools.permutations(idx):
             c_arr[perm] = c_vec[n]
     return c_vec, c_arr
-
-
-if __name__=="__main__":
-    import json, sys, pdb, traceback
-    with open(sys.argv[1]) as f:
-        sdict = json.load(f)
-    strains = sdict["strains"]
-    stresses = sdict["stresses"]
-    pk_stresses = sdict["pk_stresses"]
-    try:
-        c2, c3 = new_fit(strains, pk_stresses)
-        resid = np.array(pk_stresses[0]) - model_stress
-        #generate_pseudo()
-    except:
-        type, value, tb = sys.exc_info()
-        traceback.print_exc()
-        pdb.post_mortem(tb)
-    """
-    try:
-        toec_fitter = ToecFitter(strains, pk_stresses)
-        vec = toec_fitter.get_coeff(strains, pk_stresses)
-    except:
-        type, value, tb = sys.exc_info()
-        traceback.print_exc()
-        pdb.post_mortem(tb)
-        """
-
-
