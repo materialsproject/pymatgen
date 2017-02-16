@@ -186,8 +186,22 @@ class SpaceGroup(SymmetryGroup):
     """
     SYMM_OPS = loadfn(os.path.join(os.path.dirname(__file__),
                                    "symm_ops.yaml"))
-    # Contains the entire list of supported Space Group symbols.
-    SG_SYMBOLS = tuple(get_symm_data("space_group_encoding").keys())
+    SG_SYMBOLS = set(get_symm_data("space_group_encoding").keys())
+    for op in SYMM_OPS:
+        op["hermann_mauguin"] = re.sub(" ", "", op["hermann_mauguin"])
+        op["universal_h_m"] = re.sub(" ", "", op["universal_h_m"])
+        SG_SYMBOLS.add(op["hermann_mauguin"])
+        SG_SYMBOLS.add(op["universal_h_m"])
+
+    gen_matrices = get_symm_data("generator_matrices")
+    # POINT_GROUP_ENC = SYMM_DATA["point_group_encoding"]
+    sgencoding = get_symm_data("space_group_encoding")
+    abbrev_sg_mapping = get_symm_data("abbreviated_spacegroup_symbols")
+    translations = {k: Fraction(v) for k, v in get_symm_data(
+        "translations").items()}
+    full_sg_mapping = {
+        v["full_symbol"]: k
+        for k, v in get_symm_data("space_group_encoding").items()}
 
     def __init__(self, int_symbol):
         """
@@ -198,34 +212,29 @@ class SpaceGroup(SymmetryGroup):
             int_symbol (str): Full International (e.g., "P2/m2/m2/m") or
                 Hermann-Mauguin Symbol ("Pmmm") or abbreviated symbol. The
                 notation is a LaTeX-like string, with screw axes being
-                represented by an underscore. For example, "P6_3/mmc". Note
-                that for rhomohedral cells, the hexagonal setting can be
-                accessed by adding a "H", e.g., "R-3mH".
+                represented by an underscore. For example, "P6_3/mmc".
+                Alternative settings can be access by adding a ":identifier".
+                For example, the hexagonal setting  for rhombohedral cells can be
+                accessed by adding a ":H", e.g., "R-3m:H". To find out all
+                possible settings for a spacegroup, use the get_settings
+                classmethod. Alternative origin choices can be indicated by a
+                translation vector, e.g., 'Fm-3m(a-1/4,b-1/4,c-1/4)'.
         """
-        gen_matrices = get_symm_data("generator_matrices")
-        # POINT_GROUP_ENC = SYMM_DATA["point_group_encoding"]
-        sgencoding = get_symm_data("space_group_encoding")
-        abbrev_sg_mapping = get_symm_data("abbreviated_spacegroup_symbols")
-        translations = {k: Fraction(v) for k, v in get_symm_data(
-            "translations").items()}
-        full_sg_mapping = {
-             v["full_symbol"]: k
-             for k, v in get_symm_data("space_group_encoding").items()}
 
         int_symbol = re.sub(" ", "", int_symbol)
-        if int_symbol in abbrev_sg_mapping:
-            int_symbol = abbrev_sg_mapping[int_symbol]
-        elif int_symbol in full_sg_mapping:
-            int_symbol = full_sg_mapping[int_symbol]
+        if int_symbol in SpaceGroup.abbrev_sg_mapping:
+            int_symbol = SpaceGroup.abbrev_sg_mapping[int_symbol]
+        elif int_symbol in SpaceGroup.full_sg_mapping:
+            int_symbol = SpaceGroup.full_sg_mapping[int_symbol]
 
         for spg in SpaceGroup.SYMM_OPS:
-            if re.sub(" ", "", spg["hermann_mauguin"]) == int_symbol or re.sub(":", "", re.sub(" ", "", spg["universal_h_m"])) == int_symbol:
+            if int_symbol in [spg["hermann_mauguin"], spg["universal_h_m"]]:
                 ops = [SymmOp.from_xyz_string(s) for s in spg["symops"]]
                 self.symbol = re.sub(":", "",
                                      re.sub(" ", "", spg["universal_h_m"]))
-                if int_symbol in sgencoding:
-                    self.full_symbol = sgencoding[int_symbol]["full_symbol"]
-                    self.point_group = sgencoding[int_symbol]["point_group"]
+                if int_symbol in SpaceGroup.sgencoding:
+                    self.full_symbol = SpaceGroup.sgencoding[int_symbol]["full_symbol"]
+                    self.point_group = SpaceGroup.sgencoding[int_symbol]["point_group"]
                 else:
                     self.full_symbol = re.sub(" ", "",
                                               spg["universal_h_m"])
@@ -235,10 +244,10 @@ class SpaceGroup(SymmetryGroup):
                 self._symmetry_ops = ops
                 break
         else:
-            if int_symbol not in sgencoding:
+            if int_symbol not in SpaceGroup.sgencoding:
                 raise ValueError("Bad international symbol %s" % int_symbol)
 
-            data = sgencoding[int_symbol]
+            data = SpaceGroup.sgencoding[int_symbol]
 
             self.symbol = int_symbol
             # TODO: Support different origin choices.
@@ -252,10 +261,10 @@ class SpaceGroup(SymmetryGroup):
                      [0, 0, 0, 1]]))
             for i in range(ngen):
                 m = np.eye(4)
-                m[:3, :3] = gen_matrices[enc.pop(0)]
-                m[0, 3] = translations[enc.pop(0)]
-                m[1, 3] = translations[enc.pop(0)]
-                m[2, 3] = translations[enc.pop(0)]
+                m[:3, :3] = SpaceGroup.gen_matrices[enc.pop(0)]
+                m[0, 3] = SpaceGroup.translations[enc.pop(0)]
+                m[1, 3] = SpaceGroup.translations[enc.pop(0)]
+                m[2, 3] = SpaceGroup.translations[enc.pop(0)]
                 symm_ops.append(m)
             self.generators = symm_ops
             self.full_symbol = data["full_symbol"]
@@ -283,6 +292,38 @@ class SpaceGroup(SymmetryGroup):
             new_ops = gen_ops
         assert len(symm_ops) == self.order
         return symm_ops
+
+    @classmethod
+    def get_settings(cls, int_symbol):
+        """
+        Returns all the settings for a particular international symbol.
+
+        Args:
+            int_symbol (str): Full International (e.g., "P2/m2/m2/m") or
+                Hermann-Mauguin Symbol ("Pmmm") or abbreviated symbol. The
+                notation is a LaTeX-like string, with screw axes being
+                represented by an underscore. For example, "P6_3/mmc".
+
+        """
+        symbols = []
+        if int_symbol in SpaceGroup.abbrev_sg_mapping:
+            symbols.append(SpaceGroup.abbrev_sg_mapping[int_symbol])
+            int_number = SpaceGroup.sgencoding[int_symbol]["int_number"]
+        elif int_symbol in SpaceGroup.full_sg_mapping:
+            symbols.append(SpaceGroup.full_sg_mapping[int_symbol])
+            int_number = SpaceGroup.sgencoding[int_symbol]["int_number"]
+        else:
+            for spg in SpaceGroup.SYMM_OPS:
+                if int_symbol in [re.split("\(|:", spg["hermann_mauguin"])[0],
+                                  re.split("\(|:", spg["universal_h_m"])[0]]:
+                    int_number = spg["number"]
+                    break
+
+        for spg in SpaceGroup.SYMM_OPS:
+            if int_number == spg["number"]:
+                symbols.append(spg["hermann_mauguin"])
+                symbols.append(spg["universal_h_m"])
+        return set(symbols)
 
     @property
     def symmetry_ops(self):
