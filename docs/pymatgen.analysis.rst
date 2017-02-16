@@ -24,7 +24,6 @@ Submodules
    pymatgen.analysis.diffusion_analyzer
    pymatgen.analysis.energy_models
    pymatgen.analysis.eos
-   pymatgen.analysis.eos_2
    pymatgen.analysis.ewald
    pymatgen.analysis.molecule_matcher
    pymatgen.analysis.molecule_structure_comparator
