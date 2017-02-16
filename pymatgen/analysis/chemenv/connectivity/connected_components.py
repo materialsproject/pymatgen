@@ -6,10 +6,13 @@ from monty.json import MSONable
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 import networkx as nx
 from networkx.algorithms import isomorphism
+from networkx.algorithms.traversal import bfs_successors
+from networkx.algorithms.traversal import bfs_tree
 import numpy as np
 from pymatgen.analysis.chemenv.utils.math_utils import divisors, get_linearly_independent_vectors
 import itertools
 from matplotlib.patches import FancyArrowPatch, Circle
+import logging
 
 
 def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
@@ -47,8 +50,8 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
 
         if periodicity_vectors is not None and len(periodicity_vectors) == 1:
             if np.all(np.array(delta) ==
-                    np.array(periodicity_vectors[0])) or np.all(np.array(delta) ==
-                    -np.array(periodicity_vectors[0])):
+                              np.array(periodicity_vectors[0])) or np.all(np.array(delta) ==
+                                                                                  -np.array(periodicity_vectors[0])):
                 e = FancyArrowPatch(n1center, n2center, patchA=n1, patchB=n2,
                                     arrowstyle='-|>',
                                     connectionstyle='arc3,rad=%s' % rad,
@@ -379,6 +382,93 @@ class ConnectedComponent(MSONable):
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         return '{:d}D'.format(len(self._periodicity_vectors))
+
+    def elastic_centered_graph(self, start_node=None):
+        logging.info('In elastic centering')
+        centered_connected_subgraph = nx.MultiGraph()
+        centered_connected_subgraph.add_nodes_from(self.graph.nodes())
+        centered_connected_subgraph.add_edges_from(self.graph.edges(data=True))
+        if start_node is None:
+            start_node = self.graph.nodes()[0]
+        tree = bfs_tree(G=self.graph, source=start_node)
+        current_nodes = [start_node]
+        nodes_traversed = [start_node]
+        # isites_incell = [start_node.isite]
+        inode = 0
+        # Loop on "levels" in the tree
+        tree_level = 0
+        while True:
+            tree_level += 1
+            logging.info('In tree level {:d}'.format(tree_level))
+            new_current_nodes = []
+            # Loop on nodes in this level of the tree
+            for node in current_nodes:
+                inode += 1
+                logging.info('  In node #{:d}/{:d} ({})'.format(inode, len(centered_connected_subgraph), str(node)))
+                node_neighbors = tree.neighbors(n=node)
+                node_edges = centered_connected_subgraph.edges(nbunch=[node],
+                                                               data=True, keys=True)
+                # Loop on neighbors of a node (from the tree used)
+                for inode_neighbor, node_neighbor in enumerate(node_neighbors):
+                    logging.info('    Testing neighbor #{:d} ({}) of node #{:d} ({})'.format(inode_neighbor,
+                                                                                             node_neighbor,
+                                                                                             inode,
+                                                                                             node))
+                    already_inside = False
+                    ddeltas = []
+                    for n1, n2, key, edata in node_edges:
+                        if (n1 == node and n2 == node_neighbor) or (n2 == node and n1 == node_neighbor):
+                            if edata['delta'] == (0, 0, 0):
+                                already_inside = True
+                                thisdelta = edata['delta']
+                            else:
+                                if edata['start'] == node.isite and edata['end'] != node.isite:
+                                    thisdelta = edata['delta']
+                                elif edata['end'] == node.isite:
+                                    thisdelta = tuple([-dd for dd in edata['delta']])
+                                else:
+                                    raise ValueError("Should not be here ...")
+                            ddeltas.append(thisdelta)
+                    logging.info('        ddeltas : {}'.format(', '.join(['({})'.format(', '.join(str(ddd) for ddd in dd))
+                                                                    for dd in ddeltas])))
+                    if ddeltas.count((0, 0, 0)) > 1:
+                        raise ValueError('Should not have more than one 000 delta ...')
+                    print(ddeltas, already_inside)
+                    if already_inside:
+                        logging.info('Edge inside the cell ... continuing to next neighbor')
+                        continue
+                    logging.info('Edge outside the cell ... getting neighbor back inside')
+                    if (0, 0, 0) in ddeltas:
+                        ddeltas.remove((0, 0, 0))
+                    myddelta = np.array(ddeltas[0], np.int)
+                    node_neighbor_edges = centered_connected_subgraph.edges(nbunch=[node_neighbor],
+                                                                            data=True, keys=True)
+                    logging.info('Delta image from node {} to neighbor {} : '
+                                 '{}'.format(str(node),
+                                             str(node_neighbor),
+                                             '({})'.format(', '.join([str(iii) for iii in myddelta]))))
+                    # # Loop on the edges of this neighbor
+                    for n1, n2, key, edata in node_neighbor_edges:
+                        if ((n1 == node_neighbor and n2 != node_neighbor) or
+                                (n2 == node_neighbor and n1 != node_neighbor)):
+                            if edata['start'] == node_neighbor.isite and edata['end'] != node_neighbor.isite:
+                                centered_connected_subgraph[n1][n2][key]['delta'] = tuple([ii
+                                                                                           for ii in
+                                                                                           np.array(edata['delta'],
+                                                                                                    np.int)+myddelta])
+                            elif edata['end'] == node_neighbor.isite:
+                                centered_connected_subgraph[n1][n2][key]['delta'] = tuple([ii
+                                                                                           for ii in
+                                                                                           np.array(edata['delta'],
+                                                                                                    np.int)-myddelta])
+                            else:
+                                raise ValueError('DUHH')
+                new_current_nodes.extend(node_neighbors)
+                nodes_traversed.extend(node_neighbors)
+            current_nodes = new_current_nodes
+            if not current_nodes:
+                break
+        return centered_connected_subgraph
 
     def as_dict(self):
         """

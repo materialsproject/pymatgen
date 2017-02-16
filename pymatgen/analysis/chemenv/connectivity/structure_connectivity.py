@@ -5,6 +5,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import get_environment_node
 from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
 from monty.json import jsanitize
+import logging
 
 __author__ = 'waroquiers'
 
@@ -73,6 +74,7 @@ class StructureConnectivity():
                 self._graph.add_edge(isite, nb_index_unitcell, start=isite, end=nb_index_unitcell, delta=nb_image_cell)
 
     def setup_environment_subgraph(self, environments_symbols, only_atoms=None):
+        logging.info('Setup of environment subgraph for environments {}'.format(', '.join(environments_symbols)))
         if not isinstance(environments_symbols, collections.Iterable):
             environments_symbols = [environments_symbols]
         self._environment_subgraph = nx.MultiGraph()
@@ -110,7 +112,6 @@ class StructureConnectivity():
             isite1 = node1.isite
             links_node1 = self._graph.edges(isite1, data=True)
             for inode2, node2 in enumerate(nodes[inode1:]):
-            #for inode2, node2 in enumerate(nodes):
                 isite2 = node2.isite
                 links_node2 = self._graph.edges(isite2, data=True)
                 # We look for ligands that are common to both site1 and site2
@@ -126,6 +127,23 @@ class StructureConnectivity():
                                 connections_site1_site2[tuple_delta_image].append((ilig_site1, d1, d2))
                             else:
                                 connections_site1_site2[tuple_delta_image] = [(ilig_site1, d1, d2)]
+                # Remove the double self-loops ...
+                if isite1 == isite2:
+                    remove_deltas = []
+                    alldeltas = list(connections_site1_site2.keys())
+                    alldeltas2 = list(connections_site1_site2.keys())
+                    if (0, 0, 0) in alldeltas:
+                        alldeltas.remove((0, 0, 0))
+                        alldeltas2.remove((0, 0, 0))
+                    for current_delta in alldeltas:
+                        opp_current_delta = tuple([-dd for dd in current_delta])
+                        if opp_current_delta in alldeltas2:
+                            remove_deltas.append(current_delta)
+                            alldeltas2.remove(current_delta)
+                            alldeltas2.remove(opp_current_delta)
+                    for remove_delta in remove_deltas:
+                        connections_site1_site2.pop(remove_delta)
+                # Add all the edges
                 for conn, ligands in list(connections_site1_site2.items()):
                     self._environment_subgraph.add_edge(node1, node2, start=node1.isite, end=node2.isite,
                                                         delta=conn, ligands=ligands)

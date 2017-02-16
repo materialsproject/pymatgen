@@ -1,4 +1,5 @@
 from pymatgen.analysis.chemenv.connectivity.structure_connectivity import StructureConnectivity
+import logging
 
 __author__ = 'waroquiers'
 
@@ -15,6 +16,7 @@ class ConnectivityFinder(object):
             raise NotImplementedError("light_structure_environments should be provided")
 
     def setup_graph(self):
+        logging.info('Setup of structure connectivity graph')
         self.structure_connectivity = StructureConnectivity(self.light_structure_environments)
         self.structure_connectivity.add_sites()
         for isite, site in enumerate(self.light_structure_environments.structure):
