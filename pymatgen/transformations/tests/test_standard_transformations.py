@@ -5,7 +5,7 @@
 from __future__ import division, unicode_literals
 import os
 import random
-import unittest2 as unittest
+import unittest
 import json
 import six
 

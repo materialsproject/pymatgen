@@ -1,4 +1,4 @@
-import unittest2 as unittest
+import unittest
 import os
 from pymatgen.apps.battery.analyzer import BatteryAnalyzer
 
