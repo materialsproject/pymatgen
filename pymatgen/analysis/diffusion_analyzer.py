@@ -318,7 +318,6 @@ class DiffusionAnalyzer(MSONable):
         coords = np.array(self.structure.cart_coords)
         species = self.structure.species_and_occu
         lattices = self.lattices
-
         nsites, nsteps, dim = self.corrected_displacements.shape
 
         for i in range(start or 0, stop or nsteps, step or 1):
@@ -767,7 +766,7 @@ class DiffusionAnalyzer(MSONable):
                    step_skip=d["step_skip"], min_obs=d["min_obs"],
                    smoothed=d.get("smoothed", "max"),
                    avg_nsteps=d.get("avg_nsteps", 1000),
-                   lattices=np.array(d.get("lattices")))
+                   lattices=d.get("lattices"))
 
 
 def get_conversion_factor(structure, species, temperature):
