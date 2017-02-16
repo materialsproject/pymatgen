@@ -499,6 +499,14 @@ class OutcarTest(unittest.TestCase):
         cl = Outcar(filepath).read_core_state_eigen()
         self.assertAlmostEqual(cl[4]["3d"][-1], -31.4522)
 
+    def test_avg_core_poten(self):
+        filepath = os.path.join(test_dir, "OUTCAR.lepsilon")
+        cp = Outcar(filepath).read_avg_core_poten()
+        self.assertAlmostEqual(cp[-1][1], -90.0487)
+        filepath = os.path.join(test_dir, "OUTCAR")
+        cp = Outcar(filepath).read_avg_core_poten()
+        self.assertAlmostEqual(cp[0][6], -73.1068)
+
     def test_single_atom(self):
         filepath = os.path.join(test_dir, "OUTCAR.Al")
         outcar = Outcar(filepath)

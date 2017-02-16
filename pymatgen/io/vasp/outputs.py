@@ -1325,7 +1325,7 @@ class Outcar(MSONable):
 
     One can then call a specific reader depending on the type of run being
     performed. These are currently: read_igpar(), read_lepsilon() and
-    read_lcalcpol(), read_core_state_eign().
+    read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().
 
     See the documentation of those methods for more documentation.
 
@@ -1650,7 +1650,7 @@ class Outcar(MSONable):
                          "\-+"
         row_pattern = "[X-Z][X-Z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
         footer_pattern = "\-+"
-        et_table = self.read_table_pattern(header_pattern, row_pattern, 
+        et_table = self.read_table_pattern(header_pattern, row_pattern,
                                            footer_pattern, postprocess=float)
         self.data["elastic_tensor"] = et_table
 
@@ -2091,7 +2091,7 @@ class Outcar(MSONable):
             line = foutcar.readline()
             while line != "":
                 line = foutcar.readline()
-                if "NIONS =" in line:   
+                if "NIONS =" in line:
                     natom = int(line.split("NIONS =")[1])
                     cl = [defaultdict(list) for i in range(natom)]
                 if "the core state eigen" in line:
@@ -2113,6 +2113,46 @@ class Outcar(MSONable):
                         for i in range(0, len(data), 2):
                             cl[iat][data[i]].append(float(data[i + 1]))
         return cl
+
+    def read_avg_core_poten(self):
+        """
+        Read the core potential at each ionic step.
+
+        Returns:
+            A list for each ionic step containing a list of the average core
+            potentials for each atom: [[avg core pot]].
+
+        Example:
+            The average core potential of the 2nd atom of the structure at the
+            last ionic step is: [-1][1]
+        """
+
+        def pairwise(iterable):
+            "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+            a = iter(iterable)
+            return itertools.izip(a, a)
+
+        with zopen(self.filename, "rt") as foutcar:
+            line = foutcar.readline()
+            aps = []
+            while line != "":
+                line = foutcar.readline()
+                if "the norm of the test charge is" in line:
+                    ap = []
+                    while line != "":
+                        line = foutcar.readline()
+                        # don't know number of lines to parse without knowing
+                        # specific species, so stop parsing when we reach
+                        # "E-fermi" instead
+                        if "E-fermi" in line:
+                            aps.append(ap)
+                            break
+                        data = line.split()
+                        # the average core potentials of up to 5 elements are
+                        # given per line
+                        for i, pot in pairwise(data):
+                            ap.append(float(pot))
+        return aps
 
     def as_dict(self):
         d = {"@module": self.__class__.__module__,
@@ -2911,7 +2951,7 @@ class Xdatcar(object):
         """
         syms = [site.specie.symbol for site in self.structures[0]]
         return [len(tuple(a[1])) for a in itertools.groupby(syms)]
-    
+
     def concatenate(self, filename, ionicstep_start=1,
                  ionicstep_end=None):
         """
@@ -3000,7 +3040,7 @@ class Xdatcar(object):
         lines.append(" ".join([str(x) for x in self.natoms]))
         format_str = "{{:.{0}f}}".format(significant_figures)
         ionicstep_cnt = 1
-        output_cnt = 1        
+        output_cnt = 1
         for cnt, structure in enumerate(self.structures):
             ionicstep_cnt = cnt + 1
             if ionicstep_end is None:
@@ -3023,17 +3063,17 @@ class Xdatcar(object):
                         lines.append(line)
                     output_cnt += 1
         return "\n".join(lines) + "\n"
-    
+
     def write_file(self, filename, **kwargs):
         """
-        Write  Xdatcar class into a file. 
+        Write  Xdatcar class into a file.
         Args:
             filename (str): Filename of output XDATCAR file.
             The supported kwargs are the same as those for the Xdatcar.get_string method and are passed through directly.
         """
         with zopen(filename, "wt") as f:
             f.write(self.get_string(**kwargs))
-    
+
 
 class Dynmat(object):
     """
