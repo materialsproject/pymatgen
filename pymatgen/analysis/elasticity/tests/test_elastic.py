@@ -5,7 +5,7 @@ import unittest2 as unittest
 import os
 
 import numpy as np
-from pymatgen.analysis.elasticity.elastic import ElasticTensor
+from pymatgen.analysis.elasticity.elastic import ElasticTensor, toec_fit
 from pymatgen.analysis.elasticity.strain import Strain, IndependentStrain, Deformation
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
@@ -181,6 +181,14 @@ class ElasticTensorTest(PymatgenTest):
         film_elac.energy_density(Strain.from_deformation([[ 0.99774738,  0.11520994, -0.        ],
                                         [-0.11520994,  0.99774738,  0.        ],
                                         [-0.,         -0.,          1.,        ]]))
+    
+    def test_toec_fit(self):
+        with open(os.path.join(test_dir, 'test_toec.json')) as f:
+            toec_dict = json.load(f)
+        strains = [Strain(sm) for sm in toec_dict['strains']]
+        pk_stresses = [Stress(d) for d in toec_dict['pk_stresses']]
+        c2, c3 = toec_fit(strains, pk_stresses)
+
 
 if __name__ == '__main__':
     unittest.main()
