@@ -3,10 +3,8 @@
 
 __author__ = 'waroquiers'
 
-import unittest2
+import unittest
 import os
-import json
-import numpy as np
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 # from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
@@ -18,7 +16,7 @@ json_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                               'test_files', "chemenv", "json_test_files")
 
 
-class CoordinationGeometryFinderTest(unittest2.TestCase):
+class CoordinationGeometryFinderTest(unittest.TestCase):
 
     def setUp(self):
         self.lgf = LocalGeometryFinder()
@@ -104,4 +102,4 @@ class CoordinationGeometryFinderTest(unittest2.TestCase):
 
 
 if __name__ == "__main__":
-    unittest2.main()
+    unittest.main()
