@@ -135,14 +135,21 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         for i in range(0, 3):
             self.assertAlmostEqual(self.bz.get_average_eff_mass()['p'][300][2][i], ref[i])
         ref = [1.1295783824744523, 1.3898454041924351, 5.2459984671977935]
+        ref2 = [6.6648842712692078, 31.492540105738343, 37.986369302138954]
         for i in range(0, 3):
             self.assertAlmostEqual(self.bz.get_average_eff_mass()['n'][600][1][i], ref[i])
+            self.assertAlmostEqual(self.bz.get_average_eff_mass(doping_levels=False)[300][200], ref2[i])
         ref = [[9.61811430e-01, -8.25159596e-19, -4.70319444e-19],
                [-8.25159596e-19, 2.94284288e+00, 3.00368916e-18],
                [-4.70319444e-19, 3.00368916e-18, 7.60458168e-01]]
+        ref2 = [[  2.79760445e+01,  -2.39347589e-17,  -1.36897140e-17],
+                [ -2.39347589e-17,   8.55969097e+01,   8.74169648e-17],
+                [ -1.36897140e-17,   8.74169648e-17,   2.21151980e+01]]
+
         for i in range(0, 3):
             for j in range(0, 3):
                 self.assertAlmostEqual(self.bz.get_average_eff_mass(output='tensor')['p'][300][2][i][j], ref[i][j])
+                self.assertAlmostEqual(self.bz.get_average_eff_mass(output='tensor',doping_levels=False)[300][500], ref2[i][j])
         self.assertAlmostEqual(self.bz.get_average_eff_mass(output='average')['n'][300][2], 1.53769093989)
 
     def test_get_carrier_concentration(self):
