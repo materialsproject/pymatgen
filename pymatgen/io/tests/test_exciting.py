@@ -30,62 +30,39 @@ class ExcitingInputTest(unittest.TestCase):
         # input file
         filepath=os.path.join(test_dir,'input1.xml')
         excin=excitingInput.from_file(filepath)
-        lattice=[[5.62, 0.0, 0.0],[0.0, 5.62, 0.0],[0.0, 0.0, 5.62]]
-        atoms=['Na', 'Na', 'Na', 'Na', 'Cl', 'Cl', 'Cl', 'Cl']
-        fraccoords=[[0, 0, 0], [0.5, 0.5, 0.0], [0.5, 0.0, 0.5], 
-                    [0.0, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], 
-                    [0.0, 0.0, 0.5], [0.5, 0.5, 0.5]]
-        self.assertEqual(lattice, excin.lattice.matrix.tolist())
-        self.assertEqual(atoms, [site.specie.symbol for site in excin])
-        self.assertEqual(fraccoords,[site.frac_coords.tolist() for site in excin.sites])
+        lattice=[[0.0, 2.81, 2.81],[2.81, 0.0, 2.81],[2.81, 2.81, 0.0]]
+        atoms=['Na', 'Cl']
+        fraccoords=[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
+        self.assertEqual(lattice, excin.structure.lattice.matrix.tolist())
+        self.assertEqual(atoms, [site.specie.symbol for site in excin.structure])
+        self.assertEqual(fraccoords,[site.frac_coords.tolist() for site in excin.structure])
 
     def test_writestring(self):
         # Test for the string export of s atructure into the exciting input xml schema
-        input_string="""<input xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://xml.exciting-code.org/excitinginput.xsd">
-  <title>Na4 Cl4</title>
-  <structure speciespath="./">
-    <crystal scale="1.8897543768634038">
-      <basevect>      0.00000000       2.81000000       2.81000000</basevect>
-      <basevect>      2.81000000       0.00000000       2.81000000</basevect>
-      <basevect>      2.81000000       2.81000000       0.00000000</basevect>
-    </crystal>
-    <species speciesfile="Na.xml">
-      <atom coord="      0.00000000       0.00000000       0.00000000" />
-    </species>
-    <species speciesfile="Cl.xml">
-      <atom coord="      0.50000000       0.50000000       0.50000000" />
-    </species>
-  </structure>
-  <properties>
-    <bandstructure>
-      <plot1d>
-        <path steps="100">
-          <point coord="      0.00000000       0.00000000       0.00000000" label="GAMMA" />
-          <point coord="      0.50000000       0.00000000       0.50000000" label="X" />
-          <point coord="      0.50000000       0.25000000       0.75000000" label="W" />
-          <point coord="      0.37500000       0.37500000       0.75000000" label="K" />
-          <point coord="      0.00000000       0.00000000       0.00000000" label="GAMMA" />
-          <point coord="      0.50000000       0.50000000       0.50000000" label="L" />
-          <point coord="      0.62500000       0.25000000       0.62500000" label="U" />
-          <point coord="      0.50000000       0.25000000       0.75000000" label="W" />
-          <point coord="      0.50000000       0.50000000       0.50000000" label="L" />
-          <point coord="      0.37500000       0.37500000       0.75000000" label="K" />
-        </path>
-      </plot1d>
-      <plot1d>
-        <path steps="100">
-          <point coord="      0.62500000       0.25000000       0.62500000" label="U" />
-          <point coord="      0.50000000       0.00000000       0.50000000" label="X" />
-        </path>
-      </plot1d>
-    </bandstructure>
-  </properties>
-</input>"""
+        input_string=('<input xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                       'xsi:noNamespaceSchemaLocation="http://xml.exciting-code.org/excitinginput'
+                       '.xsd">\n  <title>Na4 Cl4</title>\n  <structure speciespath="./">\n    '
+                       '<crystal scale="1.8897543768634038">\n      <basevect>      5.62000000'
+                       '       0.00000000       0.00000000</basevect>\n      <basevect>      '
+                       '0.00000000       5.62000000       0.00000000</basevect>\n      '
+                       '<basevect>      0.00000000       0.00000000       5.62000000</basevect>'
+                       '\n    </crystal>\n    <species speciesfile="Na.xml">\n      <atom coord='
+                       '"      0.00000000       0.00000000       0.00000000" />\n      <atom coor'
+                       'd="      0.50000000       0.50000000       0.00000000" />\n      <atom co'
+                       'ord="      0.50000000       0.00000000       0.50000000" />\n      <atom '
+                       'coord="      0.00000000       0.50000000       0.50000000" />\n    </spec'
+                       'ies>\n    <species speciesfile="Cl.xml">\n      <atom coord="      0.5000'
+                       '0000       0.00000000       0.00000000" />\n      <atom coord="      0.00'
+                       '000000       0.50000000       0.00000000" />\n      <atom coord="      0.'
+                       '00000000       0.00000000       0.50000000" />\n      <atom coord="      '
+                       '0.50000000       0.50000000       0.50000000" />\n    </species>\n  </str'
+                       'ucture>\n</input>\n')
         lattice=Lattice.cubic('5.62')
         structure=Structure(lattice,['Na','Na','Na','Na',
             'Cl','Cl','Cl','Cl'],
             [[0,0,0],[0.5,0.5,0.0],[0.5,0.0,0.5],[0.0,0.5,0.5],
             [0.5,0.0,0.0],[0.0,0.5,0.0],[0.0,0.0,0.5],[0.5,0.5,0.5]])
-         excin=excitingInput(structure)
-         assertEqual(input_string, excin.write_string('primitive', False, True))
-        
+        excin=excitingInput(structure)
+        self.assertEqual(input_string, excin.write_string('unchanged'))
+if __name__ == "__main__":
+    unittest.main()       
