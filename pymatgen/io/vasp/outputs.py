@@ -2130,7 +2130,7 @@ class Outcar(MSONable):
         def pairwise(iterable):
             "s -> (s0,s1), (s1,s2), (s2, s3), ..."
             a = iter(iterable)
-            return itertools.izip(a, a)
+            return zip(a, a)
 
         with zopen(self.filename, "rt") as foutcar:
             line = foutcar.readline()
