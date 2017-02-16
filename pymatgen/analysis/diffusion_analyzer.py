@@ -172,7 +172,10 @@ class DiffusionAnalyzer(MSONable):
         self.min_obs = min_obs
         self.smoothed = smoothed
         self.avg_nsteps = avg_nsteps
-        self.lattices = lattices or [structure.lattice.matrix]
+        self.lattices = lattices
+
+        if lattices is None:
+            self.lattices = np.array([structure.lattice.matrix.tolist()])
 
         indices = []
         framework_indices = []
@@ -559,7 +562,9 @@ class DiffusionAnalyzer(MSONable):
 
         # If is NVT-AIMD, clear lattice data.
         if np.array_equal(l[0], l[-1]):
-            l = [l[0]]
+            l = np.array([l[0]])
+        else:
+            l = np.array(l)
         p = np.concatenate(p, axis=1)
         dp = p[:, 1:] - p[:, :-1]
         dp = dp - np.round(dp)
@@ -751,7 +756,7 @@ class DiffusionAnalyzer(MSONable):
             "min_obs": self.min_obs,
             "smoothed": self.smoothed,
             "avg_nsteps": self.avg_nsteps,
-            "lattices": self.lattices
+            "lattices": self.lattices.tolist()
         }
 
     @classmethod
@@ -762,7 +767,7 @@ class DiffusionAnalyzer(MSONable):
                    step_skip=d["step_skip"], min_obs=d["min_obs"],
                    smoothed=d.get("smoothed", "max"),
                    avg_nsteps=d.get("avg_nsteps", 1000),
-                   lattices=d.get("lattices"))
+                   lattices=np.array(d.get("lattices")))
 
 
 def get_conversion_factor(structure, species, temperature):
