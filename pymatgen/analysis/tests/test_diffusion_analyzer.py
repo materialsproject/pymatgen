@@ -117,6 +117,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
                  0.713087091642237, 0.7621007695790749])
 
             self.assertEqual(d.sq_disp_ions.shape, (50, 206))
+            self.assertEqual(d.lattices.shape, (1, 3, 3))
 
             self.assertAlmostEqual(d.max_framework_displacement, 1.18656839605)
 

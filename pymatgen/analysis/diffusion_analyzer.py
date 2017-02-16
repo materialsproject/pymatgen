@@ -766,7 +766,8 @@ class DiffusionAnalyzer(MSONable):
                    step_skip=d["step_skip"], min_obs=d["min_obs"],
                    smoothed=d.get("smoothed", "max"),
                    avg_nsteps=d.get("avg_nsteps", 1000),
-                   lattices=d.get("lattices"))
+                   lattices=np.array(d.get("lattices",
+                                           [d["structure"]["lattice"]["matrix"]])))
 
 
 def get_conversion_factor(structure, species, temperature):
