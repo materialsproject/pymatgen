@@ -1236,10 +1236,12 @@ class BoltztrapAnalyzer(object):
         Args:
             output (string): 'eigs' for eigenvalues, 'tensor' for the full
             tensor and 'average' for an average (trace/3)
-
+            doping_levels (boolean): True for the results to be given at
+            different doping levels, False for results
+            at different electron chemical potentials
         Returns:
-            a dictionary {'p':{temp:[]},'n':{temp:[]}} with an array of
-            effective mass tensor, eigenvalues of average
+            If doping_levels=True,a dictionary {'p':{temp:[]},'n':{temp:[]}} 
+            with an array of effective mass tensor, eigenvalues of average
             value (depending on output) for each temperature and for each
             doping level.
             The 'p' links to hole effective mass tensor and 'n' to electron
