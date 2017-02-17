@@ -110,6 +110,42 @@ class PDAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(e, 1)
         self.assertAlmostEqual(decomp[entry], 1.0)
 
+    def test_get_transition_compositions_fractional(self):
+
+        comps = self.analyzer.get_transition_compositions(Composition('Fe2O3').fractional_composition,
+                                                          Composition('Li3FeO4').fractional_composition)
+        expected = [Composition('Fe2O3').fractional_composition,
+                    Composition('Li0.3243244Fe0.1621621O0.51351349'),
+                    Composition('Li3FeO4').fractional_composition]
+        for c1, c2 in zip(comps, expected):
+            self.assertTrue(c1.almost_equals(c2, rtol=0, atol=1e-5))
+
+        comps = self.analyzer.get_transition_compositions(Composition('Fe2O3').fractional_composition,
+                                                          Composition('Li2O').fractional_composition)
+        expected = [Composition('Fe0.4O0.6'),
+                    Composition('LiFeO2').fractional_composition,
+                    Composition('Li5FeO4').fractional_composition,
+                    Composition('Li2O').fractional_composition]
+        for c1, c2 in zip(comps, expected):
+            self.assertTrue(c1.almost_equals(c2, rtol=0, atol=1e-5))
+
+    def test_get_transition_compositions(self):
+        comps = self.analyzer.get_transition_compositions(Composition('Fe2O3'),
+                                                          Composition('Li3FeO4'))
+        expected = [Composition('Fe2O3'),
+                    Composition('Li0.3243244Fe0.1621621O0.51351349') * 7.4,
+                    Composition('Li3FeO4')]
+        for c1, c2 in zip(comps, expected):
+            self.assertTrue(c1.almost_equals(c2, rtol=0, atol=1e-5))
+
+        comps = self.analyzer.get_transition_compositions(Composition('Fe2O3'),
+                                                          Composition('Li2O'))
+        expected = [Composition('Fe2O3'),
+                    Composition('LiFeO2'),
+                    Composition('Li5FeO4') / 3,
+                    Composition('Li2O')]
+        for c1, c2 in zip(comps, expected):
+            self.assertTrue(c1.almost_equals(c2, rtol=0, atol=1e-5))
 
 if __name__ == '__main__':
     unittest.main()
