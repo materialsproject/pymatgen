@@ -882,7 +882,7 @@ class BoltztrapAnalyzer(object):
             bnd_around_efermi=[]
             delta=0
             spin=sbs_bz.bands.keys()[0]
-            while len(bnd_around_efermi)<8:
+            while len(bnd_around_efermi)<8 and delta<100:
                 delta+=0.1
                 bnd_around_efermi=[]
                 for nb in range(len(sbs_bz.bands[spin])):
@@ -890,7 +890,11 @@ class BoltztrapAnalyzer(object):
                         if abs(sbs_bz.bands[spin][nb][kp]-sbs_bz.efermi)<delta:
                             bnd_around_efermi.append(nb)
                             break
-            nb_list = bnd_around_efermi[:8]
+            if len(bnd_around_efermi)<8:
+                print("Warning! check performed on "+str(len(bnd_around_efermi)))
+                nb_list = bnd_around_efermi
+            else:
+                nb_list = bnd_around_efermi[:8]
         
         #print(nb_list)
         bcheck = compare_sym_bands(sbs_bz, sbs_ref, nb_list)
@@ -1195,7 +1199,7 @@ class BoltztrapAnalyzer(object):
         return BoltztrapAnalyzer._format_to_output(result, result_doping,
                                                    output, doping_levels)
 
-    def get_average_eff_mass(self, output='eigs'):
+    def get_average_eff_mass(self, output='eigs', doping_levels=True):
         """
         Gives the average effective mass tensor. We call it average because
         it takes into account all the bands
@@ -1232,45 +1236,42 @@ class BoltztrapAnalyzer(object):
         Args:
             output (string): 'eigs' for eigenvalues, 'tensor' for the full
             tensor and 'average' for an average (trace/3)
-
+            doping_levels (boolean): True for the results to be given at
+            different doping levels, False for results
+            at different electron chemical potentials
         Returns:
-            a dictionary {'p':{temp:[]},'n':{temp:[]}} with an array of
-            effective mass tensor, eigenvalues of average
+            If doping_levels=True,a dictionary {'p':{temp:[]},'n':{temp:[]}} 
+            with an array of effective mass tensor, eigenvalues of average
             value (depending on output) for each temperature and for each
             doping level.
             The 'p' links to hole effective mass tensor and 'n' to electron
             effective mass tensor.
         """
-
-        result_doping = {doping: {t: [] for t in self._cond_doping[doping]} for
-                         doping in self.doping}
-        for doping in result_doping:
-            for temp in result_doping[doping]:
-                for i in range(len(self.doping[doping])):
-                    if output == 'tensor':
+        result = None
+        result_doping = None
+        conc = self.get_carrier_concentration()
+        if doping_levels:
+            result_doping = {doping: {t: [] for t in self._cond_doping[doping]} for
+                            doping in self.doping}
+            for doping in result_doping:
+                for temp in result_doping[doping]:
+                    for i in range(len(self.doping[doping])):
                         result_doping[doping][temp].append(np.linalg.inv(
-                            np.array(self._cond_doping[doping][temp][i])) \
-                                                           *
-                                                           self.doping[doping][
-                                                               i] * 10 ** 6 *
-                                                           e ** 2 /
-                                                           m_e)
-                    elif output in ['eig', 'eigs']:
-                        result_doping[doping][temp].append(
-                            sorted(np.linalg.eigh(np.linalg.inv(
-                                np.array(self._cond_doping[doping][temp][i])) *
-                                                  self.doping[doping][
-                                                      i] * 10 ** 6 * e ** 2 \
-                                                  / m_e)[0]))
-                    else:
-                        full_tensor = np.linalg.inv(
-                            np.array(self._cond_doping[doping][temp][i])) \
-                                      * self.doping[doping][
-                                          i] * 10 ** 6 * e ** 2 / m_e
-                        result_doping[doping][temp].append(
-                            (full_tensor[0][0] + full_tensor[1][1] +
-                             full_tensor[2][2]) / 3.0)
-        return result_doping
+                        np.array(self._cond_doping[doping][temp][i])) *\
+                        self.doping[doping][i] * 10 ** 6 * e ** 2 / m_e)
+        else:
+            result = {t: [] for t in self._seebeck}
+            for temp in result:
+                for i in range(len(self.mu_steps)):
+                    try:
+                        cond_inv = np.linalg.inv(np.array(self._cond[temp][i]))
+                    except np.linalg.LinAlgError:
+                        pass
+                    result[temp].append(cond_inv * \
+                    conc[temp][i] * 10 ** 6 * e ** 2 / m_e)
+
+        return BoltztrapAnalyzer._format_to_output(result, result_doping,
+                                                   output, doping_levels)
 
     def get_extreme(self, target_prop, maximize=True, min_temp=None,
                     max_temp=None, min_doping=None, max_doping=None,
@@ -1589,7 +1590,9 @@ class BoltztrapAnalyzer(object):
                         [Energy(float(line.split()[0]), "Ry").to("eV"),
                          float(line.split()[1])])
                     total_elec = float(line.split()[2])
-
+        
+        lw_l = 0
+        hg_l = -len(data_dos['total'])
         if trim_dos:
             # Francesco knows what this does
             # It has something to do with a trick of adding fake energies
@@ -1650,7 +1653,8 @@ class BoltztrapAnalyzer(object):
             for line in f:
                 if "iskip" in line:
                     intrans["scissor"] = Energy(float(line.split(" ")[3]), "Ry").to("eV")
-                    break
+                if "HISTO" in line or "TETRA" in line:
+                    intrans["dos_type"] = line[:-1]
         return intrans
 
     @staticmethod
@@ -1838,8 +1842,9 @@ class BoltztrapAnalyzer(object):
                 hall_doping, intrans, dos, pdos, carrier_conc, vol, warning)
 
         elif run_type == "DOS":
+            trim = True if intrans["dos_type"] == "HISTO" else False
             dos, pdos = BoltztrapAnalyzer.parse_transdos(
-                path_dir, efermi, dos_spin=dos_spin, trim_dos=True)
+                path_dir, efermi, dos_spin=dos_spin, trim_dos=trim)
 
             return BoltztrapAnalyzer(gap=gap, dos=dos, dos_partial=pdos,
                                      warning=warning, vol=vol)
