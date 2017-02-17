@@ -10,6 +10,7 @@ import warnings
 from collections import OrderedDict
 
 import numpy as np
+from matplotlib import patches
 
 from monty.json import jsanitize
 
@@ -983,7 +984,7 @@ class BSDOSPlotter():
                  vb_energy_range=4, cb_energy_range=4, fixed_cb_energy=False,
                  egrid_interval=1, font="Times New Roman", axis_fontsize=20,
                  tick_fontsize=15, legend_fontsize=14, bs_legend="best",
-                 dos_legend="best"):
+                 dos_legend="best", rgb_legend=False):
 
         """
         Instantiate plotter settings.
@@ -1002,6 +1003,7 @@ class BSDOSPlotter():
             legend_fontsize (float): font size for legends
             bs_legend (str): matplotlib string location for legend or None
             dos_legend (str): matplotlib string location for legend or None
+            rgb_legend (bool): (T/F) whether to draw RGB triangle/bar for element proj.
         """
         self.bs_projection = bs_projection
         self.dos_projection = dos_projection
@@ -1015,6 +1017,7 @@ class BSDOSPlotter():
         self.legend_fontsize = legend_fontsize
         self.bs_legend = bs_legend
         self.dos_legend = dos_legend
+        self.rgb_legend = rgb_legend
 
     def get_plot(self, bs, dos):
         """
@@ -1034,6 +1037,7 @@ class BSDOSPlotter():
         # make sure the user-specified band structure projection is valid
         elements = [e.symbol for e in dos.structure.composition.elements]
         bs_projection = self.bs_projection
+        rgb_legend = self.rgb_legend
 
         if bs_projection and bs_projection.lower() == "elements" and \
                 (len(elements) not in [2, 3] or not bs.get_projection_on_elements()):
@@ -1041,6 +1045,13 @@ class BSDOSPlotter():
                           "doesn't exist, or you don't have a compound with exactly 2 or 3"
                           " unique elements.")
             bs_projection = None
+
+        if rgb_legend and (not bs_projection or bs_projection.lower() != "elements" or
+                                   len(elements) not in [2, 3]):
+            warnings.warn("Cannot create rgb_legend; requires projection data and "
+                          "exactly 2 or 3 unique elements.")
+            rgb_legend = None
+
 
         # specify energy range of plot
         emin = -self.vb_energy_range
@@ -1111,6 +1122,7 @@ class BSDOSPlotter():
         bs_ax.set_yticklabels(np.arange(emin, emax+1E-5, self.egrid_interval),
                               size=self.tick_fontsize)
         dos_ax.set_yticks(np.arange(emin, emax+1E-5, self.egrid_interval))
+        bs_ax.set_axisbelow(True)
         bs_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
         dos_ax.set_yticklabels([])
         dos_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
@@ -1195,7 +1207,7 @@ class BSDOSPlotter():
         dos_ax.set_xlabel('DOS', fontsize=self.axis_fontsize, family=self.font)
 
         # add legend for band structure
-        if self.bs_legend:
+        if self.bs_legend and not rgb_legend:
             handles = []
 
             if bs_projection is None:
@@ -1206,15 +1218,21 @@ class BSDOSPlotter():
                                          label='spin down')]
 
             elif bs_projection.lower() == "elements":
-                colors = ['b', 'r', 'g']
-                for idx, el in enumerate(elements):
-                    handles.append(mlines.Line2D([], [],
-                                                 linewidth=2,
-                                                 color=colors[idx], label=el))
+                 colors = ['b', 'r', 'g']
+                 for idx, el in enumerate(elements):
+                     handles.append(mlines.Line2D([], [],
+                                                  linewidth=2,
+                                                  color=colors[idx], label=el))
 
             bs_ax.legend(handles=handles, fancybox=True,
                          prop={'size': self.legend_fontsize,
                                'family': self.font}, loc=self.bs_legend)
+
+        elif self.bs_legend and rgb_legend:
+            if len(elements) == 2:
+                self._rb_line(bs_ax, elements[1], elements[0])
+            elif len(elements) == 3:
+                self._rgb_triangle(bs_ax, elements[1], elements[2], elements[0])
 
         # add legend for DOS
         if self.dos_legend:
@@ -1297,6 +1315,63 @@ class BSDOSPlotter():
                 contribs[spin] = np.array(contribs[spin])
 
         return contribs
+
+    @staticmethod
+    def _rgb_triangle(ax, r_label, g_label, b_label):
+        """
+        Draw an RGB triangle legend on the desired axis
+        """
+
+        mesh = 35
+        x = []
+        y = []
+        color = []
+        for r in range(0, mesh):
+            for g in range(0, mesh):
+                for b in range(0, mesh):
+                    if not (r == 0 and b == 0 and g == 0):
+                        r1 = r / (r + g + b)
+                        g1 = g / (r + g + b)
+                        b1 = b / (r + g + b)
+                        x.append(0.33 * (2. * g1 + r1) / (r1 + b1 + g1))
+                        y.append(0.33 * np.sqrt(3) * r1 / (r1 + b1 + g1))
+                        color.append([r1, g1, b1])
+
+        max_y = ax.get_ylim()[1]
+        x = [n + 0.25 for n in x]  # nudge x coordinates
+        y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
+        # plot the triangle
+        ax.scatter(x, y, s=7, marker='.', edgecolor=color)
+
+        # add the labels
+        ax.text(0.95, max_y - 1.25, g_label, fontsize=16,
+                family='Times New Roman', color=(0, 0, 0))
+        ax.text(0.45, max_y - 0.3, r_label, fontsize=16,
+                family='Times New Roman', color=(0, 0, 0))
+        ax.text(0.05, max_y - 1.25, b_label, fontsize=16,
+                family='Times New Roman', color=(0, 0, 0))
+
+    @staticmethod
+    def _rb_line(ax, r_label, b_label):
+        # Draw an rb bar legend on the desired axis
+
+        max_y = ax.get_ylim()[1]
+
+        x = []
+        y = []
+        color = []
+        for i in range(0, 1000):
+            x.append(i / 1800. + 0.55)
+            y.append(max_y - 0.5)
+            color.append([1 - i/1000, 0, i / 1000])
+
+        # plot the bar
+        ax.scatter(x, y, s=250., marker='s', edgecolor=color)
+        ax.text(1.3, max_y - 0.6, b_label, fontsize=16,
+                family='Times New Roman', color=(0, 0, 0))
+        ax.text(0, max_y - 0.6, r_label, fontsize=16,
+                family='Times New Roman', color=(0, 0, 0))
+
 
 class BoltztrapPlotter(object):
     """
