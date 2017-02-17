@@ -589,7 +589,7 @@ class BoltztrapRunner(object):
 
                     for c in p.communicate():
                         print(c)
-                        if "STOP error in factorization" in c:
+                        if "STOP error in factorization" in c.decode():
                             raise BoltztrapError("STOP error in factorization")
 
                     warning = ""
@@ -761,7 +761,7 @@ class BoltztrapAnalyzer(object):
             bz_kpoints: k-point in reciprocal coordinates for interpolated
                 bands (run_type=BANDS)
             fermi_surface_data: energy values in a 3D grid imported from the
-                output .cube file using ase.io.cube.read_cube
+                output .cube file.
         """
         self.gap = gap
         self.mu_steps = mu_steps
@@ -1858,22 +1858,17 @@ class BoltztrapAnalyzer(object):
                                      warning=warning, vol=vol)
 
         elif run_type == "FERMI":
-            # TODO: There is no way to get this shitty ASE crap working.
-            # If you want to read CUBE files, write a proper IO class in
-            # pymatgen. I refuse to let pymatgen be bogged down by ASE crap.
-
             """
-            from ase.io.cube import read_cube
+            """
+            
             if os.path.exists(os.path.join(path_dir, 'boltztrap_BZ.cube')):
-                 fs_data = read_cube(open(os.path.join(path_dir, 'boltztrap_BZ.cube'), "rt"),  read_data=True)
-            if os.path.exists(os.path.join(path_dir, 'fort.30')):
-                 fs_data = read_cube(open(os.path.join(path_dir, 'fort.30'), "rt"), read_data=True)
+                 fs_data = read_cube_file(os.path.join(path_dir, 'boltztrap_BZ.cube'))
+            elif os.path.exists(os.path.join(path_dir, 'fort.30')):
+                 fs_data = read_cube_file(os.path.join(path_dir, 'fort.30'))
             else:
                  raise BoltztrapError("No data file found for fermi surface")
-            return BoltztrapAnalyzer(fermi_surface_data=fermi_surface_data)
-            """
-            raise ValueError("FERMI mode parsing is currently unavailable!")
-
+            return BoltztrapAnalyzer(fermi_surface_data=fs_data)
+           
         else:
             raise ValueError("Run type: {} not recognized!".format(run_type))
 
@@ -1973,6 +1968,41 @@ class BoltztrapAnalyzer(object):
                                  cond_doping, kappa_doping, hall_doping, dos,
                                  dos_partial, carrier_conc, vol, warning)
 
+def read_cube_file(filename):
+    with open(filename, 'r') as f:
+            natoms = 0
+            count_line = 0
+            for line in f:
+                line = line.rstrip("\n")
+                if count_line == 0 and "CUBE" not in line.decode():
+                    raise ValueError("CUBE file format not recognized")
+
+                if count_line == 2:
+                    tokens = line.split()
+                    origin = [float(tokens[i]) for i in range(1,4)]
+                    natoms = int(tokens[0])
+                if count_line == 3:
+                    tokens = line.split()
+                    a1 = [float(tokens[i]) for i in range(1,4)]
+                    n1 = int(tokens[0])
+                elif count_line == 4:
+                    tokens = line.split()
+                    a2 = [float(tokens[i]) for i in range(1,4)]
+                    n2 = int(tokens[0])
+                elif count_line == 5:
+                    tokens = line.split()
+                    a3 = [float(tokens[i]) for i in range(1,4)]
+                    n3 = int(tokens[0])
+                    #kpoints=[[[0 for i in range(0,n1)] for j in range(0,n2)] for l in range(0,n3)]
+                elif count_line > 5:
+                    break
+
+                count_line += 1
+                
+    energy_data = np.loadtxt(filename,skiprows=natoms+6).reshape(n1,n2,n3)
+    energy_data /= Energy(1, "eV").to("Ry")
+
+    return energy_data
 
 def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
     """
