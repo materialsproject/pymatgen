@@ -28,7 +28,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         cls.bz_bands = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/bands/"))
         cls.bz_up = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/dos_up/"),dos_spin=1)
         cls.bz_dw = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/dos_dw/"),dos_spin=-1)
-        # cls.bz_fermi = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/fermi/"))
+        cls.bz_fermi = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/fermi/"))
         
     def test_properties(self):
         self.assertAlmostEqual(self.bz.gap, 1.6644932121620404, 4)
@@ -74,9 +74,8 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(self.bz_bands._bz_kpoints.shape, (1316, 3))
         self.assertAlmostEqual(self.bz_up._dos_partial['0']['pz'][2562],0.023862958)
         self.assertAlmostEqual(self.bz_dw._dos_partial['1']['px'][3120],5.0192891)
-        # self.assertAlmostEqual(self.bz_fermi.fermi_surface_data[0].shape,
-        #                        (121,121, 65))
-        # self.assertAlmostEqual(self.bz_fermi.fermi_surface_data[0][21][79][19],-0.138412)
+        self.assertAlmostEqual(self.bz_fermi.fermi_surface_data.shape, (121,121, 65))
+        self.assertAlmostEqual(self.bz_fermi.fermi_surface_data[21][79][19],-1.88319111)
 
     def test_get_seebeck(self):
         ref = [-768.99078999999995, -724.43919999999991, -686.84682999999973]
