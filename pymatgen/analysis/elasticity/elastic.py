@@ -440,7 +440,7 @@ def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
     vstrains[np.abs(vstrains) < zero_crit] = 0
 
     # Try to find eq_stress if not specified
-    if eq_stress:
+    if eq_stress is not None:
         veq_stress = Stress(eq_stress).voigt
     else:
         veq_stress = vstresses[np.all(vstrains==0, axis=0)]
@@ -478,7 +478,7 @@ def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
         strain_states.append(mstrains[-1] / \
                              np.min(mstrains[-1][np.nonzero(mstrains[0])]))
         diff = np.diff(mstrains, axis=0)
-        if not (abs(diff - diff[0]) < 1e-10).all():
+        if not (abs(diff - diff[0]) < 1e-8).all():
             raise ValueError("Stencil for strain state {} must be odd-sampling"
                              " centered at 0.".format(ind))
         h = np.min(diff[np.nonzero(diff)])
@@ -502,6 +502,9 @@ def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
     indices_ij = itertools.combinations_with_replacement(range(6), r=3)
 
     indices = list(itertools.combinations_with_replacement(range(6), r=3))
+    for n, (i, j, k) in enumerate(indices):
+        c3[i,j,k] = c3[i,k,j] = c3[j,i,k] = c3[j,k,i] = \
+                c3[k,i,j] = c3[k,j,i] = c3vec[n]
     return TensorBase.from_voigt(c2), TensorBase.from_voigt(c3)
 
 
