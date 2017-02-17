@@ -443,7 +443,7 @@ def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
     if eq_stress is not None:
         veq_stress = Stress(eq_stress).voigt
     else:
-        veq_stress = vstresses[np.all(vstrains==0, axis=0)]
+        veq_stress = vstresses[np.all(vstrains==0, axis=1)]
         if veq_stress:
             if np.shape(veq_stress) > 1 and not \
                (abs(veq_stress - veq_stress[0]) < 1e-8).all():
