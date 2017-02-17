@@ -183,12 +183,15 @@ class ElasticTensorTest(PymatgenTest):
                                         [-0.,         -0.,          1.,        ]]))
     
     def test_toec_fit(self):
-        with open(os.path.join(test_dir, 'test_toec.json')) as f:
+        with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
             toec_dict = json.load(f)
         strains = [Strain(sm) for sm in toec_dict['strains']]
         pk_stresses = [Stress(d) for d in toec_dict['pk_stresses']]
-        c2, c3 = toec_fit(strains, pk_stresses)
-
+        with warnings.catch_warnings(record=True) as w:
+            c2, c3 = toec_fit(strains, pk_stresses, 
+                              eq_stress=toec_dict["eq_stress"])
+            self.assertArrayAlmostEqual(c2.voigt, toec_dict["C2_raw"])
+            self.assertArrayAlmostEqual(c3.voigt, toec_dict["C3_raw"])
 
 if __name__ == '__main__':
     unittest.main()
