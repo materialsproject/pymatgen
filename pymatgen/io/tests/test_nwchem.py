@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "6/6/13"
 
-import unittest2 as unittest
+import unittest
 import os
 import json
 

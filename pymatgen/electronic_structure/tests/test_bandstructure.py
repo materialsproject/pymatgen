@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals
 
-import unittest2 as unittest
+import unittest
 import os
 import json
 from io import open
