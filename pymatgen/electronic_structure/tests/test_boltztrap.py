@@ -229,7 +229,6 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
                        sbs.labels_dict}
         for kpt_line, labels_dict in zip([None, sbs.kpoints, kpoints],
                                          [None, sbs.labels_dict, labels_dict]):
-            print(kpt_line)
             sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548,
                                                    kpt_line=kpt_line,
                                                    labels_dict=labels_dict)
