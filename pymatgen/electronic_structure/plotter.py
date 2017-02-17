@@ -1345,11 +1345,11 @@ class BSDOSPlotter():
 
         # add the labels
         ax.text(0.95, max_y - 1.25, g_label, fontsize=16,
-                family='Times New Roman', color=(0, 1, 0))
+                family='Times New Roman', color=(0, 0, 0))
         ax.text(0.45, max_y - 0.3, r_label, fontsize=16,
-                family='Times New Roman', color=(1, 0, 0))
+                family='Times New Roman', color=(0, 0, 0))
         ax.text(0.05, max_y - 1.25, b_label, fontsize=16,
-                family='Times New Roman', color=(0, 0, 1))
+                family='Times New Roman', color=(0, 0, 0))
 
     @staticmethod
     def _rb_line(ax, r_label, b_label):
