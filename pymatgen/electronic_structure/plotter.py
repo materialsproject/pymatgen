@@ -1046,8 +1046,10 @@ class BSDOSPlotter():
                           " unique elements.")
             bs_projection = None
 
-        if rgb_legend and (not bs_projection or bs_projection.lower() != "elements" or len(elements) not in [2, 3]):
-            warnings.warn("Cannot create rgb_legend; requires projection data and exactly 2 or 3 unique elements.")
+        if rgb_legend and (not bs_projection or bs_projection.lower() != "elements" or
+                                   len(elements) not in [2, 3]):
+            warnings.warn("Cannot create rgb_legend; requires projection data and "
+                          "exactly 2 or 3 unique elements.")
             rgb_legend = None
 
 
@@ -1320,13 +1322,13 @@ class BSDOSPlotter():
         Draw an RGB triangle legend on the desired axis
         """
 
-        MESH = 35
+        mesh = 35
         x = []
         y = []
         color = []
-        for r in range(0, MESH):
-            for g in range(0, MESH):
-                for b in range(0, MESH):
+        for r in range(0, mesh):
+            for g in range(0, mesh):
+                for b in range(0, mesh):
                     if not (r == 0 and b == 0 and g == 0):
                         r1 = r / (r + g + b)
                         g1 = g / (r + g + b)
@@ -1338,14 +1340,20 @@ class BSDOSPlotter():
         max_y = ax.get_ylim()[1]
         x = [n + 0.25 for n in x]  # nudge x coordinates
         y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
+        # plot the triangle
         ax.scatter(x, y, s=7, marker='.', edgecolor=color)
-        ax.text(0.95, max_y - 1.25, g_label, fontsize=16, family='Times New Roman', color=(0, 1, 0))
-        ax.text(0.45, max_y - 0.3, r_label, fontsize=16, family='Times New Roman', color=(1, 0, 0))
-        ax.text(0.05, max_y - 1.25, b_label, fontsize=16, family='Times New Roman', color=(0, 0, 1))
+
+        # add the labels
+        ax.text(0.95, max_y - 1.25, g_label, fontsize=16,
+                family='Times New Roman', color=(0, 1, 0))
+        ax.text(0.45, max_y - 0.3, r_label, fontsize=16,
+                family='Times New Roman', color=(1, 0, 0))
+        ax.text(0.05, max_y - 1.25, b_label, fontsize=16,
+                family='Times New Roman', color=(0, 0, 1))
 
     @staticmethod
     def _rb_line(ax, r_label, b_label):
-        # Draw an rb line legend on the desired axis
+        # Draw an rb bar legend on the desired axis
 
         max_y = ax.get_ylim()[1]
 
@@ -1356,9 +1364,13 @@ class BSDOSPlotter():
             x.append(i / 1800. + 0.55)
             y.append(max_y - 0.5)
             color.append([1 - i/1000, 0, i / 1000])
+
+        # plot the bar
         ax.scatter(x, y, s=250., marker='s', edgecolor=color)
-        ax.text(1.3, max_y - 0.6, b_label, fontsize=16, family='Times New Roman', color=(0, 0, 1))
-        ax.text(0, max_y - 0.6, r_label, fontsize=16, family='Times New Roman', color=(1, 0, 0))
+        ax.text(1.3, max_y - 0.6, b_label, fontsize=16,
+                family='Times New Roman', color=(0, 0, 1))
+        ax.text(0, max_y - 0.6, r_label, fontsize=16,
+                family='Times New Roman', color=(1, 0, 0))
 
 
 class BoltztrapPlotter(object):
