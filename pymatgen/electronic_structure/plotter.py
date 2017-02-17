@@ -1047,7 +1047,7 @@ class BSDOSPlotter():
             bs_projection = None
 
         if rgb_legend and (not bs_projection or bs_projection.lower() != "elements" or len(elements) not in [2, 3]):
-            warnings.warn("Cannot create rgb_legend; requires projection data and exactly 2 or 3 unique elements")
+            warnings.warn("Cannot create rgb_legend; requires projection data and exactly 2 or 3 unique elements.")
             rgb_legend = None
 
 
@@ -1228,7 +1228,7 @@ class BSDOSPlotter():
 
         elif self.bs_legend and rgb_legend:
             if len(elements) == 2:
-                pass
+                self._rb_line(bs_ax, elements[1], elements[0])
             elif len(elements) == 3:
                 self._rgb_triangle(bs_ax, elements[1], elements[2], elements[0])
 
@@ -1317,14 +1317,13 @@ class BSDOSPlotter():
     @staticmethod
     def _rgb_triangle(ax, r_label, g_label, b_label):
         """
-        Draw an RGB triangle on the band structure axis with element
-        labels red, green, and blues
+        Draw an RGB triangle legend on the desired axis
         """
 
         MESH = 35
         x = []
         y = []
-        z = []
+        color = []
         for r in range(0, MESH):
             for g in range(0, MESH):
                 for b in range(0, MESH):
@@ -1332,69 +1331,35 @@ class BSDOSPlotter():
                         r1 = r / (r + g + b)
                         g1 = g / (r + g + b)
                         b1 = b / (r + g + b)
-                        colour = []
                         x.append(0.33 * (2. * g1 + r1) / (r1 + b1 + g1))
                         y.append(0.33 * np.sqrt(3) * r1 / (r1 + b1 + g1))
-                        colour.append(r1)
-                        colour.append(g1)
-                        colour.append(b1)
-                        z.append(colour)
+                        color.append([r1, g1, b1])
 
         max_y = ax.get_ylim()[1]
+        x = [n + 0.25 for n in x]  # nudge x coordinates
         y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
-        x = [n + 0.25 for n in x]  # nudge x coordinates to right
-        ax.scatter(x, y, s=7, marker='.', edgecolor=z)
+        ax.scatter(x, y, s=7, marker='.', edgecolor=color)
         ax.text(0.95, max_y - 1.25, g_label, fontsize=16, family='Times New Roman', color=(0, 1, 0))
         ax.text(0.45, max_y - 0.3, r_label, fontsize=16, family='Times New Roman', color=(1, 0, 0))
         ax.text(0.05, max_y - 1.25, b_label, fontsize=16, family='Times New Roman', color=(0, 0, 1))
 
+    @staticmethod
+    def _rb_line(ax, r_label, b_label):
+        # Draw an rb line legend on the desired axis
 
-    def rb_line(self, ax, red, blue):
-        # Add a rb line with atoms
-        # Only for two atoms
+        max_y = ax.get_ylim()[1]
+
         x = []
         y = []
-        z = []
+        color = []
         for i in range(0, 1000):
-            x.append(i / 1800. + 0.3)
-            y.append(0)
-            colour = []
-            colour.append(1. - i / 1000.)
-            colour.append(0)
-            colour.append(i / 1000.)
-            z.append(colour)
-        ax.scatter(x, y, s=500., marker='s', edgecolor=z)
-        ax.text(1.05, -0.15, blue, fontsize=32, family='Times New Roman', color=(0, 0, 1))
-        if len(red) == 2:
-            ax.text(-0.6, -0.15, red, fontsize=32, family='Times New Roman', color=(1, 0, 0))
-        if len(red) == 1:
-            ax.text(-0.2, -0.15, red, fontsize=32, family='Times New Roman', color=(1, 0, 0))
+            x.append(i / 1800. + 0.55)
+            y.append(max_y - 0.5)
+            color.append([1 - i/1000, 0, i / 1000])
+        ax.scatter(x, y, s=250., marker='s', edgecolor=color)
+        ax.text(1.3, max_y - 0.6, b_label, fontsize=16, family='Times New Roman', color=(0, 0, 1))
+        ax.text(0, max_y - 0.6, r_label, fontsize=16, family='Times New Roman', color=(1, 0, 0))
 
-            # Change the gridSpec for the subplots to
-            gs1 = GridSpec(1, 2, width_ratios=[2, 1, ])
-            gs1.update(left=0.15, right=1.3, wspace=0.05)
-            fig = plt.figure(figsize=(11.69, 8.27))
-            ax1 = plt.subplot(gs1[0])
-            ax2 = plt.subplot(gs1[1])
-
-            gs2 = GridSpec(2, 1, height_ratios=[1, 8, ])
-            gs2.update(left=0.0, right=0.1)
-            ax3 = plt.subplot(gs2[0])
-            ax3.axis('off')
-
-            '''below
-            if len(atoms) == 3:
-                contrib,band_energy,atoms=plot_3atoms(data,atoms)
-            add'''
-            rgb_triangle(ax3, str(atoms[0]), str(atoms[1]), str(atoms[2]))
-            # I would use it only for publication as it is time consumind
-            # and there should be on/off option
-
-        '''below
-        if len(atoms) == 2:
-            contrib,band_energy,atoms=plot_2atoms(data,atoms)
-        add'''
-        rb_line(ax3, str(atoms[0]), str(atoms[1]))
 
 class BoltztrapPlotter(object):
     """
