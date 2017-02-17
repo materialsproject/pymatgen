@@ -434,7 +434,7 @@ class Simplex(object):
         b2 = self.bary_coords(point2)
         l = b1 - b2
         # don't use barycentric dimension where line is parallel to face
-        valid = np.abs(l) > 1e-16
+        valid = np.abs(l) > 1e-10
         # array of all the barycentric coordinates on the line where
         # one of the values is 0
         possible = b1 - (b1[valid] / l[valid])[:, None] * l
@@ -450,6 +450,7 @@ class Simplex(object):
                         break
                 if not found:
                     barys.append(p)
+        assert len(barys) < 3
         return [self.point_from_bary_coords(b) for b in barys]
 
     def __eq__(self, other):
