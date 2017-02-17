@@ -1205,16 +1205,24 @@ class BSDOSPlotter():
                                          color='b', linestyle="dotted",
                                          label='spin down')]
 
-            elif bs_projection.lower() == "elements":
-                colors = ['b', 'r', 'g']
-                for idx, el in enumerate(elements):
-                    handles.append(mlines.Line2D([], [],
-                                                 linewidth=2,
-                                                 color=colors[idx], label=el))
+                bs_ax.legend(handles=handles, fancybox=True,
+                             prop={'size': self.legend_fontsize,
+                                   'family': self.font}, loc=self.bs_legend)
 
-            bs_ax.legend(handles=handles, fancybox=True,
-                         prop={'size': self.legend_fontsize,
-                               'family': self.font}, loc=self.bs_legend)
+            elif bs_projection.lower() == "elements":
+                # colors = ['b', 'r', 'g']
+                # for idx, el in enumerate(elements):
+                #     handles.append(mlines.Line2D([], [],
+                #                                  linewidth=2,
+                #                                  color=colors[idx], label=el))
+                # bs_ax.legend(handles=handles, fancybox=True,
+                #              prop={'size': self.legend_fontsize,
+                #                    'family': self.font}, loc=self.bs_legend)
+
+                bs_ax.legend()
+                self.rgb_triangle(bs_ax, elements[1], elements[2], elements[0])
+
+
 
         # add legend for DOS
         if self.dos_legend:
@@ -1297,6 +1305,84 @@ class BSDOSPlotter():
                 contribs[spin] = np.array(contribs[spin])
 
         return contribs
+
+    def rgb_triangle(self, ax, red, green, blue):
+        # To generate the rgb triangle and add the atoms
+        # Only for 3 atoms
+        MESH = 25
+        x = []
+        y = []
+        z = []
+        for r in range(0, MESH):
+            for g in range(0, MESH):
+                for b in range(0, MESH):
+                    r1 = r / MESH
+                    g1 = g / MESH
+                    b1 = b / MESH
+                    colour = []
+                    if math.sqrt(r1 ** 2 + g1 ** 2 + b1 ** 2) != 0:
+                        x.append(0.5 * (2. * g1 + r1) / (r1 + b1 + g1))
+                        y.append(0.5 * np.sqrt(3) * r1 / (r1 + b1 + g1))
+                        colour.append(r1)
+                        colour.append(g1)
+                        colour.append(b1)
+                        z.append(colour)
+
+        max_y = ax.get_ylim()[1]
+        y = [n + (max_y - 1.5) for n in y]  # shift y coordinates to top
+        x = [n + 0.25 for n in x]  # nudge x coordinates to right
+        ax.scatter(x, y, s=7, marker='.', edgecolor=z)
+        ax.text(1.25, max_y-1.5-0.25, green, fontsize=24, family='Times New Roman', color=(0, 1, 0))
+        ax.text(0.68, max_y-1.5+0.92, red, fontsize=24, family='Times New Roman', color=(1, 0, 0))
+        ax.text(0.05, max_y-1.5-0.25, blue, fontsize=24, family='Times New Roman', color=(0, 0, 1))
+
+
+    def rb_line(self, ax, red, blue):
+        # Add a rb line with atoms
+        # Only for two atoms
+        x = []
+        y = []
+        z = []
+        for i in range(0, 1000):
+            x.append(i / 1800. + 0.3)
+            y.append(0)
+            colour = []
+            colour.append(1. - i / 1000.)
+            colour.append(0)
+            colour.append(i / 1000.)
+            z.append(colour)
+        ax.scatter(x, y, s=500., marker='s', edgecolor=z)
+        ax.text(1.05, -0.15, blue, fontsize=32, family='Times New Roman', color=(0, 0, 1))
+        if len(red) == 2:
+            ax.text(-0.6, -0.15, red, fontsize=32, family='Times New Roman', color=(1, 0, 0))
+        if len(red) == 1:
+            ax.text(-0.2, -0.15, red, fontsize=32, family='Times New Roman', color=(1, 0, 0))
+
+            # Change the gridSpec for the subplots to
+            gs1 = GridSpec(1, 2, width_ratios=[2, 1, ])
+            gs1.update(left=0.15, right=1.3, wspace=0.05)
+            fig = plt.figure(figsize=(11.69, 8.27))
+            ax1 = plt.subplot(gs1[0])
+            ax2 = plt.subplot(gs1[1])
+
+            gs2 = GridSpec(2, 1, height_ratios=[1, 8, ])
+            gs2.update(left=0.0, right=0.1)
+            ax3 = plt.subplot(gs2[0])
+            ax3.axis('off')
+
+            '''below
+            if len(atoms) == 3:
+                contrib,band_energy,atoms=plot_3atoms(data,atoms)
+            add'''
+            rgb_triangle(ax3, str(atoms[0]), str(atoms[1]), str(atoms[2]))
+            # I would use it only for publication as it is time consumind
+            # and there should be on/off option
+
+        '''below
+        if len(atoms) == 2:
+            contrib,band_energy,atoms=plot_2atoms(data,atoms)
+        add'''
+        rb_line(ax3, str(atoms[0]), str(atoms[1]))
 
 class BoltztrapPlotter(object):
     """
