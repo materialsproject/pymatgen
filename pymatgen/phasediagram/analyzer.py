@@ -240,17 +240,26 @@ class PDAnalyzer(object):
         clean_pots.reverse()
         return tuple(clean_pots)
 
-    def get_transition_compositions(self, c1_in, c2_in):
+    def get_critical_compositions(self, comp1, comp2):
         """
-        Get the critical compositions between two compositions. I.e. where the
-        decomposition products change
+        Get the critical compositions along the tieline between two
+        compositions. I.e. where the decomposition products change.
+        The endpoints are also returned.
+        Args:
+            comp1, comp2 (Composition): compositions that define the tieline
+        Returns:
+            [(Composition)]: list of critical compositions. All are of
+                the form x * comp1 + (1-x) * comp2
         """
 
-        n1 = c1_in.num_atoms
-        n2 = c2_in.num_atoms
+        n1 = comp1.num_atoms
+        n2 = comp2.num_atoms
+        pd_els = self._pd.elements
 
-        c1 = np.array([c1_in.get_atomic_fraction(e) for e in self._pd.elements[1:]])
-        c2 = np.array([c2_in.get_atomic_fraction(e) for e in self._pd.elements[1:]])
+        # the reduced dimensionality Simplexes don't use the
+        # first element in the PD
+        c1 = np.array([comp1.get_atomic_fraction(e) for e in pd_els[1:]])
+        c2 = np.array([comp2.get_atomic_fraction(e) for e in pd_els[1:]])
 
         intersections = [c1, c2]
         for sc in self._pd.simplices:
@@ -258,7 +267,7 @@ class PDAnalyzer(object):
         intersections = np.array(intersections)
 
         # find position along line
-        l = (c2 - c1)  # unit vector in line direction
+        l = (c2 - c1)
         l /= np.sum(l ** 2) ** 0.5
         proj = np.dot(intersections - c1, l)
 
@@ -273,14 +282,16 @@ class PDAnalyzer(object):
         proj = proj[valid]
 
         ints = c1 + l * proj[:, None]
-        cs = np.concatenate([np.array([1 - np.sum(ints, axis=-1)]).T, ints], axis=-1)
+        # reconstruct full-dimensional composition array
+        cs = np.concatenate([np.array([1 - np.sum(ints, axis=-1)]).T,
+                             ints], axis=-1)
         # mixing fraction when compositions are normalized
         x = proj / np.dot(c2 - c1, l)
         # mixing fraction when compositions are not normalized
         x_unnormalized = x * n1 / (n2 + x * (n1 - n2))
         num_atoms = n1 + (n2 - n1) * x_unnormalized
         cs *= num_atoms[:, None]
-        return [Composition((c, v) for c, v in zip(self._pd.elements, m)) for m in cs]
+        return [Composition((c, v) for c, v in zip(pd_els, m)) for m in cs]
 
     def get_element_profile(self, element, comp, comp_tol=1e-5):
         """
