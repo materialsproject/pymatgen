@@ -10,6 +10,7 @@ import warnings
 from collections import OrderedDict
 
 import numpy as np
+from matplotlib import patches
 
 from monty.json import jsanitize
 
@@ -983,7 +984,7 @@ class BSDOSPlotter():
                  vb_energy_range=4, cb_energy_range=4, fixed_cb_energy=False,
                  egrid_interval=1, font="Times New Roman", axis_fontsize=20,
                  tick_fontsize=15, legend_fontsize=14, bs_legend="best",
-                 dos_legend="best"):
+                 dos_legend="best", rgb_legend=False):
 
         """
         Instantiate plotter settings.
@@ -1002,6 +1003,7 @@ class BSDOSPlotter():
             legend_fontsize (float): font size for legends
             bs_legend (str): matplotlib string location for legend or None
             dos_legend (str): matplotlib string location for legend or None
+            rgb_legend (bool): (T/F) whether to draw RGB triangle/bar for element proj.
         """
         self.bs_projection = bs_projection
         self.dos_projection = dos_projection
@@ -1015,6 +1017,7 @@ class BSDOSPlotter():
         self.legend_fontsize = legend_fontsize
         self.bs_legend = bs_legend
         self.dos_legend = dos_legend
+        self.rgb_legend = rgb_legend
 
     def get_plot(self, bs, dos):
         """
@@ -1034,6 +1037,7 @@ class BSDOSPlotter():
         # make sure the user-specified band structure projection is valid
         elements = [e.symbol for e in dos.structure.composition.elements]
         bs_projection = self.bs_projection
+        rgb_legend = self.rgb_legend
 
         if bs_projection and bs_projection.lower() == "elements" and \
                 (len(elements) not in [2, 3] or not bs.get_projection_on_elements()):
@@ -1041,6 +1045,11 @@ class BSDOSPlotter():
                           "doesn't exist, or you don't have a compound with exactly 2 or 3"
                           " unique elements.")
             bs_projection = None
+
+        if rgb_legend and (not bs_projection or bs_projection.lower() != "elements" or len(elements) not in [2, 3]):
+            warnings.warn("Cannot create rgb_legend; requires projection data and exactly 2 or 3 unique elements")
+            rgb_legend = None
+
 
         # specify energy range of plot
         emin = -self.vb_energy_range
@@ -1111,6 +1120,7 @@ class BSDOSPlotter():
         bs_ax.set_yticklabels(np.arange(emin, emax+1E-5, self.egrid_interval),
                               size=self.tick_fontsize)
         dos_ax.set_yticks(np.arange(emin, emax+1E-5, self.egrid_interval))
+        bs_ax.set_axisbelow(True)
         bs_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
         dos_ax.set_yticklabels([])
         dos_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
@@ -1195,7 +1205,7 @@ class BSDOSPlotter():
         dos_ax.set_xlabel('DOS', fontsize=self.axis_fontsize, family=self.font)
 
         # add legend for band structure
-        if self.bs_legend:
+        if self.bs_legend and not rgb_legend:
             handles = []
 
             if bs_projection is None:
@@ -1205,24 +1215,22 @@ class BSDOSPlotter():
                                          color='b', linestyle="dotted",
                                          label='spin down')]
 
-                bs_ax.legend(handles=handles, fancybox=True,
-                             prop={'size': self.legend_fontsize,
-                                   'family': self.font}, loc=self.bs_legend)
-
             elif bs_projection.lower() == "elements":
-                # colors = ['b', 'r', 'g']
-                # for idx, el in enumerate(elements):
-                #     handles.append(mlines.Line2D([], [],
-                #                                  linewidth=2,
-                #                                  color=colors[idx], label=el))
-                # bs_ax.legend(handles=handles, fancybox=True,
-                #              prop={'size': self.legend_fontsize,
-                #                    'family': self.font}, loc=self.bs_legend)
+                 colors = ['b', 'r', 'g']
+                 for idx, el in enumerate(elements):
+                     handles.append(mlines.Line2D([], [],
+                                                  linewidth=2,
+                                                  color=colors[idx], label=el))
 
-                bs_ax.legend()
-                self.rgb_triangle(bs_ax, elements[1], elements[2], elements[0])
+            bs_ax.legend(handles=handles, fancybox=True,
+                         prop={'size': self.legend_fontsize,
+                               'family': self.font}, loc=self.bs_legend)
 
-
+        elif self.bs_legend and rgb_legend:
+            if len(elements) == 2:
+                pass
+            elif len(elements) == 3:
+                self._rgb_triangle(bs_ax, elements[1], elements[2], elements[0])
 
         # add legend for DOS
         if self.dos_legend:
@@ -1306,35 +1314,39 @@ class BSDOSPlotter():
 
         return contribs
 
-    def rgb_triangle(self, ax, red, green, blue):
-        # To generate the rgb triangle and add the atoms
-        # Only for 3 atoms
-        MESH = 25
+    @staticmethod
+    def _rgb_triangle(ax, r_label, g_label, b_label):
+        """
+        Draw an RGB triangle on the band structure axis with element
+        labels red, green, and blues
+        """
+
+        MESH = 35
         x = []
         y = []
         z = []
         for r in range(0, MESH):
             for g in range(0, MESH):
                 for b in range(0, MESH):
-                    r1 = r / MESH
-                    g1 = g / MESH
-                    b1 = b / MESH
-                    colour = []
-                    if math.sqrt(r1 ** 2 + g1 ** 2 + b1 ** 2) != 0:
-                        x.append(0.5 * (2. * g1 + r1) / (r1 + b1 + g1))
-                        y.append(0.5 * np.sqrt(3) * r1 / (r1 + b1 + g1))
+                    if not (r == 0 and b == 0 and g == 0):
+                        r1 = r / (r + g + b)
+                        g1 = g / (r + g + b)
+                        b1 = b / (r + g + b)
+                        colour = []
+                        x.append(0.33 * (2. * g1 + r1) / (r1 + b1 + g1))
+                        y.append(0.33 * np.sqrt(3) * r1 / (r1 + b1 + g1))
                         colour.append(r1)
                         colour.append(g1)
                         colour.append(b1)
                         z.append(colour)
 
         max_y = ax.get_ylim()[1]
-        y = [n + (max_y - 1.5) for n in y]  # shift y coordinates to top
+        y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
         x = [n + 0.25 for n in x]  # nudge x coordinates to right
         ax.scatter(x, y, s=7, marker='.', edgecolor=z)
-        ax.text(1.25, max_y-1.5-0.25, green, fontsize=24, family='Times New Roman', color=(0, 1, 0))
-        ax.text(0.68, max_y-1.5+0.92, red, fontsize=24, family='Times New Roman', color=(1, 0, 0))
-        ax.text(0.05, max_y-1.5-0.25, blue, fontsize=24, family='Times New Roman', color=(0, 0, 1))
+        ax.text(0.95, max_y - 1.25, g_label, fontsize=16, family='Times New Roman', color=(0, 1, 0))
+        ax.text(0.45, max_y - 0.3, r_label, fontsize=16, family='Times New Roman', color=(1, 0, 0))
+        ax.text(0.05, max_y - 1.25, b_label, fontsize=16, family='Times New Roman', color=(0, 0, 1))
 
 
     def rb_line(self, ax, red, blue):
