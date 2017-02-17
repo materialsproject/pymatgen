@@ -19,6 +19,7 @@ __date__ = "Dec 01, 2016"
 
 import unittest
 import os
+import xml.etree.cElementTree as ET
 from pymatgen.io.exciting import excitingInput
 from pymatgen.core import Structure, Lattice
 
@@ -64,5 +65,29 @@ class ExcitingInputTest(unittest.TestCase):
             [0.5,0.0,0.0],[0.0,0.5,0.0],[0.0,0.0,0.5],[0.5,0.5,0.5]])
         excin=excitingInput(structure)
         self.assertEqual(input_string, excin.write_string('unchanged'))
+   
+    def test_writebandstr(self):    
+        filepath=os.path.join(test_dir,'CsI3Pb.cif')
+        structure=Structure.from_file(filepath)
+        excin=excitingInput(structure)
+        string=excin.write_string('primitive', bandstr=True)
+        bandstr=string.split('<properties>')[1].split('</properties>')[0]
+        
+        coord=[]
+        label=[]
+        coord_ref=[[0.0, 0.0, 0.0], [0.5, 0.0, 0.0], [0.5, 0.5, 0.0], [0.0, 0.5, 0.0], 
+                   [0.0, 0.0, 0.0], [0.0, 0.0, 0.5], [0.5, 0.0, 0.5], [0.5, 0.5, 0.5], 
+                   [0.0, 0.5, 0.5], [0.0, 0.0, 0.5], [0.0, 0.5, 0.0], [0.0, 0.5, 0.5], 
+                   [0.5, 0.0, 0.5], [0.5, 0.0, 0.0], [0.5, 0.5, 0.0], [0.5, 0.5, 0.5]]
+        label_ref=['GAMMA', 'X', 'S', 'Y', 'GAMMA', 'Z', 'U', 'R', 'T', 'Z', 'Y', 'T',
+                    'U', 'X', 'S', 'R']
+        root=ET.fromstring(bandstr)
+        for plot1d in root.iter('plot1d'):
+            for point in plot1d.iter('point'):
+                coord.append([float(i) for i in point.get('coord').split()])
+                label.append(point.get('label'))
+        self.assertEqual(label, label_ref)
+        self.assertEqual(coord, coord_ref)
+
 if __name__ == "__main__":
     unittest.main()       
