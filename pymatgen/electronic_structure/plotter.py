@@ -1368,9 +1368,9 @@ class BSDOSPlotter():
         # plot the bar
         ax.scatter(x, y, s=250., marker='s', edgecolor=color)
         ax.text(1.3, max_y - 0.6, b_label, fontsize=16,
-                family='Times New Roman', color=(0, 0, 1))
+                family='Times New Roman', color=(0, 0, 0))
         ax.text(0, max_y - 0.6, r_label, fontsize=16,
-                family='Times New Roman', color=(1, 0, 0))
+                family='Times New Roman', color=(0, 0, 0))
 
 
 class BoltztrapPlotter(object):
