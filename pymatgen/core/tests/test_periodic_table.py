@@ -4,7 +4,7 @@
 
 from __future__ import division, unicode_literals
 
-import unittest2 as unittest
+import unittest
 import pickle
 
 from pymatgen.util.testing import PymatgenTest

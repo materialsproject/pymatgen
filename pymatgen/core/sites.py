@@ -4,6 +4,16 @@
 
 from __future__ import division, unicode_literals
 
+import collections
+import numpy as np
+
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
+    get_el_sp
+from monty.json import MSONable
+from pymatgen.util.coord_utils import pbc_diff
+from pymatgen.core.composition import Composition
+
 """
 This module defines classes representing non-periodic and periodic sites.
 """
@@ -15,16 +25,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 17, 2012"
-
-import collections
-import numpy as np
-
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
-    get_el_sp
-from monty.json import MSONable
-from pymatgen.util.coord_utils import pbc_diff
-from pymatgen.core.composition import Composition
 
 
 class Site(collections.Hashable, MSONable):

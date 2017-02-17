@@ -10,6 +10,7 @@ import warnings
 from collections import OrderedDict
 
 import numpy as np
+from matplotlib import patches
 
 from monty.json import jsanitize
 
@@ -983,7 +984,7 @@ class BSDOSPlotter():
                  vb_energy_range=4, cb_energy_range=4, fixed_cb_energy=False,
                  egrid_interval=1, font="Times New Roman", axis_fontsize=20,
                  tick_fontsize=15, legend_fontsize=14, bs_legend="best",
-                 dos_legend="best"):
+                 dos_legend="best", rgb_legend=False):
 
         """
         Instantiate plotter settings.
@@ -1002,6 +1003,7 @@ class BSDOSPlotter():
             legend_fontsize (float): font size for legends
             bs_legend (str): matplotlib string location for legend or None
             dos_legend (str): matplotlib string location for legend or None
+            rgb_legend (bool): (T/F) whether to draw RGB triangle/bar for element proj.
         """
         self.bs_projection = bs_projection
         self.dos_projection = dos_projection
@@ -1015,6 +1017,7 @@ class BSDOSPlotter():
         self.legend_fontsize = legend_fontsize
         self.bs_legend = bs_legend
         self.dos_legend = dos_legend
+        self.rgb_legend = rgb_legend
 
     def get_plot(self, bs, dos):
         """
@@ -1034,6 +1037,7 @@ class BSDOSPlotter():
         # make sure the user-specified band structure projection is valid
         elements = [e.symbol for e in dos.structure.composition.elements]
         bs_projection = self.bs_projection
+        rgb_legend = self.rgb_legend
 
         if bs_projection and bs_projection.lower() == "elements" and \
                 (len(elements) not in [2, 3] or not bs.get_projection_on_elements()):
@@ -1041,6 +1045,13 @@ class BSDOSPlotter():
                           "doesn't exist, or you don't have a compound with exactly 2 or 3"
                           " unique elements.")
             bs_projection = None
+
+        if rgb_legend and (not bs_projection or bs_projection.lower() != "elements" or
+                                   len(elements) not in [2, 3]):
+            warnings.warn("Cannot create rgb_legend; requires projection data and "
+                          "exactly 2 or 3 unique elements.")
+            rgb_legend = None
+
 
         # specify energy range of plot
         emin = -self.vb_energy_range
@@ -1111,6 +1122,7 @@ class BSDOSPlotter():
         bs_ax.set_yticklabels(np.arange(emin, emax+1E-5, self.egrid_interval),
                               size=self.tick_fontsize)
         dos_ax.set_yticks(np.arange(emin, emax+1E-5, self.egrid_interval))
+        bs_ax.set_axisbelow(True)
         bs_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
         dos_ax.set_yticklabels([])
         dos_ax.grid(color=[0.5, 0.5, 0.5], linestyle='dotted', linewidth=1)
@@ -1195,7 +1207,7 @@ class BSDOSPlotter():
         dos_ax.set_xlabel('DOS', fontsize=self.axis_fontsize, family=self.font)
 
         # add legend for band structure
-        if self.bs_legend:
+        if self.bs_legend and not rgb_legend:
             handles = []
 
             if bs_projection is None:
@@ -1206,15 +1218,21 @@ class BSDOSPlotter():
                                          label='spin down')]
 
             elif bs_projection.lower() == "elements":
-                colors = ['b', 'r', 'g']
-                for idx, el in enumerate(elements):
-                    handles.append(mlines.Line2D([], [],
-                                                 linewidth=2,
-                                                 color=colors[idx], label=el))
+                 colors = ['b', 'r', 'g']
+                 for idx, el in enumerate(elements):
+                     handles.append(mlines.Line2D([], [],
+                                                  linewidth=2,
+                                                  color=colors[idx], label=el))
 
             bs_ax.legend(handles=handles, fancybox=True,
                          prop={'size': self.legend_fontsize,
                                'family': self.font}, loc=self.bs_legend)
+
+        elif self.bs_legend and rgb_legend:
+            if len(elements) == 2:
+                self._rb_line(bs_ax, elements[1], elements[0])
+            elif len(elements) == 3:
+                self._rgb_triangle(bs_ax, elements[1], elements[2], elements[0])
 
         # add legend for DOS
         if self.dos_legend:
@@ -1297,6 +1315,63 @@ class BSDOSPlotter():
                 contribs[spin] = np.array(contribs[spin])
 
         return contribs
+
+    @staticmethod
+    def _rgb_triangle(ax, r_label, g_label, b_label):
+        """
+        Draw an RGB triangle legend on the desired axis
+        """
+
+        mesh = 35
+        x = []
+        y = []
+        color = []
+        for r in range(0, mesh):
+            for g in range(0, mesh):
+                for b in range(0, mesh):
+                    if not (r == 0 and b == 0 and g == 0):
+                        r1 = r / (r + g + b)
+                        g1 = g / (r + g + b)
+                        b1 = b / (r + g + b)
+                        x.append(0.33 * (2. * g1 + r1) / (r1 + b1 + g1))
+                        y.append(0.33 * np.sqrt(3) * r1 / (r1 + b1 + g1))
+                        color.append([r1, g1, b1])
+
+        max_y = ax.get_ylim()[1]
+        x = [n + 0.25 for n in x]  # nudge x coordinates
+        y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
+        # plot the triangle
+        ax.scatter(x, y, s=7, marker='.', edgecolor=color)
+
+        # add the labels
+        ax.text(0.95, max_y - 1.25, g_label, fontsize=16,
+                family='Times New Roman', color=(0, 0, 0))
+        ax.text(0.45, max_y - 0.3, r_label, fontsize=16,
+                family='Times New Roman', color=(0, 0, 0))
+        ax.text(0.05, max_y - 1.25, b_label, fontsize=16,
+                family='Times New Roman', color=(0, 0, 0))
+
+    @staticmethod
+    def _rb_line(ax, r_label, b_label):
+        # Draw an rb bar legend on the desired axis
+
+        max_y = ax.get_ylim()[1]
+
+        x = []
+        y = []
+        color = []
+        for i in range(0, 1000):
+            x.append(i / 1800. + 0.55)
+            y.append(max_y - 0.5)
+            color.append([1 - i/1000, 0, i / 1000])
+
+        # plot the bar
+        ax.scatter(x, y, s=250., marker='s', edgecolor=color)
+        ax.text(1.3, max_y - 0.6, b_label, fontsize=16,
+                family='Times New Roman', color=(0, 0, 0))
+        ax.text(0, max_y - 0.6, r_label, fontsize=16,
+                family='Times New Roman', color=(0, 0, 0))
+
 
 class BoltztrapPlotter(object):
     """
@@ -1542,67 +1617,135 @@ class BoltztrapPlotter(object):
         plt.yticks(fontsize=25)
         return plt
 
-    def plot_fermi_surface(self, structure=None, isolevel=None):
-        """
-        Plot the Fermi surface at a aspecific energy value
+def plot_fermi_surface(data, structure, cbm, energy_levels=[], multiple_figure=True,
+                       mlab_figure = None, kpoints_dict={}, color=(0,0,1), 
+                       transparency_factor=[], labels_scale_factor=0.05, 
+                       points_scale_factor=0.02, interative=True):
+    """
+    Plot the Fermi surface at specific energy value.
 
-        Args:
-            bz_lattice: structure object of the material
-            isolevel: energy value fo fermi surface, Default: max energy value + 0.1eV
+    Args:
+        data: energy values in a 3D grid from a CUBE file 
+              via read_cube_file function, or from a 
+              BoltztrapAnalyzer.fermi_surface_data
+        structure: structure object of the material
+        energy_levels: list of energy value of the fermi surface. 
+                        Default: max energy value + 0.01 eV
+        cbm: Boolean value to specify if the considered band is 
+                a conduction band or not
+        multiple_figure: if True a figure for each energy level will be shown.
+                         If False all the surfaces will be shown in the same figure.
+                         In this las case, tune the transparency factor.
+        mlab_figure: provide a previous figure to plot a new surface on it.
+        kpoints_dict: dictionary of kpoints to show in the plot.
+                        example: {"K":[0.5,0.0,0.5]}, 
+                        where the coords are fractional.
+        color: tuple (r,g,b) of integers to define the color of the surface.
+        transparency_factor: list of values in the range [0,1] to tune
+                             the opacity of the surfaces.
+        labels_scale_factor: factor to tune the size of the kpoint labels
+        points_scale_factor: factor to tune the size of the kpoint points
+        interative: if True an interactive figure will be shown.
+                    If False a non interactive figure will be shown, but
+                    it is possible to plot other surfaces on the same figure.
+                    To make it interactive, run mlab.show().
+        
+    Returns:
+        a Mayavi figure and a mlab module to control the plot.
 
-        Returns:
-            a matplotlib object
+    Note: Experimental. 
+          Please, double check the surface shown by using some 
+          other software and report issues.
+    """
+    
+    try:
+        from mayavi import mlab
+    except ImportError:
+        raise BoltztrapError(
+            "Mayavi package should be installed to use this function")
 
-        Note: Experimental
-        """
-        import matplotlib.pyplot as plt
-        from mpl_toolkits.mplot3d import Axes3D
-        from pymatgen.electronic_structure.plotter import plot_brillouin_zone
-        try:
-            from skimage import measure
-        except ImportError:
-            raise BoltztrapError(
-                "skimage package should be installed to use this function")
+    bz = structure.lattice.reciprocal_lattice.get_wigner_seitz_cell()
+    cell = structure.lattice.reciprocal_lattice.matrix
 
-        fig = None
+    fact = 1 if cbm == False else -1
+    en_min = np.min(fact*data.ravel())
+    en_max = np.max(fact*data.ravel())
+    
+    if energy_levels == []:
+        energy_levels = [en_min + 0.01] if cbm == True else \
+                        [en_max - 0.01]
+        print("Energy level set to: " + str(energy_levels[0])+" eV")
+    
+    else:
+        for e in energy_levels:
+            if e > en_max or e < en_min:
+                raise BoltztrapError("energy level " + str(e) + 
+                                     " not in the range of possible energies: [" +
+                                     str(en_min) + ", " + str(en_max) + "]")
+    
+    if transparency_factor == []:
+        transparency_factor = [1]*len(energy_levels)
+    
+    if mlab_figure:
+        fig=mlab_figure
+        
+    if mlab_figure == None and not multiple_figure:
+        fig = mlab.figure(size = (1024,768),bgcolor = (1,1,1))
+        for iface in range(len(bz)):
+            for line in itertools.combinations(bz[iface], 2):
+                for jface in range(len(bz)):
+                    if iface < jface and any(np.all(line[0] == x) 
+                                                for x in bz[jface]) and \
+                                            any(np.all(line[1] == x) 
+                                                for x in bz[jface]):
+                        mlab.plot3d(*zip(line[0], line[1]),color=(0,0,0),
+                                    tube_radius=None, figure = fig)
+        for label,coords in kpoints_dict.iteritems():
+            label_coords = structure.lattice.reciprocal_lattice \
+                        .get_cartesian_coords(coords)
+            mlab.points3d(*label_coords, scale_factor=points_scale_factor, color=(0,0,0), figure = fig)
+            mlab.text3d(*label_coords, text=label, scale=labels_scale_factor, color=(0,0,0), figure = fig)
 
-        data = self._bz.fermi_surface_data
+    for isolevel,alpha in zip(energy_levels,transparency_factor):
+        if multiple_figure:
+            fig = mlab.figure(size = (1024,768),bgcolor = (1,1,1))
+        
+            for iface in range(len(bz)):
+                for line in itertools.combinations(bz[iface], 2):
+                    for jface in range(len(bz)):
+                        if iface < jface and any(np.all(line[0] == x) 
+                                                    for x in bz[jface]) and \
+                                                any(np.all(line[1] == x) 
+                                                    for x in bz[jface]):
+                            mlab.plot3d(*zip(line[0], line[1]),color=(0,0,0),
+                                        tube_radius=None, figure = fig)
+                            
+            for label,coords in kpoints_dict.iteritems():
+                label_coords = structure.lattice.reciprocal_lattice \
+                            .get_cartesian_coords(coords)
+                mlab.points3d(*label_coords, scale_factor=points_scale_factor, color=(0,0,0), figure = fig)
+                mlab.text3d(*label_coords, text=label, scale=labels_scale_factor, color=(0,0,0), figure = fig)
+            
+            
+        cp = mlab.contour3d(fact*data,contours=[isolevel], transparent=True,
+                            colormap='hot', color=color, opacity=alpha, figure = fig)
 
-        if not isolevel:
-            isolevel = max(data[0].flat) - Energy(0.1, "eV").to("Ry")
+        polydata = cp.actor.actors[0].mapper.input
+        pts = np.array(polydata.points) #- 1
+        polydata.points = np.dot(pts, 
+                                    cell / np.array(data.shape)[:, np.newaxis])
 
-        verts, faces = measure.marching_cubes(data[0], isolevel)
-        verts -= 1
-        verts2 = np.dot(verts,
-                        data[1].cell / np.array(data[0].shape)[:, np.newaxis])
-        verts2 /= max(verts2.flat) / 1.5
+        cx,cy,cz = [np.mean(np.array(polydata.points)[:, i]) 
+                    for i in range(3)]
 
-        cx, cy, cz = [
-            (max(verts2[:, i]) - min(verts2[:, i])) / 2 + min(verts2[:, i]) for
-            i in range(3)]
+        polydata.points = (np.array(polydata.points) - [cx,cy,cz]) * 2
+    
+        
+        mlab.view(distance='auto')
+    if interative == True:
+        mlab.show()
 
-        if structure is not None:
-            kpath = HighSymmKpath(structure).kpath
-            lines = [[kpath['kpoints'][k] for k in p] for p in kpath['path']]
-            fig = plot_brillouin_zone(bz_lattice=structure.reciprocal_lattice,
-                                      lines=lines, labels=kpath['kpoints'])
-
-        if fig:
-            ax = fig.gca()
-            ax.plot_trisurf(verts2[:, 0] - cx, verts2[:, 1] - cy, faces,
-                            verts2[:, 2] - cz, lw=0)
-        else:
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
-            ax.plot_trisurf(verts2[:, 0] - cx, verts2[:, 1] - cy, faces,
-                            verts2[:, 2] - cz, lw=0)
-            ax.set_xlim3d(-1, 1)
-            ax.set_ylim3d(-1, 1)
-            ax.set_zlim3d(-1, 1)
-            ax.set_aspect('equal')
-            ax.axis("off")
-
-        return fig, ax
+    return fig, mlab
 
 
 def plot_wigner_seitz(lattice, ax=None, **kwargs):
@@ -1911,9 +2054,10 @@ def plot_ellipsoid(hessian, center, lattice=None, rescale=1.0, ax=None, coords_a
         rescale: factor for size scaling of the ellipsoid
         ax: matplotlib :class:`Axes` or None if a new figure should be created.
         coords_are_cartesian: Set to True if you are providing a center in
-            cartesian coordinates. Defaults to False.
-        kwargs: kwargs passed to the matplotlib function 'plot_wireframe'. Color defaults to blue, rstride and cstride
-            default to 4, alpha defaults to 0.2.
+                              cartesian coordinates. Defaults to False.
+        kwargs: kwargs passed to the matplotlib function 'plot_wireframe'. 
+                Color defaults to blue, rstride and cstride
+                default to 4, alpha defaults to 0.2.
     Returns:
         matplotlib figure and matplotlib ax
     Example of use:

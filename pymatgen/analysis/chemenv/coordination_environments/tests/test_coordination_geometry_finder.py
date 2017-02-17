@@ -3,10 +3,8 @@
 
 __author__ = 'waroquiers'
 
-import unittest2
+import unittest
 import os
-import json
-import numpy as np
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 # from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
@@ -18,7 +16,7 @@ json_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                               'test_files', "chemenv", "json_test_files")
 
 
-class CoordinationGeometryFinderTest(unittest2.TestCase):
+class CoordinationGeometryFinderTest(unittest.TestCase):
 
     def setUp(self):
         self.lgf = LocalGeometryFinder()
@@ -86,22 +84,21 @@ class CoordinationGeometryFinderTest(unittest2.TestCase):
         for coordination in range(1, 14):
             for mp_symbol in allcg.get_implemented_geometries(coordination=coordination,
                                                               returned='mp_symbol'):
-                with self.subTest(msg=mp_symbol, mp_symbol=mp_symbol):
-                    cg = allcg.get_geometry_from_mp_symbol(mp_symbol=mp_symbol)
-                    self.lgf.allcg = AllCoordinationGeometries(only_symbols=[mp_symbol])
-                    self.lgf.setup_test_perfect_environment(mp_symbol, randomness=False,
-                                                            indices=indices_CN[coordination],
-                                                            random_translation='NONE', random_rotation='NONE',
-                                                            random_scale='NONE')
-                    se = self.lgf.compute_structure_environments(only_indices=[0],
-                                                                 maximum_distance_factor=1.01*cg.distfactor_max,
-                                                                 min_cn=cg.coordination_number,
-                                                                 max_cn=cg.coordination_number,
-                                                                 only_symbols=[mp_symbol]
-                                                                 )
-                    self.assertAlmostEqual(se.get_csm(0, mp_symbol)['symmetry_measure'], 0.0, delta=1e-8,
-                                           msg='Failed to get perfect environment with mp_symbol {}'.format(mp_symbol))
+                cg = allcg.get_geometry_from_mp_symbol(mp_symbol=mp_symbol)
+                self.lgf.allcg = AllCoordinationGeometries(only_symbols=[mp_symbol])
+                self.lgf.setup_test_perfect_environment(mp_symbol, randomness=False,
+                                                        indices=indices_CN[coordination],
+                                                        random_translation='NONE', random_rotation='NONE',
+                                                        random_scale='NONE')
+                se = self.lgf.compute_structure_environments(only_indices=[0],
+                                                             maximum_distance_factor=1.01*cg.distfactor_max,
+                                                             min_cn=cg.coordination_number,
+                                                             max_cn=cg.coordination_number,
+                                                             only_symbols=[mp_symbol]
+                                                             )
+                self.assertAlmostEqual(se.get_csm(0, mp_symbol)['symmetry_measure'], 0.0, delta=1e-8,
+                                       msg='Failed to get perfect environment with mp_symbol {}'.format(mp_symbol))
 
 
 if __name__ == "__main__":
-    unittest2.main()
+    unittest.main()

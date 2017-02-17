@@ -1,6 +1,18 @@
 Change log
 ==========
 
+v4.6.2
+--------
+* Improve Spacegroup class support for alternative settings. Add a get_settings class method.
+* Improvements to FEFF support.
+* Improvements to EOS class.
+
+v4.6.1
+------
+* Phonon bandstructure plotting and analysis. (Guido Petretto)
+* New capabilities for performing adsorption on slabs. (Joey Montoya)
+* Remove pathlib dependency.
+
 v4.6.0
 ------
 * Improve support for alternative settings in SpaceGroup.

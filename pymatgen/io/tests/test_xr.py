@@ -11,7 +11,7 @@ __maintainer__ = "Nils Edvin Richard Zimmermann"
 __email__ = "nils.e.r.zimmermann@gmail.com"
 __date__ = "June 23, 2016"
 
-import unittest2 as unittest
+import unittest
 import os
 
 from pymatgen.io.xr import Xr

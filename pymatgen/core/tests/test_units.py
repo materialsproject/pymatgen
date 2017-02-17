@@ -65,7 +65,6 @@ class FloatWithUnitTest(PymatgenTest):
 
     def test_memory(self):
         mega = Memory(1, "Mb")
-        print(type(Memory), type(mega))
         self.assertEqual(mega.to("byte"), 1024**2)
         self.assertEqual(mega, Memory(1, "mb"))
 
@@ -135,7 +134,7 @@ class FloatWithUnitTest(PymatgenTest):
 
     def test_as_base_units(self):
         x = FloatWithUnit(5, "MPa")
-        self.assert_equal(FloatWithUnit(5000000, "Pa"), x.as_base_units)
+        self.assertEqual(FloatWithUnit(5000000, "Pa"), x.as_base_units)
 
 
 class ArrayWithFloatWithUnitTest(PymatgenTest):
@@ -220,9 +219,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         ]
 
         for i, obj in enumerate(objects_with_unit):
-            #print(i, obj.unit)
             self.assertTrue(hasattr(obj, "unit"))
-            #self.assertTrue(str(obj.unit) == "Ha")
 
         objects_without_unit = [
             # Here we could return a FloatWithUnit object but I prefer this
@@ -247,7 +244,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
 
     def test_as_base_units(self):
         x = ArrayWithUnit([5, 10], "MPa")
-        self.assert_equal(ArrayWithUnit([5000000, 10000000], "Pa"), x.as_base_units)
+        self.assertArrayEqual(ArrayWithUnit([5000000, 10000000], "Pa"), x.as_base_units)
 
 
 class DataPersistenceTest(PymatgenTest):
@@ -267,5 +264,5 @@ class DataPersistenceTest(PymatgenTest):
 
 
 if __name__ == '__main__':
-    import unittest2 as unittest
+    import unittest
     unittest.main()

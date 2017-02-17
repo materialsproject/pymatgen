@@ -150,7 +150,7 @@ class DeformedStructureSet(object):
 
         # Perform symmetry reduction if specified
         if symmetry:
-            sga = SpacegroupAnalyzer(self.undeformed_structure, tol=0.1)
+            sga = SpacegroupAnalyzer(self.undeformed_structure, symprec=0.1)
             symm_ops = sga.get_symmetry_operations(cartesian=True)
             self.deformations = symm_reduce(symm_ops, self.deformations)
 

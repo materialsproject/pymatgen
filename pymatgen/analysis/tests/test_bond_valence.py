@@ -19,7 +19,7 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Oct 24, 2012"
 
-import unittest2 as unittest
+import unittest
 import os
 
 from pymatgen.core.structure import Structure

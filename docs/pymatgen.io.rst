@@ -25,6 +25,7 @@ Submodules
    pymatgen.io.fiesta
    pymatgen.io.gaussian
    pymatgen.io.nwchem
+   pymatgen.io.phonopy
    pymatgen.io.pwscf
    pymatgen.io.qchem
    pymatgen.io.xcrysden
