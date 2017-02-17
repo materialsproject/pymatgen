@@ -2,16 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-"""
-Deployment file to facilitate releases of pymatgen.
-Note that this file is meant to be run from the root directory of the pymatgen
-repo.
-"""
-
-__author__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "Sep 1, 2014"
-
 import glob
 import os
 import json
@@ -22,8 +12,18 @@ import subprocess
 from invoke import task
 
 from monty.os import cd
-from monty.tempfile import ScratchDir
 from pymatgen import __version__ as ver
+
+
+"""
+Deployment file to facilitate releases of pymatgen.
+Note that this file is meant to be run from the root directory of the pymatgen
+repo.
+"""
+
+__author__ = "Shyue Ping Ong"
+__email__ = "ongsp@ucsd.edu"
+__date__ = "Sep 1, 2014"
 
 
 @task
@@ -40,13 +40,13 @@ def make_doc(ctx):
     with open("docs/latest_changes.rst", "w") as f:
         f.write(changes)
 
-    with cd("examples"):
-        ctx.run("jupyter nbconvert --to html *.ipynb")
-        ctx.run("mv *.html ../docs/_static")
+    #with cd("examples"):
+    #    ctx.run("jupyter nbconvert --to html *.ipynb")
+    #    ctx.run("mv *.html ../docs/_static")
     with cd("docs"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("sphinx-apidoc --separate -d 6 -o . -f ../pymatgen")
-        ctx.run("rm pymatgen.*.tests.*rst")
+        ctx.run("rm pymatgen*.tests.*rst")
         for f in glob.glob("*.rst"):
             if f.startswith('pymatgen') and f.endswith('rst'):
                 newoutput = []

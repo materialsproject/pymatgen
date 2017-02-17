@@ -12,6 +12,7 @@ Submodules
 
 .. toctree::
 
+   pymatgen.vis.structure_chemview
    pymatgen.vis.structure_vtk
 
 Module contents

@@ -28,7 +28,9 @@ class TestLammpsInput(unittest.TestCase):
     def test_string_rep(self):
         self.lammps_input.config_dict["read_data"] = "nvt.data"
         with open(os.path.join(test_dir, "nvt.inp")) as f:
-            self.assertEqual(str(self.lammps_input), "".join(f.readlines()))
+            for l1, l2 in zip(str(self.lammps_input).split("\n"),
+                              f.readlines()):
+                self.assertEqual(l1.strip(), l2.strip())
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-import unittest2 as unittest
+import unittest
 import os
 
 import numpy as np
@@ -141,7 +141,7 @@ class ElasticTensorTest(PymatgenTest):
                        for def_matrix in self.def_stress_dict['deformations']]
         stress_list = [stress for stress in self.def_stress_dict['stresses']]
         with warnings.catch_warnings(record=True):
-            et_fl = -0.1*ElasticTensor.from_strain_stress_list(strain_list, 
+            et_fl = -0.1*ElasticTensor.from_strain_stress_list(strain_list,
                                                                stress_list).voigt
             self.assertArrayAlmostEqual(et_fl.round(2),
                                         [[59.29, 24.36, 22.46, 0, 0, 0],
@@ -176,7 +176,7 @@ class ElasticTensorTest(PymatgenTest):
                            [ -6.12323400e-17,-6.12323400e-17,1.00000000e+00]])
 
         self.assertAlmostEqual(film_elac.energy_density(dfm.green_lagrange_strain),
-            0.000125664672793)
+            0.00125664672793)
 
 if __name__ == '__main__':
     unittest.main()

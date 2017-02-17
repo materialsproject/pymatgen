@@ -296,7 +296,7 @@ class LatticeTestCase(PymatgenTest):
         for (family_name, lattice) in self.families.items():
             new_lattice = lattice.scale(new_volume)
             self.assertAlmostEqual(new_lattice.volume, new_volume)
-            self.assertEqual(new_lattice.angles, lattice.angles)
+            self.assertArrayAlmostEqual(new_lattice.angles, lattice.angles)
 
     def test_get_wigner_seitz_cell(self):
         ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]])\
@@ -310,11 +310,11 @@ class LatticeTestCase(PymatgenTest):
 
         for family_name, lattice in self.families.items():
             #print(family_name)
-            self.assert_equal(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc)
-            self.assert_equal(lattice.norm(frac_basis), lattice.abc)
+            self.assertArrayEqual(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc)
+            self.assertArrayEqual(lattice.norm(frac_basis), lattice.abc)
             for (i, vec) in enumerate(frac_basis):
                 length = lattice.norm(vec)
-                self.assert_equal(length[0], lattice.abc[i])
+                self.assertArrayEqual(length[0], lattice.abc[i])
                 # We always get a ndarray.
                 self.assertTrue(hasattr(length, "shape"))
 
@@ -420,9 +420,9 @@ class LatticeTestCase(PymatgenTest):
                 self.assertArrayAlmostEqual(min_image_dist[1], pmg_result[1])
 
     def test_lll_basis(self):
-        a = np.array([1., 0.1, 0.,])
-        b = np.array([0., 2., 0.,])
-        c = np.array([0., 0., 3.,])
+        a = np.array([1., 0.1, 0.])
+        b = np.array([0., 2., 0.])
+        c = np.array([0., 0., 3.])
 
         l1 = Lattice([a, b, c])
         l2 = Lattice([a + b, b + c, c])
@@ -449,5 +449,5 @@ class LatticeTestCase(PymatgenTest):
 
 
 if __name__ == '__main__':
-    import unittest2 as unittest
+    import unittest
     unittest.main()

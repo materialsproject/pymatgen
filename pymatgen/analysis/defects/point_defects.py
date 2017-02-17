@@ -5,24 +5,40 @@
 from __future__ import division, unicode_literals
 
 """
-This module defines classes for point defects
+This module defines classes for point defects.
 """
+
+__author__ = "Bharat Medasani, Nils E. R. Zimmermann"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Bharat Medasani, Nils E. R. Zimmermann"
+__email__ = "mbkumar@gmail.com, n.zimmermann@tuhh.de"
+__status__ = "Production"
+__date__ = "Nov 28, 2016"
+
 
 import os
 import abc
 import json
+import numpy as np
 from bisect import bisect_left
+import time
+from math import fabs
 
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.core.structure import Structure
+from pymatgen.analysis.structure_analyzer import OrderParameters
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
+    SpacegroupOperations
 from pymatgen.io.zeopp import get_voronoi_nodes, get_void_volume_surfarea, \
     get_high_accuracy_voronoi_nodes
 from pymatgen.command_line.gulp_caller import get_energy_buckingham, \
     get_energy_relax_structure_buckingham
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     RelaxationAnalyzer
-from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.analysis.structure_matcher import StructureMatcher, \
+    SpeciesComparator
 from pymatgen.analysis.bond_valence import BVAnalyzer
 import six
 from six.moves import filter
@@ -103,9 +119,9 @@ class ValenceIonicRadiusEvaluator(object):
                 radius = site.specie.atomic_radius
                 # Handle elements with no atomic_radius
                 # by using calculated values instead.
-                if radius == None:
+                if radius is None:
                     radius = site.specie.atomic_radius_calculated
-                if radius == None:
+                if radius is None:
                     raise ValueError(
                             "cannot assign radius to element {}".format(
                             site.specie))
@@ -672,9 +688,10 @@ class Interstitial(Defect):
         coord_sites = filter(no_inter, coord_sites)
 
         coord_chrg = 0
-        for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
-            if not site.specie.symbol == 'X':
-                coord_chrg += weight * self._valence_dict[site.species_string]
+        if self._valence_dict:
+            for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
+                if not site.specie.symbol == 'X':
+                    coord_chrg += weight * self._valence_dict[site.species_string]
 
         return coord_no, coord_sites, coord_chrg
 
@@ -1500,3 +1517,828 @@ def symmetry_reduced_voronoi_nodes(
         #    facecenter_dist_sites = vor_facecenter_struct.sites
 
         #return node_dist_sites, edgecenter_dist_sites, facecenter_dist_sites
+
+
+class StructureMotifInterstitial(Defect):
+
+    """
+    Subclass of Defect to generate interstitial sites at positions
+    where the interstitialcy is coordinated by nearest neighbors
+    in a way that resembles basic structure motifs
+    (tetrahedra, octahedra, bcc) or an overlay of two motifs
+    (tetrahedral-octahedral).
+    The algorithm will be formally introducted in an upcoming publication
+    by Nils E. R. Zimmermann and Maciej Haranczyk,
+    and it is already used by the Python Charged Defect Toolkit
+    (PyCDT, https://arxiv.org/abs/1611.07481).
+    """
+
+    __supported_types = ("tet", "oct", "bcc", "tetoct")
+
+    def __init__(self, structure, inter_elem,
+                 motif_types=["tet", "oct", "tetoct"],
+                 op_targets=[1.0, 1.0, 1.0], op_threshs=[0.5, 0.5, 0.5],
+                 dl=0.2, fac_max_radius=4.5, drel_overlap=0.5,
+                 write_timings=False):
+        """
+        Generate symmetrically distinct interstitial sites at positions
+        where the interstitial is coordinated by nearest neighbors
+        in a pattern that resembles a supported structure motif
+        (tetrahedra, octahedra, bcc) or an overlay of some motifs
+        (tetrahedral-octahedral).
+
+        Args:
+            struct (Structure): input structure for which symmetrically
+                distinct interstitial sites are to be found.
+            inter_elem (string): element symbol of desired interstitial.
+            motif_types ([string]): list of structure motif types that are
+                to be considered.  Permissible types are:
+                tet (tetrahedron), oct (octahedron),
+                tetoct (tetrahedron-octahedron overlay).
+            op_targets ([float]): target values for the underlying order
+                parameters to recognize a given structural motif.
+            op_threshs ([float]): threshold values for the underlying order
+                parameters to still recognize a given structural motif
+                (i.e., for an OP value >= threshold the coordination pattern
+                match is positive, for OP < threshold the match is
+                negative.
+            dl (float): grid fineness in Angstrom.  The input
+                structure is divided into a grid of dimension
+                a/dl x b/dl x c/dl along the three crystallographic
+                directions, with a, b, and c being the lengths of
+                the three lattice vectors of the input unit cell.
+            fac_max_radius (float): factor to generate a (large) neighbor
+                list per grid point with a fixed large cutoff distance,
+                d_cutoff.  The list is then sorted to give the
+                neighbors in an ascending list in relative distance from
+                the interstitial site.  The relative distance between
+                an interstitial trial site and a "bulk" atom is calculated
+                by the distance, d, and the (ionic) radii of the two
+                species involved, (r_inter+r_bulk), yielding
+                d_rel = d / (r_inter+r_bulk).
+                Because d_cutoff = fac_max_radius * r_max,
+                where r_max is the largest site radius encountered in the
+                structure, fac_max_radius should always be larger than 2.
+            drel_overlap (float): relative distance that is considered
+                to flag an overlap between any two atoms.  It is used
+                a) to skip a given grid point because of overlap
+                between an interstitial trial site and any one atom
+                from the input structure and
+                b) to remove trial sites that are too close to each other.
+                The latter may or may not be desirable.  A future revision
+                should make this step optional.
+            write_timings (boolean): flag indicating whether or not to
+                write out times for sections of the interstitial search
+                (default: False).
+        """
+
+        if write_timings:
+            file_time = open("time_interfinding.dat", "w")
+            tt0, tc0 = time.time(), time.clock()
+
+        self._structure = structure
+        sgops = SpacegroupAnalyzer(structure).get_space_group_operations() # get_spacegroup()
+        self._motif_types = motif_types
+        self._unique_op_types = []
+        self._map_imotif_iop = []
+        for imotif, motif in enumerate(self._motif_types):
+            if motif not in self.__supported_types:
+                raise RuntimeError("unsupported motif type: {}.".format(
+                        motif))
+            self._map_imotif_iop.append([])
+            if motif == "tet" or motif == "oct" or motif == "bcc":
+                if motif not in self._unique_op_types:
+                    self._unique_op_types.append(motif)
+                self._map_imotif_iop[imotif].append(
+                    self._unique_op_types.index(motif))
+            elif motif == "tetoct":
+                if "tet" not in self._unique_op_types:
+                    self._unique_op_types.append("tet")
+                self._map_imotif_iop[imotif].append(
+                    self._unique_op_types.index("tet"))
+                if "oct" not in self._unique_op_types:
+                    self._unique_op_types.append("oct")
+                self._map_imotif_iop[imotif].append(
+                    self._unique_op_types.index("oct"))
+            else:
+                raise ValueError("cannot associate motif {} to any"
+                        " order parameter type.".format(motif))
+        if len(motif_types) != len(op_targets) or \
+                len(motif_types) != len(op_threshs):
+            raise ValueError("list sizes of structure motif types,"
+                    " OP target values and OP threshold values are"
+                    " not equal.")
+        self._op_targets = op_targets
+        self._op_threshs = op_threshs
+        self._dl = dl
+        self._defect_sites = []
+        self._defect_types = []
+        self._defect_cns = []
+        self._defect_site_multiplicity = []
+
+        # Set up list of elements found in the input structure.
+        elem_list = []
+        natoms_uc = 0
+        for site in structure:
+            natoms_uc = natoms_uc + 1
+            if isinstance(site.specie, Element):
+                elem = site.specie.symbol
+            elif isinstance(site.specie, Specie):
+                elem = site.specie.element.symbol
+            else:
+                raise RuntimeError("unexpected instance type")
+            if elem not in elem_list:
+                elem_list.append(elem)
+        if inter_elem not in elem_list:
+            elem_list_plus_inter = elem_list + [inter_elem]
+        else:
+            elem_list_plus_inter = list(elem_list)
+        nelems = len(elem_list)
+        if nelems < 1:
+            raise RuntimeError("nelems < 1")
+
+        # Create a working supercell.
+        sc_struct = self._structure.copy()
+        sc_struct.make_supercell([[1,0,0], [0,1,0], [0,0,1]])
+        natoms = natoms_uc
+        lat = sc_struct.lattice
+
+        if write_timings:
+            tt1, tc1 = time.time(), time.clock()
+            file_time.write("init {} {}\n".format(tt1-tt0, tc1-tc0))
+            tt0, tc0 = time.time(), time.clock()
+
+        # Determine sensible radii of each site in the input structure.
+        vire = ValenceIonicRadiusEvaluator(sc_struct)
+        radii_sites = []
+        species_string_sites = []
+        for isite, site in enumerate(vire.structure):
+            if np.linalg.norm(
+                    site.coords-sc_struct.sites[isite].coords) > 1.0e-6:
+                raise RuntimeError("inconsistent structures (coords)")
+            if len(sc_struct.sites[isite].species_string) == 1:
+                if site.species_string[0] != \
+                        sc_struct.sites[isite].species_string[0]:
+                    raise RuntimeError("inconsistent structures"
+                            " (species string (len 1))")
+            elif len(sc_struct.sites[isite].species_string) == 2:
+                if site.species_string[0] != \
+                        sc_struct.sites[isite].species_string[0] or \
+                        site.species_string[1] != \
+                        sc_struct.sites[isite].species_string[1]:
+                    raise RuntimeError("inconsistent structures"
+                            " (species string (len 2))")
+            else:
+                raise RuntimeError("inconsistent structures"
+                        " (len species string)")
+            radii_sites.append(vire.radii[site.species_string])
+            species_string_sites.append(site.species_string)
+
+        if write_timings:
+            tt1, tc1 = time.time(), time.clock()
+            file_time.write("radiideter {} {}\n".format(tt1-tt0, tc1-tc0))
+            tt0, tc0 = time.time(), time.clock()
+
+        # Insert interstitial site into structure.
+        sc_struct.append(inter_elem, [0, 0, 0])
+        natoms = natoms + 1
+        radii_sites.append(Element(inter_elem).average_ionic_radius)
+        species_string_sites.append(Element(inter_elem))
+        if len(sc_struct.sites) != natoms:
+            raise RuntimeError("")
+        if sc_struct.sites[natoms-1].species_string != inter_elem:
+            raise RuntimeError("{} != {}".format(
+                    sc_struct.sites[natoms-1].species_string, inter_elem))
+        max_radius_sphere = fac_max_radius * max(radii_sites)
+
+        # Set up index list of all possible tet- and oct-subset neighbor lists
+        # for tet-oct overlay motif, given CN = 10.
+        # Note that the interstitial is always placed at index 0 in the
+        # site lists so that the neighbor indeces start with 1---not with 0.
+        # Hence, the indeces i, j, k, and m are shifted one position "upwards"
+        # before included in lists_tet_indeces and lists_oct_indeces.
+        lists_tet_indeces = []
+        lists_oct_indeces = []
+        i_lists_tet_indeces = 0
+        if "tetoct" in self._motif_types:
+            for i in range(0, 6+1):
+                for j in range(i+1, 7+1):
+                    for k in range(j+1, 8+1):
+                        for m in range(k+1, 9+1):
+                            lists_tet_indeces.append([i+1, j+1, k+1, m+1])
+                            lists_oct_indeces.append([])
+                            for n in range(1, 10+1):
+                                if n not in lists_tet_indeces[i_lists_tet_indeces]:
+                                    lists_oct_indeces[i_lists_tet_indeces].append(n)
+                            i_lists_tet_indeces = i_lists_tet_indeces + 1
+
+        # Number of voxels in input structure
+        # and working supercell
+        # to span an equally fine grid in both structures.
+        nbins = [int(self._structure.lattice.a / self._dl), \
+                int(self._structure.lattice.b / self._dl), \
+                int(self._structure.lattice.c / self._dl)]
+        nbins_sc = [float(1 * nbins[0]), float(1 * nbins[1]), \
+                float(1 * nbins[2])]
+
+        if write_timings:
+            tt1, tc1 = time.time(), time.clock()
+            file_time.write("init2 {} {}\n".format(tt1-tt0, tc1-tc0))
+            tt0, tc0 = time.time(), time.clock()
+
+        # Prescreen to find the site with the largest nearest-neighbor
+        # distance.  Use that location to determine a sensible
+        # global r_inter.
+        max_min_dist = -1.0
+        coords_max_min_dist = None
+        for ia in range(nbins[0]):
+            a = (float(ia)+0.5) / nbins_sc[0]
+            for ib in range(nbins[1]):
+                b = (float(ib)+0.5) / nbins_sc[1]
+                for ic in range(nbins[2]):
+                    c = (float(ic)+0.5) / nbins_sc[2]
+                    sc_struct.replace(
+                            natoms-1, inter_elem, coords=[a, b, c],
+                            coords_are_cartesian=False)
+                    neighs_dists = sc_struct.get_neighbors(
+                            sc_struct.sites[natoms-1],
+                            max_radius_sphere, include_index=False)
+                    if len(neighs_dists) > 0:
+                        tmp = min([dist for (neigh, dist) in neighs_dists])
+                        if tmp > max_min_dist:
+                            max_min_dist = tmp
+                            coords_max_min_dist = [a, b, c]
+
+        if write_timings:
+            tt1, tc1 = time.time(), time.clock()
+            file_time.write("prescreen {} {}\n".format(tt1-tt0, tc1-tc0))
+            tt0, tc0 = time.time(), time.clock()
+
+        if not coords_max_min_dist:
+            raise RuntimeError("could not find any neighbor during presreening"
+                    " to assign hard-sphere radius to interstitial species."
+                    " Suggesting to increase fac_max_radius.")
+        sc_struct.replace(natoms-1, inter_elem, coords=coords_max_min_dist,
+                coords_are_cartesian=False)
+        vire = ValenceIonicRadiusEvaluator(sc_struct)
+        radii_sites[natoms-1] = vire.radii[vire.structure[natoms-1].species_string]
+        species_string_sites[natoms-1] = vire.structure[natoms-1].species_string
+
+        # Create underlying order parameter objects.
+        ops = []
+        iop=0
+        for optype in self._unique_op_types:
+            ops.append(OrderParameters([optype], cutoff=-10.0))
+            iop=iop+1
+
+        # Create lists to store tentative interstitial positions
+        # and further information.
+        inter_sites = []
+        inter_sites_pruned = []
+        for i_elem in range(nelems+1):
+            inter_sites.append({})
+            inter_sites_pruned.append({})
+            for t in self._motif_types:
+                inter_sites[i_elem][t] = []
+                inter_sites_pruned[i_elem][t] = []
+
+        if write_timings:
+            tt1, tc1 = time.time(), time.clock()
+            file_time.write("init3 {} {}\n".format(tt1-tt0, tc1-tc0))
+            tt0, tc0 = time.time(), time.clock()
+
+        # Loop over trial positions that are based on a regular
+        # grid in fractional coordinate space
+        # within the unit cell.
+        ntrials_tet = ntrials_oct = ntrials_tetoct = 0
+        for ia in range(nbins[0]):
+            a = (float(ia)+0.5) / nbins_sc[0]
+            for ib in range(nbins[1]):
+                b = (float(ib)+0.5) / nbins_sc[1]
+                for ic in range(nbins[2]):
+                    c = (float(ic)+0.5) / nbins_sc[2]
+
+                    # Place interstitial at next trial position.
+                    r = lat.get_cartesian_coords([a, b, c])
+                    sc_struct.replace(
+                            natoms-1, inter_elem, coords=[a, b, c],
+                            coords_are_cartesian=False)
+
+                    # Determine the current list of neighbors using
+                    # max_radius_sphere which is the product of the
+                    # largest species radius encountered in the bulk
+                    # structure and the input factor fac_max_radius.
+                    rinter = radii_sites[natoms-1]
+                    two_rinter = 2.0 * rinter
+                    neighs_dists_indeces = sc_struct.get_neighbors(
+                            sc_struct.sites[natoms-1],
+                            max_radius_sphere, include_index=True)
+
+                    # Calculate relative distances between trial site
+                    # and neighbors and check whether trial site
+                    # overlaps with any of the neighbors using the
+                    # input relative distance drel_overlap.
+                    skip_this = False
+                    rel_dist = []
+                    for i_rel_dist, (neigh_site, dist, index) in \
+                            enumerate(neighs_dists_indeces):
+                        dhs_inter_neigh = radii_sites[natoms-1]+radii_sites[index]
+                        # Multiplication and subsequent division with 20
+                        # makes it possible that we identify neighbors that
+                        # are equally far from the interstitial trial site
+                        # to a reasonable numerical precision of 1/20 = 0.05
+                        # (typically, Angstrom).
+                        rel_dist.append(float(int(20.0 * dist / dhs_inter_neigh)) / 20.0)
+                        if rel_dist[i_rel_dist] < drel_overlap:
+                            skip_this = True
+                            break
+
+                    if skip_this:
+                        continue
+
+                    # Sort relative distances and determine unique values.
+                    rel_dist_sorted = sorted(rel_dist)
+                    change = True
+                    while change:
+                        change = False
+                        for irds, rds in enumerate(rel_dist_sorted):
+                            if irds > 0:
+                                if fabs(rds - rel_dist_sorted[irds-1]) < 0.049:
+                                    del rel_dist_sorted[irds]
+                                    change = True
+                                    break
+
+                    # Create correspondence map between list storing
+                    # unique sorted relative distances (rel_dist_sorted) and
+                    # list storing neighbors, distances, and
+                    # indeces of sites in Structure object (neighs_dists_indeces).
+                    map_urds_ndi = []
+                    ncheck = 0
+                    for iurds, urds in enumerate(rel_dist_sorted):
+                        map_urds_ndi.append([])
+                        for ird, rd in enumerate(rel_dist):
+                            if fabs(urds - rd) < 0.049:
+                                ncheck = ncheck + 1
+                                map_urds_ndi[iurds].append(ird)
+                        if len(map_urds_ndi[iurds]) < 1: # xxx new May 24, 2016
+                            raise RuntimeError("expected at least one entry"
+                                    " in rel_dist per unique relative distance")
+                    if ncheck != len(neighs_dists_indeces):
+                        raise RuntimeError("found incorrect number ({}) of entries"
+                                " (expected: {})".format(ncheck,
+                                len(neighs_dists_indeces)))
+
+                    site_lists = [[] for i in range(1+nelems)]
+                    skip_elem_list = [False for i in range(1+nelems)]
+                    last_iurds = -1
+                    for iurds, urds in enumerate(rel_dist_sorted):
+                        last_iurds = iurds
+
+                        # Put interstitial at first place in first site list.
+                        if iurds == 0:
+                            # Put interstitial at first place in first site list
+                            # for each (elemental sub)lattice.
+                            for site_list_elem in site_lists:
+                                site_list_elem.append([sc_struct.sites[natoms-1]])
+
+                        # Add all sites associated with previous relative distance.
+                        else:
+                            for i_site_list_elem, site_list_elem in enumerate(site_lists):
+                                site_list_elem.append([])
+                                for site in site_list_elem[iurds-1]:
+                                    site_list_elem[iurds].append(site)
+
+                        # Add new sites asssociated with the current relative distance.
+                        for i in map_urds_ndi[iurds]:
+                            neigh_site = neighs_dists_indeces[i][0]
+                            if isinstance(neigh_site.specie, Element):
+                                this_elem = neigh_site.specie.symbol
+                            elif isinstance(neigh_site.specie, Specie):
+                                this_elem = neigh_site.specie.element.symbol
+                            else:
+                                raise RuntimeError("unexpected instance type")
+                            if this_elem not in elem_list_plus_inter:
+                                raise RuntimeError("this_elem is not in elem_list")
+                            if not skip_elem_list[nelems]:
+                                site_lists[nelems][iurds].append(neigh_site)
+                            for i_this_elem, elem in enumerate(elem_list_plus_inter):
+                                if this_elem == elem and not skip_elem_list[i_this_elem]:
+                                    site_lists[i_this_elem][iurds].append(neigh_site)
+
+                        # No structure motifs so far with > 10 neighs.
+                        # Therefore, cutting off everything
+                        # that has more than 10 neighbors.
+                        for i_site_list_elem, site_list_elem in enumerate(site_lists):
+                            if len(site_list_elem[iurds]) > 10:
+                                site_list_elem[iurds] = []
+                                skip_elem_list[i_site_list_elem] = True
+                        if False not in skip_elem_list:
+                            last_iurds = iurds - 1
+                            break
+                    if last_iurds <= -1:
+                        continue
+
+                    # Remove those neighbor lists of sublattices
+                    # which have the same number of sites as their preceding list
+                    # for that element type, thus, indicating same sites.
+                    for i_site_list_elem, site_list_elem in enumerate(site_lists):
+                        change = True
+                        while change:
+                            change = False
+                            for iurds in range(1, len(site_list_elem)):
+                                if site_list_elem[iurds]:
+                                    if len(site_list_elem[iurds]) < len(site_list_elem[iurds-1]):
+                                        raise RuntimeError("next nonempty site list"
+                                                " should have more than or equal"
+                                                " number of sites as previous list.")
+                                    if len(site_list_elem[iurds]) == len(site_list_elem[iurds-1]):
+                                        if i_site_list_elem == nelems:
+                                            raise RuntimeError("there should not be any"
+                                                    " consecutive neighbor lists that"
+                                                    " have the same number of sites for"
+                                                    " the entire lattice.")
+                                        for iurds2 in range(iurds-1, len(site_list_elem)-1):
+                                            site_list_elem[iurds2] = list(site_list_elem[iurds2+1])
+                                        site_list_elem[len(site_list_elem)-1] = []
+                                        change = True
+
+                    # Create lists of indeces representing the sites
+                    # in a given neighbor site list.
+                    indeces_lists = [[] for i in range(1+nelems)]
+                    for i_site_list_elem, site_list_elem in enumerate(site_lists):
+                        for iurds in range(last_iurds+1):
+                            if not site_list_elem[iurds]:
+                                break
+                            else:
+                                indeces_lists[i_site_list_elem].append([])
+                                for i_site, site in enumerate(site_list_elem[iurds]):
+                                    if site != sc_struct.sites[natoms-1]:
+                                        if i_site == 0:
+                                            raise RuntimeError("unexpected index of noncentral site!")
+                                        indeces_lists[i_site_list_elem][iurds].append(i_site)
+                                    elif i_site != 0:
+                                        raise RuntimeError("unexpected index of central site!")
+                                if len(indeces_lists[i_site_list_elem][iurds])+1 != \
+                                        len(site_lists[i_site_list_elem][iurds]):
+                                    raise RuntimeError("inconsistency between indeces_lists"
+                                                       " and site_lists!")
+
+                    # Check whether this trial position looks like
+                    # a coordination pattern-resembling interstitial site.
+                    # Because we prefer to get motifs from all-element lattice
+                    # we iterate backwardly (i.e., from nelems to 0 (inclusive)).
+                    for i_elem in range(nelems,-1, -1):
+
+                        for iurds in range(len(indeces_lists[i_elem])):
+
+                            for it, t in enumerate(self._motif_types):
+
+                                # 1st criterion (very stringent)
+                                # to consider the trial position as interstitial site:
+                                # does the total coordination number comply with the
+                                # target structure motif (tetrahedral --> 4,
+                                # octahedral --> 6, bcc --> 8, tet-oct overlay --> 10)?
+                                cn_total = len(indeces_lists[i_elem][iurds])
+
+                                if t == "tet" and cn_total != 4:
+                                    continue
+                                elif t == "oct" and cn_total != 6:
+                                    continue
+                                elif t == "bcc" and cn_total != 8:
+                                    continue
+                                elif t == "tetoct" and cn_total != 10:
+                                    continue
+                                #elif (t == "fcc" or t == "hcp") and cn_total != 12:
+                                #    continue
+
+                                # 2nd criterion: does any existing
+                                # interstitial site of the current
+                                # coordination pattern type
+                                # that is within 2*rinter distance
+                                # of the current trial site
+                                # possess the same chemical environment?
+                                # First, determine element-wise CNs.
+                                index = -1
+                                cns = {}
+                                for isite, site in enumerate(site_lists[i_elem][iurds]):
+                                    # Skip the interstitial itself.
+                                    if isite == 0:
+                                        continue
+                                    if isinstance(site.specie, Element):
+                                        elem = site.specie.symbol
+                                    elif isinstance(site.specie, Specie):
+                                        elem = site.specie.element.symbol
+                                    else:
+                                        raise RuntimeError("unexpected instance type")
+                                    if elem in cns.keys():
+                                        cns[elem] = cns[elem] + 1
+                                    else:
+                                        cns[elem] = 1
+                                # Now, is there already another site
+                                # with the same chemical environment
+                                # within 2*rinter distance?
+                                # If yes, register for potential replacement.
+                                for i_intersite, intersite in enumerate(inter_sites[i_elem][t]):
+                                    if len(intersite["cns"].keys()) == len(cns.keys()):
+                                        for elem, cn in cns.items():
+                                            if elem in intersite["cns"].keys():
+                                                if cn == intersite["cns"][elem]:
+                                                    (dist, jimage)  = \
+                                                            lat.get_distance_and_image(
+                                                            [a, b, c],
+                                                            intersite["frac_coords"])
+                                                    if dist < two_rinter:
+                                                        index = i_intersite
+                                                else:
+                                                    break
+                                            else:
+                                                break
+
+                                if t != "tetoct":
+                                    if t == "tet":
+                                        ntrials_tet = ntrials_tet + 1
+                                    elif t == "oct":
+                                        ntrials_oct = ntrials_oct + 1
+
+                                    opvals = ops[self._map_imotif_iop[it][0]].get_order_parameters(
+                                            site_lists[i_elem][iurds], 0,
+                                            indeces_neighs=indeces_lists[i_elem][iurds])
+                                    if not opvals:
+                                        raise RuntimeError("unable to compute OPs")
+                                    opval = opvals[0]
+                                    # Introduce sensible threshold
+                                    # to keep the number of potential sites small enough.
+                                    if opval > op_threshs[it]:
+                                        if not inter_sites[i_elem][t]:
+                                            insert_index = 0
+                                            inter_sites[i_elem][t].append({})
+                                        elif index == -1:
+                                            insert_index = len(inter_sites[i_elem][t])
+                                            inter_sites[i_elem][t].append({})
+                                        else:
+                                            if fabs(opval-op_targets[it]) < \
+                                                        fabs(inter_sites[i_elem][t][index]["op_value"]-op_targets[it]):
+                                                insert_index = index
+                                            else:
+                                                insert_index = -1
+                                        if insert_index > -1:
+                                            if insert_index > len(inter_sites[i_elem][t])-1:
+                                                raise RuntimeError("")
+                                            inter_sites[i_elem][t][insert_index]["frac_coords"] = [a, b, c]
+                                            inter_sites[i_elem][t][insert_index]["position"] = r
+                                            inter_sites[i_elem][t][insert_index]["cns"] = cns
+                                            inter_sites[i_elem][t][insert_index]["op_value"] = opval
+                                            inter_sites[i_elem][t][insert_index]["site_list"] = site_lists[i_elem][iurds]
+
+                                # Note that we only search until one combination is successful.
+                                else: # if t == "tetoct"
+                                    ntrials_tetoct = ntrials_tetoct + 1
+                                    for i_tet_indeces, tet_indeces in enumerate(lists_tet_indeces):
+                                        qtet_tetmot = ops[self._map_imotif_iop[it][0]].get_order_parameters(
+                                                site_lists[i_elem][iurds], 0,
+                                                indeces_neighs=tet_indeces)[0]
+                                        qoct_tetmot = ops[self._map_imotif_iop[it][1]].get_order_parameters(
+                                                site_lists[i_elem][iurds], 0,
+                                                indeces_neighs=tet_indeces)[0]
+                                        qtet_octmot = ops[self._map_imotif_iop[it][0]].get_order_parameters(
+                                                site_lists[i_elem][iurds], 0,
+                                                indeces_neighs=lists_oct_indeces[i_tet_indeces])[0]
+                                        qoct_octmot = ops[self._map_imotif_iop[it][1]].get_order_parameters(
+                                                site_lists[i_elem][iurds], 0,
+                                                indeces_neighs=lists_oct_indeces[i_tet_indeces])[0]
+                                        if not qtet_tetmot or not qoct_tetmot \
+                                                or not qtet_octmot or \
+                                                not qoct_octmot:
+                                            raise RuntimeError("could not"
+                                                    " compute one or more"
+                                                    " order parameters.")
+
+                                        # Introduce sensible threshold
+                                        # to keep the number of potential sites small enough.
+                                        if qtet_tetmot > op_threshs[0] and \
+                                                qoct_tetmot < op_threshs[1] and \
+                                                qoct_octmot > op_threshs[1] and \
+                                                qtet_octmot < op_threshs[0]:
+                                            if not inter_sites[i_elem][t]:
+                                                insert_index = 0
+                                                inter_sites[i_elem][t].append({})
+                                            elif index == -1:
+                                                insert_index = len(inter_sites[i_elem][t])
+                                                inter_sites[i_elem][t].append({})
+                                            else:
+                                                if fabs(0.5 * (qtet_tetmot + qoct_octmot) - op_targets[it]) < \
+                                                            fabs(inter_sites[i_elem][t][index]["op_value"] - op_targets[it]):
+                                                    insert_index = index
+                                                else:
+                                                    insert_index = -1
+                                            if insert_index > -1:
+                                                if insert_index > len(inter_sites[i_elem][t])-1:
+                                                    raise RuntimeError("")
+                                                inter_sites[i_elem][t][insert_index]["frac_coords"] = [a, b, c]
+                                                inter_sites[i_elem][t][insert_index]["position"] = r
+                                                inter_sites[i_elem][t][insert_index]["cns"] = cns
+                                                inter_sites[i_elem][t][insert_index]["op_value"] = 0.5 * (qtet_tetmot + qoct_octmot)
+                                                inter_sites[i_elem][t][insert_index]["site_list"] = site_lists[i_elem][iurds]
+
+        if write_timings:
+            tt1, tc1 = time.time(), time.clock()
+            file_time.write("findinters {} {}\n".format(tt1-tt0, tc1-tc0))
+            tt0, tc0 = time.time(), time.clock()
+
+        # Check whether any trial site
+        # from the sublattice structure-motif search
+        # overlaps with any discarded neighbor
+        # using drel_overlap * (rinter+rneigh).
+        dont_include = []
+
+        for i_elem in range(nelems+1):
+            for it, t in enumerate(self._motif_types):
+                for i_intersite, intersite in enumerate(inter_sites[i_elem][t]):
+                    sc_struct.replace(
+                            natoms-1,
+                            inter_elem, coords=intersite["frac_coords"],
+                            coords_are_cartesian=False)
+                    neighs_dists_indeces = sc_struct.get_neighbors(
+                            sc_struct.sites[natoms-1],
+                            max_radius_sphere, include_index=True)
+                    for neighsite, dist, index in neighs_dists_indeces:
+                        if dist < (radii_sites[natoms-1]+radii_sites[index]) * drel_overlap:
+                            if [i_elem, it, i_intersite] not in dont_include:
+                                dont_include.append([i_elem, it, i_intersite])
+                                break
+
+        if write_timings:
+            tt1, tc1 = time.time(), time.clock()
+            file_time.write("pruneatomoverlap {} {}\n".format(tt1-tt0, tc1-tc0))
+            tt0, tc0 = time.time(), time.clock()
+
+        # Check whether any two trial sites
+        # overlap in the primitive unit cell
+        # using drel_overlap * 2*rinter or
+        # whether their positions yield
+        # similar structure using the StructureMatcher
+        # class.  If so, remove the site with the
+        # OP value farthest from the respective target
+        # value.
+
+        lat = sc_struct.lattice
+        overlap = 2.0*radii_sites[natoms-1] * drel_overlap
+        sc_struct2 = sc_struct.copy()
+        for i_elem1 in range(nelems+1):
+            for it1, t1 in enumerate(self._motif_types):
+                for i_intersite1, intersite1 in enumerate(inter_sites[i_elem1][t1]):
+                    for i_elem2 in range(nelems+1):
+                        for it2, t2 in enumerate(self._motif_types):
+                            for i_intersite2, intersite2 in enumerate(inter_sites[i_elem2][t2]):
+                                if i_elem1 != i_elem2 or \
+                                        it1 != it2 or \
+                                        i_intersite1 != i_intersite2:
+                                    if [i_elem1, it1, i_intersite1] not in dont_include and \
+                                            [i_elem2, it2, i_intersite2] not in dont_include:
+                                        dist, jimage = lat.get_distance_and_image(
+                                                intersite1["frac_coords"], intersite2["frac_coords"])
+                                        if dist < overlap:
+                                            if fabs(intersite1["op_value"]-op_targets[it1]) < \
+                                                    fabs(intersite2["op_value"]-op_targets[it2]):
+                                                dont_include.append([i_elem2, it2, i_intersite2])
+                                            else:
+                                                dont_include.append([i_elem1, it1, i_intersite1])
+
+        if write_timings:
+            tt1, tc1 = time.time(), time.clock()
+            file_time.write("pruneinteroverlap {} {}\n".format(tt1-tt0, tc1-tc0))
+            tt0, tc0 = time.time(), time.clock()
+
+        # Repeating same loop to have the smallest number of sites
+        # to be checked for symmetric equivalence
+        # because that can take a lot of time.
+        for i_elem1 in range(nelems+1):
+            for it1, t1 in enumerate(self._motif_types):
+                for i_intersite1, intersite1 in enumerate(inter_sites[i_elem1][t1]):
+                    for i_elem2 in range(nelems+1):
+                        for it2, t2 in enumerate(self._motif_types):
+                            for i_intersite2, intersite2 in enumerate(inter_sites[i_elem2][t2]):
+                                if i_elem1 != i_elem2 or \
+                                        it1 != it2 or \
+                                        i_intersite1 != i_intersite2:
+                                    if [i_elem1, it1, i_intersite1] not in dont_include and \
+                                            [i_elem2, it2, i_intersite2] not in dont_include:
+                                        sc_struct.replace(
+                                                natoms-1,
+                                                inter_elem, coords=intersite1["frac_coords"],
+                                                coords_are_cartesian=False)
+                                        sc_struct2.replace(
+                                                natoms-1,
+                                                inter_elem, coords=intersite2["frac_coords"],
+                                                coords_are_cartesian=False)
+                                        if sgops.are_symmetrically_equivalent(
+                                                sc_struct, sc_struct2):
+                                            if fabs(intersite1["op_value"]-op_targets[it1]) < \
+                                                    fabs(intersite2["op_value"]-op_targets[it2]):
+                                                dont_include.append([i_elem2, it2, i_intersite2])
+                                            else:
+                                                dont_include.append([i_elem1, it1, i_intersite1])
+
+        if write_timings:
+            tt1, tc1 = time.time(), time.clock()
+            file_time.write("prunesymequiv {} {}\n".format(tt1-tt0, tc1-tc0))
+            tt0, tc0 = time.time(), time.clock()
+
+        # Set-up final interstitial site lists, taking into account only
+        # those that are not mentioned in dont_include.
+        for i_elem in range(nelems+1):
+            for it, t in enumerate(self._motif_types):
+                for i_intersite, intersite in enumerate(inter_sites[i_elem][t]):
+                    if [i_elem, it, i_intersite] not in dont_include:
+                        inter_sites_pruned[i_elem][t].append(intersite)
+
+        i = 0
+        for i_elem in range(nelems+1):
+            for it, t in enumerate(self._motif_types):
+                for i_intersite, intersite in enumerate(inter_sites_pruned[i_elem][t]):
+
+                    self._defect_sites.append(
+                        PeriodicSite(
+                            Element(inter_elem),
+                            self._structure.lattice.get_fractional_coords(
+                                intersite["position"]),
+                            self._structure.lattice,
+                            to_unit_cell=False,
+                            coords_are_cartesian=False,
+                            properties=None))
+                    self._defect_types.append(t)
+                    self._defect_cns.append(intersite["cns"])
+                    # xxx still have to change this
+                    self._defect_site_multiplicity.append(1)
+
+                    i = i + 1
+
+        if write_timings:
+            file_time.close()
+
+
+    def enumerate_defectsites(self):
+        """
+        Get all defect sites.
+
+        Returns:
+            defect_sites ([PeriodicSite]): list of periodic sites
+                    representing the interstitials.
+        """
+        return self._defect_sites
+
+
+    def get_motif_type(self, i):
+        """
+        Get the motif type of defect with index i (e.g., "tet").
+
+        Returns:
+            motif (string): motif type.
+        """
+        return self._defect_types[i]
+
+
+    def get_coordinating_elements_cns(self, i):
+        """
+        Get element-specific coordination numbers of defect with index i.
+
+        Returns:
+            elem_cn (dict): dictionary storing the coordination numbers (int)
+                    with string representation of elements as keys.
+                    (i.e., {elem1 (string): cn1 (int), ...}).
+        """
+        return self._defect_cns[i]
+
+
+    def make_supercells_with_defects(self, scaling_matrix):
+        """
+        Generate a sequence of supercells
+        in which each supercell contains a single interstitial,
+        except for the first supercell in the sequence
+        which is a copy of the defect-free input structure.
+
+        Args:
+            scaling_matrix (3x3 integer array): scaling matrix
+                to transform the lattice vectors.
+        Returns:
+            scs ([Structure]): sequence of supercells.
+
+        """
+        scs = []
+        sc = self._structure.copy()
+        sc.make_supercell(scaling_matrix)
+        scs.append(sc)
+        for ids, defect_site in enumerate(self._defect_sites):
+            sc_with_inter = sc.copy()
+            sc_with_inter.append(defect_site.species_string,
+                    defect_site.frac_coords,
+                    coords_are_cartesian=False,
+                    validate_proximity=False,
+                    properties=None)
+            if not sc_with_inter:
+                raise RuntimeError("could not generate supercell with"
+                        " interstitial {}".format(ids+1))
+            scs.append(sc_with_inter.copy())
+        return scs
+
+

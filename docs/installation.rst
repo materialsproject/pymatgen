@@ -73,46 +73,17 @@ the moment) required only for certain features:
    generation. This is required in addition to installing the zeo Python
    package.
 
-
-Step-by-step installation instructions
-======================================
+Conda-based install
+===================
 
 For these instructions, we will assume the **64-bit** versions of all OSes.
 For OSX and Linux, both Python 3.5 adn 2.7 are supported. For Windows, only
 Python 3.5 is supported. Note that you will not be able to use all
-functionality on Windows (unless you use Cygwin) because some
-of the external programs have to be compiled from Fortran source, but most of
-the common functionality should work just fine.
+functionality on Windows because some of the external programs have to be
+compiled from Fortran source, but most of the common functionality should
+work just fine.
 
-Step 1: Preparing your system
------------------------------
-
-Windows
-~~~~~~~
-
-1. Download Microsoft Visual Studio 2015 (the free Community Edition) is fine.
-2. Install Visual Studio 2015, but *make sure that you select More Options ->
-   Programming Languages -> Visual C++ during the installation process*. By
-   default, Visual Studio does not install Visual C++, which is needed.
-
-Mac OSX
-~~~~~~~
-
-1. Download and install Xcode. Afterwards, install the XCode command line
-   tools by typing the following in a terminal::
-
-        xcode-select --install
-
-2. (Optional) Install gfortran.  Get an installer at
-   http://gcc.gnu.org/wiki/GFortranBinaries#MacOS.
-
-Linux
-~~~~~
-
-1. Usually no preparation is needed as most of the standard compilers should
-   already be available.
-
-Step 2: Install conda
+Step 1: Install conda
 ---------------------
 
 Download and install the version of conda for your operating system from
@@ -154,8 +125,8 @@ then do pip install::
     conda install --yes numpy scipy matplotlib
     pip install pymatgen
 
-Step 4: (Optional) Install enumlib and bader (only tested in OSX and Linux)
----------------------------------------------------------------------------
+Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)
+---------------------------------------------------------------------
 
 If you would like to use the enumeration capabilities powered by Gus Hart's
 enumlib or perform Bader charge analysis powered by the Bader analysis code
@@ -221,13 +192,13 @@ After generating the resources directory, you should add a VASP_PSP_DIR config
 variable pointing to the generated directory and you should then be
 able to generate POTCARs::
 
-    pmg config --add VASP_PSP_DIR <MY_PSP>
+    pmg config --add PMG_VASP_PSP_DIR <MY_PSP>
 
 If you are using newer sets of pseudopotential files from VASP, the directory
 names may be different, e.g., POT_GGA_PAW_PBE_52. For such cases, please also
 add a default functional specification as follows::
 
-    pmg config --add DEFAULT_FUNCTIONAL PBE_52
+    pmg config --add PMG_DEFAULT_FUNCTIONAL PBE_52
 
 You can also use this to specify whatever functional you would like to use by
 default in pymatgen, e.g., LDA_52, PW91, etc. Type::
@@ -245,6 +216,37 @@ to see full list of choices.
 
 Setup for Developers (using GitHub)
 ===================================
+
+Step 1: Preparing your system
+-----------------------------
+
+Windows
+~~~~~~~
+
+1. Download Microsoft Visual Studio 2015 (the free Community Edition) is fine.
+2. Install Visual Studio 2015, but *make sure that you select More Options ->
+   Programming Languages -> Visual C++ during the installation process*. By
+   default, Visual Studio does not install Visual C++, which is needed.
+
+Mac OSX
+~~~~~~~
+
+1. Download and install Xcode. Afterwards, install the XCode command line
+   tools by typing the following in a terminal::
+
+        xcode-select --install
+
+2. (Optional) Install gfortran.  Get an installer at
+   http://gcc.gnu.org/wiki/GFortranBinaries#MacOS.
+
+Linux
+~~~~~
+
+1. Usually no preparation is needed as most of the standard compilers should
+   already be available.
+
+Step 2: Install pymatgen in developmental mode
+----------------------------------------------
 
 1. Clone the repo at http://github.com/materialsproject/pymatgen.
 

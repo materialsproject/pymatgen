@@ -635,6 +635,7 @@ class CifParser(object):
             x = str2float(data["_atom_site_fract_x"][i])
             y = str2float(data["_atom_site_fract_y"][i])
             z = str2float(data["_atom_site_fract_z"][i])
+
             try:
                 occu = str2float(data["_atom_site_occupancy"][i])
             except (KeyError, ValueError):
@@ -648,9 +649,10 @@ class CifParser(object):
                 else:
                     coord_to_species[match] += {el: occu}
 
-        if any([sum(c.values()) > 1 for c in coord_to_species.values()]):
-            warnings.warn("Some occupancies sum to > 1! If they are within "
-                          "the tolerance, they will be rescaled.")
+        sum_occu = [sum(c.values()) for c in coord_to_species.values()]
+        if any([o > 1 for o in sum_occu]):
+            warnings.warn("Some occupancies (%s) sum to > 1! If they are within "
+                          "the tolerance, they will be rescaled." % str(sum_occu))
 
         allspecies = []
         allcoords = []
@@ -805,7 +807,7 @@ class CifWriter(object):
         count = 1
         if symprec is None:
             for site in struct:
-                for sp, occu in site.species_and_occu.items():
+                for sp, occu in sorted(site.species_and_occu.items()):
                     atom_site_type_symbol.append(sp.__str__())
                     atom_site_symmetry_multiplicity.append("1")
                     atom_site_fract_x.append("{0:f}".format(site.a))

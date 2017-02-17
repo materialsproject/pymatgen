@@ -3,7 +3,7 @@
 
 __author__ = 'waroquiers'
 
-import unittest2 as unittest
+import unittest
 from pymatgen.analysis.chemenv.utils.func_utils import CSMFiniteRatioFunction
 from pymatgen.analysis.chemenv.utils.func_utils import CSMInfiniteRatioFunction
 from pymatgen.analysis.chemenv.utils.func_utils import DeltaCSMRatioFunction

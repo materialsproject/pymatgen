@@ -4,6 +4,16 @@
 
 from __future__ import division, unicode_literals
 
+import collections
+import numpy as np
+
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
+    get_el_sp
+from monty.json import MSONable
+from pymatgen.util.coord_utils import pbc_diff
+from pymatgen.core.composition import Composition
+
 """
 This module defines classes representing non-periodic and periodic sites.
 """
@@ -15,16 +25,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 17, 2012"
-
-import collections
-import numpy as np
-
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
-    get_el_sp
-from monty.json import MSONable
-from pymatgen.util.coord_utils import pbc_diff
-from pymatgen.core.composition import Composition
 
 
 class Site(collections.Hashable, MSONable):
@@ -219,9 +219,6 @@ class Site(collections.Hashable, MSONable):
 
     def __contains__(self, el):
         return el in self._species
-
-    def __len__(self):
-        return len(self._species)
 
     def __repr__(self):
         return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(
@@ -424,7 +421,7 @@ class PeriodicSite(Site, MSONable):
             fcoords (3x1 array): fcoords to get distance from.
             jimage (3x1 array): Specific periodic image in terms of
                 lattice translations, e.g., [1,0,0] implies to take periodic
-                image that is one a-lattice vector away. If jimage == None,
+                image that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
         Returns:
@@ -447,7 +444,7 @@ class PeriodicSite(Site, MSONable):
             other (PeriodicSite): Other site to get distance from.
             jimage (3x1 array): Specific periodic image in terms of lattice
                 translations, e.g., [1,0,0] implies to take periodic image
-                that is one a-lattice vector away. If jimage == None,
+                that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
         Returns:
@@ -464,7 +461,7 @@ class PeriodicSite(Site, MSONable):
             other (PeriodicSite): Other site to get distance from.
             jimage (3x1 array): Specific periodic image in terms of lattice
                 translations, e.g., [1,0,0] implies to take periodic image
-                that is one a-lattice vector away. If jimage == None,
+                that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
         Returns:

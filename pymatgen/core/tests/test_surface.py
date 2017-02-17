@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 
-import unittest2 as unittest
+import unittest
 import os
 import random
 

@@ -268,7 +268,78 @@ class SimplexTest(PymatgenTest):
         self.assertTrue(str(self.simplex).startswith("3-simplex in 4D space"))
         self.assertTrue(repr(self.simplex).startswith("3-simplex in 4D space"))
 
+    def test_bary_coords(self):
+        s = Simplex([[0, 2], [3, 1], [1, 0]])
+        point = [0.7, 0.5]
+        bc = s.bary_coords(point)
+        self.assertArrayAlmostEqual(bc, [0.26, -0.02, 0.76])
+        new_point = s.point_from_bary_coords(bc)
+        self.assertArrayAlmostEqual(point, new_point)
+
+    def test_intersection(self):
+        # simple test, with 2 intersections at faces
+        s = Simplex([[0, 2], [3, 1], [1, 0]])
+        point1 = [0.7, 0.5]
+        point2 = [0.5, 0.7]
+        intersections = s.line_intersection(point1, point2)
+        expected = np.array([[1.13333333, 0.06666667],
+                             [ 0.8,  0.4]])
+        self.assertArrayAlmostEqual(intersections, expected)
+
+        # intersection through point and face
+        point1 = [0, 2]  # simplex point
+        point2 = [1, 1]  # inside simplex
+        expected = np.array([[1.66666667, 0.33333333],
+                             [0, 2]])
+        intersections = s.line_intersection(point1, point2)
+        self.assertArrayAlmostEqual(intersections, expected)
+
+        # intersection through point only
+        point1 = [0, 2]  # simplex point
+        point2 = [0.5, 0.7]
+        expected = np.array([[0, 2]])
+        intersections = s.line_intersection(point1, point2)
+        self.assertArrayAlmostEqual(intersections, expected)
+
+        # 3d intersection through edge and face
+        point1 = [0.5, 0, 0] # edge point
+        point2 = [0.5, 0.5, 0.5] # in simplex
+        expected = np.array([[ 0.5, 0.25, 0.25],
+                             [ 0.5, 0. , 0. ]])
+        intersections = self.simplex.line_intersection(point1, point2)
+        self.assertArrayAlmostEqual(intersections, expected)
+
+        # 3d intersection through edge only
+        point1 = [0.5, 0, 0] # edge point
+        point2 = [0.5, 0.5, -0.5] # outside simplex
+        expected = np.array([[0.5, 0., 0.]])
+        intersections = self.simplex.line_intersection(point1, point2)
+        self.assertArrayAlmostEqual(intersections, expected)
+
+        # coplanar to face (no intersection)
+        point1 = [-1, 2]
+        point2 = [0, 0]
+        expected = np.array([])
+        intersections = s.line_intersection(point1, point2)
+        self.assertArrayAlmostEqual(intersections, expected)
+
+        # coplanar to face (with intersection line)
+        point1 = [0, 2]  # simplex point
+        point2 = [1, 0]
+        expected = np.array([[1, 0],
+                             [0, 2]])
+        intersections = s.line_intersection(point1, point2)
+        self.assertArrayAlmostEqual(intersections, expected)
+
+        # coplanar to face (with intersection points)
+        point1 = [0.1, 2]
+        point2 = [1.1, 0]
+        expected = np.array([[1.08, 0.04],
+                             [0.12, 1.96]])
+        intersections = s.line_intersection(point1, point2)
+        self.assertArrayAlmostEqual(intersections, expected)
+
 
 if __name__ == "__main__":
-    import unittest2 as unittest
+    import unittest
     unittest.main()

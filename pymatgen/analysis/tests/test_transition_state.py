@@ -5,7 +5,7 @@
 from __future__ import division, unicode_literals
 
 import os
-import unittest2 as unittest
+import unittest
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.transition_state import NEBAnalysis
 import json
@@ -51,8 +51,9 @@ class NEBAnalysisTest(PymatgenTest):
 
         neb_analysis1.setup_spline(spline_options={'saddle_point': 'zero_slope'})
         self.assertArrayAlmostEqual(neb_analysis1.get_extrema()[1][0], (0.50023335723480078, 325.20003984140203))
-
-        neb_analysis2_dict = json.load(open(os.path.join(test_dir, 'neb2', 'neb_analysis2.json'), 'r'))
+        with open(os.path.join(test_dir, 'neb2', 'neb_analysis2.json'),
+                  'r') as f:
+            neb_analysis2_dict = json.load(f)
         neb_analysis2 = NEBAnalysis.from_dict(neb_analysis2_dict)
         self.assertArrayAlmostEqual(neb_analysis2.get_extrema()[1][0], (0.37255257367467326, 562.40825334519991))
 

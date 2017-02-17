@@ -4,15 +4,15 @@
 from __future__ import unicode_literals, division, print_function
 
 import yaml
-import unittest2 as unittest
+import unittest
+import sys
 
-from collections import OrderedDict
-from monty.collections import AttrDict
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.tasks import ParalConf
 from pymatgen.io.abinit.qadapters import *
 from pymatgen.io.abinit.qadapters import QueueAdapter, SlurmAdapter 
 from pymatgen.io.abinit import qutils as qu
+
 
 class ParseTimestr(PymatgenTest):
     def test_slurm_parse_timestr(self):
@@ -35,6 +35,7 @@ class ParseTimestr(PymatgenTest):
         aequal(slurm_parse_timestr("3:2:5"), 3*hours + 2*minutes + 5*secs)
 
 
+@unittest.skipIf(sys.platform.startswith("win"), "Skipping for Windows")
 class QadapterTest(PymatgenTest):
     QDICT = yaml.load("""\
 priority: 1
@@ -164,6 +165,7 @@ hardware:
         assert isinstance(qad, MyAdapter)
 
 
+@unittest.skipIf(sys.platform.startswith("win"), "Skipping for Windows")
 class ShellAdapterTest(PymatgenTest):
     """Test suite for Shell adapter."""
     QDICT = yaml.load("""\
@@ -212,6 +214,7 @@ source ~/env1.sh
 """)
 
 
+@unittest.skipIf(sys.platform.startswith("win"), "Skipping for Windows")
 class SlurmAdapterTest(PymatgenTest):
     """Test suite for Slurm adapter."""
     QDICT = yaml.load("""\
@@ -296,6 +299,7 @@ mpirun -n 4 executable < stdin > stdout 2> stderr
         #assert qad.has_omp
 
 
+@unittest.skipIf(sys.platform.startswith("win"), "Skipping for Windows")
 class PbsProadapterTest(PymatgenTest):
     """Test suite for PbsPro adapter."""
     QDICT = yaml.load("""\
@@ -454,5 +458,5 @@ mpirun -n 3 executable < stdin > stdout 2> stderr
                                            '2:ncpus=24:vmem=48000mb:mpiprocs=24')
 
 if __name__ == '__main__':
-    import unittest2 as unittest
+    import unittest
     unittest.main()

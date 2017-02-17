@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 16, 2012"
 
-import unittest2 as unittest
+import unittest
 import os
 import pickle
 import numpy as np
@@ -207,7 +207,7 @@ direct
         p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"),
                              check_for_POTCAR=False)
 
-        tempfname = "POSCAR.testing"
+        tempfname = "POSCAR.testing.md"
         p.write_file(tempfname)
         p3 = Poscar.from_file(tempfname)
 
@@ -632,7 +632,7 @@ class PotcarSingleTest(unittest.TestCase):
         test_potcar_dir = os.path.abspath(
             os.path.join(os.path.dirname(__file__),
                          "..", "..", "..", "..", "test_files"))
-        SETTINGS["VASP_PSP_DIR"] = test_potcar_dir
+        SETTINGS["PMG_VASP_PSP_DIR"] = test_potcar_dir
         p = PotcarSingle.from_symbol_and_functional("Li_sv", "PBE")
         self.assertEqual(p.enmax, 271.649)
 
@@ -652,15 +652,25 @@ class PotcarSingleTest(unittest.TestCase):
 
         self.assertEqual(psingle.potential_type, 'PAW')
 
+    def test_default_functional(self):
+        p = PotcarSingle.from_symbol_and_functional("Fe")
+        self.assertEqual(p.functional_class, 'GGA')
+        SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
+        p = PotcarSingle.from_symbol_and_functional("Fe")
+        self.assertEqual(p.functional_class, 'LDA')
+
+    def tearDown(self):
+        SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
+
 
 class PotcarTest(unittest.TestCase):
 
     def setUp(self):
-        if "VASP_PSP_DIR" not in os.environ:
+        if "PMG_VASP_PSP_DIR" not in os.environ:
             test_potcar_dir = os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                              "test_files"))
-            os.environ["VASP_PSP_DIR"] = test_potcar_dir
+            os.environ["PMG_VASP_PSP_DIR"] = test_potcar_dir
         filepath = os.path.join(test_dir, 'POTCAR')
         self.potcar = Potcar.from_file(filepath)
 
@@ -700,6 +710,17 @@ class PotcarTest(unittest.TestCase):
         self.assertEqual(self.potcar.symbols, ["Fe_pv", "O"])
         self.assertEqual(self.potcar[0].nelectrons, 14)
 
+    def test_default_functional(self):
+        p = Potcar(["Fe", "P"])
+        self.assertEqual(p[0].functional_class, 'GGA')
+        self.assertEqual(p[1].functional_class, 'GGA')
+        SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
+        p = Potcar(["Fe", "P"])
+        self.assertEqual(p[0].functional_class, 'LDA')
+        self.assertEqual(p[1].functional_class, 'LDA')
+
+    def tearDown(self):
+        SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
 class VaspInputTest(unittest.TestCase):
 
@@ -708,11 +729,11 @@ class VaspInputTest(unittest.TestCase):
         incar = Incar.from_file(filepath)
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        if "VASP_PSP_DIR" not in os.environ:
+        if "PMG_VASP_PSP_DIR" not in os.environ:
             test_potcar_dir = os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                              "test_files"))
-            os.environ["VASP_PSP_DIR"] = test_potcar_dir
+            os.environ["PMG_VASP_PSP_DIR"] = test_potcar_dir
         filepath = os.path.join(test_dir, 'POTCAR')
         potcar = Potcar.from_file(filepath)
         filepath = os.path.join(test_dir, 'KPOINTS.auto')

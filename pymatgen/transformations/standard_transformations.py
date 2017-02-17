@@ -468,7 +468,6 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         for i, site in enumerate(structure):
             if site.is_ordered:
                 continue
-            found = False
             for j, ex in enumerate(exemplars):
                 sp = ex.species_and_occu
                 if not site.species_and_occu.almost_equals(sp):
@@ -480,9 +479,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     sym_test = True
                 if sym_test:
                     equivalent_sites[j].append(i)
-                    found = True
                     break
-            if not found:
+            else:
                 equivalent_sites.append([i])
                 exemplars.append(site)
 

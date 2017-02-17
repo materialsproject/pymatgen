@@ -609,6 +609,11 @@ class GaussianOutput(object):
 
         atom_basis_labels[iatom] = [AO_k, AO_k, ...]
 
+    .. attribute:: resumes
+
+        List of gaussian data resume given at the end of the output file before
+        the quotation. The resumes are given as string.
+
     Methods:
 
     .. method:: to_input()
@@ -686,6 +691,8 @@ class GaussianOutput(object):
         mo_coeff_name_patt = re.compile("\d+\s((\d+|\s+)\s+([a-zA-Z]{1,2}|\s+))\s+(\d+\S+)")
 
         hessian_patt = re.compile("Force constants in Cartesian coordinates:")
+        resume_patt = re.compile(r"^\s1\\1\\GINC-\S*")
+        resume_end_patt = re.compile(r"^\s.*\\\\@")
 
         self.properly_terminated = False
         self.is_pcm = False
@@ -702,6 +709,7 @@ class GaussianOutput(object):
         self.eigenvalues = []
         self.is_spin = False
         self.hessian = None
+        self.resumes = []
 
         coord_txt = []
         read_coord = 0
@@ -981,6 +989,16 @@ class GaussianOutput(object):
                         read_mo = True
                     elif hessian_patt.search(line):
                         parse_hessian = True
+                    elif resume_patt.search(line):
+                        resume = []
+                        while not resume_end_patt.search(line):
+                            resume.append(line)
+                            line = f.readline()
+                            if line == "\n": # security if \\@ not in one line !
+                                break
+                        resume.append(line)
+                        resume = "".join([r.strip() for r in resume])
+                        self.resumes.append(resume)
 
                     if read_mulliken:
                         if not end_mulliken_patt.search(line):
@@ -995,6 +1013,7 @@ class GaussianOutput(object):
                                     mulliken_charges.update(dict)
                             read_mulliken = False
                             self.Mulliken_charges = mulliken_charges
+
 
         if not terminated:
             #raise IOError("Bad Gaussian output file.")

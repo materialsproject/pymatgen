@@ -881,7 +881,8 @@ class IStructure(SiteCollection, MSONable):
         if reduced_latt != self.lattice:
             return self.__class__(reduced_latt, self.species_and_occu,
                                   self.cart_coords,
-                                  coords_are_cartesian=True, to_unit_cell=True)
+                                  coords_are_cartesian=True, to_unit_cell=True,
+                                  site_properties=self.site_properties)
         else:
             return self.copy()
 
@@ -1155,6 +1156,7 @@ class IStructure(SiteCollection, MSONable):
                 valid = True
                 new_coords = []
                 new_sp = []
+                new_props = collections.defaultdict(list)
                 for gsites, gfcoords, non_nbrs in zip(grouped_sites,
                                                       grouped_fcoords,
                                                       grouped_non_nbrs):
@@ -1192,12 +1194,15 @@ class IStructure(SiteCollection, MSONable):
                                 offset = new_fcoords[j] - coords
                                 coords += (offset - np.round(offset)) / (n + 2)
                             new_sp.append(gsites[inds[0]].species_and_occu)
+                            for k in gsites[inds[0]].properties:
+                                new_props[k].append(gsites[inds[0]].properties[k])
                             new_coords.append(coords)
 
                 if valid:
                     inv_m = np.linalg.inv(m)
                     new_l = Lattice(np.dot(inv_m, self.lattice.matrix))
                     s = Structure(new_l, new_sp, new_coords,
+                                  site_properties=new_props,
                                   coords_are_cartesian=False)
 
                     return s.get_primitive_structure(
@@ -1654,13 +1659,11 @@ class IMolecule(SiteCollection, MSONable):
         while len(sites) > 0:
             unmatched = []
             for site in sites:
-                found = False
                 for cluster in clusters:
                     if belongs_to_cluster(site, cluster):
                         cluster.append(site)
-                        found = True
                         break
-                if not found:
+                else:
                     unmatched.append(site)
 
             if len(unmatched) == len(sites):
@@ -1868,7 +1871,7 @@ class IMolecule(SiteCollection, MSONable):
         Returns:
             Structure containing molecule in a box.
         """
-        if offset == None:
+        if offset is None:
             offset = np.array([0,0,0])
 
         coords = np.array(self.cart_coords)
@@ -1921,7 +1924,9 @@ class IMolecule(SiteCollection, MSONable):
             coords.extend(new_coords)
         sprops = {k: v * nimages for k, v in self.site_properties.items()}
 
-        if cls is None: cls = Structure
+        if cls is None:
+            cls = Structure
+
         return cls(lattice, self.species * nimages, coords,
                    coords_are_cartesian=True,
                    site_properties=sprops).get_sorted_structure()
@@ -2889,10 +2894,10 @@ class Molecule(IMolecule, collections.MutableSequence):
                 translation.
             vector (3x1 array): Translation vector for sites.
         """
-        if indices == None:
+        if indices is None:
             indices = range(len(self))
-        if vector == None:
-            vector == [0,0,0]
+        if vector is None:
+            vector == [0, 0, 0]
         for i in indices:
             site = self._sites[i]
             new_site = Site(site.species_and_occu, site.coords + vector,
@@ -2911,30 +2916,31 @@ class Molecule(IMolecule, collections.MutableSequence):
             anchor (3x1 array): Point of rotation.
         """
 
-        from numpy.linalg import norm, inv
+        from numpy.linalg import norm
         from numpy import cross, eye
-        from scipy.linalg import expm3
+        from scipy.linalg import expm
 
-        if indices == None:
+        if indices is None:
             indices = range(len(self))
 
-        if axis == None:
-            axis = [0,0,1]
+        if axis is None:
+            axis = [0, 0, 1]
 
-        if anchor == None:
-            anchor = [0,0,0]
+        if anchor is None:
+            anchor = [0, 0, 0]
 
         anchor = np.array(anchor)
         axis = np.array(axis)
 
-        theta = theta % (2 * np.pi)
+        theta %= 2 * np.pi
 
-        R = expm3(cross(eye(3), axis / norm(axis)) * theta)
+        rm = expm(cross(eye(3), axis / norm(axis)) * theta)
 
         for i in indices:
             site = self._sites[i]
-            s = ((R * np.matrix(site.coords - anchor).T).T + anchor).A1
-            new_site = Site(site.species_and_occu, s, properties=site.properties)
+            s = ((rm * np.matrix(site.coords - anchor).T).T + anchor).A1
+            new_site = Site(site.species_and_occu, s,
+                            properties=site.properties)
             self._sites[i] = new_site
 
     def perturb(self, distance):

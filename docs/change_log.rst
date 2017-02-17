@@ -1,6 +1,59 @@
 Change log
 ==========
 
+v4.6.2
+--------
+* Improve Spacegroup class support for alternative settings. Add a get_settings class method.
+* Improvements to FEFF support.
+* Improvements to EOS class.
+
+v4.6.1
+------
+* Phonon bandstructure plotting and analysis. (Guido Petretto)
+* New capabilities for performing adsorption on slabs. (Joey Montoya)
+* Remove pathlib dependency.
+
+v4.6.0
+------
+* Improve support for alternative settings in SpaceGroup.
+* Fix respect for user_incar_settings in MPNonSCFSet and MPSOCSet
+* Support for argcomplete in pmg script.
+* Speed ups to Ewald summation.
+* Add functionality to parse frequency dependent dielectric function.
+* Improvements to Bolztrap support.
+
+v4.5.7
+------
+* PMG settings are now prefixed with PMG_ to ensure proper namespacing.
+* Improve error output in command line bader caller.
+* Add Py3.6 classifier.
+* Misc bug fixes.
+
+v4.5.6
+------
+* Minor bug fix.
+* Fixed elastic energy density
+
+v4.5.5
+------
+* Fix bad reading of pmgrc.
+* Gaussian opt section added allowing for torsion constraints
+* Update spglib.
+
+v4.5.4
+------
+* BSDOSPlotter (Anubhav Jain)
+* Fixes to defect analysis (Bharat)
+* intrans as an input to BoltztrapAnalyzer. Allows for scissor operation.
+* Pmg is now continuously tested on win-64/py35 using Appveyor!
+
+v4.5.3
+------
+* Added an alternative interstitial finder that works with a grid-based structure-motif search. (Nils Zimmermann)
+* Optionnal possibility to specify that the saddle_point in the NEB should have a zero slope. (David Waroquiers)
+* Read intensity and normal modes for Gaussian. (Germain Salvato Vallverdu)
+* Minor bug fixes.
+
 v4.5.2
 ------
 * Minor bug fix for POTCAR settings.
@@ -8,8 +61,8 @@ v4.5.2
 v4.5.1
 ------
 * You can now specify a different default functional choice for pymatgen by
-  setting DEFAULT_FUNCTIONAL in .pmgrc.yaml. For use with newer functional sets,
-  you need to specify PBE_52 or PBE_54 for example.
+  setting PMG_DEFAULT_FUNCTIONAL in .pmgrc.yaml. For use with newer
+  functional sets, you need to specify PBE_52 or PBE_54 for example.
 * Swtich to ISYM 3 by default for HSE.
 * Updates to FEFF>
 * Misc bug fixes and startup speed improvements.

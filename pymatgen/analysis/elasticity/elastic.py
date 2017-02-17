@@ -11,8 +11,8 @@ including methods used to fit the elastic tensor from linear response
 stress-strain data
 """
 
-from pymatgen.analysis.elasticity import voigt_map, reverse_voigt_map
-from pymatgen.analysis.elasticity.tensors import TensorBase
+from pymatgen.analysis.elasticity.tensors import TensorBase, \
+        voigt_map as vmap, reverse_voigt_map
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
 import numpy as np
@@ -142,7 +142,7 @@ class ElasticTensor(TensorBase):
 
     def trans_v(self, structure):
         """
-        Calculates transverse sound velocity (in SI units) using the 
+        Calculates transverse sound velocity (in SI units) using the
         Voigt-Reuss-Hill average bulk modulus
 
         Args:
@@ -280,7 +280,7 @@ class ElasticTensor(TensorBase):
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
         return 2.589e-11 * avg_mass**(-1./3.) * mass_density**(-1./6.) \
                 * self.y_mod**0.5
-    
+
     def debye_temperature_gibbs(self, structure):
         """
         Calculates the debye temperature accordings to the GIBBS
@@ -324,7 +324,7 @@ class ElasticTensor(TensorBase):
         Calculates the elastic energy density due to a strain
         """
         # Conversion factor for GPa to eV/Angstrom^3
-        GPA_EV = 0.000624151
+        GPA_EV = 1/160.217662
 
         with warnings.catch_warnings(record=True):
             e_density = np.dot(np.transpose(Strain(strain).voigt),
@@ -335,9 +335,9 @@ class ElasticTensor(TensorBase):
     @classmethod
     def from_strain_stress_list(cls, strains, stresses):
         """
-        Class method to fit an elastic tensor from stress/strain 
-        data.  Method uses Moore-Penrose pseudoinverse to invert 
-        the s = C*e equation with elastic tensor, stress, and 
+        Class method to fit an elastic tensor from stress/strain
+        data.  Method uses Moore-Penrose pseudoinverse to invert
+        the s = C*e equation with elastic tensor, stress, and
         strain in voigt notation
 
         Args:
@@ -369,13 +369,16 @@ class ElasticTensor(TensorBase):
             symmetry (boolean): flag for whether or not the elastic tensor
                 should fit from data based on symmetry
         """
-        inds = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
-        c_ij = np.array([[np.polyfit([strain[ind1] for strain in list(stress_dict.keys())
-                                      if (strain.i, strain.j) == ind1],
-                                     [stress_dict[strain][ind2] for strain
-                                      in list(stress_dict.keys())
-                                      if (strain.i, strain.j) == ind1], 1)[0]
-                          for ind1 in inds] for ind2 in inds])
+        c_ij = np.zeros((6, 6))
+        for i, j in itertools.product(range(6), repeat=2):
+            strains = [s for s in stress_dict.keys()
+                       if (s.i, s.j) == vmap[i]]
+            xy = [(s[vmap[i]], stress_dict[s][vmap[j]]) for s in strains]
+            if len(xy) == 0:
+                raise ValueError("No ind. strains for vgt index {}".format(i))
+            elif len(xy) == 1:
+                xy += [(0, 0)]
+            c_ij[i, j] = np.polyfit(*zip(*xy), deg=1)[0]
         if vasp:
             c_ij *= -0.1  # Convert units/sign convention of vasp stress tensor
         c_ij[0:, 3:] = 0.5 * c_ij[0:, 3:]  # account for voigt doubling of e4,e5,e6

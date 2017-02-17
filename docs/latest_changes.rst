@@ -1,6 +1,8 @@
 Change log
 ==========
 
-v4.5.2
+v4.6.2
 ------
-* Minor bug fix for POTCAR settings.
+* Improve Spacegroup class support for alternative settings. Add a get_settings class method.
+* Improvements to FEFF support.
+* Improvements to EOS class.

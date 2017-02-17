@@ -32,8 +32,8 @@ __date__ = "Sep 23, 2011"
 
 
 # Loads element data from json file
-with open(os.path.join(os.path.dirname(__file__), "periodic_table.json"), "rt"
-          ) as f:
+with open(os.path.join(os.path.dirname(__file__),
+                       "periodic_table.json"), "rt") as f:
     _pt_data = json.load(f)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
@@ -409,7 +409,8 @@ class Element(Enum):
                     val = float(val)
                 except ValueError:
                     toks_nobracket = re.sub(r'\(.*\)', "", val)
-                    toks = toks_nobracket.replace("about", "").strip().split(" ", 1)
+                    toks = toks_nobracket.replace("about", "").strip().split(
+                        " ", 1)
                     if len(toks) == 2:
                         try:
                             if "10<sup>" in toks[1]:
@@ -419,7 +420,8 @@ class Element(Enum):
                                 if item == "electrical_resistivity":
                                     unit = "ohm m"
                                 elif item == \
-                                        "coefficient_of_linear_thermal_expansion":
+                                        "coefficient_of_linear_thermal_" \
+                                        "expansion":
                                     unit = "K^-1"
                                 else:
                                     unit = toks[1]
@@ -429,7 +431,8 @@ class Element(Enum):
                                     "</sup>", "").replace("&Omega;",
                                                           "ohm")
                                 units = Unit(unit)
-                                if set(units.keys()).issubset(SUPPORTED_UNIT_NAMES):
+                                if set(units.keys()).issubset(
+                                        SUPPORTED_UNIT_NAMES):
                                     val = FloatWithUnit(toks[0], unit)
                         except ValueError as ex:
                             # Ignore error. val will just remain a string.
@@ -509,7 +512,7 @@ class Element(Enum):
         estr = self._data["Electronic structure"]
 
         def parse_orbital(orbstr):
-            m = re.match("(\d+)([spdfg]+)<sup>(\d+)</sup>", orbstr)
+            m = re.match(r"(\d+)([spdfg]+)<sup>(\d+)</sup>", orbstr)
             if m:
                 return int(m.group(1)), m.group(2), int(m.group(3))
             return orbstr
@@ -655,7 +658,8 @@ class Element(Enum):
         Return the block character "s,p,d,f"
         """
         block = ""
-        if (self.is_actinoid or self.is_lanthanoid) and self.Z not in [71, 103]:
+        if (self.is_actinoid or self.is_lanthanoid) and \
+                self.Z not in [71, 103]:
             block = "f"
         elif self.is_actinoid or self.is_lanthanoid:
             block = "d"
@@ -942,7 +946,7 @@ class Specie(MSONable):
         Raises:
             ValueError if species_string cannot be intepreted.
         """
-        m = re.search("([A-Z][a-z]*)([0-9\.]*)([\+\-])(.*)", species_string)
+        m = re.search(r"([A-Z][a-z]*)([0-9\.]*)([\+\-])(.*)", species_string)
         if m:
             sym = m.group(1)
             oxi = 1 if m.group(2) == "" else float(m.group(2))
@@ -1171,7 +1175,7 @@ class DummySpecie(Specie):
         Raises:
             ValueError if species_string cannot be intepreted.
         """
-        m = re.search("([A-Z][a-z]*)([0-9\.]*)([\+\-]*)(.*)", species_string)
+        m = re.search(r"([A-Z][a-z]*)([0-9\.]*)([\+\-]*)(.*)", species_string)
         if m:
             sym = m.group(1)
             if m.group(2) == "" and m.group(3) == "":
@@ -1272,6 +1276,5 @@ def get_el_sp(obj):
             try:
                 return DummySpecie.from_string(obj)
             except:
-                raise ValueError(
-                        "Can't parse Element or String from type %s: %s."
-                        % (type(obj), obj))
+                raise ValueError("Can't parse Element or String from type"
+                                 " %s: %s." % (type(obj), obj))
