@@ -23,7 +23,8 @@ from six.moves import range
 
 __author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Joseph Montoya, Shyam Dwaraknath, Mark Asta, Anubhav Jain"
+__credits__ = ("Joseph Montoya, Ian Winter, Shyam Dwaraknath, "
+               "Mark Asta, Anubhav Jain")
 __version__ = "1.0"
 __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
