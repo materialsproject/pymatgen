@@ -1265,7 +1265,7 @@ class BoltztrapAnalyzer(object):
                 for i in range(len(self.mu_steps)):
                     try:
                         cond_inv = np.linalg.inv(np.array(self._cond[temp][i]))
-                    except Exception as np.linalg.LinAlgError:
+                    except np.linalg.LinAlgError:
                         pass
                     result[temp].append(cond_inv * \
                     conc[temp][i] * 10 ** 6 * e ** 2 / m_e)
