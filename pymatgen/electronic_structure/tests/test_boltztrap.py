@@ -83,7 +83,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(self.bz_fermi.fermi_surface_data.shape,
                                (121, 121, 65))
         self.assertAlmostEqual(self.bz_fermi.fermi_surface_data[21][79][19],
-                               -1.8831911809439161)
+                               -1.8831911809439161, 5)
 
     def test_get_seebeck(self):
         ref = [-768.99078999999995, -724.43919999999991, -686.84682999999973]
