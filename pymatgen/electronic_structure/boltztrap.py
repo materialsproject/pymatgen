@@ -129,6 +129,9 @@ class BoltztrapRunner(object):
                 Maximum temperature (K) for calculation (default=1300)
             tgrid:
                 Temperature interval for calculation (default=50)
+            symprec: 1e-3 is the default in pymatgen. If the kmesh has been
+                generated using a different symprec, it has to be specified
+                to avoid a "factorization error" in BoltzTraP calculation.
 
     """
 
@@ -142,7 +145,7 @@ class BoltztrapRunner(object):
                  lpfac=10, run_type="BOLTZ", band_nb=None, tauref=0, tauexp=0,
                  tauen=0, soc=False, doping=None, energy_span_around_fermi=1.5,
                  scissor=0.0, kpt_line=None, spin=None, cond_band=False,
-                 tmax=1300, tgrid=50):
+                 tmax=1300, tgrid=50, symprec=1e-3):
         self.lpfac = lpfac
         self._bs = bs
         self._nelec = nelec
@@ -169,6 +172,7 @@ class BoltztrapRunner(object):
         self.scissor = scissor
         self.tmax = tmax
         self.tgrid = tgrid
+        self._symprec = symprec
         if self.run_type in ("DOS", "BANDS"):
             self._auto_set_energy_range()
 
@@ -267,7 +271,7 @@ class BoltztrapRunner(object):
                         f.write("%18.8f\n" % (float(eigs[j])))
 
     def write_struct(self, output_file):
-        sym = SpacegroupAnalyzer(self._bs.structure, symprec=0.01)
+        sym = SpacegroupAnalyzer(self._bs.structure, symprec=self._symprec)
 
         with open(output_file, 'w') as f:
             f.write("{} {}\n".format(self._bs.structure.composition.formula,
