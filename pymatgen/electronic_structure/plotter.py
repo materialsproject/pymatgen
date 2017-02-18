@@ -1298,10 +1298,13 @@ class BSDOSPlotter():
                         if bs_projection and bs_projection.lower() == "elements":
                             c = [0, 0, 0]
                             projs = projections[spin][band_idx][k_idx]
+                            # note: squared color interpolations are smoother
+                            # see: https://youtu.be/LKnqECcg6Gw
+                            projs = dict([(k, v**2) for k, v in projs.items()])
                             total = sum(projs.values())
                             if total > 0:
                                 for idx, e in enumerate(elements):
-                                    c[idx] = projs[e]/total  # min is to handle round errors
+                                    c[idx] = math.sqrt(projs[e]/total)  # min is to handle round errors
 
                             c = [c[1], c[2], c[0]]  # prefer blue, then red, then green
 
@@ -1335,7 +1338,10 @@ class BSDOSPlotter():
                         b1 = b / (r + g + b)
                         x.append(0.33 * (2. * g1 + r1) / (r1 + b1 + g1))
                         y.append(0.33 * np.sqrt(3) * r1 / (r1 + b1 + g1))
-                        color.append([r1, g1, b1])
+                        rc = math.sqrt(r**2 / (r**2 + g**2 + b**2))
+                        gc = math.sqrt(g**2 / (r**2 + g**2 + b**2))
+                        bc = math.sqrt(b**2 / (r**2 + g**2 + b**2))
+                        color.append([rc, gc, bc])
 
         max_y = ax.get_ylim()[1]
         x = [n + 0.25 for n in x]  # nudge x coordinates
@@ -1363,7 +1369,8 @@ class BSDOSPlotter():
         for i in range(0, 1000):
             x.append(i / 1800. + 0.55)
             y.append(max_y - 0.5)
-            color.append([1 - i/1000, 0, i / 1000])
+            color.append([math.sqrt(c) for c in
+                          [1 - (i/1000)**2, 0, (i / 1000)**2]])
 
         # plot the bar
         ax.scatter(x, y, s=250., marker='s', edgecolor=color)
