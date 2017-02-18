@@ -1298,6 +1298,8 @@ class BSDOSPlotter():
                         if bs_projection and bs_projection.lower() == "elements":
                             c = [0, 0, 0]
                             projs = projections[spin][band_idx][k_idx]
+                            # note: squared color interpolations are smoother
+                            # see: https://youtu.be/LKnqECcg6Gw
                             projs = dict([(k, v**2) for k, v in projs.items()])
                             total = sum(projs.values())
                             if total > 0:
