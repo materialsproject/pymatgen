@@ -16,6 +16,10 @@ from six.moves import zip
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
+try:
+    import sympy
+except ImportError:
+    sympy=None
 
 class ElasticTensorTest(PymatgenTest):
     def setUp(self):
@@ -181,7 +185,8 @@ class ElasticTensorTest(PymatgenTest):
         film_elac.energy_density(Strain.from_deformation([[ 0.99774738,  0.11520994, -0.        ],
                                         [-0.11520994,  0.99774738,  0.        ],
                                         [-0.,         -0.,          1.,        ]]))
-    
+
+    @unittest.skipIf(not sympy, "sympy not present, skipping toec_fit test")
     def test_toec_fit(self):
         with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
             toec_dict = json.load(f)

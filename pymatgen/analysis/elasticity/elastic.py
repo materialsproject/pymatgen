@@ -16,10 +16,10 @@ from pymatgen.analysis.elasticity.tensors import TensorBase, \
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
 import numpy as np
-import sympy as sp
 import warnings
 import itertools
 from six.moves import range
+from monty.dev import requires
 
 __author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -31,6 +31,11 @@ __email__ = "montoyjh@lbl.gov"
 __status__ = "Development"
 __date__ = "March 22, 2012"
 
+try:
+    import sympy as sp
+    sympy_found = True
+except ImportError:
+    sympy_found = False
 
 class ElasticTensor(TensorBase):
     """
@@ -396,7 +401,7 @@ class ElasticTensor(TensorBase):
         new_v = 0.5 * (np.transpose(v) + v)
         return ElasticTensor.from_voigt(new_v)
 
-
+@requires(sympy_found, "TOEC fitter requires sympy")
 def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
     """
     A third-order elastic constant fitting function based on 
@@ -532,8 +537,9 @@ def generate_pseudo(strain_states):
     s3arr = np.zeros((nstates, 6), dtype=object)
     v_diff = np.vectorize(sp.diff)
     for n, strain_v in enumerate(ni):
-        s2arr[n] = v_diff(np.dot(c2arr, strain_v), s)
-        s3arr[n] = v_diff(np.dot(np.dot(c3arr, strain_v), strain_v) / 2, s, 2)
+        s2arr[n] = [sp.diff(exp, s) for exp in np.dot(c2arr, strain_v)]
+        s3arr[n] = [sp.diff(exp, s, 2) 
+                    for exp in np.dot(np.dot(c3arr, strain_v), strain_v) / 2]
     s2vec, s3vec = s2arr.ravel(), s3arr.ravel()
     m2 = np.zeros((6*nstates, len(c2vec)))
     m3 = np.zeros((6*nstates, len(c3vec)))
