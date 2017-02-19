@@ -380,27 +380,27 @@ class Simplex(object):
         self.space_dim, self.simplex_dim = self._coords.shape
         self.origin = self._coords[-1]
         if self.space_dim == self.simplex_dim + 1:
-            # precompute attributes for calculating bary_coords
-            self.T = self._coords[:-1] - self.origin
-            self.T_inv = np.linalg.inv(self.T)
+            # precompute augmented matrix for calculating bary_coords
+            self._aug = np.concatenate([coords, np.ones((self.space_dim, 1))],
+                                       axis=-1)
+            self._aug_inv = np.linalg.inv(self._aug)
 
     @property
     def volume(self):
         """
         Volume of the simplex.
         """
-        return abs(np.linalg.det(self.T)) / math.factorial(self.simplex_dim)
+        return abs(np.linalg.det(self._aug)) / math.factorial(self.simplex_dim)
 
     def bary_coords(self, point):
         try:
-            c = np.dot((point - self.origin), self.T_inv)
-            return np.concatenate([c, [1 - np.sum(c)]])
+            return np.dot(np.concatenate([point, [1]]), self._aug_inv)
         except AttributeError:
             raise ValueError('Simplex is not full-dimensional')
 
     def point_from_bary_coords(self, bary_coords):
         try:
-            return np.dot(bary_coords[:-1], self.T) + self.origin
+            return np.dot(bary_coords, self._aug[:, :-1])
         except AttributeError:
             raise ValueError('Simplex is not full-dimensional')
 

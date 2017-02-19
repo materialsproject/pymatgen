@@ -30,6 +30,9 @@ from pymatgen.entries.computed_entries import ComputedEntry
 
 from pymatgen.core.periodic_table import DummySpecie, Element
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
+from pymatgen.util.coord_utils import Simplex
+
+from monty.dev import deprecated
 
 
 class PhaseDiagram(MSONable):
@@ -167,13 +170,19 @@ class PhaseDiagram(MSONable):
                     finalfacets.append(facet)
             self.facets = finalfacets
 
-        self.simplices = [qhull_data[f, :-1] for f in self.facets]
+        self.simplexes = [Simplex(qhull_data[f, :-1]) for f in self.facets]
         self.all_entries = all_entries
         self.qhull_data = qhull_data
         self.dim = dim
         self.el_refs = el_refs
         self.elements = elements
         self.qhull_entries = qhull_entries
+
+    @property
+    @deprecated(message="PhaseDiagram.simplices is deprecated. "
+                "Use PhaseDiagram.simplexes instead")
+    def simplices(self):
+        return [s._coords for s in self.simplexes]
 
     @property
     def all_entries_hulldata(self):
