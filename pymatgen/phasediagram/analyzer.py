@@ -77,8 +77,8 @@ class PDAnalyzer(object):
             raise ValueError('{} has elements not in the phase diagram {}'
                              ''.format(comp, self._pd.elements))
         c = [comp.get_atomic_fraction(e) for e in self._pd.elements[1:]]
-        for f, s in zip(self._pd.facets, self._pd.simplices):
-            if Simplex(s).in_simplex(c, PDAnalyzer.numerical_tol / 10):
+        for f, s in zip(self._pd.facets, self._pd.simplexes):
+            if s.in_simplex(c, PDAnalyzer.numerical_tol / 10):
                 return f
         raise RuntimeError("No facet found for comp = {}".format(comp))
 
@@ -262,8 +262,8 @@ class PDAnalyzer(object):
         c2 = np.array([comp2.get_atomic_fraction(e) for e in pd_els[1:]])
 
         intersections = [c1, c2]
-        for sc in self._pd.simplices:
-            intersections.extend(Simplex(sc).line_intersection(c1, c2))
+        for sc in self._pd.simplexes:
+            intersections.extend(sc.line_intersection(c1, c2))
         intersections = np.array(intersections)
 
         # find position along line
