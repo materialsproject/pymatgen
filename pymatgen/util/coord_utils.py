@@ -381,7 +381,7 @@ class Simplex(object):
         self.origin = self._coords[-1]
         if self.space_dim == self.simplex_dim + 1:
             # precompute augmented matrix for calculating bary_coords
-            self._aug = np.concatenate([coords, np.ones((coords.shape[0], 1))],
+            self._aug = np.concatenate([coords, np.ones((self.space_dim, 1))],
                                        axis=-1)
             self._aug_inv = np.linalg.inv(self._aug)
 
@@ -390,7 +390,7 @@ class Simplex(object):
         """
         Volume of the simplex.
         """
-        return abs(np.linalg.det(self.T)) / math.factorial(self.simplex_dim)
+        return abs(np.linalg.det(self._aug)) / math.factorial(self.simplex_dim)
 
     def bary_coords(self, point):
         try:
