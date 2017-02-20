@@ -20,7 +20,7 @@ __date__ = "Dec 01, 2016"
 import unittest
 import os
 import xml.etree.cElementTree as ET
-from pymatgen.io.exciting import excitingInput
+from pymatgen.io.exciting import ExcitingInput
 from pymatgen.core import Structure, Lattice
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -30,7 +30,7 @@ class ExcitingInputTest(unittest.TestCase):
         # Test for the import of a structure directly from an exciting
         # input file
         filepath=os.path.join(test_dir,'input1.xml')
-        excin=excitingInput.from_file(filepath)
+        excin=ExcitingInput.from_file(filepath)
         lattice=[[0.0, 2.81, 2.81],[2.81, 0.0, 2.81],[2.81, 2.81, 0.0]]
         atoms=['Na', 'Cl']
         fraccoords=[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
@@ -63,13 +63,13 @@ class ExcitingInputTest(unittest.TestCase):
             'Cl','Cl','Cl','Cl'],
             [[0,0,0],[0.5,0.5,0.0],[0.5,0.0,0.5],[0.0,0.5,0.5],
             [0.5,0.0,0.0],[0.0,0.5,0.0],[0.0,0.0,0.5],[0.5,0.5,0.5]])
-        excin=excitingInput(structure)
+        excin=ExcitingInput(structure)
         self.assertEqual(input_string, excin.write_string('unchanged'))
    
     def test_writebandstr(self):    
         filepath=os.path.join(test_dir,'CsI3Pb.cif')
         structure=Structure.from_file(filepath)
-        excin=excitingInput(structure)
+        excin=ExcitingInput(structure)
         string=excin.write_string('primitive', bandstr=True)
         bandstr=string.split('<properties>')[1].split('</properties>')[0]
         

@@ -50,7 +50,7 @@ __email__ = "vorwerk@physik.hu-berlin.de"
 __status__ = "Development"
 __date__ = "Nov 28, 2016"
 
-class excitingInput(MSONable):
+class ExcitingInput(MSONable):
     """
         Object for representing the data stored in the structure part of the
         exciting input.
@@ -142,16 +142,16 @@ class excitingInput(MSONable):
             cartesian=True
             for i in range(len(positions)):
                 for j in range(3):
-                    positions[i][j]=positions[i][j]*excitingInput.bohr2ang
+                    positions[i][j]=positions[i][j]*ExcitingInput.bohr2ang
             print(positions)
         else:
           cartesian=False
         # get the scale attribute
         scale_in=root.find('structure').find('crystal').get('scale')
         if scale_in:
-            scale=float(scale_in)*excitingInput.bohr2ang
+            scale=float(scale_in)*ExcitingInput.bohr2ang
         else:
-            scale=excitingInput.bohr2ang
+            scale=ExcitingInput.bohr2ang
        # get the stretch attribute
         stretch_in=root.find('structure').find('crystal').get('stretch')
         if stretch_in:
@@ -169,12 +169,12 @@ class excitingInput(MSONable):
         lattice_in=Lattice(vectors)
         structure_in=Structure(lattice_in,elements,positions,coords_are_cartesian=cartesian)
 
-        return excitingInput(structure_in, title_in, lockxyz)
+        return ExcitingInput(structure_in, title_in, lockxyz)
     @staticmethod
     def from_file(filename):
         with zopen(filename, 'rt') as f:
             data=f.read().replace('\n','')
-        return excitingInput.from_string(data)
+        return ExcitingInput.from_string(data)
 
 
     def write_etree(self, celltype, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5):
@@ -285,7 +285,7 @@ class excitingInput(MSONable):
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
             for elem in elem:
-                excitingInput.indent(elem, level+1)
+                ExcitingInput.indent(elem, level+1)
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
         else:
