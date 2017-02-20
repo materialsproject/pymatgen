@@ -984,7 +984,7 @@ class BSDOSPlotter():
                  vb_energy_range=4, cb_energy_range=4, fixed_cb_energy=False,
                  egrid_interval=1, font="Times New Roman", axis_fontsize=20,
                  tick_fontsize=15, legend_fontsize=14, bs_legend="best",
-                 dos_legend="best", rgb_legend=False):
+                 dos_legend="best", rgb_legend=True):
 
         """
         Instantiate plotter settings.
@@ -1037,7 +1037,9 @@ class BSDOSPlotter():
         # make sure the user-specified band structure projection is valid
         elements = [e.symbol for e in dos.structure.composition.elements]
         bs_projection = self.bs_projection
-        rgb_legend = self.rgb_legend
+        rgb_legend = self.rgb_legend and bs_projection and \
+                     bs_projection.lower() == "elements" and \
+                     len(elements) in [2, 3]
 
         if bs_projection and bs_projection.lower() == "elements" and \
                 (len(elements) not in [2, 3] or not bs.get_projection_on_elements()):
@@ -1045,13 +1047,6 @@ class BSDOSPlotter():
                           "doesn't exist, or you don't have a compound with exactly 2 or 3"
                           " unique elements.")
             bs_projection = None
-
-        if rgb_legend and (not bs_projection or bs_projection.lower() != "elements" or
-                                   len(elements) not in [2, 3]):
-            warnings.warn("Cannot create rgb_legend; requires projection data and "
-                          "exactly 2 or 3 unique elements.")
-            rgb_legend = None
-
 
         # specify energy range of plot
         emin = -self.vb_energy_range
@@ -1230,9 +1225,11 @@ class BSDOSPlotter():
 
         elif self.bs_legend and rgb_legend:
             if len(elements) == 2:
-                self._rb_line(bs_ax, elements[1], elements[0])
+                self._rb_line(bs_ax, elements[1], elements[0],
+                              loc=self.bs_legend)
             elif len(elements) == 3:
-                self._rgb_triangle(bs_ax, elements[1], elements[2], elements[0])
+                self._rgb_triangle(bs_ax, elements[1], elements[2], elements[0],
+                                   loc=self.bs_legend)
 
         # add legend for DOS
         if self.dos_legend:
@@ -1320,11 +1317,15 @@ class BSDOSPlotter():
         return contribs
 
     @staticmethod
-    def _rgb_triangle(ax, r_label, g_label, b_label):
+    def _rgb_triangle(ax, r_label, g_label, b_label, loc):
         """
         Draw an RGB triangle legend on the desired axis
         """
+        if not loc in range(1, 11):
+            loc = 2
 
+        from mpl_toolkits.axes_grid.inset_locator import inset_axes
+        inset_ax = inset_axes(ax, width=1, height=1, loc=loc)
         mesh = 35
         x = []
         y = []
@@ -1343,42 +1344,57 @@ class BSDOSPlotter():
                         bc = math.sqrt(b**2 / (r**2 + g**2 + b**2))
                         color.append([rc, gc, bc])
 
-        max_y = ax.get_ylim()[1]
-        x = [n + 0.25 for n in x]  # nudge x coordinates
-        y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
+        # x = [n + 0.25 for n in x]  # nudge x coordinates
+        # y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
         # plot the triangle
-        ax.scatter(x, y, s=7, marker='.', edgecolor=color)
+        inset_ax.scatter(x, y, s=7, marker='.', edgecolor=color)
+        inset_ax.set_xlim([-0.35, 1.00])
+        inset_ax.set_ylim([-0.35, 1.00])
 
         # add the labels
-        ax.text(0.95, max_y - 1.25, g_label, fontsize=16,
-                family='Times New Roman', color=(0, 0, 0))
-        ax.text(0.45, max_y - 0.3, r_label, fontsize=16,
-                family='Times New Roman', color=(0, 0, 0))
-        ax.text(0.05, max_y - 1.25, b_label, fontsize=16,
-                family='Times New Roman', color=(0, 0, 0))
+        inset_ax.text(0.70, -0.2, g_label, fontsize=13,
+                  family='Times New Roman', color=(0, 0, 0),
+                      horizontalalignment='left')
+        inset_ax.text(0.325, 0.70, r_label, fontsize=13,
+                  family='Times New Roman', color=(0, 0, 0),
+                      horizontalalignment='center')
+        inset_ax.text(-0.05, -0.2, b_label, fontsize=13,
+                  family='Times New Roman', color=(0, 0, 0),
+                      horizontalalignment='right')
+
+        inset_ax.get_xaxis().set_visible(False)
+        inset_ax.get_yaxis().set_visible(False)
 
     @staticmethod
-    def _rb_line(ax, r_label, b_label):
+    def _rb_line(ax, r_label, b_label, loc):
         # Draw an rb bar legend on the desired axis
 
-        max_y = ax.get_ylim()[1]
+        if not loc in range(1, 11):
+            loc = 2
+        from mpl_toolkits.axes_grid.inset_locator import inset_axes
+        inset_ax = inset_axes(ax, width=1.2, height=0.4, loc=loc)
 
         x = []
         y = []
         color = []
         for i in range(0, 1000):
             x.append(i / 1800. + 0.55)
-            y.append(max_y - 0.5)
+            y.append(0)
             color.append([math.sqrt(c) for c in
                           [1 - (i/1000)**2, 0, (i / 1000)**2]])
 
         # plot the bar
-        ax.scatter(x, y, s=250., marker='s', edgecolor=color)
-        ax.text(1.3, max_y - 0.6, b_label, fontsize=16,
-                family='Times New Roman', color=(0, 0, 0))
-        ax.text(0, max_y - 0.6, r_label, fontsize=16,
-                family='Times New Roman', color=(0, 0, 0))
+        inset_ax.scatter(x, y, s=250., marker='s', edgecolor=color)
+        inset_ax.set_xlim([-0.1, 1.7])
+        inset_ax.text(1.35, 0, b_label, fontsize=13,
+                 family='Times New Roman', color=(0, 0, 0),
+                horizontalalignment="left", verticalalignment="center")
+        inset_ax.text(0.30, 0, r_label, fontsize=13,
+                 family='Times New Roman', color=(0, 0, 0),
+                horizontalalignment="right", verticalalignment="center")
 
+        inset_ax.get_xaxis().set_visible(False)
+        inset_ax.get_yaxis().set_visible(False)
 
 class BoltztrapPlotter(object):
     """
