@@ -984,7 +984,7 @@ class BSDOSPlotter():
                  vb_energy_range=4, cb_energy_range=4, fixed_cb_energy=False,
                  egrid_interval=1, font="Times New Roman", axis_fontsize=20,
                  tick_fontsize=15, legend_fontsize=14, bs_legend="best",
-                 dos_legend="best", rgb_legend=False):
+                 dos_legend="best", rgb_legend=True):
 
         """
         Instantiate plotter settings.
@@ -1037,7 +1037,9 @@ class BSDOSPlotter():
         # make sure the user-specified band structure projection is valid
         elements = [e.symbol for e in dos.structure.composition.elements]
         bs_projection = self.bs_projection
-        rgb_legend = self.rgb_legend
+        rgb_legend = self.rgb_legend and bs_projection and \
+                     bs_projection.lower() == "elements" and \
+                     len(elements) in [2, 3]
 
         if bs_projection and bs_projection.lower() == "elements" and \
                 (len(elements) not in [2, 3] or not bs.get_projection_on_elements()):
@@ -1045,13 +1047,6 @@ class BSDOSPlotter():
                           "doesn't exist, or you don't have a compound with exactly 2 or 3"
                           " unique elements.")
             bs_projection = None
-
-        if rgb_legend and (not bs_projection or bs_projection.lower() != "elements" or
-                                   len(elements) not in [2, 3]):
-            warnings.warn("Cannot create rgb_legend; requires projection data and "
-                          "exactly 2 or 3 unique elements.")
-            rgb_legend = None
-
 
         # specify energy range of plot
         emin = -self.vb_energy_range
