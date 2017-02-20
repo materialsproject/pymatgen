@@ -1232,7 +1232,8 @@ class BSDOSPlotter():
             if len(elements) == 2:
                 self._rb_line(bs_ax, elements[1], elements[0])
             elif len(elements) == 3:
-                self._rgb_triangle(bs_ax, elements[1], elements[2], elements[0])
+                self._rgb_triangle(bs_ax, elements[1], elements[2], elements[0],
+                                   loc=self.bs_legend)
 
         # add legend for DOS
         if self.dos_legend:
@@ -1320,11 +1321,15 @@ class BSDOSPlotter():
         return contribs
 
     @staticmethod
-    def _rgb_triangle(ax, r_label, g_label, b_label):
+    def _rgb_triangle(ax, r_label, g_label, b_label, loc):
         """
         Draw an RGB triangle legend on the desired axis
         """
+        if not loc in range(1, 11):
+            loc = 2
 
+        from mpl_toolkits.axes_grid.inset_locator import inset_axes
+        inset_ax = inset_axes(ax, width=1, height=1, loc=loc)
         mesh = 35
         x = []
         y = []
@@ -1343,23 +1348,27 @@ class BSDOSPlotter():
                         bc = math.sqrt(b**2 / (r**2 + g**2 + b**2))
                         color.append([rc, gc, bc])
 
-        max_y = ax.get_ylim()[1]
-        x = [n + 0.25 for n in x]  # nudge x coordinates
-        y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
+        # x = [n + 0.25 for n in x]  # nudge x coordinates
+        # y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
         # plot the triangle
-        ax.scatter(x, y, s=7, marker='.', edgecolor=color)
+        inset_ax.scatter(x, y, s=7, marker='.', edgecolor=color)
+        inset_ax.set_xlim([-0.35, 1.00])
+        inset_ax.set_ylim([-0.35, 1.00])
 
         # add the labels
-        ax.text(0.95, max_y - 1.25, g_label, fontsize=16,
-                family='Times New Roman', color=(0, 0, 0))
-        ax.text(0.45, max_y - 0.3, r_label, fontsize=16,
-                family='Times New Roman', color=(0, 0, 0))
-        ax.text(0.05, max_y - 1.25, b_label, fontsize=16,
-                family='Times New Roman', color=(0, 0, 0))
+        inset_ax.text(0.70, -0.2, g_label, fontsize=13,
+                  family='Times New Roman', color=(0, 0, 0), horizontalalignment='left')
+        inset_ax.text(0.30, 0.70, r_label, fontsize=13,
+                  family='Times New Roman', color=(0, 0, 0), horizontalalignment='center')
+        inset_ax.text(-0.05, -0.2, b_label, fontsize=13,
+                  family='Times New Roman', color=(0, 0, 0), horizontalalignment='right')
+
+        inset_ax.get_xaxis().set_visible(False)
+        inset_ax.get_yaxis().set_visible(False)
 
     @staticmethod
     def _rb_line(ax, r_label, b_label):
-        # Draw an rb bar legend on the desired axis
+        # Draw an rb bar legend on the desired® axis
 
         max_y = ax.get_ylim()[1]
 
