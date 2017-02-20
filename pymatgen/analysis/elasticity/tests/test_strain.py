@@ -1,11 +1,11 @@
 from __future__ import absolute_import
 
-import unittest2 as unittest
+import unittest
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.elasticity.strain import Strain, Deformation, DeformedStructureSet,\
-                                    IndependentStrain
+from pymatgen.analysis.elasticity.strain import Strain, Deformation, \
+        DeformedStructureSet, IndependentStrain
 from pymatgen.util.testing import PymatgenTest
 import warnings
 
@@ -84,11 +84,11 @@ class StrainTest(PymatgenTest):
                                   [0., 0., 0.]])
 
     def test_new(self):
-        with warnings.catch_warnings(record=True) as w:
-            Strain([[0., 0.01, 0.],
-                    [0.01, 0.0002, 0.],
-                    [0., 0., 0.]])
-            self.assertEqual(len(w), 1)
+        test_strain = Strain([[0., 0.01, 0.],
+                              [0.01, 0.0002, 0.],
+                              [0., 0., 0.]])
+        self.assertArrayAlmostEqual(test_strain.deformation_matrix.green_lagrange_strain, 
+                                    test_strain)
         self.assertRaises(ValueError, Strain, [[0.1, 0.1, 0],
                                                [0, 0, 0],
                                                [0, 0, 0]])

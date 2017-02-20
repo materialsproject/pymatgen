@@ -531,11 +531,10 @@ class BandStructure(object):
         Returns:
             A BandStructure object
         """
-        eigenvals = {}
         labels_dict = d['labels_dict']
         projections = {}
         structure = None
-        if isinstance(d['bands'].values()[0], dict):
+        if isinstance(list(d['bands'].values())[0], dict):
             eigenvals = {Spin(int(k)): np.array(d['bands'][k]['data'])
                          for k in d['bands']}
         else:
@@ -548,6 +547,45 @@ class BandStructure(object):
 
         return BandStructure(
             d['kpoints'], eigenvals,
+            Lattice(d['lattice_rec']['matrix']), d['efermi'],
+            labels_dict, structure=structure, projections=projections)
+
+    @classmethod
+    def from_old_dict(cls, d):
+        """
+        Args:
+            d (dict): A dict with all data for a band structure symm line
+                object.
+        Returns:
+            A BandStructureSymmLine object
+        """
+        # Strip the label to recover initial string (see trick used in as_dict to handle $ chars)
+        labels_dict = {k.strip(): v for k, v in d['labels_dict'].items()}
+        projections = {}
+        structure = None
+        if 'projections' in d and len(d['projections']) != 0:
+            structure = Structure.from_dict(d['structure'])
+            projections = {}
+            for spin in d['projections']:
+                dd = []
+                for i in range(len(d['projections'][spin])):
+                    ddd = []
+                    for j in range(len(d['projections'][spin][i])):
+                        dddd = []
+                        for k in range(len(d['projections'][spin][i][j])):
+                            ddddd = []
+                            orb = Orbital(k).name
+                            for l in range(len(d['projections'][spin][i][j][
+                                                   orb])):
+                                ddddd.append(d['projections'][spin][i][j][
+                                                orb][l])
+                            dddd.append(np.array(ddddd))
+                        ddd.append(np.array(dddd))
+                    dd.append(np.array(ddd))
+                projections[Spin(int(spin))] = np.array(dd)
+
+        return BandStructure(
+            d['kpoints'], {Spin(int(k)): d['bands'][k] for k in d['bands']},
             Lattice(d['lattice_rec']['matrix']), d['efermi'],
             labels_dict, structure=structure, projections=projections)
 

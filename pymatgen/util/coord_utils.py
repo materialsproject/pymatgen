@@ -380,21 +380,27 @@ class Simplex(object):
         self.space_dim, self.simplex_dim = self._coords.shape
         self.origin = self._coords[-1]
         if self.space_dim == self.simplex_dim + 1:
-            # precompute attributes for calculating bary_coords
-            self.T = self._coords[:-1] - self.origin
-            self.T_inv = np.linalg.inv(self.T)
+            # precompute augmented matrix for calculating bary_coords
+            self._aug = np.concatenate([coords, np.ones((self.space_dim, 1))],
+                                       axis=-1)
+            self._aug_inv = np.linalg.inv(self._aug)
 
     @property
     def volume(self):
         """
         Volume of the simplex.
         """
-        return abs(np.linalg.det(self.T)) / math.factorial(self.simplex_dim)
+        return abs(np.linalg.det(self._aug)) / math.factorial(self.simplex_dim)
 
     def bary_coords(self, point):
         try:
-            c = np.dot((point - self.origin), self.T_inv)
-            return np.concatenate([c, [1 - np.sum(c)]])
+            return np.dot(np.concatenate([point, [1]]), self._aug_inv)
+        except AttributeError:
+            raise ValueError('Simplex is not full-dimensional')
+
+    def point_from_bary_coords(self, bary_coords):
+        try:
+            return np.dot(bary_coords, self._aug[:, :-1])
         except AttributeError:
             raise ValueError('Simplex is not full-dimensional')
 
@@ -415,6 +421,37 @@ class Simplex(object):
             tolerance (float): Tolerance to test if point is in simplex.
         """
         return (self.bary_coords(point) >= -tolerance).all()
+
+    def line_intersection(self, point1, point2, tolerance=1e-8):
+        """
+        Computes the intersection points of a line with a simplex
+        Args:
+            point1, point2 ([float]): Points that determine the line
+        Returns:
+            points where the line intersects the simplex (0, 1, or 2)
+        """
+        b1 = self.bary_coords(point1)
+        b2 = self.bary_coords(point2)
+        l = b1 - b2
+        # don't use barycentric dimension where line is parallel to face
+        valid = np.abs(l) > 1e-10
+        # array of all the barycentric coordinates on the line where
+        # one of the values is 0
+        possible = b1 - (b1[valid] / l[valid])[:, None] * l
+        barys = []
+        for p in possible:
+            # it's only an intersection if its in the simplex
+            if (p >= -tolerance).all():
+                found = False
+                # don't return duplicate points
+                for b in barys:
+                    if np.all(np.abs(b - p) < tolerance):
+                        found = True
+                        break
+                if not found:
+                    barys.append(p)
+        assert len(barys) < 3
+        return [self.point_from_bary_coords(b) for b in barys]
 
     def __eq__(self, other):
         for p in itertools.permutations(self._coords):

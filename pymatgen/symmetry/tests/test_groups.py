@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import division
-import unittest2 as unittest
+import unittest
 import numpy as np
 
 from pymatgen.core.lattice import Lattice

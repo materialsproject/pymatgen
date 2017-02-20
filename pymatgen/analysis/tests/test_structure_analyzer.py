@@ -5,7 +5,7 @@
 from __future__ import unicode_literals
 
 import numpy as np
-import unittest2 as unittest
+import unittest
 import os
 
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \

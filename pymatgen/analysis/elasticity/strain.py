@@ -14,7 +14,6 @@ generating deformed structure sets for further calculations.
 from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.elasticity.tensors import SquareTensor, voigt_map
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-import warnings
 import numpy as np
 from six.moves import zip
 
@@ -215,11 +214,6 @@ class Strain(SquareTensor):
         vscale[3:] *= 2
         obj = super(Strain, cls).__new__(cls, strain_matrix, vscale=vscale)
         if dfm is None:
-            warnings.warn("Constructing a strain object without a deformation"
-                          " matrix may result in a non-independent "
-                          "deformation  Use Strain.from_deformation to "
-                          "construct a Strain from a deformation gradient.")
-
             obj._dfm = convert_strain_to_deformation(obj)
         else:
             dfm = Deformation(dfm)
@@ -322,16 +316,12 @@ class IndependentStrain(Strain):
     def j(self):
         return self._j
 
-def convert_strain_to_deformation(strain, tol=1e-5):
+def convert_strain_to_deformation(strain):
     strain = SquareTensor(strain)
     ftdotf = 2*strain + np.eye(3)
-    eigs, eigvecs = np.linalg.eig(ftdotf)
+    eigs, eigvecs = np.linalg.eigh(ftdotf)
     rotated = ftdotf.rotate(np.transpose(eigvecs))
     rotated = rotated.round(10)
     defo = Deformation(np.sqrt(rotated))
     result = defo.rotate(eigvecs)
-    rd = np.abs(strain - 0.5*(np.dot(np.transpose(result),result) - np.eye(3)))
-    assert (rd < tol).all(), "Strain-generated deformation is not valid!"
     return result
-
-

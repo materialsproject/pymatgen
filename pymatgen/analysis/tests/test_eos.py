@@ -5,7 +5,7 @@
 from __future__ import unicode_literals, division, print_function
 
 import numpy as np
-import unittest2 as unittest
+import unittest
 
 from pymatgen.analysis.eos import EOS
 

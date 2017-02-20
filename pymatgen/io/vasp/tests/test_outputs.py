@@ -5,7 +5,7 @@
 from __future__ import division, unicode_literals
 
 
-import unittest2 as unittest
+import unittest
 import os
 import json
 import numpy as np
@@ -498,6 +498,14 @@ class OutcarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, "OUTCAR.icorelevel")
         cl = Outcar(filepath).read_core_state_eigen()
         self.assertAlmostEqual(cl[4]["3d"][-1], -31.4522)
+
+    def test_avg_core_poten(self):
+        filepath = os.path.join(test_dir, "OUTCAR.lepsilon")
+        cp = Outcar(filepath).read_avg_core_poten()
+        self.assertAlmostEqual(cp[-1][1], -90.0487)
+        filepath = os.path.join(test_dir, "OUTCAR")
+        cp = Outcar(filepath).read_avg_core_poten()
+        self.assertAlmostEqual(cp[0][6], -73.1068)
 
     def test_single_atom(self):
         filepath = os.path.join(test_dir, "OUTCAR.Al")

@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-import unittest2 as unittest
+import unittest
 import os
 
 from pymatgen.command_line.bader_caller import BaderAnalysis

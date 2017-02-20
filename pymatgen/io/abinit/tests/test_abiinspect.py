@@ -139,5 +139,5 @@ class AbinitInpectTest(PymatgenTest):
 
 
 if __name__ == '__main__':
-    import unittest2 as unittest
+    import unittest
     unittest.main()
