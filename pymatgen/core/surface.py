@@ -163,7 +163,7 @@ class Slab(Structure):
                     shift=self.shift, scale_factor=self.scale_factor,
                     coords_are_cartesian=True, energy=self.energy)
 
-    def get_tasker2_slabs(self, tol=0.01, same_species_only=True):
+    def get_tasker2_slabs(self, tol=0.01, same_species_only=True, bonds=None):
         """
         Get a list of slabs that have been Tasker 2 corrected.
 
@@ -175,6 +175,9 @@ class Slab(Structure):
                 moving. Otherwise, all atoms regardless of species that is
                 within tol are considered for moving. Default is True (usually
                 the desired behavior).
+            bonds ({(specie1, specie2): max_bond_dist}: bonds are
+                and the max bonding distance. For example, PO4 groups may be
+                defined as {("P", "O"): 3}.
 
         Returns:
             ([Slab]) List of tasker 2 corrected slabs.
