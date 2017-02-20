@@ -1230,7 +1230,8 @@ class BSDOSPlotter():
 
         elif self.bs_legend and rgb_legend:
             if len(elements) == 2:
-                self._rb_line(bs_ax, elements[1], elements[0])
+                self._rb_line(bs_ax, elements[1], elements[0],
+                              loc=self.bs_legend)
             elif len(elements) == 3:
                 self._rgb_triangle(bs_ax, elements[1], elements[2], elements[0],
                                    loc=self.bs_legend)
@@ -1357,37 +1358,48 @@ class BSDOSPlotter():
 
         # add the labels
         inset_ax.text(0.70, -0.2, g_label, fontsize=13,
-                  family='Times New Roman', color=(0, 0, 0), horizontalalignment='left')
-        inset_ax.text(0.30, 0.70, r_label, fontsize=13,
-                  family='Times New Roman', color=(0, 0, 0), horizontalalignment='center')
+                  family='Times New Roman', color=(0, 0, 0),
+                      horizontalalignment='left')
+        inset_ax.text(0.325, 0.70, r_label, fontsize=13,
+                  family='Times New Roman', color=(0, 0, 0),
+                      horizontalalignment='center')
         inset_ax.text(-0.05, -0.2, b_label, fontsize=13,
-                  family='Times New Roman', color=(0, 0, 0), horizontalalignment='right')
+                  family='Times New Roman', color=(0, 0, 0),
+                      horizontalalignment='right')
 
         inset_ax.get_xaxis().set_visible(False)
         inset_ax.get_yaxis().set_visible(False)
 
     @staticmethod
-    def _rb_line(ax, r_label, b_label):
-        # Draw an rb bar legend on the desired® axis
+    def _rb_line(ax, r_label, b_label, loc):
+        # Draw an rb bar legend on the desired axis
 
-        max_y = ax.get_ylim()[1]
+        if not loc in range(1, 11):
+            loc = 2
+        from mpl_toolkits.axes_grid.inset_locator import inset_axes
+        inset_ax = inset_axes(ax, width=1.2, height=0.4, loc=loc)
 
         x = []
         y = []
         color = []
         for i in range(0, 1000):
             x.append(i / 1800. + 0.55)
-            y.append(max_y - 0.5)
+            y.append(0)
             color.append([math.sqrt(c) for c in
                           [1 - (i/1000)**2, 0, (i / 1000)**2]])
 
         # plot the bar
-        ax.scatter(x, y, s=250., marker='s', edgecolor=color)
-        ax.text(1.3, max_y - 0.6, b_label, fontsize=16,
-                family='Times New Roman', color=(0, 0, 0))
-        ax.text(0, max_y - 0.6, r_label, fontsize=16,
-                family='Times New Roman', color=(0, 0, 0))
+        inset_ax.scatter(x, y, s=250., marker='s', edgecolor=color)
+        inset_ax.set_xlim([-0.1, 1.7])
+        inset_ax.text(1.35, 0, b_label, fontsize=13,
+                 family='Times New Roman', color=(0, 0, 0),
+                horizontalalignment="left", verticalalignment="center")
+        inset_ax.text(0.30, 0, r_label, fontsize=13,
+                 family='Times New Roman', color=(0, 0, 0),
+                horizontalalignment="right", verticalalignment="center")
 
+        inset_ax.get_xaxis().set_visible(False)
+        inset_ax.get_yaxis().set_visible(False)
 
 class BoltztrapPlotter(object):
     """
