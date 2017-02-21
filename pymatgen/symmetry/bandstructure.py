@@ -59,7 +59,7 @@ class HighSymmKpath(object):
 
         if not np.allclose(self._structure.lattice.matrix, self._prim.lattice.matrix, atol=atol):
             warnings.warn("The input structure does not match the expected standard primitive! "
-                          "The path can be incorrect. Use at you own risk.")
+                          "The path can be incorrect. Use at your own risk.")
 
         lattice_type = self._sym.get_lattice_type()
         spg_symbol = self._sym.get_space_group_symbol()
