@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import division
-import unittest2 as unittest
+import unittest
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
@@ -70,6 +70,15 @@ class SpaceGroupTest(unittest.TestCase):
             sg = SpaceGroup(name)
             self.assertEqual(len(sg.symmetry_ops), sg.order)
 
+    def test_get_settings(self):
+        self.assertEqual({'Fm-3m(a-1/4,b-1/4,c-1/4)', 'Fm-3m'},
+                         SpaceGroup.get_settings("Fm-3m"))
+        self.assertEqual({'Pmmn', 'Pmnm:1', 'Pnmm:2', 'Pmnm:2', 'Pnmm',
+                          'Pnmm:1', 'Pmmn:1', 'Pmnm', 'Pmmn:2'},
+                         SpaceGroup.get_settings("Pmmn"))
+        self.assertEqual({'Pnmb', 'Pman', 'Pncm', 'Pmna', 'Pcnm', 'Pbmn'},
+                         SpaceGroup.get_settings("Pmna"))
+
     def test_crystal_system(self):
         sg = SpaceGroup("R-3c")
         self.assertEqual(sg.crystal_system, "trigonal")
@@ -90,10 +99,10 @@ class SpaceGroupTest(unittest.TestCase):
         sg = SpaceGroup("Fm-3m")
         self.assertTrue(sg.is_compatible(cubic))
         self.assertFalse(sg.is_compatible(hexagonal))
-        sg = SpaceGroup("R-3mH")
+        sg = SpaceGroup("R-3m:H")
         self.assertFalse(sg.is_compatible(cubic))
         self.assertTrue(sg.is_compatible(hexagonal))
-        sg = SpaceGroup("R-3mR")
+        sg = SpaceGroup("R-3m:R")
         self.assertTrue(sg.is_compatible(cubic))
         self.assertTrue(sg.is_compatible(rhom))
         self.assertFalse(sg.is_compatible(hexagonal))
@@ -115,6 +124,12 @@ class SpaceGroupTest(unittest.TestCase):
         self.assertTrue(sg.is_compatible(ortho))
         self.assertTrue(sg.is_compatible(rhom))
         self.assertTrue(sg.is_compatible(hexagonal))
+        sg = SpaceGroup("Pmmn:2")
+        self.assertTrue(sg.is_compatible(cubic))
+        self.assertTrue(sg.is_compatible(tet))
+        self.assertTrue(sg.is_compatible(ortho))
+        self.assertFalse(sg.is_compatible(rhom))
+        self.assertFalse(sg.is_compatible(hexagonal))
 
     def test_symmops(self):
         sg = SpaceGroup("Pnma")

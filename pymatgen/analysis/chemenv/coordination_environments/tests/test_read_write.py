@@ -3,7 +3,7 @@
 
 __author__ = 'waroquiers'
 
-import unittest2 as unittest
+import unittest
 import os
 import json
 import shutil

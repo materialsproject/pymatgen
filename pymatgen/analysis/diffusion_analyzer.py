@@ -4,6 +4,7 @@
 
 from __future__ import division, unicode_literals
 import numpy as np
+import warnings
 import scipy.constants as const
 
 from monty.json import MSONable
@@ -45,7 +46,7 @@ class DiffusionAnalyzer(MSONable):
 
     .. attribute: diffusivity
 
-        Diffusivity in cm^2 / cm
+        Diffusivity in cm^2 / s
 
     .. attribute: conductivity
 
@@ -53,7 +54,7 @@ class DiffusionAnalyzer(MSONable):
 
     .. attribute: diffusivity_components
 
-        A vector with diffusivity in the a, b and c directions in cm^2 / cm
+        A vector with diffusivity in the a, b and c directions in cm^2 / s
 
     .. attribute: conductivity_components
 
@@ -61,7 +62,7 @@ class DiffusionAnalyzer(MSONable):
 
     .. attribute: diffusivity_sigma
 
-        Std dev in diffusivity in cm^2 / cm. Note that this makes sense only
+        Std dev in diffusivity in cm^2 / s. Note that this makes sense only
         for non-smoothed analyses.
 
     .. attribute: conductivity_sigma
@@ -108,7 +109,7 @@ class DiffusionAnalyzer(MSONable):
 
     def __init__(self, structure, displacements, specie, temperature,
                  time_step, step_skip, smoothed="max", min_obs=30,
-                 avg_nsteps=1000):
+                 avg_nsteps=1000, lattices=None):
         """
         This constructor is meant to be used with pre-processed data.
         Other convenient constructors are provided as class methods (see
@@ -159,6 +160,8 @@ class DiffusionAnalyzer(MSONable):
             avg_nsteps (int): Used with smoothed="constant". Determines the
                 number of time steps to average over to get the msd for each
                 timestep. Default of 1000 is usually pretty good.
+            lattices (array): Numpy array of lattice matrix of every step
+                in NPT-AIMD. For NVT-AIMD, lattices has only one item.
         """
         self.structure = structure
         self.disp = displacements
@@ -169,6 +172,10 @@ class DiffusionAnalyzer(MSONable):
         self.min_obs = min_obs
         self.smoothed = smoothed
         self.avg_nsteps = avg_nsteps
+        self.lattices = lattices
+
+        if lattices is None:
+            self.lattices = np.array([structure.lattice.matrix.tolist()])
 
         indices = []
         framework_indices = []
@@ -189,7 +196,6 @@ class DiffusionAnalyzer(MSONable):
 
             #drift corrected position
             dc = self.disp - drift
-            df = structure.lattice.get_fractional_coords(dc)
 
             nions, nsteps, dim = dc.shape
 
@@ -215,19 +221,17 @@ class DiffusionAnalyzer(MSONable):
             sq_disp_ions = np.zeros((len(dc), len(dt)), dtype=np.double)
             msd_components = np.zeros(dt.shape + (3,))
 
-            lengths = np.array(self.structure.lattice.abc)[None, None, :]
-
             for i, n in enumerate(timesteps):
                 if not smoothed:
                     dx = dc[:, i:i + 1, :]
-                    dcomponents = df[:, i:i + 1, :] * lengths
+                    dcomponents = dc[:, i:i + 1, :]
                 elif smoothed == "constant":
                     dx = dc[:, i:i + avg_nsteps, :] - dc[:, 0:avg_nsteps, :]
-                    dcomponents = (df[:, i:i + avg_nsteps, :]
-                                   - df[:, 0:avg_nsteps, :]) * lengths
+                    dcomponents = dc[:, i:i + avg_nsteps, :] \
+                        - dc[:, 0:avg_nsteps, :]
                 else:
                     dx = dc[:, n:, :] - dc[:, :-n, :]
-                    dcomponents = (df[:, n:, :] - df[:, :-n, :]) * lengths
+                    dcomponents = dc[:, n:, :] - dc[:, :-n, :]
                 sq_disp = dx ** 2
                 sq_disp_ions[:, i] = np.average(np.sum(sq_disp, axis=2), axis=1)
                 msd[i] = np.average(sq_disp_ions[:, i][indices])
@@ -313,9 +317,11 @@ class DiffusionAnalyzer(MSONable):
         """
         coords = np.array(self.structure.cart_coords)
         species = self.structure.species_and_occu
-        latt = self.structure.lattice
+        lattices = self.lattices
         nsites, nsteps, dim = self.corrected_displacements.shape
+
         for i in range(start or 0, stop or nsteps, step or 1):
+            latt = lattices[0] if len(lattices) == 1 else lattices[i]
             yield Structure(
                     latt, species,
                     coords + self.corrected_displacements[:, i, :],
@@ -361,12 +367,20 @@ class DiffusionAnalyzer(MSONable):
         but doesn't constitute melting).
 
         Args:
+            plt (matplotlib.pyplot): If plt is supplied, changes will be made to an
+                existing plot. Otherwise, a new plot will be created.
             granularity (int): Number of structures to match
             matching_s (Structure): Optionally match to a disordered structure
                 instead of the first structure in the analyzer. Required when
                 a secondary mobile ion is present.
+        Notes:
+            The method doesn't apply to NPT-AIMD simulation analysis.
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
+        if self.lattices is not None and len(self.lattices) > 1:
+            warnings.warn("Note the method doesn't apply to NPT-AIMD "
+                          "simulation analysis!")
+
         plt = get_publication_quality_plot(12, 8, plt=plt)
         step = (self.corrected_displacements.shape[1] - 1) // (granularity - 1)
         f = (matching_s or self.structure).copy()
@@ -529,31 +543,37 @@ class DiffusionAnalyzer(MSONable):
             initial_structure (Structure): Like initial_disp, this is used
                 for iterative computations of estimates of the diffusivity. You
                 typically need to supply both variables. This stipulates the
-                initial strcture from which the current set of displacements
+                initial structure from which the current set of displacements
                 are computed.
         """
-        p = []
+        p, l = [], []
         for i, s in enumerate(structures):
             if i == 0:
                 structure = s
-            p.append(np.array(s.frac_coords)[:, None])
-
+            p.append(np.array(s.cart_coords)[:, None])
+            l.append(s.lattice.matrix)
         if initial_structure is not None:
-            p.insert(0, np.array(initial_structure.frac_coords)[:, None])
+            p.insert(0, np.array(initial_structure.cart_coords)[:, None])
+            l.insert(0, initial_structure.lattice.matrix)
         else:
             p.insert(0, p[0])
+            l.insert(0, l[0])
+
+        # If is NVT-AIMD, clear lattice data.
+        if np.array_equal(l[0], l[-1]):
+            l = np.array([l[0]])
+        else:
+            l = np.array(l)
         p = np.concatenate(p, axis=1)
         dp = p[:, 1:] - p[:, :-1]
         dp = dp - np.round(dp)
-        f_disp = np.cumsum(dp, axis=1)
+        disp = np.cumsum(dp, axis=1)
         if initial_disp is not None:
-            f_disp += structure.lattice.get_fractional_coords(initial_disp)[:,
-                                                              None, :]
-        disp = structure.lattice.get_cartesian_coords(f_disp)
+            disp += initial_disp[:, None, :]
 
-        return cls(structure, disp, specie, temperature,
-                   time_step, step_skip=step_skip, smoothed=smoothed,
-                   min_obs=min_obs, avg_nsteps=avg_nsteps)
+        return cls(structure, disp, specie, temperature, time_step,
+                   step_skip=step_skip, smoothed=smoothed,
+                   min_obs=min_obs, avg_nsteps=avg_nsteps, lattices=l)
 
     @classmethod
     def from_vaspruns(cls, vaspruns, specie, smoothed="max", min_obs=30,
@@ -605,7 +625,7 @@ class DiffusionAnalyzer(MSONable):
             initial_structure (Structure): Like initial_disp, this is used
                 for iterative computations of estimates of the diffusivity. You
                 typically need to supply both variables. This stipulates the
-                initial strcture from which the current set of displacements
+                initial stricture from which the current set of displacements
                 are computed.
         """
 
@@ -694,7 +714,7 @@ class DiffusionAnalyzer(MSONable):
             initial_structure (Structure): Like initial_disp, this is used
                 for iterative computations of estimates of the diffusivity. You
                 typically need to supply both variables. This stipulates the
-                initial strcture from which the current set of displacements
+                initial structure from which the current set of displacements
                 are computed.
         """
         if ncores is not None and len(filepaths) > 1:
@@ -717,6 +737,7 @@ class DiffusionAnalyzer(MSONable):
                     yield v
                     # Recompute offset.
                     offset = (-(v.nionic_steps - offset)) % step_skip
+
             return cls.from_vaspruns(vr(filepaths), min_obs=min_obs,
                 smoothed=smoothed, specie=specie, initial_disp=initial_disp,
                 initial_structure=initial_structure, avg_nsteps=avg_nsteps)
@@ -733,7 +754,8 @@ class DiffusionAnalyzer(MSONable):
             "step_skip": self.step_skip,
             "min_obs": self.min_obs,
             "smoothed": self.smoothed,
-            "avg_nsteps": self.avg_nsteps
+            "avg_nsteps": self.avg_nsteps,
+            "lattices": self.lattices.tolist()
         }
 
     @classmethod
@@ -743,7 +765,9 @@ class DiffusionAnalyzer(MSONable):
                    temperature=d["temperature"], time_step=d["time_step"],
                    step_skip=d["step_skip"], min_obs=d["min_obs"],
                    smoothed=d.get("smoothed", "max"),
-                   avg_nsteps=d.get("avg_nsteps", 1000))
+                   avg_nsteps=d.get("avg_nsteps", 1000),
+                   lattices=np.array(d.get("lattices",
+                                           [d["structure"]["lattice"]["matrix"]])))
 
 
 def get_conversion_factor(structure, species, temperature):

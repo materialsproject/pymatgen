@@ -1,11 +1,11 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-import unittest2 as unittest
+import unittest
 import os
 
 import numpy as np
-from pymatgen.analysis.elasticity.elastic import ElasticTensor
+from pymatgen.analysis.elasticity.elastic import ElasticTensor, toec_fit
 from pymatgen.analysis.elasticity.strain import Strain, IndependentStrain, Deformation
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
@@ -16,6 +16,10 @@ from six.moves import zip
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
+try:
+    import sympy
+except ImportError:
+    sympy=None
 
 class ElasticTensorTest(PymatgenTest):
     def setUp(self):
@@ -141,7 +145,7 @@ class ElasticTensorTest(PymatgenTest):
                        for def_matrix in self.def_stress_dict['deformations']]
         stress_list = [stress for stress in self.def_stress_dict['stresses']]
         with warnings.catch_warnings(record=True):
-            et_fl = -0.1*ElasticTensor.from_strain_stress_list(strain_list,
+            et_fl = -0.1*ElasticTensor.from_strain_stress_list(strain_list, 
                                                                stress_list).voigt
             self.assertArrayAlmostEqual(et_fl.round(2),
                                         [[59.29, 24.36, 22.46, 0, 0, 0],
@@ -176,7 +180,23 @@ class ElasticTensorTest(PymatgenTest):
                            [ -6.12323400e-17,-6.12323400e-17,1.00000000e+00]])
 
         self.assertAlmostEqual(film_elac.energy_density(dfm.green_lagrange_strain),
-            0.00125664672793)
+            0.000125664672793)
+
+        film_elac.energy_density(Strain.from_deformation([[ 0.99774738,  0.11520994, -0.        ],
+                                        [-0.11520994,  0.99774738,  0.        ],
+                                        [-0.,         -0.,          1.,        ]]))
+
+    @unittest.skipIf(not sympy, "sympy not present, skipping toec_fit test")
+    def test_toec_fit(self):
+        with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
+            toec_dict = json.load(f)
+        strains = [Strain(sm) for sm in toec_dict['strains']]
+        pk_stresses = [Stress(d) for d in toec_dict['pk_stresses']]
+        with warnings.catch_warnings(record=True) as w:
+            c2, c3 = toec_fit(strains, pk_stresses, 
+                              eq_stress=toec_dict["eq_stress"])
+            self.assertArrayAlmostEqual(c2.voigt, toec_dict["C2_raw"])
+            self.assertArrayAlmostEqual(c3.voigt, toec_dict["C3_raw"])
 
 if __name__ == '__main__':
     unittest.main()
