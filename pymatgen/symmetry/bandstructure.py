@@ -11,7 +11,7 @@ Created on March 25, 2013
 """
 
 import numpy as np
-
+import warnings
 from math import ceil
 from math import cos
 from math import sin
@@ -29,16 +29,25 @@ class HighSymmKpath(object):
     High-throughput electronic band structure calculations:
     Challenges and tools. Computational Materials Science,
     49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
+    It should be used with primitive structures that
+    comply with the definition from the paper.
     The symmetry is determined by spglib through the
-    SpacegroupAnalyzer class
+    SpacegroupAnalyzer class. The analyzer can be used to
+    produce the correct primitive structure (method
+    get_primitive_standard_structure(international_monoclinic=False)).
+    A warning will signal possible compatibility problems
+    with the given structure.
 
     Args:
         structure (Structure): Structure object
         symprec (float): Tolerance for symmetry finding
         angle_tolerance (float): Angle tolerance for symmetry finding.
+        atol (float): Absolute tolerance used to compare the input
+            structure with the one expected as primitive standard.
+            A warning will be issued if the lattices don't match.
     """
 
-    def __init__(self, structure, symprec=0.01, angle_tolerance=5):
+    def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-8):
         self._structure = structure
         self._sym = SpacegroupAnalyzer(structure, symprec=symprec,
                                    angle_tolerance=angle_tolerance)
@@ -47,6 +56,10 @@ class HighSymmKpath(object):
         self._conv = self._sym.get_conventional_standard_structure(international_monoclinic=False)
         self._prim_rec = self._prim.lattice.reciprocal_lattice
         self._kpath = None
+
+        if not np.allclose(self._structure.lattice.matrix, self._prim.lattice.matrix, atol=atol):
+            warnings.warn("The input structure does not match the expected standard primitive! "
+                          "The path can be incorrect. Use at you own risk.")
 
         lattice_type = self._sym.get_lattice_type()
         spg_symbol = self._sym.get_space_group_symbol()
