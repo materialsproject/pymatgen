@@ -123,7 +123,7 @@ class BoltztrapRunner(object):
                 gap in DFT. Default is 0.0 (no scissor)
             kpt_line:
                 list of fractional coordinates of kpoints as arrays or list of
-                Kpoint objects for BANDS mode calculation (standard path of 
+                Kpoint objects for BANDS mode calculation (standard path of
                 high symmetry k-points is automatically set as default)
             tmax:
                 Maximum temperature (K) for calculation (default=1300)
@@ -594,8 +594,8 @@ class BoltztrapRunner(object):
 
                     for c in p.communicate():
                         print(c)
-                        if "STOP error in factorization" in c.decode():
-                            raise BoltztrapError("STOP error in factorization")
+                        if "error in factorization" in c.decode():
+                            raise BoltztrapError("error in factorization")
 
                     warning = ""
 
@@ -873,9 +873,9 @@ class BoltztrapAnalyzer(object):
             - "avg_corr": average of correlation coefficient over the 8 bands
             - "avg_dist": average of energy distance over the 8 bands
             - "nb_list": list of indexes of the 8 compared bands
-            - "acc_thr": list of two float corresponing to the two warning 
+            - "acc_thr": list of two float corresponing to the two warning
                          thresholds in input
-            - "acc_err": list of two bools: 
+            - "acc_err": list of two bools:
                          True if the avg_corr > warn_thr[0], and
                          True if the avg_dist > warn_thr[1]
             See also compare_sym_bands function doc
@@ -1252,7 +1252,7 @@ class BoltztrapAnalyzer(object):
             different doping levels, False for results
             at different electron chemical potentials
         Returns:
-            If doping_levels=True,a dictionary {'p':{temp:[]},'n':{temp:[]}} 
+            If doping_levels=True,a dictionary {'p':{temp:[]},'n':{temp:[]}}
             with an array of effective mass tensor, eigenvalues of average
             value (depending on output) for each temperature and for each
             doping level.
@@ -1457,7 +1457,7 @@ class BoltztrapAnalyzer(object):
             Returns:
                 a CompleteDos object
             Example of use in case of spin polarized case:
-            
+
                 BoltztrapRunner(bs=bs,nelec=10,run_type="DOS",spin=1).run(path_dir='dos_up/')
                 an_up=BoltztrapAnalyzer.from_files("dos_up/boltztrap/",dos_spin=1)
 
