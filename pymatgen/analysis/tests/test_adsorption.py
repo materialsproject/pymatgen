@@ -79,5 +79,5 @@ class AdsorbateSiteFinderTest(PymatgenTest):
                                     frac_to_cart(slab.lattice,
                                                  slab.frac_coords[0]))
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
     unittest.main()
