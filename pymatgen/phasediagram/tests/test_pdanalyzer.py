@@ -11,7 +11,7 @@ from numbers import Number
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
-from pymatgen.phasediagram.maker import PhaseDiagram
+from pymatgen.phasediagram.maker import PhaseDiagram, GrandPotentialPhaseDiagram
 from pymatgen.phasediagram.analyzer import PDAnalyzer
 from pymatgen.phasediagram.entries import PDEntryIO, PDEntry
 
@@ -147,6 +147,27 @@ class PDAnalyzerTest(unittest.TestCase):
                     Composition('LiFeO2'),
                     Composition('Li5FeO4') / 3,
                     Composition('Li2O')]
+        for crit, exp in zip(comps, expected):
+            self.assertTrue(crit.almost_equals(exp, rtol=0, atol=1e-5))
+
+        # Don't fail silently if input compositions aren't in phase diagram
+        # Can be very confusing if you're working with a GrandPotentialPD
+        self.assertRaises(ValueError, self.analyzer.get_critical_compositions,
+                          Composition('Xe'), Composition('Mn'))
+
+        # For the moment, should also fail even if compositions are in the gppd
+        # because it isn't handled properly
+        gppd = GrandPotentialPhaseDiagram(self.pd.all_entries, {'Xe': 1},
+                                          self.pd.elements + [Element('Xe')])
+        pda = PDAnalyzer(gppd)
+        self.assertRaises(ValueError, pda.get_critical_compositions,
+                          Composition('Fe2O3'), Composition('Li3FeO4Xe'))
+
+        # check that the function still works though
+        comps = pda.get_critical_compositions(c1, c2)
+        expected = [Composition('Fe2O3'),
+                    Composition('Li0.3243244Fe0.1621621O0.51351349') * 7.4,
+                    Composition('Li3FeO4')]
         for crit, exp in zip(comps, expected):
             self.assertTrue(crit.almost_equals(exp, rtol=0, atol=1e-5))
 

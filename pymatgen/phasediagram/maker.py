@@ -186,6 +186,9 @@ class PhaseDiagram(MSONable):
         (n_elements - 1). This function returns the coordinates in that space.
         These coordinates are compatible with the stored simplex objects.
         """
+        if set(comp.elements).difference(self.elements):
+            raise ValueError('{} has elements not in the phase diagram {}'
+                             ''.format(comp, self.elements))
         return np.array([comp.get_atomic_fraction(el) for el in self.elements[1:]])
 
     @property
