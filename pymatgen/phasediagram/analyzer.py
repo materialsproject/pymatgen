@@ -202,7 +202,7 @@ class PDAnalyzer(object):
                                                     allow_negative=True)[1]
 
     def get_composition_chempots(self, comp):
-        facet = self._get_facet(comp)[0]
+        facet = self._get_facet(comp)
         return self._get_facet_chempots(facet)
 
     @deprecated(get_composition_chempots)
