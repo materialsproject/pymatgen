@@ -85,9 +85,10 @@ class VoronoiCoordFinder(object):
                 if -1 in vind:
                     if self.allow_pathological:
                         continue
-                    raise RuntimeError("This structure is pathological,"
-                                       " infinite vertex in the voronoi "
-                                       "construction")
+                    else:
+                        raise RuntimeError("This structure is pathological,"
+                                           " infinite vertex in the voronoi "
+                                           "construction")
 
                 facets = [all_vertices[i] for i in vind]
                 results[neighbors[sorted(nn)[1]]] = solid_angle(

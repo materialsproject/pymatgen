@@ -29,6 +29,7 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
 from pymatgen.core.surface import generate_all_slabs
 
+from matplotlib import pyplot as plt
 from matplotlib import patches
 from matplotlib.path import Path
 
@@ -36,6 +37,7 @@ __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2016, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Joseph Montoya"
+__credits__ = "Richard Tran"
 __email__ = "montoyjh@lbl.gov"
 __status__ = "Development"
 __date__ = "December 2, 2015"
@@ -77,14 +79,14 @@ class AdsorbateSiteFinder(object):
         if mi_vec:
             self.mvec = mi_vec
         else:
-            self.mvec = get_mi_vec(slab.miller_index)
+            self.mvec = get_mi_vec(slab)
         slab = self.assign_site_properties(slab, height)
         if selective_dynamics:
             slab = self.assign_selective_dynamics(slab)
         self.slab = slab
 
     @classmethod
-    def from_bulk_and_miller(cls, structure, miller_index, min_slab_size=5.0,
+    def from_bulk_and_miller(cls, structure, miller_index, min_slab_size=8.0,
                              min_vacuum_size=10.0, max_normal_search=None, 
                              center_slab = True, selective_dynamics=False,
                              undercoord_threshold = 0.09):
@@ -110,8 +112,9 @@ class AdsorbateSiteFinder(object):
                 are 10% less coordinated than their bulk counterpart
         """
         # TODO: for some reason this works poorly with primitive cells
+        #       may want to switch the coordination algorithm eventually
         vcf_bulk = VoronoiCoordFinder(structure)
-        bulk_coords = [len(vcf_bulk.get_coordinated_sites(n))
+        bulk_coords = [len(vcf_bulk.get_coordinated_sites(n, tol=0.05))
                        for n in range(len(structure))]
         struct = structure.copy(site_properties = {'bulk_coordinations':bulk_coords})
         slabs = generate_all_slabs(struct, max_index=max(miller_index), 
@@ -128,24 +131,27 @@ class AdsorbateSiteFinder(object):
         this_slab = slab_dict[miller_index]
 
         vcf_surface = VoronoiCoordFinder(this_slab, allow_pathological=True)
-        surf_props = []
-        this_mi_vec = get_mi_vec(this_slab.miller_index)
+
+        surf_props, undercoords = [], []
+        this_mi_vec = get_mi_vec(this_slab)
         mi_mags = [np.dot(this_mi_vec, site.coords) for site in this_slab]
         average_mi_mag = np.average(mi_mags)
         for n, site in enumerate(this_slab):
             bulk_coord = this_slab.site_properties['bulk_coordinations'][n]
-            slab_coord = len(vcf_surface.get_coordinated_sites(n))
+            slab_coord = len(vcf_surface.get_coordinated_sites(n, tol=0.05))
             mi_mag = np.dot(this_mi_vec, site.coords)
             undercoord = (bulk_coord - slab_coord)/bulk_coord
+            undercoords += [undercoord]
             if undercoord > undercoord_threshold and mi_mag > average_mi_mag:
                 surf_props += ['surface']
             else:
                 surf_props += ['subsurface']
-        new_site_properties = {'surface_properties':surf_props}
+        new_site_properties = {'surface_properties':surf_props,
+                               'undercoords':undercoords}
         new_slab = this_slab.copy(site_properties=new_site_properties)
         return cls(new_slab, selective_dynamics)
 
-    def find_surface_sites_by_height(self, slab, height=0.9):
+    def find_surface_sites_by_height(self, slab, height=0.9, xy_tol=0.05):
         """
         This method finds surface sites by determining which sites are within
         a threshold value in height from the topmost site in a list of sites
@@ -155,6 +161,8 @@ class AdsorbateSiteFinder(object):
             height (float): threshold in angstroms of distance from topmost
                 site in slab along the slab c-vector to include in surface 
                 site determination
+            xy_tol (float): if supplied, will remove any sites which are
+                within a certain distance in the miller plane.
 
         Returns:
             list of sites selected to be within a threshold of the highest
@@ -163,9 +171,24 @@ class AdsorbateSiteFinder(object):
         # Get projection of coordinates along the miller index
         m_projs = np.array([np.dot(site.coords, self.mvec)
                             for site in slab.sites])
+
         # Mask based on window threshold along the miller index
         mask = (m_projs - np.amax(m_projs)) >= -height
-        return [slab.sites[n] for n in np.where(mask)[0]]
+        surf_sites = [slab.sites[n] for n in np.where(mask)[0]] 
+        if xy_tol:
+            # sort surface sites by height
+            surf_sites = [s for (h, s) in zip(m_projs[mask], surf_sites)]
+            surf_sites.reverse()
+            unique_sites, unique_perp_fracs = [], []
+            for site in surf_sites:
+                this_perp = site.coords - np.dot(site.coords, self.mvec)
+                this_perp_frac = cart_to_frac(slab.lattice, this_perp)
+                if not in_coord_list_pbc(unique_perp_fracs, this_perp_frac):
+                    unique_sites.append(site)
+                    unique_perp_fracs.append(this_perp_frac)
+            surf_sites = unique_sites
+
+        return surf_sites
 
     def assign_site_properties(self, slab, height=0.9):
         """
@@ -200,6 +223,13 @@ class AdsorbateSiteFinder(object):
         return [site for site in self.slab.sites 
                 if site.properties['surface_properties']=='surface']
 
+    def subsurface_sites(self):
+        """
+        convenience method to return list of subsurface sites
+        """
+        return [site for site in self.slab.sites
+                if site.properties['surface_properties']=='subsurface']
+
     def find_adsorption_sites(self, distance = 2.0, put_inside = True,
                               symm_reduce = 1e-2, near_reduce = 1e-2,
                               positions = ['ontop', 'bridge', 'hollow'],
@@ -215,56 +245,68 @@ class AdsorbateSiteFinder(object):
             put_inside (bool): whether to put the site inside the cell
             symm_reduce (float): symm reduction threshold
             near_reduce (float): near reduction threshold
-            positions (list): which of "ontop", "bridge", and "hollow" to
-                include in the site finding
+            positions (list): which positions to include in the site finding
+                "ontop": sites on top of surface sites
+                "bridge": sites at edges between surface sites in Delaunay
+                    triangulation of surface sites in the miller plane
+                "hollow": sites at centers of Delaunay triangulation faces
+                "subsurface": subsurface positions projected into miller plane
             no_obtuse_hollow (bool): flag to indicate whether to include
                 obtuse triangular ensembles in hollow sites
-
         """
-        ads_sites = []
-        mesh = self.get_extended_surface_mesh()
-        sop = get_rot(self.slab)
-        dt = Delaunay([sop.operate(m.coords)[:2] for m in mesh])
-        # TODO: refactor below to properly account for >3-fold
-        for v in dt.simplices:
-            if -1 not in v:
-                dots = []
-                for i_corner, i_opp in zip(range(3), ((1,2), (0,2), (0,1))):
-                    corner, opp = v[i_corner], [v[o] for o in i_opp]
-                    vecs = [mesh[d].coords - mesh[corner].coords for d in opp]
-                    vecs = [vec/np.linalg.norm(vec) for vec in vecs]
-                    dots.append(np.dot(*vecs))
-                    # Add bridge sites at midpoints of edges of D. Tri
-                    if 'bridge' in positions:
-                        ads_sites += [self.ensemble_center(mesh, opp, 
-                                                           cartesian = True)]
-                # Prevent addition of hollow sites in obtuse triangles
-                obtuse = no_obtuse_hollow and (np.array(dots) < 1e-5).any()
-                # Add hollow sites at centers of D. Tri faces
-                if 'hollow' in positions and not obtuse:
-                    ads_sites += [self.ensemble_center(mesh, v,
-                                                       cartesian=True)]
-        # Pare off outer edges
-        frac_coords = [cart_to_frac(self.slab.lattice, ads_site) 
-                       for ads_site in ads_sites]
-        frac_coords = [frac_coord for frac_coord in frac_coords 
-                       if (frac_coord[0]>1 and frac_coord[0]<4
-                       and frac_coord[1]>1 and frac_coord[1]<4)]
-        ads_sites = [frac_to_cart(self.slab.lattice, frac_coord) 
-                     for frac_coord in frac_coords]
+        ads_sites = {k:[] for k in positions}
         if 'ontop' in positions:
-            ads_sites += [s.coords for s in self.surface_sites]
-        if near_reduce:
-            ads_sites = self.near_reduce(ads_sites, 
-                                         threshold=near_reduce)
-        
-        if symm_reduce:
-            ads_sites = self.symm_reduce(ads_sites, threshold=symm_reduce)
-        ads_sites = [ads_site + distance*self.mvec
-                     for ads_site in ads_sites]
-        if put_inside:
-            ads_sites = [put_coord_inside(self.slab.lattice, coord)
-                         for coord in ads_sites]
+            ads_sites['ontop'] = [s.coords for s in self.surface_sites]
+        if 'subsurface' in positions:
+            # Get highest site
+            ref = self.slab.sites[np.argmax(self.slab.cart_coords[:, 2])]        
+            # Project diff between highest site and subs site into miller
+            ss_sites = [self.mvec*np.dot(ref.coords-s.coords, self.mvec)
+                        + s.coords for s in self.subsurface_sites()]
+            ads_sites['subsurface'] = ss_sites
+        if 'bridge' in positions or 'hollow' in positions:
+            mesh = self.get_extended_surface_mesh()
+            sop = get_rot(self.slab)
+            dt = Delaunay([sop.operate(m.coords)[:2] for m in mesh])
+            # TODO: refactor below to properly account for >3-fold
+            for v in dt.simplices:
+                if -1 not in v:
+                    dots = []
+                    for i_corner, i_opp in zip(range(3), ((1,2), (0,2), (0,1))):
+                        corner, opp = v[i_corner], [v[o] for o in i_opp]
+                        vecs = [mesh[d].coords - mesh[corner].coords for d in opp]
+                        vecs = [vec / np.linalg.norm(vec) for vec in vecs]
+                        dots.append(np.dot(*vecs))
+                        # Add bridge sites at midpoints of edges of D. Tri
+                        if 'bridge' in positions:
+                            ads_sites["bridge"].append(
+                                    self.ensemble_center(mesh, opp))
+                    # Prevent addition of hollow sites in obtuse triangles
+                    obtuse = no_obtuse_hollow and (np.array(dots) < 1e-5).any()
+                    # Add hollow sites at centers of D. Tri faces
+                    if 'hollow' in positions and not obtuse:
+                        ads_sites['hollow'].append(
+                                self.ensemble_center(mesh, v))
+        ads_sites['all'] = sum(ads_sites.values(), [])
+        for key, sites in ads_sites.items():
+            # Pare off outer sites for bridge/hollow
+            if key in ['bridge', 'hollow']:
+                frac_coords = [cart_to_frac(self.slab.lattice, ads_site) 
+                               for ads_site in sites]
+                frac_coords = [frac_coord for frac_coord in frac_coords 
+                               if (frac_coord[0]>1 and frac_coord[0]<4
+                               and frac_coord[1]>1 and frac_coord[1]<4)]
+                sites = [frac_to_cart(self.slab.lattice, frac_coord) 
+                        for frac_coord in frac_coords]
+            if near_reduce:
+                sites = self.near_reduce(sites, threshold=near_reduce)
+            if put_inside:
+                sites = [put_coord_inside(self.slab.lattice, coord)
+                         for coord in sites]
+            if symm_reduce:
+                sites = self.symm_reduce(sites, threshold=symm_reduce)
+            sites = [site + distance*self.mvec for site in sites]
+            ads_sites[key] = sites
         return ads_sites
 
     def symm_reduce(self, coords_set, threshold = 1e-6):
@@ -345,6 +387,8 @@ class AdsorbateSiteFinder(object):
             ads_coord (array): coordinate of adsorbate position
             repeat (3-tuple or list): input for making a supercell of slab
                 prior to placing the adsorbate
+            reorient (bool): flag on whether to reorient the molecule to
+                have its z-axis concurrent with miller index
         """
         if reorient:
             # Reorient the molecule along slab m_index
@@ -380,7 +424,7 @@ class AdsorbateSiteFinder(object):
         return slab.copy(site_properties = new_sp)
 
     def generate_adsorption_structures(self, molecule, repeat = None, 
-                                       min_lw = 5.0):
+                                       min_lw = 5.0, reorient = True):
         """
         Function that generates all adsorption structures for a given
         molecular adsorbate.  Can take repeat argument or minimum
@@ -402,20 +446,19 @@ class AdsorbateSiteFinder(object):
                 molecule, coords, repeat=repeat, reorient=reorient))
         return structs
 
-def get_mi_vec(mi_index):
+def get_mi_vec(slab):
     """
     Convenience function which returns the unit vector aligned 
     with the miller index.
     """
-    mvec = np.array([1./n if n!=0 else 0 
-                     for n in mi_index])
+    mvec = np.cross(slab.lattice.matrix[0], slab.lattice.matrix[1])
     return mvec / np.linalg.norm(mvec)
 
 def get_rot(slab):
     """
     Gets the transformation to rotate the z axis into the miller index
     """
-    new_z = get_mi_vec(slab.miller_index)
+    new_z = get_mi_vec(slab)
     a, b, c = slab.lattice.matrix
     new_x = a / np.linalg.norm(a)
     new_y = np.cross(new_z, new_x)
@@ -459,10 +502,10 @@ def cart_to_frac(lattice, cart_coord):
 # Get color dictionary
 colors = loadfn(os.path.join(os.path.dirname(vis.__file__), 
                              "ElementColorSchemes.yaml"))
-color_dict = {el:[j / 256. for j in colors["Jmol"][el]] 
+color_dict = {el:[j / 256.001 for j in colors["Jmol"][el]] 
               for el in colors["Jmol"].keys()}
 
-def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
+def plot_slab(slab, ax=None, scale=0.8, repeat=5, window=1.5,
               draw_unit_cell=True, decay = 0.2, adsorption_sites=True):
     """
     Function that helps visualize the slab in a 2-D plot, for
@@ -478,6 +521,9 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
         draw_unit_cell (bool): flag indicating whether or not to draw cell
         decay (float): how the alpha-value decays along the z-axis
     """
+    if not ax:
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
     orig_slab = slab.copy()
     slab = reorient_z(slab)
     orig_cell = slab.lattice.matrix.copy()
@@ -486,6 +532,7 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
     coords = np.array(sorted(slab.cart_coords, key=lambda x: x[2]))
     sites = sorted(slab.sites, key = lambda x: x.coords[2])
     alphas = 1 - decay*(np.max(coords[:, 2]) - coords[:, 2])
+    alphas = alphas.clip(min=0)
     corner = [0, 0, cart_to_frac(slab.lattice, coords[-1])[-1]]
     corner = frac_to_cart(slab.lattice, corner)[:2]
     verts =  orig_cell[:2, :2]
@@ -502,7 +549,7 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
     # Adsorption sites
     if adsorption_sites:
         asf = AdsorbateSiteFinder(orig_slab)
-        ads_sites = asf.find_adsorption_sites()
+        ads_sites = asf.find_adsorption_sites()['all']
         sop = get_rot(orig_slab)
         ads_sites = [sop.operate(ads_site)[:2].tolist()
                      for ads_site in ads_sites]
