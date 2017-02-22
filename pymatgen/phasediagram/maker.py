@@ -177,6 +177,16 @@ class PhaseDiagram(MSONable):
         self.el_refs = el_refs
         self.elements = elements
         self.qhull_entries = qhull_entries
+        self._stable_entries = set(self.qhull_entries[i] for i in
+                                   set(itertools.chain(*self.facets)))
+
+    def pd_coords(self, comp):
+        """
+        The phase diagram is generated in a reduced dimensional space
+        (n_elements - 1). This function returns the coordinates in that space.
+        These coordinates are compatible with the stored simplex objects.
+        """
+        return np.array([comp.get_atomic_fraction(el) for el in self.elements[1:]])
 
     @property
     @deprecated(message="PhaseDiagram.simplices is deprecated. "
@@ -207,8 +217,7 @@ class PhaseDiagram(MSONable):
         """
         Returns the stable entries in the phase diagram.
         """
-        return set((self.qhull_entries[i]
-                    for i in itertools.chain(*self.facets)))
+        return self._stable_entries
 
     def get_form_energy(self, entry):
         """
