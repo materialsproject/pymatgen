@@ -59,16 +59,8 @@ class PDAnalyzer(object):
         """
         self._pd = pd
 
-    def _make_comp_matrix(self, complist):
-        """
-        Helper function to generates a normalized composition matrix from a
-        list of compositions.
-        """
-        return np.array([[comp.get_atomic_fraction(el)
-                          for el in self._pd.elements] for comp in complist])
-
     @lru_cache(1)
-    def _get_facet(self, comp):
+    def _get_facet_and_simplex(self, comp):
         """
         Get any facet that a composition falls into. Cached so successive
         calls at same composition are fast.
@@ -79,7 +71,7 @@ class PDAnalyzer(object):
         c = [comp.get_atomic_fraction(e) for e in self._pd.elements[1:]]
         for f, s in zip(self._pd.facets, self._pd.simplexes):
             if s.in_simplex(c, PDAnalyzer.numerical_tol / 10):
-                return f
+                return f, s
         raise RuntimeError("No facet found for comp = {}".format(comp))
 
     def _get_facet_chempots(self, facet):
@@ -94,7 +86,7 @@ class PDAnalyzer(object):
         """
         complist = [self._pd.qhull_entries[i].composition for i in facet]
         energylist = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
-        m = self._make_comp_matrix(complist)
+        m = [[c.get_atomic_fraction(e) for e in self._pd.elements] for c in complist]
         chempots = np.linalg.solve(m, energylist)
         return dict(zip(self._pd.elements, chempots))
 
@@ -108,14 +100,11 @@ class PDAnalyzer(object):
         Returns:
             Decomposition as a dict of {Entry: amount}
         """
-        facet = self._get_facet(comp)
-        comp_list = [self._pd.qhull_entries[i].composition for i in facet]
-        m = self._make_comp_matrix(comp_list)
-        compm = self._make_comp_matrix([comp])
-        decomp_amts = np.linalg.solve(m.T, compm.T)
-        return {self._pd.qhull_entries[f]: amt[0]
+        facet, simplex = self._get_facet_and_simplex(comp)
+        decomp_amts = simplex.bary_coords(self._pd.pd_coords(comp))
+        return {self._pd.qhull_entries[f]: amt
                 for f, amt in zip(facet, decomp_amts)
-                if abs(amt[0]) > PDAnalyzer.numerical_tol}
+                if abs(amt) > PDAnalyzer.numerical_tol}
 
     def get_hull_energy(self, comp):
         """
@@ -150,14 +139,12 @@ class PDAnalyzer(object):
         if entry in self._pd.stable_entries:
             return {entry: 1}, 0
 
-        facet = self._get_facet(entry.composition)
-        comp_list = [self._pd.qhull_entries[i].composition for i in facet]
-        m = self._make_comp_matrix(comp_list)
-        compm = self._make_comp_matrix([entry.composition])
-        decomp_amts = np.linalg.solve(m.T, compm.T)[:, 0]
-        decomp = {self._pd.qhull_entries[facet[i]]: decomp_amts[i]
-                  for i in range(len(decomp_amts))
-                  if abs(decomp_amts[i]) > PDAnalyzer.numerical_tol}
+        comp = entry.composition
+        facet, simplex = self._get_facet_and_simplex(comp)
+        decomp_amts = simplex.bary_coords(self._pd.pd_coords(comp))
+        decomp = {self._pd.qhull_entries[f]: amt
+                  for f, amt in zip(facet, decomp_amts)
+                  if abs(amt) > PDAnalyzer.numerical_tol}
         energies = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
         ehull = entry.energy_per_atom - np.dot(decomp_amts, energies)
         if allow_negative or ehull >= -PDAnalyzer.numerical_tol:
@@ -202,7 +189,7 @@ class PDAnalyzer(object):
                                                     allow_negative=True)[1]
 
     def get_composition_chempots(self, comp):
-        facet = self._get_facet(comp)
+        facet = self._get_facet_and_simplex(comp)[0]
         return self._get_facet_chempots(facet)
 
     @deprecated(get_composition_chempots)
