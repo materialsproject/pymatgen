@@ -65,9 +65,6 @@ class PDAnalyzer(object):
         Get any facet that a composition falls into. Cached so successive
         calls at same composition are fast.
         """
-        if set(comp.elements).difference(self._pd.elements):
-            raise ValueError('{} has elements not in the phase diagram {}'
-                             ''.format(comp, self._pd.elements))
         c = self._pd.pd_coords(comp)
         for f, s in zip(self._pd.facets, self._pd.simplexes):
             if s.in_simplex(c, PDAnalyzer.numerical_tol / 10):
