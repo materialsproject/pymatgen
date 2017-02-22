@@ -29,6 +29,7 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
 from pymatgen.core.surface import generate_all_slabs
 
+from matplotlib import pyplot as plt
 from matplotlib import patches
 from matplotlib.path import Path
 
@@ -149,7 +150,7 @@ class AdsorbateSiteFinder(object):
         #import pdb; pdb.set_trace()
         return cls(new_slab, selective_dynamics)
 
-    def find_surface_sites_by_height(self, slab, height=0.9, xy_tol=0.01):
+    def find_surface_sites_by_height(self, slab, height=0.9, xy_tol=0.05):
         """
         This method finds surface sites by determining which sites are within
         a threshold value in height from the topmost site in a list of sites
@@ -177,16 +178,13 @@ class AdsorbateSiteFinder(object):
             # sort surface sites by height
             surf_sites = [s for (h, s) in zip(m_projs[mask], surf_sites)]
             surf_sites.reverse()
-            #xy_pruned_sites = [surf_sites[0]]
             unique_sites, unique_perp_fracs = [], []
             for site in surf_sites:
                 this_perp = site.coords - np.dot(site.coords, self.mvec)
-                #import pdb; pdb.set_trace()
                 this_perp_frac = cart_to_frac(slab.lattice, this_perp)
                 if not in_coord_list_pbc(unique_perp_fracs, this_perp_frac):
                     unique_sites.append(site)
                     unique_perp_fracs.append(this_perp_frac)
-            #import pdb; pdb.set_trace()
             surf_sites = unique_sites
 
         return surf_sites
@@ -251,7 +249,7 @@ class AdsorbateSiteFinder(object):
                 "bridge": sites at edges between surface sites in Delaunay
                     triangulation of surface sites in the miller plane
                 "hollow": sites at centers of Delaunay triangulation faces
-                "from_subsurface": subsurface positions projected into miller plane
+                "subsurface": subsurface positions projected into miller plane
             no_obtuse_hollow (bool): flag to indicate whether to include
                 obtuse triangular ensembles in hollow sites
         """
@@ -259,7 +257,12 @@ class AdsorbateSiteFinder(object):
         if 'ontop' in positions:
             ads_sites['ontop'] = [s.coords for s in self.surface_sites]
         if 'subsurface' in positions:
-            ads_sites['subsurface'] = self.get_subsurface_adsorption_sites()
+            # Get highest site
+            ref = self.slab.sites[np.argmax(self.slab.cart_coords[:, 2])]        
+            # Project diff between highest site and subs site into miller
+            ss_sites = [self.mvec*np.dot(ref.coords-s.coords, self.mvec)
+                        + s.coords for s in self.subsurface_sites()]
+            ads_sites['subsurface'] = ss_sites
         if 'bridge' in positions or 'hollow' in positions:
             mesh = self.get_extended_surface_mesh()
             sop = get_rot(self.slab)
@@ -271,49 +274,60 @@ class AdsorbateSiteFinder(object):
                     for i_corner, i_opp in zip(range(3), ((1,2), (0,2), (0,1))):
                         corner, opp = v[i_corner], [v[o] for o in i_opp]
                         vecs = [mesh[d].coords - mesh[corner].coords for d in opp]
-                        vecs = [vec/np.linalg.norm(vec) for vec in vecs]
+                        vecs = [vec / np.linalg.norm(vec) for vec in vecs]
                         dots.append(np.dot(*vecs))
+                        # DEBUGGING
+                        if "ontop" in positions:
+                            ontop_frac = [cart_to_frac(self.slab.lattice, s) for s in ads_sites['ontop']]
+                            this_frac = cart_to_frac(self.slab.lattice, self.ensemble_center(mesh, opp))
+                            if in_coord_list_pbc(this_frac, ontop_frac):
+                                if (this_frac[0]>1 and this_frac[0]<4
+                                        and this_frac[1]>1 and this_frac[1]<4):
+                                    import pdb; pdb.set_trace()
                         # Add bridge sites at midpoints of edges of D. Tri
                         if 'bridge' in positions:
-                            ads_sites += [self.ensemble_center(mesh, opp, 
-                                                               cartesian = True)]
+                            ads_sites["bridge"].append(
+                                    self.ensemble_center(mesh, opp))
                     # Prevent addition of hollow sites in obtuse triangles
                     obtuse = no_obtuse_hollow and (np.array(dots) < 1e-5).any()
                     # Add hollow sites at centers of D. Tri faces
                     if 'hollow' in positions and not obtuse:
-                        ads_sites += [self.ensemble_center(mesh, v,
-                                                           cartesian=True)]
-        ads_sites['all'] = sum(ads_sites.values())
-        # Pare off outer edges
-        """
-        frac_coords = [cart_to_frac(self.slab.lattice, ads_site) 
-                       for ads_site in all_ads_sites]
-        frac_coords = [frac_coord for frac_coord in frac_coords 
-                       if (frac_coord[0]>1 and frac_coord[0]<4
-                       and frac_coord[1]>1 and frac_coord[1]<4)]
-        ads_sites = [frac_to_cart(self.slab.lattice, frac_coord) 
-                     for frac_coord in frac_coords]
-        """
-        for key in ads_sites:
+                        ads_sites['hollow'].append(
+                                self.ensemble_center(mesh, v))
+        ads_sites['all'] = sum(ads_sites.values(), [])
+        for key, sites in ads_sites.items():
+            # Pare off outer sites for bridge/hollow
+            if key in ['bridge', 'hollow']:
+            # DEBUG
+                """
+                if key=='bridge' and sum(self.slab.miller_index)==3:
+                    ontop_frac = [cart_to_frac(self.slab.lattice, s) for s in ads_sites['ontop']]
+                    import pdb; pdb.set_trace()
+                """
+                frac_coords = [cart_to_frac(self.slab.lattice, ads_site) 
+                               for ads_site in sites]
+                frac_coords = [frac_coord for frac_coord in frac_coords 
+                               if (frac_coord[0]>1 and frac_coord[0]<4
+                               and frac_coord[1]>1 and frac_coord[1]<4)]
+                sites = [frac_to_cart(self.slab.lattice, frac_coord) 
+                        for frac_coord in frac_coords]
             if near_reduce:
-                ads_sites[key] = self.near_reduce(ads_sites[key], 
-                                             threshold=near_reduce)
+                sites = self.near_reduce(sites, threshold=near_reduce)
             if put_inside:
-                ads_sites[key] = [put_coord_inside(self.slab.lattice, coord)
-                             for coord in ads_sites[key]]
+                sites = [put_coord_inside(self.slab.lattice, coord)
+                         for coord in sites]
             if symm_reduce:
-                ads_sites[key] = self.symm_reduce(ads_sites[key], threshold=symm_reduce)
-            ads_sites[key] = [ads_site + distance*self.mvec
-                         for ads_site in ads_sites[key]]
+                sites = self.symm_reduce(sites, threshold=symm_reduce)
+            try:
+                sites = [site + distance*self.mvec for site in sites]
+            except:
+                import pdb; pdb.set_trace()
+            ads_sites[key] = sites
+        #DEBUG
+        if len(ads_sites['bridge'])==2 and sum(self.slab.miller_index)==3:
+            import pdb; pdb.set_trace()
         return ads_sites
 
-    def get_from_subsurface_sites(self):
-        """
-        gets sites corresponding to fractional positions of subsurface
-        sites projected into the miller plane and placed at the average
-        c-position of the nearest surface sites
-        """
-        
     def symm_reduce(self, coords_set, threshold = 1e-6):
         """
         Reduces the set of adsorbate sites by finding removing
@@ -510,7 +524,7 @@ colors = loadfn(os.path.join(os.path.dirname(vis.__file__),
 color_dict = {el:[j / 256.001 for j in colors["Jmol"][el]] 
               for el in colors["Jmol"].keys()}
 
-def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
+def plot_slab(slab, ax=None, scale=0.8, repeat=5, window=1.5,
               draw_unit_cell=True, decay = 0.2, adsorption_sites=True):
     """
     Function that helps visualize the slab in a 2-D plot, for
@@ -526,6 +540,9 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
         draw_unit_cell (bool): flag indicating whether or not to draw cell
         decay (float): how the alpha-value decays along the z-axis
     """
+    if not ax:
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
     orig_slab = slab.copy()
     slab = reorient_z(slab)
     orig_cell = slab.lattice.matrix.copy()
@@ -551,7 +568,7 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
     # Adsorption sites
     if adsorption_sites:
         asf = AdsorbateSiteFinder(orig_slab)
-        ads_sites = asf.find_adsorption_sites()
+        ads_sites = asf.find_adsorption_sites()['all']
         sop = get_rot(orig_slab)
         ads_sites = [sop.operate(ads_site)[:2].tolist()
                      for ads_site in ads_sites]
