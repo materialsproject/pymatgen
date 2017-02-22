@@ -147,7 +147,6 @@ class AdsorbateSiteFinder(object):
         new_site_properties = {'surface_properties':surf_props,
                                'undercoords':undercoords}
         new_slab = this_slab.copy(site_properties=new_site_properties)
-        #import pdb; pdb.set_trace()
         return cls(new_slab, selective_dynamics)
 
     def find_surface_sites_by_height(self, slab, height=0.9, xy_tol=0.05):
@@ -276,14 +275,6 @@ class AdsorbateSiteFinder(object):
                         vecs = [mesh[d].coords - mesh[corner].coords for d in opp]
                         vecs = [vec / np.linalg.norm(vec) for vec in vecs]
                         dots.append(np.dot(*vecs))
-                        # DEBUGGING
-                        if "ontop" in positions:
-                            ontop_frac = [cart_to_frac(self.slab.lattice, s) for s in ads_sites['ontop']]
-                            this_frac = cart_to_frac(self.slab.lattice, self.ensemble_center(mesh, opp))
-                            if in_coord_list_pbc(this_frac, ontop_frac):
-                                if (this_frac[0]>1 and this_frac[0]<4
-                                        and this_frac[1]>1 and this_frac[1]<4):
-                                    import pdb; pdb.set_trace()
                         # Add bridge sites at midpoints of edges of D. Tri
                         if 'bridge' in positions:
                             ads_sites["bridge"].append(
@@ -298,12 +289,6 @@ class AdsorbateSiteFinder(object):
         for key, sites in ads_sites.items():
             # Pare off outer sites for bridge/hollow
             if key in ['bridge', 'hollow']:
-            # DEBUG
-                """
-                if key=='bridge' and sum(self.slab.miller_index)==3:
-                    ontop_frac = [cart_to_frac(self.slab.lattice, s) for s in ads_sites['ontop']]
-                    import pdb; pdb.set_trace()
-                """
                 frac_coords = [cart_to_frac(self.slab.lattice, ads_site) 
                                for ads_site in sites]
                 frac_coords = [frac_coord for frac_coord in frac_coords 
@@ -318,14 +303,8 @@ class AdsorbateSiteFinder(object):
                          for coord in sites]
             if symm_reduce:
                 sites = self.symm_reduce(sites, threshold=symm_reduce)
-            try:
-                sites = [site + distance*self.mvec for site in sites]
-            except:
-                import pdb; pdb.set_trace()
+            sites = [site + distance*self.mvec for site in sites]
             ads_sites[key] = sites
-        #DEBUG
-        if len(ads_sites['bridge'])==2 and sum(self.slab.miller_index)==3:
-            import pdb; pdb.set_trace()
         return ads_sites
 
     def symm_reduce(self, coords_set, threshold = 1e-6):
