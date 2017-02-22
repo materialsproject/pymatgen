@@ -32,7 +32,7 @@ semi-classical transport theory.
 
 Boltztrap has been developed by Georg Madsen.
 
-http://www.icams.de/content/departments/ams/madsen/boltztrap.html
+http://www.icams.de/content/research/software-development/boltztrap/
 
 You need version 1.2.3 or higher
 
@@ -137,9 +137,9 @@ class BoltztrapRunner(object):
 
     @requires(which('x_trans'),
               "BoltztrapRunner requires the executables 'x_trans' to be in "
-              "the path. Please download the Boltztrap at "
-              "http://www.icams.de/content/departments/ams/madsen/boltztrap"
-              ".html and follow the instructions in the README to compile "
+              "the path. Please download the Boltztrap at http://"
+              "www.icams.de/content/research/software-development/boltztrap/ "
+              "and follow the instructions in the README to compile "
               "Bolztrap accordingly. Then add x_trans to your path")
     def __init__(self, bs, nelec, dos_type="HISTO", energy_grid=0.005,
                  lpfac=10, run_type="BOLTZ", band_nb=None, tauref=0, tauexp=0,
