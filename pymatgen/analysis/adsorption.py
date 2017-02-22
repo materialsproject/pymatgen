@@ -111,6 +111,7 @@ class AdsorbateSiteFinder(object):
                 are 10% less coordinated than their bulk counterpart
         """
         # TODO: for some reason this works poorly with primitive cells
+        #       may want to switch the coordination algorithm eventually
         vcf_bulk = VoronoiCoordFinder(structure)
         bulk_coords = [len(vcf_bulk.get_coordinated_sites(n, tol=0.05))
                        for n in range(len(structure))]
