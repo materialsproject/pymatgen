@@ -150,5 +150,17 @@ class PDAnalyzerTest(unittest.TestCase):
         for crit, exp in zip(comps, expected):
             self.assertTrue(crit.almost_equals(exp, rtol=0, atol=1e-5))
 
+    def test_get_composition_chempots(self):
+        c1 = Composition('Fe3.1O4')
+        c2 = Composition('Fe3.2O4.1Li0.01')
+
+        e1 = self.analyzer.get_hull_energy(c1)
+        e2 = self.analyzer.get_hull_energy(c2)
+
+        cp = self.analyzer.get_composition_chempots(c1)
+        calc_e2 = e1 + sum(cp[k] * v for k, v in (c2 - c1).items())
+        self.assertAlmostEqual(e2, calc_e2)
+
+
 if __name__ == '__main__':
     unittest.main()
