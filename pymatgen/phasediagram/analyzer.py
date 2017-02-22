@@ -68,7 +68,7 @@ class PDAnalyzer(object):
         if set(comp.elements).difference(self._pd.elements):
             raise ValueError('{} has elements not in the phase diagram {}'
                              ''.format(comp, self._pd.elements))
-        c = [comp.get_atomic_fraction(e) for e in self._pd.elements[1:]]
+        c = self._pd.pd_coords(comp)
         for f, s in zip(self._pd.facets, self._pd.simplexes):
             if s.in_simplex(c, PDAnalyzer.numerical_tol / 10):
                 return f, s
@@ -245,8 +245,8 @@ class PDAnalyzer(object):
 
         # the reduced dimensionality Simplexes don't use the
         # first element in the PD
-        c1 = np.array([comp1.get_atomic_fraction(e) for e in pd_els[1:]])
-        c2 = np.array([comp2.get_atomic_fraction(e) for e in pd_els[1:]])
+        c1 = self._pd.pd_coords(comp1)
+        c2 = self._pd.pd_coords(comp2)
 
         intersections = [c1, c2]
         for sc in self._pd.simplexes:
