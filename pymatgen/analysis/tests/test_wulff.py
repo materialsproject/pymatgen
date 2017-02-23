@@ -67,6 +67,7 @@ class WulffShapeTest(PymatgenTest):
 
         self.surface_properties = surface_properties
 
+    @unittest.skipIf("DISPLAY" not in os.environ, "Need display")
     def test_get_plot(self):
         # Basic test, not really a unittest.
         self.wulff_Ti.get_plot()

@@ -53,7 +53,7 @@ class PDPlotterTest(unittest.TestCase):
         self.assertEqual(len(lines), 3)
         self.assertEqual(len(labels), len(self.pd_formation.stable_entries))
 
-    @unittest.skipIf("DISPLAY" not in os.environ)
+    @unittest.skipIf("DISPLAY" not in os.environ, "Need display")
     def test_get_plot(self):
         # Some very basic non-tests. Just to make sure the methods are callable.
         import matplotlib
