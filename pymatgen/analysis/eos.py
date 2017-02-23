@@ -5,22 +5,23 @@
 from __future__ import unicode_literals, division, print_function
 
 """
-Tools to compute equations of states with different models.
+This module implements of various equation of states.
 
-Adapted from ASE and deltafactor.
+Note: Except the numerical_eos, the rest were initially adapted from ASE and
+deltafactor by @gmatteo.
 """
 
 import logging
-
+import warnings
 import numpy as np
-
 from scipy.optimize import leastsq, minimize
-
 from monty.functools import return_none_if_raise
 
-import pymatgen.core.units as units
-from pymatgen.core.units import FloatWithUnit
+from pymatgen.core.units import FloatWithUnit, ArrayWithUnit, EnergyArray
 from pymatgen.util.plotting_utils import get_publication_quality_plot
+
+__author__ = "Guido Matteo, Kiran Mathew"
+__credits__ = "Cormac Toher"
 
 logger = logging.getLogger(__file__)
 
@@ -133,13 +134,15 @@ def numerical_eos(volumes, energies):
             min volume (Ang^3),
             final fit coefficients)
     """
+    warnings.simplefilter('ignore', np.RankWarning)
+
     get_rms = lambda x, y: np.sqrt(np.sum((np.array(x)-np.array(y))**2)/len(x))
 
     # list of (energy, volume) tuples
     e_v = [(i, j) for i, j in zip(energies, volumes)]
     ndata = len(e_v)
+    # minimum order of the polynomial to be considered for fitting
     min_poly_order = 2
-    max_poly_order = ndata
     ndel = 3
     limit = 4
     ndata_min = max(ndata - 2 * ndel, min_poly_order + 1)
@@ -221,6 +224,7 @@ def numerical_eos(volumes, energies):
     pderiv3 = np.polyder(fit_poly, 3)
     b0 = v0 * np.poly1d(pderiv2)(v0)
     db0dv = np.poly1d(pderiv2)(v0) + v0 * np.poly1d(pderiv3)(v0)
+    # db/dp
     b1 = - v0 * db0dv / b0
 
     return e0, b0, b1, v0, weighted_avg_coeffs
@@ -302,8 +306,8 @@ class EOS(object):
             Note: the units for the bulk modulus is eV/Angstrom^3.
         """
         # Convert volumes to Ang**3 and energies to eV (if needed).
-        volumes = units.ArrayWithUnit(volumes, vol_unit).to("ang^3")
-        energies = units.EnergyArray(energies, energy_unit).to("eV")
+        volumes = ArrayWithUnit(volumes, vol_unit).to("ang^3")
+        energies = EnergyArray(energies, energy_unit).to("eV")
 
         return EOSFit(volumes, energies, self._func, self._eos_name)
 
