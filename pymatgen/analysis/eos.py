@@ -115,7 +115,7 @@ def deltafactor_polyfit(volumes, energies):
     return np.poly1d(fitdata[0])(v0**(-2./3.)), b0, b1, v0, fitdata[0]
 
 
-def numerical_eos(volumes, energies):
+def numerical_eos(volumes, energies, min_data_factor=3, poly_order_limit=5):
     """
     Fit the input data to the 'numerical eos': the equation of state employed
     in the quasiharmonic Debye model as described in the paper
@@ -126,6 +126,11 @@ def numerical_eos(volumes, energies):
     Args:
         volumes (list): list of volumes in Ang^3
         energies (list): list of energies in eV
+        min_data_factor (int): parameter that controls the minimum number of data points
+            that must be used for fitting.
+            minimum number of data points = total data points - 2*ndel
+        poly_order_limit (int): parameter that limits the max order of the
+            polynomial.
 
     Returns:
         float, float, float, float, list: (
@@ -144,10 +149,8 @@ def numerical_eos(volumes, energies):
     ndata = len(e_v)
     # minimum order of the polynomial to be considered for fitting
     min_poly_order = 2
-    ndel = 3
-    limit = 5
     # minimum number of data points used for fitting
-    ndata_min = max(ndata - 2 * ndel, min_poly_order + 1)
+    ndata_min = max(ndata - 2 * min_data_factor, min_poly_order + 1)
     rms_min = np.inf
     # number of data points available for fit in each iteration
     ndata_fit = ndata
@@ -171,7 +174,7 @@ def numerical_eos(volumes, energies):
 
     # loop over the data points.
     while (ndata_fit >= ndata_min) and (e_min in e_v_work):
-        max_poly_order = ndata_fit - limit
+        max_poly_order = ndata_fit - poly_order_limit
         logger.info("# data points {}, max order {}".format(ndata_fit,
                                                             max_poly_order))
         e = [ei[0] for ei in e_v_work]
@@ -195,7 +198,7 @@ def numerical_eos(volumes, energies):
 
     logger.info("number of polynomials: {}".format(len(all_coeffs)))
 
-    norm = 0
+    norm = 0.
     fit_poly_order = ndata
     # weight average polynomial coefficients.
     weighted_avg_coeffs = np.zeros((fit_poly_order,))
