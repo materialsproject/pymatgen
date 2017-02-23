@@ -315,23 +315,14 @@ class EOSFit(object):
         return results[0], results[1], results[2], results[3]
 
     def __str__(self):
-        lines = ["Equation of State: %s" % self.name,
+        lines = ["Equation of State: %s" % self.eos_name,
                  "Minimum energy = %1.2f eV" % self.e0,
                  "Minimum or reference volume = %1.2f Ang^3" % self.v0,
                  "Bulk modulus = %1.2f eV/Ang^3 = %1.2f GPa" %
                  (self.b0, self.b0_GPa),
-                 "Derivative of bulk modulus wrt pressure = %1.2f" %
-                 self.params[2]
+                 "Derivative of bulk modulus wrt pressure = %1.2f" % self.b1
                  ]
         return "\n".join(lines)
-
-    @property
-    def name(self):
-        """
-        Returns:
-            str: EOS name
-        """
-        return self.func.__name__
 
     @property
     def e0(self):
@@ -345,7 +336,7 @@ class EOSFit(object):
         """
         Returns the minimum or the reference volume in Ang^3.
         """
-        return self.params[-1]
+        return self.params[3]
 
     @property
     def b0(self):
@@ -362,6 +353,13 @@ class EOSFit(object):
         return FloatWithUnit(self.b0, "eV ang^-3").to("GPa")
 
     @property
+    def b1(self):
+        """
+        Returns the derivative of bulk modulus wrt pressure(dimensionless)
+        """
+        return self.params[2]
+
+    @property
     @return_none_if_raise(AttributeError)
     def results(self):
         """
@@ -370,7 +368,7 @@ class EOSFit(object):
         Returns:
             dict
         """
-        return dict(e0=self.e0, b0=self.b0, b1=self.params[2], v0=self.v0)
+        return dict(e0=self.e0, b0=self.b0, b1=self.b1, v0=self.v0)
 
     def plot(self, width=8, height=None, plt=None, dpi=None, **kwargs):
         """
@@ -393,7 +391,7 @@ class EOSFit(object):
                                            dpi=dpi)
 
         color = kwargs.get("color", "r")
-        label = kwargs.get("label", "{} fit".format(self.name))
+        label = kwargs.get("label", "{} fit".format(self.eos_name))
         text = kwargs.get("text", None)
 
         # Plot input data.
