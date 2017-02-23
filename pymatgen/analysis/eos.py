@@ -16,6 +16,7 @@ import warnings
 import numpy as np
 from scipy.optimize import leastsq, minimize
 from monty.functools import return_none_if_raise
+from copy import deepcopy
 
 from pymatgen.core.units import FloatWithUnit, ArrayWithUnit, EnergyArray
 from pymatgen.util.plotting_utils import get_publication_quality_plot
@@ -165,7 +166,7 @@ def numerical_eos(volumes, energies):
     v_before = e_v[emin_idx - 1][1]
     # the volume higher than the volume corresponding to minimum energy
     v_after = e_v[emin_idx + 1][1]
-    e_v_work = e_v.copy()
+    e_v_work = deepcopy(e_v)
 
     # loop over the data points.
     while (ndata_fit >= ndata_min) and (e_min in e_v_work):
