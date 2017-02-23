@@ -118,8 +118,8 @@ def deltafactor_polyfit(volumes, energies):
 def numerical_eos(volumes, energies, min_ndata_factor=3, max_poly_order_factor=5,
                   min_poly_order=2):
     """
-    Fit the input data to the 'numerical eos': the equation of state employed
-    in the quasiharmonic Debye model as described in the paper
+    Fit the input data to the 'numerical eos', the equation of state employed
+    in the quasiharmonic Debye model described in the paper:
     10.1103/PhysRevB.90.174107.
 
     credits: Cormac Toher
