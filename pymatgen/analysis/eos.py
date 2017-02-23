@@ -225,7 +225,8 @@ class EOSFit(object):
             buk modulus(b0),
             derivative of bulk modulus wrt pressure(b1),
             minimum or the reference volume(v0) )
-        eos_params: the fit parameters.
+        eos_params: the fit parameters(polynomial coefficients or the
+            parameters in the eos).
     """
 
     def __init__(self, volumes, energies, func, eos_name):
@@ -300,13 +301,11 @@ class EOSFit(object):
             except:
                 raise EOSError()
         else:
-
             # the objective function that will be minimized
             def objective(pars, x, y):
                 return y - self.func(x, *pars)
-
-            results, ierr = \
-                leastsq(objective, guess, args=(self.volumes, self.energies))
+            results, ierr = leastsq(objective, guess,
+                                    args=(self.volumes, self.energies))
             self.eos_params = results
 
             if ierr not in [1, 2, 3, 4]:
