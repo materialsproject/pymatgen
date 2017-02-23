@@ -77,6 +77,15 @@ def vinet(V, E0, B0, B1, V0):
 def deltafactor_polyfit(volumes, energies):
     """
     This is the routine used to compute V0, B0, B1 in the deltafactor code.
+
+    Args:
+        volumes (list): list of volumes in Ang^3
+        energies (list): list of energies in eV
+
+    Returns:
+        float, float, float, float, list: e0(min energy), b0(bulk modulus),
+            b1(first derivative of bulk modulus), v0(min volume),
+            eos_params(fit coefficients)
     """
     fitdata = np.polyfit(volumes**(-2./3.), energies, 3, full=True)
 
@@ -113,6 +122,7 @@ def numerical_eos(volumes, energies):
         energies (list): list of energies in eV
     """
     pass
+
 
 class EOS(object):
     """
@@ -190,24 +200,29 @@ class EOSFit(object):
     """
     Performs the fit of E(V) and provides method to access the results of
     the fit.
+
+
+    Attributes:
+        volumes: list of volumes.
+        energies: list of energies.
+        eos_name: EOS name
+        func: the equation of state function
+        params: tuple(
+            minimum energy(e0),
+            buk modulus(b0),
+            derivative of bulk modulus wrt pressure(b1),
+            minimum or the reference volume(v0) )
+        eos_params: the fit parameters.
     """
 
     def __init__(self, volumes, energies, func, eos_name):
         """
         Args:
-            energies (list): energies in eV
             volumes (list): volumes in Angstrom^3
-            func : callable function
-
-        Attributes:
-            eos_name: EOS name
-            func: the equation of state function
-            params: tuple(
-                minimum energy(e0),
-                buk modulus(b0),
-                derivative of bulk modulus wrt pressure(b1),
-                minimum or the reference volume(v0) )
-            eos_params: the results returned by the fit.
+            energies (list): energies in eV
+            func (function): callable function
+            eos_name (str): EOS name. See EOS.MODELS for the list of
+                supported eos
         """
         assert len(volumes) == len(energies)
 
@@ -232,7 +247,8 @@ class EOSFit(object):
         Quadratic fit to get an initial guess for the parameters.
 
         Returns:
-            tuple: (minimum energy(e0), buk modulus(b0),
+            tuple: (minimum energy(e0),
+                buk modulus(b0),
                 derivative of bulk modulus wrt pressure(b1),
                 minimum volume(v0))
         """
