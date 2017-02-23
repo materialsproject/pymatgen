@@ -14,7 +14,7 @@ import logging
 
 import numpy as np
 
-from scipy.optimize import leastsq
+from scipy.optimize import leastsq, minimize
 
 from monty.functools import return_none_if_raise
 
@@ -118,13 +118,112 @@ def numerical_eos(volumes, energies):
     Fit the input data to the 'numerical eos': the equation of state employed
     in the quasiharmonic Debye model as described in the paper
     10.1103/PhysRevB.90.174107.
+
     credits: Cormac Toher
 
     Args:
         volumes (list): list of volumes in Ang^3
         energies (list): list of energies in eV
+
+    Returns:
+        float, float, float, float, list: (
+            min energy (eV),
+            bulk modulus (eV/Ang^3),
+            first derivative of bulk modulus wrt pressure (no unit),
+            min volume (Ang^3),
+            final fit coefficients)
     """
-    pass
+    get_rms = lambda x, y: np.sqrt(np.sum((np.array(x)-np.array(y))**2)/len(x))
+
+    # list of (energy, volume) tuples
+    e_v = [(i, j) for i, j in zip(energies, volumes)]
+    ndata = len(e_v)
+    min_poly_order = 2
+    max_poly_order = ndata
+    ndel = 3
+    limit = 4
+    ndata_min = max(ndata - 2 * ndel, min_poly_order + 1)
+    rms_min = np.inf
+    # number of data points available for fit in each iteration
+    ndata_fit = ndata
+    # store the fit polynomial coefficients and the rms in a dict,
+    # where the key=(polynomial order, number of data points used for fitting)
+    all_coeffs = {}
+
+    # sort by energy
+    e_v = sorted(e_v, key=lambda x: x[0])
+    # minimum energy tuple
+    e_min = e_v[0]
+    # sort by volume
+    e_v = sorted(e_v, key=lambda x: x[1])
+    # index of minimum energy tuple in the volume sorted list
+    emin_idx = e_v.index(e_min)
+    # the volume lower than the volume corresponding to minimum energy
+    v_before = e_v[emin_idx - 1][1]
+    # the volume higher than the volume corresponding to minimum energy
+    v_after = e_v[emin_idx + 1][1]
+    e_v_work = e_v.copy()
+
+    # loop over the data points.
+    while (ndata_fit >= ndata_min) and (e_min in e_v_work):
+        max_poly_order = min(ndata_fit - limit - 1, ndata)
+        logger.info("# data points {}, max order {}".format(ndata_fit,
+                                                            max_poly_order))
+        e = [ei[0] for ei in e_v_work]
+        v = [ei[1] for ei in e_v_work]
+        # loop over polynomial order
+        for i in range(min_poly_order, max_poly_order + 1):
+            coeffs = np.polyfit(v, e, i)
+            pder = np.polyder(coeffs)
+            a = np.poly1d(pder)(v_before)
+            b = np.poly1d(pder)(v_after)
+            if a * b < 0:
+                rms = get_rms(e, np.poly1d(coeffs)(v))
+                rms_min = min(rms_min, rms * i / ndata_fit)
+                all_coeffs[(i, ndata_fit)] = [coeffs.tolist(), rms]
+                # store the fit coefficients small to large, i.e a0, a1, .. an
+                all_coeffs[(i, ndata_fit)][0].reverse()
+        # remove 1 data point from each end.
+        e_v_work.pop()
+        e_v_work.pop(0)
+        ndata_fit = len(e_v_work)
+
+    logger.info("number of polynomials: {}".format(len(all_coeffs)))
+
+    norm = 0
+    fit_poly_order = ndata
+    # weight average polynomial coefficients.
+    weighted_avg_coeffs = np.zeros((fit_poly_order,))
+
+    # combine all the filtered polynomial candidates to get the final fit.
+    for k, v in all_coeffs.items():
+        # weighted rms = rms * polynomial order / rms_min / ndata_fit
+        weighted_rms = v[1] * k[0] / rms_min / k[1]
+        weight = np.exp(-(weighted_rms ** 2))
+        norm += weight
+        coeffs = np.array(v[0])
+        # pad the coefficient array with zeros
+        coeffs = np.lib.pad(coeffs, (0, max(fit_poly_order-len(coeffs), 0)),
+                            'constant')
+        weighted_avg_coeffs += weight * coeffs
+
+    # normalization
+    weighted_avg_coeffs /= norm
+    weighted_avg_coeffs = weighted_avg_coeffs.tolist()
+    # large to small(an, an-1, ..., a1, a0) as expected by np.poly1d
+    weighted_avg_coeffs.reverse()
+    fit_poly = np.poly1d(weighted_avg_coeffs)
+
+    # evaluate e0, v0, b0 and b1
+    min_wrt_v = minimize(fit_poly, min(volumes))
+    e0, v0 = min_wrt_v.fun, min_wrt_v.x[0]
+    pderiv2 = np.polyder(fit_poly, 2)
+    pderiv3 = np.polyder(fit_poly, 3)
+    b0 = v0 * np.poly1d(pderiv2)(v0)
+    db0dv = np.poly1d(pderiv2)(v0) + v0 * np.poly1d(pderiv3)(v0)
+    b1 = - v0 * db0dv / b0
+
+    return e0, b0, b1, v0, weighted_avg_coeffs
 
 
 class EOS(object):
