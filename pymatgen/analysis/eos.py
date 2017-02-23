@@ -101,6 +101,19 @@ def deltafactor_polyfit(volumes, energies):
     return np.poly1d(fitdata[0])(v0**(-2./3.)), b0, b1, v0, fitdata[0]
 
 
+def numerical_eos(volumes, energies):
+    """
+    Fit the input data to the 'numerical eos': the equation of state employed
+    in the quasiharmonic Debye model as described in the paper
+    10.1103/PhysRevB.90.174107.
+    credits: Cormac Toher
+
+    Args:
+        volumes (list): list of volumes in Ang^3
+        energies (list): list of energies in eV
+    """
+    pass
+
 class EOS(object):
     """
     Fit equation of state for bulk systems.
