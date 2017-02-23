@@ -115,7 +115,8 @@ def deltafactor_polyfit(volumes, energies):
     return np.poly1d(fitdata[0])(v0**(-2./3.)), b0, b1, v0, fitdata[0]
 
 
-def numerical_eos(volumes, energies, min_data_factor=3, poly_order_limit=5):
+def numerical_eos(volumes, energies, min_ndata_factor=3, max_poly_order_factor=5,
+                  min_poly_order=2):
     """
     Fit the input data to the 'numerical eos': the equation of state employed
     in the quasiharmonic Debye model as described in the paper
@@ -126,14 +127,17 @@ def numerical_eos(volumes, energies, min_data_factor=3, poly_order_limit=5):
     Args:
         volumes (list): list of volumes in Ang^3
         energies (list): list of energies in eV
-        min_data_factor (int): parameter that controls the minimum number of data points
-            that must be used for fitting.
-            minimum number of data points = total data points - 2*ndel
-        poly_order_limit (int): parameter that limits the max order of the
-            polynomial.
+        min_ndata_factor (int): parameter that controls the minimum number of
+            data points that will be used for fitting.
+            minimum number of data points = total data points-2*min_ndata_factor
+        max_poly_order_factor (int): parameter that limits the max order of the
+            polynomial used for fitting.
+            max_poly_order = number of data points used for fitting - max_poly_order_factor
+        min_poly_order (int): minimum order of the polynomial to be considered
+            for fitting.
 
     Returns:
-        float, float, float, float, list: (
+        (float, float, float, float, list): (
             min energy (eV),
             bulk modulus (eV/Ang^3),
             first derivative of bulk modulus wrt pressure (no unit),
@@ -147,10 +151,8 @@ def numerical_eos(volumes, energies, min_data_factor=3, poly_order_limit=5):
     # list of (energy, volume) tuples
     e_v = [(i, j) for i, j in zip(energies, volumes)]
     ndata = len(e_v)
-    # minimum order of the polynomial to be considered for fitting
-    min_poly_order = 2
     # minimum number of data points used for fitting
-    ndata_min = max(ndata - 2 * min_data_factor, min_poly_order + 1)
+    ndata_min = max(ndata - 2 * min_ndata_factor, min_poly_order + 1)
     rms_min = np.inf
     # number of data points available for fit in each iteration
     ndata_fit = ndata
@@ -174,9 +176,7 @@ def numerical_eos(volumes, energies, min_data_factor=3, poly_order_limit=5):
 
     # loop over the data points.
     while (ndata_fit >= ndata_min) and (e_min in e_v_work):
-        max_poly_order = ndata_fit - poly_order_limit
-        logger.info("# data points {}, max order {}".format(ndata_fit,
-                                                            max_poly_order))
+        max_poly_order = ndata_fit - max_poly_order_factor
         e = [ei[0] for ei in e_v_work]
         v = [ei[1] for ei in e_v_work]
         # loop over polynomial order
@@ -196,7 +196,7 @@ def numerical_eos(volumes, energies, min_data_factor=3, poly_order_limit=5):
         e_v_work.pop(0)
         ndata_fit = len(e_v_work)
 
-    logger.info("number of polynomials: {}".format(len(all_coeffs)))
+    logger.info("total number of polynomials: {}".format(len(all_coeffs)))
 
     norm = 0.
     fit_poly_order = ndata
@@ -223,7 +223,7 @@ def numerical_eos(volumes, energies, min_data_factor=3, poly_order_limit=5):
     fit_poly = np.poly1d(weighted_avg_coeffs)
 
     # evaluate e0, v0, b0 and b1
-    min_wrt_v = minimize(fit_poly, e_v[emin_idx][1])
+    min_wrt_v = minimize(fit_poly, e_min[1])
     e0, v0 = min_wrt_v.fun, min_wrt_v.x[0]
     pderiv2 = np.polyder(fit_poly, 2)
     pderiv3 = np.polyder(fit_poly, 3)
