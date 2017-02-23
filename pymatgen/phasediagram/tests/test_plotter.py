@@ -8,7 +8,7 @@ import unittest
 import os
 import numpy as np
 import matplotlib
-matplotlib.use("pdf")
+matplotlib.use('Agg')
 
 from pymatgen import Element
 from pymatgen.phasediagram.entries import PDEntryIO, PDEntry
