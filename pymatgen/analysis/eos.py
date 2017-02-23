@@ -11,7 +11,10 @@ Adapted from ASE and deltafactor.
 """
 
 import logging
+
 import numpy as np
+
+from scipy.optimize import leastsq
 
 from monty.functools import return_none_if_raise
 
@@ -130,23 +133,31 @@ class EOS(object):
 
     The following equations are supported::
 
-       murnaghan:
-           PRB 28, 5480 (1983)
+        quadratic:
+            second order polynomial.
 
-       birch:
-           Intermetallic compounds: Principles and Practice, Vol I: Principles.
-           pages 195-210
+        murnaghan:
+            PRB 28, 5480 (1983)
 
-       birch_murnaghan:
-           PRB 70, 224107
+        birch:
+            Intermetallic compounds: Principles and Practice,
+            Vol I: Principles. pages 195-210
 
-       pourier_tarantola:
-           PRB 70, 224107
+        birch_murnaghan:
+            PRB 70, 224107
 
-       vinet:
-           PRB 70, 224107
+        pourier_tarantola:
+            PRB 70, 224107
 
-    Use::
+        vinet:
+            PRB 70, 224107
+
+        deltafactor
+
+        numerical_eos:
+            10.1103/PhysRevB.90.174107.
+
+    Usage::
 
        eos = EOS(eos_name='murnaghan')
        fit = eos.fit(volumes, energies)
@@ -162,14 +173,16 @@ class EOS(object):
         "birch_murnaghan": birch_murnaghan,
         "pourier_tarantola": pourier_tarantola,
         "vinet": vinet,
-        "deltafactor": deltafactor_polyfit
+        "deltafactor": deltafactor_polyfit,
+        "numerical_eos": numerical_eos
     }
 
     def __init__(self, eos_name='murnaghan'):
         if eos_name not in self.MODELS:
-            raise KeyError("The equation of state '{}' is not supported. "
-                           "Please choose one from the following list: {}".
-                             format(eos_name, list(self.MODELS.keys())))
+            raise EOSError(
+                "The equation of state '{}' is not supported. "
+                "Please choose one from the following list: {}".format(
+                    eos_name, list(self.MODELS.keys())))
         self._eos_name = eos_name
         self._func = self.MODELS[eos_name]
 
@@ -280,19 +293,18 @@ class EOSFit(object):
                 derivative of bulk modulus wrt pressure(b1),
                 reference volume(v0))
         """
-        if self.eos_name == "deltafactor":
+        if self.eos_name in ["deltafactor", "numerical_eos"]:
             try:
-                results = deltafactor_polyfit(self.volumes, self.energies)
+                results = self.func(self.volumes, self.energies)
                 self.eos_params = results[-1]
             except:
                 raise EOSError()
-
         else:
+
             # the objective function that will be minimized
             def objective(pars, x, y):
                 return y - self.func(x, *pars)
 
-            from scipy.optimize import leastsq
             results, ierr = \
                 leastsq(objective, guess, args=(self.volumes, self.energies))
             self.eos_params = results
