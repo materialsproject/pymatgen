@@ -316,10 +316,10 @@ class EOSFit(object):
 
     def __str__(self):
         lines = ["Equation of State: %s" % self.name,
-                 "Minimum energy = %1.2f eV" % self.params[0],
-                 "Minimum or reference volume = %1.2f Ang^3" % self.params[3],
+                 "Minimum energy = %1.2f eV" % self.e0,
+                 "Minimum or reference volume = %1.2f Ang^3" % self.v0,
                  "Bulk modulus = %1.2f eV/Ang^3 = %1.2f GPa" %
-                 (self.params[1], self.b0_GPa),
+                 (self.b0, self.b0_GPa),
                  "Derivative of bulk modulus wrt pressure = %1.2f" %
                  self.params[2]
                  ]
