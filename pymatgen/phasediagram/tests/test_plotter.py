@@ -39,8 +39,11 @@ class PDPlotterTest(unittest.TestCase):
     def test_pd_plot_data(self):
         (lines, labels, unstable_entries) = self.plotter.pd_plot_data
         self.assertEqual(len(lines), 22)
-        self.assertEqual(len(labels), len(self.pd.stable_entries), "Incorrect number of lines generated!")
-        self.assertEqual(len(unstable_entries), len(self.pd.all_entries) - len(self.pd.stable_entries), "Incorrect number of lines generated!")
+        self.assertEqual(len(labels), len(self.pd.stable_entries),
+                         "Incorrect number of lines generated!")
+        self.assertEqual(len(unstable_entries),
+                         len(self.pd.all_entries) - len(self.pd.stable_entries),
+                         "Incorrect number of lines generated!")
         (lines, labels, unstable_entries) = self.plotter3d.pd_plot_data
         self.assertEqual(len(lines), 33)
         self.assertEqual(len(labels), len(self.pd3d.stable_entries))
@@ -50,10 +53,12 @@ class PDPlotterTest(unittest.TestCase):
         self.assertEqual(len(lines), 3)
         self.assertEqual(len(labels), len(self.pd_formation.stable_entries))
 
+    @unittest.skipIf("DISPLAY" not in os.environ)
     def test_get_plot(self):
         # Some very basic non-tests. Just to make sure the methods are callable.
         import matplotlib
         matplotlib.use("pdf")
+
         self.plotter.get_plot()
         self.plotter3d.get_plot()
         self.plotter.get_plot(energy_colormap="Reds", process_attributes=True)
@@ -62,7 +67,6 @@ class PDPlotterTest(unittest.TestCase):
         plt = self.plotter3d.get_plot(energy_colormap="Reds",
                                       process_attributes=False)
         self.plotter.get_chempot_range_map_plot([Element("Li"), Element("O")])
-        # self.plotter.get_contour_pd_plot()
 
 
 class UtilityFunctionTest(unittest.TestCase):
