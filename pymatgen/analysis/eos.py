@@ -223,7 +223,7 @@ def numerical_eos(volumes, energies, min_data_factor=3, poly_order_limit=5):
     fit_poly = np.poly1d(weighted_avg_coeffs)
 
     # evaluate e0, v0, b0 and b1
-    min_wrt_v = minimize(fit_poly, min(volumes))
+    min_wrt_v = minimize(fit_poly, e_v[emin_idx][1])
     e0, v0 = min_wrt_v.fun, min_wrt_v.x[0]
     pderiv2 = np.polyder(fit_poly, 2)
     pderiv3 = np.polyder(fit_poly, 3)
