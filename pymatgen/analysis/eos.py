@@ -502,9 +502,10 @@ class EOSFit(object):
         vmin, vmax = (vmin - 0.01 * abs(vmin), vmax + 0.01 * abs(vmax))
         vfit = np.linspace(vmin, vmax, 100)
 
-        if self.eos_name == "deltafactor":
-            plt.plot(vfit, np.polyval(self.eos_params, vfit**(-2./3.)),
-                     linestyle="dashed", color=color, label=label)
+        if self.eos_name in ["deltafactor", "numerical_eos"]:
+            x = vfit**(-2./3.) if self.eos_name == "deltafactor" else vfit
+            plt.plot(vfit, np.polyval(self.eos_params, x), linestyle="dashed",
+                     color=color, label=label)
         else:
             plt.plot(vfit, self.func(vfit, *self.eos_params),
                      linestyle="dashed", color=color, label=label)
