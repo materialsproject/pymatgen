@@ -7,6 +7,8 @@ from __future__ import unicode_literals
 import unittest
 import os
 import numpy as np
+import matplotlib
+matplotlib.use("pdf")
 
 from pymatgen import Element
 from pymatgen.phasediagram.entries import PDEntryIO, PDEntry
