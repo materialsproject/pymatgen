@@ -1434,37 +1434,31 @@ def symmetry_reduced_voronoi_nodes(
             return dist_sites, None, None
 
     if not high_accuracy_flag:
+        def get_dist_sites(vor_struct):
+            SpgA = SpacegroupAnalyzer
+            try:
+                symmetry_finder = SpgA(vor_struct, symprec=1e-1)
+                symm_struct = symmetry_finder.get_symmetrized_structure()
+            except:
+                vor_struct.merge_sites(0.1, 'delete')
+                symmetry_finder = SpgA(vor_struct, symprec=1e-1)
+                symm_struct = symmetry_finder.get_symmetrized_structure()
+            equiv_sites_list = symm_struct.equivalent_sites
+
+            if not equiv_sites_list:
+                dist_sites = vor_struct.sites
+            else:
+                dist_sites = []
+                for equiv_sites in equiv_sites_list:
+                    add_closest_equiv_site(dist_sites, equiv_sites)
+            return dist_sites
+
         vor_node_struct, vor_edgecenter_struct, vor_facecenter_struct = \
             get_voronoi_nodes(structure, rad_dict)
-        vor_node_symmetry_finder = SpacegroupAnalyzer(vor_node_struct, symprec=1e-1)
-        vor_node_symm_struct = vor_node_symmetry_finder.get_symmetrized_structure()
-        node_equiv_sites_list = vor_node_symm_struct.equivalent_sites
 
-        node_dist_sites = []
-        for equiv_sites in node_equiv_sites_list:
-            add_closest_equiv_site(node_dist_sites, equiv_sites)
-
-        vor_edge_symmetry_finder = SpacegroupAnalyzer(
-            vor_edgecenter_struct, symprec=1e-1)
-        vor_edge_symm_struct = vor_edge_symmetry_finder.get_symmetrized_structure()
-        edgecenter_equiv_sites_list = vor_edge_symm_struct.equivalent_sites
-
-        edgecenter_dist_sites = []
-        for equiv_sites in edgecenter_equiv_sites_list:
-            add_closest_equiv_site(edgecenter_dist_sites, equiv_sites)
-        if not edgecenter_equiv_sites_list:     # Fix this so doesn't arise
-            edgecenter_dist_sites = vor_edgecenter_struct.sites
-
-        vor_fc_symmetry_finder = SpacegroupAnalyzer(
-                        vor_facecenter_struct, symprec=1e-1)
-        vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
-        facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites
-
-        facecenter_dist_sites = []
-        for equiv_sites in facecenter_equiv_sites_list:
-            add_closest_equiv_site(facecenter_dist_sites, equiv_sites)
-        if not facecenter_equiv_sites_list:     # Fix this so doesn't arise
-            facecenter_dist_sites = vor_facecenter_struct.sites
+        node_dist_sites = get_dist_sites(vor_node_struct)
+        edgecenter_dist_sites = get_dist_sites(vor_edgecenter_struct)
+        facecenter_dist_sites = get_dist_sites(vor_facecenter_struct)
 
         return node_dist_sites, edgecenter_dist_sites, facecenter_dist_sites
     else:
