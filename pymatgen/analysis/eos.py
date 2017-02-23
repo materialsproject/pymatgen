@@ -145,7 +145,8 @@ def numerical_eos(volumes, energies):
     # minimum order of the polynomial to be considered for fitting
     min_poly_order = 2
     ndel = 3
-    limit = 4
+    limit = 5
+    # minimum number of data points used for fitting
     ndata_min = max(ndata - 2 * ndel, min_poly_order + 1)
     rms_min = np.inf
     # number of data points available for fit in each iteration
@@ -170,7 +171,7 @@ def numerical_eos(volumes, energies):
 
     # loop over the data points.
     while (ndata_fit >= ndata_min) and (e_min in e_v_work):
-        max_poly_order = min(ndata_fit - limit - 1, ndata)
+        max_poly_order = ndata_fit - limit
         logger.info("# data points {}, max order {}".format(ndata_fit,
                                                             max_poly_order))
         e = [ei[0] for ei in e_v_work]
