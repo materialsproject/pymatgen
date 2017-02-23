@@ -84,6 +84,6 @@ def plot(args):
 
     if plt:
         if args.out_file:
-            plt.savefig(args.file[0])
+            plt.savefig(args.out_file)
         else:
             plt.show()
