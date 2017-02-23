@@ -323,11 +323,32 @@ class EOSFit(object):
         return self.func.__name__
 
     @property
+    def e0(self):
+        """
+        Returns the min energy in eV.
+        """
+        return self.params[0]
+
+    @property
+    def v0(self):
+        """
+        Returns the minimum or the reference volume in Ang^3.
+        """
+        return self.params[-1]
+
+    @property
+    def b0(self):
+        """
+        Returns the bulk modulus in eV/Ang^3
+        """
+        return self.params[1]
+
+    @property
     def b0_GPa(self):
         """
         Returns the bulk modulus in GPa
         """
-        return FloatWithUnit(self.params[1], "eV ang^-3").to("GPa")
+        return FloatWithUnit(self.b0, "eV ang^-3").to("GPa")
 
     @property
     @return_none_if_raise(AttributeError)
@@ -338,8 +359,7 @@ class EOSFit(object):
         Returns:
             dict
         """
-        return dict(e0=self.params[0], b0=self.params[1], b1=self.params[2],
-                    v0=self.params[3])
+        return dict(e0=self.e0, b0=self.b0, b1=self.params[2], v0=self.v0)
 
     def plot(self, width=8, height=None, plt=None, dpi=None, **kwargs):
         """
