@@ -61,6 +61,10 @@ class EOSTest(unittest.TestCase):
         np.testing.assert_almost_equal(self.num_eos_fit.b1, 4.344039, decimal=2)
 
     def test_eos_func(self):
+        # list vs np.array arguments
+        np.testing.assert_almost_equal(self.num_eos_fit.func([0,1,2]),
+                                       self.num_eos_fit.func(np.array([0,1,2])),
+                                       decimal=10)
         # func vs _func
         np.testing.assert_almost_equal(self.num_eos_fit.func(0.),
                                        self.num_eos_fit._func(
@@ -85,7 +89,6 @@ class EOSTest(unittest.TestCase):
         d = {"e0": self.num_eos_fit.e0, "b0": self.num_eos_fit.b0,
              "b1": self.num_eos_fit.b1, "v0": self.num_eos_fit.v0}
         self.assertDictEqual(self.num_eos_fit.results, d)
-
 
 
 if __name__ == "__main__":
