@@ -21,10 +21,94 @@ from copy import deepcopy
 from pymatgen.core.units import FloatWithUnit, ArrayWithUnit, EnergyArray
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 
-__author__ = "Guido Matteo, Kiran Mathew"
+__author__ = "Kiran Mathew, Guido Matteo"
 __credits__ = "Cormac Toher"
 
 logger = logging.getLogger(__file__)
+
+
+class EOS(object):
+    """
+    Fit equation of state for bulk systems.
+
+    The following equations are supported::
+
+        murnaghan:
+            PRB 28, 5480 (1983)
+
+        birch:
+            Intermetallic compounds: Principles and Practice,
+            Vol I: Principles. pages 195-210
+
+        birch_murnaghan:
+            PRB 70, 224107
+
+        pourier_tarantola:
+            PRB 70, 224107
+
+        vinet:
+            PRB 70, 224107
+
+        deltafactor
+
+        numerical_eos:
+            10.1103/PhysRevB.90.174107.
+
+    Usage::
+
+       eos = EOS(eos_name='murnaghan')
+       eos_fit = eos.fit(volumes, energies)
+       eos_fit.plot()
+
+    """
+
+    MODELS = {
+        "murnaghan": Murnaghan,
+        "birch": Birch,
+        "birch_murnaghan": BirchMurnaghan,
+        "pourier_tarantola": PourierTarantola,
+        "vinet": Vinet,
+        "deltafactor": DeltaFactor,
+        "numerical_eos": NumericalEOS
+    }
+
+    def __init__(self, eos_name='murnaghan'):
+        if eos_name not in self.MODELS:
+            raise EOSError(
+                "The equation of state '{}' is not supported. "
+                "Please choose one from the following list: {}".format(
+                    eos_name, list(self.MODELS.keys())))
+        self._eos_name = eos_name
+        self.model = self.MODELS[eos_name]
+
+    def fit(self, volumes, energies, vol_unit="ang^3", energy_unit="eV"):
+        """
+        Fit energies (in eV) as function of volumes (in Angstrom**3).
+
+        Args:
+            volumes (list/np.array)
+            energies (list/np.array)
+            vol_unit (str): volume units
+            energy_unit (str): energy units
+
+        Returns:
+            EOSFit: EOSFit object that gives access to the optimal volume,
+                the minumum energy, and the bulk modulus.
+
+            Note: the units for the bulk modulus is eV/Angstrom^3.
+        """
+        # Convert volumes to Ang**3 and energies to eV (if needed).
+        volumes = ArrayWithUnit(volumes, vol_unit).to("ang^3")
+        energies = EnergyArray(energies, energy_unit).to("eV")
+        eos_fit = self.model(volumes, energies)
+        eos_fit.fit()
+        return eos_fit
+
+
+class EOSError(Exception):
+    """
+    Exceptions raised by EOS.
+    """
 
 
 class EOSBase(object):
@@ -75,8 +159,12 @@ class EOSBase(object):
     def _func(self, x, E0, B0, B1, V0):
         pass
 
-    def func(self, x):
-        self._func(x, *self.eos_params)
+    # for backward compatibility
+    def func(self, volume):
+        self._func(volume, *self.eos_params)
+
+    def __call__(self, volume):
+        self.func(volume)
 
     @property
     def e0(self):
@@ -145,8 +233,8 @@ class EOSBase(object):
                                            dpi=dpi)
 
         color = kwargs.get("color", "r")
-        label = kwargs.get("label", "{} fit".format(self.eos_name))
-        lines = ["Equation of State: %s" % self.eos_name,
+        label = kwargs.get("label", "{} fit".format(self.__class__))
+        lines = ["Equation of State: %s" % self.__class__,
                  "Minimum energy = %1.2f eV" % self.e0,
                  "Minimum or reference volume = %1.2f Ang^3" % self.v0,
                  "Bulk modulus = %1.2f eV/Ang^3 = %1.2f GPa" %
@@ -234,14 +322,14 @@ class Vinet(EOSBase):
 
 class PolynomialEOS(EOSBase):
 
+    def func(self, volume):
+         return np.poly1d(self.eos_params)(volume)
+
     def fit(self, order):
         self.eos_params = np.polyfit(self.volumes, self.energies, order)
-        self.set_params()
+        self._set_params()
 
-    def func(self, volume):
-         return np.poly1d(list(self.eos_params))(volume)
-
-    def set_params(self):
+    def _set_params(self):
         fit_poly = np.poly1d(self.eos_params)
         v_e_min = self.volumes[self.energies.index(min(self.energies))]
         # evaluate e0, v0, b0 and b1
@@ -259,9 +347,9 @@ class PolynomialEOS(EOSBase):
 class DeltaFactor(PolynomialEOS):
 
     def func(self, volume):
-        return np.poly1d(*self.eos_params)(volume ** (-2. / 3.))
+        return np.poly1d(self.eos_params)(volume ** (-2. / 3.))
 
-    def fit(self):
+    def fit(self, order=3):
         """
         This is the routine used to compute V0, B0, B1 in the deltafactor code.
 
@@ -274,10 +362,12 @@ class DeltaFactor(PolynomialEOS):
                 b1(first derivative of bulk modulus), v0(min volume),
                 eos_params(fit coefficients)
         """
-        fitdata = np.polyfit(np.array(self.volumes)**(-2./3.), self.energies,
-                             3, full=True)
+        x = np.array(self.volumes)**(-2./3.)
+        self.eos_params = np.polyfit(x, self.energies, order)
+        self._set_params()
 
-        deriv0 = np.poly1d(fitdata[0])
+    def _set_params(self):
+        deriv0 = np.poly1d(self.eos_params)
         deriv1 = np.polyder(deriv0, 1)
         deriv2 = np.polyder(deriv1, 1)
         deriv3 = np.polyder(deriv2, 1)
@@ -295,8 +385,7 @@ class DeltaFactor(PolynomialEOS):
         b1 = -1 - x**(-3./2.) * derivV3 / derivV2
 
         # e0, b0, b1, v0
-        self._params = [np.poly1d(fitdata[0])(v0**(-2./3.)), b0, b1, v0]
-        self.eos_params = fitdata[0]
+        self._params = [deriv0(v0**(-2./3.)), b0, b1, v0]
 
 
 class NumericalEOS(PolynomialEOS):
@@ -407,89 +496,4 @@ class NumericalEOS(PolynomialEOS):
         weighted_avg_coeffs.reverse()
 
         self.eos_params = weighted_avg_coeffs
-        self.set_params()
-
-
-class EOS(object):
-    """
-    Fit equation of state for bulk systems.
-
-    The following equations are supported::
-
-        murnaghan:
-            PRB 28, 5480 (1983)
-
-        birch:
-            Intermetallic compounds: Principles and Practice,
-            Vol I: Principles. pages 195-210
-
-        birch_murnaghan:
-            PRB 70, 224107
-
-        pourier_tarantola:
-            PRB 70, 224107
-
-        vinet:
-            PRB 70, 224107
-
-        deltafactor
-
-        numerical_eos:
-            10.1103/PhysRevB.90.174107.
-
-    Usage::
-
-       eos = EOS(eos_name='murnaghan')
-       fit = eos.fit(volumes, energies)
-       print(fit)
-       fit.plot()
-
-    """
-
-    MODELS = {
-        "murnaghan": Murnaghan,
-        "birch": Birch,
-        "birch_murnaghan": BirchMurnaghan,
-        "pourier_tarantola": PourierTarantola,
-        "vinet": Vinet,
-        "deltafactor": DeltaFactor,
-        "numerical_eos": NumericalEOS
-    }
-
-    def __init__(self, eos_name='murnaghan'):
-        if eos_name not in self.MODELS:
-            raise EOSError(
-                "The equation of state '{}' is not supported. "
-                "Please choose one from the following list: {}".format(
-                    eos_name, list(self.MODELS.keys())))
-        self._eos_name = eos_name
-        self.model = self.MODELS[eos_name]
-
-    def fit(self, volumes, energies, vol_unit="ang^3", energy_unit="eV"):
-        """
-        Fit energies (in eV) as function of volumes (in Angstrom**3).
-
-        Args:
-            volumes (list/np.array)
-            energies (list/np.array)
-            vol_unit (str): volume units
-            energy_unit (str): energy units
-
-        Returns:
-            EOSFit: EOSFit object that gives access to the optimal volume,
-                the minumum energy, and the bulk modulus.
-
-            Note: the units for the bulk modulus is eV/Angstrom^3.
-        """
-        # Convert volumes to Ang**3 and energies to eV (if needed).
-        volumes = ArrayWithUnit(volumes, vol_unit).to("ang^3")
-        energies = EnergyArray(energies, energy_unit).to("eV")
-        eos = self.model(volumes, energies)
-        eos.fit()
-        return eos
-
-
-class EOSError(Exception):
-    """
-    Exceptions raised by EOS.
-    """
+        self._set_params()
