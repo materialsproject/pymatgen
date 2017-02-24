@@ -8,16 +8,17 @@ from __future__ import unicode_literals, division, print_function
 This module implements of various equation of states.
 
 Note: Most of the code were initially adapted from ASE and deltafactor by
-@gmatteo but has since undergone a whole lot of refactoring.
+@gmatteo but has since undergone major refactoring.
 """
 
-import logging
-import warnings
-import numpy as np
-from scipy.optimize import leastsq, minimize
 from copy import deepcopy
 import six
 from abc import ABCMeta, abstractmethod
+import logging
+import warnings
+
+import numpy as np
+from scipy.optimize import leastsq, minimize
 
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.plotting_utils import get_publication_quality_plot
@@ -31,7 +32,7 @@ logger = logging.getLogger(__file__)
 class EOSBase(six.with_metaclass(ABCMeta)):
 
     """
-    Abstract class that must be subcalsses all equation of state
+    Abstract class that must be subcalssed by all equation of state
     implementations.
     """
 
@@ -51,7 +52,7 @@ class EOSBase(six.with_metaclass(ABCMeta)):
         # numerical_eos)
         self.eos_params = None
 
-    def initial_guess(self):
+    def _initial_guess(self):
         """
         Quadratic fit to get an initial guess for the parameters.
 
@@ -82,7 +83,7 @@ class EOSBase(six.with_metaclass(ABCMeta)):
         # the objective function that will be minimized in the least square
         # fitting
         objective_func = lambda pars, x, y: y - self._func(x, pars)
-        self._params = self.initial_guess()
+        self._params = self._initial_guess()
         self.eos_params, ierr = leastsq(
             objective_func, self._params, args=(self.volumes, self.energies))
         # e0, b0, b1, v0
@@ -117,7 +118,7 @@ class EOSBase(six.with_metaclass(ABCMeta)):
         return self._func(np.array(volume), self.eos_params)
 
     def __call__(self, volume):
-        self.func(volume)
+        return self.func(volume)
 
     @property
     def e0(self):
@@ -236,8 +237,9 @@ class Birch(EOSBase):
 
     def _func(self, volume, params):
         """
-        From Intermetallic compounds: Principles and Practice, Vol. I: Principles
-        Chapter 9 pages 195-210 by M. Mehl. B. Klein, D. Papaconstantopoulos.
+        From Intermetallic compounds: Principles and Practice, Vol. I:
+        Principles Chapter 9 pages 195-210 by M. Mehl. B. Klein,
+        D. Papaconstantopoulos.
         case where n=0
         """
         e0, b0, b1, v0 = tuple(params)

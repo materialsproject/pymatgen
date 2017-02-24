@@ -34,28 +34,47 @@ class EOSTest(unittest.TestCase):
                          -10.4546677714, -10.3506386542, -10.2386366017,
                          -10.1197772808, -9.99504030111, -9.86535084973,
                          -9.73155247952]
+        num_eos = EOS(eos_name="numerical_eos")
+        self.num_eos_fit = num_eos.fit(self.volumes, self.energies)
 
     def test_run_all_models(self):
         for eos_name in EOS.MODELS:
             eos = EOS(eos_name=eos_name)
             _ = eos.fit(self.volumes, self.energies)
 
-    def test_numerical_eos(self):
+    def test_numerical_eoswrapper(self):
+        # using numerical eos directly vs via EOS wrapper
         numerical_eos = NumericalEOS(self.volumes, self.energies)
         numerical_eos.fit()
-        eos = EOS(eos_name="numerical_eos")
-        fit = eos.fit(self.volumes, self.energies)
         self.assertGreater(len(numerical_eos.eos_params), 3)
-        self.assertEqual(numerical_eos.e0, fit.e0)
-        self.assertEqual(numerical_eos.v0, fit.v0)
-        self.assertEqual(numerical_eos.b0, fit.b0)
-        self.assertEqual(numerical_eos.b1, fit.b1)
-        self.assertEqual(numerical_eos.eos_params, fit.eos_params)
-        np.testing.assert_almost_equal(numerical_eos.e0, -10.84749, decimal=3)
-        np.testing.assert_almost_equal(numerical_eos.v0, 40.857201, decimal=1)
-        np.testing.assert_almost_equal(numerical_eos.b0, 0.555725, decimal=2)
-        np.testing.assert_almost_equal(fit.b0_GPa, 89.0370727, decimal=1)
-        np.testing.assert_almost_equal(numerical_eos.b1, 4.344039, decimal=2)
+        self.assertEqual(numerical_eos.e0, self.num_eos_fit.e0)
+        self.assertEqual(numerical_eos.v0, self.num_eos_fit.v0)
+        self.assertEqual(numerical_eos.b0, self.num_eos_fit.b0)
+        self.assertEqual(numerical_eos.b1, self.num_eos_fit.b1)
+        self.assertEqual(numerical_eos.eos_params, self.num_eos_fit.eos_params)
+
+    def test_numerical_eos_values(self):
+        np.testing.assert_almost_equal(self.num_eos_fit.e0, -10.84749, decimal=3)
+        np.testing.assert_almost_equal(self.num_eos_fit.v0, 40.857201, decimal=1)
+        np.testing.assert_almost_equal(self.num_eos_fit.b0, 0.555725, decimal=2)
+        np.testing.assert_almost_equal(self.num_eos_fit.b0_GPa, 89.0370727, decimal=1)
+        np.testing.assert_almost_equal(self.num_eos_fit.b1, 4.344039, decimal=2)
+
+    def test_eos_func(self):
+        # test the eos function: energy = f(volume)
+        # numerical eos evaluated at volume=0 == a0 of the fit polynomial
+        np.testing.assert_almost_equal(self.num_eos_fit.func(0.),
+                                       self.num_eos_fit.eos_params[-1], decimal=6)
+        birch_eos = EOS(eos_name="birch")
+        birch_eos_fit = birch_eos.fit(self.volumes, self.energies)
+        # birch eos evaluated at v0 == e0
+        np.testing.assert_almost_equal(birch_eos_fit.func(birch_eos_fit.v0),
+                                       birch_eos_fit.e0, decimal=6)
+
+    def test_eos_func_call(self):
+        # eos_fit_obj.func(volume) == eos_fit_obj(volume)
+        np.testing.assert_almost_equal(self.num_eos_fit.func(0.),
+                                       self.num_eos_fit(0.), decimal=10)
 
 
 if __name__ == "__main__":
