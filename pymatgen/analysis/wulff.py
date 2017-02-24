@@ -27,10 +27,6 @@ import scipy as sp
 from scipy.spatial import ConvexHull
 import logging
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import mpl_toolkits.mplot3d as mpl3
-
 
 __author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
@@ -305,6 +301,8 @@ class WulffShape(object):
             (color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
             e_surf_on_wulff_list)
         """
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
         color_list = [off_color] * len(self.hkl_list)
         color_proxy_on_wulff = []
         miller_on_wulff = []
@@ -370,7 +368,9 @@ class WulffShape(object):
         Return:
             (matplotlib.pyplot)
         """
-
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
+        import mpl_toolkits.mplot3d as mpl3
         color_list, color_proxy, color_proxy_on_wulff, \
             miller_on_wulff, e_surf_on_wulff = self._get_colors(
                 color_set, alpha, off_color)
