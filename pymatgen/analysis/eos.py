@@ -30,7 +30,6 @@ logger = logging.getLogger(__file__)
 
 
 class EOSBase(six.with_metaclass(ABCMeta)):
-
     """
     Abstract class that must be subcalssed by all equation of state
     implementations.
@@ -288,6 +287,10 @@ class Vinet(EOSBase):
 
 
 class PolynomialEOS(EOSBase):
+    """
+    Derives from EOSBase. Polynomial based equations of states must subclass
+    this.
+    """
 
     def _func(self, volume, params):
         return np.poly1d(list(params))(volume)
@@ -355,7 +358,8 @@ class DeltaFactor(PolynomialEOS):
             raise EOSError("No minimum could be found")
 
         derivV2 = 4./9. * x**5. * deriv2(x)
-        derivV3 = (-20./9. * x**(13./2.) * deriv2(x) - 8./27. * x**(15./2.) * deriv3(x))
+        derivV3 = (-20./9. * x**(13./2.) * deriv2(x) - 8./27. *
+                   x**(15./2.) * deriv3(x))
         b0 = derivV2 / x**(3./2.)
         b1 = -1 - x**(-3./2.) * derivV3 / derivV2
 
@@ -478,33 +482,26 @@ class EOS(object):
 
     The following equations are supported::
 
-        murnaghan:
-            PRB 28, 5480 (1983)
+        murnaghan: PRB 28, 5480 (1983)
 
-        birch:
-            Intermetallic compounds: Principles and Practice,
-            Vol I: Principles. pages 195-210
+        birch: Intermetallic compounds: Principles and Practice, Vol I:
+            Principles. pages 195-210
 
-        birch_murnaghan:
-            PRB 70, 224107
+        birch_murnaghan: PRB 70, 224107
 
-        pourier_tarantola:
-            PRB 70, 224107
+        pourier_tarantola: PRB 70, 224107
 
-        vinet:
-            PRB 70, 224107
+        vinet: PRB 70, 224107
 
         deltafactor
 
-        numerical_eos:
-            10.1103/PhysRevB.90.174107.
+        numerical_eos: 10.1103/PhysRevB.90.174107.
 
     Usage::
 
        eos = EOS(eos_name='murnaghan')
        eos_fit = eos.fit(volumes, energies)
        eos_fit.plot()
-
     """
 
     MODELS = {

@@ -61,6 +61,11 @@ class EOSTest(unittest.TestCase):
         np.testing.assert_almost_equal(self.num_eos_fit.b1, 4.344039, decimal=2)
 
     def test_eos_func(self):
+        # func vs _func
+        np.testing.assert_almost_equal(self.num_eos_fit.func(0.),
+                                       self.num_eos_fit._func(
+                                           0., self.num_eos_fit.eos_params),
+                                       decimal=10)
         # test the eos function: energy = f(volume)
         # numerical eos evaluated at volume=0 == a0 of the fit polynomial
         np.testing.assert_almost_equal(self.num_eos_fit.func(0.),
@@ -75,6 +80,12 @@ class EOSTest(unittest.TestCase):
         # eos_fit_obj.func(volume) == eos_fit_obj(volume)
         np.testing.assert_almost_equal(self.num_eos_fit.func(0.),
                                        self.num_eos_fit(0.), decimal=10)
+
+    def test_summary_dict(self):
+        d = {"e0": self.num_eos_fit.e0, "b0": self.num_eos_fit.b0,
+             "b1": self.num_eos_fit.b1, "v0": self.num_eos_fit.v0}
+        self.assertDictEqual(self.num_eos_fit.results, d)
+
 
 
 if __name__ == "__main__":
