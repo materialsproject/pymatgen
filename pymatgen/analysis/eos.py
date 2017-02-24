@@ -32,6 +32,8 @@ class EOSBase(object):
     def __init__(self, volumes, energies):
         self.volumes = volumes
         self.energies = energies
+        self._params = None
+        self.eos_params = None
 
     def initial_guess(self):
         """
@@ -60,14 +62,14 @@ class EOSBase(object):
         return e0, b0, b1, v0
 
     def fit(self):
-        guess = self.initial_guess(self.volumes, self.energies)
-        self.eos_params, ierr = leastsq(self.objective, guess, args=(self.volumes, self.energies))
+        self._params = self.initial_guess(self.volumes, self.energies)
+        self.eos_params, ierr = leastsq(self._objective_func, self._params, args=(self.volumes, self.energies))
+        # e0, b0, b1, v0
         self._params = self.eos_params
         if ierr not in [1, 2, 3, 4]:
             raise EOSError("Optimal parameters not found")
 
-    # the objective function that will be minimized
-    def objective(self, pars, x, y):
+    def _objective_func(self, pars, x, y):
         return y - self._func(x, *pars)
 
     def _func(self, x, E0, B0, B1, V0):
@@ -175,80 +177,89 @@ class EOSBase(object):
         return plt
 
 
-class Quadratic(EOSBase):
-    
-    def _func(self, V, a, b, c):
-        """
-        Quadratic fit
-        """
-        return a * V**2 + b * V + c
-
-
 class Murnaghan(EOSBase):
 
-    def _func(self, V, E0, B0, B1, V0):
+    def _func(self, volume, e0, b0, b1, v0):
         """
         From PRB 28,5480 (1983)
         """
-        return E0 + B0 * V / B1 * (((V0/V)**B1)/(B1-1)+1) - V0 * B0 / (B1-1)
+        return e0 + b0 * volume / b1 * (((v0 / volume) ** b1) / (b1 - 1) + 1) - v0 * b0 / (b1 - 1)
 
 
 class Birch(EOSBase):
 
-    def _func(self, V, E0, B0, B1, V0):
+    def _func(self, volume, e0, b0, b1, v0):
         """
         From Intermetallic compounds: Principles and Practice, Vol. I: Principles
         Chapter 9 pages 195-210 by M. Mehl. B. Klein, D. Papaconstantopoulos.
         case where n=0
         """
-        return (E0
-                + 9.0/8.0 * B0 * V0 * ((V0/V)**(2.0/3.0) - 1.0)**2
-                + 9.0/16.0 * B0 * V0 * (B1-4.) * ((V0/V)**(2.0/3.0) - 1.0)**3)
+        return (e0
+                + 9.0 / 8.0 * b0 * v0 * ((v0 / volume) ** (2.0 / 3.0) - 1.0) ** 2
+                + 9.0 / 16.0 * b0 * v0 * (b1 - 4.) * ((v0 / volume) ** (2.0 / 3.0) - 1.0) ** 3)
 
 
 class BirchMurnaghan(EOSBase):
 
-    def _func(self, V, E0, B0, B1, V0):
+    def _func(self, volume, e0, b0, b1, v0):
         """
         BirchMurnaghan equation from PRB 70, 224107
         """
-        eta = (V/V0)**(1./3.)
-        return E0 + 9. * B0 * V0 / 16. * (eta**2-1)**2 * (6 + B1*(eta**2-1.) - 4. * eta**2)
+        eta = (volume / v0) ** (1. / 3.)
+        return e0 + 9. * b0 * v0 / 16. * (eta ** 2 - 1) ** 2 * (6 + b1 * (eta ** 2 - 1.) - 4. * eta ** 2)
 
 
 class PourierTarantola(EOSBase):
 
-    def _func(self, V, E0, B0, B1, V0):
+    def _func(self, volume, e0, b0, b1, v0):
         """
         Pourier-Tarantola equation from PRB 70, 224107
         """
-        eta = (V/V0)**(1./3.)
+        eta = (volume / v0) ** (1. / 3.)
         squiggle = -3.*np.log(eta)
-        return E0 + B0 * V0 * squiggle**2 / 6. * (3. + squiggle * (B1 - 2))
+        return e0 + b0 * v0 * squiggle ** 2 / 6. * (3. + squiggle * (b1 - 2))
 
 
 class Vinet(EOSBase):
 
-    def _func(self, V, E0, B0, B1, V0):
+    def _func(self, volume, e0, b0, b1, v0):
         """
         Vinet equation from PRB 70, 224107
         """
-        eta = (V/V0)**(1./3.)
-        return (E0 + 2. * B0 * V0 / (B1-1.)**2
-                * (2. - (5. + 3. * B1 * (eta-1.) - 3.*eta)
-                   * np.exp(-3. * (B1 - 1.) * (eta - 1.) / 2.)))
+        eta = (volume / v0) ** (1. / 3.)
+        return (e0 + 2. * b0 * v0 / (b1 - 1.) ** 2
+                * (2. - (5. + 3. * b1 * (eta - 1.) - 3. * eta)
+                   * np.exp(-3. * (b1 - 1.) * (eta - 1.) / 2.)))
 
 
 class PolynomialEOS(EOSBase):
 
+    def fit(self, order):
+        self.eos_params = np.polyfit(self.volumes, self.energies, order)
+        self.set_params()
+
     def func(self, volume):
-         return np.poly1d(*self.eos_params)(volume)
+         return np.poly1d(list(self.eos_params))(volume)
+
+    def set_params(self):
+        fit_poly = np.poly1d(self.eos_params)
+        v_e_min = self.volumes[self.energies.index(min(self.energies))]
+        # evaluate e0, v0, b0 and b1
+        min_wrt_v = minimize(fit_poly, v_e_min)
+        e0, v0 = min_wrt_v.fun, min_wrt_v.x[0]
+        pderiv2 = np.polyder(fit_poly, 2)
+        pderiv3 = np.polyder(fit_poly, 3)
+        b0 = v0 * np.poly1d(pderiv2)(v0)
+        db0dv = np.poly1d(pderiv2)(v0) + v0 * np.poly1d(pderiv3)(v0)
+        # db/dp
+        b1 = - v0 * db0dv / b0
+        self._params = [e0, b0, b1, v0]
 
 
 class DeltaFactor(PolynomialEOS):
 
     def func(self, volume):
-        return np.poly1d(*self.eos_params)(volume** (-2. / 3.))
+        return np.poly1d(*self.eos_params)(volume ** (-2. / 3.))
 
     def fit(self):
         """
@@ -263,7 +274,8 @@ class DeltaFactor(PolynomialEOS):
                 b1(first derivative of bulk modulus), v0(min volume),
                 eos_params(fit coefficients)
         """
-        fitdata = np.polyfit(self.volumes**(-2./3.), self.energies, 3, full=True)
+        fitdata = np.polyfit(np.array(self.volumes)**(-2./3.), self.energies,
+                             3, full=True)
 
         deriv0 = np.poly1d(fitdata[0])
         deriv1 = np.polyder(deriv0, 1)
@@ -282,15 +294,14 @@ class DeltaFactor(PolynomialEOS):
         b0 = derivV2 / x**(3./2.)
         b1 = -1 - x**(-3./2.) * derivV3 / derivV2
 
-        # e0, b0, b1, v0, eos_params
+        # e0, b0, b1, v0
         self._params = [np.poly1d(fitdata[0])(v0**(-2./3.)), b0, b1, v0]
         self.eos_params = fitdata[0]
 
 
 class NumericalEOS(PolynomialEOS):
 
-    def fit(self, min_ndata_factor=3, max_poly_order_factor=5,
-                      min_poly_order=2):
+    def fit(self, min_ndata_factor=3, max_poly_order_factor=5, min_poly_order=2):
         """
         Fit the input data to the 'numerical eos', the equation of state employed
         in the quasiharmonic Debye model described in the paper:
@@ -394,20 +405,9 @@ class NumericalEOS(PolynomialEOS):
         weighted_avg_coeffs = weighted_avg_coeffs.tolist()
         # large to small(an, an-1, ..., a1, a0) as expected by np.poly1d
         weighted_avg_coeffs.reverse()
-        fit_poly = np.poly1d(weighted_avg_coeffs)
 
-        # evaluate e0, v0, b0 and b1
-        min_wrt_v = minimize(fit_poly, e_min[1])
-        e0, v0 = min_wrt_v.fun, min_wrt_v.x[0]
-        pderiv2 = np.polyder(fit_poly, 2)
-        pderiv3 = np.polyder(fit_poly, 3)
-        b0 = v0 * np.poly1d(pderiv2)(v0)
-        db0dv = np.poly1d(pderiv2)(v0) + v0 * np.poly1d(pderiv3)(v0)
-        # db/dp
-        b1 = - v0 * db0dv / b0
-
-        self._params = [e0, b0, b1, v0]
         self.eos_params = weighted_avg_coeffs
+        self.set_params()
 
 
 class EOS(object):
@@ -415,9 +415,6 @@ class EOS(object):
     Fit equation of state for bulk systems.
 
     The following equations are supported::
-
-        quadratic:
-            second order polynomial.
 
         murnaghan:
             PRB 28, 5480 (1983)
@@ -450,7 +447,6 @@ class EOS(object):
     """
 
     MODELS = {
-        "quadratic": Quadratic,
         "murnaghan": Murnaghan,
         "birch": Birch,
         "birch_murnaghan": BirchMurnaghan,
