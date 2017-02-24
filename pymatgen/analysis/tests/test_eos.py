@@ -7,7 +7,7 @@ from __future__ import unicode_literals, division, print_function
 import numpy as np
 import unittest
 
-from pymatgen.analysis.eos import EOS, numerical_eos
+from pymatgen.analysis.eos import EOS, NumericalEOS
 
 
 class EOSTest(unittest.TestCase):
@@ -41,20 +41,21 @@ class EOSTest(unittest.TestCase):
             _ = eos.fit(self.volumes, self.energies)
 
     def test_numerical_eos(self):
-        e0, b0, b1, v0, fit_coeffs = numerical_eos(self.volumes, self.energies)
+        numerical_eos = NumericalEOS(self.volumes, self.energies)
+        numerical_eos.fit()
         eos = EOS(eos_name="numerical_eos")
         fit = eos.fit(self.volumes, self.energies)
-        self.assertGreater(len(fit_coeffs), 3)
-        self.assertEqual(e0, fit.e0)
-        self.assertEqual(v0, fit.v0)
-        self.assertEqual(b0, fit.b0)
-        self.assertEqual(b1, fit.b1)
-        self.assertEqual(fit_coeffs, fit.eos_params)
-        np.testing.assert_almost_equal(e0, -10.84749, decimal=3)
-        np.testing.assert_almost_equal(v0, 40.857201, decimal=1)
-        np.testing.assert_almost_equal(b0, 0.555725, decimal=2)
+        self.assertGreater(len(numerical_eos.eos_params), 3)
+        self.assertEqual(numerical_eos.e0, fit.e0)
+        self.assertEqual(numerical_eos.v0, fit.v0)
+        self.assertEqual(numerical_eos.b0, fit.b0)
+        self.assertEqual(numerical_eos.b1, fit.b1)
+        self.assertEqual(numerical_eos.eos_params, fit.eos_params)
+        np.testing.assert_almost_equal(numerical_eos.e0, -10.84749, decimal=3)
+        np.testing.assert_almost_equal(numerical_eos.v0, 40.857201, decimal=1)
+        np.testing.assert_almost_equal(numerical_eos.b0, 0.555725, decimal=2)
         np.testing.assert_almost_equal(fit.b0_GPa, 89.0370727, decimal=1)
-        np.testing.assert_almost_equal(b1, 4.344039, decimal=2)
+        np.testing.assert_almost_equal(numerical_eos.b1, 4.344039, decimal=2)
 
 
 if __name__ == "__main__":

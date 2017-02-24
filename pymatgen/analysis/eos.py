@@ -38,11 +38,11 @@ class EOSBase(six.with_metaclass(ABCMeta)):
     def __init__(self, volumes, energies):
         """
          Args:
-             volumes (list): volumes in Ang^3
-             energies (list): energy in eV
+             volumes (list/numpy.array): volumes in Ang^3
+             energies (list/numpy.array): energy in eV
         """
-        self.volumes = volumes
-        self.energies = energies
+        self.volumes = np.array(volumes)
+        self.energies = np.array(energies)
         # minimum energy(e0), buk modulus(b0),
         # derivative of bulk modulus wrt pressure(b1), minimum volume(v0)
         self._params = None
@@ -81,8 +81,8 @@ class EOSBase(six.with_metaclass(ABCMeta)):
         """
         # the objective function that will be minimized in the least square
         # fitting
-        objective_func = lambda pars, x, y: y - self._func(x, *pars)
-        self._params = self.initial_guess(self.volumes, self.energies)
+        objective_func = lambda pars, x, y: y - self._func(x, pars)
+        self._params = self.initial_guess()
         self.eos_params, ierr = leastsq(
             objective_func, self._params, args=(self.volumes, self.energies))
         # e0, b0, b1, v0
@@ -97,7 +97,7 @@ class EOSBase(six.with_metaclass(ABCMeta)):
         that derive from this abstract class.
 
         Args:
-            volume (numpy.array)
+            volume (float/numpy.array)
              params (list/tuple): values for the parameters other than the
                 volume used by the eos.
         """
@@ -114,7 +114,7 @@ class EOSBase(six.with_metaclass(ABCMeta)):
         Returns:
             numpy.array
         """
-        return self._func(np.array(list(volume)), self.eos_params)
+        return self._func(np.array(volume), self.eos_params)
 
     def __call__(self, volume):
         self.func(volume)
@@ -228,8 +228,8 @@ class Murnaghan(EOSBase):
         """
         e0, b0, b1, v0 = tuple(params)
         return (e0 +
-                b0 * volume / b1 * (((v0 / volume) ** b1) / (b1 - 1) + 1) -
-                v0 * b0 / (b1 - 1))
+                b0 * volume / b1 * (((v0 / volume)**b1) / (b1 - 1.0) + 1.0) -
+                v0 * b0 / (b1 - 1.0))
 
 
 class Birch(EOSBase):
@@ -331,7 +331,7 @@ class DeltaFactor(PolynomialEOS):
         """
         Overriden since this eos works with volume**(2/3) instead of volume.
         """
-        x = np.array(self.volumes)**(-2./3.)
+        x = self.volumes**(-2./3.)
         self.eos_params = np.polyfit(x, self.energies, order)
         self._set_params()
 
@@ -469,7 +469,8 @@ class NumericalEOS(PolynomialEOS):
 
 class EOS(object):
     """
-    Convenient wrapper.
+    Convenient wrapper. Retained in its original state to ensure backward
+    compatibility.
 
     Fit equation of state for bulk systems.
 
@@ -533,7 +534,7 @@ class EOS(object):
         Returns:
             EOSBase: EOSBase object
         """
-        eos_fit = self.model(volumes, energies)
+        eos_fit = self.model(np.array(volumes), np.array(energies))
         eos_fit.fit()
         return eos_fit
 
