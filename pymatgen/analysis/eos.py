@@ -5,7 +5,7 @@
 from __future__ import unicode_literals, division, print_function
 
 """
-This module implements of various equation of states.
+This module implements various equation of states.
 
 Note: Most of the code were initially adapted from ASE and deltafactor by
 @gmatteo but has since undergone major refactoring.
