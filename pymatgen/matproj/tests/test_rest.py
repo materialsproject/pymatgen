@@ -49,7 +49,7 @@ class MPResterTest(unittest.TestCase):
                  "is_compatible", "task_ids",
                  "density", "icsd_ids", "total_magnetization"]
         # unicode literals have been reintroduced in py>3.2
-        expected_vals = [-191.33812137, -6.833504334642858, -2.551213276513605,
+        expected_vals = [-191.33812137, -6.833504334642858, -2.551358929370749,
                          28, {k: v for k, v in {'P': 4, 'Fe': 4, 'O': 16, 'Li': 4}.items()},
                          "LiFePO4", True, ['Li', 'O', 'P', 'Fe'], 4, 0.0001456528571432969,
                          {k: v for k, v in {'Fe': 5.3, 'Li': 0.0, 'O': 0.0, 'P': 0.0}.items()}, True,
