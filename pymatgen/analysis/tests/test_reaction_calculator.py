@@ -29,19 +29,8 @@ class ReactionTest(unittest.TestCase):
         self.assertEqual(rxn.normalized_repr, "4 Fe + 3 O2 -> 2 Fe2O3",
                          "Wrong normalized reaction obtained!")
 
-        reactants = [Composition("Fe"), Composition("O"), Composition("Mn"),
-                     Composition("P")]
-        products = [Composition("FeP"), Composition("MnO")]
-        rxn = Reaction(reactants, products)
-        self.assertEqual(str(rxn),
-                         "1.000 Fe + 0.500 O2 + 1.000 Mn + 1.000 P -> 1.000 FeP + 1.000 MnO",
-                         "Wrong reaction obtained!")
-        self.assertEqual(rxn.normalized_repr,
-                         "2 Fe + O2 + 2 Mn + 2 P -> 2 FeP + 2 MnO",
-                         "Wrong normalized reaction obtained!")
-        reactants = [Composition("FePO4")]
-        products = [Composition("FePO4")]
-
+        reactants = [Composition("FePO4"), Composition('Mn')]
+        products = [Composition("FePO4"), Composition('Xe')]
         rxn = Reaction(reactants, products)
         self.assertEqual(str(rxn), "1.000 FePO4 -> 1.000 FePO4",
                          "Wrong reaction obtained!")
@@ -149,7 +138,7 @@ class ReactionTest(unittest.TestCase):
         energies = {Composition("Fe"): 0, Composition("O2"): 0,
                     Composition("Fe2O3"): 0.5}
         entry = rxn.as_entry(energies)
-        self.assertEqual(entry.composition.formula, "Fe1.33333333 O2")
+        self.assertEqual(entry.composition, Composition("Fe1.33333333 O2"))
         self.assertAlmostEqual(entry.energy, -0.333333, 5)
 
     def test_products_reactants(self):
@@ -178,6 +167,11 @@ class ReactionTest(unittest.TestCase):
         d = rxn.as_dict()
         rxn = Reaction.from_dict(d)
         self.assertEqual(rxn.normalized_repr, "4 Fe + 3 O2 -> 2 Fe2O3")
+
+    def test_underdetermined(self):
+        reactants = [Composition("Fe"), Composition("O2")]
+        products = [Composition("Fe"), Composition("O2")]
+        self.assertRaises(ReactionError, Reaction, reactants, products)
 
 
 class BalancedReactionTest(unittest.TestCase):

@@ -55,8 +55,8 @@ class BalancedReaction(MSONable):
         all_products = sum([k * v for k, v in products_coeffs.items()],
                            Composition({}))
 
-        if not all_reactants.almost_equals(all_products,
-                                           atol=BalancedReaction.TOLERANCE):
+        if not all_reactants.almost_equals(all_products, rtol=0,
+                                           atol=self.TOLERANCE):
             raise ReactionError("Reaction is unbalanced!")
 
         self._els = all_reactants.elements
@@ -72,7 +72,7 @@ class BalancedReaction(MSONable):
                      list(products_coeffs.keys())):
             coeff = products_coeffs.get(c, 0) - reactants_coeffs.get(c, 0)
 
-            if abs(coeff) > BalancedReaction.TOLERANCE:
+            if abs(coeff) > self.TOLERANCE:
                 self._all_comp.append(c)
                 self._coeffs.append(coeff)
 
@@ -89,8 +89,8 @@ class BalancedReaction(MSONable):
         Returns:
             reaction energy as a float.
         """
-        return sum([self._coeffs[i] * energies[self._all_comp[i]]
-                    for i in range(self._num_comp)])
+        return sum([amt * energies[c] for amt, c in zip(self._coeffs,
+                                                        self._all_comp)])
 
     def normalize_to(self, comp, factor=1):
         """
@@ -188,9 +188,7 @@ class BalancedReaction(MSONable):
         product_str = []
         scaled_coeffs = []
         reduced_formulas = []
-        for i in range(self._num_comp):
-            comp = self._all_comp[i]
-            coeff = self._coeffs[i]
+        for coeff, comp in zip(self._coeffs, self._all_comp):
             (reduced_formula,
              scale_factor) = comp.get_reduced_formula_and_factor()
             scaled_coeffs.append(coeff * scale_factor)
@@ -205,17 +203,17 @@ class BalancedReaction(MSONable):
             if count > 10:
                 break
 
-        for i in range(self._num_comp):
-            if scaled_coeffs[i] == -1:
-                reactant_str.append(reduced_formulas[i])
-            elif scaled_coeffs[i] == 1:
-                product_str.append(reduced_formulas[i])
-            elif scaled_coeffs[i] < 0:
-                reactant_str.append("{:.0f} {}".format(-scaled_coeffs[i],
-                                                       reduced_formulas[i]))
-            elif scaled_coeffs[i] > 0:
-                product_str.append("{:.0f} {}".format(scaled_coeffs[i],
-                                                      reduced_formulas[i]))
+        for scaled_coeff, reduced_formula in zip(scaled_coeffs, reduced_formulas):
+            if abs(scaled_coeff + 1) < self.TOLERANCE:
+                reactant_str.append(reduced_formula)
+            elif abs(scaled_coeff - 1) < self.TOLERANCE:
+                product_str.append(reduced_formula)
+            elif scaled_coeff < 0:
+                reactant_str.append("{:.0f} {}".format(-scaled_coeff,
+                                                       reduced_formula))
+            elif scaled_coeff > 0:
+                product_str.append("{:.0f} {}".format(scaled_coeff,
+                                                      reduced_formula))
         factor = scaled_coeffs[0] / self._coeffs[0]
 
         return " + ".join(reactant_str) + " -> " + " + ".join(product_str), \
@@ -234,7 +232,7 @@ class BalancedReaction(MSONable):
             return False
         for comp in self._all_comp:
             coeff2 = other.get_coeff(comp) if comp in other._all_comp else 0
-            if self.get_coeff(comp) != coeff2:
+            if abs(self.get_coeff(comp) - coeff2) > self.TOLERANCE:
                 return False
         return True
 
@@ -247,16 +245,14 @@ class BalancedReaction(MSONable):
     def __str__(self):
         reactant_str = []
         product_str = []
-        for i in range(self._num_comp):
-            comp = self._all_comp[i]
-            coeff = self._coeffs[i]
+        for coeff, comp in zip(self._coeffs, self._all_comp):
             red_comp = Composition(comp.reduced_formula)
             scale_factor = comp.num_atoms / red_comp.num_atoms
             scaled_coeff = coeff * scale_factor
-            if scaled_coeff < 0:
+            if scaled_coeff < -self.TOLERANCE:
                 reactant_str.append("{:.3f} {}".format(-scaled_coeff,
                                                        comp.reduced_formula))
-            elif scaled_coeff > 0:
+            elif scaled_coeff > self.TOLERANCE:
                 product_str.append("{:.3f} {}".format(scaled_coeff,
                                                       comp.reduced_formula))
         return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
@@ -329,107 +325,42 @@ class Reaction(BalancedReaction):
         """
         self._input_reactants = reactants
         self._input_products = products
-        all_comp = reactants[:]
-        all_comp.extend(products[:])
-        els = set()
-        for c in all_comp:
-            els.update(c.elements)
-        els = tuple(els)
+        self._all_comp = reactants + products
 
-        nconstraints = len(all_comp)
-        num_els = len(els)
-        dim = max(num_els, nconstraints)
-        logger.debug("num_els = {}".format(num_els))
-        logger.debug("nconstraints = {}".format(nconstraints))
-        logger.debug("dim = {}".format(dim))
+        els = sum(reactants + products, Composition({})).elements
 
-        if nconstraints < 2:
-            raise ReactionError("A reaction cannot be formed with just one "
-                                "composition.")
-        elif nconstraints == 2:
-            if all_comp[0].reduced_formula != all_comp[1].reduced_formula:
-                raise ReactionError("Reaction cannot be balanced.")
-            else:
-                coeffs = [-all_comp[1][els[0]] / all_comp[0][els[0]], 1]
-        else:
-            comp_matrix = np.zeros((dim, dim))
-            count = 0
-            if nconstraints < num_els:
-                for i in range(nconstraints, num_els):
-                    all_comp.append(Composition({els[i]: 1}))
-            for c in all_comp:
-                for i in range(num_els):
-                    comp_matrix[i][count] = c[els[i]]
-                count += 1
+        r_mat = np.array([[c[el] for el in els] for c in reactants])
+        p_mat = np.array([[c[el] for el in els] for c in products])
+        # Solving:
+        #             | -R   1 |
+        #    [ x y ]  |      ..|  =  [ 0 0 .. 0 0 1]
+        #             |  P   1 |
+        # x, y are the coefficients of the reactants and products
+        # R, P the matrices of the element compositions of the reactants
+        # and products
+        # The last column is to avoid the trivial solution
+        f_mat = np.concatenate([-r_mat, p_mat])
+        f_mat = np.concatenate([f_mat, np.ones((len(f_mat), 1))], axis=1)
+        b = np.zeros(len(els) + 1)
+        b[-1] = 1
 
-            if nconstraints > num_els:
-                # Try two schemes for making the comp matrix non-singular.
-                for i in range(num_els, nconstraints):
-                    for j in range(num_els):
-                        comp_matrix[i][j] = 0
-                    comp_matrix[i][i] = 1
-                count = 0
-                if abs(np.linalg.det(comp_matrix)) < BalancedReaction.TOLERANCE:
-                    for i in range(num_els, nconstraints):
-                        for j in range(num_els):
-                            comp_matrix[i][j] = count
-                            count += 1
-                        comp_matrix[i][i] = count
-                ans_matrix = np.zeros(nconstraints)
-                ans_matrix[num_els:nconstraints] = 1
-                coeffs = np.linalg.solve(comp_matrix, ans_matrix)
-            else:
-                if abs(np.linalg.det(comp_matrix)) < BalancedReaction.TOLERANCE:
-                    logger.debug("Linear solution possible. Trying various "
-                                 "permutations.")
-                    comp_matrix = comp_matrix[0:num_els][:, 0:nconstraints]
-                    logger.debug("comp_matrix = {}".format(comp_matrix))
-                    ans_found = False
-                    for perm_matrix in itertools.permutations(comp_matrix):
-                        logger.debug("Testing permuted matrix = {}"
-                                     .format(perm_matrix))
-                        for m in range(nconstraints):
-                            submatrix = [[perm_matrix[i][j]
-                                          for j in range(nconstraints)
-                                          if j != m]
-                                         for i in range(nconstraints)
-                                         if i != m]
-                            logger.debug("Testing submatrix = {}"
-                                         .format(submatrix))
-                            if abs(np.linalg.det(submatrix)) > \
-                                    BalancedReaction.TOLERANCE:
-                                logger.debug("Possible sol")
-                                ansmatrix = [perm_matrix[i][m]
-                                             for i in range(nconstraints)
-                                             if i != m]
-                                coeffs = -np.linalg.solve(submatrix, ansmatrix)
-                                coeffs = [c for c in coeffs]
-                                coeffs.insert(m, 1)
-                                # Check if final coeffs are valid
-                                overall_mat = np.dot(perm_matrix, coeffs)
-                                if np.allclose(overall_mat, 0,
-                                               atol=BalancedReaction.TOLERANCE):
-                                    ans_found = True
-                                    break
-                        if ans_found:
-                            break
-                    if not ans_found:
-                        raise ReactionError("Reaction is ill-formed and cannot"
-                                            " be balanced.")
-                else:
-                    raise ReactionError("Reaction is ill-formed and cannot be"
-                                        " balanced.")
+        coeffs, res, rank, s = np.linalg.lstsq(f_mat.T, b)
+        if rank < len(self.all_comp):
+            # this of course is *a* solution, but without it being unique
+            # I'm not sure it's a useful result. Better to raise an error
+            # to warn the user.
+            raise ReactionError("Reaction is underdetermined.")
 
-        for i in range(len(coeffs) - 1, -1, -1):
-            if coeffs[i] != 0:
-                normfactor = coeffs[i]
-                break
-        # Invert negative solutions and scale to final product
-        coeffs = [c / normfactor for c in coeffs]
+        if res and res[0] > self.TOLERANCE ** 2:
+            raise ReactionError("Reaction cannot be balanced.")
+
+        # normalizing to last non-zero product
+        coeffs /= coeffs[coeffs > self.TOLERANCE][-1]
+        # Reactants have negative coefficients
+        coeffs[:len(reactants)] *= -1
+
         self._els = els
-        self._all_comp = all_comp[0:nconstraints]
-        self._coeffs = coeffs[0:nconstraints]
-        self._num_comp = nconstraints
+        self._coeffs = coeffs
 
     def copy(self):
         """
