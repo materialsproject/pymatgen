@@ -82,6 +82,16 @@ class ReactionTest(unittest.TestCase):
         self.assertEqual(str(rxn),
                          "LiLa3Ti3CrO12 -> 1.5 La2Ti2O3 + 2.75 O2 + LiCrO2")
 
+    def test_singular_case(self):
+        rxn = Reaction([Composition('XeMn'), Composition("Li")],
+                       [Composition("LiS2"), Composition("S"),
+                        Composition('FeCl')])
+        self.assertEqual(str(rxn), '0.5 LiS2 -> 0.5 Li + S')
+
+    def test_overdetermined(self):
+        self.assertRaises(ReactionError, Reaction, [Composition("Li")],
+                          [Composition("LiO2")])
+
     def test_scientific_notation(self):
         products = [Composition("O2"), Composition("FePO3.9999")]
         reactants = [Composition("FePO4")]

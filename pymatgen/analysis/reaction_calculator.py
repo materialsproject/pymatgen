@@ -316,32 +316,35 @@ class Reaction(BalancedReaction):
         r_mat = np.array([[c[el] for el in els] for c in reactants])
         p_mat = np.array([[c[el] for el in els] for c in products])
         # Solving:
-        #             | -R   1 |
-        #    [ x y ]  |      ..|  =  [ 0 0 .. 0 0 1]
-        #             |  P   1 |
+        #             |  R   0 |
+        #    [ x y ]  |        |  =  [ 0 0 .. 0 0 1]
+        #             |  P   n |
         # x, y are the coefficients of the reactants and products
         # R, P the matrices of the element compositions of the reactants
         # and products
-        # The last column is to avoid the trivial solution
-        f_mat = np.concatenate([-r_mat, p_mat])
-        f_mat = np.concatenate([f_mat, np.ones((len(f_mat), 1))], axis=1)
+        # n is a unit vector to choose the composition to normalize to
+        f_mat = np.concatenate([r_mat, p_mat])
+        f_mat = np.concatenate([f_mat, np.zeros((len(f_mat), 1))], axis=1)
         b = np.zeros(len(els) + 1)
         b[-1] = 1
-
-        coeffs, res, rank, s = np.linalg.lstsq(f_mat.T, b)
-        if rank < len(self.all_comp):
-            # this of course is *a* solution, but without it being unique
-            # I'm not sure it's a useful result. Better to raise an error
-            # to warn the user.
-            raise ReactionError("Reaction is underdetermined.")
-
-        if res and res[0] > self.TOLERANCE ** 2:
-            raise ReactionError("Reaction cannot be balanced.")
-
-        # normalizing to last non-zero product
-        coeffs /= coeffs[np.abs(coeffs) > self.TOLERANCE][-1]
-        # Reactants have negative coefficients
-        coeffs[:len(reactants)] *= -1
+        # try normalizing to every possible product
+        for i in range(len(f_mat)-1, len(r_mat)-1, -1):
+            # set the normalization row
+            f_mat[:, -1] = 0
+            f_mat[i, -1] = 1
+            # try a solution
+            coeffs, res, rank, s = np.linalg.lstsq(f_mat.T, b)
+            if rank < len(self._all_comp):
+                # underdetermined, but might still find a solution normalized
+                # to a different composition
+                if i == len(r_mat):
+                    raise ReactionError("Reaction is underdetermined.")
+                continue
+            # not underdetermined, and can't find a solution
+            if res and res[0] > self.TOLERANCE ** 2:
+                raise ReactionError("Reaction cannot be balanced.")
+            # solution is good
+            break
 
         self._els = els
         self._coeffs = coeffs
