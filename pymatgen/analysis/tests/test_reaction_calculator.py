@@ -152,7 +152,7 @@ class ReactionTest(unittest.TestCase):
         self.assertIn(Composition("Li3Fe2(PO4)3"), rxn.reactants,
                       "Li3Fe2(PO4)4 not in reactants!")
         self.assertEqual(str(rxn),
-                         "0.333 Li3Fe2(PO4)3 + 0.167 Fe2O3 -> 0.25 O2 + LiFePO4")
+                         "0.3333 Li3Fe2(PO4)3 + 0.1667 Fe2O3 -> 0.25 O2 + LiFePO4")
         self.assertEqual(rxn.normalized_repr,
                          "4 Li3Fe2(PO4)3 + 2 Fe2O3 -> 3 O2 + 12 LiFePO4")
         self.assertAlmostEqual(rxn.calculate_energy(energies), -0.48333333, 5)

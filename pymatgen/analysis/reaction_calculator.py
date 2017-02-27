@@ -214,9 +214,9 @@ class BalancedReaction(MSONable):
             elif abs(amt - 1) < cls.TOLERANCE:
                 product_str.append(formula)
             elif amt < -cls.TOLERANCE:
-                reactant_str.append("{:.3g} {}".format(-amt, formula))
+                reactant_str.append("{:.4g} {}".format(-amt, formula))
             elif amt > cls.TOLERANCE:
-                product_str.append("{:.3g} {}".format(amt, formula))
+                product_str.append("{:.4g} {}".format(amt, formula))
 
         return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
 
