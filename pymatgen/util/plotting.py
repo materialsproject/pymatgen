@@ -80,6 +80,62 @@ def get_publication_quality_plot(*args, **kwargs):
     return pretty_plot(*args, **kwargs)
 
 
+def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
+                         **kwargs):
+    """
+    Variant of pretty_plot that does a dual axis plot. Adapted from matplotlib
+    examples. Makes it easier to create plots with different axes.
+
+    Args:
+        x (np.ndarray/list): Data for x-axis.
+        y1 (dict/np.ndarray/list): Data for y1 axis (left). If a dict, it will
+            be interpreted as a {label: sequence}.
+        y2 (dict/np.ndarray/list): Data for y2 axis (right). If a dict, it will
+            be interpreted as a {label: sequence}.
+        xlabel (str): If not None, this will be the label for the x-axis.
+        y1label (str): If not None, this will be the label for the y1-axis.
+        y2label (str): If not None, this will be the label for the y2-axis.
+        \*\*kwargs: Passthrough to pretty_plot to control various plot
+            parameters. See pretty_plot for the options.
+
+    Returns:
+        matplotlib.pyplot
+    """
+    plt = pretty_plot(**kwargs)
+    # labelsize = plt.gca().get_xlabel()
+    fig, ax1 = plt.subplots()
+    if isinstance(y1, dict):
+        for k, v in y1.items():
+            ax1.plot(x, v, 'bs-', label=k)
+    else:
+        ax1.plot(x, y1, 'bs-')
+
+    if xlabel:
+        ax1.set_xlabel(xlabel, fontsize=28)
+
+    if y1label:
+        # Make the y-axis label, ticks and tick labels match the line color.
+        ax1.set_ylabel(y1label, color='b', fontsize=28)
+
+    ax1.tick_params('x', labelsize=20)
+    ax1.tick_params('y', colors='b', labelsize=20)
+    ax1.legend(fontsize=24)
+
+    ax2 = ax1.twinx()
+    if isinstance(y2, dict):
+        for k, v in y2.items():
+            ax1.plot(x, v, 'ro--', label=k)
+    else:
+        ax1.plot(x, y2, 'ro--')
+
+    if y2label:
+        # Make the y-axis label, ticks and tick labels match the line color.
+        ax2.set_ylabel(y2label, color='r', fontsize=28)
+
+    ax2.tick_params('y', colors='r', labelsize=20)
+    return plt
+
+
 def get_ax_fig_plt(ax=None):
     """
     Helper function used in plot functions supporting an optional Axes argument.
