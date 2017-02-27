@@ -24,7 +24,9 @@ class ReactionTest(unittest.TestCase):
 
         d = rxn.as_dict()
         rxn = Reaction.from_dict(d)
-        self.assertEqual(rxn.normalized_repr, "4 Fe + 3 O2 -> 2 Fe2O3")
+        repr, factor = rxn.normalized_repr_and_factor()
+        self.assertEqual(repr, "4 Fe + 3 O2 -> 2 Fe2O3")
+        self.assertAlmostEqual(factor, 2)
 
         reactants = [Composition("FePO4"), Composition('Mn')]
         products = [Composition("FePO4"), Composition('Xe')]
