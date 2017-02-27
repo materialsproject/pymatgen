@@ -296,8 +296,8 @@ class Reaction(BalancedReaction):
     """
     A more flexible class representing a Reaction. The reaction amounts will
     be automatically balanced. Reactants and products can swap sides so that
-    all coefficients are positive. Normalizes so that the last product defined
-    has a coefficient of one (and remains on the products side)
+    all coefficients are positive. Normalizes so that the *FIRST* product
+    (or products, if underdetermined) has a coefficient of one.
     """
 
     def __init__(self, reactants, products):
@@ -315,12 +315,6 @@ class Reaction(BalancedReaction):
 
         els = sum(reactants + products, Composition({})).elements
 
-        n_constr = max(len(self._all_comp) - len(els), 1)
-
-        r_mat = np.array([[c[el] for el in els] for c in reactants])
-        p_mat = np.array([[c[el] for el in els] for c in products])
-        f_mat = np.concatenate([r_mat, p_mat])
-
         # Solving:
         #          | 0  R |
         # [ x y ]  |      |  =  [ 1 .. 1 0 .. 0]
@@ -331,12 +325,15 @@ class Reaction(BalancedReaction):
         # C is a constraint matrix that chooses which compositions to normalize to
 
         # have to add n_constr new constraints
-        f_mat = np.concatenate([np.zeros((len(f_mat), 1))] * n_constr + [f_mat],
+        n_constr = max(len(self._all_comp) - len(els), 1)
+
+        f_mat = np.array([[c[el] for el in els] for c in reactants + products])
+        f_mat = np.concatenate([np.zeros((len(f_mat), n_constr)), f_mat],
                                axis=1)
         b = np.zeros(len(els) + n_constr)
         b[:n_constr] = 1
         # try all combinations of product compositions in the constraint matrix C
-        for inds in itertools.combinations(range(len(f_mat)-1, len(reactants)-1, -1),
+        for inds in itertools.combinations(range(len(reactants), len(f_mat)),
                                            n_constr):
             for j, i in enumerate(inds):
                 f_mat[i, j] = 1
