@@ -311,7 +311,9 @@ class BalancedReaction(MSONable):
 class Reaction(BalancedReaction):
     """
     A more flexible class representing a Reaction. The reaction amounts will
-    be automatically balanced.
+    be automatically balanced. Reactants and products can swap sides so that
+    all coefficients are positive. Normalizes so that the last product defined
+    has a coefficient of one (and remains on the products side)
     """
 
     def __init__(self, reactants, products):
@@ -355,7 +357,7 @@ class Reaction(BalancedReaction):
             raise ReactionError("Reaction cannot be balanced.")
 
         # normalizing to last non-zero product
-        coeffs /= coeffs[coeffs > self.TOLERANCE][-1]
+        coeffs /= coeffs[np.abs(coeffs) > self.TOLERANCE][-1]
         # Reactants have negative coefficients
         coeffs[:len(reactants)] *= -1
 
