@@ -81,7 +81,7 @@ def get_publication_quality_plot(*args, **kwargs):
 
 
 def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
-                         **kwargs):
+                         width=8, height=None, dpi=None,):
     """
     Variant of pretty_plot that does a dual axis plot. Adapted from matplotlib
     examples. Makes it easier to create plots with different axes.
@@ -101,38 +101,51 @@ def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
     Returns:
         matplotlib.pyplot
     """
-    plt = pretty_plot(**kwargs)
-    # labelsize = plt.gca().get_xlabel()
+
+    golden_ratio = (math.sqrt(5) - 1.0) / 2.0
+
+    if not height:
+        height = int(width * golden_ratio)
+
+    import matplotlib.pyplot as plt
+    width = 12
+    labelsize = int(width * 3)
+    ticksize = int(width * 2.5)
+    styles = ["-", "--", "-.", "."]
+
     fig, ax1 = plt.subplots()
+    fig.set_size_inches((width, height))
     if isinstance(y1, dict):
-        for k, v in y1.items():
-            ax1.plot(x, v, 'bs-', label=k)
+        for i, (k, v) in enumerate(y1.items()):
+            ax1.plot(x, v, 'bs' + styles[i % len(styles)], label=k)
+        ax1.legend(fontsize=labelsize)
     else:
         ax1.plot(x, y1, 'bs-')
 
     if xlabel:
-        ax1.set_xlabel(xlabel, fontsize=28)
+        ax1.set_xlabel(xlabel, fontsize=labelsize)
 
     if y1label:
         # Make the y-axis label, ticks and tick labels match the line color.
-        ax1.set_ylabel(y1label, color='b', fontsize=28)
+        ax1.set_ylabel(y1label, color='b', fontsize=labelsize)
 
-    ax1.tick_params('x', labelsize=20)
-    ax1.tick_params('y', colors='b', labelsize=20)
-    ax1.legend(fontsize=24)
+    ax1.tick_params('x', labelsize=ticksize)
+    ax1.tick_params('y', colors='b', labelsize=ticksize)
 
     ax2 = ax1.twinx()
     if isinstance(y2, dict):
-        for k, v in y2.items():
-            ax1.plot(x, v, 'ro--', label=k)
+        for i, (k, v) in enumerate(y2.items()):
+            ax2.plot(x, v, 'ro' + styles[i % len(styles)], label=k)
+        ax2.legend(fontsize=labelsize)
     else:
-        ax1.plot(x, y2, 'ro--')
+        ax2.plot(x, y2, 'ro-')
 
     if y2label:
         # Make the y-axis label, ticks and tick labels match the line color.
-        ax2.set_ylabel(y2label, color='r', fontsize=28)
+        ax2.set_ylabel(y2label, color='r', fontsize=labelsize)
 
-    ax2.tick_params('y', colors='r', labelsize=20)
+    ax2.tick_params('y', colors='r', labelsize=ticksize)
+    plt.tight_layout()
     return plt
 
 
