@@ -81,7 +81,7 @@ def get_publication_quality_plot(*args, **kwargs):
 
 
 def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
-                         width=8, height=None, dpi=None,):
+                         width=8, height=None, dpi=None):
     """
     Variant of pretty_plot that does a dual axis plot. Adapted from matplotlib
     examples. Makes it easier to create plots with different axes.
@@ -115,6 +115,7 @@ def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
 
     fig, ax1 = plt.subplots()
     fig.set_size_inches((width, height))
+    fig.set_dpi(dpi)
     if isinstance(y1, dict):
         for i, (k, v) in enumerate(y1.items()):
             ax1.plot(x, v, 'bs' + styles[i % len(styles)], label=k)
