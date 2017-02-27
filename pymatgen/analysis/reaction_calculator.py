@@ -5,7 +5,6 @@
 from __future__ import division, unicode_literals
 
 import logging
-import itertools
 import numpy as np
 import re
 
@@ -13,6 +12,7 @@ from monty.json import MSONable
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from monty.json import MontyDecoder
+from monty.fractions import gcd_float
 
 """
 This module provides classes that define a chemical reaction.
@@ -75,8 +75,6 @@ class BalancedReaction(MSONable):
             if abs(coeff) > self.TOLERANCE:
                 self._all_comp.append(c)
                 self._coeffs.append(coeff)
-
-        self._num_comp = len(self._all_comp)
 
     def calculate_energy(self, energies):
         """
@@ -184,40 +182,7 @@ class BalancedReaction(MSONable):
         Normalized representation for a reaction
         For example, ``4 Li + 2 O -> 2Li2O`` becomes ``2 Li + O -> Li2O``
         """
-        reactant_str = []
-        product_str = []
-        scaled_coeffs = []
-        reduced_formulas = []
-        for coeff, comp in zip(self._coeffs, self._all_comp):
-            (reduced_formula,
-             scale_factor) = comp.get_reduced_formula_and_factor()
-            scaled_coeffs.append(coeff * scale_factor)
-            reduced_formulas.append(reduced_formula)
-
-        count = 0
-        while sum([abs(coeff) % 1 for coeff in scaled_coeffs]) > 1e-8:
-            norm_factor = 1 / smart_float_gcd(scaled_coeffs)
-            scaled_coeffs = [c / norm_factor for c in scaled_coeffs]
-            count += 1
-            # Prevent an infinite loop
-            if count > 10:
-                break
-
-        for scaled_coeff, reduced_formula in zip(scaled_coeffs, reduced_formulas):
-            if abs(scaled_coeff + 1) < self.TOLERANCE:
-                reactant_str.append(reduced_formula)
-            elif abs(scaled_coeff - 1) < self.TOLERANCE:
-                product_str.append(reduced_formula)
-            elif scaled_coeff < 0:
-                reactant_str.append("{:.0f} {}".format(-scaled_coeff,
-                                                       reduced_formula))
-            elif scaled_coeff > 0:
-                product_str.append("{:.0f} {}".format(scaled_coeff,
-                                                      reduced_formula))
-        factor = scaled_coeffs[0] / self._coeffs[0]
-
-        return " + ".join(reactant_str) + " -> " + " + ".join(product_str), \
-               factor
+        return self._str_from_comp(self._coeffs, self._all_comp, True)
 
     @property
     def normalized_repr(self):
@@ -239,23 +204,41 @@ class BalancedReaction(MSONable):
     def __hash__(self):
         return 7
 
-    def __repr__(self):
-        return self.__str__()
-
-    def __str__(self):
+    @classmethod
+    def _str_from_formulas(cls, coeffs, formulas):
         reactant_str = []
         product_str = []
-        for coeff, comp in zip(self._coeffs, self._all_comp):
-            red_comp = Composition(comp.reduced_formula)
-            scale_factor = comp.num_atoms / red_comp.num_atoms
-            scaled_coeff = coeff * scale_factor
-            if scaled_coeff < -self.TOLERANCE:
-                reactant_str.append("{:.3f} {}".format(-scaled_coeff,
-                                                       comp.reduced_formula))
-            elif scaled_coeff > self.TOLERANCE:
-                product_str.append("{:.3f} {}".format(scaled_coeff,
-                                                      comp.reduced_formula))
+        for amt, formula in zip(coeffs, formulas):
+            if abs(amt + 1) < cls.TOLERANCE:
+                reactant_str.append(formula)
+            elif abs(amt - 1) < cls.TOLERANCE:
+                product_str.append(formula)
+            elif amt < -cls.TOLERANCE:
+                reactant_str.append("{:.3g} {}".format(-amt, formula))
+            elif amt > cls.TOLERANCE:
+                product_str.append("{:.3g} {}".format(amt, formula))
+
         return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
+
+    @classmethod
+    def _str_from_comp(cls, coeffs, compositions, reduce=False):
+        r_coeffs = []
+        r_formulas = []
+        for amt, comp in zip(coeffs, compositions):
+            formula, factor = comp.get_reduced_formula_and_factor()
+            r_coeffs.append(amt * factor)
+            r_formulas.append(formula)
+        if reduce:
+            factor = gcd_float(np.abs(r_coeffs))
+            r_coeffs /= factor
+        else:
+            factor = 1
+        return cls._str_from_formulas(r_coeffs, r_formulas), factor
+
+    def __str__(self):
+        return self._str_from_comp(self._coeffs, self._all_comp)[0]
+
+    __repr__ = __str__
 
     def as_entry(self, energies):
         """
@@ -381,26 +364,6 @@ class Reaction(BalancedReaction):
         reactants = [Composition(sym_amt) for sym_amt in d["reactants"]]
         products = [Composition(sym_amt) for sym_amt in d["products"]]
         return cls(reactants, products)
-
-
-def smart_float_gcd(list_of_floats):
-    """
-    Determines the great common denominator (gcd).  Works on floats as well as
-    integers.
-
-    Args:
-        list_of_floats: List of floats to determine gcd.
-    """
-    mult_factor = 1.0
-    all_remainders = sorted([abs(f - int(f)) for f in list_of_floats])
-    for i in range(len(all_remainders)):
-        if all_remainders[i] > 1e-5:
-            mult_factor *= all_remainders[i]
-            all_remainders = [f2 / all_remainders[i]
-                              - int(f2 / all_remainders[i])
-                              for f2 in all_remainders]
-    return 1 / mult_factor
-
 
 class ReactionError(Exception):
     """

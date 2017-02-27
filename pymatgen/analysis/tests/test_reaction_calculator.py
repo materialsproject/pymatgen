@@ -19,62 +19,52 @@ class ReactionTest(unittest.TestCase):
                      Composition("O2")]
         products = [Composition("Fe2O3")]
         rxn = Reaction(reactants, products)
-        self.assertEqual(str(rxn), "2.000 Fe + 1.500 O2 -> 1.000 Fe2O3",
-                         "Wrong reaction obtained!")
-        self.assertEqual(rxn.normalized_repr, "4 Fe + 3 O2 -> 2 Fe2O3",
-                         "Wrong normalized reaction obtained!")
+        self.assertEqual(str(rxn), "2 Fe + 1.5 O2 -> Fe2O3")
+        self.assertEqual(rxn.normalized_repr, "4 Fe + 3 O2 -> 2 Fe2O3")
 
         d = rxn.as_dict()
         rxn = Reaction.from_dict(d)
-        self.assertEqual(rxn.normalized_repr, "4 Fe + 3 O2 -> 2 Fe2O3",
-                         "Wrong normalized reaction obtained!")
+        self.assertEqual(rxn.normalized_repr, "4 Fe + 3 O2 -> 2 Fe2O3")
 
         reactants = [Composition("FePO4"), Composition('Mn')]
         products = [Composition("FePO4"), Composition('Xe')]
         rxn = Reaction(reactants, products)
-        self.assertEqual(str(rxn), "1.000 FePO4 -> 1.000 FePO4",
-                         "Wrong reaction obtained!")
+        self.assertEqual(str(rxn), "FePO4 -> FePO4")
 
         products = [Composition("Ti2 O4"), Composition("O1")]
         reactants = [Composition("Ti1 O2")]
         rxn = Reaction(reactants, products)
-        self.assertEqual(str(rxn), "2.000 TiO2 -> 2.000 TiO2",
-                         "Wrong reaction obtained!")
+        self.assertEqual(str(rxn), "2 TiO2 -> 2 TiO2")
 
         reactants = [Composition("FePO4"), Composition("Li")]
         products = [Composition("LiFePO4")]
         rxn = Reaction(reactants, products)
-        self.assertEqual(str(rxn), "1.000 FePO4 + 1.000 Li -> 1.000 LiFePO4",
-                         "Wrong reaction obtained!")
+        self.assertEqual(str(rxn), "FePO4 + Li -> LiFePO4")
 
         reactants = [Composition("MgO")]
         products = [Composition("MgO")]
 
         rxn = Reaction(reactants, products)
-        self.assertEqual(str(rxn), "1.000 MgO -> 1.000 MgO",
-                         "Wrong reaction obtained!")
+        self.assertEqual(str(rxn), "MgO -> MgO")
 
         reactants = [Composition("Mg")]
         products = [Composition("Mg")]
 
         rxn = Reaction(reactants, products)
-        self.assertEqual(str(rxn), "1.000 Mg -> 1.000 Mg",
-                         "Wrong reaction obtained!")
+        self.assertEqual(str(rxn), "Mg -> Mg")
 
         reactants = [Composition("FePO4"), Composition("LiPO3")]
         products = [Composition("LiFeP2O7")]
 
         rxn = Reaction(reactants, products)
         self.assertEqual(str(rxn),
-                         "1.000 FePO4 + 1.000 LiPO3 -> 1.000 LiFeP2O7",
-                         "Wrong reaction obtained!")
+                         "FePO4 + LiPO3 -> LiFeP2O7")
 
         reactants = [Composition("Na"), Composition("K2O")]
         products = [Composition("Na2O"), Composition("K")]
         rxn = Reaction(reactants, products)
         self.assertEqual(str(rxn),
-                         "1.000 Na + 0.500 K2O -> 0.500 Na2O + 1.000 K",
-                         "Wrong reaction obtained!")
+                         "Na + 0.5 K2O -> 0.5 Na2O + K")
 
         # Test for an old bug which has a problem when excess product is
         # defined.
@@ -82,15 +72,13 @@ class ReactionTest(unittest.TestCase):
         reactants = [Composition("FePO4")]
         rxn = Reaction(reactants, products)
 
-        self.assertEqual(str(rxn), "1.000 FePO4 -> 1.000 FePO4",
-                         "Wrong reaction obtained!")
+        self.assertEqual(str(rxn), "FePO4 -> FePO4")
 
         products = list(map(Composition, ['La8Ti8O12', 'O2', 'LiCrO2']))
         reactants = [Composition('LiLa3Ti3CrO12')]
         rxn = Reaction(reactants, products)
         self.assertEqual(str(rxn),
-                         "1.000 LiLa3Ti3CrO12 -> 1.500 La2Ti2O3 + 2.750 O2 + 1.000 LiCrO2",
-                         "Wrong reaction obtained!")
+                         "LiLa3Ti3CrO12 -> 1.5 La2Ti2O3 + 2.75 O2 + LiCrO2")
 
     def test_equals(self):
         reactants = [Composition("Fe"),
@@ -107,8 +95,7 @@ class ReactionTest(unittest.TestCase):
         reactants = [Composition("Fe2O3")]
         rxn = Reaction(reactants, products)
         rxn.normalize_to(Composition("Fe"), 3)
-        self.assertEqual(str(rxn), "1.500 Fe2O3 -> 3.000 Fe + 2.250 O2",
-                         "Wrong reaction obtained!")
+        self.assertEqual(str(rxn), "1.5 Fe2O3 -> 3 Fe + 2.25 O2")
 
     def test_calculate_energy(self):
         reactants = [Composition("MgO"), Composition("Al2O3")]
@@ -117,7 +104,7 @@ class ReactionTest(unittest.TestCase):
                     Composition("MgAl2O4"): -0.5}
         rxn = Reaction(reactants, products)
         self.assertEqual(str(rxn),
-                         "1.000 MgO + 1.000 Al2O3 -> 1.000 MgAl2O4")
+                         "MgO + Al2O3 -> MgAl2O4")
         self.assertEqual(rxn.normalized_repr, "MgO + Al2O3 -> MgAl2O4")
         self.assertAlmostEqual(rxn.calculate_energy(energies), -0.2, 5)
 
@@ -129,7 +116,7 @@ class ReactionTest(unittest.TestCase):
         rxn = Reaction(reactants, products)
         entry = rxn.as_entry(energies)
         self.assertEqual(entry.name,
-                         "1.000 MgO + 1.000 Al2O3 -> 1.000 MgAl2O4")
+                         "MgO + Al2O3 -> MgAl2O4")
         self.assertAlmostEqual(entry.energy, -0.2, 5)
 
         products = [Composition("Fe"), Composition("O2")]
@@ -155,7 +142,7 @@ class ReactionTest(unittest.TestCase):
         self.assertIn(Composition("Li3Fe2(PO4)3"), rxn.reactants,
                       "Li3Fe2(PO4)4 not in reactants!")
         self.assertEqual(str(rxn),
-                         "0.333 Li3Fe2(PO4)3 + 0.167 Fe2O3 -> 0.250 O2 + 1.000 LiFePO4")
+                         "0.333 Li3Fe2(PO4)3 + 0.167 Fe2O3 -> 0.25 O2 + LiFePO4")
         self.assertEqual(rxn.normalized_repr,
                          "4 Li3Fe2(PO4)3 + 2 Fe2O3 -> 3 O2 + 12 LiFePO4")
         self.assertAlmostEqual(rxn.calculate_energy(energies), -0.48333333, 5)
@@ -246,12 +233,12 @@ class ComputedReactionTest(unittest.TestCase):
                                - 5.60748821935)
 
     def test_init(self):
-        self.assertEqual(str(self.rxn), "1.000 O2 + 2.000 Li -> 1.000 Li2O2")
+        self.assertEqual(str(self.rxn), "O2 + 2 Li -> Li2O2")
 
     def test_to_from_dict(self):
         d = self.rxn.as_dict()
         new_rxn = ComputedReaction.from_dict(d)
-        self.assertEqual(str(new_rxn), "1.000 O2 + 2.000 Li -> 1.000 Li2O2")
+        self.assertEqual(str(new_rxn), "O2 + 2 Li -> Li2O2")
 
     def test_all_entries(self):
         for c, e in zip(self.rxn.coeffs, self.rxn.all_entries):
