@@ -653,7 +653,6 @@ class Vasprun(MSONable):
                                  self.final_energy, parameters=params,
                                  data=data)
 
-    #@profile
     def get_band_structure(self, kpoints_filename=None, efermi=None,
                            line_mode=False):
         """
