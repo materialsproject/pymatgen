@@ -1506,6 +1506,7 @@ class BSPlotterProjected(BSPlotter):
                                 raise ValueError("The invalid orbital '%s' was put into sum_orbs['%s']." % (orb, elt))
                             else:
                                 sum_morbs[elt] = individual_orbs[dictio[elt][0]]
+                                dictio[elt] = individual_orbs[dictio[elt][0]]
             else:
                 duplicate = copy.deepcopy(dictio[elt])
                 for orb in dictio[elt]:
