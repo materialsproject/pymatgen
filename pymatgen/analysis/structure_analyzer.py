@@ -26,7 +26,7 @@ from warnings import warn
 from scipy.spatial import Voronoi
 from pymatgen import PeriodicSite
 from pymatgen import Element, Specie, Composition
-from pymatgen.util.num_utils import abs_cap
+from pymatgen.util.num import abs_cap
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.surface import Slab
 

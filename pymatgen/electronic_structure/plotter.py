@@ -17,7 +17,7 @@ from monty.json import jsanitize
 from pymatgen import Element
 from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.util.plotting_utils import get_publication_quality_plot, \
+from pymatgen.util.plotting import pretty_plot, \
     add_fig_kwargs, get_ax3d_fig_plt
 
 from pymatgen.core.units import Energy
@@ -140,7 +140,7 @@ class DosPlotter(object):
         y = None
         alldensities = []
         allenergies = []
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
 
         # Note that this complicated processing of energies is to allow for
         # stacked plots in matplotlib.
@@ -418,7 +418,7 @@ class BSPlotter(object):
             smooth_tol (float) : tolerance for fitting spline to band data.
                 Default is None such that no tolerance will be used.
         """
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
         from matplotlib import rc
         import scipy.interpolate as scint
         try:
@@ -750,7 +750,7 @@ class BSPlotterProjected(BSPlotter):
         fig_number = sum([len(v) for v in dictio.values()])
         proj = self._get_projections_by_branches(dictio)
         data = self.bs_plot_data(zero_to_efermi)
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
         e_min = -4
         e_max = 4
         if self._bs.is_metal():
@@ -833,7 +833,7 @@ class BSPlotterProjected(BSPlotter):
                                                   for e in
                                                   self._bs.structure.composition.elements})
         data = self.bs_plot_data(zero_to_efermi)
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
         e_min = -4
         e_max = 4
         if self._bs.is_metal():
@@ -925,7 +925,7 @@ class BSPlotterProjected(BSPlotter):
             {e.symbol: ['s', 'p', 'd']
              for e in self._bs.structure.composition.elements})
         data = self.bs_plot_data(zero_to_efermi)
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
 
         spins = [Spin.up]
         if self._bs.is_spin_polarized:
@@ -1312,9 +1312,9 @@ class BSPlotterProjected(BSPlotter):
                   "A smaller number or a plot with selected symmetry lines (selected_branches) might be better.\n"
                   % str(number_figs))
         import math
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        from pymatgen.util.plotting import pretty_plot
         band_linewidth = 0.5
-        plt = get_publication_quality_plot(w_h_size[0], w_h_size[1])
+        plt = pretty_plot(w_h_size[0], w_h_size[1])
         proj_br_d, dictio_d, dictpa_d, branches = self._get_projections_by_branches_patom_pmorb(dictio, dictpa,
                                                     sum_atoms, sum_morbs, selected_branches)
         data = self.bs_plot_data(zero_to_efermi)

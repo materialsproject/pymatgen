@@ -31,7 +31,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element, get_el_sp
 from monty.design_patterns import cached_class
-from pymatgen.util.string_utils import str_delimited
+from pymatgen.util.string import str_delimited
 from pymatgen.util.io_utils import clean_lines
 from monty.json import MSONable
 

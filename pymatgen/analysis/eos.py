@@ -21,7 +21,7 @@ import numpy as np
 from scipy.optimize import leastsq, minimize
 
 from pymatgen.core.units import FloatWithUnit
-from pymatgen.util.plotting_utils import get_publication_quality_plot
+from pymatgen.util.plotting import pretty_plot
 
 __author__ = "Kiran Mathew, Guido Matteo"
 __credits__ = "Cormac Toher"
@@ -184,8 +184,7 @@ class EOSBase(six.with_metaclass(ABCMeta)):
         Returns:
             Matplotlib plot object.
         """
-        plt = get_publication_quality_plot(width=width, height=height, plt=plt,
-                                           dpi=dpi)
+        plt = pretty_plot(width=width, height=height, plt=plt, dpi=dpi)
 
         color = kwargs.get("color", "r")
         label = kwargs.get("label", "{} fit".format(self.__class__.__name__))

@@ -5,6 +5,10 @@
 from __future__ import unicode_literals
 import re
 import six
+import errno
+import os
+import tempfile
+import codecs
 from monty.io import zopen
 
 """
@@ -98,12 +102,6 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
                         postdebug(results, match)
 
     return results
-
-
-import errno
-import os
-import tempfile
-import codecs
 
 
 umask = os.umask(0)

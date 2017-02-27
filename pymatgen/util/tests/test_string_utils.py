@@ -18,7 +18,7 @@ __date__ = "Aug 26, 2012"
 
 import unittest
 
-from pymatgen.util.string_utils import formula_double_format, latexify, \
+from pymatgen.util.string import formula_double_format, latexify, \
     latexify_spacegroup
 
 

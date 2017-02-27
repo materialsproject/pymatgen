@@ -23,8 +23,8 @@ import numpy as np
 import itertools
 
 from pymatgen.phasediagram.analyzer import PDAnalyzer
-from pymatgen.util.string_utils import latexify
-from pymatgen.util.plotting_utils import get_publication_quality_plot
+from pymatgen.util.string import latexify
+from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.coord_utils import in_coord_list
 
 
@@ -140,7 +140,7 @@ class PDPlotter(object):
         machines have matplotlib installed, I have done it this way.
         """
 
-        plt = get_publication_quality_plot(8, 6)
+        plt = pretty_plot(8, 6)
         from matplotlib.font_manager import FontProperties
         if ordering is None:
             (lines, labels, unstable) = self.pd_plot_data
@@ -400,7 +400,7 @@ class PDPlotter(object):
             A matplotlib plot object.
         """
 
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
         analyzer = PDAnalyzer(self._pd)
         chempot_ranges = analyzer.get_chempot_range_map(
             elements, referenced=referenced)

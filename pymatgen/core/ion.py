@@ -21,7 +21,7 @@ import numpy as np
 
 from pymatgen.core.composition import Composition
 from monty.json import MSONable
-from pymatgen.util.string_utils import formula_double_format
+from pymatgen.util.string import formula_double_format
 
 
 class Ion(MSONable):

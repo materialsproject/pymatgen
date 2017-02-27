@@ -376,12 +376,12 @@ class DiffusionAnalyzer(MSONable):
         Notes:
             The method doesn't apply to NPT-AIMD simulation analysis.
         """
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        from pymatgen.util.plotting import pretty_plot
         if self.lattices is not None and len(self.lattices) > 1:
             warnings.warn("Note the method doesn't apply to NPT-AIMD "
                           "simulation analysis!")
 
-        plt = get_publication_quality_plot(12, 8, plt=plt)
+        plt = pretty_plot(12, 8, plt=plt)
         step = (self.corrected_displacements.shape[1] - 1) // (granularity - 1)
         f = (matching_s or self.structure).copy()
         f.remove_species([self.specie])
@@ -423,8 +423,8 @@ class DiffusionAnalyzer(MSONable):
             mode (str): Determines type of msd plot. By "species", "sites",
                 or direction (default).
         """
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
-        plt = get_publication_quality_plot(12, 8, plt=plt)
+        from pymatgen.util.plotting import pretty_plot
+        plt = pretty_plot(12, 8, plt=plt)
         if np.max(self.dt) > 100000:
             plot_dt = self.dt / 1000
             unit = 'ps'
@@ -888,8 +888,8 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
     """
     Ea, c, _ = fit_arrhenius(temps, diffusivities)
 
-    from pymatgen.util.plotting_utils import get_publication_quality_plot
-    plt = get_publication_quality_plot(12, 8)
+    from pymatgen.util.plotting import pretty_plot
+    plt = pretty_plot(12, 8)
 
     # log10 of the arrhenius fit
     arr = c * np.exp(-Ea / (const.k / const.e * np.array(temps)))

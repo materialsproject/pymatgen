@@ -15,7 +15,7 @@ import unittest
 
 import random
 
-from pymatgen.util.num_utils import abs_cap, min_max_indexes
+from pymatgen.util.num import abs_cap, min_max_indexes
 
 
 class FuncTestCase(unittest.TestCase):
