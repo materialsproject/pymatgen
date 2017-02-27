@@ -14,6 +14,8 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from monty.json import MontyDecoder
 from monty.fractions import gcd_float
 
+import itertools
+
 """
 This module provides classes that define a chemical reaction.
 """
@@ -313,32 +315,37 @@ class Reaction(BalancedReaction):
 
         els = sum(reactants + products, Composition({})).elements
 
+        n_constr = max(len(self._all_comp) - len(els), 1)
+
         r_mat = np.array([[c[el] for el in els] for c in reactants])
         p_mat = np.array([[c[el] for el in els] for c in products])
+        f_mat = np.concatenate([r_mat, p_mat])
+
         # Solving:
-        #             |  R   0 |
-        #    [ x y ]  |        |  =  [ 0 0 .. 0 0 1]
-        #             |  P   n |
+        #          | 0  R |
+        # [ x y ]  |      |  =  [ 1 .. 1 0 .. 0]
+        #          | C  P |
         # x, y are the coefficients of the reactants and products
         # R, P the matrices of the element compositions of the reactants
         # and products
-        # n is a unit vector to choose the composition to normalize to
-        f_mat = np.concatenate([r_mat, p_mat])
-        f_mat = np.concatenate([f_mat, np.zeros((len(f_mat), 1))], axis=1)
-        b = np.zeros(len(els) + 1)
-        b[-1] = 1
-        # try normalizing to every possible product
-        for i in range(len(f_mat)-1, len(r_mat)-1, -1):
-            # set the normalization row
-            f_mat[:, -1] = 0
-            f_mat[i, -1] = 1
+        # C is a constraint matrix that chooses which compositions to normalize to
+
+        # have to add n_constr new constraints
+        f_mat = np.concatenate([np.zeros((len(f_mat), 1))] * n_constr + [f_mat],
+                               axis=1)
+        b = np.zeros(len(els) + n_constr)
+        b[:n_constr] = 1
+        # try all combinations of product compositions in the constraint matrix C
+        for inds in itertools.combinations(range(len(f_mat)-1, len(reactants)-1, -1),
+                                           n_constr):
+            for j, i in enumerate(inds):
+                f_mat[i, j] = 1
             # try a solution
             coeffs, res, rank, s = np.linalg.lstsq(f_mat.T, b)
             if rank < len(self._all_comp):
                 # underdetermined, but might still find a solution normalized
                 # to a different composition
-                if i == len(r_mat):
-                    raise ReactionError("Reaction is underdetermined.")
+                f_mat[:, :n_constr] = 0
                 continue
             # not underdetermined, and can't find a solution
             if res and res[0] > self.TOLERANCE ** 2:

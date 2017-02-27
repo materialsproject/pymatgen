@@ -180,8 +180,26 @@ class ReactionTest(unittest.TestCase):
     def test_underdetermined(self):
         reactants = [Composition("Fe"), Composition("O2")]
         products = [Composition("Fe"), Composition("O2")]
-        self.assertRaises(ReactionError, Reaction, reactants, products)
+        rxn = Reaction(reactants, products)
+        self.assertEqual(str(rxn), "Fe + O2 -> Fe + O2")
 
+        reactants = [Composition("Fe"),
+                     Composition("O2"),
+                     Composition("Na"),
+                     Composition("Li"),
+                     Composition("Cl")]
+        products = [Composition("FeO2"), Composition("NaCl"), Composition("Li2Cl2")]
+        rxn = Reaction(reactants, products)
+        self.assertEqual(str(rxn), "Fe + O2 + Na + 2 Li + 1.5 Cl2 -> FeO2 + NaCl + 2 LiCl")
+
+        reactants = [Composition("Fe"),
+                     Composition("Na"),
+                     Composition("Li2O"),
+                     Composition("Cl")]
+        products = [Composition("FeCl"), Composition("Na2O"),
+                    Composition("Xe"), Composition("LiCl"), Composition("Mn")]
+        rxn = Reaction(reactants, products)
+        self.assertEqual(str(rxn), "Fe + Na + 0.5 Li2O + Cl2 -> FeCl + 0.5 Na2O + LiCl")
 
 class BalancedReactionTest(unittest.TestCase):
     def test_init(self):
