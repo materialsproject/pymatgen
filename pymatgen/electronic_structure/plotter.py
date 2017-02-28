@@ -2923,7 +2923,7 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
 
 
 @add_fig_kwargs
-def plot_brillouin_zone_from_kpath(kpath, **kwargs):
+def plot_brillouin_zone_from_kpath(kpath, ax=None, **kwargs):
 
     """
     Gives the plot (as a matplotlib object) of the symmetry line path in
@@ -2931,15 +2931,16 @@ def plot_brillouin_zone_from_kpath(kpath, **kwargs):
 
     Args:
         kpath (HighSymmKpath): a HighSymmKPath object
+        ax: matplotlib :class:`Axes` or None if a new figure should be created.
         **kwargs: provided by add_fig_kwargs decorator
 
     Returns:
-        a matplotlib figure and matplotlib_ax
+        matplotlib figure
 
     """
     lines = [[kpath.kpath['kpoints'][k] for k in p]
              for p in kpath.kpath['path']]
-    return plot_brillouin_zone(bz_lattice=kpath.prim_rec, lines=lines,
+    return plot_brillouin_zone(bz_lattice=kpath.prim_rec, lines=lines, ax=ax,
                                labels=kpath.kpath['kpoints'], **kwargs)
 
 
@@ -2964,7 +2965,7 @@ def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None,
         kwargs: provided by add_fig_kwargs decorator
 
     Returns:
-        matplotlib figure and matplotlib ax
+        matplotlib figure
     """
 
     fig, ax = plot_lattice_vectors(bz_lattice, ax=ax)

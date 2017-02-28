@@ -131,10 +131,22 @@ class NetcdfReader(object):
             for child in children:
                 print(child)
 
-    def read_dimvalue(self, dimname, path="/"):
-        """Returns the value of a dimension."""
-        dim = self._read_dimensions(dimname, path=path)[0]
-        return len(dim)
+    def read_dimvalue(self, dimname, path="/", default=NO_DEFAULT):
+        """
+        Returns the value of a dimension.
+
+        Args:
+            dimname: Name of the variable
+            path: path to the group.
+            default: return `default` if `dimname` is not present and
+                `default` is not `NO_DEFAULT` else raise self.Error.
+        """
+        try:
+            dim = self._read_dimensions(dimname, path=path)[0]
+            return len(dim)
+        except self.Error:
+            if default is NO_DEFAULT: raise
+            return default
 
     def read_varnames(self, path="/"):
         """List of variable names stored in the group specified by path."""
@@ -153,7 +165,8 @@ class NetcdfReader(object):
             path: path to the group.
             cmode: if cmode=="c", a complex ndarrays is constructed and returned
                 (netcdf does not provide native support from complex datatype).
-            default: read_value returns default if varname is not present.
+            default: returns default if varname is not present.
+                self.Error is raised if default is default is NO_DEFAULT
 
         Returns:
             numpy array if varname represents an array, scalar otherwise.
@@ -262,7 +275,7 @@ class ETSF_Reader(NetcdfReader):
         """
         Read ixc from an Abinit file. Return :class:`XcFunc` object.
         """
-        ixc = self.read_variable("ixc")
+        ixc = int(self.read_value("ixc"))
         return XcFunc.from_abinit_ixc(ixc)
 
 

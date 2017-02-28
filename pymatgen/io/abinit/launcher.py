@@ -815,6 +815,7 @@ class PyFlowScheduler(object):
             if self.flow.all_ok:
                 print("Calling flow.finalize()...")
                 self.flow.finalize()
+                #print("finalized:", self.flow.finalized)
                 if self.rmflow:
                     app("Flow directory will be removed...")
                     try:

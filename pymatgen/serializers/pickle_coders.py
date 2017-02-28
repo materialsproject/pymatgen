@@ -13,7 +13,7 @@ from pymatgen.core.periodic_table import Element
 
 class PmgPickler(pickle.Pickler):
     """
-    Persistence of External Objects as described in section 12.1.5.1 of 
+    Persistence of External Objects as described in section 12.1.5.1 of
     https://docs.python.org/3/library/pickle.html
     """
     def persistent_id(self, obj):
@@ -28,7 +28,7 @@ class PmgPickler(pickle.Pickler):
 
 class PmgUnpickler(pickle.Unpickler):
     """
-    Persistence of External Objects as described in section 12.1.5.1 of 
+    Persistence of External Objects as described in section 12.1.5.1 of
     https://docs.python.org/3/library/pickle.html
     """
     def persistent_load(self, pid):
@@ -39,11 +39,11 @@ class PmgUnpickler(pickle.Unpickler):
         try:
             type_tag, key_id = pid
         except Exception as exc:
-            # Sometimes we get a string such as ('Element', u'C') instead 
+            # Sometimes we get a string such as ('Element', u'C') instead
             # of a real tuple. Use ast to evalute the expression (much safer than eval).
             import ast
             type_tag, key_id = ast.literal_eval(pid)
-            #raise pickle.UnpicklingError("Exception:\n%s\npid: %s\ntype(pid)%s" % 
+            #raise pickle.UnpicklingError("Exception:\n%s\npid: %s\ntype(pid)%s" %
             #    (str(exc), str(pid), type(pid)))
 
         if type_tag == "Element":
@@ -63,7 +63,7 @@ def pmg_pickle_load(filobj, **kwargs):
         \*\*kwargs: Any of the keyword arguments supported by PmgUnpickler
 
     Returns:
-        Deserialized object. 
+        Deserialized object.
     """
     #return pickle.load(filobj, **kwargs)
     return PmgUnpickler(filobj, **kwargs).load()
@@ -81,3 +81,17 @@ def pmg_pickle_dump(obj, filobj, **kwargs):
     #return pickle.dump(obj, filobj)
     #print(type(obj), type(filobj))
     return PmgPickler(filobj, **kwargs).dump(obj)
+
+
+class SlotPickleMixin(object):
+    """
+    This mixin makes it possible to pickle/unpickle objects with __slots__ defined.
+    """
+    def __getstate__(self):
+        return dict(
+            (slot, getattr(self, slot)) for slot in self.__slots__ if hasattr(self, slot)
+        )
+
+    def __setstate__(self, state):
+        for slot, value in state.items():
+            setattr(self, slot, value)

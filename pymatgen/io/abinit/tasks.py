@@ -586,7 +586,6 @@ batch_adapter:
         if not os.path.exists(path):
             raise RuntimeError(colored(
 		"\nCannot locate %s neither in current directory nor in %s\n"
-                "\nCannot locate %s neither in current directory nor in %s\n"
                 "!!! PLEASE READ THIS: !!!\n"
                 "To use abipy to run jobs this file must be present\n"
                 "It provides a description of the cluster/computer you are running on\n"
@@ -780,6 +779,7 @@ batch_adapter:
                 possible_pconfs = [pc for pc in pconfs if qad.can_run_pconf(pc)]
 
                 if qad.allocation == "nodes":
+                #if qad.allocation in ["nodes", "force_nodes"]:
                     # Select the configuration divisible by nodes if possible.
                     for pconf in possible_pconfs:
                         if pconf.num_cores % qad.hw.cores_per_node == 0:
@@ -3222,10 +3222,12 @@ class RelaxTask(GsTask, ProduceHist):
         # by the last run that has executed on_done.
         # ********************************************************************************
         if restart_file is None:
-            out_den = self.outdir.path_in("out_DEN")
-            if os.path.exists(out_den):
-                irdvars = irdvars_for_ext("DEN")
-                restart_file = self.out_to_in(out_den)
+            for ext in ("", ".nc"):
+                out_den = self.outdir.path_in("out_DEN" + ext)
+                if os.path.exists(out_den):
+                    irdvars = irdvars_for_ext("DEN")
+                    restart_file = self.out_to_in(out_den)
+                    break
 
         if restart_file is None:
             # Try to restart from the last TIM?_DEN file.
@@ -3233,7 +3235,10 @@ class RelaxTask(GsTask, ProduceHist):
             # Find the last TIM?_DEN file.
             last_timden = self.outdir.find_last_timden_file()
             if last_timden is not None:
-                ofile = self.outdir.path_in("out_DEN")
+                if last_timden.path.endswith(".nc"):
+                    ofile = self.outdir.path_in("out_DEN.nc")
+                else:
+                    ofile = self.outdir.path_in("out_DEN")
                 os.rename(last_timden.path, ofile)
                 restart_file = self.out_to_in(ofile)
                 irdvars = irdvars_for_ext("DEN")
@@ -3319,6 +3324,7 @@ class RelaxTask(GsTask, ProduceHist):
 
         # Rename last TIMDEN with out_DEN.
         ofile = self.outdir.path_in("out_DEN")
+        if last_timden.path.endswith(".nc"): ofile += ".nc"
         self.history.info("Renaming last_denfile %s --> %s" % (last_timden.path, ofile))
         os.rename(last_timden.path, ofile)
 
@@ -3367,6 +3373,114 @@ class DfptTask(AbinitTask):
 # TODO Remove
 class DdeTask(DfptTask):
     """Task for DDE calculations."""
+
+    def make_links(self):
+        """Replace the default behaviour of make_links"""
+
+        for dep in self.deps:
+            if dep.exts == ["DDK"]:
+                ddk_task = dep.node
+                out_ddk = ddk_task.outdir.has_abiext("DDK")
+                if not out_ddk:
+                    raise RuntimeError("%s didn't produce the DDK file" % ddk_task)
+
+                # Get (fortran) idir and costruct the name of the 1WF expected by Abinit
+                rfdir = list(ddk_task.input["rfdir"])
+                if rfdir.count(1) != 1:
+                    raise RuntimeError("Only one direction should be specifned in rfdir but rfdir = %s" % rfdir)
+
+                idir = rfdir.index(1) + 1
+                ddk_case = idir +  3 * len(ddk_task.input.structure)
+
+                infile = self.indir.path_in("in_1WF%d" % ddk_case)
+                os.symlink(out_ddk, infile)
+
+            elif dep.exts == ["WFK"]:
+                gs_task = dep.node
+                out_wfk = gs_task.outdir.has_abiext("WFK")
+                if not out_wfk:
+                    raise RuntimeError("%s didn't produce the WFK file" % gs_task)
+                if not os.path.exists(self.indir.path_in("in_WFK")):
+                    os.symlink(out_wfk, self.indir.path_in("in_WFK"))
+
+            else:
+                raise ValueError("Don't know how to handle extension: %s" % dep.exts)
+
+
+    def get_results(self, **kwargs):
+        results = super(DdeTask, self).get_results(**kwargs)
+        return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
+
+
+# TODO Remove
+class DteTask(DfptTask):
+    """Task for DTE calculations."""
+
+    # @check_spectator
+    def start(self, **kwargs):
+        kwargs['autoparal'] = False
+        return super(DteTask, self).start(**kwargs)
+
+    def make_links(self):
+        """Replace the default behaviour of make_links"""
+
+        for dep in self.deps:
+            for d in dep.exts:
+                if d == "DDK":
+                    ddk_task = dep.node
+                    out_ddk = ddk_task.outdir.has_abiext("DDK")
+                    if not out_ddk:
+                        raise RuntimeError("%s didn't produce the DDK file" % ddk_task)
+
+                    # Get (fortran) idir and costruct the name of the 1WF expected by Abinit
+                    rfdir = list(ddk_task.input["rfdir"])
+                    if rfdir.count(1) != 1:
+                        raise RuntimeError("Only one direction should be specifned in rfdir but rfdir = %s" % rfdir)
+
+                    idir = rfdir.index(1) + 1
+                    ddk_case = idir + 3 * len(ddk_task.input.structure)
+
+                    infile = self.indir.path_in("in_1WF%d" % ddk_case)
+                    os.symlink(out_ddk, infile)
+
+                elif d == "WFK":
+                    gs_task = dep.node
+                    out_wfk = gs_task.outdir.has_abiext("WFK")
+                    if not out_wfk:
+                        raise RuntimeError("%s didn't produce the WFK file" % gs_task)
+                    if not os.path.exists(self.indir.path_in("in_WFK")):
+                        os.symlink(out_wfk, self.indir.path_in("in_WFK"))
+
+
+                elif d == "DEN":
+                    gs_task = dep.node
+                    out_wfk = gs_task.outdir.has_abiext("DEN")
+                    if not out_wfk:
+                        raise RuntimeError("%s didn't produce the WFK file" % gs_task)
+                    if not os.path.exists(self.indir.path_in("in_DEN")):
+                        os.symlink(out_wfk, self.indir.path_in("in_DEN"))
+
+                elif d == "1WF":
+                    gs_task = dep.node
+                    out_wfk = gs_task.outdir.has_abiext("1WF")
+                    if not out_wfk:
+                        raise RuntimeError("%s didn't produce the 1WF file" % gs_task)
+                    dest = self.indir.path_in("in_" + out_wfk.split("_")[-1])
+                    if not os.path.exists(dest):
+                        os.symlink(out_wfk, dest)
+
+                elif d == "1DEN":
+                    gs_task = dep.node
+                    out_wfk = gs_task.outdir.has_abiext("DEN")
+                    if not out_wfk:
+                        raise RuntimeError("%s didn't produce the 1WF file" % gs_task)
+                    dest = self.indir.path_in("in_" + out_wfk.split("_")[-1])
+                    if not os.path.exists(dest):
+                        os.symlink(out_wfk, dest)
+
+
+                else:
+                    raise ValueError("Don't know how to handle extension: %s" % dep.exts)
 
     def get_results(self, **kwargs):
         results = super(DdeTask, self).get_results(**kwargs)

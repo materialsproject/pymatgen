@@ -7,7 +7,7 @@ import os
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Structure
-from pymatgen.core.units import Ha_to_eV
+from pymatgen.core.units import Ha_to_eV, bohr_to_ang
 from pymatgen.io.abinit.abiobjects import *
 
 import warnings
@@ -16,15 +16,30 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
 
-def cif_paths():
-    cifpaths = []
-    for fname in os.listdir(test_dir):
-        fname = os.path.join(test_dir, fname)
-        if os.path.isfile(fname) and fname.endswith(".cif"):
-            cifpaths.append(fname)
+class LatticeFromAbivarsTest(PymatgenTest):
+    def test_rprim_acell(self):
+        l1 = lattice_from_abivars(acell=3*[10], rprim=np.eye(3))
+        self.assertAlmostEqual(l1.volume, bohr_to_ang**3 * 1000)
+        assert l1.angles == (90, 90, 90)
+        l2 = lattice_from_abivars(acell=3*[10], angdeg=(90, 90, 90))
+        assert l1 == l2
 
-    assert cifpaths
-    return cifpaths
+        l2 = lattice_from_abivars(acell=3*[8], angdeg=(60, 60, 60))
+        abi_rprimd = np.reshape([4.6188022,  0.0000000, 6.5319726,
+                                -2.3094011,  4.0000000, 6.5319726,
+                                -2.3094011, -4.0000000, 6.5319726], (3, 3)) * bohr_to_ang
+        self.assertArrayAlmostEqual(l2.matrix, abi_rprimd)
+
+        l3 = lattice_from_abivars(acell=[3, 6, 9], angdeg=(30, 40, 50))
+        abi_rprimd = np.reshape([3.0000000, 0.0000000, 0.0000000,
+                                 3.8567257, 4.5962667, 0.0000000,
+                                 6.8944000, 4.3895544, 3.7681642], (3, 3)) * bohr_to_ang
+        self.assertArrayAlmostEqual(l3.matrix, abi_rprimd)
+
+        with self.assertRaises(ValueError):
+            lattice_from_abivars(acell=[1, 1, 1], angdeg=(90, 90, 90), rprim=np.eye(3))
+        with self.assertRaises(ValueError):
+            lattice_from_abivars(acell=[1, 1, 1], angdeg=(-90, 90, 90))
 
 
 class SpinModeTest(PymatgenTest):
