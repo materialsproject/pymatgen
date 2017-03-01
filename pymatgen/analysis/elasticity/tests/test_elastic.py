@@ -160,10 +160,15 @@ class ElasticTensorTest(PymatgenTest):
                                 in self.def_stress_dict['deformations']],
                                 [Stress(stress_matrix) for stress_matrix
                                 in self.def_stress_dict['stresses']])))
+        minimal_sd = {k:v for k, v in stress_dict.items() 
+                      if (abs(k[k.independent_deformation] - 0.015) < 1e-10
+                      or  abs(k[k.independent_deformation] - 0.01005) < 1e-10)}
         with warnings.catch_warnings(record = True):
             et_from_sd = ElasticTensor.from_stress_dict(stress_dict)
+            et_from_minimal_sd = ElasticTensor.from_stress_dict(minimal_sd)
         self.assertArrayAlmostEqual(et_from_sd.voigt_symmetrized.round(2),
                                     self.elastic_tensor_1)
+        self.assertAlmostEqual(50.63394169, et_from_minimal_sd[0,0,0,0])
 
     def test_energy_density(self):
 
