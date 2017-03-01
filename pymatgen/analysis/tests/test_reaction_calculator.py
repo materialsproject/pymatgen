@@ -202,6 +202,14 @@ class ReactionTest(unittest.TestCase):
         # this cant normalize to 1 LiCl + 1 Na2O (not enough O), so chooses LiCl and FeCl
         self.assertEqual(str(rxn), "Fe + Na + 0.5 Li2O + Cl2 -> LiCl + 0.5 Na2O + FeCl")
 
+    def test_underdetermined_reactants(self):
+        reactants = [Composition("Li"),
+                     Composition("Cl"),
+                     Composition("Cl")]
+        products = [Composition("LiCl")]
+        self.assertRaisesRegexp(ReactionError, "underdetermined", Reaction,
+                                reactants, products)
+
 class BalancedReactionTest(unittest.TestCase):
     def test_init(self):
         rct = {Composition('K2SO4'): 3, Composition('Na2S'): 1,
