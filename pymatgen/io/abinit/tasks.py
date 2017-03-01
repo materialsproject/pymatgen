@@ -2072,17 +2072,20 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 dest = self.ipath_from_ext(ext)
 
                 if not os.path.exists(path):
-                    # Try netcdf file. TODO: this case should be treated in a cleaner way.
+                    # Try netcdf file.
+                    # TODO: this case should be treated in a cleaner way.
                     path += ".nc"
                     if os.path.exists(path): dest += ".nc"
 
                 if not os.path.exists(path):
                     raise self.Error("%s: %s is needed by this task but it does not exist" % (self, path))
 
+                if path.endswith(".nc") and not dest.endswith(".nc"): # NC --> NC file
+                    dest += ".nc"
+
                 # Link path to dest if dest link does not exist.
                 # else check that it points to the expected file.
                 logger.debug("Linking path %s --> %s" % (path, dest))
-
                 if not os.path.exists(dest):
                     os.symlink(path, dest)
                 else:
