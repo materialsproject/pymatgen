@@ -74,15 +74,19 @@ class PDAnalyzerTest(unittest.TestCase):
                                          len(self.pd.facets))
 
         expected = [{'evolution': 1.0,
-                     'chempot': -4.2582781416666666},
+                     'chempot': -4.2582781416666666,
+                     'reaction': 'Li2O + 0.5 O2 -> Li2O2'},
                     {'evolution': 0,
-                     'chempot': -5.0885906699999968},
+                     'chempot': -5.0885906699999968,
+                     'reaction': 'Li2O -> Li2O'},
                     {'evolution': -1.0,
-                     'chempot': -10.487582010000001}]
+                     'chempot': -10.487582010000001,
+                     'reaction': 'Li2O -> 2 Li + 0.5 O2'}]
         result = self.analyzer.get_element_profile(Element('O'), Composition('Li2O'))
         for d1, d2 in zip(expected, result):
             self.assertAlmostEqual(d1['evolution'], d2['evolution'])
             self.assertAlmostEqual(d1['chempot'], d2['chempot'])
+            self.assertEqual(d1['reaction'], str(d2['reaction']))
 
     def test_get_get_chempot_range_map(self):
         elements = [el for el in self.pd.elements if el.symbol != "Fe"]

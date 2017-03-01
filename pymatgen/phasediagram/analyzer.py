@@ -308,7 +308,7 @@ class PDAnalyzer(object):
         for cc in self.get_critical_compositions(elcomp, gccomp)[1:]:
             decomp_entries = self.get_decomposition(cc).keys()
             decomp = [k.composition for k in decomp_entries]
-            rxn = Reaction([comp, elcomp], decomp)
+            rxn = Reaction([comp], decomp + [elcomp])
             rxn.normalize_to(comp)
             c = self.get_composition_chempots(cc + elcomp * 1e-5)[element]
             amt = -rxn.coeffs[rxn.all_comp.index(elcomp)]
