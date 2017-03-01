@@ -333,6 +333,7 @@ class Reaction(BalancedReaction):
         b = np.zeros(len(els) + n_constr)
         b[:n_constr] = 1
         # try all combinations of product compositions in the constraint matrix C
+        ok = False
         for inds in itertools.combinations(range(len(reactants), len(f_mat)),
                                            n_constr):
             for j, i in enumerate(inds):
@@ -343,15 +344,23 @@ class Reaction(BalancedReaction):
                 # underdetermined, but might still find a solution normalized
                 # to a different composition
                 f_mat[:, :n_constr] = 0
-                continue
-            # not underdetermined, and can't find a solution
-            if res and res[0] > self.TOLERANCE ** 2:
+            elif res and res[0] > self.TOLERANCE ** 2:
+                # not underdetermined, and can't find a solution
                 raise ReactionError("Reaction cannot be balanced.")
-            # solution is good
-            break
-
-        self._els = els
-        self._coeffs = coeffs
+            else:
+                # solution is good
+                ok = True
+                break
+        if ok:
+            self._els = els
+            self._coeffs = coeffs
+        else:
+            r_mat = np.array([[c[el] for el in els] for c in reactants])
+            if np.linalg.lstsq(r_mat.T, np.zeros(len(els)))[2] != len(reactants):
+                raise ReactionError("Reaction cannot be balanced. "
+                                    "Reactants are underdetermined.")
+            raise ReactionError("Reaction cannot be balanced. "
+                                "Unknown error. Please report.")
 
     def copy(self):
         """
