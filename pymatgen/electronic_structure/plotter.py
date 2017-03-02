@@ -1916,7 +1916,7 @@ class BSDOSPlotter():
                  vb_energy_range=4, cb_energy_range=4, fixed_cb_energy=False,
                  egrid_interval=1, font="Times New Roman", axis_fontsize=20,
                  tick_fontsize=15, legend_fontsize=14, bs_legend="best",
-                 dos_legend="best", rgb_legend=True):
+                 dos_legend="best", rgb_legend=True, fig_size=(11, 8.5)):
 
         """
         Instantiate plotter settings.
@@ -1936,6 +1936,7 @@ class BSDOSPlotter():
             bs_legend (str): matplotlib string location for legend or None
             dos_legend (str): matplotlib string location for legend or None
             rgb_legend (bool): (T/F) whether to draw RGB triangle/bar for element proj.
+            fig_size(tuple): dimensions of figure size (width, height)
         """
         self.bs_projection = bs_projection
         self.dos_projection = dos_projection
@@ -1950,6 +1951,7 @@ class BSDOSPlotter():
         self.bs_legend = bs_legend
         self.dos_legend = dos_legend
         self.rgb_legend = rgb_legend
+        self.fig_size = fig_size
 
     def get_plot(self, bs, dos):
         """
@@ -2027,7 +2029,7 @@ class BSDOSPlotter():
 
         # set up bs and dos plot
         gs = GridSpec(1, 2, width_ratios=[2, 1])
-        fig = mplt.figure(figsize=(11, 8.5))
+        fig = mplt.figure(figsize=self.fig_size)
         fig.patch.set_facecolor('white')
         bs_ax = mplt.subplot(gs[0])
         dos_ax = mplt.subplot(gs[1])
