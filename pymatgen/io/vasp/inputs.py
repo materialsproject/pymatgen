@@ -29,6 +29,7 @@ from pymatgen import SETTINGS
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element, get_el_sp
+from pymatgen.electronic_structure.core import Magmom
 from monty.design_patterns import cached_class
 from pymatgen.util.string_utils import str_delimited
 from pymatgen.util.io_utils import clean_lines
@@ -649,14 +650,16 @@ class Incar(dict, MSONable):
         for k in keys:
             if k == "MAGMOM" and isinstance(self[k], list):
                 value = []
-                if isinstance(self[k][0], list) and (self.get("LSORBIT") or \
-                        self.get("LNONCOLLINEAR")):
+                if (isinstance(self[k][0], list) or isinstance(self[k][0], Magmom)) and \
+                        (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
                     value.append(" ".join(str(i) for j in self[k] for i in j))
                 elif self.get("LSORBIT") or self.get("LNONCOLLINEAR"):
                     for m, g in itertools.groupby(self[k]):
                         value.append("3*{}*{}".format(len(tuple(g)), m))
                 else:
-                    for m, g in itertools.groupby(self[k]):
+                    # float() to ensure backwards compatibility between
+                    # float magmoms and Magmom objects
+                    for m, g in itertools.groupby(self[k], lambda x: float(x)):
                         value.append("{}*{}".format(len(tuple(g)), m))
                 lines.append([k, " ".join(value)])
             elif isinstance(self[k], list):
