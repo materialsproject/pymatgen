@@ -12,7 +12,7 @@ stress-strain data
 """
 
 from pymatgen.analysis.elasticity.tensors import TensorBase, \
-        voigt_map, reverse_voigt_map
+        voigt_map as vmap
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
 import numpy as np
@@ -376,13 +376,16 @@ class ElasticTensor(TensorBase):
             symmetry (boolean): flag for whether or not the elastic tensor
                 should fit from data based on symmetry
         """
-        inds = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
-        c_ij = np.array([[np.polyfit([strain[ind1] for strain in list(stress_dict.keys())
-                                      if (strain.i, strain.j) == ind1],
-                                     [stress_dict[strain][ind2] for strain
-                                      in list(stress_dict.keys())
-                                      if (strain.i, strain.j) == ind1], 1)[0]
-                          for ind1 in inds] for ind2 in inds])
+        c_ij = np.zeros((6, 6))
+        for i, j in itertools.product(range(6), repeat=2):
+            strains = [s for s in stress_dict.keys() 
+                       if (s.i, s.j) == vmap[i]]
+            xy = [(s[vmap[i]], stress_dict[s][vmap[j]]) for s in strains]
+            if len(xy) == 0:
+                raise ValueError("No ind. strains for vgt index {}".format(i))
+            elif len(xy) == 1:
+                xy += [(0, 0)]
+            c_ij[i, j] = np.polyfit(*zip(*xy), deg=1)[0]
         if vasp:
             c_ij *= -0.1  # Convert units/sign convention of vasp stress tensor
         c_ij[0:, 3:] = 0.5 * c_ij[0:, 3:]  # account for voigt doubling of e4,e5,e6
