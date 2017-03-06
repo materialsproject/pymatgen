@@ -11,9 +11,9 @@ such as the Spin, Orbital, etc.
 """
 
 
-__author__ = "Shyue Ping Ong, Matthew Horton"
+__author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "2.0"
+__version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
@@ -144,13 +144,12 @@ class Magmom(MSONable):
         """
 
         # defaults with spin axis along z axis
-        # TODO: VASP default has saxis[0] = 0+, could use np.nextafter(0,1) to be rigorous?
+        # do not change without updating transformation matrix
         self._default_saxis = np.array([0, 0, 1], dtype='d')
         self._default_saxis.setflags(write=False)
 
         # to init from another Magmom instance
-        # TODO: is there a more Pythonic way of doing this?
-        if isinstance(moment, type(self)) and saxis==None:
+        if isinstance(moment, type(self)) and saxis is None:
             saxis = moment.saxis
             moment = moment.moment
 
@@ -273,7 +272,6 @@ class Magmom(MSONable):
 
         :return: np.ndarray of length 3
         """
-        # TODO: change _default_saxis to [0,0,1] everywhere
         return self.get_moment(saxis=self._default_saxis)
 
     @property
@@ -422,17 +420,33 @@ class Magmom(MSONable):
         else:
             return True
 
-    @staticmethod
-    def get_moments_relative_to_crystal_axes(magmoms, lattice):
+    @classmethod
+    def from_moment_relative_to_crystal_axes(cls, magmom, lattice):
         """
-        Used for writing moments to magCIF file.
-        If scalar magmoms, moments will be arbitrarily given along z.
+        Obtaining a Magmom object from a magnetic moment provided
+        relative to crystal axes.
 
-        :param magmoms: list of magmoms (Magmoms, scalars, or vectors)
+        Used for obtaining moments from magCIF file.
+        :param magmom: list of floats specifying vector magmom
         :param lattice: Lattice
-        :return: list of lists
+        :return: Magmom
         """
-        return NotImplementedError
+        unit_m = lattice.matrix / np.linalg.norm(lattice.matrix, axis=1)[:, None]
+        magmom = np.matmul(magmom, unit_m)
+        return cls(magmom)
+
+    def get_moment_relative_to_crystal_axes(self, lattice):
+        """
+        If scalar magmoms, moments will be given arbitrarily along z.
+        Used for writing moments to magCIF file.
+
+        :param magmom: Magmom
+        :param lattice: Lattice
+        :return: vector as list of floats
+        """
+        unit_m = lattice.matrix / np.linalg.norm(lattice.matrix, axis=1)[:, None]
+        magmom = np.matmul(self.global_moment, np.linalg.inv(unit_m))
+        return magmom
 
     def __getitem__(self, key):
         return self.moment[key]
@@ -447,7 +461,6 @@ class Magmom(MSONable):
         """
         Equal if 'global' magnetic moments are the same, saxis can differ.
         """
-        #TODO: is this sensible?
         return self.global_moment == other.global_moment
 
     def __ne__(self, other):

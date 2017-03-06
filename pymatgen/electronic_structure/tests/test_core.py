@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 
 import unittest
 
+from pymatgen.core import Lattice
 from pymatgen.electronic_structure.core import Orbital, Spin, Magmom
 import numpy as np
 
@@ -112,7 +113,13 @@ class MagmomTest(unittest.TestCase):
         magmoms, saxis = Magmom.get_consistent_set_and_saxis(magmoms)
         self.assertTrue(np.allclose(saxis, [np.sqrt(1/3.)]*3))
 
-        return
+    def test_relative_to_crystal_axes(self):
+        lattice = Lattice.from_parameters(5, 10, 5, 90, 110, 90)
+        moment = [1, 0, 2]
+        magmom = Magmom.from_moment_relative_to_crystal_axes(moment, lattice)
+        self.assertTrue(np.allclose(magmom.moment, [0.93969262, 0.0, 1.65797986]))
+        self.assertTrue(np.allclose(magmom.get_moment_relative_to_crystal_axes(lattice), moment))
+
 
 if __name__ == '__main__':
     unittest.main()
