@@ -1,8 +1,9 @@
 Change log
 ==========
 
-v4.6.2
+v4.7.0
 ------
-* Improve Spacegroup class support for alternative settings. Add a get_settings class method.
-* Improvements to FEFF support.
-* Improvements to EOS class.
+* Improvements to BSDOSPlotter.
+* Enhancements to Phase diagram analysis and reaction calculator.
+* Enhancements to surface slab and adsorption. (Richard and Joey)
+* Support NpT ensemble in diffusion analysis.
