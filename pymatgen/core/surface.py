@@ -581,7 +581,7 @@ class SlabGenerator(object):
                     break
             # We want the indices with the maximum absolute cosine,
             # but smallest possible length.
-            uvw, cosine, l = max(candidates, key=lambda x: (x[1], -l))
+            uvw, cosine, l = max(candidates, key=lambda x: (x[1], -x[2]))
             slab_scale_factor.append(uvw)
 
         slab_scale_factor = np.array(slab_scale_factor)
