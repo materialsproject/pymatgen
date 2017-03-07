@@ -824,8 +824,10 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         """Print to `stream` the event handlers installed for this flow."""
         lines = ["List of event handlers installed:"]
         for handler in self.event_handlers:
-            if verbose: lines.extend(handler.__class__.cls2str().split("\n"))
-            lines.extend(str(handler).split("\n"))
+            if verbose:
+                lines.extend(handler.__class__.cls2str().split("\n"))
+            else:
+                lines.extend(str(handler).split("\n"))
 
         stream.write("\n".join(lines))
         stream.write("\n")
