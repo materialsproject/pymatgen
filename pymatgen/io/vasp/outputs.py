@@ -751,17 +751,20 @@ class Vasprun(MSONable):
                             kpoint_file.kpts[i]
                 # remake the data only considering line band structure k-points
                 # (weight = 0.0 kpoints)
-                kpoints = kpoints[start_bs_index:len(kpoints)]
-                up_eigen = [eigenvals[Spin.up][i][
-                            start_bs_index:len(eigenvals[Spin.up][i])]
-                            for i in range(len(eigenvals[Spin.up]))]
+                nbands = len(eigenvals[Spin.up])
+                kpoints = kpoints[start_bs_index:nkpts]
+                up_eigen = [eigenvals[Spin.up][i][start_bs_index:nkpts]
+                            for i in range(nbands)]
+                p_eigenvals[Spin.up] = [p_eigenvals[Spin.up][i][
+                                        start_bs_index:nkpts]
+                                        for i in range(nbands)]
                 if self.is_spin:
-                    down_eigen = [eigenvals[Spin.down][i]
-                                  [start_bs_index:
-                                   len(eigenvals[Spin.down][i])]
-                                  for i in range(len(eigenvals[Spin.down]))]
-                    eigenvals = {Spin.up: up_eigen,
-                                 Spin.down: down_eigen}
+                    down_eigen = [eigenvals[Spin.down][i][start_bs_index:nkpts]
+                                  for i in range(nbands)]
+                    eigenvals = {Spin.up: up_eigen, Spin.down: down_eigen}
+                    p_eigenvals[Spin.down] = [p_eigenvals[Spin.down][i][
+                                              start_bs_index:nkpts]
+                                              for i in range(nbands)]
                 else:
                     eigenvals = {Spin.up: up_eigen}
             else:
