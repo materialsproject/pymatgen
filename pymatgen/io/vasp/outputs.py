@@ -755,16 +755,18 @@ class Vasprun(MSONable):
                 kpoints = kpoints[start_bs_index:nkpts]
                 up_eigen = [eigenvals[Spin.up][i][start_bs_index:nkpts]
                             for i in range(nbands)]
-                p_eigenvals[Spin.up] = [p_eigenvals[Spin.up][i][
-                                        start_bs_index:nkpts]
-                                        for i in range(nbands)]
+                if self.projected_eigenvalues:
+                    p_eigenvals[Spin.up] = [p_eigenvals[Spin.up][i][
+                                            start_bs_index:nkpts]
+                                            for i in range(nbands)]
                 if self.is_spin:
                     down_eigen = [eigenvals[Spin.down][i][start_bs_index:nkpts]
                                   for i in range(nbands)]
                     eigenvals = {Spin.up: up_eigen, Spin.down: down_eigen}
-                    p_eigenvals[Spin.down] = [p_eigenvals[Spin.down][i][
-                                              start_bs_index:nkpts]
-                                              for i in range(nbands)]
+                    if self.projected_eigenvalues:
+                        p_eigenvals[Spin.down] = [p_eigenvals[Spin.down][i][
+                                                start_bs_index:nkpts]
+                                                for i in range(nbands)]
                 else:
                     eigenvals = {Spin.up: up_eigen}
             else:
