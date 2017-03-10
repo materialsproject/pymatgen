@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
-Works for Abinit:
+Works for Abinit
 """
 from __future__ import unicode_literals, division, print_function
 
