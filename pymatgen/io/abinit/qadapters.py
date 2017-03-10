@@ -72,7 +72,7 @@ class MpiRunner(object):
     different syntax and options supported by the different mpirunners.
     """
     def __init__(self, name, type=None, options=""):
-        self.name = name
+        self.name = name if name else ""
         self.type = None
         self.options = options
 
@@ -112,7 +112,7 @@ class MpiRunner(object):
     #@property
     #def has_mpirun(self):
     #    """True if we are running via mpirun, mpiexec ..."""
-    #    return self.name is not None
+    #    return self.name in ("mpirun", "mpiexec")
 
 
 class OmpEnv(AttrDict):
