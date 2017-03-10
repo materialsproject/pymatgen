@@ -424,8 +424,31 @@ class SquareTensor(TensorBase):
         """
         return polar(self, side=side)
 
-def generate_distinct_elements(rank, structure):
+
+def symmetry_reduce(tensors, structure, tol = 1e-8, **kwargs):
     """
-    Function to generate distinct elements of a tensor
+    Function that converts a list of tensors corresponding to a structure
+    and returns a dictionary consisting of unique tensor keys with symmop
+    values corresponding to transformations that will result in derivative
+    tensors from the original list
+
+    Args:
+        tensors (list of tensors): list of TensorBase objects to test for
+            symmetrically-equivalent duplicates
+        structure (Structure): structure from which to get symmetry
+        tol (float): tolerance for tensor equivalence
+        kwargs: keyword arguments for the SpacegroupAnalyzer
     """
-    pass
+    sga = SpacegroupAnalyzer(structure, **kwargs)
+    symmops = sga.get_symmetry_operations(cartesian=True)
+    unique_tensor_dict = {}
+    for tensor in tensors:
+        is_unique = True
+        for unique_tensor, symmop in itertools.product(unique_tensor_dict, symmops):
+            if np.all(np.abs(unique_tensor - tensor.transform(symmop)) < tol):
+                unique_tensor_dict[unique_tensor].append(symmop)
+                is_unique=False
+                break
+        if is_unique:
+            unique_tensor_dict[tensor] = []
+    return unique_tensor_dict
