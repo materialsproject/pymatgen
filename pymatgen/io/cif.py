@@ -20,7 +20,8 @@ from inspect import getargspec
 from itertools import groupby
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp
 from monty.io import zopen
-from pymatgen.util.coord_utils import in_coord_list_pbc, pbc_diff
+from pymatgen.util.coord_utils import in_coord_list_pbc, pbc_diff, \
+    find_in_coord_list_pbc
 from monty.string import remove_non_ascii
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -511,12 +512,15 @@ class CifParser(object):
                 return ""
 
         def get_matching_coord(coord):
+            keys = coord_to_species.keys()
+            coords = np.array(keys)
             for op in self.symmetry_operations:
                 c = op.operate(coord)
-                for k in coord_to_species.keys():
-                    if np.allclose(pbc_diff(c, k), (0, 0, 0),
-                                   atol=self._site_tolerance):
-                        return tuple(k)
+                inds = find_in_coord_list_pbc(coords, c, atol=self._site_tolerance)
+                # cant use if inds, because python is dumb and np.array([0]) evaluates
+                # to False
+                if len(inds):
+                    return keys[inds[0]]
             return False
 
         ############################################################
