@@ -512,7 +512,7 @@ class CifParser(object):
                 return ""
 
         def get_matching_coord(coord):
-            keys = coord_to_species.keys()
+            keys = list(coord_to_species.keys())
             coords = np.array(keys)
             for op in self.symmetry_operations:
                 c = op.operate(coord)
