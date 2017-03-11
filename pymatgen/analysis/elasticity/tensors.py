@@ -438,6 +438,11 @@ def symmetry_reduce(tensors, structure, tol = 1e-8, **kwargs):
         structure (Structure): structure from which to get symmetry
         tol (float): tolerance for tensor equivalence
         kwargs: keyword arguments for the SpacegroupAnalyzer
+
+    returns:
+        dictionary consisting of unique tensors with symmetry operations
+        corresponding to those which will reconstruct the remaining
+        tensors as values
     """
     sga = SpacegroupAnalyzer(structure, **kwargs)
     symmops = sga.get_symmetry_operations(cartesian=True)
