@@ -257,6 +257,12 @@ class TensorBaseTest(PymatgenTest):
         tbs = [TensorBase.from_voigt(row) for row in np.eye(6)*0.01]
         reduced = symmetry_reduce(tbs, self.get_structure("Sn"))
         self.assertEqual(len(reduced), 2)
+        self.assertArrayEqual([len(i) for i in reduced.values()], [2, 2])
+        reconstructed = []
+        for k, v in reduced.items():
+            reconstructed.extend([k.voigt] + [k.transform(op).voigt for op in v])
+        reconstructed = sorted(reconstructed, key = lambda x: np.argmax(x))
+        self.assertArrayAlmostEqual([tb for tb in reconstructed], np.eye(6)*0.01)
 
 
 class SquareTensorTest(PymatgenTest):
