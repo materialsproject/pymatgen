@@ -1,6 +1,18 @@
 Change log
 ==========
 
+v4.7.1
+------
+* Pathfinder speedup
+* Minor bug fix for plots.
+
+v4.7.0
+------
+* Improvements to BSDOSPlotter.
+* Enhancements to Phase diagram analysis and reaction calculator.
+* Enhancements to surface slab and adsorption. (Richard and Joey)
+* Support NpT ensemble in diffusion analysis.
+
 v4.6.2
 --------
 * Improve Spacegroup class support for alternative settings. Add a get_settings class method.

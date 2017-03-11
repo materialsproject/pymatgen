@@ -82,6 +82,54 @@ class ReactionTest(unittest.TestCase):
         self.assertEqual(str(rxn),
                          "LiLa3Ti3CrO12 -> LiCrO2 + 1.5 La2Ti2O3 + 2.75 O2")
 
+    def test_rank(self):
+        reactants = [Composition("La2Zr2O7"), Composition("LiCoO2")]
+        products = [Composition("La2O3"),
+                    Composition("Co2O3"),
+                    Composition("Li2ZrO3"),
+                    Composition("Li2O")]
+
+        self.assertEqual(str(Reaction(reactants, products)),
+                         "La2Zr2O7 + 2 LiCoO2 + Li2O -> "
+                         "La2O3 + Co2O3 + 2 Li2ZrO3")
+
+        reactants = [Composition("La2O3"), Composition("Co2O3"),
+                     Composition("Li2ZrO3")]
+        products = [Composition("Li2O"), Composition("La2Zr2O7"),
+                    Composition("Li3CoO3")]
+        self.assertEqual(str(Reaction(reactants, products)),
+                         "La2O3 + 0.3333 Co2O3 + 2 Li2ZrO3 -> "
+                         "Li2O + La2Zr2O7 + 0.6667 Li3CoO3")
+
+        reactants = [Composition("La2O3"), Composition("Co2O3"),
+                     Composition("Li2ZrO3")]
+        products = [Composition("Xe"), Composition("Li2O"), Composition("La2Zr2O7"),
+                    Composition("Li3CoO3")]
+        self.assertEqual(str(Reaction(reactants, products)),
+                         "La2O3 + 0.3333 Co2O3 + 2 Li2ZrO3 -> "
+                         "Li2O + La2Zr2O7 + 0.6667 Li3CoO3")
+
+        reactants = [Composition("La2O3"), Composition("Co2O3"),
+                     Composition("Li2ZrO3")]
+        products = [Composition("Xe"), Composition("Li2O"), Composition("La2Zr2O7"),
+                    Composition("Li3CoO3"), Composition("XeNe")]
+        self.assertEqual(str(Reaction(reactants, products)),
+                         "La2O3 + 0.3333 Co2O3 + 2 Li2ZrO3 -> "
+                         "Li2O + La2Zr2O7 + 0.6667 Li3CoO3")
+
+        reactants = [Composition("LiCoO2")]
+        products = [Composition("La2O3"), Composition("Co2O3"),
+                    Composition("Li2O1"), Composition("Li1F1"),
+                    Composition("Co1F3")]
+        self.assertEqual(str(Reaction(reactants, products)),
+                         "2 LiCoO2 -> Co2O3 + Li2O")
+
+        # this test can fail because of numerical rank calculation issues
+        reactants = [Composition("LiCoO2"), Composition("Li2O1")]
+        products = [Composition("ZrF4"), Composition("Co2O3")]
+        self.assertEqual(str(Reaction(reactants, products)),
+                         '2 LiCoO2 -> Li2O + Co2O3')
+
     def test_singular_case(self):
         rxn = Reaction([Composition('XeMn'), Composition("Li")],
                        [Composition("S"), Composition("LiS2"),
@@ -207,6 +255,13 @@ class ReactionTest(unittest.TestCase):
                      Composition("Cl"),
                      Composition("Cl")]
         products = [Composition("LiCl")]
+        self.assertRaisesRegexp(ReactionError, "underdetermined", Reaction,
+                                reactants, products)
+
+        reactants = [Composition("LiMnCl3"),
+                     Composition("LiCl"),
+                     Composition("MnCl2")]
+        products = [Composition("Li2MnCl4")]
         self.assertRaisesRegexp(ReactionError, "underdetermined", Reaction,
                                 reactants, products)
 
