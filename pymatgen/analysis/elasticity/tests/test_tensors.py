@@ -6,7 +6,7 @@ import json
 import os
 
 import numpy as np
-from pymatgen.analysis.elasticity.tensors import TensorBase, SquareTensor
+from pymatgen.analysis.elasticity.tensors import *
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
@@ -249,7 +249,15 @@ class TensorBaseTest(PymatgenTest):
                                [0, 0, 0, 0, 26.35, 0],
                                [0, 0, 0, 0, 0, 26.35]])
         # Rank 3
-        #TensorBase.from_voigt([[]])
+        TensorBase.from_voigt(np.zeros((3, 6)))
+        # Rank 2
+        TensorBase.from_voigt(np.zeros(6))
+
+    def test_symmetry_reduce(self):
+        tbs = [TensorBase.from_voigt(row) for row in np.eye(6)*0.01]
+        reduced = symmetry_reduce(tbs, self.get_structure("Sn"))
+        self.assertEqual(len(reduced), 2)
+
 
 class SquareTensorTest(PymatgenTest):
     def setUp(self):

@@ -441,14 +441,14 @@ def symmetry_reduce(tensors, structure, tol = 1e-8, **kwargs):
     """
     sga = SpacegroupAnalyzer(structure, **kwargs)
     symmops = sga.get_symmetry_operations(cartesian=True)
-    unique_tensor_dict = {}
+    unique_tdict = {}
     for tensor in tensors:
         is_unique = True
-        for unique_tensor, symmop in itertools.product(unique_tensor_dict, symmops):
-            if np.all(np.abs(unique_tensor - tensor.transform(symmop)) < tol):
-                unique_tensor_dict[unique_tensor].append(symmop)
+        for unique_tensor, symmop in itertools.product(unique_tdict, symmops):
+            if (np.abs(unique_tensor.transform(symmop) - tensor) < tol).all():
+                unique_tdict[unique_tensor].append(symmop)
                 is_unique=False
                 break
         if is_unique:
-            unique_tensor_dict[tensor] = []
-    return unique_tensor_dict
+            unique_tdict[tensor] = []
+    return unique_tdict
