@@ -328,8 +328,8 @@ class TensorBase(np.ndarray):
             rotation = np.roll(rotation, 2, axis = 0)
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[1]))
             rotation[0] = np.cross(rotation[1], rotation[2])
-        
-        return self.rotate(rotation)
+
+        return self.rotate(rotation, tol=1e-2)
 
 
 class SquareTensor(TensorBase):
