@@ -313,7 +313,10 @@ class Reaction(BalancedReaction):
         self._input_products = products
         self._all_comp = reactants + products
 
-        els = sum(reactants + products, Composition({})).elements
+        els = set()
+        for c in self.all_comp:
+            els.update(c.elements)
+        els = sorted(els)
 
         # Solving:
         #          | 0  R |
@@ -324,43 +327,55 @@ class Reaction(BalancedReaction):
         # and products
         # C is a constraint matrix that chooses which compositions to normalize to
 
-        # have to add n_constr new constraints
-        n_constr = max(len(self._all_comp) - len(els), 1)
+        # try just normalizing to just the first product
+        rp_mat = np.array([[c[el] for el in els] for c in self._all_comp])
+        f_mat = np.concatenate([np.zeros((len(rp_mat), 1)), rp_mat], axis=1)
+        f_mat[len(reactants), 0] = 1  # set normalization by the first product
+        b = np.zeros(len(els) + 1)
+        b[0] = 1
+        coeffs, res, _, s = np.linalg.lstsq(f_mat.T, b)
 
-        f_mat = np.array([[c[el] for el in els] for c in reactants + products])
-        f_mat = np.concatenate([np.zeros((len(f_mat), n_constr)), f_mat],
-                               axis=1)
-        b = np.zeros(len(els) + n_constr)
-        b[:n_constr] = 1
-        # try all combinations of product compositions in the constraint matrix C
-        ok = False
-        for inds in itertools.combinations(range(len(reactants), len(f_mat)),
-                                           n_constr):
-            for j, i in enumerate(inds):
-                f_mat[i, j] = 1
-            # try a solution
-            coeffs, res, rank, s = np.linalg.lstsq(f_mat.T, b)
-            if rank < len(self._all_comp):
-                # underdetermined, but might still find a solution normalized
-                # to a different composition
-                f_mat[:, :n_constr] = 0
-            elif res and res[0] > self.TOLERANCE ** 2:
-                # not underdetermined, and can't find a solution
+        # for whatever reason the rank returned by lstsq isn't always correct
+        # seems to be a problem with low-rank M but inconsistent system  M x = b.
+        # the singular values seem ok, so checking based on those
+        if sum(np.abs(s) > 1e-12) == len(f_mat):
+            if res and res[0] > self.TOLERANCE ** 2:
                 raise ReactionError("Reaction cannot be balanced.")
             else:
-                # solution is good
                 ok = True
-                break
-        if ok:
-            self._els = els
-            self._coeffs = coeffs
         else:
+            # underdetermined, add product constraints to make non-singular
+            ok = False
+            n_constr = len(rp_mat) - np.linalg.matrix_rank(rp_mat)
+            f_mat = np.concatenate([np.zeros((len(rp_mat), n_constr)),
+                                    rp_mat], axis=1)
+            b = np.zeros(f_mat.shape[1])
+            b[:n_constr] = 1
+
+            # try setting C to all n_constr combinations of products
+            for inds in itertools.combinations(range(len(reactants),
+                                                     len(f_mat)),
+                                               n_constr):
+                f_mat[:, :n_constr] = 0
+                for j, i in enumerate(inds):
+                    f_mat[i, j] = 1
+                # try a solution
+                coeffs, res, _, s = np.linalg.lstsq(f_mat.T, b)
+                if sum(np.abs(s) > 1e-12) == len(self._all_comp) and \
+                        (not res or res[0] < self.TOLERANCE ** 2):
+                    ok = True
+                    break
+
+        if not ok:
             r_mat = np.array([[c[el] for el in els] for c in reactants])
             if np.linalg.lstsq(r_mat.T, np.zeros(len(els)))[2] != len(reactants):
                 raise ReactionError("Reaction cannot be balanced. "
                                     "Reactants are underdetermined.")
             raise ReactionError("Reaction cannot be balanced. "
-                                "Unknown error. Please report.")
+                                "Unknown error, please report.")
+
+        self._els = els
+        self._coeffs = coeffs
 
     def copy(self):
         """

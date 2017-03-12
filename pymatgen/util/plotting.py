@@ -21,7 +21,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Mar 13, 2012"
 
 
-def pretty_plot(width=8, height=None, plt=None, dpi=300,
+def pretty_plot(width=8, height=None, plt=None, dpi=None,
                 color_cycle=("qualitative", "Set1_9")):
     """
     Provides a publication quality plot, with nice defaults for font sizes etc.
