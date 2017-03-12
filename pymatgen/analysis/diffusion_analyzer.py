@@ -550,24 +550,27 @@ class DiffusionAnalyzer(MSONable):
         for i, s in enumerate(structures):
             if i == 0:
                 structure = s
-            p.append(np.array(s.cart_coords)[:, None])
+            p.append(np.array(s.frac_coords)[:, None])
             l.append(s.lattice.matrix)
         if initial_structure is not None:
-            p.insert(0, np.array(initial_structure.cart_coords)[:, None])
+            p.insert(0, np.array(initial_structure.frac_coords)[:, None])
             l.insert(0, initial_structure.lattice.matrix)
         else:
             p.insert(0, p[0])
             l.insert(0, l[0])
+
+        p = np.concatenate(p, axis=1)
+        dp = p[:, 1:] - p[:, :-1]
+        dp = dp - np.round(dp)
+        f_disp = np.cumsum(dp, axis=1)
+        c_disp = [np.dot(d, m) for d, m in zip(f_disp, l)]
+        disp = np.array(c_disp)
 
         # If is NVT-AIMD, clear lattice data.
         if np.array_equal(l[0], l[-1]):
             l = np.array([l[0]])
         else:
             l = np.array(l)
-        p = np.concatenate(p, axis=1)
-        dp = p[:, 1:] - p[:, :-1]
-        dp = dp - np.round(dp)
-        disp = np.cumsum(dp, axis=1)
         if initial_disp is not None:
             disp += initial_disp[:, None, :]
 
