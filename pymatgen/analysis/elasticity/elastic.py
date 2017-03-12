@@ -495,7 +495,7 @@ def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
         coef1 = central_diff_weights(len(mstresses), 1)
         coef2 = central_diff_weights(len(mstresses), 2)
         if eq_stress is not None:
-            mstresses[3] = veq_stress
+            mstresses[len(mstresses) // 2] = veq_stress
         dsde[:, n] = np.dot(np.transpose(mstresses), coef1) / h
         d2sde2[:, n] = np.dot(np.transpose(mstresses), coef2) / h**2
 
