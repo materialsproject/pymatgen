@@ -317,7 +317,12 @@ class Magmom(MSONable):
 
         :return: Magmom
         """
-        ref_direction = np.array([0, 0, 1])
+        # reference direction gives sign of moment
+        # entirely arbitrary, there will always be a pathological case
+        # where a consistent sign is not possible if the magnetic moments
+        # are aligned along the reference direction, but in practice this
+        # is unlikely to happen
+        ref_direction = np.array([1.01, 1.02, 1.03])
         t = abs(self)
         if t != 0:
             new_saxis = self.moment/np.linalg.norm(self.moment)
@@ -421,7 +426,7 @@ class Magmom(MSONable):
             return True
 
     @classmethod
-    def from_moment_relative_to_crystal_axes(cls, magmom, lattice):
+    def from_moment_relative_to_crystal_axes(cls, moment, lattice):
         """
         Obtaining a Magmom object from a magnetic moment provided
         relative to crystal axes.
@@ -431,9 +436,12 @@ class Magmom(MSONable):
         :param lattice: Lattice
         :return: Magmom
         """
+        # get matrix representing unit lattice vectors
         unit_m = lattice.matrix / np.linalg.norm(lattice.matrix, axis=1)[:, None]
-        magmom = np.matmul(magmom, unit_m)
-        return cls(magmom)
+        moment = np.matmul(moment, unit_m)
+        # round small values to zero
+        moment[np.abs(moment) < 1e-8] = 0
+        return cls(moment)
 
     def get_moment_relative_to_crystal_axes(self, lattice):
         """
@@ -444,9 +452,12 @@ class Magmom(MSONable):
         :param lattice: Lattice
         :return: vector as list of floats
         """
+        # get matrix representing unit lattice vectors
         unit_m = lattice.matrix / np.linalg.norm(lattice.matrix, axis=1)[:, None]
-        magmom = np.matmul(self.global_moment, np.linalg.inv(unit_m))
-        return magmom
+        moment = np.matmul(self.global_moment, np.linalg.inv(unit_m))
+        # round small values to zero
+        moment[np.abs(moment) < 1e-8] = 0
+        return moment
 
     def __getitem__(self, key):
         return self.moment[key]
@@ -495,4 +506,7 @@ class Magmom(MSONable):
         return str(float(self))
 
     def __repr__(self):
-        return 'Magnetic moment {0} (spin axis = {1})'.format(self.moment, self.saxis)
+        if np.allclose(self.saxis, self._default_saxis):
+            return 'Magnetic moment {0}'.format(self.moment, self.saxis)
+        else:
+            return 'Magnetic moment {0} (spin axis = {1})'.format(self.moment, self.saxis)
