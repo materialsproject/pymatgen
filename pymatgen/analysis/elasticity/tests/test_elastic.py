@@ -197,11 +197,19 @@ class ElasticTensorTest(PymatgenTest):
             toec_dict = json.load(f)
         strains = [Strain(sm) for sm in toec_dict['strains']]
         pk_stresses = [Stress(d) for d in toec_dict['pk_stresses']]
+        reduced = [(strain, pks) for strain, pks in zip(strains, pk_stresses)
+                   if not (abs(abs(strain)-0.05)<1e-10).any()]
         with warnings.catch_warnings(record=True) as w:
             c2, c3 = toec_fit(strains, pk_stresses, 
                               eq_stress=toec_dict["eq_stress"])
             self.assertArrayAlmostEqual(c2.voigt, toec_dict["C2_raw"])
             self.assertArrayAlmostEqual(c3.voigt, toec_dict["C3_raw"])
+            # Try with reduced data set
+            r_strains, r_pk_stresses = zip(*reduced)
+            c2_red, c3_red = toec_fit(r_strains, r_pk_stresses,
+                                      eq_stress=toec_dict["eq_stress"])
+            self.assertArrayAlmostEqual(c2, c2_red, decimal=0)
+            self.assertArrayAlmostEqual(c3, c3_red, decimal=-1)
 
 if __name__ == '__main__':
     unittest.main()
