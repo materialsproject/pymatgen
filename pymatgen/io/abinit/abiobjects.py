@@ -32,11 +32,11 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
     If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr
 
     Args:
-        cls: Lattice class to be instantiated. pymatgen.core.lattice.Lattice if cls is None
+        cls: Lattice class to be instantiated. pymatgen.core.lattice.Lattice if `cls` is None
 
     Example:
 
-    lattice_from_abivars(acell=3*[10], rprim=np.eye(3))
+        lattice_from_abivars(acell=3*[10], rprim=np.eye(3))
     """
     cls = Lattice if cls is None else cls
     kwargs.update(dict(*args))
@@ -160,7 +160,9 @@ def structure_from_abivars(cls=None, *args, **kwargs):
 
 
 def structure_to_abivars(structure, **kwargs):
-    """Returns a dictionary with the ABINIT variables."""
+    """
+    Receives a structure and returns a dictionary with the ABINIT variables.
+    """
     types_of_specie = structure.types_of_specie
     natom = structure.num_sites
 
@@ -530,8 +532,6 @@ class KSampling(AbivarAble, MSONable):
     """
     Input variables defining the K-point sampling.
     """
-    # Modes supported by the constructor.
-
 
     def __init__(self, mode=KSamplingModes.monkhorst, num_kpts= 0,
                  kpts=((1, 1, 1),),

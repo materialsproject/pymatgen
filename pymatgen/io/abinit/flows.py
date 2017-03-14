@@ -2484,7 +2484,7 @@ class PhononFlow(Flow):
             if np.allclose(qpt, 0) and with_becs:
                 ph_work = BecWork.from_scf_task(scf_task)
             else:
-                ph_work = PhononWork.from_scf_task(scf_task, qpt=qpt)
+                ph_work = PhononWork.from_scf_task(scf_task, qpoints=qpt)
 
             flow.register_work(ph_work)
 
@@ -2779,7 +2779,7 @@ def phonon_conv_flow(workdir, scf_input, qpoints, params, manager=None, allocate
             work = flow.register_scf_task(gs_inp)
 
             # Add the PhononWork connected to this scf_task.
-            flow.register_work(PhononWork.from_scf_task(work[0], qpt=qpt))
+            flow.register_work(PhononWork.from_scf_task(work[0], qpoints=qpt))
 
     if allocate: flow.allocate()
     return flow
