@@ -15,6 +15,7 @@ from pymatgen.analysis.elasticity.tensors import TensorBase, \
         voigt_map as vmap
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
+from scipy.misc import central_diff_weights
 import numpy as np
 import warnings
 import itertools
@@ -491,10 +492,10 @@ def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
             raise ValueError("Stencil for strain state {} must be odd-sampling"
                              " centered at 0.".format(ind))
         h = np.min(diff[np.nonzero(diff)])
-        coef1 = central_diff(1, len(mstresses))
-        coef2 = central_diff(2, len(mstresses))
+        coef1 = central_diff_weights(len(mstresses), 1)
+        coef2 = central_diff_weights(len(mstresses), 2)
         if eq_stress is not None:
-            mstresses[3] = veq_stress
+            mstresses[len(mstresses) // 2] = veq_stress
         dsde[:, n] = np.dot(np.transpose(mstresses), coef1) / h
         d2sde2[:, n] = np.dot(np.transpose(mstresses), coef2) / h**2
 
@@ -515,17 +516,6 @@ def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
         c3[i,j,k] = c3[i,k,j] = c3[j,i,k] = c3[j,k,i] = \
                 c3[k,i,j] = c3[k,j,i] = c3vec[n]
     return TensorBase.from_voigt(c2), TensorBase.from_voigt(c3)
-
-
-def central_diff(k, n):
-    """
-    Generates central difference operator
-    """
-    A = np.array([(np.linspace(-1, 1, n) * (n-1) / 2)**i \
-                  / np.math.factorial(i) for i in range(n)])
-    b = np.zeros(n)
-    b[k] = 1
-    return np.linalg.solve(A, b)
 
 def generate_pseudo(strain_states):
     """

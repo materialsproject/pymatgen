@@ -328,8 +328,8 @@ class TensorBase(np.ndarray):
             rotation = np.roll(rotation, 2, axis = 0)
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[1]))
             rotation[0] = np.cross(rotation[1], rotation[2])
-        
-        return self.rotate(rotation)
+
+        return self.rotate(rotation, tol=1e-2)
 
 
 class SquareTensor(TensorBase):
@@ -424,8 +424,36 @@ class SquareTensor(TensorBase):
         """
         return polar(self, side=side)
 
-def generate_distinct_elements(rank, structure):
+
+def symmetry_reduce(tensors, structure, tol = 1e-8, **kwargs):
     """
-    Function to generate distinct elements of a tensor
+    Function that converts a list of tensors corresponding to a structure
+    and returns a dictionary consisting of unique tensor keys with symmop
+    values corresponding to transformations that will result in derivative
+    tensors from the original list
+
+    Args:
+        tensors (list of tensors): list of TensorBase objects to test for
+            symmetrically-equivalent duplicates
+        structure (Structure): structure from which to get symmetry
+        tol (float): tolerance for tensor equivalence
+        kwargs: keyword arguments for the SpacegroupAnalyzer
+
+    returns:
+        dictionary consisting of unique tensors with symmetry operations
+        corresponding to those which will reconstruct the remaining
+        tensors as values
     """
-    pass
+    sga = SpacegroupAnalyzer(structure, **kwargs)
+    symmops = sga.get_symmetry_operations(cartesian=True)
+    unique_tdict = {}
+    for tensor in tensors:
+        is_unique = True
+        for unique_tensor, symmop in itertools.product(unique_tdict, symmops):
+            if (np.abs(unique_tensor.transform(symmop) - tensor) < tol).all():
+                unique_tdict[unique_tensor].append(symmop)
+                is_unique=False
+                break
+        if is_unique:
+            unique_tdict[tensor] = []
+    return unique_tdict
