@@ -21,7 +21,8 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 class PDPlotterTest(unittest.TestCase):
 
     def setUp(self):
-        (elements, entries) = PDEntryIO.from_csv(os.path.join(module_dir, "pdentries_test.csv"))
+        (elements, entries) = PDEntryIO.from_csv(os.path.join(
+            module_dir, "pdentries_test.csv"))
         self.pd = PhaseDiagram(entries)
         self.plotter = PDPlotter(self.pd, show_unstable=True)
         entrieslio = [e for e in entries

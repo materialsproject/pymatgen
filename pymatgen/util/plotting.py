@@ -160,6 +160,33 @@ def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
     return plt
 
 
+def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None,
+                        **kwargs):
+    """
+    Convenience method to plot data with trend lines based on polynomial fit.
+
+    Args:
+        x: Sequence of x data.
+        y: Sequence of y data.
+        deg (int): Degree of polynomial. Defaults to 1.
+        xlabel (str): Label for x-axis.
+        ylabel (str): Label for y-axis.
+        \*\*kwargs: Keyword args passed to pretty_plot.
+
+    Returns:
+        matplotlib.pyplot object.
+    """
+    plt = pretty_plot(**kwargs)
+    pp = np.polyfit(x, y, deg)
+    xp = np.linspace(min(x), max(x), 200)
+    plt.plot(xp, np.polyval(pp, xp), 'k--', x, y, 'o')
+    if xlabel:
+        plt.xlabel(xlabel)
+    if ylabel:
+        plt.ylabel(ylabel)
+    return plt
+
+
 def get_ax_fig_plt(ax=None):
     """
     Helper function used in plot functions supporting an optional Axes argument.
