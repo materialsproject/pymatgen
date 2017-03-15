@@ -120,9 +120,9 @@ class StrainTest(PymatgenTest):
 
 
         # independent deformation
-        self.assertArrayEqual(self.ind_str.independent_deformation, (0, 1))
+        self.assertArrayEqual(self.ind_str.get_independent_deformation(), (0, 1))
         with self.assertRaises(ValueError):
-            self.no_dfm.independent_deformation
+            self.no_dfm.get_independent_deformation()
 
         # voigt
         self.assertArrayAlmostEqual(self.non_ind_str.voigt,

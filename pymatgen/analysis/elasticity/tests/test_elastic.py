@@ -79,13 +79,7 @@ class ElasticTensorTest(PymatgenTest):
         self.assertAlmostEqual(20.67146635306, self.elastic_tensor_1.g_reuss)
         self.assertAlmostEqual(38.49111028122, self.elastic_tensor_1.k_vrh)
         self.assertAlmostEqual(21.36506650986, self.elastic_tensor_1.g_vrh)
-        self.assertArrayAlmostEqual(self.elastic_tensor_1.kg_average,
-                                    [38.49111111111,
-                                     22.05866666666,
-                                     38.49110945133,
-                                     20.67146635306,
-                                     38.49111028122,
-                                     21.36506650986])
+        
         # universal anisotropy
         self.assertAlmostEqual(0.33553509658699,
                                self.elastic_tensor_1.universal_anisotropy)
@@ -95,10 +89,15 @@ class ElasticTensorTest(PymatgenTest):
         # voigt notation tensor
         self.assertArrayAlmostEqual(self.elastic_tensor_1.voigt,
                                     self.voigt_1)
-
         # young's modulus
         self.assertAlmostEqual(54087787667.160583,
                                self.elastic_tensor_1.y_mod)
+
+        # prop dict
+        prop_dict = self.elastic_tensor_1.property_dict
+        self.assertAlmostEqual(prop_dict["homogeneous_poisson"], 0.26579965576)
+        for k, v in prop_dict.items():
+            self.assertAlmostEqual(getattr(self.elastic_tensor_1, k), v)
 
     def test_structure_based_methods(self):
         # trans_velocity
@@ -126,6 +125,19 @@ class ElasticTensorTest(PymatgenTest):
                                self.elastic_tensor_1.debye_temperature(self.structure))
         self.assertAlmostEqual(189.05670205,
                                self.elastic_tensor_1.debye_temperature_gibbs(self.structure))
+
+        # structure-property dict
+        sprop_dict = self.elastic_tensor_1.get_structure_property_dict(self.structure)
+        self.assertAlmostEqual(sprop_dict["long_v"], 3534.68123832)
+        for k, v in sprop_dict.items():
+            if k=="structure":
+                self.assertEqual(v, self.structure)
+            else:
+                f = getattr(self.elastic_tensor_1, k)
+                if callable(f):
+                    self.assertAlmostEqual(getattr(self.elastic_tensor_1, k)(self.structure), v)
+                else:
+                    self.assertAlmostEqual(getattr(self.elastic_tensor_1, k), v)
 
     def test_new(self):
         self.assertArrayAlmostEqual(self.elastic_tensor_1,
@@ -161,8 +173,8 @@ class ElasticTensorTest(PymatgenTest):
                                 [Stress(stress_matrix) for stress_matrix
                                 in self.def_stress_dict['stresses']])))
         minimal_sd = {k:v for k, v in stress_dict.items() 
-                      if (abs(k[k.independent_deformation] - 0.015) < 1e-10
-                      or  abs(k[k.independent_deformation] - 0.01005) < 1e-10)}
+                      if (abs(k[k.get_independent_deformation()] - 0.015) < 1e-10
+                      or  abs(k[k.get_independent_deformation()] - 0.01005) < 1e-10)}
         with warnings.catch_warnings(record = True):
             et_from_sd = ElasticTensor.from_stress_dict(stress_dict)
             et_from_minimal_sd = ElasticTensor.from_stress_dict(minimal_sd)
