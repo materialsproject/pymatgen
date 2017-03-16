@@ -16,7 +16,7 @@ from numpy import pi, dot, transpose, radians
 from monty.json import MSONable
 from monty.dev import deprecated
 from pymatgen.util.coord_utils import pbc_shortest_vectors
-from pymatgen.util.num_utils import abs_cap
+from pymatgen.util.num import abs_cap
 
 """
 This module defines the classes relating to 3D lattices.

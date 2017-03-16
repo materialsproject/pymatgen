@@ -1,7 +1,5 @@
 # coding: utf-8
-import matplotlib
 
-matplotlib.use("pdf")
 import unittest
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
@@ -67,7 +65,11 @@ class WulffShapeTest(PymatgenTest):
 
         self.surface_properties = surface_properties
 
+    @unittest.skipIf("DISPLAY" not in os.environ, "Need display")
     def test_get_plot(self):
+        import matplotlib
+
+        matplotlib.use('Agg')
         # Basic test, not really a unittest.
         self.wulff_Ti.get_plot()
         self.wulff_Nb.get_plot()

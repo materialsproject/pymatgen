@@ -16,7 +16,7 @@ import six
 from six.moves import cStringIO, map, zip
 from tabulate import tabulate
 from monty.collections import AttrDict
-from pymatgen.util.plotting_utils import add_fig_kwargs
+from pymatgen.util.plotting import add_fig_kwargs
 
 
 def straceback():

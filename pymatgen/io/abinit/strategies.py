@@ -16,7 +16,7 @@ from six.moves import map, zip
 from monty.string import is_string
 from monty.json import MontyEncoder, MontyDecoder
 from monty.dev import deprecated
-from pymatgen.util.string_utils import str_delimited
+from pymatgen.util.string import str_delimited
 from .abiobjects import Electrons
 from .pseudos import PseudoTable, Pseudo
 

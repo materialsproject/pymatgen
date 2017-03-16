@@ -5,7 +5,7 @@
 from __future__ import unicode_literals
 
 import os
-import unittest2 as unittest
+import unittest
 import tempfile
 from monty.json import MontyDecoder
 
