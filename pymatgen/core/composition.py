@@ -16,7 +16,7 @@ from functools import total_ordering
 
 from monty.fractions import gcd, gcd_float
 from pymatgen.core.periodic_table import get_el_sp, Element
-from pymatgen.util.string_utils import formula_double_format
+from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
 from pymatgen.core.units import unitized
 

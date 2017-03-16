@@ -10,7 +10,7 @@ import numpy as np
 
 from monty.json import jsanitize
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
-from pymatgen.util.plotting_utils import get_publication_quality_plot
+from pymatgen.util.plotting import pretty_plot
 from pymatgen.electronic_structure.plotter import plot_brillouin_zone
 
 """
@@ -111,7 +111,7 @@ class PhononDosPlotter(object):
         y = None
         alldensities = []
         allfrequencies = []
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
 
         # Note that this complicated processing of frequencies is to allow for
         # stacked plots in matplotlib.
@@ -299,7 +299,7 @@ class PhononBSPlotter(object):
             ylim: Specify the y-axis (frequency) limits; by default None let
                 the code choose.
         """
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
         from matplotlib import rc
         import scipy.interpolate as scint
         try:

@@ -16,9 +16,9 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Aug 26, 2012"
 
-import unittest2 as unittest
+import unittest
 
-from pymatgen.util.string_utils import formula_double_format, latexify, \
+from pymatgen.util.string import formula_double_format, latexify, \
     latexify_spacegroup
 
 

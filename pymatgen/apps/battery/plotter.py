@@ -18,7 +18,7 @@ __date__ = "Jul 12, 2012"
 
 
 from collections import OrderedDict
-from pymatgen.util.plotting_utils import get_publication_quality_plot
+from pymatgen.util.plotting import pretty_plot
 
 
 class VoltageProfilePlotter(object):
@@ -80,7 +80,7 @@ class VoltageProfilePlotter(object):
         Returns:
             A matplotlib plot object.
         """
-        plt = get_publication_quality_plot(width, height)
+        plt = pretty_plot(width, height)
         for label, electrode in self._electrodes.items():
             (x, y) = self.get_plot_data(electrode)
             plt.plot(x, y, '-', linewidth=2, label=label)

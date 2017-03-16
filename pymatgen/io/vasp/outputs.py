@@ -653,7 +653,6 @@ class Vasprun(MSONable):
                                  self.final_energy, parameters=params,
                                  data=data)
 
-    #@profile
     def get_band_structure(self, kpoints_filename=None, efermi=None,
                            line_mode=False):
         """
@@ -752,17 +751,22 @@ class Vasprun(MSONable):
                             kpoint_file.kpts[i]
                 # remake the data only considering line band structure k-points
                 # (weight = 0.0 kpoints)
-                kpoints = kpoints[start_bs_index:len(kpoints)]
-                up_eigen = [eigenvals[Spin.up][i][
-                            start_bs_index:len(eigenvals[Spin.up][i])]
-                            for i in range(len(eigenvals[Spin.up]))]
+                nbands = len(eigenvals[Spin.up])
+                kpoints = kpoints[start_bs_index:nkpts]
+                up_eigen = [eigenvals[Spin.up][i][start_bs_index:nkpts]
+                            for i in range(nbands)]
+                if self.projected_eigenvalues:
+                    p_eigenvals[Spin.up] = [p_eigenvals[Spin.up][i][
+                                            start_bs_index:nkpts]
+                                            for i in range(nbands)]
                 if self.is_spin:
-                    down_eigen = [eigenvals[Spin.down][i]
-                                  [start_bs_index:
-                                   len(eigenvals[Spin.down][i])]
-                                  for i in range(len(eigenvals[Spin.down]))]
-                    eigenvals = {Spin.up: up_eigen,
-                                 Spin.down: down_eigen}
+                    down_eigen = [eigenvals[Spin.down][i][start_bs_index:nkpts]
+                                  for i in range(nbands)]
+                    eigenvals = {Spin.up: up_eigen, Spin.down: down_eigen}
+                    if self.projected_eigenvalues:
+                        p_eigenvals[Spin.down] = [p_eigenvals[Spin.down][i][
+                                                start_bs_index:nkpts]
+                                                for i in range(nbands)]
                 else:
                     eigenvals = {Spin.up: up_eigen}
             else:
@@ -2554,7 +2558,7 @@ class Procar(object):
 
         with zopen(filename, "rt") as f:
             preambleexpr = re.compile(
-                "# of k-points:\s+(\d+)\s+# of bands:\s+(\d+)\s+# of ions:\s+(\d+)")
+                "# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of ions:\s*(\d+)")
             kpointexpr = re.compile("^k-point\s+(\d+).*weight = ([0-9\.]+)")
             bandexpr = re.compile("^band\s+(\d+)")
             ionexpr = re.compile("^ion.*")

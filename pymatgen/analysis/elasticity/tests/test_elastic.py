@@ -1,11 +1,11 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-import unittest2 as unittest
+import unittest
 import os
 
 import numpy as np
-from pymatgen.analysis.elasticity.elastic import ElasticTensor
+from pymatgen.analysis.elasticity.elastic import ElasticTensor, toec_fit
 from pymatgen.analysis.elasticity.strain import Strain, IndependentStrain, Deformation
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
@@ -16,6 +16,10 @@ from six.moves import zip
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
+try:
+    import sympy
+except ImportError:
+    sympy=None
 
 class ElasticTensorTest(PymatgenTest):
     def setUp(self):
@@ -141,7 +145,7 @@ class ElasticTensorTest(PymatgenTest):
                        for def_matrix in self.def_stress_dict['deformations']]
         stress_list = [stress for stress in self.def_stress_dict['stresses']]
         with warnings.catch_warnings(record=True):
-            et_fl = -0.1*ElasticTensor.from_strain_stress_list(strain_list,
+            et_fl = -0.1*ElasticTensor.from_strain_stress_list(strain_list, 
                                                                stress_list).voigt
             self.assertArrayAlmostEqual(et_fl.round(2),
                                         [[59.29, 24.36, 22.46, 0, 0, 0],
@@ -156,10 +160,15 @@ class ElasticTensorTest(PymatgenTest):
                                 in self.def_stress_dict['deformations']],
                                 [Stress(stress_matrix) for stress_matrix
                                 in self.def_stress_dict['stresses']])))
+        minimal_sd = {k:v for k, v in stress_dict.items() 
+                      if (abs(k[k.independent_deformation] - 0.015) < 1e-10
+                      or  abs(k[k.independent_deformation] - 0.01005) < 1e-10)}
         with warnings.catch_warnings(record = True):
             et_from_sd = ElasticTensor.from_stress_dict(stress_dict)
+            et_from_minimal_sd = ElasticTensor.from_stress_dict(minimal_sd)
         self.assertArrayAlmostEqual(et_from_sd.voigt_symmetrized.round(2),
                                     self.elastic_tensor_1)
+        self.assertAlmostEqual(50.63394169, et_from_minimal_sd[0,0,0,0])
 
     def test_energy_density(self):
 
@@ -176,7 +185,31 @@ class ElasticTensorTest(PymatgenTest):
                            [ -6.12323400e-17,-6.12323400e-17,1.00000000e+00]])
 
         self.assertAlmostEqual(film_elac.energy_density(dfm.green_lagrange_strain),
-            0.00125664672793)
+            0.000125664672793)
+
+        film_elac.energy_density(Strain.from_deformation([[ 0.99774738,  0.11520994, -0.        ],
+                                        [-0.11520994,  0.99774738,  0.        ],
+                                        [-0.,         -0.,          1.,        ]]))
+
+    @unittest.skipIf(not sympy, "sympy not present, skipping toec_fit test")
+    def test_toec_fit(self):
+        with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
+            toec_dict = json.load(f)
+        strains = [Strain(sm) for sm in toec_dict['strains']]
+        pk_stresses = [Stress(d) for d in toec_dict['pk_stresses']]
+        reduced = [(strain, pks) for strain, pks in zip(strains, pk_stresses)
+                   if not (abs(abs(strain)-0.05)<1e-10).any()]
+        with warnings.catch_warnings(record=True) as w:
+            c2, c3 = toec_fit(strains, pk_stresses, 
+                              eq_stress=toec_dict["eq_stress"])
+            self.assertArrayAlmostEqual(c2.voigt, toec_dict["C2_raw"])
+            self.assertArrayAlmostEqual(c3.voigt, toec_dict["C3_raw"])
+            # Try with reduced data set
+            r_strains, r_pk_stresses = zip(*reduced)
+            c2_red, c3_red = toec_fit(r_strains, r_pk_stresses,
+                                      eq_stress=toec_dict["eq_stress"])
+            self.assertArrayAlmostEqual(c2, c2_red, decimal=0)
+            self.assertArrayAlmostEqual(c3, c3_red, decimal=-1)
 
 if __name__ == '__main__':
     unittest.main()

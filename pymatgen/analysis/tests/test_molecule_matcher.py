@@ -15,7 +15,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "6/9/13"
 
-import unittest2 as unittest
+import unittest
 import os
 
 from pymatgen.analysis.molecule_matcher import MoleculeMatcher

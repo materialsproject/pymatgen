@@ -1,8 +1,7 @@
 Change log
 ==========
 
-v4.6.2
+v4.7.1
 ------
-* Improve Spacegroup class support for alternative settings. Add a get_settings class method.
-* Improvements to FEFF support.
-* Improvements to EOS class.
+* Pathfinder speedup
+* Minor bug fix for plots.

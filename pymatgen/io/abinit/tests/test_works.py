@@ -45,5 +45,5 @@ def ref_file(filename):
 
 
 if __name__ == "__main__":
-    import unittest2 as unittest
+    import unittest
     unittest.main()

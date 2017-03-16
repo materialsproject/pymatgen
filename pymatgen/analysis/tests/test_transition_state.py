@@ -5,7 +5,7 @@
 from __future__ import division, unicode_literals
 
 import os
-import unittest2 as unittest
+import unittest
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.transition_state import NEBAnalysis
 import json

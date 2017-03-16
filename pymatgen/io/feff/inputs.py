@@ -19,7 +19,7 @@ from pymatgen import Structure, Lattice, Element, Molecule
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.io_utils import clean_lines
-from pymatgen.util.string_utils import str_delimited
+from pymatgen.util.string import str_delimited
 
 """
 This module defines classes for reading/manipulating/writing the main sections

@@ -17,7 +17,7 @@ except ImportError:
     from scipy.interpolate import CubicSpline
     scipy_old_piecewisepolynomial = False
 
-from pymatgen.util.plotting_utils import get_publication_quality_plot
+from pymatgen.util.plotting import pretty_plot
 from pymatgen.io.vasp import Poscar, Outcar
 
 """
@@ -189,7 +189,7 @@ class NEBAnalysis(MSONable):
         Returns:
             matplotlib.pyplot object.
         """
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
         scale = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
         x = np.arange(0, np.max(self.r), 0.01)
         y = self.spline(x) * 1000

@@ -4,7 +4,7 @@
 
 from __future__ import division, unicode_literals
 
-import unittest2 as unittest
+import unittest
 import os
 import json
 import random
@@ -29,7 +29,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Beta"
 __date__ = "5/2/13"
-
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -84,13 +83,13 @@ class DiffusionAnalyzerTest(PymatgenTest):
             self.assertAlmostEqual(d.diffusivity_std_dev, 9.1013023085561779e-09, 7)
             self.assertArrayAlmostEqual(
                 d.conductivity_components,
-                [45.9109703,   26.2856302,  150.5405727], 3)
+                [45.7903694,   26.1651956,  150.5406140], 3)
             self.assertArrayAlmostEqual(
                 d.diffusivity_components,
                 [7.49601236e-07, 4.90254273e-07, 2.24649255e-06])
             self.assertArrayAlmostEqual(
                 d.conductivity_components_std_dev,
-                [0.0063579,  0.0180862,  0.0217917]
+                [0.0063566,  0.0180854,  0.0217918]
             )
             self.assertArrayAlmostEqual(
                 d.diffusivity_components_std_dev,
@@ -118,6 +117,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
                  0.713087091642237, 0.7621007695790749])
 
             self.assertEqual(d.sq_disp_ions.shape, (50, 206))
+            self.assertEqual(d.lattices.shape, (1, 3, 3))
 
             self.assertAlmostEqual(d.max_framework_displacement, 1.18656839605)
 
@@ -164,6 +164,117 @@ class DiffusionAnalyzerTest(PymatgenTest):
                 d.step_skip, d.smoothed, avg_nsteps=100)
             self.assertAlmostEqual(d.conductivity, 47.404056230438741, 4)
             self.assertAlmostEqual(d.diffusivity, 7.4226016496716148e-07, 7)
+
+            d.export_msdt("test.csv")
+            with open("test.csv") as f:
+                data = []
+                for row in csv.reader(f):
+                    if row:
+                        data.append(row)
+            data.pop(0)
+            data = np.array(data, dtype=np.float64)
+            self.assertArrayAlmostEqual(data[:, 1], d.msd)
+            os.remove("test.csv")
+
+    def test_init_npt(self):
+        # Diffusion vasprun.xmls are rather large. We are only going to use a
+        # very small preprocessed run for testing. Note that the results are
+        # unreliable for short runs.
+        with open(os.path.join(test_dir, "DiffusionAnalyzer_NPT.json"), 'r') as f:
+            dd = json.load(f)
+            d = DiffusionAnalyzer.from_dict(dd)
+            # large tolerance because scipy constants changed between 0.16.1 and 0.17
+            self.assertAlmostEqual(d.conductivity, 499.15058192970508, 4)
+            self.assertAlmostEqual(d.diffusivity,  8.40265434771e-06, 7)
+            self.assertAlmostEqual(d.conductivity_std_dev, 0.10368477696021029, 7)
+            self.assertAlmostEqual(d.diffusivity_std_dev, 9.1013023085561779e-09, 7)
+            self.assertArrayAlmostEqual(
+                d.conductivity_components,
+                [455.178101,   602.252644,  440.0210014], 3)
+            self.assertArrayAlmostEqual(
+                d.diffusivity_components,
+                [7.66242570e-06, 1.01382648e-05, 7.40727250e-06])
+            self.assertArrayAlmostEqual(
+                d.conductivity_components_std_dev,
+                [0.1196577,  0.0973347,  0.1525400]
+            )
+            self.assertArrayAlmostEqual(
+                d.diffusivity_components_std_dev,
+                [2.0143072e-09,   1.6385239e-09,   2.5678445e-09]
+            )
+
+            self.assertArrayAlmostEqual(
+                d.max_ion_displacements,
+                [1.13147881, 0.79899554, 1.04153733, 0.96061850,
+                 0.83039864, 0.70246715, 0.61365911, 0.67965179,
+                 1.91973907, 1.69127386, 1.60568746, 1.35587641,
+                 1.03280378, 0.99202692, 2.03359655, 1.03760269,
+                 1.40228350, 1.36315080, 1.27414979, 1.26742035,
+                 0.88199589, 0.97700804, 1.11323184, 1.00139511,
+                 2.94164403, 0.89438909, 1.41508334, 1.23660358,
+                 0.39322939, 0.54264064, 1.25291806, 0.62869809,
+                 0.40846708, 1.43415505, 0.88891241, 0.56259128,
+                 0.81712740, 0.52700441, 0.51011733, 0.55557882,
+                 0.49131002, 0.66740277, 0.57798671, 0.63521025,
+                 0.50277142, 0.52878021, 0.67803443, 0.81161269,
+                 0.46486345, 0.47132761, 0.74301293, 0.79285519,
+                 0.48789600, 0.61776836, 0.60695847, 0.67767756,
+                 0.70972268, 1.08232442, 0.87871177, 0.84674206,
+                 0.45694693, 0.60417985, 0.61652272, 0.66444583,
+                 0.52211986, 0.56544134, 0.43311443, 0.43027547,
+                 1.10730439, 0.59829728, 0.52270635, 0.72327608,
+                 1.02919775, 0.84423208, 0.61694764, 0.72795752,
+                 0.72957755, 0.55491631, 0.68507454, 0.76745343,
+                 0.96346584, 0.66672645, 1.06810107, 0.65705843])
+
+            self.assertEqual(d.sq_disp_ions.shape, (84, 217))
+            self.assertEqual(d.lattices.shape, (1001, 3, 3))
+
+            self.assertAlmostEqual(d.max_framework_displacement, 1.43415505156)
+
+            ss = list(d.get_drift_corrected_structures(10, 1000, 20))
+            self.assertEqual(len(ss), 50)
+            n = random.randint(0, 49)
+            n_orig = n * 20 + 10
+            self.assertArrayAlmostEqual(
+                ss[n].cart_coords - d.structure.cart_coords + d.drift[:, n_orig, :],
+                d.disp[:, n_orig, :])
+
+            d = DiffusionAnalyzer.from_dict(d.as_dict())
+            self.assertIsInstance(d, DiffusionAnalyzer)
+
+            # Ensure summary dict is json serializable.
+            json.dumps(d.get_summary_dict(include_msd_t=True))
+
+            d = DiffusionAnalyzer(d.structure, d.disp, d.specie, d.temperature,
+                                  d.time_step, d.step_skip, smoothed="max")
+            self.assertAlmostEqual(d.conductivity, 499.15058192970508, 4)
+            self.assertAlmostEqual(d.diffusivity, 8.40265434771e-06, 7)
+
+            d = DiffusionAnalyzer(d.structure, d.disp, d.specie, d.temperature,
+                                  d.time_step, d.step_skip, smoothed=False)
+            self.assertAlmostEqual(d.conductivity, 406.5965396, 4)
+            self.assertAlmostEqual(d.diffusivity, 6.8446082e-06, 7)
+
+            d = DiffusionAnalyzer(d.structure, d.disp, d.specie, d.temperature,
+                                  d.time_step, d.step_skip,
+                                  smoothed="constant", avg_nsteps=100)
+
+            self.assertAlmostEqual(d.conductivity, 425.7789898, 4)
+            self.assertAlmostEqual(d.diffusivity, 7.167523809142514e-06, 7)
+
+            # Can't average over 2000 steps because this is a 1000-step run.
+            self.assertRaises(ValueError, DiffusionAnalyzer,
+                              d.structure, d.disp, d.specie, d.temperature,
+                              d.time_step, d.step_skip, smoothed="constant",
+                              avg_nsteps=2000)
+
+            d = DiffusionAnalyzer.from_structures(
+                list(d.get_drift_corrected_structures()),
+                d.specie, d.temperature, d.time_step,
+                d.step_skip, d.smoothed, avg_nsteps=100)
+            self.assertAlmostEqual(d.conductivity, 425.77898986201302, 4)
+            self.assertAlmostEqual(d.diffusivity, 7.1675238091425148e-06, 7)
 
             d.export_msdt("test.csv")
             with open("test.csv") as f:

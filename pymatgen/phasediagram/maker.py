@@ -30,6 +30,9 @@ from pymatgen.entries.computed_entries import ComputedEntry
 
 from pymatgen.core.periodic_table import DummySpecie, Element
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
+from pymatgen.util.coord_utils import Simplex
+
+from monty.dev import deprecated
 
 
 class PhaseDiagram(MSONable):
@@ -167,13 +170,32 @@ class PhaseDiagram(MSONable):
                     finalfacets.append(facet)
             self.facets = finalfacets
 
-        self.simplices = [qhull_data[f, :-1] for f in self.facets]
+        self.simplexes = [Simplex(qhull_data[f, :-1]) for f in self.facets]
         self.all_entries = all_entries
         self.qhull_data = qhull_data
         self.dim = dim
         self.el_refs = el_refs
         self.elements = elements
         self.qhull_entries = qhull_entries
+        self._stable_entries = set(self.qhull_entries[i] for i in
+                                   set(itertools.chain(*self.facets)))
+
+    def pd_coords(self, comp):
+        """
+        The phase diagram is generated in a reduced dimensional space
+        (n_elements - 1). This function returns the coordinates in that space.
+        These coordinates are compatible with the stored simplex objects.
+        """
+        if set(comp.elements).difference(self.elements):
+            raise ValueError('{} has elements not in the phase diagram {}'
+                             ''.format(comp, self.elements))
+        return np.array([comp.get_atomic_fraction(el) for el in self.elements[1:]])
+
+    @property
+    @deprecated(message="PhaseDiagram.simplices is deprecated. "
+                "Use PhaseDiagram.simplexes instead")
+    def simplices(self):
+        return [s._coords for s in self.simplexes]
 
     @property
     def all_entries_hulldata(self):
@@ -198,8 +220,7 @@ class PhaseDiagram(MSONable):
         """
         Returns the stable entries in the phase diagram.
         """
-        return set((self.qhull_entries[i]
-                    for i in itertools.chain(*self.facets)))
+        return self._stable_entries
 
     def get_form_energy(self, entry):
         """

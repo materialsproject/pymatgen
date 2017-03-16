@@ -319,8 +319,8 @@ class XRDCalculator(object):
         Returns:
             (matplotlib.pyplot)
         """
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
-        plt = get_publication_quality_plot(16, 10)
+        from pymatgen.util.plotting import pretty_plot
+        plt = pretty_plot(16, 10)
         for two_theta, i, hkls, d_hkl in self.get_xrd_data(
                 structure, two_theta_range=two_theta_range):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:

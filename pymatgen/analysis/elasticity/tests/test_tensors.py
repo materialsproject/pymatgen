@@ -1,12 +1,12 @@
 from __future__ import absolute_import
 
-import unittest2 as unittest
+import unittest
 import math
 import json
 import os
 
 import numpy as np
-from pymatgen.analysis.elasticity.tensors import TensorBase, SquareTensor
+from pymatgen.analysis.elasticity.tensors import *
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
@@ -249,7 +249,21 @@ class TensorBaseTest(PymatgenTest):
                                [0, 0, 0, 0, 26.35, 0],
                                [0, 0, 0, 0, 0, 26.35]])
         # Rank 3
-        #TensorBase.from_voigt([[]])
+        TensorBase.from_voigt(np.zeros((3, 6)))
+        # Rank 2
+        TensorBase.from_voigt(np.zeros(6))
+
+    def test_symmetry_reduce(self):
+        tbs = [TensorBase.from_voigt(row) for row in np.eye(6)*0.01]
+        reduced = symmetry_reduce(tbs, self.get_structure("Sn"))
+        self.assertEqual(len(reduced), 2)
+        self.assertArrayEqual([len(i) for i in reduced.values()], [2, 2])
+        reconstructed = []
+        for k, v in reduced.items():
+            reconstructed.extend([k.voigt] + [k.transform(op).voigt for op in v])
+        reconstructed = sorted(reconstructed, key = lambda x: np.argmax(x))
+        self.assertArrayAlmostEqual([tb for tb in reconstructed], np.eye(6)*0.01)
+
 
 class SquareTensorTest(PymatgenTest):
     def setUp(self):

@@ -26,7 +26,7 @@ from warnings import warn
 from scipy.spatial import Voronoi
 from pymatgen import PeriodicSite
 from pymatgen import Element, Specie, Composition
-from pymatgen.util.num_utils import abs_cap
+from pymatgen.util.num import abs_cap
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.surface import Slab
 
@@ -85,9 +85,10 @@ class VoronoiCoordFinder(object):
                 if -1 in vind:
                     if self.allow_pathological:
                         continue
-                    raise RuntimeError("This structure is pathological,"
-                                       " infinite vertex in the voronoi "
-                                       "construction")
+                    else:
+                        raise RuntimeError("This structure is pathological,"
+                                           " infinite vertex in the voronoi "
+                                           "construction")
 
                 facets = [all_vertices[i] for i in vind]
                 results[neighbors[sorted(nn)[1]]] = solid_angle(
@@ -1720,26 +1721,21 @@ class OrderParameters(object):
             # Normalize Peters-style OPs.
             for i, t in enumerate(self._types):
                 if t == "lin":
-                    ops[i] = ops[i] / 2.0 if nneigh > 0 else None
+                    ops[i] = ops[i] / float(nneigh * (
+                            nneigh - 1)) if nneigh > 1 else None
                 elif t == "bent":
-                    ops[i] = ops[i] / 2.0 if nneigh > 0 else None
+                    ops[i] = ops[i] / float(nneigh * (
+                            nneigh - 1)) if nneigh > 1 else None
                 elif t == "tet":
-                    ops[i] = ops[i] / 24.0 if nneigh > 2 else None
-
+                    ops[i] = ops[i] / float(nneigh * (nneigh - 1) * (
+                            nneigh - 2)) if nneigh > 2 else None
                 elif t == "oct":
-                    ops[i] = ops[i] / 90.0 if nneigh > 2 else None
-
+                    ops[i] = ops[i] / float(nneigh * (3 + (nneigh - 2) * (
+                            nneigh - 3))) if nneigh > 3 else None
                 elif t == "bcc":
-                    # Reassured 144 by pen-and-paper for perfect bcc
-                    # structure (24 from i-j-k South pole contributions
-                    # and 4 * 6 * 5 = 120 from i-j-k-m non-South
-                    # pole-containing quadruples.
-                    # Because qbcc has a separate South pole contribution
-                    # as summand, it is sufficient to have 2 neighbors to
-                    # obtain a configuration that is well-defined by
-                    # yielding a contribution to qbcc via thetak alone:
-                    # ==> nneigh > 1.
-                    ops[i] = ops[i] / 144.0 if nneigh > 1 else None
+                    ops[i] = ops[i] / float(0.5 * float(
+                            nneigh * (6 + (nneigh - 2) * (nneigh - 3)))) \
+                            if nneigh > 3 else None
                 elif t == "sq_pyr":
                     if nneigh > 1:
                         dmean = np.mean(dist)
@@ -1747,7 +1743,8 @@ class OrderParameters(object):
                         for d in dist:
                             tmp = self._paras[i][1] * (d - dmean)
                             acc = acc + exp(-0.5 * tmp * tmp)
-                        ops[i] = acc * max(qsptheta[i]) / 20.0
+                        ops[i] = acc * max(qsptheta[i]) / float(
+                                nneigh * (nneigh - 1))
                     else:
                         ops[i] = None
 
