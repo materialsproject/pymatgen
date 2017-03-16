@@ -433,17 +433,16 @@ class ConnectedComponent(MSONable):
                                                                     for dd in ddeltas])))
                     if ddeltas.count((0, 0, 0)) > 1:
                         raise ValueError('Should not have more than one 000 delta ...')
-                    print(ddeltas, already_inside)
                     if already_inside:
-                        logging.info('Edge inside the cell ... continuing to next neighbor')
+                        logging.info('          Edge inside the cell ... continuing to next neighbor')
                         continue
-                    logging.info('Edge outside the cell ... getting neighbor back inside')
+                    logging.info('          Edge outside the cell ... getting neighbor back inside')
                     if (0, 0, 0) in ddeltas:
                         ddeltas.remove((0, 0, 0))
                     myddelta = np.array(ddeltas[0], np.int)
                     node_neighbor_edges = centered_connected_subgraph.edges(nbunch=[node_neighbor],
                                                                             data=True, keys=True)
-                    logging.info('Delta image from node {} to neighbor {} : '
+                    logging.info('            Delta image from node {} to neighbor {} : '
                                  '{}'.format(str(node),
                                              str(node_neighbor),
                                              '({})'.format(', '.join([str(iii) for iii in myddelta]))))
@@ -463,6 +462,9 @@ class ConnectedComponent(MSONable):
                                                                                                     np.int)-myddelta])
                             else:
                                 raise ValueError('DUHH')
+                            logging.info('                  {} to node {} now has delta '
+                                         '{}'.format(str(n1), str(n2),
+                                                     str(centered_connected_subgraph[n1][n2][key]['delta'])))
                 new_current_nodes.extend(node_neighbors)
                 nodes_traversed.extend(node_neighbors)
             current_nodes = new_current_nodes
