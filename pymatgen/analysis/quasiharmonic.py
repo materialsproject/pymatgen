@@ -74,7 +74,7 @@ class QuasiharmonicDebyeApprox(object):
         # list of temperatures for which the optimized values are available, K
         self.temperatures = []
         self.optimum_volumes = []  # in Ang^3
-        # fit E and V and get the bulk modulus(used to compute the debye
+        # fit E and V and get the bulk modulus(used to compute the Debye
         # temperature)
         print("Fitting E and V")
         self.eos = EOS(eos)
@@ -93,7 +93,8 @@ class QuasiharmonicDebyeApprox(object):
         """
         temperatures = np.linspace(self.temperature_min,  self.temperature_max,
                                    np.ceil(
-                                       (self.temperature_max-self.temperature_min)
+                                       (self.temperature_max
+                                        - self.temperature_min)
                                        / self.temperature_step) + 1)
         print("Fitting G and V for each T")
         for t in temperatures:
@@ -140,11 +141,7 @@ class QuasiharmonicDebyeApprox(object):
         # minimize the fit eos wrt volume
         # Note: the ref energy and the ref volume(E0 and V0) not necessarily
         # the same as minimum energy and min volume.
-        energies_list = eos_fit.energies.tolist()
-        volumes_list = eos_fit.volumes.tolist()
-        e_min = min(energies_list)
-        e_min_idx = energies_list.index(e_min)
-        volume_guess = volumes_list[e_min_idx]
+        volume_guess = eos_fit.volumes[np.argmin(eos_fit.energies)]
         min_wrt_vol = minimize(eos_fit.func, volume_guess)
         # G_opt=G(V_opt, T, P), V_opt
         return min_wrt_vol.fun, min_wrt_vol.x[0]
@@ -178,8 +175,8 @@ class QuasiharmonicDebyeApprox(object):
             float: vibrational internal energy in eV
         """
         y = self.debye_temperature(volume) / temperature
-        return self.kb * self.natoms * temperature * (9./8.*y +
-                                                      3 * self.debye_integral(y))
+        return self.kb * self.natoms * temperature * (9./8. * y +
+                                                      3*self.debye_integral(y))
 
     def debye_temperature(self, volume):
         """
@@ -192,9 +189,9 @@ class QuasiharmonicDebyeApprox(object):
         Returns:
             float: debye temperature in K
          """
-        term1 = (2. / 3. * (1. + self.poisson) / (1. - 2. * self.poisson)) ** (1.5)
-        term2 = (1. / 3. * (1. + self.poisson) / (1. - self.poisson)) ** (1.5)
-        f = (3. / (2. * term1 + term2)) ** (1. / 3.)
+        term1 = (2./3. * (1. + self.poisson) / (1. - 2. * self.poisson))**1.5
+        term2 = (1./3. * (1. + self.poisson) / (1. - self.poisson))**1.5
+        f = (3. / (2. * term1 + term2))**(1. / 3.)
         return 2.9772e-11 * (volume / self.natoms) ** (-1. / 6.) * f * \
                np.sqrt(self.bulk_modulus/self.avg_mass)
 
@@ -214,7 +211,8 @@ class QuasiharmonicDebyeApprox(object):
         # 6.4939394 (from wolfram alpha).
         factor = 3. / y ** 3
         if y < 155:
-            return list(quadrature(lambda x: x ** 3 / (np.exp(x) - 1.), 0, y))[0] * factor
+            integral = quadrature(lambda x: x ** 3 / (np.exp(x) - 1.), 0, y)
+            return list(integral)[0] * factor
         else:
             return 6.493939 * factor
 
@@ -228,9 +226,11 @@ class QuasiharmonicDebyeApprox(object):
 
         Mie-gruneisen formulation:
             Eq(31) in doi.org/10.1016/j.comphy.2003.12.001
-            Eq(7) in Blanco et. al. Joumal of Molecular Structure (Theochem) 368 (1996) 245-255
-            Also se J.-P. Poirier, Introduction to the Physics of the Earth’s
-                Interior, 2nd ed. (Cambridge University Press, Cambridge, 2000) Eq(3.53)
+            Eq(7) in Blanco et. al. Joumal of Molecular Structure (Theochem)
+                368 (1996) 245-255
+            Also se J.P. Poirier, Introduction to the Physics of the Earth’s
+                Interior, 2nd ed. (Cambridge University Press, Cambridge,
+                2000) Eq(3.53)
 
         Args:
             temperature (float): temperature in K
@@ -259,7 +259,8 @@ class QuasiharmonicDebyeApprox(object):
         # Mie-gruneisen formulation
         if self.use_mie_gruneisen:
             p0 = dEdV
-            return (self.gpa_to_ev_ang * volume * (self.pressure + p0 / self.gpa_to_ev_ang) /
+            return (self.gpa_to_ev_ang * volume *
+                    (self.pressure + p0 / self.gpa_to_ev_ang) /
                     self.vibrational_internal_energy(temperature, volume))
 
         # Slater-gamma formulation
