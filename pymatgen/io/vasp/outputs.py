@@ -2558,7 +2558,7 @@ class Procar(object):
 
         with zopen(filename, "rt") as f:
             preambleexpr = re.compile(
-                "# of k-points:\s+(\d+)\s+# of bands:\s+(\d+)\s+# of ions:\s+(\d+)")
+                "# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of ions:\s*(\d+)")
             kpointexpr = re.compile("^k-point\s+(\d+).*weight = ([0-9\.]+)")
             bandexpr = re.compile("^band\s+(\d+)")
             ionexpr = re.compile("^ion.*")
