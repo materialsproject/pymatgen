@@ -1530,9 +1530,9 @@ class StructureMotifInterstitial(Defect):
     __supported_types = ("tet", "oct", "bcc", "tetoct")
 
     def __init__(self, structure, inter_elem,
-                 motif_types=None,
-                 op_targets=None,
-                 op_threshs=None,
+                 motif_types=("tet", "oct", "tetoct"),
+                 op_targets=(1.0, 1.0, 1.0),
+                 op_threshs=(0.5, 0.5, 0.5),
                  dl=0.2, fac_max_radius=4.5, drel_overlap=0.5,
                  write_timings=False):
         """
@@ -1593,12 +1593,11 @@ class StructureMotifInterstitial(Defect):
 
         self._structure = structure.copy()
         sgops = SpacegroupAnalyzer(structure).get_space_group_operations()
-        self._motif_types = motif_types[:] if motif_types is not None else \
-                ["tet", "oct", "tetoct"]
-        self._op_targets = op_targets[:] if op_targets is not None else \
-                [1.0, 1.0, 1.0]
-        self._op_threshs = op_threshs[:] if op_threshs is not None else \
-                [0.5, 0.5, 0.5]
+        self._motif_types = motif_types[:]
+        if len(self._motif_types) == 0:
+            raise RuntimeError("no motif types provided.")
+        self._op_targets = op_targets[:]
+        self._op_threshs = op_threshs[:]
         self._unique_op_types = []
         self._map_imotif_iop = []
         for imotif, motif in enumerate(self._motif_types):
