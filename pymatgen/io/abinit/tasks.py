@@ -1051,9 +1051,6 @@ class AbinitBuild(object):
         .. attribute:: has_netcdf
             True if netcdf is enabled.
 
-        .. attribute:: has_etsfio
-            True if etsf-io is enabled.
-
         .. attribute:: has_omp
             True if OpenMP is enabled.
 
@@ -1145,7 +1142,6 @@ class AbinitBuild(object):
          Committed : 0
         """
         self.has_netcdf = False
-        self.has_etsfio = False
         self.has_omp = False
         self.has_mpi, self.has_mpiio = False, False
 
@@ -1158,7 +1154,6 @@ class AbinitBuild(object):
             if "Version" in line: self.version = line.split()[-1]
             if "TRIO flavor" in line:
                 self.has_netcdf = "netcdf" in line
-                self.has_etsfio = "etsf_io" in line
             if "openMP support" in line: self.has_omp = yesno2bool(line)
             if "Parallel build" in line: self.has_mpi = yesno2bool(line)
             if "Parallel I/O" in line: self.has_mpiio = yesno2bool(line)
@@ -1169,7 +1164,7 @@ class AbinitBuild(object):
         app("Abinit Build Information:")
         app("    Abinit version: %s" % self.version)
         app("    MPI: %s, MPI-IO: %s, OpenMP: %s" % (self.has_mpi, self.has_mpiio, self.has_omp))
-        app("    Netcdf: %s, ETSF-IO: %s" % (self.has_netcdf, self.has_etsfio))
+        app("    Netcdf: %s" % self.has_netcdf)
         return "\n".join(lines)
 
 
