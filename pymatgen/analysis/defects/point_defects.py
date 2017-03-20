@@ -1530,8 +1530,9 @@ class StructureMotifInterstitial(Defect):
     __supported_types = ("tet", "oct", "bcc", "tetoct")
 
     def __init__(self, structure, inter_elem,
-                 motif_types=["tet", "oct", "tetoct"],
-                 op_targets=[1.0, 1.0, 1.0], op_threshs=[0.5, 0.5, 0.5],
+                 motif_types=None,
+                 op_targets=None,
+                 op_threshs=None,
                  dl=0.2, fac_max_radius=4.5, drel_overlap=0.5,
                  write_timings=False):
         """
@@ -1590,9 +1591,14 @@ class StructureMotifInterstitial(Defect):
             file_time = open("time_interfinding.dat", "w")
             tt0, tc0 = time.time(), time.clock()
 
-        self._structure = structure
-        sgops = SpacegroupAnalyzer(structure).get_space_group_operations() # get_spacegroup()
-        self._motif_types = motif_types
+        self._structure = structure.copy()
+        sgops = SpacegroupAnalyzer(structure).get_space_group_operations()
+        self._motif_types = motif_types[:] if motif_types is not None else \
+                ["tet", "oct", "tetoct"]
+        self._op_targets = op_targets[:] if op_targets is not None else \
+                [1.0, 1.0, 1.0]
+        self._op_threshs = op_threshs[:] if op_threshs is not None else \
+                [0.5, 0.5, 0.5]
         self._unique_op_types = []
         self._map_imotif_iop = []
         for imotif, motif in enumerate(self._motif_types):
@@ -1617,13 +1623,11 @@ class StructureMotifInterstitial(Defect):
             else:
                 raise ValueError("cannot associate motif {} to any"
                         " order parameter type.".format(motif))
-        if len(motif_types) != len(op_targets) or \
-                len(motif_types) != len(op_threshs):
+        if len(self._motif_types) != len(self._op_targets) or \
+                len(self._motif_types) != len(self._op_threshs):
             raise ValueError("list sizes of structure motif types,"
                     " OP target values and OP threshold values are"
                     " not equal.")
-        self._op_targets = op_targets
-        self._op_threshs = op_threshs
         self._dl = dl
         self._defect_sites = []
         self._defect_types = []
