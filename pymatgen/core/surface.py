@@ -1010,3 +1010,153 @@ def reduce_vector(vector):
     vector = tuple([int(i / d) for i in vector])
 
     return vector
+
+
+def move_to_other_side(init_slab, index_of_sites, to_top=True):
+
+
+    slab = init_slab.copy()
+    sites = list(slab.sites)
+
+    sortedcsites = sorted(sites, key=lambda site: site.c)
+
+    # Determine what fraction the slab is of the total cell size in the
+    # c direction. Round to nearest rational number.
+    nlayers_total = int(round(slab.lattice.c /
+                              slab.oriented_unit_cell.lattice.c))
+    nlayers_slab = int(round((sortedcsites[-1].c - sortedcsites[0].c)
+                             * nlayers_total))
+
+    slab_ratio = nlayers_slab / nlayers_total
+
+    # Move by coordinates
+    species, coords = [], []
+    for i, site in enumerate(slab):
+        #     print(site.frac_coords[1], site.frac_coords[2])
+        if i in index_of_sites:
+            fcoords = site.frac_coords
+            if to_top:
+                fcoords[2] += slab_ratio
+            else:
+                fcoords[2] -= slab_ratio
+            species.append(site.species_string)
+            coords.append(fcoords)
+
+        else:
+            species.append(site.species_string)
+            coords.append(site.frac_coords)
+
+    s = Structure(slab.lattice, species, coords)
+    manual_slab = Slab(s.lattice, s.species, s.frac_coords,
+                       slab.miller_index, slab.oriented_unit_cell,
+                       slab.shift, slab.scale_factor)
+    return manual_slab
+
+
+def repair_broken_bonds(bonds, bulk, slabs,
+                        termination_tol=0.1):
+
+    # Looks for terminations in between PO4s. Takes in a list of slabs
+    # For now, this algo only works for one type of bond at a time
+
+    bound_atoms = list(bonds.keys())[0]
+    element1 = bound_atoms[0]
+    element2 = bound_atoms[1]
+    blength = bonds[bound_atoms]
+
+    repaired_slabs = []
+    broken = []
+    # find coordination number of element1
+    # wrt element2 in bulk ucell
+    cnlist = []
+    for i, site in enumerate(bulk):
+        if site.species_string == element1:
+            cnlist.append(len(bulk.get_neighbors(site, blength)))
+    bulk_cn = np.mean(cnlist)
+
+    for s in slabs:
+        print("shift", s.shift)
+
+        # get the top most and bottom most site index in our slabs
+        cdist = [site.frac_coords[2] for site in s]
+
+        # pre-determine the number of broken polyhedrons
+        # first so we will know how many iterations
+        # of repairs to do
+        to_repair = []
+        for i, site in enumerate(s):
+
+            if site.species_string == element1:
+                poly_coord = len(s.get_neighbors(site, blength))
+
+                # suppose we find an undercoordinated reference ion
+                if poly_coord < bulk_cn:
+                    to_repair.append(i)
+        print("number_polys to repair %s" % (len(to_repair)))
+
+        # Iterate through the repair process with
+        # the number of polyhedrons to repair
+        for n in to_repair:
+            poly_coord = len(s.get_neighbors(s[n], blength))
+            # is it on the top or bottom?
+            to_top = False if s[n].frac_coords[2] < 0.5 else True
+            print("c position of atoms to move", s[n].frac_coords[2])
+
+            # get the number of element2
+            # missing in the polyhedron
+            missno = bulk_cn - poly_coord
+            print("missingno el2 %s " % (missno), "coord_of el1 (bulk)", bulk_cn,
+                  "coord_of el1 (slab)", poly_coord)
+            print(s[n].frac_coords, s[n].species_string)
+
+            tomove = []
+            for ii, site2 in enumerate(s):
+                if to_top:
+                    if min(cdist) + termination_tol > \
+                            site2.frac_coords[2] >= min(cdist):
+                        if site2.species_string == element2:
+                            tomove.append(ii)
+
+                else:
+                    if max(cdist) >= site2.frac_coords[2] \
+                            > max(cdist) - termination_tol:
+
+                        if site2.species_string == element2:
+                            tomove.append(ii)
+            print(tomove)
+
+            # move combinations of n missing
+            # atoms to other side to repair
+            print("repairing...")
+            print("poly on top: ", to_top)
+            for pair in itertools.combinations(tomove, int(missno)):
+
+                slabcopy = s.copy()
+                repaired = move_to_other_side(slabcopy, pair,
+                                              to_top=to_top)
+
+                # Check if the reference atom polyhedron is repaired
+                if len(repaired.get_neighbors(repaired[n],
+                                              blength)) == bulk_cn:
+                    print("repaired")
+                    break
+
+            s = repaired.copy()
+
+        for i, site in enumerate(repaired):
+            if site.species_string == element1:
+                poly_coord = len(repaired.get_neighbors(site,
+                                                        blength))
+                if poly_coord != bulk_cn:
+                    warnings.warn("Slab could not be repaired")
+                else:
+
+                    # if the bonds have been fixed (CN of element1
+                    # relative to element2 in slab is same as in
+                    # bulk), add the repaired slab to the list
+                    fixed_slab = Slab(s.lattice, s.species, s.frac_coords,
+                                      s.miller_index, bulk, s.shift,
+                                      s.scale_factor)
+                    repaired_slabs.append(fixed_slab)
+
+    return repaired_slabs
