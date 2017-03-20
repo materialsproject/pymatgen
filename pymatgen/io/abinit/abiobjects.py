@@ -503,7 +503,6 @@ class Electrons(AbivarAble, MSONable):
         d["algorithm"] = dec.process_decoded(d["algorithm"]) if d["algorithm"] else None
         return cls(**d)
 
-
     def to_abivars(self):
         abivars = self.spin_mode.to_abivars()
 
@@ -972,7 +971,6 @@ class PPModel(AbivarAble, MSONable):
     Parameters defining the plasmon-pole technique.
     The common way to instanciate a PPModel object is via the class method PPModel.as_ppmodel(string)
     """
-
 
     @classmethod
     def as_ppmodel(cls, obj):

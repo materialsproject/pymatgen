@@ -45,6 +45,7 @@ __all__ = [
     "TaskManager",
     "AbinitBuild",
     "ParalHintsParser",
+    "ParalHints",
     "AbinitTask",
     "ScfTask",
     "NscfTask",

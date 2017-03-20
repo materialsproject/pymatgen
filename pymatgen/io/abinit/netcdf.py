@@ -30,6 +30,7 @@ __all__ = [
     "as_etsfreader",
     "NetcdfReader",
     "ETSF_Reader",
+    "NO_DEFAULT",
     "structure_from_ncdata",
 ]
 
