@@ -487,7 +487,7 @@ class CentralDiffFitter(object):
             cvec, carr = get_symbol_list(6, i+1)
             svec = np.ravel(dEidsi[i-1].T)
             cmap = dict(zip(cvec, np.dot(m[i-1], svec)))
-            c_list.append(vsubs(carr, cmap))
+            c_list.append(v_subs(carr, cmap))
         return [TensorBase.from_voigt(c) for c in c_list]
 
     @staticmethod
@@ -554,126 +554,50 @@ class CentralDiffFitter(object):
                                                "stresses":mstresses}
         return strain_state_dict
 
+    @staticmethod
+    def generate_pseudo(strain_states, order=3):
+        """
+        Generates the pseudoinverse for a given set of strains.
+        
+        Args:
+            strain_states (6xN array like): a list of voigt-notation "strain-states",
+                corresponding to an expression of 
+        """
+        #import pdb; pdb.set_trace()
+        s = sp.Symbol('s')
+        nstates = len(strain_states)
+        ni = np.array(strain_states)*s
+        mis = []
+        for degree in range(2, order + 1):
+            cvec, carr = get_symbol_list(6, degree)
+            sarr = np.zeros((nstates, 6), dtype=object)
+            for n, strain_v in enumerate(ni):
+                # Get expressions
+                exps = carr.copy()
+                for i in range(degree - 1):
+                    exps = np.dot(exps, strain_v)
+                exps /= np.math.factorial(degree - 1)
+                sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]
+            svec = sarr.ravel()
+            m = np.zeros((6*nstates, len(cvec)))
+            for n, c in enumerate(cvec):
+                m[:, n] = v_diff(svec, c)
+            mis.append(np.linalg.pinv(m))
+        return mis
 
-def toec_fit():
-    # Collect independent strain states:
-    independent = set([tuple(np.nonzero(vstrain)[0].tolist())
-                       for vstrain in vstrains])
-    
-    strain_states = []
-    dsde = np.zeros((6, len(independent)))
-    d2sde2 = np.zeros((6, len(independent)))
-    # Sort strains into strain states
-    for n, ind in enumerate(independent):
-        # match strains with templates
-        template = np.zeros(6, dtype=bool)
-        np.put(template, ind, True)
-        template = np.tile(template, [vstresses.shape[0], 1])
-        mode = (template == (np.abs(vstrains) > 1e-10)).all(axis=1)
-        mstresses = vstresses[mode]
-        mstrains = vstrains[mode]
-        # add zero strain state
-        mstrains = np.vstack([mstrains, np.zeros(6)])
-        mstresses = np.vstack([mstresses, np.zeros(6)])
-        # sort strains/stresses by strain values
-        mstresses = mstresses[mstrains[:, ind[0]].argsort()]
-        mstrains = mstrains[mstrains[:, ind[0]].argsort()]
-        # Get "strain state", i.e. ratio of each value to minimum strain
-        strain_states.append(mstrains[-1] / \
-                             np.min(mstrains[-1][np.nonzero(mstrains[0])]))
-        diff = np.diff(mstrains, axis=0)
-        if not (abs(diff - diff[0]) < 1e-8).all():
-            raise ValueError("Stencil for strain state {} must be odd-sampling"
-                             " centered at 0.".format(ind))
-        h = np.min(diff[np.nonzero(diff)])
-        coef1 = central_diff_weights(len(mstresses), 1)
-        coef2 = central_diff_weights(len(mstresses), 2)
-        if eq_stress is not None:
-            mstresses[len(mstresses) // 2] = veq_stress
-        dsde[:, n] = np.dot(np.transpose(mstresses), coef1) / h
-        d2sde2[:, n] = np.dot(np.transpose(mstresses), coef2) / h**2
-
-    m2i, m3i = generate_pseudo(strain_states)
-    s2vec = np.ravel(dsde.T)
-    c2vec = np.dot(m2i, s2vec)
-    c2 = np.zeros((6, 6))
-    c2[np.triu_indices(6)] = c2vec
-    c2 = c2 + c2.T - np.diag(np.diag(c2))
-    c3 = np.zeros((6, 6, 6))
-    s3vec = np.ravel(d2sde2.T)
-    c3vec = np.dot(m3i, s3vec)
-    list_indices = list(itertools.combinations_with_replacement(range(6), r=3))
-    indices_ij = itertools.combinations_with_replacement(range(6), r=3)
-
-    indices = list(itertools.combinations_with_replacement(range(6), r=3))
-    for n, (i, j, k) in enumerate(indices):
-        c3[i,j,k] = c3[i,k,j] = c3[j,i,k] = c3[j,k,i] = \
-                c3[k,i,j] = c3[k,j,i] = c3vec[n]
-    return TensorBase.from_voigt(c2), TensorBase.from_voigt(c3)
-
-def generate_pseudo(strain_states, order=3):
-    """
-    Generates the pseudoinverse for a given set of strains.
-    
-    Args:
-        strain_states (6xN array like): a list of voigt-notation "strain-states",
-            corresponding to an expression of 
-    """
-    #import pdb; pdb.set_trace()
-    s = sp.Symbol('s')
-    nstates = len(strain_states)
-    ni = np.array(strain_states)*s
-    mis = []
-    for degree in range(2, order + 1):
-        cvec, carr = get_symbol_list(6, degree)
-        sarr = np.zeros((nstates, 6), dtype=object)
-        for n, strain_v in enumerate(ni):
-            # Get expressions
-            exps = carr.copy()
-            for i in range(degree - 1):
-                exps = np.dot(exps, strain_v)
-            exps /= np.math.factorial(degree - 1)
-            sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]
-        svec = sarr.ravel()
-        m = np.zeros((6*nstates, len(cvec)))
-        for n, c in enumerate(cvec):
-            m[:, n] = v_diff(svec, c)
-        mis.append(np.linalg.pinv(m))
-    return mis
-"""
-    c2vec, c2arr = get_symbol_list(6, 2)
-    c3vec, c3arr = get_symbol_list(6, 3)
-    s2arr = np.zeros((nstates, 6), dtype=object)
-    s3arr = np.zeros((nstates, 6), dtype=object)
-    v_diff = np.vectorize(sp.diff)
-    for n, strain_v in enumerate(ni):
-        s2arr[n] = [sp.diff(exp, s) for exp in np.dot(c2arr, strain_v)]
-        s3arr[n] = [sp.diff(exp, s, 2) 
-                    for exp in np.dot(np.dot(c3arr, strain_v), strain_v) / 2]
-    s2vec, s3vec = s2arr.ravel(), s3arr.ravel()
-    m2 = np.zeros((6*nstates, len(c2vec)))
-    m3 = np.zeros((6*nstates, len(c3vec)))
-    for n, c in enumerate(c2vec):
-        m2[:, n] = v_diff(s2vec, c)
-    for n, c in enumerate(c3vec):
-        m3[:, n] = v_diff(s3vec, c)
-    m2i = np.linalg.pinv(m2)
-    m3i = np.linalg.pinv(m3)
-    return m2i, m3i
-"""
-
-def get_symbol_list(dim, rank):
-    indices = list(
-        itertools.combinations_with_replacement(range(dim), r=rank))
-    c_vec = np.zeros(len(indices), dtype=object)
-    c_arr = np.zeros([dim]*rank, dtype=object)
-    for n, idx in enumerate(indices):
-        c_vec[n] = sp.Symbol('c_'+''.join([str(i) for i in idx]))
-        for perm in itertools.permutations(idx):
-            c_arr[perm] = c_vec[n]
-    return c_vec, c_arr
+    @staticmethod
+    def get_symbol_list(dim, rank):
+        indices = list(
+            itertools.combinations_with_replacement(range(dim), r=rank))
+        c_vec = np.zeros(len(indices), dtype=object)
+        c_arr = np.zeros([dim]*rank, dtype=object)
+        for n, idx in enumerate(indices):
+            c_vec[n] = sp.Symbol('c_'+''.join([str(i) for i in idx]))
+            for perm in itertools.permutations(idx):
+                c_arr[perm] = c_vec[n]
+        return c_vec, c_arr
 
 def subs(entry, cmap):
     return entry.subs(cmap)
-vsubs = np.vectorize(subs)
+v_subs = np.vectorize(subs)
 v_diff = np.vectorize(sp.diff)
