@@ -1372,6 +1372,18 @@ class LightStructureEnvironments(MSONable):
                 return False
         return True
 
+    def clear_environments(self, conditions=None):
+        clear_envs_list = set()
+        for isite in range(len(self.structure)):
+            if self.coordination_environments[isite] is None:
+                continue
+            if len(self.coordination_environments[isite]) == 0:
+                continue
+            if self.site_has_clear_environment(isite=isite, conditions=conditions):
+                ce = max(self.coordination_environments[isite], key=lambda x: x['ce_fraction'])
+                clear_envs_list.add(ce['ce_symbol'])
+        return list(clear_envs_list)
+
     def structure_contains_atom_environment(self, atom_symbol, ce_symbol):
         """
         Checks whether the structure contains a given atom in a given environment
