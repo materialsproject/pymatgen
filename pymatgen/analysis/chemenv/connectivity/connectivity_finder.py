@@ -1,5 +1,6 @@
 from pymatgen.analysis.chemenv.connectivity.structure_connectivity import StructureConnectivity
 import logging
+import numpy as np
 
 __author__ = 'waroquiers'
 
@@ -15,7 +16,7 @@ class ConnectivityFinder(object):
         else:
             raise NotImplementedError("light_structure_environments should be provided")
 
-    def setup_graph(self):
+    def setup_graph(self, multiple_environments_choice=None):
         logging.info('Setup of structure connectivity graph')
         self.structure_connectivity = StructureConnectivity(self.light_structure_environments)
         self.structure_connectivity.add_sites()
@@ -24,8 +25,18 @@ class ConnectivityFinder(object):
             if site_neighbors_sets is None:
                 continue
             if len(site_neighbors_sets) > 1:
-                raise NotImplementedError('Mix of environments (with mix of neighbors sets) are not implemented')
-            site_neighbors_set = site_neighbors_sets[0]
+                if multiple_environments_choice is None:
+                    raise ValueError('Local environment of site {:d} is a mix and nothing is asked about it'.format(isite))
+                elif multiple_environments_choice == 'TAKE_HIGHEST_FRACTION':
+                    imax = np.argmax([ee['ce_fraction']
+                                      for ee in self.light_structure_environments.coordination_environments[isite]])
+                    print('IMAX {:d}'.format(imax))
+                    site_neighbors_set = site_neighbors_sets[imax]
+                else:
+                    raise ValueError('Option "{}" for multiple_environments_choice is '
+                                     'not allowed'.format(multiple_environments_choice))
+            else:
+                site_neighbors_set = site_neighbors_sets[0]
             self.structure_connectivity.add_bonds(isite, site_neighbors_set)
     #
     # def setup_environment_subgraph(self, myelement, myenvironment):
