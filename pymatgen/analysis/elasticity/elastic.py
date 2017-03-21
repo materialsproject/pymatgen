@@ -16,6 +16,7 @@ from pymatgen.analysis.elasticity.tensors import TensorBase, \
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
 from scipy.misc import central_diff_weights
+from collections import OrderedDict
 import numpy as np
 import warnings
 import itertools
@@ -392,7 +393,7 @@ class ElasticTensor(TensorBase):
         c_ij = np.zeros((6, 6))
         for i, j in itertools.product(range(6), repeat=2):
             strains = [s for s in stress_dict.keys() 
-                       if (s.i, s.j) == vmap[i]]
+                       if s.ij == vmap[i]]
             xy = [(s[vmap[i]], stress_dict[s][vmap[j]]) for s in strains]
             if len(xy) == 0:
                 raise ValueError("No ind. strains for vgt index {}".format(i))
@@ -417,10 +418,10 @@ class ElasticTensor(TensorBase):
         new_v = 0.5 * (np.transpose(v) + v)
         return ElasticTensor.from_voigt(new_v)
 
-@requires(sympy_found, "TOEC fitter requires sympy")
-def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
+
+class CentralDiffFitter(object):
     """
-    A third-order elastic constant fitting function based on 
+    An nth-order elastic constant fitting class based on 
     central-difference derivatives with respect to distinct
     strain states.  The algorithm is summarized as follows:
 
@@ -429,7 +430,7 @@ def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
        [(0), (1), (2), (3), (4), (5), (0, 1) etc.]
     2. For each strain state, find and sort strains and
        stresses by strain value.
-    3. Find first and second derivatives of each stress
+    3. Find first, second .. nth derivatives of each stress
        with respect to scalar variable corresponding to
        the smallest perturbation in the strain.
     4. Use the pseudoinverse of a matrix-vector expression 
@@ -437,15 +438,14 @@ def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
        relationship and multiply that matrix by the respective 
        calculated first or second derivatives from the
        previous step.
-    5. Place the calculated second and third-order elastic 
+    5. Place the calculated nth-order elastic 
        constants appropriately.
 
     Args:
         strains (nx3x3 array-like): Array of 3x3 strains
-            to use in fitting of TOEC and SOEC
+            to use in fitting of ECs
         stresses (nx3x3 array-like): Array of 3x3 stresses
-            to use in fitting of TOEC and SOEC.  These
-            should be PK2 stresses.
+            to use in fitting ECs.  These should be PK2 stresses.
         eq_stress (3x3 array-like): stress corresponding to
             equilibrium strain (i. e. "0" strain state).
             If not specified, function will try to find
@@ -454,28 +454,108 @@ def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
         zero_crit (float): value for which strains below
             are ignored in identifying strain states.
     """
+    @requires(sympy_found, "CentralDiffFitter requires sympy")
+    def __init__(self, strains, stresses, eq_stress = None, tol=1e-10):
+        if len(stresses) != len(strains):
+            raise ValueError("Length of strains and stresses are not equivalent")
+        self.strains = strains
+        self.stresses = stresses
 
-    if len(stresses) != len(strains):
-        raise ValueError("Length of strains and stresses are not equivalent")
-    vstresses = np.array([Stress(stress).voigt for stress in stresses])
-    vstrains = np.array([Strain(strain).voigt for strain in strains])
-    vstrains[np.abs(vstrains) < zero_crit] = 0
+        # Try to find eq_stress if not specified
+        self.eq_stress = eq_stress or self.find_eq(strains, stresses, tol)
+        self.strain_state_dict = self.get_strain_state_dict(strains, stresses,
+                                                            eq_stress, tol)
 
-    # Try to find eq_stress if not specified
-    if eq_stress is not None:
-        veq_stress = Stress(eq_stress).voigt
-    else:
-        veq_stress = vstresses[np.all(vstrains==0, axis=1)]
-        if veq_stress:
-            if np.shape(veq_stress) > 1 and not \
-               (abs(veq_stress - veq_stress[0]) < 1e-8).all():
+    def fit(self, order=2):
+        # Collect derivative data
+        c_list = []
+        dEidsi = np.zeros((order - 1, 6, len(self.strain_state_dict)))
+        for n, (strain_state, data) in enumerate(self.strain_state_dict.items()):
+            diff = np.diff(data["strains"], axis=0)
+            # Verify stencil
+            if not (abs(diff - diff[0]) < 1e-8).all():
+                raise ValueError("Stencil for strain state {} must be odd-sampling"
+                                 " centered at 0.".format(ind))
+            h = np.min(diff[np.nonzero(diff)])
+            for i in range(1, order):
+                coef = central_diff_weights(len(data["strains"]), i)
+                dEidsi[i-1, :, n] = np.dot(coef, data["stresses"]) / h**i
+
+        m = generate_pseudo(self.strain_state_dict.keys(), order)
+        #import pdb; pdb.set_trace()
+        for i in range(1, order):
+            cvec, carr = get_symbol_list(6, i+1)
+            svec = np.ravel(dEidsi[i-1].T)
+            cmap = dict(zip(cvec, np.dot(m[i-1], svec)))
+            c_list.append(vsubs(carr, cmap))
+        return [TensorBase.from_voigt(c) for c in c_list]
+
+    @staticmethod
+    def find_eq_stress(strains, stresses, tol=1e-10):
+        """
+        Finds stress corresponding to zero strain state in stress-strain list
+
+        Args:
+            strains (Nx3x3 array-like): array corresponding to strains
+            stresses (Nx3x3 array-like): array corresponding to stresses
+            tol (float): tolerance to find zero strain state
+        """
+        stress_array = np.array(stresses)
+        strain_array = np.array(strains)
+        eq_stress = stress_array[np.all(abs(strain_array)<tol, axis=(1,2))]
+
+        if eq_stress:
+            allsame = (abs(eq_stress - eq_stress[0]) < 1e-8).all()
+            if len(eq_stress) > 1 and not allsame:
                 raise ValueError("Multiple stresses found for equilibrium strain"
                                  " state, please specify equilibrium stress or  "
                                  " remove extraneous stresses.")
-            veq_stress = veq_stress[0]
+            eq_stress = eq_stress[0]
         else:
-            veq_stress = np.zeros(6)
+            warnings.warn("No eq state found, returning zero voigt stress")
+            eq_stress = np.zeros(6)
+        return eq_stress
 
+    @staticmethod
+    def get_strain_state_dict(strains, stresses, eq_stress=None, tol=1e-10, 
+                              add_eq=True, sort=True):
+        """
+        Creates
+        """
+        # Recast stress/strains
+        vstrains = np.array([Strain(s).zeroed(tol).voigt for s in strains])
+        vstresses = np.array([Stress(s).zeroed(tol).voigt for s in stresses])
+        # Collect independent strain states:
+        independent = set([tuple(np.nonzero(vstrain)[0].tolist())
+                           for vstrain in vstrains])
+        strain_state_dict = OrderedDict()
+        veq_stress = Stress(eq_stress).voigt if eq_stress else np.zeros(6) 
+        for n, ind in enumerate(independent):
+            # match strains with templates
+            template = np.zeros(6, dtype=bool)
+            np.put(template, ind, True)
+            template = np.tile(template, [vstresses.shape[0], 1])
+            mode = (template == (np.abs(vstrains) > 1e-10)).all(axis=1)
+            mstresses = vstresses[mode]
+            mstrains = vstrains[mode]
+
+            if add_eq:
+                # add zero strain state
+                mstrains = np.vstack([mstrains, np.zeros(6)])
+                mstresses = np.vstack([mstresses, veq_stress])
+            # sort strains/stresses by strain values
+            if sort:
+                mstresses = mstresses[mstrains[:, ind[0]].argsort()]
+                mstrains = mstrains[mstrains[:, ind[0]].argsort()]
+            # Get "strain state", i.e. ratio of each value to minimum strain
+            strain_state = mstrains[-1] / np.min(np.take(mstrains[-1], ind))
+            strain_state = tuple(strain_state)
+            strain_state_dict[strain_state] = {"strains":mstrains,
+                                               "stresses":mstresses}
+        return strain_state_dict
+
+
+def toec_fit():
     # Collect independent strain states:
     independent = set([tuple(np.nonzero(vstrain)[0].tolist())
                        for vstrain in vstrains])
@@ -483,6 +563,7 @@ def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
     strain_states = []
     dsde = np.zeros((6, len(independent)))
     d2sde2 = np.zeros((6, len(independent)))
+    # Sort strains into strain states
     for n, ind in enumerate(independent):
         # match strains with templates
         template = np.zeros(6, dtype=bool)
@@ -497,6 +578,7 @@ def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
         # sort strains/stresses by strain values
         mstresses = mstresses[mstrains[:, ind[0]].argsort()]
         mstrains = mstrains[mstrains[:, ind[0]].argsort()]
+        # Get "strain state", i.e. ratio of each value to minimum strain
         strain_states.append(mstrains[-1] / \
                              np.min(mstrains[-1][np.nonzero(mstrains[0])]))
         diff = np.diff(mstrains, axis=0)
@@ -529,13 +611,36 @@ def toec_fit(strains, stresses, eq_stress = None, zero_crit=1e-10):
                 c3[k,i,j] = c3[k,j,i] = c3vec[n]
     return TensorBase.from_voigt(c2), TensorBase.from_voigt(c3)
 
-def generate_pseudo(strain_states):
+def generate_pseudo(strain_states, order=3):
     """
-    Generates the pseudoinverse for a given set of strains
+    Generates the pseudoinverse for a given set of strains.
+    
+    Args:
+        strain_states (6xN array like): a list of voigt-notation "strain-states",
+            corresponding to an expression of 
     """
+    #import pdb; pdb.set_trace()
     s = sp.Symbol('s')
     nstates = len(strain_states)
     ni = np.array(strain_states)*s
+    mis = []
+    for degree in range(2, order + 1):
+        cvec, carr = get_symbol_list(6, degree)
+        sarr = np.zeros((nstates, 6), dtype=object)
+        for n, strain_v in enumerate(ni):
+            # Get expressions
+            exps = carr.copy()
+            for i in range(degree - 1):
+                exps = np.dot(exps, strain_v)
+            exps /= np.math.factorial(degree - 1)
+            sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]
+        svec = sarr.ravel()
+        m = np.zeros((6*nstates, len(cvec)))
+        for n, c in enumerate(cvec):
+            m[:, n] = v_diff(svec, c)
+        mis.append(np.linalg.pinv(m))
+    return mis
+"""
     c2vec, c2arr = get_symbol_list(6, 2)
     c3vec, c3arr = get_symbol_list(6, 3)
     s2arr = np.zeros((nstates, 6), dtype=object)
@@ -555,6 +660,7 @@ def generate_pseudo(strain_states):
     m2i = np.linalg.pinv(m2)
     m3i = np.linalg.pinv(m3)
     return m2i, m3i
+"""
 
 def get_symbol_list(dim, rank):
     indices = list(
@@ -566,3 +672,8 @@ def get_symbol_list(dim, rank):
         for perm in itertools.permutations(idx):
             c_arr[perm] = c_vec[n]
     return c_vec, c_arr
+
+def subs(entry, cmap):
+    return entry.subs(cmap)
+vsubs = np.vectorize(subs)
+v_diff = np.vectorize(sp.diff)

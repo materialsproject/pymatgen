@@ -34,9 +34,9 @@ class DeformationTest(PymatgenTest):
                                      [0.01, 0.0002, 0.0002],
                                      [0.01, 0.0002, 0.0002]])
 
-    def test_check_independent(self):
-        self.assertRaises(ValueError, self.non_ind_defo.check_independent)
-        self.assertEqual(self.ind_defo.check_independent(), (0, 1))
+    def test_independence(self):
+        self.assertFalse(self.non_ind_defo.is_independent())
+        self.assertEqual(self.ind_defo.get_perturbed_indices()[0], (0, 1))
 
     def test_apply_to_structure(self):
         strained_norm = self.norm_defo.apply_to_structure(self.structure)
@@ -118,12 +118,6 @@ class StrainTest(PymatgenTest):
                                      [0.0099995,1.00015, 0],
                                      [0, 0, 1]])
 
-
-        # independent deformation
-        self.assertArrayEqual(self.ind_str.get_independent_deformation(), (0, 1))
-        with self.assertRaises(ValueError):
-            self.no_dfm.get_independent_deformation()
-
         # voigt
         self.assertArrayAlmostEqual(self.non_ind_str.voigt,
                                     [0, 0.0002, 0.0002, 0.0004, 0.02, 0.02])
@@ -163,6 +157,9 @@ class IndependentStrainTest(PymatgenTest):
         self.ind_strain = IndependentStrain([[1, 0.1, 0],
                                              [0, 1, 0],
                                              [0, 0, 1]])
+        self.ind_strain_2 = IndependentStrain([[1, 0, 0],
+                                               [0, 1.1, 0],
+                                               [0, 0, 1]])
 
     def test_new(self):
         with self.assertRaises(ValueError):
@@ -171,8 +168,8 @@ class IndependentStrainTest(PymatgenTest):
                                [0, 0, 0]])
 
     def test_properties(self):
-        self.assertEqual(self.ind_strain.i, 0)
-        self.assertEqual(self.ind_strain.j, 1)
+        self.assertEqual(self.ind_strain.ij, (0, 1))
+        self.assertEqual(self.ind_strain_2.ij, (1, 1))
 
 if __name__ == '__main__':
     unittest.main()

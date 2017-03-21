@@ -46,18 +46,19 @@ class Deformation(SquareTensor):
 
         return obj.view(cls)
 
-    def check_independent(self, tol=1e-8):
+    def is_independent(self, tol=1e-8):
         """
-        checks to determine whether the deformation matrix represents an
-        independent deformation, raises a ValueError if not.  If so, returns
-        the indices of the deformation gradient entry representing the
-        independent component
+        checks to determine whether the deformation is independent
+        """
+        return len(self.get_perturbed_indices(tol))==1
+    
+    def get_perturbed_indices(self, tol=1e-8):
+        """
+        Gets indices of perturbed elements of the deformation gradient,
+        i. e. those that differ from the identity
         """
         indices = list(zip(*np.where(abs(self - np.eye(3)) > tol)))
-        if len(indices) != 1:
-            raise ValueError("One and only one independent deformation"
-                             "must be applied.")
-        return indices[0]
+        return indices
 
     @property
     def green_lagrange_strain(self):
@@ -238,15 +239,6 @@ class Strain(SquareTensor):
 
         return np.sqrt(np.dot(eps.voigt,eps.voigt)*2/3)
 
-    def get_independent_deformation(self, tol=1e-8):
-        """
-        determines whether the deformation matrix represents an
-        independent deformation, raises a value error if not.
-        Returns the index of the deformation gradient corresponding
-        to the independent deformation
-        """
-        return self._dfm.check_independent(tol=tol)
-
 
 class IndependentStrain(Strain):
     """
@@ -269,9 +261,12 @@ class IndependentStrain(Strain):
             deformation_gradient (3x3 array-like): the 3x3 array-like
                 representing the deformation gradient
         """
-
+        deformation_gradient = Deformation(deformation_gradient)
+        if not deformation_gradient.is_independent(tol):
+            raise ValueError("IndependentStrain must be constructed from "
+                             "an independent deformation gradient")
         obj=Strain.from_deformation(deformation_gradient).view(cls)
-        (obj._i, obj._j)=obj.get_independent_deformation(tol=tol)
+        (obj._i, obj._j)=obj._dfm.get_perturbed_indices(tol=tol)[0]
         return obj
 
     def __array_finalize__(self, obj):
@@ -282,12 +277,11 @@ class IndependentStrain(Strain):
         self._j=getattr(obj, "_j", None)
 
     @property
-    def i(self):
-        return self._i
-
-    @property
-    def j(self):
-        return self._j
+    def ij(self):
+        """
+        Convenience method to return independent indices
+        """
+        return (self._i, self._j)
 
 def convert_strain_to_deformation(strain):
     strain = SquareTensor(strain)

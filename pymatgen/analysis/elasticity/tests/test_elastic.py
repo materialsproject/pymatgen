@@ -5,7 +5,7 @@ import unittest
 import os
 
 import numpy as np
-from pymatgen.analysis.elasticity.elastic import ElasticTensor, toec_fit
+from pymatgen.analysis.elasticity.elastic import ElasticTensor, CentralDiffFitter
 from pymatgen.analysis.elasticity.strain import Strain, IndependentStrain, Deformation
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
@@ -173,8 +173,8 @@ class ElasticTensorTest(PymatgenTest):
                                 [Stress(stress_matrix) for stress_matrix
                                 in self.def_stress_dict['stresses']])))
         minimal_sd = {k:v for k, v in stress_dict.items() 
-                      if (abs(k[k.get_independent_deformation()] - 0.015) < 1e-10
-                      or  abs(k[k.get_independent_deformation()] - 0.01005) < 1e-10)}
+                      if (abs(k[k.ij] - 0.015) < 1e-10
+                      or  abs(k[k.ij] - 0.01005) < 1e-10)}
         with warnings.catch_warnings(record = True):
             et_from_sd = ElasticTensor.from_stress_dict(stress_dict)
             et_from_minimal_sd = ElasticTensor.from_stress_dict(minimal_sd)
@@ -203,7 +203,44 @@ class ElasticTensorTest(PymatgenTest):
                                         [-0.11520994,  0.99774738,  0.        ],
                                         [-0.,         -0.,          1.,        ]]))
 
-    @unittest.skipIf(not sympy, "sympy not present, skipping toec_fit test")
+@unittest.skipIf(not sympy, "sympy not present, skipping CentralDiffFitterTest")
+class CentralDiffFitterTest(PymatgenTest):
+    def setUp(self):
+        with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
+            self.data_dict = json.load(f)
+        self.strains = [Strain(sm) for sm in self.data_dict['strains']]
+        self.pk_stresses = [Stress(d) for d in self.data_dict['pk_stresses']]
+
+    def test_init(self):
+        cdf = CentralDiffFitter(self.strains, self.pk_stresses, 
+                                self.data_dict["eq_stress"])
+
+    def test_get_strain_state_dict(self):
+        pass
+
+    def test_find_eq_stress(self):
+        pass
+
+    def test_fit(self):
+        cdf = CentralDiffFitter(self.strains, self.pk_stresses, 
+                                self.data_dict["eq_stress"])
+        reduced = [(e, pk) for e, pk in zip(self.strains, self.pk_stresses)
+                   if not (abs(abs(e)-0.05)<1e-10).any()]
+        r_strains, r_pk_stresses = zip(*reduced)
+        cdf_red = CentralDiffFitter(r_strains, r_pk_stresses,
+                                    self.data_dict["eq_stress"])
+        with warnings.catch_warnings(record=True):
+            c2 = cdf.fit(2)
+            c2, c3, c4 = cdf.fit(4)
+            import pdb; pdb.set_trace()
+            c2, c3 = cdf.fit(3)
+            c2_red, c3_red = cdf_red.fit(3)
+            self.assertArrayAlmostEqual(c2.voigt, self.data_dict["C2_raw"])
+            self.assertArrayAlmostEqual(c3.voigt, self.data_dict["C3_raw"])
+            self.assertArrayAlmostEqual(c2, c2_red, decimal=0)
+            self.assertArrayAlmostEqual(c3, c3_red, decimal=-1)
+
+        """
     def test_toec_fit(self):
         with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
             toec_dict = json.load(f)
@@ -222,6 +259,6 @@ class ElasticTensorTest(PymatgenTest):
                                       eq_stress=toec_dict["eq_stress"])
             self.assertArrayAlmostEqual(c2, c2_red, decimal=0)
             self.assertArrayAlmostEqual(c3, c3_red, decimal=-1)
-
+            """
 if __name__ == '__main__':
     unittest.main()
