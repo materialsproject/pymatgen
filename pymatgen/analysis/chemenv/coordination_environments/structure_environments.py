@@ -1334,6 +1334,44 @@ class LightStructureEnvironments(MSONable):
     def site_contains_environment(self, isite, ce_symbol):
         return ce_symbol in [ce_dict['ce_symbol'] for ce_dict in self.coordination_environments[isite]]
 
+    def site_has_clear_environment(self, isite, conditions=None):
+        if self.coordination_environments[isite] is None:
+            raise ValueError('Coordination environments have not been determined for site {:d}'.format(isite))
+        if conditions is None:
+            return len(self.coordination_environments[isite]) == 1
+        ce = max(self.coordination_environments[isite], key=lambda x: x['ce_fraction'])
+        for condition in conditions:
+            target = condition['target']
+            if target == 'ce_fraction':
+                if ce[target] < condition['minvalue']:
+                    return False
+            elif target == 'csm':
+                if ce[target] > condition['maxvalue']:
+                    return False
+            elif target == 'number_of_ces':
+                if ce[target] > condition['maxnumber']:
+                    return False
+            else:
+                raise ValueError('Target "{}" for condition of clear environment is not allowed'.format(target))
+            pass
+        return True
+
+    def structure_has_clear_environments(self, conditions=None, skip_none=True, skip_empty=False):
+        for isite in range(len(self.structure)):
+            if self.coordination_environments[isite] is None:
+                if skip_none:
+                    continue
+                else:
+                    return False
+            if len(self.coordination_environments[isite]) == 0:
+                if skip_empty:
+                    continue
+                else:
+                    return False
+            if not self.site_has_clear_environment(isite=isite, conditions=conditions):
+                return False
+        return True
+
     def structure_contains_atom_environment(self, atom_symbol, ce_symbol):
         """
         Checks whether the structure contains a given atom in a given environment
