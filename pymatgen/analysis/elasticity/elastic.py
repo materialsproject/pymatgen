@@ -419,6 +419,7 @@ class ElasticTensor(TensorBase):
         return ElasticTensor.from_voigt(new_v)
 
 
+@requires(sympy_found, "CentralDiffFitter requires sympy")
 class CentralDiffFitter(object):
     """
     An nth-order elastic constant fitting class based on 
@@ -454,7 +455,6 @@ class CentralDiffFitter(object):
         zero_crit (float): value for which strains below
             are ignored in identifying strain states.
     """
-    @requires(sympy_found, "CentralDiffFitter requires sympy")
     def __init__(self, strains, stresses, eq_stress = None, tol=1e-10):
         if len(stresses) != len(strains):
             raise ValueError("Length of strains and stresses are not equivalent")
@@ -462,11 +462,21 @@ class CentralDiffFitter(object):
         self.stresses = stresses
 
         # Try to find eq_stress if not specified
-        self.eq_stress = eq_stress or self.find_eq(strains, stresses, tol)
-        self.strain_state_dict = self.get_strain_state_dict(strains, stresses,
-                                                            eq_stress, tol)
+        self.eq_stress = eq_stress or find_eq(strains, stresses, tol)
+        self.strain_state_dict = get_strain_state_dict(strains, stresses,
+                                                       eq_stress, tol)
 
     def fit(self, order=2):
+        """
+        Fitting function following the above algorithm
+
+        Args:
+            order (int): order of the elastic tensor set to return
+
+        Returns:
+            Set of tensors corresponding to nth order expansion of
+            the stress/strain relation
+        """
         # Collect derivative data
         c_list = []
         dEidsi = np.zeros((order - 1, 6, len(self.strain_state_dict)))
@@ -481,123 +491,177 @@ class CentralDiffFitter(object):
                 coef = central_diff_weights(len(data["strains"]), i)
                 dEidsi[i-1, :, n] = np.dot(coef, data["stresses"]) / h**i
 
-        m = generate_pseudo(self.strain_state_dict.keys(), order)
-        #import pdb; pdb.set_trace()
+        m, absent = generate_pseudo(self.strain_state_dict.keys(), order)
         for i in range(1, order):
-            cvec, carr = get_symbol_list(6, i+1)
+            cvec, carr = get_symbol_list(i+1)
             svec = np.ravel(dEidsi[i-1].T)
             cmap = dict(zip(cvec, np.dot(m[i-1], svec)))
             c_list.append(v_subs(carr, cmap))
         return [TensorBase.from_voigt(c) for c in c_list]
 
-    @staticmethod
-    def find_eq_stress(strains, stresses, tol=1e-10):
-        """
-        Finds stress corresponding to zero strain state in stress-strain list
+@requires(sympy_found, "find_eq_stress requires sympy")
+def find_eq_stress(strains, stresses, tol=1e-10):
+    """
+    Finds stress corresponding to zero strain state in stress-strain list
 
-        Args:
-            strains (Nx3x3 array-like): array corresponding to strains
-            stresses (Nx3x3 array-like): array corresponding to stresses
-            tol (float): tolerance to find zero strain state
-        """
-        stress_array = np.array(stresses)
-        strain_array = np.array(strains)
-        eq_stress = stress_array[np.all(abs(strain_array)<tol, axis=(1,2))]
+    Args:
+        strains (Nx3x3 array-like): array corresponding to strains
+        stresses (Nx3x3 array-like): array corresponding to stresses
+        tol (float): tolerance to find zero strain state
+    """
+    stress_array = np.array(stresses)
+    strain_array = np.array(strains)
+    eq_stress = stress_array[np.all(abs(strain_array)<tol, axis=(1,2))]
 
-        if eq_stress:
-            allsame = (abs(eq_stress - eq_stress[0]) < 1e-8).all()
-            if len(eq_stress) > 1 and not allsame:
-                raise ValueError("Multiple stresses found for equilibrium strain"
-                                 " state, please specify equilibrium stress or  "
-                                 " remove extraneous stresses.")
-            eq_stress = eq_stress[0]
-        else:
-            warnings.warn("No eq state found, returning zero voigt stress")
-            eq_stress = np.zeros(6)
-        return eq_stress
+    if eq_stress:
+        allsame = (abs(eq_stress - eq_stress[0]) < 1e-8).all()
+        if len(eq_stress) > 1 and not allsame:
+            raise ValueError("Multiple stresses found for equilibrium strain"
+                             " state, please specify equilibrium stress or  "
+                             " remove extraneous stresses.")
+        eq_stress = eq_stress[0]
+    else:
+        warnings.warn("No eq state found, returning zero voigt stress")
+        eq_stress = np.zeros(6)
+    return eq_stress
 
-    @staticmethod
-    def get_strain_state_dict(strains, stresses, eq_stress=None, tol=1e-10, 
-                              add_eq=True, sort=True):
-        """
-        Creates
-        """
-        # Recast stress/strains
-        vstrains = np.array([Strain(s).zeroed(tol).voigt for s in strains])
-        vstresses = np.array([Stress(s).zeroed(tol).voigt for s in stresses])
-        # Collect independent strain states:
-        independent = set([tuple(np.nonzero(vstrain)[0].tolist())
-                           for vstrain in vstrains])
-        strain_state_dict = OrderedDict()
-        veq_stress = Stress(eq_stress).voigt if eq_stress else np.zeros(6) 
-        for n, ind in enumerate(independent):
-            # match strains with templates
-            template = np.zeros(6, dtype=bool)
-            np.put(template, ind, True)
-            template = np.tile(template, [vstresses.shape[0], 1])
-            mode = (template == (np.abs(vstrains) > 1e-10)).all(axis=1)
-            mstresses = vstresses[mode]
-            mstrains = vstrains[mode]
+@requires(sympy_found, "get_strain_state_dict requires sympy")
+def get_strain_state_dict(strains, stresses, eq_stress=None, 
+                          tol=1e-10, add_eq=True, sort=True):
+    """
+    Creates a dictionary of voigt-notation stress-strain sets 
+    keyed by "strain state", i. e. a tuple corresponding to 
+    the non-zero entries in ratios to the lowest nonzero value, 
+    e.g. [0, 0.1, 0, 0.2, 0, 0] -> (0,1,0,2,0,0)
+    This allows strains to be collected in stencils as to
+    evaluate parameterized finite difference derivatives
 
-            if add_eq:
-                # add zero strain state
-                mstrains = np.vstack([mstrains, np.zeros(6)])
-                mstresses = np.vstack([mstresses, veq_stress])
-            # sort strains/stresses by strain values
-            if sort:
-                mstresses = mstresses[mstrains[:, ind[0]].argsort()]
-                mstrains = mstrains[mstrains[:, ind[0]].argsort()]
-            # Get "strain state", i.e. ratio of each value to minimum strain
-            strain_state = mstrains[-1] / np.min(np.take(mstrains[-1], ind))
-            strain_state = tuple(strain_state)
-            strain_state_dict[strain_state] = {"strains":mstrains,
-                                               "stresses":mstresses}
-        return strain_state_dict
+    Args:
+        strains (Nx3x3 array-like): strain matrices
+        stresses (Nx3x3 array-like): stress matrices
+        eq_stress (Nx3x3 array-like): equilibrium stress
+        tol (float): tolerance for sorting strain states
+        add_eq (bool): flag for whether to add eq_strain
+            to stress-strain sets for each strain state
+        sort (bool): flag for whether to sort strain states
 
-    @staticmethod
-    def generate_pseudo(strain_states, order=3):
-        """
-        Generates the pseudoinverse for a given set of strains.
-        
-        Args:
-            strain_states (6xN array like): a list of voigt-notation "strain-states",
-                corresponding to an expression of 
-        """
-        #import pdb; pdb.set_trace()
-        s = sp.Symbol('s')
-        nstates = len(strain_states)
-        ni = np.array(strain_states)*s
-        mis = []
-        for degree in range(2, order + 1):
-            cvec, carr = get_symbol_list(6, degree)
-            sarr = np.zeros((nstates, 6), dtype=object)
-            for n, strain_v in enumerate(ni):
-                # Get expressions
-                exps = carr.copy()
-                for i in range(degree - 1):
-                    exps = np.dot(exps, strain_v)
-                exps /= np.math.factorial(degree - 1)
-                sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]
-            svec = sarr.ravel()
-            m = np.zeros((6*nstates, len(cvec)))
-            for n, c in enumerate(cvec):
-                m[:, n] = v_diff(svec, c)
-            mis.append(np.linalg.pinv(m))
-        return mis
+    Returns:
+        OrderedDict with strain state keys and dictionaries
+        with stress-strain data corresponding to strain state 
+    """
+    # Recast stress/strains
+    vstrains = np.array([Strain(s).zeroed(tol).voigt for s in strains])
+    vstresses = np.array([Stress(s).zeroed(tol).voigt for s in stresses])
+    # Collect independent strain states:
+    independent = set([tuple(np.nonzero(vstrain)[0].tolist())
+                       for vstrain in vstrains])
+    strain_state_dict = OrderedDict()
+    veq_stress = Stress(eq_stress).voigt if eq_stress else np.zeros(6) 
+    for n, ind in enumerate(independent):
+        # match strains with templates
+        template = np.zeros(6, dtype=bool)
+        np.put(template, ind, True)
+        template = np.tile(template, [vstresses.shape[0], 1])
+        mode = (template == (np.abs(vstrains) > 1e-10)).all(axis=1)
+        mstresses = vstresses[mode]
+        mstrains = vstrains[mode]
 
-    @staticmethod
-    def get_symbol_list(dim, rank):
-        indices = list(
-            itertools.combinations_with_replacement(range(dim), r=rank))
-        c_vec = np.zeros(len(indices), dtype=object)
-        c_arr = np.zeros([dim]*rank, dtype=object)
-        for n, idx in enumerate(indices):
-            c_vec[n] = sp.Symbol('c_'+''.join([str(i) for i in idx]))
-            for perm in itertools.permutations(idx):
-                c_arr[perm] = c_vec[n]
-        return c_vec, c_arr
+        if add_eq:
+            # add zero strain state
+            mstrains = np.vstack([mstrains, np.zeros(6)])
+            mstresses = np.vstack([mstresses, veq_stress])
+        # sort strains/stresses by strain values
+        if sort:
+            mstresses = mstresses[mstrains[:, ind[0]].argsort()]
+            mstrains = mstrains[mstrains[:, ind[0]].argsort()]
+        # Get "strain state", i.e. ratio of each value to minimum strain
+        strain_state = mstrains[-1] / np.min(np.take(mstrains[-1], ind))
+        strain_state = tuple(strain_state)
+        strain_state_dict[strain_state] = {"strains":mstrains,
+                                           "stresses":mstresses}
+    return strain_state_dict
+
+@requires(sympy_found, "generate_pseudo requires sympy")
+def generate_pseudo(strain_states, order=3):
+    """
+    Generates the pseudoinverse for a given set of strains.
+    
+    Args:
+        strain_states (6xN array like): a list of voigt-notation 
+            "strain-states", i. e. perturbed indices of the strain
+            as a function of the smallest strain e. g. (0, 1, 0, 0, 1, 0)
+        order (int): order of pseudoinverse to calculate
+    
+    Returns:
+        mis: pseudo inverses for each order tensor, these can 
+            be multiplied by the central difference derivative 
+            of the stress with respect to the strain state
+        absent_syms: symbols of the tensor absent from the PI
+            expression
+    """
+    s = sp.Symbol('s')
+    nstates = len(strain_states)
+    ni = np.array(strain_states)*s
+    mis, absent_syms = [], []
+    for degree in range(2, order + 1):
+        cvec, carr = get_symbol_list(degree)
+        sarr = np.zeros((nstates, 6), dtype=object)
+        for n, strain_v in enumerate(ni):
+            # Get expressions
+            exps = carr.copy()
+            for i in range(degree - 1):
+                exps = np.dot(exps, strain_v)
+            exps /= np.math.factorial(degree - 1)
+            sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]
+        svec = sarr.ravel()
+        present_syms = set.union(*[exp.atoms(sp.Symbol) for exp in svec])
+        absent_syms += [set(cvec) - present_syms]
+        m = np.zeros((6*nstates, len(cvec)))
+        for n, c in enumerate(cvec):
+            m[:, n] = v_diff(svec, c)
+        mis.append(np.linalg.pinv(m))
+    return mis, absent_syms
+
+@requires(sympy_found, "get_symbol_list requires sympy")
+def get_symbol_list(rank, dim=6):
+    """
+    Returns a symbolic representation of the voigt-notation
+    tensor that places identical symbols for entries related
+    by index transposition, i. e. C_1121 = C_1211 etc.
+
+    Args:
+        dim (int): dimension of matrix/tensor, e. g. 6 for
+            voigt notation and 3 for standard
+        rank (int): rank of tensor, e. g. 3 for third-order ECs
+
+    Returns:
+        c_vec (array): array representing distinct indices
+        c_arr (array): array representing tensor with equivalent
+            indices assigned as above
+    """
+    indices = list(
+        itertools.combinations_with_replacement(range(dim), r=rank))
+    c_vec = np.zeros(len(indices), dtype=object)
+    c_arr = np.zeros([dim]*rank, dtype=object)
+    for n, idx in enumerate(indices):
+        c_vec[n] = sp.Symbol('c_'+''.join([str(i) for i in idx]))
+        for perm in itertools.permutations(idx):
+            c_arr[perm] = c_vec[n]
+    return c_vec, c_arr
 
 def subs(entry, cmap):
+    """
+    Sympy substitution function
+
+    Args:
+        entry (symbol or exp): sympy expr to undergo subs
+        cmap (dict): map for symbols to values to use in subs
+
+    Returns:
+        Evaluated expression with substitution
+    """
     return entry.subs(cmap)
+
+# Vectorized functions
 v_subs = np.vectorize(subs)
 v_diff = np.vectorize(sp.diff)

@@ -5,7 +5,7 @@ import unittest
 import os
 
 import numpy as np
-from pymatgen.analysis.elasticity.elastic import ElasticTensor, CentralDiffFitter
+from pymatgen.analysis.elasticity.elastic import * 
 from pymatgen.analysis.elasticity.strain import Strain, IndependentStrain, Deformation
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
@@ -212,7 +212,7 @@ class CentralDiffFitterTest(PymatgenTest):
         self.pk_stresses = [Stress(d) for d in self.data_dict['pk_stresses']]
 
     def test_init(self):
-        cdf = CentralDiffFitter(self.strains, self.pk_stresses, 
+        cdf = CentralDiffFitter(self.strains, self.pk_stresses,
                                 self.data_dict["eq_stress"])
 
     def test_get_strain_state_dict(self):
@@ -220,6 +220,12 @@ class CentralDiffFitterTest(PymatgenTest):
 
     def test_find_eq_stress(self):
         pass
+
+    def test_generate_pseudo(self):
+        strain_states = np.eye(6).tolist()
+        m2, abs = generate_pseudo(strain_states, order=2)
+        #self.assertArrayAlmostEqual(m2[0], self.data_dict["m2_inverse"])
+        m3, abs = generate_pseudo(strain_states, order=3)
 
     def test_fit(self):
         cdf = CentralDiffFitter(self.strains, self.pk_stresses, 
@@ -232,12 +238,12 @@ class CentralDiffFitterTest(PymatgenTest):
         with warnings.catch_warnings(record=True):
             c2 = cdf.fit(2)
             c2, c3, c4 = cdf.fit(4)
-            import pdb; pdb.set_trace()
             c2, c3 = cdf.fit(3)
             c2_red, c3_red = cdf_red.fit(3)
             self.assertArrayAlmostEqual(c2.voigt, self.data_dict["C2_raw"])
             self.assertArrayAlmostEqual(c3.voigt, self.data_dict["C3_raw"])
             self.assertArrayAlmostEqual(c2, c2_red, decimal=0)
+            import pdb; pdb.set_trace()
             self.assertArrayAlmostEqual(c3, c3_red, decimal=-1)
 
         """
