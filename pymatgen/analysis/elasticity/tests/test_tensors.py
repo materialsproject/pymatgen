@@ -232,7 +232,7 @@ class TensorBaseTest(PymatgenTest):
             err_msg = "{} IEEE conversion failed with max diff {}".format(
                 xtal, diff) 
             self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct),
-                                        err_msg = err_msg, decimal=3)
+                                        err_msg=err_msg, decimal=1)
 
     def test_from_voigt(self):
         with self.assertRaises(ValueError):
