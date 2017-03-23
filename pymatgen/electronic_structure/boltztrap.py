@@ -6,6 +6,7 @@ import math
 import os
 import subprocess
 import tempfile
+import logging
 
 import numpy as np
 from monty.dev import requires
@@ -569,6 +570,10 @@ class BoltztrapRunner(object):
             for c in os.listdir(path_dir):
                 os.remove(os.path.join(path_dir, c))
 
+        FORMAT = "%(relativeCreated)d msecs : %(message)s"
+        logging.basicConfig(level=logging.INFO, format=FORMAT,
+                            filename=os.path.join(path_dir, "../boltztrap.out"))
+
         with cd(path_dir):
             lpfac_start = self.lpfac
             converged = False
@@ -576,7 +581,7 @@ class BoltztrapRunner(object):
             while self.energy_grid >= min_egrid and not converged:
                 self.lpfac = lpfac_start
 
-                print("lpfac, energy_grid: ", self.lpfac, self.energy_grid)
+                logging.info("lpfac, energy_grid: ", self.lpfac, self.energy_grid)
 
                 while self.lpfac <= max_lpfac and not converged:
 
@@ -593,7 +598,7 @@ class BoltztrapRunner(object):
                     p.wait()
 
                     for c in p.communicate():
-                        print(c)
+                        logging.info(c)
                         if "error in factorization" in c.decode():
                             raise BoltztrapError("error in factorization")
 
@@ -643,16 +648,16 @@ class BoltztrapRunner(object):
 
                     if warning:
                         self.lpfac += 10
-                        print("Warning detected: {}! Increase lpfac to "
-                              "{}".format(warning, self.lpfac))
+                        logging.warn("Warning detected: {}! Increase lpfac to "
+                                     "{}".format(warning, self.lpfac))
 
                     else:
                         converged = True
 
                 if not converged:
                     self.energy_grid /= 10
-                    print("Could not converge with max lpfac; "
-                          "Decrease egrid to {}".format(self.energy_grid))
+                    logging.info("Could not converge with max lpfac; "
+                                 "Decrease egrid to {}".format(self.energy_grid))
 
             if not converged:
                 raise BoltztrapError(
@@ -670,6 +675,7 @@ class BoltztrapError(Exception):
 
     def __init__(self, msg):
         self.msg = msg
+        logging.error(self.msg)
 
     def __str__(self):
         return "BoltztrapError : " + self.msg
