@@ -570,7 +570,7 @@ class BoltztrapRunner(object):
             for c in os.listdir(path_dir):
                 os.remove(os.path.join(path_dir, c))
 
-        FORMAT = "%(relativeCreated)d msecs : %(message)s"
+        FORMAT = "%(message)s"
         logging.basicConfig(level=logging.INFO, format=FORMAT,
                             filename=os.path.join(path_dir, "../boltztrap.out"))
 
