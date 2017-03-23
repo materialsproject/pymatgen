@@ -374,7 +374,7 @@ class PyFlowScheduler(object):
     @classmethod
     def from_file(cls, filepath):
         """Read the configuration parameters from a Yaml file."""
-        with open(filepath, "r") as fh:
+        with open(filepath, "rt") as fh:
             return cls(**yaml.load(fh))
 
     @classmethod
@@ -467,7 +467,7 @@ class PyFlowScheduler(object):
         # Build dirs and files (if not yet done)
         flow.build()
 
-        with open(flow.pid_file, "w") as fh:
+        with open(flow.pid_file, "wt") as fh:
             fh.write(str(self.pid))
 
         self._pid_file = flow.pid_file
@@ -789,7 +789,7 @@ class PyFlowScheduler(object):
             # Write file with the list of exceptions:
             if self.exceptions:
                 dump_file = os.path.join(self.flow.workdir, "_exceptions")
-                with open(dump_file, "w") as fh:
+                with open(dump_file, "wt") as fh:
                     fh.writelines(self.exceptions)
                     fh.write("Shutdown message:\n%s" % msg)
 

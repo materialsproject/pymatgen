@@ -144,7 +144,7 @@ class ScfCycle(collections.Mapping):
     @classmethod
     def from_file(cls, filepath):
         """Read the first occurrence of ScfCycle from file."""
-        with open(filepath, "r") as stream:
+        with open(filepath, "rt") as stream:
             return cls.from_stream(stream)
 
     @classmethod
@@ -290,7 +290,7 @@ class Relaxation(collections.Iterable):
     @classmethod
     def from_file(cls, filepath):
         """Initialize the object from the Abinit main output file."""
-        with open(filepath, "r") as stream:
+        with open(filepath, "rt") as stream:
             return cls.from_stream(stream)
 
     @classmethod
@@ -369,7 +369,7 @@ class Relaxation(collections.Iterable):
 #    @classmethod
 #    def from_file(cls, filepath):
 #        """Initialize the object from file."""
-#        with open(filepath, "r") as stream:
+#        with open(filepath, "rt") as stream:
 #            return cls.from_stream(stream)
 #
 #    @classmethod
@@ -429,7 +429,7 @@ class YamlTokenizer(collections.Iterator):
         self.filename = filename
 
         try:
-            self.stream = open(filename, "r")
+            self.stream = open(filename, "rt")
         except IOError as exc:
             # Look for associated error file.
             root, ext = os.path.splitext(self.filename)

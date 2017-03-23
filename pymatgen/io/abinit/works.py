@@ -855,7 +855,7 @@ class BandStructureWork(Work):
                 ngkpt = task.get_inpvar("ngkpt")
                 plotter.add_edos("ngkpt %s" % str(ngkpt), edos)
 
-        return plotter.plot(**kwargs)
+        return plotter.combiplot(**kwargs)
 
 
 class RelaxWork(Work):

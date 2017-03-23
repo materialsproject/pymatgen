@@ -20,7 +20,7 @@ from itertools import product
 from six.moves import map, zip, StringIO
 from monty.dev import deprecated
 from monty.string import is_string, list_strings
-from monty.termcolor import colored
+from monty.termcolor import colored, cprint
 from monty.collections import AttrDict
 from monty.functools import lazy_property, return_none_if_raise
 from monty.json import MSONable
@@ -1091,7 +1091,7 @@ class AbinitBuild(object):
         if process.returncode != 0:
             logger.critical("Error while executing %s" % script_file)
 
-        with open(stdout, "r") as fh:
+        with open(stdout, "rt") as fh:
             self.info = fh.read()
 
         # info string has the following format.
@@ -2384,7 +2384,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             except QueueAdapterError as exc:
                 # If autoparal cannot find a qadapter to run the calculation raises an Exception
                 self.history.critical(exc)
-                msg = "Error trying to find a running configuration:\n%s" % straceback()
+                msg = "Error while trying to run autoparal in task:%s\n%s" % (repr(task), straceback())
+                cprint(msg, "yellow")
                 self.set_status(self.S_QCRITICAL, msg=msg)
                 return 0
             except Exception as exc:
@@ -2404,11 +2405,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 try:
                     self.autoparal_run()
                     self.history.info("Second call to autoparal succeeded!")
+                    #cprint("Second call to autoparal succeeded!", "green")
 
                 except Exception as exc:
                     self.history.critical("Second call to autoparal failed with %s. Cannot recover!", exc)
                     msg = "Tried autoparal again but got:\n%s" % straceback()
-                    # logger.critical(msg)
+                    cprint(msg, "red")
                     self.set_status(self.S_ABICRITICAL, msg=msg)
                     return 0
 
@@ -2644,7 +2646,7 @@ class AbinitTask(Task):
         retcode = process.wait()
 
         # Remove the variables added for the automatic parallelization
-        self.input.remove_vars(autoparal_vars.keys())
+        self.input.remove_vars(list(autoparal_vars.keys()))
 
         ##############################################################
         # Parse the autoparal configurations from the main output file
@@ -4227,7 +4229,7 @@ class OpticTask(Task):
         retcode = process.wait()
 
         # Remove the variables added for the automatic parallelization
-        self.input.remove_vars(autoparal_vars.keys())
+        self.input.remove_vars(list(autoparal_vars.keys()))
 
         ##############################################################
         # Parse the autoparal configurations from the main output file
