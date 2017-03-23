@@ -2347,7 +2347,6 @@ class Structure(IStructure, collections.MutableSequence):
             frac_coords = self._lattice.get_fractional_coords(coords)
         else:
             frac_coords = coords
-        properties = properties or self._sites[i].get("properties", None)
 
         new_site = PeriodicSite(species, frac_coords, self._lattice,
                                 properties=properties)
