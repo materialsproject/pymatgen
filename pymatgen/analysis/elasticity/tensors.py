@@ -28,6 +28,7 @@ from scipy.linalg import sqrtm
 import numpy as np
 import itertools
 import warnings
+from monty.dev import requires
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
@@ -38,26 +39,30 @@ reverse_voigt_map = np.array([[0, 5, 4],
                               [5, 1, 3],
                               [4, 3, 2]])
 
-class TensorBase(np.ndarray):
+class Tensor(np.ndarray):
     """
     Base class for doing useful general operations on Nth order tensors,
     without restrictions on the type (stress, elastic, strain, piezo, etc.)
     """
 
-    def __new__(cls, input_array, vscale = None):
+    def __new__(cls, input_array, vscale = None, check_rank=None):
         """
-        Create a TensorBase object.  Note that the constructor uses __new__
+        Create a Tensor object.  Note that the constructor uses __new__
         rather than __init__ according to the standard method of
         subclassing numpy ndarrays.
 
         Args:
-            input_array: (3xN array-like): the 3xN array-like representing
-                a tensor quantity
+            input_array: (array-like with shape 3^N): array-like representing
+                a tensor quantity in standard (i. e. non-voigt) notation
             vscale: (N x M array-like): a matrix corresponding
                 to the coefficients of the voigt-notation tensor
         """
         obj = np.asarray(input_array).view(cls)
         obj.rank = len(obj.shape)
+
+        if check_rank and check_rank != obj.rank:
+            raise ValueError("{} input must be rank {}".format(
+                obj.__class__.__name__, check_rank))
 
         vshape = tuple([3]*(obj.rank % 2) + [6]*(obj.rank // 2))
         obj._vscale = np.ones(vshape)
@@ -67,7 +72,10 @@ class TensorBase(np.ndarray):
             raise ValueError("Voigt scaling matrix must be the shape of the "
                              "voigt notation matrix or vector.")
         if not all([i == 3 for i in obj.shape]):
-            raise ValueError("Pymatgen only supports 3-dimensional tensors")
+            raise ValueError("Pymatgen only supports 3-dimensional tensors, "
+                             "and default tensor constructor uses standard "
+                             "notation.  To construct from voigt notation, use"
+                             " {}.from_voigt".format(obj.__class__.__name__))
         return obj
 
     def __array_finalize__(self, obj):
@@ -142,6 +150,19 @@ class TensorBase(np.ndarray):
         possible permutations of indices
         """
         perms = list(itertools.permutations(range(self.rank)))
+        return sum([np.transpose(self, ind) for ind in perms]) / len(perms)
+
+    @property
+    def voigt_symmetrized(self):
+        """
+        Returns a "voigt"-symmetrized tensor, i. e. a voigt-notation
+        tensor such that it is invariant wrt permutation of indices
+        """
+        if not (self.rank % 2 == 0 and self.rank > 2):
+            raise ValueError("V-symmetrization requires rank even and > 2")
+
+        v = self.voigt
+        perms = list(itertools.permutations(range(v.shape[0])))
         return sum([np.transpose(self, ind) for ind in perms]) / len(perms)
 
     def is_symmetric(self, tol=1e-5):
@@ -332,7 +353,7 @@ class TensorBase(np.ndarray):
         return self.rotate(rotation, tol=1e-2)
 
 
-class SquareTensor(TensorBase):
+class SquareTensor(Tensor):
     """
     Base class for doing useful general operations on second rank tensors
     (stress, strain etc.).
@@ -352,10 +373,8 @@ class SquareTensor(TensorBase):
                 voigt-notation vector with the tensor entries
         """
 
-        obj = super(SquareTensor, cls).__new__(cls, input_array, vscale=vscale)
-        if not (len(obj.shape) == 2):
-            raise ValueError("SquareTensor only takes 2-D "
-                             "tensors as input")
+        obj = super(SquareTensor, cls).__new__(cls, input_array, vscale,
+                                               check_rank=2)
         return obj.view(cls)
         
     @property
@@ -425,6 +444,7 @@ class SquareTensor(TensorBase):
         return polar(self, side=side)
 
 
+
 def symmetry_reduce(tensors, structure, tol = 1e-8, **kwargs):
     """
     Function that converts a list of tensors corresponding to a structure
@@ -433,7 +453,7 @@ def symmetry_reduce(tensors, structure, tol = 1e-8, **kwargs):
     tensors from the original list
 
     Args:
-        tensors (list of tensors): list of TensorBase objects to test for
+        tensors (list of tensors): list of Tensor objects to test for
             symmetrically-equivalent duplicates
         structure (Structure): structure from which to get symmetry
         tol (float): tolerance for tensor equivalence
