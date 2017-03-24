@@ -40,7 +40,7 @@ class Stress(SquareTensor):
             stress_matrix (3x3 array-like): the 3x3 array-like
                 representing the stress
         """
-        obj = super(Stress, cls).__new__(cls, stress_matrix)
+        obj = super(Stress, cls).__new__(cls, stress_matrix, check_rank=2)
         return obj.view(cls)
 
     @property

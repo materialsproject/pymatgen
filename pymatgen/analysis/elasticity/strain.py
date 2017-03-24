@@ -42,8 +42,8 @@ class Deformation(SquareTensor):
             deformation_gradient (3x3 array-like): the 3x3 array-like
                 representing the deformation gradient
         """
-        obj = super(Deformation, cls).__new__(cls, deformation_gradient)
-
+        obj = super(Deformation, cls).__new__(cls, deformation_gradient,
+                                              check_rank=2)
         return obj.view(cls)
 
     def is_independent(self, tol=1e-8):
@@ -187,7 +187,8 @@ class Strain(SquareTensor):
         """
         vscale = np.ones((6,))
         vscale[3:] *= 2
-        obj = super(Strain, cls).__new__(cls, strain_matrix, vscale=vscale)
+        obj = super(Strain, cls).__new__(cls, strain_matrix, vscale=vscale, 
+                                         check_rank=2)
         if dfm is None:
             obj._dfm = convert_strain_to_deformation(obj)
         else:
