@@ -970,7 +970,7 @@ batch_adapter:
         # Submit the task and save the queue id.
         try:
             qjob, process = self.qadapter.submit_to_queue(script_file)
-            task.set_status(task.S_SUB, msg='submitted to queue')
+            task.set_status(task.S_SUB, msg='Submitted to queue')
             task.set_qjob(qjob)
             return process
 
@@ -1087,6 +1087,8 @@ class AbinitBuild(object):
             fh.write(script)
         qjob, process = manager.qadapter.submit_to_queue(script_file)
         process.wait()
+        # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
+        process.stderr.close()
 
         if process.returncode != 0:
             logger.critical("Error while executing %s" % script_file)
@@ -2644,6 +2646,8 @@ class AbinitTask(Task):
         process = self.manager.to_shell_manager(mpi_procs=1).launch(self)
         self.history.pop()
         retcode = process.wait()
+        # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
+        process.stderr.close()
 
         # Remove the variables added for the automatic parallelization
         self.input.remove_vars(list(autoparal_vars.keys()))
@@ -4227,6 +4231,8 @@ class OpticTask(Task):
         process = self.manager.to_shell_manager(mpi_procs=1).launch(self)
         self.history.pop()
         retcode = process.wait()
+        # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
+        process.stderr.close()
 
         # Remove the variables added for the automatic parallelization
         self.input.remove_vars(list(autoparal_vars.keys()))
