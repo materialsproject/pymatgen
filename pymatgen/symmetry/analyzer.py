@@ -1297,16 +1297,15 @@ class SpacegroupOperations(list):
                 if test_site.is_periodic_image(site, symm_prec, False):
                     return True
             return False
+
         for op in self:
             newsites2 = [PeriodicSite(site.species_and_occu,
                                       op.operate(site.frac_coords),
                                       site.lattice) for site in sites2]
-            ismapping = True
             for site in newsites2:
                 if not in_sites(site):
-                    ismapping = False
                     break
-            if ismapping:
+            else:
                 return True
         return False
 
