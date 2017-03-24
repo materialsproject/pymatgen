@@ -3380,7 +3380,6 @@ class DfptTask(AbinitTask):
             return None
 
 
-# TODO Remove
 class DdeTask(DfptTask):
     """Task for DDE calculations."""
 
@@ -3422,7 +3421,6 @@ class DdeTask(DfptTask):
         return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
 
 
-# TODO Remove
 class DteTask(DfptTask):
     """Task for DTE calculations."""
 
