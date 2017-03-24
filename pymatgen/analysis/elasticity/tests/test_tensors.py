@@ -204,7 +204,6 @@ class TensorBaseTest(PymatgenTest):
         self.assertTrue(self.rand_rank3.symmetrized.is_symmetric())
         self.assertTrue(self.rand_rank4.symmetrized.is_symmetric())
     
-    
     def test_is_symmetric(self):
         self.assertTrue(self.symm_rank2.is_symmetric())
         self.assertTrue(self.symm_rank3.is_symmetric())
@@ -229,10 +228,12 @@ class TensorBaseTest(PymatgenTest):
             ieee = TensorBase(entry['ieee_tensor'])
             struct = Structure.from_dict(entry['structure'])
             diff = np.max(abs(ieee - orig.convert_to_ieee(struct)))
-            err_msg = "{} IEEE conversion failed with max diff {}".format(
-                xtal, diff) 
+            err_msg = "{} IEEE conversion failed with max diff {}. Numpy version: {}".format(
+                xtal, diff, np.__version__)
+            print(ieee)
+            print(orig.convert_to_ieee(struct))
             self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct),
-                                        err_msg=err_msg, decimal=1)
+                                        err_msg=err_msg, decimal=3)
 
     def test_from_voigt(self):
         with self.assertRaises(ValueError):
