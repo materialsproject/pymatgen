@@ -33,6 +33,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from numpy.linalg import norm
+from collections import sequence
 
 voigt_map = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
 reverse_voigt_map = np.array([[0, 5, 4],
@@ -351,6 +352,59 @@ class Tensor(np.ndarray):
             rotation[0] = np.cross(rotation[1], rotation[2])
 
         return self.rotate(rotation, tol=1e-2)
+
+class TensorCollection(sequence):
+    """
+    A sequence of tensors that can be used for fitting data
+    or for having a tensor expansion
+    """
+    def __init__(self, tensor_list, base_class = Tensor):
+        self.tensors = [base_class(t) if not isinstance(t, base_class)
+                        else t for t in tensor_list]
+
+    def __len__(self):
+        return len(self.tensors)
+
+    def __getitem__(self, ind):
+        return self.tensors[ind]
+
+    def __iter__(self):
+        return self.tensors.__iter__
+
+    def zeroed(self, tol=1e-3):
+        return self.__class__([t.zeroed(tol) for t in self])
+
+    def transform(self, symm_op):
+        return self.__class__([t.transform(symm_op) for t in self])
+
+    def rotate(self, matrix, tol=1e-3):
+        return self.__class__([t.transform(matrix, tol) for t in self])
+
+    @property
+    def symmetrized(self):
+        return self.__class__([t.symmetrized for t in self])
+
+    def is_symmetric(self, tol=1e-5):
+        return all([t.is_symmetric(tol) for t in self])
+
+    def fit_to_structure(self, structure, symprec=0.1):
+        return self.__class__([t.fit_to_structure(structure, symprec) 
+                               for t in self])
+
+    @property
+    def voigt(self):
+        return [t.voigt for t in self]
+
+    @property
+    def is_voigt_symmetric(self):
+        return all([t.is_voigt_symmetric for t in self])
+
+    @classmethod
+    def from_voigt(cls, voigt_input_list, base_class=Tensor):
+        return cls([base_class.from_voigt(v) for v in voigt_input_list])
+
+    def convert_to_ieee(self, structure):
+        return self.__class__([t.convert_to_ieee(structure) for t in self])
 
 
 class SquareTensor(Tensor):
