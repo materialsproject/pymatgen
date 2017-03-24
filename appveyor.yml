@@ -27,6 +27,7 @@ install:
   # Install the build dependencies of the project via conda and pip
   - 'conda install --yes --quiet numpy scipy matplotlib setuptools wheel'
   - 'conda install --yes --quiet --channel matsci spglib'
+  - 'conda update --yes --all'
   - "pip install -r requirements.txt"
   - "pip install pybtex nose sympy unittest2 coverage ase coveralls"  # Note that pyhull is excluded because it does not work on Windows.
 
