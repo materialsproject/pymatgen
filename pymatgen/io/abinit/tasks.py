@@ -1626,6 +1626,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def wait(self):
         """Wait for child process to terminate. Set and return returncode attribute."""
         self._returncode = self.process.wait()
+        try:
+            self.process.stderr.close()
+        except:
+            pass
         self.set_status(self.S_DONE, "status set to Done")
 
         return self._returncode
