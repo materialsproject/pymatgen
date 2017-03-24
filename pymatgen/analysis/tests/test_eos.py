@@ -8,9 +8,10 @@ import numpy as np
 import unittest
 
 from pymatgen.analysis.eos import EOS, NumericalEOS
+from pymatgen.util.testing import PymatgenTest
 
 
-class EOSTest(unittest.TestCase):
+class EOSTest(PymatgenTest):
 
     def setUp(self):
         # Si data from Cormac
