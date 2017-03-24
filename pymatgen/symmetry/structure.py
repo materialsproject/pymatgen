@@ -3,6 +3,8 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import numpy as np
+from pymatgen.core.structure import Structure
 
 """
 This module implements symmetry-related structure forms.
@@ -15,9 +17,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 9, 2012"
-
-import numpy as np
-from pymatgen.core.structure import Structure
 
 
 class SymmetrizedStructure(Structure):
