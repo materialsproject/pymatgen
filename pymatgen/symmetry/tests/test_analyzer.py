@@ -4,18 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-Created on Mar 9, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 9, 2012"
-
 import unittest
 import os
 
@@ -29,6 +17,18 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
 from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Molecule, Structure
+
+"""
+Created on Mar 9, 2012
+"""
+
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "Mar 9, 2012"
 
 
 test_dir_mol = os.path.join(os.path.dirname(__file__), "..", "..", "..",
