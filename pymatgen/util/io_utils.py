@@ -175,7 +175,7 @@ class AtomicFile(object):
             #   FileExistsError: [WinError 183] Cannot create a file when that file already exists:
             # On Windows, if dst already exists, OSError will be raised even if it is a file;
             # there may be no way to implement an atomic rename when dst names an existing file.
-            if os.name == 'nt':
+            if os.name == 'nt' and os.path.exists(self.__name):
                 os.remove(self.__name)
             os.rename(self._tempname, self.__name)
 
