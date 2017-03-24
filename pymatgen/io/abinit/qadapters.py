@@ -72,7 +72,7 @@ class MpiRunner(object):
     different syntax and options supported by the different mpirunners.
     """
     def __init__(self, name, type=None, options=""):
-        self.name = name
+        self.name = name if name else ""
         self.type = None
         self.options = options
 
@@ -104,7 +104,7 @@ class MpiRunner(object):
                            "--exe `which " + executable + "` ", stdin, stdout, stderr])
         else:
             if qad.mpi_procs != 1:
-                raise ValueError("Cannot use mpi_procs > when mpi_runner basename=%" % basename)
+                raise ValueError("Cannot use mpi_procs > when mpi_runner basename=%s" % basename)
             cmd = " ".join([executable, stdin, stdout, stderr])
 
         return cmd
@@ -112,7 +112,7 @@ class MpiRunner(object):
     #@property
     #def has_mpirun(self):
     #    """True if we are running via mpirun, mpiexec ..."""
-    #    return self.name is not None
+    #    return self.name in ("mpirun", "mpiexec")
 
 
 class OmpEnv(AttrDict):
@@ -374,7 +374,7 @@ job:
     modules:          # List of modules to be imported before running the code (DEFAULT: empty).
                       # NB: Error messages produced by module load are redirected to mods.err
     shell_env:        # Dictionary with shell environment variables.
-    mpi_runner:       # MPI runner. Possible values in [mpirun, mpiexec, None]
+    mpi_runner:       # MPI runner. Possible values in ["mpirun", "mpiexec", "srun", None]
                       # DEFAULT: None i.e. no mpirunner is used.
     shell_runner:     # Used for running small sequential jobs on the front-end. Set it to None
                       # if mpirun or mpiexec are not available on the fron-end. If not
@@ -385,9 +385,13 @@ job:
 # dictionary with the name of the queue and optional parameters
 # used to build/customize the header of the submission script.
 queue:
-    qname:            # Name of the queue (string, MANDATORY)
+    qtype:            # String defining the qapapter type e.g. slurm, shell ...
+    qname:            # Name of the submission queue (string, MANDATORY)
     qparams:          # Dictionary with values used to generate the header of the job script
+                      # We use the *normalized* version of the options i.e dashes in the official name
+                      # are replaced by underscores e.g. ``--mail-type`` becomes ``mail_type``
                       # See pymatgen.io.abinit.qadapters.py for the list of supported values.
+                      # Use ``qverbatim`` to pass additional options that are not included in the template.
 
 # dictionary with the constraints that must be fulfilled in order to run on this queue.
 limits:
