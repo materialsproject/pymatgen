@@ -47,10 +47,10 @@ class EOSTest(unittest.TestCase):
         numerical_eos = NumericalEOS(self.volumes, self.energies)
         numerical_eos.fit()
         self.assertGreater(len(numerical_eos.eos_params), 3)
-        self.assertAlmostEqual(numerical_eos.e0, self.num_eos_fit.e0)
-        self.assertAlmostEqual(numerical_eos.v0, self.num_eos_fit.v0)
-        self.assertAlmostEqual(numerical_eos.b0, self.num_eos_fit.b0)
-        self.assertAlmostEqual(numerical_eos.b1, self.num_eos_fit.b1)
+        self.assertAlmostEqual(numerical_eos.e0, self.num_eos_fit.e0, 3)
+        self.assertAlmostEqual(numerical_eos.v0, self.num_eos_fit.v0, 3)
+        self.assertAlmostEqual(numerical_eos.b0, self.num_eos_fit.b0, 3)
+        self.assertAlmostEqual(numerical_eos.b1, self.num_eos_fit.b1, 3)
         self.assertAlmostEqual(numerical_eos.eos_params, self.num_eos_fit.eos_params)
 
     def test_numerical_eos_values(self):
