@@ -22,7 +22,7 @@ import functools
 
 def pmg_serialize(method):
     """
-    Decorator for methods that add MSON serializations keys 
+    Decorator for methods that add MSON serializations keys
     to the dictionary. See documentation of MSON for more details
     """
     @functools.wraps(method)
@@ -42,6 +42,6 @@ def json_pretty_dump(obj, filename):
     Serialize obj as a JSON formatted stream to the given filename (
     pretty printing version)
     """
-    with open(filename, "w") as fh:
+    with open(filename, "wt") as fh:
         json.dump(obj, fh, indent=4, sort_keys=4)
 

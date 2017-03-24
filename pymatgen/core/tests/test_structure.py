@@ -659,6 +659,13 @@ class StructureTest(PymatgenTest):
         s2 = Structure.from_dict(d)
         self.assertEqual(type(s2), Structure)
 
+    def test_to_from_abivars(self):
+        """Test as_dict, from_dict with fmt == abivars."""
+        d = self.structure.as_dict(fmt="abivars")
+        s2 = Structure.from_dict(d, fmt="abivars")
+        self.assertEqual(s2, self.structure)
+        self.assertEqual(type(s2), Structure)
+
     def test_to_from_file_string(self):
         for fmt in ["cif", "json", "poscar", "cssr", "yaml", "xsf"]:
             s = self.structure.to(fmt=fmt)
