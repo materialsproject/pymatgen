@@ -176,7 +176,11 @@ class AtomicFile(object):
             # On Windows, if dst already exists, OSError will be raised even if it is a file;
             # there may be no way to implement an atomic rename when dst names an existing file.
             if os.name == 'nt':
-                os.remove(self.__name)
+                try:
+                    os.remove(self.__name)
+                except FileNotFoundError:
+                    # Os.remove fails. We will ignore it for now.
+                    pass
             os.rename(self._tempname, self.__name)
 
     def discard(self):
