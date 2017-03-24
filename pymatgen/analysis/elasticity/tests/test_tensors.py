@@ -204,7 +204,6 @@ class TensorBaseTest(PymatgenTest):
         self.assertTrue(self.rand_rank3.symmetrized.is_symmetric())
         self.assertTrue(self.rand_rank4.symmetrized.is_symmetric())
     
-    
     def test_is_symmetric(self):
         self.assertTrue(self.symm_rank2.is_symmetric())
         self.assertTrue(self.symm_rank3.is_symmetric())

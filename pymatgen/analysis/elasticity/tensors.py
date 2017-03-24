@@ -2,15 +2,22 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals
-from __future__ import absolute_import
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
+
+from scipy.linalg import polar
+import numpy as np
+import itertools
+import warnings
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.core.operations import SymmOp
+from pymatgen.core.lattice import Lattice
 
 """
 This module provides a base class for tensor-like objects and methods for
 basic tensor manipulation.  It also provides a class, SquareTensor,
 that provides basic methods for creating and manipulating rank 2 tensors
 """
-
 
 __author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -22,21 +29,11 @@ __email__ = "montoyjh@lbl.gov"
 __status__ = "Development"
 __date__ = "March 22, 2012"
 
-
-from scipy.linalg import polar
-from scipy.linalg import sqrtm
-import numpy as np
-import itertools
-import warnings
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.operations import SymmOp
-from pymatgen.core.lattice import Lattice
-from numpy.linalg import norm
-
 voigt_map = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
 reverse_voigt_map = np.array([[0, 5, 4],
                               [5, 1, 3],
                               [4, 3, 2]])
+
 
 class TensorBase(np.ndarray):
     """
@@ -44,7 +41,7 @@ class TensorBase(np.ndarray):
     without restrictions on the type (stress, elastic, strain, piezo, etc.)
     """
 
-    def __new__(cls, input_array, vscale = None):
+    def __new__(cls, input_array, vscale=None):
         """
         Create a TensorBase object.  Note that the constructor uses __new__
         rather than __init__ according to the standard method of
@@ -59,7 +56,7 @@ class TensorBase(np.ndarray):
         obj = np.asarray(input_array).view(cls)
         obj.rank = len(obj.shape)
 
-        vshape = tuple([3]*(obj.rank % 2) + [6]*(obj.rank // 2))
+        vshape = tuple([3] * (obj.rank % 2) + [6] * (obj.rank // 2))
         obj._vscale = np.ones(vshape)
         if vscale is not None:
             obj._vscale = vscale
@@ -77,7 +74,6 @@ class TensorBase(np.ndarray):
         self._vscale = getattr(obj, '_vscale', None)
         self._vdict = getattr(obj, '_vdict', None)
 
-
     def __array_wrap__(self, obj):
         """
         Overrides __array_wrap__ methods in ndarray superclass to avoid errors
@@ -88,7 +84,7 @@ class TensorBase(np.ndarray):
             return obj[()]
         else:
             return np.ndarray.__array_wrap__(self, obj)
-        
+
     def __hash__(self):
         """
         define a hash function, since numpy arrays
@@ -100,7 +96,7 @@ class TensorBase(np.ndarray):
         return "{}({})".format(cls.__class__.__name__,
                                cls.__str__())
 
-    def zeroed(self, tol = 1e-3):
+    def zeroed(self, tol=1e-3):
         """
         returns the matrix with all entries below a certain threshold
         (i.e. tol) set to zero
@@ -154,7 +150,7 @@ class TensorBase(np.ndarray):
         """
         return (self - self.symmetrized < tol).all()
 
-    def fit_to_structure(self, structure, symprec = 0.1):
+    def fit_to_structure(self, structure, symprec=0.1):
         """
         Returns a tensor that is invariant with respect to symmetry
         operations corresponding to a structure
@@ -197,7 +193,7 @@ class TensorBase(np.ndarray):
         if not self.is_voigt_symmetric:
             warnings.warn("Tensor is not symmetric, information may "
                           "be lost in voigt conversion.")
-        return v_matrix*self._vscale
+        return v_matrix * self._vscale
 
     @property
     def is_voigt_symmetric(self):
@@ -207,7 +203,7 @@ class TensorBase(np.ndarray):
         possible permutations to be used in a tensor transpose
         """
         transpose_pieces = [[[0 for i in range(self.rank % 2)]]]
-        transpose_pieces += [[range(j, j + 2)] for j in 
+        transpose_pieces += [[range(j, j + 2)] for j in
                              range(self.rank % 2, self.rank, 2)]
         for n in range(self.rank % 2, len(transpose_pieces)):
             if len(transpose_pieces[n][0]) == 2:
@@ -228,14 +224,14 @@ class TensorBase(np.ndarray):
             Rank (int): Tensor rank to generate the voigt map
         """
         vdict = {}
-        for ind in itertools.product(*[range(3)]*rank):
+        for ind in itertools.product(*[range(3)] * rank):
             v_ind = ind[:rank % 2]
             for j in range(rank // 2):
-                pos = rank % 2 + 2*j
-                v_ind += (reverse_voigt_map[ind[pos:pos+2]],)
+                pos = rank % 2 + 2 * j
+                v_ind += (reverse_voigt_map[ind[pos:pos + 2]],)
             vdict[ind] = v_ind
         return vdict
-        
+
     @classmethod
     def from_voigt(cls, voigt_input):
         """
@@ -245,7 +241,7 @@ class TensorBase(np.ndarray):
         """
         voigt_input = np.array(voigt_input)
         rank = sum(voigt_input.shape) // 3
-        t = cls(np.zeros([3]*rank))
+        t = cls(np.zeros([3] * rank))
         if voigt_input.shape != t._vscale.shape:
             raise ValueError("Invalid shape for voigt matrix")
         voigt_input /= t._vscale
@@ -264,9 +260,13 @@ class TensorBase(np.ndarray):
             structure (Structure): a structure associated with the
                 tensor to be converted to the IEEE standard
         """
+
         def get_uvec(vec):
             """ Gets a unit vector parallel to input vector"""
-            return vec / np.linalg.norm(vec)
+            l = np.linalg.norm(vec)
+            if l < 1e-8:
+                return vec
+            return vec / l
 
         # Check conventional setting:
         sga = SpacegroupAnalyzer(structure)
@@ -275,30 +275,29 @@ class TensorBase(np.ndarray):
         conv_latt = Lattice(np.transpose(np.dot(np.transpose(
             structure.lattice.matrix), np.linalg.inv(trans_mat))))
         xtal_sys = sga.get_crystal_system()
-        
+
         vecs = conv_latt.matrix
         lengths = np.array(conv_latt.abc)
         angles = np.array(conv_latt.angles)
-        a = b = c = None
-        rotation = np.zeros((3,3))
+        rotation = np.zeros((3, 3))
 
         # IEEE rules: a,b,c || x1,x2,x3
         if xtal_sys == "cubic":
-            rotation = [vecs[i]/lengths[i] for i in range(3)]
+            rotation = [vecs[i] / lengths[i] for i in range(3)]
 
         # IEEE rules: a=b in length; c,a || x3, x1
         elif xtal_sys == "tetragonal":
-            rotation = np.array([vec/mag for (mag, vec) in 
+            rotation = np.array([vec / mag for (mag, vec) in
                                  sorted(zip(lengths, vecs),
-                                        key = lambda x: x[0])])
+                                        key=lambda x: x[0])])
             if abs(lengths[2] - lengths[1]) < abs(lengths[1] - lengths[0]):
                 rotation[0], rotation[2] = rotation[2], rotation[0].copy()
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
 
         # IEEE rules: c<a<b; c,a || x3,x1
         elif xtal_sys == "orthorhombic":
-            rotation = [vec/mag for (mag, vec) in sorted(zip(lengths, vecs))]
-            rotation = np.roll(rotation, 2, axis = 0)
+            rotation = [vec / mag for (mag, vec) in sorted(zip(lengths, vecs))]
+            rotation = np.roll(rotation, 2, axis=0)
 
         # IEEE rules: c,a || x3,x1, c is threefold axis
         # Note this also includes rhombohedral crystal systems
@@ -317,15 +316,15 @@ class TensorBase(np.ndarray):
             n_umask = np.logical_not(angles == angles[u_index])
             rotation[1] = get_uvec(vecs[u_index])
             # Shorter of remaining lattice vectors for c axis
-            c = [vec/mag for (mag, vec) in 
+            c = [vec / mag for (mag, vec) in
                  sorted(zip(lengths[n_umask], vecs[n_umask]))][0]
             rotation[2] = np.array(c)
             rotation[0] = np.cross(rotation[1], rotation[2])
-        
+
         # IEEE rules: c || x3
         elif xtal_sys == "triclinic":
-            rotation = [vec/mag for (mag, vec) in sorted(zip(lengths, vecs))]
-            rotation = np.roll(rotation, 2, axis = 0)
+            rotation = [vec / mag for (mag, vec) in sorted(zip(lengths, vecs))]
+            rotation = np.roll(rotation, 2, axis=0)
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[1]))
             rotation[0] = np.cross(rotation[1], rotation[2])
 
@@ -357,7 +356,7 @@ class SquareTensor(TensorBase):
             raise ValueError("SquareTensor only takes 2-D "
                              "tensors as input")
         return obj.view(cls)
-        
+
     @property
     def trans(self):
         """
@@ -397,8 +396,8 @@ class SquareTensor(TensorBase):
         if include_improper:
             det = np.abs(det)
         return (np.abs(self.inv - self.trans) < tol).all() \
-            and (np.abs(det - 1.) < tol)
-    
+               and (np.abs(det - 1.) < tol)
+
     def get_scaled(self, scale_factor):
         """
         Scales the tensor by a certain multiplicative scale factor
@@ -416,7 +415,7 @@ class SquareTensor(TensorBase):
         which are the values of the coefficients of the characteristic
         polynomial for the matrix
         """
-        return np.poly(self)[1:]*np.array([-1, 1, -1])
+        return np.poly(self)[1:] * np.array([-1, 1, -1])
 
     def polar_decomposition(self, side='right'):
         """
@@ -425,7 +424,7 @@ class SquareTensor(TensorBase):
         return polar(self, side=side)
 
 
-def symmetry_reduce(tensors, structure, tol = 1e-8, **kwargs):
+def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
     """
     Function that converts a list of tensors corresponding to a structure
     and returns a dictionary consisting of unique tensor keys with symmop
@@ -452,7 +451,7 @@ def symmetry_reduce(tensors, structure, tol = 1e-8, **kwargs):
         for unique_tensor, symmop in itertools.product(unique_tdict, symmops):
             if (np.abs(unique_tensor.transform(symmop) - tensor) < tol).all():
                 unique_tdict[unique_tensor].append(symmop)
-                is_unique=False
+                is_unique = False
                 break
         if is_unique:
             unique_tdict[tensor] = []
