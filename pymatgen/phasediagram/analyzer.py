@@ -245,6 +245,11 @@ class PDAnalyzer(object):
         c1 = self._pd.pd_coords(comp1)
         c2 = self._pd.pd_coords(comp2)
 
+        # none of the projections work if c1 == c2, so just return *copies*
+        # of the inputs
+        if np.all(c1 == c2):
+            return[comp1.copy(), comp2.copy()]
+
         intersections = [c1, c2]
         for sc in self._pd.simplexes:
             intersections.extend(sc.line_intersection(c1, c2))
