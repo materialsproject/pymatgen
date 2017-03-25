@@ -1341,19 +1341,3 @@ class PointGroupOperations(list):
     def __repr__(self):
         return self.__str__()
 
-
-if __name__ == "__main__":
-    from pymatgen.io.vasp import Vasprun
-    v = Vasprun("../../test_files/vasprun.xml")
-    a = SpacegroupAnalyzer(v.final_structure)
-    print(v.actual_kpoints)
-    import spglib
-
-    shift = (1, 1, 1)
-    mapping, grid = spglib.get_ir_reciprocal_mesh(
-        np.array([1, 1, 3]), a._cell, is_shift=shift)
-    mapping = list(mapping)
-    grid = (np.array(grid) + np.array(shift) * (0.5, 0.5, 0.5)) / [1, 1, 3]
-    print(grid)
-    wts = a.get_kpoint_weights(v.actual_kpoints)
-

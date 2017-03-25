@@ -28,7 +28,8 @@ class SymmetrizedStructure(Structure):
 
     Args:
         structure (Structure): Original structure
-        spacegroup (Spacegroup): An input spacegroup from SpacegroupAnalyzer.
+        spacegroup (SpacegroupOperations): An input SpacegroupOperations from 
+            SpacegroupAnalyzer.
         equivalent_positions: Equivalent positions from SpacegroupAnalyzer.
 
     .. attribute: equivalent_indices
