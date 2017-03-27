@@ -4,12 +4,12 @@ branches:
 
 environment:
   matrix:
-    - PYTHON: "C:\\Miniconda35-x64"
-      PYTHON_VERSION: "3.5"
+    - PYTHON: "C:\\Miniconda36-x64"
+      PYTHON_VERSION: "3.6"
       PYTHON_ARCH: "64"
       platform: x64
       STANDALONE: "FALSE"
-      CONDA_PY: "35"
+      CONDA_PY: "36"
       CONDA_BUILD: "TRUE"
       SPLIT_RUN: "FALSE"
   PMG_MAPI_KEY:
