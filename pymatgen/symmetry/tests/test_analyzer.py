@@ -168,6 +168,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         s2 = symm_struct[symm_struct.equivalent_indices[1][1]]
         self.assertEqual(s1, s2)
         self.assertEqual(self.sg4.get_symmetrized_structure()[0].magmom, 0.1)
+        self.assertEqual(symm_struct.wyckoff_symbols[0], '16h')
 
     def test_find_primitive(self):
         """

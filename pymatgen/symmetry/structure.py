@@ -37,7 +37,8 @@ class SymmetrizedStructure(Structure):
         indices of structure grouped by equivalency
     """
 
-    def __init__(self, structure, spacegroup, equivalent_positions):
+    def __init__(self, structure, spacegroup, equivalent_positions,
+                 wyckoff_letters):
         super(SymmetrizedStructure, self).__init__(
             structure.lattice, [site.species_and_occu for site in structure],
             structure.frac_coords, site_properties=structure.site_properties)
@@ -46,9 +47,13 @@ class SymmetrizedStructure(Structure):
         self.site_labels = equivalent_positions
         self.equivalent_indices = [[] for i in range(len(u))]
         self._equivalent_sites = [[] for i in range(len(u))]
+        wyckoff_symbols = [[] for i in range(len(u))]
         for i, inv in enumerate(inv):
             self.equivalent_indices[inv].append(i)
             self._equivalent_sites[inv].append(self.sites[i])
+            wyckoff_symbols[inv].append(wyckoff_letters[i])
+        self.wyckoff_symbols = ["%d%s" % (len(w), w[0])
+                                for w in wyckoff_symbols]
 
     @property
     def spacegroup(self):

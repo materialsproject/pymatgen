@@ -267,13 +267,18 @@ class SpacegroupAnalyzer(object):
         """
         d = spglib.get_symmetry(self._cell, symprec=self._symprec,
                                 angle_tolerance=self._angle_tol)
-        # Sometimes spglib returns small translation vectors, e.g. [1e-4, 2e-4, 1e-4]
-        # (these are in fractional coordinates, so should be small denominator fractions)
+        # Sometimes spglib returns small translation vectors, e.g.
+        # [1e-4, 2e-4, 1e-4]
+        # (these are in fractional coordinates, so should be small denominator
+        # fractions)
         trans = []
         for t in d["translations"]:
-            trans.append([float(Fraction.from_float(c).limit_denominator(1000)) for c in t])
+            trans.append([float(Fraction.from_float(c).limit_denominator(1000))
+                          for c in t])
         trans = np.array(trans)
-        trans[np.abs(trans) == 1] = 0  # fractional translations of 1 are more simply 0
+
+        # fractional translations of 1 are more simply 0
+        trans[np.abs(trans) == 1] = 0
         return d["rotations"], trans
 
     def get_symmetry_operations(self, cartesian=False):
@@ -334,7 +339,8 @@ class SpacegroupAnalyzer(object):
                                   self.get_space_group_number(),
                                   self.get_symmetry_operations())
         return SymmetrizedStructure(self._structure, sg,
-                                    ds["equivalent_atoms"])
+                                    ds["equivalent_atoms"],
+                                    ds["wyckoffs"])
 
     def get_refined_structure(self):
         """
@@ -551,8 +557,7 @@ class SpacegroupAnalyzer(object):
             transf = np.eye(3, 3)
 
         elif latt_type == "monoclinic":
-            #you want to keep the c axis where it is
-            #to keep the C- settings
+            # You want to keep the c axis where it is to keep the C- settings
 
             if self.get_space_group_operations().int_symbol.startswith("C"):
                 transf = np.zeros(shape=(3, 3))
