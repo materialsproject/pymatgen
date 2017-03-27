@@ -1146,7 +1146,7 @@ def repair_broken_bonds(bonds, bulk, slabs,
                     # bulk), add the repaired slab to the list
 
                     fixed_slab = Slab(s.lattice, s.species, s.frac_coords,
-                                      s.miller_index, bulk, s.shift,
+                                      s.miller_index, s.oriented_unit_cell, s.shift,
                                       s.scale_factor)
                     repaired_slabs.append(fixed_slab)
 
