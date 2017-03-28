@@ -1012,241 +1012,283 @@ def reduce_vector(vector):
     return vector
 
 
+class FixedSlabGenerator(object):
 
-def move_to_other_side(init_slab, index_of_sites, to_top=True):
+    def __init__(self, initial_structure, miller_index, min_slab_size,
+                 min_vacuum_size, tol=1e-4, primitive=True):
 
+        # Set primitive to false first in order to get proper
+        # ratios to move sites from one surface to another
+        slabgen = SlabGenerator(initial_structure, miller_index, min_slab_size,
+                                min_vacuum_size, center_slab=True, primitive=False)
 
-    slab = init_slab.copy()
-    sites = list(slab.sites)
+        self.all_slabs = slabgen.get_slabs(tol=tol)
+        self.initial_structure = initial_structure
+        self.primitive = primitive
+        self.tol = tol
 
-    sortedcsites = sorted(sites, key=lambda site: site.c)
-
-    # Determine what fraction the slab is of the total cell size in the
-    # c direction. Round to nearest rational number.
-    nlayers_total = int(round(slab.lattice.c /
-                              slab.oriented_unit_cell.lattice.c))
-    nlayers_slab = int(round((sortedcsites[-1].c - sortedcsites[0].c)
-                             * nlayers_total))
-
-    slab_ratio = nlayers_slab / nlayers_total
-
-    # Move by coordinates
-    species, coords = [], []
-    for i, site in enumerate(slab):
-        #     print(site.frac_coords[1], site.frac_coords[2])
-        if i in index_of_sites:
-            fcoords = site.frac_coords
-            if to_top:
-                fcoords[2] += slab_ratio
-            else:
-                fcoords[2] -= slab_ratio
-            species.append(site.species_string)
-            coords.append(fcoords)
-
-        else:
-            species.append(site.species_string)
-            coords.append(site.frac_coords)
-
-    s = Structure(slab.lattice, species, coords)
-    manual_slab = Slab(s.lattice, s.species, s.frac_coords,
-                       slab.miller_index, slab.oriented_unit_cell,
-                       slab.shift, slab.scale_factor)
-    return manual_slab
+    def move_to_other_side(self, init_slab, index_of_sites, to_top=True):
 
 
-def repair_broken_bonds(bonds, bulk, slabs,
-                        termination_tol=0.1):
-    # Looks for terminations in between PO4s. Takes in a list of slabs
-    # For now, this algo only works for one type of bond at a time
+        slab = init_slab.copy()
+        sites = list(slab.sites)
 
-    bound_atoms = list(bonds.keys())[0]
-    element1 = bound_atoms[0]
-    element2 = bound_atoms[1]
-    blength = bonds[bound_atoms]
+        sortedcsites = sorted(sites, key=lambda site: site.c)
 
-    repaired_slabs = []
-    broken = []
-    # find coordination number of element1
-    # wrt element2 in bulk ucell
-    cnlist = []
-    for i, site in enumerate(bulk):
-        if site.species_string == element1:
-            cnlist.append(len(bulk.get_neighbors(site, blength)))
-    bulk_cn = np.mean(cnlist)
+        # Determine what fraction the slab is of the total cell size in the
+        # c direction. Round to nearest rational number.
+        nlayers_total = int(round(slab.lattice.c /
+                                  slab.oriented_unit_cell.lattice.c))
+        nlayers_slab = int(round((sortedcsites[-1].c - sortedcsites[0].c)
+                                 * nlayers_total))
 
-    for s in slabs:
+        slab_ratio = nlayers_slab / nlayers_total
 
-        # get the top most and bottom most site index in our slabs
-        cdist = [site.frac_coords[2] for site in s]
-
-        # pre-determine the number of broken polyhedrons
-        # first so we will know how many iterations
-        # of repairs to do
-        to_repair = []
-        for i, site in enumerate(s):
-
-            if site.species_string == element1:
-                poly_coord = len(s.get_neighbors(site, blength))
-
-                # suppose we find an undercoordinated reference ion
-                if poly_coord < bulk_cn:
-                    to_repair.append(i)
-
-        # Iterate through the repair process with
-        # the number of polyhedrons to repair
-        for n in to_repair:
-            poly_coord = len(s.get_neighbors(s[n], blength))
-            # is it on the top or bottom?
-            to_top = False if s[n].frac_coords[2] < 0.5 else True
-
-            # get the number of element2
-            # missing in the polyhedron
-            missno = bulk_cn - poly_coord
-
-            tomove = []
-            for ii, site2 in enumerate(s):
+        # Move by coordinates
+        species, coords = [], []
+        for i, site in enumerate(slab):
+            #     print(site.frac_coords[1], site.frac_coords[2])
+            if i in index_of_sites:
+                fcoords = site.frac_coords
                 if to_top:
-                    if min(cdist) + termination_tol > \
-                            site2.frac_coords[2] >= min(cdist):
-                        if site2.species_string == element2:
-                            tomove.append(ii)
-
+                    fcoords[2] += slab_ratio
                 else:
-                    if max(cdist) >= site2.frac_coords[2] \
-                            > max(cdist) - termination_tol:
+                    fcoords[2] -= slab_ratio
+                species.append(site.species_string)
+                coords.append(fcoords)
 
-                        if site2.species_string == element2:
-                            tomove.append(ii)
-
-            # move combinations of n missing
-            # atoms to other side to repair
-            for pair in itertools.combinations(tomove, int(missno)):
-
-                slabcopy = s.copy()
-                repaired = move_to_other_side(slabcopy, pair,
-                                              to_top=to_top)
-
-                # Check if the reference atom polyhedron is repaired
-                if len(repaired.get_neighbors(repaired[n],
-                                              blength)) == bulk_cn:
-                    break
-
-            s = repaired.copy()
-
-        for i, site in enumerate(repaired):
-            if site.species_string == element1:
-                poly_coord = len(repaired.get_neighbors(site,
-                                                        blength))
-                if poly_coord != bulk_cn:
-                    warnings.warn("Slab could not be repaired")
-                else:
-
-                    # if the bonds have been fixed (CN of element1
-                    # relative to element2 in slab is same as in
-                    # bulk), add the repaired slab to the list
-
-                    fixed_slab = Slab(s.lattice, s.species, s.frac_coords,
-                                      s.miller_index, s.oriented_unit_cell, s.shift,
-                                      s.scale_factor)
-                    repaired_slabs.append(fixed_slab)
-
-    s = StructureMatcher()
-    repaired = [ss[0] for ss in s.group_structures(repaired_slabs)]
-
-    return repaired
-
-
-def fix_sym_and_pol(all_slabs, ucell, bonds, sites_to_move=["Li+"]):
-
-    modded_slabs = []
-    for el in sites_to_move:
-        # This algorithm will only move
-        # around one species at a time
-
-        surfaces = []
-        for slab in all_slabs:
-            # Will only fix slabs where the species of the top sites
-            # are that of the current species we're interested in eg.
-            # only fix slabs that have Li+ at the surface
-            c_dist = [s.frac_coords[2] for s in slab]
-            if slab[c_dist.index(max(c_dist))].species_string == el:
-                surfaces.append(slab)
-            elif slab[c_dist.index(min(c_dist))].species_string == el:
-                surfaces.append(slab)
             else:
+                species.append(site.species_string)
+                coords.append(site.frac_coords)
+
+        s = Structure(slab.lattice, species, coords)
+        manual_slab = Slab(s.lattice, s.species, s.frac_coords,
+                           slab.miller_index, slab.oriented_unit_cell,
+                           slab.shift, slab.scale_factor)
+        return manual_slab
+
+
+    def repair_broken_bonds(self, bonds, slabs,
+                            termination_tol=0.1):
+        # Looks for terminations in between PO4s. Takes in a list of slabs
+        # For now, this algo only works for one type of bond at a time
+
+        bound_atoms = list(bonds.keys())[0]
+        element1 = bound_atoms[0]
+        element2 = bound_atoms[1]
+        blength = bonds[bound_atoms]
+
+        repaired_slabs = []
+
+        # find coordination number of element1
+        # wrt element2 in bulk ucell
+        cnlist = []
+        for i, site in enumerate(self.initial_structure):
+            if site.species_string == element1:
+                cnlist.append(len(self.initial_structure.get_neighbors(site,
+                                                                       blength)))
+        bulk_cn = np.mean(cnlist)
+
+        for s in slabs:
+
+            # get the top most and bottom most site index in our slabs
+            cdist = [site.frac_coords[2] for site in s]
+
+            # pre-determine the number of broken polyhedrons
+            # first so we will know how many iterations
+            # of repairs to do
+            to_repair = []
+            for i, site in enumerate(s):
+
+                if site.species_string == element1:
+                    poly_coord = len(s.get_neighbors(site, blength))
+
+                    # suppose we find an undercoordinated reference ion
+                    if poly_coord < bulk_cn:
+                        to_repair.append(i)
+
+            # If the slab requires no repairs, just add
+            # the slabs and skip the repair process
+            if not to_repair:
+                repaired_slabs.append(s)
                 continue
 
-        # Repair the specified broken bonds in those
-        # slabs and sift out any repeated repairs
-        unique = repair_broken_bonds(bonds, ucell, surfaces)
+            # Iterate through the repair process with
+            # the number of polyhedrons to repair
+            for n in to_repair:
+                poly_coord = len(s.get_neighbors(s[n], blength))
+                # is it on the top or bottom?
+                to_top = False if s[n].frac_coords[2] < 0.5 else True
 
-        # Clear the surfaces of the species we want to move
-        # and save those sites for when we need to re-add them
-        for slab in unique:
-            sites_removed = []
-            el_sites = []
-            c_dists = []
-            for s in slab:
-                c_dists.append(s.frac_coords[2])
-                if s.species_string == el:
-                    el_sites.append(s.frac_coords[2])
+                # get the number of element2
+                # missing in the polyhedron
+                missno = bulk_cn - poly_coord
 
-            # See if the surface Li is on the top or bottom
-            dist_from_top_bottom = [abs(min(el_sites) - min(c_dists)),
-                                    abs(max(el_sites) - max(c_dists))]
+                tomove = []
+                for ii, site2 in enumerate(s):
+                    if to_top:
+                        if min(cdist) + termination_tol > \
+                                site2.frac_coords[2] >= min(cdist):
+                            if site2.species_string == element2:
+                                tomove.append(ii)
 
-            # if index 1, Li on top, else Li on bottom
-            if dist_from_top_bottom.index(min(dist_from_top_bottom)):
-                el_site = max(el_sites)
-            else:
-                el_site = min(el_sites)
+                    else:
+                        if max(cdist) >= site2.frac_coords[2] \
+                                > max(cdist) - termination_tol:
 
-            # Store the sites that will be
-            # removed, then remove sites by index
-            to_remove, sites_in_slab_remove = [], []
-            for i, s in enumerate(slab):
-                if s.species_string == el:
-                    if s.frac_coords[2] == el_site:
-                        # Make sure the site we want to move/remove is
-                        # not bonded to anything we don't want to break
-                        if el in list(bonds.keys())[0]:
-                            neighbors = slab.get_neighbors(s, list(bonds.values())[0])
-                            neighbor_specs = [nn.species_string for nn, d in neighbors]
-                            bound_atom = list(bonds.keys())[0][list(bonds.keys())[0].index(el) - 1]
-                            if bound_atom in neighbor_specs:
-                                continue
-                        to_remove.append(i)
-                        sites_in_slab_remove.append(s)
-                        # If curent site we want to remove is on top, add
-                        # additional site to move on bottom vice versa
-                        if s.frac_coords[2] > 0.5:
-                            to_top = False
-                        else:
-                            to_top = True
-                        slab_copy = slab.copy()
-                        slab_copy = move_to_other_side(slab_copy, [i],
+                            if site2.species_string == element2:
+                                tomove.append(ii)
+
+                # move combinations of n missing
+                # atoms to other side to repair
+                for pair in itertools.combinations(tomove, int(missno)):
+
+                    slabcopy = s.copy()
+                    repaired = self.move_to_other_side(slabcopy, pair,
                                                        to_top=to_top)
-                        sites_in_slab_remove.append(slab_copy[i])
 
-            slab.remove_sites(to_remove)
+                    # Check if the reference atom polyhedron is repaired
+                    if len(repaired.get_neighbors(repaired[n],
+                                                  blength)) == bulk_cn:
+                        break
 
-            # Now create list of combinations of ways we can arrange
-            # our removed sites and their corresponding sites on the
-            # opposite side. Each combination must have the same number
-            # of sites as originally removed to preserve stoichiometry
+                s = repaired.copy()
 
-            for combs in itertools.combinations(sites_in_slab_remove,
-                                                len(to_remove)):
-                modded_slab = slab.copy()
-                for site in combs:
-                    modded_slab.append(site.species_string, site.frac_coords)
-                modded_slabs.append(modded_slab)
+            for i, site in enumerate(repaired):
+                if site.species_string == element1:
+                    poly_coord = len(repaired.get_neighbors(site,
+                                                            blength))
+                    if poly_coord != bulk_cn:
+                        warnings.warn("Slab could not be repaired")
+                    else:
 
-    fixed_slabs = []
-    for slab in modded_slabs:
-        if slab.is_symmetric() and not slab.is_polar():
-            fixed_slabs.append(slab)
-    s = StructureMatcher()
-    unique = [ss[0] for ss in s.group_structures(fixed_slabs)]
+                        # if the bonds have been fixed (CN of element1
+                        # relative to element2 in slab is same as in
+                        # bulk), add the repaired slab to the list
 
-    return unique
+                        fixed_slab = Slab(s.lattice, s.species, s.frac_coords,
+                                          s.miller_index, s.oriented_unit_cell, s.shift,
+                                          s.scale_factor)
+                        repaired_slabs.append(fixed_slab)
+
+        s = StructureMatcher()
+        repaired = [ss[0] for ss in s.group_structures(repaired_slabs)]
+
+        if self.primitive:
+            primitive_repaired = []
+            for slab in repaired:
+                prim = slab.get_primitive_structure(tolerance=self.tol)
+                primitive_repaired.append(Slab(prim.lattice, prim.species_and_occu,
+                                               prim.frac_coords, slab.miller_index,
+                                               slab.oriented_unit_cell, slab.shift,
+                                               slab.scale_factor))
+            return primitive_repaired
+        else:
+            return repaired
+
+
+    def fix_sym_and_pol(self, bonds, sites_to_move=["Li+"],
+                        species_term_only=True, termination_tol=0.1,
+                        tol_dipole_per_unit_area=1e-3, symprec=0.1):
+
+        modded_slabs = []
+        for el in sites_to_move:
+            # This algorithm will only move
+            # around one species at a time
+            if species_term_only:
+                surfaces = []
+                for slab in self.all_slabs:
+                    # Will only fix slabs where the species of the top sites
+                    # are that of the current species we're interested in eg.
+                    # only fix slabs that have Li+ at the surface
+                    c_dist = [s.frac_coords[2] for s in slab]
+                    if slab[c_dist.index(max(c_dist))].species_string == el:
+                        surfaces.append(slab)
+                    elif slab[c_dist.index(min(c_dist))].species_string == el:
+                        surfaces.append(slab)
+                    else:
+                        continue
+            else:
+                surfaces = copy.copy(self.all_slabs)
+
+            # Repair the specified broken bonds in those
+            # slabs and sift out any repeated repairs
+            unique = self.repair_broken_bonds(bonds, surfaces,
+                                              termination_tol=termination_tol)
+
+            # Clear the surfaces of the species we want to move
+            # and save those sites for when we need to re-add them
+            for slab in unique:
+
+                # If this slab is already symmetric/nonpolar,
+                # add to list and skip this iteration
+                if slab.is_symmetric(symprec=symprec) and not slab.is_polar(tol_dipole_per_unit_area=tol_dipole_per_unit_area):
+                    modded_slabs.append(slab)
+                    continue
+
+                el_sites = []
+                c_dists = []
+                for s in slab:
+                    c_dists.append(s.frac_coords[2])
+                    if s.species_string == el:
+                        el_sites.append(s.frac_coords[2])
+
+                # See if the surface Li is on the top or bottom
+                dist_from_top_bottom = [abs(min(el_sites) - min(c_dists)),
+                                        abs(max(el_sites) - max(c_dists))]
+
+                # if index 1, Li on top, else Li on bottom
+                if dist_from_top_bottom.index(min(dist_from_top_bottom)):
+                    el_site = max(el_sites)
+                else:
+                    el_site = min(el_sites)
+
+                # Store the sites that will be
+                # removed, then remove sites by index
+                to_remove, sites_in_slab_remove = [], []
+                for i, s in enumerate(slab):
+                    if s.species_string == el:
+                        if s.frac_coords[2] == el_site:
+                            # Make sure the site we want to move/remove is
+                            # not bonded to anything we don't want to break
+                            if el in list(bonds.keys())[0]:
+                                neighbors = slab.get_neighbors(s, list(bonds.values())[0])
+                                neighbor_specs = [nn.species_string for nn, d in neighbors]
+                                bound_atom = list(bonds.keys())[0][list(bonds.keys())[0].index(el) - 1]
+                                if bound_atom in neighbor_specs:
+                                    continue
+                            to_remove.append(i)
+                            sites_in_slab_remove.append(s)
+                            # If curent site we want to remove is on top, add
+                            # additional site to move on bottom vice versa
+                            if s.frac_coords[2] > 0.5:
+                                to_top = False
+                            else:
+                                to_top = True
+                            slab_copy = slab.copy()
+                            slab_copy = self.move_to_other_side(slab_copy, [i],
+                                                                to_top=to_top)
+                            sites_in_slab_remove.append(slab_copy[i])
+
+                slab.remove_sites(to_remove)
+
+                # Now create list of combinations of ways we can arrange
+                # our removed sites and their corresponding sites on the
+                # opposite side. Each combination must have the same number
+                # of sites as originally removed to preserve stoichiometry
+
+                for combs in itertools.combinations(sites_in_slab_remove,
+                                                    len(to_remove)):
+                    modded_slab = slab.copy()
+                    for site in combs:
+                        modded_slab.append(site.species_string, site.frac_coords)
+                    modded_slabs.append(modded_slab)
+
+        fixed_slabs = []
+        for slab in modded_slabs:
+            if slab.is_symmetric(symprec=symprec) and not slab.is_polar(tol_dipole_per_unit_area=tol_dipole_per_unit_area):
+                fixed_slabs.append(slab)
+        s = StructureMatcher()
+        unique = [ss[0] for ss in s.group_structures(fixed_slabs)]
+
+        return unique
