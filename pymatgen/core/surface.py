@@ -1014,7 +1014,6 @@ def reduce_vector(vector):
 
 
 class FixedSlabGenerator(object):
-
     def __init__(self, initial_structure, miller_index, min_slab_size,
                  min_vacuum_size, tol=1e-4, primitive=True):
 
@@ -1029,7 +1028,6 @@ class FixedSlabGenerator(object):
         self.tol = tol
 
     def move_to_other_side(self, init_slab, index_of_sites, to_top=True):
-
 
         slab = init_slab.copy()
         sites = list(slab.sites)
@@ -1068,7 +1066,6 @@ class FixedSlabGenerator(object):
                            slab.shift, slab.scale_factor)
         return manual_slab
 
-
     def repair_broken_bonds(self, bonds, slabs,
                             termination_tol=0.1):
         # Looks for terminations in between PO4s. Takes in a list of slabs
@@ -1090,8 +1087,9 @@ class FixedSlabGenerator(object):
                                                                        blength)))
         bulk_cn = np.mean(cnlist)
 
-        for s in slabs:
-
+        print("number of slabs to repair", len(slabs))
+        for num, s in enumerate(slabs):
+            print(num)
             # get the top most and bottom most site index in our slabs
             cdist = [site.frac_coords[2] for site in s]
 
@@ -1120,45 +1118,27 @@ class FixedSlabGenerator(object):
                 poly_coord = len(s.get_neighbors(s[n], blength))
                 # is it on the top or bottom?
                 to_top = False if s[n].frac_coords[2] < 0.5 else True
+                move_center = True if s[n].frac_coords[2] < 0.5 else False
 
-                # get the number of element2
-                # missing in the polyhedron
-                missno = bulk_cn - poly_coord
-
+                # We get the central atom of the polyhedron that is broken
+                # (undercoordinated), move it to the other surface
+                s = self.move_to_other_side(s, [n], to_top=move_center)
+                # find its NNs with the corresponding
+                # species it should be coordinated with
+                neighbors = s.get_neighbors(s[n], blength,
+                                            include_index=True)
                 tomove = []
-                for ii, site2 in enumerate(s):
-                    if to_top:
-                        if min(cdist) + termination_tol > \
-                                site2.frac_coords[2] >= min(cdist):
-                            if site2.species_string == element2:
-                                tomove.append(ii)
+                for nn in neighbors:
+                    if nn[0].species_string == element2:
+                        tomove.append(nn[2])
+                tomove.append(n)
+                # and then move those NNs along with the central
+                # atom back to the other side of the slab again
+                s = self.move_to_other_side(s, tomove, to_top=to_top)
 
-                    else:
-                        if max(cdist) >= site2.frac_coords[2] \
-                                > max(cdist) - termination_tol:
-
-                            if site2.species_string == element2:
-                                tomove.append(ii)
-
-                # move combinations of n missing
-                # atoms to other side to repair
-                for pair in itertools.combinations(tomove, int(missno)):
-
-                    slabcopy = s.copy()
-                    repaired = self.move_to_other_side(slabcopy, pair,
-                                                       to_top=to_top)
-
-                    # Check if the reference atom polyhedron is repaired
-                    if len(repaired.get_neighbors(repaired[n],
-                                                  blength)) == bulk_cn:
-                        break
-
-                s = repaired.copy()
-
-            for i, site in enumerate(repaired):
+            for i, site in enumerate(s):
                 if site.species_string == element1:
-                    poly_coord = len(repaired.get_neighbors(site,
-                                                            blength))
+                    poly_coord = len(s.get_neighbors(site, blength))
                     if poly_coord != bulk_cn:
                         warnings.warn("Slab could not be repaired")
                     else:
@@ -1186,7 +1166,6 @@ class FixedSlabGenerator(object):
             return primitive_repaired
         else:
             return repaired
-
 
     def fix_sym_and_pol(self, bonds, sites_to_move=["Li+"],
                         species_term_only=True, termination_tol=0.1,
@@ -1223,7 +1202,8 @@ class FixedSlabGenerator(object):
 
                 # If this slab is already symmetric/nonpolar,
                 # add to list and skip this iteration
-                if slab.is_symmetric(symprec=symprec) and not slab.is_polar(tol_dipole_per_unit_area=tol_dipole_per_unit_area):
+                if slab.is_symmetric(symprec=symprec) and not slab.is_polar(
+                        tol_dipole_per_unit_area=tol_dipole_per_unit_area):
                     modded_slabs.append(slab)
                     continue
 
@@ -1287,7 +1267,8 @@ class FixedSlabGenerator(object):
 
         fixed_slabs = []
         for slab in modded_slabs:
-            if slab.is_symmetric(symprec=symprec) and not slab.is_polar(tol_dipole_per_unit_area=tol_dipole_per_unit_area):
+            if slab.is_symmetric(symprec=symprec) and not slab.is_polar(
+                    tol_dipole_per_unit_area=tol_dipole_per_unit_area):
                 fixed_slabs.append(slab)
         s = StructureMatcher()
         unique = [ss[0] for ss in s.group_structures(fixed_slabs)]
