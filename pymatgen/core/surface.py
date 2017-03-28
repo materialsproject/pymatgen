@@ -14,6 +14,7 @@ import math
 import itertools
 import logging
 import warnings
+import copy
 
 import numpy as np
 from scipy.spatial.distance import squareform
@@ -584,7 +585,7 @@ class SlabGenerator(object):
                     break
             # We want the indices with the maximum absolute cosine,
             # but smallest possible length.
-            uvw, cosine, l = max(candidates, key=lambda x: (x[1], -l))
+            uvw, cosine, l = max(candidates, key=lambda x: (x[1], -x[2]))
             slab_scale_factor.append(uvw)
 
         slab_scale_factor = np.array(slab_scale_factor)
@@ -1047,7 +1048,7 @@ class FixedSlabGenerator(object):
         # Move by coordinates
         species, coords = [], []
         for i, site in enumerate(slab):
-            #     print(site.frac_coords[1], site.frac_coords[2])
+
             if i in index_of_sites:
                 fcoords = site.frac_coords
                 if to_top:
