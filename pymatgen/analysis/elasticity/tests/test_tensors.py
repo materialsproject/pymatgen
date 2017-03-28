@@ -251,6 +251,8 @@ class TensorTest(PymatgenTest):
         Tensor.from_voigt(np.zeros((3, 6)))
         # Rank 2
         Tensor.from_voigt(np.zeros(6))
+        # Addresses occasional cast issues for integers
+        Tensor.from_voigt(np.arange(6))
 
     def test_symmetry_reduce(self):
         tbs = [Tensor.from_voigt(row) for row in np.eye(6)*0.01]

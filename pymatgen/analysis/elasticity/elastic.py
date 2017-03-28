@@ -12,14 +12,15 @@ stress-strain data
 """
 
 from pymatgen.analysis.elasticity.tensors import Tensor, \
-        voigt_map as vmap
+        voigt_map as vmap, TensorCollection
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
-from scipy.misc import central_diff_weights
+from scipy.misc import central_diff_weights, factorial
 from collections import OrderedDict
 import numpy as np
 import warnings
 import itertools
+import string
 from six.moves import range
 from monty.dev import requires
 
@@ -39,7 +40,66 @@ try:
 except ImportError:
     sympy_found = False
 
-class ElasticTensor(Tensor):
+
+class NthOrderElasticTensor(Tensor):
+    """
+    An object representing an nth-order tensor expansion 
+    of the stress-strain constitutive equations
+    """
+    def __new__(cls, input_array, check_rank, tol=1e-4):
+        obj = super(NthOrderElasticTensor, cls).__new__(
+            cls, input_array, check_rank=check_rank)
+        if obj.rank % 2 != 0:
+            raise ValueError("ElasticTensor must have even rank")
+        if not obj.is_voigt_symmetric(tol):
+            warnings.warn("Input elastic tensor does not satisfy "
+                          "standard voigt symmetries")
+        return obj.view(cls)
+
+    @property
+    def order(self):
+        """
+        Order of the elastic tensor
+        """
+        return self.rank // 2
+
+    def calculate_stress(self, strain):
+        """
+        Calculate's a given elastic tensor's contribution to the
+        stress using Einstein summation
+
+        Args:
+            strain (3x3 array-like): matrix corresponding to strain
+        """
+        strain = np.array(strain)
+        if strain.shape == (6,):
+            strain = strain.from_voigt(strain)
+        assert strain.shape == (3, 3), "Strain must be 3x3 or voigt-notation"
+        lc = string.ascii_lowercase[:self.rank-2]
+        lc_pairs = map(''.join, zip(*[iter(lc)]*2))
+        einsum_string = "ij" + lc + ',' + ','.join(lc_pairs) + "->ij"
+        stress_matrix = np.einsum(einsum_string, self, strain) \
+                / factorial(self.order - 1)
+        return Stress(stress_matrix)
+
+    def energy_density(self, strain, convert_GPa_to_eV=True):
+        """
+        Calculates the elastic energy density due to a strain
+        """
+        e_density = np.sum(self.calculate_stress(strain)*strain) / self.order
+        if convert_GPa_to_eV:
+            e_density *= 0.000624151  # Conversion factor for GPa to eV/A^3
+        return e_density
+
+    @classmethod
+    @requires(sympy_found, "Central difference fitter requires sympy")
+    def from_cdiff(cls, strains, stresses, eq_stress=None,
+                        order=2, tol=1e-10):
+        return cls(central_diff_fit(strains, stresses, eq_stress, 
+                                    order, tol)[order-2])
+
+
+class ElasticTensor(NthOrderElasticTensor):
     """
     This class extends Tensor to describe the 3x3x3x3
     second-order elastic tensor, C_{ijkl}, with various
@@ -47,7 +107,7 @@ class ElasticTensor(Tensor):
     the second order elastic tensor
     """
 
-    def __new__(cls, input_array, tol=1e-3):
+    def __new__(cls, input_array, tol=1e-4):
         """
         Create an ElasticTensor object.  The constructor throws an error if
         the shape of the input_matrix argument is not 3x3x3x3, i. e. in true
@@ -63,12 +123,8 @@ class ElasticTensor(Tensor):
             tol (float): tolerance for initial symmetry test of tensor
         """
 
-        obj = Tensor(input_array, check_rank=4).view(cls) 
-        if not obj.is_voigt_symmetric:
-            warnings.warn("Input elasticity tensor does "
-                          "not satisfy standard symmetries")
-
-        return obj
+        obj = super(ElasticTensor, cls).__new__(cls, input_array, check_rank=4, tol=tol)
+        return obj.view(cls)
 
 
     @property
@@ -343,7 +399,7 @@ class ElasticTensor(Tensor):
         return e_density
     """
     @classmethod
-    def from_strain_stress_pseudoinverse(cls, strains, stresses):
+    def from_pseudoinverse(cls, strains, stresses):
         """
         Class method to fit an elastic tensor from stress/strain 
         data.  Method uses Moore-Penrose pseudoinverse to invert 
@@ -355,7 +411,7 @@ class ElasticTensor(Tensor):
             strains (Nx3x3 array-like): list or array of strains
         """
         # convert the stress/strain to Nx6 arrays of voigt-notation
-        warnings.warn("Linear fitting of Strain/Stress lists may yield "
+        warnings.warn("Pseudoinverse fitting of Strain/Stress lists may yield "
                       "questionable results from vasp data, use with caution.")
         stresses = np.array([Stress(stress).voigt for stress in stresses])
         with warnings.catch_warnings(record=True):
@@ -397,59 +453,23 @@ class ElasticTensor(Tensor):
         return c
 
 
-class NthOrderElasticTensor(Tensor):
-    """
-    An object representing an nth-order tensor expansion 
-    of the stress-strain constitutive equations
-    """
-    def __new__(self, c, check_rank):
-        obj = Tensor(input_array, check_rank=check_rank).view(cls)
-        if obj.rank % 2 != 0:
-            raise ValueError("ElasticTensor must have even rank")
-        if not obj.is_voigt_symmetric:
-            warnings.warn("Input elastic tensor does not satisfy standard "
-                          "voigt symmetries")
-        return obj
-
-    @property
-    def order(self):
-        """
-        Order of the elastic tensor
-        """
-        return self.rank // 2
-
-    def calculate_stress(self, strain):
-        """
-        Calculate's a given elastic tensor's contribution to the
-        stress using Einstein summation
-        """
-        lc = string.ascii_lowercase[:self.rank-2]
-        lc_pairs = map(''.join, zip(*[iter(lc)]*2))
-        stress_matrix = np.einsum("ij" + lc + ','.join(lc_pairs) + "->ij",
-                                self, strain) / math.factorial(self.order - 1)
-        return Stress(stress_matrix)
-
-    def energy_density(self, strain, convert_GPa_to_eV=True):
-        """
-        Calculates the elastic energy density due to a strain
-        """
-        e_density = np.sum(self.calculate_stress(strain)*strain) / self.order
-        if convert_GPa_to_eV:
-            e_density *= 0.000624151  # Conversion factor for GPa to eV/A^3
-        return e_density
-
-    @classmethod
-    def from_cdiff(cls, strains, stresses, eq_stress=None,
-                        order=2, tol=1e-10):
-        return cls(central_diff_fit(strains, stresses, eq_stress, 
-                                    order, tol)[order-2])
-
-
 class ElasticTensorExpansion(TensorCollection):
     """
-    Put stuff here
+    This class is a sequence of elastic tensors corresponding
+    to an elastic tensor expansion, which can be used to 
+    calculate stress and energy density and inherits all
+    of the list-based properties of TensorCollection
+    (e. g. symmetrization, voigt conversion, etc.)
     """
     def __init__(c_list):
+        """
+        Initialization method for ElasticTensorExpansion
+
+        Args:
+            c_list (list or tuple): sequence of Tensor inputs
+                or tensors from which the elastic tensor 
+                expansion is constructed.
+        """
         c_list = [NthOrderElasticTensor(c, check_rank=4+i*2)
                   for i, c in enumerate(c_list)]
         super(self).__init__(c_list)
@@ -458,11 +478,19 @@ class ElasticTensorExpansion(TensorCollection):
     @requires(sympy_found, "central diff fitting procedure requires sympy")
     def from_cdiff(cls, strains, stresses, eq_stress=None, 
                    tol=1e-10, order=3):
+        """
+        Generates an elastic tensor expansion via the fitting function
+        defined below in central_diff_fit
+        """
         c_list = central_diff_fit(strain, stresses, eq_stress, tol, order)
         return cls(c_list)
 
     @property
     def order(self):
+        """
+        Order of the elastic tensor expansion, i. e. the order of the
+        highest included set of elastic constants
+        """
         return self[-1].order
 
     def calculate_stress(self, strain):
@@ -662,7 +690,7 @@ def generate_pseudo(strain_states, order=3):
             sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]
         svec = sarr.ravel()
         present_syms = set.union(*[exp.atoms(sp.Symbol) for exp in svec])
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         absent_syms += [set(cvec) - present_syms]
         m = np.zeros((6*nstates, len(cvec)))
         for n, c in enumerate(cvec):

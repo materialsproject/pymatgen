@@ -152,13 +152,13 @@ class ElasticTensorTest(PymatgenTest):
         self.assertRaises(ValueError, ElasticTensor, badtensor1)
         self.assertRaises(ValueError, ElasticTensor, badtensor2)
 
-    def test_from_strain_stress_list(self):
+    def test_from_pseudoinverse(self):
         strain_list = [Strain.from_deformation(def_matrix)
                        for def_matrix in self.def_stress_dict['deformations']]
         stress_list = [stress for stress in self.def_stress_dict['stresses']]
         with warnings.catch_warnings(record=True):
-            et_fl = -0.1*ElasticTensor.from_strain_stress_list(strain_list, 
-                                                               stress_list).voigt
+            et_fl = -0.1*ElasticTensor.from_pseudoinverse(strain_list, 
+                                                          stress_list).voigt
             self.assertArrayAlmostEqual(et_fl.round(2),
                                         [[59.29, 24.36, 22.46, 0, 0, 0],
                                          [28.06, 56.91, 22.46, 0, 0, 0],
@@ -203,8 +203,11 @@ class ElasticTensorTest(PymatgenTest):
                                         [-0.11520994,  0.99774738,  0.        ],
                                         [-0.,         -0.,          1.,        ]]))
 
-@unittest.skipIf(not sympy, "sympy not present, skipping CentralDiffFitterTest")
-class CentralDiffFitterTest(PymatgenTest):
+@unittest.skipIf(not sympy, "sympy not present, skipping CentralDiffFitTest")
+class CentralDiffFitTest(PymatgenTest):
+    """
+    Tests various functions related to central diff fitting
+    """
     def setUp(self):
         with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
             self.data_dict = json.load(f)
@@ -212,8 +215,8 @@ class CentralDiffFitterTest(PymatgenTest):
         self.pk_stresses = [Stress(d) for d in self.data_dict['pk_stresses']]
 
     def test_init(self):
-        cdf = CentralDiffFitter(self.strains, self.pk_stresses,
-                                self.data_dict["eq_stress"])
+        cdf = central_diff_fit(self.strains, self.pk_stresses,
+                               self.data_dict["eq_stress"])
 
     def test_get_strain_state_dict(self):
         pass
@@ -228,22 +231,26 @@ class CentralDiffFitterTest(PymatgenTest):
         m3, abs = generate_pseudo(strain_states, order=3)
 
     def test_fit(self):
-        cdf = CentralDiffFitter(self.strains, self.pk_stresses, 
-                                self.data_dict["eq_stress"])
+        cdf = central_diff_fit(self.strains, self.pk_stresses,
+                               self.data_dict["eq_stress"])
         reduced = [(e, pk) for e, pk in zip(self.strains, self.pk_stresses)
                    if not (abs(abs(e)-0.05)<1e-10).any()]
+        # Get reduced dataset
         r_strains, r_pk_stresses = zip(*reduced)
-        cdf_red = CentralDiffFitter(r_strains, r_pk_stresses,
-                                    self.data_dict["eq_stress"])
         with warnings.catch_warnings(record=True):
-            c2 = cdf.fit(2)
-            c2, c3, c4 = cdf.fit(4)
-            c2, c3 = cdf.fit(3)
-            c2_red, c3_red = cdf_red.fit(3)
+            c2 = central_diff_fit(r_strains, r_pk_stresses,
+                                  self.data_dict["eq_stress"], order=2) 
+            c2, c3, c4 = central_diff_fit(r_strains, r_pk_stresses,
+                                          self.data_dict["eq_stress"], 
+                                          order=4) 
+            c2, c3 = central_diff_fit(self.strains, self.pk_stresses,
+                                      self.data_dict["eq_stress"], order=3) 
+            c2_red, c3_red = central_diff_fit(r_strains, r_pk_stresses,
+                                              self.data_dict["eq_stress"], 
+                                              order=3)
             self.assertArrayAlmostEqual(c2.voigt, self.data_dict["C2_raw"])
             self.assertArrayAlmostEqual(c3.voigt, self.data_dict["C3_raw"])
             self.assertArrayAlmostEqual(c2, c2_red, decimal=0)
-            import pdb; pdb.set_trace()
             self.assertArrayAlmostEqual(c3, c3_red, decimal=-1)
 
         """

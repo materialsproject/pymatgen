@@ -26,14 +26,13 @@ __date__ = "March 22, 2012"
 from scipy.linalg import polar
 from scipy.linalg import sqrtm
 import numpy as np
-import itertools
+import itertools, collections
 import warnings
 from monty.dev import requires
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from numpy.linalg import norm
-from collections import sequence
 
 voigt_map = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
 reverse_voigt_map = np.array([[0, 5, 4],
@@ -163,8 +162,9 @@ class Tensor(np.ndarray):
             raise ValueError("V-symmetrization requires rank even and > 2")
 
         v = self.voigt
-        perms = list(itertools.permutations(range(v.shape[0])))
-        return sum([np.transpose(self, ind) for ind in perms]) / len(perms)
+        perms = list(itertools.permutations(range(len(v.shape))))
+        new_v = sum([np.transpose(v, ind) for ind in perms]) / len(perms)
+        return self.__class__.from_voigt(new_v)
 
     def is_symmetric(self, tol=1e-5):
         """
@@ -221,8 +221,7 @@ class Tensor(np.ndarray):
                           "be lost in voigt conversion.")
         return v_matrix*self._vscale
 
-    @property
-    def is_voigt_symmetric(self):
+    def is_voigt_symmetric(self, tol=1e-6):
         """
         Tests symmetry of tensor to that necessary for voigt-conversion
         by grouping indices into pairs and constructing a sequence of
@@ -270,7 +269,7 @@ class Tensor(np.ndarray):
         t = cls(np.zeros([3]*rank))
         if voigt_input.shape != t._vscale.shape:
             raise ValueError("Invalid shape for voigt matrix")
-        voigt_input /= t._vscale
+        voigt_input = voigt_input / t._vscale
         voigt_map = t.get_voigt_dict(rank)
         for ind in voigt_map:
             t[ind] = voigt_input[voigt_map[ind]]
@@ -353,7 +352,8 @@ class Tensor(np.ndarray):
 
         return self.rotate(rotation, tol=1e-2)
 
-class TensorCollection(sequence):
+
+class TensorCollection(collections.Sequence):
     """
     A sequence of tensors that can be used for fitting data
     or for having a tensor expansion
@@ -369,7 +369,7 @@ class TensorCollection(sequence):
         return self.tensors[ind]
 
     def __iter__(self):
-        return self.tensors.__iter__
+        return self.tensors.__iter__()
 
     def zeroed(self, tol=1e-3):
         return self.__class__([t.zeroed(tol) for t in self])
@@ -378,7 +378,7 @@ class TensorCollection(sequence):
         return self.__class__([t.transform(symm_op) for t in self])
 
     def rotate(self, matrix, tol=1e-3):
-        return self.__class__([t.transform(matrix, tol) for t in self])
+        return self.__class__([t.rotate(matrix, tol) for t in self])
 
     @property
     def symmetrized(self):
