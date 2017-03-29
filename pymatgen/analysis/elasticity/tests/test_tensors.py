@@ -335,8 +335,8 @@ class TensorCollectionTest(PymatgenTest):
         self.list_based_function_check("voigt", self.diff_rank)
 
         # is_voigt_symmetric
-        self.assertTrue(self.diff_rank.is_voigt_symmetric)
-        self.assertFalse(self.seq_tc.is_voigt_symmetric)
+        self.assertTrue(self.diff_rank.is_voigt_symmetric())
+        self.assertFalse(self.seq_tc.is_voigt_symmetric())
 
         # Convert to ieee
         for entry in self.ieee_data[:2]:

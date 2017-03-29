@@ -216,7 +216,7 @@ class Tensor(np.ndarray):
         voigt_map = self.get_voigt_dict(self.rank)
         for ind in voigt_map:
             v_matrix[voigt_map[ind]] = self[ind]
-        if not self.is_voigt_symmetric:
+        if not self.is_voigt_symmetric():
             warnings.warn("Tensor is not symmetric, information may "
                           "be lost in voigt conversion.")
         return v_matrix*self._vscale
@@ -235,7 +235,7 @@ class Tensor(np.ndarray):
                 transpose_pieces[n] += [transpose_pieces[n][0][::-1]]
         for trans_seq in itertools.product(*transpose_pieces):
             trans_seq = list(itertools.chain(*trans_seq))
-            if (self - self.transpose(trans_seq) > 1e-10).any():
+            if (self - self.transpose(trans_seq) > tol).any():
                 return False
         return True
 
@@ -395,9 +395,8 @@ class TensorCollection(collections.Sequence):
     def voigt(self):
         return [t.voigt for t in self]
 
-    @property
-    def is_voigt_symmetric(self):
-        return all([t.is_voigt_symmetric for t in self])
+    def is_voigt_symmetric(self, tol=1e-6):
+        return all([t.is_voigt_symmetric(tol) for t in self])
 
     @classmethod
     def from_voigt(cls, voigt_input_list, base_class=Tensor):
