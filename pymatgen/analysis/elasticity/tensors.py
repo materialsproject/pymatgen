@@ -9,6 +9,7 @@ from scipy.linalg import polar
 import numpy as np
 import itertools
 import warnings
+import collections
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
