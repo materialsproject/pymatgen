@@ -564,9 +564,10 @@ def central_diff_fit(strains, stresses, eq_stress=None,
             raise ValueError("Stencil for strain state {} must be odd-sampling"
                              " centered at 0.".format(ind))
         h = np.min(diff[np.nonzero(diff)])
+        hvec = data["strains"][:, strain_state.index(1)]
         for i in range(1, order):
-            coef = central_diff_weights(len(data["strains"]), i)
-            dEidsi[i-1, :, n] = np.dot(coef, data["stresses"]) / h**i
+            coef = get_diff_coeff(hvec, i)
+            dEidsi[i-1, :, n] = np.dot(coef, data["stresses"])
 
     m, absent = generate_pseudo(strain_state_dict.keys(), order)
     for i in range(1, order):
@@ -589,7 +590,7 @@ def find_eq_stress(strains, stresses, tol=1e-10):
     strain_array = np.array(strains)
     eq_stress = stress_array[np.all(abs(strain_array)<tol, axis=(1,2))]
 
-    if eq_stress:
+    if eq_stress.size != 0:
         allsame = (abs(eq_stress - eq_stress[0]) < 1e-8).all()
         if len(eq_stress) > 1 and not allsame:
             raise ValueError("Multiple stresses found for equilibrium strain"
@@ -598,7 +599,7 @@ def find_eq_stress(strains, stresses, tol=1e-10):
         eq_stress = eq_stress[0]
     else:
         warnings.warn("No eq state found, returning zero voigt stress")
-        eq_stress = np.zeros(6)
+        eq_stress = Stress(np.zeros((3,3)))
     return eq_stress
 
 def get_strain_state_dict(strains, stresses, eq_stress=None, 

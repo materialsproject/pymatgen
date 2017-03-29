@@ -9,8 +9,10 @@ from pymatgen.analysis.elasticity.elastic import *
 from pymatgen.analysis.elasticity.strain import Strain, IndependentStrain, Deformation
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
+from scipy.misc import central_diff_weights
 import warnings
 import json
+import random
 from six.moves import zip
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -219,15 +221,59 @@ class CentralDiffFitTest(PymatgenTest):
                                self.data_dict["eq_stress"])
 
     def test_get_strain_state_dict(self):
-        pass
+        strain_inds = [(0,), (1,), (2,), (1, 3), (1, 2, 3)]
+        vecs = {}
+        strain_states = []
+        for strain_ind in strain_inds:
+            ss = np.zeros(6)
+            np.put(ss, strain_ind, 1)
+            strain_states.append(tuple(ss))
+            vec = np.zeros((4, 6))
+            rand_values = np.random.uniform(0.1, 1, 4)
+            for i in strain_ind:
+                vec[:, i] = rand_values
+            vecs[strain_ind] = vec
+        all_strains = [Strain.from_voigt(v).zeroed() for vec in vecs.values()
+                       for v in vec]
+        random.shuffle(all_strains)
+        all_stresses = [Stress.from_voigt(np.random.random(6)).zeroed()
+                        for s in all_strains]
+        strain_dict = {k.tostring():v for k,v in zip(all_strains, all_stresses)}
+        ss_dict = get_strain_state_dict(all_strains, all_stresses, add_eq=False)
+        # Check length of ss_dict
+        self.assertEqual(len(strain_inds), len(ss_dict))
+        # Check sets of strain states are correct
+        self.assertEqual(set(strain_states), set(ss_dict.keys()))
+        for strain_state, data in ss_dict.items():
+            # Check correspondence of strains/stresses
+            for strain, stress in zip(data["strains"], data["stresses"]):
+                self.assertArrayAlmostEqual(Stress.from_voigt(stress), 
+                                            strain_dict[Strain.from_voigt(strain).tostring()])
 
     def test_find_eq_stress(self):
-        pass
+        random_strains = [Strain.from_voigt(s) for s in np.random.uniform(0.1, 1, (20, 6))]
+        random_stresses = [Strain.from_voigt(s) for s in np.random.uniform(0.1, 1, (20, 6))]
+        with warnings.catch_warnings(record=True):
+            no_eq = find_eq_stress(random_strains, random_stresses)
+            self.assertArrayAlmostEqual(no_eq, np.zeros((3,3)))
+        random_strains[12] = Strain.from_voigt(np.zeros(6))
+        eq_stress = find_eq_stress(random_strains, random_stresses)
+        self.assertArrayAlmostEqual(random_stresses[12], eq_stress)
+
+    def test_get_diff_coeff(self):
+        forward_11 = get_diff_coeff([0, 1], 1)
+        forward_13 = get_diff_coeff([0, 1, 2, 3], 1)
+        backward_26 = get_diff_coeff(np.arange(-6, 1), 2)
+        central_29 = get_diff_coeff(np.arange(-4, 5), 2)
+        self.assertArrayAlmostEqual(forward_11, [-1, 1])
+        self.assertArrayAlmostEqual(forward_13, [-11./6, 3, -3./2, 1./3])
+        self.assertArrayAlmostEqual(backward_26, [137./180, -27./5,33./2,-254./9,
+                                                  117./4,-87./5,203./45])
+        self.assertArrayAlmostEqual(central_29, central_diff_weights(9, 2))
 
     def test_generate_pseudo(self):
         strain_states = np.eye(6).tolist()
         m2, abs = generate_pseudo(strain_states, order=2)
-        #self.assertArrayAlmostEqual(m2[0], self.data_dict["m2_inverse"])
         m3, abs = generate_pseudo(strain_states, order=3)
 
     def test_fit(self):
@@ -249,29 +295,9 @@ class CentralDiffFitTest(PymatgenTest):
                                               self.data_dict["eq_stress"], 
                                               order=3)
             self.assertArrayAlmostEqual(c2.voigt, self.data_dict["C2_raw"])
-            self.assertArrayAlmostEqual(c3.voigt, self.data_dict["C3_raw"])
+            self.assertArrayAlmostEqual(c3.voigt, self.data_dict["C3_raw"], decimal=5)
             self.assertArrayAlmostEqual(c2, c2_red, decimal=0)
             self.assertArrayAlmostEqual(c3, c3_red, decimal=-1)
 
-        """
-    def test_toec_fit(self):
-        with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
-            toec_dict = json.load(f)
-        strains = [Strain(sm) for sm in toec_dict['strains']]
-        pk_stresses = [Stress(d) for d in toec_dict['pk_stresses']]
-        reduced = [(strain, pks) for strain, pks in zip(strains, pk_stresses)
-                   if not (abs(abs(strain)-0.05)<1e-10).any()]
-        with warnings.catch_warnings(record=True) as w:
-            c2, c3 = toec_fit(strains, pk_stresses, 
-                              eq_stress=toec_dict["eq_stress"])
-            self.assertArrayAlmostEqual(c2.voigt, toec_dict["C2_raw"])
-            self.assertArrayAlmostEqual(c3.voigt, toec_dict["C3_raw"])
-            # Try with reduced data set
-            r_strains, r_pk_stresses = zip(*reduced)
-            c2_red, c3_red = toec_fit(r_strains, r_pk_stresses,
-                                      eq_stress=toec_dict["eq_stress"])
-            self.assertArrayAlmostEqual(c2, c2_red, decimal=0)
-            self.assertArrayAlmostEqual(c3, c3_red, decimal=-1)
-            """
 if __name__ == '__main__':
     unittest.main()

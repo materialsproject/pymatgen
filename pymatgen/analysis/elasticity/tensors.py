@@ -263,6 +263,7 @@ class Tensor(np.ndarray):
         Constructor based on the voigt notation vector or matrix.
 
         Args: 
+            voigt_input (array-like): voigt input for a given tensor
         """
         voigt_input = np.array(voigt_input)
         rank = sum(voigt_input.shape) // 3
