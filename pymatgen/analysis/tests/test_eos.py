@@ -8,9 +8,10 @@ import numpy as np
 import unittest
 
 from pymatgen.analysis.eos import EOS, NumericalEOS
+from pymatgen.util.testing import PymatgenTest
 
 
-class EOSTest(unittest.TestCase):
+class EOSTest(PymatgenTest):
 
     def setUp(self):
         # Si data from Cormac
@@ -47,11 +48,11 @@ class EOSTest(unittest.TestCase):
         numerical_eos = NumericalEOS(self.volumes, self.energies)
         numerical_eos.fit()
         self.assertGreater(len(numerical_eos.eos_params), 3)
-        self.assertEqual(numerical_eos.e0, self.num_eos_fit.e0)
-        self.assertEqual(numerical_eos.v0, self.num_eos_fit.v0)
-        self.assertEqual(numerical_eos.b0, self.num_eos_fit.b0)
-        self.assertEqual(numerical_eos.b1, self.num_eos_fit.b1)
-        self.assertEqual(numerical_eos.eos_params, self.num_eos_fit.eos_params)
+        self.assertAlmostEqual(float(numerical_eos.e0), self.num_eos_fit.e0, 3)
+        self.assertAlmostEqual(float(numerical_eos.v0), self.num_eos_fit.v0, 3)
+        self.assertAlmostEqual(float(numerical_eos.b0), self.num_eos_fit.b0, 3)
+        self.assertAlmostEqual(float(numerical_eos.b1), self.num_eos_fit.b1, 3)
+        self.assertArrayAlmostEqual(numerical_eos.eos_params, self.num_eos_fit.eos_params)
 
     def test_numerical_eos_values(self):
         np.testing.assert_almost_equal(self.num_eos_fit.e0, -10.84749, decimal=3)

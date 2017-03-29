@@ -3,6 +3,8 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import numpy as np
+from pymatgen.core.structure import Structure
 
 """
 This module implements symmetry-related structure forms.
@@ -16,9 +18,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 9, 2012"
 
-import numpy as np
-from pymatgen.core.structure import Structure
-
 
 class SymmetrizedStructure(Structure):
     """
@@ -29,7 +28,8 @@ class SymmetrizedStructure(Structure):
 
     Args:
         structure (Structure): Original structure
-        spacegroup (Spacegroup): An input spacegroup from SpacegroupAnalyzer.
+        spacegroup (SpacegroupOperations): An input SpacegroupOperations from 
+            SpacegroupAnalyzer.
         equivalent_positions: Equivalent positions from SpacegroupAnalyzer.
 
     .. attribute: equivalent_indices
@@ -37,7 +37,8 @@ class SymmetrizedStructure(Structure):
         indices of structure grouped by equivalency
     """
 
-    def __init__(self, structure, spacegroup, equivalent_positions):
+    def __init__(self, structure, spacegroup, equivalent_positions,
+                 wyckoff_letters):
         super(SymmetrizedStructure, self).__init__(
             structure.lattice, [site.species_and_occu for site in structure],
             structure.frac_coords, site_properties=structure.site_properties)
@@ -46,9 +47,13 @@ class SymmetrizedStructure(Structure):
         self.site_labels = equivalent_positions
         self.equivalent_indices = [[] for i in range(len(u))]
         self._equivalent_sites = [[] for i in range(len(u))]
+        wyckoff_symbols = [[] for i in range(len(u))]
         for i, inv in enumerate(inv):
             self.equivalent_indices[inv].append(i)
             self._equivalent_sites[inv].append(self.sites[i])
+            wyckoff_symbols[inv].append(wyckoff_letters[i])
+        self.wyckoff_symbols = ["%d%s" % (len(w), w[0])
+                                for w in wyckoff_symbols]
 
     @property
     def spacegroup(self):

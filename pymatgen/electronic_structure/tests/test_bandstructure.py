@@ -57,6 +57,11 @@ class BandStructureSymmLine_test(PymatgenTest):
             d = json.load(f)
             self.bs_spin = BandStructureSymmLine.from_dict(d)
 
+        with open(os.path.join(test_dir, "InN_22205_bandstructure.json"),
+                  "r", encoding='utf-8') as f:
+            d = json.load(f)
+            self.bs_cbm0 = BandStructureSymmLine.from_dict(d)
+
     def test_basic(self):
         self.assertArrayAlmostEqual(self.bs.projections[Spin.up][10][12][0],
                              [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
@@ -159,6 +164,8 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.assertAlmostEqual(bg_spin['energy'], 2.3148, "wrong gap energy")
         self.assertEqual(bg_spin['transition'], "L-\\Gamma", "wrong kpoint transition")
         self.assertFalse(bg_spin['direct'], "wrong nature of the gap")
+        bg_cbm0 = self.bs_cbm0.get_band_gap()
+        self.assertAlmostEqual(bg_cbm0['energy'], 0, places=3, msg="wrong gap energy")
 
     def test_as_dict(self):
         s = json.dumps(self.bs.as_dict())

@@ -186,6 +186,10 @@ class PDAnalyzerTest(unittest.TestCase):
         for crit, exp in zip(comps, expected):
             self.assertTrue(crit.almost_equals(exp, rtol=0, atol=1e-5))
 
+        # case where the endpoints are identical
+        self.assertEqual(self.analyzer.get_critical_compositions(c1, c1 * 2),
+                         [c1, c1 * 2])
+
     def test_get_composition_chempots(self):
         c1 = Composition('Fe3.1O4')
         c2 = Composition('Fe3.2O4.1Li0.01')

@@ -228,10 +228,12 @@ class TensorTest(PymatgenTest):
             ieee = Tensor(entry['ieee_tensor'])
             struct = Structure.from_dict(entry['structure'])
             diff = np.max(abs(ieee - orig.convert_to_ieee(struct)))
-            err_msg = "{} IEEE conversion failed with max diff {}".format(
-                xtal, diff) 
+            err_msg = "{} IEEE conversion failed with max diff {}. Numpy version: {}".format(
+                xtal, diff, np.__version__)
+            print(ieee)
+            print(orig.convert_to_ieee(struct))
             self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct),
-                                        err_msg = err_msg, decimal=3)
+                                        err_msg=err_msg, decimal=3)
 
     def test_from_voigt(self):
         with self.assertRaises(ValueError):

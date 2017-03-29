@@ -788,7 +788,7 @@ class OrderParameters(object):
             if t not in OrderParameters.__supported_types:
                 raise ValueError("Unknown order parameter type (" + \
                                  t + ")!")
-        if parameters:
+        if parameters is not None:
             if len(types) != len(parameters):
                 raise ValueError("1st dimension of parameters array is not"
                                  " consistent with types list!")
@@ -997,7 +997,7 @@ class OrderParameters(object):
 
         return len(self._last_nneigh)
 
-    def compute_trigonometric_terms(self, thetas=[], phis=[]):
+    def compute_trigonometric_terms(self, thetas, phis):
 
         """"
         Computes trigonometric terms that are required to
@@ -1018,9 +1018,6 @@ class OrderParameters(object):
 
         """
 
-        if not thetas or not phis:
-            raise ValueError("No entries in list/s of polar and/or azimuthal" \
-                             " angles!")
         if len(thetas) != len(phis):
             raise ValueError("List of polar and azimuthal angles have to be"
                              " equal!")
@@ -1045,7 +1042,7 @@ class OrderParameters(object):
             self._cos_n_p[i] = [math.cos(float(i) * float(p)) \
                                 for p in phis]
 
-    def get_q2(self, thetas=[], phis=[]):
+    def get_q2(self, thetas=None, phis=None):
 
         """
         Calculates the value of the bond orientational order parameter of
@@ -1065,7 +1062,7 @@ class OrderParameters(object):
                 corresponding to the input angles thetas and phis.
         """
 
-        if thetas and phis:
+        if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
         nnn = len(self._pow_sin_t[1])
         nnn_range = range(nnn)
@@ -1116,7 +1113,7 @@ class OrderParameters(object):
         q2 = math.sqrt(4.0 * pi * acc / (5.0 * float(nnn * nnn)))
         return q2
 
-    def get_q4(self, thetas=[], phis=[]):
+    def get_q4(self, thetas=None, phis=None):
 
         """
         Calculates the value of the bond orientational order parameter of
@@ -1136,7 +1133,7 @@ class OrderParameters(object):
                 corresponding to the input angles thetas and phis.
         """
 
-        if thetas and phis:
+        if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
         nnn = len(self._pow_sin_t[1])
         nnn_range = range(nnn)
@@ -1227,7 +1224,7 @@ class OrderParameters(object):
         q4 = math.sqrt(4.0 * pi * acc / (9.0 * float(nnn * nnn)))
         return q4
 
-    def get_q6(self, thetas=[], phis=[]):
+    def get_q6(self, thetas=None, phis=None):
 
         """
         Calculates the value of the bond orientational order parameter of
@@ -1247,7 +1244,7 @@ class OrderParameters(object):
                 corresponding to the input angles thetas and phis.
         """
 
-        if thetas and phis:
+        if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
         nnn = len(self._pow_sin_t[1])
         nnn_range = range(nnn)
@@ -1441,7 +1438,7 @@ class OrderParameters(object):
                              " order-parameter calculation out-of-bounds!")
         return self._paras[index]
 
-    def get_order_parameters(self, structure, n, indeces_neighs=[], \
+    def get_order_parameters(self, structure, n, indeces_neighs=None, \
                              tol=0.0, target_spec=None):
 
         """
@@ -1496,7 +1493,7 @@ class OrderParameters(object):
             raise ValueError("Site index smaller zero!")
         if n >= len(structure):
             raise ValueError("Site index beyond maximum!")
-        if indeces_neighs:
+        if indeces_neighs is not None:
             for index in indeces_neighs:
                 if index >= len(structure):
                     raise ValueError("Neighbor site index beyond maximum!")
@@ -1511,7 +1508,7 @@ class OrderParameters(object):
         # Note that we adopt the same way of accessing sites here as in
         # VoronoiCoordFinder; that is, not via the sites iterator.
         centsite = structure[n]
-        if indeces_neighs:
+        if indeces_neighs is not None:
             neighsites = [structure[index] for index in indeces_neighs]
         elif self._voroneigh:
             vorocf = VoronoiCoordFinder(structure)

@@ -58,13 +58,13 @@ class ETSF_Reader_TestCase(PymatgenTest):
             # Test dimensions.
             for dimname, int_ref in ref_dims.items():
                 value = data.read_dimvalue(dimname)
-                self.assert_equal(value, int_ref)
+                self.assertArrayEqual(value, int_ref)
 
             # Test int variables
             for varname, int_ref in ref_int_values.items():
                 value = data.read_value(varname)
                 print(varname, value)
-                self.assert_equal(value, int_ref)
+                self.assertArrayEqual(value, int_ref)
 
             # Test float variables
             for varname, float_ref in ref_float_values.items():

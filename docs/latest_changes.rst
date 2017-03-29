@@ -1,7 +1,6 @@
 Change log
 ==========
 
-v4.7.1
+v4.7.2
 ------
-* Pathfinder speedup
-* Minor bug fix for plots.
+* Support for Abinit 8.2.2, including support for DFPT calculations. (Matteo)
