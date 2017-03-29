@@ -631,7 +631,12 @@ def get_strain_state_dict(strains, stresses, eq_stress=None,
     independent = set([tuple(np.nonzero(vstrain)[0].tolist())
                        for vstrain in vstrains])
     strain_state_dict = OrderedDict()
-    veq_stress = Stress(eq_stress).voigt if eq_stress else np.zeros(6) 
+    if add_eq:
+        if eq_stress:
+            veq_stress = Stress(eq_stress).voigt
+        else:
+            veq_stress = find_eq_stress(strains, stresses)
+
     for n, ind in enumerate(independent):
         # match strains with templates
         template = np.zeros(6, dtype=bool)
@@ -742,3 +747,20 @@ def subs(entry, cmap):
 # Vectorized functions
 v_subs = np.vectorize(subs)
 v_diff = np.vectorize(sp.diff)
+
+def get_diff_coeff(hvec, n=1):
+    """
+    Helper function to find difference coefficients of an
+    derivative on an arbitrary mesh.
+
+    Args:
+        hvec (1D array-like): sampling stencil
+        n (int): degree of derivative to find
+    """
+    hvec = np.array(hvec, dtype=np.float)
+    acc = len(hvec)
+    exp = np.column_stack([np.arange(acc)]*(acc))
+    A = np.vstack([hvec]*(acc))**exp
+    b = np.zeros(acc)
+    b[n] = factorial(n)
+    return np.linalg.solve(A, b)
