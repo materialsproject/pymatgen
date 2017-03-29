@@ -24,9 +24,9 @@ import string
 from six.moves import range
 from monty.dev import requires
 
-__author__ = "Maarten de Jong"
+__author__ = "Maarten de Jong, Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = ("Joseph Montoya, Ian Winter, Shyam Dwaraknath, "
+__credits__ = ("Ian Winter, Shyam Dwaraknath, "
                "Mark Asta, Anubhav Jain")
 __version__ = "1.0"
 __maintainer__ = "Joseph Montoya"
@@ -559,10 +559,6 @@ def central_diff_fit(strains, stresses, eq_stress=None,
     dEidsi = np.zeros((order - 1, 6, len(strain_state_dict)))
     for n, (strain_state, data) in enumerate(strain_state_dict.items()):
         diff = np.diff(data["strains"], axis=0)
-        # Verify stencil
-        if not (abs(diff - diff[0]) < 1e-8).all():
-            raise ValueError("Stencil for strain state {} must be odd-sampling"
-                             " centered at 0.".format(ind))
         h = np.min(diff[np.nonzero(diff)])
         hvec = data["strains"][:, strain_state.index(1)]
         for i in range(1, order):
