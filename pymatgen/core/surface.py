@@ -1066,8 +1066,7 @@ class FixedSlabGenerator(object):
                            slab.shift, slab.scale_factor)
         return manual_slab
 
-    def repair_broken_bonds(self, bonds, slabs,
-                            termination_tol=0.1):
+    def repair_broken_bonds(self, bonds, slabs):
         # Looks for terminations in between PO4s. Takes in a list of slabs
         # For now, this algo only works for one type of bond at a time
 
@@ -1087,9 +1086,7 @@ class FixedSlabGenerator(object):
                                                                        blength)))
         bulk_cn = np.mean(cnlist)
 
-        print("number of slabs to repair", len(slabs))
         for num, s in enumerate(slabs):
-            print(num)
             # get the top most and bottom most site index in our slabs
             cdist = [site.frac_coords[2] for site in s]
 
@@ -1136,21 +1133,22 @@ class FixedSlabGenerator(object):
                 # atom back to the other side of the slab again
                 s = self.move_to_other_side(s, tomove, to_top=to_top)
 
+            broken = False
             for i, site in enumerate(s):
                 if site.species_string == element1:
                     poly_coord = len(s.get_neighbors(site, blength))
                     if poly_coord != bulk_cn:
+                        broken = True
                         warnings.warn("Slab could not be repaired")
-                    else:
 
-                        # if the bonds have been fixed (CN of element1
-                        # relative to element2 in slab is same as in
-                        # bulk), add the repaired slab to the list
-
-                        fixed_slab = Slab(s.lattice, s.species, s.frac_coords,
-                                          s.miller_index, s.oriented_unit_cell, s.shift,
-                                          s.scale_factor)
-                        repaired_slabs.append(fixed_slab)
+            if not broken:
+                # if the bonds have been fixed (CN of element1
+                # relative to element2 in slab is same as in
+                # bulk), add the repaired slab to the list
+                fixed_slab = Slab(s.lattice, s.species, s.frac_coords,
+                                  s.miller_index, s.oriented_unit_cell, s.shift,
+                                  s.scale_factor)
+                repaired_slabs.append(fixed_slab)
 
         s = StructureMatcher()
         repaired = [ss[0] for ss in s.group_structures(repaired_slabs)]
@@ -1193,9 +1191,7 @@ class FixedSlabGenerator(object):
 
             # Repair the specified broken bonds in those
             # slabs and sift out any repeated repairs
-            unique = self.repair_broken_bonds(bonds, surfaces,
-                                              termination_tol=termination_tol)
-
+            unique = self.repair_broken_bonds(bonds, surfaces)
             # Clear the surfaces of the species we want to move
             # and save those sites for when we need to re-add them
             for slab in unique:
