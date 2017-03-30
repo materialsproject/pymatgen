@@ -1,12 +1,13 @@
 INCAR:
   ALGO: FAST
-  EDIFF_PER_ATOM: 5.0e-05
+  EDIFF: 1.0e-05
   ENCUT: 520
   IBRION: 2
   ICHARG: 1
   ISIF: 3
   ISMEAR: -5
   ISPIN: 2
+  ISYM: 0
   LDAU: true
   LDAUJ:
     F:
@@ -129,13 +130,13 @@ INCAR:
     Ta: 5
     V: 5
     W: 5
-  NELM: 100
+  NELM: 200
   NELMIN: 6
   NSW: 99
   PREC: Accurate
   SIGMA: 0.05
 KPOINTS:
-  grid_density: 1000
+  length: 25
 POTCAR:
   Ac:
     symbol: Ac
