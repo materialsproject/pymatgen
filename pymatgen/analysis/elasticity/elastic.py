@@ -565,7 +565,7 @@ def central_diff_fit(strains, stresses, eq_stress=None,
             coef = get_diff_coeff(hvec, i)
             dEidsi[i-1, :, n] = np.dot(coef, data["stresses"])
 
-    m, absent = generate_pseudo(strain_state_dict.keys(), order)
+    m, absent = generate_pseudo(list(strain_state_dict.keys()), order)
     for i in range(1, order):
         cvec, carr = get_symbol_list(i+1)
         svec = np.ravel(dEidsi[i-1].T)
