@@ -132,15 +132,6 @@ class ElasticTensor(TensorBase):
         return 0.5 * (self.g_voigt + self.g_reuss)
 
     @property
-    def kg_average(self):
-        """
-        returns a list of Voigt, Reuss, and Voigt-Reuss-Hill averages of bulk
-        and shear moduli similar to legacy behavior
-        """
-        return [self.k_voigt, self.g_voigt, self.k_reuss, self.g_reuss,
-                self.k_vrh, self.g_vrh]
-
-    @property
     def y_mod(self):
         """
         Calculates Young's modulus (in SI units) using the Voigt-Reuss-Hill
@@ -327,6 +318,29 @@ class ElasticTensor(TensorBase):
         return (1. - 2. / 3. * self.g_vrh / self.k_vrh) / \
                (2. + 2. / 3. * self.g_vrh / self.k_vrh)
 
+    @property
+    def property_dict(self):
+        """
+        returns a dictionary of properties derived from the elastic tensor
+        """
+        props = ["k_voigt", "k_reuss", "k_vrh", "g_voigt", "g_reuss", "g_vrh",
+                 "universal_anisotropy", "homogeneous_poisson", "y_mod"]
+        return {prop : getattr(self, prop) for prop in props}
+
+    def get_structure_property_dict(self, structure, include_base_props=True):
+        """
+        returns a dictionary of properties derived from the elastic tensor
+        and an associated structure
+        """
+        s_props = ["trans_v", "long_v", "snyder_ac", "snyder_opt",
+                   "snyder_total", "clarke_thermalcond", "cahill_thermalcond",
+                   "debye_temperature", "debye_temperature_gibbs"]
+        sp_dict = {prop : getattr(self, prop)(structure) for prop in s_props}
+        sp_dict["structure"] = structure
+        if include_base_props:
+            sp_dict.update(self.property_dict)
+        return sp_dict
+
     def energy_density(self, strain):
         """
         Calculates the elastic energy density due to a strain
@@ -334,10 +348,8 @@ class ElasticTensor(TensorBase):
         # Conversion factor for GPa to eV/Angstrom^3
         GPA_EV = 0.000624151
 
-        with warnings.catch_warnings(record=True):
-            e_density = np.dot(np.transpose(Strain(strain).voigt),
-                               np.dot(self.voigt, Strain(strain).voigt)) / 2 * GPA_EV
-
+        e_density = np.dot(np.transpose(Strain(strain).voigt),
+                           np.dot(self.voigt, Strain(strain).voigt)) / 2 * GPA_EV
         return e_density
 
     @classmethod
@@ -385,7 +397,7 @@ class ElasticTensor(TensorBase):
             if len(xy) == 0:
                 raise ValueError("No ind. strains for vgt index {}".format(i))
             elif len(xy) == 1:
-                xy += [(0, 0)]
+                xy += [(0, 0)] # Fit through 0
             c_ij[i, j] = np.polyfit(*zip(*xy), deg=1)[0]
         if vasp:
             c_ij *= -0.1  # Convert units/sign convention of vasp stress tensor

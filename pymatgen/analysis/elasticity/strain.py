@@ -46,14 +46,14 @@ class Deformation(SquareTensor):
 
         return obj.view(cls)
 
-    def check_independent(self):
+    def check_independent(self, tol=1e-8):
         """
         checks to determine whether the deformation matrix represents an
         independent deformation, raises a ValueError if not.  If so, returns
         the indices of the deformation gradient entry representing the
         independent component
         """
-        indices = list(zip(*np.asarray(self - np.eye(3)).nonzero()))
+        indices = list(zip(*np.where(abs(self - np.eye(3)) > tol)))
         if len(indices) != 1:
             raise ValueError("One and only one independent deformation"
                              "must be applied.")
@@ -238,15 +238,14 @@ class Strain(SquareTensor):
 
         return np.sqrt(np.dot(eps.voigt,eps.voigt)*2/3)
 
-    @property
-    def independent_deformation(self):
+    def get_independent_deformation(self, tol=1e-8):
         """
         determines whether the deformation matrix represents an
         independent deformation, raises a value error if not.
         Returns the index of the deformation gradient corresponding
         to the independent deformation
         """
-        return self._dfm.check_independent()
+        return self._dfm.check_independent(tol=tol)
 
 
 class IndependentStrain(Strain):
@@ -257,7 +256,7 @@ class IndependentStrain(Strain):
     emulate the legacy behavior.
     """
 
-    def __new__(cls, deformation_gradient):
+    def __new__(cls, deformation_gradient, tol=1e-8):
         """
         Create an Independent Strain object.  Note that the constructor uses
         __new__ rather than __init__ according to the standard method of
@@ -272,7 +271,7 @@ class IndependentStrain(Strain):
         """
 
         obj=Strain.from_deformation(deformation_gradient).view(cls)
-        (obj._i, obj._j)=obj.independent_deformation
+        (obj._i, obj._j)=obj.get_independent_deformation(tol=tol)
         return obj
 
     def __array_finalize__(self, obj):
