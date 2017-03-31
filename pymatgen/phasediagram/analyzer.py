@@ -9,15 +9,6 @@ This module provides classes for analyzing phase diagrams.
 """
 
 from six.moves import zip
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "May 16, 2012"
-
 import numpy as np
 import itertools
 import collections
@@ -26,10 +17,17 @@ from monty.functools import lru_cache
 from monty.dev import deprecated
 
 from pymatgen.core.composition import Composition
-from pymatgen.phasediagram.maker import PhaseDiagram, \
-    GrandPotentialPhaseDiagram, get_facets
+from pymatgen.phasediagram.maker import PhaseDiagram, get_facets
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.util.coord_utils import Simplex
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Production"
+__date__ = "May 16, 2012"
 
 
 class PDAnalyzer(object):

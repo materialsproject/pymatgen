@@ -1,5 +1,6 @@
 numpy==1.12.1
 pydispatcher==2.0.5
+sympy==1.0
 requests==2.13.0
 monty==0.9.6
 pyyaml==3.12

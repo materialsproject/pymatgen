@@ -5,24 +5,25 @@
 from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
 
+from pymatgen.analysis.elasticity.tensors import Tensor, \
+        voigt_map as vmap, TensorCollection
+from pymatgen.analysis.elasticity.stress import Stress
+from pymatgen.analysis.elasticity.strain import Strain
+from scipy.misc import factorial
+from collections import OrderedDict
+import numpy as np
+import warnings
+import itertools
+import string
+
+import sympy as sp
+
 """
 This module provides a class used to describe the elastic tensor,
 including methods used to fit the elastic tensor from linear response
 stress-strain data
 """
 
-from pymatgen.analysis.elasticity.tensors import Tensor, \
-        voigt_map as vmap, TensorCollection
-from pymatgen.analysis.elasticity.stress import Stress
-from pymatgen.analysis.elasticity.strain import Strain
-from scipy.misc import central_diff_weights, factorial
-from collections import OrderedDict
-import numpy as np
-import warnings
-import itertools
-import string
-from six.moves import range
-from monty.dev import requires
 
 __author__ = "Maarten de Jong, Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -34,19 +35,13 @@ __email__ = "montoyjh@lbl.gov"
 __status__ = "Development"
 __date__ = "March 22, 2012"
 
-try:
-    import sympy as sp
-    sympy_found = True
-except ImportError:
-    sympy_found = False
-
 
 class NthOrderElasticTensor(Tensor):
     """
     An object representing an nth-order tensor expansion 
     of the stress-strain constitutive equations
     """
-    def __new__(cls, input_array, check_rank, tol=1e-4):
+    def __new__(cls, input_array, check_rank=None, tol=1e-4):
         obj = super(NthOrderElasticTensor, cls).__new__(
             cls, input_array, check_rank=check_rank)
         if obj.rank % 2 != 0:
@@ -73,12 +68,13 @@ class NthOrderElasticTensor(Tensor):
         """
         strain = np.array(strain)
         if strain.shape == (6,):
-            strain = strain.from_voigt(strain)
+            strain = Strain.from_voigt(strain)
         assert strain.shape == (3, 3), "Strain must be 3x3 or voigt-notation"
         lc = string.ascii_lowercase[:self.rank-2]
         lc_pairs = map(''.join, zip(*[iter(lc)]*2))
         einsum_string = "ij" + lc + ',' + ','.join(lc_pairs) + "->ij"
-        stress_matrix = np.einsum(einsum_string, self, strain) \
+        einsum_args = [self] + [strain] * (self.order - 1)
+        stress_matrix = np.einsum(einsum_string, *einsum_args) \
                 / factorial(self.order - 1)
         return Stress(stress_matrix)
 
@@ -92,10 +88,9 @@ class NthOrderElasticTensor(Tensor):
         return e_density
 
     @classmethod
-    @requires(sympy_found, "Central difference fitter requires sympy")
-    def from_cdiff(cls, strains, stresses, eq_stress=None,
+    def from_diff_fit(cls, strains, stresses, eq_stress=None,
                         order=2, tol=1e-10):
-        return cls(central_diff_fit(strains, stresses, eq_stress, 
+        return cls(diff_fit(strains, stresses, eq_stress, 
                                     order, tol)[order-2])
 
 
@@ -461,7 +456,7 @@ class ElasticTensorExpansion(TensorCollection):
     of the list-based properties of TensorCollection
     (e. g. symmetrization, voigt conversion, etc.)
     """
-    def __init__(c_list):
+    def __init__(self, c_list):
         """
         Initialization method for ElasticTensorExpansion
 
@@ -472,17 +467,16 @@ class ElasticTensorExpansion(TensorCollection):
         """
         c_list = [NthOrderElasticTensor(c, check_rank=4+i*2)
                   for i, c in enumerate(c_list)]
-        super(self).__init__(c_list)
+        super(ElasticTensorExpansion, self).__init__(c_list)
 
     @classmethod
-    @requires(sympy_found, "central diff fitting procedure requires sympy")
-    def from_cdiff(cls, strains, stresses, eq_stress=None, 
-                   tol=1e-10, order=3):
+    def from_diff_fit(cls, strains, stresses, eq_stress=None,
+                      tol=1e-10, order=3):
         """
         Generates an elastic tensor expansion via the fitting function
-        defined below in central_diff_fit
+        defined below in diff_fit
         """
-        c_list = central_diff_fit(strain, stresses, eq_stress, tol, order)
+        c_list = diff_fit(strains, stresses, eq_stress, order, tol)
         return cls(c_list)
 
     @property
@@ -498,18 +492,17 @@ class ElasticTensorExpansion(TensorCollection):
         Calculate's a given elastic tensor's contribution to the
         stress using Einstein summation
         """
-        return sum([c.calculate_stress(strain) for c in self.c_list])
+        return sum([c.calculate_stress(strain) for c in self])
 
     def energy_density(self, strain, convert_GPa_to_eV=True):
         """
         Calculates the elastic energy density due to a strain
         """
         return sum([c.energy_density(strain, convert_GPa_to_eV) 
-                    for c in self.c_list])
+                    for c in self])
 
 
-@requires(sympy_found, "central_diff_fit requires sympy")
-def central_diff_fit(strains, stresses, eq_stress=None, 
+def diff_fit(strains, stresses, eq_stress=None,
                      order=2, tol=1e-10):
     """
     nth order elastic constant fitting function based on 
@@ -629,10 +622,10 @@ def get_strain_state_dict(strains, stresses, eq_stress=None,
                        for vstrain in vstrains])
     strain_state_dict = OrderedDict()
     if add_eq:
-        if eq_stress:
+        if eq_stress is not None:
             veq_stress = Stress(eq_stress).voigt
         else:
-            veq_stress = find_eq_stress(strains, stresses)
+            veq_stress = find_eq_stress(strains, stresses).voigt
 
     for n, ind in enumerate(independent):
         # match strains with templates
@@ -658,7 +651,6 @@ def get_strain_state_dict(strains, stresses, eq_stress=None,
                                            "stresses":mstresses}
     return strain_state_dict
 
-@requires(sympy_found, "generate_pseudo requires sympy")
 def generate_pseudo(strain_states, order=3):
     """
     Generates the pseudoinverse for a given set of strains.
@@ -700,7 +692,7 @@ def generate_pseudo(strain_states, order=3):
         mis.append(np.linalg.pinv(m))
     return mis, absent_syms
 
-@requires(sympy_found, "get_symbol_list requires sympy")
+
 def get_symbol_list(rank, dim=6):
     """
     Returns a symbolic representation of the voigt-notation
