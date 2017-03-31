@@ -479,17 +479,17 @@ class CifParser(object):
 
         except (ValueError, KeyError):
             oxi_states = None
-
         return oxi_states
 
-    def _get_structure(self, data, primitive, substitution_dictionary=None):
+    def _get_structure(self, data, primitive):
         """
         Generate structure from part of the cif.
         """
         # Symbols often representing
         # common representations for elements/water in cif files
+        # TODO: fix inconsistent handling of water
         special_symbols = {"D": "D", "Hw": "H", "Ow": "O", "Wat": "O",
-                           "wat": "O"}
+                           "wat": "O", "OH": "", "OH2": ""}
         elements = [el.symbol for el in Element]
 
         lattice = self.get_lattice(data)
@@ -499,17 +499,16 @@ class CifParser(object):
         coord_to_species = OrderedDict()
 
         def parse_symbol(sym):
-
-            if substitution_dictionary:
-                return substitution_dictionary.get(sym)
-            elif sym in ['OH', 'OH2']:
-                warnings.warn("Symbol '{}' not recognized".format(sym))
-                return ""
-            else:
-                m = re.findall(r"w?[A-Z][a-z]*", sym)
-                if m and m != "?":
-                    return m[0]
-                return ""
+            m = re.findall(r"w?[A-Z][a-z]*", sym)
+            if m and m != "?":
+                if sym in special_symbols:
+                    v = special_symbols[sym]
+                else:
+                    v = special_symbols.get(m[0], m[0])
+                if len(m) > 1 or (m[0] in special_symbols):
+                    warnings.warn("{} parsed as {}".format(sym, v))
+                return v
+            return ""
 
         def get_matching_coord(coord):
             keys = list(coord_to_species.keys())
