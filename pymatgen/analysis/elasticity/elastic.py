@@ -422,33 +422,32 @@ class ElasticTensor(NthOrderElasticTensor):
         return cls.from_voigt(voigt_fit)
 
     @classmethod
-    def from_stress_dict(cls, stress_dict, tol=0.1, vasp=True, symmetry=False):
+    def from_independent_strains(cls, strains, stresses, eq_stress=None, vasp=False):
         """
-        Constructs the elastic tensor from IndependentStrain-Stress dictionary
-        corresponding to legacy behavior of elasticity package.
-
+        Constructs the elastic tensor least-squares fitting of independent strains
         Args:
             stress_dict (dict): dictionary of stresses indexed by corresponding
                 IndependentStrain objects.
             tol (float): tolerance for zeroing small values of the tensor
             vasp (boolean): flag for whether the stress tensor should be
                 converted based on vasp units/convention for stress
-            symmetry (boolean): flag for whether or not the elastic tensor
-                should fit from data based on symmetry
         """
+        strain_states = [tuple(ss) for ss in np.eye(6)]
+        ss_dict = get_strain_state_dict(strains, stresses, eq_stress=eq_stress)
+        if not set(strain_states) <= set(ss_dict.keys()):
+            raise ValueError("Missing independent strain states: "
+                             "{}".format(set(strain_states) - set(ss_dict)))
+        if len(set(ss_dict.keys()) - set(strain_states)) > 0:
+            warnings.warn("Extra strain states in strain-stress pairs "
+                          "are neglected in independent strain fitting")
         c_ij = np.zeros((6, 6))
-        for i, j in itertools.product(range(6), repeat=2):
-            strains = [s for s in stress_dict.keys() 
-                       if s.ij == vmap[i]]
-            xy = [(s[vmap[i]], stress_dict[s][vmap[j]]) for s in strains]
-            if len(xy) == 0:
-                raise ValueError("No ind. strains for vgt index {}".format(i))
-            elif len(xy) == 1:
-                xy += [(0, 0)] # Fit through 0
-            c_ij[i, j] = np.polyfit(*zip(*xy), deg=1)[0]
+        for i in range(6):
+            istrains = ss_dict[strain_states[i]]["strains"]
+            istresses = ss_dict[strain_states[i]]["stresses"]
+            for j in range(6):
+                c_ij[i, j] = np.polyfit(istrains[:, i], istresses[:, j], 1)[0]
         if vasp:
             c_ij *= -0.1  # Convert units/sign convention of vasp stress tensor
-        c_ij[0:, 3:] = 0.5 * c_ij[0:, 3:]  # account for voigt doubling of e4,e5,e6
         c = cls.from_voigt(c_ij)
         c = c.zeroed()
         return c
@@ -693,7 +692,6 @@ def generate_pseudo(strain_states, order=3):
             sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]
         svec = sarr.ravel()
         present_syms = set.union(*[exp.atoms(sp.Symbol) for exp in svec])
-        #import pdb; pdb.set_trace()
         absent_syms += [set(cvec) - present_syms]
         m = np.zeros((6*nstates, len(cvec)))
         for n, c in enumerate(cvec):
@@ -728,23 +726,24 @@ def get_symbol_list(rank, dim=6):
             c_arr[perm] = c_vec[n]
     return c_vec, c_arr
 
-def subs(entry, cmap):
-    """
-    Sympy substitution function, primarily for the purposes
-    of numpy vectorization
+if sympy_found:
+    def subs(entry, cmap):
+        """
+        Sympy substitution function, primarily for the purposes
+        of numpy vectorization
 
-    Args:
-        entry (symbol or exp): sympy expr to undergo subs
-        cmap (dict): map for symbols to values to use in subs
+        Args:
+            entry (symbol or exp): sympy expr to undergo subs
+            cmap (dict): map for symbols to values to use in subs
 
-    Returns:
-        Evaluated expression with substitution
-    """
-    return entry.subs(cmap)
+        Returns:
+            Evaluated expression with substitution
+        """
+        return entry.subs(cmap)
 
-# Vectorized functions
-v_subs = np.vectorize(subs)
-v_diff = np.vectorize(sp.diff)
+    # Vectorized functions
+    v_subs = np.vectorize(subs)
+    v_diff = np.vectorize(sp.diff)
 
 def get_diff_coeff(hvec, n=1):
     """
