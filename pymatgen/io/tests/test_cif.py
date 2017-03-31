@@ -257,8 +257,7 @@ loop_
 """
         parser = CifParser.from_string(cif_str)
         struct = parser.get_structures(primitive=False)[0]
-        self.assertEqual(struct.formula, "Fe4 P4 O16",
-                         "Incorrectly parsed cif.")
+        self.assertEqual(struct.formula, "Fe4 P4 O16")
         self.assertAlmostEqual(struct.lattice.a, 10.4117668699)
         self.assertAlmostEqual(struct.lattice.b, 6.06717187997)
         self.assertAlmostEqual(struct.lattice.c, 4.75948953998)
@@ -277,6 +276,7 @@ loop_
         parser = CifParser(os.path.join(test_dir, "Fe.cif"))
         self.assertEqual(len(parser.get_structures(primitive=False)[0]), 2)
 
+    def test_CifParserSpringerPauling(self):
         # Below are 10 tests for CIFs from the Springer Materials/Pauling file DBs.
 
         # Partial occupancy on sites, incorrect label, previously unparsable
@@ -790,14 +790,18 @@ loop_
   _atom_site_fract_y
   _atom_site_fract_z
   _atom_site_occupancy
-  X3-  X1  1  0.500000  0.500000  0.500000  1
-  X3-  X2  1  0.750000  0.500000  0.750000  0.5
-  Si3+  Si3  1  0.750000  0.500000  0.750000  0.5
-  Si4+  Si4  1  0.000000  0.000000  0.000000  1
+   X3-  X1  1  0.500000  0.500000  0.500000  1
+   X3-  X2  1  0.750000  0.500000  0.750000  0.5
+   Si3+  Si3  1  0.750000  0.500000  0.750000  0.5
+   Si4+  Si4  1  0.000000  0.000000  0.000000  1
 
 """
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
+
+        # test that mixed valence works properly
+        s2 = Structure.from_str(ans, "cif")
+        self.assertEqual(struct.composition, s2.composition)
 
     def test_primes(self):
         parser = CifParser(os.path.join(test_dir, 'C26H16BeN2O2S2.cif'))
