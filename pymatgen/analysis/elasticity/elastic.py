@@ -5,24 +5,25 @@
 from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
 
+from pymatgen.analysis.elasticity.tensors import Tensor, \
+        voigt_map as vmap, TensorCollection
+from pymatgen.analysis.elasticity.stress import Stress
+from pymatgen.analysis.elasticity.strain import Strain
+from scipy.misc import factorial
+from collections import OrderedDict
+import numpy as np
+import warnings
+import itertools
+import string
+
+import sympy as sp
+
 """
 This module provides a class used to describe the elastic tensor,
 including methods used to fit the elastic tensor from linear response
 stress-strain data
 """
 
-from pymatgen.analysis.elasticity.tensors import Tensor, \
-        voigt_map as vmap, TensorCollection
-from pymatgen.analysis.elasticity.stress import Stress
-from pymatgen.analysis.elasticity.strain import Strain
-from scipy.misc import central_diff_weights, factorial
-from collections import OrderedDict
-import numpy as np
-import warnings
-import itertools
-import string
-from six.moves import range
-from monty.dev import requires
 
 __author__ = "Maarten de Jong, Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -33,12 +34,6 @@ __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
 __status__ = "Development"
 __date__ = "March 22, 2012"
-
-try:
-    import sympy as sp
-    sympy_found = True
-except ImportError:
-    sympy_found = False
 
 
 class NthOrderElasticTensor(Tensor):
@@ -93,7 +88,6 @@ class NthOrderElasticTensor(Tensor):
         return e_density
 
     @classmethod
-    @requires(sympy_found, "Central difference fitter requires sympy")
     def from_diff_fit(cls, strains, stresses, eq_stress=None,
                         order=2, tol=1e-10):
         return cls(diff_fit(strains, stresses, eq_stress, 
@@ -476,7 +470,6 @@ class ElasticTensorExpansion(TensorCollection):
         super(ElasticTensorExpansion, self).__init__(c_list)
 
     @classmethod
-    @requires(sympy_found, "central diff fitting procedure requires sympy")
     def from_diff_fit(cls, strains, stresses, eq_stress=None,
                       tol=1e-10, order=3):
         """
@@ -509,8 +502,7 @@ class ElasticTensorExpansion(TensorCollection):
                     for c in self])
 
 
-@requires(sympy_found, "diff_fit requires sympy")
-def diff_fit(strains, stresses, eq_stress=None, 
+def diff_fit(strains, stresses, eq_stress=None,
                      order=2, tol=1e-10):
     """
     nth order elastic constant fitting function based on 
@@ -659,7 +651,6 @@ def get_strain_state_dict(strains, stresses, eq_stress=None,
                                            "stresses":mstresses}
     return strain_state_dict
 
-@requires(sympy_found, "generate_pseudo requires sympy")
 def generate_pseudo(strain_states, order=3):
     """
     Generates the pseudoinverse for a given set of strains.
@@ -701,7 +692,7 @@ def generate_pseudo(strain_states, order=3):
         mis.append(np.linalg.pinv(m))
     return mis, absent_syms
 
-@requires(sympy_found, "get_symbol_list requires sympy")
+
 def get_symbol_list(rank, dim=6):
     """
     Returns a symbolic representation of the voigt-notation
