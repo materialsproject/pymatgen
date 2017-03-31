@@ -43,14 +43,14 @@ class SymmetrizedStructure(Structure):
         u, inv = np.unique(equivalent_positions, return_inverse=True)
         self.site_labels = equivalent_positions
 
-        site_properties = structure.site_properties
-        site_properties["wyckoff"] = [
-            "%d%s" % (list(self.site_labels).count(self.site_labels[i]),
-                      wyckoff_letters[i]) for i in range(len(structure))]
+        # site_properties = structure.site_properties
+        # site_properties["wyckoff"] = [
+        #     "%d%s" % (list(self.site_labels).count(self.site_labels[i]),
+        #               wyckoff_letters[i]) for i in range(len(structure))]
 
         super(SymmetrizedStructure, self).__init__(
             structure.lattice, [site.species_and_occu for site in structure],
-            structure.frac_coords, site_properties=site_properties)
+            structure.frac_coords, site_properties=structure.site_properties)
 
         self.equivalent_indices = [[] for i in range(len(u))]
         self.equivalent_sites = [[] for i in range(len(u))]
