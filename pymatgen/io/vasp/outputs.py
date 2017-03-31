@@ -2712,21 +2712,21 @@ class Oszicar(object):
     def __init__(self, filename):
         electronic_steps = []
         ionic_steps = []
-        ionic_pattern = re.compile("(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
-                                   "E0=\s*([\d\-\.E\+]+)\s+"
-                                   "d\s*E\s*=\s*([\d\-\.E\+]+)$")
-        ionic_mag_pattern = re.compile("(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
-                                       "E0=\s*([\d\-\.E\+]+)\s+"
-                                       "d\s*E\s*=\s*([\d\-\.E\+]+)\s+"
-                                       "mag=\s*([\d\-\.E\+]+)")
-        ionic_MD_pattern = re.compile("(\d+)\s+T=\s*([\d\-\.E\+]+)\s+"
-                                      "E=\s*([\d\-\.E\+]+)\s+"
-                                      "F=\s*([\d\-\.E\+]+)\s+"
-                                      "E0=\s*([\d\-\.E\+]+)\s+"
-                                      "EK=\s*([\d\-\.E\+]+)\s+"
-                                      "SP=\s*([\d\-\.E\+]+)\s+"
-                                      "SK=\s*([\d\-\.E\+]+)")
-        electronic_pattern = re.compile("\s*\w+\s*:(.*)")
+        ionic_pattern = re.compile(r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
+                                   r"E0=\s*([\d\-\.E\+]+)\s+"
+                                   r"d\s*E\s*=\s*([\d\-\.E\+]+)$")
+        ionic_mag_pattern = re.compile(r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
+                                       r"E0=\s*([\d\-\.E\+]+)\s+"
+                                       r"d\s*E\s*=\s*([\d\-\.E\+]+)\s+"
+                                       r"mag=\s*([\d\-\.E\+]+)")
+        ionic_MD_pattern = re.compile(r"(\d+)\s+T=\s*([\d\-\.E\+]+)\s+"
+                                      r"E=\s*([\d\-\.E\+]+)\s+"
+                                      r"F=\s*([\d\-\.E\+]+)\s+"
+                                      r"E0=\s*([\d\-\.E\+]+)\s+"
+                                      r"EK=\s*([\d\-\.E\+]+)\s+"
+                                      r"SP=\s*([\d\-\.E\+]+)\s+"
+                                      r"SK=\s*([\d\-\.E\+]+)")
+        electronic_pattern = re.compile(r"\s*\w+\s*:(.*)")
 
         def smart_convert(header, num):
             try:
@@ -2771,7 +2771,7 @@ class Oszicar(object):
                                         "EK": float(m.group(6)),
                                         "SP": float(m.group(7)),
                                         "SK": float(m.group(8))})
-                elif re.match("^\s*N\s+E\s*", line):
+                elif re.match(r"^\s*N\s+E\s*", line):
                     header = line.strip().replace("d eps", "deps").split()
         self.electronic_steps = electronic_steps
         self.ionic_steps = ionic_steps
