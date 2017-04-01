@@ -4,9 +4,11 @@ import unittest
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.elasticity.strain import Strain, Deformation, \
-        DeformedStructureSet, IndependentStrain
+from pymatgen.analysis.elasticity.tensors import Tensor
+from pymatgen.analysis.elasticity.strain import Strain, Deformation,\
+        convert_strain_to_deformation
 from pymatgen.util.testing import PymatgenTest
+import numpy as np
 import warnings
 
 
@@ -107,6 +109,18 @@ class StrainTest(PymatgenTest):
                                      [0.01, 0.0002, 0.0002],
                                      [0.01, 0.0002, 0.0002]])
 
+    def test_from_index_amount(self):
+        # From voigt index
+        test = Strain.from_index_amount(2, 0.01)
+        should_be = np.zeros((3, 3))
+        should_be[2, 2] = 0.01
+        self.assertArrayAlmostEqual(test, should_be)
+        # from full-tensor index
+        test = Strain.from_index_amount((1, 2), 0.01)
+        should_be = np.zeros((3, 3))
+        should_be[1, 2] = should_be[2, 1] = 0.01
+        self.assertArrayAlmostEqual(test, should_be)
+
     def test_properties(self):
         # deformation matrix
         self.assertArrayAlmostEqual(self.ind_str.deformation_matrix,
@@ -121,55 +135,11 @@ class StrainTest(PymatgenTest):
         # voigt
         self.assertArrayAlmostEqual(self.non_ind_str.voigt,
                                     [0, 0.0002, 0.0002, 0.0004, 0.02, 0.02])
+
     def test_convert_strain_to_deformation(self):
-        defo = Deformation.from_index_amount((1,2), 0.01)
-        pass
-
-class DeformedStructureSetTest(PymatgenTest):
-    def setUp(self):
-        lattice = Lattice([[3.8401979337, 0.00, 0.00],
-                           [1.9200989668, 3.3257101909, 0.00],
-                           [0.00, -2.2171384943, 3.1355090603]])
-        self.structure = Structure(lattice, ["Si", "Si"], [[0, 0, 0],
-                                                           [0.75, 0.5, 0.75]])
-        self.default_dss = DeformedStructureSet(self.structure)
-
-    def test_init(self):
-        with self.assertRaises(ValueError):
-            DeformedStructureSet(self.structure, num_norm=5)
-        with self.assertRaises(ValueError):
-            DeformedStructureSet(self.structure, num_shear=5)
-        self.assertEqual(self.structure, self.default_dss.undeformed_structure)
-
-    def test_as_strain_dict(self):
-        strain_dict = self.default_dss.as_strain_dict()
-        for i, def_struct in enumerate(self.default_dss):
-            test_strain = IndependentStrain(self.default_dss.deformations[i])
-            strain_keys = [strain for strain in list(strain_dict.keys())
-                           if (strain == test_strain).all()]
-            self.assertEqual(len(strain_keys), 1)
-            self.assertEqual(self.default_dss.def_structs[i],
-                             strain_dict[strain_keys[0]])
-
-
-class IndependentStrainTest(PymatgenTest):
-    def setUp(self):
-        self.ind_strain = IndependentStrain([[1, 0.1, 0],
-                                             [0, 1, 0],
-                                             [0, 0, 1]])
-        self.ind_strain_2 = IndependentStrain([[1, 0, 0],
-                                               [0, 1.1, 0],
-                                               [0, 0, 1]])
-
-    def test_new(self):
-        with self.assertRaises(ValueError):
-            IndependentStrain([[0.1, 0.1, 0],
-                               [0, 0, 0],
-                               [0, 0, 0]])
-
-    def test_properties(self):
-        self.assertEqual(self.ind_strain.ij, (0, 1))
-        self.assertEqual(self.ind_strain_2.ij, (1, 1))
+        strain = Tensor(np.random.random((3, 3))).symmetrized
+        defo = Deformation(convert_strain_to_deformation(strain))
+        self.assertArrayAlmostEqual(defo.green_lagrange_strain, strain)
 
 if __name__ == '__main__':
     unittest.main()
