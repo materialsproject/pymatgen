@@ -19,10 +19,6 @@ from six.moves import zip
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
-try:
-    import sympy
-except ImportError:
-    sympy=None
 
 class ElasticTensorTest(PymatgenTest):
     def setUp(self):
@@ -218,7 +214,6 @@ class ElasticTensorExpansionTest(PymatgenTest):
         from_voigt = ElasticTensorExpansion.from_voigt([self.c2, self.c3])
         self.assertEqual(exp.order, 3)
 
-    @unittest.skipIf(not sympy, "sympy not present, skipping from_diff_fit_test")
     def test_from_diff_fit(self):
         exp = ElasticTensorExpansion.from_diff_fit(self.strains, self.pk_stresses)
 
@@ -247,7 +242,6 @@ class NthOrderElasticTensorTest(PymatgenTest):
             self.assertEqual(c.order, n+2)
         self.assertRaises(ValueError, NthOrderElasticTensor, np.zeros([3]*5))
 
-    @unittest.skipIf(not sympy, "sympy not present, skipping from_diff_fit_test")
     def test_from_diff_fit(self):
         c3 = NthOrderElasticTensor.from_diff_fit(self.strains, self.pk_stresses, 
                                                  eq_stress = self.data_dict["eq_stress"], 
@@ -264,7 +258,6 @@ class NthOrderElasticTensorTest(PymatgenTest):
         self.c3.energy_density(self.strains[0])
 
 
-@unittest.skipIf(not sympy, "sympy not present, skipping CentralDiffFitTest")
 class DiffFitTest(PymatgenTest):
     """
     Tests various functions related to diff fitting
