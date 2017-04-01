@@ -152,7 +152,7 @@ class SubstitutionDefectTransformation(AbstractTransformation):
 
     def __str__(self):
         specie_map_string = ", ".join(
-            [str(k) + "->" + str(v) for k, v in self.specie_map.items()])
+            [str(k) + "->" + str(v) for k, v in self.species_map.items()])
         inp_args = ["Specie map = {}".format(specie_map_string),
                     "Supercell scaling matrix = {}".format(self.supercell_dim),
                     "Valences of ions = {}".format(self.valences),
@@ -313,4 +313,3 @@ class InterstitialTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return True
-
