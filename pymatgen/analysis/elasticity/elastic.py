@@ -717,24 +717,23 @@ def get_symbol_list(rank, dim=6):
             c_arr[perm] = c_vec[n]
     return c_vec, c_arr
 
-if sympy_found:
-    def subs(entry, cmap):
-        """
-        Sympy substitution function, primarily for the purposes
-        of numpy vectorization
+def subs(entry, cmap):
+    """
+    Sympy substitution function, primarily for the purposes
+    of numpy vectorization
 
-        Args:
-            entry (symbol or exp): sympy expr to undergo subs
-            cmap (dict): map for symbols to values to use in subs
+    Args:
+        entry (symbol or exp): sympy expr to undergo subs
+        cmap (dict): map for symbols to values to use in subs
 
-        Returns:
-            Evaluated expression with substitution
-        """
-        return entry.subs(cmap)
+    Returns:
+        Evaluated expression with substitution
+    """
+    return entry.subs(cmap)
 
-    # Vectorized functions
-    v_subs = np.vectorize(subs)
-    v_diff = np.vectorize(sp.diff)
+# Vectorized functions
+v_subs = np.vectorize(subs)
+v_diff = np.vectorize(sp.diff)
 
 def get_diff_coeff(hvec, n=1):
     """
