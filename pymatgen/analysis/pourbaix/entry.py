@@ -8,7 +8,7 @@ import re
 import math
 import csv
 
-from six.moves import map, zip
+from six.moves import zip
 from monty.string import unicode2str
 
 from pymatgen.core.periodic_table import Element
