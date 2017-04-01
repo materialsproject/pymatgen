@@ -7,7 +7,7 @@ import os
 
 import numpy as np
 from pymatgen.analysis.elasticity.elastic import * 
-from pymatgen.analysis.elasticity.strain import Strain, IndependentStrain, Deformation
+from pymatgen.analysis.elasticity.strain import Strain, Deformation
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
 from scipy.misc import central_diff_weights
@@ -67,6 +67,8 @@ class ElasticTensorTest(PymatgenTest):
         filepath = os.path.join(test_dir, 'Sn_def_stress.json')
         with open(filepath) as f:
             self.def_stress_dict = json.load(f)
+        with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
+            self.toec_dict = json.load(f)
         self.structure = self.get_structure("Sn")
 
         warnings.simplefilter("always")
@@ -170,20 +172,12 @@ class ElasticTensorTest(PymatgenTest):
                                          [0, 0, 0, 0, 26.35, 0],
                                          [0, 0, 0, 0, 0, 26.35]])
 
-    def test_from_stress_dict(self):
-        stress_dict = dict(list(zip([IndependentStrain(def_matrix) for def_matrix
-                                in self.def_stress_dict['deformations']],
-                                [Stress(stress_matrix) for stress_matrix
-                                in self.def_stress_dict['stresses']])))
-        minimal_sd = {k:v for k, v in stress_dict.items() 
-                      if (abs(k[k.ij] - 0.015) < 1e-10
-                      or  abs(k[k.ij] - 0.01005) < 1e-10)}
-        with warnings.catch_warnings(record = True):
-            et_from_sd = ElasticTensor.from_stress_dict(stress_dict)
-            et_from_minimal_sd = ElasticTensor.from_stress_dict(minimal_sd)
-        self.assertArrayAlmostEqual(et_from_sd.voigt_symmetrized.round(2),
-                                    self.elastic_tensor_1)
-        self.assertAlmostEqual(50.63394169, et_from_minimal_sd[0,0,0,0])
+    def test_from_independent_strains(self):
+        strains = self.toec_dict["strains"]
+        stresses = self.toec_dict["stresses"]
+        with warnings.catch_warnings(record=True) as w:
+            et = ElasticTensor.from_independent_strains(strains, stresses)
+        self.assertArrayAlmostEqual(et.voigt, self.toec_dict["C2_raw"], decimal=-1)
 
     def test_energy_density(self):
 
