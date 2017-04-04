@@ -1037,6 +1037,9 @@ class FixedSlabGenerator(object):
         self.initial_structure = initial_structure
         self.primitive = primitive
         self.tol = tol
+        self.miller_index = miller_index
+        self.min_vacuum_size = min_vacuum_size
+        self.min_slab_size = min_slab_size
 
     def move_to_other_side(self, init_slab, index_of_sites, to_top=True):
 
@@ -1179,6 +1182,17 @@ class FixedSlabGenerator(object):
     def fix_sym_and_pol(self, bonds, sites_to_move=["Li+"],
                         species_term_only=True, symprec=0.1,
                         tol_dipole_per_unit_area=1e-3):
+
+        correct_slabs = []
+        slabgen = SlabGenerator(self.initial_structure, self.miller_index,
+                                self.min_slab_size, self.min_vacuum_size)
+        slabs = slabgen.get_slabs(bonds=bonds, tol=self.tol)
+        for slab in slabs:
+            if not slab.is_polar():
+                if slab.is_symmetric():
+                    correct_slabs.append(slab)
+        if correct_slabs:
+            return correct_slabs
 
         modded_slabs = []
         for species_to_move in sites_to_move:
