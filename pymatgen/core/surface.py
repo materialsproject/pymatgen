@@ -1181,7 +1181,12 @@ class FixedSlabGenerator(object):
                         tol_dipole_per_unit_area=1e-3):
 
         modded_slabs = []
-        for el in sites_to_move:
+        for species_to_move in sites_to_move:
+            if type(species_to_move).__name__ == "dict":
+                el = list(species_to_move.keys())[0][0]
+            else:
+                el = species_to_move
+            bound_atom = list(bonds.keys())[0][0]
             # This algorithm will only move
             # around one species at a time
             if species_term_only:
@@ -1204,10 +1209,10 @@ class FixedSlabGenerator(object):
             # Repair the specified broken bonds in those
             # slabs and sift out any repeated repairs
             unique = self.repair_broken_bonds(bonds, surfaces)
+
             # Clear the surfaces of the species we want to move
             # and save those sites for when we need to re-add them
             for slab in unique:
-
                 # If this slab is already symmetric/nonpolar,
                 # add to list and skip this iteration
                 if slab.is_symmetric(symprec=symprec) and not slab.is_polar(
@@ -1243,11 +1248,43 @@ class FixedSlabGenerator(object):
                             if el in list(bonds.keys())[0]:
                                 neighbors = slab.get_neighbors(s, list(bonds.values())[0])
                                 neighbor_specs = [nn.species_string for nn, d in neighbors]
-                                bound_atom = list(bonds.keys())[0][list(bonds.keys())[0].index(el) - 1]
                                 if bound_atom in neighbor_specs:
                                     continue
-                            to_remove.append(i)
-                            sites_in_slab_remove.append(s)
+
+                            # Are we moving a single species or are we
+                            # moving a group of atoms bonded to each other?
+                            if type(species_to_move).__name__ == "dict":
+                                neighbors = slab.get_neighbors(s, list(species_to_move.values())[0],
+                                                               include_index=True)
+
+                                # What are the sites of the polyhedron we want to move and
+                                # are these sites part of any unbreakable bonds (eg PO4).
+                                # If so, do not move them
+                                group_remove = []
+                                for nn in neighbors:
+                                    if nn[0].species_string == list(bonds.keys())[0][1]:
+                                        unbreak_neighbors = slab.get_neighbors(nn[0], list(bonds.values())[0],
+                                                                               include_index=True)
+                                        unbreak_species = [nnn[0].species_string for nnn in unbreak_neighbors]
+                                        if bound_atom in unbreak_species:
+                                            continue
+                                        else:
+                                            group_remove.append(nn[2])
+                                    else:
+                                        group_remove.append(nn[2])
+
+                                group_remove.append(i)
+                                # Add group of sites to remove
+                                to_remove.append(group_remove)
+                                sites_in_slab = [slab[x] for x in group_remove]
+                                sites_in_slab_remove.append(sites_in_slab)
+                            else:
+                                # Add single site to remove
+                                group_remove = [i]
+                                sites_in_slab = [s]
+                                to_remove.append(group_remove)
+                                sites_in_slab_remove.append(sites_in_slab)
+
                             # If curent site we want to remove is on top, add
                             # additional site to move on bottom vice versa
                             if s.frac_coords[2] > 0.5:
@@ -1255,11 +1292,15 @@ class FixedSlabGenerator(object):
                             else:
                                 to_top = True
                             slab_copy = slab.copy()
-                            slab_copy = self.move_to_other_side(slab_copy, [i],
+                            slab_copy = self.move_to_other_side(slab_copy, group_remove,
                                                                 to_top=to_top)
-                            sites_in_slab_remove.append(slab_copy[i])
+                            sites_on_other_side = [slab_copy[x] for x in group_remove]
+                            sites_in_slab_remove.append(sites_on_other_side)
 
-                slab.remove_sites(to_remove)
+                remove = []
+                for list_sites in to_remove:
+                    remove.extend(list_sites)
+                slab.remove_sites(remove)
 
                 # Now create list of combinations of ways we can arrange
                 # our removed sites and their corresponding sites on the
@@ -1269,12 +1310,13 @@ class FixedSlabGenerator(object):
                 for combs in itertools.combinations(sites_in_slab_remove,
                                                     len(to_remove)):
                     modded_slab = slab.copy()
-                    for site in combs:
-                        modded_slab.append(site.species_string, site.frac_coords)
+                    for sites in combs:
+                        for site in sites:
+                            modded_slab.append(site.species_string, site.frac_coords)
                     modded_slabs.append(modded_slab)
 
         fixed_slabs = []
-        for slab in modded_slabs:
+        for i, slab in enumerate(modded_slabs):
             if slab.is_symmetric(symprec=symprec) and not slab.is_polar(
                     tol_dipole_per_unit_area=tol_dipole_per_unit_area):
                 fixed_slabs.append(slab)
