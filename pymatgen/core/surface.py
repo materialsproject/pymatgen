@@ -375,6 +375,15 @@ class Slab(Structure):
         m = self.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
+
+    @property
+    def structure(self):
+        """
+        Returns the slab as a Structure object
+        """
+        return Structure(self.lattice, self.species, self.frac_coords)
+
+
     def add_adsorbate_atom(self, indices, specie, distance):
         """
         Gets the structure of single atom adsorption.
@@ -658,6 +667,7 @@ class SlabGenerator(object):
         slab = Structure(new_lattice, species * nlayers_slab, all_coords,
                          site_properties=props)
 
+
         scale_factor = self.slab_scale_factor
         # Whether or not to orthogonalize the structure
         if self.lll_reduce:
@@ -828,10 +838,11 @@ class SlabGenerator(object):
         equivalent. If the point group of the slab has an inversion symmetry (
         ie. belong to one of the Laue groups), then it is assumed that the
         surfaces should be equivalent. Otherwise, sites at the bottom of the
-        slab will be removed until the slab is symmetric. Note that this method
-        should only be limited to elemental structures as the removal of sites
-        can destroy the stoichiometry of the slab. For non-elemental
-        structures, use is_polar().
+        slab will be removed until the slab is symmetric.
+
+        WARNING:
+        This method should only be limited to elemental structures as
+        the removal of sites can destroy the stoichiometry of the slab.
 
         Arg:
             slab (Structure): A single slab structure
@@ -1166,8 +1177,8 @@ class FixedSlabGenerator(object):
             return repaired
 
     def fix_sym_and_pol(self, bonds, sites_to_move=["Li+"],
-                        species_term_only=True, termination_tol=0.1,
-                        tol_dipole_per_unit_area=1e-3, symprec=0.1):
+                        species_term_only=True, symprec=0.1,
+                        tol_dipole_per_unit_area=1e-3):
 
         modded_slabs = []
         for el in sites_to_move:
@@ -1175,7 +1186,8 @@ class FixedSlabGenerator(object):
             # around one species at a time
             if species_term_only:
                 surfaces = []
-                for slab in self.all_slabs:
+                all_slabs = copy.deepcopy(self.all_slabs)
+                for slab in all_slabs:
                     # Will only fix slabs where the species of the top sites
                     # are that of the current species we're interested in eg.
                     # only fix slabs that have Li+ at the surface
@@ -1187,7 +1199,7 @@ class FixedSlabGenerator(object):
                     else:
                         continue
             else:
-                surfaces = copy.copy(self.all_slabs)
+                surfaces = copy.deepcopy(self.all_slabs)
 
             # Repair the specified broken bonds in those
             # slabs and sift out any repeated repairs
