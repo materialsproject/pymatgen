@@ -1044,18 +1044,10 @@ class FixedSlabGenerator(object):
     def move_to_other_side(self, init_slab, index_of_sites, to_top=True):
 
         slab = init_slab.copy()
-        sites = list(slab.sites)
-
-        sortedcsites = sorted(sites, key=lambda site: site.c)
 
         # Determine what fraction the slab is of the total cell size in the
         # c direction. Round to nearest rational number.
-        nlayers_total = int(round(slab.lattice.c /
-                                  slab.oriented_unit_cell.lattice.c))
-        nlayers_slab = int(round((sortedcsites[-1].c - sortedcsites[0].c)
-                                 * nlayers_total))
-
-        slab_ratio = nlayers_slab / nlayers_total
+        slab_ratio = self.min_slab_size / (self.min_slab_size + self.min_vacuum_size)
 
         # Move by coordinates
         species, coords = [], []
@@ -1111,8 +1103,10 @@ class FixedSlabGenerator(object):
             for i, site in enumerate(s):
 
                 if site.species_string == element1:
-                    poly_coord = len(s.get_neighbors(site, blength))
-
+                    poly_coord = 0
+                    for neighbor in s.get_neighbors(site, blength):
+                        if neighbor[0].species_string == element2:
+                            poly_coord += 1
                     # suppose we find an undercoordinated reference ion
                     if poly_coord < bulk_cn:
                         to_repair.append(i)
@@ -1128,12 +1122,15 @@ class FixedSlabGenerator(object):
             for n in to_repair:
                 poly_coord = len(s.get_neighbors(s[n], blength))
                 # is it on the top or bottom?
+                # where to move entire polyhedron
                 to_top = False if s[n].frac_coords[2] < 0.5 else True
-                move_center = True if s[n].frac_coords[2] < 0.5 else False
+                # where to move central atom only to get coordination
+                move_center = False if to_top else True
 
                 # We get the central atom of the polyhedron that is broken
                 # (undercoordinated), move it to the other surface
                 s = self.move_to_other_side(s, [n], to_top=move_center)
+
                 # find its NNs with the corresponding
                 # species it should be coordinated with
                 neighbors = s.get_neighbors(s[n], blength,
@@ -1148,7 +1145,7 @@ class FixedSlabGenerator(object):
                 s = self.move_to_other_side(s, tomove, to_top=to_top)
 
             broken = False
-            for i, site in enumerate(s):
+            for site in s:
                 if site.species_string == element1:
                     poly_coord = len(s.get_neighbors(site, blength))
                     if poly_coord != bulk_cn:
@@ -1195,7 +1192,7 @@ class FixedSlabGenerator(object):
             return correct_slabs
 
         modded_slabs = []
-        for species_to_move in sites_to_move:
+        for vvv, species_to_move in enumerate(sites_to_move):
             if type(species_to_move).__name__ == "dict":
                 el = list(species_to_move.keys())[0][0]
             else:
@@ -1226,7 +1223,7 @@ class FixedSlabGenerator(object):
 
             # Clear the surfaces of the species we want to move
             # and save those sites for when we need to re-add them
-            for slab in unique:
+            for v, slab in enumerate(unique):
                 # If this slab is already symmetric/nonpolar,
                 # add to list and skip this iteration
                 if slab.is_symmetric(symprec=symprec) and not slab.is_polar(
@@ -1321,8 +1318,8 @@ class FixedSlabGenerator(object):
                 # opposite side. Each combination must have the same number
                 # of sites as originally removed to preserve stoichiometry
 
-                for combs in itertools.combinations(sites_in_slab_remove,
-                                                    len(to_remove)):
+                for vv, combs in enumerate(itertools.combinations(sites_in_slab_remove,
+                                                                  len(to_remove))):
                     modded_slab = slab.copy()
                     for sites in combs:
                         for site in sites:
