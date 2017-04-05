@@ -10,6 +10,7 @@ import numpy as np
 import itertools
 import warnings
 import collections
+import string
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
@@ -136,6 +137,27 @@ class Tensor(np.ndarray):
         sop = SymmOp.from_rotation_and_translation(matrix,
                                                    [0., 0., 0.])
         return self.transform(sop)
+
+    def einsum_sequence(self, other_tensors, einsum_string=None):
+        """
+        Calculates the result of an einstein summation expression
+        """
+        if not isinstance(other_tensors, list):
+            raise ValueError("other tensors must be list of "
+                             "tensors or tensor input")
+        other_tensors = TensorCollection(other_tensors)
+
+        if not einsum_string:
+            lc = string.ascii_lowercase
+            einsum_string = lc[:self.rank]
+            other_indices = ''
+            idx = self.rank - sum(other_tensors.ranks) 
+            for length in other_tensors.ranks:
+                einsum_string += ',' + lc[idx:idx + length]
+                idx += length
+
+        einsum_args = [self] + list(other_tensors)
+        return np.einsum(einsum_string, *einsum_args)
 
     @property
     def symmetrized(self):
@@ -279,12 +301,7 @@ class Tensor(np.ndarray):
                 tensor to be converted to the IEEE standard
         """
 
-        def get_uvec(vec):
-            """ Gets a unit vector parallel to input vector"""
-            l = np.linalg.norm(vec)
-            if l < 1e-8:
-                return vec
-            return vec / l
+
 
         # Check conventional setting:
         sga = SpacegroupAnalyzer(structure)
@@ -390,6 +407,10 @@ class TensorCollection(collections.Sequence):
     @property
     def voigt(self):
         return [t.voigt for t in self]
+    
+    @property
+    def ranks(self):
+        return [t.rank for t in self]
 
     def is_voigt_symmetric(self, tol=1e-6):
         return all([t.is_voigt_symmetric(tol) for t in self])
@@ -492,6 +513,13 @@ class SquareTensor(Tensor):
         """
         return polar(self, side=side)
 
+
+def get_uvec(vec):
+    """ Gets a unit vector parallel to input vector"""
+    l = np.linalg.norm(vec)
+    if l < 1e-8:
+        return vec
+    return vec / l
 
 def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
     """
