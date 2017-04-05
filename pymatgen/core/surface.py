@@ -1178,7 +1178,7 @@ class FixedSlabGenerator(object):
 
     def fix_sym_and_pol(self, bonds, sites_to_move=["Li+"],
                         species_term_only=True, symprec=0.1,
-                        tol_dipole_per_unit_area=1e-3):
+                        tol_dipole_per_unit_area=1e-3, termination_tol=0.00001):
 
         correct_slabs = []
         slabgen = SlabGenerator(self.initial_structure, self.miller_index,
@@ -1192,7 +1192,7 @@ class FixedSlabGenerator(object):
             return correct_slabs
 
         modded_slabs = []
-        for vvv, species_to_move in enumerate(sites_to_move):
+        for v, species_to_move in enumerate(sites_to_move):
             if type(species_to_move).__name__ == "dict":
                 el = list(species_to_move.keys())[0][0]
             else:
@@ -1223,7 +1223,8 @@ class FixedSlabGenerator(object):
 
             # Clear the surfaces of the species we want to move
             # and save those sites for when we need to re-add them
-            for v, slab in enumerate(unique):
+            for vv, slab in enumerate(unique):
+
                 # If this slab is already symmetric/nonpolar,
                 # add to list and skip this iteration
                 if slab.is_symmetric(symprec=symprec) and not slab.is_polar(
@@ -1253,7 +1254,7 @@ class FixedSlabGenerator(object):
                 to_remove, sites_in_slab_remove = [], []
                 for i, s in enumerate(slab):
                     if s.species_string == el:
-                        if s.frac_coords[2] == el_site:
+                        if el_site + termination_tol > s.frac_coords[2] > el_site - termination_tol:
                             # Make sure the site we want to move/remove is
                             # not bonded to anything we don't want to break
                             if el in list(bonds.keys())[0]:
@@ -1318,8 +1319,8 @@ class FixedSlabGenerator(object):
                 # opposite side. Each combination must have the same number
                 # of sites as originally removed to preserve stoichiometry
 
-                for vv, combs in enumerate(itertools.combinations(sites_in_slab_remove,
-                                                                  len(to_remove))):
+                for combs in itertools.combinations(sites_in_slab_remove,
+                                                    len(to_remove)):
                     modded_slab = slab.copy()
                     for sites in combs:
                         for site in sites:
