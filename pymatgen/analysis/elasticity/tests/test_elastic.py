@@ -100,6 +100,23 @@ class ElasticTensorTest(PymatgenTest):
         for k, v in prop_dict.items():
             self.assertAlmostEqual(getattr(self.elastic_tensor_1, k), v)
 
+    def test_directional_elastic_mod(self):
+        self.assertAlmostEqual(self.elastic_tensor_1.directional_y_mod([1, 0, 0]),
+                               self.elastic_tensor_1.voigt[0, 0])
+        self.assertAlmostEqual(self.elastic_tensor_1.directional_y_mod([1, 1, 1]),
+                               73.624444444)
+        blargh
+
+    def test_compliance_tensor(self):
+        stress = self.elastic_tensor_1.calculate_stress([0.01] + [0]*5)
+        comp = self.elastic_tensor_1.compliance_tensor
+        strain = Strain(comp.einsum_sequence([stress]))
+        self.assertArrayAlmostEqual(strain.voigt, [0.01] + [0]*5)
+
+    def test_directional_poisson_ratio(self):
+        v_12 = self.elastic_tensor_1.directional_poisson_ratio([1, 0, 0], [0, 1, 0])
+        self.assertAlmostEqual(v_12, 0.321, decimal=3)
+
     def test_structure_based_methods(self):
         # trans_velocity
         self.assertAlmostEqual(1996.35019877,
