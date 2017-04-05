@@ -270,11 +270,8 @@ class Slab(Structure):
         Returns:
             (bool) Whether slab contains inversion symmetry.
         """
-        laue = ["-1", "2/m", "mmm", "4/m", "4/mmm",
-                "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"]
         sg = SpacegroupAnalyzer(self, symprec=symprec)
-        pg = sg.get_point_group_symbol()
-        return str(pg) in laue
+        return sg.is_laue_class()
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
@@ -852,13 +849,9 @@ class SlabGenerator(object):
             Slab (structure): A symmetrized Slab object.
         """
 
-        laue = ["-1", "2/m", "mmm", "4/m", "4/mmm",
-                "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"]
-
         sg = SpacegroupAnalyzer(slab, symprec=tol)
-        pg = sg.get_point_group_symbol()
 
-        if str(pg) in laue:
+        if sg.is_laue_class():
             return slab
         else:
             asym = True
@@ -876,9 +869,8 @@ class SlabGenerator(object):
                 # Check if the altered surface is symmetric
 
                 sg = SpacegroupAnalyzer(slab, symprec=tol)
-                pg = sg.get_point_group_symbol()
 
-                if str(pg) in laue:
+                if sg.is_laue_class():
                     asym = False
 
         if len(slab) < len(self.parent):
@@ -1192,7 +1184,7 @@ class FixedSlabGenerator(object):
             return correct_slabs
 
         modded_slabs = []
-        for v, species_to_move in enumerate(sites_to_move):
+        for species_to_move in sites_to_move:
             if type(species_to_move).__name__ == "dict":
                 el = list(species_to_move.keys())[0][0]
             else:
@@ -1223,7 +1215,7 @@ class FixedSlabGenerator(object):
 
             # Clear the surfaces of the species we want to move
             # and save those sites for when we need to re-add them
-            for vv, slab in enumerate(unique):
+            for slab in unique:
 
                 # If this slab is already symmetric/nonpolar,
                 # add to list and skip this iteration

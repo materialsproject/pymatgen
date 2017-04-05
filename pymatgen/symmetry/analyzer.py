@@ -192,6 +192,19 @@ class SpacegroupAnalyzer(object):
             return '1'
         return spglib.get_pointgroup(rotations)[0].strip()
 
+    def is_laue_class(self):
+        """
+        Checks to see if the structure has Laue
+        class symmetry (ie. is it centrosymmetric)
+
+        Returns:
+            (bool): Whether it has Laue class symmetry or not
+        """
+        laue = ["-1", "2/m", "mmm", "4/m", "4/mmm",
+                "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"]
+        return self.get_point_group_symbol() in laue
+
+
     def get_crystal_system(self):
         """
         Get the crystal system for the structure, e.g., (triclinic,
