@@ -6,7 +6,7 @@ from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
 
 from pymatgen.analysis.elasticity.tensors import Tensor, \
-        voigt_map as vmap, TensorCollection
+        voigt_map as vmap, TensorCollection, get_uvec
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
 from scipy.misc import factorial
@@ -70,11 +70,7 @@ class NthOrderElasticTensor(Tensor):
         if strain.shape == (6,):
             strain = Strain.from_voigt(strain)
         assert strain.shape == (3, 3), "Strain must be 3x3 or voigt-notation"
-        lc = string.ascii_lowercase[:self.rank-2]
-        lc_pairs = map(''.join, zip(*[iter(lc)]*2))
-        einsum_string = "ij" + lc + ',' + ','.join(lc_pairs) + "->ij"
-        einsum_args = [self] + [strain] * (self.order - 1)
-        stress_matrix = np.einsum(einsum_string, *einsum_args) \
+        stress_matrix = self.einsum_sequence([strain]*(self.order - 1)) \
                 / factorial(self.order - 1)
         return Stress(stress_matrix)
 
@@ -129,7 +125,8 @@ class ElasticTensor(NthOrderElasticTensor):
         which is the matrix inverse of the
         Voigt-notation elastic tensor
         """
-        return np.linalg.inv(self.voigt)
+        s_voigt = np.linalg.inv(self.voigt)
+        return ComplianceTensor.from_voigt(s_voigt)
 
     @property
     def k_voigt(self):
@@ -159,9 +156,9 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         returns the G_r shear modulus
         """
-        return 15. / (8. * self.compliance_tensor[:3, :3].trace() -
-                      4. * np.triu(self.compliance_tensor[:3, :3]).sum() +
-                      3. * self.compliance_tensor[3:, 3:].trace())
+        return 15. / (8. * self.compliance_tensor.voigt[:3, :3].trace() -
+                      4. * np.triu(self.compliance_tensor.voigt[:3, :3]).sum() +
+                      3. * self.compliance_tensor.voigt[3:, 3:].trace())
 
     @property
     def k_vrh(self):
@@ -180,10 +177,34 @@ class ElasticTensor(NthOrderElasticTensor):
     @property
     def y_mod(self):
         """
-        Calculates Young's modulus (in SI units) using the Voigt-Reuss-Hill
-        averages of bulk and shear moduli
+        Calculates Young's modulus (in SI units) using the 
+        Voigt-Reuss-Hill averages of bulk and shear moduli
         """
         return 9.e9 * self.k_vrh * self.g_vrh / (3. * self.k_vrh + self.g_vrh)
+
+    def directional_poisson_ratio(self, n, m, tol=1e-8):
+        """
+        Calculates the poisson ratio for a specific direction 
+        relative to a second, orthogonal direction
+
+        Args:
+            n (3-d vector): principal direction
+            m (3-d vector): secondary direction orthogonal to n
+        """
+        n, m = get_uvec(n), get_uvec(m)
+        if not np.abs(np.dot(n, m)) < tol:
+            raise ValueError("n and m must be orthogonal")
+        v = self.compliance_tensor.einsum_sequence([n]*2 + [m]*2)
+        v *= -1 / self.compliance_tensor.einsum_sequence([n]*4)
+        return v
+
+
+    def directional_elastic_mod(self, n):
+        """
+        Calculates directional elastic modulus for a specific vector
+        """
+        n = get_uvec(n)
+        return self.einsum_sequence([n]*4)
 
     def trans_v(self, structure):
         """
@@ -445,6 +466,21 @@ class ElasticTensor(NthOrderElasticTensor):
         c = cls.from_voigt(c_ij)
         c = c.zeroed()
         return c
+
+
+class ComplianceTensor(Tensor):
+    """
+    This class represents the compliance tensor, and exists
+    primarily to keep the voigt-conversion scheme consistent
+    since the compliance tensor has a unique vscale
+    """
+
+    def __new__(cls, s_array):
+        vscale = np.ones((6, 6))
+        vscale[3:] *= 2
+        vscale[:, 3:] *= 2
+        obj = super(ComplianceTensor, cls).__new__(cls, s_array, vscale=vscale)
+        return obj.view(cls)
 
 
 class ElasticTensorExpansion(TensorCollection):
