@@ -20,7 +20,7 @@ from itertools import product
 from six.moves import map, zip, StringIO
 from monty.dev import deprecated
 from monty.string import is_string, list_strings
-from monty.termcolor import colored
+from monty.termcolor import colored, cprint
 from monty.collections import AttrDict
 from monty.functools import lazy_property, return_none_if_raise
 from monty.json import MSONable
@@ -45,6 +45,8 @@ __all__ = [
     "TaskManager",
     "AbinitBuild",
     "ParalHintsParser",
+    "ParalHints",
+    "AbinitTask",
     "ScfTask",
     "NscfTask",
     "RelaxTask",
@@ -586,7 +588,6 @@ batch_adapter:
         if not os.path.exists(path):
             raise RuntimeError(colored(
 		"\nCannot locate %s neither in current directory nor in %s\n"
-                "\nCannot locate %s neither in current directory nor in %s\n"
                 "!!! PLEASE READ THIS: !!!\n"
                 "To use abipy to run jobs this file must be present\n"
                 "It provides a description of the cluster/computer you are running on\n"
@@ -780,6 +781,7 @@ batch_adapter:
                 possible_pconfs = [pc for pc in pconfs if qad.can_run_pconf(pc)]
 
                 if qad.allocation == "nodes":
+                #if qad.allocation in ["nodes", "force_nodes"]:
                     # Select the configuration divisible by nodes if possible.
                     for pconf in possible_pconfs:
                         if pconf.num_cores % qad.hw.cores_per_node == 0:
@@ -968,7 +970,7 @@ batch_adapter:
         # Submit the task and save the queue id.
         try:
             qjob, process = self.qadapter.submit_to_queue(script_file)
-            task.set_status(task.S_SUB, msg='submitted to queue')
+            task.set_status(task.S_SUB, msg='Submitted to queue')
             task.set_qjob(qjob)
             return process
 
@@ -1049,9 +1051,6 @@ class AbinitBuild(object):
         .. attribute:: has_netcdf
             True if netcdf is enabled.
 
-        .. attribute:: has_etsfio
-            True if etsf-io is enabled.
-
         .. attribute:: has_omp
             True if OpenMP is enabled.
 
@@ -1088,11 +1087,13 @@ class AbinitBuild(object):
             fh.write(script)
         qjob, process = manager.qadapter.submit_to_queue(script_file)
         process.wait()
+        # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
+        process.stderr.close()
 
         if process.returncode != 0:
             logger.critical("Error while executing %s" % script_file)
 
-        with open(stdout, "r") as fh:
+        with open(stdout, "rt") as fh:
             self.info = fh.read()
 
         # info string has the following format.
@@ -1143,7 +1144,6 @@ class AbinitBuild(object):
          Committed : 0
         """
         self.has_netcdf = False
-        self.has_etsfio = False
         self.has_omp = False
         self.has_mpi, self.has_mpiio = False, False
 
@@ -1156,7 +1156,6 @@ class AbinitBuild(object):
             if "Version" in line: self.version = line.split()[-1]
             if "TRIO flavor" in line:
                 self.has_netcdf = "netcdf" in line
-                self.has_etsfio = "etsf_io" in line
             if "openMP support" in line: self.has_omp = yesno2bool(line)
             if "Parallel build" in line: self.has_mpi = yesno2bool(line)
             if "Parallel I/O" in line: self.has_mpiio = yesno2bool(line)
@@ -1167,7 +1166,7 @@ class AbinitBuild(object):
         app("Abinit Build Information:")
         app("    Abinit version: %s" % self.version)
         app("    MPI: %s, MPI-IO: %s, OpenMP: %s" % (self.has_mpi, self.has_mpiio, self.has_omp))
-        app("    Netcdf: %s, ETSF-IO: %s" % (self.has_netcdf, self.has_etsfio))
+        app("    Netcdf: %s" % self.has_netcdf)
         return "\n".join(lines)
 
 
@@ -1627,6 +1626,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def wait(self):
         """Wait for child process to terminate. Set and return returncode attribute."""
         self._returncode = self.process.wait()
+        try:
+            self.process.stderr.close()
+        except:
+            pass
         self.set_status(self.S_DONE, "status set to Done")
 
         return self._returncode
@@ -2072,17 +2075,20 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 dest = self.ipath_from_ext(ext)
 
                 if not os.path.exists(path):
-                    # Try netcdf file. TODO: this case should be treated in a cleaner way.
+                    # Try netcdf file.
+                    # TODO: this case should be treated in a cleaner way.
                     path += ".nc"
                     if os.path.exists(path): dest += ".nc"
 
                 if not os.path.exists(path):
                     raise self.Error("%s: %s is needed by this task but it does not exist" % (self, path))
 
+                if path.endswith(".nc") and not dest.endswith(".nc"): # NC --> NC file
+                    dest += ".nc"
+
                 # Link path to dest if dest link does not exist.
                 # else check that it points to the expected file.
                 logger.debug("Linking path %s --> %s" % (path, dest))
-
                 if not os.path.exists(dest):
                     os.symlink(path, dest)
                 else:
@@ -2384,7 +2390,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             except QueueAdapterError as exc:
                 # If autoparal cannot find a qadapter to run the calculation raises an Exception
                 self.history.critical(exc)
-                msg = "Error trying to find a running configuration:\n%s" % straceback()
+                msg = "Error while trying to run autoparal in task:%s\n%s" % (repr(task), straceback())
+                cprint(msg, "yellow")
                 self.set_status(self.S_QCRITICAL, msg=msg)
                 return 0
             except Exception as exc:
@@ -2404,11 +2411,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 try:
                     self.autoparal_run()
                     self.history.info("Second call to autoparal succeeded!")
+                    #cprint("Second call to autoparal succeeded!", "green")
 
                 except Exception as exc:
                     self.history.critical("Second call to autoparal failed with %s. Cannot recover!", exc)
                     msg = "Tried autoparal again but got:\n%s" % straceback()
-                    # logger.critical(msg)
+                    cprint(msg, "red")
                     self.set_status(self.S_ABICRITICAL, msg=msg)
                     return 0
 
@@ -2642,9 +2650,11 @@ class AbinitTask(Task):
         process = self.manager.to_shell_manager(mpi_procs=1).launch(self)
         self.history.pop()
         retcode = process.wait()
+        # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
+        process.stderr.close()
 
         # Remove the variables added for the automatic parallelization
-        self.input.remove_vars(autoparal_vars.keys())
+        self.input.remove_vars(list(autoparal_vars.keys()))
 
         ##############################################################
         # Parse the autoparal configurations from the main output file
@@ -3222,10 +3232,12 @@ class RelaxTask(GsTask, ProduceHist):
         # by the last run that has executed on_done.
         # ********************************************************************************
         if restart_file is None:
-            out_den = self.outdir.path_in("out_DEN")
-            if os.path.exists(out_den):
-                irdvars = irdvars_for_ext("DEN")
-                restart_file = self.out_to_in(out_den)
+            for ext in ("", ".nc"):
+                out_den = self.outdir.path_in("out_DEN" + ext)
+                if os.path.exists(out_den):
+                    irdvars = irdvars_for_ext("DEN")
+                    restart_file = self.out_to_in(out_den)
+                    break
 
         if restart_file is None:
             # Try to restart from the last TIM?_DEN file.
@@ -3233,7 +3245,10 @@ class RelaxTask(GsTask, ProduceHist):
             # Find the last TIM?_DEN file.
             last_timden = self.outdir.find_last_timden_file()
             if last_timden is not None:
-                ofile = self.outdir.path_in("out_DEN")
+                if last_timden.path.endswith(".nc"):
+                    ofile = self.outdir.path_in("out_DEN.nc")
+                else:
+                    ofile = self.outdir.path_in("out_DEN")
                 os.rename(last_timden.path, ofile)
                 restart_file = self.out_to_in(ofile)
                 irdvars = irdvars_for_ext("DEN")
@@ -3319,6 +3334,7 @@ class RelaxTask(GsTask, ProduceHist):
 
         # Rename last TIMDEN with out_DEN.
         ofile = self.outdir.path_in("out_DEN")
+        if last_timden.path.endswith(".nc"): ofile += ".nc"
         self.history.info("Renaming last_denfile %s --> %s" % (last_timden.path, ofile))
         os.rename(last_timden.path, ofile)
 
@@ -3364,9 +3380,115 @@ class DfptTask(AbinitTask):
             return None
 
 
-# TODO Remove
 class DdeTask(DfptTask):
     """Task for DDE calculations."""
+
+    def make_links(self):
+        """Replace the default behaviour of make_links"""
+
+        for dep in self.deps:
+            if dep.exts == ["DDK"]:
+                ddk_task = dep.node
+                out_ddk = ddk_task.outdir.has_abiext("DDK")
+                if not out_ddk:
+                    raise RuntimeError("%s didn't produce the DDK file" % ddk_task)
+
+                # Get (fortran) idir and costruct the name of the 1WF expected by Abinit
+                rfdir = list(ddk_task.input["rfdir"])
+                if rfdir.count(1) != 1:
+                    raise RuntimeError("Only one direction should be specifned in rfdir but rfdir = %s" % rfdir)
+
+                idir = rfdir.index(1) + 1
+                ddk_case = idir +  3 * len(ddk_task.input.structure)
+
+                infile = self.indir.path_in("in_1WF%d" % ddk_case)
+                os.symlink(out_ddk, infile)
+
+            elif dep.exts == ["WFK"]:
+                gs_task = dep.node
+                out_wfk = gs_task.outdir.has_abiext("WFK")
+                if not out_wfk:
+                    raise RuntimeError("%s didn't produce the WFK file" % gs_task)
+                if not os.path.exists(self.indir.path_in("in_WFK")):
+                    os.symlink(out_wfk, self.indir.path_in("in_WFK"))
+
+            else:
+                raise ValueError("Don't know how to handle extension: %s" % dep.exts)
+
+
+    def get_results(self, **kwargs):
+        results = super(DdeTask, self).get_results(**kwargs)
+        return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
+
+
+class DteTask(DfptTask):
+    """Task for DTE calculations."""
+
+    # @check_spectator
+    def start(self, **kwargs):
+        kwargs['autoparal'] = False
+        return super(DteTask, self).start(**kwargs)
+
+    def make_links(self):
+        """Replace the default behaviour of make_links"""
+
+        for dep in self.deps:
+            for d in dep.exts:
+                if d == "DDK":
+                    ddk_task = dep.node
+                    out_ddk = ddk_task.outdir.has_abiext("DDK")
+                    if not out_ddk:
+                        raise RuntimeError("%s didn't produce the DDK file" % ddk_task)
+
+                    # Get (fortran) idir and costruct the name of the 1WF expected by Abinit
+                    rfdir = list(ddk_task.input["rfdir"])
+                    if rfdir.count(1) != 1:
+                        raise RuntimeError("Only one direction should be specifned in rfdir but rfdir = %s" % rfdir)
+
+                    idir = rfdir.index(1) + 1
+                    ddk_case = idir + 3 * len(ddk_task.input.structure)
+
+                    infile = self.indir.path_in("in_1WF%d" % ddk_case)
+                    os.symlink(out_ddk, infile)
+
+                elif d == "WFK":
+                    gs_task = dep.node
+                    out_wfk = gs_task.outdir.has_abiext("WFK")
+                    if not out_wfk:
+                        raise RuntimeError("%s didn't produce the WFK file" % gs_task)
+                    if not os.path.exists(self.indir.path_in("in_WFK")):
+                        os.symlink(out_wfk, self.indir.path_in("in_WFK"))
+
+
+                elif d == "DEN":
+                    gs_task = dep.node
+                    out_wfk = gs_task.outdir.has_abiext("DEN")
+                    if not out_wfk:
+                        raise RuntimeError("%s didn't produce the WFK file" % gs_task)
+                    if not os.path.exists(self.indir.path_in("in_DEN")):
+                        os.symlink(out_wfk, self.indir.path_in("in_DEN"))
+
+                elif d == "1WF":
+                    gs_task = dep.node
+                    out_wfk = gs_task.outdir.has_abiext("1WF")
+                    if not out_wfk:
+                        raise RuntimeError("%s didn't produce the 1WF file" % gs_task)
+                    dest = self.indir.path_in("in_" + out_wfk.split("_")[-1])
+                    if not os.path.exists(dest):
+                        os.symlink(out_wfk, dest)
+
+                elif d == "1DEN":
+                    gs_task = dep.node
+                    out_wfk = gs_task.outdir.has_abiext("DEN")
+                    if not out_wfk:
+                        raise RuntimeError("%s didn't produce the 1WF file" % gs_task)
+                    dest = self.indir.path_in("in_" + out_wfk.split("_")[-1])
+                    if not os.path.exists(dest):
+                        os.symlink(out_wfk, dest)
+
+
+                else:
+                    raise ValueError("Don't know how to handle extension: %s" % dep.exts)
 
     def get_results(self, **kwargs):
         results = super(DdeTask, self).get_results(**kwargs)
@@ -4111,9 +4233,11 @@ class OpticTask(Task):
         process = self.manager.to_shell_manager(mpi_procs=1).launch(self)
         self.history.pop()
         retcode = process.wait()
+        # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
+        process.stderr.close()
 
         # Remove the variables added for the automatic parallelization
-        self.input.remove_vars(autoparal_vars.keys())
+        self.input.remove_vars(list(autoparal_vars.keys()))
 
         ##############################################################
         # Parse the autoparal configurations from the main output file

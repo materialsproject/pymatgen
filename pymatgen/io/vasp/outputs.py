@@ -573,7 +573,7 @@ class Vasprun(MSONable):
         Hubbard U values used if a vasprun is a GGA+U run. {} otherwise.
         """
         symbols = [s.split()[1] for s in self.potcar_symbols]
-        symbols = [re.split("_", s)[0] for s in symbols]
+        symbols = [re.split(r"_", s)[0] for s in symbols]
         if not self.incar.get("LDAU", False):
             return {}
         us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
@@ -1119,7 +1119,7 @@ class Vasprun(MSONable):
         root = elem.find("array").find("set")
         proj_eigen = defaultdict(list)
         for s in root.findall("set"):
-            spin = int(re.match("spin(\d+)", s.attrib["comment"]).group(1))
+            spin = int(re.match(r"spin(\d+)", s.attrib["comment"]).group(1))
 
             # Force spin to be +1 or -1
             spin = Spin.up if spin == 1 else Spin.down
@@ -1350,11 +1350,12 @@ class Outcar(MSONable):
         efermi = None
         total_energy = None
 
-        time_patt = re.compile("\((sec|kb)\)")
-        efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
-        nelect_patt = re.compile("number of electron\s+(\S+)\s+magnetization")
-        mag_patt = re.compile("number of electron\s+\S+\s+magnetization\s+(\S+)")
-        toten_pattern = re.compile("free  energy   TOTEN\s+=\s+([\d\-\.]+)")
+        time_patt = re.compile(r"\((sec|kb)\)")
+        efermi_patt = re.compile(r"E-fermi\s*:\s*(\S+)")
+        nelect_patt = re.compile(r"number of electron\s+(\S+)\s+magnetization")
+        mag_patt = re.compile(r"number of electron\s+\S+\s+magnetization\s+("
+                              r"\S+)")
+        toten_pattern = re.compile(r"free  energy   TOTEN\s+=\s+([\d\-\.]+)")
 
         all_lines = []
         for line in reverse_readfile(self.filename):
@@ -1400,13 +1401,13 @@ class Outcar(MSONable):
         for clean in all_lines:
             if read_charge or read_mag:
                 if clean.startswith("# of ion"):
-                    header = re.split("\s{2,}", clean.strip())
+                    header = re.split(r"\s{2,}", clean.strip())
                     header.pop(0)
                 else:
-                    m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
+                    m = re.match(r"\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
                     if m:
                         toks = [float(i)
-                                for i in re.findall("[\d\.\-]+", clean)]
+                                for i in re.findall(r"[\d\.\-]+", clean)]
                         toks.pop(0)
                         if read_charge:
                             charge.append(dict(zip(header, toks)))
@@ -1649,11 +1650,11 @@ class Outcar(MSONable):
         Returns:
             6x6 array corresponding to the elastic tensor from the OUTCAR.
         """
-        header_pattern = "TOTAL ELASTIC MODULI \(kBar\)\s+"\
-                         "Direction\s+([X-Z][X-Z]\s+)+"\
-                         "\-+"
-        row_pattern = "[X-Z][X-Z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
-        footer_pattern = "\-+"
+        header_pattern = r"TOTAL ELASTIC MODULI \(kBar\)\s+"\
+                         r"Direction\s+([X-Z][X-Z]\s+)+"\
+                         r"\-+"
+        row_pattern = r"[X-Z][X-Z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
+        footer_pattern = r"\-+"
         et_table = self.read_table_pattern(header_pattern, row_pattern,
                                            footer_pattern, postprocess=float)
         self.data["elastic_tensor"] = et_table
@@ -1662,18 +1663,18 @@ class Outcar(MSONable):
         """
         Parse the piezo tensor data
         """
-        header_pattern = "PIEZOELECTRIC TENSOR  for field in x, y, z\s+\(C/m\^2\)\s+" \
-                         "([X-Z][X-Z]\s+)+" \
-                         "\-+"
-        row_pattern = "[x-z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
-        footer_pattern = "BORN EFFECTIVE"
+        header_pattern = r"PIEZOELECTRIC TENSOR  for field in x, y, " \
+                         r"z\s+\(C/m\^2\)\s+([X-Z][X-Z]\s+)+\-+"
+        row_pattern = r"[x-z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
+        footer_pattern = r"BORN EFFECTIVE"
         pt_table = self.read_table_pattern(header_pattern, row_pattern,
                                            footer_pattern, postprocess=float)
         self.data["piezo_tensor"] = pt_table
 
     def read_corrections(self, reverse=True, terminate_on_match=True):
         patterns = {
-            "dipol_quadrupol_correction": "dipol\+quadrupol energy correction\s+([\d\-\.]+)"
+            "dipol_quadrupol_correction": r"dipol\+quadrupol energy "
+                                          r"correction\s+([\d\-\.]+)"
         }
         self.read_pattern(patterns, reverse=reverse,
                           terminate_on_match=terminate_on_match,
@@ -1701,10 +1702,10 @@ class Outcar(MSONable):
             These can be accessed under Outcar.data[key]
         """
         patterns = {
-            "energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)",
-            "tangent_force": "(NEB: projections on to tangent \("
-            "spring, REAL\)\s+\S+|tangential force \(eV/A\))\s+(["
-            "\d\-\.]+)"
+            "energy": r"energy\(sigma->0\)\s+=\s+([\d\-\.]+)",
+            "tangent_force": r"(NEB: projections on to tangent \("
+            r"spring, REAL\)\s+\S+|tangential force \(eV/A\))\s+(["
+            r"\d\-\.]+)"
         }
         self.read_pattern(patterns, reverse=reverse,
                           terminate_on_match=terminate_on_match,
@@ -1745,8 +1746,8 @@ class Outcar(MSONable):
                 results.er_ev[Spin.down] = results.er_ev[Spin.up]
                 results.context = 2
 
-            search.append(["^ *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
-                           "*([-0-9.Ee+]*) *\)",
+            search.append([r"^ *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
+                           r"*([-0-9.Ee+]*) *\)",
                            None, er_ev])
 
             def er_bp(results, match):
@@ -1754,8 +1755,8 @@ class Outcar(MSONable):
                                                    for i in range(1, 4)]) / 2
                 results.er_bp[Spin.down] = results.er_bp[Spin.up]
 
-            search.append(["^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
-                           "*([-0-9.Ee+]*) *\)",
+            search.append([r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
+                           r"*([-0-9.Ee+]*) *\)",
                            lambda results, line: results.context == 2, er_bp])
 
             # Spin cases
@@ -1764,8 +1765,8 @@ class Outcar(MSONable):
                                                    for i in range(1, 4)])
                 results.context = Spin.up
 
-            search.append(["^.*Spin component 1 *e<r>_ev=\( *([-0-9.Ee+]*) "
-                           "*([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
+            search.append([r"^.*Spin component 1 *e<r>_ev=\( *([-0-9.Ee+]*) "
+                           r"*([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
                            None, er_ev_up])
 
             def er_bp_up(results, match):
@@ -1773,8 +1774,8 @@ class Outcar(MSONable):
                                                    float(match.group(2)),
                                                    float(match.group(3))])
 
-            search.append(["^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
-                           "*([-0-9.Ee+]*) *\)",
+            search.append([r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
+                           r"*([-0-9.Ee+]*) *\)",
                            lambda results,
                            line: results.context == Spin.up, er_bp_up])
 
@@ -1783,15 +1784,15 @@ class Outcar(MSONable):
                                                      float(match.group(2)),
                                                      float(match.group(3))])
                 results.context = Spin.down
-            search.append(["^.*Spin component 2 *e<r>_ev=\( *([-0-9.Ee+]*) "
-                           "*([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
+            search.append([r"^.*Spin component 2 *e<r>_ev=\( *([-0-9.Ee+]*) "
+                           r"*([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
                            None, er_ev_dn])
 
             def er_bp_dn(results, match):
                 results.er_bp[Spin.down] = np.array([float(match.group(i))
                                                      for i in range(1, 4)])
-            search.append(["^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
-                           "*([-0-9.Ee+]*) *\)",
+            search.append([r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
+                           r"*([-0-9.Ee+]*) *\)",
                            lambda results,
                            line: results.context == Spin.down, er_bp_dn])
 
@@ -1800,17 +1801,17 @@ class Outcar(MSONable):
                 results.p_elc = np.array([float(match.group(i))
                                           for i in range(1, 4)])
 
-            search.append(["^.*Total electronic dipole moment: "
-                           "*p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
-                           "*([-0-9.Ee+]*) *\)", None, p_elc])
+            search.append([r"^.*Total electronic dipole moment: "
+                           r"*p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
+                           r"*([-0-9.Ee+]*) *\)", None, p_elc])
 
             def p_ion(results, match):
                 results.p_ion = np.array([float(match.group(i))
                                           for i in range(1, 4)])
 
-            search.append(["^.*ionic dipole moment: "
-                           "*p\[ion\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
-                           "*([-0-9.Ee+]*) *\)", None, p_ion])
+            search.append([r"^.*ionic dipole moment: "
+                           r"*p\[ion\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
+                           r"*([-0-9.Ee+]*) *\)", None, p_ion])
 
             self.context = None
             self.er_ev = {Spin.up: None, Spin.down: None}
@@ -1839,14 +1840,14 @@ class Outcar(MSONable):
             def dielectric_section_start(results, match):
                 results.dielectric_index = -1
 
-            search.append(["MACROSCOPIC STATIC DIELECTRIC TENSOR \(", None,
+            search.append([r"MACROSCOPIC STATIC DIELECTRIC TENSOR \(", None,
                            dielectric_section_start])
 
             def dielectric_section_start2(results, match):
                 results.dielectric_index = 0
 
             search.append(
-                ["-------------------------------------",
+                [r"-------------------------------------",
                  lambda results, line: results.dielectric_index == -1,
                  dielectric_section_start2])
 
@@ -1856,7 +1857,7 @@ class Outcar(MSONable):
                 results.dielectric_index += 1
 
             search.append(
-                ["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
+                [r"^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
                  lambda results, line: results.dielectric_index >= 0
                  if results.dielectric_index is not None
                  else None,
@@ -1866,7 +1867,7 @@ class Outcar(MSONable):
                 results.dielectric_index = None
 
             search.append(
-                ["-------------------------------------",
+                [r"-------------------------------------",
                  lambda results, line: results.dielectric_index >= 1
                  if results.dielectric_index is not None
                  else None,
@@ -1878,8 +1879,8 @@ class Outcar(MSONable):
             def piezo_section_start(results, match):
                 results.piezo_index = 0
 
-            search.append(["PIEZOELECTRIC TENSOR  for field in x, y, z        "
-                           "\(C/m\^2\)",
+            search.append([r"PIEZOELECTRIC TENSOR  for field in x, y, z        "
+                           r"\(C/m\^2\)",
                            None, piezo_section_start])
 
             def piezo_data(results, match):
@@ -1888,9 +1889,9 @@ class Outcar(MSONable):
                 results.piezo_index += 1
 
             search.append(
-                ["^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
-                 " +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
-                 " +([-0-9.Ee+]+)*$",
+                [r"^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                 r" +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                 r" +([-0-9.Ee+]+)*$",
                  lambda results, line: results.piezo_index >= 0
                  if results.piezo_index is not None
                  else None,
@@ -1900,7 +1901,7 @@ class Outcar(MSONable):
                 results.piezo_index = None
 
             search.append(
-                ["-------------------------------------",
+                [r"-------------------------------------",
                  lambda results, line: results.piezo_index >= 1
                  if results.piezo_index is not None
                  else None,
@@ -1912,15 +1913,15 @@ class Outcar(MSONable):
             def born_section_start(results, match):
                 results.born_ion = -1
 
-            search.append(["BORN EFFECTIVE CHARGES " +
-                           "\(in e, cummulative output\)",
+            search.append([r"BORN EFFECTIVE CHARGES " +
+                           r"\(in e, cummulative output\)",
                            None, born_section_start])
 
             def born_ion(results, match):
                 results.born_ion = int(match.group(1)) - 1
                 results.born.append(np.zeros((3, 3)))
 
-            search.append(["ion +([0-9]+)", lambda results,
+            search.append([r"ion +([0-9]+)", lambda results,
                            line: results.born_ion is not None, born_ion])
 
             def born_data(results, match):
@@ -1928,7 +1929,7 @@ class Outcar(MSONable):
                     np.array([float(match.group(i)) for i in range(2, 5)])
 
             search.append(
-                ["^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)$",
+                [r"^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)$",
                  lambda results, line: results.born_ion >= 0
                  if results.born_ion is not None
                  else results.born_ion,
@@ -1938,7 +1939,7 @@ class Outcar(MSONable):
                 results.born_index = None
 
             search.append(
-                ["-------------------------------------",
+                [r"-------------------------------------",
                  lambda results, line: results.born_ion >= 1
                  if results.born_ion is not None
                  else results.born_ion,
@@ -1965,14 +1966,14 @@ class Outcar(MSONable):
             def dielectric_section_start(results, match):
                 results.dielectric_ionic_index = -1
 
-            search.append(["MACROSCOPIC STATIC DIELECTRIC TENSOR IONIC", None,
+            search.append([r"MACROSCOPIC STATIC DIELECTRIC TENSOR IONIC", None,
                            dielectric_section_start])
 
             def dielectric_section_start2(results, match):
                 results.dielectric_ionic_index = 0
 
             search.append(
-                ["-------------------------------------",
+                [r"-------------------------------------",
                  lambda results, line: results.dielectric_ionic_index == -1
                  if results.dielectric_ionic_index is not None
                  else results.dielectric_ionic_index,
@@ -1984,7 +1985,7 @@ class Outcar(MSONable):
                 results.dielectric_ionic_index += 1
 
             search.append(
-                ["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
+                [r"^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
                  lambda results, line: results.dielectric_ionic_index >= 0
                  if results.dielectric_ionic_index is not None
                  else results.dielectric_ionic_index,
@@ -1994,7 +1995,7 @@ class Outcar(MSONable):
                 results.dielectric_ionic_index = None
 
             search.append(
-                ["-------------------------------------",
+                [r"-------------------------------------",
                  lambda results, line: results.dielectric_ionic_index >= 1
                  if results.dielectric_ionic_index is not None
                  else results.dielectric_ionic_index,
@@ -2006,7 +2007,8 @@ class Outcar(MSONable):
             def piezo_section_start(results, match):
                 results.piezo_ionic_index = 0
 
-            search.append(["PIEZOELECTRIC TENSOR IONIC CONTR  for field in x, y, z        ",
+            search.append([r"PIEZOELECTRIC TENSOR IONIC CONTR  for field in "
+                           r"x, y, z        ",
                            None, piezo_section_start])
 
             def piezo_data(results, match):
@@ -2015,9 +2017,9 @@ class Outcar(MSONable):
                 results.piezo_ionic_index += 1
 
             search.append(
-                ["^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
-                 " +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
-                 " +([-0-9.Ee+]+)*$",
+                [r"^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                 r" +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                 r" +([-0-9.Ee+]+)*$",
                  lambda results, line: results.piezo_ionic_index >= 0
                  if results.piezo_ionic_index is not None
                  else results.piezo_ionic_index,
@@ -2058,18 +2060,18 @@ class Outcar(MSONable):
                                           float(match.group(2)),
                                           float(match.group(3))])
 
-            search.append(["^.*Total electronic dipole moment: "
-                           "*p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
-                           "*([-0-9.Ee+]*) *\)",
+            search.append([r"^.*Total electronic dipole moment: "
+                           r"*p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
+                           r"*([-0-9.Ee+]*) *\)",
                            None, p_elc])
 
             def p_ion(results, match):
                 results.p_ion = np.array([float(match.group(1)),
                                           float(match.group(2)),
                                           float(match.group(3))])
-            search.append(["^.*Ionic dipole moment: *p\[ion\]="
-                           "\( *([-0-9.Ee+]*)"
-                           " *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
+            search.append([r"^.*Ionic dipole moment: *p\[ion\]="
+                           r"\( *([-0-9.Ee+]*)"
+                           r" *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
                            None, p_ion])
 
             micro_pyawk(self.filename, search, self)
@@ -2558,11 +2560,12 @@ class Procar(object):
 
         with zopen(filename, "rt") as f:
             preambleexpr = re.compile(
-                "# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of ions:\s*(\d+)")
-            kpointexpr = re.compile("^k-point\s+(\d+).*weight = ([0-9\.]+)")
-            bandexpr = re.compile("^band\s+(\d+)")
-            ionexpr = re.compile("^ion.*")
-            expr = re.compile("^([0-9]+)\s+")
+                r"# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of "
+                r"ions:\s*(\d+)")
+            kpointexpr = re.compile(r"^k-point\s+(\d+).*weight = ([0-9\.]+)")
+            bandexpr = re.compile(r"^band\s+(\d+)")
+            ionexpr = re.compile(r"^ion.*")
+            expr = re.compile(r"^([0-9]+)\s+")
             current_kpoint = 0
             current_band = 0
             done = False
@@ -2709,21 +2712,21 @@ class Oszicar(object):
     def __init__(self, filename):
         electronic_steps = []
         ionic_steps = []
-        ionic_pattern = re.compile("(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
-                                   "E0=\s*([\d\-\.E\+]+)\s+"
-                                   "d\s*E\s*=\s*([\d\-\.E\+]+)$")
-        ionic_mag_pattern = re.compile("(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
-                                       "E0=\s*([\d\-\.E\+]+)\s+"
-                                       "d\s*E\s*=\s*([\d\-\.E\+]+)\s+"
-                                       "mag=\s*([\d\-\.E\+]+)")
-        ionic_MD_pattern = re.compile("(\d+)\s+T=\s*([\d\-\.E\+]+)\s+"
-                                      "E=\s*([\d\-\.E\+]+)\s+"
-                                      "F=\s*([\d\-\.E\+]+)\s+"
-                                      "E0=\s*([\d\-\.E\+]+)\s+"
-                                      "EK=\s*([\d\-\.E\+]+)\s+"
-                                      "SP=\s*([\d\-\.E\+]+)\s+"
-                                      "SK=\s*([\d\-\.E\+]+)")
-        electronic_pattern = re.compile("\s*\w+\s*:(.*)")
+        ionic_pattern = re.compile(r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
+                                   r"E0=\s*([\d\-\.E\+]+)\s+"
+                                   r"d\s*E\s*=\s*([\d\-\.E\+]+)$")
+        ionic_mag_pattern = re.compile(r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
+                                       r"E0=\s*([\d\-\.E\+]+)\s+"
+                                       r"d\s*E\s*=\s*([\d\-\.E\+]+)\s+"
+                                       r"mag=\s*([\d\-\.E\+]+)")
+        ionic_MD_pattern = re.compile(r"(\d+)\s+T=\s*([\d\-\.E\+]+)\s+"
+                                      r"E=\s*([\d\-\.E\+]+)\s+"
+                                      r"F=\s*([\d\-\.E\+]+)\s+"
+                                      r"E0=\s*([\d\-\.E\+]+)\s+"
+                                      r"EK=\s*([\d\-\.E\+]+)\s+"
+                                      r"SP=\s*([\d\-\.E\+]+)\s+"
+                                      r"SK=\s*([\d\-\.E\+]+)")
+        electronic_pattern = re.compile(r"\s*\w+\s*:(.*)")
 
         def smart_convert(header, num):
             try:
@@ -2768,7 +2771,7 @@ class Oszicar(object):
                                         "EK": float(m.group(6)),
                                         "SP": float(m.group(7)),
                                         "SK": float(m.group(8))})
-                elif re.match("^\s*N\s+E\s*", line):
+                elif re.match(r"^\s*N\s+E\s*", line):
                     header = line.strip().replace("d eps", "deps").split()
         self.electronic_steps = electronic_steps
         self.ionic_steps = ionic_steps

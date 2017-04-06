@@ -9,15 +9,6 @@ This module provides classes for analyzing phase diagrams.
 """
 
 from six.moves import zip
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "May 16, 2012"
-
 import numpy as np
 import itertools
 import collections
@@ -26,10 +17,17 @@ from monty.functools import lru_cache
 from monty.dev import deprecated
 
 from pymatgen.core.composition import Composition
-from pymatgen.phasediagram.maker import PhaseDiagram, \
-    GrandPotentialPhaseDiagram, get_facets
+from pymatgen.phasediagram.maker import PhaseDiagram, get_facets
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.util.coord_utils import Simplex
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Production"
+__date__ = "May 16, 2012"
 
 
 class PDAnalyzer(object):
@@ -244,6 +242,11 @@ class PDAnalyzer(object):
         # first element in the PD
         c1 = self._pd.pd_coords(comp1)
         c2 = self._pd.pd_coords(comp2)
+
+        # none of the projections work if c1 == c2, so just return *copies*
+        # of the inputs
+        if np.all(c1 == c2):
+            return[comp1.copy(), comp2.copy()]
 
         intersections = [c1, c2]
         for sc in self._pd.simplexes:

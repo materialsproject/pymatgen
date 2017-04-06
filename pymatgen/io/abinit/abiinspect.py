@@ -144,7 +144,7 @@ class ScfCycle(collections.Mapping):
     @classmethod
     def from_file(cls, filepath):
         """Read the first occurrence of ScfCycle from file."""
-        with open(filepath, "r") as stream:
+        with open(filepath, "rt") as stream:
             return cls.from_stream(stream)
 
     @classmethod
@@ -164,26 +164,27 @@ class ScfCycle(collections.Mapping):
             return None
 
     @add_fig_kwargs
-    def plot(self, fig=None, **kwargs):
+    def plot(self, axlist=None, **kwargs):
         """
         Uses matplotlib to plot the evolution of the SCF cycle. Return `matplotlib` figure
 
         Args:
-            fig: matplotlib figure. If None a new figure is produced.
-        """
-        import matplotlib.pyplot as plt
+            axlist: List of axes. If None a new figure is produced.
 
+        Returns: matplotlib figure
+        """
         # Build grid of plots.
         num_plots, ncols, nrows = len(self), 1, 1
         if num_plots > 1:
             ncols = 2
-            nrows = (num_plots//ncols) + (num_plots % ncols)
+            nrows = num_plots // ncols + num_plots % ncols
 
-        if fig is None:
-            fig, ax_list = plt.subplots(nrows=nrows, ncols=ncols, sharex=True, squeeze=False)
-            ax_list = ax_list.ravel()
+        import matplotlib.pyplot as plt
+        if axlist is None:
+            fig, axlist = plt.subplots(nrows=nrows, ncols=ncols, sharex=True, squeeze=False)
+            axlist = axlist.ravel()
         else:
-            ax_list = list(fig.axes)
+            fig = plt.gcf()
 
         # Use log scale for these variables.
         use_logscale = set(["residm", "vres2"])
@@ -195,7 +196,7 @@ class ScfCycle(collections.Mapping):
             }
 
         iter_num = np.array(list(range(self.num_iterations)))
-        for ((key, values), ax) in zip(self.items(), ax_list):
+        for (key, values), ax in zip(self.items(), axlist):
             ax.grid(True)
             ax.set_xlabel('Iteration')
             ax.set_xticks(iter_num, minor=False)
@@ -207,7 +208,6 @@ class ScfCycle(collections.Mapping):
                 xx, yy = xx[1:] + 1, values[1:]
 
             ax.plot(xx, yy, "-o", lw=2.0)
-
             if key in use_logscale and np.all(yy > 1e-22):
                 ax.set_yscale("log")
 
@@ -218,11 +218,12 @@ class ScfCycle(collections.Mapping):
                     ax.set_ylim(ymin, ymax)
 
         # Get around a bug in matplotlib.
-        if (num_plots % ncols) != 0:
-            ax_list[-1].plot(xx, yy, lw=0.0)
-            ax_list[-1].axis('off')
+        if num_plots % ncols != 0:
+            axlist[-1].plot(xx, yy, lw=0.0)
+            axlist[-1].axis('off')
 
         #plt.legend(loc="best")
+        fig.tight_layout()
         return fig
 
 
@@ -257,8 +258,9 @@ class Relaxation(collections.Iterable):
     .. note::
 
         Forces, stresses  and crystal structures are missing.
-        Solving this problem would require the standardization
-        of the Abinit output file (YAML).
+        This object is mainly used to analyze the behavior of the Scf cycles
+        during the structural relaxation. A more powerful and detailed analysis
+        can be obtained by using the HIST.nc file.
     """
     def __init__(self, cycles):
         self.cycles = cycles
@@ -288,7 +290,7 @@ class Relaxation(collections.Iterable):
     @classmethod
     def from_file(cls, filepath):
         """Initialize the object from the Abinit main output file."""
-        with open(filepath, "r") as stream:
+        with open(filepath, "rt") as stream:
             return cls.from_stream(stream)
 
     @classmethod
@@ -321,9 +323,12 @@ class Relaxation(collections.Iterable):
             return self._history
 
     @add_fig_kwargs
-    def plot(self, **kwargs):
+    def plot(self, axlist=None, **kwargs):
         """
         Uses matplotlib to plot the evolution of the structural relaxation.
+
+        Args:
+            axlist: List of axes. If None a new figure is produced.
 
         Returns:
             `matplotlib` figure
@@ -344,7 +349,7 @@ class Relaxation(collections.Iterable):
         fig, ax_list = plt.subplots(nrows=nrows, ncols=ncols, sharex=True, squeeze=False)
         ax_list = ax_list.ravel()
 
-        if (num_plots % ncols) != 0:
+        if num_plots % ncols != 0:
             ax_list[-1].axis('off')
 
         for (key, values), ax in zip(history.items(), ax_list):
@@ -359,15 +364,12 @@ class Relaxation(collections.Iterable):
 
 
 # TODO
-#class DfptScfCycle(collections.Iterable):
-
-# TODO
 #class HaydockIterations(collections.Iterable):
 #    """This object collects info on the different steps of the Haydock technique used in the Bethe-Salpeter code"""
 #    @classmethod
 #    def from_file(cls, filepath):
 #        """Initialize the object from file."""
-#        with open(filepath, "r") as stream:
+#        with open(filepath, "rt") as stream:
 #            return cls.from_stream(stream)
 #
 #    @classmethod
@@ -427,7 +429,7 @@ class YamlTokenizer(collections.Iterator):
         self.filename = filename
 
         try:
-            self.stream = open(filename, "r")
+            self.stream = open(filename, "rt")
         except IOError as exc:
             # Look for associated error file.
             root, ext = os.path.splitext(self.filename)
