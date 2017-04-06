@@ -769,7 +769,7 @@ def reduce_formula(sym_amt):
         (reduced_formula, factor).
     """
     syms = sorted(sym_amt.keys(),
-                  key=lambda s: get_el_sp(s).X)
+                  key=lambda s: [get_el_sp(s).X, s])
 
     syms = list(filter(lambda s: abs(sym_amt[s]) >
                        Composition.amount_tolerance, syms))

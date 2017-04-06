@@ -71,8 +71,8 @@ class ElasticTensorTest(PymatgenTest):
 
     def test_properties(self):
         # compliance tensor
-        self.assertArrayAlmostEqual(np.linalg.inv(self.elastic_tensor_1.voigt),
-                                    self.elastic_tensor_1.compliance_tensor)
+        ct = ComplianceTensor.from_voigt(np.linalg.inv(self.elastic_tensor_1.voigt))
+        self.assertArrayAlmostEqual(ct, self.elastic_tensor_1.compliance_tensor)
         # KG average properties
         self.assertAlmostEqual(38.49111111111, self.elastic_tensor_1.k_voigt)
         self.assertAlmostEqual(22.05866666666, self.elastic_tensor_1.g_voigt)
@@ -101,11 +101,10 @@ class ElasticTensorTest(PymatgenTest):
             self.assertAlmostEqual(getattr(self.elastic_tensor_1, k), v)
 
     def test_directional_elastic_mod(self):
-        self.assertAlmostEqual(self.elastic_tensor_1.directional_y_mod([1, 0, 0]),
+        self.assertAlmostEqual(self.elastic_tensor_1.directional_elastic_mod([1, 0, 0]),
                                self.elastic_tensor_1.voigt[0, 0])
-        self.assertAlmostEqual(self.elastic_tensor_1.directional_y_mod([1, 1, 1]),
+        self.assertAlmostEqual(self.elastic_tensor_1.directional_elastic_mod([1, 1, 1]),
                                73.624444444)
-        blargh
 
     def test_compliance_tensor(self):
         stress = self.elastic_tensor_1.calculate_stress([0.01] + [0]*5)
@@ -115,7 +114,7 @@ class ElasticTensorTest(PymatgenTest):
 
     def test_directional_poisson_ratio(self):
         v_12 = self.elastic_tensor_1.directional_poisson_ratio([1, 0, 0], [0, 1, 0])
-        self.assertAlmostEqual(v_12, 0.321, decimal=3)
+        self.assertAlmostEqual(v_12, 0.321, places=3)
 
     def test_structure_based_methods(self):
         # trans_velocity
@@ -241,6 +240,14 @@ class ElasticTensorExpansionTest(PymatgenTest):
     def test_energy_density(self):
         self.exp.energy_density(self.strains[0])
 
+    def test_ggt(self):
+        ggt = self.exp.get_ggt([1, 0, 0], [0, 1, 0])
+
+    def test_tgt(self):
+        tgt = self.exp.get_tgt()
+
+    def test_gruneisen(self):
+        gp = self.exp.get_gruneisen_parameter()
 
 class NthOrderElasticTensorTest(PymatgenTest):
     def setUp(self):

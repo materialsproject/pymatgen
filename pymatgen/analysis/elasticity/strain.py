@@ -13,7 +13,6 @@ generating deformed structure sets for further calculations.
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.elasticity.tensors import SquareTensor, symmetry_reduce
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import numpy as np
 import itertools
 from six.moves import zip
@@ -50,7 +49,7 @@ class Deformation(SquareTensor):
         """
         checks to determine whether the deformation is independent
         """
-        return len(self.get_perturbed_indices(tol))==1
+        return len(self.get_perturbed_indices(tol)) == 1
     
     def get_perturbed_indices(self, tol=1e-8):
         """
@@ -192,10 +191,17 @@ class Strain(SquareTensor):
         """
         eps = self - 1/3*np.trace(self)*np.identity(3)
 
-        return np.sqrt(np.dot(eps.voigt,eps.voigt)*2/3)
+        return np.sqrt(np.dot(eps.voigt, eps.voigt)*2/3)
 
 
 def convert_strain_to_deformation(strain):
+    """
+    This function converts a strain to a deformation gradient that will
+    produce that strain
+    
+    Args:
+        strain (3x3 array-like): strain matrix
+    """
     strain = SquareTensor(strain)
     ftdotf = 2*strain + np.eye(3)
     eigs, eigvecs = np.linalg.eigh(ftdotf)
