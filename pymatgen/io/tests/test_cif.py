@@ -276,6 +276,10 @@ loop_
         parser = CifParser(os.path.join(test_dir, "Fe.cif"))
         self.assertEqual(len(parser.get_structures(primitive=False)[0]), 2)
 
+    def test_site_symbol_preference(self):
+        parser = CifParser(os.path.join(test_dir, 'site_type_symbol_test.cif'))
+        self.assertEqual(parser.get_structures()[0].formula, "Ge0.4 Sb0.4 Te1")
+
     def test_CifParserSpringerPauling(self):
         # Below are 10 tests for CIFs from the Springer Materials/Pauling file DBs.
 

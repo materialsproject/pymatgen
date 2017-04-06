@@ -600,22 +600,14 @@ class CifParser(object):
 
         ############################################################
         for i in range(len(data["_atom_site_label"])):
-            symbol = parse_symbol(data["_atom_site_label"][i])
+            try:
+                # If site type symbol exists, use it. Otherwise, we use the
+                # label.
+                symbol = parse_symbol(data["_atom_site_type_symbol"][i])
+            except KeyError:
+                symbol = parse_symbol(data["_atom_site_label"][i])
             if not symbol:
                 continue
-            # make sure symbol was properly parsed from _atom_site_label
-            # otherwise get it from _atom_site_type_symbol
-            try:
-                Element(symbol)
-            except (KeyError, ValueError):
-                # sometimes the site doesn't have the type_symbol.
-                # we then hope the type_symbol can be parsed from the label
-                if "_atom_site_type_symbol" in data.data.keys():
-                    new = parse_symbol(data["_atom_site_type_symbol"][i])
-                    if new != symbol:
-                        warnings.warn('{} from _atom_site_type_symbol'
-                                      ' used instead of {}'.format(new, symbol))
-                        symbol = new
 
             if oxi_states is not None:
                 o_s = oxi_states.get(symbol, 0)
