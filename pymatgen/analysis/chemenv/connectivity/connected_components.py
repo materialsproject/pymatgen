@@ -1,3 +1,4 @@
+from __future__ import print_function
 from pymatgen.analysis.chemenv.utils.graph_utils import get_all_simple_paths_edges
 
 __author__ = 'waroquiers'
@@ -259,9 +260,79 @@ class ConnectedComponent(MSONable):
         else:
             self._connected_subgraph = graph
 
-    def compute_periodicity(self):
+    # def compute_periodicity_old(self):
+    #     self_loop_nodes = self._connected_subgraph.nodes_with_selfloops()
+    #     all_nodes_independent_cell_image_vectors = []
+    #     logging.debug('In compute_periodicity')
+    #     print('In compute_periodicity')
+    #     for test_node in self._connected_subgraph.nodes():
+    #         logging.debug('In node {}'.format(str(test_node)))
+    #         print('In node {}'.format(str(test_node)))
+    #         #TODO: do we need to go through all test nodes ?
+    #         this_node_cell_img_vectors = []
+    #         if test_node in self_loop_nodes:
+    #             logging.debug('Node has a self-loop')
+    #             print('Node has a self-loop')
+    #             for key, edge_data in self._connected_subgraph[test_node][test_node].items():
+    #                 this_node_cell_img_vectors.append(edge_data['delta'])
+    #         # Here, we adopt a cutoff equal to the size of the graph, contrary to the default of networkX (size - 1),
+    #         # because otherwise, the all_simple_paths algorithm fail when the source node is equal to the target node.
+    #         paths = []
+    #         #TODO: its probably possible to do just a dfs or bfs traversal instead of taking all simple paths!
+    #         for path in nx.all_simple_paths(self._connected_subgraph, test_node, test_node,
+    #                                         cutoff=len(self._connected_subgraph)):
+    #             if path not in paths:
+    #                 paths.append(path)
+    #             else:
+    #                 continue
+    #             logging.debug('In path #{:d} (size : {:d})'.format(len(paths), len(path)))
+    #             print('In path #{:d} (size : {:d})'.format(len(paths), len(path)))
+    #             # TODO: there are some paths that appears twice for cycles, and there are some paths that should
+    #             # probably not be considered
+    #             this_path_deltas = [np.zeros(3, np.int)]
+    #             for (node1, node2) in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
+    #                 logging.debug('Node {} to Node {}'.format(node1, node2))
+    #                 print('Node {} to Node {}'.format(node1, node2))
+    #                 this_path_deltas_new = []
+    #                 for key, edge_data in self._connected_subgraph[node1][node2].items():
+    #                     for current_delta in this_path_deltas:
+    #                         delta = get_delta(node1, node2, edge_data)
+    #                         this_path_deltas_new.append(current_delta + delta)
+    #                 this_path_deltas = this_path_deltas_new
+    #             logging.debug('This path deltas : {}'.format(str(this_path_deltas)))
+    #             print('This path deltas : {}'.format(str(this_path_deltas)))
+    #             print(this_path_deltas)
+    #             this_node_cell_img_vectors.extend(this_path_deltas)
+    #             print(this_node_cell_img_vectors)
+    #             this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
+    #             if len(this_node_cell_img_vectors) == 3:
+    #                 break
+    #         #independent_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
+    #         independent_cell_img_vectors = this_node_cell_img_vectors
+    #         all_nodes_independent_cell_image_vectors.append(independent_cell_img_vectors)
+    #         #If we have found that the sub structure network is 3D-connected, we can stop ...
+    #         if len(independent_cell_img_vectors) == 3:
+    #             break
+    #     self._periodicity_vectors = []
+    #     if len(all_nodes_independent_cell_image_vectors) != 0:
+    #         for independent_cell_img_vectors in all_nodes_independent_cell_image_vectors:
+    #             if len(independent_cell_img_vectors) > len(self._periodicity_vectors):
+    #                 self._periodicity_vectors = independent_cell_img_vectors
+    #             if len(self._periodicity_vectors) == 3:
+    #                 break
+
+    def compute_periodicity(self, algorithm='all_simple_paths'):
+        if algorithm == 'all_simple_paths':
+            self.compute_periodicity_all_simple_paths_algorithm()
+        elif algorithm == 'cycle_basis':
+            self.compute_periodicity_cycle_basis()
+        else:
+            raise ValueError('Algorithm "{}" is not allowed to compute periodicity'.format(algorithm))
+
+    def compute_periodicity_all_simple_paths_algorithm(self):
         self_loop_nodes = self._connected_subgraph.nodes_with_selfloops()
         all_nodes_independent_cell_image_vectors = []
+        my_simple_graph = nx.Graph(self._connected_subgraph)
         for test_node in self._connected_subgraph.nodes():
             #TODO: do we need to go through all test nodes ?
             this_node_cell_img_vectors = []
@@ -272,10 +343,11 @@ class ConnectedComponent(MSONable):
             # because otherwise, the all_simple_paths algorithm fail when the source node is equal to the target node.
             paths = []
             #TODO: its probably possible to do just a dfs or bfs traversal instead of taking all simple paths!
-            for path in nx.all_simple_paths(self._connected_subgraph, test_node, test_node,
+            for path in nx.all_simple_paths(my_simple_graph, test_node, test_node,
                                             cutoff=len(self._connected_subgraph)):
-                if path not in paths:
-                    paths.append(path)
+                path_indices = tuple([nodepath.isite for nodepath in path])
+                if path_indices not in paths:
+                    paths.append(path_indices)
                 else:
                     continue
                 # TODO: there are some paths that appears twice for cycles, and there are some paths that should
@@ -284,8 +356,8 @@ class ConnectedComponent(MSONable):
                 for (node1, node2) in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
                     this_path_deltas_new = []
                     for key, edge_data in self._connected_subgraph[node1][node2].items():
+                        delta = get_delta(node1, node2, edge_data)
                         for current_delta in this_path_deltas:
-                            delta = get_delta(node1, node2, edge_data)
                             this_path_deltas_new.append(current_delta + delta)
                     this_path_deltas = this_path_deltas_new
                 this_node_cell_img_vectors.extend(this_path_deltas)
@@ -305,6 +377,49 @@ class ConnectedComponent(MSONable):
                     self._periodicity_vectors = independent_cell_img_vectors
                 if len(self._periodicity_vectors) == 3:
                     break
+
+    def compute_periodicity_cycle_basis(self):
+        my_simple_graph = nx.Graph(self._connected_subgraph)
+        cycles = nx.cycle_basis(my_simple_graph)
+        all_deltas = []
+        for cyc in cycles:
+            mycyc = list(cyc)
+            mycyc.append(cyc[0])
+            this_cycle_deltas = [np.zeros(3, np.int)]
+            for (node1, node2) in [(node1, mycyc[inode1 + 1]) for inode1, node1 in enumerate(mycyc[:-1])]:
+                this_cycle_deltas_new = []
+                for key, edge_data in self._connected_subgraph[node1][node2].items():
+                    delta = get_delta(node1, node2, edge_data)
+                    for current_delta in this_cycle_deltas:
+                        this_cycle_deltas_new.append(current_delta + delta)
+                this_cycle_deltas = this_cycle_deltas_new
+            all_deltas.extend(this_cycle_deltas)
+            all_deltas = get_linearly_independent_vectors(all_deltas)
+            if len(all_deltas) == 3:
+                self._periodicity_vectors = all_deltas
+                return
+        # One has to consider pairs of nodes with parallel edges (these are not considered in the simple graph cycles
+        edges = my_simple_graph.edges()
+        for n1, n2 in edges:
+            if n1 == n2:
+                continue
+            if len(self._connected_subgraph[n1][n2]) == 1:
+                continue
+            elif len(self._connected_subgraph[n1][n2]) > 1:
+                for iedge1, iedge2 in itertools.combinations(self._connected_subgraph[n1][n2], 2):
+                    e1data = self._connected_subgraph[n1][n2][iedge1]
+                    e2data = self._connected_subgraph[n1][n2][iedge2]
+                    current_delta = get_delta(n1, n2, e1data)
+                    delta = get_delta(n2, n1, e2data)
+                    current_delta += delta
+                    all_deltas.append(current_delta)
+            else:
+                raise ValueError('Should not be here ...')
+            all_deltas = get_linearly_independent_vectors(all_deltas)
+            if len(all_deltas) == 3:
+                self._periodicity_vectors = all_deltas
+                return
+        self._periodicity_vectors = all_deltas
 
     def make_supergraph(self, multiplicity):
         supergraph = make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)

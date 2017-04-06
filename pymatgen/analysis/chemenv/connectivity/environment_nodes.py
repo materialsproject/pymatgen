@@ -49,12 +49,19 @@ class AbstractEnvironmentNode(with_metaclass(abc.ABCMeta)):
         return
 
     def number_of_neighboring_coordination_environments(self, environments_subgraph):
-        neighboring_environments_nodes = environments_subgraph.neighbors(self)
-        return str(len(neighboring_environments_nodes))
+        # One cannot use the MultiGraph.neighbors(self) method because for self-loops, it yields the neighbor only once
+        incident_edges = environments_subgraph.edges(self)
+        count = 0
+        for edge in incident_edges:
+            count += 1
+            if edge[0] == edge[1]:
+                count += 1
+        return str(count)
 
     def neighboring_coordination_environments(self, environments_subgraph):
-        neighboring_environments_nodes = environments_subgraph.neighbors(self)
-        return str(len(neighboring_environments_nodes))
+        raise NotImplementedError()
+        # neighboring_environments_nodes = environments_subgraph.neighbors(self)
+        # return str(len(neighboring_environments_nodes))
 
     def descriptor(self, extensions=DEFAULT_EXTENSIONS, **kwargs):
         return self.ce_extended(extensions, **kwargs)
@@ -85,6 +92,12 @@ class AbstractEnvironmentNode(with_metaclass(abc.ABCMeta)):
                     for iedge in env_subgraph[self][ces_node]:
                         my_neighboring_nodes.append({'neighbor': ces_node,
                                                      'edge_data': env_subgraph[self][ces_node][iedge]})
+                        # Special case for self-loops :
+                        if ces_node == self:
+                            opposed_data = dict(env_subgraph[self][ces_node][iedge])
+                            opposed_data['delta'] = tuple([-ii for ii in opposed_data['delta']])
+                            my_neighboring_nodes.append({'neighbor': ces_node,
+                                                         'edge_data': opposed_data})
                 my_neighboring_nodes.sort(key=lambda x: len(x['edge_data']['ligands']))
                 descr += str(len(my_neighboring_nodes))
                 descr += '-'
