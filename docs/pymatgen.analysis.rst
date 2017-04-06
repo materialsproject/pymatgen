@@ -30,6 +30,7 @@ Submodules
    pymatgen.analysis.nmr
    pymatgen.analysis.path_finder
    pymatgen.analysis.piezo
+   pymatgen.analysis.quasiharmonic
    pymatgen.analysis.reaction_calculator
    pymatgen.analysis.structure_analyzer
    pymatgen.analysis.structure_matcher

@@ -314,8 +314,8 @@ class SpaceGroup(SymmetryGroup):
             int_number = SpaceGroup.sgencoding[int_symbol]["int_number"]
         else:
             for spg in SpaceGroup.SYMM_OPS:
-                if int_symbol in [re.split("\(|:", spg["hermann_mauguin"])[0],
-                                  re.split("\(|:", spg["universal_h_m"])[0]]:
+                if int_symbol in [re.split(r"\(|:", spg["hermann_mauguin"])[0],
+                                  re.split(r"\(|:", spg["universal_h_m"])[0]]:
                     int_number = spg["number"]
                     break
 

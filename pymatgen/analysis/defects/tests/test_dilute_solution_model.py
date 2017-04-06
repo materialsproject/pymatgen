@@ -11,11 +11,7 @@ import os
 from monty.json import MontyDecoder
 from pymatgen.analysis.defects.dilute_solution_model import *
 import random
-
-try:
-    import sympy
-except ImportError:
-    sympy = None
+import sympy
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -32,8 +28,8 @@ with open(os.path.join(test_dir, 'mp1487_raw_defect_energies.json')) as fp:
 # monstrously slow. It takes more than 10 mins to get through this test alone.
 
 
-@unittest.skipIf((not sympy) or random.randint(0, 10) % 10 != 0,
-                 "sympy not present or random skip.")
+@unittest.skipIf(random.randint(0, 10) % 10 != 0,
+                 "random skip.")
 class DiluteSolutionModelTest(unittest.TestCase):
     def setUp(self):
         """
@@ -93,8 +89,8 @@ class DiluteSolutionModelTest(unittest.TestCase):
             # print(plot_data['y'])
 
 
-@unittest.skipIf((not sympy) or random.randint(0, 10) % 10 != 0,
-                 "sympy not present or random skip.")
+@unittest.skipIf(random.randint(0, 10) % 10 != 0,
+                 "random skip.")
 class SoluteSiteFinderTest(unittest.TestCase):
     def setUp(self):
         """

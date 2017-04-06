@@ -17,6 +17,7 @@ from six.moves import filter
 from monty.collections import dict2namedtuple
 from monty.string import list_strings
 from monty.fnmatch import WildCard
+from monty.shutil import copy_r
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 
 import logging
@@ -214,6 +215,12 @@ class Directory(object):
     def rmtree(self):
         """Recursively delete the directory tree"""
         shutil.rmtree(self.path, ignore_errors=True)
+
+    def copy_r(self, dst):
+        """
+        Implements a recursive copy function similar to Unix's "cp -r" command.
+        """
+        return copy_r(self.path, dst)
 
     def clean(self):
         """Remove all files in the directory tree while preserving the directory"""

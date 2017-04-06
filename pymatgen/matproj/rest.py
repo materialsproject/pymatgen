@@ -893,14 +893,14 @@ class MPRester(object):
             if sym == "*":
                 return [el.symbol for el in Element]
             else:
-                m = re.match("\{(.*)\}", sym)
+                m = re.match(r"\{(.*)\}", sym)
                 if m:
                     return [s.strip() for s in m.group(1).split(",")]
                 else:
                     return [sym]
 
         def parse_tok(t):
-            if re.match("\w+-\d+", t):
+            if re.match(r"\w+-\d+", t):
                 return {"task_id": t}
             elif "-" in t:
                 elements = [parse_sym(sym) for sym in t.split("-")]
@@ -920,7 +920,7 @@ class MPRester(object):
                     if ("*" in sym) or ("{" in sym):
                         wild_card_els.append(sym)
                     else:
-                        m = re.match("([A-Z][a-z]*)[\.\d]*", sym)
+                        m = re.match(r"([A-Z][a-z]*)[\.\d]*", sym)
                         explicit_els.append(m.group(1))
                 nelements = len(wild_card_els) + len(set(explicit_els))
                 parts = re.split(r"(\*|\{.*\})", t)
