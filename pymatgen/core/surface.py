@@ -1189,7 +1189,7 @@ class FixedSlabGenerator(object):
                 el = list(species_to_move.keys())[0][0]
             else:
                 el = species_to_move
-            bound_atom = list(bonds.keys())[0][0]
+            bound_atom = list(bonds.keys())[0][0] # The center of the polyhedron
             # This algorithm will only move
             # around one species at a time
             if species_term_only:
@@ -1277,7 +1277,7 @@ class FixedSlabGenerator(object):
                                     else:
                                         group_remove.append(nn[2])
 
-                                group_remove.append(i)
+                                group_remove.append(i) # Don't forget to move the center of the polyhedron
                                 # Add group of sites to remove
                                 to_remove.append(group_remove)
                                 sites_in_slab = [slab[x] for x in group_remove]
