@@ -1957,7 +1957,7 @@ class BSDOSPlotter():
         """
         Get a matplotlib plot object.
         Args:
-            bs (BandStructure): the bandstructure to plot. Projection data must exist for projected plots.
+            bs (BandStructureSymmLine): the bandstructure to plot. Projection data must exist for projected plots.
             dos (Dos): the Dos to plot. Projection data must exist (i.e., CompleteDos) for projected plots.
 
         Returns:
