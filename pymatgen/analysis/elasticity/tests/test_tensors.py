@@ -274,6 +274,44 @@ class TensorTest(PymatgenTest):
         reconstructed = sorted(reconstructed, key = lambda x: np.argmax(x))
         self.assertArrayAlmostEqual([tb for tb in reconstructed], np.eye(6)*0.01)
 
+    def test_populate(self):
+        sn = self.get_structure("Sn") 
+        vtens = np.zeros((6, 6))
+        vtens[0, 0] = 259.31
+        vtens[0, 1] = 160.71
+        vtens[3, 3] = 73.48
+        et = Tensor.from_voigt(vtens)
+        populated = et.populate(sn, prec=1e-3).voigt.round(2)
+        self.assertAlmostEqual(populated[1, 1], 259.31)
+        self.assertAlmostEqual(populated[2, 2], 259.31)
+        self.assertAlmostEqual(populated[0, 2], 160.71)
+        self.assertAlmostEqual(populated[1, 2], 160.71)
+        self.assertAlmostEqual(populated[4, 4], 73.48)
+        self.assertAlmostEqual(populated[5, 5], 73.48)
+        # test a rank 6 example
+        vtens = np.zeros([6]*3)
+        indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2), 
+                   (0, 3, 3), (0, 5, 5), (3, 4, 5)]
+        values = [-1271., -814., -50., -3., -780., -95.]
+        for v, idx in zip(values, indices):
+            vtens[idx] = v
+        toec = Tensor.from_voigt(vtens)
+        toec = toec.populate(sn, prec=1e-3, verbose=True)
+        blargh
+
+    def test_from_values_indices(self):
+        sn = self.get_structure("Sn")
+        indices = [(0, 0), (0, 1), (3, 3)]
+        values = [259.31, 160.71, 73.48]
+        et = Tensor.from_values_indices(values, indices, structure=sn, 
+                                        populate=True).voigt.round(4)
+        self.assertAlmostEqual(et[1, 1], 259.31)
+        self.assertAlmostEqual(et[2, 2], 259.31)
+        self.assertAlmostEqual(et[0, 2], 160.71)
+        self.assertAlmostEqual(et[1, 2], 160.71)
+        self.assertAlmostEqual(et[4, 4], 73.48)
+        self.assertAlmostEqual(et[5, 5], 73.48)
+        
 
 class TensorCollectionTest(PymatgenTest):
     def setUp(self):

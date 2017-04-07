@@ -365,6 +365,113 @@ class Tensor(np.ndarray):
 
         return self.rotate(rotation, tol=1e-2)
 
+    @classmethod
+    def from_values_indices(cls, values, indices, populate=False, 
+                            structure=None, voigt_rank=None, vsym=False):
+        """
+        Creates a tensor from values and indices, with options
+        for populating the remainder of the tensor.
+        
+        Args:
+            values (floats): numbers to place at indices
+            indices (array-likes): indices to place values at
+            populate (bool): whether to populate the tensor
+            structure (Structure): structure to base population
+                or fit_to_structure on
+            voigt_rank (int): full tensor rank to indicate the
+                shape of the resulting tensor.  This is necessary
+                if one provides a set of indices more minimal than
+                the shape of the tensor they want, e.g. 
+                Tensor.from_values_indices((0, 0), 100)
+            vsym (bool): whether to voigt symmetrize during the
+                optimization procedure
+        """
+        # auto-detect voigt notation
+        # TODO: refactor rank inheritance to make this easier
+        indices = np.array(indices)
+        if voigt_rank:
+            shape = ([3]*(voigt_rank % 2) + [6]*(voigt_rank // 2))
+        else:
+            shape = np.ceil(np.max(indices+1, axis=0) / 3.) * 3
+        base = np.zeros(shape.astype(int))
+        for v, idx in zip(values, indices):
+            base[tuple(idx)] = v
+        if 6 in shape:
+            obj = cls.from_voigt(base)
+        else:
+            obj = cls(base)
+        if populate:
+            assert structure, "Populate option must include structure input"
+            obj = obj.populate(structure, vsym=vsym)
+        elif structure:
+            obj = obj.fit_to_structure(structure)
+        return obj
+
+    def populate(self, structure, prec=1e-5, maxiter=200, verbose=False,
+                 guess=None, vsym=True):
+        """
+        Takes a partially populated tensor, and populates the non-zero
+        entries according to the following procedure, iterated until
+        the desired convergence (specified via prec) is achieved.
+
+        1. Find non-zero entries
+        2. Symmetrize the tensor with respect to crystal symmetry and
+           (optionally) voigt symmetry
+        3. Reset the non-zero entries of the original tensor
+        
+        Args:
+            structure (structure object)
+        """
+        if guess is None:
+            # Generate the guess from populated
+            sops = SpacegroupAnalyzer(structure).get_symmetry_operations()
+            guess = Tensor(np.zeros(self.shape))
+            mask = abs(self) > prec
+            guess[mask] = self[mask]
+
+            def merge(old, new):
+                gmask = np.abs(old) > prec
+                nmask = np.abs(new) > prec
+                new_mask = np.logical_not(gmask)*nmask
+                avg_mask = gmask*nmask
+                old[avg_mask] = (old[avg_mask] + new[avg_mask]) / 2.
+                old[new_mask] = new[new_mask]
+
+            for sop in sops:
+                rot = guess.transform(sop)
+                # Store non-zero entries of new that weren't previously
+                # in the guess in the guess
+                guess = merge(guess, rot)
+            if vsym:
+                v = guess.voigt
+                perms = list(itertools.permutations(range(len(v.shape))))
+                for perm in perms:
+                    vtrans = np.transpose(guess, ind)
+                    v = merge(v, vtrans)
+                guess = Tensor.from_voigt(v)
+        
+        assert guess.shape == self.shape, "Guess must have same shape"
+        converged = False
+        test_new, test_old = [guess.copy()]*2
+        for i in range(maxiter):
+            test_new = test_old.fit_to_structure(structure)
+            if vsym:
+                test_new = test_new.voigt_symmetrized
+            diff = np.abs(test_old - test_new) 
+            converged = (diff < prec).all()
+            if converged:
+                break
+            test_new[mask] = self[mask]
+            test_old = test_new
+            if verbose:
+                print("Iteration {}: {}".format(i, np.max(diff)))
+        if not converged:
+            max_diff = np.max(np.abs(self - test_new))
+            warnings.warn("Warning, populated tensor is not converged "
+                          "with max diff of {}".format(max_diff))
+        return self.__class__(test_new)
+
+
 
 class TensorCollection(collections.Sequence):
     """
