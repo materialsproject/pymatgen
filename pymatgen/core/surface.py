@@ -1253,7 +1253,12 @@ class FixedSlabGenerator(object):
                                 neighbors = slab.get_neighbors(s, list(bonds.values())[0])
                                 neighbor_specs = [nn.species_string for nn, d in neighbors]
                                 if bound_atom in neighbor_specs:
-                                    continue
+                                    # If it is bonded to something we don't want to
+                                    # break, do we want to move the entire polyhedron?
+                                    if type(species_to_move).__name__ != "dict":
+                                        continue
+                                    if list(bonds.keys())[0] != list(species_to_move.keys())[0]:
+                                        continue
 
                             # Are we moving a single species or are we
                             # moving a group of atoms bonded to each other?
@@ -1270,7 +1275,7 @@ class FixedSlabGenerator(object):
                                         unbreak_neighbors = slab.get_neighbors(nn[0], list(bonds.values())[0],
                                                                                include_index=True)
                                         unbreak_species = [nnn[0].species_string for nnn in unbreak_neighbors]
-                                        if bound_atom in unbreak_species:
+                                        if (bound_atom in unbreak_species) and (list(bonds.keys())[0] != list(species_to_move.keys())[0]):
                                             continue
                                         else:
                                             group_remove.append(nn[2])
