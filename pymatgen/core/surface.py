@@ -1320,10 +1320,14 @@ class FixedSlabGenerator(object):
                     modded_slabs.append(modded_slab)
 
         fixed_slabs = []
-        for i, slab in enumerate(modded_slabs):
-            if slab.is_symmetric(symprec=symprec) and not slab.is_polar(
-                    tol_dipole_per_unit_area=tol_dipole_per_unit_area):
-                fixed_slabs.append(slab)
+        for slab in modded_slabs:
+            try:
+                if slab.is_symmetric(symprec=symprec) and not slab.is_polar(
+                        tol_dipole_per_unit_area=tol_dipole_per_unit_area):
+                    fixed_slabs.append(slab)
+            except TypeError:
+                warnings.warn("WARNING: None type found when using"
+                              "SpaceGroupAnalyzer leading to a TypeError!")
         s = StructureMatcher()
         unique = [ss[0] for ss in s.group_structures(fixed_slabs)]
 

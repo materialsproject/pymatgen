@@ -10,7 +10,7 @@ import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator, generate_all_slabs, \
-    get_symmetrically_distinct_miller_indices
+    get_symmetrically_distinct_miller_indices, FixedSlabGenerator
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
@@ -94,7 +94,7 @@ class SlabTest(PymatgenTest):
         for i, slab in enumerate(slabgen.get_slabs()):
             if slab.is_polar():
                 slab.make_supercell([2,1,1])
-                slabs = slab.get_tasker2_corrected_slabs(tol=0.01)
+                slabs = slab.get_tasker2_slabs(tol=0.01)
 
                 for s in slabs:
                     self.assertFalse(s.is_polar())
@@ -322,6 +322,138 @@ class SlabGeneratorTest(PymatgenTest):
         norm_slab = slab.get_orthogonal_c_slab()
         self.assertAlmostEqual(norm_slab.lattice.angles[0], 90)
         self.assertAlmostEqual(norm_slab.lattice.angles[1], 90)
+
+
+class FixedSlabGeneratorTest(PymatgenTest):
+
+    def setUp(self):
+
+        """
+        Test to see if the FixedSlabGeneratorTest will generate
+        LiFePO4 slabs that satisfy the following criteria:
+            1. No specified P-O bonds are broken
+                (ie. no broken PO4 polyhedrons)
+            2. All slabs are nonpolar
+            3. The surfaces of each slab is symmetric
+                (slab has Laue point group symmetry)
+            4. Stoichiometry of the initial structure is retained.
+        """
+
+        # Get the LiFePO4 structure
+        LiFePO4 = PymatgenTest.get_structure("LiFePO4")
+
+        # Let's add some oxidation states to LiFePO4, this will be
+        # important when we want to take surface polarity into consideration
+        LiFePO4.add_oxidation_state_by_element({"Fe": 2, "Li": 1, "P": 5, "O": -2})
+        self.formula = LiFePO4.composition.reduced_formula
+        self.LiFePO4 = LiFePO4.copy()
+        self.bonds = {("P5+", "O2-"): 2}
+        self.all_hkl = get_symmetrically_distinct_miller_indices(LiFePO4, 2)
+
+    def get_slabs(self, initial_structure, min_slab_size,
+                  min_vac_size, bonds, sites_to_move, hkl, tol=1e-4):
+
+        """
+        Brute force method of finding viable slabs, first by using
+        the primitive slab. If a viable slab cannot be generated
+        from the primitive slab, use the full size slab
+
+        Args:
+            initial_structure (Structure): See FixedSlabGenerator.
+            min_slab_size (float): See FixedSlabGenerator.
+            min_slab_size (float) See FixedSlabGenerator.
+            bonds (dict): See FixedSlabGenerator.
+            tol (float): See FixedSlabGenerator.
+        Returns:
+            (List of slabs) A list of corrected slabs that have no broken
+            (specified) polyhedrons (bonds), nonpolar, and symmetric.
+        """
+
+        fix_slabgen = FixedSlabGenerator(initial_structure, hkl,
+                                         min_slab_size, min_vac_size, tol=tol)
+
+        slabs = fix_slabgen.fix_sym_and_pol(bonds, sites_to_move=sites_to_move)
+        if slabs:
+            return slabs
+        else:
+            fix_slabgen.primitive = False
+            slabs = fix_slabgen.fix_sym_and_pol(bonds, sites_to_move=sites_to_move)
+            if slabs:
+                return slabs
+
+
+    def get_all_slabs(self, initial_structure, min_slab_size,
+                      min_vac_size, bonds, sites_to_move, tol=1e-4):
+        """
+        Gets all slabs for MMI=2 using the get_slabs method.
+
+        Args:
+            initial_structure (Structure): See FixedSlabGenerator.
+            min_slab_size (float): See FixedSlabGenerator.
+            min_slab_size (float) See FixedSlabGenerator.
+            bonds (dict): See FixedSlabGenerator.
+            sites_to_move (list of species or dict): See FixedSlabGenerator.
+
+        """
+        fixed_slabs = []
+        miller_list = get_symmetrically_distinct_miller_indices(initial_structure, 2)
+
+        for hkl in miller_list:
+            print(hkl)
+            slabs = self.get_slabs(initial_structure, min_slab_size,
+                              min_vac_size, bonds,
+                              sites_to_move, hkl, tol=tol)
+            fixed_slabs.extend(slabs)
+
+        return fixed_slabs
+
+    def test_fix_sym_and_pol(self):
+
+        print("Testing LiFePO4 slab generation using FixedSlabGeneratorTest()")
+
+        # Get all possible viable slabs for MMI=2
+        all_lifepo4_slabs = self.get_all_slabs(self.LiFePO4, 15, 15, self.bonds,
+                                               sites_to_move=["Fe2+", "Li+",
+                                                              {("Fe2+", "O2-"): 2.5},
+                                                              "O2-"])
+
+        miller_list = []
+        for slab in all_lifepo4_slabs:
+
+            # Get a list of unique hkl in list of slabs
+            miller_index = slab.miller_index
+            if miller_index not in miller_list:
+                miller_list.append(miller_index)
+
+
+            # ouc = slab.oriented_unit_cell
+            # scale_factor = slab.scale_factor
+            # shift = slab.shift
+            # slab = slab.get_primitive_structure()
+            # slab = Slab(slab.lattice, slab.species, slab.frac_coords, miller_index, ouc, shift, scale_factor)
+
+            # Check if there are any broken PO4 bonds
+            broken = False
+            for site in slab:
+                if site.species_string == "P5+":
+                    n = slab.get_neighbors(site, 2)
+                    if len(n) != 4:
+                        broken = True
+
+            # Check if stoimchimiotry of unit cell maintained
+            self.assertTrue(slab.composition.reduced_formula == self.formula)
+            # Check if slab is nonpolar
+            self.assertFalse(slab.is_polar())
+            # Check if surfaces are equivalent
+            self.assertTrue(slab.is_symmetric())
+            # Check that all specified polyhedrons are intact
+            self.assertFalse(broken)
+
+        # Check if there is at least one slab for each unique hkl for MMI=2
+        self.assertEqual(len(miller_list), len(self.all_hkl))
+        # Algorithm consitstency check. Check if the
+        # same number of slabs generated each time
+        self.assertEqual(len(all_lifepo4_slabs), 62)
 
 
 class MillerIndexFinderTests(PymatgenTest):
