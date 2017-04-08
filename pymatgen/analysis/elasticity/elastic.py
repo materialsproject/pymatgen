@@ -532,28 +532,56 @@ class ElasticTensorExpansion(TensorCollection):
         return sum([c.energy_density(strain, convert_GPa_to_eV)
                     for c in self])
 
-    def omega(self, n, u):
-        # TODO: do these need to be normalized
-        return self[0].einsum_sequence([n]*2 + [u]*2)
+    def green_kristoffel(self, n, u):
+        # TODO: do these need to be normalized?
+        return self[0].einsum_sequence([n, u, n, u])
+
+    # TODO: check omega and stuff
+    def omega(self, structure, n, u):
+        l0 = Tensor(structure.lattice.matrix).einsum_sequence([n, n]) * 1e-10
+        weight = structure.composition.weight
+        mass_density = 1.6605e3 * weight / structure.volume
+        vel = (1e9 * self.green_kristoffel(n, u) / mass_density) ** 0.5
+        return vel / l0
 
     def get_ggt(self, n, u):
-        w = self[0].einsum_sequence([n, n, u, u])
-        result =  2*w*np.outer(u, u) + self[0].einsum_sequence([n, n]) \
-            + self[1].einsum_sequence([n, u, u, n])
-        return -1. / self[0].einsum_sequence([n, u, u, n]) * result
+        gk = self.green_kristoffel(n, u)
+        result =  -(2*gk*np.outer(u, u) + self[0].einsum_sequence([n, n]) \
+            + self[1].einsum_sequence([n, u, n, u])) / (2*gk)
+        return result
 
-    def get_tgt(self, grid=[21, 21]):
+    def get_tgt(self, temperature = None, structure=None, grid=[21, 21]):
+        if temperature and not structure:
+            raise ValueError("If using temperature input, you must also "
+                             "include structure")
         xyzs = axes_angle_grid(*grid)
         xyzs = xyzs.reshape((np.prod(xyzs.shape[:2]), 3, 3))
-        total = np.zeros((3, 3))
+        num = np.zeros((3, 3))
+        denom = 0
+        c = 1
         for xyz in xyzs:
             for v in xyz:
-                total += self.get_ggt(xyz[0], v)
-        return total / len(xyzs)
+                if temperature:
+                    c = self.get_heat_capacity(temperature, structure, xyz[0], v)
+                num += c*self.get_ggt(xyz[0], v)
+                denom += c
+        return num / denom
 
-    def get_gruneisen_parameter(self, grid=[21, 21]):
-        return np.trace(self.get_tgt(grid)) / 3.
+    def get_gruneisen_parameter(self, temperature=None, structure=None, 
+                                grid=[21, 21]):
+        """
+        """
+        return np.trace(self.get_tgt(temperature, structure, grid)) / 3.
 
+    def get_heat_capacity(self, temperature, structure, n, u):
+        """
+        """
+        k = 1.38065e-23
+        kt = k*temperature
+        hbar_w = 1.05457e-34*self.omega(structure, n, u)
+        c = k * (hbar_w / kt) ** 2
+        c *= np.exp(hbar_w / kt) / (np.exp(hbar_w / kt) - 1)**2
+        return c
 
 def get_trans(theta, phi):
     sop1 = SymmOp.from_axis_angle_and_translation([0, 0, 1], theta, 
@@ -562,11 +590,9 @@ def get_trans(theta, phi):
                                                   angle_in_radians=True)
     return np.dot(sop2.rotation_matrix, sop1.rotation_matrix)
 
-vtrans = np.vectorize(get_trans)
-
 def axes_angle_grid(ntheta=21, nphi=21):
     thetas, phis = np.meshgrid(np.linspace(0, 2*np.pi, ntheta), 
-                       np.linspace(0, np.pi, nphi))
+                       np.linspace(-np.pi / 2, np.pi / 2, nphi))
     grid = [get_trans(t, p) for t, p in zip(thetas.ravel(), phis.ravel())]
     return np.array(grid).reshape(thetas.shape + (3, 3))
 

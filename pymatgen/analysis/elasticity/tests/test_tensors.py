@@ -275,6 +275,9 @@ class TensorTest(PymatgenTest):
         self.assertArrayAlmostEqual([tb for tb in reconstructed], np.eye(6)*0.01)
 
     def test_populate(self):
+        with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
+            test_data = json.load(f)
+
         sn = self.get_structure("Sn") 
         vtens = np.zeros((6, 6))
         vtens[0, 0] = 259.31
@@ -297,7 +300,20 @@ class TensorTest(PymatgenTest):
             vtens[idx] = v
         toec = Tensor.from_voigt(vtens)
         toec = toec.populate(sn, prec=1e-3, verbose=True)
-        blargh
+        self.assertAlmostEqual(toec.voigt[1, 1, 1], -1271)
+        self.assertAlmostEqual(toec.voigt[0, 1, 1], -814)
+        self.assertAlmostEqual(toec.voigt[0, 2, 2], -814)
+        self.assertAlmostEqual(toec.voigt[1, 4, 4], -3)
+        self.assertAlmostEqual(toec.voigt[2, 5, 5], -3)
+        self.assertAlmostEqual(toec.voigt[1, 2, 0], -50)
+        self.assertAlmostEqual(toec.voigt[4, 5, 3], -95)
+        
+        et = Tensor.from_voigt(test_data["C3_raw"]).fit_to_structure(sn)
+        new = np.zeros(et.voigt.shape)
+        for idx in indices:
+            new[idx] = et.voigt[idx]
+        new = Tensor.from_voigt(new).populate(sn)
+        self.assertArrayAlmostEqual(new, et, decimal=2)
 
     def test_from_values_indices(self):
         sn = self.get_structure("Sn")
@@ -311,7 +327,6 @@ class TensorTest(PymatgenTest):
         self.assertAlmostEqual(et[1, 2], 160.71)
         self.assertAlmostEqual(et[4, 4], 73.48)
         self.assertAlmostEqual(et[5, 5], 73.48)
-        
 
 class TensorCollectionTest(PymatgenTest):
     def setUp(self):

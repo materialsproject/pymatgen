@@ -367,7 +367,7 @@ class Tensor(np.ndarray):
 
     @classmethod
     def from_values_indices(cls, values, indices, populate=False, 
-                            structure=None, voigt_rank=None, vsym=False):
+                            structure=None, voigt_rank=None, vsym=True):
         """
         Creates a tensor from values and indices, with options
         for populating the remainder of the tensor.
@@ -408,7 +408,7 @@ class Tensor(np.ndarray):
         return obj
 
     def populate(self, structure, prec=1e-5, maxiter=200, verbose=False,
-                 guess=None, vsym=True):
+                 precond=True, vsym=True):
         """
         Takes a partially populated tensor, and populates the non-zero
         entries according to the following procedure, iterated until
@@ -422,7 +422,7 @@ class Tensor(np.ndarray):
         Args:
             structure (structure object)
         """
-        if guess is None:
+        if precond:
             # Generate the guess from populated
             sops = SpacegroupAnalyzer(structure).get_symmetry_operations()
             guess = Tensor(np.zeros(self.shape))
@@ -441,15 +441,17 @@ class Tensor(np.ndarray):
                 rot = guess.transform(sop)
                 # Store non-zero entries of new that weren't previously
                 # in the guess in the guess
-                guess = merge(guess, rot)
+                merge(guess, rot)
             if vsym:
                 v = guess.voigt
                 perms = list(itertools.permutations(range(len(v.shape))))
                 for perm in perms:
-                    vtrans = np.transpose(guess, ind)
-                    v = merge(v, vtrans)
+                    vtrans = np.transpose(v, perm)
+                    merge(v, vtrans)
                 guess = Tensor.from_voigt(v)
-        
+        else:
+            guess = np.zeros(self.shape)
+
         assert guess.shape == self.shape, "Guess must have same shape"
         converged = False
         test_new, test_old = [guess.copy()]*2

@@ -240,14 +240,30 @@ class ElasticTensorExpansionTest(PymatgenTest):
     def test_energy_density(self):
         self.exp.energy_density(self.strains[0])
 
-    def test_ggt(self):
-        ggt = self.exp.get_ggt([1, 0, 0], [0, 1, 0])
-
-    def test_tgt(self):
-        tgt = self.exp.get_tgt()
-
     def test_gruneisen(self):
-        gp = self.exp.get_gruneisen_parameter()
+        sn = self.get_structure("Sn")
+        indices = [(0, 0), (0, 1), (3, 3)]
+        values = [166.1, 119.9, 75.6]
+        cu_c2 = ElasticTensor.from_values_indices(values, indices, structure=sn,
+                                                  populate=True)
+        indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2),
+                   (0, 3, 3), (0, 5, 5), (3, 4, 5)]
+        values = [-1271., -814., -50., -3., -780., -95.]
+        cu_c3 = Tensor.from_values_indices(values, indices, structure=sn, 
+                                           populate=True)
+        exp_cu = ElasticTensorExpansion([cu_c2, cu_c3])
+        # Get GGT
+        ggt = exp_cu.get_ggt([1, 0, 0], [0, 1, 0])
+
+        # Get TGT
+        tgt = exp_cu.get_tgt()
+
+        # Get heat capacity
+        c = exp_cu.get_heat_capacity(300, sn, [1, 0, 0], [0, 1, 0])
+
+        # Get Gruneisen parameter
+        gp = exp_cu.get_gruneisen_parameter()
+        gpt = exp_cu.get_gruneisen_parameter(temperature=300, structure=sn)
 
 class NthOrderElasticTensorTest(PymatgenTest):
     def setUp(self):
