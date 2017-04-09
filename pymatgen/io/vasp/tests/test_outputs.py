@@ -455,6 +455,20 @@ class OutcarTest(unittest.TestCase):
             self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
             self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
 
+    def test_polarization(self):
+        filepath = os.path.join(test_dir, "OUTCAR.BaTiO3.polar")
+        outcar = Outcar(filepath)
+        self.assertEqual(outcar.spin, True)
+        self.assertEqual(outcar.noncollinear, False)
+        self.assertAlmostEqual(outcar.p_ion[0], 0.0)
+        self.assertAlmostEqual(outcar.p_ion[1],0.0)
+        self.assertAlmostEqual(outcar.p_ion[2], -5.56684)
+        self.assertAlmostEqual(outcar.p_sp1[0], 2.00068)
+        self.assertAlmostEqual(outcar.p_sp2[0], -2.00044)
+        self.assertAlmostEqual(outcar.p_elec[0], 0.00024)
+        self.assertAlmostEqual(outcar.p_elec[1], 0.00019)
+        self.assertAlmostEqual(outcar.p_elec[2], 3.61674)
+
     def test_dielectric(self):
         filepath = os.path.join(test_dir, "OUTCAR.dielectric")
         outcar = Outcar(filepath)

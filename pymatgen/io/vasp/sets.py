@@ -434,7 +434,7 @@ class MPHSERelaxSet(DictSet):
 class MPStaticSet(MPRelaxSet):
 
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
-                 lepsilon=False, reciprocal_density=100, **kwargs):
+                 lepsilon=False, lcalcpol=False, reciprocal_density=100, **kwargs):
         """
         Run a static calculation.
 
@@ -456,6 +456,7 @@ class MPStaticSet(MPRelaxSet):
         self.structure = structure
         self.kwargs = kwargs
         self.lepsilon = lepsilon
+        self.lcalcpol = lcalcpol
 
     @property
     def incar(self):
@@ -475,6 +476,9 @@ class MPStaticSet(MPRelaxSet):
             # to output ionic.
             incar.pop("NSW", None)
             incar.pop("NPAR", None)
+
+        if self.lcalcpol:
+            incar["LCALCPOL"] = True
 
         for k in ["MAGMOM", "NUPDOWN"] + list(self.kwargs.get(
                 "user_incar_settings", {}).keys()):
