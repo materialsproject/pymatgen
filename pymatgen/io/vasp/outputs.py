@@ -2221,6 +2221,9 @@ class Outcar(MSONable):
         if self.lcalcpol:
             d.update({'p_elec': self.p_elec,
                       'p_ion': self.p_ion})
+            if self.spin and not self.noncollinear:
+                d.update({'p_sp1': self.p_sp1,
+                          'p_sp2': self.p_sp2})
 
         return d
 
