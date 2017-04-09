@@ -1442,6 +1442,18 @@ class Outcar(MSONable):
         self.final_energy = total_energy
         self.data = {}
 
+        # Check if calculation is spin polarized
+        self.spin = False
+        self.read_pattern({'spin': 'ISPIN  =      2'})
+        if self.data.get('spin',[]):
+            self.spin = True
+
+        # Check if calculation is noncollinear
+        self.noncollinear = False
+        self.read_pattern({'noncollinear': 'LNONCOLLINEAR =      T'})
+        if self.data.get('noncollinear',[]):
+            self.noncollinear = False
+
         # Check to see if LEPSILON is true and read piezo data if so
         self.lepsilon = False
         self.read_pattern({'epsilon': 'LEPSILON=     T'})
@@ -1449,6 +1461,14 @@ class Outcar(MSONable):
             self.lepsilon = True
             self.read_lepsilon()
             self.read_lepsilon_ionic()
+
+        # Check to see if LCALCPOL is true and read polarization data if so
+        self.lcalcpol = False
+        self.read_pattern({'calcpol': 'LCALCPOL   =     T'})
+        if self.data.get('calcpol',[]):
+            self.lcalcpol = True
+            self.read_lcalcpol()
+
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
@@ -2050,20 +2070,43 @@ class Outcar(MSONable):
     def read_lcalcpol(self):
         # variables to be filled
         self.p_elec = None
+        self.p_sp1 = None
+        self.p_sp2 = None
         self.p_ion = None
         try:
             search = []
 
             # Always present spin/non-spin
-            def p_elc(results, match):
-                results.p_elc = np.array([float(match.group(1)),
+            def p_elec(results, match):
+                results.p_elec = np.array([float(match.group(1)),
                                           float(match.group(2)),
                                           float(match.group(3))])
 
             search.append([r"^.*Total electronic dipole moment: "
                            r"*p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
                            r"*([-0-9.Ee+]*) *\)",
-                           None, p_elc])
+                           None, p_elec])
+
+            # If spin-polarized (and not noncollinear)
+            # save spin-polarized electronic values
+            if self.spin and not self.noncollinear:
+                def p_sp1(results, match):
+                    results.p_sp1 = np.array([float(match.group(1)),
+                                              float(match.group(2)),
+                                              float(match.group(3))])
+
+                search.append([r"^.*p\[sp1\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
+                               r"*([-0-9.Ee+]*) *\)",
+                               None, p_sp1])
+
+                def p_sp2(results, match):
+                    results.p_sp2 = np.array([float(match.group(1)),
+                                              float(match.group(2)),
+                                              float(match.group(3))])
+
+                search.append([r"^.*p\[sp2\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
+                               r"*([-0-9.Ee+]*) *\)",
+                               None, p_sp2])
 
             def p_ion(results, match):
                 results.p_ion = np.array([float(match.group(1)),
@@ -2077,7 +2120,7 @@ class Outcar(MSONable):
             micro_pyawk(self.filename, search, self)
 
         except:
-            raise Exception("CLACLCPOL OUTCAR could not be parsed.")
+            raise Exception("LCALCPOL OUTCAR could not be parsed.")
 
     def read_core_state_eigen(self):
         """
@@ -2174,6 +2217,11 @@ class Outcar(MSONable):
                       'dielectric_ionic_tensor': self.dielectric_ionic_tensor,
                       'born_ion': self.born_ion,
                       'born': self.born})
+
+        if self.lcalcpol:
+            d.update({'p_elec': self.p_elec,
+                      'p_ion': self.p_ion})
+
         return d
 
 
