@@ -795,6 +795,7 @@ class QcTask(MSONable):
         lines = []
         opt_sub_sections = [sec for sec in sorted(self.params['opt'])]
         valid_sub_sections = {"CONSTRAINT", "FIXED", "CONNECT", "DUMMY"}
+        valid_fix_spec = {"X", "Y", "Z", "XY", "XZ", "YZ", "XYZ"}
         if len(set(opt_sub_sections) - valid_sub_sections) > 0:
             invalid_keys = set(opt_sub_sections) - valid_sub_sections
             raise ValueError(','.join(['$' + k for k in invalid_keys]) +
@@ -814,8 +815,16 @@ class QcTask(MSONable):
                 constraint_lines.append('ENDCONSTRAINT')
                 lines.extend(constraint_lines)
             if opt_sub_sec == "FIXED":
-                pass
-                # FIXED atoms
+                fixed_lines = ["FIXED"]
+                for atom in sorted(self.params['opt']['FIXED']):
+                    fix_spec = self.params['opt']['FIXED'][atom]
+                    if fix_spec not in valid_fix_spec:
+                        raise ValueError("{} is a wrong keyword to fix atoms".format(fix_spec))
+                    fixed_lines.append(" {} {}".format(atom, fix_spec))
+                fixed_lines.append("ENDFIXED")
+                lines.extend(fixed_lines)
+            else:
+                raise ValueError("$opt - {} is not supported yet".format(opt_sub_sec))
         return lines
 
     def as_dict(self):
@@ -1322,6 +1331,7 @@ class QcTask(MSONable):
         fixed_dict = dict()
         constraints = False
         fixed_sec = False
+        valid_fix_spec = {"X", "Y", "Z", "XY", "XZ", "YZ", "XYZ"}
         int_pattern = re.compile('^[-+]?\d+$')
         float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
         for line in contents:
@@ -1343,13 +1353,21 @@ class QcTask(MSONable):
                         vals.append(val)
                 const_list.append(vals)
             elif fixed_sec:
-                pass
+                atom = int(tokens[0])
+                fix_spec = tokens[1].upper()
+                if fix_spec not in valid_fix_spec:
+                    raise ValueError("{} is not a correct keyword to fix"
+                                     "atoms".format(fix_spec))
+                fixed_dict[atom] = fix_spec
             elif re.match('CONSTRAINT', line):
                 constraints = True
                 const_list = []
             elif re.match('FIXED', line):
                 constraints = True
                 fixed_dict = dict()
+            else:
+                raise ValueError("Keyword {} in $opt section is not supported yet".
+                                 format(line.strip()))
         return opt_dict
 
 
