@@ -801,6 +801,8 @@ class QcTask(MSONable):
             raise ValueError(','.join(['$' + k for k in invalid_keys]) +
                              ' is not a valid geometry optimization constraint')
         for opt_sub_sec in opt_sub_sections:
+            if len(lines) > 0:
+                lines.append("")
             if opt_sub_sec == "CONSTRAINT":
                 # constraints
                 constraint_lines = ['CONSTRAINT']
@@ -1339,7 +1341,7 @@ class QcTask(MSONable):
             if re.match('ENDCONSTRAINT', line, re.IGNORECASE):
                 constraints = False
                 opt_dict["CONSTRAINT"] = const_list
-            if re.match('ENDFIXED', line, re.IGNORECASE):
+            elif re.match('ENDFIXED', line, re.IGNORECASE):
                 fixed_sec = False
                 opt_dict["FIXED"] = fixed_dict
             elif constraints:

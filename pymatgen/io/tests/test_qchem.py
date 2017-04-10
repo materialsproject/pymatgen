@@ -376,16 +376,19 @@ $end
         task_text2 = str(qctask2)
         opt_text2 = task_text2[task_text2.index("$opt"):]
         ans2 = """$opt
-        FIXED
-         2 Y
-         3 XYZ
-        ENDFIXED
-        $end
+CONSTRAINT
+tors 1 2 3 4 180.0
+ENDCONSTRAINT
 
-        """
-        print(opt_text2, "hoho")
+FIXED
+ 2 Y
+ 3 XYZ
+ENDFIXED
+$end
+
+"""
         self.assertEqual(opt_text2, ans2)
-        self.elementary_io_verify(task_text, qctask)
+        self.elementary_io_verify(task_text2, qctask2)
 
     def test_partial_hessian(self):
         qcinp1 = QcInput.from_file(os.path.join(test_dir, "partial_hessian.qcinp"))
