@@ -693,11 +693,12 @@ class QcTask(MSONable):
         rem = rem_format_template.substitute(name_width=name_width)
         lines = []
         all_keys = set(self.params["rem"].keys())
-        priority_keys = ["jobtype", "basis"]
+        priority_keys = ["jobtype"]
         if "exchange" in self.params["rem"]:
             priority_keys.append("exchange")
         if "method" in self.params["rem"]:
             priority_keys.append("method")
+        priority_keys.append("basis")
         additional_keys = all_keys - set(priority_keys)
         ordered_keys = priority_keys + sorted(list(additional_keys))
         for name in ordered_keys:
@@ -873,7 +874,7 @@ class QcTask(MSONable):
         jobtype = d["params"]["rem"]["jobtype"]
         title = d["params"].get("comment", None)
         exchange = d["params"]["rem"].get("exchange", "hf")
-        method = d["params"]["rem"].get("method", "hf")
+        method = d["params"]["rem"].get("method", None)
         correlation = d["params"]["rem"].get("correlation", None)
         basis_set = d["params"]["rem"]["basis"]
         aux_basis_set = d["params"]["rem"].get("aux_basis", None)
