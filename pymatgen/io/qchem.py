@@ -814,7 +814,7 @@ class QcTask(MSONable):
                         constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]}".format(vals=vals))
                 constraint_lines.append('ENDCONSTRAINT')
                 lines.extend(constraint_lines)
-            if opt_sub_sec == "FIXED":
+            elif opt_sub_sec == "FIXED":
                 fixed_lines = ["FIXED"]
                 for atom in sorted(self.params['opt']['FIXED']):
                     fix_spec = self.params['opt']['FIXED'][atom]
