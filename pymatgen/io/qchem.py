@@ -793,9 +793,14 @@ class QcTask(MSONable):
     def _format_opt(self):
         # lines is a list of all opt keywords
         lines = []
-        opt_sub_sections = sorted(self.params['opt'])
+        opt_sub_sections = [sec for sec in sorted(self.params['opt'])]
+        valid_sub_sections = {"CONSTRAINT", "FIXED", "CONNECT", "DUMMY"}
+        if len(set(opt_sub_sections) - valid_sub_sections) > 0:
+            invalid_keys = set(opt_sub_sections) - valid_sub_sections
+            raise ValueError(','.join(['$' + k for k in invalid_keys]) +
+                             ' is not a valid geometry optimization constraint')
         for opt_sub_sec in opt_sub_sections:
-            if opt_sub_sec.upper() == "CONSTRAINT":
+            if opt_sub_sec == "CONSTRAINT":
                 # constraints
                 constraint_lines = ['CONSTRAINT']
                 for index in range(len(self.params['opt']['CONSTRAINT'])):
@@ -808,7 +813,7 @@ class QcTask(MSONable):
                         constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]}".format(vals=vals))
                 constraint_lines.append('ENDCONSTRAINT')
                 lines.extend(constraint_lines)
-            if opt_sub_sec.upper() == "FIXED":
+            if opt_sub_sec == "FIXED":
                 pass
                 # FIXED atoms
         return lines
