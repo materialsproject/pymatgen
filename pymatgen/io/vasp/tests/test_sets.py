@@ -4,7 +4,6 @@
 
 from __future__ import unicode_literals
 
-import os
 import unittest
 import tempfile
 from monty.json import MontyDecoder
@@ -86,7 +85,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
 
         incar = self.mitset.incar
         self.assertEqual(incar['LDAUU'], [4.0, 0, 0])
-        self.assertAlmostEqual(incar['EDIFF'], 0.0012)
+        self.assertAlmostEqual(incar['EDIFF'], 1e-5)
 
         si = 14
         coords = list()
@@ -182,8 +181,8 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
         kpoints = self.mitset.kpoints
-        self.assertEqual(kpoints.kpts, [[2, 4, 6]])
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
+        self.assertEqual(kpoints.kpts, [[25]])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Automatic)
 
         recip_paramset = MPRelaxSet(self.structure, force_gamma=True)
         recip_paramset.kpoints_settings = {"reciprocal_density": 40}
@@ -196,7 +195,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(d["INCAR"]["ISMEAR"], -5)
         s = self.structure.copy()
         s.make_supercell(4)
-        paramset = MITRelaxSet(s)
+        paramset = MPRelaxSet(s)
         d = paramset.all_input
         self.assertEqual(d["INCAR"]["ISMEAR"], 0)
 
@@ -284,6 +283,10 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(non_prev_vis.kpoints.kpts, [[13, 11, 11]])
         non_prev_vis = MPStaticSet(vis.structure, reciprocal_density=200)
         self.assertEqual(non_prev_vis.kpoints.kpts, [[15, 13, 13]])
+        # Check LCALCPOL flag
+        lcalcpol_vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run,
+                                                  lcalcpol=True)
+        self.assertTrue(lcalcpol_vis.incar["LCALCPOL"])
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
@@ -372,7 +375,7 @@ class MITMDSetTest(unittest.TestCase):
         self.assertEqual(syms, ['Fe', 'P', 'O'])
         incar = param.incar
         self.assertNotIn("LDAUU", incar)
-        self.assertAlmostEqual(incar['EDIFF'], 2.4e-5)
+        self.assertAlmostEqual(incar['EDIFF'], 1e-5)
         kpoints = param.kpoints
         self.assertEqual(kpoints.kpts, [(1, 1, 1)])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
@@ -404,12 +407,12 @@ class MITNEBSetTest(unittest.TestCase):
     def test_incar(self):
         incar = self.vis.incar
         self.assertNotIn("LDAUU", incar)
-        self.assertAlmostEqual(incar['EDIFF'], 0.00005)
+        self.assertAlmostEqual(incar['EDIFF'], 0.00001)
 
     def test_kpoints(self):
         kpoints = self.vis.kpoints
-        self.assertEqual(kpoints.kpts, [[8, 8, 8]])
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
+        self.assertEqual(kpoints.kpts, [[25]])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Automatic)
 
     def test_as_from_dict(self):
         d = self.vis.as_dict()
