@@ -397,8 +397,8 @@ $end
         rem_text = task_text[task_text.index("$rem"):]
         ans = """$rem
   jobtype = sp
-    basis = 6-31+g*
    method = b3lyp
+    basis = 6-31+g*
 $end
 
 """
