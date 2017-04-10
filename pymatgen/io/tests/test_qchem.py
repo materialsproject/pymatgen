@@ -309,7 +309,7 @@ $end
                       [2.0709344, -0.8081667, -0.0452220],
                       [2.1094213, 0.7132527, 0.9246668]]
         opt_mol = Molecule(["C", "C", "C", "C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"], opt_coords)
-        constraint_dict = {'opt': [['tors', 1, 2, 3, 4, 180.0]]}
+        constraint_dict = {'opt': {'CONSTRAINT': [['tors', 1, 2, 3, 4, 180.0]]}}
         ans = """$molecule
  0  1
  C          -1.84387080        1.76398440        0.00361110
@@ -2410,7 +2410,7 @@ Sites (12)
         qcout = QcOutput(filename)
         self.assertEqual(len(qcout.data), 2)
 
-    def test_opt(self):
+    def test_parse_opt_contraint(self):
         filename = os.path.join(test_dir, "pt_dft_180.0.qcout")
         qcout = QcOutput(filename)
         qcin = qcout.data[-1]['input']
@@ -2453,7 +2453,7 @@ $end
 
 '''
         self.assertEqual(str(qcin), qcin_ans)
-        constraint = qcin.params['opt']
+        constraint = qcin.params['opt']['CONSTRAINT']
         constraint_ans = [['tors', 4, 5, 7, 9, 180.0]]
         self.assertEqual(constraint, constraint_ans)
 

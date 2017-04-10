@@ -798,8 +798,8 @@ class QcTask(MSONable):
             if opt_sub_sec.upper() == "CONSTRAINT":
                 # constraints
                 constraint_lines = ['CONSTRAINT']
-                for index in range(len(self.params['opt'])):
-                    vals = self.params['opt'][index]
+                for index in range(len(self.params['opt']['CONSTRAINT'])):
+                    vals = self.params['opt']['CONSTRAINT'][index]
                     if vals[0] in ['outp', 'tors', 'linc', 'linp']:
                         constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]} {vals[5]}".format(vals=vals))
                     elif vals[0] == 'stre':
