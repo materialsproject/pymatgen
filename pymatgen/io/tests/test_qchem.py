@@ -390,6 +390,21 @@ $end
         self.assertEqual(opt_text2, ans2)
         self.elementary_io_verify(task_text2, qctask2)
 
+    def test_method_keyword(self):
+        qctask1 = QcTask(mol, method="B3LYP", jobtype="SP",
+                         basis_set="6-31+G*")
+        task_text = str(qctask1)
+        rem_text = task_text[task_text.index("$rem"):]
+        ans = """$rem
+  jobtype = sp
+    basis = 6-31+g*
+   method = b3lyp
+$end
+
+"""
+        self.assertEqual(rem_text, ans)
+        self.elementary_io_verify(task_text, qctask1)
+
     def test_partial_hessian(self):
         qcinp1 = QcInput.from_file(os.path.join(test_dir, "partial_hessian.qcinp"))
         ans = """$molecule

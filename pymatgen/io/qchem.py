@@ -100,7 +100,8 @@ class QcTask(MSONable):
     def __init__(self, molecule=None, charge=None, spin_multiplicity=None,
                  jobtype='SP', title=None, exchange="HF", correlation=None,
                  basis_set="6-31+G*", aux_basis_set=None, ecp=None,
-                 rem_params=None, optional_params=None, ghost_atoms=None):
+                 rem_params=None, optional_params=None, ghost_atoms=None,
+                 method=None):
         self.mol = copy.deepcopy(molecule) if molecule else "read"
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
@@ -150,7 +151,10 @@ class QcTask(MSONable):
             self.params["comment"] = self._wrap_comment(title)
         if "rem" not in self.params:
             self.params["rem"] = dict()
-        self.params["rem"]["exchange"] = exchange.lower()
+        if method is None or exchange.lower() != "hf":
+            self.params["rem"]["exchange"] = exchange.lower()
+        if method is not None:
+            self.params["rem"]["method"] = method.lower()
         available_jobtypes = {"sp", "opt", "ts", "freq", "force", "rpath",
                               "nmr", "bsse", "eda", "pes_scan", "fsm", "aimd",
                               "pimc", "makeefp"}
@@ -211,7 +215,11 @@ class QcTask(MSONable):
                     raise ValueError("Each element of ghost atom list must an integer")
 
     def _aux_basis_required(self):
-        if self.params["rem"]["exchange"] in ['xygjos', 'xyg3', 'lxygjos']:
+        if "method" in self.params["rem"]:
+            method = self.params["rem"]["method"]
+        else:
+            method = self.params["rem"]["exchange"]
+        if method in ['xygjos', 'xyg3', 'lxygjos']:
             return True
         if 'correlation' in self.params["rem"]:
             if self.params["rem"]["correlation"].startswith("ri"):
@@ -685,7 +693,11 @@ class QcTask(MSONable):
         rem = rem_format_template.substitute(name_width=name_width)
         lines = []
         all_keys = set(self.params["rem"].keys())
-        priority_keys = ["jobtype", "exchange", "basis"]
+        priority_keys = ["jobtype", "basis"]
+        if "exchange" in self.params["rem"]:
+            priority_keys.append("exchange")
+        if "method" in self.params["rem"]:
+            priority_keys.append("method")
         additional_keys = all_keys - set(priority_keys)
         ordered_keys = priority_keys + sorted(list(additional_keys))
         for name in ordered_keys:
@@ -860,7 +872,8 @@ class QcTask(MSONable):
             raise ValueError('Unknow molecule type "{}"'.format(type(d["molecule"])))
         jobtype = d["params"]["rem"]["jobtype"]
         title = d["params"].get("comment", None)
-        exchange = d["params"]["rem"]["exchange"]
+        exchange = d["params"]["rem"].get("exchange", "hf")
+        method = d["params"]["rem"].get("method", "hf")
         correlation = d["params"]["rem"].get("correlation", None)
         basis_set = d["params"]["rem"]["basis"]
         aux_basis_set = d["params"]["rem"].get("aux_basis", None)
@@ -879,7 +892,8 @@ class QcTask(MSONable):
                       basis_set=basis_set, aux_basis_set=aux_basis_set,
                       ecp=ecp, rem_params=d["params"]["rem"],
                       optional_params=optional_params,
-                      ghost_atoms=ghost_atoms)
+                      ghost_atoms=ghost_atoms,
+                      method=method)
 
     def write_file(self, filename):
         with zopen(filename, "wt") as f:
@@ -950,6 +964,7 @@ class QcTask(MSONable):
         jobtype = params["rem"]["jobtype"]
         title = params.get("comment", None)
         exchange = params["rem"].get("exchange", "hf")
+        method = params["rem"].get("method", None)
         correlation = params["rem"].get("correlation", None)
         basis_set = params["rem"]["basis"]
         aux_basis_set = params["rem"].get("aux_basis", None)
@@ -967,7 +982,8 @@ class QcTask(MSONable):
                       basis_set=basis_set, aux_basis_set=aux_basis_set,
                       ecp=ecp, rem_params=params["rem"],
                       optional_params=optional_params,
-                      ghost_atoms=ghost_atoms)
+                      ghost_atoms=ghost_atoms,
+                      method=method)
 
     @classmethod
     def _parse_comment(cls, contents):
