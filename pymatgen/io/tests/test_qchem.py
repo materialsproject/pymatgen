@@ -350,6 +350,24 @@ $end
         self.assertEqual(str(qctask), ans)
         self.elementary_io_verify(ans, qctask)
 
+    def test_opt_fixed_atoms(self):
+        fixed_dict = {"opt": {"FIXED": {2: "Y", 3: "XYZ"}}}
+        qctask = QcTask(mol, exchange="B3LYP", jobtype="SP",
+                        basis_set="6-31+G*",
+                        optional_params=fixed_dict)
+        task_text = str(qctask)
+        opt_text1 = task_text[task_text.index("$opt"):]
+        ans = """$opt
+FIXED
+ 2 Y
+ 3 XYZ
+ENDFIXED
+$end
+
+"""
+        self.assertEqual(opt_text1, ans)
+        self.elementary_io_verify(task_text, qctask)
+
     def test_partial_hessian(self):
         qcinp1 = QcInput.from_file(os.path.join(test_dir, "partial_hessian.qcinp"))
         ans = """$molecule

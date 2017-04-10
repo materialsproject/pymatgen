@@ -1359,11 +1359,11 @@ class QcTask(MSONable):
                     raise ValueError("{} is not a correct keyword to fix"
                                      "atoms".format(fix_spec))
                 fixed_dict[atom] = fix_spec
-            elif re.match('CONSTRAINT', line):
+            elif re.match('CONSTRAINT', line, re.IGNORECASE):
                 constraints = True
                 const_list = []
-            elif re.match('FIXED', line):
-                constraints = True
+            elif re.match('FIXED', line, re.IGNORECASE):
+                fixed_sec = True
                 fixed_dict = dict()
             else:
                 raise ValueError("Keyword {} in $opt section is not supported yet".
