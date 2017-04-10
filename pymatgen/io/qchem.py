@@ -793,19 +793,24 @@ class QcTask(MSONable):
     def _format_opt(self):
         # lines is a list of all opt keywords
         lines = []
-        # only constraints added at this point
-        constraint_lines = ['CONSTRAINT']
-        for index in range(len(self.params['opt'])):
-            vals = self.params['opt'][index]
-            if vals[0] in ['outp', 'tors', 'linc', 'linp']:
-                constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]} {vals[5]}".format(vals=vals))
-            elif vals[0] == 'stre':
-                constraint_lines.append("{vals[0]} {vals[1]} {vals[2]}".format(vals=vals))
-            elif vals[0] == 'bend':
-                constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]}".format(vals=vals))
-        constraint_lines.append('ENDCONSTRAINT')
-        lines.extend(constraint_lines)
-        # another opt keyword can be added by extending lines
+        opt_sub_sections = sorted(self.params['opt'])
+        for opt_sub_sec in opt_sub_sections:
+            if opt_sub_sec.upper() == "CONSTRAINT":
+                # constraints
+                constraint_lines = ['CONSTRAINT']
+                for index in range(len(self.params['opt'])):
+                    vals = self.params['opt'][index]
+                    if vals[0] in ['outp', 'tors', 'linc', 'linp']:
+                        constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]} {vals[5]}".format(vals=vals))
+                    elif vals[0] == 'stre':
+                        constraint_lines.append("{vals[0]} {vals[1]} {vals[2]}".format(vals=vals))
+                    elif vals[0] == 'bend':
+                        constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]}".format(vals=vals))
+                constraint_lines.append('ENDCONSTRAINT')
+                lines.extend(constraint_lines)
+            if opt_sub_sec.upper() == "FIXED":
+                pass
+                # FIXED atoms
         return lines
 
     def as_dict(self):
@@ -1307,14 +1312,21 @@ class QcTask(MSONable):
     @classmethod
     def _parse_opt(cls, contents):
         #only parses opt constraints
-        opt_list = []
+        opt_dict = {}
+        const_list = list()
+        fixed_dict = dict()
         constraints = False
+        fixed_sec = False
         int_pattern = re.compile('^[-+]?\d+$')
         float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
         for line in contents:
             tokens = line.strip().split()
-            if re.match('ENDCONSTRAINT', line):
+            if re.match('ENDCONSTRAINT', line, re.IGNORECASE):
                 constraints = False
+                opt_dict["CONSTRAINT"] = const_list
+            if re.match('ENDFIXED', line, re.IGNORECASE):
+                fixed_sec = False
+                opt_dict["FIXED"] = fixed_dict
             elif constraints:
                 vals = []
                 for val in tokens:
@@ -1324,10 +1336,16 @@ class QcTask(MSONable):
                         vals.append(float(val))
                     else:
                         vals.append(val)
-                opt_list.append(vals)
+                const_list.append(vals)
+            elif fixed_sec:
+                pass
             elif re.match('CONSTRAINT', line):
                 constraints = True
-        return opt_list
+                const_list = []
+            elif re.match('FIXED', line):
+                constraints = True
+                fixed_dict = dict()
+        return opt_dict
 
 
 class QcInput(MSONable):
