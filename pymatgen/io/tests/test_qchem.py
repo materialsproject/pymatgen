@@ -352,12 +352,12 @@ $end
 
     def test_opt_fixed_atoms(self):
         fixed_dict = {"opt": {"FIXED": {2: "Y", 3: "XYZ"}}}
-        qctask = QcTask(mol, exchange="B3LYP", jobtype="SP",
-                        basis_set="6-31+G*",
-                        optional_params=fixed_dict)
-        task_text = str(qctask)
-        opt_text1 = task_text[task_text.index("$opt"):]
-        ans = """$opt
+        qctask1 = QcTask(mol, exchange="B3LYP", jobtype="SP",
+                         basis_set="6-31+G*",
+                         optional_params=fixed_dict)
+        task_text1 = str(qctask1)
+        opt_text1 = task_text1[task_text1.index("$opt"):]
+        ans1 = """$opt
 FIXED
  2 Y
  3 XYZ
@@ -365,7 +365,26 @@ ENDFIXED
 $end
 
 """
-        self.assertEqual(opt_text1, ans)
+        self.assertEqual(opt_text1, ans1)
+        self.elementary_io_verify(task_text1, qctask1)
+
+        fixed_n_const_dict = {"opt": {"FIXED": {2: "Y", 3: "XYZ"},
+                                      "CONSTRAINT": [['tors', 1, 2, 3, 4, 180.0]]}}
+        qctask2 = QcTask(mol, exchange="B3LYP", jobtype="SP",
+                        basis_set="6-31+G*",
+                        optional_params=fixed_n_const_dict)
+        task_text2 = str(qctask2)
+        opt_text2 = task_text2[task_text2.index("$opt"):]
+        ans2 = """$opt
+        FIXED
+         2 Y
+         3 XYZ
+        ENDFIXED
+        $end
+
+        """
+        print(opt_text2, "hoho")
+        self.assertEqual(opt_text2, ans2)
         self.elementary_io_verify(task_text, qctask)
 
     def test_partial_hessian(self):
