@@ -4,12 +4,13 @@
 
 from __future__ import division, unicode_literals
 from monty.json import MSONable
+from enum import Enum, unique
+import numpy as np
 
 """
 This module provides core classes needed by all define electronic structure,
 such as the Spin, Orbital, etc.
 """
-
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -19,8 +20,6 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-from enum import Enum, unique
-import numpy as np
 
 @unique
 class Spin(Enum):
@@ -90,6 +89,7 @@ class Orbital(Enum):
         """
         return OrbitalType[self.name[0]]
 
+
 class Magmom(MSONable):
     """
     New class in active development. Use with caution, feedback is
@@ -135,65 +135,27 @@ class Magmom(MSONable):
     https://cms.mpi.univie.ac.at/wiki/index.php/SAXIS
     """
 
-    def __init__(self, moment, saxis=None):
+    def __init__(self, moment, saxis=(0, 0, 1)):
         """
         :param moment: magnetic moment, supplied as float or list/np.ndarray
         :param saxis: spin axis, supplied as list/np.ndarray, parameter will
         be converted to unit vector (default is [0, 0, 1])
         :return: Magmom object
         """
-
-        # defaults with spin axis along z axis
-        # do not change without updating transformation matrix
-        self._default_saxis = np.array([0, 0, 1], dtype='d')
-        self._default_saxis.setflags(write=False)
-
         # to init from another Magmom instance
-        if isinstance(moment, type(self)) and saxis is None:
+        if isinstance(moment, Magmom):
             saxis = moment.saxis
             moment = moment.moment
 
-        if isinstance(moment, int) or isinstance(moment, float):
-            self._moment = np.array([0, 0, moment], dtype='d')
-        elif isinstance(moment, list) or isinstance(moment, np.ndarray):
-            if len(moment) == 3:
-                self._moment = np.array(moment, dtype='d')
-            else:
-                raise ValueError("Moment should be vector of length 3.")
-        else:
-            raise ValueError("Moment should be scalar or vector.")
+        moment = np.array(moment, dtype='d')
+        if moment.ndim == 0:
+            moment = moment * [0, 0, 1]
 
-        if saxis is None:
-            self._saxis = self._default_saxis
-        else:
-            if len(saxis) != 3:
-                raise ValueError("Spin axis should be vector of length 3.")
-            else:
-                self._saxis = np.array(saxis, dtype='d')
-                # make unit vector
-                self._saxis /= np.linalg.norm(self._saxis)
+        self.moment = moment
 
-        # ideally, should treat Magmom as immutable
-        self._moment.setflags(write=False)
-        self._saxis.setflags(write=False)
+        saxis = np.array(saxis, dtype='d')
 
-    @property
-    def saxis(self):
-        """
-        Get the magnetic moment's spin quantization axis.
-
-        :return: np.ndarray of length 3
-        """
-        return self._saxis
-
-    @property
-    def moment(self):
-        """
-        Get the magnetic moment relative to its spin quantization axis.
-
-        :return: np.ndarray of length 3
-        """
-        return self._moment
+        self.saxis = saxis / np.linalg.norm(saxis)
 
     def _get_transformation_matrix(self, saxis):
 
@@ -231,8 +193,7 @@ class Magmom(MSONable):
 
         return m
 
-
-    def get_moment(self, saxis=None):
+    def get_moment(self, saxis=(0, 0, 1)):
         """
         Get magnetic moment relative to a given spin quantization axis.
         If no axis is provided, moment will be given relative to the
@@ -242,14 +203,6 @@ class Magmom(MSONable):
         :param axis: (list/numpy array) spin quantization axis
         :return: np.ndarray of length 3
         """
-
-        if saxis is None:
-            return self._moment
-        elif isinstance(saxis, list) or isinstance(saxis, np.ndarray):
-            if len(saxis) != 3:
-                raise ValueError("Spin axis should be vector of length 3.")
-        else:
-            raise ValueError("Ill-defined spin axis.")
 
         # transform back to moment with spin axis [0, 0, 1]
         m_inv = self._get_transformation_matrix_inv(self.saxis)
@@ -264,7 +217,6 @@ class Magmom(MSONable):
 
         return moment
 
-
     @property
     def global_moment(self):
         """
@@ -272,7 +224,7 @@ class Magmom(MSONable):
 
         :return: np.ndarray of length 3
         """
-        return self.get_moment(saxis=self._default_saxis)
+        return self.get_moment()
 
     @property
     def projection(self):
@@ -291,8 +243,7 @@ class Magmom(MSONable):
 
         :return: Magmom
         """
-        return Magmom(self.get_moment(saxis=self._default_saxis), saxis=self._default_saxis)
-
+        return Magmom(self.get_moment())
 
     def get_00t_magmom_with_xyz_saxis(self):
         """
@@ -371,7 +322,6 @@ class Magmom(MSONable):
         magmoms = [magmom.get_moment(saxis=saxis) for magmom in magmoms]
         return (magmoms, saxis)
 
-
     @staticmethod
     def get_suggested_saxis(magmoms):
         """
@@ -396,7 +346,7 @@ class Magmom(MSONable):
         if len(magmoms) > 0:
             return magmoms[0].get_00t_magmom_with_xyz_saxis().saxis
         else:
-            return self._default_saxis
+            return np.array([0, 0, 1], dtype="d")
 
     @staticmethod
     def are_collinear(magmoms):
@@ -506,7 +456,8 @@ class Magmom(MSONable):
         return str(float(self))
 
     def __repr__(self):
-        if np.allclose(self.saxis, self._default_saxis):
+        if np.allclose(self.saxis, (0, 0, 1)):
             return 'Magnetic moment {0}'.format(self.moment, self.saxis)
         else:
-            return 'Magnetic moment {0} (spin axis = {1})'.format(self.moment, self.saxis)
+            return 'Magnetic moment {0} (spin axis = {1})'.format(self.moment,
+                                                                  self.saxis)
