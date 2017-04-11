@@ -265,6 +265,10 @@ class ElasticTensorExpansionTest(PymatgenTest):
         gp = exp_cu.get_gruneisen_parameter()
         gpt = exp_cu.get_gruneisen_parameter(temperature=300, structure=sn)
 
+    def test_ideal_tensile_strain(self):
+        pass
+
+
 class NthOrderElasticTensorTest(PymatgenTest):
     def setUp(self):
         with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
@@ -363,6 +367,7 @@ class DiffFitTest(PymatgenTest):
         strain_states = np.eye(6).tolist()
         m2, abs = generate_pseudo(strain_states, order=2)
         m3, abs = generate_pseudo(strain_states, order=3)
+        m4, abs = generate_pseudo(strain_states, order=4)
 
     def test_fit(self):
         cdf = diff_fit(self.strains, self.pk_stresses,

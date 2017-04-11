@@ -127,9 +127,14 @@ class StrainTest(PymatgenTest):
                                     [[1, 0.02, 0],
                                      [0, 1, 0],
                                      [0, 0, 1]])
-        self.assertArrayAlmostEqual(self.no_dfm.deformation_matrix,
+        symm_dfm = Strain(self.no_dfm, dfm_shape="symmetric")
+        self.assertArrayAlmostEqual(symm_dfm.deformation_matrix,
                                     [[0.99995,0.0099995, 0],
                                      [0.0099995,1.00015, 0],
+                                     [0, 0, 1]])
+        self.assertArrayAlmostEqual(self.no_dfm.deformation_matrix,
+                                    [[1, 0.02, 0],
+                                     [0, 1, 0],
                                      [0, 0, 1]])
 
         # voigt
@@ -138,8 +143,14 @@ class StrainTest(PymatgenTest):
 
     def test_convert_strain_to_deformation(self):
         strain = Tensor(np.random.random((3, 3))).symmetrized
-        defo = Deformation(convert_strain_to_deformation(strain))
-        self.assertArrayAlmostEqual(defo.green_lagrange_strain, strain)
+        while not (np.linalg.eigvals(strain) > 0).all():
+            strain = Tensor(np.random.random((3, 3))).symmetrized
+        upper = convert_strain_to_deformation(strain, shape="upper")
+        symm = convert_strain_to_deformation(strain, shape="symmetric")
+        self.assertArrayAlmostEqual(np.triu(upper), upper)
+        self.assertTrue(Tensor(symm).is_symmetric())
+        for defo in upper, symm:
+            self.assertArrayAlmostEqual(defo.green_lagrange_strain, strain)
 
 if __name__ == '__main__':
     unittest.main()

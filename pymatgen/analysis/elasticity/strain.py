@@ -14,6 +14,7 @@ generating deformed structure sets for further calculations.
 from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.elasticity.tensors import SquareTensor, symmetry_reduce
 import numpy as np
+import scipy
 import itertools
 from six.moves import zip
 
@@ -102,7 +103,7 @@ class Strain(SquareTensor):
     Subclass of SquareTensor that describes the Green-Lagrange strain tensor.
     """
 
-    def __new__(cls, strain_matrix, dfm=None):
+    def __new__(cls, strain_matrix, dfm=None, dfm_shape="upper"):
         """
         Create a Strain object.  Note that the constructor uses __new__
         rather than __init__ according to the standard method of
@@ -117,7 +118,7 @@ class Strain(SquareTensor):
         vscale[3:] *= 2
         obj = super(Strain, cls).__new__(cls, strain_matrix, vscale=vscale)
         if dfm is None:
-            obj._dfm = convert_strain_to_deformation(obj)
+            obj._dfm = convert_strain_to_deformation(obj, dfm_shape)
         else:
             dfm = Deformation(dfm)
             gls_test = 0.5 * (np.dot(dfm.trans, dfm) - np.eye(3))
@@ -194,19 +195,31 @@ class Strain(SquareTensor):
         return np.sqrt(np.dot(eps.voigt, eps.voigt)*2/3)
 
 
-def convert_strain_to_deformation(strain):
+def convert_strain_to_deformation(strain, shape="upper"):
     """
     This function converts a strain to a deformation gradient that will
-    produce that strain
+    produce that strain.  Supports three methods:
     
     Args:
         strain (3x3 array-like): strain matrix
+        method: (string): method for determining deformation, supports
+            "upper" produces an upper triangular defo
+            "lower" produces a lower triangular defo
+            "symmetric" produces a symmetric defo
     """
     strain = SquareTensor(strain)
     ftdotf = 2*strain + np.eye(3)
+    if shape == "upper":
+        result = scipy.linalg.cholesky(ftdotf)
+    elif shape == "symmetric":
+        result = scipy.linalg.sqrtm(ftdotf)
+    else:
+        raise ValueError("shape must be \"upper\" or \"symmetric\"")
+    """
     eigs, eigvecs = np.linalg.eigh(ftdotf)
     rotated = ftdotf.rotate(np.transpose(eigvecs))
     rotated = rotated.round(10)
     defo = Deformation(np.sqrt(rotated))
     result = defo.rotate(eigvecs)
-    return result
+    """
+    return Deformation(result)
