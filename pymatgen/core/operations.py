@@ -594,12 +594,12 @@ class MagSymmOp(SymmOp):
         return xyzt_string + ", {:+}".format(self.time_reversal)
 
     def as_dict(self):
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__,
-             "matrix": self.affine_matrix.tolist(), "tolerance": self.tol,
-             "time_reversal": self.time_reversal}
-        return {}
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "matrix": self.affine_matrix.tolist(), "tolerance": self.tol,
+                "time_reversal": self.time_reversal}
 
     @classmethod
     def from_dict(cls, d):
-        return cls(d["matrix"], d["tolerance"], d["time_reversal"])
+        return cls(d["matrix"], tol=d["tolerance"],
+                   time_reversal=d["time_reversal"])
