@@ -764,6 +764,28 @@ class IStructure(SiteCollection, MSONable):
                                       include_index=include_index)
         return [d for d in nn if site != d[0]]
 
+    def get_nearest_site(self, coords, site, r = None):
+        """
+        Given coords and a site, find closet site to coords.
+        Args:
+            coords (3x1 array): cartesian coords of center of sphere
+            site: site to find closest to coords
+            r: radius of sphere. Defaults to diagonal of unit cell
+
+        Returns:
+            Closest site and distance.
+        """
+        index = self.index(site)
+        if r == None:
+            r = np.linalg.norm(np.sum(np.matrix(self.lattice.matrix),axis=0))
+        ns = self.get_sites_in_sphere(coords,r,include_index=True)
+        # Get sites with identical index to site
+        ns = [n for n in ns if n[2] == index]
+        # Sort by distance to coords
+        ns.sort(key=lambda x : x[1])
+        # Return PeriodicSite and distance of closest image
+        return ns[0][0:2]
+
     def get_all_neighbors(self, r, include_index=False):
         """
         Get neighbors for each atom in the unit cell, out to a distance r
