@@ -9,6 +9,8 @@ import re
 from math import sin, cos, pi, sqrt
 import string
 
+from pymatgen.electronic_structure.core import Magmom
+
 from monty.json import MSONable
 
 """
@@ -16,7 +18,7 @@ This module provides classes that operate on points or vectors in 3D space.
 """
 
 
-__author__ = "Shyue Ping Ong, Shyam Dwaraknath"
+__author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -456,3 +458,148 @@ class SymmOp(MSONable):
     @classmethod
     def from_dict(cls, d):
         return cls(d["matrix"], d["tolerance"])
+
+
+class MagSymmOp(SymmOp):
+    """
+    Thin wrapper around SymmOp to extend it to support magnetic symmetry
+    by including a  time reversal operator. Magnetic symmetry is similar
+    to conventional crystal symmetry, except symmetry is reduced by the
+    addition of a time reversal operator which acts on an atom's magnetic
+    moment.
+    """
+
+    def __init__(self, affine_transformation_matrix, time_reversal, tol=0.01):
+        """
+        Initializes the MagSymmOp from a 4x4 affine transformation matrix
+        and time reversal operator.
+        In general, this constructor should not be used unless you are
+        transferring rotations.  Use the static constructors instead to
+        generate a SymmOp from proper rotations and translation.
+
+        Args:
+            affine_transformation_matrix (4x4 array): Representing an
+                affine transformation.
+            time_reversal (int): 1 or -1
+            tol (float): Tolerance for determining if matrices are equal.
+        """
+        SymmOp.__init__(self, affine_transformation_matrix, tol=tol)
+        if time_reversal != 1 and time_reversal != -1:
+            raise Exception(
+                "Time reversal operator not well defined: {0}, {1}".format(time_reversal,
+                                                                           type(time_reversal)))
+        self.time_reversal = time_reversal
+
+    def __eq__(self, other):
+        return np.allclose(self.affine_matrix, other.affine_matrix, atol=self.tol) and \
+               (self.time_reversal == other.time_reversal)
+
+    def __str__(self):
+        return self.as_xyzt_string()
+
+    def __repr__(self):
+        output = ["Rot:", str(self.affine_matrix[0:3][:, 0:3]), "tau",
+                  str(self.affine_matrix[0:3][:, 3]), "Time reversal:",
+                  str(self.time_reversal)]
+        return "\n".join(output)
+
+    def __hash__(self):
+        # useful for obtaining a set of unique MagSymmOps
+        hashable_value = tuple(self.affine_matrix.flatten())+(self.time_reversal,)
+        return hashable_value.__hash__()
+
+    def operate_magmom(self, magmom):
+        """
+        Apply time reversal operator on the magnetic moment. Note that
+        magnetic moments transform as axial vectors, not polar vectors. 
+
+        See 'Symmetry and magnetic structures', Rodríguez-Carvajal and
+        Bourée for a good discussion. DOI: 10.1051/epjconf/20122200010
+
+        Args:
+            magmom: Magnetic moment as electronic_structure.core.Magmom
+            class or as list or np array-like
+
+        Returns:
+            Magnetic moment after operator applied as Magmom class
+        """
+
+        magmom = Magmom(magmom)  # type casting to handle lists as input
+
+        transformed_moment = self.apply_rotation_only(magmom.global_moment) * \
+            np.linalg.det(self.rotation_matrix) * self.time_reversal
+
+        # retains input spin axis if different from default
+        return Magmom.from_global_moment_and_saxis(transformed_moment, magmom.saxis)
+
+    @classmethod
+    def from_symmop(cls, symmop, time_reversal):
+        """
+        Initialize a MagSymmOp from a SymmOp and time reversal operator.
+        
+        Args:
+            symmop (SymmOp): SymmOp
+            time_reversal (int): Time reversal operator, +1 or -1.
+        
+        Returns:
+            MagSymmOp object
+        """
+        magsymmop = cls(symmop.affine_matrix, time_reversal, symmop.tol)
+        return magsymmop
+
+    @staticmethod
+    def from_rotation_and_translation_and_time_reversal(
+            rotation_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+            translation_vec=(0, 0, 0), time_reversal=1, tol=0.1):
+        """
+        Creates a symmetry operation from a rotation matrix, translation
+        vector and time reversal operator.
+
+        Args:
+            rotation_matrix (3x3 array): Rotation matrix.
+            translation_vec (3x1 array): Translation vector.
+            time_reversal (int): Time reversal operator, +1 or -1.
+            tol (float): Tolerance to determine if rotation matrix is valid.
+
+        Returns:
+            MagSymmOp object
+        """
+        symmop = SymmOp.from_rotation_and_translation(rotation_matrix=rotation_matrix,
+                                                      translation_vec=translation_vec,
+                                                      tol=tol)
+        return MagSymmOp.from_symmop(symmop, time_reversal)
+
+    @staticmethod
+    def from_xyzt_string(xyzt_string):
+        """
+        Args:
+            xyz_string: string of the form 'x, y, z, +1', '-x, -y, z, -1',
+                '-2y+1/2, 3x+1/2, z-y+1/2, +1', etc.
+        Returns:
+            MagSymmOp object
+        """
+        symmop = SymmOp.from_xyz_string(xyzt_string.rsplit(',', 1)[0])
+        try:
+            time_reversal = int(xyzt_string.rsplit(',', 1)[1])
+        except:
+            raise Exception("Time reversal operator could not be parsed.")
+        return MagSymmOp.from_symmop(symmop, time_reversal)
+
+    def as_xyzt_string(self):
+        """
+        Returns a string of the form 'x, y, z, +1', '-x, -y, z, -1',
+        '-y+1/2, x+1/2, z+1/2, +1', etc. Only works for integer rotation matrices
+        """
+        xyzt_string = SymmOp.as_xyz_string(self)
+        return xyzt_string + ", {:+}".format(self.time_reversal)
+
+    def as_dict(self):
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "matrix": self.affine_matrix.tolist(), "tolerance": self.tol,
+             "time_reversal": self.time_reversal}
+        return {}
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d["matrix"], d["tolerance"], d["time_reversal"])

@@ -46,9 +46,16 @@ class MagmomTest(unittest.TestCase):
         # backwards compatibility for list-like magmoms
         magmom2 = Magmom([1, 2, 3])
         self.assertEqual(list(magmom2), [1, 2, 3])
+        self.assertEqual(magmom2.global_moment.tolist(), [1, 2, 3])
         # non-default saxis, normalized internally
         magmom3 = Magmom([1, 2, 3], saxis=[1, 1, 1])
         self.assertTrue(np.allclose(magmom3.saxis, [np.sqrt(1/3.)]*3))
+        # test construction from known global moment and desired, non-default saxis
+        magmom4 = Magmom.from_global_moment_and_saxis([1, 2, 3], saxis=[1, 0, 0])
+        self.assertTrue(np.allclose(magmom4.moment, [-3, 2, 1]))
+        # test global moments with non-default saxis
+        magmom5 = Magmom([-3, 2, 1], saxis=[1, 0, 0])
+        self.assertTrue(np.allclose(magmom5.global_moment, [1, 2, 3]))
 
     def test_get_moments(self):
 

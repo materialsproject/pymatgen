@@ -157,6 +157,23 @@ class Magmom(MSONable):
 
         self.saxis = saxis / np.linalg.norm(saxis)
 
+    @classmethod
+    def from_global_moment_and_saxis(cls, global_moment, saxis):
+        """
+        Convenience method to initialize Magmom from a given global
+        magnetic moment, i.e. magnetic moment with saxis=(0,0,1), and
+        provided saxis.
+        
+        Method is useful if you do not know the components of your
+        magnetic moment in frame of your desired saxis.
+        
+        :param global_moment: 
+        :param saxis: desired saxis
+        :return: 
+        """
+        magmom = Magmom(global_moment)
+        return cls(magmom.get_moment(saxis=saxis), saxis=saxis)
+
     def _get_transformation_matrix(self, saxis):
 
         saxis = saxis / np.linalg.norm(saxis)
