@@ -276,11 +276,14 @@ class DictSet(VaspInputSet):
                         m = dict([(site.specie.symbol, getattr(site, k.lower()))
                                   for site in structure])
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
+                    # lookup specific LDAU if specified for most_electroneg atom
                     elif most_electroneg in v.keys():
-                        incar[k] = [v[most_electroneg].get(sym, 0)
-                                    for sym in poscar.site_symbols]
+                        if isinstance(v[most_electroneg], dict):
+                           incar[k] = [v[most_electroneg].get(sym, 0)
+                                       for sym in poscar.site_symbols]
+                    # else, use fallback LDAU value if it exists
                     else:
-                        incar[k] = [0] * len(poscar.site_symbols)
+                        incar[k] = [v[sym] if (sym in v.keys()) else 0 for sym in poscar.site_symbols]
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
