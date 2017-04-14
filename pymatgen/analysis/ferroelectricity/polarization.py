@@ -27,13 +27,23 @@ __email__ = "tsmidt@berkeley.edu"
 __status__ = "Development"
 __date__ = "April 8, 2017"
 
+"""
+This module contains classes for recovering the spontaneous
+polarization from multiple calculations along a nonpolar to polar
+ferroelectric distortion.
 
-# TO DO
-# Figure out calc_ionic
-# Give species_potcar_dict example and create YAML for that example
-# Allow Polarization to accept arrays or Outcars
-# LOTS O' COMMENTS
-# unit tests
+We recommend using our calc_ionic function for calculating the ionic
+polarization rather than the values from OUTCAR.
+
+We find that the ionic dipole moment reported in OUTCAR differs from
+the naive calculation of \sum_i Z_i r_i where i is the index of the
+atom, r is the distance in Angstroms along the lattice vectors.
+Compare to VASP dipol.F. SUBROUTINE POINT_CHARGE_DIPOL.
+
+We are able to recover a smooth same branch polarization more frequently
+using the naive calculation in calc_ionic than using the ionic dipole
+moment reported in the OUTCAR.
+"""
 
 # Load ZVAL dictionaries
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -41,186 +51,78 @@ with open(os.path.join(MODULE_DIR, "ZVAL.yaml"),'r') as f:
     ZVAL = yaml.load(f)
 VASP_PBE_ZVAL = ZVAL['VASP_PBE_ZVAL']
 
-# Load examples species_potcar_dict
 
-def calc_ionic(pos, s, zval, center=None, tiny=0.001):
+def zval_dict_from_potcar(potcar):
     """
-    Function for calculating the ionic dipole moment for a site.
+    Creates zval_dictionary for calculating the ionic polarization from
+    Potcar Object
 
-    pos (pymatgen.core.site.Site) : pymatgen Site
-    s (pymatgen.core.structure.Structure) : pymatgen Structure
-    zval (float) : number of core electrons of pseudopotential
-    center (np.array with shape [3,1]) : dipole center used by VASP
-    tiny (float) : tolerance for determining boundary of calculation.
+    potcar: Potcar object
     """
-    # lattice vector lenghts
-    norms = s.lattice.lengths_and_angles[0]
-    # Define center of dipole moment. If not set default is used.
-    center = np.array([-100.0,-100.0,-100.0]) if center == None else center
-    # Following VASP dipol.F. SUBROUTINE POINT_CHARGE_DIPOL
-    temp = (pos.frac_coords - center + 10.5) % 1 - 0.5
-    for i in range(3):
-        if abs(abs(temp[i]) - 0.5) < tiny/norms[i]:
-            temp[i] = 0.0
-    # Convert to Angstroms from fractional coords before returning.
-    return np.dot(np.transpose(s.lattice.matrix), -temp*zval)
+    zval_dict = {}
+    for p in potcar:
+        zval_dict.update({p.element: p.ZVAL})
 
-def calc_ionic_2(pos, s, zval, center=None, tiny=0.001):
+def create_zval_dict_from_pseudo_dict(species_potcar_dict, pseudo_dict = None):
     """
-    Function for calculating the ionic dipole moment for a site.
+    Return a dictionary of pseudopotential ZVALs given a dictionary of
+    which pseudopotentials
 
-    pos (pymatgen.core.site.Site) : pymatgen Site
-    s (pymatgen.core.structure.Structure) : pymatgen Structure
-    zval (float) : number of core electrons of pseudopotential
-    center (np.array with shape [3,1]) : dipole center used by VASP
-    tiny (float) : tolerance for determining boundary of calculation.
+    species_potcar_dict: dictionary for species and pseudopotential name.
+        Example {‘Li’ : ‘Li' , ’Nb’: ‘Nb_sv', ‘O’: ‘O’}
+    pseudo_dict: default is VASP_PBE_ZVAL
+        Default matches pseudopotentials used for MPRelaxSet and MPStaticSet.
+
     """
-    # lattice vector lenghts
-    norms = s.lattice.lengths_and_angles[0]
-    # Define center of dipole moment. If not set default is used.
-    center = np.array([-100.0,-100.0,-100.0]) if center == None else center
-    # Following VASP dipol.F. SUBROUTINE POINT_CHARGE_DIPOL
-    temp = (pos.frac_coords - center + 10.5) % 1 - 0.5
-    for i in range(3):
-        if abs(abs(temp[i]) - 0.5) < tiny/norms[i]:
-            temp[i] = 0.0
-    # Convert to Angstroms from fractional coords before returning.
-    return np.multiply(norms, -temp*zval)
+    if pseudo_dict == None:
+        pseudo_dict = VASP_PBE_ZVAL
+    zval_dict = {}
+    for key,value in species_potcar_dict.iteritems():
+        zval_dict.update({key: pseudo_dict[value]})
+    return zval_dict
 
-def calc_ionic_naive(pos, s, zval):
-    return np.dot(np.transpose(s.lattice.matrix), -pos.frac_coords * zval)
+def calc_ionic(site, structure, zval):
+    """
+    Calculate the ionic dipole moment using ZVAL from pseudopotential
 
-def calc_ionic_naive_2(pos, s, zval):
-    norms = s.lattice.lengths_and_angles[0]
-    return np.multiply(norms,-pos.frac_coords * zval)
+    site: PeriodicSite
+    structure: Structure
+    zval: Charge value for ion (ZVAL for VASP pseudopotential)
 
-def get_total_ionic_dipole(structure, species_potcar_dict,
-                           pseudo_dict = None, center = None, tiny= 0.001):
+    Returns polarization in electron Angstroms.
+    """
+    norms = structure.lattice.lengths_and_angles[0]
+    return np.multiply(norms,-site.frac_coords * zval)
+
+def get_total_ionic_dipole(structure, zval_dict):
     """
     Get the total ionic dipole moment for a structure.
 
     structure: pymatgen Structure
-    species_potcar_dict: dictionary for species and pseudopotential name.
-        Example {‘Li’ : ‘Li' , ’Nb’: ‘Nb_sv', ‘O’: ‘O’}
-    pseudo_dict: default is PBE_ZVAL
+    zval_dict: specie, zval dictionary pairs
     center (np.array with shape [3,1]) : dipole center used by VASP
     tiny (float) : tolerance for determining boundary of calculation.
     """
 
-    pseudo_dict = VASP_PBE_ZVAL if pseudo_dict == None else pseudo_dict
-    center = np.array([-100.0, -100.0, -100.0]) if center == None else center
-
     tot_ionic = []
     for site in structure:
-        zval = pseudo_dict[species_potcar_dict[str(site.specie)]]
-        tot_ionic.append(calc_ionic(site, structure, zval, center, tiny))
-    return np.sum(tot_ionic,axis=0)
-
-def get_total_ionic_dipole_2(structure, species_potcar_dict,
-                               pseudo_dict=None, center=None, tiny=0.001):
-    """
-    Get the total ionic dipole moment for a structure.
-
-    structure: pymatgen Structure
-    species_potcar_dict: dictionary for species and pseudopotential name.
-        Example {‘Li’ : ‘Li' , ’Nb’: ‘Nb_sv', ‘O’: ‘O’}
-    pseudo_dict: default is PBE_ZVAL
-    center (np.array with shape [3,1]) : dipole center used by VASP
-    tiny (float) : tolerance for determining boundary of calculation.
-    """
-
-    pseudo_dict = VASP_PBE_ZVAL if pseudo_dict == None else pseudo_dict
-    center = np.array([-100.0, -100.0, -100.0]) if center == None else center
-
-    tot_ionic = []
-    for site in structure:
-        zval = pseudo_dict[species_potcar_dict[str(site.specie)]]
-        tot_ionic.append(calc_ionic_2(site, structure, zval, center, tiny))
+        zval = zval_dict[str(site.specie)]
+        tot_ionic.append(calc_ionic(site, structure, zval))
     return np.sum(tot_ionic, axis=0)
-
-def get_total_ionic_dipole_naive(structure, species_potcar_dict, pseudo_dict=None):
-
-    """
-    Get the total ionic dipole moment for a structure.
-
-    structure: pymatgen Structure
-    species_potcar_dict: dictionary for species and pseudopotential name.
-        Example {‘Li’ : ‘Li' , ’Nb’: ‘Nb_sv', ‘O’: ‘O’}
-    pseudo_dict: default is PBE_ZVAL
-    center (np.array with shape [3,1]) : dipole center used by VASP
-    tiny (float) : tolerance for determining boundary of calculation.
-    """
-
-    pseudo_dict = VASP_PBE_ZVAL if pseudo_dict == None else pseudo_dict
-
-    tot_ionic = []
-    for site in structure:
-        zval = pseudo_dict[species_potcar_dict[str(site.specie)]]
-        tot_ionic.append(calc_ionic_naive(site, structure, zval))
-    return np.sum(tot_ionic, axis=0)
-
-def get_total_ionic_dipole_naive_2(structure, species_potcar_dict, pseudo_dict=None):
-
-    """
-    Get the total ionic dipole moment for a structure.
-
-    structure: pymatgen Structure
-    species_potcar_dict: dictionary for species and pseudopotential name.
-        Example {‘Li’ : ‘Li' , ’Nb’: ‘Nb_sv', ‘O’: ‘O’}
-    pseudo_dict: default is PBE_ZVAL
-    center (np.array with shape [3,1]) : dipole center used by VASP
-    tiny (float) : tolerance for determining boundary of calculation.
-    """
-
-    pseudo_dict = VASP_PBE_ZVAL if pseudo_dict == None else pseudo_dict
-
-    tot_ionic = []
-    for site in structure:
-        zval = pseudo_dict[species_potcar_dict[str(site.specie)]]
-        tot_ionic.append(calc_ionic_naive_2(site, structure, zval))
-    return np.sum(tot_ionic, axis=0)
-
-def get_total_ionic_dipole_consistent(structures, species_potcar_dict, pseudo_dict=None):
-    """
-    Attempts to use consistent images across distortion
-
-    Parameters
-    ----------
-    structures
-    species_potcar_dict
-    pseudo_dict
-
-    Returns
-    -------
-
-    """
-
-    pseudo_dict = VASP_PBE_ZVAL if pseudo_dict == None else pseudo_dict
-
-    S = len(structures)
-    L = len(structures[0])
-    p_ion = np.zeros((S,3))
-    for i in range(L):
-        orig_sites = [s[i] for s in structures]
-        adjust_sites = []
-        for j in range(S):
-            if j == 0:
-                adjust_sites.append(orig_sites[j])
-            else:
-                new_site, dist = structures[j].get_nearest_site(adjust_sites[-1].coords,
-                                                                orig_sites[j])
-                adjust_sites.append(new_site)
-
-            site = adjust_sites[-1]
-            zval = pseudo_dict[species_potcar_dict[str(site.specie)]]
-            p_ion[j,:] += calc_ionic_naive(site, structures[j], zval)
-    return p_ion
 
 class Polarization(object):
     """
-    Revised object for getting polarization
+    Class for recovering the same branch polarization for a set of
+    polarization calculations along the nonpolar - polar distortion
+    path of a ferroelectric.
 
-    list should be given in order of nonpolar to polar
+    p_elecs, p_ions, and structures lists should be given in order
+    of nonpolar to polar!
+
+    It is assumed that the electronic and ionic dipole moment values
+    are given in electron Angstroms along the three lattice directions
+    (a,b,c) rather than (x,y,z).
+
     """
     def __init__(self, p_elecs, p_ions, structures):
         if len(p_elecs) != len(p_ions) or len(p_elecs) != len(structures):
@@ -313,7 +215,8 @@ class Polarization(object):
 
     def get_lattice_quanta(self, convert_to_muC_per_cm2 = True):
         """
-        Returns the quanta along a, b, and c for all structures.
+        Returns the dipole / polarization quanta along a, b, and c for
+        all structures.
         """
         lattices = [s.lattice for s in self.structures]
         volumes = np.matrix([s.lattice.volume for s in self.structures])
@@ -386,25 +289,7 @@ class Polarization(object):
         sp_latt = [sp[i](range(L)) for i in range(3)]
         diff = [sp_latt[i] - tot[:,i].A1 for i in range(3)]
         rms = [np.sqrt(np.sum(np.square(diff[i])) / L) for i in range(3)]
-        #rms_mag_norm = [rms[i] / (max(tot[:,i].A1) - min(tot[:,i].A1)) for i in range(3)]
         return rms
-
-    def is_smooth(self, rms_mag_norm_tol = 1e-2):
-        """
-        Returns whether spline fitted to adjusted a, b, c polarizations are smooth relative to a tolerance.
-        """
-        tot = self.get_same_branch_polarization_data(convert_to_muC_per_cm2=True)
-        L = tot.shape[0]
-        try:
-            sp = self.same_branch_splines()
-        except:
-            print("Something went wrong.")
-            return None
-        sp_latt = [sp[i](range(L)) for i in range(3)]
-        diff = [sp_latt[i] - tot[:,i].A1 for i in range(3)]
-        rms = [np.sqrt(np.sum(np.square(diff[i])) / L) for i in range(3)]
-        rms_mag_norm = [rms[i] / (max(tot[:,i].A1) - min(tot[:,i].A1)) for i in range(3)]
-        return [rms_mag_norm[i] <= rms_mag_norm_tol for i in range(3)]
 
 
 class EnergyTrend(object):
