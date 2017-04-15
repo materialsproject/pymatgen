@@ -161,7 +161,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
             d = DiffusionAnalyzer.from_structures(
                 list(d.get_drift_corrected_structures()),
                 d.specie, d.temperature, d.time_step,
-                d.step_skip, d.smoothed, avg_nsteps=100)
+                d.step_skip, smoothed=d.smoothed, avg_nsteps=100)
             self.assertAlmostEqual(d.conductivity, 47.404056230438741, 4)
             self.assertAlmostEqual(d.diffusivity, 7.4226016496716148e-07, 7)
 
@@ -272,7 +272,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
             d = DiffusionAnalyzer.from_structures(
                 list(d.get_drift_corrected_structures()),
                 d.specie, d.temperature, d.time_step,
-                d.step_skip, d.smoothed, avg_nsteps=100)
+                d.step_skip, smoothed=d.smoothed, avg_nsteps=100)
             self.assertAlmostEqual(d.conductivity, 425.77898986201302, 4)
             self.assertAlmostEqual(d.diffusivity, 7.1675238091425148e-06, 7)
 
