@@ -34,6 +34,9 @@ multiple calculations along a nonpolar to polar ferroelectric distortion.
 The EnergyTrend class is useful for assessing the trend in energy across
 the distortion.
 
+See Nicola Spaldin's "A beginner's guide to the modern theory of polarization"
+(https://arxiv.org/abs/1202.1831) for an introduction to crystal polarization.
+
 We recommend using our calc_ionic function for calculating the ionic
 polarization rather than the values from OUTCAR.
 
@@ -47,6 +50,20 @@ Compare calc_ionic to VASP dipol.F. SUBROUTINE POINT_CHARGE_DIPOL.
 We are able to recover a smooth same branch polarization more frequently
 using the naive calculation in calc_ionic than using the ionic dipole
 moment reported in the OUTCAR.
+
+Some defintions of terms used in the comments below:
+
+A polar structure belongs to a polar space group. A polar space group has a
+one of the 10 polar point group:
+        (1, 2, m, mm2, 4, 4mm, 3, 3m, 6, 6m)
+
+Being nonpolar is not equivalent to being centrosymmetric (having inversion
+symmetry). For example, any space group with point group 222 is nonpolar but
+not centrosymmetric.
+
+By symmetry the polarization of a nonpolar material modulo the quantum
+of polarization can only be zero or 1/2. We use a nonpolar structure to help
+determine the spontaneous polarization because it serves as a reference point.
 """
 
 # Load ZVAL dictionaries
@@ -122,7 +139,9 @@ class Polarization(object):
     path of a ferroelectric.
 
     p_elecs, p_ions, and structures lists should be given in order
-    of nonpolar to polar!
+    of nonpolar to polar! For example, the structures returned from:
+        nonpolar.interpolate(polar,interpolate_lattices=True)
+    if nonpolar is the nonpolar Structure and polar is the polar structure.
 
     It is assumed that the electronic and ionic dipole moment values
     are given in electron Angstroms along the three lattice directions
@@ -182,7 +201,30 @@ class Polarization(object):
 
     def get_same_branch_polarization_data(self, convert_to_muC_per_cm2=False):
         """
-        Get same branch polarization for given polarization data.
+        Get same branch dipole moment (convert_to_muC_per_cm2=False)
+        or polarization for given polarization data (convert_to_muC_per_cm2=True).
+
+        Polarization is a lattice vector, meaning it is only defined modulo the
+        quantum of polarization:
+
+            P = P_0 + \sum_i \frac{n_i e R_i}{\Omega}
+
+        where n_i is an integer, e is the charge of the electron in microCoulombs,
+        R_i is a lattice vector, and \Omega is the unit cell volume in cm**3
+        (giving polarization units of microCoulomb per centimeter**2).
+
+        The quantum of the dipole moment in electron Angstroms (as given by VASP) is:
+
+            \sum_i n_i e R_i
+
+        where e, the electron charge, is 1 and R_i is a lattice vector, and n_i is an integer.
+
+        Given N polarization calculations in order from nonpolar to polar, this algorithm
+        minimizes the distance between adjacent polarization images. To do this, it
+        constructs a polarization lattice for each polarization calculation using the
+        pymatgen.core.structure class and calls the get_nearest_site method to find the
+        image of a given polarization lattice vector that is closest to the previous polarization
+        lattice vector image.
 
         convert_to_muC_per_cm2: convert polarization from electron * Angstroms to
             microCoulomb per centimeter**2
@@ -224,9 +266,6 @@ class Polarization(object):
                 # Adjust nonpolar polarization to be closest to zero.
                 # This is compatible with both a polarization of zero or a half quantum.
                 prev_site = [0, 0, 0]
-                # An alternative method which leaves the nonpolar polarization where it is.
-                #sites.append(site)
-                #continue
             else:
                 prev_site = sites[-1].coords
             new_site = d.get_nearest_site(prev_site, site)
