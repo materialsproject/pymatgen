@@ -121,7 +121,7 @@ class SubstitutionProbability(object):
             The pair correlation of 2 species
         """
         return math.exp(self.get_lambda(s1, s2)) * \
-            self.Z / (self.get_px(s1) * self.get_px(s2))
+               self.Z / (self.get_px(s1) * self.get_px(s2))
 
     def cond_prob_list(self, l1, l2):
         """
@@ -159,6 +159,7 @@ class SubstitutionPredictor(object):
     Predicts likely substitutions either to or from a given composition
     or species list using the SubstitutionProbability
     """
+
     def __init__(self, lambda_table=None, alpha=-5, threshold=1e-3):
         self.p = SubstitutionProbability(lambda_table, alpha)
         self.threshold = threshold
@@ -246,7 +247,7 @@ class SubstitutionPredictor(object):
         output = []
         for p in preds:
             if to_this_composition:
-                subs = {v:k for k, v in p['substitutions'].items()}
+                subs = {v: k for k, v in p['substitutions'].items()}
             else:
                 subs = p['substitutions']
             charge = 0

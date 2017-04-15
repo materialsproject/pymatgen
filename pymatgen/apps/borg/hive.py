@@ -53,7 +53,7 @@ class AbstractDrone(six.with_metaclass(abc.ABCMeta, MSONable)):
         """
         Assimilate data in a directory path into a pymatgen object. Because of
         the quirky nature of Python"s multiprocessing, the object must support
-        pymatgen"s as_dict() for parallel processing.
+        pymatgen's as_dict() for parallel processing.
 
         Args:
             path: directory path
