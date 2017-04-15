@@ -25,20 +25,24 @@ __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "1.0"
 __email__ = "tsmidt@berkeley.edu"
 __status__ = "Development"
-__date__ = "April 8, 2017"
+__date__ = "April 15, 2017"
 
 """
-This module contains classes for recovering the spontaneous
-polarization from multiple calculations along a nonpolar to polar
-ferroelectric distortion.
+This module contains classes useful for analyzing ferroelectric candidates.
+The Polarization class can recover the spontaneous polarization using
+multiple calculations along a nonpolar to polar ferroelectric distortion.
+The EnergyTrend class is useful for assessing the trend in energy across
+the distortion.
 
 We recommend using our calc_ionic function for calculating the ionic
 polarization rather than the values from OUTCAR.
 
-We find that the ionic dipole moment reported in OUTCAR differs from
+We find that the ionic dipole moment reported in OUTCAR differ from
 the naive calculation of \sum_i Z_i r_i where i is the index of the
-atom, r is the distance in Angstroms along the lattice vectors.
-Compare to VASP dipol.F. SUBROUTINE POINT_CHARGE_DIPOL.
+atom, Z_i is the ZVAL from the pseudopotential file, and r is the distance
+in Angstroms along the lattice vectors.
+
+Compare calc_ionic to VASP dipol.F. SUBROUTINE POINT_CHARGE_DIPOL.
 
 We are able to recover a smooth same branch polarization more frequently
 using the naive calculation in calc_ionic than using the ionic dipole
@@ -55,13 +59,14 @@ VASP_PBE_ZVAL = ZVAL['VASP_PBE_ZVAL']
 def zval_dict_from_potcar(potcar):
     """
     Creates zval_dictionary for calculating the ionic polarization from
-    Potcar Object
+    Potcar object
 
     potcar: Potcar object
     """
     zval_dict = {}
     for p in potcar:
         zval_dict.update({p.element: p.ZVAL})
+    return zval_dict
 
 def create_zval_dict_from_pseudo_dict(species_potcar_dict, pseudo_dict = None):
     """
@@ -121,7 +126,7 @@ class Polarization(object):
 
     It is assumed that the electronic and ionic dipole moment values
     are given in electron Angstroms along the three lattice directions
-    (a,b,c) rather than (x,y,z).
+    (a,b,c).
 
     """
     def __init__(self, p_elecs, p_ions, structures):
@@ -131,7 +136,29 @@ class Polarization(object):
         self.p_ions = np.matrix(p_ions)
         self.structures = structures
 
+    @classmethod
+    def from_outcars_and_structures(cls, outcars, structures):
+        """
+        Create Polarization object from list of Outcars and Structures in order
+        of nonpolar to polar.
+
+        Note, we recommend calculating the ionic dipole moment using calc_ionic
+        than using the values in Outcar (see module comments).
+        """
+        p_elecs = []
+        p_ions = []
+        for o in outcars:
+            p_elecs.append(o.p_elec)
+            p_ions.append(o.p_ion)
+        return cls(p_elecs, p_ions, structures)
+
     def get_pelecs_and_pions(self, convert_to_muC_per_cm2=False):
+        """
+        Get the electronic and ionic dipole moments / polarizations.
+
+        convert_to_muC_per_cm2: Convert from electron * Angstroms to microCoulomb
+            per centimeter**2
+        """
 
         if not convert_to_muC_per_cm2:
             return self.p_elecs, self.p_ions
@@ -157,8 +184,8 @@ class Polarization(object):
         """
         Get same branch polarization for given polarization data.
 
-        convert_to_muC_per_cm2: convert polarization from electron * Angstroms to microCoulomb per centimeter**2
-        abc: return polarization in coordinates of a,b,c (versus x,y,z)
+        convert_to_muC_per_cm2: convert polarization from electron * Angstroms to
+            microCoulomb per centimeter**2
         """
 
         p_elec, p_ion = self.get_pelecs_and_pions()
@@ -240,10 +267,17 @@ class Polarization(object):
         return quanta
 
     def get_polarization_change(self):
+        """
+        Get difference between nonpolar and polar same branch polarization.
+        """
         tot = self.get_same_branch_polarization_data(convert_to_muC_per_cm2=True)
         return (tot[-1] - tot[0])
 
     def get_polarization_change_norm(self):
+        """
+        Get magnitude of difference between nonpolar and polar same branch
+        polarization.
+        """
         polar = self.structures[-1]
         a, b, c = polar.lattice.matrix
         a, b, c = a/np.linalg.norm(a), b/np.linalg.norm(b), c/np.linalg.norm(c)
@@ -252,6 +286,10 @@ class Polarization(object):
         return P_norm
 
     def same_branch_splines(self):
+        """
+        Fit splines to same branch polarization. This is used to assess any jumps
+        in the same branch polarizaiton.
+        """
         from scipy.interpolate import UnivariateSpline
         tot = self.get_same_branch_polarization_data(convert_to_muC_per_cm2=True)
         L = tot.shape[0]
@@ -270,6 +308,9 @@ class Polarization(object):
         return sp_a, sp_b, sp_c
 
     def max_spline_jumps(self):
+        """
+        Get maximum difference between spline and same branch polarization data.
+        """
         tot = self.get_same_branch_polarization_data(convert_to_muC_per_cm2=True)
         sps = self.same_branch_splines()
         max_jumps = [None,None,None]
@@ -279,6 +320,9 @@ class Polarization(object):
         return max_jumps
 
     def smoothness(self):
+        """
+        Get rms average difference between spline and same branch polarization data.
+        """
         tot = self.get_same_branch_polarization_data(convert_to_muC_per_cm2=True)
         L = tot.shape[0]
         try:
@@ -297,11 +341,17 @@ class EnergyTrend(object):
         self.energies = energies
 
     def spline(self):
+        """
+        Fit spline to energy trend data.
+        """
         from scipy.interpolate import UnivariateSpline
         sp = UnivariateSpline(range(len(self.energies)),self.energies, k=4)
         return sp
 
     def smoothness(self):
+        """
+        Get rms average difference between spline and energy trend.
+        """
         energies = self.energies
         try:
             sp = self.spline()
@@ -311,27 +361,19 @@ class EnergyTrend(object):
         spline_energies = sp(range(len(energies)))
         diff = spline_energies - energies
         rms = np.sqrt(np.sum(np.square(diff))/len(energies))
-        #rms_mag_norm = rms / (max(energies) - min(energies))
         return rms
 
     def max_spline_jump(self):
+        """
+        Get maximum difference between spline and energy trend.
+        """
         sp = self.spline()
         return max(self.energies - sp(range(len(self.energies))))
 
-    def is_smooth(self, rms_mag_norm_tol = 1e-2):
-        energies = self.energies
-        try:
-            sp = self.spline()
-        except:
-            print("Energy spline failed.")
-            return None
-        spline_energies = sp(range(len(energies)))
-        diff = spline_energies - energies
-        rms = np.sqrt(np.sum(np.square(diff))/len(energies))
-        rms_mag_norm = rms / (max(energies) - min(energies))
-        return rms_mag_norm <= rms_mag_norm_tol
-
     def endpoints_minima(self, slope_cutoff = 5e-3):
+        """
+        Test if spline endpoints are at minima for a given slope cutoff.
+        """
         energies = self.energies
         try:
             sp = self.spline()
@@ -339,7 +381,6 @@ class EnergyTrend(object):
             print("Energy spline failed.")
             return None
         der = sp.derivative()
-        spline_energies = sp(range(len(energies)))
         der_energies = der(range(len(energies)))
         return {"polar" : abs(der_energies[-1]) <= slope_cutoff,
                 "nonpolar" : abs(der_energies[0]) <= slope_cutoff}
