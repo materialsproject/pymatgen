@@ -469,6 +469,11 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(outcar.p_elec[1], 0.00019)
         self.assertAlmostEqual(outcar.p_elec[2], 3.61674)
 
+    def test_pseudo_zval(self):
+        filepath = os.path.join(test_dir, "OUTCAR.BaTiO3.polar")
+        outcar = Outcar(filepath)
+        self.assertDictEqual({'Ba': 10.00, 'Ti': 10.00, 'O': 6.00}, outcar.zval_dict)
+
     def test_dielectric(self):
         filepath = os.path.join(test_dir, "OUTCAR.dielectric")
         outcar = Outcar(filepath)

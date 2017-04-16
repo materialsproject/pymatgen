@@ -1468,7 +1468,7 @@ class Outcar(MSONable):
         if self.data.get('calcpol',[]):
             self.lcalcpol = True
             self.read_lcalcpol()
-
+            self.read_pseudo_zval()
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
@@ -2122,6 +2122,37 @@ class Outcar(MSONable):
         except:
             raise Exception("LCALCPOL OUTCAR could not be parsed.")
 
+    def read_pseudo_zval(self):
+        """
+        Create pseudopotential ZVAL dictionary.
+        """
+        try:
+            def poscar_line(results, match):
+                poscar_line = match.group(1)
+                results.poscar_line = re.findall('[A-Z][a-z]?', poscar_line)
+
+            def zvals(results, match):
+                zvals = match.group(1)
+                results.zvals = map(float, re.findall('-?\d+\.\d*', zvals))
+
+            search = []
+            search.append(['^.*POSCAR.*=(.*)', None, poscar_line])
+            search.append(['^\s+ZVAL.*=(.*)', None, zvals])
+
+            micro_pyawk(self.filename, search, self)
+
+            zval_dict = {}
+            for x,y in zip(self.poscar_line, self.zvals):
+                zval_dict.update({x:y})
+            self.zval_dict = zval_dict
+
+            # Clean-up
+            del(self.poscar_line)
+            del(self.zvals)
+        except:
+            raise Exception("ZVAL dict could not be parsed.")
+
+
     def read_core_state_eigen(self):
         """
         Read the core state eigenenergies at each ionic step.
@@ -2224,6 +2255,7 @@ class Outcar(MSONable):
             if self.spin and not self.noncollinear:
                 d.update({'p_sp1': self.p_sp1,
                           'p_sp2': self.p_sp2})
+            d.update({'zval_dict': self.zval_dict})
 
         return d
 
