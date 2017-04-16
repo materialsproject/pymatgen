@@ -169,6 +169,13 @@ class MITMPRelaxSetTest(unittest.TestCase):
 
         #Make sure Matproject sulfates are ok.
         self.assertEqual(MPRelaxSet(struct).incar['LDAUU'], [5.3, 0, 0])
+        
+        #test for default LDAUU value
+        
+        userset_ldauu_fallback = MPRelaxSet(struct,
+            user_incar_settings={'LDAUU': {'Fe': 5.0}}
+        )
+        self.assertEqual(userset_ldauu_fallback.incar['LDAUU'], [5.0, 0, 0])
 
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints

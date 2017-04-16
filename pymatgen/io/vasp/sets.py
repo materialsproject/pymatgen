@@ -201,6 +201,12 @@ class DictSet(VaspInputSet):
             scales with # of atoms, the latter does not. If both are
             present, EDIFF is preferred. To force such settings, just supply
             user_incar_settings={"EDIFF": 1e-5, "LDAU": False} for example.
+            The keys 'LDAUU', 'LDAUJ', 'LDAUL' are special cases since
+            pymatgen defines different values depending on what anions are
+            present in the structure, so these keys can be defined in one
+            of two ways, e.g. either {"LDAUU":{"O":{"Fe":5}}} to set LDAUU
+            for Fe to 5 in an oxide, or {"LDAUU":{"Fe":5}} to set LDAUU to
+            5 regardless of the input structure.
         user_kpoints_settings (dict): Allow user to override kpoints setting by
             supplying a dict. E.g., {"reciprocal_density": 1000}. Default is
             None.
@@ -283,7 +289,7 @@ class DictSet(VaspInputSet):
                                        for sym in poscar.site_symbols]
                     # else, use fallback LDAU value if it exists
                     else:
-                        incar[k] = [v[sym] if (sym in v.keys()) else 0 for sym in poscar.site_symbols]
+                        incar[k] = [v.get(sym, 0) for sym in poscar.site_symbols]
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
