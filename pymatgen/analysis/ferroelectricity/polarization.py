@@ -99,7 +99,7 @@ def create_zval_dict_from_pseudo_dict(species_potcar_dict, pseudo_dict = None):
     if pseudo_dict == None:
         pseudo_dict = VASP_PBE_ZVAL
     zval_dict = {}
-    for key,value in species_potcar_dict.iteritems():
+    for key,value in species_potcar_dict.items():
         zval_dict.update({key: pseudo_dict[value]})
     return zval_dict
 
