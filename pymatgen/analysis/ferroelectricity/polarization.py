@@ -66,13 +66,6 @@ of polarization can only be zero or 1/2. We use a nonpolar structure to help
 determine the spontaneous polarization because it serves as a reference point.
 """
 
-# Load ZVAL dictionaries
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(MODULE_DIR, "ZVAL.yaml"),'r') as f:
-    ZVAL = yaml.load(f)
-VASP_PBE_ZVAL = ZVAL['VASP_PBE_ZVAL']
-
-
 def zval_dict_from_potcar(potcar):
     """
     Creates zval_dictionary for calculating the ionic polarization from
@@ -83,24 +76,6 @@ def zval_dict_from_potcar(potcar):
     zval_dict = {}
     for p in potcar:
         zval_dict.update({p.element: p.ZVAL})
-    return zval_dict
-
-def create_zval_dict_from_pseudo_dict(species_potcar_dict, pseudo_dict = None):
-    """
-    Return a dictionary of pseudopotential ZVALs given a dictionary of
-    which pseudopotentials
-
-    species_potcar_dict: dictionary for species and pseudopotential name.
-        Example {‘Li’ : ‘Li' , ’Nb’: ‘Nb_sv', ‘O’: ‘O’}
-    pseudo_dict: default is VASP_PBE_ZVAL
-        Default matches pseudopotentials used for MPRelaxSet and MPStaticSet.
-
-    """
-    if pseudo_dict == None:
-        pseudo_dict = VASP_PBE_ZVAL
-    zval_dict = {}
-    for key,value in species_potcar_dict.items():
-        zval_dict.update({key: pseudo_dict[value]})
     return zval_dict
 
 def calc_ionic(site, structure, zval):
@@ -132,6 +107,30 @@ def get_total_ionic_dipole(structure, zval_dict):
         tot_ionic.append(calc_ionic(site, structure, zval))
     return np.sum(tot_ionic, axis=0)
 
+
+class PolarizationLattice(Structure):
+    def get_nearest_site(self, coords, site, r = None):
+        """
+        Given coords and a site, find closet site to coords.
+        Args:
+            coords (3x1 array): cartesian coords of center of sphere
+            site: site to find closest to coords
+            r: radius of sphere. Defaults to diagonal of unit cell
+
+        Returns:
+            Closest site and distance.
+        """
+        index = self.index(site)
+        if r == None:
+            r = np.linalg.norm(np.sum(np.matrix(self.lattice.matrix),axis=0))
+        ns = self.get_sites_in_sphere(coords,r,include_index=True)
+        # Get sites with identical index to site
+        ns = [n for n in ns if n[2] == index]
+        # Sort by distance to coords
+        ns.sort(key=lambda x : x[1])
+        # Return PeriodicSite and distance of closest image
+        return ns[0][0:2]
+
 class Polarization(object):
     """
     Class for recovering the same branch polarization for a set of
@@ -156,19 +155,24 @@ class Polarization(object):
         self.structures = structures
 
     @classmethod
-    def from_outcars_and_structures(cls, outcars, structures):
+    def from_outcars_and_structures(cls, outcars, structures, calc_ionic_from_zval=False):
         """
         Create Polarization object from list of Outcars and Structures in order
         of nonpolar to polar.
 
         Note, we recommend calculating the ionic dipole moment using calc_ionic
-        than using the values in Outcar (see module comments).
+        than using the values in Outcar (see module comments). To do this set
+        calc_ionic_from_zval = True
         """
         p_elecs = []
         p_ions = []
-        for o in outcars:
+
+        for i,o in enumerate(outcars):
             p_elecs.append(o.p_elec)
-            p_ions.append(o.p_ion)
+            if calc_ionic_from_zval:
+                p_ions.append(get_total_ionic_dipole(structures[i], o.zval_dict))
+            else:
+                p_ions.append(o.p_ion)
         return cls(p_elecs, p_ions, structures)
 
     def get_pelecs_and_pions(self, convert_to_muC_per_cm2=False):
@@ -259,7 +263,7 @@ class Polarization(object):
         for i in range(L):
             l = lattices[i]
             frac_coord = np.divide(np.matrix(p_tot[i]), np.matrix([l.a, l.b, l.c]))
-            d = Structure(l, ["C"], [np.matrix(frac_coord).A1])
+            d = PolarizationLattice(l, ["C"], [np.matrix(frac_coord).A1])
             d_structs.append(d)
             site = d[0]
             if i == 0:

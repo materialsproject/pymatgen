@@ -36,16 +36,11 @@ class UtilsTest(PymatgenTest):
     def setUp(self):
         self.potcar = Potcar.from_file(test_dir+"/POTCAR")
         self.zval_dict = {'Ba': 10.0, 'Ti': 10.0, 'O': 6.0}
-        self.pseudo_dict = {'Ba': 'Ba_sv', 'Ti': 'Ti_pv', 'O': 'O'}
         self.ions = ions
         self.structures = structures
 
     def test_zval_dict_from_potcar(self):
         zval_dict = zval_dict_from_potcar(self.potcar)
-        self.assertDictEqual(self.zval_dict, zval_dict)
-
-    def test_create_zval_dict_from_pseudo_dict(self):
-        zval_dict = create_zval_dict_from_pseudo_dict(self.pseudo_dict)
         self.assertDictEqual(self.zval_dict, zval_dict)
 
     def test_get_total_ionic_dipole(self):
@@ -111,6 +106,14 @@ class PolarizationTest(PymatgenTest):
         self.assertArrayAlmostEqual(p_elecs[-1].A1.tolist(), self.p_elecs[-1].A1.tolist())
         self.assertArrayAlmostEqual(p_ions[0].A1.tolist(), self.p_ions_outcar[0].A1.tolist())
         self.assertArrayAlmostEqual(p_ions[-1].A1.tolist(), self.p_ions_outcar[-1].A1.tolist())
+        # Test for calc_ionic_from_zval=True
+        polarization = Polarization.from_outcars_and_structures(self.outcars, self.structures,
+                                                                calc_ionic_from_zval=True)
+        p_elecs, p_ions = polarization.get_pelecs_and_pions(convert_to_muC_per_cm2=False)
+        self.assertArrayAlmostEqual(p_elecs[0].A1.tolist(), self.p_elecs[0].A1.tolist())
+        self.assertArrayAlmostEqual(p_elecs[-1].A1.tolist(), self.p_elecs[-1].A1.tolist())
+        self.assertArrayAlmostEqual(p_ions[0].A1.tolist(), self.p_ions[0].A1.tolist())
+        self.assertArrayAlmostEqual(p_ions[-1].A1.tolist(), self.p_ions[-1].A1.tolist())
 
     def test_get_same_branch_polarization_data(self):
         same_branch = self.polarization.get_same_branch_polarization_data(convert_to_muC_per_cm2=True)
