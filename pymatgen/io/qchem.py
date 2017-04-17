@@ -824,7 +824,7 @@ class QcTask(MSONable):
                     if vals[0] in ['outp', 'tors', 'linc', 'linp']:
                         constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]} {vals[5]}".format(vals=vals))
                     elif vals[0] == 'stre':
-                        constraint_lines.append("{vals[0]} {vals[1]} {vals[2]}".format(vals=vals))
+                        constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]}".format(vals=vals))
                     elif vals[0] == 'bend':
                         constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]}".format(vals=vals))
                 constraint_lines.append('ENDCONSTRAINT')
@@ -1384,6 +1384,8 @@ class QcTask(MSONable):
             elif re.match('FIXED', line, re.IGNORECASE):
                 fixed_sec = True
                 fixed_dict = dict()
+            elif len(line.strip()) == 0:
+                continue
             else:
                 raise ValueError("Keyword {} in $opt section is not supported yet".
                                  format(line.strip()))

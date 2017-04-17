@@ -2512,5 +2512,17 @@ $end
         constraint_ans = [['tors', 4, 5, 7, 9, 180.0]]
         self.assertEqual(constraint, constraint_ans)
 
+        stre_text = """CONSTRAINT
+stre 70 9 3.795
+stre 13 44 3.656
+ENDCONSTRAINT"""
+        stre_d = qcin._parse_opt(stre_text.split('\n'))
+        qctask = QcTask(mol, exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-31+G*",
+                        optional_params={"opt": stre_d})
+        stre_text_2 = "\n".join(qctask._format_opt())
+        self.assertEqual(stre_text_2, stre_text)
+
 if __name__ == "__main__":
     unittest.main()
