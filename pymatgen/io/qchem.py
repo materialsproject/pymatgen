@@ -1954,8 +1954,10 @@ class QcNucVeloc(object):
                 data = f.read().decode("latin-1")
         self.step_times = []
         self.velocities = []
-        for line in data.split("\n"):
+        for line in data.split("\n")[1:]:
             tokens = line.split()
+            if len(tokens) < 4:
+                break
             step_time = float(tokens[0])
             nuc_veloc_tokens = [float(v) for v in tokens[1:]]
             # unit in au

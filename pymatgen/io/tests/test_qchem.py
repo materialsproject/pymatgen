@@ -11,7 +11,7 @@ import os
 import unittest
 
 from pymatgen import Molecule
-from pymatgen.io.qchem import QcTask, QcInput, QcOutput
+from pymatgen.io.qchem import QcTask, QcInput, QcOutput, QcNucVeloc
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = 'xiaohuiqu'
@@ -2524,9 +2524,21 @@ ENDCONSTRAINT"""
         stre_text_2 = "\n".join(qctask._format_opt())
         self.assertEqual(stre_text_2, stre_text)
 
-class QcNucVeloc(PymatgenTest):
+class TestQcNucVeloc(PymatgenTest):
 
     def test_parse(self):
+        qcnv = QcNucVeloc(os.path.join(test_dir, "qc_aimd", "NucVeloc.velocities"))
+        self.assertEqual(len(qcnv.step_times), 302)
+        self.assertEqual(qcnv.step_times[-1], 14.56168)
+        self.assertEqual(len(qcnv.velocities), 302)
+        self.assertEqual(qcnv.velocities[0][0],
+                         (1.42192e-05, 6.65659e-05, 5.22453e-05))
+        self.assertEqual(qcnv.velocities[0][-1],
+                         (-6.52039e-06, -0.000213074, -0.000769596))
+        self.assertEqual(qcnv.velocities[-1][0],
+                         (8.976072e-05, 9.455759e-06, -0.0002397046))
+        self.assertEqual(qcnv.velocities[-1][-1],
+                         (9.052722e-05, 0.001113288, -0.0009176628))
 
 
 if __name__ == "__main__":
