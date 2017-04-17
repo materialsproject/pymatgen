@@ -123,7 +123,12 @@ class MXYZTest(unittest.TestCase):
     def test_from_file(self):
         filepath = os.path.join(test_dir, 'multiple_frame_xyz.xyz')
         mxyz = MXYZ.from_file(filepath)
-        print(mxyz)
+        self.assertEqual(len(mxyz.molecules), 302)
+        self.assertEqual(list(mxyz.molecules[0].cart_coords[0]),
+                         [0.20303525080000001, 2.8569761204000002, 0.44737723190000001])
+        self.assertEqual(list(mxyz.molecules[-1].cart_coords[-1]),
+                         [5.5355550720000002, 0.0282305931, -0.30993102189999999])
+
 
 
 if __name__ == "__main__":

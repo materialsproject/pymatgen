@@ -148,8 +148,11 @@ class MXYZ(object):
         coord_lines = r"(\s*\w+\s+[0-9\-\.e]+\s+[0-9\-\.e]+\s+[0-9\-\.e]+\s*\n)+"
         frame_pattern_text = natoms_line + comment_line + coord_lines
         pat = re.compile(frame_pattern_text, re.MULTILINE)
-        for xyz_text in pat.finditer(contents):
-            print(xyz_text)
+        mols = []
+        for xyz_match in pat.finditer(contents):
+            xyz_text = xyz_match.group(0)
+            mols.append(XYZ.from_string(xyz_text).molecule)
+        return MXYZ(mols)
 
 
     @staticmethod
