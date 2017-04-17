@@ -309,7 +309,7 @@ $end
                       [2.0709344, -0.8081667, -0.0452220],
                       [2.1094213, 0.7132527, 0.9246668]]
         opt_mol = Molecule(["C", "C", "C", "C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"], opt_coords)
-        constraint_dict = {'opt': [['tors', 1, 2, 3, 4, 180.0]]}
+        constraint_dict = {'opt': {'CONSTRAINT': [['tors', 1, 2, 3, 4, 180.0]]}}
         ans = """$molecule
  0  1
  C          -1.84387080        1.76398440        0.00361110
@@ -349,6 +349,61 @@ $end
                         optional_params=constraint_dict)
         self.assertEqual(str(qctask), ans)
         self.elementary_io_verify(ans, qctask)
+
+    def test_opt_fixed_atoms(self):
+        fixed_dict = {"opt": {"FIXED": {2: "Y", 3: "XYZ"}}}
+        qctask1 = QcTask(mol, exchange="B3LYP", jobtype="SP",
+                         basis_set="6-31+G*",
+                         optional_params=fixed_dict)
+        task_text1 = str(qctask1)
+        opt_text1 = task_text1[task_text1.index("$opt"):]
+        ans1 = """$opt
+FIXED
+ 2 Y
+ 3 XYZ
+ENDFIXED
+$end
+
+"""
+        self.assertEqual(opt_text1, ans1)
+        self.elementary_io_verify(task_text1, qctask1)
+
+        fixed_n_const_dict = {"opt": {"FIXED": {2: "Y", 3: "XYZ"},
+                                      "CONSTRAINT": [['tors', 1, 2, 3, 4, 180.0]]}}
+        qctask2 = QcTask(mol, exchange="B3LYP", jobtype="SP",
+                        basis_set="6-31+G*",
+                        optional_params=fixed_n_const_dict)
+        task_text2 = str(qctask2)
+        opt_text2 = task_text2[task_text2.index("$opt"):]
+        ans2 = """$opt
+CONSTRAINT
+tors 1 2 3 4 180.0
+ENDCONSTRAINT
+
+FIXED
+ 2 Y
+ 3 XYZ
+ENDFIXED
+$end
+
+"""
+        self.assertEqual(opt_text2, ans2)
+        self.elementary_io_verify(task_text2, qctask2)
+
+    def test_method_keyword(self):
+        qctask1 = QcTask(mol, method="B3LYP", jobtype="SP",
+                         basis_set="6-31+G*")
+        task_text = str(qctask1)
+        rem_text = task_text[task_text.index("$rem"):]
+        ans = """$rem
+  jobtype = sp
+   method = b3lyp
+    basis = 6-31+g*
+$end
+
+"""
+        self.assertEqual(rem_text, ans)
+        self.elementary_io_verify(task_text, qctask1)
 
     def test_partial_hessian(self):
         qcinp1 = QcInput.from_file(os.path.join(test_dir, "partial_hessian.qcinp"))
@@ -2410,7 +2465,7 @@ Sites (12)
         qcout = QcOutput(filename)
         self.assertEqual(len(qcout.data), 2)
 
-    def test_opt(self):
+    def test_parse_opt_contraint(self):
         filename = os.path.join(test_dir, "pt_dft_180.0.qcout")
         qcout = QcOutput(filename)
         qcin = qcout.data[-1]['input']
@@ -2453,9 +2508,21 @@ $end
 
 '''
         self.assertEqual(str(qcin), qcin_ans)
-        constraint = qcin.params['opt']
+        constraint = qcin.params['opt']['CONSTRAINT']
         constraint_ans = [['tors', 4, 5, 7, 9, 180.0]]
         self.assertEqual(constraint, constraint_ans)
+
+        stre_text = """CONSTRAINT
+stre 70 9 3.795
+stre 13 44 3.656
+ENDCONSTRAINT"""
+        stre_d = qcin._parse_opt(stre_text.split('\n'))
+        qctask = QcTask(mol, exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-31+G*",
+                        optional_params={"opt": stre_d})
+        stre_text_2 = "\n".join(qctask._format_opt())
+        self.assertEqual(stre_text_2, stre_text)
 
 if __name__ == "__main__":
     unittest.main()

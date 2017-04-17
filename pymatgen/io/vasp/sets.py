@@ -201,6 +201,12 @@ class DictSet(VaspInputSet):
             scales with # of atoms, the latter does not. If both are
             present, EDIFF is preferred. To force such settings, just supply
             user_incar_settings={"EDIFF": 1e-5, "LDAU": False} for example.
+            The keys 'LDAUU', 'LDAUJ', 'LDAUL' are special cases since
+            pymatgen defines different values depending on what anions are
+            present in the structure, so these keys can be defined in one
+            of two ways, e.g. either {"LDAUU":{"O":{"Fe":5}}} to set LDAUU
+            for Fe to 5 in an oxide, or {"LDAUU":{"Fe":5}} to set LDAUU to
+            5 regardless of the input structure.
         user_kpoints_settings (dict): Allow user to override kpoints setting by
             supplying a dict. E.g., {"reciprocal_density": 1000}. Default is
             None.
@@ -276,11 +282,14 @@ class DictSet(VaspInputSet):
                         m = dict([(site.specie.symbol, getattr(site, k.lower()))
                                   for site in structure])
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
+                    # lookup specific LDAU if specified for most_electroneg atom
                     elif most_electroneg in v.keys():
-                        incar[k] = [v[most_electroneg].get(sym, 0)
-                                    for sym in poscar.site_symbols]
+                        if isinstance(v[most_electroneg], dict):
+                           incar[k] = [v[most_electroneg].get(sym, 0)
+                                       for sym in poscar.site_symbols]
+                    # else, use fallback LDAU value if it exists
                     else:
-                        incar[k] = [0] * len(poscar.site_symbols)
+                        incar[k] = [v.get(sym, 0) for sym in poscar.site_symbols]
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
@@ -434,7 +443,7 @@ class MPHSERelaxSet(DictSet):
 class MPStaticSet(MPRelaxSet):
 
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
-                 lepsilon=False, reciprocal_density=100, **kwargs):
+                 lepsilon=False, lcalcpol=False, reciprocal_density=100, **kwargs):
         """
         Run a static calculation.
 
@@ -456,6 +465,7 @@ class MPStaticSet(MPRelaxSet):
         self.structure = structure
         self.kwargs = kwargs
         self.lepsilon = lepsilon
+        self.lcalcpol = lcalcpol
 
     @property
     def incar(self):
@@ -475,6 +485,9 @@ class MPStaticSet(MPRelaxSet):
             # to output ionic.
             incar.pop("NSW", None)
             incar.pop("NPAR", None)
+
+        if self.lcalcpol:
+            incar["LCALCPOL"] = True
 
         for k in ["MAGMOM", "NUPDOWN"] + list(self.kwargs.get(
                 "user_incar_settings", {}).keys()):

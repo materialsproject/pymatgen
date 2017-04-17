@@ -100,7 +100,8 @@ class QcTask(MSONable):
     def __init__(self, molecule=None, charge=None, spin_multiplicity=None,
                  jobtype='SP', title=None, exchange="HF", correlation=None,
                  basis_set="6-31+G*", aux_basis_set=None, ecp=None,
-                 rem_params=None, optional_params=None, ghost_atoms=None):
+                 rem_params=None, optional_params=None, ghost_atoms=None,
+                 method=None):
         self.mol = copy.deepcopy(molecule) if molecule else "read"
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
@@ -150,7 +151,10 @@ class QcTask(MSONable):
             self.params["comment"] = self._wrap_comment(title)
         if "rem" not in self.params:
             self.params["rem"] = dict()
-        self.params["rem"]["exchange"] = exchange.lower()
+        if method is None or exchange.lower() != "hf":
+            self.params["rem"]["exchange"] = exchange.lower()
+        if method is not None:
+            self.params["rem"]["method"] = method.lower()
         available_jobtypes = {"sp", "opt", "ts", "freq", "force", "rpath",
                               "nmr", "bsse", "eda", "pes_scan", "fsm", "aimd",
                               "pimc", "makeefp"}
@@ -211,7 +215,11 @@ class QcTask(MSONable):
                     raise ValueError("Each element of ghost atom list must an integer")
 
     def _aux_basis_required(self):
-        if self.params["rem"]["exchange"] in ['xygjos', 'xyg3', 'lxygjos']:
+        if "method" in self.params["rem"]:
+            method = self.params["rem"]["method"]
+        else:
+            method = self.params["rem"]["exchange"]
+        if method in ['xygjos', 'xyg3', 'lxygjos']:
             return True
         if 'correlation' in self.params["rem"]:
             if self.params["rem"]["correlation"].startswith("ri"):
@@ -685,7 +693,12 @@ class QcTask(MSONable):
         rem = rem_format_template.substitute(name_width=name_width)
         lines = []
         all_keys = set(self.params["rem"].keys())
-        priority_keys = ["jobtype", "exchange", "basis"]
+        priority_keys = ["jobtype"]
+        if "exchange" in self.params["rem"]:
+            priority_keys.append("exchange")
+        if "method" in self.params["rem"]:
+            priority_keys.append("method")
+        priority_keys.append("basis")
         additional_keys = all_keys - set(priority_keys)
         ordered_keys = priority_keys + sorted(list(additional_keys))
         for name in ordered_keys:
@@ -793,19 +806,40 @@ class QcTask(MSONable):
     def _format_opt(self):
         # lines is a list of all opt keywords
         lines = []
-        # only constraints added at this point
-        constraint_lines = ['CONSTRAINT']
-        for index in range(len(self.params['opt'])):
-            vals = self.params['opt'][index]
-            if vals[0] in ['outp', 'tors', 'linc', 'linp']:
-                constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]} {vals[5]}".format(vals=vals))
-            elif vals[0] == 'stre':
-                constraint_lines.append("{vals[0]} {vals[1]} {vals[2]}".format(vals=vals))
-            elif vals[0] == 'bend':
-                constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]}".format(vals=vals))
-        constraint_lines.append('ENDCONSTRAINT')
-        lines.extend(constraint_lines)
-        # another opt keyword can be added by extending lines
+        opt_sub_sections = [sec for sec in sorted(self.params['opt'])]
+        valid_sub_sections = {"CONSTRAINT", "FIXED", "CONNECT", "DUMMY"}
+        valid_fix_spec = {"X", "Y", "Z", "XY", "XZ", "YZ", "XYZ"}
+        if len(set(opt_sub_sections) - valid_sub_sections) > 0:
+            invalid_keys = set(opt_sub_sections) - valid_sub_sections
+            raise ValueError(','.join(['$' + k for k in invalid_keys]) +
+                             ' is not a valid geometry optimization constraint')
+        for opt_sub_sec in opt_sub_sections:
+            if len(lines) > 0:
+                lines.append("")
+            if opt_sub_sec == "CONSTRAINT":
+                # constraints
+                constraint_lines = ['CONSTRAINT']
+                for index in range(len(self.params['opt']['CONSTRAINT'])):
+                    vals = self.params['opt']['CONSTRAINT'][index]
+                    if vals[0] in ['outp', 'tors', 'linc', 'linp']:
+                        constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]} {vals[5]}".format(vals=vals))
+                    elif vals[0] == 'stre':
+                        constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]}".format(vals=vals))
+                    elif vals[0] == 'bend':
+                        constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]}".format(vals=vals))
+                constraint_lines.append('ENDCONSTRAINT')
+                lines.extend(constraint_lines)
+            elif opt_sub_sec == "FIXED":
+                fixed_lines = ["FIXED"]
+                for atom in sorted(self.params['opt']['FIXED']):
+                    fix_spec = self.params['opt']['FIXED'][atom]
+                    if fix_spec not in valid_fix_spec:
+                        raise ValueError("{} is a wrong keyword to fix atoms".format(fix_spec))
+                    fixed_lines.append(" {} {}".format(atom, fix_spec))
+                fixed_lines.append("ENDFIXED")
+                lines.extend(fixed_lines)
+            else:
+                raise ValueError("$opt - {} is not supported yet".format(opt_sub_sec))
         return lines
 
     def as_dict(self):
@@ -839,7 +873,8 @@ class QcTask(MSONable):
             raise ValueError('Unknow molecule type "{}"'.format(type(d["molecule"])))
         jobtype = d["params"]["rem"]["jobtype"]
         title = d["params"].get("comment", None)
-        exchange = d["params"]["rem"]["exchange"]
+        exchange = d["params"]["rem"].get("exchange", "hf")
+        method = d["params"]["rem"].get("method", None)
         correlation = d["params"]["rem"].get("correlation", None)
         basis_set = d["params"]["rem"]["basis"]
         aux_basis_set = d["params"]["rem"].get("aux_basis", None)
@@ -858,7 +893,8 @@ class QcTask(MSONable):
                       basis_set=basis_set, aux_basis_set=aux_basis_set,
                       ecp=ecp, rem_params=d["params"]["rem"],
                       optional_params=optional_params,
-                      ghost_atoms=ghost_atoms)
+                      ghost_atoms=ghost_atoms,
+                      method=method)
 
     def write_file(self, filename):
         with zopen(filename, "wt") as f:
@@ -929,6 +965,7 @@ class QcTask(MSONable):
         jobtype = params["rem"]["jobtype"]
         title = params.get("comment", None)
         exchange = params["rem"].get("exchange", "hf")
+        method = params["rem"].get("method", None)
         correlation = params["rem"].get("correlation", None)
         basis_set = params["rem"]["basis"]
         aux_basis_set = params["rem"].get("aux_basis", None)
@@ -946,7 +983,8 @@ class QcTask(MSONable):
                       basis_set=basis_set, aux_basis_set=aux_basis_set,
                       ecp=ecp, rem_params=params["rem"],
                       optional_params=optional_params,
-                      ghost_atoms=ghost_atoms)
+                      ghost_atoms=ghost_atoms,
+                      method=method)
 
     @classmethod
     def _parse_comment(cls, contents):
@@ -1307,14 +1345,22 @@ class QcTask(MSONable):
     @classmethod
     def _parse_opt(cls, contents):
         #only parses opt constraints
-        opt_list = []
+        opt_dict = {}
+        const_list = list()
+        fixed_dict = dict()
         constraints = False
+        fixed_sec = False
+        valid_fix_spec = {"X", "Y", "Z", "XY", "XZ", "YZ", "XYZ"}
         int_pattern = re.compile('^[-+]?\d+$')
         float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
         for line in contents:
             tokens = line.strip().split()
-            if re.match('ENDCONSTRAINT', line):
+            if re.match('ENDCONSTRAINT', line, re.IGNORECASE):
                 constraints = False
+                opt_dict["CONSTRAINT"] = const_list
+            elif re.match('ENDFIXED', line, re.IGNORECASE):
+                fixed_sec = False
+                opt_dict["FIXED"] = fixed_dict
             elif constraints:
                 vals = []
                 for val in tokens:
@@ -1324,10 +1370,26 @@ class QcTask(MSONable):
                         vals.append(float(val))
                     else:
                         vals.append(val)
-                opt_list.append(vals)
-            elif re.match('CONSTRAINT', line):
+                const_list.append(vals)
+            elif fixed_sec:
+                atom = int(tokens[0])
+                fix_spec = tokens[1].upper()
+                if fix_spec not in valid_fix_spec:
+                    raise ValueError("{} is not a correct keyword to fix"
+                                     "atoms".format(fix_spec))
+                fixed_dict[atom] = fix_spec
+            elif re.match('CONSTRAINT', line, re.IGNORECASE):
                 constraints = True
-        return opt_list
+                const_list = []
+            elif re.match('FIXED', line, re.IGNORECASE):
+                fixed_sec = True
+                fixed_dict = dict()
+            elif len(line.strip()) == 0:
+                continue
+            else:
+                raise ValueError("Keyword {} in $opt section is not supported yet".
+                                 format(line.strip()))
+        return opt_dict
 
 
 class QcInput(MSONable):
