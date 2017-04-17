@@ -1920,3 +1920,45 @@ class QcOutput(object):
             "solvent_method": solvent_method
         }
         return data
+
+class QcNucVeloc(object):
+    """
+    class to QChem AMID NucVeloc file.
+    
+        
+        Args:
+            filename (str): Filename to parse
+        
+        .. attribute:: time_steps (fs)
+            The AIMD time stamp for each frame
+        
+        .. attribute:: velocities (a.u.)
+            The atom velocities for each frame. Format:
+            [[[x, y, z]
+              [x, y, z]
+              ... ]   ## frame 1
+             ...
+             [[x, y, z]
+              [x, y, z]
+              ... ]   ## frame N
+            ]
+    """
+
+    def __init__(self, filename):
+        self.filename = filename
+        try:
+            with zopen(filename, "rt") as f:
+                data = f.read()
+        except UnicodeDecodeError:
+            with zopen(filename, "rb") as f:
+                data = f.read().decode("latin-1")
+        self.step_times = []
+        self.velocities = []
+        for line in data.split("\n"):
+            tokens = line.split()
+            step_time = float(tokens[0])
+            nuc_veloc_tokens = [float(v) for v in tokens[1:]]
+            # unit in au
+            veloc = list(zip(*([iter(nuc_veloc_tokens)] * 3)))
+            self.step_times.append(step_time)
+            self.velocities.append(veloc)

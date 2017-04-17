@@ -2524,5 +2524,10 @@ ENDCONSTRAINT"""
         stre_text_2 = "\n".join(qctask._format_opt())
         self.assertEqual(stre_text_2, stre_text)
 
+class QcNucVeloc(PymatgenTest):
+
+    def test_parse(self):
+
+
 if __name__ == "__main__":
     unittest.main()
