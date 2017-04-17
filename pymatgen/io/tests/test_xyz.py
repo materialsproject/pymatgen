@@ -20,7 +20,7 @@ import unittest
 import os
 
 from pymatgen.core.structure import Molecule
-from pymatgen.io.xyz import XYZ
+from pymatgen.io.xyz import XYZ, MXYZ
 from pymatgen.io.vasp.inputs import Poscar
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -107,6 +107,23 @@ O 8.686436 5.787643 3.401208
 O 9.405548 4.550379 1.231183
 O 9.960184 1.516793 1.393875"""
         self.assertEqual(str(xyz), ans)
+
+class MXYZTest(unittest.TestCase):
+    def setUp(self):
+        coords1 = [[0.000000, 0.000000, 0.000000],
+                   [0.000000, 0.000000, 1.089000],
+                   [1.026719, 0.000000, -0.363000],
+                   [-0.513360, -0.889165, -0.363000],
+                   [-0.513360, 0.889165, -0.363000]]
+        coords2 = [[x + 10.0 for x in atom] for atom in coords1]
+        self.mols = [Molecule(["C", "H", "H", "H", "H"], coords)
+                     for coords in [coords1, coords2]]
+        self.xyz = MXYZ(self.mols)
+
+    def test_from_file(self):
+        filepath = os.path.join(test_dir, 'multiple_frame_xyz.xyz')
+        mxyz = MXYZ.from_file(filepath)
+        print(mxyz)
 
 
 if __name__ == "__main__":

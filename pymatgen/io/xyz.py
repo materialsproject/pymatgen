@@ -103,3 +103,78 @@ class XYZ(object):
         """
         with zopen(filename, "wt") as f:
             f.write(self.__str__())
+
+
+class MXYZ(object):
+    """
+    Basic class for multiple frame XYZ file.
+
+    Args:
+        mols: Input molecule
+
+    .. note::
+        Exporting periodic structures in the XYZ format will lose information
+        about the periodicity. Essentially, only cartesian coordinates are
+        written in this format and no information is retained about the
+        lattice.
+    """
+    def __init__(self, mols, coord_precision=6):
+        self._mols = mols
+        self.precision = coord_precision
+
+    @property
+    def molecules(self):
+        """
+        Returns molecules associated with this multiple frame XYZ.
+        """
+        return self._mols
+
+    @staticmethod
+    def from_string(contents):
+        """
+        Creates XYZ object from a string.
+
+        Args:
+            contents: String representing an XYZ file.
+
+        Returns:
+            XYZ object
+        """
+        if contents[-1] != "\n":
+            contents += "\n"
+        white_space = r"[ \t\r\f\v]"
+        natoms_line = white_space + r"*\d+" + white_space + r"*\n"
+        comment_line = r"[^\n]*\n"
+        coord_lines = r"(\s*\w+\s+[0-9\-\.e]+\s+[0-9\-\.e]+\s+[0-9\-\.e]+\s*\n)+"
+        frame_pattern_text = natoms_line + comment_line + coord_lines
+        pat = re.compile(frame_pattern_text, re.MULTILINE)
+        for xyz_text in pat.finditer(contents):
+            print(xyz_text)
+
+
+    @staticmethod
+    def from_file(filename):
+        """
+        Creates MXYZ object from a file.
+
+        Args:
+            filename: multiple frame XYZ filename
+
+        Returns:
+            MXYZ object
+        """
+        with zopen(filename) as f:
+            return MXYZ.from_string(f.read())
+
+    def __str__(self):
+        return "\n".join([str(mol) for mol in self._mols])
+
+    def write_file(self, filename):
+        """
+        Writes multiple frame XYZ to file.
+
+        Args:
+            filename: File name of output file.
+        """
+        with zopen(filename, "wt") as f:
+            f.write(self.__str__())
