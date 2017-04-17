@@ -128,6 +128,9 @@ class MXYZTest(unittest.TestCase):
                          [0.20303525080000001, 2.8569761204000002, 0.44737723190000001])
         self.assertEqual(list(mxyz.molecules[-1].cart_coords[-1]),
                          [5.5355550720000002, 0.0282305931, -0.30993102189999999])
+        single_frame_text = str(XYZ(self.mols[0]))
+        mxyz2 = MXYZ.from_string(single_frame_text)
+        self.assertEqual(len(mxyz2.molecules), 1)
 
     def test_str(self):
         mxyz = MXYZ(self.mols, coord_precision=3)
