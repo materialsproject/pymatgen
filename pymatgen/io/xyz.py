@@ -170,7 +170,7 @@ class MXYZ(object):
             return MXYZ.from_string(f.read())
 
     def __str__(self):
-        return "\n".join([str(mol) for mol in self._mols])
+        return "\n".join([str(XYZ(mol, self.precision)) for mol in self._mols])
 
     def write_file(self, filename):
         """
