@@ -1017,7 +1017,7 @@ class BSPlotterProjected(BSPlotter):
                         for anum in dictpa[elt]:
                             edict[elt + str(anum)] = {}
                             for morb in dictio[elt]:
-                                edict[elt + str(anum)][morb] = proj[Spin.up][i][j][Orbital(setos[morb])][anum-1]
+                                edict[elt + str(anum)][morb] = proj[Spin.up][i][j][setos[morb]][anum-1]
                     proj_br[-1][str(Spin.up)][i].append(edict)
 
             if self._bs.is_spin_polarized:
@@ -1028,7 +1028,7 @@ class BSPlotterProjected(BSPlotter):
                             for anum in dictpa[elt]:
                                 edict[elt + str(anum)] = {}
                                 for morb in dictio[elt]:
-                                    edict[elt + str(anum)][morb] = proj[Spin.down][i][j][Orbital(setos[morb])][anum-1]
+                                    edict[elt + str(anum)][morb] = proj[Spin.up][i][j][setos[morb]][anum-1]
                         proj_br[-1][str(Spin.down)][i].append(edict)
 
         # Adjusting  projections for plot
