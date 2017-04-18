@@ -302,7 +302,13 @@ $end
                          "NucVeloc.velocities"))
         velocities = qcnv.velocities[-1]
         qctask.set_velocities(velocities)
-        print(qctask)
+        qc_text = str(qctask)
+        vel_text = qc_text[qc_text.index("$velocity"):]
+        self.assertEqual(vel_text.split("\n")[1].strip(),
+                         "8.97607E-05    9.45576E-06   -2.39705E-04")
+        self.assertEqual(len(vel_text.split("\n")), 66)
+        self.assertEqual(vel_text.split("\n")[-4].strip(),
+                         "9.05272E-05    1.11329E-03   -9.17663E-04")
         ## self.elementary_io_verify(ans_mixed, qctask)
 
     def test_opt_constraint_str(self):
