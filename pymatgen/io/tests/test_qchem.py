@@ -2167,6 +2167,12 @@ $end
                           0.341061]
         self.assertEqual(qcout.data[0]['charges']['chelpg'], chelpg_charges)
 
+    def test_scr_dir(self):
+        filename = os.path.join(test_dir, 'chelpg_charges.qcout')
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]['scratch_dir'],
+                         "/Users/xiaohuiqu/scratch/qchem7101")
+
     def test_no_message_scf_opt_fail(self):
         so_failfile = os.path.join(test_dir, 'scf_opt_no_message_fail.qcout')
         so_failqcout = QcOutput(so_failfile)

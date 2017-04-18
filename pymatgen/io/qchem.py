@@ -11,6 +11,7 @@ This module implements input and output processing from QChem.
 
 import copy
 import re
+import os
 import numpy as np
 from string import Template
 
@@ -1514,6 +1515,7 @@ class QcOutput(object):
                                         "\s+(?P<rydberg>\-?\d+\.\d+)\s+(?P<total>\-?\d+\.\d+)"
                                         "(\s+(?P<spin>\-?\d\.\d+))?")
         nbo_wavefunction_type_pattern = re.compile("This is an? (?P<type>\w+\-\w+) NBO calculation")
+        scr_dir_pattern = re.compile(r"Scratch files written to\s+(?P<scr_dir>[^\n]+)")
         bsse_pattern = re.compile("DE, kJ/mol\s+(?P<raw_be>\-?\d+\.?\d+([eE]\d+)?)\s+"
                                   "(?P<corrected_be>\-?\d+\.?\d+([eE]\d+)?)")
         float_pattern = re.compile("\-?\d+\.?\d+([eE]\d+)?$")
@@ -1566,6 +1568,7 @@ class QcOutput(object):
         qctask = None
         jobtype = None
         charge = None
+        scr_dir = None
         spin_multiplicity = None
         thermal_corr = dict()
         properly_terminated = False
@@ -1785,6 +1788,10 @@ class QcOutput(object):
                     m = total_charge_pattern.search(line)
                     if m:
                         charge = int(float(m.group("charge")))
+                if scr_dir is None:
+                    m = scr_dir_pattern.search(line)
+                    if m:
+                        scr_dir = os.path.abspath(m.group("scr_dir"))
                 if jobtype and jobtype == "freq":
                     m = zpe_pattern.search(line)
                     if m:
@@ -1917,7 +1924,8 @@ class QcOutput(object):
             "input": qctask,
             "gracefully_terminated": properly_terminated,
             "scf_iteration_energies": scf_iters,
-            "solvent_method": solvent_method
+            "solvent_method": solvent_method,
+            "scratch_dir": scr_dir
         }
         return data
 
