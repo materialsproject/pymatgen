@@ -88,7 +88,7 @@ class QcTask(MSONable):
                               "nbo", "occupied", "swap_occupied_virtual", "opt",
                               "pcm", "pcm_solvent", "solvent", "plots", "qm_atoms", "svp",
                               "svpirf", "van_der_waals", "xc_functional",
-                              "cdft", "efp_fragments", "efp_params", "alist"}
+                              "cdft", "efp_fragments", "efp_params", "alist", "velocity"}
     alternative_keys = {"job_type": "jobtype",
                         "symmetry_ignore": "sym_ignore",
                         "scf_max_cycles": "max_scf_cycles"}
@@ -225,6 +225,15 @@ class QcTask(MSONable):
         if 'correlation' in self.params["rem"]:
             if self.params["rem"]["correlation"].startswith("ri"):
                 return True
+
+    def set_velocities(self, velocities):
+        """
+        
+        :param velocities (au): list of list of atom velocities 
+        :return: 
+        """
+        assert len(velocities) == len(self.mol)
+        self.params["velocity"] = velocities
 
     def set_basis_set(self, basis_set):
         if isinstance(basis_set, six.string_types):
@@ -651,6 +660,10 @@ class QcTask(MSONable):
 
     def _format_alist(self):
         return [" {}".format(x) for x in self.params["alist"]]
+
+    def _format_velocity(self):
+        return [' ' + '   '.join(['{:12.5E}'.format(v) for v in atom])
+                for atom in self.params["velocity"]]
 
     def _format_molecule(self):
         lines = []
@@ -1271,6 +1284,13 @@ class QcTask(MSONable):
         for line in contents:
             atom_list.extend([int(x) for x in line.split()])
         return atom_list
+
+    @classmethod
+    def _parse_velocity(cls, contents):
+        velocities = []
+        for line in contents:
+            velocities.append([float(v) for v in line.split()])
+        return velocities
 
     @classmethod
     def _parse_pcm(cls, contents):

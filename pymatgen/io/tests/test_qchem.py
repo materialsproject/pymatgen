@@ -293,6 +293,18 @@ $end
         self.assertEqual(str(qctask), ans_mixed)
         self.elementary_io_verify(ans_mixed, qctask)
 
+    def test_velocities(self):
+        qctask = QcTask.from_file(
+            os.path.join(test_dir, "qc_aimd",
+                         "mg2dig_nvt_langevin.inp"))
+        qcnv = QcNucVeloc(
+            os.path.join(test_dir, "qc_aimd",
+                         "NucVeloc.velocities"))
+        velocities = qcnv.velocities[-1]
+        qctask.set_velocities(velocities)
+        print(qctask)
+        ## self.elementary_io_verify(ans_mixed, qctask)
+
     def test_opt_constraint_str(self):
         opt_coords = [[-1.8438708, 1.7639844, 0.0036111],
                       [-0.3186117, 1.7258535, 0.0241264],
