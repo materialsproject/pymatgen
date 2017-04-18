@@ -309,7 +309,8 @@ $end
         self.assertEqual(len(vel_text.split("\n")), 66)
         self.assertEqual(vel_text.split("\n")[-4].strip(),
                          "9.05272E-05    1.11329E-03   -9.17663E-04")
-        ## self.elementary_io_verify(ans_mixed, qctask)
+        qctask2 = QcTask.from_string(qc_text)
+        self.elementary_io_verify(qc_text, qctask2)
 
     def test_opt_constraint_str(self):
         opt_coords = [[-1.8438708, 1.7639844, 0.0036111],
