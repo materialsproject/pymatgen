@@ -288,7 +288,7 @@ class BandStructure(object):
                                 orb_i][k]
         return result
 
-    def is_metal(self):
+    def is_metal(self, efermi_tol=1e-4):
         """
         Check if the band structure indicates a metal by looking if the fermi
         level crosses a band.
@@ -298,8 +298,8 @@ class BandStructure(object):
         """
         for spin, values in self.bands.items():
             for i in range(self.nb_bands):
-                if np.any(values[i, :] < self.efermi) and \
-                        np.any(values[i, :] > self.efermi):
+                if np.any(values[i, :] - self.efermi < -efermi_tol) and \
+                        np.any(values[i, :] - self.efermi > efermi_tol):
                     return True
         return False
 
