@@ -187,7 +187,9 @@ def pbc_diff(fcoords1, fcoords2):
     fdist = np.subtract(fcoords1, fcoords2)
     return fdist - np.round(fdist)
 
-def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False):
+
+def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None,
+                         return_d2=False):
     """
     Returns the shortest vectors between two lists of coordinates taking into
     account periodic boundary conditions and the lattice.
@@ -207,7 +209,8 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
         array of displacement vectors from fcoords1 to fcoords2
         first index is fcoords1 index, second is fcoords2 index
     """
-    return cuc.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask, return_d2)
+    return cuc.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask,
+                                    return_d2)
 
 
 def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
