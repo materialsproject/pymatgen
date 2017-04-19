@@ -298,8 +298,8 @@ class BandStructure(object):
         """
         for spin, values in self.bands.items():
             for i in range(self.nb_bands):
-                if np.any(values[i, :] < self.efermi) and \
-                        np.any(values[i, :] > self.efermi):
+                if np.any(values[i, :] - self.efermi < 1e-4) and \
+                        np.any(values[i, :] - self.efermi > 1e-4 ):
                     return True
         return False
 
