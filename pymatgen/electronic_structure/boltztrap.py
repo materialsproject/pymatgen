@@ -581,7 +581,7 @@ class BoltztrapRunner(object):
             while self.energy_grid >= min_egrid and not converged:
                 self.lpfac = lpfac_start
 
-                logging.info("\nlpfac, energy_grid: {} {}".format(self.lpfac, self.energy_grid))
+                logging.info("lpfac, energy_grid: {} {}".format(self.lpfac, self.energy_grid))
 
                 while self.lpfac <= max_lpfac and not converged:
 
