@@ -581,7 +581,7 @@ class BoltztrapRunner(object):
             while self.energy_grid >= min_egrid and not converged:
                 self.lpfac = lpfac_start
 
-                logging.info("lpfac, energy_grid: {} {}".format(self.lpfac, self.energy_grid))
+                logging.info("\nlpfac, energy_grid: {} {}".format(self.lpfac, self.energy_grid))
 
                 while self.lpfac <= max_lpfac and not converged:
 
@@ -598,7 +598,7 @@ class BoltztrapRunner(object):
                     p.wait()
 
                     for c in p.communicate():
-                        logging.info(c)
+                        logging.info(c.decode())
                         if "error in factorization" in c.decode():
                             raise BoltztrapError("error in factorization")
 
