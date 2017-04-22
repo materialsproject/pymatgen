@@ -5,9 +5,9 @@ All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on `PyPI <http://pypi.python.org>`_.
 
-1. Python 2.7-3.x supported. **It is highly recommended that you use Python 3.5
-   unless you know you need other dependencies that works with Python 2.x
-   only.**
+1. Python 2.7-3.x supported. **It is highly recommended that you use latest
+   Python 3.x unless you know you need other dependencies that works with
+   Python 2.x only.**
 2. numpy>=1.9
 3. scipy>0.14
 4. matplotlib>=1.5+
@@ -77,11 +77,10 @@ Conda-based install
 ===================
 
 For these instructions, we will assume the **64-bit** versions of all OSes.
-For OSX and Linux, both Python 3.5 adn 2.7 are supported. For Windows, only
-Python 3.5 is supported. Note that you will not be able to use all
-functionality on Windows because some of the external programs have to be
-compiled from Fortran source, but most of the common functionality should
-work just fine.
+For OSX and Linux, both latest Python 3.x adn 2.7 are supported. For Windows,
+only latest Python 3.x is supported. Most common functionality should work
+out of the box on Windows, but some specialized analyses relying on external
+programs may require you to compile those programs from source.
 
 Step 1: Install conda
 ---------------------
@@ -179,14 +178,14 @@ or::
 and follow the instructions. If you have done it correctly, you should get a
 resources directory with the following directory structure::
 
-	- psp_resources
-	|- POT_GGA_PAW_PBE
-	||- POTCAR.Ac_s.gz
-	||- POTCAR.Ac.gz
-	||- POTCAR.Ag.gz
-	...
-	|- POT_GGA_PAW_PW91
-	...
+    - psp_resources
+    |- POT_GGA_PAW_PBE
+    ||- POTCAR.Ac_s.gz
+    ||- POTCAR.Ac.gz
+    ||- POTCAR.Ag.gz
+    ...
+    |- POT_GGA_PAW_PW91
+    ...
 
 After generating the resources directory, you should add a VASP_PSP_DIR config
 variable pointing to the generated directory and you should then be
@@ -234,7 +233,7 @@ Mac OSX
 1. Download and install Xcode. Afterwards, install the XCode command line
    tools by typing the following in a terminal::
 
-        xcode-select --install
+      xcode-select --install
 
 2. (Optional) Install gfortran.  Get an installer at
    http://gcc.gnu.org/wiki/GFortranBinaries#MacOS.
@@ -282,10 +281,10 @@ http://cmake.org/cmake/resources/software.html.
 
 Type the following::
 
-	cd VTK (this is the directory you expanded VTK into)
-	mkdir build
-	cd build
-	ccmake .. (this uses cmake in an interactive manner)
+    cd VTK (this is the directory you expanded VTK into)
+    mkdir build
+    cd build
+    ccmake .. (this uses cmake in an interactive manner)
 
 Press "t" to toggle advanced mode. Then press "c" to do an initial
 configuration. After the list of parameters come out, ensure that the
@@ -307,8 +306,8 @@ below (only variables that need to be modified/checked are shown)::
 Then press "c" again to configure and finally "g" to generate the required
 make files After the CMakeCache.txt file is generated, type::
 
-	make -j 4
-	sudo make install
+    make -j 4
+    sudo make install
 
 With any luck, you should have vtk with the necessary python wrappers
 installed. You can test this by going into a python terminal and trying::
@@ -380,7 +379,7 @@ Here are the steps that I took to make it work:
 12. If you are using Mavericks (OSX 10.9) and encounter errors relating to <tr1/memory>, you might also need to include
     the following flag in your CMakeCache.txt::
 
-		CMAKE_CXX_FLAGS:STRING=-stdlib=libstdc++
+        CMAKE_CXX_FLAGS:STRING=-stdlib=libstdc++
 
 13. Run make and install as follows::
 

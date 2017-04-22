@@ -1905,10 +1905,11 @@ class BSPlotterProjected(BSPlotter):
 
         return plt, shift
 
-class BSDOSPlotter():
+
+class BSDOSPlotter(object):
     """
-    A joint, aligned band structure and density of states plot. Contributions from Jan Pohls
-    as well as the online example from Germain Salvato-Vallverdu:
+    A joint, aligned band structure and density of states plot. Contributions 
+    from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:
     http://gvallver.perso.univ-pau.fr/?p=587
     """
 
@@ -1957,12 +1958,14 @@ class BSDOSPlotter():
         """
         Get a matplotlib plot object.
         Args:
-            bs (BandStructureSymmLine): the bandstructure to plot. Projection data must exist for projected plots.
-            dos (Dos): the Dos to plot. Projection data must exist (i.e., CompleteDos) for projected plots.
+            bs (BandStructureSymmLine): the bandstructure to plot. Projection 
+                data must exist for projected plots.
+            dos (Dos): the Dos to plot. Projection data must exist (i.e., 
+                CompleteDos) for projected plots.
 
         Returns:
-            a matplotlib plt object on which you can call commands like show() and savefig()
-
+            matplotlib.pyplot object on which you can call commands like show() 
+            and savefig()
         """
         import matplotlib.lines as mlines
         from matplotlib.gridspec import GridSpec
@@ -1977,9 +1980,10 @@ class BSDOSPlotter():
 
         if bs_projection and bs_projection.lower() == "elements" and \
                 (len(elements) not in [2, 3] or not bs.get_projection_on_elements()):
-            warnings.warn("Cannot get element projected data; either the projection data "
-                          "doesn't exist, or you don't have a compound with exactly 2 or 3"
-                          " unique elements.")
+            warnings.warn(
+                "Cannot get element projected data; either the projection data "
+                "doesn't exist, or you don't have a compound with exactly 2 or 3"
+                " unique elements.")
             bs_projection = None
 
         # specify energy range of plot
