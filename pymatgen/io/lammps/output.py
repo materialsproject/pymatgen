@@ -2,7 +2,18 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals, absolute_import
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
+import re
+from io import open
+
+import numpy as np
+
+from pymatgen.core.periodic_table import _pt_data
+from pymatgen.core.structure import Molecule
+from pymatgen.core.lattice import Lattice
+from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
+from pymatgen.io.lammps.data import LammpsData, LammpsForceFieldData
 
 """
 This module implements classes for processing Lammps output files:
@@ -18,17 +29,6 @@ This module implements classes for processing Lammps output files:
         of fields after that and they all will be treated as floats and
         updated based on the field names in the ITEM: ATOMS line.
 """
-
-import re
-from io import open
-
-import numpy as np
-
-from pymatgen.core.periodic_table import _pt_data
-from pymatgen.core.structure import Molecule
-from pymatgen.core.lattice import Lattice
-from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
-from pymatgen.io.lammps.data import LammpsData, LammpsForceFieldData
 
 __author__ = "Kiran Mathew"
 __email__ = "kmathew@lbl.gov"
@@ -102,7 +102,8 @@ class LammpsRun(object):
                     line_data.append(int(m.group(1)) - 1)
                     line_data.append(int(m.group(2)))
                     line_data.extend(
-                        [float(x) for i, x in enumerate(m.groups()) if i + 1 > 2])
+                        [float(x) for i, x in enumerate(m.groups()) if
+                         i + 1 > 2])
                     trajectory.append(tuple(line_data))
         traj_dtype = np.dtype([(str('Atoms_id'), np.int64),
                                (str('atom_type'), np.int64)] +
@@ -129,12 +130,10 @@ class LammpsRun(object):
         unique_mol_ids = np.unique(mol_ids)
         atomic_types = atoms_data[:, 2].astype(np.int64)
         atomic_masses = unique_atomic_masses[atomic_types - 1]
-        # atomic_charges = atoms_data[:, 3]
         self.nmols = unique_mol_ids.size
         for umid in range(self.nmols):
             mol_config.append(atom_ids[np.where(mol_ids == umid + 1)] - 1)
             mol_masses.append(atomic_masses[np.where(mol_ids == umid + 1)])
-            # mol_charges.append(np.sum(atomic_charges[np.where(mol_ids == umid+1)]))
         self.mol_config = np.array(mol_config)
         self.mol_masses = np.array(mol_masses)
 
@@ -152,8 +151,9 @@ class LammpsRun(object):
             1D numpy array(3 x 1) of weighted averages in x, y, z directions
         """
         mol_masses = self.mol_masses[mol_id]
-        return np.array([np.dot(mol_vector[:, dim], mol_masses) / np.sum(mol_masses)
-                         for dim in range(3)])
+        return np.array(
+            [np.dot(mol_vector[:, dim], mol_masses) / np.sum(mol_masses)
+             for dim in range(3)])
 
     def _get_mol_vector(self, step, mol_id, param=["x", "y", "z"]):
         """
@@ -232,7 +232,7 @@ class LammpsRun(object):
             mol_vector_structured = \
                 self.trajectory[begin:end][:][["x", "y", "z"]]
             new_shape = mol_vector_structured.shape + (-1,)
-            mol_vector = mol_vector_structured.view(np.float64).reshape(
+            mol_vector = mol_vector_structured.astype(np.float64).reshape(
                 new_shape)
             coords = mol_vector.copy()
             if step == 0:
@@ -272,7 +272,8 @@ class LammpsRun(object):
         # structures = self.get_structures_from_trajectory()
         structure, disp = self.get_displacements()
         return DiffusionAnalyzer(structure, disp, specie, temperature,
-                                 time_step, step_skip=step_skip, smoothed=smoothed,
+                                 time_step, step_skip=step_skip,
+                                 smoothed=smoothed,
                                  min_obs=min_obs, avg_nsteps=avg_nsteps)
 
     @property
