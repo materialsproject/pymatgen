@@ -182,13 +182,13 @@ class Basis_set_reader(object):
 
     def _parse_file(self, input):
 
-        lmax_nnlo_patt = re.compile("\s* (\d+) \s+ (\d+) \s+ \# .* ",
+        lmax_nnlo_patt = re.compile(r"\s* (\d+) \s+ (\d+) \s+ \# .* ",
                                     re.VERBOSE)
 
-        nl_orbital_patt = re.compile("\s* (\d+) \s+ (\d+) \s+ (\d+) \s+ \# .* ",
+        nl_orbital_patt = re.compile(r"\s* (\d+) \s+ (\d+) \s+ (\d+) \s+ \# .* ",
                                      re.VERBOSE)
 
-        coef_alpha_patt = re.compile("\s* ([-\d.\D]+) \s+ ([-\d.\D]+) \s* ",
+        coef_alpha_patt = re.compile(r"\s* ([-\d.\D]+) \s+ ([-\d.\D]+) \s* ",
                                      re.VERBOSE)
 
         preamble = []
@@ -720,9 +720,9 @@ class FiestaOutput(object):
             "^<it.*  \| \s+ Egap_KS \s+ = \s+ ([-\d.]+) \s+ \| \s+ Egap_QP \s+ = \s+ ([-\d.]+) \s+ \| "
             " \s+ Egap_QP \s+ = \s+ ([-\d.]+) \s+ \|", re.VERBOSE)
 
-        end_patt = re.compile("\s*program returned normally\s*")
+        end_patt = re.compile(r"\s*program returned normally\s*")
 
-        total_time_patt = re.compile("\s*total \s+ time: \s+  ([\d.]+) .*",
+        total_time_patt = re.compile(r"\s*total \s+ time: \s+  ([\d.]+) .*",
                                      re.VERBOSE)
 
         error_defs = {
@@ -797,9 +797,9 @@ class BSEOutput(object):
             "^exiton \s+ (\d+)  : \s+  ([\d.]+) \( \s+ ([-\d.]+) \) \s+ \| .*  ",
             re.VERBOSE)
 
-        end_patt = re.compile("\s*program returned normally\s*")
+        end_patt = re.compile(r"\s*program returned normally\s*")
 
-        total_time_patt = re.compile("\s*total \s+ time: \s+  ([\d.]+) .*",
+        total_time_patt = re.compile(r"\s*total \s+ time: \s+  ([\d.]+) .*",
                                      re.VERBOSE)
 
         error_defs = {

@@ -1650,16 +1650,16 @@ class Outcar(MSONable):
             Electric Field Gradient tensors as a list of dict in the order of atoms from OUTCAR.
             Each dict key/value pair corresponds to a component of the tensors.
         """
-        header_pattern = r"^\s+NMR quadrupolar parameters\s+$\n" \
-                         r"^\s+Cq : quadrupolar parameter\s+Cq=e[*]Q[*]V_zz/h$\n" \
-                         r"^\s+eta: asymmetry parameters\s+\(V_yy - V_xx\)/ V_zz$\n" \
-                         r"^\s+Q  : nuclear electric quadrupole moment in mb \(millibarn\)$\n" \
-                         r"^-{50,}$\n" \
-                         r"^\s+ion\s+Cq\(MHz\)\s+eta\s+Q \(mb\)\s+$\n" \
-                         r"^-{50,}\s*$\n"
-        row_pattern = r"\d+\s+(?P<cq>[-]?\d+\.\d+)\s+(?P<eta>[-]?\d+\.\d+)\s+" \
-                      r"(?P<nuclear_quadrupole_moment>[-]?\d+\.\d+)"
-        footer_pattern = "-{50,}\s*$"
+        header_pattern = r'^\s+NMR quadrupolar parameters\s+$\n' \
+                         r'^\s+Cq : quadrupolar parameter\s+Cq=e[*]Q[*]V_zz/h$\n' \
+                         r'^\s+eta: asymmetry parameters\s+\(V_yy - V_xx\)/ V_zz$\n' \
+                         r'^\s+Q  : nuclear electric quadrupole moment in mb \(millibarn\)$\n' \
+                         r'^-{50,}$\n' \
+                         r'^\s+ion\s+Cq\(MHz\)\s+eta\s+Q \(mb\)\s+$\n' \
+                         r'^-{50,}\s*$\n'
+        row_pattern = r'\d+\s+(?P<cq>[-]?\d+\.\d+)\s+(?P<eta>[-]?\d+\.\d+)\s+' \
+                      r'(?P<nuclear_quadrupole_moment>[-]?\d+\.\d+)'
+        footer_pattern = r'-{50,}\s*$'
         self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float,
                                 last_one_only=True, attribute_name="efg")
 

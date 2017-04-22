@@ -122,16 +122,16 @@ class PWInputError(BaseException):
 class PWOutput(object):
 
     patterns = {
-        "energies": "total energy\s+=\s+([\d\.\-]+)\sRy",
-        "ecut": "kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry",
-        "lattice_type": "bravais\-lattice index\s+=\s+(\d+)",
-        "celldm1": "celldm\(1\)=\s+([\d\.]+)\s",
-        "celldm2": "celldm\(2\)=\s+([\d\.]+)\s",
-        "celldm3": "celldm\(3\)=\s+([\d\.]+)\s",
-        "celldm4": "celldm\(4\)=\s+([\d\.]+)\s",
-        "celldm5": "celldm\(5\)=\s+([\d\.]+)\s",
-        "celldm6": "celldm\(6\)=\s+([\d\.]+)\s",
-        "nkpts": "number of k points=\s+([\d]+)"
+        "energies": r'total energy\s+=\s+([\d\.\-]+)\sRy',
+        "ecut": r'kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry',
+        "lattice_type": r'bravais\-lattice index\s+=\s+(\d+)',
+        "celldm1": r"celldm\(1\)=\s+([\d\.]+)\s",
+        "celldm2": r"celldm\(2\)=\s+([\d\.]+)\s",
+        "celldm3": r"celldm\(3\)=\s+([\d\.]+)\s",
+        "celldm4": r"celldm\(4\)=\s+([\d\.]+)\s",
+        "celldm5": r"celldm\(5\)=\s+([\d\.]+)\s",
+        "celldm6": r"celldm\(6\)=\s+([\d\.]+)\s",
+        "nkpts": r"number of k points=\s+([\d]+)"
     }
 
     def __init__(self, filename):
@@ -186,9 +186,3 @@ class PWOutput(object):
     @property
     def lattice_type(self):
         return self.data["lattice_type"]
-
-
-if __name__ == "__main__":
-    o = PWOutput("../../test_files/Si.pwscf.out")
-    print(o.data)
-    print(o.final_energy)

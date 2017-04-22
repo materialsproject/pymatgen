@@ -768,15 +768,15 @@ class AdfOutput(object):
         Parse the formatted logfile.
         """
 
-        cycle_patt = re.compile("Coordinates\sin\sGeometry\sCycle\s(\d+)")
-        coord_patt = re.compile("\s+([0-9]+)\.([A-Za-z]+)"+3*"\s+([-\.0-9]+)")
-        energy_patt = re.compile("<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\s"
+        cycle_patt = re.compile(r"Coordinates\sin\sGeometry\sCycle\s(\d+)")
+        coord_patt = re.compile(r"\s+([0-9]+)\.([A-Za-z]+)"+3*"\s+([-\.0-9]+)")
+        energy_patt = re.compile(r"<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\s"
                                  "Hartree")
-        final_energy_patt = re.compile("<.*>\s<.*>\s+Bond\sEnergy\s+([-\.0-9]+)"
+        final_energy_patt = re.compile(r"<.*>\s<.*>\s+Bond\sEnergy\s+([-\.0-9]+)"
                                        "\sa\.u\.")
-        error_patt = re.compile("<.*>\s<.*>\s+ERROR\sDETECTED:\s(.*)")
-        runtype_patt = re.compile("<.*>\s<.*>\s+RunType\s+:\s(.*)")
-        end_patt = re.compile("<.*>\s<.*>\s+END")
+        error_patt = re.compile(r"<.*>\s<.*>\s+ERROR\sDETECTED:\s(.*)")
+        runtype_patt = re.compile(r"<.*>\s<.*>\s+RunType\s+:\s(.*)")
+        end_patt = re.compile(r"<.*>\s<.*>\s+END")
         parse_cycle = False
         sites = []
         last_cycle = -1
@@ -880,15 +880,15 @@ class AdfOutput(object):
         """
         Parse the standard ADF output file.
         """
-        numerical_freq_patt = re.compile("\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sI\sE"
+        numerical_freq_patt = re.compile(r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sI\sE"
                                          "\sS\s+\*")
-        analytic_freq_patt = re.compile("\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sY\s+A"
+        analytic_freq_patt = re.compile(r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sY\s+A"
                                         "\sN\sA\sL\sY\sS\sI\sS\s+\*")
-        freq_on_patt = re.compile("Vibrations\sand\sNormal\sModes\s+\*+.*\*+")
-        freq_off_patt = re.compile("List\sof\sAll\sFrequencies:")
-        mode_patt = re.compile("\s+(\d+)\.([A-Za-z]+)\s+(.*)")
-        coord_patt = re.compile("\s+(\d+)\s+([A-Za-z]+)" + 6 * "\s+([0-9\.-]+)")
-        coord_on_patt = re.compile("\s+\*\s+R\sU\sN\s+T\sY\sP\sE\s:\s"
+        freq_on_patt = re.compile(r"Vibrations\sand\sNormal\sModes\s+\*+.*\*+")
+        freq_off_patt = re.compile(r"List\sof\sAll\sFrequencies:")
+        mode_patt = re.compile(r"\s+(\d+)\.([A-Za-z]+)\s+(.*)")
+        coord_patt = re.compile(r"\s+(\d+)\s+([A-Za-z]+)" + 6 * "\s+([0-9\.-]+)")
+        coord_on_patt = re.compile(r"\s+\*\s+R\sU\sN\s+T\sY\sP\sE\s:\s"
                                    "FREQUENCIES\s+\*")
         parse_freq = False
         parse_mode = False
