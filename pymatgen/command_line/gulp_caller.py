@@ -290,7 +290,7 @@ class GulpIO(object):
         gin = ""
         for key in val_dict.keys():
             use_bush = True
-            el = re.sub('[1-9,+,\-]', '', key)
+            el = re.sub(r'[1-9,+,\-]', '', key)
             if el not in bpb.species_dict.keys():
                 use_bush = False
             elif val_dict[key] != bpb.species_dict[el]['oxi']:

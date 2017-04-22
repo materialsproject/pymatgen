@@ -1355,10 +1355,10 @@ class QcTask(MSONable):
         float_pattern = re.compile(r'^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
         for line in contents:
             tokens = line.strip().split()
-            if re.match('ENDCONSTRAINT', line, re.IGNORECASE):
+            if re.match(r'ENDCONSTRAINT', line, re.IGNORECASE):
                 constraints = False
                 opt_dict["CONSTRAINT"] = const_list
-            elif re.match('ENDFIXED', line, re.IGNORECASE):
+            elif re.match(r'ENDFIXED', line, re.IGNORECASE):
                 fixed_sec = False
                 opt_dict["FIXED"] = fixed_dict
             elif constraints:
@@ -1378,10 +1378,10 @@ class QcTask(MSONable):
                     raise ValueError("{} is not a correct keyword to fix"
                                      "atoms".format(fix_spec))
                 fixed_dict[atom] = fix_spec
-            elif re.match('CONSTRAINT', line, re.IGNORECASE):
+            elif re.match(r'CONSTRAINT', line, re.IGNORECASE):
                 constraints = True
                 const_list = []
-            elif re.match('FIXED', line, re.IGNORECASE):
+            elif re.match(r'FIXED', line, re.IGNORECASE):
                 fixed_sec = True
                 fixed_dict = dict()
             elif len(line.strip()) == 0:
