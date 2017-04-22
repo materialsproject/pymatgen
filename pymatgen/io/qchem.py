@@ -1095,7 +1095,7 @@ class QcTask(MSONable):
             try:
                 return int(sp_str)
             except ValueError:
-                sp = re.sub("\d", "", sp_str)
+                sp = re.sub(r"\d", "", sp_str)
                 return sp.capitalize()
 
         species = list(map(parse_species, species))

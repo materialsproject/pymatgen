@@ -162,9 +162,9 @@ class CifBlock(object):
     @classmethod
     def _process_string(cls, string):
         # remove comments
-        string = re.sub("(\s|^)#.*$", "", string, flags=re.MULTILINE)
+        string = re.sub(r"(\s|^)#.*$", "", string, flags=re.MULTILINE)
         # remove empty lines
-        string = re.sub("^\s*\n", "", string, flags=re.MULTILINE)
+        string = re.sub(r"^\s*\n", "", string, flags=re.MULTILINE)
         # remove non_ascii
         string = remove_non_ascii(string)
 
@@ -427,7 +427,7 @@ class CifParser(object):
 
                     try:
                         for d in _get_cod_data():
-                            if sg == re.sub("\s+", "",
+                            if sg == re.sub(r"\s+", "",
                                             d["hermann_mauguin"]) :
                                 xyz = d["symops"]
                                 symops = [SymmOp.from_xyz_string(s)
@@ -867,10 +867,10 @@ def str2float(text):
     """
 
     try:
-        return float(re.sub("\(.+\)", "", text))
+        return float(re.sub(r"\(.+\)", "", text))
     except TypeError:
         if isinstance(text, list) and len(text) == 1:
-            return float(re.sub("\(.+\)", "", text[0]))
+            return float(re.sub(r"\(.+\)", "", text[0]))
     except ValueError as ex:
         if text.strip() == ".":
             return 0

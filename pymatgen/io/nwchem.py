@@ -228,7 +228,7 @@ task $theory $operation""")
                 {'cosmo': "cosmo"}.
         """
         title = title if title is not None else "{} {} {}".format(
-            re.sub("\s", "", mol.formula), theory, operation)
+            re.sub(r"\s", "", mol.formula), theory, operation)
 
         charge = charge if charge is not None else mol.charge
         nelectrons = - charge + mol.charge + mol.nelectrons

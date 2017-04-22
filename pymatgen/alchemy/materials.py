@@ -283,7 +283,7 @@ class TransformedStructure(MSONable):
             TransformedStructure
         """
         parser = CifParser.from_string(cif_string, occupancy_tolerance)
-        raw_string = re.sub("'", "\"", cif_string)
+        raw_string = re.sub(r"'", "\"", cif_string)
         cif_dict = parser.as_dict()
         cif_keys = list(cif_dict.keys())
         s = parser.get_structures(primitive)[0]
@@ -312,7 +312,7 @@ class TransformedStructure(MSONable):
         if not p.true_names:
             raise ValueError("Transformation can be craeted only from POSCAR "
                              "strings with proper VASP5 element symbols.")
-        raw_string = re.sub("'", "\"", poscar_string)
+        raw_string = re.sub(r"'", "\"", poscar_string)
         s = p.structure
         source_info = {"source": "POSCAR",
                        "datetime": str(datetime.datetime.now()),

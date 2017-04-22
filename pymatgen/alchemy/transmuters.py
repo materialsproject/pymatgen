@@ -395,7 +395,7 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set=MPRelaxSet,
             programs.
     """
     for i, s in enumerate(transformed_structures):
-        formula = re.sub("\s+", "", s.final_structure.formula)
+        formula = re.sub(r"\s+", "", s.final_structure.formula)
         if subfolder is not None:
             subdir = subfolder(s)
             dirname = os.path.join(output_dir, subdir,

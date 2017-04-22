@@ -77,7 +77,7 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
                 e.data["initial_structure"].volume - 1
             delta_vol = "{:.2f}".format(delta_vol * 100)
         all_data.append((e.data["filename"].replace("./", ""),
-                         re.sub("\s+", "", e.composition.formula),
+                         re.sub(r"\s+", "", e.composition.formula),
                          "{:.5f}".format(e.energy),
                          "{:.5f}".format(e.energy_per_atom),
                          delta_vol))

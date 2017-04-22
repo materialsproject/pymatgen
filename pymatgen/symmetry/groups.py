@@ -188,8 +188,8 @@ class SpaceGroup(SymmetryGroup):
                                    "symm_ops.yaml"))
     SG_SYMBOLS = set(get_symm_data("space_group_encoding").keys())
     for op in SYMM_OPS:
-        op["hermann_mauguin"] = re.sub(" ", "", op["hermann_mauguin"])
-        op["universal_h_m"] = re.sub(" ", "", op["universal_h_m"])
+        op["hermann_mauguin"] = re.sub(r" ", "", op["hermann_mauguin"])
+        op["universal_h_m"] = re.sub(r" ", "", op["universal_h_m"])
         SG_SYMBOLS.add(op["hermann_mauguin"])
         SG_SYMBOLS.add(op["universal_h_m"])
 
@@ -221,7 +221,7 @@ class SpaceGroup(SymmetryGroup):
                 translation vector, e.g., 'Fm-3m(a-1/4,b-1/4,c-1/4)'.
         """
 
-        int_symbol = re.sub(" ", "", int_symbol)
+        int_symbol = re.sub(r" ", "", int_symbol)
         if int_symbol in SpaceGroup.abbrev_sg_mapping:
             int_symbol = SpaceGroup.abbrev_sg_mapping[int_symbol]
         elif int_symbol in SpaceGroup.full_sg_mapping:
@@ -230,13 +230,13 @@ class SpaceGroup(SymmetryGroup):
         for spg in SpaceGroup.SYMM_OPS:
             if int_symbol in [spg["hermann_mauguin"], spg["universal_h_m"]]:
                 ops = [SymmOp.from_xyz_string(s) for s in spg["symops"]]
-                self.symbol = re.sub(":", "",
-                                     re.sub(" ", "", spg["universal_h_m"]))
+                self.symbol = re.sub(r":", "",
+                                     re.sub(r" ", "", spg["universal_h_m"]))
                 if int_symbol in SpaceGroup.sgencoding:
                     self.full_symbol = SpaceGroup.sgencoding[int_symbol]["full_symbol"]
                     self.point_group = SpaceGroup.sgencoding[int_symbol]["point_group"]
                 else:
-                    self.full_symbol = re.sub(" ", "",
+                    self.full_symbol = re.sub(r" ", "",
                                               spg["universal_h_m"])
                     self.point_group = spg["schoenflies"]
                 self.int_number = spg["number"]
