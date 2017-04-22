@@ -297,7 +297,7 @@ class EnumlibAdaptor(object):
         for line in output.strip().split("\n"):
             if line.strip().endswith("RunTot"):
                 start_count = True
-            elif start_count and re.match("\d+\s+.*", line.strip()):
+            elif start_count and re.match(r"\d+\s+.*", line.strip()):
                 count = int(line.split()[-1])
         logger.debug("Enumeration resulted in {} structures".format(count))
         return count

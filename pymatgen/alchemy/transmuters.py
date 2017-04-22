@@ -294,7 +294,7 @@ class CifTransmuter(StandardTransmuter):
         structure_data = []
         read_data = False
         for line in lines:
-            if re.match("^\s*data", line):
+            if re.match(r"^\s*data", line):
                 structure_data.append([])
                 read_data = True
             if read_data:

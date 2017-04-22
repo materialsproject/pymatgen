@@ -640,7 +640,7 @@ class NwOutput(object):
                     parse_bset = False
                 else:
                     toks = l.split()
-                    if toks[0] != "Tag" and not re.match("\-+", toks[0]):
+                    if toks[0] != "Tag" and not re.match(r"\-+", toks[0]):
                         basis_set[toks[0]] = dict(zip(bset_header[1:],
                                                       toks[1:]))
                     elif toks[0] == "Tag":

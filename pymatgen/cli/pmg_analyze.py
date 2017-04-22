@@ -96,7 +96,7 @@ def get_magnetizations(mydir, ion_list):
     max_row = 0
     for (parent, subdirs, files) in os.walk(mydir):
         for f in files:
-            if re.match("OUTCAR*", f):
+            if re.match(r"OUTCAR*", f):
                 try:
                     row = []
                     fullpath = os.path.join(parent, f)

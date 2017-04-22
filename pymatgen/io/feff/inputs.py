@@ -573,7 +573,7 @@ class Tags(dict):
         ieels = -1
         ieels_max = -1
         for i, line in enumerate(lines):
-            m = re.match("([A-Z]+\d*\d*)\s*(.*)", line)
+            m = re.match(r"([A-Z]+\d*\d*)\s*(.*)", line)
             if m:
                 key = m.group(1).strip()
                 val = m.group(2).strip()
@@ -632,7 +632,7 @@ class Tags(dict):
                 toks = re.split("\s+", val)
 
                 for tok in toks:
-                    m = re.match("(\d+)\*([\d\.\-\+]+)", tok)
+                    m = re.match(r"(\d+)\*([\d\.\-\+]+)", tok)
                     if m:
                         output.extend([smart_int_or_float(m.group(2))] *
                                       int(m.group(1)))
