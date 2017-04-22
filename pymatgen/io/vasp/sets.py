@@ -158,7 +158,8 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
             v.write_file(os.path.join(output_dir, k))
         if include_cif:
             s = self.all_input["POSCAR"].structure
-            fname = os.path.join(output_dir, "%s.cif" % re.sub("\s", "", s.formula))
+            fname = os.path.join(output_dir, "%s.cif" % re.sub(r'\s', "",
+                                                               s.formula))
             s.to(filename=fname)
 
     def as_dict(self, verbosity=2):
@@ -1351,7 +1352,7 @@ def batch_write_input(structures, vasp_input_set=MPRelaxSet, output_dir=".",
             addition to structure.
     """
     for i, s in enumerate(structures):
-        formula = re.sub("\s+", "", s.formula)
+        formula = re.sub(r'\s+', "", s.formula)
         if subfolder is not None:
             subdir = subfolder(s)
             d = os.path.join(output_dir, subdir)
