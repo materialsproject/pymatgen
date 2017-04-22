@@ -1499,48 +1499,51 @@ class QcOutput(object):
                                      r'and\s+(?P<beta>\d+)\s+beta electrons')
         total_charge_pattern = re.compile(r'Sum of atomic charges ='
                                           '\s+(?P<charge>\-?\d+\.\d+)')
-        scf_iter_pattern = re.compile("\d+\s*(?P<energy>\-\d+\.\d+)\s+"
-                                      "(?P<diis_error>\d+\.\d+E[-+]\d+)")
-        zpe_pattern = re.compile("Zero point vibrational energy:"
-                                 "\s+(?P<zpe>\d+\.\d+)\s+kcal/mol")
-        thermal_corr_pattern = re.compile("(?P<name>\S.*\S):\s+"
-                                          "(?P<correction>\d+\.\d+)\s+"
-                                          "k?cal/mol")
-        detailed_charge_pattern = re.compile("(Ground-State )?(?P<method>\w+)( Net)?"
-                                             " Atomic Charges")
-        nbo_charge_pattern = re.compile("(?P<element>[A-Z][a-z]{0,2})\s*(?P<no>\d+)\s+(?P<charge>\-?\d\.\d+)"
-                                        "\s+(?P<core>\-?\d+\.\d+)\s+(?P<valence>\-?\d+\.\d+)"
-                                        "\s+(?P<rydberg>\-?\d+\.\d+)\s+(?P<total>\-?\d+\.\d+)"
-                                        "(\s+(?P<spin>\-?\d\.\d+))?")
-        nbo_wavefunction_type_pattern = re.compile("This is an? (?P<type>\w+\-\w+) NBO calculation")
-        bsse_pattern = re.compile("DE, kJ/mol\s+(?P<raw_be>\-?\d+\.?\d+([eE]\d+)?)\s+"
-                                  "(?P<corrected_be>\-?\d+\.?\d+([eE]\d+)?)")
-        float_pattern = re.compile("\-?\d+\.?\d+([eE]\d+)?$")
+        scf_iter_pattern = re.compile(
+            r'\d+\s*(?P<energy>\-\d+\.\d+)\s+(?P<diis_error>\d+\.\d+E[-+]\d+)')
+        zpe_pattern = re.compile(
+            r'Zero point vibrational energy:\s+(?P<zpe>\d+\.\d+)\s+kcal/mol')
+        thermal_corr_pattern = re.compile(
+            r'(?P<name>\S.*\S):\s+(?P<correction>\d+\.\d+)\s+k?cal/mol')
+        detailed_charge_pattern = re.compile(
+            r'(Ground-State )?(?P<method>\w+)( Net)? Atomic Charges')
+        nbo_charge_pattern = re.compile(
+            r'(?P<element>[A-Z][a-z]{0,2})\s*(?P<no>\d+)\s+(?P<charge>\-?\d\.\d+)'
+            r'\s+(?P<core>\-?\d+\.\d+)\s+(?P<valence>\-?\d+\.\d+)'
+            r'\s+(?P<rydberg>\-?\d+\.\d+)\s+(?P<total>\-?\d+\.\d+)'
+            r'(\s+(?P<spin>\-?\d\.\d+))?')
+        nbo_wavefunction_type_pattern = re.compile(
+            r'This is an? (?P<type>\w+\-\w+) NBO calculation')
+        bsse_pattern = re.compile(
+            r'DE, kJ/mol\s+(?P<raw_be>\-?\d+\.?\d+([eE]\d+)?)\s+'
+            r'(?P<corrected_be>\-?\d+\.?\d+([eE]\d+)?)')
+        float_pattern = re.compile(r'\-?\d+\.?\d+([eE]\d+)?$')
 
         error_defs = (
-            (re.compile("Convergence failure"), "Bad SCF convergence"),
-            (re.compile("Coordinates do not transform within specified "
-                        "threshold"), "autoz error"),
-            (re.compile("MAXIMUM OPTIMIZATION CYCLES REACHED"),
+            (re.compile(r'Convergence failure'), "Bad SCF convergence"),
+            (re.compile(
+                r'Coordinates do not transform within specified threshold'),
+             "autoz error"),
+            (re.compile(r'MAXIMUM OPTIMIZATION CYCLES REACHED'),
                 "Geometry optimization failed"),
-            (re.compile("\s+[Nn][Aa][Nn]\s+"), "NAN values"),
-            (re.compile("energy\s+=\s*(\*)+"), "Numerical disaster"),
-            (re.compile("NewFileMan::OpenFile\(\):\s+nopenfiles=\d+\s+"
-                        "maxopenfiles=\d+s+errno=\d+"), "Open file error"),
-            (re.compile("Application \d+ exit codes: 1[34]\d+"), "Exit Code 134"),
-            (re.compile("Negative overlap matrix eigenvalue. Tighten integral "
-                        "threshold \(REM_THRESH\)!"), "Negative Eigen"),
-            (re.compile("Unable to allocate requested memory in mega_alloc"),
+            (re.compile(r'\s+[Nn][Aa][Nn]\s+'), "NAN values"),
+            (re.compile(r'energy\s+=\s*(\*)+'), "Numerical disaster"),
+            (re.compile(r'NewFileMan::OpenFile\(\):\s+nopenfiles=\d+\s+'
+                        r'maxopenfiles=\d+s+errno=\d+'), "Open file error"),
+            (re.compile(r'Application \d+ exit codes: 1[34]\d+'), "Exit Code 134"),
+            (re.compile(r'Negative overlap matrix eigenvalue. Tighten integral '
+                        r'threshold \(REM_THRESH\)!'), "Negative Eigen"),
+            (re.compile(r'Unable to allocate requested memory in mega_alloc'),
                 "Insufficient static memory"),
-            (re.compile("Application \d+ exit signals: Killed"),
+            (re.compile(r'Application \d+ exit signals: Killed'),
                 "Killed"),
-            (re.compile("UNABLE TO DETERMINE Lamda IN FormD"),
+            (re.compile(r'UNABLE TO DETERMINE Lamda IN FormD'),
                 "Lamda Determination Failed"),
-            (re.compile("Job too small. Please specify .*CPSCF_NSEG"),
+            (re.compile(r'Job too small. Please specify .*CPSCF_NSEG'),
                 "Freq Job Too Small"),
-            (re.compile("Not enough total memory"),
+            (re.compile(r'Not enough total memory'),
                 "Not Enough Total Memory"),
-            (re.compile("Use of \$pcm_solvent section has been deprecated starting in Q-Chem"),
+            (re.compile(r'Use of \$pcm_solvent section has been deprecated starting in Q-Chem'),
                 "pcm_solvent deprecated")
         )
 

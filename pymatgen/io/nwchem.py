@@ -517,21 +517,21 @@ class NwOutput(object):
         return info
 
     def _parse_job(self, output):
-        energy_patt = re.compile("Total \w+ energy\s+=\s+([\.\-\d]+)")
-        energy_gas_patt = re.compile("gas phase energy\s+=\s+([\.\-\d]+)")
-        energy_sol_patt = re.compile("sol phase energy\s+=\s+([\.\-\d]+)")
-        coord_patt = re.compile("\d+\s+(\w+)\s+[\.\-\d]+\s+([\.\-\d]+)\s+"
-                                "([\.\-\d]+)\s+([\.\-\d]+)")
-        lat_vector_patt = re.compile("a[123]=<\s+([\.\-\d]+)\s+"
-                                     "([\.\-\d]+)\s+([\.\-\d]+)\s+>")
-        corrections_patt = re.compile("([\w\-]+ correction to \w+)\s+="
-                                      "\s+([\.\-\d]+)")
-        preamble_patt = re.compile("(No. of atoms|No. of electrons"
-                                   "|SCF calculation type|Charge|Spin "
-                                   "multiplicity)\s*:\s*(\S+)")
-        force_patt = re.compile("\s+(\d+)\s+(\w+)" + 6 * "\s+([0-9\.\-]+)")
+        energy_patt = re.compile(r'Total \w+ energy\s+=\s+([\.\-\d]+)')
+        energy_gas_patt = re.compile(r'gas phase energy\s+=\s+([\.\-\d]+)')
+        energy_sol_patt = re.compile(r'sol phase energy\s+=\s+([\.\-\d]+)')
+        coord_patt = re.compile(r'\d+\s+(\w+)\s+[\.\-\d]+\s+([\.\-\d]+)\s+'
+                                r'([\.\-\d]+)\s+([\.\-\d]+)')
+        lat_vector_patt = re.compile(r'a[123]=<\s+([\.\-\d]+)\s+'
+                                     r'([\.\-\d]+)\s+([\.\-\d]+)\s+>')
+        corrections_patt = re.compile(r'([\w\-]+ correction to \w+)\s+='
+                                      r'\s+([\.\-\d]+)')
+        preamble_patt = re.compile(r'(No. of atoms|No. of electrons'
+                                   r'|SCF calculation type|Charge|Spin '
+                                   r'multiplicity)\s*:\s*(\S+)')
+        force_patt = re.compile(r'\s+(\d+)\s+(\w+)" + 6 * "\s+([0-9\.\-]+)')
 
-        time_patt = re.compile("\s+ Task \s+ times \s+ cpu: \s+   ([\.\d]+)s .+ ", re.VERBOSE)
+        time_patt = re.compile(r'\s+ Task \s+ times \s+ cpu: \s+   ([\.\d]+)s .+ ', re.VERBOSE)
 
         error_defs = {
             "calculations not reaching convergence": "Bad convergence",
