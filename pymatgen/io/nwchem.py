@@ -529,7 +529,7 @@ class NwOutput(object):
         preamble_patt = re.compile(r'(No. of atoms|No. of electrons'
                                    r'|SCF calculation type|Charge|Spin '
                                    r'multiplicity)\s*:\s*(\S+)')
-        force_patt = re.compile(r'\s+(\d+)\s+(\w+)" + 6 * "\s+([0-9\.\-]+)')
+        force_patt = re.compile(r'\s+(\d+)\s+(\w+)' + 6 * r'\s+([0-9\.\-]+)')
 
         time_patt = re.compile(r'\s+ Task \s+ times \s+ cpu: \s+   ([\.\d]+)s .+ ', re.VERBOSE)
 
