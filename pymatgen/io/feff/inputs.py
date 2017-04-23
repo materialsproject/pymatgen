@@ -629,7 +629,7 @@ class Tags(dict):
         try:
             if key in list_type_keys:
                 output = list()
-                toks = re.split("\s+", val)
+                toks = re.split(r"\s+", val)
 
                 for tok in toks:
                     m = re.match(r"(\d+)\*([\d\.\-\+]+)", tok)
@@ -640,7 +640,7 @@ class Tags(dict):
                         output.append(smart_int_or_float(tok))
                 return output
             if key in boolean_type_keys:
-                m = re.search("^\W+([TtFf])", val)
+                m = re.search(r"^\W+([TtFf])", val)
                 if m:
                     if m.group(1) == "T" or m.group(1) == "t":
                         return True

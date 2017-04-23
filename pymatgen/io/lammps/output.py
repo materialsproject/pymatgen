@@ -357,19 +357,19 @@ class LammpsLog(object):
         with open(self.log_file, 'r') as logfile:
             for line in logfile:
                 # timestep, the unit depedns on the 'units' command
-                time = re.search('timestep\s+([0-9]+)', line)
+                time = re.search(r'timestep\s+([0-9]+)', line)
                 if time and not thermo_data:
                     self.timestep = float(time.group(1))
                 # total number md steps
-                steps = re.search('run\s+([0-9]+)', line)
+                steps = re.search(r'run\s+([0-9]+)', line)
                 if steps and not thermo_data:
                     self.nmdsteps = int(steps.group(1))
                 # logging interval
-                thermo = re.search('thermo\s+([0-9]+)', line)
+                thermo = re.search(r'thermo\s+([0-9]+)', line)
                 if thermo and not thermo_data:
                     self.interval = float(thermo.group(1))
                 # thermodynamic data, set by the thermo_style command
-                format = re.search('thermo_style.+', line)
+                format = re.search(r'thermo_style.+', line)
                 if format and not thermo_data:
                     fields = format.group().split()[2:]
                     thermo_pattern_string = "\s*([0-9eE\.+-]+)" + "".join(

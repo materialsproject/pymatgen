@@ -269,7 +269,7 @@ class Poscar(MSONable):
             Poscar object.
         """
         # "^\s*$" doesn't match lines with no whitespace
-        chunks = re.split("\n\s*\n", data.rstrip(), flags=re.MULTILINE)
+        chunks = re.split(r"\n\s*\n", data.rstrip(), flags=re.MULTILINE)
         try:
             if chunks[0] == "":
                 chunks.pop(0)
@@ -1370,7 +1370,7 @@ def parse_int(s):
 
 
 def parse_list(s):
-    return [float(y) for y in re.split("\s+", s.strip()) if not y.isalpha()]
+    return [float(y) for y in re.split(r"\s+", s.strip()) if not y.isalpha()]
 
 
 @cached_class

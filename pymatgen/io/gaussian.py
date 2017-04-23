@@ -165,14 +165,14 @@ class GaussianInput(object):
             if (not zmode) and GaussianInput.xyz_patt.match(l):
                 m = GaussianInput.xyz_patt.match(l)
                 species.append(m.group(1))
-                toks = re.split("[,\s]+", l.strip())
+                toks = re.split(r"[,\s]+", l.strip())
                 if len(toks) > 4:
                     coords.append([float(i) for i in toks[2:5]])
                 else:
                     coords.append([float(i) for i in toks[1:4]])
             elif GaussianInput.zmat_patt.match(l):
                 zmode = True
-                toks = re.split("[,\s]+", l.strip())
+                toks = re.split(r"[,\s]+", l.strip())
                 species.append(toks[0])
                 toks.pop(0)
                 if len(toks) == 0:
@@ -288,7 +288,7 @@ class GaussianInput(object):
             ind += 1
         title = ' '.join(title)
         ind += 1
-        toks = re.split("[\s,]", lines[route_index + ind])
+        toks = re.split(r"[\s,]", lines[route_index + ind])
         charge = int(toks[0])
         spin_mult = int(toks[1])
         coord_lines = []

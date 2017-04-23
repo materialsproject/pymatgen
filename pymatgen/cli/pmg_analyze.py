@@ -136,7 +136,7 @@ def analyze(args):
         if args.ion_list[0] == "All":
             ion_list = None
         else:
-            (start, end) = [int(i) for i in re.split("-", args.ion_list[0])]
+            (start, end) = [int(i) for i in re.split(r"-", args.ion_list[0])]
             ion_list = list(range(start, end + 1))
         for d in args.directories:
             get_magnetizations(d, ion_list)

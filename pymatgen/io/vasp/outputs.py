@@ -126,7 +126,7 @@ def _parse_from_incar(filename, key):
     """
     dirname = os.path.dirname(filename)
     for f in os.listdir(dirname):
-        if re.search("INCAR", f):
+        if re.search(r"INCAR", f):
             warnings.warn("INCAR found. Using " + key + " from INCAR.")
             incar = Incar.from_file(os.path.join(dirname, f))
             if key in incar:
@@ -848,7 +848,7 @@ class Vasprun(MSONable):
         d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
         d["pretty_formula"] = comp.reduced_formula
         symbols = [s.split()[1] for s in self.potcar_symbols]
-        symbols = [re.split("_", s)[0] for s in symbols]
+        symbols = [re.split(r"_", s)[0] for s in symbols]
         d["is_hubbard"] = self.is_hubbard
         d["hubbards"] = {}
         if d["is_hubbard"]:
@@ -1213,7 +1213,7 @@ class BSVasprun(Vasprun):
         d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
         d["pretty_formula"] = comp.reduced_formula
         symbols = [s.split()[1] for s in self.potcar_symbols]
-        symbols = [re.split("_", s)[0] for s in symbols]
+        symbols = [re.split(r"_", s)[0] for s in symbols]
         d["is_hubbard"] = self.is_hubbard
         d["hubbards"] = {}
         if d["is_hubbard"]:

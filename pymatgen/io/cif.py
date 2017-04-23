@@ -260,13 +260,13 @@ class CifFile(object):
     @classmethod
     def from_string(cls, string):
         d = OrderedDict()
-        for x in re.split("^\s*data_", "x\n" + string,
+        for x in re.split(r"^\s*data_", "x\n" + string,
                           flags=re.MULTILINE | re.DOTALL)[1:]:
 
             # Skip over Cif block that contains powder diffraction data.
             # Some elements in this block were missing from CIF files in Springer materials/Pauling file DBs.
             # This block anyway does not contain any structure information, and CifParser was also not parsing it.
-            if 'powder_pattern' in re.split("\n", x, 1)[0]:
+            if 'powder_pattern' in re.split(r"\n", x, 1)[0]:
                 continue
             c = CifBlock.from_string("data_" + x)
             d[c.header] = c

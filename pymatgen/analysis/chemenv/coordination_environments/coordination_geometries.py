@@ -316,7 +316,9 @@ class CoordinationGeometry(object):
     """
 
     class NeighborsSetsHints(object):
+
         ALLOWED_HINTS_TYPES = ['single_cap', 'double_cap', 'triple_cap']
+
         def __init__(self, hints_type, options):
             if hints_type not in self.ALLOWED_HINTS_TYPES:
                 raise ValueError('Type "{}" for NeighborsSetsHints is not allowed'.format(type))

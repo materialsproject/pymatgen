@@ -501,8 +501,8 @@ class NwOutput(object):
         with zopen(filename) as f:
             data = f.read()
 
-        chunks = re.split("NWChem Input Module", data)
-        if re.search("CITATION", chunks[-1]):
+        chunks = re.split(r"NWChem Input Module", data)
+        if re.search(r"CITATION", chunks[-1]):
             chunks.pop()
         preamble = chunks.pop(0)
         self.job_info = self._parse_preamble(preamble)

@@ -54,7 +54,7 @@ class Ion(MSONable):
         f = formula
         m = re.search(r"\[([^\[\]]+)\]", f)
         if m:
-            m_chg = re.search("([\.\d]*)([+-])", m.group(1))
+            m_chg = re.search(r"([\.\d]*)([+-])", m.group(1))
             if m_chg:
                 if m_chg.group(1) != "":
                     charge += float(m_chg.group(1)) * \

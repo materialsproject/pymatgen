@@ -1994,7 +1994,7 @@ class IMolecule(SiteCollection, MSONable):
                 return yaml.dump(self.as_dict(), Dumper=Dumper)
 
         else:
-            m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
+            m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
                           fname.lower())
             if (not fmt) and m:
                 fmt = m.group(1)
@@ -2079,7 +2079,7 @@ class IMolecule(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="yaml")
         else:
             from pymatgen.io.babel import BabelMolAdaptor
-            m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
+            m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
                           filename.lower())
             if m:
                 new = BabelMolAdaptor.from_file(filename,
