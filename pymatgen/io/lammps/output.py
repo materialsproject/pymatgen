@@ -74,10 +74,10 @@ class LammpsRun(object):
         # Note: the first 2 fields must be the id and the atom type. There can be
         # arbitrary number of fields after that and they all will be treated as floats.
         traj_pattern = re.compile(
-            "\s*(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+"
-            "([0-9eE\.+-]+)\s+"
-            "([0-9eE\.+-]+)\s+"
-            "([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+(\d+)\s*")
+            r"\s*(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+"
+            r"([0-9eE\.+-]+)\s+"
+            r"([0-9eE\.+-]+)\s+"
+            r"([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+(\d+)\s*")
         parse_timestep = False
         with open(self.trajectory_file) as tf:
             for line in tf:
@@ -91,8 +91,8 @@ class LammpsRun(object):
                     fields = traj_label_pattern.search(line).group(1)
                     fields = fields.split()
                     # example:- id type x y z vx vy vz mol ...
-                    traj_pattern_string = "\s*(\d+)\s+(\d+)" + "".join(
-                        ["\s+([0-9eE\.+-]+)" for _ in range(len(fields))])
+                    traj_pattern_string = r"\s*(\d+)\s+(\d+)" + "".join(
+                        [r"\s+([0-9eE\.+-]+)" for _ in range(len(fields))])
                     traj_pattern = re.compile(traj_pattern_string)
                 if traj_pattern.search(line):
                     # first 2 fields must be id and type, the rest of them
@@ -372,8 +372,8 @@ class LammpsLog(object):
                 format = re.search(r'thermo_style.+', line)
                 if format and not thermo_data:
                     fields = format.group().split()[2:]
-                    thermo_pattern_string = "\s*([0-9eE\.+-]+)" + "".join(
-                        ["\s+([0-9eE\.+-]+)" for _ in range(len(fields) - 1)])
+                    thermo_pattern_string = r"\s*([0-9eE\.+-]+)" + "".join(
+                        [r"\s+([0-9eE\.+-]+)" for _ in range(len(fields) - 1)])
                     thermo_pattern = re.compile(thermo_pattern_string)
                 if thermo_pattern:
                     if thermo_pattern.search(line):

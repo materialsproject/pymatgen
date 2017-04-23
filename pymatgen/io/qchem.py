@@ -95,7 +95,7 @@ class QcTask(MSONable):
                           "frequency": "freq"}
     zmat_patt = re.compile(r'^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$')
     xyz_patt = re.compile(r'^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+'
-                          '([\d\.eE\-]+)[\-\.\s,\w.]*$')
+                          r'([\d\.eE\-]+)[\-\.\s,\w.]*$')
 
     def __init__(self, molecule=None, charge=None, spin_multiplicity=None,
                  jobtype='SP', title=None, exchange="HF", correlation=None,
@@ -1442,9 +1442,9 @@ class QcOutput(object):
 
     def __init__(self, filename):
         self.filename = filename
-        split_pattern = "\n\nRunning Job \d+ of \d+ \S+|" \
-                        "[*]{61}\nJob \d+ of \d+ \n[*]{61}|" \
-                        "\n.*time.*\nRunning Job \d+ of \d+ \S+"
+        split_pattern = r"\n\nRunning Job \d+ of \d+ \S+|" \
+                        r"[*]{61}\nJob \d+ of \d+ \n[*]{61}|" \
+                        r"\n.*time.*\nRunning Job \d+ of \d+ \S+"
         try:
             with zopen(filename, "rt") as f:
                 data = f.read()
@@ -1498,7 +1498,7 @@ class QcOutput(object):
         num_ele_pattern = re.compile(r'There are\s+(?P<alpha>\d+)\s+alpha '
                                      r'and\s+(?P<beta>\d+)\s+beta electrons')
         total_charge_pattern = re.compile(r'Sum of atomic charges ='
-                                          '\s+(?P<charge>\-?\d+\.\d+)')
+                                          r'\s+(?P<charge>\-?\d+\.\d+)')
         scf_iter_pattern = re.compile(
             r'\d+\s*(?P<energy>\-\d+\.\d+)\s+(?P<diis_error>\d+\.\d+E[-+]\d+)')
         zpe_pattern = re.compile(

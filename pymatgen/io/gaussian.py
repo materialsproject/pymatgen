@@ -1022,11 +1022,11 @@ class GaussianOutput(object):
 
     def _check_pcm(self, line):
         energy_patt = re.compile(r"(Dispersion|Cavitation|Repulsion) energy"
-                                 "\s+\S+\s+=\s+(\S*)")
+                                 r"\s+\S+\s+=\s+(\S*)")
         total_patt = re.compile(r"with all non electrostatic terms\s+\S+\s+"
-                                "=\s+(\S*)")
+                                r"=\s+(\S*)")
         parameter_patt = re.compile(r"(Eps|Numeral density|RSolv|Eps"
-                                    "\(inf[inity]*\))\s+=\s*(\S*)")
+                                    r"\(inf[inity]*\))\s+=\s*(\S*)")
 
         if energy_patt.search(line):
             m = energy_patt.search(line)
