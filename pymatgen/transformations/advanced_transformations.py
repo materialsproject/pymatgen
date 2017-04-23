@@ -16,6 +16,7 @@ import logging
 import math
 
 import six
+import warnings
 from monty.fractions import lcm
 
 from pymatgen.core.structure import Composition
@@ -587,10 +588,12 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
     symbols = allowed_elements or [el.symbol for el in Element]
     for sym in symbols:
         try:
-            sp = Specie(sym, oxidation_state)
-            r = sp.ionic_radius
-            if r is not None:
-                candidates.append((r, sp))
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                sp = Specie(sym, oxidation_state)
+                r = sp.ionic_radius
+                if r is not None:
+                    candidates.append((r, sp))
         except:
             pass
     return min(candidates, key=lambda l: abs(l[0]/ref_radius - 1))[1]
