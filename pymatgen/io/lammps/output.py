@@ -68,16 +68,17 @@ class LammpsRun(object):
         timestep_label = "ITEM: TIMESTEP"
         # "ITEM: ATOMS id type ...
         traj_label_pattern = re.compile(
-            "^\s*ITEM:\s+ATOMS\s+id\s+type\s+([A-Za-z\s]*)")
+            r"^\s*ITEM:\s+ATOMS\s+id\s+type\s+([A-Za-z\s]*)")
         # default: id type x y z vx vy vz mol"
         # updated below based on the field names in the ITEM: ATOMS line
-        # Note: the first 2 fields must be the id and the atom type. There can be
-        # arbitrary number of fields after that and they all will be treated as floats.
+        # Note: the first 2 fields must be the id and the atom type. There can
+        # be arbitrary number of fields after that and they all will be treated
+        # as floats.
         traj_pattern = re.compile(
-            r"\s*(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+"
-            r"([0-9eE\.+-]+)\s+"
-            r"([0-9eE\.+-]+)\s+"
-            r"([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+(\d+)\s*")
+            r"\s*(\d+)\s+(\d+)\s+([0-9eE.+-]+)\s+([0-9eE.+-]+)\s+"
+            r"([0-9eE.+-]+)\s+"
+            r"([0-9eE.+-]+)\s+"
+            r"([0-9eE.+-]+)\s+([0-9eE.+-]+)\s+(\d+)\s*")
         parse_timestep = False
         with open(self.trajectory_file) as tf:
             for line in tf:
@@ -155,7 +156,7 @@ class LammpsRun(object):
             [np.dot(mol_vector[:, dim], mol_masses) / np.sum(mol_masses)
              for dim in range(3)])
 
-    def _get_mol_vector(self, step, mol_id, param=["x", "y", "z"]):
+    def _get_mol_vector(self, step, mol_id, param=("x", "y", "z")):
         """
         Returns numpy array corresponding to atomic vectors of parameter
         "param" for the given time step and molecule id
@@ -252,7 +253,7 @@ class LammpsRun(object):
         return structure, disp
 
     def get_diffusion_analyzer(self, specie, temperature, time_step, step_skip,
-                               smoothed=None, min_obs=30, avg_nsteps=1000):
+                               **kwargs):
         """
         Args:
             specie (Element/Specie): Specie to calculate diffusivity for as a
@@ -273,8 +274,7 @@ class LammpsRun(object):
         structure, disp = self.get_displacements()
         return DiffusionAnalyzer(structure, disp, specie, temperature,
                                  time_step, step_skip=step_skip,
-                                 smoothed=smoothed,
-                                 min_obs=min_obs, avg_nsteps=avg_nsteps)
+                                 **kwargs)
 
     @property
     def natoms(self):
@@ -369,9 +369,9 @@ class LammpsLog(object):
                 if thermo and not thermo_data:
                     self.interval = float(thermo.group(1))
                 # thermodynamic data, set by the thermo_style command
-                format = re.search(r'thermo_style.+', line)
-                if format and not thermo_data:
-                    fields = format.group().split()[2:]
+                fmt = re.search(r'thermo_style.+', line)
+                if fmt and not thermo_data:
+                    fields = fmt.group().split()[2:]
                     thermo_pattern_string = r"\s*([0-9eE\.+-]+)" + "".join(
                         [r"\s+([0-9eE\.+-]+)" for _ in range(len(fields) - 1)])
                     thermo_pattern = re.compile(thermo_pattern_string)

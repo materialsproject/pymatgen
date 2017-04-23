@@ -1263,7 +1263,7 @@ class GaussianOutput(object):
                    label="transitions",
                    linewidth=2)
 
-        plt.xlabel("$\lambda$ (nm)")
+        plt.xlabel("$\\lambda$ (nm)")
         plt.ylabel("Arbitrary unit")
         plt.legend()
 
