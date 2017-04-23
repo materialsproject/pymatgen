@@ -27,10 +27,9 @@ __email__ = 'ongsp@ucsd.edu'
 __date__ = '8/1/15'
 
 
-float_patt = re.compile(r'\s*([+-]?\d+\.\d+)')
+float_patt = re.compile("\s*([+-]?\d+\.\d+)")
 
 HARTREE_TO_ELECTRON_VOLT = 1/cst.physical_constants["electron volt-hartree relationship"][0]
-
 
 def read_route_line(route):
     """
@@ -45,7 +44,7 @@ def read_route_line(route):
         basis_set (str) : the basis set
         route (dict) : dictionary of parameters
     """
-    scrf_patt = re.compile(r'^([sS][cC][rR][fF])\s*=\s*(.+)')
+    scrf_patt = re.compile("^([sS][cC][rR][fF])\s*=\s*(.+)")
 
     functional = None
     basis_set = None
@@ -104,9 +103,9 @@ class GaussianInput(object):
     """
 
     #Commonly used regex patterns
-    zmat_patt = re.compile(r'^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$')
-    xyz_patt = re.compile(r'^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+'
-                          r'([\d\.eE\-]+)[\-\.\s,\w.]*$')
+    zmat_patt = re.compile("^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
+    xyz_patt = re.compile("^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
+                          "([\d\.eE\-]+)[\-\.\s,\w.]*$")
 
     def __init__(self, mol, charge=None, spin_multiplicity=None, title=None,
                  functional="HF", basis_set="6-31G(d)", route_parameters=None,
@@ -148,7 +147,7 @@ class GaussianInput(object):
         Helper method to parse coordinates.
         """
         paras = {}
-        var_pattern = re.compile(r'^([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)$')
+        var_pattern = re.compile("^([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)$")
         for l in coord_lines:
             m = var_pattern.match(l.strip())
             if m:
@@ -246,7 +245,7 @@ class GaussianInput(object):
             try:
                 return int(sp_str)
             except ValueError:
-                sp = re.sub(r'\d', "", sp_str)
+                sp = re.sub("\d", "", sp_str)
                 return sp.capitalize()
 
         species = [parse_species(sp) for sp in species]
@@ -266,14 +265,14 @@ class GaussianInput(object):
         """
         lines = [l.strip() for l in contents.split("\n")]
 
-        link0_patt = re.compile(r'^(%.+)\s*=\s*(.+)')
+        link0_patt = re.compile("^(%.+)\s*=\s*(.+)")
         link0_dict = {}
         for i, l in enumerate(lines):
             if link0_patt.match(l):
                 m = link0_patt.match(l)
                 link0_dict[m.group(1)] = m.group(2)
 
-        route_patt = re.compile(r'^#[sSpPnN]*.*')
+        route_patt = re.compile("^#[sSpPnN]*.*")
         route = None
         for i, l in enumerate(lines):
             if route_patt.match(l):
@@ -649,51 +648,51 @@ class GaussianOutput(object):
         return self.structures[-1]
 
     def _parse(self, filename):
-        start_patt = re.compile(r' \(Enter \S+l101\.exe\)')
-        route_patt = re.compile(r' #[pPnNtT]*.*')
-        link0_patt = re.compile(r'^\s(%.+)\s*=\s*(.+)')
-        charge_mul_patt = re.compile(r'Charge\s+=\s*([-\\d]+)\s+'
-                                     r'Multiplicity\s+=\s*(\d+)')
-        num_basis_func_patt = re.compile(r'([0-9]+)\s+basis functions')
-        num_elec_patt = re.compile(r'(\d+)\s+alpha electrons\s+(\d+)\s+beta electrons')
-        pcm_patt = re.compile(r'Polarizable Continuum Model')
-        stat_type_patt = re.compile(r'imaginary frequencies')
-        scf_patt = re.compile(r'E\(.*\)\s*=\s*([-\.\d]+)\s+')
-        mp2_patt = re.compile(r'EUMP2\s*=\s*(.*)')
-        oniom_patt = re.compile(r'ONIOM:\s+extrapolated energy\s*=\s*(.*)')
-        termination_patt = re.compile(r'(Normal|Error) termination')
+        start_patt = re.compile(r" \(Enter \S+l101\.exe\)")
+        route_patt = re.compile(r" #[pPnNtT]*.*")
+        link0_patt = re.compile(r"^\s(%.+)\s*=\s*(.+)")
+        charge_mul_patt = re.compile(r"Charge\s+=\s*([-\d]+)\s+"
+                                     r"Multiplicity\s+=\s*(\d+)")
+        num_basis_func_patt = re.compile(r"([0-9]+)\s+basis functions")
+        num_elec_patt = re.compile(r"(\d+)\s+alpha electrons\s+(\d+)\s+beta electrons")
+        pcm_patt = re.compile(r"Polarizable Continuum Model")
+        stat_type_patt = re.compile(r"imaginary frequencies")
+        scf_patt = re.compile(r"E\(.*\)\s*=\s*([-\.\d]+)\s+")
+        mp2_patt = re.compile(r"EUMP2\s*=\s*(.*)")
+        oniom_patt = re.compile(r"ONIOM:\s+extrapolated energy\s*=\s*(.*)")
+        termination_patt = re.compile(r"(Normal|Error) termination")
         error_patt = re.compile(
-            r'(! Non-Optimized Parameters !|Convergence failure)')
+            r"(! Non-Optimized Parameters !|Convergence failure)")
         mulliken_patt = re.compile(
-            r'^\s*(Mulliken charges|Mulliken atomic charges)')
+            r"^\s*(Mulliken charges|Mulliken atomic charges)")
         mulliken_charge_patt = re.compile(
             r'^\s+(\d+)\s+([A-Z][a-z]?)\s*(\S*)')
         end_mulliken_patt = re.compile(
-            r'(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)')
-        std_orientation_patt = re.compile(r'Standard orientation')
-        end_patt = re.compile(r'--+')
-        orbital_patt = re.compile(r'(Alpha|Beta)\s*\S+\s*eigenvalues --(.*)')
-        thermo_patt = re.compile(r'(Zero-point|Thermal) correction(.*)='
-                                 '\s+([\d\.-]+)')
+            '(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)')
+        std_orientation_patt = re.compile(r"Standard orientation")
+        end_patt = re.compile(r"--+")
+        orbital_patt = re.compile(r"(Alpha|Beta)\s*\S+\s*eigenvalues --(.*)")
+        thermo_patt = re.compile(r"(Zero-point|Thermal) correction(.*)="
+                                 r"\s+([\d\.-]+)")
         forces_on_patt = re.compile(
-            r'Center\s+Atomic\s+Forces\s+\(Hartrees/Bohr\)')
-        forces_off_patt = re.compile(r'Cartesian\s+Forces:\s+Max.*RMS.*')
+            "Center\s+Atomic\s+Forces\s+\(Hartrees/Bohr\)")
+        forces_off_patt = re.compile(r"Cartesian\s+Forces:\s+Max.*RMS.*")
         forces_patt = re.compile(
-            r'\s+(\d+)\s+(\d+)\s+([0-9\.-]+)\s+([0-9\.-]+)\s+([0-9\.-]+)')
+            r"\s+(\d+)\s+(\d+)\s+([0-9\.-]+)\s+([0-9\.-]+)\s+([0-9\.-]+)")
 
         freq_on_patt = re.compile(
-            r'Harmonic\sfrequencies\s+\(cm\*\*-1\),\sIR\sintensities.*Raman.*')
-        freq_patt = re.compile(r'Frequencies\s--\s+(.*)')
+            r"Harmonic\sfrequencies\s+\(cm\*\*-1\),\sIR\sintensities.*Raman.*")
+        freq_patt = re.compile(r"Frequencies\s--\s+(.*)")
 
         normal_mode_patt = re.compile(
-            r'\s+(\d+)\s+(\d+)\s+([0-9\.-]{4,5})\s+([0-9\.-]{4,5}).*')
+            r"\s+(\d+)\s+(\d+)\s+([0-9\.-]{4,5})\s+([0-9\.-]{4,5}).*")
 
-        mo_coeff_patt = re.compile(r'Molecular Orbital Coefficients:')
-        mo_coeff_name_patt = re.compile(r'\d+\s((\d+|\s+)\s+([a-zA-Z]{1,2}|\s+))\s+(\d+\S+)')
+        mo_coeff_patt = re.compile(r"Molecular Orbital Coefficients:")
+        mo_coeff_name_patt = re.compile(r"\d+\s((\d+|\s+)\s+([a-zA-Z]{1,2}|\s+))\s+(\d+\S+)")
 
-        hessian_patt = re.compile(r'Force constants in Cartesian coordinates:')
-        resume_patt = re.compile(r'^\s1\\1\\GINC-\S*')
-        resume_end_patt = re.compile(r'^\s.*\\\\@')
+        hessian_patt = re.compile(r"Force constants in Cartesian coordinates:")
+        resume_patt = re.compile(r"^\s1\\1\\GINC-\S*")
+        resume_end_patt = re.compile(r"^\s.*\\\\@")
 
         self.properly_terminated = False
         self.is_pcm = False
@@ -1022,12 +1021,12 @@ class GaussianOutput(object):
                 ": Termination error or bad Gaussian output file !")
 
     def _check_pcm(self, line):
-        energy_patt = re.compile(r'(Dispersion|Cavitation|Repulsion) energy'
-                                 r'\s+\S+\s+=\s+(\S*)')
-        total_patt = re.compile(r'with all non electrostatic terms\s+\S+\s+'
-                                r'=\s+(\S*)')
-        parameter_patt = re.compile(r'(Eps|Numeral density|RSolv|Eps'
-                                    r'\(inf[inity]*\))\s+=\s*(\S*)')
+        energy_patt = re.compile(r"(Dispersion|Cavitation|Repulsion) energy"
+                                 "\s+\S+\s+=\s+(\S*)")
+        total_patt = re.compile(r"with all non electrostatic terms\s+\S+\s+"
+                                "=\s+(\S*)")
+        parameter_patt = re.compile(r"(Eps|Numeral density|RSolv|Eps"
+                                    "\(inf[inity]*\))\s+=\s*(\S*)")
 
         if energy_patt.search(line):
             m = energy_patt.search(line)
@@ -1103,8 +1102,8 @@ class GaussianOutput(object):
             """ return a list of float from a list of string """
             return [float(v) for v in l]
 
-        scan_patt = re.compile(r'^\sSummary of the potential surface scan:')
-        optscan_patt = re.compile(r'^\sSummary of Optimized Potential Surface Scan')
+        scan_patt = re.compile(r"^\sSummary of the potential surface scan:")
+        optscan_patt = re.compile(r"^\sSummary of Optimized Potential Surface Scan")
 
         # data dict return
         data = {"energies": list(), "coords": dict()}
@@ -1121,14 +1120,14 @@ class GaussianOutput(object):
                     while not endScan:
                         data["energies"] += floatList(float_patt.findall(line))
                         line = f.readline()
-                        while not re.search("(^\s+(\d+)|^\s-+)", line):
+                        while not re.search(r"(^\s+(\d+)|^\s-+)", line):
                             icname = line.split()[0].strip()
                             if icname in data["coords"]:
                                 data["coords"][icname] += floatList(float_patt.findall(line))
                             else:
                                 data["coords"][icname] = floatList(float_patt.findall(line))
                             line = f.readline()
-                        if re.search("^\s-+", line):
+                        if re.search(r"^\s-+", line):
                             endScan = True
                         else:
                             line = f.readline()
@@ -1138,7 +1137,7 @@ class GaussianOutput(object):
                     data["coords"] = {icname: list() for icname in line.split()[1:-1]}
                     f.readline()
                     line = f.readline()
-                    while not re.search("^\s-+", line):
+                    while not re.search(r"^\s-+", line):
                         values = floatList(line.split())
                         data["energies"].append(values[-1])
                         for i, icname in enumerate(data["coords"]):
@@ -1206,11 +1205,11 @@ class GaussianOutput(object):
             line = f.readline()
             td = False
             while line != "":
-                if re.search("^\sExcitation energies and oscillator strengths:", line):
+                if re.search(r"^\sExcitation energies and oscillator strengths:", line):
                     td = True
 
                 if td:
-                    if re.search("^\sExcited State\s*\d", line):
+                    if re.search(r"^\sExcited State\s*\d", line):
                         val = [float(v) for v in float_patt.findall(line)]
                         transitions.append(tuple(val[0:3]))
                 line = f.readline()
