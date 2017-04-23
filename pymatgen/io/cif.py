@@ -560,8 +560,8 @@ class CifParser(object):
                     symbol_str_lst = symbol_str.split(' + ')
                     for elocc_idx in range(len(symbol_str_lst)):
                         # Remove any bracketed items in the string
-                        symbol_str_lst[elocc_idx] = re.sub(
-                            '\([0-9]*\)', '', symbol_str_lst[elocc_idx].strip())
+                        symbol_str_lst[elocc_idx] = re.sub(r'\([0-9]*\)', '',
+                            symbol_str_lst[elocc_idx].strip())
 
                         # Extract element name and its occupancy from the
                         # string, and store it as a

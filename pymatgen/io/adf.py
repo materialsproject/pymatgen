@@ -880,14 +880,14 @@ class AdfOutput(object):
         """
         Parse the standard ADF output file.
         """
-        numerical_freq_patt = re.compile(r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sI\sE"
-                                         "\sS\s+\*")
+        numerical_freq_patt = re.compile(
+            r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sI\sE\sS\s+\*")
         analytic_freq_patt = re.compile(
             r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sY\s+A\sN\sA\sL\sY\sS\sI\sS\s+\*")
         freq_on_patt = re.compile(r"Vibrations\sand\sNormal\sModes\s+\*+.*\*+")
         freq_off_patt = re.compile(r"List\sof\sAll\sFrequencies:")
         mode_patt = re.compile(r"\s+(\d+)\.([A-Za-z]+)\s+(.*)")
-        coord_patt = re.compile(r"\s+(\d+)\s+([A-Za-z]+)" + 6 * "\s+([0-9\.-]+)")
+        coord_patt = re.compile(r"\s+(\d+)\s+([A-Za-z]+)" + 6 * r"\s+([0-9\.-]+)")
         coord_on_patt = re.compile(r"\s+\*\s+R\sU\sN\s+T\sY\sP\sE\s:\sFREQUENCIES\s+\*")
         parse_freq = False
         parse_mode = False

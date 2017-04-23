@@ -27,9 +27,10 @@ __email__ = 'ongsp@ucsd.edu'
 __date__ = '8/1/15'
 
 
-float_patt = re.compile("\s*([+-]?\d+\.\d+)")
+float_patt = re.compile(r"\s*([+-]?\d+\.\d+)")
 
 HARTREE_TO_ELECTRON_VOLT = 1/cst.physical_constants["electron volt-hartree relationship"][0]
+
 
 def read_route_line(route):
     """
@@ -44,7 +45,7 @@ def read_route_line(route):
         basis_set (str) : the basis set
         route (dict) : dictionary of parameters
     """
-    scrf_patt = re.compile("^([sS][cC][rR][fF])\s*=\s*(.+)")
+    scrf_patt = re.compile(r"^([sS][cC][rR][fF])\s*=\s*(.+)")
 
     functional = None
     basis_set = None
@@ -102,10 +103,10 @@ class GaussianInput(object):
             be set to "Gen".
     """
 
-    #Commonly used regex patterns
-    zmat_patt = re.compile("^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
-    xyz_patt = re.compile("^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
-                          "([\d\.eE\-]+)[\-\.\s,\w.]*$")
+    # Commonly used regex patterns
+    zmat_patt = re.compile(r"^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
+    xyz_patt = re.compile(r"^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
+                          r"([\d\.eE\-]+)[\-\.\s,\w.]*$")
 
     def __init__(self, mol, charge=None, spin_multiplicity=None, title=None,
                  functional="HF", basis_set="6-31G(d)", route_parameters=None,
@@ -147,7 +148,7 @@ class GaussianInput(object):
         Helper method to parse coordinates.
         """
         paras = {}
-        var_pattern = re.compile("^([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)$")
+        var_pattern = re.compile(r"^([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)$")
         for l in coord_lines:
             m = var_pattern.match(l.strip())
             if m:
@@ -265,14 +266,14 @@ class GaussianInput(object):
         """
         lines = [l.strip() for l in contents.split("\n")]
 
-        link0_patt = re.compile("^(%.+)\s*=\s*(.+)")
+        link0_patt = re.compile(r"^(%.+)\s*=\s*(.+)")
         link0_dict = {}
         for i, l in enumerate(lines):
             if link0_patt.match(l):
                 m = link0_patt.match(l)
                 link0_dict[m.group(1)] = m.group(2)
 
-        route_patt = re.compile("^#[sSpPnN]*.*")
+        route_patt = re.compile(r"^#[sSpPnN]*.*")
         route = None
         for i, l in enumerate(lines):
             if route_patt.match(l):

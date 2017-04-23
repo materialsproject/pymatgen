@@ -65,7 +65,7 @@ class Ion(MSONable):
         m = re.search(r"\(aq\)", f)
         if m:
             f = f.replace(m.group(), "", 1)
-        for m_chg in re.finditer("([+-])([\.\d]*)", f):
+        for m_chg in re.finditer(r"([+-])([\.\d]*)", f):
             sign = m_chg.group(1)
             sgn = float(str(sign + "1"))
             if m_chg.group(2).strip() != "":
