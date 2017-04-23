@@ -5,14 +5,17 @@
 from __future__ import division, unicode_literals
 
 import numpy as np
-from fractions import gcd, Fraction
+from fractions import Fraction
+try:
+    from math import gcd
+except ImportError:
+    from fractions import gcd
 from itertools import groupby
 from warnings import warn
 import logging
 import math
 
 import six
-from monty.json import MontyDecoder
 from monty.fractions import lcm
 
 from pymatgen.core.structure import Composition
