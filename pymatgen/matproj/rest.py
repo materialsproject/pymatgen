@@ -528,14 +528,14 @@ class MPRester(object):
 
                 If string, it supports a powerful but simple string criteria.
                 E.g., "Fe2O3" means search for materials with reduced_formula
-                Fe2O3. Wild cards are also supported. E.g., "\*2O" means get
-                all materials whose formula can be formed as \*2O, e.g.,
+                Fe2O3. Wild cards are also supported. E.g., "\\*2O" means get
+                all materials whose formula can be formed as \\*2O, e.g.,
                 Li2O, K2O, etc.
 
                 Other syntax examples:
                 mp-1234: Interpreted as a Materials ID.
-                Fe2O3 or \*2O3: Interpreted as reduced formulas.
-                Li-Fe-O or \*-Fe-O: Interpreted as chemical systems.
+                Fe2O3 or \\*2O3: Interpreted as reduced formulas.
+                Li-Fe-O or \\*-Fe-O: Interpreted as chemical systems.
 
                 You can mix and match with spaces, which are interpreted as
                 "OR". E.g. "mp-1234 FeO" means query for all compounds with

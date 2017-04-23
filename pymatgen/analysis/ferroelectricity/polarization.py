@@ -41,7 +41,7 @@ We recommend using our calc_ionic function for calculating the ionic
 polarization rather than the values from OUTCAR.
 
 We find that the ionic dipole moment reported in OUTCAR differ from
-the naive calculation of \sum_i Z_i r_i where i is the index of the
+the naive calculation of \\sum_i Z_i r_i where i is the index of the
 atom, Z_i is the ZVAL from the pseudopotential file, and r is the distance
 in Angstroms along the lattice vectors.
 
@@ -219,7 +219,7 @@ class Polarization(object):
         Polarization is a lattice vector, meaning it is only defined modulo the
         quantum of polarization:
 
-            P = P_0 + \sum_i \frac{n_i e R_i}{\Omega}
+            P = P_0 + \\sum_i \\frac{n_i e R_i}{\\Omega}
 
         where n_i is an integer, e is the charge of the electron in microCoulombs,
         R_i is a lattice vector, and \Omega is the unit cell volume in cm**3
@@ -227,7 +227,7 @@ class Polarization(object):
 
         The quantum of the dipole moment in electron Angstroms (as given by VASP) is:
 
-            \sum_i n_i e R_i
+            \\sum_i n_i e R_i
 
         where e, the electron charge, is 1 and R_i is a lattice vector, and n_i is an integer.
 

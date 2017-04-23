@@ -794,7 +794,7 @@ class BSEOutput(object):
     def _parse_job(self, output):
 
         BSE_exitons_patt = re.compile(
-            "^exiton \s+ (\d+)  : \s+  ([\d.]+) \( \s+ ([-\d.]+) \) \s+ \| .*  ",
+            r"^exiton \s+ (\d+)  : \s+  ([\d.]+) \( \s+ ([-\d.]+) \) \s+ \| .*  ",
             re.VERBOSE)
 
         end_patt = re.compile(r"\s*program returned normally\s*")

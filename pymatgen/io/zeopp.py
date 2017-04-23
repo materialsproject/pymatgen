@@ -214,8 +214,8 @@ class ZeoVoronoiXYZ(XYZ):
         sp = []
         prop = []
         coord_patt = re.compile(
-            "(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" +
-            "([0-9\-\.]+)"
+            r"(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" +
+            r"([0-9\-\.]+)"
         )
         for i in range(2, 2 + num_sites):
             m = coord_patt.search(lines[i])

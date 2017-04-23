@@ -200,7 +200,7 @@ class Xmu(MSONable):
         xmu: Photon absorption cross section of absorbing atom in material
         Energies: Energies of data point
         relative_energies: E - E_fermi
-        wavenumber: k=\sqrt(E −E_fermi)
+        wavenumber: k=\\sqrt(E −E_fermi)
         mu: The total absorption cross-section.
         mu0: The embedded atomic background absorption.
         chi: fine structure.

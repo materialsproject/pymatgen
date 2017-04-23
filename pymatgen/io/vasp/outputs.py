@@ -1673,7 +1673,7 @@ class Outcar(MSONable):
         header_pattern = r"TOTAL ELASTIC MODULI \(kBar\)\s+"\
                          r"Direction\s+([X-Z][X-Z]\s+)+"\
                          r"\-+"
-        row_pattern = r"[X-Z][X-Z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
+        row_pattern = r"[X-Z][X-Z]\s+"+r"\s+".join([r"(\-*[\.\d]+)"] * 6)
         footer_pattern = r"\-+"
         et_table = self.read_table_pattern(header_pattern, row_pattern,
                                            footer_pattern, postprocess=float)
@@ -2134,8 +2134,8 @@ class Outcar(MSONable):
                 results.zvals = map(float, re.findall(r'-?\d+\.\d*', zvals))
 
             search = []
-            search.append(['^.*POSCAR.*=(.*)', None, poscar_line])
-            search.append(['^\s+ZVAL.*=(.*)', None, zvals])
+            search.append([r'^.*POSCAR.*=(.*)', None, poscar_line])
+            search.append([r'^\s+ZVAL.*=(.*)', None, zvals])
 
             micro_pyawk(self.filename, search, self)
 
@@ -2149,7 +2149,6 @@ class Outcar(MSONable):
             del(self.zvals)
         except:
             raise Exception("ZVAL dict could not be parsed.")
-
 
     def read_core_state_eigen(self):
         """

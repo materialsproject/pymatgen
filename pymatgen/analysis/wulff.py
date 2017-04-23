@@ -340,7 +340,7 @@ class WulffShape(object):
         Show the Wulff plot.
 
         Args:
-            \*args: Passed to get_plot.
+            \\*args: Passed to get_plot.
             \\*\\*kwargs: Passed to get_plot.
         """
         self.get_plot(*args, **kwargs).show()

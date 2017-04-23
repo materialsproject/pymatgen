@@ -9,7 +9,7 @@ import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.bandstructure import Kpoint
-from monty.json import MSONable, MontyDecoder, MontyEncoder
+from monty.json import MSONable
 
 """
 This module provides classes to define a phonon band structure.
@@ -24,8 +24,9 @@ class PhononBandStructure(MSONable):
     non-analytical contribution may be taken into account.
     """
 
-    def __init__(self, qpoints, frequencies, lattice, nac_frequencies=None, eigendisplacements=None,
-                 nac_eigendisplacements=None, labels_dict=None, coords_are_cartesian=False,
+    def __init__(self, qpoints, frequencies, lattice, nac_frequencies=None,
+                 eigendisplacements=None, nac_eigendisplacements=None,
+                 labels_dict=None, coords_are_cartesian=False,
                  structure=None):
         """
         Args:
@@ -231,7 +232,7 @@ class PhononBandStructure(MSONable):
 class PhononBandStructureSymmLine(PhononBandStructure):
     """
     This object stores phonon band structures along selected (symmetry) lines in the
-    Brillouin zone. We call the different symmetry lines (ex: \Gamma to Z)
+    Brillouin zone. We call the different symmetry lines (ex: \\Gamma to Z)
     "branches".
     """
 
