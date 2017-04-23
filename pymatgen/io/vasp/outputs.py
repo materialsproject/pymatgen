@@ -2129,11 +2129,11 @@ class Outcar(MSONable):
         try:
             def poscar_line(results, match):
                 poscar_line = match.group(1)
-                results.poscar_line = re.findall('[A-Z][a-z]?', poscar_line)
+                results.poscar_line = re.findall(r'[A-Z][a-z]?', poscar_line)
 
             def zvals(results, match):
                 zvals = match.group(1)
-                results.zvals = map(float, re.findall('-?\d+\.\d*', zvals))
+                results.zvals = map(float, re.findall(r'-?\d+\.\d*', zvals))
 
             search = []
             search.append(['^.*POSCAR.*=(.*)', None, poscar_line])

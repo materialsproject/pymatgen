@@ -566,9 +566,9 @@ class CifParser(object):
                         # Extract element name and its occupancy from the
                         # string, and store it as a
                         # key-value pair in "els_occ".
-                        els_occu[str(re.findall('\D+', symbol_str_lst[
+                        els_occu[str(re.findall(r'\D+', symbol_str_lst[
                             elocc_idx].strip())[1]).replace('<sup>', '')] = \
-                            float('0' + re.findall('\.?\d+', symbol_str_lst[
+                            float('0' + re.findall(r'\.?\d+', symbol_str_lst[
                                 elocc_idx].strip())[1])
 
                     x = str2float(data["_atom_site_fract_x"][idx])

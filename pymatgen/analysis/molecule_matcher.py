@@ -229,7 +229,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             ';', ',').split(',')])
         eq_atoms = []
         if eq_atom_text is not None:
-            eq_tokens = re.findall('\(((?:[0-9]+,)+[0-9]+)\)', eq_atom_text
+            eq_tokens = re.findall(r'\(((?:[0-9]+,)+[0-9]+)\)', eq_atom_text
                                    .replace(';', ','))
             eq_atoms = tuple([tuple([int(i) for i in t.split(',')])
                               for t in eq_tokens])

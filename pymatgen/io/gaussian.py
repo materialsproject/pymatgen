@@ -923,7 +923,7 @@ class GaussianOutput(object):
                         while jndf < ndf:
                             for i in range(jndf, ndf):
                                 line = f.readline()
-                                vals = re.findall("\s*([+-]?\d+\.\d+[eEdD]?[+-]\d+)", line)
+                                vals = re.findall(r"\s*([+-]?\d+\.\d+[eEdD]?[+-]\d+)", line)
                                 vals = [float(val.replace("D", "E")) for val in vals]
                                 for jval, val in enumerate(vals):
                                     j = j_indices[jval]
