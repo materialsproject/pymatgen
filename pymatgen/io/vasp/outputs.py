@@ -83,7 +83,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
         val_type: Value type parsed from vasprun.xml.
         val: Actual string value parsed for vasprun.xml.
         filename: Fullpath of vasprun.xml. Used for robust error handling.
-            E.g., if vasprun.xml contains \*\*\* for some Incar parameters,
+            E.g., if vasprun.xml contains \\*\\*\* for some Incar parameters,
             the code will try to read from an INCAR file present in the same
             directory.
         param_name: Name of parameter.
@@ -1685,7 +1685,7 @@ class Outcar(MSONable):
         """
         header_pattern = r"PIEZOELECTRIC TENSOR  for field in x, y, " \
                          r"z\s+\(C/m\^2\)\s+([X-Z][X-Z]\s+)+\-+"
-        row_pattern = r"[x-z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
+        row_pattern = r"[x-z]\s+"+r"\s+".join([r"(\-*[\.\d]+)"] * 6)
         footer_pattern = r"BORN EFFECTIVE"
         pt_table = self.read_table_pattern(header_pattern, row_pattern,
                                            footer_pattern, postprocess=float)

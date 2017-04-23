@@ -265,7 +265,7 @@ task $theory $operation""")
             mol: Input molecule
             xc: Exchange correlation to use.
             dielectric: Using water dielectric
-            \*\*kwargs: Any of the other kwargs supported by NwTask. Note the
+            \\*\\*kwargs: Any of the other kwargs supported by NwTask. Note the
                 theory is always "dft" for a dft task.
         """
         t = NwTask.from_molecule(mol, theory="dft", **kwargs)
@@ -281,7 +281,7 @@ task $theory $operation""")
 
         Args:
             mol: Input molecule
-            \*\*kwargs: Any of the other kwargs supported by NwTask. Note the
+            \\*\\*kwargs: Any of the other kwargs supported by NwTask. Note the
                 theory is always "dft" for a dft task.
         """
         return NwTask.from_molecule(mol, theory="esp", **kwargs)

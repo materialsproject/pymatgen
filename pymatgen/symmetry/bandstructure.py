@@ -296,14 +296,14 @@ class HighSymmKpath(object):
         kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'N': np.array([0.0, 0.5, 0.0]),
                    'P': np.array([0.25, 0.25, 0.25]),
-                   '\Sigma': np.array([-eta, eta, eta]),
-                   '\Sigma_1': np.array([eta, 1 - eta, -eta]),
+                   '\\Sigma': np.array([-eta, eta, eta]),
+                   '\\Sigma_1': np.array([eta, 1 - eta, -eta]),
                    'X': np.array([0.0, 0.0, 0.5]),
                    'Y': np.array([-zeta, zeta, 0.5]),
                    'Y_1': np.array([0.5, 0.5, -zeta]),
                    'Z': np.array([0.5, 0.5, -0.5])}
-        path = [["\\Gamma", "X", "Y", "\Sigma", "\\Gamma", "Z",
-                 "\Sigma_1", "N", "P", "Y_1", "Z"], ["X", "P"]]
+        path = [["\\Gamma", "X", "Y", "\\Sigma", "\\Gamma", "Z",
+                 "\\Sigma_1", "N", "P", "Y_1", "Z"], ["X", "P"]]
         return {'kpoints': kpoints, 'path': path}
 
     def orc(self):

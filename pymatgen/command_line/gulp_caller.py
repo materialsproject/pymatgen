@@ -163,7 +163,7 @@ class GulpIO(object):
         Args:
             structure: pymatgen.core.structure.Structure object
             potential: String specifying the type of potential used
-            \*\*kwargs: Additional parameters related to potential. For
+            \\*\\*kwargs: Additional parameters related to potential. For
                 potential == "buckingham",
                 anion_shell_flg (default = False):
                 If True, anions are considered polarizable.

@@ -215,7 +215,7 @@ class TransformedStructure(MSONable):
                 vasp input files from structures
             output_dir: Directory to output files
             create_directory: Create the directory if not present. Defaults to True.
-            \*\*kwargs: All keyword args supported by the VASP input set.
+            \\*\\*kwargs: All keyword args supported by the VASP input set.
         """
         vasp_input_set(self.final_structure, **kwargs).write_input(
             output_dir, make_dir_if_not_present=create_directory)

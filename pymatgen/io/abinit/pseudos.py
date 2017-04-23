@@ -1426,7 +1426,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         ax.grid(True)
         ax.set_xlabel("r [Bohr]")
-        ax.set_ylabel("$r\phi,\\, r\\tilde\phi\, [Bohr]^{-\\frac{1}{2}}$")
+        ax.set_ylabel("$r\\phi,\\, r\\tilde\\phi\, [Bohr]^{-\\frac{1}{2}}$")
 
         ax.axvline(x=self.paw_radius, linewidth=2, color='k', linestyle="--")
         #ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))

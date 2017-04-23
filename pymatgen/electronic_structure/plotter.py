@@ -2406,7 +2406,7 @@ class BoltztrapPlotter(object):
             plt.xlim(-0.5, self._bz.gap + 0.5)
         else:
             plt.xlim(xlim[0], xlim[1])
-        plt.ylabel("Seebeck \n coefficient  ($\mu$V/K)", fontsize=30.0)
+        plt.ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
@@ -2435,13 +2435,13 @@ class BoltztrapPlotter(object):
         self._plot_bg_limits()
         self._plot_doping(temp)
         if output == 'eig':
-            plt.legend(['$\sigma_1$', '$\sigma_2$', '$\sigma_3$'])
+            plt.legend(['$\\Sigma_1$', '$\\Sigma_2$', '$\\Sigma_3$'])
         if xlim is None:
             plt.xlim(-0.5, self._bz.gap + 0.5)
         else:
             plt.xlim(xlim)
         plt.ylim([1e13 * relaxation_time, 1e20 * relaxation_time])
-        plt.ylabel("conductivity,\n $\sigma$ (1/($\Omega$ m))", fontsize=30.0)
+        plt.ylabel("conductivity,\n $\\Sigma$ (1/($\Omega$ m))", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
@@ -2475,7 +2475,7 @@ class BoltztrapPlotter(object):
             plt.xlim(-0.5, self._bz.gap + 0.5)
         else:
             plt.xlim(xlim)
-        plt.ylabel("Power factor, ($\mu$W/(mK$^2$))", fontsize=30.0)
+        plt.ylabel("Power factor, ($\\mu$W/(mK$^2$))", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)

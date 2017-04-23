@@ -126,7 +126,7 @@ class PDPlotter(object):
 
         Args:
             \*args: Passed to get_plot.
-            \*\*kwargs: Passed to get_plot.
+            \\*\\*kwargs: Passed to get_plot.
         """
         self.get_plot(*args, **kwargs).show()
 
@@ -481,9 +481,9 @@ class PDPlotter(object):
                          horizontalalignment="center",
                          verticalalignment="center", fontsize=22)
 
-        plt.xlabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)"
+        plt.xlabel("$\\mu_{{{0}}} - \\mu_{{{0}}}^0$ (eV)"
                    .format(el0.symbol))
-        plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)"
+        plt.ylabel("$\\mu_{{{0}}} - \\mu_{{{0}}}^0$ (eV)"
                    .format(el1.symbol))
         plt.tight_layout()
         return plt

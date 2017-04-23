@@ -629,7 +629,7 @@ class DopingTransformation(AbstractTransformation):
             allowed_doping_species (list): Species that are allowed to be
                 doping sites. This is an inclusionary list. If specified,
                 any sites which are not
-            \*\*kwargs:
+            \\*\\*kwargs:
                 Same keyword args as :class:`EnumerateStructureTransformation`,
                 i.e., min_cell_size, etc.
         """

@@ -246,7 +246,7 @@ class GaussianInput(object):
             try:
                 return int(sp_str)
             except ValueError:
-                sp = re.sub("\d", "", sp_str)
+                sp = re.sub(r"\d", "", sp_str)
                 return sp.capitalize()
 
         species = [parse_species(sp) for sp in species]
@@ -381,8 +381,9 @@ class GaussianInput(object):
         outs = []
         to_s = lambda x: "%0.6f" % x
         for i, site in enumerate(self._mol):
-            outs.append(" ".join([site.species_string, " ".join([to_s(j) for j in site.coords])]))
-        return  "\n".join(outs)
+            outs.append(" ".join([site.species_string,
+                                  " ".join([to_s(j) for j in site.coords])]))
+        return "\n".join(outs)
 
     def __str__(self):
         return self.to_string()
@@ -461,7 +462,6 @@ class GaussianInput(object):
                              spin_multiplicity=d["spin_multiplicity"],
                              input_parameters=d["input_parameters"],
                              link0_parameters=d["link0_parameters"])
-
 
 
 class GaussianOutput(object):
@@ -669,14 +669,14 @@ class GaussianOutput(object):
         mulliken_charge_patt = re.compile(
             r'^\s+(\d+)\s+([A-Z][a-z]?)\s*(\S*)')
         end_mulliken_patt = re.compile(
-            '(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)')
+            r'(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)')
         std_orientation_patt = re.compile(r"Standard orientation")
         end_patt = re.compile(r"--+")
         orbital_patt = re.compile(r"(Alpha|Beta)\s*\S+\s*eigenvalues --(.*)")
         thermo_patt = re.compile(r"(Zero-point|Thermal) correction(.*)="
                                  r"\s+([\d\.-]+)")
         forces_on_patt = re.compile(
-            "Center\s+Atomic\s+Forces\s+\(Hartrees/Bohr\)")
+            r"Center\s+Atomic\s+Forces\s+\(Hartrees/Bohr\)")
         forces_off_patt = re.compile(r"Cartesian\s+Forces:\s+Max.*RMS.*")
         forces_patt = re.compile(
             r"\s+(\d+)\s+(\d+)\s+([0-9\.-]+)\s+([0-9\.-]+)\s+([0-9\.-]+)")
@@ -1169,7 +1169,7 @@ class GaussianOutput(object):
             x = range(len(d["energies"]))
             plt.xlabel("points")
 
-        plt.ylabel("Energy   /   eV")
+        plt.ylabel("Energy (eV)")
 
         e_min = min(d["energies"])
         y = [(e - e_min) * HARTREE_TO_ELECTRON_VOLT for e in d["energies"]]
