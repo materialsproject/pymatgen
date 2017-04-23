@@ -772,8 +772,8 @@ class AdfOutput(object):
         coord_patt = re.compile(r"\s+([0-9]+)\.([A-Za-z]+)"+3*"\s+([-\.0-9]+)")
         energy_patt = re.compile(r"<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\s"
                                  "Hartree")
-        final_energy_patt = re.compile(r"<.*>\s<.*>\s+Bond\sEnergy\s+([-\.0-9]+)"
-                                       "\sa\.u\.")
+        final_energy_patt = re.compile(
+            r"<.*>\s<.*>\s+Bond\sEnergy\s+([-\.0-9]+)\sa\.u\.")
         error_patt = re.compile(r"<.*>\s<.*>\s+ERROR\sDETECTED:\s(.*)")
         runtype_patt = re.compile(r"<.*>\s<.*>\s+RunType\s+:\s(.*)")
         end_patt = re.compile(r"<.*>\s<.*>\s+END")
@@ -882,14 +882,13 @@ class AdfOutput(object):
         """
         numerical_freq_patt = re.compile(r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sI\sE"
                                          "\sS\s+\*")
-        analytic_freq_patt = re.compile(r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sY\s+A"
-                                        "\sN\sA\sL\sY\sS\sI\sS\s+\*")
+        analytic_freq_patt = re.compile(
+            r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sY\s+A\sN\sA\sL\sY\sS\sI\sS\s+\*")
         freq_on_patt = re.compile(r"Vibrations\sand\sNormal\sModes\s+\*+.*\*+")
         freq_off_patt = re.compile(r"List\sof\sAll\sFrequencies:")
         mode_patt = re.compile(r"\s+(\d+)\.([A-Za-z]+)\s+(.*)")
         coord_patt = re.compile(r"\s+(\d+)\s+([A-Za-z]+)" + 6 * "\s+([0-9\.-]+)")
-        coord_on_patt = re.compile(r"\s+\*\s+R\sU\sN\s+T\sY\sP\sE\s:\s"
-                                   "FREQUENCIES\s+\*")
+        coord_on_patt = re.compile(r"\s+\*\s+R\sU\sN\s+T\sY\sP\sE\s:\sFREQUENCIES\s+\*")
         parse_freq = False
         parse_mode = False
         nnext = 0
