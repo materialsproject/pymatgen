@@ -705,7 +705,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         Returns:
             A list of dictionaries [{"name","start_index","end_index","index"}]
             indicating all branches in which the k_point is. It takes into
-            account the fact that one kpoint (e.g., \Gamma) can be in several
+            account the fact that one kpoint (e.g., \\Gamma) can be in several
             branches
         """
         to_return = []

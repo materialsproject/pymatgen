@@ -89,7 +89,7 @@ class GulpIO(object):
         generates the 1st line of gulp input. Full keywords are expected.
 
         Args:
-            \*args: 1st line keywords
+            \\*args: 1st line keywords
         """
         #if len(list(filter(lambda x: x in _gulp_kw, args))) != len(args):
         #    raise GulpError("Wrong keywords given")

@@ -222,7 +222,7 @@ class Polarization(object):
             P = P_0 + \\sum_i \\frac{n_i e R_i}{\\Omega}
 
         where n_i is an integer, e is the charge of the electron in microCoulombs,
-        R_i is a lattice vector, and \Omega is the unit cell volume in cm**3
+        R_i is a lattice vector, and \\Omega is the unit cell volume in cm**3
         (giving polarization units of microCoulomb per centimeter**2).
 
         The quantum of the dipole moment in electron Angstroms (as given by VASP) is:

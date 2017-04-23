@@ -112,7 +112,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             string as an input formula. E.g., Composition("Li2O").
 
             allow_negative: Whether to allow negative compositions. This
-                argument must be popped from the \\*\\*kwargs due to \*args
+                argument must be popped from the \\*\\*kwargs due to \\*args
                 ambiguity.
         """
         self.allow_negative = kwargs.pop('allow_negative', False)

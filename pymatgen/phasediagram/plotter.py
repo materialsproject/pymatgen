@@ -125,7 +125,7 @@ class PDPlotter(object):
         Draws the phase diagram using Matplotlib and show it.
 
         Args:
-            \*args: Passed to get_plot.
+            \\*args: Passed to get_plot.
             \\*\\*kwargs: Passed to get_plot.
         """
         self.get_plot(*args, **kwargs).show()

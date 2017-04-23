@@ -2441,7 +2441,7 @@ class BoltztrapPlotter(object):
         else:
             plt.xlim(xlim)
         plt.ylim([1e13 * relaxation_time, 1e20 * relaxation_time])
-        plt.ylabel("conductivity,\n $\\Sigma$ (1/($\Omega$ m))", fontsize=30.0)
+        plt.ylabel("conductivity,\n $\\Sigma$ (1/($\\Omega$ m))", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
