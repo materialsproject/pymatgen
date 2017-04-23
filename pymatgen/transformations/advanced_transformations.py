@@ -487,7 +487,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 'The specified species do not exist in the structure'
                 ' to be enumerated')
 
-        return lcm(n_gcd, denom) / n_gcd
+        return lcm(int(n_gcd), denom) / n_gcd
 
     def apply_transformation(self, structure, return_ranked_list=False):
         # Make a mutable structure first
