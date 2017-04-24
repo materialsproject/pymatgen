@@ -593,7 +593,7 @@ class BandStructure(object):
 class BandStructureSymmLine(BandStructure, MSONable):
     """
     This object stores band structures along selected (symmetry) lines in the
-    Brillouin zone. We call the different symmetry lines (ex: \Gamma to Z)
+    Brillouin zone. We call the different symmetry lines (ex: \\Gamma to Z)
     "branches".
 
     Args:

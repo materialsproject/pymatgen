@@ -872,13 +872,13 @@ class MPRester(object):
         Args:
             criteria_string (str): A string representing a search criteria.
                 Also supports wild cards. E.g.,
-                something like "\*2O" gets converted to
+                something like "*2O" gets converted to
                 {'pretty_formula': {'$in': [u'B2O', u'Xe2O', u"Li2O", ...]}}
 
                 Other syntax examples:
                     mp-1234: Interpreted as a Materials ID.
-                    Fe2O3 or \*2O3: Interpreted as reduced formulas.
-                    Li-Fe-O or \*-Fe-O: Interpreted as chemical systems.
+                    Fe2O3 or *2O3: Interpreted as reduced formulas.
+                    Li-Fe-O or *-Fe-O: Interpreted as chemical systems.
 
                 You can mix and match with spaces, which are interpreted as
                 "OR". E.g., "mp-1234 FeO" means query for all compounds with

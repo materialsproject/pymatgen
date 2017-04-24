@@ -4,6 +4,11 @@
 
 from __future__ import division, unicode_literals
 
+import six
+
+from monty.re import regrep
+from collections import defaultdict
+
 """
 This module implements input and output processing from PWSCF.
 """
@@ -14,12 +19,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "3/27/15"
-
-
-import six
-
-from monty.re import regrep
-from collections import defaultdict
 
 
 class PWInput(object):
@@ -154,7 +153,7 @@ class PWOutput(object):
 
         Args:
             patterns (dict): A dict of patterns, e.g.,
-                {"energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)"}.
+                {"energy": r"energy\(sigma->0\)\s+=\s+([\d\-\.]+)"}.
             reverse (bool): Read files in reverse. Defaults to false. Useful for
                 large files, esp OUTCARs, especially when used with
                 terminate_on_match.
@@ -165,7 +164,7 @@ class PWOutput(object):
 
         Renders accessible:
             Any attribute in patterns. For example,
-            {"energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)"} will set the
+            {"energy": r"energy\(sigma->0\)\s+=\s+([\d\-\.]+)"} will set the
             value of self.data["energy"] = [[-1234], [-3453], ...], to the
             results from regex and postprocess. Note that the returned
             values are lists of lists, because you can grep multiple

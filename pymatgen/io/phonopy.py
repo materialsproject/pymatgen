@@ -130,7 +130,7 @@ def get_ph_bs_symm_line(bands_path, has_nac=False, labels_dict=None):
     The labels will be extracted from the dictionary, if present.
     If the 'eigenvector'  key is found the eigendisplacements will be
     calculated according to the formula:
-    \\exp(2*pi*i*(frac_coords \dot q) / sqrt(mass) * v
+    \\exp(2*pi*i*(frac_coords \\dot q) / sqrt(mass) * v
      and added to the object.
 
     Args:
