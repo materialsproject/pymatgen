@@ -1591,7 +1591,7 @@ class Outcar(MSONable):
                 if component == "IMAGINARY":
                     freq.append(float(toks[0]))
                 xx, yy, zz, xy, yz, xz = [float(t) for t in toks[1:]]
-                matrix = [[xx, xy, yz], [xy, yy, yz], [xz, yz, zz]]
+                matrix = [[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]]
                 data[component].append(matrix)
             elif re.match(r"\s*\-+\s*", l):
                 count += 1
