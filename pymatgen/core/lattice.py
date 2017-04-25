@@ -1100,9 +1100,9 @@ class Lattice(MSONable):
             v, d2 = pbc_shortest_vectors(self, frac_coords1, frac_coords2,
                                          return_d2=True)
             fc = self.get_fractional_coords(v[0][0]) + frac_coords1 - \
-                 frac_coords2
+                frac_coords2
             fc = np.array(np.round(fc), dtype=np.int)
-            return (np.sqrt(d2[0, 0]), fc)
+            return np.sqrt(d2[0, 0]), fc
 
         mapped_vec = self.get_cartesian_coords(jimage + frac_coords2
                                                - frac_coords1)
