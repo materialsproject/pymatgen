@@ -316,7 +316,9 @@ class CoordinationGeometry(object):
     """
 
     class NeighborsSetsHints(object):
+
         ALLOWED_HINTS_TYPES = ['single_cap', 'double_cap', 'triple_cap']
+
         def __init__(self, hints_type, options):
             if hints_type not in self.ALLOWED_HINTS_TYPES:
                 raise ValueError('Type "{}" for NeighborsSetsHints is not allowed'.format(type))
@@ -1061,10 +1063,10 @@ class AllCoordinationGeometries(dict):
         if type == 'all_geometries_latex_images':
             mystring = ''
             for cn in range(1, maxcn + 1):
-                mystring += '\section*{{Coordination {cn}}}\n\n'.format(cn=cn)
+                mystring += '\\section*{{Coordination {cn}}}\n\n'.format(cn=cn)
                 for cg in self.get_implemented_geometries(coordination=cn,
                                                           returned='cg'):
-                    mystring += '\subsubsection*{{{mp} : {name}}}\n\n'.format(
+                    mystring += '\\subsubsection*{{{mp} : {name}}}\n\n'.format(
                         mp=cg.mp_symbol, name=cg.get_name())
                     mystring += 'IUPAC : {iupac}\n\nIUCr : {iucr}\n\n'.format(
                         iupac=cg.IUPAC_symbol, iucr=cg.IUCr_symbol)
@@ -1075,14 +1077,14 @@ class AllCoordinationGeometries(dict):
                     mystring += '\\end{center}\n\n'
                 for cg in self.get_not_implemented_geometries(cn,
                                                               returned='cg'):
-                    mystring += '\subsubsection*{{{mp} : {name}}}\n\n'.format(
+                    mystring += '\\subsubsection*{{{mp} : {name}}}\n\n'.format(
                         mp=cg.mp_symbol, name=cg.get_name())
                     mystring += 'IUPAC : {iupac}\n\nIUCr : {iucr}\n\n'.format(
                         iupac=cg.IUPAC_symbol, iucr=cg.IUCr_symbol)
         elif type == 'all_geometries_latex':
             mystring = ''
             for cn in range(1, maxcn + 1):
-                mystring += '\subsection*{{Coordination {cn}}}\n\n'.format(
+                mystring += '\\subsection*{{Coordination {cn}}}\n\n'.format(
                     cn=cn)
                 mystring += '\\begin{itemize}\n'
                 for cg in self.get_implemented_geometries(coordination=cn,

@@ -169,6 +169,13 @@ class MITMPRelaxSetTest(unittest.TestCase):
 
         #Make sure Matproject sulfates are ok.
         self.assertEqual(MPRelaxSet(struct).incar['LDAUU'], [5.3, 0, 0])
+        
+        #test for default LDAUU value
+        
+        userset_ldauu_fallback = MPRelaxSet(struct,
+            user_incar_settings={'LDAUU': {'Fe': 5.0}}
+        )
+        self.assertEqual(userset_ldauu_fallback.incar['LDAUU'], [5.0, 0, 0])
 
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
@@ -283,6 +290,10 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(non_prev_vis.kpoints.kpts, [[13, 11, 11]])
         non_prev_vis = MPStaticSet(vis.structure, reciprocal_density=200)
         self.assertEqual(non_prev_vis.kpoints.kpts, [[15, 13, 13]])
+        # Check LCALCPOL flag
+        lcalcpol_vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run,
+                                                  lcalcpol=True)
+        self.assertTrue(lcalcpol_vis.incar["LCALCPOL"])
 
     def tearDown(self):
         shutil.rmtree(self.tmp)

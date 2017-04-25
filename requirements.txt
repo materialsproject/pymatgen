@@ -2,7 +2,7 @@ numpy==1.12.1
 pydispatcher==2.0.5
 sympy==1.0
 requests==2.13.0
-monty==0.9.6
+monty==0.9.7
 pyyaml==3.12
 six==1.10.0
 scipy==0.19.0

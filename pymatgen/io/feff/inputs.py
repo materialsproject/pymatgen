@@ -573,7 +573,7 @@ class Tags(dict):
         ieels = -1
         ieels_max = -1
         for i, line in enumerate(lines):
-            m = re.match("([A-Z]+\d*\d*)\s*(.*)", line)
+            m = re.match(r"([A-Z]+\d*\d*)\s*(.*)", line)
             if m:
                 key = m.group(1).strip()
                 val = m.group(2).strip()
@@ -629,10 +629,10 @@ class Tags(dict):
         try:
             if key in list_type_keys:
                 output = list()
-                toks = re.split("\s+", val)
+                toks = re.split(r"\s+", val)
 
                 for tok in toks:
-                    m = re.match("(\d+)\*([\d\.\-\+]+)", tok)
+                    m = re.match(r"(\d+)\*([\d\.\-\+]+)", tok)
                     if m:
                         output.extend([smart_int_or_float(m.group(2))] *
                                       int(m.group(1)))
@@ -640,7 +640,7 @@ class Tags(dict):
                         output.append(smart_int_or_float(tok))
                 return output
             if key in boolean_type_keys:
-                m = re.search("^\W+([TtFf])", val)
+                m = re.search(r"^\W+([TtFf])", val)
                 if m:
                     if m.group(1) == "T" or m.group(1) == "t":
                         return True

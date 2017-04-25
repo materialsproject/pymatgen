@@ -297,7 +297,7 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(vbm['band_index'], {Spin.up: [1, 2, 3],
                                              Spin.down: [1, 2, 3]},
                          "wrong vbm bands")
-        self.assertEqual(vbm['kpoint'].label, "\Gamma", "wrong vbm label")
+        self.assertEqual(vbm['kpoint'].label, "\\Gamma", "wrong vbm label")
         self.assertEqual(cbm['kpoint'].label, None, "wrong cbm label")
 
         projected = bs.get_projection_on_elements()
@@ -455,6 +455,25 @@ class OutcarTest(unittest.TestCase):
             self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
             self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
 
+    def test_polarization(self):
+        filepath = os.path.join(test_dir, "OUTCAR.BaTiO3.polar")
+        outcar = Outcar(filepath)
+        self.assertEqual(outcar.spin, True)
+        self.assertEqual(outcar.noncollinear, False)
+        self.assertAlmostEqual(outcar.p_ion[0], 0.0)
+        self.assertAlmostEqual(outcar.p_ion[1],0.0)
+        self.assertAlmostEqual(outcar.p_ion[2], -5.56684)
+        self.assertAlmostEqual(outcar.p_sp1[0], 2.00068)
+        self.assertAlmostEqual(outcar.p_sp2[0], -2.00044)
+        self.assertAlmostEqual(outcar.p_elec[0], 0.00024)
+        self.assertAlmostEqual(outcar.p_elec[1], 0.00019)
+        self.assertAlmostEqual(outcar.p_elec[2], 3.61674)
+
+    def test_pseudo_zval(self):
+        filepath = os.path.join(test_dir, "OUTCAR.BaTiO3.polar")
+        outcar = Outcar(filepath)
+        self.assertDictEqual({'Ba': 10.00, 'Ti': 10.00, 'O': 6.00}, outcar.zval_dict)
+
     def test_dielectric(self):
         filepath = os.path.join(test_dir, "OUTCAR.dielectric")
         outcar = Outcar(filepath)
@@ -471,6 +490,7 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(outcar.dielectric_tensor_function[0][0, 0], 8.96938800)
         self.assertAlmostEqual(outcar.dielectric_tensor_function[-1][0, 0], 7.36167000e-01 +1.53800000e-03j)
         self.assertEqual(len(outcar.frequencies), len(outcar.dielectric_tensor_function))
+        np.testing.assert_array_equal( outcar.dielectric_tensor_function[0], outcar.dielectric_tensor_function[0].transpose() )
 
     def test_read_elastic_tensor(self):
         filepath = os.path.join(test_dir, "OUTCAR.total_tensor.Li2O.gz")
@@ -601,7 +621,7 @@ class BSVasprunTest(unittest.TestCase):
         self.assertEqual(vbm['band_index'], {Spin.up: [1, 2, 3],
                                              Spin.down: [1, 2, 3]},
                          "wrong vbm bands")
-        self.assertEqual(vbm['kpoint'].label, "\Gamma", "wrong vbm label")
+        self.assertEqual(vbm['kpoint'].label, "\\Gamma", "wrong vbm label")
         self.assertEqual(cbm['kpoint'].label, None, "wrong cbm label")
 
 

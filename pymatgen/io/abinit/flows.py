@@ -20,7 +20,6 @@ import numpy as np
 
 from pprint import pprint
 from six.moves import map, StringIO
-from pymatgen.util.io_utils import AtomicFile
 from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict
@@ -32,10 +31,12 @@ from monty.pprint import draw_tree
 from monty.termcolor import cprint, colored, cprint_map, get_terminal_size
 from monty.inspect import find_top_pyfile
 from monty.dev import deprecated
-from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump
 from monty.json import MSONable
+from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump
 from pymatgen.serializers.json_coders import pmg_serialize
 from pymatgen.core.units import Memory
+from pymatgen.util.io_utils import AtomicFile
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 from . import wrappers
 from .nodes import Status, Node, NodeError, NodeResults, Dependency, GarbageCollector, check_spectator
 from .tasks import ScfTask, DdkTask, DdeTask, TaskManager, FixQueueCriticalError
@@ -2147,11 +2148,20 @@ class Flow(Node, NodeContainer, MSONable):
     #    if check_status: self.check_status()
     #    return abirobot(flow=self, ext=ext, nids=nids):
 
-    def plot_networkx(self, mode="network", with_edge_labels=False,
+    @add_fig_kwargs
+    def plot_networkx(self, mode="network", with_edge_labels=False, ax=None,
                       node_size="num_cores", node_label="name_class", layout_type="spring", **kwargs):
         """
         Use networkx to draw the flow with the connections among the nodes and
         the status of the tasks.
+
+        Args:
+            mode: `networkx` to show connections, `status` to group tasks by status.
+            with_edge_labels: True to draw edge labels.
+            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            node_size: By default, the size of the node is proportional to the number of cores used.
+            node_label: By default, the task class is used to label node.
+            layout_type: Get positions for all nodes using `layout_type`. e.g. pos = nx.spring_layout(g)
 
         .. warning::
 
@@ -2184,18 +2194,18 @@ class Flow(Node, NodeContainer, MSONable):
 
         labels = {task: make_node_label(task) for task in g.nodes()}
 
-        import matplotlib.pyplot as plt
+        ax, fig, plt = get_ax_fig_plt(ax=ax)
 
         # Select plot type.
         if mode == "network":
             nx.draw_networkx(g, pos, labels=labels,
                              node_color=[task.color_rgb for task in g.nodes()],
                              node_size=[make_node_size(task) for task in g.nodes()],
-                             width=1, style="dotted", with_labels=True)
+                             width=1, style="dotted", with_labels=True, ax=ax)
 
             # Draw edge labels
             if with_edge_labels:
-                nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels)
+                nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels, ax=ax)
 
         elif mode == "status":
             # Group tasks by status.
@@ -2211,27 +2221,27 @@ class Flow(Node, NodeContainer, MSONable):
                                        nodelist=tasks,
                                        node_color=node_color,
                                        node_size=[make_node_size(task) for task in tasks],
-                                       alpha=0.5,
+                                       alpha=0.5, ax=ax
                                        #label=str(status),
                                        )
 
             # Draw edges.
-            nx.draw_networkx_edges(g, pos, width=2.0, alpha=0.5, arrows=True) # edge_color='r')
+            nx.draw_networkx_edges(g, pos, width=2.0, alpha=0.5, arrows=True, ax=ax) # edge_color='r')
 
             # Draw labels
-            nx.draw_networkx_labels(g, pos, labels, font_size=12)
+            nx.draw_networkx_labels(g, pos, labels, font_size=12, ax=ax)
 
             # Draw edge labels
             if with_edge_labels:
-                nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels)
+                nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels, ax=ax)
                 #label_pos=0.5, font_size=10, font_color='k', font_family='sans-serif', font_weight='normal',
                 # alpha=1.0, bbox=None, ax=None, rotate=True, **kwds)
 
         else:
-            raise ValueError("Unknown value for mode: %s" % mode)
+            raise ValueError("Unknown value for mode: %s" % str(mode))
 
-        plt.axis('off')
-        plt.show()
+        ax.axis("off")
+        return fig
 
 
 class G0W0WithQptdmFlow(Flow):

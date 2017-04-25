@@ -83,7 +83,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
         val_type: Value type parsed from vasprun.xml.
         val: Actual string value parsed for vasprun.xml.
         filename: Fullpath of vasprun.xml. Used for robust error handling.
-            E.g., if vasprun.xml contains \*\*\* for some Incar parameters,
+            E.g., if vasprun.xml contains \\*\\*\\* for some Incar parameters,
             the code will try to read from an INCAR file present in the same
             directory.
         param_name: Name of parameter.
@@ -126,7 +126,7 @@ def _parse_from_incar(filename, key):
     """
     dirname = os.path.dirname(filename)
     for f in os.listdir(dirname):
-        if re.search("INCAR", f):
+        if re.search(r"INCAR", f):
             warnings.warn("INCAR found. Using " + key + " from INCAR.")
             incar = Incar.from_file(os.path.join(dirname, f))
             if key in incar:
@@ -848,7 +848,7 @@ class Vasprun(MSONable):
         d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
         d["pretty_formula"] = comp.reduced_formula
         symbols = [s.split()[1] for s in self.potcar_symbols]
-        symbols = [re.split("_", s)[0] for s in symbols]
+        symbols = [re.split(r"_", s)[0] for s in symbols]
         d["is_hubbard"] = self.is_hubbard
         d["hubbards"] = {}
         if d["is_hubbard"]:
@@ -1213,7 +1213,7 @@ class BSVasprun(Vasprun):
         d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
         d["pretty_formula"] = comp.reduced_formula
         symbols = [s.split()[1] for s in self.potcar_symbols]
-        symbols = [re.split("_", s)[0] for s in symbols]
+        symbols = [re.split(r"_", s)[0] for s in symbols]
         d["is_hubbard"] = self.is_hubbard
         d["hubbards"] = {}
         if d["is_hubbard"]:
@@ -1442,6 +1442,18 @@ class Outcar(MSONable):
         self.final_energy = total_energy
         self.data = {}
 
+        # Check if calculation is spin polarized
+        self.spin = False
+        self.read_pattern({'spin': 'ISPIN  =      2'})
+        if self.data.get('spin',[]):
+            self.spin = True
+
+        # Check if calculation is noncollinear
+        self.noncollinear = False
+        self.read_pattern({'noncollinear': 'LNONCOLLINEAR =      T'})
+        if self.data.get('noncollinear',[]):
+            self.noncollinear = False
+
         # Check to see if LEPSILON is true and read piezo data if so
         self.lepsilon = False
         self.read_pattern({'epsilon': 'LEPSILON=     T'})
@@ -1449,6 +1461,14 @@ class Outcar(MSONable):
             self.lepsilon = True
             self.read_lepsilon()
             self.read_lepsilon_ionic()
+
+        # Check to see if LCALCPOL is true and read polarization data if so
+        self.lcalcpol = False
+        self.read_pattern({'calcpol': 'LCALCPOL   =     T'})
+        if self.data.get('calcpol',[]):
+            self.lcalcpol = True
+            self.read_lcalcpol()
+            self.read_pseudo_zval()
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
@@ -1458,7 +1478,7 @@ class Outcar(MSONable):
 
         Args:
             patterns (dict): A dict of patterns, e.g.,
-                {"energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)"}.
+                {"energy": r"energy\(sigma->0\)\s+=\s+([\d\-\.]+)"}.
             reverse (bool): Read files in reverse. Defaults to false. Useful for
                 large files, esp OUTCARs, especially when used with
                 terminate_on_match.
@@ -1469,7 +1489,7 @@ class Outcar(MSONable):
 
         Renders accessible:
             Any attribute in patterns. For example,
-            {"energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)"} will set the
+            {"energy": r"energy\(sigma->0\)\s+=\s+([\d\-\.]+)"} will set the
             value of self.data["energy"] = [[-1234], [-3453], ...], to the
             results from regex and postprocess. Note that the returned values
             are lists of lists, because you can grep multiple items on one line.
@@ -1571,7 +1591,7 @@ class Outcar(MSONable):
                 if component == "IMAGINARY":
                     freq.append(float(toks[0]))
                 xx, yy, zz, xy, yz, xz = [float(t) for t in toks[1:]]
-                matrix = [[xx, xy, yz], [xy, yy, yz], [xz, yz, zz]]
+                matrix = [[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]]
                 data[component].append(matrix)
             elif re.match(r"\s*\-+\s*", l):
                 count += 1
@@ -1598,12 +1618,12 @@ class Outcar(MSONable):
                          r"\s+EXCLUDING G=0 CONTRIBUTION\s+INCLUDING G=0 CONTRIBUTION\s+" \
                          r"\s+-{20,}\s+-{20,}\s+" \
                          r"\s+ATOM\s+ISO_SHIFT\s+SPAN\s+SKEW\s+ISO_SHIFT\s+SPAN\s+SKEW\s+" \
-                         "-{50,}\s*$"
+                         r"-{50,}\s*$"
         first_part_pattern = r"\s+\(absolute, valence only\)\s+$"
         swallon_valence_body_pattern = r".+?\(absolute, valence and core\)\s+$"
         row_pattern = r"\d+(?:\s+[-]?\d+\.\d+){3}\s+" + r'\s+'.join(
             [r"([-]?\d+\.\d+)"] * 3)
-        footer_pattern = "-{50,}\s*$"
+        footer_pattern = r"-{50,}\s*$"
         h1 = header_pattern + first_part_pattern
         cs_valence_only = self.read_table_pattern(
             h1, row_pattern, footer_pattern, postprocess=float,
@@ -1630,16 +1650,16 @@ class Outcar(MSONable):
             Electric Field Gradient tensors as a list of dict in the order of atoms from OUTCAR.
             Each dict key/value pair corresponds to a component of the tensors.
         """
-        header_pattern = r"^\s+NMR quadrupolar parameters\s+$\n" \
-                         r"^\s+Cq : quadrupolar parameter\s+Cq=e[*]Q[*]V_zz/h$\n" \
-                         r"^\s+eta: asymmetry parameters\s+\(V_yy - V_xx\)/ V_zz$\n" \
-                         r"^\s+Q  : nuclear electric quadrupole moment in mb \(millibarn\)$\n" \
-                         r"^-{50,}$\n" \
-                         r"^\s+ion\s+Cq\(MHz\)\s+eta\s+Q \(mb\)\s+$\n" \
-                         r"^-{50,}\s*$\n"
-        row_pattern = r"\d+\s+(?P<cq>[-]?\d+\.\d+)\s+(?P<eta>[-]?\d+\.\d+)\s+" \
-                      r"(?P<nuclear_quadrupole_moment>[-]?\d+\.\d+)"
-        footer_pattern = "-{50,}\s*$"
+        header_pattern = r'^\s+NMR quadrupolar parameters\s+$\n' \
+                         r'^\s+Cq : quadrupolar parameter\s+Cq=e[*]Q[*]V_zz/h$\n' \
+                         r'^\s+eta: asymmetry parameters\s+\(V_yy - V_xx\)/ V_zz$\n' \
+                         r'^\s+Q  : nuclear electric quadrupole moment in mb \(millibarn\)$\n' \
+                         r'^-{50,}$\n' \
+                         r'^\s+ion\s+Cq\(MHz\)\s+eta\s+Q \(mb\)\s+$\n' \
+                         r'^-{50,}\s*$\n'
+        row_pattern = r'\d+\s+(?P<cq>[-]?\d+\.\d+)\s+(?P<eta>[-]?\d+\.\d+)\s+' \
+                      r'(?P<nuclear_quadrupole_moment>[-]?\d+\.\d+)'
+        footer_pattern = r'-{50,}\s*$'
         self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float,
                                 last_one_only=True, attribute_name="efg")
 
@@ -1653,7 +1673,7 @@ class Outcar(MSONable):
         header_pattern = r"TOTAL ELASTIC MODULI \(kBar\)\s+"\
                          r"Direction\s+([X-Z][X-Z]\s+)+"\
                          r"\-+"
-        row_pattern = r"[X-Z][X-Z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
+        row_pattern = r"[X-Z][X-Z]\s+"+r"\s+".join([r"(\-*[\.\d]+)"] * 6)
         footer_pattern = r"\-+"
         et_table = self.read_table_pattern(header_pattern, row_pattern,
                                            footer_pattern, postprocess=float)
@@ -1665,7 +1685,7 @@ class Outcar(MSONable):
         """
         header_pattern = r"PIEZOELECTRIC TENSOR  for field in x, y, " \
                          r"z\s+\(C/m\^2\)\s+([X-Z][X-Z]\s+)+\-+"
-        row_pattern = r"[x-z]\s+"+"\s+".join(["(\-*[\.\d]+)"] * 6)
+        row_pattern = r"[x-z]\s+"+r"\s+".join([r"(\-*[\.\d]+)"] * 6)
         footer_pattern = r"BORN EFFECTIVE"
         pt_table = self.read_table_pattern(header_pattern, row_pattern,
                                            footer_pattern, postprocess=float)
@@ -1703,9 +1723,7 @@ class Outcar(MSONable):
         """
         patterns = {
             "energy": r"energy\(sigma->0\)\s+=\s+([\d\-\.]+)",
-            "tangent_force": r"(NEB: projections on to tangent \("
-            r"spring, REAL\)\s+\S+|tangential force \(eV/A\))\s+(["
-            r"\d\-\.]+)"
+            "tangent_force": r"(NEB: projections on to tangent \(spring, REAL\)\s+\S+|tangential force \(eV/A\))\s+([\d\-\.]+)"
         }
         self.read_pattern(patterns, reverse=reverse,
                           terminate_on_match=terminate_on_match,
@@ -2050,20 +2068,43 @@ class Outcar(MSONable):
     def read_lcalcpol(self):
         # variables to be filled
         self.p_elec = None
+        self.p_sp1 = None
+        self.p_sp2 = None
         self.p_ion = None
         try:
             search = []
 
             # Always present spin/non-spin
-            def p_elc(results, match):
-                results.p_elc = np.array([float(match.group(1)),
+            def p_elec(results, match):
+                results.p_elec = np.array([float(match.group(1)),
                                           float(match.group(2)),
                                           float(match.group(3))])
 
             search.append([r"^.*Total electronic dipole moment: "
                            r"*p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
                            r"*([-0-9.Ee+]*) *\)",
-                           None, p_elc])
+                           None, p_elec])
+
+            # If spin-polarized (and not noncollinear)
+            # save spin-polarized electronic values
+            if self.spin and not self.noncollinear:
+                def p_sp1(results, match):
+                    results.p_sp1 = np.array([float(match.group(1)),
+                                              float(match.group(2)),
+                                              float(match.group(3))])
+
+                search.append([r"^.*p\[sp1\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
+                               r"*([-0-9.Ee+]*) *\)",
+                               None, p_sp1])
+
+                def p_sp2(results, match):
+                    results.p_sp2 = np.array([float(match.group(1)),
+                                              float(match.group(2)),
+                                              float(match.group(3))])
+
+                search.append([r"^.*p\[sp2\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
+                               r"*([-0-9.Ee+]*) *\)",
+                               None, p_sp2])
 
             def p_ion(results, match):
                 results.p_ion = np.array([float(match.group(1)),
@@ -2077,7 +2118,37 @@ class Outcar(MSONable):
             micro_pyawk(self.filename, search, self)
 
         except:
-            raise Exception("CLACLCPOL OUTCAR could not be parsed.")
+            raise Exception("LCALCPOL OUTCAR could not be parsed.")
+
+    def read_pseudo_zval(self):
+        """
+        Create pseudopotential ZVAL dictionary.
+        """
+        try:
+            def poscar_line(results, match):
+                poscar_line = match.group(1)
+                results.poscar_line = re.findall(r'[A-Z][a-z]?', poscar_line)
+
+            def zvals(results, match):
+                zvals = match.group(1)
+                results.zvals = map(float, re.findall(r'-?\d+\.\d*', zvals))
+
+            search = []
+            search.append([r'^.*POSCAR.*=(.*)', None, poscar_line])
+            search.append([r'^\s+ZVAL.*=(.*)', None, zvals])
+
+            micro_pyawk(self.filename, search, self)
+
+            zval_dict = {}
+            for x,y in zip(self.poscar_line, self.zvals):
+                zval_dict.update({x:y})
+            self.zval_dict = zval_dict
+
+            # Clean-up
+            del(self.poscar_line)
+            del(self.zvals)
+        except:
+            raise Exception("ZVAL dict could not be parsed.")
 
     def read_core_state_eigen(self):
         """
@@ -2174,6 +2245,15 @@ class Outcar(MSONable):
                       'dielectric_ionic_tensor': self.dielectric_ionic_tensor,
                       'born_ion': self.born_ion,
                       'born': self.born})
+
+        if self.lcalcpol:
+            d.update({'p_elec': self.p_elec,
+                      'p_ion': self.p_ion})
+            if self.spin and not self.noncollinear:
+                d.update({'p_sp1': self.p_sp1,
+                          'p_sp2': self.p_sp2})
+            d.update({'zval_dict': self.zval_dict})
+
         return d
 
 

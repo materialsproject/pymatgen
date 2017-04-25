@@ -1,9 +1,8 @@
 Change log
 ==========
 
-v4.7.3
+v4.7.4
 ------
-* Sympy now a dependency.
-* Massive improvements to elastic package. (Joseph Montoya)
-* Symmetrized structures now contain Wyckoff symbols.
-* More robust CIF parsing and MITRelaxSet parameters (Will).
+* New ferroelectric analysis module (Tess).
+* Magmom support and MagSymmOp (Matthew Horton).
+* Improved CIF Parsing.
