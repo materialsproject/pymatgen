@@ -42,7 +42,9 @@ Matgenie & Examples
 
 The `Materials Virtual Lab`_ has developed a
 `matgenie web app <http://matgenie.materialsvirtuallab.org>`_ which
-demonstrates some of the basic functionality of pymatgen.
+demonstrates some of the basic functionality of pymatgen, as well as a
+`matgenb repository <http://matgenb.materialsvirtuallab.org>`_ of
+Jupyter notebooks for common and advanced use cases.
 
 Another good way to explore the functionality of pymatgen is to look at the
 examples in a :doc:`series of ipython notebooks </examples>`.
@@ -106,8 +108,8 @@ compatible. Our approach is to have a single codebase support Python 2.7 and
 Getting pymatgen
 ================
 
-Conda install (recommended)
----------------------------
+Conda (recommended)
+-------------------
 
 If you are absolutely new to Python and/or are using Windows, the easiest
 installation process is using `conda <http://conda.pydata.org>`_. The
@@ -122,8 +124,8 @@ pymatgen can be installed from the `matsci channel on Anaconda cloud <https://an
 Step-by-step instructions for all platforms are available at the
 :doc:`installation page </installation>`.
 
-Standard install
-----------------
+Pip
+---
 
 .. note:: Preparation
 
@@ -190,8 +192,8 @@ install. This guarantees the right version of python and all dependencies::
     # Install numpy and other pydata stack packages via conda.
     conda install --yes pymatgen
 
-Using pymatgen
-==============
+Usage
+=====
 
 .. figure:: _static/overview.jpg
    :width: 100%
@@ -386,36 +388,36 @@ line to your ``.bash_profile`` (this method usually works more reliably)::
 
 Here are a few examples of typical usages::
 
-    #Parses all vasp runs in a directory and display the basic energy
-    #information. Saves the data in a file called vasp_data.gz for subsequent
-    #reuse.
+    # Parses all vasp runs in a directory and display the basic energy
+    # information. Saves the data in a file called vasp_data.gz for subsequent
+    # reuse.
 
     pmg analyze .
 
-    #Plot the dos from the vasprun.xml file.
+    # Plot the dos from the vasprun.xml file.
 
     pmg plotdos vasprun.xml
 
-    #Convert between file formats. The script attempts to intelligently
-    #determine the file type. Input file types supported include CIF,
-    #vasprun.xml, POSCAR, CSSR. You can force the script to assume certain file
-    #types by specifying additional arguments. See pmg convert -h.
+    # Convert between file formats. The script attempts to intelligently
+    # determine the file type. Input file types supported include CIF,
+    # vasprun.xml, POSCAR, CSSR. You can force the script to assume certain file
+    # types by specifying additional arguments. See pmg convert -h.
 
     pmg convert input_filename output_filename.
 
-    #Obtain spacegroup information.
+    # Obtain spacegroup information.
 
     pmg symm -s filename1 filename2
 
-    #Visualize a structure. Requires VTK to be installed.
+    # Visualize a structure. Requires VTK to be installed.
 
     pmg view filename
 
-    #Compare two structures for similarity
+    # Compare two structures for similarity
 
     pmg compare filename1 filename2
 
-    #Generate a POTCAR with symbols Li_sv O and the PBE functional
+    # Generate a POTCAR with symbols Li_sv O and the PBE functional
 
     pmg generate --potcar Li_sv O --functional PBE
 
@@ -487,8 +489,8 @@ follows:
 
 .. literalinclude:: ../LICENSE.rst
 
-About the Pymatgen Development Team
-===================================
+About the Team
+==============
 
 Shyue Ping Ong of the `Materials Virtual Lab`_ started Pymatgen in 2011, and is
 still the project lead.

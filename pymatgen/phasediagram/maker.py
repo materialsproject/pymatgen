@@ -282,7 +282,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
     the grand potential, which can be written as the Legendre transform of the
     Gibbs free energy as follows
 
-    Grand potential = G - u\ :sub:`X` N\ :sub:`X`\
+    Grand potential = G - u_X N_X
 
     The algorithm is based on the work in the following papers:
 

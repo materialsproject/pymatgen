@@ -132,7 +132,7 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.assertEqual(cbm_spin['kpoint'].frac_coords[0], 0.0, "wrong CBM kpoint frac coords")
         self.assertEqual(cbm_spin['kpoint'].frac_coords[1], 0.0, "wrong CBM kpoint frac coords")
         self.assertEqual(cbm_spin['kpoint'].frac_coords[2], 0.0, "wrong CBM kpoint frac coords")
-        self.assertEqual(cbm_spin['kpoint'].label, "\Gamma", "wrong CBM kpoint label")
+        self.assertEqual(cbm_spin['kpoint'].label, "\\Gamma", "wrong CBM kpoint label")
 
     def test_get_vbm(self):
         vbm = self.bs2.get_vbm()
@@ -143,7 +143,7 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.assertEqual(vbm['kpoint'].frac_coords[0], 0.0, "wrong VBM kpoint frac coords")
         self.assertEqual(vbm['kpoint'].frac_coords[1], 0.0, "wrong VBM kpoint frac coords")
         self.assertEqual(vbm['kpoint'].frac_coords[2], 0.0, "wrong VBM kpoint frac coords")
-        self.assertEqual(vbm['kpoint'].label, "\Gamma", "wrong VBM kpoint label")
+        self.assertEqual(vbm['kpoint'].label, "\\Gamma", "wrong VBM kpoint label")
         vbm_spin = self.bs_spin.get_vbm()
         self.assertAlmostEqual(vbm_spin['energy'], 5.731, "wrong VBM energy")
         self.assertEqual(len(vbm_spin['band_index'][Spin.up]), 2, "wrong VBM number of bands")

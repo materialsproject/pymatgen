@@ -3,11 +3,14 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import re
+
+from pymatgen.core.structure import Molecule
+from monty.io import zopen
 
 """
 Module implementing an XYZ file object class.
 """
-
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -15,11 +18,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Apr 17, 2012"
-
-import re
-
-from pymatgen.core.structure import Molecule
-from monty.io import zopen
 
 
 class XYZ(object):
@@ -63,7 +61,7 @@ class XYZ(object):
         coords = []
         sp = []
         coord_patt = re.compile(
-            "(\w+)\s+([0-9\-\.e]+)\s+([0-9\-\.e]+)\s+([0-9\-\.e]+)"
+            r"(\w+)\s+([0-9\-\.e]+)\s+([0-9\-\.e]+)\s+([0-9\-\.e]+)"
         )
         for i in range(2, 2 + num_sites):
             m = coord_patt.search(lines[i])

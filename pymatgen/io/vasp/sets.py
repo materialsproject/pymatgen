@@ -158,7 +158,8 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
             v.write_file(os.path.join(output_dir, k))
         if include_cif:
             s = self.all_input["POSCAR"].structure
-            fname = os.path.join(output_dir, "%s.cif" % re.sub("\s", "", s.formula))
+            fname = os.path.join(output_dir, "%s.cif" % re.sub(r'\s', "",
+                                                               s.formula))
             s.to(filename=fname)
 
     def as_dict(self, verbosity=2):
@@ -456,7 +457,7 @@ class MPStaticSet(MPRelaxSet):
                 we usually set the reciprocal density by voluyme. This is a
                 convenience arg to change that, rather than using
                 user_kpoints_settings. Defaults to 100.
-            \*\*kwargs: kwargs supported by MPRelaxSet.
+            \\*\\*kwargs: kwargs supported by MPRelaxSet.
         """
         super(MPStaticSet, self).__init__(structure, **kwargs)
         self.prev_incar = prev_incar
@@ -554,7 +555,7 @@ class MPStaticSet(MPRelaxSet):
             small_gap_multiply ([float, float]): If the gap is less than
                 1st index, multiply the default reciprocal_density by the 2nd
                 index.
-            \*\*kwargs: All kwargs supported by MPStaticSet,
+            \\*\\*kwargs: All kwargs supported by MPStaticSet,
                 other than prev_incar and prev_structure and prev_kpoints which
                 are determined from the prev_calc_dir.
         """
@@ -678,7 +679,7 @@ class MPHSEBSSet(MPHSERelaxSet):
             mode (str): Either "uniform", "gap" or "line"
             reciprocal_density (int): density of k-mesh
             copy_chgcar (bool): whether to copy CHGCAR of previous run
-            \*\*kwargs: All kwargs supported by MPHSEBSStaticSet,
+            \\*\\*kwargs: All kwargs supported by MPHSEBSStaticSet,
                 other than prev_structure which is determined from the previous
                 calc dir.
         """
@@ -729,7 +730,7 @@ class MPNonSCFSet(MPRelaxSet):
             sym_prec (float): Symmetry precision (for Uniform mode).
             kpoints_line_density (int): Line density for Line mode.
             optics (bool): whether to add dielectric function
-            \*\*kwargs: kwargs supported by MPVaspInputSet.
+            \\*\\*kwargs: kwargs supported by MPVaspInputSet.
         """
         super(MPNonSCFSet, self).__init__(structure, **kwargs)
         self.prev_incar = prev_incar
@@ -834,7 +835,7 @@ class MPNonSCFSet(MPRelaxSet):
             small_gap_multiply ([float, float]): If the gap is less than
                 1st index, multiply the default reciprocal_density by the 2nd
                 index.
-            \*\*kwargs: All kwargs supported by MPNonSCFSet,
+            \\*\\*kwargs: All kwargs supported by MPNonSCFSet,
                 other than structure, prev_incar and prev_chgcar which
                 are determined from the prev_calc_dir.
         """
@@ -891,7 +892,7 @@ class MPSOCSet(MPStaticSet):
             prev_incar (Incar): Incar file from previous run.
             reciprocal_density (int): density of k-mesh by reciprocal
                                     volume (defaults to 100)
-            \*\*kwargs: kwargs supported by MPVaspInputSet.
+            \\*\\*kwargs: kwargs supported by MPVaspInputSet.
         """
         if not hasattr(structure[0], "magmom") and \
                 not isinstance(structure[0].magmom, list):
@@ -945,7 +946,7 @@ class MPSOCSet(MPStaticSet):
             small_gap_multiply ([float, float]): If the gap is less than
                 1st index, multiply the default reciprocal_density by the 2nd
                 index.
-            \*\*kwargs: All kwargs supported by MPSOCSet,
+            \\*\\*kwargs: All kwargs supported by MPSOCSet,
                 other than structure, prev_incar and prev_chgcar which
                 are determined from the prev_calc_dir.
         """
@@ -1089,7 +1090,7 @@ class MITNEBSet(MITRelaxSet):
 
     Args:
         unset_encut (bool): Whether to unset ENCUT.
-        \*\*kwargs: Other kwargs supported by :class:`DictSet`.
+        \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structures, unset_encut=False, **kwargs):
@@ -1198,7 +1199,7 @@ class MITMDSet(MITRelaxSet):
             The ISPIN parameter. Defaults to False.
         sort_structure (bool): Whether to sort structure. Defaults to False
             (different behavior from standard input sets).
-        \*\*kwargs: Other kwargs supported by :class:`DictSet`.
+        \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2,
@@ -1347,11 +1348,11 @@ def batch_write_input(structures, vasp_input_set=MPRelaxSet, output_dir=".",
             Defaults to False.
         include_cif (bool): Whether to output a CIF as well. CIF files are
             generally better supported in visualization programs.
-        \*\*kwargs: Additional kwargs are passed to the vasp_input_set class in
+        \\*\\*kwargs: Additional kwargs are passed to the vasp_input_set class in
             addition to structure.
     """
     for i, s in enumerate(structures):
-        formula = re.sub("\s+", "", s.formula)
+        formula = re.sub(r'\s+', "", s.formula)
         if subfolder is not None:
             subdir = subfolder(s)
             d = os.path.join(output_dir, subdir)

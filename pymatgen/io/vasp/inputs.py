@@ -269,7 +269,7 @@ class Poscar(MSONable):
             Poscar object.
         """
         # "^\s*$" doesn't match lines with no whitespace
-        chunks = re.split("\n\s*\n", data.rstrip(), flags=re.MULTILINE)
+        chunks = re.split(r"\n\s*\n", data.rstrip(), flags=re.MULTILINE)
         try:
             if chunks[0] == "":
                 chunks.pop(0)
@@ -714,7 +714,7 @@ class Incar(dict, MSONable):
         lines = list(clean_lines(string.splitlines()))
         params = {}
         for line in lines:
-            m = re.match("(\w+)\s*=\s*(.*)", line)
+            m = re.match(r'(\w+)\s*=\s*(.*)', line)
             if m:
                 key = m.group(1).strip()
                 val = m.group(2).strip()
@@ -1189,8 +1189,8 @@ class Kpoints(MSONable):
         if style == "a":
             return Kpoints.automatic(int(lines[3]))
 
-        coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+"
-                                   "([\d+\.\-Ee]+)")
+        coord_pattern = re.compile(r'^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+'
+                                   r'([\d+\.\-Ee]+)')
 
         # Automatic gamma and Monk KPOINTS, with optional shift
         if style == "g" or style == "m":
@@ -1220,8 +1220,8 @@ class Kpoints(MSONable):
             style = Kpoints.supported_modes.Line_mode
             kpts = []
             labels = []
-            patt = re.compile("([e0-9\.\-]+)\s+([e0-9\.\-]+)\s+([e0-9\.\-]+)"
-                              "\s*!*\s*(.*)")
+            patt = re.compile(r'([e0-9\.\-]+)\s+([e0-9\.\-]+)\s+([e0-9\.\-]+)'
+                              r'\s*!*\s*(.*)')
             for i in range(4, len(lines)):
                 line = lines[i]
                 m = patt.match(line)
@@ -1370,7 +1370,7 @@ def parse_int(s):
 
 
 def parse_list(s):
-    return [float(y) for y in re.split("\s+", s.strip()) if not y.isalpha()]
+    return [float(y) for y in re.split(r"\s+", s.strip()) if not y.isalpha()]
 
 
 @cached_class

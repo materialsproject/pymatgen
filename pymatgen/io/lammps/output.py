@@ -2,7 +2,18 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals, absolute_import
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
+import re
+from io import open
+
+import numpy as np
+
+from pymatgen.core.periodic_table import _pt_data
+from pymatgen.core.structure import Molecule
+from pymatgen.core.lattice import Lattice
+from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
+from pymatgen.io.lammps.data import LammpsData, LammpsForceFieldData
 
 """
 This module implements classes for processing Lammps output files:
@@ -18,17 +29,6 @@ This module implements classes for processing Lammps output files:
         of fields after that and they all will be treated as floats and
         updated based on the field names in the ITEM: ATOMS line.
 """
-
-import re
-from io import open
-
-import numpy as np
-
-from pymatgen.core.periodic_table import _pt_data
-from pymatgen.core.structure import Molecule
-from pymatgen.core.lattice import Lattice
-from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
-from pymatgen.io.lammps.data import LammpsData, LammpsForceFieldData
 
 __author__ = "Kiran Mathew"
 __email__ = "kmathew@lbl.gov"
@@ -68,16 +68,17 @@ class LammpsRun(object):
         timestep_label = "ITEM: TIMESTEP"
         # "ITEM: ATOMS id type ...
         traj_label_pattern = re.compile(
-            "^\s*ITEM:\s+ATOMS\s+id\s+type\s+([A-Za-z\s]*)")
+            r"^\s*ITEM:\s+ATOMS\s+id\s+type\s+([A-Za-z\s]*)")
         # default: id type x y z vx vy vz mol"
         # updated below based on the field names in the ITEM: ATOMS line
-        # Note: the first 2 fields must be the id and the atom type. There can be
-        # arbitrary number of fields after that and they all will be treated as floats.
+        # Note: the first 2 fields must be the id and the atom type. There can
+        # be arbitrary number of fields after that and they all will be treated
+        # as floats.
         traj_pattern = re.compile(
-            "\s*(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+"
-            "([0-9eE\.+-]+)\s+"
-            "([0-9eE\.+-]+)\s+"
-            "([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+(\d+)\s*")
+            r"\s*(\d+)\s+(\d+)\s+([0-9eE.+-]+)\s+([0-9eE.+-]+)\s+"
+            r"([0-9eE.+-]+)\s+"
+            r"([0-9eE.+-]+)\s+"
+            r"([0-9eE.+-]+)\s+([0-9eE.+-]+)\s+(\d+)\s*")
         parse_timestep = False
         with open(self.trajectory_file) as tf:
             for line in tf:
@@ -91,8 +92,8 @@ class LammpsRun(object):
                     fields = traj_label_pattern.search(line).group(1)
                     fields = fields.split()
                     # example:- id type x y z vx vy vz mol ...
-                    traj_pattern_string = "\s*(\d+)\s+(\d+)" + "".join(
-                        ["\s+([0-9eE\.+-]+)" for _ in range(len(fields))])
+                    traj_pattern_string = r"\s*(\d+)\s+(\d+)" + "".join(
+                        [r"\s+([0-9eE\.+-]+)" for _ in range(len(fields))])
                     traj_pattern = re.compile(traj_pattern_string)
                 if traj_pattern.search(line):
                     # first 2 fields must be id and type, the rest of them
@@ -102,7 +103,8 @@ class LammpsRun(object):
                     line_data.append(int(m.group(1)) - 1)
                     line_data.append(int(m.group(2)))
                     line_data.extend(
-                        [float(x) for i, x in enumerate(m.groups()) if i + 1 > 2])
+                        [float(x) for i, x in enumerate(m.groups()) if
+                         i + 1 > 2])
                     trajectory.append(tuple(line_data))
         traj_dtype = np.dtype([(str('Atoms_id'), np.int64),
                                (str('atom_type'), np.int64)] +
@@ -129,12 +131,10 @@ class LammpsRun(object):
         unique_mol_ids = np.unique(mol_ids)
         atomic_types = atoms_data[:, 2].astype(np.int64)
         atomic_masses = unique_atomic_masses[atomic_types - 1]
-        # atomic_charges = atoms_data[:, 3]
         self.nmols = unique_mol_ids.size
         for umid in range(self.nmols):
             mol_config.append(atom_ids[np.where(mol_ids == umid + 1)] - 1)
             mol_masses.append(atomic_masses[np.where(mol_ids == umid + 1)])
-            # mol_charges.append(np.sum(atomic_charges[np.where(mol_ids == umid+1)]))
         self.mol_config = np.array(mol_config)
         self.mol_masses = np.array(mol_masses)
 
@@ -152,10 +152,11 @@ class LammpsRun(object):
             1D numpy array(3 x 1) of weighted averages in x, y, z directions
         """
         mol_masses = self.mol_masses[mol_id]
-        return np.array([np.dot(mol_vector[:, dim], mol_masses) / np.sum(mol_masses)
-                         for dim in range(3)])
+        return np.array(
+            [np.dot(mol_vector[:, dim], mol_masses) / np.sum(mol_masses)
+             for dim in range(3)])
 
-    def _get_mol_vector(self, step, mol_id, param=["x", "y", "z"]):
+    def _get_mol_vector(self, step, mol_id, param=("x", "y", "z")):
         """
         Returns numpy array corresponding to atomic vectors of parameter
         "param" for the given time step and molecule id
@@ -232,7 +233,7 @@ class LammpsRun(object):
             mol_vector_structured = \
                 self.trajectory[begin:end][:][["x", "y", "z"]]
             new_shape = mol_vector_structured.shape + (-1,)
-            mol_vector = mol_vector_structured.view(np.float64).reshape(
+            mol_vector = mol_vector_structured.astype(np.float64).reshape(
                 new_shape)
             coords = mol_vector.copy()
             if step == 0:
@@ -252,7 +253,7 @@ class LammpsRun(object):
         return structure, disp
 
     def get_diffusion_analyzer(self, specie, temperature, time_step, step_skip,
-                               smoothed=None, min_obs=30, avg_nsteps=1000):
+                               **kwargs):
         """
         Args:
             specie (Element/Specie): Specie to calculate diffusivity for as a
@@ -272,8 +273,8 @@ class LammpsRun(object):
         # structures = self.get_structures_from_trajectory()
         structure, disp = self.get_displacements()
         return DiffusionAnalyzer(structure, disp, specie, temperature,
-                                 time_step, step_skip=step_skip, smoothed=smoothed,
-                                 min_obs=min_obs, avg_nsteps=avg_nsteps)
+                                 time_step, step_skip=step_skip,
+                                 **kwargs)
 
     @property
     def natoms(self):
@@ -356,23 +357,23 @@ class LammpsLog(object):
         with open(self.log_file, 'r') as logfile:
             for line in logfile:
                 # timestep, the unit depedns on the 'units' command
-                time = re.search('timestep\s+([0-9]+)', line)
+                time = re.search(r'timestep\s+([0-9]+)', line)
                 if time and not thermo_data:
                     self.timestep = float(time.group(1))
                 # total number md steps
-                steps = re.search('run\s+([0-9]+)', line)
+                steps = re.search(r'run\s+([0-9]+)', line)
                 if steps and not thermo_data:
                     self.nmdsteps = int(steps.group(1))
                 # logging interval
-                thermo = re.search('thermo\s+([0-9]+)', line)
+                thermo = re.search(r'thermo\s+([0-9]+)', line)
                 if thermo and not thermo_data:
                     self.interval = float(thermo.group(1))
                 # thermodynamic data, set by the thermo_style command
-                format = re.search('thermo_style.+', line)
-                if format and not thermo_data:
-                    fields = format.group().split()[2:]
-                    thermo_pattern_string = "\s*([0-9eE\.+-]+)" + "".join(
-                        ["\s+([0-9eE\.+-]+)" for _ in range(len(fields) - 1)])
+                fmt = re.search(r'thermo_style.+', line)
+                if fmt and not thermo_data:
+                    fields = fmt.group().split()[2:]
+                    thermo_pattern_string = r"\s*([0-9eE\.+-]+)" + "".join(
+                        [r"\s+([0-9eE\.+-]+)" for _ in range(len(fields) - 1)])
                     thermo_pattern = re.compile(thermo_pattern_string)
                 if thermo_pattern:
                     if thermo_pattern.search(line):

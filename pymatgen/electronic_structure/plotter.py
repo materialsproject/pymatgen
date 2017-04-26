@@ -627,7 +627,7 @@ class BSPlotter(object):
                         label0 = "$" + label0 + "$"
                     tick_labels.pop()
                     tick_distance.pop()
-                    tick_labels.append(label0 + "$\mid$" + label1)
+                    tick_labels.append(label0 + "$\\mid$" + label1)
                 else:
                     if c.label.startswith("\\") or c.label.find("_") != -1:
                         tick_labels.append("$" + c.label + "$")
@@ -1905,10 +1905,11 @@ class BSPlotterProjected(BSPlotter):
 
         return plt, shift
 
-class BSDOSPlotter():
+
+class BSDOSPlotter(object):
     """
-    A joint, aligned band structure and density of states plot. Contributions from Jan Pohls
-    as well as the online example from Germain Salvato-Vallverdu:
+    A joint, aligned band structure and density of states plot. Contributions 
+    from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:
     http://gvallver.perso.univ-pau.fr/?p=587
     """
 
@@ -1957,12 +1958,14 @@ class BSDOSPlotter():
         """
         Get a matplotlib plot object.
         Args:
-            bs (BandStructureSymmLine): the bandstructure to plot. Projection data must exist for projected plots.
-            dos (Dos): the Dos to plot. Projection data must exist (i.e., CompleteDos) for projected plots.
+            bs (BandStructureSymmLine): the bandstructure to plot. Projection 
+                data must exist for projected plots.
+            dos (Dos): the Dos to plot. Projection data must exist (i.e., 
+                CompleteDos) for projected plots.
 
         Returns:
-            a matplotlib plt object on which you can call commands like show() and savefig()
-
+            matplotlib.pyplot object on which you can call commands like show() 
+            and savefig()
         """
         import matplotlib.lines as mlines
         from matplotlib.gridspec import GridSpec
@@ -1977,9 +1980,10 @@ class BSDOSPlotter():
 
         if bs_projection and bs_projection.lower() == "elements" and \
                 (len(elements) not in [2, 3] or not bs.get_projection_on_elements()):
-            warnings.warn("Cannot get element projected data; either the projection data "
-                          "doesn't exist, or you don't have a compound with exactly 2 or 3"
-                          " unique elements.")
+            warnings.warn(
+                "Cannot get element projected data; either the projection data "
+                "doesn't exist, or you don't have a compound with exactly 2 or 3"
+                " unique elements.")
             bs_projection = None
 
         # specify energy range of plot
@@ -2402,7 +2406,7 @@ class BoltztrapPlotter(object):
             plt.xlim(-0.5, self._bz.gap + 0.5)
         else:
             plt.xlim(xlim[0], xlim[1])
-        plt.ylabel("Seebeck \n coefficient  ($\mu$V/K)", fontsize=30.0)
+        plt.ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
@@ -2431,13 +2435,13 @@ class BoltztrapPlotter(object):
         self._plot_bg_limits()
         self._plot_doping(temp)
         if output == 'eig':
-            plt.legend(['$\sigma_1$', '$\sigma_2$', '$\sigma_3$'])
+            plt.legend(['$\\Sigma_1$', '$\\Sigma_2$', '$\\Sigma_3$'])
         if xlim is None:
             plt.xlim(-0.5, self._bz.gap + 0.5)
         else:
             plt.xlim(xlim)
         plt.ylim([1e13 * relaxation_time, 1e20 * relaxation_time])
-        plt.ylabel("conductivity,\n $\sigma$ (1/($\Omega$ m))", fontsize=30.0)
+        plt.ylabel("conductivity,\n $\\Sigma$ (1/($\\Omega$ m))", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
@@ -2471,7 +2475,7 @@ class BoltztrapPlotter(object):
             plt.xlim(-0.5, self._bz.gap + 0.5)
         else:
             plt.xlim(xlim)
-        plt.ylabel("Power factor, ($\mu$W/(mK$^2$))", fontsize=30.0)
+        plt.ylabel("Power factor, ($\\mu$W/(mK$^2$))", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
