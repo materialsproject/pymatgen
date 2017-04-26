@@ -481,6 +481,15 @@ TIME       =  0.4"""
         self.assertFalse(incar["LSORBIT"])
         self.assertEqual(incar["MAGMOM"], [-1, -1, 9, 9])
 
+    def test_quad_efg(self):
+        incar1 = Incar({})
+        incar1["LEFG"] = True
+        incar1["QUAD_EFG"] = [0.0, 146.6, -25.58]
+        ans_string1 = "LEFG = True\nQUAD_EFG = 0.0 146.6 -25.58\n"
+        self.assertEqual(ans_string1, str(incar1))
+        incar2 = Incar.from_string(ans_string1)
+        self.assertEqual(ans_string1, str(incar2))
+
 
 class KpointsTest(unittest.TestCase):
 
