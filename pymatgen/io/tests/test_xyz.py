@@ -31,14 +31,14 @@ class XYZTest(unittest.TestCase):
 
     def setUp(self):
         coords = [[0.000000, 0.000000, 0.000000],
-              [0.000000, 0.000000, 1.089000],
-              [1.026719, 0.000000, -0.363000],
-              [-0.513360, -0.889165, -0.363000],
-              [-0.513360, 0.889165, -0.363000]]
+                  [0.000000, 0.000000, 1.089000],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.363000]]
         coords2 = [[x + 10.0 for x in atom] for atom in coords]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
         self.multi_mols = [Molecule(["C", "H", "H", "H", "H"], coords)
-                     for coords in [coords, coords2]]
+                           for coords in [coords, coords2]]
         self.xyz = XYZ(self.mol)
         self.multi_xyz = XYZ(self.multi_mols)
 
