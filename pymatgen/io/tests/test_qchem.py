@@ -10,6 +10,7 @@ import json
 import os
 import unittest
 
+import sys
 from pymatgen import Molecule
 from pymatgen.io.qchem import QcTask, QcInput, QcOutput, QcNucVeloc
 from pymatgen.util.testing import PymatgenTest
@@ -2186,6 +2187,8 @@ $end
                           0.341061]
         self.assertEqual(qcout.data[0]['charges']['chelpg'], chelpg_charges)
 
+    @unittest.skipIf(sys.platform not in ["linux", 'darwin'],
+                     "Skip unix file path test on Windows")
     def test_scr_dir(self):
         filename = os.path.join(test_dir, 'chelpg_charges.qcout')
         qcout = QcOutput(filename)
