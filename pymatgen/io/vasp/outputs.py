@@ -1593,9 +1593,8 @@ class Outcar(MSONable):
                 xx, yy, zz, xy, yz, xz = [float(t) for t in toks[1:]]
                 matrix = [[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]]
                 data[component].append(matrix)
-            elif re.match(r"\s*\-+\s*", l):
+            elif re.match(r"\s*-+\s*", l):
                 count += 1
-
             if count == 1:
                 component = "REAL"
             elif count == 2:
