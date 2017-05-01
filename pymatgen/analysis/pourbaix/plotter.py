@@ -701,7 +701,7 @@ class PourbaixPlotter(object):
 
         if domain_fontsize is None:
             domain_fontsize = {en: default_domain_font_size for en in sorted_entry}
-        elif isinstance(domain_fontsize, dict):
+        elif not isinstance(domain_fontsize, dict):
             domain_fontsize = {en: domain_fontsize for en in sorted_entry}
         if domain_color is None:
             domain_color = {en: default_solid_phase_color if '(s)' in en else
