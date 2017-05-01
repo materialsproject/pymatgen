@@ -624,7 +624,8 @@ class PourbaixPlotter(object):
     def get_pourbaix_plot_colorfill_by_domain_name(self, limits=None, title="",
             label_domains=True, label_color='k', domain_color=None, domain_fontsize=None,
             domain_edge_lw=0.5, bold_domains=None, cluster_domains=(),
-            add_h2o_stablity_line=True, add_center_line=False, h2o_lw=0.5):
+            add_h2o_stablity_line=True, add_center_line=False, h2o_lw=0.5,
+            fill_domain=True):
         """
         Color domains by the colors specific by the domain_color dict
 
@@ -643,6 +644,8 @@ class PourbaixPlotter(object):
             add_h2o_stablity_line (Bool): whether plot H2O stability line
             add_center_line (Bool): whether plot lines shows the center coordinate
             h2o_lw (int): line width for H2O stability line and center lines
+            fill_domain (bool): a version without color will be product if set 
+                to False.
         """
         # helper functions
         def len_elts(entry):
@@ -714,7 +717,7 @@ class PourbaixPlotter(object):
                 y_coord += c[1]
                 npts += 1
                 patch = Polygon(xy, facecolor=domain_color[entry],
-                                closed=True, lw=domain_edge_lw, fill=True, antialiased=True)
+                                closed=True, lw=domain_edge_lw, fill=fill_domain, antialiased=True)
                 ax.add_patch(patch)
             xy_center = (x_coord / npts, y_coord / npts)
             if label_domains:
