@@ -650,10 +650,6 @@ class PourbaixPlotter(object):
                 height (float): Height of plot in inches. Defaults to width * golden
                 ratio.
         """
-        # helper functions
-        def len_elts(entry):
-            comp = Composition(entry[:-3]) if "(s)" in entry else Ion.from_formula(entry)
-            return len(set(comp.elements) - {Element("H"), Element("O")})
 
         def special_lines(xlim, ylim):
             h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC],
@@ -665,8 +661,7 @@ class PourbaixPlotter(object):
             return h_line, o_line, neutral_line, V0_line
 
         from matplotlib.patches import Polygon
-        from pymatgen import Composition, Element
-        from pymatgen.core.ion import Ion
+        import copy
 
         default_domain_font_size = 12
         default_solid_phase_color = '#b8f9e7'    # this slighly darker than the MP scheme, to
@@ -675,15 +670,6 @@ class PourbaixPlotter(object):
         plt = pretty_plot(width=width, height=height, dpi=300)
 
         (stable, unstable) = self.pourbaix_plot_data(limits)
-        num_of_overlaps = {key: 0 for key in stable.keys()}
-        entry_dict_of_multientries = collections.defaultdict(list)
-        for entry in stable:
-            if isinstance(entry, MultiEntry):
-                for e in entry.entrylist:
-                    entry_dict_of_multientries[e.name].append(entry)
-                    num_of_overlaps[entry] += 1
-            else:
-                entry_dict_of_multientries[entry.name].append(entry)
 
         xlim, ylim = limits[:2] if limits else self._analyzer.chempot_limits[:2]
         h_line, o_line, neutral_line, V0_line = special_lines(xlim, ylim)
@@ -696,54 +682,50 @@ class PourbaixPlotter(object):
         ax.xaxis.set_ticks_position('bottom')
         ax.yaxis.set_ticks_position('left')
 
-        sorted_entry = list(entry_dict_of_multientries.keys())
-        sorted_entry.sort(key=len_elts)
+        sorted_entry = list(stable.keys())
+        sorted_entry.sort(key=lambda en: en.energy, reverse=True)
 
         if domain_fontsize is None:
-            domain_fontsize = {en: default_domain_font_size for en in sorted_entry}
+            domain_fontsize = {en.name: default_domain_font_size for en in sorted_entry}
         elif not isinstance(domain_fontsize, dict):
-            domain_fontsize = {en: domain_fontsize for en in sorted_entry}
+            domain_fontsize = {en.name: domain_fontsize for en in sorted_entry}
         if domain_color is None:
-            domain_color = {en: default_solid_phase_color if '(s)' in en else
-                            (default_cluster_phase_color if en in cluster_domains else 'w')
+            domain_color = {en.name: default_solid_phase_color if '(s)' in en.name else
+                            (default_cluster_phase_color if en.name in cluster_domains else 'w')
                             for i, en in enumerate(sorted_entry)}
         if bold_domains is None:
-            bold_domains = [en for en in sorted_entry if '(s)' not in en]
+            bold_domains = [en.name for en in sorted_entry if '(s)' not in en.name]
 
         for entry in sorted_entry:
-            x_coord, y_coord, npts = 0.0, 0.0, 0
-            for e in entry_dict_of_multientries[entry]:
-                xy = self.domain_vertices(e)
-                if add_h2o_stablity_line:
-                    c = self.get_distribution_corrected_center(stable[e], h_line, o_line, 0.3)
-                else:
-                    c = self.get_distribution_corrected_center(stable[e])
-                x_coord += c[0]
-                y_coord += c[1]
-                npts += 1
-                patch = Polygon(xy, facecolor=domain_color[entry],
-                                closed=True, lw=domain_edge_lw, fill=fill_domain, antialiased=True)
-                ax.add_patch(patch)
-            xy_center = (x_coord / npts, y_coord / npts)
+            print(str(entry.name), entry.energy)
+            xy = self.domain_vertices(entry)
+            if add_h2o_stablity_line:
+                c = self.get_distribution_corrected_center(stable[entry], h_line, o_line, 0.3)
+            else:
+                c = self.get_distribution_corrected_center(stable[entry])
+            patch = Polygon(xy, facecolor=domain_color[entry.name],
+                            closed=True, lw=domain_edge_lw, fill=fill_domain, antialiased=True)
+            ax.add_patch(patch)
             if label_domains:
                 if platform.system() == 'Darwin':
                     # Have to hack to the hard coded font path to get current font On Mac OS X
-                    if entry in bold_domains:
+                    if entry.name in bold_domains:
                         font = FontProperties(fname='/Library/Fonts/Times New Roman Bold.ttf',
-                                              size=domain_fontsize[entry])
+                                              size=domain_fontsize[entry.name])
                     else:
                         font = FontProperties(fname='/Library/Fonts/Times New Roman.ttf',
-                                              size=domain_fontsize[entry])
+                                              size=domain_fontsize[entry.name])
                 else:
-                    if entry in bold_domains:
+                    if entry.name in bold_domains:
                         font = FontProperties(family='Times New Roman',
                                               weight='bold',
-                                              size=domain_fontsize[entry])
+                                              size=domain_fontsize[entry.name])
                     else:
                         font = FontProperties(family='Times New Roman',
                                               weight='regular',
-                                              size=domain_fontsize[entry])
-                plt.text(*xy_center, s=latexify_ion(latexify(entry)), fontproperties=font,
+                                              size=domain_fontsize[entry.name])
+                plt.text(*c, s=self.print_name(entry),
+                         fontproperties=font,
                          horizontalalignment="center", verticalalignment="center",
                          multialignment="center", color=label_color)
 
