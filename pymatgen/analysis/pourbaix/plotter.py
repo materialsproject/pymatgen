@@ -639,7 +639,7 @@ class PourbaixPlotter(object):
             domain_fontsize (int): Font size used in domain text labels.
             domain_edge_lw (int): line width for the boundaries between domains.
             bold_domains (list): List of domain names to use bold text style for domain
-                lables.
+                lables. If set to False, no domain will be bold.
             cluster_domains (list): List of domain names in cluster phase
             add_h2o_stablity_line (Bool): whether plot H2O stability line
             add_center_line (Bool): whether plot lines shows the center coordinate
