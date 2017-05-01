@@ -697,7 +697,6 @@ class PourbaixPlotter(object):
             bold_domains = [en.name for en in sorted_entry if '(s)' not in en.name]
 
         for entry in sorted_entry:
-            print(str(entry.name), entry.energy)
             xy = self.domain_vertices(entry)
             if add_h2o_stablity_line:
                 c = self.get_distribution_corrected_center(stable[entry], h_line, o_line, 0.3)
