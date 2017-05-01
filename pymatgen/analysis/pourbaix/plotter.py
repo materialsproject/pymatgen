@@ -695,6 +695,8 @@ class PourbaixPlotter(object):
                             for i, en in enumerate(sorted_entry)}
         if bold_domains is None:
             bold_domains = [en.name for en in sorted_entry if '(s)' not in en.name]
+        if bold_domains == False:
+            bold_domains = []
 
         for entry in sorted_entry:
             xy = self.domain_vertices(entry)
