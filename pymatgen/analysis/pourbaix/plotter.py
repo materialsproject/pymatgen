@@ -625,7 +625,7 @@ class PourbaixPlotter(object):
             label_domains=True, label_color='k', domain_color=None, domain_fontsize=None,
             domain_edge_lw=0.5, bold_domains=None, cluster_domains=(),
             add_h2o_stablity_line=True, add_center_line=False, h2o_lw=0.5,
-            fill_domain=True):
+            fill_domain=True, width=8, height=None):
         """
         Color domains by the colors specific by the domain_color dict
 
@@ -646,6 +646,9 @@ class PourbaixPlotter(object):
             h2o_lw (int): line width for H2O stability line and center lines
             fill_domain (bool): a version without color will be product if set 
                 to False.
+            width (float): Width of plot in inches. Defaults to 8in.
+                height (float): Height of plot in inches. Defaults to width * golden
+                ratio.
         """
         # helper functions
         def len_elts(entry):
@@ -669,7 +672,7 @@ class PourbaixPlotter(object):
         default_solid_phase_color = '#b8f9e7'    # this slighly darker than the MP scheme, to
         default_cluster_phase_color = '#d0fbef'  # avoid making the cluster phase too light
 
-        plt = pretty_plot(8, dpi=300)
+        plt = pretty_plot(width=width, height=height, dpi=300)
 
         (stable, unstable) = self.pourbaix_plot_data(limits)
         num_of_overlaps = {key: 0 for key in stable.keys()}
