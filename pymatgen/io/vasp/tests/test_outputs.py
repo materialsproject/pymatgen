@@ -584,6 +584,12 @@ class OutcarTest(unittest.TestCase):
                           [-1.9406, 73.7484, 1.0000]):
             self.assertAlmostEqual(x1, x2)
 
+    def test_cs_raw_tensors(self):
+        filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
+                                "core.diff.chemical.shifts.OUTCAR")
+        outcar = Outcar(filename)
+        outcar.read_cs_raw_symmetrized_tensors()
+
     def test_nmr_efg(self):
         filename = os.path.join(test_dir, "nmr", "efg", "AlPO4", "OUTCAR")
         outcar = Outcar(filename)
