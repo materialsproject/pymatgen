@@ -589,8 +589,14 @@ class OutcarTest(unittest.TestCase):
                                 "core.diff.chemical.shifts.OUTCAR")
         outcar = Outcar(filename)
         unsym_tensors = outcar.read_cs_raw_symmetrized_tensors()
-        for i, t in enumerate(unsym_tensors):
-            print(i, t)
+        self.assertEqual(unsym_tensors[0],
+                         [[-145.814605, -4.263425, 0.000301],
+                          [4.263434, -145.812238, -8.7e-05],
+                          [0.000136, -0.000189, -142.794068]])
+        self.assertEqual(unsym_tensors[29],
+                         [[287.789318, -53.799325, 30.900024],
+                          [-53.799571, 225.668117, -17.839598],
+                          [3.801103, -2.195218, 88.896756]])
 
     def test_nmr_efg(self):
         filename = os.path.join(test_dir, "nmr", "efg", "AlPO4", "OUTCAR")
