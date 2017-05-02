@@ -1653,7 +1653,7 @@ class Outcar(MSONable):
                          r"\s+Absolute Chemical Shift tensors\s+" \
                          r"\s+-{50,}$"
         first_part_pattern = r"\s+UNSYMMETRIZED TENSORS\s+$"
-        row_pattern = r"(?:\s*[-]?\d+\.\d+){3}\s*"
+        row_pattern = r"\s+".join([r"([-]?\d+\.\d+)"]*3)
         unsym_footer_pattern = "^\s+SYMMETRIZED TENSORS\s+$"
 
         with zopen(self.filename, 'rt') as f:
@@ -1673,7 +1673,7 @@ class Outcar(MSONable):
             for mt in micro_table_pattern.finditer(table_text):
                 table_body_text = mt.group("table_body")
                 tensor_matrix = []
-                for line in table_body_text.strip().split("\n"):
+                for line in table_body_text.rstrip().split("\n"):
                     ml = rp.search(line)
                     processed_line = [float(v) for v in ml.groups()]
                     tensor_matrix.append(processed_line)

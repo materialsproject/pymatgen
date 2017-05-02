@@ -588,7 +588,9 @@ class OutcarTest(unittest.TestCase):
         filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
                                 "core.diff.chemical.shifts.OUTCAR")
         outcar = Outcar(filename)
-        outcar.read_cs_raw_symmetrized_tensors()
+        unsym_tensors = outcar.read_cs_raw_symmetrized_tensors()
+        for i, t in enumerate(unsym_tensors):
+            print(i, t)
 
     def test_nmr_efg(self):
         filename = os.path.join(test_dir, "nmr", "efg", "AlPO4", "OUTCAR")
