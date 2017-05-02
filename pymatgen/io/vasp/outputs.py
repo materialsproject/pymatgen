@@ -1310,6 +1310,8 @@ class Outcar(MSONable):
          [[sigma11, sigma12, sigma13],
           [sigma21, sigma22, sigma23],
           [sigma31, sigma32, sigma33]]]
+          
+    unsym_cs_tensor (2D matrix): G=0 contribution to chemical shift.
 
     .. attribute:: efg
 
@@ -1652,6 +1654,24 @@ class Outcar(MSONable):
                 cs.append(tensor)
             all_cs[name] = tuple(cs)
         self.data["chemical_shifts"] = all_cs
+
+
+    def read_cs_g0_contribution(self):
+        """
+            Parse the  G0 contribution of NMR chemical shift.
+
+            Returns:
+            G0 contribution matrix as list of list. 
+        """
+        header_pattern = r'^\s+G\=0 CONTRIBUTION TO CHEMICAL SHIFT \(field along BDIR\)\s+$\n' \
+                         r'^\s+-{50,}$\n' \
+                         r'^\s+BDIR\s+X\s+Y\s+Z\s*$\n' \
+                         r'^\s+-{50,}\s*$\n'
+        row_pattern = r'(?:\d+)\s+' + r'\s+'.join([r'([-]?\d+\.\d+)'] * 3)
+        footer_pattern = r'\s+-{50,}\s*$'
+        self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float,
+                                last_one_only=True, attribute_name="cs_g0_contribution")
+        return self.data["cs_g0_contribution"]
 
 
     def read_cs_raw_symmetrized_tensors(self):

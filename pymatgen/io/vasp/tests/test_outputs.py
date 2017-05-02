@@ -598,6 +598,16 @@ class OutcarTest(unittest.TestCase):
                           [-53.799571, 225.668117, -17.839598],
                           [3.801103, -2.195218, 88.896756]])
 
+    def test_cs_g0_contribution(self):
+        filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
+                                "core.diff.chemical.shifts.OUTCAR")
+        outcar = Outcar(filename)
+        g0_contrib = outcar.read_cs_g0_contribution()
+        self.assertEqual(g0_contrib,
+                         [[-8.773535, 9e-06, 1e-06],
+                          [1.7e-05, -8.773536, -0.0792],
+                          [-6e-06, -0.008328, -9.320237]])
+
     def test_nmr_efg(self):
         filename = os.path.join(test_dir, "nmr", "efg", "AlPO4", "OUTCAR")
         outcar = Outcar(filename)
