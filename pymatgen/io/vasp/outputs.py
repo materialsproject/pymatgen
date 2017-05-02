@@ -1641,6 +1641,49 @@ class Outcar(MSONable):
             all_cs[name] = tuple(cs)
         self.data["chemical_shifts"] = all_cs
 
+
+    def read_cs_raw_symmetrized_tensors(self):
+        """
+        Parse the matrix form of NMR tensor before corrected to table.
+        
+        Returns:
+        nsymmetrized tensors list in the order of atoms. 
+        """
+        header_pattern = r"\s+-{50,}\s+" \
+                         r"\s+Absolute Chemical Shift tensors\s+" \
+                         r"\s+-{50,}$"
+        first_part_pattern = r"\s+UNSYMMETRIZED TENSORS\s+$"
+        row_pattern = r"\s+".join([r"([-]?\d+\.\d+)"]*3)
+        unsym_footer_pattern = "^\s+SYMMETRIZED TENSORS\s+$"
+
+        with zopen(self.filename, 'rt') as f:
+            text = f.read()
+        unsym_table_pattern_text = header_pattern + first_part_pattern + \
+                                   r"(?P<table_body>.+)" + unsym_footer_pattern
+        table_pattern = re.compile(unsym_table_pattern_text, re.MULTILINE | re.DOTALL)
+        rp = re.compile(row_pattern)
+        m = table_pattern.search(text)
+        if m:
+            table_text = m.group("table_body")
+            micro_header_pattern = r"ion\s+\d+"
+            micro_table_pattern_text = micro_header_pattern + r"\s*^(?P<table_body>(?:\s*" + \
+                                       row_pattern + r")+)\s+"
+            micro_table_pattern = re.compile(micro_table_pattern_text, re.MULTILINE | re.DOTALL)
+            unsym_tensors = []
+            for mt in micro_table_pattern.finditer(table_text):
+                table_body_text = mt.group("table_body")
+                tensor_matrix = []
+                for line in table_body_text.rstrip().split("\n"):
+                    ml = rp.search(line)
+                    processed_line = [float(v) for v in ml.groups()]
+                    tensor_matrix.append(processed_line)
+                unsym_tensors.append(tensor_matrix)
+            return unsym_tensors
+        else:
+            raise ValueError("NMR UNSYMMETRIZED TENSORS is not found")
+
+
+
     def read_nmr_efg(self):
         """
         Parse the NMR Electric Field Gradient tensors.
