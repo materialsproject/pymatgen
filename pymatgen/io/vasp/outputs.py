@@ -1311,7 +1311,12 @@ class Outcar(MSONable):
           [sigma21, sigma22, sigma23],
           [sigma31, sigma32, sigma33]]]
           
-    unsym_cs_tensor (2D matrix): G=0 contribution to chemical shift.
+    .. attribute:: unsym_cs_tensor 
+        G=0 contribution to chemical shift. 2D rank 3 matrix
+    
+    .. attribute:: cs_core_contribution
+       Core contribution to chemical shift. dict. e.g.,
+       {'Mg': -412.8, 'C': -200.5, 'O': -271.1}
 
     .. attribute:: efg
 
@@ -1672,6 +1677,27 @@ class Outcar(MSONable):
         self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float,
                                 last_one_only=True, attribute_name="cs_g0_contribution")
         return self.data["cs_g0_contribution"]
+
+
+    def read_cs_core_contribution(self):
+        """
+            Parse the core contribution of NMR chemical shift.
+
+            Returns:
+            G0 contribution matrix as list of list. 
+        """
+        header_pattern = r'^\s+Core NMR properties\s*$\n' \
+                         r'\n' \
+                         r'^\s+typ\s+El\s+Core shift \(ppm\)\s*$\n' \
+                         r'^\s+-{20,}$\n'
+        row_pattern = r'\d+\s+(?P<element>[A-Z][a-z]?\w?)\s+(?P<shift>[-]?\d+\.\d+)'
+        footer_pattern = r'\s+-{20,}\s*$'
+        self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=str,
+                                last_one_only=True, attribute_name="cs_core_contribution")
+        core_contrib = {d['element']: float(d['shift'])
+                        for d in self.data["cs_core_contribution"]}
+        self.data["cs_core_contribution"] = core_contrib
+        return self.data["cs_core_contribution"]
 
 
     def read_cs_raw_symmetrized_tensors(self):
