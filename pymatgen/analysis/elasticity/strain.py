@@ -16,6 +16,7 @@ from pymatgen.analysis.elasticity.tensors import SquareTensor, symmetry_reduce
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import numpy as np
 from six.moves import zip
+import collections
 
 __author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -97,7 +98,7 @@ class Deformation(SquareTensor):
         return cls(f)
 
 
-class DeformedStructureSet(object):
+class DeformedStructureSet(collections.Sequence):
     """
     class that generates a set of independently deformed structures that
     can be used to calculate linear stress-strain response
@@ -150,13 +151,19 @@ class DeformedStructureSet(object):
 
         # Perform symmetry reduction if specified
         if symmetry:
-            self.deformations, self.sym_dict = \
-                    symmetry_reduce(self.undeformed_structure, self.deformations)
+            self.sym_dict = symmetry_reduce(self.deformations, self.undeformed_structure)
+            self.deformations = self.sym_dict.keys()
         self.def_structs = [defo.apply_to_structure(rlxd_str)
                             for defo in self.deformations]
 
     def __iter__(self):
         return iter(self.def_structs)
+    
+    def __len__(self):
+        return len(self.def_structs)
+
+    def __getitem__(self, ind):
+        return self.def_structs[ind]
 
     def as_strain_dict(self):
         """
