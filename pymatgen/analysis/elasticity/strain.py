@@ -13,9 +13,9 @@ generating deformed structure sets for further calculations.
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.elasticity.tensors import SquareTensor, symmetry_reduce
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import numpy as np
 from six.moves import zip
+import collections
 
 __author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -49,7 +49,7 @@ class Deformation(SquareTensor):
         """
         checks to determine whether the deformation is independent
         """
-        return len(self.get_perturbed_indices(tol))==1
+        return len(self.get_perturbed_indices(tol)) == 1
     
     def get_perturbed_indices(self, tol=1e-8):
         """
@@ -97,7 +97,7 @@ class Deformation(SquareTensor):
         return cls(f)
 
 
-class DeformedStructureSet(object):
+class DeformedStructureSet(collections.Sequence):
     """
     class that generates a set of independently deformed structures that
     can be used to calculate linear stress-strain response
@@ -115,9 +115,9 @@ class DeformedStructureSet(object):
                 optimized structure
             nd (float): maximum perturbation applied to normal deformation
             ns (float): maximum perturbation applied to shear deformation
-            m (int): number of deformation structures to generate for
+            num_norm (int): number of deformation structures to generate for
                 normal deformation, must be even
-            n (int): number of deformation structures to generate for
+            num_shear (int): number of deformation structures to generate for
                 shear deformation, must be even
         """
 
@@ -150,13 +150,19 @@ class DeformedStructureSet(object):
 
         # Perform symmetry reduction if specified
         if symmetry:
-            self.deformations, self.sym_dict = \
-                    symmetry_reduce(self.undeformed_structure, self.deformations)
+            self.sym_dict = symmetry_reduce(self.deformations, self.undeformed_structure)
+            self.deformations = self.sym_dict.keys()
         self.def_structs = [defo.apply_to_structure(rlxd_str)
                             for defo in self.deformations]
 
     def __iter__(self):
         return iter(self.def_structs)
+    
+    def __len__(self):
+        return len(self.def_structs)
+
+    def __getitem__(self, ind):
+        return self.def_structs[ind]
 
     def as_strain_dict(self):
         """
@@ -236,7 +242,7 @@ class Strain(SquareTensor):
         """
         eps = self - 1/3*np.trace(self)*np.identity(3)
 
-        return np.sqrt(np.dot(eps.voigt,eps.voigt)*2/3)
+        return np.sqrt(np.dot(eps.voigt, eps.voigt)*2/3)
 
 
 class IndependentStrain(Strain):
@@ -264,25 +270,33 @@ class IndependentStrain(Strain):
         if not deformation_gradient.is_independent(tol):
             raise ValueError("IndependentStrain must be constructed from "
                              "an independent deformation gradient")
-        obj=Strain.from_deformation(deformation_gradient).view(cls)
-        (obj._i, obj._j)=obj._dfm.get_perturbed_indices(tol=tol)[0]
+        obj = Strain.from_deformation(deformation_gradient).view(cls)
+        (obj._i, obj._j) = obj._dfm.get_perturbed_indices(tol=tol)[0]
         return obj
 
     def __array_finalize__(self, obj):
         if obj is None:
             return
-        self._dfm=getattr(obj, "_dfm", None)
-        self._i=getattr(obj, "_i", None)
-        self._j=getattr(obj, "_j", None)
+        self._dfm = getattr(obj, "_dfm", None)
+        self._i = getattr(obj, "_i", None)
+        self._j = getattr(obj, "_j", None)
 
     @property
     def ij(self):
         """
         Convenience method to return independent indices
         """
-        return (self._i, self._j)
+        return self._i, self._j
+
 
 def convert_strain_to_deformation(strain):
+    """
+    This function converts a strain to a deformation gradient that will
+    produce that strain
+    
+    Args:
+        strain (3x3 array-like): strain matrix
+    """
     strain = SquareTensor(strain)
     ftdotf = 2*strain + np.eye(3)
     eigs, eigvecs = np.linalg.eigh(ftdotf)
