@@ -35,6 +35,7 @@ reverse_voigt_map = np.array([[0, 5, 4],
                               [5, 1, 3],
                               [4, 3, 2]])
 
+
 class Tensor(np.ndarray):
     """
     Base class for doing useful general operations on Nth order tensors,
@@ -99,9 +100,9 @@ class Tensor(np.ndarray):
         """
         return hash(self.tostring())
 
-    def __repr__(cls):
-        return "{}({})".format(cls.__class__.__name__,
-                               cls.__str__())
+    def __repr__(self):
+        return "{}({})".format(self.__class__.__name__,
+                               self.__str__())
 
     def zeroed(self, tol=1e-3):
         """
@@ -195,6 +196,7 @@ class Tensor(np.ndarray):
         tolerance
         
         Args:
+            structure (Structure): structure to be fit to
             tol (float): tolerance for symmetry testing
         """
         return (self - self.fit_to_structure(structure) < tol).all()
@@ -205,9 +207,9 @@ class Tensor(np.ndarray):
         Returns the tensor in Voigt notation
         """
         v_matrix = np.zeros(self._vscale.shape, dtype=self.dtype)
-        voigt_map = self.get_voigt_dict(self.rank)
-        for ind in voigt_map:
-            v_matrix[voigt_map[ind]] = self[ind]
+        this_voigt_map = self.get_voigt_dict(self.rank)
+        for ind in this_voigt_map:
+            v_matrix[this_voigt_map[ind]] = self[ind]
         if not self.is_voigt_symmetric():
             warnings.warn("Tensor is not symmetric, information may "
                           "be lost in voigt conversion.")
@@ -238,7 +240,7 @@ class Tensor(np.ndarray):
         in a voigt representation based on input rank
 
         Args:
-            Rank (int): Tensor rank to generate the voigt map
+            rank (int): Tensor rank to generate the voigt map
         """
         vdict = {}
         for ind in itertools.product(*[range(3)] * rank):
@@ -263,9 +265,9 @@ class Tensor(np.ndarray):
         if voigt_input.shape != t._vscale.shape:
             raise ValueError("Invalid shape for voigt matrix")
         voigt_input = voigt_input / t._vscale
-        voigt_map = t.get_voigt_dict(rank)
-        for ind in voigt_map:
-            t[ind] = voigt_input[voigt_map[ind]]
+        this_voigt_map = t.get_voigt_dict(rank)
+        for ind in this_voigt_map:
+            t[ind] = voigt_input[this_voigt_map[ind]]
         return cls(t)
 
     def convert_to_ieee(self, structure):
@@ -279,12 +281,12 @@ class Tensor(np.ndarray):
                 tensor to be converted to the IEEE standard
         """
 
-        def get_uvec(vec):
+        def get_uvec(v):
             """ Gets a unit vector parallel to input vector"""
-            l = np.linalg.norm(vec)
+            l = np.linalg.norm(v)
             if l < 1e-8:
-                return vec
-            return vec / l
+                return v
+            return v / l
 
         # Check conventional setting:
         sga = SpacegroupAnalyzer(structure)
@@ -354,7 +356,7 @@ class TensorCollection(collections.Sequence):
     A sequence of tensors that can be used for fitting data
     or for having a tensor expansion
     """
-    def __init__(self, tensor_list, base_class = Tensor):
+    def __init__(self, tensor_list, base_class=Tensor):
         self.tensors = [base_class(t) if not isinstance(t, base_class)
                         else t for t in tensor_list]
 
@@ -460,12 +462,14 @@ class SquareTensor(Tensor):
             tol (float): tolerance to both tests of whether the
                 the determinant is one and the inverse is equal
                 to the transpose
+            include_improper (bool): whether to include improper
+                rotations in the determination of validity
         """
         det = np.abs(np.linalg.det(self))
         if include_improper:
             det = np.abs(det)
         return (np.abs(self.inv - self.trans) < tol).all() \
-               and (np.abs(det - 1.) < tol)
+            and (np.abs(det - 1.) < tol)
 
     def get_scaled(self, scale_factor):
         """
