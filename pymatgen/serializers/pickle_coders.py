@@ -60,7 +60,7 @@ def pmg_pickle_load(filobj, **kwargs):
 
     Args:
         filobj: File-like object
-        \*\*kwargs: Any of the keyword arguments supported by PmgUnpickler
+        \\*\\*kwargs: Any of the keyword arguments supported by PmgUnpickler
 
     Returns:
         Deserialized object.
@@ -76,7 +76,7 @@ def pmg_pickle_dump(obj, filobj, **kwargs):
     Args:
         obj (object): Object to dump.
         fileobj: File-like object
-        \*\*kwargs: Any of the keyword arguments supported by PmgPickler
+        \\*\\*kwargs: Any of the keyword arguments supported by PmgPickler
     """
     #return pickle.dump(obj, filobj)
     #print(type(obj), type(filobj))

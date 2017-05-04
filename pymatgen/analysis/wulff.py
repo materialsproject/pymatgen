@@ -48,7 +48,7 @@ def hkl_tuple_to_str(hkl):
     str_format = '($'
     for x in hkl:
         if x < 0:
-            str_format += '\overline{' + str(-x) + '}'
+            str_format += '\\overline{' + str(-x) + '}'
         else:
             str_format += str(x)
     str_format += '$)'
@@ -340,8 +340,8 @@ class WulffShape(object):
         Show the Wulff plot.
 
         Args:
-            \*args: Passed to get_plot.
-            \*\*kwargs: Passed to get_plot.
+            \\*args: Passed to get_plot.
+            \\*\\*kwargs: Passed to get_plot.
         """
         self.get_plot(*args, **kwargs).show()
 

@@ -3,6 +3,11 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import re
+
+from monty.io import zopen
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 
 """
 This module provides input and output from the CSSR file format.
@@ -15,14 +20,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jan 24, 2012"
-
-import re
-
-from six.moves import map
-
-from monty.io import zopen
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
 
 
 class Cssr(object):
@@ -82,8 +79,9 @@ class Cssr(object):
         sp = []
         coords = []
         for l in lines[4:]:
-            m = re.match("\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" +
-                         "([0-9\-\.]+)", l.strip())
+            m = re.match(
+                r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)",
+                l.strip())
             if m:
                 sp.append(m.group(1))
                 coords.append([float(m.group(i)) for i in range(2, 5)])

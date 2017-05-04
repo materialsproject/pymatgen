@@ -598,7 +598,7 @@ class BoltztrapRunner(object):
                     p.wait()
 
                     for c in p.communicate():
-                        logging.info(c)
+                        logging.info(c.decode())
                         if "error in factorization" in c.decode():
                             raise BoltztrapError("error in factorization")
 

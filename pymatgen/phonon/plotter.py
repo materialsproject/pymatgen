@@ -395,7 +395,7 @@ class PhononBSPlotter(object):
                         label0 = "$" + label0 + "$"
                     tick_labels.pop()
                     tick_distance.pop()
-                    tick_labels.append(label0 + "$\mid$" + label1)
+                    tick_labels.append(label0 + "$\\mid$" + label1)
                 else:
                     if c.label.startswith("\\") or c.label.find("_") != -1:
                         tick_labels.append("$" + c.label + "$")

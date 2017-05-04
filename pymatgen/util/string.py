@@ -78,7 +78,7 @@ def latexify(formula):
 def latexify_spacegroup(spacegroup_symbol):
     """
     Generates a latex formatted spacegroup. E.g., P2_1/c is converted to
-    P2$_{1}$/c and P-1 is converted to P$\overline{1}$.
+    P2$_{1}$/c and P-1 is converted to P$\\overline{1}$.
 
     Args:
         spacegroup_symbol (str): A spacegroup symbol
@@ -87,7 +87,7 @@ def latexify_spacegroup(spacegroup_symbol):
         A latex formatted spacegroup with proper subscripts and overlines.
     """
     sym = re.sub(r"_(\d+)", r"$_{\1}$", spacegroup_symbol)
-    return re.sub(r"-(\d)", r"$\overline{\1}$", sym)
+    return re.sub(r"-(\d)", r"$\\overline{\1}$", sym)
 
 
 def stream_has_colours(stream):

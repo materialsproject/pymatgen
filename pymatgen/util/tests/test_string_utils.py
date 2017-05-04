@@ -31,7 +31,7 @@ class FuncTest(unittest.TestCase):
                          "Li$_{0.2}$Na$_{0.8}$Cl")
 
     def test_latexify_spacegroup(self):
-        self.assertEqual(latexify_spacegroup("Fd-3m"), "Fd$\overline{3}$m")
+        self.assertEqual(latexify_spacegroup("Fd-3m"), "Fd$\\overline{3}$m")
         self.assertEqual(latexify_spacegroup("P2_1/c"), "P2$_{1}$/c")
 
     def test_formula_double_format(self):

@@ -11,6 +11,7 @@ This module implements input and output processing from QChem.
 
 import copy
 import re
+import os
 import numpy as np
 from string import Template
 
@@ -87,15 +88,15 @@ class QcTask(MSONable):
                               "nbo", "occupied", "swap_occupied_virtual", "opt",
                               "pcm", "pcm_solvent", "solvent", "plots", "qm_atoms", "svp",
                               "svpirf", "van_der_waals", "xc_functional",
-                              "cdft", "efp_fragments", "efp_params", "alist"}
+                              "cdft", "efp_fragments", "efp_params", "alist", "velocity"}
     alternative_keys = {"job_type": "jobtype",
                         "symmetry_ignore": "sym_ignore",
                         "scf_max_cycles": "max_scf_cycles"}
     alternative_values = {"optimization": "opt",
                           "frequency": "freq"}
-    zmat_patt = re.compile("^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
-    xyz_patt = re.compile("^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
-                          "([\d\.eE\-]+)[\-\.\s,\w.]*$")
+    zmat_patt = re.compile(r'^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$')
+    xyz_patt = re.compile(r'^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+'
+                          r'([\d\.eE\-]+)[\-\.\s,\w.]*$')
 
     def __init__(self, molecule=None, charge=None, spin_multiplicity=None,
                  jobtype='SP', title=None, exchange="HF", correlation=None,
@@ -224,6 +225,15 @@ class QcTask(MSONable):
         if 'correlation' in self.params["rem"]:
             if self.params["rem"]["correlation"].startswith("ri"):
                 return True
+
+    def set_velocities(self, velocities):
+        """
+        
+        :param velocities (au): list of list of atom velocities 
+        :return: 
+        """
+        assert len(velocities) == len(self.mol)
+        self.params["velocity"] = velocities
 
     def set_basis_set(self, basis_set):
         if isinstance(basis_set, six.string_types):
@@ -651,6 +661,10 @@ class QcTask(MSONable):
     def _format_alist(self):
         return [" {}".format(x) for x in self.params["alist"]]
 
+    def _format_velocity(self):
+        return [' ' + '   '.join(['{:12.5E}'.format(v) for v in atom])
+                for atom in self.params["velocity"]]
+
     def _format_molecule(self):
         lines = []
 
@@ -824,7 +838,7 @@ class QcTask(MSONable):
                     if vals[0] in ['outp', 'tors', 'linc', 'linp']:
                         constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]} {vals[5]}".format(vals=vals))
                     elif vals[0] == 'stre':
-                        constraint_lines.append("{vals[0]} {vals[1]} {vals[2]}".format(vals=vals))
+                        constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]}".format(vals=vals))
                     elif vals[0] == 'bend':
                         constraint_lines.append("{vals[0]} {vals[1]} {vals[2]} {vals[3]} {vals[4]}".format(vals=vals))
                 constraint_lines.append('ENDCONSTRAINT')
@@ -996,7 +1010,7 @@ class QcTask(MSONable):
         Helper method to parse coordinates. Copied from GaussianInput class.
         """
         paras = {}
-        var_pattern = re.compile("^([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)$")
+        var_pattern = re.compile(r'^([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)$')
         for l in coord_lines:
             m = var_pattern.match(l.strip())
             if m:
@@ -1014,14 +1028,14 @@ class QcTask(MSONable):
             if (not zmode) and cls.xyz_patt.match(l):
                 m = cls.xyz_patt.match(l)
                 species.append(m.group(1))
-                toks = re.split("[,\s]+", l.strip())
+                toks = re.split(r'[,\s]+', l.strip())
                 if len(toks) > 4:
                     coords.append(list(map(float, toks[2:5])))
                 else:
                     coords.append(list(map(float, toks[1:4])))
             elif cls.zmat_patt.match(l):
                 zmode = True
-                toks = re.split("[,\s]+", l.strip())
+                toks = re.split(r'[,\s]+', l.strip())
                 species.append(toks[0])
                 toks.pop(0)
                 if len(toks) == 0:
@@ -1095,7 +1109,7 @@ class QcTask(MSONable):
             try:
                 return int(sp_str)
             except ValueError:
-                sp = re.sub("\d", "", sp_str)
+                sp = re.sub(r"\d", "", sp_str)
                 return sp.capitalize()
 
         species = list(map(parse_species, species))
@@ -1116,8 +1130,8 @@ class QcTask(MSONable):
             return ghosts, no_ghost_text
 
         text = copy.deepcopy(contents[:2])
-        charge_multi_pattern = re.compile('\s*(?P<charge>'
-                                          '[-+]?\d+)\s+(?P<multi>\d+)')
+        charge_multi_pattern = re.compile(r'\s*(?P<charge>'
+                                          r'[-+]?\d+)\s+(?P<multi>\d+)')
         line = text.pop(0)
         m = charge_multi_pattern.match(line)
         if m:
@@ -1162,8 +1176,8 @@ class QcTask(MSONable):
     @classmethod
     def _parse_rem(cls, contents):
         d = dict()
-        int_pattern = re.compile('^[-+]?\d+$')
-        float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
+        int_pattern = re.compile(r'^[-+]?\d+$')
+        float_pattern = re.compile(r'^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
 
         for line in contents:
             tokens = line.strip().replace("=", ' ').split()
@@ -1272,10 +1286,17 @@ class QcTask(MSONable):
         return atom_list
 
     @classmethod
+    def _parse_velocity(cls, contents):
+        velocities = []
+        for line in contents:
+            velocities.append([float(v) for v in line.split()])
+        return velocities
+
+    @classmethod
     def _parse_pcm(cls, contents):
         d = dict()
-        int_pattern = re.compile('^[-+]?\d+$')
-        float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
+        int_pattern = re.compile(r'^[-+]?\d+$')
+        float_pattern = re.compile(r'^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
 
         for line in contents:
             tokens = line.strip().replace("=", ' ').split()
@@ -1303,8 +1324,8 @@ class QcTask(MSONable):
     @classmethod
     def _parse_pcm_solvent(cls, contents):
         d = dict()
-        int_pattern = re.compile('^[-+]?\d+$')
-        float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
+        int_pattern = re.compile(r'^[-+]?\d+$')
+        float_pattern = re.compile(r'^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
 
         for line in contents:
             tokens = line.strip().replace("=", ' ').split()
@@ -1351,14 +1372,14 @@ class QcTask(MSONable):
         constraints = False
         fixed_sec = False
         valid_fix_spec = {"X", "Y", "Z", "XY", "XZ", "YZ", "XYZ"}
-        int_pattern = re.compile('^[-+]?\d+$')
-        float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
+        int_pattern = re.compile(r'^[-+]?\d+$')
+        float_pattern = re.compile(r'^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
         for line in contents:
             tokens = line.strip().split()
-            if re.match('ENDCONSTRAINT', line, re.IGNORECASE):
+            if re.match(r'ENDCONSTRAINT', line, re.IGNORECASE):
                 constraints = False
                 opt_dict["CONSTRAINT"] = const_list
-            elif re.match('ENDFIXED', line, re.IGNORECASE):
+            elif re.match(r'ENDFIXED', line, re.IGNORECASE):
                 fixed_sec = False
                 opt_dict["FIXED"] = fixed_dict
             elif constraints:
@@ -1378,12 +1399,14 @@ class QcTask(MSONable):
                     raise ValueError("{} is not a correct keyword to fix"
                                      "atoms".format(fix_spec))
                 fixed_dict[atom] = fix_spec
-            elif re.match('CONSTRAINT', line, re.IGNORECASE):
+            elif re.match(r'CONSTRAINT', line, re.IGNORECASE):
                 constraints = True
                 const_list = []
-            elif re.match('FIXED', line, re.IGNORECASE):
+            elif re.match(r'FIXED', line, re.IGNORECASE):
                 fixed_sec = True
                 fixed_dict = dict()
+            elif len(line.strip()) == 0:
+                continue
             else:
                 raise ValueError("Keyword {} in $opt section is not supported yet".
                                  format(line.strip()))
@@ -1440,9 +1463,9 @@ class QcOutput(object):
 
     def __init__(self, filename):
         self.filename = filename
-        split_pattern = "\n\nRunning Job \d+ of \d+ \S+|" \
-                        "[*]{61}\nJob \d+ of \d+ \n[*]{61}|" \
-                        "\n.*time.*\nRunning Job \d+ of \d+ \S+"
+        split_pattern = r"\n\nRunning Job \d+ of \d+ \S+|" \
+                        r"[*]{61}\nJob \d+ of \d+ \n[*]{61}|" \
+                        r"\n.*time.*\nRunning Job \d+ of \d+ \S+"
         try:
             with zopen(filename, "rt") as f:
                 data = f.read()
@@ -1485,61 +1508,64 @@ class QcOutput(object):
 
     @classmethod
     def _parse_job(cls, output):
-        scf_energy_pattern = re.compile("Total energy in the final basis set ="
-                                        "\s+(?P<energy>-\d+\.\d+)")
-        corr_energy_pattern = re.compile("(?P<name>[A-Z\-\(\)0-9]+)\s+"
-                                         "([tT]otal\s+)?[eE]nergy\s+=\s+"
-                                         "(?P<energy>-\d+\.\d+)")
-        coord_pattern = re.compile("\s*\d+\s+(?P<element>[A-Z][a-zH]*)\s+"
-                                   "(?P<x>\-?\d+\.\d+)\s+"
-                                   "(?P<y>\-?\d+\.\d+)\s+"
-                                   "(?P<z>\-?\d+\.\d+)")
-        num_ele_pattern = re.compile("There are\s+(?P<alpha>\d+)\s+alpha "
-                                     "and\s+(?P<beta>\d+)\s+beta electrons")
-        total_charge_pattern = re.compile("Sum of atomic charges ="
-                                          "\s+(?P<charge>\-?\d+\.\d+)")
-        scf_iter_pattern = re.compile("\d+\s*(?P<energy>\-\d+\.\d+)\s+"
-                                      "(?P<diis_error>\d+\.\d+E[-+]\d+)")
-        zpe_pattern = re.compile("Zero point vibrational energy:"
-                                 "\s+(?P<zpe>\d+\.\d+)\s+kcal/mol")
-        thermal_corr_pattern = re.compile("(?P<name>\S.*\S):\s+"
-                                          "(?P<correction>\d+\.\d+)\s+"
-                                          "k?cal/mol")
-        detailed_charge_pattern = re.compile("(Ground-State )?(?P<method>\w+)( Net)?"
-                                             " Atomic Charges")
-        nbo_charge_pattern = re.compile("(?P<element>[A-Z][a-z]{0,2})\s*(?P<no>\d+)\s+(?P<charge>\-?\d\.\d+)"
-                                        "\s+(?P<core>\-?\d+\.\d+)\s+(?P<valence>\-?\d+\.\d+)"
-                                        "\s+(?P<rydberg>\-?\d+\.\d+)\s+(?P<total>\-?\d+\.\d+)"
-                                        "(\s+(?P<spin>\-?\d\.\d+))?")
-        nbo_wavefunction_type_pattern = re.compile("This is an? (?P<type>\w+\-\w+) NBO calculation")
-        bsse_pattern = re.compile("DE, kJ/mol\s+(?P<raw_be>\-?\d+\.?\d+([eE]\d+)?)\s+"
-                                  "(?P<corrected_be>\-?\d+\.?\d+([eE]\d+)?)")
-        float_pattern = re.compile("\-?\d+\.?\d+([eE]\d+)?$")
+        scf_energy_pattern = re.compile(r'Total energy in the final basis set ='
+                                        r'\s+(?P<energy>-\d+\.\d+)')
+        corr_energy_pattern = re.compile(r'(?P<name>[A-Z\-\(\)0-9]+)\s+'
+                                         r'([tT]otal\s+)?[eE]nergy\s+=\s+'
+                                         r'(?P<energy>-\d+\.\d+)')
+        coord_pattern = re.compile(
+            r'\s*\d+\s+(?P<element>[A-Z][a-zH]*)\s+(?P<x>\-?\d+\.\d+)\s+'
+            r'(?P<y>\-?\d+\.\d+)\s+(?P<z>\-?\d+\.\d+)')
+        num_ele_pattern = re.compile(r'There are\s+(?P<alpha>\d+)\s+alpha '
+                                     r'and\s+(?P<beta>\d+)\s+beta electrons')
+        total_charge_pattern = re.compile(r'Sum of atomic charges ='
+                                          r'\s+(?P<charge>\-?\d+\.\d+)')
+        scf_iter_pattern = re.compile(
+            r'\d+\s*(?P<energy>\-\d+\.\d+)\s+(?P<diis_error>\d+\.\d+E[-+]\d+)')
+        zpe_pattern = re.compile(
+            r'Zero point vibrational energy:\s+(?P<zpe>\d+\.\d+)\s+kcal/mol')
+        thermal_corr_pattern = re.compile(
+            r'(?P<name>\S.*\S):\s+(?P<correction>\d+\.\d+)\s+k?cal/mol')
+        detailed_charge_pattern = re.compile(
+            r'(Ground-State )?(?P<method>\w+)( Net)? Atomic Charges')
+        nbo_charge_pattern = re.compile(
+            r'(?P<element>[A-Z][a-z]{0,2})\s*(?P<no>\d+)\s+(?P<charge>\-?\d\.\d+)'
+            r'\s+(?P<core>\-?\d+\.\d+)\s+(?P<valence>\-?\d+\.\d+)'
+            r'\s+(?P<rydberg>\-?\d+\.\d+)\s+(?P<total>\-?\d+\.\d+)'
+            r'(\s+(?P<spin>\-?\d\.\d+))?')
+        nbo_wavefunction_type_pattern = re.compile(
+            r'This is an? (?P<type>\w+\-\w+) NBO calculation')
+        scr_dir_pattern = re.compile(r"Scratch files written to\s+(?P<scr_dir>[^\n]+)")
+        bsse_pattern = re.compile(
+            r'DE, kJ/mol\s+(?P<raw_be>\-?\d+\.?\d+([eE]\d+)?)\s+'
+            r'(?P<corrected_be>\-?\d+\.?\d+([eE]\d+)?)')
+        float_pattern = re.compile(r'\-?\d+\.?\d+([eE]\d+)?$')
 
         error_defs = (
-            (re.compile("Convergence failure"), "Bad SCF convergence"),
-            (re.compile("Coordinates do not transform within specified "
-                        "threshold"), "autoz error"),
-            (re.compile("MAXIMUM OPTIMIZATION CYCLES REACHED"),
+            (re.compile(r'Convergence failure'), "Bad SCF convergence"),
+            (re.compile(
+                r'Coordinates do not transform within specified threshold'),
+             "autoz error"),
+            (re.compile(r'MAXIMUM OPTIMIZATION CYCLES REACHED'),
                 "Geometry optimization failed"),
-            (re.compile("\s+[Nn][Aa][Nn]\s+"), "NAN values"),
-            (re.compile("energy\s+=\s*(\*)+"), "Numerical disaster"),
-            (re.compile("NewFileMan::OpenFile\(\):\s+nopenfiles=\d+\s+"
-                        "maxopenfiles=\d+s+errno=\d+"), "Open file error"),
-            (re.compile("Application \d+ exit codes: 1[34]\d+"), "Exit Code 134"),
-            (re.compile("Negative overlap matrix eigenvalue. Tighten integral "
-                        "threshold \(REM_THRESH\)!"), "Negative Eigen"),
-            (re.compile("Unable to allocate requested memory in mega_alloc"),
+            (re.compile(r'\s+[Nn][Aa][Nn]\s+'), "NAN values"),
+            (re.compile(r'energy\s+=\s*(\*)+'), "Numerical disaster"),
+            (re.compile(r'NewFileMan::OpenFile\(\):\s+nopenfiles=\d+\s+'
+                        r'maxopenfiles=\d+s+errno=\d+'), "Open file error"),
+            (re.compile(r'Application \d+ exit codes: 1[34]\d+'), "Exit Code 134"),
+            (re.compile(r'Negative overlap matrix eigenvalue. Tighten integral '
+                        r'threshold \(REM_THRESH\)!'), "Negative Eigen"),
+            (re.compile(r'Unable to allocate requested memory in mega_alloc'),
                 "Insufficient static memory"),
-            (re.compile("Application \d+ exit signals: Killed"),
+            (re.compile(r'Application \d+ exit signals: Killed'),
                 "Killed"),
-            (re.compile("UNABLE TO DETERMINE Lamda IN FormD"),
+            (re.compile(r'UNABLE TO DETERMINE Lamda IN FormD'),
                 "Lamda Determination Failed"),
-            (re.compile("Job too small. Please specify .*CPSCF_NSEG"),
+            (re.compile(r'Job too small. Please specify .*CPSCF_NSEG'),
                 "Freq Job Too Small"),
-            (re.compile("Not enough total memory"),
+            (re.compile(r'Not enough total memory'),
                 "Not Enough Total Memory"),
-            (re.compile("Use of \$pcm_solvent section has been deprecated starting in Q-Chem"),
+            (re.compile(r'Use of \$pcm_solvent section has been deprecated starting in Q-Chem'),
                 "pcm_solvent deprecated")
         )
 
@@ -1564,6 +1590,7 @@ class QcOutput(object):
         qctask = None
         jobtype = None
         charge = None
+        scr_dir = None
         spin_multiplicity = None
         thermal_corr = dict()
         properly_terminated = False
@@ -1783,6 +1810,10 @@ class QcOutput(object):
                     m = total_charge_pattern.search(line)
                     if m:
                         charge = int(float(m.group("charge")))
+                if scr_dir is None:
+                    m = scr_dir_pattern.search(line)
+                    if m:
+                        scr_dir = os.path.abspath(m.group("scr_dir"))
                 if jobtype and jobtype == "freq":
                     m = zpe_pattern.search(line)
                     if m:
@@ -1915,6 +1946,51 @@ class QcOutput(object):
             "input": qctask,
             "gracefully_terminated": properly_terminated,
             "scf_iteration_energies": scf_iters,
-            "solvent_method": solvent_method
+            "solvent_method": solvent_method,
+            "scratch_dir": scr_dir
         }
         return data
+
+class QcNucVeloc(object):
+    """
+    class to QChem AMID NucVeloc file.
+    
+        
+        Args:
+            filename (str): Filename to parse
+        
+        .. attribute:: time_steps (fs)
+            The AIMD time stamp for each frame
+        
+        .. attribute:: velocities (a.u.)
+            The atom velocities for each frame. Format:
+            [[[x, y, z]
+              [x, y, z]
+              ... ]   ## frame 1
+             ...
+             [[x, y, z]
+              [x, y, z]
+              ... ]   ## frame N
+            ]
+    """
+
+    def __init__(self, filename):
+        self.filename = filename
+        try:
+            with zopen(filename, "rt") as f:
+                data = f.read()
+        except UnicodeDecodeError:
+            with zopen(filename, "rb") as f:
+                data = f.read().decode("latin-1")
+        self.step_times = []
+        self.velocities = []
+        for line in data.split("\n")[1:]:
+            tokens = line.split()
+            if len(tokens) < 4:
+                break
+            step_time = float(tokens[0])
+            nuc_veloc_tokens = [float(v) for v in tokens[1:]]
+            # unit in au
+            veloc = list(zip(*([iter(nuc_veloc_tokens)] * 3)))
+            self.step_times.append(step_time)
+            self.velocities.append(veloc)
