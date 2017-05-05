@@ -145,9 +145,9 @@ class VoronoiCoordFinder(object):
 
 class JMolCoordFinder:
     """
-    Determine coordinated sites and coordination number using an emulation of JMol's
-    default autoBond() algorithm. This version of the algorithm does not take into
-    account any information regarding known charge states.
+    Determine coordinated sites and coordination number using an emulation of 
+    JMol's default autoBond() algorithm. This version of the algorithm does not 
+    take into account any information regarding known charge states.
     """
 
     def __init__(self, el_radius_updates=None):
@@ -155,11 +155,13 @@ class JMolCoordFinder:
         Initialize coordination finder parameters (atomic radii)
         
         Args:
-            el_radius_updates: (dict) symbol->float to override default atomic radii table values 
+            el_radius_updates: (dict) symbol->float to override default atomic 
+                radii table values 
         """
 
         # load elemental radii table
-        bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bonds_jmol_ob.yaml")
+        bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  "bonds_jmol_ob.yaml")
         with open(bonds_file, 'r') as f:
             self.el_radius = yaml.load(f)
 
@@ -175,27 +177,49 @@ class JMolCoordFinder:
             el2_sym: (str) symbol of atom 2
             constant: (float) factor to tune model
 
-        Returns:
+        Returns: (float) max bond length
 
         """
-        return math.sqrt((self.el_radius[el1_sym] + self.el_radius[el2_sym] + constant) ** 2)
+        return math.sqrt(
+            (self.el_radius[el1_sym] + self.el_radius[el2_sym] + constant) ** 2)
 
     def get_coordination_number(self, structure, n, tol=1E-3):
+        """
+        Get the coordination number of a site
+        Args:
+            structure: (Structure)
+            n: (int) index of site in the structure to get CN for
+            tol: (float) a numerical tolerance to extend search
+
+        Returns: (int) the coordination number
+        """
+
         return len(self.get_coordinated_sites(structure, n, tol))
 
     def get_coordinated_sites(self, structure, n, tol=1E-3):
+        """
+        Get the coordinated sites for a site
+        Args:
+            structure: (Structure)
+            n: (int) index of site in the structure to analyze
+            tol: (float) a numerical tolerance to extend search
+
+        Returns: ([sites]) a list of coordinated sites
+        """
         site = structure[n]
 
-        # get bond lengths relevant to the current site based on atomic radii table
+        # determine relevant bond lengths based on atomic radii table
         bonds = {}
         for el in structure.composition.elements:
-            bonds[site.specie, el] = self.get_max_bond_distance(site.specie.symbol, el.symbol)
+            bonds[site.specie, el] = self.get_max_bond_distance(
+                site.specie.symbol, el.symbol)
 
-        # the cutoff for radius searching should be the max bond length + tolerance
+        # search for neighbors up to max bond length + tolerance
         max_rad = max(bonds.values()) + tol
 
         all_neighbors = []
         for neighb, dist in structure.get_neighbors(site, max_rad):
+            # confirm neighbor based on bond length specific to atom pair
             if dist <= bonds[(site.specie, neighb.specie)] + tol:
                 all_neighbors.append(neighb)
 

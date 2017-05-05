@@ -66,7 +66,7 @@ class JMolCoordFinderTest(PymatgenTest):
         # test the default coordination finder
         finder = JMolCoordFinder()
         nsites_checked = 0
-        # Fe should be 6 coordinated
+
         for site_idx, site in enumerate(s):
             if site.specie == Element("Li"):
                 self.assertEquals(finder.get_coordination_number(s, site_idx), 0)
@@ -82,6 +82,9 @@ class JMolCoordFinderTest(PymatgenTest):
         # test a user override that would cause Li to show up as 6-coordinated
         finder = JMolCoordFinder({"Li": 1})
         self.assertEquals(finder.get_coordination_number(s, 0), 6)
+
+        # verify get_coordinated_sites function works
+        self.assertEquals(len(finder.get_coordinated_sites(s, 0)), 6)
 
 
 class RelaxationAnalyzerTest(unittest.TestCase):
