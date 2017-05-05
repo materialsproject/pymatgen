@@ -59,26 +59,29 @@ class VoronoiAnalyzerTest(PymatgenTest):
 
 
 class JMolCoordFinderTest(PymatgenTest):
-    def setUp(self):
-        self.finder = JMolCoordFinder()
 
     def test_get_coordination_number(self):
         s = self.get_structure('LiFePO4')
 
+        # test the default coordination finder
+        finder = JMolCoordFinder()
         nsites_checked = 0
         # Fe should be 6 coordinated
         for site_idx, site in enumerate(s):
             if site.specie == Element("Li"):
-                self.assertEquals(self.finder.get_coordination_number(s, site_idx), 0)
+                self.assertEquals(finder.get_coordination_number(s, site_idx), 0)
                 nsites_checked += 1
             elif site.specie == Element("Fe"):
-                self.assertEquals(self.finder.get_coordination_number(s, site_idx), 6)
+                self.assertEquals(finder.get_coordination_number(s, site_idx), 6)
                 nsites_checked += 1
             elif site.specie == Element("P"):
-                self.assertEquals(self.finder.get_coordination_number(s, site_idx), 4)
+                self.assertEquals(finder.get_coordination_number(s, site_idx), 4)
                 nsites_checked += 1
-
         self.assertEquals(nsites_checked, 12)
+
+        # test a user override that would cause Li to show up as 6-coordinated
+        finder = JMolCoordFinder({"Li": 1})
+        self.assertEquals(finder.get_coordination_number(s, 0), 6)
 
 
 class RelaxationAnalyzerTest(unittest.TestCase):
