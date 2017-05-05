@@ -4,6 +4,10 @@
 
 from __future__ import division, unicode_literals
 
+import six
+import yaml
+import os
+
 """
 This module provides classes to perform topological analyses of structures.
 """
@@ -28,7 +32,7 @@ from pymatgen import PeriodicSite
 from pymatgen import Element, Specie, Composition
 from pymatgen.util.num import abs_cap
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.surface import Slab
+from pymatgen.core.surface import Slab, SlabGenerator
 
 
 class VoronoiCoordFinder(object):
@@ -137,6 +141,89 @@ class VoronoiCoordFinder(object):
             if weight > tol and (target is None or site.specie == target):
                 coordinated_sites.append(site)
         return coordinated_sites
+
+
+class JMolCoordFinder:
+    """
+    Determine coordinated sites and coordination number using an emulation of 
+    JMol's default autoBond() algorithm. This version of the algorithm does not 
+    take into account any information regarding known charge states.
+    """
+
+    def __init__(self, el_radius_updates=None):
+        """
+        Initialize coordination finder parameters (atomic radii)
+        
+        Args:
+            el_radius_updates: (dict) symbol->float to override default atomic 
+                radii table values 
+        """
+
+        # load elemental radii table
+        bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  "bonds_jmol_ob.yaml")
+        with open(bonds_file, 'r') as f:
+            self.el_radius = yaml.load(f)
+
+        # update any user preference elemental radii
+        if el_radius_updates:
+            self.el_radius.update(el_radius_updates)
+
+    def get_max_bond_distance(self, el1_sym, el2_sym, constant=0.56):
+        """
+        Use JMol algorithm to determine bond length from atomic parameters
+        Args:
+            el1_sym: (str) symbol of atom 1
+            el2_sym: (str) symbol of atom 2
+            constant: (float) factor to tune model
+
+        Returns: (float) max bond length
+
+        """
+        return math.sqrt(
+            (self.el_radius[el1_sym] + self.el_radius[el2_sym] + constant) ** 2)
+
+    def get_coordination_number(self, structure, n, tol=1E-3):
+        """
+        Get the coordination number of a site
+        Args:
+            structure: (Structure)
+            n: (int) index of site in the structure to get CN for
+            tol: (float) a numerical tolerance to extend search
+
+        Returns: (int) the coordination number
+        """
+
+        return len(self.get_coordinated_sites(structure, n, tol))
+
+    def get_coordinated_sites(self, structure, n, tol=1E-3):
+        """
+        Get the coordinated sites for a site
+        Args:
+            structure: (Structure)
+            n: (int) index of site in the structure to analyze
+            tol: (float) a numerical tolerance to extend search
+
+        Returns: ([sites]) a list of coordinated sites
+        """
+        site = structure[n]
+
+        # determine relevant bond lengths based on atomic radii table
+        bonds = {}
+        for el in structure.composition.elements:
+            bonds[site.specie, el] = self.get_max_bond_distance(
+                site.specie.symbol, el.symbol)
+
+        # search for neighbors up to max bond length + tolerance
+        max_rad = max(bonds.values()) + tol
+
+        all_neighbors = []
+        for neighb, dist in structure.get_neighbors(site, max_rad):
+            # confirm neighbor based on bond length specific to atom pair
+            if dist <= bonds[(site.specie, neighb.specie)] + tol:
+                all_neighbors.append(neighb)
+
+        return all_neighbors
 
 
 def average_coordination_number(structures, freq=10):
@@ -489,6 +576,80 @@ def solid_angle(center, coords):
         vals.append(math.acos(abs_cap(v)))
     phi = sum(vals)
     return phi + (3 - len(r)) * math.pi
+
+
+def get_max_bond_lengths(structure, el_radius_updates=None):
+    """
+    Provides max bond length estimates for a structure based on the JMol
+    table and algorithms.
+    
+    Args:
+        structure: (structure)
+        el_radius_updates: (dict) symbol->float to update atomic radii
+    
+    Returns: (dict) - (Element1, Element2) -> float. The two elements are 
+        ordered by Z.
+    """
+    jmc = JMolCoordFinder(el_radius_updates)
+
+    bonds_lens = {}
+    els = sorted(structure.composition.elements, key=lambda x: x.Z)
+
+    for i1 in range(len(els)):
+        for i2 in range(len(els) - i1):
+            bonds_lens[els[i1], els[i1 + i2]] = jmc.get_max_bond_distance(
+                els[i1].symbol, els[i1 + i2].symbol)
+
+    return bonds_lens
+
+
+def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
+                       min_slab_size=5, min_vacuum_size=5,
+                       standardize=True):
+
+    """
+    This method returns whether a structure is 3D, 2D (layered), or 1D (linear 
+    chains or molecules) according to the algorithm published in Gorai, P., 
+    Toberer, E. & Stevanovic, V. Computational Identification of Promising 
+    Thermoelectric Materials Among Known Quasi-2D Binary Compounds. J. Mater. 
+    Chem. A 2, 4136 (2016).
+    
+    Note that a 1D structure detection might indicate problems in the bonding
+    algorithm, particularly for ionic crystals (e.g., NaCl)
+    
+    Args:
+        structure: (Structure) structure to analyze dimensionality for 
+        max_hkl: (int) max index of planes to look for layers
+        el_radius_updates: (dict) symbol->float to update atomic radii
+        min_slab_size: (float) internal surface construction parameter
+        min_vacuum_size: (float) internal surface construction parameter
+        standardize (bool): whether to standardize the structure before 
+            analysis. Set to False only if you already have the structure in a 
+            convention where layers / chains will be along low <hkl> indexes.
+
+    Returns: (int) the dimensionality of the structure - 1 (molecules/chains), 
+        2 (layered), or 3 (3D)
+
+    """
+    if standardize:
+        structure = SpacegroupAnalyzer(structure).\
+            get_conventional_standard_structure()
+
+    bonds = get_max_bond_lengths(structure)
+
+    num_surfaces = 0
+    for h in range(max_hkl):
+        for k in range(max_hkl):
+            for l in range(max_hkl):
+                if max([h, k, l]) > 0 and num_surfaces < 2:
+                    sg = SlabGenerator(structure, (h, k, l),
+                                       min_slab_size=min_slab_size,
+                                       min_vacuum_size=min_vacuum_size)
+                    slabs = sg.get_slabs(bonds)
+                    for _ in slabs:
+                        num_surfaces += 1
+
+    return 3 - min(num_surfaces, 2)
 
 
 def contains_peroxide(structure, relative_cutoff=1.1):
