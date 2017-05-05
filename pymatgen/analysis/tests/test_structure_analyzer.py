@@ -11,7 +11,7 @@ import os
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
     oxide_type, sulfide_type, OrderParameters, average_coordination_number, \
-    VoronoiAnalyzer
+    VoronoiAnalyzer, JMolCoordFinder
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen import Element, Structure, Lattice
@@ -56,6 +56,29 @@ class VoronoiAnalyzerTest(PymatgenTest):
                                               most_frequent_polyhedra=10)
         self.assertIn(('[1 3 4 7 1 0 0 0]', 3),
                       ensemble, "Cannot find the right polyhedron in ensemble.")
+
+
+class JMolCoordFinderTest(PymatgenTest):
+    def setUp(self):
+        self.finder = JMolCoordFinder()
+
+    def test_get_coordination_number(self):
+        s = self.get_structure('LiFePO4')
+
+        nsites_checked = 0
+        # Fe should be 6 coordinated
+        for site_idx, site in enumerate(s):
+            if site.specie == Element("Li"):
+                self.assertEquals(self.finder.get_coordination_number(s, site_idx), 0)
+                nsites_checked += 1
+            elif site.specie == Element("Fe"):
+                self.assertEquals(self.finder.get_coordination_number(s, site_idx), 6)
+                nsites_checked += 1
+            elif site.specie == Element("P"):
+                self.assertEquals(self.finder.get_coordination_number(s, site_idx), 4)
+                nsites_checked += 1
+
+        self.assertEquals(nsites_checked, 12)
 
 
 class RelaxationAnalyzerTest(unittest.TestCase):

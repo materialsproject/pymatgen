@@ -4,6 +4,10 @@
 
 from __future__ import division, unicode_literals
 
+import six
+import yaml
+import os
+
 """
 This module provides classes to perform topological analyses of structures.
 """
@@ -137,6 +141,51 @@ class VoronoiCoordFinder(object):
             if weight > tol and (target is None or site.specie == target):
                 coordinated_sites.append(site)
         return coordinated_sites
+
+
+class JMolCoordFinder:
+
+    def __init__(self, bondlen_updates=None):
+
+        module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+        bonds_file = os.path.join(module_dir, "bonds_jmol_ob.yaml")
+        with open(bonds_file, 'r') as stream:
+            self.el_bondlen = yaml.load(stream)
+
+        if bondlen_updates:
+            self.el_bondlen.update(bondlen_updates)
+
+    def get_coordination_number(self, structure, n, tol=1E-3):
+        return len(self.get_coordinated_sites(structure, n, tol))
+
+    def get_max_bond_distance(self, el1_sym, el2_sym, tolerance=0.56):
+        return math.sqrt((self.el_bondlen[el1_sym] + self.el_bondlen[el2_sym] + tolerance) ** 2)
+
+    def get_coordinated_sites(self, structure, n, tol=1E-3):
+
+        # filter bond lengths and max cutoff to the current structure
+        bonds = {}
+        els = sorted(structure.composition.elements, key=lambda x: x.Z)
+        for i1 in range(len(els)):
+            for i2 in range(len(els) - i1):
+                bonds[els[i1], els[i1 + i2]] = self.get_max_bond_distance(els[i1].symbol, els[i1 + i2].symbol)
+
+        # the cutoff for radius searching should be the max bond length + tolerance
+        max_rad = max(bonds.values()) + tol
+        site = structure[n]
+        all_neighbors = []
+        for neighb, dist in structure.get_neighbors(site, max_rad):
+            if site.specie.Z < neighb.specie.Z:
+                bonds_key = (site.specie, neighb.specie)
+            else:
+                bonds_key = (neighb.specie, site.specie)
+            if dist <= bonds[bonds_key] + tol:
+                all_neighbors.append(neighb)
+
+        return all_neighbors
+
+
+
 
 
 def average_coordination_number(structures, freq=10):
