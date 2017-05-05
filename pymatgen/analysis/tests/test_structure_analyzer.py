@@ -11,7 +11,7 @@ import os
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
     oxide_type, sulfide_type, OrderParameters, average_coordination_number, \
-    VoronoiAnalyzer, JMolCoordFinder
+    VoronoiAnalyzer, JMolCoordFinder, get_dimensionality
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen import Element, Structure, Lattice
@@ -85,6 +85,16 @@ class JMolCoordFinderTest(PymatgenTest):
 
         # verify get_coordinated_sites function works
         self.assertEquals(len(finder.get_coordinated_sites(s, 0)), 6)
+
+
+class GetDimensionalityTest(PymatgenTest):
+
+    def test_get_dimensionality(self):
+        s = self.get_structure('LiFePO4')
+        self.assertEqual(get_dimensionality(s), 3)
+
+        s = self.get_structure('Graphite')
+        self.assertEqual(get_dimensionality(s), 2)
 
 
 class RelaxationAnalyzerTest(unittest.TestCase):

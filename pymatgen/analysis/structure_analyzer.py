@@ -32,7 +32,7 @@ from pymatgen import PeriodicSite
 from pymatgen import Element, Specie, Composition
 from pymatgen.util.num import abs_cap
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.surface import Slab
+from pymatgen.core.surface import Slab, SlabGenerator
 
 
 class VoronoiCoordFinder(object):
@@ -576,6 +576,80 @@ def solid_angle(center, coords):
         vals.append(math.acos(abs_cap(v)))
     phi = sum(vals)
     return phi + (3 - len(r)) * math.pi
+
+
+def get_max_bond_lengths(structure, el_radius_updates=None):
+    """
+    Provides max bond length estimates for a structure based on the JMol
+    table and algorithms.
+    
+    Args:
+        structure: (structure)
+        el_radius_updates: (dict) symbol->float to update atomic radii
+    
+    Returns: (dict) - (Element1, Element2) -> float. The two elements are 
+        ordered by Z.
+    """
+    jmc = JMolCoordFinder(el_radius_updates)
+
+    bonds_lens = {}
+    els = sorted(structure.composition.elements, key=lambda x: x.Z)
+
+    for i1 in range(len(els)):
+        for i2 in range(len(els) - i1):
+            bonds_lens[els[i1], els[i1 + i2]] = jmc.get_max_bond_distance(
+                els[i1].symbol, els[i1 + i2].symbol)
+
+    return bonds_lens
+
+
+def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
+                       min_slab_size=5, min_vacuum_size=5,
+                       standardize=True):
+
+    """
+    This method returns whether a structure is 3D, 2D (layered), or 1D (linear 
+    chains or molecules) according to the algorithm published in Gorai, P., 
+    Toberer, E. & Stevanovic, V. Computational Identification of Promising 
+    Thermoelectric Materials Among Known Quasi-2D Binary Compounds. J. Mater. 
+    Chem. A 2, 4136 (2016).
+    
+    Note that a 1D structure detection might indicate problems in the bonding
+    algorithm, particularly for ionic crystals (e.g., NaCl)
+    
+    Args:
+        structure: (Structure) structure to analyze dimensionality for 
+        max_hkl: (int) max index of planes to look for layers
+        el_radius_updates: (dict) symbol->float to update atomic radii
+        min_slab_size: (float) internal surface construction parameter
+        min_vacuum_size: (float) internal surface construction parameter
+        standardize (bool): whether to standardize the structure before 
+            analysis. Set to False only if you already have the structure in a 
+            convention where layers / chains will be along low <hkl> indexes.
+
+    Returns: (int) the dimensionality of the structure - 1 (molecules/chains), 
+        2 (layered), or 3 (3D)
+
+    """
+    if standardize:
+        structure = SpacegroupAnalyzer(structure).\
+            get_conventional_standard_structure()
+
+    bonds = get_max_bond_lengths(structure)
+
+    num_surfaces = 0
+    for h in range(max_hkl):
+        for k in range(max_hkl):
+            for l in range(max_hkl):
+                if max([h, k, l]) > 0 and num_surfaces < 2:
+                    sg = SlabGenerator(structure, (h, k, l),
+                                       min_slab_size=min_slab_size,
+                                       min_vacuum_size=min_vacuum_size)
+                    slabs = sg.get_slabs(bonds)
+                    for _ in slabs:
+                        num_surfaces += 1
+
+    return 3 - min(num_surfaces, 2)
 
 
 def contains_peroxide(structure, relative_cutoff=1.1):
