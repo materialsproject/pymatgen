@@ -11,7 +11,7 @@ import os
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
     oxide_type, sulfide_type, OrderParameters, average_coordination_number, \
-    VoronoiAnalyzer
+    VoronoiAnalyzer, JMolCoordFinder, get_dimensionality
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen import Element, Structure, Lattice
@@ -56,6 +56,45 @@ class VoronoiAnalyzerTest(PymatgenTest):
                                               most_frequent_polyhedra=10)
         self.assertIn(('[1 3 4 7 1 0 0 0]', 3),
                       ensemble, "Cannot find the right polyhedron in ensemble.")
+
+
+class JMolCoordFinderTest(PymatgenTest):
+
+    def test_get_coordination_number(self):
+        s = self.get_structure('LiFePO4')
+
+        # test the default coordination finder
+        finder = JMolCoordFinder()
+        nsites_checked = 0
+
+        for site_idx, site in enumerate(s):
+            if site.specie == Element("Li"):
+                self.assertEqual(finder.get_coordination_number(s, site_idx), 0)
+                nsites_checked += 1
+            elif site.specie == Element("Fe"):
+                self.assertEqual(finder.get_coordination_number(s, site_idx), 6)
+                nsites_checked += 1
+            elif site.specie == Element("P"):
+                self.assertEqual(finder.get_coordination_number(s, site_idx), 4)
+                nsites_checked += 1
+        self.assertEqual(nsites_checked, 12)
+
+        # test a user override that would cause Li to show up as 6-coordinated
+        finder = JMolCoordFinder({"Li": 1})
+        self.assertEqual(finder.get_coordination_number(s, 0), 6)
+
+        # verify get_coordinated_sites function works
+        self.assertEqual(len(finder.get_coordinated_sites(s, 0)), 6)
+
+
+class GetDimensionalityTest(PymatgenTest):
+
+    def test_get_dimensionality(self):
+        s = self.get_structure('LiFePO4')
+        self.assertEqual(get_dimensionality(s), 3)
+
+        s = self.get_structure('Graphite')
+        self.assertEqual(get_dimensionality(s), 2)
 
 
 class RelaxationAnalyzerTest(unittest.TestCase):
