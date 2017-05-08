@@ -852,7 +852,7 @@ class OrderParameters(object):
 
     __supported_types = (
             "cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", "q6",
-            "reg_tri", "sq", "sq_pyr")
+            "reg_tri", "sq", "sq_pyr", "tri_bipyr")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -881,6 +881,7 @@ class OrderParameters(object):
                 "reg_tri" (OP recognizing coordination with a regular triangle),
                 "sq" (OP recognizing square coordination),
                 "sq_pyr" (OP recognizing square pyramidal coordination),
+                "tri_bipyr" (OP recognizing trigonal bipyramidal coord.),
                 "q2"  [Bond orientational order parameter (BOOP)
                       of weight l=2 (Steinhardt et al., Phys. Rev. B,
                       28, 784-805, 1983)],
@@ -934,7 +935,13 @@ class OrderParameters(object):
                             for penalizing angles away from 90 degrees
                             (0.0333);
                             Gaussian width in Angstrom for penalizing
-                            variations in neighbor distances (0.1).
+                            variations in neighbor distances (0.1);
+                  "tri_bipyr": threshold angle to identify close to
+                            South pole positions (160.0, cf., oct).
+                            Gaussian width for penalizing deviations away
+                            from south pole (0.0667);
+                            Gaussian width for penalizing deviations away
+                            from equator (0.0556).
             cutoff (float):
                 Cutoff radius to determine which nearest neighbors are
                 supposed to contribute to the order parameters.
@@ -1096,6 +1103,32 @@ class OrderParameters(object):
                                 " square pyramid order parameter is zero!")
                     tmpparas[i] = [1.0 / loc_parameters[i][0], \
                             1.0 / loc_parameters[i][1]]
+            elif t == "tri_bipyr":
+                if len(loc_parameters[i]) < 3:
+                    tmpparas[i].append(8.0 * pi / 9.0)
+                    tmpparas[i].append(1.0 / 0.0667)
+                    tmpparas[i].append(1.0 / 0.0741)
+                else:
+                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
+                            0] >= 180.0:
+                        warn("Threshold value for south pole"
+                             " configurations in octahedral order"
+                             " parameter outside ]0,180[")
+                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
+                    if loc_parameters[i][1] == 0.0:
+                        raise ValueError("Gaussian width for south pole"
+                                         " configurations in trigonal"
+                                         " bipyramidal order parameter is"
+                                         " zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][1])
+                    if loc_parameters[i][2] == 0.0:
+                        raise ValueError("Gaussian width for equatorial"
+                                         " configurations in trigonal"
+                                         " bipyramidal order parameter"
+                                         " is zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][2])
             # All following types should be well-defined/-implemented,
             # and they should not require parameters.
             elif t != "q2" and t != "q4" and t != "q6":
@@ -1106,7 +1139,8 @@ class OrderParameters(object):
             #                    to any neighbor j.
             # self._computerjks: compute vectors from non-centeral atom j
             #                    to any non-central atom k.
-            if t == "tet" or t == "oct" or t == "bcc" or t == "sq_pyr":
+            if t == "tet" or t == "oct" or t == "bcc" or t == "sq_pyr" or \
+                    t == "tri_bipyr":
                 self._computerijs = self._geomops = True
             if t == "reg_tri" or t =="sq":
                 self._computerijs = self._computerjks = self._geomops2 = True
@@ -1823,6 +1857,11 @@ class OrderParameters(object):
                             elif t == "sq_pyr":
                                 tmp = self._paras[i][0] * (thetak * ipi - 0.5)
                                 qsptheta[i][j] = qsptheta[i][j] + exp(-0.5 * tmp * tmp)
+                            elif t == "tri_bipyr":
+                                if thetak >= self._paras[i][0]:
+                                    tmp = self._paras[i][1] * (
+                                        thetak * ipi - 1.0)
+                                    qsptheta[i][j] = 2.0 * math.exp(-0.5 * tmp * tmp)
 
                         for m in range(nneigh):
                             if (m != j) and (m != k) and (not flag_xaxis):
@@ -1875,6 +1914,16 @@ class OrderParameters(object):
                                                           1.6 * tmp * \
                                                           math.exp(
                                                               -0.5 * tmp * tmp)
+                                        elif t == "tri_bipyr":
+                                            if thetak < self._paras[i][0] and \
+                                                    thetam < self._paras[i][0]:
+                                                tmp = math.cos(1.5 * phi)
+                                                tmp2 = self._paras[i][2] * (
+                                                    thetam * ipi - 0.5)
+                                                qsptheta[i][j] += \
+                                                    tmp * tmp * math.exp( \
+                                                    -0.5 * tmp2 * tmp2)
+
 
             # Normalize Peters-style OPs.
             for i, t in enumerate(self._types):
@@ -1905,6 +1954,11 @@ class OrderParameters(object):
                                 nneigh * (nneigh - 1))
                     else:
                         ops[i] = None
+                elif t == "tri_bipyr":
+                    ops[i] = max(qsptheta[i]) / float(
+                            2 + (nneigh - 2) * (nneigh - 3)) if nneigh > 3 \
+                            else None
+
 
         # Then, deal with the new-style OPs that require vectors between
         # neighbors.
