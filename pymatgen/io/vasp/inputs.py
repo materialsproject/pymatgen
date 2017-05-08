@@ -50,7 +50,6 @@ __status__ = "Production"
 __date__ = "Jul 16, 2012"
 
 
-
 logger = logging.getLogger(__name__)
 
 
