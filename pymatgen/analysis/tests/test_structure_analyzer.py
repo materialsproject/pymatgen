@@ -482,13 +482,13 @@ class OrderParametersTest(PymatgenTest):
 
         # Square pyramid motif.
         op_vals = ops_101.get_order_parameters(self.square_pyramid, 0)
-        self.assertAlmostEqual(int(op_vals[11] * 1000), 999)
-        self.assertAlmostEqual(int(op_vals[12] * 1000), 499)
+        self.assertAlmostEqual(int(op_vals[11] * 1000 + 0.5), 1000)
+        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 500)
 
         # Trigonal bipyramidal.
         op_vals = ops_101.get_order_parameters(
                 self.trigonal_bipyramidal.sites, 0, indeces_neighs=[1,2,3,4,5])
-        self.assertAlmostEqual(int(op_vals[12] * 1000), 999)
+        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 1000)
 
         # Test providing explicit neighbor lists.
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[1])
