@@ -331,6 +331,20 @@ class OrderParametersTest(PymatgenTest):
             [14.75, 15.25, 15], [15.25, 14.75, 15], [15.25, 15.25, 15]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
+        self.pentagonal_planar = Structure(
+            Lattice.from_lengths_and_angles(
+            [30, 30, 30], [90, 90, 90]), ["Xe", "F", "F", "F", "F", "F"],
+            [[0, -1.6237, 0], [1.17969, 0, 0], [-1.17969, 0, 0], \
+            [1.90877, -2.24389, 0], [-1.90877, -2.24389, 0], [0, -3.6307, 0]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
+        self.trigonal_bipyramidal = Structure(
+            Lattice.from_lengths_and_angles(
+            [30, 30, 30], [90, 90, 90]), ["P", "Cl", "Cl", "Cl", "Cl", "Cl"],
+            [[0, 0, 0], [0, 0, 2.14], [0, 2.02, 0],
+            [1.74937, -1.01, 0], [-1.74937, -1.01, 0], [0, 0, -2.14]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
 
     def test_init(self):
         self.assertIsNotNone(OrderParameters(["cn"], [[]], 0.99))
@@ -338,9 +352,9 @@ class OrderParametersTest(PymatgenTest):
     def test_get_order_parameters(self):
         # Set up everything.
         op_types = ["cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", \
-                "q6", "reg_tri", "sq", "sq_pyr"]
-        op_paras = [[], [], [], [], [], [], [], [], [], [], [], []]
-        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], []]
+                "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr"]
+        op_paras = [[], [], [], [], [], [], [], [], [], [], [], [], []]
+        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], [], []]
         ops_044 = OrderParameters(op_types, op_paras, 0.44)
         ops_071 = OrderParameters(op_types, op_paras, 0.71)
         ops_087 = OrderParameters(op_types, op_paras, 0.87)
@@ -422,9 +436,20 @@ class OrderParametersTest(PymatgenTest):
         op_vals = ops_101.get_order_parameters(self.square, 0)
         self.assertAlmostEqual(int(op_vals[10] * 1000), 1000)
 
+        # Pentagonal planar.
+        op_vals = ops_101.get_order_parameters(
+                self.pentagonal_planar.sites, 0, indeces_neighs=[1,2,3,4,5])
+        self.assertAlmostEqual(int(op_vals[12] * 1000), 100)
+
         # Square pyramid motif.
         op_vals = ops_101.get_order_parameters(self.square_pyramid, 0)
         self.assertAlmostEqual(int(op_vals[11] * 1000), 999)
+        self.assertAlmostEqual(int(op_vals[12] * 1000), 499)
+
+        # Trigonal bipyramidal.
+        op_vals = ops_101.get_order_parameters(
+                self.trigonal_bipyramidal.sites, 0, indeces_neighs=[1,2,3,4,5])
+        self.assertAlmostEqual(int(op_vals[12] * 1000), 999)
 
         # Test providing explicit neighbor lists.
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[1])
