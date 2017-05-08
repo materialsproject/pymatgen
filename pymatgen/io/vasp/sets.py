@@ -691,8 +691,9 @@ class MPHSEBSSet(MPHSERelaxSet):
                                                      sym_prec=0)
 
         added_kpoints = []
-        bs = vasprun.get_band_structure()
+
         if mode.lower() == "gap":
+            bs = vasprun.get_band_structure()
             vbm, cbm = bs.get_vbm()["kpoint"], bs.get_cbm()["kpoint"]
             if vbm:
                 added_kpoints.append(vbm.frac_coords)
