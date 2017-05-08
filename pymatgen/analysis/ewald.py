@@ -4,6 +4,18 @@
 
 from __future__ import division, unicode_literals
 
+from math import pi, sqrt, log
+from datetime import datetime
+from copy import deepcopy, copy
+from warnings import warn
+import bisect
+
+import numpy as np
+from scipy.special import erfc
+from scipy.misc import comb
+
+import scipy.constants as constants
+
 """
 This module provides classes for calculating the ewald sum of a structure.
 """
@@ -16,18 +28,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Aug 1 2012"
-
-from math import pi, sqrt, log
-from datetime import datetime
-from copy import deepcopy, copy
-from warnings import warn
-import bisect
-
-import numpy as np
-from scipy.special import erfc
-from scipy.misc import comb
-
-import scipy.constants as constants
 
 
 class EwaldSummation(object):

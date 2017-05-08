@@ -69,22 +69,22 @@ class JMolCoordFinderTest(PymatgenTest):
 
         for site_idx, site in enumerate(s):
             if site.specie == Element("Li"):
-                self.assertEquals(finder.get_coordination_number(s, site_idx), 0)
+                self.assertEqual(finder.get_coordination_number(s, site_idx), 0)
                 nsites_checked += 1
             elif site.specie == Element("Fe"):
-                self.assertEquals(finder.get_coordination_number(s, site_idx), 6)
+                self.assertEqual(finder.get_coordination_number(s, site_idx), 6)
                 nsites_checked += 1
             elif site.specie == Element("P"):
-                self.assertEquals(finder.get_coordination_number(s, site_idx), 4)
+                self.assertEqual(finder.get_coordination_number(s, site_idx), 4)
                 nsites_checked += 1
-        self.assertEquals(nsites_checked, 12)
+        self.assertEqual(nsites_checked, 12)
 
         # test a user override that would cause Li to show up as 6-coordinated
         finder = JMolCoordFinder({"Li": 1})
-        self.assertEquals(finder.get_coordination_number(s, 0), 6)
+        self.assertEqual(finder.get_coordination_number(s, 0), 6)
 
         # verify get_coordinated_sites function works
-        self.assertEquals(len(finder.get_coordinated_sites(s, 0)), 6)
+        self.assertEqual(len(finder.get_coordinated_sites(s, 0)), 6)
 
 
 class GetDimensionalityTest(PymatgenTest):

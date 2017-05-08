@@ -13,7 +13,6 @@ from pymatgen.entries.computed_entries import ComputedEntry
 
 
 class ReactionTest(unittest.TestCase):
-
     def test_init(self):
         reactants = [Composition("Fe"),
                      Composition("O2")]
@@ -103,7 +102,8 @@ class ReactionTest(unittest.TestCase):
 
         reactants = [Composition("La2O3"), Composition("Co2O3"),
                      Composition("Li2ZrO3")]
-        products = [Composition("Xe"), Composition("Li2O"), Composition("La2Zr2O7"),
+        products = [Composition("Xe"), Composition("Li2O"),
+                    Composition("La2Zr2O7"),
                     Composition("Li3CoO3")]
         self.assertEqual(str(Reaction(reactants, products)),
                          "La2O3 + 0.3333 Co2O3 + 2 Li2ZrO3 -> "
@@ -111,7 +111,8 @@ class ReactionTest(unittest.TestCase):
 
         reactants = [Composition("La2O3"), Composition("Co2O3"),
                      Composition("Li2ZrO3")]
-        products = [Composition("Xe"), Composition("Li2O"), Composition("La2Zr2O7"),
+        products = [Composition("Xe"), Composition("Li2O"),
+                    Composition("La2Zr2O7"),
                     Composition("Li3CoO3"), Composition("XeNe")]
         self.assertEqual(str(Reaction(reactants, products)),
                          "La2O3 + 0.3333 Co2O3 + 2 Li2ZrO3 -> "
@@ -236,9 +237,11 @@ class ReactionTest(unittest.TestCase):
                      Composition("Na"),
                      Composition("Li"),
                      Composition("Cl")]
-        products = [Composition("FeO2"), Composition("NaCl"), Composition("Li2Cl2")]
+        products = [Composition("FeO2"), Composition("NaCl"),
+                    Composition("Li2Cl2")]
         rxn = Reaction(reactants, products)
-        self.assertEqual(str(rxn), "Fe + O2 + Na + 2 Li + 1.5 Cl2 -> FeO2 + NaCl + 2 LiCl")
+        self.assertEqual(str(rxn),
+                         "Fe + O2 + Na + 2 Li + 1.5 Cl2 -> FeO2 + NaCl + 2 LiCl")
 
         reactants = [Composition("Fe"),
                      Composition("Na"),
@@ -248,22 +251,24 @@ class ReactionTest(unittest.TestCase):
                     Composition("Xe"), Composition("FeCl"), Composition("Mn")]
         rxn = Reaction(reactants, products)
         # this cant normalize to 1 LiCl + 1 Na2O (not enough O), so chooses LiCl and FeCl
-        self.assertEqual(str(rxn), "Fe + Na + 0.5 Li2O + Cl2 -> LiCl + 0.5 Na2O + FeCl")
+        self.assertEqual(str(rxn),
+                         "Fe + Na + 0.5 Li2O + Cl2 -> LiCl + 0.5 Na2O + FeCl")
 
     def test_underdetermined_reactants(self):
         reactants = [Composition("Li"),
                      Composition("Cl"),
                      Composition("Cl")]
         products = [Composition("LiCl")]
-        self.assertRaisesRegexp(ReactionError, "underdetermined", Reaction,
-                                reactants, products)
+        self.assertRaisesRegex(ReactionError, "underdetermined", Reaction,
+                               reactants, products)
 
         reactants = [Composition("LiMnCl3"),
                      Composition("LiCl"),
                      Composition("MnCl2")]
         products = [Composition("Li2MnCl4")]
-        self.assertRaisesRegexp(ReactionError, "underdetermined", Reaction,
-                                reactants, products)
+        self.assertRaisesRegex(ReactionError, "underdetermined", Reaction,
+                               reactants, products)
+
 
 class BalancedReactionTest(unittest.TestCase):
     def test_init(self):
@@ -274,7 +279,7 @@ class BalancedReactionTest(unittest.TestCase):
         rxn = BalancedReaction(rct, prod)
         self.assertIsNotNone(str(rxn))
 
-        #Test unbalanced exception
+        # Test unbalanced exception
         rct = {Composition('K2SO4'): 1,
                Composition('Na2S'): 1, Composition('Li'): 24}
         prod = {Composition('KNaS'): 2, Composition('K2S'): 2,
@@ -298,21 +303,24 @@ class BalancedReactionTest(unittest.TestCase):
         self.assertEqual(rxn,
                          BalancedReaction.from_string("4 Li + O2 -> 2Li2O"))
 
-        rxn = BalancedReaction({Composition("Li(NiO2)3"): 1}, {Composition("O2"): 0.5,
-                               Composition("Li(NiO2)2"): 1, Composition("NiO"): 1})
+        rxn = BalancedReaction({Composition("Li(NiO2)3"): 1},
+                               {Composition("O2"): 0.5,
+                                Composition("Li(NiO2)2"): 1,
+                                Composition("NiO"): 1})
 
         self.assertEqual(rxn,
-                         BalancedReaction.from_string("1.000 Li(NiO2)3 -> 0.500 O2 + 1.000 Li(NiO2)2 + 1.000 NiO"))
+                         BalancedReaction.from_string(
+                             "1.000 Li(NiO2)3 -> 0.500 O2 + 1.000 Li(NiO2)2 + 1.000 NiO"))
 
     def test_remove_spectator_species(self):
-        rxn = BalancedReaction({Composition("Li"): 4, Composition("O2"): 1, Composition('Na'): 1},
-                               {Composition("Li2O"): 2, Composition('Na'): 1})
+        rxn = BalancedReaction(
+            {Composition("Li"): 4, Composition("O2"): 1, Composition('Na'): 1},
+            {Composition("Li2O"): 2, Composition('Na'): 1})
 
         self.assertTrue(Composition('Na') not in rxn.all_comp)
 
 
 class ComputedReactionTest(unittest.TestCase):
-
     def setUp(self):
         d = [{"correction": 0.0, "data": {}, "energy": -108.56492362,
               "parameters": {}, "composition": {"Li": 54}},
@@ -325,10 +333,11 @@ class ComputedReactionTest(unittest.TestCase):
         entries = []
         for e in d:
             entries.append(ComputedEntry.from_dict(e))
-        rcts = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"],
-                      entries))
+        rcts = list(
+            filter(lambda e: e.composition.reduced_formula in ["Li", "O2"],
+                   entries))
         prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2",
-                       entries))
+                            entries))
 
         self.rxn = ComputedReaction(rcts, prods)
 
