@@ -460,6 +460,11 @@ class MPStaticSet(MPRelaxSet):
             \\*\\*kwargs: kwargs supported by MPRelaxSet.
         """
         super(MPStaticSet, self).__init__(structure, **kwargs)
+        if isinstance(prev_incar, six.string_types):
+            prev_incar = Incar.from_file(prev_incar)
+        if isinstance(prev_kpoints, six.string_types):
+            prev_kpoints = Kpoints.from_file(prev_kpoints)
+
         self.prev_incar = prev_incar
         self.prev_kpoints = prev_kpoints
         self.reciprocal_density = reciprocal_density
