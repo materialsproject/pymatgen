@@ -32,7 +32,7 @@ class PointGroupTest(unittest.TestCase):
 
     def test_is_sub_super_group(self):
         with warnings.catch_warnings() as w:
-            warnings.catch_warnings("ignore")
+            warnings.simplefilter("ignore")
             pgmmm = PointGroup("mmm")
             pgmm2 = PointGroup("mm2")
             pg222 = PointGroup("222")
@@ -148,7 +148,7 @@ class SpaceGroupTest(unittest.TestCase):
 
     def test_subgroup_supergroup(self):
         with warnings.catch_warnings() as w:
-            warnings.catch_warnings("ignore")
+            warnings.simplefilter("ignore")
             self.assertTrue(SpaceGroup('Pma2').is_subgroup(SpaceGroup('Pccm')))
             self.assertFalse(SpaceGroup.from_int_number(229).is_subgroup(
                 SpaceGroup.from_int_number(230)))
