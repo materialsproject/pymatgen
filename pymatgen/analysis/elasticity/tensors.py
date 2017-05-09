@@ -512,6 +512,9 @@ class TensorCollection(collections.Sequence):
     def fit_to_structure(self, structure, symprec=0.1):
         return self.__class__([t.fit_to_structure(structure, symprec) 
                                for t in self])
+    
+    def is_fit_to_structure(self, structure, tol=1e-2):
+        return all([t.is_fit_to_structure(structure, tol) for t in self])
 
     @property
     def voigt(self):

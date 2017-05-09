@@ -10,6 +10,7 @@ from pymatgen.analysis.elasticity.elastic import *
 from pymatgen.analysis.elasticity.strain import Strain, Deformation
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
+from pymatgen import Structure, Lattice
 from scipy.misc import central_diff_weights
 import warnings
 import json
@@ -222,7 +223,19 @@ class ElasticTensorExpansionTest(PymatgenTest):
         self.c2 = self.data_dict["C2_raw"]
         self.c3 = self.data_dict["C3_raw"]
         self.exp = ElasticTensorExpansion.from_voigt([self.c2, self.c3])
-
+        self.cu = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.623),
+                                            ["Cu"], [[0]*3])
+        indices = [(0, 0), (0, 1), (3, 3)]
+        values = [166.1, 119.9, 75.6]
+        cu_c2 = ElasticTensor.from_values_indices(values, indices, structure=self.cu,
+                                                  populate=True)
+        indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2),
+                   (0, 3, 3), (0, 5, 5), (3, 4, 5)]
+        values = [-1271., -814., -50., -3., -780., -95.]
+        cu_c3 = Tensor.from_values_indices(values, indices, structure=self.cu, 
+                                           populate=True)
+        self.exp_cu = ElasticTensorExpansion([cu_c2, cu_c3])
+        
     def test_init(self):
         cijkl = Tensor.from_voigt(self.c2)
         cijklmn = Tensor.from_voigt(self.c3)
@@ -241,33 +254,43 @@ class ElasticTensorExpansionTest(PymatgenTest):
         self.exp.energy_density(self.strains[0])
 
     def test_gruneisen(self):
-        sn = self.get_structure("Sn")
-        indices = [(0, 0), (0, 1), (3, 3)]
-        values = [166.1, 119.9, 75.6]
-        cu_c2 = ElasticTensor.from_values_indices(values, indices, structure=sn,
-                                                  populate=True)
-        indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2),
-                   (0, 3, 3), (0, 5, 5), (3, 4, 5)]
-        values = [-1271., -814., -50., -3., -780., -95.]
-        cu_c3 = Tensor.from_values_indices(values, indices, structure=sn, 
-                                           populate=True)
-        exp_cu = ElasticTensorExpansion([cu_c2, cu_c3])
         # Get GGT
-        ggt = exp_cu.get_ggt([1, 0, 0], [0, 1, 0])
+        ggt = self.exp_cu.get_ggt([1, 0, 0], [0, 1, 0])
 
         # Get TGT
-        tgt = exp_cu.get_tgt()
+        tgt = self.exp_cu.get_tgt()
 
         # Get heat capacity
-        c = exp_cu.get_heat_capacity(300, sn, [1, 0, 0], [0, 1, 0])
+        c = self.exp_cu.get_heat_capacity(300, self.cu, [1, 0, 0], [0, 1, 0])
 
         # Get Gruneisen parameter
-        gp = exp_cu.get_gruneisen_parameter()
-        gpt = exp_cu.get_gruneisen_parameter(temperature=300, structure=sn)
+        gp = self.exp_cu.get_gruneisen_parameter()
+        gpt = self.exp_cu.get_gruneisen_parameter(temperature=300, structure=self.cu)
+        interupt
+
+    def test_thermal_expansion_coeff(self):
+        #TODO get rid of duplicates
+        alpha_dp = self.exp_cu.thermal_expansion_coeff(self.cu, 300, 
+                                                       mode="dulong-petit")
+        alpha_debye = self.exp_cu.thermal_expansion_coeff(self.cu, 300, 
+                                                          mode="debye")
+        blargh
 
     def test_ideal_tensile_strain(self):
+        blargh
         pass
+    
+    def test_get_compliance_expansion(self):
+        ce_exp = self.exp_cu.get_compliance_expansion()
+        et_comp = ElasticTensorExpansion(ce_exp)
+        strain_orig = Strain.from_voigt([0.01, 0, 0, 0, 0, 0])
+        stress = self.exp_cu.calculate_stress(strain_orig)
+        strain_revert = et_comp.calculate_stress(stress)
+        self.assertArrayAlmostEqual(strain_orig, strain_revert, decimal=4)
 
+    def test_euler_angle_grid(self):
+        agrid, vgrid = euler_angle_grid_quick()
+        blargh
 
 class NthOrderElasticTensorTest(PymatgenTest):
     def setUp(self):

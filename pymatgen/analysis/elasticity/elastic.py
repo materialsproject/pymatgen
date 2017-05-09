@@ -11,6 +11,7 @@ from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.core.operations import SymmOp
 from scipy.misc import factorial
+from scipy.integrate import quad
 from collections import OrderedDict
 import numpy as np
 import warnings
@@ -367,6 +368,15 @@ class ElasticTensor(NthOrderElasticTensor):
         return 2.9772e-11 * avg_mass**(-1./2.) * (volume / natoms) ** (-1./6.) \
             * f * self.k_vrh ** 0.5
 
+    def debye_temperature_from_sound_velocities(self, mode="VRH"):
+        """
+        Estimates Debye temperature from sound velocities
+        """
+        vl, vt = soec.long_v(structure), soec.trans_v(structure)
+        vm = 3**(1./3.) * (1 / vl**3 + 2 / vt**3)**(-1./3.)
+        td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1./3.)
+        return td
+
     @property
     def universal_anisotropy(self):
         """
@@ -382,6 +392,9 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         return (1. - 2. / 3. * self.g_vrh / self.k_vrh) / \
                (2. + 2. / 3. * self.g_vrh / self.k_vrh)
+
+    def green_kristoffel(self, n):
+        return self.einsum_sequence([n, n], "ijkl,i,l")
 
     @property
     def property_dict(self):
@@ -536,13 +549,21 @@ class ElasticTensorExpansion(TensorCollection):
         # TODO: do these need to be normalized?
         return self[0].einsum_sequence([n, u, n, u])
 
-    # TODO: check omega and stuff
     def omega(self, structure, n, u):
-        l0 = Tensor(structure.lattice.matrix).einsum_sequence([n, n]) * 1e-10
-        weight = structure.composition.weight
-        mass_density = 1.6605e3 * weight / structure.volume
-        vel = (1e9 * self.green_kristoffel(n, u) / mass_density) ** 0.5
+        # I'm not convinced this is correct
+        # Should it be primitive cell?
+        l0 = np.dot(np.sum(structure.lattice.matrix(axis=0)), n)
+        l0 *= 1e-10 # in A
+        weight = structure.composition.weight * 1.66054e-27 # in kg
+        vol = structure.volume * 1e-30 # in m^3
+        vel = (1e9 * self.green_kristoffel(n, u) / (weight / vol)) ** 0.5
         return vel / l0
+
+    def sound_velocity(self, n, u):
+        """
+        Get sound velocity
+        """
+        pass
 
     def get_ggt(self, n, u):
         gk = self.green_kristoffel(n, u)
@@ -550,25 +571,40 @@ class ElasticTensorExpansion(TensorCollection):
             + self[1].einsum_sequence([n, u, n, u])) / (2*gk)
         return result
 
-    def get_tgt(self, temperature = None, structure=None, grid=[21, 21]):
+    def get_tgt(self, structure=None, temperature = None, grid=[20, 20, 20]):
         if temperature and not structure:
             raise ValueError("If using temperature input, you must also "
                              "include structure")
-        xyzs = axes_angle_grid(*grid)
-        xyzs = xyzs.reshape((np.prod(xyzs.shape[:2]), 3, 3))
+        """
+        agrid, xyzs = euler_angle_grid_quick(*grid)
+        da, db, dg = [np.diff(agrid[i], axis=i)[0][0][0] for i in range(3)]
+        xyzs = xyzs.reshape((np.prod(xyzs.shape[:-2]), 3, 3))
+        a_elts = np.sin(agrid[1].ravel())*da*db
+        """
+        import os
+        MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+        led = np.loadtxt(os.path.join(MODULE_DIR, "led131.txt"))
+        ts, ps, ws = np.transpose(led)
         num = np.zeros((3, 3))
         denom = 0
         c = 1
-        for xyz in xyzs:
-            for v in xyz:
+        for w, t, p in zip(ws, ts, ps):
+            xyz = get_trans(t, p, 0, angle_in_radians=False)
+            n = xyz[2]
+            gk = ElasticTensor(self[0]).green_kristoffel(n)
+            rho_wsquareds, us = np.linalg.eigh(gk)
+            us = [u / np.linalg.norm(u) for u in np.transpose(us)]
+            norms = [np.dot(n, u) for u in us]
+            for u in us:
+                # TODO: check this
                 if temperature:
-                    c = self.get_heat_capacity(temperature, structure, xyz[0], v)
-                num += c*self.get_ggt(xyz[0], v)
-                denom += c
+                    c = self.get_heat_capacity(temperature, structure, n, u)
+                num += c*self.get_ggt(n, u) * w
+                denom += c * w
         return num / denom
 
     def get_gruneisen_parameter(self, temperature=None, structure=None, 
-                                grid=[21, 21]):
+                                grid=[20, 20, 20]):
         """
         """
         return np.trace(self.get_tgt(temperature, structure, grid)) / 3.
@@ -576,25 +612,81 @@ class ElasticTensorExpansion(TensorCollection):
     def get_heat_capacity(self, temperature, structure, n, u):
         """
         """
+        # TODO: maybe works for at least
         k = 1.38065e-23
         kt = k*temperature
         hbar_w = 1.05457e-34*self.omega(structure, n, u)
         c = k * (hbar_w / kt) ** 2
         c *= np.exp(hbar_w / kt) / (np.exp(hbar_w / kt) - 1)**2
-        return c
+        return c*6.022e23
 
-def get_trans(theta, phi):
-    sop1 = SymmOp.from_axis_angle_and_translation([0, 0, 1], theta, 
-                                                  angle_in_radians=True)
-    sop2 = SymmOp.from_axis_angle_and_translation([0, 1, 0], phi, 
-                                                  angle_in_radians=True)
-    return np.dot(sop2.rotation_matrix, sop1.rotation_matrix)
+    def thermal_expansion_coeff(self, structure, temperature, mode="debye"):
+        """
+        Thermal expansion coefficient
+        """
+        #TODO move Cv to ElasticTensor
+        soec = ElasticTensor(self[0])
+        v0 = (structure.volume * 1e-30 / structure.num_sites)
+        if mode == "debye":
+            vl, vt = soec.long_v(structure), soec.trans_v(structure)
+            vm = 3**(1./3.) * (1 / vl**3 + 2 / vt**3)**(-1./3.)
+            td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1./3.)
+            t_ratio = temperature / td 
+            integrand = lambda x: (x**4 * np.exp(x)) / (np.exp(x) - 1)**2
+            cv = 3 * 8.314 * t_ratio**3 * quad(integrand, 0, t_ratio**-1)[0]
+        if mode == "dulong-petit":
+            cv = 3 * 8.314
+        # j/mol*K * 
+        # Why divided by 3?
+        alpha = self.get_tgt() * cv / (soec.k_vrh * 1e9 * v0 * 6.022e23)
+        return alpha
 
-def axes_angle_grid(ntheta=21, nphi=21):
-    thetas, phis = np.meshgrid(np.linspace(0, 2*np.pi, ntheta), 
-                       np.linspace(-np.pi / 2, np.pi / 2, nphi))
-    grid = [get_trans(t, p) for t, p in zip(thetas.ravel(), phis.ravel())]
-    return np.array(grid).reshape(thetas.shape + (3, 3))
+    def get_compliance_expansion(self):
+        if not self.order == 3:
+            raise ValueError("Compliance tensor expansion only "
+                             "supported for third-order expansions")
+        ce_exp = [ElasticTensor(self[0]).compliance_tensor]
+        einstring = "ijpq,pqrsuv,rskl,uvmn->ijklmn"
+        ce_exp.append(np.einsum(einstring, -ce_exp[-1], self[1], 
+                                ce_exp[-1], ce_exp[-1]))
+        return TensorCollection(ce_exp)
+
+def get_trans(alpha, beta, gamma, angle_in_radians=True):
+    sop1 = SymmOp.from_axis_angle_and_translation(
+            [0, 0, 1], alpha, angle_in_radians=angle_in_radians)
+    sop2 = SymmOp.from_axis_angle_and_translation(
+            [1, 0, 0], beta, angle_in_radians=angle_in_radians)
+    sop3 = SymmOp.from_axis_angle_and_translation(
+            [0, 0, 1], gamma, angle_in_radians=angle_in_radians)
+    return np.dot(sop3.rotation_matrix, np.dot(sop2.rotation_matrix, sop1.rotation_matrix))
+
+def euler_angle_grid(na=21, nb=21, ng=21):
+    mesh = np.meshgrid(np.linspace(0, 2*np.pi, na, endpoint=False),
+                       np.linspace(0, np.pi, nb, endpoint=False),
+                       np.linspace(0, 2*np.pi, ng, endpoint=False))
+    grid = [get_trans(a, b, g) for a, b, g
+            in zip(mesh[0].ravel(), mesh[1].ravel(), mesh[2].ravel())]
+    return np.array(grid).reshape(mesh[0].shape + (3, 3))
+
+def euler_angle_grid_quick(na=20, nb=20, ng=20):
+    avec = np.linspace(0, 2*np.pi, na, endpoint=False)
+    bvec = np.linspace(0, np.pi, nb, endpoint=False)
+    gvec = np.linspace(0, 2*np.pi, ng, endpoint=False)
+    a, b, g = np.meshgrid(avec, bvec, gvec, indexing='ij')
+    sina, cosa = np.sin(a), np.cos(a)
+    sinb, cosb = np.sin(b), np.cos(b)
+    sing, cosg = np.sin(g), np.cos(g)
+    grid = np.zeros((na, nb, ng, 3, 3))
+    grid[:, :, :, 0, 0] = cosg*cosa - cosb*sina*sing
+    grid[:, :, :, 0, 1] = -cosg*sina - cosb*cosa*sing
+    grid[:, :, :, 1, 0] = sing*cosa + cosb*sina*cosg
+    grid[:, :, :, 0, 2] = sing*sinb
+    grid[:, :, :, 2, 0] = sinb*sina
+    grid[:, :, :, 1, 1] = -sing*sina + cosb*cosa*cosg
+    grid[:, :, :, 1, 2] = -cosg*sinb
+    grid[:, :, :, 2, 1] = -sinb*cosa
+    grid[:, :, :, 2, 2] = cosb
+    return [a, b, g], grid
 
 def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
     """

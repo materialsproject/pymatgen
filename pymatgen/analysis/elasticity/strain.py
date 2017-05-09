@@ -215,11 +215,4 @@ def convert_strain_to_deformation(strain, shape="upper"):
         result = scipy.linalg.sqrtm(ftdotf)
     else:
         raise ValueError("shape must be \"upper\" or \"symmetric\"")
-    """
-    eigs, eigvecs = np.linalg.eigh(ftdotf)
-    rotated = ftdotf.rotate(np.transpose(eigvecs))
-    rotated = rotated.round(10)
-    defo = Deformation(np.sqrt(rotated))
-    result = defo.rotate(eigvecs)
-    """
     return Deformation(result)
