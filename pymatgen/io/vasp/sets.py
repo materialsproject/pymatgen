@@ -723,7 +723,7 @@ class MPNonSCFSet(MPRelaxSet):
 
         Args:
             structure (Structure): Structure to compute
-            prev_incar (Incar): Incar file from previous run.
+            prev_incar (Incar/string): Incar file from previous run.
             mode (str): Line or Uniform mode supported.
             nedos (int): nedos parameter. Default to 601.
             reciprocal_density (int): density of k-mesh by reciprocal
@@ -734,6 +734,8 @@ class MPNonSCFSet(MPRelaxSet):
             \\*\\*kwargs: kwargs supported by MPVaspInputSet.
         """
         super(MPNonSCFSet, self).__init__(structure, **kwargs)
+        if isinstance(prev_incar, six.string_types):
+            prev_incar = Incar.from_file(prev_incar)
         self.prev_incar = prev_incar
         self.kwargs = kwargs
         self.nedos = nedos
