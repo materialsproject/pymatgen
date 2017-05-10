@@ -1,8 +1,7 @@
 Change log
 ==========
 
-v4.7.4
+v4.7.5
 ------
-* New ferroelectric analysis module (Tess).
-* Magmom support and MagSymmOp (Matthew Horton).
-* Improved CIF Parsing.
+* MultiXYZ support (Xiaohui Xu)
+* Misc bug fixes and cleanup.

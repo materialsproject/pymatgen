@@ -151,7 +151,7 @@ class DeformedStructureSet(collections.Sequence):
         # Perform symmetry reduction if specified
         if symmetry:
             self.sym_dict = symmetry_reduce(self.deformations, self.undeformed_structure)
-            self.deformations = self.sym_dict.keys()
+            self.deformations = list(self.sym_dict.keys())
         self.def_structs = [defo.apply_to_structure(rlxd_str)
                             for defo in self.deformations]
 
