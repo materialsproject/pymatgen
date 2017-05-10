@@ -9,7 +9,6 @@ import re
 import itertools
 import warnings
 import logging
-import math
 
 import six
 import numpy as np
@@ -1050,20 +1049,21 @@ class Kpoints(MSONable):
         latt = structure.lattice
         lengths = latt.abc
         ngrid = kppa / structure.num_sites
-        mult = (ngrid * structure.lattice.volume) ** (1 / 3)
+        mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div = [max(mult / l, 1) for l in lengths]
-        if all([k < 2 for k in num_div]):
+        num_div = [int(round(mult / l)) for l in lengths]
+        if all([k <= 1 for k in num_div]):
             return Kpoints(comment, 0, Kpoints.supported_modes.Gamma,
                            [[1, 1, 1]], [0, 0, 0])
+
+        # ensure that num_div[i] > 0
+        num_div = [i if i > 0 else 1 for i in num_div]
 
         is_hexagonal = latt.is_hexagonal()
 
         # VASP documentation recommends to use even grids for n <= 8 and odd
         # grids for n > 8.
-        num_div = [i - i % 2 + 2 * math.floor(i % 2)
-                   if i <= 8 else int(round(i - i % 2 + 1))
-                   for i in num_div]
+        num_div = [i + i % 2 if i <= 8 else i - i % 2 + 1 for i in num_div]
 
         has_odd = any([i % 2 == 1 for i in num_div])
         if has_odd or is_hexagonal or force_gamma:
@@ -1129,7 +1129,7 @@ class Kpoints(MSONable):
             Kpoints
         """
         vol = structure.lattice.reciprocal_lattice.volume
-        kppa = kppvol * vol * structure.num_sites
+        kppa = int(round(kppvol * vol * structure.num_sites))
         return Kpoints.automatic_density(structure, kppa,
                                          force_gamma=force_gamma)
 
