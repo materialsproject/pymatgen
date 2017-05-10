@@ -691,6 +691,70 @@ class SlabGenerator(object):
                     scale_factor, site_properties=slab.site_properties,
                     energy=energy)
 
+    def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0,
+                  symmetrize=False):
+        """
+        This method returns a list of slabs that are generated using the list of
+        shift values from the method, _calculate_possible_shifts(). Before the
+        shifts are used to create the slabs however, if the user decides to take
+        into account whether or not a termination will break any polyhedral
+        structure (bonds is not None), this method will filter out any shift
+        values that do so.
+
+        Args:
+            bonds ({(specie1, specie2): max_bond_dist}: bonds are
+                specified as a dict of tuples: float of specie1, specie2
+                and the max bonding distance. For example, PO4 groups may be
+                defined as {("P", "O"): 3}.
+            tol (float): Threshold parameter in fcluster in order to check
+                if two atoms are lying on the same plane. Default thresh set
+                to 0.1 Angstrom in the direction of the surface normal.
+            max_broken_bonds (int): Maximum number of allowable broken bonds
+                for the slab. Use this to limit # of slabs (some structures
+                may have a lot of slabs). Defaults to zero, which means no
+                defined bonds must be broken.
+            symmetrize (bool): Whether or not to ensure the surfaces of the
+                slabs are equivalent.
+
+        Returns:
+            ([Slab]) List of all possible terminations of a particular surface.
+            Slabs are sorted by the # of bonds broken.
+        """
+        c_ranges = set()
+
+        slabs = []
+        for shift in self._calculate_possible_shifts(tol=tol):
+            bonds_broken = 0
+            for r in c_ranges:
+                if r[0] <= shift <= r[1]:
+                    bonds_broken += 1
+            if bonds_broken <= max_broken_bonds:
+                # For now, set the energy to be equal to no. of broken bonds
+                # per unit cell.
+                slab = self.get_slab(shift, tol=tol, repair_bonds=bonds,
+                                     energy=bonds_broken)
+                slabs.append(slab)
+
+        # Further filters out any surfaces made that might be the same
+        m = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False,
+                             scale=False)
+
+        new_slabs = []
+        original_formula = str(self.parent.composition.reduced_formula)
+        for g in m.group_structures(slabs):
+            # For each unique termination, symmetrize the
+            # surfaces by removing sites from the bottom.
+            if symmetrize:
+                slab = self.symmetrize_slab(g[0])
+                if original_formula != str(slab.composition.reduced_formula):
+                    warnings.warn("WARNING: Stoichiometry is no longer the "
+                                  "same due to symmetrization")
+                new_slabs.append(slab)
+            else:
+                new_slabs.append(g[0])
+
+        return sorted(new_slabs, key=lambda s: s.energy)
+
     def repair_broken_bonds(self, slab, bonds):
         """
         This method will find undercoordinated atoms due to slab cleaving
@@ -724,8 +788,6 @@ class SlabGenerator(object):
                                                                         blength)))
         bulk_cn = np.mean(cnlist)
 
-        cdist = [site.frac_coords[2] for site in slab]
-
         # pre-determine the number of broken polyhedrons
         # first so we will know how many iterations
         # of repairs to do
@@ -749,7 +811,6 @@ class SlabGenerator(object):
         # Iterate through the repair process with
         # the number of polyhedrons to repair
         for n in to_repair:
-            poly_coord = len(slab.get_neighbors(slab[n], blength))
             # is it on the top or bottom?
             # where to move entire polyhedron
             to_top = False if slab[n].frac_coords[2] < 0.5 else True
@@ -775,12 +836,10 @@ class SlabGenerator(object):
             slab = self.move_to_other_side(slab, tomove,
                                            to_top=to_top)
 
-        broken = False
         for site in slab:
             if site.species_string == element1:
                 poly_coord = len(slab.get_neighbors(site, blength))
                 if poly_coord != bulk_cn:
-                    broken = True
                     warnings.warn("Slab could not be repaired")
 
         # if the bonds have been fixed (CN of element1
@@ -895,7 +954,6 @@ class SlabGenerator(object):
                             elif c_range[0] != c_range[1]:
                                 c_ranges.add(c_range)
         return c_ranges
-
 
 def get_recp_symmetry_operation(structure, symprec=0.001):
     """
