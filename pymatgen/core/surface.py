@@ -692,6 +692,21 @@ class SlabGenerator(object):
                     energy=energy)
 
     def repair_broken_bonds(self, slab, bonds):
+        """
+        This method will find undercoordinated atoms due to slab cleaving
+        specified by the bonds parameter and move them to the other surface
+        to make sure the bond is kept intact.
+
+        Arg:
+            slab (structure): A structure object representing a slab.
+            bonds ({(specie1, specie2): max_bond_dist}: bonds are
+                specified as a dict of tuples: float of specie1, specie2
+                and the max bonding distance. For example, PO4 groups may be
+                defined as {("P", "O"): 3}.
+
+        Returns:
+            (Slab) A Slab object with a particular shifted oriented unit cell.
+        """
 
         # assuming the first atom in the list
         # is the center ion of the polyhedron
@@ -774,35 +789,37 @@ class SlabGenerator(object):
         return Structure(slab.lattice, slab.species, slab.frac_coords)
 
     def move_to_other_side(self, init_slab, index_of_sites, to_top=True):
+        """
+        This method will Move a set of sides to the
+        other side of the slab (opposite surface).
+
+        Arg:
+            init_slab (structure): A structure object representing a slab.
+            index_of_sites (list of ints): The list of indices representing
+                the sites we want to move to the other side.
+            to_top (bool): Whether or not to move the site
+                to the top surface or bottom surface.
+
+        Returns:
+            (Slab) A Slab object with a particular shifted oriented unit cell.
+        """
 
         slab = init_slab.copy()
 
-        # Determine what fraction the slab is of the total cell size in the
-        # c direction. Round to nearest rational number.
+        # Determine what fraction the slab is of the total cell size
+        # in the c direction. Round to nearest rational number.
         h = self._proj_height
         nlayers_slab = int(math.ceil(self.min_slab_size / h))
         nlayers_vac = int(math.ceil(self.min_vac_size / h))
         nlayers = nlayers_slab + nlayers_vac
         slab_ratio = nlayers_slab / nlayers
 
-        # Move by coordinates
-        species, coords = [], []
-        for i, site in enumerate(slab):
+        if to_top:
+            slab.translate_sites(index_of_sites, [0, 0, slab_ratio])
+        else:
+            slab.translate_sites(index_of_sites, [0, 0, -slab_ratio])
 
-            if i in index_of_sites:
-                fcoords = site.frac_coords
-                if to_top:
-                    fcoords[2] += slab_ratio
-                else:
-                    fcoords[2] -= slab_ratio
-                species.append(site.species_string)
-                coords.append(fcoords)
-
-            else:
-                species.append(site.species_string)
-                coords.append(site.frac_coords)
-
-        return Structure(slab.lattice, species, coords)
+        return slab
 
     def _calculate_possible_shifts(self, tol=0.1):
         frac_coords = self.oriented_unit_cell.frac_coords
@@ -878,121 +895,6 @@ class SlabGenerator(object):
                             elif c_range[0] != c_range[1]:
                                 c_ranges.add(c_range)
         return c_ranges
-
-    def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0,
-                  symmetrize=False):
-        """
-        This method returns a list of slabs that are generated using the list of
-        shift values from the method, _calculate_possible_shifts(). Before the
-        shifts are used to create the slabs however, if the user decides to take
-        into account whether or not a termination will break any polyhedral
-        structure (bonds is not None), this method will filter out any shift
-        values that do so.
-
-        Args:
-            bonds ({(specie1, specie2): max_bond_dist}: bonds are
-                specified as a dict of tuples: float of specie1, specie2
-                and the max bonding distance. For example, PO4 groups may be
-                defined as {("P", "O"): 3}.
-            tol (float): Threshold parameter in fcluster in order to check
-                if two atoms are lying on the same plane. Default thresh set
-                to 0.1 Angstrom in the direction of the surface normal.
-            max_broken_bonds (int): Maximum number of allowable broken bonds
-                for the slab. Use this to limit # of slabs (some structures
-                may have a lot of slabs). Defaults to zero, which means no
-                defined bonds must be broken.
-            symmetrize (bool): Whether or not to ensure the surfaces of the
-                slabs are equivalent.
-
-        Returns:
-            ([Slab]) List of all possible terminations of a particular surface.
-            Slabs are sorted by the # of bonds broken.
-        """
-        c_ranges = set()
-
-        slabs = []
-        for shift in self._calculate_possible_shifts(tol=tol):
-            bonds_broken = 0
-            for r in c_ranges:
-                if r[0] <= shift <= r[1]:
-                    bonds_broken += 1
-            if bonds_broken <= max_broken_bonds:
-                # For now, set the energy to be equal to no. of broken bonds
-                # per unit cell.
-                slab = self.get_slab(shift, tol=tol, repair_bonds=bonds,
-                                     energy=bonds_broken)
-                slabs.append(slab)
-
-        # Further filters out any surfaces made that might be the same
-        m = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False,
-                             scale=False)
-
-        new_slabs = []
-        original_formula = str(self.parent.composition.reduced_formula)
-        for g in m.group_structures(slabs):
-            # For each unique termination, symmetrize the
-            # surfaces by removing sites from the bottom.
-            if symmetrize:
-                slab = self.symmetrize_slab(g[0])
-                if original_formula != str(slab.composition.reduced_formula):
-                    warnings.warn("WARNING: Stoichiometry is no longer the "
-                                  "same due to symmetrization")
-                new_slabs.append(slab)
-            else:
-                new_slabs.append(g[0])
-
-        return sorted(new_slabs, key=lambda s: s.energy)
-
-    def symmetrize_slab(self, slab, tol=1e-3):
-
-        """
-        This method checks whether or not the two surfaces of the slab are
-        equivalent. If the point group of the slab has an inversion symmetry (
-        ie. belong to one of the Laue groups), then it is assumed that the
-        surfaces should be equivalent. Otherwise, sites at the bottom of the
-        slab will be removed until the slab is symmetric.
-
-        WARNING:
-        This method should only be limited to elemental structures as
-        the removal of sites can destroy the stoichiometry of the slab.
-
-        Arg:
-            slab (Structure): A single slab structure
-            tol (float): Tolerance for SpaceGroupanalyzer.
-
-        Returns:
-            Slab (structure): A symmetrized Slab object.
-        """
-
-        sg = SpacegroupAnalyzer(slab, symprec=tol)
-
-        if sg.is_laue_class():
-            return slab
-        else:
-            asym = True
-
-            while asym or (len(slab) < len(self.parent)):
-
-                # Keep removing sites from the bottom one by one until both
-                # surfaces are symmetric or the number of sites removed has
-                # exceeded 10 percent of the original slab
-
-                c_dir = [site[2] for i, site in enumerate(slab.frac_coords)]
-
-                slab.remove_sites([c_dir.index(min(c_dir))])
-
-                # Check if the altered surface is symmetric
-
-                sg = SpacegroupAnalyzer(slab, symprec=tol)
-
-                if sg.is_laue_class():
-                    asym = False
-
-        if len(slab) < len(self.parent):
-            warnings.warn("Too many sites removed, please use a larger slab "
-                          "size.")
-
-        return slab
 
 
 def get_recp_symmetry_operation(structure, symprec=0.001):
@@ -1148,140 +1050,6 @@ class FixedSlabGenerator(object):
         self.min_vacuum_size = min_vacuum_size
         self.min_slab_size = min_slab_size
 
-    def move_to_other_side(self, init_slab, index_of_sites, to_top=True):
-
-        slab = init_slab.copy()
-
-        # Determine what fraction the slab is of the total cell size in the
-        # c direction. Round to nearest rational number.
-        slab_ratio = self.min_slab_size / (self.min_slab_size + self.min_vacuum_size)
-
-        # Move by coordinates
-        species, coords = [], []
-        for i, site in enumerate(slab):
-
-            if i in index_of_sites:
-                fcoords = site.frac_coords
-                if to_top:
-                    fcoords[2] += slab_ratio
-                else:
-                    fcoords[2] -= slab_ratio
-                species.append(site.species_string)
-                coords.append(fcoords)
-
-            else:
-                species.append(site.species_string)
-                coords.append(site.frac_coords)
-
-        s = Structure(slab.lattice, species, coords)
-        manual_slab = Slab(s.lattice, s.species, s.frac_coords,
-                           slab.miller_index, slab.oriented_unit_cell,
-                           slab.shift, slab.scale_factor)
-        return manual_slab
-
-    def repair_broken_bonds(self, bonds, slabs):
-        # Looks for terminations in between PO4s. Takes in a list of slabs
-        # For now, this algo only works for one type of bond at a time
-
-        bound_atoms = list(bonds.keys())[0]
-        element1 = bound_atoms[0]
-        element2 = bound_atoms[1]
-        blength = bonds[bound_atoms]
-
-        repaired_slabs = []
-
-        # find coordination number of element1
-        # wrt element2 in bulk ucell
-        cnlist = []
-        for i, site in enumerate(self.initial_structure):
-            if site.species_string == element1:
-                cnlist.append(len(self.initial_structure.get_neighbors(site,
-                                                                       blength)))
-        bulk_cn = np.mean(cnlist)
-
-        for num, s in enumerate(slabs):
-            # get the top most and bottom most site index in our slabs
-            cdist = [site.frac_coords[2] for site in s]
-
-            # pre-determine the number of broken polyhedrons
-            # first so we will know how many iterations
-            # of repairs to do
-            to_repair = []
-            for i, site in enumerate(s):
-
-                if site.species_string == element1:
-                    poly_coord = 0
-                    for neighbor in s.get_neighbors(site, blength):
-                        if neighbor[0].species_string == element2:
-                            poly_coord += 1
-                    # suppose we find an undercoordinated reference ion
-                    if poly_coord < bulk_cn:
-                        to_repair.append(i)
-
-            # If the slab requires no repairs, just add
-            # the slabs and skip the repair process
-            if not to_repair:
-                repaired_slabs.append(s)
-                continue
-
-            # Iterate through the repair process with
-            # the number of polyhedrons to repair
-            for n in to_repair:
-                poly_coord = len(s.get_neighbors(s[n], blength))
-                # is it on the top or bottom?
-                # where to move entire polyhedron
-                to_top = False if s[n].frac_coords[2] < 0.5 else True
-                # where to move central atom only to get coordination
-                move_center = False if to_top else True
-
-                # We get the central atom of the polyhedron that is broken
-                # (undercoordinated), move it to the other surface
-                s = self.move_to_other_side(s, [n], to_top=move_center)
-
-                # find its NNs with the corresponding
-                # species it should be coordinated with
-                neighbors = s.get_neighbors(s[n], blength,
-                                            include_index=True)
-                tomove = []
-                for nn in neighbors:
-                    if nn[0].species_string == element2:
-                        tomove.append(nn[2])
-                tomove.append(n)
-                # and then move those NNs along with the central
-                # atom back to the other side of the slab again
-                s = self.move_to_other_side(s, tomove, to_top=to_top)
-
-            broken = False
-            for site in s:
-                if site.species_string == element1:
-                    poly_coord = len(s.get_neighbors(site, blength))
-                    if poly_coord != bulk_cn:
-                        broken = True
-                        warnings.warn("Slab could not be repaired")
-
-            if not broken:
-                # if the bonds have been fixed (CN of element1
-                # relative to element2 in slab is same as in
-                # bulk), add the repaired slab to the list
-                fixed_slab = Slab(s.lattice, s.species, s.frac_coords,
-                                  s.miller_index, s.oriented_unit_cell, s.shift,
-                                  s.scale_factor)
-                repaired_slabs.append(fixed_slab)
-
-        s = StructureMatcher()
-        repaired = [ss[0] for ss in s.group_structures(repaired_slabs)]
-
-        if self.primitive:
-            primitive_repaired = []
-            for slab in repaired:
-                prim = slab.get_primitive_structure(tolerance=self.tol)
-                primitive_repaired.append(Slab(prim.lattice, prim.species_and_occu,
-                                               prim.frac_coords, slab.miller_index,
-                                               slab.oriented_unit_cell, slab.shift,
-                                               slab.scale_factor))
-            return primitive_repaired
-        else:
-            return repaired
 
     def fix_sym_and_pol(self, bonds, sites_to_move=["Li+"],
                         species_term_only=True, symprec=0.1,
