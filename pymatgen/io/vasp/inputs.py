@@ -1061,7 +1061,7 @@ class Kpoints(MSONable):
 
         # VASP documentation recommends to use even grids for n <= 8 and odd
         # grids for n > 8.
-        num_div = [i - i % 2 + 2 * math.floor(i % 2)
+        num_div = [int(round(i - i % 2 + 2 * math.floor(i % 2)))
                    if i <= 8 else int(round(i - i % 2 + 1))
                    for i in num_div]
 
