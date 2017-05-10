@@ -450,7 +450,6 @@ class Slab(Structure):
 
 
 class SlabGenerator(object):
-
     """
     This class generates different slabs using shift values determined by where
     a unique termination can be found along with other criterias such as where a
@@ -623,7 +622,7 @@ class SlabGenerator(object):
         a, b, c = self.oriented_unit_cell.lattice.matrix
         self._proj_height = abs(np.dot(normal, c))
 
-    def get_slab(self, shift=0, tol=0.1, energy=None):
+    def get_slab(self, shift=0, tol=0.1, energy=None, repair_bonds={}):
         """
         This method takes in shift value for the c lattice direction and
         generates a slab based on the given shift. You should rarely use this
@@ -649,7 +648,7 @@ class SlabGenerator(object):
         props = self.oriented_unit_cell.site_properties
         props = {k: v * nlayers_slab for k, v in props.items()}
         frac_coords = self.oriented_unit_cell.frac_coords
-        frac_coords = np.array(frac_coords) +\
+        frac_coords = np.array(frac_coords) + \
                       np.array([0, 0, -shift])[None, :]
         frac_coords -= np.floor(frac_coords)
         a, b, c = self.oriented_unit_cell.lattice.matrix
@@ -664,7 +663,6 @@ class SlabGenerator(object):
         slab = Structure(new_lattice, species * nlayers_slab, all_coords,
                          site_properties=props)
 
-
         scale_factor = self.slab_scale_factor
         # Whether or not to orthogonalize the structure
         if self.lll_reduce:
@@ -678,6 +676,9 @@ class SlabGenerator(object):
             avg_c = np.average([c[2] for c in slab.frac_coords])
             slab.translate_sites(list(range(len(slab))), [0, 0, 0.5 - avg_c])
 
+        if repair_bonds:
+            slab = self.repair_broken_bonds(slab, repair_bonds)
+
         if self.primitive:
             prim = slab.get_primitive_structure(tolerance=tol)
             if energy is not None:
@@ -689,6 +690,119 @@ class SlabGenerator(object):
                     self.oriented_unit_cell, shift,
                     scale_factor, site_properties=slab.site_properties,
                     energy=energy)
+
+    def repair_broken_bonds(self, slab, bonds):
+
+        # assuming the first atom in the list
+        # is the center ion of the polyhedron
+        bound_atoms = list(bonds.keys())[0]
+        element1 = bound_atoms[0]
+        element2 = bound_atoms[1]
+        blength = bonds[bound_atoms]
+
+        # find coordination number of element1
+        # wrt element2 in bulk ucell
+        cnlist = []
+        for site in self.oriented_unit_cell:
+            if site.species_string == element1:
+                cnlist.append(len(self.oriented_unit_cell.get_neighbors(site,
+                                                                        blength)))
+        bulk_cn = np.mean(cnlist)
+
+        cdist = [site.frac_coords[2] for site in slab]
+
+        # pre-determine the number of broken polyhedrons
+        # first so we will know how many iterations
+        # of repairs to do
+        to_repair = []
+        for i, site in enumerate(slab):
+
+            if site.species_string == element1:
+                poly_coord = 0
+                for neighbor in slab.get_neighbors(site, blength):
+                    if neighbor[0].species_string == element2:
+                        poly_coord += 1
+                # suppose we find an undercoordinated reference ion
+                if poly_coord < bulk_cn:
+                    to_repair.append(i)
+
+        # If the slab requires no repairs,
+        # just return the slabs
+        if not to_repair:
+            return slab
+
+        # Iterate through the repair process with
+        # the number of polyhedrons to repair
+        for n in to_repair:
+            poly_coord = len(slab.get_neighbors(slab[n], blength))
+            # is it on the top or bottom?
+            # where to move entire polyhedron
+            to_top = False if slab[n].frac_coords[2] < 0.5 else True
+            # where to move central atom only to get coordination
+            move_center = False if to_top else True
+
+            # We get the central atom of the polyhedron that is broken
+            # (undercoordinated), move it to the other surface
+            slab = self.move_to_other_side(slab, [n],
+                                           to_top=move_center)
+
+            # find its NNs with the corresponding
+            # species it should be coordinated with
+            neighbors = slab.get_neighbors(slab[n], blength,
+                                           include_index=True)
+            tomove = []
+            for nn in neighbors:
+                if nn[0].species_string == element2:
+                    tomove.append(nn[2])
+            tomove.append(n)
+            # and then move those NNs along with the central
+            # atom back to the other side of the slab again
+            slab = self.move_to_other_side(slab, tomove,
+                                           to_top=to_top)
+
+        broken = False
+        for site in slab:
+            if site.species_string == element1:
+                poly_coord = len(slab.get_neighbors(site, blength))
+                if poly_coord != bulk_cn:
+                    broken = True
+                    warnings.warn("Slab could not be repaired")
+
+        # if the bonds have been fixed (CN of element1
+        # relative to element2 in slab is same as in
+        # bulk), add the repaired slab to the list
+        return Structure(slab.lattice, slab.species, slab.frac_coords)
+
+    def move_to_other_side(self, init_slab, index_of_sites, to_top=True):
+
+        slab = init_slab.copy()
+
+        # Determine what fraction the slab is of the total cell size in the
+        # c direction. Round to nearest rational number.
+        h = self._proj_height
+        nlayers_slab = int(math.ceil(self.min_slab_size / h))
+        nlayers_vac = int(math.ceil(self.min_vac_size / h))
+        nlayers = nlayers_slab + nlayers_vac
+        slab_ratio = nlayers_slab / nlayers
+
+        # Move by coordinates
+        species, coords = [], []
+        for i, site in enumerate(slab):
+
+            if i in index_of_sites:
+                fcoords = site.frac_coords
+                if to_top:
+                    fcoords[2] += slab_ratio
+                else:
+                    fcoords[2] -= slab_ratio
+                species.append(site.species_string)
+                coords.append(fcoords)
+
+            else:
+                species.append(site.species_string)
+                coords.append(site.frac_coords)
+
+        return Structure(slab.lattice, species, coords)
 
     def _calculate_possible_shifts(self, tol=0.1):
         frac_coords = self.oriented_unit_cell.frac_coords
@@ -794,7 +908,7 @@ class SlabGenerator(object):
             ([Slab]) List of all possible terminations of a particular surface.
             Slabs are sorted by the # of bonds broken.
         """
-        c_ranges = set() if bonds is None else self._get_c_ranges(bonds)
+        c_ranges = set()
 
         slabs = []
         for shift in self._calculate_possible_shifts(tol=tol):
@@ -805,7 +919,8 @@ class SlabGenerator(object):
             if bonds_broken <= max_broken_bonds:
                 # For now, set the energy to be equal to no. of broken bonds
                 # per unit cell.
-                slab = self.get_slab(shift, tol=tol, energy=bonds_broken)
+                slab = self.get_slab(shift, tol=tol, repair_bonds=bonds,
+                                     energy=bonds_broken)
                 slabs.append(slab)
 
         # Further filters out any surfaces made that might be the same
@@ -937,7 +1052,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
 
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                        bonds=None, tol=1e-3, max_broken_bonds=0,
-                       lll_reduce=False, center_slab=False, primitive=True,
+                       lll_reduce=False, center_slab=True, primitive=True,
                        max_normal_search=None, symmetrize=False):
     """
     A function that finds all different slabs up to a certain miller index.
