@@ -31,9 +31,10 @@ class MITMPRelaxSetTest(unittest.TestCase):
         poscar = Poscar.from_file(filepath)
         self.structure = poscar.structure
         self.coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-        self.lattice = Lattice([[3.8401979337, 0.00, 0.00],
-                           [1.9200989668, 3.3257101909, 0.00],
-                           [0.00, -2.2171384943, 3.1355090603]])
+        self.lattice = Lattice(
+            [[3.8401979337, 0.00, 0.00],
+             [1.9200989668, 3.3257101909, 0.00],
+             [0.00, -2.2171384943, 3.1355090603]])
 
         self.mitset = MITRelaxSet(self.structure)
         self.mitset_unsorted = MITRelaxSet(self.structure, sort_structure=False)
@@ -160,14 +161,14 @@ class MITMPRelaxSetTest(unittest.TestCase):
         incar = MITRelaxSet(struct).incar
         self.assertEqual(incar['LDAUU'], [1.9, 0])
 
-        #Make sure Matproject sulfides are ok.
+        # Make sure Matproject sulfides are ok.
         self.assertNotIn('LDAUU', MPRelaxSet(struct).incar)
 
         struct = Structure(lattice, ["Fe", "S", "O"], coords)
         incar = MITRelaxSet(struct).incar
         self.assertEqual(incar['LDAUU'], [4.0, 0, 0])
 
-        #Make sure Matproject sulfates are ok.
+        # Make sure Matproject sulfates are ok.
         self.assertEqual(MPRelaxSet(struct).incar['LDAUU'], [5.3, 0, 0])
         
         #test for default LDAUU value
@@ -179,12 +180,12 @@ class MITMPRelaxSetTest(unittest.TestCase):
 
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
-        self.assertEqual(kpoints.kpts, [[2, 4, 4]])
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
+        self.assertEqual(kpoints.kpts, [[2, 4, 5]])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
         kpoints = MPRelaxSet(self.structure, user_kpoints_settings={
             "reciprocal_density": 1000}).kpoints
-        self.assertEqual(kpoints.kpts, [[6, 11, 13]])
+        self.assertEqual(kpoints.kpts, [[6, 10, 13]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
         kpoints = self.mitset.kpoints
@@ -194,7 +195,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
         recip_paramset = MPRelaxSet(self.structure, force_gamma=True)
         recip_paramset.kpoints_settings = {"reciprocal_density": 40}
         kpoints = recip_paramset.kpoints
-        self.assertEqual(kpoints.kpts, [[2, 4, 4]])
+        self.assertEqual(kpoints.kpts, [[2, 4, 5]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
     def test_all_input(self):
@@ -276,7 +277,7 @@ class MPStaticSetTest(PymatgenTest):
         self.assertTrue(non_prev_vis.incar["LWAVE"])
 
         self.assertEqual(non_prev_vis.kpoints.style,
-                         Kpoints.supported_modes.Gamma)
+                         Kpoints.supported_modes.Monkhorst)
         v2 = MPStaticSet.from_dict(non_prev_vis.as_dict())
         self.assertEqual(v2.incar["ENCUT"], 520)
         # Check that user incar settings are applied.
@@ -287,9 +288,9 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(leps_vis.incar["IBRION"], 8)
         self.assertNotIn("NPAR", leps_vis.incar)
         self.assertNotIn("NSW", leps_vis.incar)
-        self.assertEqual(non_prev_vis.kpoints.kpts, [[9, 9, 9]])
+        self.assertEqual(non_prev_vis.kpoints.kpts, [[10, 8, 8]])
         non_prev_vis = MPStaticSet(vis.structure, reciprocal_density=200)
-        self.assertEqual(non_prev_vis.kpoints.kpts, [[13, 11, 11]])
+        self.assertEqual(non_prev_vis.kpoints.kpts, [[12, 11, 11]])
         # Check LCALCPOL flag
         lcalcpol_vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run,
                                                   lcalcpol=True)

@@ -1059,11 +1059,7 @@ class Kpoints(MSONable):
 
         is_hexagonal = latt.is_hexagonal()
 
-        # VASP documentation recommends to use even grids for n <= 8 and odd
-        # grids for n > 8.
-        num_div = [int(round(i - i % 2 + 2 * math.floor(i % 2)))
-                   if i <= 8 else int(round(i - i % 2 + 1))
-                   for i in num_div]
+        num_div = [int(round(i)) for i in num_div]
 
         has_odd = any([i % 2 == 1 for i in num_div])
         if has_odd or is_hexagonal or force_gamma:
