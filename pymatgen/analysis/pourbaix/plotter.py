@@ -676,7 +676,7 @@ class PourbaixPlotter(object):
         ax = plt.gca()
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
-        ax.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+        ax.xaxis.set_major_formatter(FormatStrFormatter('%d'))
         ax.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
         ax.tick_params(direction='out')
         ax.xaxis.set_ticks_position('bottom')
