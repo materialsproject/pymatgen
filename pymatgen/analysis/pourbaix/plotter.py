@@ -625,7 +625,7 @@ class PourbaixPlotter(object):
             label_domains=True, label_color='k', domain_color=None, domain_fontsize=None,
             domain_edge_lw=0.5, bold_domains=None, cluster_domains=(),
             add_h2o_stablity_line=True, add_center_line=False, h2o_lw=0.5,
-            fill_domain=True, width=8, height=None):
+            fill_domain=True, width=8, height=None, font_family='Times New Roman'):
         """
         Color domains by the colors specific by the domain_color dict
 
@@ -649,6 +649,7 @@ class PourbaixPlotter(object):
             width (float): Width of plot in inches. Defaults to 8in.
                 height (float): Height of plot in inches. Defaults to width * golden
                 ratio.
+            font_family (str): Font family of the labels
         """
 
         def special_lines(xlim, ylim):
@@ -711,7 +712,7 @@ class PourbaixPlotter(object):
                             closed=True, lw=domain_edge_lw, fill=fill_domain, antialiased=True)
             ax.add_patch(patch)
             if label_domains:
-                if platform.system() == 'Darwin':
+                if platform.system() == 'Darwin' and font_family == "Times New Roman":
                     # Have to hack to the hard coded font path to get current font On Mac OS X
                     if entry.name in bold_domains:
                         font = FontProperties(fname='/Library/Fonts/Times New Roman Bold.ttf',
@@ -721,11 +722,11 @@ class PourbaixPlotter(object):
                                               size=domain_fontsize[entry.name])
                 else:
                     if entry.name in bold_domains:
-                        font = FontProperties(family='Times New Roman',
+                        font = FontProperties(family=font_family,
                                               weight='bold',
                                               size=domain_fontsize[entry.name])
                     else:
-                        font = FontProperties(family='Times New Roman',
+                        font = FontProperties(family=font_family,
                                               weight='regular',
                                               size=domain_fontsize[entry.name])
                 plt.text(*c, s=self.print_name(entry),
@@ -743,11 +744,11 @@ class PourbaixPlotter(object):
             plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=h2o_lw, antialiased=False)
             plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=h2o_lw, antialiased=False)
 
-        plt.xlabel("pH", fontname="Times New Roman", fontsize=18)
-        plt.ylabel("E (V vs SHE)", fontname="Times New Roman", fontsize=18)
-        plt.xticks(fontname="Times New Roman", fontsize=16)
-        plt.yticks(fontname="Times New Roman", fontsize=16)
-        plt.title(title, fontsize=20, fontweight='bold', fontname="Times New Roman")
+        plt.xlabel("pH", fontname=font_family, fontsize=18)
+        plt.ylabel("E (V vs SHE)", fontname=font_family, fontsize=18)
+        plt.xticks(fontname=font_family, fontsize=16)
+        plt.yticks(fontname=font_family, fontsize=16)
+        plt.title(title, fontsize=20, fontweight='bold', fontname=font_family)
         return plt
 
     def get_pourbaix_mark_passive(self, limits=None, title="", label_domains=True, passive_entry=None):
