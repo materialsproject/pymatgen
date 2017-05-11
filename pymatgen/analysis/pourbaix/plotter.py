@@ -693,6 +693,9 @@ class PourbaixPlotter(object):
             domain_color = {en.name: default_solid_phase_color if '(s)' in en.name else
                             (default_cluster_phase_color if en.name in cluster_domains else 'w')
                             for i, en in enumerate(sorted_entry)}
+        else:
+            domain_color = {en.name: domain_color[en.name] if en.name in domain_color else "w"
+                            for i, en in enumerate(sorted_entry)}
         if bold_domains is None:
             bold_domains = [en.name for en in sorted_entry if '(s)' not in en.name]
         if bold_domains == False:
@@ -704,7 +707,7 @@ class PourbaixPlotter(object):
                 c = self.get_distribution_corrected_center(stable[entry], h_line, o_line, 0.3)
             else:
                 c = self.get_distribution_corrected_center(stable[entry])
-            patch = Polygon(xy, facecolor=domain_color[entry.name],
+            patch = Polygon(xy, facecolor=domain_color[entry.name], edgecolor="black",
                             closed=True, lw=domain_edge_lw, fill=fill_domain, antialiased=True)
             ax.add_patch(patch)
             if label_domains:
