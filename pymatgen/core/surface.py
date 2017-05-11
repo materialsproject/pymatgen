@@ -4,6 +4,7 @@
 
 from __future__ import division, unicode_literals
 from functools import reduce
+
 try:
     # New Py>=3.5 import
     from math import gcd
@@ -52,7 +53,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "6/10/14"
-
 
 logger = logging.getLogger(__name__)
 
@@ -211,8 +211,8 @@ class Slab(Structure):
             fixed = []
             for site in sites:
                 if abs(site.c - surface_site.c) < tol and (
-                        (not same_species_only) or
-                        site.species_and_occu == surface_site.species_and_occu):
+                            (not same_species_only) or
+                                site.species_and_occu == surface_site.species_and_occu):
                     tomove.append(site)
                 else:
                     fixed.append(site)
@@ -372,14 +372,12 @@ class Slab(Structure):
         m = self.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
-
     @property
     def structure(self):
         """
         Returns the slab as a Structure object
         """
         return Structure(self.lattice, self.species, self.frac_coords)
-
 
     def add_adsorbate_atom(self, indices, specie, distance):
         """
@@ -407,7 +405,7 @@ class Slab(Structure):
         outs = [
             "Slab Summary (%s)" % comp.formula,
             "Reduced Formula: %s" % comp.reduced_formula,
-            "Miller index: %s" % (self.miller_index, ),
+            "Miller index: %s" % (self.miller_index,),
             "Shift: %.4f, Scale Factor: %s" % (self.shift,
                                                self.scale_factor.__str__())]
         to_s = lambda x: "%0.6f" % x
@@ -692,7 +690,7 @@ class SlabGenerator(object):
                     energy=energy)
 
     def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0,
-                  symmetrize=False):
+                  symmetrize=False, polyhedrons_to_move={}):
         """
         This method returns a list of slabs that are generated using the list of
         shift values from the method, _calculate_possible_shifts(). Before the
@@ -741,19 +739,189 @@ class SlabGenerator(object):
 
         new_slabs = []
         original_formula = str(self.parent.composition.reduced_formula)
-        for g in m.group_structures(slabs):
-            # For each unique termination, symmetrize the
-            # surfaces by removing sites from the bottom.
-            if symmetrize:
-                slab = self.symmetrize_slab(g[0])
-                if original_formula != str(slab.composition.reduced_formula):
-                    warnings.warn("WARNING: Stoichiometry is no longer the "
-                                  "same due to symmetrization")
-                new_slabs.append(slab)
-            else:
-                new_slabs.append(g[0])
+        new_slabs = [g[0] for g in m.group_structures(slabs)]
+        if symmetrize:
+            new_slabs = self.symmetrize(new_slabs, bonds,
+                                        polyhedrons_to_move=polyhedrons_to_move)
 
         return sorted(new_slabs, key=lambda s: s.energy)
+
+    def symmetrize(self, all_slabs, bonds, polyhedrons_to_move={}, symprec=0.1,
+                   tol_dipole_per_unit_area=1e-3, termination_tol=0.00001):
+
+        sites_to_move = []
+        for site in self.parent:
+            if site.species_string not in sites_to_move:
+                sites_to_move.append(site.species_string)
+        if polyhedrons_to_move:
+            sites_to_move.extend(list(polyhedrons_to_move.keys()))
+
+        correct_slabs = []
+        for slab in all_slabs:
+            if not slab.is_polar():
+                if slab.is_symmetric():
+                    correct_slabs.append(slab)
+        if correct_slabs:
+            return correct_slabs
+
+        modded_slabs = []
+        for species_to_move in sites_to_move:
+            slabs = copy.deepcopy(all_slabs)
+
+            if type(species_to_move).__name__ == "tuple":
+                el = species_to_move[0]
+            else:
+                el = species_to_move
+            bound_atom = list(bonds.keys())[0][0]  # The center of the polyhedron
+            # This algorithm will only move
+            # around one species at a time
+
+            surfaces = []
+            for slab in slabs:
+                # Will only fix slabs where the species of the top sites
+                # are that of the current species we're interested in eg.
+                # only fix slabs that have Li+ at the surface
+                c_dist_el = [s.frac_coords[2] for s in slab if s.species_string == el]
+                c_dist = [s.frac_coords[2] for s in slab]
+
+                if min(c_dist_el) > list(bonds.values())[0] + min(c_dist):
+                    continue
+                if max(c_dist_el) < max(c_dist) - list(bonds.values())[0]:
+                    continue
+
+                surfaces.append(slab)
+
+            # Clear the surfaces of the species we want to move
+            # and save those sites for when we need to re-add them
+            for slab in surfaces:
+
+                # If this slab is already symmetric/nonpolar,
+                # add to list and skip this iteration
+                if slab.is_symmetric(symprec=symprec) and not slab.is_polar(
+                        tol_dipole_per_unit_area=tol_dipole_per_unit_area):
+                    modded_slabs.append(slab)
+                    continue
+
+                el_sites = []
+                c_dists = []
+                for s in slab:
+                    c_dists.append(s.frac_coords[2])
+                    if s.species_string == el:
+                        el_sites.append(s.frac_coords[2])
+
+                # See if the surface Li is on the top or bottom
+                dist_from_top_bottom = [abs(min(el_sites) - min(c_dists)),
+                                        abs(max(el_sites) - max(c_dists))]
+
+                # if index 1, Li on top, else Li on bottom
+                if dist_from_top_bottom.index(min(dist_from_top_bottom)):
+                    el_site = max(el_sites)
+                else:
+                    el_site = min(el_sites)
+
+                # Store the sites that will be
+                # removed, then remove sites by index
+                to_remove, sites_in_slab_remove = [], []
+                for i, s in enumerate(slab):
+
+                    if s.species_string == el:
+                        if el_site + termination_tol > s.frac_coords[2] > el_site - termination_tol:
+                            # Make sure the site we want to move/remove is
+                            # not bonded to anything we don't want to break
+                            if el in list(bonds.keys())[0]:
+                                neighbors = slab.get_neighbors(s, list(bonds.values())[0])
+                                neighbor_specs = [nn.species_string for nn, d in neighbors]
+                                if bound_atom in neighbor_specs:
+                                    # If it is bonded to something we don't want to
+                                    # break, do we want to move the entire polyhedron?
+                                    if type(species_to_move).__name__ != "tuple":
+                                        continue
+                                    if list(bonds.keys())[0] != species_to_move:
+                                        continue
+
+                            # Are we moving a single species or are we
+                            # moving a group of atoms bonded to each other?
+                            if type(species_to_move).__name__ == "tuple":
+                                neighbors = slab.get_neighbors(s, polyhedrons_to_move[species_to_move],
+                                                               include_index=True)
+
+                                # What are the sites of the polyhedron we want to move and
+                                # are these sites part of any unbreakable bonds (eg PO4).
+                                # If so, do not move them
+                                group_remove = []
+                                for nn in neighbors:
+                                    if nn[0].species_string == list(bonds.keys())[0][1]:
+                                        unbreak_neighbors = slab.get_neighbors(nn[0],
+                                                                               list(bonds.values())[0],
+                                                                               include_index=True)
+                                        unbreak_species = [nnn[0].species_string for \
+                                                           nnn in unbreak_neighbors]
+                                        if (bound_atom in unbreak_species) and \
+                                                (list(bonds.keys())[0] != species_to_move):
+                                            continue
+                                        else:
+                                            group_remove.append(nn[2])
+                                    else:
+                                        group_remove.append(nn[2])
+
+                                group_remove.append(i)  # Don't forget to move the center of the polyhedron
+                                # Add group of sites to remove
+                                to_remove.append(group_remove)
+                                sites_in_slab = [slab[x] for x in group_remove]
+                                sites_in_slab_remove.append(sites_in_slab)
+                            else:
+                                # Add single site to remove
+                                group_remove = [i]
+                                sites_in_slab = [s]
+                                to_remove.append(group_remove)
+                                sites_in_slab_remove.append(sites_in_slab)
+
+                            # If curent site we want to remove is on top, add
+                            # additional site to move on bottom vice versa
+                            if s.frac_coords[2] > 0.5:
+                                to_top = False
+                            else:
+                                to_top = True
+                            slab_copy = slab.copy()
+                            slab_copy = self.move_to_other_side(slab_copy,
+                                                                group_remove,
+                                                                to_top=to_top)
+                            sites_on_other_side = [slab_copy[x] for x in group_remove]
+                            sites_in_slab_remove.append(sites_on_other_side)
+
+                remove = []
+                for list_sites in to_remove:
+                    remove.extend(list_sites)
+
+                slab.remove_sites(remove)
+
+                # Now create list of combinations of ways we can arrange
+                # our removed sites and their corresponding sites on the
+                # opposite side. Each combination must have the same number
+                # of sites as originally removed to preserve stoichiometry
+
+                for combs in itertools.combinations(sites_in_slab_remove,
+                                                    len(to_remove)):
+                    modded_slab = slab.copy()
+                    modded_slab.energy = slab.energy
+                    for sites in combs:
+                        for site in sites:
+                            modded_slab.append(site.species_string, site.frac_coords)
+                    modded_slabs.append(modded_slab)
+
+        fixed_slabs = []
+        for slab in modded_slabs:
+            try:
+                if slab.is_symmetric(symprec=symprec) and not slab.is_polar(
+                        tol_dipole_per_unit_area=tol_dipole_per_unit_area):
+                    fixed_slabs.append(slab)
+            except TypeError:
+                warnings.warn("WARNING: None type found when using"
+                              "SpaceGroupAnalyzer leading to a TypeError!")
+        s = StructureMatcher()
+        unique = [ss[0] for ss in s.group_structures(fixed_slabs)]
+
+        return unique
 
     def repair_broken_bonds(self, slab, bonds):
         """
@@ -955,6 +1123,7 @@ class SlabGenerator(object):
                                 c_ranges.add(c_range)
         return c_ranges
 
+
 def get_recp_symmetry_operation(structure, symprec=0.001):
     """
     Find the symmetric operations of the reciprocal lattice,
@@ -1082,199 +1251,9 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
 
 
 def reduce_vector(vector):
-
     # small function to reduce vectors
 
     d = abs(reduce(gcd, vector))
     vector = tuple([int(i / d) for i in vector])
 
     return vector
-
-
-class FixedSlabGenerator(object):
-    def __init__(self, initial_structure, miller_index, min_slab_size,
-                 min_vacuum_size, tol=1e-4, primitive=True):
-
-        # Set primitive to false first in order to get proper
-        # ratios to move sites from one surface to another
-        slabgen = SlabGenerator(initial_structure, miller_index, min_slab_size,
-                                min_vacuum_size, center_slab=True, primitive=False)
-
-        self.all_slabs = slabgen.get_slabs(tol=tol)
-        self.initial_structure = initial_structure
-        self.primitive = primitive
-        self.tol = tol
-        self.miller_index = miller_index
-        self.min_vacuum_size = min_vacuum_size
-        self.min_slab_size = min_slab_size
-
-
-    def fix_sym_and_pol(self, bonds, sites_to_move=["Li+"],
-                        species_term_only=True, symprec=0.1,
-                        tol_dipole_per_unit_area=1e-3, termination_tol=0.00001):
-
-        correct_slabs = []
-        slabgen = SlabGenerator(self.initial_structure, self.miller_index,
-                                self.min_slab_size, self.min_vacuum_size)
-        slabs = slabgen.get_slabs(bonds=bonds, tol=self.tol)
-        for slab in slabs:
-            if not slab.is_polar():
-                if slab.is_symmetric():
-                    correct_slabs.append(slab)
-        if correct_slabs:
-            return correct_slabs
-
-        modded_slabs = []
-        for species_to_move in sites_to_move:
-            if type(species_to_move).__name__ == "dict":
-                el = list(species_to_move.keys())[0][0]
-            else:
-                el = species_to_move
-            bound_atom = list(bonds.keys())[0][0] # The center of the polyhedron
-            # This algorithm will only move
-            # around one species at a time
-            if species_term_only:
-                surfaces = []
-                all_slabs = copy.deepcopy(self.all_slabs)
-                for slab in all_slabs:
-                    # Will only fix slabs where the species of the top sites
-                    # are that of the current species we're interested in eg.
-                    # only fix slabs that have Li+ at the surface
-                    c_dist = [s.frac_coords[2] for s in slab]
-                    if slab[c_dist.index(max(c_dist))].species_string == el:
-                        surfaces.append(slab)
-                    elif slab[c_dist.index(min(c_dist))].species_string == el:
-                        surfaces.append(slab)
-                    else:
-                        continue
-            else:
-                surfaces = copy.deepcopy(self.all_slabs)
-
-            # Repair the specified broken bonds in those
-            # slabs and sift out any repeated repairs
-            unique = self.repair_broken_bonds(bonds, surfaces)
-
-            # Clear the surfaces of the species we want to move
-            # and save those sites for when we need to re-add them
-            for slab in unique:
-
-                # If this slab is already symmetric/nonpolar,
-                # add to list and skip this iteration
-                if slab.is_symmetric(symprec=symprec) and not slab.is_polar(
-                        tol_dipole_per_unit_area=tol_dipole_per_unit_area):
-                    modded_slabs.append(slab)
-                    continue
-
-                el_sites = []
-                c_dists = []
-                for s in slab:
-                    c_dists.append(s.frac_coords[2])
-                    if s.species_string == el:
-                        el_sites.append(s.frac_coords[2])
-
-                # See if the surface Li is on the top or bottom
-                dist_from_top_bottom = [abs(min(el_sites) - min(c_dists)),
-                                        abs(max(el_sites) - max(c_dists))]
-
-                # if index 1, Li on top, else Li on bottom
-                if dist_from_top_bottom.index(min(dist_from_top_bottom)):
-                    el_site = max(el_sites)
-                else:
-                    el_site = min(el_sites)
-
-                # Store the sites that will be
-                # removed, then remove sites by index
-                to_remove, sites_in_slab_remove = [], []
-                for i, s in enumerate(slab):
-                    if s.species_string == el:
-                        if el_site + termination_tol > s.frac_coords[2] > el_site - termination_tol:
-                            # Make sure the site we want to move/remove is
-                            # not bonded to anything we don't want to break
-                            if el in list(bonds.keys())[0]:
-                                neighbors = slab.get_neighbors(s, list(bonds.values())[0])
-                                neighbor_specs = [nn.species_string for nn, d in neighbors]
-                                if bound_atom in neighbor_specs:
-                                    # If it is bonded to something we don't want to
-                                    # break, do we want to move the entire polyhedron?
-                                    if type(species_to_move).__name__ != "dict":
-                                        continue
-                                    if list(bonds.keys())[0] != list(species_to_move.keys())[0]:
-                                        continue
-
-                            # Are we moving a single species or are we
-                            # moving a group of atoms bonded to each other?
-                            if type(species_to_move).__name__ == "dict":
-                                neighbors = slab.get_neighbors(s, list(species_to_move.values())[0],
-                                                               include_index=True)
-
-                                # What are the sites of the polyhedron we want to move and
-                                # are these sites part of any unbreakable bonds (eg PO4).
-                                # If so, do not move them
-                                group_remove = []
-                                for nn in neighbors:
-                                    if nn[0].species_string == list(bonds.keys())[0][1]:
-                                        unbreak_neighbors = slab.get_neighbors(nn[0], list(bonds.values())[0],
-                                                                               include_index=True)
-                                        unbreak_species = [nnn[0].species_string for nnn in unbreak_neighbors]
-                                        if (bound_atom in unbreak_species) and (list(bonds.keys())[0] != list(species_to_move.keys())[0]):
-                                            continue
-                                        else:
-                                            group_remove.append(nn[2])
-                                    else:
-                                        group_remove.append(nn[2])
-
-                                group_remove.append(i) # Don't forget to move the center of the polyhedron
-                                # Add group of sites to remove
-                                to_remove.append(group_remove)
-                                sites_in_slab = [slab[x] for x in group_remove]
-                                sites_in_slab_remove.append(sites_in_slab)
-                            else:
-                                # Add single site to remove
-                                group_remove = [i]
-                                sites_in_slab = [s]
-                                to_remove.append(group_remove)
-                                sites_in_slab_remove.append(sites_in_slab)
-
-                            # If curent site we want to remove is on top, add
-                            # additional site to move on bottom vice versa
-                            if s.frac_coords[2] > 0.5:
-                                to_top = False
-                            else:
-                                to_top = True
-                            slab_copy = slab.copy()
-                            slab_copy = self.move_to_other_side(slab_copy, group_remove,
-                                                                to_top=to_top)
-                            sites_on_other_side = [slab_copy[x] for x in group_remove]
-                            sites_in_slab_remove.append(sites_on_other_side)
-
-                remove = []
-                for list_sites in to_remove:
-                    remove.extend(list_sites)
-                slab.remove_sites(remove)
-
-                # Now create list of combinations of ways we can arrange
-                # our removed sites and their corresponding sites on the
-                # opposite side. Each combination must have the same number
-                # of sites as originally removed to preserve stoichiometry
-
-                for combs in itertools.combinations(sites_in_slab_remove,
-                                                    len(to_remove)):
-                    modded_slab = slab.copy()
-                    for sites in combs:
-                        for site in sites:
-                            modded_slab.append(site.species_string, site.frac_coords)
-                    modded_slabs.append(modded_slab)
-
-        fixed_slabs = []
-        for slab in modded_slabs:
-            try:
-                if slab.is_symmetric(symprec=symprec) and not slab.is_polar(
-                        tol_dipole_per_unit_area=tol_dipole_per_unit_area):
-                    fixed_slabs.append(slab)
-            except TypeError:
-                warnings.warn("WARNING: None type found when using"
-                              "SpaceGroupAnalyzer leading to a TypeError!")
-        s = StructureMatcher()
-        unique = [ss[0] for ss in s.group_structures(fixed_slabs)]
-
-        return unique
