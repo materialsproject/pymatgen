@@ -364,11 +364,19 @@ class EwaldSummation(object):
         return self._eta
 
     def __str__(self):
-        output = ["Real = " + str(self.real_space_energy),
+        if self._compute_forces:
+            output = ["Real = " + str(self.real_space_energy),
                   "Reciprocal = " + str(self.reciprocal_space_energy),
                   "Point = " + str(self.point_energy),
                   "Total = " + str(self.total_energy),
-                  "Forces:\n" + str(self.forces)]
+                  "Forces:\n" + str(self.forces)
+                  ]           
+        else:
+            output = ["Real = " + str(self.real_space_energy),
+                  "Reciprocal = " + str(self.reciprocal_space_energy),
+                  "Point = " + str(self.point_energy),
+                  "Total = " + str(self.total_energy),
+                  "Forces were not computed"]
         return "\n".join(output)
 
 
