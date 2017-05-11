@@ -323,10 +323,10 @@ class PourbaixPlotter(object):
                 mid_x = ((x2 - x1) / (y2 - y1)) * (cy_1 - y1) + x1
                 assert (x2 - mid_x) * (x1 - mid_x) <= 0.0
                 mid_x_list.append(mid_x)
-        upper_y = sorted([y for y in mid_y_list if y >= cy_1])[0]
-        lower_y = sorted([y for y in mid_y_list if y < cy_1])[-1]
-        left_x = sorted([x for x in mid_x_list if x <= cx_1])[-1]
-        right_x = sorted([x for x in mid_x_list if x > cx_1])[0]
+        upper_y = sorted([y for y in mid_y_list if y >= cy_1] + [cy_1])[0]
+        lower_y = sorted([y for y in mid_y_list if y < cy_1] + [cy_1])[-1]
+        left_x = sorted([x for x in mid_x_list if x <= cx_1] + [cx_1])[-1]
+        right_x = sorted([x for x in mid_x_list if x > cx_1] + [cx_1])[0]
         center_x = (left_x + right_x) / 2.0
         center_y = (upper_y + lower_y) / 2.0
         if h2o_h_line is not None:
