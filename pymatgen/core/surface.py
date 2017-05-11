@@ -718,6 +718,9 @@ class SlabGenerator(object):
             ([Slab]) List of all possible terminations of a particular surface.
             Slabs are sorted by the # of bonds broken.
         """
+
+        bonds = self.sort_ions(bonds)
+        polyhedrons_to_move = self.sort_ions(polyhedrons_to_move)
         c_ranges = set()
 
         slabs = []
@@ -745,6 +748,47 @@ class SlabGenerator(object):
                                         polyhedrons_to_move=polyhedrons_to_move)
 
         return sorted(new_slabs, key=lambda s: s.energy)
+
+    def sort_ions(self, bonds):
+
+        """
+        This method takes in a dictionary representing the bonds of a
+        polyhedron and returns the dictionary with teh key oganized
+        such that the first element is the central ion.
+
+        Args:
+            bonds ({(specie1, specie2): max_bond_dist}: bonds are
+                specified as a dict of tuples: float of specie1, specie2
+                and the max bonding distance. For example, PO4 groups may be
+                defined as {("P", "O"): 3}.
+
+        Returns:
+            (bonds) The initial bonds with the keys list of elements
+            organized such that the first element is the central ion.
+        """
+
+        new_bonds = {}
+        for pair in bonds.keys():
+            pair_counts = []
+            for el in pair:
+                el2 = pair[pair.index(el) - 1]
+                total_el2_coords = 0
+                total_el_coords = 0
+                for site in self.parent:
+                    if site.species_string == el:
+                        total_el_coords += 1
+                        neighbors = self.parent.get_neighbors(site, bonds[pair],
+                                                              include_index=True)
+                        for nn in neighbors:
+                            if el2 == nn[0].species_string:
+                                total_el2_coords += 1
+                pair_counts.append(total_el2_coords / total_el_coords)
+            if pair_counts[0] > pair_counts[1]:
+                new_bonds[(pair[0], pair[1])] = bonds[pair]
+            else:
+                new_bonds[(pair[1], pair[0])] = bonds[pair]
+
+        return new_bonds
 
     def symmetrize(self, all_slabs, bonds, polyhedrons_to_move={}, symprec=0.1,
                    tol_dipole_per_unit_area=1e-3, termination_tol=0.00001):
@@ -940,8 +984,6 @@ class SlabGenerator(object):
             (Slab) A Slab object with a particular shifted oriented unit cell.
         """
 
-        # assuming the first atom in the list
-        # is the center ion of the polyhedron
         bound_atoms = list(bonds.keys())[0]
         element1 = bound_atoms[0]
         element2 = bound_atoms[1]
@@ -1182,7 +1224,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                        bonds=None, tol=1e-3, max_broken_bonds=0,
                        lll_reduce=False, center_slab=True, primitive=True,
-                       max_normal_search=None, symmetrize=False):
+                       max_normal_search=None, symmetrize=False, polyhedrons_to_move={}):
     """
     A function that finds all different slabs up to a certain miller index.
     Slabs oriented under certain Miller indices that are equivalent to other
@@ -1242,7 +1284,8 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                             center_slab=center_slab, primitive=primitive,
                             max_normal_search=max_normal_search)
         slabs = gen.get_slabs(bonds=bonds, tol=tol, symmetrize=symmetrize,
-                              max_broken_bonds=max_broken_bonds)
+                              max_broken_bonds=max_broken_bonds,
+                              polyhedrons_to_move=polyhedrons_to_move)
         if len(slabs) > 0:
             logger.debug("%s has %d slabs... " % (miller, len(slabs)))
             all_slabs.extend(slabs)
