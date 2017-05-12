@@ -48,10 +48,9 @@ class IStructureTest(PymatgenTest):
         coords.append([0.75, 0.5, 0.75])
         self.assertRaises(StructureError, IStructure, self.lattice,
                           ["Si"] * 3, coords, validate_proximity=True)
-        #these shouldn't raise an error
+        # these shouldn't raise an error
         IStructure(self.lattice, ["Si"] * 2, coords[:2], True)
         IStructure(self.lattice, ["Si"], coords[:1], True)
-
 
     def test_volume_and_density(self):
         self.assertAlmostEqual(self.struct.volume, 40.04, 2, "Volume wrong!")
@@ -437,6 +436,15 @@ class StructureTest(PymatgenTest):
         s[0] = "Fe", [0.9, 0.9, 0.9], {"magmom": 5}
         self.assertEqual(s.formula, "Fe1")
         self.assertEqual(s[0].magmom, 5)
+
+        # Test atomic replacement.
+        s["Fe"] = "Mn"
+        self.assertEqual(s.formula, "Mn1")
+
+        # Test slice replacement.
+        s = PymatgenTest.get_structure("Li2O")
+        s[1:3] = "S"
+        self.assertEqual(s.formula, "Li1 S2")
 
     def test_non_hash(self):
         self.assertRaises(TypeError, dict, [(self.structure, 1)])

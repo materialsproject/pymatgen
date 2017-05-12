@@ -2312,17 +2312,20 @@ class Structure(IStructure, collections.MutableSequence):
         latt = self._lattice
         species_mapping = {get_el_sp(k): v
                            for k, v in species_mapping.items()}
+        sp_to_replace = set(species_mapping.keys())
 
         def mod_site(site):
-            c = Composition()
-            for sp, amt in site.species_and_occu.items():
-                new_sp = species_mapping.get(sp, sp)
-                try:
-                    c += Composition(new_sp) * amt
-                except Exception:
-                    c += {new_sp: amt}
-            return PeriodicSite(c, site.frac_coords, latt,
-                                properties=site.properties)
+            if sp_to_replace.intersection(site.species_and_occu):
+                c = Composition()
+                for sp, amt in site.species_and_occu.items():
+                    new_sp = species_mapping.get(sp, sp)
+                    try:
+                        c += Composition(new_sp) * amt
+                    except Exception:
+                        c += {new_sp: amt}
+                return PeriodicSite(c, site.frac_coords, latt,
+                                    properties=site.properties)
+            return site
 
         self._sites = [mod_site(site) for site in self._sites]
 
