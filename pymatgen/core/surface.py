@@ -1,3 +1,10 @@
+"""
+todo:
+    -handle more than one unbreakable polyhedrons
+    -handle chained polyhedrons eg P2S7
+    -optional to symmetrize/polarize
+"""
+
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
