@@ -747,7 +747,7 @@ class SlabGenerator(object):
         # Further filters out any surfaces made that might be the same
         m = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False,
                              scale=False)
-        
+
         new_slabs = [g[0] for g in m.group_structures(slabs)]
         if fix:
             new_slabs = self.fix_sym_dip(new_slabs, bonds, symmetrize=symmetrize,
@@ -888,7 +888,7 @@ class SlabGenerator(object):
                             if el in list(bonds.keys())[0]:
                                 neighbors = slab.get_neighbors(s, list(bonds.values())[0])
                                 neighbor_specs = [nn.species_string for nn, d in neighbors]
-                                if bound_atom in neighbor_specs:
+                                if any(unbreak in neighbor_specs for unbreak in list(bonds.keys())[0]):
                                     # If it is bonded to something we don't want to
                                     # break, do we want to move the entire polyhedron?
                                     if type(species_to_move).__name__ != "tuple":
@@ -907,12 +907,18 @@ class SlabGenerator(object):
                                 # If so, do not move them
                                 group_remove = []
                                 for nn in neighbors:
+                                    # If the vertex ions are same ions making up an unbreakable
+                                    # polyhedron, check if its part of that polyhedron
                                     if nn[0].species_string == list(bonds.keys())[0][1]:
                                         unbreak_neighbors = slab.get_neighbors(nn[0],
                                                                                list(bonds.values())[0],
                                                                                include_index=True)
                                         unbreak_species = [nnn[0].species_string for \
                                                            nnn in unbreak_neighbors]
+
+                                        # If vertex confirmed connected to an unbreakable
+                                        # polyhedron, and we are not currently moving
+                                        # this unbreakable polyhedron, do not move
                                         if (bound_atom in unbreak_species) and \
                                                 (list(bonds.keys())[0] != species_to_move):
                                             continue
