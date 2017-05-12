@@ -551,12 +551,12 @@ Cartesian
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         kpoints = Kpoints.automatic_density(poscar.structure, 500)
-        self.assertEqual(kpoints.kpts, [[2, 4, 4]])
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
+        self.assertEqual(kpoints.kpts, [[1, 3, 3]])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
         kpoints = Kpoints.automatic_density(poscar.structure, 500, True)
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
         kpoints = Kpoints.automatic_density_by_vol(poscar.structure, 1000)
-        self.assertEqual(kpoints.kpts, [[6, 11, 13]])
+        self.assertEqual(kpoints.kpts, [[6, 10, 13]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
         s = poscar.structure
