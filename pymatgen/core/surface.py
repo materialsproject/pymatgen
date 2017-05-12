@@ -696,8 +696,9 @@ class SlabGenerator(object):
                     scale_factor, site_properties=slab.site_properties,
                     energy=energy)
 
-    def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0,
-                  symmetrize=False, polyhedrons_to_move={}):
+    def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0, fix=False,
+                  symmetrize=True, negate_dipole=True, polyhedrons_to_move={},
+                  tol_dipole_per_unit_area=1e-3):
         """
         This method returns a list of slabs that are generated using the list of
         shift values from the method, _calculate_possible_shifts(). Before the
@@ -746,13 +747,13 @@ class SlabGenerator(object):
         # Further filters out any surfaces made that might be the same
         m = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False,
                              scale=False)
-
-        new_slabs = []
-        original_formula = str(self.parent.composition.reduced_formula)
+        
         new_slabs = [g[0] for g in m.group_structures(slabs)]
-        if symmetrize:
-            new_slabs = self.symmetrize(new_slabs, bonds,
-                                        polyhedrons_to_move=polyhedrons_to_move)
+        if fix:
+            new_slabs = self.fix_sym_dip(new_slabs, bonds, symmetrize=symmetrize,
+                                         negate_dipole=negate_dipole,
+                                         polyhedrons_to_move=polyhedrons_to_move,
+                                         tol_dipole_per_unit_area=tol_dipole_per_unit_area)
 
         return sorted(new_slabs, key=lambda s: s.energy)
 
@@ -800,8 +801,10 @@ class SlabGenerator(object):
 
         return new_bonds
 
-    def symmetrize(self, all_slabs, bonds, polyhedrons_to_move={}, symprec=0.1,
-                   tol_dipole_per_unit_area=1e-3, termination_tol=0.00001):
+    def fix_sym_dip(self, all_slabs, bonds, symprec=0.1,
+                    symmetrize=True, polyhedrons_to_move={},
+                    negate_dipole=True, tol_dipole_per_unit_area=1e-3,
+                    termination_tol=0.00001):
 
         sites_to_move = []
         for site in self.parent:
@@ -966,9 +969,13 @@ class SlabGenerator(object):
         fixed_slabs = []
         for slab in modded_slabs:
             try:
-                if slab.is_symmetric(symprec=symprec) and not slab.is_polar(
-                        tol_dipole_per_unit_area=tol_dipole_per_unit_area):
-                    fixed_slabs.append(slab)
+                is_symmetric = slab.is_symmetric(symprec=symprec)
+                is_polar = slab.is_polar(tol_dipole_per_unit_area=tol_dipole_per_unit_area)
+                if symmetrize and not is_symmetric:
+                    continue
+                if negate_dipole and is_polar:
+                    continue
+                fixed_slabs.append(slab)
             except TypeError:
                 warnings.warn("WARNING: None type found when using"
                               "SpaceGroupAnalyzer leading to a TypeError!")
