@@ -698,7 +698,8 @@ class SlabGenerator(object):
 
     def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0, fix=False,
                   symmetrize=True, negate_dipole=True, polyhedrons_to_move={},
-                  tol_dipole_per_unit_area=1e-3):
+                  tol_dipole_per_unit_area=1e-3,
+                  lateral_reconstruct=False):
         """
         This method returns a list of slabs that are generated using the list of
         shift values from the method, _calculate_possible_shifts(). Before the
@@ -753,7 +754,8 @@ class SlabGenerator(object):
             new_slabs = self.fix_sym_dip(new_slabs, bonds, symmetrize=symmetrize,
                                          negate_dipole=negate_dipole,
                                          polyhedrons_to_move=polyhedrons_to_move,
-                                         tol_dipole_per_unit_area=tol_dipole_per_unit_area)
+                                         tol_dipole_per_unit_area=tol_dipole_per_unit_area,
+                                         lateral_reconstruct=lateral_reconstruct)
 
         return sorted(new_slabs, key=lambda s: s.energy)
 
@@ -804,7 +806,7 @@ class SlabGenerator(object):
     def fix_sym_dip(self, all_slabs, bonds, symprec=0.1,
                     symmetrize=True, polyhedrons_to_move={},
                     negate_dipole=True, tol_dipole_per_unit_area=1e-3,
-                    termination_tol=0.00001):
+                    termination_tol=0.00001, lateral_reconstruct=False):
 
         sites_to_move = []
         for site in self.parent:
@@ -939,18 +941,20 @@ class SlabGenerator(object):
                                 to_remove.append(group_remove)
                                 sites_in_slab_remove.append(sites_in_slab)
 
-                            # If curent site we want to remove is on top, add
-                            # additional site to move on bottom vice versa
-                            if s.frac_coords[2] > 0.5:
-                                to_top = False
-                            else:
-                                to_top = True
-                            slab_copy = slab.copy()
-                            slab_copy = self.move_to_other_side(slab_copy,
-                                                                group_remove,
-                                                                to_top=to_top)
-                            sites_on_other_side = [slab_copy[x] for x in group_remove]
-                            sites_in_slab_remove.append(sites_on_other_side)
+
+                            if lateral_reconstruct:
+                                # If curent site we want to remove is on top, add
+                                # additional site to move on bottom vice versa
+                                if s.frac_coords[2] > 0.5:
+                                    to_top = False
+                                else:
+                                    to_top = True
+                                slab_copy = slab.copy()
+                                slab_copy = self.move_to_other_side(slab_copy,
+                                                                    group_remove,
+                                                                    to_top=to_top)
+                                sites_on_other_side = [slab_copy[x] for x in group_remove]
+                                sites_in_slab_remove.append(sites_on_other_side)
 
                 remove = []
                 for list_sites in to_remove:
@@ -968,7 +972,11 @@ class SlabGenerator(object):
                     modded_slab = slab.copy()
                     modded_slab.energy = slab.energy
                     for sites in combs:
+                        # each combs holds a list of lists
+                        # representing a polyhedron or single atom
                         for site in sites:
+                            # each sites holds a list of atoms
+                            # in a polyhedron or a single atom
                             modded_slab.append(site.species_string, site.frac_coords)
                     modded_slabs.append(modded_slab)
 
@@ -1246,7 +1254,9 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                        bonds=None, tol=1e-3, max_broken_bonds=0,
                        lll_reduce=False, center_slab=True, primitive=True,
-                       max_normal_search=None, symmetrize=False, polyhedrons_to_move={}):
+                       max_normal_search=None, fix=True, symmetrize=True,
+                       negate_dipole=True, tol_dipole_per_unit_area=1e-3,
+                       polyhedrons_to_move={}):
     """
     A function that finds all different slabs up to a certain miller index.
     Slabs oriented under certain Miller indices that are equivalent to other
@@ -1305,7 +1315,9 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                             min_vacuum_size, lll_reduce=lll_reduce,
                             center_slab=center_slab, primitive=primitive,
                             max_normal_search=max_normal_search)
-        slabs = gen.get_slabs(bonds=bonds, tol=tol, symmetrize=symmetrize,
+        slabs = gen.get_slabs(bonds=bonds, tol=tol, fix=fix, symmetrize=symmetrize,
+                              negate_dipole=negate_dipole,
+                              tol_dipole_per_unit_area=tol_dipole_per_unit_area,
                               max_broken_bonds=max_broken_bonds,
                               polyhedrons_to_move=polyhedrons_to_move)
         if len(slabs) > 0:
