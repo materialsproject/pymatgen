@@ -1052,14 +1052,9 @@ class Kpoints(MSONable):
         ngrid = kppa / structure.num_sites
         mult = (ngrid * structure.lattice.volume) ** (1 / 3)
 
-        num_div = [max(mult / l, 1) for l in lengths]
-        if all([k < 2 for k in num_div]):
-            return Kpoints(comment, 0, Kpoints.supported_modes.Gamma,
-                           [[1, 1, 1]], [0, 0, 0])
+        num_div = [int(round(max(mult / l, 1))) for l in lengths]
 
         is_hexagonal = latt.is_hexagonal()
-
-        num_div = [int(round(i)) for i in num_div]
 
         has_odd = any([i % 2 == 1 for i in num_div])
         if has_odd or is_hexagonal or force_gamma:
