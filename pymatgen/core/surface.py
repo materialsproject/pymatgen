@@ -774,6 +774,9 @@ class SlabGenerator(object):
             organized such that the first element is the central ion.
         """
 
+        if not bonds:
+            return bonds
+
         new_bonds = {}
         for pair in bonds.keys():
             pair_counts = []
@@ -991,73 +994,72 @@ class SlabGenerator(object):
             (Slab) A Slab object with a particular shifted oriented unit cell.
         """
 
-        bound_atoms = list(bonds.keys())[0]
-        element1 = bound_atoms[0]
-        element2 = bound_atoms[1]
-        blength = bonds[bound_atoms]
+        for pair in bonds.keys():
 
-        # find coordination number of element1
-        # wrt element2 in bulk ucell
-        cnlist = []
-        for site in self.oriented_unit_cell:
-            if site.species_string == element1:
-                cnlist.append(len(self.oriented_unit_cell.get_neighbors(site,
-                                                                        blength)))
-        bulk_cn = np.mean(cnlist)
+            element1 = pair[0]
+            element2 = pair[1]
+            blength = bonds[pair]
 
-        # pre-determine the number of broken polyhedrons
-        # first so we will know how many iterations
-        # of repairs to do
-        to_repair = []
-        for i, site in enumerate(slab):
-
-            if site.species_string == element1:
+            # find coordination number of element1
+            # wrt element2 in bulk ucell
+            cnlist = []
+            for site in self.oriented_unit_cell:
                 poly_coord = 0
-                for neighbor in slab.get_neighbors(site, blength):
-                    if neighbor[0].species_string == element2:
-                        poly_coord += 1
-                # suppose we find an undercoordinated reference ion
-                if poly_coord < bulk_cn:
-                    to_repair.append(i)
+                if site.species_string == element1:
+                    for nn in self.oriented_unit_cell.get_neighbors(site,
+                                                                    blength):
+                        if nn[0].species_string == element2:
+                            poly_coord += 1
+                cnlist.append(poly_coord)
 
-        # If the slab requires no repairs,
-        # just return the slabs
-        if not to_repair:
-            return slab
+            # pre-determine the number of broken polyhedrons
+            # first so we will know how many iterations
+            # of repairs to do
+            to_repair = []
+            for i, site in enumerate(slab):
 
-        # Iterate through the repair process with
-        # the number of polyhedrons to repair
-        for n in to_repair:
-            # is it on the top or bottom?
-            # where to move entire polyhedron
-            to_top = False if slab[n].frac_coords[2] < 0.5 else True
-            # where to move central atom only to get coordination
-            move_center = False if to_top else True
+                if site.species_string == element1:
+                    poly_coord = 0
+                    for neighbor in slab.get_neighbors(site, blength):
+                        if neighbor[0].species_string == element2:
+                            poly_coord += 1
+                    # suppose we find an undercoordinated reference ion
+                    if poly_coord not in cnlist:
+                        to_repair.append(i)
 
-            # We get the central atom of the polyhedron that is broken
-            # (undercoordinated), move it to the other surface
-            slab = self.move_to_other_side(slab, [n],
-                                           to_top=move_center)
+            # Iterate through the repair process with
+            # the number of polyhedrons to repair
+            for n in to_repair:
+                # is it on the top or bottom?
+                # where to move entire polyhedron
+                to_top = False if slab[n].frac_coords[2] < 0.5 else True
+                # where to move central atom only to get coordination
+                move_center = False if to_top else True
 
-            # find its NNs with the corresponding
-            # species it should be coordinated with
-            neighbors = slab.get_neighbors(slab[n], blength,
-                                           include_index=True)
-            tomove = []
-            for nn in neighbors:
-                if nn[0].species_string == element2:
-                    tomove.append(nn[2])
-            tomove.append(n)
-            # and then move those NNs along with the central
-            # atom back to the other side of the slab again
-            slab = self.move_to_other_side(slab, tomove,
-                                           to_top=to_top)
+                # We get the central atom of the polyhedron that is broken
+                # (undercoordinated), move it to the other surface
+                slab = self.move_to_other_side(slab, [n],
+                                               to_top=move_center)
 
-        for site in slab:
-            if site.species_string == element1:
-                poly_coord = len(slab.get_neighbors(site, blength))
-                if poly_coord != bulk_cn:
-                    warnings.warn("Slab could not be repaired")
+                # find its NNs with the corresponding
+                # species it should be coordinated with
+                neighbors = slab.get_neighbors(slab[n], blength,
+                                               include_index=True)
+                tomove = []
+                for nn in neighbors:
+                    if nn[0].species_string == element2:
+                        tomove.append(nn[2])
+                tomove.append(n)
+                # and then move those NNs along with the central
+                # atom back to the other side of the slab again
+                slab = self.move_to_other_side(slab, tomove,
+                                               to_top=to_top)
+
+            for site in slab:
+                if site.species_string == element1:
+                    poly_coord = len(slab.get_neighbors(site, blength))
+                    if poly_coord not in cnlist:
+                        warnings.warn("Slab could not be repaired")
 
         # if the bonds have been fixed (CN of element1
         # relative to element2 in slab is same as in
