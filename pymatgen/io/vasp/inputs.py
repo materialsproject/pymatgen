@@ -1052,7 +1052,7 @@ class Kpoints(MSONable):
         ngrid = kppa / structure.num_sites
         mult = (ngrid * structure.lattice.volume) ** (1 / 3)
 
-        num_div = [int(round(max(mult / l, 1))) for l in lengths]
+        num_div = [int(math.floor(max(mult / l, 1))) for l in lengths]
 
         is_hexagonal = latt.is_hexagonal()
 

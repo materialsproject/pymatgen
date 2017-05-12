@@ -180,7 +180,8 @@ class MITMPRelaxSetTest(unittest.TestCase):
 
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
-        self.assertEqual(kpoints.kpts, [[2, 4, 5]])
+        print(self.structure.lattice._lengths)
+        self.assertEqual(kpoints.kpts, [[2, 3, 4]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
         kpoints = MPRelaxSet(self.structure, user_kpoints_settings={
@@ -195,7 +196,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
         recip_paramset = MPRelaxSet(self.structure, force_gamma=True)
         recip_paramset.kpoints_settings = {"reciprocal_density": 40}
         kpoints = recip_paramset.kpoints
-        self.assertEqual(kpoints.kpts, [[2, 4, 5]])
+        self.assertEqual(kpoints.kpts, [[2, 3, 4]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
     def test_all_input(self):
@@ -277,7 +278,7 @@ class MPStaticSetTest(PymatgenTest):
         self.assertTrue(non_prev_vis.incar["LWAVE"])
 
         self.assertEqual(non_prev_vis.kpoints.style,
-                         Kpoints.supported_modes.Monkhorst)
+                         Kpoints.supported_modes.Gamma)
         v2 = MPStaticSet.from_dict(non_prev_vis.as_dict())
         self.assertEqual(v2.incar["ENCUT"], 520)
         # Check that user incar settings are applied.
@@ -288,9 +289,9 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(leps_vis.incar["IBRION"], 8)
         self.assertNotIn("NPAR", leps_vis.incar)
         self.assertNotIn("NSW", leps_vis.incar)
-        self.assertEqual(non_prev_vis.kpoints.kpts, [[10, 8, 8]])
+        self.assertEqual(non_prev_vis.kpoints.kpts, [[9, 8, 8]])
         non_prev_vis = MPStaticSet(vis.structure, reciprocal_density=200)
-        self.assertEqual(non_prev_vis.kpoints.kpts, [[12, 11, 11]])
+        self.assertEqual(non_prev_vis.kpoints.kpts, [[12, 10, 10]])
         # Check LCALCPOL flag
         lcalcpol_vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run,
                                                   lcalcpol=True)
@@ -546,18 +547,18 @@ class MPHSEBSTest(PymatgenTest):
         prev_run = os.path.join(test_dir, "static_silicon")
         vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="uniform")
         self.assertTrue(vis.incar["LHFCALC"])
-        self.assertEqual(len(vis.kpoints.kpts), 16)
+        self.assertEqual(len(vis.kpoints.kpts), 10)
 
         vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="gap")
         self.assertTrue(vis.incar["LHFCALC"])
-        self.assertEqual(len(vis.kpoints.kpts), 18)
+        self.assertEqual(len(vis.kpoints.kpts), 12)
 
         vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="line")
         self.assertTrue(vis.incar["LHFCALC"])
         self.assertEqual(vis.incar['HFSCREEN'], 0.2)
         self.assertEqual(vis.incar['NSW'], 0)
         self.assertEqual(vis.incar['ISYM'], 3)
-        self.assertEqual(len(vis.kpoints.kpts), 180)
+        self.assertEqual(len(vis.kpoints.kpts), 174)
 
 
 class FuncTest(PymatgenTest):
