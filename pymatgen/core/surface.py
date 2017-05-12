@@ -1259,7 +1259,7 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                        lll_reduce=False, center_slab=True, primitive=True,
                        max_normal_search=None, fix=True, symmetrize=True,
                        negate_dipole=True, tol_dipole_per_unit_area=1e-3,
-                       polyhedrons_to_move={}):
+                       polyhedrons_to_move={}, lateral_reconstruct=False):
     """
     A function that finds all different slabs up to a certain miller index.
     Slabs oriented under certain Miller indices that are equivalent to other
@@ -1322,7 +1322,8 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                               negate_dipole=negate_dipole,
                               tol_dipole_per_unit_area=tol_dipole_per_unit_area,
                               max_broken_bonds=max_broken_bonds,
-                              polyhedrons_to_move=polyhedrons_to_move)
+                              polyhedrons_to_move=polyhedrons_to_move,
+                              lateral_reconstruct=lateral_reconstruct)
         if len(slabs) > 0:
             logger.debug("%s has %d slabs... " % (miller, len(slabs)))
             all_slabs.extend(slabs)
