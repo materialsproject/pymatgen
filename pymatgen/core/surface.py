@@ -627,7 +627,7 @@ class SlabGenerator(object):
         a, b, c = self.oriented_unit_cell.lattice.matrix
         self._proj_height = abs(np.dot(normal, c))
 
-    def get_slab(self, shift=0, tol=0.1, energy=None, repair_bonds={}):
+    def get_slab(self, shift=0, tol=0.1, energy=None, repair_bonds={}, supersize=[1,1,1]):
         """
         This method takes in shift value for the c lattice direction and
         generates a slab based on the given shift. You should rarely use this
@@ -690,15 +690,18 @@ class SlabGenerator(object):
                 energy = prim.volume / slab.volume * energy
             slab = prim
 
-        return Slab(slab.lattice, slab.species_and_occu,
-                    slab.frac_coords, self.miller_index,
-                    self.oriented_unit_cell, shift,
-                    scale_factor, site_properties=slab.site_properties,
-                    energy=energy)
+        slab =  Slab(slab.lattice, slab.species_and_occu,
+                     slab.frac_coords, self.miller_index,
+                     self.oriented_unit_cell, shift,
+                     scale_factor, site_properties=slab.site_properties,
+                     energy=energy)
+        slab.make_supercell(supersize)
+
+        return slab
 
     def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0, fix=False,
                   symmetrize=True, negate_dipole=True, polyhedrons_to_move={},
-                  tol_dipole_per_unit_area=1e-3,
+                  tol_dipole_per_unit_area=1e-3, supersize=[1,1,1],
                   lateral_reconstruct=False):
         """
         This method returns a list of slabs that are generated using the list of
@@ -742,7 +745,7 @@ class SlabGenerator(object):
                 # For now, set the energy to be equal to no. of broken bonds
                 # per unit cell.
                 slab = self.get_slab(shift, tol=tol, repair_bonds=bonds,
-                                     energy=bonds_broken)
+                                     energy=bonds_broken, supersize=supersize)
                 slabs.append(slab)
 
         # Further filters out any surfaces made that might be the same
