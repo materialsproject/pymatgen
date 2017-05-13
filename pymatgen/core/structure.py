@@ -2313,6 +2313,12 @@ class Structure(IStructure, collections.MutableSequence):
         species_mapping = {get_el_sp(k): v
                            for k, v in species_mapping.items()}
         sp_to_replace = set(species_mapping.keys())
+        sp_in_structure = set(self.composition.keys())
+        if not sp_in_structure.issuperset(sp_to_replace):
+            warnings.warn("Some species to be substituted are not present in "
+                          "structure. Pls check your input. Species to be "
+                          "substituted = %s; Species in structure = %s"
+                          % (sp_to_replace, sp_in_structure))
 
         def mod_site(site):
             if sp_to_replace.intersection(site.species_and_occu):
