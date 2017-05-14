@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 
 import os
+import warnings
+import yaml
 
 __author__ = "Pymatgen Development Team"
 __email__ ="pymatgen@googlegroups.com"
@@ -15,7 +17,6 @@ SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
 def _load_pmg_settings():
     try:
-        import yaml
         with open(SETTINGS_FILE, "rt") as f:
             d = yaml.load(f)
     except IOError:
@@ -30,7 +31,6 @@ def _load_pmg_settings():
     clean_d = {}
     for k, v in d.items():
         if not k.startswith("PMG_"):
-            import warnings
             warnings.warn('With effect from pmg 5.0, all pymatgen settings are'
                           ' prefixed with a "PMG_". E.g., "PMG_VASP_PSP_DIR" '
                           'instead of "VASP_PSP_DIR".')
@@ -60,8 +60,15 @@ def get_structure_from_mp(formula):
 
     from pymatgen.matproj.rest import MPRester
     m = MPRester()
-    return min(m.get_entries(formula, inc_structure=True),
-               key=lambda e: e.energy_per_atom).structure
+    entries = m.get_entries(formula, inc_structure=True)
+    if len(entries) == 0:
+        raise ValueError("No structure with formula %s in Materials Project!" %
+                         formula)
+    elif len(entries) > 1:
+        warnings.warn("%d structures with formula %s found in Materials Project."
+                      "The lowest energy structure will be returned." %
+                      (len(entries), formula))
+    return min(entries, key=lambda e: e.energy_per_atom).structure
 
 
 # Order of imports is important on some systems to avoid

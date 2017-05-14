@@ -335,6 +335,10 @@ some quick examples of the core capabilities and objects:
     >>> # The following changes the C in CH4 to an N and displaces it by 0.01A
     >>> # in the x-direction.
     >>> methane[0] = "N", [0.01, 0, 0]
+    >>>
+    >>> # If you set up your .pmgrc.yaml with your Materials Project API key
+    >>> # You can now easily grab structures from the Materials Project.
+    >>> lifepo4 = mg.get_structure_from_mp("LiFePO4")
 
 The above illustrates only the most basic capabilities of pymatgen. Users are
 strongly encouraged to explore the :doc:`usage pages </usage>` (toc given below).
