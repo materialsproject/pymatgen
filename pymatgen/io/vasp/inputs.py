@@ -1045,7 +1045,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        comment = "pymatgen generated KPOINTS with grid density = " + \
+        comment = "pymatgen 4.7.6+ generated KPOINTS with grid density = " + \
             "{} / atom".format(kppa)
         latt = structure.lattice
         lengths = latt.abc
@@ -1097,7 +1097,7 @@ class Kpoints(MSONable):
 
         style = Kpoints.supported_modes.Gamma
 
-        comment = "pymatgen generated KPOINTS with grid density = " + \
+        comment = "pymatgen 4.7.6+ generated KPOINTS with grid density = " + \
                   "{} / atom".format(kppa)
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
