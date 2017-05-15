@@ -1046,7 +1046,7 @@ class Kpoints(MSONable):
             Kpoints
         """
         comment = "pymatgen generated KPOINTS with grid density = " + \
-            "{} / atom".format(kppa)
+            "{} / atom".format(int(kppa))
         latt = structure.lattice
         lengths = latt.abc
         ngrid = kppa / structure.num_sites
