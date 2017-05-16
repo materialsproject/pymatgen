@@ -226,16 +226,18 @@ class ElasticTensorExpansionTest(PymatgenTest):
         self.cu = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.623),
                                             ["Cu"], [[0]*3])
         indices = [(0, 0), (0, 1), (3, 3)]
-        values = [166.1, 119.9, 75.6]
+        values = [167.8, 113.5, 74.5]
         cu_c2 = ElasticTensor.from_values_indices(values, indices, structure=self.cu,
                                                   populate=True)
         indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2),
                    (0, 3, 3), (0, 5, 5), (3, 4, 5)]
-        values = [-1271., -814., -50., -3., -780., -95.]
+        values = [-1507., -965., -71., -7., -901., 45.]
         cu_c3 = Tensor.from_values_indices(values, indices, structure=self.cu, 
                                            populate=True)
         self.exp_cu = ElasticTensorExpansion([cu_c2, cu_c3])
-        
+        cu_c4 = Tensor.from_voigt(self.data_dict["Cu_fourth_order"])
+        self.exp_cu_4 = ElasticTensorExpansion([cu_c2, cu_c3, cu_c4])
+
     def test_init(self):
         cijkl = Tensor.from_voigt(self.c2)
         cijklmn = Tensor.from_voigt(self.c3)
@@ -290,6 +292,32 @@ class ElasticTensorExpansionTest(PymatgenTest):
 
     def test_euler_angle_grid(self):
         agrid, vgrid = euler_angle_grid_quick()
+        blargh
+
+    def test_get_effective_ecs(self):
+        # Ensure zero strain is same as SOEC
+        test_zero = self.exp_cu.get_effective_ecs(np.zeros((3, 3)))
+        self.assertArrayAlmostEqual(test_zero, self.exp_cu[0])
+        s = np.zeros((3, 3))
+        s[0, 0] = 0.02
+        test_2percent = self.exp_cu.get_effective_ecs(s)
+        diff = test_2percent - test_zero
+        self.assertArrayAlmostEqual(self.exp_cu[1].einsum_sequence([s]), diff)
+        blargh
+
+    def test_get_strain_from_stress(self):
+        strain = Strain.from_voigt([0.05, 0, 0, 0, 0, 0])
+        stress3 = self.exp_cu.calculate_stress(strain)
+        strain_revert3 = self.exp_cu.get_strain_from_stress(stress3)
+        self.assertArrayAlmostEqual(strain, strain_revert3, decimal=4)
+        # Try with fourth order
+        stress4 = self.exp_cu_4.calculate_stress(strain)
+        strain_revert4 = self.exp_cu_4.get_strain_from_stress(stress4)
+        self.assertArrayAlmostEqual(strain, strain_revert4, decimal=4)
+        blargh
+
+    def test_get_yield_stress(self):
+        ys = self.exp_cu_4.get_yield_stress([1, 0, 0])
         blargh
 
 class NthOrderElasticTensorTest(PymatgenTest):
@@ -416,4 +444,22 @@ class DiffFitTest(PymatgenTest):
             self.assertArrayAlmostEqual(c3, c3_red, decimal=-1)
 
 if __name__ == '__main__':
+    """
+    with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
+        toec_dict = json.load(f)
+    cu = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.623),
+                                            ["Cu"], [[0]*3])
+    # Fourth-order
+    indices = [(0,0,0,0), (0,0,0,1), (0,0,1,1), (0,0,1,2), 
+                   (0,0,3,3), (0,0,5,5), (0,1,5,5), (0,2,5,5), 
+                   (0,3,4,5), (4,4,5,5), (5,5,5,5)]
+    values = [11936., 6834., 6602., -98., 135., 6628., -308.,
+              5736., -417., -191., 5088.]
+    cu_c4 = Tensor.from_values_indices(values, indices, structure=cu,
+                                       populate=True, verbose=True)
+    toec_dict["Cu_fourth_order"] = cu_c4.voigt.tolist()
+    from monty.serialization import dumpfn
+    dumpfn(toec_dict, os.path.join(test_dir, 'test_toec_data.json'))
+    stop
+    """
     unittest.main()

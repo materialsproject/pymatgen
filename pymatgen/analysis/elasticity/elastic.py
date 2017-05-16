@@ -12,6 +12,7 @@ from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.core.operations import SymmOp
 from scipy.misc import factorial
 from scipy.integrate import quad
+from scipy.optimize import root
 from collections import OrderedDict
 import numpy as np
 import warnings
@@ -642,14 +643,73 @@ class ElasticTensorExpansion(TensorCollection):
         return alpha
 
     def get_compliance_expansion(self):
-        if not self.order == 3:
+        """
+        """
+        #TODO: this should have a general form...
+        if not self.order <= 4:
             raise ValueError("Compliance tensor expansion only "
-                             "supported for third-order expansions")
+                             "supported for fourth-order and lower")
         ce_exp = [ElasticTensor(self[0]).compliance_tensor]
         einstring = "ijpq,pqrsuv,rskl,uvmn->ijklmn"
         ce_exp.append(np.einsum(einstring, -ce_exp[-1], self[1], 
                                 ce_exp[-1], ce_exp[-1]))
+        if self.order == 4:
+            einstring_3 = "ijklmn,klab,mncdef->ijabcdef"
+            temp = 2*np.einsum(einstring_3, self[1], ce_exp[-2], ce_exp[-1])
+            einstring_4 = "ijklmnop,klab,mncd,opef->ijabcdef"
+            temp += np.einsum(einstring_4, self[2], ce_exp[-2], 
+                              ce_exp[-2], ce_exp[-2])
+            temp = np.einsum("xyij,ijabcdef->xyabcdef", ce_exp[-2], temp)
+            ce_exp.append(temp)
         return TensorCollection(ce_exp)
+
+    def get_strain_from_stress(self, stress):
+        compl_exp = self.get_compliance_expansion()
+        strain = 0
+        for n, compl in enumerate(compl_exp):
+            strain +=  compl.einsum_sequence([stress]*(n+1)) / factorial(n+1)
+        return strain
+
+    def get_effective_ecs(self, strain, order=2):
+        ec_sum = 0
+        for n, ecs in enumerate(self[order-2:]):
+            ec_sum += ecs.einsum_sequence([strain] * n) / factorial(n)
+        return ec_sum
+
+    def get_wallace_tensor(self, tau):
+        """
+        tau (3x3 array-like): stress at which to evaluate the wallace tensor
+        """
+        b = 0.5 * (np.einsum("ml,kn->klmn",tau, np.eye(3)) + \
+                   np.einsum("km,ln->klmn",tau, np.eye(3)) + \
+                   np.einsum("nl,km->klmn",tau, np.eye(3)) + \
+                   np.einsum("kn,lm->klmn",tau, np.eye(3)) + \
+                   -2*np.einsum("kl,mn->klmn",tau, np.eye(3)))
+        strain = self.get_strain_from_stress(tau)
+        b += self.get_effective_ecs(strain)
+        return b
+
+    def get_symmetric_wallace_tensor(self, tau):
+        """
+
+        """
+        wallace = self.get_wallace_tensor(tau)
+        return Tensor(0.5 * (wallace + np.transpose(wallace, [2, 3, 0, 1])))
+
+    def get_stability_criteria(self, s, n):
+        """
+        """
+        stress = s * np.outer(n, n)
+        sym_wallace = self.get_symmetric_wallace_tensor(stress)
+        return np.linalg.det(sym_wallace.voigt)
+
+    def get_yield_stress(self, n):
+        """
+        """
+        # TODO: root finding could be more robust
+        comp = root(self.get_stability_criteria, -1, args=n)
+        tens = root(self.get_stability_criteria, 1, args=n)
+        return (comp.x, tens.x)
 
 def get_trans(alpha, beta, gamma, angle_in_radians=True):
     sop1 = SymmOp.from_axis_angle_and_translation(
@@ -688,6 +748,7 @@ def euler_angle_grid_quick(na=20, nb=20, ng=20):
     grid[:, :, :, 2, 2] = cosb
     return [a, b, g], grid
 
+#TODO: abstract this
 def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
     """
     nth order elastic constant fitting function based on 
