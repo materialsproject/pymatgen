@@ -419,6 +419,15 @@ class PointGroupAnalyzerTest(PymatgenTest):
         a = PointGroupAnalyzer(m)
         self.assertEqual(a.sch_symbol, "Ih")
 
+        cube_species = ["C", "C", "C", "C", "C", "C", "C", "C"]
+        cube_coords = [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1],
+                       [0, 1, 1], [1, 0, 1], [1, 1, 1]]
+
+        m = Molecule(cube_species, cube_coords)
+        a = PointGroupAnalyzer(m, 0.1)
+        self.assertEqual(a.sch_symbol, "Oh")
+
+
     def test_linear(self):
         coords = [[0.000000, 0.000000, 0.000000],
                   [0.000000, 0.000000, 1.08],
@@ -477,7 +486,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
         self.assertEqual(len(a.get_pointgroup()), 12)
         m = Molecule.from_file(os.path.join(test_dir_mol, "b12h12.xyz"))
         a = PointGroupAnalyzer(m)
-        self.assertEqual(a.sch_symbol, "D5d")
+        self.assertEqual(a.sch_symbol, "Ih")
 
     def test_tricky_structure(self):
         # for some reason this structure kills spglib1.9

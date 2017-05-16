@@ -15,6 +15,7 @@ import numpy as np
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
+
 class EwaldSummationTest(unittest.TestCase):
 
     def test_init(self):
@@ -43,10 +44,10 @@ class EwaldSummationTest(unittest.TestCase):
                                4)
         self.assertAlmostEqual(sum(sum(ham.total_energy_matrix)),
                                ham.total_energy, 2)
-        #note that forces are not individually tested, but should work fine.
+        # note that forces are not individually tested, but should work fine.
 
         self.assertRaises(ValueError, EwaldSummation, original_s)
-        #try sites with charge.
+        # try sites with charge.
         charges = []
         for site in original_s:
             if site.specie.symbol == "Li":
@@ -87,6 +88,7 @@ class EwaldMinimizerTest(unittest.TestCase):
                                "Returned wrong minimum value")
         self.assertEqual(len(e_min.best_m_list), 6,
                          "Returned wrong number of permutations")
+
 
 if __name__ == "__main__":
     unittest.main()

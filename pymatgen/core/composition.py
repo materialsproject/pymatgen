@@ -112,7 +112,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             string as an input formula. E.g., Composition("Li2O").
 
             allow_negative: Whether to allow negative compositions. This
-                argument must be popped from the \*\*kwargs due to \*args
+                argument must be popped from the \\*\\*kwargs due to \\*args
                 ambiguity.
         """
         self.allow_negative = kwargs.pop('allow_negative', False)
@@ -769,7 +769,7 @@ def reduce_formula(sym_amt):
         (reduced_formula, factor).
     """
     syms = sorted(sym_amt.keys(),
-                  key=lambda s: get_el_sp(s).X)
+                  key=lambda s: [get_el_sp(s).X, s])
 
     syms = list(filter(lambda s: abs(sym_amt[s]) >
                        Composition.amount_tolerance, syms))

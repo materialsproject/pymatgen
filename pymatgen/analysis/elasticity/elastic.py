@@ -75,7 +75,7 @@ class NthOrderElasticTensor(Tensor):
         einsum_string = "ij" + lc + ',' + ','.join(lc_pairs) + "->ij"
         einsum_args = [self] + [strain] * (self.order - 1)
         stress_matrix = np.einsum(einsum_string, *einsum_args) \
-                / factorial(self.order - 1)
+            / factorial(self.order - 1)
         return Stress(stress_matrix)
 
     def energy_density(self, strain, convert_GPa_to_eV=True):
@@ -89,9 +89,8 @@ class NthOrderElasticTensor(Tensor):
 
     @classmethod
     def from_diff_fit(cls, strains, stresses, eq_stress=None,
-                        order=2, tol=1e-10):
-        return cls(diff_fit(strains, stresses, eq_stress, 
-                                    order, tol)[order-2])
+                      order=2, tol=1e-10):
+        return cls(diff_fit(strains, stresses, eq_stress, order, tol)[order-2])
 
 
 class ElasticTensor(NthOrderElasticTensor):
@@ -118,9 +117,9 @@ class ElasticTensor(NthOrderElasticTensor):
             tol (float): tolerance for initial symmetry test of tensor
         """
 
-        obj = super(ElasticTensor, cls).__new__(cls, input_array, check_rank=4, tol=tol)
+        obj = super(ElasticTensor, cls).__new__(cls, input_array,
+                                                check_rank=4, tol=tol)
         return obj.view(cls)
-
 
     @property
     def compliance_tensor(self):
@@ -238,8 +237,8 @@ class ElasticTensor(NthOrderElasticTensor):
         tot_mass = sum([e.atomic_mass for e in structure.species])
         avg_mass = 1.6605e-27 * tot_mass / natoms
         return 0.38483*avg_mass * \
-                ((self.long_v(structure) + 2.*self.trans_v(structure))/3.) ** 3.\
-                / (300.*num_density ** (-2./3.) * nsites ** (1./3.))
+            ((self.long_v(structure) + 2.*self.trans_v(structure))/3.) ** 3.\
+            / (300.*num_density ** (-2./3.) * nsites ** (1./3.))
 
     def snyder_opt(self, structure):
         """
@@ -255,8 +254,8 @@ class ElasticTensor(NthOrderElasticTensor):
         volume = structure.volume
         num_density = 1e30 * nsites / volume
         return 1.66914e-23 * \
-                (self.long_v(structure) + 2.*self.trans_v(structure))/3. \
-                / num_density ** (-2./3.) * (1 - nsites ** (-1./3.))
+            (self.long_v(structure) + 2.*self.trans_v(structure))/3. \
+            / num_density ** (-2./3.) * (1 - nsites ** (-1./3.))
 
     def snyder_total(self, structure):
         """
@@ -288,7 +287,7 @@ class ElasticTensor(NthOrderElasticTensor):
         avg_mass = 1.6605e-27 * tot_mass / natoms
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
         return 0.87 * 1.3806e-23 * avg_mass**(-2./3.) \
-                * mass_density**(1./6.) * self.y_mod**0.5
+            * mass_density**(1./6.) * self.y_mod**0.5
 
     def cahill_thermalcond(self, structure):
         """
@@ -304,7 +303,7 @@ class ElasticTensor(NthOrderElasticTensor):
         volume = structure.volume
         num_density = 1e30 * nsites / volume
         return 1.3806e-23 / 2.48 * num_density**(2./3.) \
-                * (self.long_v(structure) + 2 * self.trans_v(structure))
+            * (self.long_v(structure) + 2 * self.trans_v(structure))
 
     def debye_temperature(self, structure):
         """
@@ -324,8 +323,8 @@ class ElasticTensor(NthOrderElasticTensor):
         avg_mass = 1.6605e-27 * tot_mass / natoms
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
         return 2.589e-11 * avg_mass**(-1./3.) * mass_density**(-1./6.) \
-                * self.y_mod**0.5
-    
+            * self.y_mod**0.5
+
     def debye_temperature_gibbs(self, structure):
         """
         Calculates the debye temperature accordings to the GIBBS
@@ -337,16 +336,15 @@ class ElasticTensor(NthOrderElasticTensor):
         Returns: debye temperature (in SI units)
 
         """
-        nsites = structure.num_sites
         volume = structure.volume
         tot_mass = sum([e.atomic_mass for e in structure.species])
         natoms = structure.composition.num_atoms
         avg_mass = 1.6605e-27 * tot_mass / natoms
         t = self.homogeneous_poisson
-        f = (3.*(2.*(2./3.*(1. + t)/(1. - 2.*t))**(1.5) + \
-                 (1./3.*(1. + t)/(1. - t))**(1.5))**-1) ** (1./3.)
+        f = (3.*(2.*(2./3.*(1. + t)/(1. - 2.*t))**1.5 +
+                 (1./3.*(1. + t)/(1. - t))**1.5)**-1) ** (1./3.)
         return 2.9772e-11 * avg_mass**(-1./2.) * (volume / natoms) ** (-1./6.) \
-                * f * self.k_vrh**(0.5)
+            * f * self.k_vrh ** 0.5
 
     @property
     def universal_anisotropy(self):
@@ -354,7 +352,7 @@ class ElasticTensor(NthOrderElasticTensor):
         returns the universal anisotropy value
         """
         return 5. * self.g_voigt / self.g_reuss + \
-                self.k_voigt / self.k_reuss - 6.
+            self.k_voigt / self.k_reuss - 6.
 
     @property
     def homogeneous_poisson(self):
@@ -371,7 +369,7 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         props = ["k_voigt", "k_reuss", "k_vrh", "g_voigt", "g_reuss", "g_vrh",
                  "universal_anisotropy", "homogeneous_poisson", "y_mod"]
-        return {prop : getattr(self, prop) for prop in props}
+        return {prop: getattr(self, prop) for prop in props}
 
     def get_structure_property_dict(self, structure, include_base_props=True):
         """
@@ -381,18 +379,12 @@ class ElasticTensor(NthOrderElasticTensor):
         s_props = ["trans_v", "long_v", "snyder_ac", "snyder_opt",
                    "snyder_total", "clarke_thermalcond", "cahill_thermalcond",
                    "debye_temperature", "debye_temperature_gibbs"]
-        sp_dict = {prop : getattr(self, prop)(structure) for prop in s_props}
+        sp_dict = {prop: getattr(self, prop)(structure) for prop in s_props}
         sp_dict["structure"] = structure
         if include_base_props:
             sp_dict.update(self.property_dict)
         return sp_dict
 
-
-    """
-        e_density = np.dot(np.transpose(Strain(strain).voigt),
-                           np.dot(self.voigt, Strain(strain).voigt)) / 2 * GPA_EV
-        return e_density
-    """
     @classmethod
     def from_pseudoinverse(cls, strains, stresses):
         """
@@ -416,7 +408,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return cls.from_voigt(voigt_fit)
 
     @classmethod
-    def from_stress_dict(cls, stress_dict, tol=0.1, vasp=True, symmetry=False):
+    def from_stress_dict(cls, stress_dict, vasp=True):
         """
         Constructs the elastic tensor from IndependentStrain-Stress dictionary
         corresponding to legacy behavior of elasticity package.
@@ -424,25 +416,22 @@ class ElasticTensor(NthOrderElasticTensor):
         Args:
             stress_dict (dict): dictionary of stresses indexed by corresponding
                 IndependentStrain objects.
-            tol (float): tolerance for zeroing small values of the tensor
             vasp (boolean): flag for whether the stress tensor should be
                 converted based on vasp units/convention for stress
-            symmetry (boolean): flag for whether or not the elastic tensor
-                should fit from data based on symmetry
         """
         c_ij = np.zeros((6, 6))
         for i, j in itertools.product(range(6), repeat=2):
-            strains = [s for s in stress_dict.keys() 
+            strains = [s for s in stress_dict.keys()
                        if s.ij == vmap[i]]
             xy = [(s[vmap[i]], stress_dict[s][vmap[j]]) for s in strains]
             if len(xy) == 0:
                 raise ValueError("No ind. strains for vgt index {}".format(i))
             elif len(xy) == 1:
-                xy += [(0, 0)] # Fit through 0
+                xy += [(0, 0)]  # Fit through 0
             c_ij[i, j] = np.polyfit(*zip(*xy), deg=1)[0]
         if vasp:
             c_ij *= -0.1  # Convert units/sign convention of vasp stress tensor
-        c_ij[0:, 3:] = 0.5 * c_ij[0:, 3:]  # account for voigt doubling of e4,e5,e6
+        c_ij[0:, 3:] = 0.5 * c_ij[0:, 3:]  # for vgt doubling of e4,e5,e6
         c = cls.from_voigt(c_ij)
         c = c.zeroed()
         return c
@@ -498,12 +487,11 @@ class ElasticTensorExpansion(TensorCollection):
         """
         Calculates the elastic energy density due to a strain
         """
-        return sum([c.energy_density(strain, convert_GPa_to_eV) 
+        return sum([c.energy_density(strain, convert_GPa_to_eV)
                     for c in self])
 
 
-def diff_fit(strains, stresses, eq_stress=None,
-                     order=2, tol=1e-10):
+def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
     """
     nth order elastic constant fitting function based on 
     central-difference derivatives with respect to distinct
@@ -536,7 +524,7 @@ def diff_fit(strains, stresses, eq_stress=None,
             If not specified, function will try to find
             the state in the list of provided stresses
             and strains.  If not found, defaults to 0.
-        zero_crit (float): value for which strains below
+        tol (float): value for which strains below
             are ignored in identifying strain states.
 
     Returns:
@@ -544,27 +532,26 @@ def diff_fit(strains, stresses, eq_stress=None,
         the stress/strain relation
     """
     strain_state_dict = get_strain_state_dict(
-        strains, stresses, eq_stress=eq_stress, tol=tol, 
+        strains, stresses, eq_stress=eq_stress, tol=tol,
         add_eq=True, sort=True)
 
     # Collect derivative data
     c_list = []
-    dEidsi = np.zeros((order - 1, 6, len(strain_state_dict)))
+    dei_dsi = np.zeros((order - 1, 6, len(strain_state_dict)))
     for n, (strain_state, data) in enumerate(strain_state_dict.items()):
-        diff = np.diff(data["strains"], axis=0)
-        h = np.min(diff[np.nonzero(diff)])
         hvec = data["strains"][:, strain_state.index(1)]
         for i in range(1, order):
             coef = get_diff_coeff(hvec, i)
-            dEidsi[i-1, :, n] = np.dot(coef, data["stresses"])
+            dei_dsi[i-1, :, n] = np.dot(coef, data["stresses"])
 
     m, absent = generate_pseudo(list(strain_state_dict.keys()), order)
     for i in range(1, order):
         cvec, carr = get_symbol_list(i+1)
-        svec = np.ravel(dEidsi[i-1].T)
+        svec = np.ravel(dei_dsi[i-1].T)
         cmap = dict(zip(cvec, np.dot(m[i-1], svec)))
         c_list.append(v_subs(carr, cmap))
     return [Tensor.from_voigt(c) for c in c_list]
+
 
 def find_eq_stress(strains, stresses, tol=1e-10):
     """
@@ -580,18 +567,19 @@ def find_eq_stress(strains, stresses, tol=1e-10):
     eq_stress = stress_array[np.all(abs(strain_array)<tol, axis=(1,2))]
 
     if eq_stress.size != 0:
-        allsame = (abs(eq_stress - eq_stress[0]) < 1e-8).all()
-        if len(eq_stress) > 1 and not allsame:
+        all_same = (abs(eq_stress - eq_stress[0]) < 1e-8).all()
+        if len(eq_stress) > 1 and not all_same:
             raise ValueError("Multiple stresses found for equilibrium strain"
                              " state, please specify equilibrium stress or  "
                              " remove extraneous stresses.")
         eq_stress = eq_stress[0]
     else:
         warnings.warn("No eq state found, returning zero voigt stress")
-        eq_stress = Stress(np.zeros((3,3)))
+        eq_stress = Stress(np.zeros((3, 3)))
     return eq_stress
 
-def get_strain_state_dict(strains, stresses, eq_stress=None, 
+
+def get_strain_state_dict(strains, stresses, eq_stress=None,
                           tol=1e-10, add_eq=True, sort=True):
     """
     Creates a dictionary of voigt-notation stress-strain sets 
@@ -647,9 +635,10 @@ def get_strain_state_dict(strains, stresses, eq_stress=None,
         # Get "strain state", i.e. ratio of each value to minimum strain
         strain_state = mstrains[-1] / np.min(np.take(mstrains[-1], ind))
         strain_state = tuple(strain_state)
-        strain_state_dict[strain_state] = {"strains":mstrains,
-                                           "stresses":mstresses}
+        strain_state_dict[strain_state] = {"strains": mstrains,
+                                           "stresses": mstresses}
     return strain_state_dict
+
 
 def generate_pseudo(strain_states, order=3):
     """
@@ -684,7 +673,6 @@ def generate_pseudo(strain_states, order=3):
             sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]
         svec = sarr.ravel()
         present_syms = set.union(*[exp.atoms(sp.Symbol) for exp in svec])
-        #import pdb; pdb.set_trace()
         absent_syms += [set(cvec) - present_syms]
         m = np.zeros((6*nstates, len(cvec)))
         for n, c in enumerate(cvec):
@@ -719,6 +707,7 @@ def get_symbol_list(rank, dim=6):
             c_arr[perm] = c_vec[n]
     return c_vec, c_arr
 
+
 def subs(entry, cmap):
     """
     Sympy substitution function, primarily for the purposes
@@ -737,6 +726,7 @@ def subs(entry, cmap):
 v_subs = np.vectorize(subs)
 v_diff = np.vectorize(sp.diff)
 
+
 def get_diff_coeff(hvec, n=1):
     """
     Helper function to find difference coefficients of an
@@ -748,8 +738,8 @@ def get_diff_coeff(hvec, n=1):
     """
     hvec = np.array(hvec, dtype=np.float)
     acc = len(hvec)
-    exp = np.column_stack([np.arange(acc)]*(acc))
-    A = np.vstack([hvec]*(acc))**exp
+    exp = np.column_stack([np.arange(acc)]*acc)
+    a = np.vstack([hvec] * acc) ** exp
     b = np.zeros(acc)
     b[n] = factorial(n)
-    return np.linalg.solve(A, b)
+    return np.linalg.solve(a, b)

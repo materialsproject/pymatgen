@@ -854,13 +854,13 @@ class PointGroupAnalyzer(object):
         else:
             inertia_tensor = np.zeros((3, 3))
             total_inertia = 0
-            for site in self.mol:
+            for site in self.centered_mol:
                 c = site.coords
                 wt = site.species_and_occu.weight
                 for i in range(3):
                     inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2
                                                   + c[(i + 2) % 3] ** 2)
-                for i, j in itertools.combinations(list(range(3)), 2):
+                for i, j in [(0, 1), (1, 2), (0, 2)]:
                     inertia_tensor[i, j] += -wt * c[i] * c[j]
                     inertia_tensor[j, i] += -wt * c[j] * c[i]
                 total_inertia += wt * np.dot(c, c)
@@ -881,7 +881,6 @@ class PointGroupAnalyzer(object):
 
             self.rot_sym = []
             self.symmops = [SymmOp(np.eye(4))]
-
             if eig_zero:
                 logger.debug("Linear molecule detected")
                 self._proc_linear()
@@ -931,9 +930,10 @@ class PointGroupAnalyzer(object):
             ind = 0
         else:
             ind = 1
-
+        logger.debug("Eigenvalues = %s." % self.eigvals)
         unique_axis = self.principal_axes[ind]
         self._check_rot_sym(unique_axis)
+        logger.debug("Rotation symmetries = %s" % self.rot_sym)
         if len(self.rot_sym) > 0:
             self._check_perpendicular_r2_axis(unique_axis)
 
@@ -1131,7 +1131,7 @@ class PointGroupAnalyzer(object):
 
     def _find_spherical_axes(self):
         """
-        Looks for R5, R4, R3 and R2 axes in speherical top molecules.  Point
+        Looks for R5, R4, R3 and R2 axes in spherical top molecules.  Point
         group T molecules have only one unique 3-fold and one unique 2-fold
         axis. O molecules have one unique 4, 3 and 2-fold axes. I molecules
         have a unique 5-fold axis.
@@ -1189,9 +1189,7 @@ class PointGroupAnalyzer(object):
         for site in self.centered_mol:
             coord = symmop.operate(site.coords)
             ind = find_in_coord_list(coords, coord, self.tol)
-            if not (len(ind) == 1 and
-                            self.centered_mol[ind[0]].species_and_occu
-                            == site.species_and_occu):
+            if not (len(ind) == 1 and self.centered_mol[ind[0]].species_and_occu == site.species_and_occu):
                 return False
         return True
 

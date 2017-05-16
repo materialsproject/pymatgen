@@ -5,14 +5,18 @@
 from __future__ import division, unicode_literals
 
 import numpy as np
-from fractions import gcd, Fraction
+from fractions import Fraction
+try:
+    from math import gcd
+except ImportError:
+    from fractions import gcd
 from itertools import groupby
 from warnings import warn
 import logging
 import math
 
 import six
-from monty.json import MontyDecoder
+import warnings
 from monty.fractions import lcm
 
 from pymatgen.core.structure import Composition
@@ -484,7 +488,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 'The specified species do not exist in the structure'
                 ' to be enumerated')
 
-        return lcm(n_gcd, denom) / n_gcd
+        return lcm(int(n_gcd), denom) / n_gcd
 
     def apply_transformation(self, structure, return_ranked_list=False):
         # Make a mutable structure first
@@ -584,10 +588,12 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
     symbols = allowed_elements or [el.symbol for el in Element]
     for sym in symbols:
         try:
-            sp = Specie(sym, oxidation_state)
-            r = sp.ionic_radius
-            if r is not None:
-                candidates.append((r, sp))
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                sp = Specie(sym, oxidation_state)
+                r = sp.ionic_radius
+                if r is not None:
+                    candidates.append((r, sp))
         except:
             pass
     return min(candidates, key=lambda l: abs(l[0]/ref_radius - 1))[1]
@@ -623,7 +629,7 @@ class DopingTransformation(AbstractTransformation):
             allowed_doping_species (list): Species that are allowed to be
                 doping sites. This is an inclusionary list. If specified,
                 any sites which are not
-            \*\*kwargs:
+            \\*\\*kwargs:
                 Same keyword args as :class:`EnumerateStructureTransformation`,
                 i.e., min_cell_size, etc.
         """

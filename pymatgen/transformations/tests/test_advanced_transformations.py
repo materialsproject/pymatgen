@@ -298,9 +298,8 @@ class DopingTransformationTest(PymatgenTest):
                                      max_structures_per_enum=1000)
             ss = t.apply_transformation(structure, 1000)
             self.assertEqual(len(ss), nstructures)
-            if __name__ == '__main__':
-                for d in ss:
-                    self.assertEqual(d["structure"].charge, 0)
+            for d in ss:
+                self.assertEqual(d["structure"].charge, 0)
 
         # Make sure compensation is done with lowest oxi state
         structure = PymatgenTest.get_structure("SrTiO3")

@@ -201,7 +201,7 @@ class Unit(collections.Mapping):
         if isinstance(unit_def, six.string_types):
             unit = collections.defaultdict(int)
             import re
-            for m in re.finditer("([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
+            for m in re.finditer(r"([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
                 p = m.group(2)
                 p = 1 if not p else int(p)
                 k = m.group(1)

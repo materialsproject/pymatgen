@@ -1994,7 +1994,7 @@ class IMolecule(SiteCollection, MSONable):
                 return yaml.dump(self.as_dict(), Dumper=Dumper)
 
         else:
-            m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
+            m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
                           fname.lower())
             if (not fmt) and m:
                 fmt = m.group(1)
@@ -2079,7 +2079,7 @@ class IMolecule(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="yaml")
         else:
             from pymatgen.io.babel import BabelMolAdaptor
-            m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
+            m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
                           filename.lower())
             if m:
                 new = BabelMolAdaptor.from_file(filename,
@@ -2312,17 +2312,26 @@ class Structure(IStructure, collections.MutableSequence):
         latt = self._lattice
         species_mapping = {get_el_sp(k): v
                            for k, v in species_mapping.items()}
+        sp_to_replace = set(species_mapping.keys())
+        sp_in_structure = set(self.composition.keys())
+        if not sp_in_structure.issuperset(sp_to_replace):
+            warnings.warn("Some species to be substituted are not present in "
+                          "structure. Pls check your input. Species to be "
+                          "substituted = %s; Species in structure = %s"
+                          % (sp_to_replace, sp_in_structure))
 
         def mod_site(site):
-            c = Composition()
-            for sp, amt in site.species_and_occu.items():
-                new_sp = species_mapping.get(sp, sp)
-                try:
-                    c += Composition(new_sp) * amt
-                except Exception:
-                    c += {new_sp: amt}
-            return PeriodicSite(c, site.frac_coords, latt,
-                                properties=site.properties)
+            if sp_to_replace.intersection(site.species_and_occu):
+                c = Composition()
+                for sp, amt in site.species_and_occu.items():
+                    new_sp = species_mapping.get(sp, sp)
+                    try:
+                        c += Composition(new_sp) * amt
+                    except Exception:
+                        c += {new_sp: amt}
+                return PeriodicSite(c, site.frac_coords, latt,
+                                    properties=site.properties)
+            return site
 
         self._sites = [mod_site(site) for site in self._sites]
 

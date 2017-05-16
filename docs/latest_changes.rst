@@ -1,9 +1,9 @@
 Change log
 ==========
 
-v4.7.3
+v4.7.6
 ------
-* Sympy now a dependency.
-* Massive improvements to elastic package. (Joseph Montoya)
-* Symmetrized structures now contain Wyckoff symbols.
-* More robust CIF parsing and MITRelaxSet parameters (Will).
+* Fix serious bug in PointGroupAnalyzer that resulted in wrong point groups assigned to non-centered molecules.
+* Useful get_structure_from_mp at the root level for quick retrieval of common structures for analysis.
+* More efficient kpoint grids.
+* Misc bug fixes.

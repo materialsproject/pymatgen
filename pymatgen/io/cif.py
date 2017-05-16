@@ -16,7 +16,10 @@ from six.moves import zip, cStringIO
 
 import numpy as np
 from functools import partial
-from inspect import getargspec
+try:
+    from inspect import getfullargspec as getargspec
+except ImportError:
+    from inspect import getargspec
 from itertools import groupby
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from monty.io import zopen
@@ -162,9 +165,9 @@ class CifBlock(object):
     @classmethod
     def _process_string(cls, string):
         # remove comments
-        string = re.sub("(\s|^)#.*$", "", string, flags=re.MULTILINE)
+        string = re.sub(r"(\s|^)#.*$", "", string, flags=re.MULTILINE)
         # remove empty lines
-        string = re.sub("^\s*\n", "", string, flags=re.MULTILINE)
+        string = re.sub(r"^\s*\n", "", string, flags=re.MULTILINE)
         # remove non_ascii
         string = remove_non_ascii(string)
 
@@ -260,13 +263,13 @@ class CifFile(object):
     @classmethod
     def from_string(cls, string):
         d = OrderedDict()
-        for x in re.split("^\s*data_", "x\n" + string,
+        for x in re.split(r"^\s*data_", "x\n" + string,
                           flags=re.MULTILINE | re.DOTALL)[1:]:
 
             # Skip over Cif block that contains powder diffraction data.
             # Some elements in this block were missing from CIF files in Springer materials/Pauling file DBs.
             # This block anyway does not contain any structure information, and CifParser was also not parsing it.
-            if 'powder_pattern' in re.split("\n", x, 1)[0]:
+            if 'powder_pattern' in re.split(r"\n", x, 1)[0]:
                 continue
             c = CifBlock.from_string("data_" + x)
             d[c.header] = c
@@ -427,7 +430,7 @@ class CifParser(object):
 
                     try:
                         for d in _get_cod_data():
-                            if sg == re.sub("\s+", "",
+                            if sg == re.sub(r"\s+", "",
                                             d["hermann_mauguin"]) :
                                 xyz = d["symops"]
                                 symops = [SymmOp.from_xyz_string(s)
@@ -560,15 +563,15 @@ class CifParser(object):
                     symbol_str_lst = symbol_str.split(' + ')
                     for elocc_idx in range(len(symbol_str_lst)):
                         # Remove any bracketed items in the string
-                        symbol_str_lst[elocc_idx] = re.sub(
-                            '\([0-9]*\)', '', symbol_str_lst[elocc_idx].strip())
+                        symbol_str_lst[elocc_idx] = re.sub(r'\([0-9]*\)', '',
+                            symbol_str_lst[elocc_idx].strip())
 
                         # Extract element name and its occupancy from the
                         # string, and store it as a
                         # key-value pair in "els_occ".
-                        els_occu[str(re.findall('\D+', symbol_str_lst[
+                        els_occu[str(re.findall(r'\D+', symbol_str_lst[
                             elocc_idx].strip())[1]).replace('<sup>', '')] = \
-                            float('0' + re.findall('\.?\d+', symbol_str_lst[
+                            float('0' + re.findall(r'\.?\d+', symbol_str_lst[
                                 elocc_idx].strip())[1])
 
                     x = str2float(data["_atom_site_fract_x"][idx])
@@ -867,10 +870,10 @@ def str2float(text):
     """
 
     try:
-        return float(re.sub("\(.+\)", "", text))
+        return float(re.sub(r"\(.+\)", "", text))
     except TypeError:
         if isinstance(text, list) and len(text) == 1:
-            return float(re.sub("\(.+\)", "", text[0]))
+            return float(re.sub(r"\(.+\)", "", text[0]))
     except ValueError as ex:
         if text.strip() == ".":
             return 0
