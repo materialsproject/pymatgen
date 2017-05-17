@@ -1050,7 +1050,7 @@ class Kpoints(MSONable):
         latt = structure.lattice
         lengths = latt.abc
         ngrid = kppa / structure.num_sites
-        mult = (ngrid * structure.lattice.volume) ** (1 / 3)
+        mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
         num_div = [int(math.floor(max(mult / l, 1))) for l in lengths]
 
@@ -1287,6 +1287,9 @@ class Kpoints(MSONable):
         """
         with zopen(filename, "wt") as f:
             f.write(self.__str__())
+
+    def __repr__(self):
+        return self.__str__()
 
     def __str__(self):
         lines = [self.comment, str(self.num_kpts), self.style.name]
