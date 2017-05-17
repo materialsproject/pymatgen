@@ -467,7 +467,7 @@ class Magmom(MSONable):
         structures and might give non-sensical results except in the case
         of only slightly non-collinear structures (e.g. small canting).
         """
-        return self.get_00t_magmom_with_xyz_saxis()[2]
+        return float(self.get_00t_magmom_with_xyz_saxis()[2])
 
     def __str__(self):
         return str(float(self))

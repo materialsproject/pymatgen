@@ -90,7 +90,7 @@ INCAR:
   PREC: Accurate
   SIGMA: 0.05
 KPOINTS:
-  reciprocal_density: 50
+  reciprocal_density: 64
 POTCAR:
   Ac: Ac
   Ag: Ag
