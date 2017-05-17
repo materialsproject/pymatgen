@@ -11,6 +11,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import IStructure, Structure, IMolecule, \
     StructureError, Molecule
 from pymatgen.core.lattice import Lattice
+from pymatgen.electronic_structure.core import Magmom
 import random
 import os
 import numpy as np
@@ -720,6 +721,34 @@ class StructureTest(PymatgenTest):
         self.assertRaises(ValueError, Structure.from_spacegroup,
                           "Pm-3m", Lattice.cubic(3), ["Cs"],
                           [[0, 0, 0], [0.5, 0.5, 0.5]])
+    
+    def test_from_magnetic_spacegroup(self):
+
+        # AFM MnF
+        s1 = Structure.from_magnetic_spacegroup("P4_2'/mnm'", Lattice.tetragonal(4.87, 3.30),
+                                                ["Mn", "F"],
+                                                [[0, 0, 0],
+                                                 [0.30, 0.30, 0.00]],
+                                                {'magmom': [4, 0]})
+
+        self.assertEqual(s1.formula, "Mn2 F4")
+        self.assertEqual(sum(map(float, s1.site_properties['magmom'])), 0)
+        self.assertEqual(max(map(float, s1.site_properties['magmom'])), 4)
+        self.assertEqual(min(map(float, s1.site_properties['magmom'])), -4)
+
+        # AFM LaMnO3, ordered on (001) planes
+        s2 = Structure.from_magnetic_spacegroup("Pn'ma'", Lattice.orthorhombic(5.75, 7.66, 5.53),
+                                                ["La", "Mn", "O", "O"],
+                                                [[0.05, 0.25, 0.99],
+                                                 [0.00, 0.00, 0.50],
+                                                 [0.48, 0.25, 0.08],
+                                                 [0.31, 0.04, 0.72]],
+                                                {'magmom': [0, Magmom([4, 0, 0]), 0, 0]})
+
+        self.assertEqual(s2.formula, "La4 Mn4 O12")
+        self.assertEqual(sum(map(float, s2.site_properties['magmom'])), 0)
+        self.assertEqual(max(map(float, s2.site_properties['magmom'])), 4)
+        self.assertEqual(min(map(float, s2.site_properties['magmom'])), -4)
 
     def test_merge_sites(self):
         species = [{'Ag': 0.5}, {'Cl': 0.25}, {'Cl': 0.1},
