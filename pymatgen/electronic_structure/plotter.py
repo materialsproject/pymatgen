@@ -637,7 +637,7 @@ class BSPlotter(object):
                 previous_branch = this_branch
         return {'distance': tick_distance, 'label': tick_labels}
 
-    def plot_compare(self, other_plotter):
+    def plot_compare(self, other_plotter, legend=True):
         """
         plot two band structure for comparison. One is in red the other in blue
         (no difference in spins). The two band structures need to be defined
@@ -652,6 +652,7 @@ class BSPlotter(object):
 
         """
         # TODO: add exception if the band structures are not compatible
+        import matplotlib.lines as mlines
         plt = self.get_plot()
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
@@ -660,11 +661,23 @@ class BSPlotter(object):
             for d in range(len(data_orig['distances'])):
                 plt.plot(data_orig['distances'][d],
                          [e[str(Spin.up)][i] for e in data['energy']][d],
-                         'r-', linewidth=band_linewidth)
+                         'g-', linewidth=band_linewidth)
                 if other_plotter._bs.is_spin_polarized:
                     plt.plot(data_orig['distances'][d],
                              [e[str(Spin.down)][i] for e in data['energy']][d],
-                             'r-', linewidth=band_linewidth)
+                             'o--', linewidth=band_linewidth)
+        if legend:
+            handles = [mlines.Line2D([], [], linewidth=2,
+                                     color='b', label='bs 1 up'),
+                       mlines.Line2D([], [], linewidth=2,
+                                     color='r', label='bs 1 down', linestyle="--"),
+                       mlines.Line2D([], [], linewidth=2,
+                                     color='g', label='bs 2 up'),
+                       mlines.Line2D([], [], linewidth=2,
+                                     color='o', linestyle="--",
+                                     label='bs 2 down')]
+
+            plt.legend(handles=handles)
         return plt
 
     def plot_brillouin(self):
