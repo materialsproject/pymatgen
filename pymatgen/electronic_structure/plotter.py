@@ -661,10 +661,10 @@ class BSPlotter(object):
                 plt.plot(data_orig['distances'][d],
                          [e[str(Spin.up)][i] for e in data['energy']][d],
                          'r-', linewidth=band_linewidth)
-        if other_plotter._bs.is_spin_polarized:
-            plt.plot(data_orig['distances'],
-                     [e for e in data['energy'][i][str(Spin.down)]],
-                     'r-', linewidth=band_linewidth)
+                if other_plotter._bs.is_spin_polarized:
+                plt.plot(data_orig['distances'][d],
+                         [e[str(Spin.down)][i] for e in data['energy']][d],
+                         'r-', linewidth=band_linewidth)
         return plt
 
     def plot_brillouin(self):
