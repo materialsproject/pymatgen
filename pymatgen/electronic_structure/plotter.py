@@ -627,7 +627,7 @@ class BSPlotter(object):
                         label0 = "$" + label0 + "$"
                     tick_labels.pop()
                     tick_distance.pop()
-                    tick_labels.append(label0 + "$\mid$" + label1)
+                    tick_labels.append(label0 + "$\\mid$" + label1)
                 else:
                     if c.label.startswith("\\") or c.label.find("_") != -1:
                         tick_labels.append("$" + c.label + "$")
@@ -637,7 +637,7 @@ class BSPlotter(object):
                 previous_branch = this_branch
         return {'distance': tick_distance, 'label': tick_labels}
 
-    def plot_compare(self, other_plotter):
+    def plot_compare(self, other_plotter, legend=True):
         """
         plot two band structure for comparison. One is in red the other in blue
         (no difference in spins). The two band structures need to be defined
@@ -652,6 +652,7 @@ class BSPlotter(object):
 
         """
         # TODO: add exception if the band structures are not compatible
+        import matplotlib.lines as mlines
         plt = self.get_plot()
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
@@ -660,11 +661,23 @@ class BSPlotter(object):
             for d in range(len(data_orig['distances'])):
                 plt.plot(data_orig['distances'][d],
                          [e[str(Spin.up)][i] for e in data['energy']][d],
-                         'r-', linewidth=band_linewidth)
-        if other_plotter._bs.is_spin_polarized:
-            plt.plot(data_orig['distances'],
-                     [e for e in data['energy'][i][str(Spin.down)]],
-                     'r-', linewidth=band_linewidth)
+                         'c-', linewidth=band_linewidth)
+                if other_plotter._bs.is_spin_polarized:
+                    plt.plot(data_orig['distances'][d],
+                             [e[str(Spin.down)][i] for e in data['energy']][d],
+                             'm--', linewidth=band_linewidth)
+        if legend:
+            handles = [mlines.Line2D([], [], linewidth=2,
+                                     color='b', label='bs 1 up'),
+                       mlines.Line2D([], [], linewidth=2,
+                                     color='r', label='bs 1 down', linestyle="--"),
+                       mlines.Line2D([], [], linewidth=2,
+                                     color='c', label='bs 2 up'),
+                       mlines.Line2D([], [], linewidth=2,
+                                     color='m', linestyle="--",
+                                     label='bs 2 down')]
+
+            plt.legend(handles=handles)
         return plt
 
     def plot_brillouin(self):
@@ -1017,7 +1030,7 @@ class BSPlotterProjected(BSPlotter):
                         for anum in dictpa[elt]:
                             edict[elt + str(anum)] = {}
                             for morb in dictio[elt]:
-                                edict[elt + str(anum)][morb] = proj[Spin.up][i][j][Orbital(setos[morb])][anum-1]
+                                edict[elt + str(anum)][morb] = proj[Spin.up][i][j][setos[morb]][anum-1]
                     proj_br[-1][str(Spin.up)][i].append(edict)
 
             if self._bs.is_spin_polarized:
@@ -1028,7 +1041,7 @@ class BSPlotterProjected(BSPlotter):
                             for anum in dictpa[elt]:
                                 edict[elt + str(anum)] = {}
                                 for morb in dictio[elt]:
-                                    edict[elt + str(anum)][morb] = proj[Spin.down][i][j][Orbital(setos[morb])][anum-1]
+                                    edict[elt + str(anum)][morb] = proj[Spin.up][i][j][setos[morb]][anum-1]
                         proj_br[-1][str(Spin.down)][i].append(edict)
 
         # Adjusting  projections for plot
@@ -1905,10 +1918,11 @@ class BSPlotterProjected(BSPlotter):
 
         return plt, shift
 
-class BSDOSPlotter():
+
+class BSDOSPlotter(object):
     """
-    A joint, aligned band structure and density of states plot. Contributions from Jan Pohls
-    as well as the online example from Germain Salvato-Vallverdu:
+    A joint, aligned band structure and density of states plot. Contributions 
+    from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:
     http://gvallver.perso.univ-pau.fr/?p=587
     """
 
@@ -1957,12 +1971,14 @@ class BSDOSPlotter():
         """
         Get a matplotlib plot object.
         Args:
-            bs (BandStructure): the bandstructure to plot. Projection data must exist for projected plots.
-            dos (Dos): the Dos to plot. Projection data must exist (i.e., CompleteDos) for projected plots.
+            bs (BandStructureSymmLine): the bandstructure to plot. Projection 
+                data must exist for projected plots.
+            dos (Dos): the Dos to plot. Projection data must exist (i.e., 
+                CompleteDos) for projected plots.
 
         Returns:
-            a matplotlib plt object on which you can call commands like show() and savefig()
-
+            matplotlib.pyplot object on which you can call commands like show() 
+            and savefig()
         """
         import matplotlib.lines as mlines
         from matplotlib.gridspec import GridSpec
@@ -1977,9 +1993,10 @@ class BSDOSPlotter():
 
         if bs_projection and bs_projection.lower() == "elements" and \
                 (len(elements) not in [2, 3] or not bs.get_projection_on_elements()):
-            warnings.warn("Cannot get element projected data; either the projection data "
-                          "doesn't exist, or you don't have a compound with exactly 2 or 3"
-                          " unique elements.")
+            warnings.warn(
+                "Cannot get element projected data; either the projection data "
+                "doesn't exist, or you don't have a compound with exactly 2 or 3"
+                " unique elements.")
             bs_projection = None
 
         # specify energy range of plot
@@ -2402,7 +2419,7 @@ class BoltztrapPlotter(object):
             plt.xlim(-0.5, self._bz.gap + 0.5)
         else:
             plt.xlim(xlim[0], xlim[1])
-        plt.ylabel("Seebeck \n coefficient  ($\mu$V/K)", fontsize=30.0)
+        plt.ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
@@ -2431,13 +2448,13 @@ class BoltztrapPlotter(object):
         self._plot_bg_limits()
         self._plot_doping(temp)
         if output == 'eig':
-            plt.legend(['$\sigma_1$', '$\sigma_2$', '$\sigma_3$'])
+            plt.legend(['$\\Sigma_1$', '$\\Sigma_2$', '$\\Sigma_3$'])
         if xlim is None:
             plt.xlim(-0.5, self._bz.gap + 0.5)
         else:
             plt.xlim(xlim)
         plt.ylim([1e13 * relaxation_time, 1e20 * relaxation_time])
-        plt.ylabel("conductivity,\n $\sigma$ (1/($\Omega$ m))", fontsize=30.0)
+        plt.ylabel("conductivity,\n $\\Sigma$ (1/($\\Omega$ m))", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
@@ -2471,7 +2488,7 @@ class BoltztrapPlotter(object):
             plt.xlim(-0.5, self._bz.gap + 0.5)
         else:
             plt.xlim(xlim)
-        plt.ylabel("Power factor, ($\mu$W/(mK$^2$))", fontsize=30.0)
+        plt.ylabel("Power factor, ($\\mu$W/(mK$^2$))", fontsize=30.0)
         plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)

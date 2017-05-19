@@ -651,7 +651,7 @@ limits:
         queue manager (obtained by parsing QTEMPLATE).
         """
         import re
-        return re.findall("\$\$\{(\w+)\}", self.QTEMPLATE)
+        return re.findall(r"\$\$\{(\w+)\}", self.QTEMPLATE)
 
     @property
     def has_mpi(self):

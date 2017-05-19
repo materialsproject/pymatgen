@@ -210,7 +210,7 @@ class EOSBase(six.with_metaclass(ABCMeta)):
                  label=label)
 
         plt.grid(True)
-        plt.xlabel("Volume $\AA^3$")
+        plt.xlabel("Volume $\\AA^3$")
         plt.ylabel("Energy (eV)")
         plt.legend(loc="best", shadow=True)
         # Add text with fit parameters.

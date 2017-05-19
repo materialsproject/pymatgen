@@ -4,6 +4,10 @@
 
 from __future__ import division, unicode_literals
 
+import six
+import yaml
+import os
+
 """
 This module provides classes to perform topological analyses of structures.
 """
@@ -28,7 +32,7 @@ from pymatgen import PeriodicSite
 from pymatgen import Element, Specie, Composition
 from pymatgen.util.num import abs_cap
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.surface import Slab
+from pymatgen.core.surface import Slab, SlabGenerator
 
 
 class VoronoiCoordFinder(object):
@@ -137,6 +141,89 @@ class VoronoiCoordFinder(object):
             if weight > tol and (target is None or site.specie == target):
                 coordinated_sites.append(site)
         return coordinated_sites
+
+
+class JMolCoordFinder:
+    """
+    Determine coordinated sites and coordination number using an emulation of 
+    JMol's default autoBond() algorithm. This version of the algorithm does not 
+    take into account any information regarding known charge states.
+    """
+
+    def __init__(self, el_radius_updates=None):
+        """
+        Initialize coordination finder parameters (atomic radii)
+        
+        Args:
+            el_radius_updates: (dict) symbol->float to override default atomic 
+                radii table values 
+        """
+
+        # load elemental radii table
+        bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  "bonds_jmol_ob.yaml")
+        with open(bonds_file, 'r') as f:
+            self.el_radius = yaml.load(f)
+
+        # update any user preference elemental radii
+        if el_radius_updates:
+            self.el_radius.update(el_radius_updates)
+
+    def get_max_bond_distance(self, el1_sym, el2_sym, constant=0.56):
+        """
+        Use JMol algorithm to determine bond length from atomic parameters
+        Args:
+            el1_sym: (str) symbol of atom 1
+            el2_sym: (str) symbol of atom 2
+            constant: (float) factor to tune model
+
+        Returns: (float) max bond length
+
+        """
+        return math.sqrt(
+            (self.el_radius[el1_sym] + self.el_radius[el2_sym] + constant) ** 2)
+
+    def get_coordination_number(self, structure, n, tol=1E-3):
+        """
+        Get the coordination number of a site
+        Args:
+            structure: (Structure)
+            n: (int) index of site in the structure to get CN for
+            tol: (float) a numerical tolerance to extend search
+
+        Returns: (int) the coordination number
+        """
+
+        return len(self.get_coordinated_sites(structure, n, tol))
+
+    def get_coordinated_sites(self, structure, n, tol=1E-3):
+        """
+        Get the coordinated sites for a site
+        Args:
+            structure: (Structure)
+            n: (int) index of site in the structure to analyze
+            tol: (float) a numerical tolerance to extend search
+
+        Returns: ([sites]) a list of coordinated sites
+        """
+        site = structure[n]
+
+        # determine relevant bond lengths based on atomic radii table
+        bonds = {}
+        for el in structure.composition.elements:
+            bonds[site.specie, el] = self.get_max_bond_distance(
+                site.specie.symbol, el.symbol)
+
+        # search for neighbors up to max bond length + tolerance
+        max_rad = max(bonds.values()) + tol
+
+        all_neighbors = []
+        for neighb, dist in structure.get_neighbors(site, max_rad):
+            # confirm neighbor based on bond length specific to atom pair
+            if dist <= bonds[(site.specie, neighb.specie)] + tol:
+                all_neighbors.append(neighb)
+
+        return all_neighbors
 
 
 def average_coordination_number(structures, freq=10):
@@ -491,6 +578,80 @@ def solid_angle(center, coords):
     return phi + (3 - len(r)) * math.pi
 
 
+def get_max_bond_lengths(structure, el_radius_updates=None):
+    """
+    Provides max bond length estimates for a structure based on the JMol
+    table and algorithms.
+    
+    Args:
+        structure: (structure)
+        el_radius_updates: (dict) symbol->float to update atomic radii
+    
+    Returns: (dict) - (Element1, Element2) -> float. The two elements are 
+        ordered by Z.
+    """
+    jmc = JMolCoordFinder(el_radius_updates)
+
+    bonds_lens = {}
+    els = sorted(structure.composition.elements, key=lambda x: x.Z)
+
+    for i1 in range(len(els)):
+        for i2 in range(len(els) - i1):
+            bonds_lens[els[i1], els[i1 + i2]] = jmc.get_max_bond_distance(
+                els[i1].symbol, els[i1 + i2].symbol)
+
+    return bonds_lens
+
+
+def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
+                       min_slab_size=5, min_vacuum_size=5,
+                       standardize=True):
+
+    """
+    This method returns whether a structure is 3D, 2D (layered), or 1D (linear 
+    chains or molecules) according to the algorithm published in Gorai, P., 
+    Toberer, E. & Stevanovic, V. Computational Identification of Promising 
+    Thermoelectric Materials Among Known Quasi-2D Binary Compounds. J. Mater. 
+    Chem. A 2, 4136 (2016).
+    
+    Note that a 1D structure detection might indicate problems in the bonding
+    algorithm, particularly for ionic crystals (e.g., NaCl)
+    
+    Args:
+        structure: (Structure) structure to analyze dimensionality for 
+        max_hkl: (int) max index of planes to look for layers
+        el_radius_updates: (dict) symbol->float to update atomic radii
+        min_slab_size: (float) internal surface construction parameter
+        min_vacuum_size: (float) internal surface construction parameter
+        standardize (bool): whether to standardize the structure before 
+            analysis. Set to False only if you already have the structure in a 
+            convention where layers / chains will be along low <hkl> indexes.
+
+    Returns: (int) the dimensionality of the structure - 1 (molecules/chains), 
+        2 (layered), or 3 (3D)
+
+    """
+    if standardize:
+        structure = SpacegroupAnalyzer(structure).\
+            get_conventional_standard_structure()
+
+    bonds = get_max_bond_lengths(structure)
+
+    num_surfaces = 0
+    for h in range(max_hkl):
+        for k in range(max_hkl):
+            for l in range(max_hkl):
+                if max([h, k, l]) > 0 and num_surfaces < 2:
+                    sg = SlabGenerator(structure, (h, k, l),
+                                       min_slab_size=min_slab_size,
+                                       min_vacuum_size=min_vacuum_size)
+                    slabs = sg.get_slabs(bonds)
+                    for _ in slabs:
+                        num_surfaces += 1
+
+    return 3 - min(num_surfaces, 2)
+
+
 def contains_peroxide(structure, relative_cutoff=1.1):
     """
     Determines if a structure contains peroxide anions.
@@ -691,7 +852,7 @@ class OrderParameters(object):
 
     __supported_types = (
             "cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", "q6",
-            "reg_tri", "sq", "sq_pyr")
+            "reg_tri", "sq", "sq_pyr", "tri_bipyr")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -720,6 +881,7 @@ class OrderParameters(object):
                 "reg_tri" (OP recognizing coordination with a regular triangle),
                 "sq" (OP recognizing square coordination),
                 "sq_pyr" (OP recognizing square pyramidal coordination),
+                "tri_bipyr" (OP recognizing trigonal bipyramidal coord.),
                 "q2"  [Bond orientational order parameter (BOOP)
                       of weight l=2 (Steinhardt et al., Phys. Rev. B,
                       28, 784-805, 1983)],
@@ -773,7 +935,13 @@ class OrderParameters(object):
                             for penalizing angles away from 90 degrees
                             (0.0333);
                             Gaussian width in Angstrom for penalizing
-                            variations in neighbor distances (0.1).
+                            variations in neighbor distances (0.1);
+                  "tri_bipyr": threshold angle to identify close to
+                            South pole positions (160.0, cf., oct).
+                            Gaussian width for penalizing deviations away
+                            from south pole (0.0667);
+                            Gaussian width for penalizing deviations away
+                            from equator (0.0556).
             cutoff (float):
                 Cutoff radius to determine which nearest neighbors are
                 supposed to contribute to the order parameters.
@@ -935,6 +1103,32 @@ class OrderParameters(object):
                                 " square pyramid order parameter is zero!")
                     tmpparas[i] = [1.0 / loc_parameters[i][0], \
                             1.0 / loc_parameters[i][1]]
+            elif t == "tri_bipyr":
+                if len(loc_parameters[i]) < 3:
+                    tmpparas[i].append(8.0 * pi / 9.0)
+                    tmpparas[i].append(1.0 / 0.0667)
+                    tmpparas[i].append(1.0 / 0.0741)
+                else:
+                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
+                            0] >= 180.0:
+                        warn("Threshold value for south pole"
+                             " configurations in octahedral order"
+                             " parameter outside ]0,180[")
+                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
+                    if loc_parameters[i][1] == 0.0:
+                        raise ValueError("Gaussian width for south pole"
+                                         " configurations in trigonal"
+                                         " bipyramidal order parameter is"
+                                         " zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][1])
+                    if loc_parameters[i][2] == 0.0:
+                        raise ValueError("Gaussian width for equatorial"
+                                         " configurations in trigonal"
+                                         " bipyramidal order parameter"
+                                         " is zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][2])
             # All following types should be well-defined/-implemented,
             # and they should not require parameters.
             elif t != "q2" and t != "q4" and t != "q6":
@@ -945,7 +1139,8 @@ class OrderParameters(object):
             #                    to any neighbor j.
             # self._computerjks: compute vectors from non-centeral atom j
             #                    to any non-central atom k.
-            if t == "tet" or t == "oct" or t == "bcc" or t == "sq_pyr":
+            if t == "tet" or t == "oct" or t == "bcc" or t == "sq_pyr" or \
+                    t == "tri_bipyr":
                 self._computerijs = self._geomops = True
             if t == "reg_tri" or t =="sq":
                 self._computerijs = self._computerjks = self._geomops2 = True
@@ -1662,6 +1857,11 @@ class OrderParameters(object):
                             elif t == "sq_pyr":
                                 tmp = self._paras[i][0] * (thetak * ipi - 0.5)
                                 qsptheta[i][j] = qsptheta[i][j] + exp(-0.5 * tmp * tmp)
+                            elif t == "tri_bipyr":
+                                if thetak >= self._paras[i][0]:
+                                    tmp = self._paras[i][1] * (
+                                        thetak * ipi - 1.0)
+                                    qsptheta[i][j] = 2.0 * math.exp(-0.5 * tmp * tmp)
 
                         for m in range(nneigh):
                             if (m != j) and (m != k) and (not flag_xaxis):
@@ -1714,6 +1914,16 @@ class OrderParameters(object):
                                                           1.6 * tmp * \
                                                           math.exp(
                                                               -0.5 * tmp * tmp)
+                                        elif t == "tri_bipyr":
+                                            if thetak < self._paras[i][0] and \
+                                                    thetam < self._paras[i][0]:
+                                                tmp = math.cos(1.5 * phi)
+                                                tmp2 = self._paras[i][2] * (
+                                                    thetam * ipi - 0.5)
+                                                qsptheta[i][j] += \
+                                                    tmp * tmp * math.exp( \
+                                                    -0.5 * tmp2 * tmp2)
+
 
             # Normalize Peters-style OPs.
             for i, t in enumerate(self._types):
@@ -1744,6 +1954,11 @@ class OrderParameters(object):
                                 nneigh * (nneigh - 1))
                     else:
                         ops[i] = None
+                elif t == "tri_bipyr":
+                    ops[i] = max(qsptheta[i]) / float(
+                            2 + (nneigh - 2) * (nneigh - 3)) if nneigh > 3 \
+                            else None
+
 
         # Then, deal with the new-style OPs that require vectors between
         # neighbors.

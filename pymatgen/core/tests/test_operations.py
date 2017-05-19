@@ -5,7 +5,8 @@
 from __future__ import unicode_literals
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.operations import SymmOp
+from pymatgen.core.operations import SymmOp, MagSymmOp
+from pymatgen.electronic_structure.core import Magmom
 import numpy as np
 
 
@@ -70,8 +71,8 @@ class SymmOpTestCase(PymatgenTest):
                                      [1.69615,  9.06218,  8.]], 5)
 
         # Rank 3
-        tensor=np.arange(0, 27).reshape(3, 3, 3)
-        new_tensor=self.op.transform_tensor(tensor)
+        tensor = np.arange(0, 27).reshape(3, 3, 3)
+        new_tensor = self.op.transform_tensor(tensor)
         self.assertArrayAlmostEqual(new_tensor,
                                     [[[-0.871, -2.884, -1.928],
                                       [-2.152, -6.665, -4.196],
@@ -83,8 +84,8 @@ class SymmOpTestCase(PymatgenTest):
                                       [9.268, 38.321, 29.919],
                                       [8.285, 33.651, 26.000]]], 3)
         # Rank 4
-        tensor=np.arange(0, 81).reshape(3, 3, 3, 3)
-        new_tensor=self.op.transform_tensor(tensor)
+        tensor = np.arange(0, 81).reshape(3, 3, 3, 3)
+        new_tensor = self.op.transform_tensor(tensor)
         self.assertArrayAlmostEqual(new_tensor,
                                     [[[[-0.981, -3.526, -2.514],
                                        [-3.258, -11.660, -8.286],
@@ -115,60 +116,112 @@ class SymmOpTestCase(PymatgenTest):
                                        [28.050, 107.416, 80.000]]]], 3)
 
     def test_are_symmetrically_related(self):
-        point=np.random.rand(3)
-        newcoord=self.op.operate(point)
+        point = np.random.rand(3)
+        newcoord = self.op.operate(point)
         self.assertTrue(self.op.are_symmetrically_related(point, newcoord))
         self.assertTrue(self.op.are_symmetrically_related(newcoord, point))
 
     def test_to_from_dict(self):
-        d=self.op.as_dict()
-        op=SymmOp.from_dict(d)
-        point=np.random.rand(3)
-        newcoord=self.op.operate(point)
+        d = self.op.as_dict()
+        op = SymmOp.from_dict(d)
+        point = np.random.rand(3)
+        newcoord = self.op.operate(point)
         self.assertTrue(op.are_symmetrically_related(point, newcoord))
 
     def test_inversion(self):
-        origin=np.random.rand(3)
-        op=SymmOp.inversion(origin)
-        pt=np.random.rand(3)
-        inv_pt=op.operate(pt)
+        origin = np.random.rand(3)
+        op = SymmOp.inversion(origin)
+        pt = np.random.rand(3)
+        inv_pt = op.operate(pt)
         self.assertArrayAlmostEqual(pt - origin, origin - inv_pt)
 
     def test_xyz(self):
-        op=SymmOp([[1, -1, 0, 0], [0, -1, 0, 0],
+        op = SymmOp([[1, -1, 0, 0], [0, -1, 0, 0],
                      [0, 0, -1, 0], [0, 0, 0, 1]])
-        s=op.as_xyz_string()
+        s = op.as_xyz_string()
         self.assertEqual(s, 'x-y, -y, -z')
         self.assertEqual(op, SymmOp.from_xyz_string(s))
 
-        op2=SymmOp([[0, -1, 0, 0.5], [1, 0, 0, 0.5],
+        op2 = SymmOp([[0, -1, 0, 0.5], [1, 0, 0, 0.5],
                       [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]])
-        s2=op2.as_xyz_string()
+        s2 = op2.as_xyz_string()
         self.assertEqual(s2, '-y+1/2, x+1/2, z+1/2')
         self.assertEqual(op2, SymmOp.from_xyz_string(s2))
 
-        op2=SymmOp([[3, -2, -1, 0.5], [-1, 0, 0, 12. / 13],
+        op2 = SymmOp([[3, -2, -1, 0.5], [-1, 0, 0, 12. / 13],
                       [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]])
-        s2=op2.as_xyz_string()
+        s2 = op2.as_xyz_string()
         self.assertEqual(s2, '3x-2y-z+1/2, -x+12/13, z+1/2')
         self.assertEqual(op2, SymmOp.from_xyz_string(s2))
 
-        op3=SymmOp.from_xyz_string('3x - 2y - z+1 /2 , -x+12/ 13, z+1/2')
+        op3 = SymmOp.from_xyz_string('3x - 2y - z+1 /2 , -x+12/ 13, z+1/2')
         self.assertEqual(op2, op3)
 
         # Ensure strings can be read in any order
-        op4=SymmOp.from_xyz_string('1 /2 + 3X - 2y - z , 12/ 13-x, z+1/2')
-        op5=SymmOp.from_xyz_string('+1 /2 + 3x - 2y - z , 12/ 13-x, +1/2+z')
+        op4 = SymmOp.from_xyz_string('1 /2 + 3X - 2y - z , 12/ 13-x, z+1/2')
+        op5 = SymmOp.from_xyz_string('+1 /2 + 3x - 2y - z , 12/ 13-x, +1/2+z')
         self.assertEqual(op4, op3)
         self.assertEqual(op4, op5)
         self.assertEqual(op3, op5)
 
         self.assertRaises(ValueError, self.op.as_xyz_string)
 
-        o=SymmOp.from_xyz_string('0.5+x, 0.25+y, 0.75+z')
+        o = SymmOp.from_xyz_string('0.5+x, 0.25+y, 0.75+z')
         self.assertArrayAlmostEqual(o.translation_vector, [0.5, 0.25, 0.75])
-        o=SymmOp.from_xyz_string('x + 0.5, y + 0.25, z + 0.75')
+        o = SymmOp.from_xyz_string('x + 0.5, y + 0.25, z + 0.75')
         self.assertArrayAlmostEqual(o.translation_vector, [0.5, 0.25, 0.75])
+
+
+class MagSymmOpTestCase(PymatgenTest):
+
+    def test_xyzt_string(self):
+
+        xyzt_strings = ['x, y, z, +1',
+                        'x, y, z, -1',
+                        '-y+1/2, x+1/2, x+1/2, +1']
+
+        for xyzt_string in xyzt_strings:
+            op = MagSymmOp.from_xyzt_string(xyzt_string)
+            xyzt_string_out = op.as_xyzt_string()
+            self.assertEqual(xyzt_string, xyzt_string_out)
+
+        op = SymmOp([[3, -2, -1, 0.5], [-1, 0, 0, 12. / 13],
+                     [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]])
+
+        magop = MagSymmOp.from_symmop(op, -1)
+        magop_str = magop.as_xyzt_string()
+        self.assertEqual(magop.time_reversal, -1)
+        self.assertEqual(magop_str, '3x-2y-z+1/2, -x+12/13, z+1/2, -1')
+
+    def test_to_from_dict(self):
+        op = SymmOp([[3, -2, -1, 0.5], [-1, 0, 0, 12. / 13],
+                     [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]])
+        magop = MagSymmOp.from_symmop(op, -1)
+        magop2 = MagSymmOp.from_dict(magop.as_dict())
+        self.assertEqual(magop2.time_reversal, -1)
+        self.assertEqual(magop2.as_xyzt_string(), '3x-2y-z+1/2, -x+12/13, z+1/2, -1')
+
+    def test_operate_magmom(self):
+
+        # all test magmoms are the same
+        magmoms = [Magmom([1, 2, 3]),  # as Magmom
+                   [1, 2, 3],  # as list
+                   Magmom([-3, 2, 1], saxis=[1, 0, 0])]  # as Magmom with non-default saxis
+
+        xyzt_strings = ['x, y, z, +1',
+                        'x, y, z, -1',
+                        'x, -y, z, -1',
+                        '-x, -y, z, -1']
+
+        transformed_magmoms = [[1, 2, 3],
+                               [-1, -2, -3],
+                               [1, -2, 3],
+                               [1, 2, -3]]
+
+        for xyzt_string, transformed_magmom in zip(xyzt_strings, transformed_magmoms):
+            for magmom in magmoms:
+                op = MagSymmOp.from_xyzt_string(xyzt_string)
+                self.assertTrue(np.allclose(transformed_magmom, op.operate_magmom(magmom).global_moment))
 
 if __name__ == '__main__':
     import unittest

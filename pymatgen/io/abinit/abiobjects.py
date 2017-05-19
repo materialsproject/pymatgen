@@ -1350,7 +1350,7 @@ class ExcHamiltonian(AbivarAble):
             mbpt_sciss: Scissors energy in Hartree.
             coulomb_mode: Treatment of the Coulomb term.
             ecuteps: Cutoff energy for W in Hartree.
-            mdf_epsinf: Macroscopic dielectric function :math:`\epsilon_\inf` used in
+            mdf_epsinf: Macroscopic dielectric function :math:`\\epsilon_\\inf` used in
                 the model dielectric function.
             exc_type: Approximation used for the BSE Hamiltonian
             with_lf: True if local field effects are included <==> exchange term is included

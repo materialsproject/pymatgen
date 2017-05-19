@@ -3,21 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-
-"""
-This module provides classes for representing species substitution
-probabilities.
-"""
-
-from six.moves import zip
-
-__author__ = "Will Richards, Geoffroy Hautier"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.2"
-__maintainer__ = "Will Richards"
-__email__ = "wrichard@mit.edu"
-__date__ = "Aug 31, 2012"
-
 from collections import defaultdict
 from operator import mul
 from pymatgen.core.periodic_table import Specie, get_el_sp
@@ -30,6 +15,19 @@ import math
 import os
 
 import six
+from six.moves import zip
+
+"""
+This module provides classes for representing species substitution
+probabilities.
+"""
+
+__author__ = "Will Richards, Geoffroy Hautier"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "1.2"
+__maintainer__ = "Will Richards"
+__email__ = "wrichard@mit.edu"
+__date__ = "Aug 31, 2012"
 
 
 @cached_class
@@ -61,7 +59,7 @@ class SubstitutionProbability(object):
             with open(json_file) as f:
                 self._lambda_table = json.load(f)
 
-        #build map of specie pairs to lambdas
+        # build map of specie pairs to lambdas
         self.alpha = alpha
         self._l = {}
         self.species = set()
@@ -73,7 +71,7 @@ class SubstitutionProbability(object):
                 self.species.add(s2)
                 self._l[frozenset([s1, s2])] = float(row[2])
 
-        #create Z and px
+        # create Z and px
         self.Z = 0
         self._px = defaultdict(float)
         for s1, s2 in itertools.product(self.species, repeat=2):
@@ -123,7 +121,7 @@ class SubstitutionProbability(object):
             The pair correlation of 2 species
         """
         return math.exp(self.get_lambda(s1, s2)) * \
-            self.Z / (self.get_px(s1) * self.get_px(s2))
+               self.Z / (self.get_px(s1) * self.get_px(s2))
 
     def cond_prob_list(self, l1, l2):
         """
@@ -161,11 +159,12 @@ class SubstitutionPredictor(object):
     Predicts likely substitutions either to or from a given composition
     or species list using the SubstitutionProbability
     """
+
     def __init__(self, lambda_table=None, alpha=-5, threshold=1e-3):
         self.p = SubstitutionProbability(lambda_table, alpha)
         self.threshold = threshold
 
-    def list_prediction(self, species, to_this_composition = True):
+    def list_prediction(self, species, to_this_composition=True):
         """
         Args:
             species:
@@ -223,7 +222,7 @@ class SubstitutionPredictor(object):
         logging.info('{} substitutions found'.format(len(output)))
         return output
 
-    def composition_prediction(self, composition, to_this_composition = True):
+    def composition_prediction(self, composition, to_this_composition=True):
         """
         Returns charged balanced substitutions from a starting or ending
         composition.
@@ -248,7 +247,7 @@ class SubstitutionPredictor(object):
         output = []
         for p in preds:
             if to_this_composition:
-                subs = {v:k for k, v in p['substitutions'].items()}
+                subs = {v: k for k, v in p['substitutions'].items()}
             else:
                 subs = p['substitutions']
             charge = 0

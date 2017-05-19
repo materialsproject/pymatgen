@@ -10,8 +10,9 @@ import json
 import os
 import unittest
 
+import sys
 from pymatgen import Molecule
-from pymatgen.io.qchem import QcTask, QcInput, QcOutput
+from pymatgen.io.qchem import QcTask, QcInput, QcOutput, QcNucVeloc
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = 'xiaohuiqu'
@@ -293,6 +294,25 @@ $end
         self.assertEqual(str(qctask), ans_mixed)
         self.elementary_io_verify(ans_mixed, qctask)
 
+    def test_velocities(self):
+        qctask = QcTask.from_file(
+            os.path.join(test_dir, "qc_aimd",
+                         "mg2dig_nvt_langevin.inp"))
+        qcnv = QcNucVeloc(
+            os.path.join(test_dir, "qc_aimd",
+                         "NucVeloc.velocities"))
+        velocities = qcnv.velocities[-1]
+        qctask.set_velocities(velocities)
+        qc_text = str(qctask)
+        vel_text = qc_text[qc_text.index("$velocity"):]
+        self.assertEqual(vel_text.split("\n")[1].strip(),
+                         "8.97607E-05    9.45576E-06   -2.39705E-04")
+        self.assertEqual(len(vel_text.split("\n")), 66)
+        self.assertEqual(vel_text.split("\n")[-4].strip(),
+                         "9.05272E-05    1.11329E-03   -9.17663E-04")
+        qctask2 = QcTask.from_string(qc_text)
+        self.elementary_io_verify(qc_text, qctask2)
+
     def test_opt_constraint_str(self):
         opt_coords = [[-1.8438708, 1.7639844, 0.0036111],
                       [-0.3186117, 1.7258535, 0.0241264],
@@ -309,7 +329,7 @@ $end
                       [2.0709344, -0.8081667, -0.0452220],
                       [2.1094213, 0.7132527, 0.9246668]]
         opt_mol = Molecule(["C", "C", "C", "C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"], opt_coords)
-        constraint_dict = {'opt': [['tors', 1, 2, 3, 4, 180.0]]}
+        constraint_dict = {'opt': {'CONSTRAINT': [['tors', 1, 2, 3, 4, 180.0]]}}
         ans = """$molecule
  0  1
  C          -1.84387080        1.76398440        0.00361110
@@ -349,6 +369,61 @@ $end
                         optional_params=constraint_dict)
         self.assertEqual(str(qctask), ans)
         self.elementary_io_verify(ans, qctask)
+
+    def test_opt_fixed_atoms(self):
+        fixed_dict = {"opt": {"FIXED": {2: "Y", 3: "XYZ"}}}
+        qctask1 = QcTask(mol, exchange="B3LYP", jobtype="SP",
+                         basis_set="6-31+G*",
+                         optional_params=fixed_dict)
+        task_text1 = str(qctask1)
+        opt_text1 = task_text1[task_text1.index("$opt"):]
+        ans1 = """$opt
+FIXED
+ 2 Y
+ 3 XYZ
+ENDFIXED
+$end
+
+"""
+        self.assertEqual(opt_text1, ans1)
+        self.elementary_io_verify(task_text1, qctask1)
+
+        fixed_n_const_dict = {"opt": {"FIXED": {2: "Y", 3: "XYZ"},
+                                      "CONSTRAINT": [['tors', 1, 2, 3, 4, 180.0]]}}
+        qctask2 = QcTask(mol, exchange="B3LYP", jobtype="SP",
+                        basis_set="6-31+G*",
+                        optional_params=fixed_n_const_dict)
+        task_text2 = str(qctask2)
+        opt_text2 = task_text2[task_text2.index("$opt"):]
+        ans2 = """$opt
+CONSTRAINT
+tors 1 2 3 4 180.0
+ENDCONSTRAINT
+
+FIXED
+ 2 Y
+ 3 XYZ
+ENDFIXED
+$end
+
+"""
+        self.assertEqual(opt_text2, ans2)
+        self.elementary_io_verify(task_text2, qctask2)
+
+    def test_method_keyword(self):
+        qctask1 = QcTask(mol, method="B3LYP", jobtype="SP",
+                         basis_set="6-31+G*")
+        task_text = str(qctask1)
+        rem_text = task_text[task_text.index("$rem"):]
+        ans = """$rem
+  jobtype = sp
+   method = b3lyp
+    basis = 6-31+g*
+$end
+
+"""
+        self.assertEqual(rem_text, ans)
+        self.elementary_io_verify(task_text, qctask1)
 
     def test_partial_hessian(self):
         qcinp1 = QcInput.from_file(os.path.join(test_dir, "partial_hessian.qcinp"))
@@ -2112,6 +2187,14 @@ $end
                           0.341061]
         self.assertEqual(qcout.data[0]['charges']['chelpg'], chelpg_charges)
 
+    @unittest.skipIf(sys.platform not in ["linux", 'darwin'],
+                     "Skip unix file path test on Windows")
+    def test_scr_dir(self):
+        filename = os.path.join(test_dir, 'chelpg_charges.qcout')
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]['scratch_dir'],
+                         "/Users/xiaohuiqu/scratch/qchem7101")
+
     def test_no_message_scf_opt_fail(self):
         so_failfile = os.path.join(test_dir, 'scf_opt_no_message_fail.qcout')
         so_failqcout = QcOutput(so_failfile)
@@ -2410,7 +2493,7 @@ Sites (12)
         qcout = QcOutput(filename)
         self.assertEqual(len(qcout.data), 2)
 
-    def test_opt(self):
+    def test_parse_opt_contraint(self):
         filename = os.path.join(test_dir, "pt_dft_180.0.qcout")
         qcout = QcOutput(filename)
         qcin = qcout.data[-1]['input']
@@ -2453,9 +2536,38 @@ $end
 
 '''
         self.assertEqual(str(qcin), qcin_ans)
-        constraint = qcin.params['opt']
+        constraint = qcin.params['opt']['CONSTRAINT']
         constraint_ans = [['tors', 4, 5, 7, 9, 180.0]]
         self.assertEqual(constraint, constraint_ans)
+
+        stre_text = """CONSTRAINT
+stre 70 9 3.795
+stre 13 44 3.656
+ENDCONSTRAINT"""
+        stre_d = qcin._parse_opt(stre_text.split('\n'))
+        qctask = QcTask(mol, exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-31+G*",
+                        optional_params={"opt": stre_d})
+        stre_text_2 = "\n".join(qctask._format_opt())
+        self.assertEqual(stre_text_2, stre_text)
+
+class TestQcNucVeloc(PymatgenTest):
+
+    def test_parse(self):
+        qcnv = QcNucVeloc(os.path.join(test_dir, "qc_aimd", "NucVeloc.velocities"))
+        self.assertEqual(len(qcnv.step_times), 302)
+        self.assertEqual(qcnv.step_times[-1], 14.56168)
+        self.assertEqual(len(qcnv.velocities), 302)
+        self.assertEqual(qcnv.velocities[0][0],
+                         (1.42192e-05, 6.65659e-05, 5.22453e-05))
+        self.assertEqual(qcnv.velocities[0][-1],
+                         (-6.52039e-06, -0.000213074, -0.000769596))
+        self.assertEqual(qcnv.velocities[-1][0],
+                         (8.976072e-05, 9.455759e-06, -0.0002397046))
+        self.assertEqual(qcnv.velocities[-1][-1],
+                         (9.052722e-05, 0.001113288, -0.0009176628))
+
 
 if __name__ == "__main__":
     unittest.main()

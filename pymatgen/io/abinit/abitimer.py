@@ -140,7 +140,12 @@ class AbinitTimerParser(collections.Iterable):
         def parse_line(line):
             """Parse single line."""
             name, vals = line[:25], line[25:].split()
-            ctime, cfract, wtime, wfract, ncalls, gflops = vals
+            try:
+                ctime, cfract, wtime, wfract, ncalls, gflops = vals
+            except ValueError:
+                # v8.3 Added two columns at the end [Speedup, Efficacity]
+                ctime, cfract, wtime, wfract, ncalls, gflops, speedup, eff = vals
+
             return AbinitTimerSection(name, ctime, cfract, wtime, wfract, ncalls, gflops)
 
         data = {}

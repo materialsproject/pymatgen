@@ -168,7 +168,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         obconv.SetOutFormat(str("inchi"))
         obconv.AddOption(str("X"), ob.OBConversion.OUTOPTIONS, str("DoNotAddH"))
         inchi_text = obconv.WriteString(mol)
-        match = re.search("InChI=(?P<inchi>.+)\n", inchi_text)
+        match = re.search(r"InChI=(?P<inchi>.+)\n", inchi_text)
         return match.group("inchi")
 
     def as_dict(self):
@@ -219,9 +219,9 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         obconv.AddOption(str("a"), ob.OBConversion.OUTOPTIONS)
         obconv.AddOption(str("X"), ob.OBConversion.OUTOPTIONS, str("DoNotAddH"))
         inchi_text = obconv.WriteString(mol)
-        match = re.search("InChI=(?P<inchi>.+)\nAuxInfo=.+"
-                          "/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9,"
-                          ";\(\)]*)/)?", inchi_text)
+        match = re.search(r"InChI=(?P<inchi>.+)\nAuxInfo=.+"
+                          r"/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9,"
+                          r";\(\)]*)/)?", inchi_text)
         inchi = match.group("inchi")
         label_text = match.group("labels")
         eq_atom_text = match.group("eq_atoms")
@@ -229,7 +229,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             ';', ',').split(',')])
         eq_atoms = []
         if eq_atom_text is not None:
-            eq_tokens = re.findall('\(((?:[0-9]+,)+[0-9]+)\)', eq_atom_text
+            eq_tokens = re.findall(r'\(((?:[0-9]+,)+[0-9]+)\)', eq_atom_text
                                    .replace(';', ','))
             eq_atoms = tuple([tuple([int(i) for i in t.split(',')])
                               for t in eq_tokens])

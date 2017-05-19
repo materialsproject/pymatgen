@@ -91,12 +91,11 @@ class QuasiharmonicDebyeApprox(object):
         Note: The data points for which the equation of state fitting fails
             are skipped.
         """
-        temperatures = np.linspace(self.temperature_min,  self.temperature_max,
-                                   np.ceil(
-                                       (self.temperature_max
-                                        - self.temperature_min)
-                                       / self.temperature_step) + 1)
-        print("Fitting G and V for each T")
+        temperatures = np.linspace(
+            self.temperature_min,  self.temperature_max,
+            int(np.ceil((self.temperature_max - self.temperature_min)
+            / self.temperature_step) + 1))
+
         for t in temperatures:
             try:
                 G_opt, V_opt = self.optimizer(t)
