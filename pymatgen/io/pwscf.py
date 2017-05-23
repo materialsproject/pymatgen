@@ -6,8 +6,14 @@ from __future__ import division, unicode_literals
 
 import six
 
+from monty.io import zopen
+
 from monty.re import regrep
 from collections import defaultdict
+
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.util.io_utils import clean_lines
 
 """
 This module implements input and output processing from PWSCF.
@@ -112,6 +118,126 @@ class PWInput(object):
         """
         with open(filename, "w") as f:
             f.write(self.__str__())
+
+    @staticmethod
+    def from_file(filename):
+        """
+        Reads an PWInput object from a file.
+
+        Args:
+            filename (str): Filename for file
+
+        Returns:
+            PWInput object
+        """
+        with zopen(filename, "rt") as f:
+            return PWInput.from_string(f.read())
+
+    @staticmethod
+    def from_string(string):
+        """
+        Reads an PWInput object from a string.
+
+        Args:
+            string (str): PWInput string
+
+        Returns:
+            PWInput object
+        """
+        lines = list(clean_lines(string.splitlines()))
+
+        def input_mode(line):
+            if line[0] == "&":
+                return ("section", line[1:].lower())
+            elif "ATOMIC_SPECIES" in line:
+                return ("pseudo", )
+            elif "K_POINTS" in line:
+                return ("kpoints", line.split("{")[1][:-1])
+            elif "CELL_PARAMETERS" in line or "ATOMIC_POSITIONS" in line:
+                return ("structure", line.split("{")[1][:-1])
+            elif line == "/":
+                return None
+            else:
+                return mode
+
+        sections = {"control": None, "system": None, "electrons": None, 
+                    "ions": None, "cell":None}
+        pseudo   = {}
+        lattice = []
+        species = []
+        coords = []
+        structure = None
+        mode = None
+        for line in lines:
+            mode = input_mode(line)
+            if mode[0] == "section":
+                submode = mode[1]
+                m = re.match(r'(\w+)\(?(\d*?)\)?\s*=\s*(.*)', line)
+                if m:
+                    key = m.group(1).strip()
+                    key_ = m.group(2).strip()
+                    val_ = m.group(3).strip()
+                    if key_ != "":
+                        if sections[submode].get(key, None) == None:
+                            val = PWInput.proc_val(key, key_, val, [0.0]*20)
+                        else:
+                            val = PWInput.proc_val(key, key_, val, sections[submode][key])
+                    else:
+                        val = PWInput.proc_val(key, key_, val_)
+                    sections[submode][key] = val
+            elif mode[0] == "pseudo":
+                m = re.match(r'(\w+)\s+(\d*.\d*)\s+(.*)', line)
+                if m:
+                    pseudo[m.group(1).strip()] = {}
+                    pseudo[m.group(1).strip()]["mass"] = m.group(2).strip()
+                    pseudo[m.group(1).strip()]["pseudopot"] = m.group(3).strip()
+            elif mode[0] == "kpoints":
+                m = re.match(r'(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)', line)
+                if m:
+                    kpoints_grid = (m.group(1), m.group(2), m.group(3))
+                    kpoints_shift = (m.group(4), m.group(5), m.group(6))
+                else:
+                    kpoints_mode = mode[1]
+            elif mode[0] == "structure":
+                m_l = re.match(r'(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)', line)
+                m_p = re.match(r'(\w+)\s+(-?\d+\.\d*)+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)', line)
+                if m_l:
+                    lattice += [ f for f in m_l.group[1:] ]
+                elif m_p:
+                    species += [pseudo[m_p.group(1)]["pseudopot"].strip(".")[0]]
+                    coords += [[m_p.group(2), m_p.group(3), m_p.group(4)]]
+
+            structure = Structure(Lattice(lattice), species, coords)
+        return PWInput(structure=structure, pseudo=pseudo, control=sections["control"],
+                system=sections["system"], electrons=sections["electrons"], 
+                ions=sections["ions"], cell=sections["cell"], kpoints_mode=kpoints_mode,
+                kpoints_grid=kpoints_grid, kpoints_shift=kpoints_shift)
+
+    @staticmethod
+    def proc_val(key, key_, val, list=None):
+        """
+        Static helper method to convert PWInput parameters to proper types, e.g.,
+        integers, floats, lists, etc.
+
+        Args:
+            key: PWInput parameter key
+            val: Actual value of PWInput parameter.
+        """
+        list_keys = (starting_magnetization, hubbard_u)
+        bool_keys = ()
+        float_keys = ()
+        int_keys = ()
+
+        def smart_int_or_float(numstr):
+            if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
+                return float(numstr)
+            else:
+                return int(numstr)
+
+        try:
+            if key in list_keys:
+                list[key_-1] = smart_int_or_float(val)
+                return list
 
 
 class PWInputError(BaseException):
