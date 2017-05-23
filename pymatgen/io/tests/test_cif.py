@@ -15,6 +15,7 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen import Element, Specie, Lattice, Structure, Composition, DummySpecie
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.electronic_structure.core import Magmom
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -968,6 +969,75 @@ loop_
         s = p.get_structures()[0]
         self.assertEqual(s.formula, "K1 Mn1 F3")
 
+class MagCifTest(unittest.TestCase):
+
+    def setUp(self):
+        self.mcif = CifParser(os.path.join(test_dir, "magnetic.example.NiO.mcif"))
+        self.mcif_ncl = CifParser(os.path.join(test_dir, "magnetic.ncl.example.GdB4.mcif"))
+        self.mcif_incom = CifParser(os.path.join(test_dir, "magnetic.incommensurate.example.Cr.mcif"))
+        self.mcif_disord = CifParser(os.path.join(test_dir, "magnetic.disordered.example.CuMnO2.mcif"))
+
+    def test_mcif_detection(self):
+        self.assertTrue(self.mcif.feature_flags["magcif"])
+        self.assertTrue(self.mcif_ncl.feature_flags["magcif"])
+        self.assertTrue(self.mcif_incom.feature_flags["magcif"])
+        self.assertTrue(self.mcif_disord.feature_flags["magcif"])
+        self.assertFalse(self.mcif.feature_flags["magcif_incommensurate"])
+        self.assertFalse(self.mcif_ncl.feature_flags["magcif_incommensurate"])
+        self.assertTrue(self.mcif_incom.feature_flags["magcif_incommensurate"])
+        self.assertFalse(self.mcif_disord.feature_flags["magcif_incommensurate"])
+
+    def test_get_structures(self):
+
+        # incommensurate structures not currently supported
+        self.assertRaises(NotImplementedError, self.mcif_incom.get_structures)
+
+        # disordered magnetic structures not currently supported
+        self.assertRaises(NotImplementedError, self.mcif_disord.get_structures)
+
+        # taken from self.mcif_ncl, removing explicit magnetic symmops
+        # so that MagneticSymmetryGroup() has to be invoked
+        magcifstr = """
+data_5yOhtAoR
+
+_space_group.magn_name_BNS     "P 4/m' b' m' "
+_cell_length_a                 7.1316
+_cell_length_b                 7.1316
+_cell_length_c                 4.0505
+_cell_angle_alpha              90.00
+_cell_angle_beta               90.00
+_cell_angle_gamma              90.00
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+Gd1 Gd 0.31746 0.81746 0.00000 1
+B1 B 0.00000 0.00000 0.20290 1
+B2 B 0.17590 0.03800 0.50000 1
+B3 B 0.08670 0.58670 0.50000 1
+
+loop_
+_atom_site_moment_label
+_atom_site_moment_crystalaxis_x
+_atom_site_moment_crystalaxis_y
+_atom_site_moment_crystalaxis_z
+Gd1 5.05 5.05 0.0"""
+
+        s = self.mcif.get_structures(primitive=False)[0]
+        self.assertEqual(s.formula, "Ni32 O32")
+        self.assertTrue(Magmom.are_collinear(s.site_properties['magmom']))
+
+        # example with non-collinear spin
+        s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
+        s_ncl_from_msg = CifParser.from_string(magcifstr).get_structures(primitive=False)[0]
+        self.assertEqual(s_ncl.formula, "Gd4 B16")
+        self.assertFalse(Magmom.are_collinear(s_ncl.site_properties['magmom']))
+
+        self.assertTrue(s_ncl.matches(s_ncl_from_msg))
 
 if __name__ == '__main__':
     unittest.main()
