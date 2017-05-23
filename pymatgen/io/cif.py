@@ -277,7 +277,7 @@ class CifFile(object):
 
     @classmethod
     def from_file(cls, filename):
-        with zopen(filename, "rt") as f:
+        with zopen(filename, "rt", errors="replace") as f:
             return cls.from_string(f.read())
 
 
