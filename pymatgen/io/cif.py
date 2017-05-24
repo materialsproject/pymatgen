@@ -41,9 +41,9 @@ from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 Wrapper classes for Cif input and output from Structures.
 """
 
-__author__ = "Shyue Ping Ong, Will Richards"
+__author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "3.0"
+__version__ = "4.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
@@ -967,17 +967,24 @@ class CifParser(object):
 
 
 class CifWriter(object):
-    """
-    A wrapper around CifFile to write CIF files from pymatgen structures.
 
-    Args:
-        struct (Structure): structure to write
-        symprec (float): If not none, finds the symmetry of the structure
-            and writes the cif with symmetry information. Passes symprec
-            to the SpacegroupAnalyzer
-    """
+    def __init__(self, struct, symprec=None, write_magmoms=False):
+        """
+        A wrapper around CifFile to write CIF files from pymatgen structures.
 
-    def __init__(self, struct, symprec=None):
+        Args:
+            struct (Structure): structure to write
+            symprec (float): If not none, finds the symmetry of the structure
+                and writes the cif with symmetry information. Passes symprec
+                to the SpacegroupAnalyzer
+            write_magmoms (bool): If True, will write magCIF file. Incompatible
+                with symprec
+        """
+
+        if write_magmoms and symprec:
+            warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen.")
+            symprec = None
+
         format_str = "{:.8f}"
 
         block = OrderedDict()
@@ -1051,6 +1058,10 @@ class CifWriter(object):
         atom_site_fract_z = []
         atom_site_label = []
         atom_site_occupancy = []
+        atom_site_moment_label = []
+        atom_site_moment_crystalaxis_x = []
+        atom_site_moment_crystalaxis_y = []
+        atom_site_moment_crystalaxis_z = []
         count = 1
         if symprec is None:
             for site in struct:
@@ -1062,6 +1073,15 @@ class CifWriter(object):
                     atom_site_fract_z.append("{0:f}".format(site.c))
                     atom_site_label.append("{}{}".format(sp.symbol, count))
                     atom_site_occupancy.append(occu.__str__())
+
+                    magmom = site.properties.get('magmom', Magmom(0))
+                    moment = Magmom.get_moment_relative_to_crystal_axes(magmom, latt)
+                    if write_magmoms and abs(magmom) > 0:
+                        atom_site_moment_label.append("{}{}".format(sp.symbol, count))
+                        atom_site_moment_crystalaxis_x.append(moment[0])
+                        atom_site_moment_crystalaxis_y.append(moment[1])
+                        atom_site_moment_crystalaxis_z.append(moment[2])
+
                     count += 1
         else:
             # The following just presents a deterministic ordering.
@@ -1100,6 +1120,15 @@ class CifWriter(object):
                       "_atom_site_fract_y",
                       "_atom_site_fract_z",
                       "_atom_site_occupancy"])
+        if write_magmoms:
+            block["_atom_site_moment_label"] = atom_site_moment_label
+            block["_atom_site_moment_crystalaxis_x"] = atom_site_moment_crystalaxis_x
+            block["_atom_site_moment_crystalaxis_y"] = atom_site_moment_crystalaxis_y
+            block["_atom_site_moment_crystalaxis_z"] = atom_site_moment_crystalaxis_z
+            loops.append(["_atom_site_moment_label",
+                          "_atom_site_moment_crystalaxis_x",
+                          "_atom_site_moment_crystalaxis_y",
+                          "_atom_site_moment_crystalaxis_z"])
         d = OrderedDict()
         d[comp.reduced_formula] = CifBlock(block, loops, comp.reduced_formula)
         self._cf = CifFile(d)
