@@ -87,7 +87,8 @@ class PWInput(object):
             out.append(",\n".join(sub))
 
         out.append("ATOMIC_SPECIES")
-        for k, v in self.structure.composition.items():
+        for k, v in sorted(self.structure.composition.items(),
+                           key=lambda i: i[0]):
             out.append("  %s %.4f %s" % (k.symbol, k.atomic_mass,
                                          self.pseudo[k.symbol]))
         out.append("ATOMIC_POSITIONS crystal")
