@@ -957,6 +957,57 @@ class CifParser(object):
             raise ValueError("Invalid cif file with no structures!")
         return structures
 
+    def get_bibtex_strings(self):
+        """
+        (Beta) Get BibTeX reference from CIF file.
+        :param data:
+        :return: BibTeX string
+        """
+
+        # TODO: CIF specification supports multiple citations.
+
+        bibtex_strs = []
+
+        for d in self._cif.data.values():
+
+            bibtex_entry = {'authors': '_citation_author_name',
+                            'title': '_citation_title',
+                            'journal': '_citation_journal_abbrev',
+                            'volume': '_citation_journal_volume',
+                            'year': '_citation_year',
+                            'number': '_citation_number',
+                            'page_first': '_citation_page_first',
+                            'page_last': '_citation_page_last',
+                            'doi': '_citation_DOI'}
+
+            for field, tag in bibtex_entry.items():
+                try:
+                    bibtex_entry[field] = d[tag]
+                except:
+                    bibtex_entry[field] = "?"
+
+            bibtex_entry['key'] = bibtex_entry['authors'][0].split(',')[0]+":"+bibtex_entry['year']
+            bibtex_entry['key'] = ''.join(bibtex_entry['key'].split())
+            bibtex_entry['authors'] = " and ".join(bibtex_entry['authors'])
+            bibtex_entry['pages'] = "{0}--{1}".format(bibtex_entry['page_first'], bibtex_entry['page_last'])
+
+            for field, entry in bibtex_entry.items():
+                if field is not 'key':
+                    bibtex_entry[field] = "{"+entry+"}"
+
+            bibtex_str = ("""{key},
+    author = {authors},
+    title = {title},
+    journal = {journal},
+    year = {year},
+    volume = {volume},
+    number = {number},
+    pages = {pages},
+    doi = {doi}""".format(**bibtex_entry))
+            bibtex_strs.append("@article{"+bibtex_str+"\n}")
+
+        return bibtex_strs
+
     def as_dict(self):
         d = OrderedDict()
         for k, v in self._cif.data.items():
