@@ -81,7 +81,7 @@ class PWInput(object):
                 if species.symbol not in pseudo:
                     raise PWInputError("Missing %s in pseudo specification!" 
                                        % species.symbol)
-            self.pseudo = pseudo
+        self.pseudo = pseudo
 
         self.sections = sections
         self.kpoints_mode = kpoints_mode
