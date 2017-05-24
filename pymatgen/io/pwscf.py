@@ -46,7 +46,7 @@ class PWInput(object):
                 properties (e.g. {"starting_magnetization": -0.5, 
                 "pseudo": "Mn.pbe-sp-van.UPF"}) on each site is needed instead of 
                 pseudo (dict).
-            pseudo (dict): A dict of the pseudopotentials to use.
+            pseudo (dict): A dict of the pseudopotentials to use. Default to None.
             control (dict): Control parameters. Refer to official PWSCF doc
                 on supported parameters. Default to {"calculation": "scf"}
             system (dict): System parameters. Refer to official PWSCF doc
@@ -90,19 +90,22 @@ class PWInput(object):
 
     def __str__(self):
         out = []
-        c = 1
         site_descriptions = {}
 
-        for site in self.structure:
-            name = None
-            for k, v in site_descriptions.items():
-                if site.properties == v:
-                    name = k
+        if self.pseudo != None:
+            site_descriptions = self.pseudo
+        else:
+            c = 1
+            for site in self.structure:
+                name = None
+                for k, v in site_descriptions.items():
+                    if site.properties == v:
+                        name = k
 
-            if name == None:
-                name = site.specie.symbol+str(c)
-                site_descriptions[name] = site.properties
-                c += 1
+                if name == None:
+                    name = site.specie.symbol+str(c)
+                    site_descriptions[name] = site.properties
+                    c += 1
 
         def to_str(v):
             if isinstance(v, six.string_types):
@@ -123,7 +126,7 @@ class PWInput(object):
             for k2 in sorted(v1.keys()):
                 if isinstance(v1[k2], list):
                     n = 1
-                    for l in v1[k2][:self.sections['system']['ntyp']]:
+                    for l in v1[k2][:len(site_descriptions)]:
                         sub.append("  %s(%d) = %s" % (k2, n, to_str(v1[k2][n-1])))
                         n += 1
                 else:
@@ -139,18 +142,26 @@ class PWInput(object):
             out.append(",\n".join(sub))
 
         out.append("ATOMIC_POSITIONS crystal")
-        for site in self.structure:
-            name = None
-            for k, v in site_descriptions.items():
-                if v == site.properties:
-                    name = k
-            out.append("  %s %.6f %.6f %.6f" % (name, site.a, site.b, site.c))
+        if self.pseudo != None:
+            for site in self.structure:
+                out.append("  %s %.6f %.6f %.6f" % (site.specie.symbol, site.a,
+                                                    site.b, site.c))
+        else:
+            for site in self.structure:
+                name = None
+                for k, v in site_descriptions.items():
+                    if v == site.properties:
+                        name = k
+                out.append("  %s %.6f %.6f %.6f" % (name, site.a, site.b, site.c))
 
         out.append("ATOMIC_SPECIES")
         for k, v in site_descriptions.items():
             e = re.match(r"[A-Z][a-z]?", k).group(0)
-            out.append("  %s  %.4f %s" % (k, Element(e).atomic_mass, 
-                                              v['pseudo']))
+            if self.pseudo != None:
+                p = v
+            else:
+                p = v['pseudo']
+            out.append("  %s  %.4f %s" % (k, Element(e).atomic_mass, p)) 
 
         out.append("K_POINTS %s" % self.kpoints_mode)
         kpt_str = ["%s" % i for i in self.kpoints_grid]
