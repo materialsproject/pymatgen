@@ -2002,8 +2002,15 @@ def read_cube_file(filename):
                     break
 
                 count_line += 1
-                
-    energy_data = np.loadtxt(filename,skiprows=natoms+6).reshape(n1,n2,n3)
+
+    if 'fort.30' in filename:
+        energy_data = np.genfromtxt(filename,skip_header=natoms+6,skip_footer=1)
+        nlines_data = len(energy_data)
+        last_line = np.genfromtxt(filename,skip_header=nlines_data+natoms+6)
+        energy_data = np.append(energy_data.flatten(),last_line).reshape(n1,n2,n3)
+    elif 'boltztrap_BZ.cube' in filename:
+        energy_data = np.loadtxt(filename,skiprows=natoms+6).reshape(n1,n2,n3)
+    
     energy_data /= Energy(1, "eV").to("Ry")
 
     return energy_data
