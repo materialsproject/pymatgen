@@ -1995,32 +1995,44 @@ class BoltztrapAnalyzer(object):
 
 
 def read_cube_file(filename):
-    with open(filename, 'rt') as f:
-        natoms = 0
-        count_line = 0
-        for line in f:
-            line = line.rstrip("\n")
-            if count_line == 0 and "CUBE" not in line:
-                raise ValueError("CUBE file format not recognized")
+    with open(filename, 'r') as f:
+            natoms = 0
+            count_line = 0
+            for line in f:
+                line = line.rstrip("\n")
+                if count_line == 0 and "CUBE" not in line.decode():
+                    raise ValueError("CUBE file format not recognized")
 
-            if count_line == 2:
-                tokens = line.split()
-                natoms = int(tokens[0])
-            if count_line == 3:
-                tokens = line.split()
-                n1 = int(tokens[0])
-            elif count_line == 4:
-                tokens = line.split()
-                n2 = int(tokens[0])
-            elif count_line == 5:
-                tokens = line.split()
-                n3 = int(tokens[0])
-            elif count_line > 5:
-                break
+                if count_line == 2:
+                    tokens = line.split()
+                    origin = [float(tokens[i]) for i in range(1,4)]
+                    natoms = int(tokens[0])
+                if count_line == 3:
+                    tokens = line.split()
+                    a1 = [float(tokens[i]) for i in range(1,4)]
+                    n1 = int(tokens[0])
+                elif count_line == 4:
+                    tokens = line.split()
+                    a2 = [float(tokens[i]) for i in range(1,4)]
+                    n2 = int(tokens[0])
+                elif count_line == 5:
+                    tokens = line.split()
+                    a3 = [float(tokens[i]) for i in range(1,4)]
+                    n3 = int(tokens[0])
+                    #kpoints=[[[0 for i in range(0,n1)] for j in range(0,n2)] for l in range(0,n3)]
+                elif count_line > 5:
+                    break
 
-            count_line += 1
+                count_line += 1
 
-    energy_data = np.loadtxt(filename, skiprows=natoms + 6).reshape(n1, n2, n3)
+    if 'fort.30' in filename:
+        energy_data = np.genfromtxt(filename,skip_header=natoms+6,skip_footer=1)
+        nlines_data = len(energy_data)
+        last_line = np.genfromtxt(filename,skip_header=nlines_data+natoms+6)
+        energy_data = np.append(energy_data.flatten(),last_line).reshape(n1,n2,n3)
+    elif 'boltztrap_BZ.cube' in filename:
+        energy_data = np.loadtxt(filename,skiprows=natoms+6).reshape(n1,n2,n3)
+    
     energy_data /= Energy(1, "eV").to("Ry")
 
     return energy_data
