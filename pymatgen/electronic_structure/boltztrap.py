@@ -1995,12 +1995,12 @@ class BoltztrapAnalyzer(object):
 
 
 def read_cube_file(filename):
-    with open(filename, 'r') as f:
+    with open(filename, 'rt') as f:
             natoms = 0
             count_line = 0
             for line in f:
                 line = line.rstrip("\n")
-                if count_line == 0 and "CUBE" not in line.decode():
+                if count_line == 0 and "CUBE" not in line:
                     raise ValueError("CUBE file format not recognized")
 
                 if count_line == 2:

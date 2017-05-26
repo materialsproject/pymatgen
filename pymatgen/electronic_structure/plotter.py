@@ -525,9 +525,9 @@ class BSPlotter(object):
         self._maketicks(plt)
 
         # Main X and Y Labels
-        plt.xlabel(r'$\mathrm{Wave\ Vector}$', fontsize=30)
-        ylabel = r'$\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi \
-            else r'$\mathrm{Energy\ (eV)}$'
+        plt.xlabel(r'$\\mathrm{Wave\ Vector}$', fontsize=30)
+        ylabel = r'$\\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi \
+            else r'$\\mathrm{Energy\ (eV)}$'
         plt.ylabel(ylabel, fontsize=30)
 
         # Draw Fermi energy, only if not the zero
@@ -2565,7 +2565,7 @@ class BoltztrapPlotter(object):
                                  label=str(xyz)+' '+str(dop)+' $cm^{-3}$')
             plt.title(dt+'-type',fontsize=20)
             if i == 0:
-                plt.ylabel("Seebeck \n coefficient  ($\mu$V/K)", fontsize=30.0)
+                plt.ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
             plt.xlabel('Temperature (K)', fontsize=30.0)
 
             p = 'lower right' if i == 0 else ''
@@ -2618,7 +2618,7 @@ class BoltztrapPlotter(object):
                                  label=str(xyz)+' '+str(dop)+' $cm^{-3}$')
             plt.title(dt+'-type',fontsize=20)
             if i == 0:
-                plt.ylabel("conductivity $\sigma$ (1/($\Omega$ m))", fontsize=30.0)
+                plt.ylabel("conductivity $\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
             plt.xlabel('Temperature (K)', fontsize=30.0)
 
             p = '' # 'lower right' if i == 0 else ''
@@ -2671,7 +2671,7 @@ class BoltztrapPlotter(object):
                                  label=str(xyz)+' '+str(dop)+' $cm^{-3}$')
             plt.title(dt+'-type',fontsize=20)
             if i == 0:
-                plt.ylabel("Power Factor ($\mu$W/(mK$^2$))", fontsize=30.0)
+                plt.ylabel("Power Factor ($\\mu$W/(mK$^2$))", fontsize=30.0)
             plt.xlabel('Temperature (K)', fontsize=30.0)
 
             p = '' #'lower right' if i == 0 else ''
@@ -2821,7 +2821,7 @@ class BoltztrapPlotter(object):
                                  marker='s',label=str(temp)+' K')
             plt.title(dt+'-type',fontsize=20)
             if i == 0:
-                plt.ylabel("Seebeck coefficient ($\mu$V/K)", fontsize=30.0)
+                plt.ylabel("Seebeck coefficient ($\\mu$V/K)", fontsize=30.0)
             plt.xlabel('Doping concentration (cm$^{-3}$)', fontsize=30.0)
 
             p = 'lower right' if i == 0 else ''
@@ -2869,7 +2869,7 @@ class BoltztrapPlotter(object):
                                  marker='s',label=str(temp)+' K')
             plt.title(dt+'-type',fontsize=20)
             if i == 0:
-                plt.ylabel("conductivity $\sigma$ (1/($\Omega$ m))", fontsize=30.0)
+                plt.ylabel("conductivity $\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
             plt.xlabel('Doping concentration ($cm^{-3}$)', fontsize=30.0)
             plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
             plt.legend(fontsize=15)
@@ -2915,7 +2915,7 @@ class BoltztrapPlotter(object):
                                  marker='s',label=str(temp)+' K')
             plt.title(dt+'-type',fontsize=20)
             if i == 0:
-                plt.ylabel("Power Factor  ($\mu$W/(mK$^2$))", fontsize=30.0)
+                plt.ylabel("Power Factor  ($\\mu$W/(mK$^2$))", fontsize=30.0)
             plt.xlabel('Doping concentration ($cm^{-3}$)', fontsize=30.0)
             plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
             p = '' #'lower right' if i == 0 else ''
