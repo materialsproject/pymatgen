@@ -5,6 +5,8 @@
 from __future__ import division, unicode_literals
 import math
 import numpy as np
+from pymatgen import Element
+import copy
 
 """
 Utilities for generating nicer plots.
@@ -212,3 +214,94 @@ def add_fig_kwargs(func):
         wrapper.__doc__ = s
 
     return wrapper
+
+
+class PeriodicHeatMap(object):
+    """
+    This class generates a heat map overlapped on a periodic table. In addition
+    to providing heatmaps for user specified dictionary of values for each
+    element, it can also provide heatmaps from dictionaries in the
+    periodic_table.json file. Useful for immediately identifying periodic trends.
+
+    .. attribute:: cmap
+
+        Color scheme of the heatmap. Defaults to 'PuBu'.
+
+    .. attribute:: raw_table
+        An array of rows with elements in the rows. Blank spaces are filled
+            with None value.
+    """
+
+    def __init__(self, cmap='PuBu'):
+        """
+         Creates the initial array of elements and blank spaces to generate a
+         periodic table.
+
+         Args:
+             cmap (str): Color scheme of the heatmap. Defaults to 'PuBu'.
+        """
+
+        # Initialize an array with 7 rows plus 2
+        # more rows for the f-blocks and 18 groups
+        raw_table = np.array([[None] * 18] * 9)
+        for el in Element:
+            # Minus 1 because python counts from 0
+            raw_table[el.row - 1][el.group - 1] = str(el)
+
+        self.cmap = cmap
+        self.raw_table = raw_table
+
+    def map_from_dict(self, elemental_data, cbar_label='', filename='', show=False):
+
+        # Need to set a default threshold value. This will be slightly (0.5%) higher
+        # than the largest value in the dictionary. If an element does not have a
+        # value provided in the dictionary, we set it to a value beyond the threshold.
+        # This will automatically grey out elements in the table with no data.
+        max_val = max(elemental_data.values())
+        threshold = max_val * 1.005
+
+        data = copy.deepcopy(self.raw_table)
+        for i, d in enumerate(data):
+            for ii, el in enumerate(d):
+                if not el:
+                    # Blank space in the table
+                    data[i][ii] = np.nan
+                elif el in elemental_data.keys():
+                    # Actual user provided data
+                    data[i][ii] = elemental_data[el]
+                else:
+                    # No data provided, grey out the block by
+                    # setting its value beyond the threshold.
+                    data[i][ii] = max_val * 1.01
+
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots()
+        # We set nan type values to masked values (ie blank spaces)
+        data_mask = np.ma.masked_invalid(data.tolist())
+        heatmap = ax.pcolor(data_mask, cmap=self.cmap, edgecolors='k', linewidths=1,
+                            vmin=np.nanmin(data_mask), vmax=threshold)
+        cbar = fig.colorbar(heatmap, extend='max')
+        # Grey out masked elements
+        cbar.cmap.set_over('grey')
+        cbar.set_label(cbar_label, rotation=270, labelpad=15)
+
+        # Refine and make the table look nice
+        ax.axis('off')
+        ax.invert_yaxis()
+
+        # Label each block with corresponding element and value
+        for i, row in enumerate(self.raw_table):
+            for ii, el in enumerate(row):
+                if el:
+                    plt.text(ii + 0.5, i + 0.25, el,
+                             horizontalalignment='center',
+                             verticalalignment='center', fontsize=7)
+                if data[i][ii] not in [max_val * 1.01, np.nan]:
+                    plt.text(ii + 0.5, i + 0.5, "%.2f" % (data[i][ii]),
+                             horizontalalignment='center',
+                             verticalalignment='center', fontsize=4)
+
+        if filename:
+            plt.savefig(filename)
+        if show:
+            plt.show()
