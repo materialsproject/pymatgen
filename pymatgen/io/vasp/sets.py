@@ -6,15 +6,13 @@ from __future__ import division, unicode_literals, print_function
 
 import abc
 import re
-
+import os
+import glob
 import shutil
 import warnings
 from itertools import chain
 from copy import deepcopy
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
+
 import six
 import numpy as np
 
@@ -72,7 +70,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "May 28 2016"
 
 
-MODULE_DIR = Path(__file__).parent
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
@@ -154,14 +152,14 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
             include_cif (bool): Whether to write a CIF file in the output
                 directory for easier opening by VESTA.
         """
-        p = Path(output_dir)
-        if make_dir_if_not_present and not p.exists():
-            p.mkdir(parents=True)
+        if make_dir_if_not_present and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
         for k, v in self.all_input.items():
-            v.write_file(str(p / k))
+            v.write_file(os.path.join(output_dir, k))
         if include_cif:
             s = self.all_input["POSCAR"].structure
-            fname = str(p / ("%s.cif" % re.sub("\s", "", s.formula)))
+            fname = os.path.join(output_dir, "%s.cif" % re.sub(r'\s', "",
+                                                               s.formula))
             s.to(filename=fname)
 
     def as_dict(self, verbosity=2):
@@ -204,6 +202,12 @@ class DictSet(VaspInputSet):
             scales with # of atoms, the latter does not. If both are
             present, EDIFF is preferred. To force such settings, just supply
             user_incar_settings={"EDIFF": 1e-5, "LDAU": False} for example.
+            The keys 'LDAUU', 'LDAUJ', 'LDAUL' are special cases since
+            pymatgen defines different values depending on what anions are
+            present in the structure, so these keys can be defined in one
+            of two ways, e.g. either {"LDAUU":{"O":{"Fe":5}}} to set LDAUU
+            for Fe to 5 in an oxide, or {"LDAUU":{"Fe":5}} to set LDAUU to
+            5 regardless of the input structure.
         user_kpoints_settings (dict): Allow user to override kpoints setting by
             supplying a dict. E.g., {"reciprocal_density": 1000}. Default is
             None.
@@ -279,11 +283,14 @@ class DictSet(VaspInputSet):
                         m = dict([(site.specie.symbol, getattr(site, k.lower()))
                                   for site in structure])
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
+                    # lookup specific LDAU if specified for most_electroneg atom
                     elif most_electroneg in v.keys():
-                        incar[k] = [v[most_electroneg].get(sym, 0)
-                                    for sym in poscar.site_symbols]
+                        if isinstance(v[most_electroneg], dict):
+                           incar[k] = [v[most_electroneg].get(sym, 0)
+                                       for sym in poscar.site_symbols]
+                    # else, use fallback LDAU value if it exists
                     else:
-                        incar[k] = [0] * len(poscar.site_symbols)
+                        incar[k] = [v.get(sym, 0) for sym in poscar.site_symbols]
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
@@ -380,9 +387,8 @@ class DictSet(VaspInputSet):
             output_dir=output_dir,
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
-        p = Path(output_dir)
         for k, v in self.files_to_transfer.items():
-            shutil.copy(v, str(p / k))
+            shutil.copy(v, os.path.join(output_dir, k))
 
 
 class MITRelaxSet(DictSet):
@@ -399,7 +405,7 @@ class MITRelaxSet(DictSet):
         functional theory calculations. Computational Materials Science,
         2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
     """
-    CONFIG = loadfn(str(MODULE_DIR / "MITRelaxSet.yaml"))
+    CONFIG = loadfn(os.path.join(MODULE_DIR, "MITRelaxSet.yaml"))
 
     def __init__(self, structure, **kwargs):
         super(MITRelaxSet, self).__init__(
@@ -415,7 +421,7 @@ class MPRelaxSet(DictSet):
     The LDAUU parameters are also different due to the different psps used,
     which result in different fitted values.
     """
-    CONFIG = loadfn(str(MODULE_DIR / "MPRelaxSet.yaml"))
+    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPRelaxSet.yaml"))
 
     def __init__(self, structure, **kwargs):
         super(MPRelaxSet, self).__init__(
@@ -427,7 +433,7 @@ class MPHSERelaxSet(DictSet):
     """
     Same as the MPRelaxSet, but with HSE parameters.
     """
-    CONFIG = loadfn(str(MODULE_DIR / "MPHSERelaxSet.yaml"))
+    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPHSERelaxSet.yaml"))
 
     def __init__(self, structure, **kwargs):
         super(MPHSERelaxSet, self).__init__(
@@ -438,7 +444,8 @@ class MPHSERelaxSet(DictSet):
 class MPStaticSet(MPRelaxSet):
 
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
-                 lepsilon=False, reciprocal_density=100, **kwargs):
+                 lepsilon=False, lcalcpol=False, reciprocal_density=100,
+                 **kwargs):
         """
         Run a static calculation.
 
@@ -448,18 +455,25 @@ class MPStaticSet(MPRelaxSet):
             prev_kpoints (Kpoints): Kpoints from previous run.
             lepsilon (bool): Whether to add static dielectric calculation
             reciprocal_density (int): For static calculations,
-                we usually set the reciprocal density by voluyme. This is a
+                we usually set the reciprocal density by volume. This is a
                 convenience arg to change that, rather than using
-                user_kpoints_settings. Defaults to 100.
-            \*\*kwargs: kwargs supported by MPRelaxSet.
+                user_kpoints_settings. Defaults to 100, which is ~50% more than
+                that of standard relaxation calculations.
+            \\*\\*kwargs: kwargs supported by MPRelaxSet.
         """
         super(MPStaticSet, self).__init__(structure, **kwargs)
+        if isinstance(prev_incar, six.string_types):
+            prev_incar = Incar.from_file(prev_incar)
+        if isinstance(prev_kpoints, six.string_types):
+            prev_kpoints = Kpoints.from_file(prev_kpoints)
+
         self.prev_incar = prev_incar
         self.prev_kpoints = prev_kpoints
         self.reciprocal_density = reciprocal_density
         self.structure = structure
         self.kwargs = kwargs
         self.lepsilon = lepsilon
+        self.lcalcpol = lcalcpol
 
     @property
     def incar(self):
@@ -479,6 +493,9 @@ class MPStaticSet(MPRelaxSet):
             # to output ionic.
             incar.pop("NSW", None)
             incar.pop("NPAR", None)
+
+        if self.lcalcpol:
+            incar["LCALCPOL"] = True
 
         for k in ["MAGMOM", "NUPDOWN"] + list(self.kwargs.get(
                 "user_incar_settings", {}).keys()):
@@ -545,7 +562,7 @@ class MPStaticSet(MPRelaxSet):
             small_gap_multiply ([float, float]): If the gap is less than
                 1st index, multiply the default reciprocal_density by the 2nd
                 index.
-            \*\*kwargs: All kwargs supported by MPStaticSet,
+            \\*\\*kwargs: All kwargs supported by MPStaticSet,
                 other than prev_incar and prev_structure and prev_kpoints which
                 are determined from the prev_calc_dir.
         """
@@ -669,7 +686,7 @@ class MPHSEBSSet(MPHSERelaxSet):
             mode (str): Either "uniform", "gap" or "line"
             reciprocal_density (int): density of k-mesh
             copy_chgcar (bool): whether to copy CHGCAR of previous run
-            \*\*kwargs: All kwargs supported by MPHSEBSStaticSet,
+            \\*\\*kwargs: All kwargs supported by MPHSEBSStaticSet,
                 other than prev_structure which is determined from the previous
                 calc dir.
         """
@@ -681,8 +698,9 @@ class MPHSEBSSet(MPHSERelaxSet):
                                                      sym_prec=0)
 
         added_kpoints = []
-        bs = vasprun.get_band_structure()
+
         if mode.lower() == "gap":
+            bs = vasprun.get_band_structure()
             vbm, cbm = bs.get_vbm()["kpoint"], bs.get_cbm()["kpoint"]
             if vbm:
                 added_kpoints.append(vbm.frac_coords)
@@ -691,7 +709,7 @@ class MPHSEBSSet(MPHSERelaxSet):
 
         files_to_transfer = {}
         if copy_chgcar:
-            chgcars = sorted(Path(prev_calc_dir).glob("CHGCAR*"))
+            chgcars = sorted(glob.glob(os.path.join(prev_calc_dir, "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
@@ -712,7 +730,7 @@ class MPNonSCFSet(MPRelaxSet):
 
         Args:
             structure (Structure): Structure to compute
-            prev_incar (Incar): Incar file from previous run.
+            prev_incar (Incar/string): Incar file from previous run.
             mode (str): Line or Uniform mode supported.
             nedos (int): nedos parameter. Default to 601.
             reciprocal_density (int): density of k-mesh by reciprocal
@@ -720,9 +738,11 @@ class MPNonSCFSet(MPRelaxSet):
             sym_prec (float): Symmetry precision (for Uniform mode).
             kpoints_line_density (int): Line density for Line mode.
             optics (bool): whether to add dielectric function
-            \*\*kwargs: kwargs supported by MPVaspInputSet.
+            \\*\\*kwargs: kwargs supported by MPVaspInputSet.
         """
         super(MPNonSCFSet, self).__init__(structure, **kwargs)
+        if isinstance(prev_incar, six.string_types):
+            prev_incar = Incar.from_file(prev_incar)
         self.prev_incar = prev_incar
         self.kwargs = kwargs
         self.nedos = nedos
@@ -743,14 +763,14 @@ class MPNonSCFSet(MPRelaxSet):
     def incar(self):
         incar = super(MPNonSCFSet, self).incar
         if self.prev_incar is not None:
-            incar.update({k: v for k, v in self.prev_incar.items()
-                         if k not in self.kwargs.get("user_incar_settings",
-                                                     {})})
+            incar.update({k: v for k, v in self.prev_incar.items()})
 
         # Overwrite necessary INCAR parameters from previous runs
         incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001,
                       "LCHARG": False, "LORBIT": 11, "LWAVE": False,
                       "NSW": 0, "ISYM": 0, "ICHARG": 11})
+
+        incar.update(self.kwargs.get("user_incar_settings", {}))
 
         if self.mode.lower() == "uniform":
             # Set smaller steps for DOS output
@@ -825,7 +845,7 @@ class MPNonSCFSet(MPRelaxSet):
             small_gap_multiply ([float, float]): If the gap is less than
                 1st index, multiply the default reciprocal_density by the 2nd
                 index.
-            \*\*kwargs: All kwargs supported by MPNonSCFSet,
+            \\*\\*kwargs: All kwargs supported by MPNonSCFSet,
                 other than structure, prev_incar and prev_chgcar which
                 are determined from the prev_calc_dir.
         """
@@ -849,7 +869,7 @@ class MPNonSCFSet(MPRelaxSet):
 
         files_to_transfer = {}
         if copy_chgcar:
-            chgcars = sorted(Path(prev_calc_dir).glob("CHGCAR*"))
+            chgcars = sorted(glob.glob(os.path.join(prev_calc_dir, "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
@@ -882,7 +902,7 @@ class MPSOCSet(MPStaticSet):
             prev_incar (Incar): Incar file from previous run.
             reciprocal_density (int): density of k-mesh by reciprocal
                                     volume (defaults to 100)
-            \*\*kwargs: kwargs supported by MPVaspInputSet.
+            \\*\\*kwargs: kwargs supported by MPVaspInputSet.
         """
         if not hasattr(structure[0], "magmom") and \
                 not isinstance(structure[0].magmom, list):
@@ -898,13 +918,12 @@ class MPSOCSet(MPStaticSet):
     def incar(self):
         incar = super(MPSOCSet, self).incar
         if self.prev_incar is not None:
-            incar.update({k: v for k, v in self.prev_incar.items()
-                         if k not in self.kwargs.get("user_incar_settings",
-                                                     {})})
+            incar.update({k: v for k, v in self.prev_incar.items()})
 
         # Overwrite necessary INCAR parameters from previous runs
         incar.update({"ISYM": -1, "LSORBIT": "T", "ICHARG": 11,
                       "SAXIS": list(self.saxis)})
+        incar.update(self.kwargs.get("user_incar_settings", {}))
 
         return incar
 
@@ -937,7 +956,7 @@ class MPSOCSet(MPStaticSet):
             small_gap_multiply ([float, float]): If the gap is less than
                 1st index, multiply the default reciprocal_density by the 2nd
                 index.
-            \*\*kwargs: All kwargs supported by MPSOCSet,
+            \\*\\*kwargs: All kwargs supported by MPSOCSet,
                 other than structure, prev_incar and prev_chgcar which
                 are determined from the prev_calc_dir.
         """
@@ -967,7 +986,7 @@ class MPSOCSet(MPStaticSet):
 
         files_to_transfer = {}
         if copy_chgcar:
-            chgcars = sorted(Path(prev_calc_dir).glob("CHGCAR*"))
+            chgcars = sorted(glob.glob(os.path.join(prev_calc_dir, "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
@@ -1081,7 +1100,7 @@ class MITNEBSet(MITRelaxSet):
 
     Args:
         unset_encut (bool): Whether to unset ENCUT.
-        \*\*kwargs: Other kwargs supported by :class:`DictSet`.
+        \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structures, unset_encut=False, **kwargs):
@@ -1143,36 +1162,36 @@ class MITNEBSet(MITRelaxSet):
             write_endpoint_inputs (bool): If true, writes input files for
                 running endpoint calculations.
         """
-        path = Path(output_dir)
-        if make_dir_if_not_present and not path.exists():
-            path.mkdir(parents=True)
-        self.incar.write_file(str(path / 'INCAR'))
-        self.kpoints.write_file(str(path / 'KPOINTS'))
-        self.potcar.write_file(str(path / 'POTCAR'))
+
+        if make_dir_if_not_present and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        self.incar.write_file(os.path.join(output_dir, 'INCAR'))
+        self.kpoints.write_file(os.path.join(output_dir, 'KPOINTS'))
+        self.potcar.write_file(os.path.join(output_dir, 'POTCAR'))
 
         for i, p in enumerate(self.poscars):
-            d = path / str(i).zfill(2)
-            if not d.exists():
-                d.mkdir()
-            p.write_file(str(d / 'POSCAR'))
+            d = os.path.join(output_dir, str(i).zfill(2))
+            if not os.path.exists(d):
+                os.makedirs(d)
+            p.write_file(os.path.join(d, 'POSCAR'))
             if write_cif:
-                p.structure.to(filename=str(d / '{}.cif'.format(i)))
+                p.structure.to(filename=os.path.join(d, '{}.cif'.format(i)))
         if write_endpoint_inputs:
             end_point_param = MITRelaxSet(
                 self.structures[0],
                 user_incar_settings=self.user_incar_settings)
 
             for image in ['00', str(len(self.structures) - 1).zfill(2)]:
-                end_point_param.incar.write_file(str(path / image / 'INCAR'))
-                end_point_param.kpoints.write_file(str(path / image / 'KPOINTS'))
-                end_point_param.potcar.write_file(str(path / image / 'POTCAR'))
+                end_point_param.incar.write_file(os.path.join(output_dir, image, 'INCAR'))
+                end_point_param.kpoints.write_file(os.path.join(output_dir, image, 'KPOINTS'))
+                end_point_param.potcar.write_file(os.path.join(output_dir, image, 'POTCAR'))
         if write_path_cif:
             sites = set()
             l = self.structures[0].lattice
             for site in chain(*(s.sites for s in self.structures)):
                 sites.add(PeriodicSite(site.species_and_occu, site.frac_coords, l))
             nebpath = Structure.from_sites(sorted(sites))
-            nebpath.to(filename=str(path / 'path.cif'))
+            nebpath.to(filename=os.path.join(output_dir, 'path.cif'))
 
 
 class MITMDSet(MITRelaxSet):
@@ -1190,7 +1209,7 @@ class MITMDSet(MITRelaxSet):
             The ISPIN parameter. Defaults to False.
         sort_structure (bool): Whether to sort structure. Defaults to False
             (different behavior from standard input sets).
-        \*\*kwargs: Other kwargs supported by :class:`DictSet`.
+        \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2,
@@ -1230,20 +1249,19 @@ class MITMDSet(MITRelaxSet):
 
 
 def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
-    p = Path(path)
-    vruns = list(p.glob("vasprun.xml*"))
-    outcars = list(p.glob("OUTCAR*"))
+    vruns = list(glob.glob(os.path.join(path, "vasprun.xml*")))
+    outcars = list(glob.glob(os.path.join(path, "OUTCAR*")))
 
     if len(vruns) == 0 or len(outcars) == 0:
         raise ValueError(
             "Unable to get vasprun.xml/OUTCAR from prev calculation in %s" %
             path)
-    vsfile_fullpath = p / "vasprun.xml"
-    outcarfile_fullpath = p / "OUTCAR"
+    vsfile_fullpath = os.path.join(path, "vasprun.xml")
+    outcarfile_fullpath = os.path.join(path, "OUTCAR")
     vsfile = vsfile_fullpath if vsfile_fullpath in vruns else sorted(vruns)[-1]
     outcarfile = outcarfile_fullpath if outcarfile_fullpath in outcars else sorted(outcars)[-1]
     return Vasprun(str(vsfile), parse_dos=parse_dos, parse_eigen=parse_eigen), \
-           Outcar(str(outcarfile))
+        Outcar(str(outcarfile))
 
 
 def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
@@ -1340,19 +1358,18 @@ def batch_write_input(structures, vasp_input_set=MPRelaxSet, output_dir=".",
             Defaults to False.
         include_cif (bool): Whether to output a CIF as well. CIF files are
             generally better supported in visualization programs.
-        \*\*kwargs: Additional kwargs are passed to the vasp_input_set class in
+        \\*\\*kwargs: Additional kwargs are passed to the vasp_input_set class in
             addition to structure.
     """
     for i, s in enumerate(structures):
-        formula = re.sub("\s+", "", s.formula)
-        d = Path(output_dir)
+        formula = re.sub(r'\s+', "", s.formula)
         if subfolder is not None:
             subdir = subfolder(s)
-            d /= subdir
+            d = os.path.join(output_dir, subdir)
         else:
-            d /= '{}_{}'.format(formula, i)
+            d = os.path.join(output_dir, '{}_{}'.format(formula, i))
         if sanitize:
             s = s.copy(sanitize=True)
         v = vasp_input_set(s, **kwargs)
-        v.write_input(str(d), make_dir_if_not_present=make_dir_if_not_present,
+        v.write_input(d, make_dir_if_not_present=make_dir_if_not_present,
                       include_cif=include_cif)

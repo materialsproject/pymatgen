@@ -4,19 +4,7 @@
 
 from __future__ import division, unicode_literals
 
-"""
-Created on Mar 9, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 9, 2012"
-
-import unittest2 as unittest
+import unittest
 import os
 
 import numpy as np
@@ -29,6 +17,18 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
 from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Molecule, Structure
+
+"""
+Created on Mar 9, 2012
+"""
+
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "Mar 9, 2012"
 
 
 test_dir_mol = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -168,6 +168,8 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         s2 = symm_struct[symm_struct.equivalent_indices[1][1]]
         self.assertEqual(s1, s2)
         self.assertEqual(self.sg4.get_symmetrized_structure()[0].magmom, 0.1)
+        self.assertEqual(symm_struct.wyckoff_symbols[0], '16h')
+        # self.assertEqual(symm_struct[0].wyckoff, "16h")
 
     def test_find_primitive(self):
         """
@@ -417,6 +419,15 @@ class PointGroupAnalyzerTest(PymatgenTest):
         a = PointGroupAnalyzer(m)
         self.assertEqual(a.sch_symbol, "Ih")
 
+        cube_species = ["C", "C", "C", "C", "C", "C", "C", "C"]
+        cube_coords = [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1],
+                       [0, 1, 1], [1, 0, 1], [1, 1, 1]]
+
+        m = Molecule(cube_species, cube_coords)
+        a = PointGroupAnalyzer(m, 0.1)
+        self.assertEqual(a.sch_symbol, "Oh")
+
+
     def test_linear(self):
         coords = [[0.000000, 0.000000, 0.000000],
                   [0.000000, 0.000000, 1.08],
@@ -475,7 +486,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
         self.assertEqual(len(a.get_pointgroup()), 12)
         m = Molecule.from_file(os.path.join(test_dir_mol, "b12h12.xyz"))
         a = PointGroupAnalyzer(m)
-        self.assertEqual(a.sch_symbol, "D5d")
+        self.assertEqual(a.sch_symbol, "Ih")
 
     def test_tricky_structure(self):
         # for some reason this structure kills spglib1.9

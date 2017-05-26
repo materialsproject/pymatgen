@@ -17,7 +17,7 @@ except ImportError:
     from scipy.interpolate import CubicSpline
     scipy_old_piecewisepolynomial = False
 
-from pymatgen.util.plotting_utils import get_publication_quality_plot
+from pymatgen.util.plotting import pretty_plot
 from pymatgen.io.vasp import Poscar, Outcar
 
 """
@@ -189,7 +189,7 @@ class NEBAnalysis(MSONable):
         Returns:
             matplotlib.pyplot object.
         """
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
         scale = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
         x = np.arange(0, np.max(self.r), 0.01)
         y = self.spline(x) * 1000
@@ -274,16 +274,14 @@ class NEBAnalysis(MSONable):
             poscar = glob.glob(os.path.join(d, "POSCAR*"))
             terminal = i == 0 or i == neb_dirs[-1][0]
             if terminal:
-                found = False
                 for ds in terminal_dirs:
                     od = ds[0] if i == 0 else ds[1]
                     outcar = glob.glob(os.path.join(od, "OUTCAR*"))
                     if outcar:
                         outcar = sorted(outcar)
                         outcars.append(Outcar(outcar[-1]))
-                        found = True
                         break
-                if not found:
+                else:
                     raise ValueError("OUTCAR cannot be found for terminal "
                                      "point %s" % d)
                 structures.append(Poscar.from_file(poscar[0]).structure)

@@ -4,6 +4,18 @@
 
 from __future__ import division, unicode_literals
 
+import logging
+import numpy as np
+import re
+
+from monty.json import MSONable
+from pymatgen.core.composition import Composition
+from pymatgen.entries.computed_entries import ComputedEntry
+from monty.json import MontyDecoder
+from monty.fractions import gcd_float
+
+import itertools
+
 """
 This module provides classes that define a chemical reaction.
 """
@@ -17,15 +29,6 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Jul 11 2012"
 
-import logging
-import itertools
-import numpy as np
-import re
-
-from monty.json import MSONable
-from pymatgen.core.composition import Composition
-from pymatgen.entries.computed_entries import ComputedEntry
-from monty.json import MontyDecoder
 
 logger = logging.getLogger(__name__)
 
@@ -43,19 +46,19 @@ class BalancedReaction(MSONable):
         Reactants and products to be specified as dict of {Composition: coeff}.
 
         Args:
-            reactants ({Composition: float}): Reactants as dict of
+            reactants_coeffs ({Composition: float}): Reactants as dict of
                 {Composition: amt}.
-            products ({Composition: float}): Products as dict of
+            products_coeffs ({Composition: float}): Products as dict of
                 {Composition: amt}.
         """
-        #sum reactants and products
+        # sum reactants and products
         all_reactants = sum([k * v for k, v in reactants_coeffs.items()],
                             Composition({}))
         all_products = sum([k * v for k, v in products_coeffs.items()],
                            Composition({}))
 
-        if not all_reactants.almost_equals(all_products,
-                                atol=BalancedReaction.TOLERANCE):
+        if not all_reactants.almost_equals(all_products, rtol=0,
+                                           atol=self.TOLERANCE):
             raise ReactionError("Reaction is unbalanced!")
 
         self._els = all_reactants.elements
@@ -63,19 +66,17 @@ class BalancedReaction(MSONable):
         self.reactants_coeffs = reactants_coeffs
         self.products_coeffs = products_coeffs
 
-        #calculate net reaction coefficients
+        # calculate net reaction coefficients
         self._coeffs = []
         self._els = []
         self._all_comp = []
         for c in set(list(reactants_coeffs.keys()) +
-                list(products_coeffs.keys())):
+                     list(products_coeffs.keys())):
             coeff = products_coeffs.get(c, 0) - reactants_coeffs.get(c, 0)
 
-            if abs(coeff) > BalancedReaction.TOLERANCE:
+            if abs(coeff) > self.TOLERANCE:
                 self._all_comp.append(c)
                 self._coeffs.append(coeff)
-
-        self._num_comp = len(self._all_comp)
 
     def calculate_energy(self, energies):
         """
@@ -88,8 +89,8 @@ class BalancedReaction(MSONable):
         Returns:
             reaction energy as a float.
         """
-        return sum([self._coeffs[i] * energies[self._all_comp[i]]
-                    for i in range(self._num_comp)])
+        return sum([amt * energies[c] for amt, c in zip(self._coeffs,
+                                                        self._all_comp)])
 
     def normalize_to(self, comp, factor=1):
         """
@@ -183,42 +184,7 @@ class BalancedReaction(MSONable):
         Normalized representation for a reaction
         For example, ``4 Li + 2 O -> 2Li2O`` becomes ``2 Li + O -> Li2O``
         """
-        reactant_str = []
-        product_str = []
-        scaled_coeffs = []
-        reduced_formulas = []
-        for i in range(self._num_comp):
-            comp = self._all_comp[i]
-            coeff = self._coeffs[i]
-            (reduced_formula,
-             scale_factor) = comp.get_reduced_formula_and_factor()
-            scaled_coeffs.append(coeff * scale_factor)
-            reduced_formulas.append(reduced_formula)
-
-        count = 0
-        while sum([abs(coeff) % 1 for coeff in scaled_coeffs]) > 1e-8:
-            norm_factor = 1 / smart_float_gcd(scaled_coeffs)
-            scaled_coeffs = [c / norm_factor for c in scaled_coeffs]
-            count += 1
-            # Prevent an infinite loop
-            if count > 10:
-                break
-
-        for i in range(self._num_comp):
-            if scaled_coeffs[i] == -1:
-                reactant_str.append(reduced_formulas[i])
-            elif scaled_coeffs[i] == 1:
-                product_str.append(reduced_formulas[i])
-            elif scaled_coeffs[i] < 0:
-                reactant_str.append("{:.0f} {}".format(-scaled_coeffs[i],
-                                                       reduced_formulas[i]))
-            elif scaled_coeffs[i] > 0:
-                product_str.append("{:.0f} {}".format(scaled_coeffs[i],
-                                                      reduced_formulas[i]))
-        factor = scaled_coeffs[0] / self._coeffs[0]
-
-        return " + ".join(reactant_str) + " -> " + " + ".join(product_str), \
-               factor
+        return self._str_from_comp(self._coeffs, self._all_comp, True)
 
     @property
     def normalized_repr(self):
@@ -233,32 +199,48 @@ class BalancedReaction(MSONable):
             return False
         for comp in self._all_comp:
             coeff2 = other.get_coeff(comp) if comp in other._all_comp else 0
-            if self.get_coeff(comp) != coeff2:
+            if abs(self.get_coeff(comp) - coeff2) > self.TOLERANCE:
                 return False
         return True
 
     def __hash__(self):
         return 7
 
-    def __repr__(self):
-        return self.__str__()
-
-    def __str__(self):
+    @classmethod
+    def _str_from_formulas(cls, coeffs, formulas):
         reactant_str = []
         product_str = []
-        for i in range(self._num_comp):
-            comp = self._all_comp[i]
-            coeff = self._coeffs[i]
-            red_comp = Composition(comp.reduced_formula)
-            scale_factor = comp.num_atoms / red_comp.num_atoms
-            scaled_coeff = coeff * scale_factor
-            if scaled_coeff < 0:
-                reactant_str.append("{:.3f} {}".format(-scaled_coeff,
-                                                       comp.reduced_formula))
-            elif scaled_coeff > 0:
-                product_str.append("{:.3f} {}".format(scaled_coeff,
-                                                      comp.reduced_formula))
+        for amt, formula in zip(coeffs, formulas):
+            if abs(amt + 1) < cls.TOLERANCE:
+                reactant_str.append(formula)
+            elif abs(amt - 1) < cls.TOLERANCE:
+                product_str.append(formula)
+            elif amt < -cls.TOLERANCE:
+                reactant_str.append("{:.4g} {}".format(-amt, formula))
+            elif amt > cls.TOLERANCE:
+                product_str.append("{:.4g} {}".format(amt, formula))
+
         return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
+
+    @classmethod
+    def _str_from_comp(cls, coeffs, compositions, reduce=False):
+        r_coeffs = np.zeros(len(coeffs))
+        r_formulas = []
+        for i, (amt, comp) in enumerate(zip(coeffs, compositions)):
+            formula, factor = comp.get_reduced_formula_and_factor()
+            r_coeffs[i] = amt * factor
+            r_formulas.append(formula)
+        if reduce:
+            factor = 1 / gcd_float(np.abs(r_coeffs))
+            r_coeffs *= factor
+        else:
+            factor = 1
+        return cls._str_from_formulas(r_coeffs, r_formulas), factor
+
+    def __str__(self):
+        return self._str_from_comp(self._coeffs, self._all_comp)[0]
+
+    __repr__ = __str__
 
     def as_entry(self, energies):
         """
@@ -305,16 +287,17 @@ class BalancedReaction(MSONable):
 
         def get_comp_amt(comp_str):
             return {Composition(m.group(2)): float(m.group(1) or 1)
-                    for m in re.finditer(r"([\d\.]*)\s*([A-Z][\w\.\(\)]*)",
+                    for m in re.finditer(r"([\d\.]*(?:[eE]-?[\d\.]+)?)\s*([A-Z][\w\.\(\)]*)",
                                          comp_str)}
-
         return BalancedReaction(get_comp_amt(rct_str), get_comp_amt(prod_str))
 
 
 class Reaction(BalancedReaction):
     """
     A more flexible class representing a Reaction. The reaction amounts will
-    be automatically balanced.
+    be automatically balanced. Reactants and products can swap sides so that
+    all coefficients are positive. Normalizes so that the *FIRST* product
+    (or products, if underdetermined) has a coefficient of one.
     """
 
     def __init__(self, reactants, products):
@@ -328,105 +311,71 @@ class Reaction(BalancedReaction):
         """
         self._input_reactants = reactants
         self._input_products = products
-        all_comp = reactants[:]
-        all_comp.extend(products[:])
+        self._all_comp = reactants + products
+
         els = set()
-        for c in all_comp:
+        for c in self.all_comp:
             els.update(c.elements)
-        els = tuple(els)
+        els = sorted(els)
 
-        nconstraints = len(all_comp)
-        num_els = len(els)
-        dim = max(num_els, nconstraints)
-        logger.debug("num_els = {}".format(num_els))
-        logger.debug("nconstraints = {}".format(nconstraints))
-        logger.debug("dim = {}".format(dim))
+        # Solving:
+        #          | 0  R |
+        # [ x y ]  |      |  =  [ 1 .. 1 0 .. 0]
+        #          | C  P |
+        # x, y are the coefficients of the reactants and products
+        # R, P the matrices of the element compositions of the reactants
+        # and products
+        # C is a constraint matrix that chooses which compositions to normalize to
 
-        if nconstraints < 2:
-            raise ReactionError("A reaction cannot be formed with just one "
-                                "composition.")
-        elif nconstraints == 2:
-            if all_comp[0].reduced_formula != all_comp[1].reduced_formula:
+        # try just normalizing to just the first product
+        rp_mat = np.array([[c[el] for el in els] for c in self._all_comp])
+        f_mat = np.concatenate([np.zeros((len(rp_mat), 1)), rp_mat], axis=1)
+        f_mat[len(reactants), 0] = 1  # set normalization by the first product
+        b = np.zeros(len(els) + 1)
+        b[0] = 1
+        coeffs, res, _, s = np.linalg.lstsq(f_mat.T, b)
+
+        # for whatever reason the rank returned by lstsq isn't always correct
+        # seems to be a problem with low-rank M but inconsistent system  M x = b.
+        # the singular values seem ok, so checking based on those
+        if sum(np.abs(s) > 1e-12) == len(f_mat):
+            if res and res[0] > self.TOLERANCE ** 2:
                 raise ReactionError("Reaction cannot be balanced.")
             else:
-                coeffs = [-all_comp[1][els[0]] / all_comp[0][els[0]], 1]
+                ok = True
         else:
-            comp_matrix = np.zeros((dim, dim))
-            count = 0
-            if nconstraints < num_els:
-                for i in range(nconstraints, num_els):
-                    all_comp.append(Composition({els[i]: 1}))
-            for c in all_comp:
-                for i in range(num_els):
-                    comp_matrix[i][count] = c[els[i]]
-                count += 1
+            # underdetermined, add product constraints to make non-singular
+            ok = False
+            n_constr = len(rp_mat) - np.linalg.matrix_rank(rp_mat)
+            f_mat = np.concatenate([np.zeros((len(rp_mat), n_constr)),
+                                    rp_mat], axis=1)
+            b = np.zeros(f_mat.shape[1])
+            b[:n_constr] = 1
 
-            if nconstraints > num_els:
-                #Try two schemes for making the comp matrix non-singular.
-                for i in range(num_els, nconstraints):
-                    for j in range(num_els):
-                        comp_matrix[i][j] = 0
-                    comp_matrix[i][i] = 1
-                count = 0
-                if abs(np.linalg.det(comp_matrix)) < BalancedReaction.TOLERANCE:
-                    for i in range(num_els, nconstraints):
-                        for j in range(num_els):
-                            comp_matrix[i][j] = count
-                            count += 1
-                        comp_matrix[i][i] = count
-                ans_matrix = np.zeros(nconstraints)
-                ans_matrix[num_els:nconstraints] = 1
-                coeffs = np.linalg.solve(comp_matrix, ans_matrix)
-            else:
-                if abs(np.linalg.det(comp_matrix)) < BalancedReaction.TOLERANCE:
-                    logger.debug("Linear solution possible. Trying various "
-                                 "permutations.")
-                    comp_matrix = comp_matrix[0:num_els][:, 0:nconstraints]
-                    logger.debug("comp_matrix = {}".format(comp_matrix))
-                    ans_found = False
-                    for perm_matrix in itertools.permutations(comp_matrix):
-                        logger.debug("Testing permuted matrix = {}"
-                                     .format(perm_matrix))
-                        for m in range(nconstraints):
-                            submatrix = [[perm_matrix[i][j]
-                                          for j in range(nconstraints)
-                                          if j != m]
-                                         for i in range(nconstraints)
-                                         if i != m]
-                            logger.debug("Testing submatrix = {}"
-                                         .format(submatrix))
-                            if abs(np.linalg.det(submatrix)) > \
-                                    BalancedReaction.TOLERANCE:
-                                logger.debug("Possible sol")
-                                ansmatrix = [perm_matrix[i][m]
-                                             for i in range(nconstraints)
-                                             if i != m]
-                                coeffs = -np.linalg.solve(submatrix, ansmatrix)
-                                coeffs = [c for c in coeffs]
-                                coeffs.insert(m, 1)
-                                #Check if final coeffs are valid
-                                overall_mat = np.dot(perm_matrix, coeffs)
-                                if np.allclose(overall_mat, 0,
-                                               atol=BalancedReaction.TOLERANCE):
-                                    ans_found = True
-                                    break
-                    if not ans_found:
-                        raise ReactionError("Reaction is ill-formed and cannot"
-                                            " be balanced.")
-                else:
-                    raise ReactionError("Reaction is ill-formed and cannot be"
-                                        " balanced.")
+            # try setting C to all n_constr combinations of products
+            for inds in itertools.combinations(range(len(reactants),
+                                                     len(f_mat)),
+                                               n_constr):
+                f_mat[:, :n_constr] = 0
+                for j, i in enumerate(inds):
+                    f_mat[i, j] = 1
+                # try a solution
+                coeffs, res, _, s = np.linalg.lstsq(f_mat.T, b)
+                if sum(np.abs(s) > 1e-12) == len(self._all_comp) and \
+                        (not res or res[0] < self.TOLERANCE ** 2):
+                    ok = True
+                    break
 
-        for i in range(len(coeffs) - 1, -1, -1):
-            if coeffs[i] != 0:
-                normfactor = coeffs[i]
-                break
-        #Invert negative solutions and scale to final product
-        coeffs = [c / normfactor for c in coeffs]
+        if not ok:
+            r_mat = np.array([[c[el] for el in els] for c in reactants])
+            if np.linalg.lstsq(r_mat.T, np.zeros(len(els)))[2] != len(reactants):
+                raise ReactionError("Reaction cannot be balanced. "
+                                    "Reactants are underdetermined.")
+            raise ReactionError("Reaction cannot be balanced. "
+                                "Unknown error, please report.")
+
         self._els = els
-        self._all_comp = all_comp[0:nconstraints]
-        self._coeffs = coeffs[0:nconstraints]
-        self._num_comp = nconstraints
+        self._coeffs = coeffs
 
     def copy(self):
         """
@@ -445,26 +394,6 @@ class Reaction(BalancedReaction):
         reactants = [Composition(sym_amt) for sym_amt in d["reactants"]]
         products = [Composition(sym_amt) for sym_amt in d["products"]]
         return cls(reactants, products)
-
-
-def smart_float_gcd(list_of_floats):
-    """
-    Determines the great common denominator (gcd).  Works on floats as well as
-    integers.
-
-    Args:
-        list_of_floats: List of floats to determine gcd.
-    """
-    mult_factor = 1.0
-    all_remainders = sorted([abs(f - int(f)) for f in list_of_floats])
-    for i in range(len(all_remainders)):
-        if all_remainders[i] > 1e-5:
-            mult_factor *= all_remainders[i]
-            all_remainders = [f2 / all_remainders[i]
-                              - int(f2 / all_remainders[i])
-                              for f2 in all_remainders]
-    return 1 / mult_factor
-
 
 class ReactionError(Exception):
     """

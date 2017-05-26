@@ -532,6 +532,110 @@ class IStructure(SiteCollection, MSONable):
 
         return cls(latt, all_sp, all_coords,
                    site_properties=all_site_properties)
+                   
+    @classmethod
+    def from_magnetic_spacegroup(cls, msg, lattice, species, coords, site_properties,
+                                  transform_setting=None, coords_are_cartesian=False, tol=1e-5):
+         """
+         Generate a structure using a magnetic spacegroup. Note that only
+         symmetrically distinct species, coords and magmoms should be provided.]
+         All equivalent sites are generated from the spacegroup operations.
+
+         Args:
+             msg (str/list/:class:`pymatgen.symmetry.maggroups.MagneticSpaceGroup`):
+                 The magnetic spacegroup.
+                 If a string, it will be interpreted as one of the notations
+                 supported by MagneticSymmetryGroup, e.g., "R-3'c" or "Fm'-3'm".
+                 If a list of two ints, it will be interpreted as the number of
+                 the spacegroup in its Belov, Neronova and Smirnova (BNS) setting.
+             lattice (Lattice/3x3 array): The lattice, either as a
+                 :class:`pymatgen.core.lattice.Lattice` or
+                 simply as any 2D array. Each row should correspond to a lattice
+                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+                 Note that no attempt is made to check that the lattice is
+                 compatible with the spacegroup specified. This may be
+                 introduced in a future version.
+             species ([Specie]): Sequence of species on each site. Can take in
+                 flexible input, including:
+
+                 i.  A sequence of element / specie specified either as string
+                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
+                     e.g., (3, 56, ...) or actual Element or Specie objects.
+
+                 ii. List of dict of elements/species and occupancies, e.g.,
+                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
+                     disordered structures.
+             coords (Nx3 array): list of fractional/cartesian coordinates of
+                 each species.
+             site_properties (dict): Properties associated with the sites as a
+                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
+                 have to be the same length as the atomic species and
+                 fractional_coords. Unlike Structure.from_spacegroup(),
+                 this argument is mandatory, since magnetic moment information
+                 has to be included. Note that the *direction* of the supplied
+                 magnetic moment relative to the crystal is important, even if
+                 the resulting structure is used for collinear calculations.
+             coords_are_cartesian (bool): Set to True if you are providing
+                 coordinates in cartesian coordinates. Defaults to False.
+             tol (float): A fractional tolerance to deal with numerical
+                precision issues in determining if orbits are the same.
+         """
+         from pymatgen.electronic_structure.core import Magmom
+         from pymatgen.symmetry.maggroups import MagneticSpaceGroup
+
+         if 'magmom' not in site_properties:
+             raise ValueError('Magnetic moments have to be defined.')
+         else:
+             magmoms = [Magmom(m) for m in site_properties['magmom']]
+
+         if not isinstance(msg, MagneticSpaceGroup):
+             msg = MagneticSpaceGroup(msg)
+
+         if isinstance(lattice, Lattice):
+             latt = lattice
+         else:
+             latt = Lattice(lattice)
+
+         if not msg.is_compatible(latt):
+             raise ValueError(
+                 "Supplied lattice with parameters %s is incompatible with "
+                 "supplied spacegroup %s!" % (latt.lengths_and_angles,
+                                              sgp.symbol)
+             )
+
+         if len(species) != len(coords):
+             raise ValueError(
+                 "Supplied species and coords lengths (%d vs %d) are "
+                 "different!" % (len(species), len(coords))
+             )
+
+         if len(species) != len(magmoms):
+             raise ValueError(
+                 "Supplied species and magmom lengths (%d vs %d) are "
+                 "different!" % (len(species), len(magmoms))
+             )
+
+         frac_coords = coords if not coords_are_cartesian else \
+             lattice.get_fractional_coords(coords)
+
+         all_sp = []
+         all_coords = []
+         all_magmoms = []
+         all_site_properties = collections.defaultdict(list)
+         for i, (sp, c, m) in enumerate(zip(species, frac_coords, magmoms)):
+             cc, mm = msg.get_orbit(c, m, tol=tol)
+             all_sp.extend([sp] * len(cc))
+             all_coords.extend(cc)
+             all_magmoms.extend(mm)
+             for k, v in site_properties.items():
+                 if k != 'magmom':
+                     all_site_properties[k].extend([v[i]] * len(cc))
+
+         all_site_properties['magmom'] = all_magmoms
+
+         return cls(latt, all_sp, all_coords,
+                    site_properties=all_site_properties)
 
     @property
     def distance_matrix(self):
@@ -881,7 +985,8 @@ class IStructure(SiteCollection, MSONable):
         if reduced_latt != self.lattice:
             return self.__class__(reduced_latt, self.species_and_occu,
                                   self.cart_coords,
-                                  coords_are_cartesian=True, to_unit_cell=True)
+                                  coords_are_cartesian=True, to_unit_cell=True,
+                                  site_properties=self.site_properties)
         else:
             return self.copy()
 
@@ -1155,6 +1260,7 @@ class IStructure(SiteCollection, MSONable):
                 valid = True
                 new_coords = []
                 new_sp = []
+                new_props = collections.defaultdict(list)
                 for gsites, gfcoords, non_nbrs in zip(grouped_sites,
                                                       grouped_fcoords,
                                                       grouped_non_nbrs):
@@ -1192,12 +1298,15 @@ class IStructure(SiteCollection, MSONable):
                                 offset = new_fcoords[j] - coords
                                 coords += (offset - np.round(offset)) / (n + 2)
                             new_sp.append(gsites[inds[0]].species_and_occu)
+                            for k in gsites[inds[0]].properties:
+                                new_props[k].append(gsites[inds[0]].properties[k])
                             new_coords.append(coords)
 
                 if valid:
                     inv_m = np.linalg.inv(m)
                     new_l = Lattice(np.dot(inv_m, self.lattice.matrix))
                     s = Structure(new_l, new_sp, new_coords,
+                                  site_properties=new_props,
                                   coords_are_cartesian=False)
 
                     return s.get_primitive_structure(
@@ -1441,6 +1550,7 @@ class IStructure(SiteCollection, MSONable):
             return s
 
         from pymatgen.io.vasp import Vasprun, Chgcar
+        from pymatgen.io.exciting import ExcitingInput
         from monty.io import zopen
         fname = os.path.basename(filename)
         with zopen(filename, "rt") as f:
@@ -1474,6 +1584,8 @@ class IStructure(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="xsf",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
+        elif fnmatch(fname, "input*.xml"):
+            return ExcitingInput.from_file(fname).structure
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
@@ -1651,13 +1763,11 @@ class IMolecule(SiteCollection, MSONable):
         while len(sites) > 0:
             unmatched = []
             for site in sites:
-                found = False
                 for cluster in clusters:
                     if belongs_to_cluster(site, cluster):
                         cluster.append(site)
-                        found = True
                         break
-                if not found:
+                else:
                     unmatched.append(site)
 
             if len(unmatched) == len(sites):
@@ -1918,7 +2028,9 @@ class IMolecule(SiteCollection, MSONable):
             coords.extend(new_coords)
         sprops = {k: v * nimages for k, v in self.site_properties.items()}
 
-        if cls is None: cls = Structure
+        if cls is None:
+            cls = Structure
+
         return cls(lattice, self.species * nimages, coords,
                    coords_are_cartesian=True,
                    site_properties=sprops).get_sorted_structure()
@@ -1986,7 +2098,7 @@ class IMolecule(SiteCollection, MSONable):
                 return yaml.dump(self.as_dict(), Dumper=Dumper)
 
         else:
-            m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
+            m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
                           fname.lower())
             if (not fmt) and m:
                 fmt = m.group(1)
@@ -2071,7 +2183,7 @@ class IMolecule(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="yaml")
         else:
             from pymatgen.io.babel import BabelMolAdaptor
-            m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
+            m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
                           filename.lower())
             if m:
                 new = BabelMolAdaptor.from_file(filename,
@@ -2304,17 +2416,26 @@ class Structure(IStructure, collections.MutableSequence):
         latt = self._lattice
         species_mapping = {get_el_sp(k): v
                            for k, v in species_mapping.items()}
+        sp_to_replace = set(species_mapping.keys())
+        sp_in_structure = set(self.composition.keys())
+        if not sp_in_structure.issuperset(sp_to_replace):
+            warnings.warn("Some species to be substituted are not present in "
+                          "structure. Pls check your input. Species to be "
+                          "substituted = %s; Species in structure = %s"
+                          % (sp_to_replace, sp_in_structure))
 
         def mod_site(site):
-            c = Composition()
-            for sp, amt in site.species_and_occu.items():
-                new_sp = species_mapping.get(sp, sp)
-                try:
-                    c += Composition(new_sp) * amt
-                except Exception:
-                    c += {new_sp: amt}
-            return PeriodicSite(c, site.frac_coords, latt,
-                                properties=site.properties)
+            if sp_to_replace.intersection(site.species_and_occu):
+                c = Composition()
+                for sp, amt in site.species_and_occu.items():
+                    new_sp = species_mapping.get(sp, sp)
+                    try:
+                        c += Composition(new_sp) * amt
+                    except Exception:
+                        c += {new_sp: amt}
+                return PeriodicSite(c, site.frac_coords, latt,
+                                    properties=site.properties)
+            return site
 
         self._sites = [mod_site(site) for site in self._sites]
 
@@ -2889,7 +3010,7 @@ class Molecule(IMolecule, collections.MutableSequence):
         if indices is None:
             indices = range(len(self))
         if vector is None:
-            vector == [0,0,0]
+            vector == [0, 0, 0]
         for i in indices:
             site = self._sites[i]
             new_site = Site(site.species_and_occu, site.coords + vector,

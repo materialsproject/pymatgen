@@ -40,9 +40,9 @@ def make_doc(ctx):
     with open("docs/latest_changes.rst", "w") as f:
         f.write(changes)
 
-    with cd("examples"):
-        ctx.run("jupyter nbconvert --to html *.ipynb")
-        ctx.run("mv *.html ../docs/_static")
+    #with cd("examples"):
+    #    ctx.run("jupyter nbconvert --to html *.ipynb")
+    #    ctx.run("mv *.html ../docs/_static")
     with cd("docs"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("sphinx-apidoc --separate -d 6 -o . -f ../pymatgen")

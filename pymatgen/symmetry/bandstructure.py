@@ -4,14 +4,8 @@
 
 from __future__ import division, unicode_literals
 
-"""
-Created on March 25, 2013
-
-@author: geoffroy
-"""
-
 import numpy as np
-
+import warnings
 from math import ceil
 from math import cos
 from math import sin
@@ -20,6 +14,11 @@ from math import pi
 from warnings import warn
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+"""
+Created on March 25, 2013
+
+@author: geoffroy
+"""
 
 class HighSymmKpath(object):
     """
@@ -29,16 +28,25 @@ class HighSymmKpath(object):
     High-throughput electronic band structure calculations:
     Challenges and tools. Computational Materials Science,
     49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
+    It should be used with primitive structures that
+    comply with the definition from the paper.
     The symmetry is determined by spglib through the
-    SpacegroupAnalyzer class
+    SpacegroupAnalyzer class. The analyzer can be used to
+    produce the correct primitive structure (method
+    get_primitive_standard_structure(international_monoclinic=False)).
+    A warning will signal possible compatibility problems
+    with the given structure.
 
     Args:
         structure (Structure): Structure object
         symprec (float): Tolerance for symmetry finding
         angle_tolerance (float): Angle tolerance for symmetry finding.
+        atol (float): Absolute tolerance used to compare the input
+            structure with the one expected as primitive standard.
+            A warning will be issued if the lattices don't match.
     """
 
-    def __init__(self, structure, symprec=0.01, angle_tolerance=5):
+    def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-8):
         self._structure = structure
         self._sym = SpacegroupAnalyzer(structure, symprec=symprec,
                                    angle_tolerance=angle_tolerance)
@@ -47,6 +55,10 @@ class HighSymmKpath(object):
         self._conv = self._sym.get_conventional_standard_structure(international_monoclinic=False)
         self._prim_rec = self._prim.lattice.reciprocal_lattice
         self._kpath = None
+
+        if not np.allclose(self._structure.lattice.matrix, self._prim.lattice.matrix, atol=atol):
+            warnings.warn("The input structure does not match the expected standard primitive! "
+                          "The path can be incorrect. Use at your own risk.")
 
         lattice_type = self._sym.get_lattice_type()
         spg_symbol = self._sym.get_space_group_symbol()
@@ -223,57 +235,57 @@ class HighSymmKpath(object):
 
     def cubic(self):
         self.name = "CUB"
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'X': np.array([0.0, 0.5, 0.0]),
                    'R': np.array([0.5, 0.5, 0.5]),
                    'M': np.array([0.5, 0.5, 0.0])}
-        path = [["\Gamma", "X", "M", "\Gamma", "R", "X"], ["M", "R"]]
+        path = [["\\Gamma", "X", "M", "\\Gamma", "R", "X"], ["M", "R"]]
         return {'kpoints': kpoints, 'path': path}
 
     def fcc(self):
         self.name = "FCC"
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'K': np.array([3.0 / 8.0, 3.0 / 8.0, 3.0 / 4.0]),
                    'L': np.array([0.5, 0.5, 0.5]),
                    'U': np.array([5.0 / 8.0, 1.0 / 4.0, 5.0 / 8.0]),
                    'W': np.array([0.5, 1.0 / 4.0, 3.0 / 4.0]),
                    'X': np.array([0.5, 0.0, 0.5])}
-        path = [["\Gamma", "X", "W", "K",
-                 "\Gamma", "L", "U", "W", "L", "K"], ["U", "X"]]
+        path = [["\\Gamma", "X", "W", "K",
+                 "\\Gamma", "L", "U", "W", "L", "K"], ["U", "X"]]
         return {'kpoints': kpoints, 'path': path}
 
     def bcc(self):
         self.name = "BCC"
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'H': np.array([0.5, -0.5, 0.5]),
                    'P': np.array([0.25, 0.25, 0.25]),
                    'N': np.array([0.0, 0.0, 0.5])}
-        path = [["\Gamma", "H", "N", "\Gamma", "P", "H"], ["P", "N"]]
+        path = [["\\Gamma", "H", "N", "\\Gamma", "P", "H"], ["P", "N"]]
         return {'kpoints': kpoints, 'path': path}
 
     def tet(self):
         self.name = "TET"
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'A': np.array([0.5, 0.5, 0.5]),
                    'M': np.array([0.5, 0.5, 0.0]),
                    'R': np.array([0.0, 0.5, 0.5]),
                    'X': np.array([0.0, 0.5, 0.0]),
                    'Z': np.array([0.0, 0.0, 0.5])}
-        path = [["\Gamma", "X", "M", "\Gamma", "Z", "R", "A", "Z"], ["X", "R"],
+        path = [["\\Gamma", "X", "M", "\\Gamma", "Z", "R", "A", "Z"], ["X", "R"],
                 ["M", "A"]]
         return {'kpoints': kpoints, 'path': path}
 
     def bctet1(self, c, a):
         self.name = "BCT1"
         eta = (1 + c ** 2 / a ** 2) / 4.0
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'M': np.array([-0.5, 0.5, 0.5]),
                    'N': np.array([0.0, 0.5, 0.0]),
                    'P': np.array([0.25, 0.25, 0.25]),
                    'X': np.array([0.0, 0.0, 0.5]),
                    'Z': np.array([eta, eta, -eta]),
                    'Z_1': np.array([-eta, 1 - eta, eta])}
-        path = [["\Gamma", "X", "M", "\Gamma", "Z", "P", "N", "Z_1", "M"],
+        path = [["\\Gamma", "X", "M", "\\Gamma", "Z", "P", "N", "Z_1", "M"],
                 ["X", "P"]]
         return {'kpoints': kpoints, 'path': path}
 
@@ -281,22 +293,22 @@ class HighSymmKpath(object):
         self.name = "BCT2"
         eta = (1 + a ** 2 / c ** 2) / 4.0
         zeta = a ** 2 / (2 * c ** 2)
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'N': np.array([0.0, 0.5, 0.0]),
                    'P': np.array([0.25, 0.25, 0.25]),
-                   '\Sigma': np.array([-eta, eta, eta]),
-                   '\Sigma_1': np.array([eta, 1 - eta, -eta]),
+                   '\\Sigma': np.array([-eta, eta, eta]),
+                   '\\Sigma_1': np.array([eta, 1 - eta, -eta]),
                    'X': np.array([0.0, 0.0, 0.5]),
                    'Y': np.array([-zeta, zeta, 0.5]),
                    'Y_1': np.array([0.5, 0.5, -zeta]),
                    'Z': np.array([0.5, 0.5, -0.5])}
-        path = [["\Gamma", "X", "Y", "\Sigma", "\Gamma", "Z",
-                 "\Sigma_1", "N", "P", "Y_1", "Z"], ["X", "P"]]
+        path = [["\\Gamma", "X", "Y", "\\Sigma", "\\Gamma", "Z",
+                 "\\Sigma_1", "N", "P", "Y_1", "Z"], ["X", "P"]]
         return {'kpoints': kpoints, 'path': path}
 
     def orc(self):
         self.name = "ORC"
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'R': np.array([0.5, 0.5, 0.5]),
                    'S': np.array([0.5, 0.5, 0.0]),
                    'T': np.array([0.0, 0.5, 0.5]),
@@ -304,7 +316,7 @@ class HighSymmKpath(object):
                    'X': np.array([0.5, 0.0, 0.0]),
                    'Y': np.array([0.0, 0.5, 0.0]),
                    'Z': np.array([0.0, 0.0, 0.5])}
-        path = [["\Gamma", "X", "S", "Y", "\Gamma",
+        path = [["\\Gamma", "X", "S", "Y", "\\Gamma",
                  "Z", "U", "R", "T", "Z"], ["Y", "T"], ["U", "X"], ["S", "R"]]
         return {'kpoints': kpoints, 'path': path}
 
@@ -313,7 +325,7 @@ class HighSymmKpath(object):
         zeta = (1 + a ** 2 / b ** 2 - a ** 2 / c ** 2) / 4
         eta = (1 + a ** 2 / b ** 2 + a ** 2 / c ** 2) / 4
 
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'A': np.array([0.5, 0.5 + zeta, zeta]),
                    'A_1': np.array([0.5, 0.5 - zeta, 1 - zeta]),
                    'L': np.array([0.5, 0.5, 0.5]),
@@ -322,8 +334,8 @@ class HighSymmKpath(object):
                    'X_1': np.array([1, 1 - eta, 1 - eta]),
                    'Y': np.array([0.5, 0.0, 0.5]),
                    'Z': np.array([0.5, 0.5, 0.0])}
-        path = [["\Gamma", "Y", "T", "Z", "\Gamma", "X", "A_1", "Y"],
-                ["T", "X_1"], ["X", "A", "Z"], ["L", "\Gamma"]]
+        path = [["\\Gamma", "Y", "T", "Z", "\\Gamma", "X", "A_1", "Y"],
+                ["T", "X_1"], ["X", "A", "Z"], ["L", "\\Gamma"]]
         return {'kpoints': kpoints, 'path': path}
 
     def orcf2(self, a, b, c):
@@ -331,7 +343,7 @@ class HighSymmKpath(object):
         phi = (1 + c ** 2 / b ** 2 - c ** 2 / a ** 2) / 4
         eta = (1 + a ** 2 / b ** 2 - a ** 2 / c ** 2) / 4
         delta = (1 + b ** 2 / a ** 2 - b ** 2 / c ** 2) / 4
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'C': np.array([0.5, 0.5 - eta, 1 - eta]),
                    'C_1': np.array([0.5, 0.5 + eta, eta]),
                    'D': np.array([0.5 - delta, 0.5, 1 - delta]),
@@ -342,16 +354,16 @@ class HighSymmKpath(object):
                    'X': np.array([0.0, 0.5, 0.5]),
                    'Y': np.array([0.5, 0.0, 0.5]),
                    'Z': np.array([0.5, 0.5, 0.0])}
-        path = [["\Gamma", "Y", "C", "D", "X", "\Gamma",
+        path = [["\\Gamma", "Y", "C", "D", "X", "\\Gamma",
                  "Z", "D_1", "H", "C"], ["C_1", "Z"], ["X", "H_1"], ["H", "Y"],
-                ["L", "\Gamma"]]
+                ["L", "\\Gamma"]]
         return {'kpoints': kpoints, 'path': path}
 
     def orcf3(self, a, b, c):
         self.name = "ORCF3"
         zeta = (1 + a ** 2 / b ** 2 - a ** 2 / c ** 2) / 4
         eta = (1 + a ** 2 / b ** 2 + a ** 2 / c ** 2) / 4
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'A': np.array([0.5, 0.5 + zeta, zeta]),
                    'A_1': np.array([0.5, 0.5 - zeta, 1 - zeta]),
                    'L': np.array([0.5, 0.5, 0.5]),
@@ -360,8 +372,8 @@ class HighSymmKpath(object):
                    'X_1': np.array([1, 1 - eta, 1 - eta]),
                    'Y': np.array([0.5, 0.0, 0.5]),
                    'Z': np.array([0.5, 0.5, 0.0])}
-        path = [["\Gamma", "Y", "T", "Z", "\Gamma", "X", "A_1", "Y"],
-                ["X", "A", "Z"], ["L", "\Gamma"]]
+        path = [["\\Gamma", "Y", "T", "Z", "\\Gamma", "X", "A_1", "Y"],
+                ["X", "A", "Z"], ["L", "\\Gamma"]]
         return {'kpoints': kpoints, 'path': path}
 
     def orci(self, a, b, c):
@@ -370,7 +382,7 @@ class HighSymmKpath(object):
         eta = (1 + b ** 2 / c ** 2) / 4
         delta = (b ** 2 - a ** 2) / (4 * c ** 2)
         mu = (a ** 2 + b ** 2) / (4 * c ** 2)
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'L': np.array([-mu, mu, 0.5 - delta]),
                    'L_1': np.array([mu, -mu, 0.5 + delta]),
                    'L_2': np.array([0.5 - delta, 0.5 + delta, -mu]),
@@ -383,14 +395,14 @@ class HighSymmKpath(object):
                    'Y': np.array([eta, -eta, eta]),
                    'Y_1': np.array([1 - eta, eta, -eta]),
                    'Z': np.array([0.5, 0.5, -0.5])}
-        path = [["\Gamma", "X", "L", "T", "W", "R", "X_1", "Z",
-                 "\Gamma", "Y", "S", "W"], ["L_1", "Y"], ["Y_1", "Z"]]
+        path = [["\\Gamma", "X", "L", "T", "W", "R", "X_1", "Z",
+                 "\\Gamma", "Y", "S", "W"], ["L_1", "Y"], ["Y_1", "Z"]]
         return {'kpoints': kpoints, 'path': path}
 
     def orcc(self, a, b, c):
         self.name = "ORCC"
         zeta = (1 + a ** 2 / b ** 2) / 4
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'A': np.array([zeta, zeta, 0.5]),
                    'A_1': np.array([-zeta, 1 - zeta, 0.5]),
                    'R': np.array([0.0, 0.5, 0.5]),
@@ -400,19 +412,19 @@ class HighSymmKpath(object):
                    'X_1': np.array([-zeta, 1 - zeta, 0.0]),
                    'Y': np.array([-0.5, 0.5, 0]),
                    'Z': np.array([0.0, 0.0, 0.5])}
-        path = [["\Gamma", "X", "S", "R", "A", "Z",
-                 "\Gamma", "Y", "X_1", "A_1", "T", "Y"], ["Z", "T"]]
+        path = [["\\Gamma", "X", "S", "R", "A", "Z",
+                 "\\Gamma", "Y", "X_1", "A_1", "T", "Y"], ["Z", "T"]]
         return {'kpoints': kpoints, 'path': path}
 
     def hex(self):
         self.name = "HEX"
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'A': np.array([0.0, 0.0, 0.5]),
                    'H': np.array([1.0 / 3.0, 1.0 / 3.0, 0.5]),
                    'K': np.array([1.0 / 3.0, 1.0 / 3.0, 0.0]),
                    'L': np.array([0.5, 0.0, 0.5]),
                    'M': np.array([0.5, 0.0, 0.0])}
-        path = [["\Gamma", "M", "K", "\Gamma", "A", "L", "H", "A"], ["L", "M"],
+        path = [["\\Gamma", "M", "K", "\\Gamma", "A", "L", "H", "A"], ["L", "M"],
                 ["K", "H"]]
         return {'kpoints': kpoints, 'path': path}
 
@@ -420,7 +432,7 @@ class HighSymmKpath(object):
         self.name = "RHL1"
         eta = (1 + 4 * cos(alpha)) / (2 + 4 * cos(alpha))
         nu = 3.0 / 4.0 - eta / 2.0
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'B': np.array([eta, 0.5, 1.0 - eta]),
                    'B_1': np.array([1.0 / 2.0, 1.0 - eta, eta - 1.0]),
                    'F': np.array([0.5, 0.5, 0.0]),
@@ -432,7 +444,7 @@ class HighSymmKpath(object):
                    'Q': np.array([1.0 - nu, nu, 0.0]),
                    'X': np.array([nu, 0.0, -nu]),
                    'Z': np.array([0.5, 0.5, 0.5])}
-        path = [["\Gamma", "L", "B_1"], ["B", "Z", "\Gamma", "X"],
+        path = [["\\Gamma", "L", "B_1"], ["B", "Z", "\\Gamma", "X"],
                 ["Q", "F", "P_1", "Z"], ["L", "P"]]
         return {'kpoints': kpoints, 'path': path}
 
@@ -440,7 +452,7 @@ class HighSymmKpath(object):
         self.name = "RHL2"
         eta = 1 / (2 * tan(alpha / 2.0) ** 2)
         nu = 3.0 / 4.0 - eta / 2.0
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'F': np.array([0.5, -0.5, 0.0]),
                    'L': np.array([0.5, 0.0, 0.0]),
                    'P': np.array([1 - nu, -nu, 1 - nu]),
@@ -448,7 +460,7 @@ class HighSymmKpath(object):
                    'Q': np.array([eta, eta, eta]),
                    'Q_1': np.array([1.0 - eta, -eta, -eta]),
                    'Z': np.array([0.5, -0.5, 0.5])}
-        path = [["\Gamma", "P", "Z", "Q", "\Gamma",
+        path = [["\\Gamma", "P", "Z", "Q", "\\Gamma",
                  "F", "P_1", "Q_1", "L", "Z"]]
         return {'kpoints': kpoints, 'path': path}
 
@@ -456,7 +468,7 @@ class HighSymmKpath(object):
         self.name = "MCL"
         eta = (1 - b * cos(beta) / c) / (2 * sin(beta) ** 2)
         nu = 0.5 - eta * c * cos(beta) / b
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'A': np.array([0.5, 0.5, 0.0]),
                    'C': np.array([0.0, 0.5, 0.5]),
                    'D': np.array([0.5, 0.0, 0.5]),
@@ -472,7 +484,7 @@ class HighSymmKpath(object):
                    'Y': np.array([0.0, 0.0, 0.5]),
                    'Y_1': np.array([0.0, 0.0, -0.5]),
                    'Z': np.array([0.5, 0.0, 0.0])}
-        path = [["\Gamma", "Y", "H", "C", "E", "M_1", "A", "X", "H_1"],
+        path = [["\\Gamma", "Y", "H", "C", "E", "M_1", "A", "X", "H_1"],
                 ["M", "D", "Z"], ["Y", "D"]]
         return {'kpoints': kpoints, 'path': path}
 
@@ -482,7 +494,7 @@ class HighSymmKpath(object):
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
         psi = 0.75 - a ** 2 / (4 * b ** 2 * sin(alpha) ** 2)
         phi = psi + (0.75 - psi) * b * cos(alpha) / c
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'N': np.array([0.5, 0.0, 0.0]),
                    'N_1': np.array([0.0, -0.5, 0.0]),
                    'F': np.array([1 - zeta, 1 - zeta, 1 - eta]),
@@ -499,8 +511,8 @@ class HighSymmKpath(object):
                    'Y': np.array([0.5, 0.5, 0.0]),
                    'Y_1': np.array([-0.5, -0.5, 0.0]),
                    'Z': np.array([0.0, 0.0, 0.5])}
-        path = [["\Gamma", "Y", "F", "L", "I"], ["I_1", "Z", "F_1"],
-                ["Y", "X_1"], ["X", "\Gamma", "N"], ["M", "\Gamma"]]
+        path = [["\\Gamma", "Y", "F", "L", "I"], ["I_1", "Z", "F_1"],
+                ["Y", "X_1"], ["X", "\\Gamma", "N"], ["M", "\\Gamma"]]
         return {'kpoints': kpoints, 'path': path}
 
     def mclc2(self, a, b, c, alpha):
@@ -509,7 +521,7 @@ class HighSymmKpath(object):
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
         psi = 0.75 - a ** 2 / (4 * b ** 2 * sin(alpha) ** 2)
         phi = psi + (0.75 - psi) * b * cos(alpha) / c
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'N': np.array([0.5, 0.0, 0.0]),
                    'N_1': np.array([0.0, -0.5, 0.0]),
                    'F': np.array([1 - zeta, 1 - zeta, 1 - eta]),
@@ -526,8 +538,8 @@ class HighSymmKpath(object):
                    'Y': np.array([0.5, 0.5, 0.0]),
                    'Y_1': np.array([-0.5, -0.5, 0.0]),
                    'Z': np.array([0.0, 0.0, 0.5])}
-        path = [["\Gamma", "Y", "F", "L", "I"], ["I_1", "Z", "F_1"],
-                ["N", "\Gamma", "M"]]
+        path = [["\\Gamma", "Y", "F", "L", "I"], ["I_1", "Z", "F_1"],
+                ["N", "\\Gamma", "M"]]
         return {'kpoints': kpoints, 'path': path}
 
     def mclc3(self, a, b, c, alpha):
@@ -539,7 +551,7 @@ class HighSymmKpath(object):
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
         phi = 1 + zeta - 2 * mu
         psi = eta - 2 * delta
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'F': np.array([1 - phi, 1 - phi, 1 - psi]),
                    'F_1': np.array([phi, phi - 1, psi]),
                    'F_2': np.array([1 - phi, -phi, 1 - psi]),
@@ -556,8 +568,8 @@ class HighSymmKpath(object):
                    'Y_2': np.array([-mu, -mu, -delta]),
                    'Y_3': np.array([mu, mu - 1, delta]),
                    'Z': np.array([0.0, 0.0, 0.5])}
-        path = [["\Gamma", "Y", "F", "H", "Z", "I", "F_1"],
-                ["H_1", "Y_1", "X", "\Gamma", "N"], ["M", "\Gamma"]]
+        path = [["\\Gamma", "Y", "F", "H", "Z", "I", "F_1"],
+                ["H_1", "Y_1", "X", "\\Gamma", "N"], ["M", "\\Gamma"]]
         return {'kpoints': kpoints, 'path': path}
 
     def mclc4(self, a, b, c, alpha):
@@ -569,7 +581,7 @@ class HighSymmKpath(object):
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
         phi = 1 + zeta - 2 * mu
         psi = eta - 2 * delta
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'F': np.array([1 - phi, 1 - phi, 1 - psi]),
                    'F_1': np.array([phi, phi - 1, psi]),
                    'F_2': np.array([1 - phi, -phi, 1 - psi]),
@@ -586,8 +598,8 @@ class HighSymmKpath(object):
                    'Y_2': np.array([-mu, -mu, -delta]),
                    'Y_3': np.array([mu, mu - 1, delta]),
                    'Z': np.array([0.0, 0.0, 0.5])}
-        path = [["\Gamma", "Y", "F", "H", "Z", "I"],
-                ["H_1", "Y_1", "X", "\Gamma", "N"], ["M", "\Gamma"]]
+        path = [["\\Gamma", "Y", "F", "H", "Z", "I"],
+                ["H_1", "Y_1", "X", "\\Gamma", "N"], ["M", "\\Gamma"]]
         return {'kpoints': kpoints, 'path': path}
 
     def mclc5(self, a, b, c, alpha):
@@ -602,7 +614,7 @@ class HighSymmKpath(object):
         omega = (4 * nu - 1 - b ** 2 * sin(alpha) ** 2 / a ** 2)\
             * c / (2 * b * cos(alpha))
         delta = zeta * c * cos(alpha) / b + omega / 2 - 0.25
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'F': np.array([nu, nu, omega]),
                    'F_1': np.array([1 - nu, 1 - nu, 1 - omega]),
                    'F_2': np.array([nu, nu - 1, omega]),
@@ -621,13 +633,13 @@ class HighSymmKpath(object):
                    'Y_2': np.array([-mu, -mu, -delta]),
                    'Y_3': np.array([mu, mu - 1, delta]),
                    'Z': np.array([0.0, 0.0, 0.5])}
-        path = [["\Gamma", "Y", "F", "L", "I"], ["I_1", "Z", "H", "F_1"],
-                ["H_1", "Y_1", "X", "\Gamma", "N"], ["M", "\Gamma"]]
+        path = [["\\Gamma", "Y", "F", "L", "I"], ["I_1", "Z", "H", "F_1"],
+                ["H_1", "Y_1", "X", "\\Gamma", "N"], ["M", "\\Gamma"]]
         return {'kpoints': kpoints, 'path': path}
 
     def tria(self):
         self.name = "TRI1a"
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'L': np.array([0.5, 0.5, 0.0]),
                    'M': np.array([0.0, 0.5, 0.5]),
                    'N': np.array([0.5, 0.0, 0.5]),
@@ -635,13 +647,13 @@ class HighSymmKpath(object):
                    'X': np.array([0.5, 0.0, 0.0]),
                    'Y': np.array([0.0, 0.5, 0.0]),
                    'Z': np.array([0.0, 0.0, 0.5])}
-        path = [["X", "\Gamma", "Y"], ["L", "\Gamma", "Z"],
-                ["N", "\Gamma", "M"], ["R", "\Gamma"]]
+        path = [["X", "\\Gamma", "Y"], ["L", "\\Gamma", "Z"],
+                ["N", "\\Gamma", "M"], ["R", "\\Gamma"]]
         return {'kpoints': kpoints, 'path': path}
 
     def trib(self):
         self.name = "TRI1b"
-        kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
+        kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'L': np.array([0.5, -0.5, 0.0]),
                    'M': np.array([0.0, 0.0, 0.5]),
                    'N': np.array([-0.5, -0.5, 0.5]),
@@ -649,6 +661,6 @@ class HighSymmKpath(object):
                    'X': np.array([0.0, -0.5, 0.0]),
                    'Y': np.array([0.5, 0.0, 0.0]),
                    'Z': np.array([-0.5, 0.0, 0.5])}
-        path = [["X", "\Gamma", "Y"], ["L", "\Gamma", "Z"],
-                ["N", "\Gamma", "M"], ["R", "\Gamma"]]
+        path = [["X", "\\Gamma", "Y"], ["L", "\\Gamma", "Z"],
+                ["N", "\\Gamma", "M"], ["R", "\\Gamma"]]
         return {'kpoints': kpoints, 'path': path}

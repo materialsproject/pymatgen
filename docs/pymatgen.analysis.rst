@@ -11,6 +11,7 @@ Subpackages
     pymatgen.analysis.defects
     pymatgen.analysis.diffraction
     pymatgen.analysis.elasticity
+    pymatgen.analysis.ferroelectricity
     pymatgen.analysis.hhi
     pymatgen.analysis.pourbaix
 
@@ -19,17 +20,18 @@ Submodules
 
 .. toctree::
 
+   pymatgen.analysis.adsorption
    pymatgen.analysis.bond_valence
    pymatgen.analysis.diffusion_analyzer
    pymatgen.analysis.energy_models
    pymatgen.analysis.eos
-   pymatgen.analysis.eos_2
    pymatgen.analysis.ewald
    pymatgen.analysis.molecule_matcher
    pymatgen.analysis.molecule_structure_comparator
    pymatgen.analysis.nmr
    pymatgen.analysis.path_finder
    pymatgen.analysis.piezo
+   pymatgen.analysis.quasiharmonic
    pymatgen.analysis.reaction_calculator
    pymatgen.analysis.structure_analyzer
    pymatgen.analysis.structure_matcher

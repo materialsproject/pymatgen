@@ -100,6 +100,14 @@ class MPRester(object):
             self.api_key = SETTINGS.get("PMG_MAPI_KEY", "")
         self.preamble = endpoint
         import requests
+        try:
+            from pybtex import __version__
+        except ImportError:
+            warnings.warn("If you query for structure data encoded using MP's "
+                          "Structure Notation Language (SNL) format and you use "
+                          "`mp_decode=True` (the default) for MPRester queries, "
+                          "you should install dependencies via "
+                          "`pip install pymatgen[matproj.snl]`.")
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
 
@@ -528,14 +536,14 @@ class MPRester(object):
 
                 If string, it supports a powerful but simple string criteria.
                 E.g., "Fe2O3" means search for materials with reduced_formula
-                Fe2O3. Wild cards are also supported. E.g., "\*2O" means get
-                all materials whose formula can be formed as \*2O, e.g.,
+                Fe2O3. Wild cards are also supported. E.g., "\\*2O" means get
+                all materials whose formula can be formed as \\*2O, e.g.,
                 Li2O, K2O, etc.
 
                 Other syntax examples:
                 mp-1234: Interpreted as a Materials ID.
-                Fe2O3 or \*2O3: Interpreted as reduced formulas.
-                Li-Fe-O or \*-Fe-O: Interpreted as chemical systems.
+                Fe2O3 or \\*2O3: Interpreted as reduced formulas.
+                Li-Fe-O or \\*-Fe-O: Interpreted as chemical systems.
 
                 You can mix and match with spaces, which are interpreted as
                 "OR". E.g. "mp-1234 FeO" means query for all compounds with
@@ -872,13 +880,13 @@ class MPRester(object):
         Args:
             criteria_string (str): A string representing a search criteria.
                 Also supports wild cards. E.g.,
-                something like "\*2O" gets converted to
+                something like "*2O" gets converted to
                 {'pretty_formula': {'$in': [u'B2O', u'Xe2O', u"Li2O", ...]}}
 
                 Other syntax examples:
                     mp-1234: Interpreted as a Materials ID.
-                    Fe2O3 or \*2O3: Interpreted as reduced formulas.
-                    Li-Fe-O or \*-Fe-O: Interpreted as chemical systems.
+                    Fe2O3 or *2O3: Interpreted as reduced formulas.
+                    Li-Fe-O or *-Fe-O: Interpreted as chemical systems.
 
                 You can mix and match with spaces, which are interpreted as
                 "OR". E.g., "mp-1234 FeO" means query for all compounds with
@@ -893,14 +901,14 @@ class MPRester(object):
             if sym == "*":
                 return [el.symbol for el in Element]
             else:
-                m = re.match("\{(.*)\}", sym)
+                m = re.match(r"\{(.*)\}", sym)
                 if m:
                     return [s.strip() for s in m.group(1).split(",")]
                 else:
                     return [sym]
 
         def parse_tok(t):
-            if re.match("\w+-\d+", t):
+            if re.match(r"\w+-\d+", t):
                 return {"task_id": t}
             elif "-" in t:
                 elements = [parse_sym(sym) for sym in t.split("-")]
@@ -920,7 +928,7 @@ class MPRester(object):
                     if ("*" in sym) or ("{" in sym):
                         wild_card_els.append(sym)
                     else:
-                        m = re.match("([A-Z][a-z]*)[\.\d]*", sym)
+                        m = re.match(r"([A-Z][a-z]*)[\.\d]*", sym)
                         explicit_els.append(m.group(1))
                 nelements = len(wild_card_els) + len(set(explicit_els))
                 parts = re.split(r"(\*|\{.*\})", t)
@@ -946,4 +954,3 @@ class MPRestError(Exception):
     Raised when the query has problems, e.g., bad query format.
     """
     pass
-

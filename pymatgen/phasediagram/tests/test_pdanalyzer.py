@@ -4,14 +4,14 @@
 
 from __future__ import unicode_literals
 
-import unittest2 as unittest
+import unittest
 import os
 
 from numbers import Number
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
-from pymatgen.phasediagram.maker import PhaseDiagram
+from pymatgen.phasediagram.maker import PhaseDiagram, GrandPotentialPhaseDiagram
 from pymatgen.phasediagram.analyzer import PDAnalyzer
 from pymatgen.phasediagram.entries import PDEntryIO, PDEntry
 
@@ -73,6 +73,21 @@ class PDAnalyzerTest(unittest.TestCase):
                     self.assertLessEqual(len(self.analyzer.get_element_profile(el, entry.composition)),
                                          len(self.pd.facets))
 
+        expected = [{'evolution': 1.0,
+                     'chempot': -4.2582781416666666,
+                     'reaction': 'Li2O + 0.5 O2 -> Li2O2'},
+                    {'evolution': 0,
+                     'chempot': -5.0885906699999968,
+                     'reaction': 'Li2O -> Li2O'},
+                    {'evolution': -1.0,
+                     'chempot': -10.487582010000001,
+                     'reaction': 'Li2O -> 2 Li + 0.5 O2'}]
+        result = self.analyzer.get_element_profile(Element('O'), Composition('Li2O'))
+        for d1, d2 in zip(expected, result):
+            self.assertAlmostEqual(d1['evolution'], d2['evolution'])
+            self.assertAlmostEqual(d1['chempot'], d2['chempot'])
+            self.assertEqual(d1['reaction'], str(d2['reaction']))
+
     def test_get_get_chempot_range_map(self):
         elements = [el for el in self.pd.elements if el.symbol != "Fe"]
         self.assertEqual(len(self.analyzer.get_chempot_range_map(elements)), 10)
@@ -109,6 +124,82 @@ class PDAnalyzerTest(unittest.TestCase):
         decomp, e = pda.get_decomp_and_e_above_hull(PDEntry('H', 1))
         self.assertAlmostEqual(e, 1)
         self.assertAlmostEqual(decomp[entry], 1.0)
+
+    def test_get_critical_compositions_fractional(self):
+        c1 = Composition('Fe2O3').fractional_composition
+        c2 = Composition('Li3FeO4').fractional_composition
+        c3 = Composition('Li2O').fractional_composition
+
+        comps = self.analyzer.get_critical_compositions(c1, c2)
+        expected = [Composition('Fe2O3').fractional_composition,
+                    Composition('Li0.3243244Fe0.1621621O0.51351349'),
+                    Composition('Li3FeO4').fractional_composition]
+        for crit, exp in zip(comps, expected):
+            self.assertTrue(crit.almost_equals(exp, rtol=0, atol=1e-5))
+
+        comps = self.analyzer.get_critical_compositions(c1, c3)
+        expected = [Composition('Fe0.4O0.6'),
+                    Composition('LiFeO2').fractional_composition,
+                    Composition('Li5FeO4').fractional_composition,
+                    Composition('Li2O').fractional_composition]
+        for crit, exp in zip(comps, expected):
+            self.assertTrue(crit.almost_equals(exp, rtol=0, atol=1e-5))
+
+    def test_get_critical_compositions(self):
+        c1 = Composition('Fe2O3')
+        c2 = Composition('Li3FeO4')
+        c3 = Composition('Li2O')
+
+        comps = self.analyzer.get_critical_compositions(c1, c2)
+        expected = [Composition('Fe2O3'),
+                    Composition('Li0.3243244Fe0.1621621O0.51351349') * 7.4,
+                    Composition('Li3FeO4')]
+        for crit, exp in zip(comps, expected):
+            self.assertTrue(crit.almost_equals(exp, rtol=0, atol=1e-5))
+
+        comps = self.analyzer.get_critical_compositions(c1, c3)
+        expected = [Composition('Fe2O3'),
+                    Composition('LiFeO2'),
+                    Composition('Li5FeO4') / 3,
+                    Composition('Li2O')]
+        for crit, exp in zip(comps, expected):
+            self.assertTrue(crit.almost_equals(exp, rtol=0, atol=1e-5))
+
+        # Don't fail silently if input compositions aren't in phase diagram
+        # Can be very confusing if you're working with a GrandPotentialPD
+        self.assertRaises(ValueError, self.analyzer.get_critical_compositions,
+                          Composition('Xe'), Composition('Mn'))
+
+        # For the moment, should also fail even if compositions are in the gppd
+        # because it isn't handled properly
+        gppd = GrandPotentialPhaseDiagram(self.pd.all_entries, {'Xe': 1},
+                                          self.pd.elements + [Element('Xe')])
+        pda = PDAnalyzer(gppd)
+        self.assertRaises(ValueError, pda.get_critical_compositions,
+                          Composition('Fe2O3'), Composition('Li3FeO4Xe'))
+
+        # check that the function still works though
+        comps = pda.get_critical_compositions(c1, c2)
+        expected = [Composition('Fe2O3'),
+                    Composition('Li0.3243244Fe0.1621621O0.51351349') * 7.4,
+                    Composition('Li3FeO4')]
+        for crit, exp in zip(comps, expected):
+            self.assertTrue(crit.almost_equals(exp, rtol=0, atol=1e-5))
+
+        # case where the endpoints are identical
+        self.assertEqual(self.analyzer.get_critical_compositions(c1, c1 * 2),
+                         [c1, c1 * 2])
+
+    def test_get_composition_chempots(self):
+        c1 = Composition('Fe3.1O4')
+        c2 = Composition('Fe3.2O4.1Li0.01')
+
+        e1 = self.analyzer.get_hull_energy(c1)
+        e2 = self.analyzer.get_hull_energy(c2)
+
+        cp = self.analyzer.get_composition_chempots(c1)
+        calc_e2 = e1 + sum(cp[k] * v for k, v in (c2 - c1).items())
+        self.assertAlmostEqual(e2, calc_e2)
 
 
 if __name__ == '__main__':

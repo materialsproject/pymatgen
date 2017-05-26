@@ -3,6 +3,17 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import unittest
+import os
+
+from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
+from pymatgen import Element, Structure
+from pymatgen.transformations.standard_transformations import \
+    SubstitutionTransformation
+from monty.os.path import which
+from pymatgen.transformations.site_transformations import \
+    RemoveSitesTransformation
+from pymatgen.util.testing import PymatgenTest
 
 """
 Created on Jul 22, 2012
@@ -15,18 +26,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 22, 2012"
-
-import unittest2 as unittest
-import os
-
-from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
-from pymatgen import Element, Structure
-from pymatgen.transformations.standard_transformations import \
-    SubstitutionTransformation
-from monty.os.path import which
-from pymatgen.transformations.site_transformations import \
-    RemoveSitesTransformation
-from pymatgen.util.testing import PymatgenTest
 
 
 enumlib_present = which('multienum.x') and which('makestr.x')

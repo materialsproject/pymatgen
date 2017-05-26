@@ -10,6 +10,8 @@ from operator import itemgetter
 from six import string_types
 from tabulate import tabulate
 
+import numpy as np
+
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -17,7 +19,7 @@ from pymatgen import Structure, Lattice, Element, Molecule
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.io_utils import clean_lines
-from pymatgen.util.string_utils import str_delimited
+from pymatgen.util.string import str_delimited
 
 """
 This module defines classes for reading/manipulating/writing the main sections
@@ -571,7 +573,7 @@ class Tags(dict):
         ieels = -1
         ieels_max = -1
         for i, line in enumerate(lines):
-            m = re.match("([A-Z]+\d*\d*)\s*(.*)", line)
+            m = re.match(r"([A-Z]+\d*\d*)\s*(.*)", line)
             if m:
                 key = m.group(1).strip()
                 val = m.group(2).strip()
@@ -627,10 +629,10 @@ class Tags(dict):
         try:
             if key in list_type_keys:
                 output = list()
-                toks = re.split("\s+", val)
+                toks = re.split(r"\s+", val)
 
                 for tok in toks:
-                    m = re.match("(\d+)\*([\d\.\-\+]+)", tok)
+                    m = re.match(r"(\d+)\*([\d\.\-\+]+)", tok)
                     if m:
                         output.extend([smart_int_or_float(m.group(2))] *
                                       int(m.group(1)))
@@ -638,7 +640,7 @@ class Tags(dict):
                         output.append(smart_int_or_float(tok))
                 return output
             if key in boolean_type_keys:
-                m = re.search("^\W+([TtFf])", val)
+                m = re.search(r"^\W+([TtFf])", val)
                 if m:
                     if m.group(1) == "T" or m.group(1) == "t":
                         return True
@@ -827,6 +829,50 @@ class Potential(MSONable):
 
         Args:
             filename: filename and path to write potential file to.
+        """
+        with zopen(filename, "wt") as f:
+            f.write(str(self) + "\n")
+
+
+class Paths(MSONable):
+    """
+    Set FEFF scattering paths('paths.dat' file used by the 'genfmt' module).
+    """
+    def __init__(self, atoms, paths, degeneracies=None):
+        """
+        Args:
+            atoms (Atoms): Atoms object
+            paths (list(list)): list of paths. Each path is a list of atom indices in the atomic
+                cluster(the molecular cluster created by Atoms class).
+                e.g. [[0, 1, 2], [5, 9, 4, 1]] -> 2 paths: one with 3 legs and the other with 4 legs.
+            degeneracies (list): list of degeneracies, one for each path. Set to 1 if not specified.
+        """
+        self.atoms = atoms
+        self.paths = paths
+        self.degeneracies = degeneracies or [1]*len(paths)
+        assert len(self.degeneracies) == len(self.paths)
+
+    def __str__(self):
+        lines = ["PATH", "---------------"]
+        # max possible, to avoid name collision count down from max value.
+        path_index = 9999
+        for i, legs in enumerate(self.paths):
+            lines.append("{} {} {}".format(path_index, len(legs), self.degeneracies[i]))
+            lines.append("x y z ipot label")
+            for l in legs:
+                coords = self.atoms.cluster[l].coords.tolist()
+                tmp = "{:.6f} {:.6f} {:.6f}".format(*tuple(coords))
+                element = str(self.atoms.cluster[l].specie.name)
+                # the potential index for the absorbing atom(the one at the cluster origin) is 0
+                potential = 0 if np.linalg.norm(coords) <= 1e-6 else self.atoms.pot_dict[element]
+                tmp = "{} {} {}".format(tmp, potential, element)
+                lines.append(tmp)
+            path_index -= 1
+        return "\n".join(lines)
+
+    def write_file(self, filename="paths.dat"):
+        """
+        Write paths.dat.
         """
         with zopen(filename, "wt") as f:
             f.write(str(self) + "\n")

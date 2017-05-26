@@ -9,6 +9,17 @@ This module provides classes for analyzing phase diagrams.
 """
 
 from six.moves import zip
+import numpy as np
+import itertools
+import collections
+
+from monty.functools import lru_cache
+from monty.dev import deprecated
+
+from pymatgen.core.composition import Composition
+from pymatgen.phasediagram.maker import PhaseDiagram, get_facets
+from pymatgen.analysis.reaction_calculator import Reaction
+from pymatgen.util.coord_utils import Simplex
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -17,18 +28,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "May 16, 2012"
-
-import numpy as np
-import itertools
-import collections
-
-from monty.functools import lru_cache
-
-from pymatgen.core.composition import Composition
-from pymatgen.phasediagram.maker import PhaseDiagram, \
-    GrandPotentialPhaseDiagram, get_facets
-from pymatgen.analysis.reaction_calculator import Reaction
-from pymatgen.util.coord_utils import Simplex
 
 
 class PDAnalyzer(object):
@@ -58,28 +57,33 @@ class PDAnalyzer(object):
         """
         self._pd = pd
 
-    def _make_comp_matrix(self, complist):
-        """
-        Helper function to generates a normalized composition matrix from a
-        list of compositions.
-        """
-        return np.array([[comp.get_atomic_fraction(el)
-                          for el in self._pd.elements] for comp in complist])
-
     @lru_cache(1)
-    def _get_facet(self, comp):
+    def _get_facet_and_simplex(self, comp):
         """
         Get any facet that a composition falls into. Cached so successive
         calls at same composition are fast.
         """
-        if set(comp.elements).difference(self._pd.elements):
-            raise ValueError('{} has elements not in the phase diagram {}'
-                             ''.format(comp, self._pd.elements))
-        c = [comp.get_atomic_fraction(e) for e in self._pd.elements[1:]]
-        for f, s in zip(self._pd.facets, self._pd.simplices):
-            if Simplex(s).in_simplex(c, PDAnalyzer.numerical_tol / 10):
-                return f
+        c = self._pd.pd_coords(comp)
+        for f, s in zip(self._pd.facets, self._pd.simplexes):
+            if s.in_simplex(c, PDAnalyzer.numerical_tol / 10):
+                return f, s
         raise RuntimeError("No facet found for comp = {}".format(comp))
+
+    def _get_facet_chempots(self, facet):
+        """
+        Calculates the chemical potentials for each element within a facet.
+
+        Args:
+            facet: Facet of the phase diagram.
+
+        Returns:
+            { element: chempot } for all elements in the phase diagram.
+        """
+        complist = [self._pd.qhull_entries[i].composition for i in facet]
+        energylist = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
+        m = [[c.get_atomic_fraction(e) for e in self._pd.elements] for c in complist]
+        chempots = np.linalg.solve(m, energylist)
+        return dict(zip(self._pd.elements, chempots))
 
     def get_decomposition(self, comp):
         """
@@ -91,14 +95,11 @@ class PDAnalyzer(object):
         Returns:
             Decomposition as a dict of {Entry: amount}
         """
-        facet = self._get_facet(comp)
-        comp_list = [self._pd.qhull_entries[i].composition for i in facet]
-        m = self._make_comp_matrix(comp_list)
-        compm = self._make_comp_matrix([comp])
-        decomp_amts = np.linalg.solve(m.T, compm.T)
-        return {self._pd.qhull_entries[f]: amt[0]
+        facet, simplex = self._get_facet_and_simplex(comp)
+        decomp_amts = simplex.bary_coords(self._pd.pd_coords(comp))
+        return {self._pd.qhull_entries[f]: amt
                 for f, amt in zip(facet, decomp_amts)
-                if abs(amt[0]) > PDAnalyzer.numerical_tol}
+                if abs(amt) > PDAnalyzer.numerical_tol}
 
     def get_hull_energy(self, comp):
         """
@@ -133,14 +134,12 @@ class PDAnalyzer(object):
         if entry in self._pd.stable_entries:
             return {entry: 1}, 0
 
-        facet = self._get_facet(entry.composition)
-        comp_list = [self._pd.qhull_entries[i].composition for i in facet]
-        m = self._make_comp_matrix(comp_list)
-        compm = self._make_comp_matrix([entry.composition])
-        decomp_amts = np.linalg.solve(m.T, compm.T)[:, 0]
-        decomp = {self._pd.qhull_entries[facet[i]]: decomp_amts[i]
-                  for i in range(len(decomp_amts))
-                  if abs(decomp_amts[i]) > PDAnalyzer.numerical_tol}
+        comp = entry.composition
+        facet, simplex = self._get_facet_and_simplex(comp)
+        decomp_amts = simplex.bary_coords(self._pd.pd_coords(comp))
+        decomp = {self._pd.qhull_entries[f]: amt
+                  for f, amt in zip(facet, decomp_amts)
+                  if abs(amt) > PDAnalyzer.numerical_tol}
         energies = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
         ehull = entry.energy_per_atom - np.dot(decomp_amts, energies)
         if allow_negative or ehull >= -PDAnalyzer.numerical_tol:
@@ -184,25 +183,13 @@ class PDAnalyzer(object):
         return analyzer.get_decomp_and_e_above_hull(entry,
                                                     allow_negative=True)[1]
 
-    def get_facet_chempots(self, facet):
-        """
-        Calculates the chemical potentials for each element within a facet.
-
-        Args:
-            facet: Facet of the phase diagram.
-
-        Returns:
-            { element: chempot } for all elements in the phase diagram.
-        """
-        complist = [self._pd.qhull_entries[i].composition for i in facet]
-        energylist = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
-        m = self._make_comp_matrix(complist)
-        chempots = np.linalg.solve(m, energylist)
-        return dict(zip(self._pd.elements, chempots))
-
     def get_composition_chempots(self, comp):
-        facet = self._get_facet(comp)
-        return self.get_facet_chempots(facet)
+        facet = self._get_facet_and_simplex(comp)[0]
+        return self._get_facet_chempots(facet)
+
+    @deprecated(get_composition_chempots)
+    def get_facet_chempots(self, facet):
+        return self._get_facet_chempots(facet)
 
     def get_transition_chempots(self, element):
         """
@@ -222,7 +209,7 @@ class PDAnalyzer(object):
 
         critical_chempots = []
         for facet in self._pd.facets:
-            chempots = self.get_facet_chempots(facet)
+            chempots = self._get_facet_chempots(facet)
             critical_chempots.append(chempots[element])
 
         clean_pots = []
@@ -234,6 +221,64 @@ class PDAnalyzer(object):
                     clean_pots.append(c)
         clean_pots.reverse()
         return tuple(clean_pots)
+
+    def get_critical_compositions(self, comp1, comp2):
+        """
+        Get the critical compositions along the tieline between two
+        compositions. I.e. where the decomposition products change.
+        The endpoints are also returned.
+        Args:
+            comp1, comp2 (Composition): compositions that define the tieline
+        Returns:
+            [(Composition)]: list of critical compositions. All are of
+                the form x * comp1 + (1-x) * comp2
+        """
+
+        n1 = comp1.num_atoms
+        n2 = comp2.num_atoms
+        pd_els = self._pd.elements
+
+        # the reduced dimensionality Simplexes don't use the
+        # first element in the PD
+        c1 = self._pd.pd_coords(comp1)
+        c2 = self._pd.pd_coords(comp2)
+
+        # none of the projections work if c1 == c2, so just return *copies*
+        # of the inputs
+        if np.all(c1 == c2):
+            return[comp1.copy(), comp2.copy()]
+
+        intersections = [c1, c2]
+        for sc in self._pd.simplexes:
+            intersections.extend(sc.line_intersection(c1, c2))
+        intersections = np.array(intersections)
+
+        # find position along line
+        l = (c2 - c1)
+        l /= np.sum(l ** 2) ** 0.5
+        proj = np.dot(intersections - c1, l)
+
+        # only take compositions between endpoints
+        proj = proj[np.logical_and(proj > -self.numerical_tol,
+                                   proj < proj[1] + self.numerical_tol)]
+        proj.sort()
+
+        # only unique compositions
+        valid = np.ones(len(proj), dtype=np.bool)
+        valid[1:] = proj[1:] > proj[:-1] + self.numerical_tol
+        proj = proj[valid]
+
+        ints = c1 + l * proj[:, None]
+        # reconstruct full-dimensional composition array
+        cs = np.concatenate([np.array([1 - np.sum(ints, axis=-1)]).T,
+                             ints], axis=-1)
+        # mixing fraction when compositions are normalized
+        x = proj / np.dot(c2 - c1, l)
+        # mixing fraction when compositions are not normalized
+        x_unnormalized = x * n1 / (n2 + x * (n1 - n2))
+        num_atoms = n1 + (n2 - n1) * x_unnormalized
+        cs *= num_atoms[:, None]
+        return [Composition((c, v) for c, v in zip(pd_els, m)) for m in cs]
 
     def get_element_profile(self, element, comp, comp_tol=1e-5):
         """
@@ -257,45 +302,23 @@ class PDAnalyzer(object):
         if element not in self._pd.elements:
             raise ValueError("get_transition_chempots can only be called with"
                              " elements in the phase diagram.")
-        chempots = self.get_transition_chempots(element)
-        stable_entries = self._pd.stable_entries
         gccomp = Composition({el: amt for el, amt in comp.items()
                               if el != element})
         elref = self._pd.el_refs[element]
         elcomp = Composition(element.symbol)
-        prev_decomp = []
         evolution = []
 
-        def are_same_decomp(decomp1, decomp2):
-            for comp in decomp2:
-                if comp not in decomp1:
-                    return False
-            return True
-
-        for c in chempots:
-            gcpd = GrandPotentialPhaseDiagram(
-                stable_entries, {element: c - 1e-5}, self._pd.elements
-            )
-            analyzer = PDAnalyzer(gcpd)
-            gcdecomp = analyzer.get_decomposition(gccomp)
-            decomp = [gcentry.original_entry.composition
-                      for gcentry, amt in gcdecomp.items()
-                      if amt > comp_tol]
-            decomp_entries = [gcentry.original_entry
-                              for gcentry, amt in gcdecomp.items()
-                              if amt > comp_tol]
-
-            if not are_same_decomp(prev_decomp, decomp):
-                if elcomp not in decomp:
-                    decomp.insert(0, elcomp)
-                rxn = Reaction([comp], decomp)
-                rxn.normalize_to(comp)
-                prev_decomp = decomp
-                amt = -rxn.coeffs[rxn.all_comp.index(elcomp)]
-                evolution.append({'chempot': c,
-                                  'evolution': amt,
-                                  'element_reference': elref,
-                                  'reaction': rxn, 'entries': decomp_entries})
+        for cc in self.get_critical_compositions(elcomp, gccomp)[1:]:
+            decomp_entries = self.get_decomposition(cc).keys()
+            decomp = [k.composition for k in decomp_entries]
+            rxn = Reaction([comp], decomp + [elcomp])
+            rxn.normalize_to(comp)
+            c = self.get_composition_chempots(cc + elcomp * 1e-5)[element]
+            amt = -rxn.coeffs[rxn.all_comp.index(elcomp)]
+            evolution.append({'chempot': c,
+                              'evolution': amt,
+                              'element_reference': elref,
+                              'reaction': rxn, 'entries': decomp_entries})
         return evolution
 
     def get_chempot_range_map(self, elements, referenced=True, joggle=True):
@@ -321,7 +344,7 @@ class PDAnalyzer(object):
         pd = self._pd
         facets = pd.facets
         for facet in facets:
-            chempots = self.get_facet_chempots(facet)
+            chempots = self._get_facet_chempots(facet)
             all_chempots.append([chempots[el] for el in pd.elements])
         inds = [pd.elements.index(el) for el in elements]
         el_energies = {el: 0.0 for el in elements}

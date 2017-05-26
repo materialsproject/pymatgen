@@ -17,7 +17,7 @@ from monty.json import MontyDecoder
 
 import os
 import json
-import unittest2 as unittest
+import unittest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')

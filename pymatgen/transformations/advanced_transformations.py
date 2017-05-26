@@ -5,14 +5,18 @@
 from __future__ import division, unicode_literals
 
 import numpy as np
-from fractions import gcd, Fraction
+from fractions import Fraction
+try:
+    from math import gcd
+except ImportError:
+    from fractions import gcd
 from itertools import groupby
 from warnings import warn
 import logging
 import math
 
 import six
-from monty.json import MontyDecoder
+import warnings
 from monty.fractions import lcm
 
 from pymatgen.core.structure import Composition
@@ -30,7 +34,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher, \
     SpinComparator
 from pymatgen.analysis.energy_models import SymmetryModel
 from pymatgen.analysis.bond_valence import BVAnalyzer
-
+from pymatgen.core.surface import SlabGenerator
 
 """
 This module implements more advanced transformations.
@@ -484,7 +488,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 'The specified species do not exist in the structure'
                 ' to be enumerated')
 
-        return lcm(n_gcd, denom) / n_gcd
+        return lcm(int(n_gcd), denom) / n_gcd
 
     def apply_transformation(self, structure, return_ranked_list=False):
         # Make a mutable structure first
@@ -584,10 +588,12 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
     symbols = allowed_elements or [el.symbol for el in Element]
     for sym in symbols:
         try:
-            sp = Specie(sym, oxidation_state)
-            r = sp.ionic_radius
-            if r is not None:
-                candidates.append((r, sp))
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                sp = Specie(sym, oxidation_state)
+                r = sp.ionic_radius
+                if r is not None:
+                    candidates.append((r, sp))
         except:
             pass
     return min(candidates, key=lambda l: abs(l[0]/ref_radius - 1))[1]
@@ -623,7 +629,7 @@ class DopingTransformation(AbstractTransformation):
             allowed_doping_species (list): Species that are allowed to be
                 doping sites. This is an inclusionary list. If specified,
                 any sites which are not
-            \*\*kwargs:
+            \\*\\*kwargs:
                 Same keyword args as :class:`EnumerateStructureTransformation`,
                 i.e., min_cell_size, etc.
         """
@@ -782,3 +788,52 @@ class DopingTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return True
+
+
+class SlabTransformation(AbstractTransformation):
+    """
+    A transformation that creates a slab from a structure.
+
+    """
+    def __init__(self, miller_index, min_slab_size, min_vacuum_size,
+                 lll_reduce=False, center_slab=False, primitive=True,
+                 max_normal_search=None, shift=0, tol=0.1):
+        """
+        Args:
+            miller_index (3-tuple or list): miller index of slab
+            min_slab_size (float): minimum slab size in angstroms
+            min_vacuum_size (float): minimum size of vacuum
+            lll_reduce (bool): whether to apply LLL reduction
+            center_slab (bool): whether to center the slab
+            primitive (bool): whether to reduce slabs to most primitive cell
+            max_normal_search (int): maximum index to include in linear
+                combinations of indices to find c lattice vector orthogonal
+                to slab surface
+            shift (float): shift to get termination
+            tol (float): tolerance for primitive cell finding
+        """
+        self.miller_index = miller_index
+        self.min_slab_size = min_slab_size
+        self.min_vacuum_size = min_vacuum_size
+        self.lll_reduce = lll_reduce
+        self.center_slab = center_slab
+        self.primitive = primitive
+        self.max_normal_search = max_normal_search
+        self.shift = shift
+        self.tol = 0.1
+
+    def apply_transformation(self, structure):
+        sg = SlabGenerator(structure, self.miller_index, self.min_slab_size,
+                           self.min_vacuum_size, self.lll_reduce, 
+                           self.center_slab, self.primitive,
+                           self.max_normal_search)
+        slab = sg.get_slab(self.shift, self.tol)
+        return slab
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return None

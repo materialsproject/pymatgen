@@ -9,8 +9,7 @@ import numpy as np
 import itertools
 from itertools import chain
 from scipy.spatial import ConvexHull
-from pymatgen.analysis.pourbaix.entry import MultiEntry, \
-    ion_or_solid_comp_object
+from pymatgen.analysis.pourbaix.entry import MultiEntry, ion_or_solid_comp_object
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition
 
@@ -39,7 +38,6 @@ MU_H2O = -2.4583
 class PourbaixDiagram(object):
     """
     Class to create a Pourbaix diagram from entries
-
     Args:
         entries: Entries list containing both Solids and Ions
         comp_dict: Dictionary of compositions
@@ -130,65 +128,163 @@ class PourbaixDiagram(object):
         el_list = self._elt_comp.keys()
         comp_list = [self._elt_comp[el] for el in el_list]
         list_of_entries = list()
+
+        # generate all possible combinations of compounds
         for j in range(1, N + 1):
-            list_of_entries += list(itertools.combinations(
-                                list(range(len(entries))), j))
+            list_of_entries += list(itertools.combinations(list(range(len(entries))), j))
+
+        # initialize processed entries
         processed_entries = list()
-        for entry_list in list_of_entries:
-            # Check if all elements in composition list are present in
-            # entry_list
-            if not (set([Element(el) for el in el_list]).issubset(
-                    set(list(chain.from_iterable([entries[i].composition.keys()
-                                                  for i in entry_list]))))):
+        
+        # for all combinations
+        for index, entry_list in enumerate(list_of_entries):
+            # Check if all elements in composition list are present in entry_list
+            if not (set([Element(el) for el in el_list]).issubset(set(list(chain.from_iterable([entries[i].composition.keys() for i in entry_list]))))):
                 continue
             if len(entry_list) == 1:
-                # If only one entry in entry_list, then check if the composition matches with the set composition. 
+                # If only one entry in entry_list, then check if the composition matches with the set composition.
                 entry = entries[entry_list[0]]
-                dict_of_non_oh = dict(zip([key for key in entry.composition.keys() if key.symbol not in ["O", "H"]],
-                                           [entry.composition[key] for key in [key for key in entry.composition.keys() if key.symbol not in ["O", "H"]]]))
-                if Composition(dict(zip(self._elt_comp.keys(), [self._elt_comp[key] / min([self._elt_comp[key] for key in self._elt_comp.keys()])
-                                                                 for key in self._elt_comp.keys()]))).reduced_formula ==\
-                        Composition(dict(zip(dict_of_non_oh.keys(), [dict_of_non_oh[el] / min([dict_of_non_oh[key] for key in dict_of_non_oh.keys()])
-                                                                     for el in dict_of_non_oh.keys()]))).reduced_formula:                                                                     
+                dict_of_non_oh = dict(zip([key for key in entry.composition.keys() if key.symbol not in ["O", "H"]], [entry.composition[key] for key in [key for key in entry.composition.keys() if key.symbol not in ["O", "H"]]]))
+                if Composition(dict(zip(self._elt_comp.keys(), [self._elt_comp[key] / min([self._elt_comp[key] for key in self._elt_comp.keys()]) for key in self._elt_comp.keys()]))).reduced_formula == Composition(dict(zip(dict_of_non_oh.keys(), [dict_of_non_oh[el] / min([dict_of_non_oh[key] for key in dict_of_non_oh.keys()]) for el in dict_of_non_oh.keys()]))).reduced_formula:
                     processed_entries.append(MultiEntry([entry], [1.0]))
                 continue
 
-            A = [[0.0] * (len(entry_list) - 1) for _ in range(len(entry_list) - 1)]
+            # matrix (rows for elements / columns for compounds)   
+        
+            A = [[0.0] * len(entry_list) for _ in range(N)]
+            Ab = [[0.0] * (len(entry_list)+1) for _ in range(N)]
+            b = [[0.0] for _ in range(N)]
+
+            # get the entries
             multi_entries = [entries[j] for j in entry_list]
-            entry0 = entries[entry_list[0]]
-            comp0 = entry0.composition
-            if entry0.phase_type == "Solid":
-                red_fac = comp0.get_reduced_composition_and_factor()[1]
-            else:
-                red_fac = 1.0
-            sum_nel = sum([comp0[el] / red_fac for el in el_list])
-            b = [comp0[Element(el_list[i])] / red_fac - comp_list[i] * sum_nel
-                 for i in range(1, len(entry_list))]
-            for j in range(1, len(entry_list)):
+
+            # fill out the matrices
+            # for all compounds
+            for j in range(len(entry_list)): 
                 entry = entries[entry_list[j]]
                 comp = entry.composition
                 if entry.phase_type == "Solid":
                     red_fac = comp.get_reduced_composition_and_factor()[1]
                 else:
                     red_fac = 1.0
-                sum_nel = sum([comp[el] / red_fac for el in el_list])
-                for i in range(1, len(entry_list)):
-                    el = el_list[i]
-                    A[i-1][j-1] = comp_list[i] * sum_nel -\
-                        comp[Element(el)] / red_fac
-            try:
-                weights = np.linalg.solve(np.array(A), np.array(b))
-            except np.linalg.linalg.LinAlgError as err:
-                if 'Singular matrix' in err.message:
-                    continue
+
+                # for all elements
+                for i in range(N): 
+                    A[i][j] = comp[Element(list(el_list)[i])]/red_fac
+                    Ab[i][j]= A[i][j]
+
+            # fill out the b vector and the rest of the augmented matrix
+            for i in range(N):
+                b[i] = comp_list[i]
+                Ab[i][len(entry_list)]=b[i]
+                    
+            # get the ranks for Rouche-Capelli theorem
+            # rank of A cannot exceed the number of compounds
+            # rank of Ab (augmented) may exceed the rank of A (results in inconsistant equations)
+            rank_A = np.linalg.matrix_rank(np.array(A))
+            rank_Ab = np.linalg.matrix_rank(np.array(Ab))
+
+            # if a unique solution exists 
+            if(rank_A == rank_Ab):
+                # if the number of compounds is less than the number of elements
+                # inevitably have linearly dependent rows
+                # A is a nonsquare matrix (number of compounds < number of elements)
+                # pick the independent rows and construct a smaller square matrix
+                if(len(entry_list) < N):
+                    # figure out the linearly dependent rows
+                    N_list = list(itertools.combinations(list(range(N)), len(entry_list)))
+
+                    # initialize matrices
+                    reduced_A = [[0.0] * len(entry_list) for _ in range(len(entry_list))]
+                    reduced_b = [0.0] * len(entry_list)
+                
+                    # find the reduced matrix with rank equal to the number of compounds
+                    found_reduced_A = False
+                    for k in range(len(N_list)):
+                        row_set = N_list[k]
+                        for l in range(len(row_set)):
+                            reduced_A[l] = A[row_set[l]]
+                            reduced_b[l] = b[row_set[l]]
+
+                        # if the right matrix is found
+                        if(np.linalg.matrix_rank(reduced_A)==len(entry_list)):
+                            found_reduced_A = True
+                            break
+                    # if found a non-singular reduced matrix
+                    if(found_reduced_A):
+                        # try to solve for the weights
+                        try:
+                            weights = np.linalg.solve(reduced_A,reduced_b)
+                        except np.linalg.linalg.LinAlgError as err:
+                            # there cannot be any singular matrix
+                            # since the rank is equal to the number of compounds
+                            if 'Singular matrix' in err.message:
+                                continue
+                            else:
+                                raise Exception("Unknown Error message!")
+                        if not(np.all(weights > 0.0)):
+                            continue
+
+						# Remove multi-entries where weights a numerically
+						# insignificant
+                        ignore = False
+                        for i in range(len(entry_list)):
+                            if multi_entries[i].phase_type == "Solid" and weights[i] < 1e-3:
+                                ignore = True
+                                continue
+                            elif multi_entries[i].phase_type == "Ion" and weights[i] < multi_entries[i].conc:
+                                ignore = True
+                                continue
+                        if ignore:
+                             continue
+
+                        weights = list(weights)
+                        weight0 = weights[0]
+                        for k in range(len(weights)):
+                            weights[k] /= weight0
+                        super_entry = MultiEntry(multi_entries, weights)
+                        processed_entries.append(super_entry)
+
+                    # if all possible reduced matrices are singular
+                    # linearly dependent rows, singular matrix
+                    
+
+                # if the number of compounds is equal to the number of elements
                 else:
-                    raise Exception("Unknown Error message!")
-            if not(np.all(weights > 0.0)):
-                continue
-            weights = list(weights)
-            weights.insert(0, 1.0)
-            super_entry = MultiEntry(multi_entries, weights)
-            processed_entries.append(super_entry)
+                                     
+                    # try to solve for the weights
+                    try:
+                        weights = np.linalg.solve(A, b)
+                    except np.linalg.linalg.LinAlgError as err:
+                        if 'Singular matrix' in str(err):
+                            continue
+                        else:
+                            raise Exception("Unknown Error message!")
+                    if not(np.all(weights > 0.0)):
+                        continue
+
+					# Remove multi-entries where weights a numerically
+					# insignificant
+                    ignore = False
+                    for i in range(len(entry_list)):
+                        if multi_entries[i].phase_type == "Solid" and weights[i] < 1e-3:
+                            ignore = True
+                            continue
+                        elif multi_entries[i].phase_type == "Ion" and weights[i] < multi_entries[i].conc:
+                            ignore = True
+                            continue
+                    if ignore:
+                          continue
+
+                    weights = list(weights)
+                    weight0 = weights[0]
+                    for k in range(len(weights)):
+                        weights[k] /= weight0
+                    super_entry = MultiEntry(multi_entries, weights)
+                    processed_entries.append(super_entry)
+
+            # if rank(A) is not equal to rank(Ab) solution does not exists
+
         return processed_entries
 
     def _make_pourbaixdiagram(self):

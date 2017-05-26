@@ -16,7 +16,7 @@ __maintainier__ = "Bharat Medasani"
 __email__ = "mbkumar@gmail.com"
 __date__ = "Jul 1 2014"
 
-import unittest2 as unittest
+import unittest
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -81,6 +81,9 @@ class SubstitutionDefectTransformationTest(unittest.TestCase):
         for sc in scs:
             self.assertIn(sc['structure'].composition.formula,
                           ["Li16 O16", "Na1 Li15 O16", "Li16 S1 O15"])
+
+    def test_str_repr(self):
+        s = str(SubstitutionDefectTransformation({"Mg": "Al"}, [1,1,1]))
 
 
 class AntisiteDefectTransformationTest(unittest.TestCase):

@@ -35,8 +35,8 @@ from pymatgen.analysis.pourbaix.maker import PREFAC
 from pymatgen.analysis.pourbaix.entry import MultiEntry
 
 from pymatgen.phasediagram.plotter import uniquelines
-from pymatgen.util.string_utils import latexify
-from pymatgen.util.plotting_utils import get_publication_quality_plot
+from pymatgen.util.string import latexify
+from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.coord_utils import in_coord_list
 
 
@@ -362,8 +362,8 @@ class PourbaixPlotter(object):
             plt:
                 matplotlib plot object
         """
-#        plt = get_publication_quality_plot(24, 14.4)
-        plt = get_publication_quality_plot(16)
+#        plt = pretty_plot(24, 14.4)
+        plt = pretty_plot(16)
         (stable, unstable) = self.pourbaix_plot_data(limits)
         if limits:
             xlim = limits[0]
@@ -507,7 +507,7 @@ class PourbaixPlotter(object):
         from matplotlib.patches import Polygon
 
         entry_dict_of_multientries = collections.defaultdict(list)
-        plt = get_publication_quality_plot(16)
+        plt = pretty_plot(16)
         optim_colors = ['#0000FF', '#FF0000', '#00FF00', '#FFFF00', '#FF00FF',
                          '#FF8080', '#DCDCDC', '#800000', '#FF8000']
         optim_font_color = ['#FFFFA0', '#00FFFF', '#FF00FF', '#0000FF', '#00FF00',
@@ -666,7 +666,7 @@ class PourbaixPlotter(object):
         default_solid_phase_color = '#b8f9e7'    # this slighly darker than the MP scheme, to
         default_cluster_phase_color = '#d0fbef'  # avoid making the cluster phase too light
 
-        plt = get_publication_quality_plot(8, dpi=300)
+        plt = pretty_plot(8, dpi=300)
 
         (stable, unstable) = self.pourbaix_plot_data(limits)
         num_of_overlaps = {key: 0 for key in stable.keys()}
@@ -765,7 +765,7 @@ class PourbaixPlotter(object):
         from itertools import chain
         import operator
 
-        plt = get_publication_quality_plot(16)
+        plt = pretty_plot(16)
         optim_colors = ['#0000FF', '#FF0000', '#00FF00', '#FFFF00', '#FF00FF',
                         '#FF8080', '#DCDCDC', '#800000', '#FF8000']
         optim_font_colors = ['#FFC000', '#00FFFF', '#FF00FF', '#0000FF', '#00FF00',

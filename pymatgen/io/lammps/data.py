@@ -228,17 +228,17 @@ class LammpsData(MSONable):
         # atom_id, mol_id, atom_type, charge, x, y, z
         if read_charge:
             atoms_pattern = re.compile(
-                "^\s*(\d+)\s+(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+("
-                "[0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\w*")
+                r'^\s*(\d+)\s+(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+('
+                r'[0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\w*')
         # atom_id, mol_id, atom_type, x, y, z
         else:
             atoms_pattern = re.compile(
-                "^\s*(\d+)\s+(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+("
-                "[0-9eE\.+-]+)\s+([0-9eE\.+-]+)\w*")
+                r'^\s*(\d+)\s+(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+('
+                r'[0-9eE\.+-]+)\s+([0-9eE\.+-]+)\w*')
         # atom_type, mass
-        masses_pattern = re.compile("^\s*(\d+)\s+([0-9\.]+)$")
+        masses_pattern = re.compile(r'^\s*(\d+)\s+([0-9\.]+)$')
         box_pattern = re.compile(
-            "^([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+[xyz]lo\s+[xyz]hi")
+            r'^([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+[xyz]lo\s+[xyz]hi')
         with open(data_file) as df:
             for line in df:
                 if masses_pattern.search(line):
@@ -627,24 +627,24 @@ class LammpsForceFieldData(LammpsData):
         angles_data = []
         dihedral_data = []
         imdihedral_data = []
-        types_pattern = re.compile("^\s*(\d+)\s+([a-zA-Z]+)\s+types$")
+        types_pattern = re.compile(r'^\s*(\d+)\s+([a-zA-Z]+)\s+types$')
         # atom_id, mol_id, atom_type, charge, x, y, z
         atoms_pattern = re.compile(
-            "^\s*(\d+)\s+(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+("
-            "[0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\w*")
-        masses_pattern = re.compile("^\s*(\d+)\s+([0-9\.]+)$")
+            r'^\s*(\d+)\s+(\d+)\s+(\d+)\s+([0-9eE\.+-]+)\s+('
+            r'[0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\w*')
+        masses_pattern = re.compile(r'^\s*(\d+)\s+([0-9\.]+)$')
         box_pattern = re.compile(
-            "^\s*([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+[xyz]lo\s+[xyz]hi")
+            r'^\s*([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+[xyz]lo\s+[xyz]hi')
         # id, value1, value2
-        general_coeff_pattern = re.compile("^\s*(\d+)\s+([0-9\.]+)\s+([0-9\.]+)$")
+        general_coeff_pattern = re.compile(r'^\s*(\d+)\s+([0-9\.]+)\s+([0-9\.]+)$')
         # id, type, atom_id1, atom_id2
-        bond_data_pattern = re.compile("^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$")
+        bond_data_pattern = re.compile(r'^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$')
         # id, type, atom_id1, atom_id2, atom_id3
         angle_data_pattern = re.compile(
-            "^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$")
+            r'^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$')
         # id, type, atom_id1, atom_id2, atom_id3, atom_id4
         dihedral_data_pattern = re.compile(
-            "^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$")
+            r'^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$')
         read_pair_coeffs = False
         read_bond_coeffs = False
         read_angle_coeffs = False

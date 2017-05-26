@@ -1,6 +1,68 @@
 Change log
 ==========
 
+v4.7.6
+------
+* Fix serious bug in PointGroupAnalyzer that resulted in wrong point groups assigned to non-centered molecules.
+* Useful get_structure_from_mp at the root level for quick retrieval of common structures for analysis.
+* More efficient kpoint grids.
+* Misc bug fixes.
+
+v4.7.5
+------
+* MultiXYZ support (Xiaohui Xu)
+* Misc bug fixes and cleanup.
+
+v4.7.4
+------
+* New ferroelectric analysis module (Tess).
+* Magmom support and MagSymmOp (Matthew Horton).
+* Improved CIF Parsing.
+
+v4.7.3
+------
+* Sympy now a dependency.
+* Massive improvements to elastic package. (Joseph Montoya)
+* Symmetrized structures now contain Wyckoff symbols.
+* More robust CIF parsing and MITRelaxSet parameters (Will).
+
+v4.7.2
+------
+* Support for Abinit 8.2.2, including support for DFPT calculations. (Matteo)
+
+v4.7.1
+------
+* Pathfinder speedup
+* Minor bug fix for plots.
+
+v4.7.0
+------
+* Improvements to BSDOSPlotter.
+* Enhancements to Phase diagram analysis and reaction calculator.
+* Enhancements to surface slab and adsorption. (Richard and Joey)
+* Support NpT ensemble in diffusion analysis.
+
+v4.6.2
+--------
+* Improve Spacegroup class support for alternative settings. Add a get_settings class method.
+* Improvements to FEFF support.
+* Improvements to EOS class.
+
+v4.6.1
+------
+* Phonon bandstructure plotting and analysis. (Guido Petretto)
+* New capabilities for performing adsorption on slabs. (Joey Montoya)
+* Remove pathlib dependency.
+
+v4.6.0
+------
+* Improve support for alternative settings in SpaceGroup.
+* Fix respect for user_incar_settings in MPNonSCFSet and MPSOCSet
+* Support for argcomplete in pmg script.
+* Speed ups to Ewald summation.
+* Add functionality to parse frequency dependent dielectric function.
+* Improvements to Bolztrap support.
+
 v4.5.7
 ------
 * PMG settings are now prefixed with PMG_ to ensure proper namespacing.

@@ -3,20 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-
-"""
-Created on Jul 16, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
-__date__ = "Jul 16, 2012"
-
-import unittest2 as unittest
+import unittest
 import os
 import pickle
 import numpy as np
@@ -31,6 +18,18 @@ from pymatgen.io.vasp.inputs import Incar, Poscar, Kpoints, Potcar, \
 from pymatgen import Composition, Structure
 from monty.io import zopen
 
+"""
+Created on Jul 16, 2012
+"""
+
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyue@mit.edu"
+__date__ = "Jul 16, 2012"
+
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -44,7 +43,7 @@ class PoscarTest(PymatgenTest):
         comp = poscar.structure.composition
         self.assertEqual(comp, Composition("Fe4P4O16"))
 
-        #Vasp 4 type with symbols at the end.
+        # Vasp 4 type with symbols at the end.
         poscar_string = """Test1
 1.0
 3.840198 0.000000 0.000000
@@ -61,7 +60,7 @@ direct
         poscar_string = ""
         self.assertRaises(ValueError, Poscar.from_string, poscar_string)
 
-        #Vasp 4 tyle file with default names, i.e. no element symbol found.
+        # Vasp 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test2
 1.0
 3.840198 0.000000 0.000000
@@ -76,7 +75,7 @@ direct
             warnings.simplefilter("ignore")
             poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.structure.composition, Composition("HHe"))
-        #Vasp 4 tyle file with default names, i.e. no element symbol found.
+        # Vasp 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test3
 1.0
 3.840198 0.000000 0.000000
@@ -433,7 +432,7 @@ LPLANE     =  True
 LREAL      =  Auto
 LSCALU     =  False
 LWAVE      =  True
-MAGMOM     =  1*6 2*-6 1*6 20*0.6
+MAGMOM     =  1*6.0 2*-6.0 1*6.0 20*0.6
 NKRED      =  2
 NPAR       =  8
 NSIM       =  1
@@ -447,33 +446,48 @@ TIME       =  0.4"""
 
     def test_lsorbit_magmom(self):
         magmom1 = [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]]
-        magmom2 = [-1,-1,-1, 0, 0, 0, 0 ,0 ]
+        magmom2 = [-1, -1, -1, 0, 0, 0, 0, 0]
 
-        ans_string1 = "LSORBIT = True\nMAGMOM = 0.0 0.0 3.0 0 1 0 2 1 2\n"
-        ans_string2 = "LSORBIT = True\nMAGMOM = 3*3*-1 3*5*0\n"
+        ans_string1 = "LANGEVIN_GAMMA = 10 10 10\nLSORBIT = True\n" \
+                      "MAGMOM = 0.0 0.0 3.0 0 1 0 2 1 2\n"
+        ans_string2 = "LANGEVIN_GAMMA = 10\nLSORBIT = True\n" \
+                      "MAGMOM = 3*3*-1 3*5*0\n"
         ans_string3 = "LSORBIT = False\nMAGMOM = 2*-1 2*9\n"
 
         incar = Incar({})
         incar["MAGMOM"] = magmom1
         incar["LSORBIT"] = "T"
+        incar["LANGEVIN_GAMMA"] = [10, 10, 10]
         self.assertEqual(ans_string1, str(incar))
 
         incar["MAGMOM"] = magmom2
         incar["LSORBIT"] = "T"
+        incar["LANGEVIN_GAMMA"] = 10
         self.assertEqual(ans_string2, str(incar))
 
         incar = Incar.from_string(ans_string1)
         self.assertEqual(incar["MAGMOM"], [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]])
+        self.assertEqual(incar["LANGEVIN_GAMMA"], [10, 10, 10])
 
         incar = Incar.from_string(ans_string2)
         self.assertEqual(incar["MAGMOM"], [[-1, -1, -1], [-1, -1, -1],
                                            [-1, -1, -1], [0, 0, 0],
                                            [0, 0, 0], [0, 0, 0],
                                            [0, 0, 0], [0, 0, 0]])
+        self.assertEqual(incar["LANGEVIN_GAMMA"], [10])
 
         incar = Incar.from_string(ans_string3)
         self.assertFalse(incar["LSORBIT"])
         self.assertEqual(incar["MAGMOM"], [-1, -1, 9, 9])
+
+    def test_quad_efg(self):
+        incar1 = Incar({})
+        incar1["LEFG"] = True
+        incar1["QUAD_EFG"] = [0.0, 146.6, -25.58]
+        ans_string1 = "LEFG = True\nQUAD_EFG = 0.0 146.6 -25.58\n"
+        self.assertEqual(ans_string1, str(incar1))
+        incar2 = Incar.from_string(ans_string1)
+        self.assertEqual(ans_string1, str(incar2))
 
 
 class KpointsTest(unittest.TestCase):
@@ -537,12 +551,12 @@ Cartesian
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         kpoints = Kpoints.automatic_density(poscar.structure, 500)
-        self.assertEqual(kpoints.kpts, [[2, 4, 4]])
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
+        self.assertEqual(kpoints.kpts, [[1, 3, 3]])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
         kpoints = Kpoints.automatic_density(poscar.structure, 500, True)
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
         kpoints = Kpoints.automatic_density_by_vol(poscar.structure, 1000)
-        self.assertEqual(kpoints.kpts, [[6, 11, 13]])
+        self.assertEqual(kpoints.kpts, [[6, 10, 13]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
         s = poscar.structure

@@ -297,7 +297,7 @@ class EnumlibAdaptor(object):
         for line in output.strip().split("\n"):
             if line.strip().endswith("RunTot"):
                 start_count = True
-            elif start_count and re.match("\d+\s+.*", line.strip()):
+            elif start_count and re.match(r"\d+\s+.*", line.strip()):
                 count = int(line.split()[-1])
         logger.debug("Enumeration resulted in {} structures".format(count))
         return count
@@ -324,8 +324,8 @@ class EnumlibAdaptor(object):
         for n in range(1, num_structs + 1):
             with open("vasp.{:06d}".format(n)) as f:
                 data = f.read()
-                data = re.sub("scale factor", "1", data)
-                data = re.sub("(\d+)-(\d+)", r"\1 -\2", data)
+                data = re.sub(r'scale factor', "1", data)
+                data = re.sub(r'(\d+)-(\d+)', r'\1 -\2', data)
                 poscar = Poscar.from_string(data, self.index_species)
                 sub_structure = poscar.structure
                 # Enumeration may have resulted in a super lattice. We need to

@@ -4,6 +4,15 @@
 
 from __future__ import division, unicode_literals
 
+from math import sin, cos, asin, pi, degrees, radians
+import os
+import collections
+
+import numpy as np
+import json
+
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 """
 This module implements an XRD pattern calculator.
 """
@@ -16,16 +25,7 @@ __email__ = "ongsp@ucsd.edu"
 __date__ = "5/22/14"
 
 
-from math import sin, cos, asin, pi, degrees, radians
-import os
-import collections
-
-import numpy as np
-import json
-
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-#XRD wavelengths in angstroms
+# XRD wavelengths in angstroms
 WAVELENGTHS = {
     "CuKa": 1.54184,
     "CuKa2": 1.54439,
@@ -86,7 +86,7 @@ class XRDCalculator(object):
        .. math::
 
            f(s) = Z - 41.78214 \\times s^2 \\times \\sum\\limits_{i=1}^n a_i \
-           \exp(-b_is^2)
+           \\exp(-b_is^2)
 
        where :math:`s = \\frac{\\sin(\\theta)}{\\lambda}` and :math:`a_i`
        and :math:`b_i` are the fitted parameters for each element. The
@@ -95,7 +95,7 @@ class XRDCalculator(object):
        .. math::
 
            F_{hkl} = \\sum\\limits_{j=1}^N f_j \\exp(2\\pi i \\mathbf{g_{hkl}}
-           \cdot \\mathbf{r})
+           \\cdot \\mathbf{r})
 
     4. The intensity is then given by the modulus square of the structure
        factor.
@@ -113,10 +113,10 @@ class XRDCalculator(object):
            {\\sin^2(\\theta)\\cos(\\theta)}
     """
 
-    #Tuple of available radiation keywords.
+    # Tuple of available radiation keywords.
     AVAILABLE_RADIATION = tuple(WAVELENGTHS.keys())
 
-    #Tolerance in which to treat two peaks as having the same two theta.
+    # Tolerance in which to treat two peaks as having the same two theta.
     TWO_THETA_TOL = 1e-5
 
     # Tolerance in which to treat a peak as effectively 0 if the scaled
@@ -230,7 +230,8 @@ class XRDCalculator(object):
 
         for hkl, g_hkl, ind in sorted(
                 recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
-            hkl = [int(round(i)) for i in hkl] #Force miller indices to be integers.
+            # Force miller indices to be integers.
+            hkl = [int(round(i)) for i in hkl]
             if g_hkl != 0:
 
                 d_hkl = 1 / g_hkl
@@ -242,7 +243,7 @@ class XRDCalculator(object):
                 # 1/|ghkl|)
                 s = g_hkl / 2
 
-                #Store s^2 since we are using it a few times.
+                # Store s^2 since we are using it a few times.
                 s2 = s ** 2
 
                 # Vectorized computation of g.r for all fractional coords and
@@ -319,8 +320,8 @@ class XRDCalculator(object):
         Returns:
             (matplotlib.pyplot)
         """
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
-        plt = get_publication_quality_plot(16, 10)
+        from pymatgen.util.plotting import pretty_plot
+        plt = pretty_plot(16, 10)
         for two_theta, i, hkls, d_hkl in self.get_xrd_data(
                 structure, two_theta_range=two_theta_range):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:

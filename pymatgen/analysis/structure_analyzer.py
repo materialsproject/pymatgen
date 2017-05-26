@@ -4,6 +4,10 @@
 
 from __future__ import division, unicode_literals
 
+import six
+import yaml
+import os
+
 """
 This module provides classes to perform topological analyses of structures.
 """
@@ -17,7 +21,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import math
-from math import pi
+from math import pi, asin, atan, sqrt, exp, cos
 import numpy as np
 import itertools
 import collections
@@ -26,8 +30,9 @@ from warnings import warn
 from scipy.spatial import Voronoi
 from pymatgen import PeriodicSite
 from pymatgen import Element, Specie, Composition
-from pymatgen.util.num_utils import abs_cap
+from pymatgen.util.num import abs_cap
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.core.surface import Slab, SlabGenerator
 
 
 class VoronoiCoordFinder(object):
@@ -41,11 +46,15 @@ class VoronoiCoordFinder(object):
             coordination for.
         cutoff (float): Radius in Angstrom cutoff to look for coordinating
             atoms. Defaults to 10.0.
+        allow_pathological (bool): whether to allow infinite vertices in
+            determination of Voronoi coordination
     """
 
-    def __init__(self, structure, target=None, cutoff=10.0):
+    def __init__(self, structure, target=None, cutoff=10.0,
+                 allow_pathological=False):
         self._structure = structure
         self.cutoff = cutoff
+        self.allow_pathological = allow_pathological
         if target is None:
             self._target = structure.composition.elements
         else:
@@ -78,9 +87,12 @@ class VoronoiCoordFinder(object):
         for nn, vind in voro.ridge_dict.items():
             if 0 in nn:
                 if -1 in vind:
-                    raise RuntimeError("This structure is pathological,"
-                                       " infinite vertex in the voronoi "
-                                       "construction")
+                    if self.allow_pathological:
+                        continue
+                    else:
+                        raise RuntimeError("This structure is pathological,"
+                                           " infinite vertex in the voronoi "
+                                           "construction")
 
                 facets = [all_vertices[i] for i in vind]
                 results[neighbors[sorted(nn)[1]]] = solid_angle(
@@ -129,6 +141,89 @@ class VoronoiCoordFinder(object):
             if weight > tol and (target is None or site.specie == target):
                 coordinated_sites.append(site)
         return coordinated_sites
+
+
+class JMolCoordFinder:
+    """
+    Determine coordinated sites and coordination number using an emulation of 
+    JMol's default autoBond() algorithm. This version of the algorithm does not 
+    take into account any information regarding known charge states.
+    """
+
+    def __init__(self, el_radius_updates=None):
+        """
+        Initialize coordination finder parameters (atomic radii)
+        
+        Args:
+            el_radius_updates: (dict) symbol->float to override default atomic 
+                radii table values 
+        """
+
+        # load elemental radii table
+        bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  "bonds_jmol_ob.yaml")
+        with open(bonds_file, 'r') as f:
+            self.el_radius = yaml.load(f)
+
+        # update any user preference elemental radii
+        if el_radius_updates:
+            self.el_radius.update(el_radius_updates)
+
+    def get_max_bond_distance(self, el1_sym, el2_sym, constant=0.56):
+        """
+        Use JMol algorithm to determine bond length from atomic parameters
+        Args:
+            el1_sym: (str) symbol of atom 1
+            el2_sym: (str) symbol of atom 2
+            constant: (float) factor to tune model
+
+        Returns: (float) max bond length
+
+        """
+        return math.sqrt(
+            (self.el_radius[el1_sym] + self.el_radius[el2_sym] + constant) ** 2)
+
+    def get_coordination_number(self, structure, n, tol=1E-3):
+        """
+        Get the coordination number of a site
+        Args:
+            structure: (Structure)
+            n: (int) index of site in the structure to get CN for
+            tol: (float) a numerical tolerance to extend search
+
+        Returns: (int) the coordination number
+        """
+
+        return len(self.get_coordinated_sites(structure, n, tol))
+
+    def get_coordinated_sites(self, structure, n, tol=1E-3):
+        """
+        Get the coordinated sites for a site
+        Args:
+            structure: (Structure)
+            n: (int) index of site in the structure to analyze
+            tol: (float) a numerical tolerance to extend search
+
+        Returns: ([sites]) a list of coordinated sites
+        """
+        site = structure[n]
+
+        # determine relevant bond lengths based on atomic radii table
+        bonds = {}
+        for el in structure.composition.elements:
+            bonds[site.specie, el] = self.get_max_bond_distance(
+                site.specie.symbol, el.symbol)
+
+        # search for neighbors up to max bond length + tolerance
+        max_rad = max(bonds.values()) + tol
+
+        all_neighbors = []
+        for neighb, dist in structure.get_neighbors(site, max_rad):
+            # confirm neighbor based on bond length specific to atom pair
+            if dist <= bonds[(site.specie, neighb.specie)] + tol:
+                all_neighbors.append(neighb)
+
+        return all_neighbors
 
 
 def average_coordination_number(structures, freq=10):
@@ -483,6 +578,80 @@ def solid_angle(center, coords):
     return phi + (3 - len(r)) * math.pi
 
 
+def get_max_bond_lengths(structure, el_radius_updates=None):
+    """
+    Provides max bond length estimates for a structure based on the JMol
+    table and algorithms.
+    
+    Args:
+        structure: (structure)
+        el_radius_updates: (dict) symbol->float to update atomic radii
+    
+    Returns: (dict) - (Element1, Element2) -> float. The two elements are 
+        ordered by Z.
+    """
+    jmc = JMolCoordFinder(el_radius_updates)
+
+    bonds_lens = {}
+    els = sorted(structure.composition.elements, key=lambda x: x.Z)
+
+    for i1 in range(len(els)):
+        for i2 in range(len(els) - i1):
+            bonds_lens[els[i1], els[i1 + i2]] = jmc.get_max_bond_distance(
+                els[i1].symbol, els[i1 + i2].symbol)
+
+    return bonds_lens
+
+
+def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
+                       min_slab_size=5, min_vacuum_size=5,
+                       standardize=True):
+
+    """
+    This method returns whether a structure is 3D, 2D (layered), or 1D (linear 
+    chains or molecules) according to the algorithm published in Gorai, P., 
+    Toberer, E. & Stevanovic, V. Computational Identification of Promising 
+    Thermoelectric Materials Among Known Quasi-2D Binary Compounds. J. Mater. 
+    Chem. A 2, 4136 (2016).
+    
+    Note that a 1D structure detection might indicate problems in the bonding
+    algorithm, particularly for ionic crystals (e.g., NaCl)
+    
+    Args:
+        structure: (Structure) structure to analyze dimensionality for 
+        max_hkl: (int) max index of planes to look for layers
+        el_radius_updates: (dict) symbol->float to update atomic radii
+        min_slab_size: (float) internal surface construction parameter
+        min_vacuum_size: (float) internal surface construction parameter
+        standardize (bool): whether to standardize the structure before 
+            analysis. Set to False only if you already have the structure in a 
+            convention where layers / chains will be along low <hkl> indexes.
+
+    Returns: (int) the dimensionality of the structure - 1 (molecules/chains), 
+        2 (layered), or 3 (3D)
+
+    """
+    if standardize:
+        structure = SpacegroupAnalyzer(structure).\
+            get_conventional_standard_structure()
+
+    bonds = get_max_bond_lengths(structure)
+
+    num_surfaces = 0
+    for h in range(max_hkl):
+        for k in range(max_hkl):
+            for l in range(max_hkl):
+                if max([h, k, l]) > 0 and num_surfaces < 2:
+                    sg = SlabGenerator(structure, (h, k, l),
+                                       min_slab_size=min_slab_size,
+                                       min_vacuum_size=min_vacuum_size)
+                    slabs = sg.get_slabs(bonds)
+                    for _ in slabs:
+                        num_surfaces += 1
+
+    return 3 - min(num_surfaces, 2)
+
+
 def contains_peroxide(structure, relative_cutoff=1.1):
     """
     Determines if a structure contains peroxide anions.
@@ -681,7 +850,9 @@ class OrderParameters(object):
     parameters.
     """
 
-    __supported_types = ("cn", "tet", "oct", "bcc", "q2", "q4", "q6")
+    __supported_types = (
+            "cn", "lin", "bent", "tet", "tetalt", "oct", "octalt", "bcc",
+            "q2", "q4", "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -694,15 +865,23 @@ class OrderParameters(object):
                 same type may occur. Currently available types are
                 "cn"  (simple coordination number---normalized,
                       if desired),
-                "tet" [Shetty--Peters style OP recognizing tetrahedral
+                "lin" [Peters-style OP recognizing linear coordination
+                      (Zimmermann & Jain, in progress, 2017)],
+                "bent" [Peters-style OP recognizing bent coordination
+                      (Zimmermann & Jain, in progress, 2017)],
+                "tet" [Peters-style OP recognizing tetrahedral
                       coordination (Zimmermann et al.,
                       J. Am. Chem. Soc., 137, 13352-13361, 2015)],
-                "oct" [Shetty--Peters style OP recognizing octahedral
+                "oct" [Peters-style OP recognizing octahedral
                       coordination (Zimmermann et al.,
                       J. Am. Chem. Soc., 137, 13352-13361, 2015)],
-                "bcc" [Shetty--Peters style OP recognizing local
+                "bcc" [Peters-style OP recognizing local
                       body-centered cubic environment (Peters,
                       J. Chem. Phys., 131, 244103, 2009)],
+                "reg_tri" (OP recognizing coordination with a regular triangle),
+                "sq" (OP recognizing square coordination),
+                "sq_pyr" (OP recognizing square pyramidal coordination),
+                "tri_bipyr" (OP recognizing trigonal bipyramidal coord.),
                 "q2"  [Bond orientational order parameter (BOOP)
                       of weight l=2 (Steinhardt et al., Phys. Rev. B,
                       28, 784-805, 1983)],
@@ -718,11 +897,16 @@ class OrderParameters(object):
                 for their computation (values in brackets denote default
                 values):
                   "cn":  normalizing constant (1);
-                  "tet": Gaussian width in fractions of pi (180 degrees)
-                         reflecting the "speed of
-                         penalizing" deviations away from the perfect
-                         tetrahedral angle of any individual
+                  "lin": Gaussian width in fractions of pi (180 degrees)
+                         reflecting the "speed of penalizing" deviations
+                         away from 180 degrees of any individual
                          neighbor1-center-neighbor2 configuration (0.0667);
+                  "bent": target angle in degrees (180);
+                          Gaussian width for penalizing deviations away
+                          from perfect target angle in fractions of pi
+                          (0.0667);
+                  "tet": Gaussian width for penalizing deviations away
+                         perfecttetrahedral angle (0.0667);
                   "oct": threshold angle in degrees distinguishing a second
                          neighbor to be either close to the south pole or
                          close to the equator (160.0);
@@ -736,7 +920,28 @@ class OrderParameters(object):
                          different environments (e.g., tet vs oct)
                          given a single mutual threshold q_thresh;
                   "bcc": south-pole threshold angle as for "oct" (160.0);
-                         south-pole Gaussian width as for "oct" (0.0667).
+                         south-pole Gaussian width as for "oct" (0.0667);
+                  "reg_tri": Gaussian width for penalizing angles away from
+                             the expected angles, given the estimated
+                             height-to-side ratio of the trigonal pyramid
+                             in which the central atom is located at the
+                             tip (0.0222);
+                  "sq": Gaussian width for penalizing angles away from
+                        the expected angles, given the estimated
+                        height-to-diagonal ratio of the pyramid in which
+                        the central atom is located at the tip
+                        (0.0333);
+                  "sq_pyr": Gaussian width in fractions of pi
+                            for penalizing angles away from 90 degrees
+                            (0.0333);
+                            Gaussian width in Angstrom for penalizing
+                            variations in neighbor distances (0.1);
+                  "tri_bipyr": threshold angle to identify close to
+                            South pole positions (160.0, cf., oct).
+                            Gaussian width for penalizing deviations away
+                            from south pole (0.0667);
+                            Gaussian width for penalizing deviations away
+                            from equator (0.0556).
             cutoff (float):
                 Cutoff radius to determine which nearest neighbors are
                 supposed to contribute to the order parameters.
@@ -751,7 +956,7 @@ class OrderParameters(object):
             if t not in OrderParameters.__supported_types:
                 raise ValueError("Unknown order parameter type (" + \
                                  t + ")!")
-        if parameters:
+        if parameters is not None:
             if len(types) != len(parameters):
                 raise ValueError("1st dimension of parameters array is not"
                                  " consistent with types list!")
@@ -766,7 +971,8 @@ class OrderParameters(object):
             loc_parameters = [[] for t in types]
         self._types = tuple(types)
         tmpparas = []
-        self._computerijs = self._geomops = self._boops = False
+        self._computerijs = self._computerjks = self._geomops = False
+        self._geomops2 = self._boops = False
         self._max_trig_order = -1
         for i, t in enumerate(self._types):
             # add here any additional parameter checking and
@@ -782,7 +988,42 @@ class OrderParameters(object):
                                          " parameter is zero!")
                     else:
                         tmpparas[i].append(loc_parameters[i][0])
+            elif t == "lin":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i] = [1.0 / 0.0667]
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for"
+                                         " linear order"
+                                         " parameter is zero!")
+                    else:
+                        tmpparas[i] = [1.0 / loc_parameters[i][0]]
+            elif t == "bent":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i] = [1.0, 1.0 / 0.0667]
+                else:
+                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
+                            0] > 180.0:
+                        warn("Target angle for bent order parameter is"
+                            " not in ]0,180] interval.")
+                    if loc_parameters[i][1] == 0.0:
+                        raise ValueError("Gaussian width for"
+                                         " bent order"
+                                         " parameter is zero!")
+                    else:
+                        tmpparas[i] = [loc_parameters[i][0] / 180.0, \
+                                1.0 / loc_parameters[i][1]]
             elif t == "tet":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i].append(1.0 / 0.0667)
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for"
+                                         " tetrahedral order"
+                                         " parameter is zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][0])
+            elif t == "tetalt":
                 if len(loc_parameters[i]) == 0:
                     tmpparas[i].append(1.0 / 0.0667)
                 else:
@@ -801,7 +1042,7 @@ class OrderParameters(object):
                     tmpparas[i].append(4.0 / 3.0)
                 else:
                     if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
-                        0] >= 180.0:
+                            0] >= 180.0:
                         warn("Threshold value for south pole"
                              " configurations in octahedral order"
                              " parameter outside ]0,180[")
@@ -825,6 +1066,30 @@ class OrderParameters(object):
                         warn("Shift constant outside [0,1[.")
                     tmpparas[i].append(loc_parameters[i][3])
                     tmpparas[i].append(1.0 / (1.0 - loc_parameters[i][3]))
+            elif t == "octalt":
+                if len(loc_parameters[i]) < 3:
+                    tmpparas[i].append(8.0 * pi / 9.0)
+                    tmpparas[i].append(1.0 / 0.0667)
+                    tmpparas[i].append(1.0 / 0.0556)
+                else:
+                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
+                            0] >= 180.0:
+                        warn("Threshold value for south pole"
+                             " configurations in octahedral order"
+                             " parameter outside ]0,180[")
+                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
+                    if loc_parameters[i][1] == 0.0:
+                        raise ValueError("Gaussian width for south pole"
+                                         " configurations in octahedral"
+                                         " order parameter is zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][1])
+                    if loc_parameters[i][2] == 0.0:
+                        raise ValueError("Gaussian width for equatorial"
+                                         " configurations in octahedral"
+                                         " order parameter is zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][2])
             elif t == "bcc":
                 if len(loc_parameters[i]) < 2:
                     tmpparas[i].append(8.0 * pi / 9.0)
@@ -842,14 +1107,77 @@ class OrderParameters(object):
                                          " order parameter is zero!")
                     else:
                         tmpparas[i].append(1.0 / loc_parameters[i][1])
+            elif t == "reg_tri":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i] = [1.0 / 0.0222]
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for angles in"
+                                " trigonal pyramid tip of regular triangle"
+                                " order parameter is zero!")
+                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
+            elif t == "sq":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i] = [1.0 / 0.0333]
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for angles in"
+                                " pyramid tip of square order parameter"
+                                " is zero!")
+                    tmpparas[i] = [1.0 / loc_parameters[i][0]]
+            elif t == "sq_pyr":
+                if len(loc_parameters[i]) == 0:
+                    tmpparas[i] = [1.0 / 0.0333, 1.0 / 0.1]
+                else:
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for angles in"
+                                " square pyramid order parameter is zero!")
+                    if loc_parameters[i][0] == 0.0:
+                        raise ValueError("Gaussian width for lengths in"
+                                " square pyramid order parameter is zero!")
+                    tmpparas[i] = [1.0 / loc_parameters[i][0], \
+                            1.0 / loc_parameters[i][1]]
+            elif t == "tri_bipyr":
+                if len(loc_parameters[i]) < 3:
+                    tmpparas[i].append(8.0 * pi / 9.0)
+                    tmpparas[i].append(1.0 / 0.0667)
+                    tmpparas[i].append(1.0 / 0.0741)
+                else:
+                    if loc_parameters[i][0] <= 0.0 or loc_parameters[i][
+                            0] >= 180.0:
+                        warn("Threshold value for south pole"
+                             " configurations in octahedral order"
+                             " parameter outside ]0,180[")
+                    tmpparas[i].append(loc_parameters[i][0] * pi / 180.0)
+                    if loc_parameters[i][1] == 0.0:
+                        raise ValueError("Gaussian width for south pole"
+                                         " configurations in trigonal"
+                                         " bipyramidal order parameter is"
+                                         " zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][1])
+                    if loc_parameters[i][2] == 0.0:
+                        raise ValueError("Gaussian width for equatorial"
+                                         " configurations in trigonal"
+                                         " bipyramidal order parameter"
+                                         " is zero!")
+                    else:
+                        tmpparas[i].append(1.0 / loc_parameters[i][2])
             # All following types should be well-defined/-implemented,
             # and they should not require parameters.
             elif t != "q2" and t != "q4" and t != "q6":
                 raise ValueError("unknown order-parameter type \"" + t + "\"")
 
             # Add here any additional flags to be used during calculation.
-            if t == "tet" or t == "oct" or t == "bcc":
+            # self._computerijs: compute vectors from centeral atom i
+            #                    to any neighbor j.
+            # self._computerjks: compute vectors from non-centeral atom j
+            #                    to any non-central atom k.
+            if t == "tet" or t == "oct" or t == "bcc" or t == "sq_pyr" or \
+                    t == "tri_bipyr" or t == "tetalt" or t == "octalt":
                 self._computerijs = self._geomops = True
+            if t == "reg_tri" or t =="sq":
+                self._computerijs = self._computerjks = self._geomops2 = True
             if t == "q2" or t == "q4" or t == "q6":
                 self._computerijs = self._boops = True
             if t == "q2" and self._max_trig_order < 2:
@@ -898,7 +1226,7 @@ class OrderParameters(object):
 
         return len(self._last_nneigh)
 
-    def compute_trigonometric_terms(self, thetas=[], phis=[]):
+    def compute_trigonometric_terms(self, thetas, phis):
 
         """"
         Computes trigonometric terms that are required to
@@ -919,9 +1247,6 @@ class OrderParameters(object):
 
         """
 
-        if not thetas or not phis:
-            raise ValueError("No entries in list/s of polar and/or azimuthal" \
-                             " angles!")
         if len(thetas) != len(phis):
             raise ValueError("List of polar and azimuthal angles have to be"
                              " equal!")
@@ -946,7 +1271,7 @@ class OrderParameters(object):
             self._cos_n_p[i] = [math.cos(float(i) * float(p)) \
                                 for p in phis]
 
-    def get_q2(self, thetas=[], phis=[]):
+    def get_q2(self, thetas=None, phis=None):
 
         """
         Calculates the value of the bond orientational order parameter of
@@ -966,7 +1291,7 @@ class OrderParameters(object):
                 corresponding to the input angles thetas and phis.
         """
 
-        if thetas and phis:
+        if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
         nnn = len(self._pow_sin_t[1])
         nnn_range = range(nnn)
@@ -1017,7 +1342,7 @@ class OrderParameters(object):
         q2 = math.sqrt(4.0 * pi * acc / (5.0 * float(nnn * nnn)))
         return q2
 
-    def get_q4(self, thetas=[], phis=[]):
+    def get_q4(self, thetas=None, phis=None):
 
         """
         Calculates the value of the bond orientational order parameter of
@@ -1037,7 +1362,7 @@ class OrderParameters(object):
                 corresponding to the input angles thetas and phis.
         """
 
-        if thetas and phis:
+        if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
         nnn = len(self._pow_sin_t[1])
         nnn_range = range(nnn)
@@ -1128,7 +1453,7 @@ class OrderParameters(object):
         q4 = math.sqrt(4.0 * pi * acc / (9.0 * float(nnn * nnn)))
         return q4
 
-    def get_q6(self, thetas=[], phis=[]):
+    def get_q6(self, thetas=None, phis=None):
 
         """
         Calculates the value of the bond orientational order parameter of
@@ -1148,7 +1473,7 @@ class OrderParameters(object):
                 corresponding to the input angles thetas and phis.
         """
 
-        if thetas and phis:
+        if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
         nnn = len(self._pow_sin_t[1])
         nnn_range = range(nnn)
@@ -1342,7 +1667,7 @@ class OrderParameters(object):
                              " order-parameter calculation out-of-bounds!")
         return self._paras[index]
 
-    def get_order_parameters(self, structure, n, indeces_neighs=[], \
+    def get_order_parameters(self, structure, n, indeces_neighs=None, \
                              tol=0.0, target_spec=None):
 
         """
@@ -1397,7 +1722,7 @@ class OrderParameters(object):
             raise ValueError("Site index smaller zero!")
         if n >= len(structure):
             raise ValueError("Site index beyond maximum!")
-        if indeces_neighs:
+        if indeces_neighs is not None:
             for index in indeces_neighs:
                 if index >= len(structure):
                     raise ValueError("Neighbor site index beyond maximum!")
@@ -1412,7 +1737,7 @@ class OrderParameters(object):
         # Note that we adopt the same way of accessing sites here as in
         # VoronoiCoordFinder; that is, not via the sites iterator.
         centsite = structure[n]
-        if indeces_neighs:
+        if indeces_neighs is not None:
             neighsites = [structure[index] for index in indeces_neighs]
         elif self._voroneigh:
             vorocf = VoronoiCoordFinder(structure)
@@ -1436,15 +1761,32 @@ class OrderParameters(object):
 
         # Prepare angle calculations, if applicable.
         rij = []
+        rjk = []
         rijnorm = []
+        rjknorm = []
         dist = []
+        distjk_unique = []
+        distjk = []
         centvec = centsite.coords
         if self._computerijs:
             for j, neigh in enumerate(neighsites):
                 rij.append((neigh.coords - centvec))
                 dist.append(np.linalg.norm(rij[j]))
                 rijnorm.append((rij[j] / dist[j]))
-
+        if self._computerjks:
+            for j, neigh in enumerate(neighsites):
+                rjk.append([])
+                rjknorm.append([])
+                distjk.append([])
+                kk = 0
+                for k in range(len(neighsites)):
+                    if j != k:
+                        rjk[j].append(neighsites[k].coords - neigh.coords)
+                        distjk[j].append(np.linalg.norm(rjk[j][kk]))
+                        if k > j:
+                            distjk_unique.append(distjk[j][kk])
+                        rjknorm[j].append(rjk[j][kk] / distjk[j][kk])
+                        kk = kk + 1
         # Initialize OP list and, then, calculate OPs.
         ops = [0.0 for t in self._types]
 
@@ -1492,13 +1834,13 @@ class OrderParameters(object):
                     ops[i] = self.get_q6(thetas, phis) if len(
                         thetas) > 0 else None
 
-        # Then, deal with the Shetty--Peters style OPs that are tailor-made
+        # Then, deal with the Peters-style OPs that are tailor-made
         # to recognize common structural motifs
-        # (Shetty et al., J. Chem. Phys., 117, 4000-4009, 2002;
-        #  Peters, J. Chem. Phys., 131, 244103, 2009;
+        # (Peters, J. Chem. Phys., 131, 244103, 2009;
         #  Zimmermann et al., J. Am. Chem. Soc., under revision, 2015).
         if self._geomops:
             gaussthetak = [0.0 for t in self._types]  # not used by all OPs
+            qsptheta = [[] for t in self._types]  # not used by all OPs
             ipi = 1.0 / pi
             piover2 = pi / 2.0
             tetangoverpi = math.acos(-1.0 / 3.0) * ipi
@@ -1506,7 +1848,8 @@ class OrderParameters(object):
 
             for j in range(nneigh):  # Neighbor j is put to the North pole.
                 zaxis = rijnorm[j]
-
+                for i, t in enumerate(self._types):
+                    qsptheta[i].append(0.0)
                 for k in range(nneigh):  # From neighbor k, we construct
                     if j != k:  # the prime meridian.
                         tmp = max(
@@ -1522,11 +1865,18 @@ class OrderParameters(object):
                         # Contributions of j-i-k angles, where i represents the central atom
                         # and j and k two of the neighbors.
                         for i, t in enumerate(self._types):
-                            if t == "tet":
+                            if t == "lin":
+                                tmp = self._paras[i][0] * (thetak * ipi - 1.0)
+                                ops[i] += exp(-0.5 * tmp * tmp)
+                            elif t == "bent":
+                                tmp = self._paras[i][1] * (
+                                    thetak * ipi - self._paras[i][0])
+                                ops[i] += exp(-0.5 * tmp * tmp)
+                            elif t == "tet" or t == "tetalt":
                                 tmp = self._paras[i][0] * (
                                     thetak * ipi - tetangoverpi)
                                 gaussthetak[i] = math.exp(-0.5 * tmp * tmp)
-                            elif t == "oct":
+                            elif t == "oct" or t == "octalt":
                                 if thetak >= self._paras[i][0]:
                                     # k is south pole to j
                                     tmp = self._paras[i][1] * (
@@ -1538,6 +1888,14 @@ class OrderParameters(object):
                                     tmp = self._paras[i][1] * (
                                         thetak * ipi - 1.0)
                                     ops[i] += 6.0 * math.exp(-0.5 * tmp * tmp)
+                            elif t == "sq_pyr":
+                                tmp = self._paras[i][0] * (thetak * ipi - 0.5)
+                                qsptheta[i][j] = qsptheta[i][j] + exp(-0.5 * tmp * tmp)
+                            elif t == "tri_bipyr":
+                                if thetak >= self._paras[i][0]:
+                                    tmp = self._paras[i][1] * (
+                                        thetak * ipi - 1.0)
+                                    qsptheta[i][j] = 2.0 * math.exp(-0.5 * tmp * tmp)
 
                         for m in range(nneigh):
                             if (m != j) and (m != k) and (not flag_xaxis):
@@ -1565,6 +1923,12 @@ class OrderParameters(object):
                                             ops[i] += gaussthetak[i] * math.exp(
                                                 -0.5 * tmp * tmp) * math.cos(
                                                 3.0 * phi)
+                                        elif t == "tetalt":
+                                            tmp = self._paras[i][0] * (
+                                                thetam * ipi - tetangoverpi)
+                                            tmp2 = math.cos(1.5 * phi)
+                                            ops[i] += gaussthetak[i] * math.exp(
+                                                -0.5 * tmp * tmp) * tmp2 * tmp2
                                         elif t == "oct":
                                             if thetak < self._paras[i][0] and \
                                                             thetam < \
@@ -1577,6 +1941,15 @@ class OrderParameters(object):
                                                               math.exp(
                                                                   -0.5 * tmp2 * tmp2) - \
                                                               self._paras[i][3])
+                                        elif t == "octalt":
+                                            if thetak < self._paras[i][0] and \
+                                                    thetam < self._paras[i][0]:
+                                                tmp = math.cos(2.0 * phi)
+                                                tmp2 = self._paras[i][2] * (
+                                                        thetam * ipi - 0.5)
+                                                ops[i] += tmp * tmp * \
+                                                        math.exp(
+                                                        -0.5 * tmp2 * tmp2)
                                         elif t == "bcc" and j < k:
                                             if thetak < self._paras[i][0]:
                                                 if thetak > piover2:
@@ -1590,25 +1963,88 @@ class OrderParameters(object):
                                                           1.6 * tmp * \
                                                           math.exp(
                                                               -0.5 * tmp * tmp)
+                                        elif t == "tri_bipyr":
+                                            if thetak < self._paras[i][0] and \
+                                                    thetam < self._paras[i][0]:
+                                                tmp = math.cos(1.5 * phi)
+                                                tmp2 = self._paras[i][2] * (
+                                                    thetam * ipi - 0.5)
+                                                qsptheta[i][j] += \
+                                                    tmp * tmp * math.exp( \
+                                                    -0.5 * tmp2 * tmp2)
 
-            # Normalize Shetty--Peters style OPs.
+
+            # Normalize Peters-style OPs.
             for i, t in enumerate(self._types):
-                if t == "tet":
-                    ops[i] = ops[i] / 24.0 if nneigh > 2 else None
-
-                elif t == "oct":
-                    ops[i] = ops[i] / 90.0 if nneigh > 2 else None
-
+                if t == "lin":
+                    ops[i] = ops[i] / float(nneigh * (
+                            nneigh - 1)) if nneigh > 1 else None
+                elif t == "bent":
+                    ops[i] = ops[i] / float(nneigh * (
+                            nneigh - 1)) if nneigh > 1 else None
+                elif t == "tet" or t == "tetalt":
+                    ops[i] = ops[i] / float(nneigh * (nneigh - 1) * (
+                            nneigh - 2)) if nneigh > 2 else None
+                elif t == "oct" or t == "octalt":
+                    ops[i] = ops[i] / float(nneigh * (3 + (nneigh - 2) * (
+                            nneigh - 3))) if nneigh > 3 else None
                 elif t == "bcc":
-                    # Reassured 144 by pen-and-paper for perfect bcc
-                    # structure (24 from i-j-k South pole contributions
-                    # and 4 * 6 * 5 = 120 from i-j-k-m non-South
-                    # pole-containing quadruples.
-                    # Because qbcc has a separate South pole contribution
-                    # as summand, it is sufficient to have 2 neighbors to
-                    # obtain a configuration that is well-defined by
-                    # yielding a contribution to qbcc via thetak alone:
-                    # ==> nneigh > 1.
-                    ops[i] = ops[i] / 144.0 if nneigh > 1 else None
+                    ops[i] = ops[i] / float(0.5 * float(
+                            nneigh * (6 + (nneigh - 2) * (nneigh - 3)))) \
+                            if nneigh > 3 else None
+                elif t == "sq_pyr":
+                    if nneigh > 1:
+                        dmean = np.mean(dist)
+                        acc = 0.0
+                        for d in dist:
+                            tmp = self._paras[i][1] * (d - dmean)
+                            acc = acc + exp(-0.5 * tmp * tmp)
+                        ops[i] = acc * max(qsptheta[i]) / float(
+                                nneigh * (nneigh - 1))
+                    else:
+                        ops[i] = None
+                elif t == "tri_bipyr":
+                    ops[i] = max(qsptheta[i]) / float(
+                            2 + (nneigh - 2) * (nneigh - 3)) if nneigh > 3 \
+                            else None
+
+
+        # Then, deal with the new-style OPs that require vectors between
+        # neighbors.
+        if self._geomops2:
+            # Compute all (unique) angles and sort the resulting list.
+            aij = []
+            for ir, r in enumerate(rijnorm):
+                for j in range(ir+1, len(rijnorm)):
+                    aij.append(math.acos(max(-1.0, min(np.inner(
+                            r, rijnorm[j]), 1.0))))
+            aijs = sorted(aij)
+
+            # Compute height, side and diagonal length estimates.
+            neighscent = np.array([0.0, 0.0, 0.0])
+            for j, neigh in enumerate(neighsites):
+                neighscent = neighscent + neigh.coords
+            if nneigh > 0:
+                neighscent = (neighscent / float(nneigh))
+            h = np.linalg.norm(neighscent - centvec)
+            b = min(distjk_unique) if len(distjk_unique) > 0 else 0
+            dhalf = max(distjk_unique) / 2.0 if len(distjk_unique) > 0 else 0
+
+            for i, t in enumerate(self._types):
+                if t == "reg_tri" or t == "sq":
+                    if nneigh < 3:
+                        ops[i] = None
+                    else:
+                        ops[i] = 1.0
+                        if t == "reg_tri":
+                            a = 2.0 * asin(b / (2.0 * sqrt(h*h + (b / (
+                                    2.0 * cos(3.0 * pi / 18.0)))**2.0)))
+                            nmax = 3
+                        else:
+                            a = 2.0 * asin(b / (2.0 * sqrt(h*h + dhalf*dhalf)))
+                            nmax = 4
+                        for j in range(min([nneigh,nmax])):
+                            ops[i] = ops[i] * exp(-0.5 * ((
+                                    aijs[j] - a) * self._paras[i][0])**2)
 
         return ops

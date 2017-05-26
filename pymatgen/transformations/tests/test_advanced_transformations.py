@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-import unittest2 as unittest
+import unittest
 import os
 import json
 
@@ -17,12 +17,13 @@ from pymatgen.transformations.advanced_transformations import \
     SuperTransformation, EnumerateStructureTransformation, \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
     SubstitutionPredictorTransformation, MagOrderingTransformation, \
-    DopingTransformation, _find_codopant
+    DopingTransformation, _find_codopant, SlabTransformation
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.energy_models import IsingModel
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.surface import SlabGenerator
 
 """
 Created on Jul 24, 2012
@@ -297,9 +298,8 @@ class DopingTransformationTest(PymatgenTest):
                                      max_structures_per_enum=1000)
             ss = t.apply_transformation(structure, 1000)
             self.assertEqual(len(ss), nstructures)
-            if __name__ == '__main__':
-                for d in ss:
-                    self.assertEqual(d["structure"].charge, 0)
+            for d in ss:
+                self.assertEqual(d["structure"].charge, 0)
 
         # Make sure compensation is done with lowest oxi state
         structure = PymatgenTest.get_structure("SrTiO3")
@@ -324,6 +324,32 @@ class DopingTransformationTest(PymatgenTest):
     def test_find_codopant(self):
         self.assertEqual(_find_codopant(Specie("Fe", 2), 1), Specie("Cu", 1))
         self.assertEqual(_find_codopant(Specie("Fe", 2), 3), Specie("In", 3))
+
+
+class SlabTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+        s = self.get_structure("LiFePO4")
+        trans = SlabTransformation([0, 0, 1], 10, 10, shift = 0.25)
+        gen = SlabGenerator(s, [0, 0, 1], 10, 10)
+        slab_from_gen = gen.get_slab(0.25)
+        slab_from_trans = trans.apply_transformation(s)
+        self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix, 
+                                    slab_from_trans.lattice.matrix)
+        self.assertArrayAlmostEqual(slab_from_gen.cart_coords, 
+                                    slab_from_trans.cart_coords)
+
+        fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"],
+                                        [[0, 0, 0]])
+        trans = SlabTransformation([1, 1, 1], 10, 10)
+        slab_from_trans = trans.apply_transformation(fcc)
+        gen = SlabGenerator(fcc, [1, 1, 1], 10, 10)
+        slab_from_gen = gen.get_slab()
+        self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix,
+                                    slab_from_trans.lattice.matrix)
+        self.assertArrayAlmostEqual(slab_from_gen.cart_coords, 
+                                    slab_from_trans.cart_coords)
+
 
 if __name__ == "__main__":
     import logging

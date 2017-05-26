@@ -42,7 +42,9 @@ Matgenie & Examples
 
 The `Materials Virtual Lab`_ has developed a
 `matgenie web app <http://matgenie.materialsvirtuallab.org>`_ which
-demonstrates some of the basic functionality of pymatgen.
+demonstrates some of the basic functionality of pymatgen, as well as a
+`matgenb repository <http://matgenb.materialsvirtuallab.org>`_ of
+Jupyter notebooks for common and advanced use cases.
 
 Another good way to explore the functionality of pymatgen is to look at the
 examples in a :doc:`series of ipython notebooks </examples>`.
@@ -76,21 +78,18 @@ several advantages over other codes out there:
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly.
 3. **It is open.** You are free to use and contribute to pymatgen. It also means
-   that pymatgen is continuously being improved. We have a policy of
-   attributing any code you contribute to any publication you choose.
-   Contributing to pymatgen means your research becomes more visible, which
-   translates to greater impact.
+   that pymatgen is continuously being improved. We will attribute any code you
+   contribute to any publication you specify. Contributing to pymatgen means
+   your research becomes more visible, which translates to greater impact.
 4. **It is fast.** Many of the core numerical methods in pymatgen have been
-   optimized by vectorizing in numpy. This means that coordinate
+   optimized by vectorizing in numpy/scipy. This means that coordinate
    manipulations are extremely fast and are in fact comparable to codes
    written in other languages. Pymatgen also comes with a complete system for
    handling periodic boundary conditions.
 5. **It will be around.** Pymatgen is not a pet research project. It is used in
    the well-established Materials Project. It is also actively being developed
-   and maintained by the Materials Virtual Lab, the ABINIT group and many other
-   research groups. The plan is to make sure pymatgen will stand the test of
-   time and be the de facto analysis code for most materials and structural
-   analysis.
+   and maintained by the `Materials Virtual Lab`_, the ABINIT group and many
+   other research groups.
 
 With effect from version 3.0, pymatgen now supports both Python 2.7 as well
 as Python 3.x. For developers working to add new features to pymatgen, this
@@ -106,8 +105,8 @@ compatible. Our approach is to have a single codebase support Python 2.7 and
 Getting pymatgen
 ================
 
-Conda install (recommended)
----------------------------
+Conda (recommended)
+-------------------
 
 If you are absolutely new to Python and/or are using Windows, the easiest
 installation process is using `conda <http://conda.pydata.org>`_. The
@@ -122,17 +121,17 @@ pymatgen can be installed from the `matsci channel on Anaconda cloud <https://an
 Step-by-step instructions for all platforms are available at the
 :doc:`installation page </installation>`.
 
-Standard install
-----------------
+Pip
+---
 
 .. note:: Preparation
 
     Before installing pymatgen, you may need to first install a few critical
     dependencies manually.
 
-    1. It is highly recommended that you use Python>=2.7.9 or >=3.5+. In
+    1. It is highly recommended that you use Python>=2.7.9 or latest 3.x. In
        fact, unless you are very sure you have dependencies that require Python
-       2, it is highly recommended that you use Python >=3.5+.
+       2, it is highly recommended that you use latest Python 3.x.
     2. Installation has been tested to be most successful with gcc. Use gcc
        where possible and do "export CC=gcc" prior to installation.
     3. Numpy's distutils is needed to compile the spglib and pyhull
@@ -190,8 +189,8 @@ install. This guarantees the right version of python and all dependencies::
     # Install numpy and other pydata stack packages via conda.
     conda install --yes pymatgen
 
-Using pymatgen
-==============
+Usage
+=====
 
 .. figure:: _static/overview.jpg
    :width: 100%
@@ -336,6 +335,10 @@ some quick examples of the core capabilities and objects:
     >>> # The following changes the C in CH4 to an N and displaces it by 0.01A
     >>> # in the x-direction.
     >>> methane[0] = "N", [0.01, 0, 0]
+    >>>
+    >>> # If you set up your .pmgrc.yaml with your Materials Project API key
+    >>> # You can now easily grab structures from the Materials Project.
+    >>> lifepo4 = mg.get_structure_from_mp("LiFePO4")
 
 The above illustrates only the most basic capabilities of pymatgen. Users are
 strongly encouraged to explore the :doc:`usage pages </usage>` (toc given below).
@@ -376,38 +379,46 @@ pmg. The typical usage of pmg is::
 
 At any time, you can use ``"pmg --help"`` or ``"pmg subcommand
 --help"`` to bring up a useful help message on how to use these subcommands.
+With effect from v4.6.0, ``pmg`` also supports bash completion using
+argcomplete, which is useful given the many options available in the cli tool.
+To enable argcomplete, ``pip install argcomplete`` and either follow
+argcomplete's instructions for enabling global completion, or add the following
+line to your ``.bash_profile`` (this method usually works more reliably)::
+
+   eval "$(register-python-argcomplete pmg)"
+
 Here are a few examples of typical usages::
 
-    #Parses all vasp runs in a directory and display the basic energy
-    #information. Saves the data in a file called vasp_data.gz for subsequent
-    #reuse.
+    # Parses all vasp runs in a directory and display the basic energy
+    # information. Saves the data in a file called vasp_data.gz for subsequent
+    # reuse.
 
     pmg analyze .
 
-    #Plot the dos from the vasprun.xml file.
+    # Plot the dos from the vasprun.xml file.
 
     pmg plotdos vasprun.xml
 
-    #Convert between file formats. The script attempts to intelligently
-    #determine the file type. Input file types supported include CIF,
-    #vasprun.xml, POSCAR, CSSR. You can force the script to assume certain file
-    #types by specifying additional arguments. See pmg convert -h.
+    # Convert between file formats. The script attempts to intelligently
+    # determine the file type. Input file types supported include CIF,
+    # vasprun.xml, POSCAR, CSSR. You can force the script to assume certain file
+    # types by specifying additional arguments. See pmg convert -h.
 
     pmg convert input_filename output_filename.
 
-    #Obtain spacegroup information.
+    # Obtain spacegroup information.
 
     pmg symm -s filename1 filename2
 
-    #Visualize a structure. Requires VTK to be installed.
+    # Visualize a structure. Requires VTK to be installed.
 
     pmg view filename
 
-    #Compare two structures for similarity
+    # Compare two structures for similarity
 
     pmg compare filename1 filename2
 
-    #Generate a POTCAR with symbols Li_sv O and the PBE functional
+    # Generate a POTCAR with symbols Li_sv O and the PBE functional
 
     pmg generate --potcar Li_sv O --functional PBE
 
@@ -479,8 +490,8 @@ follows:
 
 .. literalinclude:: ../LICENSE.rst
 
-About the Pymatgen Development Team
-===================================
+About the Team
+==============
 
 Shyue Ping Ong of the `Materials Virtual Lab`_ started Pymatgen in 2011, and is
 still the project lead.

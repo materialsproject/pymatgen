@@ -18,7 +18,7 @@ __email__ = "ajain@lbl.gov"
 __date__ = "2/14/13"
 
 import datetime
-import unittest2 as unittest
+import unittest
 import numpy as np
 
 from pymatgen import Structure, Molecule
@@ -93,6 +93,13 @@ class StructureNLCase(unittest.TestCase):
         StructureNL(self.s, self.hulk, references=self.pmg)
 
     def test_references(self):
+        # An empty string should be OK
+        StructureNL(self.s, self.hulk, references="")
+
+        # An empty list should not work
+        self.assertRaises(ValueError, StructureNL, self.s, self.hulk,
+                          references=[])
+
         # junk reference should not work
         self.assertRaises(ValueError, StructureNL, self.s, self.hulk,
                           references=self.junk)

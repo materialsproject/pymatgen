@@ -125,6 +125,7 @@ class XcFunc(MSONable):
     @classmethod
     def from_abinit_ixc(cls, ixc):
         """Build the object from Abinit ixc (integer)"""
+        ixc = int(ixc)
         if ixc >= 0:
             return cls(**cls.abinitixc_to_libxc[ixc])
         else:

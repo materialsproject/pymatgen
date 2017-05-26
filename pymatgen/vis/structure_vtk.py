@@ -881,7 +881,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
         bitrate (str): Video bitate.  Defaults to "10000k" (fairly high
             quality).
         quality (int): A quality scale. Defaults to 1.
-        \*\*kwargs: Any kwargs supported by StructureVis to modify the images
+        \\*\\*kwargs: Any kwargs supported by StructureVis to modify the images
             generated.
     """
     vis = StructureVis(**kwargs)

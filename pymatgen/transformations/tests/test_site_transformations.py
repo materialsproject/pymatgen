@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 15, 2012"
 
-import unittest2 as unittest
+import unittest
 
 import numpy as np
 
@@ -24,7 +24,8 @@ from pymatgen import Lattice, Structure
 from pymatgen.transformations.site_transformations import \
     InsertSitesTransformation, TranslateSitesTransformation, \
     ReplaceSiteSpeciesTransformation, RemoveSitesTransformation, \
-    PartialRemoveSitesTransformation
+    PartialRemoveSitesTransformation, AddSitePropertyTransformation
+from pymatgen.util.testing import PymatgenTest
 
 from monty.os.path import which
 
@@ -265,6 +266,23 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
     def test_str(self):
         d = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).as_dict()
         self.assertIsNotNone(str(d))
+
+
+class AddSitePropertyTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+        s = self.get_structure("Li2O2")
+        sd = [[True, True, True] for site in s.sites]
+        bader = np.random.random(s.num_sites).tolist()
+        site_props = {"selective_dynamics" : sd, "bader": bader}
+        trans = AddSitePropertyTransformation(site_props)
+        manually_set = s.copy()
+        for prop, value in site_props.items():
+            manually_set.add_site_property(prop, value)
+        trans_set = trans.apply_transformation(s)
+        for prop in site_props:
+            self.assertArrayAlmostEqual(trans_set.site_properties[prop],
+                                        manually_set.site_properties[prop])
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
