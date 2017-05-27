@@ -15,6 +15,7 @@ Submodules
    pymatgen.symmetry.analyzer
    pymatgen.symmetry.bandstructure
    pymatgen.symmetry.groups
+   pymatgen.symmetry.maggroups
    pymatgen.symmetry.structure
 
 Module contents
