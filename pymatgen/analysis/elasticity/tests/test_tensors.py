@@ -6,7 +6,6 @@ import os
 
 import numpy as np
 from monty.serialization import loadfn
-
 from pymatgen.analysis.elasticity.tensors import *
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
