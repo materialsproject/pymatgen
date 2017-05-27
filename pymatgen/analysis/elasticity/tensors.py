@@ -270,7 +270,7 @@ class Tensor(np.ndarray):
             t[ind] = voigt_input[this_voigt_map[ind]]
         return cls(t)
 
-    def convert_to_ieee(self, structure):
+    def convert_to_ieee(self, structure, initial_fit=True):
         """
         Given a structure associated with a tensor, attempts a
         calculation of the tensor in IEEE format according to
@@ -279,6 +279,12 @@ class Tensor(np.ndarray):
         Args:
             structure (Structure): a structure associated with the
                 tensor to be converted to the IEEE standard
+            initial_fit (bool): flag to indicate whether initial
+                tensor is fit to the symmetry of the structure.
+                Defaults to true. Note that if false, inconsistent
+                results may be obtained due to symmetrically
+                equivalent, but distinct transformations
+                being used in different versions of spglib.
         """
 
         def get_uvec(v):
@@ -348,7 +354,10 @@ class Tensor(np.ndarray):
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[1]))
             rotation[0] = np.cross(rotation[1], rotation[2])
 
-        return self.rotate(rotation, tol=1e-2)
+        result = self.copy()
+        if initial_fit:
+            result = result.fit_to_structure(structure)
+        return result.rotate(rotation, tol=1e-2)
 
 
 class TensorCollection(collections.Sequence):
