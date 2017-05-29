@@ -162,7 +162,7 @@ class BoltztrapRunner(object):
         self.tauen = tauen
         self.soc = soc
         self.kpt_line = kpt_line
-        if doping:
+        if isinstance(doping, list) and len(doping) > 0:
             self.doping = doping
         else:
             self.doping = []
