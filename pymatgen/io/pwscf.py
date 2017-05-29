@@ -273,7 +273,7 @@ class PWInput(object):
                     kpoints_mode = mode[1]
             elif mode[0] == "structure":
                 m_l = re.match(r'(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)', line)
-                m_p = re.match(r'(\w+)\s+(-?\d+\.\d*)+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)', line)
+                m_p = re.match(r'(\w+)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)', line)
                 if m_l:
                     lattice += [ float(m_l.group(1)), float(m_l.group(2)), float(m_l.group(3)) ]
                 elif m_p:
