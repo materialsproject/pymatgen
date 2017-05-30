@@ -15,6 +15,7 @@ from pymatgen.core import Lattice
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.groups import SymmetryGroup, in_array_list
 from pymatgen.core.operations import MagSymmOp
+from pymatgen.util.string import transformation_to_string
 
 import sqlite3
 from array import array
@@ -186,8 +187,8 @@ class MagneticSpaceGroup(SymmetryGroup):
                                      [s[16], s[17], s[18]],
                                      [s[19], s[20], s[21]]]
                     # store string representation, e.g. (x,y,z;mx,my,mz)
-                    wyckoff_str = "({};{})".format(_transformation_to_string(matrix, translation_vec),
-                                                   _transformation_to_string(matrix_magmom, c='m'))
+                    wyckoff_str = "({};{})".format(transformation_to_string(matrix, translation_vec),
+                                                   transformation_to_string(matrix_magmom, c='m'))
                     sites.append({'translation_vec': translation_vec,
                                   'matrix': matrix,
                                   'matrix_magnetic': matrix_magmom,
@@ -229,7 +230,7 @@ class MagneticSpaceGroup(SymmetryGroup):
                  [b[6], b[7], b[8]]]
             p = [b[9]/b[12], b[10]/b[12], b[11]/b[12]]
             P = np.array(P).transpose()
-            P_string = _transformation_to_string(P, components=('a', 'b', 'c'))
+            P_string = transformation_to_string(P, components=('a', 'b', 'c'))
             p_string = "{},{},{}".format(Fraction(p[0]).limit_denominator(),
                                          Fraction(p[1]).limit_denominator(),
                                          Fraction(p[2]).limit_denominator())
@@ -480,41 +481,6 @@ class MagneticSpaceGroup(SymmetryGroup):
         :return: str
         """
         return self.data_str(include_og=False)
-
-
-def _transformation_to_string(matrix, translation_vec=(0, 0, 0), components=('x', 'y', 'z'), c=''):
-    """
-    Private convenience method. Given matrix returns string, e.g. x+2y+1/4
-    :param matrix
-    :param translation_vec
-    :param components: either ('x', 'y', 'z') or ('a', 'b', 'c')
-    :param c: optional additional character to print (used for magmoms)
-    :return: xyz string
-    """
-    parts = []
-    for i in range(3):
-        s = ''
-        m = matrix[i]
-        t = translation_vec[i]
-        for j, dim in enumerate(components):
-            if m[j] != 0:
-                f = Fraction(m[j]).limit_denominator()
-                if s != '' and f >= 0:
-                    s += '+'
-                if abs(f.numerator) != 1:
-                    s += str(f.numerator)
-                elif f < 0:
-                    s += '-'
-                s += c + dim
-                if f.denominator != 1:
-                    s += '/' + str(f.denominator)
-        if t != 0:
-            s += ('+' if (t > 0 and s != '') else '') + str(Fraction(t))
-        if s == '':
-            s += '0'
-        parts.append(s)
-    return ','.join(parts)
-
 
 def _write_all_magnetic_space_groups_to_file(filename):
     """
